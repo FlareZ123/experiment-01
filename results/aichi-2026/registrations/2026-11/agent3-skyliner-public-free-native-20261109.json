@@ -1,0 +1,455 @@
+{
+  "schema": "agent3-skyliner-public-native-prospective-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "date": "2026-11-09",
+  "purpose": "Generalize the observed source-independent zero-cost Skyliner Mimikyu mobility correction to fresh and lock-pressure original matches without changing the exact printed sixty",
+  "printedFixed60": "results/aichi-2026/candidate-hood-consistency-v2.json",
+  "printedFixed60GitBlobSha": "16d8b3513b83b46477252fd05bc05852664f8972",
+  "originalRosterPath": "results/aichi-2026/full-decklists.json",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "frozenPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "frozenPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperSemanticsProfile": "agent19-composed-paper-semantics-profile-v1",
+  "nativeRootLimit": 260,
+  "originalRanks": [
+    5,
+    6,
+    7,
+    11
+  ],
+  "arms": [
+    "baseline-public",
+    "skyliner-public"
+  ],
+  "sourceGroups": [
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3414244152,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 199806056,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1168493478,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2547681601,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 1450626031,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3247923013,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 2593975220,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 3037901913,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3436217009,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3612396633,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1246016089,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2107611898,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 4128464117,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 1146344419,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 3041558884,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 645143577,
+      "sample": "PROSPECTIVE"
+    }
+  ],
+  "registeredGroups": 16,
+  "registeredNativeAttempts": 32,
+  "controlOnlyFlags": {},
+  "treatmentOnlyFlags": {
+    "actorSkylinerFundedBenchRetreatRoot": true
+  },
+  "policySourceHashes": [
+    {
+      "path": "simulation/twinleaf/agent2-owner-skyliner-funded-bench-frontier.cjs",
+      "sha": "21f9eee844e8383dee8731a6d6034727cc7e050e"
+    },
+    {
+      "path": "simulation/twinleaf/agent6-skyliner-ability-suppression-guard.cjs",
+      "sha": "0298837cdb6943d2228d19c88ca3e5eba8dfe108"
+    },
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sha": "837e3604e9a8e5fb2396566801e1b139d13246b6"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sha": "d6b1f3eb908141eb78339f45706d30b10ca4694a"
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3414244152,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "5:9601:A:baseline-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3414244152,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "5:9601:A:skyliner-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 199806056,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "5:9602:A:baseline-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 199806056,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "5:9602:A:skyliner-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1168493478,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "5:9601:B:baseline-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1168493478,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "5:9601:B:skyliner-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2547681601,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "5:9602:B:baseline-public"
+    },
+    {
+      "rank": 5,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2547681601,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "5:9602:B:skyliner-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 1450626031,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "6:9601:A:baseline-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 1450626031,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "6:9601:A:skyliner-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3247923013,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "6:9602:A:baseline-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3247923013,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "6:9602:A:skyliner-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 2593975220,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "6:9601:B:baseline-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 2593975220,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "6:9601:B:skyliner-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 3037901913,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "6:9602:B:baseline-public"
+    },
+    {
+      "rank": 6,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 3037901913,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "6:9602:B:skyliner-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3436217009,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "7:9601:A:baseline-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 3436217009,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "7:9601:A:skyliner-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3612396633,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "7:9602:A:baseline-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 3612396633,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "7:9602:A:skyliner-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1246016089,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "7:9601:B:baseline-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 1246016089,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "7:9601:B:skyliner-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2107611898,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "7:9602:B:baseline-public"
+    },
+    {
+      "rank": 7,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 2107611898,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "7:9602:B:skyliner-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 4128464117,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "11:9601:A:baseline-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "A",
+      "seed": 4128464117,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "11:9601:A:skyliner-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 1146344419,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "11:9602:A:baseline-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "A",
+      "seed": 1146344419,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "11:9602:A:skyliner-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 3041558884,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "11:9601:B:baseline-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9601,
+      "candidateSlot": "B",
+      "seed": 3041558884,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "11:9601:B:skyliner-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 645143577,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-public",
+      "id": "11:9602:B:baseline-public"
+    },
+    {
+      "rank": 11,
+      "repeat": 9602,
+      "candidateSlot": "B",
+      "seed": 645143577,
+      "sample": "PROSPECTIVE",
+      "candidateId": "skyliner-public",
+      "id": "11:9602:B:skyliner-public"
+    }
+  ],
+  "analysisRule": "Require full physical two-player deal, source opening and native starter match, retain all 16 groups including caps/aborts, use sharp win difference bounds without imputation, record both owner roots/attacks; 0 paper-qualified by default",
+  "novelty": "New RNG seeds and new public Ability-aware root, no reuse of rank5 8102 historical chosen anchor"
+}
