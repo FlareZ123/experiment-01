@@ -59,6 +59,10 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs
           node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs > agent37-simultaneous-terminal-v4-duplicate-guard-native.json
+      - name: Agent37 generic physical Prize prompt membership contract
+        run: |
+          node --check simulation/twinleaf/agent37/native-prize-physical-selection.cjs
+          node tests/2026-11/agent37-native-prize-physical-selection.test.cjs
       - name: Agent37 v5 native heterogenous Prize owner-choice prompt
         run: |
           node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-adapter.cjs
