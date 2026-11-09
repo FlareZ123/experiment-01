@@ -378,6 +378,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
     if(donor)return donor;
   }
+  if(options.rank13CrispinRoot===true){
+    const crispin=require('./agent5/rank13-crispin-owner-funding.cjs')
+      .chooseRank13CrispinRoot(view);
+    if(crispin)return crispin;
+  }
   if(options.rank13DdeEnergyRoot===true){
     const funding=require('./agent8-rank13-double-dragon-energy-frontier.cjs')
       .chooseRank13DoubleDragonRoot(view);
@@ -935,6 +940,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const ownerArvenPending=new Map();
   const typedEarlyCompressorReplies=new WeakMap();
   const ownerEarlyCompressorPending=new Map();
+  const typedRank13CrispinReplies=new WeakMap();
+  const ownerRank13CrispinPending=new Map();
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
   const typedRank7BridgeReplies=new WeakMap();
@@ -1124,6 +1131,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     earlyRegidragoCompressorPromptsProposed:0,
     earlyRegidragoCompressorPromptsAccepted:0,
     earlyRegidragoCompressorDonorsMoved:0,
+    rank13CrispinRootOptIn:deps.rank13CrispinRoot===true,
+    rank13CrispinRootOwnerSeat:deps.rank13CrispinRootOwnerSeat??null,
+    rank13CrispinNativeSearchAccepted:0,
+    rank13CrispinNativeBenchAttachmentsAccepted:0,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
@@ -1522,6 +1533,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.earlyRegidragoCompressorOptIn)
     audit.version+='+'+
       require('./agent49/early-regidrago-compressor.cjs').VERSION;
+  if(audit.rank13CrispinRootOptIn)
+    audit.version+='+'+
+      require('./agent5/rank13-crispin-owner-funding.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -1984,6 +1998,9 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.earlyRegidragoCompressorOwnerSeat,seat),
       earlyRegidragoCompressorAllowFirstOwnTurnTwo:
         audit.earlyRegidragoCompressorAllowFirstOwnTurnTwo,
+      rank13CrispinRoot:actorSpecialEnergyEnabled(
+        audit.rank13CrispinRootOptIn,
+        audit.rank13CrispinRootOwnerSeat,seat),
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
@@ -2295,6 +2312,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-regidrago-crispin':
       case 'play-regidrago-battle-compressor':
       case 'play-mysterious-treasure':
       case 'play-quick-ball':
