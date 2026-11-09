@@ -3,17 +3,17 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const registration=require('../../results/aichi-2026/registrations/agent19-dual-fixed60-four-source-papercore-prospective-20261109.json');
-const frozen=require('./agent41-frozen-bilateral-development-v2.json');
+const registration=require('../../../results/aichi-2026/registrations/agent19-dual-fixed60-four-source-papercore-prospective-20261109.json');
+const frozen=require('../agent41-frozen-bilateral-development-v2.json');
 const {runDevelopment,validateRegisteredTrialGroups}=
-  require('./agent41-bilateral-v2-development.cjs');
-const {classifyNativeAttempt}=require('./agent41-native-attempt-disposition.cjs');
+  require('../agent41-bilateral-v2-development.cjs');
+const {classifyNativeAttempt}=require('../agent41-native-attempt-disposition.cjs');
 const {withIndependentSeatRng}=
-  require('../twinleaf/agent19-independent-seat-rng.cjs');
+  require('../../twinleaf/agent19-independent-seat-rng.cjs');
 const {withPaperSemanticsProfileV1,VERSION:PROFILE_VERSION,PINNED_TWINLEAF}=
-  require('../twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs');
+  require('../../twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs');
 
-const ROOT=path.resolve(__dirname,'../..');
+const ROOT=path.resolve(__dirname,'../../..');
 const OUTPUT=path.join(ROOT,'agent19-fourrank-fixed60-fresh-native.json');
 const VERSION='agent19-dual-fixed60-four-source-paperprofile-prospective-v1';
 
@@ -42,8 +42,8 @@ function inspect(){
   for(const {path:filepath,blob} of registration.frozenSourceAndPolicyGitBlobs)
     assert.equal(gitBlob(fs.readFileSync(path.join(ROOT,filepath))),blob,
       'Registered code/printed card manifest drift: '+filepath);
-  const {authenticatedSourceRanks}=require('./agent25-authenticated-source-admission.cjs');
-  const roster=require('../../results/aichi-2026/full-decklists.json');
+  const {authenticatedSourceRanks}=require('../agent25-authenticated-source-admission.cjs');
+  const roster=require('../../../results/aichi-2026/full-decklists.json');
   const admitted=authenticatedSourceRanks(roster,true);
   validateRegisteredTrialGroups(registration.registeredTrials,admitted);
   const groups=new Map();
