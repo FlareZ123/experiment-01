@@ -39,6 +39,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Native Both-seat Mew DCE retreat and Genesect draw prompt behavior
+        if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
         if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
@@ -67,7 +68,7 @@ jobs:
       - name: Preflight fresh 32-game dual-fixed-sixty paper-core registration
         if: ${{ inputs.agent19_dualfixed_profile }}
         run: |
-          node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs
+          node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs tests/2026-11/agent19-dual-fixed60-cohort-admission.test.cjs
           node --check simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs
           node simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs --inspect-only
       - name: Run both original-source seats for two fixed contenders under paper-core profile
