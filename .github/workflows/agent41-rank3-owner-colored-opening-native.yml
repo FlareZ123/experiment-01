@@ -1,0 +1,40 @@
+name: Agent41 original rank3 held-Energy starter prospective native test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-rank3-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Compile exactly pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Verify independent own-hand policy, full Bench and actual opening identity
+        run: |
+          node --test tests/2026-11/agent41-owner-colored-starter.test.cjs tests/2026-11/agent41-rank3-owner-colored-opening-native.test.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+      - name: Execute three fresh rank3 physical groups plus one historical canary against both fixed sixties
+        run: node simulation/evaluation/2026-11/agent41-rank3-owner-colored-opening-native.cjs
+      - name: Preserve full matched native accepted action ledgers and original physical opening choices
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-rank3-own-energy-starter-prospective
+          path: artifacts/agent41-rank3-owner-colored-opening-v1.json
+          if-no-files-found: warn
+          retention-days: 14
