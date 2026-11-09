@@ -1,6 +1,12 @@
 name: Agent21 Duskull PRE native paper correction and rank31 retrospective replay
 on:
   workflow_dispatch:
+    inputs:
+      root_cap:
+        description: 'Maximum genuine Store roots per arm (260 to 640; retrospective only)'
+        type: choice
+        options: ['260', '400', '640']
+        default: '260'
 
 permissions:
   contents: read
@@ -27,6 +33,8 @@ jobs:
       - name: Real Store Duskull full Bench, source discard and both-seat regression
         run: node --test tests/2026-11/agent21-duskull-come-and-get-you-native.test.cjs
       - name: Replay posthoc exact original rank31 source deal with and without correction
+        env:
+          AGENT21_RANK31_ROOT_CAP: ${{ inputs.root_cap }}
         run: node simulation/evaluation/2026-11/agent21-rank31-duskull-native-replay.cjs
       - name: Archive full original and corrected native receipts
         if: always()
