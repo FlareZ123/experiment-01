@@ -34,6 +34,7 @@ function withBilateralOwnerMail(next,deps){
   const followOwnerConfirm=deps.followOwnerConfirm===true;
   const confirmNativeDedenne=deps.confirmNativeDedenne===true;
   const followOwnerMotivate=deps.followOwnerMotivate===true;
+  const followOwnerCelestialRoar=deps.followOwnerCelestialRoar===true;
   assert.ok(!confirmNativeDedenne||followOwnerConfirm,
     'Dedenne confirmation requires authenticated owner prompt handling');
   const board=deps.playCardEnums??{};
@@ -60,6 +61,7 @@ function withBilateralOwnerMail(next,deps){
   const arvenSelections=new WeakMap();
   const ownerConfirmActions=new WeakMap();
   const ownerMotivateActions=new WeakMap();
+  const ownerCelestialRoarActions=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
   const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
@@ -97,6 +99,9 @@ function withBilateralOwnerMail(next,deps){
     nativeMotivateOffers:0,nativeMotivateSettled:0,
     nativeMotivateRejected:0,nativeMotivateUnsettled:0,
     nativeMotivateEvents:[],nativeMotivateEncountered:[],
+    nativeCelestialRoarOffers:0,nativeCelestialRoarSettled:0,
+    nativeCelestialRoarRejected:0,nativeCelestialRoarUnsettled:0,
+    nativeCelestialRoarEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nestFromArvenOffers:0,nestFromArvenAccepted:0,
@@ -135,7 +140,7 @@ function withBilateralOwnerMail(next,deps){
     const seat=state?.activePlayer;
     const owner=state?.players?.[seat];
     const prompt=state?.prompts?.find(p=>p.result===undefined);
-    if(active&&followOwnerMotivate&&
+    if(active&&(followOwnerMotivate||followOwnerCelestialRoar)&&
        prompt?.constructor?.name==='AttachEnergyPrompt'){
       // Restricted to the actual acting owner's public board/discard, and
       // metadata of the actual active prompt. No hidden-zone reads.
@@ -207,6 +212,24 @@ function withBilateralOwnerMail(next,deps){
         });
         audit.nativeOwnerTop4PromptsBySeat[seat]++;
         return answer;
+      }
+    }
+    // Celestial Roar's true own-player temporary revealed top-three pile is
+    // accessible to the attacker at this genuine prompt. No unopened deck.
+    if(active&&followOwnerCelestialRoar&&state===storeInstance?.state&&
+       owner?.id===this.client?.id&&prompt){
+      const {chooseOwnerCelestialRoarEnergy}=
+        require('./agent7/owner-celestial-roar-energy-choice.cjs');
+      const selection=chooseOwnerCelestialRoarEnergy(state,prompt,seat,board);
+      if(selection){
+        const action=new ResolvePromptAction(prompt.id,selection.assignments);
+        require('./prompt-integrity.cjs')
+          .assertValidPromptAction(state,action);
+        ownerCelestialRoarActions.set(action,{trialId,seat,
+          turn:state.turn,prompt,selection,
+          openedSourceCards:prompt.cardList.cards.slice()});
+        audit.nativeCelestialRoarOffers++;
+        return action;
       }
     }
     // The genuinely attacking owner's Motivate prompt is allowed to use its
@@ -423,6 +446,7 @@ function withBilateralOwnerMail(next,deps){
     const arvenProposal=arvenSelections.get(action);
     const ownerConfirmProposal=ownerConfirmActions.get(action);
     const motivateProposal=ownerMotivateActions.get(action);
+    const celestialProposal=ownerCelestialRoarActions.get(action);
     const opposingSeat=1-seat;
     const opposingBefore=taggedHandiwork?{
       deck:state.players[opposingSeat].deck.cards.length,
@@ -457,11 +481,42 @@ function withBilateralOwnerMail(next,deps){
       if(taggedArvenNest)audit.nestFromArvenRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
       if(motivateProposal)audit.nativeMotivateRejected++;
+      if(celestialProposal)audit.nativeCelestialRoarRejected++;
       if(ownerConfirmProposal){
         audit.ownerConfirmRejected++;
         if(ownerConfirmProposal.deden)audit.nativeDedenneTrueRejected++;
       }
       throw e;
+    }
+    if(celestialProposal){
+      const after=this.state.players[celestialProposal.seat];
+      const {selection,prompt:ownerPrompt,openedSourceCards}=celestialProposal;
+      const real=selection.assignments;
+      const settled=ownerPrompt.result===action.result;
+      const physicallyAttached=real.every(row=>
+        after.active.energies.cards.includes(row.card)&&
+        !ownerPrompt.cardList.cards.includes(row.card));
+      const otherSourceCards=openedSourceCards.filter(card=>
+        !real.some(row=>row.card===card));
+      const otherCardsDiscarded=otherSourceCards.filter(card=>
+        after.discard.cards.includes(card));
+      const strandedCards=otherSourceCards.filter(card=>
+        ownerPrompt.cardList.cards.includes(card));
+      const receipt={trialId:celestialProposal.trialId,
+        seat:celestialProposal.seat,turn:celestialProposal.turn,
+        printedAttack:'Regidrago V SIT Celestial Roar',
+        revealedCount:openedSourceCards.length,
+        sourceRevealedPrintings:openedSourceCards.map(card=>card.fullName),
+        attachedPrintings:real.map(row=>row.card.fullName),
+        otherSourceCount:otherSourceCards.length,
+        otherCardsPhysicallyDiscarded:otherCardsDiscarded.length,
+        otherCardsStrandedInTemporaryPile:strandedCards.length,
+        nativePromptSettled:settled,physicalEnergyToOwnActive:physicallyAttached};
+      if(settled&&physicallyAttached)audit.nativeCelestialRoarSettled++;
+      else audit.nativeCelestialRoarUnsettled++;
+      audit.nativeCelestialRoarEvents.push(receipt);
+      assert.ok(settled&&physicallyAttached,
+        'Celestial Roar Energy did not attach to actual owner's Active');
     }
     if(motivateProposal){
       const after=this.state.players[motivateProposal.seat];
