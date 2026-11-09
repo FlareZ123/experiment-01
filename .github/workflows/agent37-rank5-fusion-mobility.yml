@@ -59,6 +59,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_mew_ultra_dci_v2:
+        description: Run fresh original source Mew VMAX Ultra Ball dynamic DCI payment native arms
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -88,12 +93,12 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
       - name: Retrospective rank5 source Quick Ball and native owner discard paired development
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 }}
         env:
           AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
           AGENT37_QUICKBALL_MEW_SEARCH_DEV: ${{ inputs.agent37_quickball_mew_search }}
@@ -207,6 +212,24 @@ jobs:
         with:
           name: agent37-rank5-mew-ultraball-payment-independent-16arm
           path: agent37-rank5-mew-ultraball-payment-independent-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Verify dynamic dead VIP and spent VSTAR Ultra Ball payment pure tests
+        if: ${{ inputs.agent37_mew_ultra_dci_v2 && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: |
+          node --check simulation/twinleaf/agent37/mew-ultraball-evolution.cjs
+          node --check simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-dci-v2.cjs
+          node --test tests/agent37-mew-ultraball-evolution.test.cjs
+          node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-dci-v2.cjs --inspect-only
+      - name: Run fresh dynamic DCI v2 source Ultra Ball native game comparisons
+        if: ${{ inputs.agent37_mew_ultra_dci_v2 && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-dci-v2.cjs
+      - name: Archive 16 fresh original source Ultra Ball dynamic DCI outcomes
+        if: ${{ always() && inputs.agent37_mew_ultra_dci_v2 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-rank5-mew-ultraball-payment-dci-v2-16arm
+          path: agent37-rank5-mew-ultraball-payment-dci-v2-16arm.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate default-off Mew donor choice and bilateral policy forwarding
