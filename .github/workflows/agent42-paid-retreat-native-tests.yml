@@ -20,6 +20,12 @@ on:
         required: false
         default: false
 
+      run_rank5_gengar_flexible_v2:
+        description: 'Run preregistered 4-context Gengar flexible v2 versus v1'
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
@@ -47,7 +53,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -94,4 +100,17 @@ jobs:
         with:
           name: agent42-rank5-genesect-gengar-fresh-8context-aba
           path: artifacts/agent42-rank5-genesect-pressure-gengar-aba.json
+          retention-days: 14
+
+      - name: Run preregistered Gengar flexible v2 versus v1 real-Store A/B/A
+        if: ${{ inputs.run_rank5_gengar_flexible_v2 }}
+        run: |
+          node simulation/evaluation/2026-11/agent42-gengar-flexible-v2-vs-v1-aba.cjs --preflight
+          node simulation/evaluation/2026-11/agent42-gengar-flexible-v2-vs-v1-aba.cjs
+      - name: Archive all fresh Gengar v2 and v1 paired physical Store evidence
+        if: ${{ inputs.run_rank5_gengar_flexible_v2 && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-gengar-flexible-v2-v1-fresh-4context-aba
+          path: artifacts/agent42-gengar-flexible-v2-vs-v1-aba.json
           retention-days: 14
