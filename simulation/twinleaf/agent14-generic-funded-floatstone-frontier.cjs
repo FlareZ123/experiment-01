@@ -56,6 +56,8 @@ function projectedFundedAttackDamage(view,pokemon,attack,catalog){
 function chooseGenericFundedFloatStone(view,catalog){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active,r=view.ownTurnResources;
+  if(require('./agent35-opponent-active-retreat-lock.cjs')
+      .observedOpponentActiveForbidsRetreat(view))return null;
   if(view.globalTurn<=1||!active||!r||
       !Array.isArray(own.bench)||
       !Number.isSafeInteger(r.retreatedTurn)||
