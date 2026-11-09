@@ -1411,6 +1411,7 @@ function runDevelopment({
   earlyRegidragoCompressorSourceOnly=false,
   earlyRegidragoCompressorAllowFirstOwnTurnTwo=false,
   rank13CrispinRoot=false,rank13CrispinSourceOnly=false,
+  rank13SourceFirstOwnGrass=false,rank13SourceFirstOwnGrassSourceOnly=false,
   bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
@@ -1619,6 +1620,10 @@ function runDevelopment({
     'Source Crispin requires canonical owner-root decisions');
   assert.ok(!rank13CrispinSourceOnly||rank13CrispinRoot,
     'Source-only Crispin requires the native Crispin owner root');
+  assert.ok(!rank13SourceFirstOwnGrass||actorOnlyComposition,
+    'Rank13 Grass Bench source root requires native actor composition');
+  assert.ok(!rank13SourceFirstOwnGrassSourceOnly||rank13SourceFirstOwnGrass,
+    'Source-scoped Grass Bench requires owner Grass root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
@@ -2123,6 +2128,13 @@ function runDevelopment({
                 seekerGuzmaOwnerSeat:actorSeekerGuzmaSourceOnly?
                   1-(trial.candidateSlot==='A'?0:1):actorSeekerGuzmaOwnerSeat,
                 seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn
+              }:{}),
+              ...(rank13SourceFirstOwnGrass?{
+                rank13SourceFirstOwnGrass:true,
+                ...(rank13SourceFirstOwnGrassSourceOnly?{
+                  rank13SourceFirstOwnGrassOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(rank13CrispinRoot?{
                 rank13CrispinRoot:true,
