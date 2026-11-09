@@ -1,0 +1,37 @@
+{
+  "schema": "agent7-native-owner-confirm-mail-beach-arven-registration-v1",
+  "createdAt": "2026-11-09T00:35:59.382Z",
+  "researchQuestion": "Can actor-owned native ConfirmPrompt responses at the exact registered rank13 second turn permit the verified original rank3 Mail->Beach first turn to reach a subsequent physically Mail-selected Arven Supporter and genuine Item+Tool owner search?",
+  "originalPublishedSourceRank": 3,
+  "originalPublishedCandidateRank": 13,
+  "sourcePrintedSixties": "results/aichi-2026/full-decklists.json",
+  "sourceSeed": 290134,
+  "trialIds": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "policy": {
+    "commonToBoth": {
+      "earlyBeachAfterMail": true,
+      "mysteriousTreasureRoot": true,
+      "ownerConfirm": false
+    },
+    "experimentalSharedOwnerConfirm": {
+      "ownerConfirm": true,
+      "confirmationAnswer": false,
+      "ownerOnly": true,
+      "kind": "native ConfirmPrompt",
+      "samePhysicalStoreProof": true
+    },
+    "differenceBetweenFinalComparisonArms": "Only the source player's physical, earlier Mail-selected Arven follow-through is enabled in treatment; the Confirm policy is common to both."
+  },
+  "exactPriorBlockers": {
+    "sourceSeat1": "Candidate Regidrago seat0 global turn2 PlayCardAction of Dedenne GX UNB opened ConfirmPrompt WANT_TO_USE_ABILITY, protected fallback stalled after root17.",
+    "otherSeat": "Turn2 rank3 player seat0 after native Water Energy MEE attachment and attack ended at owner ConfirmPrompt, protected fallback stalled after root20."
+  },
+  "reuse": "Agent32's conservative false answer for native ConfirmPrompt, with native prompt integrity assertion and exact Store settlement; opt-in adapter in simulation/twinleaf/agent38-v8-four-arm-owner-mail-native.cjs.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "success": "Both fixed original 60 games retain honest reports; same original source in one physical seat actually played Mail then Beach on first global turn and subsequently played the same physical Arven and moved a native-validated Item and Tool from owner deck to hand after native Confirm closure.",
+  "failure": "Any missing Arven, failed native prompt custody, owner Confirm unresolved, raw fallback, capped or missing game remains unqualified and milestone CI fails.",
+  "competitiveQualification": "Zero; conservative false for Dedenne Dedechange may sacrifice tactical strength, so cannot infer real deck quality. This is an execution-coverage / resource-chain test, retrospective known seed and not independent replication."
+}
