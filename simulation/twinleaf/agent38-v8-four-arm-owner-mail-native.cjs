@@ -96,7 +96,7 @@ function withBilateralOwnerMail(next,deps){
     nativeDedenneTrueEvents:[],
     nativeMotivateOffers:0,nativeMotivateSettled:0,
     nativeMotivateRejected:0,nativeMotivateUnsettled:0,
-    nativeMotivateEvents:[],
+    nativeMotivateEvents:[],nativeMotivateEncountered:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nestFromArvenOffers:0,nestFromArvenAccepted:0,
@@ -135,6 +135,28 @@ function withBilateralOwnerMail(next,deps){
     const seat=state?.activePlayer;
     const owner=state?.players?.[seat];
     const prompt=state?.prompts?.find(p=>p.result===undefined);
+    if(active&&followOwnerMotivate&&
+       prompt?.constructor?.name==='AttachEnergyPrompt'){
+      // Restricted to the actual acting owner's public board/discard, and
+      // metadata of the actual active prompt. No hidden-zone reads.
+      audit.nativeMotivateEncountered.push({
+        trialId,seat,turn:state?.turn,activeSeat:state?.activePlayer,
+        aiOwnsActingPlayer:owner?.id===this.client?.id,
+        promptOwnerMatches:prompt.playerId===owner?.id,
+        promptMessage:String(prompt.message),
+        promptFromOwnDiscard:prompt.cardList===owner?.discard,
+        activePrinting:owner?.active?.getPokemonCard?.()?.fullName??null,
+        eligibleOwnDiscardCount:owner?.discard?.filter?.(prompt.filter)?.length??null,
+        ownBench:owner?.bench?.map(slot=>
+          slot.getPokemonCard?.()?.fullName??null),
+        promptPlayerType:prompt.playerType,
+        promptSlots:[...prompt.slots],
+        requirements:{min:prompt.options?.min,max:prompt.options?.max,
+          sameTarget:prompt.options?.sameTarget},
+        enumBottom:board.PlayerType?.BOTTOM_PLAYER,
+        enumBench:board.SlotType?.BENCH
+      });
+    }
     if(active&&(followMailNestBall||followArvenNestBall)&&
       state===storeInstance?.state&&pendingNest?.seat===seat&&owner?.id===this.client?.id&&
       prompt?.id===pendingNest.id&&
