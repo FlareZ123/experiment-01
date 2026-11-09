@@ -6,11 +6,12 @@ const {decideAbilityConfirm,withOwnerAbilityConfirmPolicy}=
   require('../../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
 const card=name=>({name,superType:'ENERGY'});
 const owner=(hand,n=20)=>({hand:{cards:hand},deck:{cards:Array.from({length:n},(_,i)=>({name:'D'+i}))}});
-const decide=(hand,n)=>decideAbilityConfirm({card:{name:'Dedenne GX'},owner:owner(hand,n),types:{}});
+const decide=(hand,n,globalTurn)=>decideAbilityConfirm({card:{name:'Dedenne GX'},
+  owner:owner(hand,n),types:{},enableDedechange:true,globalTurn});
 
 test('empty and two-card owner hands select a legal six-card refresh',()=>{
   assert.deepEqual(decide([],12),{decision:true,reason:'low-hand-six-card-refill',
-    details:{handCount:0,deckCount:12}});
+    details:{handCount:0,deckCount:12,expiredVipCount:0,liveHandCost:0}});
   assert.equal(decide([card('Fire Energy'),card('Psychic Energy')],12).decision,true);
 });
 test('larger or protected hands remain available for alternative owner actions',()=>{
@@ -20,6 +21,23 @@ test('larger or protected hands remain available for alternative owner actions',
   assert.equal(decide([{name:'Custom ACE',isAceSpec:true}],12).decision,false);
   assert.equal(decide([{name:'Ditto Prism Star'}],12).decision,false);
 });
+test('historical shared owner Ability wrapper preserves default false for Dedenne',()=>{
+  assert.deepEqual(decideAbilityConfirm({
+    card:{name:'Dedenne GX'},owner:owner([],12),types:{}
+  }),{decision:false,reason:'unrecognized-ability-default-false',details:{}});
+});
+
+test('post-first-turn dead Battle VIP Pass is a zero-cost Dedechange discard',()=>{
+  const cards=[{name:'Battle VIP Pass'},{name:'Battle VIP Pass'},
+    {name:'Battle VIP Pass'},card('Fire Energy')];
+  assert.equal(decide(cards,15,2).decision,false);
+  const late=decide(cards,15,3);
+  assert.equal(late.decision,true);
+  assert.equal(late.reason,'expired-opening-items-six-card-refill');
+  assert.equal(late.details.expiredVipCount,3);
+  assert.equal(late.details.liveHandCost,1);
+});
+
 test('deckout and incomplete owner zones are conservative declines',()=>{
   assert.equal(decide([],5).reason,'conserve-deck-near-deckout');
   assert.equal(decide([],6).decision,false);
@@ -105,7 +123,8 @@ test('native-style exact physical Dedenne entry authorizes true and unrelated la
     store.dispatch(unrelated);
     return {first,unrelated:unrelated.result};
   },{ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,ChooseCardsPrompt,ResolvePromptAction},
-    types:{SuperType:{ENERGY:'ENERGY'}},validate:()=>{}});
+    types:{SuperType:{ENERGY:'ENERGY'}},validate:()=>{},
+    enableDedechange:true});
   assert.deepEqual(wrapped.result,{first:{yes:true,discard:['Fire Energy'],draw:6,
     bench:'Dedenne GX'},unrelated:false});
   assert.equal(wrapped.audit.confirmSettled,2);
