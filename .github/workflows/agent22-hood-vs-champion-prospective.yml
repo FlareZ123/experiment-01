@@ -2,12 +2,19 @@ name: Agent22 prospectively compare Hood Shield with champion in native Aichi
 
 on:
   workflow_dispatch:
+    inputs:
+      agent45_source_funding_rank5:
+        description: 'Run frozen rank5 original Mew-funded Hood versus champion 24 native attempts'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hood-champion-paperprofile:
+    if: ${{ !inputs.agent45_source_funding_rank5 }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -40,3 +47,40 @@ jobs:
           path: agent22-hood-vs-champion-32-native.json
           if-no-files-found: warn
           retention-days: 21
+
+  rank5-source-funded-two-contenders:
+    if: ${{ inputs.agent45_source_funding_rank5 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify fresh six-deal registration and source-funded paired analysis
+        run: |
+          node --check simulation/evaluation/2026-11/agent45-source-funded-hood-vs-champion-rank5.cjs
+          node --test tests/2026-11/agent45-source-funded-hood-vs-champion-rank5.test.cjs
+          node simulation/evaluation/2026-11/agent45-source-funded-hood-vs-champion-rank5.cjs --inspect-only
+      - name: Install pinned game engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 24 pre-registered original rank5 native games
+        env:
+          AGENT4_NATIVE_PAYMENT_RECEIPT_DEV: 'true'
+        run: node simulation/evaluation/2026-11/agent45-source-funded-hood-vs-champion-rank5.cjs
+      - name: Archive every complete raw native Store attempt including invalid and capped cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent45-source-funded-hood-champion-rank5-24-native
+          path: artifacts/agent45-rank5-funded-hood-champion-24native.json
+          retention-days: 21
+          if-no-files-found: warn
