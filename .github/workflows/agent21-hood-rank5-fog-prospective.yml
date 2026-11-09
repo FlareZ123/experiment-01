@@ -1,0 +1,39 @@
+name: Agent21 prospectively frozen rank5 Hood symmetric Fog Energy target pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prospective-hood-owner-fog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout the actual pinned Twinleaf Git submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test independent pure owner Fog Energy selector
+        run: node --test tests/2026-11/agent21-owner-fog-energy-deficit-choice.test.cjs
+      - name: Run all four preregistered source pairs, both policies, no seed dropping
+        run: node simulation/evaluation/2026-11/agent21-prospective-hood-rank5-fog-energy-native.cjs
+      - name: Archive all eight full Store native rows and paired decisions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-prospective-hood-rank5-symmetric-fog-energy
+          path: artifacts/agent21-prospective-hood-rank5-fog-energy-native.json
+          retention-days: 21
+          if-no-files-found: warn
