@@ -561,11 +561,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRetreatFundingBridge(view,catalog);
     if(bridge)return bridge;
   }
-  if(options.gengarHorrorHouseTempo===true||options.gengarFlexibleV2===true){
-    const choose=options.gengarFlexibleV2===true?
-      require('./2026-11/agent50-gengar-flexible-telepath-v2.cjs')
-        .chooseGengarFlexibleTelepath:
-      require('./2026-11/agent20-gengar-horror-house-tempo.cjs')
+  if(options.gengarHorrorHouseTempo===true||options.gengarFlexibleV2===true||
+     options.gengarResourceProtectedV3===true){
+    const choose=options.gengarResourceProtectedV3===true?
+      require('./2026-11/agent50-gengar-perfection-resource-guard-v3.cjs')
+        .chooseGengarPerfectionProtected:
+      options.gengarFlexibleV2===true?
+        require('./2026-11/agent50-gengar-flexible-telepath-v2.cjs')
+          .chooseGengarFlexibleTelepath:
+        require('./2026-11/agent20-gengar-horror-house-tempo.cjs')
         .chooseGengarHorrorHouseTempo;
     const tempo=choose(view,catalog,{
       minOpponentHandCount:options.gengarHorrorHouseMinOpponentHandCount??0
@@ -1043,6 +1047,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV==='true'),
     gengarHorrorHouseTempoOptIn:deps.gengarHorrorHouseTempo===true,
     gengarFlexibleV2OptIn:deps.gengarFlexibleV2===true,
+    gengarResourceProtectedV3OptIn:deps.gengarResourceProtectedV3===true,
     gengarHorrorHouseMinOpponentHandCount:
       deps.gengarHorrorHouseMinOpponentHandCount??0,
     perfectionRootOptIn:deps.perfectionRoot??
@@ -2058,6 +2063,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       perfectionRoot:audit.perfectionRootOptIn,
       gengarHorrorHouseTempo:audit.gengarHorrorHouseTempoOptIn,
       gengarFlexibleV2:audit.gengarFlexibleV2OptIn,
+      gengarResourceProtectedV3:audit.gengarResourceProtectedV3OptIn,
       gengarHorrorHouseMinOpponentHandCount:
         audit.gengarHorrorHouseMinOpponentHandCount,
       perfectionBenchFunding:audit.perfectionBenchFundingOptIn,
