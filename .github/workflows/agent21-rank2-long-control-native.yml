@@ -16,6 +16,10 @@ on:
         description: 'Enable Agent17 deck-preservation before native AttackAction also; implies late Pass rescue'
         type: boolean
         default: false
+      early_forest_seal:
+        description: 'Enable candidate-owned early physical Forest Seal Stone and Star Alchemy pilot'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,13 +43,14 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Regress owner-only deckout rescue and pre-attack Store decision hooks
-        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs tests/2026-11/agent17-before-attack-deckout-native.test.cjs
+      - name: Regress owner-only early Stone and deckout policy hooks
+        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs tests/2026-11/agent17-before-attack-deckout-native.test.cjs tests/2026-11/agent17-early-forest-seal-root.test.cjs
       - name: Replay original Vileplume rank2 seed and physical source pairs
         env:
           AGENT21_RANK2_ROOT_CAP: ${{ inputs.root_cap }}
           AGENT17_RANK2_DECKOUT_RESCUE: ${{ inputs.anti_deckout_shuffles }}
           AGENT17_RANK2_PRE_ATTACK_RESCUE: ${{ inputs.pre_attack_deckout_shuffles }}
+          AGENT17_RANK2_EARLY_FSS: ${{ inputs.early_forest_seal }}
         run: node simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs
       - name: Archive all four real native roots and outcomes
         if: always()
@@ -56,5 +61,6 @@ jobs:
             agent21-rank2-original-long-native.json
             agent17-rank2-anti-deckout-native.json
             agent17-rank2-pre-attack-rescue-native.json
+            agent17-rank2-early-fss-native.json
           if-no-files-found: warn
           retention-days: 21
