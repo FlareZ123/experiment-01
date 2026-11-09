@@ -133,8 +133,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     (intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const jetRecipient=intent.kind==='attach-special-energy'&&
     intent.slot==='bench'?owner.bench[intent.index]:null;
-  const energyRecipient=['paid-retreat','skyliner-rondo-retreat']
-    .includes(intent.kind)?
+  const energyRecipient=['paid-retreat','skyliner-rondo-retreat',
+    'skyliner-free-retreat'].includes(intent.kind)?
     owner.bench[intent.benchIndex]:
     (intent.kind==='attach-basic-energy'||
      intent.kind==='attach-special-energy')&&intent.slot==='bench'?
@@ -179,7 +179,7 @@ function rootPhysicalSnapshot(state,seat,intent){
         owner.active.getPokemonCard()?.fullName??null
     }:{}),
     ...(['paid-retreat','retreat-emergency-floatstone',
-      'skyliner-rondo-retreat'].includes(intent.kind)?{
+      'skyliner-rondo-retreat','skyliner-free-retreat'].includes(intent.kind)?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
