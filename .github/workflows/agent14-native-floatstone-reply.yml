@@ -26,6 +26,7 @@ on:
           - agent3-rank7-guzma-orphan-diagnostic
           - agent3-rank7-guzma-custody-ab
           - agent3-dual-fixed60-all29-paperprofile
+          - agent3-dual-fixed60-all29-artifact-audit
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -36,7 +37,7 @@ permissions:
   actions: read
 jobs:
   native-two:
-    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit'
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent3-dual-fixed60-all29-artifact-audit'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -443,5 +444,34 @@ jobs:
         with:
           name: agent3-portable-champion-all29-matched-audit
           path: artifacts/agent3-portable-all29-matched-audit.json
+          if-no-files-found: warn
+          retention-days: 21
+
+  agent3-dual60-archive-audit:
+    if: inputs.experiment == 'agent3-dual-fixed60-all29-artifact-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download frozen original 116 native games (no replay)
+        uses: actions/download-artifact@v4
+        with:
+          name: agent3-dual-fixed60-all29-paperprofile-native
+          run-id: 42574658791
+          github-token: ${{ github.token }}
+          path: artifacts/agent3-dual60-all29-source
+      - name: Quantify exact eight matched native winner reversals and all errors
+        env:
+          AGENT3_DUAL60_AUDIT_INPUT: artifacts/agent3-dual60-all29-source/agent3-dual-fixed60-all29-native.json
+          AGENT3_DUAL60_AUDIT_OUTPUT: artifacts/agent3-dual60-all29-matched-audit.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-dual-fixed60-all29-artifact-audit.cjs
+          node simulation/evaluation/2026-11/agent3-dual-fixed60-all29-artifact-audit.cjs
+      - name: Preserve human-usable directional native matchup comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-dual60-all29-matched-audit
+          path: artifacts/agent3-dual60-all29-matched-audit.json
           if-no-files-found: warn
           retention-days: 21
