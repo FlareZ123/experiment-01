@@ -76,5 +76,6 @@ jobs:
           path: |
             agent37-simultaneous-last-prize-v3-native.json
             agent37-simultaneous-terminal-v4-native.json
+            agent37-simultaneous-terminal-v4-duplicate-guard-native.json
           if-no-files-found: ignore
           retention-days: 14
