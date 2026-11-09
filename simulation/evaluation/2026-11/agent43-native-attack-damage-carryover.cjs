@@ -87,6 +87,38 @@ function inspectAttackCarryover(attacks,attackingSeat) {
  * @param {object} row Unmodified pinned Store trial.
  * @returns {object}
  */
+/**
+ * The opponent's actual between-hit material actions are visible and must
+ * accompany a proposed delayed-knockout credit. Opponent Pass is not proof
+ * that the game state prevented useful counterplay.
+ * @param {object[]} links Native public two-hit continuation candidates.
+ * @param {object[]} roots Actual accepted root tape.
+ * @param {0|1} defenderSeat
+ * @returns {object[]}
+ */
+function attachActualOpponentReplies(links,roots,defenderSeat) {
+  assert.ok(Array.isArray(roots));
+  return links.map(link => {
+    const replies=roots.filter(root =>
+      root.playerSlot===defenderSeat &&
+      root.actionOrdinal>link.noPrizeAttackOrdinal &&
+      root.actionOrdinal<link.nextAttackOrdinal &&
+      root.action!=='ResolvePromptAction');
+    const meaningful=replies.filter(root=>root.action!=='PassTurnAction');
+    return {
+      ...link,interveningDefenderRootActions:replies.map(root=>({
+        ordinal:root.actionOrdinal,turn:root.turnBefore,
+        action:root.action,card:root.card??null,attack:root.attack??null
+      })),
+      interveningDefenderMaterialActionCount:meaningful.length,
+      defenderPassedWithoutMaterialAction:
+        replies.length>0 && meaningful.length===0 &&
+        replies.every(root=>root.action==='PassTurnAction'),
+      defenderCounterplayOptionsIndependentlyReviewed:false
+    };
+  });
+}
+
 function inspectNativeGameCarryover(row) {
   assert.ok((row?.sourceSeat===0||row?.sourceSeat===1) &&
     row.candidateSeat===1-row.sourceSeat);
@@ -94,6 +126,12 @@ function inspectNativeGameCarryover(row) {
     row.sourceAttackSettlement?.attacks??[],row.sourceSeat);
   const candidate=inspectAttackCarryover(
     row.candidateAttackSettlement?.attacks??[],row.candidateSeat);
+  if(Array.isArray(row.rootActionLedger)) {
+    source.candidateTwoHitLinks=attachActualOpponentReplies(
+      source.candidateTwoHitLinks,row.rootActionLedger,row.candidateSeat);
+    candidate.candidateTwoHitLinks=attachActualOpponentReplies(
+      candidate.candidateTwoHitLinks,row.rootActionLedger,row.sourceSeat);
+  }
   return {
     schema:SCHEMA,trialId:row.trial?.id??null,
     source,candidate,
@@ -103,4 +141,5 @@ function inspectNativeGameCarryover(row) {
   };
 }
 
-module.exports={SCHEMA,inspectAttackCarryover,inspectNativeGameCarryover};
+module.exports={SCHEMA,inspectAttackCarryover,
+  attachActualOpponentReplies,inspectNativeGameCarryover};
