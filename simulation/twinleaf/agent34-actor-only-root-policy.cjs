@@ -528,7 +528,8 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(options.genesectFusionDraw===true){
     const draw=require('./agent37-genesect-public-fusion-draw.cjs')
       .chooseGenesectFusionDraw(view,{
-        usedThisTurn:options.genesectFusionUsedThisTurn===true
+        usedThisTurn:options.genesectFusionUsedThisTurn===true,
+        publicUsage:options.genesectFusionPublicUsage??null
       });
     if(draw)return draw;
   }
@@ -890,6 +891,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionDrawOwnerSeat:deps.genesectFusionDrawOwnerSeat??null,
+    genesectPerCopyPublicUsageOptIn:deps.genesectPerCopyPublicUsage===true,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
@@ -1290,6 +1292,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.genesectFusionDrawOptIn)
     audit.version+='+'+
       require('./agent37-genesect-public-fusion-draw.cjs').VERSION;
+  if(audit.genesectPerCopyPublicUsageOptIn){
+    assert.equal(audit.genesectFusionDrawOptIn,true,
+      'Per-copy Fusion marker mode requires Genesect root enabled');
+    audit.version+='+'+
+      require('./agent33-public-fusion-usage.cjs').VERSION;
+  }
   else{
     delete audit.genesectFusionDrawOptIn;
     delete audit.genesectFusionNativeAccepted;
@@ -1699,7 +1707,14 @@ function withActorOnlyRootPolicy(run,deps={}){
         require('./agent31-underworld-door-owner-frontier.cjs')
           .ownerUnderworldMarkerReceipt(state.players[seat]):undefined,
       genesectFusionUsedThisTurn:
+        audit.genesectPerCopyPublicUsageOptIn===true||
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
+      genesectFusionPublicUsage:
+        audit.genesectPerCopyPublicUsageOptIn===true&&view.phase===2&&
+        actorSpecialEnergyEnabled(audit.genesectFusionDrawOptIn,
+          audit.genesectFusionDrawOwnerSeat,seat)?
+          require('./agent33-public-fusion-usage.cjs')
+            .publicFusionUsageAtRoot(state,seat):null,
       flexiblePaidRetreatRoot:audit.flexiblePaidRetreatRootOptIn,
       rank9SpecialPaidRetreat:actorSpecialEnergyEnabled(
         audit.rank9SpecialPaidRetreatOptIn,
