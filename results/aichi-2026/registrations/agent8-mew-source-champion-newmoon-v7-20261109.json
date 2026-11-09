@@ -1,0 +1,210 @@
+{
+  "schema": "agent8-source-rank5-two-fixed60-mew-funding-v7-prospective",
+  "status": "FROZEN BEFORE ANY V7 NATIVE GAME",
+  "registeredAtUtc": "2026-11-09T07:22:10.991383Z",
+  "originalRank": 5,
+  "originalArchetype": "Mew Genesect",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "design": "original source Mew recipient S0/S1 x two distinct unchanged fixed 60s, eight independent both-seat physical groups, 32 attempted games",
+  "sourcePolicyCommon": "source-only natural evolution, Quick Ball, Trainers Mail, eligible Genesect Techno Blast and DCE-paid mobility; candidate Perfection pivot same policy across S0/S1",
+  "sourcePolicyDifference": "S1 alone enables exact original-source owner-side held DCE attachment to already in play unfunded Mew V/VMAX via preexisting conservative card-specific proposer",
+  "originalSourceSixtyUnchanged": true,
+  "contenderSixtiesUnchanged": true,
+  "physicalGroups": 8,
+  "expectedAttempts": 32,
+  "rootLimit": 260,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 3700,
+      "candidateSlot": "A",
+      "seed": 997714138,
+      "id": "5:3700:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 3701,
+      "candidateSlot": "B",
+      "seed": 3642146986,
+      "id": "5:3701:B"
+    },
+    {
+      "rank": 5,
+      "repeat": 3702,
+      "candidateSlot": "A",
+      "seed": 1209897156,
+      "id": "5:3702:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 3703,
+      "candidateSlot": "B",
+      "seed": 1557910725,
+      "id": "5:3703:B"
+    },
+    {
+      "rank": 5,
+      "repeat": 3704,
+      "candidateSlot": "A",
+      "seed": 849554544,
+      "id": "5:3704:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 3705,
+      "candidateSlot": "B",
+      "seed": 888757755,
+      "id": "5:3705:B"
+    },
+    {
+      "rank": 5,
+      "repeat": 3706,
+      "candidateSlot": "A",
+      "seed": 2329196134,
+      "id": "5:3706:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 3707,
+      "candidateSlot": "B",
+      "seed": 2814390663,
+      "id": "5:3707:B"
+    }
+  ],
+  "trials": [
+    {
+      "rank": 5,
+      "repeat": 3700,
+      "candidateSlot": "A",
+      "seed": 997714138,
+      "id": "5:3700:A:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3700,
+      "candidateSlot": "A",
+      "seed": 997714138,
+      "id": "5:3700:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3701,
+      "candidateSlot": "B",
+      "seed": 3642146986,
+      "id": "5:3701:B:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3701,
+      "candidateSlot": "B",
+      "seed": 3642146986,
+      "id": "5:3701:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3702,
+      "candidateSlot": "A",
+      "seed": 1209897156,
+      "id": "5:3702:A:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3702,
+      "candidateSlot": "A",
+      "seed": 1209897156,
+      "id": "5:3702:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3703,
+      "candidateSlot": "B",
+      "seed": 1557910725,
+      "id": "5:3703:B:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3703,
+      "candidateSlot": "B",
+      "seed": 1557910725,
+      "id": "5:3703:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3704,
+      "candidateSlot": "A",
+      "seed": 849554544,
+      "id": "5:3704:A:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3704,
+      "candidateSlot": "A",
+      "seed": 849554544,
+      "id": "5:3704:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3705,
+      "candidateSlot": "B",
+      "seed": 888757755,
+      "id": "5:3705:B:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3705,
+      "candidateSlot": "B",
+      "seed": 888757755,
+      "id": "5:3705:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3706,
+      "candidateSlot": "A",
+      "seed": 2329196134,
+      "id": "5:3706:A:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3706,
+      "candidateSlot": "A",
+      "seed": 2329196134,
+      "id": "5:3706:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3707,
+      "candidateSlot": "B",
+      "seed": 2814390663,
+      "id": "5:3707:B:champion-reference",
+      "candidateId": "champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3707,
+      "candidateSlot": "B",
+      "seed": 2814390663,
+      "id": "5:3707:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1"
+    }
+  ],
+  "seedSource": "fresh independent Python secrets.randbelow(2**32) precommitted before gameplay",
+  "qualification": "Source physical deal, opening and native starter must match across different candidate 60s before cross-contender comparisons; unknown outcomes remain censored; no paper competitive games"
+}
