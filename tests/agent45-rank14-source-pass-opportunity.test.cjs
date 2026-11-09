@@ -40,7 +40,7 @@ function batch(missingTargetRoot=false){
   }
   return {selected:{rawDevelopment:{rows}}};
 }
-test('fourth frozen Store captures only acting source's Pass after its choice',()=>{
+test('fourth frozen Store captures only actor-selected source Pass',()=>{
   const old=Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch');
   const recorded=withRegisteredFourthSourcePassAudit(()=>batch(),{
     Store:FakeStore,observe
