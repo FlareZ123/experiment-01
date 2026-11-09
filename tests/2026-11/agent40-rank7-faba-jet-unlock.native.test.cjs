@@ -51,9 +51,18 @@ function settleNest(store, sourceId, regirockId, seat) {
     prompts.push(pending.type);
     let answer = null;
     if (pending.type === 'Choose cards') {
-      const index = pending.cards.cards.findIndex(c => c.id === regirockId);
-      assert.ok(index >= 0, 'Original printed Regirock exists in source-owned search');
-      answer = pending.decode([index]);
+      const { actorObservation } =
+        require('../../simulation/twinleaf/actor-observation-contract.cjs');
+      const { choosePostJetNestSearchPrompt } =
+        require('../../simulation/twinleaf/2026-11/agent40-faba-jet-owner-bridge.cjs');
+      const owner = store.state.players.find(p => p.id === sourceId);
+      const search = choosePostJetNestSearchPrompt(
+        actorObservation(store.state,seat),pending,owner.deck,['Regirock XYP']);
+      assert.equal(search?.kind,'nest-select-actual-owner-deck-basic');
+      assert.equal(search.printing,'Regirock XYP');
+      assert.ok(owner.deck.cards.some(c => c.id === regirockId),
+        'Original printed Regirock must exist in source-owned search');
+      answer = search.answer;
     } else if (pending.type === 'Shuffle deck') {
       const source = store.state.players.find(p => p.id === sourceId);
       answer = Array.from({ length: source.deck.cards.length }, (_, i) => i);
@@ -256,6 +265,7 @@ function probe(seat) {
     sourceOwnerPublicJetProposal: proposal.reason,
     sourceOwnerPostJetItemProposal: nestIntent.reason,
     sourceItemResolvedAfterUtility: true, sourceItemPrompts: prompts,
+    sourceOwnerK1SearchSelected: 'Regirock XYP',
     physicalCounts: [physicalCount(source()), physicalCount(candidate())],
     stagedOnly: true, naturalSourceDeals: 0, qualifiedCompetitiveGames: 0
   };
