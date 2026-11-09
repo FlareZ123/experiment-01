@@ -74,10 +74,10 @@ function compactNative(row){
 }
 
 /** Partial identification and gameplay for all 24 frozen source groups. */
-function compare(left,right){
+function compare(left,right,plan=reg){
   assert.equal(left.rows.length,24);
   assert.equal(right.rows.length,24);
-  const groups=reg.groups.map((regRow,index)=>{
+  const groups=plan.groups.map((regRow,index)=>{
     const a=compactNative(left.rows[index]);
     const b=compactNative(right.rows[index]);
     const matched=Boolean(a.sourceDealFingerprint&&
@@ -109,7 +109,7 @@ function compare(left,right){
     sourcePassesAfterFirstTemple:arr.reduce((n,x)=>
       n+x.sourcePassesAfterFirstTemple,0)
   });
-  const byRank=reg.sourceRanks.map(rank=>{
+  const byRank=plan.sourceRanks.map(rank=>{
     const g=groups.filter(x=>x.rank===rank);
     const a=summary(g.map(x=>x.safeguardV1));
     const b=summary(g.map(x=>x.templeV2));
@@ -131,8 +131,8 @@ function compare(left,right){
       paperCompetitiveGames:0
     },
     field:[
-      {candidateId:reg.candidateIds[0],...summary(groups.map(x=>x.safeguardV1))},
-      {candidateId:reg.candidateIds[1],...summary(groups.map(x=>x.templeV2))}
+      {candidateId:plan.candidateIds[0],...summary(groups.map(x=>x.safeguardV1))},
+      {candidateId:plan.candidateIds[1],...summary(groups.map(x=>x.templeV2))}
     ],
     byRank,groups
   };
