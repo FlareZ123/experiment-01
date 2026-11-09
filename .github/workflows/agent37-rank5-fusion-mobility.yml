@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_source_quickball_discard:
+        description: Run retrospective original rank5 Quick Ball plus owner discard source development
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -42,10 +47,23 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
+      - name: Retrospective rank5 source Quick Ball and native owner discard paired development
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard }}
+        run: |
+          node --check simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
+          node simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
+      - name: Archive all retrospective source Quick Ball/discard development arms
+        if: ${{ always() && inputs.agent37_source_quickball_discard }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-source-quickball-discard-8arm
+          path: agent37-rank5-source-quickball-discard-8arm.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Retain every preregistered native original-source arm, even if census fails
         if: ${{ always() && !inputs.agent13_selfcopy_pair }}
         uses: actions/upload-artifact@v4
