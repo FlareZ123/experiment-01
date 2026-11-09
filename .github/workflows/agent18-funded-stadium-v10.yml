@@ -33,7 +33,7 @@ jobs:
           npm run compile
       - name: Verify original Grand Tree printed identity with both-seat Store evolution
         if: ${{ inputs.grand_tree_alias_only }}
-        run: node --test tests/2026-11/agent18-grand-tree-printing-alias.test.cjs tests/2026-11/agent18-grand-tree-printing-alias.native.test.cjs tests/2026-11/agent18-grand-tree-original-two-player.native.test.cjs tests/2026-11/agent18-original-source-fullname-census.native.test.cjs
+        run: node --test tests/2026-11/agent18-grand-tree-printing-alias.test.cjs tests/2026-11/agent18-grand-tree-printing-alias.native.test.cjs tests/2026-11/agent18-grand-tree-original-two-player.native.test.cjs tests/2026-11/agent18-original-source-fullname-census.native.test.cjs tests/2026-11/agent18-grand-tree-thorns-field-neutral.native.test.cjs
       - name: Execute genuine same-eight paid G&H Stadium physical treatment
         if: ${{ !inputs.grand_tree_alias_only }}
         env:
