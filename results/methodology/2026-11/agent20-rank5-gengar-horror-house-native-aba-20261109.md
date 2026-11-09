@@ -65,3 +65,36 @@ The effect did **not** produce an overall candidate win. Source attacks occurred
 This establishes a narrow tactical improvement with a real opponent-response consequence, while preserving the posthoc caveat: threshold six was selected after inspecting this exact archived deal. It is neither a globally proven threshold nor a measured matchup win rate.
 
 The next useful counterfactual is to compose **already implemented owner Lillie's Determination after a genuine Pass** with the Gengar/Skyliner policy in a fixed physical seed factorial, testing whether owner hand refresh can deliver a second attack or a defensible alternative before source turns15/19. This reuses Agent21's independent Lillie work rather than implementing another competing Supporter path.
+
+
+## Joint Supporter-and-GX line reverses the same native game
+
+The preregistered, **unchanged printed-60, unchanged initial physical deal** five-arm 2×2 factorial completed in [manual CI **42637214130**](https://github.com/FlareZ123/experiment-01/actions/runs/42637214130). The [complete native and physical archive **13682972390**](https://github.com/FlareZ123/experiment-01/actions/runs/42637214130/artifacts/13682972390) is JSON SHA256 **`ee1c18aca9fbee5accdc7cf948319e07eba2ca26e50cea5fba902fa2703a581d`**.
+
+| Original source deal, fixed exact 60s | Candidate attacks | Source attacks | Native winner | Original source / candidate remaining Prizes |
+| --- | --- | --- | --- | --- |
+| A control | 0 | 4 | rank5 source | 0 / 6 |
+| B: existing actor Lillie after Pass only | 0 | 3 | rank5 source | 0 / 6 |
+| C: Gengar + public-hand-six GX only | 1 Horror House-GX | 4 | rank5 source | 0 / 6 |
+| **D: Lillie plus Gengar/Skyliner plus timed GX** | **Horror House-GX, then three Poltergeist** | **1** | **New Moon candidate** | **6 / 0** |
+| A repeat | 0 | 4 | rank5 source | 0 / 6 |
+
+All five trials were complete native Store games; the physical integrity gate passed in all of them. Control A replay produced **identical action and physical-zone sequences**. Every arm matched the exact original source and complete initial physical deal. B and D first diverged from baseline at **root32**, where an existing owner-only Lillie's Determination after an actual Pass is played. C first diverged in actual physical zones at root45 with the different Psychic Energy recipient. The experiment reused Agent21/Agent12's existing Lillie policy rather than implementing or replacing it.
+
+### Why the combination is decisive in this particular game
+
+The D arm's actual native sequence:
+
+- **Turn2/root32:** plays Lillie's Determination from the original hand rather than Pass. This shuffles the owner hand and supplies later Energy access.
+- **Turn12/roots80–82:** attaches actual Basic Psychic onto Benched Gengar, retreats from Tapu Lele through real Latias ex Skyliner, then uses printed **Horror House-GX**. The opponent's public hand has six cards.
+- **Turn13:** the rank5 source's originally observed DCE-and-attack turn now becomes an actual **Pass**, because of the hand-lock window.
+- **Turn15/root93:** the source finally uses a single **Cross Fusion Strike**. It did not Knock Out the candidate's Gengar.
+- **Turn18/roots105–108:** candidate attaches its second Psychic unit, the actually held **Telepath [P] Energy M3**, then announces **Poltergeist**. Posthoc inspected source hand contained **seven Trainer cards**. Printed Poltergeist does 50 damage for each Trainer in the opponent's hand, a **350-damage** nominal attack. Native Store knocks out Mew VMAX and awards three Prizes.
+- **Turn20/roots115–118:** a further held Basic Psychic is attached; Poltergeist sees **eight source Trainer cards** and generates **400 nominal damage**. Native Store Knocks Out Genesect V, taking two additional Prizes.
+- **Turn22/roots126–127:** the owner repeats Poltergeist against another Mew VMAX with eight Trainer cards visible in the now-revealed source hand, earning the remaining Prize and ending the game.
+
+This is a concrete example of **multiplicative tactical structure**, not a sum of average card values. Lillie's earlier hand refresh unlocks later Energy, GX timing denies the opponent's crucial attachment and leaves a large Trainer-heavy hand, and Poltergeist converts the retained Trainers into enough damage to take KOs. Generic deck-access heuristics or one-card replacement counts would miss the chain. The exact source hand identities were examined **only after the game** to explain the actual printed damage; no actor policy inspected them.
+
+The single initial deal was selected retrospectively from a failed game. Five policy arms on that same deal are **correlated experiments**. A true paper-game win, benchmark win rate or 99.5% performance cannot be inferred. The next necessary test is frozen **fresh-seed, both-seat** source-rank5 paired games comparing Lillie alone versus Lillie plus this Gengar strategy, using unchanged 60s and a single declared actor policy. Do not infer general strength from this one native reverse-terminal.
+
+See the [factorial preregistration](../../aichi-2026/registrations/agent20-rank5-gengar-lillie-factorial-20261109.json) and [reusable five-arm runner](../../../simulation/evaluation/2026-11/agent20-rank5-gengar-lillie-factorial.cjs).
