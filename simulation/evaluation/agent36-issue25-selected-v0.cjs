@@ -172,6 +172,9 @@ function runSelectedIssue25V0(injected={}){
   const expected=injected.registeredTrialIds??
     developmentTrials().map(row=>row.id);
   const allowSingleRegisteredTrial=injected.allowSingleRegisteredTrial===true;
+  const retrospectiveSingleTrial=injected.retrospectiveSingleTrial===true;
+  assert.ok(!retrospectiveSingleTrial||allowSingleRegisteredTrial,
+    'Retrospective single-game mode requires explicit single registration');
   assert.ok(Array.isArray(expected),'Registered trial IDs must be an array');
   assert.ok(!allowSingleRegisteredTrial||runner!==runDevelopment,
     'Single prospective mode requires an explicit registered-trial runner');
@@ -256,7 +259,9 @@ function runSelectedIssue25V0(injected={}){
     ],
     selectedGoFirstChoices:[false,false],
     actorOnlyComposition:true,nativeRootActionLimit,
-    registeredTrialMode:allowSingleRegisteredTrial?'single-prospective-game':'historical-or-paired',
+    registeredTrialMode:allowSingleRegisteredTrial?
+      retrospectiveSingleTrial?'single-exposed-retrospective-development':
+        'single-prospective-game':'historical-or-paired',
     firstNativeFallback:'fail-closed',
     outerOwnerPromptWrappersSelectedForBothSeats:true,
     fullDecisionPolicySymmetryCertified:false,
