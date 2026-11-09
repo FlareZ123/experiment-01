@@ -63,6 +63,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent2_rank11_quickball_attack_priority:
+        description: 'Retrospective original rank11 source attack priority over Quick Ball, both physical seats'
+        required: false
+        type: boolean
+        default: false
       agent2_crispin_vs_seeker_treasure_native:
         description: 'Staged native Crispin -> Mysterious Treasure -> VS Seeker -> Battle Compressor donor-selection sequence, both physical seats'
         required: false
@@ -332,6 +337,12 @@ jobs:
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only }}
         run: node simulation/evaluation/agent2-v8-treasure-owner-root-optin.cjs > artifacts/agent2-crispin-vs-seeker-treasure-native/original-source-optin.json
 
+      - name: Agent2 original rank11 source attack versus Quick Ball native replay
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_rank11_quickball_attack_priority && !inputs.contract_only }}
+        run: |
+          node --test tests/2026-11/agent2-rank11-source-quickball-attack-priority.test.cjs
+          node simulation/evaluation/2026-11/agent2-rank11-source-quickball-attack-priority.cjs
+
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() && !inputs.contract_only }}
         uses: actions/upload-artifact@v4
@@ -350,6 +361,7 @@ jobs:
             artifacts/agent3-owner-information-fallback-diagnostic/
             artifacts/agent36-v8-snap-trap-vertical-slice/
             artifacts/agent36-v8-snap-trap-vertical-slice-v2/
+            artifacts/agent2-rank11-source-quickball-attack-priority.json
             artifacts/agent2-crispin-vs-seeker-treasure-native/
             artifacts/agent43-v8-snaptrap-owner-root/
           retention-days: 21
