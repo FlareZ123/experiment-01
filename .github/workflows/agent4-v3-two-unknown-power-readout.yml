@@ -24,6 +24,7 @@ on:
           - hood-owner-physical-tool-v2-fresh32
           - hood-arven-original-rank6-v3
           - hood-immediate-psychic-reserve-v4
+          - hood-rank6-stall-v4-single
           - neutral-v3-new-natural32
         default: typed-replay
 
@@ -101,6 +102,23 @@ jobs:
         run: |
           node --check simulation/twinleaf/2026-11/agent4-hood-protected-underworld-owner-exception.cjs
           node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs tests/2026-11/agent4-hood-protected-underworld-owner.native.test.cjs
+      - name: Replay exact registered rank6 zero-attack physical game and expose public board
+        if: ${{ inputs.experiment == 'hood-rank6-stall-v4-single' }}
+        env:
+          AGENT4_RANK6_STALL_REPLAY_OUTPUT: agent4-rank6-real-stall-v4-single.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-rank6-stall-v4-single-physical-replay.cjs
+          node simulation/evaluation/2026-11/agent4-rank6-stall-v4-single-physical-replay.cjs
+      - name: Archive genuine public board and actor root at physical stall
+        if: ${{ always() && inputs.experiment == 'hood-rank6-stall-v4-single' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-stall-v4-real-board
+          path: |
+            agent4-rank6-real-stall-v4-single.json
+            agent4-rank6-real-stall-v4-single.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute fresh 32-game original-rank6 immediate funded Hood and deck reserve policy comparison
         if: ${{ inputs.experiment == 'hood-immediate-psychic-reserve-v4' }}
         env:
