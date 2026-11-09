@@ -694,7 +694,8 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
       if(!missingColored&&left.length>=payableCost.length-colored.length){
         payable.push(attack);
-      }else if(options.publicContextSpecialEnergy===true&&
+      }else if((options.publicContextSpecialEnergy===true||
+          options.potentialKoRoot===true)&&
         require('./agent17-public-context-special-energy.cjs')
           .publicSpecialAttackPayable(view,catalog,active,attack)){
         payable.push(attack);
