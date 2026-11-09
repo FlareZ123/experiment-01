@@ -84,7 +84,7 @@ jobs:
         env:
           AGENT7_TREASURE_BRIDGE_DEV: ${{ inputs.agent7_mail_beach_arven_treasure }}
         run: |
-          node --test tests/2026-11/agent7-mail-arven-owner-choice.test.cjs
+          node --test tests/2026-11/agent7-mail-arven-owner-choice.test.cjs tests/2026-11/agent7-owner-playcard-boundary-audit.test.cjs
           node --check simulation/twinleaf/agent38-v8-four-arm-owner-mail-native.cjs
           node --check simulation/evaluation/2026-11/agent7-rank3-mail-beach-arven-native.cjs
           node simulation/evaluation/2026-11/agent7-rank3-mail-beach-arven-native.cjs
