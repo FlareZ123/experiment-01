@@ -1,30 +1,30 @@
-# Aichi official stage-aware game-clock qualification gate
+# Aichi clock-outcome receipts integrated into the bilateral competence gate
 
-**Agent 45 | 9 November 2026 | shipped and manual-CI green**
+**Agent 45 | 9 November 2026 | deployed, manual-CI passing | research classification only**
 
-## Decision-changing implementation
+## Practical change
 
-The bilateral competence screen formerly accepted a generic `official25MinuteClockAudit: true` flag. This could wrongly reject a correctly clocked Aichi Open League final or accept a final based on the wrong 25-minute duration. The official Open League event uses Swiss 25 minutes, knockout Top32 through semifinals 25 minutes, and final 35 minutes, with different Swiss and knockout end-of-time procedures.
+The existing bilateral evaluation screen used a bare `official25MinuteClockAudit:true`. That field could conceal incorrect duration or cutoff handling for the 35-minute Aichi final and could not differentiate a natural terminal before the time call from a missing clock record. It also wrongly required an engine-natural terminal when a real official knockout time adjudication can resolve a game before either player takes six Prizes.
 
-The shared implementation in `simulation/evaluation/agent45-bilateral-competence-gate.cjs` now exports `verifiedOfficialAichiClock(trial)` and requires `trial.officialMatchClock` to contain:
+I first implemented a stage-aware receipt gate (manual CI [42541174982](https://github.com/FlareZ123/experiment-01/actions/runs/42541174982)), then **superseded the standalone stage strings with direct integration of the existing Agent27 official Aichi event scorer**:
 
-- `stage`: `swiss`, `top32` (Top32 through semifinal), or `final`
-- `limitMinutes`: 25, 25, or 35, respectively
-- `endOfTimeProcedure`: `swiss-conditional-second-player-turn-both-loss` for Swiss, `knockout-end-second-player-turn-prize-tiebreak` for knockout
-- `independentAudit: true`, `officialRulesSourceRef`, `timekeepingReceiptRef`, and `independentReviewer`
+- `simulation/evaluation/agent45-aichi-clock-receipt.cjs` calls Agent27 `auditNoCallClockPacket`, `auditTimeCallPacket`, and `auditExtensionLedger` using the **same event stage enums** `open-swiss` (25 minutes), `open-top32` (25 minutes), `open-final` (35 minutes).
+- The canonical receipt distinguishes `clockDisposition:'no-official-call'` with verified pre-call natural terminal evidence, from `clockDisposition:'official-call'` with a genuinely observed time call, mandated second-starter final turn, and independent paper board/Prize review. A valid `no-official-call` receipt must establish no call throughout the period, cannot rely on a missing event.
+- Swiss an unresolved official time call yields `both-loss`. Knockout may yield a winner after the final permitted turn on Prize thresholds; cases requiring extension must supply an uninterrupted independently reviewed `extensionLedgerPacket` and end with a normal game win or extension win. Ties requiring six-Prize tiebreaker, unverified and disputed states remain unqualified.
+- `trial.adjudicationProtocolSha` binds the actual executed Agent27 scorer source and published Aichi event link. The receipt ties `paperReceiptId` and `clockReceiptId` to the corresponding packet references. A mismatched stage, scorer version, source reference, opponent claim, or competing event disposition fails closed.
+- `simulation/evaluation/agent45-bilateral-competence-gate.cjs` v3 accepts a fully shaped official-call outcome as an alternative to an ordinary native terminal. **Action caps, engine errors, missing independent clock audits, and conflicting native/paper winners remain non-admitting.** The returned classifications include whether the end was natural or official-call, the conditional paper winner/both-loss, and why a receipt failed. All positive `structuralGatePassed` states remain `competitiveAdmission:false` until independent evidence authentication, legal play and opponent policy reviews.
 
-The validator fails closed for missing or invalid stage, duration, procedure, audit, source and reviewer. Legacy `official25MinuteClockAudit: true` alone is insufficient. `evaluateBilateralCompetence` retains the established `official-match-clock-audit-pending` failure for unqualified cases and now reports the supplied stage, time limit, and structural clock status. Competitive admission remains explicitly `false` pending independent full-paper review.
+## Shipped code and executable tests
 
-## Reproducible test receipt
+- Original v2 stage-only implementation: `c787e0981e6fcdd4b50c272042e9c985ffa85c01`.
+- Canonical Agent27 adaptation: `simulation/evaluation/agent45-aichi-clock-receipt.cjs`, commit `8debe3fe032613c907ea095f5fae6d0c260e92df`.
+- Shared competence gate v3: `simulation/evaluation/agent45-bilateral-competence-gate.cjs`, commits `977e75f9ebf8d22dd198d4b8e6f6f74f0039cd83` and `bfc939597a290251e3054d271e79fd77d9c4d6f1`.
+- `tests/agent45-bilateral-competence-gate.test.cjs`, commit `60c6a22478e1adad95f5b62fa46422242970b55d`; regression scenarios now cover Swiss, Top32, 35-minute final, no-call evidence coverage, 30-minute cutoff divergence, Swiss double loss, Top32 winner via Prize lead, extension win, wrong packet stage, missing paper/clock source, protocol drift, engine-error and root-cap veto, and native winner conflicts.
+- Existing manual CI workflow `.github/workflows/agent36-bilateral-competence-v9.yml` runs this suite in its `contract_only` lane, avoiding a new workflow and avoiding Twinleaf compilation. **[Successful CI run 42542036367](https://github.com/FlareZ123/experiment-01/actions/runs/42542036367)** at checked-out head `bfc939597a290251e3054d271e79fd77d9c4d6f1`.
+- Primary official event: [2026 CL Aichi May, Open League](https://www.pokemon-card.com/info/005445.html). Existing source-reviewed scoring and clock evidence: `simulation/evaluation/agent27-aichi-open-time-adjudication.cjs`; `results/methodology/agent27-aichi-open-official-time-adjudication-20261107.md`; independent review `results/methodology/agent41-aichi-clock-disposition-independent-review-20261107.md`.
 
-- Source commit: `c787e0981e6fcdd4b50c272042e9c985ffa85c01`
-- Test commit: `08c2da5feaa42f3be6a58838c23234b36557a16f`
-- Existing manual-workflow integration: `196c663a5c19a2758bd7d918f9855717dbfecdf1`
-- [Successful manual contract-only workflow](https://github.com/FlareZ123/experiment-01/actions/runs/42541174982): `agent36-bilateral-competence-v9.yml`, run `42541174982`, green, no Twinleaf compilation required
-- Tests: `tests/agent45-bilateral-competence-gate.test.cjs` exercises valid Swiss, Top32 and final; invalid 25-minute final; mismatched Swiss/knockout procedures; legacy boolean; missing review and source evidence.
+## Important boundary
 
-## Qualification boundary and integration
+This is an **event-rule integration and future acceptance mechanism**, rather than a physical match. Its inputs are externally supplied attestations; test fixtures are synthetic. The validator cannot confirm that an actual Aichi match used those precise 60s, that a clock ran for the claimed duration, that a listed reviewer was independent, or that choices followed paper rules. No competitive games were newly qualified by the code change.
 
-This structural check validates consistency of a claimed external clock receipt. It does not itself observe a wall clock, implement Swiss/knockout time adjudication, authenticate signatures, or independently establish paper-legal play. Existing native game terminals, root caps and engine errors remain development evidence only. Integrate an independently reviewed Aichi-specific end-of-time receipt before any competitive qualification. The Aichi official event source map is `results/aichi-2026/2026-11/agent12-official-format-rules-and-mulligan-20261107.md`, citing [official event rules](https://www.pokemon-card.com/info/005445.html).
-
-The project retains 29/32 authenticated source 60-card lists (missing ranks 23, 25, 28), zero competitively qualified games, and no selected 60-card final list.
+The overall fixed-deck search still has 29/32 authenticated original source inventories, zero competitively qualified games, and no demonstrated 99.5% full-field result.
