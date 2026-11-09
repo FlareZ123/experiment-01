@@ -121,15 +121,22 @@ function createLivePaperRootReceipts(trialId) {
         cards.push({id, originalSeat: seat, printing: printable(card)});
       }
     }
-    const original = store.dispatch;
-    assert.equal(typeof original, 'function');
+    const originalOwn = Object.getOwnPropertyDescriptor(store, 'dispatch');
+    assert.equal(typeof store.dispatch, 'function');
+    // Late native correction hooks replace prototype dispatch during a match.
+    // Always resolve the current prototype rather than retaining a stale method.
+    const callUnderlying = (self, action, args) => {
+      const method = originalOwn?.value ?? Reflect.get(
+        Object.getPrototypeOf(self), 'dispatch', self);
+      return method.call(self, action, ...args);
+    };
     const wrapped = function(action, ...args) {
-      if (depth > 0) return original.call(this, action, ...args);
+      if (depth > 0) return callUnderlying(this, action, args);
       assert.strictEqual(this, store, 'Real Store dispatch scope changed');
       depth++;
       const before = view();
       try {
-        const value = original.call(this, action, ...args);
+        const value = callUnderlying(this, action, args);
         pending.set(action, {before, after: view()});
         return value;
       } catch (error) {
@@ -145,7 +152,8 @@ function createLivePaperRootReceipts(trialId) {
     restore = () => {
       assert.strictEqual(store.dispatch, wrapped,
         'Live Store.dispatch overwritten by another hook');
-      store.dispatch = original;
+      if (originalOwn) Object.defineProperty(store, 'dispatch', originalOwn);
+      else delete store.dispatch;
     };
   }
 
