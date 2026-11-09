@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      audit_rank14_source_passes:
+        description: 'Observe same frozen rank14 Regidrago original owner hand and public state after real bot Pass decisions'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -200,3 +205,9 @@ jobs:
         run: |
           node --check simulation/evaluation/agent45-rank14-celestial-source-factorial.cjs
           node simulation/evaluation/agent45-rank14-celestial-source-factorial.cjs
+      - name: Audit the original Regidrago source owner's actual missed native Pass-turn choices
+        if: ${{ inputs.audit_rank14_source_passes }}
+        run: |
+          node --check simulation/twinleaf/agent45-original-source-pass-audit.cjs
+          node --check simulation/evaluation/agent45-rank14-source-pass-opportunities.cjs
+          node simulation/evaluation/agent45-rank14-source-pass-opportunities.cjs
