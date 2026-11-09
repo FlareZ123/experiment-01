@@ -25,7 +25,7 @@ const PROFILE_FLAGS=Object.freeze({
 
 function gitBlob(filename){
   const buffer=fs.readFileSync(path.join(ROOT,filename));
-  return createHash('sha1').update('blob '+buffer.length+'\\0')
+  return createHash('sha1').update('blob '+buffer.length+'\0')
     .update(buffer).digest('hex');
 }
 
@@ -168,7 +168,7 @@ function saveAtomic(filename,value){
   const tmp=filename+'.'+process.pid+'.tmp';
   const fd=fs.openSync(lock,'wx');
   try{
-    fs.writeFileSync(tmp,JSON.stringify(value,null,2)+'\\n');
+    fs.writeFileSync(tmp,JSON.stringify(value,null,2)+'\n');
     fs.renameSync(tmp,filename);
   }finally{
     fs.closeSync(fd);
@@ -232,7 +232,7 @@ if(require.main===module){
   const report=run();
   saveAtomic(OUT,report);
   process.stdout.write('AGENT3_FLEXIBLE_RETREAT_NATIVE '+
-    JSON.stringify({summary:report.summary,artifact:OUT})+'\\n');
+    JSON.stringify({summary:report.summary,artifact:OUT})+'\n');
   if(report.summary.physicallyComparableGroups!==9)process.exitCode=1;
 }
 module.exports={VERSION,PROFILE_FLAGS,preflight,receipt,compare,run,saveAtomic};
