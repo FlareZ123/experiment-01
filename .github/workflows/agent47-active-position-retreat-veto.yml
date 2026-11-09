@@ -38,6 +38,7 @@ jobs:
           tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
           tests/2026-11/agent47-general-retreat-lock-retention.test.cjs
           tests/agent47-actor-hand-discard.test.cjs
+          tests/agent47-canonical-hand-discard-integration.test.cjs
           tests/2026-11/agent47/attack-fuel-discard.test.cjs
 
   native-handoff:
