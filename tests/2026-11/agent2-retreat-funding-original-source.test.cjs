@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {registered,options,bridgeCounters,compare,ROOT_LIMIT}=
+const {registered,options,summarizeWithAudit,bridgeCounters,compare,ROOT_LIMIT}=
   require('../../simulation/evaluation/2026-11/agent2-retreat-funding-original-source.cjs');
 
 function sample(on=false){
@@ -75,4 +75,25 @@ test('bridge counters distinguish selected intents from non-attributed Store act
   assert.equal(b.allAcceptedActiveEnergyAttachCount,1);
   assert.equal(b.nativePhysicalConfirmed,3);
   assert.match(b.note,/no attribution/);
+});
+
+test('compact summaries preserve actual bridge opt-in, physical targets and deck fingerprints',()=>{
+  const source=sample(true);
+  const raw={trial:{id:source.id,rank:source.rank,seed:source.seed,
+    candidateSlot:'A'},actorOnlyDecisionCoverage:source.actorOnlyDecisionCoverage,
+    nativeAcceptedTargetSidecar:source.nativeAcceptedTargetSidecar,
+    candidateDeckFingerprint:source.candidateDeckFingerprint,
+    sourceDeckFingerprint:source.sourceDeckFingerprint,
+    fullPhysicalDealFingerprint:source.fullPhysicalDealFingerprint,
+    sourceDealFingerprint:source.sourceDealFingerprint,
+    rootActionLedger:source.rootActionLedger,finished:true,winner:1};
+  const result=summarizeWithAudit(raw);
+  assert.equal(bridgeCounters(result).optIn,true);
+  assert.equal(bridgeCounters(result).selectedAttachments,1);
+  assert.equal(result.candidateDeckFingerprint,'fixed-challenger-60');
+  assert.equal(result.sourceDeckFingerprint,'fixed-original-60');
+  assert.equal(result.nativeAcceptedTargetSidecar.events.length,1);
+  const missing=sample(false);
+  delete missing.sourceDeckFingerprint;
+  assert.equal(compare(missing,result).sameFixedOriginalSixties,false);
 });
