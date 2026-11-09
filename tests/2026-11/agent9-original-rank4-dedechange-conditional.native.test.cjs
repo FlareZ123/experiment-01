@@ -120,6 +120,19 @@ test('same original-rank4 physical entry, forced draw versus owner resource cons
   });
   for(const pair of pairs){
     const {control,treatment}=pair;
+    console.log('AGENT9_ORIGINAL_RANK4_DIAGNOSTIC',JSON.stringify({
+      seat:pair.seat,seed:pair.seed,
+      control:{error:control.errorCode,message:control.errorMessage,
+        opening:control.firstSetup?.preOwnerHandSha256??null,
+        played:control.nativeAcceptedPhysicalDedenne,
+        receipt:control.firstOwnerConfirm??null},
+      treatment:{error:treatment.errorCode,message:treatment.errorMessage,
+        opening:treatment.firstSetup?.preOwnerHandSha256??null,
+        played:treatment.nativeAcceptedPhysicalDedenne,
+        placement:treatment.placement,
+        receipts:treatment.nativeOwnerConfirmEvents,
+        chosen:treatment.ownerConfirmDecision??null}
+    }));
     assert.equal(control.source60Digest,treatment.source60Digest);
     assert.equal(control.reference60Digest,treatment.reference60Digest);
     assert.ok(control.firstSetup?.preOwnerHandSha256,
