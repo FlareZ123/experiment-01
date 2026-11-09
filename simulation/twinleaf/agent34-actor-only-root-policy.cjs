@@ -850,6 +850,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePostJetRoboRoot(view);
     if(follow)return follow;
   }
+  if(options.earlyForestSealRoot===true){
+    const stone=require('./2026-11/agent17-forest-seal-early-root.cjs')
+      .chooseForestSealEarly(view,catalog);
+    if(stone)return stone;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -1057,6 +1062,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     printedScalingBasicKoBeforeAttackOptIn:deps.printedScalingBasicKoBeforeAttack===true,
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
+    earlyForestSealRootOptIn:deps.earlyForestSealRoot===true,
+    earlyForestSealRootOwnerSeat:deps.earlyForestSealRootOwnerSeat??null,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     naturalEvolutionRootOwnerSeat:deps.naturalEvolutionRootOwnerSeat??null,
@@ -1922,6 +1929,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
+      earlyForestSealRoot:actorSpecialEnergyEnabled(
+        audit.earlyForestSealRootOptIn,audit.earlyForestSealRootOwnerSeat,seat),
       naturalEvolutionRoot:actorSpecialEnergyEnabled(
         audit.naturalEvolutionRootOptIn,audit.naturalEvolutionRootOwnerSeat,seat),
       garbodorResponseOwnerSeat:audit.garbodorResponseOwnerSeat,
@@ -2201,6 +2210,13 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-emergency-floatstone':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'use-forest-star-alchemy':
+        action=new UseAbilityAction(ownerId,'Star Alchemy',{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
+          index:intent.slot==='bench'?intent.index:0
+        });
         break;
       case 'attach-tool-candidate':
         action=require('./agent18-native-tool-play-action.cjs')
