@@ -523,6 +523,9 @@ function executeDevelopment(trial,candidates,{
   losslessNativeRootJoin=false,registeredTrial=false,
   isolatePolicyRandomness=false,
   isolatePhysicalShuffleRandomnessAfterSetup=false,
+  specialRedCardPaperPreselection=false,
+  specialRedCardPaperCorrection=false,
+  specialRedCardPaperSpeculativeShuffle=false,
   onRootStoreCreated=null,onRootActionDispatched=null
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
@@ -564,6 +567,9 @@ function executeDevelopment(trial,candidates,{
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     ...rng.request,
+    specialRedCardPaperPreselection,
+    specialRedCardPaperCorrection,
+    specialRedCardPaperSpeculativeShuffle,
     // Optional both-seat release gate: native Store must retain all physical
     // sixty cards after every settled root. Leave historical fixtures unchanged.
     capturePhysicalZoneIntegrity:physicalZoneGate,
@@ -1447,6 +1453,9 @@ function runDevelopment({
   actorTwoUnitPaidRetreatTargetTurnV2=null,
   isolatePolicyRandomness=false,
   isolatePhysicalShuffleRandomnessAfterSetup=false,
+  specialRedCardPaperPreselection=false,
+  specialRedCardPaperCorrection=false,
+  specialRedCardPaperSpeculativeShuffle=false,
   onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneSourceOnly=false,
@@ -1540,6 +1549,12 @@ function runDevelopment({
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
+  assert.ok(!specialRedCardPaperCorrection||specialRedCardPaperPreselection,
+    'Shared M4 paper Store correction requires owner-root preselection');
+  assert.ok(!specialRedCardPaperSpeculativeShuffle||
+    (specialRedCardPaperPreselection&&specialRedCardPaperCorrection&&
+    isolatePolicyRandomness&&isolatePhysicalShuffleRandomnessAfterSetup),
+    'M4 speculative clone requires both paper hooks and both RNG isolation domains');
   assert.ok(!actorRank9UltraDeadVipAfterPass||actorRank9CompressorBombAfter,
     'Original dead-VIP Ultra Ball rescue requires the source Bomb composition');
   assert.ok(!actorRank9CompressorOwnerCandidate||actorRank9CompressorOwnerBridge,
@@ -1929,6 +1944,9 @@ function runDevelopment({
         nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
         losslessNativeRootJoin,isolatePolicyRandomness,
         isolatePhysicalShuffleRandomnessAfterSetup,
+        specialRedCardPaperPreselection,
+        specialRedCardPaperCorrection,
+        specialRedCardPaperSpeculativeShuffle,
         onRootStoreCreated,onRootActionDispatched,
         nativeRootActionLimit,nativeFirstTurnPublicBoard,
         nativeAllOwnerPassFrontier,
@@ -2653,6 +2671,9 @@ function runDevelopment({
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
     nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
     nativeSetupCoinChoiceReceiptOptIn:nativeSetupCoinChoiceReceipt,
+    specialRedCardPaperPreselectionOptIn:specialRedCardPaperPreselection,
+    specialRedCardPaperCorrectionOptIn:specialRedCardPaperCorrection,
+    specialRedCardPaperSpeculativeShuffleOptIn:specialRedCardPaperSpeculativeShuffle,
     physicalZoneGateOptIn:physicalZoneGate,
     nativeRejectedActionEvidenceOptIn:nativeRejectedActionEvidence,
     physicalZoneQualificationSummary:require('./physical-zone-qualification.cjs')
