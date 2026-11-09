@@ -1,0 +1,37 @@
+{
+  "schema": "agent20-rank5-gengar-tempo-posthoc-aba-registration-v1",
+  "status": "FROZEN_BEFORE_NATIVE_COUNTERFACTUAL_EXECUTION",
+  "registrationUtc": "2026-11-09T14:27:00Z",
+  "caseId": "agent20-rank5-gengar-horror-house-tempo-posthoc-aba-v1",
+  "sourceFrozenCaseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "archivedSourceNativeArtifactId": 13678516703,
+  "sourceOriginalRank": 5,
+  "sourceOriginal60Hash": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceDealFingerprint": "65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922",
+  "fullPhysicalDealFingerprint": "45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootCap": 320,
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4410,
+      "candidateSlot": "B",
+      "seed": 3861605836,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:4410:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "phases": [
+    "A-control",
+    "B-symmetric-gengar-tempo",
+    "A-repeat"
+  ],
+  "treatment": "Symmetric owner-visible exact-print Gengar-GX one-Psychic bench funding, public Latias Skyliner free retreat, paid GX Horror House declaration",
+  "predeclaredHypotheses": {
+    "firstResourceDivergence": "Archived root45 attaches owner Psychic Energy MEE to Tapu Lele-GX instead of Bench Gengar & Mimikyu-GX",
+    "laterPotential": "Archived root69 Benches Latias ex SSP, providing free retreat if Skyliner active, enabling Gengar one-Psychic Horror House-GX",
+    "acceptance": "Genuine Store must accept attachment, retreat and GX attack and settle effect before paper-valid payoff can be inferred"
+  },
+  "statusLimit": "Posthoc archived physical deal; no randomized field inference, official clock or independently certified paper game"
+}
