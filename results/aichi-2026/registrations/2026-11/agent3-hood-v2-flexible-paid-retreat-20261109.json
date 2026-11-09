@@ -1,0 +1,261 @@
+{
+  "schema": "agent3-hood-v2-flexible-paid-retreat-native-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE RUN",
+  "researchDate": "2026-11-09",
+  "hypothesis": "Owner-paid one-unit retreat from zero-damage active Mimikyu to ready bench attacking Pokémon can replace repeated Filch in genuine original source game",
+  "fixedCandidate60": "results/aichi-2026/candidate-hood-consistency-v2.json",
+  "fixedCandidateGitBlobSha": "16d8b3513b83b46477252fd05bc05852664f8972",
+  "originalRosterPath": "results/aichi-2026/full-decklists.json",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "commonPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "commonPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperSemanticsProfile": "agent19-composed-paper-semantics-profile-v1",
+  "rootCap": 260,
+  "sourceRanks": [
+    5,
+    6
+  ],
+  "arms": [
+    "baseline-v2",
+    "flexible-retreat-v2"
+  ],
+  "controlAdditionalFlags": {},
+  "treatmentAdditionalFlags": {
+    "actorFlexiblePaidRetreatRoot": true
+  },
+  "registeredGroups": 9,
+  "registeredNativeAttempts": 18,
+  "posthocAnchorGroupCount": 1,
+  "prospectiveGroupCount": 8,
+  "registeredSourceGroups": [
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2143005893,
+      "sample": "ARCHIVED_POSTHOC_ANCHOR"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 2284012901,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 935676034,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 4285234759,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 788500897,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 899226994,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 1463858876,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 941359795,
+      "sample": "PROSPECTIVE"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 1763410350,
+      "sample": "PROSPECTIVE"
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2143005893,
+      "sample": "ARCHIVED_POSTHOC_ANCHOR",
+      "candidateId": "baseline-v2",
+      "id": "5:8102:B:baseline-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2143005893,
+      "sample": "ARCHIVED_POSTHOC_ANCHOR",
+      "candidateId": "flexible-retreat-v2",
+      "id": "5:8102:B:flexible-retreat-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 2284012901,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "5:9501:A:baseline-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 2284012901,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "5:9501:A:flexible-retreat-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 935676034,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "5:9502:A:baseline-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 935676034,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "5:9502:A:flexible-retreat-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 4285234759,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "5:9501:B:baseline-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 4285234759,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "5:9501:B:flexible-retreat-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 788500897,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "5:9502:B:baseline-v2"
+    },
+    {
+      "rank": 5,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 788500897,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "5:9502:B:flexible-retreat-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 899226994,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "6:9501:A:baseline-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 899226994,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "6:9501:A:flexible-retreat-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 1463858876,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "6:9502:A:baseline-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 1463858876,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "6:9502:A:flexible-retreat-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 941359795,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "6:9501:B:baseline-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 941359795,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "6:9501:B:flexible-retreat-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 1763410350,
+      "sample": "PROSPECTIVE",
+      "candidateId": "baseline-v2",
+      "id": "6:9502:B:baseline-v2"
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 1763410350,
+      "sample": "PROSPECTIVE",
+      "candidateId": "flexible-retreat-v2",
+      "id": "6:9502:B:flexible-retreat-v2"
+    }
+  ],
+  "comparisonRule": "Require exact full two-player physical deal, source deal and actual first player match. Count all terminals, caps and errors, distinguish posthoc anchor from fresh registered cohort. No paper game claims."
+}
