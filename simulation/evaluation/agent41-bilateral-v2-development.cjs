@@ -1460,6 +1460,7 @@ function runDevelopment({
   actorOwnerMailAfterPassSourceOnly=false,
   actorBilateralLillieAfterPass=false,
   actorDeckoutRescueRoot=false,actorDeckoutRescueBeforeAttack=false,
+  actorEarlyForestSealRoot=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
@@ -1932,6 +1933,7 @@ function runDevelopment({
           !sourceScopedStrandedMarnieRoot&&
           !sourceScopedDialgaShredT53&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
+          !actorEarlyForestSealRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorTempleDdeDenialRoot&&
@@ -1968,6 +1970,11 @@ function runDevelopment({
               ...(bilateralBasicEnergyRecipientFrontier?{
                 energyRecipientFrontier:true,
                 mobilityAwareRecipient:true
+              }:{}),
+              ...(actorEarlyForestSealRoot?{
+                earlyForestSealRoot:true,
+                earlyForestSealRootOwnerSeat:
+                  trial.candidateSlot==='A'?0:1
               }:{}),
               ...(bilateralPerfectionBenchFunding?{
                 perfectionBenchFunding:true
@@ -2665,6 +2672,8 @@ function runDevelopment({
       actorDeckoutRescueRoot,
     actorDeckoutRescueBeforeAttackOptIn:actorOnlyComposition&&
       actorDeckoutRescueBeforeAttack,
+    actorEarlyForestSealRootOptIn:actorOnlyComposition&&
+      actorEarlyForestSealRoot,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
