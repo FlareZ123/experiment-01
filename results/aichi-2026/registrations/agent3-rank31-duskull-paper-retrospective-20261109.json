@@ -1,0 +1,134 @@
+{
+  "schema": "agent3-rank31-duskull-paper-correction-retrospective-20261109-v1",
+  "status": "FROZEN BEFORE NATIVE REPLAY; RETROSPECTIVE SEEDS EXPOSED",
+  "explanation": "Exact eight prior source-ranked original Dusknoir/Chimecho matches, replayed with same 60s and unchanged game policy before and after opt-in paper-correct original Duskull PRE Come and Get You attack. Deliberately does not count as prospective unseen result.",
+  "priorFrozenRegistration": "results/aichi-2026/registrations/agent3-hood-consistency-v2-targeted-20261109.json",
+  "priorNativeRun": 42584022716,
+  "sourceRank": 31,
+  "originalSourceRoster": "results/aichi-2026/full-decklists.json",
+  "originalCandidateBlobs": [
+    {
+      "id": "hood-shield-v1",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "gitBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
+    },
+    {
+      "id": "hood-consistency-v2",
+      "path": "results/aichi-2026/candidate-hood-consistency-v2.json",
+      "gitBlobSha": "16d8b3513b83b46477252fd05bc05852664f8972"
+    }
+  ],
+  "paperBaseProfile": "agent19-composed-paper-semantics-profile-v1",
+  "sourcePolicy": "simulation/evaluation/agent3/hood-consistency-v2-targeted-native.cjs SOURCE_POLICY",
+  "paperTreatmentHook": "simulation/twinleaf/2026-11/agent21-duskull-come-and-get-you-paper-hook.cjs withPaperDuskullComeAndGetYou",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 260,
+  "twoArmOptions": [
+    {
+      "id": "baseline",
+      "enabled": false
+    },
+    {
+      "id": "paper-duskull",
+      "enabled": true
+    }
+  ],
+  "fixedGroups": [
+    {
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 1967783458
+    },
+    {
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 1028159364
+    },
+    {
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 3114351335
+    },
+    {
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 977848029
+    }
+  ],
+  "frozenNativeTrials": [
+    {
+      "id": "31:8101:A:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1967783458
+    },
+    {
+      "id": "31:8101:A:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1967783458
+    },
+    {
+      "id": "31:8102:A:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1028159364
+    },
+    {
+      "id": "31:8102:A:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1028159364
+    },
+    {
+      "id": "31:8101:B:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3114351335
+    },
+    {
+      "id": "31:8101:B:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3114351335
+    },
+    {
+      "id": "31:8102:B:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 977848029
+    },
+    {
+      "id": "31:8102:B:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 977848029
+    }
+  ],
+  "groups": 4,
+  "fixedSixties": 2,
+  "pairedModes": 2,
+  "actualNativeGames": 16,
+  "qualification": "native developer experiment only; 0 paper-qualified games",
+  "purpose": "Restore native playable printed Duskull optional attack with full Bench and/or no discard Duskull, distinguish remaining source errors and prompt failures; preserve original archive separately."
+}
