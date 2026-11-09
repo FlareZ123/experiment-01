@@ -205,7 +205,8 @@ test('metadata drift does not masquerade as a changed source decision',()=>{
   const cohort=certifyCohort(Object.fromEntries(PHASES.map(p=>[p,[arms[p]]])),
     [trial]);
   assert.equal(cohort.totals.activeSourceWithoutPivot,0);
-  assert.equal(cohort.totals.sourceAttackDisplacements,0);
+  assert.equal(cohort.totals.sourceAttackDisplacements,1);
+  assert.equal(cohort.totals.activeSourceWithPivot,1);
 });
 
 test('source native receipt must match its registered deal, turn and card',()=>{
