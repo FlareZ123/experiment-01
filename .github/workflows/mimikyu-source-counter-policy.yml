@@ -3,6 +3,11 @@ name: Mimikyu source-counterline policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      agent46_mimikyu_treasure_ab:
+        description: Prospective 32-arm owner-visible Mysterious Treasure dual-axis discard/search versus Fog-only
+        type: boolean
+        required: false
+        default: false
       agent46_mimikyu_fog_ab:
         description: Prospective original rank1/rank10 48-arm owner-visible Fog Crystal search and Dragon preservation A/B
         type: boolean
@@ -71,6 +76,22 @@ jobs:
         with:
           name: agent46-mimikyu-fog-source-ab
           path: agent46-mimikyu-fog-source-ab.json
+          if-no-files-found: warn
+      - name: Optional native dual-axis Treasure payment, search and owner custody both seats
+        if: inputs.agent46_mimikyu_treasure_ab == true
+        run: node --test tests/2026-11/agent46-mimikyu-treasure-search-setup.native.test.cjs
+      - name: Optional frozen owner Treasure vs Fog natural full-sixty A/B
+        if: inputs.agent46_mimikyu_treasure_ab == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-treasure-dual-axis-source-ab.cjs > agent46-mimikyu-treasure-ab.json
+      - name: Summarize Treasure physical owner dual-axis source trials
+        if: inputs.agent46_mimikyu_treasure_ab == true
+        run: node -e "const x=require('./agent46-mimikyu-treasure-ab.json');console.log(JSON.stringify({schema:x.schema,attempts:x.attempts,matched:x.comparableOriginalSourceDeals,proposals:x.treasureProposals,discards:x.physicalDragonDiscards,mimikyuSelections:x.physicalMimikyuSelections,pairs:x.pairs}))"
+      - name: Archive original-source Treasure vs Fog native A/B
+        if: ${{ always() && inputs.agent46_mimikyu_treasure_ab == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-treasure-dual-axis-source-ab
+          path: agent46-mimikyu-treasure-ab.json
           if-no-files-found: warn
       - name: Report bounded engine actions and public Copycat opportunities
         run: node -e "const x=require('./mimikyu-policy-diagnostic.json');console.log('Qualified win-rate evidence:',x.qualifiedWinRateEvidence);for(const r of x.rows)console.log(JSON.stringify({ranks:r.ranks,policy:r.policy,seed:r.seed,status:r.status,finished:r.finished,verifiedFirstTurn:r.verifiedFirstTurn,apex:r.actualApexDragonAttacks,copycat:r.actualCopycatAttacks,eligibleObservations:r.eligiblePublicChoiceObservations,error:r.error||null}))"
