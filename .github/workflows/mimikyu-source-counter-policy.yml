@@ -33,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: aichi-source-mimikyu-counter-policy
+  group: ${{ inputs.agent46_replay_run != '' && 'aichi-source-mimikyu-artifact-audit' || 'aichi-source-mimikyu-counter-policy' }}
   cancel-in-progress: false
 
 jobs:
