@@ -31,6 +31,10 @@ function assertPhysicalPrizePromptSelection(state,prompt,selected){
   assert.ok(selected.every(prize=>
     target.prizes.includes(prize)&&prize.cards.length>0),
   'owner Prize choice must name physical lists in that owner Prize zone');
+  const blocked=new Set(prompt.options.blocked??[]);
+  assert.ok(selected.every(prize=>
+    !blocked.has(target.prizes.indexOf(prize))),
+  'owner Prize choice must exclude blocked physical Prize slots');
   return target;
 }
 
