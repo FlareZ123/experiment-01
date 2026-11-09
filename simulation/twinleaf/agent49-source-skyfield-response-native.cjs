@@ -19,7 +19,7 @@ function chooseSourceSkyField(state,sourceSeat){
   if(state?.turn!==17||state.activePlayer!==sourceSeat||
      state.prompts?.some(p=>p.result===undefined))return null;
   const owner=state.players[sourceSeat];
-  if(owner.stadiumPlayedTurn>0)return null;
+  if(owner.stadiumPlayedTurn===state.turn)return null;
   const ownStadiums=state.players.flatMap(p=>p.stadium?.cards??[]);
   if(ownStadiums.some(c=>c.fullName===PRINTING))return null;
   const index=owner.hand.cards.findIndex(c=>c.fullName===PRINTING);
@@ -72,7 +72,7 @@ function withSourceSkyField(execute,deps={}){
       if(index===null)return baseline;
       audit.heldSkyFieldPasses++;
       const owner=state.players[sourceSeat],card=owner.hand.cards[index];
-      if(card?.canPlay?.(activeStore,state,owner)!==true){
+      // Card.canPlay is optional in the pinned native engine; undefined\n      // defers to the authoritative Store rather than denying a Stadium.\n      if(card?.canPlay?.(activeStore,state,owner)===false){
         audit.nativeCanPlayDenied++;
         return baseline;
       }
