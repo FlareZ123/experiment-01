@@ -18,12 +18,16 @@ jobs:
         with:
           node-version: '22'
       - name: Seven source/route regression tests
-        run: node --test tests/agent10-super-growth-first-turn.test.cjs
+        run: node --test tests/agent10-super-growth-first-turn.test.cjs tests/agent10-hybrid-supergrowth-first-turn.test.cjs
       - name: Reproduce one million shuffled deals per printed 60
         run: node scripts/agent10-super-growth-first-turn.cjs > agent10-supergrowth-million.json
+      - name: Reproduce hybrid one-million 60-card screens
+        run: node scripts/agent10-hybrid-supergrowth-first-turn.cjs > agent10-hybrid-million.json
       - name: Save reproducible summary
         uses: actions/upload-artifact@v4
         with:
           name: agent10-supergrowth-million
-          path: agent10-supergrowth-million.json
+          path: |
+            agent10-supergrowth-million.json
+            agent10-hybrid-million.json
           retention-days: 30
