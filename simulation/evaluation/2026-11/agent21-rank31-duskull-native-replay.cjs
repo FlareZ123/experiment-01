@@ -112,18 +112,29 @@ function main(){
     if(prior===undefined)delete process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV;
     else process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV=prior;
   }
+  const baselineRoots=rows[0].rawRow.nativeAbortEvidence?.rootActionLedger;
+  const patchedRoots=rows[1].rawRow.rootActionLedger;
+  assert.ok(Array.isArray(baselineRoots)&&baselineRoots.length===253,
+    'Exact previously fatal native root must remain 253');
+  assert.ok(Array.isArray(patchedRoots)&&patchedRoots.length>=baselineRoots.length);
+  assert.deepEqual(patchedRoots.slice(0,baselineRoots.length),baselineRoots,
+    'Duskull correction must preserve every earlier genuine Store root');
+  assert.ok(rows.every(row=>row.sourceDealOriginalArchiveMatch),
+    'Replays must retain original rank31 source physical deal');
   const result={schema:'agent21-rank31-duskull-original-vs-paper-hook-replay-v1',
     engine:PINNED_TWINLEAF,trial:TRIAL,nativeRootCap:NATIVE_ROOT_CAP,
     originalArchiveRunId:ORIGINAL_ARCHIVE_RUN,originalSeedReused:true,
+    originalFirst253RootsIdentical:true,originalErrorRootOrdinal:253,
     sourceDealsPaired:rows.every(row=>row.sourceDealFingerprint)&&
       rows[0].sourceDealFingerprint===rows[1].sourceDealFingerprint,
     exactOriginalSourceDealReproduced:
       rows.every(row=>row.sourceDealOriginalArchiveMatch),
     developmentOnly:true,competitivelyPaperQualifiedGames:0,arms:rows,
-    caveat:'Retrospective original seed with 260-root policy and a modified engine hook; neither arm is an independent win-rate trial.'};
+    caveat:'Retrospective original seed with bounded native root horizon and a modified engine hook; neither arm is an independent win-rate trial.'};
   archive(result);
   process.stdout.write('AGENT21_RANK31_DUSKULL_NATIVE '+JSON.stringify({
     sourceDealsPaired:result.sourceDealsPaired,
+    originalFirst253RootsIdentical:result.originalFirst253RootsIdentical,
     nativeRootCap:NATIVE_ROOT_CAP,
     exactOriginalSourceDealReproduced:result.exactOriginalSourceDealReproduced,
     arms:rows.map(({corrected,patchAudit,sourceDealFingerprint,roots,
