@@ -72,7 +72,9 @@ function withSourceSkyField(execute,deps={}){
       if(index===null)return baseline;
       audit.heldSkyFieldPasses++;
       const owner=state.players[sourceSeat],card=owner.hand.cards[index];
-      // Card.canPlay is optional in the pinned native engine; undefined\n      // defers to the authoritative Store rather than denying a Stadium.\n      if(card?.canPlay?.(activeStore,state,owner)===false){
+      // Card.canPlay is optional in the pinned native engine; undefined
+      // defers to the authoritative Store rather than denying a Stadium.
+      if(card?.canPlay?.(activeStore,state,owner)===false){
         audit.nativeCanPlayDenied++;
         return baseline;
       }
