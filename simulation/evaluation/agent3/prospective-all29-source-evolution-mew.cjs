@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const registration=require('../../../results/aichi-2026/registrations/agent3-source-evolution-mew-full29-20261109.json');
+const registration=require('../../../results/aichi-2026/registrations/agent3-source-mew-funding-full29-v2-20261109.json');
 const {runArm,summarize,compare}=require('./portable-champion-all29-20261109.cjs');
 const {runDevelopment}=require('../agent41-bilateral-v2-development.cjs');
 const {installUnderworldDoorPsychicRecipientHook}=
@@ -10,7 +10,7 @@ const {installRegidragoCelestialRoarPaperCustodyHook,VERSION:celestialHookVersio
   require('../../twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs');
 const {save}=require('../agent43-guzma-original-source-pair.cjs');
 
-const VERSION='agent3-prospective-29-source-natural-evolution-mew-competence-v1';
+const VERSION='agent3-prospective-29-source-mew-funding-v2';
 
 /**
  * Prospective, entire authenticated original field. Both seats per rank.
@@ -18,7 +18,7 @@ const VERSION='agent3-prospective-29-source-natural-evolution-mew-competence-v1'
  */
 function frozenGroups(){
   assert.equal(registration.schema,
-    'agent3-20261109-fresh-full29-source-evolution-mew-competence-v1');
+    'agent3-20261109-fresh-full29-source-mew-funding-v2');
   assert.equal(registration.status,'FROZEN BEFORE FIRST NATIVE GAME');
   assert.equal(registration.fixedCandidate,'champion-reference');
   assert.equal(registration.registeredGroups,58);
@@ -42,7 +42,8 @@ function frozenGroups(){
 }
 
 /**
- * Only the original-source owner receives the optional new policy actions.
+ * The shared native baseline already evolves both actors. Only the original
+ * Mew-source owner receives the additional Energy/attack decisions.
  * The opponent/champion actor is unchanged; gameplay uses native Store roots.
  * @param {boolean} enabled
  * @returns {object} Runnable source-only actor flags.
@@ -50,8 +51,6 @@ function frozenGroups(){
 function sourceCompetenceOptions(enabled){
   assert.equal(typeof enabled,'boolean');
   return enabled?{
-    actorNaturalEvolutionRoot:true,
-    actorNaturalEvolutionSourceOnly:true,
     actorMewDceRecipientRoot:true,
     actorMewDceRecipientSourceOnly:true,
     actorMewGenesectTechnoBlast:true,
@@ -61,7 +60,7 @@ function sourceCompetenceOptions(enabled){
 
 /**
  * Use the identical inherited portable both-owner policy in A and B.
- * A/B changes only explicit source-only natural evolution/Mew capability.
+ * A/B changes only source-owned Mew DCE funding and Techno Blast choice.
  * @param {boolean} enabled
  * @param {object[]} groups
  * @param {Function} [runner] Injectable pure fixture.
