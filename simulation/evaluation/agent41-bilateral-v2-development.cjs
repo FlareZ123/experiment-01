@@ -1443,6 +1443,7 @@ function runDevelopment({
   actorVipAfterPassAdapter=null,
   actorVipRank9MegaVoltorbRecipient=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
+  actorOwnerMailAfterPassSourceOnly=false,
   actorBilateralLillieAfterPass=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
@@ -1542,6 +1543,8 @@ function runDevelopment({
     'Source-only Seeker/Guzma requires the policy enabled');
   assert.ok(!actorPotentialKoSourceOnly||actorPotentialKoRoot,
     'Source-only potential KO requires the policy enabled');
+  assert.ok(!actorOwnerMailAfterPassSourceOnly||actorOwnerMailAfterPass,
+    'Source-only Trainers Mail requires its native owner Mail wrapper');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
@@ -2068,6 +2071,8 @@ function runDevelopment({
           const optionalScope=actorOwnerMailAfterPassScope?{
             allowRoot:view=>view.actorSeat===sourceSeat&&
               view.globalTurn===actorOwnerMailAfterPassScope.globalTurn
+          }:actorOwnerMailAfterPassSourceOnly?{
+            allowRoot:view=>view.actorSeat===sourceSeat
           }:{};
           const wrapped=require('../twinleaf/agent9-native-owner-mail-after-pass.cjs')
             .withOwnerMailAfterPass(execute,
