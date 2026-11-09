@@ -13,6 +13,9 @@ const hood=require('../../../results/aichi-2026/candidate-hood-shadow-rider.json
 const ROOT=path.resolve(__dirname,'../../..');
 const OUTPUT=path.join(ROOT,'agent21-rank31-duskull-native-replay.json');
 const ORIGINAL_ARCHIVE_RUN=42578010606;
+const NATIVE_ROOT_CAP=Number(process.env.AGENT21_RANK31_ROOT_CAP??260);
+assert.ok(Number.isSafeInteger(NATIVE_ROOT_CAP)&&NATIVE_ROOT_CAP>=260&&
+  NATIVE_ROOT_CAP<=640,'Retrospective native horizon must be 260..640');
 const TRIAL=Object.freeze({
   rank:31,repeat:7002,candidateSlot:'A',seed:323239100,
   candidateId:'hood-shield-v1',id:'31:7002:A:hood-shield-v1'
@@ -54,7 +57,8 @@ function replay(corrected){
     },
     allowSingleCandidateArm:true,
     allowAdditionalOriginalSourceRanks:true,
-    nativeRootActionLimit:260,
+    nativeRootActionLimit:NATIVE_ROOT_CAP,
+    allowExtendedRegisteredNativeRootCap:NATIVE_ROOT_CAP>260,
     isolatePolicyRandomness:true,
     isolatePhysicalShuffleRandomnessAfterSetup:true
   }),PROFILE);
@@ -109,7 +113,7 @@ function main(){
     else process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV=prior;
   }
   const result={schema:'agent21-rank31-duskull-original-vs-paper-hook-replay-v1',
-    engine:PINNED_TWINLEAF,trial:TRIAL,
+    engine:PINNED_TWINLEAF,trial:TRIAL,nativeRootCap:NATIVE_ROOT_CAP,
     originalArchiveRunId:ORIGINAL_ARCHIVE_RUN,originalSeedReused:true,
     sourceDealsPaired:rows.every(row=>row.sourceDealFingerprint)&&
       rows[0].sourceDealFingerprint===rows[1].sourceDealFingerprint,
@@ -120,6 +124,7 @@ function main(){
   archive(result);
   process.stdout.write('AGENT21_RANK31_DUSKULL_NATIVE '+JSON.stringify({
     sourceDealsPaired:result.sourceDealsPaired,
+    nativeRootCap:NATIVE_ROOT_CAP,
     exactOriginalSourceDealReproduced:result.exactOriginalSourceDealReproduced,
     arms:rows.map(({corrected,patchAudit,sourceDealFingerprint,roots,
       nativeError,finished,nativeWinner,nativeCensorDisposition})=>({
