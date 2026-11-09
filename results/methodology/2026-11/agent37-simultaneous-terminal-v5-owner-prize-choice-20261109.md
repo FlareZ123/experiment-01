@@ -103,6 +103,29 @@ Both second-group-terminal orientations resolved the previously dropped
 nonterminal first-group Prize choice with exact physical selected-card custody
 and exactly one terminal log.
 
+## Exact Prize-zone membership beyond native prompt validation
+
+The pinned `ChoosePrizePrompt.validate` checks that the result has
+the correct number of nonempty `CardList` references, with no
+duplicates. It does **not** require those references to belong to
+the chooser's actual physical Prize zone. An arbitrarily constructed
+nonempty `CardList` from the player's deck can therefore pass the
+native prompt validator's visible checks while being an invalid Prize.
+
+V5 now asserts that **every selected `CardList` is physically present
+in `otherPlayer.prizes`** before allowing any native
+`TAKE_SPECIFIC_PRIZES` effect. This is separate from the existing
+post-transfer exact-object hand-custody assertion. The new negative
+fixture returns one deliberately forged, nonempty CardList plus valid
+Prize lists, confirms that the native `ChoosePrizePrompt.validate`
+accepts that malformed response, and requires v5 to reject it before
+Prize effects. Both physical seat orientations are exercised.
+
+The expanded manual native run
+[42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190)
+was dispatched with the original ten successful v5 cases and the two
+new ownership rejects. Its result remained pending at first writing.
+
 ## Unsolved limits
 
 The current staged transaction is not a naturally played 60-card match and is not a competitive paper game. Two Active Knock Outs, exactly two positive Prize groups, ordinary hand destinations, and simple Bench-based promotion eligibility remain required. The exact card objects in the staged Prize pool are known to the test controller; this test is deliberately a native mechanical fixture, not a player information-policy certificate. When deployed in an autonomous game, the `ChoosePrizePrompt` decision must be restricted to owner-visible information and the recorded selected Prize positions must be audited for information leakage. Other effects on Prize destinations, midprompt rule changes, heterogeneous Prize-triggered Abilities, multiple KO events, clock transitions, and discarded or redirected Prize cards require separate tests.
