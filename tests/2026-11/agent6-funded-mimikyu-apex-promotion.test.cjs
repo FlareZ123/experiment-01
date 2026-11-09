@@ -48,7 +48,7 @@ function fixture(seat=0){
         actorSeat:seat,turn:6,opponentLastTurnTurn:5,
         opponentCopycatChoices:[{
           turn:5,sourcePrinting:R,attackName:'Apex Dragon',
-          gxAttack:false,copycatAttack:false
+          gxAttack:false,copycatAttack:true
         }]
       }
     },
