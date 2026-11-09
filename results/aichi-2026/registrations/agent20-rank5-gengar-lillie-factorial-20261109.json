@@ -1,0 +1,51 @@
+{
+  "schema": "agent20-rank5-gengar-lillie-same-deal-factorial-registration-v1",
+  "status": "FROZEN_BEFORE_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-09T14:42:00Z",
+  "caseId": "agent20-rank5-gengar-lillie-owner-policy-factorial-v1",
+  "sourceFrozenCaseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "sourceOriginalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "originalRank5SourcePrintedSha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceDealFingerprint": "65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922",
+  "fullPhysicalDealFingerprint": "45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 320,
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4410,
+      "candidateSlot": "B",
+      "seed": 3861605836,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:4410:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "factorial": {
+    "A_control": {
+      "actorBilateralLillieAfterPass": false,
+      "bilateralGengarHorrorHouseTempo": false
+    },
+    "B_ownerLillie": {
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": false
+    },
+    "C_ownerGengarHand6": {
+      "actorBilateralLillieAfterPass": false,
+      "bilateralGengarHorrorHouseTempo": true,
+      "minOpponentHandCount": 6
+    },
+    "D_ownerLillieAndGengarHand6": {
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": true,
+      "minOpponentHandCount": 6
+    },
+    "A_repeat": {
+      "actorBilateralLillieAfterPass": false,
+      "bilateralGengarHorrorHouseTempo": false
+    }
+  },
+  "objective": "Independent Supporter hand-refresh opportunity at original root32 plus known Gengar/Skyliner GX tempo pathway; test whether the combined actor-only policy creates a paid second attack before source wins.",
+  "evidenceGate": "Pin exact original and candidate 60s and initial physical deals. Preserve all accepted actions, physical zone targets, source replies, natural terminals and failures. No paper-qualified or field-win claim.",
+  "limitation": "Posthoc original seed with two previously explored policies; combination selected after observing case. Future randomized corroboration needed."
+}
