@@ -2329,7 +2329,15 @@ function runDevelopment({
             .withOriginal29PrintedFidelity(withOptionalOwnerMail);
           return corrected.result;
         };
-        const observed=withCanonicalActorOnlyPolicy(withOptionalPrintedFidelity,
+        const withOptionalMimikyuApexCompatibility=()=>{
+          if(!actorMimikyuApexFundedPromotion)
+            return withOptionalPrintedFidelity();
+          return require(
+            '../twinleaf/2026-11/agent6-mimikyu-apex-paper-compatibility.cjs'
+          ).withMimikyuApexPaperCompatibility(withOptionalPrintedFidelity);
+        };
+        const observed=withCanonicalActorOnlyPolicy(
+          withOptionalMimikyuApexCompatibility,
           {...scopedRoot,...chargedPokemon,
             ...(actorVipAfterPassAdapter?{
               vipAfterPass:actorVipAfterPassAdapter
