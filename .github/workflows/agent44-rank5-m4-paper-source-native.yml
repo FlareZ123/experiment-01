@@ -15,6 +15,7 @@ on:
           - release-inspect
           - gengar-tempo
           - gengar-hand6
+          - gengar-factorial
 
 permissions:
   contents: read
@@ -49,7 +50,7 @@ jobs:
           gh run download 42610256883 -R FlareZ123/experiment-01 -n agent44-rank5-m4-paper-source-four-native-v1 -D prior-m4
           node simulation/evaluation/2026-11/agent44-m4-source-archive-intake.cjs prior-m4/agent44-rank5-m4-paper-source-native-v1.json
       - name: Validate frozen source program
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
@@ -62,20 +63,20 @@ jobs:
           node --test tests/2026-11/agent44-rank5-ranger-source-alias.test.cjs
           node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs --inspect-only
       - name: Fetch pinned vendor revision
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' }}
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Replay same four frozen original-source games under exact Ranger link repair
@@ -118,6 +119,23 @@ jobs:
         with:
           name: agent20-gengar-hand6-timing-posthoc-aba
           path: artifacts/agent20-rank5-gengar-hand6-posthoc-aba.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate owner-Lillie and Gengar 2x2 frozen experiment
+        if: ${{ inputs.mode == 'gengar-factorial' }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent20-rank5-gengar-lillie-factorial.cjs
+          node --check simulation/evaluation/2026-11/agent20-rank5-gengar-tempo-aba.cjs
+          node --test tests/2026-11/agent20-gengar-horror-house-tempo.test.cjs
+      - name: Run exact-deal owner Lillie and Gengar two-factor native experiment
+        if: ${{ inputs.mode == 'gengar-factorial' }}
+        run: node simulation/evaluation/2026-11/agent20-rank5-gengar-lillie-factorial.cjs
+      - name: Preserve complete independent four-policy and control-repeat evidence
+        if: ${{ always() && inputs.mode == 'gengar-factorial' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-rank5-lillie-gengar-factorial-v1
+          path: artifacts/agent20-rank5-gengar-lillie-factorial.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive single-case review packet and exact missing-evidence manifest
