@@ -99,12 +99,23 @@ function paired(control,treatment){
  * @returns {object}
  */
 function run(deps={}){
-  const groups=registered();
+  const frame=deps.trialFrame??registration;
+  const groups=frame===registration?registered():frame.groups.map(x=>({...x}));
+  assert.ok(frame.status==='FROZEN_BEFORE_FIRST_NATIVE_DISPATCH');
+  assert.ok(groups.length>=2);
+  assert.equal(new Set(groups.map(x=>x.id)).size,groups.length);
+  assert.equal(new Set(groups.map(x=>x.seed)).size,groups.length);
+  for(const group of groups){
+    assert.ok(frame.sourceRanks.includes(group.rank));
+    assert.equal(group.candidateId,frame.candidateId);
+    assert.equal(group.id,[group.rank,group.repeat,
+      group.candidateSlot,group.candidateId].join(':'));
+  }
   const runBatch=deps.runBatch??runNativeBatch;
   const wrapper=deps.wrapper??withOwnerCursedBlastAfterPass;
   const options={
-    registeredTrials:groups,registeredFrameName:registration.schema,
-    nativeRootActionLimit:registration.nativeRootLimit,
+    registeredTrials:groups,registeredFrameName:frame.schema,
+    nativeRootActionLimit:frame.nativeRootLimit,
     vipAfterPass:true,vipPreferMewtwoDonor:true
   };
   const common=()=>runBatch(true,deps.runner,options);
@@ -114,10 +125,10 @@ function run(deps={}){
   const left=control.selected.rawDevelopment.rows.map(x=>summarizeRow(x,true));
   const right=treated.result.selected.rawDevelopment.rows
     .map(x=>summarizeRow(x,true));
-  assert.equal(left.length,4);
-  assert.equal(right.length,4);
+  assert.equal(left.length,groups.length);
+  assert.equal(right.length,groups.length);
   const byId=new Map(right.map(x=>[x.id,x]));
-  assert.equal(byId.size,4);
+  assert.equal(byId.size,groups.length);
   const pairs=left.map(x=>{
     assert.ok(byId.has(x.id),'Missing preregistered native treatment');
     return paired(x,byId.get(x.id));
@@ -130,15 +141,16 @@ function run(deps={}){
     Number(x.treatment.status==='engine-error'),0);
   return {
     version:VERSION,policy:POLICY,
-    registration:registration.schema,
-    registeredUtc:registration.registeredUtc,
-    cohortRanks:registration.sourceRanks,
-    fixedCandidate:registration.candidateId,
-    registeredGroups:4,actualNativeAttempts:8,
-    enginePin:registration.enginePin,
-    nativeRootLimit:registration.nativeRootLimit,
+    registration:frame.schema,
+    registeredUtc:frame.registeredUtc,
+    cohortRanks:frame.sourceRanks,
+    fixedCandidate:frame.candidateId,
+    registeredGroups:groups.length,actualNativeAttempts:groups.length*2,
+    enginePin:frame.enginePin,
+    nativeRootLimit:frame.nativeRootLimit,
     cause:'Same two-seat native owner policy, plus optional Cursed Blast at otherwise Pass',
-    status:allMatched?'all-four-physical-deals-matched':
+    status:allMatched?(frame===registration?
+      'all-four-physical-deals-matched':'all-registered-physical-deals-matched'):
       'INVALID-ONE-OR-MORE-PHYSICAL-DEALS-UNVERIFIED',
     counts:{
       terminalControls:controlNat,terminalTreatments:treatedNat,
