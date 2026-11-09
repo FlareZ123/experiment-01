@@ -14,7 +14,7 @@ const load=name=>require(path.join(ENGINE,name));
  * Build an actual pinned Store with original printed Dedenne and independent
  * physical Energy instances. Only a pending native owner Confirm is automated.
  * @param {0|1} seat
- * @param {'low-hand'|'protected-hand'|'low-deck'} scenario
+ * @param {'low-hand'|'protected-hand'|'low-deck'|'expired-vip'} scenario
  * @returns {object}
  */
 function fixture(seat,scenario){
@@ -46,6 +46,8 @@ function fixture(seat,scenario){
   const held=scenario==='protected-hand'?card('Secret Box TWM'):
     card('Fire Energy SVE');
   actor.hand.cards.push(held);
+  if(scenario==='expired-vip')
+    for(let i=0;i<3;i++)actor.hand.cards.push(card('Battle VIP Pass FST'));
   const deckLength=scenario==='low-deck'?6:12;
   for(let i=0;i<deckLength;i++)actor.deck.cards.push(card('Psychic Energy SVE'));
   for(let i=0;i<12;i++)opponent.deck.cards.push(card('Psychic Energy SVE'));
@@ -67,7 +69,7 @@ function fixture(seat,scenario){
 }
 
 for(const seat of [0,1]){
-  for(const scenario of ['low-hand','protected-hand','low-deck']){
+  for(const scenario of ['low-hand','protected-hand','low-deck','expired-vip']){
     test('actual pinned Store Dedechange '+scenario+' physical seat '+seat,()=>{
       const x=fixture(seat,scenario);
       const {result,audit}=withOwnerAbilityConfirmPolicy(()=>{
@@ -88,12 +90,12 @@ for(const seat of [0,1]){
           heldDiscarded:x.actor.discard.cards.includes(x.held),
           handSize:x.actor.hand.cards.length,
           deckDelta:beforeCount-x.actor.deck.cards.length};
-      });
+      },{enableDedechange:true});
       assert.equal(result.physicallyBenched,true);
       assert.equal(result.promptSettled,true);
       assert.equal(audit.confirmSettled,1);
       assert.equal(audit.dedechangeUnsettled,0);
-      if(scenario==='low-hand'){
+      if(scenario==='low-hand'||scenario==='expired-vip'){
         assert.equal(result.answer,true);
         assert.equal(result.physicalHeldInHand,false);
         assert.equal(result.heldDiscarded,true);
@@ -101,7 +103,8 @@ for(const seat of [0,1]){
         assert.equal(result.deckDelta,6);
         assert.equal(audit.dedechangeSettlements.length,1);
         assert.equal(audit.dedechangeSettlements[0].settled,true);
-        assert.equal(audit.dedechangeSettlements[0].discardedCount,1);
+        assert.equal(audit.dedechangeSettlements[0].discardedCount,
+          scenario==='expired-vip'?4:1);
       }else{
         assert.equal(result.answer,false);
         assert.equal(result.physicalHeldInHand,true);
