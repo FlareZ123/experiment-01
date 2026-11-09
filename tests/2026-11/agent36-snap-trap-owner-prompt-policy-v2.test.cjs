@@ -19,6 +19,9 @@ const {
   TEMPLE,
   getSnapTrapPublicTempleEnergyOptions
 } = require('../../simulation/twinleaf/agent30/snap-trap-public-temple-energy-options-v1.cjs');
+const {
+  withOwnerMulliganBonusSelectV1
+} = require('../../simulation/twinleaf/agent30/owner-mulligan-bonus-select-v1.cjs');
 
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const {SimpleTacticsAi: NativeSimpleTacticsAi} = require(path.join(OUTPUT, 'simple-bot/simple-tactics-ai'));
@@ -707,10 +710,15 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
         nativeRootActionLimit: 96,
         runner: () => {
           const actor = withActorOnlyRootPolicy(
-            () => withSelectPromptCapture(
-              () => nativeHeadless.runMatch(request),
-              promptCaptures
-            ),
+            () => {
+              const selected = withOwnerMulliganBonusSelectV1(
+                () => withSelectPromptCapture(
+                  () => nativeHeadless.runMatch(request),
+                  promptCaptures
+                )
+              );
+              return selected.result;
+            },
             {nativeOwnerTrainerFallback: false}
           );
           actorAudits.push(actor.audit);
