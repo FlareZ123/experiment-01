@@ -69,13 +69,58 @@ remaining hand card, owner deck delta, and printed six-card refill or
 decline. Unlike a full legal 60-card game, this is a **prepared-board
 native execution fixture**, suitable only for a card-effect contract.
 
-The first existing native manual workflow
-[run 42563521224](https://github.com/FlareZ123/experiment-01/actions/runs/42563521224)
-**passed** the initial pure owner-policy integration and the prior Agent36
-eight-arm test. The stricter physical receipt revisions and six real native
-Dedenne fixtures were then submitted to the existing
-`twinleaf-completion.yml` manual lane; their status is recorded in the
-subsequent update below, rather than implied by the first passing run.
+The first three [green bounded-match runs](https://github.com/FlareZ123/experiment-01/actions/runs/42564215523)
+did **not** execute the new tests: the edited ability suite was in the
+`abort-custody` job, which was skipped under the selected dispatch inputs.
+That earlier green CI is **not** evidence of this new functionality.
+The workflow gate was repaired by putting two isolated Agent9 native test
+steps in the existing `bounded-match` job under the preexisting
+`include_agent8_telepath_v5` opt-in (the workflow already had GitHub's
+maximum 25 inputs).
+
+[Run 42564509116](https://github.com/FlareZ123/experiment-01/actions/runs/42564509116)
+executed the correct step. It produced **6/6 passing actual native
+Dedechange Store fixtures** (two physical seats x three conditions), and
+19/20 passing total tests. The sole failed test was the pure mock's
+incomplete `SuperType.ENERGY` enumeration, not a native Store failure;
+that fixture was repaired without weakening a native assertion.
+
+**Authoritative native and pure successful lane:**
+[run 42564758191](https://github.com/FlareZ123/experiment-01/actions/runs/42564758191)
+finished successfully. Its `bounded-match` job explicitly ran
+**"Verify opt-in owner Dedechange physical hand, discard and refill in both
+native seats"**, and that step passed. The printed native case receipts
+show on each physical seat:
+
+| Actual pinned native scenario | Answer | Hand after | Deck transfer | Physical original held card |
+| --- | --- | ---: | ---: | --- |
+| One remaining Fire Energy | **True** | 6 | 6 | Discarded |
+| Held Secret Box | **False** | 1 | 0 | Preserved |
+| Six-card owner deck | **False** | 1 | 0 | Preserved |
+
+The physical settlement checker also permits actual Prism Star *Lost Zone*
+replacement instead of counting only ordinary discard destinations, matching
+the existing Agent50 original-source evidence. The decision conservatively
+preserves still-held Prism Star cards by name and has no claim of universal
+matchup-optimal discard timing.
+
+### Registered original-rank4 conservation fork
+
+A follow-up three-pair **retrospective** experiment has been registered
+before its new implementation at
+[`results/methodology/registrations/agent9-original-rank4-dedechange-conditional-confirm-aba-20261109.md`](../registrations/agent9-original-rank4-dedechange-conditional-confirm-aba-20261109.md).
+It reuses original rank4 and rank1 60s, previously known-positive physical
+source-first seeds 20261123, 20261125, 20261129, and the existing Agent50
+physical held-Dedenne placement adapter. Only the confirmation answer
+changes. Its new passive receipt at
+`simulation/twinleaf/agent9/owner-dedechange-confirm-receipt.cjs` counts
+actual original held cards preserved, sent to discard, sent to Lost Zone
+and new draws on both A/B arms. This is **selected prior-positive
+opportunity material**, not a natural opportunity-rate study.
+The test is
+[`tests/2026-11/agent9-original-rank4-dedechange-conditional.native.test.cjs`](../../../tests/2026-11/agent9-original-rank4-dedechange-conditional.native.test.cjs).
+A new opt-in run was requested; report its actual disposition before
+promoting any result.
 
 ## Qualification and next experiment
 
