@@ -6,7 +6,7 @@ const {VERSION,choosePaleMoonGX}=require(
 
 const catalog={specialConditions:{ASLEEP:8,PARALYZED:9}};
 function view({
-  energies:['Psychic Energy MEE','Psychic Energy MEE'],
+  energies=['Psychic Energy MEE','Psychic Energy MEE'],
   gxUsed=false,printing='Trevenant & Dusknoir-GX SMP',
   activeName='Trevenant & Dusknoir-GX',
   opponent=true,specialConditions=[]
