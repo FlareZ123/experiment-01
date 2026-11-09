@@ -44,10 +44,14 @@ function sourceSummary(row){
  * and never treat engine terminal as a competitive game.
  */
 function run({quickBallScope='none',actorHandDiscard=false,
-  sourceCrobatDceMewRetreat=false}={}){
+  sourceCrobatDceMewRetreat=false,
+  sourceQuickBallPreservePayableAttack=false}={}){
   assert.ok(['none','source','candidate'].includes(quickBallScope));
   assert.equal(typeof actorHandDiscard,'boolean');
   assert.equal(typeof sourceCrobatDceMewRetreat,'boolean');
+  assert.equal(typeof sourceQuickBallPreservePayableAttack,'boolean');
+  assert.ok(!sourceQuickBallPreservePayableAttack||
+    quickBallScope==='source');
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   const reg=JSON.parse(bytes.toString('utf8'));
   assert.equal(reg.status,'pre-outcome-frozen-source-two-seat-policy-development');
@@ -70,6 +74,9 @@ function run({quickBallScope='none',actorHandDiscard=false,
     actorMewGenesectTechnoBlast:true,
     ...(quickBallScope==='source'?{sourceScopedQuickBallRoot:true}:{}),
     ...(quickBallScope==='candidate'?{candidateScopedQuickBallRoot:true}:{}),
+    ...(sourceQuickBallPreservePayableAttack?{
+      sourceQuickBallPreservePayableAttack:true
+    }:{}),
     ...(actorHandDiscard?{actorHandDiscard:true}:{}),
     ...(sourceCrobatDceMewRetreat?{sourceCrobatDceMewRetreat:true}:{})};
   const modes={
