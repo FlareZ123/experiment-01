@@ -1482,6 +1482,7 @@ function runDevelopment({
   bilateralSpecialEnergyRoot=false,
   sourceScopedQuickBallRoot=false,candidateScopedQuickBallRoot=false,
   sourceScopedStrandedMarnieRoot=false,
+  sourceScopedDialgaShredT53=false,
   sourceQuickBallPreservePayableAttack=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralBasicEnergyRecipientFrontier=false,
@@ -1585,6 +1586,8 @@ function runDevelopment({
     'Source payable-attack protection requires source-owned Quick Ball actor');
   assert.ok(!sourceScopedStrandedMarnieRoot||actorOnlyComposition,
     'Source-only held Marnie root requires the actor-only policy');
+  assert.ok(!sourceScopedDialgaShredT53||actorOnlyComposition,
+    'Source-only Dialga Shred root requires the actor-only policy');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
     'Quick Ball source and candidate scope probes are exclusive');
   assert.ok((!sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot)||
@@ -1899,6 +1902,7 @@ function runDevelopment({
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !sourceScopedStrandedMarnieRoot&&
+          !sourceScopedDialgaShredT53&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
@@ -1943,6 +1947,11 @@ function runDevelopment({
               ...(sourceScopedStrandedMarnieRoot?{
                 strandedMarnieRoot:true,
                 strandedMarnieRootOwnerSeat:
+                  1-(trial.candidateSlot==='A'?0:1)
+              }:{}),
+              ...(sourceScopedDialgaShredT53?{
+                sourceDialgaShredT53:true,
+                sourceDialgaShredT53OwnerSeat:
                   1-(trial.candidateSlot==='A'?0:1)
               }:{}),
               ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot?{
