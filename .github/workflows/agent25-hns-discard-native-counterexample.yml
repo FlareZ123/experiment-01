@@ -3,6 +3,10 @@ name: Agent25 pinned Dhelmise discard Ability lock counterexample
 on:
   workflow_dispatch:
     inputs:
+      agent25_cape_maxgeist_native:
+        description: 'Conditioned original rank1 paid Guzma and 130 Max Geist versus Luxurious Cape on both seats'
+        type: boolean
+        default: false
       agent25_wide_wall_guzma_native:
         description: 'Opt into four synthetic pinned-Store Rhyperior Wide Wall versus Guzma controls'
         type: boolean
@@ -79,6 +83,20 @@ jobs:
         with:
           name: agent25-wide-wall-guzma-native
           path: agent25-wide-wall-guzma-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Run fixed original 60 versus one-Cape Sentinel four-Psychic Max Geist real Store controls
+        if: inputs.agent25_cape_maxgeist_native
+        run: node simulation/twinleaf/2026-11/agent25-cape-sentinel-maxgeist-native.cjs > agent25-cape-maxgeist-native.json
+      - name: Print four native original source 60 knockout-versus-survival controls
+        if: inputs.agent25_cape_maxgeist_native
+        run: node -e "const r=require('./agent25-cape-maxgeist-native.json');console.log(JSON.stringify(r.cases))"
+      - name: Archive Cape Sentinel original-rank1 four-arm source and target controls
+        if: always() && inputs.agent25_cape_maxgeist_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-cape-maxgeist-native
+          path: agent25-cape-maxgeist-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
