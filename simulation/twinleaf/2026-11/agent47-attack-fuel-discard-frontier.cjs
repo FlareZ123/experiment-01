@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {chooseActorHandDiscard} = require('../agent47-actor-hand-discard.cjs');
 
-const VERSION = 'agent47-owner-immediate-attack-fuel-v2-public-perfection';
+const VERSION = 'agent47-owner-immediate-attack-fuel-v3-known-special-energy';
 const DCE = 'Double Colorless Energy SUM';
 
 /**
@@ -25,7 +25,11 @@ function energyUnits(printing, catalog, temple) {
     const c = catalog.colorlessEnergyType;
     return Number.isInteger(c) ? (temple ? [c] : [c, c]) : null;
   }
-  return null;
+  // Preserve the existing, independently checked bounded native Special
+  // Energy mapping (Telepath [P], Speed Lightning, Capture, Spiky). Unknown
+  // printings remain explicitly unsupported; this is not a paper oracle.
+  return require('../agent3-special-energy-frontier.cjs')
+    .specialEnergyUnits(printing,catalog,temple);
 }
 
 /**
