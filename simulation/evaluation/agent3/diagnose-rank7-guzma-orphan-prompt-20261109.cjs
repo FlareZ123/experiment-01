@@ -108,7 +108,12 @@ function installPromptCustodyObserver(Store){
 /** Replay the preexisting offending source deal, without changing either bot. */
 function run(){
   const group=registration.groups.find(x=>x.id===TARGET);
-  assert.ok(group);
+  const companion=registration.groups.find(x=>
+    x.rank===7 && x.candidateSlot==='A');
+  assert.ok(group&&companion);
+  // The common bilateral runner requires at least two source groups.
+  // Replay the originally failed B deal first, then its already-seen A pair.
+  const groups=[group,companion];
   const {Store}=require(path.join(OUTPUT,'game/store/store'));
   const observer=installPromptCustodyObserver(Store);
   const prior=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
@@ -117,7 +122,7 @@ function run(){
   let restoreRoar=null,control;
   try{
     restoreRoar=installRegidragoCelestialRoarPaperCustodyHook();
-    control=runArm(false,[group]);
+    control=runArm(false,groups);
   }finally{
     if(restoreRoar)restoreRoar();
     restoreDoor();
