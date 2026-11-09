@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent42-source-policy-causal-integrity-certificate-v1';
+const VERSION = 'agent42-source-policy-causal-integrity-certificate-v2';
 const PHASES = Object.freeze(['P0S0', 'P1S0', 'P0S1', 'P1S1']);
 
 /**
