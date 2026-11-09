@@ -829,7 +829,14 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(options.publicContextSpecialEnergy===true){
       const planned=require('./agent17-public-context-special-energy.cjs')
         .choosePublicContextSpecialEnergy(view,catalog);
-      if(planned)return planned;
+      // Development-only public owner arbitration: conserve a unique Jet
+      // pivot for uncharged Benched Mimikyu in the actual Thorns mirror.
+      // Continue to later owner priorities when this one offer is rejected.
+      const jetReserved=planned&&
+        process.env.AGENT12_MIMIKYU_JET_RESERVE_DEV==='true'&&
+        require('./2026-11/agent12-thorns-jet-reservation-owner.cjs')
+          .shouldReserveThornsJet(view,planned);
+      if(planned&&!jetReserved)return planned;
     }
     if(options.specialEnergyRoot===true){
       const special=require('./agent3-special-energy-frontier.cjs')
