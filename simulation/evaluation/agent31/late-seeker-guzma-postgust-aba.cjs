@@ -48,8 +48,8 @@ function evidence(row){
     nearbyAcceptedActions:ledger.filter(root=>
       root.actionOrdinal>=175&&root.actionOrdinal<=215).map(root=>({
       ordinal:root.actionOrdinal,turn:root.turnBefore,
-      seat:root.actorSeat,action:root.action,
-      card:root.card??null,detail:root.detail??null
+      seat:root.playerSlot,action:root.action,
+      card:root.card??null,attack:root.attack??null
     })),
     rootReceipts:(audit?.nativeRootAcceptances??[]).filter(x=>
       x.kind==='play-seeker-get-guzma'||
@@ -58,8 +58,19 @@ function evidence(row){
       x.kind==='native-own-recipient'||x.kind==='native-opponent-gust'),
     physicalAttackActions:ledger.filter(x=>x.action==='AttackAction').map(x=>({
       ordinal:x.actionOrdinal,turn:x.turnBefore,
-      seat:x.actorSeat,attack:x.detail??null
+      seat:x.playerSlot,attack:x.attack??null
     })),
+    candidateAttackSettlements:(row.candidateAttackSettlement?.attacks??[])
+      .filter(x=>x.turnBefore>=TARGET_TURN).map(x=>({
+        ordinal:x.actionOrdinal,turn:x.turnBefore,
+        name:x.attackName,attacker:x.activePrintingBefore,
+        beforePrizes:x.prizesBefore,afterPrizes:x.prizesAfter,
+        settlementConfirmed:x.settledPromptChain,
+        sourceActiveBefore:x.publicBoardBefore?.[0]?.active??null,
+        sourceActiveAfter:x.publicBoardAfter?.[0]?.active??null,
+        nextSourceRoot:x.nextSourceRoot??null,
+        nextSourceTurnActions:x.nextSourceTurnActions??[]
+      })),
     paperCompetitiveQualified:false
   };
 }
@@ -196,8 +207,10 @@ if(require.main===module){
             step.turn>=TARGET_TURN-1).slice(0,24),
         nativeCandidateAttacksAfterIntervention:
           focal.treatment.physicalAttackActions.filter(x=>
-            x.seat===TARGET_SEAT&&x.turn>=TARGET_TURN).slice(0,8)
-      })+'\\n');
+            x.seat===TARGET_SEAT&&x.turn>=TARGET_TURN).slice(0,8),
+        settledNativeCandidateAttacksAfterIntervention:
+          focal.treatment.candidateAttackSettlements.slice(0,8)
+      })+'\n');
   }
   process.stdout.write('AGENT31_POSTGUST_SEEKER_NATIVE '+
     JSON.stringify({schema:result.schema,summary:result.summary,
