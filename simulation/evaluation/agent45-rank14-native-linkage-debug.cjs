@@ -86,6 +86,8 @@ function run(deps={}){
     allPhysicalMatched,allNativeTargetsLinked,
     retrospectiveDebugOnly:true,rows,competitiveGamesQualified:0};
   process.stdout.write('AGENT45_RANK14_LINKAGE '+JSON.stringify(result)+'\n');
+  if(!allPhysicalMatched||!allNativeTargetsLinked)
+    process.exitCode=1;
   return result;
 }
 
