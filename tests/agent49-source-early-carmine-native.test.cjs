@@ -70,6 +70,9 @@ for(const slot of ['A','B']){
     const origDispatch=Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch');
     const run=()=>withSourceEarlyCarmine(()=>{
       const store=new FakeStore(sourceSeat);
+      // The source may be first (turn 1) or second (turn 2), yet its
+      // Supporter quota is a per-owner-turn count in both cases.
+      if(sourceSeat===1)store.state.turn=2;
       store.dispatch(new AddPlayerAction());
       const ai=new FakeAi(store.state.players[sourceSeat].id,store);
       const selected=ai.decodeNextAction(store.state);
