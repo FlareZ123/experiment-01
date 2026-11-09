@@ -1,0 +1,591 @@
+{
+  "schema": "agent12-thorns-mimikyu-jet-reservation-fresh-policy-v1",
+  "registeredUTC": "2026-11-09T11:26:00Z",
+  "status": "FROZEN BEFORE ANY NATIVE MATCH",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRanks": [
+    6,
+    24,
+    29
+  ],
+  "groups": [
+    {
+      "rank": 6,
+      "repeat": 9500,
+      "candidateSlot": "A",
+      "seed": 3291810945
+    },
+    {
+      "rank": 6,
+      "repeat": 9500,
+      "candidateSlot": "B",
+      "seed": 1850800081
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 1453966475
+    },
+    {
+      "rank": 6,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 1918891949
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 1698465833
+    },
+    {
+      "rank": 6,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 3894218055
+    },
+    {
+      "rank": 6,
+      "repeat": 9503,
+      "candidateSlot": "A",
+      "seed": 3309973423
+    },
+    {
+      "rank": 6,
+      "repeat": 9503,
+      "candidateSlot": "B",
+      "seed": 1922757895
+    },
+    {
+      "rank": 24,
+      "repeat": 9500,
+      "candidateSlot": "A",
+      "seed": 2457626133
+    },
+    {
+      "rank": 24,
+      "repeat": 9500,
+      "candidateSlot": "B",
+      "seed": 3540437386
+    },
+    {
+      "rank": 24,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 2268613663
+    },
+    {
+      "rank": 24,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 4179918862
+    },
+    {
+      "rank": 24,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 2891546535
+    },
+    {
+      "rank": 24,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 2502329480
+    },
+    {
+      "rank": 24,
+      "repeat": 9503,
+      "candidateSlot": "A",
+      "seed": 885899259
+    },
+    {
+      "rank": 24,
+      "repeat": 9503,
+      "candidateSlot": "B",
+      "seed": 2909449063
+    },
+    {
+      "rank": 29,
+      "repeat": 9500,
+      "candidateSlot": "A",
+      "seed": 20413925
+    },
+    {
+      "rank": 29,
+      "repeat": 9500,
+      "candidateSlot": "B",
+      "seed": 3416172062
+    },
+    {
+      "rank": 29,
+      "repeat": 9501,
+      "candidateSlot": "A",
+      "seed": 1710479359
+    },
+    {
+      "rank": 29,
+      "repeat": 9501,
+      "candidateSlot": "B",
+      "seed": 1951766626
+    },
+    {
+      "rank": 29,
+      "repeat": 9502,
+      "candidateSlot": "A",
+      "seed": 1257933825
+    },
+    {
+      "rank": 29,
+      "repeat": 9502,
+      "candidateSlot": "B",
+      "seed": 3262062545
+    },
+    {
+      "rank": 29,
+      "repeat": 9503,
+      "candidateSlot": "A",
+      "seed": 1561331261
+    },
+    {
+      "rank": 29,
+      "repeat": 9503,
+      "candidateSlot": "B",
+      "seed": 463358453
+    }
+  ],
+  "candidateIds": [
+    "psychic-reserve-v3-shared-policy",
+    "psychic-reserve-v3-jet-conservation"
+  ],
+  "batches": [
+    {
+      "candidateId": "psychic-reserve-v3-shared-policy",
+      "registeredTrials": [
+        {
+          "rank": 6,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 3291810945,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9500:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 1850800081,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9500:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 1453966475,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9501:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 1918891949,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9501:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 1698465833,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9502:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 3894218055,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9502:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 3309973423,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9503:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 6,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 1922757895,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "6:9503:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 2457626133,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9500:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 3540437386,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9500:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 2268613663,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9501:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 4179918862,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9501:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 2891546535,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9502:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 2502329480,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9502:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 885899259,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9503:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 24,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 2909449063,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "24:9503:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 20413925,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9500:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 3416172062,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9500:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 1710479359,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9501:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 1951766626,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9501:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 1257933825,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9502:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 3262062545,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9502:B:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 1561331261,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9503:A:psychic-reserve-v3-shared-policy"
+        },
+        {
+          "rank": 29,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 463358453,
+          "candidateId": "psychic-reserve-v3-shared-policy",
+          "id": "29:9503:B:psychic-reserve-v3-shared-policy"
+        }
+      ]
+    },
+    {
+      "candidateId": "psychic-reserve-v3-jet-conservation",
+      "registeredTrials": [
+        {
+          "rank": 6,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 3291810945,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9500:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 1850800081,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9500:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 1453966475,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9501:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 1918891949,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9501:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 1698465833,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9502:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 3894218055,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9502:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 3309973423,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9503:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 6,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 1922757895,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "6:9503:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 2457626133,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9500:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 3540437386,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9500:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 2268613663,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9501:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 4179918862,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9501:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 2891546535,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9502:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 2502329480,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9502:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 885899259,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9503:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 24,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 2909449063,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "24:9503:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9500,
+          "candidateSlot": "A",
+          "seed": 20413925,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9500:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9500,
+          "candidateSlot": "B",
+          "seed": 3416172062,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9500:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9501,
+          "candidateSlot": "A",
+          "seed": 1710479359,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9501:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9501,
+          "candidateSlot": "B",
+          "seed": 1951766626,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9501:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9502,
+          "candidateSlot": "A",
+          "seed": 1257933825,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9502:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9502,
+          "candidateSlot": "B",
+          "seed": 3262062545,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9502:B:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9503,
+          "candidateSlot": "A",
+          "seed": 1561331261,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9503:A:psychic-reserve-v3-jet-conservation"
+        },
+        {
+          "rank": 29,
+          "repeat": 9503,
+          "candidateSlot": "B",
+          "seed": 463358453,
+          "candidateId": "psychic-reserve-v3-jet-conservation",
+          "id": "29:9503:B:psychic-reserve-v3-jet-conservation"
+        }
+      ]
+    }
+  ],
+  "printedSixty": "results/aichi-2026/candidate-iron-thorns-psychic-reserve-v3.json",
+  "exactSameCardsBothArms": true,
+  "baselineEnvironment": {
+    "AGENT12_TEMPLE_THORNS_OWNER_DEV": "true",
+    "AGENT12_MIMIKYU_JET_RESERVE_DEV": "false"
+  },
+  "treatmentEnvironment": {
+    "AGENT12_TEMPLE_THORNS_OWNER_DEV": "true",
+    "AGENT12_MIMIKYU_JET_RESERVE_DEV": "true"
+  },
+  "rootCap": 360,
+  "expectedNativeAttempts": 48,
+  "freshProspectiveSeedNoPriorOutcomeConditioning": true,
+  "retrospectiveObservedDifferentSeed": "29:9401:B:iron-thorns-mimikyu-psychic-reserve-v3",
+  "retrospectiveObservedSeedExcludedFromProspective": 3344728350,
+  "policyCodeBlobs": [
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "blob": "85446f8000b98ac41d202c38810621fb1e7d2788"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent12-thorns-jet-reservation-owner.cjs",
+      "blob": "87d4667b1af17ff0c191ddd4ee0a10f567db22f8"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent12-thorns-mimikyu-temple-owner.cjs",
+      "blob": "28cae8d2cc56bcf88d5ac89a227a27cdf821c645"
+    }
+  ],
+  "policyDescription": "Both 60s identical, same common owner-only rest of policy and independent physical RNG; treatment vetoes a sole special-Energy proposal that would waste held Jet to active Iron Thorns before uncharged Bench Mimikyu can pivot, only when opposing active Iron Thorns.",
+  "promotedSourcePolicyChanged": false,
+  "selectionRule": "Count all 24 candidate physical-source group outcomes per arm; compare only matching original-source fingerprint and first player; report native sharp bounds with all caps/errors censored. Native results do not confer Japanese paper legality, source-policy competence or official-clock certification.",
+  "competitiveQualifiedGames": 0,
+  "claim99Point5": false
+}
