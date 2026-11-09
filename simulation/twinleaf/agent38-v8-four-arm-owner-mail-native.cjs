@@ -24,6 +24,7 @@ function withBilateralOwnerMail(next,deps){
   const followMailNestBall=deps.followMailNestBall===true;
   const followMailHandiwork=deps.followMailHandiwork===true;
   const followHeldHandiwork=deps.followHeldHandiwork===true;
+  const followHeldRefillSupporter=deps.followHeldRefillSupporter===true;
   const followMailArven=deps.followMailArven===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
@@ -40,6 +41,7 @@ function withBilateralOwnerMail(next,deps){
   const ownerPassMailActions=new WeakSet();
   const ownerMailHandiworkActions=new WeakSet();
   const ownerHeldHandiworkActions=new WeakSet();
+  const ownerHeldRefillActions=new WeakSet();
   const ownerMailArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
@@ -61,6 +63,8 @@ function withBilateralOwnerMail(next,deps){
     handiworkFromHandOffers:0,handiworkFromHandAccepted:0,
     handiworkFromHandRejected:0,handiworkFromHandNativeDeckChanges:[],
     handiworkFromHandDeferredSettlements:[],
+    heldRefillOffers:0,heldRefillAccepted:0,heldRefillRejected:0,
+    heldRefillEvents:[],
     handiworkDeferredSettlements:[],handiworkDeferredUnresolved:0,
     arvenFromMailOffers:0,arvenFromMailAccepted:0,
     arvenFromMailRejected:0,arvenSearchRejected:0,
@@ -221,7 +225,25 @@ function withBilateralOwnerMail(next,deps){
       }
     }
     const handIndex=eligibleMailHandIndex(state,seat,storeInstance);
-    if(handIndex===null)return baseline;
+    if(handIndex===null){
+      if(followHeldRefillSupporter&&!prompt&&
+         (seat===0||seat===1)&&owner&&state.activePlayer===seat){
+        const {actorObservation}=
+          require('./actor-observation-contract.cjs');
+        const {chooseOwnerHeldRefillSupporter}=
+          require('./agent1-owner-held-refill-supporter-choice.cjs');
+        const intent=chooseOwnerHeldRefillSupporter(actorObservation(state,seat));
+        const card=intent?owner.hand.cards[intent.handIndex]:null;
+        if(intent&&card?.fullName===intent.printing&&
+           card?.canPlay?.(storeInstance,state,owner)===true){
+          const action=new PlayCardAction(owner.id,intent.handIndex);
+          ownerHeldRefillActions.add(action);
+          audit.heldRefillOffers++;
+          return action;
+        }
+      }
+      return baseline;
+    }
     audit.proposalCountsBySeat[seat]++;
     const action=new PlayCardAction(owner.id,handIndex);
     ownerPassMailActions.add(action);
@@ -238,6 +260,12 @@ function withBilateralOwnerMail(next,deps){
     const proposal=proposals.get(action);
     const pendingPromptBefore=state.prompts?.find(p=>p.result===undefined);
     const taggedHeldHandiwork=ownerHeldHandiworkActions.has(action);
+    const taggedRefill=ownerHeldRefillActions.has(action);
+    const beforeRefill=taggedRefill?{
+      hand:owner.hand.cards.length,deck:owner.deck.cards.length,
+      prizes:owner.prizes.reduce((n,slot)=>n+slot.cards.length,0),
+      supporterUsed:owner.supporterTurn
+    }:null;
     const taggedHandiwork=ownerMailHandiworkActions.has(action)||taggedHeldHandiwork;
     const taggedArven=ownerMailArvenActions.has(action);
     const arvenProposal=arvenSelections.get(action);
@@ -266,8 +294,21 @@ function withBilateralOwnerMail(next,deps){
         else audit.handiworkFromMailRejected++;
       }
       if(taggedArven)audit.arvenFromMailRejected++;
+      if(taggedRefill)audit.heldRefillRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
       throw e;
+    }
+    if(taggedRefill){
+      audit.heldRefillAccepted++;
+      const afterOwner=this.state.players[seat];
+      audit.heldRefillEvents.push({trialId,seat,turnBefore:state.turn,
+        printing:selectedMailCard?.fullName??null,before:beforeRefill,
+        after:{hand:afterOwner.hand.cards.length,
+          deck:afterOwner.deck.cards.length,
+          supporterUsed:afterOwner.supporterTurn},
+        pendingPrompt:this.state.prompts?.find(p=>p.result===undefined)
+          ?.constructor?.name??null});
+      deps.onHeldRefillActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
     }
     if(taggedArven){
       audit.arvenFromMailAccepted++;
