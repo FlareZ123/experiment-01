@@ -6,7 +6,7 @@ on:
       panel:
         description: 'Frozen developmental fixed-60 experiment, original screen or Mimikyu pivot'
         type: choice
-        options: ['baseline', 'safeguard', 'temple', 'temple-pilot', 'psychic-reserve']
+        options: ['baseline', 'safeguard', 'temple', 'temple-pilot', 'psychic-reserve', 'jet-reserve']
         default: 'baseline'
 
 permissions:
@@ -71,6 +71,14 @@ jobs:
       - name: Execute prospective 48-game Psychic Reserve native A/B
         if: ${{ inputs.panel == 'psychic-reserve' }}
         run: node simulation/evaluation/2026-11/agent12-psychic-reserve-v3-native.cjs
+      - name: Verify frozen Jet conservation owner policy and paired native estimand
+        if: ${{ inputs.panel == 'jet-reserve' }}
+        run: |
+          node --test tests/2026-11/agent12-thorns-jet-reservation.test.cjs tests/2026-11/agent12-jet-conservation-v1-native.test.cjs
+          node simulation/evaluation/2026-11/agent12-jet-conservation-v1-native.cjs --inspect-only
+      - name: Execute prospective 48-game native Jet reserve control
+        if: ${{ inputs.panel == 'jet-reserve' }}
+        run: node simulation/evaluation/2026-11/agent12-jet-conservation-v1-native.cjs
       - name: Archive original 32-game baseline
         if: ${{ always() && inputs.panel == 'baseline' }}
         uses: actions/upload-artifact@v4
@@ -112,5 +120,14 @@ jobs:
         with:
           name: agent12-psychic-reserve-v3-native
           path: agent12-psychic-reserve-v3-native.json
+          if-no-files-found: warn
+          retention-days: 21
+
+      - name: Archive Jet conservation accepted-root native A/B evidence
+        if: ${{ always() && inputs.panel == 'jet-reserve' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-jet-conservation-v1-native
+          path: agent12-jet-conservation-v1-native.json
           if-no-files-found: warn
           retention-days: 21
