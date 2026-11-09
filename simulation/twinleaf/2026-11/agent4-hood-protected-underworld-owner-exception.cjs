@@ -54,6 +54,41 @@ function protectedBenchIndices(view, receipt) {
 }
 
 /**
+ * Offer a genuine physically held Hood for a free Tool slot on a Benched
+ * source VMAX, under the same deliberately narrow public Thorns matchup.
+ * This pays with the original card from the acting owner's hand and leaves
+ * native Store attach validity and Tool consumption authoritative.
+ *
+ * @param {object} view Detached owner-root observation.
+ * @param {{toolPrintings:Set<string>}} catalog Exact printed Tool catalog.
+ * @returns {object|null} An existing attach-tool-candidate intent.
+ */
+function chooseHoodToolPreparation(view,catalog) {
+  if (view?.decisionKind !== 'owner-root') return null;
+  const own=view.ownPublic, opponent=view.opponentPublic;
+  const active=opponent?.active;
+  if (active?.printing !== LOCK ||
+      !active.abilities?.includes('Initialization') ||
+      !Array.isArray(active.tools) || active.tools.length !== 0 ||
+      !Array.isArray(opponent.bench) ||
+      !opponent.bench.every(slot =>
+        slot === null || slot.printing === LOCK)) return null;
+  const stadiums=[...(own?.stadium??[]),...(opponent.stadium??[])];
+  if (!stadiums.every(stadium =>
+    typeof stadium === 'string' && neutralStadiums.has(stadium))) return null;
+  if (!(catalog?.toolPrintings instanceof Set) ||
+      !catalog.toolPrintings.has(HOOD)) return null;
+  const candidates=require('../agent18-actor-tool-candidate-frontier.cjs')
+    .enumerateActorToolCandidates(view,catalog.toolPrintings);
+  return candidates.find(candidate =>
+    candidate.printing === HOOD &&
+    candidate.slot === 'bench' &&
+    own.bench[candidate.index]?.printing === SOURCE &&
+    own.bench[candidate.index]?.abilities?.includes('Underworld Door')
+  ) ?? null;
+}
+
+/**
  * Reuse the original owner hand, target and used-marker logic unchanged.
  * A disposable view masks only the active Thorns suppression, and prevents
  * unhooded VMAX from being selected as a source. Neither the real actor
@@ -143,6 +178,6 @@ function withProtectedHoodUnderworld(work) {
 }
 
 module.exports = {
-  VERSION,protectedBenchIndices,chooseProtectedHoodUnderworld,
-  withProtectedHoodUnderworld
+  VERSION,protectedBenchIndices,chooseHoodToolPreparation,
+  chooseProtectedHoodUnderworld,withProtectedHoodUnderworld
 };
