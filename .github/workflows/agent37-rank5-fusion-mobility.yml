@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_quickball_preserve_attack:
+        description: In source Quick Ball development preserve payable attack before Quick Ball
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -53,6 +58,8 @@ jobs:
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
       - name: Retrospective rank5 source Quick Ball and native owner discard paired development
         if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard }}
+        env:
+          AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
         run: |
           node --check simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
           node simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
