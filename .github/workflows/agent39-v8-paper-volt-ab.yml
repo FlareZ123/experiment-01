@@ -12,6 +12,7 @@ on:
           - volt-regression
           - temple-nine-dde
           - temple-artifact-reduce
+          - temple-policy-pair
 
 permissions:
   contents: read
@@ -91,5 +92,24 @@ jobs:
         with:
           name: agent39-temple-nine-dde-readonly-root-audit
           path: agent39-temple-nine-dde-action-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Verify owner-only Temple policy with pure both-seat tests
+        if: ${{ inputs.study == 'temple-policy-pair' }}
+        run: node --test tests/2026-11/agent39-temple-regidrago-owner-root.test.cjs
+      - name: Verify fresh preregistration, printed fixed-60s and pinned policy
+        if: ${{ inputs.study == 'temple-policy-pair' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-owner-policy-nine-dde-native.cjs --self-test
+      - name: Run both-seat matched native Temple action versus original policy
+        if: ${{ inputs.study == 'temple-policy-pair' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-owner-policy-nine-dde-native.cjs
+      - name: Retain natural native games and owner-public Stadium intervention
+        if: ${{ always() && inputs.study == 'temple-policy-pair' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-temple-actor-native-fresh-pairs
+          path: |
+            agent39-temple-owner-policy-nine-dde-native.json
+            agent39-temple-owner-policy-nine-dde-summary.json
           if-no-files-found: warn
           retention-days: 14
