@@ -21,7 +21,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
  * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
- * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number,stopAfterAttack?:boolean,choosePrize?:(context:{player:any,prompt:any,remaining:any[]})=>any[]}} fixture Optional staged Active, Prize-count, and owner Prize-choice profile.
+ * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number,stopAfterAttack?:boolean,choosePrize?:(context:{player:any,prompt:any,remaining:any[],state:any})=>any[]}} fixture Optional staged Active, Prize-count, and owner Prize-choice profile.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true,fixture={}){
@@ -155,7 +155,7 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
         assert.ok(player);
         const remaining=player.prizes.filter(prize=>prize.cards.length>0);
         answer=typeof fixture.choosePrize==='function'
-          ?fixture.choosePrize({player,prompt:pending,remaining})
+          ?fixture.choosePrize({player,prompt:pending,remaining,state})
           :remaining.slice(0,pending.options.count);
         assert.ok(Array.isArray(answer));
         assert.equal(answer.length,pending.options.count);
@@ -208,7 +208,11 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
         opponentPrizesTakenThisTurn:enemy.prizesTakenThisTurn,
         ownerActive:owner.active.getPokemonCard()?.fullName??null,
         opponentActive:enemy.active.getPokemonCard()?.fullName??null,
-        playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent')
+        playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent'),
+        terminalGameLogCount:state.logs.filter(log=>
+          log.message===native('game/game-message').GameLog.LOG_GAME_FINISHED_WINNER||
+          log.message===native('game/game-message').GameLog.LOG_GAME_FINISHED_DRAW
+        ).length
       };
     }
     const expectedFirstPromoter=state.players[1-actorSeat];
