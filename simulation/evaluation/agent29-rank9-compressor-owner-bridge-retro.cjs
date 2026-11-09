@@ -17,6 +17,7 @@ const LATE_BENCH_V10_VERSION='agent29-rank9-same-seed-paper-bench-late-bomb-v10'
 const FUNDED_FLOAT_V11_VERSION='agent29-rank9-same-deal-bomb-to-floatstone-v11';
 const EARLY_ROPE_V12_VERSION='agent29-rank9-v11-plus-earlier-escape-rope-v12';
 const OPPONENT_ROPE_V13_VERSION='agent29-rank9-v12-opponent-survival-counter-v13';
+const DAMAGE_AWARE_V14_VERSION='agent29-rank9-v13-opponent-weakness-prizes-v14';
 const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json');
 
 /** @param {boolean} enabled @param {{anyTurn?:boolean,shuffleCustody?:boolean,
@@ -24,12 +25,13 @@ const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/a
  *   ownerZoneCensus?:boolean,ownerZoneRegister?:Function|null,
  *   earlyVipV8?:boolean,ultraV9?:boolean,lateBenchV10?:boolean,
  *   floatV11?:boolean,ropeV12?:boolean,
- *   opponentDefenseV13?:boolean}} [configuration] */
+ *   opponentDefenseV13?:boolean,opponentDamageV14?:boolean}} [configuration] */
 function options(enabled,{anyTurn=false,shuffleCustody=false,
   bombAfterCompressor=false,prospectiveV5=false,
   ownerZoneCensus=false,ownerZoneRegister=null,earlyVipV8=false,
   ultraV9=false,lateBenchV10=false,floatV11=false,
-  ropeV12=false,opponentDefenseV13=false}={}){
+  ropeV12=false,opponentDefenseV13=false,
+  opponentDamageV14=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -48,12 +50,14 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
     actorGenericFundedFloatStoneSourceOnly:enabled&&floatV11,
     actorRank9PostBombRope:enabled&&ropeV12,
     actorRank9RopeOpponentSurvival:enabled&&opponentDefenseV13,
+    actorRank9RopeOpponentDamageAware:enabled&&opponentDamageV14,
     isolatePolicyRandomness:prospectiveV5,
     isolatePhysicalShuffleRandomnessAfterSetup:prospectiveV5,
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms(),
     ...(ownerZoneRegister?{onRootStoreCreated:ownerZoneRegister}:{}),
-    registeredFrameName:opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
+    registeredFrameName:opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
+      opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
       ropeV12?EARLY_ROPE_V12_VERSION:
       floatV11?FUNDED_FLOAT_V11_VERSION:
       lateBenchV10?LATE_BENCH_V10_VERSION:
@@ -73,13 +77,16 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
  *   bombAfterCompressor?:boolean,prospectiveV5?:boolean,
  *   ownerZoneCensus?:boolean,earlyVipV8?:boolean,ultraV9?:boolean,
  *   lateBenchV10?:boolean,floatV11?:boolean,
- *   ropeV12?:boolean,opponentDefenseV13?:boolean}} [configuration]
+ *   ropeV12?:boolean,opponentDefenseV13?:boolean,
+ *   opponentDamageV14?:boolean}} [configuration]
  */
 function run({anyTurn=false,shuffleCustody=false,
   bombAfterCompressor=false,prospectiveV5=false,
   ownerZoneCensus=false,earlyVipV8=false,ultraV9=false,
   lateBenchV10=false,floatV11=false,ropeV12=false,
-  opponentDefenseV13=false}={}){
+  opponentDefenseV13=false,opponentDamageV14=false}={}){
+  assert.ok(!opponentDamageV14||opponentDefenseV13,
+    'Printed defensive v14 needs prior owner-survival v13');
   assert.ok(!opponentDefenseV13||ropeV12,
     'Opposing survival v13 requires real both-player source Rope v12');
   assert.ok(!ropeV12||floatV11,
@@ -122,7 +129,7 @@ function run({anyTurn=false,shuffleCustody=false,
     // numeric-permutation validator symmetrically to BOTH policy arms.
     // Historical v1 remains bit-for-bit unsupplemented by this adapter.
     const runArm=(enabled,floatEnabled=false,ropeEnabled=false,
-      opponentDefenseEnabled=false)=>{
+      opponentDefenseEnabled=false,opponentDamageEnabled=false)=>{
       if(!anyTurn)return {result:runDevelopment(options(enabled,{anyTurn})),
         audit:null};
       // Apply the existing paper min1 correction to BOTH native seats and
@@ -138,7 +145,8 @@ function run({anyTurn=false,shuffleCustody=false,
               bombAfterCompressor,prospectiveV5,ownerZoneCensus,
               ownerZoneRegister,earlyVipV8,ultraV9,lateBenchV10,
               floatV11:floatEnabled,ropeV12:ropeEnabled,
-              opponentDefenseV13:opponentDefenseEnabled})));
+              opponentDefenseV13:opponentDefenseEnabled,
+              opponentDamageV14:opponentDamageEnabled})));
         if(!shuffleCustody)return numeric(null);
         const {withAuthoritativeShuffleOrderWitness}=require(
           '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
@@ -159,9 +167,11 @@ function run({anyTurn=false,shuffleCustody=false,
     };
     // v12 is incrementally compared against v11, not against old v10.
     // Both arms retain exactly the same source v10 setup and funded Float.
-    const left=opponentDefenseV13?runArm(true,true,true,false):
+    const left=opponentDamageV14?runArm(true,true,true,true,false):
+      opponentDefenseV13?runArm(true,true,true,false):
       ropeV12?runArm(true,true,false):runArm(floatV11,false);
-    const right=runArm(true,floatV11,ropeV12,opponentDefenseV13);
+    const right=runArm(true,floatV11,ropeV12,
+      opponentDefenseV13,opponentDamageV14);
     const control=left.result,treatment=right.result;
     assert.equal(control.attempted,trials.length);
     assert.equal(treatment.attempted,trials.length);
@@ -193,7 +203,8 @@ function run({anyTurn=false,shuffleCustody=false,
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
+    return {version:opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
+      opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
       ropeV12?EARLY_ROPE_V12_VERSION:
       floatV11?FUNDED_FLOAT_V11_VERSION:
       lateBenchV10?LATE_BENCH_V10_VERSION:
@@ -205,9 +216,11 @@ function run({anyTurn=false,shuffleCustody=false,
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION,source,
       anyTurn,bombAfterCompressor,prospectiveV5,ownerZoneCensus,earlyVipV8,
       ultraV9,lateBenchV10,floatV11,ropeV12,opponentDefenseV13,
+      opponentDamageV14,
       v11ControlUsesFullV10SourceLine:floatV11&&!ropeV12,
       v12ControlUsesFullV11SourceLine:ropeV12&&!opponentDefenseV13,
-      v13ControlUsesFullV12SourceLine:opponentDefenseV13,
+      v13ControlUsesFullV12SourceLine:opponentDefenseV13&&!opponentDamageV14,
+      v14ControlUsesFullV13SourceLine:opponentDamageV14,
       vipAppliedToBothOriginalOwners:earlyVipV8,
       freshRegistration:prospectiveV5?
         'results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json':null,
@@ -264,7 +277,9 @@ function run({anyTurn=false,shuffleCustody=false,
 }
 
 if(require.main===module){
-  const opponentDefenseV13=
+  const opponentDamageV14=
+    process.env.AGENT29_RANK9_ROPE_DAMAGE_AWARE_V14==='true';
+  const opponentDefenseV13=opponentDamageV14||
     process.env.AGENT29_RANK9_ROPE_OPPONENT_SURVIVAL_V13==='true';
   const ropeV12=opponentDefenseV13||
     process.env.AGENT29_RANK9_ESCAPE_ROPE_V12==='true';
@@ -287,7 +302,8 @@ if(require.main===module){
   const data=run({anyTurn:shuffleCustody||
     process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody,
     bombAfterCompressor,prospectiveV5,ownerZoneCensus,earlyVipV8,ultraV9,
-    lateBenchV10,floatV11,ropeV12,opponentDefenseV13});
+    lateBenchV10,floatV11,ropeV12,opponentDefenseV13,
+    opponentDamageV14});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
