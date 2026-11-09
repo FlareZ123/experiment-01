@@ -2696,9 +2696,12 @@ function runDevelopment({
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
     nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
     nativeSetupCoinChoiceReceiptOptIn:nativeSetupCoinChoiceReceipt,
-    specialRedCardPaperPreselectionOptIn:specialRedCardPaperPreselection,
-    specialRedCardPaperCorrectionOptIn:specialRedCardPaperCorrection,
-    specialRedCardPaperSpeculativeShuffleOptIn:specialRedCardPaperSpeculativeShuffle,
+    ...(specialRedCardPaperPreselection?{
+      specialRedCardPaperPreselectionOptIn:true}:{}),
+    ...(specialRedCardPaperCorrection?{
+      specialRedCardPaperCorrectionOptIn:true}:{}),
+    ...(specialRedCardPaperSpeculativeShuffle?{
+      specialRedCardPaperSpeculativeShuffleOptIn:true}:{}),
     physicalZoneGateOptIn:physicalZoneGate,
     nativeRejectedActionEvidenceOptIn:nativeRejectedActionEvidence,
     physicalZoneQualificationSummary:require('./physical-zone-qualification.cjs')
