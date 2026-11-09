@@ -309,6 +309,7 @@ test('first real release envelope has resolvable nine-object refs and explicit a
     registrationSha256:'registered-case-hash',
     intake:{
       caseId:'synthetic-negative-control',
+      enginePinnedCommit:'pinned-native-engine',
       trial:{id:'synthetic-case'},
       sourceSeat:0,candidateSeat:1,
       sourcePrintedSha256:'source-print-inventory',
