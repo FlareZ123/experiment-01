@@ -71,7 +71,7 @@ function replay(target,seat,candidateId){
     sourceDealMatchesOriginal:true,
     rootCap:ROOT_LIMIT,
     sourceOriginalFirst260RootSha:rootShaByArm[seat+':'+candidateId],
-    first260RootSha,originalFirst260RootsReplayed:
+    first260RootSha:first260Sha,originalFirst260RootsReplayed:
       roots.length>=260&&first260Sha===rootShaByArm[seat+':'+candidateId],
     roots:roots.length,
     status,finished:row.finished===true,
