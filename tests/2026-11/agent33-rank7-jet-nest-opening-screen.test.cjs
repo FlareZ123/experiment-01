@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
-const {COUNTS, choose, allocation, calculate} =
+const {COUNTS, choose, allocation, calculate, calculateUnion} =
   require('../../scripts/2026-11/agent33-rank7-jet-nest-opening-screen.cjs');
 
 test('binomial arithmetic and class allocation have exact integer results', () => {
@@ -29,6 +29,7 @@ test('original rank7 printed card counts agree with opening-screen categories', 
   assert.equal(allCount, 60);
   assert.equal(countName('Jet Energy'), COUNTS.jet);
   assert.equal(countName('Nest Ball'), COUNTS.nest);
+  assert.equal(countName('VS Seeker'), 3);
   assert.equal(countName('Wobbuffet'), COUNTS.wobbuffet);
   assert.equal(pokemonCount - countName('Wobbuffet'), COUNTS.otherBasics);
   assert.equal(allCount - pokemonCount - COUNTS.jet - COUNTS.nest,
@@ -49,5 +50,23 @@ test('joint Jet plus Nest early resource screen is combinatorially exact', () =>
     extraOtherBasicStarterNumerator:
       r.strictOtherBasicNumerator.toString(),
     qualifiedGames: 0
+  }));
+});
+
+test('one Nest or three VS Seeker copies expands Jet resource-screen ceiling', () => {
+  const singleton = calculate();
+  const union = calculateUnion();
+  assert.equal(union.denominator, singleton.denominator);
+  assert.equal(union.earlyItemCopies, 4);
+  assert.equal(union.numerator, 474015258692331444n);
+  assert.equal(union.strictOtherBasicNumerator, 401658682781505888n);
+  assert.ok(union.numerator > singleton.numerator);
+  assert.ok(union.strictOtherBasicNumerator >
+    singleton.strictOtherBasicNumerator);
+  console.log('AGENT33_RANK7_NEST_OR_VS_SCREEN', JSON.stringify({
+    numerator:union.numerator.toString(),
+    strictNumerator:union.strictOtherBasicNumerator.toString(),
+    denominator:union.denominator.toString(),
+    qualification:'unverified-Item-payability-and-Faba-discard-excluded'
   }));
 });
