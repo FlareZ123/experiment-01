@@ -9,7 +9,7 @@ const { withPaleMoonDimensionValleyBonus } =
 const OUTPUT = path.resolve(__dirname, '../../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load = name => require(path.join(OUTPUT, name));
-const VERSION = 'agent34-original-rank1-source-t18-raihan-palemoon-native-v1';
+const VERSION = 'agent34-original-rank1-source-t18-raihan-palemoon-native-v2';
 
 function pendingPrompt(store) {
   return store.state.prompts.find(p => p.result === undefined);
@@ -65,8 +65,12 @@ function executeOriginalRank1RaihanPaleMoon(context) {
   const { PlayCardAction, PlayerType, SlotType } =
     load('game/store/actions/play-card-action');
   const { ResolvePromptAction } = load('game/store/actions/resolve-prompt-action');
-  const { AttackAction } = load('game/store/actions/game-actions');
+  const { AttackAction, RetreatAction, PassTurnAction } =
+    load('game/store/actions/game-actions');
   const { Store } = load('game/store/store');
+  const { Player } = load('game/store/state/player');
+  const { withPendingEndTurnSwitchCleanup } =
+    require('../pending-end-turn-switch-cleanup.cjs');
   const { deepClone } = load('utils/utils');
   const { StateUtils } = load('game/store/state-utils');
   const { CardType } = load('game/store/card/card-types');
@@ -243,6 +247,55 @@ function executeOriginalRank1RaihanPaleMoon(context) {
       outcome.nextActorId=branch.state.players[branch.state.activePlayer]?.id??null;
       outcome.pendingPrompts=branch.state.prompts.filter(p=>p.result===undefined)
         .map(p=>p.constructor.name);
+      // Source-dealt counterplay: Latias ex's Skyliner gives Basic Pokémon
+      // zero retreat cost. The true opposing seat may choose one of its
+      // already-public Bench slots to escape the queued GX Knock Out even
+      // after the paper-correct three-Energy discard. Apply the pre-existing
+      // switch effect cleanup only within this detached opponent reply.
+      const candidateBenches=opp.bench
+        .map((slot,index)=>({index,printing:slot.getPokemonCard()?.fullName??null}))
+        .filter(option=>option.printing!==null);
+      outcome.opposingVisibleBenches=candidateBenches;
+      outcome.opponentRetreat={status:'not-attempted'};
+      if(outcome.nextActorId===opponentId && candidateBenches.length>0){
+        const chosen=candidateBenches[0];
+        const formerActive=opp.active;
+        const oldDefenderCard=formerActive.getPokemonCard();
+        const beforePrizes=opp.prizes.reduce((n,slot)=>n+slot.cards.length,0);
+        try{
+          const escaped=withPendingEndTurnSwitchCleanup({Store,Player},()=>{
+            branch.dispatch(new RetreatAction(opponentId,chosen.index));
+            const retWaits=settleWaits(branch,ResolvePromptAction);
+            const afterRetreatQueue=opp.pendingEndOfTurnEffects.length;
+            const formerNowOnBench=opp.bench.some(slot=>
+              slot.getPokemonCard()===oldDefenderCard);
+            const current=opp.active.getPokemonCard()?.fullName??null;
+            branch.dispatch(new PassTurnAction(opponentId));
+            const passWaits=settleWaits(branch,ResolvePromptAction);
+            return {
+              retWaits,passWaits,afterRetreatQueue,formerNowOnBench,
+              current,oldDefenderSurvived:opp.bench.some(slot=>
+                slot.getPokemonCard()===oldDefenderCard),
+              oldDefenderDiscarded:opp.discard.cards.includes(oldDefenderCard),
+              afterOpposingPrizes:opp.prizes.reduce((n,slot)=>n+slot.cards.length,0),
+              beforePrizes,
+              queuedAfterTurn:opp.pendingEndOfTurnEffects.length,
+              nextActorId:branch.state.players[branch.state.activePlayer]?.id??null
+            };
+          });
+          outcome.opponentRetreat={
+            status:'native-retreat-and-pass-settled',
+            chosenFaceupBench:chosen,
+            ...escaped.result,
+            correctedDelayedEffects:escaped.removedFromSimulatedStores
+          };
+        }catch(error){
+          outcome.opponentRetreat={
+            status:'native-retreat-or-pass-rejected',
+            chosenFaceupBench:chosen,error:String(error?.stack??error)
+          };
+        }
+      }
       outcome.outcome='genuine-native-gx-settled';
     }catch(error){
       outcome.outcome='native-gx-rejected';
