@@ -42,4 +42,31 @@ function chooseDedechangeConfirm({owner}){
   return {decision:true,reason:'low-hand-six-card-refill',details};
 }
 
-module.exports={VERSION,chooseDedechangeConfirm};
+/**
+ * Paper-discard custody check for a completed native Dedechange confirmation.
+ * This is a post-dispatch audit, never part of the acting player's decision.
+ * Reads physical cards already visible in the owner's hand and discard;
+ * unopened deck contents and opponent private zones are not inspected.
+ *
+ * @param {{hand:object[],discard:object[],deckCount:number}} before
+ * @param {{hand:{cards:object[]},discard:{cards:object[]},deck:{cards:object[]}}} after
+ * @returns {{settled:boolean,discardedCount:number,drawnCount:number,deckDelta:number,handPhysicallyDiscarded:boolean}}
+ */
+function verifyDedechangeSettlement(before,after){
+  const original=before.hand;
+  const now=after.hand.cards;
+  const trash=after.discard.cards;
+  const expectedDraw=Math.min(6,before.deckCount);
+  const handPhysicallyDiscarded=original.every(card=>
+    !now.includes(card)&&trash.includes(card)&&
+    !before.discard.includes(card));
+  const noOriginalSurvived=now.every(card=>!original.includes(card));
+  const deckDelta=before.deckCount-after.deck.cards.length;
+  const settled=handPhysicallyDiscarded&&noOriginalSurvived&&
+    deckDelta===expectedDraw&&now.length===expectedDraw;
+  return {settled,discardedCount:original.filter(card=>
+    trash.includes(card)&&!before.discard.includes(card)).length,
+    drawnCount:now.length,deckDelta,handPhysicallyDiscarded};
+}
+
+module.exports={VERSION,chooseDedechangeConfirm,verifyDedechangeSettlement};
