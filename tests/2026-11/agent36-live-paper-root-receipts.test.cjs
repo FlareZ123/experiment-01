@@ -136,3 +136,25 @@ test('later prototype rule hooks remain active after recorder installation',()=>
   recorder.close();
   NativeStore.prototype.dispatch=original;
 });
+
+test('native Store callback before AddPlayerAction binds after both physical decks',()=>{
+  const players=makeStore().state.players;
+  const store={state:{players:[],turn:0,phase:'SETUP',activePlayer:0,
+    prompts:[]},dispatch(action){
+      if(action.type==='AddPlayerAction')
+        this.state.players.push(players[this.state.players.length]);
+      return true;
+    }};
+  const recorder=createLivePaperRootReceipts('native-setup');
+  recorder.onRootStoreCreated(store);
+  store.dispatch({type:'AddPlayerAction'});
+  store.dispatch({type:'AddPlayerAction'});
+  store.state.turn=1;
+  const action={};
+  store.dispatch(action);
+  recorder.onRootActionDispatched(store,action,0,0,1);
+  assert.equal(recorder.result().originalPhysicalCards.length,120);
+  assert.equal(recorder.result().acceptedStoreRootCount,1);
+  assert.equal(recorder.result().settledPhysicalIdentityClean,true);
+  recorder.close();
+});
