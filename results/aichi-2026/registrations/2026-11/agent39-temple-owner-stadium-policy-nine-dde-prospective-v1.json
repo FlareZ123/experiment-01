@@ -1,0 +1,485 @@
+{
+  "schema": "agent39-temple-actor-native-nine-dde-prospective-v1",
+  "registeredUTC": "2026-11-09T07:16:00Z",
+  "researchScope": "Original Aichi Regidrago Japanese Extra 60s, native developmental comparison only",
+  "purpose": "Identify whether genuinely playing the held Temple Stadium improves the same fixed Temple v1 60, rather than testing only structural substitution; fresh matched original source deals and both physical seats",
+  "sourceRanks": [
+    10,
+    12,
+    13,
+    14,
+    18,
+    20,
+    21,
+    27,
+    32
+  ],
+  "sourceGroups": [
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3989176317
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2989471102
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2565389721
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3155558546
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2335918796
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3587506925
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 45919041
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1809194001
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1816977659
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 688682368
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3913649438
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2540779594
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1325488164
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2560029572
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 4003862961
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2746668680
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 224990910
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3564330628
+    }
+  ],
+  "fixedContenderIds": [
+    "temple-control",
+    "temple-public-stadium"
+  ],
+  "registeredTrials": [
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3989176317,
+      "candidateId": "temple-control",
+      "id": "10:0:A:temple-control"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3989176317,
+      "candidateId": "temple-public-stadium",
+      "id": "10:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2989471102,
+      "candidateId": "temple-control",
+      "id": "10:0:B:temple-control"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2989471102,
+      "candidateId": "temple-public-stadium",
+      "id": "10:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2565389721,
+      "candidateId": "temple-control",
+      "id": "12:0:A:temple-control"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2565389721,
+      "candidateId": "temple-public-stadium",
+      "id": "12:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3155558546,
+      "candidateId": "temple-control",
+      "id": "12:0:B:temple-control"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3155558546,
+      "candidateId": "temple-public-stadium",
+      "id": "12:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2335918796,
+      "candidateId": "temple-control",
+      "id": "13:0:A:temple-control"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2335918796,
+      "candidateId": "temple-public-stadium",
+      "id": "13:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3587506925,
+      "candidateId": "temple-control",
+      "id": "13:0:B:temple-control"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3587506925,
+      "candidateId": "temple-public-stadium",
+      "id": "13:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 45919041,
+      "candidateId": "temple-control",
+      "id": "14:0:A:temple-control"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 45919041,
+      "candidateId": "temple-public-stadium",
+      "id": "14:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1809194001,
+      "candidateId": "temple-control",
+      "id": "14:0:B:temple-control"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1809194001,
+      "candidateId": "temple-public-stadium",
+      "id": "14:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1816977659,
+      "candidateId": "temple-control",
+      "id": "18:0:A:temple-control"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1816977659,
+      "candidateId": "temple-public-stadium",
+      "id": "18:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 688682368,
+      "candidateId": "temple-control",
+      "id": "18:0:B:temple-control"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 688682368,
+      "candidateId": "temple-public-stadium",
+      "id": "18:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3913649438,
+      "candidateId": "temple-control",
+      "id": "20:0:A:temple-control"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3913649438,
+      "candidateId": "temple-public-stadium",
+      "id": "20:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2540779594,
+      "candidateId": "temple-control",
+      "id": "20:0:B:temple-control"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2540779594,
+      "candidateId": "temple-public-stadium",
+      "id": "20:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1325488164,
+      "candidateId": "temple-control",
+      "id": "21:0:A:temple-control"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1325488164,
+      "candidateId": "temple-public-stadium",
+      "id": "21:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2560029572,
+      "candidateId": "temple-control",
+      "id": "21:0:B:temple-control"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2560029572,
+      "candidateId": "temple-public-stadium",
+      "id": "21:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 4003862961,
+      "candidateId": "temple-control",
+      "id": "27:0:A:temple-control"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 4003862961,
+      "candidateId": "temple-public-stadium",
+      "id": "27:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2746668680,
+      "candidateId": "temple-control",
+      "id": "27:0:B:temple-control"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2746668680,
+      "candidateId": "temple-public-stadium",
+      "id": "27:0:B:temple-public-stadium"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 224990910,
+      "candidateId": "temple-control",
+      "id": "32:0:A:temple-control"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 224990910,
+      "candidateId": "temple-public-stadium",
+      "id": "32:0:A:temple-public-stadium"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3564330628,
+      "candidateId": "temple-control",
+      "id": "32:0:B:temple-control"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3564330628,
+      "candidateId": "temple-public-stadium",
+      "id": "32:0:B:temple-public-stadium"
+    }
+  ],
+  "candidateManifest": "results/aichi-2026/candidate-temple-shadow-rider.json",
+  "fixedCandidateSixtyIdenticalAcrossBothArms": true,
+  "rootCap": 260,
+  "manualNativeCIWorkflow": ".github/workflows/agent39-v8-paper-volt-ab.yml",
+  "defaultOffTreatment": "AGENT39_TEMPLE_STADIUM_ROOT_DEV",
+  "treatmentOwnerVisiblePredicate": "Owner holds Temple; Stadium empty; own Stadium play available; opponent has visible Regidrago V or VSTAR; source-neutral owner root in both seats",
+  "sourceManifestGitBlobs": [
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "results/aichi-2026/candidate-temple-shadow-rider.json",
+      "blob": "2e90f7697465683fdbe8276217f43aa0e29ac675"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "b7d3b60916e6e3dfc3cec8eea7f45d1691d1f2d4"
+    },
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "blob": "5296684d605891d78bfc470df73f72145892858f"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent39-public-temple-regidrago-root.cjs",
+      "blob": "d550d6d22e1438cb492c5916776ea27a95bc959d"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blob": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    }
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneTargetTurn": null,
+    "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
+    "actorSeekerGuzmaOwnerSeat": null,
+    "actorSeekerGuzmaGlobalTurn": null
+  },
+  "predeclaredContrasts": [
+    "actual accepted played Temple actions in treatment and control",
+    "original Regidrago Apex Dragon actions and matchup outcomes",
+    "paired physically equal original source deals with actual starter seat",
+    "strict natural native terminal and censored bounds"
+  ],
+  "claimBoundary": "Never regard native terminal as competitive paper win; official clock, legality and independent adjudication not supplied"
+}
