@@ -125,19 +125,24 @@ function underworldDoorAction(options) {
     const {PlayCardAction} = engine('game/store/actions/play-card-action');
     const before=player.active.energies.cards.length;
     const previousHand=player.hand.cards.length;
-    store.dispatch(new PlayCardAction(player.id,0,{
+    const settled = store.dispatch(new PlayCardAction(player.id,0,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
+    const recipient = settled.players.find(candidate => candidate.id === player.id);
+    assert.ok(recipient,'Native Store must retain the original acting owner');
+    const attachedPhysicalCard = recipient.active.energies.cards.includes(psychic);
+    const leftPhysicalHand = !recipient.hand.cards.includes(psychic);
     manualFallback = {
       decisionReason:decision.reason,
-      attachedPhysicalCard:player.active.energies.cards.includes(psychic),
+      attachedPhysicalCard,
+      leftPhysicalHand,
       activeEnergiesBefore:before,
-      activeEnergiesAfter:player.active.energies.cards.length,
+      activeEnergiesAfter:recipient.active.energies.cards.length,
       handCountBefore:previousHand,
-      handCountAfter:player.hand.cards.length,
-      nativePlayCardAccepted:true,
+      handCountAfter:recipient.hand.cards.length,
+      nativePlayCardAccepted:attachedPhysicalCard && leftPhysicalHand,
       pendingNativePromptsAfterAttachment:
-        state.prompts.filter(prompt => prompt.result === undefined)
+        settled.prompts.filter(prompt => prompt.result === undefined)
           .map(prompt => prompt.constructor.name)
     };
   }
