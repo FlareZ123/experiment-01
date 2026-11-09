@@ -225,3 +225,134 @@ for (const seat of [0, 1]) {
     });
   }
 }
+
+
+/**
+ * Prepare an additional distinct payoff: source-held VS Seeker can retrieve
+ * an original Faba which is physically already in the source discard.
+ * No Nest Ball is held, so the existing Nest-only option cannot cover this.
+ * @param {0|1} seat
+ * @param {boolean} hood
+ */
+function preparedVsSeeker(seat, hood) {
+  const x = prepared(seat, hood);
+  const source = x.originalPlayer;
+  const nestIndex = source.hand.cards.findIndex(c =>
+    c.fullName === 'Nest Ball SVI');
+  assert.ok(nestIndex >= 0);
+  source.deck.cards.push(source.hand.cards.splice(nestIndex, 1)[0]);
+  const take = name => {
+    const index = source.deck.cards.findIndex(c => c.fullName === name);
+    assert.ok(index >= 0, 'Original rank7 source lacks ' + name);
+    return source.deck.cards.splice(index, 1)[0];
+  };
+  const seeker = take('VS Seeker PHF');
+  const faba = take('Faba LOT');
+  source.hand.cards.push(seeker);
+  source.discard.cards.push(faba);
+  assert.equal(source.hand.cards.some(c =>
+    c.fullName.startsWith('Nest Ball ')), false);
+  assertExactSixties(x);
+  return {...x, seeker, faba};
+}
+
+for (const seat of [0, 1]) {
+  for (const hood of [false, true]) {
+    test('original rank7 Artazon Jet unlocks VS Seeker Faba, seat ' +
+      seat + ' Hood ' + hood, () => {
+      const x = preparedVsSeeker(seat, hood);
+      const {UseStadiumAction} =
+        native('game/store/actions/game-actions');
+      x.store.dispatch(new UseStadiumAction(x.originalPlayer.id));
+      searchExactBasic(x, WOBB);
+      assertExactSixties(x);
+      const view = actorObservation(x.store.state, seat);
+      const catalog = metadata();
+      const direct = choosePublicJetBenchSwitch(view, catalog);
+      const selected = chooseActorRootIntent(view, catalog, {
+        jetBenchSwitchRoot:true
+      });
+      if (hood) {
+        assert.equal(direct, null,
+          'Hood-protected Vileplume cannot be suppressed for VS Seeker');
+        assert.notEqual(selected.reason,
+          'jet-promote-wobbuffet-enable-public-vs-seeker');
+        return;
+      }
+      assert.equal(direct?.reason,
+        'jet-promote-wobbuffet-enable-public-vs-seeker');
+      assert.equal(selected?.reason, direct.reason);
+      assert.equal(selected.plannedItem, 'VS Seeker PHF');
+      assert.equal(selected.plannedSupporter, 'Faba LOT');
+      assert.equal(selected.slot, 'bench');
+      const {PlayCardAction, PlayerType, SlotType} =
+        native('game/store/actions/play-card-action');
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+        selected.handIndex, {
+          player:PlayerType.BOTTOM_PLAYER, slot:SlotType.BENCH,
+          index:selected.index
+        }));
+      settleRoutine(x);
+      assert.equal(x.originalPlayer.active.getPokemonCard()?.fullName, WOBB);
+      assert.equal(x.originalPlayer.active.energies.cards.some(c =>
+        c.id === x.jet.id), true);
+      assertExactSixties(x);
+
+      const {IS_ABILITY_BLOCKED} = native('game/store/prefabs/prefabs');
+      const lock = x.evolved.getPokemonCard();
+      const power = lock.powers.find(p => p.name === 'Irritating Pollen');
+      assert.equal(Boolean(IS_ABILITY_BLOCKED(
+        x.store,x.store.state,x.candidatePlayer,lock,power)), true);
+      const seekerIndex = x.originalPlayer.hand.cards.findIndex(c =>
+        c.id === x.seeker.id);
+      assert.ok(seekerIndex >= 0);
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id, seekerIndex, {
+        player:PlayerType.ANY, slot:SlotType.BOARD, index:0
+      }));
+      const prompt = x.store.state.prompts.find(p =>
+        p.result === undefined);
+      assert.equal(prompt?.constructor.name, 'ChooseCardsPrompt',
+        'VS Seeker must search the original owner discard');
+      assert.equal(prompt.playerId, x.originalPlayer.id);
+      assert.equal(prompt.cards, x.originalPlayer.discard);
+      const target = prompt.cards.cards.findIndex(c => c.id === x.faba.id);
+      assert.ok(target >= 0);
+      const {ResolvePromptAction} =
+        native('game/store/actions/resolve-prompt-action');
+      assert.equal(prompt.validate([x.faba], x.store.state), true);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,
+        prompt.decode([target])));
+      const follow = settleRoutine(x);
+      assert.equal(x.originalPlayer.hand.cards.some(c =>
+        c.id === x.faba.id), true);
+      assert.equal(x.originalPlayer.discard.cards.some(c =>
+        c.id === x.seeker.id), true);
+      assert.equal(x.originalPlayer.discard.cards.some(c =>
+        c.id === x.faba.id), false);
+      assert.equal(x.store.hasPrompts(), false);
+      assertExactSixties(x);
+      console.log('AGENT33_RANK7_ARTAZON_JET_VSSEEKER',JSON.stringify({
+        seat,hood,selected,searchResult:'Faba LOT',follow,
+        nativeItemSettled:true,sourceDistinctCards:60,
+        sentinelDistinctCards:60,qualifiedGames:0
+      }));
+    });
+  }
+
+  test('original rank7 VS Seeker alone is not a payable Jet utility without discarded Faba seat ' +
+    seat, () => {
+    const x = preparedVsSeeker(seat, false);
+    const source = x.originalPlayer;
+    const index = source.discard.cards.findIndex(c =>
+      c.id === x.faba.id);
+    assert.ok(index >= 0);
+    source.deck.cards.push(source.discard.cards.splice(index, 1)[0]);
+    x.store.dispatch(new (native('game/store/actions/game-actions')
+      .UseStadiumAction)(source.id));
+    searchExactBasic(x, WOBB);
+    const selected = choosePublicJetBenchSwitch(
+      actorObservation(x.store.state,seat), metadata());
+    assert.equal(selected, null);
+    assertExactSixties(x);
+  });
+}
