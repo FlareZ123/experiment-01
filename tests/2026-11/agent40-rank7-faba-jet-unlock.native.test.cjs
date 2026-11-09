@@ -16,8 +16,12 @@ const VERSION = 'agent40-source-rank7-faba-jet-wobb-item-chain-v1';
  * @returns {number}
  */
 function physicalCount(player) {
-  const slotCount = slot => slot.cards.length + slot.tools.length +
-    slot.energies.cards.length;
+  // PokemonCardList.cards is an inclusive physical container. Native
+  // attached Energy can also appear in slot.energies.cards as a secondary
+  // reference to the *same* card, so count physical ids once per slot.
+  const slotCount = slot => new Set([
+    ...slot.cards, ...slot.tools, ...slot.energies.cards
+  ].map(c => c.id)).size;
   return slotCount(player.active) +
     player.bench.reduce((n, slot) => n + slotCount(slot), 0) +
     player.hand.cards.length + player.deck.cards.length +
@@ -175,17 +179,40 @@ function probe(seat) {
     return rows;
   };
   const sourceEntries = entries(source());
-  const duplicateIds = sourceEntries.filter((row, index) =>
-    sourceEntries.findIndex(x => x.id === row.id) < index);
+  const candidateEntries = entries(candidate());
+  const physical = rows => {
+    const zones = new Map();
+    const aliases = [];
+    for (const row of rows) {
+      const previous = zones.get(row.id);
+      if (previous) {
+        // A second view of the same native card is allowed only inside the
+        // same PokemonCardList, where cards is the inclusive container and
+        // energies/tools is an attachment index. Never ignore cross-zone
+        // duplicates such as a card held in hand and attached in play.
+        const currentSlot = row.zone.split('.')[0];
+        const priorSlot = previous.zone.split('.')[0];
+        assert.equal(currentSlot, priorSlot, 'Cross-zone duplicate physical card ' + row.id);
+        assert.ok(row.zone.endsWith('.energies') || row.zone.endsWith('.tools'),
+          'Unexpected duplicate inside native PokemonCardList');
+        aliases.push(row);
+      } else {
+        zones.set(row.id, row);
+      }
+    }
+    return { count: zones.size, aliases };
+  };
+  const sourcePhysical = physical(sourceEntries);
+  const candidatePhysical = physical(candidateEntries);
   console.log('AGENT40_FABA_JET_PHYSICAL_DIAGNOSTIC', JSON.stringify({
-    seat, counts: [sourceEntries.length, entries(candidate()).length],
-    duplicateIds,
+    seat, counts: [sourcePhysical.count, candidatePhysical.count],
+    attachedIndexAliases: sourcePhysical.aliases,
     jetLocations: sourceEntries.filter(x => x.id === jet.id),
     fabaLocations: sourceEntries.filter(x => x.id === faba.id),
     nestLocations: sourceEntries.filter(x => x.id === nest.id)
   }));
-  assert.equal(sourceEntries.length, 60, 'Every source card occupies one physical zone');
-  assert.equal(entries(candidate()).length, 60);
+  assert.equal(sourcePhysical.count, 60, 'Every source card has exactly one physical zone');
+  assert.equal(candidatePhysical.count, 60);
 
   return {
     version: VERSION, pin: PIN, seat, originalSourceRank: 7,
