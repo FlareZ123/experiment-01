@@ -1,0 +1,70 @@
+{
+  "schema": "agent37-rank5-source-owner-trainers-mail-afterpass-v1",
+  "status": "frozen-before-native-mail-comparison",
+  "createdUTC": "2026-11-09T09:55:00Z",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 13,
+      "candidateSlot": "A",
+      "seed": 1291419999
+    },
+    {
+      "rank": 5,
+      "repeat": 13,
+      "candidateSlot": "B",
+      "seed": 2062742770
+    },
+    {
+      "rank": 5,
+      "repeat": 14,
+      "candidateSlot": "A",
+      "seed": 1929767496
+    },
+    {
+      "rank": 5,
+      "repeat": 14,
+      "candidateSlot": "B",
+      "seed": 936150192
+    }
+  ],
+  "previousSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948,
+    620813734,
+    434672991,
+    1802706844,
+    353026970,
+    1315494449,
+    699451450,
+    1389673884,
+    1197737693,
+    2012026773,
+    122193489,
+    1728898311,
+    1634122344,
+    292063553,
+    742346033,
+    1865883748,
+    168985357,
+    562121866,
+    687496243,
+    386913781,
+    1751267936
+  ],
+  "expectedNativeAttempts": 16,
+  "pairedArms": "Identical authentic rank5 Mew source and unchanged champion/New Moon contender sixties; baseline common source Mew VMAX Quick Ball+Ultra Ball+protected native payment; treatment adds only owner source-seated Trainers' Mail after an incumbent Pass with real native top-four owner prompt.",
+  "intervention": "Reusable existing Agent9 native owner-only Mail-after-Pass adapter; called with actual frozen source 60, source seat scope and genuine Store owner top-four prompt; no peek at deck order, Prize cards or opponent hidden hand.",
+  "analysisPlan": "Preserve all 16 actual native attempts, both physical fingerprints, native Mail Store acceptances and prompts, first changed owner root, original source actual Cross Fusion Strike settled attacks, Prizes and engine winners/caps. Unqualified paper games stay 0.",
+  "competitiveQualifiedGames": 0
+}
