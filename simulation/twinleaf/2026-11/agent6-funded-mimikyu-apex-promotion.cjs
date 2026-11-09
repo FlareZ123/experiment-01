@@ -17,6 +17,71 @@ const REGIDRAGO='Regidrago VSTAR SIT';
 const FLOAT_STONE='Float Stone BKT';
 
 /**
+ * The tracker-certified latest, non-GX Regidrago Apex declaration. The
+ * internal copycatAttack flag is true for printed Apex and does not disqualify
+ * the physical Mimikyu's printed Copycat attack under the paper ruling.
+ * @param {object} view Owner's detached turn-stamped public history.
+ * @returns {{row:object,index:number}|null}
+ */
+function currentOpponentApex(view){
+  const receipt=view?.publicEventReceipt;
+  if(receipt?.actorSeat!==view.actorSeat||
+      receipt.turn!==view.globalTurn||
+      !Number.isSafeInteger(receipt.opponentLastTurnTurn)||
+      receipt.opponentLastTurnTurn>=view.globalTurn||
+      !Array.isArray(receipt.opponentCopycatChoices)||
+      receipt.opponentCopycatChoices.length!==1)return null;
+  const row=receipt.opponentCopycatChoices[0];
+  if(row.turn!==receipt.opponentLastTurnTurn||
+      row.sourcePrinting!==REGIDRAGO||
+      row.attackName!=='Apex Dragon'||row.gxAttack!==false)
+    return null;
+  return {row,index:0};
+}
+
+/**
+ * The active, exactly funded Mimikyu needs a dedicated attack choice:
+ * otherwise the generic payable-first chooser tends to select Filch.
+ * @param {object} view The actor-only, immutable owner observation.
+ * @param {object} catalog Public printed Energy and attack mapping.
+ * @returns {object|null} Native-neutral Copycat action.
+ */
+function chooseFundedMimikyuApexCopycat(view,catalog){
+  assert.equal(view?.decisionKind,'owner-root');
+  const active=view.ownPublic?.active;
+  const apex=currentOpponentApex(view);
+  if(!apex||active?.printing!==MIMIKYU||
+      view.ownPublic.publicTurnRestrictions?.gxUsed===true||
+      view.ownPublic.publicTurnRestrictions?.cannotUseGXAttacks===true||
+      view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining>0||
+      !view.ownPublic.discard?.includes(DIALGA)||
+      active.publicRestrictions?.cannotAttackNextTurn===true||
+      active.publicRestrictions?.blockedAttackNameNextTurn==='Copycat'||
+      active.publicRestrictions?.blockedAttackNameUntilLeavesActive==='Copycat'||
+      active.publicRestrictions?.cannotUseAttacksNextTurn?.includes('Copycat')||
+      (active.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
+       active.publicRestrictions.onlyAllowedAttackNameNextTurn!=='Copycat')||
+      (active.specialConditions??[]).some(c=>
+        c===catalog.specialConditions?.ASLEEP||
+        c===catalog.specialConditions?.PARALYZED))
+    return null;
+  const attack=active.attacks?.find(a=>a.name==='Copycat'&&
+    a.gxAttack===false);
+  if(!attack||!publicSpecialAttackPayable(view,catalog,active,attack))
+    return null;
+  return {
+    kind:'attack',attackName:'Copycat',source:VERSION,
+    previousOpponentTurn:apex.row.turn,
+    previousOpponentSource:REGIDRAGO,
+    previousOpponentAttack:'Apex Dragon',
+    previousChoiceIndex:apex.index,
+    targetOwnerDiscardDonor:DIALGA,
+    nativeCopycatAndPayloadUnverified:true,
+    competitiveGameQualified:false
+  };
+}
+
+/**
  * Propose one actor-owned, actual-Store-subject Retreat into an already
  * completely funded Mimikyu when the previous public opponent turn exposed
  * non-GX Apex Dragon, the owner's GX allowance is unused, and the physical
@@ -36,23 +101,13 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
   const own=view.ownPublic;
   const active=own?.active;
   const r=view.ownTurnResources;
-  const receipt=view.publicEventReceipt;
   if(view.globalTurn<=1||!active||active.printing===MIMIKYU||
       !r||!Number.isSafeInteger(r.retreatedTurn)||
       r.retreatedTurn===view.globalTurn||
       own.publicTurnRestrictions?.gxUsed===true||
       own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
       !own.discard?.includes(DIALGA)||
-      receipt?.actorSeat!==view.actorSeat||
-      receipt.turn!==view.globalTurn||
-      !Number.isSafeInteger(receipt.opponentLastTurnTurn)||
-      receipt.opponentLastTurnTurn>=view.globalTurn||
-      !Array.isArray(receipt.opponentCopycatChoices)||
-      !receipt.opponentCopycatChoices.some(row=>
-        row.turn===receipt.opponentLastTurnTurn&&
-        row.sourcePrinting===REGIDRAGO&&
-        row.attackName==='Apex Dragon'&&
-        row.gxAttack===false))
+      currentOpponentApex(view)===null)
     return null;
 
   if(observedOpponentActiveForbidsRetreat(view)||
@@ -128,4 +183,4 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
   };
 }
 
-module.exports={VERSION,chooseFundedMimikyuApexPromotion};
+module.exports={VERSION,currentOpponentApex,chooseFundedMimikyuApexCopycat,chooseFundedMimikyuApexPromotion};
