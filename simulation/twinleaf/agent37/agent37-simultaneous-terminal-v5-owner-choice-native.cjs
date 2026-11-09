@@ -3,6 +3,10 @@
 const assert=require('node:assert/strict');
 const {initializeCards}=require('../headless.cjs');
 const {runOne}=require('../agent37-simultaneous-ko-e21-promotion-native.cjs');
+const {GamePhase,GameWinner}=
+  require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+const {GameLog}=
+  require('../../../vendor/twinleaf/ptcg-server/output/game/game-message');
 const {
   withInstanceScopedSimultaneousTerminalResolutionV5,
   VERSION,PINNED
@@ -48,11 +52,18 @@ function run(){
     };
     for(const includeMetal of [false,true]){
       let ownerChoiceInvocations=0;
-      const choice={...fixture,choosePrize:({player,prompt,remaining})=>{
+      const choice={...fixture,choosePrize:({player,prompt,remaining,state})=>{
         assert.equal(player.id,recipientId,
           'native ChoosePrizePrompt belongs to nonterminal Prize recipient');
         const count=prompt.options.count;
         assert.equal(prompt.playerId,recipientId);
+        assert.equal(state.phase,GamePhase.ATTACK,
+          'owner sees their Prize prompt before any terminal state');
+        assert.equal(state.winner,GameWinner.NONE);
+        assert.equal(state.logs.filter(log=>
+          log.message===GameLog.LOG_GAME_FINISHED_WINNER||
+          log.message===GameLog.LOG_GAME_FINISHED_DRAW
+        ).length,0,'native winner log must remain deferred');
         ownerChoiceInvocations++;
         if(!includeMetal)return remaining.slice(0,count);
         const picked=remaining[4];
@@ -67,6 +78,8 @@ function run(){
       );
       assert.equal(ownerChoiceInvocations,1);
       assert.equal(result.finished,true);
+      assert.equal(result.terminalGameLogCount,1,
+        'exactly one native terminal winner/draw log is published');
       assert.equal(result.winnerPlayer,actorSeat===0?'owner':'opponent');
       assert.equal(result.ownerPrizesRemaining,actorSeat===0?0:3);
       assert.equal(result.opponentPrizesRemaining,actorSeat===0?5:0);
