@@ -132,11 +132,29 @@ function probe(seat) {
   assert.equal(blocked(), false,
     'Removing Hood alone does not activate Benched Wobbuffet');
 
-  // Real Jet Energy from the original source hand promotes its Benched
-  // Wobbuffet, even though it cannot pay the Wobbuffet Psychic attack.
-  const jetIndex = source().hand.cards.findIndex(c => c.id === jet.id);
-  x.store.dispatch(new PlayCardAction(sourceId, jetIndex, {
-    player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
+  // Select the Jet response from the actual detached source-owner view.
+  // The shared default-off root uses this same chooser; never consult
+  // opponent concealed cards or unrevealed original Prize identities.
+  const { actorObservation } =
+    require('../../simulation/twinleaf/actor-observation-contract.cjs');
+  const { choosePublicJetBenchSwitch } =
+    require('../../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs');
+  const observed = actorObservation(x.store.state, seat);
+  const proposal = choosePublicJetBenchSwitch(observed, {
+    specialEnergies: new Set(['Jet Energy PAL']),
+    specialConditions: {}
+  }, { payable: () => false });
+  assert.ok(proposal, 'Actual public board must reach utility Jet root');
+  assert.equal(proposal.reason,
+    'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock');
+  assert.equal(proposal.slot, 'bench');
+  assert.equal(proposal.index, 0);
+  assert.equal(observed.ownHand[proposal.handIndex], 'Jet Energy PAL');
+  assert.equal(source().hand.cards[proposal.handIndex].id, jet.id);
+  // The actual typed owner proposal now dispatches to pinned native Store.
+  x.store.dispatch(new PlayCardAction(sourceId, proposal.handIndex, {
+    player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH,
+    index: proposal.index
   }));
   for (let i = 0; i < 6; i++) {
     const pending = x.store.state.prompts.find(p => p.result === undefined);
@@ -217,6 +235,7 @@ function probe(seat) {
   return {
     version: VERSION, pin: PIN, seat, originalSourceRank: 7,
     fabaLostZoneHood: true, jetPromotedWobbuffet: true,
+    sourceOwnerPublicJetProposal: proposal.reason,
     sourceItemResolvedAfterUtility: true, sourceItemPrompts: prompts,
     physicalCounts: [physicalCount(source()), physicalCount(candidate())],
     stagedOnly: true, naturalSourceDeals: 0, qualifiedCompetitiveGames: 0
