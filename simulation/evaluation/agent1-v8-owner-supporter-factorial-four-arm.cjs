@@ -8,8 +8,10 @@ const {run:runNative}=
   require('./agent43-v8-snaptrap-exact-prompt-blocker.cjs');
 const {REGISTRATION,firstDivergence}=
   require('./agent38-v8-owner-mail-pass-four-arm.cjs');
+const {physicalDealsMatch}=
+  require('./agent1-v8-held-handiwork-four-arm.cjs');
 
-const VERSION='agent1-v8-owner-supporter-contention-four-arm-factorial-v1';
+const VERSION='agent1-v8-owner-supporter-contention-four-arm-factorial-v2-parity';
 const OUTPUT=path.resolve(__dirname,
   '../../artifacts/agent43-v8-snaptrap-owner-root/agent1-supporter-factorial.json');
 const MODES=Object.freeze({
@@ -86,6 +88,8 @@ function run(){
   }
   const panel=REGISTRATION.trials.map(trial=>{
     const baselineTape=byMode.B.publicRootTape.filter(r=>r.trialId===trial.id);
+    const baselineRow=byMode.B.attempts.find(r=>r.id===trial.id);
+    assert.ok(baselineRow);
     const arms={};
     for(const name of Object.keys(MODES)){
       const data=byMode[name];
@@ -102,6 +106,9 @@ function run(){
         .filter(r=>r.trialId===trial.id).length);
       assert.equal(refill.length,paid.length);
       arms[name]={
+        physicalDealMatchedWithB:physicalDealsMatch(baselineRow,row),
+        sourceDealSha256:row.sourceDealFingerprint??null,
+        fullPhysicalDealSha256:row.fullPhysicalDealFingerprint??null,
         firstDivergenceFromB:firstDivergence(baselineTape,tape),
         status:row.nativeStatus,finished:row.nativeFinished,
         winner:row.nativeWinner,endReason:row.nativeEndReason,
@@ -137,8 +144,17 @@ function run(){
       failures:rows.filter(r=>r.status==='engine-error').length
     }];
   }));
+  const fullPhysicalDealComparisonsMatched=panel.reduce((n,p)=>
+    n+Object.values(p.arms).filter(a=>a.physicalDealMatchedWithB).length,0);
   return {
     schema:VERSION,gitHead:process.env.GITHUB_SHA??null,
+    physicalDealComparisonsMatched:fullPhysicalDealComparisonsMatched,
+    fullPhysicalPanelValid:fullPhysicalDealComparisonsMatched===
+      REGISTRATION.trials.length*Object.keys(MODES).length,
+    status:fullPhysicalDealComparisonsMatched===
+      REGISTRATION.trials.length*Object.keys(MODES).length?
+      'NATIVE_FACTORIAL_FULL_PHYSICAL_PARITY':
+      'INVALID_OR_MISSING_PHYSICAL_DEAL_PARITY',
     preregistrationPath:
       'results/methodology/registrations/agent1-v8-owner-supporter-contention-factorial-20261109.md',
     pinnedVendor:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
@@ -171,5 +187,6 @@ if(require.main===module){
           end:r.endReason,prizes:r.prizes,roots:r.roots}
       ]))}))??null,
     failure:result.failure??null},null,2)+'\n');
+  if(result.fullPhysicalPanelValid===false)process.exitCode=1;
 }
 module.exports={VERSION,MODES,REGISTRATION,continuation,run,save};
