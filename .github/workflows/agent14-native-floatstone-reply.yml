@@ -20,6 +20,7 @@ on:
           - agent3-portable-champion-all29-artifact-audit
           - agent3-regidrago-original-custody-debug
           - agent3-regidrago-celestial-roar-hook-ab
+          - agent3-prospective-all29-celestial-paper-v2
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
@@ -208,6 +209,21 @@ jobs:
         env:
           AGENT31_PORTABLE_JOINT_OUTPUT: agent31-portable-joint-aba.json
         run: node simulation/evaluation/agent31/portable-floatstone-seeker-guzma-aba.cjs
+      - name: Run new frozen 116-game all-29-paper-corrected champion two-owner panel
+        if: inputs.experiment == 'agent3-prospective-all29-celestial-paper-v2'
+        env:
+          AGENT3_PORTABLE_CELESTIAL_V2_OUTPUT: artifacts/agent3-prospective-all29-celestial-paper-v2.json
+        run: |
+          node --check simulation/evaluation/agent3/prospective-all29-celestial-paper-v2.cjs
+          node simulation/evaluation/agent3/prospective-all29-celestial-paper-v2.cjs
+      - name: Archive all 116 native original field attempts with corrected Celestial Roar
+        if: always() && inputs.experiment == 'agent3-prospective-all29-celestial-paper-v2'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-prospective-all29-celestial-paper-v2
+          path: artifacts/agent3-prospective-all29-celestial-paper-v2.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Native baseline and corrected paper Celestial Roar custody side-by-side
         if: inputs.experiment == 'agent3-regidrago-celestial-roar-hook-ab'
         env:
