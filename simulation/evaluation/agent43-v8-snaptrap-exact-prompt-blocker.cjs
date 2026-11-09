@@ -152,7 +152,7 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
@@ -161,12 +161,15 @@ function run(settings = {}) {
   const followMailNestBall = settings.followMailNestBall === true;
   const followMailHandiwork = settings.followMailHandiwork === true;
   const followHeldHandiwork = settings.followHeldHandiwork === true;
+  const followHeldRefillSupporter = settings.followHeldRefillSupporter === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
   assert.ok(!followMailHandiwork || ownerMailAfterPass,
     'Handiwork follow-through requires owner Mail treatment');
   assert.ok(!followHeldHandiwork || ownerMailAfterPass,
     'Held Handiwork treatment uses registered owner-Mail hook');
+  assert.ok(!followHeldRefillSupporter || ownerMailAfterPass,
+    'Held draw Supporter treatment uses registered owner-Mail hook');
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -179,6 +182,7 @@ function run(settings = {}) {
   const trace = {byStore: new WeakMap(), events: [], roots: []};
   const acceptedMailActionRefs = new WeakSet();
   const acceptedHeldHandiworkRefs = new WeakSet();
+  const acceptedHeldRefillRefs = new WeakSet();
   const playedSelectedTrainerRefs = new WeakSet();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
@@ -190,6 +194,7 @@ function run(settings = {}) {
       action: action?.constructor?.name ?? null,
       ownerMailAfterPassAction: acceptedMailActionRefs.has(action),
       ownerHeldHandiworkAction: acceptedHeldHandiworkRefs.has(action),
+      ownerHeldRefillAction: acceptedHeldRefillRefs.has(action),
       previouslyMailSelectedTrainerPlayed: playedSelectedTrainerRefs.has(action),
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
@@ -243,10 +248,13 @@ function run(settings = {}) {
             followMailNestBall,
             followMailHandiwork,
             followHeldHandiwork,
+            followHeldRefillSupporter,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
             onHeldHandiworkActionCommitted:
               action => acceptedHeldHandiworkRefs.add(action),
+            onHeldRefillActionCommitted:
+              action => acceptedHeldRefillRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
           });
         ownerMailAudit = mail.audit;
@@ -282,7 +290,7 @@ function run(settings = {}) {
       nativeFailureActionOrdinal: row.nativeAbortEvidence?.actionOrdinal ?? null,
       nativeFailureActingSeat: row.nativeAbortEvidence?.actingSeat ?? null,
       nativeFailureTurn: row.nativeAbortEvidence?.turnBefore ?? null,
-      ...((followMailHandiwork || followHeldHandiwork) ? {
+      ...((followMailHandiwork || followHeldHandiwork || followHeldRefillSupporter) ? {
         nativeFailureDiagnostic: row.error == null ? null : {
           name: row.error?.name ?? null,
           message: String(row.error?.message ?? row.error).slice(0,300)
@@ -335,6 +343,7 @@ function run(settings = {}) {
     experimentalFollowMailNestBall: followMailNestBall,
     experimentalFollowMailHandiwork: followMailHandiwork,
     experimentalFollowHeldHandiwork: followHeldHandiwork,
+    experimentalFollowHeldRefillSupporter: followHeldRefillSupporter,
     ownerMailAudit: ownerMailAudit === null ? null : {
       version: ownerMailAudit.schema,
       registeredTrialIds: ownerMailAudit.trialIds,
@@ -363,6 +372,10 @@ function run(settings = {}) {
         ownerMailAudit.handiworkFromHandNativeDeckChanges,
       handiworkFromHandDeferredSettlements:
         ownerMailAudit.handiworkFromHandDeferredSettlements,
+      heldRefillOffers: ownerMailAudit.heldRefillOffers,
+      heldRefillAccepted: ownerMailAudit.heldRefillAccepted,
+      heldRefillRejected: ownerMailAudit.heldRefillRejected,
+      heldRefillEvents: ownerMailAudit.heldRefillEvents,
       handiworkFromMailNativeDeckChanges:
         ownerMailAudit.handiworkFromMailNativeDeckChanges,
       handiworkDeferredSettlements: ownerMailAudit.handiworkDeferredSettlements,
