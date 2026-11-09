@@ -69,11 +69,15 @@
     },
     {
       "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
-      "sha": "b0f8ce8ab2fc164a1cf165f016e25cff40373a02"
+      "sha": "42fec305eec4bd15f333e662955a7c91c5e8bf9d"
     },
     {
       "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
-      "sha": "d6b1f3eb908141eb78339f45706d30b10ca4694a"
+      "sha": "7b1268548f87ccbb64004755741011ec68971269"
+    },
+    {
+      "path": "simulation/twinleaf/agent5-owner-root-slice.cjs",
+      "sha": "2699ae931e40fed8a1ead5bfd2c316c674db89f2"
     }
   ],
   "registeredSourceGroups": [
@@ -1531,5 +1535,6 @@
     }
   ],
   "analysisProtocol": "all 58 source ranks and seats precommitted before first game, compare identical physical/deal/starter fingerprints, retain native caps and errors as censored, no imputing win ratio, report 29 per-rank opponent status and full 58 paired deltas",
-  "scope": "Native same-sixty public-policy A/B evidence only; 0 independent paper-qualified competitive games, no 99.5% claim"
+  "scope": "Native same-sixty public-policy A/B evidence only; 0 independent paper-qualified competitive games, no 99.5% claim",
+  "preFirstGameRevisionNote": "Owner-root Skyliner witness and printing bridge corrected based on the separate 16-pair native failure before this 58-pair best-sixty registration was ever dispatched. The 58 independent seeds and all printed sixties remain exactly as first frozen."
 }
