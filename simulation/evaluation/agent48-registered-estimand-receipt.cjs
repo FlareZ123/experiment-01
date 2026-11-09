@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent48-registered-estimand-receipt-v2-setup-treatment-boundary';
+const VERSION = 'agent48-registered-estimand-receipt-v3-cross-deck-source-parity';
 const SHA256 = /^[0-9a-f]{64}$/;
 
 /** @param {unknown} value @returns {string|null} */
@@ -21,6 +21,9 @@ const seat = value => value === 0 || value === 1 ? value : null;
  * @param {object[]} nativeRows Actual returned rows, including errors and caps.
  * @param {object[]} [comparisonPlans] Predeclared {id,leftId,rightId,purpose}.
  *   purpose: 'same-60-policy-ab' or 'different-60-fixed-opening'.
+ *   Different-60 comparisons require equal source deals but distinct candidate
+ *   printed rosters and full-deal fingerprints, which must necessarily differ.
+ *   They are conditional source-only diagnostics, never matched two-player deals.
  *   Same-60 policy A/B must declare its policy onset as after first-stable
  *   turn-one root with external evidence SHA, or as setup-intervening.
  * @returns {object} A read-only, competitively unqualified receipt.
@@ -111,28 +114,38 @@ function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = [])
         leftPrint,rightPrint,leftRoster,rightRoster,
         starterA,starterB,sourceA,sourceB];
       if (required.every(v => v !== null)) {
-        parity = leftSource === rightSource && leftFull === rightFull &&
+        const sourceParity = leftSource === rightSource &&
           leftRoster === rightRoster && starterA === starterB &&
-          sourceA === expectedSourceSeat &&
-          sourceB === expectedSourceSeat &&
-          (pair.purpose !== 'same-60-policy-ab' ||
-            leftPrint === rightPrint) ?
-          'MATCHED_REPORTED_INITIAL_STATE' : 'MISMATCHED';
+          sourceA === expectedSourceSeat && sourceB === expectedSourceSeat;
+        const printParity = samePolicyComparison ?
+          leftPrint === rightPrint : leftPrint !== rightPrint;
+        const fullDealParity = samePolicyComparison ?
+          leftFull === rightFull : leftFull !== rightFull;
+        parity = sourceParity && printParity && fullDealParity ?
+          (samePolicyComparison ? 'MATCHED_REPORTED_INITIAL_STATE' :
+            'MATCHED_REPORTED_SOURCE_DEAL_ONLY') : 'MISMATCHED';
       } else {
+        const fullDealConflict = leftFull && rightFull &&
+          (samePolicyComparison ? leftFull !== rightFull :
+            leftFull === rightFull);
+        const candidatePrintConflict = leftPrint && rightPrint &&
+          (samePolicyComparison ? leftPrint !== rightPrint :
+            leftPrint === rightPrint);
         const knownMismatch = (leftSource && rightSource &&
-          leftSource !== rightSource) ||
-          (leftFull && rightFull && leftFull !== rightFull) ||
+          leftSource !== rightSource) || fullDealConflict ||
           (leftRoster && rightRoster && leftRoster !== rightRoster) ||
           (starterA !== null && starterB !== null && starterA !== starterB) ||
           (sourceA !== null && sourceA !== expectedSourceSeat) ||
           (sourceB !== null && sourceB !== expectedSourceSeat) ||
           (sourceA !== null && sourceB !== null && sourceA !== sourceB) ||
-          (pair.purpose === 'same-60-policy-ab' && leftPrint &&
-            rightPrint && leftPrint !== rightPrint);
+          candidatePrintConflict;
         parity = knownMismatch ? 'MISMATCHED' : 'UNKNOWN';
       }
     }
-    return {id: pair.id, purpose: pair.purpose, leftId: pair.leftId,
+    return {id: pair.id, purpose: pair.purpose,
+      comparisonScope: samePolicyComparison ?
+        'FULL_TWO_PLAYER_PRETREATMENT' : 'SOURCE_ONLY_FIXED_OPENING',
+      leftId: pair.leftId,
       rightId: pair.rightId, parity,
       policyFirstInfluences:pair.policyFirstInfluences??null,
       policyOnsetProofSha256:policyOnsetProof,

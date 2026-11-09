@@ -41,6 +41,51 @@ test('a genuine different-deck source deal mismatch remains in natural denominat
     .onlyConditionalFixedOpeningDiagnostic, true);
 });
 
+
+test('different fixed sixties with matching original source deal remain source-only paired', () => {
+  const p = [plan('reference', 'champion'), plan('challenger', 'newmoon')];
+  const rows = [native(p[0]), native(p[1], {
+    fullPhysicalDealFingerprint: C
+  })];
+  const receipt = registeredEstimandReceipt(p, rows,
+    [compare('cross-deck', 'reference', 'challenger',
+      'different-60-fixed-opening')]);
+  const cell = receipt.secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity, 'MATCHED_REPORTED_SOURCE_DEAL_ONLY');
+  assert.equal(cell.comparisonScope, 'SOURCE_ONLY_FIXED_OPENING');
+  assert.equal(cell.onlyConditionalFixedOpeningDiagnostic, true);
+  assert.equal(cell.competitiveInferenceQualified, false);
+  assert.equal(receipt.primaryNaturalGamePopulationRetained.registeredAttempts, 2);
+});
+
+test('different printed sixties with identical reported full physical deal fail closed', () => {
+  const p = [plan('reference', 'champion'), plan('challenger', 'newmoon')];
+  const cell = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1])
+  ], [compare('impossible-full-deal', 'reference', 'challenger',
+    'different-60-fixed-opening')]).secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity, 'MISMATCHED');
+});
+
+test('candidate aliases with identical printed hashes cannot claim distinct sixties', () => {
+  const p = [plan('reference', 'champion'),
+    plan('challenger', 'newmoon', {candidatePrintSha256: A})];
+  const cell = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1], {fullPhysicalDealFingerprint: C})
+  ], [compare('identical-print', 'reference', 'challenger',
+    'different-60-fixed-opening')]).secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity, 'MISMATCHED');
+});
+
+test('cross-deck source parity is unknown without both complete physical deal receipts', () => {
+  const p = [plan('reference', 'champion'), plan('challenger', 'newmoon')];
+  const cell = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1], {fullPhysicalDealFingerprint: null})
+  ], [compare('missing-full', 'reference', 'challenger',
+    'different-60-fixed-opening')]).secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity, 'UNKNOWN');
+});
+
 test('an error and missing native row remain separate registered attempts', () => {
   const p = [plan('a'), plan('b'), plan('c')];
   const out = registeredEstimandReceipt(p, [

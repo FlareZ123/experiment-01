@@ -245,6 +245,7 @@ jobs:
       - name: Verify independent source-deal and real native-opportunity receipt integrity
         run: |
           node --test tests/agent48-decision-opportunity-receipt.test.cjs
+          node --test tests/agent48-registered-estimand-receipt.test.cjs
           node --test tests/agent41-native-attempt-disposition.test.cjs
           node --test tests/agent48-aborted-source-pair-posthoc.test.cjs
       - name: Regress rank22 Wally first-turn direct prize-aware physical access
