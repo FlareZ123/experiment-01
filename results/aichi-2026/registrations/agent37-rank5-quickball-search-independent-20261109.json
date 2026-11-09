@@ -1,0 +1,64 @@
+{
+  "schema": "agent37-rank5-independent-quickball-source-search-v1",
+  "status": "frozen-prior-to-first-native-attempt",
+  "createdUTC": "2026-11-09T08:17:14.528Z",
+  "originalRank": 5,
+  "originalArchetype": "Mew Genesect",
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSixties": "Unchanged from agent41 bilateral v2 frozen manifests",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1911740482
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1412490954
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 1526675278
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 651361948
+    }
+  ],
+  "policyArms": {
+    "control": "Frozen bilateral developmental profile + natural Mew evolution, Mew attack, source Quick Ball/discard, owner-only generic deck search, source funded DCE Mew mobility and owner Genesect draw.",
+    "treatment": "Identical complete policy and physical source/candidate sixties, with only the source Mew/Genesect owner Quick Ball target preference enabled."
+  },
+  "plannedNativeAttempts": 16,
+  "design": "Four independently generated previously-unseen crypto-seeded source physical deals; same eight source/candidate pairs across generic owner-only search and Mew target preference. Compare only within physically matched source and complete initial deals. Never drop errors/caps.",
+  "seedGeneration": "secrets.randbelow(2**31-1)+1 run at 2026-11-09T08:17:14Z before registration or native execution",
+  "previousRetrospectiveSeedsExcluded": [
+    1291978585,
+    2174158724
+  ],
+  "noPostOutcomeExclusions": true,
+  "competitivelyQualifiedGames": 0,
+  "analysisRules": [
+    "Archive all sixteen native rows and both native errors and caps.",
+    "Require same source and full physical opening fingerprints before paired causal statements.",
+    "Count terminal winner reversals only where both terminal; report all censored groups.",
+    "Do not infer paper win rate from Store terminals or add Mew search to selected shared policy without wider source adversarial acceptance."
+  ],
+  "explicitQualificationVetoes": [
+    "Unqualified common opponent policy",
+    "Native engine not complete paper Japanese Extra rules",
+    "Tournament clock/round adjudication absent",
+    "Three unauthenticated source ranks"
+  ]
+}
