@@ -12,6 +12,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent49_carmine_early_native:
+        description: 'Paired original rank11/18 both-seat early source Carmine native challenge'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   energy-census:
@@ -38,6 +43,8 @@ jobs:
         run: node --test tests/agent49-rank11-first-letter-pass11.test.cjs
       - name: Check four exact original-source Trainer hand-cost modes and shared quotas
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent49-original-trainer-payment-modes.test.cjs
+      - name: Gate first-own-turn source Carmine choice and physical receipt on both seats
+        run: node --test tests/agent49-source-early-carmine-native.test.cjs
       - name: Veto generically impossible native Trainer payments without certifying playable actions
         run: node --test tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs
       - name: Verify optional owner-only Marshadow Stadium-channel counter decision contracts
@@ -221,4 +228,38 @@ jobs:
           name: agent35-rank11-second-family-native-v6
           path: agent35-rank11-second-family-native-v6.json
           retention-days: 21
+          if-no-files-found: warn
+
+  original-early-carmine-native:
+    if: ${{ inputs.agent49_carmine_early_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact original Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native game dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test first-turn owner Carmine source-only native selection and receipts
+        run: node --test tests/agent49-source-early-carmine-native.test.cjs
+      - name: Run all 32 registered native control and early-Carmine source games
+        env:
+          AGENT49_CARMINE_NATIVE_OUTPUT: artifacts/agent49-source-carmine-first-own-turn-native.json
+        run: node simulation/evaluation/agent49-source-carmine-first-own-turn-native.cjs
+      - name: Archive all physical source deals, root outcomes and aborts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-source-early-carmine-native
+          path: artifacts/agent49-source-carmine-first-own-turn-native.json
+          retention-days: 30
           if-no-files-found: warn
