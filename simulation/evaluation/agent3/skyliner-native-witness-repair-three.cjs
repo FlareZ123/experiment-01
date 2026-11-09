@@ -115,7 +115,7 @@ if(require.main===module){
   const result=run();
   saveAtomic(OUTPUT,result);
   process.stdout.write('AGENT3_SKYLINER_WITNESS_REPAIR '+
-    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\\n');
+    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\n');
   if(result.summary.nativeEngineAborts>0||
      result.summary.matchedOriginalFullPhysicalDeal!==3)process.exitCode=1;
 }
