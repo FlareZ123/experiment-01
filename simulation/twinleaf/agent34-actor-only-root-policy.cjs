@@ -511,6 +511,11 @@ function chooseActorRootIntent(view,catalog,options={}){
     }
     if(staged)return staged;
   }
+  if(options.rank13SourceFirstOwnGrass===true){
+    const grass=require('./agent5/rank13-first-own-turn-grass.cjs')
+      .chooseSourceFirstOwnGrass(view,catalog);
+    if(grass)return grass;
+  }
   if(options.firstRegidragoBenchGrass===true){
     const funding=require('./agent49/first-turn-regidrago-bench-funding.cjs')
       .chooseFirstRegidragoBenchGrass(view,catalog);
@@ -1117,6 +1122,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureMuscleBandPayment===true,
     firstRegidragoBenchGrassOptIn:
       deps.firstRegidragoBenchGrass===true,
+    rank13SourceFirstOwnGrassOptIn:
+      deps.rank13SourceFirstOwnGrass===true,
+    rank13SourceFirstOwnGrassOwnerSeat:
+      deps.rank13SourceFirstOwnGrassOwnerSeat??null,
     retreatFundingBridgeOptIn:deps.retreatFundingBridge===true,
     retreatFundingBridgeAttachmentsSelected:0,
     retreatFundingBridgeRetreatsSelected:0,
@@ -1524,6 +1533,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.firstRegidragoBenchGrassOptIn)
     audit.version+='+'+
       require('./agent49/first-turn-regidrago-bench-funding.cjs').VERSION;
+  if(audit.rank13SourceFirstOwnGrassOptIn)
+    audit.version+='+'+
+      require('./agent5/rank13-first-own-turn-grass.cjs').VERSION;
   if(audit.retreatFundingBridgeOptIn)
     audit.version+='+'+
       require('./2026-11/agent2-retreat-funding-bridge.cjs').VERSION;
@@ -2017,6 +2029,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureMuscleBandPayment:
         audit.mysteriousTreasureMuscleBandPaymentOptIn,
       firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
+      rank13SourceFirstOwnGrass:actorSpecialEnergyEnabled(
+        audit.rank13SourceFirstOwnGrassOptIn,
+        audit.rank13SourceFirstOwnGrassOwnerSeat,seat),
       retreatFundingBridge:audit.retreatFundingBridgeOptIn,
       firstCrispinSeekerRecovery:audit.firstCrispinSeekerRecoveryOptIn,
       earlyRegidragoCompressor:actorSpecialEnergyEnabled(
