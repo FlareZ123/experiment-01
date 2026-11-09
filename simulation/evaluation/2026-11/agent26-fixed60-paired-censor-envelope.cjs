@@ -15,19 +15,17 @@ const PHYSICAL_PASS = 'SETTLED_PHYSICAL_INTEGRITY_PASSED';
 function armWinInterval(row) {
   assert.ok(row && typeof row === 'object');
   assert.ok(row.candidateSeat === 0 || row.candidateSeat === 1);
-  if (row.nativeDisposition === 'engine-terminal') {
+  if (row.nativeDisposition === 'ENGINE_TERMINAL') {
     assert.equal(row.nativeFinished, true, 'Contradictory native terminal');
     assert.ok(row.nativeWinner === 0 || row.nativeWinner === 1,
       'Native terminal winner missing');
     const win = Number(row.nativeWinner === row.candidateSeat);
     return {min: win, max: win, kind: win ? 'native-win' : 'native-loss'};
   }
-  assert.ok(row.nativeDisposition === 'action-cap' ||
-    row.nativeDisposition === 'native-abort' ||
-    row.nativeDisposition === 'precheck-rejection' ||
-    row.nativeDisposition === 'unknown' ||
-    row.nativeDisposition === 'missing-attempt',
-  'Unknown native disposition: ' + row.nativeDisposition);
+  assert.ok(['ACTION_CAP','NATIVE_ABORT','PRECHECK_REJECTED',
+    'CONFLICTING_NATIVE_FIELDS','NATIVE_INCOMPLETE','UNVERIFIED',
+    'MISSING_ROW','INVALID_ROW'].includes(row.nativeDisposition),
+    'Unknown native disposition: ' + row.nativeDisposition);
   assert.ok(row.nativeFinished !== true,
     'Censored attempt must not claim native game completion');
   return {min: 0, max: 1, kind: row.nativeDisposition};
