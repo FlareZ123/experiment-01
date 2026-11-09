@@ -2,10 +2,6 @@ name: Aichi Stealthy Hood versus Initialization
 on:
   workflow_dispatch:
     inputs:
-      agent21_rank31_duskull_replay:
-        description: 'Posthoc exact rank31 source-deal replay, original versus Duskull paper reducer; no win-rate qualification'
-        type: boolean
-        default: false
       hood_rank8_second:
         description: 'Optional source ranked Hood game starting second'
         type: boolean
@@ -149,17 +145,6 @@ jobs:
           retention-days: 21
       - name: Native Duskull PRE full-Bench and discard-zone paper attack both seats
         run: node --test tests/2026-11/agent21-duskull-come-and-get-you-native.test.cjs
-      - name: Posthoc original rank31 source-deal Duskull-paper correction replay
-        if: inputs.agent21_rank31_duskull_replay
-        run: node simulation/evaluation/2026-11/agent21-rank31-duskull-native-replay.cjs
-      - name: Archive corrected and original genuine native rank31 replay
-        if: always() && inputs.agent21_rank31_duskull_replay
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent21-rank31-duskull-original-paired-paper-correction
-          path: agent21-rank31-duskull-native-replay.json
-          retention-days: 21
-          if-no-files-found: warn
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
