@@ -1,0 +1,101 @@
+{
+  "schema": "agent50-rank5-gengar-lillie-prospective-eight-deal-pairs-v1",
+  "status": "FROZEN_BEFORE_EXPERIMENT_CODE_OR_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-09T14:59:41.357035Z",
+  "caseId": "agent50-20261109-rank5-lillie-vs-lillie-gengar-fresh-eight",
+  "sourceOriginalRank": 5,
+  "sourcePrintedManifest": "results/aichi-2026/full-decklists.json",
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "candidatePrintedManifest": "results/als/new-moon-perfection-source-60.json",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 320,
+  "seedMethod": "Eight sequential independent Python secrets.randbits(32) draws performed before study coding",
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 50601,
+      "candidateSlot": "A",
+      "seed": 2025901336,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50601:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50602,
+      "candidateSlot": "B",
+      "seed": 261622229,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50602:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50603,
+      "candidateSlot": "A",
+      "seed": 3638127115,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50603:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50604,
+      "candidateSlot": "B",
+      "seed": 4084046070,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50604:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50605,
+      "candidateSlot": "A",
+      "seed": 3090340982,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50605:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50606,
+      "candidateSlot": "B",
+      "seed": 4234343889,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50606:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50607,
+      "candidateSlot": "A",
+      "seed": 1594960417,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50607:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50608,
+      "candidateSlot": "B",
+      "seed": 2885955032,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50608:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "controls": {
+    "phase": "Lillie-only",
+    "actorBilateralLillieAfterPass": true,
+    "bilateralGengarHorrorHouseTempo": false
+  },
+  "treatment": {
+    "phase": "Lillie-plus-Gengar",
+    "actorBilateralLillieAfterPass": true,
+    "bilateralGengarHorrorHouseTempo": true,
+    "bilateralGengarHorrorHouseMinOpponentHandCount": 6
+  },
+  "otherPolicies": "Exact frozen Agent44 original rank5 source + Agent8 v6 Mew source funding and owner guards, with unchanged original and New Moon printed 60s, same common v2 policy. No opportunistic policy adaptation per deal.",
+  "phaseOrder": [
+    "Lillie-only",
+    "Lillie-plus-Gengar"
+  ],
+  "rootCapOutcome": "All attempts retained, including engine errors, caps, zero-action and natural terminal games. Native completions alone do not confer paper qualification.",
+  "physicalPairing": "Compare native source and full physical initial-deal fingerprint for each original trial ID across both policy phases. Affected physical zones may diverge after the earliest treatment decision.",
+  "seatDesign": "Candidate A for 4 unique seeds and candidate B for 4 unique seeds, source in opposite seat. No posthoc seed selection.",
+  "decisionTarget": "Candidate native game win difference per physically matched original deal, native completed/censored counts, Gengar GX and later paid Poltergeist attacks, source attack response, actual physical first divergence.",
+  "qualification": "Zero assumed. No independent paper/clock/strategy/reviewer authorization; no benchmark or 99.5% claim."
+}
