@@ -1446,6 +1446,7 @@ function runDevelopment({
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,
+  actorSeekerGuzmaOwnerSeat=null,actorSeekerGuzmaGlobalTurn=null,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
   actorRank9CompressorAnyTurn=false,
@@ -1948,7 +1949,9 @@ function runDevelopment({
                 firstCrispinSeekerRecovery:true
               }:{}),
               ...(actorSeekerGuzmaNominalKo?{
-                seekerGuzmaNominalKo:true
+                seekerGuzmaNominalKo:true,
+                seekerGuzmaOwnerSeat:actorSeekerGuzmaOwnerSeat,
+                seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn
               }:{}),
               ...(earlyRegidragoCompressor?{
                 earlyRegidragoCompressor:true
@@ -2100,6 +2103,8 @@ function runDevelopment({
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             guzmaNominalGust:actorGuzmaNominalGust,
             seekerGuzmaNominalKo:actorSeekerGuzmaNominalKo,
+            seekerGuzmaOwnerSeat:actorSeekerGuzmaOwnerSeat,
+            seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn,
             rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
             ...(actorRank9CompressorOwnerBridge?{
               rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1),
