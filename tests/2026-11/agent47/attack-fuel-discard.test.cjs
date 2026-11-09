@@ -173,6 +173,17 @@ test('unknown Special remains unsupported and cannot create fictitious attack fu
   assert.equal(proposeAttackFuelDiscard(input,source).changed,false);
 });
 
+test('special-only attachment lock preserves Basic routes while excluding Telepath',()=>{
+  const basic=makeInput([B,'Psychic Energy MEE',H],[5]);
+  basic.actor.ownPublic.publicTurnRestrictions.specialEnergyPlayLocked=true;
+  assert.equal(proposeAttackFuelDiscard(basic,catalog).changed,true);
+  const special=makeInput([B,'Telepath [P] Energy M3',H],[5]);
+  special.actor.ownPublic.publicTurnRestrictions.specialEnergyPlayLocked=true;
+  const specialCatalog={...catalog,
+    specialEnergies:new Set(['Telepath [P] Energy M3'])};
+  assert.equal(proposeAttackFuelDiscard(special,specialCatalog).changed,false);
+});
+
 test('opt-in Store prompt resolution chooses validated physical cards and restores hooks',()=>{
   const {withActorHandDiscard}=
     require('../../../simulation/twinleaf/agent47-actor-hand-discard.cjs');
