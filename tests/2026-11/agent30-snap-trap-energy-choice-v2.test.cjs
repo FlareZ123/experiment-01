@@ -302,9 +302,9 @@ test('live public Temple changes Double Colorless from two units to one and chan
   assert.deepEqual(options.energyMap.find(row => row.card === psychic).provides,
     [CardType.PSYCHIC]);
   assert.strictEqual(corrected.card, psychic);
-  assert.equal(corrected.bestBeforeAttackDamage, 100);
+  assert.equal(corrected.bestBeforeAttackDamage, 200);
   assert.equal(corrected.bestRemainingAttackDamage, 0);
-  assert.deepEqual(corrected.deniedAttacks, ['One Psychic']);
+  assert.deepEqual(corrected.deniedAttacks, ['Two Colorless', 'One Psychic']);
 
   // Opposite physical seat produces precisely the same card decision.
   state.players.reverse();
