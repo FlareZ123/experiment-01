@@ -43,3 +43,15 @@ The two paired arms share this same Confirm bridge, first-turn Mail policy, earl
 ## Limits
 
 The field still has only **29/32** full original name/count sixty lists and excludes ranks **23, 25 and 28**. Paper printing admission is provisional. This is one retrospectively selected deterministic original matchup, with two orientations and one confirmed physical sequence. The late raw-State fallback remains quarantined, and no complete paper-valid match, tactical superiority, opponent-competence certification, win-rate estimate or fixed universal deck recommendation follows.
+
+## 00:49 UTC update: Arven's actual Nest Ball became a physical Bench Pokémon
+
+A prospective default-off successor now extends the exact original rank3 source chain beyond Item+Tool hand access. The registered `results/aichi-2026/registrations/agent7-arven-nest-native-payoff-20261109.json` adds only an owner-specific follow-through to the exact **physical Nest Ball SVI** obtained from the genuine Arven search. The code never reads the contents of an unopened deck; it inspects the acting owner's detached hand, checks the native card's eligibility and a public empty Bench slot, then delegates the opened owner-deck Basic search to the existing prize-aware single-Prize Basic selector with native prompt validation.
+
+**Native [CI 42542003950](https://github.com/FlareZ123/experiment-01/actions/runs/42542003950)** passed. Artifact `13641922055` (`artifacts/agent7-mail-beach-arven/paired-native-with-nest.json`) recorded for original rank3 source seat1 on global Turn3:
+
+- Physical Arven-selected `Nest Ball SVI` Item root **offered once**, **accepted once**, **rejected zero times**.
+- Genuine owner deck `ChooseCardsPrompt` searched a legal Basic and settled the **physical `Bunnelby PRC` into own Bench**. The same object was no longer in owner deck after the native resolution, verified `physicalBasicMovedDeckToBench:true`. The net source board gained one Bunnelby without changing either original decklist.
+- Both orientations and unqualified source aborts remain in the report. The Arven/Nest treatment's first orientation hit the next protected `AttachEnergyPrompt` on global turn6 after 50 accepted roots; the matching common-confirm control without Arven/Nest did so after 42 roots. These counts are coverage diagnostics only.
+
+This closes a key **resource-to-board** gap: a genuine first-turn Mail, Beach draw, next-own-turn Arven Item+Tool search, immediate played Nest Ball, and actual Bench admission all occurred in **the same pinned native match**. It does not prove that the additional Bunnelby improves prize trade, control, opponent response, or win probability. A future experiment should improve opponent Dedenne's ability confirmation and attach-energy prompt policy to reach competent full-game evaluation.
