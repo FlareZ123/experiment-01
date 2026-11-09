@@ -1362,12 +1362,7 @@
     "actorZeroEnergyStrandFloatStoneTargetTurn": null,
     "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
     "actorSeekerGuzmaOwnerSeat": null,
-    "actorSeekerGuzmaGlobalTurn": null,
-    "bunnelbyK0SafeEvolution": true,
-    "bunnelbyTargetAwareEvolution": true,
-    "bunnelbyGuzmaHalaMode1": true,
-    "bunnelbyGuzmaHalaSearch": true,
-    "actorArvenHoodPromptOwner": true
+    "actorSeekerGuzmaGlobalTurn": null
   },
   "frozenSourceAndPolicyGitBlobs": [
     {
@@ -1388,13 +1383,13 @@
     }
   ],
   "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-  "execution": "Two self-contained 58-attempt original source native cohorts comparing published rank1 reference against strategically restructured Hood Shield 60 with actor Arven Hood prompt preference",
+  "execution": "Two independent 58-game cohorts for fixed Hood Shield and champion using the same published Agent19 common actor policy; no Hood-specific privileged policy override",
   "matchedPairPolicy": "Cross-contender causal comparisons permitted only for equal actual source physical fingerprints and actual starter seat",
   "competitivePaperQualifiedGames": 0,
   "caveats": [
-    "Hood Shield is a structural anti-Ability-lock redesign with 2 Stealthy Hood + Arven + Pokémon Ranger; user agent remains developmental",
-    "A configured Arven/Hood preference must be explicitly supported in native runDevelopment; otherwise preflight must reject this preregistration rather than silently ignore it",
-    "Source ranks23,25,28 absent"
+    "Two Stealthy Hood and Arven may not be chosen by the generic native actor policy in states where strong play would demand them",
+    "The original 60 and Hood Shield 60 are preserved without any later alterations",
+    "Three opponent exact sixty-card lists still missing (ranks23,25,28)"
   ],
   "developmentOnly": true
 }
