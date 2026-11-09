@@ -33,6 +33,7 @@ function chooseMewGenesectQuickBallSearch(input,intendedSeat){
   const haveMew=board.some(p=>p?.printing===MEW||
     p?.printing==='Mew VMAX FST');
   const haveGenesect=board.some(p=>p?.printing===GENESECT);
+  if(haveMew&&haveGenesect)return chooseActorSingleSearch(input);
   const preference=haveMew?
     haveGenesect?[MEW,GENESECT]:[GENESECT,MEW]:
     [MEW,GENESECT];
