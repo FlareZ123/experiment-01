@@ -364,7 +364,10 @@ function chooseActorRootIntent(view,catalog,options={}){
   }
   if(options.earlyRegidragoCompressor===true){
     const donor=require('./agent49/early-regidrago-compressor.cjs')
-      .chooseEarlyRegidragoCompressor(view);
+      .chooseEarlyRegidragoCompressor(view,{
+        allowFirstOwnTurnTwo:
+          options.earlyRegidragoCompressorAllowFirstOwnTurnTwo===true
+      });
     if(donor)return donor;
   }
   if(options.rank13DdeEnergyRoot===true){
@@ -1105,6 +1108,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.firstCrispinSeekerRecovery===true,
     earlyRegidragoCompressorOptIn:
       deps.earlyRegidragoCompressor===true,
+    earlyRegidragoCompressorOwnerSeat:
+      deps.earlyRegidragoCompressorOwnerSeat??null,
+    earlyRegidragoCompressorAllowFirstOwnTurnTwo:
+      deps.earlyRegidragoCompressorAllowFirstOwnTurnTwo===true,
     earlyRegidragoCompressorPromptsProposed:0,
     earlyRegidragoCompressorPromptsAccepted:0,
     earlyRegidragoCompressorDonorsMoved:0,
@@ -1957,7 +1964,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
       retreatFundingBridge:audit.retreatFundingBridgeOptIn,
       firstCrispinSeekerRecovery:audit.firstCrispinSeekerRecoveryOptIn,
-      earlyRegidragoCompressor:audit.earlyRegidragoCompressorOptIn,
+      earlyRegidragoCompressor:actorSpecialEnergyEnabled(
+        audit.earlyRegidragoCompressorOptIn,
+        audit.earlyRegidragoCompressorOwnerSeat,seat),
+      earlyRegidragoCompressorAllowFirstOwnTurnTwo:
+        audit.earlyRegidragoCompressorAllowFirstOwnTurnTwo,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
