@@ -80,6 +80,7 @@ function run(){
       assert.equal(audit.winnerPublishedAfterSelection,true);
       assert.equal(audit.bothPrizeTransfersCompleted,true);
       assert.equal(audit.secondPrizeTransferCompleted,true);
+      assert.equal(audit.selectedPhysicalPrizesTransferred,true);
       assert.equal(audit.winnerLogHandled,true);
       assert.equal(audit.storeLogRestored,true);
       assert.equal(audit.storeReduceRestored,true);
