@@ -2,6 +2,12 @@ name: Agent6 Path replacement into Underworld original-source native 14
 
 on:
   workflow_dispatch:
+    inputs:
+      pure_unit_only:
+        description: 'Pure Mimikyu post-Apex promotion and native-root syntax tests without replaying the historical A/B'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,12 +33,15 @@ jobs:
         run: npm run compile
       - name: Verify owner-only Path-stadium policy and both-seat Store behavior
         run: node --test tests/2026-11/agent6-underworld-path-stadium-owner.test.cjs tests/2026-11/agent6-underworld-path-native-stage.test.cjs tests/2026-11/agent6-path-underworld-stadium-counter.test.cjs tests/2026-11/agent6-integrated-path-counter-root.test.cjs
+      - name: Test funded post-Apex Mimikyu owner-only promotion selector
+        run: node --test tests/2026-11/agent6-funded-mimikyu-apex-promotion.test.cjs
       - name: Run new preregistered 7-original-rank both-seat A/B
+        if: ${{ !inputs.pure_unit_only }}
         env:
           AGENT6_PATH_UNDERWORLD_NATIVE14_OUTPUT: agent6-path-counter-original14.json
         run: node simulation/evaluation/agent6-path-underworld-counter-native14.cjs
       - name: Preserve full native errors and all registered outcomes
-        if: always()
+        if: ${{ always() && !inputs.pure_unit_only }}
         uses: actions/upload-artifact@v4
         with:
           name: agent6-path-underworld-original14-development
