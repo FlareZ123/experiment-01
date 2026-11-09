@@ -1,0 +1,54 @@
+{
+  "schema": "agent15-fresh-two-rank-cursed-blast-after-pass-v1",
+  "registeredUtc": "2026-11-09T02:24:44.650742+00:00",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_DISPATCH",
+  "sourceRanks": [
+    11,
+    31
+  ],
+  "groups": [
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 4110,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1584129014,
+      "id": "11:4110:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 4111,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1709672147,
+      "id": "11:4111:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "A",
+      "repeat": 4112,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 952857666,
+      "id": "31:4112:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "B",
+      "repeat": 4113,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2010644578,
+      "id": "31:4113:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "candidateId": "new-moon-lockbreaker-v1",
+  "nativeRootLimit": 260,
+  "comparison": "Two-seat actor-owner Cursed Blast after otherwise Pass; identical native common policy and exact fixed source/candidate 60s",
+  "pairedArms": [
+    "control",
+    "opt-in-cursed-blast-after-pass"
+  ],
+  "nativeGameAttemptsPlanned": 8,
+  "sourceOriginalsAuthenticated": true,
+  "competitivePaperQualified": false,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+}
