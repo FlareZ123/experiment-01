@@ -9,7 +9,7 @@ const { withPaleMoonDimensionValleyBonus } =
 const OUTPUT = path.resolve(__dirname, '../../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load = name => require(path.join(OUTPUT, name));
-const VERSION = 'agent34-original-rank1-source-t18-raihan-palemoon-native-v2';
+const VERSION = 'agent34-original-rank1-source-t18-raihan-palemoon-native-v3';
 
 function pendingPrompt(store) {
   return store.state.prompts.find(p => p.result === undefined);
@@ -73,7 +73,8 @@ function executeOriginalRank1RaihanPaleMoon(context) {
     require('../pending-end-turn-switch-cleanup.cjs');
   const { deepClone } = load('utils/utils');
   const { StateUtils } = load('game/store/state-utils');
-  const { CardType } = load('game/store/card/card-types');
+  const { CardType, SuperType, EnergyType } =
+    load('game/store/card/card-types');
   const effects = load('game/store/effects/check-effects');
   const prefabs = load('game/store/prefabs/prefabs');
   const { DiscardCardsEffect } = load('game/store/effects/attack-effects');
@@ -270,11 +271,75 @@ function executeOriginalRank1RaihanPaleMoon(context) {
             const formerNowOnBench=opp.bench.some(slot=>
               slot.getPokemonCard()===oldDefenderCard);
             const current=opp.active.getPokemonCard()?.fullName??null;
+            // Distinct opponent-owner decision branch, from the actual
+            // post-retreat public board and the opponent's OWN hand only.
+            // Choose any genuinely held Basic Energy for Girafarig's
+            // single-Colorless Get Lost; never reveal opponent hand to the
+            // source-side planner or graft a card into the physical deal.
+            const ownReply=new Store({onStateChange(){}});
+            ownReply.state=deepClone(branch.state);
+            const replyOpp=ownReply.state.players.find(p=>p.id===opponentId);
+            const replySource=ownReply.state.players.find(p=>p.id===ownerId);
+            const ownHeldBasic=replyOpp.hand.cards.find(card=>
+              card.superType===SuperType.ENERGY &&
+              card.energyType===EnergyType.BASIC);
+            const getLostReply={
+              actorId:opponentId,actingOwnerOnlyHandRead:true,
+              sourceDiscardIsPublic:true,
+              ownBasicEnergyAvailable:Boolean(ownHeldBasic),
+              status:ownHeldBasic?'not-yet-executed':'no-owned-basic-energy-in-hand'
+            };
+            if(ownHeldBasic){
+              try{
+                const index=replyOpp.hand.cards.indexOf(ownHeldBasic);
+                const lostBefore=replySource.lostzone.cards.length;
+                const discardBefore=replySource.discard.cards.length;
+                ownReply.dispatch(new PlayCardAction(opponentId,index,{
+                  player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+                }));
+                getLostReply.attachNativeAccepted=true;
+                getLostReply.attachWaits=settleWaits(ownReply,ResolvePromptAction);
+                getLostReply.energyOnGirafarig=replyOpp.active.energies.cards.length;
+                ownReply.dispatch(new AttackAction(opponentId,'Get Lost'));
+                getLostReply.attackNativeAccepted=true;
+                getLostReply.attackWaits=settleWaits(ownReply,ResolvePromptAction);
+                const choice=pendingPrompt(ownReply);
+                getLostReply.choicePromptType=choice?.constructor.name??null;
+                const chosen=replySource.discard.cards.slice(0,2);
+                if(choice?.constructor.name==='ChooseCardsPrompt' &&
+                   choice.playerId===opponentId &&
+                   choice.cards===replySource.discard &&
+                   chosen.length===2 &&
+                   choice.validate(chosen)===true){
+                  const physicallySelected=chosen.slice();
+                  ownReply.dispatch(new ResolvePromptAction(choice.id,chosen));
+                  getLostReply.ownDecisionNativeResolved=true;
+                  getLostReply.postChoiceWaits=settleWaits(ownReply,ResolvePromptAction);
+                  getLostReply.sourceDiscardDelta=
+                    replySource.discard.cards.length-discardBefore;
+                  getLostReply.sourceLostZoneDelta=
+                    replySource.lostzone.cards.length-lostBefore;
+                  getLostReply.physicalTwoLost=physicallySelected.every(card=>
+                    replySource.lostzone.cards.includes(card) &&
+                    !replySource.discard.cards.includes(card));
+                  getLostReply.status=
+                    getLostReply.physicalTwoLost &&
+                    getLostReply.sourceLostZoneDelta===2?
+                      'owner-attached-energy-get-lost-two-physical-cards':
+                      'owner-get-lost-physical-custody-unverified';
+                }else{
+                  getLostReply.status='own-get-lost-prompt-not-ready';
+                }
+              }catch(error){
+                getLostReply.status='own-energy-or-get-lost-native-rejected';
+                getLostReply.error=String(error?.stack??error);
+              }
+            }
             branch.dispatch(new PassTurnAction(opponentId));
             const passWaits=settleWaits(branch,ResolvePromptAction);
             return {
               retWaits,passWaits,afterRetreatQueue,formerNowOnBench,
-              current,oldDefenderSurvived:opp.bench.some(slot=>
+              current,getLostReply,oldDefenderSurvived:opp.bench.some(slot=>
                 slot.getPokemonCard()===oldDefenderCard),
               oldDefenderDiscarded:opp.discard.cards.includes(oldDefenderCard),
               afterOpposingPrizes:opp.prizes.reduce((n,slot)=>n+slot.cards.length,0),
