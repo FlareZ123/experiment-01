@@ -1,0 +1,42 @@
+{
+  "schema": "agent7-original-rank3-arven-nest-native-payoff-registration-v1",
+  "registeredAtUtc": "2026-11-09T00:45:48.426Z",
+  "sourceRank": 3,
+  "candidateRank": 13,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "seed": 290134,
+  "physicalOrientations": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "control": {
+    "firstMail": true,
+    "Beach": true,
+    "rank13TreasureRoot": true,
+    "conservativeOwnerConfirm": true,
+    "mailSelectedArven": true,
+    "actualArvenItemToolSearch": true,
+    "arvenSelectedNestBallFollowup": false
+  },
+  "treatment": {
+    "firstMail": true,
+    "Beach": true,
+    "rank13TreasureRoot": true,
+    "conservativeOwnerConfirm": true,
+    "mailSelectedArven": true,
+    "actualArvenItemToolSearch": true,
+    "arvenSelectedNestBallFollowup": true
+  },
+  "hypothesis": "On rank3 source turn3 after actual Arven obtains Nest Ball SVI and Float Stone BKT, physically play Nest Ball and search an available owner-deck Basic into a Bench slot in native Store; prefer single-Prize eligible Basic only inside actual own-deck prompt. This should convert Item connectivity into concrete board development.",
+  "qualifiers": [
+    "genuine Mail-selected Arven physically played on later turn",
+    "genuine owner Arven search yields both actual Item and Tool",
+    "exact Arven-selected physical Nest Ball played only with owner actor turn, Item lock false and open Bench",
+    "genuine Native Nest Ball owner-deck ChooseCardsPrompt validated",
+    "eligible Basic physically leaves owner's deck and appears on own Bench"
+  ],
+  "failurePolicy": "If any prerequisite cannot be met, keep original trial errors/censored status, runner exits failure. Never inflate game wins.",
+  "limit": "Original rank3 and rank13 unchanged, same seed; study is retrospective owner decision coverage with imperfect opponent policy, zero competitively qualified games and no strength estimate.",
+  "code": "simulation/evaluation/2026-11/agent7-rank3-mail-beach-arven-native.cjs"
+}
