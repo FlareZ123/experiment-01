@@ -34,6 +34,14 @@ Files: `tests/2026-11/agent18-grand-tree-printing-alias.test.cjs`, `tests/2026-1
 
 The two actual headless matches accepted **30 genuine root Store actions each**, with source list ID hash `68f5fee725c15aaf88e59af9a5ed1e73fa7793f8dfc7b019686c5a642c7bc586` identical across source physical-seat orientations. Each matched the expected native shuffled printed 60 input hashes and preserved the original source arrays without mutation. Both stopped at the explicitly imposed **30-action cap**: `finished=false`, no native winner. This is a **two-player card-construction and runner-path compatibility** admission, not a match result or demonstrated opponent-policy activation. No claim that a Grand Tree effect happened naturally inside those 30 actions.
 
+## Full source printing/name census and safe alias scope
+
+**[Native source audit CI 42567138627](https://github.com/FlareZ123/experiment-01/actions/runs/42567138627): 9/9 checks PASS.** A new deterministic audit `tests/2026-11/agent18-original-source-fullname-census.native.test.cjs` compared **989 printed card rows across all 29 authenticated Aichi source decks** against the pinned registered `fullName` for exactly matching `name + set + collector number` objects. It found **75 matching rows involving 22 distinct printed identities** whose native `fullName` string differs from printed `name + set`.
+
+Examples include `Grand Tree SCR` vs `Great Tree SCR`, `Dedenne-GX UNB` vs `Dedenne GX UNB`, `Pokémon Communication TEU` vs `Pokemon Communication TEU`, `Mega Absol ex MEG` vs `Mega Absol ex M1L`, and `Tropical Beach BWP #50` vs `Tropical Beach BWP 50`. The 22 are **observed lookup-string differences**, not 22 established engine defects: some encode Japanese/English product naming, punctuation normalization or collector-number disambiguation. In particular, normalizing an explicitly numbered reprint to an unnumbered `fullName` could collapse two distinct printings. Any new alias must demonstrate the unambiguous original printed metadata and absence of collision.
+
+The Grand Tree repair remains *only* the authenticated SCR 136 singleton alias with a strict native class precondition. The census reports other printings for careful source-specific work; it changes no card ID, game rule, original list or CI profile.
+
 ## Boundary and integration
 
 This is staged card construction, a genuine native Store resolution and a short bounded bilateral runner execution. Its starting state was deliberately constructed. It proves no naturally drawn Grand Tree opportunity, opponent counterresponse, source-policy activation, full competitive match, Japanese physical-print legality, or paper clock. The earlier source rank2 Grand Tree / Stoutland owner-turn work is independent and must not be treated as reproduced by this test.
