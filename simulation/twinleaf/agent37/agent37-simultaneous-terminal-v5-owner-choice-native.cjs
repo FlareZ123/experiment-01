@@ -156,12 +156,68 @@ function run(){
       terminalLogDeferred:tie.audit.terminalLogDeferred,
       nativeOwnerPromptSettled:tie.audit.ownerPrizeSelectionSettled
     });
+
+    // If the FIRST player in state.players is nonterminal, upstream builds
+    // their ChoosePrizePrompt but drops it when the SECOND player's Prize
+    // group exhausts their last Prize. V5 must rescue that owner's decision.
+    const secondFinalRecipient=actorSeat===0?101:202;
+    const reversedFixture={
+      ...fixture,
+      ownerPrizes:actorSeat===0?6:1,
+      enemyPrizes:actorSeat===0?1:6,
+      choosePrize:({player,prompt,remaining,state})=>{
+        assert.equal(player.id,secondFinalRecipient);
+        assert.equal(prompt.playerId,secondFinalRecipient);
+        assert.equal(state.phase,GamePhase.ATTACK);
+        assert.equal(state.winner,GameWinner.NONE);
+        assert.equal(state.logs.filter(log=>
+          log.message===GameLog.LOG_GAME_FINISHED_WINNER||
+          log.message===GameLog.LOG_GAME_FINISHED_DRAW
+        ).length,0);
+        const picked=remaining[4];
+        return [picked,...remaining.filter(prize=>prize!==picked)
+          .slice(0,prompt.options.count-1)];
+      }
+    };
+    const secondFinal=runOne(
+      actorSeat,
+      withMixedRecipientPrizes(secondFinalRecipient,actorSeat,true),
+      6,true,true,true,reversedFixture
+    );
+    assert.equal(secondFinal.result.finished,true);
+    assert.equal(secondFinal.result.winnerPlayer,
+      actorSeat===0?'opponent':'owner');
+    assert.equal(secondFinal.result.terminalGameLogCount,1);
+    assert.equal(secondFinal.result.ownerPrizesTakenThisTurn,actorSeat===0?3:1);
+    assert.equal(secondFinal.result.opponentPrizesTakenThisTurn,1);
+    assert.equal(secondFinal.result.ownerPrizesRemaining,actorSeat===0?3:0);
+    assert.equal(secondFinal.result.opponentPrizesRemaining,actorSeat===0?0:5);
+    assert.deepEqual(secondFinal.result.seenPrompts.filter(x=>
+      x==='ChoosePrizePrompt'),['ChoosePrizePrompt']);
+    assert.equal(secondFinal.audit.ownerPrizeSelectionPrompted,true);
+    assert.equal(secondFinal.audit.ownerPrizeSelectionSettled,true);
+    assert.equal(secondFinal.audit.selectedPhysicalPrizesTransferred,true);
+    assert.equal(secondFinal.audit.bothPrizeTransfersCompleted,true);
+    assert.equal(secondFinal.audit.selectedPrizePrintings.includes('Metal Energy MEE'),true);
+    assert.equal(secondFinal.audit.terminalLogDeferred,true);
+    assert.equal(secondFinal.audit.winnerPublishedAfterSelection,true);
+    assert.equal(secondFinal.audit.storeLogRestored,true);
+    assert.equal(secondFinal.audit.storeReduceRestored,true);
+    rows.push({
+      actorSeat,recipientId:secondFinalRecipient,mixedPool:true,
+      scenario:'native-first-group-nonterminal-second-group-final',
+      selectedPrizePrintings:secondFinal.audit.selectedPrizePrintings,
+      gameWinner:secondFinal.result.winnerPlayer,
+      terminalLogDeferred:secondFinal.audit.terminalLogDeferred,
+      nativeOwnerPromptSettled:secondFinal.audit.ownerPrizeSelectionSettled
+    });
   }
   return {
     schema:'agent37-simultaneous-terminal-v5-native-owner-prize-choice',
     version:VERSION,pinnedTwinleaf:PINNED,
-    physicalSeats:[0,1],choicesPerSeat:4,
+    physicalSeats:[0,1],choicesPerSeat:5,
     independentlyCorrectedSinglePrizePromotionTies:2,
+    nativeDiscardedFirstGroupPromptRescued:2,
     ownerChoiceNativePrompts:rows.length,
     differentPhysicalChoicesCauseDifferentPrizeReceipts:true,
     homogeneousAndHeterogeneousPoolPromptPresenceIdentical:true,
