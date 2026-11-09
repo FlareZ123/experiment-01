@@ -93,6 +93,29 @@ function sourceActionReceipt(treatment, root, sourceSeat) {
 }
 
 /**
+ * A source search Item may precede the same fully settled attack on the same
+ * turn. Distinguish changing the first root from actually sacrificing the
+ * attack. Prompt roots and other players' turns are excluded.
+ * @param {NativeRow} challenger
+ * @param {object} displaced Source baseline AttackAction.
+ * @param {number} seat Physical original-source seat.
+ */
+function sameTurnAttackFollowthrough(challenger, displaced, seat) {
+  const roots = challenger.rootActionLedger ?? [];
+  const matching = roots.filter(root =>
+    root.actionOrdinal > displaced.actionOrdinal &&
+    root.playerSlot === seat &&
+    root.turnBefore === displaced.turnBefore &&
+    root.action === 'AttackAction' && root.attack === displaced.attack);
+  const settled = matching.find(root =>
+    attackSettlement(challenger,root) === 'ATTACK_SETTLED');
+  return {sameTurnAttackRootCount:matching.length,
+    sameTurnSameAttackSettled:Boolean(settled),
+    firstSameAttackOrdinal:matching[0]?.actionOrdinal ?? null,
+    settledAttackOrdinal:settled?.actionOrdinal ?? null};
+}
+
+/**
  * One factor comparison with fixed pivot: 2x2 is analyzed as P0S0 vs P0S1,
  * P1S0 vs P1S1. Distinguishes actual owner-root divergence from option flags.
  * @param {NativeRow} control
@@ -133,12 +156,34 @@ function compareSourceFactor(control, challenger, sourceSeat, admitted) {
   const displacedAttack = a.action === 'AttackAction' ?
     {actionOrdinal:a.actionOrdinal,attack:a.attack ?? null,
       settlement:attackSettlement(control,a)} : null;
-  return {status:displacedAttack ? 'SOURCE_ATTACK_DISPLACED' :
-    'SOURCE_ACTION_CHANGED',firstDifference,
-    actionReceipt:receipt,displacedAttack,
-    decisionQuality:displacedAttack ? 'COMPETING_ATTACK_REQUIRES_REVIEW' :
+  const followthrough = displacedAttack ?
+    sameTurnAttackFollowthrough(challenger,a,sourceSeat) : null;
+  const recovered = followthrough?.sameTurnSameAttackSettled === true;
+  return {status:displacedAttack ?
+    (recovered ? 'SOURCE_ATTACK_DEFERRED_SAME_TURN' :
+      'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN') : 'SOURCE_ACTION_CHANGED',
+    firstDifference,actionReceipt:receipt,displacedAttack,
+    followthrough,decisionQuality:displacedAttack ?
+      (recovered ? 'SOURCE_ATTACK_PRESERVED_AFTER_SEARCH' :
+        'SOURCE_ATTACK_PAYOFF_UNPROVEN_AFTER_CHANGE') :
       a.action === 'PassTurnAction' ? 'ACTION_REPLACED_PASS' :
         'COMPETING_ACTION_REQUIRES_REVIEW'};
+}
+
+/**
+ * Original native runners may omit status on successful matches. Classify a
+ * native terminal only when the terminal flag, winner and both Prize counts
+ * agree. Explicit failure/censor dispositions remain authoritative.
+ * @param {NativeRow} row
+ */
+function nativeDisposition(row) {
+  if (typeof row.status === 'string') return row.status;
+  if (row.error != null) return 'engine-error';
+  if (row.finished === true && (row.winner === 0 || row.winner === 1) &&
+      Array.isArray(row.finalPrizes) && row.finalPrizes.length === 2 &&
+      row.finalPrizes.every(p => Number.isSafeInteger(p) && p >= 0 && p <= 6))
+    return 'native-terminal';
+  return 'unfinished-censored';
 }
 
 /**
@@ -157,13 +202,13 @@ function certifyGroup(rows,trial) {
   const withPivot = compareSourceFactor(rows.P1S0,rows.P1S1,
     sourceSeat,gate.admitted);
   const statuses = Object.fromEntries(PHASES.map(phase => [phase,{
-    status:rows[phase].status ?? null,
-    winner:rows[phase].status === 'native-terminal' ?
+    status:nativeDisposition(rows[phase]),
+    winner:nativeDisposition(rows[phase]) === 'native-terminal' ?
       rows[phase].winner ?? null : null,
     finished:rows[phase].finished === true
   }]));
   const fourTerminals = all.every(row =>
-    row.status === 'native-terminal' && row.finished === true &&
+    nativeDisposition(row) === 'native-terminal' && row.finished === true &&
     (row.winner === 0 || row.winner === 1));
   const sourceWinnerEffects = fourTerminals && gate.admitted ? {
     withoutPivot:rows.P0S0.winner !== rows.P0S1.winner,
@@ -203,17 +248,18 @@ function certifyCohort(phaseRows,trials) {
     totals:{registeredGroups:trials.length,nativeAttempts:4*trials.length,
       physicallyMatched:groups.filter(g=>g.physicalGate.admitted).length,
       activeSourceWithoutPivot:groups.filter(g=>
-        ['SOURCE_ACTION_CHANGED','SOURCE_ATTACK_DISPLACED'].includes(
-          g.withoutPivot.status)).length,
+        (g.withoutPivot.status === 'SOURCE_ACTION_CHANGED' ||
+          g.withoutPivot.status.startsWith('SOURCE_ATTACK_'))).length,
       activeSourceWithPivot:groups.filter(g=>
-        ['SOURCE_ACTION_CHANGED','SOURCE_ATTACK_DISPLACED'].includes(
-          g.withPivot.status)).length,
+        (g.withPivot.status === 'SOURCE_ACTION_CHANGED' ||
+          g.withPivot.status.startsWith('SOURCE_ATTACK_'))).length,
       sourceAttackDisplacements:groups.reduce((n,g)=>n+
-        Number(g.withoutPivot.status==='SOURCE_ATTACK_DISPLACED')+
-        Number(g.withPivot.status==='SOURCE_ATTACK_DISPLACED'),0),
+        Number(g.withoutPivot.status.startsWith('SOURCE_ATTACK_'))+
+        Number(g.withPivot.status.startsWith('SOURCE_ATTACK_')),0),
       qualifiedPaperGames:0}};
 }
 
-module.exports={VERSION,PHASES,firstRootDifference,physicalGate,
+module.exports={VERSION,PHASES,nativeDisposition,
+  sameTurnAttackFollowthrough,firstRootDifference,physicalGate,
   sourceActionReceipt,attackSettlement,compareSourceFactor,
   certifyGroup,certifyCohort};
