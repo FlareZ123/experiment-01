@@ -26,7 +26,11 @@ const EXACT_ROOT_PRINTING_ALIASES=Object.freeze({
   // Frozen full-field rank14 seat-B original-source native witness:
   // root #8, turn15, same seat/action; source card only differs in "-GX".
   // Both control and pivot reproducibly failed solely this exact label.
-  'Oricorio-GX':'Oricorio GX CEC'
+  'Oricorio-GX':'Oricorio GX CEC',
+  // Fresh preregistered original rank5 source games 42610256883:
+  // 3/4 trials had precisely this punctuation-only printed label mismatch.
+  // Native Store accepted action, seat and turn all agreed exactly.
+  'Pokémon Ranger':'Pokemon Ranger STS'
 });
 
 /** @param {string} rootName @param {string} printing @returns {boolean} */
