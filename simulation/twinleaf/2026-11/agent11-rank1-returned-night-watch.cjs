@@ -167,6 +167,13 @@ function executeReturnedNightWatch(context) {
       opponentActive:result.opponentActiveAfter,
       sourceEnergy:result.energyAfter,unsettled:result.unsettledPrompts
     })).digest('hex');
+    // Optional independent genuine next-opponent-turn response after the
+    // actual Girafarig KO and Prize. Never changes the original source.
+    result.nextOpponentResponse=result.status==='native-night-watch-fully-settled'
+      &&typeof context.afterNightWatch==='function'
+      ?context.afterNightWatch({
+        state:game.state,ownerId,opponentId
+      }):null;
   } catch(error) {
     result.status='native-paid-attachment-or-night-watch-rejected';
     result.errors.push(String(error?.stack??error));
