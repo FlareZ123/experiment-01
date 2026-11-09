@@ -9,7 +9,7 @@ const {firstRootDivergence}=
 const existing=require('./agent8-source-challenger-2x2-v2.cjs');
 const {save}=require('./agent8-source-challenger-2x2.cjs');
 
-const VERSION='agent2-retreat-funding-original-source-four-matched-deal-v1';
+const VERSION='agent2-retreat-funding-original-source-four-matched-deal-v2-audit-preserved';
 const REGISTRATION='agent8-prospective-original-source-adversarial-2x2-v2';
 const ROOT_LIMIT=260;
 const SOURCE_RANKS=Object.freeze([11,13]);
@@ -40,6 +40,20 @@ function runArm(enabled,runner=runDevelopment){
     vipAfterPass:true,vipPreferMewtwoDonor:true,
     perfectionTransition:false
   });
+}
+
+/** Keep native actor and physical evidence that the generic compact summary omits.
+ * @param {object} raw Genuine matched-deal Store row.
+ * @returns {object} Compact row augmented with source-observed audit fields.
+ */
+function summarizeWithAudit(raw){
+  return {
+    ...summarizeRow(raw,true),
+    actorOnlyDecisionCoverage:raw.actorOnlyDecisionCoverage,
+    nativeAcceptedTargetSidecar:raw.nativeAcceptedTargetSidecar,
+    candidateDeckFingerprint:raw.candidateDeckFingerprint??null,
+    sourceDeckFingerprint:raw.sourceDeckFingerprint??null
+  };
 }
 
 /** @param {object} native One pinned original-source Store output. */
@@ -108,6 +122,8 @@ function compare(left,right){
     id:left.id,rank:left.rank,candidateSeat:left.candidateSeat,
     seed:left.seed,matchedOriginalPhysicalDeal:matched,
     sameFixedOriginalSixties:
+      left.candidateDeckFingerprint!=null&&
+      left.sourceDeckFingerprint!=null&&
       left.candidateDeckFingerprint===right.candidateDeckFingerprint&&
       left.sourceDeckFingerprint===right.sourceDeckFingerprint,
     baseline:before,treatment:after,
@@ -131,8 +147,8 @@ function run(deps={}){
   const rawOn=on?.selected?.rawDevelopment?.rows;
   assert.ok(Array.isArray(rawBase)&&rawBase.length===4);
   assert.ok(Array.isArray(rawOn)&&rawOn.length===4);
-  const rowsBase=rawBase.map(row=>summarizeRow(row,true));
-  const rowsOn=rawOn.map(row=>summarizeRow(row,true));
+  const rowsBase=rawBase.map(summarizeWithAudit);
+  const rowsOn=rawOn.map(summarizeWithAudit);
   const right=new Map(rowsOn.map(row=>[row.id,row]));
   assert.equal(right.size,4);
   const pairs=rowsBase.map(row=>{
@@ -145,6 +161,8 @@ function run(deps={}){
     historicalRegistration:REGISTRATION,sourceRanks:SOURCE_RANKS,
     sameFixedOriginalSixties:pairs.every(x=>x.sameFixedOriginalSixties),
     allPhysicalDealsMatched:pairs.every(x=>x.matchedOriginalPhysicalDeal),
+    allPolicyFlagsPassed:pairs.every(x=>
+      x.baseline.optIn===false&&x.treatment.optIn===true),
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     rootLimit:ROOT_LIMIT,armOptions:{baseline:options(false),treatment:options(true)},
     distinctPrecommittedGroups:4,nativeAttempts:8,
@@ -169,6 +187,7 @@ if(require.main===module){
   console.log('AGENT2_ORIGINAL_SOURCE_RETREAT_BRIDGE',JSON.stringify({
     matched:result.allPhysicalDealsMatched,
     fixed:result.sameFixedOriginalSixties,
+    flags:result.allPolicyFlagsPassed,
     selectedGroups:result.selectedBridgeGroups,
     completeSelectionGroups:result.selectedFullSequenceGroups,
     statuses:result.pairs.map(x=>({
@@ -179,8 +198,9 @@ if(require.main===module){
       baseline:x.nativeStatuses.baseline,treatment:x.nativeStatuses.treatment
     }))
   }));
-  if(!result.allPhysicalDealsMatched||!result.sameFixedOriginalSixties)
+  if(!result.allPhysicalDealsMatched||!result.sameFixedOriginalSixties||
+     !result.allPolicyFlagsPassed)
     process.exitCode=1;
 }
 module.exports={VERSION,REGISTRATION,ROOT_LIMIT,SOURCE_RANKS,
-  registered,options,runArm,bridgeCounters,compare,run};
+  registered,options,runArm,summarizeWithAudit,bridgeCounters,compare,run};
