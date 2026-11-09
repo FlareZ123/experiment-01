@@ -7,9 +7,14 @@ const {withOwnerMailAfterPass}=
   require('../simulation/twinleaf/agent9-native-owner-mail-after-pass.cjs');
 
 test('owner Mail bridge restores native hooks and retains public evidence on abort',()=>{
-  require('../simulation/twinleaf/headless.cjs').initializeCards();
+  const manager=require('../simulation/twinleaf/headless.cjs').initializeCards();
   const base=path.resolve(__dirname,
     '../vendor/twinleaf/ptcg-server/output');
+  if(!manager.isCardDefined("Trainers' Mail ROS")){
+    const {TrainersMail}=require(path.join(base,
+      'sets/07-x-and-y/set-roaring-skies/trainers-mail'));
+    manager.defineCard(new TrainersMail());
+  }
   const {SimpleTacticsAi}=
     require(path.join(base,'simple-bot/simple-tactics-ai'));
   const {Store}=require(path.join(base,'game/store/store'));
