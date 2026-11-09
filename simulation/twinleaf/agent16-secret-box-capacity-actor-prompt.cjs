@@ -62,6 +62,11 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     ownerPaymentPromptProposals:0,
     ownerCategoryPromptProposals:0,
     autoPlayRootOptIn:options.autoPlayRoot===true,
+    ownerRootLiveDecodes:0,
+    ownerRootBoxVisibleDecodes:0,
+    ownerRootBoxItemLockedDecodes:0,
+    ownerRootBoxNoAffordableTripleDecodes:0,
+    ownerRootBoxAffordableDecodes:0,
     ownerBoxRootProposals:0,
     nativeOwnerBoxRootAccepted:0,
     nativeSourceBoxRootAttempts:0,
@@ -90,22 +95,31 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     }
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
-    if(seat>=0&&!pending&&options.autoPlayRoot===true&&
-      state.activePlayer===seat){
+    if(seat>=0&&!pending&&state.activePlayer===seat){
+      audit.ownerRootLiveDecodes++;
       const owner=state.players[seat];
-      const view=actorObservation(state,seat);
-      const index=view.ownHand.indexOf('Secret Box TWM');
-      if(index>=0&&view.decisionKind==='owner-root'&&
-        view.ownTurnResources.itemPlayLocked!==true&&
-        owner.hand.cards[index]?.fullName==='Secret Box TWM'&&
-        planSecretBoxRecoveryCapacityPayment(
-          owner,state,options.policy,options)!==null){
-        const action=new PlayCardAction(owner.id,index,{
-          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-        });
-        rootPlanned.add(action);
-        audit.ownerBoxRootProposals++;
-        return action;
+      const index=owner.hand.cards.findIndex(c=>c.fullName==='Secret Box TWM');
+      if(index>=0){
+        audit.ownerRootBoxVisibleDecodes++;
+        const view=actorObservation(state,seat);
+        if(view.ownTurnResources.itemPlayLocked===true){
+          audit.ownerRootBoxItemLockedDecodes++;
+        }else{
+          const plan=planSecretBoxRecoveryCapacityPayment(
+            owner,state,options.policy,options);
+          if(plan===null)audit.ownerRootBoxNoAffordableTripleDecodes++;
+          else{
+            audit.ownerRootBoxAffordableDecodes++;
+            if(options.autoPlayRoot===true){
+              const action=new PlayCardAction(owner.id,index,{
+                player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+              });
+              rootPlanned.add(action);
+              audit.ownerBoxRootProposals++;
+              return action;
+            }
+          }
+        }
       }
     }
     if(seat<0||!pending||pending.playerId!==this.client?.id||
