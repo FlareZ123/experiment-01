@@ -19,6 +19,7 @@ on:
           - agent3-portable-champion-all29
           - agent3-portable-champion-all29-artifact-audit
           - agent3-regidrago-original-custody-debug
+          - agent3-regidrago-celestial-roar-hook-ab
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
@@ -207,6 +208,22 @@ jobs:
         env:
           AGENT31_PORTABLE_JOINT_OUTPUT: agent31-portable-joint-aba.json
         run: node simulation/evaluation/agent31/portable-floatstone-seeker-guzma-aba.cjs
+      - name: Native baseline and corrected paper Celestial Roar custody side-by-side
+        if: inputs.experiment == 'agent3-regidrago-celestial-roar-hook-ab'
+        env:
+          AGENT3_REGIDRAGO_HOOK_OUTPUT: artifacts/agent3-regidrago-celestial-roar-paper-hook.json
+        run: |
+          node --check simulation/twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs
+          node --check simulation/evaluation/agent3/test-regidrago-celestial-roar-paper-hook.cjs
+          node simulation/evaluation/agent3/test-regidrago-celestial-roar-paper-hook.cjs
+      - name: Preserve baseline and corrected native card-zone results
+        if: always() && inputs.experiment == 'agent3-regidrago-celestial-roar-hook-ab'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-regidrago-celestial-paper-hook-ab
+          path: artifacts/agent3-regidrago-celestial-roar-paper-hook.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Replay original fixed Regidrago card-loss roots with postgame physical names
         if: inputs.experiment == 'agent3-regidrago-original-custody-debug'
         env:
