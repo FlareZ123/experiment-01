@@ -5,6 +5,9 @@ const assert=require('node:assert/strict');
 const {TARGET,sourcePolicyDifferences}=
   require('../../simulation/evaluation/agent5/rank13-source-policy-factorial.cjs');
 
+const {selectedTrialReplayMode}=
+  require('../../simulation/evaluation/agent32-fresh-perfection-field.cjs');
+
 const pass={actionOrdinal:20,turnBefore:2,turnAfter:2,
   playerSlot:1,action:'PassTurnAction'};
 const search={...pass,action:'PlayCardAction',card:'Quick Ball'};
@@ -49,4 +52,20 @@ test('candidate-side action leakage cannot masquerade as source challenge',()=>{
 
 test('runner target is the single historical rank13 original-source deal',()=>{
   assert.equal(TARGET,'13:2026:A:new-moon-lockbreaker-v1');
+});
+
+test('single historical replay keeps explicit original-frame and 1-deal safeguards',()=>{
+  assert.deepEqual(selectedTrialReplayMode({
+    singleHistoricalReplay:true,registeredFrameName:'original-rank13-frame'
+  },[{id:TARGET}]),{
+    allowSingleRegisteredTrial:true,retrospectiveSingleTrial:true
+  });
+  assert.deepEqual(selectedTrialReplayMode({},[{id:TARGET}]),{
+    allowSingleRegisteredTrial:false,retrospectiveSingleTrial:false
+  });
+  assert.throws(()=>selectedTrialReplayMode({singleHistoricalReplay:true},
+    [{id:TARGET}]),/original frame/);
+  assert.throws(()=>selectedTrialReplayMode({
+    singleHistoricalReplay:true,registeredFrameName:'original-rank13-frame'
+  },[{id:TARGET},{id:'another'}]),/exactly one/);
 });
