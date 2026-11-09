@@ -1,33 +1,40 @@
-# Owner-visible Basic attachment -> paid retreat -> funded Bench attack
+# Two-action Basic shortfall rescue: pay Retreat, promote funded attacker
 
-**Agent 2 | 9 November 2026 | developmental policy, default OFF.** This adds an executable missing resource-to-attack continuation to the common actor. It remains an unqualified hypothesis until actual pinned-native payment, attack settlement and opponent response are observed.
+**Agent 2 | 9 November 2026 | paper Expanded developmental policy, default OFF**
 
-## Concrete failure and implemented correction
+## Implemented gameplay improvement
 
-The existing shared Basic Energy recipient scorer prioritizes reductions in *printed attack deficits*. Existing paid-retreat frontiers generally demand an **already funded Active Retreat Cost**. Together these branches can strand a ready Benched attacker when the Active lacks just one Basic Energy to retreat. Attaching one held Basic to the Active can solve a mobility deficit even when it makes none of the Active's attacks payable.
+The common actor can strand an already funded Bench attacker because its Active Pokémon cannot pay Retreat. The prior policy treats the Basic Energy attachment as attack funding only, while paid-retreat planners generally require the fee already attached. The new source-independent owner-only bridge joins both resources into one immediate two-root plan:
 
-New [planner](../../../simulation/twinleaf/2026-11/agent2-retreat-funding-bridge.cjs) chooses the following sequence from *fresh detached owner-only observations* on successive roots:
+1. The live Active has a printed fee of **one or two Colorless Energy**, has exactly one Basic Energy short of that printed fee, and a Basic Energy in the owner's visible hand can pay the shortfall.
+2. A Benched attacker already has known Basic Energy satisfying a fixed printed nongeneric attack of at least 80 damage, with no visible immediate attack restriction. The Active cannot use any currently payable attack, and the held Basic would not make a printed Active attack payable.
+3. The actor proposes a normal **attach Basic to Active** action. The genuine pinned Store determines its legal outcome. On the next detached owner-root observation, if the fee is fully paid in physical Basic cards, the actor proposes **paid Retreat into the funded Bench**. The regular attack chooser handles the resulting Active separately.
 
-1. If a Benched Pokémon has a printed, currently funded, fixed positive attack of at least 80 damage, the Active has **exactly one printed Colorless Retreat Cost and no Energy**, and a held Basic can pay that fee without immediately funding an Active attack, propose **attach Basic to Active**.
-2. After the genuine Store actually accepts the attachment and the actor sees a Basic attached to the Active, propose **paid Retreat to that Bench index**. The existing native actor action constructors translate the two intents into `PlayCardAction` and `RetreatAction`.
-3. The existing common actor should then reconsider the newly Active printed attack on the next root. The new bridge itself does **not** force a future attack or invent its legality.
+This is **one Basic short of a fee**, rather than arbitrary acceleration over several turns. The two action types are already supported by the common actor's physical native action constructor. The bridge is controlled by `retreatFundingBridge:true`; omitting the flag preserves the existing policy and source behavior.
 
-Stage 1 and stage 2 share no hidden cross-turn state; actual board, original physical cards and turn quotas determine the next decision. The bridge is inserted before the generic Basic Energy attachment, after existing stronger priority actions. The default actor is preserved when `retreatFundingBridge` is omitted or false.
+The planner refuses active-position lock loss, visible opponent retreat blockers, Asleep/Paralyzed, used attachment or retreat quota, active Tools, insufficient or unknown Special Energy payment, any payable Active control/GX attack, and any newly payable Active attack after using the held Basic. It vetoes redundant payment when an observed Skyliner makes a Basic Active's Retreat free. The genuine Store remains the arbiter of continuous effective-cost modifications. Printed-attack threshold 80+ is a conservative *opportunity screen*, not a guarantee of tactical superiority.
 
-## Safety and actual costs
+## Code
 
-The planner refuses a currently payable Active attack, including zero-damage/control or GX attacks; an attachment that itself unlocks an Active attack; an Active Tool or modified/multiunit printed retreat fee; an opponent visible retreat-blocking Active; Asleep/Paralyzed or explicit retreat restriction; a used retreat quota; a Bench attack without recognized Basic-only payment; and a retreat that would lose an Active-position-dependent Ability. It respects the once-turn Energy attachment and known public Energy locks. It uses printed damage and a deterministic Bench target order. It reads no concealed opposing cards and does not infer the owner's unknown deck or Prize faces.
+- [Owner-only v2 bridge](../../../simulation/twinleaf/2026-11/agent2-retreat-funding-bridge.cjs)
+- [Canonical shared actor opt-in](../../../simulation/twinleaf/agent34-actor-only-root-policy.cjs)
+- [Full native original-deal runner option](../../../simulation/evaluation/agent41-bilateral-v2-development.cjs)
+- [Pure bridge contracts](../../../tests/2026-11/agent2-retreat-funding-bridge.test.cjs)
+- [Canonical actor off/on contracts](../../../tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs)
+- [Original physical two-seat Store fixture](../../../tests/2026-11/agent2-retreat-funding-two-action.native.test.cjs)
+- [Four original source-deal A/B runner](../../../simulation/evaluation/2026-11/agent2-retreat-funding-original-source.cjs)
+- [One-button existing manual CI workflow](../../../.github/workflows/agent36-bilateral-competence-v9.yml), with inputs `agent2_retreat_funding_native` and `agent2_retreat_funding_original_source`; does not install a new push-triggered workflow
 
-**Limitations:** actual effective Retreat Cost may differ from printed cost due to continuous effects not covered by these safety screens. Fixed printed damage 80+ is a resource-payoff criterion, not a knockout or optimal-play guarantee. Resource opportunity cost and opponent counterplay still require full native continuations. The genuine Store may reject either action. Such a rejection must be recorded as a failure, never reinterpreted as a legal paper line.
+## Native results
 
-## Implementation, regression and release path
+**One-unit fee V1:** [GitHub run 42590813440](https://github.com/FlareZ123/experiment-01/actions/runs/42590813440), completed successfully **16/16** contracts. In both Store physical seats, a staged Dedenne GX UNB Active with no attached Energy paid its one-unit retreat using the exact Psychic Basic from hand. Dialga-GX UPR, already funded by three attached Energy cards, was promoted and `Shred` dealt 80 native damage. The exact payment entered the owner's discard pile; the promoted attacker preserved its original cards.
 
-- [Canonical actor hook](../../../simulation/twinleaf/agent34-actor-only-root-policy.cjs): `deps.retreatFundingBridge===true` opts in; audit version includes planner version, with separate selected attachment/retreat counters. Existing native action constructor cases are reused.
-- [Eight isolated pure contracts](../../../tests/2026-11/agent2-retreat-funding-bridge.test.cjs): **8/8 passed** using the local Node test runner on 9 November 2026. Covers exact two-action progression, payable control attack protection, public opponent/Active locks, own attachment/retreat quotas, status, Tool and cost safeguards, Bench target selection, unknown Energy and Active-attack competition. These are no Store settlement evidence.
-- [Five canonical actor integration contracts](../../../tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs): committed for the shared manual CI gate; locally unexecuted because the runtime does not have the full repository dependency tree.
-- [Two-seat pinned Store fixture](../../../tests/2026-11/agent2-retreat-funding-two-action.native.test.cjs): a constructed late-turn real-card state uses Dedenne-GX UNB as the stranded one-retreat Active, Dialga-GX UPR with physically attached Metal/Psychic/Psychic on Bench, and a held Psychic Basic. It tests original Energy transfer, one-Energy paid Retreat, physical Energy discard, exact Bench promotion, and Dialga-GX Shred attack. The fixture uses a *synthetic board*, not a natural Aichi source deal. **Native CI has not been executed or certified at this checkpoint.**
-- [Existing manual-only shared workflow](../../../.github/workflows/agent36-bilateral-competence-v9.yml): adds pure contract tests to the contract-only lane, and native fixture/syntax checks to the existing compiled lane. No new workflow and no per-commit CI trigger.
+**Two-unit fee V2:** [GitHub run 42593450741](https://github.com/FlareZ123/experiment-01/actions/runs/42593450741) proved **all four** native Store fixtures: Dedenne-GX one-unit fee and Genesect V FST two-unit fee, each in physical seats zero and one. Every fixture accepted the new Basic attachment, paid the entire fee using original physical Basic cards, promoted Dialga-GX with its existing Energy intact and resolved `Shred` for 80 damage. The overall run's **20/21** test outcome was marked failed due to a *pure fixture expectation*: its two-unit unit test unexpectedly funded the Active's attack, so the guarded planner correctly abstained. Corrected fixture commit `29a5d6f`. Final rerun status must be obtained before claiming a fully passing V2 lane.
 
-The next decision-changing test is a prospectively registered **one matched original-deal treatment** where this new planner actually triggers, followed by a real Store-paid Retreat, recorded attack and source response. Compare the identical physical opening and both fixed unchanged 60s under a common actor/profile. Keep caps, native aborts, invalid payments, and non-triggered arms in the released denominator. Do not launch another broad panel for a hypothetical line with no encountered positive state.
+**Original field source, v1:** [GitHub run 42591867258](https://github.com/FlareZ123/experiment-01/actions/runs/42591867258) executed **four previously registered** rank11/13 original Aichi fixed-deck physical deals in two A/B policy conditions, eight native attempts. Every complete pair preserved identical source and candidate 60s and a matching physical opening. **No game selected the new bridge**, and no public root or attachment target changed in the three complete comparisons. Three pairs finished natively in both arms; rank13 seat A produced the *same engine error in both arms*. These four deals show neither utility nor a negative win-rate impact: the policy was inactive. The first report accidentally dropped the actor audits when compacting native rows; a corrected comparator preserves those audits and flags, and distinguishes the symmetric pre-audit engine abort. Its scope is developmental, zero competitively qualified paper games.
 
-**Competitive benchmark unchanged:** 29/32 exact original Aichi Top 32 sixties admitted, ranks 23/25/28 missing; zero competitively qualified paper games; no final selected sixty or demonstrated 99.5% win rate.
+## Direct next research question
+
+Find naturally encountered original-source roots with an already funded positive-damage Bench attacker, held Basic Energy, and a stranded Active exactly one Basic short of one-/two-unit retreat. Run **only a matched same-physical-deal A/B follow-through and opponent response** after that opportunity is genuinely observed. The 29 admitted exact original Top32 60s remain unchanged in this work. An inactive source pair does not warrant another indiscriminate field panel.
+
+**Status:** mechanically viable under the pinned native Store. Actual competitive impact unmeasured. **No paper win-rate or 99.5% claim.**
