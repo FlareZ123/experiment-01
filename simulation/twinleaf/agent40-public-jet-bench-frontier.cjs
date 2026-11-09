@@ -81,6 +81,14 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
   // native Store accepts the Item or that the resulting turn is optimal.
   // Keep this behind the existing default-off Jet option and only propose
   // when the unlocked Item has a public empty Bench slot to exploit.
+  // Conservative visible-matrix veto. Active Wobbuffet's Bide Barricade
+  // can itself be shut off by an established Alolan Muk Power of Alchemy.
+  // Its official Q&A explicitly restores evolved Abilities in the
+  // Muk-evolves-after-Wobb sequence; other orderings need their own review.
+  const alchemyInPlay=[own.active,...own.bench,
+    view.opponentPublic?.active,...(view.opponentPublic?.bench??[])]
+    .some(p=>p?.printing?.startsWith('Alolan Muk ')&&
+      p.abilityDetails?.some(a=>a.name==='Power of Alchemy'));
   const itemLocks=[view.opponentPublic?.active,
     ...(view.opponentPublic?.bench??[])].filter(p=>
     p?.printing==='Vileplume AOR'&&
@@ -89,7 +97,7 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
   // the other copies. Reject this utility line in that geometry.
   const vulnerableItemLock=itemLocks.length>0&&itemLocks.every(p=>
     !(p.tools??[]).some(t=>t.startsWith('Stealthy Hood ')));
-  if(vulnerableItemLock&&
+  if(vulnerableItemLock&&!alchemyInPlay&&
       view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
       own.bench.some(p=>p===null)&&own.deckCount>0){
     const wobb=own.bench.findIndex(p=>p?.printing==='Wobbuffet PHF');
