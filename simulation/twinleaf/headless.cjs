@@ -1766,7 +1766,12 @@ function runMatch(request) {
               physicalZoneIntegrity.firstSettledRootAnomaly={
                 actionOrdinal:actions+1,turn:store.state.turn,
                 actingSeat:state.activePlayer,actionType:actionName,
-                ownership,settledCountAnomalies
+                ownership,settledCountAnomalies,
+                // Read-only postdecision accepted public roots preceding this
+                // failed custody assertion; the failing root is not appended
+                // until after the assertion and stays explicitly separate.
+                lastAcceptedPublicRootsBeforeFailure:
+                  rootActionLedger?rootActionLedger.slice(-6):null
               };
             }
             if(request.enforceSettledPhysicalZoneIntegrity===true){
