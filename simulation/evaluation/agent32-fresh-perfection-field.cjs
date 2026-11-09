@@ -117,7 +117,10 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
   const telepath=withTelepathInsideNativeMatches(volt,{
     telepath:withTelepathAndOwnerAbilityPolicy
   });
-  assert.ok(selected?.rawDevelopment,'The complete selected native batch must be returned');
+  assert.ok(selected?.rawDevelopment,
+    'The complete selected native batch must be returned; underlying failure: '+
+    (selected?.diagnostic?.thrownStack??
+      selected?.diagnostic?.thrownMessage??'no native diagnostic'))
   assert.equal(selected.diagnostic.allRegisteredAttemptsReturned,true,
     'No missing, duplicate or unexpected native trial rows permitted');
   assert.equal(selected.rawDevelopment.rows.length,frozen.length);
