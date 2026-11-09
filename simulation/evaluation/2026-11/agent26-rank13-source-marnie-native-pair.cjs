@@ -53,6 +53,14 @@ function compareSourceMarnie(control,treatment){
     const other=treatment.rootActionLedger?.[i];
     return JSON.stringify(root)!==JSON.stringify(other);
   });
+  const firstControl=control.rootActionLedger?.[priorChanged];
+  const firstTreatment=treatment.rootActionLedger?.[priorChanged];
+  const firstDifferenceIsOwnedMarnie=priorChanged>=0&&
+    firstControl?.action==='PassTurnAction'&&
+    firstControl?.playerSlot===sourceSeat&&firstControl?.turnBefore===3&&
+    firstTreatment?.action==='PlayCardAction'&&
+    firstTreatment?.card==='Marnie'&&
+    firstTreatment?.playerSlot===sourceSeat&&firstTreatment?.turnBefore===3;
   return {trialId:control.trial.id,candidateId:control.trial.candidateId,
     originalSourceSeat:sourceSeat,
     exactSourcePhysicalOpeningMatched:sameSource,
@@ -63,7 +71,9 @@ function compareSourceMarnie(control,treatment){
     originalControlPassedAtT3:pass,
     treatmentStoreAcceptedSourceMarnieAtT3:marnie,
     ownerRootOfferAndAcceptanceDemonstrated:
-      sameSource&&sameStarter&&pass&&heldMarnie&&marnie,
+      sameSource&&sameStarter&&pass&&heldMarnie&&marnie&&
+      firstDifferenceIsOwnedMarnie,
+    firstDifferenceIsOwnedMarnie,
     sourceT3ControlRoots:a.map(x=>({ordinal:x.actionOrdinal,
       action:x.action,card:x.card??null,attack:x.attack??null})),
     sourceT3TreatmentRoots:b.map(x=>({ordinal:x.actionOrdinal,
