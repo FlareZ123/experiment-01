@@ -21,7 +21,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
  * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
- * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number,stopAfterAttack?:boolean}} fixture Optional staged Active, Prize-count, and post-attack snapshot profile.
+ * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number,stopAfterAttack?:boolean,choosePrize?:(context:{player:any,prompt:any,remaining:any[]})=>any[]}} fixture Optional staged Active, Prize-count, and owner Prize-choice profile.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true,fixture={}){
@@ -154,7 +154,10 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
         const player=state.players.find(p=>p.id===pending.playerId);
         assert.ok(player);
         const remaining=player.prizes.filter(prize=>prize.cards.length>0);
-        answer=remaining.slice(0,pending.options.count);
+        answer=typeof fixture.choosePrize==='function'
+          ?fixture.choosePrize({player,prompt:pending,remaining})
+          :remaining.slice(0,pending.options.count);
+        assert.ok(Array.isArray(answer));
         assert.equal(answer.length,pending.options.count);
         assert.equal(pending.validate(answer,state),true);
       }else if(name==='ChoosePokemonPrompt'){
