@@ -1,0 +1,87 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {
+  VERSION,chooseMewUltraBallEvolutionRoot,chooseMewUltraBallSearch
+}=require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+
+const offered=[
+  {index:0,printing:'Crobat V DAA',selectableAlone:true},
+  {index:1,printing:'Genesect V FST',selectableAlone:true},
+  {index:2,printing:'Mew VMAX FST',selectableAlone:true},
+  {index:3,printing:'Mew V FST',selectableAlone:true}
+];
+
+/** @param {string[]} hand @param {object} [options] */
+function root(hand,{active='Mew V FST',turn=5,deckCount=30,bench=[]}={}){
+  return {
+    decisionKind:'owner-root',globalTurn:turn,ownHand:hand,
+    ownPublic:{deckCount,active:active?{printing:active}:null,
+      bench:[...bench,null,null,null]},
+    ownTurnResources:{itemPlayLocked:false,pokemonPlayLocked:false}
+  };
+}
+
+/** @param {object[]} board @param {object} [options] */
+function search(board,{seat=1,item='Ultra Ball MEG',source='own-deck',
+  message='CHOOSE_CARD_TO_HAND',bundles=undefined}={}){
+  return {
+    actor:{decisionKind:'owner-prompt',actorSeat:seat,
+      ownPublic:{active:board[0]??null,bench:board.slice(1),
+        resolvingSupporter:[item]}},
+    prompt:{source,message,offered,canSkip:true,canCancel:false,
+      ...(bundles!==undefined?{bundles}:{})}
+  };
+}
+
+test('source Mew V on board and disposable two-card payment creates Ultra Ball root',()=>{
+  const hand=['Ultra Ball MEG','Battle VIP Pass FST',"Trainers' Mail ROS",
+    'Double Colorless Energy SUM'];
+  assert.deepEqual(chooseMewUltraBallEvolutionRoot(root(hand)),{
+    kind:'play-mew-ultra-ball',handIndex:0,printing:'Ultra Ball MEG',
+    policy:VERSION
+  });
+});
+
+test('Mew evolution rescue keeps vital DCE and ACE SPEC from speculative payment',()=>{
+  assert.equal(chooseMewUltraBallEvolutionRoot(root([
+    'Ultra Ball MEG','Double Colorless Energy SUM',
+    'Secret Box TWM','Forest Seal Stone SIT'
+  ])),null);
+  assert.equal(chooseMewUltraBallEvolutionRoot(root([
+    'Ultra Ball MEG','Battle VIP Pass FST',
+    'Mew VMAX FST',"Trainers' Mail ROS"
+  ])),null);
+});
+
+test('cannot search unneeded VMAX, unknown deck, or before evolution window',()=>{
+  const h=['Ultra Ball MEG','Battle VIP Pass FST',"Trainers' Mail ROS"];
+  assert.equal(chooseMewUltraBallEvolutionRoot(root(h,{active:'Mew VMAX FST'})),null);
+  assert.equal(chooseMewUltraBallEvolutionRoot(root(h,{active:'Genesect V FST'})),null);
+  assert.equal(chooseMewUltraBallEvolutionRoot(root(h,{deckCount:0})),null);
+  assert.equal(chooseMewUltraBallEvolutionRoot(root(h,{turn:2})),null);
+});
+
+test('genuine source Ultra Ball target is precisely Mew VMAX',()=>{
+  assert.deepEqual(chooseMewUltraBallSearch(
+    search([{printing:'Mew V FST'},null]),1),{indices:[2]});
+});
+
+test('unsupported or opponent search retains original owner generic selection',()=>{
+  assert.deepEqual(chooseMewUltraBallSearch(
+    search([{printing:'Mew V FST'},null]),0),{indices:[0]});
+  assert.deepEqual(chooseMewUltraBallSearch(
+    search([{printing:'Genesect V FST'},null]),1),{indices:[0]});
+  assert.deepEqual(chooseMewUltraBallSearch(
+    search([{printing:'Mew V FST'},null],{source:'own-discard'}),1),
+  {indices:[0]});
+});
+
+test('source Quick Ball preference remains independently enabled',()=>{
+  const prompt=search([{printing:'Mew V FST'},null],
+    {item:'Quick Ball FST'});
+  assert.deepEqual(chooseMewUltraBallSearch(prompt,1),{indices:[0]});
+  assert.deepEqual(chooseMewUltraBallSearch(prompt,1,
+    {prioritizeQuickBall:true}),{indices:[1]});
+});
