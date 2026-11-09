@@ -101,3 +101,56 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+/**
+ * A different legal original physical-zone conditioning: original Temple
+ * replaces original Artazon in the in-play Stadium slot. This exercises
+ * the Japanese official Jet/Temple Q&A, not a separate card or decklist.
+ */
+for(const seat of [0,1]){
+  test('Temple disables Jet rescue after source Guzma: native seat '+seat,()=>{
+    const x=stage(seat);
+    conditionSecondJet(x);
+    const store=x.f.store,owner=x.owner;
+    establishSentinelLock(x);
+    resolveRank1Guzma(x);
+    const temple=owner.deck.cards.find(c=>
+      c.fullName==='Temple of Sinnoh ASR');
+    const oldStadium=owner.stadium.cards.find(c=>
+      c.fullName==='Artazon PAL');
+    assert.ok(temple && oldStadium);
+    owner.deck.cards.splice(owner.deck.cards.indexOf(temple),1);
+    owner.stadium.cards.splice(owner.stadium.cards.indexOf(oldStadium),1,
+      temple);
+    owner.deck.cards.push(oldStadium);
+    const {PassTurnAction}=native('game/store/actions/game-actions');
+    store.dispatch(new PassTurnAction(x.f.defender.id));
+    settleWaits(store);
+    const observed=actorObservation(store.state,seat);
+    assert.equal(observed.ownPublic.stadium.includes('Temple of Sinnoh ASR'),
+      true);
+    assert.equal(chooseSentinelPostGustJet(observed),null);
+    const before=physical(owner);
+    assert.equal(before.length,60);
+    assert.equal(new Set(before).size,60);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const jetIndex=owner.hand.cards.findIndex(c=>
+      c.fullName==='Jet Energy PAL');
+    const benchIndex=owner.bench.findIndex(b=>
+      b.getPokemonCard()?.fullName==='Bunnelby PRC');
+    assert.ok(jetIndex>=0 && benchIndex>=0);
+    store.dispatch(new PlayCardAction(owner.id,jetIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:benchIndex
+    }));
+    assert.equal(owner.active.getPokemonCard()?.fullName,'Vileplume AOR',
+      'Temple should suppress the Jet switch under official Japanese Q&A');
+    assert.equal(owner.bench[benchIndex].energies.cards.length,2,
+      'Energy attachment itself is legal but does not switch');
+    assert.equal(physical(owner).length,60);
+    console.log('AGENT20_JET_TEMPLE_NATIVE',JSON.stringify({
+      seat,originalSixty:true,paperTempleJetVeto:true,
+      nativeSwitchSuppressed:true,qualifiedGames:0
+    }));
+  });
+}
