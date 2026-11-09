@@ -51,12 +51,23 @@ function run(){
 
   assert.throws(()=>assertPhysicalPrizePromptSelection(state,own,[forged,ours[0]]),
     /Prize selection must satisfy the native prompt contract/);
+
+  const twoPrizes=new ChoosePrizePrompt(101,GameMessage.CHOOSE_PRIZE_CARD,
+    {count:2});
+  assert.strictEqual(
+    assertPhysicalPrizePromptSelection(state,twoPrizes,[ours[0],ours[1]]),
+    state.players[0]);
+  assert.equal(twoPrizes.validate([ours[0],ours[0]],state),true,
+    'pinned validator accepts selecting the same physical Prize list twice');
+  assert.throws(()=>
+    assertPhysicalPrizePromptSelection(state,twoPrizes,[ours[0],ours[0]]),
+  /owner Prize choice must select distinct physical Prize slots/);
   return {
-    schema:'agent37-native-prize-physical-selection-membership-v1',
+    schema:'agent37-native-prize-physical-selection-membership-v2',
     pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     validOwnChoice:true,validOpponentPrizesChoice:true,
-    perspectiveOwnerRedirection:true,foreignPhysicalPrizeChoicesRejected:4,
-    nativeValidatorFalsePositivesReproduced:3
+    perspectiveOwnerRedirection:true,foreignPhysicalPrizeChoicesRejected:4,duplicatePhysicalPrizeChoicesRejected:1,
+    nativeValidatorFalsePositivesReproduced:4
   };
 }
 
