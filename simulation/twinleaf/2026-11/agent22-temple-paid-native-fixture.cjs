@@ -62,6 +62,9 @@ function probe(seat) {
       .map(row => row.provides);
   };
   const before = provided();
+  const {rootPhysicalSnapshot,rootPhysicalWitness}=
+    require('../agent5-owner-root-slice.cjs');
+  const physicalBefore=rootPhysicalSnapshot(f.state,seat,intent);
   f.store.dispatch(new PlayCardAction(f.owner.id,intent.handIndex,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   }));
@@ -74,6 +77,9 @@ function probe(seat) {
   }
   assert.equal(f.state.prompts.some(p=>p.result===undefined),false);
   const after = provided();
+  const physicalAfter=rootPhysicalSnapshot(f.state,seat,intent);
+  const nativeWitness=rootPhysicalWitness(intent,physicalBefore,
+    physicalAfter,f.GamePhase);
   const held = f.owner.hand.cards.includes(temple);
   const stadium=[...f.owner.stadium.cards,...f.opponent.stadium.cards]
     .map(card=>card.fullName);
@@ -85,6 +91,7 @@ function probe(seat) {
     stadium,templeInHandAfter:held,
     sourceEnergyBefore:before,
     sourceEnergyAfter:after,
+    nativeWitness,
     opponentSource:'Regidrago VSTAR SIT',
     nativeCurrentTurn:f.state.turn,
     paperCompetitiveQualifiedGames:0
