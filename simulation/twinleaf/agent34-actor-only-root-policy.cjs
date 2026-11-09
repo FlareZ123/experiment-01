@@ -933,6 +933,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePostJetRoboRoot(view);
     if(follow)return follow;
   }
+  if(options.jetPostSeekerFabaContinuation===true){
+    const follow=require('./2026-11/agent33-jet-vs-faba-postroot.cjs')
+      .choosePostJetVsFabaRoot(view);
+    if(follow)return follow;
+  }
   if(options.paleMoonGXRoot===true){
     const gx=require('./2026-11/agent17-pale-moon-gx-native-frontier.cjs')
       .choosePaleMoonGX(view,catalog);
@@ -1151,6 +1156,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     pathToPeakPublicSpentFusionOptIn:deps.pathToPeakPublicSpentFusion===true,
     pathSafeSkyFieldReplacementOptIn:deps.pathSafeSkyFieldReplacement===true,
     jetPostRoboContinuationOptIn:deps.jetPostRoboContinuation===true,
+    jetPostSeekerFabaContinuationOptIn:deps.jetPostSeekerFabaContinuation===true,
+    jetPostSeekerFabaPromptsProposed:0,
+    jetPostSeekerFabaPromptsAccepted:0,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     rank7FabaJetBridgeOptIn:deps.rank7FabaJetBridge===true,
@@ -1579,6 +1587,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
+  if(audit.jetPostSeekerFabaContinuationOptIn){
+    assert.equal(audit.jetBenchSwitchRootOptIn,true,
+      'Post-Jet Faba recovery requires explicit Jet Bench switch root');
+    audit.version+='+'+
+      require('./2026-11/agent33-jet-vs-faba-postroot.cjs').VERSION;
+  }
   if(audit.rank7FabaJetBridgeOptIn){
     assert.equal(audit.jetBenchSwitchRootOptIn,true,
       'Faba/Nest root bridge requires explicit Jet Bench switch root');
@@ -1771,7 +1785,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(seat!==-1&&pending&&
        (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn||
         audit.firstCrispinSeekerRecoveryOptIn||
-        audit.seekerGuzmaNominalKoOptIn)&&
+        audit.seekerGuzmaNominalKoOptIn||
+        audit.jetPostSeekerFabaContinuationOptIn)&&
        pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
@@ -1787,6 +1802,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(target.startsWith("Professor's Research "))
         audit.seekerResearchPromptsProposed++;
       else if(target==='Crispin SCR')audit.seekerCrispinPromptsProposed++;
+      else if(target==='Faba LOT')audit.jetPostSeekerFabaPromptsProposed++;
       else if(require('./agent2-held-guzma-mobility-frontier.cjs')
         .isGuzma(target))audit.seekerGuzmaPromptsProposed++;
       else audit.seekerLilliePromptsProposed++;
@@ -2101,6 +2117,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       printedScalingBasicKoBeforeAttack:audit.printedScalingBasicKoBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       jetPostRoboContinuation:audit.jetPostRoboContinuationOptIn,
+      jetPostSeekerFabaContinuation:audit.jetPostSeekerFabaContinuationOptIn,
       rank7FabaJetBridge:audit.rank7FabaJetBridgeOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
       busLockPositionRoot:audit.busLockPositionRootOptIn,
@@ -2454,6 +2471,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'play-seeker-get-guzma':
+      case 'play-seeker-get-faba':
       case 'play-seeker-get-crispin':
       case 'play-seeker-get-lillie':
       case 'play-seeker-recovered-lillie':
@@ -2769,6 +2787,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.seekerResearchPromptsAccepted++;
       else if(seekerReply.printing==='Crispin SCR')
         audit.seekerCrispinPromptsAccepted++;
+      else if(seekerReply.printing==='Faba LOT')
+        audit.jetPostSeekerFabaPromptsAccepted++;
       else if(require('./agent2-held-guzma-mobility-frontier.cjs')
         .isGuzma(seekerReply.printing))
         audit.seekerGuzmaPromptsAccepted++;
@@ -2893,7 +2913,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         ownerEarlyCompressorPending.set(owner.id,{
           seat:choice.seat,promptId:pending.id});
       }
-      if(choice.kind==='play-seeker-get-crispin'||
+      if(choice.kind==='play-seeker-get-faba'||
+         choice.kind==='play-seeker-get-crispin'||
          choice.kind==='play-seeker-get-guzma'||
          choice.kind==='play-seeker-get-lillie'||
          choice.kind==='play-seeker-get-research'){
