@@ -14,11 +14,13 @@ const {VERSION:RESCUE_VERSION}=
   require('../../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
+const PALE_MOON=process.env.AGENT17_RANK2_PALE_MOON_GX==='true';
 const EARLY_FSS=process.env.AGENT17_RANK2_EARLY_FSS==='true';
 const PRE_ATTACK=process.env.AGENT17_RANK2_PRE_ATTACK_RESCUE==='true';
 const RESCUE=PRE_ATTACK||process.env.AGENT17_RANK2_DECKOUT_RESCUE==='true';
-const OUTPUT=path.join(ROOT,EARLY_FSS?
-  'agent17-rank2-early-fss-native.json':PRE_ATTACK?
+const OUTPUT=path.join(ROOT,PALE_MOON?
+  'agent17-rank2-pale-moon-gx-native.json':EARLY_FSS?
+    'agent17-rank2-early-fss-native.json':PRE_ATTACK?
     'agent17-rank2-pre-attack-rescue-native.json':RESCUE?
     'agent17-rank2-anti-deckout-native.json':
     'agent21-rank2-original-long-native.json');
@@ -52,6 +54,7 @@ function replay(target,seat,candidateId){
     actorDeckoutRescueRoot:RESCUE,
     actorDeckoutRescueBeforeAttack:PRE_ATTACK,
     actorEarlyForestSealRoot:EARLY_FSS,
+    actorPaleMoonGXRoot:PALE_MOON,
     registeredTrials:[t],
     registeredFrameName:'agent21-rank2-original-cap'+ROOT_LIMIT,
     registeredCandidateDecks:{
@@ -96,9 +99,10 @@ function replay(target,seat,candidateId){
     antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     antiDeckoutRescueVersion:RESCUE?RESCUE_VERSION:null,
     earlyForestSealRootEnabled:EARLY_FSS,
+    paleMoonGXRootEnabled:PALE_MOON,
     antiDeckoutRescueNativeAudit:rescueAudit,
     first260RootSha:first260Sha,originalFirst260RootsReplayed:
-      RESCUE||EARLY_FSS?null:
+      RESCUE||EARLY_FSS||PALE_MOON?null:
         roots.length>=260&&first260Sha===rootShaByArm[seat+':'+candidateId],
     roots:roots.length,
     status,finished:row.finished===true,
@@ -139,15 +143,18 @@ function main(){
     assert.equal(pair.length,2);
     assert.equal(pair[0].sourceDealFingerprint,pair[1].sourceDealFingerprint);
   }
-  const output={schema:EARLY_FSS?
-    'agent17-rank2-early-fss-development-v1':PRE_ATTACK?
+  const output={schema:PALE_MOON?
+    'agent17-rank2-pale-moon-gx-development-v1':EARLY_FSS?
+      'agent17-rank2-early-fss-development-v1':PRE_ATTACK?
       'agent17-rank2-control-pre-attack-shuffle-development-v1':RESCUE?
       'agent17-rank2-original-control-deckout-rescue-development-v1':
       'agent21-rank2-original-control-horizon-v1',
     antiDeckoutRescueEnabled:RESCUE,
     antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     earlyForestSealRootEnabled:EARLY_FSS,
-    changedDevelopmentPolicy:EARLY_FSS?'agent17-owner-held-forest-seal-early-v1':
+    paleMoonGXRootEnabled:PALE_MOON,
+    changedDevelopmentPolicy:PALE_MOON?'agent17-owner-pale-moon-gx-anti-pass-v1':
+      EARLY_FSS?'agent17-owner-held-forest-seal-early-v1':
       RESCUE?RESCUE_VERSION:null,
     registeredOriginalSource:'Agent3 run42578010606 original rank2 two seeds, both candidate 60s',
     originalSeedsReused:true,
@@ -159,13 +166,15 @@ function main(){
       'Retrospective horizon sensitivity only. No change to original 116-game prospective trial. Does not certify opponents, clock, or Japanese paper semantics.',
     rows};
   archive(output);
-  process.stdout.write((EARLY_FSS?'AGENT17_RANK2_EARLY_FSS ':
+  process.stdout.write((PALE_MOON?'AGENT17_RANK2_PALE_MOON_GX ':
+    EARLY_FSS?'AGENT17_RANK2_EARLY_FSS ':
     PRE_ATTACK?'AGENT17_RANK2_PRE_ATTACK_RESCUE ':
     RESCUE?'AGENT17_RANK2_DECKOUT_RESCUE ':
       'AGENT21_RANK2_ORIGINAL_HORIZON ')+JSON.stringify({
     antiDeckoutRescueEnabled:RESCUE,
     antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     earlyForestSealRootEnabled:EARLY_FSS,
+    paleMoonGXRootEnabled:PALE_MOON,
     nativeRootCap:ROOT_LIMIT,sourceDealPairsMatched:true,
     rows:rows.map(({trial,roots,status,finished,nativeCandidateOutcome,
       finalPrizes,turns,originalFirst260RootsReplayed,error})=>({
