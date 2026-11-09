@@ -1,0 +1,24 @@
+{
+  "schema": "agent29-rank9-v14-original-opponent-weakness-and-prizes-native",
+  "registeredAtUTC": "2026-11-09T10:09:20Z",
+  "purpose": "Adversarially challenge original source rank9 real Claw under opposing Escape Rope choice accounting for printed Weakness and total Prize liability; promote surviving replacement over one-Prize sacrifice, and lowest-Prize sacrifice if all projected Knocked Out.",
+  "nativeSourceOriginal": "Aichi rank9 Shun Ito original printed unmodified 60",
+  "candidateOpponents": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "baseline": "full-v13-original-source-Bomb-Float-Rope plus opponent-own highest printed remaining HP",
+  "treatment": "same full v13, override only opponent own real native Escape Rope replacement choice to compute 200 Darkness Claw using public printed target Weakness, resistance and remaining HP, prefer projected survival, else lowest Prize target, tie by HP/Bench index",
+  "immutablePhysicalSeedRegister": "results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json",
+  "physicalDealGroups": 8,
+  "pairedSeedTrials": 16,
+  "nativeGames": 32,
+  "ownerInputRules": "No opponent hand, deck or facedown Prize identities. Choose from genuine owner's public Bench on validated ChoosePokemonPrompt after actual source Rope. Source actor has zero access to opponent decision.",
+  "sourceMechanism": "Mega Absol ex M1L printed Claw of Darkness 200 Darkness nominal. Native Store determines attack damage, effects and Knock Outs.",
+  "cardPrizeProjection": "TAG TEAM GX, VMAX, Mega ex: 3; ex, GX, V and VSTAR: 2; ordinary and Radiant: 1. This is a heuristic for source's observed opposing card pool.",
+  "winnerClaimsAllowed": false,
+  "competitiveQualifiedGames": 0,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "workflow": ".github/workflows/agent45-electrode-bomb-native-store.yml",
+  "workflowInput": "rank9_source_opponent_damage_aware_v14"
+}
