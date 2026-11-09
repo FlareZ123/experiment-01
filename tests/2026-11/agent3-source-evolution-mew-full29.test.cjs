@@ -28,12 +28,11 @@ test('registration has one original-source physical deal per rank and seat',()=>
   }
 });
 
-test('B changes exactly six source-only flags, without enabling source flags in A',()=>{
+test('B changes exactly four source-only flags, without enabling source flags in A',()=>{
   const a=sourceCompetenceOptions(false),b=sourceCompetenceOptions(true);
   assert.deepEqual(a,{});
   assert.deepEqual(Object.keys(b).sort(),[
-    'actorNaturalEvolutionRoot','actorNaturalEvolutionSourceOnly',
-    'actorMewDceRecipientRoot','actorMewDceRecipientSourceOnly',
+'actorMewDceRecipientRoot','actorMewDceRecipientSourceOnly',
     'actorMewGenesectTechnoBlast','actorMewGenesectTechnoBlastSourceOnly'
   ].sort());
   assert.equal(Object.values(b).every(x=>x===true),true);
@@ -57,9 +56,10 @@ test('actual development runner is supplied the same candidate and base portable
   assert.equal(b.actorZeroEnergyStrandFloatStoneRoot,true);
   assert.equal(a.actorSeekerGuzmaNominalKo,true);
   assert.equal(b.actorSeekerGuzmaNominalKo,true);
-  assert.equal(a.actorNaturalEvolutionRoot??false,false);
+  assert.equal(a.actorNaturalEvolutionRoot,true);
   assert.equal(b.actorNaturalEvolutionRoot,true);
-  assert.equal(b.actorNaturalEvolutionSourceOnly,true);
+  assert.equal(a.actorNaturalEvolutionSourceOnly??false,false);
+  assert.equal(b.actorNaturalEvolutionSourceOnly??false,false);
   assert.equal(b.actorMewDceRecipientSourceOnly,true);
   assert.equal(b.actorMewGenesectTechnoBlastSourceOnly,true);
   assert.deepEqual(a.registeredTrials,b.registeredTrials);
