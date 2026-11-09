@@ -117,6 +117,10 @@ function chooseFabaJetHoodPrompt(view,prompt,state,native) {
 function choosePostJetNestRoot(view) {
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic;
+  // A Hood-protected AOR Vileplume remains a native Item lock even after
+  // Wobbuffet has moved Active. The direct public restriction booleans do
+  // not encode every passive Ability-based prohibition.
+  if(hoodedVileplumeTarget(view.opponentPublic))return null;
   if(own?.active?.printing!=='Wobbuffet PHF'||
       !own.bench?.some(p=>p===null)||
       own.deckCount<=0||
