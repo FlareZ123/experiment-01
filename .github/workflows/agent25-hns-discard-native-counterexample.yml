@@ -106,12 +106,17 @@ jobs:
       - name: Test actual first-turn paid one-Cape source 60 lock and original Guzma on both seats
         if: inputs.agent25_cape_paid_opening_native
         run: node simulation/twinleaf/2026-11/agent25-cape-paid-opening-native.cjs > agent25-cape-paid-opening-native.log
+      - name: Test one continuous printed Cape opening and original rank1 double Underworld Door Max Geist
+        if: inputs.agent25_cape_paid_opening_native
+        run: node simulation/twinleaf/2026-11/agent25-cape-source-paid-maxgeist-reply-native.cjs > agent25-cape-continuous-reply-native.log
       - name: Preserve two-seat actual source-first-turn Cape roots
         if: always() && inputs.agent25_cape_paid_opening_native
         uses: actions/upload-artifact@v4
         with:
           name: agent25-cape-paid-opening-native
-          path: agent25-cape-paid-opening-native.log
+          path: |
+            agent25-cape-paid-opening-native.log
+            agent25-cape-continuous-reply-native.log
           if-no-files-found: warn
           retention-days: 14
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
