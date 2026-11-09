@@ -254,6 +254,16 @@ function executeOpponentTulipRebuild(context,options={}){
     result.ownActiveAfter=opp.active.getPokemonCard()?.fullName??null;
     result.benchVMAXAfter=opp.bench.filter(slot=>
       slot.getPokemonCard()?.fullName==='Shadow Rider Calyrex VMAX CRE').length;
+    if(result.stage.startsWith('native-tulip-vmax-underworld-') &&
+       result.remainingPromptKinds.length===0 &&
+       typeof options.afterOpponentTurn==='function'){
+      // The opponent owner has taken a genuine native turn. A subsequent
+      // source-owner policy now sees the exact new turn and public board.
+      result.sourceNextTurn=options.afterOpponentTurn({
+        state:game.state,ownerId:context.ownerId,
+        opponentId:context.opponentId
+      });
+    }
   }catch(error){
     result.stage='native-opponent-tulip-or-underworld-rejected';
     result.errors.push(String(error?.stack??error));
