@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      paper_semantics_compat:
+        description: 'Run combined native paper-semantics Mew plus original Regidrago compatibility matrix'
+        required: false
+        type: boolean
+        default: false
       source_rank5_shuffle_pair:
         description: 'Run independently preregistered eight original-rank5 source-dealt paper Energy Mix A/B native attempts'
         required: false
@@ -66,6 +71,12 @@ jobs:
         run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs tests/agent19-energy-mix-custody-audit.test.cjs tests/agent19-energy-mix-shuffle-hook.test.cjs tests/agent19-original-energy-mix-shuffle-lineage-audit.test.cjs
       - name: Probe native copied Energy Mix DCE custody and forbidden recipient
         run: node simulation/twinleaf/agent19-mew-energy-mix-native.cjs > aichi-rank5-mew-energy-mix.json
+      - name: Unit-test shared reversible paper-semantics composition
+        if: ${{ inputs.paper_semantics_compat }}
+        run: node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs
+      - name: Test combined paper-semantics hooks on real source Mew and Regidrago Store states
+        if: ${{ inputs.paper_semantics_compat }}
+        run: node simulation/twinleaf/2026-11/agent19-paper-semantics-profile-native.cjs > agent19-paper-semantics-profile-native.json
       - name: Execute preregistered original-rank5 paired Energy Mix paper-shuffle developmental cohort
         if: ${{ inputs.source_rank5_shuffle_pair }}
         run: |
@@ -106,6 +117,7 @@ jobs:
             aichi-snorlax-zero-energy-threat.json
             aichi-rank5-mew-one-attachment.json
             aichi-rank5-mew-energy-mix.json
+            agent19-paper-semantics-profile-native.json
             agent19-rank5-energy-mix-shuffle-pair-summary.json
             agent19-rank5-energy-mix-shuffle-source-paired-native.json
             agent19-rank5-independent-seat-rng-summary.json
