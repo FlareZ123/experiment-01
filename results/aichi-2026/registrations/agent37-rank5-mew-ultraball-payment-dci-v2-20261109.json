@@ -1,0 +1,63 @@
+{
+  "schema": "agent37-rank5-mew-ultra-dynamic-dci-v2-new-deals",
+  "status": "frozen-before-first-native-v2-game",
+  "createdUTC": "2026-11-09T09:13:53.535580Z",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 9,
+      "candidateSlot": "A",
+      "seed": 292063553
+    },
+    {
+      "rank": 5,
+      "repeat": 9,
+      "candidateSlot": "B",
+      "seed": 742346033
+    },
+    {
+      "rank": 5,
+      "repeat": 10,
+      "candidateSlot": "A",
+      "seed": 1865883748
+    },
+    {
+      "rank": 5,
+      "repeat": 10,
+      "candidateSlot": "B",
+      "seed": 168985357
+    }
+  ],
+  "previousSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948,
+    620813734,
+    434672991,
+    1802706844,
+    353026970,
+    1315494449,
+    699451450,
+    1389673884,
+    1197737693,
+    2020526773,
+    122193489,
+    1728898311,
+    1634122344
+  ],
+  "expectedNativeAttempts": 16,
+  "newPolicy": "source-only native two-card Ultra Ball payment, keep DCE and one-use resources until spent, prioritize expired Battle VIP Pass after first turn and Forest Seal Stone only when VSTAR already used, then generic uniqueness ranking, actual native legal menus and prompt receipt.",
+  "commonPolicy": "Original Mew Ultra Ball root, native Mew VMAX owner search, owner Quick Ball Mew target, source DCE recipient, native hand discard, original source printed60 and both candidate printed60 fixed.",
+  "pairedArms": "Generic full native original hand-discard policy versus original Mew targeted Ultra Ball dynamic DCI v2",
+  "analysisPlan": "Compare each full physical initial source and candidate deal fingerprints; report all 16 attempts incl caps/errors; identify actual two-card target/payment divergences and future attacks/prizes; preserve terminal differences as native-only.",
+  "competitiveQualifiedGames": 0
+}
