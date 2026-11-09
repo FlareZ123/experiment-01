@@ -143,6 +143,8 @@ jobs:
           path: agent1-evolution-source-pairs.json
           if-no-files-found: warn
           retention-days: 21
+      - name: Native Duskull PRE full-Bench and discard-zone paper attack both seats
+        run: node --test tests/2026-11/agent21-duskull-come-and-get-you-native.test.cjs
       - name: Test Hood position with Iron Thorns and Tool Jammer
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
