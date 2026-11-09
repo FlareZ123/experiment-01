@@ -22,6 +22,7 @@ on:
           - agent3-regidrago-celestial-roar-hook-ab
           - agent3-prospective-all29-celestial-paper-v2
           - agent3-thorns-underworld-owner-guard
+          - agent3-fresh-celestial-v2-error-archive
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
@@ -316,6 +317,34 @@ jobs:
         with:
           name: agent14-rank11-native-catcher-floatstone-two
           path: agent14-rank11-native-floatstone-return-two.json
+          if-no-files-found: warn
+          retention-days: 21
+  celestial-v2-error-archive:
+    if: inputs.experiment == 'agent3-fresh-celestial-v2-error-archive'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact second prospective all29 native artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agent3-prospective-all29-celestial-paper-v2
+          run-id: 42556056635
+          github-token: ${{ github.token }}
+          path: artifacts/agent3-celestial-v2-original
+      - name: Classify all prior native error source ranks and failed actions
+        env:
+          AGENT3_CELESTIAL_V2_AUDIT_INPUT: artifacts/agent3-celestial-v2-original/agent3-prospective-all29-celestial-paper-v2.json
+          AGENT3_CELESTIAL_V2_AUDIT_OUTPUT: artifacts/agent3-celestial-v2-error-portfolio.json
+        run: |
+          node --check simulation/evaluation/agent3/audit-fresh-celestial-v2-native-errors.cjs
+          node simulation/evaluation/agent3/audit-fresh-celestial-v2-native-errors.cjs
+      - name: Retain read-only error-class source receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-fresh-celestial-v2-error-portfolio
+          path: artifacts/agent3-celestial-v2-error-portfolio.json
           if-no-files-found: warn
           retention-days: 21
   archived-native-audit:
