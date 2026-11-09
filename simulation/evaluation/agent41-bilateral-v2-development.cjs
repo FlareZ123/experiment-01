@@ -1426,6 +1426,7 @@ function runDevelopment({
   actorGenesectFusionDrawPerCopyPublicUsage=false,
   actorUnderworldDoorRoot=false,
   actorPathUnderworldStadiumCounter=false,
+  actorTempleDdeDenialRoot=false,
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
@@ -2011,6 +2012,9 @@ function runDevelopment({
               }:{}),
               ...(actorPathUnderworldStadiumCounter?{
                 pathUnderworldStadiumCounter:true
+              }:{}),
+              ...(actorTempleDdeDenialRoot?{
+                templeDdeDenial:true
               }:{}),
               ...(actorPathToPeakOpposingAbility?{
                 pathToPeakOpposingAbility:true
