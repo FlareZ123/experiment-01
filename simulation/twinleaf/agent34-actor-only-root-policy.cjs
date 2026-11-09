@@ -75,11 +75,17 @@ function publicDispatchState(store){
  * @returns {object} Detached Basic, Energy, type and status lookup.
  */
 function buildActorCardCatalog(all,types){
-  const {PokemonCard,EnergyCard,Stage,EnergyType,CardType,
+  const {PokemonCard,EnergyCard,TrainerCard,TrainerType,Stage,EnergyType,CardType,
     PowerType,SpecialCondition}=types;
   return {
     perfectionDonors:require('./agent30-known-perfection-options.cjs')
       .knownPerfectionDonorCatalog(all),
+    // All Stadium identities are public printed metadata; only the actor's
+    // own held copies may be selected for the Path recovery action.
+    trainerStadiumPrints:TrainerCard&&TrainerType?
+      new Map(all.filter(c=>c instanceof TrainerCard&&
+        c.trainerType===TrainerType.STADIUM)
+        .map(c=>[c.fullName,{name:c.name,type:'Stadium'}])):new Map(),
     basics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC).map(c=>c.fullName)),
     // Printed Tool identity is public card-catalog metadata. A Tool in an
@@ -295,6 +301,23 @@ function chooseActorRootIntent(view,catalog,options={}){
         if(active)return active;
       }
       return underworld;
+    }
+  }
+  if(options.pathUnderworldStadiumCounter===true&&
+     options.underworldDoorRoot===true){
+    const pathCounter=require('./2026-11/agent6-path-underworld-stadium-counter.cjs')
+      .planPathUnderworldStadiumCounter(view,catalog,
+        catalog.trainerStadiumPrints??new Map(),
+        options.underworldMarkerReceipt);
+    if(pathCounter){
+      const next=pathCounter.options[0];
+      return {
+        kind:'play-path-underworld-stadium-counter',
+        handIndex:next.handIndex,printing:next.printing,
+        source:'agent6-owner-path-stadium-underworld-counter-v1',
+        expectedNativeEffectUnverified:true,
+        alternativePrintings:pathCounter.options.map(x=>x.printing)
+      };
     }
   }
   if(options.mysteriousTreasureEarlyRegistered===true){
@@ -868,6 +891,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionDrawOwnerSeat:deps.genesectFusionDrawOwnerSeat??null,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
+    pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
     zeroEnergyStrandFloatStoneRootOptIn:
@@ -901,6 +925,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.underworldActiveFundingPriority===true,
     underworldActiveFundingPrioritySelected:0,
     underworldDoorRootSelected:0,
+    pathUnderworldStadiumCounterSelected:0,
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
     genesectFusionReceipts:[],
@@ -1654,6 +1679,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       genesectFusionDraw:actorSpecialEnergyEnabled(
         audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
+      pathUnderworldStadiumCounter:
+        audit.pathUnderworldStadiumCounterOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
       zeroEnergyStrandFloatStoneRoot:
@@ -1933,6 +1960,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
+    if(intent.kind==='play-path-underworld-stadium-counter')
+      audit.pathUnderworldStadiumCounterSelected++;
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
       audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.source==='agent31-zero-energy-strand-to-funded-ko-v1')
@@ -2030,6 +2059,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-players-ceremony':
       case 'play-sky-field':
       case 'play-path-to-peak':
+      case 'play-path-underworld-stadium-counter':
       case 'play-thunder-mountain':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
