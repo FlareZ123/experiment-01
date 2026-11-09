@@ -74,6 +74,28 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
       reason:'jet-switch-to-public-payable-printed-damage',
       plannedAttackName:attack.name};
   }
+  // Utility switch for original rank7's Basic-Psychic Ability lock. An
+  // unprotected opposing AOR Vileplume is a public Item-lock threat, and
+  // promoting authentic Wobbuffet PHF can suppress Irritating Pollen before
+  // spending a held Nest Ball. This is a *proposal*, not a claim that the
+  // native Store accepts the Item or that the resulting turn is optimal.
+  // Keep this behind the existing default-off Jet option and only propose
+  // when the unlocked Item has a public empty Bench slot to exploit.
+  const vulnerableItemLock=[view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench??[])].some(p=>
+    p?.printing==='Vileplume AOR'&&
+    p.abilityDetails?.some(a=>a.name==='Irritating Pollen')&&
+    !(p.tools??[]).some(t=>t.startsWith('Stealthy Hood ')));
+  if(vulnerableItemLock&&
+      view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
+      own.bench.some(p=>p===null)&&own.deckCount>0){
+    const wobb=own.bench.findIndex(p=>p?.printing==='Wobbuffet PHF');
+    if(wobb>=0)return {
+      kind:'attach-special-energy',printing:jet,handIndex,
+      slot:'bench',index:wobb,
+      reason:'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock'
+    };
+  }
   return null;
 }
 module.exports={VERSION,choosePublicJetBenchSwitch};
