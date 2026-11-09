@@ -202,7 +202,7 @@ test('metadata drift does not masquerade as a changed source decision',()=>{
   const receipt=certifyGroup(arms,trial);
   assert.equal(receipt.withoutPivot.status,'SAME_ACTION_UNVERIFIED_VARIATION');
   assert.equal(receipt.ownerPaymentCertified,false);
-  const cohort=certifyCohort(Object.fromEntries(PHASES.map(p=>[p,[arms[p]])),
+  const cohort=certifyCohort(Object.fromEntries(PHASES.map(p=>[p,[arms[p]]])),
     [trial]);
   assert.equal(cohort.totals.activeSourceWithoutPivot,0);
   assert.equal(cohort.totals.sourceAttackDisplacements,0);
