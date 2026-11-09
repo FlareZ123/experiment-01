@@ -1,0 +1,52 @@
+{
+  "schema": "agent37-rank5-hood-vs-champion-source-mail-native-competence-v1",
+  "status": "frozen-before-first-native-comparison",
+  "createdUTC": "2026-11-09T10:27:00Z",
+  "objective": "Compare unchanged fixed Hood/Champion sixties against the exact original Aichi rank5 Mew 60 with opt-in native Mail after Pass and native per-slot Genesect ability-lock check, not against weak Pass-only source",
+  "sourceRank": 5,
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateIds": [
+    "champion-reference",
+    "hood-shield-v1"
+  ],
+  "fixedContender60s": true,
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "jointPaperHookProfile": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "sourceOwnerPolicy": "Existing original rank5 Mew VMAX evolution, attack, DCE, owner Quick/Ultra Ball with guarded mandatory payments, plus one native Mail after incumbent Pass and actual Store native Genesect ability lock preflight, as fixed for both contenders",
+  "sourceFunding": "agent8-source-mew-funding-v6 options(true)",
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 15,
+      "candidateSlot": "A",
+      "seed": 1722315848
+    },
+    {
+      "rank": 5,
+      "repeat": 15,
+      "candidateSlot": "B",
+      "seed": 1929896406
+    },
+    {
+      "rank": 5,
+      "repeat": 16,
+      "candidateSlot": "A",
+      "seed": 781784684
+    },
+    {
+      "rank": 5,
+      "repeat": 16,
+      "candidateSlot": "B",
+      "seed": 1154158531
+    }
+  ],
+  "expectedNativeAttempts": 8,
+  "analysisPlan": "All eight actual games retained including errors/caps. Pair candidate original physical source and starter side; compare only matched conditions. Report winner/Prize/settled Cross Fusion Strike, root accepted owner Mail, source ability-block avoidance, and sharp win-difference bounds across censored games. No paper competitive qualifications inferred.",
+  "independentFrom": "Previous Agent45 original rank5 Hood/Champion full 24 (different seeds and source actor); Agent37 original-source Mail 16 (different seeds, challenger New Moon instead of Hood)",
+  "competitivePaperQualifiedGames": 0,
+  "target99Point5Supported": false
+}
