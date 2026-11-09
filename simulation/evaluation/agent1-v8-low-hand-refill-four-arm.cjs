@@ -8,8 +8,10 @@ const {run:runNative}=
   require('./agent43-v8-snaptrap-exact-prompt-blocker.cjs');
 const {REGISTRATION,firstDivergence}=
   require('./agent38-v8-owner-mail-pass-four-arm.cjs');
+const {physicalDealsMatch}=
+  require('./agent1-v8-held-handiwork-four-arm.cjs');
 
-const VERSION='agent1-v8-low-hand-refill-native-four-arm-v1';
+const VERSION='agent1-v8-low-hand-refill-native-four-arm-v2-deal-parity';
 const OUTPUT=path.resolve(__dirname,
   '../../artifacts/agent43-v8-snaptrap-owner-root/agent1-low-hand-refill-four-arm.json');
 const MECHANICAL=new Set(['PassTurnAction','WaitPromptAction',
@@ -97,6 +99,15 @@ function run(){
     return {
       id:trial.id,seed:trial.seed,sourceSeat:trial.sourceSeat,
       candidateSeat:trial.candidateSeat,
+      physicalDealMatched:physicalDealsMatch(before,after),
+      sourceDealSha256:{
+        control:before.sourceDealFingerprint??null,
+        treatment:after.sourceDealFingerprint??null
+      },
+      fullPhysicalDealSha256:{
+        control:before.fullPhysicalDealFingerprint??null,
+        treatment:after.fullPhysicalDealFingerprint??null
+      },
       firstNativeDivergence:firstDivergence(beforeTape,afterTape),
       before:{nativeStatus:before.nativeStatus,finished:before.nativeFinished,
         winner:before.nativeWinner,endReason:before.nativeEndReason,
@@ -112,18 +123,23 @@ function run(){
     };
   });
   const accepted=arms.reduce((n,r)=>n+r.actualRefillRoots.length,0);
+  const physicalMatches=arms.filter(r=>r.physicalDealMatched).length;
   return {
     schema:VERSION,gitHead:process.env.GITHUB_SHA??null,
     fixedSource60:REGISTRATION.cardsUnchanged,
     nativePinned:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     registeredTrials:ids,rootCap:260,
+    physicalDealPairsMatched:physicalMatches,
+    fullPhysicalPanelValid:physicalMatches===ids.length,
     controlOptions:common,
     treatmentOptions:{...common,followHeldRefillSupporter:true},
     offers:audit.heldRefillOffers,accepted,rejected:audit.heldRefillRejected,
     strictContinuations:arms.reduce((n,r)=>n+r.actualRefillRoots
       .filter(x=>x.continuation.passed).length,0),
     arms,
-    status:accepted>0?'NATIVE_HELD_REFILL_SUPPORTER_ACCEPTED_DEVELOPMENTAL':
+    status:physicalMatches!==ids.length?
+      'INVALID_OR_MISSING_PHYSICAL_DEAL_PARITY':
+      accepted>0?'NATIVE_HELD_REFILL_SUPPORTER_ACCEPTED_DEVELOPMENTAL':
       'NO_REFILL_SUPPORTER_ENCOUNTERED',
     qualifiedCompetentGames:0,winRate:null,selectedFinalFixedSixty:false
   };
