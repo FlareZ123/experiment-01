@@ -96,3 +96,14 @@ test('unknown or other player zone fails closed with no private deck scan',()=>{
   assert.throws(()=>chooseNativeEarlyCompressorDonors(
     state,0,prompt,class{}),/strictEqual|reference|strictly equal/i);
 });
+
+test('second player can use held Compressor on own first turn only with explicit opt-in',()=>{
+  const v=view({turn:2});
+  assert.equal(chooseEarlyRegidragoCompressor(v),null);
+  assert.equal(chooseEarlyRegidragoCompressor(v,{allowFirstOwnTurnTwo:true})?.kind,
+    'play-regidrago-battle-compressor');
+  const firstSeat=view({turn:2});firstSeat.actorSeat=0;
+  assert.equal(chooseEarlyRegidragoCompressor(firstSeat,{allowFirstOwnTurnTwo:true}),null);
+  assert.equal(chooseEarlyRegidragoCompressor(view({turn:3}),{allowFirstOwnTurnTwo:true}),null);
+  assert.equal(chooseEarlyRegidragoCompressor(view({turn:2,locked:true}),{allowFirstOwnTurnTwo:true}),null);
+});
