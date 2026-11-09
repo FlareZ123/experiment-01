@@ -228,6 +228,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseHoodToolPreparation(view,catalog);
     if(hood)return hood;
   }
+  if(options.arvenHoodSearch===true){
+    const arven=require('./agent31/arven-hood-owner-frontier.cjs')
+      .chooseArvenHoodRoot(view,catalog);
+    if(arven)return arven;
+  }
   if(options.garbotoxinToolRoot===true&&
      (garbodorResponseOwnerSeat===null||
       view.actorSeat===garbodorResponseOwnerSeat)){
@@ -893,6 +898,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const nativeTrainerFallbackActions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
   const ownerSeekerPending=new Map();
+  const ownerArvenPending=new Map();
   const typedEarlyCompressorReplies=new WeakMap();
   const ownerEarlyCompressorPending=new Map();
   const typedEriReplies=new WeakMap();
@@ -951,6 +957,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionDrawOwnerSeat:deps.genesectFusionDrawOwnerSeat??null,
     genesectPerCopyPublicUsageOptIn:deps.genesectPerCopyPublicUsage===true,
     templeDdeDenialOptIn:deps.templeDdeDenial===true,
+    arvenHoodSearchOptIn:deps.arvenHoodSearch===true,
+    arvenHoodSearchRootSelected:0,
+    arvenHoodSearchPromptsSelected:0,
     templeDdeDenialSelected:0,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
@@ -1586,6 +1595,22 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.rank7FabaJetBridgePromptsSelected++;
       return action;
     }
+    if(seat!==-1&&pending&&audit.arvenHoodSearchOptIn&&
+       pending.playerId===playerId&&ownerArvenPending.has(playerId)){
+      const token=ownerArvenPending.get(playerId);
+      assert.equal(pending.id,token.promptId,
+        'Arven Hood search must resolve its own authenticated owner prompt');
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const response=require('./agent31/arven-hood-owner-frontier.cjs')
+        .resolveArvenHoodSearch(
+          state,seat,pending,ResolvePromptAction);
+      ownerArvenPending.delete(playerId);
+      if(response){
+        audit.arvenHoodSearchPromptsSelected++;
+        return response.action;
+      }
+    }
     if(seat!==-1&&pending&&
        (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn||
         audit.firstCrispinSeekerRecoveryOptIn||
@@ -1789,6 +1814,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       genesectFusionDraw:actorSpecialEnergyEnabled(
         audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
       templeDdeDenial:audit.templeDdeDenialOptIn===true,
+      arvenHoodSearch:audit.arvenHoodSearchOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       pathUnderworldStadiumCounter:
         audit.pathUnderworldStadiumCounterOptIn===true,
@@ -2085,6 +2111,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.dittoStage1.selected++;
     if(intent.kind==='play-temple-dde-denial')
       audit.templeDdeDenialSelected++;
+    if(intent.kind==='play-arven-for-hood')
+      audit.arvenHoodSearchRootSelected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
     if(intent.kind==='play-path-underworld-stadium-counter')
@@ -2176,6 +2204,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-eri-reveal':
       case 'play-conservative-shuffle-supporter':
       case 'play-ranger-paid-gx':
+      case 'play-arven-for-hood':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
@@ -2498,6 +2527,18 @@ function withActorOnlyRootPolicy(run,deps={}){
           seat:choice.seat,promptId:pending.id,
           kind:choice.kind==='play-faba-jet-hood'?'faba':'nest',
           stage:choice.kind==='play-faba-jet-hood'?'choice':'search'});
+      }
+      if(choice.kind==='play-arven-for-hood'){
+        const owner=this.state.players[choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        if(owner&&pending&&
+           pending.constructor?.name==='ChooseCardsPrompt'&&
+           pending.playerId===owner.id&&
+           pending.cards===owner.deck){
+          assert.ok(!ownerArvenPending.has(owner.id));
+          ownerArvenPending.set(owner.id,{
+            seat:choice.seat,promptId:pending.id});
+        }
       }
       if(choice.kind==='play-eri-reveal'){
         const owner=this.state.players[choice.seat];
