@@ -153,3 +153,13 @@ test('two-unit funding gives priority to a newly funded Active attack',()=>{
   a.ownPublic.active.attacks=[{name:'New Funded Attack',cost:[PSYCHIC,PSYCHIC],damage:140}];
   assert.equal(choose(a),null);
 });
+
+test('printed non-retreat Tools preserve two-action mobility; fee-modifying Tool excluded',()=>{
+  const v=view();
+  v.ownPublic.active.tools=['Stealthy Hood UNB'];
+  assert.equal(choose(v)?.kind,'attach-basic-energy');
+  v.ownPublic.active.tools=['Forest Seal Stone SIT'];
+  assert.equal(choose(v)?.kind,'attach-basic-energy');
+  v.ownPublic.active.tools=['Float Stone BKT'];
+  assert.equal(choose(v),null);
+});
