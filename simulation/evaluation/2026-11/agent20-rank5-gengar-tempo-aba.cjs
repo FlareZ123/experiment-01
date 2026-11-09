@@ -49,6 +49,7 @@ function arm(phase,enabled,reg,options={}){
     allowAdditionalOriginalSourceRanks:true,
     bilateralGengarHorrorHouseTempo:enabled,
     bilateralGengarFlexibleV2:options.flexibleV2===true,
+    bilateralGengarResourceProtectedV3:options.resourceV3===true,
     actorBilateralLillieAfterPass:options.ownerLillieAfterPass===true,
     bilateralGengarHorrorHouseMinOpponentHandCount:
       options.minOpponentHandCount??0,
