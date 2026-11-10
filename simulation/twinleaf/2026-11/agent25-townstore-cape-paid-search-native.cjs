@@ -149,6 +149,11 @@ function solve(x,options={}){
     store.dispatch(new UseAbilityAction(owner.id,'Fan Call',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
     }));
+    for(let n=0;n<8&&pending()?.constructor.name==='WaitPrompt';n++){
+      const q=pending();
+      store.dispatch(new ResolvePromptAction(q.id,null));
+      prompts.push('WaitPrompt');
+    }
     choose([BUN],owner.deck);
     settle();
     assert.equal(owner.hand.cards.some(c=>c.fullName===BUN),true);
