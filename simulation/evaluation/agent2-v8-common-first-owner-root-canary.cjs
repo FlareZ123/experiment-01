@@ -253,6 +253,19 @@ function runOne(candidateSeat,cards,{
     nativeEndReason:nativeRow?.endReason??null,
     nativeFinalPrizes:nativeRow?.finalPrizes??null,
     nativeActionCount:nativeRow?.actionCount??null,
+    nativePublicAttackAndAbilityRoots:
+      (Array.isArray(nativeRow?.rootActionLedger)?
+        nativeRow.rootActionLedger:[])
+        .filter(root=>['AttackAction','UseAbilityAction'].includes(root.action))
+        .map(root=>({
+          actionOrdinal:root.actionOrdinal??null,
+          turnBefore:root.turnBefore??null,
+          playerSlot:root.playerSlot??null,
+          action:root.action,
+          attack:root.attack??null,
+          ability:root.ability??null,
+          card:root.card??null
+        })),
     ownerTreasureRootOptIn:mysteriousTreasureRoot,
     firstRegidragoBenchGrassOptIn:firstRegidragoBenchGrass,
     firstCrispinSeekerRecoveryOptIn:firstCrispinSeekerRecovery,
