@@ -1496,6 +1496,7 @@ function runDevelopment({
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
   actorUnderworldActiveFundingMirrorVeto=false,
+  actorUnderworldActiveFundingMinTurn=null,
   actorMaxGeistManualRecovery=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
@@ -1773,6 +1774,11 @@ function runDevelopment({
   assert.ok(!actorUnderworldActiveFundingMirrorVeto||
     (actorUnderworldActiveFundingPriority&&actorOnlyComposition),
     'Public mirror veto requires symmetric Active Psychic priority root');
+  assert.ok(actorUnderworldActiveFundingMinTurn===null||
+    (actorUnderworldActiveFundingPriority&&actorOnlyComposition&&
+      Number.isSafeInteger(actorUnderworldActiveFundingMinTurn)&&
+      actorUnderworldActiveFundingMinTurn>=1),
+    'Public minimum turn requires positive integer and enabled Active priority');
   assert.ok(!actorFundedShadowRiderFloatStoneRoot||actorOnlyComposition,
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
   assert.ok(!actorTwoUnitPaidRetreatRoot||actorOnlyComposition,
@@ -2226,6 +2232,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldActiveFundingMirrorVeto?{
                 underworldActiveFundingMirrorVeto:true
+              }:{}),
+              ...(actorUnderworldActiveFundingMinTurn!==null?{
+                underworldActiveFundingMinTurn:actorUnderworldActiveFundingMinTurn
               }:{}),
               ...(actorMaxGeistManualRecovery?{
                 maxGeistManualRecovery:true
