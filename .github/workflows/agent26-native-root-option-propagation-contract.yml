@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: '22'
       - name: Refuse silently omitted native trial option and mixed-seat treatment
-        run: node --test tests/2026-11/agent26-native-root-option-propagation.test.cjs
+        run: node --test tests/2026-11/agent26-native-root-option-propagation.test.cjs tests/2026-11/agent26-underworld-same-held-psychic-contention.test.cjs tests/agent16-owner-priority-contention.test.cjs
