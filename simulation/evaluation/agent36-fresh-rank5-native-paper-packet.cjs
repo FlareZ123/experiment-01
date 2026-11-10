@@ -223,7 +223,7 @@ if (require.main===module) {
         capturedGameIds:error.partialPaperPacket.capturedGameIds,
         registeredGameIds:error.partialPaperPacket.registeredGameIds,
         nativeError:error.message
-      })+'\\n');
+      })+'\n');
     }
     throw error;
   }
