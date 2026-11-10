@@ -1,0 +1,174 @@
+{
+  "schema": "agent20-newmoon-fog-gengar-energy-vs-v2-fresh-16context-aba-v1",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_ATTEMPT",
+  "registeredAtUtc": "2026-11-10T00:42:42.854Z",
+  "originalRank": 5,
+  "caseId": "agent20-rank5-live-gengar-psychic-fog-original-20261110",
+  "objective": "Improve native real owner Fog Crystal choice when Active Gengar or Perfection Mewtwo has zero energy and no Psychic in hand, preserving v2 VIP in both arms and exact source/candidate sixties",
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedTrialsBeforeRegistration": 0,
+  "seedSource": "Two sequential independent Python secrets.randbelow(2**31-1)+1 four-number draws on 2026-11-10 before native runs, eight fresh seeds",
+  "seeds": [
+    1985540195,
+    1221516473,
+    997212284,
+    833271150,
+    33077255,
+    1579380661,
+    744594971,
+    2121887594
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8401,
+      "seed": 1985540195,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8401:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8401,
+      "seed": 1985540195,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8401:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8402,
+      "seed": 1221516473,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8402:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8402,
+      "seed": 1221516473,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8402:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8403,
+      "seed": 997212284,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8403:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8403,
+      "seed": 997212284,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8403:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8404,
+      "seed": 833271150,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8404:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8404,
+      "seed": 833271150,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8404:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8405,
+      "seed": 33077255,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8405:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8405,
+      "seed": 33077255,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8405:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8406,
+      "seed": 1579380661,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8406:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8406,
+      "seed": 1579380661,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8406:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8407,
+      "seed": 744594971,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8407:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8407,
+      "seed": 744594971,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8407:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8408,
+      "seed": 2121887594,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8408:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8408,
+      "seed": 2121887594,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8408:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "A-v2-VIP-normal-Fog",
+      "ownerFogEnergyPriority": false
+    },
+    {
+      "id": "B-v2-VIP-early-Gengar-Psychic-Fog",
+      "ownerFogEnergyPriority": true
+    },
+    {
+      "id": "A-v2-VIP-normal-Fog-repeat",
+      "ownerFogEnergyPriority": false
+    }
+  ],
+  "policyControl": "v2 Mewtwo+Gengar+Latias owner VIP plus both-seat printed Lillie and public-6 Gengar remains enabled in all arms; only owner Fog Crystal prompt recipient choice differs",
+  "nativeRootCap": 320,
+  "registeredPhysicalContexts": 16,
+  "expectedNativeAttempts": 48,
+  "qualifiedPaperGames": 0,
+  "noPosthocFiltering": true,
+  "eligibility": "Any submitted and precommitted seed including no Fog opportunities, missing source actions, capped outcomes, native errors",
+  "primarySuccess": "At least one physically accepted Basic Psychic Energy from owner deck replacing lower-value Psychic Pokémon search; track subsequent actual attachment and attack/Perfection/Prize outcomes including failures"
+}
