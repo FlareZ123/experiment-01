@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_rank13_vstar:
+        description: 'Compare canonical owner Regidrago VSTAR evolution on identical original paper-Celestial-native sources'
+        required: false
+        type: boolean
+        default: false
       agent7_mail_cross_archetype:
         description: 'Run frozen A/B rank9 and rank26 owner Mail native generalization'
         required: false
@@ -93,7 +98,7 @@ jobs:
       - name: Verify selected-v8 canary release-gate contract
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
-        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_beach_arven && !inputs.agent7_mail_beach_arven_treasure && !inputs.agent7_mail_beach_arven_confirm && !inputs.agent7_mail_beach_arven_nest && !(inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) && !inputs.agent7_mail_cross_archetype && !inputs.agent7_quick_ball_vip && !inputs.agent7_paper_celestial }}
+        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_beach_arven && !inputs.agent7_mail_beach_arven_treasure && !inputs.agent7_mail_beach_arven_confirm && !inputs.agent7_mail_beach_arven_nest && !(inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) && !inputs.agent7_mail_cross_archetype && !inputs.agent7_quick_ball_vip && !inputs.agent7_paper_celestial && !inputs.agent7_rank13_vstar }}
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
       - name: Check first-cycle Beach pure tests and native treatment syntax
         if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo || inputs.agent7_mail_beach_arven || inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
@@ -132,6 +137,14 @@ jobs:
           node --check simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
           node --check simulation/evaluation/2026-11/agent7-rank13-paper-celestial-native.cjs
           node simulation/evaluation/2026-11/agent7-rank13-paper-celestial-native.cjs
+      - name: Original rank13 native Regidrago VSTAR owner evolution on the shared paper-Celestial correction
+        if: ${{ inputs.agent7_rank13_vstar }}
+        run: |
+          node --test tests/agent1-actor-evolution-frontier.test.cjs tests/agent41-natural-evolution-root-options.test.cjs
+          node --check simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs
+          node --check simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
+          node --check simulation/evaluation/2026-11/agent7-rank13-natural-vstar-native.cjs
+          node simulation/evaluation/2026-11/agent7-rank13-natural-vstar-native.cjs
       - name: Test native cross-archetype Mail frame and capture original owner actions
         if: ${{ inputs.agent7_mail_cross_archetype }}
         run: |
@@ -166,6 +179,7 @@ jobs:
             artifacts/agent7-mail-beach-arven/paired-native-with-motivate.json
             artifacts/agent7-mail-beach-arven/paired-native-with-celestial.json
             artifacts/agent7-paper-celestial/paired-native.json
+            artifacts/agent7-rank13-vstar/native-original-a-b.json
             artifacts/agent7-mail-broad-coverage/rank9-rank26-paired.json
             artifacts/agent7-v8-quick-ball/rank5-rank26-v2-paired-native.json
           if-no-files-found: error
