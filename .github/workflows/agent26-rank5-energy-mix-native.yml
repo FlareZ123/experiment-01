@@ -31,7 +31,7 @@ jobs:
           node --check simulation/twinleaf/2026-11/agent26-mew-energy-mix-owner-prompt.cjs
           node --check simulation/evaluation/2026-11/agent26-rank5-energy-mix-native-continuation.cjs
           node --check simulation/evaluation/2026-11/agent26-rank5-lillie-pass-rescue-native.cjs
-          node --test tests/2026-11/agent26-mew-energy-mix-owner-prompt.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/agent12-actor-only-lillie-after-pass.test.cjs
+          node --test tests/2026-11/agent26-mew-energy-mix-owner-prompt.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
       - name: Check out pinned native game-engine revision
         if: ${{ inputs.run_native }}
         run: git submodule update --init --depth=1 vendor/twinleaf
@@ -47,6 +47,9 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify compiled pinned Lillie card identity and both-seat native owner policy
+        if: ${{ inputs.run_native && inputs.run_lillie_pass }}
+        run: node --test tests/agent12-actor-only-lillie-after-pass.test.cjs
       - name: Play actual original rank5 native deals with the owner Energy Mix resolver
         if: ${{ inputs.run_native && !inputs.run_lillie_pass }}
         run: node simulation/evaluation/2026-11/agent26-rank5-energy-mix-native-continuation.cjs
