@@ -212,16 +212,26 @@ test('missing, duplicate or misbound physical root receipts block game-outcome a
   }
 });
 
-test('clock, printed identity and two-seat shared policy remain outcome vetoes',()=>{
+test('clock, printed identity and root caps remain game-outcome vetoes',()=>{
   for(const mutate of [
     b=>{b.trial.noCallClockPacket.noCallCoverageIndependentlyReviewed=false;},
     b=>{b.trial.originalPrinted60Sha256='';},
-    b=>{b.trial.policySha256BySeat[1]='weakened-opponent';},
     b=>{b.trial.rootCapReached=true;}
   ]){
     const b=singleAttack();mutate(b);
     assert.equal(inspect(b,earlyTerminalAudit()).gameOutcomeAdmissionReady,false);
   }
+});
+
+test('asymmetric policies allow a reviewed outcome but disqualify competition',()=>{
+  const b=singleAttack();
+  b.trial.policySha256BySeat[1]='different-policy';
+  const r=inspect(b,earlyTerminalAudit());
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.acceptanceReady,false);
+  assert.equal(r.competitiveAdmission,false);
+  assert.ok(r.failures.includes('policy-asymmetry-or-unverified-for-competitive'));
 });
 
 test('signed but false lock audit and unobserved opponent Pass cannot qualify',()=>{

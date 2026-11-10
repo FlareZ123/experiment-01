@@ -167,8 +167,12 @@ function inspectAdmissionV2(bundle,reviews,reviewerRegistry) {
   } catch {
     // Baseline already reports invalid ledger/certificates as an error.
   }
+  // A game's independently reviewed paper outcome does not depend on whether
+  // both automated players used an identical decision policy. The latter is
+  // a separate, mandatory competitive-comparison qualification.
   const outcomeStructuralFailures = structural?.failures.filter(x =>
-    x !== 'no-certified-source-reply-source-episode') ?? ['unverifiable-native-trial'];
+    x !== 'no-certified-source-reply-source-episode' &&
+    x !== 'policy-asymmetry-or-unverified') ?? ['unverifiable-native-trial'];
   const roles = baseline.verifiedReviewRoles ?? [];
   const paperAndClockReviewed = ['paper','clock'].every(role =>
     roles.some(item => item.role===role && item.valid===true));
@@ -193,7 +197,8 @@ function inspectAdmissionV2(bundle,reviews,reviewerRegistry) {
   const opportunity = inspectResponseOpportunity(
     bundle?.trial, strategyReview, structural??{}, baseline);
   const competitivePolicyCompetenceReady = gameOutcomeAdmissionReady &&
-    opportunity.valid && roles.some(x => x.role==='strategy' && x.valid===true);
+    structural?.samePolicy === true && opportunity.valid &&
+    roles.some(x => x.role==='strategy' && x.valid===true);
   const failures = [];
   if (outcomeStructuralFailures.length) failures.push(...outcomeStructuralFailures);
   if (!fullRootPaperAudit) failures.push('missing-complete-root-paper-receipts');
@@ -201,6 +206,8 @@ function inspectAdmissionV2(bundle,reviews,reviewerRegistry) {
   if (!acceptableReviewShape || !uniqueReviewRoles)
     failures.push('malformed-review-role-composition');
   failures.push(...otherBaselineFailures);
+  if (structural?.samePolicy !== true)
+    failures.push('policy-asymmetry-or-unverified-for-competitive');
   if (!competitivePolicyCompetenceReady)
     failures.push('independent-policy-competence-unproven');
   return {
