@@ -6,6 +6,8 @@ const {initializeCards}=require('../headless.cjs');
 const {planAichi}=require('../../evaluation/aichi-pilot.cjs');
 const printed=require('../../../results/aichi-2026/2026-11/agent25-townstore-cape-sentinel-v1.json');
 const previous=require('../../../tests/agent28-sentinel-direct-artazon-native.test.cjs');
+const {withNumericShufflePromptValidation}=
+  require('../agent33-shuffle-prompt-numeric-validation.cjs');
 const {prepareRank1,resolveRank1}=
   require('./agent25-cape-source-paid-maxgeist-reply-native.cjs');
 const OUT=path.resolve(__dirname,'../../../vendor/twinleaf/ptcg-server/output');
@@ -208,8 +210,11 @@ function probe(seat){
     competitivelyQualifiedGames:0};
 }
 function run(){
-  const rows=[probe(0),probe(1)];
-  return {candidate:'Town Store Cape Sentinel v1',
+  const validated=withNumericShufflePromptValidation(()=>[probe(0),probe(1)]);
+  const rows=validated.result;
+  assert.ok(validated.audit.checked>=2);
+  return {shufflePaperNumericHook:validated.audit,
+    candidate:'Town Store Cape Sentinel v1',
     exactOriginalRank1Sixty:true,
     candidateSixty60:true,
     firstTurnPaperLineConditioned:true,
