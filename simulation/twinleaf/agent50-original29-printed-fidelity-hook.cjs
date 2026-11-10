@@ -3,16 +3,30 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent50-original29-printed-public-correction-v1';
+const VERSION='agent50-original29-printed-public-correction-v2';
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const originalField=require('../../results/aichi-2026/full-decklists.json');
-const originalPrintings=new Map(originalField.decks.flatMap(deck=>
-  deck.cards.filter(entry=>entry.category==='Pokémon').map(entry=>
-    [entry.name+' '+entry.printing.set,{
-      name:entry.name,set:entry.printing.set,
-      number:String(entry.printing.number)
-    }])
-));
+/** @param {string|number} n Native or historical collector number. */
+const numberKey=n=>{
+  const value=String(n??'').trim();
+  return /^\\d+$/.test(value)?String(Number(value)):value;
+};
+// Preserve every authentic source printing, including same-name/different-number
+// identities. A native alias is allowed only if it identifies exactly one
+// matching real class. Unregistered and ambiguous requests are untouched.
+const originalPrintings=new Map();
+for(const deck of originalField.decks){
+  for(const entry of deck.cards){
+    const key=entry.name+' '+entry.printing.set;
+    const versions=originalPrintings.get(key)??new Map();
+    const number=numberKey(entry.printing.number);
+    versions.set(number,{
+      name:entry.name,set:entry.printing.set,number,
+      category:entry.category
+    });
+    originalPrintings.set(key,versions);
+  }
+}
 
 /** @param {string} modulePath Pinned Twinleaf output module. */
 const native=modulePath=>require(path.join(OUT,modulePath));
@@ -111,9 +125,9 @@ function withOriginal29PrintedFidelity(run,deps={}){
     if(!card&&originalPrintings.has(fullName)){
       const expected=originalPrintings.get(fullName);
       const matches=this.getAllCards().filter(entry=>
-        entry.superType===1&&entry.name===expected.name&&
-        entry.set===expected.set&&
-        String(entry.setNumber)===expected.number);
+        [...expected.values()].some(print=>
+          entry.name===print.name&&entry.set===print.set&&
+          numberKey(entry.setNumber)===print.number));
       if(matches.length===1){
         card=original.value.call(this,matches[0].fullName);
         if(card)audit.aliases.push({
