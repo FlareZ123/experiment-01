@@ -1485,6 +1485,7 @@ function runDevelopment({
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorDceMewMobilitySourceOnly=false,
   actorMewDceRecipientRoot=false,actorMewDceRecipientSourceOnly=false,
+  actorMewGenesectBenchFirst=false,actorMewGenesectBenchFirstSourceOnly=false,
   actorGenesectFusionDrawRoot=false,
   actorGenesectFusionDrawSourceOnly=false,
   actorGenesectFusionDrawPerCopyPublicUsage=false,
@@ -1690,6 +1691,8 @@ function runDevelopment({
     'Source-only DCE Mew mobility requires the actor mobility root');
   assert.ok(!actorMewDceRecipientSourceOnly||actorMewDceRecipientRoot,
     'Source-only Mew DCE funding requires the owner recipient root');
+  assert.ok(!actorMewGenesectBenchFirstSourceOnly||actorMewGenesectBenchFirst,
+    'Source-only Mew/Genesect Bench priority requires the owner root');
   assert.ok(!actorMewGenesectTechnoBlastSourceOnly||actorMewGenesectTechnoBlast,
     'Source-only Mew copy priority requires the owner attack chooser');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
@@ -2086,6 +2089,7 @@ function runDevelopment({
           !actorEarlyForestSealRoot&&!bilateralEarlyForestSealRoot&&
           !actorPaleMoonGXRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
+          !actorMewGenesectBenchFirst&&
           !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorMimikyuApexFundedPromotion&&
           !actorTempleDdeDenialRoot&&
@@ -2191,6 +2195,13 @@ function runDevelopment({
                 mewDceRecipientRoot:true,
                 ...(actorMewDceRecipientSourceOnly?{
                   mewDceRecipientRootOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
+              }:{}),
+              ...(actorMewGenesectBenchFirst?{
+                mewGenesectBenchFirst:true,
+                ...(actorMewGenesectBenchFirstSourceOnly?{
+                  mewGenesectBenchFirstOwnerSeat:
                     1-(trial.candidateSlot==='A'?0:1)
                 }:{})
               }:{}),
