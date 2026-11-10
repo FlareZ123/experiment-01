@@ -39,6 +39,7 @@ on:
           - agent8-mew-source-two-fixed60-v7
           - agent8-mew-partial-vmax-pure
           - agent8-rank5-bench-priority-pure
+          - agent8-rank5-source-bench-priority-v1
 permissions:
   contents: read
   actions: read
@@ -499,6 +500,23 @@ jobs:
         with:
           name: agent14-rank11-native-catcher-floatstone-two
           path: agent14-rank11-native-floatstone-return-two.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preflight fresh original rank5 both-seat Bench role A/B registration
+        if: inputs.experiment == 'agent8-rank5-source-bench-priority-v1'
+        run: |
+          node --check simulation/evaluation/2026-11/agent8-rank5-source-bench-priority-v1.cjs
+          node --check simulation/twinleaf/2026-11/agent8-mew-genesect-bench-priority.cjs
+          node --test tests/2026-11/agent8-rank5-mew-genesect-bench-priority.test.cjs tests/2026-11/agent8-rank5-source-bench-priority-v1.test.cjs
+      - name: Run frozen 16-game genuine Store source Bench priority A/B
+        if: inputs.experiment == 'agent8-rank5-source-bench-priority-v1'
+        run: node simulation/evaluation/2026-11/agent8-rank5-source-bench-priority-v1.cjs
+      - name: Archive source-owned actual Bench roots, full physical games and all failures
+        if: always() && inputs.experiment == 'agent8-rank5-source-bench-priority-v1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-original-rank5-bench-priority-v1-native
+          path: artifacts/agent8-rank5-source-bench-priority-v1-native.json
           if-no-files-found: warn
           retention-days: 21
   celestial-v2-error-archive:
