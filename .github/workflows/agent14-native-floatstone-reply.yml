@@ -40,6 +40,7 @@ on:
           - agent8-mew-partial-vmax-pure
           - agent8-rank5-bench-priority-pure
           - agent8-rank5-source-bench-priority-v1
+          - agent8-rank5-genesect-donor-staged-native
 permissions:
   contents: read
   actions: read
@@ -519,6 +520,11 @@ jobs:
           path: artifacts/agent8-rank5-source-bench-priority-v1-native.json
           if-no-files-found: warn
           retention-days: 21
+      - name: Original rank5 exact 60 last Bench slot makes Genesect a real Mew copied attack donor
+        if: inputs.experiment == 'agent8-rank5-genesect-donor-staged-native'
+        run: |
+          node --check simulation/twinleaf/2026-11/agent8-original-rank5-lastbench-donor-native.cjs
+          node simulation/twinleaf/2026-11/agent8-original-rank5-lastbench-donor-native.cjs
   celestial-v2-error-archive:
     if: inputs.experiment == 'agent3-fresh-celestial-v2-error-archive'
     runs-on: ubuntu-latest
