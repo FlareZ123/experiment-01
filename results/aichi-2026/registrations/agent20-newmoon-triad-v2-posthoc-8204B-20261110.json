@@ -1,0 +1,30 @@
+{
+  "schema": "agent20-newmoon-triad-v2-historical-8204B-ABA-v1",
+  "status": "POSTHOC_ENGINEERING_REGRESSION",
+  "registeredAtUtc": "2026-11-10T00:30:41.088Z",
+  "historicalCase": "5:8204:B:new-moon-lockbreaker-v1",
+  "sourceFreeze": "agent20-newmoon-triad-vip-fresh-eight-20261110.json",
+  "sourceRunId": 42727387187,
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedBeforeThisRegistration": true,
+  "posthocSelectionReason": "Only candidate in v1 cohort with two accepted first-turn VIP searches and public zero triad; generic recipients Gengar+Klefki followed by Latias used all 5 Bench spaces and left Mewtwo & Mew in deck",
+  "seed": 2841596889,
+  "registeredTrial": {
+    "rank": 5,
+    "repeat": 8204,
+    "seed": 2841596889,
+    "candidateSlot": "B",
+    "candidateId": "new-moon-lockbreaker-v1",
+    "id": "5:8204:B:new-moon-lockbreaker-v1"
+  },
+  "modes": [
+    "A-original-native-VIP",
+    "B-owner-Mewtwo-first-v2",
+    "A-native-VIP-repeat"
+  ],
+  "expectedArms": 3,
+  "qualifiedPaperGames": 0,
+  "noCompetitiveRateInference": true,
+  "failureMode": "test if a real Mewtwo+Gengar owner-authenticated deck search at first VIP can preserve the third Bench slot for Latias, and see actual complete native opponent response; all same physical initial cards"
+}
