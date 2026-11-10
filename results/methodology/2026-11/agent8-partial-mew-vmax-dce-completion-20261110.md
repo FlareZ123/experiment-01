@@ -33,6 +33,14 @@ The actual fetched post-commit helper and both actual imported public-cost modul
 
 The **exact committed eight-case `node:test` source** was also executed in a V8 CJS sandbox using restricted import stubs: **8/8 passed, 0 failed**. The missing-`Cross Fusion Strike` and exhausted once-per-turn Energy gates both passed. **The exact committed eight-case test has now also passed under Node.js 22 in [manual GitHub Actions CI 42732351184](https://github.com/FlareZ123/experiment-01/actions/runs/42732351184): one focused job succeeded and all unrelated/native jobs were skipped.** The pinned Twinleaf Store has not been run for this patch. The isolated harness is a code-level witness, not a compiled Store acceptance test.
 
+## Authentic rank-5 source exposure correction
+
+After implementation, the authentic original rank-5 Yamato Nakano Mew/Genesect 60 was checked directly in `results/aichi-2026/full-decklists.json`: it contains **four Double Colorless Energy SUM and no other Energy cards**. Under its ordinary unmodified card pool, an attached DCE already pays Mew VMAX's two-Colorless Cross Fusion Strike, and an unattached VMAX has zero Energy cards. A partially funded VMAX carrying one known *Basic Psychic* cannot arise through normal attachment in that original list. Temple of Sinnoh suppresses DCE's extra unit, but the helper expressly avoids Temple because its proposed attachment would not furnish two Colorless.
+
+**Therefore the new partial-VMAX branch has no demonstrated reachable state for the authentic rank-5 source 60.** Its test proves a bounded generic code correction only. Historical v6 source attacks and native wins cannot be credited to it, and prospective rank-5 experiments should focus on actually available Bench/search/attachment/prompt decisions. The source's zero-energy Mew to DCE recipient guard still has its previously demonstrated genuine Store effectiveness. The branch is default inert unless a modelable partially funded VMAX is seen.
+
+This new information **supersedes** any earlier suggestion in this report that partial-VMAX funding itself is a meaningful original-rank5 source opportunity. This limitation is the basis of the separate prospective owner Bench prioritization investigation.
+
 ## Decision for future source policy
 
 Any prospective rank5 original-source or full-field panel enabling `actorMewDceRecipientRoot` after this commit has altered Mew VMAX targeting semantics versus previously recorded v6 code. It must be tied to its new running code revision. Do not re-label prior v6 outcomes or compare different policy revisions as identical.
