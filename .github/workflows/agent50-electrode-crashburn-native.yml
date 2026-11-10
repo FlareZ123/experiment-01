@@ -37,6 +37,8 @@ jobs:
         run: node --test tests/agent50-original29-printed-fidelity-hook.native.test.cjs
       - name: Native two-seat candidate Vileplume Stoutland Muk lock coexistence
         run: node --test tests/2026-11/agent50-sentinel-alchemy-triplelock.native.test.cjs
+      - name: Bounded 12-game original rank2 versus Muk source field development
+        run: node --test tests/2026-11/agent50-sentinel-alchemy-bounded-original-field.native.test.cjs
       - name: Preserve all 102 native-source printed Pokémon parity rows
         run: node simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs
       - name: Upload Aichi29 printed native parity evidence
