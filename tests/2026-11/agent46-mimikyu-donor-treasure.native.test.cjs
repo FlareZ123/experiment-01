@@ -99,7 +99,10 @@ for(const seat of [0,1]){
     f.opponent.active.cards.length=0;
     f.opponent.active.cards.push(f.card('Dratini OBF'));
     assert.equal(ownerDonorTreasureOpportunity(f.state,f.owner,seat),null);
-    assert.throws(()=>ownerDonorTreasureOpportunity({},f.owner,seat),
-      /Cannot read properties|undefined/);
+    f.opponent.active.cards.length=0;
+    f.opponent.active.cards.push(f.card('Regidrago V SIT'));
+    f.owner.discard.cards.push(f.dialga);
+    assert.equal(ownerDonorTreasureOpportunity(f.state,f.owner,seat),null,
+      'Already discarded donor has no additional value');
   });
 }
