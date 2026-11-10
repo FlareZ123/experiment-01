@@ -9,7 +9,7 @@ const originalField=require('../../results/aichi-2026/full-decklists.json');
 /** @param {string|number} n Native or historical collector number. */
 const numberKey=n=>{
   const value=String(n??'').trim();
-  return /^\\d+$/.test(value)?String(Number(value)):value;
+  return /^[0-9]+$/.test(value)?String(Number(value)):value;
 };
 // Preserve every authentic source printing, including same-name/different-number
 // identities. A native alias is allowed only if it identifies exactly one
