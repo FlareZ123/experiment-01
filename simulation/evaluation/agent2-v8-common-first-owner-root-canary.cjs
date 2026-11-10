@@ -238,6 +238,15 @@ function runOne(candidateSeat,cards,{
     trialId:trial.id,candidateRank:CANDIDATE_RANK,
     sourceRank:SOURCE_RANK,candidateSeat,sourceSeat:1-candidateSeat,
     seed:SEED,actionLimit:ACTION_LIMIT,
+    // Native setup hashes and terminal indicators are read-only experiment
+    // receipts; hidden card identities are never passed to actor decisions.
+    sourceDealFingerprint:nativeRow?.sourceDealFingerprint??null,
+    fullPhysicalDealFingerprint:nativeRow?.fullPhysicalDealFingerprint??null,
+    nativeFinished:nativeRow?.finished===true,
+    nativeWinner:nativeRow?.finished===true?nativeRow.winner??null:null,
+    nativeEndReason:nativeRow?.endReason??null,
+    nativeFinalPrizes:nativeRow?.finalPrizes??null,
+    nativeActionCount:nativeRow?.actionCount??null,
     ownerTreasureRootOptIn:mysteriousTreasureRoot,
     firstRegidragoBenchGrassOptIn:firstRegidragoBenchGrass,
     firstCrispinSeekerRecoveryOptIn:firstCrispinSeekerRecovery,
