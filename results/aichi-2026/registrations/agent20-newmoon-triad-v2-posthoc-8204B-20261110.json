@@ -9,11 +9,11 @@
   "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
   "observedBeforeThisRegistration": true,
   "posthocSelectionReason": "Only candidate in v1 cohort with two accepted first-turn VIP searches and public zero triad; generic recipients Gengar+Klefki followed by Latias used all 5 Bench spaces and left Mewtwo & Mew in deck",
-  "seed": 2841596889,
+  "seed": 1214230784,
   "registeredTrial": {
     "rank": 5,
     "repeat": 8204,
-    "seed": 2841596889,
+    "seed": 1214230784,
     "candidateSlot": "B",
     "candidateId": "new-moon-lockbreaker-v1",
     "id": "5:8204:B:new-moon-lockbreaker-v1"
