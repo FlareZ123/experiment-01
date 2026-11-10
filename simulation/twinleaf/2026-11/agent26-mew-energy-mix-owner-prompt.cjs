@@ -64,6 +64,15 @@ function chooseEnergyMixAttachment(state,prompt,ownerId,enums){
         proposed:choice};
     }
   }
+  // The authenticated deck search may find no Energy at all. Under the
+  // pinned min:0 / max:1 contract, an empty selection resolves the attack's
+  // unsuccessful search without inventing a physical Energy card.
+  if(candidateEnergy.length===0&&prompt.options?.min===0&&
+     prompt.validate([],state)===true){
+    return {ownerId,promptId:prompt.id,card:null,target:null,
+      recipientSlot:null,chosenEnergyPrinting:null,
+      targetPokemonPrinting:null,proposed:[],emptySearch:true};
+  }
   return null;
 }
 
@@ -102,6 +111,7 @@ function withMewEnergyMixOwnerPrompt(execute,deps={}){
   const audit={schema:VERSION,actualEnergyMixPrompts:0,
     validatedOwnerSelections:0,nativeAccepted:0,
     physicalAttachmentsConfirmed:0,nativeRejected:0,
+    nativeEmptySearchResolutions:0,
     delegatedOtherPrompts:0,receipts:[],
     paperQualifiedGames:0};
 
@@ -142,15 +152,19 @@ function withMewEnergyMixOwnerPrompt(execute,deps={}){
     }
     if(proposed){
       audit.nativeAccepted++;
+      const empty=proposed.emptySearch===true;
       const owner=this.state.players[proposed.seat];
-      const attached=owner?.deck?.cards?.includes(proposed.card)===false&&
+      const attached=!empty&&
+        owner?.deck?.cards?.includes(proposed.card)===false&&
         proposed.recipientSlot?.energies?.cards?.includes(proposed.card)===true;
       if(attached)audit.physicalAttachmentsConfirmed++;
+      if(empty)audit.nativeEmptySearchResolutions++;
       pendingByOwner.delete(proposed.ownerId);
       audit.receipts.push({
         seat:proposed.seat,turn:proposed.turn,promptId:proposed.promptId,
         energy:proposed.energy,target:proposed.target,
-        nativeAccepted:true,exactPhysicalEnergyAttached:attached
+        nativeAccepted:true,exactPhysicalEnergyAttached:attached,
+        emptySourceSearch:empty
       });
     }
     return value;
