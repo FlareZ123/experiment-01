@@ -43,6 +43,8 @@ jobs:
         run: node --test tests/2026-11/agent50-sentinel-spiritomb-basicv-lock.native.test.cjs
       - name: Matched 12-game rank2 Spiritomb fixed field native development
         run: node --test tests/2026-11/agent50-sentinel-spiritomb-bounded-original-field.native.test.cjs
+      - name: Native scoped Relicanth Memory Dive suppressed Ability attack guard
+        run: node --test tests/2026-11/agent50-relicanth-memory-dive-ability-lock.native.test.cjs
       - name: Preserve all 102 native-source printed Pokémon parity rows
         run: node simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs
       - name: Upload Aichi29 printed native parity evidence
