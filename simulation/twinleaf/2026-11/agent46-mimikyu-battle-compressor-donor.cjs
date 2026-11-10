@@ -4,6 +4,8 @@ const path=require('node:path');
 const OUTPUT=path.resolve(__dirname,'../../../vendor/twinleaf/ptcg-server/output');
 const {installMimikyuDonorTreasure}=
   require('./agent46-mimikyu-donor-treasure.cjs');
+const {installMimikyuFundAndPromote}=
+  require('./agent46-mimikyu-fund-and-promote.cjs');
 const {facingVisibleRegidrago}=
   require('./agent46-mimikyu-fog-search-setup.cjs');
 
@@ -36,16 +38,19 @@ function payableCompressorHandIndex(state,player,seat){
 /**
  * Reversible player-scoped native Item preference and genuine deck search.
  * Underlying donor Treasure, funding and promotion hooks stay installed.
- * @param {{seat:0|1,onEvent?:(event:object)=>void}} options
+ * @param {{seat:0|1,onEvent?:(event:object)=>void,includeTreasureDonor?:boolean}} options
  * @returns {()=>void} Restore own and inherited hooks.
  */
-function installMimikyuCompressorDonor({seat,onEvent}){
+function installMimikyuCompressorDonor({seat,onEvent,includeTreasureDonor=true}){
   if(![0,1].includes(seat))throw new RangeError('Invalid source seat');
   if(installed){
-    if(installed.seat!==seat)throw new Error('Conflicting owner seat');
+    if(installed.seat!==seat||
+      installed.includeTreasureDonor!==includeTreasureDonor)
+      throw new Error('Conflicting owner seat or donor policy');
     return installed.restore;
   }
-  const restoreParent=installMimikyuDonorTreasure({seat,onEvent});
+  const restoreParent=(includeTreasureDonor?
+    installMimikyuDonorTreasure:installMimikyuFundAndPromote)({seat,onEvent});
   const {PlayCardAction,PlayerType,SlotType}=require(path.join(OUTPUT,
     'game/store/actions/play-card-action'));
   const {ResolvePromptAction}=require(path.join(OUTPUT,
@@ -102,7 +107,7 @@ function installMimikyuCompressorDonor({seat,onEvent}){
     restoreParent();
     if(installed?.restore===restore)installed=null;
   }
-  installed={seat,restore};
+  installed={seat,includeTreasureDonor,restore};
   return restore;
 }
 module.exports={
