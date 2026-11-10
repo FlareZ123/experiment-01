@@ -53,6 +53,27 @@ function preflight(){
   return registered;
 }
 
+/** 
+ * Derive genuinely accepted physical Lillie Supporter roots even when the
+ * headless decoder redacts its late failed-game root ledger.
+ * @param {object} physical Captured original 120-card native Store tape.
+ * @param {number} seat Actual owner physical seat.
+ * @returns {{ordinal:number,turn:number}[]}
+ */
+function acceptedPhysicalLillieRoots(physical,seat){
+  assert.ok(seat===0||seat===1);
+  const prefix='s'+seat+'.hand:';
+  const ids=new Set(physical.originalPhysicalCards.filter(c=>
+    c.originalSeat===seat&&
+    c.printing==="Lillie's Determination M1L").map(c=>c.id));
+  return physical.receipts.filter(root=>{
+    if(root.seat!==seat||root.action!=='PlayCardAction')return false;
+    return [...ids].some(id=>
+      root.beforePositions?.[id]?.startsWith(prefix)===true&&
+      root.afterPositions?.[id]!==root.beforePositions[id]);
+  }).map(root=>({ordinal:root.actionOrdinal,turn:root.turnBefore}));
+}
+
 /**
  * One prospective arm of four precommitted real native matches.
  * Original source and candidate decks and all actor code are identical
@@ -112,8 +133,10 @@ function arm(enableLillie,deps={}){
       const roots=row.rootActionLedger??[];
       const seat=row.candidateSeat;
       const sourceSeat=row.sourceSeat;
-      const l=roots.filter(x=>x.action==='PlayCardAction'&&
-        x.card==="Lillie's Determination");
+      const nativeLedgerComplete=roots.length===
+        physical.acceptedStoreRootCount;
+      const l=acceptedPhysicalLillieRoots(physical,seat);
+      const sourceLillie=acceptedPhysicalLillieRoots(physical,sourceSeat);
       return {
         trialId,seed:row.trial.seed,candidateSlot:row.trial.candidateSlot,
         candidateSeat:seat,sourceSeat,
@@ -123,21 +146,22 @@ function arm(enableLillie,deps={}){
         nativeWinner:row.winner??null,
         finalPrizes:row.finalPrizes??null,
         error:row.error?String(row.error).slice(0,1000):null,
-        nativeRootCount:roots.length,
+        nativeRootCount:physical.acceptedStoreRootCount,
+        developmentRootLedgerCount:roots.length,
+        developmentRootLedgerComplete:nativeLedgerComplete,
         exactNativeStoreRootCount:physical.acceptedStoreRootCount,
-        exactJoin:join.status,
+        exactJoin:nativeLedgerComplete?join.status:
+          'PHYSICAL_STORE_RECEIPTS_ONLY_DECODER_ABORT',
         originalPhysical120Clean:physical.settledPhysicalIdentityClean===true,
-        candidateLillieRoots:l.filter(x=>x.playerSlot===seat)
-          .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore})),
-        sourceLillieRoots:l.filter(x=>x.playerSlot===sourceSeat)
-          .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore})),
+        candidateLillieRoots:l,
+        sourceLillieRoots:sourceLillie,
         candidateSettledCopiedAttackCount:row.candidateAttackSettlement?.
           attacks?.filter(x=>x.delegatedCopy===true&&
             x.settledPromptChain===true).length??null,
         candidateNativeAttackDeclarations:row.candidateAttackSettlement?.
           declarations??null,
-        candidateAcceptedPasses:roots.filter(x=>
-          x.playerSlot===seat&&x.action==='PassTurnAction').length,
+        candidateAcceptedPasses:physical.receipts.filter(x=>
+          x.seat===seat&&x.action==='PassTurnAction').length,
         ownerLillieAudit:row.ownerBilateralLillieAfterPassAudit??null,
         fullPhysicalReceipt:physical
       };
@@ -175,8 +199,10 @@ function run(deps={}){
       'Native source identity/setup mismatch');
     assert.equal(a.initialFullPhysicalDeal,b.initialFullPhysicalDeal,
       'Actual 120-card original opening identity mismatch');
-    assert.equal(a.exactJoin,'EXACT_ROOT_IDENTITY_JOIN');
-    assert.equal(b.exactJoin,'EXACT_ROOT_IDENTITY_JOIN');
+    if(a.developmentRootLedgerComplete)
+      assert.equal(a.exactJoin,'EXACT_ROOT_IDENTITY_JOIN');
+    if(b.developmentRootLedgerComplete)
+      assert.equal(b.exactJoin,'EXACT_ROOT_IDENTITY_JOIN');
     assert.equal(a.originalPhysical120Clean,true);
     assert.equal(b.originalPhysical120Clean,true);
     return {
@@ -204,7 +230,12 @@ function run(deps={}){
     fixedSixty:reg.candidateId,freshPhysicalDealCount:4,
     originalRegisteredSeedIds:reg.registeredGameIds,
     expectedNativeAttempts:8,actualNativeAttempts:8,
-    allPhysicalDealsMatched:true,allRealStorePaymentsJoined:true,
+    allPhysicalDealsMatched:true,
+    allRealStorePaymentsJoined:
+      [...control.games,...treatment.games].every(g=>
+        g.developmentRootLedgerComplete&&
+        g.exactJoin==='EXACT_ROOT_IDENTITY_JOIN'),
+    allOriginalStorePhysicalIdentitiesClean:true,
     twoArmsIdenticalExceptBilateralOwnerLillieAfterPass:true,
     control,treatment,pairs,
     nativeTerminals:control.games.filter(x=>x.nativeFinished).length+
@@ -233,11 +264,12 @@ if(require.main===module){
   process.stdout.write('AGENT26_FRESH_LILLIE '+JSON.stringify({
     schema:VERSION,saved,
     allPhysicalDealsMatched:report.allPhysicalDealsMatched,
-    full120CardCustody:report.allRealStorePaymentsJoined,
+    full120CardCustody:report.allOriginalStorePhysicalIdentitiesClean,
+    developmentRootLedgersAllJoined:report.allRealStorePaymentsJoined,
     totalNativeTerminals:report.nativeTerminals,
     reversals:report.completedNativeReversals,
     pairs:report.pairs,
     competitivelyAdmittedGames:0
   })+'\n');
 }
-module.exports={VERSION,preflight,arm,run};
+module.exports={VERSION,preflight,acceptedPhysicalLillieRoots,arm,run};
