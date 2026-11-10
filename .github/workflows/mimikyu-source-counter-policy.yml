@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_mimikyu_donor_treasure:
+        description: Test native physical donor Treasure payment and two historical blocked Mimikyu counterline source pairs
+        type: boolean
+        required: false
+        default: false
       agent46_mimikyu_causal_gap:
         description: Read-only owner turn-start requirement census on two historical Apex-exposed cases
         type: boolean
@@ -156,6 +161,22 @@ jobs:
         with:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
+          if-no-files-found: warn
+      - name: Native original-card Mimikyu-already-Benched Treasure donor payment, both seats
+        if: inputs.agent46_mimikyu_donor_treasure == true
+        run: node --test tests/2026-11/agent46-mimikyu-donor-treasure.native.test.cjs
+      - name: Historical actual-source Mimikyu donor Treasure physical matched A/B
+        if: inputs.agent46_mimikyu_donor_treasure == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-donor-treasure-retrospective.cjs > agent46-mimikyu-donor-treasure-retrospective.json
+      - name: Print native donor-payment and actual Copycat attack root response
+        if: inputs.agent46_mimikyu_donor_treasure == true
+        run: node -e "const x=require('./agent46-mimikyu-donor-treasure-retrospective.json');console.log(JSON.stringify({schema:x.schema,matched:x.matchedPhysicalPairs,pairs:x.pairs}))"
+      - name: Preserve donor Treasure exact physical source causality artifact
+        if: ${{ always() && inputs.agent46_mimikyu_donor_treasure == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-donor-treasure-retrospective
+          path: agent46-mimikyu-donor-treasure-retrospective.json
           if-no-files-found: warn
       - name: Read-only retrospective actual Apex response turn-start and accepted root-action audit
         if: inputs.agent46_mimikyu_causal_gap == true
