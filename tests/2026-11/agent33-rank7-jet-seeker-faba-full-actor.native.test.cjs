@@ -64,7 +64,17 @@ function run(seat){
         assert.equal(action.constructor.name,'ResolvePromptAction');
         prompts.push(pending.type);
       }else{
-        assert.ok(action instanceof PlayCardAction);
+        assert.ok(action instanceof PlayCardAction,
+          'Expected staged source Jet/VS root, received '+action.constructor.name+
+          '; step '+i+'; turn '+x.store.state.turn+
+          '; phase '+x.store.state.phase+
+          '; activeSeat '+x.store.state.activePlayer+
+          '; sourceSeat '+seat+
+          '; acceptedRootCards '+JSON.stringify(roots)+
+          '; sourceHand '+JSON.stringify(source().hand.cards.map(c=>c.fullName))+
+          '; sourceActive '+source().active.getPokemonCard()?.fullName+
+          '; sourceSupporterCount '+source().supporterTurn+
+          '; sourceEnergyTurn '+source().energyPlayedTurn);
         roots.push(source().hand.cards[action.handIndex]?.fullName);
       }
       x.store.dispatch(action);
