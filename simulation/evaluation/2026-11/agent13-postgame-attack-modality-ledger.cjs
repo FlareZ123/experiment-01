@@ -101,10 +101,15 @@ function postgameAttackModalityLedger(evidence){
       initiatingRootOrdinal:i,turnBefore:root.turnBefore,ownerSeat,
       modality,ordinaryAttackName:modality==='ordinary-root-attack'?
         root.attack??null:null,
+      attackMechanism:modality==='perfection-copied-attack-initiation'?
+        'perfection-ability-copy':
+        linkedChoices.length>0?'ordinary-root-attack-copy':
+          'ordinary-root-printed-attack',
       copyChoice,
-      copyChoiceStatus:modality==='ordinary-root-attack'?'not-applicable':
-        linkedChoices.length===1?'observed':
-          linkedChoices.length===0?'unknown':'ambiguous',
+      copyChoiceStatus:linkedChoices.length===1?'observed':
+        linkedChoices.length===0?
+          (modality==='ordinary-root-attack'?
+            'no-copy-choice-observed':'unknown'):'ambiguous',
       nativeSettlementStatus:observedNativeSettlement?'observed':'unknown',
       observedSameTurnPrizeDelta:prizeDelta,
       physicalPrizeEvidenceStatus:snapshots?(i===0?'missing-pre-root':'observed'):
@@ -130,6 +135,11 @@ function postgameAttackModalityLedger(evidence){
       e.modality==='perfection-copied-attack-initiation').length,
     observedPerfectionCopyChoices:events.filter(e=>
       e.modality==='perfection-copied-attack-initiation'&&
+      e.copyChoiceStatus==='observed').length,
+    ordinaryRootCopyChoices:events.filter(e=>
+      e.modality==='ordinary-root-attack'&&
+      e.copyChoiceStatus==='observed').length,
+    allObservedCopiedAttackChoices:events.filter(e=>
       e.copyChoiceStatus==='observed').length,
     perfectionWithObservedNativePrizeChange:events.filter(e=>
       e.modality==='perfection-copied-attack-initiation'&&
