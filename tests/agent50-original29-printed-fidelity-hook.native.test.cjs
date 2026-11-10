@@ -382,3 +382,54 @@ for(const seat of [0,1]){
     console.log('AGENT50_ORIGINAL_POR88_NATIVE_ATTACHMENT '+JSON.stringify(receipt));
   });
 }
+
+/**
+ * Execute the exact source rank-1 MEG119 Supporter request under the opt-in
+ * alias bridge, tracking native hand and deck counts after printed draw.
+ * @param {0|1} seat Owner physical seat.
+ * @returns {object} Native Store hand/discard/Supporter receipt.
+ */
+function originalLillieSourceDraw(seat){
+  return withOriginal29PrintedFidelity(()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const lillie=f.card("Lillie's Determination MEG");
+    const held=f.card('Psychic Energy SVE');
+    assert.equal(lillie.fullName,"Lillie's Determination M1L");
+    f.source.hand.cards.splice(0,f.source.hand.cards.length,lillie,held);
+    for(let i=0;i<12;i++)
+      f.source.deck.cards.push(f.card('Psychic Energy SVE'));
+    const startingDeck=f.source.deck.cards.length;
+    const startingPrizes=f.source.getPrizeLeft();
+    assert.equal(startingPrizes,6);
+    f.store.dispatch(new PlayCardAction(f.source.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const pending=f.state.prompts.filter(p=>p.result===undefined);
+    return {
+      seat,requestedPrintedSupporter:"Lillie's Determination MEG",
+      nativeFullName:lillie.fullName,
+      startingDeck,endingDeck:f.source.deck.cards.length,
+      endingHand:f.source.hand.cards.length,
+      originalHeldCardInDeck:f.source.deck.cards.includes(held),
+      playedSupporterInDiscard:f.source.discard.cards.includes(lillie),
+      nativePendingPromptTypes:pending.map(p=>p.constructor.name),
+      supporterTurn:f.source.supporterTurn,
+      physicalPrizesAfter:f.source.getPrizeLeft(),
+      paperQualified:false,competitiveGamesQualified:0
+    };
+  }).result;
+}
+
+for(const seat of [0,1]){
+  test('original MEG119 Lillie Supporter physically shuffles and draws via Store in seat '+seat,()=>{
+    const receipt=originalLillieSourceDraw(seat);
+    assert.equal(receipt.endingHand,8,
+      'Six physical Prize cards require printed eight-card Lillie refill');
+    assert.equal(receipt.playedSupporterInDiscard,true);
+    assert.equal(receipt.physicalPrizesAfter,6);
+    assert.equal(receipt.paperQualified,false);
+    console.log('AGENT50_ORIGINAL_MEG119_NATIVE_DRAW '+JSON.stringify(receipt));
+  });
+}
