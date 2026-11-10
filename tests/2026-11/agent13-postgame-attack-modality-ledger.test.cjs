@@ -148,3 +148,24 @@ test('genuine post-dispatch read-only callback produces physical Prize timeline'
   assert.equal(JSON.stringify(result).includes('UNSHARED_HIDDEN_CARD'),false);
   assert.throws(()=>observer.onRootActionDispatched({}, {},3));
 });
+
+test('Mew VMAX ordinary Cross Fusion Strike root retains its nested Energy Mix copy',()=>{
+  const roots=[root(0,7,1,'AttackAction',{attack:'Cross Fusion Strike',
+    turnAfter:7}),
+    root(1,7,1,'ResolvePromptAction',{pendingPrompt:'ChooseAttackPrompt',
+      initiatingRootActionOrdinal:0,turnAfter:8,
+      attackChoice:{printing:'Mew V FST',attackName:'Energy Mix',
+        sourceIndex:0,attackIndex:0}}),
+    root(2,8,0,'PlayCardAction')];
+  const result=postgameAttackModalityLedger({rootActionLedger:roots});
+  assert.equal(result.ordinaryRootAttackInitiations,1);
+  assert.equal(result.perfectionInitiations,0);
+  assert.equal(result.ordinaryRootCopyChoices,1);
+  assert.equal(result.allObservedCopiedAttackChoices,1);
+  assert.equal(result.events[0].copyChoiceStatus,'observed');
+  assert.equal(result.events[0].attackMechanism,'ordinary-root-attack-copy');
+  assert.equal(result.events[0].copyChoice.printing,'Mew V FST');
+  assert.equal(result.events[0].copyChoice.attackName,'Energy Mix');
+  assert.equal(result.events[0].nextOpponentRoot.ordinal,2);
+  assert.equal(result.events[0].paperPaymentCertified,false);
+});
