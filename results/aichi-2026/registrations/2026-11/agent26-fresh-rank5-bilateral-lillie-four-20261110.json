@@ -1,0 +1,65 @@
+{
+  "schema": "agent26-prospective-rank5-bilateral-lillie-four-deals-v1",
+  "registeredAtUtc": "2026-11-10T02:05:52.802085Z",
+  "status": "FROZEN BEFORE ANY NATIVE ARMS",
+  "event": "2026 CL Aichi Open League rank5 original Mew/Genesect",
+  "sourceOriginalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "fixedSixtiesUnchanged": true,
+  "sourcePublishedFullFieldPath": "results/aichi-2026/full-decklists.json",
+  "sourceFullFieldGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidatePrintedProxyPath": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "candidatePrintedProxyGitBlob": "d9777831271bec8c4ac400d0a2d9f49cc03c630b",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootActionLimit": 350,
+  "seedDraw": "Python secrets.randbits(32), all four drawn together before registration commit or first execution",
+  "seedReusePolicy": "New four physical openings independent of Nov9 rank5 5000..5003 and all existing original-source tested deals",
+  "rootPolicyControl": "Existing commonSourceFundingOptions and Mew Energy Mix owner-prompt closure, with bilateral Lillie-after-Pass disabled",
+  "rootPolicyTreatment": "Exactly the same policy except bilateral actorBilateralLillieAfterPass enabled for both physical seats",
+  "arms": [
+    "control",
+    "lillie"
+  ],
+  "registeredGameIds": [
+    "5:26001:A:new-moon-lockbreaker-v1",
+    "5:26002:B:new-moon-lockbreaker-v1",
+    "5:26003:A:new-moon-lockbreaker-v1",
+    "5:26004:B:new-moon-lockbreaker-v1"
+  ],
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 26001,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 867604530,
+      "id": "5:26001:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 26002,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2758011113,
+      "id": "5:26002:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 26003,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3317470692,
+      "id": "5:26003:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 26004,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1442113789,
+      "id": "5:26004:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "outcomeAdmissibility": "Prospective native physical policy comparison only; no paper rules, official clock, independent original opponent playing policy or full-field win-rate certification",
+  "note": "All eight arms and exact four seeds declared and committed before first evaluation; never replace seeds after seeing outcomes."
+}
