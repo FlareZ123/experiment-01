@@ -5,8 +5,8 @@ const {initializeCards,runMatch}=require('../../twinleaf/headless.cjs');
 const {sourceDecks}=require('./agent46-mimikyu-bench-priority-source-ab.cjs');
 const {installMimikyuFundAndPromote}=
   require('../../twinleaf/2026-11/agent46-mimikyu-fund-and-promote.cjs');
-const {installMimikyuCompressorCompressor}=
-  require('../../twinleaf/2026-11/agent46-mimikyu-battle-compressor-compressor.cjs');
+const {installMimikyuCompressorDonor}=
+  require('../../twinleaf/2026-11/agent46-mimikyu-battle-compressor-donor.cjs');
 
 const SEEDS=Object.freeze([
   1194354905,87531557,467709596,1366371430,
@@ -21,7 +21,7 @@ const SEEDS=Object.freeze([
  * @param {Map<number,object>} decks Original source 60s.
  * @param {number} seed Preregistered fresh random seed.
  * @param {0|1} seat Candidate's original physical player seat.
- * @param {boolean} compressorItem Whether compressor-only Treasure branch is installed.
+ * @param {boolean} compressorItem Whether Compressor-only donor branch is installed.
  * @returns {object} Physical source and native policy evidence.
  */
 function arm(decks,seed,seat,compressorItem){
@@ -31,7 +31,7 @@ function arm(decks,seed,seat,compressorItem){
     deckA:decks.get(ranks[0]).cardIds,
     deckB:decks.get(ranks[1]).cardIds,
     seed,maxActions:180,
-    label:'Agent46 prospective Compressor compressor '+compressorItem+' '+ranks.join('-'),
+    label:'Agent46 prospective Compressor donor '+compressorItem+' '+ranks.join('-'),
     isolatePolicyRandomness:true,
     captureInitialSourceDealFingerprintSeat:seat,
     doubleDragonRecovery:true,supporterDecisionCorrection:true,
@@ -47,8 +47,8 @@ function arm(decks,seed,seat,compressorItem){
   let restore;
   try{
     const install=compressorItem?
-      installMimikyuCompressorCompressor:installMimikyuFundAndPromote;
-    restore=install({seat,includeTreasureCompressor:false,onEvent:e=>{
+      installMimikyuCompressorDonor:installMimikyuFundAndPromote;
+    restore=install({seat,includeTreasureDonor:false,onEvent:e=>{
       if(events.length<128)events.push(e);
     }});
     const game=runMatch(settings);
@@ -77,9 +77,9 @@ function arm(decks,seed,seat,compressorItem){
       acceptedOriginalCompressorRoots:actualCompressorRoots.length,
       acceptedCompressorRootEvents:actualCompressorRoots,
       compressorSearchPromptCallbacks:events.filter(e=>
-        e.kind==='resolved-physical-compressor-compressor-search').length,
+        e.kind==='resolved-physical-compressor-donor-search').length,
       compressorItemRootProposalCallbacks:events.filter(e=>
-        e.kind==='proposed-compressor-compressor-root').length,
+        e.kind==='proposed-donor-compressor-root').length,
       ownerPostApexTurns:afterApex.map(x=>({
         turn:x.turn,usedGX:x.candidateUsedGX,
         mimikyu:x.mimikyu.map(p=>({
@@ -119,8 +119,8 @@ function run(){
         treatmentApex:compressor.originalOpponentApex??null,
         baselineCopycat:baseline.originalOwnerCopycat??null,
         treatmentCopycat:compressor.originalOwnerCopycat??null,
-        baselineTreasureRoots:baseline.acceptedOriginalCompressorRoots??null,
-        treatmentTreasureRoots:compressor.acceptedOriginalCompressorRoots??null,
+        baselineCompressorRoots:baseline.acceptedOriginalCompressorRoots??null,
+        treatmentCompressorRoots:compressor.acceptedOriginalCompressorRoots??null,
         compressorSearchCallbacks:compressor.compressorSearchPromptCallbacks??null,
         compressorItemProposals:compressor.compressorItemRootProposalCallbacks??null,
         treatmentCopyChoiceRoots:compressor.nativeCopyChoiceRoots??null
