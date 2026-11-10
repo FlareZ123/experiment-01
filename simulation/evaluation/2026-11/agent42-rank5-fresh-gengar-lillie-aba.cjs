@@ -63,7 +63,7 @@ function preflight() {
  * @param {object} mode Precommitted actor policy.
  * @returns {object} Native result, physical tapes and concise trial rows.
  */
-function executeArm(reg, mode) {
+function executeArm(reg, mode, extraPolicy={}) {
   const captures = new Map();
   let activeTrial = null;
   const frozen = require('../agent41-frozen-bilateral-development-v2.json');
@@ -107,6 +107,7 @@ function executeArm(reg, mode) {
       mode.bilateralGengarHorrorHouseTempo,
     bilateralGengarHorrorHouseMinOpponentHandCount:
       mode.bilateralGengarHorrorHouseMinOpponentHandCount ?? 0,
+    ...extraPolicy,
     registeredTrials: [trial],
     registeredFrameName: VERSION + ':' + mode.id,
     nativeRootActionLimit: reg.nativeRootCap,
@@ -163,6 +164,8 @@ function executeArm(reg, mode) {
          x.card === 'Telepathic Psychic Energy'))
         .map(x => ({root:x.actionOrdinal,turn:x.turnBefore,card:x.card})),
       nativeLillieAudit: row.ownerBilateralLillieAfterPassAudit ?? null,
+      vipAfterPassAudit: row.actorOnlyDecisionCoverage?.
+        detailedComponentAudits?.ownerVipAfterPass ?? null,
       acceptedRoots: roots.length,
       rootLedgerSha256: hash(roots),
       physicalTapeSha256: capture?.allRootPhysicalZonesSha256 ?? null,
