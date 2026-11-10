@@ -143,6 +143,15 @@ function run(){
           actorUnderworldActiveFundingPriority:true,
           actorUnderworldActiveFundingMirrorVeto:flag}),profile);
       assert.equal(joined.result.rows.length,32);
+      // Guard against a silently dropped experimental flag in the bilateral
+      // runner. A success with zero actual treatment opt-in is invalid.
+      for(const row of joined.result.rows){
+        const actual=row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
+        assert.equal(actual?.underworldActiveFundingPriorityOptIn,true,
+          'Native actor must have Active Psychic priority in both arms');
+        assert.equal(actual?.underworldActiveFundingMirrorVetoOptIn,flag,
+          'Native actor mirror-veto opt-in must match registered arm');
+      }
       corrections.push(joined.audit);
       if(flag)treatment=joined.result;else control=joined.result;
     }
