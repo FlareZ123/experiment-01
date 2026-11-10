@@ -304,7 +304,8 @@ test('all nine original non-Pokémon Trainer/Energy native aliases instantiate e
   assert.equal(census.exactMatches,136);
   const base=initializeCards();
   for(const row of aliases)
-    assert.equal(base.getCardByName(row.requested),undefined);
+    assert.ok(!base.getCardByName(row.requested),
+      'Original request unexpectedly resolved before scoped alias bridge');
   const scoped=withOriginal29PrintedFidelity(()=>{
     const manager=initializeCards();
     return aliases.map(row=>{
@@ -325,7 +326,8 @@ test('all nine original non-Pokémon Trainer/Energy native aliases instantiate e
   assert.ok(scoped.result.some(x=>x.category==='Trainer'));
   assert.ok(scoped.result.some(x=>x.category==='Energy'));
   for(const row of aliases)
-    assert.equal(base.getCardByName(row.requested),undefined);
+    assert.ok(!base.getCardByName(row.requested),
+      'Original request unexpectedly resolved before scoped alias bridge');
   console.log('AGENT50_ALL_ORIGINAL_NONPOKEMON_ALIASES '+JSON.stringify({
     nativeAliases:scoped.result,
     originalNonPokemonPrintings:census.total,
