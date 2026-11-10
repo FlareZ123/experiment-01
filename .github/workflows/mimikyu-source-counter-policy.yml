@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_mimikyu_donor_prospective:
+        description: Frozen eight fresh-seed both-seat original rank1/rank10 donor Treasure 32-arm native source A/B
+        type: boolean
+        required: false
+        default: false
       agent46_mimikyu_donor_treasure:
         description: Test native physical donor Treasure payment and two historical blocked Mimikyu counterline source pairs
         type: boolean
@@ -161,6 +166,19 @@ jobs:
         with:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
+          if-no-files-found: warn
+      - name: Execute preregistered original-source donor Treasure eight-fresh-seed both-seat A/B
+        if: inputs.agent46_mimikyu_donor_prospective == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-donor-treasure-prospective.cjs > agent46-mimikyu-donor-prospective.json
+      - name: Print full native donor-benefit and competing source-censor measures
+        if: inputs.agent46_mimikyu_donor_prospective == true
+        run: node -e "const x=require('./agent46-mimikyu-donor-prospective.json');console.log(JSON.stringify({schema:x.schema,attempts:x.actualNativeAttempts,matched:x.matchedOriginalSourceDeals,copycat:[x.controlCopycat,x.donorCopycat],apex:[x.controlApex,x.donorApex],donorAccepted:x.donorPhysicalPaymentCallbacks,proposals:x.donorItemRootProposals,pairs:x.pairs}))"
+      - name: Preserve all 32 original-source donor Treasure experimental game rows
+        if: ${{ always() && inputs.agent46_mimikyu_donor_prospective == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-donor-prospective-original-source
+          path: agent46-mimikyu-donor-prospective.json
           if-no-files-found: warn
       - name: Native original-card Mimikyu-already-Benched Treasure donor payment, both seats
         if: inputs.agent46_mimikyu_donor_treasure == true
