@@ -20,6 +20,12 @@ on:
         required: false
         default: false
 
+      run_rank5_newmoon_triad_vip:
+        description: 'Prospective eight-context New Moon native owner VIP triad target A-B-A'
+        type: boolean
+        required: false
+        default: false
+
       run_rank5_gengar_flexible_v2:
         description: 'Run preregistered 4-context Gengar flexible v2 versus v1'
         type: boolean
@@ -53,7 +59,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 && !inputs.run_rank5_newmoon_triad_vip }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -114,3 +120,22 @@ jobs:
           name: agent42-gengar-flexible-v2-v1-fresh-4context-aba
           path: artifacts/agent42-gengar-flexible-v2-vs-v1-aba.json
           retention-days: 14
+
+      - name: Validate owner-only New Moon triad VIP search targets against native contract
+        if: ${{ inputs.run_rank5_newmoon_triad_vip }}
+        run: |
+          node --check simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs
+          node --check simulation/evaluation/2026-11/agent20-newmoon-triad-vip-fresh-eight.cjs
+          node --test tests/2026-11/agent20-newmoon-triad-vip.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs
+          node simulation/evaluation/2026-11/agent20-newmoon-triad-vip-fresh-eight.cjs --preflight
+      - name: Compare preregistered original-rank5 New Moon VIP triad targets in genuine Store
+        if: ${{ inputs.run_rank5_newmoon_triad_vip }}
+        run: node simulation/evaluation/2026-11/agent20-newmoon-triad-vip-fresh-eight.cjs
+      - name: Preserve every original-source physical and root native outcome
+        if: ${{ always() && inputs.run_rank5_newmoon_triad_vip }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-newmoon-triad-vip-fresh-eight-full-physical-aba
+          path: artifacts/agent20-newmoon-triad-vip-fresh-eight.json
+          if-no-files-found: warn
+          retention-days: 30
