@@ -1,0 +1,109 @@
+{
+  "schema": "agent20-newmoon-triad-v2-vip-fresh-8context-aba-v1",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_ATTEMPT",
+  "registeredAtUtc": "2026-11-10T00:28:48.552Z",
+  "caseId": "agent20-newmoon-triad-v2-rank5-original-20261110",
+  "researchObjective": "New Moon first-turn VIP owner-deck prompt choosing Mewtwo+Gengar before generic Bench filler, or completing a partially established Mewtwo/Gengar/Latias triad, with unchanged source and candidate exact sixties, same printed Lillie/Gengar owner policies",
+  "originalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedTrialsBeforeRegistration": 0,
+  "seedSource": "Python secrets.randbelow(2**31-1)+1, actual execution 2026-11-10 before native trial; different from v1 8201-8204",
+  "seeds": [
+    1321451920,
+    1349573700,
+    232912642,
+    198442248
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8301,
+      "seed": 1321451920,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8301:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8301,
+      "seed": 1321451920,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8301:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8302,
+      "seed": 1349573700,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8302:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8302,
+      "seed": 1349573700,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8302:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8303,
+      "seed": 232912642,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8303:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8303,
+      "seed": 232912642,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8303:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8304,
+      "seed": 198442248,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8304:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8304,
+      "seed": 198442248,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8304:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "A-normal-native-VIP",
+      "preferNewMoonTriadV2Recipient": false
+    },
+    {
+      "id": "B-newmoon-triad-v2-owner-VIP",
+      "preferNewMoonTriadV2Recipient": true
+    },
+    {
+      "id": "A-native-VIP-repeat",
+      "preferNewMoonTriadV2Recipient": false
+    }
+  ],
+  "nativeRootCap": 320,
+  "registeredPhysicalContexts": 8,
+  "expectedNativeAttempts": 24,
+  "noPosthocFiltering": true,
+  "sameOriginalSixties": true,
+  "policySymmetricBothSeats": true,
+  "candidateSeatAllocation": "four unseen original-rank5 source deals crossed with both physical candidate seats A/B; A/B/A exact physical control",
+  "comparator": "Native owner-selected targets, Bench and real Store acceptance, physical action tapes, all source and candidate outcome dispositions; no field or paper-strength inference",
+  "paperQualifiedGames": 0,
+  "finalDeckSelected": false
+}
