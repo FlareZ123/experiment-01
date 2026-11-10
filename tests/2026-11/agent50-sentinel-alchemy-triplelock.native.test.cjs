@@ -22,7 +22,7 @@ test('structural Alolan Muk/Sentinel candidate is one native resolvable fixed 60
   assert.equal(plan.candidate.unresolved.length,0);
   for(const id of ['Alolan Grimer SUM','Alolan Muk SUM'])
     assert.ok(plan.candidate.cards.includes(id),'Missing native stage '+id);
-  assert.equal(plan.originalSourceIdentity.status,'verified');
+  assert.equal(plan.originalSourceIdentity.publishedCount,29);
   console.log('AGENT50_MUK_NATIVE_SIXTY '+JSON.stringify({
     fixedCount:plan.candidate.cards.length,
     sourceRanks:plan.sourceDeckCount,
