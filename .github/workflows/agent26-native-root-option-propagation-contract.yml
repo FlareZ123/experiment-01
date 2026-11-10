@@ -1,0 +1,19 @@
+name: Agent26 native real option propagation contract (fast)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-option-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Refuse silently omitted native trial option and mixed-seat treatment
+        run: node --test tests/2026-11/agent26-native-root-option-propagation.test.cjs
