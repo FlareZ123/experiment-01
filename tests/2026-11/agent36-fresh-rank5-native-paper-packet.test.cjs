@@ -80,3 +80,32 @@ test('registered batch wires four distinct real Store receipts, without fake win
   assert.equal(result.terminalNativeGames,0);
   assert.equal(result.paperQualifiedGames,0);
 });
+
+test('native batch abort preserves the real prior Store receipts and all trial IDs',()=>{
+  const trialId='5:5000:A:new-moon-lockbreaker-v1';
+  const store={state:{players:[player(0),player(1)],turn:1,
+    phase:'PLAYER_TURN',activePlayer:0,prompts:[]},
+  dispatch(action){return action;}};
+  const nativeBatch=(_enabled,runner)=>{
+    runner({actualTestStore:store,actualTrialId:trialId});
+    throw new Error('deliberate native executor abort');
+  };
+  const run=options=>{
+    options.onRootStoreCreated(store,options.actualTrialId);
+    const action={};
+    store.dispatch(action);
+    options.onRootActionDispatched(store,action,0,0,1);
+  };
+  assert.throws(()=>runFreshPacket({nativeBatch,run}),error=>{
+    assert.match(error.message,/deliberate native executor abort/);
+    const partial=error.partialPaperPacket;
+    assert.equal(partial.status,'ABORTED_BEFORE_COMPLETE_NATIVE_BATCH');
+    assert.equal(partial.registeredGameIds.length,4);
+    assert.deepEqual(partial.capturedGameIds,[trialId]);
+    assert.equal(partial.captured.length,1);
+    assert.equal(partial.captured[0].storeRaw.originalPhysicalCards.length,120);
+    assert.equal(partial.captured[0].storeRaw.acceptedStoreRootCount,1);
+    assert.equal(partial.paperQualifiedGames,0);
+    return true;
+  });
+});
