@@ -37,6 +37,10 @@ class AttachEnergyPrompt {
         {player:2,slot:2,index:2},{player:2,slot:2,index:3}]};
   }
   validate(selection){
+    if(Array.isArray(selection)&&selection.length===0){
+      return this.options.min===0&&!this.cardList.cards.some(
+        card=>card.superType===enums.SuperType.ENERGY);
+    }
     return Array.isArray(selection)&&selection.length===1&&
       this.cardList.cards.includes(selection[0].card)&&
       selection[0].to.player===2&&
@@ -122,4 +126,29 @@ test('paper blockedTo and physical source-zone mismatch refuse attachment',()=>{
   assert.equal(chooseEnergyMixAttachment(store.state,prompt,owner.id,enums),null);
   assert.equal(chooseEnergyMixAttachment(store.state,prompt,
     store.state.players[0].id,enums),null);
+});
+
+test('an exhausted actual owner deck resolves the zero-minimum search without fabricating Energy',()=>{
+  const store=new Store(0),owner=store.state.players[0];
+  owner.deck.cards=[{fullName:'Trainer A',name:'Trainer'}];
+  const prompt=new AttachEnergyPrompt(owner);
+  const selection=chooseEnergyMixAttachment(
+    store.state,prompt,owner.id,enums);
+  assert.ok(selection);
+  assert.equal(selection.emptySearch,true);
+  assert.deepEqual(selection.proposed,[]);
+  assert.equal(selection.card,null);
+  assert.equal(selection.target,null);
+  const result=withMewEnergyMixOwnerPrompt(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.state.prompts.push(new ChooseAttackPrompt(owner.id));
+    store.dispatch(new ResolvePromptAction(91,{name:'Energy Mix'}));
+    const reply=new Ai(owner.id).decodeNextAction(store.state);
+    assert.deepEqual(reply.result,[]);
+    store.dispatch(reply);
+    assert.equal(owner.deck.cards.length,1);
+  },{Store,Ai,ResolvePromptAction,enums});
+  assert.equal(result.audit.nativeEmptySearchResolutions,1);
+  assert.equal(result.audit.nativeAccepted,1);
+  assert.equal(result.audit.physicalAttachmentsConfirmed,0);
 });
