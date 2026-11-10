@@ -423,7 +423,10 @@ function originalLillieSourceDraw(seat){
       const pending=f.state.prompts.find(p=>p.result===undefined);
       if(!pending)break;
       promptTypes.push(pending.constructor.name);
-      const choice=ai.decodeNextAction(f.state);
+      const choice=pending.constructor.name==='ShuffleDeckPrompt'?
+        new ResolvePromptAction(pending.id,
+          Array.from({length:f.source.deck.cards.length},(_,i)=>i)):
+        ai.decodeNextAction(f.state);
       assert.ok(choice instanceof ResolvePromptAction,
         'Native owner AI must resolve original Supporter prompt');
       assert.equal(choice.id,pending.id);
