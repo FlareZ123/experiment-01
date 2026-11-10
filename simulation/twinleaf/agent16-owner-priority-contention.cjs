@@ -183,6 +183,23 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
   if(!Number.isInteger(selectedPriority))
     return {selectedKind:selected.kind,unknownPriority:true,alternatives:[]};
   const alternatives=[];
+  // An actual configured Active-Psychic priority root displaced an already
+  // identified Underworld Door candidate using the SAME physical held Energy.
+  // Preserve that native-unverified alternative for the owner-root census;
+  // do not mistake two reachable Energy routes for two simultaneously payable
+  // actions. This diagnostic never changes the dispatched root.
+  if(selected.kind==='attach-basic-energy'&&
+      selected.singleHeldPsychicContestedByUnderworld===true&&
+      selected.sourceAbility==='Underworld Door'&&
+      view.ownHand?.[selected.handIndex]===selected.printing){
+    alternatives.push({
+      probe:'coheld-psychic-underworld-door',kind:'use-underworld-door',
+      attackName:null,printing:selected.printing,
+      handIndex:selected.handIndex,slot:'bench',index:null,
+      reason:'same-held-psychic-alternative-root',
+      nativePlayability:'unverified'
+    });
+  }
   if(matchedContestedSpecial(view,catalog,options,selected)){
     const basic=displacedBasicEnergy(view,catalog,options);
     if(basic)alternatives.push({
