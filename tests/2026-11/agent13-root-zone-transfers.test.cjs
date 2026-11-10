@@ -119,6 +119,7 @@ test('noncontiguous accepted root or cross-seat physical movement is reported',(
   receipt2.afterPositions['0:0']='s1.bench0:0';
   receipt2.movement[0].to='s1.bench0:0';
   cross.receipts[2].beforePositions['0:0']='s1.bench0:0';
+  cross.receipts[2].afterPositions['0:0']='s1.bench0:0';
   const s=summarizePhysicalZoneTransfers(cross);
   assert.equal(s.crossSeatPhysicalMovements,1);
   assert.equal(s.timeline[1].crossSeatMoves[0].id,'0:0');
