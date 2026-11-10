@@ -87,14 +87,18 @@ function runOne(candidateSeat,cards,{
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
   firstCrispinSeekerRecovery=false,
   earlyRegidragoCompressor=false,
-  candidateNaturalEvolutionRoot=false
+  candidateNaturalEvolutionRoot=false,
+  bilateralNaturalEvolutionRoot=false,registeredSeed=SEED
 }={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
+  assert.ok(Number.isSafeInteger(registeredSeed)&&registeredSeed>=0&&
+    registeredSeed<=0xffffffff);
+  assert.ok(!(candidateNaturalEvolutionRoot&&bilateralNaturalEvolutionRoot));
   const slot=candidateSeat===0?'A':'B';
   const trial={
     id:[SOURCE_RANK,0,slot,CANDIDATE_ID].join(':'),
     rank:SOURCE_RANK,repeat:0,candidateSlot:slot,
-    candidateId:CANDIDATE_ID,seed:SEED
+    candidateId:CANDIDATE_ID,seed:registeredSeed
   };
   const frameName=mysteriousTreasureRoot?
     'Agent2 v8 original rank13/rank3 Treasure opt-in diagnostic':
@@ -133,9 +137,11 @@ function runOne(candidateSeat,cards,{
       mysteriousTreasureRoot&&treasurePaymentChoice==='muscle-band',
     firstRegidragoBenchGrass,firstCrispinSeekerRecovery,
     earlyRegidragoCompressor,
-    actorNaturalEvolutionRoot:candidateNaturalEvolutionRoot,
+    actorNaturalEvolutionRoot:
+      candidateNaturalEvolutionRoot||bilateralNaturalEvolutionRoot,
     actorGarbodorResponseOwnerSeat:
-      candidateNaturalEvolutionRoot?candidateSeat:null,
+      bilateralNaturalEvolutionRoot?null:
+        (candidateNaturalEvolutionRoot?candidateSeat:null),
     allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
@@ -237,7 +243,7 @@ function runOne(candidateSeat,cards,{
   return {
     trialId:trial.id,candidateRank:CANDIDATE_RANK,
     sourceRank:SOURCE_RANK,candidateSeat,sourceSeat:1-candidateSeat,
-    seed:SEED,actionLimit:ACTION_LIMIT,
+    seed:registeredSeed,actionLimit:ACTION_LIMIT,
     // Native setup hashes and terminal indicators are read-only experiment
     // receipts; hidden card identities are never passed to actor decisions.
     sourceDealFingerprint:nativeRow?.sourceDealFingerprint??null,
@@ -374,7 +380,8 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
 function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
   firstCrispinSeekerRecovery=false,earlyRegidragoCompressor=false,
-  candidateNaturalEvolutionRoot=false}={}){
+  candidateNaturalEvolutionRoot=false,
+  bilateralNaturalEvolutionRoot=false,registeredSeed=SEED}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
@@ -384,11 +391,13 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
     runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
       firstCrispinSeekerRecovery,earlyRegidragoCompressor,
-      candidateNaturalEvolutionRoot}),
+      candidateNaturalEvolutionRoot,bilateralNaturalEvolutionRoot,
+      registeredSeed}),
     runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
       firstCrispinSeekerRecovery,earlyRegidragoCompressor,
-      candidateNaturalEvolutionRoot})
+      candidateNaturalEvolutionRoot,bilateralNaturalEvolutionRoot,
+      registeredSeed})
   ];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
@@ -446,7 +455,8 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
       mysteriousTreasureRoot,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
       firstCrispinSeekerRecovery,earlyRegidragoCompressor,
-      candidateNaturalEvolutionRoot,
+      candidateNaturalEvolutionRoot,bilateralNaturalEvolutionRoot,
+      registeredSeed,
       treasurePaymentChoice:mysteriousTreasureRoot?treasurePaymentChoice:null,
       nativeOwnerTrainerFallback:!ownerMailFollowupFrame,
       ownerFallbackDiagnosticView:!ownerMailFollowupFrame,
