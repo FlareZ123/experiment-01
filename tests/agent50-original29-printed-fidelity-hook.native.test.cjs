@@ -335,3 +335,47 @@ test('all nine original non-Pokémon Trainer/Energy native aliases instantiate e
     competitiveGamesQualified:0
   }));
 });
+
+/**
+ * Apply the genuine original-rank9/30/31 POR88 Telepathic Psychic Energy
+ * through the pinned Store, retaining the original source lookup string.
+ * This staged scene is only a mechanical custody and owner-prompt witness.
+ * @param {0|1} seat Actual acting native seat.
+ * @returns {object} The paid attachment and native prompt identity.
+ */
+function originalTelepathSourceAttachment(seat){
+  return withOriginal29PrintedFidelity(()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const energy=f.card('Telepathic Psychic Energy POR');
+    assert.equal(energy.fullName,'Telepath [P] Energy M3');
+    f.source.hand.cards.splice(0,f.source.hand.cards.length,energy);
+    f.source.energyPlayedTurn=0;
+    f.store.dispatch(new PlayCardAction(f.source.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    const prompts=f.state.prompts.filter(p=>p.result===undefined);
+    assert.ok(f.source.active.energies.cards.includes(energy),
+      'Original source alias must physically attach the real native Energy');
+    assert.equal(f.source.energyPlayedTurn,f.state.turn);
+    assert.equal(f.source.hand.cards.includes(energy),false);
+    assert.ok(prompts.some(p=>p.constructor.name==='ChooseCardsPrompt'),
+      'Original source Energy must produce its genuine Psychic search prompt');
+    return {seat,registeredPrinting:'Telepathic Psychic Energy POR',
+      nativeFullName:energy.fullName,owner:f.source.id,
+      physicalAttached:true,ownerHandEnergyRemoved:true,
+      nativePromptTypes:prompts.map(p=>p.constructor.name),
+      paperQualified:false,competitiveGamesQualified:0};
+  }).result;
+}
+
+for(const seat of [0,1]){
+  test('original POR88 native Telepath attachment opens owner-only Psychic search in seat '+seat,()=>{
+    const receipt=originalTelepathSourceAttachment(seat);
+    assert.equal(receipt.physicalAttached,true);
+    assert.ok(receipt.nativePromptTypes.includes('ChooseCardsPrompt'));
+    assert.equal(receipt.paperQualified,false);
+    console.log('AGENT50_ORIGINAL_POR88_NATIVE_ATTACHMENT '+JSON.stringify(receipt));
+  });
+}
