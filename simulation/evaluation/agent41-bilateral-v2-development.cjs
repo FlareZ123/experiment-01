@@ -1495,6 +1495,7 @@ function runDevelopment({
   actorArvenHoodSearchRoot=false,
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
+  actorUnderworldActiveFundingMirrorVeto=false,
   actorMaxGeistManualRecovery=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
@@ -1769,6 +1770,9 @@ function runDevelopment({
   assert.ok(!actorUnderworldActiveFundingPriority||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Active Psychic priority requires symmetric Underworld root');
+  assert.ok(!actorUnderworldActiveFundingMirrorVeto||
+    (actorUnderworldActiveFundingPriority&&actorOnlyComposition),
+    'Public mirror veto requires symmetric Active Psychic priority root');
   assert.ok(!actorFundedShadowRiderFloatStoneRoot||actorOnlyComposition,
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
   assert.ok(!actorTwoUnitPaidRetreatRoot||actorOnlyComposition,
@@ -2219,6 +2223,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
+              }:{}),
+              ...(actorUnderworldActiveFundingMirrorVeto?{
+                underworldActiveFundingMirrorVeto:true
               }:{}),
               ...(actorMaxGeistManualRecovery?{
                 maxGeistManualRecovery:true
