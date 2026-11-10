@@ -116,14 +116,15 @@ for(const ownerSeat of [0,1]){
       'Fusion Strike System',{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
       }));
-    assert.ok(noMuk.opponent.hand.cards.length>0,
-      'Removing Muk must restore the ordinary native Genesect draw');
+    assert.ok(noMuk.opponent.marker.hasMarker(
+      'FUSION_STRIKE_SYSTEM_MARKER',noMuk.opponent.active.getPokemonCard()),
+      'Removing Muk must allow native Genesect Ability activation');
     console.log('AGENT50_TRIPLELOCK_NATIVE '+JSON.stringify({
       ownerSeat,passiveLocks:['Sentinel','Irritating Pollen',
         'Power of Alchemy'],
       opponentBasicDrawDenied:true,
       opponentItemDenied:true,opponentSupporterDenied:true,
-      genuineNonMukBasicDrawRestored:true,
+      genuineNonMukBasicAbilityUsed:true,
       originalFullGame:false,competitiveQualifiedGames:0
     }));
   });
