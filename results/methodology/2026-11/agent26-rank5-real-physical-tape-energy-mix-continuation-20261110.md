@@ -77,3 +77,43 @@ competitive admission still requires independently verified original
 Japanese prints, rules, full owner payments/targets/alternatives, opposing
 counterplay, official event-clock outcomes and reviewer approvals. No
 99.5% or 32-opponent result follows from these four games.
+
+## Resolved native continuation, 10 November 2026
+
+The subsequent **post-observed** mechanical replay now succeeds:
+[run 42738222660](https://github.com/FlareZ123/experiment-01/actions/runs/42738222660),
+[full native JSON artifact 13728545381](https://github.com/FlareZ123/experiment-01/actions/runs/42738222660/artifacts/13728545381).
+The archived 13,846,705-byte JSON hashes to
+`74c22221ad83b8b46c34996ffcc2f242457bf51621b161a4ebd6572f88d184cc`;
+the uploaded ZIP SHA256 is
+`85aebd87c3c4ff71daf89593cfcd07a8f7c6d9bc074c40e03f1eef036bea4ff2`.
+
+The exact **four original 60-card physical deals** match all four previously
+recorded full-deal fingerprints. All **856** native Store actions have exact
+receipt joins, **4/4** games have clean 120-card original physical custody,
+and **4/4** reach genuine native terminal winners with no engine abort.
+The two-seat owner decoder recognizes four actual `Energy Mix` searches and
+accepts four exact owner prompts:
+
+1. Global turn 31, original-source seat 0: move physical Double Colorless Energy
+   from the owner's deck to the owner's Benched Mew V FST.
+2. Global turn 33: move the second physical Double Colorless Energy to the same
+   Benched Mew V, with native validation and actual zone movement.
+3. Global turn 35: deck contains no Energy; complete the native min-zero search
+   with an accepted empty selection and no physical Energy fabricated.
+4. Global turn 37: repeat accepted empty selection with the deck still out of
+   Energy.
+
+The formerly aborted original-source game `5:5001:B` continues from native
+root 137 through **217** accepted actions and ends with **original-source
+seat 0 winning**, final Prizes `[3,0]`, rather than being marked as an
+engine failure or candidate loss. The other three terminal winners are
+unchanged. The final **post-observed four-game native result** is **one
+contender native win and three original-source native wins**. This is a
+mechanics-regression result, **not an unbiased candidate win-rate estimate**.
+
+The live regression demonstrates correct owner search custody, legal
+`blockedTo` handling, exact physical double-colorless attachment, and
+empty-deck Energy search settlement. The source attack line and native
+outcome are inspectable. Independent paper-clock judgments and qualified
+full-field competitive outcomes remain entirely unavailable.
