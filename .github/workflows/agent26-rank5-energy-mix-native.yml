@@ -1,0 +1,55 @@
+name: Agent26 rank5 copied Energy Mix post-observation native continuation
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_native:
+        description: 'Run all four original physical rank5 deals with the new Energy Mix resolver; retrospective development only'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  energy-mix-continuation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Validate owner-only resolver, native abort preservation and runner syntax
+        run: |
+          node --check simulation/twinleaf/2026-11/agent26-mew-energy-mix-owner-prompt.cjs
+          node --check simulation/evaluation/2026-11/agent26-rank5-energy-mix-native-continuation.cjs
+          node --test tests/2026-11/agent26-mew-energy-mix-owner-prompt.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
+      - name: Check out pinned native game-engine revision
+        if: ${{ inputs.run_native }}
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.run_native }}
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned game-engine dependencies and compile
+        if: ${{ inputs.run_native }}
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Play actual original rank5 native deals with the owner Energy Mix resolver
+        if: ${{ inputs.run_native }}
+        run: node simulation/evaluation/2026-11/agent26-rank5-energy-mix-native-continuation.cjs
+      - name: Preserve actual native accepted-root and physical evidence including failed attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-rank5-energy-mix-${{ github.run_id }}
+          path: artifacts/agent26-rank5-energy-mix/
+          if-no-files-found: warn
+          retention-days: 21
+          compression-level: 6
