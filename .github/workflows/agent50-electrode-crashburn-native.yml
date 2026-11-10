@@ -39,6 +39,10 @@ jobs:
         run: node --test tests/2026-11/agent50-sentinel-alchemy-triplelock.native.test.cjs
       - name: Bounded 12-game original rank2 versus Muk source field development
         run: node --test tests/2026-11/agent50-sentinel-alchemy-bounded-original-field.native.test.cjs
+      - name: Two-seat Spiritomb selective Basic V lock and owner Relicanth preservation
+        run: node --test tests/2026-11/agent50-sentinel-spiritomb-basicv-lock.native.test.cjs
+      - name: Matched 12-game rank2 Spiritomb fixed field native development
+        run: node --test tests/2026-11/agent50-sentinel-spiritomb-bounded-original-field.native.test.cjs
       - name: Preserve all 102 native-source printed Pokémon parity rows
         run: node simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs
       - name: Upload Aichi29 printed native parity evidence
