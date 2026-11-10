@@ -25,7 +25,19 @@ With Fairy Zone active, printed Techno Blast damage 210 is doubled by Psychic We
 - Pinned upstream Twinleaf: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Research adapter only, no upstream modification.
 - Successful original two-seat full Store fork, [CI 42735855590](https://github.com/FlareZ123/experiment-01/actions/runs/42735855590).
 - Successful two-seat preattack/native winner/prize trace, [CI 42736653297](https://github.com/FlareZ123/experiment-01/actions/runs/42736653297). Each arm had Mew VMAX 310 HP, original opposing Regidrago V SIT printed 220 HP and `[]` original weakness on its card, held DCE, real donor attack damage 210, Fairy Zone present and two source Prize cards taken after attack. The `0` damage counter reported on the postgame opponent Active is because that Pokémon had been Knocked Out and removed from Active, **not** a failed damage resolution.
-- A separately staged **Fairy Zone removal ablation**, retaining original printed cards by substituting the source's own Dedenne for Clefairy in the Bench staging, is implemented as `fairyZone:false` in the same file. Native follow-up run status should be attached before any claim of its outcome.
+- **Causal Fairy Zone ablation passed in both native seats**, [CI 42737281464](https://github.com/FlareZ123/experiment-01/actions/runs/42737281464), pinned `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: when the fourth Bench contains the original source's own Dedenne GX rather than Lillie's Clefairy ex, the same owner action sequence still chooses and physically Benches Genesect V, attaches DCE, and copies genuine Techno Blast 210. The target Regidrago V survives with **210 damage of 220 HP**, remains Active, the source retains **all six Prizes**, and the Store reports **nativeWinner -1, ongoing game** in both seats. Conversely with Clefairy ex on Bench, same copied attack immediately ends in **2-Prize KO and source native winner**. All source card quantities remain exactly 60; only the deliberately constructed *starting location of one source Basic* differs. This is a genuine pinned native proof of the conditional **Fairy Zone Weakness + Genesect donor** combination, not a randomized natural-game matchup.
+- The follow-up code additionally asserts this four-cell causal pattern for future regression: `Fairy Zone on × seats 0/1 -> two-Prize native source win`; `Fairy Zone off × seats 0/1 -> 210 damage, no source Prize change or terminal`. The first independently observed ablation run was already green before these explicit regression assertions were committed. The added assertion branch is being run in a subsequent manual native job.
+
+## Four-cell causal evidence
+
+| Board/Ability condition | Source physical seat | Real copied attack | Opponent Regidrago V | Source Prizes | Native result |
+| --- | ---: | --- | --- | ---: | --- |
+| Clefairy ex **Fairy Zone active** | 0 | Genesect Techno Blast 210 | Psychic Weakness ×2, KO | 6→4 | Source seat 0 wins |
+| Clefairy ex **Fairy Zone active** | 1 | Genesect Techno Blast 210 | Psychic Weakness ×2, KO | 6→4 | Source seat 1 wins |
+| Clefairy ex absent, Dedenne on Bench | 0 | Genesect Techno Blast 210 | 210 damage, 10 HP left | 6→6 | Ongoing, no winner |
+| Clefairy ex absent, Dedenne on Bench | 1 | Genesect Techno Blast 210 | 210 damage, 10 HP left | 6→6 | Ongoing, no winner |
+
+Each run uses native Store legal actions and unchanged source 60 card quantities. The original published opponent Regidrago V is a two-Prize Dragon target. Exact paper Weakness order and attack-copy behavior are also consistent with the supplied advanced rules. These observations isolate the staged **knockout threshold mechanism**, while the baseline/treatment Bench competition isolates access to the particular attack donor.
 
 ## What can be inferred
 
