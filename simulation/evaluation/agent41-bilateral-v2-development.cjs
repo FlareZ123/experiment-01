@@ -1527,6 +1527,7 @@ function runDevelopment({
   actorVipMegaAbsolTarget=false,
   actorVipAfterPass=false,
   actorVipAfterPassAdapter=null,
+  actorFogPromptAdapter=null,
   actorVipRank9MegaVoltorbRecipient=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorOwnerMailAfterPassSourceOnly=false,
@@ -1835,6 +1836,11 @@ function runDevelopment({
     'VIP after-Pass adapter must be a function or null');
   assert.ok(actorVipAfterPassAdapter===null||actorVipAfterPass,
     'VIP after-Pass adapter injection requires the explicit opt-in');
+  assert.ok(actorFogPromptAdapter===null||
+    typeof actorFogPromptAdapter==='function',
+    'Fog search adapter must be a function or null');
+  assert.ok(actorFogPromptAdapter===null||actorOnlyComposition,
+    'Fog search adapter needs the native actor-only policy');
   assert.ok(!actorVipRank9MegaVoltorbRecipient||actorVipAfterPass,
     'Exact original Mega and Voltorb VIP targets require after-Pass owner prompt');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -2437,6 +2443,9 @@ function runDevelopment({
           {...scopedRoot,...chargedPokemon,
             ...(actorVipAfterPassAdapter?{
               vipAfterPass:actorVipAfterPassAdapter
+            }:{}),
+            ...(actorFogPromptAdapter?{
+              fog:actorFogPromptAdapter
             }:{})},
           {ownerSingleSearch:actorOnlySingleSearch,
             ...(actorMewUltraBallSearch?{
@@ -2940,6 +2949,7 @@ function runDevelopment({
       bilateralEarlyForestSealRoot,
     actorPaleMoonGXRootOptIn:actorOnlyComposition&&actorPaleMoonGXRoot,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
+    actorFogPromptAdapterInjected:actorFogPromptAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
         ACTOR_COMPOSITION_VERSION):null,
