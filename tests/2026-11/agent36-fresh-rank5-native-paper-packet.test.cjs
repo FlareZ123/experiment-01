@@ -55,6 +55,8 @@ test('registered batch wires four distinct real Store receipts, without fake win
     }};
   };
   const run=opts=>{
+    assert.equal(opts.allowExtendedRegisteredNativeRootCap,true,
+      'The preregistered 350-root native cap must reach the actual runner');
     const store=opts.actualTestStore;
     opts.onRootStoreCreated(store,opts.actualTrialId);
     store.dispatch({type:'AddPlayerAction'});
