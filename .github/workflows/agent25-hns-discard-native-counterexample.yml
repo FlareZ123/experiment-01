@@ -123,6 +123,9 @@ jobs:
       - name: Opponent uses symmetric Town Store to obtain real Forest Seal Stone and Guzma through Vileplume
         if: inputs.agent25_cape_paid_opening_native
         run: node simulation/twinleaf/2026-11/agent25-townstore-opponent-forestseal-native.cjs > agent25-town-opp-fss-native.log
+      - name: Test asymmetric Oranguru V Back Order Cape TM first-turn line against original rank1
+        if: inputs.agent25_cape_paid_opening_native
+        run: node simulation/twinleaf/2026-11/agent25-oranguru-cape-backorder-native.cjs > agent25-oranguru-cape-native.log
       - name: Preserve two-seat actual source-first-turn Cape roots
         if: always() && inputs.agent25_cape_paid_opening_native
         uses: actions/upload-artifact@v4
@@ -135,6 +138,7 @@ jobs:
             agent25-town-cape-native.log
             agent25-town-cape-access-screen.json
             agent25-town-opp-fss-native.log
+            agent25-oranguru-cape-native.log
           if-no-files-found: warn
           retention-days: 14
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
