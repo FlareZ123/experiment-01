@@ -33,6 +33,19 @@ The initial preregistered run [42734007883](https://github.com/FlareZ123/experim
 
 **Totals:** 16/16 native game attempts processed; 8/8 source AND complete original physical-deal fingerprints identical between control and priority; 7/8 naturally terminal pairs, 1/8 paired native root cap; 0 engine errors, 0 accepted source Bench ordering differences; 20 source attack declarations in each arm; no native winner changes. Native 'winner seat' is a simulator label and cannot be promoted to a paper tournament winner. No statistical win-rate inference is possible from an unexposed policy and unqualified bot.
 
+## Exact restricted opening-hand opportunity ceiling
+
+The authentic source 60 has **4 Mew V, 4 Genesect V, 3 off-axis Basics and 49 remaining non-Basics**. A uniform random unordered initial seven, before choosing the actual Active, searching, drawing or playing a card, can be exactly enumerated as four categories. With `a,b,c` held Mew, Genesect and off-axis Basic counts, the co-presence event has probability
+
+\[
+\frac{\sum_{a\ge1,b\ge1,c\ge1}\binom4a\binom4b\binom3c\binom{49}{7-a-b-c}}{\binom{60}7}
+=3.66550\%.
+\]
+
+Conditional on a non-mulligan opening (at least one of eleven Basics), it is **4.71399%**. If physical initial card order is uniformly random, an even narrower event where an *off-axis* Basic comes before both available core roles in the original seven has unconditional probability **1.19843%**, or **1.54124% conditional on a valid opening**. For each qualifying hand composition, that ordering condition weights its sample by `c/(a+b+c)`. All figures were enumerated using Python `math.comb` and 60/7 exact combinatorial denominators.
+
+These are deliberately **restricted initial-seven hand-order figures**. They do not reflect the Basic that must become Active before Bench choices, owner sequencing, paid search, subsequent draw, reactive Bench space or real played root. They are *not* native opportunity counts, match win rates or a general probabilistic bound on later states. They show why four independent physical source openers can easily miss a specific three-category Bench competition despite every experimental flag being delivered correctly. Next evidence should be an exact staged native collision rather than more low-exposure random repeats.
+
 ## Direction and limitations
 
 The independent physical source sample did **not** encounter a Bench-priority opportunity that led to changed source-native actions. The pure owner policy is mechanically activated for constructed hands where off-axis Basics precede held critical roles; this experiment establishes neither the real prevalence of those situations nor an improvement in candidate-vs-source game results. Additional random panels would be low yield without a targeting/availability census. A separate **staged exact original-rank5 physical source last-Bench-slot fork**, `simulation/twinleaf/2026-11/agent8-original-rank5-lastbench-donor-native.cjs`, is being run to establish whether choosing a missing Genesect instead of a redundant fourth Mew can change the genuine Store's available Mew VMAX copied-attack donor and subsequent damage. This staged test cannot itself establish natural-game frequency.
