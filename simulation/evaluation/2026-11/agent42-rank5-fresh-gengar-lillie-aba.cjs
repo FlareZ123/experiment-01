@@ -166,6 +166,8 @@ function executeArm(reg, mode, extraPolicy={}) {
       nativeLillieAudit: row.ownerBilateralLillieAfterPassAudit ?? null,
       vipAfterPassAudit: row.actorOnlyDecisionCoverage?.
         detailedComponentAudits?.ownerVipAfterPass ?? null,
+      fogAudit: row.actorOnlyDecisionCoverage?.
+        detailedComponentAudits?.fog ?? null,
       acceptedRoots: roots.length,
       rootLedgerSha256: hash(roots),
       physicalTapeSha256: capture?.allRootPhysicalZonesSha256 ?? null,
