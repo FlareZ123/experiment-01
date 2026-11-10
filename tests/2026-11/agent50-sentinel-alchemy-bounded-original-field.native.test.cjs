@@ -63,8 +63,8 @@ test('preregistered fixed original rank2 versus triple-lock candidate, native fi
             ownerFinalBench:owner.benchedPokemon??[],
             ownerFinalPrizes:game.prizesRemaining?.[seat]??null,
             originalOpponentFinalPrizes:game.prizesRemaining?.[1-seat]??null,
-            ownerMukPlayed:(game.cardsPlayedBySeat?.[seat]??[])
-              .toString().includes('Alolan Muk'),
+            ownerMukPlayed:(Object.entries(game.cardsPlayedBySeat?.[seat]??{})
+              .some(([name,count])=>name.includes('Alolan Muk')&&count>0)),
             ownerMukVisibleAtFinish:owner.benchedPokemon?.includes('Alolan Muk')??false,
             ownerNativeRootCount:game.rootActionLedger?.filter(r=>r.playerSlot===seat).length??null
           };
