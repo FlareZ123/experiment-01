@@ -38,12 +38,13 @@ on:
           - agent8-source-mew-funding-v6
           - agent8-mew-source-two-fixed60-v7
           - agent8-mew-partial-vmax-pure
+          - agent8-rank5-bench-priority-pure
 permissions:
   contents: read
   actions: read
 jobs:
   native-two:
-    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent31-lockbridge-eight-rank-archive-audit' && inputs.experiment != 'agent8-mew-partial-vmax-pure'
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent31-lockbridge-eight-rank-archive-audit' && inputs.experiment != 'agent8-mew-partial-vmax-pure' && inputs.experiment != 'agent8-rank5-bench-priority-pure'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -597,3 +598,18 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent26-owner-visible-mew-dce-recipient.cjs
           node --test tests/2026-11/agent8-mew-partial-dce-funding.test.cjs
+  agent8-rank5-bench-priority-pure:
+    if: inputs.experiment == 'agent8-rank5-bench-priority-pure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source-owned rank5 Mew Genesect bench priority
+        run: |
+          node --check simulation/twinleaf/2026-11/agent8-mew-genesect-bench-priority.cjs
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/2026-11/agent8-rank5-mew-genesect-bench-priority.test.cjs
