@@ -113,6 +113,25 @@ function runFreshPacket(deps = {}) {
       vipPreferMewtwoDonor:true,
       perfectionTransition:true
     });
+  } catch (error) {
+    // A native abort is itself a registered experimental outcome. Preserve
+    // exact Store receipts that were already captured, including all prompts
+    // and physical card identities, before the runner's exception escapes.
+    const failure = error instanceof Error ? error : new Error(String(error));
+    failure.partialPaperPacket = {
+      schema: VERSION + '-native-abort-v1',
+      status: 'ABORTED_BEFORE_COMPLETE_NATIVE_BATCH',
+      registration: registered.schema,
+      registeredGameIds: registered.registeredGameIds,
+      capturedGameIds: [...recorders.keys()],
+      captured: [...recorders].map(([trialId, recorder]) => ({
+        trialId, storeRaw: recorder.result()
+      })),
+      nativeError: String(failure.stack || failure.message).slice(0, 4000),
+      paperQualifiedGames: 0,
+      competitivelyAdmittedGames: 0
+    };
+    throw failure;
   } finally {
     for(const recorder of recorders.values()) recorder.close();
   }
@@ -193,7 +212,21 @@ function writeArtifact(report, folder='artifacts/agent36-fresh-rank5-paper') {
 }
 
 if (require.main===module) {
-  const packet=runFreshPacket();
+  let packet;
+  try {
+    packet=runFreshPacket();
+  } catch (error) {
+    if (error?.partialPaperPacket) {
+      const archive=writeArtifact(error.partialPaperPacket);
+      process.stderr.write(JSON.stringify({
+        status:'NATIVE_BATCH_ABORT_PRESERVED',archive,
+        capturedGameIds:error.partialPaperPacket.capturedGameIds,
+        registeredGameIds:error.partialPaperPacket.registeredGameIds,
+        nativeError:error.message
+      })+'\\n');
+    }
+    throw error;
+  }
   const archive=writeArtifact(packet);
   process.stdout.write(JSON.stringify({
     schema:VERSION,archive,
