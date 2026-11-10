@@ -80,18 +80,25 @@ function installMimikyuDonorTreasure({seat,onEvent}){
   }
 
   function choosePhysicalDonorForTreasure(state,player,prompt){
-    const found=ownerDonorTreasureOpportunity(state,player,seat);
+    // The Treasure has left the hand by the time its payment prompt opens.
+    // Re-check the actual physical donor without requiring a second Item.
+    const donor=player.hand.cards.find(card=>card.fullName===DIALGA);
     const ownerTreasureInFlight=player.supporter.cards.some(card=>
       card.fullName===TREASURE);
-    if(found&&ownerTreasureInFlight&&
+    const eligible=state.players[seat]?.id===player.id&&
+      player.usedGX!==true&&facingVisibleRegidrago(state,player)&&
+      [player.active,...player.bench].some(slot=>
+        slot.getPokemonCard()?.fullName===MIMIKYU)&&
+      !player.discard.cards.some(card=>card.fullName===DIALGA);
+    if(eligible&&donor&&ownerTreasureInFlight&&
       prompt?.constructor?.name==='ChooseCardsPrompt'&&
       prompt.playerId===player.id&&
       prompt.cards===player.hand&&
       prompt.message==='CHOOSE_CARD_TO_DISCARD'&&
-      prompt.validate([found.discardCard])){
+      prompt.validate([donor])){
       note('resolved-physical-donor-treasure-payment',state,player,
-        {promptId:prompt.id,printing:found.discardCard.fullName});
-      return new ResolvePromptAction(prompt.id,[found.discardCard]);
+        {promptId:prompt.id,printing:donor.fullName});
+      return new ResolvePromptAction(prompt.id,[donor]);
     }
     return previousResolver.call(this,state,player,prompt);
   }
