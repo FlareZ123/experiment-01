@@ -49,6 +49,11 @@ function run(seat){
     const roots=[],prompts=[];
     for(let i=0;i<16;i++){
       const pending=x.store.state.prompts.find(p=>p.result===undefined);
+      // Native completion can follow a resolved owner prompt without another
+      // voluntary root. Stop before asking the actor for an extra Pass.
+      if(!pending&&source().hand.cards.some(card=>card.id===faba.id)&&
+          source().discard.cards.some(card=>
+            card.fullName==='VS Seeker PHF'))break;
       if(pending?.type==='WaitPrompt'||pending?.type==='Show cards'){
         x.store.dispatch(new ResolvePromptAction(pending.id,
           pending.type==='WaitPrompt'?null:true));
@@ -78,10 +83,6 @@ function run(seat){
         roots.push(source().hand.cards[action.handIndex]?.fullName);
       }
       x.store.dispatch(action);
-      if(!x.store.hasPrompts()&&
-          source().hand.cards.some(c=>c.id===faba.id)&&
-          source().discard.cards.some(c=>c.fullName==='VS Seeker PHF'))
-        break;
     }
     assert.deepEqual(roots,['Jet Energy PAL','VS Seeker PHF']);
     assert.ok(prompts.includes('Choose cards'));
