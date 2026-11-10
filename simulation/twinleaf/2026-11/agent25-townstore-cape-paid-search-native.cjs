@@ -34,7 +34,7 @@ function custody(player){
  * Active and held original Bunnelby, G&H, two disposable cards, and no Cape.
  * @param {0|1} seat
  */
-function stage(seat){
+function stage(seat,options={}){
   const x=previous.stage(seat);
   const owner=x.owner,manager=initializeCards();
   const plan=planAichi(printed,{
@@ -75,10 +75,25 @@ function stage(seat){
   assert.equal(owner.hand.cards.some(c=>c.fullName===BUN),true);
   assert.equal(owner.deck.cards.some(c=>c.fullName===TOWN),true);
   assert.equal(owner.deck.cards.some(c=>c.fullName===CAPE),true);
+  if(options.fan){
+    // Alternate physically possible draw, same fixed sixty: a Prized Fan
+    // moves to the opening hand; the held Bunnelby takes that Prize spot.
+    const prize=owner.prizes.find(z=>z.cards[0]?.fullName==='Fan Rotom SCR');
+    const held=owner.hand.cards.findIndex(c=>c.fullName===BUN);
+    assert.ok(prize&&held>=0);
+    const fan=prize.cards[0],bunnelby=owner.hand.cards[held];
+    prize.cards.splice(0,1,bunnelby);
+    owner.hand.cards.splice(held,1,fan);
+    assert.equal(owner.hand.cards.some(c=>c.fullName===BUN),false);
+    assert.equal(owner.hand.cards.some(c=>c.fullName==='Fan Rotom SCR'),true);
+    assert.equal(owner.deck.cards.some(c=>c.fullName===BUN),true);
+  }
+  assert.deepEqual(custody(owner).map(c=>c.fullName).sort(),
+    plan.candidate.cards.slice().sort());
   return x;
 }
 
-function solve(x){
+function solve(x,options={}){
   const store=x.f.store,owner=x.owner,state=x.state;
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
@@ -121,6 +136,24 @@ function solve(x){
     assert.ok(i>=0,'Played physical card must be held: '+name);
     store.dispatch(new PlayCardAction(owner.id,i,target));
   };
+  if(options.fan){
+    // The single genuine Fan Call reaches a physical Bunnelby in the deck,
+    // even though no Bunnelby was directly held at this first-turn start.
+    const index=owner.bench.findIndex(b=>b.cards.length===0);
+    assert.ok(index>=0);
+    play('Fan Rotom SCR',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
+    });
+    settle();
+    const {UseAbilityAction}=native('game/store/actions/game-actions');
+    store.dispatch(new UseAbilityAction(owner.id,'Fan Call',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
+    }));
+    choose([BUN],owner.deck);
+    settle();
+    assert.equal(owner.hand.cards.some(c=>c.fullName===BUN),true);
+    assert.equal(owner.bench[index].getPokemonCard()?.fullName,'Fan Rotom SCR');
+  }
   // G&H searches Town Store, TM Evolution and Jet Energy. Cape is not held
   // and is not the Supporter's single Tool choice.
   play('Guzma & Hala CEC',{
@@ -188,7 +221,7 @@ function solve(x){
   custody(owner);
   return {genuineSupporterSearch:[TOWN,TM,JET],
     townOwnerToolSearch:CAPE,capeNeverInitiallyHeld:true,
-    basicBunnelbyFromHand:true,
+    basicBunnelbyFromHand:!options.fan,fanFetchedBunnelby:!!options.fan,
     genuineJetPromotesBunnelby:true,
     realTwoEvolutionAttacks:2,
     sourceBenchedVileplume230HP:true,
@@ -196,23 +229,28 @@ function solve(x){
 }
 
 /** Firstturn Town Store line and original rank1 actual accelerated Max Geist. */
-function probe(seat){
-  const x=stage(seat);
+function probe(seat,options={}){
+  const x=stage(seat,options);
   prepareRank1(x);
-  const opening=solve(x);
+  const opening=solve(x,options);
   const reply=resolveRank1(x);
   assert.equal(reply.actualDamageToCapedVileplume,130);
   assert.equal(reply.actualOpponentPrizeGain,0);
   assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
   assert.equal(x.owner.active.tools[0]?.fullName,CAPE);
   custody(x.owner);custody(x.f.defender);
-  return {seat,originalPrintedSixties:true,opening,reply,
+  return {seat,originalPrintedSixties:true,fanOpening:!!options.fan,opening,reply,
     competitivelyQualifiedGames:0};
 }
 function run(){
-  const validated=withNumericShufflePromptValidation(()=>[probe(0),probe(1)]);
+  const validated=withNumericShufflePromptValidation(()=>{
+    const rows=[];
+    for(const seat of [0,1])for(const fan of [false,true])
+      rows.push(probe(seat,{fan}));
+    return rows;
+  });
   const rows=validated.result;
-  assert.ok(validated.audit.checked>=2);
+  assert.ok(validated.audit.checked>=4);
   return {shufflePaperNumericHook:validated.audit,
     candidate:'Town Store Cape Sentinel v1',
     exactOriginalRank1Sixty:true,
