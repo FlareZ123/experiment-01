@@ -50,6 +50,8 @@ function runDonor(decks,seed,seat){
     const ledger=game.rootActionLedger??[];
     const ownerTreasureRoots=ledger.filter(root=>
       root.playerSlot===seat&&root.card==='Mysterious Treasure');
+    const ownerNativeCopyChoiceRoots=ledger.filter(root=>
+      root.playerSlot===seat&&root.attackChoice!==undefined);
     const own=game.attackTrace.filter(a=>a.seat===seat);
     const opponent=game.attackTrace.filter(a=>a.seat!==seat);
     return {
@@ -60,6 +62,7 @@ function runDonor(decks,seed,seat){
       winnerSeat:game.winnerSeat??null,
       ownerActualTreasureRootCount:ownerTreasureRoots.length,
       ownerActualTreasureRoots:ownerTreasureRoots,
+      ownerNativeCopyChoiceRoots,
       originalOpponentApex:opponent.filter(a=>a.attack==='Apex Dragon').length,
       actualCopycat:own.filter(a=>a.attack==='Copycat').length,
       ownActualAttackTrace:own,
