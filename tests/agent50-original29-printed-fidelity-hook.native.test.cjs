@@ -406,7 +406,24 @@ function originalLillieSourceDraw(seat){
     f.store.dispatch(new PlayCardAction(f.source.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
-    const pending=f.state.prompts.filter(p=>p.result===undefined);
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const ai=Object.create(SimpleTacticsAi.prototype);
+    ai.client={id:f.source.id};
+    const promptTypes=[];
+    for(let k=0;k<24;k++){
+      const pending=f.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      promptTypes.push(pending.constructor.name);
+      const choice=ai.decodeNextAction(f.state);
+      assert.ok(choice instanceof ResolvePromptAction,
+        'Native owner AI must resolve original Supporter prompt');
+      assert.equal(choice.id,pending.id);
+      f.store.dispatch(choice);
+    }
+    assert.equal(f.state.prompts.some(p=>p.result===undefined),false,
+      'Original Supporter prompt chain should fully settle');
     return {
       seat,requestedPrintedSupporter:"Lillie's Determination MEG",
       nativeFullName:lillie.fullName,
@@ -414,7 +431,7 @@ function originalLillieSourceDraw(seat){
       endingHand:f.source.hand.cards.length,
       originalHeldCardInDeck:f.source.deck.cards.includes(held),
       playedSupporterInDiscard:f.source.discard.cards.includes(lillie),
-      nativePendingPromptTypes:pending.map(p=>p.constructor.name),
+      nativeResolvedPromptTypes:promptTypes,
       supporterTurn:f.source.supporterTurn,
       physicalPrizesAfter:f.source.getPrizeLeft(),
       paperQualified:false,competitiveGamesQualified:0
