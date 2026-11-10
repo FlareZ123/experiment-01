@@ -31,7 +31,7 @@ The actual fetched post-commit helper and both actual imported public-cost modul
 | Temple of Sinnoh present | No DCE proposal |
 | Other Active's 210-damage attack becomes payable using DCE | No Mew diversion |
 
-The **exact committed eight-case `node:test` source** was also executed in a V8 CJS sandbox using restricted import stubs: **8/8 passed, 0 failed**. The missing-`Cross Fusion Strike` and exhausted once-per-turn Energy gates both passed. **Native Node and pinned Twinleaf Store have not been run for this patch.** The isolated harness is a code-level witness, not a compiled Store acceptance test.
+The **exact committed eight-case `node:test` source** was also executed in a V8 CJS sandbox using restricted import stubs: **8/8 passed, 0 failed**. The missing-`Cross Fusion Strike` and exhausted once-per-turn Energy gates both passed. **The exact committed eight-case test has now also passed under Node.js 22 in [manual GitHub Actions CI 42732351184](https://github.com/FlareZ123/experiment-01/actions/runs/42732351184): one focused job succeeded and all unrelated/native jobs were skipped.** The pinned Twinleaf Store has not been run for this patch. The isolated harness is a code-level witness, not a compiled Store acceptance test.
 
 ## Decision for future source policy
 
