@@ -157,13 +157,11 @@ function runFork(seat){
     selectedPrintedSourceCopies:priority.owner.bench
       .map(x=>x.getPokemonCard()?.fullName??null),
     attackerHp:priority.owner.active.getPokemonCard()?.hp??null,
-    attackerTools:priority.owner.active.tools.cards.map(c=>c.fullName),
     opponentPrinting:priority.opponent.active.getPokemonCard()?.fullName??null,
     opponentHp:priority.opponent.active.getPokemonCard()?.hp??null,
     opponentWeakness:priority.opponent.active.getPokemonCard()?.weakness??null,
     opponentResistance:priority.opponent.active.getPokemonCard()?.resistance??null,
-    opponentDamage:priority.opponent.active.damage,
-    opponentTools:priority.opponent.active.tools.cards.map(c=>c.fullName)
+    opponentDamage:priority.opponent.active.damage
   };
   const controlMenu=attackMenu(baseline);
   const priorityMenu=attackMenu(priority);
