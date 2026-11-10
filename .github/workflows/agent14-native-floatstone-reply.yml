@@ -37,12 +37,13 @@ on:
           - agent8-source-mew-combat-v5
           - agent8-source-mew-funding-v6
           - agent8-mew-source-two-fixed60-v7
+          - agent8-mew-partial-vmax-pure
 permissions:
   contents: read
   actions: read
 jobs:
   native-two:
-    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent31-lockbridge-eight-rank-archive-audit'
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent31-lockbridge-eight-rank-archive-audit' && inputs.experiment != 'agent8-mew-partial-vmax-pure'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -583,3 +584,16 @@ jobs:
           path: artifacts/agent3-portable-all29-matched-audit.json
           if-no-files-found: warn
           retention-days: 21
+  agent8-mew-partial-vmax-pure:
+    if: inputs.experiment == 'agent8-mew-partial-vmax-pure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check complete source and run eight native-free Mew funding tests
+        run: |
+          node --check simulation/twinleaf/agent26-owner-visible-mew-dce-recipient.cjs
+          node --test tests/2026-11/agent8-mew-partial-dce-funding.test.cjs
