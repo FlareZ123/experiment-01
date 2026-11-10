@@ -1,0 +1,41 @@
+name: Agent26 late public turn Active Psychic priority fresh32 native
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test frozen 32 physical groups and public-turn-gated actor
+        run: node --test tests/2026-11/agent26-hood-late-active-funding-fresh32-contract.test.cjs
+      - name: Audit prospective registry and native engine pin
+        run: node simulation/evaluation/2026-11/agent26-hood-late-active-funding-fresh32.cjs --preflight
+      - name: Compare blanket versus turn25 Active Psychic priority with unchanged four sources
+        run: node simulation/evaluation/2026-11/agent26-hood-late-active-funding-fresh32.cjs
+      - name: Preserve every native completion, response and physical match
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-hood-late-active-funding-fresh32-native
+          path: agent26-hood-late-active-funding-fresh32-native.json
+          if-no-files-found: warn
+          retention-days: 21
