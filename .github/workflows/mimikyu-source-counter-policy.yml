@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_compressor_prospective:
+        description: Frozen 8 fresh seed 32-arm original source Compressor-only donor mechanism A/B with real Prize transitions
+        type: boolean
+        required: false
+        default: false
       agent46_compressor_donor:
         description: Test native physical Battle Compressor donor and exact historical Mimikyu post-Apex source response
         type: boolean
@@ -171,6 +176,19 @@ jobs:
         with:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
+          if-no-files-found: warn
+      - name: Run preregistered fresh-source Compressor-only 32 native arms
+        if: inputs.agent46_compressor_prospective == true
+        run: node simulation/evaluation/2026-11/agent46-compressor-donor-prospective.cjs > agent46-compressor-prospective.json
+      - name: Print physical Compressor donor and actual copied attack counts
+        if: inputs.agent46_compressor_prospective == true
+        run: node -e "const x=require('./agent46-compressor-prospective.json');console.log(JSON.stringify({schema:x.schema,attempts:x.actualNativeAttempts,matched:x.matchedOriginalSourceDeals,copycat:[x.controlCopycat,x.compressorCopycat],apex:[x.controlApex,x.compressorApex],search:x.compressorPhysicalSearchCallbacks,proposals:x.compressorItemRootProposals,pairs:x.pairs}))"
+      - name: Archive preregistered natural Compressor source game outcomes
+        if: ${{ always() && inputs.agent46_compressor_prospective == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-compressor-prospective-original-source
+          path: agent46-compressor-prospective.json
           if-no-files-found: warn
       - name: Test actual original-card Battle Compressor owner-deck donor in both physical seats
         if: inputs.agent46_compressor_donor == true
