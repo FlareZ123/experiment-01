@@ -112,6 +112,9 @@ jobs:
       - name: Test real original rank1 Pale Moon GX and owned Jet switch after first-turn Cape
         if: inputs.agent25_cape_paid_opening_native
         run: node simulation/twinleaf/2026-11/agent25-cape-palemoon-counterreply-native.cjs > agent25-cape-palemoon-native.log
+      - name: Test Town Store searches Cape while G&H searches Tool TM and Jet on the fixed 60
+        if: inputs.agent25_cape_paid_opening_native
+        run: node simulation/twinleaf/2026-11/agent25-townstore-cape-paid-search-native.cjs > agent25-town-cape-native.log
       - name: Preserve two-seat actual source-first-turn Cape roots
         if: always() && inputs.agent25_cape_paid_opening_native
         uses: actions/upload-artifact@v4
@@ -121,6 +124,7 @@ jobs:
             agent25-cape-paid-opening-native.log
             agent25-cape-continuous-reply-native.log
             agent25-cape-palemoon-native.log
+            agent25-town-cape-native.log
           if-no-files-found: warn
           retention-days: 14
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
