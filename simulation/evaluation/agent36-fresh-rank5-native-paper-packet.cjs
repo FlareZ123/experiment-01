@@ -90,6 +90,7 @@ function runFreshPacket(deps = {}) {
     finished = nativeBatch(true, base => run({
       ...base,
       ...commonSourceFundingOptions(),
+      allowExtendedRegisteredNativeRootCap:true,
       onRootStoreCreated: (store, trialId) => {
         assert.ok(registered.registeredGameIds.includes(trialId),
           'Unregistered physical trial attempted');
