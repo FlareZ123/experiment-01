@@ -1,0 +1,51 @@
+{
+  "schema": "agent7-prospective-rank3-rank13-bilateral-natural-evolution-v1",
+  "registeredAtUtc": "2026-11-10T01:03:29.908Z",
+  "scope": "Original published paper-Expanded Aichi ranks3 and13 only; four unobserved physical openings, not entire 32 field",
+  "sourceRank": 3,
+  "candidateRank": 13,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "seeds": [
+    834560947,
+    1231417888
+  ],
+  "trialIdsPerSeed": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "totalPhysicalOrientations": 4,
+  "nativeAttemptCount": 8,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "actionLimit": 128,
+  "common": {
+    "actorOnlyComposition": true,
+    "sourceIndependentCommonPolicy": true,
+    "mailBeachArven": true,
+    "opponentDedenneTrue": true,
+    "sourceOwnerConfirm": true,
+    "sourceArvenNest": true,
+    "sharedPaperCelestial": "simulation/twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs"
+  },
+  "control": {
+    "bilateralNaturalEvolutionRoot": false
+  },
+  "treatment": {
+    "bilateralNaturalEvolutionRoot": true,
+    "ownerEvolutionPolicy": "simulation/twinleaf/agent1-actor-evolution-frontier.cjs",
+    "allPhysicalSeats": true
+  },
+  "primaryEndpoint": "Native accepted Regidrago VSTAR SIT PlayCardAction (each physical seat) with verified full physical initial deal parity per seed/seat",
+  "secondaryEndpoints": [
+    "first genuine VSTAR Legacy Star and Apex Dragon activations",
+    "original source opponent substantive response and later source return",
+    "native status and terminal under unchanged root cap",
+    "absolute count of valid paper-qualified games; expected 0 pending external checks"
+  ],
+  "vetoes": [
+    "Mismatched source or whole-two-player initial deal fingerprints makes paired attribution censored",
+    "Native Store acceptance alone is no paper-game admission",
+    "Retrospective prior seed 290134 excluded from fresh cohort",
+    "No changes to printed sixty or vendor code"
+  ],
+  "competitivePaperGamesQualified": 0
+}
