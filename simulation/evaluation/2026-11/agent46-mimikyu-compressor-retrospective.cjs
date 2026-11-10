@@ -9,6 +9,11 @@ const {installMimikyuCompressorDonor}=
   require('../../twinleaf/2026-11/agent46-mimikyu-battle-compressor-donor.cjs');
 
 const SEED=589307622,SEAT=0;
+const path=require('node:path');
+const OUTPUT=path.resolve(__dirname,'../../../vendor/twinleaf/ptcg-server/output');
+const {Store}=require(path.join(OUTPUT,'game/store/store'));
+const {DealDamageEffect}=
+  require(path.join(OUTPUT,'game/store/effects/attack-effects'));
 
 /**
  * Retrospective mechanism from previously observed hand-held Compressor at
@@ -20,6 +25,27 @@ function run(){
   initializeCards();
   const byRank=sourceDecks();
   const baseline=runFundedControl(byRank,SEED,SEAT),events=[];
+  const damageEvents=[];
+  const originalReduce=Store.prototype.reduceEffect;
+  function observedReduce(state,effect){
+    if(state?.turn===8&&effect instanceof DealDamageEffect){
+      const owner=state.players[SEAT],opponent=state.players[1-SEAT];
+      damageEvents.push({
+        turn:state.turn,damageAmount:effect.damage,
+        effectName:effect.constructor.name,
+        ownerActive:owner.active.getPokemonCard()?.fullName,
+        opponentActive:opponent.active.getPokemonCard()?.fullName,
+        opponentActiveHp:opponent.active.getPokemonCard()?.hp,
+        opponentPriorDamage:opponent.active.damage,
+        targetPrinting:effect.target?.getPokemonCard()?.fullName,
+        sourcePrinting:effect.source?.getPokemonCard()?.fullName,
+        opponentWeakness:opponent.active.getPokemonCard()?.weakness??[],
+        attackName:effect.attack?.name??null
+      });
+    }
+    return originalReduce.call(this,state,effect);
+  }
+  Store.prototype.reduceEffect=observedReduce;
   const restore=installMimikyuCompressorDonor({
     seat:SEAT,includeTreasureDonor:false,onEvent:e=>{
       if(events.length<128)events.push(e);
@@ -57,6 +83,7 @@ function run(){
       nativeRootConfirmations:game.rootConfirmationTrace,
       nativeAttackDeclarations:game.attackDeclarationTrace,
       actualPrizesRemaining:game.prizesRemaining,
+      actualPrintedDamageEffectEvents:damageEvents,
       nativeCompressorRoots:(game.rootActionLedger??[]).filter(row=>
         row.playerSlot===SEAT&&row.card==='Battle Compressor'),
       nativeCopyAttackSelectionRoots:(game.rootActionLedger??[]).filter(row=>
@@ -77,7 +104,7 @@ function run(){
   }catch(error){
     treatment={status:'native-error',error:String(error?.stack??error),
       ownerEvents:events,competitivePaperGames:0};
-  }finally{restore();}
+  }finally{restore();Store.prototype.reduceEffect=originalReduce;}
   const matched=Boolean(baseline.nativeInitialSourceDeal&&
     treatment.sourceDeal&&JSON.stringify(baseline.nativeInitialSourceDeal)===
       JSON.stringify(treatment.sourceDeal));
