@@ -23,7 +23,7 @@ const FLAGS=['AGENT7_EARLY_BEACH_DEV',
 /** Compare unchanged actual first-eligible Mail before optional Beach fallback. */
 function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ownerConfirm=false,arvenNest=false,dedenneTrue=false,
   motivateEnergy=false,celestialRoar=false,paperCelestial=false,
-  candidateNaturalEvolutionRoot=false}={}){
+  candidateNaturalEvolutionRoot=false,sharedPaperCelestial=false}={}){
   const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const native=relative=>require(path.join(base,relative));
   const headless=require('../twinleaf/headless.cjs');
@@ -58,6 +58,13 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
       });
       return mail.result;
       };
+      assert.ok(!(paperCelestial&&sharedPaperCelestial),
+        'only one reversible paper reducer may own native Regidrago V');
+      if(sharedPaperCelestial){
+        const restore=require('../twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs')
+          .installRegidragoCelestialRoarPaperCustodyHook();
+        try{return execute();}finally{restore();}
+      }
       if(!paperCelestial)return execute();
       const patched=withPaperCelestialRoar(execute);
       paperAudit=patched.audit;
@@ -68,7 +75,7 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
     return {
       earlyBeach,followArven,mysteriousTreasureRoot,ownerConfirm,arvenNest,dedenneTrue,
       motivateEnergy,celestialRoar,paperCelestial,
-      candidateNaturalEvolutionRoot,
+      candidateNaturalEvolutionRoot,sharedPaperCelestial,
       output,beachEvents:traced.events,
       mailAudit:mail.audit,paperAudit
     };
