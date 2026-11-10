@@ -1,0 +1,29 @@
+{
+  "schema": "agent20-early-gengar-fog-psychic-posthoc-8303A-aba-v1",
+  "status": "POSTHOC_ENGINEERING_REGRESSION",
+  "registeredAtUtc": "2026-11-10T00:45:17.093Z",
+  "sourceFreeze": "agent20-newmoon-triad-v2-vip-fresh-eight-20261110.json",
+  "historicalCase": "5:8303:A:new-moon-lockbreaker-v1",
+  "seed": 232912642,
+  "registeredTrial": {
+    "rank": 5,
+    "repeat": 8303,
+    "seed": 232912642,
+    "candidateSlot": "A",
+    "candidateId": "new-moon-lockbreaker-v1",
+    "id": "5:8303:A:new-moon-lockbreaker-v1"
+  },
+  "sourceNativeRun": 42728729617,
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "reasonPreselectedAfterViewing": "Actor Gengar active with no Energy or Psychic in hand, Fog Crystal root11 selected Duskull when five Energies still in deck; native VIP v2 later completed Mewtwo+Gengar+Latias without a funded first attack",
+  "modes": [
+    "A-v2-VIP-native-Fog",
+    "B-v2-VIP-early-Psychic-Fog",
+    "A-v2-VIP-native-Fog-repeat"
+  ],
+  "objective": "Direct physical same-seed A/B/A test of payer-owned Fog selection to Psychic Basic before subsequent legal attachment and Horror House-GX, with native Store and source response",
+  "expectedAttempts": 3,
+  "paperQualifiedGames": 0,
+  "competitiveInference": false
+}
