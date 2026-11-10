@@ -20,6 +20,12 @@ on:
         required: false
         default: false
 
+      run_rank5_newmoon_fog_psychic_posthoc:
+        description: 'One observed Gengar Active Fog-to-Psychic Energy native paper-line counterfactual'
+        type: boolean
+        required: false
+        default: false
+
       run_rank5_newmoon_fog_energy_fresh_16:
         description: '48 preregistered native trials: first Fog Energy vs ordinary with VIP v2 unchanged'
         type: boolean
@@ -77,7 +83,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 && !inputs.run_rank5_newmoon_triad_vip && !inputs.run_rank5_newmoon_triad_v2_vip && !inputs.run_rank5_newmoon_triad_v2_posthoc && !inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 && !inputs.run_rank5_newmoon_triad_vip && !inputs.run_rank5_newmoon_triad_v2_vip && !inputs.run_rank5_newmoon_triad_v2_posthoc && !inputs.run_rank5_newmoon_fog_energy_fresh_16 && !inputs.run_rank5_newmoon_fog_psychic_posthoc }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -212,5 +218,23 @@ jobs:
         with:
           name: agent20-newmoon-fog-gengar-energy-fresh-16-physical-aba
           path: artifacts/agent20-newmoon-fog-gengar-energy-fresh-16.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Verify known physical Gengar Fog energy counterfactual preflight
+        if: ${{ inputs.run_rank5_newmoon_fog_psychic_posthoc }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent20-newmoon-fog-psychic-posthoc-8303A.cjs
+          node --test tests/2026-11/agent20-fog-psychic-energy-priority.test.cjs
+          node simulation/evaluation/2026-11/agent20-newmoon-fog-psychic-posthoc-8303A.cjs --preflight
+      - name: Play observed original-rank5 Gengar Fog native A-B-A with unchanged printed sixties
+        if: ${{ inputs.run_rank5_newmoon_fog_psychic_posthoc }}
+        run: node simulation/evaluation/2026-11/agent20-newmoon-fog-psychic-posthoc-8303A.cjs
+      - name: Archive original-physical Gengar Fog Energy comparison
+        if: ${{ always() && inputs.run_rank5_newmoon_fog_psychic_posthoc }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-newmoon-fog-psychic-posthoc-8303A-physical-aba
+          path: artifacts/agent20-newmoon-fog-psychic-posthoc-8303A.json
           if-no-files-found: warn
           retention-days: 30
