@@ -70,7 +70,7 @@ test('native hook attaches revealed Basic and Special, discards remainder once',
     assert.equal(pending.p.options.min,2);
     assert.equal(pending.p.options.max,2);
     assert.deepEqual(pending.p.filter,{superType:'ENERGY'});
-    const transfers=[f.byName.energySpecial,f.byName.energyBasic].map(card=>({
+    const transfers=[f.byName.special,f.byName.basic].map(card=>({
       card,to:{player:2,slot:1,index:0}
     }));
     pending.callback(transfers);
