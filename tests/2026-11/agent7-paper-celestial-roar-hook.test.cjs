@@ -78,7 +78,7 @@ test('native hook attaches revealed Basic and Special, discards remainder once',
   },f.deps);
   assert.equal(outcome.result.turn,2);
   assert.deepEqual(f.player.active.cards,
-    [f.byName.energySpecial,f.byName.energyBasic]);
+    [f.byName.special,f.byName.basic]);
   assert.deepEqual(f.player.discard.cards,[f.byName.trainerA]);
   assert.equal(f.player.deck.cards.length,0);
   assert.equal(outcome.audit.specialEnergyOffered,1);
