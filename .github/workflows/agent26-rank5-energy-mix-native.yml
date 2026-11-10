@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_prospective_lillie:
+        description: 'Run precommitted unseen four rank5 physical deals in both baseline and owner-Lillie policy arms'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -31,7 +36,8 @@ jobs:
           node --check simulation/twinleaf/2026-11/agent26-mew-energy-mix-owner-prompt.cjs
           node --check simulation/evaluation/2026-11/agent26-rank5-energy-mix-native-continuation.cjs
           node --check simulation/evaluation/2026-11/agent26-rank5-lillie-pass-rescue-native.cjs
-          node --test tests/2026-11/agent26-mew-energy-mix-owner-prompt.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
+          node --check simulation/evaluation/2026-11/agent26-fresh-rank5-lillie-prospective-native.cjs
+          node --test tests/2026-11/agent26-mew-energy-mix-owner-prompt.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent26-fresh-rank5-lillie-prospective-native.test.cjs
       - name: Check out pinned native game-engine revision
         if: ${{ inputs.run_native }}
         run: git submodule update --init --depth=1 vendor/twinleaf
@@ -56,6 +62,9 @@ jobs:
       - name: Replay actual four rank5 native deals with both-seat owner-Lillie decision rescue
         if: ${{ inputs.run_native && inputs.run_lillie_pass }}
         run: node simulation/evaluation/2026-11/agent26-rank5-lillie-pass-rescue-native.cjs
+      - name: Run precommitted original source rank5 four unseen physical games in paired owner-Lillie arms
+        if: ${{ inputs.run_native && inputs.run_prospective_lillie }}
+        run: node simulation/evaluation/2026-11/agent26-fresh-rank5-lillie-prospective-native.cjs
       - name: Preserve actual native accepted-root and physical evidence including failed attempts
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,6 +73,7 @@ jobs:
           path: |
             artifacts/agent26-rank5-energy-mix/
             artifacts/agent26-rank5-lillie/
+            artifacts/agent26-rank5-lillie-prospective/
           if-no-files-found: warn
           retention-days: 21
           compression-level: 6
