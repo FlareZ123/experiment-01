@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_mimikyu_manual_promote_ab:
+        description: Preregistered rank1 Mimikyu manual Psychic and post-Apex promotion 24-arm source panel
+        type: boolean
+        required: false
+        default: false
       agent46_underworld_paper_target_test:
         description: Test pinned native Underworld Door illegal non-Psychic Bench and reversible paper legality hook
         type: boolean
@@ -146,6 +151,22 @@ jobs:
         with:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
+          if-no-files-found: warn
+      - name: Validate native owner manual Psychic attachment and post-Apex promotion both seats
+        if: inputs.agent46_mimikyu_manual_promote_ab == true
+        run: node --test tests/2026-11/agent46-mimikyu-fund-and-promote.native.test.cjs
+      - name: Execute all frozen original rank1/rank10 Mimikyu funded-promotion A/B attempts
+        if: inputs.agent46_mimikyu_manual_promote_ab == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-manual-promote-source-ab.cjs > agent46-mimikyu-funded-promotion-source-ab.json
+      - name: Summarize native source Mimikyu funding and promotion evidence
+        if: inputs.agent46_mimikyu_manual_promote_ab == true
+        run: node -e "const x=require('./agent46-mimikyu-funded-promotion-source-ab.json');console.log(JSON.stringify({schema:x.schema,attempts:x.nativeAttempts,matched:x.matchedPhysicalSourceDealPairs,manual:x.manualPsychicProposals,knockoutPromotions:x.nativeKoPromotionProposals,retreats:x.nativePaidRetreatProposals,pairs:x.pairs}))"
+      - name: Archive full preregistered Mimikyu funded-promotion matched source A/B
+        if: ${{ always() && inputs.agent46_mimikyu_manual_promote_ab == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-funded-promotion-source-ab
+          path: agent46-mimikyu-funded-promotion-source-ab.json
           if-no-files-found: warn
       - name: Optional native Underworld Door printed Psychic target paper-legal guard
         if: inputs.agent46_underworld_paper_target_test == true
