@@ -1,0 +1,27 @@
+name: Agent50 Relicanth Memory Dive paper Ability-lock guard
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent50-relicanth-native-guard
+  cancel-in-progress: false
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout pinned native Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native original Relicanth Memory Dive Ability-lock regression
+        run: node --test tests/2026-11/agent50-relicanth-memory-dive-ability-lock.native.test.cjs
