@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict');
 const {runNativeBatch}=
   require('../agent32-fresh-perfection-field.cjs');
+const {runDevelopment}=
+  require('../agent41-bilateral-v2-development.cjs');
 const {runFreshPacket,writeArtifact}=
   require('../agent36-fresh-rank5-native-paper-packet.cjs');
 const {withMewEnergyMixOwnerPrompt,VERSION:POLICY_VERSION}=
@@ -34,14 +36,17 @@ const frozenDeals={
 function runRetrospectiveContinuation(deps={}){
   let promptAudit=null;
   const packet=runFreshPacket({
-    nativeBatch:(enable,runner,extra)=>{
+    nativeBatch:deps.nativeBatch??runNativeBatch,
+    // Install after the pre-existing delegated owner-decoder wrappers.
+    // Outer installation is shadowed by the inner fail-closed decoder and
+    // cannot reach its pending Energy Mix prompt.
+    run:options=>{
       const session=withMewEnergyMixOwnerPrompt(
-        ()=>(deps.nativeBatch??runNativeBatch)(enable,runner,extra),
+        ()=>(deps.run??runDevelopment)(options),
         deps.promptDependencies??{});
       promptAudit=session.audit;
       return session.result;
-    },
-    ...(deps.run?{run:deps.run}:{})
+    }
   });
   assert.equal(packet.initialPhysicalStoreGameCount,4);
   for(const row of packet.gameRecords){
