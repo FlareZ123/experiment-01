@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_mimikyu_causal_gap:
+        description: Read-only owner turn-start requirement census on two historical Apex-exposed cases
+        type: boolean
+        required: false
+        default: false
       agent46_mimikyu_manual_promote_ab:
         description: Preregistered rank1 Mimikyu manual Psychic and post-Apex promotion 24-arm source panel
         type: boolean
@@ -151,6 +156,19 @@ jobs:
         with:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
+          if-no-files-found: warn
+      - name: Read-only retrospective actual Apex response turn-start and accepted root-action audit
+        if: inputs.agent46_mimikyu_causal_gap == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-causal-gap-native.cjs > agent46-mimikyu-apex-causal-gap.json
+      - name: Print frozen Mimikyu actual owner-turn constraint gap
+        if: inputs.agent46_mimikyu_causal_gap == true
+        run: node -e "const x=require('./agent46-mimikyu-apex-causal-gap.json');for(const r of x.rows)console.log(JSON.stringify({seed:r.seed,seat:r.seat,apex:r.sourceApexDeclarations,ownerReplyTurns:r.apexTurnCount,copycat:r.acceptedCopycatDeclarations,realRetreats:r.acceptedRetreatRoots,turns:r.apexTurnPhysicalRequirements,proposals:r.proposalSummary}))"
+      - name: Preserve actual original source Mimikyu owner-turn response diagnostics
+        if: ${{ always() && inputs.agent46_mimikyu_causal_gap == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-apex-causal-gap-native
+          path: agent46-mimikyu-apex-causal-gap.json
           if-no-files-found: warn
       - name: Validate native owner manual Psychic attachment and post-Apex promotion both seats
         if: inputs.agent46_mimikyu_manual_promote_ab == true
