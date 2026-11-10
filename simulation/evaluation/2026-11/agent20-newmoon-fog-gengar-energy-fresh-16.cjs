@@ -34,7 +34,7 @@ function preflight(){
     [false,true,false]);
   assert.ok(reg.registeredTrials.every(t=>t.rank===5&&
     t.candidateId==='new-moon-lockbreaker-v1'));
-  assert.equal(new Set(reg.registeredTrials.map(t=>t.id)).size,8);
+  assert.equal(new Set(reg.registeredTrials.map(t=>t.id)).size,16);
   const engine=execFileSync('git',['rev-parse','HEAD'],{
     cwd:path.join(ROOT,'vendor/twinleaf'),encoding:'utf8'
   }).trim();
