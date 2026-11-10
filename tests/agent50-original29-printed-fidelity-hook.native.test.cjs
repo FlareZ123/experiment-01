@@ -350,6 +350,9 @@ function originalTelepathSourceAttachment(seat){
       native('game/store/actions/play-card-action');
     const energy=f.card('Telepathic Psychic Energy POR');
     assert.equal(energy.fullName,'Telepath [P] Energy M3');
+    const searchable=f.card('Duskull VIV');
+    f.source.deck.cards.push(searchable);
+    assert.ok(f.source.deck.cards.includes(searchable));
     f.source.hand.cards.splice(0,f.source.hand.cards.length,energy);
     f.source.energyPlayedTurn=0;
     f.store.dispatch(new PlayCardAction(f.source.id,0,{
