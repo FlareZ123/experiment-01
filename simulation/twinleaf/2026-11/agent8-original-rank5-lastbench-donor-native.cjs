@@ -218,6 +218,22 @@ function runFork(seat,{fairyZone=true}={}){
     ownerPrizes:liveOwner.prizes.filter(p=>p.cards.length>0).length,
     opponentPrizes:liveOpponent.prizes.filter(p=>p.cards.length>0).length
   };
+  if(fairyZone){
+    assert.equal(nativeFinal.nativeWinner,seat,
+      'Fairy Zone should make copied 210 one-hit KO 220-HP lone Dragon');
+    assert.equal(nativeFinal.opponentActivePrinting,null,
+      'Native Store must remove KO target rather than report post-KO zero damage');
+    assert.equal(nativeFinal.ownerPrizes,4,
+      'Fairy Zone powered KO of Regidrago V takes exactly two source Prizes');
+  }else{
+    assert.equal(nativeFinal.nativeWinner,-1,
+      '210 without Psychic weakness is nonterminal against 220 HP');
+    assert.equal(nativeFinal.opponentActivePrinting,'Regidrago V SIT');
+    assert.equal(nativeFinal.opponentActualDamage,210,
+      'Unmodified copy must register 210 live damage');
+    assert.equal(nativeFinal.ownerPrizes,6,
+      'No Fairy Zone means no Regidrago V KO or source Prizes');
+  }
   return {seat,sourceRank:5,opponentRank:10,fairyZone,
     nativeFinal,preAttack,
     chosenPrintedAttackDamage:priorityMenu.attack.damage,
