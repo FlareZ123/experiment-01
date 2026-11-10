@@ -193,6 +193,7 @@ function run(deps={}){
 
 if(require.main===module){
   const outcome=run();
+  fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
   saveAtomic(OUTPUT,outcome);
   console.log('AGENT8_RANK5_SOURCE_BENCH',JSON.stringify({
     registrationSha256:outcome.registrationSha256,totals:outcome.totals,
