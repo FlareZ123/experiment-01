@@ -19,7 +19,7 @@ function preflight(){
   assert.equal(reg.status,'POSTHOC_ENGINEERING_REGRESSION');
   assert.equal(reg.observedBeforeThisRegistration,true);
   assert.equal(reg.historicalCase,'5:8204:B:new-moon-lockbreaker-v1');
-  assert.equal(reg.seed,2841596889);
+  assert.equal(reg.seed,1214230784);
   assert.equal(reg.registeredTrial.id,reg.historicalCase);
   const old=JSON.parse(fs.readFileSync(path.join(ROOT,
     'results/aichi-2026/registrations',
