@@ -1,0 +1,40 @@
+{
+  "schema": "agent7-rank13-regidrago-natural-vstar-native-a-b-v1",
+  "registeredAtUtc": "2026-11-10T00:54:55.710Z",
+  "question": "Can the existing canonical natural-evolution actor decision turn actual original rank13 Regidrago V into Regidrago VSTAR after paper-correct Celestial Roar, while retaining actor-only information and fixed original sixties?",
+  "sourceRank": 3,
+  "candidateRank": 13,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "seed": 290134,
+  "physicalOrientations": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRegistrationType": "historically observed exact native deal; feasibility test only, no prospective strength inference",
+  "common": {
+    "nativeRootCap": 128,
+    "actorOnlyPolicy": true,
+    "mailBeachArven": true,
+    "sourceMysteriousTreasure": true,
+    "sourceOwnerConfirm": true,
+    "sourceArvenNest": true,
+    "sourceDedenneTrue": true,
+    "sharedPaperCelestial": "simulation/twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs"
+  },
+  "control": {
+    "candidateNaturalEvolutionRoot": false
+  },
+  "treatment": {
+    "candidateNaturalEvolutionRoot": true,
+    "scope": "only physical seat occupied by original rank13 Regidrago"
+  },
+  "acceptance": [
+    "Both unchanged original printed sixties in both physical orientations",
+    "Source/candidate native Store accepted PlayCardAction for held Regidrago VSTAR if one is available",
+    "Observe treatment-only or shared actual printed evolution root, not synthetic intent",
+    "Preserve source Mail Beach Arven and opponent Dedenne physical outcomes where reached",
+    "Retain root-cap and native aborts rather than infer match wins"
+  ],
+  "competitivePaperGamesQualified": 0
+}
