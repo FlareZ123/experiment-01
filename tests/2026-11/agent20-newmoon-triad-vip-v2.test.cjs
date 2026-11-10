@@ -24,7 +24,7 @@ function prompt(found=names){
  * @param {string[]} hand Owner private held printings.
  * @param {number} slots Empty Bench slots.
  */
-function view(present=[],hand=[],slots=5){
+function view(present=[],hand=[],slots=5-Math.max(0,present.length-1)){
   return {decisionKind:'owner-prompt',pendingOwnerDeckSearch:true,
     ownHand:hand,ownPublic:{
       active:{printing:present[0]??'Lunatone OBF'},
