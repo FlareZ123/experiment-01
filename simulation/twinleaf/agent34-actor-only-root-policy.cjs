@@ -184,8 +184,14 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(farewell)return farewell;
   }
   if(benchIndex>=0&&!r.pokemonPlayLocked&&!soloThornsHold){
-    const index=view.ownHand.findIndex(p=>catalog.basics.has(p)&&
-      !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
+    const eligible=view.ownHand.flatMap((p,i)=>
+      catalog.basics.has(p)&&
+      !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p))?
+        [i]:[]);
+    const preferred=options.mewGenesectBenchFirst===true?
+      require('./2026-11/agent8-mew-genesect-bench-priority.cjs')
+        .chooseMewGenesectBenchIndex(view,eligible):null;
+    const index=preferred??eligible[0]??-1;
     if(index>=0){
       const first={kind:'bench-basic',handIndex:index,benchIndex,
         printing:view.ownHand[index]};
@@ -1079,6 +1085,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     dceMewMobilityRootOwnerSeat:deps.dceMewMobilityRootOwnerSeat??null,
     mewDceRecipientRootOptIn:deps.mewDceRecipientRoot===true,
     mewDceRecipientRootOwnerSeat:deps.mewDceRecipientRootOwnerSeat??null,
+    mewGenesectBenchFirstOptIn:deps.mewGenesectBenchFirst===true,
+    mewGenesectBenchFirstOwnerSeat:deps.mewGenesectBenchFirstOwnerSeat??null,
     crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
@@ -1517,6 +1525,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok([null,0,1].includes(audit.genesectFusionDrawOwnerSeat));
   assert.ok([null,0,1].includes(audit.dceMewMobilityRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.mewDceRecipientRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.mewGenesectBenchFirstOwnerSeat));
   assert.ok([null,0,1].includes(audit.naturalEvolutionRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
@@ -2054,6 +2063,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.dceMewMobilityRootOptIn,audit.dceMewMobilityRootOwnerSeat,seat),
       mewDceRecipientRoot:actorSpecialEnergyEnabled(
         audit.mewDceRecipientRootOptIn,audit.mewDceRecipientRootOwnerSeat,seat),
+      mewGenesectBenchFirst:actorSpecialEnergyEnabled(
+        audit.mewGenesectBenchFirstOptIn,audit.mewGenesectBenchFirstOwnerSeat,seat),
       crobatDceMewRetreat:actorSpecialEnergyEnabled(
         audit.crobatDceMewRetreatOptIn,
         audit.crobatDceMewRetreatOwnerSeat,seat),
