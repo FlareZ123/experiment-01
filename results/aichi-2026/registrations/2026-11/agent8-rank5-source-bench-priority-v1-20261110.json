@@ -1,0 +1,58 @@
+{
+  "schema": "agent8-rank5-mew-genesect-bench-first-native-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE V1 GAME",
+  "registeredAtUtc": "2026-11-10T01:09:03.955Z",
+  "design": "Original rank5 source Basic Bench role priority control/off vs treatment/on, two unchanged candidate 60s, both original seats, source physical deal held constant per candidate and policy.",
+  "hypothesis": "Favor an actually held first Mew V attacker and Genesect V Fusion Strike engine before off-axis Basic as source early root Bench. Later Bench play still follows ordinary root once both roles exist.",
+  "genuineOriginalSource": {
+    "rank": 5,
+    "printed60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "energyInventory": "4 Double Colorless Energy SUM; no Basic Psychic"
+  },
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "commonPolicy": "Frozen v2 bilateral base plus existing rank5 source native Quick Ball owner search, natural evolution, Fusion Strike System draw, Ultra Ball Mew VMAX search/discard preservation, DCE to Mew, and source Cross Fusion Strike attack chooser. Both arms use identical settings except source owner Bench preference.",
+  "onlyTreatmentDifference": {
+    "actorMewGenesectBenchFirst": true,
+    "actorMewGenesectBenchFirstSourceOnly": true
+  },
+  "rootLimit": 260,
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 8100,
+      "candidateSlot": "A",
+      "seed": 885763227,
+      "id": "5:8100:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 784353756,
+      "id": "5:8101:B"
+    },
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 249200576,
+      "id": "5:8102:A"
+    },
+    {
+      "rank": 5,
+      "repeat": 8103,
+      "candidateSlot": "B",
+      "seed": 1780260457,
+      "id": "5:8103:B"
+    }
+  ],
+  "expectedGamePairs": 8,
+  "expectedNativeAttempts": 16,
+  "sourceSeed": "four new secrets.randbelow(2^31-1)+1 generated November 10 before native execution; no post-outcome seed selection",
+  "censorPolicy": "Preserve all attempts including native error, root cap and natural terminal; all zero competitive paper-qualified until reviewed. Treat absent eligible Bench role conflict as not encountered.",
+  "acceptance": "Owner-visible source-seat option receipt and real Store-accepted Bench physical action, source/candidate exact opening partitions and trial IDs, source attack/payments, candidate reply, winner, censor, no certified rate."
+}
