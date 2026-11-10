@@ -1,6 +1,6 @@
 # Agent8: one-DCE-short Mew VMAX funding repair (10 November 2026)
 
-**Status:** committed owner-public source-policy correction and regression, with seven independently executed pure decision cases; **no native winner or paper qualification claim**.
+**Status:** committed owner-public source-policy correction and regression, with eight independently executed pure decision cases; **no native winner or paper qualification claim**.
 
 ## Decision that was missed
 
@@ -19,7 +19,7 @@ Patch commit: [`dc8883a8`](https://github.com/FlareZ123/experiment-01/commit/dc8
 
 ## Executed decision-level checks
 
-The actual fetched post-commit helper and both actual imported public-cost modules were executed in a deterministic isolated JavaScript test harness using restricted stubs for native-free imports, not a Twinleaf Store. All **7/7** executed test cases passed:
+The actual fetched post-commit helper and both actual imported public-cost modules were executed in a deterministic isolated JavaScript test harness using restricted stubs for native-free imports, not a Twinleaf Store. All **8/8** executed test cases passed:
 
 | Public state | Selected owner target |
 | --- | --- |
@@ -31,7 +31,7 @@ The actual fetched post-commit helper and both actual imported public-cost modul
 | Temple of Sinnoh present | No DCE proposal |
 | Other Active's 210-damage attack becomes payable using DCE | No Mew diversion |
 
-The committed regression has eight `node:test` cases, with an additional missing-`Cross Fusion Strike` check and a one-attachment-used check. **The committed Node test suite and actual native Store have not yet been run for this patch.** The isolated harness is a useful code-level witness, not a substitute for compiled pinned native acceptance.
+The **exact committed eight-case `node:test` source** was also executed in a V8 CJS sandbox using restricted import stubs: **8/8 passed, 0 failed**. The missing-`Cross Fusion Strike` and exhausted once-per-turn Energy gates both passed. **Native Node and pinned Twinleaf Store have not been run for this patch.** The isolated harness is a code-level witness, not a compiled Store acceptance test.
 
 ## Decision for future source policy
 
