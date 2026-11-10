@@ -39,7 +39,8 @@ function run(){
       mimikyuDeclaredHistoryCorrection:true,
       regidragoDeclaredHistoryCorrection:true,
       passClearsLastAttackCorrection:true,
-      captureCopycatTurnStartSeat:SEAT,captureDecisionTrace:true
+      captureCopycatTurnStartSeat:SEAT,captureDecisionTrace:true,
+      capturePublicAttackTransitions:true,captureRootConfirmationTrace:true
     });
     const own=game.attackTrace.filter(a=>a.seat===SEAT);
     const opp=game.attackTrace.filter(a=>a.seat!==SEAT);
@@ -50,6 +51,12 @@ function run(){
       actualCopycat:own.filter(a=>a.attack==='Copycat').length,
       actualOpponentApex:opp.filter(a=>a.attack==='Apex Dragon').length,
       actualOwnerAttackTrace:own,
+      nativeCopiedAttackTransitions:(game.publicAttackTransitions??[]).filter(
+        row=>row.triggerPlayerSlot===SEAT),
+      nativeAllPublicAttackTransitions:game.publicAttackTransitions,
+      nativeRootConfirmations:game.rootConfirmationTrace,
+      nativeAttackDeclarations:game.attackDeclarationTrace,
+      actualPrizesRemaining:game.prizesRemaining,
       nativeCompressorRoots:(game.rootActionLedger??[]).filter(row=>
         row.playerSlot===SEAT&&row.card==='Battle Compressor'),
       nativeCopyAttackSelectionRoots:(game.rootActionLedger??[]).filter(row=>
