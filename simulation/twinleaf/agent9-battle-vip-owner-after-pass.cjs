@@ -145,6 +145,35 @@ function preferSingleSlotMewtwoVipRecipient(pending,view,enums){
 }
 
 /**
+ * Choose the two missing printed members of New Moon's Mewtwo/Gengar/Latias
+ * setup, exclusively inside a genuine owner-authorized Battle VIP search.
+ * An exactly one-member-established board and two open Bench slots are
+ * required. Default policy remains untouched unless explicitly opted in.
+ *
+ * @param {object} pending Real owner deck-search prompt.
+ * @param {object} view Owner-only prompt observation.
+ * @param {{BASIC:number,POKEMON:number}} enums Pinned engine enums.
+ * @returns {object[]|null} Two actual native-validator-accepted cards.
+ */
+function preferNewMoonTriadVipRecipient(pending,view,enums){
+  assert.equal(view?.decisionKind,'owner-prompt');
+  assert.equal(view.pendingOwnerDeckSearch,true);
+  if(view.ownPublic.bench.filter(slot=>slot===null).length<2)return null;
+  const triad=['Mewtwo & Mew-GX UNM','Gengar & Mimikyu-GX TEU',
+    'Latias ex SSP'];
+  const inPlay=new Set([view.ownPublic.active,...view.ownPublic.bench]
+    .filter(Boolean).map(slot=>slot.printing));
+  const missing=triad.filter(printing=>!inPlay.has(printing));
+  if(missing.length!==2)return null;
+  const basics=pending.cards.cards.filter(card=>
+    card.superType===enums.POKEMON&&card.stage===enums.BASIC);
+  const chosen=missing.map(printing=>basics.find(card=>
+    card.fullName===printing));
+  if(chosen.some(card=>!card)||pending.validate(chosen)!==true)return null;
+  return chosen;
+}
+
+/**
  * Reversible real-Store owner-only Battle VIP Pass root + search-to-Bench
  * policy for both physical seats. Root is offered only after the earlier
  * actor planner proposed Pass. Search inventory is never inspected until
@@ -180,6 +209,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
   const preferRank9MegaVoltorbRecipient=
     deps.preferRank9MegaVoltorbRecipient===true;
   const preferMewtwoDonorRecipient=deps.preferMewtwoDonorRecipient===true;
+  const preferNewMoonTriadRecipient=deps.preferNewMoonTriadRecipient===true;
   const preferSingleSlotMewtwoRecipient=deps.preferSingleSlotMewtwoRecipient===true;
   const proposed=new WeakMap(),contendedOriginal=new WeakMap(),awaiting=new Map();
   let liveStore=null;
@@ -187,9 +217,11 @@ function withActorBattleVipAfterPass(execute,deps={}){
     version:VERSION+(preferRank9MegaVoltorbRecipient?
       '+original-rank9-mega-voltorb-early-v8':'')+
       (preferMewtwoDonorRecipient?'+original-owner-mewtwo-donor-v1':'')+
+      (preferNewMoonTriadRecipient?'+newmoon-triad-owner-vip-v1':'')+
       (preferSingleSlotMewtwoRecipient?'+owner-single-slot-mewtwo-v1':''),
     preferRank9MegaVoltorbRecipient,preferredOriginalRank9Searches:0,
     preferMewtwoDonorRecipient,preferredMewtwoDonorSearches:0,
+    preferNewMoonTriadRecipient,preferredNewMoonTriadSearches:0,
     preferSingleSlotMewtwoRecipient,preferredSingleMewtwoSearches:0,
     bothPhysicalSeats:true,originalPassRoots:0,
     originalPassBySeat:{0:0,1:0},passOpportunities:[],
@@ -230,14 +262,18 @@ function withActorBattleVipAfterPass(execute,deps={}){
       const rank9Priority=preferRank9MegaVoltorbRecipient?
         preferRank9MegaVoltorbVipRecipient(pending,view,enums):null;
       if(rank9Priority)audit.preferredOriginalRank9Searches++;
-      const mewtwoPriority=!rank9Priority&&preferMewtwoDonorRecipient?
+      const triadPriority=!rank9Priority&&preferNewMoonTriadRecipient?
+        preferNewMoonTriadVipRecipient(pending,view,enums):null;
+      if(triadPriority)audit.preferredNewMoonTriadSearches++;
+      const mewtwoPriority=!rank9Priority&&!triadPriority&&
+        preferMewtwoDonorRecipient?
         preferPerfectionMewtwoDonorVipRecipient(pending,view,enums):null;
       if(mewtwoPriority)audit.preferredMewtwoDonorSearches++;
-      const oneSlot=!rank9Priority&&!mewtwoPriority&&
+      const oneSlot=!rank9Priority&&!triadPriority&&!mewtwoPriority&&
         preferSingleSlotMewtwoRecipient?
         preferSingleSlotMewtwoVipRecipient(pending,view,enums):null;
       if(oneSlot)audit.preferredSingleMewtwoSearches++;
-      const selected=rank9Priority??mewtwoPriority??oneSlot??
+      const selected=rank9Priority??triadPriority??mewtwoPriority??oneSlot??
         chooseVipPromptCards(pending,view,enums);
       const action=new ResolvePromptAction(pending.id,selected);
       proposed.set(action,{
@@ -397,4 +433,5 @@ function withActorBattleVipAfterPass(execute,deps={}){
 module.exports={VERSION,PRINTING,PROMPT_MESSAGE,chooseVipAfterPass,
   chooseVipPromptCards,preferRank9MegaVoltorbVipRecipient,
   preferPerfectionMewtwoDonorVipRecipient,
-  preferSingleSlotMewtwoVipRecipient,withActorBattleVipAfterPass};
+  preferSingleSlotMewtwoVipRecipient,preferNewMoonTriadVipRecipient,
+  withActorBattleVipAfterPass};
