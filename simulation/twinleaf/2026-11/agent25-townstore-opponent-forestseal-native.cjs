@@ -35,7 +35,9 @@ function prepare(x){
   const original=custody(p).map(c=>c.fullName).sort();
   const guzma=p.hand.cards.find(c=>c.fullName===GUZMA);
   assert.ok(guzma,'Base staged original rank1 holds native Guzma');
-  const filler=p.deck.cards.find(c=>
+  // Preserve the top physical card for the mandatory next-turn source draw:
+  // a Guzma moved to deck top would simply be redrawn before Town Store.
+  const filler=p.deck.cards.findLast(c=>
     c.fullName!=='Forest Seal Stone SIT'&&
     c.fullName!=='Guzma BUS');
   assert.ok(filler);
