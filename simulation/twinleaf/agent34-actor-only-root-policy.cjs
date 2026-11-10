@@ -366,9 +366,14 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.underworldMarkerReceipt);
     if(underworld){
       if(options.underworldActiveFundingPriority===true){
-        const active=require('./agent34-underworld-active-funding-priority.cjs')
-          .chooseUnderworldActiveFundingPriority(view,catalog);
-        if(active)return active;
+        const mirrorVeto=options.underworldActiveFundingMirrorVeto===true&&
+          require('./2026-11/agent26-shadow-rider-mirror-funding-veto.cjs')
+            .vetoManualActiveFunding(view);
+        if(!mirrorVeto){
+          const active=require('./agent34-underworld-active-funding-priority.cjs')
+            .chooseUnderworldActiveFundingPriority(view,catalog);
+          if(active)return active;
+        }
       }
       return underworld;
     }
@@ -1123,6 +1128,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     },
     underworldActiveFundingPriorityOptIn:
       deps.underworldActiveFundingPriority===true,
+    underworldActiveFundingMirrorVetoOptIn:
+      deps.underworldActiveFundingMirrorVeto===true,
     underworldActiveFundingPrioritySelected:0,
     underworldDoorRootSelected:0,
     pathUnderworldStadiumCounterSelected:0,
@@ -1589,6 +1596,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       'Used Fusion proof requires explicit Path selection');
     audit.version+='+'+
       require('./agent33-public-fusion-usage.cjs').VERSION;
+  }
+  if(audit.underworldActiveFundingMirrorVetoOptIn){
+    assert.equal(audit.underworldActiveFundingPriorityOptIn,true,
+      'Mirror veto only applies to an enabled Active Psychic priority');
+    audit.version+='+'+
+      require('./2026-11/agent26-shadow-rider-mirror-funding-veto.cjs').VERSION;
   }
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
@@ -2065,6 +2078,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       twoUnitPaidRetreatTargetTurnV2:audit.twoUnitPaidRetreatTargetTurnV2,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
+      underworldActiveFundingMirrorVeto:
+        audit.underworldActiveFundingMirrorVetoOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
         require('./agent31-underworld-door-owner-frontier.cjs')
           .ownerUnderworldMarkerReceipt(state.players[seat]):undefined,
