@@ -86,7 +86,8 @@ function runOne(candidateSeat,cards,{
   mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
   firstCrispinSeekerRecovery=false,
-  earlyRegidragoCompressor=false
+  earlyRegidragoCompressor=false,
+  candidateNaturalEvolutionRoot=false
 }={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   const slot=candidateSeat===0?'A':'B';
@@ -132,6 +133,9 @@ function runOne(candidateSeat,cards,{
       mysteriousTreasureRoot&&treasurePaymentChoice==='muscle-band',
     firstRegidragoBenchGrass,firstCrispinSeekerRecovery,
     earlyRegidragoCompressor,
+    actorNaturalEvolutionRoot:candidateNaturalEvolutionRoot,
+    actorGarbodorResponseOwnerSeat:
+      candidateNaturalEvolutionRoot?candidateSeat:null,
     allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
@@ -360,7 +364,8 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
 
 function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
-  firstCrispinSeekerRecovery=false,earlyRegidragoCompressor=false}={}){
+  firstCrispinSeekerRecovery=false,earlyRegidragoCompressor=false,
+  candidateNaturalEvolutionRoot=false}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
@@ -369,10 +374,12 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   const rows=[
     runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
-      firstCrispinSeekerRecovery,earlyRegidragoCompressor}),
+      firstCrispinSeekerRecovery,earlyRegidragoCompressor,
+      candidateNaturalEvolutionRoot}),
     runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
-      firstCrispinSeekerRecovery,earlyRegidragoCompressor})
+      firstCrispinSeekerRecovery,earlyRegidragoCompressor,
+      candidateNaturalEvolutionRoot})
   ];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
@@ -430,6 +437,7 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
       mysteriousTreasureRoot,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
       firstCrispinSeekerRecovery,earlyRegidragoCompressor,
+      candidateNaturalEvolutionRoot,
       treasurePaymentChoice:mysteriousTreasureRoot?treasurePaymentChoice:null,
       nativeOwnerTrainerFallback:!ownerMailFollowupFrame,
       ownerFallbackDiagnosticView:!ownerMailFollowupFrame,
