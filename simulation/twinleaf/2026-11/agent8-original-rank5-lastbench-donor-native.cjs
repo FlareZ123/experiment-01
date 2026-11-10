@@ -153,6 +153,18 @@ function runFork(seat){
     const attack=donor?.attacks.find(a=>a.name==='Techno Blast')??null;
     return {prompt,donor,attack,optionPrintings:prompt.cards.map(p=>p.fullName)};
   };
+  const preAttack={
+    selectedPrintedSourceCopies:priority.owner.bench
+      .map(x=>x.getPokemonCard()?.fullName??null),
+    attackerHp:priority.owner.active.getPokemonCard()?.hp??null,
+    attackerTools:priority.owner.active.tools.cards.map(c=>c.fullName),
+    opponentPrinting:priority.opponent.active.getPokemonCard()?.fullName??null,
+    opponentHp:priority.opponent.active.getPokemonCard()?.hp??null,
+    opponentWeakness:priority.opponent.active.getPokemonCard()?.weakness??null,
+    opponentResistance:priority.opponent.active.getPokemonCard()?.resistance??null,
+    opponentDamage:priority.opponent.active.damage,
+    opponentTools:priority.opponent.active.tools.cards.map(c=>c.fullName)
+  };
   const controlMenu=attackMenu(baseline);
   const priorityMenu=attackMenu(priority);
   assert.equal(controlMenu.donor,undefined,
@@ -204,7 +216,8 @@ function runFork(seat){
     opponentPrizes:liveOpponent.prizes.filter(p=>p.cards.length>0).length
   };
   return {seat,sourceRank:5,opponentRank:10,
-    nativeFinal,
+    nativeFinal,preAttack,
+    chosenPrintedAttackDamage:priorityMenu.attack.damage,
     sourceDigest:baseline.sourceDigest,
     opponentDigest:baseline.opponentDigest,
     unchangedPrintedSource60:true,fullyMatchedInitialActorObservation:true,
