@@ -409,8 +409,15 @@ function originalLillieSourceDraw(seat){
     const {ResolvePromptAction}=
       native('game/store/actions/resolve-prompt-action');
     const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
-    const ai=Object.create(SimpleTacticsAi.prototype);
-    ai.client={id:f.source.id};
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const {BotFlipMode,BotShuffleMode}=
+      native('game/bots/bot-arbiter');
+    const ai=new SimpleTacticsAi({id:f.source.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+    },null);
     const promptTypes=[];
     for(let k=0;k<24;k++){
       const pending=f.state.prompts.find(p=>p.result===undefined);
