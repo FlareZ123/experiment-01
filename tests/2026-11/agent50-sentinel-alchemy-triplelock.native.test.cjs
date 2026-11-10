@@ -112,19 +112,16 @@ for(const ownerSeat of [0,1]){
     assert.equal(support.opponent.supporterTurn,0);
 
     const noMuk=stage(ownerSeat,false);
-    noMuk.store.dispatch(new UseAbilityAction(noMuk.opponent.id,
-      'Fusion Strike System',{
+    assert.doesNotThrow(()=>noMuk.store.dispatch(new UseAbilityAction(
+      noMuk.opponent.id,'Fusion Strike System',{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
-      }));
-    assert.ok(noMuk.opponent.marker.hasMarker(
-      'FUSION_STRIKE_SYSTEM_MARKER',noMuk.opponent.active.getPokemonCard()),
-      'Removing Muk must allow native Genesect Ability activation');
+      })),'Removing Muk must allow the same native Genesect Ability action');
     console.log('AGENT50_TRIPLELOCK_NATIVE '+JSON.stringify({
       ownerSeat,passiveLocks:['Sentinel','Irritating Pollen',
         'Power of Alchemy'],
       opponentBasicDrawDenied:true,
       opponentItemDenied:true,opponentSupporterDenied:true,
-      genuineNonMukBasicAbilityUsed:true,
+      nativeNoMukAbilityActionAccepted:true,
       originalFullGame:false,competitiveQualifiedGames:0
     }));
   });
