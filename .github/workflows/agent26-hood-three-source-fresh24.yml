@@ -1,0 +1,41 @@
+name: Agent26 Hood funding three authentic Aichi source ranks prospective native 24
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check three real source printed sixties and paired censor arithmetic
+        run: node --test tests/2026-11/agent26-hood-three-source-fresh24-contract.test.cjs
+      - name: Verify prospective registered source deals and frozen policy
+        run: node simulation/evaluation/2026-11/agent26-hood-three-source-fresh24.cjs --preflight
+      - name: Run 24 source-matched groups under both active funding policies
+        run: node simulation/evaluation/2026-11/agent26-hood-three-source-fresh24.cjs
+      - name: Preserve every native game disposition and exact physical pair
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-hood-funding-three-source-fresh24-native
+          path: agent26-hood-funding-three-source-fresh24-native.json
+          if-no-files-found: warn
+          retention-days: 21
