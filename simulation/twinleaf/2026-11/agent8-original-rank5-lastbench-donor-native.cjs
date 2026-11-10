@@ -186,7 +186,25 @@ function runFork(seat){
     resolved.push({kind,accepted:true});
   }
   assert.equal(priority.state.prompts.some(p=>p.result===undefined),false);
+  const liveOpponent=priority.store.state.players.find(p=>
+    p.id===priority.opponent.id);
+  const liveOwner=priority.store.state.players.find(p=>
+    p.id===priority.owner.id);
+  const nativeFinal={
+    phase:priority.store.state.phase,
+    turn:priority.store.state.turn,
+    nativeWinner:priority.store.state.winner??null,
+    sourceActivePrinting:liveOwner.active.getPokemonCard()?.fullName??null,
+    opponentActivePrinting:liveOpponent.active.getPokemonCard()?.fullName??null,
+    opponentActualDamage:liveOpponent.active.damage,
+    opponentActiveHp:liveOpponent.active.getPokemonCard()?.hp??null,
+    opponentReserve:liveOpponent.bench.map(p=>
+      p.getPokemonCard()?.fullName??null),
+    ownerPrizes:liveOwner.prizes.filter(p=>p.cards.length>0).length,
+    opponentPrizes:liveOpponent.prizes.filter(p=>p.cards.length>0).length
+  };
   return {seat,sourceRank:5,opponentRank:10,
+    nativeFinal,
     sourceDigest:baseline.sourceDigest,
     opponentDigest:baseline.opponentDigest,
     unchangedPrintedSource60:true,fullyMatchedInitialActorObservation:true,
