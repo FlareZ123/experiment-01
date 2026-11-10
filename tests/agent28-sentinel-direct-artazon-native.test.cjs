@@ -704,4 +704,4 @@ for(const seat of [0,1]){
 }
 
 // Export the original conditioned printed-60 fixture for independent successor tests.
-module.exports={stage,establishSentinelLock,resolveRank1Guzma};
+module.exports={stage,establishSentinelLock,resolveRank1Guzma,evolveTwice};
