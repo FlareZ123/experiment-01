@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent26-mew-dce-recipient-v1';
+const VERSION='agent26-mew-dce-recipient-v2-partially-funded-vmax';
 const ENERGY='Double Colorless Energy SUM';
 /** @param {object} view Acting player observation.
  * @param {object} catalog Printed catalog.
@@ -64,7 +64,42 @@ function chooseMewDceRecipient(view,catalog){
     Number(b.pokemon.printing==='Mew VMAX FST')-
     Number(a.pokemon.printing==='Mew VMAX FST')||
     (a.slot==='active'?0:1)-(b.slot==='active'?0:1)||a.index-b.index);
-  const t=options[0];
+  // A VMAX with an existing one-unit attachment can be exactly one DCE
+  // away from Cross Fusion Strike. The old zero-card-only filter diverted
+  // that DCE onto a distant Mew V, despite an immediate payable VMAX attack.
+  // Only public printed Energy and attack costs are considered. Unknown
+  // attached printings fail closed rather than certifying a fictitious line.
+  const {specialEnergyUnits,missingEnergyUnits}=
+    require('./agent3-special-energy-frontier.cjs');
+  const {effectiveNativeAttackCost}=
+    require('./agent17-public-context-special-energy.cjs');
+  const colorless=catalog.colorlessEnergyType;
+  const basicTypes=Object.keys(catalog.basicEnergyTypes??{});
+  const partial=targets.filter(t=>t.pokemon?.printing==='Mew VMAX FST'&&
+    Array.isArray(t.pokemon.energies)&&t.pokemon.energies.length>0)
+    .filter(t=>{
+      const supplied=[];
+      for(const printing of t.pokemon.energies){
+        const special=specialEnergyUnits(printing,catalog,false);
+        if(special!==null){supplied.push(...special);continue;}
+        if(!catalog.basicEnergies?.has(printing))return false;
+        const type=basicTypes.find(name=>
+          printing.startsWith(name+' Energy '));
+        if(type===undefined)return false;
+        supplied.push(catalog.basicEnergyTypes[type]);
+      }
+      const attack=(t.pokemon.attacks??[]).find(a=>
+        a.name==='Cross Fusion Strike');
+      if(!attack)return false;
+      const cost=effectiveNativeAttackCost(view,catalog,t.pokemon,attack);
+      if(!Array.isArray(cost))return false;
+      return missingEnergyUnits(cost,supplied,colorless)>0&&
+        missingEnergyUnits(cost,[...supplied,colorless,colorless],
+          colorless)===0;
+    })
+    .sort((a,b)=>
+      (a.slot==='active'?0:1)-(b.slot==='active'?0:1)||a.index-b.index);
+  const t=partial[0]??options[0];
   return t?{kind:'attach-special-energy',handIndex,printing:ENERGY,
     slot:t.slot,index:t.index}:null;
 }
