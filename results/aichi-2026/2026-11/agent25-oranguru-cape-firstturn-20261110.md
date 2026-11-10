@@ -20,6 +20,18 @@ The difference from [Town Store Cape Sentinel v1](agent25-townstore-cape-sentine
 
 The test uses the already established default-off [numeric deck-shuffle validation correction](../../../simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs) for a pinned vendor bug in 11+-card shuffles. All Pokémon, Tools and Energy are from the two unchanged original 60-card rosters; no emulated attack or forged extra card.
 
+## Exact opening ceiling of the demonstrated line
+
+The registered challenger has **15 Basic Pokémon** including exactly **one Oranguru V**. A legal starting seven must contain a Basic. Without any mulligan bonus, the exact chance that that singleton Oranguru occurs within the legal starting seven is
+
+`[7/60] / [1 - C(45,7)/C(60,7)] = 13.220030789787085%`.
+
+This is a hard **opening-location ceiling for the specific Back Order-first-turn setup** because the required Oranguru must be in the starting seven to begin Active. It is not the deck's overall chance to establish Vileplume through other lines, such as normal G&H / Artazon / a naturally held Cape. The first-eight resource corridor of this staged line additionally holds **Oddish** and one of **Guzma & Hala / Tag Call** by the eighth card. Conditioned on Oranguru in opening seven, the other six opening cards plus the first natural draw are a uniform seven-of-59 draw, so inclusion-exclusion yields
+
+`P(Oddish≥1 and G&H/Tag≥1 | opening Oranguru) = 1 - C(57,7)/C(59,7) - C(51,7)/C(59,7) + C(49,7)/C(59,7) = 13.744443835327236%`.
+
+Jointly among valid starts these two location gates occur in **1.8170197069152533%** of valid starts. This excludes the other necessary line pieces, Prize positions, paid discards, Bench space and opponents. It is a **necessary gate only for this exact demonstrated two-Tool path**, not an estimate of overall first-turn lock success. The result argues strongly against presenting the singleton-Oranguru-dependent branch as a broadly consistent primary plan.
+
 ## Competitive decision
 
 **Promising asymmetric path, still unselected.** Oranguru V resolves the first-turn two-Tool contention without granting the original rank-1 opponent a mutual Town Store Tool search, and establishes a physical first-turn Caped lock on a printed candidate 60. The **mandatory start with the singleton Oranguru V** is a substantial deck consistency cost, and the 2-Prize support Pokémon creates a potentially attractive gust target. This test selected its favorable deal and rank-1 response, so it is neither a natural-first-turn probability nor a win-rate measurement. The opponent's strongest response to Oranguru V itself, Ability locks (notably Iron Thorns ex), the full 29 authenticated Aichi lists and missing original ranks 23/25/28 are unresolved. **No full-game competitive wins are established, and the 99.5% target remains unverified.**
