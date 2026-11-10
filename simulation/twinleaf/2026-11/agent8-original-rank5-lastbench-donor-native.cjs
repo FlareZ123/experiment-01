@@ -19,8 +19,9 @@ const GEN='Genesect V FST';
 const DCE='Double Colorless Energy SUM';
 
 /** Exact 60-card original source with a deliberately staged final Bench slot. */
-function stage(seat){
+function stage(seat,{fairyZone=true}={}){
   assert.ok(seat===0||seat===1);
+  assert.equal(typeof fairyZone,'boolean');
   const perms={allowEquivalentBasicEnergies:true,
     allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true};
   const sourcePlan=planAichi(5,perms);
@@ -78,9 +79,12 @@ function stage(seat){
   // All parts belong to rank5's exact published 60. Real Mew VMAX evolution
   // and two original Mew V consume three of the four Mew V source printings.
   // The last Mew V and a Genesect V compete for the fifth Bench spot.
+  const den=sourcePlan.candidate.cards.find(c=>c.startsWith('Dedenne'));
+  assert.ok(den,'Actual source 60 must include an off-axis Dedenne GX');
+  const fourth=fairyZone?"Lillie's Clefairy ex JTG":den;
   const owner=construct(sourcePlan,{
     active:[MEW,VMAX],
-    bench:[MEW,MEW,'Crobat V DAA',"Lillie's Clefairy ex JTG"],
+    bench:[MEW,MEW,'Crobat V DAA',fourth],
     hand:[MEW,GEN,DCE]
   });
   const opponent=construct(opponentPlan,{
@@ -97,15 +101,16 @@ function stage(seat){
     ...native('game/store/card/card-types'),
     PowerType:native('game/store/card/pokemon-types').PowerType};
   const catalog=buildActorCardCatalog(manager.getAllCards(),t);
-  return {seat,owner,opponent,store,state,catalog,GamePhase,
+  return {seat,fairyZone,owner,opponent,store,state,catalog,GamePhase,
     PlayCardAction,PlayerType,SlotType,AttackAction,ResolvePromptAction,
     sourceDigest:sourcePlan.candidateDigest,
     opponentDigest:opponentPlan.candidateDigest};
 }
 
 /** Examine the actual Store-copied attack menu after a source physical Bench play. */
-function runFork(seat){
-  const baseline=stage(seat),priority=stage(seat);
+function runFork(seat,{fairyZone=true}={}){
+  const baseline=stage(seat,{fairyZone});
+  const priority=stage(seat,{fairyZone});
   const av=actorObservation(baseline.state,seat);
   const bv=actorObservation(priority.state,seat);
   assert.deepEqual(av,bv,'Both native forks must start with identical actor observation');
@@ -213,7 +218,7 @@ function runFork(seat){
     ownerPrizes:liveOwner.prizes.filter(p=>p.cards.length>0).length,
     opponentPrizes:liveOpponent.prizes.filter(p=>p.cards.length>0).length
   };
-  return {seat,sourceRank:5,opponentRank:10,
+  return {seat,sourceRank:5,opponentRank:10,fairyZone,
     nativeFinal,preAttack,
     chosenPrintedAttackDamage:priorityMenu.attack.damage,
     sourceDigest:baseline.sourceDigest,
@@ -230,7 +235,8 @@ function runFork(seat){
     qualifiedCompetitiveGames:0};
 }
 function run(){
-  const cases=[runFork(0),runFork(1)];
+  const cases=[true,false].flatMap(fairyZone=>
+    [runFork(0,{fairyZone}),runFork(1,{fairyZone})]);
   return {schema:VERSION,enginePin:PIN,cases,
     preciseMechanism:'native original-ranked physical last-Bench Genesect donor preserved and paid DCE Cross Fusion selected',
     stagedNotRandomized:true,qualifiedCompetitiveGames:0};
