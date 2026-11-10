@@ -1,0 +1,355 @@
+{
+  "schema": "agent26-hood-public-mirror-veto-fresh32-20261110-v1",
+  "registeredUtc": "2026-11-10T00:30:43.524Z",
+  "registeredBeforeNativeResultsForTheseSeeds": true,
+  "seedGeneration": "Python secrets.randbits(32), 32 independent 32-bit seeds distinct from prior rank7 fresh16, three-source fresh24, and exposed archived rank7 1693388692",
+  "sourceRanks": [
+    1,
+    7,
+    11,
+    13
+  ],
+  "sourceNames": {
+    "1": "Shadow Rider Calyrex",
+    "7": "Snorlax Stall",
+    "11": "Absol Garbodor",
+    "13": "Regidrago"
+  },
+  "originalSource60": "results/aichi-2026/full-decklists.json, unchanged published 60",
+  "candidate60": "results/aichi-2026/candidate-hood-shadow-rider.json, unchanged fixed 60",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "physicalDealPairing": "Same source and candidate complete physical deals, 8 pair groups per source rank, 4 each candidate physical seat; both arms independently randomized policy events",
+  "policyBothSeats": "Same detached acting-owner policy applied on both physical seats, no concealed opponent deck or Prize identities",
+  "controlOptions": {
+    "actorUnderworldActiveFundingPriority": true,
+    "actorUnderworldActiveFundingMirrorVeto": false
+  },
+  "treatmentOptions": {
+    "actorUnderworldActiveFundingPriority": true,
+    "actorUnderworldActiveFundingMirrorVeto": true
+  },
+  "experimentalDifference": "Veto manual Active Psychic priority ONLY when an opponent's publicly visible Active or Benched Pokémon is Shadow Rider Calyrex V CRE or Shadow Rider Calyrex VMAX CRE. Continue real Underworld Door source root; otherwise same priority. No rank-or-deck identity communicated to policy.",
+  "otherOptions": "Exact frozen Agent33 fresh16 bilateral options and original candidate sixty, same paper profile; no source rank gating",
+  "nativeActionLimit": 260,
+  "registeredPairs": 32,
+  "totalNativeAttempts": 64,
+  "seedGroups": {
+    "1": {
+      "A": [
+        2672565815,
+        1562132720,
+        2390320593,
+        2083175082
+      ],
+      "B": [
+        74876103,
+        2125215347,
+        1050632765,
+        3422861095
+      ]
+    },
+    "7": {
+      "A": [
+        1067339108,
+        3462453138,
+        4093825168,
+        2473511283
+      ],
+      "B": [
+        1026406836,
+        4003574959,
+        99373634,
+        2913212808
+      ]
+    },
+    "11": {
+      "A": [
+        2262090200,
+        1692796613,
+        1075749445,
+        3511905912
+      ],
+      "B": [
+        3007484444,
+        3589450370,
+        1930124552,
+        1903151708
+      ]
+    },
+    "13": {
+      "A": [
+        3204822087,
+        1223194130,
+        196912754,
+        2553795600
+      ],
+      "B": [
+        2652169818,
+        3668048887,
+        3824601823,
+        281689394
+      ]
+    }
+  },
+  "trials": [
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2672565815,
+      "candidateId": "hood-shield-v1",
+      "id": "1:0:A:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1562132720,
+      "candidateId": "hood-shield-v1",
+      "id": "1:1:A:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 2390320593,
+      "candidateId": "hood-shield-v1",
+      "id": "1:2:A:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 2083175082,
+      "candidateId": "hood-shield-v1",
+      "id": "1:3:A:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 74876103,
+      "candidateId": "hood-shield-v1",
+      "id": "1:0:B:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2125215347,
+      "candidateId": "hood-shield-v1",
+      "id": "1:1:B:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 1050632765,
+      "candidateId": "hood-shield-v1",
+      "id": "1:2:B:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 3422861095,
+      "candidateId": "hood-shield-v1",
+      "id": "1:3:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1067339108,
+      "candidateId": "hood-shield-v1",
+      "id": "7:0:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3462453138,
+      "candidateId": "hood-shield-v1",
+      "id": "7:1:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 4093825168,
+      "candidateId": "hood-shield-v1",
+      "id": "7:2:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 2473511283,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1026406836,
+      "candidateId": "hood-shield-v1",
+      "id": "7:0:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 4003574959,
+      "candidateId": "hood-shield-v1",
+      "id": "7:1:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 99373634,
+      "candidateId": "hood-shield-v1",
+      "id": "7:2:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 2913212808,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3:B:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2262090200,
+      "candidateId": "hood-shield-v1",
+      "id": "11:0:A:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1692796613,
+      "candidateId": "hood-shield-v1",
+      "id": "11:1:A:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 1075749445,
+      "candidateId": "hood-shield-v1",
+      "id": "11:2:A:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3511905912,
+      "candidateId": "hood-shield-v1",
+      "id": "11:3:A:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3007484444,
+      "candidateId": "hood-shield-v1",
+      "id": "11:0:B:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3589450370,
+      "candidateId": "hood-shield-v1",
+      "id": "11:1:B:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 1930124552,
+      "candidateId": "hood-shield-v1",
+      "id": "11:2:B:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 1903151708,
+      "candidateId": "hood-shield-v1",
+      "id": "11:3:B:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3204822087,
+      "candidateId": "hood-shield-v1",
+      "id": "13:0:A:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1223194130,
+      "candidateId": "hood-shield-v1",
+      "id": "13:1:A:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 196912754,
+      "candidateId": "hood-shield-v1",
+      "id": "13:2:A:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 2553795600,
+      "candidateId": "hood-shield-v1",
+      "id": "13:3:A:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2652169818,
+      "candidateId": "hood-shield-v1",
+      "id": "13:0:B:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3668048887,
+      "candidateId": "hood-shield-v1",
+      "id": "13:1:B:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 3824601823,
+      "candidateId": "hood-shield-v1",
+      "id": "13:2:B:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 281689394,
+      "candidateId": "hood-shield-v1",
+      "id": "13:3:B:hood-shield-v1"
+    }
+  ],
+  "primaryOutcomes": "native candidate terminal outcomes, source terminal outcomes, per-rank sharp missing-winner bounds",
+  "secondaryOutcomes": "real selected Underworld and active funded actions, actual settled attacks, source responses and caps",
+  "limitations": "Developmental native engine; zero paper-qualified games regardless native outcomes"
+}
