@@ -63,8 +63,8 @@ test('preregistered fixed original rank2 versus Spiritomb single-slot candidate,
             ownerFinalBench:owner.benchedPokemon??[],
             ownerFinalPrizes:game.prizesRemaining?.[seat]??null,
             originalOpponentFinalPrizes:game.prizesRemaining?.[1-seat]??null,
-            ownerSpiritombPlayed:(game.cardsPlayedBySeat?.[seat]??[])
-              .toString().includes('Spiritomb'),
+            ownerSpiritombPlayed:(Object.entries(game.cardsPlayedBySeat?.[seat]??{})
+              .some(([name,count])=>name.includes('Spiritomb')&&count>0)),
             ownerSpiritombVisibleAtFinish:owner.benchedPokemon?.includes('Spiritomb')??false,
             ownerNativeRootCount:game.rootActionLedger?.filter(r=>r.playerSlot===seat).length??null
           };
