@@ -22,7 +22,8 @@ const FLAGS=['AGENT7_EARLY_BEACH_DEV',
 
 /** Compare unchanged actual first-eligible Mail before optional Beach fallback. */
 function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ownerConfirm=false,arvenNest=false,dedenneTrue=false,
-  motivateEnergy=false,celestialRoar=false,paperCelestial=false}={}){
+  motivateEnergy=false,celestialRoar=false,paperCelestial=false,
+  candidateNaturalEvolutionRoot=false}={}){
   const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const native=relative=>require(path.join(base,relative));
   const headless=require('../twinleaf/headless.cjs');
@@ -36,7 +37,8 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
     const traced=traceBeachNativeRun(()=>{
       const execute=()=>{
       mail=withBilateralOwnerMail(
-        ()=>runV8({ownerMailFollowupFrame:true,mysteriousTreasureRoot}),{
+        ()=>runV8({ownerMailFollowupFrame:true,mysteriousTreasureRoot,
+          candidateNaturalEvolutionRoot}),{
         headless,
         SimpleTacticsAi:native('simple-bot/simple-tactics-ai').SimpleTacticsAi,
         Store:native('game/store/store').Store,
@@ -66,6 +68,7 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
     return {
       earlyBeach,followArven,mysteriousTreasureRoot,ownerConfirm,arvenNest,dedenneTrue,
       motivateEnergy,celestialRoar,paperCelestial,
+      candidateNaturalEvolutionRoot,
       output,beachEvents:traced.events,
       mailAudit:mail.audit,paperAudit
     };
