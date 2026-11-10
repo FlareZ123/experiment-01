@@ -8,7 +8,7 @@ const {stagedPainfulSpoons}=
 const {withOriginal29PrintedFidelity}=
   require('../simulation/twinleaf/agent50-original29-printed-fidelity-hook.cjs');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
-const {audit:printedFieldAudit,numberKey}=
+const {audit:printedFieldAudit,numberKey,auditOriginalNonPokemonAvailability}=
   require('../simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs');
 
 
@@ -292,6 +292,44 @@ test('all eleven genuine pinned original Aichi native set aliases now instantiat
     nativeMissingPrintings:0,
     allClonesResolved:true,
     aliases:corrected.result,
+    competitiveGamesQualified:0
+  }));
+});
+
+test('all nine original non-Pokémon Trainer/Energy native aliases instantiate exact printed clones',()=>{
+  const census=auditOriginalNonPokemonAvailability();
+  const aliases=census.nativePrintAliases;
+  assert.equal(census.total,146);
+  assert.equal(aliases.length,9);
+  assert.equal(census.exactMatches,136);
+  const base=initializeCards();
+  for(const row of aliases)
+    assert.equal(base.getCardByName(row.requested),undefined);
+  const scoped=withOriginal29PrintedFidelity(()=>{
+    const manager=initializeCards();
+    return aliases.map(row=>{
+      const card=manager.getCardByName(row.requested);
+      assert.ok(card,'Unresolved original Aichi Trainer/Energy '+row.requested);
+      assert.equal(card.name,row.name);
+      assert.equal(card.set,row.set);
+      assert.equal(numberKey(card.setNumber),numberKey(row.number));
+      assert.equal(card.fullName,row.canonicalNativeName);
+      return {original:row.requested,native:card.fullName,
+        category:row.category,ranks:row.ranks};
+    });
+  });
+  assert.equal(scoped.result.length,9);
+  assert.equal(scoped.audit.aliases.length,9);
+  assert.equal(scoped.audit.paperLegalityCertified,false);
+  assert.equal(scoped.audit.competitiveGamesQualified,0);
+  assert.ok(scoped.result.some(x=>x.category==='Trainer'));
+  assert.ok(scoped.result.some(x=>x.category==='Energy'));
+  for(const row of aliases)
+    assert.equal(base.getCardByName(row.requested),undefined);
+  console.log('AGENT50_ALL_ORIGINAL_NONPOKEMON_ALIASES '+JSON.stringify({
+    nativeAliases:scoped.result,
+    originalNonPokemonPrintings:census.total,
+    missingExactPrintedIdentity:census.missingExactPrintedIdentity.length,
     competitiveGamesQualified:0
   }));
 });
