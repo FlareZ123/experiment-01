@@ -1,0 +1,41 @@
+name: Agent26 four-source paper-public Shadow Rider mirror veto fresh32 native
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-paired-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test owner-public veto and four-source frozen 60s
+        run: node --test tests/2026-11/agent26-shadow-rider-mirror-funding-veto.test.cjs tests/2026-11/agent26-hood-public-mirror-veto-fresh32-contract.test.cjs
+      - name: Verify prospective 32-group pairing preflight
+        run: node simulation/evaluation/2026-11/agent26-hood-public-mirror-veto-fresh32.cjs --preflight
+      - name: Compare blanket priority with opponent-public mirror veto across four originals
+        run: node simulation/evaluation/2026-11/agent26-hood-public-mirror-veto-fresh32.cjs
+      - name: Upload all 64 native outcomes and physical fingerprints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-hood-public-mirror-veto-fresh32-native
+          path: agent26-hood-public-mirror-veto-fresh32-native.json
+          if-no-files-found: warn
+          retention-days: 21
