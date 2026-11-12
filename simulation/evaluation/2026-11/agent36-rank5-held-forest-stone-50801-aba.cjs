@@ -102,7 +102,7 @@ function summarize(record) {
     competitiveGameQualified:rawPaper.competitiveGameQualified,
     sha256:hash(rawPaper)
   }:null;
-  const seats=[0,1].map(seat=>{}
+  const seats=[0,1].map(seat=>{
     const selected=record.roots.filter(r=>r.playerSlot===seat);
     return {seat,forestStonePlayRoots:selected
       .filter(r=>r.action==='PlayCardAction'&&r.card==='Forest Seal Stone')
