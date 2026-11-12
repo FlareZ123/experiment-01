@@ -46,6 +46,8 @@ function visiblePokemon(slot){
       blockedAttackNameUntilLeavesActive:
         slot.blockedAttackNameUntilLeavesActive??null,
       onlyAllowedAttackNameNextTurn:slot.onlyAllowedAttackNameNextTurn??null,
+      attackCostIncreaseNextTurn:slot.attackCostIncreaseNextTurn??0,
+      attackCostIncreaseWhileActive:slot.attackCostIncreaseWhileActive??0,
       cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
       cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
       cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true
@@ -90,6 +92,9 @@ function publicPlayer(player,hidePokemon=false){
       vstarUsed:player.usedVSTAR===true,
       attackLockTurnsRemaining:player.cannotAttackTurnsRemaining??0,
       attackMaxEnergy:player.cannotAttackMaxEnergy??null,
+      attackMaxEnergyTurnsRemaining:player.cannotAttackMaxEnergyTurnsRemaining??0,
+      ignoreAttackCostCardTypes:[...(player.ignoreAttackCostCardTypes??[])],
+      ignoreAttackCostTurnsRemaining:player.ignoreAttackCostTurnsRemaining??0,
       cannotUseGXAttacks:player.cannotUseGXAttacks===true,
       pokemonPlayLocked:player.cannotPlayPokemonCards===true,
       abilityPokemonPlayLocked:player.cannotPlayPokemonWithAbilities===true,

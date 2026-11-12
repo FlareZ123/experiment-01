@@ -371,7 +371,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseUnderworldDoorRoot(
         view,catalog,options.underworldMarkerReceipt);
     if(underworld){
-      if(options.underworldActiveFundingPriority===true&&
+      if(options.underworldActiveFundingThresholdV2===true){
+        const threshold=require('./2026-11/agent26-underworld-immediate-max-geist-payability-v1.cjs')
+          .chooseUnderworldImmediateMaxGeistPayability(view,catalog);
+        if(threshold)return threshold;
+      }else if(options.underworldActiveFundingPriority===true&&
           view.globalTurn>=(options.underworldActiveFundingMinTurn??0)){
         const mirrorVeto=options.underworldActiveFundingMirrorVeto===true&&
           require('./2026-11/agent26-shadow-rider-mirror-funding-veto.cjs')
@@ -1137,6 +1141,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     },
     underworldActiveFundingPriorityOptIn:
       deps.underworldActiveFundingPriority===true,
+    underworldActiveFundingThresholdV2OptIn:
+      deps.underworldActiveFundingThresholdV2===true,
+    underworldActiveFundingThresholdV2Selected:0,
     underworldActiveFundingMirrorVetoOptIn:
       deps.underworldActiveFundingMirrorVeto===true,
     underworldActiveFundingMinTurn:
@@ -1608,6 +1615,18 @@ function withActorOnlyRootPolicy(run,deps={}){
       'Used Fusion proof requires explicit Path selection');
     audit.version+='+'+
       require('./agent33-public-fusion-usage.cjs').VERSION;
+  }
+  if(audit.underworldActiveFundingThresholdV2OptIn){
+    assert.equal(audit.underworldDoorRootOptIn,true,
+      'Immediate Max Geist threshold requires the authenticated Underworld root');
+    assert.equal(audit.underworldActiveFundingPriorityOptIn,false,
+      'Threshold v2 is mutually exclusive with broad v1 Active funding');
+    assert.equal(audit.underworldActiveFundingMirrorVetoOptIn,false,
+      'Threshold v2 replaces the v1 mirror veto');
+    assert.equal(audit.underworldActiveFundingMinTurn,null,
+      'Threshold v2 uses live attack payability, not a turn cutoff');
+    audit.version+='+'+
+      require('./2026-11/agent26-underworld-immediate-max-geist-payability-v1.cjs').VERSION;
   }
   if(audit.underworldActiveFundingMirrorVetoOptIn){
     assert.equal(audit.underworldActiveFundingPriorityOptIn,true,
@@ -2100,6 +2119,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       twoUnitPaidRetreatTargetTurnV2:audit.twoUnitPaidRetreatTargetTurnV2,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
+      underworldActiveFundingThresholdV2:
+        audit.underworldActiveFundingThresholdV2OptIn===true,
       underworldActiveFundingMirrorVeto:
         audit.underworldActiveFundingMirrorVetoOptIn===true,
       underworldActiveFundingMinTurn:
@@ -2444,7 +2465,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(intent.source==='agent42-paid-retreat-v2-floatstone-arbitration')
       audit.twoUnitPaidRetreatV2FreeToolSelected++;
-    if(intent.singleHeldPsychicContestedByUnderworld===true)
+    if(intent.underworldActiveFundingThresholdV2===true)
+      audit.underworldActiveFundingThresholdV2Selected++;
+    else if(intent.singleHeldPsychicContestedByUnderworld===true)
       audit.underworldActiveFundingPrioritySelected++;
     if(intent.source==='rank13-dragon-donor')
       audit.regidragoDonorQuickBallIntentCount++;

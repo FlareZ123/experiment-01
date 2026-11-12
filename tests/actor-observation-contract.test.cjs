@@ -197,6 +197,8 @@ test('both actors see temporary attack/retreat bans and Special Conditions',()=>
   opponent.active.blockedAttackNameNextTurn='Blocked Attack';
   opponent.active.blockedAttackNameUntilLeavesActive='Persisting Block';
   opponent.active.onlyAllowedAttackNameNextTurn='Only This';
+  opponent.active.attackCostIncreaseNextTurn=1;
+  opponent.active.attackCostIncreaseWhileActive=2;
   opponent.active.cannotRetreatNextTurn=true;
   opponent.active.cannotRetreatWhileActive=true;
   opponent.active.cannotEvolveNextTurn=true;
@@ -209,6 +211,8 @@ test('both actors see temporary attack/retreat bans and Special Conditions',()=>
     blockedAttackNameNextTurn:'Blocked Attack',
     blockedAttackNameUntilLeavesActive:'Persisting Block',
     onlyAllowedAttackNameNextTurn:'Only This',
+    attackCostIncreaseNextTurn:1,
+    attackCostIncreaseWhileActive:2,
     cannotRetreatNextTurn:true,
     cannotRetreatWhileActive:true,
     cannotEvolveNextTurn:true
@@ -234,6 +238,9 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
   opponent.usedVSTAR=true;
   opponent.cannotAttackTurnsRemaining=2;
   opponent.cannotAttackMaxEnergy=3;
+  opponent.cannotAttackMaxEnergyTurnsRemaining=1;
+  opponent.ignoreAttackCostCardTypes=[5];
+  opponent.ignoreAttackCostTurnsRemaining=2;
   opponent.cannotUseGXAttacks=true;
   opponent.cannotPlayPokemonCards=true;
   opponent.cannotPlayPokemonWithAbilities=true;
@@ -248,6 +255,8 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
   assert.deepEqual(view.opponentPublic.publicTurnRestrictions,{
     gxUsed:true,vstarUsed:true,
     attackLockTurnsRemaining:2,attackMaxEnergy:3,
+    attackMaxEnergyTurnsRemaining:1,
+    ignoreAttackCostCardTypes:[5],ignoreAttackCostTurnsRemaining:2,
     cannotUseGXAttacks:true,pokemonPlayLocked:true,
     abilityPokemonPlayLocked:true,evolutionPlayLocked:true,
     itemPlayLocked:true,supporterPlayLocked:true,
@@ -255,13 +264,16 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
     energyPlayLocked:true,specialEnergyPlayLocked:true
   });
   assert.ok(Object.isFrozen(view.opponentPublic.publicTurnRestrictions));
+  assert.ok(Object.isFrozen(view.opponentPublic.publicTurnRestrictions.ignoreAttackCostCardTypes));
   assert.equal(view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining,0);
   assert.equal(view.ownPublic.publicTurnRestrictions.attackMaxEnergy,null);
   const other=fixture();
   const cards=other.players[1];
   Object.assign(cards,{
     usedGX:true,usedVSTAR:true,cannotAttackTurnsRemaining:2,
-    cannotAttackMaxEnergy:3,cannotUseGXAttacks:true,
+    cannotAttackMaxEnergy:3,cannotAttackMaxEnergyTurnsRemaining:1,
+    ignoreAttackCostCardTypes:[5],ignoreAttackCostTurnsRemaining:2,
+    cannotUseGXAttacks:true,
     cannotPlayPokemonCards:true,cannotPlayPokemonWithAbilities:true,
     cannotEvolvePokemonCards:true,cannotPlayItemCards:true,
     cannotPlaySupporterCards:true,cannotPlayStadiumCards:true,

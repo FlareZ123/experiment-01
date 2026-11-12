@@ -1496,6 +1496,7 @@ function runDevelopment({
   actorArvenHoodSearchRoot=false,
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
+  actorUnderworldActiveFundingThresholdV2=false,
   actorUnderworldActiveFundingMirrorVeto=false,
   actorUnderworldActiveFundingMinTurn=null,
   actorMaxGeistManualRecovery=false,
@@ -1775,6 +1776,14 @@ function runDevelopment({
   assert.ok(!actorUnderworldActiveFundingPriority||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Active Psychic priority requires symmetric Underworld root');
+  assert.ok(!actorUnderworldActiveFundingThresholdV2||
+    (actorUnderworldDoorRoot&&actorOnlyComposition),
+    'Immediate Max Geist threshold requires symmetric Underworld root');
+  assert.ok(!actorUnderworldActiveFundingThresholdV2||
+    (!actorUnderworldActiveFundingPriority&&
+     !actorUnderworldActiveFundingMirrorVeto&&
+     actorUnderworldActiveFundingMinTurn===null),
+    'Threshold v2 replaces broad v1 priority and its modifiers');
   assert.ok(!actorUnderworldActiveFundingMirrorVeto||
     (actorUnderworldActiveFundingPriority&&actorOnlyComposition),
     'Public mirror veto requires symmetric Active Psychic priority root');
@@ -2246,6 +2255,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
+              }:{}),
+              ...(actorUnderworldActiveFundingThresholdV2?{
+                underworldActiveFundingThresholdV2:true
               }:{}),
               ...(actorUnderworldActiveFundingMirrorVeto?{
                 underworldActiveFundingMirrorVeto:true
