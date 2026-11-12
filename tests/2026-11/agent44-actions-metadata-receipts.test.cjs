@@ -120,6 +120,9 @@ test('deal receipt requires the generation job and workflow to remain in the per
   assert.throws(()=>createDealGenerationReceipt({
     ...x,run:{...x.run,run_started_at:'2026-11-12T17:05:01.000Z'}
   }),/same server timestamp/);
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,persistenceReceipt:{...x.persistenceReceipt,commitSha:'f'.repeat(40)}
+  }),/persisted artifact commit must equal workflow head SHA/);
 });
 
 test('deal receipt requires exactly one successful dedicated generation step',()=>{
