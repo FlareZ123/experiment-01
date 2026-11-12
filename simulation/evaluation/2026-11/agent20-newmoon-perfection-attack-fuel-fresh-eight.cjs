@@ -296,4 +296,5 @@ if(require.main===module){
         modes:reg.modes}));
   }else main();
 }
-module.exports={REG,OUTPUT,preflight,discardSummary,main};
+module.exports={REG,OUTPUT,preflight,comparePayments,
+  compareSettlements,discardSummary,main};
