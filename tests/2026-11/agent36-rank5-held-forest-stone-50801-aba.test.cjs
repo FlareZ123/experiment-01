@@ -61,7 +61,7 @@ test('native carryover stays separate, bilateral, and explicitly unqualified',()
     candidateAttackSettlement:{attacks:[]}
   });
   assert.equal(result.trialId,'fixture:1');
-  assert.equal(result.source.attacksSettlementsExamined??result.source.attackSettlementsExamined,0);
+  assert.equal(result.source.attackSettlementsExamined,0);
   assert.equal(result.candidate.attackSettlementsExamined,0);
   assert.equal(result.totalCandidateTwoHitLinks,0);
   assert.equal(result.competitiveGameQualified,false);
