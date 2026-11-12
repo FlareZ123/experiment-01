@@ -200,24 +200,26 @@ function refreshPolicyEnvelope(bundle) {
   return bundle;
 }
 
-function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28]}={}) {
+function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author'}={}) {
   const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
-    entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102)
+    entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
+    policyProducerId:candidateProducerId
   };
   const ranks = Array.from({length:32},(_,index)=>{
     const rank=index+1;
     if(unavailable.includes(rank)) return {
       rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
-      entryManifestSha256:null,challengeSuiteSha256:null
+      entryManifestSha256:null,challengeSuiteSha256:null,policyProducerId:null
     };
     return {
       rank,sourceStatus:'authenticated',
       deckSha256:rank===1?sha(6):policyHash(1000+rank),
       policySha256:policyHash(2000+rank),
       entryManifestSha256:policyHash(3000+rank),
-      challengeSuiteSha256:policyHash(4000+rank)
+      challengeSuiteSha256:policyHash(4000+rank),
+      policyProducerId:opponentProducerId
     };
   });
   const constraints = {
@@ -245,6 +247,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28]}={}) {
     role:'candidate-policy',reviewerId:'candidate-policy-reviewer',
     decision:'approve',policyPlanSha256:planSha,
     policyConstraintsSha256:constraintsSha,
+    policyProducerId:candidate.policyProducerId,
     deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
     entryManifestSha256:candidate.entryManifestSha256,
     challengeSuiteSha256:candidate.challengeSuiteSha256,
@@ -262,6 +265,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28]}={}) {
       policySha256:entry.policySha256,
       entryManifestSha256:entry.entryManifestSha256,
       challengeSuiteSha256:entry.challengeSuiteSha256,
+      policyProducerId:entry.policyProducerId,
       decision:'approve',evidenceRef:'policy-review/opponent-rank-'+entry.rank,
       evidenceSha256:policyHash(6000+entry.rank)
     })),
@@ -303,10 +307,12 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28]}={}) {
     opponentRank:1,
     candidateDeckSha256:candidate.deckSha256,
     candidatePolicySha256:candidate.policySha256,
+    candidatePolicyProducerId:candidate.policyProducerId,
     candidateEntryManifestSha256:candidate.entryManifestSha256,
     candidateChallengeSuiteSha256:candidate.challengeSuiteSha256,
     opponentDeckSha256:opponent.deckSha256,
     opponentPolicySha256:opponent.policySha256,
+    opponentPolicyProducerId:opponent.policyProducerId,
     opponentEntryManifestSha256:opponent.entryManifestSha256,
     opponentChallengeSuiteSha256:opponent.challengeSuiteSha256,
     candidateSeat:1,opponentSeat:0,firstPlayerSeat:0,
@@ -371,10 +377,12 @@ function populatePanelCoverage(bundle) {
           opponentRank:opponent.rank,
           candidateDeckSha256:candidate.deckSha256,
           candidatePolicySha256:candidate.policySha256,
+          candidatePolicyProducerId:candidate.policyProducerId,
           candidateEntryManifestSha256:candidate.entryManifestSha256,
           candidateChallengeSuiteSha256:candidate.challengeSuiteSha256,
           opponentDeckSha256:opponent.deckSha256,
           opponentPolicySha256:opponent.policySha256,
+          opponentPolicyProducerId:opponent.policyProducerId,
           opponentEntryManifestSha256:opponent.entryManifestSha256,
           opponentChallengeSuiteSha256:opponent.challengeSuiteSha256,
           candidateSeat,opponentSeat:1-candidateSeat,firstPlayerSeat,
@@ -656,6 +664,28 @@ test('candidate and opponent policy reviewers must be separately authorized',()=
   assert.equal(b.gameOutcomeAdmissionReady,true);
   assert.equal(b.competitivePolicyCompetenceReady,false);
   assert.equal(b.policyCompetence.opponentPolicyAttestationValid,false);
+});
+
+test('policy reviewers cannot also be candidate or opponent policy producers',()=>{
+  const candidateProducer=makePolicyBundle({candidateProducerId:'candidate-policy-reviewer'});
+  const candidateGame=signReviews(candidateProducer.bundle,{
+    roles:['paper','strategy'],strategyAudit:terminalAudit()
+  });
+  const candidateResult=inspectAdmissionV3(candidateProducer.bundle,candidateGame.reviews,
+    combineRegistries(candidateProducer.policyRegistry,candidateGame.registry));
+  assert.equal(candidateResult.gameOutcomeAdmissionReady,true);
+  assert.equal(candidateResult.policyCompetence.candidatePolicyAttestationValid,false);
+  assert.equal(candidateResult.competitivePolicyCompetenceReady,false);
+
+  const opponentProducer=makePolicyBundle({opponentProducerId:'opponent-policy-reviewer'});
+  const opponentGame=signReviews(opponentProducer.bundle,{
+    roles:['paper','strategy'],strategyAudit:terminalAudit()
+  });
+  const opponentResult=inspectAdmissionV3(opponentProducer.bundle,opponentGame.reviews,
+    combineRegistries(opponentProducer.policyRegistry,opponentGame.registry));
+  assert.equal(opponentResult.gameOutcomeAdmissionReady,true);
+  assert.equal(opponentResult.policyCompetence.opponentPolicyAttestationValid,false);
+  assert.equal(opponentResult.competitivePolicyCompetenceReady,false);
 });
 
 test('a correctly re-signed policy attestation created after the deal is rejected',()=>{
