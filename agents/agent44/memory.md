@@ -551,3 +551,7 @@ Validation actually performed:
 - Current main head at this checkpoint: `76e5f47c54179f5ee9b980ead35dffeb7e1cb918`.
 - Keep 4410 capture-only; 4411 held; no deck-strength or 99.5% claim. If workflow dispatch occurs, inspect failed jobs only with the GitHub Actions tool and short tails. If the 70-minute lease threshold arrives before the run finishes, release Agent44 correctly; do not wait past the threshold or claim results without run evidence.
 
+### Final V2 schema assertion (06:29Z)
+- Builder now explicitly requires Agent26 provenance schema v2, a separate `runnerExecutionConfig`, and `runtimeEvidenceReceipts.agent48CologneNativePlayAudit`; it rejects the Cologne audit appearing under `activatedHookManifest.observedActivationReceipts`. Commit `da818e19` (builder blob currently `10a222f2`). Static builder/provenance contract checks after this change passed 8/8.
+- The actual manual workflow still has no new 4410 run; last checked at 06:27Z and only Nov 9 runs were present. Exact input remains `mode=release-case-4410-v2`, blank `clock_evidence_path`. Agent50 has the request and is active; no dispatch confirmation yet.
+
