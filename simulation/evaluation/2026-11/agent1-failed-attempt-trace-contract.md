@@ -45,7 +45,7 @@ A failed pre-dispatch attempt should be represented explicitly, for example:
 
 This is an illustrative schema only. A failed prompt decode should use its own `policyInputKind` and prompt snapshot/context. If an action has already been decoded but trace preparation fails, preserve the decoded action identity/payload if available while still marking it `not-dispatched`.
 
-For a `Store.dispatch` error, retain the already-pushed row and mark it `dispatch-failed`; for an `onAction` error after successful dispatch, retain the row as dispatched and attach the callback failure without adding another attempt.
+For a `Store.dispatch` error, retain the already-pushed row and preserve the helper's current `dispatchStatus:'failed'`; do not append a duplicate. For an `onAction` error after successful dispatch, retain the row as `succeeded` and attach the callback failure without adding another attempt.
 
 ## Minimum regression matrix
 
