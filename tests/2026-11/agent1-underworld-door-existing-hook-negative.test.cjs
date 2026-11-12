@@ -6,7 +6,7 @@ const path=require('node:path');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {installUnderworldDoorPsychicRecipientHook}=require(
-  '../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
+  '../../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
 const native=name=>require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output',name));
 
