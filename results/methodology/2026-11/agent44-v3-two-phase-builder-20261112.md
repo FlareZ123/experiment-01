@@ -1,6 +1,6 @@
 # Agent 44: V3 two-phase game-bundle builder
 
-**Status:** builder implementation and fixture smoke test complete; Node 22 suite and live-runner integration remain outstanding. This is pipeline progress, not a qualified game or a policy-competence result.
+**Status:** builder implementation and regression source updated; Node 22 suite and live-runner integration remain outstanding. This is pipeline progress, not a qualified game or a policy-competence result.
 
 ## Problem addressed
 
@@ -30,27 +30,21 @@ The current production reviewer registry has no authorized reviewers, so product
 
 ### Postgame phase
 
-`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object, artifact reference and immutable-core digest to match exactly, and rejects a changed or omitted pre-deal artifact. The runner must write the full ready object at `preDealArtifactRef` and commit/push it before deal generation. Postgame assembly also requires a `preDealPersistenceReceipt` binding repository, commit SHA, blob SHA, GitHub API committer timestamp source, artifact ref and immutable-core digest, plus a `dealGenerationReceipt` binding that same commit/blob to actual generation time, runner revision and source-deal fingerprint. The builder checks registration ≤ commit < planned deal ≤ actual generation, matches the trial's actual time/fingerprint and research revision, and binds both receipts into the policy-and-counterplay evidence digest. Production additionally rejects future-dated deal-generation receipts. GitHub commit/blob and physical source-deal evidence still require independent verification. It then:
-
-- checks the actual application receipt against the frozen candidate identity and the selected authenticated opponent-rank identity;
-- checks role-to-physical-seat mapping, first player, deck identities, engine pin, runner revision and decision-trace digest;
-- binds the receipt to the trial and its policy-plan, attestation and registration hashes;
-- assembles the existing nine-object evidence manifest, including a digest of the complete policy/counterplay material;
-- calls the existing V3 panel and admission evaluators.
+`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object, artifact reference and immutable-core digest to match exactly, and rejects a changed or omitted pre-deal artifact. The runner must write the full ready object at `preDealArtifactRef` and commit/push it before deal generation. Postgame assembly requires a `preDealPersistenceReceipt` binding the repository, exact artifact ref/digest, commit SHA and blob SHA to a GitHub Actions run ID, matching `head_sha`, and server-reported `run_started_at`. The run must start after preregistration and before the planned deal. The `dealGenerationReceipt` must bind the same run/head and artifact commit/blob to the actual job ID, exact `Generate physical deal` step, server-reported step `started_at`, runner revision and source-deal fingerprint. The step must start at/after the planned deal, and the trial's deal time/fingerprint must match. The builder validates these fields for consistency but does not authenticate the Actions metadata or physical deal; an independent reviewer must fetch the run/job/step records and inspect the committed artifact and deal evidence. Git commit `committer.date`, producer `generatedAt` and runner-local `Date.now()` are not chronology authorities. Postgame reviews remain external to hashed `policyEvidence`, so reviewers sign only after the bundle digest is finalized; the review packets are not part of that digest. The builder then assembles the existing nine-object manifest and calls the existing V3 panel/admission evaluators.
 
 The fixture-only functions accept synthetic test reviewer keys, but their outputs remain marked `fixtureOnly: true`; the production builder does not accept fixture-only registrations.
 
 ## Validation performed
 
-- Both new CommonJS files pass a syntax parse.
-- V8 control-flow smoke tests with stubbed dependencies passed: fixture pre-deal preparation, production fail-closed behavior with an empty trust registry, nine-item manifest assembly, preservation of `INCOMPLETE_FIELD`, rejection of altered pre-deal fields/ref/digest, unsafe path traversal, missing persistence receipt, a late commit, mismatched blob/trial/runner revision, and a mismatched actual deal fingerprint.
-- A Node test using real ephemeral Ed25519 keys, the actual V3 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator has been added to the existing manual workflow. **It has not yet been run under Node 22.** No CI pass is claimed.
+- The earlier V8 control-flow smoke covered the prior builder shape only; it does not validate the new server-time chronology receipt or the revised review regression.
+- The updated Node test uses real ephemeral Ed25519 paper and strategy review keys, the actual Agent45 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator. It checks both signatures over the finalized bundle and proves that supplying those external reviews leaves the bundle and policy-evidence digest unchanged. It also covers run/head/job/step mismatches and pre-/post-deal chronology boundaries.
+- The test is included in the existing manual Node 22 pure-preflight workflow. **It has not yet run under Node 22.** No CI pass is claimed.
 
 The fixture smoke test is not evidence of paper legality, policy competence, a played game, or competitive admission.
 
 ## Remaining execution dependencies
 
-1. The shared runner must call the pre-deal function, write the full ready artifact at `preDealArtifactRef`, commit/push it, query GitHub for commit/blob/time, and only then generate the deal. It must pass `preDealPersistenceReceipt` and `dealGenerationReceipt` with the exact fields documented above; independent reviewers verify the commit/blob and source-deal evidence.
+1. The shared runner must call the pre-deal function, write/commit/push the exact ready artifact, and obtain Actions run ID, head SHA and server `run_started_at`. It must wait until the planned deal time, generate the deal only inside the dedicated `Generate physical deal` step, then obtain that job's server-reported `started_at` and bind the run/job/step metadata into the receipts. Independent reviewers verify the run/job/step records, artifact commit/blob and source-deal evidence.
 2. The runner must emit the actual role-level candidate and opponent policy identities, physical seat mapping, per-game application receipt, full root/action/payment/target tape, and evidence references. Per-seat projection hashes are not substitutes for stable role identities.
 3. A genuine external authority must populate the production reviewer registry and provide signed candidate/opponent policy attestations. No test key may enter production.
 4. The full field remains 29/32, with ranks 23, 25 and 28 unavailable. One receipt cannot complete the 128-stratum panel.
