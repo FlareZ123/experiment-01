@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
-const {hasLiveOpponentAbilityLock,hasJammingTowerInPlay} =
+const {hasProtectableHoodLockThreat} =
   require('./hood-ability-lock-state.cjs');
 
 /**
@@ -34,8 +34,8 @@ function hoodAwareArvenResolverClass() {
    */
   function underLockThreat(state, player) {
     const opponent = state.players.find(p => p.id !== player.id);
-    if (!opponent || hasJammingTowerInPlay(state) ||
-        !hasLiveOpponentAbilityLock(opponent)) return false;
+    if (!opponent || !hasProtectableHoodLockThreat(opponent,state))
+      return false;
     const unprotected = player.bench.some(slot =>
       ['Shadow Rider Calyrex V', 'Shadow Rider Calyrex VMAX']
         .includes(slot.getPokemonCard()?.name) && slot.tools.length === 0
