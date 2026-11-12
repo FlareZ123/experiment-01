@@ -17,6 +17,8 @@ const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
 const POLICY_ATTESTATION_BUNDLE_SCHEMA = 'aichi-policy-attestation-bundle-v1';
 const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
 const POLICY_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
+const PREDEAL_PERSISTENCE_RECEIPT_SCHEMA = 'aichi-predeal-artifact-persistence-receipt-v1';
+const DEAL_GENERATION_RECEIPT_SCHEMA = 'aichi-physical-deal-generation-receipt-v1';
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const OFFSET_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -309,12 +311,50 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
     fail('application receipt engine, runner, trace or timeout status invalid');
 }
 
+function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
+  if (!plainObject(persistenceReceipt) ||
+      persistenceReceipt.schema!==PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
+      persistenceReceipt.trialId!==preDeal.trialId ||
+      !/^[^/\\s]+\\/[^/\\s]+$/.test(persistenceReceipt.repositoryFullName??'') ||
+      persistenceReceipt.artifactRef!==preDeal.preDealArtifactRef ||
+      persistenceReceipt.artifactSha256!==preDeal.preDealArtifactSha256 ||
+      !GIT_SHA.test(persistenceReceipt.commitSha??'') ||
+      !GIT_SHA.test(persistenceReceipt.blobSha??'') ||
+      !dateTime(persistenceReceipt.committedAt))
+    fail('pre-deal persistence receipt is missing or not bound to the immutable artifact');
+  const registeredAt=Date.parse(preDeal.gameRegistration.registeredAt);
+  const plannedDealAt=Date.parse(preDeal.gameRegistration.dealGeneratedAt);
+  const committedAt=Date.parse(persistenceReceipt.committedAt);
+  if (committedAt<registeredAt || committedAt>=plannedDealAt)
+    fail('pre-deal artifact commit was not after registration and before planned deal generation');
+
+  if (!plainObject(dealReceipt) ||
+      dealReceipt.schema!==DEAL_GENERATION_RECEIPT_SCHEMA ||
+      dealReceipt.trialId!==trial.trialId ||
+      dealReceipt.artifactRef!==persistenceReceipt.artifactRef ||
+      dealReceipt.artifactSha256!==persistenceReceipt.artifactSha256 ||
+      dealReceipt.commitSha!==persistenceReceipt.commitSha ||
+      dealReceipt.blobSha!==persistenceReceipt.blobSha ||
+      !dateTime(dealReceipt.generatedAt) ||
+      !SHA256.test(dealReceipt.sourceDealFingerprint??''))
+    fail('physical deal-generation receipt is missing or not bound to the committed pre-deal artifact');
+  const generatedAt=Date.parse(dealReceipt.generatedAt);
+  if (generatedAt<plannedDealAt || generatedAt<=committedAt)
+    fail('physical deal was generated before the committed pre-deal artifact or before its registered generation time');
+  if (trial.dealGeneratedAt!==dealReceipt.generatedAt ||
+      trial.initialSourceDealFingerprint!==dealReceipt.sourceDealFingerprint)
+    fail('trial actual deal time or source-deal fingerprint disagrees with deal-generation receipt');
+  return {persistenceReceipt,dealReceipt};
+}
+
 function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
+  preDealPersistenceReceipt,dealGenerationReceipt,
   policyPanelReceipts=[],reviews=[]},reviewerRegistry,fixtureOnly) {
   if (!preDeal?.ready || preDeal.fixtureOnly!==fixtureOnly)
     fail('pre-deal registration is not ready for this builder mode');
   if (!plainObject(trial) || trial.trialId!==preDeal.trialId)
     fail('postgame trial identity does not match frozen pre-deal registration');
+  const chronology=validateDealChronology(preDeal,trial,preDealPersistenceReceipt,dealGenerationReceipt);
   if (!sameJson(trial.preregistration,preDeal.gameRegistration) ||
       trial.preregistrationSha256!==evidenceBundleSha256(preDeal.gameRegistration) ||
       trial.registrationRef!==preDeal.gameRegistration.registrationRef ||
@@ -365,6 +405,8 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
   const policyEvidence = {
     preDealArtifactRef:preDeal.preDealArtifactRef,
     preDealArtifactSha256:preDeal.preDealArtifactSha256,
+    preDealPersistenceReceipt:chronology.persistenceReceipt,
+    dealGenerationReceipt:chronology.dealReceipt,
     policyPlanCore:preDeal.policyPlanCore,
     policyAttestationBundle:preDeal.policyAttestationBundle,
     policyRegistration:preDeal.policyRegistration,
@@ -420,7 +462,8 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     inspectAdmissionV3(bundle,reviews,reviewerRegistry) :
     evaluateCompetitiveAdmissionV3(bundle,reviews);
   return {
-    bundle,assessment,preDeal,policyEvidence,policyPanelConsistency:panel,
+    bundle,assessment,preDeal,preDealPersistenceReceipt:chronology.persistenceReceipt,
+    dealGenerationReceipt:chronology.dealReceipt,policyEvidence,policyPanelConsistency:panel,
     fieldStatus:panel.status,
     fieldComplete:panel.fieldComplete,
     fullFieldPanelComplete:panel.fullFieldPanelComplete,
