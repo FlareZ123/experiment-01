@@ -422,6 +422,12 @@ function runNativeFixtureGame(input) {
       const phaseBefore=state.phase;
       const turnBefore=state.turn;
       const activePlayerBefore=state.activePlayer??null;
+      if(!pending && state.phase===GamePhase.PLAYER_TURN &&
+          actualFirstPlayerSeat===null) {
+        assert.ok(state.activePlayer===0||state.activePlayer===1,
+          'Twinleaf did not expose the actual first-player seat');
+        actualFirstPlayerSeat=state.activePlayer;
+      }
       const publicBefore=publicStateSnapshot(state);
       const fullStateBefore=captureDiagnostic(state,{
         stage:'before',
@@ -433,13 +439,6 @@ function runNativeFixtureGame(input) {
         pendingPromptId,
         actualFirstPlayerSeat
       });
-
-      if(!pending && state.phase===GamePhase.PLAYER_TURN &&
-          actualFirstPlayerSeat===null) {
-        assert.ok(state.activePlayer===0||state.activePlayer===1,
-          'Twinleaf did not expose the actual first-player seat');
-        actualFirstPlayerSeat=state.activePlayer;
-      }
 
       let action;
       let actingSeat=null;
@@ -600,7 +599,7 @@ function runNativeFixtureGame(input) {
 
     if(store.state.phase!==GamePhase.FINISHED) {
       const failure=new Error('Native fixture game exceeded maxActions without a natural terminal state');
-      failureContext={stage:'action-cap',record:decisionTrace[decisionTrace.length-1]??null};
+      failureContext={stage:'action-cap',record:null};
       throw failure;
     }
     if(actualFirstPlayerSeat!==0&&actualFirstPlayerSeat!==1)
