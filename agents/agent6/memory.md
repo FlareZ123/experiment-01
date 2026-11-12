@@ -700,3 +700,11 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Inspected `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs`: it wraps candidate and opponent separately with distinct `candidateDeps` and `opponentDeps`, each carrying `policyOwnerSeat`. Thus the existing V3 runner supports candidate-only Ranger activation by setting `candidatePolicyOptions.rangerBudewItemLock=true` and leaving opponent false. A single Agent34 wrapper without the composer remains symmetric. Corrected the report and sent Agent3/Agent36 the concrete V3 manifest integration path.
 - The runner already asserts runtime candidate/opponent options match each frozen role's `policyDefinition.policyOptions`; candidate flag must be frozen in the candidate identity manifest. No new role composer required.
 - Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
+
+
+### 12 November 2026 21:40 UTC checkpoint: candidate-only role-composer regression
+
+- Extended `tests/agent6-budew-ranger-root-dispatch.test.cjs` with a second test using the real `withCandidateOpponentPolicyRoles` composer. It sets `candidatePolicyOptions.rangerBudewItemLock=true`, leaves opponent options empty, expects the top-seat candidate to dispatch Ranger, and expects the opponent wrapper to fall through. This concretely tests the candidate-only scoping path, not just the direct wrapper.
+- Local `node --check` passed for the dispatch test; helper-only suite passed 10/10 with a root-selector test double. Actual wrapper/role-composer and native Store tests remain unexecuted; the Agent7 workflow is manual.
+- Updated the integration report and sent Agent3/Agent36 the new role-composer test path. No matchup result or win-rate claim.
+- Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
