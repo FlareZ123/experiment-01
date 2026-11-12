@@ -26,7 +26,7 @@ tests/2026-11/agent49-native-fixture-game.test.cjs now checks:
 2. A native owner-prompt decoder throws. The partial artifact must preserve the prompt identity, message and available options captured before decode.
 3. The existing native dispatch-failure test remains intact and continues to distinguish a decoded-but-rejected action from a pre-decode failure.
 
-The helper remains fixture-only. No full private state is passed to either policy; it is captured only through the outer diagnostic callback.
+The helper remains fixture-only. The full-state diagnostic snapshot is passed only through the top-level diagnosticSnapshot callback, not through role-policy options or the actor observation. This does not certify whole-policy information safety: the native Twinleaf Store state still enters the SimpleTacticsAi decoder, and the actor-only wrapper may fall back to the original native bot on unsupported/non-owner paths. The runner itself correctly labels whole-policy information safety as uncertified.
 
 ## Validation and limitations
 
