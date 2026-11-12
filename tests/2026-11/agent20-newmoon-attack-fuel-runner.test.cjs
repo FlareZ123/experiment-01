@@ -20,9 +20,9 @@ test('pairs changed native discard payments by physical seat',()=>{
     ]}
   }]};
   const [row]=comparePayments([control,treatment]);
-  assert.equal(row.candidateChangedPayments,1);
-  assert.equal(row.sourceChangedPayments,0);
-  assert.equal(row.changedPayments[0].actorRole,'candidate');
+  assert.equal(row.candidateAcceptedChangedPayments,1);
+  assert.equal(row.sourceAcceptedChangedPayments,0);
+  assert.equal(row.acceptedChangedPayments[0].actorRole,'candidate');
   assert.deepEqual(row.changedPayments[0].controlPrintings,
     ['Trainer A','Psychic Energy']);
   assert.deepEqual(row.changedPayments[0].treatmentPrintings,
@@ -42,7 +42,7 @@ test('preserves unmatched treatment prompt selections after divergence',()=>{
   }]};
   const [row]=comparePayments([control,treatment]);
   assert.equal(row.unmatchedTreatmentSelections.length,1);
-  assert.equal(row.changedPayments.length,0);
+  assert.equal(row.acceptedChangedPayments.length,0);
   assert.equal(row.treatmentAttackFuelSelected,1);
 });
 
