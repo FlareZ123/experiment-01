@@ -26,7 +26,7 @@ function installUnderworldDoorPsychicRecipientHook(){
     'game/store/prompts/attach-energy-prompt'));
   const {CheckPokemonTypeEffect}=require(path.join(root,
     'game/store/effects/check-effects'));
-  const {CardType,EnergyType}=require(path.join(root,'game/store/card/card-types'));
+  const {CardType,EnergyType,SuperType}=require(path.join(root,'game/store/card/card-types'));
   const {EnergyCard}=require(path.join(root,'game/store/card/energy-card'));
   const {PlayerType,SlotType}=require(path.join(root,
     'game/store/actions/play-card-action'));
@@ -75,7 +75,7 @@ function installUnderworldDoorPsychicRecipientHook(){
         Array.isArray(prompt.slots)&&
         prompt.slots.length===1&&
         prompt.slots[0]===SlotType.BENCH&&
-        prompt.filter?.superType==='ENERGY'&&
+        prompt.filter?.superType===SuperType.ENERGY&&
         prompt.filter?.energyType===EnergyType.BASIC&&
         prompt.filter?.name==='Psychic Energy'&&
         prompt.options?.min===1&&
