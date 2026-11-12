@@ -1,7 +1,13 @@
-name: Agent31 pure owner-only Underworld Door root and marker contract
+name: Underworld Door and Hood/Garbotoxin pure state contracts
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'simulation/twinleaf/hood-ability-lock-state.cjs'
+      - 'simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs'
+      - 'tests/2026-11/agent41-hood-ability-lock-state.test.cjs'
+      - '.github/workflows/agent31-underworld-door-owner-frontier.yml'
 
 permissions:
   contents: read
@@ -15,5 +21,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify pure owned Underworld Door root and native-read-only marker receipt
-        run: node --test tests/agent31-underworld-door-owner-frontier.test.cjs tests/agent31-underworld-door-native-preconditions.test.cjs tests/agent31-rank1-underworld-preconditions-replay.test.cjs
+      - name: Verify pure Underworld Door and Hood/Garbotoxin state contracts
+        run: |
+          node --check simulation/twinleaf/hood-ability-lock-state.cjs
+          node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
+          node --test tests/agent31-underworld-door-owner-frontier.test.cjs tests/agent31-underworld-door-native-preconditions.test.cjs tests/agent31-rank1-underworld-preconditions-replay.test.cjs tests/2026-11/agent41-hood-ability-lock-state.test.cjs
