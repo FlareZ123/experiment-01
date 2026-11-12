@@ -285,6 +285,98 @@ function validateOpponentPolicyFieldBundle(request) {
 
 
 /**
+ * Join the existing 128-stratum outcome ledger to the same V3 policy-plan
+ * and per-game application receipts used by the V3 admission evaluator.
+ * Legacy ledgers remain supported when neither V3 field is supplied.
+ */
+function validateV3PolicyPanelJoin(request, attempts, problems,
+    ledgerOpponentPolicyBundleSha) {
+  const hasPolicyPlan = request.policyPlanCore !== undefined;
+  const hasPanelReceipts = request.policyPanelReceipts !== undefined;
+  if (!hasPolicyPlan && !hasPanelReceipts) return;
+  if (!hasPolicyPlan || !hasPanelReceipts ||
+      !Array.isArray(request.policyPanelReceipts)) {
+    problems.add('v3-policy-panel-evidence-incomplete');
+    return;
+  }
+  if (!SHA256.test(request.policyPlanSha256))
+    problems.add('v3-policy-plan-digest-unverified');
+
+  let panel;
+  try {
+    panel = validateOpponentPolicyFieldBundle({
+      policyPlanCore:request.policyPlanCore,
+      expectedPolicyPlanSha256:request.policyPlanSha256,
+      gameReceipts:request.policyPanelReceipts
+    });
+  } catch {
+    problems.add('v3-policy-panel-invalid');
+    return;
+  }
+  if (panel.status !== 'VALID') problems.add('v3-policy-panel-invalid');
+  if (panel.policyPlanSha256 !== request.policyPlanSha256)
+    problems.add('v3-policy-plan-digest-mismatch');
+  if (panel.opponentPolicyBundleSha256 !== ledgerOpponentPolicyBundleSha)
+    problems.add('v3-policy-bundle-ledger-mismatch');
+  if (request.policyPanelReceipts.length !== attempts.length)
+    problems.add('v3-policy-panel-attempt-count-mismatch');
+
+  const receiptByTrial = new Map();
+  for (const receipt of request.policyPanelReceipts) {
+    if (!receipt || typeof receipt.trialId !== 'string' ||
+        receipt.trialId.length === 0 || receiptByTrial.has(receipt.trialId)) {
+      problems.add('v3-policy-panel-trial-identity-invalid');
+      continue;
+    }
+    receiptByTrial.set(receipt.trialId,receipt);
+  }
+
+  const attemptIds = new Set();
+  for (const attempt of attempts) {
+    if (typeof attempt.trialId !== 'string' || attempt.trialId.length === 0)
+      continue;
+    if (attemptIds.has(attempt.trialId)) continue;
+    attemptIds.add(attempt.trialId);
+    const receipt = receiptByTrial.get(attempt.trialId);
+    if (!receipt) {
+      problems.add('v3-policy-receipt-missing-for-outcome');
+      continue;
+    }
+
+    if (receipt.opponentRank !== attempt.rank ||
+        receipt.candidateSeat !== attempt.seat ||
+        receipt.firstPlayerSeat !== attempt.firstPlayerSeat ||
+        receipt.opponentSeat !== 1 - attempt.seat ||
+        receipt.candidateDeckSha256 !== attempt.candidate60Sha ||
+        receipt.candidatePolicySha256 !== attempt.candidatePolicySha ||
+        receipt.opponentDeckSha256 !== attempt.source60Sha ||
+        receipt.opponentPolicyBundleSha256 !== panel.opponentPolicyBundleSha256 ||
+        attempt.opponentPolicyBundleSha !== panel.opponentPolicyBundleSha256 ||
+        attempt.policyPlanSha256 !== panel.policyPlanSha256 ||
+        attempt.policyRegistrationSha256 !== receipt.policyRegistrationSha256 ||
+        attempt.policyAttestationBundleSha256 !== receipt.policyAttestationBundleSha256 ||
+        attempt.policyApplicationReceiptSha256 !== receipt.receiptSha256) {
+      problems.add('v3-policy-receipt-outcome-mismatch');
+    }
+
+    const {receiptSha256,...payload} = receipt;
+    try {
+      if (!SHA256.test(receiptSha256) ||
+          canonicalSha256(payload) !== receiptSha256) {
+        problems.add('v3-policy-application-receipt-digest-invalid');
+      }
+    } catch {
+      problems.add('v3-policy-application-receipt-digest-invalid');
+    }
+  }
+
+  for (const trialId of receiptByTrial.keys()) {
+    if (!attemptIds.has(trialId))
+      problems.add('v3-policy-receipt-without-outcome');
+  }
+}
+
+/**
  * Verify structure of a COMPLETE equally weighted 32-rank, two-seat,
  * two-first-player 128-stratum registration ledger. For statistical validity,
  * every row must also be externally verified to be a genuinely independent,
@@ -405,6 +497,8 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
       problems.add('registration-mismatch');
     }
   }
+  validateV3PolicyPanelJoin(request, attempts, problems,
+    opponentPolicyBundleSha);
   const strata = counts.flat(2);
   const n = strata[0];
   if (n === 0 || strata.some(value => value !== n)) {
