@@ -608,3 +608,6 @@ Validation actually performed:
 
 
 - Final hardening: `preDealArtifactRef` must be a safe repository-relative path (no absolute path, traversal segment, backslash, URL-like colon, query or fragment). Regression rejects `../../outside-repository.json`. Report updated accordingly.
+
+
+- Role composer final guard: `withCandidateOpponentPolicyRoles()` now requires shared `getCatalog` and `getNativeTrainerCatalog` bindings and forbids role-specific overrides of those catalogs (as well as engine/action classes). Regression rejects same-seat role mapping and candidate catalog override. This prevents different roles from silently using different card/runtime definitions.
