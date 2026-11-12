@@ -202,7 +202,7 @@ test('trace formatter emits selected card and before/after full state changes', 
     failedAction: { actionOrdinal: 2, actionName: 'PlayCardAction' },
     finalPublicState: { phase: 'PLAYER_TURN', activePlayer: 1 },
     finalFullState: after,
-    finalDiagnosticFailure: { name: 'SnapshotError' },
+    diagnosticSnapshotFailure: { name: 'SnapshotError' },
     failure: { stage: 'dispatch', actionOrdinal: 2 },
   });
   assert.match(text, /candidateSeat=0/);
