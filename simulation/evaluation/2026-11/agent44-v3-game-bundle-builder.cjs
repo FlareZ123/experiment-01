@@ -491,6 +491,10 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     fail('pre-deal registration is not ready for this builder mode');
   if (!plainObject(trial) || trial.trialId!==preDeal.trialId)
     fail('postgame trial identity does not match frozen pre-deal registration');
+  if (fixtureOnly ? trial.fixtureOnly!==true : trial.fixtureOnly===true)
+    fail(fixtureOnly ?
+      'fixture builder requires trial.fixtureOnly:true' :
+      'production builder rejects fixture-only trials');
   const chronology=validateDealChronology(preDeal,trial,preDealPersistenceReceipt,dealGenerationReceipt,fixtureOnly);
   if (!sameJson(trial.preregistration,preDeal.gameRegistration) ||
       trial.preregistrationSha256!==evidenceBundleSha256(preDeal.gameRegistration) ||
