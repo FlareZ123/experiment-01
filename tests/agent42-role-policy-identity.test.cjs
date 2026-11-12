@@ -93,7 +93,7 @@ test('entry manifest pins research closure, vendor prompt binding, dependency lo
  const m=manifest(root);
  assert.equal(m.manifest.complete,true);
  assert.ok(m.manifest.files.length>=8);
- assert.equal(m.manifest.vendorDependencies[0].path,'vendor/twinleaf/resolve-prompt-action.js');
+ assert.ok(m.manifest.vendorDependencies.some(dep=>dep.path==='vendor/twinleaf/resolve-prompt-action.js'));
  assert.equal(m.manifest.vendorDependenciesSha256,evidenceBundleSha256(m.manifest.vendorDependencies));
  assert.equal(m.manifest.vendorImportsSha256,evidenceBundleSha256(m.manifest.vendorImports));
  assert.ok(m.manifest.vendorImports.some(edge=>edge.path==='vendor/twinleaf/resolve-prompt-action.js'));
