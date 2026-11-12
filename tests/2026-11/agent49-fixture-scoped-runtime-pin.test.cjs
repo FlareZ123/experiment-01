@@ -39,6 +39,11 @@ function withTempRepo(run){
     };
     run({root,expected,files});
   }finally{
+    for(const filename of Object.keys(require.cache)){
+      const relative=path.relative(root,path.resolve(filename));
+      if(relative && relative!=='..' && !relative.startsWith('..'+path.sep) &&
+          !path.isAbsolute(relative)) delete require.cache[filename];
+    }
     fs.rmSync(root,{recursive:true,force:true});
   }
 }
