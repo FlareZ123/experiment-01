@@ -250,6 +250,10 @@ test('runtime pin wrapper requires exact loaded union before executing',()=>{
   assert.equal(result.result,17);
   assert.equal(result.runtimePinUnionSha256,'c'.repeat(64));
   assert.equal(result.loadedProcessClosureSha256,'d'.repeat(64));
+  assert.equal(result.runtimePinEvidence.unionSha256,'c'.repeat(64));
+  assert.equal(result.runtimePinEvidence.loadedProcessClosureSha256,'d'.repeat(64));
+  assert.equal(result.runtimePinEvidence.cardPoolInitializationSha256,
+    require('../simulation/evaluation/agent45-independent-competitive-admission.cjs').evidenceBundleSha256(cardPoolInitialization));
   const incomplete={
     ...identityHelper,
     assertLoadedResearchModulesCovered:()=>({
@@ -260,6 +264,11 @@ test('runtime pin wrapper requires exact loaded union before executing',()=>{
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
     cardPoolInitialization,run:()=>17,identityHelper:incomplete,pin
   }),/every role-closure module must be preloaded/);
+  assert.throws(()=>combineAndPinV3RoleRuntime({
+    repositoryRoot:'/tmp',candidateManifest:candidate,
+    opponentManifest:{...opponent,manifest:{enginePin:'f'.repeat(40)}},
+    cardPoolInitialization,run:()=>17,identityHelper,pin
+  }),/opponent entry manifest engine pin differs/);
 });
 
 test('pre-deal receipt cannot bind a different in-memory registration to the committed artifact',async()=>{
