@@ -1100,6 +1100,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     arvenHoodSearchOptIn:deps.arvenHoodSearch===true,
     arvenHoodSearchRootSelected:0,
     arvenHoodSearchPromptsSelected:0,
+    arvenHoodSearchItemRankingVersion:'agent41-hood-arven-item-priority-v1',
+    arvenHoodSearchItemSelections:[],
     templeDdeDenialSelected:0,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     maxGeistManualRecoveryOptIn:deps.maxGeistManualRecovery===true,
@@ -1829,14 +1831,20 @@ function withActorOnlyRootPolicy(run,deps={}){
         'Arven Hood search must resolve its own authenticated owner prompt');
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
-      const {TrainerType}=deps.arvenTrainerTypes??
+      const {TrainerType,SuperType}=deps.arvenTrainerTypes??
         require(path.join(base,'game/store/card/card-types'));
       const response=require('./agent31/arven-hood-owner-frontier.cjs')
         .resolveArvenHoodSearch(
-          state,seat,pending,ResolvePromptAction,TrainerType.ITEM);
+          state,seat,pending,ResolvePromptAction,TrainerType.ITEM,
+          TrainerType.SUPPORTER,SuperType?.POKEMON);
       ownerArvenPending.delete(playerId);
       if(response){
         audit.arvenHoodSearchPromptsSelected++;
+        audit.arvenHoodSearchItemSelections.push({
+          seat,item:response.item,itemScore:response.itemScore,
+          itemReason:response.itemReason,
+          rankingVersion:response.itemRankingVersion
+        });
         return response.action;
       }
     }

@@ -2,8 +2,10 @@
 const assert=require('node:assert/strict');
 const {NEUTRAL_STADIUM_PRINTINGS}=
   require('../2026-11/agent4-thorns-lock-field-neutral-v3.cjs');
+const {rankHoodArvenItems,RANKING_VERSION}=
+  require('./agent41-hood-arven-item-priority.cjs');
 
-const VERSION='agent31-owner-arven-for-held-hood-search-v1';
+const VERSION='agent31-owner-arven-for-held-hood-search-v2';
 const ARVEN=/^Arven [A-Z0-9]{2,6}(?: [0-9]+)?$/;
 const HOOD='Stealthy Hood UNB';
 const LOCK='Iron Thorns ex TWM';
@@ -58,19 +60,22 @@ function chooseArvenHoodRoot(view,catalog){
 }
 
 /**
- * Choose actual printed Hood from the owner-revealed live deck search. Arven
- * can also search an Item, but the exact Item depends on current resources.
- * Do not assume an Item is available, and fail closed if no native selection
- * passes the game's own prompt validator.
+ * Choose actual printed Hood plus a resource-ranked Item from the owner's
+ * revealed live deck search. Item ranking uses only owner-visible resources
+ * and public opponent state, never the shuffled deck order or opponent hidden
+ * zones. Fail closed unless the native prompt validator accepts the selection.
  *
  * @param {object} state Genuine Store State.
  * @param {0|1} seat Acting owner seat.
  * @param {object} prompt Genuine pending native ChooseCardsPrompt.
  * @param {new (...args:any[])=>object} ResolvePromptAction Pinned native class.
  * @param {string|number} itemTrainerType Actual pinned native TrainerType.ITEM.
- * @returns {{action:object,chosen:string[],complete:boolean}|null}
+ * @param {string|number} [supporterTrainerType] Actual pinned TrainerType.SUPPORTER.
+ * @param {string|number} [pokemonSuperType] Actual pinned SuperType.POKEMON.
+ * @returns {{action:object,chosen:string[],complete:boolean,item:string|null,itemScore:number|null,itemReason:string}|null}
  */
-function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction,itemTrainerType){
+function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction,itemTrainerType,
+  supporterTrainerType=null,pokemonSuperType=null){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(typeof ResolvePromptAction,'function');
   assert.ok(typeof itemTrainerType==='number'||
@@ -83,24 +88,22 @@ function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction,itemTraine
   const hood=owner.deck.cards.find(c=>c.fullName===HOOD);
   if(!hood)return null;
   const cards=owner.deck.cards;
-  // The exact native prompt validation is authoritative. Prefer Hood and
-  // an Item, but never select the physically same card twice.
+  // Rank the complete live Item candidate set from owner-visible resources.
+  // The native prompt validator remains the final authority for each pair.
   const options=cards.filter(c=>c!==hood&&
     c?.trainerType===itemTrainerType);
-  // Item classification is owned by the pinned card's TrainerType enum.
-  // No generic Trainer is accepted without native prompt.validate.
-  const accepted=[];
-  for(const item of options){
+  const ranked=rankHoodArvenItems(state,seat,options,
+    supporterTrainerType,pokemonSuperType);
+  let selected=null,selectedItem=null;
+  for(const candidate of ranked){
+    const item=candidate.card;
     if(prompt.validate?.([hood,item],state)===true){
-      accepted.push({result:[hood,item],item});
-      break;
+      selected=[hood,item];selectedItem=candidate;break;
     }
     if(prompt.validate?.([item,hood],state)===true){
-      accepted.push({result:[item,hood],item});
-      break;
+      selected=[item,hood];selectedItem=candidate;break;
     }
   }
-  let selected=accepted[0]?.result??null;
   if(selected===null&&prompt.validate?.([hood],state)===true)
     selected=[hood];
   if(selected===null)return null;
@@ -108,7 +111,11 @@ function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction,itemTraine
     action:new ResolvePromptAction(prompt.id,selected),
     chosen:selected.map(x=>x.fullName),
     complete:selected.length===2,
-    nativePromptId:prompt.id
+    nativePromptId:prompt.id,
+    item:selectedItem?.card.fullName??null,
+    itemScore:selectedItem?.score??null,
+    itemReason:selectedItem?.reason??'Hood-only selection passed native validation',
+    itemRankingVersion:RANKING_VERSION
   };
 }
 module.exports={VERSION,chooseArvenHoodRoot,resolveArvenHoodSearch};
