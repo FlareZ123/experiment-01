@@ -2,7 +2,6 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
 const {buildCaptureOnlyPolicyProvenance} =
   require('../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
 
@@ -88,6 +87,7 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
   assert.equal(result.activatedHookManifest.complete, false);
   assert.equal(result.policyEntryManifest.complete, false);
   assert.equal(result.policyManifest.complete, false);
+  assert.match(result.policyManifestSha256, /^[0-9a-f]{64}$/);
   assert.equal(result.hookRevisionSha, null);
   assert.deepEqual(result.policySha256BySeat, [null, null]);
   assert.equal(result.samePolicy, false);
