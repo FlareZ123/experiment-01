@@ -262,3 +262,17 @@ The scorer schema is now **v3** and requires `elapsedSecondsAtOfficialCall`, mea
 Focused Agent27 tests now cover the early-call and exact-limit cases for all three stages. The shared Agent45 bilateral-gate test fixture was updated to supply 1,500/2,100 seconds and includes adapter/gate boundary regressions. The Agent45 adapter continues to reuse the canonical Agent27 scorer, and its protocol digest automatically changes with the scorer source.
 
 **Validation boundary:** these are committed regressions, not yet a GitHub Actions run. The available connected GitHub actions do not expose workflow dispatch, so no claim of compiled CI success is made. No physical clock record, native game, paper-qualified match, deck selection, or win-rate evidence is created by this correction.
+
+## 12 November 2026: frozen 4410 V2 clock-evidence intake
+
+The Agent45 V2 release builder now exposes an explicit external clock-evidence seam for the frozen trial `5:4410:B:new-moon-lockbreaker-v1`:
+
+- Programmatic API: `build(original,{clockEvidence,clockEvidenceRef})`.
+- CLI: `node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs <intake.json> <output.json> [clock-evidence.json]`.
+- A supplied object must contain `trialId` equal to the frozen 4410 trial and a nonblank `clockEvidenceRef`; missing/mismatched binding is rejected.
+- The eight trial fields (`eventStage`, `clockDisposition`, `paperReceiptId`, `clockReceiptId`, `adjudicationProtocolSha`, `noCallClockPacket`, `timeCallPacket`, `extensionLedgerPacket`) are mapped one-to-one. The full external object/reference, `inspectOfficialAichiClock` assessment, and current `aichiClockProtocolSha256()` are preserved in the signed `clock-continuity` evidence object.
+- With no input, all trial clock fields remain null; no-call is not inferred, no clock packet is synthesized, and no independent review/signature is created. The shared Agent45 adapter applies the Agent27 v3 elapsed-time and event-adjudication rules. The external packet must carry the current v3 protocol digest and actual evidence references.
+
+The 4410 preflight now runs the canonical Agent27 scorer, namespaced clock-provenance regressions, Agent45 bilateral clock gate, and V2 builder tests. The provenance test path was corrected to `tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs`, and its valid time-call fixture now carries 1,500 elapsed seconds. The manual workflow has not yet been dispatched; these are committed tests, not a CI result.
+
+**Evidence status:** the 4410 producer supplies no external clock packet. The intake seam is ready for a separately observed and independently reviewed record, but no actual official clock evidence, paper-qualified game, competitive admission, final deck, or win-rate claim exists.
