@@ -239,7 +239,7 @@ test('4410 intake exposes the raw Cologne audit and card-specific review gate wi
   assert.ok(optionsStart>=0&&optionsEnd>optionsStart,
     'The frozen runner must retain an inspectable policy option object');
   assert.doesNotMatch(source.slice(optionsStart,optionsEnd),
-    /paperCologneQuota\\s*:\\s*true/,
+    /paperCologneQuota\s*:\s*true/,
     '4410 must not enable the optional simulator correction hook');
   const workflow=fs.readFileSync(path.join(ROOT,
     '.github/workflows/agent44-rank5-m4-paper-source-native.yml'),'utf8');
