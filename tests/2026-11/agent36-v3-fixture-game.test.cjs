@@ -1,6 +1,8 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -129,6 +131,37 @@ test('V3 fixture requires a valid owner diagnostic recipient and always encrypts
   assert.ok(keyGuard.includes('crypto.createPublicKey(pem)'));
   assert.ok(keyGuard.includes("key.asymmetricKeyType !== 'rsa'"));
   assert.ok(keyGuard.includes('bits < 2048'));
+
+  const heredocAt = keyGuard.indexOf("node - <<'NODE'\\n");
+  const heredocEnd = keyGuard.indexOf("\\n          NODE", heredocAt);
+  assert.ok(heredocAt >= 0 && heredocEnd > heredocAt, 'the key preflight must contain an executable Node heredoc');
+  const scriptStart = heredocAt + "node - <<'NODE'\\n".length;
+  const script = keyGuard.slice(scriptStart, heredocEnd).split('\\n')
+    .map(line => line.startsWith('          ') ? line.slice(10) : line).join('\\n');
+
+  const rsa = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const publicPem = rsa.publicKey.export({ type: 'spki', format: 'pem' });
+  const validRun = spawnSync(process.execPath, ['-e', script], {
+    encoding: 'utf8',
+    env: { ...process.env, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem }
+  });
+  assert.equal(validRun.status, 0, validRun.stderr || 'valid RSA-2048 recipient key should pass preflight');
+
+  const missingEnv = { ...process.env };
+  delete missingEnv.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
+  const missingRun = spawnSync(process.execPath, ['-e', script], {
+    encoding: 'utf8',
+    env: missingEnv
+  });
+  assert.notEqual(missingRun.status, 0, 'missing recipient key must fail before native compilation');
+
+  const ec = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+  const invalidRun = spawnSync(process.execPath, ['-e', script], {
+    encoding: 'utf8',
+    env: { ...process.env, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:
+      ec.publicKey.export({ type: 'spki', format: 'pem' }) }
+  });
+  assert.notEqual(invalidRun.status, 0, 'non-RSA recipient key must fail preflight');
 
   const encryptionStep = workflow.slice(encryptAt, uploadAt);
   assert.ok(encryptionStep.includes('if: ${{ always() && !inputs.contract_only }}'),
