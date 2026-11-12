@@ -184,6 +184,15 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     'The actual checked-out Twinleaf commit must match the frozen registration');
   assert.equal(original.intake.enginePinnedCommit,original.registration.enginePinnedCommit);
   const src=original.nativeDevelopmentRow;
+  assert.ok(src&&typeof src==='object',
+    'The native development row is required for the frozen trial');
+  assert.equal(src.trial?.id,trialId,
+    'Native development row trial must match intake trial');
+  assert.equal(src.candidateSeat,original.intake.candidateSeat,
+    'Native development row candidateSeat must match intake candidate seat');
+  if(Object.hasOwn(src,'sourceSeat'))
+    assert.equal(src.sourceSeat,original.intake.sourceSeat,
+      'Native development row sourceSeat must match intake source seat');
   const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:
     Array.isArray(src?.nativeAbortEvidence?.rootActionLedger)?
       src.nativeAbortEvidence.rootActionLedger:[];
