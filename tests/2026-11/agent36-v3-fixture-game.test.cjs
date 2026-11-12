@@ -167,3 +167,24 @@ test('V3 fixture requires a valid owner diagnostic recipient and always encrypts
   assert.ok(encryptionStep.includes('if: ${{ always() && !inputs.contract_only }}'),
     'private diagnostics must still be encrypted when the game step fails');
 });
+
+
+test('fixture CLI logs only a safe summary while full-state traces stay in artifacts', () => {
+  const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  const summaryStart = runnerSource.indexOf("  return {\n    artifactPath:");
+  const summaryEnd = runnerSource.indexOf("\n  };", summaryStart);
+  assert.ok(summaryStart >= 0 && summaryEnd > summaryStart, 'fixture success return must be an explicit summary');
+  const summary = runnerSource.slice(summaryStart, summaryEnd);
+  assert.doesNotMatch(summary, /decisionTrace|rootActionLedger|finalFullState|fixtureGamePartial|private-offline-diagnostic-only/);
+
+  const commandStart = runnerSource.indexOf("if(command==='fixture-game')");
+  const commandEnd = runnerSource.indexOf('\n  const repositoryRoot', commandStart);
+  assert.ok(commandStart >= 0 && commandEnd > commandStart, 'fixture CLI command branch must be identifiable');
+  const command = runnerSource.slice(commandStart, commandEnd);
+  assert.match(command, /JSON\.stringify\(result,null,2\)/);
+  assert.doesNotMatch(command, /decisionTrace|rootActionLedger|fullState|fixtureGamePartial/,
+    'public Actions logs must not serialize the private fixture artifact');
+
+  assert.match(runnerSource, /partial artifacts preserved: '\) \+ outputPath/,
+    'failure logs may identify the artifact path but not print its contents');
+});
