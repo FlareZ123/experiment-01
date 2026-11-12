@@ -58,6 +58,7 @@ function fixture(overrides = {}) {
       paperReceiptId: 'paper-receipt-1',
       paperGameWinner: 0,
       paperGameTie: false,
+      terminalAt: '2026-11-12T00:01:30.000Z',
       terminalEvidenceRef: 'evidence/paper-terminal.mp4',
       terminalEvidenceSha256: 'b'.repeat(64),
       protocolEvidenceRef: 'evidence/untimed-session.mp4',
@@ -195,7 +196,7 @@ test('protocol evidence reference, digest and post-deal attestation time are req
   const row = fixture();
   row.untimedProtocolPacket.protocolEvidenceRef = ' ';
   row.untimedProtocolPacket.protocolEvidenceSha256 = 'bad';
-  row.untimedProtocolPacket.attestedAt = '2026-11-12T00:00:30.000Z';
+  row.untimedProtocolPacket.attestedAt = '2026-11-12T00:01:00.000Z';
   const result = protocol.inspectUntimedResearchGame(row);
   assert.ok(result.failures.includes('untimed-protocol-evidence-reference-missing'));
   assert.ok(result.failures.includes('untimed-protocol-evidence-digest-invalid'));
@@ -225,4 +226,11 @@ test('event clock fields inside the untimed packet also invalidate it', () => {
   row.untimedProtocolPacket.clockReceiptId = 'event-clock-1';
   const result = protocol.inspectUntimedResearchGame(row);
   assert.ok(result.failures.includes('packet-event-clock-evidence-present'));
+});
+
+test('terminal timestamp must follow deal generation and precede attestation', () => {
+  const row = fixture();
+  row.untimedProtocolPacket.terminalAt = '2026-11-12T00:00:30.000Z';
+  const result = protocol.inspectUntimedResearchGame(row);
+  assert.ok(result.failures.includes('untimed-protocol-attestation-time-invalid'));
 });
