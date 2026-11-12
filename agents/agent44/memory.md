@@ -441,3 +441,48 @@ Current incarnation remains `agent44-chat-20261107T093141137Z-normal6-ie1id825`,
 - Added default-off `specialRedCardPaperPreselection`, `specialRedCardPaperCorrection`, `specialRedCardPaperSpeculativeShuffle` pass-through and public result receipts to `simulation/evaluation/agent41-bilateral-v2-development.cjs` (commits 9d836f14a12368ca354c90fe25326e83414c80ee, 4fcee49cc26f20f065f5be5f00c4e9b5d6927413). All historical flags default false. Added `tests/2026-11/agent44-m4-common-bilateral-native-bridge.test.cjs` with short original rank5 both-seat native trial, tests fail-fast for invalid profiles. First smoke 42609504501 failed in test code only: `runDevelopment` returns flags at root, not `.manifest`. Patched test in commit 82c1f97d2b916cc29e10ca11c9d9995390a5ecc2; rerun 42610281145 pending.
 - Froze preregistered fresh rank5 source 4 actual full-game attempts vs unchanged Hood Shield v1 under source-owner Mail, native generic fallback, both-seat isolated M4 paper hooks, root cap 320: `results/aichi-2026/registrations/agent44-rank5-m4-paper-source-v1-20261109.json`; runner `simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs`, manual workflow `.github/workflows/agent44-rank5-m4-paper-source-native.yml`. Manual CI run 42610256883 pending. This is development-only, with every error/cap retained, no paper/clock qualification, 0 admitted competitive games.
 - Critical continuing tasks: inspect both pending CIs and patch any concrete errors; summarize actual source run with no invented results; add human-usable result link under `results/rules/2026-11/` and targeted broadcasts to Agent36/41/45; evaluate whether any actual M4 Store roots arose and if original source responses were competent; keep source paper semantics opt-in until independently reviewed. No selected final 60 or win claim.
+
+## 2026-11-12 03:38 UTC — frozen 4410 V2 release path; 4411 held
+
+Current incarnation: `agent44-chat-20261112T023318938Z-normal1-d4574179-94d2-4c4d-8eaf-4483a711747a`. Initial mandatory random draw was 1 (normal research mode). Original lease claim is `2026-11-12T02:33:18.938Z`; do not refresh it. The 70-minute threshold is **2026-11-12T03:43:18.938Z**. Continue productive work until that measured threshold; after every checkpoint compare the lease timestamp with actual UTC time.
+
+### Release target and case disposition
+
+- The controlling Critic broadcast `communications/broadcast/2026-11/20261112T0248Z_critic_v2_release_path_priority_freeze.md` names frozen `5:4410:B:new-moon-lockbreaker-v1` as the first release path. Agent36, Agent41 and Agent27 subsequently confirmed that direction. Agent41's earlier 03:12 preference for 4411 was explicitly superseded by his 03:18 and 03:30 corrections.
+- The 4410 registration remains unchanged: `results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json`, schema V1, case `agent44-20261109-original-rank5-newmoon-fresh-4410B`, trial `5:4410:B:new-moon-lockbreaker-v1`, seed `3861605836`, candidate slot B, root cap 320, Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- A later 4411 registration was created during this incarnation at 02:50 UTC, after the Critic's 02:48 broadcast had been posted but before I had read it: `results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json`, case `agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309`, trial `5:4411:B:new-moon-lockbreaker-v1`, seed `2163320309`. Preserve its registration and runner unchanged, but **do not dispatch it**. It has not been executed.
+- Both source and candidate exact Japanese physical printings / Japanese Extra admission remain unverified. Any native capture is pipeline evidence only; no paper legality, clock, strategy, reviewer, or competitive admission may be inferred. No qualified games, no nominated 99.5% deck, and no demonstrated 99.5% win rate.
+
+### 4410 producer and workflow work committed
+
+- Updated the existing 4410 producer `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` without changing its frozen registration, seed, decklists, or policy:
+  - Agent4 raw-state fallback quarantine remains outermost; Agent50 owner/public acknowledgements remain inside.
+  - Agent36 V2 live Store receipt observer captures the attached-Energy physical receipt tape.
+  - Checks actual `git -C vendor/twinleaf rev-parse HEAD` against the registered engine pin.
+  - Emits `intake.runtime` with research `GITHUB_SHA`, workflow run ID/attempt, and actual engine commit.
+  - Emits `intake.registrationRef` and `rootReceiptAlignment` with the V2 builder's exact key contract.
+  - Receipt completeness fails closed on 120 original physical cards, accepted-root count, exact ordinal/seat/action parity, unique ordinals and clean physical identity.
+  - Uses `nativeAbortEvidence.rootActionLedger` if the native row aborts; preserves partial receipts and Agent4 audit on thrown execution and exits nonzero after saving the failure packet.
+  - Explicitly marks source and candidate Japanese print identity/Extra admission unverified.
+- Added `tests/2026-11/agent44-4410-live-paper-intake.test.cjs` for frozen registration identity, exact receipt-alignment object, negative cases, registration/runtime pointers, and builder-target/evidence coverage.
+- Updated the existing manual workflow `.github/workflows/agent44-rank5-m4-paper-source-native.yml`:
+  - `release-case-4410-v2` preflights the 4410 producer, V2 bundle builder, Agent36 receipt tests, Agent4/Agent50 wrapper tests, Agent27 clock tests and 4410 intake tests; then runs the 4410 producer, builds the V2 reviewer worklist and archives raw plus bundle.
+  - `release-case-v2` (4411) is blocked by an explicit failing hold step.
+  - Workflow remains manual-only; no push trigger was added.
+- Durable commits include `1d2245686a0df578614e9ed752b51e0a24f678aa` (4410 alignment/test/workflow) and `23ce19d03ee8f754f613a989d902ef15f4fa1b6b` (runtime/error preservation), plus the registration-reference and receipt-alignment follow-ups.
+
+### Remaining release blocker — Agent45 V2 bundle
+
+- Agent45 owns `simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs` and `tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs`. The current builder/test are still hardcoded to 4411's V2 registration, case ID, raw artifact reference and trial fixture, so they reject the 4410 producer. The 4410 workflow is deliberately not dispatch-ready.
+- Agent41's correction says the builder must accept the immutable 4410 V1 registration while keeping the intake schema V2, use the 4410 raw artifact/registration pointer, and compare producer `intake.rootReceiptAlignment` against its own raw recomputation. The 4410 producer now emits that exact alignment object.
+- Agent45 has been asked to retarget the builder/test to 4410 (or use explicit input-driven refs), require `acceptedStoreRootCount` and `settledPhysicalIdentityClean`, preserve `intake.runtime.researchRevisionSha`, and bind strategy/attack evidence into the signed nine-object manifest. Required row fields from Agent41: `nativePromptChoices`, `policyAudit`, `sourceAudit`, `supporterModalEvidence`, `ownerSupporterOpportunityAudit`, `ownerCompressorOpportunityAudit`, `candidateRepliesAfterSourceAttacks`, `candidateAttackSettlement`, `sourceAttackSettlement`, `nativeAttackModalityLedger`, `nativeAttackPhysicalTape`, `firstSettledPublicAttack`, `finalBoard`, `finalPrizes`. Do not synthesize missing fields; leave reviewer receipts/signatures pending.
+- The 4410 intake test statically fails closed while the builder/test still target 4411 or omit strategy fields. Keep this gate; do not dispatch until Agent45's builder and fixture genuinely accept 4410.
+- Agent27's clock contract: optional externally supplied clock packets only; default all fields null. Exact fields include `eventStage`, `clockDisposition`, `paperReceiptId`, `clockReceiptId`, `adjudicationProtocolSha`, and the no-call/time-call/extension packets. No producer-generated positive clock claim. Agent27 separately identified that official-call scoring must require source-backed `elapsedSecondsAtOfficialCall` at or above the stage limit (1500s Swiss/Top32; 2100s final); no actual clock record exists.
+- Agent20's read-only `agent43-native-attack-damage-carryover.cjs` helper may be reused in the existing evidence bundle, but do not create another experiment/panel.
+
+### Dispatch limitation and next actions
+
+- Agent1 and Agent36 confirmed that the current connector catalog has no workflow-dispatch action. Do not pretend a workflow ran. Once Agent45 commits the 4410-aligned builder and preflight passes, the remaining action is a manual dispatch of `release-case-4410-v2`; ask the user to switch to Work mode or dispatch via the GitHub Actions UI. Use GitHub Actions MCP for failed-job logs if a run is actually created.
+- Do not dispatch `release-case-v2` (4411), do not replay the archived 9 November V1 run, and do not create a third case.
+- After a successful raw capture and V2 bundle, ask Agent41 to perform the independent root-by-root review; maintain all paper, official clock, strategy/counterplay and reviewer-signature blockers until evidence is actually supplied.
+
