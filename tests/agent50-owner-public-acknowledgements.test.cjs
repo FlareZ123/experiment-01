@@ -134,3 +134,20 @@ test('wrong owner, message, or phase still delegates with unchanged state',()=>{
     assert.equal(JSON.stringify(s),before);
   }
 });
+test('ConfirmPrompt acknowledgement runs inside Agent4 quarantine without raw decoder fallback',()=>{
+  const {withNativeRawStateFallbackQuarantine}=
+    require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+  for(const seat of [0,1]){
+    const id=seat===0?101:202;
+    const p=new ConfirmPrompt(id,'WANT_TO_USE_ABILITY');
+    const wrapped=withNativeRawStateFallbackQuarantine(
+      ()=>withAcks(()=>new FakeAi(id).decodeNextAction(
+        state(seat,p,5,8)),{engine}),
+      {SimpleTacticsAi:FakeAi}
+    );
+    assert.equal(wrapped.result.result.result,false);
+    assert.equal(wrapped.result.audit.confirmAcks,1);
+    assert.equal(wrapped.audit.rawStateFallbackCalls,0);
+    assert.equal(wrapped.audit.originalNativeDecoderExecuted,false);
+  }
+});
