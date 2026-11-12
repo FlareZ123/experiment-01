@@ -119,6 +119,14 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
       'generation job head SHA must equal workflow head SHA');
   assert.equal(persistenceReceipt.workflowHeadSha,run.head_sha,
     'generation receipt must use the same workflow head as persistence');
+  assert.match(persistenceReceipt.commitSha??'',GIT_SHA,
+    'persisted artifact commit SHA is invalid');
+  assert.match(persistenceReceipt.blobSha??'',GIT_SHA,
+    'persisted artifact blob SHA is invalid');
+  assert.match(persistenceReceipt.artifactSha256??'',SHA256,
+    'persisted artifact digest is invalid');
+  assert.equal(persistenceReceipt.commitSha,run.head_sha,
+    'persisted artifact commit must equal workflow head SHA');
   assert.equal(job.status,'completed',
     'generation job must be completed before its server step time is used');
   assert.equal(job.conclusion,'success',
