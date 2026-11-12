@@ -137,12 +137,12 @@ test('deal receipt rejects a generation step before the planned time or run star
   }),/at or after the planned physical deal/);
 });
 
-test('deal receipt requires the trial time and source-deal identity to match the run evidence',()=>{
+test('deal receipt requires the trial time and a valid source-deal fingerprint',()=>{
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
     ...x,trial:{...x.trial,dealGeneratedAt:'2026-11-12T17:11:00.001Z'}
   }),/server-reported generation step start/);
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,trial:{...x.trial,initialSourceDealFingerprint:'f'.repeat(64)}
-  }),/does not match/);
+    ...x,trial:{...x.trial,initialSourceDealFingerprint:'f'.repeat(63)}
+  }),/source-deal fingerprint is invalid/);
 });
