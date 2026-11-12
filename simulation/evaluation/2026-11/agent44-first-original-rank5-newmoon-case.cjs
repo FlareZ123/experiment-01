@@ -20,6 +20,67 @@ const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-new
 const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-case-v2.json');
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
+const CANDIDATE_JAPANESE_MANIFEST=
+  'results/als/new-moon-lockbreak-japanese-print-60.json';
+const CANDIDATE_ENGLISH_PROXY=
+  'results/als/new-moon-lockbreak-english-proxy-60.json';
+const STALE_REGISTERED_CANDIDATE_MANIFEST=
+  'results/als/new-moon-perfection-source-60.json';
+
+/**
+ * Reconcile the frozen registration's stale contender-manifest pointer without
+ * mutating the registration or trial. The native deck loader and proposed
+ * Japanese print manifest must agree on all 34 name/count rows.
+ */
+function candidateManifestBinding(reg){
+  const candidateRaw=fs.readFileSync(path.join(ROOT,CANDIDATE_JAPANESE_MANIFEST),'utf8');
+  const candidate=JSON.parse(candidateRaw);
+  const sourceJapanese=require('../../../results/als/new-moon-official-japanese-print-60.json');
+  const englishRaw=fs.readFileSync(path.join(ROOT,CANDIDATE_ENGLISH_PROXY),'utf8');
+  const english=JSON.parse(englishRaw);
+  const {validateJapanesePrintCandidate,validateEnglishProxyInventoryParity}=
+    require('../../../scripts/new-moon-lockbreak-japanese-provenance.cjs');
+  const japaneseValidation=validateJapanesePrintCandidate(candidate,sourceJapanese);
+  const proxyParity=validateEnglishProxyInventoryParity(candidate,english);
+  const {loadNewMoonCandidate}=require('../../../scripts/aichi-new-moon-candidate.cjs');
+  const loaded=loadNewMoonCandidate();
+  assert.equal(loaded.id,'new-moon-lockbreaker-v1');
+  const nativeRows=loaded.cards.map(x=>[x.name,x.count]).sort((a,b)=>
+    a[0].localeCompare(b[0]));
+  const japaneseRows=candidate.entries.map(x=>[x.name_en,x.count]).sort((a,b)=>
+    a[0].localeCompare(b[0]));
+  assert.deepEqual(nativeRows,japaneseRows,
+    'Native candidate loader must match every proposed Japanese print name/count');
+  assert.equal(reg.candidateId,loaded.id);
+  assert.equal(reg.candidatePrintedManifest,STALE_REGISTERED_CANDIDATE_MANIFEST,
+    'Preserve and explicitly identify the frozen registration pointer');
+  const total=candidate.entries.reduce((n,x)=>n+x.count,0);
+  assert.equal(total,60);
+  return {
+    schema:'agent44-candidate-print-manifest-binding-v1',
+    status:'PRE_EXECUTION_CORRECTIVE_BINDING_NOT_A_NEW_REGISTRATION',
+    registrationCandidateManifestPointer:reg.candidatePrintedManifest,
+    registrationCandidateManifestPointerMatches:false,
+    boundCandidateJapanesePrintManifest:CANDIDATE_JAPANESE_MANIFEST,
+    candidateJapanesePrintManifestSha256:createHash('sha256').update(candidateRaw).digest('hex'),
+    candidateJapanesePrintInventoryCanonicalSha256:japaneseValidation.sha256,
+    candidateJapanesePrintInventoryHashKind:'sorted-japanese-card-id-count-multiset',
+    candidateEnglishMechanicalProxyManifest:CANDIDATE_ENGLISH_PROXY,
+    candidateEnglishMechanicalProxyManifestSha256:createHash('sha256').update(englishRaw).digest('hex'),
+    candidateEnglishProxyIdCountSha256:english.canonical_id_count_sha256,
+    nativeCandidateLoader:'scripts/aichi-new-moon-candidate.cjs',
+    nativeCandidateId:loaded.id,
+    nativeCandidateLoaderNameCountParity:true,
+    candidateNameCountParity:proxyParity,
+    candidatePrintedCardCount:total,
+    candidateUniqueNameCount:candidate.entries.length,
+    candidateOfficialJapaneseDeckCode:null,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:candidate.source_deck_code,
+    proposedPrintManifestStatus:candidate.status,
+    paperLegalityIndependentlyCertified:false
+  };
+}
+
 /** Read and validate the prospective immutable one-game registration. */
 function registration(){
   const raw=fs.readFileSync(path.join(ROOT,REGPATH),'utf8'),reg=JSON.parse(raw);
@@ -40,18 +101,16 @@ function registration(){
   const source=require('../../../results/aichi-2026/full-decklists.json')
     .decks.find(x=>x.rank===5);
   assert.equal(source.cards.reduce((n,x)=>n+x.count,0),60);
-  const newMoon=require('../../../results/als/new-moon-perfection-source-60.json');
-  const candidateCards=Array.isArray(newMoon)?newMoon:
-    newMoon.entries??newMoon.cards??newMoon.deck?.cards??newMoon.deck;
-  assert.ok(Array.isArray(candidateCards),
-    'New Moon public manifest must retain physical printed-card inventory');
-  const candidateCount=candidateCards.reduce((n,x)=>
-    n+(Number.isSafeInteger(x.count)?x.count:1),0);
-  assert.equal(candidateCount,60);
+  const candidateBinding=candidateManifestBinding(reg);
   return {reg,registrationSha256:createHash('sha256').update(raw).digest('hex'),
     sourcePrintedInventorySha256:hash(source.cards),
-    candidatePrintedInventorySha256:hash(candidateCards),
-    candidateOfficialJapaneseDeckCode:newMoon.official_japanese_deck_code??null};
+    candidatePrintedInventorySha256:
+      candidateBinding.candidateJapanesePrintInventoryCanonicalSha256,
+    candidateOfficialJapaneseDeckCode:null,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:
+      candidateBinding.candidateDerivedFromOfficialJapaneseSourceDeckCode,
+    candidateManifestBinding:candidateBinding,
+    candidateManifestBindingSha256:hash(candidateBinding)};
 }
 
 /** Read-only post-Store identity for one physical card. */
@@ -140,7 +199,9 @@ function gameCapture(){
 /** One attempt, no seed selection, paper and clock review remain explicit. */
 function execute(){
   const {reg,registrationSha256,sourcePrintedInventorySha256,
-    candidatePrintedInventorySha256,candidateOfficialJapaneseDeckCode}=registration();
+    candidatePrintedInventorySha256,candidateOfficialJapaneseDeckCode,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode,
+    candidateManifestBinding,candidateManifestBindingSha256}=registration();
   const actualEngineCommit=execFileSync('git',
     ['-C',path.join(ROOT,'vendor/twinleaf'),'rev-parse','HEAD'],
     {encoding:'utf8'}).trim();
@@ -213,6 +274,7 @@ function execute(){
   if(executionError||!Array.isArray(development?.rows)||development.rows.length!==1){
     return {schema:'agent44-first-independent-original-source-case-v2-error',
       caseId:reg.caseId,registrationRef:REGPATH,registration:reg,registrationSha256,runtime,
+      candidateManifestBinding,candidateManifestBindingSha256,
       executionError:executionError??{message:'Expected exactly one development row',
         rowCount:development?.rows?.length??null},
       nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
@@ -282,6 +344,8 @@ function execute(){
     schema:'agent44-first-independent-original-source-case-intake-v2',
     caseId:reg.caseId,registrationRef:REGPATH,originalRank:5,sourceSeat,candidateSeat,runtime,
     fixedRegisteredSourceAndCandidateSixties:true,
+    candidateManifestBinding,candidateManifestBindingSha256,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode,
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
     rootReceiptAlignment,
@@ -325,6 +389,7 @@ function execute(){
     nineEvidenceObjects:{
       originalSixties:{available:true,sourceSha256:reg.sourceOriginalPrinted60Sha256,
         contenderPublishedSixtySha256:candidatePrintedInventorySha256,
+        candidateManifestBinding,
         sourcePhysicalJapanesePrintingAndExtraAdmission:'missing',
         candidatePhysicalJapanesePrintingAndExtraAdmission:'missing',
         candidateOfficialJapaneseDeckCode},
@@ -378,6 +443,7 @@ function execute(){
     }
   };
   return {schema:intake.schema,registration:reg,registrationRef:REGPATH,registrationSha256,runtime,
+    candidateManifestBinding,candidateManifestBindingSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
     nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
@@ -407,7 +473,8 @@ if(require.main===module){
     const {reg,registrationSha256}=registration();
     console.log('AGENT44_FIRST_RELEASE_REGISTRATION',JSON.stringify({
       caseId:reg.caseId,registrationSha256,
-      trial:reg.preRegisteredTrials[0],rootCap:reg.nativeRootCap
+      trial:reg.preRegisteredTrials[0],rootCap:reg.nativeRootCap,
+      candidateManifestBinding,candidateManifestBindingSha256
     }));
   }else{
     const result=execute();
@@ -417,4 +484,4 @@ if(require.main===module){
     if(result.schema.endsWith('-error'))process.exitCode=1;
   }
 }
-module.exports={registration,gameCapture,physical,receiptAlignment,execute,save};
+module.exports={registration,candidateManifestBinding,gameCapture,physical,receiptAlignment,execute,save};
