@@ -387,6 +387,22 @@ test('native development row identity must remain bound to the frozen intake',()
     /Native development row sourceSeat must match intake source seat/);
 });
 
+test('intake physical seats cannot be transplanted away from the frozen candidate slot',()=>{
+  const original=fixture();
+  original.intake.sourceSeat=1;
+  original.intake.candidateSeat=0;
+  original.nativeDevelopmentRow.candidateSeat=0;
+  original.intake.policyProvenance.sourceSeat=1;
+  original.intake.policyProvenance.candidateSeat=0;
+  const payload={...original.intake.policyProvenance};
+  delete payload.policyProvenanceSha256;
+  const digest=policyHash(payload);
+  original.intake.policyProvenance.policyProvenanceSha256=digest;
+  original.intake.policyProvenanceSha256=digest;
+  assert.throws(()=>build(original),
+    /Intake candidateSeat must match the frozen registration candidateSlot/);
+});
+
 test('capture-only policy provenance cannot be transplanted across intake identity even after re-signing',()=>{
   const cases=[
     ['trialId',value=>{value.trialId='transplanted-trial';},
