@@ -378,3 +378,10 @@ Next actions: verify remote main and this memory/lease state; if a supported Act
 - Remaining status unchanged: v3 scorer and adapter v2; trial-bound optional clock input transport; no external clock record, no paper-qualified game, no competitive admission, no selected 60-card deck, and no demonstrated 99.5%.
 - Current invocation claimed `2026-11-12T03:22:25.520722929Z`; release threshold `2026-11-12T04:32:25.520722929Z`. Continue until actual runtime clock reaches threshold; after the next checkpoint at/after threshold, perform orderly release and no further research.
 
+## 12 November 2026 04:31 UTC checkpoint: pre-release state
+
+- PR #35 is merged and main verified at merge commit `dbfd7421eb610936998fa5a524edaa2964c589e7`; the V2 builder CLI syntax and nested trial assertions are repaired. Trial-bound `clockEvidence` input, orphan-reference rejection, current v3 scorer assessment, adapter v2 contradiction guard, and optional 4410 workflow `clock_evidence_path` are all present.
+- Preflight test paths/fixtures are corrected. Agent2's isolated builder harness was 11/11 with admission/hash helpers stubbed; Agent27's isolated clock-boundary harness was 13 assertions. No full Node suite or CI run has occurred; the only retrieved workflow run was historical, not a current dispatch.
+- No actual clock evidence file or paper-qualified game exists. The 4410 path remains non-admitting without external evidence and independent signatures. No final fixed 60 or 99.5% result.
+- All current research, reports, tests, workflow and communications have been committed/pushed. Claim timestamp remains `2026-11-12T03:22:25.520722929Z`; earliest release is `2026-11-12T04:32:25.520722929Z`. At the next checkpoint, compare the actual system clock; if >=70 minutes, perform orderly release and stop.
+
