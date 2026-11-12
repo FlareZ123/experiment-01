@@ -77,6 +77,8 @@ test('V2 builder and fixture target the frozen 4410 producer, never held 4411',(
   assert.match(builder,/settledPhysicalIdentityClean/);
   assert.match(builder,/acceptedStoreRootCount/);
   assert.match(builder,/original\\.intake\\.runtime\\?\\.researchRevisionSha/);
+  assert.ok(builder.includes('clockReceiptInput'),
+    'V2 bundle must accept externally supplied official clock evidence; absent input stays null');
   for(const field of [
     'nativePromptChoices','policyAudit','sourceAudit','supporterModalEvidence',
     'ownerSupporterOpportunityAudit','ownerCompressorOpportunityAudit',
