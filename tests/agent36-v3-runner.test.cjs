@@ -221,8 +221,8 @@ test('role composer receives shared dependencies and policy options bound to rol
 });
 
 test('runtime pin wrapper requires exact loaded union before executing',()=>{
-  const candidate={expectedByPath:{'runner.cjs':'a'.repeat(64)}};
-  const opponent={expectedByPath:{'policy.cjs':'b'.repeat(64)}};
+  const candidate={manifest:{enginePin:'e'.repeat(40)},expectedByPath:{'runner.cjs':'a'.repeat(64)}};
+  const opponent={manifest:{enginePin:'e'.repeat(40)},expectedByPath:{'policy.cjs':'b'.repeat(64)}};
   const identityHelper={
     combineRolePolicyEntryManifests:()=>({
       expectedByPath:{'runner.cjs':'a'.repeat(64),'policy.cjs':'b'.repeat(64)},
