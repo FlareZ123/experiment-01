@@ -13,13 +13,14 @@ function makeCore(unavailable=[]) {
     if(unavailable.includes(rank)) return {
       rank,sourceStatus:'source-unavailable',
       deckSha256:null,policySha256:null,entryManifestSha256:null,
-      challengeSuiteSha256:null
+      challengeSuiteSha256:null,policyProducerId:null
     };
     return {
       rank,sourceStatus:'authenticated',
       deckSha256:hash(1000+rank),policySha256:hash(2000+rank),
       entryManifestSha256:hash(3000+rank),
-      challengeSuiteSha256:hash(4000+rank)
+      challengeSuiteSha256:hash(4000+rank),
+      policyProducerId:`opponent-policy-author-${rank}`
     };
   });
   return {
@@ -27,7 +28,8 @@ function makeCore(unavailable=[]) {
     comparisonMode:'candidate-vs-field',
     candidate:{
       deckSha256:hash(9001),policySha256:hash(9002),
-      entryManifestSha256:hash(9003),challengeSuiteSha256:hash(9004)
+      entryManifestSha256:hash(9003),challengeSuiteSha256:hash(9004),
+      policyProducerId:'candidate-policy-author'
     },
     opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
@@ -57,10 +59,12 @@ function makeReceipt(core,rank=1) {
     candidatePolicySha256:candidate.policySha256,
     candidateEntryManifestSha256:candidate.entryManifestSha256,
     candidateChallengeSuiteSha256:candidate.challengeSuiteSha256,
+    candidatePolicyProducerId:candidate.policyProducerId,
     opponentDeckSha256:opponent.deckSha256,
     opponentPolicySha256:opponent.policySha256,
     opponentEntryManifestSha256:opponent.entryManifestSha256,
     opponentChallengeSuiteSha256:opponent.challengeSuiteSha256,
+    opponentPolicyProducerId:opponent.policyProducerId,
     candidateSeat:0,opponentSeat:1,
     policySha256BySeat:[candidate.policySha256,opponent.policySha256],
     enginePin:'a'.repeat(40),runnerRevision:'b'.repeat(40),
@@ -92,6 +96,24 @@ test('explicit unavailable ranks remain visible and block a complete 32-rank fie
   assert.equal(result.status,'INCOMPLETE_FIELD');
   assert.deepEqual(result.unavailableRanks,[23,25,28]);
   assert.deepEqual(result.rejectionReasons,['field-incomplete']);
+});
+
+test('candidate and authenticated rank policy producers are required; unavailable ranks have none',()=>{
+  const missingCandidate=makeCore();
+  delete missingCandidate.candidate.policyProducerId;
+  assert.ok(validateOpponentPolicyFieldBundle({policyPlanCore:missingCandidate})
+    .rejectionReasons.includes('candidate-policy-producer-unverified'));
+
+  const missingOpponent=makeCore();
+  delete missingOpponent.opponentPolicyBundle.ranks[4].policyProducerId;
+  assert.ok(validateOpponentPolicyFieldBundle({policyPlanCore:missingOpponent})
+    .rejectionReasons.includes('opponent-rank-policy-producer-unverified'));
+
+  const unavailableWithProducer=makeCore([23]);
+  unavailableWithProducer.opponentPolicyBundle.ranks[22].policyProducerId=
+    'unavailable-opponent-policy-author';
+  assert.ok(validateOpponentPolicyFieldBundle({policyPlanCore:unavailableWithProducer})
+    .rejectionReasons.includes('unavailable-rank-has-identity'));
 });
 
 test('rank order, duplicate identities and source-status payloads fail closed',()=>{
@@ -155,6 +177,22 @@ test('per-game receipt must match the exact rank-specific deck and policy entry'
   assert.ok(validateOpponentPolicyFieldBundle({
     policyPlanCore,gameReceipts:[wrongDeck]
   }).rejectionReasons.includes('game-opponent-deck-mismatch'));
+});
+
+test('per-game receipt binds candidate and rank-specific policy producer identities',()=>{
+  const policyPlanCore=makeCore();
+
+  const wrongCandidateProducer=makeReceipt(policyPlanCore,7);
+  wrongCandidateProducer.candidatePolicyProducerId='other-candidate-author';
+  assert.ok(validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[wrongCandidateProducer]
+  }).rejectionReasons.includes('game-candidate-policy-producer-mismatch'));
+
+  const wrongOpponentProducer=makeReceipt(policyPlanCore,7);
+  wrongOpponentProducer.opponentPolicyProducerId='wrong-rank-author';
+  assert.ok(validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[wrongOpponentProducer]
+  }).rejectionReasons.includes('game-opponent-policy-producer-mismatch'));
 });
 
 test('no game receipt may be admitted against a source-unavailable rank',()=>{
