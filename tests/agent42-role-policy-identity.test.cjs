@@ -8,7 +8,7 @@ const {evidenceBundleSha256}=require('../simulation/evaluation/agent45-independe
 const {withPinnedResearchModuleLoads}=require('../simulation/evaluation/agent36-runtime-module-pin.cjs');
 const I=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const h=n=>n.toString(16).padStart(64,'0'),g=n=>n.toString(16).padStart(40,'0');
-const constraints={decisionBudget:{maxNodes:128,deadlineMs:250},hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true}};
+const constraints={decisionBudget:{maxNodes:128,deadlineMs:250},hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},sharedEngineCompatibilityPatches:[]};
 const constraintsSha=evidenceBundleSha256(constraints);
 const bindings=[
  {name:'observe',path:'observe.cjs',exportName:'actorObservation'},
@@ -51,15 +51,15 @@ function manifest(root,entrypoint='candidate.cjs',extra={}){
 function cardPoolReceipt(enginePin){return {schema:'agent36-twinleaf-card-pool-initialization-v1',
  enginePin,startupPath:'vendor/twinleaf/ptcg-server/start.js',startupSha256:h(903),
  setNames:['base-set','expanded-set'],definedSetCount:2,cardCount:60};}
-function identity(role,rank,deck,entry,options={}){
+function identity(role,rank,deck,entry,options={},policyConstraintsSha256=constraintsSha){
  return I.buildRolePolicyIdentity({role,rank,producerId:role==='candidate-policy'?'candidate-author':'opponent-author',
   deckSha256:h(deck),policyVersion:'policy-v1',entryManifest:entry.manifest,
   entryManifestSha256:entry.entryManifestSha256,challengeSuiteSha256:h(900),
-  policyOptions:options,policyConstraintsSha256:constraintsSha,
+  policyOptions:options,policyConstraintsSha256,
   runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801),
   cardPoolInitializationSha256:evidenceBundleSha256(cardPoolReceipt(entry.manifest.enginePin))});
 }
-function preDeal(candidate,opponent){
+function preDeal(candidate,opponent,planConstraints=constraints){
  const core={schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
   candidate:{deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
    entryManifestSha256:candidate.entryManifestSha256,challengeSuiteSha256:candidate.challengeSuiteSha256,
@@ -70,19 +70,19 @@ function preDeal(candidate,opponent){
   opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks:[{rank:opponent.rank,
    sourceStatus:'authenticated',deckSha256:opponent.deckSha256,policySha256:opponent.policySha256,
    entryManifestSha256:opponent.entryManifestSha256,challengeSuiteSha256:opponent.challengeSuiteSha256,
-   policyProducerId:opponent.policyProducerId}]},constraints};
+   policyProducerId:opponent.policyProducerId}]},constraints:planConstraints};
  const registration={schema:'aichi-policy-registration-v1',trialId:'trial-1',policyPlanSha256:evidenceBundleSha256(core)};
  const attestation={schema:'aichi-policy-attestation-bundle-v1',policyPlanSha256:evidenceBundleSha256(core)};
  return {ready:true,trialId:'trial-1',policyPlanCore:core,policyPlanSha256:evidenceBundleSha256(core),
   policyRegistration:registration,policyRegistrationSha256:evidenceBundleSha256(registration),
   policyAttestationBundle:attestation,policyAttestationBundleSha256:evidenceBundleSha256(attestation)};
 }
-function trial(candidate,opponent,candidateSeat,firstPlayerSeat){
+function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchReceipts=[]){
  return {trialId:'trial-1',opponentRank:opponent.rank,candidateSeat,originalSourceSeat:1-candidateSeat,
   actualFirstPlayerSeat:firstPlayerSeat,candidatePrinted60Sha256:candidate.deckSha256,
   originalPrinted60Sha256:opponent.deckSha256,vendorCommitSha:candidate.entryManifest.enginePin,
   researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906),
-  cardPoolInitializationReceipt:cardPoolReceipt(candidate.entryManifest.enginePin)};
+  cardPoolInitializationReceipt:cardPoolReceipt(candidate.entryManifest.enginePin),runtimePatchReceipts};
 }
 
 test('entry manifest pins research closure, vendor prompt binding, dependency lock and runtime',()=>repo(root=>{
@@ -227,6 +227,31 @@ test('actual Agent36 module pin accepts the combined role closure and restores i
  assert.equal(result.audit.guardRestored,true);
  assert.ok(result.audit.files.includes('candidate.cjs'));
  assert.ok(result.audit.files.includes('shared.cjs'));
+}));
+
+test('application receipt binds exactly-once shared runtime patch install and restore',()=>repo(root=>{
+ const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
+ const patchFile=cm.manifest.sharedEnginePatches[0];
+ const patch={patchId:'underworld-door-psychic-recipient-v1',modulePath:patchFile.path,
+  moduleSha256:patchFile.sha256,target:'ShadowRiderCalyrexVMAX.prototype.reduceEffect'};
+ const patchConstraints={...constraints,sharedEngineCompatibilityPatches:[patch]};
+ const patchConstraintsSha=evidenceBundleSha256(patchConstraints);
+ const candidate=identity('candidate-policy',null,1,cm,{},patchConstraintsSha);
+ const opponent=identity('opponent-policy',7,2,om,{},patchConstraintsSha);
+ const receipt={schema:'aichi-runtime-patch-installation-receipt-v1',...patch,
+  originalReducerFingerprint:h(1001),installedReducerFingerprint:h(1002),
+  installCount:1,installBoundary:'outer-v3-runner-before-role-wrappers',
+  restoreCount:1,restoreBoundary:'outer-finally',restoredOriginal:true,
+  nestedInstallCount:0,wrapperInstallCount:0};
+ const pd=preDeal(candidate,opponent,patchConstraints);
+ const applied=I.createPolicyApplicationReceipt({preDeal:pd,candidateIdentity:candidate,
+  opponentIdentity:opponent,trial:trial(candidate,opponent,0,1,[receipt])});
+ assert.deepEqual(applied.receipt.runtimePatchReceipts,[receipt]);
+ assert.equal(applied.receipt.runtimePatchReceiptsSha256,evidenceBundleSha256([receipt]));
+ assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,candidateIdentity:candidate,
+  opponentIdentity:opponent,trial:trial(candidate,opponent,0,1,[{...receipt,installCount:2}])}),/exactly once/);
+ assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,candidateIdentity:candidate,
+  opponentIdentity:opponent,trial:trial(candidate,opponent,0,1,[])}),/exactly cover/);
 }));
 
 test('candidate and opponent may have different role-local engine patch dependencies',()=>repo(root=>{
