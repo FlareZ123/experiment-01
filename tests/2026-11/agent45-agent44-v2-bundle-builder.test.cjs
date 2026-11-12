@@ -9,8 +9,9 @@ const {rootDigest}=
 const {BUNDLE_SCHEMA,MANIFEST,evidenceBundleSha256}=
   require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 
-const TRIAL='5:4411:B:new-moon-lockbreaker-v1';
-const CASE='agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309';
+const TRIAL='5:4410:B:new-moon-lockbreaker-v1';
+const CASE='agent44-20261109-original-rank5-newmoon-fresh-4410B';
+const REGISTRATION_REFERENCE='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
 
 function fixture(){
   const roots=[
@@ -49,7 +50,9 @@ function fixture(){
   const intake={
     schema:INTAKE_SCHEMA,caseId:CASE,
     originalRank:5,sourceSeat:0,candidateSeat:1,
-    runtime:{researchRevisionSha:'research-revision-4411'},
+    registrationRef:REGISTRATION_REFERENCE,
+    runtime:{researchRevisionSha:'research-revision-4410',
+      engineActualCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'},
     rootReceiptAlignment:{schema:true,originalPhysicalCardCount:120,
       ledgerCount:2,receiptCount:2,acceptedStoreRootCount:2,
       rootCountMatches:true,exactOrdinalSeatActionParity:true,
@@ -59,10 +62,19 @@ function fixture(){
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
     candidatePrintedInventorySha256:'candidate-inventory',
-    native:{actualFirstSeat:0,sourceAttacks:1,candidateAttacks:0},
+    native:{actualFirstSeat:0,sourceAttacks:1,candidateAttacks:0,
+      sourceFirstAttackOrdinal:0,physicalPrizesAfter:[0,6]},
     nineEvidenceObjects:{
       officialClockAndNoCall:{available:false,reason:'No clock packet'},
-      sourceReplyAndNextOriginalTurn:{replyWindow:[]}
+      ownerPolicyDecisions:{available:true,
+        nativeDecisionTraceSha256:'decision-trace-4410',
+        knownHiddenInformationAudit:'not independently certified'},
+      attackKnockoutAndPrizes:{available:true,sourceAttackCount:1,
+        nativeRemainingPrizes:[0,6],independentPaperAttackResolution:false},
+      sourceReplyAndNextOriginalTurn:{available:true,
+        replyWindow:[{ordinal:0,turn:1,seat:0,action:'AttackAction'},
+          {ordinal:1,turn:2,seat:1,action:'PassTurnAction'}],
+        policyCompetenceIndependentlyReviewed:false}
     },
     releaseStatus:{competitiveAdmission:false,
       firstMissingEvidence:'verified-exact-Japanese-candidate-physical-printings'}
@@ -75,7 +87,19 @@ function fixture(){
     rootActionLedger:roots,rootActionLedgerSha256:rootDigest(roots),
     physicalZoneQualification:{physicalIntegrityQualified:true},
     nativeAcceptedTargetSidecar:{rootOrdinalLinked:true},
-    paperPromptPortfolioAudit:{},nativeQuickBallOwnerTransactions:[]
+    paperPromptPortfolioAudit:{},nativeQuickBallOwnerTransactions:[],
+    decisionTrace:[{seat:0,root:0,choice:'AttackAction'}],
+    nativePromptChoices:[{ordinal:0,choice:'attack'}],
+    policyAudit:{policy:'raw-policy-audit'},sourceAudit:{source:'rank5'},
+    supporterModalEvidence:{modal:'supporter'},
+    ownerSupporterOpportunityAudit:{available:true},
+    ownerCompressorOpportunityAudit:{available:false},
+    candidateRepliesAfterSourceAttacks:[{ordinal:1,action:'PassTurnAction'}],
+    candidateAttackSettlement:{settled:0},sourceAttackSettlement:{settled:1},
+    nativeAttackModalityLedger:[{ordinal:0,modality:'printed-attack'}],
+    nativeAttackPhysicalTape:[{ordinal:0,physical:true}],
+    firstSettledPublicAttack:{ordinal:0,attack:'Energy Drive'},
+    finalBoard:{winner:0},finalPrizes:[0,6]
   };
   const zoneTape={
     initialStablePhysicalDeal:{rootOrdinal:0,sha256:'opening-zones'},
@@ -83,7 +107,7 @@ function fixture(){
     allRootPhysicalZonesSha256:'all-root-zones'
   };
   const registration={
-    schema:'agent44-first-independent-review-case-registration-v2',
+    schema:'agent44-first-independent-review-case-registration-v1',
     caseId:intake.caseId,
     preRegisteredTrials:[{id:TRIAL}]
   };
@@ -92,22 +116,33 @@ function fixture(){
     rawNativePhysicalReceipts:raw};
 }
 
-test('live Agent44 builder consumes V2 raw receipts and selects production V2 admission',()=>{
+test('live Agent44 builder consumes frozen 4410 V1 registration through V2 intake and selects V2 admission',()=>{
   const original=fixture();
   const result=build(original);
   assert.equal(result.schema,'agent44-first-release-nine-object-bundle-intake-v2');
   assert.equal(result.caseId,CASE);
-  assert.equal(result.originalSourceArtifact,'agent44-first-independent-rank5-newmoon-live-paper-v2.json');
+  assert.equal(result.originalSourceArtifact,'agent44-first-independent-rank5-newmoon-case-v2.json');
   assert.equal(result.bundle.schema,BUNDLE_SCHEMA);
   assert.equal(result.bundle.admissionContract,V2_SCHEMA);
   assert.deepEqual(result.bundle.rawNativePhysicalReceipts,original.rawNativePhysicalReceipts);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.bundle.trial.actionCertificates.length,0);
   assert.equal(result.bundle.trial.responseOpportunityAudit,null);
-  assert.equal(result.bundle.trial.registrationRef,
-    'results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json');
-  assert.equal(result.bundle.trial.researchRevisionSha,'research-revision-4411');
-  assert.equal(result.bundle.trial.runtime.researchRevisionSha,'research-revision-4411');
+  assert.equal(result.bundle.trial.registrationRef,REGISTRATION_REFERENCE);
+  assert.equal(result.bundle.trial.researchRevisionSha,'research-revision-4410');
+  assert.equal(result.bundle.trial.runtime.researchRevisionSha,'research-revision-4410');
+  const strategy=result.releaseNineObjects['policy-and-counterplay'];
+  assert.equal(strategy.ownerPolicyDecisions.nativeDecisionTraceSha256,'decision-trace-4410');
+  assert.deepEqual(strategy.attackKnockoutAndPrizes,
+    original.intake.nineEvidenceObjects.attackKnockoutAndPrizes);
+  assert.deepEqual(strategy.sourceReplyAndNextOriginalTurn,
+    original.intake.nineEvidenceObjects.sourceReplyAndNextOriginalTurn);
+  assert.equal(strategy.nativeActionEvidence.nativePromptChoices[0].choice,'attack');
+  assert.deepEqual(strategy.nativeActionEvidence.nativeAttackPhysicalTape,
+    original.nativeDevelopmentRow.nativeAttackPhysicalTape);
+  assert.deepEqual(strategy.nativeActionEvidence.finalPrizes,[0,6]);
+  assert.equal(strategy.nativeRootActionLedgerSha256,
+    original.nativeDevelopmentRow.rootActionLedgerSha256);
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,true);
   assert.equal(result.releaseStatus.producerAlignmentMatches,true);
   assert.equal(result.bundle.rootPaperReviewWorklist.length,2);
@@ -122,9 +157,9 @@ test('live Agent44 builder consumes V2 raw receipts and selects production V2 ad
   assert.equal(first.reviewChecklist.paperLegality,'pending-independent-review');
   assert.equal(first.reviewChecklist.payment,'pending-independent-review');
   assert.ok(first.rawReceiptRef.startsWith(
-    'agent44-first-independent-rank5-newmoon-live-paper-v2.json#/rawNativePhysicalReceipts/receipts/'));
+    'agent44-first-independent-rank5-newmoon-case-v2.json#/rawNativePhysicalReceipts/receipts/'));
   assert.ok(first.physicalCardInventoryRef.startsWith(
-    'agent44-first-independent-rank5-newmoon-live-paper-v2.json#/rawNativePhysicalReceipts/originalPhysicalCards'));
+    'agent44-first-independent-rank5-newmoon-case-v2.json#/rawNativePhysicalReceipts/originalPhysicalCards'));
   assert.equal(Object.hasOwn(first,'independentReviewerId'),false);
   assert.deepEqual(Object.keys(result.releaseNineObjects).sort(),MANIFEST.slice().sort());
   assert.equal(result.bundleSha256,evidenceBundleSha256(result.bundle));
@@ -138,6 +173,17 @@ test('live Agent44 builder consumes V2 raw receipts and selects production V2 ad
     'missing-complete-root-paper-receipts'));
   assert.ok(result.independentAdmissionGate.failures.includes(
     'independent-paper-or-clock-review-missing'));
+});
+
+test('held 4411 registration cannot enter the frozen 4410 release builder',()=>{
+  const original=fixture();
+  original.registration.schema='agent44-first-independent-review-case-registration-v2';
+  original.registration.caseId='agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309';
+  original.registration.preRegisteredTrials[0].id='5:4411:B:new-moon-lockbreaker-v1';
+  original.intake.caseId=original.registration.caseId;
+  original.intake.registrationRef='results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json';
+  original.intake.trial.id='5:4411:B:new-moon-lockbreaker-v1';
+  assert.throws(()=>build(original),/agent44-first-independent-review-case-registration-v1/);
 });
 
 test('V1 intake cannot silently enter the V2 release builder',()=>{
