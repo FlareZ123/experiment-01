@@ -42,3 +42,5 @@ jobs:
         run: node --test tests/agent36-v3-runner.test.cjs
       - name: Regress V3 role identity, module closure and application receipt bindings
         run: node --test tests/agent42-role-policy-identity.test.cjs
+      - name: Regress explicitly non-admitting fixture-scoped role pin
+        run: node --test tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs
