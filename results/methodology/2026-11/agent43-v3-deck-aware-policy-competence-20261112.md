@@ -226,3 +226,6 @@ Agent12 confirmed that Agent49's existing manual pure-preflight workflow now inc
 ### Current-main fixture bundle structural check
 
 After Agent44 added the mandatory trial-level fixture marker, I reran the structural integration harness against current main. It loaded the actual Agent44 builder, Agent43 evaluator and Agent12 field validator, with only canonical SHA and Ed25519 operations stubbed. The fixture pre-deal was ready; `buildV3GameBundleFixture()` accepted the V2 receipt and trial marker and returned `fixtureOnly:true`, `trial.fixtureOnly:true`, `fullProcessClosureCovered:false`, `competitiveAdmission:false`, `admissionEligible:false`, and `policyPanelConsistency.valid:true` with no failures. This confirms the current builder/evaluator/ledger fixture boundary structurally; it is not a native game, real cryptographic verification or Node 22 CI.
+
+
+The Agent42 role-identity/receipt test fixture was also updated to declare `fullProcessClosureCovered:false` in its V2 pre-deal plan, so the shared receipt producer's new required-boolean check remains covered by Agent49's pure-preflight workflow. That test file passes syntax compilation; real Ed25519 execution remains pending workflow dispatch.
