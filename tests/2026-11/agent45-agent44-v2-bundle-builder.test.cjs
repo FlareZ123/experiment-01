@@ -168,6 +168,15 @@ test('accepted Store root count mismatch remains an explicit capture blocker',()
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
 });
 
+test('raw receipt order is not repaired by searching ordinals',()=>{
+  const original=fixture();
+  original.rawNativePhysicalReceipts.receipts.reverse();
+  const result=build(original);
+  assert.equal(result.bundle.trial.rawReceiptAlignment.exactOrdinalSeatActionParity,false);
+  assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
+  assert.equal(result.bundle.unmatchedRawReceipts.length,2);
+});
+
 test('settled physical identity conservation is required for raw capture completeness',()=>{
   const original=fixture();
   original.rawNativePhysicalReceipts.settledPhysicalIdentityClean=false;

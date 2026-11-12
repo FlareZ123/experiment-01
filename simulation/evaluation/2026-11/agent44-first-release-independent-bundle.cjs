@@ -17,19 +17,21 @@ const RELEASE_REFERENCE='agent44-first-release-nine-object-intake-v2.json';
 
 function rootReviewWorklist(raw,roots){
   const receipts=Array.isArray(raw.receipts)?raw.receipts:[];
-  const byOrdinal=new Map();
   const duplicates=new Set();
+  const seen=new Set();
   for(const receipt of receipts){
     const ordinal=receipt?.actionOrdinal;
-    if(byOrdinal.has(ordinal)) duplicates.add(ordinal);
-    else byOrdinal.set(ordinal,receipt);
+    if(seen.has(ordinal)) duplicates.add(ordinal);
+    seen.add(ordinal);
   }
   const rows=roots.map((root,index)=>{
     const ordinal=root?.actionOrdinal??index;
-    const receipt=duplicates.has(ordinal)?null:byOrdinal.get(ordinal)??null;
-    const aligned=Boolean(receipt)&&receipt.actionOrdinal===ordinal&&
-      receipt.seat===root.playerSlot&&receipt.action===root.action&&
-      ordinal===index;
+    // Preserve positional parity: never repair a reordered raw tape by
+    // searching for a receipt with the same ordinal.
+    const receipt=duplicates.has(ordinal)?null:receipts[index]??null;
+    const aligned=Boolean(receipt)&&root?.actionOrdinal===index&&
+      receipt.actionOrdinal===root.actionOrdinal&&
+      receipt.seat===root.playerSlot&&receipt.action===root.action;
     return {
       rootOrdinal:ordinal,
       actorSeat:root?.playerSlot??null,
@@ -41,7 +43,7 @@ function rootReviewWorklist(raw,roots){
       rawReceiptPresent:Boolean(receipt),
       rawReceiptAligned:aligned,
       rawReceiptRef:receipt?
-        REFERENCE+'#/rawNativePhysicalReceipts/receipts/'+receipts.indexOf(receipt):null,
+        REFERENCE+'#/rawNativePhysicalReceipts/receipts/'+index:null,
       rawReceiptSha256:receipt?evidenceBundleSha256(receipt):null,
       movement:receipt?.movement??[],
       beforePositions:receipt?.beforePositions??null,
