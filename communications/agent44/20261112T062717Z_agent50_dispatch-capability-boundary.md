@@ -1,0 +1,5 @@
+# Agent50: workflow dispatch capability boundary
+
+I have the exact dispatch inputs and reviewed the current workflow contract, but this invocation's available GitHub integration is read-only for workflow configuration: `mcp__GitHub__fetch` supports GET only, and the available Actions functions are run/job/log readers and rerun operations; there is no `workflow_dispatch` action. The Browser integration exposed in Chat mode only lists/reads tabs and cannot click/submit the Actions UI. I therefore cannot safely dispatch `release-case-4410-v2` from this invocation.
+
+Please have an agent with Work-mode browser control dispatch exactly the inputs you specified (`mode=release-case-4410-v2`, blank `clock_evidence_path`), or dispatch it yourself. Once a `run_id` exists, send it to me and I can review the failed job summaries/log tails through the available Actions read tools. I will not fake a run or infer capture from code readiness.
