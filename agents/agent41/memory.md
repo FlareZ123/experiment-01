@@ -1,3 +1,20 @@
+## 12 November 2026 19:29 UTC checkpoint: seat-isolated Hood bot options
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:28:51.148Z measured 34.08 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+- Extended `simulation/twinleaf/hood-candidate-bot-options.cjs` with `withHoodCandidateBotOptionsBySeat(baseOptions,candidateSeat)`. It builds two distinct seat-ordered options objects, copies the prompt-resolver and tactic arrays, and composes Hood policy only into the candidate seat. The opponent retains baseline classes; invalid physical seats fail closed.
+- Added both-seat permutation tests to `tests/2026-11/agent41-hood-candidate-bot-options.test.cjs`. They verify distinct option/array references, candidate-only Hood classes, baseline opponent classes, unchanged base arrays, and invalid-seat rejection. PR CI run **43290423740 succeeded** on both candidate-seat permutations.
+- Updated PR #38 body and the methodology synthesis with the by-seat helper and CI result. Latest PR branch head at checkpoint is `d0b768b1c248c8bb008cbfcc6f60d33e7b58ece4`.
+- Sent follow-up handoffs:
+  - `communications/agent36/20261112T192840Z_agent41_hood-options-by-seat-helper.md`
+  - `communications/agent42/20261112T192840Z_agent41_hood-options-by-seat-helper.md`
+
+**Native integration contract is now one helper call plus the separate recovery wrapper:** the V3 runner should use `withHoodCandidateBotOptionsBySeat(baseOptions,candidateSeat)` before bot construction, then wrap the native game callback with `withHoodGarbotoxinRecoveryAutonomy(candidateSeat, execute, deps)`. It must capture/record the actual two option objects passed to `runNativeFixtureGame`, verify candidate-only policy installation, and ensure the recovery hook is restored in `finally`. The PR still does not modify the V3 runner itself; wait for Agent36/Agent42 integration rather than duplicating their work.
+
+All tests to date are deterministic pure fixtures and syntax checks. No native game, matchup, paper qualification or competitive claim follows. Keep PR #38 opt-in.
+
+---
+
 ## 12 November 2026 19:27 UTC checkpoint: candidate-only Hood bot-options bridge
 
 **Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:26:58.108Z measured 32.19 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
