@@ -18,6 +18,8 @@ The six-game reversal audit found the old common policy repeatedly using Filch/R
 
 ## Full-cohort result
 
+Across all 58 Hood rows, no `nativePromptChoices` event selected Stealthy Hood, and no public attack snapshot or final board showed a Pokémon with Stealthy Hood attached. This is not proof that no transient play-and-removal occurred (the root-action ledger does not record card names), but the common-policy cohort demonstrated no persistent Hood package use.
+
 | Hood v1 outcome | Games | Settled attacks | Max Geist | Filch | Red Knuckles | Games with Max Geist | Games with zero attacks | Mean first settled attack turn* |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Win | 31 | 215 | 50 | 16 | 19 | 16 / 31 | 0 / 31 | 9.7 |
