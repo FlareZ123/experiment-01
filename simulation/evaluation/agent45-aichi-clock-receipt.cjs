@@ -4,7 +4,7 @@ const {createHash} = require('node:crypto');
 const {readFileSync} = require('node:fs');
 const official = require('./agent27-aichi-open-time-adjudication.cjs');
 
-const VERSION='agent45-aichi-clock-receipt-adapter-v1';
+const VERSION='agent45-aichi-clock-receipt-adapter-v2';
 const OFFICIAL_SOURCE='https://www.pokemon-card.com/info/005445.html';
 const FINAL_STATUSES=new Set(['NORMAL_PAPER_GAME_WIN','ELIMINATION_PRIZE_LEAD']);
 const EXTENSION_FINAL_STATUSES=new Set(['NORMAL_PAPER_GAME_WIN','EXTENSION_WIN']);
