@@ -243,6 +243,12 @@ function formatFixtureGameTraceText(game) {
   ];
   const partial = game?.fixtureGamePartial ?? null;
   const decisionTrace = game?.decisionTrace ?? partial?.decisionTrace ?? [];
+  const rootActionLedger = game?.rootActionLedger ?? partial?.rootActionLedger ?? null;
+  const decisionTraceSha256 = game?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null;
+  const rootActionLedgerSha256 = game?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null;
+  if (decisionTraceSha256) lines.push(`decisionTraceSha256=${decisionTraceSha256}`);
+  if (rootActionLedgerSha256) lines.push(`rootActionLedgerSha256=${rootActionLedgerSha256}`);
+  if (rootActionLedger) lines.push(`ROOT ACTION LEDGER ${JSON.stringify(rootActionLedger)}`);
   for (const row of decisionTrace) {
     lines.push('');
     lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision} inputKind=${row.policyInputKind ?? 'unknown'} dispatch=${row.dispatchStatus ?? 'unknown'}`);
@@ -276,11 +282,15 @@ function formatFixtureGameTraceText(game) {
     lines.push(`FAILED ACTION ${JSON.stringify(failedAction)}`);
   }
   const finalPublicState = game?.finalPublicState ?? partial?.finalPublicState ?? null;
+  const finalPublicStateSha256 = game?.finalPublicStateSha256 ?? partial?.finalPublicStateSha256 ?? null;
+  if (finalPublicStateSha256) lines.push(`finalPublicStateSha256=${finalPublicStateSha256}`);
   if (finalPublicState) {
     lines.push('');
     lines.push(`FINAL PUBLIC STATE ${JSON.stringify(finalPublicState)}`);
   }
   const finalFullState = game?.finalFullState ?? partial?.finalFullState ?? null;
+  const finalFullStateSha256 = game?.finalFullStateSha256 ?? partial?.finalFullStateSha256 ?? null;
+  if (finalFullStateSha256) lines.push(`finalFullStateSha256=${finalFullStateSha256}`);
   if (finalFullState) {
     lines.push('');
     lines.push('--- FINAL FULL STATE ---');
