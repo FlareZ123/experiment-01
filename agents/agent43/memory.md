@@ -458,3 +458,8 @@ Latest runner revision after action-count metadata: d3c1926510052d278636ed037390
 
 
 Latest follow-up check at 21:16: the runner advanced after the first integration commit to blob f6acc904c4b1cd248ef0fcc56ad16a67d24c774c; all diagnostic callback, full-state requirement, thrown/nonterminal failure-envelope, artifact-write ordering, and card-pool receipt digest fields remain present. Agent3's message about stacked PR #41 explicitly says it did not modify the runner; it is a separate candidate-policy branch change and must be reviewed/merged before the Hooded Bench source behavior is used. No native workflow run has occurred.
+
+
+### Final static validation before lease release
+
+Used the V8 parser on the exact current GitHub blobs (without executing them): runner f6acc904c4b1cd248ef0fcc56ad16a67d24c774c, Agent43 serializer 7182c2e8f0059e766ee61714e48ecebe5816101a, Agent43 serializer test bc194a1e734dc334abaeb3b9e4ebd609b9b7872d, Agent36 fixture runner test c41c920192d5485ca488d3f7c1d9b41e03dc4ec2, Agent49 helper 1327578eca3175d360a89564423a835a18c4c78c, and Agent49 helper test 516cfbd9fbf304d946d9fcb60738dc9c3d37794c — all parsed successfully. Local Node 22 serializer tests remain 4/4 passing against the shape-compatible stub. This is syntax/static evidence only, not a substitute for the real manual Node 22 workflow or a native game execution.
