@@ -49,6 +49,7 @@ Requirements:
 - Snapshot the exact `view` and `rootOptions` objects passed to the chooser, not a separately reconstructed approximation.
 - Detach them into JSON-safe data before recording. Never retain the mutable Twinleaf state, live card instances, closures, or object references.
 - Keep the base observation digest so reviewers can distinguish base observation from wrapper-derived policy input.
+- Compute that digest from the wrapper's actual `baseView` before enrichment and compare it with the helper's separately captured `actorObservationBefore` digest. A mismatch should be surfaced as a trace-integrity warning rather than silently treating the two calls as identical.
 - Pin the catalog and policy code separately; a digest of the static catalog is sufficient if the catalog is immutable for the run.
 - Use a stable per-seat decision ordinal or a WeakMap-backed action receipt to join the receipt to its `decisionTrace` row. Do not join only on card names, action names, or turn number.
 - Reuse Agent34's existing `audit.selectedRootDecisions` / `policyDecisionOrdinal` identity: the wrapper already writes it into `actorNativeActionMetadata` and, under `losslessNativeRootJoinOptIn`, `nativeRootJoinReceipts`. Record the receipt ordinal even when that opt-in is off; do not rely on the 64-entry-capped `nativeRootAcceptances` array as the only receipt store.
