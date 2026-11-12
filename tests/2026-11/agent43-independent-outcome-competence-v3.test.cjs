@@ -12,7 +12,8 @@ const {aichiClockProtocolSha256} =
   require('../../simulation/evaluation/agent45-aichi-clock-receipt.cjs');
 const {
   SCHEMA,UNTIMED,EVENT,CLOCK_NOT_APPLICABLE,
-  inspectAdmissionV3,evaluateCompetitiveAdmissionV3
+  inspectAdmissionV3,evaluateCompetitiveAdmissionV3,
+  policyAttestationSigningBytes,inspectPolicyPanelConsistency
 } = require('../../simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs');
 
 const trialId = 'v3-preregistered-untimed-game-001';
@@ -171,6 +172,193 @@ function inspect(bundle,roles=['paper'],audit=null){
   return inspectAdmissionV3(bundle,signed.reviews,signed.registry);
 }
 
+function policyHash(n) {
+  return n.toString(16).padStart(64,'0');
+}
+
+function signPolicyAttestation(attestation, privateKey) {
+  attestation.signatureBase64 = sign(null,policyAttestationSigningBytes(attestation),privateKey)
+    .toString('base64');
+  return attestation;
+}
+
+function refreshPolicyEnvelope(bundle) {
+  const attestationSha = evidenceBundleSha256(bundle.policyAttestationBundle);
+  bundle.policyAttestationBundleSha256 = attestationSha;
+  bundle.policyRegistration.policyAttestationBundleSha256 = attestationSha;
+  const registrationSha = evidenceBundleSha256(bundle.policyRegistration);
+  bundle.policyRegistrationSha256 = registrationSha;
+  bundle.trial.policyPlanSha256 = bundle.policyPlanSha256;
+  bundle.trial.policyAttestationBundleSha256 = attestationSha;
+  bundle.trial.policyRegistrationSha256 = registrationSha;
+  const receipt = bundle.policyApplicationReceipt;
+  receipt.policyAttestationBundleSha256 = attestationSha;
+  receipt.policyRegistrationSha256 = registrationSha;
+  delete receipt.receiptSha256;
+  receipt.receiptSha256 = evidenceBundleSha256(receipt);
+  bundle.policyPanelReceipts = [receipt];
+  return bundle;
+}
+
+function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28]}={}) {
+  const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
+  const candidate = {
+    deckSha256:sha(7),policySha256:policyHash(100),
+    entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102)
+  };
+  const ranks = Array.from({length:32},(_,index)=>{
+    const rank=index+1;
+    if(unavailable.includes(rank)) return {
+      rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
+      entryManifestSha256:null,challengeSuiteSha256:null
+    };
+    return {
+      rank,sourceStatus:'authenticated',
+      deckSha256:rank===1?sha(6):policyHash(1000+rank),
+      policySha256:policyHash(2000+rank),
+      entryManifestSha256:policyHash(3000+rank),
+      challengeSuiteSha256:policyHash(4000+rank)
+    };
+  });
+  const constraints = {
+    observationSurface:{ownerVisible:true,publicState:true},
+    hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
+    decisionBudget:{maxNodes:128,deadlineMs:250},
+    timeoutPolicy:{maxTimeouts:0,fallback:'safe-legal-action'},
+    randomizationProtocol:{algorithm:'seeded-prng',seed:'frozen-panel-seed'},
+    publicHistoryWindow:{scope:'full-match'},
+    resourceAccounting:{energyZones:true,oncePerTurn:true}
+  };
+  const core = {
+    schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+    candidate,opponentPolicyBundle:{
+      schema:'aichi-opponent-policy-bundle-v1',ranks
+    },constraints
+  };
+  const planSha = evidenceBundleSha256(core);
+  const constraintsSha = evidenceBundleSha256(constraints);
+  const opponentBundleSha = evidenceBundleSha256(core.opponentPolicyBundle);
+  const candidateKeys = generateKeyPairSync('ed25519');
+  const opponentKeys = generateKeyPairSync('ed25519');
+  const candidateAttestation = signPolicyAttestation({
+    schema:'aichi-policy-competence-attestation-v1',
+    role:'candidate-policy',reviewerId:'candidate-policy-reviewer',
+    decision:'approve',policyPlanSha256:planSha,
+    policyConstraintsSha256:constraintsSha,
+    deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
+    entryManifestSha256:candidate.entryManifestSha256,
+    challengeSuiteSha256:candidate.challengeSuiteSha256,
+    evidenceRef:'policy-review/candidate',evidenceSha256:policyHash(5001),
+    attestedAt:'2026-11-12T00:50:00.000Z'
+  },candidateKeys.privateKey);
+  const opponentAttestation = signPolicyAttestation({
+    schema:'aichi-policy-competence-attestation-v1',
+    role:'opponent-policy',reviewerId:'opponent-policy-reviewer',
+    decision:'approve',policyPlanSha256:planSha,
+    policyConstraintsSha256:constraintsSha,
+    opponentPolicyBundleSha256:opponentBundleSha,
+    rankReviews:ranks.filter(x=>x.sourceStatus==='authenticated').map(entry=>({
+      rank:entry.rank,deckSha256:entry.deckSha256,
+      policySha256:entry.policySha256,
+      entryManifestSha256:entry.entryManifestSha256,
+      challengeSuiteSha256:entry.challengeSuiteSha256,
+      decision:'approve',evidenceRef:'policy-review/opponent-rank-'+entry.rank,
+      evidenceSha256:policyHash(6000+entry.rank)
+    })),
+    evidenceRef:'policy-review/opponent-field',evidenceSha256:policyHash(5002),
+    attestedAt:'2026-11-12T00:51:00.000Z'
+  },opponentKeys.privateKey);
+  const attestationBundle = {
+    schema:'aichi-policy-attestation-bundle-v1',
+    policyPlanSha256:planSha,
+    candidatePolicy:candidateAttestation,
+    opponentPolicy:opponentAttestation
+  };
+  const attestationSha = evidenceBundleSha256(attestationBundle);
+  const registration = {
+    schema:'aichi-policy-registration-v1',trialId:bundle.trialId,
+    policyPlanSha256:planSha,policyAttestationBundleSha256:attestationSha,
+    candidatePolicyAttestationRef:candidateAttestation.evidenceRef,
+    opponentPolicyAttestationBundleRef:opponentAttestation.evidenceRef,
+    registeredAt:bundle.trial.preregistration.registeredAt,
+    dealGeneratedAt:bundle.trial.preregistration.dealGeneratedAt,
+    registeredBeforeDealGeneration:true
+  };
+  const registrationSha = evidenceBundleSha256(registration);
+  const opponent = ranks[0];
+  bundle.trial.opponentRank=1;
+  bundle.trial.vendorCommitSha='a'.repeat(40);
+  bundle.trial.researchRevisionSha='b'.repeat(40);
+  bundle.trial.decisionTraceSha256=policyHash(7001);
+  bundle.trial.policySha256BySeat=[opponent.policySha256,candidate.policySha256];
+  bundle.trial.policyPlanSha256=planSha;
+  bundle.trial.policyAttestationBundleSha256=attestationSha;
+  bundle.trial.policyRegistrationSha256=registrationSha;
+  const receipt = {
+    schema:'aichi-policy-application-receipt-v1',
+    trialId:bundle.trialId,policyPlanSha256:planSha,
+    policyRegistrationSha256:registrationSha,
+    policyAttestationBundleSha256:attestationSha,
+    opponentPolicyBundleSha256:opponentBundleSha,
+    opponentRank:1,
+    candidateDeckSha256:candidate.deckSha256,
+    candidatePolicySha256:candidate.policySha256,
+    candidateEntryManifestSha256:candidate.entryManifestSha256,
+    candidateChallengeSuiteSha256:candidate.challengeSuiteSha256,
+    opponentDeckSha256:opponent.deckSha256,
+    opponentPolicySha256:opponent.policySha256,
+    opponentEntryManifestSha256:opponent.entryManifestSha256,
+    opponentChallengeSuiteSha256:opponent.challengeSuiteSha256,
+    candidateSeat:1,opponentSeat:0,firstPlayerSeat:0,
+    policySha256BySeat:[opponent.policySha256,candidate.policySha256],
+    enginePin:bundle.trial.vendorCommitSha,
+    runnerRevision:bundle.trial.researchRevisionSha,
+    policyConstraintsSha256:constraintsSha,
+    decisionTraceSha256:bundle.trial.decisionTraceSha256,
+    timeoutStatus:'within-budget'
+  };
+  receipt.receiptSha256=evidenceBundleSha256(receipt);
+  Object.assign(bundle,{
+    policyPlanCore:core,policyPlanSha256:planSha,
+    policyAttestationBundle:attestationBundle,
+    policyAttestationBundleSha256:attestationSha,
+    policyRegistration:registration,
+    policyRegistrationSha256:registrationSha,
+    policyApplicationReceipt:receipt,
+    policyPanelReceipts:[receipt]
+  });
+  const policyRegistry = {
+    schema:'aichi-trusted-reviewers-v1',
+    reviewers:[
+      {reviewerId:'candidate-policy-reviewer',roles:['candidate-policy'],
+        publicKeyPem:candidateKeys.publicKey.export({type:'spki',format:'pem'})},
+      {reviewerId:'opponent-policy-reviewer',roles:['opponent-policy'],
+        publicKeyPem:opponentKeys.publicKey.export({type:'spki',format:'pem'})}
+    ]
+  };
+  return {bundle,policyRegistry,candidatePrivateKey:candidateKeys.privateKey};
+}
+
+function combineRegistries(...registries) {
+  return {schema:'aichi-trusted-reviewers-v1',
+    reviewers:registries.flatMap(x=>x?.reviewers??[])};
+}
+
+function signedV3Result(bundle,policyRegistry,{roles=['paper','strategy'],audit=terminalAudit()}={}) {
+  const game = signReviews(bundle,{roles,strategyAudit:audit});
+  return inspectAdmissionV3(bundle,game.reviews,
+    combineRegistries(policyRegistry,game.registry));
+}
+
+function addPanelReceipt(bundle,overrides) {
+  const receipt={...bundle.policyApplicationReceipt,...overrides,
+    trialId:'additional-panel-trial'};
+  delete receipt.receiptSha256;
+  receipt.receiptSha256=evidenceBundleSha256(receipt);
+  bundle.policyPanelReceipts=[bundle.policyApplicationReceipt,receipt];
+  return receipt;
+}
+
 test('untimed natural win needs paper review but no clock receipt or clock reviewer',()=>{
   const b=makeBundle(),r=inspect(b);
   assert.equal(r.schema,SCHEMA);
@@ -196,12 +384,12 @@ test('untimed natural tie remains a tie and is not clock-adjudicated',()=>{
   assert.equal(r.competitiveAdmission,false);
 });
 
-test('untimed natural terminal can separately pass policy competence with signed strategy review',()=>{
+test('terminal-before-reply does not establish policy competence without pre-deal attestations',()=>{
   const b=makeBundle(),audit=terminalAudit();
   const r=inspect(b,['paper','strategy'],audit);
   assert.equal(r.gameOutcomeAdmissionReady,true);
-  assert.equal(r.competitivePolicyCompetenceReady,true);
-  assert.equal(r.acceptanceReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.acceptanceReady,false);
   assert.equal(r.competitiveAdmission,false);
 });
 
@@ -249,11 +437,12 @@ test('untimed mode rejects an event clock reviewer and missing paper review',()=
     .gameOutcomeAdmissionReady,false);
 });
 
-test('policy asymmetry leaves factual outcome admissible but blocks comparative competence',()=>{
+test('candidate-vs-field policy asymmetry is diagnostic, not a competence veto',()=>{
   const b=makeBundle({samePolicy:false}),r=inspect(b);
   assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.samePolicyDiagnostic,false);
   assert.equal(r.competitivePolicyCompetenceReady,false);
-  assert.ok(r.failures.includes('policy-asymmetry-or-unverified-for-competitive'));
+  assert.ok(!r.failures.includes('policy-asymmetry-or-unverified-for-competitive'));
 });
 
 test('missing physical root receipts or printed/initial custody review blocks outcome',()=>{
@@ -305,6 +494,139 @@ test('V3 event official-call mode preserves the official end-call adjudication p
   assert.equal(r.timingMode,EVENT);
   assert.equal(r.gameOutcomeAdmissionReady,true);
   assert.equal(r.competitivePolicyCompetenceReady,false);
+});
+
+
+test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field explicitly incomplete',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const r=signedV3Result(bundle,policyRegistry);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.samePolicyDiagnostic,false);
+  assert.equal(r.policyPanelConsistency.valid,true);
+  assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
+  assert.equal(r.policyFieldComplete,false);
+  assert.equal(r.policyPanelCoverageComplete,false);
+  assert.equal(r.policyApplicationReceiptVerified,true);
+  assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
+  assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
+  assert.equal(r.competitivePolicyCompetenceReady,true);
+  assert.equal(r.acceptanceReady,true);
+  assert.equal(r.fixtureOnly,true);
+  assert.equal(r.competitiveAdmission,false);
+});
+
+test('candidate-policy hash drift across panel strata invalidates V3 application consistency',()=>{
+  const {bundle}=makePolicyBundle();
+  addPanelReceipt(bundle,{
+    candidatePolicySha256:policyHash(9999),
+    policySha256BySeat:[bundle.policyApplicationReceipt.policySha256BySeat[0],policyHash(9999)]
+  });
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('game-candidate-policy-mismatch'));
+});
+
+test('opponent-policy hash drift within one rank invalidates V3 application consistency',()=>{
+  const {bundle}=makePolicyBundle();
+  addPanelReceipt(bundle,{
+    opponentPolicySha256:policyHash(9998),
+    policySha256BySeat:[policyHash(9998),bundle.policyApplicationReceipt.policySha256BySeat[1]]
+  });
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('game-opponent-policy-mismatch'));
+});
+
+test('a source-unavailable opponent rank cannot produce a policy application receipt',()=>{
+  const {bundle}=makePolicyBundle();
+  const receipt=bundle.policyApplicationReceipt;
+  receipt.opponentRank=23;
+  receipt.receiptSha256='';
+  delete receipt.receiptSha256;
+  receipt.receiptSha256=evidenceBundleSha256(receipt);
+  bundle.trial.opponentRank=23;
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('game-against-source-unavailable-rank'));
+});
+
+test('common observation and decision-budget constraints are bound to every application receipt',()=>{
+  const {bundle}=makePolicyBundle();
+  const receipt=addPanelReceipt(bundle,{
+    policyConstraintsSha256:policyHash(9997)
+  });
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('game-policy-constraints-mismatch'));
+  assert.equal(receipt.policyConstraintsSha256,policyHash(9997));
+});
+
+test('candidate and opponent policy reviewers must be separately authorized',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const game=signReviews(bundle,{roles:['paper','strategy'],strategyAudit:terminalAudit()});
+  const missingCandidate=combineRegistries(
+    {...policyRegistry,reviewers:policyRegistry.reviewers.filter(x=>x.reviewerId!=='candidate-policy-reviewer')},
+    game.registry
+  );
+  const a=inspectAdmissionV3(bundle,game.reviews,missingCandidate);
+  assert.equal(a.gameOutcomeAdmissionReady,true);
+  assert.equal(a.competitivePolicyCompetenceReady,false);
+  assert.equal(a.policyCompetence.candidatePolicyAttestationValid,false);
+
+  const missingOpponent=combineRegistries(
+    {...policyRegistry,reviewers:policyRegistry.reviewers.filter(x=>x.reviewerId!=='opponent-policy-reviewer')},
+    game.registry
+  );
+  const b=inspectAdmissionV3(bundle,game.reviews,missingOpponent);
+  assert.equal(b.gameOutcomeAdmissionReady,true);
+  assert.equal(b.competitivePolicyCompetenceReady,false);
+  assert.equal(b.policyCompetence.opponentPolicyAttestationValid,false);
+});
+
+test('a correctly re-signed policy attestation created after the deal is rejected',()=>{
+  const {bundle,policyRegistry,candidatePrivateKey}=makePolicyBundle();
+  bundle.policyAttestationBundle.candidatePolicy.attestedAt='2026-11-12T01:02:00.000Z';
+  signPolicyAttestation(bundle.policyAttestationBundle.candidatePolicy,candidatePrivateKey);
+  refreshPolicyEnvelope(bundle);
+  const r=signedV3Result(bundle,policyRegistry);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.policyCompetence.candidatePolicyAttestationValid,false);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+});
+
+test('event mode applies the same deck-aware policy gate without inheriting V2 samePolicy veto',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  const r=signedV3Result(bundle,policyRegistry,{roles:['paper','clock','strategy']});
+  assert.equal(r.timingMode,EVENT);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.samePolicyDiagnostic,false);
+  assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
+  assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
+  assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
+  assert.equal(r.competitivePolicyCompetenceReady,true);
+  assert.equal(r.acceptanceReady,true);
+  assert.equal(r.competitiveAdmission,false);
+});
+
+test('event outcome remains factual when a panel policy mapping drifts, but competence fails',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  addPanelReceipt(bundle,{
+    opponentPolicySha256:policyHash(9996),
+    policySha256BySeat:[policyHash(9996),bundle.policyApplicationReceipt.policySha256BySeat[1]]
+  });
+  const r=signedV3Result(bundle,policyRegistry,{roles:['paper','clock','strategy']});
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.policyPanelConsistency.failures.includes('game-opponent-policy-mismatch'));
+});
+
+test('same-deck mirror estimands require the preregistered same-policy identity relation',()=>{
+  const {bundle}=makePolicyBundle();
+  bundle.policyPlanCore.comparisonMode='same-deck-mirror';
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('unsupported-policy-comparison-mode'));
+  assert.ok(r.failures.includes('same-policy-identity-required-for-controlled-comparison'));
 });
 
 test('wrong event stage and empty production trust registry fail closed',()=>{
