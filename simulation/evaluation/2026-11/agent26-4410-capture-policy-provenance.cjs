@@ -14,8 +14,7 @@ function jsonSafe(value, at='$', ancestors=new WeakSet()) {
     if (Number.isFinite(value)) return value;
     throw new TypeError(`Non-finite provenance number at ${at}`);
   }
-  if (typeof value === 'undefined')
-    throw new TypeError(`Undefined provenance value at ${at}`);
+  if (typeof value === 'undefined') return null;
   if (typeof value !== 'object')
     throw new TypeError(`Unsupported provenance value at ${at}: ${typeof value}`);
   if (ancestors.has(value))
