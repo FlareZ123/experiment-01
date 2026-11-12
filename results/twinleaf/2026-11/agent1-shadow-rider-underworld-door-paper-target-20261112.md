@@ -6,7 +6,7 @@
 
 The pinned Twinleaf implementation of Shadow Rider Calyrex VMAX's Underworld Door prompt does not itself enforce the printed Psychic-only Bench recipient requirement. The card implementation builds a blocked array by iterating player.bench and testing each entry with card instanceof PokemonCard. In the pinned state model, Player.bench is an array of PokemonCardList; PokemonCardList extends CardList, not PokemonCard. The test is false for every Bench slot. The resulting AttachEnergyPrompt receives an empty blocked array and no blockedTo target list.
 
-The prompt API distinguishes source exclusions (options.blocked) from destination exclusions (options.blockedTo). The pinned AttachEnergyPrompt decoder checks the source card and blocked source index but does not independently enforce the destination Pokémon's Psychic type. The raw engine prompt is therefore permissive if used without a card-specific correction.
+The prompt API distinguishes source exclusions (options.blocked) from destination exclusions (options.blockedTo). The pinned `AttachEnergyPrompt.decode` checks that the indexed card is a Card, is an Energy card, and is not a blocked source index; it does not apply the prompt's UI `filter`. `validate` checks min/max, blocked indices and only optional constraints such as `validCardTypes` when explicitly set; Underworld Door does not set those options. The raw engine prompt is therefore permissive on both source type and destination Pokémon type if used without a card-specific correction. A direct `ResolvePromptAction` can submit a Special Energy that the UI would not offer, so the research hook must enforce Basic Psychic at the Store callback, not merely rely on the prompt filter.
 
 ## Existing research-owned correction
 
