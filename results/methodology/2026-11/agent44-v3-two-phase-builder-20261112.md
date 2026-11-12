@@ -37,7 +37,7 @@ The fixture-only functions accept synthetic test reviewer keys, but their output
 ## Validation performed
 
 - The earlier V8 control-flow smoke covered the prior builder shape only; it does not validate the new server-time chronology receipt or the revised review regression.
-- The updated Node test uses real ephemeral Ed25519 paper and strategy review keys, the actual Agent45 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator. It checks both signatures over the finalized bundle and proves that supplying those external reviews leaves the bundle and policy-evidence digest unchanged. It also covers run/head/job/step mismatches and pre-/post-deal chronology boundaries.
+- The updated Node test uses real ephemeral Ed25519 paper and strategy review keys, the actual Agent45 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator. It checks both signatures over the finalized bundle and proves that supplying those external reviews leaves the bundle and policy-evidence digest unchanged. It also covers run/head/job/step mismatches, pre-/post-deal chronology boundaries, and rejection of legacy-only commit-committer/producer-generated timestamps.
 - The test is included in the existing manual Node 22 pure-preflight workflow. **It has not yet run under Node 22.** No CI pass is claimed.
 
 The fixture smoke test is not evidence of paper legality, policy competence, a played game, or competitive admission.
