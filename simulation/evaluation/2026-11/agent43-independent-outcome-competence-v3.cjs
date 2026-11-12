@@ -24,7 +24,7 @@ const GIT_SHA = /^[0-9a-f]{40}$/;
 const POLICY_ATTESTATION_SCHEMA = 'aichi-policy-competence-attestation-v1';
 const POLICY_ATTESTATION_BUNDLE_SCHEMA = 'aichi-policy-attestation-bundle-v1';
 const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
-const POLICY_APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
+const POLICY_APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v2';
 const OFFSET_ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 
 /** @param {unknown} value @returns {boolean} */
@@ -41,6 +41,58 @@ function stableIdentityId(value) {
 function safeDigest(value) {
   try { return evidenceBundleSha256(value); }
   catch { return null; }
+}
+
+function validRuntimePatchReceipts(item, core) {
+  const expected = core?.constraints?.sharedEngineCompatibilityPatches;
+  const actual = item?.runtimePatchReceipts;
+  if (!Array.isArray(expected) || !Array.isArray(actual) ||
+      actual.length !== expected.length) return false;
+  const seen = new Set();
+  for (let index = 0; index < expected.length; index++) {
+    const want = expected[index];
+    const got = actual[index];
+    if (!want || typeof want !== 'object' || Array.isArray(want) ||
+        !got || typeof got !== 'object' || Array.isArray(got) ||
+        got.schema !== 'aichi-runtime-patch-installation-receipt-v1' ||
+        !stableIdentityId(want.patchId) || !stableIdentityId(got.patchId) ||
+        seen.has(got.patchId) || got.patchId !== want.patchId ||
+        !nonempty(want.modulePath) || !nonempty(got.modulePath) ||
+        got.modulePath !== want.modulePath ||
+        !HEX_SHA256.test(want.moduleSha256 ?? '') ||
+        got.moduleSha256 !== want.moduleSha256 ||
+        !stableIdentityId(want.target) || got.target !== want.target ||
+        !HEX_SHA256.test(got.originalReducerFingerprint ?? '') ||
+        !HEX_SHA256.test(got.installedReducerFingerprint ?? '') ||
+        got.originalReducerFingerprint === got.installedReducerFingerprint ||
+        got.installCount !== 1 ||
+        got.installBoundary !== 'outer-v3-runner-before-role-wrappers' ||
+        got.restoreCount !== 1 ||
+        got.restoreBoundary !== 'outer-finally' ||
+        got.restoredOriginal !== true ||
+        got.nestedInstallCount !== 0 ||
+        got.wrapperInstallCount !== 0) return false;
+    const parts = got.modulePath.split('/');
+    if (got.modulePath.startsWith('/') || got.modulePath.includes('\\') ||
+        parts.some(part => !part || part === '.' || part === '..')) return false;
+    seen.add(got.patchId);
+  }
+  return HEX_SHA256.test(item?.runtimePatchReceiptsSha256 ?? '') &&
+    safeDigest(actual) === item.runtimePatchReceiptsSha256;
+}
+
+function validCardPoolInitializationReceipt(trial, runtimePinEvidence) {
+  const receipt = trial?.cardPoolInitializationReceipt;
+  return receipt?.schema === 'agent36-twinleaf-card-pool-initialization-v1' &&
+    receipt.enginePin === trial?.vendorCommitSha &&
+    receipt.startupPath === 'vendor/twinleaf/ptcg-server/start.js' &&
+    HEX_SHA256.test(receipt.startupSha256 ?? '') &&
+    Array.isArray(receipt.setNames) && receipt.setNames.length > 0 &&
+    receipt.setNames.every(nonempty) &&
+    new Set(receipt.setNames).size === receipt.setNames.length &&
+    receipt.definedSetCount === receipt.setNames.length &&
+    Number.isInteger(receipt.cardCount) && receipt.cardCount > 0 &&
+    safeDigest(receipt) === runtimePinEvidence?.cardPoolInitializationSha256;
 }
 
 /**
@@ -294,6 +346,7 @@ function inspectPolicyPanelConsistency(bundle) {
   const registrationSha = safeDigest(registration);
   const constraintsSha = safeDigest(core?.constraints);
   const opponentBundleSha = safeDigest(core?.opponentPolicyBundle);
+  const runtimePinEvidence = core?.runtimePinEvidence;
   const candidatePolicyProducerId = core?.candidate?.policyProducerId;
   const rankEntries = Array.isArray(core?.opponentPolicyBundle?.ranks) ?
     core.opponentPolicyBundle.ranks : [];
@@ -306,6 +359,13 @@ function inspectPolicyPanelConsistency(bundle) {
   if (!core || core.schema !== 'aichi-policy-plan-core-v1' ||
       core.comparisonMode !== 'candidate-vs-field')
     failures.push('policy-plan-schema-or-comparison-mode-invalid');
+  if (runtimePinEvidence?.schema !== 'aichi-runtime-pin-evidence-v2' ||
+      !HEX_SHA256.test(runtimePinEvidence?.unionSha256 ?? '') ||
+      !HEX_SHA256.test(runtimePinEvidence?.loadedProcessClosureSha256 ?? '') ||
+      !HEX_SHA256.test(runtimePinEvidence?.cardPoolInitializationSha256 ?? ''))
+    failures.push('policy-runtime-pin-evidence-missing-or-invalid');
+  if (!validCardPoolInitializationReceipt(trial, runtimePinEvidence))
+    failures.push('policy-card-pool-initialization-receipt-invalid');
   if (!stableIdentityId(bundle?.producerId))
     failures.push('bundle-producer-identity-invalid');
   if (!stableIdentityId(candidatePolicyProducerId) ||
@@ -362,7 +422,7 @@ function inspectPolicyPanelConsistency(bundle) {
         safeDigest(payload) !== receiptSha256 ||
         item.policyPlanSha256 !== planSha ||
         item.policyAttestationBundleSha256 !== attestationSha ||
-        item.policyRegistrationSha256 !== registrationSha ||
+        !HEX_SHA256.test(item.policyRegistrationSha256 ?? '') ||
         item.policyConstraintsSha256 !== constraintsSha ||
         item.opponentPolicyBundleSha256 !== opponentBundleSha ||
         item.candidatePolicyProducerId !== candidatePolicyProducerId ||
@@ -379,6 +439,10 @@ function inspectPolicyPanelConsistency(bundle) {
         !item.policySha256BySeat.every(x => HEX_SHA256.test(x ?? '')) ||
         !GIT_SHA.test(item.enginePin ?? '') ||
         !GIT_SHA.test(item.runnerRevision ?? '') ||
+        item.runtimePinUnionSha256 !== runtimePinEvidence?.unionSha256 ||
+        item.loadedProcessClosureSha256 !== runtimePinEvidence?.loadedProcessClosureSha256 ||
+        item.cardPoolInitializationSha256 !== runtimePinEvidence?.cardPoolInitializationSha256 ||
+        !validRuntimePatchReceipts(item, core) ||
         !HEX_SHA256.test(item.decisionTraceSha256 ?? '') ||
         !['none','within-budget','not-exceeded'].includes(item.timeoutStatus))
       return false;
@@ -402,6 +466,12 @@ function inspectPolicyPanelConsistency(bundle) {
       receipt.opponentDeckSha256 !== trial?.originalPrinted60Sha256 ||
       receipt.enginePin !== trial?.vendorCommitSha ||
       receipt.runnerRevision !== trial?.researchRevisionSha ||
+      receipt.policyRegistrationSha256 !== registrationSha ||
+      safeDigest(trial?.cardPoolInitializationReceipt) !==
+        runtimePinEvidence?.cardPoolInitializationSha256 ||
+      safeDigest(receipt?.runtimePatchReceipts) !==
+        safeDigest(trial?.runtimePatchReceipts) ||
+      receipt?.runtimePatchReceiptsSha256 !== safeDigest(trial?.runtimePatchReceipts) ||
       receipt.decisionTraceSha256 !== trial?.decisionTraceSha256 ||
       !Array.isArray(trial?.policySha256BySeat) ||
       JSON.stringify(receipt.policySha256BySeat) !== JSON.stringify(trial.policySha256BySeat)))
@@ -493,6 +563,9 @@ function inspectPolicyPanelConsistency(bundle) {
     policyRegistrationSha256:registrationSha,
     opponentPolicyBundleSha256:opponentBundleSha,
     policyConstraintsSha256:constraintsSha,
+    runtimePinUnionSha256:runtimePinEvidence?.unionSha256 ?? null,
+    loadedProcessClosureSha256:runtimePinEvidence?.loadedProcessClosureSha256 ?? null,
+    cardPoolInitializationSha256:runtimePinEvidence?.cardPoolInitializationSha256 ?? null,
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
     candidatePolicyProducerId,
     opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
