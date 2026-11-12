@@ -297,3 +297,24 @@ test('effect-removal probe is non-mutating even when the Budew marker is present
   assert.equal(owner.active.cannotAttackNextTurn, before.activeFlag);
   assert.equal(owner.bench[0].cannotAttackNextTurn, before.benchFlag);
 });
+
+
+test('an unrelated attack marker on either player blocks Ranger', () => {
+  const ownerState = stagedState(0);
+  ownerState.players[0].marker.markers.push({
+    sourceType: 'attack',
+    source: {name: 'Other source', fullName: 'Other source'},
+    targetScope: 'player'
+  });
+  assert.equal(observePublicBudewItemLock(ownerState, 0, actorView(0))
+    .budewRangerOpportunity.safeToClear, false);
+
+  const opponentState = stagedState(0);
+  opponentState.players[1].marker.markers.push({
+    sourceType: 'attack',
+    source: {name: 'Other source', fullName: 'Other source'},
+    targetScope: 'player'
+  });
+  assert.equal(observePublicBudewItemLock(opponentState, 0, actorView(0))
+    .budewRangerOpportunity.safeToClear, false);
+});
