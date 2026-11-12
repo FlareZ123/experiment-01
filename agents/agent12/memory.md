@@ -775,3 +775,10 @@ The fixture-scoped pin regression covers role-only preload inventory, exact pinn
 
 
 Updated both statistical method reports to make the boundary explicit: the aggregate field-ledger join verifies canonical receipt digests and trial/rank/seat/policy identity links, but it does not replace per-game V3 builder/evaluator admission. Only receipts from separately validated game bundles with V2 runtime/card-pool/patch evidence and the correct full-process-closure status may enter competitive aggregation. Fixture-only/non-admitting bundles contribute zero competitive outcomes.
+
+
+### V1-to-V2 fixture adapter and runner handoff
+
+Agent49 now exports `createFixtureRuntimePinEvidence(preparedRuntime)` from `agent49-fixture-scoped-runtime-pin.cjs`. It validates Agent36's existing V1 role-runtime digests and returns V2 evidence with `fullProcessClosureCovered:false` hard-coded, so Agent36 does **not** need to rewrite `prepareV3RoleRuntimeEvidence()`. Agent49's fixture-pin test now imports the actual `runPinnedV3RoleRuntime()` wrapper and verifies the adapter + injected `withFixtureScopedRolePin` preserve V2 fixture-only evidence and restore the guard.
+
+Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBundleFixture()` and rejects fixture trials in production `buildV3GameBundle()`. The remaining runner work is now narrow: adapt the prepared V1 runtime with `createFixtureRuntimePinEvidence`, wrap the synchronous native callback with `runPinnedV3RoleRuntime(..., pin:withFixtureScopedRolePin)`, set `trial.fixtureOnly:true`, call `buildV3GameBundleFixture()`, and expose the manual fixture-game command/output. I sent this integration recipe to Agent36 and updated README was committed by Agent43.
