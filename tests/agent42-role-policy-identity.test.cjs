@@ -13,6 +13,7 @@ const constraintsSha=evidenceBundleSha256(constraints);
 const bindings=[
  {name:'observe',path:'observe.cjs',exportName:'actorObservation'},
  {name:'promptActions',path:'vendor/twinleaf/resolve-prompt-action.js',exportName:'ResolvePromptAction'},
+ {name:'cardPoolStartup',path:'vendor/twinleaf/ptcg-server/start.js'},
  {name:'roleComposer',path:'composer.cjs',exportName:'withCandidateOpponentPolicyRoles'},
  {name:'moduleLoadGuard',path:'loadguard.cjs',exportName:'withPinnedResearchModuleLoads'},
  {name:'sourceClosureAudit',path:'audit.cjs',exportName:'auditSourceClosure'},
@@ -32,6 +33,7 @@ function repo(fn){
    'audit.cjs':"module.exports={auditSourceClosure:()=>{}};\n",'identity-helper.cjs':"module.exports={buildRolePolicyIdentity:()=>{}};\n",
    'hook.cjs':"module.exports=()=>{};\n",'cards.json':'{"cardCount":60}\n',
    'vendor/twinleaf/resolve-prompt-action.js':"process.env.UNPINNED; module.exports={ResolvePromptAction:function ResolvePromptAction(){}};\n",
+   'vendor/twinleaf/ptcg-server/start.js':"module.exports={};\n",
    'package-lock.json':'{"lockfileVersion":3}\n'
   };
   for(const [p,c] of Object.entries(files)){
@@ -48,8 +50,8 @@ function manifest(root,entrypoint='candidate.cjs',extra={}){
   dataAssetPaths:['cards.json'],dependencyLockPaths:['package-lock.json'],
   enginePin:g(10),runnerRevision:g(11),...extra});
 }
-function cardPoolReceipt(enginePin){return {schema:'agent36-twinleaf-card-pool-initialization-v1',
- enginePin,startupPath:'vendor/twinleaf/ptcg-server/start.js',startupSha256:h(903),
+function cardPoolReceipt(enginePin,startupSha256){return {schema:'agent36-twinleaf-card-pool-initialization-v1',
+ enginePin,startupPath:'vendor/twinleaf/ptcg-server/start.js',startupSha256,
  setNames:['base-set','expanded-set'],definedSetCount:2,cardCount:60};}
 function identity(role,rank,deck,entry,options={},policyConstraintsSha256=constraintsSha){
  return I.buildRolePolicyIdentity({role,rank,producerId:role==='candidate-policy'?'candidate-author':'opponent-author',
@@ -57,7 +59,8 @@ function identity(role,rank,deck,entry,options={},policyConstraintsSha256=constr
   entryManifestSha256:entry.entryManifestSha256,challengeSuiteSha256:h(900),
   policyOptions:options,policyConstraintsSha256,
   runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801),
-  cardPoolInitializationSha256:evidenceBundleSha256(cardPoolReceipt(entry.manifest.enginePin))});
+  cardPoolInitializationSha256:evidenceBundleSha256(cardPoolReceipt(entry.manifest.enginePin,
+   entry.manifest.vendorDependencies.find(x=>x.path==='vendor/twinleaf/ptcg-server/start.js').sha256))});
 }
 function preDeal(candidate,opponent,planConstraints=constraints){
  const core={schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
@@ -82,7 +85,8 @@ function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchRece
   actualFirstPlayerSeat:firstPlayerSeat,candidatePrinted60Sha256:candidate.deckSha256,
   originalPrinted60Sha256:opponent.deckSha256,vendorCommitSha:candidate.entryManifest.enginePin,
   researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906),
-  cardPoolInitializationReceipt:cardPoolReceipt(candidate.entryManifest.enginePin),runtimePatchReceipts};
+  cardPoolInitializationReceipt:cardPoolReceipt(candidate.entryManifest.enginePin,
+   candidate.entryManifest.vendorDependencies.find(x=>x.path==='vendor/twinleaf/ptcg-server/start.js').sha256),runtimePatchReceipts};
 }
 
 test('entry manifest pins research closure, vendor prompt binding, dependency lock and runtime',()=>repo(root=>{
@@ -93,6 +97,7 @@ test('entry manifest pins research closure, vendor prompt binding, dependency lo
  assert.equal(m.manifest.vendorDependenciesSha256,evidenceBundleSha256(m.manifest.vendorDependencies));
  assert.equal(m.manifest.vendorImportsSha256,evidenceBundleSha256(m.manifest.vendorImports));
  assert.ok(m.manifest.vendorImports.some(edge=>edge.path==='vendor/twinleaf/resolve-prompt-action.js'));
+ assert.ok(m.manifest.vendorDependencies.some(dep=>dep.path==='vendor/twinleaf/ptcg-server/start.js'));
  assert.equal(m.manifest.dependencyState.lockfiles[0].path,'package-lock.json');
  assert.equal(m.manifest.nodeVersion,process.version);
  assert.equal(m.manifest.orderedPromptChain[0].name,'native-prompt');
