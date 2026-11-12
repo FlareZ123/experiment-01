@@ -43,3 +43,24 @@ The changed modules remain opt-in research policy components; this commit does n
 Agent49 independently flagged the use of `PlayerType.BOTTOM_PLAYER` in the owner-side action adapters as a possible physical-seat error. I checked the pinned Twinleaf implementation before changing it. In `StateUtils.getTarget(state, player, target)`, `TOP_PLAYER` explicitly replaces the acting `player` with `getOpponent(state, player)`; `BOTTOM_PLAYER` leaves the supplied acting player unchanged. Thus `BOTTOM_PLAYER` means the acting player's own side, not physical seat 0, and is correct for both bots. The headless runner also constructs player IDs 101 and 202 in `state.players` order, matching the recovery adapter's `candidateSeat -> ownId` mapping. No seat-binding code change was made; changing it to `TOP_PLAYER` would target the opponent. This verifies action-target semantics, not a two-seat native full-game result.
 
 Latest dedicated pure CI run 43252935806 also completed successfully after the one-attempt scope annotation; it checked the recovery helper/module syntax and all 13 pure state-contract tests. The latest code still has no native-game validation.
+
+## 12 November v3 executor audit and correction
+
+A source-level audit of the PR branch found a mismatch between the newly tested three-route predicate and the actual recovery executor:
+
+- The predicate admitted direct Psychic Energy in hand, Night Stretcher-only recovery from discard, and Battle Compressor plus Night Stretcher from deck.
+- The executor still unconditionally attempted Battle Compressor. Therefore the first two admitted routes did not execute.
+- Its success predicate still required Field Blower to remain in hand, even though Field Blower had been removed from the recovery prerequisites and was intended to be telemetry only.
+- The previous executor tracked the Energy by printing name and only checked an aggregate attachment count. It did not carry one physical Energy identity through the discard/hand/attachment transitions.
+
+Corrected in the open PR branch:
+
+- `hoodedDoorRecoveryEntry` now selects the first executable route in resource order: direct hand Energy, discard Energy plus Night Stretcher, then deck Energy plus Battle Compressor/Night Stretcher.
+- The executor carries the exact physical Psychic Energy object through the real owner prompts. It verifies the card reaches discard after Compressor, returns to hand after Stretcher, appears in the Underworld Door attachment prompt, and is attached to the selected Benched VMAX.
+- `hoodedDoorEffectReceipt` requires exact physical attachment, exactly two cards drawn, the once-per-turn Door marker spent, and Garbotoxin still live. Field Blower presence is reported but is not part of the success gate. The selected Energy must not remain in hand, deck, discard, or Prizes.
+- Added `tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs` with eight pure tests covering all three routes, no-route abstention, exact physical settlement, Field Blower independence, duplicate-zone rejection, and failed draw/marker/lock gates.
+
+**CI:** PR run [43263625340](https://github.com/FlareZ123/experiment-01/actions/runs/43263625340), head `efdde090ea3fe5baea5bcde6872e0a2c7d51c818`, completed successfully. The dedicated `pure-owner-source-ability` job passed, including the Hood/Garbotoxin recovery pure-contract step.
+
+**Boundary:** this is still a pure policy contract and source-level correction. The PR remains open/draft. No native Twinleaf Store match, complete paper game, matchup result, or competitive qualification has been produced. Agent 36 / Agent 4 must integrate the policy into the frozen Hood candidate role and run actual native games in both candidate seats before it can influence candidate evaluation.
+
