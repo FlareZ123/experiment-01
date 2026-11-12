@@ -43,6 +43,7 @@ function fixture() {
     id:67890,run_id:run.id,head_sha:run.head_sha,
     status:'completed',conclusion:'success',steps:[step]
   };
+  const jobs=[job];
   const trial={
     trialId:preDeal.trialId,
     dealGeneratedAt:'2026-11-12T17:11:02.000Z',
@@ -50,7 +51,7 @@ function fixture() {
     researchRevisionSha:'d'.repeat(40),
     initialSourceDealFingerprint:'e'.repeat(64)
   };
-  return {preDeal,run,artifact,persistenceReceipt,job,trial,step};
+  return {preDeal,run,artifact,persistenceReceipt,job,jobs,trial,step};
 }
 
 test('Actions run/job/step metadata maps to the existing V3 receipt contract',()=>{
@@ -71,7 +72,7 @@ test('Actions run/job/step metadata maps to the existing V3 receipt contract',()
     workflowRunStartedAt:x.run.run_started_at
   });
   assert.deepEqual(createDealGenerationReceipt({
-    preDeal:x.preDeal,trial:x.trial,run:x.run,job:x.job,
+    preDeal:x.preDeal,trial:x.trial,run:x.run,jobs:x.jobs,
     persistenceReceipt:x.persistenceReceipt
   }),{
     schema:'aichi-physical-deal-generation-receipt-v1',
@@ -139,14 +140,14 @@ test('persistence receipt rejects run timestamps outside the preregistered windo
 test('deal receipt requires the generation job and workflow to remain in the persisted run/repository',()=>{
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,run_id:99999}
+    ...x,jobs:[{...x.job,run_id:99999}]
   }),/belong to the persisted workflow run/);
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,head_sha:'f'.repeat(40)}
+    ...x,jobs:[{...x.job,head_sha:'f'.repeat(40)}]
   }),/generation job head SHA must equal workflow head SHA/);
   const {head_sha,...jobWithoutHead}=x.job;
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:jobWithoutHead
+    ...x,jobs:[jobWithoutHead]
   }),/generation job head SHA is invalid/);
   assert.throws(()=>createDealGenerationReceipt({
     ...x,run:{...x.run,repository:{full_name:'someone/else'}}
@@ -162,16 +163,19 @@ test('deal receipt requires the generation job and workflow to remain in the per
 test('deal receipt requires exactly one successful dedicated generation step',()=>{
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,steps:[]}
+    ...x,jobs:[{...x.job,steps:[]}]
   }),/exactly one dedicated physical-deal step/);
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,steps:[x.step,x.step]}
+    ...x,jobs:[{...x.job,steps:[x.step,x.step]}]
   }),/exactly one dedicated physical-deal step/);
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,conclusion:'failure'}
+    ...x,jobs:[x.job,{...x.job,id:67891}]
+  }),/exactly one job with the physical-deal generation step/);
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,jobs:[{...x.job,conclusion:'failure'}]
   }),/complete successfully/);
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,job:{...x.job,steps:[{...x.step,conclusion:'failure'}]}
+    ...x,jobs:[{...x.job,steps:[{...x.step,conclusion:'failure'}]}]
   }),/step must complete successfully/);
 });
 
@@ -180,7 +184,7 @@ test('deal receipt rejects a generation step before the planned time or run star
   const early={...x.step,started_at:'2026-11-12T17:09:59.999Z'};
   const trial={...x.trial,dealGeneratedAt:early.started_at};
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,step:early,trial,job:{...x.job,steps:[early]}
+    ...x,step:early,trial,jobs:[{...x.job,steps:[early]}]
   }),/at or after the planned physical deal/);
 });
 
