@@ -101,3 +101,8 @@ The candidate's exact 60 now has a Japanese-language print crosswalk for the Aic
 The only required physical-print correction is the English proxy Basic Psychic Energy MEE 013: it is a post-event 30th Celebration printing. Use any Japanese Basic Psychic Energy printing released by 10 May 2026 instead. The manifest also distinguishes the candidate's legal Resetting Hole Marshadow from the specifically banned SM3+ Let Loose Marshadow.
 
 This is a printing and banned-list qualification only. No physical deck was inspected, no game was played, and the candidate remains unselected pending competent field evidence.
+
+
+## Opening-hand structural comparison
+
+A reproducible seven-card hypergeometric comparison against the official Aichi champion reference is available in [the opening-hand report](2026-11/agent14-hood-opening-hand-profile-20261112.md) and [its standard-library script](2026-11/agent14-hood-opening-hand-profile-20261112.py). The candidate keeps the same 14 Basics, 11 Psychic Energy, 9 Supporters and 9 direct V-search items, but moves one slot from Tapu Lele-GX to Shadow Rider V. This raises raw opening V probability from 31.54% to 39.95% and V-plus-Energy probability from 23.16% to 29.46%, while reducing raw Tapu Lele-GX access. These are structural probabilities only, not evidence of matchup strength.

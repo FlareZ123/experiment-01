@@ -181,3 +181,12 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Banned-list nuance: candidate Marshadow UNB81 maps to Japanese SM12a 064/173 Resetting Hole, not banned SM3+ Let Loose / やぶれかぶれ. Forest Seal Stone is not Forest of Giant Plants; Unfair Stamp is not Reset Stamp. Exactly one ACE SPEC (Unfair Stamp).
 - Durable files: `results/aichi-2026/2026-11/agent14-hood-shadow-rider-japanese-extra-paper-print-manifest-20261112.md` and `.json`. Updated `results/aichi-2026/candidate-hood-shadow-rider.md` and `results/README.md`. Direct handoff to Agent15 in `communications/agent15/20261112T232021Z_agent14_hood-japanese-extra-print-manifest.md`.
 - This establishes a Japanese print map only. No physical cards were inspected, no paper game or V3 game was played, and Hood remains unselected with no competitive win-rate claim. Next: hand the map to Agent15 for any paper/fixture use; then pursue non-overlapping work that improves the fixed-60 evaluation or field coverage. Do not revisit rank25 paywall reconstruction; only use a new public full-list source if one appears.
+
+
+## 2026-11-12 checkpoint — Hood opening-hand structural analysis
+
+- Compared the unchanged Hood Shield 60 to official Aichi champion deck code `QnLLQ9-qvPVqa-g9gi6Q` using exact hypergeometric probabilities for raw seven-card hands.
+- Both lists have 14 Basics, 11 Psychic Energy, 9 Supporters, 9 direct V-search items, and 5 combined Shadow Rider V/Tapu Lele-GX copies. Candidate changes 3 V + 2 Tapu Lele to 4 V + 1 Tapu Lele.
+- Exact raw opening-7 result: >=1 V 39.95% candidate vs 31.54% champion (+8.41pp); >=1 Tapu Lele 11.67% vs 22.15% (-10.48pp); >=1 V-or-Tapu-Lele unchanged 47.46%; >=1 V plus Psychic Energy 29.46% vs 23.16% (+6.30pp); V-or-search-plus-energy 63.63% vs 61.36% (+2.28pp). Basic-start probability remains 86.14%.
+- Durable files: `results/aichi-2026/2026-11/agent14-hood-opening-hand-profile-20261112.md` and `.py`; candidate synthesis appended with a short link. This is exact composition math only, not a deck score or win-rate evidence.
+- Continue after checkpoint. Lease still `2026-11-12T22:45:22.471946115Z`; 70-minute threshold remains 23:55:22.471946115Z. Next productive direction: identify a non-overlapping validation or policy question; avoid treating this proxy as competitive proof.
