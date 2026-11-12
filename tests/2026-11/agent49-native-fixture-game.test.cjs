@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  seededRandom,deckPermutation,runNativeFixtureGame
+  seededRandom,deckPermutation,projectActionPayload,runNativeFixtureGame
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
@@ -115,6 +115,20 @@ function input(overrides={}){
   };
 }
 
+test('action payload projection distinguishes same-class decisions and terminates cycles',()=>{
+  const first=projectActionPayload(new RootAction(0));
+  const second=projectActionPayload(new RootAction(1));
+  assert.equal(first.actionName,'RootAction');
+  assert.equal(first.fields.seat,0);
+  assert.equal(second.fields.seat,1);
+  assert.notDeepEqual(first,second);
+
+  const cyclic={};
+  cyclic.self=cyclic;
+  const projected=projectActionPayload({type:'TEST',payload:cyclic});
+  assert.equal(projected.fields.payload.self.cycle,true);
+});
+
 test('fixture PRNG and deck permutation are deterministic and complete',()=>{
   const a=seededRandom(123),b=seededRandom(123);
   assert.deepEqual(Array.from({length:8},()=>a()),
@@ -156,6 +170,12 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.equal(result.rootActionLedger.length,4);
   assert.equal(result.decisionTrace[0].pendingPromptType,'ShuffleDeckPrompt');
   assert.equal(result.decisionTrace[0].actionName,'ResolvePromptAction');
+  assert.equal(result.decisionTrace[0].actionPayload.fields.result.length,60);
+  assert.equal(typeof result.decisionTrace[1].actionPayload.fields.result,'boolean');
+  assert.notEqual(result.decisionTrace[2].actionPayloadSha256,
+    result.decisionTrace[3].actionPayloadSha256);
+  assert.equal(result.rootActionLedger[0].actionPayloadSha256,
+    result.decisionTrace[0].actionPayloadSha256);
   assert.equal(result.decisionTrace[0].promptResolution.kind,'shuffle');
   assert.equal(result.decisionTrace[0].promptResolution.ownerSeat,0);
   assert.equal(result.decisionTrace[0].promptResolution.cardCount,60);
