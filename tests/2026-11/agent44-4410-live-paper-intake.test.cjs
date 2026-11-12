@@ -278,10 +278,11 @@ test('4410 policy provenance receives callback-free JSON policy options',()=>{
   assert.doesNotMatch(provenanceCall,/activationReceipts:/);
   assert.match(producer,/onRootStoreCreated/);
   assert.match(producer,/onRootActionDispatched/);
-  assert.match(helper,/typeof value === 'function'/,
-    'The provenance serializer must explicitly reject executable values');
+  assert.match(helper,/typeof value !== 'object'/,
+    'The provenance serializer must reject executable values rather than stringify them');
+  assert.match(helper,/Unsupported provenance value/);
   assert.match(helper,/throw new TypeError/);
-  assert.doesNotMatch(helper,/return String\\(value\\)/,
+  assert.doesNotMatch(helper,/return String/,
     'Executable callbacks must never be silently converted to source strings');
 });
 
