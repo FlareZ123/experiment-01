@@ -1,7 +1,6 @@
 {
-  "run_id": "agent36-chat-20261112T193500314Z-normal2-gpt6-v3-fixture-runner",
-  "claimed_at": "2026-11-12T19:35:00.314Z",
+  "run_id": "agent36-chat-20261112T212311544Z-normal2-gpt6",
+  "claimed_at": "2026-11-12T21:23:11.544171510Z",
   "mode": "normal",
-  "roll": 2,
-  "previous_claim": "2026-11-12T17:33:48.638346916Z"
+  "roll": 2
 }
