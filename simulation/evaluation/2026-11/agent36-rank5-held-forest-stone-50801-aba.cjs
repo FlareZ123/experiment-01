@@ -10,6 +10,10 @@ const {perfectionPrizeReceipts}=
   require('./agent36-perfection-prize-receipts.cjs');
 const {inspectNativeGameCarryover}=
   require('./agent43-native-attack-damage-carryover.cjs');
+const {withNativeRawStateFallbackQuarantine}=
+  require('../../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+const {withOwnerPublicAcknowledgements}=
+  require('../../twinleaf/agent50-owner-public-acknowledgements.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCE='results/aichi-2026/registrations/' +
@@ -128,6 +132,8 @@ function summarize(record) {
     forestSealRootPolicy:forestSealPolicy,
     heldStoneOpportunity:opportunity,
     nativeAttackDamageCarryover:carryover,
+    ownerPublicAcknowledgementAudit:record.ownerPublicAcknowledgementAudit,
+    nativeRawStateFallbackQuarantineAudit:record.nativeRawStateFallbackQuarantineAudit,
     fullNativePaperRootReceiptSummary,
     seats,
     candidatePerfectionPrizeReceipts:record.rootPhysicalLinked?
@@ -165,12 +171,20 @@ function main(){
     {phase:'B-v3-symmetric-Stone',earlyForestSealRoot:true},
     {phase:'A-v3-repeat',earlyForestSealRoot:false}
   ];
-  const games=modes.map(mode=>arm(mode.phase,false,common,{
-    resourceV3:true,ownerLillieAfterPass:true,
-    minOpponentHandCount:6,
-    earlyForestSealRoot:mode.earlyForestSealRoot,
-    captureFullNativePaperReceipts:true
-  }));
+  const games=modes.map(mode=>{
+    const guarded=withNativeRawStateFallbackQuarantine(()=>
+      withOwnerPublicAcknowledgements(()=>arm(mode.phase,false,common,{
+        resourceV3:true,ownerLillieAfterPass:true,
+        minOpponentHandCount:6,
+        earlyForestSealRoot:mode.earlyForestSealRoot,
+        captureFullNativePaperReceipts:true
+      })));
+    return {
+      ...guarded.result.result,
+      ownerPublicAcknowledgementAudit:guarded.result.audit,
+      nativeRawStateFallbackQuarantineAudit:guarded.audit
+    };
+  });
   // Fail closed if the arm's requested Forest Seal Stone treatment did not
   // reach the real native actor-root policy. The old 23:00 run predated the
   // corrected bilateral option mapping and silently left B disabled.
@@ -180,6 +194,11 @@ function main(){
       modes[i].phase+' Forest Seal Stone root opt-in must be acknowledged');
     assert.equal(policy.ownerSeat,null,
       modes[i].phase+' uses the symmetric two-seat owner policy');
+    assert.equal(games[i].nativeRawStateFallbackQuarantineAudit?.rawStateFallbackCalls,0,
+      modes[i].phase+' must not reach raw-State native decoder fallback');
+    assert.equal(games[i].nativeRawStateFallbackQuarantineAudit?.originalNativeDecoderExecuted,false);
+    assert.equal(games[i].ownerPublicAcknowledgementAudit?.confirmPromptDefaultEquivalent,true);
+    assert.equal(games[i].ownerPublicAcknowledgementAudit?.completePolicyOwnerSafe,false);
     const paper=games[i].fullNativePaperRootReceipts;
     assert.equal(paper?.schema,
       'agent36-live-paper-root-receipts-v2-attached-energy-custody');
