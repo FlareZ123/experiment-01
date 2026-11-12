@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {validateOpponentPolicyFieldBundle}=require('../../scripts/agent12-balanced-field-ledger-validator.cjs');
+const {validateFieldLedger,validateOpponentPolicyFieldBundle}=require('../../scripts/agent12-balanced-field-ledger-validator.cjs');
 const {sha256}=require('../../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 
 const hash=n=>n.toString(16).padStart(64,'0');
@@ -73,6 +73,89 @@ function makeReceipt(core,rank=1) {
     opponentPolicyBundleSha256:sha256(core.opponentPolicyBundle)
   };
 }
+
+function makeV3Ledger() {
+  const policyPlanCore=makeCore();
+  const candidate=policyPlanCore.candidate;
+  const policyPlanSha256=sha256(policyPlanCore);
+  const opponentPolicyBundleSha256=sha256(policyPlanCore.opponentPolicyBundle);
+  const originalSources=policyPlanCore.opponentPolicyBundle.ranks.map(entry=>({
+    rank:entry.rank,source60Sha:entry.deckSha256,authenticatedSource60:true
+  }));
+  const attempts=[];
+  const policyPanelReceipts=[];
+  const registrationSha=hash(9001);
+  let sequence=0;
+
+  for(const opponent of policyPlanCore.opponentPolicyBundle.ranks) {
+    for(const seat of [0,1]) {
+      for(const firstPlayerSeat of [0,1]) {
+        const id=opponent.rank+'/'+seat+'/'+firstPlayerSeat;
+        const receipt=makeReceipt(policyPlanCore,opponent.rank);
+        receipt.trialId='trial/'+id;
+        receipt.candidateSeat=seat;
+        receipt.opponentSeat=1-seat;
+        receipt.firstPlayerSeat=firstPlayerSeat;
+        receipt.policyRegistrationSha256=hash(8000+sequence);
+        receipt.policyPlanSha256=policyPlanSha256;
+        receipt.policyAttestationBundleSha256=hash(7002);
+        receipt.opponentPolicyBundleSha256=opponentPolicyBundleSha256;
+        receipt.policySha256BySeat=seat===0 ?
+          [candidate.policySha256,opponent.policySha256] :
+          [opponent.policySha256,candidate.policySha256];
+        receipt.decisionTraceSha256=hash(10000+sequence);
+        receipt.receiptSha256=sha256(receipt);
+        policyPanelReceipts.push(receipt);
+
+        attempts.push({
+          rank:opponent.rank,seat,firstPlayerSeat,
+          trialId:receipt.trialId,
+          physicalDealId:'deal/'+id,
+          paperReceiptId:'paper/'+id,
+          status:'paper-qualified-win',
+          source60Sha:opponent.deckSha256,
+          candidate60Sha:candidate.deckSha256,
+          candidatePolicySha:candidate.policySha256,
+          registrationSha,
+          engineAndHooksSha:hash(9002),
+          opponentPolicyBundleSha:opponentPolicyBundleSha256,
+          adjudicationProtocolSha:hash(9003),
+          policyPlanSha256,
+          policyRegistrationSha256:receipt.policyRegistrationSha256,
+          policyAttestationBundleSha256:receipt.policyAttestationBundleSha256,
+          policyApplicationReceiptSha256:receipt.receiptSha256
+        });
+        sequence++;
+      }
+    }
+  }
+  return {
+    originalSources,attempts,registeredAttemptCount:attempts.length,
+    registrationSha,policyPlanCore,policyPlanSha256,policyPanelReceipts
+  };
+}
+
+test('the 128-stratum outcome ledger joins each trial to its exact V3 rank policy receipt',()=>{
+  const request=makeV3Ledger();
+  const valid=validateFieldLedger(request,['paper-qualified-win'],'unqualified');
+  assert.deepEqual(valid.rejectionReasons,[]);
+  assert.equal(valid.totalAttempts,128);
+  assert.equal(valid.attemptsPerRankSeatAndFirstPlayer,1);
+
+  const wrongCell=makeV3Ledger();
+  wrongCell.attempts[0].firstPlayerSeat=1;
+  const cellMismatch=validateFieldLedger(wrongCell,['paper-qualified-win'],'unqualified');
+  assert.ok(cellMismatch.rejectionReasons.includes(
+    'v3-policy-receipt-outcome-mismatch'));
+
+  const wrongPolicy=makeV3Ledger();
+  const receipt=wrongPolicy.policyPanelReceipts[0];
+  receipt.opponentPolicySha256=hash(9999);
+  delete receipt.receiptSha256;
+  receipt.receiptSha256=sha256(receipt);
+  const policyMismatch=validateFieldLedger(wrongPolicy,['paper-qualified-win'],'unqualified');
+  assert.ok(policyMismatch.rejectionReasons.includes('v3-policy-panel-invalid'));
+});
 
 test('valid 32-rank policy plan core has a canonical digest and fixed bundle identity',()=>{
   const policyPlanCore=makeCore();
