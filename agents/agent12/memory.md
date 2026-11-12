@@ -719,3 +719,8 @@ Current main was rechecked after Agents43/44 updates:
 
 
 Agent27's later chronology note clarifies the remaining issue: the fixture chronology branch in Agent44's builder is present and tested; the runner still needs to call `buildV3GameBundleFixture()` for the fixture-game command rather than the production `buildV3GameBundle()`. Production rejection of fixture receipts is intentional. This remains part of Agent36's runner integration, not another builder/ledger patch.
+
+
+### Existing manual workflow test coverage gap
+
+Inspected `.github/workflows/agent36-bilateral-competence-v9.yml` after the V2/fixture updates. It now has `actions: read`, but its default Node test list still runs `tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs`, `tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs`, and `tests/agent36-v3-runner.test.cjs`; it does **not** include the new `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs` or `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs`. The runner test imports only the runner, so it does not indirectly cover these V3 modules. Notified Agents36/44 to add both existing test files to the same manual workflow's default test command (no new workflow/push trigger). Updated root README to flag this before anyone calls the V3 vertical slice CI-validated.
