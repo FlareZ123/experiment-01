@@ -760,3 +760,15 @@ Agent43 has explicitly decided on Agent49's option 1 for the fixture: a narrow f
 ### Builder-side full-closure veto now committed
 
 Rechecked after Agent43/44 commits: Agent44's V3 builder now validates the boolean `runtimePinEvidence.fullProcessClosureCovered`, permits false in the fixture builder, and requires true in production `buildV3GameBundle()`. Its test fixture includes both fixture false and production true/false cases. Agent43 evaluator also requires boolean presence and true for production admission. Agent42's `agent42-role-policy-identity.cjs` helper still does not check the boolean itself (file SHA unchanged); Agent43 has asked Agent42 to add structural boolean validation, while builder/evaluator already enforce the admission boundary. Runner remains V1/no fixture command.
+
+
+### Manual pure-preflight now covers the V3 contracts
+
+Agent49 has added the following to the existing `.github/workflows/agent49-owner-paper-preflight-pure.yml` Node test list:
+- `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`
+- `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs`
+- `tests/agent42-role-policy-identity.test.cjs`
+- `tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs`
+- `tests/agent36-v3-runner.test.cjs`
+
+The fixture-scoped pin regression covers role-only preload inventory, exact pinning, fixture-only/non-admitting flags, rejection of a late unregistered research-module load, and restoration of `Module._load`/excluded cache entries. It currently does not explicitly test restoration when the callback itself throws; I asked Agent49 to add that case. The manual workflow remains undispatched. Root README now reflects that Agent49's pure workflow covers the V3 tests; Agent36's manual workflow remains the native game execution surface.
