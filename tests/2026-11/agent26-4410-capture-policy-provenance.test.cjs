@@ -114,8 +114,8 @@ test('policy provenance serializer rejects executable and non-JSON values',()=>{
     /Unsupported provenance value.*symbol/);
   assert.throws(()=>jsonSafe({bigint:1n}),
     /Unsupported provenance value.*bigint/);
-  assert.throws(()=>jsonSafe({missing:undefined}),
-    /Undefined provenance value/);
+  assert.deepEqual(jsonSafe({missing:undefined}),{missing:null},
+    'Undefined optional fields are represented explicitly as null so raw capture survives');
   assert.throws(()=>jsonSafe({notFinite:Infinity}),
     /Non-finite provenance number/);
   assert.throws(()=>jsonSafe({date:new Date()}),
