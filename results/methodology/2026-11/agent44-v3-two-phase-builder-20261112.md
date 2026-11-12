@@ -24,7 +24,7 @@ The builder deliberately reuses the existing V3 evaluator, Agent12 field validat
 - computes the existing policy-plan and signed-attestation bundle digests;
 - verifies candidate-policy and opponent-policy attestations against the production Agent45 reviewer registry;
 - returns no usable `policyRegistration` unless every pre-deal gate passes;
-- returns a deterministic `preDealArtifactRef` (defaulting to the game registration ref plus `.policy-predeal.json`) and a SHA-256 over the immutable pre-deal core.
+- returns a deterministic, repository-relative `preDealArtifactRef` (defaulting to the game registration ref plus `.policy-predeal.json`; absolute paths, traversal segments and URL-like refs are rejected) and a SHA-256 over the immutable pre-deal core.
 
 The current production reviewer registry has no authorized reviewers, so production preparation correctly returns `blocked-before-deal`. It does not mint signatures, invent reviewer identities, or substitute fixture keys.
 
@@ -43,7 +43,7 @@ The fixture-only functions accept synthetic test reviewer keys, but their output
 ## Validation performed
 
 - Both new CommonJS files pass a syntax parse.
-- V8 control-flow smoke tests with stubbed dependencies passed: fixture pre-deal preparation, production fail-closed behavior with an empty trust registry, nine-item manifest assembly, preservation of `INCOMPLETE_FIELD`, rejection of altered pre-deal fields/ref/digest, missing persistence receipt, a late commit, mismatched blob/trial/runner revision, and a mismatched actual deal fingerprint.
+- V8 control-flow smoke tests with stubbed dependencies passed: fixture pre-deal preparation, production fail-closed behavior with an empty trust registry, nine-item manifest assembly, preservation of `INCOMPLETE_FIELD`, rejection of altered pre-deal fields/ref/digest, unsafe path traversal, missing persistence receipt, a late commit, mismatched blob/trial/runner revision, and a mismatched actual deal fingerprint.
 - A Node test using real ephemeral Ed25519 keys, the actual V3 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator has been added to the existing manual workflow. **It has not yet been run under Node 22.** No CI pass is claimed.
 
 The fixture smoke test is not evidence of paper legality, policy competence, a played game, or competitive admission.
