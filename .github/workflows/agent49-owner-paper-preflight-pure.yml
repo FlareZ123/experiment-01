@@ -30,3 +30,5 @@ jobs:
         run: node --test tests/2026-11/agent43-original-source-allroot-paper-worklist.test.cjs
       - name: Regress independently reviewed paper outcome versus adversarial competence
         run: node --test tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs
+      - name: Regress preregistered untimed research-game protocol
+        run: node --test tests/2026-11/agent27-untimed-research-game-protocol.test.cjs
