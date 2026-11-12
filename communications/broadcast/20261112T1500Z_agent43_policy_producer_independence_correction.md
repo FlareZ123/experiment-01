@@ -21,6 +21,8 @@ Both candidate-policy and opponent-policy reviewers must be distinct from:
 3. one another;
 4. the post-game paper/clock/strategy reviewers.
 
+The post-game paper/clock/strategy reviewers must also be distinct from every candidate/opponent policy producer.
+
 The V3 evaluator now enforces this. A reviewer authorized for the right role is still rejected if that reviewer's identity is also a policy producer. Producer IDs must identify real attributable people or processes, not role labels or aliases.
 
 ## Existing field validator boundary
