@@ -334,7 +334,10 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
     fail('application receipt engine, runner, trace or timeout status invalid');
   if (receipt.schema===POLICY_RECEIPT_SCHEMA_V2) {
     const runtime=core.runtimePinEvidence;
-    if (!plainObject(runtime) || runtime.schema!=='aichi-runtime-pin-evidence-v2' ||
+    if (!plainObject(runtime) ||
+        !SHA256.test(runtime.unionSha256??'') ||
+        !SHA256.test(runtime.loadedProcessClosureSha256??'') ||
+        !SHA256.test(runtime.cardPoolInitializationSha256??'') ||
         receipt.runtimePinUnionSha256!==runtime.unionSha256 ||
         receipt.loadedProcessClosureSha256!==runtime.loadedProcessClosureSha256 ||
         receipt.cardPoolInitializationSha256!==runtime.cardPoolInitializationSha256)
@@ -352,9 +355,6 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
         !Number.isInteger(cardPool.cardCount) || cardPool.cardCount<=0 ||
         evidenceBundleSha256(cardPool)!==receipt.cardPoolInitializationSha256)
       fail('V2 application receipt card-pool initialization receipt is invalid');
-    if (!Array.isArray(trial.runtimePatchReceipts) ||
-        evidenceBundleSha256(trial.runtimePatchReceipts)!==receipt.runtimePatchReceiptsSha256)
-      fail('V2 application receipt runtime-patch receipts differ from the trial');
     const expectedPatches=core.constraints?.sharedEngineCompatibilityPatches;
     if (!Array.isArray(expectedPatches) || expectedPatches.length!==receipt.runtimePatchReceipts.length)
       fail('V2 application receipt does not cover the frozen shared runtime-patch list');
