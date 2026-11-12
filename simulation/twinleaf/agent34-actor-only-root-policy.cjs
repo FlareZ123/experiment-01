@@ -86,6 +86,9 @@ function buildActorCardCatalog(all,types){
       new Map(all.filter(c=>c instanceof TrainerCard&&
         c.trainerType===TrainerType.STADIUM)
         .map(c=>[c.fullName,{name:c.name,type:'Stadium'}])):new Map(),
+    itemPrintings:TrainerCard&&TrainerType?
+      new Set(all.filter(c=>c instanceof TrainerCard&&
+        c.trainerType===TrainerType.ITEM).map(c=>c.fullName)):new Set(),
     basics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC).map(c=>c.fullName)),
     // Printed Tool identity is public card-catalog metadata. A Tool in an
@@ -969,6 +972,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseForestSealEarly(view,catalog);
     if(stone)return stone;
   }
+  if(options.rangerBudewItemLock===true){
+    const ranger=require('./agent6-budew-ranger-itemlock.cjs')
+      .proposeRangerForBudewItemLock(view,catalog);
+    if(ranger)return ranger;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -1330,6 +1338,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT50_ERI_REVEAL_DEV==='true'),
     eriPromptsProposed:0,eriPromptsAccepted:0,eriItemsDiscarded:0,
     rangerPaidGxResponseOptIn:deps.rangerPaidGxResponse===true,
+    rangerBudewItemLockOptIn:deps.rangerBudewItemLock===true,
+    rangerBudewItemLockVersion:deps.rangerBudewItemLock===true?
+      require('./agent6-budew-ranger-itemlock.cjs').VERSION:null,
     conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
@@ -2005,9 +2016,15 @@ function withActorOnlyRootPolicy(run,deps={}){
         copycatChoices:choices===null?null:choices.map(row=>({...row}))
       });
     }
-    const view=audit.rangerPaidGxResponseOptIn?
-      require('./agent30-ranger-public-gx-frontier.cjs')
-        .observePublicPaidGxEffects(state,seat,copycatView):copycatView;
+    let view=copycatView;
+    if(audit.rangerPaidGxResponseOptIn){
+      view=require('./agent30-ranger-public-gx-frontier.cjs')
+        .observePublicPaidGxEffects(state,seat,view);
+    }
+    if(audit.rangerBudewItemLockOptIn){
+      view=require('./agent6-budew-ranger-itemlock.cjs')
+        .observePublicBudewItemLock(state,seat,view);
+    }
     let genericFundedObservation=null;
     if(audit.genericFundedFloatStoneAuditOptIn){
       const census=audit.genericFundedFloatStoneAudit;
@@ -2090,6 +2107,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const rootOptions={
       rangerPaidGxResponse:audit.rangerPaidGxResponseOptIn,
+      rangerBudewItemLock:audit.rangerBudewItemLockOptIn,
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
@@ -2569,6 +2587,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-eri-reveal':
       case 'play-conservative-shuffle-supporter':
       case 'play-ranger-paid-gx':
+      case 'play-ranger-budew-item-lock':
       case 'play-arven-for-hood':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
