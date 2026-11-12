@@ -140,3 +140,13 @@ test('V2 contender bundle binds the corrected Lockbreaker manifest, not the sour
   assert.doesNotMatch(contender,/new-moon-perfection-source-60\.json/,
     'Unmodified source manifest must not be labelled as the contender');
 });
+
+test('4410 V2 workflow exposes optional external clock evidence without inventing a receipt',()=>{
+  const workflow=fs.readFileSync(path.join(ROOT,
+    '.github/workflows/agent44-rank5-m4-paper-source-native.yml'),'utf8');
+  assert.ok(workflow.includes('clock_evidence_path'));
+  assert.ok(workflow.includes('CLOCK_EVIDENCE_PATH'));
+  assert.ok(workflow.includes('test -f "$CLOCK_EVIDENCE_PATH"'));
+  assert.ok(workflow.includes('artifacts/agent44-first-release-nine-object-intake-v2.json "$CLOCK_EVIDENCE_PATH"'));
+  assert.ok(workflow.includes('artifacts/agent44-first-release-nine-object-intake-v2.json\n          fi'));
+});
