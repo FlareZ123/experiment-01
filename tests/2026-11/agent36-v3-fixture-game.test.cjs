@@ -103,6 +103,8 @@ test('fixture runner injects offline full-state diagnostics and persists partial
   assert.ok(diagnosticRequire >= 0 && pinInstall > diagnosticRequire, 'diagnostic function reference must be captured before the fixture pin');
   assert.match(runnerSource, /fixtureGamePartial/);
   assert.match(runnerSource, /NonTerminalFixtureGame/);
+  assert.match(runnerSource, /attemptedActionCount/);
+  assert.match(runnerSource, /acceptedActionCount/);
   const artifactWrite = runnerSource.indexOf('writeJsonAtomic(outputPath, artifact)');
   const traceWrite = runnerSource.indexOf("fs.writeFileSync(traceTextPath, traceText, 'utf8')");
   const failureRethrow = runnerSource.indexOf('throw error;', traceWrite);
