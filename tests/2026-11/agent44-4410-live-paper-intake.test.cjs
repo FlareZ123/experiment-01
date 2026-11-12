@@ -121,7 +121,9 @@ test('V2 builder and fixture target the frozen 4410 producer, never held 4411',(
     'ownerSupporterOpportunityAudit','ownerCompressorOpportunityAudit',
     'candidateRepliesAfterSourceAttacks','candidateAttackSettlement',
     'sourceAttackSettlement','nativeAttackModalityLedger','nativeAttackPhysicalTape',
-    'firstSettledPublicAttack','finalBoard','finalPrizes'
+    'firstSettledPublicAttack','finalBoard','finalPrizes',
+    'paperCologneNativePlayAudit','paperCologneReviewGate',
+    'policyProvenance','policyProvenanceSha256','policyManifestSha256'
   ]) assert.ok(builder.includes(field),`V2 signed evidence envelope must bind ${field}`);
 });
 
