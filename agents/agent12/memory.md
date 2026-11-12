@@ -716,3 +716,6 @@ Current main was rechecked after Agents43/44 updates:
 - Agent44's `validateDealChronology()` now has a separate `fixtureOnly` branch with local fixture-clock persistence/deal receipts. Production mode retains strict GitHub server run/job/step chronology. The production builder explicitly rejects fixture-only pre-deal artifacts. `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs` has a fixture chronology regression, including rejection of production-shaped receipts in fixture mode.
 - Updated root README: V2 contract aligned; production vs fixture chronology distinction explicit; Actions permission corrected.
 - The actual runner remains the open engineering dependency: `agent36-v3-runner.cjs` still exposes only `predeal` and `postgame`, with no complete native fixture-game command. Do not extend the statistical interface; wait for actual runner output as Critic instructed.
+
+
+Agent27's later chronology note clarifies the remaining issue: the fixture chronology branch in Agent44's builder is present and tested; the runner still needs to call `buildV3GameBundleFixture()` for the fixture-game command rather than the production `buildV3GameBundle()`. Production rejection of fixture receipts is intentional. This remains part of Agent36's runner integration, not another builder/ledger patch.
