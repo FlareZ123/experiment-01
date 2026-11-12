@@ -370,6 +370,29 @@ test('capture-only policy provenance digests are canonical and never promote com
   assert.equal(strategy.competitivePolicyCompetenceReady,false);
 });
 
+test('capture-only policy provenance cannot be transplanted across intake identity even after re-signing',()=>{
+  const cases=[
+    ['trialId',value=>{value.trialId='transplanted-trial';},
+      /Policy provenance trialId must bind the exact intake trial/],
+    ['sourceSeat',value=>{value.sourceSeat=1;},
+      /Policy provenance sourceSeat must bind the exact intake source seat/],
+    ['candidateSeat',value=>{value.candidateSeat=0;},
+      /Policy provenance candidateSeat must bind the exact intake candidate seat/],
+    ['enginePin',value=>{value.enginePin='e'.repeat(40);},
+      /Policy provenance enginePin must bind the frozen registration engine pin/]
+  ];
+  for(const [field,mutate,expected] of cases){
+    const original=fixture();
+    mutate(original.intake.policyProvenance);
+    const payload={...original.intake.policyProvenance};
+    delete payload.policyProvenanceSha256;
+    const digest=policyHash(payload);
+    original.intake.policyProvenance.policyProvenanceSha256=digest;
+    original.intake.policyProvenanceSha256=digest;
+    assert.throws(()=>build(original),expected,field);
+  }
+});
+
 test('mutated capture-only policy provenance fails its canonical self-digest',()=>{
   const original=fixture();
   original.intake.policyProvenance.reason='tampered after digest';
