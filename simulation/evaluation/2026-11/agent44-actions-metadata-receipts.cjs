@@ -89,8 +89,11 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
   object(preDeal.gameRegistration,'preDeal.gameRegistration');
   object(trial,'trial');
   object(run,'workflow run');
+  object(run.repository,'workflow run repository');
   object(job,'workflow job');
   object(persistenceReceipt,'pre-deal persistence receipt');
+  assert.equal(run.repository.full_name,persistenceReceipt.repositoryFullName,
+    'generation workflow repository must equal the persisted artifact repository');
   const workflowRunId=positiveId(run.id,'workflow run id');
   const jobId=positiveId(job.id,'workflow job id');
   assert.equal(persistenceReceipt.schema,PREDEAL_PERSISTENCE_RECEIPT_SCHEMA,
