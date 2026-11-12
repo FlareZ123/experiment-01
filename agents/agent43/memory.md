@@ -380,3 +380,45 @@ Research the one fixed legal 60-card paper Expanded deck targeting the Aichi 202
 - The V8 structural integration harness loaded actual Agent44 builder, Agent43 evaluator, and Agent12 validator with SHA/Ed25519 stubs. It confirmed fixture output `fixtureOnly:true`, `admissionEligible:false`, `competitiveAdmission:false`, `fullProcessClosureCovered:false`, valid policy-panel consistency; production partial closure was rejected and full closure accepted. **This run preceded Agent44's new mandatory `trial.fixtureOnly` marker**, so rerun once with that marker to validate current main.
 - Current README/report now say the runner can retain V1 role evidence and adapt it through Agent49's V2 projection. Remaining runner task is to wire the three helper exports into a fixture-game command, produce the native game trace and build the fixture bundle. No Node 22 test or native game has run.
 - **Next:** rerun the V8 structural integration harness with `trial.fixtureOnly:true` against current builder, then wait for Agent36 integration changes and review their output. Do not add new schemas, helper, workflow, or runner baseline. Lease remains original `claimed_at=2026-11-12T18:23:49Z`; 70-minute release threshold **19:33:49Z**.
+
+
+## 12 November 2026 — V3 policy contract audit and full-state simulator diagnostics
+
+Current incarnation claimed Agent43 at `2026-11-12T20:14:16.011Z` (normal mode; initial RNG draw 8). Do not refresh the lease. The 70-minute release threshold is `2026-11-12T21:24:16.011Z`; continue work until a checkpoint measures that threshold.
+
+### V3 policy-role model: already incorporated
+
+Reviewed `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`, its tests, Agent12 field validator, Agent44 builder and the V3 methodology report. The current V3 contract already implements the Critic's candidate-vs-field model:
+- candidate policy identity is invariant across rank/seat/first-player strata;
+- each authenticated rank has one fixed opponent-policy identity across that rank's strata;
+- `samePolicy` remains a diagnostic and is not an admission requirement for candidate-vs-field mode;
+- policy constraints are digest-bound and common to both roles;
+- candidate and opponent policy competence are separately attested before deal, by distinct reviewers independent of producers and bundle producer.
+No duplicate evaluator/schema change was made. Existing report: `results/methodology/2026-11/agent43-v3-deck-aware-policy-competence-20261112.md`.
+
+### Reviewer assignment boundary
+
+V3 validates game reviewers per bundle, not as a study-wide assignment ledger. `verifyV3Review()` requires exactly one registry entry for a reviewer ID and that the entry includes the requested role. A per-bundle `usedIds` set ensures paper and strategy reviewers differ from each other, from policy reviewers, and from producers within that bundle. Different reviewer IDs may rotate across bundles; the evaluator does not prohibit role switching across bundles if the registry authorizes multiple roles. The external roster must enforce one human → one role for the entire study and global conflict screening. Added this code-contract observation to the V3 report and sent it to Agent45. Agent45 acknowledged the owner on issue #39.
+
+### Owner's simulator priority
+
+Owner comment on issue #39 puts external reviewer recruitment/provisioning on hold until resumed. Immediate priority is iterative simulator optimization on both sides using complete human- and machine-readable game-state/move traces; inspect, classify deterministic errors vs heuristic/risk judgments, fix general causes, replay; do not add scenario-specific player patches. Agent45 replied publicly and propagated this direction. Broadcast: `communications/broadcast/2026-11/20261112T2026Z_agent43_owner-simulator-diagnostics-priority.md`.
+
+### New offline full-state diagnostic module
+
+Added:
+- `simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs`
+- `tests/2026-11/agent43-full-state-diagnostic.test.cjs`
+- `results/methodology/2026-11/agent43-full-state-game-review-rubric.md`
+
+The serializer reuses `actor-observation-contract.cjs` projections and captures both players' deck array order, hand, each Prize slot, discard, Lost Zone, Stadium, resolving Supporter, active/bench, attached Energy/Tools, attacks/Abilities, turn resources, restrictions, prompts, rules and winner/seat metadata. It marks output `private-offline-diagnostic-only`. The text formatter prints move-by-move pre/post full states and separately labelled actorObservation-contract snapshots / prompt-resolver context. It never calls or changes the actor observation itself. Test coverage checks private-zone capture for both players, actor-view non-leakage, no Store mutation, native zone order, cycle handling, winner-seat mapping, pre/post changes, selected-card and actor-view text. Local Node 22 run against a shape-compatible actor-contract stub passed 4/4; the committed test imports the real repository contract and is included in the current Agent36 fixture test list, but has not yet run in GitHub Actions.
+
+Repository routing requires monthly subdirectories under `simulation/twinleaf/`; the module was moved to `simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs`, and the misplaced root file was deleted. The current Agent36 runner blob `b864739` includes the module in `dataAssetPaths` and the test in `V3_FIXTURE_TEST_PATHS`. The runner already formats a `fixture-game.txt`, but the helper does not yet attach full-state before/after snapshots to action rows.
+
+### Coordination / next actions
+
+- Agent49 has accepted ownership of `agent49-native-fixture-game.cjs` helper changes: inject top-level `diagnosticSnapshot(state,context)` and actor-observation-contract callback, attach full-state pre/post snapshots, preserve partial decisionTrace/root ledger/failed action on exceptions, update helper tests. Do not edit that helper while Agent49 owns it.
+- Agent36 owns runner integration: preload serializer in outer runner closure, pass only callback references as top-level helper inputs (not bot/role options), catch ordinary game errors inside the pinned callback so the pin audit returns, write JSON+TXT failure artifact, then propagate nonzero workflow status. Do not `require()` the serializer inside the pinned callback or add it to role-policy `manifest.files`; it is a hashed `dataAssetPath` only.
+- Agent7 has already added trace-only `selectedCardIdentity`; Agent27 suggested a regression proving selected-card identity affects trace digest. Do not duplicate the helper patch.
+- The current manual workflow `.github/workflows/agent36-bilateral-competence-v9.yml` includes the full-state diagnostic test and a mutually exclusive `agent36_v3_fixture_game` mode. No workflow dispatch capability was available in this invocation; do not claim the fixture has run. A prior run failed at the V3 fixture contract step; Agent7/Agent49 are fixing source-closure/test issues.
+- Continue by checking Agent49's helper patch and Agent36's callback/failure-artifact integration, then inspect the first full trace with the gameplay review rubric. Do not claim policy competence, paper legality, a qualified game, a 99.5% rate, or any win-rate estimate from the fixture.
