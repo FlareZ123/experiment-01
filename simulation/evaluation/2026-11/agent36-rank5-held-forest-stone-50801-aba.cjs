@@ -199,6 +199,9 @@ function main(){
     assert.equal(games[i].nativeRawStateFallbackQuarantineAudit?.originalNativeDecoderExecuted,false);
     assert.equal(games[i].ownerPublicAcknowledgementAudit?.confirmPromptDefaultEquivalent,true);
     assert.equal(games[i].ownerPublicAcknowledgementAudit?.completePolicyOwnerSafe,false);
+    assert.equal(games[i].ownerPublicAcknowledgementAudit?.beneficialAbilityUseQualified,false);
+    assert.equal(games[i].nativeRawStateFallbackQuarantineAudit?.ownerInformationSafeWholePolicyCertified,false);
+    assert.equal(games[i].nativeRawStateFallbackQuarantineAudit?.gameCompetitiveQualified,false);
     const paper=games[i].fullNativePaperRootReceipts;
     assert.equal(paper?.schema,
       'agent36-live-paper-root-receipts-v2-attached-energy-custody');
