@@ -99,6 +99,17 @@ function validateGameRegistration(gameRegistration, trialId) {
  * Signed attestations are consumed, never created here. Production always
  * reads the separately controlled Agent45 trust registry.
  */
+function preDealArtifactCore(value) {
+  const fields=[
+    'ready','status','fixtureOnly','producerId','trialId','gameRegistration',
+    'policyPlanCore','policyPlanSha256','policyAttestationBundle',
+    'policyAttestationBundleSha256','policyRegistration',
+    'policyRegistrationSha256','preDealArtifactRef'
+  ];
+  return Object.fromEntries(fields.map(key=>[key,
+    value?.[key]===undefined?null:value[key]]));
+}
+
 function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFutureDeal=false) {
   const failures = [];
   const producerId = input?.producerId;
@@ -106,6 +117,12 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
   const gameRegistration = input?.gameRegistration;
   const policyPlanCore = input?.policyPlanCore;
   const policyAttestationBundle = input?.policyAttestationBundle;
+  const preDealArtifactRef =
+    (typeof input?.preDealArtifactRef==='string'&&input.preDealArtifactRef.trim())?
+      input.preDealArtifactRef.trim():
+      (typeof gameRegistration?.registrationRef==='string'&&gameRegistration.registrationRef.trim()?
+        gameRegistration.registrationRef.trim()+'.policy-predeal.json':null);
+  if (!preDealArtifactRef) failures.push('predeal-artifact-reference-invalid');
 
   if (!stableId(producerId)) failures.push('bundle-producer-id-invalid');
   if (!stableId(trialId)) failures.push('trial-id-invalid');
@@ -184,7 +201,7 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
   }
 
   const ready = failures.length === 0;
-  return {
+  const prepared = {
     ready,
     status:ready?'ready-before-deal':'blocked-before-deal',
     fixtureOnly,
@@ -193,12 +210,15 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
     policyRegistration:ready?policyRegistration:null,
     proposedPolicyRegistration:policyRegistration,
     policyRegistrationSha256:ready?policyRegistrationSha256:null,
+    preDealArtifactRef,
     fieldStatus:field?.status??'INVALID',
     availableRanks:field?.availableRanks??[],
     unavailableRanks:field?.unavailableRanks??[],
     policyCompetence,
     failures:[...new Set(failures)]
   };
+  prepared.preDealArtifactSha256=evidenceBundleSha256(preDealArtifactCore(prepared));
+  return prepared;
 }
 
 function preparePreDealPolicyRegistration(input) {
@@ -343,6 +363,8 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     policyRegistrationSha256:preDeal.policyRegistrationSha256
   };
   const policyEvidence = {
+    preDealArtifactRef:preDeal.preDealArtifactRef,
+    preDealArtifactSha256:preDeal.preDealArtifactSha256,
     policyPlanCore:preDeal.policyPlanCore,
     policyAttestationBundle:preDeal.policyAttestationBundle,
     policyRegistration:preDeal.policyRegistration,
@@ -410,7 +432,7 @@ function assertPersistedPreDealMatches(persisted,verified) {
   const fields=[
     'ready','status','fixtureOnly','producerId','trialId','gameRegistration','policyPlanCore','policyPlanSha256',
     'policyAttestationBundle','policyAttestationBundleSha256',
-    'policyRegistration','policyRegistrationSha256'
+    'policyRegistration','policyRegistrationSha256','preDealArtifactRef','preDealArtifactSha256'
   ];
   for(const field of fields)
     if(!sameJson(persisted?.[field],verified?.[field]))
