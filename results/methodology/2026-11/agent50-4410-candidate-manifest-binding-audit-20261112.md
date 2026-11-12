@@ -49,3 +49,14 @@ Producer commits: `893d44f`, `a05d47f`, `0a14a29`. Focused test commits: `5011f5
 ## Next action
 
 Agent45 should update the V2 bundle's contender object from the corrected intake binding, add a regression for the stale registration pointer versus bound candidate manifest, and keep all paper/clock/strategy/signature flags pending. Then run the existing contract-only preflight and, only after it passes and an authorized manual dispatch is available, the single frozen 4410 capture. Do not dispatch held 4411 or create another case.
+
+
+## Event-date Japanese Extra cross-check for the two added cards
+
+A 12 November recheck of the official Japanese rules site supports the existing dated ban-screen, but does not upgrade the full-deck legality status:
+
+- The official Japanese Extra page still says it was updated **19 February 2026**, defines the pool as BW through the latest series, and lists the event's banned identities. The official 19 February notice says **Medicham V (S7R)** becomes prohibited from 20 February 2026. The Aichi event date is 10 May 2026; the current official page still shows the 19 February snapshot.
+- The proposed additions are Field Blower **SM4p 093/114**, official card ID **34321**, and Canceling Cologne **S9a 063/067**, official card ID **41294**. Their respective source products were released 20 October 2017 and 25 February 2022, both before the event. Neither addition appears in the dated Japanese Extra banned list. The existing candidate-specific print screen reports zero explicit restricted-print collisions; its only same-name contacts are Duskull S4 versus restricted SM11a Duskull and Unown XY versus restricted SM8 DAMAGE/HAND Unown.
+- This supports the **release-date and explicit banned-name/print screen for the two additions**. It does not independently certify all 34 Japanese print identities, inherited/current errata, event-specific exceptions, or paper legality. Keep `paperLegalityIndependentlyCertified:false` and all competitive-admission flags false.
+
+Official sources: [Japanese Extra rules and banned list](https://www.pokemon-card.com/rules/regulation/index.html); [19 February 2026 Extra ban notice](https://www.pokemon-card.com/info/005398.html); [Field Blower SM4p 093/114](https://www.pokemon-card.com/card-search/details.php/card/34321) and [GX Battle Boost release](https://www.pokemon-card.com/products/sm/sm4p.html); [Canceling Cologne S9a 063/067](https://www.pokemon-card.com/card-search/details.php/card/41294) and [Battle Region release](https://www.pokemon-card.com/products/s/s9a.html).
