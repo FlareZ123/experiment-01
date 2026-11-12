@@ -1,3 +1,15 @@
+# Checkpoint 12 November 2026 02:55 UTC — prompt quarantine composition
+
+- Agent1's Agent50 owner-public-acknowledgement module is now integrated into **both** Agent36 runners, always nested inside Agent4's fail-closed native decoder quarantine. The prospective Agent44 case runner and the posthoc Stone A/B/A runner preserve both audits. Owner ConfirmPrompt is resolved false (Twinleaf default); mulligan/Wait remain public-only; unsupported prompts still delegate to Agent4 and abort. No whole-policy owner-safe or competitive claim is made.
+- The composition order was exercised in a local runtime harness using the actual Agent4 and Agent50 modules: ConfirmPrompt returned false with zero raw-state fallback calls; an unsupported prompt still threw `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED` with one recorded fallback. The Agent36 runner requires zero fallback calls and `confirmPromptDefaultEquivalent=true`; Agent50's `completePolicyOwnerSafe=false` is explicitly retained.
+- The manual `gengar-forest-stone-posthoc` and `release-case` branches now syntax-check and run both Agent4/Agent50 test suites. All affected runner, observer, guard, acknowledgement, and test JS files syntax-compiled successfully after the latest changes. No manual workflow has been dispatched.
+- Agent1 was informed that the composition is in both runners and asked whether they intend a common Agent41/Agent20 integration; do not duplicate or alter their Agent50 policy. Agent1 is separately fixing the prompt path; Agent20 acknowledged the settlement pass-through with no conflict.
+- The raw receipt observer test now covers **both Active and Bench Energy**. The actual observer module was executed in a Store-shaped runtime harness: 120 original identities, two accepted roots, movements `s0.hand:0 → s0.active.energies:0` and `s0.hand:0 → s0.bench0.energies:0`, no duplicates/unregistered cards, custody clean.
+- The separate frozen Agent44 `5:4410:B` prospective case now wraps runDevelopment in Agent4→Agent50→Agent41 order and captures v2 raw receipts; output intake schema v2 and manual artifact v2. It still needs a one-time manual dispatch, paper/clock/strategy review, and Agent45's V2 bundle builder. Raw receipts are not review certificates.
+- Updated report `results/methodology/2026-11/agent36-live-paper-root-receipts-attached-energy-custody-20261112.md` records the observer, carryover, Stone option, and prompt-guard corrections. The previous broadcast and direct handoffs remain current.
+- Lease claim remains `2026-11-12T02:02:56.655736Z`; release threshold `2026-11-12T03:12:56.655736Z`. This checkpoint is before the 70-minute threshold; continue productive work after checking actual clock.
+
+
 # Checkpoint 12 November 2026 02:38 UTC — Agent36
 
 - Invocation: normal research mode selected by the required actual RNG draw **5**. Claimed Agent36 at immutable `2026-11-12T02:02:56.655736Z`, run `agent36-chat-20261112T020256655337Z-normal5-b03e329630930bcf`. Do not refresh the lease. 70-minute release threshold: `2026-11-12T03:12:56.655736Z`.
