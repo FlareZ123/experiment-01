@@ -5,17 +5,28 @@ const assert=require('node:assert/strict');
 const {withHoodCandidateBotOptions}=
   require('../../simulation/twinleaf/hood-candidate-bot-options.cjs');
 
-test('Hood options replace only candidate resolver/tactic and preserve baseline opponent options',()=>{
+function fixtureFactories(NativeResolver,NativeAttach) {
+  return {
+    hoodAwareArvenResolverClass(Base=NativeResolver) {
+      return class HoodAwareArvenResolver extends Base {};
+    },
+    hoodAwareAttachToolTacticClass(Base=NativeAttach) {
+      return class HoodAwareAttachToolTactic extends Base {};
+    }
+  };
+}
+
+test('Hood options wrap existing candidate resolver/tactic subclasses without mutating opponent options',()=>{
   class ChooseCardsPromptResolver {}
   class AttachToolTactic {}
+  class ExistingResolver extends ChooseCardsPromptResolver {}
+  class ExistingAttachTactic extends AttachToolTactic {}
   class OtherResolver {}
   class OtherTactic {}
-  class HoodAwareArvenResolver extends ChooseCardsPromptResolver {}
-  class HoodAwareAttachToolTactic extends AttachToolTactic {}
-  const factories={HoodAwareArvenResolver,HoodAwareAttachToolTactic};
+  const factories=fixtureFactories(ChooseCardsPromptResolver,AttachToolTactic);
   const sharedBase={
-    promptResolvers:[ChooseCardsPromptResolver,OtherResolver],
-    tactics:[AttachToolTactic,OtherTactic],
+    promptResolvers:[ExistingResolver,OtherResolver],
+    tactics:[ExistingAttachTactic,OtherTactic],
     scores:[{name:'baseline'}],
     arbiter:{flipMode:'seeded'}
   };
@@ -31,48 +42,46 @@ test('Hood options replace only candidate resolver/tactic and preserve baseline 
   };
 
   const candidateOptions=withHoodCandidateBotOptions(candidateInput,factories);
-  assert.notEqual(candidateOptions,candidateInput);
-  assert.deepEqual(candidateOptions.promptResolvers,
-    [HoodAwareArvenResolver,OtherResolver]);
-  assert.deepEqual(candidateOptions.tactics,
-    [HoodAwareAttachToolTactic,OtherTactic]);
+  const HoodResolver=candidateOptions.promptResolvers[0];
+  const HoodTactic=candidateOptions.tactics[0];
+  assert.equal(HoodResolver.name,'HoodAwareArvenResolver');
+  assert.equal(HoodTactic.name,'HoodAwareAttachToolTactic');
+  assert.equal(Object.getPrototypeOf(HoodResolver),ExistingResolver);
+  assert.equal(Object.getPrototypeOf(HoodTactic),ExistingAttachTactic);
+  assert.deepEqual(candidateOptions.promptResolvers.slice(1),[OtherResolver]);
+  assert.deepEqual(candidateOptions.tactics.slice(1),[OtherTactic]);
   assert.equal(candidateOptions.scores,sharedBase.scores);
   assert.equal(candidateOptions.arbiter,sharedBase.arbiter);
 
-  assert.deepEqual(candidateInput.promptResolvers,
-    [ChooseCardsPromptResolver,OtherResolver]);
-  assert.deepEqual(candidateInput.tactics,[AttachToolTactic,OtherTactic]);
-  assert.deepEqual(opponentOptions.promptResolvers,
-    [ChooseCardsPromptResolver,OtherResolver]);
-  assert.deepEqual(opponentOptions.tactics,[AttachToolTactic,OtherTactic]);
+  assert.deepEqual(candidateInput.promptResolvers,[ExistingResolver,OtherResolver]);
+  assert.deepEqual(candidateInput.tactics,[ExistingAttachTactic,OtherTactic]);
+  assert.deepEqual(opponentOptions.promptResolvers,[ExistingResolver,OtherResolver]);
+  assert.deepEqual(opponentOptions.tactics,[ExistingAttachTactic,OtherTactic]);
 });
 
-test('Hood bot-options composer is idempotent for an already composed candidate',()=>{
+test('Hood bot-options composer is idempotent when already installed',()=>{
   class ChooseCardsPromptResolver {}
   class AttachToolTactic {}
-  class HoodAwareArvenResolver extends ChooseCardsPromptResolver {}
-  class HoodAwareAttachToolTactic extends AttachToolTactic {}
-  const factories={HoodAwareArvenResolver,HoodAwareAttachToolTactic};
+  const factories=fixtureFactories(ChooseCardsPromptResolver,AttachToolTactic);
   const options={
     promptResolvers:[ChooseCardsPromptResolver],
     tactics:[AttachToolTactic]
   };
   const once=withHoodCandidateBotOptions(options,factories);
   const twice=withHoodCandidateBotOptions(once,factories);
-  assert.deepEqual(twice.promptResolvers,[HoodAwareArvenResolver]);
-  assert.deepEqual(twice.tactics,[HoodAwareAttachToolTactic]);
+  assert.equal(twice.promptResolvers[0],once.promptResolvers[0]);
+  assert.equal(twice.tactics[0],once.tactics[0]);
 });
 
-test('Hood bot-options composer fails closed when pinned base classes are absent',()=>{
+test('Hood bot-options composer fails closed when a pinned base class is absent',()=>{
   class ChooseCardsPromptResolver {}
   class AttachToolTactic {}
-  class HoodAwareArvenResolver extends ChooseCardsPromptResolver {}
-  class HoodAwareAttachToolTactic extends AttachToolTactic {}
-  const factories={HoodAwareArvenResolver,HoodAwareAttachToolTactic};
+  class Other {}
+  const factories=fixtureFactories(ChooseCardsPromptResolver,AttachToolTactic);
   assert.throws(()=>withHoodCandidateBotOptions({
-    promptResolvers:[],tactics:[AttachToolTactic]
+    promptResolvers:[Other],tactics:[AttachToolTactic]
   },factories),/Pinned ChooseCardsPromptResolver missing/);
   assert.throws(()=>withHoodCandidateBotOptions({
-    promptResolvers:[ChooseCardsPromptResolver],tactics:[]
+    promptResolvers:[ChooseCardsPromptResolver],tactics:[Other]
   },factories),/Pinned AttachToolTactic missing/);
 });
