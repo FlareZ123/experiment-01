@@ -182,6 +182,28 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
 
+      - name: Validate owner-controlled V3 diagnostic recipient key before native fixture
+        if: ${{ inputs.agent36_v3_fixture_game }}
+        env:
+          AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
+        run: |
+          node - <<'NODE'
+          const crypto = require('node:crypto');
+          const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
+          if (typeof pem !== 'string' || pem.trim().length === 0) {
+            throw new Error('Set repository variable AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM before running the private-state fixture.');
+          }
+          const key = crypto.createPublicKey(pem);
+          const bits = key.asymmetricKeyDetails?.modulusLength;
+          if (key.asymmetricKeyType !== 'rsa' || !Number.isInteger(bits) || bits < 2048) {
+            throw new Error('V3 diagnostic recipient must be an RSA public key of at least 2048 bits.');
+          }
+          const fingerprint = crypto.createHash('sha256')
+            .update(key.export({ type: 'spki', format: 'der' }))
+            .digest('hex');
+          console.log('V3 diagnostic recipient key validated; SHA-256 fingerprint: ' + fingerprint);
+          NODE
+
       - name: Install and compile the pinned native server
         id: compile
         if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
