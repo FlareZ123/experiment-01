@@ -101,11 +101,11 @@ test('role-local loader guard blocks cross-role and post-freeze research modules
     });
     const guard=installRoleLocalModuleLoadGuard({
       repositoryRoot:f.root,
-      allowedByRole:{candidate: candidate.manifest,opponent:opponent.manifest}
+      allowedByRole:{candidate,opponent}
     });
     try{
-      assert.equal(guard.withRole('candidate',()=>candidateModule.shared.value),'shared');
-      assert.equal(guard.withRole('opponent',()=>opponentModule.shared.value),'shared');
+      assert.equal(guard.withRole('candidate',()=>candidateModule.loadShared().value),'shared');
+      assert.equal(guard.withRole('opponent',()=>opponentModule.loadShared().value),'shared');
       assert.throws(()=>guard.withRole('candidate',()=>candidateModule.loadOpponent()),
         /Unmanifested research module for candidate/);
       assert.throws(()=>guard.withRole('opponent',()=>opponentModule.loadCandidate()),
