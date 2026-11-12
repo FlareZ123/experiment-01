@@ -156,8 +156,8 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
     'generation step must start at or after the planned physical deal');
   assert.equal(trial.trialId,preDeal.trialId,
     'trial identity must match preregistration');
-  assert.equal(trial.dealGeneratedAt,step.started_at,
-    'trial dealGeneratedAt must be the server-reported generation step start');
+  assert.equal(trial.dealGenerationStepStartedAt,step.started_at,
+    'trial dealGenerationStepStartedAt must be the server-reported generation step start');
   assert.match(trial.researchRevisionSha??'',GIT_SHA,
     'runner research revision SHA is invalid');
   assert.match(trial.initialSourceDealFingerprint??'',SHA256,
