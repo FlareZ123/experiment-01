@@ -25,7 +25,11 @@ Updated `hood-aware-arven-resolver.cjs` and `hood-aware-attach-tool-tactic.cjs` 
 
 ## Validation
 
-Eight deterministic Node tests cover Active and Benched Garbotoxin, any Tool, no-Tool cases, a same-name non-Garbotoxin Garbodor, Active-only Initialization, Tool Jammer positioning, Jamming Tower, and Path to the Peak.
+Nine deterministic Node tests cover Active and Benched Garbotoxin, any Tool, no-Tool cases, a same-name non-Garbotoxin Garbodor, Active-only Initialization, Tool Jammer positioning, Jamming Tower, and Path to the Peak. Local command:
+
+```sh
+node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs
+```
 
 **Evidence class:** pure policy-predicate tests plus card-text inspection. These tests do not execute Twinleaf's native Store, do not prove a complete match, and do not qualify any paper game.
 
