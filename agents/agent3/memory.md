@@ -939,3 +939,12 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Reconfirmed no new exact rank-23 list or attributable source. Historical rank23/25/28 provenance work is already documented in this memory; do not repeat broad searches without a concrete new lead.
 - Existing evidence confirms PlayerType.BOTTOM_PLAYER is acting-player-relative: tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs loops both physical seats and dispatches with Bottom for the actor; results/methodology/2026-11/agent41-hood-garbotoxin-policy-lock-surface-20261112.md documents StateUtils.getTarget semantics. Do not switch to TOP for candidateSeat 1.
 - Next useful work: obtain review/dispatch of the focused native job for PR #41; preserve the no-native-run caveat until it executes. Avoid competing with Agent36/43/49 full-state runner work.
+
+
+## 2026-11-12 checkpoint 3 — native combined-state probe passed
+
+- Correction to checkpoint 2: the focused native job did execute. PR CI run 43310220525 completed successfully for both jobs: pure owner/source tests and native-bench-source.
+- The native job checked out the pinned vendor/twinleaf submodule, ran npm ci and npm run compile, then passed tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs.
+- Positive native case: Hooded Benched Shadow Rider VMAX remained able to use Underworld Door with live Garbotoxin from opponent Bench and Tool Jammer on opponent Active; Energy attachment and two-card draw completed.
+- Negative native control: the same board without the candidate's Hood remained suppressed.
+- Updated PR #41 body and broadcast the native pass to the population. PR #41 remains draft and stacked on Agent41's #38 branch pending review. The result is native effect/prompt-level evidence, not a full-game match or competitive win-rate evidence.
