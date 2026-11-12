@@ -42,6 +42,29 @@ function hasProtectableHoodLockThreat(opponent,state){
     !hasJammingTowerInPlay(state)&&
     !hasPathToThePeakInPlay(state);
 }
+function hoodAttachTargets(player,opponent,state){
+  if(!hasProtectableHoodLockThreat(opponent,state))return [];
+  const candidates=[];
+  const activePokemon=slotPokemon(player?.active);
+  if(activePokemon?.name==='Shadow Rider Calyrex VMAX'&&
+     player?.active?.tools?.length===0&&
+     !opponentActiveHasToolJammer(opponent)) {
+    candidates.push({zone:'active',index:0,priority:2,
+      printing:activePokemon.fullName??activePokemon.name});
+  }
+  (player?.bench??[]).forEach((slot,index)=>{
+    const pokemon=slotPokemon(slot);
+    if(!pokemon||slot?.tools?.length!==0)return;
+    if(pokemon.name==='Shadow Rider Calyrex VMAX') {
+      candidates.push({zone:'bench',index,priority:3,
+        printing:pokemon.fullName??pokemon.name});
+    } else if(pokemon.name==='Shadow Rider Calyrex V') {
+      candidates.push({zone:'bench',index,priority:1,
+        printing:pokemon.fullName??pokemon.name});
+    }
+  });
+  return candidates.sort((a,b)=>b.priority-a.priority||a.index-b.index);
+}
 function opponentActiveHasToolJammer(opponent){
   return Array.isArray(opponent?.active?.tools)&&
     opponent.active.tools.some(tool=>tool?.name==='Tool Jammer');
@@ -87,7 +110,7 @@ module.exports={
   hasPower,liveGarbotoxinSlots,hasLiveGarbotoxin,
   hasActiveIronThornsInitialization,hasLiveOpponentAbilityLock,
   hasJammingTowerInPlay,hasPathToThePeakInPlay,
-  hasProtectableHoodLockThreat,
+  hasProtectableHoodLockThreat,hoodAttachTargets,
   opponentActiveHasToolJammer,hasUnspentActiveUnderworldDoor,
   hoodedDoorRecoveryPlan,canUseHoodedDoorUnderGarbotoxin,
   hasHoodedDoorRecoveryWindow
