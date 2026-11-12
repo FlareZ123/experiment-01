@@ -119,16 +119,20 @@ test('runtime closure hashes only repository-owned loaded files and enforces req
     fs.mkdirSync(path.dirname(helper), { recursive: true });
     fs.writeFileSync(main, "module.exports = require('../../scripts/helper.cjs');\n");
     fs.writeFileSync(helper, 'module.exports = 7;\n');
+    const resourceData = path.join(root, 'resources', 'sets', 'en.json');
+    fs.mkdirSync(path.dirname(resourceData), { recursive: true });
+    fs.writeFileSync(resourceData, '{"set":"data"}\n');
     const manifest = loadedResearchCodeManifest({
       repositoryRoot: root,
       entryFiles: [main],
-      cacheEntries: [{ filename: main }, { filename: helper }],
+      cacheEntries: [{ filename: main }, { filename: helper }, { filename: resourceData }],
       requiredRoots: ['simulation/main.cjs', 'scripts/helper.cjs']
     });
     assert.equal(manifest.complete, true);
     assert.deepEqual(manifest.files.map(x => x.path), ['scripts/helper.cjs', 'simulation/main.cjs']);
     assert.deepEqual(manifest.missingCoreRoots, []);
     assert.deepEqual(manifest.unclassifiedRepoModules, []);
+    assert.deepEqual(manifest.excludedDataModules, ['resources/sets/en.json']);
     assert.match(manifest.sha256, /^[0-9a-f]{64}$/);
     assert.equal(manifest.environment.complete, true);
 
