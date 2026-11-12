@@ -4,7 +4,7 @@ const {createHash} = require('node:crypto');
 const {readFileSync} = require('node:fs');
 const official = require('./agent27-aichi-open-time-adjudication.cjs');
 
-const VERSION='agent45-aichi-clock-receipt-adapter-v2';
+const VERSION='agent45-aichi-clock-receipt-adapter-v3';
 const OFFICIAL_SOURCE='https://www.pokemon-card.com/info/005445.html';
 const FINAL_STATUSES=new Set(['NORMAL_PAPER_GAME_WIN','ELIMINATION_PRIZE_LEAD']);
 const EXTENSION_FINAL_STATUSES=new Set(['NORMAL_PAPER_GAME_WIN','EXTENSION_WIN']);
@@ -38,9 +38,10 @@ function inspectOfficialAichiClock(trial){
   const disposition=trial?.clockDisposition??null;
   const limitMinutes=Object.hasOwn(official.STAGES,stage)?
     official.STAGES[stage].minutes:null;
-  const result=(shapeComplete,status,winnerSeat=null,outcome=null)=>({
+  const result=(shapeComplete,status,winnerSeat=null,outcome=null,extra={})=>({
     schema:VERSION,shapeComplete,status,disposition,stage,limitMinutes,
-    winnerSeat,outcome,conditionalOnly:true,competitiveAdmission:false
+    winnerSeat,outcome,conditionalOnly:true,competitiveAdmission:false,
+    ...extra
   });
   const nonempty=value=>typeof value==='string'&&value.trim().length>0;
   if(limitMinutes===null)return result(false,'UNKNOWN_EVENT_STAGE');
@@ -98,13 +99,26 @@ function inspectOfficialAichiClock(trial){
       ...trial.extensionLedgerPacket,timeCallPacket:packet
     });}
     catch{return result(false,'EXTENSION_PACKET_MALFORMED');}
-    if(extension.status!=='EXTENSION_LEDGER_TERMINAL'||
-       !EXTENSION_FINAL_STATUSES.has(extension.terminalStatus)||
-       (extension.conditionalWinnerSeat!==0&&
-        extension.conditionalWinnerSeat!==1))
-      return result(false,extension.status);
-    return result(true,extension.terminalStatus,
-      extension.conditionalWinnerSeat,'paper-win');
+    if(extension.status==='EXTENSION_LEDGER_TERMINAL'){
+      const extensionDiagnostics={
+        extensionLedgerStatus:extension.status,
+        terminalStatus:extension.terminalStatus??null,
+        requiresSixPrizeTiebreaker:extension.requiresSixPrizeTiebreaker===true,
+        extensionLedgerShapeComplete:extension.extensionLedgerShapeComplete===true,
+        extensionTerminalSequence:extension.terminalSequence??null
+      };
+      if(extension.terminalStatus==='TIEBREAKER_REQUIRED_SIX_PRIZE'&&
+         extension.requiresSixPrizeTiebreaker===true&&
+         extension.conditionalWinnerSeat===null)
+        return result(false,extension.status,null,null,extensionDiagnostics);
+      if(EXTENSION_FINAL_STATUSES.has(extension.terminalStatus)&&
+         (extension.conditionalWinnerSeat===0||
+          extension.conditionalWinnerSeat===1))
+        return result(true,extension.terminalStatus,
+          extension.conditionalWinnerSeat,'paper-win',extensionDiagnostics);
+      return result(false,extension.status,null,null,extensionDiagnostics);
+    }
+    return result(false,extension.status);
   }
   return result(false,'UNVERIFIED_OR_DISPUTED_CLOCK_DISPOSITION');
 }
