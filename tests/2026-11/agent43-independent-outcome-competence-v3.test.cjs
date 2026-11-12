@@ -8,7 +8,7 @@ const {
 } = require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 const {rootDigest} =
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
-const {aichiClockProtocolSha256} =
+const {aichiClockProtocolSha256,inspectOfficialAichiClock} =
   require('../../simulation/evaluation/agent45-aichi-clock-receipt.cjs');
 const {
   SCHEMA,UNTIMED,EVENT,CLOCK_NOT_APPLICABLE,
@@ -19,7 +19,7 @@ const {
 const trialId = 'v3-preregistered-untimed-game-001';
 const sha = n => String(n).repeat(64);
 
-function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'}={}) {
+function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none',eventStage='open-top32'}={}) {
   const roots=[{actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction'}];
   const registration={
     schema:'aichi-game-level-preregistration-v1',
@@ -33,7 +33,7 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
       tournamentTimerApplies:mode===EVENT,
       officialEndCallApplies:mode===EVENT,
       eventStageAdjudicationApplies:mode===EVENT,
-      eventStage:mode===EVENT?'open-top32':null
+      eventStage:mode===EVENT?eventStage:null
     }
   };
   registration.timingProtocolSha256=evidenceBundleSha256(registration.timingProtocol);
@@ -64,18 +64,18 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     })),
     independentFullPaperRulesAudit:true,hiddenInformationAudit:true,
     responseOpportunityAudit:null,
-    eventStage:null,clockDisposition:CLOCK_NOT_APPLICABLE,
+    eventStage:mode===EVENT?eventStage:null,clockDisposition:CLOCK_NOT_APPLICABLE,
     clockReceiptId:null,paperReceiptId:null,adjudicationProtocolSha:null,
     noCallClockPacket:null,timeCallPacket:null,extensionLedgerPacket:null
   };
   if(mode===EVENT){
-    trial.eventStage='open-top32';
+    trial.eventStage=eventStage;
     trial.paperReceiptId='paper/terminal';
     trial.adjudicationProtocolSha=aichiClockProtocolSha256();
     if(clockPath==='no-call'){
       trial.clockDisposition='no-official-call';
       trial.noCallClockPacket={
-        stage:'open-top32',officialEndCallObserved:false,
+        stage:eventStage,officialEndCallObserved:false,
         elapsedSecondsAtNaturalTerminal:600,
         officialClockCoverageEvidenceRef:'clock/continuous',
         stageEvidenceRef:'event/stage',
@@ -83,13 +83,13 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
         independentReviewEvidenceRef:'review/clock',
         noCallCoverageIndependentlyReviewed:true,
         paperStateIndependentlyReviewed:true,
-        paperGameWinner:0,paperGameTie:false
+        paperGameWinner:outcome==='tie'?null:0,paperGameTie:outcome==='tie'
       };
     }else if(clockPath==='official-call'){
       trial.clockDisposition='official-call';
       trial.clockReceiptId='clock/official-call';
       trial.timeCallPacket={
-        stage:'open-top32',officialEndCallObserved:true,
+        stage:eventStage,officialEndCallObserved:true,
         officialClockEvidenceRef:'clock/official-call',
         elapsedSecondsAtOfficialCall:1500,
         stageEvidenceRef:'event/stage',firstPlayerSeat:0,
@@ -98,7 +98,7 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
         turnSequenceEvidenceRef:'event/turn-sequence',
         independentPaperStateEvidenceRef:'paper/terminal',
         paperStateIndependentlyReviewed:true,prizesRemaining:[4,4],
-        paperGameWinner:0,paperGameTie:false
+        paperGameWinner:outcome==='tie'?null:0,paperGameTie:outcome==='tie'
       };
     }
   }
@@ -200,7 +200,7 @@ function refreshPolicyEnvelope(bundle) {
   return bundle;
 }
 
-function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author'}={}) {
+function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author',rankProducerOverrides={}}={}) {
   const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
@@ -219,7 +219,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
       policySha256:policyHash(2000+rank),
       entryManifestSha256:policyHash(3000+rank),
       challengeSuiteSha256:policyHash(4000+rank),
-      policyProducerId:opponentProducerId
+      policyProducerId:rankProducerOverrides[rank]??opponentProducerId
     };
   });
   const constraints = {
@@ -342,7 +342,8 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
         publicKeyPem:opponentKeys.publicKey.export({type:'spki',format:'pem'})}
     ]
   };
-  return {bundle,policyRegistry,candidatePrivateKey:candidateKeys.privateKey};
+  return {bundle,policyRegistry,candidatePrivateKey:candidateKeys.privateKey,
+    opponentPrivateKey:opponentKeys.privateKey};
 }
 
 function combineRegistries(...registries) {
@@ -552,6 +553,33 @@ test('V3 event official-call mode preserves the official end-call adjudication p
   assert.equal(r.competitivePolicyCompetenceReady,false);
 });
 
+test('V3 event pre-call knockout tie requests a six-Prize tiebreaker and admits no winner',()=>{
+  const b=makeBundle({mode:EVENT,outcome:'tie',clockPath:'no-call'});
+  const clock=inspectOfficialAichiClock(b.trial);
+  assert.equal(clock.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(clock.winnerSeat,null);
+  assert.equal(clock.outcome,null);
+  const game=signReviews(b,{roles:['paper','clock']});
+  const r=inspectAdmissionV3(b,game.reviews,game.registry);
+  assert.equal(r.gameOutcomeAdmissionReady,false);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.clockStatus,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+});
+
+test('V3 event pre-call Swiss tie remains unresolved rather than applying post-call both-loss',()=>{
+  const b=makeBundle({mode:EVENT,eventStage:'open-swiss',outcome:'tie',clockPath:'no-call'});
+  const clock=inspectOfficialAichiClock(b.trial);
+  assert.equal(clock.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(clock.winnerSeat,null);
+  assert.equal(clock.outcome,null);
+  assert.notEqual(clock.status,'SWISS_BOTH_LOSE');
+  const game=signReviews(b,{roles:['paper','clock']});
+  const r=inspectAdmissionV3(b,game.reviews,game.registry);
+  assert.equal(r.gameOutcomeAdmissionReady,false);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.clockStatus,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+});
+
 
 test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field explicitly incomplete',()=>{
   const {bundle,policyRegistry}=makePolicyBundle();
@@ -725,6 +753,69 @@ test('policy reviewers cannot also be candidate or opponent policy producers',()
   assert.equal(opponentResult.policyCompetence.opponentPolicyAttestationValid,false);
   assert.equal(opponentResult.competitivePolicyCompetenceReady,false);
 });
+
+
+test('candidate and opponent policy producers cannot equal the game-bundle producer',()=>{
+  const candidate=makePolicyBundle({candidateProducerId:'bundle-producer'});
+  const candidateResult=signedV3Result(candidate.bundle,candidate.policyRegistry);
+  assert.equal(candidateResult.gameOutcomeAdmissionReady,true);
+  assert.equal(candidateResult.competitivePolicyCompetenceReady,false);
+  assert.ok(candidateResult.policyPanelConsistency.failures.includes(
+    'policy-producer-identity-missing-or-not-independent-from-bundle-producer'));
+
+  const opponent=makePolicyBundle({opponentProducerId:'bundle-producer'});
+  const opponentResult=signedV3Result(opponent.bundle,opponent.policyRegistry);
+  assert.equal(opponentResult.gameOutcomeAdmissionReady,true);
+  assert.equal(opponentResult.competitivePolicyCompetenceReady,false);
+  assert.ok(opponentResult.policyPanelConsistency.failures.includes(
+    'policy-producer-identity-missing-or-not-independent-from-bundle-producer'));
+});
+
+test('candidate-policy reviewer cannot be an opponent-rank policy producer',()=>{
+  const fixture=makePolicyBundle();
+  const attestation=fixture.bundle.policyAttestationBundle.candidatePolicy;
+  attestation.reviewerId='opponent-policy-author';
+  signPolicyAttestation(attestation,fixture.candidatePrivateKey);
+  fixture.policyRegistry.reviewers.find(x=>x.reviewerId==='candidate-policy-reviewer')
+    .reviewerId=attestation.reviewerId;
+  refreshPolicyEnvelope(fixture.bundle);
+  const r=signedV3Result(fixture.bundle,fixture.policyRegistry);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.policyCompetence.failures.includes(
+    'policy-reviewer-and-policy-producer-not-independent'));
+});
+
+test('opponent aggregate reviewer cannot be a different rank policy producer',()=>{
+  const fixture=makePolicyBundle({rankProducerOverrides:{2:'rank-2-policy-author'}});
+  const attestation=fixture.bundle.policyAttestationBundle.opponentPolicy;
+  attestation.reviewerId='rank-2-policy-author';
+  signPolicyAttestation(attestation,fixture.opponentPrivateKey);
+  fixture.policyRegistry.reviewers.find(x=>x.reviewerId==='opponent-policy-reviewer')
+    .reviewerId=attestation.reviewerId;
+  refreshPolicyEnvelope(fixture.bundle);
+  const r=signedV3Result(fixture.bundle,fixture.policyRegistry);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.policyCompetence.failures.includes(
+    'policy-reviewer-and-policy-producer-not-independent'));
+});
+
+test('postgame paper and clock reviewers cannot be opponent policy producers',()=>{
+  for(const role of ['paper','clock']){
+    const fixture=makePolicyBundle({mode:EVENT});
+    const game=signReviews(fixture.bundle,{
+      roles:['paper','clock','strategy'],strategyAudit:terminalAudit(),
+      reviewerIdOverrides:{[role]:'opponent-policy-author'}
+    });
+    const r=inspectAdmissionV3(fixture.bundle,game.reviews,
+      combineRegistries(fixture.policyRegistry,game.registry));
+    assert.equal(r.gameOutcomeAdmissionReady,true,role);
+    assert.equal(r.competitivePolicyCompetenceReady,false,role);
+    assert.ok(r.failures.includes('policy-producer-and-game-reviewers-not-independent'),role);
+  }
+});
+
 
 test('a correctly re-signed policy attestation created after the deal is rejected',()=>{
   const {bundle,policyRegistry,candidatePrivateKey}=makePolicyBundle();

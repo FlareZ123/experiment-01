@@ -482,6 +482,9 @@ function inspectPolicyPanelConsistency(bundle) {
   }
   const availableRankStrataComplete = expectedStrata > 0 &&
     panelCoverageMissing.length === 0;
+  // This is policy-application receipt coverage only. It is not proof that
+  // these games were played or admitted; Agent12's outcome ledger remains
+  // the sole source for actual game counts, matchup outcomes and confidence.
   return {
     valid:failures.length === 0 && field.status !== 'INVALID',
     status:field.status,
