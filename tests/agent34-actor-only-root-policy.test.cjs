@@ -850,9 +850,16 @@ test('seat-scoped actor policies compose independently across candidate and oppo
   const opponentView=base();
   opponentView.ownHand=['Shadow Rider Calyrex V CRE'];
   opponentView.ownPublic.bench=[null,null,null,null,null];
+  class ResolvePromptAction{}
+  const observedSeats=[];
+  const sharedObserve=(state,seat)=>{
+    observedSeats.push(seat);
+    return Object.freeze({... (seat===0?candidateView:opponentView),actorSeat:seat});
+  };
   const sharedDeps={
     SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
     getCatalog:()=>catalog,getNativeTrainerCatalog:()=>({}),
+    observe:sharedObserve,promptActions:{ResolvePromptAction},
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
       SlotType:{ACTIVE:1,BENCH:2}},
     gameActions:{AttackAction,PassTurnAction}
@@ -866,13 +873,7 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     const opponentAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
     return {candidateAction,opponentAction};
   },{
-    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
-    candidatePolicyOptions:{
-      observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
-    },
-    opponentPolicyOptions:{
-      observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
-    }
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps
   });
   assert.deepEqual(roleRun.roleSeatMap,{candidate:0,opponent:1});
   assert.ok(roleRun.result.candidateAction instanceof PlayCardAction);
@@ -886,6 +887,24 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     'The inner candidate wrapper delegates the opponent seat to the outer opponent wrapper');
   assert.equal(roleRun.candidateAudit.selectedRootDecisions,1);
   assert.equal(roleRun.opponentAudit.selectedRootDecisions,1);
+  assert.ok(observedSeats.includes(0)&&observedSeats.includes(1),
+    'both roles must use the same common observer binding');
+
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{observe:sharedObserve}
+  }),/may not override shared runtime binding observe/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    opponentPolicyOptions:{stagedStore:new Store()}
+  }),/may not override shared runtime binding stagedStore/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{promptActions:{ResolvePromptAction}}
+  }),/may not override shared runtime binding promptActions/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:{...sharedDeps,stagedStore:new Store()}
+  }),/test-only stagedStore seam/);
 
   assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
     candidateSeat:0,opponentSeat:0,commonDeps:sharedDeps
