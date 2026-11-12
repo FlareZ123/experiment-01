@@ -117,7 +117,7 @@ function makePolicyFixture() {
 
 function makeGameRegistration(trialId,{pastDeal=false}={}) {
   const now=Date.now();
-  const registeredAt=new Date(now-(pastDeal?240_000:30_000)).toISOString();
+  const registeredAt=new Date(now-(pastDeal?90_000:30_000)).toISOString();
   const dealGeneratedAt=new Date(now+(pastDeal?-60_000:300_000)).toISOString();
   const timingProtocol={
     schema:'aichi-game-timing-protocol-preregistration-v1',
