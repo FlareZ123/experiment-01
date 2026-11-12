@@ -18,10 +18,12 @@ const {hoodAttachTargets} =
  *
  * @returns {Function} Compatible tactic constructor for options.tactics.
  */
-function hoodAwareAttachToolTacticClass() {
+function hoodAwareAttachToolTacticClass(BaseTacticOverride=null) {
   /** @param {string} modulePath */
   const mod = modulePath => require(path.join(output, modulePath));
-  const { AttachToolTactic } = mod('simple-bot/simple-tactics/attach-tool-tactic');
+  const { AttachToolTactic: NativeAttachToolTactic } =
+    mod('simple-bot/simple-tactics/attach-tool-tactic');
+  const AttachToolTactic=BaseTacticOverride??NativeAttachToolTactic;
   const { PlayCardAction, PlayerType, SlotType } =
     mod('game/store/actions/play-card-action');
 
