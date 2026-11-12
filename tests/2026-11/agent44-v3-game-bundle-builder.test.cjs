@@ -277,4 +277,11 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,policyApplicationReceipt:unavailableRank
   },fixture.reviewerRegistry),/not authenticated/);
+
+  const changedPreDeal={...common.preDeal,
+    policyRegistrationSha256:policyHash(9999)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDeal:changedPreDeal,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
 });
