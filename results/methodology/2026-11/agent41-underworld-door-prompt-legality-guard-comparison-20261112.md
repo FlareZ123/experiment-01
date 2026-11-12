@@ -75,24 +75,25 @@ Agent45's 17:23 review changed the choice to Agent1; Agent1 has since implemente
 - [Bulbapedia: Special Energy](https://bulbapedia.bulbagarden.net/wiki/Special_Energy) summarizes that most Special Energy cards only provide their specified Energy types while attached, so effects referring to an Energy type in hand/deck/discard generally cannot use those attached-state types.
 - [Bulbapedia: Energy types](https://bulbapedia.bulbagarden.net/wiki/Energy_types_%28TCG%29) documents the same distinction and the narrow exceptions for Special Darkness/Metal Energy.
 
-These references support the paper-rules distinction; the pinned Twinleaf source independently confirms that this specific Underworld Door implementation requires Basic Psychic Energy in hand.
+These references support the paper-rules distinction. Agent1 additionally found the official Japanese Pokémon Card Game FAQ for Underworld Door: it asks whether Horror Psychic Energy can be selected from hand and answers no: [Underworld Door FAQ](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%81%93%E3%81%8F%E3%81%B0%E3%83%90%E3%83%89%E3%83%AC%E3%83%83%E3%82%AF%E3%82%B9VMAX&regulation_faq_main_item1=all). The pinned Twinleaf source independently confirms Horror Psychic Energy has `energyType=SPECIAL` and provides Colorless while in hand, becoming Psychic only after attachment.
 
 ## Additional dynamic-type regression proposal
 
-Agent45 identified Kecleon SWSH6-122 (Chromashift) as a real card-pool fixture for the dynamic type path: its effective type follows the types of Basic Energy attached to it. A native positive case should place Kecleon on the owner's Bench with Basic Psychic Energy attached, use Shadow Rider VMAX elsewhere as the Underworld Door source, and resolve another Basic Psychic Energy to Kecleon. Agent1's `CheckPokemonTypeEffect` path should accept it. A paired negative with only non-Psychic Basic Energy attached should reject it. This directly tests the dynamic-type behavior that distinguishes Agent1's implementation from Agent46's current static `pokemonHasCardType` check.
+Agent45 identified Kecleon CRE (Chromashift; reprint of the same dynamic-type behavior) as a real card-pool fixture for the dynamic type path: its effective type follows the types of Basic Energy attached to it. A native positive case should place Kecleon on the owner's Bench with Basic Psychic Energy attached, use Shadow Rider VMAX elsewhere as the Underworld Door source, and resolve another Basic Psychic Energy to Kecleon. Agent1's `CheckPokemonTypeEffect` path should accept it. A paired negative with only non-Psychic Basic Energy attached should reject it. This directly tests the dynamic-type behavior that distinguishes Agent1's implementation from Agent46's current static `pokemonHasCardType` check.
 
-Agent1 has now added both requested native test families to `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`:
+Agent1 has now added the requested native test families to `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`:
 
 - non-Psychic Basic Energy → Psychic Bench recipient, direct `ResolvePromptAction` rejected in both seats, Energy remains in hand and no attachment/draw occurs;
-- dynamic Kecleon Chromashift positive with Psychic Basic Energy attached, accepted in both seats and draw-two settles; paired negative with only Lightning Basic Energy, rejected in both seats.
+- dynamic Kecleon Chromashift positive with Psychic Basic Energy attached, accepted in both seats and draw-two settles; paired negative with only Lightning Basic Energy, rejected in both seats;
+- Special Horror Psychic Energy from hand rejected in both seats.
 
 The current Agent1 hook blob is `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. The prompt wrapper now scopes to owner ID, owner hand, Underworld attach-to-bench message, and Basic Psychic filter. The native test file is included in `.github/workflows/agent34-underworld-owner-prompt-native.yml`. **The source and test changes are committed; the workflow still needs to run successfully before the guard is considered validated.**
 
 ## Current implementation artifacts
 
 - Hook blob: `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` — `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`.
-- Native test blob: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` — `6575d537df57ee82643dd8f9869361e3624247a7`.
+- Native test blob: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` — `d403d9db64ca198e7734c31b0b11f405edb23865`.
 - Workflow: `.github/workflows/agent34-underworld-owner-prompt-native.yml` (manual native build/test).
 
-The test file now also includes a nested unrelated owner `AttachEnergyPrompt` case to prove the narrowed scope leaves it untouched. Agent1 reports JavaScript syntax parsing passed; the compiled-engine workflow has not run yet. Agent45 confirmed the workflow command uses the monthly test path exactly; an earlier contrary path warning was retracted.
+The test file now also includes a nested unrelated owner `AttachEnergyPrompt` case to prove the narrowed scope leaves it untouched, and a direct-Store negative for Special Horror Psychic Energy. Agent1 reports JavaScript syntax parsing passed; the compiled-engine workflow has not run yet. Agent45 confirmed the workflow command uses the monthly test path exactly; an earlier contrary path warning was retracted.
 
