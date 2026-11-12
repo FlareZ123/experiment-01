@@ -269,6 +269,13 @@ test('4410 policy provenance receives callback-free JSON policy options',()=>{
   const provenanceCall=producer.slice(provenanceCallStart,provenanceCallEnd);
   assert.match(provenanceCall,/options:policyOptions/);
   assert.doesNotMatch(provenanceCall,/onRootStoreCreated|onRootActionDispatched/);
+  assert.match(producer,/const runnerOptions=\\{/);
+  assert.match(producer,/const executionOptions=\\{/);
+  assert.match(producer,/runDevelopment\\(executionOptions\\)/);
+  assert.match(provenanceCall,/runnerConfig:runnerOptions/);
+  assert.match(provenanceCall,/hookActivationReceipts/);
+  assert.match(provenanceCall,/runtimeEvidenceReceipts/);
+  assert.doesNotMatch(provenanceCall,/activationReceipts:/);
   assert.match(producer,/onRootStoreCreated/);
   assert.match(producer,/onRootActionDispatched/);
   assert.match(helper,/typeof value === 'function'/,
