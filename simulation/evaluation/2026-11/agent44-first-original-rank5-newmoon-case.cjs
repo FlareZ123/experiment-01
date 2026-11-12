@@ -7,6 +7,8 @@ const {createHash}=require('node:crypto');
 const {runDevelopment}=
   require('../agent41-bilateral-v2-development.cjs');
 const mew=require('./agent8-source-mew-funding-v6.cjs');
+const {createLivePaperRootReceipts}=
+  require('../../twinleaf/agent36-live-paper-root-receipts.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
@@ -111,9 +113,13 @@ function execute(){
   const {reg,registrationSha256,sourcePrintedInventorySha256,
     candidatePrintedInventorySha256}=registration();
   const capture=gameCapture();
+  const fullPaperObserver=createLivePaperRootReceipts(
+    reg.preRegisteredTrials[0].id);
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition,true);
-  const development=runDevelopment({
+  let development;
+  try{
+    development=runDevelopment({
     ...frozen.policyOptions,...mew.options(true),
     sourceIndependentCommonPolicy:true,
     // Preserve frozen bilateralPublicContextSpecialEnergy; narrow root is exclusive.
@@ -146,8 +152,16 @@ function execute(){
     registeredTrials:reg.preRegisteredTrials,
     registeredFrameName:reg.caseId,
     nativeRootActionLimit:reg.nativeRootCap,
-    onRootActionDispatched:capture.onRootActionDispatched
-  });
+    onRootStoreCreated:fullPaperObserver.onRootStoreCreated,
+    onRootActionDispatched:(...args)=>{
+      capture.onRootActionDispatched(...args);
+      fullPaperObserver.onRootActionDispatched(...args);
+    }
+    });
+  }finally{
+    fullPaperObserver.close();
+  }
+  const rawNativePhysicalReceipts=fullPaperObserver.result();
   assert.equal(development.rows.length,1);
   const row=development.rows[0];
   assert.equal(row.trial.id,reg.preRegisteredTrials[0].id);
@@ -171,6 +185,18 @@ function execute(){
   const nativeFinished=row.finished===true&&!row.error;
   const nativeTraceComplete=nativeFinished&&nativeRoots.length>0&&
     zoneEvidence.postAcceptedRootCount===nativeRoots.length;
+  const rawNativeReceiptCaptureComplete=
+    rawNativePhysicalReceipts?.schema===
+      'agent36-live-paper-root-receipts-v2-attached-energy-custody'&&
+    rawNativePhysicalReceipts.originalPhysicalCards?.length===120&&
+    rawNativePhysicalReceipts.acceptedStoreRootCount===nativeRoots.length&&
+    rawNativePhysicalReceipts.rootOrdinalsUnique===true&&
+    Array.isArray(rawNativePhysicalReceipts.receipts)&&
+    rawNativePhysicalReceipts.receipts.length===nativeRoots.length&&
+    rawNativePhysicalReceipts.receipts.every((receipt,i)=>
+      receipt.actionOrdinal===nativeRoots[i]?.actionOrdinal&&
+      receipt.seat===nativeRoots[i]?.playerSlot&&
+      receipt.action===nativeRoots[i]?.action);
   const targetLinked=row.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
@@ -178,6 +204,9 @@ function execute(){
     [physicalDeal,'initial-complete-physical-deal-zone-capture'],
     [nativeFinished,'naturally-terminated-native-game'],
     [nativeTraceComplete,'all-accepted-native-root-zones'],
+    [rawNativeReceiptCaptureComplete,'all-root-raw-physical-payment-and-energy-receipts'],
+    [rawNativePhysicalReceipts?.settledPhysicalIdentityClean===true,
+      'raw-physical-card-custody-conservation'],
     [targetLinked,'post-Store-accepted-targets-and-root-linkage'],
     [physicalPassed,'settled-physical-card-custody'],
     [false,'official-Aichi-match-stage-continuous-clock-and-no-call-witness'],
@@ -210,6 +239,15 @@ function execute(){
       sourceDealSha256:row.sourceDealFingerprint??null,
       fullDealSha256:row.fullPhysicalDealFingerprint??null,
       physicalZoneQualification:row.physicalZoneQualification??null,
+      rawNativePhysicalReceiptCaptureComplete,
+      rawNativePhysicalReceiptSummary:{
+        schema:rawNativePhysicalReceipts?.schema??null,
+        originalPhysicalCardCount:rawNativePhysicalReceipts?.originalPhysicalCards?.length??0,
+        acceptedStoreRootCount:rawNativePhysicalReceipts?.acceptedStoreRootCount??0,
+        rootOrdinalsUnique:rawNativePhysicalReceipts?.rootOrdinalsUnique??false,
+        settledPhysicalIdentityClean:rawNativePhysicalReceipts?.settledPhysicalIdentityClean??false,
+        sha256:hash(rawNativePhysicalReceipts)
+      },
       targetOrdinalLinked:targetLinked,
       nativeSupporterQuota:row.nativeSupporterQuotaQualified??null,
       sourceM4AuditCount:row.specialRedCardPaperPreselectionAudits?.length??0
@@ -231,10 +269,16 @@ function execute(){
       realStoreActionsAndTargets:{available:targetLinked,
         linkedTargets:row.nativeAcceptedTargetSidecar??null,
         nativeRootLedgerSha256:hash(nativeRoots)},
-      physicalPaymentsAndZoneTransitions:{available:physicalPassed,
+      physicalPaymentsAndZoneTransitions:{
+        available:rawNativeReceiptCaptureComplete,
         zoneTapeSha256:zoneEvidence.allRootPhysicalZonesSha256,
         acceptedPostStoreRoots:zoneEvidence.postAcceptedRootCount,
-        independentlyPaperReconciled:false},
+        rawNativePhysicalReceiptCount:rawNativePhysicalReceipts?.receipts?.length??0,
+        rawNativePhysicalReceiptsSha256:hash(rawNativePhysicalReceipts),
+        settledPhysicalIdentityClean:rawNativePhysicalReceipts?.settledPhysicalIdentityClean??false,
+        physicalZoneGatePassed:physicalPassed,
+        independentlyPaperReconciled:false
+      },
       attackKnockoutAndPrizes:{available:nativeFinished,
         sourceAttackCount:sourceAttacks.length,
         nativeRemainingPrizes:row.finalPrizes??null,
@@ -250,7 +294,7 @@ function execute(){
     releaseStatus:{
       captureComplete:false,
       nativeTraceCaptureComplete:physicalDeal&&nativeTraceComplete&&
-        targetLinked&&physicalPassed&&nativeFinished,
+        rawNativeReceiptCaptureComplete&&targetLinked&&physicalPassed&&nativeFinished,
       rulesPassed:false,clockPassed:false,strategyPassed:false,
       reviewAuthorized:false,competitiveAdmission:false,
       firstMissingEvidence:firstMissing,
@@ -260,6 +304,7 @@ function execute(){
   };
   return {schema:intake.schema,registration:reg,registrationSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
+    rawNativePhysicalReceipts,
     nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v1',
       sameOriginalSourceAndFixedCandidateSixties:true,
       preservedNoReview:true},qualifications:intake.releaseStatus};
