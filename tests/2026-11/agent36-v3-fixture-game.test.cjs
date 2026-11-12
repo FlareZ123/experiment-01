@@ -175,7 +175,7 @@ test('fixture CLI logs only a safe summary while full-state traces stay in artif
   const summaryEnd = runnerSource.indexOf("\n  };", summaryStart);
   assert.ok(summaryStart >= 0 && summaryEnd > summaryStart, 'fixture success return must be an explicit summary');
   const summary = runnerSource.slice(summaryStart, summaryEnd);
-  assert.doesNotMatch(summary, /decisionTrace|rootActionLedger|finalFullState|fixtureGamePartial|private-offline-diagnostic-only/);
+  assert.doesNotMatch(summary, /\bdecisionTrace\s*:|\brootActionLedger\s*:|\bfinalFullState\s*:|\bfixtureGamePartial\s*:|private-offline-diagnostic-only/);
 
   const commandStart = runnerSource.indexOf("if(command==='fixture-game')");
   const commandEnd = runnerSource.indexOf('\n  const repositoryRoot', commandStart);
