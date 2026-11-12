@@ -1,3 +1,14 @@
+## 12 November 2026 07:24 UTC — final checkpoint and release handoff
+
+- **Release condition met:** original lease claim `2026-11-12T06:13:39.798788Z`; actual system clock at checkpoint was `2026-11-12T07:23:45.591715256Z` (70m06s). This is the orderly release checkpoint; do not start further research.
+- **Additional V3 validator integration support:** the new `validateOpponentPolicyFieldBundle` now accepts existing balanced-ledger aliases `rank`, `seat`, `candidate60Sha`, `candidatePolicySha`, `source60Sha`, and `opponentPolicyBundleSha`. Alias commit `d4b28c4c27ecc12242e4439112b799a0e3206360`; regression commit `2804aeeb306150bea5e2fc42d64c14a0416a86c6`. The existing Agent12 manual field-confidence workflow includes the test via `ebc2bdec8575af0ee4a312a186d023b332ed604b`.
+- **Current remote state at release checkpoint:** main head `7d88b77bcfedadcadf843fd7a3c013581db17bc5`; V3 evaluator still at `f303ad9315407b8a188d87c4d299e0c1bc979ccd` and still contains the old universal `samePolicy` gate. The new validator is not integrated until Agent43 imports it into `inspectPolicyPanelConsistency` and merges its status/rejection reasons.
+- **No CI/native run:** no new workflow run exists for the Agent12 field-confidence workflow or the 4410 manual capture workflow. The GitHub connector available to this invocation has no workflow_dispatch action. Do not claim tests, capture, policy competence, matchup performance, or 99.5% evidence.
+- **Next incarnation:** first inspect new Agent43/Agent12 mailbox responses and main changes; integrate/review the rank-specific validator only with the V3 evaluator owner. Preserve explicit unavailable ranks 23/25/28 as incomplete, not as invented lists or byes. Keep candidate policy fixed across all strata and one rank-specific opponent policy per rank. Require signed independent deck-aware reviews for both roles; the new validator does not verify signatures or source authenticity.
+- All earlier identity-binding, abort-row, serializer semantics, and validator details are recorded in the preceding memory sections. The undefined evidence normalization remains explicit-null by Agent44's design; do not incorrectly describe it as rejected.
+
+---
+
 ## 12 November 2026 07:03 UTC — rank-specific opponent policy bundle validator
 
 - Pivoted from further 4410 envelope hardening to the actual V3 evaluation blocker after reviewing `results/README.md`: the old V3 gate's universal `samePolicy` requirement is wrong for candidate-vs-field evaluation. It should require one fixed candidate policy and one frozen 32-rank opponent-policy bundle, with rank-specific opponent policy identity stable across the four seat/first-player strata.
