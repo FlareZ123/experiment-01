@@ -867,6 +867,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     constraints,
     runtimePinEvidence,
   });
+  // The serializer is a hashed data asset, not part of either role-policy closure.
+  // Capture its function reference before the fixture pin and pass only that callback
+  // to the native helper; the pin may evict the module from require.cache.
+  const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
   const preGameTrial = {
     trialId: V3_FIXTURE.trialId,
@@ -885,38 +889,60 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       repositoryRoot,
       preparedRuntime,
       pin: fixtureRuntimePin.withFixtureScopedRolePin,
-      run: () => runCandidateOpponentPolicyRoles(
-        () => runNativeFixtureGame({
-          deckA: candidateResolved.fullNames,
-          deckB: opponentResolved.fullNames,
-          candidateSeat: 0,
-          originalSourceSeat: 1,
-          seed: V3_FIXTURE.seed,
-          native,
-          botOptionsBySeat: native.botOptionsBySeat,
-          maxActions: V3_FIXTURE.maxActions,
-        }),
-        {
-          candidateSeat: 0,
-          opponentSeat: 1,
-          trial: preGameTrial,
-          candidateIdentity: identities.candidateIdentity,
-          opponentIdentity: identities.opponentIdentity,
-          candidatePolicyOptions: {},
-          opponentPolicyOptions: {},
-          commonDeps: native,
-          composer: withCandidateOpponentPolicyRoles,
-        },
-      ),
+      run: () => {
+        try {
+          return runCandidateOpponentPolicyRoles(
+            () => runNativeFixtureGame({
+              deckA: candidateResolved.fullNames,
+              deckB: opponentResolved.fullNames,
+              candidateSeat: 0,
+              originalSourceSeat: 1,
+              seed: V3_FIXTURE.seed,
+              native,
+              botOptionsBySeat: native.botOptionsBySeat,
+              maxActions: V3_FIXTURE.maxActions,
+              diagnosticSnapshot: diagnostic.snapshotFullGameState,
+              requireFullStateDiagnostics: true,
+            }),
+            {
+              candidateSeat: 0,
+              opponentSeat: 1,
+              trial: preGameTrial,
+              candidateIdentity: identities.candidateIdentity,
+              opponentIdentity: identities.opponentIdentity,
+              candidatePolicyOptions: {},
+              opponentPolicyOptions: {},
+              commonDeps: native,
+              composer: withCandidateOpponentPolicyRoles,
+            },
+          );
+        } catch (error) {
+          // Catch ordinary game/policy failures inside the pin so its audit can be
+          // returned and persisted before the workflow is failed below.
+          return {
+            fixtureFailure: {
+              name: error?.name ?? 'Error',
+              code: error?.code ?? null,
+              messageSha256: createHash('sha256').update(String(error?.message ?? error)).digest('hex'),
+              nativeFixtureFailure: error?.nativeFixtureFailure ?? null,
+            },
+            fixtureGamePartial: error?.fixtureGamePartial ?? null,
+          };
+        }
+      },
     });
   } finally {
     restoreHook();
   }
   assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
   assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
-  const roleResult = pinned.result;
-  const gameResult = roleResult && roleResult.result;
-  assert.ok(gameResult && gameResult.finished === true && gameResult.endReason === 'engine-game-end', 'native game must reach a natural terminal state');
+  const failureEnvelope = pinned.result?.fixtureFailure ? pinned.result : null;
+  const partial = failureEnvelope?.fixtureGamePartial ?? null;
+  const roleResult = failureEnvelope ? null : pinned.result;
+  const gameResult = roleResult?.result ?? partial;
+  if (!failureEnvelope) {
+    assert.ok(gameResult && gameResult.finished === true && gameResult.endReason === 'engine-game-end', 'native game must reach a natural terminal state');
+  }
 
   const patchReceipt = createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256: hookModuleSha256 });
   const trial = {
@@ -925,30 +951,30 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     opponentRank: 1,
     candidateSeat: 0,
     originalSourceSeat: 1,
-    actualFirstPlayerSeat: gameResult.actualFirstPlayerSeat,
+    actualFirstPlayerSeat: gameResult?.actualFirstPlayerSeat ?? null,
     candidatePrinted60Ref: V3_FIXTURE.candidatePath,
     originalPrinted60Ref: V3_FIXTURE.fieldPath + '#rank=1',
     candidatePrinted60Sha256: V3_FIXTURE.candidateDeckSha256,
     originalPrinted60Sha256: V3_FIXTURE.opponentDeckSha256,
     vendorCommitSha: enginePin,
     researchRevisionSha: runnerRevision,
-    decisionTraceSha256: gameResult.decisionTraceSha256,
+    decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
     cardPoolInitializationReceipt: native.cardPoolInitialization,
     runtimePatchReceipts: [patchReceipt],
     seed: V3_FIXTURE.seed,
-    seed32: gameResult.seed32,
+    seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
   };
-  assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
-  assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
+  if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
+  if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
-  assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
-  const application = roleIdentity.createPolicyApplicationReceipt({
+  if (gameResult?.seed32 !== undefined) assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
+  const application = roleResult ? roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,
     candidateIdentity: identities.candidateIdentity,
     opponentIdentity: identities.opponentIdentity,
     trial,
     timeoutStatus: 'within-budget',
-  });
+  }) : null;
   const artifact = {
     fixtureOnly: true,
     competitiveGameQualified: false,
@@ -1021,35 +1047,36 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     },
     candidatePolicyIdentity: identities.candidateIdentity,
     opponentPolicyIdentity: identities.opponentIdentity,
-    roleApplicationReceipt: application.receipt,
-    roleSeatMap: application.roleSeatMap,
-    policySha256BySeat: application.policySha256BySeat,
+    roleApplicationReceipt: application?.receipt ?? null,
+    roleSeatMap: application?.roleSeatMap ?? null,
+    policySha256BySeat: application?.policySha256BySeat ?? null,
     roleComposerAudit: {
-      candidate: roleResult.candidateAudit,
-      opponent: roleResult.opponentAudit,
+      candidate: roleResult?.candidateAudit ?? null,
+      opponent: roleResult?.opponentAudit ?? null,
     },
     runtimePinEvidence,
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
     nativeGame: gameResult,
+    fixtureGamePartial: partial,
+    fixtureFailure: failureEnvelope?.fixtureFailure ?? null,
     trial,
     summary: {
-      winner: gameResult.winner,
-      winnerSeat: gameResult.winnerSeat,
-      endReason: gameResult.endReason,
-      actionCount: gameResult.actions,
-      turns: gameResult.turns,
-      actionCountsBySeat: gameResult.actionCountsBySeat,
-      decisionTraceSha256: gameResult.decisionTraceSha256,
-      rootActionLedgerSha256: gameResult.rootActionLedgerSha256,
-      roleApplicationReceiptSha256: application.receipt.receiptSha256,
+      winner: gameResult?.winner ?? null,
+      winnerSeat: gameResult?.winnerSeat ?? null,
+      endReason: gameResult?.endReason ?? (failureEnvelope ? 'fixture-execution-failed' : null),
+      actionCount: gameResult?.actions ?? gameResult?.acceptedActions ?? 0,
+      turns: gameResult?.turns ?? null,
+      actionCountsBySeat: gameResult?.actionCountsBySeat ?? null,
+      decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
+      rootActionLedgerSha256: gameResult?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null,
+      roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
       loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
       fixtureOnly: true,
       winRateEstimate: null,
     },
   };
-  const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
   const traceText = diagnostic.formatFixtureGameTraceText({
     fixtureOnly: true,
     admissionEligible: false,
@@ -1058,19 +1085,42 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     vendorCommitSha: enginePin,
     researchRevisionSha: runnerRevision,
     seed: trial.seed,
-    actualFirstPlayerSeat: gameResult.actualFirstPlayerSeat,
-    finished: gameResult.finished,
-    endReason: gameResult.endReason,
-    actions: gameResult.actions,
-    turns: gameResult.turns,
-    winnerSeat: gameResult.winnerSeat,
-    decisionTrace: gameResult.decisionTrace,
-    failure: null,
+    candidateSeat: trial.candidateSeat,
+    opponentSeat: trial.originalSourceSeat,
+    candidateDeckSha256: V3_FIXTURE.candidateDeckSha256,
+    opponentDeckSha256: V3_FIXTURE.opponentDeckSha256,
+    candidateIdentity: identities.candidateIdentity,
+    opponentIdentity: identities.opponentIdentity,
+    policyConstraintsSha256,
+    cardPoolSha256: native.cardPoolInitialization?.cardPoolSha256 ?? null,
+    fieldSha256: gitBlobSha(fieldBytes),
+    actualFirstPlayerSeat: gameResult?.actualFirstPlayerSeat ?? null,
+    finished: gameResult?.finished === true,
+    endReason: gameResult?.endReason ?? (failureEnvelope ? 'fixture-execution-failed' : null),
+    actions: gameResult?.actions ?? gameResult?.acceptedActions ?? 0,
+    turns: gameResult?.turns ?? null,
+    winnerSeat: gameResult?.winnerSeat ?? null,
+    decisionTrace: gameResult?.decisionTrace ?? [],
+    rootActionLedger: gameResult?.rootActionLedger ?? [],
+    decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
+    rootActionLedgerSha256: gameResult?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null,
+    finalPublicState: gameResult?.finalPublicState ?? partial?.finalPublicState ?? null,
+    finalFullState: gameResult?.finalFullState ?? partial?.finalFullState ?? null,
+    finalDiagnosticFailure: gameResult?.finalDiagnosticFailure ?? partial?.finalDiagnosticFailure ?? null,
+    fixtureGamePartial: partial,
+    failure: failureEnvelope?.fixtureFailure ?? null,
   });
   const outputPath = path.join(outputDir, 'fixture-game.json');
   writeJsonAtomic(outputPath, artifact);
   const traceTextPath = path.join(outputDir, 'fixture-game.txt');
   fs.writeFileSync(traceTextPath, traceText, 'utf8');
+  process.stdout.write((failureEnvelope ? 'Native V3 fixture game failed; partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath + '\n');
+  if (failureEnvelope) {
+    const error = new Error('Native V3 fixture game failed after preserving its partial JSON and text artifacts.');
+    error.name = failureEnvelope.fixtureFailure?.name ?? 'NativeFixtureFailure';
+    error.fixtureFailure = failureEnvelope.fixtureFailure;
+    throw error;
+  }
   return {
     artifactPath: path.relative(repositoryRoot, outputPath).split(path.sep).join('/'),
     traceTextPath: path.relative(repositoryRoot, traceTextPath).split(path.sep).join('/'),
