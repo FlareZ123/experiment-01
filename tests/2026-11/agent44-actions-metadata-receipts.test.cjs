@@ -100,7 +100,7 @@ test('persistence receipt rejects a workflow from another repo or whose head omi
   }),/workflow head must be the exact commit/);
 });
 
-test('persistence receipt rejects run timestamps outside the preregistered window',()=>{
+test('persistence receipt rejects run timestamps outside the preregistered window or without an offset',()=>{
   const x=fixture();
   assert.throws(()=>createPreDealPersistenceReceipt({
     ...x,run:{...x.run,run_started_at:'2026-11-12T17:10:00.000Z'}
@@ -108,6 +108,12 @@ test('persistence receipt rejects run timestamps outside the preregistered windo
   assert.throws(()=>createPreDealPersistenceReceipt({
     ...x,run:{...x.run,run_started_at:'2026-11-12T16:59:59.000Z'}
   }),/after preregistration/);
+  assert.throws(()=>createPreDealPersistenceReceipt({
+    ...x,run:{...x.run,run_started_at:'2026-11-12T17:05:00'}
+  }),/explicit UTC offset/);
+  assert.throws(()=>createPreDealPersistenceReceipt({
+    ...x,run:{...x.run,run_started_at:'2026-11-12'}
+  }),/explicit UTC offset/);
 });
 
 test('deal receipt requires the generation job and workflow to remain in the persisted run/repository',()=>{
@@ -115,6 +121,13 @@ test('deal receipt requires the generation job and workflow to remain in the per
   assert.throws(()=>createDealGenerationReceipt({
     ...x,job:{...x.job,run_id:99999}
   }),/belong to the persisted workflow run/);
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,job:{...x.job,head_sha:'f'.repeat(40)}
+  }),/generation job head SHA must equal workflow head SHA/);
+  const {head_sha,...jobWithoutHead}=x.job;
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,job:jobWithoutHead
+  }),/generation job head SHA is invalid/);
   assert.throws(()=>createDealGenerationReceipt({
     ...x,run:{...x.run,repository:{full_name:'someone/else'}}
   }),/workflow repository must equal the persisted artifact repository/);
