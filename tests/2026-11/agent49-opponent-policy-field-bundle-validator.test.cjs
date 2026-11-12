@@ -205,6 +205,40 @@ test('no game receipt may be admitted against a source-unavailable rank',()=>{
   assert.ok(result.rejectionReasons.includes('game-against-source-unavailable-rank'));
 });
 
+test('distinct per-game registration digests are allowed while policy attestations stay field-constant',()=>{
+  const policyPlanCore=makeCore();
+  const first=makeReceipt(policyPlanCore,7);
+  first.trialId='trial-7-seat-0';
+  first.policyRegistrationSha256=hash(8001);
+
+  const second=makeReceipt(policyPlanCore,7);
+  second.trialId='trial-7-seat-1';
+  second.policyRegistrationSha256=hash(8002);
+  second.candidateSeat=1;
+  second.opponentSeat=0;
+  second.policySha256BySeat=[
+    policyPlanCore.opponentPolicyBundle.ranks[6].policySha256,
+    policyPlanCore.candidate.policySha256
+  ];
+
+  const valid=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore),
+    gameReceipts:[first,second]
+  });
+  assert.equal(valid.status,'VALID');
+  assert.deepEqual(valid.rejectionReasons,[]);
+
+  second.policyAttestationBundleSha256=hash(8003);
+  const changedAttestation=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore),
+    gameReceipts:[first,second]
+  });
+  assert.ok(changedAttestation.rejectionReasons.includes(
+    'game-policy-attestation-bundle-changed'));
+});
+
 test('candidate seat hash, constraints, engine, runner and plan digests bind each receipt',()=>{
   const policyPlanCore=makeCore();
   const wrongSeat=makeReceipt(policyPlanCore);
