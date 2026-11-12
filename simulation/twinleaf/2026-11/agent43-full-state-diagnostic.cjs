@@ -134,8 +134,10 @@ function snapshotFullGameState(state, context = {}) {
   assert.ok(Array.isArray(state.prompts), 'Twinleaf state.prompts must be an array');
   const winnerPlayerId = state.winner && typeof state.winner === 'object' ?
     (state.winner.id ?? null) : (state.winner ?? null);
-  let winnerSeat = state.players.findIndex(player => player.id === winnerPlayerId);
+  let winnerSeat = winnerPlayerId === null ? null :
+    state.players.findIndex(player => player.id === winnerPlayerId);
   if (winnerSeat === -1 && (state.winner === 0 || state.winner === 1)) winnerSeat = state.winner;
+  if (winnerSeat === -1) winnerSeat = null;
   return {
     schema: DIAGNOSTIC_SCHEMA,
     visibility: PRIVATE_VISIBILITY,
