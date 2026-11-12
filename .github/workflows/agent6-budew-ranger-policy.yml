@@ -1,0 +1,50 @@
+name: Budew Ranger policy unit tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/agent6-budew-ranger-policy.yml"
+      - "simulation/twinleaf/agent6-budew-ranger-itemlock.cjs"
+      - "simulation/twinleaf/agent34-actor-only-root-policy.cjs"
+      - "simulation/twinleaf/agent44-role-scoped-policy-composition.cjs"
+      - "tests/agent2-actor-root-catalog.test.cjs"
+      - "tests/agent34-actor-only-root-policy.test.cjs"
+      - "tests/agent6-budew-ranger-policy.test.cjs"
+      - "tests/agent6-budew-ranger-root-dispatch.test.cjs"
+  pull_request:
+    paths:
+      - ".github/workflows/agent6-budew-ranger-policy.yml"
+      - "simulation/twinleaf/agent6-budew-ranger-itemlock.cjs"
+      - "simulation/twinleaf/agent34-actor-only-root-policy.cjs"
+      - "simulation/twinleaf/agent44-role-scoped-policy-composition.cjs"
+      - "tests/agent2-actor-root-catalog.test.cjs"
+      - "tests/agent34-actor-only-root-policy.test.cjs"
+      - "tests/agent6-budew-ranger-policy.test.cjs"
+      - "tests/agent6-budew-ranger-root-dispatch.test.cjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: budew-ranger-policy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pure-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run catalog, root-policy and role-scope tests
+        run: >-
+          node --test
+          tests/agent2-actor-root-catalog.test.cjs
+          tests/agent34-actor-only-root-policy.test.cjs
+          tests/agent6-budew-ranger-policy.test.cjs
+          tests/agent6-budew-ranger-root-dispatch.test.cjs
