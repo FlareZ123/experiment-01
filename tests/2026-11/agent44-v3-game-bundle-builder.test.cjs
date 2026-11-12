@@ -220,33 +220,28 @@ function makePreDealPersistenceReceipt(preDeal) {
   const registeredAt=Date.parse(preDeal.gameRegistration.registeredAt);
   const plannedDealAt=Date.parse(preDeal.gameRegistration.dealGeneratedAt);
   return {
-    schema:'aichi-predeal-artifact-persistence-receipt-v1',
-    trialId:preDeal.trialId,repositoryFullName:'FlareZ123/experiment-01',
+    schema:'aichi-fixture-predeal-artifact-persistence-receipt-v1',
+    fixtureOnly:true,fixtureClockSource:'local-fixture-clock',
+    trialId:preDeal.trialId,
     artifactRef:preDeal.preDealArtifactRef,
     artifactSha256:preDeal.preDealArtifactSha256,
-    serverTimestampSource:'github-actions-run-started-at',
-    workflowRunId:'1234567890',
-    workflowHeadSha:'a'.repeat(40),
-    commitSha:'a'.repeat(40),blobSha:'b'.repeat(40),
-    workflowRunStartedAt:new Date(registeredAt+
+    persistedAt:new Date(registeredAt+
       Math.floor((plannedDealAt-registeredAt)/2)).toISOString()
   };
 }
 
 function makeDealGenerationReceipt(preDeal,trial,persistenceReceipt) {
   return {
-    schema:'aichi-physical-deal-generation-receipt-v1',
+    schema:'aichi-fixture-physical-deal-generation-receipt-v1',
+    fixtureOnly:true,fixtureClockSource:'local-fixture-clock',
     trialId:preDeal.trialId,
     artifactRef:persistenceReceipt.artifactRef,
     artifactSha256:persistenceReceipt.artifactSha256,
-    commitSha:persistenceReceipt.commitSha,blobSha:persistenceReceipt.blobSha,
-    workflowRunId:persistenceReceipt.workflowRunId,
-    workflowHeadSha:persistenceReceipt.workflowHeadSha,
-    jobId:'1234567891',
-    stepName:'Generate physical deal',
     stepStartedAt:trial.dealGenerationStepStartedAt,
     runnerRevision:trial.researchRevisionSha,
-    sourceDealFingerprint:trial.initialSourceDealFingerprint
+    sourceDealFingerprint:trial.initialSourceDealFingerprint,
+    sourcePhysicalDealSha256:trial.sourcePhysicalDealSha256,
+    fullPhysicalDealSha256:trial.fullPhysicalDealSha256
   };
 }
 
@@ -340,6 +335,44 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   }),/fixture-only pre-deal artifacts/);
 });
 
+
+
+test('fixture builder uses local fixture chronology and rejects production-shaped receipts',()=>{
+  const fixture=makePolicyFixture();
+  const {input,result:preDeal}=makePreDeal(fixture);
+  const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
+  const common={
+    preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    preDealPersistenceReceipt,dealGenerationReceipt,
+    policyPanelReceipts:[],reviews:[]
+  };
+  const built=buildV3GameBundleFixture(common,fixture.reviewerRegistry);
+  assert.equal(built.preDealPersistenceReceipt.fixtureOnly,true);
+  assert.equal(built.dealGenerationReceipt.fixtureOnly,true);
+  assert.equal(built.bundle.preDealPersistenceReceipt.schema,
+    'aichi-fixture-predeal-artifact-persistence-receipt-v1');
+  assert.equal(built.bundle.dealGenerationReceipt.schema,
+    'aichi-fixture-physical-deal-generation-receipt-v1');
+
+  const productionShaped={
+    ...preDealPersistenceReceipt,
+    schema:'aichi-predeal-artifact-persistence-receipt-v1',
+    fixtureOnly:false,serverTimestampSource:'github-actions-run-started-at'
+  };
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDealPersistenceReceipt:productionShaped
+  },fixture.reviewerRegistry),/fixture pre-deal persistence receipt/);
+
+  const wrongFingerprint={
+    ...dealGenerationReceipt,sourceDealFingerprint:policyHash(9999)
+  };
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongFingerprint
+  },fixture.reviewerRegistry),/fixture trial generation time or source-deal fingerprint/);
+});
 
 test('valid signed postgame reviews remain external to the finalized bundle digest',()=>{
   const fixture=makePolicyFixture();
