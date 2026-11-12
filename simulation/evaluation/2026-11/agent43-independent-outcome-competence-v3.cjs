@@ -481,7 +481,7 @@ function inspectPolicyPanelConsistency(bundle) {
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
     candidatePolicyProducerId,
     opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
-      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId))],
+      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId).filter(nonempty))],
     fieldComplete:field.status === 'VALID',
     availableRankStrataComplete,
     fullFieldPanelComplete:field.status === 'VALID' &&
