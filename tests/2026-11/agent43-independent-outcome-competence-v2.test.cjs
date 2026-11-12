@@ -282,9 +282,9 @@ test('explicit V2 contract routes through production entry without granting synt
 });
 
 
-test('unverified policy closure preserves reviewed outcome but never competitive admission',()=>{
+test('unverified policy-definition closure preserves reviewed outcome but never competitive admission',()=>{
   const b=singleAttack();
-  b.trial.hookRevisionSha=null;
+  b.trial.hookRevisionSha='c'.repeat(64);
   b.trial.policySha256BySeat=[null,null];
   const r=inspect(b,earlyTerminalAudit());
   assert.equal(r.gameOutcomeAdmissionReady,true);
@@ -292,4 +292,15 @@ test('unverified policy closure preserves reviewed outcome but never competitive
   assert.equal(r.acceptanceReady,false);
   assert.equal(r.competitiveAdmission,false);
   assert.ok(r.failures.includes('policy-asymmetry-or-unverified-for-competitive'));
+});
+
+
+test('missing activated-hook closure hash blocks game-outcome admission',()=>{
+  const b=singleAttack();
+  b.trial.hookRevisionSha=null;
+  b.trial.policySha256BySeat=[null,null];
+  const r=inspect(b,earlyTerminalAudit());
+  assert.equal(r.gameOutcomeAdmissionReady,false);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.failures.includes('provenance-incomplete'));
 });
