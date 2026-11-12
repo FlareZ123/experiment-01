@@ -83,19 +83,45 @@ function projectJsonSafe(value,seen=new WeakSet(),depth=0) {
   if(depth>16) return {truncated:'max-depth',type:value?.constructor?.name??'Object'};
   if(value instanceof Date) return value.toISOString();
   if(value instanceof RegExp) return String(value);
-  if(Array.isArray(value))
-    return value.slice(0,512).map(item=>projectJsonSafe(item,seen,depth+1));
-  if(value instanceof Map)
-    return [...value.entries()].slice(0,512).map(([key,item])=>[
+  if(Array.isArray(value)) {
+    if(seen.has(value)) return {cycle:true,type:'Array'};
+    seen.add(value);
+    const projected=value.slice(0,512).map(item=>projectJsonSafe(item,seen,depth+1));
+    seen.delete(value);
+    return projected;
+  }
+  if(value instanceof Map) {
+    if(seen.has(value)) return {cycle:true,type:'Map'};
+    seen.add(value);
+    const projected=[...value.entries()].slice(0,512).map(([key,item])=>[
       projectJsonSafe(key,seen,depth+1),projectJsonSafe(item,seen,depth+1)
     ]);
-  if(value instanceof Set)
-    return [...value.values()].slice(0,512).map(item=>projectJsonSafe(item,seen,depth+1));
+    seen.delete(value);
+    return projected;
+  }
+  if(value instanceof Set) {
+    if(seen.has(value)) return {cycle:true,type:'Set'};
+    seen.add(value);
+    const projected=[...value.values()].slice(0,512)
+      .map(item=>projectJsonSafe(item,seen,depth+1));
+    seen.delete(value);
+    return projected;
+  }
   if(typeof value==='object') {
     if(seen.has(value)) return {cycle:true,type:value.constructor?.name??'Object'};
     seen.add(value);
     const projected={type:value.constructor?.name??'Object'};
-    for(const key of Object.keys(value).sort().slice(0,512)) {
+    const keys=new Set(Object.keys(value));
+    for(const key of [
+      'fullName','name','set','setId','number','cardType','cardId',
+      'id','playerId','target','cardIndex','index','result','cards',
+      'pokemon','energy','tool','zone','slot','type'
+    ]) {
+      try {
+        if(!keys.has(key) && value[key]!==undefined) keys.add(key);
+      } catch {}
+    }
+    for(const key of [...keys].sort().slice(0,512)) {
       try {
         projected[key]=projectJsonSafe(value[key],seen,depth+1);
       } catch(error) {
