@@ -184,7 +184,8 @@ function encryptFixtureArtifacts({
   fs.renameSync(tempPath, outputPath);
   const publicManifest = {
     schema: PUBLIC_MANIFEST_SCHEMA,
-    visibility: 'private-offline-diagnostic-only',
+    artifactVisibility: 'public-encrypted-envelope',
+    payloadVisibility: 'private-offline-diagnostic-only',
     encryption: {
       algorithm: ALGORITHM,
       recipientKeyFingerprintSha256: envelope.recipientKeyFingerprintSha256,
