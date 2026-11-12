@@ -283,6 +283,32 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   }),/fixture-only pre-deal artifacts/);
 });
 
+
+test('postgame review packets remain external to the finalized bundle digest',()=>{
+  const fixture=makePolicyFixture();
+  const {input,result:preDeal}=makePreDeal(fixture);
+  const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
+  const common={
+    preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    preDealPersistenceReceipt,dealGenerationReceipt,policyPanelReceipts:[]
+  };
+  const withoutReviews=buildV3GameBundleFixture({...common,reviews:[]},fixture.reviewerRegistry);
+  const reviews=[{role:'paper',reviewerId:'external-paper-reviewer',
+    bundleSha256:evidenceBundleSha256(withoutReviews.bundle)}];
+  const withReviews=buildV3GameBundleFixture({...common,reviews},fixture.reviewerRegistry);
+  assert.equal(evidenceBundleSha256(withReviews.bundle),
+    evidenceBundleSha256(withoutReviews.bundle));
+  assert.equal(withReviews.bundle.evidenceManifest.find(x=>
+    x.kind==='policy-and-counterplay').sha256,
+    withoutReviews.bundle.evidenceManifest.find(x=>
+      x.kind==='policy-and-counterplay').sha256);
+  assert.equal(Object.hasOwn(withReviews.policyEvidence,'postgameReviews'),false);
+});
+
+
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
   const fixture=makePolicyFixture();
   const {input}=makePreDeal(fixture);

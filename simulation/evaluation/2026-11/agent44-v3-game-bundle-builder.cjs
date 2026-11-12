@@ -428,9 +428,9 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     policyAttestationBundle:preDeal.policyAttestationBundle,
     policyRegistration:preDeal.policyRegistration,
     policyApplicationReceipt:receipt,
-    policyPanelReceipts:receipts,
-    postgameReviews:reviews
+    policyPanelReceipts:receipts
   };
+  // Postgame reviews sign the finalized bundle and must remain external to it.
   const required = [
     'original-printed-60','contender-printed-60','full-physical-deal',
     'accepted-native-root-ledger','owner-payment-and-targets','paper-rules',
