@@ -60,7 +60,10 @@ function preflight(){
     cwd:path.join(ROOT,'vendor/twinleaf'),encoding:'utf8'
   }).trim();
   assert.equal(engine,reg.pinnedTwinleaf);
-  return {reg,engine};
+  const researchCommit=execFileSync('git',['rev-parse','HEAD'],{
+    cwd:ROOT,encoding:'utf8'
+  }).trim();
+  return {reg,engine,researchCommit};
 }
 
 /** Write the complete native A/B/A ledger under an exclusive lock. */
@@ -152,7 +155,7 @@ function compareSettlements(arms){
 
 /** @returns {object} All preregistered native contexts and their A/B/A comparison. */
 function main(){
-  const {reg,engine}=preflight();
+  const {reg,engine,researchCommit}=preflight();
   const arms=reg.modes.map(mode=>{
     const extra={
       actorVipAfterPassAdapter:(execute,deps)=>
@@ -178,6 +181,7 @@ function main(){
   const result={
     schema:'agent20-newmoon-perfection-attack-fuel-native-fresh-eight-v1',
     registration:reg,pinnedTwinleaf:engine,
+    researchCodeRevision:researchCommit,
     sourceOriginalPrintedSixtySha256:reg.sourceOriginalPrintedSixtySha256,
     candidateEnglishProxyCanonicalIdCountSha256:
       reg.candidateEnglishProxyCanonicalIdCountSha256,
@@ -231,7 +235,7 @@ if(require.main===module){
   if(process.argv.includes('--preflight')){
     const {reg,engine}=preflight();
     console.log('AGENT20_NEWMOON_ATTACK_FUEL_PREFLIGHT',
-      JSON.stringify({caseId:reg.caseId,engine,seeds:reg.seeds,
+      JSON.stringify({caseId:reg.caseId,engine,researchCommit,seeds:reg.seeds,
         registeredContexts:reg.registeredTrials.length,
         modes:reg.modes}));
   }else main();
