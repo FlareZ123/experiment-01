@@ -73,8 +73,11 @@ jobs:
         if: ${{ inputs.mode == 'release-case-v2' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.cjs
+          node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
+          node --check simulation/twinleaf/agent50-owner-public-acknowledgements.cjs
           node --test tests/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.test.cjs
           node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs
+          node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent50-owner-public-acknowledgements.test.cjs
           node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.cjs --inspect-only
       - name: Fetch pinned vendor revision
         if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
