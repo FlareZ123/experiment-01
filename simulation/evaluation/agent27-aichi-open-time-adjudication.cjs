@@ -9,7 +9,7 @@ const assert = require('node:assert/strict');
  * This is a read-only conditional adjudication model. It neither measures
  * elapsed physical match time nor establishes paper game correctness.
  */
-const VERSION = 'agent27-2026-aichi-open-official-time-v2';
+const VERSION = 'agent27-2026-aichi-open-official-time-v3';
 const STAGES = Object.freeze({
   'open-swiss': Object.freeze({minutes:25, elimination:false}),
   'open-top32': Object.freeze({minutes:25, elimination:true}),
