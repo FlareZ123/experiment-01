@@ -11,6 +11,8 @@ on:
       - 'simulation/twinleaf/hood-candidate-bot-options.cjs'
       - 'tests/2026-11/agent41-hood-ability-lock-state.test.cjs'
       - 'tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs'
+      - 'tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs'
+      - 'simulation/twinleaf/underworld-door-action.cjs'
       - 'tests/2026-11/agent41-hood-candidate-bot-options.test.cjs'
       - '.github/workflows/agent31-underworld-door-owner-frontier.yml'
 
@@ -38,3 +40,25 @@ jobs:
           node --check simulation/twinleaf/hood-aware-attach-tool-tactic.cjs
           node --check simulation/twinleaf/hood-candidate-bot-options.cjs
           node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs tests/2026-11/agent41-hood-candidate-bot-options.test.cjs
+
+
+  native-bench-source:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile the pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Verify Benched Hood under live Garbotoxin plus opponent Active Tool Jammer
+        run: node --test tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs
