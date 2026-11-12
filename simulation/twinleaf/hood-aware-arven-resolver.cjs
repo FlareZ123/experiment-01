@@ -19,11 +19,12 @@ const {hoodAttachTargets} =
  *
  * @returns {Function} Subclass usable inside options.promptResolvers.
  */
-function hoodAwareArvenResolverClass() {
+function hoodAwareArvenResolverClass(BaseResolverOverride=null) {
   /** @param {string} name */
   const mod = name => require(path.join(output, name));
-  const { ChooseCardsPromptResolver } =
+  const { ChooseCardsPromptResolver: NativeChooseCardsPromptResolver } =
     mod('simple-bot/prompt-resolver/choose-cards-prompt-resolver');
+  const ChooseCardsPromptResolver=BaseResolverOverride??NativeChooseCardsPromptResolver;
   const { ChooseCardsPrompt } = mod('game/store/prompts/choose-cards-prompt');
   const { GameMessage } = mod('game/game-message');
   const { TrainerType } = mod('game/store/card/card-types');
