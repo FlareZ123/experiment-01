@@ -475,6 +475,7 @@ const V3_FIXTURE_TEST_PATHS = [
   'tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs',
   'tests/2026-11/agent44-v3-game-bundle-builder.test.cjs',
   'tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs',
+  'tests/2026-11/agent43-full-state-diagnostic.test.cjs',
   'tests/2026-11/agent36-v3-fixture-game.test.cjs',
 ];
 
@@ -593,6 +594,7 @@ function buildFixtureRoleEntryManifest({
     'simulation/evaluation/2026-11/agent36-v3-runner.cjs',
     'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
+    'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs',
     ...V3_FIXTURE_TEST_PATHS,
   ];
   const dependencyLockPaths = ['vendor/twinleaf/ptcg-server/package-lock.json'];
@@ -1047,10 +1049,31 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       winRateEstimate: null,
     },
   };
+  const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
+  const traceText = diagnostic.formatFixtureGameTraceText({
+    fixtureOnly: true,
+    admissionEligible: false,
+    competitiveGameQualified: false,
+    trialId: trial.trialId,
+    vendorCommitSha: enginePin,
+    researchRevisionSha: runnerRevision,
+    seed: trial.seed,
+    actualFirstPlayerSeat: gameResult.actualFirstPlayerSeat,
+    finished: gameResult.finished,
+    endReason: gameResult.endReason,
+    actions: gameResult.actions,
+    turns: gameResult.turns,
+    winnerSeat: gameResult.winnerSeat,
+    decisionTrace: gameResult.decisionTrace,
+    failure: null,
+  });
   const outputPath = path.join(outputDir, 'fixture-game.json');
   writeJsonAtomic(outputPath, artifact);
+  const traceTextPath = path.join(outputDir, 'fixture-game.txt');
+  fs.writeFileSync(traceTextPath, traceText, 'utf8');
   return {
     artifactPath: path.relative(repositoryRoot, outputPath).split(path.sep).join('/'),
+    traceTextPath: path.relative(repositoryRoot, traceTextPath).split(path.sep).join('/'),
     trialId: trial.trialId,
     winner: gameResult.winner,
     winnerSeat: gameResult.winnerSeat,

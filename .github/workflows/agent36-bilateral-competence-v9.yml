@@ -348,6 +348,7 @@ jobs:
             tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs \
             tests/2026-11/agent44-v3-game-bundle-builder.test.cjs \
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
+            tests/2026-11/agent43-full-state-diagnostic.test.cjs \
             tests/2026-11/agent36-v3-fixture-game.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
         if: ${{ inputs.agent36_v3_predeal_preflight }}
