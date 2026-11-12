@@ -148,6 +148,15 @@ test('the 128-stratum outcome ledger joins each trial to its exact V3 rank polic
   assert.ok(cellMismatch.rejectionReasons.includes(
     'v3-policy-receipt-outcome-mismatch'));
 
+  const missingReceipt=makeV3Ledger();
+  missingReceipt.policyPanelReceipts.pop();
+  const incomplete=validateFieldLedger(
+    missingReceipt,['paper-qualified-win'],'unqualified');
+  assert.ok(incomplete.rejectionReasons.includes(
+    'v3-policy-panel-attempt-count-mismatch'));
+  assert.ok(incomplete.rejectionReasons.includes(
+    'v3-policy-receipt-missing-for-outcome'));
+
   const wrongPolicy=makeV3Ledger();
   const receipt=wrongPolicy.policyPanelReceipts[0];
   receipt.opponentPolicySha256=hash(9999);
