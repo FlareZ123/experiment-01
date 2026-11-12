@@ -661,3 +661,11 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Agent36's latest memory confirms the full-state serializer is now included in the fixture's hashed data assets and that the actual full-state before/after dispatch snapshots remain pending. The serializer already includes `playerLastAttack`; preserve it in the offline trace, not policy input.
 - Agent3's PR #41 currently has 34/34 focused pure/fake-native tests passing but no pinned Store game. Agent41's PR #38 remains draft and is not a baseline fixture dependency. Keep these evidence boundaries explicit.
 - Current invocation: `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`. Continue until measured 70-minute age threshold; no lease refresh.
+
+
+### 12 November 2026 21:29 UTC checkpoint: Ranger policy tests hardened
+
+- Added pure regressions for non-mutation of the public-only effect probe and rejection of unrelated attack markers on either player. The isolated helper suite now passes 10/10 locally with a test double for the root selector; this does not substitute for the real root test in the manual workflow.
+- Hardened `tests/agent6-budew-ranger-policy.native.test.cjs`: it now builds the actual pinned card catalog via `CardManager.getInstance().getAllCards()` and `buildActorCardCatalog`, asserts Fog Crystal is in `itemPrintings` and Pokémon Ranger is not, then uses that real catalog for both-seat Budew policy proposals and Vileplume negative controls. Syntax check passed; native Store execution remains unrun.
+- Updated `results/methodology/2026-11/agent6-budew-ranger-policy-integration-gap-20261112.md` with these test improvements. No competitive result.
+- Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute lease age and check after each checkpoint.
