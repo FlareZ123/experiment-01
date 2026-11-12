@@ -133,6 +133,16 @@ test('raw receipt anomalies and missing alignments remain visible instead of bei
   assert.equal(result.releaseStatus.rawReceiptAlignmentComplete,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawReceiptAligned,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawSeat,1);
+  assert.equal(result.bundle.unmatchedRawReceipts.length,1);
+  assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
+});
+
+test('accepted Store root count mismatch remains an explicit capture blocker',()=>{
+  const original=fixture();
+  original.rawNativePhysicalReceipts.acceptedStoreRootCount=1;
+  const result=build(original);
+  assert.equal(result.bundle.trial.rawReceiptAlignment.acceptedStoreRootCountMatches,false);
+  assert.equal(result.releaseStatus.rawReceiptAlignmentComplete,false);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
 });
 

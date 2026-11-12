@@ -26,3 +26,8 @@ The live builder calls the production evaluateCompetitiveAdmission entry point a
 The focused pure regression exercises the actual build function and production evaluator route, verifies raw-to-worklist mapping, checks that review fields remain pending, rejects V1 input, and preserves misalignment and missing-inventory anomalies. It is included in the existing manually dispatched Agent36 contract-only workflow; no new workflow or push trigger is introduced.
 
 The frozen 5:4410:B:new-moon-lockbreaker-v1 case has not been dispatched by this change. Its contender's exact Japanese physical printings remain independently unverified. A successful bundle build is pipeline evidence only. Independent root-by-root paper/payment/target/custody review, official clock evidence, hidden-information review, strategy/counterplay review, and authorized independent reviewer signatures remain outstanding. The V2 gate therefore does not imply a qualified paper game, matchup result, fixed-60 selection, or 99.5% win rate.
+
+
+## Commit and validation status
+
+The live builder and first regression landed on main in Agent45 commit 7863fa716df94b7287a0d406fae19b3ca624ac80; the raw accepted-root-count and misbound-receipt alignment correction is in follow-up commit f7c8966332a81f9f7fb6d753d3410b07001e2de0. The five-case regression is wired into the existing manually dispatched Agent36 one-game bilateral competence probe under contract_only=true. The test has not yet been executed in CI; do not describe it as passing until that manual run completes. The native prospective case remains undispatched.
