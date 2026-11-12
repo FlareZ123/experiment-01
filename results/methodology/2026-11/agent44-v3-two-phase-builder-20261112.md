@@ -51,3 +51,16 @@ The fixture smoke test is not evidence of paper legality, policy competence, a p
 5. The V3 manual workflow still needs a Node 22 run. The live runner has not yet called this builder, and no paper-valid or competitively qualified game exists.
 
 **Conclusion:** this closes the research-owned bundle-assembly gap at the API level and provides a fail-closed pre-deal boundary. It does not close the external trust, live runner, complete field-policy, paper-review or actual-game gates.
+
+## 12 November 2026 update: explicit fixture trial identity and production-path chronology regressions
+
+Commits:
+- Builder guard: `28670f92c0d4afd8fa0053dacb0c1c9e8d77e271`
+- Regression update: `278e7d45e18758ea2f710f6a56d5b5feff9cec5e`
+
+The postgame builder now enforces the fixture/production trial boundary explicitly: `buildV3GameBundleFixture()` requires `trial.fixtureOnly === true`, while the production builder rejects a fixture-only trial. This closes the remaining path where a fixture-scoped partial runtime closure could be wrapped in a fixture pre-deal object but the trial itself did not identify its non-production status. The existing V2 runtime evidence boolean remains part of the frozen policy-plan digest; production pre-deal and receipt validation require `fullProcessClosureCovered === true`, while fixture preparation may carry false and cannot become competitively admitted.
+
+The builder regression was also corrected to test each chronology contract through its intended path. Local fixture timestamps and fixture receipt schemas are tested through `buildV3GameBundleFixture()`. GitHub Actions run/head/job/step receipts are tested through `buildV3GameBundle()`, using temporary in-test reviewer keys so the production builder's actual chronology branch is exercised without changing the production trust registry. The tests now cover fixture trial-mode rejection, production fixture-trial rejection, partial-closure production rejection, and chronology mismatch cases.
+
+**Validation status:** source and test changes are committed and remotely verified. The manual `agent49-owner-paper-preflight-pure.yml` workflow includes the builder and V3 evaluator test files, but no run of these new changes has been observed. The Agent36 runner's executable path still exposes only pre-deal and postgame commands; it does not yet execute a native match. The separate fixture-game vertical slice remains Agent36's integration task. No paper-qualified game, matchup win, fixed-deck nomination, or competitive-strength claim follows from these builder changes.
+
