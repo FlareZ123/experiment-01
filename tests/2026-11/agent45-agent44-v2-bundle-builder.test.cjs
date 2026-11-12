@@ -299,7 +299,30 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(first.reviewChecklist.paperLegality,'pending-independent-review');
   assert.ok(first.rawReceiptRef.startsWith(REFERENCE+'#/rawNativePhysicalReceipts/receipts/'));
   assert.ok(first.physicalCardInventoryRef.startsWith(REFERENCE+'#/rawNativePhysicalReceipts/originalPhysicalCards'));
+  const paperRules=result.releaseNineObjects['paper-rules'];
+  assert.equal(paperRules.cancelingCologneRuleGate.disposition,
+    original.intake.native.paperCologneReviewGate.disposition);
+  assert.equal(paperRules.cancelingCologneRuleGate.paperLegalityCertified,false);
   const strategy=result.releaseNineObjects['policy-and-counterplay'];
+  assert.deepEqual(strategy.nativeActionEvidence.paperCologneNativePlayAudit,
+    original.nativeDevelopmentRow.paperCologneNativePlayAudit);
+  assert.deepEqual(strategy.nativeActionEvidence.paperCologneReviewGate,
+    original.intake.native.paperCologneReviewGate);
+  assert.deepEqual(strategy.policyProvenance,original.intake.policyProvenance);
+  assert.equal(strategy.policyProvenanceDigestVerified,true);
+  assert.equal(strategy.policyManifestDigestVerified,true);
+  assert.equal(strategy.policyProvenanceSha256,original.intake.policyProvenanceSha256);
+  assert.equal(strategy.policyManifestSha256,original.intake.policyManifestSha256);
+  assert.equal(strategy.policyProvenanceStatus,'PARTIAL_CAPTURE_ONLY');
+  assert.equal(strategy.policyManifestComplete,false);
+  assert.equal(strategy.hookRevisionSha,null);
+  assert.deepEqual(strategy.policySha256BySeat,[null,null]);
+  assert.equal(strategy.samePolicy,false);
+  assert.equal(strategy.competitivePolicyCompetenceReady,false);
+  assert.equal(result.bundle.trial.hookRevisionSha,null);
+  assert.deepEqual(result.bundle.trial.policySha256BySeat,[null,null]);
+  assert.equal(result.releaseStatus.policyProvenanceDigestVerified,true);
+  assert.equal(result.releaseStatus.policyManifestDigestVerified,true);
   assert.deepEqual(strategy.nativeActionEvidence.nativePromptChoices,original.nativeDevelopmentRow.nativePromptChoices);
   assert.deepEqual(strategy.nativeActionEvidence.policyAudit,original.nativeDevelopmentRow.policyAudit);
   assert.deepEqual(strategy.nativeActionEvidence.sourceAudit,original.nativeDevelopmentRow.sourceAudit);
@@ -324,6 +347,34 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
   assert.ok(result.independentAdmissionGate.failures.includes('missing-complete-root-paper-receipts'));
   assert.ok(result.independentAdmissionGate.failures.includes('independent-paper-or-clock-review-missing'));
+});
+
+test('capture-only policy provenance digests are canonical and never promote competitive hashes',()=>{
+  const original=fixture();
+  const result=build(original);
+  const strategy=result.releaseNineObjects['policy-and-counterplay'];
+  assert.equal(strategy.policyProvenanceDigestVerified,true);
+  assert.equal(strategy.policyManifestDigestVerified,true);
+  assert.equal(strategy.policyProvenance.policyManifest.complete,false);
+  assert.equal(strategy.policyProvenance.policyManifest.samePolicy,false);
+  assert.equal(strategy.policyProvenance.policyManifest.hookRevisionSha,null);
+  assert.deepEqual(strategy.policyProvenance.policyManifest.policySha256BySeat,[null,null]);
+  assert.equal(strategy.policyProvenance.activatedHookManifest.complete,false);
+  assert.equal(strategy.policyProvenance.policyEntryManifest.complete,false);
+  assert.equal(strategy.competitivePolicyCompetenceReady,false);
+});
+
+test('mutated capture-only policy provenance fails its canonical self-digest',()=>{
+  const original=fixture();
+  original.intake.policyProvenance.reason='tampered after digest';
+  assert.throws(()=>build(original),/capture-only policy provenance must match its canonical self-digest/);
+});
+
+test('mutated policy manifest fails its canonical nested digest',()=>{
+  const original=fixture();
+  original.intake.policyProvenance.policyManifestSha256='tampered';
+  original.intake.policyManifestSha256='tampered';
+  assert.throws(()=>build(original),/nested policy manifest must match its canonical digest/);
 });
 
 test('V1 intake cannot silently enter the V2 release builder',()=>{
