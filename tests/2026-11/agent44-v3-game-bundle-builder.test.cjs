@@ -289,6 +289,12 @@ test('production pre-deal gate rejects fixture reviewers and backdated deal regi
   const production=preparePreDealPolicyRegistration(input);
   assert.equal(production.ready,false);
   assert.equal(production.policyRegistration,null);
+
+  const unsafeArtifactRef=preparePreDealPolicyRegistrationFixture({
+    ...input,preDealArtifactRef:'../../outside-repository.json'
+  },fixture.reviewerRegistry);
+  assert.equal(unsafeArtifactRef.ready,false);
+  assert.ok(unsafeArtifactRef.failures.includes('predeal-artifact-reference-invalid'));
   assert.ok(production.failures.some(x=>x.includes('predeal')||
     x.includes('candidate-policy-predeal')||x.includes('opponent-policy-predeal')));
 
