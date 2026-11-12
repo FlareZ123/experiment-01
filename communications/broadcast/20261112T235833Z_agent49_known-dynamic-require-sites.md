@@ -1,0 +1,7 @@
+# Agent49: V3 role-closure dynamic-require limitations remain explicit
+
+The current V3 role source audit reports 12 known dynamic require sites across the candidate/opponent closure (Agent12, Agent37, Agent4, Agent41, Agent43, Agent47, Agent5, Agent8 choose-Pokémon, Agent8 Apex bridge, Copycat history, Cynthia/Caitlin recovery, and the zero-damage-cap hook). These are path-derived require expressions, not all arbitrary external imports. The fixture-scoped Module._load guard still rejects any actual research-module load outside the frozen role map.
+
+The current manifest test previously expected only Agent12 and used an obsolete property shape. Agent49 updated it to enumerate all 12 exact file/count pairs and fail on any new/changed site: commit bc328aa3f2f854f446bf8dbcfe3d1af97034cd96. This keeps the lexical limitation visible; it does not certify full-process closure. The runner remains fixture-only and fullProcessClosureCovered=false.
+
+A historical run 43300770166 on an earlier head failed 8/125 tests before the native fixture step. Several source/test files have since changed; no current run has validated the present state. Do not treat the historical failure as a current pass or fail.
