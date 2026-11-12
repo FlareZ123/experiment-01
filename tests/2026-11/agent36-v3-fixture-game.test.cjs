@@ -23,10 +23,13 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   const field = JSON.parse(fieldBytes.toString('utf8'));
   const rank1 = field.decks.find((deck) => deck.rank === 1);
   const admission = JSON.parse(admissionBytes.toString('utf8'));
-  const rank1Admission = admission.ranks.find((row) => row.rank === 1);
+  const rank1Admission = admission.rows.find((row) => row.rank === 1);
 
   assert.equal(runner.gitBlobSha(candidateBytes), '24ace2d6feb9ce5d9056bcf271827cfe31b7357b');
   assert.equal(runner.gitBlobSha(fieldBytes), 'ae773f6201d7aa69d31914dbfee66f3fba692200');
+  assert.equal(admission.sourceGitBlobSha, 'ae773f6201d7aa69d31914dbfee66f3fba692200');
+  assert.equal(rank1Admission.rosterGitBlobSha, 'ae773f6201d7aa69d31914dbfee66f3fba692200');
+  assert.equal(rank1Admission.competitivelyQualified, false);
   assert.equal(runner.printed60Fingerprint(candidate), CANDIDATE_SHA);
   assert.equal(runner.printed60Fingerprint(rank1), rank1Admission.printed60Sha256);
   assert.equal(rank1Admission.printed60Sha256, OPPONENT_SHA);

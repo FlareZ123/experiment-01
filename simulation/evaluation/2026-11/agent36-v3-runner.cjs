@@ -790,8 +790,11 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const field = JSON.parse(fieldBytes.toString('utf8'));
   const opponentDeck = field.decks.find((deck) => deck.rank === 1);
   const admission = JSON.parse(admissionBytes.toString('utf8'));
-  const rank1Admission = admission.ranks.find((row) => row.rank === 1);
+  const rank1Admission = admission.rows.find((row) => row.rank === 1);
   assert.ok(opponentDeck && rank1Admission, 'authenticated rank-1 source deck and admission row must exist');
+  assert.equal(admission.sourceGitBlobSha, V3_FIXTURE.fieldGitBlobSha, 'original admission ledger must bind the frozen full-field source blob');
+  assert.equal(rank1Admission.rosterGitBlobSha, V3_FIXTURE.fieldGitBlobSha, 'rank-1 admission row must bind the frozen full-field source blob');
+  assert.equal(rank1Admission.competitivelyQualified, false, 'rank-1 source must remain explicitly unqualified');
   assert.equal(gitBlobSha(candidateBytes), V3_FIXTURE.candidateGitBlobSha, 'candidate source blob changed');
   assert.equal(gitBlobSha(fieldBytes), V3_FIXTURE.fieldGitBlobSha, 'Aichi field source blob changed');
   assert.equal(printed60Fingerprint(candidateDeck), V3_FIXTURE.candidateDeckSha256, 'candidate printed-60 fingerprint changed');
@@ -974,6 +977,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     sourceAdmission: {
       originalAdmissionPath: V3_FIXTURE.originalAdmissionPath,
       originalAdmissionGitBlobSha: gitBlobSha(admissionBytes),
+      rank1AdmissionRow: rank1Admission,
       legalChainQualified: false,
       note: 'The source ledger explicitly leaves original printed-60 legality and policy chains unqualified.',
     },
