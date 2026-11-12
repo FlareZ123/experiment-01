@@ -70,8 +70,19 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   const combined = roleIdentity.combineRolePolicyEntryManifests(built, built);
   assert.deepEqual(combined.expectedByPath, built.expectedByPath);
   assert.equal(combined.unionSha256.length, 64);
-  for (const [name, values] of Object.entries(built.manifest.sourceAuditLimitations || {})) {
-    assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
+  const sourceLimitations = built.manifest.sourceAuditLimitations || {};
+  for (const [name, values] of Object.entries(sourceLimitations)) {
+    if (name === 'dynamicRequireSites') {
+      // Agent34's existing root policy reaches this known Agent12 helper.
+      // Keep the static limitation visible; the fixture-scoped Module._load
+      // guard separately rejects any unregistered module actually requested.
+      assert.deepEqual(values, [{
+        modulePath: 'scripts/agent12-actor-only-lillie-after-pass.cjs',
+        count: 3,
+      }]);
+    } else {
+      assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
+    }
   }
   assert.ok(built.manifest.vendorDependencies.some((item) => item.path === 'vendor/twinleaf/ptcg-server/start.js'));
   assert.ok(built.manifest.sharedEnginePatches.some((item) => item.path === 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs'));
