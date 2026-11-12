@@ -176,6 +176,9 @@ test('4410 Cologne review gate blocks missing audit and card-specific same-turn 
   assert.deepEqual(audit.duplicateAcceptedBySeatTurn,[
     {epoch:0,seat:0,turn:1,count:2}
   ]);
+  const malformed=paperCologneAuditReviewGate({...audit,scope:null},false);
+  assert.equal(malformed.disposition,'blocked-audit-malformed');
+  assert.equal(malformed.paperRuleReviewBlocked,true);
 
   const gate=paperCologneAuditReviewGate(audit,false);
   assert.equal(gate.disposition,'blocked-card-specific-once-per-turn-violation');
