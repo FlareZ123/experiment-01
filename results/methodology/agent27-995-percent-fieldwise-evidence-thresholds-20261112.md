@@ -1,46 +1,27 @@
-# Evidence threshold for a 99.5% per-opponent win-rate claim
+# 99.5% confidence: simplified arithmetic cross-check (superseded as the experiment plan)
 
-**Agent27 | 12 November 2026 | exact binomial derivation**
+**Agent27 | 12 November 2026 | correction after checking the existing statistics suite**
 
-## Question
+> **Use the existing Agent12 128-stratum methods as canonical.** This note is not a new statistical result or a recommended test plan. The repository already contains a stronger, balanced design that distinguishes a field-average claim from the harder claim that every individual matchup exceeds 99.5%.
 
-What evidence would support the conservative interpretation of the objective: a fixed deck and fixed decision policy win at least **99.5% of games against each of the 32 authenticated Aichi Top 32 opponents**, rather than merely achieving a 99.5% aggregate over a favorable mixture?
+## Canonical project methods
 
-## Exact one-sided bound
+- [Exact balanced-field all-win bound](../../statistics/agent12-exact-balanced-field-all-win-bound-20261107.md): for the **equal-weight field mean** across 32 opponents × 2 candidate seats × 2 first-player assignments, five all-win games per each of 128 strata (640 total) gives a 95% one-sided lower bound of 99.5330%.
+- [Heterogeneous field KL bound](../../statistics/agent12-heterogeneous-kl-field-confidence-bound-20261107.md): handles qualified wins, losses and ties while allowing different matchup probabilities.
+- [Simultaneous 128-stratum matchup bound](../../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md): for the stronger claim that **each of all 32 opponent-specific means** exceeds 99.5% with 95% family-wise confidence, 323 all-win games per seat/first-player stratum are required: 1,292 per opponent and 41,344 total. It also gives nonzero-loss thresholds (e.g. 486 per stratum for one nonwin in a matchup).
 
-For one fixed matchup, model independent game outcomes as Bernoulli trials with unknown win probability (p). With (n) wins and zero losses, the one-sided exact Clopper–Pearson lower confidence bound at significance (alpha) is:
+These are different estimands. Do not substitute a field-mean bound for the per-opponent guarantee.
 
-[
-L = alpha^{1/n}.
-]
+## What the simple calculation below does—and does not—say
 
-Requiring (L ge 0.995) gives:
+For a single unstratified matchup with (n) independent games and zero losses, the one-sided exact Clopper–Pearson lower bound is (L=\alpha^{1/n}). Requiring (L\ge0.995) gives 598 consecutive wins for 95% *per-matchup* confidence. A simple Bonferroni calculation over 32 such unstratified matchup statements gives 1,290 consecutive wins per matchup.
 
-[
-n ge rac{log(alpha)}{log(0.995)}.
-]
+That 1,290 figure is **not** the project's canonical balanced experiment plan: it does not enforce the required two-seat/two-first-player allocation. The 1,292-per-opponent design in the Agent12 simultaneous report is the correct balanced plan. The 598 figure is not simultaneous across 32 opponents.
 
-- **One matchup, 95% one-sided confidence:** (alpha=0.05), so **598 consecutive wins** are required.
-- **All 32 matchups simultaneously, 95% family-wise confidence:** a simple Bonferroni allocation uses (alpha=0.05/32=0.0015625) per matchup, so **1,290 consecutive wins per opponent** are required, or **41,280 total games** across 32 matchups.
+All calculations assume a fixed deck/policy, independently randomized complete games, fixed opponent lists and policies, no test-set tuning, and paper-qualified outcomes. Native terminals, caps, errors, ties excluded from the denominator, and unqualified outcomes cannot be counted as wins. Candidate selection on the confirmatory sample invalidates the nominal confidence claim.
 
-The corresponding lower bounds are approximately 99.5003% for one matchup at (n=598), and 99.5004% per matchup at (n=1,290) under the Bonferroni allocation.
+## Current status
 
-For comparison, zero losses in 100 games yields only a 97.05% one-sided 95% lower bound; zero losses in 200 yields 98.51%; zero losses in 500 yields 99.40%. A small perfect sample is not evidence for a 99.5% true win rate.
+There are 29/32 authenticated original opponent inventories, zero competitively paper-qualified games, no selected final fixed 60, and no demonstrated 99.5% result. The 4410 capture contributes zero statistical observations. The Agent12 statistical validators are prospective arithmetic gates; they do not authenticate physical deals or paper receipts.
 
-## Interpretation and experimental requirements
-
-1. Treat **each exact opposing 60-card list** as its own stratum. Do not pool the 11 Regidrago opponents or any other archetype into one proxy matchup.
-2. Keep the contender 60, opponent 60, rules, simulator revision, decision policy, and policy configuration fixed throughout a confirmatory sample. A deck or policy tuned on these games needs a separate held-out confirmatory sample.
-3. Use independent, preregistered shuffle/game seeds. Replaying the same deal under different policies is a paired causal experiment, not an independent win-rate sample.
-4. Report wins, losses, ties, nonterminals, engine errors, and excluded games per opponent. Do not count caps, aborts, unqualified native terminals, or paper-invalid outcomes as wins.
-5. Use the exact binomial lower bound when losses occur; do not use a normal approximation at a 0.5% failure rate.
-6. This is a statistical threshold **after** the game-evidence gates are met. It does not make native simulation equivalent to paper play, certify Japanese print legality, or replace independent paper/policy review.
-
-## Scope caveat
-
-This calculation addresses the conservative **per-opponent** reading of “against the entire field.” If the intended target is instead a field-weighted average, the weights and estimand must be frozen before testing, and all 32 matchup rows must still be reported. An aggregate estimate must not hide a weak matchup.
-
-## Current repository implication
-
-The 4410 pipeline capture is not an admitted game outcome and contributes **zero** observations to this statistical target. Even a future single independently reviewed game per opponent would establish coverage, not a 99.5% rate. The calculation is intended to prevent overclaiming and to make clear that the 99.5% target requires an unusually large, carefully controlled confirmatory study.
-
+**Correction:** I initially wrote the 1,290 unstratified calculation as a standalone evidence threshold without first consulting the existing Agent12 statistics reports linked from `results/README.md`. This replacement explicitly subordinates it to those existing, stronger methods. No additional statistical infrastructure is warranted here.
