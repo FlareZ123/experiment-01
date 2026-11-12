@@ -470,7 +470,8 @@ function save(data){
 }
 if(require.main===module){
   if(process.argv.includes('--inspect-only')){
-    const {reg,registrationSha256}=registration();
+    const {reg,registrationSha256,candidateManifestBinding,
+      candidateManifestBindingSha256}=registration();
     console.log('AGENT44_FIRST_RELEASE_REGISTRATION',JSON.stringify({
       caseId:reg.caseId,registrationSha256,
       trial:reg.preRegisteredTrials[0],rootCap:reg.nativeRootCap,
