@@ -16,6 +16,20 @@ The six-game reversal audit found the old common policy repeatedly using Filch/R
 - The exact `candidatePolicy` string is identical for champion-reference and Hood Shield v1; `policyAudit.candidateIdentityUsedForDecisions=false`. The later Hood/Arven candidate-only policy was not installed in this experiment.
 - Counts below use only `candidateAttackSettlement.attacks` (settled printed attacks), not attack proposals. Completed outcomes require `finished=true` and a non-null winner. The other rows are reported separately rather than silently discarded.
 
+## What the common policy actually enabled
+
+The run metadata makes the mobility/attacker-promotion gap explicit. The common policy had:
+- `actorChargedPromotionOptIn=false`
+- `actorChoosePokemonOptIn=false`
+- `sourceFloatStoneMobilityOptIn=false`
+- `actorFundedShadowRiderFloatStoneRootOptIn=false`
+- `actorGenericFundedFloatStoneRootOptIn=false`
+- `actorGuzmaNominalGustOptIn=false`
+- `actorGuzmaPromptContinuationOptIn=true`
+- `actorZeroEnergyStrandFloatStoneRootOptIn=true`
+
+Thus the run had Guzma prompt continuation and a narrow zero-energy Float Stone fallback, but not the general charged-attacker promotion, nominal Guzma gust, or funded Shadow Rider Float Stone mobility paths. The rank-7 candidate Active VMAX had one or two Energy, not zero; the zero-energy fallback did not cover the observed stranded states. This is a direct configuration limitation of the evaluated policy, not evidence that the fixed 60 cannot execute the Hood/retreat/Clefairy line.
+
 ## Full-cohort result
 
 Across all 58 Hood rows, no `nativePromptChoices` event selected Stealthy Hood, and no public attack snapshot or final board showed a Pokémon with Stealthy Hood attached. This is not proof that no transient play-and-removal occurred (the root-action ledger does not record card names), but the common-policy cohort demonstrated no persistent Hood package use.
