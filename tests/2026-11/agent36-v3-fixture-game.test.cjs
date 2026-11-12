@@ -93,3 +93,18 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   assert.ok(diagnosticAsset && /^[0-9a-f]{64}$/i.test(diagnosticAsset.sha256), 'full-state serializer must be hash-bound as a data asset');
   assert.equal(Object.prototype.hasOwnProperty.call(built.expectedByPath, diagnosticPath), false, 'full-state serializer must not enter the policy module closure');
 });
+
+test('fixture runner injects offline full-state diagnostics and persists partial failures before rethrow', () => {
+  const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  assert.match(runnerSource, /diagnosticSnapshot:\s*diagnostic\.snapshotFullGameState/);
+  assert.match(runnerSource, /requireFullStateDiagnostics:\s*true/);
+  const diagnosticRequire = runnerSource.indexOf("const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs')");
+  const pinInstall = runnerSource.indexOf('runPinnedV3RoleRuntime({', diagnosticRequire);
+  assert.ok(diagnosticRequire >= 0 && pinInstall > diagnosticRequire, 'diagnostic function reference must be captured before the fixture pin');
+  assert.match(runnerSource, /fixtureGamePartial/);
+  assert.match(runnerSource, /NonTerminalFixtureGame/);
+  const artifactWrite = runnerSource.indexOf('writeJsonAtomic(outputPath, artifact)');
+  const traceWrite = runnerSource.indexOf("fs.writeFileSync(traceTextPath, traceText, 'utf8')");
+  const failureRethrow = runnerSource.indexOf('throw error;', traceWrite);
+  assert.ok(artifactWrite >= 0 && traceWrite > artifactWrite && failureRethrow > traceWrite, 'partial artifacts must be written before the workflow is failed');
+});
