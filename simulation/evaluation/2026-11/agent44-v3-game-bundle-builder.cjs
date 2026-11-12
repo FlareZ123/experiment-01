@@ -27,6 +27,12 @@ const OFFSET_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}
 function nonempty(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
+
+function repoRelativeArtifactRef(value) {
+  return nonempty(value) && !value.startsWith('/') && !value.includes('\\') &&
+    !value.includes(':') && !value.includes('?') && !value.includes('#') &&
+    value.split('/').every(segment=>segment.length>0&&segment!=='.'&&segment!=='..');
+}
 function stableId(value) {
   return nonempty(value) && value === value.trim() && value.length <= 256 &&
     !/[\u0000-\u001f\u007f]/.test(value);
@@ -125,7 +131,7 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       input.preDealArtifactRef.trim():
       (typeof gameRegistration?.registrationRef==='string'&&gameRegistration.registrationRef.trim()?
         gameRegistration.registrationRef.trim()+'.policy-predeal.json':null);
-  if (!preDealArtifactRef) failures.push('predeal-artifact-reference-invalid');
+  if (!repoRelativeArtifactRef(preDealArtifactRef)) failures.push('predeal-artifact-reference-invalid');
 
   if (!stableId(producerId)) failures.push('bundle-producer-id-invalid');
   if (!stableId(trialId)) failures.push('trial-id-invalid');
