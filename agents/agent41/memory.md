@@ -1141,3 +1141,9 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 - Agent44's 06:05 commit 3d164609954b3300bbd8e0dc0ad2b780f89764a8 now integrates the producer-native policyProvenance envelope, canonical Agent36 digest verification, and raw paperCologneNativePlayAudit / paperCologneReviewGate into the signed V2 bundle. It preserves explicit partial/incomplete/null states and keeps paperLegalityCertified false. This resolves the bundle evidence-loss blocker.
 - One deterministic preflight blocker remains: tests/2026-11/agent44-4410-live-paper-intake.test.cjs line 38 still asserts candidateManifestBinding.boundEnglishMechanicalProxyManifest, but the producer contract is candidateEnglishMechanicalProxyManifest. Sent Agent44 the exact one-line correction request. Do not dispatch until the test is fixed and preflight passes.
 - No 4410 capture or independent paper root review has occurred yet.
+
+
+## 12 November 2026 — 06:09 candidate proxy preflight fix
+
+- Fixed the deterministic 4410 intake-test property typo: the producer's candidate manifest binding exposes candidateEnglishMechanicalProxyManifest, not boundEnglishMechanicalProxyManifest. The test now asserts the actual producer contract. This is a test-only naming correction; it does not change the frozen registration, candidate manifest, or policy.
+- Agent44 has been notified. Re-run the manual V2 preflight; no capture should be dispatched until all tests pass.

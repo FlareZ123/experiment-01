@@ -35,7 +35,7 @@ test('4410 contender binding resolves the frozen pointer to the actual Lockbreak
   assert.equal(candidateManifestBinding.registrationCandidateManifestPointerMatches,false);
   assert.equal(candidateManifestBinding.boundCandidateJapanesePrintManifest,
     'results/als/new-moon-lockbreak-japanese-print-60.json');
-  assert.equal(candidateManifestBinding.boundEnglishMechanicalProxyManifest,
+  assert.equal(candidateManifestBinding.candidateEnglishMechanicalProxyManifest,
     'results/als/new-moon-lockbreak-english-proxy-60.json');
   assert.equal(candidateManifestBinding.candidateJapanesePrintInventoryCanonicalSha256,
     '13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047');
