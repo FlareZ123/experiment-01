@@ -602,6 +602,22 @@ test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field
   assert.equal(r.competitiveAdmission,false);
 });
 
+
+test('V3 postgame reviews sign the finalized bundle externally without changing its digest',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const audit=terminalAudit();
+  bundle.trial.responseOpportunityAudit=audit;
+  const finalBundleSha=evidenceBundleSha256(bundle);
+  const game=signReviews(bundle,{roles:['paper','strategy'],strategyAudit:audit});
+  assert.ok(game.reviews.every(review=>review.bundleSha256===finalBundleSha));
+  assert.equal(evidenceBundleSha256(bundle),finalBundleSha);
+  const r=inspectAdmissionV3(bundle,game.reviews,combineRegistries(policyRegistry,game.registry));
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.responseOpportunityVerified,true);
+  assert.equal(r.competitivePolicyCompetenceReady,true);
+});
+
+
 test('complete 29-rank receipt coverage still cannot complete the missing three-rank field',()=>{
   const {bundle}=makePolicyBundle();
   const receipts=populatePanelCoverage(bundle);
