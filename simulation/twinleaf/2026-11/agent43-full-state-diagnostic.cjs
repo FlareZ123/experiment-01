@@ -296,7 +296,7 @@ function formatFixtureGameTraceText(game) {
     lines.push('--- FINAL FULL STATE ---');
     lines.push(formatFullGameStateText(finalFullState));
   }
-  const finalDiagnosticFailure = game?.finalDiagnosticFailure ?? game?.diagnosticSnapshotFailure ?? partial?.diagnosticSnapshotFailure ?? null;
+  const finalDiagnosticFailure = game?.finalDiagnosticFailure ?? game?.diagnosticSnapshotFailure ?? partial?.finalDiagnosticFailure ?? partial?.diagnosticSnapshotFailure ?? null;
   if (finalDiagnosticFailure) {
     lines.push(`FINAL DIAGNOSTIC FAILURE ${JSON.stringify(finalDiagnosticFailure)}`);
   }
