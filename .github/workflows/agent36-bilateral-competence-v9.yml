@@ -337,6 +337,7 @@ jobs:
           node --check simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs
+          node --check simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs
       - name: Verify V3 fixture game, role composition, and source contracts
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
         run: |
@@ -349,7 +350,8 @@ jobs:
             tests/2026-11/agent44-v3-game-bundle-builder.test.cjs \
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
-            tests/2026-11/agent36-v3-fixture-game.test.cjs
+            tests/2026-11/agent36-v3-fixture-game.test.cjs \
+            tests/2026-11/agent1-private-diagnostic-envelope.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
         if: ${{ inputs.agent36_v3_predeal_preflight }}
         env:
@@ -469,13 +471,22 @@ jobs:
           node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
           node simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
 
+      - name: Encrypt private V3 fixture diagnostics before artifact upload
+        if: ${{ always() && !inputs.contract_only }}
+        env:
+          AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
+        run: node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture
+
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() && !inputs.contract_only }}
         uses: actions/upload-artifact@v4
         with:
           name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
           path: |
-            artifacts/agent36-v3-fixture/
+            artifacts/agent36-v3-fixture/fixture-game.private.enc.json
+            artifacts/agent36-v3-fixture/fixture-game.public-manifest.json
+            !artifacts/agent36-v3-fixture/fixture-game.json
+            !artifacts/agent36-v3-fixture/fixture-game.txt
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent24-v8-bilateral-perfection/
             artifacts/agent24-v8-perfection-260root/
