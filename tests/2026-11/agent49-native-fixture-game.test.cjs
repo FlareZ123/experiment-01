@@ -209,6 +209,9 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
         players:state.players.map(player=>({
           hand:player.hand.cards.map(card=>card.fullName),
           deck:player.deck.cards.map(card=>card.fullName)
+        })),
+        prompts:state.prompts.map(prompt=>({
+          id:prompt.id,type:prompt.constructor.name,playerId:prompt.playerId
         }))
       };
     },
@@ -250,12 +253,19 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
     'private-offline-diagnostic-only');
   assert.deepEqual(result.decisionTrace[2].fullStateBefore.players[1].hand,
     ['B card 0']);
-  assert.deepEqual(result.decisionTrace[2].policyObservationBefore.ownHand,
+  assert.deepEqual(result.decisionTrace[2].actorObservationBefore.ownHand,
     ['A card 0']);
-  assert.equal(JSON.stringify(result.decisionTrace[2].policyObservationBefore)
+  assert.equal(JSON.stringify(result.decisionTrace[2].actorObservationBefore)
     .includes('B card 0'),false);
-  assert.deepEqual(result.decisionTrace[3].policyObservationBefore.ownHand,
+  assert.match(result.decisionTrace[2].actorObservationSha256,/^[a-f0-9]{64}$/);
+  assert.deepEqual(result.decisionTrace[3].actorObservationBefore.ownHand,
     ['B card 0']);
+  assert.equal(result.decisionTrace[0].promptResolverContext.resolver,
+    'physical-randomization');
+  assert.equal(result.decisionTrace[0].promptResolverContext.promptSnapshot.type,
+    'ShuffleDeckPrompt');
+  assert.equal(result.decisionTrace[1].promptResolverContext.promptSnapshot.type,
+    'CoinFlipPrompt');
   assert.deepEqual(result.decisionTrace[2].selectedCardIdentity,{
     playerId:101,handIndex:0,fullName:'A card 0'
   });
