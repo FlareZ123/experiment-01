@@ -236,10 +236,10 @@ function execute(){
     Boolean(zoneEvidence.initialStablePhysicalDeal);
   const physicalPassed=row.physicalZoneQualification?.physicalIntegrityQualified===true;
   const nativeFinished=row.finished===true&&!row.error;
+  const rawNativeReceiptCaptureComplete=rootReceiptAlignment.complete;
   const nativeTraceComplete=nativeFinished&&nativeRoots.length>0&&
     zoneEvidence.postAcceptedRootCount===nativeRoots.length&&
     rawNativeReceiptCaptureComplete;
-  const rawNativeReceiptCaptureComplete=rootReceiptAlignment.complete;
   const targetLinked=row.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
