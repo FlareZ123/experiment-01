@@ -1,0 +1,99 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const {
+  encryptDiagnosticBundle,
+  decryptDiagnosticBundle,
+  encryptFixtureArtifacts,
+  sha256,
+} = require('../../simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs');
+
+function keyPair() {
+  return crypto.generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+  });
+}
+
+function temp(fn) {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'agent1-private-diagnostic-'));
+  try { fn(directory); }
+  finally { fs.rmSync(directory, { recursive: true, force: true }); }
+}
+
+test('AES-GCM payload wrapped by RSA-OAEP round-trips both machine and human diagnostic files', () => {
+  const keys = keyPair();
+  const files = [
+    { path: 'fixture-game.json', bytes: Buffer.from('{"schema":"fixture","secretHand":["Psychic Energy"]}\n') },
+    { path: 'fixture-game.txt', bytes: Buffer.from('PRIVATE STATE\nHAND ["Psychic Energy"]\n') },
+  ];
+  const encrypted = encryptDiagnosticBundle({ publicKeyPem: keys.publicKey, files });
+  assert.equal(encrypted.envelope.files.length, 2);
+  assert.ok(!encrypted.bytes.toString('utf8').includes('Psychic Energy'));
+  const decrypted = decryptDiagnosticBundle({ privateKeyPem: keys.privateKey, envelopeBytes: encrypted.bytes });
+  assert.deepEqual(decrypted.files.map(file => ({ path: file.path, bytes: file.bytes.toString('utf8') })),
+    files.map(file => ({ path: file.path, bytes: file.bytes.toString('utf8') })));
+});
+
+test('tampering with encrypted diagnostic bytes fails GCM authentication', () => {
+  const keys = keyPair();
+  const encrypted = encryptDiagnosticBundle({ publicKeyPem: keys.publicKey,
+    files: [{ path: 'fixture-game.json', bytes: Buffer.from('{"secret":true}') }] });
+  const envelope = JSON.parse(encrypted.bytes.toString('utf8'));
+  const ciphertext = Buffer.from(envelope.ciphertextBase64, 'base64');
+  ciphertext[0] ^= 1;
+  envelope.ciphertextBase64 = ciphertext.toString('base64');
+  assert.throws(() => decryptDiagnosticBundle({ privateKeyPem: keys.privateKey,
+    envelopeBytes: Buffer.from(JSON.stringify(envelope)) }), /authenticate|Unsupported state|unable to authenticate/i);
+});
+
+test('wrong recipient private key is rejected before decryption', () => {
+  const first = keyPair(), second = keyPair();
+  const encrypted = encryptDiagnosticBundle({ publicKeyPem: first.publicKey,
+    files: [{ path: 'fixture-game.json', bytes: Buffer.from('private') }] });
+  assert.throws(() => decryptDiagnosticBundle({ privateKeyPem: second.privateKey,
+    envelopeBytes: encrypted.bytes }), /does not match/);
+});
+
+test('fixture encryption atomically writes a public manifest and deletes plaintext only after encryption', () => {
+  const keys = keyPair();
+  temp(directory => {
+    const json = Buffer.from('{"visibility":"private-offline-diagnostic-only","fullState":{"hand":["A"]}}\n');
+    const text = Buffer.from('PRIVATE HAND A\n');
+    fs.writeFileSync(path.join(directory, 'fixture-game.json'), json);
+    fs.writeFileSync(path.join(directory, 'fixture-game.txt'), text);
+    const result = encryptFixtureArtifacts({ directory, publicKeyPem: keys.publicKey, deletePlaintext: true });
+    assert.equal(result.skipped, false);
+    assert.equal(fs.existsSync(path.join(directory, 'fixture-game.json')), false);
+    assert.equal(fs.existsSync(path.join(directory, 'fixture-game.txt')), false);
+    assert.equal(fs.existsSync(path.join(directory, 'fixture-game.private.enc.json')), true);
+    const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'fixture-game.public-manifest.json'), 'utf8'));
+    assert.equal(manifest.visibility, 'private-offline-diagnostic-only');
+    assert.deepEqual(manifest.plaintextFiles.map(file => file.sha256).sort(), [sha256(json), sha256(text)].sort());
+    const decrypted = decryptDiagnosticBundle({ privateKeyPem: keys.privateKey,
+      envelopeBytes: fs.readFileSync(path.join(directory, 'fixture-game.private.enc.json')) });
+    assert.equal(decrypted.files.length, 2);
+  });
+});
+
+test('no files is a safe no-op and requires no key', () => {
+  temp(directory => {
+    assert.deepEqual(encryptFixtureArtifacts({ directory, publicKeyPem: undefined }),
+      { skipped: true, reason: 'no full-state diagnostic files exist' });
+  });
+});
+
+test('path traversal and non-RSA recipient keys are rejected', () => {
+  const keys = keyPair();
+  assert.throws(() => encryptDiagnosticBundle({ publicKeyPem: keys.publicKey,
+    files: [{ path: '../secret', bytes: Buffer.from('x') }] }), /traversal/);
+  const ec = crypto.generateKeyPairSync('ed25519');
+  assert.throws(() => encryptDiagnosticBundle({ publicKeyPem: ec.publicKey.export({ type: 'spki', format: 'pem' }),
+    files: [{ path: 'fixture-game.json', bytes: Buffer.from('x') }] }), /must be RSA/);
+});
