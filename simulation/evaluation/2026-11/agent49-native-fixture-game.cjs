@@ -74,6 +74,47 @@ function actionName(action) {
   return action?.constructor?.name??action?.type??'UnknownAction';
 }
 
+function projectJsonSafe(value,seen=new WeakSet(),depth=0) {
+  if(value===null || typeof value==='string' || typeof value==='boolean') return value;
+  if(typeof value==='number') return Number.isFinite(value)?value:String(value);
+  if(typeof value==='undefined') return null;
+  if(typeof value==='bigint') return value.toString();
+  if(typeof value==='function') return {functionName:value.name||'anonymous'};
+  if(depth>16) return {truncated:'max-depth',type:value?.constructor?.name??'Object'};
+  if(value instanceof Date) return value.toISOString();
+  if(value instanceof RegExp) return String(value);
+  if(Array.isArray(value))
+    return value.slice(0,512).map(item=>projectJsonSafe(item,seen,depth+1));
+  if(value instanceof Map)
+    return [...value.entries()].slice(0,512).map(([key,item])=>[
+      projectJsonSafe(key,seen,depth+1),projectJsonSafe(item,seen,depth+1)
+    ]);
+  if(value instanceof Set)
+    return [...value.values()].slice(0,512).map(item=>projectJsonSafe(item,seen,depth+1));
+  if(typeof value==='object') {
+    if(seen.has(value)) return {cycle:true,type:value.constructor?.name??'Object'};
+    seen.add(value);
+    const projected={type:value.constructor?.name??'Object'};
+    for(const key of Object.keys(value).sort().slice(0,512)) {
+      try {
+        projected[key]=projectJsonSafe(value[key],seen,depth+1);
+      } catch(error) {
+        projected[key]={unreadable:true,errorName:error?.name??'Error'};
+      }
+    }
+    seen.delete(value);
+    return projected;
+  }
+  return String(value);
+}
+
+function projectActionPayload(action) {
+  return {
+    actionName:actionName(action),
+    fields:projectJsonSafe(action)
+  };
+}
+
 function validateInputs(input) {
   assert.ok(input&&typeof input==='object','fixture match input is required');
   const native=input.native;
@@ -217,6 +258,8 @@ function runNativeFixtureGame(input) {
       if(!action)
         throw new Error('Native fixture policy failed to produce an action');
       const before=publicStateSnapshot(state);
+      const actionPayload=projectActionPayload(action);
+      const actionPayloadSha256=sha256Json(actionPayload);
       const record={
         actionOrdinal:actions,
         actingSeat,
@@ -230,6 +273,8 @@ function runNativeFixtureGame(input) {
         isRootDecision,
         actionName:actionName(action),
         actionType:action.type??null,
+        actionPayload,
+        actionPayloadSha256,
         publicStateBefore:before
       };
       try {
@@ -261,6 +306,7 @@ function runNativeFixtureGame(input) {
         turnAfter:store.state.turn,
         playerSlot:actingSeat,
         action:record.actionName,
+        actionPayloadSha256:record.actionPayloadSha256,
         pendingPrompt:record.pendingPromptType,
         isRootDecision,
         promptResolution
@@ -326,5 +372,6 @@ module.exports={
   seededRandom,
   deckPermutation,
   publicStateSnapshot,
+  projectActionPayload,
   runNativeFixtureGame
 };
