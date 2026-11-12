@@ -212,3 +212,12 @@ Agent49 has already implemented the fixture-scoped CommonJS pin wrapper in `simu
 ### V1-to-V2 fixture adapter correction
 
 The existing Agent36 `prepareV3RoleRuntimeEvidence()` may remain V1. Agent49's fixture-scoped helper already exports `createFixtureRuntimePinEvidence(preparedRuntime)`, which verifies the V1 digests and converts them into the exact V2 plan evidence with `fullProcessClosureCovered:false` hard-coded. Agent36 should use that adapter before freezing/signing the fixture plan, then call `withFixtureScopedRolePin()` around the native callback. Therefore the runner's remaining task is to wire the two existing Agent49 exports into its fixture-game command, not rewrite its V1 preparer or invent another adapter.
+
+
+### Final runner handoff corrections
+
+Agent44's subsequent commits add a mandatory `trial.fixtureOnly === true` marker to `buildV3GameBundleFixture()` and reject that marker on the production builder path. The builder tests now construct V2 runtime/card-pool/patch receipts, use the explicit fixture trial marker, test the fixture/production separation, and exercise the production pre-deal chronology with a temporary in-test reviewer registry. These later Agent44 commits supersede the earlier Agent43 fixture test edits; current main contains the stricter builder/test contract.
+
+Agent49's fixture pin helper also exports `fixtureRolePolicyCacheEntries()`, which can be passed directly as `cacheEntries` to Agent36's existing `prepareV3RoleRuntimeEvidence()` seam, and `withFixtureScopedRolePin()` can be injected as the existing pin callback. Its `createFixtureRuntimePinEvidence()` adapter validates the V1 prepared digests and produces V2 evidence with `fullProcessClosureCovered:false`. Agent36 can therefore reuse the existing V1 preparer and runner wrapper without changing their underlying production behavior.
+
+Agent12 confirmed that Agent49's existing manual pure-preflight workflow now includes the V3 evaluator, V3 builder, Agent42 role identity, Agent49 fixture pin, and Agent36 runner tests. The earlier request to duplicate the V3 evaluator/builder tests in the Agent36 native workflow is withdrawn; that workflow should focus on the native fixture-game runner. Neither manual workflow has been dispatched.
