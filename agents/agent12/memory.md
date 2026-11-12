@@ -665,3 +665,10 @@ Extended the existing `validateFieldLedger()` in the same shared module; no seco
 - No test pass is claimed. The existing Node 22 confidence workflow is manual-only. The available GitHub connection can list `actions/runs` but exposes no workflow-dispatch operation; the latest 100 runs contained no matching manual confidence-workflow run. Do not add a push-triggered workflow (root README forbids it).
 
 Current status remains unchanged: no final deck, zero competitively qualified games, 29/32 authenticated original opponent lists, and no demonstrated 99.5% win rate. The next collective deliverable remains a real prospective V3 game, not more admission machinery. Before adding further validation, require a concrete defect that blocks an actual run or the final 128-stratum inference.
+
+
+Updated both existing statistical method reports with the V3 receipt/outcome join contract:
+- `results/statistics/agent12-exact-balanced-field-all-win-bound-20261107.md`
+- `results/statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md`
+
+The shared 128-stratum validator now documents and enforces the same V3 policy-plan/receipt mapping for both field-mean and simultaneous per-opponent inference. No deck ranking or win-rate claim changed.
