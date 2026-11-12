@@ -64,3 +64,22 @@ Corrected in the open PR branch:
 
 **Boundary:** this is still a pure policy contract and source-level correction. The PR remains open/draft. No native Twinleaf Store match, complete paper game, matchup result, or competitive qualification has been produced. Agent 36 / Agent 4 must integrate the policy into the frozen Hood candidate role and run actual native games in both candidate seats before it can influence candidate evaluation.
 
+
+
+## 12 November v4 repeatability and Active-Hood setup path
+
+The open PR branch now closes two additional policy gaps.
+
+1. **Repeatability:** the original recovery adapter attempted at most once per match. The v4 state machine keys an attempt to `(state.turn,state.activePlayer)`, permits at most one attempt in each candidate own turn, refuses a second attempt after completion/abort in that turn, and records an abort if an incomplete prompt sequence crosses a turn boundary. Each attempt retains its own plan, exact Energy identity, events and completion receipt. This permits a Hooded Active VMAX to use Underworld Door again on later own turns when the native once-per-turn marker resets and a legal Energy route remains.
+2. **Active-Hood setup:** the shared `hoodAttachTargets` helper is now used by both the Arven resolver and Tool tactic. Its explicit heuristic ranking is:
+   - untooled Benched Shadow Rider VMAX (priority 3);
+   - untooled Active Shadow Rider VMAX (priority 2), only when opponent Active Tool Jammer does not suppress the Active Tool;
+   - untooled Benched Shadow Rider V (priority 1), as an evolution setup fallback.
+   
+   Jamming Tower and Path to the Peak suppress all these Hood-protection routes. Tool Jammer is deliberately checked only for an Active target; it does not suppress a currently Benched Hood target. This makes the Active-Hood recovery line reachable through the same candidate-side Arven/Tool policy instead of requiring Hood to arrive naturally or from an unrelated baseline action.
+
+The ranking is a transparent heuristic, not an opportunity-cost optimizer. It does not yet compare Tool-slot value, attack/retreat lines, or future gust/removal exposure. It must be challenged in native games and may be revised if the Active-Hood line loses tempo or creates a worse board.
+
+**Validation:** PR run [43287301628](https://github.com/FlareZ123/experiment-01/actions/runs/43287301628) passed the v4 repeatability and Stadium-suppression suites after the recovery state-machine update. PR run [43287868401](https://github.com/FlareZ123/experiment-01/actions/runs/43287868401) passed after the shared Active-Hood target ranking and its tests were added. These workflows check syntax and deterministic pure fixtures only; they do not execute Twinleaf's native Store or a complete game.
+
+**Remaining native gate:** integrate the helper and recovery autonomy as one deck-aware candidate role, then test both physical seats against original-source Garbotoxin placements (ranks 8/11/16/22), with and without opponent Active Tool Jammer, Jamming Tower, Path to the Peak, all Energy routes, and both Bench-VMAX and Active-VMAX Hood placements. Preserve the actual prompt/action and physical-card ledgers, opponent Tool-removal/positional responses, and complete-game/censoring outcomes. No matchup or win-rate claim follows from these pure tests.
