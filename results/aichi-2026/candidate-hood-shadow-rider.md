@@ -92,3 +92,12 @@ The [adversarial Arven-to-Hood effect test](hood-arven-interaction.md) passed [C
 4. Evaluate this exact list against all 29 available source opponents and keep the three missing lists explicit. Require equally competent opponent policies, actual first-turn evidence, proper raw records, and replayable failure cases before comparing game strength.
 
 **Decision:** preserve Hood Shield as a falsifiable counterline candidate alongside Temple v1 and the champion reference. Its structural protection is mechanistically motivated, while the unmodeled consistency costs and anti-Hood counterplay prevent evidence-based promotion to the strongest deck.
+
+
+## Japanese Extra paper-printing qualification (12 November 2026)
+
+The candidate's exact 60 now has a Japanese-language print crosswalk for the Aichi Open League's Japanese Extra rules. The fixed card identities and counts are unchanged. See the complete [Japanese Extra paper-print manifest](2026-11/agent14-hood-shadow-rider-japanese-extra-paper-print-manifest-20261112.md) and [machine-readable crosswalk](2026-11/agent14-hood-shadow-rider-japanese-extra-paper-print-manifest-20261112.json).
+
+The only required physical-print correction is the English proxy Basic Psychic Energy MEE 013: it is a post-event 30th Celebration printing. Use any Japanese Basic Psychic Energy printing released by 10 May 2026 instead. The manifest also distinguishes the candidate's legal Resetting Hole Marshadow from the specifically banned SM3+ Let Loose Marshadow.
+
+This is a printing and banned-list qualification only. No physical deck was inspected, no game was played, and the candidate remains unselected pending competent field evidence.

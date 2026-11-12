@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "candidate_id": "hood-shield-shadow-rider-v1",
+  "candidate_source": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "prepared_at": "2026-11-12",
+  "benchmark": {
+    "event": "Champions League 2026 Aichi May",
+    "event_date": "2026-05-10",
+    "league": "Open League",
+    "format": "Japanese Extra",
+    "deck_size": 60,
+    "prize_cards": 6,
+    "language_requirement": "Japanese only",
+    "official_event_url": "https://www.pokemon-card.com/info/005445.html",
+    "official_extra_regulation_url": "https://www.pokemon-card.com/rules/regulation/",
+    "regulation_updated": "2026-02-19"
+  },
+  "counts": {
+    "pokemon": 18,
+    "trainers": 31,
+    "energy": 11,
+    "total": 60,
+    "ace_spec": 1,
+    "unique_card_identities": 34
+  },
+  "cards": [
+    {
+      "section": "pokemon",
+      "count": 4,
+      "english": "Shadow Rider Calyrex V",
+      "proxy": "CRE 074",
+      "japanese": "こくばバドレックスV",
+      "print": "S6K 075/070",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q",
+      "note": "The event champion reference uses 3; this candidate uses 4, within the four-copy limit."
+    },
+    {
+      "section": "pokemon",
+      "count": 4,
+      "english": "Shadow Rider Calyrex VMAX",
+      "proxy": "CRE 075",
+      "japanese": "こくばバドレックスVMAX",
+      "print": "S6K 037/070",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 2,
+      "english": "Lillie's Clefairy ex",
+      "proxy": "JTG 056",
+      "japanese": "リーリエのピッピex",
+      "print": "SV9 115/100",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Tapu Lele-GX",
+      "proxy": "GRI 060",
+      "japanese": "カプ・テテフGX",
+      "print": "SM2L 052/050",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Trevenant & Dusknoir-GX",
+      "proxy": "SMP 217",
+      "japanese": "オーロット&ヨノワールGX",
+      "print": "SM12a 178/173",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Latias ex",
+      "proxy": "SSP 076",
+      "japanese": "ラティアスex",
+      "print": "SV7a 078/064",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Dialga-GX",
+      "proxy": "UPR 100",
+      "japanese": "ディアルガGX",
+      "print": "SM5S 069/066",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Mimikyu",
+      "proxy": "GRI 058",
+      "japanese": "ミミッキュ",
+      "print": "SM4p 043/114",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Girafarig",
+      "proxy": "LOT 094",
+      "japanese": "キリンリキ",
+      "print": "SM8 045/095",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Marshadow",
+      "proxy": "UNB 081",
+      "japanese": "マーシャドー",
+      "print": "SM12a 064/173",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q",
+      "note": "Resetting Hole printing; not the banned SM3+ Let Loose printing."
+    },
+    {
+      "section": "pokemon",
+      "count": 1,
+      "english": "Radiant Eternatus",
+      "proxy": "CRZ 105",
+      "japanese": "かがやくムゲンダイナ",
+      "print": "S12a 115/172",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q"
+    },
+    {
+      "section": "supporter",
+      "count": 2,
+      "english": "Lillie's Determination",
+      "proxy": "MEG 119",
+      "japanese": "リーリエの決心",
+      "print": "M1L 062/063",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/47795"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Iono",
+      "proxy": "PAL 185",
+      "japanese": "ナンジャモ",
+      "print": "SV2D 069/071",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/43205"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Teammates",
+      "proxy": "PRC 141",
+      "japanese": "センパイとコウハイ",
+      "print": "XY5-Bg 066/070",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/30728"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Raihan",
+      "proxy": "EVS 152",
+      "japanese": "キバナ",
+      "print": "S7D 063/067",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/39732"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Acerola",
+      "proxy": "BUS 112",
+      "japanese": "アセロラ",
+      "print": "SM2p 047/049",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/33514"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Guzma",
+      "proxy": "BUS 115",
+      "japanese": "グズマ",
+      "print": "SM3N 049/051",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/33963"
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Pokémon Ranger",
+      "proxy": "STS 104",
+      "japanese": "ポケモンレンジャー",
+      "print": "XY11-Bb 058/054",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/35853",
+      "note": "Candidate-only addition; XY11-era Japanese print predates the event."
+    },
+    {
+      "section": "supporter",
+      "count": 1,
+      "english": "Arven",
+      "proxy": "SVI 166",
+      "japanese": "ペパー",
+      "print": "SV1V 076/078",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/42700",
+      "note": "Candidate-only addition; SV1V-era Japanese print predates the event."
+    },
+    {
+      "section": "item",
+      "count": 4,
+      "english": "Mysterious Treasure",
+      "proxy": "FLI 113",
+      "japanese": "ミステリートレジャー",
+      "print": "SM6 083/094",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/34757"
+    },
+    {
+      "section": "item",
+      "count": 4,
+      "english": "Fog Crystal",
+      "proxy": "CRE 140",
+      "japanese": "霧の水晶",
+      "print": "S6K 060/070",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/39491"
+    },
+    {
+      "section": "item",
+      "count": 2,
+      "english": "VS Seeker",
+      "proxy": "PHF 109",
+      "japanese": "バトルサーチャー",
+      "print": "XY 115/171",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/33667"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Quick Ball",
+      "proxy": "FST 237",
+      "japanese": "クイックボール",
+      "print": "S1H 052/060",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/37722"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Hisuian Heavy Ball",
+      "proxy": "ASR 146",
+      "japanese": "ヒスイのヘビーボール",
+      "print": "S10P 062/067",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/41490"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Battle Compressor",
+      "proxy": "PHF 092",
+      "japanese": "バトルコンプレッサー（フレア団ギア）",
+      "print": "XY4 079/088",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/30550"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Field Blower",
+      "proxy": "GRI 125",
+      "japanese": "フィールドブロアー",
+      "print": "SM2K 048/050",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/33367"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Night Stretcher",
+      "proxy": "ASC 196",
+      "japanese": "夜のタンカ",
+      "print": "SV6a 056/064",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/45931"
+    },
+    {
+      "section": "item",
+      "count": 1,
+      "english": "Unfair Stamp",
+      "proxy": "TWM 165",
+      "japanese": "アンフェアスタンプ",
+      "print": "SV5a 053/066",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/45640",
+      "note": "ACE SPEC; exactly one copy in this list."
+    },
+    {
+      "section": "tool",
+      "count": 1,
+      "english": "Float Stone",
+      "proxy": "BKT 137",
+      "japanese": "かるいし",
+      "print": "BW8-Brn 048/051",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/28612"
+    },
+    {
+      "section": "tool",
+      "count": 1,
+      "english": "Forest Seal Stone",
+      "proxy": "SIT 156",
+      "japanese": "森の封印石",
+      "print": "S12 092/098",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/42184"
+    },
+    {
+      "section": "tool",
+      "count": 2,
+      "english": "Stealthy Hood",
+      "proxy": "UNB 186",
+      "japanese": "隠密フード",
+      "print": "SM9a 046/055",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/36191",
+      "note": "Candidate-only addition; SM9a-era Japanese print predates the event."
+    },
+    {
+      "section": "stadium",
+      "count": 1,
+      "english": "Sky Field",
+      "proxy": "ROS 089",
+      "japanese": "スカイフィールド",
+      "print": "XY6-B 077/078",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/30932"
+    },
+    {
+      "section": "stadium",
+      "count": 1,
+      "english": "Dimension Valley",
+      "proxy": "PHF 093",
+      "japanese": "次元の谷",
+      "print": "XY4 087/088",
+      "source": "https://www.pokemon-card.com/card-search/details.php/card/30558"
+    },
+    {
+      "section": "energy",
+      "count": 11,
+      "english": "Basic Psychic Energy",
+      "proxy": "MEE 013",
+      "japanese": "基本超エネルギー",
+      "print": "Any Japanese Basic Psychic Energy printing released on or before 2026-05-10",
+      "source": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q",
+      "note": "Do not use English MEE 013: it is the post-event 30th Celebration print. The official Aichi champion list uses 11 Basic Psychic Energy; choose an earlier Japanese printing."
+    }
+  ],
+  "checks": {
+    "japanese_print_mapping": "complete, subject to the Basic Psychic Energy print instruction",
+    "selected_prints_pre_event": true,
+    "banned_cards": [],
+    "banned_name_review": [
+      {
+        "candidate": "Marshadow",
+        "selected_japanese_print": "SM12a 064/173",
+        "effect_identity": "Resetting Hole",
+        "banned_scope": "Marshadow SM3+ (and equivalent) with Let Loose / やぶれかぶれ",
+        "is_banned": false
+      },
+      {
+        "candidate": "Forest Seal Stone",
+        "selected_japanese_print": "S12 092/098",
+        "not_to_confuse_with": "Forest of Giant Plants / 巨大植物の森",
+        "is_banned": false
+      },
+      {
+        "candidate": "Unfair Stamp",
+        "selected_japanese_print": "SV5a 053/066",
+        "not_to_confuse_with": "Reset Stamp / リセットスタンプ",
+        "is_banned": false
+      }
+    ],
+    "ace_spec": {
+      "card": "Unfair Stamp",
+      "count": 1,
+      "maximum_per_deck": 1,
+      "valid": true
+    },
+    "basic_psychic_energy": {
+      "count": 11,
+      "candidate_proxy": "MEE 013",
+      "proxy_print_status": "post-event 30th Celebration printing; not selected for paper use",
+      "paper_instruction": "Use any Japanese Basic Psychic Energy printing released on or before 2026-05-10."
+    },
+    "physical_inspection": "not performed",
+    "game_strength": "not evaluated by this printing manifest"
+  },
+  "references": {
+    "official_event": "https://www.pokemon-card.com/info/005445.html",
+    "official_extra_regulation": "https://www.pokemon-card.com/rules/regulation/",
+    "official_aichi_champion_deck": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q",
+    "mee_013_release_reference": "https://billsarchive.com/30th-celebration.html"
+  }
+}
