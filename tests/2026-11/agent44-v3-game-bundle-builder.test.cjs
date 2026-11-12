@@ -156,7 +156,10 @@ function makePreDeal(fixture,{pastDeal=false}={}) {
 
 function makeTrial(preDeal,fixture) {
   const trialId=preDeal.trialId;
-  const dealGeneratedAt=new Date(Date.parse(preDeal.gameRegistration.dealGeneratedAt)+1000).toISOString();
+  const dealGenerationStepStartedAt=new Date(
+    Date.parse(preDeal.gameRegistration.dealGeneratedAt)+1000).toISOString();
+  const dealGeneratedAt=new Date(
+    Date.parse(preDeal.gameRegistration.dealGeneratedAt)+2000).toISOString();
   const initialSourceDealFingerprint=policyHash(8001);
   const roots=[{actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction'}];
   return {
@@ -164,7 +167,7 @@ function makeTrial(preDeal,fixture) {
     preregistrationEvidenceRef:preDeal.gameRegistration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(preDeal.gameRegistration),
     preregistration:preDeal.gameRegistration,timingMode:UNTIMED,
-    dealGeneratedAt,initialSourceDealFingerprint,
+    dealGeneratedAt,dealGenerationStepStartedAt,initialSourceDealFingerprint,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:policyHash(1),fullPhysicalDealSha256:policyHash(2),
     vendorCommitSha:'a'.repeat(40),researchRevisionSha:'b'.repeat(40),
@@ -241,7 +244,7 @@ function makeDealGenerationReceipt(preDeal,trial,persistenceReceipt) {
     workflowHeadSha:persistenceReceipt.workflowHeadSha,
     jobId:'1234567891',
     stepName:'Generate physical deal',
-    stepStartedAt:trial.dealGeneratedAt,
+    stepStartedAt:trial.dealGenerationStepStartedAt,
     runnerRevision:trial.researchRevisionSha,
     sourceDealFingerprint:trial.initialSourceDealFingerprint
   };
@@ -431,7 +434,7 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
   },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
 
   const latePersistence={...preDealPersistenceReceipt,
-    workflowRunStartedAt:trial.dealGeneratedAt};
+    workflowRunStartedAt:trial.dealGenerationStepStartedAt};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,preDealPersistenceReceipt:latePersistence,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
@@ -480,7 +483,7 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
 
   const earlyTime=new Date(Date.parse(preDeal.gameRegistration.dealGeneratedAt)-1000).toISOString();
   const earlyStep={...dealGenerationReceipt,stepStartedAt:earlyTime};
-  const earlyTrial={...trial,dealGeneratedAt:earlyTime};
+  const earlyTrial={...trial,dealGenerationStepStartedAt:earlyTime};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,trial:earlyTrial,dealGenerationReceipt:earlyStep,
     policyApplicationReceipt:makeReceipt(preDeal,earlyTrial,fixture)
