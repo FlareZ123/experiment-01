@@ -404,6 +404,17 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
   };
 }
 
+function assertPersistedPreDealMatches(persisted,verified) {
+  const fields=[
+    'producerId','trialId','gameRegistration','policyPlanCore','policyPlanSha256',
+    'policyAttestationBundle','policyAttestationBundleSha256',
+    'policyRegistration','policyRegistrationSha256'
+  ];
+  for(const field of fields)
+    if(!sameJson(persisted?.[field],verified?.[field]))
+      fail('persisted pre-deal artifact changed or omitted field '+field);
+}
+
 function buildV3GameBundle(input) {
   const preDealInput = {
     producerId:input?.preDeal?.producerId,
@@ -415,6 +426,7 @@ function buildV3GameBundle(input) {
   const verifiedPreDeal = prepareWithRegistry(preDealInput,authorized,false);
   if (!verifiedPreDeal.ready)
     fail('production pre-deal policy gate blocked: '+verifiedPreDeal.failures.join(','));
+  assertPersistedPreDealMatches(input.preDeal,verifiedPreDeal);
   return assembleBundle({
     ...input,preDeal:verifiedPreDeal
   },authorized,false);
@@ -432,6 +444,7 @@ function buildV3GameBundleFixture(input,fixtureRegistry) {
   const verifiedPreDeal = prepareWithRegistry(preDealInput,fixtureRegistry,true);
   if (!verifiedPreDeal.ready)
     fail('fixture pre-deal policy gate blocked: '+verifiedPreDeal.failures.join(','));
+  assertPersistedPreDealMatches(input.preDeal,verifiedPreDeal);
   return assembleBundle({...input,preDeal:verifiedPreDeal},
     fixtureRegistry,true);
 }
