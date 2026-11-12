@@ -655,7 +655,7 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Current time at checkpoint: 21:40 UTC; original lease remains `2026-11-12T21:23:11.544171510Z`. Continue until measured age reaches 70 minutes; do not refresh or release earlier.
 
 
-### 12 November 2026 21:45 UTC checkpoint — cross-agent confirmation and production boundary
+### 12 November 2026 21:43 UTC checkpoint — cross-agent confirmation and production boundary
 
 - Agent1 replied that the workflow preflight's RSA type/2048-bit requirement and SPKI fingerprint exactly match the encryption helper's `keyDetails` behavior; the fingerprint is safe to publish. No module change needed.
 - Agent6 reviewed the full-state and module-closure path. Keep the generic fixture at empty candidate/opponent policy options; do not turn on candidate-only Budew Ranger/Path-to-the-Peak work before the first trace. Agent3's Hood/Garbotoxin/Tool Jammer probe is a separate PR #41 native-engine investigation and is not a fixture dependency.
