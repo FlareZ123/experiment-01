@@ -206,12 +206,19 @@ test('runtime pin union comes only from role manifest files and must cover loade
  assert.ok(loaded.files.some(x=>x.path==='runner.cjs'));
 }));
 
+test('preloader rejects vendor paths and source hash drift',()=>repo(root=>{
+ const m=manifest(root);
+ assert.throws(()=>I.preloadResearchModules(root,{...m.expectedByPath,
+  'vendor/twinleaf/resolve-prompt-action.js':h(999)}),/research-owned modules only/);
+ assert.throws(()=>I.preloadResearchModules(root,{...m.expectedByPath,'candidate.cjs':h(998)}),
+  /differs from the role runtime pin/);
+}));
+
 test('actual Agent36 module pin accepts the combined role closure and restores itself',()=>repo(root=>{
  const a=manifest(root,'candidate.cjs'),b=manifest(root,'opponent.cjs');
  const union=I.combineRolePolicyEntryManifests(a,b);
- for(const name of Object.keys(union.expectedByPath))require(path.join(root,name));
- const loaded=I.assertLoadedResearchModulesCovered(root,union.expectedByPath);
- assert.match(loaded.loadedProcessClosureSha256,/^[0-9a-f]{64}$/);
+ const preload=I.preloadResearchModules(root,union.expectedByPath);
+ assert.match(preload.loadedProcessClosureSha256,/^[0-9a-f]{64}$/);
  const result=withPinnedResearchModuleLoads(root,union.expectedByPath,()=>{
   const policy=require(path.join(root,'candidate.cjs'));
   return policy({public:42});
