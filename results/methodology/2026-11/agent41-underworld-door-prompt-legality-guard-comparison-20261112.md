@@ -1,12 +1,12 @@
 # Agent 41: Underworld Door prompt legality guard comparison
 
-**12 November 2026 | pinned-source audit | recommended guard: Agent46, pending native workflow**
+**12 November 2026 | pinned-source audit | recommended guard: Agent1 after scope/test hardening**
 
 ## Decision
 
-For the Shadow Rider Calyrex VMAX candidate, prefer `simulation/twinleaf/2026-11/agent46-underworld-paper-psychic-target-guard.cjs` over the older `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs`, once Agent46's native tests are included in a runnable workflow and pass.
+For the Shadow Rider Calyrex VMAX candidate, prefer the current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (Agent1) after adding a source-energy negative test and narrowing its temporary prompt scope. Do not install both hooks: both patch `ShadowRiderCalyrexVMAX.prototype.reduceEffect`, and both maintain module-level install/restore state.
 
-The earlier Agent41 message recommending the Agent1 hook was corrected at 17:18Z. Do not install both hooks: both patch `ShadowRiderCalyrexVMAX.prototype.reduceEffect`, and both maintain module-level install/restore state.
+**Correction:** Agent45 identified that my 17:18 review had read an older/stale Agent1 version. The current committed Agent1 hook already checks EnergyCard, owner-hand membership, Basic Energy, Psychic `provides`, and dynamically checks recipient typing with `CheckPokemonTypeEffect`. I retract the earlier claim that it lacked source-energy validation and the recommendation to switch to Agent46.
 
 ## Pinned engine behavior
 
@@ -31,38 +31,43 @@ Therefore the Basic Psychic requirement is consistent with the paper card text/r
 
 ## Hook comparison
 
-### Agent1 recipient-only hook
+### Agent1 current hook
 
-`simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` patches the VMAX `reduceEffect` and wraps the Store prompt callback/validator. It validates the owner-side Bench target and rejects non-Psychic recipients. However, it checks only that the selected card is present in the prompt's card list; it does not require:
+The current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (blob `5fd3e376cd2f42fa8959b0230ecfbdcd7a86137e`) validates all of:
 
-- `card instanceof EnergyCard`;
-- `card.energyType === EnergyType.BASIC`;
-- `card.provides.includes(CardType.PSYCHIC)`.
+- selected card is an `EnergyCard`;
+- exact card object remains in the owner's hand;
+- `energyType === EnergyType.BASIC`;
+- `provides` includes Psychic;
+- target is `BOTTOM_PLAYER` / Bench with a valid index;
+- target is dynamically Psychic according to `CheckPokemonTypeEffect`.
 
-Because the prompt's UI filter is not enforced by generic validation, this hook does not close the non-Psychic Energy source gap for direct `ResolvePromptAction` results. Its positive and recipient-negative tests do not cover that gap.
+It also wraps the actual Store prompt callback, not merely `prompt.validate`. Its comment explains that the pinned `Store.reducePrompt` path does not itself call `Prompt.validate`; the callback wrapper throws `INVALID_PROMPT_RESULT` for an invalid direct result. Thus the current implementation does close the non-Psychic Energy source gap and the direct `ResolvePromptAction` path.
 
-### Agent46 full target/source guard
+The remaining hardening items are narrower:
 
-`simulation/twinleaf/2026-11/agent46-underworld-paper-psychic-target-guard.cjs`:
+1. Add a native negative test where the owner has a Basic Psychic Energy (so Underworld Door's precondition succeeds), also has a non-Psychic Energy, has a Psychic Bench target, and submits a direct `ResolvePromptAction` selecting the non-Psychic Energy. It must be rejected.
+2. Narrow the temporary `store.prompt` wrapper to the exact Underworld prompt, e.g. `prompt.playerId === owner.id`, `prompt.cardList === owner.hand`, and `prompt.message === GameMessage.ATTACH_ENERGY_TO_BENCH`. The current wrapper intercepts every `AttachEnergyPrompt` created during the VMAX `reduceEffect`; no unrelated nested prompt failure has been demonstrated, but the tighter predicate removes that scope risk.
 
-- identifies the exact Underworld Door PowerEffect and newly created owner prompt;
-- checks that a Psychic Bench target exists;
-- adds non-Psychic Bench slots to the prompt's blocked-to display metadata;
-- overrides prompt validation to require Bottom/Bench target, a live Psychic target, exact card membership in owner hand, `EnergyCard`, Basic Energy, and Psychic in `provides`;
-- intercepts direct `ResolvePromptAction` at `Store.prototype.dispatch` and revalidates the marked prompt before native dispatch;
-- restores both patched prototypes.
+Its use of `CheckPokemonTypeEffect` handles dynamic type effects, which is stronger than the current Agent46 hook's static `pokemonHasCardType` check. Agent1's current positive/recipient-negative native coverage is valuable, but it does not yet cover the non-Psychic Energy-to-Psychic-target negative above.
 
-This is the more complete legality guard. Its current native suite covers both physical seats, a legal Psychic recipient, and a Dragon-target negative case. It should add one more negative: keep a Basic Psychic Energy in hand so the ability's precondition succeeds, also place a non-Psychic Energy in hand, and attempt to resolve the prompt with that non-Psychic card to a Psychic Bench target. Store dispatch must reject it.
+### Agent46 alternative
+
+`simulation/twinleaf/2026-11/agent46-underworld-paper-psychic-target-guard.cjs` also checks Basic Psychic source Energy and Psychic Bench recipient, and additionally revalidates marked direct `ResolvePromptAction` at `Store.prototype.dispatch`. It scopes the prompt more narrowly by owner ID, owner hand/card list and Underworld attach-to-bench message.
+
+However, its current recipient test uses `pokemonHasCardType`, not the dynamic `CheckPokemonTypeEffect` path in Agent1. Its test suite also lacks the non-Psychic Energy-to-Psychic-target negative case. The Store-dispatch patch is an alternative interception boundary, not currently a demonstrated correctness improvement over Agent1's callback guard.
+
+Agent45's 17:23 review therefore changes the choice: retain Agent1's hook, add the two narrow items above, and do not switch solely because Agent46 patches Store dispatch.
 
 ## Integration and lifecycle
 
-- Agent36 was advised to use Agent46's guard for the Shadow Rider candidate after native tests pass.
+- Agent36 was advised at 17:25Z to retain Agent1's current guard after source-negative test and prompt-scope hardening; the earlier 17:18 recommendation to use Agent46 was explicitly retracted.
 - Install the selected guard exactly once at the V3 runner boundary, before deal/decisions, and restore exactly once in the outer `finally`.
 - Do not install Agent1 and Agent46 together; both patch the same VMAX prototype and have process-global restore state.
-- Bind the selected hook module and exact source hash into the candidate role's policy/engine-hook manifest.
+- Bind the Agent1 hook module and exact source hash into the candidate role's policy/engine-hook manifest.
 - Keep the candidate unqualified until both-seat positive/negative native Store tests, including the non-Psychic Energy negative, pass in CI.
 
-**Evidence class:** pinned Twinleaf source inspection, printed-card text, local rulebook categories, and hook source comparison. This report is not a full-game result or competitive-strength claim.
+**Evidence class:** pinned Twinleaf source inspection, printed-card text, local rulebook categories, and hook source comparison. Agent45's correction was incorporated at 17:25Z after re-reading the current Agent1 source. The remaining source-negative test and prompt-scope hardening are pending. This report is not a full-game result or competitive-strength claim.
 
 ## External rule references
 
