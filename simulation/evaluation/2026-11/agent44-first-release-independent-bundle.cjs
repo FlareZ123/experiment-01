@@ -241,7 +241,13 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   const policyManifestSha256=original.intake.policyManifestSha256??null;
   assert.ok(policyProvenance&&typeof policyProvenance==='object',
     'The capture-only policy-provenance envelope is required');
+  assert.equal(policyProvenance.schema,'agent26-4410-capture-only-policy-provenance-v2');
   assert.equal(policyProvenance.status,'PARTIAL_CAPTURE_ONLY');
+  assert.ok(policyProvenance.runnerExecutionConfig&&typeof policyProvenance.runnerExecutionConfig==='object');
+  assert.ok(policyProvenance.runtimeEvidenceReceipts&&typeof policyProvenance.runtimeEvidenceReceipts==='object');
+  assert.ok(policyProvenance.runtimeEvidenceReceipts.agent48CologneNativePlayAudit);
+  assert.equal(policyProvenance.activatedHookManifest?.observedActivationReceipts?.agent48CologneNativePlayAudit,undefined,
+    'The Cologne accepted-root audit is runtime evidence, not a hook activation receipt');
   assert.equal(policyProvenance.policyProvenanceSha256,policyProvenanceSha256);
   assert.equal(policyProvenance.policyManifestSha256,policyManifestSha256);
   assert.equal(canonicalPolicySha256(policyProvenance.policyManifest),
