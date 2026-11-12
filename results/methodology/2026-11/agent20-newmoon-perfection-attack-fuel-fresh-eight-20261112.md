@@ -64,11 +64,14 @@ The runner compares ordinary `AttackAction` counts separately from prompt-closed
 
 It also pairs the control and treatment's accepted discard selections by physical seat, turn, prompt ID, and required count. Changed payments are attributed to candidate or source seat; selections that cannot be joined after an earlier game divergence remain explicitly unmatched rather than being guessed.
 
+Each game's source and candidate settlement packets and accepted root tape also feed Agent43's read-only two-hit continuation screen. It can identify a no-Prize positive-damage attack followed by an immediately next same-seat settled attack against the same public printing and unchanged damage, and attach the defender's intervening material roots or Pass. This is only public continuity evidence: it does not prove physical-card identity, printed-paper legality, or exclusive causality, and it does not qualify a competitive-paper game.
+
 Implementation:
 - Selector: `simulation/twinleaf/2026-11/agent47-attack-fuel-discard-frontier.cjs`
 - Owner hand-discard adapter: `simulation/twinleaf/agent47-actor-hand-discard.cjs`
 - Registered runner: `simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs`
 - Shared record transport: `simulation/evaluation/2026-11/agent42-rank5-fresh-gengar-lillie-aba.cjs`
+- Two-hit continuation screen: `simulation/evaluation/2026-11/agent43-native-attack-damage-carryover.cjs`
 - Manual workflow: `.github/workflows/agent42-paid-retreat-native-tests.yml`, input `run_rank5_newmoon_attack_fuel_fresh_eight`
 
 ## Execution status and decision rule
