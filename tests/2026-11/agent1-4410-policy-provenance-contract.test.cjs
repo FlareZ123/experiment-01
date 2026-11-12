@@ -6,6 +6,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+const {auditMode} = require('../../simulation/evaluation/agent3-observed-policy-closure.cjs');
+
 const {
   canonicalJson,
   sha256,
@@ -370,3 +372,44 @@ test('full inherited Mew v6 source-only option set projects only to original sou
   assert.deepEqual(result.perSeat[1].enabledSourceOnlyFlags, []);
 });
 
+
+
+test('Agent3 attestor binds the observed 4410 actor closure to trial and physical candidate seat',()=>{
+  const development = {
+    actorOnlyCompositionOptIn: true,
+    sourceIndependentCommonPolicyOptIn: true,
+    actorOnlyCompositionVersion: 'agent34-actor-only-composition-v1',
+    rows: [{
+      trial: {id: '5:4410:B:new-moon-lockbreaker-v1'},
+      candidateSeat: 1,
+      actorOnlyPolicyVersion: 'agent34-actor-only-composition-v1',
+      actorOnlyDecisionCoverage: {
+        version: 'agent34-actor-only-composition-v1',
+        selectedHandlerPriority: ['mew-dce-recipient', 'quick-ball-root'],
+        componentVersions: {
+          mewDceRecipient: 'agent26-mew-dce-recipient-v1',
+          quickBall: 'agent34-source-scoped-quick-ball-v1'
+        },
+        ownerVipAfterPassOptIn: true,
+        detailedComponentAudits: {
+          root: {
+            mewDceRecipientRootOptIn: true,
+            mewDceRecipientRootOwnerSeat: 0,
+            quickBallRoot: true,
+            quickBallRootOwnerSeat: 0
+          }
+        }
+      }
+    }]
+  };
+  const audit = auditMode(
+    {id: '4410', native: development},
+    {manifestBlob: 'a'.repeat(40), enginePin: 'b'.repeat(40)}
+  );
+  assert.equal(audit.admittedWholeMode, true);
+  assert.equal(audit.policyStatus, 'OBSERVED_CLOSURE_CONSISTENT');
+  assert.equal(audit.runtimeObservedRows, 1);
+  assert.deepEqual(audit.physicalCandidateSeatCoverage, {0: 0, 1: 1});
+  assert.match(audit.observedModeClosureDigest, /^[0-9a-f]{64}$/);
+  assert.equal(audit.missing.length, 0);
+});
