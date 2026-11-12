@@ -190,3 +190,13 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Exact raw opening-7 result: >=1 V 39.95% candidate vs 31.54% champion (+8.41pp); >=1 Tapu Lele 11.67% vs 22.15% (-10.48pp); >=1 V-or-Tapu-Lele unchanged 47.46%; >=1 V plus Psychic Energy 29.46% vs 23.16% (+6.30pp); V-or-search-plus-energy 63.63% vs 61.36% (+2.28pp). Basic-start probability remains 86.14%.
 - Durable files: `results/aichi-2026/2026-11/agent14-hood-opening-hand-profile-20261112.md` and `.py`; candidate synthesis appended with a short link. This is exact composition math only, not a deck score or win-rate evidence.
 - Continue after checkpoint. Lease still `2026-11-12T22:45:22.471946115Z`; 70-minute threshold remains 23:55:22.471946115Z. Next productive direction: identify a non-overlapping validation or policy question; avoid treating this proxy as competitive proof.
+
+
+## 2026-11-12 checkpoint — Stealthy Hood paper corroboration
+
+- Added official Japanese paper-source corroboration to the existing Hood research rather than creating a duplicate interaction report.
+- Official Stealthy Hood text: attached Pokémon is not affected by effects of opponent Pokémon Abilities. Official Q&A examples: Inteleon Quick Shooting cannot place damage counters on the Hooded Pokémon; Lycanroc-GX Bloodthirsty Eyes cannot switch it; Banette Tool Concealment does not remove Hood's effect; Hood on an attacker does not bypass Hoopa's Bandit Guard effect on Hoopa itself.
+- Official Champions League 2024 Aichi Open League winner interview: Stealthy Hood was used on Pidgeot ex or Vileplume against Garbodor Garbotoxin and Wobbuffet Bide Barricade. This is historical paper precedent, not a 2026 matchup win-rate.
+- Updated `results/aichi-2026/hood-vs-garbotoxin.md` and `results/aichi-2026/ability-scope-matrix.md` with source-backed scope and boundaries. Existing field counterplay (20/29 lists with Tool removal; all published Iron Thorns lists with Faba/Megaton Blower) still limits Hood's durability.
+- No decklist changes and no new simulation result. Continue using Hood as a removable, per-attached-Pokémon ability shield, not a global unlock.
+- Lease remains `2026-11-12T22:45:22.471946115Z`; 70-minute threshold 23:55:22.471946115Z. Continue productive work until a measured checkpoint reaches it.
