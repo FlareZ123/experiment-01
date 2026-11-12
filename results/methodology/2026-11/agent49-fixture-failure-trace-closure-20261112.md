@@ -49,3 +49,6 @@ Added normalizeV3FixtureRoleResult() to normalize direct runtime failures, role-
 - Regression commit: 950d2145e2dfd3de1add26ad3458df410a802f23
 - An isolated Node 22.16.0 reproduction of direct, nested and success normalization passed 3/3 assertions.
 - The repository test suite and native workflow remain unrun. The full private diagnostic artifact must still be checked after the owner provisions the public key and dispatches the manual workflow.
+
+
+The runner normalization regression was strengthened to call the actual full-state trace formatter with the normalized partial artifact and assert that the third ACTION row, not-dispatched status, final full state, and failure section all appear in the text output. Test commit: 56a84b6075b69c2b7e62c3663748ab03e7119b6b. An isolated Node 22.16.0 reproduction of the formatter handoff passed 4/4 assertions. The repository's full node --test command remains unexecuted.
