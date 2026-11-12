@@ -97,3 +97,26 @@ test('path traversal and non-RSA recipient keys are rejected', () => {
   assert.throws(() => encryptDiagnosticBundle({ publicKeyPem: ec.publicKey.export({ type: 'spki', format: 'pem' }),
     files: [{ path: 'fixture-game.json', bytes: Buffer.from('x') }] }), /must be RSA/);
 });
+test('missing recipient key fails closed without deleting raw diagnostic files', () => {
+  temp(directory => {
+    const json = Buffer.from('{"privateState":true}\n');
+    fs.writeFileSync(path.join(directory, 'fixture-game.json'), json);
+    assert.throws(() => encryptFixtureArtifacts({
+      directory,
+      publicKeyPem: undefined,
+      deletePlaintext: true,
+    }), /publicKeyPem must be a PEM string/);
+    assert.deepEqual(fs.readFileSync(path.join(directory, 'fixture-game.json')), json);
+    assert.equal(fs.existsSync(path.join(directory, 'fixture-game.private.enc.json')), false);
+  });
+});
+
+test('missing artifact directory is a safe no-op', () => {
+  temp(directory => {
+    const missing = path.join(directory, 'does-not-exist');
+    assert.deepEqual(encryptFixtureArtifacts({ directory: missing }), {
+      skipped: true,
+      reason: 'artifact directory does not exist',
+    });
+  });
+});
