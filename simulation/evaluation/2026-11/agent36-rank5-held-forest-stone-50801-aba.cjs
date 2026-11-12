@@ -8,6 +8,8 @@ const {arm,firstDifference,firstPhysicalDivergence}=
   require('./agent20-rank5-gengar-tempo-aba.cjs');
 const {perfectionPrizeReceipts}=
   require('./agent36-perfection-prize-receipts.cjs');
+const {inspectNativeGameCarryover}=
+  require('./agent43-native-attack-damage-carryover.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCE='results/aichi-2026/registrations/' +
@@ -16,6 +18,59 @@ const OUTPUT=path.join(ROOT,
   'artifacts/agent36-rank5-held-forest-stone-50801-aba.json');
 const hash=value=>createHash('sha256').update(JSON.stringify(value))
   .digest('hex');
+
+/** The root audit is the authoritative record that the requested hook reached
+ * the real actor policy; caller-side flags alone are not sufficient. */
+function forestSealRootPolicy(record){
+  const root=record.actorPolicy?.detailedComponentAudits?.root??null;
+  return {
+    optIn:typeof root?.earlyForestSealRootOptIn==='boolean'?
+      root.earlyForestSealRootOptIn:null,
+    ownerSeat:root?.earlyForestSealRootOwnerSeat??null
+  };
+}
+
+/** Find a real post-Store point where this owner holds Stone and has the
+ * known Galarian Articuno V Tool slot. This is diagnostic, not a legality
+ * claim or a policy input. */
+function heldStoneOpportunity(record,seat){
+  assert.ok(seat===0||seat===1);
+  for(const root of record.physicalTape?.postAcceptedRoots??[]){
+    if(root.actorSeat!==seat)continue;
+    const owner=root.physicalZones?.[seat];
+    if(!owner)continue;
+    const held=owner.hand?.some(card=>
+      card.printing==='Forest Seal Stone SIT')??false;
+    if(!held)continue;
+    const slots=[owner.active,...(owner.bench??[])].filter(Boolean);
+    const holder=slots.find(slot=>
+      slot.cards?.some(card=>
+        card.printing==='Galarian Articuno V CRE')&&
+      Array.isArray(slot.tools)&&slot.tools.length===0);
+    if(holder)return {
+      seat,rootOrdinal:root.rootOrdinal,turnBefore:root.turnBefore,
+      heldPrinting:'Forest Seal Stone SIT',
+      openHolderPrinting:'Galarian Articuno V CRE'
+    };
+  }
+  return null;
+}
+
+/** Additive native-public two-hit telemetry. It preserves original attack
+ * declaration counts and never promotes public continuity to paper proof. */
+function nativeAttackDamageCarryover(record){
+  assert.ok(Array.isArray(record.sourceAttackSettlement?.attacks),
+    'Shared arm must preserve source attack settlement stream');
+  assert.ok(Array.isArray(record.candidateAttackSettlement?.attacks),
+    'Shared arm must preserve candidate attack settlement stream');
+  return inspectNativeGameCarryover({
+    trial:record.trial??null,
+    sourceSeat:record.sourceSeat,candidateSeat:record.candidateSeat,
+    rootActionLedger:record.roots,
+    sourceAttackSettlement:record.sourceAttackSettlement,
+    candidateAttackSettlement:record.candidateAttackSettlement
+  });
+}
 
 /** Historical one-sided resource-strand from already published fresh v3 run. */
 function originalTrial() {
@@ -32,6 +87,10 @@ function originalTrial() {
 }
 
 function summarize(record) {
+  const forestSealPolicy=forestSealRootPolicy(record);
+  const opportunity=heldStoneOpportunity(record,record.candidateSeat);
+  const carryover=record.nativeAttackDamageCarryover??
+    nativeAttackDamageCarryover(record);
   const seats=[0,1].map(seat=>{
     const selected=record.roots.filter(r=>r.playerSlot===seat);
     return {seat,forestStonePlayRoots:selected
@@ -55,6 +114,9 @@ function summarize(record) {
     sourceFingerprint:record.sourceFingerprint,
     fullRootLedgerSha256:record.rootLedgerSha256,
     physicalSha256:record.physicalTape?.allRootPhysicalZonesSha256,
+    forestSealRootPolicy:forestSealPolicy,
+    heldStoneOpportunity:opportunity,
+    nativeAttackDamageCarryover:carryover,
     seats,
     candidatePerfectionPrizeReceipts:record.rootPhysicalLinked?
       perfectionPrizeReceipts(record.roots,record.physicalTape,0):null
@@ -96,6 +158,20 @@ function main(){
     minOpponentHandCount:6,
     earlyForestSealRoot:mode.earlyForestSealRoot
   }));
+  // Fail closed if the arm's requested Forest Seal Stone treatment did not
+  // reach the real native actor-root policy. The old 23:00 run predated the
+  // corrected bilateral option mapping and silently left B disabled.
+  for(let i=0;i<games.length;i++){
+    const policy=forestSealRootPolicy(games[i]);
+    assert.equal(policy.optIn,modes[i].earlyForestSealRoot,
+      modes[i].phase+' Forest Seal Stone root opt-in must be acknowledged');
+    assert.equal(policy.ownerSeat,null,
+      modes[i].phase+' uses the symmetric two-seat owner policy');
+    games[i].nativeAttackDamageCarryover=nativeAttackDamageCarryover(games[i]);
+  }
+  const heldOpportunity=heldStoneOpportunity(games[0],games[0].candidateSeat);
+  assert.ok(heldOpportunity,
+    'Frozen 50801 control must contain held Stone plus the free Articuno Tool slot');
   const summaries=games.map(summarize);
   const identicalOpening=games.every(x=>
     x.fullFingerprint===games[0].fullFingerprint &&
@@ -105,11 +181,13 @@ function main(){
   const difference=firstDifference(games[0],games[1]);
   const physicalDifference=firstPhysicalDivergence(games[0],games[1]);
   const output={
-    schema:'agent36-forest-stone-owner-native-50801-posthoc-aba-v1',
+    schema:'agent36-forest-stone-owner-native-50801-posthoc-aba-v2',
     sourceRegistration:SOURCE,sourceRegistrationSha256,
     trial,pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     printedSixtiesUnchanged:true,symmetricOwnerStonePolicy:true,
-    posthocSelectedSeed:true,qualifiedPaperGames:0,
+    posthocSelectedSeed:true,heldStoneOpportunity:heldOpportunity,
+    forestSealRootPolicyAba:games.map(game=>forestSealRootPolicy(game)),
+    qualifiedPaperGames:0,
     identicalOpening,repeatActionDifference,repeatPhysicalDifference,
     firstActionDifference:difference,firstPhysicalDifference:physicalDifference,
     summaries,games
@@ -126,4 +204,5 @@ function main(){
   return output;
 }
 if(require.main===module)main();
-module.exports={SOURCE,originalTrial,summarize,main};
+module.exports={SOURCE,originalTrial,summarize,main,
+  forestSealRootPolicy,heldStoneOpportunity,nativeAttackDamageCarryover};
