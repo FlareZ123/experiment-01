@@ -119,6 +119,7 @@ function fixture(){
     complete:false,samePolicy:false,
     reason:'capture-only; activated-hook and policy-entrypoint closures are not independently attested',
     hookRevisionSha:null,environmentSha256:'runtime-environment-sha',
+    activationAudit:{agent41PaperSupporterQuota:{optIn:true}},
     policyVersion:'agent8-v6',candidatePolicy:'new-moon-lockbreaker-v1',
     sourceSeat:0,candidateSeat:1,activationAudit:{},
     requestedOptions:{},sourceOnlyFeatureMap:{},sourceScopedOptions:[],
@@ -129,13 +130,16 @@ function fixture(){
   };
   const policyManifestSha256=policyHash(policyManifest);
   const policyProvenanceBase={
-    schema:'agent26-4410-capture-only-policy-provenance-v1',
+    schema:'agent26-4410-capture-only-policy-provenance-v2',
     status:'PARTIAL_CAPTURE_ONLY',trialId:TRIAL_ID,sourceSeat:0,candidateSeat:1,
     candidateManifestPath:'results/als/new-moon-lockbreak-japanese-print-60.json',
     candidateManifestBlobSha256:'candidate-manifest-blob-sha',
     policyProfilePath:'simulation/evaluation/agent41-frozen-bilateral-development-v2.json',
     policyProfileBlobSha256:'policy-profile-blob-sha',
     enginePin:registration.enginePinnedCommit,
+    runnerExecutionConfig:{nativeRootActionLimit:300,callbackBindings:{
+      onRootStoreCreated:'fullPaperObserver.onRootStoreCreated'}},
+    runtimeEvidenceReceipts:{agent48CologneNativePlayAudit},
     runtimeLoadedCodeManifest:{schema:'agent26-runtime-loaded-code-manifest-v1',sha256:'runtime-code-sha'},
     runtimeLoadedCodeSnapshotSha256:'runtime-code-sha',
     configuredRunnerOptions:{},effectiveSeatConfiguration:[],
@@ -144,7 +148,7 @@ function fixture(){
     mewDceRootApplicationReceipt:null,paperCologneNativePlayAudit,
     activatedHookManifest:{schema:'agent26-4410-activated-hook-manifest-v1',
       status:'PARTIAL_ACTIVATION_RECEIPTS_ONLY',complete:false,
-      observedActivationReceipts:{},unresolvedDependencyScopes:[],sha256:null},
+      observedActivationReceipts:{agent41PaperSupporterQuota:{optIn:true}},unresolvedDependencyScopes:[],sha256:null},
     policyEntryManifest:{schema:'agent26-4410-policy-entry-manifest-v1',
       status:'INCOMPLETE_RUNTIME_SNAPSHOT_ONLY',complete:false,
       candidateRootInventory:[],runtimeLoadedCodeSnapshotSha256:'runtime-code-sha',
