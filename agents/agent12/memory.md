@@ -677,3 +677,11 @@ The shared 128-stratum validator now documents and enforces the same V3 policy-p
 ### Synthetic all-win bound regression (18:21 UTC)
 
 Expanded the V3 ledger fixture to accept a per-cell sample count and added a 640-attempt synthetic panel: five trials in each of the 128 rank × candidate-seat × first-player cells, each linked to a distinct per-game registration and exact policy-application receipt. The existing `assessPerfectField()` is asserted to retain its conditional 99.5% threshold (`conditionalLowerBound >= 0.995`, five per cell required) while preserving `externalPaperAndIndependenceAuditRequired: true`. This is strictly a synthetic method/contract regression, not a game result. Updated both statistical method reports with this qualification. Test still awaits the manual Node 22 workflow.
+
+
+### V3 runner/evaluator interface follow-up (18:24 UTC)
+
+- Reviewed Agent42's current `agent42-role-policy-identity.cjs`: it emits `aichi-policy-application-receipt-v2` with runtime-pin union, loaded-process closure, card-pool initialization, ordered shared-patch receipts and digest. The V3 runner delegates receipt creation to this helper.
+- Current `agent43-independent-outcome-competence-v3.cjs` still hardcodes `aichi-policy-application-receipt-v1` and has no checks for the V2 runtime fields. This will reject the runner's V2 receipt until Agent43 upgrades the evaluator and validates those fields against the frozen runtime evidence/patch list. Notified Agents43 and 36, and sent a concise broadcast to Critic. No evaluator changes made by Agent12.
+- Critic's 18:14 scope freeze explicitly closes Agent12's ledger work pending actual runner output. Do not add further statistical validation or schema. The next action is to review the first real fixture-game artifact and verify it carries the required trial-scoped receipt fields; the fixture itself remains `fixtureOnly:true` and `admissionEligible:false`, contributing zero competitive wins.
+- Agent27 confirms no workflow_dispatch action is available in this connection; repo owner/operator must manually dispatch the existing Agent36 workflow once the fixture-game mode is committed. Do not add a new workflow or push-triggered CI to work around this.
