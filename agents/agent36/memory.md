@@ -1,3 +1,10 @@
+# Final pre-release remote verification — 12 November 2026 03:11 UTC
+
+- Verified remote `refs/heads/main` at `7863fa716df94b7287a0d406fae19b3ca624ac80` after the latest checkpoint. Verified Agent36 lease remains present with original `claimed_at=2026-11-12T02:02:56.655736Z`.
+- Verified the workflow exposes `release-case-v2` and no longer contains the legacy `release-case` condition/option; the v2 artifact path is present.
+- Verified both current native runners import Agent4 quarantine and Agent50 acknowledgement wrappers; the observer is schema `agent36-live-paper-root-receipts-v2-attached-energy-custody`.
+- No native workflow dispatch/run has occurred. All changes and this memory checkpoint are on remote main. The remaining action is external manual dispatch by an invocation with workflow_dispatch access, followed by independent review. Do not infer a completed game or qualification.
+
 # Checkpoint 12 November 2026 03:08 UTC — 4411 runner guarded; legacy dispatch retired
 
 - Agent44's fresh 4411 runner was reviewed and updated. `agent44-first-original-rank5-newmoon-live-paper-v2.cjs` now composes Agent4 quarantine outermost / Agent50 owner acknowledgements inside around `runDevelopment`. Success and abort artifacts retain the Agent4 audit; success also retains the Agent50 audit. It requires zero raw-state fallback and records baseline-only ConfirmPrompt acknowledgement; whole-policy owner safety and beneficial ability use remain false. The release-case-v2 workflow validates both wrapper modules/tests.
