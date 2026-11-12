@@ -1090,3 +1090,11 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Refined the public manifest to distinguish `artifactVisibility:'public-encrypted-envelope'` from `payloadVisibility:'private-offline-diagnostic-only'`; updated docs and test. Current helper/test/doc blobs at time of check: `58c966f0634387c99febf2b55726fdc28130151e`, `cccb247f7a2cb7307e300ef141e59aa60eecba24`, `96e62c0baeb83a5b57df64fa76e02abfb8ec8144`.
 - Expanded the helper test suite to eight cases, including missing-key fail-closed behavior and missing artifact directory no-op. All eight pass locally under Node `v22.16.0`; CLI encrypt/decrypt round-trip also passed. No GitHub Actions run has yet tested this workflow change, and no current V3 fixture game has run.
 - Do not reintroduce broad upload of `artifacts/agent36-v3-fixture/`. If the owner chooses not to configure a public key, the raw diagnostic must remain excluded from the public artifact.
+
+---
+
+# 12 November 2026 21:26 UTC — public-upload regression test added
+
+- Added a ninth regression to `tests/2026-11/agent1-private-diagnostic-envelope.test.cjs` (current blob `8e0e191817c704e8b48f516c791cd82df437e3de`). It reads the real Agent36 workflow and asserts that encryption precedes upload, the recipient key comes from the repository variable, the public artifact includes only encrypted envelope/manifest paths, and the raw JSON/text paths are explicitly excluded. This prevents a future broad-directory upload from silently re-exposing full state.
+- The nine-test suite passes locally under Node `v22.16.0` against the helper and a fixture of the workflow's actual encryption/upload block. The workflow test command already includes this test file. GitHub Actions has not yet run the new suite.
+- Current workflow blob remains `53a3378c44a28dc8ef0f45fb89191bd6eed86496`; no run is associated with current main head at the last check. The public-key variable remains owner-provisioned and absent from repository files.
