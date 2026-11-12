@@ -30,14 +30,28 @@ function withCandidateOpponentPolicyRoles(run,options) {
   assert.ok(plainObject(commonDeps),'commonDeps must be a plain object');
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
     'role-specific policy options must be plain objects');
-  for(const key of ['SimpleTacticsAi','Store','GamePhase','cardActions','gameActions','getCatalog','getNativeTrainerCatalog'])
-    assert.ok(commonDeps[key]!==undefined,'commonDeps is missing '+key);
+  for(const key of [
+    'SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
+    'getCatalog','getNativeTrainerCatalog','observe','promptActions'
+  ]) assert.ok(commonDeps[key]!==undefined,'commonDeps is missing '+key);
+  assert.equal(typeof commonDeps.observe,'function',
+    'one common actor-only observer is required for both roles');
+  assert.ok(plainObject(commonDeps.promptActions)&&
+    typeof commonDeps.promptActions.ResolvePromptAction==='function',
+  'one common native ResolvePromptAction constructor is required');
+  assert.ok(commonDeps.stagedStore===undefined||commonDeps.stagedStore===null,
+    'production role composition forbids the test-only stagedStore seam');
+  assert.equal(commonDeps.policyOwnerSeat,undefined,
+    'physical role seats are assigned only by the composer');
+  const runtimeBindings=[
+    'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
+    'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
+    'arvenTrainerTypes','eriCardTypes'
+  ];
   for(const [role,policyOptions] of [
     ['candidate',candidatePolicyOptions],['opponent',opponentPolicyOptions]
   ]) {
-    for(const key of [
-      'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions','getCatalog','getNativeTrainerCatalog'
-    ]) assert.ok(!Object.hasOwn(policyOptions,key),
+    for(const key of runtimeBindings) assert.ok(!Object.hasOwn(policyOptions,key),
       role+' policy options may not override shared runtime binding '+key);
   }
 
