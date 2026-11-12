@@ -154,6 +154,16 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       policyPlanCore.comparisonMode !== 'candidate-vs-field') {
     failures.push('candidate-vs-field-policy-plan-core-invalid');
   }
+  const runtimePinEvidence=policyPlanCore?.runtimePinEvidence;
+  if (!plainObject(runtimePinEvidence) ||
+      runtimePinEvidence.schema!=='aichi-runtime-pin-evidence-v2' ||
+      !SHA256.test(runtimePinEvidence.unionSha256??'') ||
+      !SHA256.test(runtimePinEvidence.loadedProcessClosureSha256??'') ||
+      !SHA256.test(runtimePinEvidence.cardPoolInitializationSha256??'') ||
+      typeof runtimePinEvidence.fullProcessClosureCovered!=='boolean')
+    failures.push('policy-runtime-pin-evidence-missing-or-invalid');
+  else if (!fixtureOnly && runtimePinEvidence.fullProcessClosureCovered!==true)
+    failures.push('production-runtime-process-closure-incomplete');
   if (!plainObject(policyAttestationBundle) ||
       policyAttestationBundle.schema !== POLICY_ATTESTATION_BUNDLE_SCHEMA) {
     failures.push('policy-attestation-bundle-schema-invalid');
@@ -278,7 +288,7 @@ function checkedReceipt(receipt,allowMissingDigest=false) {
   return receipt;
 }
 
-function validateReceiptAgainstPlan(receipt,preDeal,trial) {
+function validateReceiptAgainstPlan(receipt,preDeal,trial,fixtureOnly) {
   const core = preDeal.policyPlanCore;
   const candidate = core.candidate;
   const opponent = core.opponentPolicyBundle.ranks.find(x=>
@@ -332,12 +342,17 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
       !SHA256.test(receipt.decisionTraceSha256??'') ||
       !['none','within-budget','not-exceeded'].includes(receipt.timeoutStatus))
     fail('application receipt engine, runner, trace or timeout status invalid');
+  if (receipt.schema!==POLICY_RECEIPT_SCHEMA_V2)
+    fail('V3 game builder requires a V2 policy application receipt');
   if (receipt.schema===POLICY_RECEIPT_SCHEMA_V2) {
     const runtime=core.runtimePinEvidence;
     if (!plainObject(runtime) ||
+        runtime.schema!=='aichi-runtime-pin-evidence-v2' ||
         !SHA256.test(runtime.unionSha256??'') ||
         !SHA256.test(runtime.loadedProcessClosureSha256??'') ||
         !SHA256.test(runtime.cardPoolInitializationSha256??'') ||
+        typeof runtime.fullProcessClosureCovered!=='boolean' ||
+        (!fixtureOnly && runtime.fullProcessClosureCovered!==true) ||
         receipt.runtimePinUnionSha256!==runtime.unionSha256 ||
         receipt.loadedProcessClosureSha256!==runtime.loadedProcessClosureSha256 ||
         receipt.cardPoolInitializationSha256!==runtime.cardPoolInitializationSha256)
@@ -506,7 +521,7 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     fail('trial seat and first-player fields are invalid');
 
   const receipt = checkedReceipt(policyApplicationReceipt,true);
-  validateReceiptAgainstPlan(receipt,preDeal,trial);
+  validateReceiptAgainstPlan(receipt,preDeal,trial,fixtureOnly);
   const receipts = [...policyPanelReceipts.map(x=>checkedReceipt(x,false))];
   if (!receipts.some(x=>x.trialId===receipt.trialId &&
       x.receiptSha256===receipt.receiptSha256)) receipts.push(receipt);
@@ -589,7 +604,11 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     fieldStatus:panel.status,
     fieldComplete:panel.fieldComplete,
     fullFieldPanelComplete:panel.fullFieldPanelComplete,
-    fixtureOnly
+    fixtureOnly,
+    fullProcessClosureCovered:
+      preDeal.policyPlanCore?.runtimePinEvidence?.fullProcessClosureCovered===true,
+    competitiveAdmission:fixtureOnly?false:assessment.competitiveAdmission===true,
+    admissionEligible:fixtureOnly?false:assessment.admissionEligible===true
   };
 }
 
