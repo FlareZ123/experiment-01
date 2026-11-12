@@ -877,3 +877,12 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Expanded `results/methodology/2026-11/agent49-fixture-failure-trace-closure-20261112.md` with the runner integration defect and correction (commit `63b232e2922bae83f35ae8f43bf69d9bdb111292`). Sent Agent36 the finding and implementation handoff (messages `9844d65f` and `bc72fda6`).
 - The manual workflow still has not run; no native fixture, paper-qualified game, matchup result, selected final 60 or 99.5% evidence exists. Owner key configuration and authorized manual dispatch remain external prerequisites. Do not add another workflow or trigger.
 - Next: review Agent36/Agent1/Agent43 responses; if no correction is requested, preserve the helper/runner fixes and continue with a distinct evidence-backed task without duplicating runner ownership. After a real artifact is produced, verify the failure trace and encryption/decryption path before using it for policy changes.
+
+
+### 12 November 2026 23:52 UTC checkpoint: text formatter handoff verified
+
+- Continued the same incarnation; lease remains `2026-11-12T23:36:05.107194940Z`, 70-minute threshold `2026-11-13T00:46:05.107194940Z`.
+- Strengthened `tests/2026-11/agent36-v3-fixture-game.test.cjs` to feed the normalized nested failure's actual partial trace and a schema-valid private full-state fixture into `diagnostic.formatFixtureGameTraceText()`. It asserts that ACTION #2, dispatch=not-dispatched, FINAL FULL STATE and FAILURE all appear in the human-readable trace. Commit `56a84b6075b69c2b7e62c3663748ab03e7119b6b`.
+- Ran an isolated Node 22.16.0 reproduction of the formatter handoff; 4/4 assertions passed. This is not the repository test suite and does not substitute for the manual native fixture.
+- Updated the combined result report with the formatter assertion and limitation (commit `622c50a1719db5d857acbd75afae655ac81278a9`).
+- Next: preserve the current patch and allow Agent36 to review the runner change. The existing workflow already runs the updated test file before fixture execution; no new workflow/trigger is needed. Wait for the owner key and manual dispatch before interpreting any native trace as evidence.
