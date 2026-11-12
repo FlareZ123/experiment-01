@@ -429,6 +429,14 @@ test('Official end call must not precede the stage-specific elapsed-time limit',
   assert.equal(finalAtLimit.status,'NORMAL_PAPER_GAME_WIN');
   assert.equal(finalAtLimit.clockLimitMinutes,35);
   assert.equal(finalAtLimit.officialCallAtOrAfterStageLimit,true);
+  for(const invalid of [undefined,1499.5,'1500',-1,Number.MAX_SAFE_INTEGER+1]){
+    const rejected=auditTimeCallPacket({...base,stage:'open-swiss',
+      elapsedSecondsAtOfficialCall:invalid});
+    assert.equal(rejected.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE',
+      String(invalid));
+    assert.ok(rejected.missing.includes(
+      'official-end-call-before-stage-time-limit-or-clock-elapsed-invalid'));
+  }
 });
 
 test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
