@@ -52,3 +52,12 @@ Added normalizeV3FixtureRoleResult() to normalize direct runtime failures, role-
 
 
 The runner normalization regression was strengthened to call the actual full-state trace formatter with the normalized partial artifact and assert that the third ACTION row, not-dispatched status, final full state, and failure section all appear in the text output. Test commit: 56a84b6075b69c2b7e62c3663748ab03e7119b6b. An isolated Node 22.16.0 reproduction of the formatter handoff passed 4/4 assertions. The repository's full node --test command remains unexecuted.
+
+
+## Historical CI preflight review
+
+Retrieved failed workflow run 43300770166 (run 176, push event, 12 November 20:29 UTC, head a7f17d5ca1d2c32e71a200943a95f2c869a71476). Its only job failed at the V3 fixture/role/source-contract test step: 117/125 tests passed, 8 failed, and the native fixture step was skipped. This is historical evidence from an earlier head, not a test run of the current changes.
+
+One mismatch was still directly present in current main: the role-manifest test expected only one dynamic require site, and used a stale property/path shape. The current lexical source audit, applied to the current 12 files, reports these known sites: Agent12 (3), Agent37 Genesect (1), Agent4 Underworld (1), Agent41 single-search (4), Agent43 Guzma (2), Agent47 hand/discard (3), Agent5 owner-root (1), Agent8 choose-Pokémon (3), Agent8 Apex bridge (1), Copycat history (3), Cynthia/Caitlin recovery (1), and zero-damage-cap hook (3). Updated the test to enumerate all 12 exact file/count pairs, sorted by path, while retaining the fail-closed runtime Module._load guard and explicit non-claim of full-process closure. Test commit: bc328aa3f2f854f446bf8dbcfe3d1af97034cd96.
+
+The other seven failures in run 176 concerned card-pool/source lookup, fixture chronology receipts, production pre-deal failure expectations, runtime-pin cache inventory/restoration, and a stale role-seat assertion. Several corresponding source/test files have changed since that run, but none of those changes has been exercised by a current workflow run in this invocation. Do not infer that the current suite is green. The workflow's current main definition is manual-dispatch only; no new push trigger or rerun was introduced.
