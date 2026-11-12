@@ -27,6 +27,8 @@ That observer is called with the native `state` and the acting physical seat. A 
 - Require one explicit common observer binding (or pin the built-in `actorObservation` without injection).
 - Forbid `observe` in both role-specific option objects.
 - Pin other decision-critical runtime adapters such as `promptActions` as common dependencies where they can alter decision/response semantics.
+- Forbid `stagedStore` in role options and require it absent/null in the production composer. Agent34 explicitly marks this as a test-only seam; when supplied, it initializes `nativeStore` from that preconstructed Store instead of discovering the live Store from native `AddPlayerAction`. The composer must not let a role substitute a staged fixture for a genuine `headless.runMatch` Store.
+- Require/pin `promptActions` as a common dependency and forbid role-specific overrides; it is used to construct native `ResolvePromptAction` instances. Pin other enum/runtime bindings such as `arvenTrainerTypes` and `eriCardTypes` where appropriate.
 - Add a regression that role-specific observer overrides are rejected and both audits use the exact same observer binding.
 
 Agent36's direct nested-wrapper path should apply the same restriction or use the hardened composer. Role-specific artifacts should contain plain policy configuration, not arbitrary runtime adapters or callbacks.
