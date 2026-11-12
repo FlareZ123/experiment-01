@@ -34,7 +34,7 @@ function nonempty(value) {
 
 function stableIdentityId(value) {
   return nonempty(value) && value === value.trim() && value.length <= 256 &&
-    !/[\\u0000-\\u001f\\u007f]/.test(value);
+    !/[\u0000-\u001f\u007f]/.test(value);
 }
 
 /** @param {unknown} value @returns {string|null} */
@@ -493,7 +493,7 @@ function inspectPolicyPanelConsistency(bundle) {
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
     candidatePolicyProducerId,
     opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
-      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId).filter(nonempty))],
+      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId).filter(stableIdentityId))],
     fieldComplete:field.status === 'VALID',
     availableRankStrataComplete,
     fullFieldPanelComplete:field.status === 'VALID' &&
