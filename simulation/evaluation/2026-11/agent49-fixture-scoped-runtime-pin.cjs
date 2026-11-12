@@ -43,6 +43,11 @@ function researchRelativePath(root,filename) {
   const absolute=path.resolve(filename);
   const lexical=path.relative(root,absolute).split(path.sep).join('/');
   const lexicalInside=withinRoot(lexical);
+  // Match the production pin's vendor/package-manager boundary before
+  // realpath checks; those trees are independently pinned or excluded.
+  if(lexicalInside && (lexical.startsWith('vendor/') ||
+      lexical.startsWith('node_modules/') ||
+      !EXTENSIONS.has(path.extname(lexical)))) return null;
   const real=fs.realpathSync(absolute);
   const actual=path.relative(root,real).split(path.sep).join('/');
   const realInside=withinRoot(actual);
@@ -51,8 +56,6 @@ function researchRelativePath(root,filename) {
   if(!lexicalInside) return null;
   assert.equal(actual,lexical,
     'fixture pin rejects symlinked research modules: '+lexical);
-  if(lexical.startsWith('vendor/') || lexical.startsWith('node_modules/') ||
-      !EXTENSIONS.has(path.extname(lexical))) return null;
   return lexical;
 }
 
