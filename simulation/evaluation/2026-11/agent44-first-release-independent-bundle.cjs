@@ -12,7 +12,7 @@ const {rootDigest}=
 const INTAKE_SCHEMA='agent44-first-independent-original-source-case-intake-v2';
 const V2_SCHEMA='aichi-outcome-and-competitive-admission-v2';
 const RAW_SCHEMA='agent36-live-paper-root-receipts-v2-attached-energy-custody';
-const REFERENCE='agent44-first-independent-rank5-newmoon-case-v2.json';
+const REFERENCE='agent44-first-independent-rank5-newmoon-live-paper-v2.json';
 const RELEASE_REFERENCE='agent44-first-release-nine-object-intake-v2.json';
 
 function rootReviewWorklist(raw,roots){
@@ -78,18 +78,27 @@ function rootReviewWorklist(raw,roots){
         'duplicate-raw-receipt-ordinal':'no-unique-aligned-root'
     }];
   });
-  const uniqueOrdinals=raw.rootOrdinalsUnique===true&&
-    new Set(receipts.map(x=>x?.actionOrdinal)).size===receipts.length;
-  const acceptedStoreRootCountMatches=raw.acceptedStoreRootCount===receipts.length;
-  const complete=roots.length===receipts.length&&acceptedStoreRootCountMatches&&
-    uniqueOrdinals&&rows.every(x=>x.rawReceiptAligned)&&
-    unmatchedRawReceipts.length===0;
+  const schema=raw.schema===RAW_SCHEMA;
+  const originalPhysicalCardCount=Array.isArray(raw.originalPhysicalCards)?
+    raw.originalPhysicalCards.length:0;
+  const ledgerCount=roots.length;
+  const receiptCount=receipts.length;
+  const acceptedStoreRootCount=raw.acceptedStoreRootCount??null;
+  const rootCountMatches=acceptedStoreRootCount===ledgerCount&&
+    receiptCount===ledgerCount;
+  const exactOrdinalSeatActionParity=ledgerCount>0&&rootCountMatches&&
+    rows.every(x=>x.rawReceiptAligned);
+  const rootOrdinalsUnique=raw.rootOrdinalsUnique===true&&
+    new Set(receipts.map(x=>x?.actionOrdinal)).size===receiptCount;
+  const settledPhysicalIdentityClean=raw.settledPhysicalIdentityClean===true;
+  const complete=schema&&originalPhysicalCardCount===120&&rootCountMatches&&
+    exactOrdinalSeatActionParity&&rootOrdinalsUnique&&
+    settledPhysicalIdentityClean;
   return {rows,unmatchedRawReceipts,alignment:{
-    nativeRootCount:roots.length,rawReceiptCount:receipts.length,
-    acceptedStoreRootCount:raw.acceptedStoreRootCount??null,
-    acceptedStoreRootCountMatches,uniqueRawOrdinals:uniqueOrdinals,alignedRootCount:
-      rows.filter(x=>x.rawReceiptAligned).length,
-    complete
+    schema,originalPhysicalCardCount,ledgerCount,receiptCount,
+    acceptedStoreRootCount,rootCountMatches,exactOrdinalSeatActionParity,
+    rootOrdinalsUnique,settledPhysicalIdentityClean,
+    rejectedDispatchCount:raw.rejectedDispatches?.length??0,complete
   }};
 }
 
@@ -103,12 +112,17 @@ function build(original){
   assert.equal(original?.schema,INTAKE_SCHEMA,
     'Only the prospective Agent44 V2 intake is accepted');
   assert.equal(original?.intake?.schema,INTAKE_SCHEMA);
+  assert.equal(original.registration.schema,'agent44-first-independent-review-case-registration-v2');
   assert.equal(original.registration.preRegisteredTrials.length,1);
+  assert.equal(original.registration.caseId,original.intake.caseId);
+  assert.equal(original.intake.caseId,'agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309');
   assert.equal(original.intake.releaseStatus.competitiveAdmission,false);
   const trialId=original.intake.trial.id;
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
   const src=original.nativeDevelopmentRow;
-  const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:[];
+  const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:
+    Array.isArray(src?.nativeAbortEvidence?.rootActionLedger)?
+      src.nativeAbortEvidence.rootActionLedger:[];
   const raw=original.rawNativePhysicalReceipts;
   assert.equal(raw?.schema,RAW_SCHEMA,
     'The attached-Energy V2 raw receipt packet is required');
@@ -117,10 +131,12 @@ function build(original){
     'The raw receipt packet must retain its receipt array');
   const {rows:worklist,unmatchedRawReceipts,alignment}=
     rootReviewWorklist(raw,roots);
-  const physicalInventoryComplete=Array.isArray(raw.originalPhysicalCards)&&
-    raw.originalPhysicalCards.length===120;
+  const producerAlignment=original.intake.rootReceiptAlignment??null;
+  const producerAlignmentMatches=Boolean(producerAlignment)&&
+    Object.keys(alignment).every(key=>producerAlignment[key]===alignment[key]);
+  const physicalInventoryComplete=alignment.originalPhysicalCardCount===120;
   const rawNativePhysicalReceiptCaptureComplete=
-    physicalInventoryComplete&&alignment.complete;
+    alignment.complete&&producerAlignmentMatches;
   const nativeFinished=src.finished===true&&!src.error;
   const zoneTape=original.postStoreZoneTape??{};
   const nativeTraceComplete=nativeFinished&&roots.length>0&&
@@ -165,6 +181,8 @@ function build(original){
       registeredTrial:src.trial??null,
       nativeRootActionLedger:roots,
       nativeRootActionLedgerSha256:rootSha256,
+      producerRootReceiptAlignment:producerAlignment,
+      producerRootReceiptAlignmentMatches:producerAlignmentMatches,
       nativeEndReason:src.endReason??null,
       nativeFinished,
       nativeWinner:nativeFinished?src.winner??null:null,
@@ -221,16 +239,21 @@ function build(original){
     trial:{
       trialId,
       registrationRef:
-        'results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json',
+        'results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json',
       originalSourceSeat:original.intake.sourceSeat,
       candidateSeat:original.intake.candidateSeat,
+      runtime:original.intake.runtime??original.runtime??null,
       actualFirstPlayerSeat:native.actualFirstSeat??null,
       sourcePhysicalDealSha256:src.sourceDealFingerprint??null,
       fullPhysicalDealSha256:src.fullPhysicalDealFingerprint??null,
       vendorCommitSha:original.intake.enginePinnedCommit??null,
       researchRevisionSha:
+        original.intake.runtime?.researchRevisionSha??
+        original.runtime?.researchRevisionSha??
         original.intake.researchRevisionSha??src.researchRevisionSha??null,
       hookRevisionSha:
+        original.intake.runtime?.hookRevisionSha??
+        original.runtime?.hookRevisionSha??
         original.intake.hookRevisionSha??src.hookRevisionSha??null,
       originalPrinted60Sha256:original.intake.sourcePrintedSha256??null,
       candidatePrinted60Sha256:
@@ -254,6 +277,8 @@ function build(original){
       rawNativePhysicalReceipts:raw,
       rawNativePhysicalReceiptsSha256:rawSha256,
       rawReceiptAlignment:alignment,
+      producerRootReceiptAlignment:producerAlignment,
+      producerRootReceiptAlignmentMatches:producerAlignmentMatches,
       rawPhysicalInventoryComplete:physicalInventoryComplete,
       independentFullPaperRulesAudit:false,
       hiddenInformationAudit:false,
@@ -305,6 +330,8 @@ function build(original){
       nativeTraceComplete,
       physicalInventoryComplete,
       rawReceiptAlignmentComplete:alignment.complete,
+      producerAlignmentMatches,
+      settledPhysicalIdentityClean:raw.settledPhysicalIdentityClean===true,
       pendingIndependentRootPaperReviews:roots.length,
       gameOutcomeAdmissionReady:admission.gameOutcomeAdmissionReady,
       competitivePolicyCompetenceReady:

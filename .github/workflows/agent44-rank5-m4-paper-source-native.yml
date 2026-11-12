@@ -65,6 +65,9 @@ jobs:
         if: ${{ inputs.mode == 'release-case-v2' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.cjs
+          node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
+          node --check tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
+          node --test tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
           node --check simulation/twinleaf/agent50-owner-public-acknowledgements.cjs
           node --test tests/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.test.cjs
@@ -96,6 +99,9 @@ jobs:
       - name: Execute fresh preregistered original-rank5 game with V2 all-root physical receipts
         if: ${{ inputs.mode == 'release-case-v2' }}
         run: node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.cjs
+      - name: Build V2 nine-object review bundle from fresh 4411 raw physical receipt packet
+        if: ${{ inputs.mode == 'release-case-v2' && !cancelled() }}
+        run: node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs artifacts/agent44-first-independent-rank5-newmoon-live-paper-v2.json artifacts/agent44-first-release-nine-object-intake-v2.json
       - name: Validate owner-visible Gengar branch and frozen A/B/A registration
         if: ${{ inputs.mode == 'gengar-tempo' }}
         run: |
@@ -243,6 +249,14 @@ jobs:
         with:
           name: agent44-first-independent-rank5-newmoon-live-paper-v2
           path: artifacts/agent44-first-independent-rank5-newmoon-live-paper-v2.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Archive V2 nine-object review bundle and fail-closed admission report
+        if: ${{ always() && inputs.mode == 'release-case-v2' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-first-independent-rank5-newmoon-live-paper-v2-bundle
+          path: artifacts/agent44-first-release-nine-object-intake-v2.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive complete root ledgers and original physical opening receipts

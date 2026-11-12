@@ -9,7 +9,8 @@ const {rootDigest}=
 const {BUNDLE_SCHEMA,MANIFEST,evidenceBundleSha256}=
   require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 
-const TRIAL='5:4410:B:new-moon-lockbreaker-v1';
+const TRIAL='5:4411:B:new-moon-lockbreaker-v1';
+const CASE='agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309';
 
 function fixture(){
   const roots=[
@@ -46,8 +47,14 @@ function fixture(){
     competitiveGameQualified:false
   };
   const intake={
-    schema:INTAKE_SCHEMA,caseId:'agent44-first-independent-original-rank5-newmoon-case',
+    schema:INTAKE_SCHEMA,caseId:CASE,
     originalRank:5,sourceSeat:0,candidateSeat:1,
+    runtime:{researchRevisionSha:'research-revision-4411'},
+    rootReceiptAlignment:{schema:true,originalPhysicalCardCount:120,
+      ledgerCount:2,receiptCount:2,acceptedStoreRootCount:2,
+      rootCountMatches:true,exactOrdinalSeatActionParity:true,
+      rootOrdinalsUnique:true,settledPhysicalIdentityClean:true,
+      rejectedDispatchCount:0,complete:true},
     trial:{id:TRIAL},enginePinnedCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
@@ -76,6 +83,7 @@ function fixture(){
     allRootPhysicalZonesSha256:'all-root-zones'
   };
   const registration={
+    schema:'agent44-first-independent-review-case-registration-v2',
     caseId:intake.caseId,
     preRegisteredTrials:[{id:TRIAL}]
   };
@@ -88,12 +96,20 @@ test('live Agent44 builder consumes V2 raw receipts and selects production V2 ad
   const original=fixture();
   const result=build(original);
   assert.equal(result.schema,'agent44-first-release-nine-object-bundle-intake-v2');
+  assert.equal(result.caseId,CASE);
+  assert.equal(result.originalSourceArtifact,'agent44-first-independent-rank5-newmoon-live-paper-v2.json');
   assert.equal(result.bundle.schema,BUNDLE_SCHEMA);
   assert.equal(result.bundle.admissionContract,V2_SCHEMA);
   assert.deepEqual(result.bundle.rawNativePhysicalReceipts,original.rawNativePhysicalReceipts);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.bundle.trial.actionCertificates.length,0);
   assert.equal(result.bundle.trial.responseOpportunityAudit,null);
+  assert.equal(result.bundle.trial.registrationRef,
+    'results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json');
+  assert.equal(result.bundle.trial.researchRevisionSha,'research-revision-4411');
+  assert.equal(result.bundle.trial.runtime.researchRevisionSha,'research-revision-4411');
+  assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,true);
+  assert.equal(result.releaseStatus.producerAlignmentMatches,true);
   assert.equal(result.bundle.rootPaperReviewWorklist.length,2);
   const first=result.bundle.rootPaperReviewWorklist[0];
   assert.equal(first.rootOrdinal,0);
@@ -105,6 +121,10 @@ test('live Agent44 builder consumes V2 raw receipts and selects production V2 ad
   assert.deepEqual(first.beforePrompts,original.rawNativePhysicalReceipts.receipts[0].beforePrompts);
   assert.equal(first.reviewChecklist.paperLegality,'pending-independent-review');
   assert.equal(first.reviewChecklist.payment,'pending-independent-review');
+  assert.ok(first.rawReceiptRef.startsWith(
+    'agent44-first-independent-rank5-newmoon-live-paper-v2.json#/rawNativePhysicalReceipts/receipts/'));
+  assert.ok(first.physicalCardInventoryRef.startsWith(
+    'agent44-first-independent-rank5-newmoon-live-paper-v2.json#/rawNativePhysicalReceipts/originalPhysicalCards'));
   assert.equal(Object.hasOwn(first,'independentReviewerId'),false);
   assert.deepEqual(Object.keys(result.releaseNineObjects).sort(),MANIFEST.slice().sort());
   assert.equal(result.bundleSha256,evidenceBundleSha256(result.bundle));
@@ -133,6 +153,8 @@ test('raw receipt anomalies and missing alignments remain visible instead of bei
   assert.equal(result.releaseStatus.rawReceiptAlignmentComplete,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawReceiptAligned,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawSeat,1);
+  assert.equal(result.bundle.trial.producerRootReceiptAlignmentMatches,false);
+  assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
   assert.equal(result.bundle.unmatchedRawReceipts.length,1);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
 });
@@ -143,6 +165,24 @@ test('accepted Store root count mismatch remains an explicit capture blocker',()
   const result=build(original);
   assert.equal(result.bundle.trial.rawReceiptAlignment.acceptedStoreRootCountMatches,false);
   assert.equal(result.releaseStatus.rawReceiptAlignmentComplete,false);
+  assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
+});
+
+test('settled physical identity conservation is required for raw capture completeness',()=>{
+  const original=fixture();
+  original.rawNativePhysicalReceipts.settledPhysicalIdentityClean=false;
+  const result=build(original);
+  assert.equal(result.bundle.trial.rawReceiptAlignment.settledPhysicalIdentityClean,false);
+  assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
+  assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
+});
+
+test('root ordinal uniqueness is required for raw capture completeness',()=>{
+  const original=fixture();
+  original.rawNativePhysicalReceipts.rootOrdinalsUnique=false;
+  const result=build(original);
+  assert.equal(result.bundle.trial.rawReceiptAlignment.rootOrdinalsUnique,false);
+  assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
 });
 
