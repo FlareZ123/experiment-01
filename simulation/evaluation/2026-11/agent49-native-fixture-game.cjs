@@ -369,6 +369,14 @@ function runNativeFixtureGame(input) {
           failedRecord.fullStateAfter=finalFullState;
         failedRecord.failureSnapshotStage='failure-final';
         decisionTrace.push(failedRecord);
+      } else if(failedRecord.dispatchStatus==='pending') {
+        failedRecord.dispatchStatus='not-dispatched';
+        failedRecord.failure=failureSummary;
+        if(failedRecord.publicStateAfter===undefined)
+          failedRecord.publicStateAfter=finalPublicState;
+        if(failedRecord.fullStateAfter===undefined)
+          failedRecord.fullStateAfter=finalFullState;
+        failedRecord.failureSnapshotStage='failure-final';
       } else if(failedRecord.dispatchStatus!=='succeeded'&&!failedRecord.failure) {
         failedRecord.failure=failureSummary;
       }
