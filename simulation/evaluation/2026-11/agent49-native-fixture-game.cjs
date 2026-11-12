@@ -552,10 +552,13 @@ function runNativeFixtureGame(input) {
       };
       const actionPayload=projectActionPayload(action);
       const actionPayloadSha256=sha256Json(actionPayload);
+      failureContext.record.actionPayload=actionPayload;
       failureContext.record.actionPayloadSha256=actionPayloadSha256;
       const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const targetProjection=action instanceof native.cardActions.PlayCardAction?
         projectJsonSafe(action.target??null):null;
+      failureContext.record.selectedCardIdentity=selectedIdentity;
+      failureContext.record.targetProjection=targetProjection;
       if(pending) {
         const promptSnapshot=fullStateBefore?.prompts?.find(prompt=>
           prompt.id===pendingPromptId)??projectJsonSafe(pending);
@@ -565,7 +568,8 @@ function runNativeFixtureGame(input) {
           promptType:pendingPromptType,
           playerId:pending.playerId??null,
           perspectivePlayerId:promptSnapshot?.perspectivePlayerId??
-            pending.playerId??null,
+            (pending instanceof ShuffleDeckPrompt?
+              (actingSeat===null?null:PLAYER_IDS[actingSeat]):pending.playerId??null),
           actingSeat,
           resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
             'physical-randomization':'native-prompt-resolver',
@@ -589,6 +593,9 @@ function runNativeFixtureGame(input) {
       }
       const actorObservationSha256=actorObservationBefore===null?
         null:sha256Json(actorObservationBefore);
+      failureContext.record.promptResolverContext=promptResolverContext;
+      failureContext.record.actorObservationBefore=actorObservationBefore;
+      failureContext.record.actorObservationSha256=actorObservationSha256;
       const record={
         actionOrdinal,
         actingSeat,
