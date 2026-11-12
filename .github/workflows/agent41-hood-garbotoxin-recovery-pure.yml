@@ -1,0 +1,29 @@
+name: Agent41 Hood/Garbotoxin recovery pure contracts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'simulation/twinleaf/hood-ability-lock-state.cjs'
+      - 'simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs'
+      - 'tests/2026-11/agent41-hood-ability-lock-state.test.cjs'
+      - '.github/workflows/agent41-hood-garbotoxin-recovery-pure.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  hood-garbotoxin-pure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse Hood recovery adapter
+        run: |
+          node --check simulation/twinleaf/hood-ability-lock-state.cjs
+          node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
+      - name: Test Hood/Garbotoxin recovery state contracts
+        run: node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs
