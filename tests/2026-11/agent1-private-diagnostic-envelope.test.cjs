@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
 const {
   encryptDiagnosticBundle,
   decryptDiagnosticBundle,
@@ -146,4 +147,29 @@ test('public Actions artifact path exposes only encrypted fixture diagnostics', 
   assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/'));
   assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.json'));
   assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.txt'));
+});
+test('workflow CLI encrypt mode writes ciphertext and deletes plaintext for upload', () => {
+  const keys = keyPair();
+  temp(directory => {
+    const raw = Buffer.from('private diagnostic CLI fixture\\n');
+    fs.writeFileSync(path.join(directory, 'fixture-game.json'), raw);
+    const scriptPath = path.join(__dirname, '../../simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs');
+    const result = spawnSync(process.execPath, [scriptPath, 'encrypt-fixture-artifacts', directory], {
+      encoding: 'utf8',
+      env: { ...process.env, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: keys.publicKey },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.existsSync(path.join(directory, 'fixture-game.json')), false);
+    const envelopePath = path.join(directory, 'fixture-game.private.enc.json');
+    assert.equal(fs.existsSync(envelopePath), true);
+    const decrypted = decryptDiagnosticBundle({
+      privateKeyPem: keys.privateKey,
+      envelopeBytes: fs.readFileSync(envelopePath),
+    });
+    assert.equal(decrypted.files.length, 1);
+    assert.deepEqual(decrypted.files[0].bytes, raw);
+    const publicManifest = JSON.parse(fs.readFileSync(path.join(directory, 'fixture-game.public-manifest.json'), 'utf8'));
+    assert.equal(publicManifest.artifactVisibility, 'public-encrypted-envelope');
+    assert.equal(publicManifest.payloadVisibility, 'private-offline-diagnostic-only');
+  });
 });
