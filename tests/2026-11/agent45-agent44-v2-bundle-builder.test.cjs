@@ -6,6 +6,7 @@ const {createHash}=require('node:crypto');
 const {build,INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,REGISTRATION_REF,
   CASE_ID,TRIAL_ID}=
   require('../../simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs');
+const TRIAL=TRIAL_ID;
 const {rootDigest}=
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 const {aichiClockProtocolSha256}=
@@ -54,10 +55,27 @@ function fixture(){
     status:'FROZEN_BEFORE_NATIVE_EXECUTION',
     caseId:CASE_ID,
     enginePinnedCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    candidateOfficialJapaneseDeckCode:'JP-NEW-MOON-CODE',
+    candidatePrintedManifest:'results/als/new-moon-perfection-source-60.json',
+    candidateOfficialJapaneseDeckCode:'GxxDYx-a4rD4W-a8xYxc',
     preRegisteredTrials:[{rank:5,repeat:4410,candidateSlot:'B',
       seed:3861605836,candidateId:'new-moon-lockbreaker-v1',id:TRIAL_ID}]
   };
+  const candidateManifestBinding={
+    schema:'agent44-candidate-print-manifest-binding-v1',
+    status:'PRE_EXECUTION_CORRECTIVE_BINDING_NOT_A_NEW_REGISTRATION',
+    registrationCandidateManifestPointer:registration.candidatePrintedManifest,
+    registrationCandidateManifestPointerMatches:false,
+    boundCandidateJapanesePrintManifest:'results/als/new-moon-lockbreak-japanese-print-60.json',
+    candidateEnglishMechanicalProxyManifest:'results/als/new-moon-lockbreak-english-proxy-60.json',
+    candidatePrintedCardCount:60,candidateUniqueNameCount:34,
+    nativeCandidateLoaderNameCountParity:true,
+    candidateNameCountParity:{names:34,cards:60},
+    candidateJapanesePrintInventoryCanonicalSha256:'candidate-inventory',
+    candidateOfficialJapaneseDeckCode:null,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:'GxxDYx-a4rD4W-a8xYxc',
+    paperLegalityIndependentlyCertified:false
+  };
+  const candidateManifestBindingSha256=hash(candidateManifestBinding);
   const runtime={
     researchRevisionSha:'research-revision-4410',
     workflowRunId:'4410-run-id',workflowRunAttempt:'1',
@@ -76,7 +94,9 @@ function fixture(){
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
     rootReceiptAlignment:alignment,
-    candidateOfficialJapaneseDeckCode:'JP-NEW-MOON-CODE',
+    candidateOfficialJapaneseDeckCode:null,
+    candidateManifestBinding,candidateManifestBindingSha256,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:'GxxDYx-a4rD4W-a8xYxc',
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
     candidatePrintedInventorySha256:'candidate-inventory',
@@ -144,7 +164,7 @@ function fixture(){
   };
   return {
     schema:INTAKE_SCHEMA,registration,registrationRef:REGISTRATION_REF,
-    registrationSha256:'registration-hash',runtime,intake,
+    registrationSha256:'registration-hash',candidateManifestBindingSha256,runtime,intake,
     nativeDevelopmentRow:row,postStoreZoneTape:zoneTape,
     rawNativePhysicalReceipts:raw
   };
