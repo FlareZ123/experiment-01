@@ -8,7 +8,7 @@ const {
   formatFixtureGameTraceText,
   DIAGNOSTIC_SCHEMA,
   PRIVATE_VISIBILITY,
-} = require('../../simulation/twinleaf/full-state-diagnostic.cjs');
+} = require('../../simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
 const card = fullName => ({
   fullName,
