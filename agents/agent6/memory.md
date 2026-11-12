@@ -693,3 +693,10 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Reviewed `simulation/twinleaf/ranger-lele-itemlock-action.cjs` and `ranger-stone-itemlock-action.cjs`. The Tapu Lele-GX Wonder Tag route depends on `lele-entry-ability-lock-hook.cjs` to correct a pinned raw Initialization/entry-Ability leak. The Forest Seal Stone route depends on `forest-seal-search-hook.cjs` and explicit `UseAbilityAction`, because the default Ability tactic omits Tool-granted Star Alchemy. Agent36's V3 shared patch manifest currently lists only the Underworld Door hook.
 - The new `rangerBudewItemLock` helper intentionally handles Ranger already in hand only. Lele/Stone access is not policy coverage until their hooks, prompt handling, and role closure/manifest are installed and actual policy decisions exercise them. Updated the report and sent this caveat to Agent3 and Agent36. Do not overstate staged action fixtures as natural access frequency.
 - Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
+
+
+### 12 November 2026 21:38 UTC checkpoint: candidate-only role scoping confirmed
+
+- Inspected `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs`: it wraps candidate and opponent separately with distinct `candidateDeps` and `opponentDeps`, each carrying `policyOwnerSeat`. Thus the existing V3 runner supports candidate-only Ranger activation by setting `candidatePolicyOptions.rangerBudewItemLock=true` and leaving opponent false. A single Agent34 wrapper without the composer remains symmetric. Corrected the report and sent Agent3/Agent36 the concrete V3 manifest integration path.
+- The runner already asserts runtime candidate/opponent options match each frozen role's `policyDefinition.policyOptions`; candidate flag must be frozen in the candidate identity manifest. No new role composer required.
+- Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
