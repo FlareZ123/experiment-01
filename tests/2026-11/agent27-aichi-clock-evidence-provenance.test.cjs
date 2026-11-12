@@ -7,7 +7,8 @@ const {auditTimeCallPacket,adjudicateExtension,auditExtensionLedger} = require('
 /** @param {[number,number]} prizes @returns {object} */
 function makeTimeCallPacket(prizes) {
   return {stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
-    officialEndCallObserved:true,officialClockEvidenceRef:'official-clock-record',
+    officialEndCallObserved:true,elapsedSecondsAtOfficialCall:1500,
+    officialClockEvidenceRef:'official-clock-record',
     stageEvidenceRef:'official-round-pairing',
     firstPlayerEvidenceRef:'original-starter-record',
     turnOwnerWhenCalledEvidenceRef:'call-turn-owner-record',
