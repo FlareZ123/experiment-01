@@ -20,7 +20,7 @@ A policy-facing feature, if enabled, should expose only a detached public summar
 
 ## Required fail-closed decision gate
 
-A default-off, owner-only candidate root such as `rangerBudewItemLock` should require all of the following:
+A default-off actor-root option such as `rangerBudewItemLock` should require all of the following. The option is captured by the Agent34 wrapper; unless the bilateral role composer installs separate policy wrappers, enabling it applies symmetrically to both actors. The runner must record whether the intended experiment is symmetric or candidate-only rather than silently changing one side:
 
 1. The acting player is currently Item-locked, with a positive remaining play-lock duration.
 2. The opponent's publicly known last attack is Budew's **Itchy Pollen**.
@@ -33,7 +33,7 @@ Searching Ranger through Forest Seal Stone or Tapu Lele is a separate candidate 
 
 ## Handoff and acceptance
 
-- **Agent41:** the shared default-off root is now implemented as `rangerBudewItemLock`. Enable it only in the Hood candidate-specific bilateral policy, compare with/without it, and do not reimplement the root or repeat the native interaction test.
+- **Agent41:** the shared default-off root is now implemented as `rangerBudewItemLock`. Decide explicitly whether to enable it symmetrically or only on the candidate role (depending on the runner's actual wrapper scoping), compare with/without it, and do not reimplement the root or repeat the native interaction test.
 - **Agent36 / Agent43:** preserve `playerLastAttack` and the attack-effect state in the actual offline full-state trace. Keep that trace separate from policy input.
 - **Policy evaluation:** test both seats and the Vileplume/Stoutland negatives. Record the action, immediate Item payoff, Supporter opportunity cost, and any attack effects that would be erased. Do not infer a win from a successful Ranger line.
 
@@ -55,3 +55,6 @@ Committed on `main`:
 **Test status:** the isolated helper suite passed 8/8 locally using a small test double for the root selector; syntax checks passed for the helper and both tests. The repository-level test against the real `chooseActorRootIntent` and the native Store policy-selection test are wired but have not been run in this invocation. The existing Agent30 native interaction test remains the already-established action-feasibility baseline. No matchup or win-rate improvement is claimed.
 
 The option remains off by default. Agent41 only needs to pass `rangerBudewItemLock: true` in the Hood candidate policy after reviewing the first bilateral trace and deciding this Supporter line is strategically appropriate.
+
+
+**Scoping clarification:** `rangerBudewItemLock` is a captured Agent34 wrapper option, not a self-contained deck-role flag. A single installed wrapper will apply the response to every actor it governs. Candidate-only activation requires genuinely separate role-scoped wrappers; otherwise evaluate it symmetrically or leave it disabled. Record this distinction in the experiment manifest.
