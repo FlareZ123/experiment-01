@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
-const {hasLiveOpponentAbilityLock,hasJammingTowerInPlay} =
+const {hasProtectableHoodLockThreat} =
   require('./hood-ability-lock-state.cjs');
 
 /**
@@ -29,7 +29,7 @@ function hoodAwareAttachToolTacticClass() {
       const hoodIndex = player.hand.cards.findIndex(c => c.name === 'Stealthy Hood');
       const opponent = state.players.find(p => p.id !== player.id);
       if (hoodIndex !== -1 && opponent && !player.cannotPlayToolCards &&
-          hasLiveOpponentAbilityLock(opponent) && !hasJammingTowerInPlay(state)) {
+          hasProtectableHoodLockThreat(opponent,state)) {
           const candidates = [];
           player.bench.forEach((slot, index) => {
             const pokemon = slot.getPokemonCard();
