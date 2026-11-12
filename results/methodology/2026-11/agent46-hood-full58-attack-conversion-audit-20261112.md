@@ -38,12 +38,12 @@ The candidate had 31 wins and 13 losses among 44 completed games, with 11 action
 
 The candidate lost this completed game (`candidateSeat=1`, winner seat 0, turn 29):
 
-- Mimikyu stayed Active and made **12 Filch attacks** on turns 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23 and 25.
-- Public attack snapshots show a Benched Shadow Rider Calyrex VMAX with **3 Psychic Energy at turns 21 and 23**, then **4 at turn 25**. It never made a Max Geist attack in this game.
-- The final board shows Shadow Rider VMAX Active with **5 Psychic Energy**, while the candidate still had 4 Prizes and the opponent had 6.
-- A deck-sourced prompt at turn 27 recorded `sourceZoneCardCountBefore=0`; the game ended at turn 29 with `endReason=engine-game-end`. This is consistent with an empty-deck loss after repeated draw attacks, but the artifact does not expose a more specific terminal reason, so deck-out is not asserted as proven.
+- Mimikyu stayed Active and made **12 consecutive Filch attacks** on turns 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23 and 25.
+- Public attack snapshots show a Benched Shadow Rider Calyrex VMAX with **3 Psychic Energy at turns 21 and 23**, then **4 at turn 25**.
+- The first and only Max Geist came on **turn 27**: a direct, settled attack by the physical Shadow Rider VMAX with **5 Psychic Energy**. The attack's prize ledger changed from `[6,6]` to `[6,4]`, and the opponent's Active Raging Bolt ex was replaced by Latias ex, consistent with a two-Prize KO.
+- A deck-sourced prompt at turn 27 recorded `sourceZoneCardCountBefore=0`; the game ended at turn 29 with `endReason=engine-game-end`. The final board still had the candidate at 4 Prizes and the opponent at 6. This is consistent with an empty-deck loss after repeated draw attacks, but the artifact does not expose a more specific terminal reason, so deck-out is not asserted as proven.
 
-This is a high-value policy review target: the common policy kept selecting Filch while a progressively charged VMAX remained on the Bench, and the final board still had no prize progress. The public snapshots do not establish every retreat/switch option in hand at each turn, so they do not prove that a Max Geist line was always legally available. They do establish that the policy's repeated Filch line failed to convert the growing VMAX resource into a settled Max Geist attack.
+This is a high-value policy review target: the common policy spent 12 attacks on Filch before its only Max Geist conversion, despite the VMAX accumulating Energy on the Bench from turns 21–25. The final Max Geist did take two Prizes, but came immediately before the terminal sequence and did not prevent the loss. The public snapshots do not establish every retreat/switch option in hand at each earlier turn, so they do not prove exactly when an earlier Max Geist line was legally available. They do establish a very late conversion and repeated draw-attack pattern in a game that reached a zero-card deck prompt.
 
 ## Decision for candidate-policy work
 
