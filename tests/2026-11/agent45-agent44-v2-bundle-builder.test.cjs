@@ -316,23 +316,26 @@ test('clockReceiptInput from another or unidentified trial is rejected',()=>{
 test('external Agent27 clock evidence maps exact fields without creating reviewer evidence',()=>{
   const original=fixture();
   const clockReceiptInput={
-    eventStage:'open-swiss',clockDisposition:'no-official-call',
+    trialId:TRIAL,eventStage:'open-swiss',clockDisposition:'no-official-call',
     paperReceiptId:'paper-terminal-4410',clockReceiptId:null,
     adjudicationProtocolSha:'protocol-sha',
     noCallClockPacket:{stage:'open-swiss',
       paperTerminalEvidenceRef:'paper-terminal-4410'},
     timeCallPacket:null,extensionLedgerPacket:null
   };
-  const result=build(original,{clockReceiptInput,clockReceiptInputRef:'review/clock-evidence-4410.json'});
+  const clockReceiptInputRef='review/clock-evidence-4410.json';
+  const result=build(original,{clockReceiptInput,clockReceiptInputRef});
   assert.equal(result.bundle.trial.eventStage,'open-swiss');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
   assert.equal(result.bundle.trial.adjudicationProtocolSha,'protocol-sha');
   assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
-  assert.deepEqual(result.releaseNineObjects['clock-continuity'].externalClockEvidence,clockReceiptInput);
-  assert.equal(result.releaseNineObjects['clock-continuity'].externalClockEvidenceRef,
-    'review/clock-evidence-4410.json');
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockReceiptInput,clockReceiptInput);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,
+    clockReceiptInputRef);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockProtocolSha256,
+    aichiClockProtocolSha256());
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
