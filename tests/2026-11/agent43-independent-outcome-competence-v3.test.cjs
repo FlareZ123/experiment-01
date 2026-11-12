@@ -352,6 +352,8 @@ function combineRegistries(...registries) {
 }
 
 function signedV3Result(bundle,policyRegistry,{roles=['paper','strategy'],audit=terminalAudit(),reviewerIdOverrides={}}={}) {
+  // Bind the audit into the trial before signing the immutable bundle digest.
+  if(audit) bundle.trial.responseOpportunityAudit=audit;
   const game = signReviews(bundle,{roles,strategyAudit:audit,reviewerIdOverrides});
   return inspectAdmissionV3(bundle,game.reviews,
     combineRegistries(policyRegistry,game.registry));
@@ -593,6 +595,7 @@ test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field
   assert.equal(r.policyApplicationReceiptVerified,true);
   assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
   assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
+  assert.equal(r.responseOpportunityVerified,true);
   assert.equal(r.competitivePolicyCompetenceReady,true);
   assert.equal(r.acceptanceReady,true);
   assert.equal(r.fixtureOnly,true);
@@ -804,8 +807,10 @@ test('opponent aggregate reviewer cannot be a different rank policy producer',()
 test('postgame paper and clock reviewers cannot be opponent policy producers',()=>{
   for(const role of ['paper','clock']){
     const fixture=makePolicyBundle({mode:EVENT});
+    const audit=terminalAudit();
+    fixture.bundle.trial.responseOpportunityAudit=audit;
     const game=signReviews(fixture.bundle,{
-      roles:['paper','clock','strategy'],strategyAudit:terminalAudit(),
+      roles:['paper','clock','strategy'],strategyAudit:audit,
       reviewerIdOverrides:{[role]:'opponent-policy-author'}
     });
     const r=inspectAdmissionV3(fixture.bundle,game.reviews,
@@ -837,6 +842,7 @@ test('event mode applies the same deck-aware policy gate without inheriting V2 s
   assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
   assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
   assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
+  assert.equal(r.responseOpportunityVerified,true);
   assert.equal(r.competitivePolicyCompetenceReady,true);
   assert.equal(r.acceptanceReady,true);
   assert.equal(r.competitiveAdmission,false);
