@@ -110,3 +110,39 @@ test('fixture runner injects offline full-state diagnostics and persists partial
   const failureRethrow = runnerSource.indexOf('throw error;', traceWrite);
   assert.ok(artifactWrite >= 0 && traceWrite > artifactWrite && failureRethrow > traceWrite, 'partial artifacts must be written before the workflow is failed');
 });
+
+
+test('private fixture artifact workflow fails closed before native compile and only uploads encrypted outputs', () => {
+  const workflowPath = path.join(ROOT, '.github/workflows/agent36-bilateral-competence-v9.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const encryptorPath = path.join(ROOT, 'simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs');
+  const encryptor = fs.readFileSync(encryptorPath, 'utf8');
+
+  const keyGuardAt = workflow.indexOf('Validate owner-controlled V3 diagnostic recipient key before native fixture');
+  const compileAt = workflow.indexOf('Install and compile the pinned native server');
+  const gameAt = workflow.indexOf('Execute one native V3 fixture game');
+  const encryptAt = workflow.indexOf('Encrypt private V3 fixture diagnostics before artifact upload');
+  const uploadAt = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
+  assert.ok(keyGuardAt >= 0 && compileAt > keyGuardAt && gameAt > compileAt && encryptAt > gameAt && uploadAt > encryptAt,
+    'key validation, compile, game, encryption, and upload must occur in that order');
+
+  const keyGuard = workflow.slice(keyGuardAt, compileAt);
+  assert.match(keyGuard, /if: \\$\\{\\{ inputs\\.agent36_v3_fixture_game \\}\\}/);
+  assert.match(keyGuard, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: \\$\\{\\{ vars\\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM \\}\\}/);
+  assert.match(keyGuard, /key\\.asymmetricKeyType !== 'rsa'/);
+  assert.match(keyGuard, /bits < 2048/);
+
+  const encryptionStep = workflow.slice(encryptAt, uploadAt);
+  assert.match(encryptionStep, /if: \\$\\{\\{ always\\(\\) && !inputs\\.contract_only \\}\\}/);
+  assert.match(encryptionStep, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: \\$\\{\\{ vars\\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM \\}\\}/);
+  assert.match(encryptionStep, /encrypt-fixture-artifacts artifacts\\/agent36-v3-fixture/);
+  assert.match(encryptor, /deletePlaintext: true/);
+
+  const uploadStep = workflow.slice(uploadAt);
+  assert.match(uploadStep, /artifacts\\/agent36-v3-fixture\\/fixture-game\\.private\\.enc\\.json/);
+  assert.match(uploadStep, /artifacts\\/agent36-v3-fixture\\/fixture-game\\.public-manifest\\.json/);
+  assert.match(uploadStep, /!artifacts\\/agent36-v3-fixture\\/fixture-game\\.json/);
+  assert.match(uploadStep, /!artifacts\\/agent36-v3-fixture\\/fixture-game\\.txt/);
+  assert.doesNotMatch(uploadStep, /^\\s+artifacts\\/agent36-v3-fixture\\/\\s*$/m,
+    'the upload allowlist must never include the entire raw fixture directory');
+});
