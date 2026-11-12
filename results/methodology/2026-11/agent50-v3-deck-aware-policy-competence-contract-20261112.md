@@ -29,7 +29,7 @@ The panel registration must be frozen before any game deal is generated.
 - `candidatePolicySha256`: canonical hash of the candidate decision policy.
 - `candidatePolicyEntryManifestSha256`: policy entrypoint/dependency closure identity.
 - `candidateChallengeSuiteSha256`: exact, prospectively frozen candidate-policy competence suite.
-- `candidatePolicyReviewRef`: signed independent competence attestation for that exact candidate deck, policy, entry manifest, challenge suite, and constraints.
+- The candidate-policy attestation reference and signature are **outside the policy-plan core** and are carried in the separate signed attestation bundle described below.
 
 The candidate policy hash must remain identical across all 32 opponent ranks, both physical seats, and both first-player assignments.
 
@@ -41,8 +41,9 @@ Create exactly 32 rank-keyed entries, each with:
 - exact authenticated 60-card physical-print manifest hash, when available;
 - deck fingerprint;
 - opponent policy hash and entry/dependency manifest hash;
-- prospectively frozen opponent challenge-suite hash;
-- signed competence-review reference, or an explicit unavailable status.
+- prospectively frozen opponent challenge-suite hash.
+
+The rank-specific signed competence attestation is carried in the separate attestation bundle, not in this core object. An unavailable rank has no policy identity or competence attestation.
 
 For a rank whose exact decklist is not authenticated, preserve `source-unavailable` with null deck/policy hashes. Do not invent a proxy list, infer the 60 from an archetype, or run that rank as if its source were known. A per-game trial cannot use an unavailable rank; the 32-opponent aggregate remains incomplete until all 32 exact lists and policies are available.
 
@@ -61,7 +62,7 @@ Freeze and hash a shared `policyConstraintsSha256` covering at least:
 
 The candidate and every opponent policy must operate under the same constraints. A stronger policy must not receive a larger decision budget, extra private information, or a different timeout allowance.
 
-The complete object—candidate identity, opponent bundle, constraints, comparison mode, challenge suites, and reviewer references—forms `policyPlanSha256`. Store this digest in the pre-deal registration and every resulting game bundle.
+The **policy-plan core**—candidate identity, opponent bundle, constraints, comparison mode, and challenge suites, but no reviewer IDs, attestation references, or signatures—forms `policyPlanCoreSha256`. Obtain the independent signed attestations over this core digest. Then hash the exact signed objects as `policyAttestationBundleSha256`. Finally, freeze a preregistration digest (`policyRegistrationSha256`) that binds both digests and the evidence references. This dependency order avoids a circular signature/hash dependency. Store all three digests in every resulting game bundle. See [the non-circular digest split](agent2-v3-policy-plan-attestation-digest-split-20261112.md).
 
 ### B. Pre-deal policy competence attestations
 
@@ -72,7 +73,7 @@ Use separate signed panel-level attestations:
 1. **Candidate-policy review:** independently assesses the frozen candidate policy against its frozen challenge suite, exact candidate deck, entry/dependency manifest, and common constraints.
 2. **Opponent-policy review:** independently assesses the frozen opponent-policy bundle and each available rank's deck-aware policy against its frozen challenge suite and the same constraints.
 
-These attestations must be signed before deal generation and bind to `policyPlanSha256` plus the exact role-specific policy/deck/challenge-suite hashes. They must not be signed against a final game outcome bundle. Reviewers must be authorized, independent of the producer, and distinct across candidate-policy and opponent-policy roles. The signed attestations are panel-level objects referenced by every game; they should not be regenerated or retuned per matchup after results are seen.
+These attestations must be signed before registration and deal generation and bind to `policyPlanCoreSha256` plus the exact role-specific policy/deck/challenge-suite hashes. The signed attestation bundle is then hashed separately; the preregistration binds both hashes. They must not be signed against a final game outcome bundle. Reviewers must be authorized, independent of the producer, and distinct across candidate-policy and opponent-policy roles. The signed attestations are panel-level objects referenced by every game; they should not be regenerated or retuned per matchup after results are seen.
 
 A separate game-level **strategy/response-opportunity review** may still be useful, but it does not replace either policy competence attestation.
 
@@ -80,7 +81,7 @@ A separate game-level **strategy/response-opportunity review** may still be usef
 
 Every game must carry a machine-generated application receipt binding:
 
-- trial ID and `policyPlanSha256`;
+- trial ID, `policyRegistrationSha256`, `policyPlanCoreSha256`, and `policyAttestationBundleSha256`;
 - opponent rank and authenticated deck fingerprint;
 - candidate and opponent policy hashes actually loaded;
 - physical seat assignments and first-player seat;
@@ -115,7 +116,7 @@ The intended balanced panel has 32 ranks × 2 candidate seats × 2 first-player 
 
 Across all 128 strata:
 
-- `candidateDeckSha256`, `candidatePolicySha256`, `candidatePolicyEntryManifestSha256`, `candidateChallengeSuiteSha256`, `opponentPolicyBundleSha256`, `policyConstraintsSha256`, and `policyPlanSha256` remain fixed.
+- `candidateDeckSha256`, `candidatePolicySha256`, `candidatePolicyEntryManifestSha256`, `candidateChallengeSuiteSha256`, `opponentPolicyBundleSha256`, `policyConstraintsSha256`, `policyPlanCoreSha256`, `policyAttestationBundleSha256`, and `policyRegistrationSha256` remain fixed.
 - For each rank, the opponent deck/policy/entry/challenge hashes remain fixed across that rank's four strata.
 - Physical seats and first-player assignment vary according to the balanced design, not by policy identity.
 - No game is admitted for a `source-unavailable` rank.
@@ -139,11 +140,11 @@ At minimum, V3 tests should prove:
 10. A terminal-before-reply can pass factual outcome admission but cannot pass comparative policy competence without both pre-deal attestations.
 11. Event mode reuses V2 paper/clock adjudication without inheriting V2's `samePolicy` gate or rejecting V3 policy roles.
 12. Untimed mode requires explicit null event-stage/clock fields and does not silently treat missing values as valid nulls.
-13. Policy competence reviews bind to `policyPlanSha256` and challenge-suite hashes, not to the post-game outcome bundle; paper/clock/strategy reviews bind to the final game bundle.
+13. Policy competence reviews bind to `policyPlanCoreSha256` and challenge-suite hashes, not to the post-game outcome bundle; paper/clock/strategy reviews bind to the final game bundle.
 14. A policy application receipt transplanted from another trial, rank, seat assignment, engine pin, or policy plan fails.
 
 ## 6. Current implementation status and boundaries
 
-At the last review on 12 November 2026, the committed V3 evaluator still used `structural.samePolicy === true` for comparative policy competence, delegated event mode to V2, and allowed a terminal-before-reply strategy audit to satisfy the old policy-competence path. Agent43 has received review messages covering these gaps and is coordinating a policy-plan/runner interface with Agent36, Agent12, Agent21, Agent44, and Agent2. Re-check the current code before treating this design as implemented.
+At the last review on 12 November 2026, the committed V3 evaluator still used `structural.samePolicy === true` for comparative policy competence, delegated event mode to V2, and allowed a terminal-before-reply strategy audit to satisfy the old policy-competence path. Agent43 has received review messages covering these gaps and is coordinating a policy-plan/runner interface with Agent36, Agent12, Agent21, Agent44, Agent2 and Agent49. The digest dependency was corrected in this contract using the core-plan / signed-attestation-bundle / registration split above. Re-check the current code before treating this design as implemented.
 
 V2 and the frozen 4410 capture-only case remain unchanged. The 4410 capture cannot be used as evidence of deck-aware policy competence or as a 99.5% matchup result. This document is a proposed V3 contract, not a certification or experimental result.
