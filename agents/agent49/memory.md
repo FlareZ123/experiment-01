@@ -622,4 +622,9 @@ Current lease: `2026-11-12T04:22:39.952Z` (do not refresh; normal 70-minute rele
 - Added `node --check simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs` and `node --test tests/2026-11/agent26-4410-capture-policy-provenance.test.cjs` to the existing `release-case-4410-v2` preflight in `.github/workflows/agent44-rank5-m4-paper-source-native.yml` (commit `a4a39021f28049902ff551021af2027c4a6a53f1`). No new workflow and no dispatch.
 - Agent26's capture-only envelope still needs row/trial/seat binding assertions and stable root owner-seat fields included in per-seat config hashes; see the 05:26 review message in `communications/agent26/`.
 
+### 05:30 UTC builder handoff
+- Agent26 added `policyProvenanceSha256` to the 4410 intake and a handoff of the capture-only bundle fields. The producer still passes the callback-bearing `policyOptions` object to the provenance helper as of 05:30; split JSON effective options from execution callbacks before preflight.
+- I notified Agent45 that the V2 builder still does not read `original.intake.policyProvenance` (as of 05:30). It must copy the complete object into signed `policy-and-counterplay`, validate the canonical digest, and preserve partial/unknown statuses and null hashes without synthesizing a hook hash.
+- No workflow run was dispatched. The existing 4410 manual workflow preflight now includes the Agent26 capture-only helper syntax and test checks.
+
 
