@@ -271,8 +271,10 @@ function auditTimeCallPacket(packet) {
     missing.push('official-end-call-not-observed');
   if(!nonempty(packet.officialClockEvidenceRef))
     missing.push('official-clock-source-not-cited');
-  if(!Number.isSafeInteger(packet.elapsedSecondsAtOfficialCall)||
-    packet.elapsedSecondsAtOfficialCall<turns.clockLimitMinutes*60)
+  const officialCallAtOrAfterStageLimit=
+    Number.isSafeInteger(packet.elapsedSecondsAtOfficialCall)&&
+    packet.elapsedSecondsAtOfficialCall>=turns.clockLimitMinutes*60;
+  if(!officialCallAtOrAfterStageLimit)
     missing.push('official-end-call-before-stage-time-limit-or-clock-elapsed-invalid');
   if(!nonempty(packet.stageEvidenceRef))
     missing.push('official-stage-source-not-cited');
@@ -306,7 +308,7 @@ function auditTimeCallPacket(packet) {
   if(missing.length)return {schema:VERSION,status:'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE',
     missing,stage:packet.stage,clockLimitMinutes:turns.clockLimitMinutes,
     elapsedSecondsAtOfficialCall:packet.elapsedSecondsAtOfficialCall??null,
-    officialCallAtOrAfterStageLimit:false,
+    officialCallAtOrAfterStageLimit,
     conditionalWinnerSeat:null,competitiveAdmission:false,
     externalIndependentReviewRequired:true};
   const result=adjudicateAtPrescribedEnd({stage:packet.stage,
