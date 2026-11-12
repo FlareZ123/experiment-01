@@ -817,3 +817,71 @@ test('Garbodor package owner seat requires an enabled package action',()=>{
     {garbodorResponseOwnerSeat:0}
   ),/requires a Garbodor response root/);
 });
+
+
+test('seat-scoped actor policies compose independently across candidate and opponent seats',()=>{
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){this.id=id;this.handIndex=handIndex;this.target=target;}
+  }
+  class AttackAction{constructor(id,name){this.clientId=id;this.name=name;}}
+  class PassTurnAction{constructor(id){this.clientId=id;}}
+  class Store{
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:empty(),bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},
+        lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={players:[player(10),player(20)],
+        activePlayer:0,prompts:[],turn:2,phase:2};
+    }
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){return 'NATIVE_BASELINE';}
+  }
+  const candidateView=base();
+  candidateView.ownHand=['Psychic Energy MEE'];
+  candidateView.ownPublic.bench=[{},null,null,null,null];
+  const opponentView=base();
+  opponentView.ownHand=['Shadow Rider Calyrex V CRE'];
+  opponentView.ownPublic.bench=[null,null,null,null,null];
+  const sharedDeps={
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    getCatalog:()=>catalog,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction}
+  };
+  const candidateScoped=withActorOnlyRootPolicy(()=>{
+    return withActorOnlyRootPolicy(()=>{
+      const store=new Store();
+      store.dispatch(new AddPlayerAction());
+      store.state.activePlayer=0;
+      const candidateAction=new SimpleTacticsAi(10).decodeNextAction(store.state);
+      store.state.activePlayer=1;
+      const opponentAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
+      return {candidateAction,opponentAction};
+    },{
+      ...sharedDeps,policyOwnerSeat:1,
+      observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
+    });
+  },{
+    ...sharedDeps,policyOwnerSeat:0,
+    observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
+  });
+  const opponentScoped=candidateScoped.result;
+  assert.ok(opponentScoped.result.candidateAction instanceof PlayCardAction);
+  assert.ok(opponentScoped.result.opponentAction instanceof PlayCardAction);
+  assert.equal(opponentScoped.result.candidateAction.target.player,0);
+  assert.equal(opponentScoped.result.opponentAction.target.player,1);
+  assert.equal(candidateScoped.audit.policyOwnerSeat,0);
+  assert.equal(opponentScoped.audit.policyOwnerSeat,1);
+  assert.equal(candidateScoped.audit.nonOwnerSeatBypassCalls,1);
+  assert.equal(opponentScoped.audit.nonOwnerSeatBypassCalls,1);
+  assert.equal(candidateScoped.audit.selectedRootDecisions,1);
+  assert.equal(opponentScoped.audit.selectedRootDecisions,1);
+});
