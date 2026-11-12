@@ -936,13 +936,30 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   }
   assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
   assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
-  const failureEnvelope = pinned.result?.fixtureFailure ? pinned.result : null;
-  const partial = failureEnvelope?.fixtureGamePartial ?? null;
-  const roleResult = failureEnvelope ? null : pinned.result;
-  const gameResult = roleResult?.result ?? partial;
-  if (!failureEnvelope) {
-    assert.ok(gameResult && gameResult.finished === true && gameResult.endReason === 'engine-game-end', 'native game must reach a natural terminal state');
+  const returnedResult = pinned.result;
+  const thrownFailureEnvelope = returnedResult?.fixtureFailure ? returnedResult : null;
+  const roleResult = returnedResult?.result ? returnedResult : null;
+  const gameResult = roleResult?.result ?? thrownFailureEnvelope?.fixtureGamePartial ?? null;
+  let failureEnvelope = thrownFailureEnvelope;
+  if (!failureEnvelope && (!gameResult || gameResult.finished !== true || gameResult.endReason !== 'engine-game-end')) {
+    const terminalState = {
+      finished: gameResult?.finished ?? false,
+      endReason: gameResult?.endReason ?? 'no-result',
+      actions: gameResult?.actions ?? gameResult?.acceptedActions ?? 0,
+    };
+    failureEnvelope = {
+      fixtureFailure: {
+        name: 'NonTerminalFixtureGame',
+        code: 'NON_TERMINAL',
+        stage: 'terminal-check',
+        messageSha256: createHash('sha256').update(JSON.stringify(terminalState)).digest('hex'),
+        nativeFixtureFailure: null,
+      },
+      fixtureGamePartial: gameResult,
+    };
   }
+  const partial = failureEnvelope?.fixtureGamePartial ?? null;
+  const gameCompleted = !failureEnvelope && gameResult?.finished === true && gameResult?.endReason === 'engine-game-end';
 
   const patchReceipt = createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256: hookModuleSha256 });
   const trial = {
@@ -968,7 +985,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
   if (gameResult?.seed32 !== undefined) assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
-  const application = roleResult ? roleIdentity.createPolicyApplicationReceipt({
+  const application = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,
     candidateIdentity: identities.candidateIdentity,
     opponentIdentity: identities.opponentIdentity,
