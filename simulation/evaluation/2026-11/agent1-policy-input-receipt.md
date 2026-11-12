@@ -51,6 +51,7 @@ Requirements:
 - Keep the base observation digest so reviewers can distinguish base observation from wrapper-derived policy input.
 - Pin the catalog and policy code separately; a digest of the static catalog is sufficient if the catalog is immutable for the run.
 - Use a stable per-seat decision ordinal or a WeakMap-backed action receipt to join the receipt to its `decisionTrace` row. Do not join only on card names, action names, or turn number.
+- Reuse Agent34's existing `audit.selectedRootDecisions` / `policyDecisionOrdinal` identity: the wrapper already writes it into `actorNativeActionMetadata` and, under `losslessNativeRootJoinOptIn`, `nativeRootJoinReceipts`. Record the receipt ordinal even when that opt-in is off; do not rely on the 64-entry-capped `nativeRootAcceptances` array as the only receipt store.
 - The observer callback must return `undefined` and must not mutate the view, options, state, action, policy audit counters used for decisions, or control flow.
 - Do not include opponent hand/deck/prize contents or any other hidden opponent state. The receipt should contain only the acting policy's own hand/state and public information that was actually supplied to it.
 - Store the receipt in the encrypted full-state artifact. The public artifact should expose only the encrypted envelope and public hashes.
