@@ -96,6 +96,56 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   assert.equal(Object.prototype.hasOwnProperty.call(combined.expectedByPath, diagnosticPath), false, 'full-state serializer must not enter the policy module closure');
 });
 
+test('fixture runner unwraps direct and role-composed failure envelopes without losing partial traces',()=>{
+  const decisionTrace=[{
+    actionOrdinal:2,
+    actionName:null,
+    dispatchStatus:'not-dispatched',
+    fullStateBefore:{visibility:'private-offline-diagnostic-only'},
+    fullStateAfter:{visibility:'private-offline-diagnostic-only'}
+  }];
+  const partial={
+    fixtureOnly:true,
+    admissionEligible:false,
+    attemptedActions:3,
+    acceptedActions:2,
+    decisionTrace,
+    rootActionLedger:[{actionOrdinal:2,dispatchStatus:'not-dispatched'}],
+    finalFullState:{visibility:'private-offline-diagnostic-only'}
+  };
+  const failureEnvelope={
+    fixtureFailure:{name:'PolicyDecodeFailure',stage:'policy-decode'},
+    fixtureGamePartial:partial
+  };
+
+  const direct=runner.normalizeV3FixtureRoleResult(failureEnvelope);
+  assert.equal(direct.roleResult,null);
+  assert.equal(direct.failureEnvelope,failureEnvelope);
+  assert.equal(direct.gameResult,partial);
+  assert.equal(direct.gameResult.decisionTrace[0].dispatchStatus,'not-dispatched');
+
+  const roleComposed={
+    result:failureEnvelope,
+    candidateAudit:{policyOwnerSeat:0},
+    opponentAudit:{policyOwnerSeat:1},
+    roleSeatMap:{candidate:0,opponent:1}
+  };
+  const nested=runner.normalizeV3FixtureRoleResult(roleComposed);
+  assert.equal(nested.roleResult,roleComposed);
+  assert.equal(nested.failureEnvelope,failureEnvelope);
+  assert.equal(nested.gameResult,partial);
+  assert.equal(nested.gameResult.decisionTrace,decisionTrace);
+  assert.equal(nested.gameResult.finalFullState.visibility,
+    'private-offline-diagnostic-only');
+
+  const successGame={finished:true,endReason:'engine-game-end',decisionTrace:[]};
+  const successWrapper={result:successGame,candidateAudit:{},opponentAudit:{}};
+  const success=runner.normalizeV3FixtureRoleResult(successWrapper);
+  assert.equal(success.roleResult,successWrapper);
+  assert.equal(success.failureEnvelope,null);
+  assert.equal(success.gameResult,successGame);
+});
+
 test('fixture runner injects offline full-state diagnostics and persists partial failures before rethrow', () => {
   const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource, /diagnosticSnapshot:\s*diagnostic\.snapshotFullGameState/);
