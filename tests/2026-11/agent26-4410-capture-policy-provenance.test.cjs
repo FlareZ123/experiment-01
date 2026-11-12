@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const {buildCaptureOnlyPolicyProvenance} =
   require('../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
 const {jsonSafe} = require('../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
@@ -115,6 +116,56 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
   assert.equal(result.competitivePolicyCompetenceReady, false);
   assert.match(result.policyProvenanceSha256, /^[0-9a-f]{64}$/);
 });
+test('native abort rows retain seat identity and remain capture-only',()=>{
+  const entryFile=require.resolve(
+    '../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
+  const helperCacheEntry=require.cache[entryFile];
+  const trialId='5:4410:B:new-moon-lockbreaker-v1';
+  const row={
+    trial:{id:trialId},sourceSeat:0,candidateSeat:1,
+    status:'engine-error',finished:false,error:'synthetic native abort',
+    nativeAbortEvidence:{rootActionLedger:[]},
+    actorOnlyPolicyVersion:'actor-policy-v7',
+    actorOnlyDecisionCoverage:{
+      version:'actor-policy-v7',
+      selectedHandlerPriority:['owner-root','common-resource','fallback'],
+      componentVersions:{ownerRoot:'v7',commonResource:'v2'},
+      ownerVipAfterPassOptIn:false,
+      detailedComponentAudits:{root:{
+        mewDceRecipientRootOptIn:true,mewDceRecipientRootOwnerSeat:0
+      }}
+    }
+  };
+  const development={
+    actorOnlyCompositionVersion:'actor-policy-v7',
+    actorOnlyCompositionOptIn:true,rows:[row]
+  };
+  const result=buildCaptureOnlyPolicyProvenance({
+    repositoryRoot:process.cwd(),entryFile,development,row,options:{},
+    sourceSeat:0,candidateSeat:1,trialId,
+    candidateManifestBlobSha:'b'.repeat(40),
+    policyProfileBlobSha:'c'.repeat(40),enginePin:'d'.repeat(40),
+    cacheEntries:[helperCacheEntry]
+  });
+  assert.equal(result.status,'PARTIAL_CAPTURE_ONLY');
+  assert.equal(result.competitivePolicyCompetenceReady,false);
+  assert.deepEqual(result.policySha256BySeat,[null,null]);
+  assert.equal(result.policyManifest.complete,false);
+  assert.throws(()=>buildCaptureOnlyPolicyProvenance({
+    repositoryRoot:process.cwd(),entryFile,development,
+    row:{...row,candidateSeat:0},options:{},
+    sourceSeat:0,candidateSeat:1,trialId,
+    candidateManifestBlobSha:'b'.repeat(40),
+    policyProfileBlobSha:'c'.repeat(40),enginePin:'d'.repeat(40),
+    cacheEntries:[helperCacheEntry]
+  }),/candidateSeat must match row\.candidateSeat/);
+
+  const runnerSource=fs.readFileSync(require.resolve(
+    '../../simulation/evaluation/agent41-bilateral-v2-development.cjs'),'utf8');
+  assert.match(runnerSource,
+    /rows\.push\(\{\s*trial,\s*sourceSeat:trial\.candidateSlot==='A'\?1:0,\s*candidateSeat:trial\.candidateSlot==='A'\?0:1,/);
+});
+
 test('policy provenance serializer rejects executable and non-JSON values',()=>{
   assert.throws(()=>jsonSafe({onRootStoreCreated:()=>{}}),
     /Unsupported provenance value.*function/);
