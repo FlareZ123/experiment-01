@@ -109,11 +109,12 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   const ownId=candidateSeat===0?101:202;
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   let phase='idle';
-  let attempted=false;
+  let phaseTurnKey=null;
   let recoveryPlan=null;
   let selectedEnergyCard=null;
   let beforeDoor=null;
-  let successfulEffect=false;
+  let activeAttempt=null;
+  const attempts=[];
   const events=[];
   /** @param {object} own @param {string} name */
   const play=(own,name)=>{
@@ -123,35 +124,64 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   };
   /** @param {object} state @param {string} step @param {object} action */
   const selected=(state,step,action)=>{
-    events.push({turn:state.turn,kind:'selected-action',step,
+    const event={turn:state.turn,kind:'selected-action',step,
       recoveryPlan,action:action.constructor.name,
-      energy:selectedEnergyCard?.fullName??null});
+      energy:selectedEnergyCard?.fullName??null};
+    events.push(event);
+    activeAttempt?.events.push(event);
     return action;
   };
   /** @param {object} state @param {string} reason */
   const abort=(state,reason)=>{
-    events.push({turn:state.turn,kind:'opportunity-aborted',reason,
-      recoveryPlan,energy:selectedEnergyCard?.fullName??null});
+    const event={turn:state.turn,kind:'opportunity-aborted',reason,
+      recoveryPlan,energy:selectedEnergyCard?.fullName??null};
+    events.push(event);
+    activeAttempt?.events.push(event);
+    if(activeAttempt)activeAttempt.aborted=reason;
     phase='done';
   };
   function choose(state) {
+    const turnKey=`${state.turn}:${state.activePlayer}`;
+    if(phaseTurnKey!==null&&turnKey!==phaseTurnKey) {
+      if(phase!=='done') {
+        const reason='Recovery sequence crossed a turn boundary';
+        const event={turn:state.turn,kind:'opportunity-aborted',reason,
+          recoveryPlan,energy:selectedEnergyCard?.fullName??null};
+        events.push(event);
+        activeAttempt?.events.push(event);
+        if(activeAttempt)activeAttempt.aborted=reason;
+      }
+      phase='idle';
+      phaseTurnKey=null;
+      recoveryPlan=null;
+      selectedEnergyCard=null;
+      beforeDoor=null;
+      activeAttempt=null;
+    }
     const own=state.players.find(player=>player.id===this.client?.id);
     if(own?.id!==ownId)return original.call(this,state);
     const opponent=state.players[1-candidateSeat];
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
-    if(phase==='idle'&&!attempted&&state.activePlayer===candidateSeat&&
+    if(phase==='idle'&&phaseTurnKey!==turnKey&&
+       state.activePlayer===candidateSeat&&
        state.phase===GamePhase.PLAYER_TURN&&!pending&&
        hasHoodedDoorRecoveryWindow(own,opponent,state)) {
       const entry=hoodedDoorRecoveryEntry(own);
       if(entry) {
-        attempted=true;
+        phaseTurnKey=turnKey;
         recoveryPlan=entry.plan;
         selectedEnergyCard=entry.energyCard;
-        events.push({turn:state.turn,kind:'eligible-own-state',
+        activeAttempt={turn:state.turn,candidateSeat,recoveryPlan,
+          selectedEnergy:selectedEnergyCard?.fullName??null,
+          successfulEffect:false,events:[]};
+        attempts.push(activeAttempt);
+        const event={turn:state.turn,kind:'eligible-own-state',
           recoveryPlan,handPrintings:own.hand.cards.map(card=>card.fullName),
           activeHoodPrintings:own.active.tools.map(card=>card.fullName),
           liveGarbotoxinSources:liveGarbotoxinSlots(opponent),
-          selectedEnergy:selectedEnergyCard?.fullName??null});
+          selectedEnergy:selectedEnergyCard?.fullName??null};
+        events.push(event);
+        activeAttempt.events.push(event);
         if(entry.phase==='door') {
           phase='door';
         } else if(entry.phase==='stretcher') {
@@ -173,6 +203,7 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
           card.name==='Psychic Energy'&&own.deck.cards.includes(card));
         if(energy&&pending.validate([energy])) {
           selectedEnergyCard=energy;
+          if(activeAttempt)activeAttempt.selectedEnergy=energy.fullName;
           phase='stretcher';
           return selected(state,'Discard exact Psychic Energy through deck search',
             new ResolvePromptAction(pending.id,[energy]));
@@ -258,9 +289,14 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
         markerSpent:!hasUnspentActiveUnderworldDoor(own),
         garbotoxinStillLive:hasLiveGarbotoxin(opponent)
       });
-      events.push({turn:state.turn,kind:'completed-source-effect',
-        recoveryPlan,...receipt});
-      successfulEffect=receipt.successfulEffect;
+      const event={turn:state.turn,kind:'completed-source-effect',
+        recoveryPlan,...receipt};
+      events.push(event);
+      activeAttempt?.events.push(event);
+      if(activeAttempt) {
+        activeAttempt.receipt=receipt;
+        activeAttempt.successfulEffect=receipt.successfulEffect;
+      }
       phase='done';
     }
     return original.call(this,state);
@@ -269,11 +305,14 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'hood-garbotoxin-recovery-autonomy-v3',
+      version:'hood-garbotoxin-recovery-autonomy-v4-repeatable-own-turn',
       candidateSeat,opponentSeat:1-candidateSeat,
       recoveryPlan,selectedEnergy:selectedEnergyCard?.fullName??null,
-      triggered:attempted,phaseAtEnd:phase,successfulEffect,
-      events,qualifiedForCompetitiveInference:false
+      triggered:attempts.length>0,attemptCount:attempts.length,
+      successfulEffect:attempts.some(attempt=>attempt.successfulEffect),
+      successfulEffectCount:attempts.filter(attempt=>attempt.successfulEffect).length,
+      attempts,phaseAtEnd:phase,events,
+      qualifiedForCompetitiveInference:false
     }};
   } finally {
     if(SimpleTacticsAi.prototype.decodeNextAction!==choose) {
