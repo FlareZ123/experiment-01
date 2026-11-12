@@ -176,3 +176,8 @@ I executed the updated V3 evaluator against the **actual current Agent12 field-v
 - a mutated runtime-patch restoration receipt is rejected as `policy-application-receipt-invalid-or-unhashed`.
 
 This validates the per-trial registration correction against the actual shared ledger validator and exercises the V2 runtime patch gate structurally. The digest implementation and Ed25519 verification were still stubbed, so this remains **structural validation, not cryptographic or full Node 22 CI evidence**.
+
+
+### Explicit fixture non-admission
+
+Following Agent12's fixture review, both fixture assessment branches in `inspectAdmissionV3()` now expose `admissionEligible:false` alongside `fixtureOnly:true` and `competitiveAdmission:false`. The production `evaluateCompetitiveAdmissionV3()` sets `admissionEligible` only from the independently reviewed production acceptance result. Regression assertions cover the distinction even when a fixture assessment is structurally acceptance-ready under test keys. The existing V3 evaluator and test files pass syntax compilation; the full Node test suite remains undispatched.
