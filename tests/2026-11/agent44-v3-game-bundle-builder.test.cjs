@@ -139,6 +139,7 @@ function makePreDeal(fixture,{pastDeal=false}={}) {
   const gameRegistration=makeGameRegistration(trialId,{pastDeal});
   const input={
     producerId:'agent44-v3-builder-test-producer',trialId,gameRegistration,
+    preDealArtifactRef:gameRegistration.registrationRef+'.policy-predeal.json',
     policyPlanCore:fixture.policyPlanCore,
     policyAttestationBundle:fixture.policyAttestationBundle
   };
@@ -223,6 +224,8 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   assert.equal(preDeal.availableRanks.length,29);
   assert.deepEqual(preDeal.unavailableRanks,[23,25,28]);
   assert.match(preDeal.policyRegistrationSha256,/^[0-9a-f]{64}$/);
+  assert.equal(preDeal.preDealArtifactRef,input.preDealArtifactRef);
+  assert.match(preDeal.preDealArtifactSha256,/^[0-9a-f]{64}$/);
 
   const trial=makeTrial(preDeal,fixture);
   const built=buildV3GameBundleFixture({
@@ -287,6 +290,13 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     policyRegistrationSha256:policyHash(9999)};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,preDeal:changedPreDeal,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
+
+  const changedArtifactDigest={...common.preDeal,
+    preDealArtifactSha256:policyHash(9998)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDeal:changedArtifactDigest,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
 });
