@@ -68,7 +68,7 @@ function installUnderworldDoorPsychicRecipientHook(){
     function patchedPrompt(current,prompt,then){
       const isUnderworldDoorPrompt=
         prompt instanceof AttachEnergyPrompt&&
-        prompt.playerId===owner.id&&
+        prompt.getPerspectivePlayerId()===owner.id&&
         prompt.message===GameMessage.ATTACH_ENERGY_TO_BENCH&&
         prompt.cardList===owner.hand&&
         prompt.playerType===PlayerType.BOTTOM_PLAYER&&
