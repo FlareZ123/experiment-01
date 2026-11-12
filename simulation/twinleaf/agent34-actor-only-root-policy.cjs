@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v8-same-root-coheld-cost-aware-denial';
+const VERSION='agent34-actor-only-root-slice-v9-seat-relative-bottom-target';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -1788,7 +1788,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
-  if(policyOwnerSeat!==null) audit.version+='+seat-scoped-policy-owner-v1';
+  if(policyOwnerSeat!==null) audit.version+='+seat-scoped-policy-owner-v2-bottom-target';
   const ownerTurnLedger=audit.nativeOwnerTrainerFallback?
     require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
   function wrapped(state){
@@ -1801,9 +1801,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
-    const ownerPlayerType=seat===1?PlayerType.TOP_PLAYER:PlayerType.BOTTOM_PLAYER;
-    if(seat===1) assert.ok(ownerPlayerType!==undefined,
-      'Seat-scoped top-player policy requires PlayerType.TOP_PLAYER');
+    // PlayerType is relative to the acting player, not the physical seat.
+    // BOTTOM_PLAYER always means this actor's own side for both seats.
+    const ownerPlayerType=PlayerType.BOTTOM_PLAYER;
+    assert.ok(ownerPlayerType!==undefined,
+      'Actor-owned actions require PlayerType.BOTTOM_PLAYER');
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(policyOwnerSeat!==null&&seat!==policyOwnerSeat){
       audit.nonOwnerSeatBypassCalls++;
