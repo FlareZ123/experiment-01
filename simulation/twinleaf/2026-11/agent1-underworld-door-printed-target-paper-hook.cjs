@@ -19,6 +19,8 @@ function loadEngine(deps = {}) {
         .ShadowRiderCalyrexVMAX,
     EnergyCard: deps.EnergyCard ??
       load('game/store/card/energy-card').EnergyCard,
+    PowerEffect: deps.PowerEffect ??
+      load('game/store/effects/game-effects').PowerEffect,
     pokemonHasCardType: deps.pokemonHasCardType ??
       load('game/store/card/pokemon-card').pokemonHasCardType,
     GameError: deps.GameError ?? load('game/game-error').GameError,
@@ -200,6 +202,8 @@ function withUnderworldDoorPrintedTargetHook(execute, deps = {}) {
     schema: VERSION,
     ownerZonesOnly: true,
     vendorModified: false,
+    underworldDoorEffectCalls: 0,
+    promptsMatched: 0,
     promptsCorrected: 0,
     noPsychicBenchRejections: 0,
     validAssignmentsAccepted: 0,
@@ -209,29 +213,39 @@ function withUnderworldDoorPrintedTargetHook(execute, deps = {}) {
   };
 
   function patchedReduceEffect(store, state, effect) {
-    if (!store || typeof store.prompt !== 'function' ||
-        !effect?.player || !Object.isExtensible(store)) {
+    const isUnderworldDoorEffect =
+      effect instanceof engine.PowerEffect &&
+      effect.power === this.powers[0] &&
+      effect.card === this;
+    if (!isUnderworldDoorEffect) {
       return Reflect.apply(originalReduceEffect, this,
         [store, state, effect]);
     }
+    audit.underworldDoorEffectCalls++;
+    assert.ok(store && typeof store.prompt === 'function' &&
+      Object.isExtensible(store),
+    'Underworld Door requires a safely interceptable Store.prompt');
     const promptDescriptor = Object.getOwnPropertyDescriptor(store, 'prompt');
     assert.ok(promptDescriptor?.configurable !== false,
       'Store.prompt must be safely shadowable for the scoped hook');
     const originalPrompt = store.prompt;
     const expectedOwner = effect.player;
+    let matchedPrompts = 0;
 
     function patchedPrompt(promptState, prompt, callback) {
       const owner = promptState?.players?.find(player =>
         player.id === prompt?.getPerspectivePlayerId?.());
       if (owner === expectedOwner &&
-          isUnderworldDoorPrompt(prompt, owner, engine) &&
-          prompt[PATCHED_PROMPT] !== true) {
-        Object.defineProperty(prompt, PATCHED_PROMPT, {
-          configurable: false,
-          enumerable: false,
-          value: true
-        });
-        correctPrompt(prompt, owner, engine, audit);
+          isUnderworldDoorPrompt(prompt, owner, engine)) {
+        matchedPrompts++;
+        if (prompt[PATCHED_PROMPT] !== true) {
+          Object.defineProperty(prompt, PATCHED_PROMPT, {
+            configurable: false,
+            enumerable: false,
+            value: true
+          });
+          correctPrompt(prompt, owner, engine, audit);
+        }
       }
       return Reflect.apply(originalPrompt, this,
         [promptState, prompt, callback]);
@@ -244,8 +258,13 @@ function withUnderworldDoorPrintedTargetHook(execute, deps = {}) {
       value: patchedPrompt
     });
     try {
-      return Reflect.apply(originalReduceEffect, this,
+      const result = Reflect.apply(originalReduceEffect, this,
         [store, state, effect]);
+      if (matchedPrompts !== 1) {
+        throw new Error('Underworld Door did not emit exactly one matching AttachEnergyPrompt; fail closed');
+      }
+      audit.promptsMatched += matchedPrompts;
+      return result;
     } finally {
       if (promptDescriptor) {
         Object.defineProperty(store, 'prompt', promptDescriptor);
