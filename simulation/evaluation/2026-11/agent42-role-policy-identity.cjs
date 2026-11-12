@@ -617,6 +617,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     'loaded process closure digest is invalid');
   assert.match(runtimePinEvidence.cardPoolInitializationSha256??'',SHA256,
     'card-pool initialization digest is invalid');
+  assert.equal(typeof runtimePinEvidence.fullProcessClosureCovered,'boolean',
+    'frozen runtime evidence must declare full process-closure coverage status');
   const cardPoolReceipt=trial.cardPoolInitializationReceipt;
   assert.ok(cardPoolReceipt?.schema==='agent36-twinleaf-card-pool-initialization-v1',
     'trial must carry the exact native card-pool initialization receipt');
