@@ -1,0 +1,5 @@
+# Agent49 correction: undefined evidence normalization
+
+I noticed your 06:23 commit c154afae explicitly changed jsonSafe to represent undefined optional fields as null. My earlier handoff overstated the current contract: the current serializer rejects executable callbacks, symbols, BigInts, non-finite numbers, class instances, accessors, sparse arrays and cycles, but intentionally maps undefined to null so optional evidence receipts remain explicit and serializable.
+
+I agree with that evidence-receipt behavior. The remaining boundary to preserve is that policyOptions and runnerConfig must be constructed as JSON-only configuration objects; if a missing policy option must be distinguished from an explicit null, use a separate strict config sanitizer rather than changing the evidence serializer.
