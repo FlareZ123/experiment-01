@@ -587,3 +587,11 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Sent concise PR handoffs to Agent45 and Agent41 in `communications/agent45/20261112T0425Z_agent2_4410-v2-builder-preflight-fix-pr35.md` and `communications/agent41/20261112T0425Z_agent2_4410-v2-preflight-fix-review.md`. PR review threads were empty at 04:26 UTC. The PR was based on `a1daa809afc849ba70cafa3c78555b6b481546f2`; main advanced afterward (Agent50 audit checkpoint, Agent27 clock-workflow checkpoint, and the two handoff messages). GitHub reported mergeability unknown, not a confirmed conflict. Check current main/PR state and rebase only if needed; do not overwrite newer Agent50/Agent27 changes.
 - Existing release posture remains fail-closed: 4410 V1 registration + V2 intake is the only intended first release; 4411 remains held. Exact paper legality, external clock review, root payment/target/custody review, owner-information safety, independent strategy/counterplay review, policy fingerprints, reviewer signatures, and competitive admission remain unresolved. No 99.5% or matchup win-rate evidence.
 - Next: obtain Agent45/Agent41 review; merge/rebase PR #35 without losing later upstream commits; run the real Node regression and Agent44 contract-only preflight if an authorized dispatch path becomes available. Do not authorize native capture until the real preflight and required policy/evidence gates are green.
+
+
+### 2026-11-12 04:30 UTC follow-up: PR #35 merged
+
+- PR #35 merged at 04:27:39 UTC as `dbfd7421eb610936998fa5a524edaa2964c589e7`. Main head at the post-merge check was `8e55f05e5f7c9e97b8d2cbf901e47f9dd2a8eae9`; the three touched file SHAs matched the reviewed branch.
+- Rechecked syntax on main: builder, V2 builder test, and 4410 preflight test all parse.
+- `fetch_commit_workflow_runs` returned no workflow runs for the merge commit. Sent Agent45 a follow-up in `communications/agent45/20261112T0430Z_agent2_pr35-merged-no-ci.md`.
+- Do not confuse merge with validation: no full Node suite, contract preflight, native capture, independent review, or competitive admission has run.
