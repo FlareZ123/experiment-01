@@ -392,9 +392,35 @@ function inspectPolicyPanelConsistency(bundle) {
     }
   } else {
     failures.push('unsupported-policy-comparison-mode');
-    if (['same-deck-mirror','controlled-treatment'].includes(core?.comparisonMode) &&
+    const controlledMode = ['same-deck-mirror','controlled-treatment'].includes(core?.comparisonMode);
+    if (controlledMode &&
         receipt?.policySha256BySeat?.[0] !== receipt?.policySha256BySeat?.[1])
       failures.push('same-policy-identity-required-for-controlled-comparison');
+    if (core?.comparisonMode === 'same-deck-mirror') {
+      const candidate = core?.candidate;
+      const selected = Array.isArray(core?.opponentPolicyBundle?.ranks) ?
+        core.opponentPolicyBundle.ranks.find(x => x?.rank === receipt?.opponentRank) : null;
+      if (!candidate || !selected ||
+          candidate.deckSha256 !== selected.deckSha256 ||
+          candidate.policySha256 !== selected.policySha256 ||
+          candidate.entryManifestSha256 !== selected.entryManifestSha256 ||
+          candidate.challengeSuiteSha256 !== selected.challengeSuiteSha256)
+        failures.push('same-deck-mirror-identity-mismatch');
+    }
+    if (core?.comparisonMode === 'controlled-treatment') {
+      const relation = core?.controlledTreatment;
+      if (relation?.schema !== 'aichi-controlled-treatment-identity-v1' ||
+          !nonempty(relation?.treatmentId) ||
+          ![0,1].includes(relation?.controlSeat) ||
+          ![0,1].includes(relation?.treatmentSeat) ||
+          relation.controlSeat === relation.treatmentSeat ||
+          !HEX_SHA256.test(relation?.deckSha256 ?? '') ||
+          !HEX_SHA256.test(relation?.policySha256 ?? '') ||
+          relation.deckSha256 !== core?.candidate?.deckSha256 ||
+          relation.policySha256 !== receipt?.policySha256BySeat?.[0] ||
+          receipt?.policySha256BySeat?.[0] !== receipt?.policySha256BySeat?.[1])
+        failures.push('controlled-treatment-identity-missing-or-mismatched');
+    }
   }
   if (field.status === 'INVALID')
     failures.push(...(field.rejectionReasons ?? ['opponent-policy-field-invalid']));
@@ -689,7 +715,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   if (policyAttestations.failures.length) failures.push(...policyAttestations.failures);
   if (reviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
   if (structural?.samePolicy !== true &&
-      bundle?.policyPlanCore?.comparisonMode !== 'candidate-vs-field')
+      ['same-deck-mirror','controlled-treatment'].includes(
+        bundle?.policyPlanCore?.comparisonMode))
     failures.push('same-policy-identity-required-for-controlled-comparison');
   if (!strategySignatureValid)
     failures.push('independent-strategy-review-missing-or-invalid');
