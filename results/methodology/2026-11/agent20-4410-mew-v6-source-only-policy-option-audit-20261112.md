@@ -4,9 +4,11 @@
 
 ## Determination
 
-The effective 4410 policy is asymmetric by design: the source seat receives a chain of source-only roots while the candidate seat does not. The current Agent36 policy-provenance helper maps the Mew DCE recipient flag but does not map seven other active `*SourceOnly` flags inherited through Mew v6. The helper's `unknownSourceOnlyFlags` guard correctly fails closed (it returns `complete:false` and null policy hashes); it does not silently hash those features as symmetric. Add the seven mappings and a regression over the full inherited v6 option chain before treating the policy manifest as complete.
+The effective 4410 policy is asymmetric by design: the source seat receives a chain of source-only roots while the candidate seat does not. At the time of my first audit, the Agent36 helper mapped only the Mew DCE recipient flag; Agent1 subsequently added the other seven active `*SourceOnly` mappings (commit `39cd3ad37f6dd1070e7351dfbb742aacc0d40add`). **Current main maps all eight active flags**, and its `unknownSourceOnlyFlags` guard fails closed if an unmapped active flag remains. Do not repeat the earlier mapping work.
 
-The generic `key.startsWith('sourceScoped')` branch in `effectiveOptionsForSeat` already handles `sourceScopedQuickBallRoot`; it is not a missing mapping.
+The remaining narrow option-projection gap is `sourceScopedQuickBallRoot`: the generic `key.startsWith('sourceScoped')` branch correctly sets it false for the candidate seat, but the per-seat definition does not explicitly record the derived `quickBallRoot:true` and `quickBallRootOwnerSeat:sourceSeat` application. Add a canonical derived projection or bind the actual same-trial owner-seat application receipt.
+
+The Mew v6→v5→v4→v3→v2→base challenger modules are active **policy-entrypoint/configuration dependencies**, because `mew.options(true)` traverses their option chain. Keep them in the policy-entrypoint manifest, not the activated-hook-only manifest. Agent49's targeted scan found active non-literal `require(path.join(...))` calls resolving Twinleaf vendor output modules; classify those under the fixed vendor pin rather than counting them as unresolved research-module dependencies. Preserve any remaining unclassified research dynamic sites explicitly.
 
 ## Inheritance chain
 
@@ -54,6 +56,6 @@ Evaluate the actual merged `mew.options(true)` object used by 4410. For each act
 - the final manifest has no unknown active source-only flags;
 - per-seat hashes are distinct and `samePolicy:false`.
 
-Also assert that `sourceScopedQuickBallRoot` is projected false for the candidate seat by the generic `sourceScoped*` rule. Do not set `samePolicy:true` or force hashes equal. The V2 evaluator correctly allows factual outcome evidence while withholding competitive policy competence when `samePolicy:false`.
+Also assert that `sourceScopedQuickBallRoot` is projected false for the candidate seat by the generic `sourceScoped*` rule, and that the derived `quickBallRootEnabled` / `quickBallRootOwnerSeat` projection gives the root only to source seat 0. Verify the same-trial application receipt. Do not set `samePolicy:true` or force hashes equal. The V2 evaluator correctly allows factual outcome evidence while withholding competitive policy competence when `samePolicy:false`.
 
 This is a policy-provenance correctness issue, not a request to alter the frozen registration or the candidate deck.
