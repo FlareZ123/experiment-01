@@ -3,6 +3,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const Module=require('node:module');
+const {createHash}=require('node:crypto');
 const {
   canonicalJson,sha256,buildEnvironmentManifest
 }=require('./agent36-4410-policy-provenance.cjs');
@@ -83,10 +84,9 @@ function captureRoleEntryManifest(args){
     if(relative===null)return;
     if(relative.startsWith('simulation/')||relative.startsWith('scripts/')){
       try{
+        const bytes=fs.readFileSync(absolute);
         byPath.set(relative,{path:relative,absolutePath:absolute,
-          sha256:fs.readFileSync(absolute).length>=0?
-            require('node:crypto').createHash('sha256')
-              .update(fs.readFileSync(absolute)).digest('hex'):null});
+          sha256:createHash('sha256').update(bytes).digest('hex')});
       }catch(error){
         unreadable.push({path:relative,error:String(error?.message||error)});
       }
