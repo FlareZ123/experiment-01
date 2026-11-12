@@ -6,6 +6,261 @@ const FIELD_SIZE = 32;
 const SEATS = [0, 1];
 const FIRST_PLAYER_SEATS = [0, 1];
 const SHA256 = /^[a-f0-9]{64}$/i;
+const GIT_SHA = /^[a-f0-9]{40}$/i;
+const {sha256: canonicalSha256} =
+  require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
+const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
+const OPPONENT_BUNDLE_SCHEMA = 'aichi-opponent-policy-bundle-v1';
+const POLICY_IDENTITY_FIELDS = Object.freeze([
+  'deckSha256','policySha256','entryManifestSha256','challengeSuiteSha256'
+]);
+const REQUIRED_POLICY_CONSTRAINTS = Object.freeze([
+  'observationSurface','hiddenInformationBoundary','decisionBudget',
+  'timeoutPolicy','randomizationProtocol','publicHistoryWindow','resourceAccounting'
+]);
+
+function isExplicitConstraint(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === 'object') return Object.keys(value).length > 0;
+  return true;
+}
+
+/**
+ * Validate the immutable V3 candidate-vs-field policy-plan core and its
+ * per-game application receipts. This is structural/digest validation only:
+ * it does not authenticate source lists, verify reviewer signatures, or prove
+ * policy competence. An explicit source-unavailable rank keeps the 32-rank
+ * aggregate incomplete; it is never silently omitted or treated as a bye.
+ *
+ * @param {object} request {policyPlanCore, expectedPolicyPlanSha256?,
+ *   gameReceipts?}
+ */
+function validateOpponentPolicyFieldBundle(request) {
+  if (!request || !request.policyPlanCore ||
+      typeof request.policyPlanCore !== 'object' ||
+      Array.isArray(request.policyPlanCore)) {
+    throw new TypeError('policyPlanCore must be an object');
+  }
+  const {policyPlanCore, expectedPolicyPlanSha256, gameReceipts = []} = request;
+  if (!Array.isArray(gameReceipts))
+    throw new TypeError('gameReceipts must be an array');
+
+  const problems = new Set();
+  const incomplete = new Set();
+  let policyPlanSha256 = null;
+  let opponentPolicyBundleSha256 = null;
+  let policyConstraintsSha256 = null;
+  try {
+    policyPlanSha256 = canonicalSha256(policyPlanCore);
+  } catch {
+    problems.add('policy-plan-noncanonical');
+  }
+  if (expectedPolicyPlanSha256 !== undefined &&
+      (!SHA256.test(expectedPolicyPlanSha256) ||
+       expectedPolicyPlanSha256 !== policyPlanSha256)) {
+    problems.add('policy-plan-digest-mismatch');
+  }
+  if (policyPlanCore.schema !== POLICY_PLAN_SCHEMA)
+    problems.add('policy-plan-schema-invalid');
+  if (policyPlanCore.comparisonMode !== 'candidate-vs-field')
+    problems.add('comparison-mode-invalid');
+  if (Object.hasOwn(policyPlanCore, 'policyPlanSha256') ||
+      Object.keys(policyPlanCore).some(key =>
+        /reviewer|attestation|signature|post.?game|outcome/i.test(key))) {
+    problems.add('policy-plan-core-mixes-attestation-or-outcome-data');
+  }
+
+  const candidate = policyPlanCore.candidate;
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate) ||
+      POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(candidate[field]))) {
+    problems.add('candidate-policy-plan-identity-unverified');
+  }
+
+  const bundle = policyPlanCore.opponentPolicyBundle;
+  const ranks = Array.isArray(bundle?.ranks) ? bundle.ranks : [];
+  if (!bundle || bundle.schema !== OPPONENT_BUNDLE_SCHEMA)
+    problems.add('opponent-policy-bundle-schema-invalid');
+  if (ranks.length !== FIELD_SIZE)
+    problems.add('opponent-field-size-invalid');
+
+  const rankByNumber = new Map();
+  const availableRanks = [];
+  const unavailableRanks = [];
+  for (let index = 0; index < ranks.length; index++) {
+    const entry = ranks[index];
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
+        !Number.isInteger(entry.rank) || entry.rank < 1 ||
+        entry.rank > FIELD_SIZE) {
+      problems.add('opponent-rank-entry-invalid');
+      continue;
+    }
+    if (rankByNumber.has(entry.rank)) {
+      problems.add('opponent-rank-duplicate');
+      continue;
+    }
+    rankByNumber.set(entry.rank, entry);
+    if (entry.rank !== index + 1)
+      problems.add('opponent-rank-order-invalid');
+
+    if (entry.sourceStatus === 'authenticated') {
+      if (POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field]))) {
+        problems.add('opponent-rank-identity-unverified');
+      } else {
+        availableRanks.push(entry.rank);
+      }
+    } else if (entry.sourceStatus === 'source-unavailable') {
+      if (POLICY_IDENTITY_FIELDS.some(field => entry[field] !== null)) {
+        problems.add('unavailable-rank-has-identity');
+      } else {
+        unavailableRanks.push(entry.rank);
+        incomplete.add('field-incomplete');
+      }
+    } else {
+      problems.add('opponent-source-status-invalid');
+    }
+  }
+  if (rankByNumber.size !== FIELD_SIZE ||
+      Array.from({length:FIELD_SIZE}, (_, i) => i + 1)
+        .some(rank => !rankByNumber.has(rank))) {
+    problems.add('opponent-field-rank-coverage-invalid');
+  }
+  try {
+    if (bundle && typeof bundle === 'object')
+      opponentPolicyBundleSha256 = canonicalSha256(bundle);
+  } catch {
+    problems.add('opponent-policy-bundle-noncanonical');
+  }
+
+  const constraints = policyPlanCore.constraints;
+  if (!constraints || typeof constraints !== 'object' ||
+      Array.isArray(constraints)) {
+    problems.add('policy-constraints-invalid');
+  } else {
+    for (const field of REQUIRED_POLICY_CONSTRAINTS) {
+      if (!Object.hasOwn(constraints, field) ||
+          !isExplicitConstraint(constraints[field])) {
+        problems.add(`policy-constraint-missing:${field}`);
+      }
+    }
+    try {
+      policyConstraintsSha256 = canonicalSha256(constraints);
+    } catch {
+      problems.add('policy-constraints-noncanonical');
+    }
+  }
+
+  const trialIds = new Set();
+  let registrationSha = null;
+  let attestationBundleSha = null;
+  let enginePin = null;
+  let runnerRevision = null;
+  for (const receipt of gameReceipts) {
+    if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) {
+      problems.add('policy-application-receipt-invalid');
+      continue;
+    }
+    const trialId = receipt.trialId;
+    if (typeof trialId !== 'string' || trialId.length === 0 ||
+        trialIds.has(trialId)) {
+      problems.add('policy-application-trial-identity-invalid');
+    } else {
+      trialIds.add(trialId);
+    }
+
+    const rank = receipt.opponentRank;
+    const entry = Number.isInteger(rank) ? rankByNumber.get(rank) : null;
+    if (!entry) {
+      problems.add('policy-application-opponent-rank-invalid');
+      continue;
+    }
+    if (entry.sourceStatus !== 'authenticated') {
+      problems.add('game-against-source-unavailable-rank');
+      continue;
+    }
+    if (receipt.policyPlanSha256 !== policyPlanSha256)
+      problems.add('game-policy-plan-digest-mismatch');
+    if (!SHA256.test(receipt.policyRegistrationSha256))
+      problems.add('game-policy-registration-unverified');
+    if (!SHA256.test(receipt.policyAttestationBundleSha256))
+      problems.add('game-policy-attestation-bundle-unverified');
+    if (registrationSha === null) registrationSha = receipt.policyRegistrationSha256;
+    if (attestationBundleSha === null) attestationBundleSha = receipt.policyAttestationBundleSha256;
+    if (receipt.policyRegistrationSha256 !== registrationSha ||
+        receipt.policyAttestationBundleSha256 !== attestationBundleSha) {
+      problems.add('game-policy-registration-or-attestation-changed');
+    }
+
+    const same = (actual, expected, reason) => {
+      if (actual !== expected) problems.add(reason);
+    };
+    same(receipt.candidateDeckSha256,candidate?.deckSha256,
+      'game-candidate-deck-mismatch');
+    same(receipt.candidatePolicySha256,candidate?.policySha256,
+      'game-candidate-policy-mismatch');
+    same(receipt.candidateEntryManifestSha256,candidate?.entryManifestSha256,
+      'game-candidate-entry-manifest-mismatch');
+    same(receipt.candidateChallengeSuiteSha256,candidate?.challengeSuiteSha256,
+      'game-candidate-challenge-suite-mismatch');
+    same(receipt.opponentDeckSha256,entry.deckSha256,
+      'game-opponent-deck-mismatch');
+    same(receipt.opponentPolicySha256,entry.policySha256,
+      'game-opponent-policy-mismatch');
+    same(receipt.opponentEntryManifestSha256,entry.entryManifestSha256,
+      'game-opponent-entry-manifest-mismatch');
+    same(receipt.opponentChallengeSuiteSha256,entry.challengeSuiteSha256,
+      'game-opponent-challenge-suite-mismatch');
+    if (receipt.opponentPolicyBundleSha256 !== undefined)
+      same(receipt.opponentPolicyBundleSha256,opponentPolicyBundleSha256,
+        'game-opponent-policy-bundle-mismatch');
+
+    const candidateSeat = receipt.candidateSeat;
+    const opponentSeat = receipt.opponentSeat;
+    if (![0,1].includes(candidateSeat) || ![0,1].includes(opponentSeat) ||
+        candidateSeat === opponentSeat) {
+      problems.add('game-policy-seat-assignment-invalid');
+    }
+    if (!Array.isArray(receipt.policySha256BySeat) ||
+        receipt.policySha256BySeat.length !== 2) {
+      problems.add('game-policy-seat-hashes-invalid');
+    } else if ([0,1].includes(candidateSeat) && [0,1].includes(opponentSeat)) {
+      same(receipt.policySha256BySeat[candidateSeat],candidate?.policySha256,
+        'game-candidate-seat-policy-mismatch');
+      same(receipt.policySha256BySeat[opponentSeat],entry.policySha256,
+        'game-opponent-seat-policy-mismatch');
+    }
+
+    if (!GIT_SHA.test(receipt.enginePin))
+      problems.add('game-engine-pin-unverified');
+    if (enginePin === null) enginePin = receipt.enginePin;
+    if (receipt.enginePin !== enginePin)
+      problems.add('game-engine-pin-changed');
+    if (!GIT_SHA.test(receipt.runnerRevision))
+      problems.add('game-runner-revision-unverified');
+    if (runnerRevision === null) runnerRevision = receipt.runnerRevision;
+    if (receipt.runnerRevision !== runnerRevision)
+      problems.add('game-runner-revision-changed');
+    same(receipt.policyConstraintsSha256,policyConstraintsSha256,
+      'game-policy-constraints-mismatch');
+    if (!SHA256.test(receipt.decisionTraceSha256))
+      problems.add('game-decision-trace-unverified');
+    if (typeof receipt.timeoutStatus !== 'string' ||
+        receipt.timeoutStatus.trim().length === 0) {
+      problems.add('game-timeout-status-unverified');
+    }
+  }
+
+  const rejectionReasons = [...problems, ...incomplete].sort();
+  return {
+    status: problems.size ? 'INVALID' : incomplete.size ? 'INCOMPLETE_FIELD' : 'VALID',
+    policyPlanSha256, opponentPolicyBundleSha256, policyConstraintsSha256,
+    availableRanks: availableRanks.sort((a,b)=>a-b),
+    unavailableRanks: unavailableRanks.sort((a,b)=>a-b),
+    receiptCount: gameReceipts.length, rejectionReasons
+  };
+}
+
 
 /**
  * Verify structure of a COMPLETE equally weighted 32-rank, two-seat,
@@ -142,4 +397,4 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
   };
 }
 
-module.exports = {validateFieldLedger, FIELD_SIZE};
+module.exports = {validateFieldLedger, validateOpponentPolicyFieldBundle, FIELD_SIZE};
