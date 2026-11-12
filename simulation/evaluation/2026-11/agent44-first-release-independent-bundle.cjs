@@ -9,6 +9,8 @@ const {MANIFEST,evidenceBundleSha256,bundleFailures,
   require('../agent45-independent-competitive-admission.cjs');
 const {rootDigest}=
   require('../agent45-bilateral-competence-gate.cjs');
+const {inspectOfficialAichiClock,aichiClockProtocolSha256}=
+  require('../agent45-aichi-clock-receipt.cjs');
 
 const INTAKE_SCHEMA='agent44-first-independent-original-source-case-intake-v2';
 const V2_SCHEMA='aichi-outcome-and-competitive-admission-v2';
@@ -118,7 +120,7 @@ function rootReviewWorklist(raw,roots){
  * created by this producer.
  * @param {object} original Parsed Agent44 V2 native intake.
  */
-function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
+function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
   assert.equal(original?.schema,INTAKE_SCHEMA,
     'Only the prospective Agent44 V2 intake is accepted');
   assert.equal(original?.intake?.schema,INTAKE_SCHEMA);
@@ -132,8 +134,21 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   const trialId=original.intake.trial.id;
   assert.equal(trialId,TRIAL_ID);
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
-  assert.ok(clockEvidence===null||(typeof clockEvidence==='object'&&!Array.isArray(clockEvidence)),
-    'External clock evidence must be one JSON object');
+  assert.ok(clockReceiptInput===null||(typeof clockReceiptInput==='object'&&!Array.isArray(clockReceiptInput)),
+    'External clock receipt input must be one JSON object');
+  if(clockReceiptInput!==null){
+    assert.equal(clockReceiptInput.trialId,trialId,
+      'clockReceiptInput.trialId must match the frozen 4410 trial');
+    assert.equal(typeof clockReceiptInputRef,'string');
+    assert.ok(clockReceiptInputRef.trim().length>0,
+      'A nonempty external clock receipt reference is required');
+  }
+  assert.ok(original.intake.runtime?.researchRevisionSha,
+    'The exact checked-out research revision must be captured');
+  assert.equal(original.intake.runtime?.engineActualCommit,
+    original.registration.enginePinnedCommit,
+    'The actual checked-out Twinleaf commit must match the frozen registration');
+  assert.equal(original.intake.enginePinnedCommit,original.registration.enginePinnedCommit);
   const src=original.nativeDevelopmentRow;
   const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:
     Array.isArray(src?.nativeAbortEvidence?.rootActionLedger)?
@@ -176,15 +191,18 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   const native=original.intake.native??{};
   const recorded=original.intake.nineEvidenceObjects??{};
   const clockFields={
-    eventStage:clockEvidence?.eventStage??null,
-    clockDisposition:clockEvidence?.clockDisposition??null,
-    paperReceiptId:clockEvidence?.paperReceiptId??null,
-    clockReceiptId:clockEvidence?.clockReceiptId??null,
-    adjudicationProtocolSha:clockEvidence?.adjudicationProtocolSha??null,
-    noCallClockPacket:clockEvidence?.noCallClockPacket??null,
-    timeCallPacket:clockEvidence?.timeCallPacket??null,
-    extensionLedgerPacket:clockEvidence?.extensionLedgerPacket??null
+    eventStage:clockReceiptInput?.eventStage??null,
+    clockDisposition:clockReceiptInput?.clockDisposition??null,
+    paperReceiptId:clockReceiptInput?.paperReceiptId??null,
+    clockReceiptId:clockReceiptInput?.clockReceiptId??null,
+    adjudicationProtocolSha:clockReceiptInput?.adjudicationProtocolSha??null,
+    noCallClockPacket:clockReceiptInput?.noCallClockPacket??null,
+    timeCallPacket:clockReceiptInput?.timeCallPacket??null,
+    extensionLedgerPacket:clockReceiptInput?.extensionLedgerPacket??null
   };
+  const clockAssessment=clockReceiptInput?
+    inspectOfficialAichiClock(clockReceiptInput):null;
+  const clockProtocolSha256=aichiClockProtocolSha256();
   const rawSha256=evidenceBundleSha256(raw);
   const worklistSha256=evidenceBundleSha256(worklist);
   const rootSha256=rootDigest(roots);
@@ -268,8 +286,10 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     },
     'clock-continuity':{
       captured:recorded.officialClockAndNoCall??null,
-      externalClockEvidence:clockEvidence,
-      externalClockEvidenceRef:clockEvidenceRef,
+      clockReceiptInput,
+      clockReceiptInputRef,
+      clockAssessment,
+      clockProtocolSha256,
       mappedTrialClockFields:clockFields,
       independentOfficialClockReview:'pending'
     },
@@ -278,21 +298,23 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
         recorded.sourceReplyAndNextOriginalTurn?.replyWindow??[],
       nativeSourceAttackCount:native.sourceAttacks??0,
       nativeCandidateAttackCount:native.candidateAttacks??0,
-      nativePromptChoices:src.nativePromptChoices??null,
-      policyAudit:src.policyAudit??null,
-      sourceAudit:src.sourceAudit??null,
-      supporterModalEvidence:src.supporterModalEvidence??null,
-      ownerSupporterOpportunityAudit:src.ownerSupporterOpportunityAudit??null,
-      ownerCompressorOpportunityAudit:src.ownerCompressorOpportunityAudit??null,
-      candidateRepliesAfterSourceAttacks:src.candidateRepliesAfterSourceAttacks??null,
-      candidateAttackSettlement:src.candidateAttackSettlement??null,
-      sourceAttackSettlement:src.sourceAttackSettlement??null,
-      nativeAttackModalityLedger:src.nativeAttackModalityLedger??null,
-      nativeAttackPhysicalTape:src.nativeAttackPhysicalTape??null,
-      firstSettledPublicAttack:src.firstSettledPublicAttack??null,
-      finalBoard:src.finalBoard??null,
-      finalPrizes:src.finalPrizes??null,
-      decisionTrace:src.decisionTrace??null,
+      nativeActionEvidence:{
+        nativePromptChoices:src.nativePromptChoices??null,
+        policyAudit:src.policyAudit??null,
+        sourceAudit:src.sourceAudit??null,
+        supporterModalEvidence:src.supporterModalEvidence??null,
+        ownerSupporterOpportunityAudit:src.ownerSupporterOpportunityAudit??null,
+        ownerCompressorOpportunityAudit:src.ownerCompressorOpportunityAudit??null,
+        candidateRepliesAfterSourceAttacks:src.candidateRepliesAfterSourceAttacks??null,
+        candidateAttackSettlement:src.candidateAttackSettlement??null,
+        sourceAttackSettlement:src.sourceAttackSettlement??null,
+        nativeAttackModalityLedger:src.nativeAttackModalityLedger??null,
+        nativeAttackPhysicalTape:src.nativeAttackPhysicalTape??null,
+        firstSettledPublicAttack:src.firstSettledPublicAttack??null,
+        finalBoard:src.finalBoard??null,
+        finalPrizes:src.finalPrizes??null,
+        decisionTrace:src.decisionTrace??null
+      },
       responseOpportunityAudit:null,
       independentlyReviewed:false,
       policyChallengeEvidenceRef:null,
@@ -423,8 +445,8 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     },
     nativeDevelopmentRow:src,
     postStoreZoneTape:zoneTape,
-    externalClockEvidence:clockEvidence,
-    externalClockEvidenceRef:clockEvidenceRef,
+    clockReceiptInput,
+    clockReceiptInputRef,
     nativeGameRetainedAsDevelopmentOnly:true,
     noReviewEvidenceSynthesized:true,
     builderExecutionNeverRunsNativeGame:true
@@ -449,10 +471,10 @@ function save(output,data){
 if(require.main===module){
   assert.ok(process.argv[2],'Supply previously archived Agent44 V2 case JSON');
   const raw=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-  const clockEvidencePath=process.argv[4]??null;
-  const clockEvidence=clockEvidencePath?
-    JSON.parse(fs.readFileSync(clockEvidencePath,'utf8')):null;
-  const result=build(raw,{clockEvidence,clockEvidenceRef:clockEvidencePath});
+  const clockReceiptInputRef=process.argv[4]??null;
+  const clockReceiptInput=clockReceiptInputRef?
+    JSON.parse(fs.readFileSync(clockReceiptInputRef,'utf8')):null;
+  const result=build(raw,{clockReceiptInput,clockReceiptInputRef});
   const output=process.argv[3]??path.resolve(
     'artifacts/agent44-first-release-nine-object-intake-v2.json');
   save(output,result);
@@ -467,7 +489,7 @@ if(require.main===module){
     outcomeReady:result.independentAdmissionGate.gameOutcomeAdmissionReady,
     policyReady:result.independentAdmissionGate.competitivePolicyCompetenceReady,
     competitiveAdmission:result.independentAdmissionGate.competitiveAdmission,
-    clockEvidenceSupplied:Boolean(clockEvidencePath),
+    clockReceiptInputSupplied:Boolean(clockReceiptInputRef),
     blockers:result.independentAdmissionGate.failures
   })));
 }

@@ -8,6 +8,8 @@ const {build,INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,REGISTRATION_REF,
   require('../../simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs');
 const {rootDigest}=
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
+const {aichiClockProtocolSha256}=
+  require('../../simulation/evaluation/agent45-aichi-clock-receipt.cjs');
 const {BUNDLE_SCHEMA,MANIFEST,evidenceBundleSha256}=
   require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 
@@ -167,7 +169,10 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(result.bundle.trial.eventStage,null);
   assert.equal(result.bundle.trial.clockDisposition,null);
   assert.equal(result.bundle.trial.clockReceiptId,null);
-  assert.equal(result.releaseNineObjects['clock-continuity'].externalClockEvidence,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInput,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockProtocolSha256,aichiClockProtocolSha256());
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,true);
   assert.equal(result.releaseStatus.producerAlignmentMatches,true);
   assert.equal(result.releaseStatus.producerRawReceiptCaptureComplete,true);
@@ -186,20 +191,20 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.ok(first.rawReceiptRef.startsWith(REFERENCE+'#/rawNativePhysicalReceipts/receipts/'));
   assert.ok(first.physicalCardInventoryRef.startsWith(REFERENCE+'#/rawNativePhysicalReceipts/originalPhysicalCards'));
   const strategy=result.releaseNineObjects['policy-and-counterplay'];
-  assert.deepEqual(strategy.nativePromptChoices,original.nativeDevelopmentRow.nativePromptChoices);
-  assert.deepEqual(strategy.policyAudit,original.nativeDevelopmentRow.policyAudit);
-  assert.deepEqual(strategy.sourceAudit,original.nativeDevelopmentRow.sourceAudit);
-  assert.deepEqual(strategy.supporterModalEvidence,original.nativeDevelopmentRow.supporterModalEvidence);
-  assert.deepEqual(strategy.ownerSupporterOpportunityAudit,original.nativeDevelopmentRow.ownerSupporterOpportunityAudit);
-  assert.deepEqual(strategy.ownerCompressorOpportunityAudit,original.nativeDevelopmentRow.ownerCompressorOpportunityAudit);
-  assert.deepEqual(strategy.candidateRepliesAfterSourceAttacks,original.nativeDevelopmentRow.candidateRepliesAfterSourceAttacks);
-  assert.deepEqual(strategy.candidateAttackSettlement,original.nativeDevelopmentRow.candidateAttackSettlement);
-  assert.deepEqual(strategy.sourceAttackSettlement,original.nativeDevelopmentRow.sourceAttackSettlement);
-  assert.deepEqual(strategy.nativeAttackModalityLedger,original.nativeDevelopmentRow.nativeAttackModalityLedger);
-  assert.deepEqual(strategy.nativeAttackPhysicalTape,original.nativeDevelopmentRow.nativeAttackPhysicalTape);
-  assert.deepEqual(strategy.firstSettledPublicAttack,original.nativeDevelopmentRow.firstSettledPublicAttack);
-  assert.deepEqual(strategy.finalBoard,original.nativeDevelopmentRow.finalBoard);
-  assert.deepEqual(strategy.finalPrizes,original.nativeDevelopmentRow.finalPrizes);
+  assert.deepEqual(strategy.nativeActionEvidence.nativePromptChoices,original.nativeDevelopmentRow.nativePromptChoices);
+  assert.deepEqual(strategy.nativeActionEvidence.policyAudit,original.nativeDevelopmentRow.policyAudit);
+  assert.deepEqual(strategy.nativeActionEvidence.sourceAudit,original.nativeDevelopmentRow.sourceAudit);
+  assert.deepEqual(strategy.nativeActionEvidence.supporterModalEvidence,original.nativeDevelopmentRow.supporterModalEvidence);
+  assert.deepEqual(strategy.nativeActionEvidence.ownerSupporterOpportunityAudit,original.nativeDevelopmentRow.ownerSupporterOpportunityAudit);
+  assert.deepEqual(strategy.nativeActionEvidence.ownerCompressorOpportunityAudit,original.nativeDevelopmentRow.ownerCompressorOpportunityAudit);
+  assert.deepEqual(strategy.nativeActionEvidence.candidateRepliesAfterSourceAttacks,original.nativeDevelopmentRow.candidateRepliesAfterSourceAttacks);
+  assert.deepEqual(strategy.nativeActionEvidence.candidateAttackSettlement,original.nativeDevelopmentRow.candidateAttackSettlement);
+  assert.deepEqual(strategy.nativeActionEvidence.sourceAttackSettlement,original.nativeDevelopmentRow.sourceAttackSettlement);
+  assert.deepEqual(strategy.nativeActionEvidence.nativeAttackModalityLedger,original.nativeDevelopmentRow.nativeAttackModalityLedger);
+  assert.deepEqual(strategy.nativeActionEvidence.nativeAttackPhysicalTape,original.nativeDevelopmentRow.nativeAttackPhysicalTape);
+  assert.deepEqual(strategy.nativeActionEvidence.firstSettledPublicAttack,original.nativeDevelopmentRow.firstSettledPublicAttack);
+  assert.deepEqual(strategy.nativeActionEvidence.finalBoard,original.nativeDevelopmentRow.finalBoard);
+  assert.deepEqual(strategy.nativeActionEvidence.finalPrizes,original.nativeDevelopmentRow.finalPrizes);
   assert.deepEqual(Object.keys(result.releaseNineObjects).sort(),MANIFEST.slice().sort());
   assert.equal(result.bundleSha256,evidenceBundleSha256(result.bundle));
   assert.equal(result.independentAdmissionGate.schema,V2_SCHEMA);
@@ -274,9 +279,43 @@ test('missing 120-card inventory and incomplete receipt coverage remain explicit
   assert.equal(result.releaseStatus.competitiveAdmission,false);
 });
 
+test('external clockReceiptInput is trial-bound, referenced, and passed through the shared v3 scorer',()=>{
+  const original=fixture();
+  const clockReceiptInput={
+    trialId:TRIAL,eventStage:'open-swiss',
+    clockDisposition:'no-official-call',paperReceiptId:'paper-terminal-4410',
+    clockReceiptId:null,adjudicationProtocolSha:aichiClockProtocolSha256(),
+    noCallClockPacket:{stage:'open-swiss',paperTerminalEvidenceRef:'paper-terminal-4410'},
+    timeCallPacket:null,extensionLedgerPacket:null
+  };
+  const clockReceiptInputRef='review/clock-receipt-4410.json';
+  const result=build(original,{clockReceiptInput,clockReceiptInputRef});
+  assert.equal(result.bundle.trial.eventStage,'open-swiss');
+  assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
+  assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
+  assert.equal(result.bundle.trial.clockReceiptId,null);
+  assert.equal(result.bundle.trial.adjudicationProtocolSha,aichiClockProtocolSha256());
+  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockReceiptInput,clockReceiptInput);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,clockReceiptInputRef);
+  assert.ok(result.releaseNineObjects['clock-continuity'].clockAssessment);
+  assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
+  assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
+});
+
+test('clockReceiptInput from another or unidentified trial is rejected',()=>{
+  const original=fixture();
+  assert.throws(()=>build(original,{clockReceiptInput:{trialId:'5:4411:B:new-moon-lockbreaker-v1'},
+    clockReceiptInputRef:'review/clock.json'}),/clockReceiptInput.trialId/);
+  assert.throws(()=>build(original,{clockReceiptInput:{eventStage:'open-swiss'},
+    clockReceiptInputRef:'review/clock.json'}),/clockReceiptInput.trialId/);
+  assert.throws(()=>build(original,{clockReceiptInput:{trialId:TRIAL},
+    clockReceiptInputRef:null}),/clockReceiptInputRef/);
+});
+
 test('external Agent27 clock evidence maps exact fields without creating reviewer evidence',()=>{
   const original=fixture();
-  const clockEvidence={
+  const clockReceiptInput={
     eventStage:'open-swiss',clockDisposition:'no-official-call',
     paperReceiptId:'paper-terminal-4410',clockReceiptId:null,
     adjudicationProtocolSha:'protocol-sha',
@@ -284,14 +323,14 @@ test('external Agent27 clock evidence maps exact fields without creating reviewe
       paperTerminalEvidenceRef:'paper-terminal-4410'},
     timeCallPacket:null,extensionLedgerPacket:null
   };
-  const result=build(original,{clockEvidence,clockEvidenceRef:'review/clock-evidence-4410.json'});
+  const result=build(original,{clockReceiptInput,clockReceiptInputRef:'review/clock-evidence-4410.json'});
   assert.equal(result.bundle.trial.eventStage,'open-swiss');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
   assert.equal(result.bundle.trial.adjudicationProtocolSha,'protocol-sha');
-  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockEvidence.noCallClockPacket);
-  assert.deepEqual(result.releaseNineObjects['clock-continuity'].externalClockEvidence,clockEvidence);
+  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].externalClockEvidence,clockReceiptInput);
   assert.equal(result.releaseNineObjects['clock-continuity'].externalClockEvidenceRef,
     'review/clock-evidence-4410.json');
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
