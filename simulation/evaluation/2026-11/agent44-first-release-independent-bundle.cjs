@@ -170,6 +170,9 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     assert.equal(typeof clockEvidenceRef,'string');
     assert.ok(clockEvidenceRef.trim().length>0,
       'A nonempty external clock receipt reference is required');
+  }else{
+    assert.equal(clockEvidenceRef??null,null,
+      'A clock evidence reference cannot be supplied without its receipt object');
   }
   assert.ok(original.intake.runtime?.researchRevisionSha,
     'The exact checked-out research revision must be captured');
