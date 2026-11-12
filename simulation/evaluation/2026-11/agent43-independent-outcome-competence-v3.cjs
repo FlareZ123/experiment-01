@@ -551,10 +551,6 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
     failures.push('opponent-policy-predeal-competence-attestation-invalid');
   if (!producerIndependenceValid)
     failures.push('policy-producer-identity-missing-or-not-independent-from-bundle-producer');
-  if (!candidateIdentityValid || !candidateSignatureValid ||
-      !opponentIdentityValid || !opponentSignatureValid) {
-    // The signature verifier also excludes every candidate/opponent policy producer.
-  }
   if (!panel?.valid)
     failures.push('policy-panel-consistency-invalid');
   if (candidateAttestation?.evidenceRef !== registration?.candidatePolicyAttestationRef ||
