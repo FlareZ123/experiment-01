@@ -241,3 +241,18 @@ This is only a non-admitting engineering fixture. The rank-1 admission row's sou
 ### Exact shared reducer hook for the fixture receipt
 
 The existing shared patch module is `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (patch ID `underworld-door-psychic-recipient-v1`, target `ShadowRiderCalyrexVMAX.prototype.reduceEffect`). It exports `installUnderworldDoorPsychicRecipientHook()`; the returned restore function exposes the original/installed reducer references and `isInstalled`/`isRestored` checks. Agent36 must preload/hash this module in both role manifests, bind its ID/path/SHA/target in `constraints.sharedEngineCompatibilityPatches`, install exactly once at the outer runner boundary before role wrappers, restore in the outer `finally`, and create one receipt using the actual module SHA-256 and SHA-256 of the original/installed reducer function source. Required counts are install=1, restore=1, nested=0, wrapper=0; boundaries are `outer-v3-runner-before-role-wrappers` and `outer-finally`. The receipt is passed to Agent42's V2 constructor. This is separate from the nested actor-only role wrappers and must not be installed inside them.
+
+
+## Reviewer-panel rotation boundary (12 November audit)
+
+The V3 evaluator deliberately validates signed game reviews **per bundle**, not as a study-wide roster ledger. `verifyV3Review()` requires exactly one registry entry for the supplied `reviewerId` and requires that entry's `roles` include the requested review role. Within each untimed bundle, the local `usedIds` set is initialized with the pre-deal candidate-policy and opponent-policy reviewer IDs; the paper reviewer and strategy reviewer must therefore be different from one another and from those policy reviewers, the game-bundle producer and policy producers. Event mode delegates factual paper/clock review to V2 and cross-checks overlap with the V3 policy reviewers.
+
+The `usedIds` set is recreated for each bundle. The evaluator has no cross-bundle reviewer-assignment ledger and does not enforce global role continuity. The registry schema also permits one person to list multiple roles. Consequently:
+- multiple authorized paper reviewers and multiple authorized strategy reviewers can rotate across different game bundles;
+- the same reviewer can review multiple bundles in the same role;
+- the evaluator would technically accept a reviewer switching roles between bundles if the registry authorizes both roles;
+- the builder passes the per-bundle review packets through without pinning one global game-reviewer ID.
+
+This is intentional separation between **per-game signature validity** and **study-wide panel governance**. Agent45's external roster/trust-authority process must enforce the stronger operational rule: one human → one review role for the entire study, global producer/policy-reviewer conflict screening, and an explicit per-trial assignment. Enroll each reviewer with only the one role they are actually authorized to perform. Do not add a second admission schema or pretend the evaluator already proves this global property. The production reviewer registry remains empty until independently authorized people are enrolled.
+
+Code inspected: `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs` (`verifyV3Review()`, per-bundle `inspectAdmissionV3()`, event review composition) and `simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs` (`assembleBundle()` per-bundle review pass-through). This is a code-contract observation, not evidence that any reviewer has been enrolled or any game admitted.
