@@ -1,7 +1,17 @@
+# 12 November 2026 17:52 UTC — Underworld runtime receipt API added
+
+- Implemented stable hook identity/target exports: `underworld-door-psychic-recipient-v1` and `ShadowRiderCalyrexVMAX.prototype.reduceEffect`.
+- The returned restore function now exposes `patchId`, `target`, exact `originalReducer` and `installedReducer` identities, and live `isInstalled`/`isRestored` getters. The installed wrapper carries `underworldDoorHookId`. A second install throws; restore still throws if it has lost prototype ownership, and a second restore throws.
+- Added a native test asserting the runtime receipt metadata, exact wrapper identity, one-install/one-restore, and exact restoration of the original reducer. Current hook SHA `86c7b29d17411c47fecadcb8586128b6065aac24`; test SHA `8d981fbe64e67b9892b31f9bb4ce1bc3e6624839`; report SHA `1779db0a886b8e15abbdbf001276cd03de5ee1a8`; results index SHA `bfd57f3a8ca4e9bfce9e5c6065a0720757662418`.
+- Sent runtime-receipt implementation handoffs to Agent36/42/44/45. The V3 runner can use these properties to record patch ID, target, original/installed ownership, and exact restore; it still must bind module SHA and per-game application receipt.
+- Both JS files passed syntax parsing. The compiled-engine workflow remains unexecuted; no native behavioral pass or competitive evidence is claimed.
+
+---
+
 # 12 November 2026 17:48 UTC — Underworld hook closure imports made static
 
 - Converted the hook's nine pinned Twinleaf imports from `path.resolve/path.join` computed requires to literal relative CommonJS requires under `../../vendor/twinleaf/ptcg-server/output`. This reduces friction for Agent36/Agent42's V3 source-closure audit; the exact nine module paths are in the 17:45:26 mailbox messages to both identities.
-- Current hook SHA `a4177f96fae1259a8ed0e4338e3304a448ba6aff`; test SHA `d403d9db64ca198e7734c31b0b11f405edb23865`; report SHA `97c4644c8f39e1eeeb1dc1f89e0c68894155cc28`; results index SHA `d67442e13a55aa9231004e9bd5bea4cc5799896a`.
+- Current hook SHA `86c7b29d17411c47fecadcb8586128b6065aac24`; test SHA `8d981fbe64e67b9892b31f9bb4ce1bc3e6624839`; report SHA `1779db0a886b8e15abbdbf001276cd03de5ee1a8`; results index SHA `bfd57f3a8ca4e9bfce9e5c6065a0720757662418`.
 - Updated Agent36/Agent42 with the static-import change. V8 syntax parsing passed. The hook remains opt-in and native workflow remains unexecuted; no paper-qualified game or competitive result follows.
 
 ---
@@ -10,7 +20,7 @@
 
 - Pinned `AttachEnergyPrompt.decode` checks only Card/Energy supertype and blocked source index; its `validate` does not apply the prompt's UI `filter` unless a separate `validCardTypes` option is supplied. Underworld Door does not supply that option. Pinned `Store.reducePrompt` invokes the prompt continuation without calling `Prompt.validate`. Thus direct `ResolvePromptAction` can bypass UI filtering; the callback guard is essential for source legality as well as target legality.
 - The result report now records this source-filter bypass and the exact validator/decoder behavior. Current report SHA `d2d91e708af8be7d982d634228ba9eea31ea777d`. Current human index SHA `57d844586e3faca331b7b9911ad25eb89ba51bd6`.
-- Test SHA remains `d403d9db64ca198e7734c31b0b11f405edb23865`; hook SHA remains `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. JS syntax parsing passed; native workflow has not run.
+- Test SHA remains `8d981fbe64e67b9892b31f9bb4ce1bc3e6624839`; hook SHA remains `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. JS syntax parsing passed; native workflow has not run.
 
 ---
 
@@ -18,7 +28,7 @@
 
 - Expanded the Underworld Door source regressions with Telepathic Psychic Energy M3 in both physical seats. The pinned card object stores `provides=[PSYCHIC]`, but its card text only provides Psychic while attached and its `energyType` is SPECIAL; the hook must reject it while it is in hand. This catches any future simplification that checks only `provides.includes(PSYCHIC)`.
 - The official Japanese FAQ directly rules out Horror Psychic Energy from hand; Telepathic is an additional pinned-source/rules-semantic test. Both are rejected by the Basic-only source gate. Do not broaden Underworld Door to Special Energy merely because its attached-state text provides Psychic.
-- Current test SHA `d403d9db64ca198e7734c31b0b11f405edb23865`; hook SHA unchanged `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`; result report SHA `52cf38d5bc0a949d5fdcbb5fd79c5826a9c71d19`.
+- Current test SHA `8d981fbe64e67b9892b31f9bb4ce1bc3e6624839`; hook SHA unchanged `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`; result report SHA `52cf38d5bc0a949d5fdcbb5fd79c5826a9c71d19`.
 - Updated Agent36, Agent34 and Agent49 with the new test hash and edge case. JS syntax parsing passed; no native workflow run or behavioral pass is claimed.
 
 ---
@@ -27,7 +37,7 @@
 
 - A possible concern that Underworld Door might accept Special Energy was resolved by the official Japanese Pokémon Card Game FAQ: it asks whether `Horror Psychic Energy` can be selected from hand by Underworld Door and answers **no**. URL: `https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%81%93%E3%81%8F%E3%81%B0%E3%83%90%E3%83%89%E3%83%AC%E3%83%83%E3%82%AF%E3%82%B9VMAX&regulation_faq_main_item1=all`.
 - Pinned Twinleaf `HorrorPsychicEnergy` source confirms `energyType=EnergyType.SPECIAL`, `provides=[CardType.COLORLESS]` while in hand; it adds Psychic only in `CheckProvidedEnergyEffect` when attached. Therefore the Basic-Psychic source guard is correct for this effect; do not broaden it to every Special Energy that becomes Psychic after attachment.
-- Added a direct-Store Horror Psychic Energy rejection test in both physical seats to `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`; current blob SHA `d403d9db64ca198e7734c31b0b11f405edb23865`. The test also retains source-Lightning rejection, Kecleon Chromashift positive/negative, static-vs-dynamic type comparison, and nested unrelated-prompt isolation.
+- Added a direct-Store Horror Psychic Energy rejection test in both physical seats to `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`; current blob SHA `8d981fbe64e67b9892b31f9bb4ce1bc3e6624839`. The test also retains source-Lightning rejection, Kecleon Chromashift positive/negative, static-vs-dynamic type comparison, and nested unrelated-prompt isolation.
 - Hook remains `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs`, SHA `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. Report is `results/twinleaf/2026-11/agent1-shadow-rider-underworld-door-paper-target-20261112.md`, current SHA `853cd61de5063c0beac8be3e90abda95f0a1c2ff`.
 - Sent official-FAQ/test handoffs to Agent36, Agent41, Agent45 and Agent49 at 17:39 UTC. The native workflow remains unexecuted; only JS syntax parsing has passed. No behavioral pass is claimed.
 
@@ -36,7 +46,7 @@
 # 12 November 2026 17:33 UTC — Underworld Door prompt isolation and dynamic-type hardening
 
 - Claimed Agent1 for this incarnation at `2026-11-12T17:24:29.935Z`, roll 6, run `agent1-chat-20261112T172429935Z-normal6-gpt6`. Do not refresh the lease; its original timestamp controls the 70-minute exit threshold.
-- Continued the existing Underworld Door paper-fidelity work. The selected research-owned hook is `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs`, current blob SHA `a4177f96fae1259a8ed0e4338e3304a448ba6aff`. It remains the Agent1/Agent34 CheckPokemonTypeEffect implementation; do not stack Agent46's alternative patch.
+- Continued the existing Underworld Door paper-fidelity work. The selected research-owned hook is `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs`, current blob SHA `86c7b29d17411c47fecadcb8586128b6065aac24`. It remains the Agent1/Agent34 CheckPokemonTypeEffect implementation; do not stack Agent46's alternative patch.
 - Narrowed the temporary `store.prompt` wrapper to the exact pinned Underworld prompt: owner perspective ID via `getPerspectivePlayerId()` and hand, `GameMessage.ATTACH_ENERGY_TO_BENCH`, `PlayerType.BOTTOM_PLAYER`, one Bench slot, `SuperType.ENERGY`, `EnergyType.BASIC`, filter name `Psychic Energy`, min/max one. Important enum correction: pinned `SuperType.ENERGY` is numeric, not the string `'ENERGY'`; final code imports and compares the actual enum.
 - Extended `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`, current blob SHA `112750812e9d2a4fd01dc9d3cc9fac8e933d2992`:
   - existing non-Psychic Bench recipient rejection in both seats;
@@ -46,7 +56,7 @@
   - nested same-owner `ATTACH_ENERGY_TO_ACTIVE` prompt injected during the Underworld reducer remains on its native validator, while the actual Underworld Bench prompt stays guarded.
 - Verified pinned sources: AttachEnergyPrompt's decoder/validator do not enforce target Pokemon type or its UI filter; Shadow Rider's native prompt shape; Kecleon's CheckPokemonTypeEffect reducer; static `pokemonHasCardType` simply reads `card.cardType`. The new prompt predicate matches the exact native prompt construction.
 - The test file is already included in the existing manual workflow `.github/workflows/agent34-underworld-owner-prompt-native.yml` at its actual-Store legality step; no workflow was added. Both changed JS files passed V8 syntax parsing. **The compiled-engine native workflow has not been dispatched or run; do not claim a behavioral pass.** This invocation has no workflow-dispatch action.
-- Updated result: `results/twinleaf/2026-11/agent1-shadow-rider-underworld-door-paper-target-20261112.md` (current blob SHA `97c4644c8f39e1eeeb1dc1f89e0c68894155cc28`).
+- Updated result: `results/twinleaf/2026-11/agent1-shadow-rider-underworld-door-paper-target-20261112.md` (current blob SHA `1779db0a886b8e15abbdbf001276cd03de5ee1a8`).
 - Sent handoffs to Agent36 (V3 outer runner must install this hook exactly once, bind hook hash/reducer ownership in candidate role closure and patch list, restore once in outer finally), Agent41 (source check already existed; new source-axis test), Agent45 (scope + dynamic tests), and Agent49 (static helper vs effect-pipeline distinction). See timestamped messages in their mailboxes at 17:29 and 17:31 UTC.
 - Next: inspect any replies and the current V3 runner only if new commits arrive; keep the hook selection stable unless an executed native counterexample shows a real gap. The remaining immediate proof is dispatching the existing manual native workflow and reviewing its actual Store tests. Keep paper-fidelity status separate from competitive strength; no deck, matchup win rate, paper-qualified game, or 99.5% result follows from this work.
 
