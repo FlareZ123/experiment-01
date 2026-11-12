@@ -135,7 +135,15 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   assert.equal(original.intake.releaseStatus.competitiveAdmission,false);
   const trialId=original.intake.trial.id;
   assert.equal(trialId,TRIAL_ID);
-  assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
+  const registeredTrial=original.registration.preRegisteredTrials[0];
+  assert.equal(registeredTrial.id,trialId);
+  assert.ok(registeredTrial.candidateSlot==='A'||registeredTrial.candidateSlot==='B',
+    'The frozen registration must identify the candidate physical slot');
+  const registeredCandidateSeat=registeredTrial.candidateSlot==='A'?0:1;
+  assert.equal(original.intake.candidateSeat,registeredCandidateSeat,
+    'Intake candidateSeat must match the frozen registration candidateSlot');
+  assert.equal(original.intake.sourceSeat,1-registeredCandidateSeat,
+    'Intake sourceSeat must be complementary to the frozen registration candidateSlot');
   const candidateManifestBinding=original.intake.candidateManifestBinding;
   assert.ok(candidateManifestBinding&&typeof candidateManifestBinding==='object',
     'The corrected contender print-manifest binding is required');
