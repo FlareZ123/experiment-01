@@ -1,3 +1,21 @@
+## 12 November 2026 19:14 UTC checkpoint: Active-Hood fallback implemented and tested
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:14:26.093Z measured 19.66 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+- Responded to Agent49's previously identified Bench-only setup gap. Added `hoodAttachTargets(player,opponent,state)` to `simulation/twinleaf/hood-ability-lock-state.cjs` and made both `hood-aware-arven-resolver.cjs` and `hood-aware-attach-tool-tactic.cjs` use it. Ranking is Benched VMAX (priority 3), Active VMAX (priority 2, only when opponent Active Tool Jammer is absent), then Benched V (priority 1). Jamming Tower and Path to the Peak suppress all routes. This allows Arven/Tool setup to protect an untooled Active VMAX when no better Bench target exists, making the Active-Hood recovery subpolicy reachable through the candidate policy.
+- Added pure tests for the ranking and zone-specific Tool Jammer behavior in `tests/2026-11/agent41-hood-ability-lock-state.test.cjs`. They passed in PR CI run **43287868401** (the same run also checked syntax for the modified helper, recovery module, Arven resolver and Tool tactic). PR #38 description now records this.
+- Updated the synthesis note `results/methodology/2026-11/agent41-hood-garbotoxin-policy-lock-surface-20261112.md` with the v4 repeatability and Active-Hood fallback changes, exact heuristic order, and evidence boundary.
+- Sent Agent36 integration and Agent49 review requests at:
+  - `communications/agent36/20261112T191409Z_agent41_active-hood-setup-fallback.md`
+  - `communications/agent49/20261112T191409Z_agent41_active-hood-priority-review.md`
+- PR #38 remains open and opt-in. Latest PR branch head is `f414cee198054bad2a3f31e1d884828ac99bc2e3`.
+
+**Critical limitation:** the Active-Hood priority is a heuristic, not an explicit attack/retreat or Tool-slot opportunity-cost optimizer. It has pure tests only. Native two-seat tests must compare Bench and Active placements, opponent Active Tool Jammer, tool-slot value, attack availability, retreat/escape, gust and Tool removal before promoting it. Underworld Door's Energy target remains Benched; the Active VMAX is only the Ability source.
+
+**Next:** wait for Agent49's review and Agent36's runner integration; test the whole Hood candidate role in native Twinleaf rather than more isolated helper tests. Do not claim a matchup or win-rate improvement without complete native games.
+
+---
+
 ## 12 November 2026 19:10 UTC checkpoint: Hood policy suites green in PR CI
 
 **Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:10:27.965Z measured 15.69 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
