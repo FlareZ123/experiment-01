@@ -126,6 +126,24 @@ test('per-game receipt must match the exact rank-specific deck and policy entry'
   assert.equal(good.status,'VALID');
   assert.equal(good.receiptCount,1);
 
+  const ledgerShaped=makeReceipt(policyPlanCore,7);
+  ledgerShaped.rank=ledgerShaped.opponentRank;
+  delete ledgerShaped.opponentRank;
+  ledgerShaped.candidate60Sha=ledgerShaped.candidateDeckSha256;
+  delete ledgerShaped.candidateDeckSha256;
+  ledgerShaped.candidatePolicySha=ledgerShaped.candidatePolicySha256;
+  delete ledgerShaped.candidatePolicySha256;
+  ledgerShaped.source60Sha=ledgerShaped.opponentDeckSha256;
+  delete ledgerShaped.opponentDeckSha256;
+  ledgerShaped.seat=ledgerShaped.candidateSeat;
+  delete ledgerShaped.candidateSeat;
+  delete ledgerShaped.opponentSeat;
+  ledgerShaped.opponentPolicyBundleSha=ledgerShaped.opponentPolicyBundleSha256;
+  delete ledgerShaped.opponentPolicyBundleSha256;
+  assert.equal(validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[ledgerShaped]
+  }).status,'VALID');
+
   const wrongPolicy=makeReceipt(policyPlanCore,7);
   wrongPolicy.opponentPolicySha256=hash(9998);
   assert.ok(validateOpponentPolicyFieldBundle({
