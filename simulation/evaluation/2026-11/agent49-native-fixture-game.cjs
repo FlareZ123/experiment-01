@@ -156,11 +156,11 @@ function runNativeFixtureGame(input) {
     input.onAgentsCreated?.(seats);
 
     store.dispatch(new AddPlayerAction(PLAYER_IDS[0],
-      input.playerNames?.[0]??'fixture-candidate-seat-0',input.deckA));
+      input.playerNames?.[0]??'fixture-seat-0',input.deckA));
     if(store.state.phase===GamePhase.FINISHED)
       throw new Error('Twinleaf rejected fixture deck A during player registration');
     store.dispatch(new AddPlayerAction(PLAYER_IDS[1],
-      input.playerNames?.[1]??'fixture-opponent-seat-1',input.deckB));
+      input.playerNames?.[1]??'fixture-seat-1',input.deckB));
     if(store.state.phase===GamePhase.FINISHED)
       throw new Error('Twinleaf rejected fixture deck B during player registration');
 
@@ -178,6 +178,7 @@ function runNativeFixtureGame(input) {
       let action;
       let actingSeat=null;
       let isRootDecision=false;
+      let promptResolution=null;
       if(pending instanceof ShuffleDeckPrompt) {
         const ownerId=pending.getPerspectivePlayerId();
         const owner=state.players.find(player=>player.id===ownerId);
@@ -185,14 +186,20 @@ function runNativeFixtureGame(input) {
         actingSeat=state.players.indexOf(owner);
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Twinleaf shuffle prompt owner is outside the two seats');
-        action=new ResolvePromptAction(pending.id,
-          deckPermutation(owner.deck.cards.length,physicalRandom));
+        const permutation=deckPermutation(owner.deck.cards.length,physicalRandom);
+        action=new ResolvePromptAction(pending.id,permutation);
+        promptResolution={
+          kind:'shuffle',ownerSeat:actingSeat,cardCount:permutation.length,
+          permutationSha256:sha256Json(permutation)
+        };
       } else if(pending instanceof CoinFlipPrompt) {
         if(pending.playerId!==undefined) {
           const seat=state.players.findIndex(player=>player.id===pending.playerId);
           actingSeat=seat===-1?null:seat;
         }
-        action=new ResolvePromptAction(pending.id,physicalRandom()<0.5);
+        const result=physicalRandom()<0.5;
+        action=new ResolvePromptAction(pending.id,result);
+        promptResolution={kind:'coin-flip',result};
       } else if(pending) {
         actingSeat=state.players.findIndex(player=>player.id===pending.playerId);
         if(actingSeat!==0&&actingSeat!==1)
@@ -220,6 +227,7 @@ function runNativeFixtureGame(input) {
         activePlayerBefore:state.activePlayer??null,
         pendingPromptType:pending?.constructor?.name??null,
         pendingPromptId:pending?.id??null,
+        promptResolution,
         isRootDecision,
         actionName:actionName(action),
         actionType:action.type??null,
@@ -280,6 +288,8 @@ function runNativeFixtureGame(input) {
       admissionEligible:false,
       competitiveGameQualified:false,
       seed:input.seed,
+      randomizationProtocol:'xorshift32-physical-and-seat-policy-streams-v1',
+      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(input.seed^xor)>>>0),
       candidateSeat:input.candidateSeat,
       originalSourceSeat:input.originalSourceSeat,
       actualFirstPlayerSeat,
