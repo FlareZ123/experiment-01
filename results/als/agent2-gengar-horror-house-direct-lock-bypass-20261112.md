@@ -6,6 +6,8 @@
 
 The current 60 contains one **Gengar & Mimikyu-GX** (SM9 53), two **Powerglass** (SFA 63), six Psychic Energy (three Basic Psychic and three Telepathic Psychic), four Fog Crystal, two Battle Compressor, two Mysterious Treasure, and one Escape Rope.
 
+The supplied card pool marks Gengar & Mimikyu-GX (SM9 53), Powerglass (SFA 63), Fog Crystal (CRE 140), Iron Thorns ex (SV6 77), and Garbodor (XY9 57) as Expanded-legal printings.
+
 The card-pool text gives Gengar & Mimikyu-GX's **Horror House-GX** a cost of one Psychic Energy. It is a printed attack, not an Ability. Its primary effect prevents the opponent from playing cards from hand during their next turn. If Gengar has an additional Psychic Energy attached at attack time, both players also draw until they have seven cards.
 
 This creates a real alternative to trying to restore Mewtwo & Mew-GX's Perfection immediately:
