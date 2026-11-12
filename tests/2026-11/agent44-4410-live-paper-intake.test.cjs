@@ -161,7 +161,7 @@ function cologneRoot(actionOrdinal,turnBefore,turnAfter,playerSlot=0){
     action:'PlayCardAction',card:'Canceling Cologne'};
 }
 
-test('4410 Cologne review gate blocks missing audit but does not equate multiple Items with paper illegality',()=>{
+test('4410 Cologne review gate blocks missing audit and card-specific same-turn second uses',()=>{
   const missing=paperCologneAuditReviewGate(null,false);
   assert.equal(missing.disposition,'blocked-audit-missing');
   assert.equal(missing.paperRuleReviewBlocked,true);
@@ -178,28 +178,28 @@ test('4410 Cologne review gate blocks missing audit but does not equate multiple
   ]);
 
   const gate=paperCologneAuditReviewGate(audit,false);
-  assert.equal(gate.disposition,'eligible-pending-independent-paper-review');
+  assert.equal(gate.disposition,'blocked-card-specific-once-per-turn-violation');
   assert.equal(gate.auditShapeValid,true);
-  assert.equal(gate.paperRuleReviewBlocked,false,
-    'B-01 permits multiple Item cards; count alone cannot block paper review');
+  assert.equal(gate.paperRuleReviewBlocked,true,
+    'The official Canceling Cologne card-specific Q&A prohibits a second same-turn use');
   assert.deepEqual(gate.multipleAcceptedBySeatTurn,
     audit.duplicateAcceptedBySeatTurn);
-  assert.equal(gate.policyQuotaConformance,'not-applicable',
-    'The frozen 4410 profile does not opt into the voluntary one-per-turn quota');
+  assert.equal(gate.cardSpecificOncePerTurnConformance,'fail');
   assert.equal(gate.paperItemLegalityReviewStatus,
-    'pending-per-use-target-and-effect-review');
+    'blocked-card-specific-once-per-turn-violation');
   assert.equal(gate.requiresTargetAndEffectReview,true);
-  assert.equal(gate.hookOptInEnabled,false);
+  assert.equal(gate.hookOptInEnabled,false,
+    'The frozen 4410 profile does not enable the simulator correction hook');
   assert.equal(gate.paperLegalityCertified,false);
   assert.equal(gate.rawCaptureRetainedRegardlessOfGate,true);
 
-  const quotaOptInGate=paperCologneAuditReviewGate(audit,true);
-  assert.equal(quotaOptInGate.policyQuotaConformance,'fail',
-    'A failed voluntary quota is policy evidence, not a paper rules verdict');
-  assert.equal(quotaOptInGate.paperRuleReviewBlocked,false);
+  const hookEnabledGate=paperCologneAuditReviewGate(audit,true);
+  assert.equal(hookEnabledGate.cardSpecificOncePerTurnConformance,'fail');
+  assert.equal(hookEnabledGate.paperRuleReviewBlocked,true,
+    'The paper ruling applies whether or not the simulator hook was enabled');
 });
 
-test('4410 Cologne audit segments authenticated sudden-death restarts before per-use paper review',()=>{
+test('4410 Cologne audit segments authenticated sudden-death restarts before same-turn rule review',()=>{
   const roots=[
     cologneRoot(0,1,1,0),
     {actionOrdinal:1,turnBefore:1,turnAfter:0,playerSlot:0,
@@ -217,20 +217,20 @@ test('4410 Cologne audit segments authenticated sudden-death restarts before per
   const gate=paperCologneAuditReviewGate(audit,false);
   assert.equal(gate.disposition,'eligible-pending-independent-paper-review');
   assert.equal(gate.paperRuleReviewBlocked,false);
-  assert.equal(gate.policyQuotaConformance,'not-applicable');
+  assert.equal(gate.cardSpecificOncePerTurnConformance,'pass');
   assert.equal(gate.requiresTargetAndEffectReview,true);
   assert.equal(gate.independentPaperReviewRequired,true);
   assert.equal(gate.paperLegalityCertified,false,
     'A clear count audit is not independent paper legality certification');
 });
 
-test('4410 intake exposes the raw Cologne audit and distinct paper-review gate without changing the frozen hook profile',()=>{
+test('4410 intake exposes the raw Cologne audit and card-specific review gate without changing the frozen hook profile',()=>{
   const source=fs.readFileSync(path.join(ROOT,
     'simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs'),'utf8');
   assert.match(source,/paperCologneNativePlayAudit:row\\.paperCologneNativePlayAudit\\?\\?null/);
   assert.match(source,/paperCologneReviewGate:paperCologneAuditReviewGate/);
   assert.match(source,/row\\.paperCologneQuotaOptIn===true/);
-  assert.match(source,/policyQuotaConformance/);
+  assert.match(source,/cardSpecificOncePerTurnConformance/);
   assert.match(source,/requiresTargetAndEffectReview/);
   assert.match(source,/rawCaptureRetainedRegardlessOfGate:true/);
   assert.match(source,/paperLegalityCertified:false/);
