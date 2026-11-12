@@ -309,7 +309,9 @@ function execute(){
     actorMewUltraBallRoot:true,
     actorMewUltraBallSearch:true,
     actorOnlySingleSearch:true,
-    actorMewGenesectQuickBallSearch:true,
+    actorMewGenesectQuickBallSearch:true
+  };
+  const runnerOptions={
     nativeAcceptedTargets:true,
     nativeSetupCoinChoiceReceipt:true,
     nativeSetupCompensationAudit:true,
@@ -328,7 +330,10 @@ function execute(){
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:reg.preRegisteredTrials,
     registeredFrameName:reg.caseId,
-    nativeRootActionLimit:reg.nativeRootCap,
+    nativeRootActionLimit:reg.nativeRootCap
+  };
+  const executionOptions={
+    ...policyOptions,...runnerOptions,
     onRootStoreCreated:fullPaperObserver.onRootStoreCreated,
     onRootActionDispatched:(...args)=>{
       capture.onRootActionDispatched(...args);
@@ -338,7 +343,7 @@ function execute(){
   let guardedRun=null,executionError=null;
   try{
     guardedRun=withNativeRawStateFallbackQuarantine(()=>
-      withOwnerPublicAcknowledgements(()=>runDevelopment(policyOptions)));
+      withOwnerPublicAcknowledgements(()=>runDevelopment(executionOptions)));
   }catch(error){
     executionError={name:error?.name??'Error',message:String(error?.message??error),
       stack:typeof error?.stack==='string'?error.stack:null,
@@ -429,9 +434,26 @@ function execute(){
     {encoding:'utf8'}).trim();
   const policyProvenance=buildCaptureOnlyPolicyProvenance({
     repositoryRoot:ROOT,entryFile:__filename,development,row,
-    options:policyOptions,sourceSeat,candidateSeat,trialId:row.trial.id,
+    options:policyOptions,
+    runnerConfig:{
+      ...runnerOptions,
+      callbackBindings:{
+        onRootStoreCreated:'fullPaperObserver.onRootStoreCreated',
+        onRootActionDispatched:[
+          'capture.onRootActionDispatched',
+          'fullPaperObserver.onRootActionDispatched'
+        ]
+      }
+    },
+    sourceSeat,candidateSeat,trialId:row.trial.id,
     candidateManifestBlobSha,policyProfileBlobSha,enginePin:actualEngineCommit,
-    activationReceipts:{
+    hookActivationReceipts:{
+      agent41PaperSupporterQuota:{
+        optIn:row.paperSupporterQuotaOptIn??null,
+        qualified:row.nativeSupporterQuotaQualified??null
+      }
+    },
+    runtimeEvidenceReceipts:{
       agent4RawStateFallbackQuarantine:nativeRawStateFallbackQuarantineAudit,
       agent50OwnerPublicAcknowledgements:ownerPublicAcknowledgementAudit,
       agent36LivePaperRootReceipts:{
@@ -440,10 +462,6 @@ function execute(){
         acceptedStoreRootCount:rawNativePhysicalReceipts?.acceptedStoreRootCount??null,
         rootOrdinalsUnique:rawNativePhysicalReceipts?.rootOrdinalsUnique??null,
         settledPhysicalIdentityClean:rawNativePhysicalReceipts?.settledPhysicalIdentityClean??null
-      },
-      agent41PaperSupporterQuota:{
-        optIn:row.paperSupporterQuotaOptIn??null,
-        qualified:row.nativeSupporterQuotaQualified??null
       },
       agent48CologneNativePlayAudit:row.paperCologneNativePlayAudit??null,
       commonPolicyAudit:row.policyAudit??null
