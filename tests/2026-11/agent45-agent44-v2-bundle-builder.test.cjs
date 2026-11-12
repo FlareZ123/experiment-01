@@ -6,7 +6,7 @@ const {createHash}=require('node:crypto');
 const {build,INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,REGISTRATION_REF,
   CASE_ID,TRIAL_ID}=
   require('../../simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs');
-const TRIAL=TRIAL_ID;
+const TRIAL='5:4410:B:new-moon-lockbreaker-v1';
 const {rootDigest}=
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 const {aichiClockProtocolSha256}=
