@@ -54,7 +54,8 @@ function fixture(){
     status:'FROZEN_BEFORE_NATIVE_EXECUTION',
     caseId:CASE_ID,
     enginePinnedCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    candidateOfficialJapaneseDeckCode:'JP-NEW-MOON-CODE',
+    candidatePrintedManifest:'results/als/new-moon-perfection-source-60.json',
+    candidateOfficialJapaneseDeckCode:'GxxDYx-a4rD4W-a8xYxc',
     preRegisteredTrials:[{rank:5,repeat:4410,candidateSlot:'B',
       seed:3861605836,candidateId:'new-moon-lockbreaker-v1',id:TRIAL_ID}]
   };
@@ -69,6 +70,28 @@ function fixture(){
     exactOrdinalSeatActionParity:true,rootOrdinalsUnique:true,
     settledPhysicalIdentityClean:true,rejectedDispatchCount:0,complete:true
   };
+  const candidateManifestBinding={
+    schema:'agent44-candidate-print-manifest-binding-v1',
+    status:'PRE_EXECUTION_CORRECTIVE_BINDING_NOT_A_NEW_REGISTRATION',
+    registrationCandidateManifestPointer:'results/als/new-moon-perfection-source-60.json',
+    registrationCandidateManifestPointerMatches:false,
+    boundCandidateJapanesePrintManifest:'results/als/new-moon-lockbreak-japanese-print-60.json',
+    candidateJapanesePrintManifestSha256:'candidate-japanese-manifest-sha',
+    candidateJapanesePrintInventoryCanonicalSha256:'candidate-inventory',
+    candidateEnglishMechanicalProxyManifest:'results/als/new-moon-lockbreak-english-proxy-60.json',
+    candidateEnglishMechanicalProxyManifestSha256:'candidate-english-manifest-sha',
+    candidateEnglishProxyIdCountSha256:'candidate-english-inventory',
+    candidatePrintedCardCount:60,candidateUniqueNameCount:34,
+    candidateNameCountParity:{names:34,cards:60},
+    nativeCandidateLoader:'scripts/aichi-new-moon-candidate.cjs',
+    nativeCandidateId:'new-moon-lockbreaker-v1',
+    nativeCandidateLoaderNameCountParity:true,nativeCandidateLoaderNameAliases:[],
+    candidateOfficialJapaneseDeckCode:null,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:'GxxDYx-a4rD4W-a8xYxc',
+    proposedPrintManifestStatus:'PROPOSED_JAPANESE_PRINT_MANIFEST_NOT_OFFICIAL_REGISTRATION',
+    paperLegalityIndependentlyCertified:false
+  };
+  const candidateManifestBindingSha256=hash(candidateManifestBinding);
   const intake={
     schema:INTAKE_SCHEMA,caseId:CASE_ID,registrationRef:REGISTRATION_REF,
     originalRank:5,sourceSeat:0,candidateSeat:1,runtime,
@@ -76,7 +99,9 @@ function fixture(){
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
     rootReceiptAlignment:alignment,
-    candidateOfficialJapaneseDeckCode:'JP-NEW-MOON-CODE',
+    candidateOfficialJapaneseDeckCode:null,
+    candidateDerivedFromOfficialJapaneseSourceDeckCode:'GxxDYx-a4rD4W-a8xYxc',
+    candidateManifestBinding,candidateManifestBindingSha256,
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
     candidatePrintedInventorySha256:'candidate-inventory',
@@ -145,6 +170,7 @@ function fixture(){
   return {
     schema:INTAKE_SCHEMA,registration,registrationRef:REGISTRATION_REF,
     registrationSha256:'registration-hash',runtime,intake,
+    candidateManifestBinding,candidateManifestBindingSha256,
     nativeDevelopmentRow:row,postStoreZoneTape:zoneTape,
     rawNativePhysicalReceipts:raw
   };
@@ -169,6 +195,17 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(result.bundle.trial.eventStage,null);
   assert.equal(result.bundle.trial.clockDisposition,null);
   assert.equal(result.bundle.trial.clockReceiptId,null);
+  const contender=result.releaseNineObjects['contender-printed-60'];
+  assert.equal(contender.manifest,'results/als/new-moon-lockbreak-japanese-print-60.json');
+  assert.equal(contender.candidateOfficialJapaneseDeckCode,null);
+  assert.equal(contender.candidateDerivedFromOfficialJapaneseSourceDeckCode,
+    'GxxDYx-a4rD4W-a8xYxc');
+  assert.equal(contender.registrationCandidateManifestPointer,
+    'results/als/new-moon-perfection-source-60.json');
+  assert.equal(contender.registrationCandidateManifestPointerMatches,false);
+  assert.deepEqual(contender.candidateManifestBinding,original.intake.candidateManifestBinding);
+  assert.equal(contender.candidateManifestBindingSha256,
+    original.intake.candidateManifestBindingSha256);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidence,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment,null);
