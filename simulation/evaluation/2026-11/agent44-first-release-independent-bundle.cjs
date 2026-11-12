@@ -167,9 +167,13 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   if(clockEvidence!==null){
     assert.equal(clockEvidence.trialId,trialId,
       'clockEvidence.trialId must match the frozen 4410 trial');
-    assert.equal(typeof clockEvidenceRef,'string');
+    assert.equal(typeof clockEvidenceRef,'string',
+      'clockEvidenceRef must identify the immutable external clock packet');
     assert.ok(clockEvidenceRef.trim().length>0,
-      'A nonempty external clock receipt reference is required');
+      'clockEvidenceRef must be a nonempty external reference');
+  }else{
+    assert.equal(clockEvidenceRef,null,
+      'clockEvidenceRef cannot be supplied without clockEvidence');
   }
   assert.ok(original.intake.runtime?.researchRevisionSha,
     'The exact checked-out research revision must be captured');
