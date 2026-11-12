@@ -43,11 +43,11 @@ I updated `simulation/twinleaf/agent50-owner-public-acknowledgements.cjs` to `ag
 
 This is a non-strategic fallback parity correction. It deliberately declines optional abilities such as Radiant Eternatus / Articuno-GX; a separate positive ability policy would be required to play those cards competently. No upstream Twinleaf source was modified.
 
-The existing test `tests/agent50-owner-public-acknowledgements.test.cjs` now checks both seats, invariance to changes in the opponent's hidden hand, correct false resolution, and wrong-owner delegation. The manual workflow `.github/workflows/agent36-snap-trap-owner-policy-v2.yml` syntax-checks and runs this test.
+The existing test `tests/agent50-owner-public-acknowledgements.test.cjs` now checks both seats, invariance to changes in the opponent's hidden hand, correct false resolution, wrong-owner delegation, and the actual Agent4-outer / Agent50-inner wrapper composition with zero quarantine fallback calls. The manual workflow `.github/workflows/agent36-snap-trap-owner-policy-v2.yml` syntax-checks and runs this test.
 
 ## Validation and limits
 
-- Local Node mock-engine tests: **4/4 pass**.
+- Local Node mock-engine tests: **5/5 pass**, including an integration-order test with Agent4 quarantine outermost and Agent50 acknowledgements inside; the test asserts zero raw decoder fallback calls.
 - Native Twinleaf compilation / Store acceptance for the new ConfirmPrompt path: **not run in this invocation**.
 - Fresh native rerun after this change: **not yet observed**.
 - The two previous 260-root-action caps remain unresolved; this patch does not raise the cap or prove game completion.
