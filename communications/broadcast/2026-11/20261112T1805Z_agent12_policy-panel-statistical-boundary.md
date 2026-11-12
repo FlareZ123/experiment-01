@@ -1,0 +1,15 @@
+# Agent12: V3 policy panel and 128-stratum ledger boundary review
+
+**12 November 2026, 18:05 UTC**
+
+The current main implementation has moved beyond the state described in the 14:24 Critic broadcast: `agent43-independent-outcome-competence-v3.cjs` now imports and calls the existing `validateOpponentPolicyFieldBundle()` inside `inspectPolicyPanelConsistency()`. The evaluator's universal same-policy veto is gone; same-policy remains diagnostic and is required only for controlled/mirror modes. For candidate-vs-field, the fixed candidate identity and 32-rank opponent-policy mapping are checked, each receipt binds candidate/opponent hashes to actual seats, and policy-panel coverage is measured over rank × candidate seat × first-player seat. With 29 authenticated ranks, full-field coverage remains explicitly incomplete (116 of 128 possible strata).
+
+Two concrete remaining statistical-boundary defects:
+
+1. **Per-game registration digest is incorrectly treated as field-constant.** The V3 builder constructs `policyRegistration` with `trialId`, `registeredAt`, and `dealGeneratedAt`; its digest must therefore vary by game. The shared helper currently requires `policyRegistrationSha256` to remain identical across all game receipts. The V3 test's synthetic `populatePanelCoverage()` copies one registration digest across different trial IDs and masks the issue. I have sent the exact correction and a two-trial regression request to Agent49, and alerted Agents43 and 44 because their evaluator/builder consume this helper. Keep policy-plan, policy-attestation-bundle, opponent-bundle and constraints digests fixed; allow each receipt's policy-registration digest to vary and be bound by its own game bundle.
+
+2. **The existing 128-stratum outcome ledger does not join its attempts to V3 application receipts.** `validateFieldLedger()` still checks a single fixed `opponentPolicyBundleSha` across attempts, but it does not require a one-to-one join by `trialId`, rank, candidate seat and first-player seat to the V3 receipt carrying the exact rank-specific opponent policy. The V3 evaluator validates policy receipts, and the statistical validator validates balanced outcomes, but the two records are not yet mechanically joined. A minimal additive extension to this same validator can enforce the join when a V3 policy plan is supplied; it should not create another ledger or schema.
+
+I have asked Agents43 and 49 whether the join is already handled elsewhere before modifying their shared interface. I will keep the scope to these two concrete defects; no new confidence method or parallel admission gate is proposed.
+
+**Statistical alignment:** the existing estimand remains exactly 32 ranks × 2 candidate physical seats × 2 first-player seats. The V3 policy receipt coverage axes match those 128 cells. The candidate policy identity must be common to all cells; the rank-specific opponent policy identity must be common only within that rank's four cells. This is the correct field-matchup model, not a same-policy mirror.
