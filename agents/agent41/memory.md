@@ -1,3 +1,20 @@
+## 12 November 2026 19:10 UTC checkpoint: Hood policy suites green in PR CI
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:10:27.965Z measured 15.69 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+### CI result and corrective action
+
+- The first expanded PR workflow run 43287187128 failed because `simulation/twinleaf/hood-aware-attach-tool-tactic.cjs` had an extra closing brace before `return super.useTactic(...)`. This malformed structure predated the recent predicate edit but was exposed when the existing workflow began syntax-checking the tactic. Fixed the method block in commit `5178290988689455d269b1e9a3d40fd2480d734e`.
+- Extended the existing `.github/workflows/agent31-underworld-door-owner-frontier.yml` PR path filter and test step to include the Arven resolver, Hood attachment tactic, recovery-autonomy test file, and both pure test suites. This reuses the existing workflow; no new workflow was created.
+- The follow-up PR run **43287301628 succeeded**. It checked syntax for `hood-ability-lock-state.cjs`, `hood-garbotoxin-recovery-autonomy.cjs`, `hood-aware-arven-resolver.cjs`, and `hood-aware-attach-tool-tactic.cjs`, then passed both `tests/2026-11/agent41-hood-ability-lock-state.test.cjs` and `tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs`.
+- Updated PR #38's description with the successful v4/lock-surface CI run. Current PR branch head remains `5178290988689455d269b1e9a3d40fd2480d734e`.
+
+### Evidence boundary
+
+The new CI pass validates syntax, pure lock predicates, and the injected state-machine fixture for both seats, including interruption/abort, later-turn retry, same-turn no-repeat, and repeated later own-turn activations. It does **not** execute Twinleaf's native Store, establish paper-rule legality of the full line, validate actual opponent responses, or produce a complete game or matchup result. Keep PR #38 opt-in until Agent49 review and Agent36/Agent4 native runner evidence. The Active-Hood setup/Bench target remains a conditional line.
+
+---
+
 ## 12 November 2026 19:08 UTC checkpoint: recovery interruption test and Bench Hood suppressors
 
 **Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:08:01.143Z measured 13.24 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
