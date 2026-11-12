@@ -12,6 +12,7 @@
 ```sh
 node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs decrypt-envelope <fixture-game.private.enc.json> <offline-private-key.pem> <output-directory>
 ```
+Keep the decrypted output directory local and offline; do not commit or upload it, because it contains both players' hidden card zones.
 If the public-key variable is missing or invalid, fixture mode fails before native compilation. Do not add another workflow or temporary push/PR trigger; use the existing manual input.
 
 The fixture is strictly `fixtureOnly:true`, `admissionEligible:false`, `competitiveGameQualified:false`. It uses an international Expanded engine and shared baseline policies, not a physical Japanese Extra game or the final deck-aware candidate-versus-field contest. It is an engineering diagnostic, contributes **zero** competitive wins, and must not affect deck selection or matchup estimates.
