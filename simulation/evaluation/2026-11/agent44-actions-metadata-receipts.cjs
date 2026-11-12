@@ -38,7 +38,10 @@ function createPreDealPersistenceReceipt({preDeal,run,artifact}) {
   object(preDeal,'preDeal');
   object(preDeal.gameRegistration,'preDeal.gameRegistration');
   object(run,'workflow run');
+  object(run.repository,'workflow run repository');
   object(artifact,'persisted artifact');
+  assert.equal(run.repository.full_name,artifact.repositoryFullName,
+    'workflow run repository must equal the artifact repository');
   assert.equal(artifact.artifactRef,preDeal.preDealArtifactRef,
     'persisted artifact ref must equal the preregistered ref');
   assert.equal(artifact.artifactSha256,preDeal.preDealArtifactSha256,
@@ -90,6 +93,20 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
   object(persistenceReceipt,'pre-deal persistence receipt');
   const workflowRunId=positiveId(run.id,'workflow run id');
   const jobId=positiveId(job.id,'workflow job id');
+  assert.equal(persistenceReceipt.schema,PREDEAL_PERSISTENCE_RECEIPT_SCHEMA,
+    'persistence receipt schema must be the existing V3 receipt');
+  assert.equal(persistenceReceipt.serverTimestampSource,PERSISTENCE_TIME_SOURCE,
+    'persistence receipt must use GitHub Actions server time');
+  assert.equal(persistenceReceipt.trialId,preDeal.trialId,
+    'persistence receipt trial identity must match preregistration');
+  assert.equal(persistenceReceipt.artifactRef,preDeal.preDealArtifactRef,
+    'persistence receipt artifact ref must match preregistration');
+  assert.equal(persistenceReceipt.artifactSha256,preDeal.preDealArtifactSha256,
+    'persistence receipt artifact digest must match preregistration');
+  assert.equal(persistenceReceipt.workflowRunId,workflowRunId,
+    'generation receipt must use the same workflow run as persistence');
+  assert.equal(persistenceReceipt.workflowRunStartedAt,run.run_started_at,
+    'workflow run_started_at must remain the same server timestamp');
   assert.equal(job.run_id===undefined?null:String(job.run_id),workflowRunId,
     'generation job must belong to the persisted workflow run');
   assert.equal(run.head_sha,persistenceReceipt.workflowHeadSha,
@@ -97,8 +114,6 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
   if(job.head_sha!==undefined)
     assert.equal(job.head_sha,run.head_sha,
       'generation job head SHA must equal workflow head SHA');
-  assert.equal(persistenceReceipt.workflowRunId,workflowRunId,
-    'generation receipt must use the same workflow run as persistence');
   assert.equal(persistenceReceipt.workflowHeadSha,run.head_sha,
     'generation receipt must use the same workflow head as persistence');
   assert.equal(job.status,'completed',
