@@ -38,3 +38,5 @@ jobs:
         run: node --test tests/2026-11/agent44-v3-game-bundle-builder.test.cjs tests/2026-11/agent44-actions-metadata-receipts.test.cjs
       - name: Regress seat-scoped role policy composition
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
+      - name: Regress Agent36 V3 role runner and Actions metadata receipts
+        run: node --test tests/agent36-v3-runner.test.cjs
