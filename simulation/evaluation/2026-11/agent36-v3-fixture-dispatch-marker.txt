@@ -1,2 +1,3 @@
 One-shot fixture-run trigger breadcrumb (2026-11-12).
 Temporary push and pull_request triggers were tried against the existing Agent36 workflow, but no Actions run surfaced through the available run/status APIs. Those temporary triggers have been removed. The supported execution path is manual workflow dispatch with input agent36_v3_fixture_game=true. The fixture remains unexecuted until an Actions run and artifact are available.
+Correction: fixture dependency tests now preserve the known Agent12 dynamic-require limitation, assert the fixture receipts at their actual top-level return location, and test the native cache-entry API correctly.
