@@ -12,13 +12,30 @@ const {
   observePublicBudewItemLock,
   proposeRangerForBudewItemLock
 } = require('../simulation/twinleaf/agent6-budew-ranger-itemlock.cjs');
+const {buildActorCardCatalog} =
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const OUTPUT = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
 const native = name => require(path.join(OUTPUT, name));
 
+function buildNativeCatalog() {
+  const {CardManager} = native('game/cards/card-manager');
+  const {PokemonCard} = native('game/store/card/pokemon-card');
+  const {EnergyCard} = native('game/store/card/energy-card');
+  const {TrainerCard} = native('game/store/card/trainer-card');
+  const {Stage, EnergyType, CardType, TrainerType, SpecialCondition} =
+    native('game/store/card/card-types');
+  const {PowerType} = native('game/store/card/pokemon-types');
+  return buildActorCardCatalog(CardManager.getInstance().getAllCards(), {
+    PokemonCard, EnergyCard, TrainerCard, Stage, EnergyType, CardType,
+    TrainerType, PowerType, SpecialCondition
+  });
+}
+
 function stageBudewLock(attackerSeat, withVileplume = false) {
   const x = stage(attackerSeat);
-  const manager = initializeCards();
+  initializeCards();
+  const catalog = buildNativeCatalog();
   let nextId = 730000 + 100 * attackerSeat + 10000 * Number(withVileplume);
   const card = name => {
     const value = manager.getCardByName(name);
@@ -53,18 +70,18 @@ function stageBudewLock(attackerSeat, withVileplume = false) {
   const actorSeat = 1 - attackerSeat;
   const view = actorObservation(x.store.state, actorSeat);
   const observed = observePublicBudewItemLock(x.store.state, actorSeat, view);
-  return {x, actorSeat, observed};
+  return {x, actorSeat, observed, catalog};
 }
 
 for (const attackerSeat of [0, 1]) {
   test('owner policy recognizes the actual Budew lock and proposes held Ranger, attacker seat ' +
     attackerSeat, () => {
-    const {observed} = stageBudewLock(attackerSeat, false);
+    const {observed, catalog} = stageBudewLock(attackerSeat, false);
+    assert.ok(catalog.itemPrintings.has('Fog Crystal CRE'));
+    assert.equal(catalog.itemPrintings.has('Pokemon Ranger STS'), false);
     assert.equal(observed.budewRangerOpportunity.active, true);
     assert.equal(observed.budewRangerOpportunity.safeToClear, true);
-    const proposal = proposeRangerForBudewItemLock(observed, {
-      itemPrintings: new Set(['Fog Crystal CRE'])
-    });
+    const proposal = proposeRangerForBudewItemLock(observed, catalog);
     assert.equal(proposal?.kind, 'play-ranger-budew-item-lock');
     assert.equal(proposal?.printing, 'Pokemon Ranger STS');
     assert.equal(proposal?.handIndex, 0);
@@ -74,11 +91,9 @@ for (const attackerSeat of [0, 1]) {
 for (const attackerSeat of [0, 1]) {
   test('owner policy declines actual Budew lock while Vileplume AOR remains, attacker seat ' +
     attackerSeat, () => {
-    const {observed} = stageBudewLock(attackerSeat, true);
+    const {observed, catalog} = stageBudewLock(attackerSeat, true);
     assert.equal(observed.budewRangerOpportunity.active, true);
     assert.equal(observed.budewRangerOpportunity.safeToClear, true);
-    assert.equal(proposeRangerForBudewItemLock(observed, {
-      itemPrintings: new Set(['Fog Crystal CRE'])
-    }), null);
+    assert.equal(proposeRangerForBudewItemLock(observed, catalog), null);
   });
 }
