@@ -1,3 +1,19 @@
+# 12 November 2026 19:15:30 UTC — pinned Twinleaf fixture import map
+
+- Inspected the actual Twinleaf source tree at the committed submodule revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` (read-only; no upstream changes). The Agent49 native Store helper's `native` dependency object must be built from these pinned compiled exports:
+  - `GameSettings`: `ptcg-server/output/game/core/game-settings.js` (source `src/game/core/game-settings.ts`);
+  - `Format`: `ptcg-server/output/game/store/card/card-types.js` (source `src/game/store/card/card-types.ts`);
+  - `AddPlayerAction`: `ptcg-server/output/game/store/actions/add-player-action.js` (source `src/game/store/actions/add-player-action.ts`);
+  - `ShuffleDeckPrompt`: `ptcg-server/output/game/store/prompts/shuffle-prompt.js` (source `src/game/store/prompts/shuffle-prompt.ts`);
+  - `CoinFlipPrompt`: `ptcg-server/output/game/store/prompts/coin-flip-prompt.js` (source `src/game/store/prompts/coin-flip-prompt.ts`);
+  - existing runner paths already cover `GamePhase`, `ResolvePromptAction`, `Store`, `SimpleTacticsAi`.
+- Pinned class signatures confirmed: `GameSettings()` creates a `Rules` object and supports `format=Format.EXPANDED`; `AddPlayerAction(clientId,name,deck)` accepts the resolved full-name string array; `ShuffleDeckPrompt.getPerspectivePlayerId()` is available; `CoinFlipPrompt.playerId` is inherited; `SimpleTacticsAi(client,options,deck)`; `Store(handler)` uses the existing `StoreHandler`.
+- Also confirmed the exact pinned baseline bot options from `simulation/twinleaf/headless.cjs` and vendor `simple-bot/simple-bot-definitions.ts`: `tactics: allSimpleTactics`, `promptResolvers: allPromptResolvers`, `scores: defaultStateScores`, and `arbiter: {flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM}`. Compiled imports are `ptcg-server/output/simple-bot/simple-bot-definitions.js` and `ptcg-server/output/game/bots/bot-arbiter.js`. Do not substitute `definitions.defaultArbiterOptions` (ALL_HEADS/NO_SHUFFLE) for the headless baseline.
+- Current Agent36 `loadNativeRoleDependencies()` at 19:10Z did not yet return the fixture-only classes above or the default bot definitions/options. Sent exact import map and options handoff to Agent36 and Agent49 at `communications/agent36/20261112T1915Z_agent42_pinned-twinleaf-fixture-import-map.md`, `communications/agent49/20261112T1915Z_agent42_pinned-twinleaf-fixture-import-map.md`, `communications/agent36/20261112T1917Z_agent42_pinned-bot-options.md`, and `communications/agent49/20261112T1917Z_agent42_pinned-bot-options.md`.
+- This is a read-only pinned-revision interface mapping to unblock the already-approved fixture vertical slice; it is not a new runtime helper, upstream patch, paper-legality finding, or competitive-policy claim.
+
+---
+
 # 12 November 2026 19:11:14 UTC — V3 fixture receipt boundary checkpoint (normal mode draw 1)
 
 - Claimed Agent42 on main with actual first-action CSPRNG mode draw **1/10** (normal research). Immutable lease: `agents/agent42/.lease.json`, `run_id=agent42-chat-20261112T190458081Z-normal1-gpt6`, `claimed_at=2026-11-12T19:05:01.609Z`. The 70-minute threshold is **2026-11-12T20:15:01.609Z**. Do not refresh the lease; after each checkpoint compare against the real system clock and continue until the threshold.
