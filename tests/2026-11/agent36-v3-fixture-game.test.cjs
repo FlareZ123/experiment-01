@@ -10,6 +10,7 @@ const test = require('node:test');
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const fixtureGame = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const roleIdentity = require('../../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
+const diagnostic = require('../../simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
 const ROOT = path.resolve(__dirname, '../..');
 const CANDIDATE_PATH = 'results/aichi-2026/candidate-hood-shadow-rider.json';
@@ -97,12 +98,56 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
 });
 
 test('fixture runner unwraps direct and role-composed failure envelopes without losing partial traces',()=>{
+  const fullState=(stage)=>({
+    schema:'twinleaf-full-state-diagnostic-v1',
+    visibility:'private-offline-diagnostic-only',
+    context:{stage},
+    turn:1,
+    phase:'player-turn',
+    activePlayerSeat:0,
+    activePlayerId:101,
+    activePlayerName:'candidate',
+    firstPlayerSeat:0,
+    winnerPlayerId:null,
+    winnerSeat:null,
+    gameSettings:null,
+    rules:null,
+    engineExtraFields:{},
+    players:[0,1].map(seat=>({
+      seat,
+      playerId:seat===0?101:202,
+      name:'seat-'+seat,
+      board:{active:null,bench:[]},
+      counts:{hand:0,deck:0,prizes:0,discard:0,lostZone:0},
+      zones:{
+        hand:[],
+        deckArrayOrder:[],
+        deckArrayOrderSemantics:'test',
+        prizes:[],
+        discard:[],
+        lostZone:[],
+        stadium:null,
+        resolvingSupporter:null
+      },
+      turnResources:{},
+      publicTurnRestrictions:{},
+      extraStateFields:{}
+    })),
+    prompts:[]
+  });
   const decisionTrace=[{
     actionOrdinal:2,
+    turnBefore:1,
+    actingSeat:0,
+    actingPlayerId:101,
+    phaseBefore:'player-turn',
+    policyInputKind:'actor-observation',
+    actorObservationBefore:{actorSeat:0,ownHand:[]},
+    actorObservationSha256:'a'.repeat(64),
     actionName:null,
     dispatchStatus:'not-dispatched',
-    fullStateBefore:{visibility:'private-offline-diagnostic-only'},
-    fullStateAfter:{visibility:'private-offline-diagnostic-only'}
+    fullStateBefore:fullState('before'),
+    fullStateAfter:fullState('failure-final')
   }];
   const partial={
     fixtureOnly:true,
@@ -111,7 +156,7 @@ test('fixture runner unwraps direct and role-composed failure envelopes without 
     acceptedActions:2,
     decisionTrace,
     rootActionLedger:[{actionOrdinal:2,dispatchStatus:'not-dispatched'}],
-    finalFullState:{visibility:'private-offline-diagnostic-only'}
+    finalFullState:fullState('failure-final')
   };
   const failureEnvelope={
     fixtureFailure:{name:'PolicyDecodeFailure',stage:'policy-decode'},
@@ -137,6 +182,32 @@ test('fixture runner unwraps direct and role-composed failure envelopes without 
   assert.equal(nested.gameResult.decisionTrace,decisionTrace);
   assert.equal(nested.gameResult.finalFullState.visibility,
     'private-offline-diagnostic-only');
+  const traceText=diagnostic.formatFixtureGameTraceText({
+    fixtureOnly:true,
+    admissionEligible:false,
+    competitiveGameQualified:false,
+    trialId:'fixture-normalization-test',
+    vendorCommitSha:'0'.repeat(40),
+    researchRevisionSha:'1'.repeat(40),
+    seed:'fixture-seed',
+    candidateSeat:0,
+    opponentSeat:1,
+    finished:false,
+    endReason:'fixture-execution-failed',
+    actions:2,
+    attemptedActions:3,
+    acceptedActions:2,
+    turns:1,
+    winnerSeat:null,
+    decisionTrace:nested.gameResult.decisionTrace,
+    rootActionLedger:nested.gameResult.rootActionLedger,
+    finalFullState:nested.gameResult.finalFullState,
+    failure:nested.failureEnvelope.fixtureFailure
+  });
+  assert.match(traceText,/ACTION #2/);
+  assert.match(traceText,/dispatch=not-dispatched/);
+  assert.match(traceText,/FINAL FULL STATE/);
+  assert.match(traceText,/FAILURE/);
 
   const successGame={finished:true,endReason:'engine-game-end',decisionTrace:[]};
   const successWrapper={result:successGame,candidateAudit:{},opponentAudit:{}};
