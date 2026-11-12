@@ -2,6 +2,8 @@
 
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
+const {sha256:canonicalPolicySha256}=
+  require('./agent36-4410-policy-provenance.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const {MANIFEST,evidenceBundleSha256,bundleFailures,
@@ -221,6 +223,49 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     zoneTape.postAcceptedRootCount===roots.length&&
     rawNativePhysicalReceiptCaptureComplete;
   const native=original.intake.native??{};
+  const paperCologneNativePlayAudit=native.paperCologneNativePlayAudit??
+    src.paperCologneNativePlayAudit??null;
+  const paperCologneReviewGate=native.paperCologneReviewGate??null;
+  assert.ok(paperCologneNativePlayAudit&&typeof paperCologneNativePlayAudit==='object',
+    'The accepted-root Canceling Cologne audit must survive producer intake');
+  assert.ok(paperCologneReviewGate&&typeof paperCologneReviewGate==='object',
+    'The card-specific Canceling Cologne paper-rule gate must survive producer intake');
+  assert.deepEqual(paperCologneNativePlayAudit,
+    src.paperCologneNativePlayAudit??null,
+    'The intake and native row must bind the same raw Cologne audit');
+  assert.equal(paperCologneReviewGate.schema,
+    'agent44-paper-cologne-accepted-root-review-gate-v3');
+  assert.equal(paperCologneReviewGate.paperLegalityCertified,false);
+  const policyProvenance=original.intake.policyProvenance??null;
+  const policyProvenanceSha256=original.intake.policyProvenanceSha256??null;
+  const policyManifestSha256=original.intake.policyManifestSha256??null;
+  assert.ok(policyProvenance&&typeof policyProvenance==='object',
+    'The capture-only policy-provenance envelope is required');
+  assert.equal(policyProvenance.status,'PARTIAL_CAPTURE_ONLY');
+  assert.equal(policyProvenance.policyProvenanceSha256,policyProvenanceSha256);
+  assert.equal(policyProvenance.policyManifestSha256,policyManifestSha256);
+  assert.equal(canonicalPolicySha256(policyProvenance.policyManifest),
+    policyManifestSha256,
+    'The nested policy manifest must match its canonical digest');
+  const {policyProvenanceSha256:embeddedPolicyProvenanceSha256,
+    ...policyProvenancePayload}=policyProvenance;
+  assert.equal(embeddedPolicyProvenanceSha256,policyProvenanceSha256);
+  assert.equal(canonicalPolicySha256(policyProvenancePayload),
+    policyProvenanceSha256,
+    'The capture-only policy provenance must match its canonical self-digest');
+  assert.equal(policyProvenance.activatedHookManifest?.complete,false);
+  assert.equal(policyProvenance.policyEntryManifest?.complete,false);
+  assert.equal(policyProvenance.policyManifest?.complete,false);
+  assert.equal(policyProvenance.policyManifest?.samePolicy,false);
+  assert.equal(policyProvenance.policyManifest?.hookRevisionSha,null);
+  assert.deepEqual(policyProvenance.policyManifest?.policySha256BySeat,[null,null]);
+  assert.equal(policyProvenance.hookRevisionSha,null);
+  assert.deepEqual(policyProvenance.policySha256BySeat,[null,null]);
+  assert.equal(policyProvenance.samePolicy,false);
+  assert.equal(policyProvenance.competitivePolicyCompetenceReady,false);
+  assert.deepEqual(policyProvenance.paperCologneNativePlayAudit,
+    paperCologneNativePlayAudit,
+    'The policy provenance and native evidence must retain the same raw Cologne audit');
   const recorded=original.intake.nineEvidenceObjects??{};
   const clockFields={
     eventStage:clockEvidence?.eventStage??null,
@@ -334,6 +379,15 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     'paper-rules':{
       review:'pending-external-independent-complete-action-rule-review',
       nativeGameRulesDoNotCertifyPaperLegality:true,
+      cancelingCologneRuleGate:{
+        disposition:paperCologneReviewGate.disposition,
+        cardSpecificOncePerTurnConformance:
+          paperCologneReviewGate.cardSpecificOncePerTurnConformance,
+        paperRuleReviewBlocked:paperCologneReviewGate.paperRuleReviewBlocked,
+        independentPaperReviewRequired:
+          paperCologneReviewGate.independentPaperReviewRequired===true,
+        paperLegalityCertified:false
+      },
       independentReviewerSignature:null,
       producerCreatedFullRootPaperReceipts:false
     },
@@ -363,11 +417,25 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
         sourceAttackSettlement:src.sourceAttackSettlement??null,
         nativeAttackModalityLedger:src.nativeAttackModalityLedger??null,
         nativeAttackPhysicalTape:src.nativeAttackPhysicalTape??null,
+        paperCologneNativePlayAudit,
+        paperCologneReviewGate,
         firstSettledPublicAttack:src.firstSettledPublicAttack??null,
         finalBoard:src.finalBoard??null,
         finalPrizes:src.finalPrizes??null,
         decisionTrace:src.decisionTrace??null
       },
+      policyProvenance,
+      policyProvenanceSha256,
+      policyManifestSha256,
+      policyProvenanceDigestVerified:true,
+      policyManifestDigestVerified:true,
+      policyProvenanceStatus:policyProvenance.status,
+      policyManifestComplete:policyProvenance.policyManifest.complete,
+      hookRevisionSha:policyProvenance.hookRevisionSha,
+      policySha256BySeat:policyProvenance.policySha256BySeat,
+      samePolicy:policyProvenance.samePolicy,
+      competitivePolicyCompetenceReady:
+        policyProvenance.competitivePolicyCompetenceReady,
       responseOpportunityAudit:null,
       independentlyReviewed:false,
       policyChallengeEvidenceRef:null,
@@ -490,6 +558,11 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
       producerAcceptedRootLedgerSha256Matches,
       settledPhysicalIdentityClean:raw.settledPhysicalIdentityClean===true,
       pendingIndependentRootPaperReviews:roots.length,
+      paperCologneRuleDisposition:paperCologneReviewGate.disposition,
+      paperCologneRuleReviewBlocked:paperCologneReviewGate.paperRuleReviewBlocked,
+      policyProvenanceDigestVerified:true,
+      policyManifestDigestVerified:true,
+      policyProvenanceStatus:policyProvenance.status,
       gameOutcomeAdmissionReady:admission.gameOutcomeAdmissionReady,
       competitivePolicyCompetenceReady:
         admission.competitivePolicyCompetenceReady,
