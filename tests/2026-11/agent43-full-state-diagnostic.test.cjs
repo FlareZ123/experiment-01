@@ -184,8 +184,26 @@ test('trace formatter emits selected card and before/after full state changes', 
       policyInputKind: 'native-owner-prompt',
       policyObservationBefore: { mustNotLeak: true },
       promptResolverContext: { playerId: 101, promptType: 'ChooseCardsPrompt' },
+    }, {
+      actionOrdinal: 2,
+      turnBefore: 2,
+      actingSeat: 1,
+      actingPlayerId: 202,
+      phaseBefore: 'PLAYER_TURN',
+      actionName: 'PlayCardAction',
+      isRootDecision: true,
+      policyInputKind: 'actor-observation',
+      dispatchStatus: 'failed',
+      selectedCardIdentity: { playerId: 202, handIndex: 0, fullName: 'B Hand 1' },
+      failure: { name: 'Error', messageSha256: 'failure-hash' },
+      fullStateBefore: before,
+      fullStateAfter: after,
     }],
-    failure: null,
+    failedAction: { actionOrdinal: 2, actionName: 'PlayCardAction' },
+    finalPublicState: { phase: 'PLAYER_TURN', activePlayer: 1 },
+    finalFullState: after,
+    finalDiagnosticFailure: { name: 'SnapshotError' },
+    failure: { stage: 'dispatch', actionOrdinal: 2 },
   });
   assert.match(text, /candidateSeat=0/);
   assert.match(text, /opponentSeat=1/);
@@ -203,6 +221,13 @@ test('trace formatter emits selected card and before/after full state changes', 
   assert.match(text, /PROMPT RESOLVER CONTEXT/);
   assert.match(text, /inputKind=native-owner-prompt/);
   assert.equal(text.includes('mustNotLeak'), false, 'prompt resolver must not be mislabelled as actor observation');
+  assert.match(text, /dispatch=failed/);
+  assert.match(text, /ACTION FAILURE .*failure-hash/);
+  assert.match(text, /FAILED ACTION .*PlayCardAction/);
+  assert.match(text, /FINAL PUBLIC STATE/);
+  assert.match(text, /--- FINAL FULL STATE ---/);
+  assert.match(text, /FINAL DIAGNOSTIC FAILURE/);
+  assert.match(text, /FAILURE .*dispatch/);
   assert.match(text, /ACTION PAYLOAD SHA256 abc123/);
   assert.match(text, /--- BEFORE ---/);
   assert.match(text, /--- AFTER ---/);
