@@ -225,6 +225,11 @@ function execute(){
       postStoreZoneTape:capture.evidence(),rawNativePhysicalReceipts,
       releaseStatus:{captureComplete:false,rulesPassed:false,clockPassed:false,
         strategyPassed:false,reviewAuthorized:false,competitiveAdmission:false,
+        promptQuarantineClean:nativeRawStateFallbackQuarantineAudit?.rawStateFallbackCalls===0&&
+          nativeRawStateFallbackQuarantineAudit?.originalNativeDecoderExecuted===false,
+        ownerAcknowledgementBaselineRecorded:
+          ownerPublicAcknowledgementAudit?.confirmPromptDefaultEquivalent===true&&
+          ownerPublicAcknowledgementAudit?.completePolicyOwnerSafe===false,
         firstMissingEvidence:'native-development-row-or-execution-error',
         qualifiedCompetitiveGames:0,nativeOutcomeNeverPromotedToPaperWin:true}};
   }
@@ -371,6 +376,7 @@ function execute(){
     releaseStatus:{
       captureComplete:false,
       rawPhysicalReceiptCaptureComplete:rawNativeReceiptCaptureComplete,
+      promptQuarantineClean,ownerAcknowledgementBaselineRecorded,
       nativeTraceCaptureComplete:physicalDeal&&nativeTraceComplete&&
         rawNativeReceiptCaptureComplete&&promptQuarantineClean&&
         ownerAcknowledgementBaselineRecorded&&targetLinked&&physicalPassed&&nativeFinished,
