@@ -9,8 +9,9 @@ const {hasProtectableHoodLockThreat} =
  * Return an opt-in, research-owned replacement for Twinleaf's generic
  * ChooseCardsPromptResolver. It only changes Arven's one-Item-plus-one-Tool
  * selection when Active Iron Thorns Initialization or equipped Garbotoxin
- * threatens a vacant Tool slot on a Benched Shadow Rider. Active and Benched
- * Garbotoxin sources are recognized by their printed Ability, not name alone.
+ * threatens a vacant Tool slot on a Benched Shadow Rider. It abstains under
+ * Jamming Tower or Path to the Peak, which suppress the intended protection.
+ * Active and Benched Garbotoxin sources are recognized by printed Ability.
  *
  * This is a proof-of-concept tactical policy, not a general optimizer.
  * It does not solve Item/Supporter sequencing or subsequent Tool attachment.
