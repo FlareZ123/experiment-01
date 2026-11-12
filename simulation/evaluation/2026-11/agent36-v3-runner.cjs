@@ -104,50 +104,36 @@ function loadNativeRoleDependencies({enginePin}={}){
 function runCandidateOpponentPolicyRoles(run,options={}){
   const {commonDeps:providedDeps,composer=withCandidateOpponentPolicyRoles,
     trial,candidateIdentity,opponentIdentity,...roleOptions}=options;
-  const expectedEnginePin=candidateIdentity?.entryManifest?.enginePin??
-    opponentIdentity?.entryManifest?.enginePin;
-  if(candidateIdentity&&opponentIdentity){
-    assert.equal(candidateIdentity.entryManifest.enginePin,
-      opponentIdentity.entryManifest.enginePin,
-      'candidate and opponent roles must share the exact Twinleaf engine pin');
-  }
+  assert.ok(candidateIdentity&&opponentIdentity,
+    'both frozen role identities are required before a V3 game can start');
+  assert.ok(trial,'registered trial seat mapping is required before a V3 game can start');
+  const expectedEnginePin=candidateIdentity.entryManifest?.enginePin;
+  assert.match(expectedEnginePin??'',GIT_SHA,
+    'candidate role identity is missing its frozen Twinleaf engine pin');
+  assert.equal(opponentIdentity.entryManifest?.enginePin,expectedEnginePin,
+    'candidate and opponent roles must share the exact Twinleaf engine pin');
   const commonDeps=providedDeps??loadNativeRoleDependencies({enginePin:expectedEnginePin});
-  if(expectedEnginePin){
-    assert.equal(commonDeps.cardPoolInitialization?.enginePin,expectedEnginePin,
-      'native card pool was not initialized under the frozen Twinleaf revision');
-  }
-  if(trial){
-    assert.equal(roleOptions.candidateSeat,trial.candidateSeat,
-      'candidate role seat must be fixed by the registered trial before game start');
-    assert.equal(roleOptions.opponentSeat,trial.originalSourceSeat,
-      'opponent role seat must be fixed by the registered trial before game start');
-  }
-  if(candidateIdentity){
-    assert.equal(canonicalJson(roleOptions.candidatePolicyOptions??{}),
-      canonicalJson(candidateIdentity.policyDefinition?.policyOptions),
-      'candidate runtime options differ from the frozen role identity');
-  }
-  if(opponentIdentity){
-    assert.equal(canonicalJson(roleOptions.opponentPolicyOptions??{}),
-      canonicalJson(opponentIdentity.policyDefinition?.policyOptions),
-      'opponent runtime options differ from the frozen role identity');
-  }
+  assert.equal(commonDeps.cardPoolInitialization?.enginePin,expectedEnginePin,
+    'native card pool was not initialized under the frozen Twinleaf revision');
+  assert.equal(roleOptions.candidateSeat,trial.candidateSeat,
+    'candidate role seat must be fixed by the registered trial before game start');
+  assert.equal(roleOptions.opponentSeat,trial.originalSourceSeat,
+    'opponent role seat must be fixed by the registered trial before game start');
+  assert.equal(canonicalJson(roleOptions.candidatePolicyOptions??{}),
+    canonicalJson(candidateIdentity.policyDefinition?.policyOptions),
+    'candidate runtime options differ from the frozen role identity');
+  assert.equal(canonicalJson(roleOptions.opponentPolicyOptions??{}),
+    canonicalJson(opponentIdentity.policyDefinition?.policyOptions),
+    'opponent runtime options differ from the frozen role identity');
   const result=composer(run,{...roleOptions,commonDeps});
-  if(trial){
-    assert.deepEqual(result.roleSeatMap,
-      {candidate:trial.candidateSeat,opponent:trial.originalSourceSeat},
-      'physical role-to-seat mapping differs from the registered trial');
-    assert.equal(result.candidateAudit.policyOwnerSeat,trial.candidateSeat);
-    assert.equal(result.opponentAudit.policyOwnerSeat,trial.originalSourceSeat);
-  }
+  assert.deepEqual(result.roleSeatMap,
+    {candidate:trial.candidateSeat,opponent:trial.originalSourceSeat},
+    'physical role-to-seat mapping differs from the registered trial');
+  assert.equal(result.candidateAudit.policyOwnerSeat,trial.candidateSeat);
+  assert.equal(result.opponentAudit.policyOwnerSeat,trial.originalSourceSeat);
   return result;
 }
 
-/**
- * The two role manifests define the only allowed research module union.
- * Every file in that union must already be loaded; the runtime pin then
- * rejects unregistered, changed, or post-freeze research-owned CommonJS code.
- */
 function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,run,identityHelper=roleIdentity,pin=withPinnedResearchModuleLoads,
   cacheEntries}){
