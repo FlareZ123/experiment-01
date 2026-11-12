@@ -22,6 +22,34 @@ const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-new
 const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-case-v2.json');
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
+/**
+ * Fail closed on the native accepted-root Canceling Cologne quota audit.
+ * This is an evidence-routing gate only: it never changes or rejects a game.
+ * An audit-clear result permits independent paper review, not paper legality.
+ */
+function paperCologneAuditReviewGate(audit,hookInstalled=false){
+  const auditPresent=Boolean(audit&&typeof audit==='object'&&!Array.isArray(audit));
+  const duplicates=auditPresent&&Array.isArray(audit.duplicateAcceptedBySeatTurn)
+    ?audit.duplicateAcceptedBySeatTurn:null;
+  const auditClear=auditPresent&&audit.acceptedOncePerSeatTurn===true&&
+    Array.isArray(duplicates)&&duplicates.length===0;
+  return {
+    schema:'agent44-paper-cologne-accepted-root-review-gate-v1',
+    disposition:!auditPresent?'blocked-audit-missing':
+      !auditClear?'blocked-audit-not-clear':'eligible-pending-independent-paper-review',
+    auditPresent,
+    acceptedOncePerSeatTurn:auditPresent?
+      audit.acceptedOncePerSeatTurn??null:null,
+    duplicateAcceptedBySeatTurn:duplicates,
+    auditClear,
+    paperRuleReviewBlocked:!auditClear,
+    hookInstalled:hookInstalled===true,
+    independentPaperReviewRequired:true,
+    paperLegalityCertified:false,
+    rawCaptureRetainedRegardlessOfGate:true
+  };
+}
+
 const CANDIDATE_JAPANESE_MANIFEST=
   'results/als/new-moon-lockbreak-japanese-print-60.json';
 const CANDIDATE_ENGLISH_PROXY=
@@ -437,6 +465,8 @@ function execute(){
       targetOrdinalLinked:targetLinked,
       nativeSupporterQuota:row.nativeSupporterQuotaQualified??null,
       paperCologneNativePlayAudit:row.paperCologneNativePlayAudit??null,
+      paperCologneReviewGate:paperCologneAuditReviewGate(
+        row.paperCologneNativePlayAudit??null,row.paperCologneQuotaOptIn===true),
       actorOnlyDecisionCoverage:row.actorOnlyDecisionCoverage??null,
       policyProvenanceSha256:policyProvenance.policyProvenanceSha256,
       sourceM4AuditCount:row.specialRedCardPaperPreselectionAudits?.length??0
@@ -551,4 +581,5 @@ if(require.main===module){
     if(result.schema.endsWith('-error'))process.exitCode=1;
   }
 }
-module.exports={registration,candidateManifestBinding,gameCapture,physical,receiptAlignment,execute,save};
+module.exports={registration,candidateManifestBinding,gameCapture,physical,receiptAlignment,
+  paperCologneAuditReviewGate,execute,save};
