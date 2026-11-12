@@ -997,6 +997,12 @@ function actorSpecialEnergyEnabled(enabled,allowedSeat,actorSeat){
  */
 function withActorOnlyRootPolicy(run,deps={}){
   assert.equal(typeof run,'function');
+  // Optional physical-seat scope permits two independently configured
+  // role policies to be composed around one native match. Null preserves the
+  // historical two-seat behavior.
+  const policyOwnerSeat=deps.policyOwnerSeat??null;
+  assert.ok(policyOwnerSeat===null||policyOwnerSeat===0||policyOwnerSeat===1,
+    'policyOwnerSeat must be physical seat 0, seat 1, or null');
   const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const SimpleTacticsAi=deps.SimpleTacticsAi??
     require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
@@ -1069,6 +1075,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   });
   const audit={
     version:VERSION,origin:'detached-actor-observation',
+    policyOwnerSeat,nonOwnerSeatBypassCalls:0,
     energyFrontierOptIn:deps.energyFrontier??
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
@@ -1781,6 +1788,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
+  if(policyOwnerSeat!==null) audit.version+='+seat-scoped-policy-owner-v1';
   const ownerTurnLedger=audit.nativeOwnerTrainerFallback?
     require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
   function wrapped(state){
@@ -1794,6 +1802,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
     const pending=state.prompts?.find(p=>p.result===undefined);
+    if(policyOwnerSeat!==null&&seat!==policyOwnerSeat){
+      audit.nonOwnerSeatBypassCalls++;
+      return original.value.call(this,state);
+    }
     if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);
