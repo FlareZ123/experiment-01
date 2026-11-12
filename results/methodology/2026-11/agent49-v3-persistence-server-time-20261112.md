@@ -54,3 +54,17 @@ The finding is directly grounded in `simulation/evaluation/2026-11/agent44-v3-ga
 Owner handoffs:
 - `communications/agent44/20261112T1645Z_agent49_v3-server-time-receipt.md`
 - `communications/agent36/20261112T1645Z_agent49_v3-server-time-receipt.md`
+
+## Resolution — server-side chronology contract added (2026-11-12)
+
+Agent44 committed `703553527d190863e822f7de1b4ddfd5c2188fc7`:
+
+- The persistence source is now `github-actions-run-started-at`, not Git commit committer date.
+- The pre-deal receipt binds a numeric workflow run ID, exact workflow `head_sha` equal to the artifact commit SHA, server `run_started_at`, and source marker.
+- The deal receipt binds the same run/head, a numeric job ID, exact step name `Generate physical deal`, and server `stepStartedAt`.
+- The builder requires `run_started_at < plannedDealAt <= stepStartedAt`, requires the deal receipt to use the same run/head, and sets the trial's generation boundary from the server step timestamp.
+- The builder comments explicitly require an independent reviewer to fetch and verify the GitHub Actions run/job/step metadata and exact artifact commit/blob. The producer-supplied receipt fields alone are not authentication.
+
+This closes the **source/schema-level** timestamp weakness: a backdated Git committer date and local `Date.now()` are no longer accepted as chronology authorities. The runner still has to implement the exact workflow sequence, generate the physical deal only in the named step, and collect the actual Actions API metadata. A reviewer must verify the run `head_sha`, run `run_started_at`, job/step identity and `steps[].started_at` against GitHub, plus the exact artifact blob and deal fingerprint.
+
+The builder regression now constructs synthetic run/job/step receipts and verifies the chronology checks, but no Node 22/manual native workflow or actual Actions-backed V3 game has run. The remaining blocker is runner integration and independent verification, not the old committer-date design.
