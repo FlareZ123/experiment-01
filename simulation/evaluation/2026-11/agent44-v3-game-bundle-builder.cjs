@@ -315,7 +315,10 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
   if (!plainObject(persistenceReceipt) ||
       persistenceReceipt.schema!==PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
       persistenceReceipt.trialId!==preDeal.trialId ||
-      !/^[^/\\s]+\\/[^/\\s]+$/.test(persistenceReceipt.repositoryFullName??'') ||
+      !nonempty(persistenceReceipt.repositoryFullName) ||
+      !persistenceReceipt.repositoryFullName.includes('/') ||
+      persistenceReceipt.repositoryFullName.startsWith('/') ||
+      persistenceReceipt.repositoryFullName.endsWith('/') ||
       persistenceReceipt.artifactRef!==preDeal.preDealArtifactRef ||
       persistenceReceipt.artifactSha256!==preDeal.preDealArtifactSha256 ||
       !GIT_SHA.test(persistenceReceipt.commitSha??'') ||
