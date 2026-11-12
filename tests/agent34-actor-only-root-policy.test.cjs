@@ -856,7 +856,7 @@ test('seat-scoped actor policies compose independently across candidate and oppo
       SlotType:{ACTIVE:1,BENCH:2}},
     gameActions:{AttackAction,PassTurnAction}
   };
-  const candidateScoped=withActorOnlyRootPolicy(()=>{
+  const opponentScoped=withActorOnlyRootPolicy(()=>{
     return withActorOnlyRootPolicy(()=>{
       const store=new Store();
       store.dispatch(new AddPlayerAction());
@@ -866,14 +866,14 @@ test('seat-scoped actor policies compose independently across candidate and oppo
       const opponentAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
       return {candidateAction,opponentAction};
     },{
-      ...sharedDeps,policyOwnerSeat:1,
-      observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
+      ...sharedDeps,policyOwnerSeat:0,
+      observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
     });
   },{
-    ...sharedDeps,policyOwnerSeat:0,
-    observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
+    ...sharedDeps,policyOwnerSeat:1,
+    observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
   });
-  const opponentScoped=candidateScoped.result;
+  const candidateScoped=opponentScoped.result;
   assert.ok(opponentScoped.result.candidateAction instanceof PlayCardAction);
   assert.ok(opponentScoped.result.opponentAction instanceof PlayCardAction);
   assert.equal(opponentScoped.result.candidateAction.target.player,0);
