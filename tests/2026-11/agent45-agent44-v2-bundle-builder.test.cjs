@@ -55,7 +55,6 @@ function fixture(){
     caseId:CASE_ID,
     enginePinnedCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     candidatePrintedManifest:'results/als/new-moon-perfection-source-60.json',
-    candidateOfficialJapaneseDeckCode:'GxxDYx-a4rD4W-a8xYxc',
     preRegisteredTrials:[{rank:5,repeat:4410,candidateSlot:'B',
       seed:3861605836,candidateId:'new-moon-lockbreaker-v1',id:TRIAL_ID}]
   };
@@ -77,7 +76,7 @@ function fixture(){
     registrationCandidateManifestPointerMatches:false,
     boundCandidateJapanesePrintManifest:'results/als/new-moon-lockbreak-japanese-print-60.json',
     candidateJapanesePrintManifestSha256:'candidate-japanese-manifest-sha',
-    candidateJapanesePrintInventoryCanonicalSha256:'candidate-inventory',
+    candidateJapanesePrintInventoryCanonicalSha256:'13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047',
     candidateEnglishMechanicalProxyManifest:'results/als/new-moon-lockbreak-english-proxy-60.json',
     candidateEnglishMechanicalProxyManifestSha256:'candidate-english-manifest-sha',
     candidateEnglishProxyIdCountSha256:'candidate-english-inventory',
@@ -85,7 +84,9 @@ function fixture(){
     candidateNameCountParity:{names:34,cards:60},
     nativeCandidateLoader:'scripts/aichi-new-moon-candidate.cjs',
     nativeCandidateId:'new-moon-lockbreaker-v1',
-    nativeCandidateLoaderNameCountParity:true,nativeCandidateLoaderNameAliases:[],
+    nativeCandidateLoaderNameCountParity:true,nativeCandidateLoaderNameAliases:[
+      {nativeName:'Psychic Energy',printedName:'Basic Psychic Energy',count:3}
+    ],
     candidateOfficialJapaneseDeckCode:null,
     candidateDerivedFromOfficialJapaneseSourceDeckCode:'GxxDYx-a4rD4W-a8xYxc',
     proposedPrintManifestStatus:'PROPOSED_JAPANESE_PRINT_MANIFEST_NOT_OFFICIAL_REGISTRATION',
@@ -104,7 +105,7 @@ function fixture(){
     candidateManifestBinding,candidateManifestBindingSha256,
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
-    candidatePrintedInventorySha256:'candidate-inventory',
+    candidatePrintedInventorySha256:'13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047',
     originalFrozenRegistrationSha256:'registration-hash',
     trial:{id:TRIAL_ID},enginePinnedCommit:registration.enginePinnedCommit,
     native:{
@@ -198,6 +199,12 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   const contender=result.releaseNineObjects['contender-printed-60'];
   assert.equal(contender.manifest,'results/als/new-moon-lockbreak-japanese-print-60.json');
   assert.equal(contender.candidateOfficialJapaneseDeckCode,null);
+  assert.equal(original.registration.candidateOfficialJapaneseDeckCode,undefined);
+  assert.equal(contender.canonicalPrintIdCountSha256,
+    '13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047');
+  assert.deepEqual(contender.nativeCandidateLoaderNameAliases,[
+    {nativeName:'Psychic Energy',printedName:'Basic Psychic Energy',count:3}
+  ]);
   assert.equal(contender.candidateDerivedFromOfficialJapaneseSourceDeckCode,
     'GxxDYx-a4rD4W-a8xYxc');
   assert.equal(contender.registrationCandidateManifestPointer,
