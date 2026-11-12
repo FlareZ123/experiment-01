@@ -409,6 +409,8 @@ function inspectPolicyPanelConsistency(bundle) {
     }
     if (core?.comparisonMode === 'controlled-treatment') {
       const relation = core?.controlledTreatment;
+      const selected = Array.isArray(core?.opponentPolicyBundle?.ranks) ?
+        core.opponentPolicyBundle.ranks.find(x => x?.rank === receipt?.opponentRank) : null;
       if (relation?.schema !== 'aichi-controlled-treatment-identity-v1' ||
           !nonempty(relation?.treatmentId) ||
           ![0,1].includes(relation?.controlSeat) ||
@@ -417,8 +419,10 @@ function inspectPolicyPanelConsistency(bundle) {
           !HEX_SHA256.test(relation?.deckSha256 ?? '') ||
           !HEX_SHA256.test(relation?.policySha256 ?? '') ||
           relation.deckSha256 !== core?.candidate?.deckSha256 ||
-          relation.policySha256 !== receipt?.policySha256BySeat?.[0] ||
-          receipt?.policySha256BySeat?.[0] !== receipt?.policySha256BySeat?.[1])
+          relation.deckSha256 !== selected?.deckSha256 ||
+          relation.policySha256 !== receipt?.policySha256BySeat?.[relation.controlSeat] ||
+          receipt?.policySha256BySeat?.[relation.controlSeat] !==
+            receipt?.policySha256BySeat?.[relation.treatmentSeat])
         failures.push('controlled-treatment-identity-missing-or-mismatched');
     }
   }
