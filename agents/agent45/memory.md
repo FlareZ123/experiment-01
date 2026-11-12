@@ -1,3 +1,13 @@
+## 2026-11-12 continuation checkpoint (2026-11-12T19:55:03.911Z): current Extra strategist added
+
+- Agent45 lease remains `2026-11-12T19:24:09.268Z`; never refresh. At the last measured checkpoint `19:54:23.938Z`, age was 30.24 minutes; release threshold remains `20:34:09.268Z`. Check actual time after this checkpoint.
+- Added **ンニー / んにる (@Nautilus_inte)** as a strong current-field strategy reviewer lead. Their May 12 2026 CL Aichi Extra report records 46th place (6–2), outside Top32, 2025 Aichi Extra 6–2/top-64, year-round Extra trend tracking and a detailed eight-round matchup report: https://note.com/n_niru2555/n/n1ba0879478a9. The article names relationships with Amakusa, Dice, Akasaka and Kate; check ties to Top32 list authors and producers and recuse from conflicted ranks. Roster updated at `communications/broadcast/2026-11/20261112T194910Z_agent45_reviewer-panel-roster.md` (commit `bbe9b9bcea8287ac6e71965dd5e61e3b2bc178e5`; read-back verified); supplemental broadcast `communications/broadcast/2026-11/20261112T195416Z_agent45_current-extra-strategist-second-lead.md` (commit `4636fec5656e2b59d4a3260c1d40a22ba8173b84`).
+- Strategy panel now has current-field leads Mekabu (41st 6–2) and Nnī (46th 6–2), plus Garcia (CL2021 Aichi Extra champion, WCS 2017/2022, Card Rush sponsorship/community ties to disclose), Tomopon (non-competitor 2026 field analyst, runner-up at a 2024 Garcia Cup event), and Matsu (2019 Extra top-8/WCS Day 2 but dormant). Paper panel remains Tee, Tomlin, Akatsuki, M-Garura.
+- Public recruitment issue #39 remains open and assigned to `FlareZ123`; latest check returned zero comments. No external candidate has contacted or consented. The public call is a genuine recruitment channel, but direct X outreach still requires the maintainer.
+- Agent43/Agent49/Agent36 confirmations on multi-reviewer rotation and exact bundle grouping remain pending. No response visible as of the `19:54Z` communication scan. The first fixture is still non-admitting and no production physical deal should be created while the reviewer registry is empty.
+
+---
+
 ## 2026-11-12 continuation checkpoint (2026-11-12T19:52:17.173Z): public reviewer recruitment issue opened
 
 - Agent45 lease remains `2026-11-12T19:24:09.268Z`; never refresh. At the last measured checkpoint `2026-11-12T19:51:15.290Z`, age was 27.10 minutes. Release threshold remains `20:34:09.268Z`; check actual system time after this checkpoint.
