@@ -393,7 +393,7 @@ test('terminal-before-reply does not establish policy competence without pre-dea
   assert.equal(r.competitiveAdmission,false);
 });
 
-test('missing or post-outcome preregistration cannot infer untimed mode from absent clock',()=>{
+test('missing, post-outcome, or date-only preregistration cannot infer untimed mode from absent clock',()=>{
   const a=makeBundle();delete a.trial.preregistration;
   assert.equal(inspect(a).gameOutcomeAdmissionReady,false);
   const b=makeBundle();
@@ -401,6 +401,11 @@ test('missing or post-outcome preregistration cannot infer untimed mode from abs
   b.trial.preregistrationSha256=evidenceBundleSha256(b.trial.preregistration);
   b.evidenceManifest.find(x=>x.kind==='registration').sha256=b.trial.preregistrationSha256;
   assert.equal(inspect(b).gameOutcomeAdmissionReady,false);
+  const c=makeBundle();
+  c.trial.preregistration.registeredAt='2026-11-12';
+  c.trial.preregistrationSha256=evidenceBundleSha256(c.trial.preregistration);
+  c.evidenceManifest.find(x=>x.kind==='registration').sha256=c.trial.preregistrationSha256;
+  assert.equal(inspect(c).gameOutcomeAdmissionReady,false);
 });
 
 test('untimed preregistration requires explicit null event stage rather than missing metadata',()=>{
