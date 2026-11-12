@@ -544,7 +544,7 @@ if(require.main===module){
     competitiveAdmission:result.independentAdmissionGate.competitiveAdmission,
     clockEvidenceSupplied:Boolean(clockEvidenceRef),
     blockers:result.independentAdmissionGate.failures
-  })));
+  }));
 }
 module.exports={INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,CASE_ID,TRIAL_ID,
   REGISTRATION_REF,nativeJsonSha256,rootReviewWorklist,build,save};
