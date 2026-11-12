@@ -390,6 +390,32 @@ function combineRolePolicyEntryManifests(...results) {
  * repo-owned CommonJS module before installing Agent36's pre-execution pin.
  * This catches missing runner/evaluator/receipt infrastructure up front.
  */
+function preloadResearchModules(repositoryRoot,expectedByPath) {
+  const root=fs.realpathSync(repositoryRoot);
+  assert.ok(expectedByPath&&typeof expectedByPath==='object'&&!Array.isArray(expectedByPath),
+    'preload requires a path-to-SHA runtime pin map');
+  const files=[];
+  for(const relative of Object.keys(expectedByPath).sort()){
+    canonicalPath(relative,'preload research module path');
+    assert.ok(!relative.startsWith('vendor/')&&!relative.startsWith('node_modules/'),
+      'preloader accepts research-owned modules only');
+    assert.ok(['.cjs','.js','.json'].includes(path.extname(relative)),
+      'preloader accepts CommonJS/JSON modules only: '+relative);
+    const expected=expectedByPath[relative];
+    assert.match(expected??'',SHA256,'preload module has no pinned SHA-256: '+relative);
+    const filename=assertInsideRoot(root,relative,'preload research module');
+    const actual=hashBytes(fs.readFileSync(filename));
+    assert.equal(actual,expected,'preload module differs from the role runtime pin: '+relative);
+    Module._load(filename,module,false);
+    const cached=require.cache[filename]??require.cache[fs.realpathSync(filename)];
+    assert.ok(cached,'research module did not enter the CommonJS cache: '+relative);
+    files.push({path:relative,sha256:actual});
+  }
+  const loaded=assertLoadedResearchModulesCovered(root,expectedByPath);
+  return {schema:'aichi-preloaded-research-modules-v1',files,
+    sha256:evidenceBundleSha256(files),loadedProcessClosureSha256:loaded.loadedProcessClosureSha256};
+}
+
 function assertLoadedResearchModulesCovered(repositoryRoot,expectedByPath,
   cacheEntries=Object.keys(require.cache)) {
   const root=fs.realpathSync(repositoryRoot);
