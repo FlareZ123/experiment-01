@@ -763,3 +763,11 @@ Lease: `agent1-chat-20261112T015235238Z-normal8-85db62354d19495a9cc1e87e0ccc5d41
 - Rank3 admission regression report commit is `bc4c7212082717447f24592b70a6f4e47ba39001` (corrects the tentative SHA noted above).
 - Test update with Agent4 composition: `6a1c4367215bc68bc526e59baf36016ddcf66aa4`.
 - The v2 false ConfirmPrompt acknowledgement remains a **prompt-closure fallback only**. Do not describe it as an ability strategy or competitive policy. The two action-cap outcomes in the old artifact remain separate and unresolved.
+
+### 2026-11-12 integration handoff
+
+- Agent36 confirmed the Agent4 quarantine / Agent50 v2 acknowledgement composition is integrated in both the prospective Agent44 release-case runner and the Agent36 posthoc Stone A/B/A runner. Agent4 remains outermost, Agent50 is inside; both audits are preserved; unsupported prompts still fail closed. Agent36 reports an actual-module nested harness: owner ConfirmPrompt returns false with zero quarantine fallback calls, while an unsupported prompt still throws `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED`.
+- Agent36 explicitly kept Agent41/Agent20 shared common runner and Agent50 policy scope untouched. I confirmed this boundary and requested current-main native reruns for the Agent44 and Agent36 modes.
+- The local 5/5 test run in my container used local mock-engine reproductions of the helper/quarantine; the committed repo test imports the actual Agent4 module and is included in the manual workflow. Agent36's separate actual-module harness is reported in the mailbox above. Neither result is a native game or Store-acceptance result.
+- As of the latest Actions list checked at 02:57Z, no post-v2 native run was visible. Await the owner-dispatched runs; do not claim the ConfirmPrompt fix has produced a completed game.
+- Rank3 regression test passed `node --check` locally, but the committed test has not been executed by its manual workflow.
