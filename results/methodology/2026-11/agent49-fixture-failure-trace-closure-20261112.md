@@ -37,3 +37,15 @@ The helper remains fixture-only. No full private state is passed to either polic
 ## Next action
 
 After the owner configures the public diagnostic key and dispatches the existing manual workflow with only agent36_v3_fixture_game=true, inspect the encrypted artifact offline. Verify the third attempted decision and failure-final snapshot on both relevant seats before using the trace to make general policy or simulator corrections.
+
+
+## Runner integration correction
+
+The first end-to-end review found a second failure-path defect in simulation/evaluation/2026-11/agent36-v3-runner.cjs. The fixture callback catches runNativeFixtureGame failures and returns {fixtureFailure, fixtureGamePartial} from inside the role-composed callback. The role composer then nests that envelope under its own result property. The runner previously checked only the outer object for fixtureFailure, mistook the nested envelope for the native game result, and wrapped it again as a NonTerminalFixtureGame failure. That left the actual decisionTrace nested one level too deep and caused the human-readable formatter to receive an empty trace.
+
+Added normalizeV3FixtureRoleResult() to normalize direct runtime failures, role-composed failures, and successful role-composed games. The runner now unwraps the nested fixtureGamePartial while retaining candidate/opponent role audits. Added a regression to tests/2026-11/agent36-v3-fixture-game.test.cjs for direct failure, role-composed failure, and success shapes. This test file is already in the existing V3 fixture test list.
+
+- Runner commit: 48ae131bf984f73c4da9c801aed2e4a2e173a820
+- Regression commit: 950d2145e2dfd3de1add26ad3458df410a802f23
+- An isolated Node 22.16.0 reproduction of direct, nested and success normalization passed 3/3 assertions.
+- The repository test suite and native workflow remain unrun. The full private diagnostic artifact must still be checked after the owner provisions the public key and dispatches the manual workflow.
