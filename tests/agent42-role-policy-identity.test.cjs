@@ -62,7 +62,7 @@ function identity(role,rank,deck,entry,options={},policyConstraintsSha256=constr
   cardPoolInitializationSha256:evidenceBundleSha256(cardPoolReceipt(entry.manifest.enginePin,
    entry.manifest.vendorDependencies.find(x=>x.path==='vendor/twinleaf/ptcg-server/start.js').sha256))});
 }
-function preDeal(candidate,opponent,planConstraints=constraints){
+function preDeal(candidate,opponent,planConstraints=constraints,fullProcessClosureCovered=false){
  const core={schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
   candidate:{deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
    entryManifestSha256:candidate.entryManifestSha256,challengeSuiteSha256:candidate.challengeSuiteSha256,
@@ -70,7 +70,7 @@ function preDeal(candidate,opponent,planConstraints=constraints){
   runtimePinEvidence:{schema:'aichi-runtime-pin-evidence-v2',unionSha256:candidate.runtimePinUnionSha256,
    loadedProcessClosureSha256:candidate.loadedProcessClosureSha256,
    cardPoolInitializationSha256:candidate.cardPoolInitializationSha256,
-   fullProcessClosureCovered:false},
+   fullProcessClosureCovered},
   opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks:[{rank:opponent.rank,
    sourceStatus:'authenticated',deckSha256:opponent.deckSha256,policySha256:opponent.policySha256,
    entryManifestSha256:opponent.entryManifestSha256,challengeSuiteSha256:opponent.challengeSuiteSha256,
@@ -82,7 +82,7 @@ function preDeal(candidate,opponent,planConstraints=constraints){
   policyAttestationBundle:attestation,policyAttestationBundleSha256:evidenceBundleSha256(attestation)};
 }
 function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchReceipts=[]){
- return {trialId:'trial-1',opponentRank:opponent.rank,candidateSeat,originalSourceSeat:1-candidateSeat,
+ return {trialId:'trial-1',fixtureOnly:true,opponentRank:opponent.rank,candidateSeat,originalSourceSeat:1-candidateSeat,
   actualFirstPlayerSeat:firstPlayerSeat,candidatePrinted60Sha256:candidate.deckSha256,
   originalPrinted60Sha256:opponent.deckSha256,vendorCommitSha:candidate.entryManifest.enginePin,
   researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906),
@@ -258,6 +258,29 @@ test('application receipt binds exactly-once shared runtime patch install and re
   opponentIdentity:opponent,trial:trial(candidate,opponent,0,1,[{...receipt,installCount:2}])}),/exactly once/);
  assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,candidateIdentity:candidate,
   opponentIdentity:opponent,trial:trial(candidate,opponent,0,1,[])}),/exactly cover/);
+}));
+
+test('partial runtime closure is fixture-only; production receipts require full closure',()=>repo(root=>{
+ const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
+ const candidate=identity('candidate-policy',null,1,cm),opponent=identity('opponent-policy',7,2,om);
+ const fixturePlan=preDeal(candidate,opponent,constraints,false);
+ const fixtureTrial=trial(candidate,opponent,0,1);
+ const fixtureApplied=I.createPolicyApplicationReceipt({preDeal:fixturePlan,
+  candidateIdentity:candidate,opponentIdentity:opponent,trial:fixtureTrial});
+ assert.equal(fixtureTrial.fixtureOnly,true);
+ assert.equal(fixturePlan.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered,false);
+ assert.match(fixtureApplied.receipt.receiptSha256,/^[0-9a-f]{64}$/);
+ assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:fixturePlan,
+  candidateIdentity:candidate,opponentIdentity:opponent,
+  trial:{...fixtureTrial,fixtureOnly:false}}),/production application receipt requires complete process-closure coverage/);
+ const productionPlan=preDeal(candidate,opponent,constraints,true);
+ const productionTrial={...trial(candidate,opponent,0,1),fixtureOnly:false};
+ const productionApplied=I.createPolicyApplicationReceipt({preDeal:productionPlan,
+  candidateIdentity:candidate,opponentIdentity:opponent,trial:productionTrial});
+ assert.match(productionApplied.receipt.receiptSha256,/^[0-9a-f]{64}$/);
+ assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:productionPlan,
+  candidateIdentity:candidate,opponentIdentity:opponent,
+  trial:{...productionTrial,fixtureOnly:true}}),/fixture-only trial must explicitly use fixture-scoped process closure/);
 }));
 
 test('candidate and opponent may have different role-local engine patch dependencies',()=>repo(root=>{
