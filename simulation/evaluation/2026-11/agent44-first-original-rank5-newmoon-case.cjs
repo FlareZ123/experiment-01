@@ -45,12 +45,17 @@ function candidateManifestBinding(reg){
   const {loadNewMoonCandidate}=require('../../../scripts/aichi-new-moon-candidate.cjs');
   const loaded=loadNewMoonCandidate();
   assert.equal(loaded.id,'new-moon-lockbreaker-v1');
-  const nativeRows=loaded.cards.map(x=>[x.name,x.count]).sort((a,b)=>
-    a[0].localeCompare(b[0]));
+  const nativeNameAliases={'Psychic Energy':'Basic Psychic Energy'};
+  const nativeRows=loaded.cards.map(x=>[
+    nativeNameAliases[x.name]??x.name,x.count
+  ]).sort((a,b)=>a[0].localeCompare(b[0]));
   const japaneseRows=candidate.entries.map(x=>[x.name_en,x.count]).sort((a,b)=>
     a[0].localeCompare(b[0]));
   assert.deepEqual(nativeRows,japaneseRows,
     'Native candidate loader must match every proposed Japanese print name/count');
+  const nativeAliasRows=loaded.cards.filter(x=>nativeNameAliases[x.name]).map(x=>({
+    nativeName:x.name,printedName:nativeNameAliases[x.name],count:x.count
+  }));
   assert.equal(reg.candidateId,loaded.id);
   assert.equal(reg.candidatePrintedManifest,STALE_REGISTERED_CANDIDATE_MANIFEST,
     'Preserve and explicitly identify the frozen registration pointer');
@@ -71,6 +76,7 @@ function candidateManifestBinding(reg){
     nativeCandidateLoader:'scripts/aichi-new-moon-candidate.cjs',
     nativeCandidateId:loaded.id,
     nativeCandidateLoaderNameCountParity:true,
+    nativeCandidateLoaderNameAliases:nativeAliasRows,
     candidateNameCountParity:proxyParity,
     candidatePrintedCardCount:total,
     candidateUniqueNameCount:candidate.entries.length,
