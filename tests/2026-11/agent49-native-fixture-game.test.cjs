@@ -153,21 +153,24 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.equal(result.actions,4);
   assert.deepEqual(result.actionCountsBySeat,[2,2]);
   assert.equal(result.decisionTrace.length,4);
-  assert.equal(result.rootActionLedger.length,2);
+  assert.equal(result.rootActionLedger.length,4);
   assert.equal(result.decisionTrace[0].pendingPromptType,'ShuffleDeckPrompt');
   assert.equal(result.decisionTrace[0].actionName,'ResolvePromptAction');
-  assert.deepEqual(result.decisionTrace[0].promptResolution,{
-    kind:'shuffle',ownerSeat:0,cardCount:60,
-    permutationSha256:result.decisionTrace[0].promptResolution.permutationSha256
-  });
+  assert.equal(result.decisionTrace[0].promptResolution.kind,'shuffle');
+  assert.equal(result.decisionTrace[0].promptResolution.ownerSeat,0);
+  assert.equal(result.decisionTrace[0].promptResolution.cardCount,60);
   assert.match(result.decisionTrace[0].promptResolution.permutationSha256,/^[a-f0-9]{64}$/);
   assert.equal(result.decisionTrace[1].promptResolution.kind,'coin-flip');
   assert.equal(typeof result.decisionTrace[1].promptResolution.result,'boolean');
   assert.equal(result.decisionTrace[0].publicStateAfter.pendingPrompts.length,1);
   assert.equal(result.decisionTrace[1].pendingPromptType,'CoinFlipPrompt');
   assert.equal(result.decisionTrace[1].publicStateAfter.phase,GamePhase.PLAYER_TURN);
-  assert.equal(result.rootActionLedger[0].actingSeat,0);
-  assert.equal(result.rootActionLedger[1].actingSeat,1);
+  assert.equal(result.rootActionLedger[0].playerSlot,0);
+  assert.equal(result.rootActionLedger[0].pendingPrompt,'ShuffleDeckPrompt');
+  assert.equal(result.rootActionLedger[1].playerSlot,1);
+  assert.equal(result.rootActionLedger[1].pendingPrompt,'CoinFlipPrompt');
+  assert.equal(result.rootActionLedger[2].isRootDecision,true);
+  assert.equal(result.rootActionLedger[3].isRootDecision,true);
   assert.match(result.decisionTraceSha256,/^[a-f0-9]{64}$/);
   assert.match(result.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
   assert.match(result.finalPublicStateSha256,/^[a-f0-9]{64}$/);
