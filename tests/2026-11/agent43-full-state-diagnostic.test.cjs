@@ -156,6 +156,9 @@ test('trace formatter emits selected card and before/after full state changes', 
     actions: 1,
     turns: 4,
     winnerSeat: 0,
+    decisionTraceSha256: 'trace-hash',
+    rootActionLedgerSha256: 'ledger-hash',
+    rootActionLedger: [{ actionOrdinal: 0, actingSeat: 0, isRootDecision: true }],
     decisionTrace: [{
       actionOrdinal: 0,
       turnBefore: 1,
@@ -201,10 +204,17 @@ test('trace formatter emits selected card and before/after full state changes', 
     }],
     failedAction: { actionOrdinal: 2, actionName: 'PlayCardAction' },
     finalPublicState: { phase: 'PLAYER_TURN', activePlayer: 1 },
+    finalPublicStateSha256: 'public-state-hash',
     finalFullState: after,
+    finalFullStateSha256: 'full-state-hash',
     diagnosticSnapshotFailure: { name: 'SnapshotError' },
     failure: { stage: 'dispatch', actionOrdinal: 2 },
   });
+  assert.match(text, /decisionTraceSha256=trace-hash/);
+  assert.match(text, /rootActionLedgerSha256=ledger-hash/);
+  assert.match(text, /ROOT ACTION LEDGER/);
+  assert.match(text, /finalPublicStateSha256=public-state-hash/);
+  assert.match(text, /finalFullStateSha256=full-state-hash/);
   assert.match(text, /candidateSeat=0/);
   assert.match(text, /opponentSeat=1/);
   assert.match(text, /candidateDeckSha256=candidate-deck-hash/);
