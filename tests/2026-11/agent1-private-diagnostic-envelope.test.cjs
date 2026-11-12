@@ -76,6 +76,7 @@ test('fixture encryption atomically writes a public manifest and deletes plainte
     const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'fixture-game.public-manifest.json'), 'utf8'));
     assert.equal(manifest.artifactVisibility, 'public-encrypted-envelope');
     assert.equal(manifest.payloadVisibility, 'private-offline-diagnostic-only');
+    assert.doesNotMatch(JSON.stringify(manifest), /PRIVATE HAND A/);
     assert.deepEqual(manifest.plaintextFiles.map(file => file.sha256).sort(), [sha256(json), sha256(text)].sort());
     const decrypted = decryptDiagnosticBundle({ privateKeyPem: keys.privateKey,
       envelopeBytes: fs.readFileSync(path.join(directory, 'fixture-game.private.enc.json')) });
@@ -129,6 +130,7 @@ test('public Actions artifact path exposes only encrypted fixture diagnostics', 
   assert.ok(encryptionIndex >= 0 && uploadIndex > encryptionIndex,
     'private diagnostic encryption must run before artifact upload');
   assert.match(workflow, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{\s*vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM\s*\}\}/);
+  assert.match(workflow, /run: node simulation\/evaluation\/2026-11\/agent1-private-diagnostic-envelope\.cjs encrypt-fixture-artifacts artifacts\/agent36-v3-fixture/);
   const uploadBlock = workflow.slice(uploadIndex, workflow.indexOf('\n      - name:', uploadIndex + 1) < 0
     ? workflow.length
     : workflow.indexOf('\n      - name:', uploadIndex + 1));
