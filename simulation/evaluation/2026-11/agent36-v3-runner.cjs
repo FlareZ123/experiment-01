@@ -21,7 +21,54 @@ const PREDEAL_FIELDS=[
   'policyRegistrationSha256','preDealArtifactRef','preDealArtifactSha256'
 ];
 
-function loadNativeRoleDependencies(){
+function initializeNativeCardPool({CardManager,sets,enginePin,repositoryRoot=ROOT,readFile=fs.readFileSync}){
+  assert.match(enginePin??'',GIT_SHA,
+    'card-pool initialization requires the role manifest Twinleaf engine pin');
+  assert.equal(process.env.AGENT36_TWINLEAF_COMMIT_SHA,enginePin,
+    'checked-out Twinleaf submodule does not match the frozen role engine pin');
+  const cardManager=CardManager.getInstance();
+  const startupPath='vendor/twinleaf/ptcg-server/start.js';
+  const startupFilename=path.join(repositoryRoot,...startupPath.split('/'));
+  const startupBytes=readFile(startupFilename);
+  const startupSha256=createHash('sha256').update(startupBytes).digest('hex');
+  const setNames=[...startupBytes.toString('utf8').matchAll(
+    /^\s*cardManager\.defineSet\(sets\.(\w+)\)\s*;?/gm
+  )].map(match=>match[1]);
+  assert.ok(setNames.length>0,
+    'no card sets identified in the pinned Twinleaf startup file');
+  assert.equal(new Set(setNames).size,setNames.length,
+    'pinned Twinleaf startup repeats a card set definition');
+  for(const name of setNames){
+    assert.ok(Array.isArray(sets[name]),
+      'pinned startup refers to an unavailable card set: '+name);
+  }
+  const prior=cardManager.__agent36CardPoolInitialization;
+  if(prior){
+    assert.equal(prior.enginePin,enginePin,
+      'card-pool singleton was initialized under a different Twinleaf revision');
+    assert.equal(prior.startupSha256,startupSha256,
+      'pinned Twinleaf startup bytes changed after card-pool initialization');
+    assert.equal(prior.cardCount,cardManager.getAllCards().length,
+      'card-pool contents changed after initialization receipt');
+    return prior;
+  }
+  assert.equal(cardManager.getAllCards().length,0,
+    'card pool was populated before the V3 pinned initializer could attest it');
+  assert.equal(typeof cardManager.defineSet,'function',
+    'pinned CardManager does not expose defineSet');
+  for(const name of setNames)cardManager.defineSet(sets[name]);
+  const cardCount=cardManager.getAllCards().length;
+  assert.ok(cardCount>0,'pinned startup defined no cards');
+  const receipt={schema:'agent36-twinleaf-card-pool-initialization-v1',
+    enginePin,startupPath,startupSha256,setNames,definedSetCount:setNames.length,
+    cardCount};
+  Object.defineProperty(cardManager,'__agent36CardPoolInitialization',{
+    value:receipt,enumerable:false,writable:false,configurable:false
+  });
+  return receipt;
+}
+
+function loadNativeRoleDependencies({enginePin}={}){
   // Literal vendor imports are tied to the submodule gitlink, not research code.
   const {SimpleTacticsAi}=require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai');
   const {Store}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/store');
@@ -30,12 +77,14 @@ function loadNativeRoleDependencies(){
   const gameActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
   const promptActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const {CardManager}=require('../../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
+  const sets=require('../../../vendor/twinleaf/ptcg-server/output/sets');
   const {PokemonCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
   const {EnergyCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {TrainerCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
   const {Stage,EnergyType,CardType,TrainerType,SpecialCondition}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
   const {PowerType}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
+  const cardPoolInitialization=initializeNativeCardPool({CardManager,sets,enginePin});
   const {buildActorCardCatalog}=require('../../twinleaf/agent34-actor-only-root-policy.cjs');
   const {actorObservation}=require('../../twinleaf/actor-observation-contract.cjs');
   const {trainerPrintCatalog}=require('../../twinleaf/agent5-generic-owner-trainer-opportunity.cjs');
@@ -47,14 +96,26 @@ function loadNativeRoleDependencies(){
   const getNativeTrainerCatalog=()=>trainerCatalog??=(trainerPrintCatalog(
     CardManager.getInstance().getAllCards(),{TrainerCard,TrainerType}));
   return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
-    getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions};
+    getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
+    cardPoolInitialization};
 }
 
 /** Compose frozen role policies around one synchronous native game. */
 function runCandidateOpponentPolicyRoles(run,options={}){
   const {commonDeps:providedDeps,composer=withCandidateOpponentPolicyRoles,
     trial,candidateIdentity,opponentIdentity,...roleOptions}=options;
-  const commonDeps=providedDeps??loadNativeRoleDependencies();
+  const expectedEnginePin=candidateIdentity?.entryManifest?.enginePin??
+    opponentIdentity?.entryManifest?.enginePin;
+  if(candidateIdentity&&opponentIdentity){
+    assert.equal(candidateIdentity.entryManifest.enginePin,
+      opponentIdentity.entryManifest.enginePin,
+      'candidate and opponent roles must share the exact Twinleaf engine pin');
+  }
+  const commonDeps=providedDeps??loadNativeRoleDependencies({enginePin:expectedEnginePin});
+  if(expectedEnginePin){
+    assert.equal(commonDeps.cardPoolInitialization?.enginePin,expectedEnginePin,
+      'native card pool was not initialized under the frozen Twinleaf revision');
+  }
   if(trial){
     assert.equal(roleOptions.candidateSeat,trial.candidateSeat,
       'candidate role seat must be fixed by the registered trial before game start');
@@ -392,6 +453,6 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   resolveInsideRoot,apiUrl,parseNextLink,requestJson,validateRun,
   fetchWorkflowRun,fetchWorkflowJobs,fetchCommittedArtifact,
   collectPreDealPersistenceReceipt,collectDealGenerationReceipt,
-  loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
+  initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
   readJsonFile,writeJsonAtomic,main};
