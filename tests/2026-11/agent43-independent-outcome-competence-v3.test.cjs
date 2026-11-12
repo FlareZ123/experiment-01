@@ -350,6 +350,49 @@ function signedV3Result(bundle,policyRegistry,{roles=['paper','strategy'],audit=
     combineRegistries(policyRegistry,game.registry));
 }
 
+function populatePanelCoverage(bundle) {
+  const candidate=bundle.policyPlanCore.candidate;
+  const receipts=[];
+  let sequence=0;
+  for(const opponent of bundle.policyPlanCore.opponentPolicyBundle.ranks) {
+    if(opponent.sourceStatus!=='authenticated') continue;
+    for(const candidateSeat of [0,1]) {
+      for(const firstPlayerSeat of [0,1]) {
+        const current=bundle.policyApplicationReceipt;
+        if(opponent.rank===current.opponentRank &&
+            candidateSeat===current.candidateSeat &&
+            firstPlayerSeat===current.firstPlayerSeat) {
+          receipts.push(current);
+          continue;
+        }
+        const receipt={
+          ...current,
+          trialId:'panel-'+opponent.rank+'-'+candidateSeat+'-'+firstPlayerSeat,
+          opponentRank:opponent.rank,
+          candidateDeckSha256:candidate.deckSha256,
+          candidatePolicySha256:candidate.policySha256,
+          candidateEntryManifestSha256:candidate.entryManifestSha256,
+          candidateChallengeSuiteSha256:candidate.challengeSuiteSha256,
+          opponentDeckSha256:opponent.deckSha256,
+          opponentPolicySha256:opponent.policySha256,
+          opponentEntryManifestSha256:opponent.entryManifestSha256,
+          opponentChallengeSuiteSha256:opponent.challengeSuiteSha256,
+          candidateSeat,opponentSeat:1-candidateSeat,firstPlayerSeat,
+          policySha256BySeat:candidateSeat===0 ?
+            [candidate.policySha256,opponent.policySha256] :
+            [opponent.policySha256,candidate.policySha256],
+          decisionTraceSha256:policyHash(9000+(sequence++))
+        };
+        delete receipt.receiptSha256;
+        receipt.receiptSha256=evidenceBundleSha256(receipt);
+        receipts.push(receipt);
+      }
+    }
+  }
+  bundle.policyPanelReceipts=receipts;
+  return receipts;
+}
+
 function addPanelReceipt(bundle,overrides) {
   const receipt={...bundle.policyApplicationReceipt,...overrides,
     trialId:'additional-panel-trial'};
@@ -520,11 +563,38 @@ test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field
   assert.equal(r.competitiveAdmission,false);
 });
 
+test('complete 29-rank receipt coverage still cannot complete the missing three-rank field',()=>{
+  const {bundle}=makePolicyBundle();
+  const receipts=populatePanelCoverage(bundle);
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(receipts.length,116);
+  assert.equal(r.status,'INCOMPLETE_FIELD');
+  assert.equal(r.availableRankStrataComplete,true);
+  assert.equal(r.expectedAvailableStrata,116);
+  assert.equal(r.observedAvailableStrata,116);
+  assert.deepEqual(r.panelCoverageMissing,[]);
+  assert.equal(r.fullFieldPanelComplete,false);
+});
+
+test('a complete authenticated 32-rank plan needs all 128 rank-seat-first-player strata',()=>{
+  const {bundle}=makePolicyBundle({unavailable:[]});
+  const receipts=populatePanelCoverage(bundle);
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(receipts.length,128);
+  assert.equal(r.status,'VALID');
+  assert.equal(r.fieldComplete,true);
+  assert.equal(r.availableRankStrataComplete,true);
+  assert.equal(r.fullFieldPanelComplete,true);
+  assert.equal(r.observedAvailableStrata,128);
+  assert.deepEqual(r.panelCoverageMissing,[]);
+});
+
 test('candidate-policy hash drift across panel strata invalidates V3 application consistency',()=>{
   const {bundle}=makePolicyBundle();
   addPanelReceipt(bundle,{
     candidatePolicySha256:policyHash(9999),
-    policySha256BySeat:[bundle.policyApplicationReceipt.policySha256BySeat[0],policyHash(9999)]
+    candidateSeat:0,opponentSeat:1,firstPlayerSeat:1,
+    policySha256BySeat:[policyHash(9999),bundle.policyApplicationReceipt.policySha256BySeat[0]]
   });
   const r=inspectPolicyPanelConsistency(bundle);
   assert.equal(r.valid,false);
