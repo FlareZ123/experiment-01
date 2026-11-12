@@ -243,10 +243,13 @@ function formatFixtureGameTraceText(game) {
   ];
   for (const row of game?.decisionTrace ?? []) {
     lines.push('');
-    lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision}`);
+    lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision} inputKind=${row.policyInputKind ?? 'unknown'}`);
     if (row.selectedCardIdentity) lines.push(`SELECTED CARD ${JSON.stringify(row.selectedCardIdentity)}`);
-    const actorObservationBefore = row.actorObservationBefore ?? row.ownerObservationBefore ?? null;
-    const actorObservationAfter = row.actorObservationAfter ?? row.ownerObservationAfter ?? null;
+    const isActorObservationInput = row.policyInputKind === undefined || row.policyInputKind === 'actor-observation';
+    const actorObservationBefore = isActorObservationInput ?
+      (row.actorObservationBefore ?? row.ownerObservationBefore ?? row.policyObservationBefore ?? null) : null;
+    const actorObservationAfter = isActorObservationInput ?
+      (row.actorObservationAfter ?? row.ownerObservationAfter ?? row.policyObservationAfter ?? null) : null;
     if (row.actorObservationSha256) lines.push(`ACTOR OBSERVATION SHA256 ${row.actorObservationSha256}`);
     if (actorObservationBefore) lines.push(`ACTOR OBSERVATION BEFORE (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationBefore)}`);
     if (actorObservationAfter) lines.push(`ACTOR OBSERVATION AFTER (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationAfter)}`);
