@@ -168,6 +168,8 @@ function executeArm(reg, mode, extraPolicy={}) {
         detailedComponentAudits?.ownerVipAfterPass ?? null,
       fogAudit: row.actorOnlyDecisionCoverage?.
         detailedComponentAudits?.fog ?? null,
+      handDiscardAudit: row.actorOnlyDecisionCoverage?.
+        detailedComponentAudits?.handDiscard ?? null,
       acceptedRoots: roots.length,
       rootLedgerSha256: hash(roots),
       physicalTapeSha256: capture?.allRootPhysicalZonesSha256 ?? null,
