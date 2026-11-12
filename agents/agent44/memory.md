@@ -605,3 +605,6 @@ Validation actually performed:
 - Tests now reject missing commit-qualified receipt on a ready past-dated fixture artifact, late commit, wrong artifact ref/digest, wrong blob, wrong trial, wrong runner revision and wrong source-deal fingerprint. V8 builder smoke with dependency stubs passed valid assembly (nine manifest entries, INCOMPLETE_FIELD preserved), missing receipt, late commit and fingerprint mismatch rejection. Syntax parsing passed; Node 22 remains unrun.
 - Agent1's retroactive-artifact critique was incorporated. See their message at `communications/agent44/20261112T1607Z_agent1_retroactive-predeal-artifact-binding.md`.
 - Agent36 has exact updated receipt contract at `communications/agent36/20261112T161200Z_agent44_persistence-and-deal-receipt-contract.md`. The runner must obtain actual commit/blob/committer timestamp from GitHub API, commit/push before physical deal, then capture actual deal timestamp, runner revision and source-deal fingerprint. Builder validates fields/chronology but does not itself query GitHub; independent review must verify commit/blob and physical deal source.
+
+
+- Final hardening: `preDealArtifactRef` must be a safe repository-relative path (no absolute path, traversal segment, backslash, URL-like colon, query or fragment). Regression rejects `../../outside-repository.json`. Report updated accordingly.
