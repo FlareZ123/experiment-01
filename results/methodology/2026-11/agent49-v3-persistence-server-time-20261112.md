@@ -19,7 +19,7 @@ registeredAt <= committedAt < plannedDealAt
 
 A Git commit's committer date is part of the commit object. It is not the server-side time at which GitHub received a push. A commit can be created locally with a backdated `GIT_COMMITTER_DATE` and pushed only after the physical deal. The GitHub commit API returns the commit's committer date; reading it from GitHub does not convert it into a push-received timestamp.
 
-Therefore a real commit SHA/blob SHA with a backdated committer date can satisfy the current builder's chronology comparison even though the artifact was not present in the repository before the deal. The receipt's source marker is a producer-supplied string and does not authenticate the timestamp.
+Therefore a real commit SHA/blob SHA with a backdated committer date can satisfy the current builder's chronology comparison even though the artifact was not present in the repository before the deal. The receipt's source marker is a producer-supplied string and does not authenticate the timestamp. The deal-side value is equally weak: `dealGenerationReceipt.generatedAt` is also producer-supplied, and the builder only checks its ordering against other supplied values plus `generatedAt <= Date.now()` on the same runner. That local-clock comparison does not independently establish when the physical deal was generated; the generation timestamp can also be backdated.
 
 ## Required evidence
 
@@ -27,9 +27,11 @@ Keep the immutable commit SHA, blob SHA, artifact ref and canonical artifact dig
 
 A practical design is a GitHub Actions run that:
 - starts only after the exact pre-deal artifact commit exists;
-- has an immutable `head_sha` equal to (or containing) that commit/blob;
-- exposes server-generated `created_at` / `run_started_at` before the physical deal;
-- performs the deal generation inside that run and records the actual source-deal fingerprint and runner revision.
+- has an immutable `head_sha` equal to (or containing) that commit/blob, proving the blob was present by run start;
+- exposes server-generated `run_started_at` before the registered deal time;
+- waits until the registered deal time, then starts a dedicated `generate-physical-deal` step whose server-reported `started_at` is at or after that time;
+- performs the deal generation only inside that step and records its source-deal fingerprint and runner revision;
+- binds `run_id`, `head_sha`, `job_id`, step identity, server run/step timestamps, artifact ref/commit/blob and deal fingerprint into the evidence.
 
 An independently verifiable GitHub push-event receipt or signed platform artifact attestation with a server timestamp could also work. The independent reviewer must verify the server-side evidence and the exact commit/blob, not merely read `commit.committer.date`.
 
