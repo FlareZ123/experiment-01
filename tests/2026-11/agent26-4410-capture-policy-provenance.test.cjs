@@ -109,10 +109,22 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
 });
 test('policy provenance serializer rejects executable and non-JSON values',()=>{
   assert.throws(()=>jsonSafe({onRootStoreCreated:()=>{}}),
-    /Unsupported policy-provenance value: function/);
+    /Unsupported provenance value.*function/);
   assert.throws(()=>jsonSafe({symbol:Symbol('callback')}),
-    /Unsupported policy-provenance value: symbol/);
+    /Unsupported provenance value.*symbol/);
   assert.throws(()=>jsonSafe({bigint:1n}),
-    /Unsupported policy-provenance value: bigint/);
+    /Unsupported provenance value.*bigint/);
+  assert.throws(()=>jsonSafe({missing:undefined}),
+    /Undefined provenance value/);
+  assert.throws(()=>jsonSafe({notFinite:Infinity}),
+    /Non-finite provenance number/);
+  assert.throws(()=>jsonSafe({date:new Date()}),
+    /plain JSON object/);
+  const cyclic={};
+  cyclic.self=cyclic;
+  assert.throws(()=>jsonSafe(cyclic),/Cyclic provenance value/);
+  const sparse=[];
+  sparse[1]='value';
+  assert.throws(()=>jsonSafe(sparse),/Sparse provenance array/);
 });
 
