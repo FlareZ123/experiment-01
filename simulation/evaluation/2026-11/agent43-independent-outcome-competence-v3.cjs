@@ -229,7 +229,8 @@ function validOffsetDateTime(value) {
 }
 
 function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
-  producerId, policyPlanSha256, policyConstraintsSha256, registeredAt, usedIds) {
+  producerId, policyPlanSha256, policyConstraintsSha256, registeredAt, usedIds,
+  policyProducerIds = new Set()) {
   if (!attestation || attestation.schema !== POLICY_ATTESTATION_SCHEMA ||
       attestation.role !== role || attestation.decision !== 'approve' ||
       attestation.policyPlanSha256 !== policyPlanSha256 ||
@@ -238,6 +239,7 @@ function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
       Date.parse(attestation.attestedAt) >= Date.parse(registeredAt) ||
       !nonempty(attestation.reviewerId) ||
       attestation.reviewerId === producerId || usedIds.has(attestation.reviewerId) ||
+      policyProducerIds.has(attestation.reviewerId) ||
       !nonempty(attestation.evidenceRef) ||
       !HEX_SHA256.test(attestation.evidenceSha256 ?? '') ||
       typeof attestation.signatureBase64 !== 'string' ||
@@ -281,10 +283,25 @@ function inspectPolicyPanelConsistency(bundle) {
   const registrationSha = safeDigest(registration);
   const constraintsSha = safeDigest(core?.constraints);
   const opponentBundleSha = safeDigest(core?.opponentPolicyBundle);
+  const candidatePolicyProducerId = core?.candidate?.policyProducerId;
+  const rankEntries = Array.isArray(core?.opponentPolicyBundle?.ranks) ?
+    core.opponentPolicyBundle.ranks : [];
+  const policyProducerIds = new Set([
+    candidatePolicyProducerId,
+    ...rankEntries.filter(x => x?.sourceStatus === 'authenticated')
+      .map(x => x?.policyProducerId)
+  ].filter(nonempty));
 
   if (!core || core.schema !== 'aichi-policy-plan-core-v1' ||
       core.comparisonMode !== 'candidate-vs-field')
     failures.push('policy-plan-schema-or-comparison-mode-invalid');
+  if (!nonempty(candidatePolicyProducerId) ||
+      candidatePolicyProducerId === bundle?.producerId ||
+      rankEntries.some(x => x?.sourceStatus === 'authenticated' &&
+        (!nonempty(x.policyProducerId) || x.policyProducerId === bundle?.producerId)) ||
+      rankEntries.some(x => x?.sourceStatus === 'source-unavailable' &&
+        x.policyProducerId !== null))
+    failures.push('policy-producer-identity-missing-or-not-independent-from-bundle-producer');
   if (!planSha || bundle?.policyPlanSha256 !== planSha)
     failures.push('policy-plan-core-digest-missing-or-mismatched');
   if (!attestationBundle || attestationBundle.schema !== POLICY_ATTESTATION_BUNDLE_SCHEMA ||
@@ -327,6 +344,7 @@ function inspectPolicyPanelConsistency(bundle) {
   const receiptValid = item => {
     if (!item || item.schema !== POLICY_APPLICATION_RECEIPT_SCHEMA) return false;
     const {receiptSha256, ...payload} = item;
+    const opponentEntry = rankEntries.find(x => x?.rank === item.opponentRank);
     if (!HEX_SHA256.test(receiptSha256 ?? '') ||
         safeDigest(payload) !== receiptSha256 ||
         item.policyPlanSha256 !== planSha ||
@@ -334,6 +352,8 @@ function inspectPolicyPanelConsistency(bundle) {
         item.policyRegistrationSha256 !== registrationSha ||
         item.policyConstraintsSha256 !== constraintsSha ||
         item.opponentPolicyBundleSha256 !== opponentBundleSha ||
+        item.candidatePolicyProducerId !== candidatePolicyProducerId ||
+        item.opponentPolicyProducerId !== opponentEntry?.policyProducerId ||
         !nonempty(item.trialId) ||
         !Number.isInteger(item.opponentRank) || item.opponentRank < 1 ||
         item.opponentRank > 32 ||
@@ -458,6 +478,9 @@ function inspectPolicyPanelConsistency(bundle) {
     opponentPolicyBundleSha256:opponentBundleSha,
     policyConstraintsSha256:constraintsSha,
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
+    candidatePolicyProducerId,
+    opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
+      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId))],
     fieldComplete:field.status === 'VALID',
     availableRankStrataComplete,
     fullFieldPanelComplete:field.status === 'VALID' &&
@@ -482,17 +505,26 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
   const available = Array.isArray(opponentBundle?.ranks) ?
     opponentBundle.ranks.filter(x => x?.sourceStatus === 'authenticated') : [];
   const constraintsSha = safeDigest(core?.constraints);
+  const policyProducerIds = new Set([
+    candidate?.policyProducerId,
+    ...available.map(x => x?.policyProducerId)
+  ].filter(nonempty));
+  const producerIndependenceValid = nonempty(candidate?.policyProducerId) &&
+    candidate.policyProducerId !== bundle?.producerId &&
+    available.every(x => nonempty(x.policyProducerId) &&
+      x.policyProducerId !== bundle?.producerId);
   const usedIds = new Set();
   const candidateAttestation = attestations?.candidatePolicy;
   const opponentAttestation = attestations?.opponentPolicy;
 
-  const candidateIdentityValid = candidateAttestation?.deckSha256 === candidate?.deckSha256 &&
+  const candidateIdentityValid = candidateAttestation?.policyProducerId === candidate?.policyProducerId &&
+    candidateAttestation?.deckSha256 === candidate?.deckSha256 &&
     candidateAttestation?.policySha256 === candidate?.policySha256 &&
     candidateAttestation?.entryManifestSha256 === candidate?.entryManifestSha256 &&
     candidateAttestation?.challengeSuiteSha256 === candidate?.challengeSuiteSha256;
   const candidateSignatureValid = verifyPolicyAttestationSignature(
     candidateAttestation,'candidate-policy',reviewerRegistry,bundle?.producerId,
-    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds);
+    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds,policyProducerIds);
   const opponentRankReviews = opponentAttestation?.rankReviews;
   const opponentIdentityValid = opponentAttestation?.opponentPolicyBundleSha256 ===
       panel?.opponentPolicyBundleSha256 &&
@@ -504,18 +536,25 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
         review?.policySha256 === entry.policySha256 &&
         review?.entryManifestSha256 === entry.entryManifestSha256 &&
         review?.challengeSuiteSha256 === entry.challengeSuiteSha256 &&
+        review?.policyProducerId === entry.policyProducerId &&
         review?.decision === 'approve' &&
         nonempty(review?.evidenceRef) &&
         HEX_SHA256.test(review?.evidenceSha256 ?? '');
     });
   const opponentSignatureValid = verifyPolicyAttestationSignature(
     opponentAttestation,'opponent-policy',reviewerRegistry,bundle?.producerId,
-    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds);
+    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds,policyProducerIds);
 
   if (!candidateIdentityValid || !candidateSignatureValid)
     failures.push('candidate-policy-predeal-competence-attestation-invalid');
   if (!opponentIdentityValid || !opponentSignatureValid)
     failures.push('opponent-policy-predeal-competence-attestation-invalid');
+  if (!producerIndependenceValid)
+    failures.push('policy-producer-identity-missing-or-not-independent-from-bundle-producer');
+  if (!candidateIdentityValid || !candidateSignatureValid ||
+      !opponentIdentityValid || !opponentSignatureValid) {
+    // The signature verifier also excludes every candidate/opponent policy producer.
+  }
   if (!panel?.valid)
     failures.push('policy-panel-consistency-invalid');
   if (candidateAttestation?.evidenceRef !== registration?.candidatePolicyAttestationRef ||
@@ -534,6 +573,8 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
     opponentPolicyAttestationValid:opponentIdentityValid && opponentSignatureValid,
     candidatePolicyReviewerId:candidateAttestation?.reviewerId ?? null,
     opponentPolicyReviewerId:opponentAttestation?.reviewerId ?? null,
+    policyProducerIds:[...policyProducerIds],
+    producerIndependenceValid,
     reviewerIds,failures
   };
 }
