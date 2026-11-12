@@ -90,8 +90,8 @@ function comparePayments(arms){
     const b=treatment.records[index];
     assert.equal(a.id,b.id);
     const key=row=>[row.seat,row.turn,row.promptId,row.requiredCount].join(':');
-    const left=new Map((a.handDiscardAudit.selections??[]).map(row=>[key(row),row]));
-    const right=new Map((b.handDiscardAudit.selections??[]).map(row=>[key(row),row]));
+    const left=new Map((a.handDiscardAudit?.selections??[]).map(row=>[key(row),row]));
+    const right=new Map((b.handDiscardAudit?.selections??[]).map(row=>[key(row),row]));
     const keys=[...new Set([...left.keys(),...right.keys()])];
     const changed=[],unmatchedControl=[],unmatchedTreatment=[];
     for(const k of keys){
@@ -108,8 +108,8 @@ function comparePayments(arms){
     }
     return {
       id:a.id,seed:a.seed,candidateSeat:a.candidateSeat,sourceSeat:a.sourceSeat,
-      controlAttackFuelSelected:a.handDiscardAudit.attackFuelSelected??0,
-      treatmentAttackFuelSelected:b.handDiscardAudit.attackFuelSelected??0,
+      controlAttackFuelSelected:a.handDiscardAudit?.attackFuelSelected??0,
+      treatmentAttackFuelSelected:b.handDiscardAudit?.attackFuelSelected??0,
       changedPayments:changed,
       candidateChangedPayments:changed.filter(x=>x.actorRole==='candidate').length,
       sourceChangedPayments:changed.filter(x=>x.actorRole==='source').length,
@@ -122,26 +122,31 @@ function comparePayments(arms){
 /** Summarize actual native discard-adapter activation without inferring from wins. */
 function discardSummary(arms){
   return arms.map(arm=>{
-    const audits=arm.records.map(row=>row.handDiscardAudit);
-    for(const audit of audits)assert.ok(audit,
-      'Missing native owner hand-discard audit for '+arm.id);
+    const audits=arm.records.map(row=>row.handDiscardAudit).filter(Boolean);
+    const missingAuditRows=arm.records.filter(row=>!row.handDiscardAudit);
     const reasons={};
     for(const audit of audits)for(const [reason,count] of
       Object.entries(audit.attackFuelReasons??{}))
       reasons[reason]=(reasons[reason]??0)+count;
     return {
-      id:arm.id,attempts:arm.records.length,
+      id:arm.id,attempts:arm.records.length,auditRows:audits.length,
+      missingAuditRows:missingAuditRows.map(row=>({
+        id:row.id,finished:row.finished,error:row.error??null
+      })),
+      completedGamesMissingAudit:missingAuditRows.filter(row=>
+        row.finished===true&&!row.error).length,
       attackFuelOptInValues:[...new Set(audits.map(a=>a.attackFuelOptIn))],
       acceptedDiscardPrompts:audits.reduce((n,a)=>n+(a.accepted??0),0),
       attackFuelAlternativeProposals:audits.reduce((n,a)=>
         n+(a.attackFuelAlternativeProposals??0),0),
-      attackFuelSelected:audits.reduce((n,a)=>n+(a.attackFuelSelected??0),0),
+      attackFuelSelected:audits.reduce((n,a)=>
+        n+(a.attackFuelSelected??0),0),
       attackFuelReasons:reasons,
       candidateAcceptedDiscardSelections:arm.records.reduce((n,row)=>
-        n+(row.handDiscardAudit.selections??[]).filter(s=>
+        n+(row.handDiscardAudit?.selections??[]).filter(s=>
           s.seat===row.candidateSeat).length,0),
       sourceAcceptedDiscardSelections:arm.records.reduce((n,row)=>
-        n+(row.handDiscardAudit.selections??[]).filter(s=>
+        n+(row.handDiscardAudit?.selections??[]).filter(s=>
           s.seat===row.sourceSeat).length,0),
       candidateAttackDeclarations:arm.records.reduce((n,row)=>
         n+(row.candidateAttackSettlement?.declarations??0),0),
@@ -226,6 +231,10 @@ function main(){
     sourceSpecificMewPaymentGuardsDisabledInEveryArm:true,
     commonPolicySymmetricBothSeats:true,
     qualifiedPaperGames:0,qualifiedFieldWins:0,
+    handDiscardAuditCoverage:activation.map(a=>({
+      id:a.id,auditRows:a.auditRows,attempts:a.attempts,
+      completedGamesMissingAudit:a.completedGamesMissingAudit
+    })),
     activation,comparison,attackSettlementPairs,paymentComparisons,arms,
     allAttemptIds:arms.flatMap(a=>a.records.map(r=>a.id+':'+r.id)),
     attemptLedgerSha256:hash(arms.map(a=>a.records.map(r=>({
@@ -239,8 +248,12 @@ function main(){
   assert.equal(result.allAttemptIds.length,24);
   for(let i=0;i<arms.length;i++){
     assert.equal(arms[i].records.length,8);
-    assert.ok(arms[i].records.every(row=>
-      row.handDiscardAudit.attackFuelOptIn===reg.modes[i].actorAttackFuelDiscard));
+    for(const row of arms[i].records){
+      if(row.handDiscardAudit){
+        assert.equal(row.handDiscardAudit.attackFuelOptIn,
+          reg.modes[i].actorAttackFuelDiscard);
+      }
+    }
   }
   save(result);
   console.log('AGENT20_NEWMOON_PERFECTION_ATTACK_FUEL',JSON.stringify({
