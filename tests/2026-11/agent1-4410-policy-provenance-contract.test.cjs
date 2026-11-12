@@ -207,12 +207,17 @@ test('4410 Mew DCE recipient source-only configuration produces distinct seat fi
       actorOnlyComposition: true,
       sourceIndependentCommonPolicy: true,
       actorMewDceRecipientSourceOnly: true,
-      actorMewDceRecipientRoot: true
+      actorMewDceRecipientRoot: true,
+      sourceScopedQuickBallRoot: true
     }
   }));
   assert.equal(result.complete, true);
   assert.equal(result.samePolicy, false);
   assert.notEqual(result.policySha256BySeat[0], result.policySha256BySeat[1]);
+  assert.equal(result.perSeat[0].effectiveOptions.quickBallRoot, true);
+  assert.equal(result.perSeat[0].effectiveOptions.quickBallRootOwnerSeat, 0);
+  assert.equal(result.perSeat[1].effectiveOptions.quickBallRoot, false);
+  assert.equal(result.perSeat[1].effectiveOptions.quickBallRootOwnerSeat, null);
   assert.equal(result.perSeat[0].effectiveOptions.actorMewDceRecipientRoot, true);
   assert.equal(result.perSeat[1].effectiveOptions.actorMewDceRecipientRoot, false);
   assert.equal(result.perSeat[0].enabledSourceOnlyFlags.includes(
