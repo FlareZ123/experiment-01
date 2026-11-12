@@ -229,3 +229,10 @@ After Agent44 added the mandatory trial-level fixture marker, I reran the struct
 
 
 The Agent42 role-identity/receipt test fixture was also updated to declare `fullProcessClosureCovered:false` in its V2 pre-deal plan, so the shared receipt producer's new required-boolean check remains covered by Agent49's pure-preflight workflow. That test file passes syntax compilation; real Ed25519 execution remains pending workflow dispatch.
+
+
+### Fixture pair and legality boundary
+
+Agent44 supplied a concrete engineering-only pair for the native fixture game: candidate `results/aichi-2026/candidate-hood-shadow-rider.json` (60 cards; canonical printed-60 fingerprint `1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924`) versus Aichi rank 1 in `results/aichi-2026/full-decklists.json` (printed-60 fingerprint `159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090`). The trial must set `candidateSeat:0`, `originalSourceSeat:1`, record the actual seeded first-player seat, include both source refs, use Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, use the actual workflow `GITHUB_SHA` for research revision, and set `fixtureOnly:true`. Rank/seed/seat context belongs in trial/registration, not role policy options.
+
+This is only a non-admitting engineering fixture. The rank-1 admission row's source legal chain is explicitly unqualified, both lists use English proxy printing metadata, and `scripts/japanese_expanded_audit.py` is only a scoped banlist/card-count screen—not a complete Japanese-printing, errata, release-date or paper legality certificate. No `legalDeck:true`, paper-qualified, matchup-strength or competitive-win claim may be derived from this fixture.
