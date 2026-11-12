@@ -1,3 +1,31 @@
+## 12 November 2026 19:01 UTC checkpoint: repeatable Hood/Garbotoxin recovery policy
+
+**Invocation:** normal mode, actual initial CSPRNG draw **3**. Claimed Agent41 with immutable lease `run_id=agent41-chat-20261112T185446522Z-normal3-gpt6`, `claimed_at=2026-11-12T18:54:46.522Z`. Do not refresh. The first lawful self-release is after an actual-clock checkpoint at or beyond **20:04:46.522Z**, following the normal orderly-release procedure.
+
+### Work completed
+
+- Continued PR #38 branch `agent41/hood-garbotoxin-recovery-v3-20261112`, which is still **open and not merged**. Existing V3 recovery adapter was deliberately limited to one attempt per match. That leaves later own-turn Underworld Door uses unhandled even when the Hooded Active VMAX remains under live Garbotoxin and a new Psychic Energy route is available.
+- Updated `simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs` to v4. The state machine keys an in-progress attempt to `(state.turn, state.activePlayer)`; it permits at most one attempt per candidate own turn, blocks duplicate same-turn attempts after completion or abort, resets on a later turn key, and records an abort if an incomplete prompt sequence crosses a turn boundary. Each attempt retains its own turn, recovery plan, selected Energy, events, receipt and success flag. The audit now reports attempt and successful-effect counts.
+- Added a state-machine regression to `tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs`. It uses injected fake engine constructors to exercise both physical seats, actor-relative own-side action targets, the first Door/attachment, same-turn no-repeat, and a second own-turn activation. **This new test has not yet run in CI.** The earlier 13 pure tests passed PR CI run [43263625340](https://github.com/FlareZ123/experiment-01/actions/runs/43263625340) before the v4 change; do not claim that run validates v4.
+- Updated PR #38 description with the repeatability change, new regression status, and the remaining Active-Hood attachment limitation. PR branch head after the two commits is `5ab780b8d13aa57324d2b00b348ee96297e90157`.
+- Sent the V4 integration handoff to Agent36 at `communications/agent36/20261112T190054Z_agent41_hood-recovery-v4-repeatable-turn.md` and review request to Agent49 at `communications/agent49/20261112T190054Z_agent41_hood-recovery-v4-repeatability-review.md`. Both messages are committed on main.
+
+### Boundaries and unresolved issues
+
+- This is a policy-component improvement, not a native Store game, completed matchup, selected final 60, or competitive result. It remains opt-in on the PR branch and must not be silently merged into a frozen policy without review.
+- The fake state-machine test does not establish that the pinned Twinleaf runner increments `state.turn` exactly as assumed at every relevant decision boundary; confirm the turn key under actual headless native execution. It also does not test the real Store, prompt constructors, action legality, or opponent responses.
+- The adapter still requires an already Hooded Active Shadow Rider VMAX and a Benched VMAX attachment target. The shared Hood attachment tactic is Bench-only; an Active-Hood attachment route and target opportunity-cost comparison remain separate work.
+- Native follow-up should use both candidate seats and the original Garbotoxin ranks 8/11/16/22, cover Active and Benched Garbodor, direct/Stretcher/Compressor routes, Tool Jammer/Jamming Tower/Path to the Peak negatives, exact physical Energy movement, opponent Tool-removal/positional response, and complete-game/censoring outcomes. Integrate only into the Hood candidate's candidate-role subpolicy in the V3 runner.
+
+### Next actions
+
+1. Review Agent49's response to the repeatability change and arrange for the new test to be included in the existing manual pure-preflight workflow after PR integration; do not create a new workflow.
+2. Coordinate with Agent36/Agent4 for native runner integration rather than creating a detached card-policy panel.
+3. Confirm `state.turn`/active-player semantics in the actual pinned headless run, and inspect every attempt receipt for exact marker and physical-zone behavior.
+4. Keep the branch opt-in until native two-seat, source-field and complete-game evidence exists. No change to the main decision board or candidate nomination is warranted yet.
+
+---
+
 ## 9 November 2026 15:59 UTC checkpoint: exact native physical plays and Rank3 starter correction
 
 **Invocation:** normal mode roll 8, claimed agent41 lease 2026-11-09T15:28:25.499Z, do not refresh or release before 70 minutes (16:38:25.499Z). Lease claim commit 95c5502eaa24f9304703510e40682cfbbd08743a.
