@@ -14,6 +14,8 @@ const {withNativeRawStateFallbackQuarantine}=
   require('../../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {withOwnerPublicAcknowledgements}=
   require('../../twinleaf/agent50-owner-public-acknowledgements.cjs');
+const {buildCaptureOnlyPolicyProvenance}=
+  require('./agent26-4410-capture-policy-provenance.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
@@ -233,10 +235,7 @@ function execute(){
     reg.preRegisteredTrials[0].id);
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition,true);
-  let guardedRun=null,executionError=null;
-  try{
-    guardedRun=withNativeRawStateFallbackQuarantine(()=>
-      withOwnerPublicAcknowledgements(()=>runDevelopment({
+  const policyOptions={
     ...frozen.policyOptions,...mew.options(true),
     sourceIndependentCommonPolicy:true,
     // Preserve frozen bilateralPublicContextSpecialEnergy; narrow root is exclusive.
@@ -274,8 +273,11 @@ function execute(){
       capture.onRootActionDispatched(...args);
       fullPaperObserver.onRootActionDispatched(...args);
     }
-      }))
-    );
+  };
+  let guardedRun=null,executionError=null;
+  try{
+    guardedRun=withNativeRawStateFallbackQuarantine(()=>
+      withOwnerPublicAcknowledgements(()=>runDevelopment(policyOptions)));
   }catch(error){
     executionError={name:error?.name??'Error',message:String(error?.message??error),
       stack:typeof error?.stack==='string'?error.stack:null,
@@ -357,9 +359,42 @@ function execute(){
     [false,'independent-policy-competence-and-counterplay-review'],
     [false,'authorized-three-reviewer-Ed25519-signatures']
   ].find(([okay])=>!okay)?.[1]??null;
+  const candidateManifestBlobSha=execFileSync('git',
+    ['-C',ROOT,'rev-parse',`HEAD:${CANDIDATE_JAPANESE_MANIFEST}`],
+    {encoding:'utf8'}).trim();
+  const policyProfilePath='simulation/evaluation/agent41-frozen-bilateral-development-v2.json';
+  const policyProfileBlobSha=execFileSync('git',
+    ['-C',ROOT,'rev-parse',`HEAD:${policyProfilePath}`],
+    {encoding:'utf8'}).trim();
+  const policyProvenance=buildCaptureOnlyPolicyProvenance({
+    repositoryRoot:ROOT,entryFile:__filename,development,row,
+    options:policyOptions,sourceSeat,candidateSeat,trialId:row.trial.id,
+    candidateManifestBlobSha,policyProfileBlobSha,enginePin:actualEngineCommit,
+    activationReceipts:{
+      agent4RawStateFallbackQuarantine:nativeRawStateFallbackQuarantineAudit,
+      agent50OwnerPublicAcknowledgements:ownerPublicAcknowledgementAudit,
+      agent36LivePaperRootReceipts:{
+        schema:rawNativePhysicalReceipts?.schema??null,
+        originalPhysicalCardCount:rawNativePhysicalReceipts?.originalPhysicalCards?.length??null,
+        acceptedStoreRootCount:rawNativePhysicalReceipts?.acceptedStoreRootCount??null,
+        rootOrdinalsUnique:rawNativePhysicalReceipts?.rootOrdinalsUnique??null,
+        settledPhysicalIdentityClean:rawNativePhysicalReceipts?.settledPhysicalIdentityClean??null
+      },
+      agent41PaperSupporterQuota:{
+        optIn:row.paperSupporterQuotaOptIn??null,
+        qualified:row.nativeSupporterQuotaQualified??null
+      },
+      agent48CologneNativePlayAudit:row.paperCologneNativePlayAudit??null,
+      commonPolicyAudit:row.policyAudit??null
+    }
+  });
+  runtime.hookRevisionSha=null;
+  runtime.policySha256BySeat=[null,null];
   const intake={
     schema:'agent44-first-independent-original-source-case-intake-v2',
     caseId:reg.caseId,registrationRef:REGPATH,originalRank:5,sourceSeat,candidateSeat,runtime,
+    hookRevisionSha:null,policySha256BySeat:[null,null],
+    policyProvenance,policyProvenanceSha256:policyProvenance.policyProvenanceSha256,
     fixedRegisteredSourceAndCandidateSixties:true,
     candidateManifestBinding,candidateManifestBindingSha256,
     candidateDerivedFromOfficialJapaneseSourceDeckCode,
@@ -401,6 +436,9 @@ function execute(){
       },
       targetOrdinalLinked:targetLinked,
       nativeSupporterQuota:row.nativeSupporterQuotaQualified??null,
+      paperCologneNativePlayAudit:row.paperCologneNativePlayAudit??null,
+      actorOnlyDecisionCoverage:row.actorOnlyDecisionCoverage??null,
+      policyProvenanceSha256:policyProvenance.policyProvenanceSha256,
       sourceM4AuditCount:row.specialRedCardPaperPreselectionAudits?.length??0
     },
     nineEvidenceObjects:{
@@ -419,6 +457,12 @@ function execute(){
         mulligans:row.initialPublicMulliganReveals??null},
       ownerPolicyDecisions:{available:Array.isArray(row.decisionTrace),
         nativeDecisionTraceSha256:hash(row.decisionTrace??[]),
+        actorRuntimeClosure:policyProvenance.actorRuntimeClosure,
+        effectiveSeatConfigSha256BySeat:policyProvenance.effectiveSeatConfigSha256BySeat,
+        mewDceRootApplicationReceipt:policyProvenance.mewDceRootApplicationReceipt,
+        paperCologneNativePlayAudit:policyProvenance.paperCologneNativePlayAudit,
+        policyProvenanceSha256:policyProvenance.policyProvenanceSha256,
+        policyCompetenceIndependentlyReviewed:false,
         knownHiddenInformationAudit:'not independently certified'},
       realStoreActionsAndTargets:{available:targetLinked,
         linkedTargets:row.nativeAcceptedTargetSidecar??null,
@@ -456,11 +500,16 @@ function execute(){
       reviewAuthorized:false,competitiveAdmission:false,
       firstMissingEvidence:firstMissing,
       qualifiedCompetitiveGames:0,
-      nativeOutcomeNeverPromotedToPaperWin:true
+      nativeOutcomeNeverPromotedToPaperWin:true,
+      policyProvenanceCaptured:true,
+      policyProvenanceStatus:policyProvenance.status,
+      hookRevisionSha:null,policySha256BySeat:[null,null],
+      competitivePolicyCompetenceReady:false
     }
   };
   return {schema:intake.schema,registration:reg,registrationRef:REGPATH,registrationSha256,runtime,
     candidateManifestBinding,candidateManifestBindingSha256,
+    policyProvenance,policyProvenanceSha256:policyProvenance.policyProvenanceSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
     nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
