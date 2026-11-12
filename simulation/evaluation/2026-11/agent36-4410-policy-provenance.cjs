@@ -65,6 +65,12 @@ const SOURCE_SCOPED_OPTIONS = Object.freeze([
   'actorMewGenesectQuickBallSearch'
 ]);
 
+// The development entrypoint derives a concrete owner-seat root from this
+// control flag; hash the derived feature and owner seat, not only the toggle.
+const SOURCE_SCOPED_FEATURES = Object.freeze({
+  sourceScopedQuickBallRoot: 'quickBallRoot'
+});
+
 function canonicalJson(value) {
   if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
       (typeof value === 'number' && Number.isFinite(value))) return JSON.stringify(value);
@@ -177,6 +183,17 @@ function effectiveOptionsForSeat(options, seat, sourceSeat) {
     if (seat !== sourceSeat) {
       effective[flag] = false;
       effective[feature] = false;
+    }
+  }
+  for (const [flag, feature] of Object.entries(SOURCE_SCOPED_FEATURES)) {
+    if (options[flag] !== true) continue;
+    if (seat === sourceSeat) {
+      effective[feature] = true;
+      effective[feature + 'OwnerSeat'] = sourceSeat;
+    } else {
+      effective[flag] = false;
+      effective[feature] = false;
+      effective[feature + 'OwnerSeat'] = null;
     }
   }
   for (const [key, value] of Object.entries(options)) {
@@ -297,6 +314,7 @@ function buildPolicyProvenance({repositoryRoot, entryFile, options,
     requestedOptions: options??null,
     sourceOnlyFeatureMap: SOURCE_ONLY_FEATURES,
     sourceScopedOptions: SOURCE_SCOPED_OPTIONS,
+    sourceScopedFeatureMap: SOURCE_SCOPED_FEATURES,
     policySha256BySeat: policy.policySha256BySeat??null,
     perSeat: policy.perSeat ?? null,
     unknownSourceOnlyFlags: policy.unknownSourceOnlyFlags ?? [],
@@ -312,5 +330,6 @@ function buildPolicyProvenance({repositoryRoot, entryFile, options,
 }
 
 module.exports = {CORE_HOOK_ROOTS, SOURCE_ONLY_FEATURES, SOURCE_SCOPED_OPTIONS,
+  SOURCE_SCOPED_FEATURES,
   canonicalJson, sha256, buildEnvironmentManifest, loadedResearchCodeManifest,
   effectiveOptionsForSeat, policyDefinitionHashes, buildPolicyProvenance};
