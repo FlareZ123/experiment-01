@@ -32,6 +32,11 @@ function nonempty(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function stableIdentityId(value) {
+  return nonempty(value) && value === value.trim() && value.length <= 256 &&
+    !/[\\u0000-\\u001f\\u007f]/.test(value);
+}
+
 /** @param {unknown} value @returns {string|null} */
 function safeDigest(value) {
   try { return evidenceBundleSha256(value); }
@@ -161,14 +166,17 @@ function verifyV3Review(bundle, review, role, registry, outcome, usedIds) {
       review.decision !== 'approve' ||
       review.paperOutcome !== outcome.kind ||
       review.paperWinnerSeat !== outcome.winnerSeat ||
-      !nonempty(review.reviewerId) || review.reviewerId === bundle?.producerId ||
+      !stableIdentityId(review.reviewerId) || !stableIdentityId(bundle?.producerId) ||
+      review.reviewerId === bundle?.producerId ||
       usedIds.has(review.reviewerId) || !nonempty(review.reviewEvidenceRef) ||
       !HEX_SHA256.test(review.reviewEvidenceSha256 ?? '')) return false;
 
   const reviewers = Array.isArray(registry?.reviewers) ? registry.reviewers : [];
-  const configured = reviewers.find(x => x?.reviewerId === review.reviewerId &&
-    Array.isArray(x.roles) && x.roles.includes(role));
-  if (!configured || !nonempty(configured.publicKeyPem) ||
+  const matching = reviewers.filter(x => x?.reviewerId === review.reviewerId);
+  const configured = matching.length === 1 ? matching[0] : null;
+  if (!configured || !stableIdentityId(configured.reviewerId) ||
+      !Array.isArray(configured.roles) || !configured.roles.includes(role) ||
+      !nonempty(configured.publicKeyPem) ||
       typeof review.signatureBase64 !== 'string' ||
       !/^[A-Za-z0-9+/]{86}==$/.test(review.signatureBase64)) return false;
   try {
@@ -237,7 +245,8 @@ function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
       attestation.policyConstraintsSha256 !== policyConstraintsSha256 ||
       !validOffsetDateTime(attestation.attestedAt) ||
       Date.parse(attestation.attestedAt) >= Date.parse(registeredAt) ||
-      !nonempty(attestation.reviewerId) ||
+      !stableIdentityId(attestation.reviewerId) ||
+      !stableIdentityId(producerId) ||
       attestation.reviewerId === producerId || usedIds.has(attestation.reviewerId) ||
       policyProducerIds.has(attestation.reviewerId) ||
       !nonempty(attestation.evidenceRef) ||
@@ -250,7 +259,8 @@ function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
   const matching = reviewers.filter(x => x?.reviewerId === attestation.reviewerId);
   const configured = matching.length === 1 ? matching[0] : null;
   if (reviewerRegistry?.schema !== 'aichi-trusted-reviewers-v1' ||
-      !configured || !Array.isArray(configured.roles) ||
+      !configured || !stableIdentityId(configured.reviewerId) ||
+      !Array.isArray(configured.roles) ||
       !configured.roles.includes(role) || !nonempty(configured.publicKeyPem)) return false;
   try {
     const key = createPublicKey(configured.publicKeyPem);
@@ -291,15 +301,17 @@ function inspectPolicyPanelConsistency(bundle) {
     candidatePolicyProducerId,
     ...rankEntries.filter(x => x?.sourceStatus === 'authenticated')
       .map(x => x?.policyProducerId)
-  ].filter(nonempty));
+  ].filter(stableIdentityId));
 
   if (!core || core.schema !== 'aichi-policy-plan-core-v1' ||
       core.comparisonMode !== 'candidate-vs-field')
     failures.push('policy-plan-schema-or-comparison-mode-invalid');
-  if (!nonempty(candidatePolicyProducerId) ||
+  if (!stableIdentityId(bundle?.producerId))
+    failures.push('bundle-producer-identity-invalid');
+  if (!stableIdentityId(candidatePolicyProducerId) ||
       candidatePolicyProducerId === bundle?.producerId ||
       rankEntries.some(x => x?.sourceStatus === 'authenticated' &&
-        (!nonempty(x.policyProducerId) || x.policyProducerId === bundle?.producerId)) ||
+        (!stableIdentityId(x.policyProducerId) || x.policyProducerId === bundle?.producerId)) ||
       rankEntries.some(x => x?.sourceStatus === 'source-unavailable' &&
         x.policyProducerId !== null))
     failures.push('policy-producer-identity-missing-or-not-independent-from-bundle-producer');
@@ -509,10 +521,11 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
   const policyProducerIds = new Set([
     candidate?.policyProducerId,
     ...available.map(x => x?.policyProducerId)
-  ].filter(nonempty));
-  const policyProducerProvenanceValid = nonempty(candidate?.policyProducerId) &&
+  ].filter(stableIdentityId));
+  const policyProducerProvenanceValid = stableIdentityId(bundle?.producerId) &&
+    stableIdentityId(candidate?.policyProducerId) &&
     candidate.policyProducerId !== bundle?.producerId &&
-    available.every(x => nonempty(x.policyProducerId) &&
+    available.every(x => stableIdentityId(x.policyProducerId) &&
       x.policyProducerId !== bundle?.producerId);
   const usedIds = new Set();
   const candidateAttestation = attestations?.candidatePolicy;
@@ -676,6 +689,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       code !== 'independent-policy-competence-unproven');
     failures.push(...policyPanel.failures,...policyAttestations.failures);
     if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
+    if (!gameReviewerIdentityValid) failures.push('game-reviewer-identity-invalid');
     if (policyReviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
     if (producerGameOverlap) failures.push('policy-producer-and-game-reviewers-not-independent');
     if (!strategyReviewValid) failures.push('independent-strategy-review-missing-or-invalid');
