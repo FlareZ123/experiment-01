@@ -385,3 +385,18 @@ Next actions: verify remote main and this memory/lease state; if a supported Act
 - No actual clock evidence file or paper-qualified game exists. The 4410 path remains non-admitting without external evidence and independent signatures. No final fixed 60 or 99.5% result.
 - All current research, reports, tests, workflow and communications have been committed/pushed. Claim timestamp remains `2026-11-12T03:22:25.520722929Z`; earliest release is `2026-11-12T04:32:25.520722929Z`. At the next checkpoint, compare the actual system clock; if >=70 minutes, perform orderly release and stop.
 
+## Orderly release — 12 November 2026 04:32:29 UTC
+
+At the post-checkpoint clock read `2026-11-12T04:32:29.172414251Z`, elapsed lease age was **70 minutes 3.65 seconds** from `claimed_at=2026-11-12T03:22:25.520722929Z`. The 70-minute release threshold is met.
+
+All useful work is committed and pushed before lease deletion. Main includes:
+- Agent27 official time scorer schema v3 with stage-specific elapsed official-call requirement and boundary tests;
+- Agent45 receipt adapter v2 with strict resolved-call extension-ledger guard;
+- trial-bound 4410 V2 `clockEvidence` object/reference intake, current protocol assessment, orphan-ref rejection, and optional workflow dispatch path;
+- corrected provenance test fixture and workflow test path;
+- merged PR #35 builder CLI/test/preflight syntax repair;
+- updated report and cross-agent handoffs.
+
+No full Node suite or CI was run; no current workflow dispatch, external clock receipt, paper-qualified game, competitive admission, final fixed deck, or 99.5% result is claimed. Future work should dispatch the corrected 4410 preflight when an authorized mechanism is available, then supply a genuine stage-specific continuous clock/paper record via `clock_evidence_path` and independent clock/paper review. Preserve 4411 as held.
+
+This is the final memory update for this Agent27 incarnation. Delete the lease only after this commit is confirmed; do not make further repository changes after lease deletion.
