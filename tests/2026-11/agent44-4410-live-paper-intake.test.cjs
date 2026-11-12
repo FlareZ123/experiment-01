@@ -63,3 +63,25 @@ test('4410 intake exposes registration pointer, runtime revision and exact build
   assert.match(source,/const rawNativeReceiptCaptureComplete=rootReceiptAlignment\.complete/);
   assert.match(source,/actualEngineCommit,reg\.enginePinnedCommit/);
 });
+
+test('V2 builder and fixture target the frozen 4410 producer, never held 4411',()=>{
+  const builder=fs.readFileSync(path.join(ROOT,
+    'simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs'),'utf8');
+  const builderTest=fs.readFileSync(path.join(__dirname,
+    'agent45-agent44-v2-bundle-builder.test.cjs'),'utf8');
+  assert.match(builder,/const REFERENCE='agent44-first-independent-rank5-newmoon-case-v2\\.json'/);
+  assert.match(builder,/original\\.registration\\.schema,'agent44-first-independent-review-case-registration-v1'/);
+  assert.match(builder,/original\\.intake\\.caseId,'agent44-20261109-original-rank5-newmoon-fresh-4410B'/);
+  assert.match(builder,/registrationRef:\\s*'results\\/aichi-2026\\/registrations\\/agent44-first-original-rank5-newmoon-case-20261109\\.json'/);
+  assert.match(builderTest,/const TRIAL='5:4410:B:new-moon-lockbreaker-v1'/);
+  assert.match(builder,/settledPhysicalIdentityClean/);
+  assert.match(builder,/acceptedStoreRootCount/);
+  assert.match(builder,/original\\.intake\\.runtime\\?\\.researchRevisionSha/);
+  for(const field of [
+    'nativePromptChoices','policyAudit','sourceAudit','supporterModalEvidence',
+    'ownerSupporterOpportunityAudit','ownerCompressorOpportunityAudit',
+    'candidateRepliesAfterSourceAttacks','candidateAttackSettlement',
+    'sourceAttackSettlement','nativeAttackModalityLedger','nativeAttackPhysicalTape',
+    'firstSettledPublicAttack','finalBoard','finalPrizes'
+  ]) assert.ok(builder.includes(field),`V2 signed evidence envelope must bind ${field}`);
+});
