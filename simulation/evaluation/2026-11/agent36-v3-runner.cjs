@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {canonicalJson}=require('../agent45-independent-competitive-admission.cjs');
+const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
@@ -13,6 +13,7 @@ const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
+const SHA256=/^[0-9a-f]{64}$/;
 const RUN_ID=/^[1-9]\d*$/;
 const PREDEAL_FIELDS=[
   'ready','status','fixtureOnly','producerId','trialId','gameRegistration',
@@ -134,10 +135,18 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
-function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
-  opponentManifest,run,identityHelper=roleIdentity,pin=withPinnedResearchModuleLoads,
-  cacheEntries}){
-  assert.equal(typeof run,'function','pinned V3 game callback is required');
+function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
+  opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries}){
+  assert.equal(cardPoolInitialization?.schema,
+    'agent36-twinleaf-card-pool-initialization-v1',
+    'pinned native card-pool initialization receipt is required');
+  assert.match(cardPoolInitialization.enginePin??'',GIT_SHA,
+    'card-pool receipt must bind the Twinleaf engine pin');
+  assert.ok(Array.isArray(cardPoolInitialization.setNames)&&
+    cardPoolInitialization.setNames.length>0,
+    'card-pool receipt must bind the ordered startup set list');
+  assert.match(cardPoolInitialization.startupSha256??'',SHA256,
+    'card-pool startup source hash is invalid');
   const combined=identityHelper.combineRolePolicyEntryManifests(
     candidateManifest,opponentManifest);
   const loaded=identityHelper.assertLoadedResearchModulesCovered(
@@ -146,13 +155,34 @@ function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
   const loadedPaths=loaded.files.map(file=>file.path).sort();
   assert.deepEqual(loadedPaths,expectedPaths,
     'every role-closure module must be preloaded before the runtime pin is installed');
-  const pinned=pin(repositoryRoot,combined.expectedByPath,run);
+  const cardPoolInitializationSha256=evidenceBundleSha256(cardPoolInitialization);
+  const runtimePinEvidence={schema:'aichi-runtime-pin-evidence-v1',
+    unionSha256:combined.unionSha256,
+    loadedProcessClosureSha256:loaded.sha256,
+    cardPoolInitializationSha256};
+  return {expectedByPath:combined.expectedByPath,runtimePinEvidence,
+    runtimePinUnionSha256:combined.unionSha256,
+    loadedProcessClosureSha256:loaded.sha256,cardPoolInitializationSha256,
+    loadedProcessClosure:loaded};
+}
+
+function runPinnedV3RoleRuntime({repositoryRoot=ROOT,preparedRuntime,run,
+  pin=withPinnedResearchModuleLoads}){
+  assert.ok(preparedRuntime?.expectedByPath&&preparedRuntime?.runtimePinEvidence,
+    'prepared V3 runtime evidence is required before installing the module pin');
+  assert.equal(typeof run,'function','pinned V3 game callback is required');
+  const pinned=pin(repositoryRoot,preparedRuntime.expectedByPath,run);
   assert.equal(pinned.audit?.guardRestored,true,
     'Agent36 runtime module pin did not restore the original CommonJS loader');
-  return {...pinned,expectedByPath:combined.expectedByPath,
-    runtimePinUnionSha256:combined.unionSha256,
-    loadedProcessClosureSha256:loaded.sha256,
-    loadedProcessClosure:loaded};
+  return {...preparedRuntime,result:pinned.result,audit:pinned.audit};
+}
+
+function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
+  opponentManifest,cardPoolInitialization,run,identityHelper=roleIdentity,
+  pin=withPinnedResearchModuleLoads,cacheEntries}){
+  const preparedRuntime=prepareV3RoleRuntimeEvidence({repositoryRoot,
+    candidateManifest,opponentManifest,cardPoolInitialization,identityHelper,cacheEntries});
+  return runPinnedV3RoleRuntime({repositoryRoot,preparedRuntime,run,pin});
 }
 
 function createV3PolicyApplicationReceipt(args){
@@ -440,5 +470,6 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   fetchWorkflowRun,fetchWorkflowJobs,fetchCommittedArtifact,
   collectPreDealPersistenceReceipt,collectDealGenerationReceipt,
   initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
+  prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
   readJsonFile,writeJsonAtomic,main};
