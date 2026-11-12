@@ -881,7 +881,8 @@ test('seat-scoped actor policies compose independently across candidate and oppo
   assert.equal(candidateScoped.audit.policyOwnerSeat,0);
   assert.equal(opponentScoped.audit.policyOwnerSeat,1);
   assert.equal(candidateScoped.audit.nonOwnerSeatBypassCalls,1);
-  assert.equal(opponentScoped.audit.nonOwnerSeatBypassCalls,1);
+  assert.equal(opponentScoped.audit.nonOwnerSeatBypassCalls,0,
+    'The inner candidate wrapper delegates the opponent seat to the outer opponent wrapper');
   assert.equal(candidateScoped.audit.selectedRootDecisions,1);
   assert.equal(opponentScoped.audit.selectedRootDecisions,1);
 });
