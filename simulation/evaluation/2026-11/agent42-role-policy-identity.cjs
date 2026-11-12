@@ -18,25 +18,37 @@ const NODE_VERSION = /^v?\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/;
 
 const PHYSICAL_CONTEXT_KEYS = new Set([
   'seat','seatid','seatindex','physicalseat','physicalseatid','playerslot',
-  'candidateseat','opponentseat','sourceseat','firstplayerseat',
-  'actualfirstplayerseat','originalsourceseat','policyownerseat','ownerseat'
+  'playerseat','playerseatid','playerseatindex','playerindex','playerid',
+  'playernumber','playerposition','candidateplayer','opponentplayer',
+  'sourceplayer','firstplayer','currentplayer','activeplayer','turnplayer',
+  'candidateposition','opponentposition','side','sideindex','candidateside',
+  'opponentside','ownerside','sourceseat','firstplayerseat','actualfirstplayerseat',
+  'originalsourceseat','policyownerseat','ownerseat'
 ]);
 const BUILTINS = new Set(Module.builtinModules.flatMap(name => [
   name, name.replace(/^node:/, ''), 'node:' + name.replace(/^node:/, '')
 ]));
 const FORBIDDEN_EXTERNAL_BUILTINS = new Set([
   'child_process','node:child_process','worker_threads','node:worker_threads',
-  'vm','node:vm'
+  'vm','node:vm','module','node:module'
+]);
+const TRUSTED_MODULE_API_FILES = new Set([
+  'simulation/evaluation/agent36-runtime-module-pin.cjs',
+  'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs'
 ]);
 const TRUSTED_FILE_READERS = new Set([
   'simulation/evaluation/agent36-source-closure-audit.cjs',
   'simulation/evaluation/agent36-runtime-module-pin.cjs',
-  'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs'
+  'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs',
+  'simulation/evaluation/2026-11/agent36-v3-runner.cjs'
 ]);
-const REQUIRED_COMMON_BINDINGS = [
-  'observe','promptActions','roleComposer','moduleLoadGuard',
-  'sourceClosureAudit','roleIdentityHelper'
-];
+const REQUIRED_COMMON_BINDING_EXPORTS = {
+  observe:'actorObservation',promptActions:'ResolvePromptAction',
+  roleComposer:'withCandidateOpponentPolicyRoles',
+  moduleLoadGuard:'withPinnedResearchModuleLoads',
+  sourceClosureAudit:'auditSourceClosure',roleIdentityHelper:'buildRolePolicyIdentity'
+};
+const VENDOR_PREFIX = 'vendor/twinleaf/';
 
 function hashBytes(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
@@ -63,7 +75,9 @@ function assertNoPhysicalContext(value, at = 'policyOptions') {
   }
   if (value && typeof value === 'object') {
     for (const [key,child] of Object.entries(value)) {
-      assert.ok(!PHYSICAL_CONTEXT_KEYS.has(key.toLowerCase()),
+      const normalized=key.toLowerCase().replace(/[^a-z0-9]/g,'');
+      assert.ok(!PHYSICAL_CONTEXT_KEYS.has(normalized)&&!normalized.includes('seat')&&
+        !normalized.includes('player'),
         at+' may not bind physical-game context key '+key);
       assertNoPhysicalContext(child,at+'.'+key);
     }
@@ -89,10 +103,19 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
   for(const file of files){
     const source=fs.readFileSync(path.join(root,file.path),'utf8');
     const lines=source.split(/\r?\n/);
+    const usesEsm=/\bimport\s*(?:\(|['"]|\*|\{|\w+\s+from\s*['"])/.test(source)||
+      /\bexport\s+(?:default|const|let|var|function|class|\*|\{)/.test(source)||
+      /\bexport\s+(?:\*|\{)[^;]*\sfrom\s*['"]/.test(source);
+    const usesModuleApi=/\brequire\s*\(\s*['"](?:node:)?module['"]\s*\)/.test(source)||
+      /\bModule\b/.test(source)||/\bmodule\s*\.\s*constructor\b/.test(source)||
+      /\bmodule\s*\[\s*['"]constructor['"]\s*\]/.test(source)||
+      /\bcreateRequire\s*\(/.test(source);
+    if(usesEsm&&!TRUSTED_MODULE_API_FILES.has(file.path))
+      unsupported.push({file:file.path,kind:'esm'});
+    if(usesModuleApi&&!TRUSTED_MODULE_API_FILES.has(file.path))
+      unsupported.push({file:file.path,kind:'module-loader capture'});
     for(let i=0;i<lines.length;i++){
       const line=lines[i];
-      const usesEsm=/^\s*import\s/.test(line)||/^\s*export\s+(?:default|const|let|var|function|class|\*|\{)/.test(line)||
-        /\bimport\s*\(/.test(line)||/\bimport\.meta\b/.test(line);
       const usesDynamicCode=/\bnew\s+Function\s*\(/.test(line)||
         /\bFunction\s*\(/.test(line)||/\beval\s*\(/.test(line)||
         /\bvm\s*\.\s*(?:runIn|compileFunction|Script)/.test(line)||
@@ -105,16 +128,17 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
         /\bnew\s+WebSocket\s*\(/.test(line);
       const usesUnseededRandom=/\bMath\s*\.\s*random\s*\(/.test(line)||
         /\b(?:randomBytes|randomUUID|randomInt|randomFill|randomFillSync|getRandomValues)\s*\(/.test(line);
-      const kind=usesEsm?'esm':usesDynamicCode?'dynamic-code':usesProcessOrWorker?'process-or-worker':
-        usesNetwork?'network':'unreviewed-file-read';
-      if(usesEsm||usesDynamicCode||usesProcessOrWorker||usesNetwork||usesUnseededRandom||
+      if(usesDynamicCode||usesProcessOrWorker||usesNetwork||usesUnseededRandom||
         (usesFileReader&&!TRUSTED_FILE_READERS.has(file.path)))
-        unsupported.push({file:file.path,line:i+1,kind:usesUnseededRandom?'unseeded-random':kind});
+        unsupported.push({file:file.path,line:i+1,kind:usesDynamicCode?'dynamic-code':
+          usesProcessOrWorker?'process-or-worker':usesNetwork?'network':
+          usesUnseededRandom?'unseeded-random':'unreviewed-file-read'});
     }
   }
   assert.deepEqual(unsupported,[],
-    'Role policy closure contains ESM, dynamic code, process/worker or unreviewed file loading');
+    'Role policy closure contains ESM, module-loader capture, dynamic code, process/worker or unreviewed file loading');
 }
+
 function environmentManifest(keys,allowlist,env) {
   const requested=[...new Set(allowlist)].sort();
   const observed=[...keys].sort();
