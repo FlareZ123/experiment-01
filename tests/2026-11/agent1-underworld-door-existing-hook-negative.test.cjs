@@ -226,3 +226,61 @@ for(const seat of [0,1])test(
     }
   }
 );
+
+test('Underworld hook leaves a nested unrelated owner AttachEnergyPrompt untouched',()=>{
+  const {x,card}=stagedSource(0);
+  const lightning=card('Lightning Energy SVE');
+  x.owner.hand.cards.push(lightning);
+  const {AttachEnergyPrompt}=native('game/store/prompts/attach-energy-prompt');
+  const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const {UseAbilityAction}=native('game/store/actions/game-actions');
+  const {GameMessage}=native('game/game-message');
+  const {SuperType,EnergyType}=native('game/store/card/card-types');
+  const unrelated=new AttachEnergyPrompt(x.owner.id,
+    GameMessage.ATTACH_ENERGY_TO_ACTIVE,x.owner.hand,
+    PlayerType.BOTTOM_PLAYER,[SlotType.ACTIVE],
+    {superType:SuperType.ENERGY,energyType:EnergyType.BASIC,
+      name:'Lightning Energy'},
+    {allowCancel:true,min:1,max:1});
+  const basePrompt=x.store.prompt;
+  let injected=false;
+  x.store.prompt=function(current,prompt,then){
+    if(!injected&&prompt instanceof AttachEnergyPrompt&&
+       prompt.message===GameMessage.ATTACH_ENERGY_TO_BENCH){
+      injected=true;
+      this.prompt(current,unrelated,()=>{});
+    }
+    return basePrompt.call(this,current,prompt,then);
+  };
+  const restore=installUnderworldDoorPsychicRecipientHook();
+  try{
+    x.store.dispatch(new UseAbilityAction(x.owner.id,'Underworld Door',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    let pending=x.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='WaitPrompt');
+    assert.ok(pending);
+    x.store.dispatch(new ResolvePromptAction(pending.id,null));
+    assert.equal(injected,true);
+    assert.equal(x.state.prompts.includes(unrelated),true);
+    const unrelatedAssignment=[{card:lightning,to:{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }}];
+    assert.equal(unrelated.validate(unrelatedAssignment),true,
+      'A non-Underworld AttachEnergyPrompt must retain its native validator');
+    const actual=x.state.prompts.find(p=>p.result===undefined&&
+      p instanceof AttachEnergyPrompt&&
+      p.message===GameMessage.ATTACH_ENERGY_TO_BENCH&&
+      p.cardList===x.owner.hand);
+    assert.ok(actual,'Expected the actual Underworld prompt');
+    const invalid=[{card:lightning,to:{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }}];
+    assert.equal(actual.validate(invalid),false,
+      'The Underworld prompt must still reject a non-Psychic source Energy');
+  }finally{
+    x.store.prompt=basePrompt;
+    restore();
+  }
+});
