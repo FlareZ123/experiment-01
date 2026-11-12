@@ -422,16 +422,18 @@ function runNativeFixtureGame(input) {
       const phaseBefore=state.phase;
       const turnBefore=state.turn;
       const activePlayerBefore=state.activePlayer??null;
-      const diagnosticSeat=inferredPromptSeat(state,pending);
       failureContext={
         stage:'pre-action-snapshot',
         record:{
-          actionOrdinal,actingSeat:diagnosticSeat,
-          actingPlayerId:diagnosticSeat===null?null:PLAYER_IDS[diagnosticSeat],
+          actionOrdinal,actingSeat:null,actingPlayerId:null,
           phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
           actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
         }
       };
+      const diagnosticSeat=inferredPromptSeat(state,pending);
+      failureContext.record.actingSeat=diagnosticSeat;
+      failureContext.record.actingPlayerId=diagnosticSeat===null?null:
+        PLAYER_IDS[diagnosticSeat];
       if(!pending && state.phase===GamePhase.PLAYER_TURN &&
           actualFirstPlayerSeat===null) {
         assert.ok(state.activePlayer===0||state.activePlayer===1,
@@ -522,7 +524,7 @@ function runNativeFixtureGame(input) {
           throw new Error('Twinleaf activePlayer is outside the two seats');
         isRootDecision=true;
         failureContext={
-          stage:'policy-decode',
+          stage:'actor-observation',
           record:{
             actionOrdinal,actingSeat,actingPlayerId:PLAYER_IDS[actingSeat],
             phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
@@ -531,6 +533,7 @@ function runNativeFixtureGame(input) {
         };
         if(typeof native.observe==='function')
           actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        failureContext.stage='policy-decode';
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
         policyInputKind='actor-observation';
       }
@@ -562,8 +565,7 @@ function runNativeFixtureGame(input) {
           promptType:pendingPromptType,
           playerId:pending.playerId??null,
           perspectivePlayerId:promptSnapshot?.perspectivePlayerId??
-            (typeof pending.getPerspectivePlayerId==='function'?
-              pending.getPerspectivePlayerId():pending.playerId??null),
+            pending.playerId??null,
           actingSeat,
           resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
             'physical-randomization':'native-prompt-resolver',
@@ -574,7 +576,13 @@ function runNativeFixtureGame(input) {
             choices:promptFields.choices??null,
             targets:promptFields.targets??null,
             availableCards:promptFields.availableCards??null,
-            eligibleCards:promptFields.eligibleCards??null
+            eligibleCards:promptFields.eligibleCards??null,
+            selectedCards:promptFields.selectedCards??null,
+            min:promptFields.min??null,
+            max:promptFields.max??null,
+            minCards:promptFields.minCards??null,
+            maxCards:promptFields.maxCards??null,
+            allowCancel:promptFields.allowCancel??null
           },
           promptSnapshot
         };
