@@ -237,9 +237,12 @@ function formatFixtureGameTraceText(game) {
     `actualFirstPlayerSeat=${game?.actualFirstPlayerSeat ?? 'unknown'}`,
     `finished=${game?.finished === true}`,
     `endReason=${game?.endReason ?? 'unknown'}`,
-    `actions=${game?.actions ?? game?.decisionTrace?.length ?? 'unknown'}`,
+    `actions=${game?.actions ?? game?.acceptedActions ?? game?.decisionTrace?.length ?? 'unknown'}`,
+    `attemptedActions=${game?.attemptedActions ?? game?.decisionTrace?.length ?? 'unknown'}`,
+    `acceptedActions=${game?.acceptedActions ?? game?.actions ?? 'unknown'}`,
     `turns=${game?.turns ?? 'unknown'}`,
     `winnerSeat=${game?.winnerSeat ?? 'unknown'}`,
+    `actionCountsBySeat=${JSON.stringify(game?.actionCountsBySeat ?? null)}`,
   ];
   const partial = game?.fixtureGamePartial ?? null;
   const decisionTrace = game?.decisionTrace ?? partial?.decisionTrace ?? [];
