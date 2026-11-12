@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
+const {execFileSync}=require('node:child_process');
 const {runDevelopment}=
   require('../agent41-bilateral-v2-development.cjs');
 const mew=require('./agent8-source-mew-funding-v6.cjs');
@@ -49,7 +50,8 @@ function registration(){
   assert.equal(candidateCount,60);
   return {reg,registrationSha256:createHash('sha256').update(raw).digest('hex'),
     sourcePrintedInventorySha256:hash(source.cards),
-    candidatePrintedInventorySha256:hash(candidateCards)};
+    candidatePrintedInventorySha256:hash(candidateCards),
+    candidateOfficialJapaneseDeckCode:newMoon.official_japanese_deck_code??null};
 }
 
 /** Read-only post-Store identity for one physical card. */
@@ -115,17 +117,25 @@ function gameCapture(){
 /** One attempt, no seed selection, paper and clock review remain explicit. */
 function execute(){
   const {reg,registrationSha256,sourcePrintedInventorySha256,
-    candidatePrintedInventorySha256}=registration();
+    candidatePrintedInventorySha256,candidateOfficialJapaneseDeckCode}=registration();
+  const actualEngineCommit=execFileSync('git',
+    ['-C',path.join(ROOT,'vendor/twinleaf'),'rev-parse','HEAD'],
+    {encoding:'utf8'}).trim();
+  assert.equal(actualEngineCommit,reg.enginePinnedCommit,
+    'Checked-out Twinleaf commit must equal the preregistered engine pin');
+  const runtime={researchRevisionSha:process.env.GITHUB_SHA??null,
+    workflowRunId:process.env.GITHUB_RUN_ID??null,
+    workflowRunAttempt:process.env.GITHUB_RUN_ATTEMPT??null,
+    engineActualCommit:actualEngineCommit};
   const capture=gameCapture();
   const fullPaperObserver=createLivePaperRootReceipts(
     reg.preRegisteredTrials[0].id);
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition,true);
-  const guardedRun=withNativeRawStateFallbackQuarantine(()=>
-    withOwnerPublicAcknowledgements(()=>{
-      let development;
-      try{
-        development=runDevelopment({
+  let guardedRun=null,executionError=null;
+  try{
+    guardedRun=withNativeRawStateFallbackQuarantine(()=>
+      withOwnerPublicAcknowledgements(()=>runDevelopment({
     ...frozen.policyOptions,...mew.options(true),
     sourceIndependentCommonPolicy:true,
     // Preserve frozen bilateralPublicContextSpecialEnergy; narrow root is exclusive.
@@ -163,18 +173,34 @@ function execute(){
       capture.onRootActionDispatched(...args);
       fullPaperObserver.onRootActionDispatched(...args);
     }
-        });
-      }finally{
-        fullPaperObserver.close();
-      }
-      return development;
-    })
-  );
-  const development=guardedRun.result.result;
-  const ownerPublicAcknowledgementAudit=guardedRun.result.audit;
-  const nativeRawStateFallbackQuarantineAudit=guardedRun.audit;
+      }))
+    );
+  }catch(error){
+    executionError={name:error?.name??'Error',message:String(error?.message??error),
+      stack:typeof error?.stack==='string'?error.stack:null,
+      nativeRawStateFallbackQuarantine:error?.nativeRawStateFallbackQuarantine??null};
+  }finally{
+    fullPaperObserver.close();
+  }
+  const development=guardedRun?.result?.result??null;
+  const ownerPublicAcknowledgementAudit=guardedRun?.result?.audit??null;
+  const nativeRawStateFallbackQuarantineAudit=guardedRun?.audit??
+    executionError?.nativeRawStateFallbackQuarantine??null;
   const rawNativePhysicalReceipts=fullPaperObserver.result();
-  assert.equal(development.rows.length,1);
+  if(executionError||!Array.isArray(development?.rows)||development.rows.length!==1){
+    return {schema:'agent44-first-independent-original-source-case-v2-error',
+      caseId:reg.caseId,registration:reg,registrationSha256,runtime,
+      executionError:executionError??{message:'Expected exactly one development row',
+        rowCount:development?.rows?.length??null},
+      nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
+      postStoreZoneTape:capture.evidence(),rawNativePhysicalReceipts,
+      releaseStatus:{captureComplete:false,rawPhysicalReceiptCaptureComplete:false,
+        promptQuarantineClean:false,ownerAcknowledgementsComplete:false,
+        nativeTraceCaptureComplete:false,rulesPassed:false,clockPassed:false,
+        strategyPassed:false,reviewAuthorized:false,competitiveAdmission:false,
+        firstMissingEvidence:'native-development-row-or-execution-error',
+        qualifiedCompetitiveGames:0,nativeOutcomeNeverPromotedToPaperWin:true}};
+  }
   const row=development.rows[0];
   assert.equal(row.trial.id,reg.preRegisteredTrials[0].id);
   const nativeRoots=row.rootActionLedger??[];
@@ -195,8 +221,6 @@ function execute(){
     Boolean(zoneEvidence.initialStablePhysicalDeal);
   const physicalPassed=row.physicalZoneQualification?.physicalIntegrityQualified===true;
   const nativeFinished=row.finished===true&&!row.error;
-  const nativeTraceComplete=nativeFinished&&nativeRoots.length>0&&
-    zoneEvidence.postAcceptedRootCount===nativeRoots.length;
   const rawNativeReceiptCaptureComplete=
     rawNativePhysicalReceipts?.schema===
       'agent36-live-paper-root-receipts-v2-attached-energy-custody'&&
@@ -208,7 +232,11 @@ function execute(){
     rawNativePhysicalReceipts.receipts.every((receipt,i)=>
       receipt.actionOrdinal===nativeRoots[i]?.actionOrdinal&&
       receipt.seat===nativeRoots[i]?.playerSlot&&
-      receipt.action===nativeRoots[i]?.action);
+      receipt.action===nativeRoots[i]?.action)&&
+    rawNativePhysicalReceipts.settledPhysicalIdentityClean===true;
+  const nativeTraceComplete=nativeFinished&&nativeRoots.length>0&&
+    zoneEvidence.postAcceptedRootCount===nativeRoots.length&&
+    rawNativeReceiptCaptureComplete;
   const targetLinked=row.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
   const promptQuarantineClean=
     nativeRawStateFallbackQuarantineAudit.rawStateFallbackCalls===0&&
@@ -221,7 +249,8 @@ function execute(){
   assert.equal(nativeRawStateFallbackQuarantineAudit.gameCompetitiveQualified,false);
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
-    [false,'verified-exact-Japanese-candidate-physical-printings-not-in-published-transcription'],
+    [false,'verified-exact-Japanese-source-physical-printings-and-Extra-admission'],
+    [false,'verified-exact-Japanese-candidate-physical-printings-and-Extra-admission'],
     [physicalDeal,'initial-complete-physical-deal-zone-capture'],
     [nativeFinished,'naturally-terminated-native-game'],
     [nativeTraceComplete,'all-accepted-native-root-zones'],
@@ -239,9 +268,11 @@ function execute(){
   ].find(([okay])=>!okay)?.[1]??null;
   const intake={
     schema:'agent44-first-independent-original-source-case-intake-v2',
-    caseId:reg.caseId,originalRank:5,sourceSeat,candidateSeat,
+    caseId:reg.caseId,originalRank:5,sourceSeat,candidateSeat,runtime,
     fixedRegisteredSourceAndCandidateSixties:true,
+    exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
+    candidateOfficialJapaneseDeckCode,
     sourcePrintedSha256:reg.sourceOriginalPrinted60Sha256,
     sourcePrintedInventorySha256,candidatePrintedInventorySha256,
     originalFrozenRegistrationSha256:registrationSha256,
@@ -281,7 +312,9 @@ function execute(){
     nineEvidenceObjects:{
       originalSixties:{available:true,sourceSha256:reg.sourceOriginalPrinted60Sha256,
         contenderPublishedSixtySha256:candidatePrintedInventorySha256,
-        candidatePhysicalJapanesePrintingVerification:'missing'},
+        sourcePhysicalJapanesePrintingAndExtraAdmission:'missing',
+        candidatePhysicalJapanesePrintingAndExtraAdmission:'missing',
+        candidateOfficialJapaneseDeckCode},
       physicalInitialPartition:{available:physicalDeal,
         firstStable:zoneEvidence.initialStablePhysicalDeal??null},
       coinFirstTurnAndMulligan:{available:row.actualStarterSeat!==null,
@@ -331,12 +364,13 @@ function execute(){
       nativeOutcomeNeverPromotedToPaperWin:true
     }
   };
-  return {schema:intake.schema,registration:reg,registrationSha256,
+  return {schema:intake.schema,registration:reg,registrationSha256,runtime,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
     nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
     nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v2',
       sameOriginalSourceAndFixedCandidateSixties:true,
+      agent4QuarantineOuter:true,agent50OwnerAcknowledgementsInner:true,
       preservedNoReview:true},qualifications:intake.releaseStatus};
 }
 
@@ -366,7 +400,8 @@ if(require.main===module){
     const result=execute();
     save(result);
     console.log('AGENT44_FIRST_NATIVE_RELEASE_INTAKE',
-      JSON.stringify(result.intake));
+      JSON.stringify(result.intake??result.executionError??result.releaseStatus));
+    if(result.schema.endsWith('-error'))process.exitCode=1;
   }
 }
 module.exports={registration,gameCapture,physical,execute,save};

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Execute frozen original native games or inspect archived public M4 roots without replay
+        description: Run the frozen 4410 V2 pipeline case, keep 4411 held, or inspect archived evidence
         type: choice
         default: inspect
         required: true
@@ -12,6 +12,7 @@ on:
           - inspect
           - run
           - release-case-v2
+          - release-case-4410-v2
           - release-inspect
           - gengar-tempo
           - gengar-hand6
@@ -31,6 +32,11 @@ jobs:
     timeout-minutes: 26
     steps:
       - uses: actions/checkout@v4
+      - name: Hold 4411 case per Critic priority freeze; do not dispatch
+        if: ${{ inputs.mode == 'release-case-v2' }}
+        run: |
+          echo 'The 4411 / 2163320309 case is preserved unchanged and held. The approved first release path is the frozen 4410 case.'
+          exit 1
       - name: Build exact nine-object trust-gate intake from archived single case
         if: ${{ inputs.mode == 'release-inspect' }}
         env:
@@ -55,7 +61,7 @@ jobs:
           gh run download 42610256883 -R FlareZ123/experiment-01 -n agent44-rank5-m4-paper-source-four-native-v1 -D prior-m4
           node simulation/evaluation/2026-11/agent44-m4-source-archive-intake.cjs prior-m4/agent44-rank5-m4-paper-source-native-v1.json
       - name: Validate frozen source program
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'release-case-4410-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
@@ -74,21 +80,33 @@ jobs:
           node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs
           node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent50-owner-public-acknowledgements.test.cjs
           node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.cjs --inspect-only
+      - name: Validate frozen 4410 V2 producer and reviewer-bundle contract
+        if: ${{ inputs.mode == 'release-case-4410-v2' }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs
+          node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
+          node --check simulation/twinleaf/agent36-live-paper-root-receipts.cjs
+          node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
+          node --check simulation/twinleaf/agent50-owner-public-acknowledgements.cjs
+          node --test tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
+          node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs
+          node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent50-owner-public-acknowledgements.test.cjs
+          node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs --inspect-only
       - name: Fetch pinned vendor revision
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'release-case-4410-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'release-case-4410-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'release-case-4410-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case-v2' || inputs.mode == 'release-case-4410-v2' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Replay same four frozen original-source games under exact Ranger link repair
@@ -102,6 +120,12 @@ jobs:
       - name: Build V2 nine-object review bundle from fresh 4411 raw physical receipt packet
         if: ${{ inputs.mode == 'release-case-v2' && !cancelled() }}
         run: node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs artifacts/agent44-first-independent-rank5-newmoon-live-paper-v2.json artifacts/agent44-first-release-nine-object-intake-v2.json
+      - name: Execute frozen 4410 original-rank5 case with V2 live receipts (pipeline evidence only)
+        if: ${{ inputs.mode == 'release-case-4410-v2' }}
+        run: node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs
+      - name: Build V2 reviewer worklist from the 4410 raw receipt packet
+        if: ${{ inputs.mode == 'release-case-4410-v2' }}
+        run: node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs artifacts/agent44-first-independent-rank5-newmoon-case-v2.json artifacts/agent44-first-release-nine-object-intake-v2.json
       - name: Validate owner-visible Gengar branch and frozen A/B/A registration
         if: ${{ inputs.mode == 'gengar-tempo' }}
         run: |
@@ -241,6 +265,16 @@ jobs:
         with:
           name: agent36-rank5-held-forest-stone-50801-posthoc-aba
           path: artifacts/agent36-rank5-held-forest-stone-50801-aba.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Archive frozen 4410 V2 raw receipts and independent reviewer worklist
+        if: ${{ always() && inputs.mode == 'release-case-4410-v2' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-first-independent-rank5-newmoon-4410-v2-release-packet
+          path: |
+            artifacts/agent44-first-independent-rank5-newmoon-case-v2.json
+            artifacts/agent44-first-release-nine-object-intake-v2.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive fresh V2 live-root receipt case and exact missing-evidence manifest
