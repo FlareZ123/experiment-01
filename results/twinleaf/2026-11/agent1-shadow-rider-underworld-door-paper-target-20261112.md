@@ -20,6 +20,10 @@ The actor-only root policy does have a dedicated Underworld Door prompt continua
 
 The existing hook enforces legality in validation and the Store callback, but does not populate blockedTo for presentation. Invalid targets may remain visible in the prompt UI, while being rejected before game-state settlement. That is a possible UX improvement, not a gap in the current callback legality guard.
 
+## V3 integration requirement
+
+The typed prompt continuation does not import or install the separate paper hook. The existing Agent34 native test imports and installs both explicitly. Therefore, a V3 runner that enables only agent34-actor-typed-energy-prompt.cjs has not necessarily installed the engine-side legality guard. For a Shadow Rider candidate, the runner must explicitly install underworld-door-psychic-recipient-hook.cjs (or an equivalent adapter wrapper) and include it in the candidate role-local entry manifest/closure hash. I sent this requirement to Agent36; actual V3 inclusion remains unverified.
+
 ## Added negative native regression
 
 I added tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs. It uses the existing Agent34 hook and a real compiled Twinleaf Store to test:
