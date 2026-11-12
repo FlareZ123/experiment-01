@@ -18,6 +18,17 @@ function cardPrintings(zone) {
   return zoneCards(zone).map(printing);
 }
 
+function snapshotExtraFields(source, excludedKeys) {
+  const excluded = new Set(excludedKeys);
+  const extras = {};
+  for (const key of Object.keys(source ?? {}).sort()) {
+    if (excluded.has(key) || typeof source[key] === 'function') continue;
+    if (['parent', 'store', 'dispatcher', 'eventEmitter', 'listeners', 'observer', 'bot', 'ai', 'botOptions', 'controller'].includes(key)) continue;
+    extras[key] = projectDiagnosticValue(source[key]);
+  }
+  return extras;
+}
+
 function projectDiagnosticValue(value, seen = new WeakSet(), depth = 0) {
   if (value === null || value === undefined || typeof value === 'string' ||
       typeof value === 'number' || typeof value === 'boolean') return value ?? null;
@@ -125,6 +136,11 @@ function snapshotPlayer(player, seat) {
       discard: zones.discard.length,
       lostZone: zones.lostZone.length,
     },
+    extraStateFields: snapshotExtraFields(player, [
+      'id', 'name', 'active', 'bench', 'deck', 'hand', 'prizes', 'discard',
+      'lostzone', 'stadium', 'supporter', 'supporterTurn', 'energyPlayedTurn',
+      'retreatedTurn', 'stadiumPlayedTurn', 'stadiumUsedTurn', 'usedGX', 'usedVSTAR',
+    ]),
   };
 }
 
@@ -152,6 +168,9 @@ function snapshotFullGameState(state, context = {}) {
     winnerSeat,
     gameSettings: projectDiagnosticValue(state.gameSettings ?? null),
     rules: projectDiagnosticValue(state.rules ?? state.gameSettings?.rules ?? null),
+    engineExtraFields: snapshotExtraFields(state, [
+      'players', 'prompts', 'turn', 'phase', 'activePlayer', 'winner', 'gameSettings', 'rules',
+    ]),
     players: state.players.map((player, seat) => snapshotPlayer(player, seat)),
     prompts: state.prompts.map(snapshotPrompt),
   };
@@ -184,11 +203,13 @@ function formatFullGameStateText(snapshot) {
     lines.push(`RESOLVING SUPPORTER ${JSON.stringify(player.zones.resolvingSupporter)}`);
     lines.push(`TURN RESOURCES ${JSON.stringify(player.turnResources)}`);
     lines.push(`RESTRICTIONS ${JSON.stringify(player.publicTurnRestrictions)}`);
+    lines.push(`PLAYER EXTRA FIELDS ${JSON.stringify(player.extraStateFields)}`);
   }
   lines.push('');
   lines.push(`PROMPTS ${JSON.stringify(snapshot.prompts)}`);
   lines.push(`GAME SETTINGS ${JSON.stringify(snapshot.gameSettings)}`);
   lines.push(`RULES ${JSON.stringify(snapshot.rules)}`);
+  lines.push(`ENGINE EXTRA FIELDS ${JSON.stringify(snapshot.engineExtraFields)}`);
   return lines.join('\n');
 }
 
