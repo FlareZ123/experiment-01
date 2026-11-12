@@ -53,8 +53,10 @@ test('fixture preflight inventories only the exact preloaded role-policy closure
   withTempRepo(({root,expected})=>{
     require(path.join(root,'orchestrator.cjs'));
     const entries=fixtureRolePolicyCacheEntries(root,expected);
-    assert.deepEqual(entries.map(entry=>
-      path.relative(root,entry.filename).split(path.sep).join('/')).sort(),
+    const filenames=entries.map(entry=>
+      typeof entry==='string'?entry:entry.filename);
+    assert.deepEqual(filenames.map(filename=>
+      path.relative(root,filename).split(path.sep).join('/')).sort(),
     ['role-a.cjs','role-b.cjs']);
     assert.throws(()=>fixtureRolePolicyCacheEntries(root,{
       ...expected,'missing-role.cjs':sha256(Buffer.from('missing'))
@@ -95,6 +97,7 @@ test('fixture pin runs with role modules pinned, restores orchestration cache an
   withTempRepo(({root,expected})=>{
     const orchestratorPath=path.join(root,'orchestrator.cjs');
     const orchestrator=require(orchestratorPath);
+    const orchestratorModule=require.cache[require.resolve(orchestratorPath)];
     const originalModuleLoad=Module._load;
     const result=withFixtureScopedRolePin(root,expected,()=>orchestrator.run());
 
@@ -108,7 +111,7 @@ test('fixture pin runs with role modules pinned, restores orchestration cache an
     assert.deepEqual(result.audit.excludedPreloadedResearchFiles,['orchestrator.cjs']);
     assert.equal(result.audit.excludedPreloadedResearchFileCount,1);
     assert.strictEqual(Module._load,originalModuleLoad);
-    assert.strictEqual(require.cache[orchestratorPath],orchestrator);
+    assert.strictEqual(require.cache[orchestratorPath],orchestratorModule);
   });
 });
 
@@ -118,6 +121,7 @@ test('fixture pin rejects a late unregistered research module and restores both 
   withTempRepo(({root,expected})=>{
     const orchestratorPath=path.join(root,'orchestrator.cjs');
     const orchestrator=require(orchestratorPath);
+    const orchestratorModule=require.cache[require.resolve(orchestratorPath)];
     const originalModuleLoad=Module._load;
 
     assert.throws(()=>withFixtureScopedRolePin(root,expected,
@@ -125,6 +129,6 @@ test('fixture pin rejects a late unregistered research module and restores both 
     /Unregistered research module before execution: late\.cjs/);
 
     assert.strictEqual(Module._load,originalModuleLoad);
-    assert.strictEqual(require.cache[orchestratorPath],orchestrator);
+    assert.strictEqual(require.cache[orchestratorPath],orchestratorModule);
   });
 });
