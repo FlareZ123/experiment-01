@@ -174,6 +174,41 @@ test('source-only and source-scoped options are projected to the correct physica
   assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
 });
 
+test('4410 Mew DCE recipient source-only root is projected only to the original source seat', () => {
+  const options = {
+    actorMewDceRecipientSourceOnly: true,
+    actorMewDceRecipientRoot: true
+  };
+  const source = effectiveOptionsForSeat(options, 0, 0);
+  const candidate = effectiveOptionsForSeat(options, 1, 0);
+  assert.equal(source.options.actorMewDceRecipientSourceOnly, true);
+  assert.equal(source.options.actorMewDceRecipientRoot, true);
+  assert.equal(candidate.options.actorMewDceRecipientSourceOnly, false);
+  assert.equal(candidate.options.actorMewDceRecipientRoot, false);
+  assert.deepEqual(source.unknownSourceOnlyFlags, []);
+  assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
+});
+
+test('4410 Mew DCE recipient source-only configuration produces distinct seat fingerprints', () => {
+  const result = policyDefinitionHashes(policyInput({
+    options: {
+      actorOnlyComposition: true,
+      sourceIndependentCommonPolicy: true,
+      actorMewDceRecipientSourceOnly: true,
+      actorMewDceRecipientRoot: true
+    }
+  }));
+  assert.equal(result.complete, true);
+  assert.equal(result.samePolicy, false);
+  assert.notEqual(result.policySha256BySeat[0], result.policySha256BySeat[1]);
+  assert.equal(result.perSeat[0].effectiveOptions.actorMewDceRecipientRoot, true);
+  assert.equal(result.perSeat[1].effectiveOptions.actorMewDceRecipientRoot, false);
+  assert.equal(result.perSeat[0].enabledSourceOnlyFlags.includes(
+    'actorMewDceRecipientSourceOnly'), true);
+  assert.equal(result.perSeat[1].enabledSourceOnlyFlags.includes(
+    'actorMewDceRecipientSourceOnly'), false);
+});
+
 test('complete common policy with identical effective options produces equal per-seat hashes', () => {
   const result = policyDefinitionHashes(policyInput());
   assert.equal(result.complete, true);
