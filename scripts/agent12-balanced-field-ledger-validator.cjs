@@ -169,7 +169,7 @@ function validateOpponentPolicyFieldBundle(request) {
       trialIds.add(trialId);
     }
 
-    const rank = receipt.opponentRank;
+    const rank = receipt.opponentRank ?? receipt.rank;
     const entry = Number.isInteger(rank) ? rankByNumber.get(rank) : null;
     if (!entry) {
       problems.add('policy-application-opponent-rank-invalid');
@@ -195,15 +195,15 @@ function validateOpponentPolicyFieldBundle(request) {
     const same = (actual, expected, reason) => {
       if (actual !== expected) problems.add(reason);
     };
-    same(receipt.candidateDeckSha256,candidate?.deckSha256,
+    same(receipt.candidateDeckSha256 ?? receipt.candidate60Sha,candidate?.deckSha256,
       'game-candidate-deck-mismatch');
-    same(receipt.candidatePolicySha256,candidate?.policySha256,
+    same(receipt.candidatePolicySha256 ?? receipt.candidatePolicySha,candidate?.policySha256,
       'game-candidate-policy-mismatch');
     same(receipt.candidateEntryManifestSha256,candidate?.entryManifestSha256,
       'game-candidate-entry-manifest-mismatch');
     same(receipt.candidateChallengeSuiteSha256,candidate?.challengeSuiteSha256,
       'game-candidate-challenge-suite-mismatch');
-    same(receipt.opponentDeckSha256,entry.deckSha256,
+    same(receipt.opponentDeckSha256 ?? receipt.source60Sha,entry.deckSha256,
       'game-opponent-deck-mismatch');
     same(receipt.opponentPolicySha256,entry.policySha256,
       'game-opponent-policy-mismatch');
@@ -211,12 +211,14 @@ function validateOpponentPolicyFieldBundle(request) {
       'game-opponent-entry-manifest-mismatch');
     same(receipt.opponentChallengeSuiteSha256,entry.challengeSuiteSha256,
       'game-opponent-challenge-suite-mismatch');
-    if (receipt.opponentPolicyBundleSha256 !== undefined)
-      same(receipt.opponentPolicyBundleSha256,opponentPolicyBundleSha256,
+    const receiptBundleSha = receipt.opponentPolicyBundleSha256 ?? receipt.opponentPolicyBundleSha;
+    if (receiptBundleSha !== undefined)
+      same(receiptBundleSha,opponentPolicyBundleSha256,
         'game-opponent-policy-bundle-mismatch');
 
-    const candidateSeat = receipt.candidateSeat;
-    const opponentSeat = receipt.opponentSeat;
+    const candidateSeat = receipt.candidateSeat ?? receipt.seat;
+    const opponentSeat = receipt.opponentSeat ??
+      (Number.isInteger(candidateSeat) ? 1 - candidateSeat : undefined);
     if (![0,1].includes(candidateSeat) || ![0,1].includes(opponentSeat) ||
         candidateSeat === opponentSeat) {
       problems.add('game-policy-seat-assignment-invalid');
