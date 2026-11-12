@@ -49,6 +49,7 @@ function player(id, name, prefix) {
     cannotAttackTurnsRemaining: 0,
     cannotPlayItemCards: false,
     cannotPlaySupporterCards: false,
+    customLockCounter: 3,
   };
 }
 function makeState() {
@@ -59,6 +60,7 @@ function makeState() {
     winner: null,
     gameSettings: { format: 'EXPANDED', recordingEnabled: false, rules: { attackFirstTurn: false } },
     rules: { attackFirstTurn: false },
+    effectStack: [{ type: 'TriggeredEffect', source: card('A Triggered Effect') }],
     players: [player(101, 'candidate', 'A'), player(202, 'opponent', 'B')],
     prompts: [{
       id: 'prompt-1', playerId: 101, message: 'Choose a card',
@@ -88,6 +90,8 @@ test('full diagnostic captures both players private zones while actor observatio
   assert.equal(snapshot.players[0].board.active.printing, 'A Active');
   assert.equal(snapshot.players[0].board.active.energies[0], 'Psychic Energy');
   assert.equal(snapshot.prompts[0].fields.cards[0].fullName, 'A Prompt Card');
+  assert.equal(snapshot.engineExtraFields.effectStack[0].source.fullName, 'A Triggered Effect');
+  assert.equal(snapshot.players[0].extraStateFields.customLockCounter, 3);
 
   const actorView = actorObservation(state, 0);
   const actorViewText = JSON.stringify(actorView);
