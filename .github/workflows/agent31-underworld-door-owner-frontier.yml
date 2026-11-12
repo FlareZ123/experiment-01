@@ -8,8 +8,10 @@ on:
       - 'simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs'
       - 'simulation/twinleaf/hood-aware-arven-resolver.cjs'
       - 'simulation/twinleaf/hood-aware-attach-tool-tactic.cjs'
+      - 'simulation/twinleaf/hood-candidate-bot-options.cjs'
       - 'tests/2026-11/agent41-hood-ability-lock-state.test.cjs'
       - 'tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs'
+      - 'tests/2026-11/agent41-hood-candidate-bot-options.test.cjs'
       - '.github/workflows/agent31-underworld-door-owner-frontier.yml'
 
 permissions:
@@ -34,4 +36,5 @@ jobs:
           node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
           node --check simulation/twinleaf/hood-aware-arven-resolver.cjs
           node --check simulation/twinleaf/hood-aware-attach-tool-tactic.cjs
-          node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs
+          node --check simulation/twinleaf/hood-candidate-bot-options.cjs
+          node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs tests/2026-11/agent41-hood-candidate-bot-options.test.cjs
