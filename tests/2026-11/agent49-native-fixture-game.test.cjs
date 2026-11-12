@@ -35,6 +35,7 @@ class PlayCardAction {
   constructor(id,handIndex,target){Object.assign(this,{id,handIndex,target});}
 }
 let lastStore=null;
+let failNextPlayCardDispatch=false;
 class Store {
   constructor(options){
     this.options=options;
@@ -73,6 +74,10 @@ class Store {
       return;
     }
     if(action instanceof PlayCardAction){
+      if(failNextPlayCardDispatch){
+        failNextPlayCardDispatch=false;
+        throw new Error('simulated native dispatch failure');
+      }
       const owner=this.state.players.find(player=>player.id===action.id);
       assert.ok(owner,'PlayCardAction owner must exist');
       const card=owner.hand.cards.splice(action.handIndex,1)[0];
@@ -118,7 +123,12 @@ function native(){
   return {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format,
-    cardActions:{PlayCardAction}
+    cardActions:{PlayCardAction},
+    observe:(state,seat)=>({
+      actorSeat:seat,
+      ownHand:state.players[seat].hand.cards.map(card=>card.fullName),
+      opponentHandCount:state.players[1-seat].hand.cards.length
+    })
   };
 }
 function deck(prefix){
@@ -153,13 +163,17 @@ test('action payload projection distinguishes same-class decisions and terminate
 
 test('selected physical card identity is read from the acting hand before dispatch',()=>{
   const state={players:[
-    {id:101,hand:{cards:[{fullName:'A physical Trainer (SET 1)' }]}},
+    {id:101,hand:{cards:[{
+      fullName:'A physical Trainer (SET 1)',name:'A physical Trainer',
+      set:'SET 1',setNumber:'123',number:'123',language:'en'
+    }]}},
     {id:202,hand:{cards:[]}}
   ]};
   assert.deepEqual(selectedCardIdentity(
     new PlayCardAction(101,0,{slot:'active'}),state,0,{PlayCardAction}
   ),{
-    playerId:101,handIndex:0,fullName:'A physical Trainer (SET 1)'
+    playerId:101,handIndex:0,fullName:'A physical Trainer (SET 1)',
+    name:'A physical Trainer',set:'SET 1',setNumber:'123',number:'123',language:'en'
   });
   assert.equal(selectedCardIdentity(new RootAction(0),state,0,{PlayCardAction}),null);
   assert.throws(()=>selectedCardIdentity(
@@ -179,10 +193,25 @@ test('fixture PRNG and deck permutation are deterministic and complete',()=>{
   assert.deepEqual([...p].sort((x,y)=>x-y),Array.from({length:60},(_,i)=>i));
 });
 
-test('native fixture loop resolves setup prompts, drives both seats and records a natural terminal',()=>{
+test('native fixture loop resolves setup prompts, records exact owner views and offline full state',()=>{
   const originalRandom=Math.random;
   let agentsCreated=0;
+  const diagnosticCalls=[];
   const result=runNativeFixtureGame(input({
+    requireFullStateDiagnostics:true,
+    trialId:'fixture-helper-test-01',
+    diagnosticSnapshot:(state,context)=>{
+      diagnosticCalls.push(context);
+      return {
+        schema:'twinleaf-full-state-diagnostic-v1',
+        visibility:'private-offline-diagnostic-only',
+        context,
+        players:state.players.map(player=>({
+          hand:player.hand.cards.map(card=>card.fullName),
+          deck:player.deck.cards.map(card=>card.fullName)
+        }))
+      };
+    },
     onRootAgentsCreated:seats=>{agentsCreated=seats.length;}
   }));
 
@@ -209,6 +238,24 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.deepEqual(result.actionCountsBySeat,[2,2]);
   assert.equal(result.decisionTrace.length,4);
   assert.equal(result.rootActionLedger.length,4);
+  assert.equal(result.fullStateDiagnosticsEnabled,true);
+  assert.equal(result.diagnosticVisibility,'private-offline-diagnostic-only');
+  assert.equal(diagnosticCalls.length,8);
+  assert.equal(diagnosticCalls[0].stage,'before');
+  assert.equal(diagnosticCalls[1].stage,'after');
+  assert.equal(diagnosticCalls[0].trialId,'fixture-helper-test-01');
+  assert.equal(result.decisionTrace[2].fullStateBefore.visibility,
+    'private-offline-diagnostic-only');
+  assert.equal(result.decisionTrace[2].fullStateAfter.visibility,
+    'private-offline-diagnostic-only');
+  assert.deepEqual(result.decisionTrace[2].fullStateBefore.players[1].hand,
+    ['B card 0']);
+  assert.deepEqual(result.decisionTrace[2].policyObservationBefore.ownHand,
+    ['A card 0']);
+  assert.equal(JSON.stringify(result.decisionTrace[2].policyObservationBefore)
+    .includes('B card 0'),false);
+  assert.deepEqual(result.decisionTrace[3].policyObservationBefore.ownHand,
+    ['B card 0']);
   assert.deepEqual(result.decisionTrace[2].selectedCardIdentity,{
     playerId:101,handIndex:0,fullName:'A card 0'
   });
@@ -261,15 +308,95 @@ test('native fixture loop rejects incomplete decks and restores Math.random on f
   assert.equal(Math.random,originalRandom);
 });
 
-test('native fixture loop refuses to treat an action cap as a natural game end',()=>{
+test('native fixture loop refuses to treat an action cap as a natural game end and preserves the prefix',()=>{
   const originalRandom=Math.random;
-  assert.throws(()=>runNativeFixtureGame(input({maxActions:1})),
-    /exceeded maxActions without a natural terminal state/);
+  let failure;
+  try { runNativeFixtureGame(input({maxActions:1})); }
+  catch(error) { failure=error; }
+  assert.ok(failure);
+  assert.match(failure.message,/exceeded maxActions without a natural terminal state/);
   assert.equal(Math.random,originalRandom);
+  assert.equal(failure.fixtureGamePartial.acceptedActions,1);
+  assert.equal(failure.fixtureGamePartial.attemptedActions,1);
+  assert.equal(failure.fixtureGamePartial.failure.stage,'action-cap');
+  assert.equal(failure.fixtureGamePartial.failedAction,null);
 });
 
 test('stable string seeds map to the same uint32 value', () => {
   const seed = 'agent36-v3-fixture-hood-rank1-20261112-01';
   assert.equal(normalizeSeed32(seed), normalizeSeed32(seed));
   assert.notEqual(normalizeSeed32(seed), 0);
+});
+
+
+test('same-seed trace digest changes when the selected physical card changes but the action payload does not',()=>{
+  const observe=(state,seat)=>({
+    actorSeat:seat,
+    ownHandCount:state.players[seat].hand.cards.length,
+    opponentHandCount:state.players[1-seat].hand.cards.length
+  });
+  const firstInput=input();
+  firstInput.native.observe=observe;
+  const first=runNativeFixtureGame(firstInput);
+  const secondInput=input();
+  secondInput.deckA[0]='A alternate physical Trainer (SET 2)';
+  secondInput.native.observe=observe;
+  const second=runNativeFixtureGame(secondInput);
+
+  assert.deepEqual(first.decisionTrace[2].actionPayload,
+    second.decisionTrace[2].actionPayload);
+  assert.equal(first.decisionTrace[2].actionPayloadSha256,
+    second.decisionTrace[2].actionPayloadSha256);
+  assert.notEqual(first.decisionTrace[2].selectedCardIdentity.fullName,
+    second.decisionTrace[2].selectedCardIdentity.fullName);
+  assert.notEqual(first.decisionTraceSha256,second.decisionTraceSha256);
+});
+
+test('native fixture preserves accepted prefix and failed attempted action with offline snapshots',()=>{
+  const originalRandom=Math.random;
+  failNextPlayCardDispatch=true;
+  let failure;
+  try {
+    runNativeFixtureGame(input({
+      requireFullStateDiagnostics:true,
+      diagnosticSnapshot:(state,context)=>({
+        schema:'twinleaf-full-state-diagnostic-v1',
+        visibility:'private-offline-diagnostic-only',
+        context,
+        players:state.players.map(player=>({
+          hand:player.hand.cards.map(card=>card.fullName),
+          deck:player.deck.cards.map(card=>card.fullName)
+        }))
+      })
+    }));
+  } catch(error) {
+    failure=error;
+  } finally {
+    failNextPlayCardDispatch=false;
+  }
+
+  assert.ok(failure);
+  assert.match(failure.message,/simulated native dispatch failure/);
+  assert.equal(Math.random,originalRandom);
+  const partial=failure.fixtureGamePartial;
+  assert.equal(partial.schema,'aichi-native-fixture-game-partial-v1');
+  assert.equal(partial.fixtureOnly,true);
+  assert.equal(partial.competitiveGameQualified,false);
+  assert.equal(partial.acceptedActions,2);
+  assert.equal(partial.attemptedActions,3);
+  assert.equal(partial.decisionTrace.length,3);
+  assert.equal(partial.rootActionLedger.length,3);
+  const failed=partial.decisionTrace[2];
+  assert.equal(failed.dispatchStatus,'failed');
+  assert.equal(failed.actionName,'PlayCardAction');
+  assert.equal(failed.selectedCardIdentity.fullName,'A card 0');
+  assert.equal(failed.fullStateBefore.visibility,'private-offline-diagnostic-only');
+  assert.equal(failed.fullStateAfter.visibility,'private-offline-diagnostic-only');
+  assert.equal(partial.rootActionLedger[2].dispatchStatus,'failed');
+  assert.equal(partial.failure.stage,'dispatch');
+  assert.equal(partial.failure.actionOrdinal,2);
+  assert.equal(partial.failure.actionPayloadSha256,failed.actionPayloadSha256);
+  assert.equal(partial.failedAction.actionOrdinal,2);
+  assert.match(partial.decisionTraceSha256,/^[a-f0-9]{64}$/);
+  assert.match(partial.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
 });
