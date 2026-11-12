@@ -247,10 +247,11 @@ function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
 
   const reviewers = Array.isArray(reviewerRegistry?.reviewers) ?
     reviewerRegistry.reviewers : [];
-  const configured = reviewers.find(x => x?.reviewerId === attestation.reviewerId &&
-    Array.isArray(x.roles) && x.roles.includes(role));
+  const matching = reviewers.filter(x => x?.reviewerId === attestation.reviewerId);
+  const configured = matching.length === 1 ? matching[0] : null;
   if (reviewerRegistry?.schema !== 'aichi-trusted-reviewers-v1' ||
-      !configured || !nonempty(configured.publicKeyPem)) return false;
+      !configured || !Array.isArray(configured.roles) ||
+      !configured.roles.includes(role) || !nonempty(configured.publicKeyPem)) return false;
   try {
     const key = createPublicKey(configured.publicKeyPem);
     if (key.asymmetricKeyType !== 'ed25519' ||
