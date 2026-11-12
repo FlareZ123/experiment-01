@@ -82,6 +82,32 @@ function fixtureRolePolicyCacheEntries(repositoryRoot,expectedByPath,
 }
 
 /**
+ * Convert Agent36's prepared role-closure digests into the frozen V2
+ * runtime-evidence shape required by Agent42/43. This helper is deliberately
+ * fixture-only: full-process closure is always false and cannot be overridden.
+ */
+function createFixtureRuntimePinEvidence(preparedRuntime) {
+  const source=preparedRuntime?.runtimePinEvidence;
+  assert.equal(source?.schema,'aichi-runtime-pin-evidence-v1',
+    'prepared V1 role-runtime evidence is required');
+  const fields=['unionSha256','loadedProcessClosureSha256','cardPoolInitializationSha256'];
+  for(const field of fields) {
+    assert.match(source[field]??'',SHA256,'invalid fixture runtime digest: '+field);
+    assert.equal(preparedRuntime[field==='unionSha256'?'runtimePinUnionSha256':
+      field==='loadedProcessClosureSha256'?'loadedProcessClosureSha256':
+      'cardPoolInitializationSha256'],source[field],
+    'prepared runtime digest differs from its V1 evidence: '+field);
+  }
+  return {
+    schema:'aichi-runtime-pin-evidence-v2',
+    unionSha256:source.unionSha256,
+    loadedProcessClosureSha256:source.loadedProcessClosureSha256,
+    cardPoolInitializationSha256:source.cardPoolInitializationSha256,
+    fullProcessClosureCovered:false
+  };
+}
+
+/**
  * Apply the existing CommonJS module-load guard to the exact frozen
  * candidate/opponent role closure while temporarily excluding already-loaded
  * runner/orchestration modules from require.cache.
@@ -150,5 +176,6 @@ function withFixtureScopedRolePin(repositoryRoot,expectedByPath,execute) {
 module.exports={
   SCOPE,
   fixtureRolePolicyCacheEntries,
+  createFixtureRuntimePinEvidence,
   withFixtureScopedRolePin
 };
