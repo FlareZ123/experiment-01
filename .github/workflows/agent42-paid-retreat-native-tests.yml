@@ -31,6 +31,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_rank5_newmoon_attack_fuel_fresh_eight:
+        description: '24 fresh native trials: New Moon Perfection attack-fuel discard A-B-A'
+        type: boolean
+        required: false
+        default: false
 
       run_rank5_newmoon_triad_v2_posthoc:
         description: 'Replay known missing-Mewtwo root8204B under v2 without prospective inference'
@@ -83,7 +88,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 && !inputs.run_rank5_newmoon_triad_vip && !inputs.run_rank5_newmoon_triad_v2_vip && !inputs.run_rank5_newmoon_triad_v2_posthoc && !inputs.run_rank5_newmoon_fog_energy_fresh_16 && !inputs.run_rank5_newmoon_fog_psychic_posthoc }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel && !inputs.run_rank5_gengar_flexible_v2 && !inputs.run_rank5_newmoon_triad_vip && !inputs.run_rank5_newmoon_triad_v2_vip && !inputs.run_rank5_newmoon_triad_v2_posthoc && !inputs.run_rank5_newmoon_fog_energy_fresh_16 && !inputs.run_rank5_newmoon_attack_fuel_fresh_eight && !inputs.run_rank5_newmoon_fog_psychic_posthoc }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -225,6 +230,34 @@ jobs:
         with:
           name: agent20-newmoon-fog-gengar-energy-fresh-16-physical-aba
           path: artifacts/agent20-newmoon-fog-gengar-energy-fresh-16.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Check Agent47 attack-fuel policy and Agent20 runner syntax
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: |
+          node --check simulation/twinleaf/2026-11/agent47-attack-fuel-discard-frontier.cjs
+          node --check simulation/twinleaf/agent47-actor-hand-discard.cjs
+          node --check simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs
+          node --check simulation/evaluation/2026-11/agent42-rank5-fresh-gengar-lillie-aba.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+      - name: Test Agent47 attack-fuel pure and pinned native prompt contracts
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: |
+          node --test tests/2026-11/agent47/attack-fuel-discard.test.cjs
+          node --test tests/2026-11/agent47/attack-fuel-discard.native.test.cjs
+      - name: Verify frozen New Moon attack-fuel A-B-A registration
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: node simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs --preflight
+      - name: Execute 24 fresh original-rank5 New Moon attack-fuel native trials
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: node simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs
+      - name: Archive full New Moon attack-fuel physical and settlement evidence
+        if: ${{ always() && inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-newmoon-perfection-attack-fuel-fresh-eight-physical-aba
+          path: artifacts/agent20-newmoon-perfection-attack-fuel-fresh-eight.json
           if-no-files-found: warn
           retention-days: 30
 
