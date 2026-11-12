@@ -129,8 +129,10 @@ function inspectUntimedResearchGame(trial) {
     if (!nonblank(packet.protocolEvidenceRef)) fail('untimed-protocol-evidence-reference-missing');
     if (!sha256(packet.protocolEvidenceSha256)) fail('untimed-protocol-evidence-digest-invalid');
     const dealGeneratedAt = timestamp(registration?.dealGeneratedAt);
+    const terminalAt = timestamp(packet.terminalAt);
     const attestedAt = timestamp(packet.attestedAt);
-    if (dealGeneratedAt === null || attestedAt === null || attestedAt < dealGeneratedAt)
+    if (dealGeneratedAt === null || terminalAt === null || attestedAt === null ||
+        terminalAt < dealGeneratedAt || attestedAt < terminalAt)
       fail('untimed-protocol-attestation-time-invalid');
   }
 
