@@ -583,6 +583,10 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
         clockStatus:'event-clock-required',
         policyPanelConsistency:policyPanel,
         policyCompetence:policyAttestations,
+        policyFieldStatus:policyPanel.status,
+        policyFieldComplete:policyPanel.fieldComplete,
+        policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
+        policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
         failures:['independent-printed-60-or-physical-deal-review-missing',
           ...policyPanel.failures,...policyAttestations.failures]};
     }
@@ -595,6 +599,10 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
         clockStatus:'event-clock-unverified',
         policyPanelConsistency:policyPanel,
         policyCompetence:policyAttestations,
+        policyFieldStatus:policyPanel.status,
+        policyFieldComplete:policyPanel.fieldComplete,
+        policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
+        policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
         failures:['unverifiable-event-match-bundle',
           ...policyPanel.failures,...policyAttestations.failures]};
     }
@@ -624,6 +632,10 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       competitivePolicyCompetenceReady,
       policyPanelConsistency:policyPanel,
       policyCompetence:policyAttestations,
+      policyFieldStatus:policyPanel.status,
+      policyFieldComplete:policyPanel.fieldComplete,
+      policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
+      policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
       samePolicyDiagnostic:event.structuralProgress?.samePolicy ?? null,
       clockStatus:event.structuralProgress?.officialClockStatus ?? 'unverified',
       failures:[...new Set(failures)],
