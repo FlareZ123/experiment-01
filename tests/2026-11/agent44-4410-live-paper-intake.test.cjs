@@ -234,6 +234,7 @@ test('4410 intake exposes the raw Cologne audit and card-specific review gate wi
   assert.match(source,/paperCologneReviewGate:paperCologneAuditReviewGate/);
   assert.match(source,/row\\.paperCologneQuotaOptIn===true/);
   assert.match(source,/cardSpecificOncePerTurnConformance/);
+  assert.match(source,/cardRuleSourceUrl/);
   assert.match(source,/requiresTargetAndEffectReview/);
   assert.match(source,/rawCaptureRetainedRegardlessOfGate:true/);
   assert.match(source,/paperLegalityCertified:false/);
