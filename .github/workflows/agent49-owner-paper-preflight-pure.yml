@@ -44,3 +44,5 @@ jobs:
         run: node --test tests/agent42-role-policy-identity.test.cjs
       - name: Regress explicitly non-admitting fixture-scoped role pin
         run: node --test tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs
+      - name: Regress deterministic native Store fixture game loop with injected Twinleaf interfaces
+        run: node --test tests/2026-11/agent49-native-fixture-game.test.cjs
