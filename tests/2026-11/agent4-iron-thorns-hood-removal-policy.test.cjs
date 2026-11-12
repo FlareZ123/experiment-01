@@ -65,6 +65,10 @@ test('source policy refuses wrong turn, non-Thorns Active, pending prompt, or no
 });
 
 test('Active Tool Jammer makes Active Hood ineffective and keeps Bench Hood as the response target', () => {
+  const benchJammer = fixture();
+  benchJammer.source.bench = [zone('Iron Thorns ex', ['Tool Jammer'])];
+  assert.deepEqual(sourceEffectiveHoodTargets(benchJammer.opponent, benchJammer.source).map(row => row.slot),
+    ['active', 'bench', 'bench']);
   const x = fixture();
   x.source.active = zone('Iron Thorns ex', ['Tool Jammer']);
   assert.deepEqual(sourceEffectiveHoodTargets(x.opponent, x.source).map(row => row.slot),
