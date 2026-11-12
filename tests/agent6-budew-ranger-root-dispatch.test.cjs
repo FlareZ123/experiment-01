@@ -158,6 +158,7 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
   assert.ok(result.result instanceof PlayCardAction);
   assert.equal(result.audit.rangerBudewItemLockOptIn, true);
   assert.equal(result.audit.rangerBudewItemLockVersion, VERSION);
+  assert.equal(result.audit.policyOwnerSeat, 1);
   assert.equal(result.audit.selectedRootDecisions, 1);
   assert.equal(result.audit.acceptedActorRoots, 1);
   assert.equal(result.audit.competitiveGameQualified, false);
@@ -245,6 +246,8 @@ test('V3 role composer can enable Budew Ranger for candidate only', () => {
   });
   assert.equal(result.candidateAudit.rangerBudewItemLockOptIn, true);
   assert.equal(result.opponentAudit.rangerBudewItemLockOptIn, false);
+  assert.equal(result.candidateAudit.policyOwnerSeat, 1);
+  assert.equal(result.opponentAudit.policyOwnerSeat, 0);
   assert.equal(result.candidateAudit.acceptedActorRoots, 1);
   assert.equal(result.opponentAudit.acceptedActorRoots, 0);
   assert.deepEqual(result.roleSeatMap, {candidate: 1, opponent: 0});
