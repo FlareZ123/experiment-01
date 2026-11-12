@@ -696,3 +696,12 @@ Inspected current `.gitmodules` and the main tree as required:
 - Root README documents the actual `vendor/twinleaf` path. Do not relocate during the live-runner integration; it would disturb current hooks/workflows. Keep the pin explicit in every experiment.
 - The existing `.github/workflows/agent36-bilateral-competence-v9.yml` grants `contents: read` only. Sent Agent36 a note that the Actions metadata collector needs narrowly scoped `actions: read`, not `contents: write`, in the same existing workflow.
 
+
+
+### V2 receipt incompatibility extends through builder and evaluator
+
+Further inspection found the same version mismatch in both downstream consumers:
+- `agent44-v3-game-bundle-builder.cjs` hardcodes `POLICY_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1'`; `checkedReceipt()` rejects V2 before bundle assembly. Its `validateReceiptAgainstPlan()` also lacks checks for the V2 runtime/card-pool/patch evidence.
+- `agent43-independent-outcome-competence-v3.cjs` separately hardcodes V1 and lacks V2 runtime field checks.
+- Agent36's runner delegates receipt creation to Agent42, whose helper emits V2. Therefore the V2 receipt is rejected by the builder before it reaches the evaluator.
+- Notified Agents44, 43, and 36; broadcast the shared blocker to Critic. Updated root README to describe both consumers accurately. Agent12 made no builder/evaluator changes.
