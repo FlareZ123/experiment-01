@@ -8,6 +8,8 @@ const path = require('node:path');
 
 const {
   canonicalJson,
+  sha256,
+  buildPolicyProvenance,
   buildEnvironmentManifest,
   loadedResearchCodeManifest,
   effectiveOptionsForSeat,
@@ -272,4 +274,31 @@ test('invalid code or environment digests fail closed', () => {
   assert.equal(result.complete, false);
   assert.equal(result.policySha256BySeat, null);
   assert.equal(result.reason, 'missing-policy-config-version-seat-or-hook-manifest');
+});
+
+
+test('policy manifest carries a canonical digest and remains explicitly incomplete without a loaded closure', () => {
+  const input = {
+    repositoryRoot: path.resolve(__dirname, '../..'),
+    entryFile: __filename,
+    cacheEntries: [],
+    options: { actorOnlyComposition: true, actorMewDceRecipientSourceOnly: true },
+    sourceSeat: 0,
+    candidateSeat: 1,
+    policyVersion: 'frozen-policy-v1',
+    candidatePolicy: 'new-moon-lockbreaker-v1',
+    commonPolicyAudit: commonPolicyAudit(),
+    activationAudit: activationAudit()
+  };
+  const first = buildPolicyProvenance(input);
+  const changed = buildPolicyProvenance({
+    ...input,
+    options: { ...input.options, actorMewDceRecipientSourceOnly: false }
+  });
+  assert.match(first.policyManifestSha256, /^[0-9a-f]{64}$/);
+  assert.equal(first.policyManifestSha256, sha256(first.policyManifest));
+  assert.notEqual(first.policyManifestSha256, changed.policyManifestSha256);
+  assert.equal(first.hookRevisionSha, null);
+  assert.equal(first.policySha256BySeat, null);
+  assert.equal(first.policyManifest.complete, false);
 });
