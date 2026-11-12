@@ -67,7 +67,7 @@ Implementation:
 
 ## Execution status and decision rule
 
-<badge>Frozen · not executed</badge>
+**Status: frozen; not executed.**
 
 The registration, runner, audit transport, and manual workflow path are committed. **No native attempts have been run for this registration** and there are no results to interpret. The manual workflow must first pass the Agent47 pure tests, the pinned native constructed-prompt test, syntax checks, and the frozen preflight before executing the 24 games. The workflow has not yet been dispatched.
 
