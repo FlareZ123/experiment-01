@@ -201,14 +201,21 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Verify native owner Gengar Fog Psychic Energy prioritization and frozen 16 contexts
+      - name: Check Agent20 Fog Energy policy syntax
         if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
-        run: |
-          node --check simulation/twinleaf/2026-11/agent20-fog-psychic-energy-priority.cjs
-          node --check simulation/evaluation/2026-11/agent20-newmoon-fog-gengar-energy-fresh-16.cjs
-          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
-          node --test tests/2026-11/agent20-fog-psychic-energy-priority.test.cjs tests/agent9-fog-actor-prompt.test.cjs
-          node simulation/evaluation/2026-11/agent20-newmoon-fog-gengar-energy-fresh-16.cjs --preflight
+        run: node --check simulation/twinleaf/2026-11/agent20-fog-psychic-energy-priority.cjs
+      - name: Check Agent20 Fog experiment runner syntax
+        if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
+        run: node --check simulation/evaluation/2026-11/agent20-newmoon-fog-gengar-energy-fresh-16.cjs
+      - name: Check shared bilateral runner syntax for Fog adapter integration
+        if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
+        run: node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+      - name: Run Agent20 Fog chooser and native prompt adapter tests
+        if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
+        run: node --test tests/2026-11/agent20-fog-psychic-energy-priority.test.cjs tests/agent9-fog-actor-prompt.test.cjs
+      - name: Verify Agent20 frozen Fog A-B-A preflight
+        if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
+        run: node simulation/evaluation/2026-11/agent20-newmoon-fog-gengar-energy-fresh-16.cjs --preflight
       - name: Execute 48 original-rank5 native Fog target A-B-A registered trials
         if: ${{ inputs.run_rank5_newmoon_fog_energy_fresh_16 }}
         run: node simulation/evaluation/2026-11/agent20-newmoon-fog-gengar-energy-fresh-16.cjs
