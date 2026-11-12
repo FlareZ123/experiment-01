@@ -704,6 +704,6 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
 module.exports={
   ENTRY_MANIFEST_SCHEMA,ROLE_IDENTITY_SCHEMA,APPLICATION_RECEIPT_SCHEMA,
   createPolicyEntryManifest,combineRolePolicyEntryManifests,
-  assertLoadedResearchModulesCovered,buildRolePolicyIdentity,
+  preloadResearchModules,assertLoadedResearchModulesCovered,buildRolePolicyIdentity,
   createPolicyApplicationReceipt
 };
