@@ -602,3 +602,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
   2. Fix only concrete failures. Verify the printed-60 fingerprint algorithm against the original rank-1 admission row and exact English proxy printings against the pinned CardManager.
   3. After a fixture passes, treat it only as an engine vertical slice. Still required: candidate-specific Hood policy options/recovery, distinct competent field-wide opponent policies, complete production runtime-pin union and ESM/loader/env coverage, full 32-rank source recovery (currently 29/32), paper legality/printing review, prospective physical deal custody, independent pre-deal and postgame attestations, and balanced matchup evidence.
 - Relevant files: runner, Agent34 actor-only policy, Agent49 native fixture helper and scoped pin helper, Agent42 role-identity helper, Agent1 Underworld hook, the new fixture tests, and the existing manual workflow.
+
+### Fixture integration corrections discovered during static review
+
+- The original printed-60 admission ledger schema uses `rows`, not `ranks`; the runner and fixture test now read `admission.rows.find(rank===1)`, assert top-level `sourceGitBlobSha` and row `rosterGitBlobSha` against the frozen full-field blob, and assert the rank-1 row remains `competitivelyQualified:false`. The artifact preserves the actual rank-1 admission row.
+- Agent42's `combineRolePolicyEntryManifests` accepts the complete `createPolicyEntryManifest` result objects (with `.manifest`, `.expectedByPath`, and hashes), not the nested `.manifest` values. The fixture now passes the full result objects to both the combine helper and `prepareV3RoleRuntimeEvidence`; the test exercises this seam and checks `combined.unionSha256`.
+- The native fixture game result exposes `actions`, `turns`, and `actionCountsBySeat`, not `actionCount` or `turnsBySeat`; the runner summary uses the actual fields.

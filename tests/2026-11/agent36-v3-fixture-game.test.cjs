@@ -69,7 +69,7 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   assert.equal(built.manifest.complete, true);
   const combined = roleIdentity.combineRolePolicyEntryManifests(built, built);
   assert.deepEqual(combined.expectedByPath, built.expectedByPath);
-  assert.equal(combined.runtimePinUnionSha256.length, 64);
+  assert.equal(combined.unionSha256.length, 64);
   for (const [name, values] of Object.entries(built.manifest.sourceAuditLimitations || {})) {
     assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
   }
