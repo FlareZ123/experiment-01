@@ -83,6 +83,29 @@ function physical(state){
 }
 
 /** @param {object} receipt Store callback read-only capture at root. */
+function receiptAlignment(nativeRoots,raw){
+  const receipts=Array.isArray(raw?.receipts)?raw.receipts:[];
+  const ledgerCount=Array.isArray(nativeRoots)?nativeRoots.length:0;
+  const receiptCount=receipts.length;
+  const exactOrdinalSeatActionParity=ledgerCount>0&&receiptCount===ledgerCount&&
+    nativeRoots.every((root,i)=>root.actionOrdinal===i&&
+      receipts[i].actionOrdinal===root.actionOrdinal&&
+      receipts[i].seat===root.playerSlot&&receipts[i].action===root.action);
+  const schema=raw?.schema===
+    'agent36-live-paper-root-receipts-v2-attached-energy-custody';
+  const originalPhysicalCardCount=raw?.originalPhysicalCards?.length??0;
+  const acceptedStoreRootCount=raw?.acceptedStoreRootCount??null;
+  const rootCountMatches=acceptedStoreRootCount===ledgerCount&&receiptCount===ledgerCount;
+  const rootOrdinalsUnique=raw?.rootOrdinalsUnique===true;
+  const settledPhysicalIdentityClean=raw?.settledPhysicalIdentityClean===true;
+  return {schema,originalPhysicalCardCount,ledgerCount,receiptCount,
+    acceptedStoreRootCount,rootCountMatches,exactOrdinalSeatActionParity,
+    rootOrdinalsUnique,settledPhysicalIdentityClean,
+    rejectedDispatchCount:raw?.rejectedDispatches?.length??0,
+    complete:schema&&originalPhysicalCardCount===120&&rootCountMatches&&
+      exactOrdinalSeatActionParity&&rootOrdinalsUnique&&settledPhysicalIdentityClean};
+}
+
 function gameCapture(){
   const accepted=[];
   let initialStablePhysicalDeal=null;
@@ -203,7 +226,8 @@ function execute(){
   }
   const row=development.rows[0];
   assert.equal(row.trial.id,reg.preRegisteredTrials[0].id);
-  const nativeRoots=row.rootActionLedger??[];
+  const nativeRoots=row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[];
+  const rootReceiptAlignment=receiptAlignment(nativeRoots,rawNativePhysicalReceipts);
   const sourceSeat=0,candidateSeat=1;
   const sourceAttacks=nativeRoots.filter(x=>x.playerSlot===sourceSeat&&
     x.action==='AttackAction');
@@ -221,19 +245,7 @@ function execute(){
     Boolean(zoneEvidence.initialStablePhysicalDeal);
   const physicalPassed=row.physicalZoneQualification?.physicalIntegrityQualified===true;
   const nativeFinished=row.finished===true&&!row.error;
-  const rawNativeReceiptCaptureComplete=
-    rawNativePhysicalReceipts?.schema===
-      'agent36-live-paper-root-receipts-v2-attached-energy-custody'&&
-    rawNativePhysicalReceipts.originalPhysicalCards?.length===120&&
-    rawNativePhysicalReceipts.acceptedStoreRootCount===nativeRoots.length&&
-    rawNativePhysicalReceipts.rootOrdinalsUnique===true&&
-    Array.isArray(rawNativePhysicalReceipts.receipts)&&
-    rawNativePhysicalReceipts.receipts.length===nativeRoots.length&&
-    rawNativePhysicalReceipts.receipts.every((receipt,i)=>
-      receipt.actionOrdinal===nativeRoots[i]?.actionOrdinal&&
-      receipt.seat===nativeRoots[i]?.playerSlot&&
-      receipt.action===nativeRoots[i]?.action)&&
-    rawNativePhysicalReceipts.settledPhysicalIdentityClean===true;
+  const rawNativeReceiptCaptureComplete=rootReceiptAlignment.complete;
   const nativeTraceComplete=nativeFinished&&nativeRoots.length>0&&
     zoneEvidence.postAcceptedRootCount===nativeRoots.length&&
     rawNativeReceiptCaptureComplete;
@@ -272,6 +284,7 @@ function execute(){
     fixedRegisteredSourceAndCandidateSixties:true,
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
+    rootReceiptAlignment,
     candidateOfficialJapaneseDeckCode,
     sourcePrintedSha256:reg.sourceOriginalPrinted60Sha256,
     sourcePrintedInventorySha256,candidatePrintedInventorySha256,
@@ -404,4 +417,4 @@ if(require.main===module){
     if(result.schema.endsWith('-error'))process.exitCode=1;
   }
 }
-module.exports={registration,gameCapture,physical,execute,save};
+module.exports={registration,gameCapture,physical,receiptAlignment,execute,save};
