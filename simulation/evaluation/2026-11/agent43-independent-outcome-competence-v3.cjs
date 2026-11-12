@@ -799,7 +799,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       failures:[...new Set(failures)],
       acceptanceReady:event.gameOutcomeAdmissionReady === true &&
         competitivePolicyCompetenceReady,
-      fixtureOnly:true,competitiveAdmission:false};
+      fixtureOnly:true,competitiveAdmission:false,admissionEligible:false};
   }
 
   const trial = bundle.trial;
@@ -929,7 +929,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     failures:uniqueFailures,
     acceptanceReady:gameOutcomeAdmissionReady &&
       competitivePolicyCompetenceReady,
-    fixtureOnly:true,competitiveAdmission:false
+    fixtureOnly:true,competitiveAdmission:false,admissionEligible:false
   };
 }
 
@@ -938,6 +938,7 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   const assessment = inspectAdmissionV3(bundle,reviews,authorized);
   return {...assessment,fixtureOnly:false,
     competitiveAdmission:assessment.acceptanceReady,
+    admissionEligible:assessment.acceptanceReady,
     disposition:assessment.acceptanceReady ? 'independently-admitted-v3' :
       'unqualified-or-pending-evidence'};
 }
