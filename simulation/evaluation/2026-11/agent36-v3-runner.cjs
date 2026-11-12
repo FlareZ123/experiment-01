@@ -835,7 +835,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     environment: env,
   });
   const challengeSuiteSha256 = fixtureChallengeSuiteSha256(manifestResult.manifest);
-  const combined = roleIdentity.combineRolePolicyEntryManifests(manifestResult.manifest, manifestResult.manifest);
+  const combined = roleIdentity.combineRolePolicyEntryManifests(manifestResult, manifestResult);
 
   // Preload only the manifest-owned research closure. The fixture pin helper scopes the
   // cache for the native callback, while the V1 evidence builder remains unchanged.
@@ -849,8 +849,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(repositoryRoot, combined.expectedByPath);
   const preparedRuntime = prepareV3RoleRuntimeEvidence({
     repositoryRoot,
-    candidateManifest: manifestResult.manifest,
-    opponentManifest: manifestResult.manifest,
+    candidateManifest: manifestResult,
+    opponentManifest: manifestResult,
     cardPoolInitialization: native.cardPoolInitialization,
     identityHelper: roleIdentity,
     cacheEntries,

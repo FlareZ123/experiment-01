@@ -7,6 +7,7 @@ const test = require('node:test');
 
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const fixtureGame = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
+const roleIdentity = require('../../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '../..');
 const CANDIDATE_PATH = 'results/aichi-2026/candidate-hood-shadow-rider.json';
@@ -66,6 +67,9 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
     runnerRevision: process.env.GITHUB_SHA,
   });
   assert.equal(built.manifest.complete, true);
+  const combined = roleIdentity.combineRolePolicyEntryManifests(built, built);
+  assert.deepEqual(combined.expectedByPath, built.expectedByPath);
+  assert.equal(combined.runtimePinUnionSha256.length, 64);
   for (const [name, values] of Object.entries(built.manifest.sourceAuditLimitations || {})) {
     assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
   }
