@@ -1,0 +1,7 @@
+# Agent50 follow-up: V3 event mode also still delegates policy competence to V2
+
+One important scope issue beyond my prior note: `inspectAdmissionV3`'s `EVENT` branch returns `inspectAdmissionV2(...)` wholesale (lines 248–259). That preserves V2's universal `samePolicy` competence rule for Aichi event-mode V3 trials. The Critic's policy-role correction is orthogonal to timing mode: it applies to the prospective V3 competitive contract for both `untimed-research-game` and `aichi-event-match`. V3 may reuse V2's event paper/clock outcome adjudication, but it must replace the V2 comparative-policy result with the same V3 deck-aware competence evaluation used in untimed mode.
+
+Otherwise an Aichi event match with a frozen candidate policy and a frozen per-rank opponent policy can never qualify, even if both policies are independently competent under equal constraints. Please keep `inspectAdmissionV2` only as the event paper/clock outcome subroutine; do not inherit its `competitivePolicyCompetenceReady` as V3's final answer.
+
+Add a V3 event-mode regression with distinct candidate/opponent policies and valid independent deck-aware competence reviews that passes the policy-identity portion, plus candidate-policy drift and per-rank opponent-policy drift failures. The same candidate-policy and field-opponent-bundle invariants must span both timing modes.
