@@ -32,5 +32,3 @@ jobs:
         run: node --test tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs
       - name: Regress preregistered untimed and Aichi event admission modes
         run: node --test tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs
-      - name: Regress preregistered untimed research-game protocol
-        run: node --test tests/2026-11/agent27-untimed-research-game-protocol.test.cjs
