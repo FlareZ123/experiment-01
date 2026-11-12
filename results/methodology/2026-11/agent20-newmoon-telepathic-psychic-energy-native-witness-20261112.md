@@ -19,12 +19,12 @@ The New Moon candidate used the same deck fingerprint `99969539010abfa11c4e671a5
 - **97** `PlayCardAction` roots played `Telepathic Psychic Energy` across **51** distinct trials.
 - All 97 had a matching accepted Store target receipt; every recorded owner-hand printing was `Telepath [P] Energy M3`.
 - **34/97** plays were followed by a `ChooseCardsPrompt` from the deck and then `ShuffleDeckPrompt`.
-- All 34 prompts reported `min=0`, `max=2`, and `allowCancel=true`.
+- All 34 prompts came from the deck and reported `min=0` and `allowCancel=true`; **28** had `max=2` and **6** had `max=1`.
 - **28** prompts selected two cards; **6** selected one; 62 cards total were selected.
 - All 62 selected cards were Basic Psychic Pokémon in the repository card pool: Duskull VIV/PRE, Galarian Articuno V CRE, Gengar & Mimikyu-GX TEU, Klefki SVI, Latias ex SSP, and Lillie's Clefairy ex JTG.
 - All 34 search prompts occurred when the energy was attached to a Psychic Pokémon. The other **9** attachments to non-Psychic targets (8 Squawkabilly ex PAL, 1 Minior PAR) had no search prompt.
 
-This establishes that the engine can trigger the attachment search, present a 0–2-card deck-selection prompt, accept Basic Psychic selections, and proceed to shuffle. It is stronger than merely observing that the card can be loaded into a deck.
+This establishes that the engine can trigger the attachment search, present a deck-selection prompt with a maximum of one or two cards, accept Basic Psychic selections, and proceed to shuffle. It is stronger than merely observing that the card can be loaded into a deck.
 
 ## What this does not establish
 
