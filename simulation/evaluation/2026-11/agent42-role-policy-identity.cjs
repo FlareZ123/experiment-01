@@ -619,6 +619,13 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     'card-pool initialization digest is invalid');
   assert.equal(typeof runtimePinEvidence.fullProcessClosureCovered,'boolean',
     'frozen runtime evidence must declare full process-closure coverage status');
+  if(trial.fixtureOnly===true){
+    assert.equal(runtimePinEvidence.fullProcessClosureCovered,false,
+      'fixture-only trial must explicitly use fixture-scoped process closure');
+  }else{
+    assert.equal(runtimePinEvidence.fullProcessClosureCovered,true,
+      'production application receipt requires complete process-closure coverage');
+  }
   const cardPoolReceipt=trial.cardPoolInitializationReceipt;
   assert.ok(cardPoolReceipt?.schema==='agent36-twinleaf-card-pool-initialization-v1',
     'trial must carry the exact native card-pool initialization receipt');
