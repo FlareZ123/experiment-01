@@ -247,6 +247,9 @@ jobs:
       - name: Run Agent47 pinned native attack-fuel prompt test
         if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
         run: node --test tests/2026-11/agent47/attack-fuel-discard.native.test.cjs
+      - name: Test Agent20 native attack-fuel evidence joins
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: node --test tests/2026-11/agent20-newmoon-attack-fuel-runner.test.cjs
       - name: Verify frozen New Moon attack-fuel A-B-A registration
         if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
         run: node simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs --preflight
