@@ -164,7 +164,7 @@ test('deal receipt requires exactly one successful dedicated generation step',()
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
     ...x,jobs:[{...x.job,steps:[]}]
-  }),/exactly one dedicated physical-deal step/);
+  }),/exactly one job with the physical-deal generation step/);
   assert.throws(()=>createDealGenerationReceipt({
     ...x,jobs:[{...x.job,steps:[x.step,x.step]}]
   }),/exactly one dedicated physical-deal step/);
@@ -182,7 +182,7 @@ test('deal receipt requires exactly one successful dedicated generation step',()
 test('deal receipt rejects a generation step before the planned time or run start',()=>{
   const x=fixture();
   const early={...x.step,started_at:'2026-11-12T17:09:59.999Z'};
-  const trial={...x.trial,dealGeneratedAt:early.started_at};
+  const trial={...x.trial,dealGenerationStepStartedAt:early.started_at};
   assert.throws(()=>createDealGenerationReceipt({
     ...x,step:early,trial,jobs:[{...x.job,steps:[early]}]
   }),/at or after the planned physical deal/);
