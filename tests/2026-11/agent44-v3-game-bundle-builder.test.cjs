@@ -489,6 +489,13 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     policyApplicationReceipt:makeReceipt(preDeal,earlyTrial,fixture)
   },fixture.reviewerRegistry),/did not start after preregistered time and workflow persistence/);
 
+  const noServerStepTrial={...trial};
+  delete noServerStepTrial.dealGenerationStepStartedAt;
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,trial:noServerStepTrial,
+    policyApplicationReceipt:makeReceipt(preDeal,noServerStepTrial,fixture)
+  },fixture.reviewerRegistry),/server-reported generation step time or source-deal fingerprint disagrees/);
+
   const wrongDealFingerprint={...dealGenerationReceipt,
     sourceDealFingerprint:policyHash(8002)};
   assert.throws(()=>buildV3GameBundleFixture({
