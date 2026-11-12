@@ -110,7 +110,7 @@ test('receipt fails closed on incomplete draw, unspent marker or missing live lo
 });
 
 
-test('recovery repeats on a later own turn but never twice in one turn, from either seat',()=>{
+test('recovery aborts across turns and retries later, then repeats per own turn in either seat',()=>{
   const {
     withHoodGarbotoxinRecoveryAutonomy
   }=require('../../simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs');
@@ -184,7 +184,18 @@ test('recovery repeats on a later own turn but never twice in one turn, from eit
     };
     const ai=new FakeSimpleTacticsAi(ownId);
 
+    const opponentAi=new FakeSimpleTacticsAi(opponentId);
     const run=withHoodGarbotoxinRecoveryAutonomy(candidateSeat,()=>{
+      const abandoned=ai.decodeNextAction(state);
+      assert.ok(abandoned instanceof FakeUseAbilityAction);
+      assert.equal(abandoned.playerId,ownId);
+
+      state.turn=2;
+      state.activePlayer=1-candidateSeat;
+      assert.deepEqual(opponentAi.decodeNextAction(state),{kind:'baseline'});
+
+      state.turn=3;
+      state.activePlayer=candidateSeat;
       const first=ai.decodeNextAction(state);
       assert.ok(first instanceof FakeUseAbilityAction);
       assert.equal(first.playerId,ownId);
@@ -207,7 +218,7 @@ test('recovery repeats on a later own turn but never twice in one turn, from eit
       own.hand.cards.push(secondEnergy);
       own.deck.cards.push({id:'d5'},{id:'d6'});
       own.marker.used=false;
-      state.turn=3;
+      state.turn=5;
 
       const second=ai.decodeNextAction(state);
       assert.ok(second instanceof FakeUseAbilityAction);
@@ -226,9 +237,11 @@ test('recovery repeats on a later own turn but never twice in one turn, from eit
 
     assert.equal(run.result,'complete');
     assert.equal(run.policyAudit.version,'hood-garbotoxin-recovery-autonomy-v4-repeatable-own-turn');
-    assert.equal(run.policyAudit.attemptCount,2);
+    assert.equal(run.policyAudit.attemptCount,3);
     assert.equal(run.policyAudit.successfulEffectCount,2);
-    assert.deepEqual(run.policyAudit.attempts.map(attempt=>attempt.turn),[1,3]);
-    assert.ok(run.policyAudit.attempts.every(attempt=>attempt.successfulEffect));
+    assert.deepEqual(run.policyAudit.attempts.map(attempt=>attempt.turn),[1,3,5]);
+    assert.equal(run.policyAudit.attempts[0].aborted,'Recovery sequence crossed a turn boundary');
+    assert.equal(run.policyAudit.attempts[0].successfulEffect,false);
+    assert.ok(run.policyAudit.attempts.slice(1).every(attempt=>attempt.successfulEffect));
   }
 });
