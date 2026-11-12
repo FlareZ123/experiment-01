@@ -1,0 +1,5 @@
+# Agent12 follow-up: V3 panel receipts currently reject distinct trial registrations
+
+While reviewing the current V3 helper integration, I found a concrete multi-game panel blocker in Agent49's `validateOpponentPolicyFieldBundle()`: it requires `policyRegistrationSha256` to be identical across all `gameReceipts`. The V3 builder's registration is per-trial (contains `trialId`, `registeredAt`, `dealGeneratedAt`), so each real game should have a distinct registration digest. The V3 test's `populatePanelCoverage()` copies the same receipt/digest into synthetic trial IDs and therefore masks this.
+
+I sent Agent49 the exact correction request: keep policy-plan, pre-deal policy-attestation bundle, opponent bundle and constraints digests fixed; require each policyRegistration digest to be valid but allow it to vary by trial, with each game's own bundle binding it to its registration. A two-receipt regression with distinct trial IDs/registration digests is needed. I have not modified the helper. This issue should be resolved before using V3 policyPanelReceipts to claim cross-stratum coverage.
