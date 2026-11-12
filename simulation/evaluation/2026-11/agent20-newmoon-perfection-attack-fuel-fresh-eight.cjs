@@ -93,13 +93,13 @@ function comparePayments(arms){
     const left=new Map((a.handDiscardAudit?.selections??[]).map(row=>[key(row),row]));
     const right=new Map((b.handDiscardAudit?.selections??[]).map(row=>[key(row),row]));
     const keys=[...new Set([...left.keys(),...right.keys()])];
-    const changed=[],unmatchedControl=[],unmatchedTreatment=[];
+    const acceptedChanged=[],unmatchedControl=[],unmatchedTreatment=[];
     for(const k of keys){
       const x=left.get(k),y=right.get(k);
       if(!x){unmatchedTreatment.push(y);continue;}
       if(!y){unmatchedControl.push(x);continue;}
       if(JSON.stringify(x.printings)!==JSON.stringify(y.printings)){
-        changed.push({
+        acceptedChanged.push({
           seat:y.seat,actorRole:y.seat===a.candidateSeat?'candidate':'source',
           turn:y.turn,promptId:y.promptId,requiredCount:y.requiredCount,
           controlPrintings:x.printings,treatmentPrintings:y.printings
@@ -110,9 +110,9 @@ function comparePayments(arms){
       id:a.id,seed:a.seed,candidateSeat:a.candidateSeat,sourceSeat:a.sourceSeat,
       controlAttackFuelSelected:a.handDiscardAudit?.attackFuelSelected??0,
       treatmentAttackFuelSelected:b.handDiscardAudit?.attackFuelSelected??0,
-      changedPayments:changed,
-      candidateChangedPayments:changed.filter(x=>x.actorRole==='candidate').length,
-      sourceChangedPayments:changed.filter(x=>x.actorRole==='source').length,
+      acceptedChangedPayments:acceptedChanged,
+      candidateAcceptedChangedPayments:acceptedChanged.filter(x=>x.actorRole==='candidate').length,
+      sourceAcceptedChangedPayments:acceptedChanged.filter(x=>x.actorRole==='source').length,
       unmatchedControlSelections:unmatchedControl,
       unmatchedTreatmentSelections:unmatchedTreatment
     };
