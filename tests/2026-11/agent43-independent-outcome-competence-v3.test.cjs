@@ -202,6 +202,41 @@ function refreshPolicyEnvelope(bundle) {
 
 function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author',rankProducerOverrides={}}={}) {
   const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
+  bundle.trial.vendorCommitSha='a'.repeat(40);
+  bundle.trial.researchRevisionSha='b'.repeat(40);
+  const cardPoolInitializationReceipt = {
+    schema:'agent36-twinleaf-card-pool-initialization-v1',
+    enginePin:bundle.trial.vendorCommitSha,
+    startupPath:'vendor/twinleaf/ptcg-server/start.js',
+    startupSha256:policyHash(7002),
+    setNames:['base','black-white-1'],
+    definedSetCount:2,
+    cardCount:1200
+  };
+  bundle.trial.cardPoolInitializationReceipt=cardPoolInitializationReceipt;
+  const runtimePatchReceipts = [{
+    schema:'aichi-runtime-patch-installation-receipt-v1',
+    patchId:'fixture-underworld-door-hook',
+    modulePath:'simulation/twinleaf/fixture-hook.cjs',
+    moduleSha256:policyHash(7005),
+    target:'fixture-underworld-door-reducer',
+    originalReducerFingerprint:policyHash(7006),
+    installedReducerFingerprint:policyHash(7007),
+    installCount:1,
+    installBoundary:'outer-v3-runner-before-role-wrappers',
+    restoreCount:1,
+    restoreBoundary:'outer-finally',
+    restoredOriginal:true,
+    nestedInstallCount:0,
+    wrapperInstallCount:0
+  }];
+  bundle.trial.runtimePatchReceipts=runtimePatchReceipts;
+  const runtimePinEvidence = {
+    schema:'aichi-runtime-pin-evidence-v2',
+    unionSha256:policyHash(7003),
+    loadedProcessClosureSha256:policyHash(7004),
+    cardPoolInitializationSha256:evidenceBundleSha256(cardPoolInitializationReceipt)
+  };
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
@@ -229,13 +264,19 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     timeoutPolicy:{maxTimeouts:0,fallback:'safe-legal-action'},
     randomizationProtocol:{algorithm:'seeded-prng',seed:'frozen-panel-seed'},
     publicHistoryWindow:{scope:'full-match'},
-    resourceAccounting:{energyZones:true,oncePerTurn:true}
+    resourceAccounting:{energyZones:true,oncePerTurn:true},
+    sharedEngineCompatibilityPatches:[{
+      patchId:'fixture-underworld-door-hook',
+      modulePath:'simulation/twinleaf/fixture-hook.cjs',
+      moduleSha256:policyHash(7005),
+      target:'fixture-underworld-door-reducer'
+    }]
   };
   const core = {
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
-    },constraints
+    },constraints,runtimePinEvidence
   };
   const planSha = evidenceBundleSha256(core);
   const constraintsSha = evidenceBundleSha256(constraints);
@@ -299,7 +340,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   bundle.trial.policyAttestationBundleSha256=attestationSha;
   bundle.trial.policyRegistrationSha256=registrationSha;
   const receipt = {
-    schema:'aichi-policy-application-receipt-v1',
+    schema:'aichi-policy-application-receipt-v2',
     trialId:bundle.trialId,policyPlanSha256:planSha,
     policyRegistrationSha256:registrationSha,
     policyAttestationBundleSha256:attestationSha,
@@ -320,6 +361,11 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     enginePin:bundle.trial.vendorCommitSha,
     runnerRevision:bundle.trial.researchRevisionSha,
     policyConstraintsSha256:constraintsSha,
+    runtimePinUnionSha256:runtimePinEvidence.unionSha256,
+    loadedProcessClosureSha256:runtimePinEvidence.loadedProcessClosureSha256,
+    cardPoolInitializationSha256:runtimePinEvidence.cardPoolInitializationSha256,
+    runtimePatchReceipts,
+    runtimePatchReceiptsSha256:evidenceBundleSha256(runtimePatchReceipts),
     decisionTraceSha256:bundle.trial.decisionTraceSha256,
     timeoutStatus:'within-budget'
   };
@@ -394,6 +440,11 @@ function populatePanelCoverage(bundle) {
             [opponent.policySha256,candidate.policySha256],
           decisionTraceSha256:policyHash(9000+(sequence++))
         };
+        const panelRegistration={
+          ...bundle.policyRegistration,
+          trialId:receipt.trialId
+        };
+        receipt.policyRegistrationSha256=evidenceBundleSha256(panelRegistration);
         delete receipt.receiptSha256;
         receipt.receiptSha256=evidenceBundleSha256(receipt);
         receipts.push(receipt);
@@ -407,6 +458,9 @@ function populatePanelCoverage(bundle) {
 function addPanelReceipt(bundle,overrides) {
   const receipt={...bundle.policyApplicationReceipt,...overrides,
     trialId:'additional-panel-trial'};
+  receipt.policyRegistrationSha256=evidenceBundleSha256({
+    ...bundle.policyRegistration,trialId:receipt.trialId
+  });
   delete receipt.receiptSha256;
   receipt.receiptSha256=evidenceBundleSha256(receipt);
   bundle.policyPanelReceipts=[bundle.policyApplicationReceipt,receipt];
@@ -642,6 +696,51 @@ test('a complete authenticated 32-rank plan needs all 128 rank-seat-first-player
   assert.equal(r.fullFieldPanelComplete,true);
   assert.equal(r.observedAvailableStrata,128);
   assert.deepEqual(r.panelCoverageMissing,[]);
+});
+
+test('V3 application receipt v2 binds frozen runtime evidence and card-pool initialization',()=>{
+  const {bundle}=makePolicyBundle();
+  assert.equal(bundle.policyApplicationReceipt.schema,'aichi-policy-application-receipt-v2');
+  assert.equal(inspectPolicyPanelConsistency(bundle).valid,true);
+
+  const badRuntime=makePolicyBundle().bundle;
+  badRuntime.policyApplicationReceipt.runtimePinUnionSha256=policyHash(9901);
+  delete badRuntime.policyApplicationReceipt.receiptSha256;
+  badRuntime.policyApplicationReceipt.receiptSha256=
+    evidenceBundleSha256(badRuntime.policyApplicationReceipt);
+  badRuntime.policyPanelReceipts=[badRuntime.policyApplicationReceipt];
+  assert.equal(inspectPolicyPanelConsistency(badRuntime).valid,false);
+
+  const badCardPool=makePolicyBundle().bundle;
+  badCardPool.trial.cardPoolInitializationReceipt.cardCount++;
+  assert.equal(inspectPolicyPanelConsistency(badCardPool).valid,false);
+});
+
+test('V3 application receipt v2 rejects missing, reordered or incorrectly restored runtime patches',()=>{
+  const {bundle}=makePolicyBundle();
+  bundle.policyApplicationReceipt.runtimePatchReceipts[0].installCount=2;
+  delete bundle.policyApplicationReceipt.receiptSha256;
+  bundle.policyApplicationReceipt.receiptSha256=
+    evidenceBundleSha256(bundle.policyApplicationReceipt);
+  bundle.policyPanelReceipts=[bundle.policyApplicationReceipt];
+  const result=inspectPolicyPanelConsistency(bundle);
+  assert.equal(result.valid,false);
+  assert.ok(result.failures.includes('policy-application-receipt-invalid-or-unhashed'));
+});
+
+test('panel receipts use per-trial registration digests while the current receipt stays bound to its registration',()=>{
+  const {bundle}=makePolicyBundle();
+  const receipts=populatePanelCoverage(bundle);
+  assert.equal(new Set(receipts.map(item=>item.policyRegistrationSha256)).size,receipts.length);
+  assert.equal(inspectPolicyPanelConsistency(bundle).valid,true);
+
+  bundle.policyApplicationReceipt.policyRegistrationSha256=policyHash(9902);
+  delete bundle.policyApplicationReceipt.receiptSha256;
+  bundle.policyApplicationReceipt.receiptSha256=
+    evidenceBundleSha256(bundle.policyApplicationReceipt);
+  const result=inspectPolicyPanelConsistency(bundle);
+  assert.equal(result.valid,false);
+  assert.ok(result.failures.includes('current-policy-application-receipt-does-not-match-trial'));
 });
 
 test('candidate-policy hash drift across panel strata invalidates V3 application consistency',()=>{
