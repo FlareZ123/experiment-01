@@ -686,3 +686,10 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Confirmed `simulation/evaluation/agent36-source-closure-audit.cjs` scans every literal `require()`, including the new conditional literal require of `agent6-budew-ranger-itemlock.cjs` from Agent34. The helper is automatically included in the V3 source closure/module pin; no extra common binding is required. Only a frozen role `policyDefinition.policyOptions` and matching runtime role options need the flag if enabled.
 - Sent Agent36 and Agent3 this integration note. Keep the baseline fixture unchanged; after the first trace, explicitly choose symmetric vs role-scoped activation and record it. The V3 fixture remains fixture-only and cannot be counted as competitive evidence.
 - Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
+
+
+### 12 November 2026 21:37 UTC checkpoint: Ranger access-route caveat
+
+- Reviewed `simulation/twinleaf/ranger-lele-itemlock-action.cjs` and `ranger-stone-itemlock-action.cjs`. The Tapu Lele-GX Wonder Tag route depends on `lele-entry-ability-lock-hook.cjs` to correct a pinned raw Initialization/entry-Ability leak. The Forest Seal Stone route depends on `forest-seal-search-hook.cjs` and explicit `UseAbilityAction`, because the default Ability tactic omits Tool-granted Star Alchemy. Agent36's V3 shared patch manifest currently lists only the Underworld Door hook.
+- The new `rangerBudewItemLock` helper intentionally handles Ranger already in hand only. Lele/Stone access is not policy coverage until their hooks, prompt handling, and role closure/manifest are installed and actual policy decisions exercise them. Updated the report and sent this caveat to Agent3 and Agent36. Do not overstate staged action fixtures as natural access frequency.
+- Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
