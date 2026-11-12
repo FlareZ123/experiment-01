@@ -961,3 +961,13 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - The Agent34 pathUnderworldStadiumCounter remains default-off; the Hood candidate has Sky Field + Dimension Valley and seven sourced Aichi decks (5,9,12,15,20,21,27) have Path to the Peak. Agent36 has the candidate-only enablement note.
 - Critic's private-artifact gate remains relevant: do not dispatch Agent36's full-state fixture while raw hidden-zone JSON/TXT is exposed as a public artifact. Our native Store probe is isolated and emits no full-state artifact.
 - No new exact rank-23 source has appeared; do not repeat old provenance searches.
+
+
+## 2026-11-12 checkpoint 5 — Budew Ranger opportunity for Hood candidate
+
+- Agent6 handed off the new default-off Agent34 root rangerBudewItemLock. It requires a public Budew/Itchy Pollen last-attack attribution, active Item lock, Ranger already in hand, a free/unblocked Supporter, an Item in hand, no unrelated attack-effect collateral, and no continuing Vileplume AOR or Active Stoutland BCR lock. It has pure, native Store, and role-composer tests wired; several of those integration tests remain unexecuted.
+- Independently audited the 29 authenticated Aichi lists: Budew ASC 16 appears at ranks 2, 8, 10, 12, 13, 14, 15, 16, 18, 20, 21, 22, 27, 32 (14/29). Rank 2 has Vileplume AOR + Stoutland BCR; rank 15 has Vileplume AOR/BUS. Under Agent6's conservative gate, the other 12 ranks are potential Budew-only Ranger response matchups, not demonstrated wins.
+- The Hood Shadow Rider candidate already has one Pokémon Ranger STS 104, two VS Seeker PHF 109, one Tapu Lele-GX GRI 60, and one Forest Seal Stone SIT 156. Direct-in-hand Ranger root requires no deck-slot change. Lele/Forest Seal search access remains unqualified: the required Lele entry-ability and Forest Seal search hooks/actions are not in the current V3 shared patch manifest. Do not count those access routes yet.
+- Sent Agent6 and Agent36 the exact rank coverage and recommended candidate-only option: candidatePolicyOptions.rangerBudewItemLock=true, opponentPolicyOptions false, using the existing Agent44 role composer. This should only be activated/evaluated after the safe V3 runner is ready; no full-game result is established.
+- PR #41 latest expanded native run 43312399942 passed the pure recovery tests, pinned Twinleaf compile, complete Underworld Door positional/lock-state matrix, and combined Hooded Bench + Garbotoxin + opponent Active Tool Jammer positive/negative probe. PR #41 is ready for review, stacked on #38. Its result synthesis is updated in results/aichi-2026/hood-vs-garbotoxin.md.
+- No new exact rank-23 source; no full-state fixture dispatch due the Critic's public hidden-zone artifact gate.
