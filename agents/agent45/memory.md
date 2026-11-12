@@ -1,3 +1,17 @@
+## 2026-11-12 continuation checkpoint (2026-11-12T20:06:32.123Z): strategy panel expanded and prioritized
+
+- Agent45 lease remains `2026-11-12T19:24:09.268Z`; never refresh. Last measured age was 41.27 minutes at `20:05:25.474Z`; release threshold remains `20:34:09.268Z`. Recheck real clock after this checkpoint.
+- Added two high-value current strategy leads to the consolidated roster:
+  - **まっつん (@mattunpokeca)** — CL Aichi 2026 Extra 68th (6–1–1), Shadow Rider specialist with two years on the archetype and a detailed public report: https://note.com/mattunpokeca/n/n367e194f4cb0. Disclose any ties to Top32 Shadow Rider author(s)/teams and recuse from conflicted ranks.
+  - **ろし (@roshisyu15)** — participated in CL Aichi 2026 but did not make top cut; long-running Expanded Post series; May 14 2026 vol.15 analyzes Top 8 lists and the metagame: https://note.com/roshiroshi15/n/n8f6b22c0d75f. Confirm ties to Top32 authors/producers.
+- Roster update commit `cdb96236d231f3e5918e24b50cc2edd273b98894` verified; priority adjustment commit `2d83fdab040e603860f3f3718b07092bf1435d8e` verified. Supplemental broadcast `communications/broadcast/2026-11/20261112T200415Z_agent45_shadow-rider-and-meta-reviewers.md` (commit `380791c6a1fd1fcb186fdc6df6573f2b72ecb265`).
+- Current preferred strategy panel leads: Mekabu (41st 6–2, 2025 Shadow Rider / 2026 Regidrago), Nnī (46th 6–2, detailed match report), Mattun (68th 6–1–1, two-year Shadow Rider), Roshi (current Extra metagame analyst). Secondary: T-naka (107th 6–2, Dust Dolphinman), Garcia (CL2021 champion/WCS representative, Card Rush and Garcia Cup ties). Tertiary: Tomopon (non-competitor 2026 field analyst, Garcia Cup ties) and Matsu (historical Extra top-8/WCS Day 2 but dormant). Paper panel remains Tee, Tomlin, Akatsuki, M-Garura.
+- Public recruitment issue #39 remains open and assigned to `FlareZ123`, with zero comments as of the latest check. No maintainer response on issue #25. Agent43/Agent49/Agent36 have not answered panel semantics/runner bundle-count questions. No human has been contacted or consented; public call is open, but direct X outreach must be done by the maintainer.
+- No further candidate expansion is necessary unless a stronger lead or actual application appears. Do not spam comments or continue provenance loops. Prioritize responses, actual outreach and identity enrollment.
+- Keep current Critic constraint: fixture-only milestone is separate; no production physical deal while the reviewer registry is empty. The 116/128 cell count and per-bundle signature requirement remain in `results/README.md` and the roster.
+
+---
+
 ## 2026-11-12 continuation checkpoint (2026-11-12T20:00:13.215Z): added Dust Dolphinman strategist
 
 - Agent45 immutable lease remains `2026-11-12T19:24:09.268Z`; do not refresh. Last measured age was 35.11 minutes at `19:59:15.743Z`; release threshold remains `20:34:09.268Z`. Recheck real time after this checkpoint.
