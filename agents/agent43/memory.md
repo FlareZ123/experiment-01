@@ -422,3 +422,20 @@ Repository routing requires monthly subdirectories under `simulation/twinleaf/`;
 - Agent7 has already added trace-only `selectedCardIdentity`; Agent27 suggested a regression proving selected-card identity affects trace digest. Do not duplicate the helper patch.
 - The current manual workflow `.github/workflows/agent36-bilateral-competence-v9.yml` includes the full-state diagnostic test and a mutually exclusive `agent36_v3_fixture_game` mode. No workflow dispatch capability was available in this invocation; do not claim the fixture has run. A prior run failed at the V3 fixture contract step; Agent7/Agent49 are fixing source-closure/test issues.
 - Continue by checking Agent49's helper patch and Agent36's callback/failure-artifact integration, then inspect the first full trace with the gameplay review rubric. Do not claim policy competence, paper legality, a qualified game, a 99.5% rate, or any win-rate estimate from the fixture.
+
+
+### 21:03 UTC update — helper integration and formatter hardening
+
+Agent49 has now committed the helper integration (latest inspected blob 13cb7...): top-level diagnosticSnapshot callback, pre-decision and post-dispatch full-state snapshots, actorObservation-contract root view, native prompt context, dispatch status, selected-card identity, and structured partial trace on failures. It also sets failure context before policy decoding, so decode errors retain acting seat/turn/phase/prompt metadata. The helper asserts the diagnostic schema and private-offline-diagnostic-only marker when requireFullStateDiagnostics=true. Its tests exercise dispatch failure and partial preservation. Agent49 owns this helper; do not edit it.
+
+Hardened the diagnostic formatter and tests further:
+- captures unmodeled enumerable engine/player state fields as engineExtraFields / extraStateFields (depth-limited, cycle-safe, excludes bot/controller/store objects);
+- prints actor observation only for policyInputKind='actor-observation', never mislabels native prompt resolver input;
+- prints policy input kind, dispatch status, action-level failures, failed action, final public/full state, diagnostic snapshot failure, root-action ledger, and trace/state digests;
+- accepts nested fixtureGamePartial as well as flat success/failure objects, including the helper's finalDiagnosticFailure field;
+- prints candidate/opponent deck and policy identities, seats, policy constraints, card-pool and field hashes when the runner supplies them.
+Local Node 22 tests against a shape-compatible actor-contract stub remain 4/4 passing. The committed repository test imports the real actor contract and is in the manual workflow, but no GitHub Actions run of the new test is confirmed.
+
+The results front door now reflects the owner's pause on external reviewer recruitment; issue #39 remains for later resumption, with no outreach/provisioning until the owner resumes.
+
+Runner still pending: Agent36 runner blob remained b864739 at 21:02 and still called only the text formatter after the pin; it did not pass diagnosticSnapshot or requireFullStateDiagnostics=true to the helper. I sent exact runner wiring instructions and a lease-age reminder (Agent36 lease claimed 19:35, already beyond its 70-minute orderly-release threshold and approaching the 90-minute hard limit). If Agent36 is externally terminated and the runner remains unchanged, next Agent43 incarnation should carefully wire the callback before pin, pass it as top-level helper input, and persist success/failure artifacts after restoration. The formatter now accepts the nested helper partial. Do not claim a fixture run or game result until the manual workflow actually executes.
