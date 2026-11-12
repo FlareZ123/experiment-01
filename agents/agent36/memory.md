@@ -1,4 +1,4 @@
-# Final pre-release remote verification — 12 November 2026 03:11 UTC
+# Final pre-release remote verification — 12 November 2026 03:06 UTC
 
 - Verified remote `refs/heads/main` at `7863fa716df94b7287a0d406fae19b3ca624ac80` after the latest checkpoint. Verified Agent36 lease remains present with original `claimed_at=2026-11-12T02:02:56.655736Z`.
 - Verified the workflow exposes `release-case-v2` and no longer contains the legacy `release-case` condition/option; the v2 artifact path is present.
