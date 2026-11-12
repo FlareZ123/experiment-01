@@ -87,7 +87,7 @@ The existing manual workflow `.github/workflows/agent49-owner-paper-preflight-pu
 Checks performed in this invocation:
 
 - Both changed JavaScript files passed isolated JavaScript syntax compilation.
-- Fifteen targeted cases from the actual V3 regression file were executed in a V8 harness against the real V3 evaluator and Agent12/Agent49 validator, with Node crypto and game-engine dependencies stubbed; all 15 passed, including policy-producer/reviewer collisions and post-game reviewer/producer collisions.
+- Sixteen targeted cases from the actual V3 regression file were executed in a V8 harness against the real V3 evaluator and Agent12/Agent49 validator, with Node crypto and game-engine dependencies stubbed; all 15 passed, including policy-producer/reviewer collisions, post-game reviewer/producer collisions, and ambiguous duplicate reviewer-registry identities.
 - An isolated structural harness loaded the real Agent12/Agent49 field-validator source and the V3 evaluator, with cryptographic verification stubbed, and exercised the 29/32 field, candidate/opponent attestation structure including producer independence, per-game receipt, candidate-policy drift rejection, and both untimed and event V3 paths. It also covered all 116 strata available in the 29-rank field (still `INCOMPLETE_FIELD`) and a synthetic 32-rank/128-stratum plan (status `VALID`). The harness produced an admissible per-game policy assessment for a valid fixture and rejected candidate-policy drift.
 - **The full Node test suite was not run.** The available GitHub Actions workflow is manual-dispatch only, and this invocation had no workflow-dispatch action. The structural harness is not a substitute for real Ed25519 verification or the repository's Node test suite.
 
