@@ -127,6 +127,10 @@ function arm(phase,enabled,reg,options={}){
     sourceSeat:seats.source,candidateSeat:seats.candidate,
     rootPhysicalLinked,
     sourcePerfectionPrizeReceipts,candidatePerfectionPrizeReceipts,
+    // Preserve both native prompt-closed attack settlement streams for
+    // additive postgame outcome/carryover analysis. No policy mutation.
+    sourceAttackSettlement:row.sourceAttackSettlement??null,
+    candidateAttackSettlement:row.candidateAttackSettlement??null,
     nativeAttackModalityLedger:row.nativeAttackModalityLedger??null,
     nativeAttackPhysicalTape:row.nativeAttackPhysicalTape??null,
     fullNativePaperRootReceipts,
