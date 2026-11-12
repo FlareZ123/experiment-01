@@ -111,5 +111,6 @@
   "finalDeckSelected": false,
   "scopeLimit": "Eight developmental physical contexts against original rank5 only. This is not a full-field matchup estimate, not an independently paper/clock-qualified game, and cannot establish 99.5%.",
   "candidateEnglishProxyManifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
-  "sourceDeckListManifestGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  "sourceDeckListManifestGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidateEnglishProxyManifestGitBlobSha": "d9777831271bec8c4ac400d0a2d9f49cc03c630b"
 }
