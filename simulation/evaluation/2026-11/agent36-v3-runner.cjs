@@ -79,10 +79,16 @@ function loadNativeRoleDependencies({enginePin}={}){
   const promptActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const {CardManager}=require('../../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
   const sets=require('../../../vendor/twinleaf/ptcg-server/output/sets');
+  const {GameSettings}=require('../../../vendor/twinleaf/ptcg-server/output/game/core/game-settings');
+  const {AddPlayerAction}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action');
+  const {ShuffleDeckPrompt}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt');
+  const {CoinFlipPrompt}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt');
+  const simpleBotDefinitions=require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions');
+  const {BotFlipMode,BotShuffleMode}=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/bot-arbiter');
   const {PokemonCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
   const {EnergyCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {TrainerCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
-  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition}=
+  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
   const {PowerType}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
   const cardPoolInitialization=initializeNativeCardPool({CardManager,sets,enginePin});
@@ -96,8 +102,18 @@ function loadNativeRoleDependencies({enginePin}={}){
   }));
   const getNativeTrainerCatalog=()=>trainerCatalog??=(trainerPrintCatalog(
     CardManager.getInstance().getAllCards(),{TrainerCard,TrainerType}));
+  const baseBotOptions={
+    tactics:simpleBotDefinitions.allSimpleTactics,
+    promptResolvers:simpleBotDefinitions.allPromptResolvers,
+    scores:simpleBotDefinitions.defaultStateScores,
+    arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+  };
+  const botOptionsBySeat=[baseBotOptions,baseBotOptions];
   return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
+    GameSettings,Format,AddPlayerAction,
+    ResolvePromptAction:promptActions.ResolvePromptAction,
+    ShuffleDeckPrompt,CoinFlipPrompt,botOptionsBySeat,CardManager,sets,
     cardPoolInitialization};
 }
 
