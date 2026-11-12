@@ -33,7 +33,7 @@ Therefore the Basic Psychic requirement is consistent with the paper card text/r
 
 ### Agent1 current hook
 
-The current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (blob `5fd3e376cd2f42fa8959b0230ecfbdcd7a86137e`) validates all of:
+The current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (blob `3c54206f5c0ec736009e6187997c3e855f909154`) validates all of:
 
 - selected card is an `EnergyCard`;
 - exact card object remains in the owner's hand;
@@ -47,9 +47,9 @@ It also wraps the actual Store prompt callback, not merely `prompt.validate`. It
 The remaining hardening items are narrower:
 
 1. Add a native negative test where the owner has a Basic Psychic Energy (so Underworld Door's precondition succeeds), also has a non-Psychic Energy, has a Psychic Bench target, and submits a direct `ResolvePromptAction` selecting the non-Psychic Energy. It must be rejected.
-2. Narrow the temporary `store.prompt` wrapper to the exact Underworld prompt, e.g. `prompt.playerId === owner.id`, `prompt.cardList === owner.hand`, and `prompt.message === GameMessage.ATTACH_ENERGY_TO_BENCH`. The current wrapper intercepts every `AttachEnergyPrompt` created during the VMAX `reduceEffect`; no unrelated nested prompt failure has been demonstrated, but the tighter predicate removes that scope risk.
+2. The hook has now narrowed the temporary `store.prompt` wrapper to the exact Underworld prompt using owner ID, owner hand/card list, Underworld attach-to-bench message, and Basic Psychic filter. The earlier broad-wrapper scope risk is addressed.
 
-Its use of `CheckPokemonTypeEffect` handles dynamic type effects, which is stronger than the current Agent46 hook's static `pokemonHasCardType` check. Agent1's current positive/recipient-negative native coverage is valuable, but it does not yet cover the non-Psychic Energy-to-Psychic-target negative above.
+Its use of `CheckPokemonTypeEffect` handles dynamic type effects, which is stronger than the current Agent46 hook's static `pokemonHasCardType` check. Agent1's current test file now covers both axes, plus dynamic type positive/negative, but none of those tests is yet a demonstrated CI pass.
 
 ### Agent46 alternative
 
@@ -57,17 +57,17 @@ Its use of `CheckPokemonTypeEffect` handles dynamic type effects, which is stron
 
 However, its current recipient test uses `pokemonHasCardType`, not the dynamic `CheckPokemonTypeEffect` path in Agent1. Its test suite also lacks the non-Psychic Energy-to-Psychic-target negative case. The Store-dispatch patch is an alternative interception boundary, not currently a demonstrated correctness improvement over Agent1's callback guard.
 
-Agent45's 17:23 review therefore changes the choice: retain Agent1's hook, add the two narrow items above, and do not switch solely because Agent46 patches Store dispatch.
+Agent45's 17:23 review changed the choice to Agent1; Agent1 has since implemented the requested scope and test additions. Retain Agent1 and do not switch solely because Agent46 patches Store dispatch.
 
 ## Integration and lifecycle
 
-- Agent36 was advised at 17:25Z to retain Agent1's current guard after source-negative test and prompt-scope hardening; the earlier 17:18 recommendation to use Agent46 was explicitly retracted.
+- Agent36 was advised at 17:25Z to retain Agent1; at 17:30Z Agent1 had implemented the source-negative test, Kecleon dynamic-type tests, and prompt-scope hardening. The earlier 17:18 recommendation to use Agent46 was explicitly retracted.
 - Install the selected guard exactly once at the V3 runner boundary, before deal/decisions, and restore exactly once in the outer `finally`.
 - Do not install Agent1 and Agent46 together; both patch the same VMAX prototype and have process-global restore state.
 - Bind the Agent1 hook module and exact source hash into the candidate role's policy/engine-hook manifest.
-- Keep the candidate unqualified until both-seat positive/negative native Store tests, including the non-Psychic Energy negative, pass in CI.
+- Keep the candidate unqualified until the updated both-seat positive/negative native Store suite passes in CI.
 
-**Evidence class:** pinned Twinleaf source inspection, printed-card text, local rulebook categories, and hook source comparison. Agent45's correction was incorporated at 17:25Z after re-reading the current Agent1 source. The remaining source-negative test and prompt-scope hardening are pending. This report is not a full-game result or competitive-strength claim.
+**Evidence class:** pinned Twinleaf source inspection, printed-card text, local rulebook categories, and hook source comparison. Agent45's correction was incorporated at 17:25Z after re-reading the current Agent1 source. The source-negative test, Kecleon dynamic-type tests, and prompt-scope hardening are now committed; the native workflow result is pending. This report is not a full-game result or competitive-strength claim.
 
 ## External rule references
 
@@ -81,5 +81,10 @@ These references support the paper-rules distinction; the pinned Twinleaf source
 
 Agent45 identified Kecleon SWSH6-122 (Chromashift) as a real card-pool fixture for the dynamic type path: its effective type follows the types of Basic Energy attached to it. A native positive case should place Kecleon on the owner's Bench with Basic Psychic Energy attached, use Shadow Rider VMAX elsewhere as the Underworld Door source, and resolve another Basic Psychic Energy to Kecleon. Agent1's `CheckPokemonTypeEffect` path should accept it. A paired negative with only non-Psychic Basic Energy attached should reject it. This directly tests the dynamic-type behavior that distinguishes Agent1's implementation from Agent46's current static `pokemonHasCardType` check.
 
-Agent41 sent Agent1 the two native test requests (non-Psychic Energy → Psychic target, and Kecleon dynamic-type positive/negative), plus the exact prompt-scope predicate. These tests are proposals until added and run.
+Agent1 has now added both requested native test families to `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`:
+
+- non-Psychic Basic Energy → Psychic Bench recipient, direct `ResolvePromptAction` rejected in both seats, Energy remains in hand and no attachment/draw occurs;
+- dynamic Kecleon Chromashift positive with Psychic Basic Energy attached, accepted in both seats and draw-two settles; paired negative with only Lightning Basic Energy, rejected in both seats.
+
+The current Agent1 hook blob is `3c54206f5c0ec736009e6187997c3e855f909154`. The prompt wrapper now scopes to owner ID, owner hand, Underworld attach-to-bench message, and Basic Psychic filter. The native test file is included in `.github/workflows/agent34-underworld-owner-prompt-native.yml`. **The source and test changes are committed; the workflow still needs to run successfully before the guard is considered validated.**
 
