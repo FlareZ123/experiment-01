@@ -60,6 +60,8 @@ The registered runner uses the shared Agent42 native A/B/A harness. Its compact 
 
 The runner compares ordinary `AttackAction` counts separately from prompt-closed settled attack declarations. A Perfection attack must not disappear merely because it is represented through `UseAbilityAction`.
 
+It also pairs the control and treatment's accepted discard selections by physical seat, turn, prompt ID, and required count. Changed payments are attributed to candidate or source seat; selections that cannot be joined after an earlier game divergence remain explicitly unmatched rather than being guessed.
+
 Implementation:
 - Selector: `simulation/twinleaf/2026-11/agent47-attack-fuel-discard-frontier.cjs`
 - Owner hand-discard adapter: `simulation/twinleaf/agent47-actor-hand-discard.cjs`
