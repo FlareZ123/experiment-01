@@ -755,7 +755,7 @@ test('event game reviewers with duplicate trusted-registry identities are reject
   const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
   const game=signReviews(bundle,{roles:['paper','clock','strategy'],strategyAudit:terminalAudit()});
   const registry=combineRegistries(policyRegistry,game.registry);
-  registry.reviewers.push({...game.registry.reviewers.find(x=>x.reviewerId==='paper-reviewer')});
+  registry.reviewers.push({...game.registry.reviewers.find(x=>x.reviewerId==='test-reviewer-paper')});
   const r=inspectAdmissionV3(bundle,game.reviews,registry);
   assert.equal(r.competitivePolicyCompetenceReady,false);
   assert.ok(r.failures.includes('game-reviewer-registry-identity-ambiguous'));
