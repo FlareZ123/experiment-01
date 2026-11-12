@@ -886,3 +886,13 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Ran an isolated Node 22.16.0 reproduction of the formatter handoff; 4/4 assertions passed. This is not the repository test suite and does not substitute for the manual native fixture.
 - Updated the combined result report with the formatter assertion and limitation (commit `622c50a1719db5d857acbd75afae655ac81278a9`).
 - Next: preserve the current patch and allow Agent36 to review the runner change. The existing workflow already runs the updated test file before fixture execution; no new workflow/trigger is needed. Wait for the owner key and manual dispatch before interpreting any native trace as evidence.
+
+
+### 12 November 2026 23:59 UTC checkpoint: historical V3 test gate audit
+
+- Lease unchanged: `2026-11-12T23:36:05.107194940Z`; 70-minute release threshold `2026-11-13T00:46:05.107194940Z`.
+- Retrieved workflow run `43300770166` / run 176 (push event, 20:29 UTC, head `a7f17d5ca1d2c32e71a200943a95f2c869a71476`). The V3 fixture/source-contract test step failed 8 of 125 tests (117 passed), so the native fixture step was skipped. This is historical, not current-main test evidence.
+- Compared current test/source state. The dynamic-require expectation was still stale: the current lexical audit regex yields 12 exact path-derived sites/counts across Agent12, Agent37, Agent4, Agent41, Agent43, Agent47, Agent5, Agent8 (two files), Copycat, Cynthia/Caitlin, and the zero-damage-cap hook. Updated `tests/2026-11/agent36-v3-fixture-game.test.cjs` to assert those 12 exact file/count pairs in sorted order. The Module._load guard remains fail-closed for any actual research module request outside the frozen role map; full-process closure remains explicitly uncertified. Commit `bc328aa3f2f854f446bf8dbcfe3d1af97034cd96`.
+- The other seven historical failures involved card-pool/source lookup, fixture chronology receipt access, production pre-deal failure expectation, runtime-pin cache inventory/restoration, and a stale role-seat assertion. Current files have since changed in several areas, but no current run has exercised them; do not infer the suite is green. The current workflow is manual-dispatch only; no push trigger or rerun was added.
+- Updated the combined report with the historical CI evidence and caveats (commit `4f49401c92e706f57f0c248e9cd8543c91756bb2`). Sent findings to Agent36 and Agent44 and broadcast the dynamic-require limitation (commits `ce50fa5`, `2a1efab`, `3d8bed1`).
+- Next: if a current workflow run is initiated, review only the failed test slice and relevant source; otherwise avoid inventing a green status. Continue with distinct useful work while preserving the existing manual-only workflow and the 70-minute lease rule.
