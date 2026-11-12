@@ -12,7 +12,7 @@ function makeStore() {
     hand:{cards:[]},discard:{cards:[]}, lostzone:{cards:[]},
     stadium:{cards:[]},supporter:{cards:[]},
     prizes:Array.from({length:6},()=>({cards:[]})),
-    active:{cards:[],tools:[]},bench:[]});
+    active:{cards:[],tools:[],energies:{cards:[]}},bench:[]});
   const state = {players:[player(0),player(1)],turn:1,phase:'PLAYER_TURN',
     activePlayer:0,prompts:[]};
   return {state, dispatch(action) {
@@ -21,7 +21,7 @@ function makeStore() {
     if(action.card) {
       const actor=state.players[state.activePlayer];
       const at=actor.hand.cards.indexOf(action.card);
-      if(at>=0){actor.hand.cards.splice(at,1); actor.discard.cards.push(action.card);}
+      if(at>=0){actor.hand.cards.splice(at,1);\n        if(action.attachEnergy) actor.active.energies.cards.push(action.card);\n        else actor.discard.cards.push(action.card);}
     }
     if(action.prompt) state.prompts.push(action.prompt);
     return true;
@@ -56,6 +56,25 @@ test('actual dispatched root captures 120 physical identities and exact payment'
   assert.equal(row.receipts[0].afterPositions['0:0'],'s0.discard:0');
   recorder.close();
   assert.strictEqual(store.dispatch,unwrapped);
+});
+
+test('attached Energy remains in physical custody and records its exact movement',()=>{
+  const store=makeStore();
+  const recorder=createLivePaperRootReceipts('rank5-energy-payment');
+  recorder.onRootStoreCreated(store);
+  const card=store.state.players[0].deck.cards.shift();
+  store.state.players[0].hand.cards.push(card);
+  const action={card,attachEnergy:true};
+  assert.equal(store.dispatch(action),true);
+  recorder.onRootActionDispatched(store,action,20,0,1);
+  const row=recorder.result();
+  assert.equal(row.schema,'agent36-live-paper-root-receipts-v2-attached-energy-custody');
+  assert.deepEqual(row.receipts[0].movement,[{
+    id:'0:0',printing:'Card0-0 TEST 0',from:'s0.hand:0',
+    to:'s0.active.energies:0'
+  }]);
+  assert.equal(row.settledPhysicalIdentityClean,true);
+  recorder.close();
 });
 
 test('real unresolved prompt choices identify selected physical card',()=>{
