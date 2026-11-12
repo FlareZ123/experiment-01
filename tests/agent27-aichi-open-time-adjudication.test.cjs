@@ -424,6 +424,9 @@ test('Official end call must not precede the stage-specific elapsed-time limit',
   const finalEarly=auditTimeCallPacket({...base,stage:'open-final',
     elapsedSecondsAtOfficialCall:2099});
   assert.equal(finalEarly.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  const finalAt30Minutes=auditTimeCallPacket({...base,stage:'open-final',
+    elapsedSecondsAtOfficialCall:1800});
+  assert.equal(finalAt30Minutes.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
   const finalAtLimit=auditTimeCallPacket({...base,stage:'open-final',
     elapsedSecondsAtOfficialCall:2100});
   assert.equal(finalAtLimit.status,'NORMAL_PAPER_GAME_WIN');
