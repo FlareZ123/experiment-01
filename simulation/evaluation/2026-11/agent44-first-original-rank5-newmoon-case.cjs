@@ -215,6 +215,10 @@ function execute(){
     nativeRawStateFallbackQuarantineAudit.originalNativeDecoderExecuted===false;
   const ownerAcknowledgementsComplete=
     ownerPublicAcknowledgementAudit.confirmPromptDefaultEquivalent===true;
+  assert.equal(ownerPublicAcknowledgementAudit.completePolicyOwnerSafe,false);
+  assert.equal(ownerPublicAcknowledgementAudit.beneficialAbilityUseQualified,false);
+  assert.equal(nativeRawStateFallbackQuarantineAudit.ownerInformationSafeWholePolicyCertified,false);
+  assert.equal(nativeRawStateFallbackQuarantineAudit.gameCompetitiveQualified,false);
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
     [false,'verified-exact-Japanese-candidate-physical-printings-not-in-published-transcription'],
