@@ -52,7 +52,7 @@ test('records pinned vendor imports without recursing into upstream source',()=>
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-source-vendor-'));
   try {
     write(path.join(root,'entry.cjs'),"require('./research.cjs');\\n");
-    write(path.join(root,'research.cjs'),"require('../vendor/twinleaf/engine.cjs');\\n");
+    write(path.join(root,'research.cjs'),"require('./vendor/twinleaf/engine.cjs');\\n");
     write(path.join(root,'vendor/twinleaf/engine.cjs'),"import('upstream-dynamic'); module.exports=process.env.UNPINNED;\\n");
     const audit=auditSourceClosure(root,['entry.cjs']);
     assert.deepEqual(audit.files.map(file=>file.path),['entry.cjs','research.cjs']);
