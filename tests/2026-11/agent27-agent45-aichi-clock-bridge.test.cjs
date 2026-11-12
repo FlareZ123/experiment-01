@@ -103,3 +103,33 @@ test('official-call knockout tie remains a six-Prize tiebreaker requirement',()=
   assert.equal(result.winnerSeat,null);
   assert.equal(result.competitiveAdmission,false);
 });
+
+test('knockout extension tie preserves its terminal tiebreaker diagnostic without a winner',()=>{
+  const trial=officialCallTrial('open-top32',{prizes:[1,1]});
+  Object.assign(trial.timeCallPacket,{
+    finalPermittedTurnFinished:true,
+    observedFinalTurnSeat:1,
+    observedExtraSecondTurns:1,
+    trailingPokemonCheckupWasExcluded:true
+  });
+  trial.extensionLedgerPacket={
+    extensionLedgerEvidenceRef:'continuous-extension-prize-ledger',
+    extensionLedgerIndependentlyReviewed:true,
+    transitions:[{
+      sequence:1,
+      beforePrizes:[1,1],
+      afterPrizes:[0,0],
+      transitionEvidenceRef:'simultaneous-extension-tie',
+      paperGameTie:true
+    }]
+  };
+  const result=inspectOfficialAichiClock(trial);
+  assert.equal(result.shapeComplete,false);
+  assert.equal(result.status,'EXTENSION_LEDGER_TERMINAL');
+  assert.equal(result.extensionLedgerStatus,'EXTENSION_LEDGER_TERMINAL');
+  assert.equal(result.terminalStatus,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(result.requiresSixPrizeTiebreaker,true);
+  assert.equal(result.extensionLedgerShapeComplete,true);
+  assert.equal(result.winnerSeat,null);
+  assert.equal(result.competitiveAdmission,false);
+});
