@@ -479,6 +479,7 @@ test('untimed natural win needs paper review but no clock receipt or clock revie
   assert.equal(r.candidateNonWin,true);
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.fixtureOnly,true);
+  assert.equal(r.admissionEligible,false);
 });
 
 test('untimed natural tie remains a tie and is not clock-adjudicated',()=>{
@@ -961,6 +962,7 @@ test('event mode applies the same deck-aware policy gate without inheriting V2 s
   assert.equal(r.competitivePolicyCompetenceReady,true);
   assert.equal(r.acceptanceReady,true);
   assert.equal(r.competitiveAdmission,false);
+  assert.equal(r.admissionEligible,false);
 });
 
 test('event game reviewers with duplicate trusted-registry identities are rejected',()=>{
@@ -1000,6 +1002,7 @@ test('wrong event stage and empty production trust registry fail closed',()=>{
   assert.equal(inspect(b).gameOutcomeAdmissionReady,false);
   const untimed=makeBundle();
   const signed=signReviews(untimed);
-  assert.equal(evaluateCompetitiveAdmissionV3(untimed,signed.reviews)
-    .competitiveAdmission,false);
+  const production=evaluateCompetitiveAdmissionV3(untimed,signed.reviews);
+  assert.equal(production.competitiveAdmission,false);
+  assert.equal(production.admissionEligible,false);
 });
