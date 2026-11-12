@@ -28,6 +28,14 @@ class WaitPrompt{
     this.message='wait';
   }
 }
+class ConfirmPrompt{
+  constructor(id,message){
+    this.playerId=id;
+    this.message=message;
+    this.id=10;
+    this.result=undefined;
+  }
+}
 class ResolvePromptAction{
   constructor(id,result){this.id=id;this.result=result;}
 }
@@ -35,6 +43,7 @@ const modules={
   'simple-bot/simple-tactics-ai':{SimpleTacticsAi:FakeAi},
   'game/store/prompts/show-mulligan-prompt':{ShowMulliganPrompt},
   'game/store/prompts/wait-prompt':{WaitPrompt},
+  'game/store/prompts/confirm-prompt':{ConfirmPrompt},
   'game/store/actions/resolve-prompt-action':{ResolvePromptAction},
   'game/game-message':{GameMessage:CODES},
   'game/store/state/state':{GamePhase:{SETUP:1}}
@@ -64,6 +73,7 @@ test('both seats: required public mulligan reveal acknowledges true without hidd
       assert.equal(second.result,first.result);
       assert.equal(wrapped.audit.mulliganAcks,2);
       assert.equal(wrapped.audit.waitAcks,0);
+      assert.equal(wrapped.audit.confirmAcks,0);
       assert.ok(wrapped.audit.events.every(x=>x.seat===seat));
     }
   }
@@ -77,13 +87,41 @@ test('either seat: WaitPrompt resolves void with no native preference',()=>{
     assert.equal(wrapped.result.result,null);
     assert.equal(wrapped.audit.waitAcks,1);
     assert.equal(wrapped.audit.mulliganAcks,0);
+    assert.equal(wrapped.audit.confirmAcks,0);
+  }
+});
+test('both seats: ConfirmPrompt is explicitly declined with Twinleaf default false',()=>{
+  for(const seat of [0,1]){
+    const id=seat===0?101:202;
+    const p=new ConfirmPrompt(id,'WANT_TO_USE_ABILITY');
+    const s=state(seat,p,5,8);
+    let first,second;
+    const wrapped=withAcks(()=>{
+      const bot=new FakeAi(id);
+      first=bot.decodeNextAction(s);
+      s.players[1-seat].hand.cards.reverse();
+      second=bot.decodeNextAction(s);
+    },{engine});
+    assert.equal(first.constructor,ResolvePromptAction);
+    assert.equal(first.id,p.id);
+    assert.equal(first.result,false);
+    assert.equal(second.result,false);
+    assert.equal(wrapped.audit.confirmAcks,2);
+    assert.equal(wrapped.audit.mulliganAcks,0);
+    assert.equal(wrapped.audit.waitAcks,0);
+    assert.equal(wrapped.audit.confirmPromptDefaultEquivalent,true);
+    assert.equal(wrapped.audit.beneficialAbilityUseQualified,false);
+    assert.ok(wrapped.audit.events.every(x=>
+      x.seat===seat&&x.kind==='default-confirm-decline'&&
+      x.resultKind==='false-native-default-equivalent'));
   }
 });
 test('wrong owner, message, or phase still delegates with unchanged state',()=>{
   for(const cfg of [
     {id:101,p:new ShowMulliganPrompt(202,CODES.SETUP_PLAYER_NO_BASIC)},
     {id:101,p:new ShowMulliganPrompt(101,'UNKNOWN')},
-    {id:101,p:new ShowMulliganPrompt(101,CODES.SETUP_PLAYER_NO_BASIC),phase:2}
+    {id:101,p:new ShowMulliganPrompt(101,CODES.SETUP_PLAYER_NO_BASIC),phase:2},
+    {id:101,p:new ConfirmPrompt(202,'WANT_TO_USE_ABILITY')}
   ]){
     const s=state(0,cfg.p,0,cfg.phase??1);
     const before=JSON.stringify(s);
@@ -92,6 +130,7 @@ test('wrong owner, message, or phase still delegates with unchanged state',()=>{
     assert.deepEqual(wrapped.result,{kind:'native-unsupported'});
     assert.equal(wrapped.audit.mulliganAcks,0);
     assert.equal(wrapped.audit.waitAcks,0);
+    assert.equal(wrapped.audit.confirmAcks,0);
     assert.equal(JSON.stringify(s),before);
   }
 });
