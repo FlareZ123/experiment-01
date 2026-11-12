@@ -78,6 +78,24 @@ test('counts settled Perfection declarations separately from ordinary roots',()=
   assert.equal(row.treatmentCandidateAttackNames[0].triggerAction,'ResolvePromptAction');
 });
 
+test('keeps proposal, native acceptance and prompt closure distinct',()=>{
+  const [row]=discardSummary([{id:'B',records:[{
+    id:'rank5:seed5:A',finished:true,error:null,candidateSeat:0,sourceSeat:1,
+    handDiscardAudit:{
+      attackFuelOptIn:true,selected:2,accepted:1,rejected:1,
+      nativePromptPostconditionsConfirmed:1,
+      attackFuelAlternativeProposals:1,attackFuelSelected:1,
+      attackFuelReasons:{'one-attachment-fuel':1},selections:[]
+    }
+  }]}]);
+  assert.equal(row.selectedDiscardPrompts,2);
+  assert.equal(row.acceptedDiscardPrompts,1);
+  assert.equal(row.rejectedDiscardPrompts,1);
+  assert.equal(row.nativePromptPostconditionsConfirmed,1);
+  assert.equal(row.attackFuelAlternativeProposals,1);
+  assert.equal(row.attackFuelSelected,1);
+});
+
 test('does not drop incomplete attempts when a hand-discard audit is absent',()=>{
   const [row]=discardSummary([{id:'A',records:[{
     id:'rank5:seed4:B',finished:false,error:'native abort',
