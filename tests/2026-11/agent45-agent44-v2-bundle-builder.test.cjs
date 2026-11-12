@@ -293,7 +293,7 @@ test('external Agent27 clock evidence maps exact fields without creating reviewe
     timeCallPacket:null,extensionLedgerPacket:null
   };
   const result=build(original,{clockEvidence,clockEvidenceRef:'review/clock-evidence-4410.json'});
-  assert.equal(result.bundle.trial.eventStage,'open-swiss');
+  assert.equal(result.bundle.trial.eventStage,'open-top32');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
@@ -307,6 +307,43 @@ test('external Agent27 clock evidence maps exact fields without creating reviewe
     'review/clock-evidence-4410.json');
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.releaseNineObjects['clock-continuity'].independentOfficialClockReview,'pending');
+  assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
+});
+
+test('external clock evidence must be bound to the frozen 4410 trial and immutable reference',()=>{
+  const original=fixture();
+  assert.throws(()=>build(original,{clockEvidence:{eventStage:'open-top32'},
+    clockEvidenceRef:'review/missing-trial-id.json'}),/identify its frozen trial/);
+  assert.throws(()=>build(original,{clockEvidence:{trialId:'5:4411:B:new-moon-lockbreaker-v1'},
+    clockEvidenceRef:'review/wrong-trial.json'}),/exact frozen 4410 trial/);
+  assert.throws(()=>build(original,{clockEvidence:{trialId:TRIAL_ID},
+    clockEvidenceRef:null}),/nonempty immutable reference/);
+  assert.throws(()=>build(original,{clockEvidence:null,
+    clockEvidenceRef:'review/orphan-clock.json'}),/cannot exist without its external packet/);
+});
+
+test('stale clock protocol is preserved but fails the structural clock gate',()=>{
+  const original=fixture();
+  const clockEvidence={
+    trialId:TRIAL_ID,eventStage:'open-top32',clockDisposition:'no-official-call',
+    paperReceiptId:'paper-terminal-4410',clockReceiptId:null,
+    adjudicationProtocolSha:'stale-protocol',
+    noCallClockPacket:{stage:'open-top32',officialEndCallObserved:false,
+      elapsedSecondsAtNaturalTerminal:600,
+      officialClockCoverageEvidenceRef:'clock/continuous-coverage',
+      stageEvidenceRef:'event/open-top32-pairing',
+      paperTerminalEvidenceRef:'paper-terminal-4410',
+      independentReviewEvidenceRef:'review/clock-and-paper',
+      noCallCoverageIndependentlyReviewed:true,
+      paperStateIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false},
+    timeCallPacket:null,extensionLedgerPacket:null
+  };
+  const result=build(original,{clockEvidence,clockEvidenceRef:'review/stale-clock.json'});
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].externalClockEvidence,
+    clockEvidence);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockStructuralAudit.shapeComplete,false);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockStructuralAudit.status,
+    'MISSING_OR_MISMATCHED_PAPER_PROTOCOL');
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
 
