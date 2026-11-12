@@ -27,7 +27,7 @@ const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex
  * This is an evidence-routing gate only: it never changes or rejects a game.
  * An audit-clear result permits independent paper review, not paper legality.
  */
-function paperCologneAuditReviewGate(audit,hookInstalled=false){
+function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
   const auditPresent=Boolean(audit&&typeof audit==='object'&&!Array.isArray(audit));
   const duplicates=auditPresent&&Array.isArray(audit.duplicateAcceptedBySeatTurn)
     ?audit.duplicateAcceptedBySeatTurn:null;
@@ -43,7 +43,7 @@ function paperCologneAuditReviewGate(audit,hookInstalled=false){
     duplicateAcceptedBySeatTurn:duplicates,
     auditClear,
     paperRuleReviewBlocked:!auditClear,
-    hookInstalled:hookInstalled===true,
+    hookOptInEnabled:hookOptInEnabled===true,
     independentPaperReviewRequired:true,
     paperLegalityCertified:false,
     rawCaptureRetainedRegardlessOfGate:true
