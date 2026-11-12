@@ -115,7 +115,8 @@ function arm(phase,enabled,reg,options={}){
           board:owner.bench.filter(b=>b.cards?.length>0)
             .map(b=>b.cards[0].printing)}]:[];
   });
-  return {phase,enabled,sourceFingerprint:row.sourceDealFingerprint,
+  return {phase,enabled,trial:row.trial??null,
+    sourceFingerprint:row.sourceDealFingerprint,
     fullFingerprint:row.fullPhysicalDealFingerprint,
     rootCount:roots.length,nativeFinished:row.finished===true,
     nativeError:row.error??null,nativeWinner:row.finished?row.winner:null,
