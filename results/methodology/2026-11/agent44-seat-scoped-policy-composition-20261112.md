@@ -12,7 +12,7 @@ Code: [Agent34 actor-only root policy](../../../simulation/twinleaf/agent34-acto
 Regression: [seat-scoped composition test](../../../tests/agent34-actor-only-root-policy.test.cjs)  
 CI: [manual pure-preflight workflow](../../../.github/workflows/agent49-owner-paper-preflight-pure.yml)
 
-The wrapper now accepts optional `policyOwnerSeat: 0 | 1 | null`. Agent44's `withCandidateOpponentPolicyRoles()` helper composes an inner candidate wrapper and outer opponent wrapper around one synchronous native match, enforces distinct physical seats and shared runtime classes, and returns the game result, role-to-seat map and separate candidate/opponent audits. It deliberately does not calculate policy hashes or attestations:
+The wrapper now accepts optional `policyOwnerSeat: 0 | 1 | null`. Agent44's `withCandidateOpponentPolicyRoles()` helper composes an inner candidate wrapper and outer opponent wrapper around one synchronous native match, enforces distinct physical seats and shared runtime classes/catalogs, rejects per-role overrides of the shared engine/catalog bindings, and returns the game result, role-to-seat map and separate candidate/opponent audits. It deliberately does not calculate policy hashes or attestations:
 
 - `null` preserves the existing unscoped mode.
 - `0` or `1` limits that wrapper's custom root and prompt handling to one physical seat.
@@ -30,7 +30,7 @@ A V8 harness executed the actual `withActorOnlyRootPolicy` implementation with s
 
 Each wrapper selected exactly one owner-seat root decision. The inner wrapper delegated the non-owner seat to the outer wrapper. This caught and corrected an initial top-seat target-mapping defect.
 
-The policy module, composition helper and regression test pass syntax parsing. A V8 harness executed both the actual Agent34 wrapper and the new helper with stubbed Node imports: the helper returned `roleSeatMap: {candidate:0, opponent:1}`, candidate target `{player:0, slot:1, index:0}`, opponent target `{player:1, slot:2, index:0}`, and one selected owner-seat root decision in each audit. The nested-composition regression is included in the existing Node test and manual workflow. **The Node 22 test has not yet been run.** The V8 harness is not a substitute for the actual test suite or a Twinleaf game.
+The policy module, composition helper and regression test pass syntax parsing; the regression also rejects identical role seats and a role-specific catalog override. A V8 harness executed both the actual Agent34 wrapper and the new helper with stubbed Node imports: the helper returned `roleSeatMap: {candidate:0, opponent:1}`, candidate target `{player:0, slot:1, index:0}`, opponent target `{player:1, slot:2, index:0}`, and one selected owner-seat root decision in each audit. The nested-composition regression is included in the existing Node test and manual workflow. **The Node 22 test has not yet been run.** The V8 harness is not a substitute for the actual test suite or a Twinleaf game.
 
 ## Next integration steps
 
