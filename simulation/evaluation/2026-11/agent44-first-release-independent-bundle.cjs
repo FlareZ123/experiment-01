@@ -447,6 +447,6 @@ if(require.main===module){
     policyReady:result.independentAdmissionGate.competitivePolicyCompetenceReady,
     competitiveAdmission:result.independentAdmissionGate.competitiveAdmission,
     blockers:result.independentAdmissionGate.failures
-  })));
+  }));
 }
 module.exports={INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,rootReviewWorklist,build,save};
