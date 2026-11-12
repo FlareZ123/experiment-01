@@ -121,3 +121,24 @@ test('missing artifact directory is a safe no-op', () => {
     });
   });
 });
+test('public Actions artifact path exposes only encrypted fixture diagnostics', () => {
+  const workflowPath = path.join(__dirname, '../../.github/workflows/agent36-bilateral-competence-v9.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const encryptionIndex = workflow.indexOf('Encrypt private V3 fixture diagnostics before artifact upload');
+  const uploadIndex = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
+  assert.ok(encryptionIndex >= 0 && uploadIndex > encryptionIndex,
+    'private diagnostic encryption must run before artifact upload');
+  assert.match(workflow, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{\s*vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM\s*\}\}/);
+  const uploadBlock = workflow.slice(uploadIndex, workflow.indexOf('\n      - name:', uploadIndex + 1) < 0
+    ? workflow.length
+    : workflow.indexOf('\n      - name:', uploadIndex + 1));
+  const fixturePaths = uploadBlock.split('\n').map(line => line.trim())
+    .filter(line => line.includes('artifacts/agent36-v3-fixture/'));
+  assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.private.enc.json'));
+  assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.public-manifest.json'));
+  assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/fixture-game.json'));
+  assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/fixture-game.txt'));
+  assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/'));
+  assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.json'));
+  assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.txt'));
+});
