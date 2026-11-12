@@ -21,7 +21,9 @@ function makeStore() {
     if(action.card) {
       const actor=state.players[state.activePlayer];
       const at=actor.hand.cards.indexOf(action.card);
-      if(at>=0){actor.hand.cards.splice(at,1);\n        if(action.attachEnergy) actor.active.energies.cards.push(action.card);\n        else actor.discard.cards.push(action.card);}
+      if(at>=0){actor.hand.cards.splice(at,1);
+        if(action.attachEnergy) actor.active.energies.cards.push(action.card);
+        else actor.discard.cards.push(action.card);}
     }
     if(action.prompt) state.prompts.push(action.prompt);
     return true;
