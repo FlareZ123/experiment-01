@@ -81,6 +81,7 @@ jobs:
           node --test tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs
           node --test tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs
+          node --test tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs
           node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
           node --check simulation/twinleaf/agent50-owner-public-acknowledgements.cjs
           node --test tests/2026-11/agent44-first-original-rank5-newmoon-live-paper-v2.test.cjs
