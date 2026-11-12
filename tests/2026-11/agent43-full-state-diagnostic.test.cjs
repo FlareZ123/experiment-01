@@ -29,6 +29,7 @@ const slot = (pokemon = null) => ({
   specialConditions: ['ASLEEP'],
   energies: { cards: [card('Psychic Energy')] },
   tools: [card('Tool')],
+  customSlotLockCounter: 7,
 });
 const zone = cards => ({ cards });
 function player(id, name, prefix) {
@@ -65,6 +66,7 @@ function makeState() {
     prompts: [{
       id: 'prompt-1', playerId: 101, message: 'Choose a card',
       cards: [card('A Prompt Card')], options: ['one', 'two'], result: undefined,
+      customPromptResolverToken: 'private-prompt-token',
     }],
   };
 }
@@ -89,6 +91,12 @@ test('full diagnostic captures both players private zones while actor observatio
   assert.deepEqual(snapshot.players[0].zones.resolvingSupporter, ['A Supporter']);
   assert.equal(snapshot.players[0].board.active.printing, 'A Active');
   assert.equal(snapshot.players[0].board.active.energies[0], 'Psychic Energy');
+  assert.equal(snapshot.players[0].board.active.extraStateFields.customSlotLockCounter, 7);
+  assert.equal(snapshot.players[0].board.bench[0].pokemon.extraStateFields.customSlotLockCounter, 7);
+  assert.equal(snapshot.prompts[0].extraFields.customPromptResolverToken, 'private-prompt-token');
+  assert.equal(Object.hasOwn(snapshot.prompts[0].extraFields, 'cards'), false);
+  assert.equal(Object.hasOwn(snapshot.players[0].board.active.extraStateFields, 'energies'), false);
+  assert.equal(actorObservation(state, 0).active.extraStateFields, undefined);
   assert.equal(snapshot.prompts[0].fields.cards[0].fullName, 'A Prompt Card');
   assert.equal(snapshot.engineExtraFields.effectStack[0].source.fullName, 'A Triggered Effect');
   assert.equal(snapshot.players[0].extraStateFields.customLockCounter, 3);
