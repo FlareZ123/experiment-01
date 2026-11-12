@@ -77,12 +77,13 @@ function snapshotPrompt(prompt) {
     try { perspectivePlayerId = prompt.getPerspectivePlayerId(); }
     catch (error) { perspectivePlayerId = `[Error: ${String(error?.message ?? error)}]`; }
   }
-  const fields = {};
-  for (const key of [
+  const promptFieldNames = [
     'message', 'text', 'min', 'max', 'minCards', 'maxCards', 'allowCancel',
     'cards', 'options', 'choices', 'targets', 'availableCards', 'eligibleCards',
     'selectedCards', 'result', 'playerId', 'id', 'type',
-  ]) {
+  ];
+  const fields = {};
+  for (const key of promptFieldNames) {
     if (Object.prototype.hasOwnProperty.call(prompt ?? {}, key)) {
       fields[key] = projectDiagnosticValue(prompt[key]);
     }
@@ -94,6 +95,24 @@ function snapshotPrompt(prompt) {
     pending: prompt?.result === undefined,
     perspectivePlayerId,
     fields,
+    extraFields: snapshotExtraFields(prompt, promptFieldNames),
+  };
+}
+
+const SLOT_FIELDS_ALREADY_PROJECTED = [
+  'cards', 'energies', 'tools', 'damage', 'pokemonPlayedTurn', 'specialConditions',
+  'cannotAttackNextTurn', 'cannotUseAttacksNextTurn', 'blockedAttackNameNextTurn',
+  'blockedAttackNameUntilLeavesActive', 'onlyAllowedAttackNameNextTurn',
+  'attackCostIncreaseNextTurn', 'attackCostIncreaseWhileActive',
+  'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn',
+];
+
+function snapshotPokemonSlot(slot) {
+  const pokemon = visiblePokemon(slot);
+  if (!pokemon) return null;
+  return {
+    ...pokemon,
+    extraStateFields: snapshotExtraFields(slot, SLOT_FIELDS_ALREADY_PROJECTED),
   };
 }
 
@@ -116,8 +135,8 @@ function snapshotPlayer(player, seat) {
     playerId: player.id ?? null,
     name: player.name ?? null,
     board: {
-      active: visiblePokemon(player.active),
-      bench: player.bench.map((slot, index) => ({ slot: index + 1, pokemon: visiblePokemon(slot) })),
+      active: snapshotPokemonSlot(player.active),
+      bench: player.bench.map((slot, index) => ({ slot: index + 1, pokemon: snapshotPokemonSlot(slot) })),
     },
     zones,
     turnResources: {
