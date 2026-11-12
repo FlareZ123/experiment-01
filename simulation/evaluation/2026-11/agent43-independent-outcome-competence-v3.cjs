@@ -2,7 +2,7 @@
 
 const {createPublicKey, verify} = require('node:crypto');
 const {
-  BUNDLE_SCHEMA, REVIEW_SCHEMA, evidenceBundleSha256, reviewSigningBytes,
+  BUNDLE_SCHEMA, REVIEW_SCHEMA, canonicalJson, evidenceBundleSha256, reviewSigningBytes,
   bundleFailures
 } = require('../agent45-independent-competitive-admission.cjs');
 const {evaluateBilateralCompetence} =
@@ -11,6 +11,8 @@ const {
   completeRootPaperAudit, inspectResponseOpportunity, inspectAdmissionV2
 } = require('./agent43-independent-outcome-competence-v2.cjs');
 const authorized = require('../agent45-authorized-reviewers.json');
+const {validateOpponentPolicyFieldBundle} =
+  require('../../../scripts/agent12-balanced-field-ledger-validator.cjs');
 
 const SCHEMA = 'aichi-outcome-and-competitive-admission-v3';
 const UNTIMED = 'untimed-research-game';
@@ -18,6 +20,12 @@ const EVENT = 'aichi-event-match';
 const CLOCK_NOT_APPLICABLE = 'not-applicable-by-preregistered-untimed-protocol';
 const EVENT_STAGES = new Set(['open-swiss', 'open-top32', 'open-final']);
 const HEX_SHA256 = /^[0-9a-f]{64}$/;
+const GIT_SHA = /^[0-9a-f]{40}$/;
+const POLICY_ATTESTATION_SCHEMA = 'aichi-policy-competence-attestation-v1';
+const POLICY_ATTESTATION_BUNDLE_SCHEMA = 'aichi-policy-attestation-bundle-v1';
+const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
+const POLICY_APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
+const OFFSET_ISO_DATE_TIME = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/;
 
 /** @param {unknown} value @returns {boolean} */
 function nonempty(value) {
@@ -74,7 +82,9 @@ function inspectTimingPreregistration(bundle) {
     errors.push('timing-mode-not-frozen-before-deal-generation');
   const registeredAt = Date.parse(registration?.registeredAt ?? '');
   const dealGeneratedAt = Date.parse(registration?.dealGeneratedAt ?? '');
-  if (!Number.isFinite(registeredAt) || !Number.isFinite(dealGeneratedAt) ||
+  if (!OFFSET_ISO_DATE_TIME.test(registration?.registeredAt ?? '') ||
+      !OFFSET_ISO_DATE_TIME.test(registration?.dealGeneratedAt ?? '') ||
+      !Number.isFinite(registeredAt) || !Number.isFinite(dealGeneratedAt) ||
       registeredAt >= dealGeneratedAt)
     errors.push('registration-does-not-precede-physical-deal');
   if (protocol?.schema !== 'aichi-game-timing-protocol-preregistration-v1' ||
@@ -204,6 +214,301 @@ function untimedPaperAttestationValid(review, trial, prereg) {
 }
 
 /**
+ * Exact pre-deal signature payload for a panel-level policy competence review.
+ * It deliberately excludes the signature itself and never includes a game
+ * outcome or final game-bundle digest.
+ */
+function policyAttestationSigningBytes(attestation) {
+  const {signatureBase64, ...signed} = attestation ?? {};
+  return Buffer.from(POLICY_ATTESTATION_SCHEMA + '\n' + canonicalJson(signed), 'utf8');
+}
+
+function validOffsetDateTime(value) {
+  return typeof value === 'string' && OFFSET_ISO_DATE_TIME.test(value) &&
+    Number.isFinite(Date.parse(value));
+}
+
+function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
+  producerId, policyPlanSha256, policyConstraintsSha256, registeredAt, usedIds) {
+  if (!attestation || attestation.schema !== POLICY_ATTESTATION_SCHEMA ||
+      attestation.role !== role || attestation.decision !== 'approve' ||
+      attestation.policyPlanSha256 !== policyPlanSha256 ||
+      attestation.policyConstraintsSha256 !== policyConstraintsSha256 ||
+      !validOffsetDateTime(attestation.attestedAt) ||
+      Date.parse(attestation.attestedAt) >= Date.parse(registeredAt) ||
+      !nonempty(attestation.reviewerId) ||
+      attestation.reviewerId === producerId || usedIds.has(attestation.reviewerId) ||
+      !nonempty(attestation.evidenceRef) ||
+      !HEX_SHA256.test(attestation.evidenceSha256 ?? '') ||
+      typeof attestation.signatureBase64 !== 'string' ||
+      !/^[A-Za-z0-9+/]{86}==$/.test(attestation.signatureBase64)) return false;
+
+  const reviewers = Array.isArray(reviewerRegistry?.reviewers) ?
+    reviewerRegistry.reviewers : [];
+  const configured = reviewers.find(x => x?.reviewerId === attestation.reviewerId &&
+    Array.isArray(x.roles) && x.roles.includes(role));
+  if (reviewerRegistry?.schema !== 'aichi-trusted-reviewers-v1' ||
+      !configured || !nonempty(configured.publicKeyPem)) return false;
+  try {
+    const key = createPublicKey(configured.publicKeyPem);
+    if (key.asymmetricKeyType !== 'ed25519' ||
+        !verify(null, policyAttestationSigningBytes(attestation), key,
+          Buffer.from(attestation.signatureBase64, 'base64'))) return false;
+  } catch { return false; }
+  usedIds.add(attestation.reviewerId);
+  return true;
+}
+
+/**
+ * Structural validation for the frozen V3 policy plan, signed pre-deal
+ * attestations, registration and machine-generated per-game application
+ * receipts. This intentionally reuses Agent49's extension of the existing
+ * Agent12 field validator; it is not a second field ledger.
+ *
+ * A 29/32 source field is INCOMPLETE_FIELD, not INVALID: a game against an
+ * authenticated rank can be reviewed, but the full-field result remains
+ * incomplete and no unavailable rank can be played as a bye.
+ */
+function inspectPolicyPanelConsistency(bundle) {
+  const failures = [];
+  const core = bundle?.policyPlanCore;
+  const attestationBundle = bundle?.policyAttestationBundle;
+  const registration = bundle?.policyRegistration;
+  const trial = bundle?.trial;
+  const receipt = bundle?.policyApplicationReceipt;
+  const planSha = safeDigest(core);
+  const attestationSha = safeDigest(attestationBundle);
+  const registrationSha = safeDigest(registration);
+  const constraintsSha = safeDigest(core?.constraints);
+  const opponentBundleSha = safeDigest(core?.opponentPolicyBundle);
+
+  if (!core || core.schema !== 'aichi-policy-plan-core-v1' ||
+      core.comparisonMode !== 'candidate-vs-field')
+    failures.push('policy-plan-schema-or-comparison-mode-invalid');
+  if (!planSha || bundle?.policyPlanSha256 !== planSha)
+    failures.push('policy-plan-core-digest-missing-or-mismatched');
+  if (!attestationBundle || attestationBundle.schema !== POLICY_ATTESTATION_BUNDLE_SCHEMA ||
+      attestationBundle.policyPlanSha256 !== planSha ||
+      !attestationSha || bundle?.policyAttestationBundleSha256 !== attestationSha)
+    failures.push('policy-attestation-bundle-digest-missing-or-mismatched');
+  if (!registration || registration.schema !== POLICY_REGISTRATION_SCHEMA ||
+      registration.trialId !== bundle?.trialId ||
+      registration.policyPlanSha256 !== planSha ||
+      registration.policyAttestationBundleSha256 !== attestationSha ||
+      !registrationSha || bundle?.policyRegistrationSha256 !== registrationSha ||
+      !HEX_SHA256.test(registrationSha))
+    failures.push('policy-registration-digest-or-identity-missing-or-mismatched');
+
+  const timingRegistration = trial?.preregistration;
+  if (registration?.registeredBeforeDealGeneration !== true ||
+      !validOffsetDateTime(registration?.registeredAt) ||
+      !validOffsetDateTime(registration?.dealGeneratedAt) ||
+      Date.parse(registration?.registeredAt ?? '') >=
+        Date.parse(registration?.dealGeneratedAt ?? '') ||
+      registration?.registeredAt !== timingRegistration?.registeredAt ||
+      registration?.dealGeneratedAt !== timingRegistration?.dealGeneratedAt)
+    failures.push('policy-registration-not-frozen-before-physical-deal');
+
+  if (trial?.policyPlanSha256 !== planSha ||
+      trial?.policyAttestationBundleSha256 !== attestationSha ||
+      trial?.policyRegistrationSha256 !== registrationSha)
+    failures.push('trial-policy-registration-binding-mismatch');
+
+  const candidateAttestation = attestationBundle?.candidatePolicy;
+  const opponentAttestation = attestationBundle?.opponentPolicy;
+  if (registration?.candidatePolicyAttestationRef !== candidateAttestation?.evidenceRef ||
+      registration?.opponentPolicyAttestationBundleRef !== opponentAttestation?.evidenceRef)
+    failures.push('policy-attestation-reference-mismatch');
+
+  const panelReceipts = Array.isArray(bundle?.policyPanelReceipts) ?
+    bundle.policyPanelReceipts : receipt ? [receipt] : [];
+  if (!receipt || panelReceipts.length === 0)
+    failures.push('policy-application-receipt-missing');
+  const receiptValid = item => {
+    if (!item || item.schema !== POLICY_APPLICATION_RECEIPT_SCHEMA) return false;
+    const {receiptSha256, ...payload} = item;
+    if (!HEX_SHA256.test(receiptSha256 ?? '') ||
+        safeDigest(payload) !== receiptSha256 ||
+        item.policyPlanSha256 !== planSha ||
+        item.policyAttestationBundleSha256 !== attestationSha ||
+        item.policyRegistrationSha256 !== registrationSha ||
+        item.policyConstraintsSha256 !== constraintsSha ||
+        item.opponentPolicyBundleSha256 !== opponentBundleSha ||
+        !nonempty(item.trialId) ||
+        !Number.isInteger(item.opponentRank) || item.opponentRank < 1 ||
+        item.opponentRank > 32 ||
+        ![0,1].includes(item.candidateSeat) ||
+        ![0,1].includes(item.opponentSeat) ||
+        item.candidateSeat === item.opponentSeat ||
+        ![0,1].includes(item.firstPlayerSeat) ||
+        !Array.isArray(item.policySha256BySeat) ||
+        item.policySha256BySeat.length !== 2 ||
+        !item.policySha256BySeat.every(x => HEX_SHA256.test(x ?? '')) ||
+        !GIT_SHA.test(item.enginePin ?? '') ||
+        !GIT_SHA.test(item.runnerRevision ?? '') ||
+        !HEX_SHA256.test(item.decisionTraceSha256 ?? '') ||
+        !['none','within-budget','not-exceeded'].includes(item.timeoutStatus))
+      return false;
+    return true;
+  };
+  if (!panelReceipts.every(receiptValid))
+    failures.push('policy-application-receipt-invalid-or-unhashed');
+  if (!receipt || !panelReceipts.some(item =>
+      item?.trialId === receipt?.trialId &&
+      item?.receiptSha256 === receipt?.receiptSha256))
+    failures.push('current-policy-application-receipt-not-in-panel-ledger');
+
+  const rank = trial?.opponentRank ?? trial?.originalRank ?? trial?.rank;
+  if (receipt && (
+      receipt.trialId !== bundle?.trialId ||
+      receipt.opponentRank !== rank ||
+      receipt.candidateSeat !== trial?.candidateSeat ||
+      receipt.opponentSeat !== trial?.originalSourceSeat ||
+      receipt.firstPlayerSeat !== trial?.actualFirstPlayerSeat ||
+      receipt.candidateDeckSha256 !== trial?.candidatePrinted60Sha256 ||
+      receipt.opponentDeckSha256 !== trial?.originalPrinted60Sha256 ||
+      receipt.enginePin !== trial?.vendorCommitSha ||
+      receipt.runnerRevision !== trial?.researchRevisionSha ||
+      receipt.decisionTraceSha256 !== trial?.decisionTraceSha256 ||
+      !Array.isArray(trial?.policySha256BySeat) ||
+      JSON.stringify(receipt.policySha256BySeat) !== JSON.stringify(trial.policySha256BySeat)))
+    failures.push('current-policy-application-receipt-does-not-match-trial');
+
+  let field = {
+    status:'INVALID', policyPlanSha256:planSha,
+    opponentPolicyBundleSha256:opponentBundleSha,
+    policyConstraintsSha256:constraintsSha,
+    availableRanks:[], unavailableRanks:[], rejectionReasons:['field-validator-not-run']
+  };
+  if (core?.comparisonMode === 'candidate-vs-field') {
+    try {
+      field = validateOpponentPolicyFieldBundle({
+        policyPlanCore:core,
+        expectedPolicyPlanSha256:planSha,
+        gameReceipts:panelReceipts
+      });
+    } catch {
+      field = {...field,rejectionReasons:['field-validator-threw']};
+    }
+  } else {
+    failures.push('unsupported-policy-comparison-mode');
+    if (['same-deck-mirror','controlled-treatment'].includes(core?.comparisonMode) &&
+        receipt?.policySha256BySeat?.[0] !== receipt?.policySha256BySeat?.[1])
+      failures.push('same-policy-identity-required-for-controlled-comparison');
+  }
+  if (field.status === 'INVALID')
+    failures.push(...(field.rejectionReasons ?? ['opponent-policy-field-invalid']));
+
+  const availableRanks = field.availableRanks ?? [];
+  const strata = new Set();
+  for (const item of panelReceipts) {
+    if (Number.isInteger(item?.opponentRank) &&
+        [0,1].includes(item?.candidateSeat) && [0,1].includes(item?.firstPlayerSeat)) {
+      strata.add([item.opponentRank,item.candidateSeat,item.firstPlayerSeat].join(':'));
+    }
+  }
+  const expectedStrata = availableRanks.length * 4;
+  const panelCoverageMissing = [];
+  for (const opponentRank of availableRanks) {
+    for (const candidateSeat of [0,1]) {
+      for (const firstPlayerSeat of [0,1]) {
+        const key = [opponentRank,candidateSeat,firstPlayerSeat].join(':');
+        if (!strata.has(key)) panelCoverageMissing.push(key);
+      }
+    }
+  }
+  const availableRankStrataComplete = expectedStrata > 0 &&
+    panelCoverageMissing.length === 0;
+  return {
+    valid:failures.length === 0 && field.status !== 'INVALID',
+    status:field.status,
+    policyPlanSha256:planSha,
+    policyAttestationBundleSha256:attestationSha,
+    policyRegistrationSha256:registrationSha,
+    opponentPolicyBundleSha256:opponentBundleSha,
+    policyConstraintsSha256:constraintsSha,
+    availableRanks,unavailableRanks:field.unavailableRanks ?? [],
+    fieldComplete:field.status === 'VALID',
+    availableRankStrataComplete,
+    fullFieldPanelComplete:field.status === 'VALID' &&
+      availableRankStrataComplete && strata.size === 128,
+    observedAvailableStrata:strata.size,
+    expectedAvailableStrata:expectedStrata,
+    panelCoverageMissing,
+    currentReceiptValid:Boolean(receipt && receiptValid(receipt) &&
+      !failures.includes('current-policy-application-receipt-does-not-match-trial')),
+    failures:[...new Set(failures)]
+  };
+}
+
+/** Verify a pre-deal candidate-policy and opponent-policy competence bundle. */
+function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
+  const failures = [];
+  const core = bundle?.policyPlanCore;
+  const attestations = bundle?.policyAttestationBundle;
+  const registration = bundle?.policyRegistration;
+  const candidate = core?.candidate;
+  const opponentBundle = core?.opponentPolicyBundle;
+  const available = Array.isArray(opponentBundle?.ranks) ?
+    opponentBundle.ranks.filter(x => x?.sourceStatus === 'authenticated') : [];
+  const constraintsSha = safeDigest(core?.constraints);
+  const usedIds = new Set();
+  const candidateAttestation = attestations?.candidatePolicy;
+  const opponentAttestation = attestations?.opponentPolicy;
+
+  const candidateIdentityValid = candidateAttestation?.deckSha256 === candidate?.deckSha256 &&
+    candidateAttestation?.policySha256 === candidate?.policySha256 &&
+    candidateAttestation?.entryManifestSha256 === candidate?.entryManifestSha256 &&
+    candidateAttestation?.challengeSuiteSha256 === candidate?.challengeSuiteSha256;
+  const candidateSignatureValid = verifyPolicyAttestationSignature(
+    candidateAttestation,'candidate-policy',reviewerRegistry,bundle?.producerId,
+    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds);
+  const opponentRankReviews = opponentAttestation?.rankReviews;
+  const opponentIdentityValid = opponentAttestation?.opponentPolicyBundleSha256 ===
+      panel?.opponentPolicyBundleSha256 &&
+    Array.isArray(opponentRankReviews) && opponentRankReviews.length === available.length &&
+    available.every((entry,index) => {
+      const review = opponentRankReviews[index];
+      return review?.rank === entry.rank &&
+        review?.deckSha256 === entry.deckSha256 &&
+        review?.policySha256 === entry.policySha256 &&
+        review?.entryManifestSha256 === entry.entryManifestSha256 &&
+        review?.challengeSuiteSha256 === entry.challengeSuiteSha256 &&
+        review?.decision === 'approve' &&
+        nonempty(review?.evidenceRef) &&
+        HEX_SHA256.test(review?.evidenceSha256 ?? '');
+    });
+  const opponentSignatureValid = verifyPolicyAttestationSignature(
+    opponentAttestation,'opponent-policy',reviewerRegistry,bundle?.producerId,
+    panel?.policyPlanSha256,constraintsSha,registration?.registeredAt,usedIds);
+
+  if (!candidateIdentityValid || !candidateSignatureValid)
+    failures.push('candidate-policy-predeal-competence-attestation-invalid');
+  if (!opponentIdentityValid || !opponentSignatureValid)
+    failures.push('opponent-policy-predeal-competence-attestation-invalid');
+  if (!panel?.valid)
+    failures.push('policy-panel-consistency-invalid');
+  if (candidateAttestation?.evidenceRef !== registration?.candidatePolicyAttestationRef ||
+      opponentAttestation?.evidenceRef !== registration?.opponentPolicyAttestationBundleRef)
+    failures.push('policy-competence-attestation-registration-reference-mismatch');
+  if (candidateAttestation?.reviewerId &&
+      candidateAttestation.reviewerId === opponentAttestation?.reviewerId)
+    failures.push('candidate-and-opponent-policy-reviewers-not-independent');
+
+  const reviewerIds = [];
+  if (candidateSignatureValid) reviewerIds.push(candidateAttestation.reviewerId);
+  if (opponentSignatureValid) reviewerIds.push(opponentAttestation.reviewerId);
+  return {
+    valid:failures.length === 0,
+    candidatePolicyAttestationValid:candidateIdentityValid && candidateSignatureValid,
+    opponentPolicyAttestationValid:opponentIdentityValid && opponentSignatureValid,
+    candidatePolicyReviewerId:candidateAttestation?.reviewerId ?? null,
+    opponentPolicyReviewerId:opponentAttestation?.reviewerId ?? null,
+    reviewerIds,failures
+  };
+}
+
+/**
  * V3 fixture/production evaluator. Untimed games require one signed paper
  * reviewer; event matches retain V2's paper+clock role composition unchanged.
  * Strategy review remains optional for factual outcome admission and mandatory
@@ -227,9 +532,16 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     };
   }
 
+  const policyPanel = inspectPolicyPanelConsistency(bundle);
+  const policyAttestations = inspectPolicyCompetenceAttestations(
+    bundle,reviewerRegistry,policyPanel);
+
   if (prereg.mode === EVENT) {
-    const paperPackets = Array.isArray(reviews) ?
-      reviews.filter(x => x?.role === 'paper') : [];
+    const submitted = Array.isArray(reviews) ? reviews : [];
+    const gameReviews = submitted.filter(x =>
+      x?.role === 'paper' || x?.role === 'clock' || x?.role === 'strategy');
+    const misplacedPolicyReviews = gameReviews.length !== submitted.length;
+    const paperPackets = gameReviews.filter(x => x?.role === 'paper');
     const paper = paperPackets.length === 1 ? paperPackets[0] : null;
     const printAndCustodyReviewed = paper?.exactJapanesePrinted60sVerified === true &&
       paper?.eventDateLegalityVerified === true &&
@@ -243,19 +555,54 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
         gameOutcomeAdmissionReady:false,competitivePolicyCompetenceReady:false,
         acceptanceReady:false,competitiveAdmission:false,fixtureOnly:true,
         clockStatus:'event-clock-required',
-        failures:['independent-printed-60-or-physical-deal-review-missing']};
+        policyPanelConsistency:policyPanel,
+        policyCompetence:policyAttestations,
+        failures:['independent-printed-60-or-physical-deal-review-missing',
+          ...policyPanel.failures,...policyAttestations.failures]};
     }
     let event;
-    try { event = inspectAdmissionV2(bundle,reviews,reviewerRegistry); }
+    try { event = inspectAdmissionV2(bundle,gameReviews,reviewerRegistry); }
     catch {
       return {schema:SCHEMA,timingMode:EVENT,preregistrationVerified:true,
         gameOutcomeAdmissionReady:false,competitivePolicyCompetenceReady:false,
         acceptanceReady:false,competitiveAdmission:false,fixtureOnly:true,
-        clockStatus:'event-clock-unverified',failures:['unverifiable-event-match-bundle']};
+        clockStatus:'event-clock-unverified',
+        policyPanelConsistency:policyPanel,
+        policyCompetence:policyAttestations,
+        failures:['unverifiable-event-match-bundle',
+          ...policyPanel.failures,...policyAttestations.failures]};
     }
+    const gameReviewerIds = (event.signedReviewRoles ?? [])
+      .filter(x => x?.valid === true).map(x => x.reviewerId).filter(Boolean);
+    const reviewerOverlap = policyAttestations.reviewerIds.some(id =>
+      gameReviewerIds.includes(id));
+    const strategyReviewValid = (event.signedReviewRoles ?? [])
+      .some(x => x?.role === 'strategy' && x?.valid === true);
+    const policyRolesValid = policyAttestations.valid &&
+      !reviewerOverlap && !misplacedPolicyReviews;
+    const competitivePolicyCompetenceReady = event.gameOutcomeAdmissionReady &&
+      policyRolesValid && strategyReviewValid &&
+      event.responseOpportunityVerified === true;
+    const failures = (event.failures ?? []).filter(code =>
+      code !== 'policy-asymmetry-or-unverified-for-competitive' &&
+      code !== 'independent-policy-competence-unproven');
+    failures.push(...policyPanel.failures,...policyAttestations.failures);
+    if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
+    if (reviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+    if (!strategyReviewValid) failures.push('independent-strategy-review-missing-or-invalid');
+    if (event.responseOpportunityVerified !== true)
+      failures.push('independent-response-opportunity-unproven');
     return {...event,schema:SCHEMA,timingMode:EVENT,
       preregistrationVerified:true,
+      gameOutcomeAdmissionReady:event.gameOutcomeAdmissionReady === true,
+      competitivePolicyCompetenceReady,
+      policyPanelConsistency:policyPanel,
+      policyCompetence:policyAttestations,
+      samePolicyDiagnostic:event.structuralProgress?.samePolicy ?? null,
       clockStatus:event.structuralProgress?.officialClockStatus ?? 'unverified',
+      failures:[...new Set(failures)],
+      acceptanceReady:event.gameOutcomeAdmissionReady === true &&
+        competitivePolicyCompetenceReady,
       fixtureOnly:true,competitiveAdmission:false};
   }
 
@@ -294,7 +641,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     'aichi-trusted-reviewers-v1' &&
     Array.isArray(reviewerRegistry.reviewers) &&
     reviewerRegistry.reviewers.length > 0;
-  const usedIds = new Set();
+  const usedIds = new Set(policyAttestations.reviewerIds);
   const paperReview = paperPackets.length === 1 ? paperPackets[0] : null;
   const strategyReview = strategyPackets.length === 1 ? strategyPackets[0] : null;
   const paperSignatureValid = Boolean(outcome && reviewerRegistryAvailable &&
@@ -321,8 +668,11 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     trialIdentityValid && prereg.valid && outcome !== null &&
     outcomeStructuralFailures.length === 0 && fullRootPaperAudit &&
     paperAttestationValid;
+  const gameReviewerIds = [paperReview?.reviewerId,strategyReview?.reviewerId].filter(Boolean);
+  const reviewerOverlap = policyAttestations.reviewerIds.some(id =>
+    gameReviewerIds.includes(id));
   const competitivePolicyCompetenceReady = gameOutcomeAdmissionReady &&
-    structural?.samePolicy === true && strategySignatureValid &&
+    policyAttestations.valid && !reviewerOverlap && strategySignatureValid &&
     opportunity.valid;
   const candidateOutcome = outcome === null ? null : outcome.kind === 'tie' ?
     'tie' : outcome.winnerSeat === trial.candidateSeat ? 'win' : 'loss';
@@ -335,8 +685,12 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   if (!paperSignatureValid) failures.push('independent-paper-review-missing-or-invalid');
   if (!paperAttestationValid)
     failures.push('untimed-protocol-or-natural-terminal-review-incomplete');
-  if (structural?.samePolicy !== true)
-    failures.push('policy-asymmetry-or-unverified-for-competitive');
+  if (policyPanel.failures.length) failures.push(...policyPanel.failures);
+  if (policyAttestations.failures.length) failures.push(...policyAttestations.failures);
+  if (reviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+  if (structural?.samePolicy !== true &&
+      bundle?.policyPlanCore?.comparisonMode !== 'candidate-vs-field')
+    failures.push('same-policy-identity-required-for-controlled-comparison');
   if (!strategySignatureValid)
     failures.push('independent-strategy-review-missing-or-invalid');
   if (!opportunity.valid) failures.push('independent-policy-competence-unproven');
@@ -353,6 +707,13 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     gameOutcomeAdmissionReady,
     competitivePolicyCompetenceReady,
     reciprocalEpisodeObserved:structural?.reciprocalEpisodeObserved??false,
+    samePolicyDiagnostic:structural?.samePolicy ?? null,
+    policyPanelConsistency:policyPanel,
+    policyCompetence:policyAttestations,
+    policyFieldStatus:policyPanel.status,
+    policyFieldComplete:policyPanel.fieldComplete,
+    policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
+    policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
     responseOpportunityDisposition:opportunity.disposition,
     responseOpportunityVerified:opportunity.valid,
     responseOpportunityEvidenceStatus:opportunity.reason,
@@ -383,5 +744,7 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
 module.exports = {
   SCHEMA,UNTIMED,EVENT,CLOCK_NOT_APPLICABLE,safeDigest,inspectTimingPreregistration,
   inspectUntimedNaturalOutcome,untimedPaperAttestationValid,
-  inspectAdmissionV3,evaluateCompetitiveAdmissionV3
+  inspectAdmissionV3,evaluateCompetitiveAdmissionV3,
+  policyAttestationSigningBytes,inspectPolicyPanelConsistency,
+  inspectPolicyCompetenceAttestations
 };
