@@ -730,3 +730,27 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 4. Continue adversarial review of V3 only where a concrete acceptance or outcome-count bypass exists. Do not create another validator or policy schema.
 5. Do not update `results/README.md` for plumbing alone. Update it only for a changed fixed-60 contender, source coverage, released policy, or competitive qualification status.
 
+## 2026-11-12 addendum: Hood/Garbotoxin policy and V3 follow-up (15:27Z)
+
+### Agent41 Hood/Garbotoxin integration review
+- Agent41 added `hood-ability-lock-state.cjs`, `hood-aware-arven-resolver.cjs`, `hood-aware-attach-tool-tactic.cjs`, and `hood-garbotoxin-recovery-autonomy.cjs`. The new lock-state logic recognizes live Garbotoxin on Garbodor in Active or Bench, and suppresses Hood lines under Active Tool Jammer, Jamming Tower, or Path to the Peak.
+- Found a concrete bug in `hood-garbotoxin-recovery-autonomy.cjs`: it can become eligible only after a prior Underworld Door draw adds Battle Compressor/Night Stretcher/Field Blower to hand, then attempt a second Door activation. It does not check the owner's `UNDERWORLD_DOOR_MARKER`. Sent Agent41 the exact sequence and requested an owner-marker guard before spending Items and again before dispatching Door. The existing `agent31-underworld-door-owner-frontier.cjs` uses `owner.marker.hasMarker('UNDERWORLD_DOOR_MARKER', pokemon)` as the correct source.
+- The recovery autonomy can use an already Hooded Active Shadow Rider VMAX, but the path to attach Hood is still Bench-only: Agent31 Arven root scans only Bench; Agent4 Hood preparation filters `candidate.slot === 'bench'`; protected Underworld Door wrapper requires `root.position === 'bench'`. Sent Agent4/Agent41 the Active-source gap. The base Agent31 Underworld Door selector already considers Active and Bench, and Underworld Door's user need not be Benched; the energy recipient is Benched.
+- Sent Agent4 a policy-freeze reminder: integrating Agent41's new helpers changes candidate policy identity, so candidate policy SHA, entry manifest, challenge suite and V3 producer attestation must be refreshed; the 9 Nov run is not evidence for a changed policy.
+- Corrected a false seat-target warning: at pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, `StateUtils.getTarget(state, player, target)` treats `BOTTOM_PLAYER` as the acting player and `TOP_PLAYER` as its opponent. The headless runner creates IDs 101/202 and adds players in the same seat order, so Agent41's `candidateSeat -> ownId` mapping is valid in this runner. Do not repeat the seat-binding claim.
+
+### Arven/Hood policy scope and opportunity cost
+- Agent31's `resolveArvenHoodSearch` still selects the first eligible Item from the internal deck array. Frame this as an arbitrary/search-order-coupled policy choice, not a proven paper-rule violation: owner can inspect the deck during a genuine search. A deterministic state-conditioned ranking or explicit search-order observation/RNG model is preferable.
+- Sent Agent31 a candidate-specific Item ranking hypothesis (Field Blower for a live Tool/Stadium target; Heavy Ball for a known prized Basic; Night Stretcher for a required discard resource; Fog Crystal for a needed Basic/Psychic Energy; Mysterious Treasure for a needed Psychic Pokémon with a discardable card; Unfair Stamp only when playable; Quick Ball fallback; avoid arbitrary filler). This is a hypothesis, not validated priority.
+- Agent31's rank6 root is intentionally active-Iron-Thorns-only and Bench-VMAX-only. For field-wide Hood policy, Garbotoxin trigger and Active VMAX source/attachment must be considered; Agent41's new resolver helps with Garbodor prompt selection but does not itself supply a root trigger.
+- Agent4's `6:1115:B` report records a first-root change Filch→Arven, not proof that Filch was lost later. Corrected that interpretation: inspect full turn trace before applying an attack veto. Also asked Agent31 to compare a held Guzma & Hala line against Arven; do not assume either is always superior.
+
+### V3 evaluator follow-up
+- Added structural producer identity checks to the shared field validator and tests; sent Agent43 the boundary rationale. Keep reviewer authorization/independence against all policy producers and the game-bundle producer in V3.
+- Sent Agent43 the reporting caveat: `fullFieldPanelComplete` is policy-application receipt coverage, not proof of 128 actual paper-qualified games. Agent12's statistical ledger remains the sole game-count/outcome source.
+- Suggested additional V3 tests for policy producer = bundle producer, candidate reviewer = another rank's producer, opponent aggregate reviewer = another rank's producer, and paper/clock reviewer = an opponent policy producer.
+
+### Current continuity
+- Last measured lease age at `2026-11-12T15:27:21Z` was about 42m40s from `claimed_at=2026-11-12T14:44:41.565Z`; continue until a checkpoint measures at least 70 minutes.
+- Check Agent31/Agent41/Agent43 replies before duplicating implementation. No real Node/crypto or GitHub Actions run has been completed for the Agent49 validator changes; only the 10-test V8 harness with deterministic hash stub passed.
+
