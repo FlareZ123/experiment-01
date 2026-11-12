@@ -29,7 +29,7 @@ A default-off actor-root option such as `rangerBudewItemLock` should require all
 5. Ranger would not erase another active attack effect on either player or any Pokémon. The pinned implementation of `Player.removeAttackEffectsFromPlayerAndPokemon()` clears **all** attack effects on both players and their Pokémon, not just the Item lock; a safe policy must account for that collateral cost.
 6. A continuing Ability lock is not still present. Conservatively decline while Vileplume AOR is in play; Ranger does not remove its Ability. Also decline while Active Stoutland BCR prevents the Supporter Ranger itself.
 
-Searching Ranger through Forest Seal Stone or Tapu Lele is a separate candidate line. The existing staged access fixtures can be reused, but they do not establish natural full-game policy timing.
+Searching Ranger through Forest Seal Stone or Tapu Lele is a separate candidate line. The staged fixtures reveal additional integration dependencies: the Tapu Lele Wonder Tag route needs `lele-entry-ability-lock-hook.cjs` to correct the pinned raw Initialization/entry-Ability leak, while the Forest Seal Stone route needs `forest-seal-search-hook.cjs` and an explicit `UseAbilityAction` because the default Ability tactic omits Tool-granted Star Alchemy. The current V3 shared patch manifest contains only the Underworld hook. The direct-in-hand helper deliberately does not claim these access routes; do not count them as policy coverage until the relevant hooks, prompt handling, and role-closure assets are installed and exercised.
 
 ## Handoff and acceptance
 
