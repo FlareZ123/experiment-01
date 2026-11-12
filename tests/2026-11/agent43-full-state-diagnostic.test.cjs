@@ -165,13 +165,25 @@ test('trace formatter emits selected card and before/after full state changes', 
       actionName: 'PlayCardAction',
       isRootDecision: true,
       selectedCardIdentity: { playerId: 101, handIndex: 0, fullName: 'A Hand 1' },
-      actorObservationSha256: 'view123',
-      actorObservationBefore: { actorSeat: 0, ownHand: ['A Hand 1'], opponentPublic: { active: 'B Active' } },
+      policyObservationSha256: 'view123',
+      policyInputKind: 'actor-observation',
+      policyObservationBefore: { actorSeat: 0, ownHand: ['A Hand 1'], opponentPublic: { active: 'B Active' } },
       actorObservationAfter: { actorSeat: 0, ownHand: ['A Hand 2'], opponentPublic: { active: 'B Active' } },
       promptResolverContext: { playerId: 101, promptType: 'ChooseCardsPrompt' },
       actionPayloadSha256: 'abc123',
       fullStateBefore: before,
       fullStateAfter: after,
+    }, {
+      actionOrdinal: 1,
+      turnBefore: 1,
+      actingSeat: 0,
+      actingPlayerId: 101,
+      phaseBefore: 'PLAYER_TURN',
+      actionName: 'ResolvePromptAction',
+      isRootDecision: false,
+      policyInputKind: 'native-owner-prompt',
+      policyObservationBefore: { mustNotLeak: true },
+      promptResolverContext: { playerId: 101, promptType: 'ChooseCardsPrompt' },
     }],
     failure: null,
   });
@@ -189,6 +201,8 @@ test('trace formatter emits selected card and before/after full state changes', 
   assert.match(text, /ACTOR OBSERVATION SHA256 view123/);
   assert.match(text, /ACTOR OBSERVATION BEFORE \(ROOT POLICY CONTRACT\)/);
   assert.match(text, /PROMPT RESOLVER CONTEXT/);
+  assert.match(text, /inputKind=native-owner-prompt/);
+  assert.equal(text.includes('mustNotLeak'), false, 'prompt resolver must not be mislabelled as actor observation');
   assert.match(text, /ACTION PAYLOAD SHA256 abc123/);
   assert.match(text, /--- BEFORE ---/);
   assert.match(text, /--- AFTER ---/);
