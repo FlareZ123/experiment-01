@@ -8,7 +8,7 @@ const path=require('node:path');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
-  combineAndPinV3RoleRuntime
+  combineAndPinV3RoleRuntime,initializeNativeCardPool
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 const STEP='Generate physical deal';
@@ -192,10 +192,11 @@ test('job metadata pagination rejects repeated page URLs',async()=>{
 
 test('role composer receives shared dependencies and policy options bound to role identity',()=>{
   const commonDeps={
-    observe:()=>{},promptActions:{ResolvePromptAction:function ResolvePromptAction(){}}
+    observe:()=>{},promptActions:{ResolvePromptAction:function ResolvePromptAction(){}},
+    cardPoolInitialization:{enginePin:'e'.repeat(40)}
   };
-  const candidateIdentity={policyDefinition:{policyOptions:{mode:'candidate'}}};
-  const opponentIdentity={policyDefinition:{policyOptions:{mode:'opponent'}}};
+  const candidateIdentity={entryManifest:{enginePin:'e'.repeat(40)},policyDefinition:{policyOptions:{mode:'candidate'}}};
+  const opponentIdentity={entryManifest:{enginePin:'e'.repeat(40)},policyDefinition:{policyOptions:{mode:'opponent'}}};
   const trial={candidateSeat:1,originalSourceSeat:0};
   let received;
   const composer=(run,options)=>{
@@ -267,4 +268,38 @@ test('pre-deal receipt cannot bind a different in-memory registration to the com
       prepare:prepareFactory(substituted)
     }),/artifact object differs from the verified policy registration/);
   }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
+
+
+test('native card pool initialization reproduces the pinned start.js set order and receipt',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-card-pool-'));
+  const filename=path.join(root,'vendor/twinleaf/ptcg-server/start.js');
+  fs.mkdirSync(path.dirname(filename),{recursive:true});
+  const startup="cardManager.defineSet(sets.BaseSet);\ncardManager.defineSet(sets.NextDestiny);\n";
+  fs.writeFileSync(filename,startup);
+  let instance;
+  class CardManager{
+    constructor(){this.cards=[];}
+    static getInstance(){return instance??=(new CardManager());}
+    getAllCards(){return this.cards;}
+    defineSet(set){this.cards.push(...set);}
+  }
+  const old=process.env.AGENT36_TWINLEAF_COMMIT_SHA;
+  process.env.AGENT36_TWINLEAF_COMMIT_SHA='a'.repeat(40);
+  try{
+    const args={CardManager,sets:{BaseSet:[{id:1}],NextDestiny:[{id:2}]},
+      enginePin:'a'.repeat(40),repositoryRoot:root};
+    const first=initializeNativeCardPool(args);
+    assert.deepEqual(first.setNames,['BaseSet','NextDestiny']);
+    assert.equal(first.cardCount,2);
+    assert.equal(first.startupSha256,
+      require('node:crypto').createHash('sha256').update(startup).digest('hex'));
+    assert.strictEqual(initializeNativeCardPool(args),first);
+    instance.cards.push({id:3});
+    assert.throws(()=>initializeNativeCardPool(args),/contents changed after initialization receipt/);
+  }finally{
+    if(old===undefined)delete process.env.AGENT36_TWINLEAF_COMMIT_SHA;
+    else process.env.AGENT36_TWINLEAF_COMMIT_SHA=old;
+    fs.rmSync(root,{recursive:true,force:true});
+  }
 });
