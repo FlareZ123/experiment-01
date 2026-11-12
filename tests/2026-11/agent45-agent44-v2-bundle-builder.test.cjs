@@ -3,6 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
+const {sha256:policyHash}=
+  require('../../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 const {build,INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,REGISTRATION_REF,
   CASE_ID,TRIAL_ID}=
   require('../../simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs');
@@ -94,9 +96,70 @@ function fixture(){
     paperLegalityIndependentlyCertified:false
   };
   const candidateManifestBindingSha256=hash(candidateManifestBinding);
+  const paperCologneNativePlayAudit={
+    accepted:1,bySeat:{'0':1,'1':0},episodes:1,authenticatedRestarts:0,
+    duplicateAcceptedBySeatTurn:[],acceptedOncePerSeatTurn:true,
+    scope:'Accepted native Store PlayCardAction roots only, segmented by authenticated native game epochs. Missing rejected proposals and unqualified game rules remain.'
+  };
+  const paperCologneReviewGate={
+    schema:'agent44-paper-cologne-accepted-root-review-gate-v3',
+    disposition:'eligible-pending-independent-paper-review',
+    auditPresent:true,auditShapeValid:true,acceptedOncePerSeatTurn:true,
+    multipleAcceptedBySeatTurn:[],
+    cardSpecificOncePerTurnConformance:'pass',
+    hookOptInEnabled:false,paperRuleReviewBlocked:false,
+    paperItemLegalityReviewStatus:'pending-per-use-target-and-effect-review',
+    requiresTargetAndEffectReview:true,independentPaperReviewRequired:true,
+    paperLegalityCertified:false,rawCaptureRetainedRegardlessOfGate:true
+  };
+  const policyManifest={
+    schema:'agent36-effective-bilateral-policy-manifest-v1',
+    complete:false,samePolicy:false,
+    reason:'capture-only; activated-hook and policy-entrypoint closures are not independently attested',
+    hookRevisionSha:null,environmentSha256:'runtime-environment-sha',
+    policyVersion:'agent8-v6',candidatePolicy:'new-moon-lockbreaker-v1',
+    sourceSeat:0,candidateSeat:1,activationAudit:{},
+    requestedOptions:{},sourceOnlyFeatureMap:{},sourceScopedOptions:[],
+    sourceScopedFeatureMap:{},policySha256BySeat:[null,null],perSeat:[],
+    unknownSourceOnlyFlags:[],configurationRoots:[],
+    actorRuntimeClosureDigest:null,mewDceRootApplicationReceipt:null,
+    paperCologneNativePlayAudit
+  };
+  const policyManifestSha256=policyHash(policyManifest);
+  const policyProvenanceBase={
+    schema:'agent26-4410-capture-only-policy-provenance-v1',
+    status:'PARTIAL_CAPTURE_ONLY',trialId:TRIAL_ID,sourceSeat:0,candidateSeat:1,
+    candidateManifestPath:'results/als/new-moon-lockbreak-japanese-print-60.json',
+    candidateManifestBlobSha256:'candidate-manifest-blob-sha',
+    policyProfilePath:'simulation/evaluation/agent41-frozen-bilateral-development-v2.json',
+    policyProfileBlobSha256:'policy-profile-blob-sha',
+    enginePin:registration.enginePinnedCommit,
+    runtimeLoadedCodeManifest:{schema:'agent26-runtime-loaded-code-manifest-v1',sha256:'runtime-code-sha'},
+    runtimeLoadedCodeSnapshotSha256:'runtime-code-sha',
+    configuredRunnerOptions:{},effectiveSeatConfiguration:[],
+    effectiveSeatConfigSha256BySeat:[],actorRuntimeClosure:null,
+    actorRuntimeClosureError:null,actorOnlyDecisionCoverage:null,
+    mewDceRootApplicationReceipt:null,paperCologneNativePlayAudit,
+    activatedHookManifest:{schema:'agent26-4410-activated-hook-manifest-v1',
+      status:'PARTIAL_ACTIVATION_RECEIPTS_ONLY',complete:false,
+      observedActivationReceipts:{},unresolvedDependencyScopes:[],sha256:null},
+    policyEntryManifest:{schema:'agent26-4410-policy-entry-manifest-v1',
+      status:'INCOMPLETE_RUNTIME_SNAPSHOT_ONLY',complete:false,
+      candidateRootInventory:[],runtimeLoadedCodeSnapshotSha256:'runtime-code-sha',
+      unresolvedDependencySites:[],unresolvedDependencyInventoryComplete:false,
+      unresolvedDependencyScopes:[],sha256:null},
+    policyManifest,policyManifestSha256,hookRevisionSha:null,
+    policySha256BySeat:[null,null],samePolicy:false,
+    competitivePolicyCompetenceReady:false,
+    reason:'A runtime snapshot and observed actor receipt are descriptive evidence only.'
+  };
+  const policyProvenanceSha256=policyHash(policyProvenanceBase);
+  const policyProvenance={...policyProvenanceBase,policyProvenanceSha256};
   const intake={
     schema:INTAKE_SCHEMA,caseId:CASE_ID,registrationRef:REGISTRATION_REF,
     originalRank:5,sourceSeat:0,candidateSeat:1,runtime,
+    policyProvenance,policyProvenanceSha256,policyManifestSha256,
+    hookRevisionSha:null,policySha256BySeat:[null,null],
     fixedRegisteredSourceAndCandidateSixties:true,
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
@@ -129,7 +192,7 @@ function fixture(){
         settledPhysicalIdentityClean:true,sha256:hash(raw)
       },
       targetOrdinalLinked:true,nativeSupporterQuota:{qualified:false},
-      sourceM4AuditCount:0
+      sourceM4AuditCount:0,paperCologneNativePlayAudit,paperCologneReviewGate
     },
     nineEvidenceObjects:{
       officialClockAndNoCall:{available:false,reason:'No independent clock packet'},
@@ -162,6 +225,7 @@ function fixture(){
     finalBoard:{active:[0,1],prizes:[0,6]},
     decisionTrace:[{seat:0,choice:'attack'}],
     nativeSupporterQuotaQualified:{qualified:false},
+    paperCologneNativePlayAudit,
     specialRedCardPaperPreselectionAudits:[]
   };
   const zoneTape={
