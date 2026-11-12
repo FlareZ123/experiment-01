@@ -1,6 +1,4 @@
 'use strict';
-const path=require('node:path');
-const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 let uninstall=null;
 
 /**
@@ -19,19 +17,15 @@ let uninstall=null;
  */
 function installUnderworldDoorPsychicRecipientHook(){
   if(uninstall)return uninstall;
-  const {ShadowRiderCalyrexVMAX}=require(path.join(root,
-    'sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax'));
-  const {WAS_POWER_USED}=require(path.join(root,'game/store/prefabs/prefabs'));
-  const {AttachEnergyPrompt}=require(path.join(root,
-    'game/store/prompts/attach-energy-prompt'));
-  const {CheckPokemonTypeEffect}=require(path.join(root,
-    'game/store/effects/check-effects'));
-  const {CardType,EnergyType,SuperType}=require(path.join(root,'game/store/card/card-types'));
-  const {EnergyCard}=require(path.join(root,'game/store/card/energy-card'));
-  const {PlayerType,SlotType}=require(path.join(root,
-    'game/store/actions/play-card-action'));
-  const {GameError}=require(path.join(root,'game/game-error'));
-  const {GameMessage}=require(path.join(root,'game/game-message'));
+  const {ShadowRiderCalyrexVMAX}=require('../../vendor/twinleaf/ptcg-server/output/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax');
+  const {WAS_POWER_USED}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prefabs/prefabs');
+  const {AttachEnergyPrompt}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/attach-energy-prompt');
+  const {CheckPokemonTypeEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
+  const {CardType,EnergyType,SuperType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
+  const {EnergyCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
+  const {PlayerType,SlotType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
+  const {GameError}=require('../../vendor/twinleaf/ptcg-server/output/game/game-error');
+  const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
   const original=ShadowRiderCalyrexVMAX.prototype.reduceEffect;
 
   /** @param {object} store @param {object} state @param {object} effect */
