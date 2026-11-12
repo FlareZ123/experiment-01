@@ -77,4 +77,31 @@ function withHoodCandidateBotOptions(options,factories={}) {
   return {...options,promptResolvers,tactics};
 }
 
-module.exports={withHoodCandidateBotOptions};
+/**
+ * Build independent seat-ordered options and install Hood policy on candidate
+ * seat only. The returned opponent options retain the exact baseline classes.
+ *
+ * @param {object} baseOptions Shared immutable baseline options.
+ * @param {0|1} candidateSeat Physical candidate seat.
+ * @param {object} [factories] Optional resolver/tactic class factories.
+ * @returns {[object,object]} Distinct options objects in physical seat order.
+ */
+function withHoodCandidateBotOptionsBySeat(baseOptions,candidateSeat,factories={}) {
+  if(candidateSeat!==0&&candidateSeat!==1) {
+    throw new RangeError('candidateSeat must be physical seat 0 or 1');
+  }
+  if(!baseOptions||typeof baseOptions!=='object') {
+    throw new TypeError('baseline bot options are required');
+  }
+  const clone=()=>({
+    ...baseOptions,
+    promptResolvers:[...(baseOptions.promptResolvers??[])],
+    tactics:[...(baseOptions.tactics??[])],
+    ...(Array.isArray(baseOptions.scores)?{scores:[...baseOptions.scores]}:{})
+  });
+  const bySeat=[clone(),clone()];
+  bySeat[candidateSeat]=withHoodCandidateBotOptions(bySeat[candidateSeat],factories);
+  return bySeat;
+}
+
+module.exports={withHoodCandidateBotOptions,withHoodCandidateBotOptionsBySeat};
