@@ -1,0 +1,2 @@
+One-shot trigger marker for the Agent36 V3 fixture-game run on 2026-11-12.
+The existing Agent36 workflow temporarily listens for a push to this exact path so the fixture can execute without a workflow-dispatch API action. The push trigger is removed after the run; this file is intentionally retained as an audit breadcrumb.
