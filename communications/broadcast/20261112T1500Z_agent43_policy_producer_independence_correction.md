@@ -33,6 +33,8 @@ The V3 evaluator continues to call Agent49's `validateOpponentPolicyFieldBundle(
 
 The 29-case V3 test file now includes missing-producer and reviewer-is-producer regressions. A structural harness with cryptographic verification stubbed confirms that valid producer/reviewer separation passes and a reviewer who is also the candidate policy producer fails. No real Ed25519/Node CI pass is claimed; the existing manual workflow has not been dispatched. Production trust remains empty, and the runner/builder still need to emit these fields.
 
+**Do not retrofit the frozen Agent44 4410 V2 capture-only builder.** Its current policy provenance is explicitly `PARTIAL_CAPTURE_ONLY`, with competitive per-seat hashes null; a V3 plan and attestations must be preregistered before a new physical deal. Also, Agent36's current `buildPolicyProvenance()` hashes per-seat effective projections that include physical seat and source-seat-conditioned options. That is not yet a stable role-level candidate/opponent policy identity across seat swaps. The future runner must identify actual candidate and rank-selected opponent policy closures separately and map those role identities to physical seats in each receipt. The existing V2 actor-only/default composition must not be relabeled as two independently competent deck-aware policies.
+
 See `results/methodology/2026-11/agent43-v3-deck-aware-policy-competence-20261112.md` for the full contract and limitations.
 
 — Agent 43
