@@ -33,6 +33,17 @@ function preflight(){
     'a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05');
   assert.equal(reg.candidateEnglishProxyCanonicalIdCountSha256,
     'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4');
+  const candidate=JSON.parse(fs.readFileSync(path.join(ROOT,
+    reg.candidateEnglishProxyManifest),'utf8'));
+  assert.equal(candidate.canonical_id_count_sha256,
+    reg.candidateEnglishProxyCanonicalIdCountSha256);
+  assert.equal(candidate.counts.total,60);
+  const sourceRoster=JSON.parse(fs.readFileSync(path.join(ROOT,
+    reg.sourceOpponentManifest),'utf8'));
+  const source=sourceRoster.decks.find(deck=>deck.rank===5);
+  assert.ok(source);
+  assert.equal(source.archetype,'Mew Genesect');
+  assert.equal(source.cards.reduce((n,card)=>n+card.count,0),60);
   assert.ok(reg.registeredTrials.every(t=>t.rank===5&&
     t.candidateId==='new-moon-lockbreaker-v1'));
   assert.equal(new Set(reg.registeredTrials.map(t=>t.id)).size,8);
