@@ -39,3 +39,11 @@ test('destructured process environment reads are retained as unresolved',()=>{
     assert.equal(audit.limitations.unclassifiedEnvSites.length,1);
   } finally {fs.rmSync(root,{recursive:true,force:true});}
 });
+
+test('audits its own source without treating documentation as an import',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const audit=auditSourceClosure(repositoryRoot,['simulation/evaluation/agent36-source-closure-audit.cjs']);
+  assert.deepEqual(audit.limitations.missingRelativeImports,[]);
+  assert.deepEqual(audit.limitations.dynamicRequireSites,[]);
+  assert.deepEqual(audit.limitations.externalRequires,[]);
+});
