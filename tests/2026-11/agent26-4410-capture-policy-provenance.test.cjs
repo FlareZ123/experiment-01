@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {buildCaptureOnlyPolicyProvenance} =
   require('../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
+const {jsonSafe} = require('../../simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs');
 
 test('4410 preserves runtime and actor receipts without promoting incomplete closure', () => {
   const entryFile = require.resolve(
@@ -56,17 +57,29 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
     candidateManifestBlobSha: 'b'.repeat(40),
     policyProfileBlobSha: 'c'.repeat(40),
     enginePin: 'd'.repeat(40),
-    activationReceipts: {
+    runnerConfig: {nativeRootActionLimit: 300, callbackBindings: {
+      onRootStoreCreated: 'testObserver.onRootStoreCreated'
+    }},
+    hookActivationReceipts: {
+      agent41PaperSupporterQuota: {optIn: true}
+    },
+    runtimeEvidenceReceipts: {
       agent4RawStateFallbackQuarantine: {rawStateFallbackCalls: 0},
       agent50OwnerPublicAcknowledgements: {confirmPromptDefaultEquivalent: true},
       agent36LivePaperRootReceipts: {acceptedStoreRootCount: 3},
-      agent41PaperSupporterQuota: {optIn: true},
       agent48CologneNativePlayAudit: cologneAudit
     },
     cacheEntries: [helperCacheEntry]
   });
 
   assert.equal(result.status, 'PARTIAL_CAPTURE_ONLY');
+  assert.equal(result.schema, 'agent26-4410-capture-only-policy-provenance-v2');
+  assert.deepEqual(result.runnerExecutionConfig, {nativeRootActionLimit: 300,
+    callbackBindings: {onRootStoreCreated: 'testObserver.onRootStoreCreated'}});
+  assert.deepEqual(result.runtimeEvidenceReceipts.agent48CologneNativePlayAudit,cologneAudit);
+  assert.deepEqual(result.activatedHookManifest.observedActivationReceipts,
+    {agent41PaperSupporterQuota:{optIn:true}});
+  assert.deepEqual(result.effectiveSeatConfiguration[0].configuredPolicyOptions,options);
   assert.equal(result.runtimeLoadedCodeManifest.complete, true);
   assert.match(result.runtimeLoadedCodeSnapshotSha256, /^[0-9a-f]{64}$/);
   assert.equal(result.actorRuntimeClosure.policyStatus, 'OBSERVED_CLOSURE_CONSISTENT');
@@ -94,3 +107,12 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
   assert.equal(result.competitivePolicyCompetenceReady, false);
   assert.match(result.policyProvenanceSha256, /^[0-9a-f]{64}$/);
 });
+test('policy provenance serializer rejects executable and non-JSON values',()=>{
+  assert.throws(()=>jsonSafe({onRootStoreCreated:()=>{}}),
+    /Unsupported policy-provenance value: function/);
+  assert.throws(()=>jsonSafe({symbol:Symbol('callback')}),
+    /Unsupported policy-provenance value: symbol/);
+  assert.throws(()=>jsonSafe({bigint:1n}),
+    /Unsupported policy-provenance value: bigint/);
+});
+
