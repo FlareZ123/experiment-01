@@ -136,7 +136,11 @@ function discardSummary(arms){
       completedGamesMissingAudit:missingAuditRows.filter(row=>
         row.finished===true&&!row.error).length,
       attackFuelOptInValues:[...new Set(audits.map(a=>a.attackFuelOptIn))],
+      selectedDiscardPrompts:audits.reduce((n,a)=>n+(a.selected??0),0),
       acceptedDiscardPrompts:audits.reduce((n,a)=>n+(a.accepted??0),0),
+      rejectedDiscardPrompts:audits.reduce((n,a)=>n+(a.rejected??0),0),
+      nativePromptPostconditionsConfirmed:audits.reduce((n,a)=>
+        n+(a.nativePromptPostconditionsConfirmed??0),0),
       attackFuelAlternativeProposals:audits.reduce((n,a)=>
         n+(a.attackFuelAlternativeProposals??0),0),
       attackFuelSelected:audits.reduce((n,a)=>
