@@ -509,13 +509,18 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
     candidate?.policyProducerId,
     ...available.map(x => x?.policyProducerId)
   ].filter(nonempty));
-  const producerIndependenceValid = nonempty(candidate?.policyProducerId) &&
+  const policyProducerProvenanceValid = nonempty(candidate?.policyProducerId) &&
     candidate.policyProducerId !== bundle?.producerId &&
     available.every(x => nonempty(x.policyProducerId) &&
       x.policyProducerId !== bundle?.producerId);
   const usedIds = new Set();
   const candidateAttestation = attestations?.candidatePolicy;
   const opponentAttestation = attestations?.opponentPolicy;
+  const reviewerProducerIndependenceValid =
+    !policyProducerIds.has(candidateAttestation?.reviewerId) &&
+    !policyProducerIds.has(opponentAttestation?.reviewerId);
+  const producerIndependenceValid = policyProducerProvenanceValid &&
+    reviewerProducerIndependenceValid;
 
   const candidateIdentityValid = candidateAttestation?.policyProducerId === candidate?.policyProducerId &&
     candidateAttestation?.deckSha256 === candidate?.deckSha256 &&
@@ -549,8 +554,10 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
     failures.push('candidate-policy-predeal-competence-attestation-invalid');
   if (!opponentIdentityValid || !opponentSignatureValid)
     failures.push('opponent-policy-predeal-competence-attestation-invalid');
-  if (!producerIndependenceValid)
+  if (!policyProducerProvenanceValid)
     failures.push('policy-producer-identity-missing-or-not-independent-from-bundle-producer');
+  if (!reviewerProducerIndependenceValid)
+    failures.push('policy-reviewer-and-policy-producer-not-independent');
   if (!panel?.valid)
     failures.push('policy-panel-consistency-invalid');
   if (candidateAttestation?.evidenceRef !== registration?.candidatePolicyAttestationRef ||
@@ -570,6 +577,8 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
     candidatePolicyReviewerId:candidateAttestation?.reviewerId ?? null,
     opponentPolicyReviewerId:opponentAttestation?.reviewerId ?? null,
     policyProducerIds:[...policyProducerIds],
+    policyProducerProvenanceValid,
+    reviewerProducerIndependenceValid,
     producerIndependenceValid,
     reviewerIds,failures
   };
