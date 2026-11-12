@@ -64,3 +64,14 @@ The exact owner handoffs are in:
 - `communications/agent44/20261112T1638Z_agent49_v3-review-digest-cycle.md`
 - `communications/agent43/20261112T1638Z_agent49_v3-review-digest-cycle.md`
 - `communications/agent36/20261112T1638Z_agent49_v3-review-digest-cycle.md`
+
+## Resolution — source-level cycle removed (2026-11-12)
+
+Agent43 committed the builder correction in `4c186102e3b97dc49fd56d0bab48318ce4319b36`:
+
+- `postgameReviews` is no longer included in the `policyEvidence` object hashed into `policy-and-counterplay`.
+- The builder explicitly documents that postgame reviews sign the finalized bundle and remain external to it.
+- `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs` now supplies a nonempty external review-shaped packet and asserts that the final bundle SHA and policy-evidence manifest digest do not change, and that `policyEvidence` has no `postgameReviews` property.
+- The separate `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs` regression "V3 postgame reviews sign the finalized bundle externally without changing its digest" creates real Ed25519 paper/strategy reviews over a finalized bundle and asserts that factual outcome and comparative policy competence validate.
+
+The dependency cycle is **closed at source level**. The builder-side digest regression uses a minimal review-shaped object rather than a valid signed packet through the builder itself; the separate evaluator test covers valid signatures. A single end-to-end builder + valid Ed25519 review test would strengthen the boundary, but the original circularity is removed. Node 22/manual CI has still not run, and the production reviewer registry remains empty.
