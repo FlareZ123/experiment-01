@@ -22,7 +22,9 @@ const PHYSICAL_CONTEXT_KEYS = new Set([
   'playernumber','playerposition','candidateplayer','opponentplayer',
   'sourceplayer','firstplayer','currentplayer','activeplayer','turnplayer',
   'candidateposition','opponentposition','side','sideindex','candidateside',
-  'opponentside','ownerside','sourceseat','firstplayerseat','actualfirstplayerseat',
+  'opponentside','ownerside','firsttoact','turnowner','turnorder','currentactor',
+  'activeactor','candidateactor','opponentactor','sourceactor','actorindex','actorid',
+  'sourceseat','firstplayerseat','actualfirstplayerseat',
   'originalsourceseat','policyownerseat','ownerseat'
 ]);
 const BUILTINS = new Set(Module.builtinModules.flatMap(name => [
@@ -106,6 +108,8 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
   for(const file of files){
     const source=fs.readFileSync(path.join(root,file.path),'utf8');
     const lines=source.split(/\r?\n/);
+    const usesComputedProcessEnv=/\bprocess\s*\[\s*['"]env['"]\s*\]/.test(source);
+    if(usesComputedProcessEnv)unsupported.push({file:file.path,kind:'computed-process-env'});
     const usesEsm=/\bimport\s*(?:\(|['"]|\*|\{|\w+\s+from\s*['"])/.test(source)||
       /\bexport\s+(?:default|const|let|var|function|class|\*|\{)/.test(source)||
       /\bexport\s+(?:\*|\{)[^;]*\sfrom\s*['"]/.test(source);
@@ -556,16 +560,20 @@ function validateRuntimePatchReceipts(core,trial,candidateIdentity,opponentIdent
       'expected shared patch entry must be an object');
     assert.ok(receipt?.schema==='aichi-runtime-patch-installation-receipt-v1',
       'runtime patch receipt schema is invalid');
+    const expectedPatchId=stableId(want.patchId,'expected runtime patch id');
+    const expectedModulePath=canonicalPath(want.modulePath,'expected runtime patch module path');
+    assert.match(want.moduleSha256??'',SHA256,'expected runtime patch module SHA-256 is invalid');
+    const expectedTarget=stableId(want.target,'expected runtime patch target');
     const patchId=stableId(receipt.patchId,'runtime patch receipt id');
     assert.ok(!seen.has(patchId),'duplicate runtime patch receipt: '+patchId);
     seen.add(patchId);
     const modulePath=canonicalPath(receipt.modulePath,'runtime patch module path');
     assert.match(receipt.moduleSha256??'',SHA256,'runtime patch module SHA-256 is invalid');
     const target=stableId(receipt.target,'runtime patch target');
-    assert.equal(patchId,want.patchId,'runtime patch id differs from frozen plan');
-    assert.equal(modulePath,want.modulePath,'runtime patch path differs from frozen plan');
+    assert.equal(patchId,expectedPatchId,'runtime patch id differs from frozen plan');
+    assert.equal(modulePath,expectedModulePath,'runtime patch path differs from frozen plan');
     assert.equal(receipt.moduleSha256,want.moduleSha256,'runtime patch SHA differs from frozen plan');
-    assert.equal(target,want.target,'runtime patch target differs from frozen plan');
+    assert.equal(target,expectedTarget,'runtime patch target differs from frozen plan');
     assert.match(receipt.originalReducerFingerprint??'',SHA256,
       'original reducer fingerprint is invalid');
     assert.match(receipt.installedReducerFingerprint??'',SHA256,
@@ -617,8 +625,14 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   assert.equal(cardPoolReceipt.startupPath,'vendor/twinleaf/ptcg-server/start.js',
     'card-pool startup source path is invalid');
   assert.match(cardPoolReceipt.startupSha256??'',SHA256,'card-pool startup SHA-256 is invalid');
-  assert.ok(Array.isArray(cardPoolReceipt.setNames)&&cardPoolReceipt.setNames.length>0,
-    'card-pool receipt must preserve ordered set names');
+  const vendorCardPoolStartup=[...candidateIdentity.entryManifest.vendorDependencies,
+    ...opponentIdentity.entryManifest.vendorDependencies].some(item=>
+      item.path===cardPoolReceipt.startupPath&&item.sha256===cardPoolReceipt.startupSha256);
+  assert.ok(vendorCardPoolStartup,
+    'card-pool startup bytes are not cross-bound by the pinned vendor dependency manifest');
+  assert.ok(Array.isArray(cardPoolReceipt.setNames)&&cardPoolReceipt.setNames.length>0&&
+    cardPoolReceipt.setNames.every(name=>typeof name==='string'&&name.length>0),
+    'card-pool receipt must preserve ordered non-empty set names');
   assert.equal(new Set(cardPoolReceipt.setNames).size,cardPoolReceipt.setNames.length,
     'card-pool receipt contains duplicate set names');
   assert.equal(cardPoolReceipt.definedSetCount,cardPoolReceipt.setNames.length,
