@@ -128,7 +128,7 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   const originalRandom=Math.random;
   let agentsCreated=0;
   const result=runNativeFixtureGame(input({
-    onAgentsCreated:seats=>{agentsCreated=seats.length;}
+    onRootAgentsCreated:seats=>{agentsCreated=seats.length;}
   }));
 
   assert.equal(Math.random,originalRandom);
