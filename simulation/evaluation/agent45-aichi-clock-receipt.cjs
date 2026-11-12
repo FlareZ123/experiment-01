@@ -77,11 +77,17 @@ function inspectOfficialAichiClock(trial){
     let audit;
     try{audit=official.auditTimeCallPacket(packet);}
     catch{return result(false,'OFFICIAL_CALL_PACKET_MALFORMED');}
-    if(audit.status==='SWISS_BOTH_LOSE' && stage==='open-swiss')
+    if(audit.status==='SWISS_BOTH_LOSE' && stage==='open-swiss'){
+      if(trial.extensionLedgerPacket!=null)
+        return result(false,'UNEXPECTED_EXTENSION_LEDGER_FOR_RESOLVED_CALL');
       return result(true,audit.status,null,'both-loss');
+    }
     if(FINAL_STATUSES.has(audit.status) &&
-       (audit.conditionalWinnerSeat===0||audit.conditionalWinnerSeat===1))
+       (audit.conditionalWinnerSeat===0||audit.conditionalWinnerSeat===1)){
+      if(trial.extensionLedgerPacket!=null)
+        return result(false,'UNEXPECTED_EXTENSION_LEDGER_FOR_RESOLVED_CALL');
       return result(true,audit.status,audit.conditionalWinnerSeat,'paper-win');
+    }
     if(audit.extensionRule!=='tied-low'&&audit.extensionRule!=='both-high')
       return result(false,audit.status);
     if(!trial.extensionLedgerPacket ||
