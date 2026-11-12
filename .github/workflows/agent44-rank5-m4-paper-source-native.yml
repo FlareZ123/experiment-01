@@ -99,6 +99,8 @@ jobs:
           node --check simulation/twinleaf/agent50-owner-public-acknowledgements.cjs
           node --test tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs
+          node --check simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs
+          node --test tests/2026-11/agent26-4410-capture-policy-provenance.test.cjs
           node --check tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs
           node --test tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs
           node --test tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs
