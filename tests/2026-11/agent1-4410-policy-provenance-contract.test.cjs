@@ -159,16 +159,16 @@ test('runtime closure hashes only repository-owned loaded files and enforces req
 
 test('source-only and source-scoped options are projected to the correct physical seat', () => {
   const options = {
-    actorDceMewMobilitySourceOnly: true,
-    actorDceMewMobilityRoot: true,
+    actorMewDceRecipientSourceOnly: true,
+    actorMewDceRecipientRoot: true,
     actorMewUltraBallRoot: true
   };
   const source = effectiveOptionsForSeat(options, 0, 0);
   const candidate = effectiveOptionsForSeat(options, 1, 0);
-  assert.equal(source.options.actorDceMewMobilitySourceOnly, true);
-  assert.equal(source.options.actorDceMewMobilityRoot, true);
-  assert.equal(candidate.options.actorDceMewMobilitySourceOnly, false);
-  assert.equal(candidate.options.actorDceMewMobilityRoot, false);
+  assert.equal(source.options.actorMewDceRecipientSourceOnly, true);
+  assert.equal(source.options.actorMewDceRecipientRoot, true);
+  assert.equal(candidate.options.actorMewDceRecipientSourceOnly, false);
+  assert.equal(candidate.options.actorMewDceRecipientRoot, false);
   assert.equal(candidate.options.actorMewUltraBallRoot, false);
   assert.deepEqual(source.unknownSourceOnlyFlags, []);
   assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
@@ -189,17 +189,17 @@ test('source-only options produce distinct hashes without hiding the seat differ
     options: {
       actorOnlyComposition: true,
       sourceIndependentCommonPolicy: true,
-      actorDceMewMobilitySourceOnly: true,
-      actorDceMewMobilityRoot: true
+      actorMewDceRecipientSourceOnly: true,
+      actorMewDceRecipientRoot: true
     }
   }));
   assert.equal(result.complete, true);
   assert.equal(result.samePolicy, false);
   assert.notEqual(result.policySha256BySeat[0], result.policySha256BySeat[1]);
   assert.equal(result.perSeat[0].enabledSourceOnlyFlags.includes(
-    'actorDceMewMobilitySourceOnly'), true);
+    'actorMewDceRecipientSourceOnly'), true);
   assert.equal(result.perSeat[1].enabledSourceOnlyFlags.includes(
-    'actorDceMewMobilitySourceOnly'), false);
+    'actorMewDceRecipientSourceOnly'), false);
 });
 
 test('unmapped active source-only options fail closed', () => {
