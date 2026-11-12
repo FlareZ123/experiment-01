@@ -5,3 +5,4 @@ Correction: retriggered after ensuring both the manifest test and the native gam
 
 Correction: the native game step now also selects on the one-shot push event.
 Correction: the V3 fixture dependency test step now selects on the one-shot push event as well as manual fixture dispatch.
+Correction: one-shot V3 fixture push skips the unrelated legacy frozen-candidate suite and runs only the dedicated fixture dependency suite before the native game.
