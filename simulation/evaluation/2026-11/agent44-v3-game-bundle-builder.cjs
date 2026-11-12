@@ -148,6 +148,8 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       });
       if (field.status === 'INVALID')
         failures.push(...field.rejectionReasons.map(x=>'policy-field:'+x));
+      if (!Array.isArray(field.availableRanks) || field.availableRanks.length===0)
+        failures.push('opponent-policy-field-has-no-authenticated-ranks');
     } catch {
       failures.push('existing-opponent-policy-field-validator-rejected-plan');
     }
