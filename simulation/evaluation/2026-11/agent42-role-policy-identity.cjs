@@ -537,6 +537,56 @@ function assertIdentityMatchesPlan(identity,planned,label) {
 }
 
 /** Bind stable role identities to physical seats and emit the V3 application receipt. */
+function validateRuntimePatchReceipts(core,trial,candidateIdentity,opponentIdentity) {
+  const expected=core.constraints?.sharedEngineCompatibilityPatches;
+  assert.ok(Array.isArray(expected),
+    'frozen constraints must include sharedEngineCompatibilityPatches');
+  const actual=trial.runtimePatchReceipts;
+  assert.ok(Array.isArray(actual),'trial must carry ordered runtime patch receipts');
+  assert.equal(actual.length,expected.length,
+    'runtime patch receipts must exactly cover the frozen shared patch list');
+  const rolePatches=[
+    ...(candidateIdentity.entryManifest.sharedEnginePatches??[]),
+    ...(opponentIdentity.entryManifest.sharedEnginePatches??[])
+  ];
+  const seen=new Set();
+  const validated=actual.map((receipt,index)=>{
+    const want=expected[index];
+    assert.ok(want&&typeof want==='object'&&!Array.isArray(want),
+      'expected shared patch entry must be an object');
+    assert.ok(receipt?.schema==='aichi-runtime-patch-installation-receipt-v1',
+      'runtime patch receipt schema is invalid');
+    const patchId=stableId(receipt.patchId,'runtime patch receipt id');
+    assert.ok(!seen.has(patchId),'duplicate runtime patch receipt: '+patchId);
+    seen.add(patchId);
+    const modulePath=canonicalPath(receipt.modulePath,'runtime patch module path');
+    assert.match(receipt.moduleSha256??'',SHA256,'runtime patch module SHA-256 is invalid');
+    const target=stableId(receipt.target,'runtime patch target');
+    assert.equal(patchId,want.patchId,'runtime patch id differs from frozen plan');
+    assert.equal(modulePath,want.modulePath,'runtime patch path differs from frozen plan');
+    assert.equal(receipt.moduleSha256,want.moduleSha256,'runtime patch SHA differs from frozen plan');
+    assert.equal(target,want.target,'runtime patch target differs from frozen plan');
+    assert.match(receipt.originalReducerFingerprint??'',SHA256,
+      'original reducer fingerprint is invalid');
+    assert.match(receipt.installedReducerFingerprint??'',SHA256,
+      'installed reducer fingerprint is invalid');
+    assert.notEqual(receipt.originalReducerFingerprint,receipt.installedReducerFingerprint,
+      'installed reducer fingerprint must differ from the original reducer');
+    assert.equal(receipt.installCount,1,'runtime patch must be installed exactly once');
+    assert.equal(receipt.installBoundary,'outer-v3-runner-before-role-wrappers',
+      'runtime patch install boundary is invalid');
+    assert.equal(receipt.restoreCount,1,'runtime patch must be restored exactly once');
+    assert.equal(receipt.restoreBoundary,'outer-finally','runtime patch restore boundary is invalid');
+    assert.equal(receipt.restoredOriginal,true,'runtime patch must restore the exact original reducer');
+    assert.equal(receipt.nestedInstallCount,0,'nested runtime patch installation is forbidden');
+    assert.equal(receipt.wrapperInstallCount,0,'role-wrapper patch installation is forbidden');
+    assert.ok(rolePatches.some(patch=>patch.path===modulePath&&patch.sha256===receipt.moduleSha256),
+      'runtime patch source hash is not cross-bound by either role entry manifest: '+modulePath);
+    return {...receipt,modulePath};
+  });
+  return validated;
+}
+
 function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdentity,
   trial,timeoutStatus='within-budget'}) {
   assert.ok(preDeal&&preDeal.ready===true,'pre-deal policy registration must be ready');
@@ -578,6 +628,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   const cardPoolInitializationSha256=evidenceBundleSha256(cardPoolReceipt);
   assert.equal(cardPoolInitializationSha256,runtimePinEvidence.cardPoolInitializationSha256,
     'card-pool initialization receipt digest differs from frozen runtime evidence');
+  const runtimePatchReceipts=validateRuntimePatchReceipts(core,trial,candidateIdentity,opponentIdentity);
+  const runtimePatchReceiptsSha256=evidenceBundleSha256(runtimePatchReceipts);
   const opponent=core.opponentPolicyBundle.ranks.find(row=>row.rank===opponentIdentity.rank);
   assert.ok(opponent&&opponent.sourceStatus==='authenticated',
     'opponent rank must be authenticated in the frozen policy plan');
@@ -692,6 +744,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     runtimePinUnionSha256:candidateIdentity.runtimePinUnionSha256,
     loadedProcessClosureSha256:candidateIdentity.loadedProcessClosureSha256,
     cardPoolInitializationSha256:candidateIdentity.cardPoolInitializationSha256,
+    runtimePatchReceipts,runtimePatchReceiptsSha256,
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
