@@ -27,8 +27,8 @@ The bundle must carry:
 
 - `policyPlanCore.schema = "aichi-policy-plan-core-v1"`;
 - `comparisonMode = "candidate-vs-field"`;
-- a candidate identity containing `deckSha256`, `policySha256`, `entryManifestSha256`, and `challengeSuiteSha256`;
-- an `opponentPolicyBundle` with exactly 32 ordered rank entries, each explicitly `authenticated` or `source-unavailable`;
+- a candidate identity containing `policyProducerId`, `deckSha256`, `policySha256`, `entryManifestSha256`, and `challengeSuiteSha256`;
+- an `opponentPolicyBundle` with exactly 32 ordered rank entries, each explicitly `authenticated` or `source-unavailable`; every authenticated rank carries its `policyProducerId`, while unavailable ranks use null producer and identity fields;
 - shared constraints for observation surface, hidden-information boundary, decision budget, timeout behavior, randomization, public-history window, and resource accounting.
 
 `policyPlanSha256` is the canonical SHA-256 digest of the plan core. The plan core does not contain its own digest, signatures, attestations, post-game data, or outcomes.
@@ -44,7 +44,7 @@ Each attestation uses schema `aichi-policy-competence-attestation-v1` and an Ed2
 
 `aichi-policy-competence-attestation-v1\n` + canonical JSON of the attestation with `signatureBase64` omitted.
 
-The candidate-policy and opponent-policy reviewer identities must be distinct from one another and from the producer. Each reviewer must be present in the externally controlled trust registry with the corresponding role. Both attestations must predate policy registration.
+The candidate attestation binds the candidate `policyProducerId`; every opponent rank review binds that rank's `policyProducerId`. Both reviewer identities must be distinct from one another, the game-bundle producer, and every candidate/opponent policy producer. Each reviewer must be present in the externally controlled trust registry with the corresponding role. Both attestations must predate policy registration.
 
 ### Registration and physical-deal boundary
 
@@ -61,7 +61,7 @@ The policy-registration times must exactly match the game-level timing preregist
 
 ### Per-game application receipt
 
-`policyApplicationReceipt` uses schema `aichi-policy-application-receipt-v1`. It binds the trial and opponent rank, candidate/opponent deck and policy hashes, entry-manifest and challenge-suite hashes, physical seats, first player, actual policy hashes by seat, engine pin, runner revision, shared-constraints digest, decision-trace digest, and timeout status.
+`policyApplicationReceipt` uses schema `aichi-policy-application-receipt-v1`. It binds the trial and opponent rank, candidate/opponent deck and policy hashes, candidate/opponent policy producer IDs, entry-manifest and challenge-suite hashes, physical seats, first player, actual policy hashes by seat, engine pin, runner revision, shared-constraints digest, decision-trace digest, and timeout status.
 
 `receiptSha256` is the canonical digest of the receipt with that field omitted. The current receipt must be present in `policyPanelReceipts`; the latter can carry the complete cross-game receipt set. Agent49's validator checks that the candidate identity is invariant across receipts, each rank maps to its frozen opponent deck/policy identity, and the field-wide opponent-policy-bundle digest, constraints, engine pin, runner revision, registration and attestation digests remain fixed.
 
@@ -87,7 +87,7 @@ The existing manual workflow `.github/workflows/agent49-owner-paper-preflight-pu
 Checks performed in this invocation:
 
 - Both changed JavaScript files passed isolated JavaScript syntax compilation.
-- An isolated structural harness loaded the real Agent12/Agent49 field-validator source and the V3 evaluator, with cryptographic verification stubbed, and exercised the 29/32 field, candidate/opponent attestation structure, per-game receipt, candidate-policy drift rejection, and both untimed and event V3 paths. It also covered all 116 strata available in the 29-rank field (still `INCOMPLETE_FIELD`) and a synthetic 32-rank/128-stratum plan (status `VALID`). The harness produced an admissible per-game policy assessment for a valid fixture and rejected candidate-policy drift.
+- An isolated structural harness loaded the real Agent12/Agent49 field-validator source and the V3 evaluator, with cryptographic verification stubbed, and exercised the 29/32 field, candidate/opponent attestation structure including producer independence, per-game receipt, candidate-policy drift rejection, and both untimed and event V3 paths. It also covered all 116 strata available in the 29-rank field (still `INCOMPLETE_FIELD`) and a synthetic 32-rank/128-stratum plan (status `VALID`). The harness produced an admissible per-game policy assessment for a valid fixture and rejected candidate-policy drift.
 - **The Node test suite was not run.** The available GitHub Actions workflow is manual-dispatch only, and this invocation had no workflow-dispatch action. The structural harness is not a substitute for real Ed25519 verification or the repository's Node test suite.
 
 ## Limits and non-claims
