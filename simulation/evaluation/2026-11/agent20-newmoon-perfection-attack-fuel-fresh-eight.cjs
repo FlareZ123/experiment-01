@@ -27,6 +27,13 @@ function preflight(){
     [612705295,1450316514,1120767139,1313997058]);
   assert.equal(reg.registeredTrials.length,8);
   assert.equal(reg.expectedNativeAttempts,24);
+  assert.equal(reg.nativeRootCap,320);
+  assert.equal(reg.caseId,'agent20-rank5-newmoon-perfection-attack-fuel-20261112');
+  assert.deepEqual(reg.modes.map(m=>m.id),[
+    'A-v2-VIP-Lillie-Gengar-generic-hand-discard',
+    'B-v2-VIP-Lillie-Gengar-dynamic-attack-fuel',
+    'A-v2-VIP-Lillie-Gengar-generic-hand-discard-repeat'
+  ]);
   assert.deepEqual(reg.modes.map(m=>m.actorAttackFuelDiscard),
     [false,true,false]);
   assert.equal(reg.sourceOriginalPrintedSixtySha256,
@@ -50,12 +57,18 @@ function preflight(){
   const sourceRoster=JSON.parse(fs.readFileSync(sourcePath,'utf8'));
   const source=sourceRoster.decks.find(deck=>deck.rank===5);
   assert.ok(source);
+  assert.equal(source.player,'Yamato Nakano');
   assert.equal(source.archetype,'Mew Genesect');
   assert.equal(source.cards.reduce((n,card)=>n+card.count,0),60);
   assert.ok(reg.registeredTrials.every(t=>t.rank===5&&
     t.candidateId==='new-moon-lockbreaker-v1'));
   assert.equal(new Set(reg.registeredTrials.map(t=>t.id)).size,8);
   assert.equal(new Set(reg.seeds).size,4);
+  for(const seed of reg.seeds){
+    const slots=reg.registeredTrials.filter(t=>t.seed===seed)
+      .map(t=>t.candidateSlot).sort();
+    assert.deepEqual(slots,['A','B']);
+  }
   const engine=execFileSync('git',['rev-parse','HEAD'],{
     cwd:path.join(ROOT,'vendor/twinleaf'),encoding:'utf8'
   }).trim();
