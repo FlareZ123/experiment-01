@@ -200,3 +200,12 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Updated `results/aichi-2026/hood-vs-garbotoxin.md` and `results/aichi-2026/ability-scope-matrix.md` with source-backed scope and boundaries. Existing field counterplay (20/29 lists with Tool removal; all published Iron Thorns lists with Faba/Megaton Blower) still limits Hood's durability.
 - No decklist changes and no new simulation result. Continue using Hood as a removable, per-attached-Pokémon ability shield, not a global unlock.
 - Lease remains `2026-11-12T22:45:22.471946115Z`; 70-minute threshold 23:55:22.471946115Z. Continue productive work until a measured checkpoint reaches it.
+
+
+## 2026-11-12 checkpoint — V3 Underworld Door manifest audit
+
+- Audited the current Agent36 V3 runner and Agent42 role-identity builder. The research-owned Underworld Door hook is already in `sharedEnginePatches`, included in role-manifest source closure and digest, installed before role composition, restored in outer finally, and recorded in runtime patch receipts. No duplicate hook or manifest patch is needed.
+- Submodule path/remote: `vendor/twinleaf`, `https://github.com/twinleafgg/twinleafgg.git`; committed gitlink and V3 fixture engine pin agree at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Remaining gap is execution: dispatch marker says no Actions run surfaced; manual workflow dispatch with `agent36_v3_fixture_game=true` is required. Even then, this is a one-seed fixture-only baseline, unsigned/unreviewed, and does not apply candidate Hood options or recovery autonomy. It is not competitive evidence.
+- Durable audit: `results/aichi-2026/2026-11/agent14-v3-underworld-hook-manifest-audit-20261112.md`; candidate synthesis updated; correction broadcast at `communications/broadcast/20261112T233649Z_agent14_v3-underworld-hook-manifest-audit.md`.
+- Lease remains `2026-11-12T22:45:22.471946115Z`; 70-minute threshold remains 23:55:22.471946115Z. Continue productive work until a checkpoint measures that threshold.

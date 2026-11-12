@@ -106,3 +106,10 @@ This is a printing and banned-list qualification only. No physical deck was insp
 ## Opening-hand structural comparison
 
 A reproducible seven-card hypergeometric comparison against the official Aichi champion reference is available in [the opening-hand report](2026-11/agent14-hood-opening-hand-profile-20261112.md) and [its standard-library script](2026-11/agent14-hood-opening-hand-profile-20261112.py). The candidate keeps the same 14 Basics, 11 Psychic Energy, 9 Supporters and 9 direct V-search items, but moves one slot from Tapu Lele-GX to Shadow Rider V. This raises raw opening V probability from 31.54% to 39.95% and V-plus-Energy probability from 23.16% to 29.46%, while reducing raw Tapu Lele-GX access. These are structural probabilities only, not evidence of matchup strength.
+
+
+## V3 Underworld Door hook source-manifest audit
+
+The existing Agent36 V3 fixture runner already includes the research-owned Underworld Door hook as a `sharedEnginePatch`, hashes it into the role-entry manifest, installs it before role composition, restores it in `finally`, and records a runtime patch receipt. See the [source-manifest audit](2026-11/agent14-v3-underworld-hook-manifest-audit-20261112.md). No duplicate hook or manifest patch is needed.
+
+This is source-level inclusion only. The fixture has not been executed; the checked-in dispatch marker requires manual workflow dispatch. It is a one-seed, fixture-only baseline with no independent reviewers and explicitly does not apply candidate Hood options or recovery autonomy. It is not a competitive evaluation.
