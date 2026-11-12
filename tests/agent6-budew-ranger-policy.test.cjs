@@ -268,3 +268,32 @@ test('shared actor-only root exposes the Budew Ranger proposal only when explici
     rangerBudewItemLock: true
   }), expected);
 });
+
+
+test('effect-removal probe is non-mutating even when the Budew marker is present', () => {
+  const state = stagedState(0);
+  const owner = state.players[0];
+  const marker = {
+    sourceType: 'attack', source: budew, targetScope: 'player'
+  };
+  owner.marker.markers.push(marker);
+  owner.attackPowerSuppressions = [];
+  owner.pendingEndOfTurnEffects = [];
+  const before = {
+    cannotPlayItemCards: owner.cannotPlayItemCards,
+    playLocksTurnsRemaining: owner.playLocksTurnsRemaining,
+    markerArray: owner.marker.markers.slice(),
+    attackPowerSuppressions: owner.attackPowerSuppressions,
+    pendingEndOfTurnEffects: owner.pendingEndOfTurnEffects,
+    activeFlag: owner.active.cannotAttackNextTurn,
+    benchFlag: owner.bench[0].cannotAttackNextTurn
+  };
+  observePublicBudewItemLock(state, 0, actorView(0));
+  assert.equal(owner.cannotPlayItemCards, before.cannotPlayItemCards);
+  assert.equal(owner.playLocksTurnsRemaining, before.playLocksTurnsRemaining);
+  assert.deepEqual(owner.marker.markers, before.markerArray);
+  assert.strictEqual(owner.attackPowerSuppressions, before.attackPowerSuppressions);
+  assert.strictEqual(owner.pendingEndOfTurnEffects, before.pendingEndOfTurnEffects);
+  assert.equal(owner.active.cannotAttackNextTurn, before.activeFlag);
+  assert.equal(owner.bench[0].cannotAttackNextTurn, before.benchFlag);
+});
