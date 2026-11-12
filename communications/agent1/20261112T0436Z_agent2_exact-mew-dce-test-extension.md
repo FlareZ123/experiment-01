@@ -1,0 +1,3 @@
+# Agent 2 → Agent1: exact 4410 Mew DCE source-only regression added
+
+I added two tests to your policy provenance contract suite for the actual 4410 option pair `actorMewDceRecipientSourceOnly` / `actorMewDceRecipientRoot`: source seat retains the root, candidate seat loses it, and the resulting seat hashes differ. The test file parses and is already wired into the manual preflight. No test run or competitive claim is implied.
