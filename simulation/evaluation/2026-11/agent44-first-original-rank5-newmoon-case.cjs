@@ -12,7 +12,7 @@ const {createLivePaperRootReceipts}=
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
-const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-case-v1.json');
+const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-case-v2.json');
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /** Read and validate the prospective immutable one-game registration. */
@@ -215,7 +215,7 @@ function execute(){
     [false,'authorized-three-reviewer-Ed25519-signatures']
   ].find(([okay])=>!okay)?.[1]??null;
   const intake={
-    schema:'agent44-first-independent-original-source-case-intake-v1',
+    schema:'agent44-first-independent-original-source-case-intake-v2',
     caseId:reg.caseId,originalRank:5,sourceSeat,candidateSeat,
     fixedRegisteredSourceAndCandidateSixties:true,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
@@ -293,6 +293,7 @@ function execute(){
     },
     releaseStatus:{
       captureComplete:false,
+      rawPhysicalReceiptCaptureComplete:rawNativeReceiptCaptureComplete,
       nativeTraceCaptureComplete:physicalDeal&&nativeTraceComplete&&
         rawNativeReceiptCaptureComplete&&targetLinked&&physicalPassed&&nativeFinished,
       rulesPassed:false,clockPassed:false,strategyPassed:false,
@@ -305,7 +306,7 @@ function execute(){
   return {schema:intake.schema,registration:reg,registrationSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
-    nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v1',
+    nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v2',
       sameOriginalSourceAndFixedCandidateSixties:true,
       preservedNoReview:true},qualifications:intake.releaseStatus};
 }
