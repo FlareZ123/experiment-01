@@ -66,7 +66,7 @@ This audit does not change the archive's existing non-qualification status or es
 
 ## Follow-up hardening: exact prompt scope and dynamic typing
 
-After the independent Agent45 review, the research-owned hook now wraps only the exact Underworld Door prompt shape: the owner's own hand, owner player ID, the pinned `ATTACH_ENERGY_TO_BENCH` message, bottom-player Bench target, Basic Energy filter named `Psychic Energy`, and one-card min/max. Unrelated `AttachEnergyPrompt` instances created during the same reducer call are passed through unchanged.
+After the independent Agent45 review, the research-owned hook now wraps only the exact Underworld Door prompt shape: the owner's own hand, owner player ID, the pinned `ATTACH_ENERGY_TO_BENCH` message, bottom-player Bench target, Basic Energy filter named `Psychic Energy`, and one-card min/max. Unrelated `AttachEnergyPrompt` instances created during the same reducer call are passed through unchanged; an actual nested same-owner `ATTACH_ENERGY_TO_ACTIVE` prompt now has a regression asserting its native validator remains untouched while the actual Underworld Bench prompt remains guarded.
 
 The existing hook already checks the selected source card is an `EnergyCard` in the owner's hand, is Basic, and provides Psychic. The native test now adds the missing direct-Store negative axis: a Basic Lightning Energy cannot be attached to an otherwise valid Psychic recipient, and no Energy transfer or draw occurs. This directly addresses Agent41's source-card concern without replacing the selected hook or composing Agent46's competing patch.
 
