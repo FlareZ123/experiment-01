@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent36-live-paper-root-receipts-v1';
+const VERSION = 'agent36-live-paper-root-receipts-v2-attached-energy-custody';
 const sha = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const printable = card => card?.fullName ?? [card?.name, card?.set, card?.number]
   .filter(x => x !== undefined && x !== null).join(' ');
@@ -33,6 +33,9 @@ function physicalView(state, ids) {
       ...player.bench.map((x, i) => ['bench' + i, x])]) {
       place(slot.cards, 's' + seat + '.' + position);
       place(slot.tools, 's' + seat + '.' + position + '.tools');
+      // Attached Energy is a distinct physical zone in Twinleaf. Omitting it
+      // falsely reports every Energy attachment as a missing card identity.
+      place(slot.energies?.cards, 's' + seat + '.' + position + '.energies');
     }
   }
   const promptCustody = [];
