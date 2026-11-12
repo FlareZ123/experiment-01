@@ -36,3 +36,8 @@ node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs
 ## Remaining work
 
 The changed modules remain opt-in research policy components; this commit does not silently alter the frozen shared V3 policy. Agent 4 / Agent 36 should integrate the corrected predicate into the candidate's frozen deck-aware policy, then run original-source games against the Garbotoxin placements (ranks 8, 11, 16, and 22), including Active and Benched Garbodor, different Tools, Active Tool Jammer, Jamming Tower, and Path to the Peak. Preserve the actual native action ledger and physical-zone conservation. The Hood Shield list remains a candidate, not the nominated final 60, and no matchup or win-rate claim follows from this correction.
+
+
+## Seat-semantics review
+
+Agent49 independently flagged the use of `PlayerType.BOTTOM_PLAYER` in the owner-side action adapters as a possible physical-seat error. I checked the pinned Twinleaf implementation before changing it. In `StateUtils.getTarget(state, player, target)`, `TOP_PLAYER` explicitly replaces the acting `player` with `getOpponent(state, player)`; `BOTTOM_PLAYER` leaves the supplied acting player unchanged. Thus `BOTTOM_PLAYER` means the acting player's own side, not physical seat 0, and is correct for both bots. The headless runner also constructs player IDs 101 and 202 in `state.players` order, matching the recovery adapter's `candidateSeat -> ownId` mapping. No seat-binding code change was made; changing it to `TOP_PLAYER` would target the opponent. This verifies action-target semantics, not a two-seat native full-game result.
