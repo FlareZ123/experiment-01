@@ -12,6 +12,8 @@ const {
   createFixtureRuntimePinEvidence,
   withFixtureScopedRolePin
 }=require('../../simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs');
+const {runPinnedV3RoleRuntime}=
+  require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 function sha256(bytes){
   return crypto.createHash('sha256').update(bytes).digest('hex');
@@ -109,6 +111,37 @@ test('fixture pin runs with role modules pinned, restores orchestration cache an
     assert.equal(result.audit.excludedPreloadedResearchFileCount,1);
     assert.strictEqual(Module._load,originalModuleLoad);
     assert.strictEqual(require.cache[orchestratorPath],orchestrator);
+  });
+});
+
+test('Agent36 runtime wrapper accepts the fixture pin and preserves V2 non-admission evidence',()=>{
+  withTempRepo(({root,expected})=>{
+    const orchestrator=require(path.join(root,'orchestrator.cjs'));
+    const prepared={
+      expectedByPath:expected,
+      runtimePinEvidence:{
+        schema:'aichi-runtime-pin-evidence-v1',
+        unionSha256:'a'.repeat(64),
+        loadedProcessClosureSha256:'b'.repeat(64),
+        cardPoolInitializationSha256:'c'.repeat(64)
+      },
+      runtimePinUnionSha256:'a'.repeat(64),
+      loadedProcessClosureSha256:'b'.repeat(64),
+      cardPoolInitializationSha256:'c'.repeat(64)
+    };
+    prepared.runtimePinEvidence=createFixtureRuntimePinEvidence(prepared);
+    const result=runPinnedV3RoleRuntime({
+      repositoryRoot:root,
+      preparedRuntime:prepared,
+      run:()=>orchestrator.run(),
+      pin:withFixtureScopedRolePin
+    });
+    assert.equal(result.result,'AB');
+    assert.equal(result.runtimePinEvidence.schema,'aichi-runtime-pin-evidence-v2');
+    assert.equal(result.runtimePinEvidence.fullProcessClosureCovered,false);
+    assert.equal(result.audit.fixtureOnly,true);
+    assert.equal(result.audit.fullProcessClosureCovered,false);
+    assert.equal(result.audit.guardRestored,true);
   });
 });
 
