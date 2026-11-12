@@ -22,11 +22,15 @@ Added `simulation/twinleaf/2026-11/agent26-underworld-immediate-max-geist-payabi
 The threshold accounts for:
 - printed Max Geist cost of three Colorless;
 - Dimension Valley (-1) and Wondrous Labyrinth (+1);
-- the pinned engine's public `attackCostIncreaseNextTurn` and `attackCostIncreaseWhileActive` slot state;
+- the slot's `attackCostIncreaseWhileActive` and stored `attackCostIncreaseNextTurn` state (the latter has an explicit pinned-engine support gap; see below);
 - player-wide `ignoreAttackCostCardTypes` and `cannotAttackMaxEnergy` restrictions;
 - first-turn attack prohibition, Energy attachment quota, attack locks, named attack blocks, and Asleep/Paralyzed status.
 
 The actor observation contract now exposes those public cost/lock fields without revealing concealed opponent zones. The policy still abstains unless exactly one Basic Psychic is held and all attached Active Energy is Basic Psychic. It runs only after the shared policy has authenticated a genuine Underworld Door source and Benched Psychic recipient. Native Store acceptance remains authoritative.
+
+## Known simulator support gap
+
+The pinned Twinleaf revision stores `attackCostIncreaseNextTurn` on the Pokémon slot, but its `CheckAttackCostEffect` in `vendor/twinleaf/ptcg-server/src/game/store/effect-reducers/check-effect.ts` consumes `attackCostIncreaseWhileActive` and `ignoreAttackCostCardTypes` without reading `attackCostIncreaseNextTurn`. The helper adds the stored next-turn modifier conservatively from public slot state; this is **not** evidence that the pinned native Store enforces it. If a registered trial has this field nonzero, mark that trial's attack-cost semantics paper-unresolved until a targeted native test and research-side adapter hook reconcile the engine. Do not treat such a native outcome as paper-qualified.
 
 This is a **payability gate**, not a complete attack-value evaluator: it does not estimate damage, KO value, or the opportunity value of drawing two cards. A payable Max Geist is not automatically the strategically best action.
 

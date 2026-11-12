@@ -42,7 +42,6 @@ function chooseUnderworldImmediateMaxGeistPayability(view,catalog){
   if(playerRestrictions.attackLockTurnsRemaining>0)return null;
   const activeRestrictions=active.publicRestrictions??{};
   if(activeRestrictions.cannotAttackNextTurn===true||
-      activeRestrictions.cannotAttackWhileActive===true||
       (active.specialConditions??[]).some(s=>
         s===catalog.specialConditions?.ASLEEP||
         s===catalog.specialConditions?.PARALYZED))return null;
