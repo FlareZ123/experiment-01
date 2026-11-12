@@ -383,6 +383,10 @@ function validateV3PolicyPanelJoin(request, attempts, problems,
  * paper-legal completed game, and the registration must predate the experiment.
  *
  * @param {object} request Caller-supplied complete field receipt manifest.
+ *   Optional V3 mode supplies policyPlanCore, policyPlanSha256 and
+ *   policyPanelReceipts; every outcome attempt must carry the matching
+ *   policyApplicationReceiptSha256, policyRegistrationSha256 and
+ *   policyAttestationBundleSha256. Receipts are joined one-to-one by trialId.
  * @param {readonly string[]} allowedStatuses Exact externally audited labels.
  * @param {string} unqualifiedLabel Rejection label when status is not allowed.
  * @returns {{target:number,confidence:number,rejectionReasons:string[],
