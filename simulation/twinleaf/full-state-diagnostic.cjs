@@ -187,7 +187,7 @@ function formatFullGameStateText(snapshot) {
   lines.push(`PROMPTS ${JSON.stringify(snapshot.prompts)}`);
   lines.push(`GAME SETTINGS ${JSON.stringify(snapshot.gameSettings)}`);
   lines.push(`RULES ${JSON.stringify(snapshot.rules)}`);
-  return lines.join('\\n');
+  return lines.join('\n');
 }
 
 function formatFixtureGameTraceText(game) {
@@ -229,7 +229,7 @@ function formatFixtureGameTraceText(game) {
     lines.push('');
     lines.push(`FAILURE ${JSON.stringify(game.failure)}`);
   }
-  return lines.join('\\n');
+  return lines.join('\n');
 }
 
 module.exports = {
