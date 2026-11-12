@@ -76,13 +76,29 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   const sourceLimitations = built.manifest.sourceAuditLimitations || {};
   for (const [name, values] of Object.entries(sourceLimitations)) {
     if (name === 'dynamicRequireSites') {
-      // Agent34's existing root policy reaches this known Agent12 helper.
-      // Keep the static limitation visible; the fixture-scoped Module._load
-      // guard separately rejects any unregistered module actually requested.
-      assert.deepEqual(values, [{
-        modulePath: 'scripts/agent12-actor-only-lillie-after-pass.cjs',
-        count: 3,
-      }]);
+      // Keep every known path-derived require site explicit. The fixture-scoped
+      // Module._load guard rejects any actual module request outside the frozen
+      // role map; this static limitation does not certify full-process closure.
+      const actualSites = values.map((value) => ({
+        file: value.file ?? value.modulePath,
+        count: value.count,
+      })).sort((a, b) => a.file.localeCompare(b.file));
+      const expectedSites = [
+        { file: 'simulation/twinleaf/agent12-actor-only-lillie-after-pass.cjs', count: 3 },
+        { file: 'simulation/twinleaf/agent37/native-genesect-power-availability.cjs', count: 1 },
+        { file: 'simulation/twinleaf/agent4-underworld-visible-thorns-veto.cjs', count: 1 },
+        { file: 'simulation/twinleaf/agent41-actor-owner-single-search.cjs', count: 4 },
+        { file: 'simulation/twinleaf/agent43-guzma-prompt-continuation.cjs', count: 2 },
+        { file: 'simulation/twinleaf/agent47-actor-hand-discard.cjs', count: 3 },
+        { file: 'simulation/twinleaf/agent5-owner-root-slice.cjs', count: 1 },
+        { file: 'simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs', count: 3 },
+        { file: 'simulation/twinleaf/agent8-funded-apex-compressor-owner-bridge.cjs', count: 1 },
+        { file: 'simulation/twinleaf/copycat-multiattack-history.cjs', count: 3 },
+        { file: 'simulation/twinleaf/cynthia-caitlin-required-recovery.cjs', count: 1 },
+        { file: 'simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs', count: 3 },
+      ].sort((a, b) => a.file.localeCompare(b.file));
+      assert.deepEqual(actualSites, expectedSites,
+        'known dynamic require sites changed; review the frozen role closure');
     } else {
       assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
     }
