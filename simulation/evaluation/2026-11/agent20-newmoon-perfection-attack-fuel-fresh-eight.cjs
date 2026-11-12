@@ -294,7 +294,7 @@ function main(){
       handDiscard:r.handDiscardAudit,
       candidateAttackSettlement:r.candidateAttackSettlement,
       sourceAttackSettlement:r.sourceAttackSettlement,
-      nativeCarryover:nativeCarryover.find(a=>a.id===arm.id)?.
+      nativeCarryover:nativeCarryover.find(carry=>carry.id===a.id)?.
         records.find(x=>x.id===r.id)?.carryover??null
     }))))
   };
