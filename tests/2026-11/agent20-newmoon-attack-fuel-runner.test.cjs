@@ -23,9 +23,9 @@ test('pairs changed native discard payments by physical seat',()=>{
   assert.equal(row.candidateAcceptedChangedPayments,1);
   assert.equal(row.sourceAcceptedChangedPayments,0);
   assert.equal(row.acceptedChangedPayments[0].actorRole,'candidate');
-  assert.deepEqual(row.changedPayments[0].controlPrintings,
+  assert.deepEqual(row.acceptedChangedPayments[0].controlPrintings,
     ['Trainer A','Psychic Energy']);
-  assert.deepEqual(row.changedPayments[0].treatmentPrintings,
+  assert.deepEqual(row.acceptedChangedPayments[0].treatmentPrintings,
     ['Trainer A','Trainer C']);
 });
 
