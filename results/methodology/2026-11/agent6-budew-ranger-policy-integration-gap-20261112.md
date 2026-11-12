@@ -20,7 +20,7 @@ A policy-facing feature, if enabled, should expose only a detached public summar
 
 ## Required fail-closed decision gate
 
-A default-off actor-root option such as `rangerBudewItemLock` should require all of the following. The option is captured by the Agent34 wrapper; unless the bilateral role composer installs separate policy wrappers, enabling it applies symmetrically to both actors. The runner must record whether the intended experiment is symmetric or candidate-only rather than silently changing one side:
+A default-off actor-root option such as `rangerBudewItemLock` should require all of the following. The option is captured by the Agent34 wrapper. The existing Agent44 `withCandidateOpponentPolicyRoles` composer installs separate nested wrappers with `candidateDeps` and `opponentDeps`, so V3 can enable it candidate-only by setting `candidatePolicyOptions.rangerBudewItemLock=true` and leaving the opponent option false. A runner that installs one shared Agent34 wrapper without role composition will apply it symmetrically. Record the chosen scope rather than silently changing one side:
 
 1. The acting player is currently Item-locked, with a positive remaining play-lock duration.
 2. The opponent's publicly known last attack is Budew's **Itchy Pollen**.
