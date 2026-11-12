@@ -256,7 +256,16 @@ function runNativeFixtureGame(input) {
         publicStateAfter:publicStateSnapshot(store.state)
       };
       decisionTrace.push(completed);
-      if(isRootDecision) rootActionLedger.push(completed);
+      rootActionLedger.push({
+        actionOrdinal:record.actionOrdinal,
+        turnBefore:record.turnBefore,
+        turnAfter:store.state.turn,
+        playerSlot:actingSeat,
+        action:record.actionName,
+        pendingPrompt:record.pendingPromptType,
+        isRootDecision,
+        promptResolution
+      });
       input.onAction?.(completed);
     }
 
