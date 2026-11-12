@@ -70,6 +70,12 @@ function buildCaptureOnlyPolicyProvenance({
       typeof enginePin !== 'string') {
     throw new TypeError('4410 capture provenance requires exact trial, seats, options and engine pin');
   }
+  if (row.trial?.id !== trialId)
+    throw new TypeError('4410 capture provenance trialId must match row.trial.id');
+  if (row.candidateSeat !== candidateSeat)
+    throw new TypeError('4410 capture provenance candidateSeat must match row.candidateSeat');
+  if (Object.hasOwn(row, 'sourceSeat') && row.sourceSeat !== sourceSeat)
+    throw new TypeError('4410 capture provenance sourceSeat must match row.sourceSeat');
 
   const safeOptions = jsonSafe(options);
   const safeRunnerConfig = jsonSafe(runnerConfig);
