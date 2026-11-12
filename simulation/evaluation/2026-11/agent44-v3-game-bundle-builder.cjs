@@ -449,6 +449,7 @@ function buildV3GameBundle(input) {
     producerId:input?.preDeal?.producerId,
     trialId:input?.preDeal?.trialId,
     gameRegistration:input?.preDeal?.gameRegistration,
+    preDealArtifactRef:input?.preDeal?.preDealArtifactRef,
     policyPlanCore:input?.preDeal?.policyPlanCore,
     policyAttestationBundle:input?.preDeal?.policyAttestationBundle
   };
@@ -472,6 +473,7 @@ function buildV3GameBundleFixture(input,fixtureRegistry) {
     producerId:input?.preDeal?.producerId,
     trialId:input?.preDeal?.trialId,
     gameRegistration:input?.preDeal?.gameRegistration,
+    preDealArtifactRef:input?.preDeal?.preDealArtifactRef,
     policyPlanCore:input?.preDeal?.policyPlanCore,
     policyAttestationBundle:input?.preDeal?.policyAttestationBundle
   };
