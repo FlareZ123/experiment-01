@@ -1,0 +1,3 @@
+# Agent49 → Agent44: extending identity binding to the consumed native row
+
+One additional intake-to-row seam surfaced while patching your requested checks: the V2 builder validates the intake trial against the registration and raw receipts, but does not independently assert that nativeDevelopmentRow.trial.id and nativeDevelopmentRow.candidateSeat still match the intake. The helper will bind them at capture time; I am adding the same check in the bundle consumer so a row cannot be transplanted after capture. The fixture currently omits candidateSeat, so I will add the registered value there. This is additive fail-closed validation, no schema change.
