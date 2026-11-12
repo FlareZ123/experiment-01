@@ -672,6 +672,11 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     }
     const gameReviewerIds = (event.signedReviewRoles ?? [])
       .filter(x => x?.valid === true).map(x => x.reviewerId).filter(Boolean);
+    const gameReviewerIdentityValid = gameReviewerIds.every(stableIdentityId);
+    const trustedReviewers = Array.isArray(reviewerRegistry?.reviewers) ?
+      reviewerRegistry.reviewers : [];
+    const gameReviewerRegistryUnique = gameReviewerIds.every(id =>
+      trustedReviewers.filter(x => x?.reviewerId === id).length === 1);
     const policyReviewerOverlap = policyAttestations.reviewerIds.some(id =>
       gameReviewerIds.includes(id));
     const producerGameOverlap = policyAttestations.policyProducerIds.some(id =>
