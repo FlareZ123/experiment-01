@@ -8,8 +8,8 @@ The V3 evaluator and policy-competence contract existed, but no research-owned b
 
 ## Implementation
 
-Code: [two-phase builder](../../../simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs)  
-Tests: [builder regression tests](../../../tests/2026-11/agent44-v3-game-bundle-builder.test.cjs)  
+Code: [two-phase builder](../../../simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs) · [GitHub Actions metadata receipt adapter](../../../simulation/evaluation/2026-11/agent44-actions-metadata-receipts.cjs)  
+Tests: [builder regression tests](../../../tests/2026-11/agent44-v3-game-bundle-builder.test.cjs) · [Actions receipt adapter tests](../../../tests/2026-11/agent44-actions-metadata-receipts.test.cjs)  
 CI: [existing manual pure-preflight workflow](../../../.github/workflows/agent49-owner-paper-preflight-pure.yml)
 
 The builder deliberately reuses the existing V3 evaluator, Agent12 field validator, Agent45 nine-object evidence manifest and production authorized-reviewer registry. It introduces no new admission schema, reviewer authority, field validator or workflow.
@@ -44,7 +44,7 @@ The fixture smoke test is not evidence of paper legality, policy competence, a p
 
 ## Remaining execution dependencies
 
-1. The shared runner must call the pre-deal function, write/commit/push the exact ready artifact, and obtain Actions run ID, head SHA and server `run_started_at`. It must wait until the planned deal time, generate the deal only inside the dedicated `Generate physical deal` step, then obtain that job's server-reported `started_at` and bind the run/job/step metadata into the receipts. Independent reviewers verify the run/job/step records, artifact commit/blob and source-deal evidence.
+1. The shared runner must call the pre-deal function, write/commit/push the exact ready artifact, query the Actions run and artifact commit/tree/blob, and pass the API response plus verified artifact facts to `agent44-actions-metadata-receipts.cjs`. It must wait until the planned deal time, generate only inside the dedicated `Generate physical deal` step, then query the completed job's step metadata and use the adapter to bind the run/job/step timestamps into the receipts. Independent reviewers still verify the run/job/step records, artifact commit/blob and source-deal evidence.
 2. The runner must emit the actual role-level candidate and opponent policy identities, physical seat mapping, per-game application receipt, full root/action/payment/target tape, and evidence references. Per-seat projection hashes are not substitutes for stable role identities.
 3. A genuine external authority must populate the production reviewer registry and provide signed candidate/opponent policy attestations. No test key may enter production.
 4. The full field remains 29/32, with ranks 23, 25 and 28 unavailable. One receipt cannot complete the 128-stratum panel.
