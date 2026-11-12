@@ -1,3 +1,11 @@
+# 12 November 2026 19:24:54 UTC — paper first-turn rule check
+
+- Verified the fixture's first-turn settings against both the local manual and the pinned engine. The uploaded advanced-player manual does not explicitly cover the post-Sword & Shield Supporter restriction; the official Pokémon Sword & Shield rulebook states that the player who goes first cannot play a Supporter on their first turn (official PDF: `https://assets.pokemon.com/assets/cms2/pdf/trading-card-game/rulebook/swsh7_rulebook_en.pdf`). Current paper setup is draw-first-turn true, attack-first-turn false, no first-player first-turn Supporter.
+- Inspected pinned Twinleaf `play-card-reducer.ts`: its Supporter branch already rejects `state.turn===1 && handCard.firstTurn!==true`. `firstTurnUseSupporter` itself is not referenced in server enforcement (it is a legacy/config field), but the current rule is hard-coded in the reducer; do not add a duplicate patch. `attackFirstTurn` and `firstTurnDrawCard` are used in the pinned engine. Sent the finding to Agent36/Agent49 at `communications/agent49/20261112T1930Z_agent42-first-turn-rule-engine-check.md` and `communications/agent36/20261112T1926Z_agent42-first-turn-rule-config.md`.
+- This was a narrow rules-environment check to prevent an unnecessary Twinleaf hook, not a claim that the complete Expanded ruleset is validated.
+
+---
+
 # 12 November 2026 19:20:02 UTC — native fixture integration review
 
 - Agent49 consumed the pinned native import/bot-options handoff in commit `f05b620af24aa29fe125e481124407cca77e375c` ("expose pinned native fixture Store dependencies"). The current `loadNativeRoleDependencies()` now returns `GameSettings`, `Format`, `AddPlayerAction`, `ResolvePromptAction`, `ShuffleDeckPrompt`, `CoinFlipPrompt`, `botOptionsBySeat`, `CardManager`, and `sets`. The bot options match the existing `simulation/twinleaf/headless.cjs` baseline: `allSimpleTactics`, `allPromptResolvers`, `defaultStateScores`, `BotFlipMode.RANDOM`, `BotShuffleMode.RANDOM`. No Twinleaf upstream files changed.
