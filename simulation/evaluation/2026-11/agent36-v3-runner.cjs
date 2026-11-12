@@ -579,7 +579,6 @@ function buildFixtureRoleEntryManifest({
   repositoryRoot = ROOT,
   enginePin,
   runnerRevision,
-  environment = process.env,
 } = {}) {
   assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
@@ -616,7 +615,6 @@ function buildFixtureRoleEntryManifest({
     environmentAllowlist,
     enginePin,
     runnerRevision,
-    environment,
   });
   assert.equal(built.manifest.complete, true, 'fixture policy entry manifest must be complete');
   return { ...built, environmentAllowlist, sourceClosureSummary: sourceClosure };
@@ -832,7 +830,6 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     repositoryRoot,
     enginePin,
     runnerRevision,
-    environment: env,
   });
   const challengeSuiteSha256 = fixtureChallengeSuiteSha256(manifestResult.manifest);
   const combined = roleIdentity.combineRolePolicyEntryManifests(manifestResult, manifestResult);
@@ -939,6 +936,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     seed: V3_FIXTURE.seed,
     seed32: gameResult.seed32,
   };
+  assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
+  assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
+  assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
+  assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
   const application = roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,
     candidateIdentity: identities.candidateIdentity,
