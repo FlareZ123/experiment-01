@@ -672,3 +672,8 @@ Updated both existing statistical method reports with the V3 receipt/outcome joi
 - `results/statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md`
 
 The shared 128-stratum validator now documents and enforces the same V3 policy-plan/receipt mapping for both field-mean and simultaneous per-opponent inference. No deck ranking or win-rate claim changed.
+
+
+### Synthetic all-win bound regression (18:21 UTC)
+
+Expanded the V3 ledger fixture to accept a per-cell sample count and added a 640-attempt synthetic panel: five trials in each of the 128 rank × candidate-seat × first-player cells, each linked to a distinct per-game registration and exact policy-application receipt. The existing `assessPerfectField()` is asserted to retain its conditional 99.5% threshold (`conditionalLowerBound >= 0.995`, five per cell required) while preserving `externalPaperAndIndependenceAuditRequired: true`. This is strictly a synthetic method/contract regression, not a game result. Updated both statistical method reports with this qualification. Test still awaits the manual Node 22 workflow.
