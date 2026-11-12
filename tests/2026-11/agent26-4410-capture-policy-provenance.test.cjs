@@ -120,11 +120,20 @@ test('policy provenance serializer rejects executable and non-JSON values',()=>{
     /Non-finite provenance number/);
   assert.throws(()=>jsonSafe({date:new Date()}),
     /plain JSON object/);
+  const symbolKeyed={};
+  symbolKeyed[Symbol('metadata')]=true;
+  assert.throws(()=>jsonSafe(symbolKeyed),/Symbol-keyed provenance property/);
+  const accessor={};
+  Object.defineProperty(accessor,'computed',{enumerable:true,get(){return true;}});
+  assert.throws(()=>jsonSafe(accessor),/Accessor provenance property/);
   const cyclic={};
   cyclic.self=cyclic;
   assert.throws(()=>jsonSafe(cyclic),/Cyclic provenance value/);
   const sparse=[];
   sparse[1]='value';
   assert.throws(()=>jsonSafe(sparse),/Sparse provenance array/);
+  const extended=[];
+  extended.extra='value';
+  assert.throws(()=>jsonSafe(extended),/Non-index provenance array property/);
 });
 
