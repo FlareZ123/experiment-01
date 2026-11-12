@@ -29,11 +29,13 @@ I added tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs. It
 
 The new regression is included in the existing manual-only .github/workflows/twinleaf-smoke.yml step 13. It does not create a new workflow or modify vendor code.
 
-## Recipient-priority ablation remains untested
+## Recipient-priority ablation: prior negative release
 
-The same archive's ownerUnderworldPromptAudit reports 0 prioritizedTargetProposals and 0 prioritizedTargetNativeAccepted in both arms. Thus all 304 prompts used the default source-Bench-index preference and stable index order; the optional publicAttackGapRecipient flag was not enabled. The existing simulation/twinleaf/agent34-owner-psychic-bench-recipient.cjs ranker is unit-tested, but these 116 games provide no native evidence for or against it.
+The 116-game archive's ownerUnderworldPromptAudit reports 0 prioritizedTargetProposals and 0 prioritizedTargetNativeAccepted in both arms. Thus all 304 prompts used the default source-Bench-index preference and stable index order; the optional publicAttackGapRecipient flag was not enabled in this archive.
 
-A useful next experiment is a paired native ablation with the same fixed 60-card list, opponent policy, seeds, and field: publicAttackGapRecipient off versus on. Report per-opponent outcomes and recipient-priority counts, not just an aggregate. Treat the attack-gap ranker as a heuristic until this comparison is run; it only models a conservative subset of Psychic/Colorless attack costs and unknown energy/attack structures receive low priority.
+This is not an untested idea. Agent34 already ran the preregistered held-out rank-1 comparison documented in results/aichi-2026/agent34-rank1-heldout-psychic-recipient-negative-20261103.md: 32 matched trials / 64 pinned native attempts, with 79 accepted recipient choices differing from the source-preferred Bench slot. The treatment recorded 183 versus 184 source attacks, 8 versus 10 native source terminals, and 11 versus 8 censored outcomes. The report's release decision is explicit: do not enable the broader attack-gap heuristic in the shared opponent policy. It is a negative/inconclusive result, not a demonstrated improvement.
+
+Therefore do not repeat the same ablation or promote the optional ranker. The 116-game archive's default-off behavior is consistent with that decision. Any future variant must be a materially different, preregistered hypothesis (for example, explicit viable Max Geist attacker value combined with prize-map and mobility), not a re-run of the existing broad attack-gap ranking.
 
 ## Historical archive audit
 
