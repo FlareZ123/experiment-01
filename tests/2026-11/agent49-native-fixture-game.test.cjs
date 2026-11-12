@@ -1,0 +1,182 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {
+  seededRandom,deckPermutation,runNativeFixtureGame
+}=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
+
+const GamePhase=Object.freeze({
+  SETUP:'setup',PLAYER_TURN:'player-turn',FINISHED:'finished'
+});
+const Format=Object.freeze({EXPANDED:'expanded'});
+
+class GameSettings {
+  constructor(){this.rules={};}
+}
+class AddPlayerAction {
+  constructor(id,name,deck){Object.assign(this,{id,name,deck});}
+}
+class ResolvePromptAction {
+  constructor(id,result){Object.assign(this,{id,result});}
+}
+class ShuffleDeckPrompt {
+  constructor(id,playerId){Object.assign(this,{id,playerId,result:undefined});}
+  getPerspectivePlayerId(){return this.playerId;}
+}
+class CoinFlipPrompt {
+  constructor(id,playerId){Object.assign(this,{id,playerId,result:undefined});}
+}
+class RootAction {
+  constructor(seat){this.seat=seat;this.type='ROOT';}
+}
+let lastStore=null;
+class Store {
+  constructor(options){
+    this.options=options;
+    this.rootActions=0;
+    this.state={
+      phase:GamePhase.SETUP,turn:0,activePlayer:null,
+      players:[],prompts:[],winner:null
+    };
+    lastStore=this;
+  }
+  dispatch(action){
+    if(action instanceof AddPlayerAction){
+      this.state.players.push({
+        id:action.id,name:action.name,
+        deck:{cards:action.deck.map(fullName=>({fullName}))},
+        hand:[],prizes:[],discard:[],
+        active:{getPokemonCard:()=>null},bench:[]
+      });
+      if(this.state.players.length===2){
+        this.state.prompts=[
+          new ShuffleDeckPrompt(1,101),
+          new CoinFlipPrompt(2,202)
+        ];
+      }
+      return;
+    }
+    if(action instanceof ResolvePromptAction){
+      const prompt=this.state.prompts.find(item=>item.id===action.id);
+      assert.ok(prompt,'resolved prompt must exist');
+      prompt.result=action.result;
+      if(this.state.prompts.every(item=>item.result!==undefined)){
+        this.state.phase=GamePhase.PLAYER_TURN;
+        this.state.activePlayer=0;
+        this.state.turn=1;
+      }
+      return;
+    }
+    if(action instanceof RootAction){
+      this.rootActions++;
+      if(this.rootActions===1){
+        this.state.activePlayer=1;
+        this.state.turn=2;
+      }else{
+        this.state.phase=GamePhase.FINISHED;
+        this.state.winner=101;
+      }
+      return;
+    }
+    throw new Error('unexpected action '+action?.constructor?.name);
+  }
+}
+class SimpleTacticsAi {
+  constructor(identity,options,deck){
+    this.id=identity.id;
+    this.options=options;
+    this.deck=deck;
+  }
+  decodeNextAction(){
+    return new RootAction(this.id===101?0:1);
+  }
+}
+
+function native(){
+  return {
+    Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
+    ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
+  };
+}
+function deck(prefix){
+  return Array.from({length:60},(_,i)=>prefix+' card '+i);
+}
+function input(overrides={}){
+  return {
+    native:native(),
+    deckA:deck('A'),
+    deckB:deck('B'),
+    botOptionsBySeat:[{},{}],
+    seed:0x12345678,
+    candidateSeat:0,
+    originalSourceSeat:1,
+    ...overrides
+  };
+}
+
+test('fixture PRNG and deck permutation are deterministic and complete',()=>{
+  const a=seededRandom(123),b=seededRandom(123);
+  assert.deepEqual(Array.from({length:8},()=>a()),
+    Array.from({length:8},()=>b()));
+  const p=deckPermutation(60,seededRandom(456));
+  assert.equal(p.length,60);
+  assert.deepEqual([...p].sort((x,y)=>x-y),Array.from({length:60},(_,i)=>i));
+});
+
+test('native fixture loop resolves setup prompts, drives both seats and records a natural terminal',()=>{
+  const originalRandom=Math.random;
+  let agentsCreated=0;
+  const result=runNativeFixtureGame(input({
+    onAgentsCreated:seats=>{agentsCreated=seats.length;}
+  }));
+
+  assert.equal(Math.random,originalRandom);
+  assert.equal(agentsCreated,2);
+  assert.equal(result.schema,'aichi-native-fixture-game-v1');
+  assert.equal(result.fixtureOnly,true);
+  assert.equal(result.admissionEligible,false);
+  assert.equal(result.competitiveGameQualified,false);
+  assert.equal(result.finished,true);
+  assert.equal(result.endReason,'engine-game-end');
+  assert.equal(result.actualFirstPlayerSeat,0);
+  assert.equal(result.candidateSeat,0);
+  assert.equal(result.originalSourceSeat,1);
+  assert.equal(result.winner,101);
+  assert.equal(result.winnerSeat,0);
+  assert.equal(result.actions,4);
+  assert.deepEqual(result.actionCountsBySeat,[2,2]);
+  assert.equal(result.decisionTrace.length,4);
+  assert.equal(result.rootActionLedger.length,2);
+  assert.equal(result.decisionTrace[0].pendingPromptType,'ShuffleDeckPrompt');
+  assert.equal(result.decisionTrace[0].actionName,'ResolvePromptAction');
+  assert.equal(result.decisionTrace[0].publicStateAfter.pendingPrompts.length,1);
+  assert.equal(result.decisionTrace[1].pendingPromptType,'CoinFlipPrompt');
+  assert.equal(result.decisionTrace[1].publicStateAfter.phase,GamePhase.PLAYER_TURN);
+  assert.equal(result.rootActionLedger[0].actingSeat,0);
+  assert.equal(result.rootActionLedger[1].actingSeat,1);
+  assert.match(result.decisionTraceSha256,/^[a-f0-9]{64}$/);
+  assert.match(result.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
+  assert.match(result.finalPublicStateSha256,/^[a-f0-9]{64}$/);
+  assert.equal(lastStore.state.gameSettings.format,Format.EXPANDED);
+  assert.equal(lastStore.state.gameSettings.recordingEnabled,false);
+  assert.equal(lastStore.state.rules.firstTurnDrawCard,true);
+  assert.equal(lastStore.state.rules.firstTurnUseSupporter,false);
+  assert.equal(lastStore.state.rules.attackFirstTurn,false);
+  const shuffle=result.decisionTrace[0].publicStateAfter;
+  assert.equal(shuffle.players[0].deckCount,60);
+});
+
+test('native fixture loop rejects incomplete decks and restores Math.random on failure',()=>{
+  const originalRandom=Math.random;
+  assert.throws(()=>runNativeFixtureGame(input({deckA:deck('A').slice(1)})),
+    /deckA must contain exactly 60/);
+  assert.equal(Math.random,originalRandom);
+});
+
+test('native fixture loop refuses to treat an action cap as a natural game end',()=>{
+  const originalRandom=Math.random;
+  assert.throws(()=>runNativeFixtureGame(input({maxActions:1})),
+    /exceeded maxActions without a natural terminal state/);
+  assert.equal(Math.random,originalRandom);
+});
