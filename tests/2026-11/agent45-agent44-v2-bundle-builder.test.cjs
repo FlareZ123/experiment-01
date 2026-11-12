@@ -103,6 +103,8 @@ function fixture(){
   };
   const paperCologneReviewGate={
     schema:'agent44-paper-cologne-accepted-root-review-gate-v3',
+    cardRuleSource:'official-japanese-canceling-cologne-card-specific-qa',
+    cardRuleSourceUrl:'https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%AD%E3%83%A3%E3%83%B3%E3%82%BB%E3%83%AB%E3%82%B3%E3%83%AD%E3%83%B3&regulation_sidebar_form=all',
     disposition:'eligible-pending-independent-paper-review',
     auditPresent:true,auditShapeValid:true,acceptedOncePerSeatTurn:true,
     multipleAcceptedBySeatTurn:[],
