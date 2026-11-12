@@ -1,6 +1,6 @@
 # Hood Shield Shadow Rider v1 — Expanded printing-normalized 60
 
-<badge>Experimental candidate, not nominated best deck</badge>
+**Experimental candidate — not nominated as the best deck.**
 
 This is a human-usable paper Expanded export of the fixed 60-card hypothesis recorded in `results/aichi-2026/candidate-hood-shadow-rider.json`. It preserves the functional card list and changes only nonstandard printing metadata:
 
@@ -59,7 +59,7 @@ The original JSON is intentionally unchanged so prior native experiment fingerpr
 | ---: | --- | --- |
 | 11 | Basic Psychic Energy | CRE 232 |
 
-<text color="secondary" size="sm">Deck totals: 18 Pokémon + 31 Trainers + 11 Energy = 60 cards.</text>
+**Deck totals:** 18 Pokémon + 31 Trainers + 11 Energy = 60 cards.
 
 ## Evidence and limitations
 
