@@ -486,7 +486,7 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongRunnerRevision,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
-  },fixture.reviewerRegistry),/not bound to the committed pre-deal artifact/);
+  },fixture.reviewerRegistry),/same server-timestamped workflow/);
 
   const retroFixture=makePolicyFixture();
   const retroTrialId='agent44-retroactive-ready-fixture';
