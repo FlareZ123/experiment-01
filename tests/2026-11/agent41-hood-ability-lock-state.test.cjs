@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {
   liveGarbotoxinSlots,hasLiveGarbotoxin,
   hasActiveIronThornsInitialization,hasLiveOpponentAbilityLock,
-  hasProtectableHoodLockThreat,
+  hasProtectableHoodLockThreat,hoodAttachTargets,
   hasUnspentActiveUnderworldDoor,hoodedDoorRecoveryPlan,
   canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow
 }=require('../../simulation/twinleaf/hood-ability-lock-state.cjs');
@@ -90,6 +90,42 @@ test('opponent Active Tool Jammer does not suppress Hood while the protected VMA
   const foe=player({active:slot(garbodor(),[tool('Tool Jammer')])});
   const state={players:[player(),foe]};
   assert.equal(hasProtectableHoodLockThreat(foe,state),true);
+});
+
+test('Hood target ranking prefers Bench VMAX, then Active VMAX, then Bench V',()=>{
+  const opponent=player({active:slot(garbodor(),[tool('Float Stone')])});
+  const own=player({
+    active:slot(shadowVmax()),
+    bench:[slot(shadowVmax()),slot(pokemon('Shadow Rider Calyrex V'))]
+  });
+  const state={players:[own,opponent]};
+  assert.deepEqual(hoodAttachTargets(own,opponent,state).map(x=>[
+    x.zone,x.index,x.priority
+  ]),[['bench',0,3],['active',0,2],['bench',1,1]]);
+
+  const activeFallback=player({
+    active:slot(shadowVmax()),
+    bench:[slot(pokemon('Shadow Rider Calyrex V'))]
+  });
+  const fallbackState={players:[activeFallback,opponent]};
+  assert.deepEqual(hoodAttachTargets(activeFallback,opponent,fallbackState).map(x=>[
+    x.zone,x.index,x.priority
+  ]),[['active',0,2],['bench',0,1]]);
+});
+
+test('Active VMAX Hood fallback fails under opponent Active Tool Jammer but Bench target remains usable',()=>{
+  const opponent=player({active:slot(garbodor(),[tool('Tool Jammer')])});
+  const activeOnly=player({active:slot(shadowVmax())});
+  assert.deepEqual(hoodAttachTargets(activeOnly,opponent,{
+    players:[activeOnly,opponent]
+  }),[]);
+
+  const withBench=player({
+    active:slot(shadowVmax()),bench:[slot(shadowVmax())]
+  });
+  assert.deepEqual(hoodAttachTargets(withBench,opponent,{
+    players:[withBench,opponent]
+  }).map(x=>[x.zone,x.index]),[['bench',0]]);
 });
 
 test('direct Door plan works with Psychic Energy in hand and does not require Items or Field Blower',()=>{
