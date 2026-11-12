@@ -31,6 +31,8 @@ The Agent36 posthoc rank5 Stone A/B/A runner now:
 
 The shared Agent20 arm now preserves the underlying Agent41 `trial`, `sourceAttackSettlement`, and `candidateAttackSettlement` fields so the carryover evaluator can operate on both seats and attach actual intervening opponent roots. Same-printing continuity remains only a native-public candidate: it does not prove same physical defender, printed legality, exclusive causality, or competitive strength.
 
+The **separate preregistered Agent44 release-case runner** (`agent44-first-original-rank5-newmoon-case.cjs`) now uses the same v2 observer on every accepted Store root. Its output is versioned as `agent44-first-independent-original-source-case-intake-v2` and writes `agent44-first-independent-rank5-newmoon-case-v2.json`; it exposes raw receipts separately from reviewer-certified V2 receipts and verifies exact root-count/ordinal/seat/action alignment. The `release-case` branch of the existing manual workflow validates the observer and its Energy regression, then archives a v2 artifact. This is the prospective path for the next one-game intake; it has **not** yet been dispatched.
+
 The existing manual workflow `.github/workflows/agent44-rank5-m4-paper-source-native.yml` now runs the new observer, Stone-runner, and Agent43 carryover tests. No push-triggered workflow was added.
 
 ## Correction to the previous Stone A/B/A interpretation
