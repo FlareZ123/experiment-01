@@ -3,6 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {validateFieldLedger,validateOpponentPolicyFieldBundle}=require('../../scripts/agent12-balanced-field-ledger-validator.cjs');
+const {assessPerfectField}=require('../../scripts/agent12-balanced-perfect-field-bound.cjs');
 const {sha256}=require('../../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 
 const hash=n=>n.toString(16).padStart(64,'0');
@@ -74,7 +75,7 @@ function makeReceipt(core,rank=1) {
   };
 }
 
-function makeV3Ledger() {
+function makeV3Ledger(perStratum=1) {
   const policyPlanCore=makeCore();
   const candidate=policyPlanCore.candidate;
   const policyPlanSha256=sha256(policyPlanCore);
@@ -90,7 +91,8 @@ function makeV3Ledger() {
   for(const opponent of policyPlanCore.opponentPolicyBundle.ranks) {
     for(const seat of [0,1]) {
       for(const firstPlayerSeat of [0,1]) {
-        const id=opponent.rank+'/'+seat+'/'+firstPlayerSeat;
+        for(let sample=0; sample<perStratum; sample++) {
+          const id=opponent.rank+'/'+seat+'/'+firstPlayerSeat+'/'+sample;
         const receipt=makeReceipt(policyPlanCore,opponent.rank);
         receipt.trialId='trial/'+id;
         receipt.candidateSeat=seat;
@@ -126,12 +128,14 @@ function makeV3Ledger() {
           policyApplicationReceiptSha256:receipt.receiptSha256
         });
         sequence++;
+        }
       }
     }
   }
   return {
     originalSources,attempts,registeredAttemptCount:attempts.length,
-    registrationSha,policyPlanCore,policyPlanSha256,policyPanelReceipts
+    registrationSha,target:0.995,confidence:0.95,
+    policyPlanCore,policyPlanSha256,policyPanelReceipts
   };
 }
 
@@ -164,6 +168,17 @@ test('the 128-stratum outcome ledger joins each trial to its exact V3 rank polic
   receipt.receiptSha256=sha256(receipt);
   const policyMismatch=validateFieldLedger(wrongPolicy,['paper-qualified-win'],'unqualified');
   assert.ok(policyMismatch.rejectionReasons.includes('v3-policy-panel-invalid'));
+});
+
+test('synthetic 640-win V3 ledger clears the conditional 99.5% all-win bound',()=>{
+  const result=assessPerfectField(makeV3Ledger(5));
+  assert.deepEqual(result.rejectionReasons,[]);
+  assert.equal(result.totalAttempts,640);
+  assert.equal(result.attemptsPerRankSeatAndFirstPlayer,5);
+  assert.equal(result.requiredPerRankSeatAndFirstPlayer,5);
+  assert.equal(result.conditionalStatisticalThresholdMet,true);
+  assert.ok(result.conditionalLowerBound>=0.995);
+  assert.equal(result.externalPaperAndIndependenceAuditRequired,true);
 });
 
 test('valid 32-rank policy plan core has a canonical digest and fixed bundle identity',()=>{
