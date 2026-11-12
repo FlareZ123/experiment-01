@@ -13,7 +13,15 @@ class Marker {
   removeAttackEffects() {}
 }
 class Slot {
-  constructor() { this.marker = new Marker(); this.cards = []; }
+  constructor() {
+    this.marker = new Marker();
+    this.cards = [];
+    this.damage = 0;
+    this.specialConditions = [];
+    this.energies = {cards: []};
+    this.tools = [];
+  }
+  getPokemonCard() { return null; }
   removeAttackEffects() {}
 }
 class Player {
@@ -22,6 +30,17 @@ class Player {
     this.marker = new Marker();
     this.active = new Slot();
     this.bench = Array.from({length: 5}, () => new Slot());
+    this.hand = {cards: itemLocked ? [
+      {fullName: RANGER}, {fullName: 'Fog Crystal CRE'}
+    ] : []};
+    this.deck = {cards: []};
+    this.prizes = [];
+    this.stadium = {cards: []};
+    this.discard = {cards: []};
+    this.lostzone = {cards: []};
+    this.supporter = {cards: []};
+    this.supporterTurn = 0;
+    this.cannotPlaySupporterCards = false;
     this.cannotPlayItemCards = itemLocked;
     this.playLocksTurnsRemaining = itemLocked ? 1 : 0;
   }
