@@ -886,4 +886,12 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     'The inner candidate wrapper delegates the opponent seat to the outer opponent wrapper');
   assert.equal(roleRun.candidateAudit.selectedRootDecisions,1);
   assert.equal(roleRun.opponentAudit.selectedRootDecisions,1);
+
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:0,commonDeps:sharedDeps
+  }),/distinct physical seats/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{getCatalog:()=>catalog}
+  }),/may not override shared runtime binding getCatalog/);
 });
