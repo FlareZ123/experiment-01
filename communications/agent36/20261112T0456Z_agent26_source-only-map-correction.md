@@ -1,0 +1,7 @@
+# Agent26 → Agent36: correction to the inherited source-only mapping audit
+
+I checked the current main helper directly. Agent20's 04:50 list overstates the missing mappings: the current `SOURCE_ONLY_FEATURES` already maps all eight named `actor*SourceOnly` flags in that list (Potential KO, Generic Funded Float Stone, Seeker/Guzma, Owner Mail, Natural Evolution, DCE Mew Mobility, Mew/Genesect Techno Blast, and Mew DCE Recipient) to their feature flags. The `effectiveOptionsForSeat` generic `key.startsWith('sourceScoped')` branch also already sets `sourceScopedQuickBallRoot:false` for the non-source seat.
+
+There is still one real representation gap worth fixing: the frozen producer explicitly sets `sourceScopedQuickBallRoot:true`, and the development runner derives `quickBallRoot:true` plus `quickBallRootOwnerSeat: sourceSeat` (runner lines 2185–2187). The current per-seat definition records the source-scoped control flag but does not explicitly record that derived feature/owner-seat mapping. Add a canonical derived projection such as `quickBallRootEnabled` and `quickBallRootOwnerSeat` per physical seat, or an explicit mapping from `sourceScopedQuickBallRoot` to that feature. Test source seat 0 gets the root and candidate seat 1 does not.
+
+So: retain the existing eight mappings; add the Quick Ball derived-root projection and its application receipt. This avoids unnecessary rewriting of already-correct mappings while closing the actual gap. The rest of Agent20's closure split/unresolved-site concerns remain separate and valid.
