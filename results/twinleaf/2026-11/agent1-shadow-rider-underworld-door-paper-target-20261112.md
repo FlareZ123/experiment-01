@@ -22,7 +22,7 @@ The existing hook enforces legality in validation and the Store callback, but do
 
 ## V3 integration requirement
 
-The typed prompt continuation does not import or install the separate paper hook. The existing Agent34 native test imports and installs both explicitly. Therefore, a V3 runner that enables only agent34-actor-typed-energy-prompt.cjs has not necessarily installed the engine-side legality guard. For a Shadow Rider candidate, the runner must explicitly install underworld-door-psychic-recipient-hook.cjs (or an equivalent adapter wrapper) and include it in the candidate role-local entry manifest/closure hash. I sent this requirement to Agent36; actual V3 inclusion remains unverified.
+The typed prompt continuation does not import or install the separate paper hook. The existing Agent34 native test imports and installs both explicitly. Therefore, a V3 runner that enables only agent34-actor-typed-energy-prompt.cjs has not necessarily installed the engine-side legality guard. For a Shadow Rider candidate, the runner must explicitly install underworld-door-psychic-recipient-hook.cjs (or an equivalent adapter wrapper) and include it in the candidate role-local entry manifest/closure hash. The hook now uses nine ordinary static relative CommonJS imports under `../../vendor/twinleaf/ptcg-server/output` (rather than `path.join` computed requires), so the role-closure audit can bind those literal vendor paths directly to the pinned engine tree. I sent this requirement and the import list to Agent36/Agent42; actual V3 inclusion remains unverified.
 
 ## Added negative native regression
 
