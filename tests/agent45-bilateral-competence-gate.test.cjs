@@ -741,6 +741,23 @@ test('official Aichi call must meet the stage-specific elapsed clock limit',()=>
   assert.equal(verifiedOfficialAichiClock(swissEarly),false);
 });
 
+test('resolved official calls reject extraneous extension ledgers',()=>{
+  const swiss=officialCallTrial('open-swiss',[3,3]);
+  swiss.extensionLedgerPacket={transitions:[]};
+  const swissAudit=inspectOfficialAichiClock(swiss);
+  assert.equal(swissAudit.shapeComplete,false);
+  assert.equal(swissAudit.status,'UNEXPECTED_EXTENSION_LEDGER_FOR_RESOLVED_CALL');
+  assert.equal(verifiedOfficialAichiClock(swiss),false);
+  assert.equal(evaluateBilateralCompetence(swiss).officialClockAudit,false);
+
+  const knockout=officialCallTrial('open-top32',[2,3]);
+  knockout.extensionLedgerPacket={transitions:[]};
+  const knockoutAudit=inspectOfficialAichiClock(knockout);
+  assert.equal(knockoutAudit.shapeComplete,false);
+  assert.equal(knockoutAudit.status,'UNEXPECTED_EXTENSION_LEDGER_FOR_RESOLVED_CALL');
+  assert.equal(verifiedOfficialAichiClock(knockout),false);
+});
+
 test('official Aichi call rejects stage mismatch and wrong clock or paper source',()=>{
   const trial=officialCallTrial();
   trial.timeCallPacket.stage='open-final';
