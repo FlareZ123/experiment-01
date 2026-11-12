@@ -9,6 +9,10 @@ const {runDevelopment}=
 const mew=require('./agent8-source-mew-funding-v6.cjs');
 const {createLivePaperRootReceipts}=
   require('../../twinleaf/agent36-live-paper-root-receipts.cjs');
+const {withNativeRawStateFallbackQuarantine}=
+  require('../../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+const {withOwnerPublicAcknowledgements}=
+  require('../../twinleaf/agent50-owner-public-acknowledgements.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REGPATH='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
@@ -117,9 +121,11 @@ function execute(){
     reg.preRegisteredTrials[0].id);
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition,true);
-  let development;
-  try{
-    development=runDevelopment({
+  const guardedRun=withNativeRawStateFallbackQuarantine(()=>
+    withOwnerPublicAcknowledgements(()=>{
+      let development;
+      try{
+        development=runDevelopment({
     ...frozen.policyOptions,...mew.options(true),
     sourceIndependentCommonPolicy:true,
     // Preserve frozen bilateralPublicContextSpecialEnergy; narrow root is exclusive.
@@ -157,10 +163,16 @@ function execute(){
       capture.onRootActionDispatched(...args);
       fullPaperObserver.onRootActionDispatched(...args);
     }
-    });
-  }finally{
-    fullPaperObserver.close();
-  }
+        });
+      }finally{
+        fullPaperObserver.close();
+      }
+      return development;
+    })
+  );
+  const development=guardedRun.result.result;
+  const ownerPublicAcknowledgementAudit=guardedRun.result.audit;
+  const nativeRawStateFallbackQuarantineAudit=guardedRun.audit;
   const rawNativePhysicalReceipts=fullPaperObserver.result();
   assert.equal(development.rows.length,1);
   const row=development.rows[0];
@@ -198,6 +210,11 @@ function execute(){
       receipt.seat===nativeRoots[i]?.playerSlot&&
       receipt.action===nativeRoots[i]?.action);
   const targetLinked=row.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
+  const promptQuarantineClean=
+    nativeRawStateFallbackQuarantineAudit.rawStateFallbackCalls===0&&
+    nativeRawStateFallbackQuarantineAudit.originalNativeDecoderExecuted===false;
+  const ownerAcknowledgementsComplete=
+    ownerPublicAcknowledgementAudit.confirmPromptDefaultEquivalent===true;
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
     [false,'verified-exact-Japanese-candidate-physical-printings-not-in-published-transcription'],
@@ -207,6 +224,8 @@ function execute(){
     [rawNativeReceiptCaptureComplete,'all-root-raw-physical-payment-and-energy-receipts'],
     [rawNativePhysicalReceipts?.settledPhysicalIdentityClean===true,
       'raw-physical-card-custody-conservation'],
+    [promptQuarantineClean,'no-unhandled-native-decoder-fallback'],
+    [ownerAcknowledgementsComplete,'default-owner-public-acknowledgement-audit'],
     [targetLinked,'post-Store-accepted-targets-and-root-linkage'],
     [physicalPassed,'settled-physical-card-custody'],
     [false,'official-Aichi-match-stage-continuous-clock-and-no-call-witness'],
@@ -240,6 +259,9 @@ function execute(){
       fullDealSha256:row.fullPhysicalDealFingerprint??null,
       physicalZoneQualification:row.physicalZoneQualification??null,
       rawNativePhysicalReceiptCaptureComplete,
+      promptQuarantineClean,ownerAcknowledgementsComplete,
+      nativeRawStateFallbackQuarantineAudit,
+      ownerPublicAcknowledgementAudit,
       rawNativePhysicalReceiptSummary:{
         schema:rawNativePhysicalReceipts?.schema??null,
         originalPhysicalCardCount:rawNativePhysicalReceipts?.originalPhysicalCards?.length??0,
@@ -294,8 +316,10 @@ function execute(){
     releaseStatus:{
       captureComplete:false,
       rawPhysicalReceiptCaptureComplete:rawNativeReceiptCaptureComplete,
+      promptQuarantineClean,ownerAcknowledgementsComplete,
       nativeTraceCaptureComplete:physicalDeal&&nativeTraceComplete&&
-        rawNativeReceiptCaptureComplete&&targetLinked&&physicalPassed&&nativeFinished,
+        rawNativeReceiptCaptureComplete&&promptQuarantineClean&&
+        ownerAcknowledgementsComplete&&targetLinked&&physicalPassed&&nativeFinished,
       rulesPassed:false,clockPassed:false,strategyPassed:false,
       reviewAuthorized:false,competitiveAdmission:false,
       firstMissingEvidence:firstMissing,
@@ -306,6 +330,7 @@ function execute(){
   return {schema:intake.schema,registration:reg,registrationSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
+    nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
     nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v2',
       sameOriginalSourceAndFixedCandidateSixties:true,
       preservedNoReview:true},qualifications:intake.releaseStatus};
