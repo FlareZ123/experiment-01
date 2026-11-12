@@ -283,29 +283,31 @@ function buildPolicyProvenance({repositoryRoot, entryFile, options,
       complete: false, policySha256BySeat: null, samePolicy: false,
       reason: 'loaded-research-code-manifest-incomplete'
     };
+  const policyManifest = {
+    schema: 'agent36-effective-bilateral-policy-manifest-v1',
+    complete: policy.complete,
+    samePolicy: policy.samePolicy,
+    reason: policy.reason,
+    hookRevisionSha: hookManifest.sha256,
+    environmentSha256: hookManifest.environment?.sha256??null,
+    policyVersion: policyVersion??null,
+    candidatePolicy: candidatePolicy??null,
+    sourceSeat, candidateSeat,
+    activationAudit: activationAudit??null,
+    requestedOptions: options??null,
+    sourceOnlyFeatureMap: SOURCE_ONLY_FEATURES,
+    sourceScopedOptions: SOURCE_SCOPED_OPTIONS,
+    policySha256BySeat: policy.policySha256BySeat??null,
+    perSeat: policy.perSeat ?? null,
+    unknownSourceOnlyFlags: policy.unknownSourceOnlyFlags ?? [],
+    configurationRoots: CORE_HOOK_ROOTS
+  };
   return {
     hookRevisionSha: hookManifest.sha256,
     hookManifest,
     policySha256BySeat: policy.policySha256BySeat,
-    policyManifest: {
-      schema: 'agent36-effective-bilateral-policy-manifest-v1',
-      complete: policy.complete,
-      samePolicy: policy.samePolicy,
-      reason: policy.reason,
-      hookRevisionSha: hookManifest.sha256,
-      environmentSha256: hookManifest.environment?.sha256??null,
-      policyVersion: policyVersion??null,
-      candidatePolicy: candidatePolicy??null,
-      sourceSeat, candidateSeat,
-      activationAudit: activationAudit??null,
-      requestedOptions: options??null,
-      sourceOnlyFeatureMap: SOURCE_ONLY_FEATURES,
-      sourceScopedOptions: SOURCE_SCOPED_OPTIONS,
-      policySha256BySeat: policy.policySha256BySeat??null,
-      perSeat: policy.perSeat ?? null,
-      unknownSourceOnlyFlags: policy.unknownSourceOnlyFlags ?? [],
-      configurationRoots: CORE_HOOK_ROOTS
-    }
+    policyManifest,
+    policyManifestSha256: sha256(policyManifest)
   };
 }
 
