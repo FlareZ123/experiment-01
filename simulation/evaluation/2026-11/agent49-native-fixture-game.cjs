@@ -361,8 +361,8 @@ function runNativeFixtureGame(input) {
       rootActionLedger,
       decisionTraceSha256:sha256Json(decisionTrace),
       rootActionLedgerSha256:sha256Json(rootActionLedger),
-      failedAction:failedRecord&&failedRecord.dispatchStatus!=='succeeded'?
-        failedRecord:null,
+      failedAction:failedRecord&&failedRecord.dispatchStatus!=='succeeded'&&
+        failedRecord.actionName?failedRecord:null,
       finalPublicState,
       finalPublicStateSha256:finalPublicState===null?null:sha256Json(finalPublicState),
       finalFullState,
@@ -448,6 +448,16 @@ function runNativeFixtureGame(input) {
       let promptResolverContext=null;
       let policyInputKind='native-prompt';
       if(pending instanceof ShuffleDeckPrompt) {
+        failureContext={
+          stage:'physical-prompt-resolution',
+          record:{
+            actionOrdinal,actingSeat:inferredPromptSeat(state,pending),
+            actingPlayerId:inferredPromptSeat(state,pending)===null?null:
+              PLAYER_IDS[inferredPromptSeat(state,pending)],
+            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
+          }
+        };
         const ownerId=pending.getPerspectivePlayerId();
         const owner=state.players.find(player=>player.id===ownerId);
         if(!owner) throw new Error('Twinleaf shuffle prompt has no deck owner');
@@ -462,6 +472,16 @@ function runNativeFixtureGame(input) {
         };
         policyInputKind='physical-randomization-prompt';
       } else if(pending instanceof CoinFlipPrompt) {
+        failureContext={
+          stage:'physical-prompt-resolution',
+          record:{
+            actionOrdinal,actingSeat:inferredPromptSeat(state,pending),
+            actingPlayerId:inferredPromptSeat(state,pending)===null?null:
+              PLAYER_IDS[inferredPromptSeat(state,pending)],
+            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
+          }
+        };
         if(pending.playerId!==undefined) {
           const seat=state.players.findIndex(player=>player.id===pending.playerId);
           actingSeat=seat===-1?null:seat;
@@ -474,8 +494,16 @@ function runNativeFixtureGame(input) {
         actingSeat=state.players.findIndex(player=>player.id===pending.playerId);
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Unknown Twinleaf prompt player: '+pending.playerId);
-        action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
+        failureContext={
+          stage:'prompt-resolver-decode',
+          record:{
+            actionOrdinal,actingSeat,actingPlayerId:PLAYER_IDS[actingSeat],
+            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
+          }
+        };
         policyInputKind='native-owner-prompt';
+        action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
           throw new Error('Unhandled Twinleaf game phase: '+state.phase);
@@ -483,6 +511,14 @@ function runNativeFixtureGame(input) {
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Twinleaf activePlayer is outside the two seats');
         isRootDecision=true;
+        failureContext={
+          stage:'policy-decode',
+          record:{
+            actionOrdinal,actingSeat,actingPlayerId:PLAYER_IDS[actingSeat],
+            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
+          }
+        };
         if(typeof native.observe==='function')
           actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
@@ -491,22 +527,45 @@ function runNativeFixtureGame(input) {
 
       if(!action)
         throw new Error('Native fixture policy failed to produce an action');
+      failureContext={
+        stage:'trace-prepare',
+        record:{
+          actionOrdinal,actingSeat,
+          actingPlayerId:actingSeat===null?null:PLAYER_IDS[actingSeat],
+          phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+          actionName:actionName(action),actionPayloadSha256:null,
+          dispatchStatus:'not-dispatched'
+        }
+      };
       const actionPayload=projectActionPayload(action);
       const actionPayloadSha256=sha256Json(actionPayload);
+      failureContext.record.actionPayloadSha256=actionPayloadSha256;
       const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const targetProjection=action instanceof native.cardActions.PlayCardAction?
         projectJsonSafe(action.target??null):null;
       if(pending) {
         const promptSnapshot=fullStateBefore?.prompts?.find(prompt=>
           prompt.id===pendingPromptId)??projectJsonSafe(pending);
+        const promptFields=promptSnapshot?.fields??promptSnapshot??{};
         promptResolverContext={
           promptId:pendingPromptId,
           promptType:pendingPromptType,
           playerId:pending.playerId??null,
-          perspectivePlayerId:pending instanceof ShuffleDeckPrompt?
-            pending.getPerspectivePlayerId():null,
+          perspectivePlayerId:promptSnapshot?.perspectivePlayerId??
+            (typeof pending.getPerspectivePlayerId==='function'?
+              pending.getPerspectivePlayerId():pending.playerId??null),
+          actingSeat,
           resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
             'physical-randomization':'native-prompt-resolver',
+          message:promptFields.message??promptFields.text??null,
+          availableOptions:{
+            cards:promptFields.cards??null,
+            options:promptFields.options??null,
+            choices:promptFields.choices??null,
+            targets:promptFields.targets??null,
+            availableCards:promptFields.availableCards??null,
+            eligibleCards:promptFields.eligibleCards??null
+          },
           promptSnapshot
         };
       }
@@ -557,6 +616,7 @@ function runNativeFixtureGame(input) {
         failure:null
       };
       rootActionLedger.push(ledgerRecord);
+      failureContext=null;
 
       try {
         store.dispatch(action);
@@ -613,7 +673,11 @@ function runNativeFixtureGame(input) {
       }
       ledgerRecord.turnAfter=store.state.turn;
       ledgerRecord.dispatchStatus='succeeded';
-      input.onAction?.(record);
+      if(input.onAction) {
+        failureContext={stage:'on-action-callback',record};
+        input.onAction(record);
+        failureContext=null;
+      }
     }
 
     if(store.state.phase!==GamePhase.FINISHED) {
