@@ -299,4 +299,11 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     ...common,preDeal:changedArtifactDigest,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
+
+  const changedArtifactRef={...common.preDeal,
+    preDealArtifactRef:'results/retroactive-or-uncommitted.json'};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDeal:changedArtifactRef,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
 });
