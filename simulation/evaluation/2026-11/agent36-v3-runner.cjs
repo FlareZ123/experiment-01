@@ -147,6 +147,16 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
     'card-pool receipt must bind the ordered startup set list');
   assert.match(cardPoolInitialization.startupSha256??'',SHA256,
     'card-pool startup source hash is invalid');
+  assert.equal(cardPoolInitialization.startupPath,'vendor/twinleaf/ptcg-server/start.js',
+    'card-pool receipt must identify the pinned Twinleaf startup file');
+  assert.equal(cardPoolInitialization.definedSetCount,cardPoolInitialization.setNames.length,
+    'card-pool receipt set count differs from the ordered set list');
+  assert.ok(Number.isInteger(cardPoolInitialization.cardCount)&&cardPoolInitialization.cardCount>0,
+    'card-pool receipt must attest a nonempty card pool');
+  assert.equal(candidateManifest?.manifest?.enginePin,cardPoolInitialization.enginePin,
+    'candidate entry manifest engine pin differs from card-pool initialization');
+  assert.equal(opponentManifest?.manifest?.enginePin,cardPoolInitialization.enginePin,
+    'opponent entry manifest engine pin differs from card-pool initialization');
   const combined=identityHelper.combineRolePolicyEntryManifests(
     candidateManifest,opponentManifest);
   const loaded=identityHelper.assertLoadedResearchModulesCovered(
