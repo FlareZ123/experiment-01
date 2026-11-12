@@ -165,6 +165,7 @@ function buildCaptureOnlyPolicyProvenance({
     activatedHookManifest,
     policyEntryManifest,
     policyManifest,
+    policyManifestSha256: sha256(policyManifest),
     hookRevisionSha: null,
     policySha256BySeat: [null, null],
     samePolicy: false,
