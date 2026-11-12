@@ -243,7 +243,7 @@ function formatFixtureGameTraceText(game) {
   ];
   for (const row of game?.decisionTrace ?? []) {
     lines.push('');
-    lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision} inputKind=${row.policyInputKind ?? 'unknown'}`);
+    lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision} inputKind=${row.policyInputKind ?? 'unknown'} dispatch=${row.dispatchStatus ?? 'unknown'}`);
     if (row.selectedCardIdentity) lines.push(`SELECTED CARD ${JSON.stringify(row.selectedCardIdentity)}`);
     const isActorObservationInput = row.policyInputKind === undefined || row.policyInputKind === 'actor-observation';
     const actorObservationBefore = isActorObservationInput ?
@@ -258,6 +258,7 @@ function formatFixtureGameTraceText(game) {
     if (row.promptResolution) lines.push(`PROMPT RESOLUTION ${JSON.stringify(row.promptResolution)}`);
     if (row.actionPayloadSha256) lines.push(`ACTION PAYLOAD SHA256 ${row.actionPayloadSha256}`);
     if (row.actionPayload) lines.push(`ACTION PAYLOAD ${JSON.stringify(row.actionPayload)}`);
+    if (row.failure) lines.push(`ACTION FAILURE ${JSON.stringify(row.failure)}`);
     if (row.fullStateBefore) {
       lines.push('--- BEFORE ---');
       lines.push(formatFullGameStateText(row.fullStateBefore));
@@ -266,6 +267,22 @@ function formatFixtureGameTraceText(game) {
       lines.push('--- AFTER ---');
       lines.push(formatFullGameStateText(row.fullStateAfter));
     }
+  }
+  if (game?.failedAction) {
+    lines.push('');
+    lines.push(`FAILED ACTION ${JSON.stringify(game.failedAction)}`);
+  }
+  if (game?.finalPublicState) {
+    lines.push('');
+    lines.push(`FINAL PUBLIC STATE ${JSON.stringify(game.finalPublicState)}`);
+  }
+  if (game?.finalFullState) {
+    lines.push('');
+    lines.push('--- FINAL FULL STATE ---');
+    lines.push(formatFullGameStateText(game.finalFullState));
+  }
+  if (game?.finalDiagnosticFailure) {
+    lines.push(`FINAL DIAGNOSTIC FAILURE ${JSON.stringify(game.finalDiagnosticFailure)}`);
   }
   if (game?.failure) {
     lines.push('');
