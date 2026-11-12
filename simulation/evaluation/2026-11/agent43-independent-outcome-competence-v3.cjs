@@ -25,7 +25,7 @@ const POLICY_ATTESTATION_SCHEMA = 'aichi-policy-competence-attestation-v1';
 const POLICY_ATTESTATION_BUNDLE_SCHEMA = 'aichi-policy-attestation-bundle-v1';
 const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
 const POLICY_APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
-const OFFSET_ISO_DATE_TIME = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/;
+const OFFSET_ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 
 /** @param {unknown} value @returns {boolean} */
 function nonempty(value) {
