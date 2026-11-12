@@ -129,11 +129,14 @@ test('public Actions artifact path exposes only encrypted fixture diagnostics', 
   const uploadIndex = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
   assert.ok(encryptionIndex >= 0 && uploadIndex > encryptionIndex,
     'private diagnostic encryption must run before artifact upload');
+  const encryptionBlock = workflow.slice(encryptionIndex, uploadIndex);
+  assert.match(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*!inputs\.contract_only\s*\}\}/);
   assert.match(workflow, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{\s*vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM\s*\}\}/);
   assert.match(workflow, /run: node simulation\/evaluation\/2026-11\/agent1-private-diagnostic-envelope\.cjs encrypt-fixture-artifacts artifacts\/agent36-v3-fixture/);
   const uploadBlock = workflow.slice(uploadIndex, workflow.indexOf('\n      - name:', uploadIndex + 1) < 0
     ? workflow.length
     : workflow.indexOf('\n      - name:', uploadIndex + 1));
+  assert.match(uploadBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*!inputs\.contract_only\s*\}\}/);
   const fixturePaths = uploadBlock.split('\n').map(line => line.trim())
     .filter(line => line.includes('artifacts/agent36-v3-fixture/'));
   assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.private.enc.json'));
