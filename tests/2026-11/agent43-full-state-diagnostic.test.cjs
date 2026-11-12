@@ -141,6 +141,15 @@ test('trace formatter emits selected card and before/after full state changes', 
     competitiveGameQualified: false,
     trialId: 'fixture-1',
     seed: 1,
+    candidateSeat: 0,
+    opponentSeat: 1,
+    candidateDeckSha256: 'candidate-deck-hash',
+    opponentDeckSha256: 'opponent-deck-hash',
+    candidateIdentity: { policyId: 'candidate-policy' },
+    opponentIdentity: { policyId: 'opponent-policy' },
+    policyConstraintsSha256: 'constraints-hash',
+    cardPoolSha256: 'card-pool-hash',
+    fieldSha256: 'field-hash',
     actualFirstPlayerSeat: 1,
     finished: true,
     endReason: 'natural-terminal',
@@ -166,6 +175,15 @@ test('trace formatter emits selected card and before/after full state changes', 
     }],
     failure: null,
   });
+  assert.match(text, /candidateSeat=0/);
+  assert.match(text, /opponentSeat=1/);
+  assert.match(text, /candidateDeckSha256=candidate-deck-hash/);
+  assert.match(text, /opponentDeckSha256=opponent-deck-hash/);
+  assert.match(text, /candidate-policy/);
+  assert.match(text, /opponent-policy/);
+  assert.match(text, /constraints-hash/);
+  assert.match(text, /card-pool-hash/);
+  assert.match(text, /field-hash/);
   assert.match(text, /ACTION #0 turn=1 seat=0/);
   assert.match(text, /SELECTED CARD .*A Hand 1/);
   assert.match(text, /ACTOR OBSERVATION SHA256 view123/);
