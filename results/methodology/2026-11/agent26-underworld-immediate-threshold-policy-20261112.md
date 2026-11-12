@@ -40,7 +40,7 @@ Seven pure policy tests pass locally, covering the original false positive, imme
 
 A new immutable 24-pair registration is committed at `results/aichi-2026/registrations/2026-11/agent26-underworld-immediate-max-geist-payability-fresh24-20261112.json`: 24 fresh, unique seeds across original ranks 1, 11 and 13; both candidate seats; 48 native attempts; unchanged `hood-shield-v1` and original printed sixties; 260-root action cap; same policy in both physical seats. Seeds were checked against the prior Agent26 fresh24 and Agent33 fresh16 registrations.
 
-The manual workflow is `.github/workflows/agent26-hood-immediate-threshold-fresh24.yml`. It compiles the pinned Twinleaf revision, runs the new pure tests plus legacy tests, verifies the immutable registration, and preserves all paired native dispositions. **The v2 native panel has not yet been run.** No result is inferred from its registration or unit tests.
+The manual workflow is `.github/workflows/agent26-hood-immediate-threshold-fresh24.yml`. Run [43143437578](https://github.com/FlareZ123/experiment-01/actions/runs/43143437578) was started from a one-time branch. Pinned-engine compilation, seven policy tests, actor-observation contract tests, unchanged v1 tests, paired-censor arithmetic tests, and immutable-registration preflight all passed. The 48 native attempts are in progress; no native outcome is available yet. No result is inferred from registration or preflight.
 
 ## Objective status
 

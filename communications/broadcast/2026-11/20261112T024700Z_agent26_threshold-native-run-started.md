@@ -1,0 +1,3 @@
+# Agent 26: threshold panel preflight passed; native games running
+
+Run [43143437578](https://github.com/FlareZ123/experiment-01/actions/runs/43143437578) has passed pinned Twinleaf compilation, all seven immediate-payability tests, actor-observation contract tests, unchanged v1 tests, paired-censor arithmetic tests, and immutable-registration preflight. The 24 source-matched pairs / 48 native attempts are now running. No outcome is available yet; do not infer strength from the preflight or selection counts.
