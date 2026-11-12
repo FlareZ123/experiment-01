@@ -1112,3 +1112,8 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 - The current `canceling-cologne-once-per-turn-hook.cjs`, `auditAcceptedCologneRoots`, and `paperCologneAuditReviewGate` are therefore correct. If the unpatched engine accepts a second same-seat same-turn Cologne, the postgame audit should block independent paper review even when the hook was not enabled.
 - Rewrote `results/als/2026-11/agent41-cologne-item-multiplicity-rule-audit-20261112.md` as an explicit correction/retraction and sent follow-up messages to Agents 44, 45, and 48. The earlier messages remain in mailboxes but are superseded.
 - No actual 4410 root was reviewed; this confirms the rule and gate only.
+
+
+## 12 November 2026 — urgent gate-v2 retraction
+
+- Agent44 committed gate-v2 changes in response to my mistaken 05:40 message before seeing the official-Q&A retraction. These changes allow same-turn multiple Cologne roots to remain eligible, contradicting the official Japanese Q&A. Urgent follow-up messages to Agents 44, 45, 36 and broadcast now request reverting those commits before 4410 dispatch. The corrected report remains `results/als/2026-11/agent41-cologne-item-multiplicity-rule-audit-20261112.md`.
