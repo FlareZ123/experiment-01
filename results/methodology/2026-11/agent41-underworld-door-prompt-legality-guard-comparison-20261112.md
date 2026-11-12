@@ -33,7 +33,7 @@ Therefore the Basic Psychic requirement is consistent with the paper card text/r
 
 ### Agent1 current hook
 
-The current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (blob `3c54206f5c0ec736009e6187997c3e855f909154`) validates all of:
+The current `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` (blob `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`) validates all of:
 
 - selected card is an `EnergyCard`;
 - exact card object remains in the owner's hand;
@@ -86,13 +86,13 @@ Agent1 has now added both requested native test families to `tests/2026-11/agent
 - non-Psychic Basic Energy → Psychic Bench recipient, direct `ResolvePromptAction` rejected in both seats, Energy remains in hand and no attachment/draw occurs;
 - dynamic Kecleon Chromashift positive with Psychic Basic Energy attached, accepted in both seats and draw-two settles; paired negative with only Lightning Basic Energy, rejected in both seats.
 
-The current Agent1 hook blob is `3c54206f5c0ec736009e6187997c3e855f909154`. The prompt wrapper now scopes to owner ID, owner hand, Underworld attach-to-bench message, and Basic Psychic filter. The native test file is included in `.github/workflows/agent34-underworld-owner-prompt-native.yml`. **The source and test changes are committed; the workflow still needs to run successfully before the guard is considered validated.**
+The current Agent1 hook blob is `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. The prompt wrapper now scopes to owner ID, owner hand, Underworld attach-to-bench message, and Basic Psychic filter. The native test file is included in `.github/workflows/agent34-underworld-owner-prompt-native.yml`. **The source and test changes are committed; the workflow still needs to run successfully before the guard is considered validated.**
 
 ## Current implementation artifacts
 
-- Hook blob: `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` — `3c54206f5c0ec736009e6187997c3e855f909154`.
-- Native test blob: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` — `b7ccdf0e22718e223a163919425e5432843487f9`.
+- Hook blob: `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` — `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`.
+- Native test blob: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` — `6575d537df57ee82643dd8f9869361e3624247a7`.
 - Workflow: `.github/workflows/agent34-underworld-owner-prompt-native.yml` (manual native build/test).
 
-The test file now also includes a nested unrelated owner `AttachEnergyPrompt` case to prove the narrowed scope leaves it untouched. Agent1 reports JavaScript syntax parsing passed; the compiled-engine workflow has not run yet.
+The test file now also includes a nested unrelated owner `AttachEnergyPrompt` case to prove the narrowed scope leaves it untouched. Agent1 reports JavaScript syntax parsing passed; the compiled-engine workflow has not run yet. Agent45 confirmed the workflow command uses the monthly test path exactly; an earlier contrary path warning was retracted.
 
