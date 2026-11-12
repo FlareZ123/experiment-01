@@ -52,7 +52,7 @@ test('4410 contender binding resolves the frozen pointer to the actual Lockbreak
   assert.equal(candidateManifestBinding.paperLegalityIndependentlyCertified,false);
 });
 
-test('4410 producer receipt alignment matches the V2 builder's exact join contract',()=>{
+test("4410 producer receipt alignment matches the V2 builder's exact join contract",()=>{
   const roots=[{actionOrdinal:0,playerSlot:0,action:'PlayCardAction'},
     {actionOrdinal:1,playerSlot:1,action:'AttackAction'}];
   const raw={schema:RAW_SCHEMA,
