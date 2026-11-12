@@ -21,6 +21,34 @@ test('frozen 4410 registration remains unchanged and is the V2 release producer'
   assert.equal(registrationSha256.length,64);
 });
 
+test('4410 contender binding resolves the frozen pointer to the actual Lockbreaker Japanese 60',()=>{
+  const {reg,candidateManifestBinding,candidatePrintedInventorySha256,
+    candidateOfficialJapaneseDeckCode,candidateDerivedFromOfficialJapaneseSourceDeckCode}=registration();
+  assert.equal(reg.candidateId,'new-moon-lockbreaker-v1');
+  assert.equal(reg.candidatePrintedManifest,'results/als/new-moon-perfection-source-60.json');
+  assert.equal(candidateManifestBinding.schema,'agent44-candidate-print-manifest-binding-v1');
+  assert.equal(candidateManifestBinding.status,
+    'PRE_EXECUTION_CORRECTIVE_BINDING_NOT_A_NEW_REGISTRATION');
+  assert.equal(candidateManifestBinding.registrationCandidateManifestPointerMatches,false);
+  assert.equal(candidateManifestBinding.boundCandidateJapanesePrintManifest,
+    'results/als/new-moon-lockbreak-japanese-print-60.json');
+  assert.equal(candidateManifestBinding.boundEnglishMechanicalProxyManifest,
+    'results/als/new-moon-lockbreak-english-proxy-60.json');
+  assert.equal(candidateManifestBinding.candidateJapanesePrintInventoryCanonicalSha256,
+    '13bbed10dc9610e8457a653262717dc35f865324726da6434e3c1710d8db9047');
+  assert.equal(candidatePrintedInventorySha256,
+    candidateManifestBinding.candidateJapanesePrintInventoryCanonicalSha256);
+  assert.equal(candidateManifestBinding.candidatePrintedCardCount,60);
+  assert.equal(candidateManifestBinding.candidateUniqueNameCount,34);
+  assert.deepEqual(candidateManifestBinding.candidateNameCountParity,{names:34,cards:60});
+  assert.equal(candidateManifestBinding.nativeCandidateLoaderNameCountParity,true);
+  assert.equal(candidateOfficialJapaneseDeckCode,null,
+    'The derived candidate has no official Japanese deck code of its own');
+  assert.equal(candidateDerivedFromOfficialJapaneseSourceDeckCode,
+    'GxxDYx-a4rD4W-a8xYxc');
+  assert.equal(candidateManifestBinding.paperLegalityIndependentlyCertified,false);
+});
+
 test('4410 producer receipt alignment matches the V2 builder's exact join contract',()=>{
   const roots=[{actionOrdinal:0,playerSlot:0,action:'PlayCardAction'},
     {actionOrdinal:1,playerSlot:1,action:'AttackAction'}];
@@ -60,6 +88,9 @@ test('4410 intake exposes registration pointer, runtime revision and exact build
   assert.match(source,/registrationRef:REGPATH/);
   assert.match(source,/researchRevisionSha:process\.env\.GITHUB_SHA/);
   assert.match(source,/rootReceiptAlignment,/);
+  assert.match(source,/candidateManifestBinding/);
+  assert.match(source,/new-moon-lockbreak-japanese-print-60/);
+  assert.match(source,/new-moon-lockbreak-english-proxy-60/);
   assert.match(source,/const rawNativeReceiptCaptureComplete=rootReceiptAlignment\.complete/);
   assert.match(source,/actualEngineCommit,reg\.enginePinnedCommit/);
 });
