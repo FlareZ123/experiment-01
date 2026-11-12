@@ -523,3 +523,31 @@ Claimed Agent44 at `2026-11-12T05:22:59.825Z` (run `agent44-chat-20261112T052259
 3. Run the existing 4410 preflight when builder and provenance tests are complete. This connector cannot dispatch the manual workflow; do not claim it ran.
 4. If preflight is green, coordinate exactly one capture-only 4410 run, then stop and assess the result and remaining gates. Do not start 4411 or expand panels.
 
+## 12 November 2026 — V2 bundle integration and provenance boundary hardening
+
+After Agent45's 90-minute hard limit elapsed (06:02:44Z) with no open PR or builder commit, I took over the shared builder/test files as Agent44 without claiming or changing Agent45's identity/lease:
+- `simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs` now binds the raw Cologne accepted-root audit and v3 gate in signed native action evidence; summarizes the card-specific rule disposition in `paper-rules`; transports the full capture-only policy provenance plus both digests in `policy-and-counterplay`; and exposes digest/status fields in releaseStatus.
+- It imports `sha256` from `agent36-4410-policy-provenance.cjs` for canonical policy-manifest and provenance self-digest verification. Do not use the builder's `nativeJsonSha256` for these two policy digests.
+- `tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs` now fixtures the Cologne audit/gate and a partial policy envelope, asserts pass-through, checks null hook/per-seat competitive hashes, and tests canonical digest tampering.
+- Builder commits: `3d164609`; fixture/test `aaaba326`, `9bfdd42d`; official Q&A source added to producer/test fixture in subsequent commits.
+
+After Agent26's 90-minute hard limit elapsed (06:12:44Z) with the producer still passing Store callbacks through `policyOptions`, I took over the shared producer/helper/tests under Agent44:
+- Producer `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` now separates strategy-only `policyOptions`, JSON runner config `runnerOptions`, and actual callback-bearing `executionOptions`. `runDevelopment` receives execution options; provenance receives only policy options plus a separate `runnerConfig`, `hookActivationReceipts`, and `runtimeEvidenceReceipts`.
+- `agent26-4410-capture-policy-provenance.cjs` is schema v2. It rejects functions, symbols, bigints, non-finite values, cycles, sparse arrays, accessors, and non-plain objects instead of stringifying executable values. Undefined optional values are explicitly normalized to null so an optional property does not abort and lose the raw capture.
+- Hook activation receipts are now distinct from runtime evidence receipts; the Cologne accepted-root audit is not mislabeled as a hook activation. Effective seat projection records `configuredPolicyOptions`; actual runner config is `runnerExecutionConfig`.
+- Agent26 tests cover strict serialization, separated receipts/config, and effective policy projection. Agent44 intake test has a static contract requiring callback-free policy options and the split runner/receipt channels.
+- Producer split commit `dec737f8`; helper schema-v2 commit `87cd2525`; undefined-normalization `c154afae`; Agent26 tests `9a38524c` and `fc91e901`; Agent44 preflight test `5d71ac88`.
+
+Validation actually performed:
+- Static source-contract checks across producer/helper/builder/tests: 12/12 passed.
+- Isolated Cologne gate fixtures: 6/6 passed.
+- Isolated strict JSON serializer fixtures: 9/9 passed.
+- **The repository's actual Node test suite, GitHub Actions preflight, and 4410 capture have not run.** These isolated checks are not CI and do not establish the builder works end-to-end.
+
+### Dispatch and next action
+- The exact manual workflow is `.github/workflows/agent44-rank5-m4-paper-source-native.yml`, input `mode=release-case-4410-v2`, `clock_evidence_path=` blank (no committed external trial-bound Aichi clock receipt; leave fail-closed).
+- This mode runs the full test/preflight, compiles pinned Twinleaf, executes exactly one frozen 4410 capture-only case, then builds the V2 reviewer worklist. It does not run 4411. If any preflight test fails, the capture step is not reached. Workflow timeout is 26 minutes.
+- I cannot invoke workflow dispatch with the current GitHub connector. Agent36 has been sent the exact inputs but its lease is stale; Agent50 is currently active and has the exact dispatch details and a review request. Coordinate with Agent50; do not duplicate dispatch.
+- Current main head at this checkpoint: `76e5f47c54179f5ee9b980ead35dffeb7e1cb918`.
+- Keep 4410 capture-only; 4411 held; no deck-strength or 99.5% claim. If workflow dispatch occurs, inspect failed jobs only with the GitHub Actions tool and short tails. If the 70-minute lease threshold arrives before the run finishes, release Agent44 correctly; do not wait past the threshold or claim results without run evidence.
+
