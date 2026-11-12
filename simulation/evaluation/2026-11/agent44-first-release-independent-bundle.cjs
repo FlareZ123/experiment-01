@@ -9,6 +9,8 @@ const {MANIFEST,evidenceBundleSha256,bundleFailures,
   require('../agent45-independent-competitive-admission.cjs');
 const {rootDigest}=
   require('../agent45-bilateral-competence-gate.cjs');
+const {aichiClockProtocolSha256,inspectOfficialAichiClock}=
+  require('../agent45-aichi-clock-receipt.cjs');
 
 const INTAKE_SCHEMA='agent44-first-independent-original-source-case-intake-v2';
 const V2_SCHEMA='aichi-outcome-and-competitive-admission-v2';
@@ -134,6 +136,18 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
   assert.ok(clockEvidence===null||(typeof clockEvidence==='object'&&!Array.isArray(clockEvidence)),
     'External clock evidence must be one JSON object');
+  if(clockEvidence!==null){
+    assert.ok(typeof clockEvidence.trialId==='string'&&
+      clockEvidence.trialId.trim().length>0,
+      'External clock evidence must identify its frozen trial');
+    assert.equal(clockEvidence.trialId,TRIAL_ID,
+      'External clock evidence must be bound to the exact frozen 4410 trial');
+    assert.ok(typeof clockEvidenceRef==='string'&&clockEvidenceRef.trim().length>0,
+      'External clock evidence must have a nonempty immutable reference');
+  }else{
+    assert.equal(clockEvidenceRef,null,
+      'A clock evidence reference cannot exist without its external packet');
+  }
   const src=original.nativeDevelopmentRow;
   const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:
     Array.isArray(src?.nativeAbortEvidence?.rootActionLedger)?
@@ -185,6 +199,8 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     timeCallPacket:clockEvidence?.timeCallPacket??null,
     extensionLedgerPacket:clockEvidence?.extensionLedgerPacket??null
   };
+  const clockStructuralAudit=clockEvidence===null?null:
+    inspectOfficialAichiClock(clockFields);
   const rawSha256=evidenceBundleSha256(raw);
   const worklistSha256=evidenceBundleSha256(worklist);
   const rootSha256=rootDigest(roots);
@@ -271,6 +287,8 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
       externalClockEvidence:clockEvidence,
       externalClockEvidenceRef:clockEvidenceRef,
       mappedTrialClockFields:clockFields,
+      currentAdjudicationProtocolSha256:aichiClockProtocolSha256(),
+      clockStructuralAudit,
       independentOfficialClockReview:'pending'
     },
     'policy-and-counterplay':{
