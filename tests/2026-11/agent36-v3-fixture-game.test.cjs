@@ -127,22 +127,22 @@ test('private fixture artifact workflow fails closed before native compile and o
     'key validation, compile, game, encryption, and upload must occur in that order');
 
   const keyGuard = workflow.slice(keyGuardAt, compileAt);
-  assert.match(keyGuard, /if: \\$\\{\\{ inputs\\.agent36_v3_fixture_game \\}\\}/);
-  assert.match(keyGuard, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: \\$\\{\\{ vars\\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM \\}\\}/);
-  assert.match(keyGuard, /key\\.asymmetricKeyType !== 'rsa'/);
-  assert.match(keyGuard, /bits < 2048/);
+  assert.ok(keyGuard.includes('if: ${{ inputs.agent36_v3_fixture_game }}'));
+  assert.ok(keyGuard.includes('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}'));
+  assert.ok(keyGuard.includes("key.asymmetricKeyType !== 'rsa'"));
+  assert.ok(keyGuard.includes('bits < 2048'));
 
   const encryptionStep = workflow.slice(encryptAt, uploadAt);
-  assert.match(encryptionStep, /if: \\$\\{\\{ always\\(\\) && !inputs\\.contract_only \\}\\}/);
-  assert.match(encryptionStep, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: \\$\\{\\{ vars\\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM \\}\\}/);
-  assert.match(encryptionStep, /encrypt-fixture-artifacts artifacts\\/agent36-v3-fixture/);
-  assert.match(encryptor, /deletePlaintext: true/);
+  assert.ok(encryptionStep.includes('if: ${{ always() && !inputs.contract_only }}'));
+  assert.ok(encryptionStep.includes('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}'));
+  assert.ok(encryptionStep.includes('encrypt-fixture-artifacts artifacts/agent36-v3-fixture'));
+  assert.ok(encryptor.includes('deletePlaintext: true'));
 
   const uploadStep = workflow.slice(uploadAt);
-  assert.match(uploadStep, /artifacts\\/agent36-v3-fixture\\/fixture-game\\.private\\.enc\\.json/);
-  assert.match(uploadStep, /artifacts\\/agent36-v3-fixture\\/fixture-game\\.public-manifest\\.json/);
-  assert.match(uploadStep, /!artifacts\\/agent36-v3-fixture\\/fixture-game\\.json/);
-  assert.match(uploadStep, /!artifacts\\/agent36-v3-fixture\\/fixture-game\\.txt/);
-  assert.doesNotMatch(uploadStep, /^\\s+artifacts\\/agent36-v3-fixture\\/\\s*$/m,
+  assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.private.enc.json'));
+  assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.public-manifest.json'));
+  assert.ok(uploadStep.includes('!artifacts/agent36-v3-fixture/fixture-game.json'));
+  assert.ok(uploadStep.includes('!artifacts/agent36-v3-fixture/fixture-game.txt'));
+  assert.equal(uploadStep.includes('\n            artifacts/agent36-v3-fixture/\n'), false,
     'the upload allowlist must never include the entire raw fixture directory');
 });
