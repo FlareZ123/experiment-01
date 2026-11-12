@@ -36,6 +36,7 @@ class PlayCardAction {
 }
 let lastStore=null;
 let failNextPlayCardDispatch=false;
+let failNextDecode=false;
 class Store {
   constructor(options){
     this.options=options;
@@ -113,6 +114,10 @@ class SimpleTacticsAi {
     this.deck=deck;
   }
   decodeNextAction(){
+    if(failNextDecode&&this.id===101){
+      failNextDecode=false;
+      throw new Error('simulated policy decode failure');
+    }
     return this.id===101?
       new PlayCardAction(this.id,0,{slot:'fixture'}):
       new RootAction(1);
@@ -211,7 +216,10 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
           deck:player.deck.cards.map(card=>card.fullName)
         })),
         prompts:state.prompts.map(prompt=>({
-          id:prompt.id,type:prompt.constructor.name,playerId:prompt.playerId
+          id:prompt.id,type:prompt.constructor.name,playerId:prompt.playerId,
+          fields:prompt instanceof ShuffleDeckPrompt?
+            {message:'Shuffle the deck',options:['shuffle']}:
+            {message:'Flip a coin',choices:[true,false]}
         }))
       };
     },
@@ -264,8 +272,14 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
     'physical-randomization');
   assert.equal(result.decisionTrace[0].promptResolverContext.promptSnapshot.type,
     'ShuffleDeckPrompt');
+  assert.equal(result.decisionTrace[0].promptResolverContext.message,'Shuffle the deck');
+  assert.deepEqual(result.decisionTrace[0].promptResolverContext.availableOptions.options,
+    ['shuffle']);
   assert.equal(result.decisionTrace[1].promptResolverContext.promptSnapshot.type,
     'CoinFlipPrompt');
+  assert.equal(result.decisionTrace[1].promptResolverContext.message,'Flip a coin');
+  assert.deepEqual(result.decisionTrace[1].promptResolverContext.availableOptions.choices,
+    [true,false]);
   assert.deepEqual(result.decisionTrace[2].selectedCardIdentity,{
     playerId:101,handIndex:0,fullName:'A card 0'
   });
@@ -409,4 +423,30 @@ test('native fixture preserves accepted prefix and failed attempted action with 
   assert.equal(partial.failedAction.actionOrdinal,2);
   assert.match(partial.decisionTraceSha256,/^[a-f0-9]{64}$/);
   assert.match(partial.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
+});
+
+
+test('native fixture policy-decode failure retains acting seat and phase context',()=>{
+  const originalRandom=Math.random;
+  failNextDecode=true;
+  let failure;
+  try { runNativeFixtureGame(input()); }
+  catch(error) { failure=error; }
+  finally { failNextDecode=false; }
+
+  assert.ok(failure);
+  assert.match(failure.message,/simulated policy decode failure/);
+  assert.equal(Math.random,originalRandom);
+  const partial=failure.fixtureGamePartial;
+  assert.equal(partial.acceptedActions,2);
+  assert.equal(partial.attemptedActions,2);
+  assert.equal(partial.decisionTrace.length,2);
+  assert.equal(partial.failure.stage,'policy-decode');
+  assert.equal(partial.failure.actionOrdinal,2);
+  assert.equal(partial.failure.actingSeat,0);
+  assert.equal(partial.failure.actingPlayerId,101);
+  assert.equal(partial.failure.phaseBefore,GamePhase.PLAYER_TURN);
+  assert.equal(partial.failure.turnBefore,1);
+  assert.equal(partial.failure.pendingPromptType,null);
+  assert.equal(partial.failedAction,null);
 });
