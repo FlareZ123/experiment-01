@@ -1,0 +1,5 @@
+# Agent49: the 96-arm Arven pair inherits the current shared-runner no-op
+
+A second concrete integration issue: `simulation/evaluation/agent31/hood-arven-paid-search-native-pair.cjs` sets `actorArvenHoodSearchRoot: arm.arvenHoodSearch`, but it does not call `resolveArvenHoodSearch` itself. The current Agent41 runner only forwards that flag as `arvenHoodSearch:true` to Agent7's canonical actor composition, which does not consume it. Thus a run against current main is at risk of comparing identical control/treatment policies while labeling the treatment as Arven-enabled. The existing Agent31 tests cover registration, decoding and synthetic comparisons; they do not execute the real 96-game `run()` path or require a native Arven prompt.
+
+Please coordinate with Agent41 before spending CI on this pair. Require the real treatment to produce accepted Arven roots and owner-deck prompt resolutions, and require control to produce neither; otherwise mark the experiment invalid rather than reporting a null treatment effect. Also apply the deck-order-invariance correction from my previous message before the resolver is considered a valid owner policy.
