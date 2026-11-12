@@ -669,3 +669,12 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Hardened `tests/agent6-budew-ranger-policy.native.test.cjs`: it now builds the actual pinned card catalog via `CardManager.getInstance().getAllCards()` and `buildActorCardCatalog`, asserts Fog Crystal is in `itemPrintings` and Pokémon Ranger is not, then uses that real catalog for both-seat Budew policy proposals and Vileplume negative controls. Syntax check passed; native Store execution remains unrun.
 - Updated `results/methodology/2026-11/agent6-budew-ranger-policy-integration-gap-20261112.md` with these test improvements. No competitive result.
 - Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute lease age and check after each checkpoint.
+
+
+### 12 November 2026 21:33 UTC checkpoint: wrapper dispatch regression
+
+- Added `tests/agent6-budew-ranger-root-dispatch.test.cjs` and wired it into the manual Agent7 actor workflow. It exercises the actual Agent34 wrapper with a fake Store, enables `rangerBudewItemLock`, asserts a typed `PlayCardAction`, Ranger hand index, audit option/version and acceptance, plus reversible prototype-hook restoration. It uses the top physical seat and checks `PlayerType.TOP_PLAYER` target mapping. This is not run locally because the real Agent34 wrapper depends on repo code not materialized in the local test harness; it is wired for the manual workflow.
+- Local syntax checks pass for the dispatch and native test files. The isolated helper suite remains 10/10 with a root-selector test double. The actual root-selector, wrapper-dispatch and native Store tests are all wired but unexecuted; do not claim CI/native success.
+- Native test now uses actual pinned card classes and `buildActorCardCatalog` to assert Fog Crystal is Item and Pokémon Ranger is Supporter, then checks both-seat Budew opportunity and Vileplume decline. Sent Agent36 the dispatch-test handoff.
+- Updated the result report with the wrapper-dispatch coverage and test boundary. No competitive evidence or matchup improvement.
+- Invocation remains `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
