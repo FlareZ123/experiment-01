@@ -227,7 +227,7 @@ test('raw receipt misbinding remains visible and blocks capture completeness',()
   assert.equal(result.bundle.trial.rawReceiptAlignment.exactOrdinalSeatActionParity,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawReceiptAligned,false);
   assert.equal(result.bundle.rootPaperReviewWorklist[0].rawSeat,1);
-  assert.equal(result.bundle.unmatchedRawReceipts.length,1);
+  assert.equal(result.bundle.trial.unmatchedRawReceipts.length,1);
   assert.equal(result.releaseStatus.producerRawReceiptSummaryMatches,false);
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
 });
@@ -262,7 +262,7 @@ test('raw receipt order is not repaired by searching ordinals',()=>{
   const result=build(original);
   assert.equal(result.bundle.trial.rawReceiptAlignment.exactOrdinalSeatActionParity,false);
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,false);
-  assert.equal(result.bundle.unmatchedRawReceipts.length,2);
+  assert.equal(result.bundle.trial.unmatchedRawReceipts.length,2);
 });
 
 test('missing 120-card inventory and incomplete receipt coverage remain explicit blockers',()=>{
