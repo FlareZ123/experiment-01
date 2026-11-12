@@ -40,3 +40,5 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
       - name: Regress Agent36 V3 role runner and Actions metadata receipts
         run: node --test tests/agent36-v3-runner.test.cjs
+      - name: Regress V3 role identity, module closure and application receipt bindings
+        run: node --test tests/agent42-role-policy-identity.test.cjs
