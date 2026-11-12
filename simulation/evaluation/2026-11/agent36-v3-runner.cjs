@@ -1110,6 +1110,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     opponentIdentity: identities.opponentIdentity,
     policyConstraintsSha256,
     cardPoolSha256: native.cardPoolInitialization?.cardPoolSha256 ?? null,
+    cardPoolInitializationReceiptSha256: evidenceBundleSha256(native.cardPoolInitialization),
     fieldSha256: gitBlobSha(fieldBytes),
     actualFirstPlayerSeat: gameResult?.actualFirstPlayerSeat ?? null,
     finished: gameResult?.finished === true,
