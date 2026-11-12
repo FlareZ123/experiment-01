@@ -243,6 +243,14 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     'The capture-only policy-provenance envelope is required');
   assert.equal(policyProvenance.schema,'agent26-4410-capture-only-policy-provenance-v2');
   assert.equal(policyProvenance.status,'PARTIAL_CAPTURE_ONLY');
+  assert.equal(policyProvenance.trialId,original.intake.trial?.id,
+    'Policy provenance trialId must bind the exact intake trial');
+  assert.equal(policyProvenance.sourceSeat,original.intake.sourceSeat,
+    'Policy provenance sourceSeat must bind the exact intake source seat');
+  assert.equal(policyProvenance.candidateSeat,original.intake.candidateSeat,
+    'Policy provenance candidateSeat must bind the exact intake candidate seat');
+  assert.equal(policyProvenance.enginePin,original.registration.enginePinnedCommit,
+    'Policy provenance enginePin must bind the frozen registration engine pin');
   assert.ok(policyProvenance.runnerExecutionConfig&&typeof policyProvenance.runnerExecutionConfig==='object');
   assert.ok(policyProvenance.runtimeEvidenceReceipts&&typeof policyProvenance.runtimeEvidenceReceipts==='object');
   assert.ok(policyProvenance.runtimeEvidenceReceipts.agent48CologneNativePlayAudit);
