@@ -45,6 +45,15 @@ function candidateManifestBinding(reg){
   const {loadNewMoonCandidate}=require('../../../scripts/aichi-new-moon-candidate.cjs');
   const loaded=loadNewMoonCandidate();
   assert.equal(loaded.id,'new-moon-lockbreaker-v1');
+  const resourceDataManifest=loaded.resourceDataManifest;
+  assert.equal(resourceDataManifest?.schema,
+    'aichi-new-moon-candidate-resource-data-manifest-v1');
+  assert.equal(resourceDataManifest.fileCount,resourceDataManifest.files.length);
+  assert.ok(resourceDataManifest.files.some(x=>x.path==='resources/sets/en.json'));
+  assert.ok(resourceDataManifest.files.some(x=>
+    x.path.startsWith('resources/cards/en/')));
+  assert.equal(resourceDataManifest.sha256,hash(resourceDataManifest.files),
+    'Candidate resource data manifest must hash the exact sorted file inventory');
   const nativeNameAliases={'Psychic Energy':'Basic Psychic Energy'};
   const nativeRows=loaded.cards.map(x=>[
     nativeNameAliases[x.name]??x.name,x.count
@@ -77,6 +86,8 @@ function candidateManifestBinding(reg){
     nativeCandidateId:loaded.id,
     nativeCandidateLoaderNameCountParity:true,
     nativeCandidateLoaderNameAliases:nativeAliasRows,
+    candidateNativeLoaderResourceDataManifest:resourceDataManifest,
+    candidateNativeLoaderResourceDataManifestSha256:resourceDataManifest.sha256,
     candidateNameCountParity:proxyParity,
     candidatePrintedCardCount:total,
     candidateUniqueNameCount:candidate.entries.length,
