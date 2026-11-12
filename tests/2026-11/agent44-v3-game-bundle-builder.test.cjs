@@ -17,6 +17,8 @@ const {
   preparePreDealPolicyRegistrationFixture,
   buildV3GameBundle,buildV3GameBundleFixture
 } = require('../../simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs');
+const productionReviewerRegistry =
+  require('../../simulation/evaluation/agent45-authorized-reviewers.json');
 
 const policyHash = n => n.toString(16).padStart(64,'0');
 
@@ -26,7 +28,7 @@ function signed(attestation,privateKey) {
   return attestation;
 }
 
-function makePolicyFixture() {
+function makePolicyFixture({fullProcessClosureCovered=false}={}) {
   const unavailable=[23,25,28];
   const now=Date.now();
   const candidate={
@@ -49,6 +51,38 @@ function makePolicyFixture() {
       policyProducerId:'opponent-policy-author'
     };
   });
+  const cardPoolInitializationReceipt={
+    schema:'agent36-twinleaf-card-pool-initialization-v1',
+    enginePin:'a'.repeat(40),
+    startupPath:'vendor/twinleaf/ptcg-server/start.js',
+    startupSha256:policyHash(7002),
+    setNames:['base','black-white-1'],
+    definedSetCount:2,
+    cardCount:1200
+  };
+  const runtimePatchReceipts=[{
+    schema:'aichi-runtime-patch-installation-receipt-v1',
+    patchId:'fixture-underworld-door-hook',
+    modulePath:'simulation/twinleaf/fixture-hook.cjs',
+    moduleSha256:policyHash(7005),
+    target:'fixture-underworld-door-reducer',
+    originalReducerFingerprint:policyHash(7006),
+    installedReducerFingerprint:policyHash(7007),
+    installCount:1,
+    installBoundary:'outer-v3-runner-before-role-wrappers',
+    restoreCount:1,
+    restoreBoundary:'outer-finally',
+    restoredOriginal:true,
+    nestedInstallCount:0,
+    wrapperInstallCount:0
+  }];
+  const runtimePinEvidence={
+    schema:'aichi-runtime-pin-evidence-v2',
+    unionSha256:policyHash(7003),
+    loadedProcessClosureSha256:policyHash(7004),
+    cardPoolInitializationSha256:evidenceBundleSha256(cardPoolInitializationReceipt),
+    fullProcessClosureCovered
+  };
   const constraints={
     observationSurface:{ownerVisible:true,publicState:true},
     hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
@@ -56,13 +90,19 @@ function makePolicyFixture() {
     timeoutPolicy:{maxTimeouts:0,fallback:'safe-legal-action'},
     randomizationProtocol:{algorithm:'seeded-prng',seed:'frozen-panel-seed'},
     publicHistoryWindow:{scope:'full-match'},
-    resourceAccounting:{energyZones:true,oncePerTurn:true}
+    resourceAccounting:{energyZones:true,oncePerTurn:true},
+    sharedEngineCompatibilityPatches:[{
+      patchId:'fixture-underworld-door-hook',
+      modulePath:'simulation/twinleaf/fixture-hook.cjs',
+      moduleSha256:policyHash(7005),
+      target:'fixture-underworld-door-reducer'
+    }]
   };
   const policyPlanCore={
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
-    },constraints
+    },constraints,runtimePinEvidence
   };
   const policyPlanSha256=evidenceBundleSha256(policyPlanCore);
   const policyConstraintsSha256=evidenceBundleSha256(constraints);
@@ -118,6 +158,7 @@ function makePolicyFixture() {
   };
   return {
     candidate,ranks,policyPlanCore,policyAttestationBundle,reviewerRegistry,
+    cardPoolInitializationReceipt,runtimePatchReceipts,runtimePinEvidence,
     paperKeys,strategyKeys,
     policyPlanSha256,policyConstraintsSha256,opponentPolicyBundleSha256
   };
@@ -174,6 +215,8 @@ function makeTrial(preDeal,fixture) {
     hookRevisionSha:'c'.repeat(40),decisionTraceSha256:policyHash(7001),
     originalPrinted60Sha256:fixture.ranks[0].deckSha256,
     candidatePrinted60Sha256:fixture.candidate.deckSha256,
+    cardPoolInitializationReceipt:fixture.cardPoolInitializationReceipt,
+    runtimePatchReceipts:fixture.runtimePatchReceipts,
     nativeFinished:true,nativeWinner:0,nativeOutcome:'win',
     nativeEndReason:'natural-prize-terminal',
     terminalKind:'natural-paper-terminal',finalPrizes:[0,6],
@@ -191,7 +234,7 @@ function makeTrial(preDeal,fixture) {
 function makeReceipt(preDeal,trial,fixture) {
   const candidate=fixture.candidate,opponent=fixture.ranks[0];
   return {
-    schema:'aichi-policy-application-receipt-v1',
+    schema:'aichi-policy-application-receipt-v2',
     trialId:preDeal.trialId,
     policyPlanSha256:preDeal.policyPlanSha256,
     policyRegistrationSha256:preDeal.policyRegistrationSha256,
@@ -212,6 +255,11 @@ function makeReceipt(preDeal,trial,fixture) {
     policySha256BySeat:[opponent.policySha256,candidate.policySha256],
     enginePin:trial.vendorCommitSha,runnerRevision:trial.researchRevisionSha,
     policyConstraintsSha256:fixture.policyConstraintsSha256,
+    runtimePinUnionSha256:fixture.runtimePinEvidence.unionSha256,
+    loadedProcessClosureSha256:fixture.runtimePinEvidence.loadedProcessClosureSha256,
+    cardPoolInitializationSha256:fixture.runtimePinEvidence.cardPoolInitializationSha256,
+    runtimePatchReceipts:fixture.runtimePatchReceipts,
+    runtimePatchReceiptsSha256:evidenceBundleSha256(fixture.runtimePatchReceipts),
     decisionTraceSha256:policyHash(7001),timeoutStatus:'within-budget'
   };
 }
@@ -328,6 +376,11 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   assert.equal(built.fullFieldPanelComplete,false);
   assert.equal(built.assessment.fixtureOnly,true);
   assert.equal(built.assessment.competitiveAdmission,false);
+  assert.equal(built.assessment.admissionEligible,false);
+  assert.equal(built.assessment.fullProcessClosureCovered,false);
+  assert.equal(built.competitiveAdmission,false);
+  assert.equal(built.admissionEligible,false);
+  assert.equal(built.fullProcessClosureCovered,false);
   assert.throws(()=>buildV3GameBundle({
     preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
@@ -350,6 +403,10 @@ test('fixture builder uses local fixture chronology and rejects production-shape
     policyPanelReceipts:[],reviews:[]
   };
   const built=buildV3GameBundleFixture(common,fixture.reviewerRegistry);
+  assert.equal(built.fixtureOnly,true);
+  assert.equal(built.competitiveAdmission,false);
+  assert.equal(built.admissionEligible,false);
+  assert.equal(built.fullProcessClosureCovered,false);
   assert.equal(built.preDealPersistenceReceipt.fixtureOnly,true);
   assert.equal(built.dealGenerationReceipt.fixtureOnly,true);
   assert.equal(built.bundle.preDealPersistenceReceipt.schema,
@@ -398,6 +455,29 @@ test('valid signed postgame reviews remain external to the finalized bundle dige
   assert.deepEqual(withReviews.assessment.signedReviewRoles.map(x=>({
     role:x.role,valid:x.valid
   })),[{role:'paper',valid:true},{role:'strategy',valid:true}]);
+});
+
+test('production pre-deal registration requires full process closure while fixture registration permits partial closure',()=>{
+  const partial=makePolicyFixture({fullProcessClosureCovered:false});
+  const {input:partialInput,result:fixturePartial}=makePreDeal(partial);
+  assert.equal(fixturePartial.ready,true,fixturePartial.failures.join(','));
+
+  const original=productionReviewerRegistry.reviewers;
+  try {
+    productionReviewerRegistry.reviewers=partial.reviewerRegistry.reviewers;
+    const blocked=preparePreDealPolicyRegistration(partialInput);
+    assert.equal(blocked.ready,false);
+    assert.ok(blocked.failures.includes('production-runtime-process-closure-incomplete'));
+
+    const complete=makePolicyFixture({fullProcessClosureCovered:true});
+    const {input:completeInput}=makePreDeal(complete);
+    productionReviewerRegistry.reviewers=complete.reviewerRegistry.reviewers;
+    const accepted=preparePreDealPolicyRegistration(completeInput);
+    assert.equal(accepted.ready,true,accepted.failures.join(','));
+    assert.equal(accepted.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered,true);
+  } finally {
+    productionReviewerRegistry.reviewers=original;
+  }
 });
 
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
