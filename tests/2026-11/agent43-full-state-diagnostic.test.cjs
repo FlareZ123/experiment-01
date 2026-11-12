@@ -76,6 +76,7 @@ test('full diagnostic captures both players private zones while actor observatio
   assert.equal(snapshot.schema, DIAGNOSTIC_SCHEMA);
   assert.equal(snapshot.visibility, PRIVATE_VISIBILITY);
   assert.equal(snapshot.firstPlayerSeat, 1);
+  assert.equal(snapshot.winnerSeat, null);
   assert.deepEqual(snapshot.players[0].zones.hand, ['A Hand 1', 'A Hand 2']);
   assert.deepEqual(snapshot.players[1].zones.hand, ['B Hand 1', 'B Hand 2']);
   assert.deepEqual(snapshot.players[1].zones.deckArrayOrder, ['B Deck Top', 'B Deck Bottom']);
