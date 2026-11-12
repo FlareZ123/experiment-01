@@ -153,6 +153,13 @@ function executeArm(reg, mode, extraPolicy={}) {
       remainingPrizes: row.finalPrizes ?? null,
       integrity: row.physicalZoneQualification?.physicalIntegrityQualified ?? null,
       sourceAttacks: attacks(source), candidateAttacks: attacks(own),
+      // Preserve bilateral settlement, including copied Perfection attacks
+      // that do not appear as ordinary AttackAction roots.
+      candidateAttackSettlement: row.candidateAttackSettlement ?? null,
+      sourceAttackSettlement: row.sourceAttackSettlement ?? null,
+      nativeAttackModalityLedger: row.nativeAttackModalityLedger ?? null,
+      nativeAttackPhysicalTape: row.nativeAttackPhysicalTape ?? null,
+      firstSettledPublicAttack: row.firstSettledPublicAttack ?? null,
       candidateRetreats: own.filter(x => x.action === 'RetreatAction')
         .map(x => ({root:x.actionOrdinal,turn:x.turnBefore})),
       candidateLillie: own.filter(x => x.action === 'PlayCardAction' &&
