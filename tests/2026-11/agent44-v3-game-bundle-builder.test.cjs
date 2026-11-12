@@ -148,12 +148,15 @@ function makePreDeal(fixture,{pastDeal=false}={}) {
 
 function makeTrial(preDeal,fixture) {
   const trialId=preDeal.trialId;
+  const dealGeneratedAt=new Date(Date.parse(preDeal.gameRegistration.dealGeneratedAt)+1000).toISOString();
+  const initialSourceDealFingerprint=policyHash(8001);
   const roots=[{actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction'}];
   return {
     trialId,registrationRef:preDeal.gameRegistration.registrationRef,
     preregistrationEvidenceRef:preDeal.gameRegistration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(preDeal.gameRegistration),
     preregistration:preDeal.gameRegistration,timingMode:UNTIMED,
+    dealGeneratedAt,initialSourceDealFingerprint,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:policyHash(1),fullPhysicalDealSha256:policyHash(2),
     vendorCommitSha:'a'.repeat(40),researchRevisionSha:'b'.repeat(40),
@@ -202,6 +205,31 @@ function makeReceipt(preDeal,trial,fixture) {
   };
 }
 
+function makePreDealPersistenceReceipt(preDeal) {
+  const registeredAt=Date.parse(preDeal.gameRegistration.registeredAt);
+  const plannedDealAt=Date.parse(preDeal.gameRegistration.dealGeneratedAt);
+  return {
+    schema:'aichi-predeal-artifact-persistence-receipt-v1',
+    trialId:preDeal.trialId,repositoryFullName:'FlareZ123/experiment-01',
+    artifactRef:preDeal.preDealArtifactRef,
+    artifactSha256:preDeal.preDealArtifactSha256,
+    commitSha:'a'.repeat(40),blobSha:'b'.repeat(40),
+    committedAt:new Date(registeredAt+Math.floor((plannedDealAt-registeredAt)/2)).toISOString()
+  };
+}
+
+function makeDealGenerationReceipt(preDeal,trial,persistenceReceipt) {
+  return {
+    schema:'aichi-physical-deal-generation-receipt-v1',
+    trialId:preDeal.trialId,
+    artifactRef:persistenceReceipt.artifactRef,
+    artifactSha256:persistenceReceipt.artifactSha256,
+    commitSha:persistenceReceipt.commitSha,blobSha:persistenceReceipt.blobSha,
+    generatedAt:trial.dealGeneratedAt,
+    sourceDealFingerprint:trial.initialSourceDealFingerprint
+  };
+}
+
 function makeEvidence() {
   const evidence={};
   for(const kind of [
@@ -228,9 +256,12 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   assert.match(preDeal.preDealArtifactSha256,/^[0-9a-f]{64}$/);
 
   const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
   const built=buildV3GameBundleFixture({
     preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    preDealPersistenceReceipt,dealGenerationReceipt,
     policyPanelReceipts:[],reviews:[]
   },fixture.reviewerRegistry);
 
@@ -270,8 +301,11 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
   const fixture=makePolicyFixture();
   const {input,result:preDeal}=makePreDeal(fixture);
   const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
   const common={
     preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    preDealPersistenceReceipt,dealGenerationReceipt,
     policyPanelReceipts:[],reviews:[]
   };
   const wrongSeat=makeReceipt(preDeal,trial,fixture);
@@ -306,4 +340,17 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     ...common,preDeal:changedArtifactRef,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
+
+  const latePersistence={...preDealPersistenceReceipt,committedAt:trial.dealGeneratedAt};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDealPersistenceReceipt:latePersistence,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/not after registration and before planned deal generation/);
+
+  const wrongDealFingerprint={...dealGenerationReceipt,
+    sourceDealFingerprint:policyHash(8002)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongDealFingerprint,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/actual deal time or source-deal fingerprint disagrees/);
 });
