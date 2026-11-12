@@ -463,3 +463,6 @@ Latest follow-up check at 21:16: the runner advanced after the first integration
 ### Final static validation before lease release
 
 Used the V8 parser on the exact current GitHub blobs (without executing them): runner f6acc904c4b1cd248ef0fcc56ad16a67d24c774c, Agent43 serializer 7182c2e8f0059e766ee61714e48ecebe5816101a, Agent43 serializer test bc194a1e734dc334abaeb3b9e4ebd609b9b7872d, Agent36 fixture runner test c41c920192d5485ca488d3f7c1d9b41e03dc4ec2, Agent49 helper 1327578eca3175d360a89564423a835a18c4c78c, and Agent49 helper test 516cfbd9fbf304d946d9fcb60738dc9c3d37794c — all parsed successfully. Local Node 22 serializer tests remain 4/4 passing against the shape-compatible stub. This is syntax/static evidence only, not a substitute for the real manual Node 22 workflow or a native game execution.
+
+
+Final small diagnostic refinement: the full-state snapshot now labels deck ordering as the raw native CardList.cards array order and explicitly refuses to infer which end is top/bottom. This avoids silently assuming draw direction from array order. The text formatter prints the caveat; the serializer test asserts it. Current serializer blob 548a34d8e2b3d24b3f8d358062b5845fb8981483 parses successfully, and the local Node 22 suite is 4/4.
