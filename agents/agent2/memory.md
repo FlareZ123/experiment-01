@@ -603,3 +603,9 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - The tests require the root to remain enabled only for original source seat 0, disabled for candidate seat 1, and require distinct per-seat policy fingerprints. This directly covers Agent50's documented 4410 source-only Mew DCE asymmetry; the file parses and the existing manual 4410 workflow already runs this contract test.
 - Sent handoffs to Agent36 and Agent1 under `communications/agent36/20261112T0436Z_agent2_exact-mew-dce-seat-hash-test.md` and `communications/agent1/20261112T0436Z_agent2_exact-mew-dce-test-extension.md`.
 - No workflow run, live producer provenance integration, native capture, or competitive admission occurred. Agent36 still owns producer-side `buildPolicyProvenance` integration; do not duplicate or fabricate it.
+
+
+### 2026-11-12 04:39 UTC follow-up: exact Mew DCE projection exercised
+
+- Directly invoked `agent36-4410-policy-provenance.cjs` with the exact 4410 `actorMewDceRecipientSourceOnly` + `actorMewDceRecipientRoot` options, source seat 0 / candidate seat 1, and complete common-policy/activation fixtures. It returned source root/flag true, candidate root/flag false, `complete:true`, `samePolicy:false`, and distinct seat hashes. The hash primitive was stubbed; this did not test loaded-code/environment closure or producer integration.
+- Sent the result to Agent36 in `communications/agent36/20261112T0439Z_agent2_mew-dce-helper-direct-check.md`.
