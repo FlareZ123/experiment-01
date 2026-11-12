@@ -1,0 +1,113 @@
+{
+  "schema": "agent20-newmoon-perfection-attack-fuel-fresh-8context-aba-v1",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_ATTEMPT",
+  "registeredAtUtc": "2026-11-12T02:40:13.933Z",
+  "originalRank": 5,
+  "caseId": "agent20-rank5-newmoon-perfection-attack-fuel-20261112",
+  "researchObjective": "Test whether the shared owner-public dynamic attack-fuel discard frontier preserves the one-attachment Energy needed for a currently available printed Active attack, including public Mewtwo & Mew-GX Perfection donors, under the unchanged New Moon VIP v2 and Gengar/Lillie tempo policy.",
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateEnglishProxyCanonicalIdCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+  "candidateJapaneseProposedPrintManifest": "results/als/new-moon-lockbreak-japanese-print-60.json",
+  "sourceOpponentManifest": "results/aichi-2026/full-decklists.json",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedTrialsBeforeRegistration": 0,
+  "seedSource": "Four fresh independent Python secrets.randbelow(2**31-1)+1 draws executed 2026-11-12 before any native trial; each seed crossed both candidate physical seats.",
+  "seeds": [
+    612705295,
+    1450316514,
+    1120767139,
+    1313997058
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8501,
+      "seed": 612705295,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8501:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8501,
+      "seed": 612705295,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8501:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8502,
+      "seed": 1450316514,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8502:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8502,
+      "seed": 1450316514,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8502:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8503,
+      "seed": 1120767139,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8503:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8503,
+      "seed": 1120767139,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8503:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8504,
+      "seed": 1313997058,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8504:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8504,
+      "seed": 1313997058,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8504:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "A-v2-VIP-Lillie-Gengar-generic-hand-discard",
+      "actorAttackFuelDiscard": false
+    },
+    {
+      "id": "B-v2-VIP-Lillie-Gengar-dynamic-attack-fuel",
+      "actorAttackFuelDiscard": true
+    },
+    {
+      "id": "A-v2-VIP-Lillie-Gengar-generic-hand-discard-repeat",
+      "actorAttackFuelDiscard": false
+    }
+  ],
+  "policyControl": "All arms retain identical v2 owner VIP recipient policy, bilateral Lillie's Determination after-Pass policy, public-hand-six Gengar Horror House tempo, native Mew Ultra Ball root/search and generic actor hand-discard wrapper. Source-specific actorMewUltraBallPaymentGuard and actorMewQuickBallPaymentGuard are explicitly false in every arm so the generic attack-fuel frontier is not mixed with its prohibited source-specific alternative. Fog Crystal recipient remains the unchanged default in all arms. Only actorAttackFuelDiscard toggles false/true/false.",
+  "candidateSeatAllocation": "Four fresh original-rank5 source deals crossed with both candidate physical seats A/B; each exact context appears in all three A/B/A arms.",
+  "nativeRootCap": 320,
+  "registeredPhysicalContexts": 8,
+  "expectedNativeAttempts": 24,
+  "noPosthocFiltering": true,
+  "eligibility": "Include every preregistered context and seat, including no eligible discard prompt, no attack-fuel opportunity, no Perfection donor, no changed payment, cap, abort, error, incomplete game, or native rejection. No outcome-based exclusion.",
+  "primarySuccess": "A native accepted mandatory owner discard payment changes only when the generic choice would erase every known one-attachment funding option; record exact physical payment, retained Energy, subsequent real attachment, Perfection/printed attack, damage and Prize receipt, source response, complete native winner, and full physical-zone continuity.",
+  "paperQualifiedGames": 0,
+  "finalDeckSelected": false,
+  "scopeLimit": "Eight developmental physical contexts against original rank5 only. This is not a full-field matchup estimate, not an independently paper/clock-qualified game, and cannot establish 99.5%."
+}
