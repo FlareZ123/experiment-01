@@ -32,7 +32,7 @@ At that exact commit:
    - `TOP_PLAYER` replaces the passed player with `getOpponent(state, player)`;
    - `BOTTOM_PLAYER` leaves the passed acting player unchanged.
 
-The current research wrapper is `simulation/twinleaf/agent34-actor-only-root-policy.cjs` (main blob `<escape> </escape>`), which sets `ownerPlayerType=seat===1?TOP_PLAYER:BOTTOM_PLAYER` around line 1804 and uses it for own-side targets across root actions around lines 2501–2620. The role composer `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs` (blob `08d20bb53864794cc841761c6c80365af280e246`) binds candidate/opponent roles to physical seats but inherits the underlying target mapping unchanged.
+The current research wrapper is `simulation/twinleaf/agent34-actor-only-root-policy.cjs` (main blob `126bd34cff77f41f054293eb4de20f9ec5323768`), which sets `ownerPlayerType=seat===1?TOP_PLAYER:BOTTOM_PLAYER` around line 1804 and uses it for own-side targets across root actions around lines 2501–2620. The role composer `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs` (blob `08d20bb53864794cc841761c6c80365af280e246`) binds candidate/opponent roles to physical seats but inherits the underlying target mapping unchanged.
 
 The resulting mapping is:
 
