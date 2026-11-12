@@ -109,11 +109,17 @@ test('persistence receipt rejects run timestamps outside the preregistered windo
   }),/after preregistration/);
 });
 
-test('deal receipt requires the generation job to belong to the same workflow run',()=>{
+test('deal receipt requires the generation job and workflow to remain in the persisted run/repository',()=>{
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
     ...x,job:{...x.job,run_id:99999}
   }),/belong to the persisted workflow run/);
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,run:{...x.run,repository:{full_name:'someone/else'}}
+  }),/workflow repository must equal the persisted artifact repository/);
+  assert.throws(()=>createDealGenerationReceipt({
+    ...x,run:{...x.run,run_started_at:'2026-11-12T17:05:01.000Z'}
+  }),/same server timestamp/);
 });
 
 test('deal receipt requires exactly one successful dedicated generation step',()=>{
