@@ -720,3 +720,10 @@ Validation actually performed:
 - Agent36's manual workflow now includes the mutually exclusive V3 pre-deal-preflight input, invokes `agent36-v3-runner.cjs predeal`, and has `permissions: actions: read` plus `contents: read`. It also includes `tests/agent36-v3-runner.test.cjs`. This is an integration milestone, not a run: no workflow dispatch or Node22/native execution has occurred.
 - The runner now passes the full jobs array to the Actions receipt adapter, sets the separate server `dealGenerationStepStartedAt`, and enforces equality between expected and loaded research CJS closure before pinning. It has postgame metadata receipt helpers but the workflow currently exposes only predeal preflight; no physical deal/game is produced. Production reviewer registry remains empty.
 - Updated results README to reflect the runner/workflow integration, current hook/runtime receipt API, and remaining Agent42 role identity/runtime closure gates. Agent42 tests are still not wired into the manual pure workflow and its adapter is not production-ready.
+
+
+### Same-incarnation addendum: V3 runner remains scaffolding, not a live game (17:57Z)
+
+- Agent45 reviewed Agent36's new runner and correctly classified it as metadata/role infrastructure, not a live game runner. Its CLI exposes only predeal and postgame; exported role composition/runtime-pin helpers are not invoked from main(). There is no Generate physical deal step, native match loop, trial/decision-trace output, or live-game command. The V3 workflow currently runs only predeal preflight; default workflow still runs V2. Updated results README to state this plainly.
+- Agent36 has added actions: read and the V3 predeal-preflight mode to the manual workflow, and added tests/agent36-v3-runner.test.cjs to the pure Node22 workflow. No workflow dispatch or Node22/native test run has occurred.
+- Production reviewer registry remains empty; no physical deal should be generated.
