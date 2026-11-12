@@ -80,10 +80,10 @@ jobs:
         id: smoke_check_12
         continue-on-error: true
         run: node simulation/twinleaf/agent11-last-bench-volt-cyclone-reply.cjs
-      - name: Enforce native Energy recipient legality under printed type filters
+      - name: Enforce native Energy recipient legality and Psychic-only Underworld Door targets
         id: smoke_check_13
         continue-on-error: true
-        run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
+        run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs tests/2026-11/agent1-underworld-door-printed-target-paper-hook.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         id: smoke_check_14
         continue-on-error: true
