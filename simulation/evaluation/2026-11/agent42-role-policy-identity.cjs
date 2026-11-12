@@ -8,9 +8,9 @@ const {createHash} = require('node:crypto');
 const {auditSourceClosure} = require('../agent36-source-closure-audit.cjs');
 const {evidenceBundleSha256} = require('../agent45-independent-competitive-admission.cjs');
 
-const ENTRY_MANIFEST_SCHEMA = 'aichi-policy-entry-manifest-v1';
-const ROLE_IDENTITY_SCHEMA = 'aichi-role-policy-identity-v1';
-const APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
+const ENTRY_MANIFEST_SCHEMA = 'aichi-policy-entry-manifest-v2';
+const ROLE_IDENTITY_SCHEMA = 'aichi-role-policy-identity-v2';
+const APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v2';
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$/;
@@ -31,6 +31,9 @@ const BUILTINS = new Set(Module.builtinModules.flatMap(name => [
 const FORBIDDEN_EXTERNAL_BUILTINS = new Set([
   'child_process','node:child_process','worker_threads','node:worker_threads',
   'vm','node:vm','module','node:module'
+]);
+const TRUSTED_OPERATIONAL_ENV_READERS = new Set([
+  'simulation/evaluation/2026-11/agent36-v3-runner.cjs'
 ]);
 const TRUSTED_MODULE_API_FILES = new Set([
   'simulation/evaluation/agent36-runtime-module-pin.cjs',
@@ -106,6 +109,10 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
     const usesEsm=/\bimport\s*(?:\(|['"]|\*|\{|\w+\s+from\s*['"])/.test(source)||
       /\bexport\s+(?:default|const|let|var|function|class|\*|\{)/.test(source)||
       /\bexport\s+(?:\*|\{)[^;]*\sfrom\s*['"]/.test(source);
+    const operationalEnvReads=[...source.matchAll(/\bprocess\s*\.\s*env\s*(?:\.\s*([A-Za-z_$][\w$]*)|\[\s*['"]([^'"]+)['"]\s*\])/g)]
+      .map(match=>match[1]??match[2]).filter(key=>key.startsWith('GITHUB_')||key.startsWith('RUNNER_'));
+    if(operationalEnvReads.length&&!TRUSTED_OPERATIONAL_ENV_READERS.has(file.path))
+      unsupported.push({file:file.path,kind:'untrusted-operational-environment',keys:[...new Set(operationalEnvReads)].sort()});
     const usesModuleApi=/\brequire\s*\(\s*['"](?:node:)?module['"]\s*\)/.test(source)||
       /\bModule\b/.test(source)||/\bmodule\s*\.\s*constructor\b/.test(source)||
       /\bmodule\s*\[\s*['"]constructor['"]\s*\]/.test(source)||
@@ -141,7 +148,7 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
 
 function environmentManifest(keys,allowlist,env) {
   const requested=[...new Set(allowlist)].sort();
-  const observed=[...keys].sort();
+  const observed=[...keys].filter(key=>!key.startsWith('GITHUB_')&&!key.startsWith('RUNNER_')).sort();
   assert.deepEqual(observed,requested,
     'environment allowlist must exactly equal the statically observed environment readers');
   const values=observed.map(key=>{
@@ -311,7 +318,17 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
   const dependencyLocks=[...new Set(dependencyLockPaths.map(p=>canonicalPath(p,'dependency lock path')))]
     .sort().map(lockPath=>({path:lockPath,
       sha256:hashBytes(fs.readFileSync(assertInsideRoot(root,lockPath,'dependency lockfile')))}));
-  const env=environmentManifest(closure.keys??[],environmentAllowlist,runtimeEnvironment);
+  const operationalEnvironmentReaders=Object.entries(closure.readers??{})
+    .filter(([key])=>key.startsWith('GITHUB_')||key.startsWith('RUNNER_'))
+    .map(([key,files])=>{
+      const readers=[...files].sort();
+      for(const file of readers)assert.ok(TRUSTED_OPERATIONAL_ENV_READERS.has(file),
+        'GITHUB_/RUNNER_ environment read is forbidden outside trusted runner: '+file+' -> '+key);
+      return {key,files:readers};
+    }).sort((a,b)=>a.key.localeCompare(b.key));
+  const policyEnvironmentKeys=(closure.keys??[]).filter(key=>
+    !key.startsWith('GITHUB_')&&!key.startsWith('RUNNER_'));
+  const env=environmentManifest(policyEnvironmentKeys,environmentAllowlist,runtimeEnvironment);
   const allowedBuiltinRequires=(limits.externalRequires??[]).filter(item=>
     BUILTINS.has(item.request)&&!FORBIDDEN_EXTERNAL_BUILTINS.has(item.request))
     .sort((a,b)=>(a.file+'\0'+a.request).localeCompare(b.file+'\0'+b.request));
@@ -333,6 +350,9 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
     dependencyState:{schema:'aichi-policy-dependency-state-v1',mode:'node-builtins-only',
       lockfiles:dependencyLocks},
     vendorPrefix:VENDOR_PREFIX,vendorDependencies,vendorDependenciesSha256,
+    vendorImports:closure.vendorImports??[],
+    vendorImportsSha256:evidenceBundleSha256(closure.vendorImports??[]),
+    trustedOperationalEnvironmentReaders:operationalEnvironmentReaders,
     environment:env,
     runtimeGuard:{schema:'agent36-pre-execution-commonjs-module-pin-v1',required:true},
     nodeVersion,nodePlatform,nodeArch,enginePin,runnerRevision
@@ -416,7 +436,8 @@ function assertLoadedResearchModulesCovered(repositoryRoot,expectedByPath,
 /** Create a role identity whose digest is independent of physical seat/rank. */
 function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   policyVersion,entryManifest,entryManifestSha256,challengeSuiteSha256,
-  policyOptions,policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256}) {
+  policyOptions,policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256,
+  cardPoolInitializationSha256}) {
   assert.ok(['candidate-policy','opponent-policy'].includes(role),'invalid policy role');
   if(role==='candidate-policy')assert.equal(rank,null,
     'candidate policy identity is field-wide and must not be rank-scoped');
@@ -425,7 +446,8 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   stableId(producerId,'policy producer ID');
   stableId(policyVersion,'policy version');
   for(const [label,value] of Object.entries({deckSha256,entryManifestSha256,challengeSuiteSha256,
-    policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256}))
+    policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256,
+    cardPoolInitializationSha256}))
     assert.match(value??'',SHA256,label+' must be a SHA-256 digest');
   assert.ok(entryManifest?.schema===ENTRY_MANIFEST_SCHEMA&&entryManifest.complete===true,
     'entry manifest schema or completeness invalid');
@@ -449,6 +471,9 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   assert.ok(Array.isArray(entryManifest.vendorDependencies),'vendor dependency list is missing');
   assert.equal(entryManifest.vendorDependenciesSha256,evidenceBundleSha256(entryManifest.vendorDependencies),
     'vendor dependency digest mismatch');
+  assert.ok(Array.isArray(entryManifest.vendorImports),'vendor import edge list is missing');
+  assert.equal(entryManifest.vendorImportsSha256,evidenceBundleSha256(entryManifest.vendorImports),
+    'vendor import edge digest mismatch');
   assert.equal(entryManifest.dependencyState?.mode,'node-builtins-only',
     'policy dependency state must reject unpinned third-party packages');
   assert.ok(Array.isArray(entryManifest.orderedPromptChain)&&entryManifest.orderedPromptChain.length>0,
@@ -465,7 +490,8 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   const policyDefinition={
     schema:'aichi-role-policy-definition-v1',deckSha256,policyVersion,
     policyProducerId:producerId,entryManifestSha256,policyConstraintsSha256,
-    runtimePinUnionSha256,loadedProcessClosureSha256,observationContractSha256,
+    runtimePinUnionSha256,loadedProcessClosureSha256,cardPoolInitializationSha256,
+    observationContractSha256,
     promptChainSha256,sharedEnginePatchSha256,policyOptions
   };
   return {
@@ -473,7 +499,7 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
     deckSha256,policySha256:evidenceBundleSha256(policyDefinition),
     entryManifestSha256,challengeSuiteSha256,policyVersion,
     observationContractSha256,promptChainSha256,sharedEnginePatchSha256,
-    runtimePinUnionSha256,loadedProcessClosureSha256,
+    runtimePinUnionSha256,loadedProcessClosureSha256,cardPoolInitializationSha256,
     policyOptionsSha256:evidenceBundleSha256(policyOptions),policyDefinition,entryManifest
   };
 }
@@ -500,11 +526,32 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     'frozen policy plan digest does not match its contents');
   const candidate=core.candidate;
   const runtimePinEvidence=core.runtimePinEvidence;
-  assert.ok(runtimePinEvidence?.schema==='aichi-runtime-pin-evidence-v1',
+  assert.ok(runtimePinEvidence?.schema==='aichi-runtime-pin-evidence-v2',
     'frozen policy plan must contain runtime pin evidence');
   assert.match(runtimePinEvidence.unionSha256??'',SHA256,'runtime pin union digest is invalid');
   assert.match(runtimePinEvidence.loadedProcessClosureSha256??'',SHA256,
     'loaded process closure digest is invalid');
+  assert.match(runtimePinEvidence.cardPoolInitializationSha256??'',SHA256,
+    'card-pool initialization digest is invalid');
+  const cardPoolReceipt=trial.cardPoolInitializationReceipt;
+  assert.ok(cardPoolReceipt?.schema==='agent36-twinleaf-card-pool-initialization-v1',
+    'trial must carry the exact native card-pool initialization receipt');
+  assert.equal(cardPoolReceipt.enginePin,trial.vendorCommitSha,
+    'card-pool initialization engine pin differs from the trial engine');
+  assert.equal(cardPoolReceipt.startupPath,'vendor/twinleaf/ptcg-server/start.js',
+    'card-pool startup source path is invalid');
+  assert.match(cardPoolReceipt.startupSha256??'',SHA256,'card-pool startup SHA-256 is invalid');
+  assert.ok(Array.isArray(cardPoolReceipt.setNames)&&cardPoolReceipt.setNames.length>0,
+    'card-pool receipt must preserve ordered set names');
+  assert.equal(new Set(cardPoolReceipt.setNames).size,cardPoolReceipt.setNames.length,
+    'card-pool receipt contains duplicate set names');
+  assert.equal(cardPoolReceipt.definedSetCount,cardPoolReceipt.setNames.length,
+    'card-pool defined-set count differs from its set list');
+  assert.ok(Number.isInteger(cardPoolReceipt.cardCount)&&cardPoolReceipt.cardCount>0,
+    'card-pool receipt card count is invalid');
+  const cardPoolInitializationSha256=evidenceBundleSha256(cardPoolReceipt);
+  assert.equal(cardPoolInitializationSha256,runtimePinEvidence.cardPoolInitializationSha256,
+    'card-pool initialization receipt digest differs from frozen runtime evidence');
   const opponent=core.opponentPolicyBundle.ranks.find(row=>row.rank===opponentIdentity.rank);
   assert.ok(opponent&&opponent.sourceStatus==='authenticated',
     'opponent rank must be authenticated in the frozen policy plan');
@@ -528,6 +575,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
       label+' runtime pin union digest mismatch');
     assert.equal(identity.policyDefinition.loadedProcessClosureSha256,identity.loadedProcessClosureSha256,
       label+' loaded process closure digest mismatch');
+    assert.equal(identity.policyDefinition.cardPoolInitializationSha256,identity.cardPoolInitializationSha256,
+      label+' card-pool initialization digest mismatch');
     assert.equal(identity.policyDefinition.observationContractSha256,identity.observationContractSha256,
       label+' observation contract digest mismatch');
     assert.equal(identity.policyDefinition.promptChainSha256,identity.promptChainSha256,
@@ -547,10 +596,14 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     'candidate and opponent must use the same runtime pin union');
   assert.equal(candidateIdentity.loadedProcessClosureSha256,opponentIdentity.loadedProcessClosureSha256,
     'candidate and opponent must use the same loaded process closure');
+  assert.equal(candidateIdentity.cardPoolInitializationSha256,opponentIdentity.cardPoolInitializationSha256,
+    'candidate and opponent must use the same card-pool initialization');
   assert.equal(candidateIdentity.runtimePinUnionSha256,runtimePinEvidence.unionSha256,
     'role identities do not match the frozen runtime pin union');
   assert.equal(candidateIdentity.loadedProcessClosureSha256,runtimePinEvidence.loadedProcessClosureSha256,
     'role identities do not match the frozen loaded process closure');
+  assert.equal(candidateIdentity.cardPoolInitializationSha256,runtimePinEvidence.cardPoolInitializationSha256,
+    'role identities do not match the frozen card-pool initialization');
   for(const key of ['enginePin','runnerRevision','nodeVersion','nodePlatform','nodeArch'])
     assert.equal(candidateIdentity.entryManifest[key],opponentIdentity.entryManifest[key],
       'candidate and opponent entry manifests must share '+key);
@@ -612,6 +665,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     policyConstraintsSha256:constraintsSha,
     runtimePinUnionSha256:candidateIdentity.runtimePinUnionSha256,
     loadedProcessClosureSha256:candidateIdentity.loadedProcessClosureSha256,
+    cardPoolInitializationSha256:candidateIdentity.cardPoolInitializationSha256,
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
