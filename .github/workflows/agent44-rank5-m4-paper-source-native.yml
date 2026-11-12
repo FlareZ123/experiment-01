@@ -65,7 +65,8 @@ jobs:
         if: ${{ inputs.mode == 'release-case' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs
-          node --test tests/2026-11/agent44-rank5-ranger-source-alias.test.cjs
+          node --check simulation/twinleaf/agent36-live-paper-root-receipts.cjs
+          node --test tests/2026-11/agent44-rank5-ranger-source-alias.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs
           node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs --inspect-only
       - name: Fetch pinned vendor revision
         if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' || inputs.mode == 'gengar-forest-stone-posthoc' }}
@@ -235,8 +236,8 @@ jobs:
         if: ${{ always() && inputs.mode == 'release-case' }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent44-first-independent-rank5-newmoon-native-case-v1
-          path: artifacts/agent44-first-independent-rank5-newmoon-case-v1.json
+          name: agent44-first-independent-rank5-newmoon-native-case-v2
+          path: artifacts/agent44-first-independent-rank5-newmoon-case-v2.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive complete root ledgers and original physical opening receipts
