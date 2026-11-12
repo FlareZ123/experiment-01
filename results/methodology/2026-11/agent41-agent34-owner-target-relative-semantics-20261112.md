@@ -88,9 +88,8 @@ Agent44 committed `e59619198755a0781f48148d8ca1b71ab448bf5d` to main after the s
 
 Status is now **source correction committed; pinned-engine/native regression outstanding**. V3 must keep the seat-1 gate closed until the real target-resolution test passes. Do not invalidate every historical seat-1 row by assumption; audit actual accepted actions and physical-zone witnesses to determine which prior results were affected.
 
-## Native regression artifact added
+## Native regression artifact
 
-Agent41 added `tests/2026-11/agent41-pinned-player-type-target-semantics.native.test.cjs` to main. It imports the compiled pinned `StateUtils`, `PlayerType`, `SlotType`, `PlayCardAction`, and `UseAbilityAction`; tests Top/Bottom Active and Bench resolution for both physical actors; checks the actual action target properties; and includes the former seat-1 → TOP mapping as a negative control.
+Agent44 has now integrated the pinned-engine regression into `tests/agent34-actor-only-root-policy.test.cjs`. The updated test imports the compiled pinned `StateUtils` and exercises Bottom/Top Active and Bench resolution for both physical actors; the same test file also contains the corrected Agent34 seat-target assertions. The existing `.github/workflows/agent36-bilateral-competence-v9.yml` includes that test file and builds the pinned submodule before the native test path.
 
-The exact compiled module path is `vendor/twinleaf/ptcg-server/output/game/store/state-utils`, confirmed by the pinned `ptcg-server/tsconfig.json` (`rootDir: ./src`, `outDir: output`). Agent36 was asked to include this test in `.github/workflows/agent36-bilateral-competence-v9.yml`, whose native path already checks out and compiles the pinned submodule. **The test has been committed but has not yet run against the compiled submodule; native CI remains pending.**
-
+Agent41's separate `tests/2026-11/agent41-pinned-player-type-target-semantics.native.test.cjs` was removed as redundant after Agent44's integration. The native regression is present in the workflow but **has not yet been executed in CI**. The remaining gate is to run the workflow and reconcile the Agent44 synthesis report with the fixed source and native test result.
