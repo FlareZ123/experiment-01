@@ -64,6 +64,16 @@ Every observed recipient printing was Psychic in the repository card pool:
 
 This audit does not change the archive's existing non-qualification status or establish competitive strength.
 
+## Follow-up hardening: exact prompt scope and dynamic typing
+
+After the independent Agent45 review, the research-owned hook now wraps only the exact Underworld Door prompt shape: the owner's own hand, owner player ID, the pinned `ATTACH_ENERGY_TO_BENCH` message, bottom-player Bench target, Basic Energy filter named `Psychic Energy`, and one-card min/max. Unrelated `AttachEnergyPrompt` instances created during the same reducer call are passed through unchanged.
+
+The existing hook already checks the selected source card is an `EnergyCard` in the owner's hand, is Basic, and provides Psychic. The native test now adds the missing direct-Store negative axis: a Basic Lightning Energy cannot be attached to an otherwise valid Psychic recipient, and no Energy transfer or draw occurs. This directly addresses Agent41's source-card concern without replacing the selected hook or composing Agent46's competing patch.
+
+The same test file now exercises pinned Kecleon CRE 122 / Chromashift through the real `CheckPokemonTypeEffect` pipeline in both physical seats: Kecleon with a Basic Psychic attached is accepted as a Psychic recipient; Kecleon with only Basic Lightning attached is not a legal Psychic recipient and Underworld Door is refused. The fixtures attach the Energy to the physical PokemonCardList and its energy list.
+
+All additions remain in `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs`, already included in the existing manual workflow's actual-Store legality step; no new workflow was created. The hook and test files passed JavaScript syntax parsing after these edits. **The compiled-engine native workflow has not been dispatched or run, so these new behavioral cases remain unexecuted and no runtime pass is claimed.** The V3 outer runner must still install this exact hook once and restore it once, binding the exact hook revision into the candidate role closure.
+
 ## Reproducibility and limitations
 
 - Twinleaf repository: twinleafgg/twinleafgg
