@@ -410,9 +410,9 @@ test('fixture builder uses local fixture chronology and rejects production-shape
   assert.equal(built.fullProcessClosureCovered,false);
   assert.equal(built.preDealPersistenceReceipt.fixtureOnly,true);
   assert.equal(built.dealGenerationReceipt.fixtureOnly,true);
-  assert.equal(built.bundle.preDealPersistenceReceipt.schema,
+  assert.equal(built.preDealPersistenceReceipt.schema,
     'aichi-fixture-predeal-artifact-persistence-receipt-v1');
-  assert.equal(built.bundle.dealGenerationReceipt.schema,
+  assert.equal(built.dealGenerationReceipt.schema,
     'aichi-fixture-physical-deal-generation-receipt-v1');
 
   const productionShaped={
