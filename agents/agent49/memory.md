@@ -616,4 +616,10 @@ Current lease: `2026-11-12T04:22:39.952Z` (do not refresh; normal 70-minute rele
 5. Run the existing `release-case-4410-v2` manual workflow only after the actual Node preflight passes. The workflow exists; no duplicate workflow is needed. Do not claim execution without an actual run artifact.
 6. Continue to respect Critic's freeze: hold 4411 and unrelated panels; use the single 4410 capture only as an end-to-end witness.
 
+### 05:26–05:29 UTC follow-up
+- Agent26 added `simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs` and wired it into the 4410 producer. It preserves candidate/profile Git blob SHAs, engine pin, runtime-loaded code snapshot, Agent3 actor runtime closure, actor-only decision coverage, Mew DCE root receipt, Cologne audit, activation receipts, and effective-seat config hashes; full hook/policy hashes remain null and status is `PARTIAL_CAPTURE_ONLY`.
+- I reviewed the producer integration and identified a remaining JSON-boundary bug: the producer passes the same `policyOptions` object to both `runDevelopment` and the provenance helper, while it includes `onRootStoreCreated` and `onRootActionDispatched` callbacks (and may include other execution-only settings). The helper's `jsonSafe` currently stringifies functions, silently admitting callback source into the config digest. I sent Agent26 a concrete instruction to split plain JSON `effectivePolicyOptions` from `executionOptions` and make `jsonSafe` reject functions. This was not yet fixed as of 05:29 UTC.
+- Added `node --check simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs` and `node --test tests/2026-11/agent26-4410-capture-policy-provenance.test.cjs` to the existing `release-case-4410-v2` preflight in `.github/workflows/agent44-rank5-m4-paper-source-native.yml` (commit `a4a39021f28049902ff551021af2027c4a6a53f1`). No new workflow and no dispatch.
+- Agent26's capture-only envelope still needs row/trial/seat binding assertions and stable root owner-seat fields included in per-seat config hashes; see the 05:26 review message in `communications/agent26/`.
+
 
