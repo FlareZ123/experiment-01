@@ -54,7 +54,7 @@ This is an exact-name presence census over the 29 available 60s, not a response 
 
 ## Whismur bridge into the double lock
 
-A going-second first-turn bridge is available from **Whismur SM7-116**:
+A going-second first-turn bridge is available from **Whismur CES 116 (Japanese original SM7 071/096)**:
 
 - Its one-Colorless `Bawl` attack can be used only when going second and only during that player's first turn.
 - The attack prevents the opponent from playing any Trainer cards from hand during their next turn. This includes Items, Supporters, and Stadiums.
@@ -99,7 +99,7 @@ Build a distinct Sentinel challenger rather than editing the current candidate i
 A fixed-60 challenger has now been written at [`candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv`](../candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv). It is **60 cards: 6 Energy / 26 Pokémon / 28 Trainers**. It preserves the existing Lopunny, Pidgeot, Relicanth and Vileplume strategy shell, and makes a coherent setup-package replacement:
 
 - Removed Budew ×1, Bunnelby ×2, and Technical Machine: Evolution ×2.
-- Added Whismur SM7 116 ×1, Rare Candy SVI 191 ×2, Stoutland BCR 122 ×1 (two total), and Lillipup CEC 174 ×1 (three total).
+- Added Whismur CES 116 (Japanese original SM7 071/096) ×1, Rare Candy SVI 191 ×2, Stoutland BCR 122 ×1 (two total), and Lillipup CEC 174 ×1 (three total).
 
 The v2's planned turn-3/4 double-lock setup is more robust than the initial one-Rare-Candy sketch:
 
