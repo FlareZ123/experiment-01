@@ -42,18 +42,13 @@ function researchRelativePath(root,filename) {
   if(typeof filename!=='string') return null;
   const absolute=path.resolve(filename);
   const lexical=path.relative(root,absolute).split(path.sep).join('/');
-  const lexicalInside=withinRoot(lexical);
-  // Match the production pin's vendor/package-manager boundary before
-  // realpath checks; those trees are independently pinned or excluded.
-  if(lexicalInside && (lexical.startsWith('vendor/') ||
+  // Match the production pin: only lexically repository-owned research
+  // modules participate. This also avoids touching stale external cache paths.
+  if(!withinRoot(lexical) || lexical.startsWith('vendor/') ||
       lexical.startsWith('node_modules/') ||
-      !EXTENSIONS.has(path.extname(lexical)))) return null;
+      !EXTENSIONS.has(path.extname(lexical))) return null;
   const real=fs.realpathSync(absolute);
   const actual=path.relative(root,real).split(path.sep).join('/');
-  const realInside=withinRoot(actual);
-  assert.equal(lexicalInside,realInside,
-    'fixture pin found a module path crossing the repository boundary: '+filename);
-  if(!lexicalInside) return null;
   assert.equal(actual,lexical,
     'fixture pin rejects symlinked research modules: '+lexical);
   return lexical;
@@ -110,16 +105,16 @@ function withFixtureScopedRolePin(repositoryRoot,expectedByPath,execute) {
   const {root,expected}=expectedRolePaths(repositoryRoot,expectedByPath);
   const excluded=[];
   let callbackError=null;
-  for(const filename of Object.keys(require.cache).sort()) {
-    const relative=researchRelativePath(root,filename);
-    if(relative===null || expected.has(relative)) continue;
-    const cached=require.cache[filename];
-    if(!cached) continue;
-    excluded.push({filename,relative,module:cached});
-    delete require.cache[filename];
-  }
-
   try {
+    for(const filename of Object.keys(require.cache).sort()) {
+      const relative=researchRelativePath(root,filename);
+      if(relative===null || expected.has(relative)) continue;
+      const cached=require.cache[filename];
+      if(!cached) continue;
+      excluded.push({filename,relative,module:cached});
+      delete require.cache[filename];
+    }
+
     // Fail before the game if any role dependency was not already loaded.
     fixtureRolePolicyCacheEntries(root,expectedByPath,Object.keys(require.cache));
     const pinned=withPinnedResearchModuleLoads(root,Object.fromEntries(expected),execute);
