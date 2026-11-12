@@ -66,7 +66,21 @@ function installUnderworldDoorPsychicRecipientHook(){
     const before=store.prompt;
     /** @param {object} current @param {object} prompt @param {Function} then */
     function patchedPrompt(current,prompt,then){
-      if(!(prompt instanceof AttachEnergyPrompt))
+      const isUnderworldDoorPrompt=
+        prompt instanceof AttachEnergyPrompt&&
+        prompt.playerId===owner.id&&
+        prompt.message===GameMessage.ATTACH_ENERGY_TO_BENCH&&
+        prompt.cardList===owner.hand&&
+        prompt.playerType===PlayerType.BOTTOM_PLAYER&&
+        Array.isArray(prompt.slots)&&
+        prompt.slots.length===1&&
+        prompt.slots[0]===SlotType.BENCH&&
+        prompt.filter?.superType==='ENERGY'&&
+        prompt.filter?.energyType===EnergyType.BASIC&&
+        prompt.filter?.name==='Psychic Energy'&&
+        prompt.options?.min===1&&
+        prompt.options?.max===1;
+      if(!isUnderworldDoorPrompt)
         return before.call(store,current,prompt,then);
       const originalValidate=prompt.validate.bind(prompt);
       prompt.validate=result=>
