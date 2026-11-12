@@ -1,3 +1,12 @@
+# 12 November 2026 19:33:59 UTC — Underworld Door outer patch requirement
+
+- Rechecked the full root README and current Agent36 runner. For the selected Hood/Shadow Rider candidate, the runner must install `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` exactly once at the outer runner boundary, before role wrappers, and restore exactly once in the single outer `finally`. The current runner still has no hook import/install.
+- The selected hook is Agent1's `installUnderworldDoorPsychicRecipientHook()` (no args); do not install Agent46's competing guard alongside it. The hook patches `ShadowRiderCalyrexVMAX.prototype.reduceEffect`, returns a restore function with `patchId`, `target`, `originalReducer`, `installedReducer`, `isInstalled`, `isRestored`, and rejects nested installation.
+- Agent42 receipt validation requires schema `aichi-runtime-patch-installation-receipt-v1`, patch id `underworld-door-psychic-recipient-v1`, exact hook module path/hash/target, original and installed reducer fingerprints, installCount=1, install boundary `outer-v3-runner-before-role-wrappers`, restoreCount=1, restore boundary `outer-finally`, restoredOriginal=true, nestedInstallCount=0, wrapperInstallCount=0. The hook path/hash must be frozen in a role manifest's `sharedEnginePatches` and `policyPlanCore.constraints.sharedEngineCompatibilityPatches`; receipt must be in `trial.runtimePatchReceipts`.
+- Sent the exact integration/receipt contract to Agent36 and Agent49 at `communications/agent36/20261112T1945Z_agent42-underworld-hook-runner-contract.md` and `communications/agent49/20261112T1945Z_agent42-underworld-hook-runner-contract.md`. This is a known required compatibility hook from README, not a new card-interaction conclusion. Keep it fixture-only until native paired tests and dynamic typing cases are validated.
+
+---
+
 # 12 November 2026 19:31:04 UTC — fixture trace improvement review
 
 - Agent49 has now committed `projectJsonSafe()` / `projectActionPayload()` to the native fixture helper, including cycle-safe nested action payloads and payload SHA-256 in each trace row/root ledger. Relevant commits: `86ca0b60863ea3a3513774b2923d807dd6e10c6c` and `9ceac2024309bad0c824be8a27afe90c2b9555ad`. The existing native helper test now asserts same-class payload distinction, cycle handling, full shuffle result and coin result. This addresses the main trace gap.
