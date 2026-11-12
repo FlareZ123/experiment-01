@@ -121,3 +121,22 @@ test('V2 builder and fixture target the frozen 4410 producer, never held 4411',(
     'firstSettledPublicAttack','finalBoard','finalPrizes'
   ]) assert.ok(builder.includes(field),`V2 signed evidence envelope must bind ${field}`);
 });
+
+
+test('V2 contender bundle binds the corrected Lockbreaker manifest, not the source 60',()=>{
+  const builder=fs.readFileSync(path.join(ROOT,
+    'simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs'),'utf8');
+  const start=builder.indexOf("'contender-printed-60':");
+  const end=builder.indexOf("'full-physical-deal':",start);
+  assert.ok(start>=0&&end>start,'V2 bundle must retain a contender-printed-60 object');
+  const contender=builder.slice(start,end);
+  assert.match(contender,/candidateManifestBinding/,
+    'Contender object must bind the producer correction');
+  assert.match(contender,/boundCandidateJapanesePrintManifest/);
+  assert.match(contender,/candidateJapanesePrintInventoryCanonicalSha256/);
+  assert.match(contender,/registrationCandidateManifestPointer/);
+  assert.match(contender,/candidateOfficialJapaneseDeckCode/);
+  assert.match(contender,/candidateDerivedFromOfficialJapaneseSourceDeckCode/);
+  assert.doesNotMatch(contender,/new-moon-perfection-source-60\.json/,
+    'Unmodified source manifest must not be labelled as the contender');
+});
