@@ -30,22 +30,38 @@ function create(root, name, content) {
   return sha256(fs.readFileSync(filename));
 }
 
-test('frozen declared entry and dynamic dependency run; both hashes are attested', () =>
+test('frozen preloaded entry and dynamic dependency run; both hashes are attested', () =>
   fixture((root, localRequire) => {
     const first = create(root, 'entry.cjs',
       "module.exports = () => require('./late.cjs').value;\n");
     const second = create(root, 'late.cjs', 'exports.value = 42;\n');
+    // Both role closure files must be loaded before the pin is installed.
+    localRequire('./late.cjs');
+    localRequire('./entry.cjs');
     const prior = Module._load;
     const {result, audit} = withPinnedResearchModuleLoads(root, {
       'entry.cjs':first, 'late.cjs':second
     }, () => localRequire('./entry.cjs')());
     assert.equal(result, 42);
     assert.deepEqual(audit.files, ['entry.cjs', 'late.cjs']);
-    assert.equal(audit.preloadedChecks, 0);
+    assert.deepEqual(audit.preloadedFiles, ['entry.cjs', 'late.cjs']);
+    assert.equal(audit.preloadedChecks, 2);
     assert.ok(audit.requireChecks >= 2);
     assert.equal(audit.endChecks, 2);
     assert.equal(audit.guardRestored, true);
     assert.strictEqual(Module._load, prior);
+  }));
+
+test('expected but not preloaded research module is rejected before game execution', () =>
+  fixture((root, localRequire) => {
+    const first = create(root, 'entry.cjs',
+      "module.exports = () => require('./late.cjs');\n");
+    const second = create(root, 'late.cjs', 'exports.value = 42;\n');
+    localRequire('./entry.cjs');
+    assert.throws(() => withPinnedResearchModuleLoads(root, {
+      'entry.cjs':first, 'late.cjs':second
+    }, () => localRequire('./entry.cjs')()),
+    /Expected research module not preloaded before runtime pin: late.cjs/);
   }));
 
 test('unknown dynamic module blocked before executing its code', () =>
@@ -54,8 +70,8 @@ test('unknown dynamic module blocked before executing its code', () =>
     const first = create(root, 'entry.cjs',
       "module.exports = () => require('./late.cjs');\n");
     create(root, 'late.cjs',
-      "require('node:fs').writeFileSync(" +
-      JSON.stringify(marker) + ",'ran');\n");
+      "require('node:fs').writeFileSync(" + JSON.stringify(marker) + ",'ran');\n");
+    localRequire('./entry.cjs');
     const prior = Module._load;
     assert.throws(() => withPinnedResearchModuleLoads(root,
       {'entry.cjs':first}, () => localRequire('./entry.cjs')()),
@@ -67,6 +83,7 @@ test('unknown dynamic module blocked before executing its code', () =>
 test('modified source rejected before first run', () =>
   fixture((root, localRequire) => {
     const original = create(root, 'entry.cjs', 'module.exports = 1;\n');
+    localRequire('./entry.cjs');
     fs.writeFileSync(path.join(root, 'entry.cjs'), 'module.exports = 2;\n');
     assert.throws(() => withPinnedResearchModuleLoads(root,
       {'entry.cjs':original}, () => localRequire('./entry.cjs')),
@@ -76,19 +93,21 @@ test('modified source rejected before first run', () =>
 test('module already in require.cache is attested at installation', () =>
   fixture((root, localRequire) => {
     create(root, 'entry.cjs', 'module.exports = 1;\n');
-    assert.equal(localRequire('./entry.cjs'), 1);
+    localRequire('./entry.cjs');
     assert.throws(() => withPinnedResearchModuleLoads(root, {},
-      () => 'never executed'), /Unregistered research module before execution/);
+      () => 'never executed'),
+    /Unregistered research module before execution/);
   }));
 
 test('a loaded source file changed during game fails final check', () =>
   fixture((root, localRequire) => {
-    const first = create(root, 'entry.cjs',
-      "require('node:fs').writeFileSync(__filename,"+
-      "'module.exports = 99;\\n'); module.exports = 1;\n");
+    const first = create(root, 'entry.cjs', 'module.exports = 1;\n');
+    localRequire('./entry.cjs');
     assert.throws(() => withPinnedResearchModuleLoads(root,
-      {'entry.cjs':first}, () => localRequire('./entry.cjs')),
-    /Research module changed from independently frozen manifest/);
+      {'entry.cjs':first}, () => {
+        fs.writeFileSync(path.join(root, 'entry.cjs'), 'module.exports = 99;\n');
+        return 1;
+      }), /Research module changed from independently frozen manifest/);
   }));
 
 test('unexpected game exception restores global native loader exactly', () =>
@@ -113,11 +132,12 @@ test('relative research import escaping repository is blocked before evaluation'
     const outside = path.join(outer, 'escape.cjs');
     const marker = path.join(outer, 'did-execute');
     fs.writeFileSync(outside,
-      "require('node:fs').writeFileSync(" +
-      JSON.stringify(marker) + ",'ran'); module.exports=1;\n");
+      "require('node:fs').writeFileSync(" + JSON.stringify(marker) +
+      ",'ran'); module.exports=1;\n");
     const request = path.relative(root, outside);
     const entryHash = create(root, 'entry.cjs',
       'module.exports = () => require(' + JSON.stringify(request) + ');\n');
+    localRequire('./entry.cjs');
     try {
       assert.throws(() => withPinnedResearchModuleLoads(root,
         {'entry.cjs':entryHash}, () => localRequire('./entry.cjs')()),
