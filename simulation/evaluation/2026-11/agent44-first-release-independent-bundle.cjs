@@ -157,7 +157,7 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
     'The source deck code must never be attributed to the Lockbreaker contender');
   assert.equal(original.intake.candidateOfficialJapaneseDeckCode,null);
   assert.equal(candidateManifestBinding.candidateDerivedFromOfficialJapaneseSourceDeckCode,
-    original.registration.candidateOfficialJapaneseDeckCode);
+    original.intake.candidateDerivedFromOfficialJapaneseSourceDeckCode);
   assert.equal(candidateManifestBinding.paperLegalityIndependentlyCertified,false);
   const candidateManifestBindingSha256=nativeJsonSha256(candidateManifestBinding);
   assert.equal(original.intake.candidateManifestBindingSha256,candidateManifestBindingSha256);
