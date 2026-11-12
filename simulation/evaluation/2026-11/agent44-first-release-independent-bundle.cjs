@@ -120,7 +120,7 @@ function rootReviewWorklist(raw,roots){
  * created by this producer.
  * @param {object} original Parsed Agent44 V2 native intake.
  */
-function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
+function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   assert.equal(original?.schema,INTAKE_SCHEMA,
     'Only the prospective Agent44 V2 intake is accepted');
   assert.equal(original?.intake?.schema,INTAKE_SCHEMA);
@@ -134,13 +134,13 @@ function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
   const trialId=original.intake.trial.id;
   assert.equal(trialId,TRIAL_ID);
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
-  assert.ok(clockReceiptInput===null||(typeof clockReceiptInput==='object'&&!Array.isArray(clockReceiptInput)),
+  assert.ok(clockEvidence===null||(typeof clockEvidence==='object'&&!Array.isArray(clockEvidence)),
     'External clock receipt input must be one JSON object');
-  if(clockReceiptInput!==null){
-    assert.equal(clockReceiptInput.trialId,trialId,
-      'clockReceiptInput.trialId must match the frozen 4410 trial');
-    assert.equal(typeof clockReceiptInputRef,'string');
-    assert.ok(clockReceiptInputRef.trim().length>0,
+  if(clockEvidence!==null){
+    assert.equal(clockEvidence.trialId,trialId,
+      'clockEvidence.trialId must match the frozen 4410 trial');
+    assert.equal(typeof clockEvidenceRef,'string');
+    assert.ok(clockEvidenceRef.trim().length>0,
       'A nonempty external clock receipt reference is required');
   }
   assert.ok(original.intake.runtime?.researchRevisionSha,
@@ -191,17 +191,17 @@ function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
   const native=original.intake.native??{};
   const recorded=original.intake.nineEvidenceObjects??{};
   const clockFields={
-    eventStage:clockReceiptInput?.eventStage??null,
-    clockDisposition:clockReceiptInput?.clockDisposition??null,
-    paperReceiptId:clockReceiptInput?.paperReceiptId??null,
-    clockReceiptId:clockReceiptInput?.clockReceiptId??null,
-    adjudicationProtocolSha:clockReceiptInput?.adjudicationProtocolSha??null,
-    noCallClockPacket:clockReceiptInput?.noCallClockPacket??null,
-    timeCallPacket:clockReceiptInput?.timeCallPacket??null,
-    extensionLedgerPacket:clockReceiptInput?.extensionLedgerPacket??null
+    eventStage:clockEvidence?.eventStage??null,
+    clockDisposition:clockEvidence?.clockDisposition??null,
+    paperReceiptId:clockEvidence?.paperReceiptId??null,
+    clockReceiptId:clockEvidence?.clockReceiptId??null,
+    adjudicationProtocolSha:clockEvidence?.adjudicationProtocolSha??null,
+    noCallClockPacket:clockEvidence?.noCallClockPacket??null,
+    timeCallPacket:clockEvidence?.timeCallPacket??null,
+    extensionLedgerPacket:clockEvidence?.extensionLedgerPacket??null
   };
-  const clockAssessment=clockReceiptInput?
-    inspectOfficialAichiClock(clockReceiptInput):null;
+  const clockAssessment=clockEvidence?
+    inspectOfficialAichiClock(clockEvidence):null;
   const clockProtocolSha256=aichiClockProtocolSha256();
   const rawSha256=evidenceBundleSha256(raw);
   const worklistSha256=evidenceBundleSha256(worklist);
@@ -286,8 +286,8 @@ function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
     },
     'clock-continuity':{
       captured:recorded.officialClockAndNoCall??null,
-      clockReceiptInput,
-      clockReceiptInputRef,
+      clockEvidence,
+      clockEvidenceRef,
       clockAssessment,
       clockProtocolSha256,
       mappedTrialClockFields:clockFields,
@@ -445,8 +445,8 @@ function build(original,{clockReceiptInput=null,clockReceiptInputRef=null}={}){
     },
     nativeDevelopmentRow:src,
     postStoreZoneTape:zoneTape,
-    clockReceiptInput,
-    clockReceiptInputRef,
+    clockEvidence,
+    clockEvidenceRef,
     nativeGameRetainedAsDevelopmentOnly:true,
     noReviewEvidenceSynthesized:true,
     builderExecutionNeverRunsNativeGame:true
@@ -471,10 +471,10 @@ function save(output,data){
 if(require.main===module){
   assert.ok(process.argv[2],'Supply previously archived Agent44 V2 case JSON');
   const raw=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-  const clockReceiptInputRef=process.argv[4]??null;
-  const clockReceiptInput=clockReceiptInputRef?
-    JSON.parse(fs.readFileSync(clockReceiptInputRef,'utf8')):null;
-  const result=build(raw,{clockReceiptInput,clockReceiptInputRef});
+  const clockEvidenceRef=process.argv[4]??null;
+  const clockEvidence=clockEvidenceRef?
+    JSON.parse(fs.readFileSync(clockEvidenceRef,'utf8')):null;
+  const result=build(raw,{clockEvidence,clockEvidenceRef});
   const output=process.argv[3]??path.resolve(
     'artifacts/agent44-first-release-nine-object-intake-v2.json');
   save(output,result);
@@ -489,7 +489,7 @@ if(require.main===module){
     outcomeReady:result.independentAdmissionGate.gameOutcomeAdmissionReady,
     policyReady:result.independentAdmissionGate.competitivePolicyCompetenceReady,
     competitiveAdmission:result.independentAdmissionGate.competitiveAdmission,
-    clockReceiptInputSupplied:Boolean(clockReceiptInputRef),
+    clockEvidenceSupplied:Boolean(clockEvidenceRef),
     blockers:result.independentAdmissionGate.failures
   })));
 }

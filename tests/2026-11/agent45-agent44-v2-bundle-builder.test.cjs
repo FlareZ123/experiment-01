@@ -169,8 +169,8 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(result.bundle.trial.eventStage,null);
   assert.equal(result.bundle.trial.clockDisposition,null);
   assert.equal(result.bundle.trial.clockReceiptId,null);
-  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInput,null);
-  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidence,null);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockProtocolSha256,aichiClockProtocolSha256());
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,true);
@@ -279,43 +279,43 @@ test('missing 120-card inventory and incomplete receipt coverage remain explicit
   assert.equal(result.releaseStatus.competitiveAdmission,false);
 });
 
-test('external clockReceiptInput is trial-bound, referenced, and passed through the shared v3 scorer',()=>{
+test('external clockEvidence is trial-bound, referenced, and passed through the shared v3 scorer',()=>{
   const original=fixture();
-  const clockReceiptInput={
+  const clockEvidence={
     trialId:TRIAL,eventStage:'open-swiss',
     clockDisposition:'no-official-call',paperReceiptId:'paper-terminal-4410',
     clockReceiptId:null,adjudicationProtocolSha:aichiClockProtocolSha256(),
     noCallClockPacket:{stage:'open-swiss',paperTerminalEvidenceRef:'paper-terminal-4410'},
     timeCallPacket:null,extensionLedgerPacket:null
   };
-  const clockReceiptInputRef='review/clock-receipt-4410.json';
-  const result=build(original,{clockReceiptInput,clockReceiptInputRef});
+  const clockEvidenceRef='review/clock-receipt-4410.json';
+  const result=build(original,{clockEvidence,clockEvidenceRef});
   assert.equal(result.bundle.trial.eventStage,'open-swiss');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
   assert.equal(result.bundle.trial.adjudicationProtocolSha,aichiClockProtocolSha256());
-  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
-  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockReceiptInput,clockReceiptInput);
-  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,clockReceiptInputRef);
+  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockEvidence.noCallClockPacket);
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockEvidence,clockEvidence);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,clockEvidenceRef);
   assert.ok(result.releaseNineObjects['clock-continuity'].clockAssessment);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
 
-test('clockReceiptInput from another or unidentified trial is rejected',()=>{
+test('clockEvidence from another or unidentified trial is rejected',()=>{
   const original=fixture();
-  assert.throws(()=>build(original,{clockReceiptInput:{trialId:'5:4411:B:new-moon-lockbreaker-v1'},
-    clockReceiptInputRef:'review/clock.json'}),/clockReceiptInput.trialId/);
-  assert.throws(()=>build(original,{clockReceiptInput:{eventStage:'open-swiss'},
-    clockReceiptInputRef:'review/clock.json'}),/clockReceiptInput.trialId/);
-  assert.throws(()=>build(original,{clockReceiptInput:{trialId:TRIAL},
-    clockReceiptInputRef:null}),/clockReceiptInputRef/);
+  assert.throws(()=>build(original,{clockEvidence:{trialId:'5:4411:B:new-moon-lockbreaker-v1'},
+    clockEvidenceRef:'review/clock.json'}),/clockEvidence.trialId/);
+  assert.throws(()=>build(original,{clockEvidence:{eventStage:'open-swiss'},
+    clockEvidenceRef:'review/clock.json'}),/clockEvidence.trialId/);
+  assert.throws(()=>build(original,{clockEvidence:{trialId:TRIAL},
+    clockEvidenceRef:null}),/clockEvidenceRef/);
 });
 
 test('external Agent27 clock evidence maps exact fields without creating reviewer evidence',()=>{
   const original=fixture();
-  const clockReceiptInput={
+  const clockEvidence={
     trialId:TRIAL,eventStage:'open-swiss',clockDisposition:'no-official-call',
     paperReceiptId:'paper-terminal-4410',clockReceiptId:null,
     adjudicationProtocolSha:'protocol-sha',
@@ -323,17 +323,17 @@ test('external Agent27 clock evidence maps exact fields without creating reviewe
       paperTerminalEvidenceRef:'paper-terminal-4410'},
     timeCallPacket:null,extensionLedgerPacket:null
   };
-  const clockReceiptInputRef='review/clock-evidence-4410.json';
-  const result=build(original,{clockReceiptInput,clockReceiptInputRef});
+  const clockEvidenceRef='review/clock-evidence-4410.json';
+  const result=build(original,{clockEvidence,clockEvidenceRef});
   assert.equal(result.bundle.trial.eventStage,'open-swiss');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
   assert.equal(result.bundle.trial.adjudicationProtocolSha,'protocol-sha');
-  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
-  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockReceiptInput,clockReceiptInput);
-  assert.equal(result.releaseNineObjects['clock-continuity'].clockReceiptInputRef,
-    clockReceiptInputRef);
+  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockEvidence.noCallClockPacket);
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockEvidence,clockEvidence);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,
+    clockEvidenceRef);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockProtocolSha256,
     aichiClockProtocolSha256());
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
