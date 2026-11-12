@@ -406,7 +406,7 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
 
 function assertPersistedPreDealMatches(persisted,verified) {
   const fields=[
-    'producerId','trialId','gameRegistration','policyPlanCore','policyPlanSha256',
+    'ready','status','fixtureOnly','producerId','trialId','gameRegistration','policyPlanCore','policyPlanSha256',
     'policyAttestationBundle','policyAttestationBundleSha256',
     'policyRegistration','policyRegistrationSha256'
   ];
@@ -416,6 +416,11 @@ function assertPersistedPreDealMatches(persisted,verified) {
 }
 
 function buildV3GameBundle(input) {
+  if (input?.preDeal?.fixtureOnly===true)
+    fail('fixture-only pre-deal artifacts cannot enter the production builder');
+  if (input?.preDeal?.ready!==true ||
+      input.preDeal.status!=='ready-before-deal')
+    fail('persisted pre-deal artifact was not marked ready before deal generation');
   const preDealInput = {
     producerId:input?.preDeal?.producerId,
     trialId:input?.preDeal?.trialId,
@@ -434,6 +439,11 @@ function buildV3GameBundle(input) {
 
 function buildV3GameBundleFixture(input,fixtureRegistry) {
   assert.ok(plainObject(fixtureRegistry),'Fixture reviewer registry is required');
+  if (input?.preDeal?.fixtureOnly!==true)
+    fail('fixture builder requires an explicitly fixture-only pre-deal artifact');
+  if (input?.preDeal?.ready!==true ||
+      input.preDeal.status!=='ready-before-deal')
+    fail('fixture pre-deal artifact was not marked ready before deal generation');
   const preDealInput = {
     producerId:input?.preDeal?.producerId,
     trialId:input?.preDeal?.trialId,
