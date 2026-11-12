@@ -23,13 +23,14 @@ The builder deliberately reuses the existing V3 evaluator, Agent12 field validat
 - validates the frozen 32-rank candidate-versus-field policy core with the existing Agent12 validator;
 - computes the existing policy-plan and signed-attestation bundle digests;
 - verifies candidate-policy and opponent-policy attestations against the production Agent45 reviewer registry;
-- returns no usable `policyRegistration` unless every pre-deal gate passes.
+- returns no usable `policyRegistration` unless every pre-deal gate passes;
+- returns a deterministic `preDealArtifactRef` (defaulting to the game registration ref plus `.policy-predeal.json`) and a SHA-256 over the immutable pre-deal core.
 
 The current production reviewer registry has no authorized reviewers, so production preparation correctly returns `blocked-before-deal`. It does not mint signatures, invent reviewer identities, or substitute fixture keys.
 
 ### Postgame phase
 
-`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object and its digests to match exactly, and rejects a changed or omitted pre-deal artifact. It then:
+`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object, artifact reference and immutable-core digest to match exactly, and rejects a changed or omitted pre-deal artifact. The runner must write the full ready pre-deal object at `preDealArtifactRef` and commit/push it before deal generation; the builder verifies its contents/digest, while Git history and independent review establish chronology. It then:
 
 - checks the actual application receipt against the frozen candidate identity and the selected authenticated opponent-rank identity;
 - checks role-to-physical-seat mapping, first player, deck identities, engine pin, runner revision and decision-trace digest;
