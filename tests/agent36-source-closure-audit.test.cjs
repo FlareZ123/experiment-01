@@ -47,3 +47,19 @@ test('audits its own source without treating documentation as an import',()=>{
   assert.deepEqual(audit.limitations.dynamicRequireSites,[]);
   assert.deepEqual(audit.limitations.externalRequires,[]);
 });
+
+test('records pinned vendor imports without recursing into upstream source',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-source-vendor-'));
+  try {
+    write(path.join(root,'entry.cjs'),"require('./research.cjs');\\n");
+    write(path.join(root,'research.cjs'),"require('../vendor/twinleaf/engine.cjs');\\n");
+    write(path.join(root,'vendor/twinleaf/engine.cjs'),"import('upstream-dynamic'); module.exports=process.env.UNPINNED;\\n");
+    const audit=auditSourceClosure(root,['entry.cjs']);
+    assert.deepEqual(audit.files.map(file=>file.path),['entry.cjs','research.cjs']);
+    assert.equal(audit.vendorImports.length,1);
+    assert.equal(audit.vendorImports[0].path,'vendor/twinleaf/engine.cjs');
+    assert.match(audit.vendorImports[0].sha256,/^[0-9a-f]{64}$/);
+    assert.deepEqual(audit.limitations.dynamicRequireSites,[]);
+    assert.deepEqual(audit.limitations.computedEnvSites,[]);
+  } finally {fs.rmSync(root,{recursive:true,force:true});}
+});
