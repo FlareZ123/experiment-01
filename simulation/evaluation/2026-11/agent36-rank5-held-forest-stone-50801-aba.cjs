@@ -91,7 +91,18 @@ function summarize(record) {
   const opportunity=heldStoneOpportunity(record,record.candidateSeat);
   const carryover=record.nativeAttackDamageCarryover??
     nativeAttackDamageCarryover(record);
-  const seats=[0,1].map(seat=>{
+  const rawPaper=record.fullNativePaperRootReceipts??null;
+  const fullNativePaperRootReceiptSummary=rawPaper?{
+    schema:rawPaper.schema,
+    acceptedStoreRootCount:rawPaper.acceptedStoreRootCount,
+    rootOrdinalsUnique:rawPaper.rootOrdinalsUnique,
+    settledPhysicalIdentityClean:rawPaper.settledPhysicalIdentityClean,
+    paperPaymentReviewed:rawPaper.paperPaymentReviewed,
+    clockReviewed:rawPaper.clockReviewed,
+    competitiveGameQualified:rawPaper.competitiveGameQualified,
+    sha256:hash(rawPaper)
+  }:null;
+  const seats=[0,1].map(seat=>{}
     const selected=record.roots.filter(r=>r.playerSlot===seat);
     return {seat,forestStonePlayRoots:selected
       .filter(r=>r.action==='PlayCardAction'&&r.card==='Forest Seal Stone')
@@ -117,6 +128,7 @@ function summarize(record) {
     forestSealRootPolicy:forestSealPolicy,
     heldStoneOpportunity:opportunity,
     nativeAttackDamageCarryover:carryover,
+    fullNativePaperRootReceiptSummary,
     seats,
     candidatePerfectionPrizeReceipts:record.rootPhysicalLinked?
       perfectionPrizeReceipts(record.roots,record.physicalTape,0):null
@@ -156,7 +168,8 @@ function main(){
   const games=modes.map(mode=>arm(mode.phase,false,common,{
     resourceV3:true,ownerLillieAfterPass:true,
     minOpponentHandCount:6,
-    earlyForestSealRoot:mode.earlyForestSealRoot
+    earlyForestSealRoot:mode.earlyForestSealRoot,
+    captureFullNativePaperReceipts:true
   }));
   // Fail closed if the arm's requested Forest Seal Stone treatment did not
   // reach the real native actor-root policy. The old 23:00 run predated the
@@ -167,6 +180,17 @@ function main(){
       modes[i].phase+' Forest Seal Stone root opt-in must be acknowledged');
     assert.equal(policy.ownerSeat,null,
       modes[i].phase+' uses the symmetric two-seat owner policy');
+    const paper=games[i].fullNativePaperRootReceipts;
+    assert.equal(paper?.schema,
+      'agent36-live-paper-root-receipts-v2-attached-energy-custody');
+    assert.equal(paper?.originalPhysicalCards?.length,120);
+    assert.equal(paper?.acceptedStoreRootCount,games[i].rootCount);
+    assert.equal(paper?.rootOrdinalsUnique,true);
+    assert.deepEqual(paper.receipts.map(x=>x.actionOrdinal),
+      games[i].roots.map(x=>x.actionOrdinal));
+    assert.equal(paper?.paperPaymentReviewed,false);
+    assert.equal(paper?.clockReviewed,false);
+    assert.equal(paper?.competitiveGameQualified,false);
     games[i].nativeAttackDamageCarryover=nativeAttackDamageCarryover(games[i]);
   }
   const heldOpportunity=heldStoneOpportunity(games[0],games[0].candidateSeat);
