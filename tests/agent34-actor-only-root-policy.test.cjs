@@ -5,6 +5,15 @@ const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy,
   actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
+let pinnedStateUtils=null,pinnedPlayerType=null,pinnedSlotType=null;
+try {
+  ({StateUtils:pinnedStateUtils}=require('../vendor/twinleaf/ptcg-server/output/game/store/state-utils'));
+  ({PlayerType:pinnedPlayerType,SlotType:pinnedSlotType}=
+    require('../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action'));
+} catch {
+  // The pure-preflight workflow intentionally omits the submodule; the
+  // Agent36 native workflow compiles it and executes the same regression.
+}
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
   abilityBasics:new Set(['Shadow Rider Calyrex V CRE']),
@@ -915,4 +924,36 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
     candidatePolicyOptions:{getCatalog:()=>catalog}
   }),/may not override shared runtime binding getCatalog/);
+});
+
+
+test('pinned Twinleaf StateUtils resolves own Active/Bench targets for either acting seat', {
+  skip:!pinnedStateUtils
+},()=>{
+  assert.equal(typeof pinnedStateUtils.getTarget,'function');
+  const players=[0,1].map(id=>({
+    id:id+10,
+    active:{ownerSeat:id,zone:'active'},
+    bench:Array.from({length:5},(_,index)=>({ownerSeat:id,zone:'bench',index}))
+  }));
+  const state={players};
+  for(const seat of [0,1]){
+    const actor=players[seat],opponent=players[1-seat];
+    assert.equal(pinnedStateUtils.getTarget(state,actor,{
+      player:pinnedPlayerType.BOTTOM_PLAYER,
+      slot:pinnedSlotType.ACTIVE,index:0
+    }),actor.active,`BOTTOM_PLAYER Active resolves to actor at physical seat ${seat}`);
+    assert.equal(pinnedStateUtils.getTarget(state,actor,{
+      player:pinnedPlayerType.BOTTOM_PLAYER,
+      slot:pinnedSlotType.BENCH,index:3
+    }),actor.bench[3],`BOTTOM_PLAYER Bench resolves to actor at physical seat ${seat}`);
+    assert.equal(pinnedStateUtils.getTarget(state,actor,{
+      player:pinnedPlayerType.TOP_PLAYER,
+      slot:pinnedSlotType.ACTIVE,index:0
+    }),opponent.active,`TOP_PLAYER Active resolves to opponent from physical seat ${seat}`);
+    assert.equal(pinnedStateUtils.getTarget(state,actor,{
+      player:pinnedPlayerType.TOP_PLAYER,
+      slot:pinnedSlotType.BENCH,index:3
+    }),opponent.bench[3],`TOP_PLAYER Bench resolves to opponent from physical seat ${seat}`);
+  }
 });
