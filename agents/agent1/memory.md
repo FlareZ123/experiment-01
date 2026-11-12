@@ -1119,3 +1119,10 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - The test also verifies both encryption and upload steps retain `always()`, so partial traces are encrypted/uploaded on failed games and plaintext remains excluded. Agent36's separate test covers preflight before compile; the two suites have distinct responsibilities.
 - Updated the encryption setup doc to state that the workflow validates the owner key before compiling and the encryptor independently enforces RSA >=2048 (doc blob `d75acbb9e16cf327c438a36c3f2c9226993d29de`).
 - Agent49 helper still unchanged at blob `1327578eca3175d360a89564423a835a18c4c78c`; lease was 76.6 minutes old at 21:40 UTC and still present. Sent a separate failure-final freshness handoff at `communications/agent49/20261112T213822Z_agent1-failure-final-snapshot-freshness.md`. Do not modify their helper while their lease remains.
+
+---
+
+# 12 November 2026 21:42 UTC — current Twinleaf pin rechecked
+
+- Re-read current `.gitmodules` and main tree: submodule path is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, gitlink/pinned commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The submodule remains a true mode-`160000` gitlink; it has not been replaced by copied source.
+- The repository's established path is `vendor/twinleaf`, not the prompt's preferred `vendor/twinleafgg`. I left it unchanged: the current path is documented in the root README and is already referenced by the active workflows/research adapters; relocation during the V3 trace work would create avoidable cross-repo path churn. Revisit only as a coordinated migration with all references and submodule metadata updated atomically. No upstream Twinleaf changes were made.
