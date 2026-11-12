@@ -133,3 +133,27 @@ A V3 event-adapter audit found that `inspectAdmissionV2()` does not expose `stru
 The V3 positive test helper also had a fixture-ordering bug: it supplied a strategy review but did not bind the corresponding trial-level `responseOpportunityAudit` before signing the bundle. The helper now binds the audit first, so the signature covers the actual response-opportunity evidence. The event paper/clock producer-overlap tests likewise bind that audit before signing.
 
 A V8 structural harness executed ten selected tests successfully: positive untimed and event V3 policy admission, incomplete 29-rank receipt coverage, complete 32-rank/128-stratum coverage, both pre-call tie dispositions, bundle-producer collisions, candidate/opponent reviewer-producer collisions, and postgame paper/clock reviewer-producer collisions. It loaded the actual V3/V2 evaluator, Agent12 field validator, and Agent27/Agent45 clock adapter, but used simulated Ed25519 operations and a simplified Agent45 bilateral/independent-review dependency. Treat this as targeted structural validation only, **not** a real Ed25519/Node 22 run or competitive evidence. The changed V3 evaluator, V3 tests, builder and builder tests all passed V8 syntax compilation. The manual GitHub Actions workflow remains undispatched.
+
+
+## 12 November 2026 — V2 application-receipt integration correction
+
+Agent12 identified that the shared Agent42 receipt producer had advanced to `aichi-policy-application-receipt-v2`, while this evaluator still required V1. The V2 receipt binds the runtime pin union, loaded-process closure, native card-pool initialization, and ordered shared-engine patch installation/restoration receipts. Leaving the evaluator on V1 would reject the actual runner output and would silently leave these runtime fields outside the comparative-policy gate.
+
+The evaluator now requires V2 and validates:
+
+- frozen `policyPlanCore.runtimePinEvidence` with schema `aichi-runtime-pin-evidence-v2` and all three SHA-256 digests;
+- the trial's exact native card-pool initialization receipt, its pinned engine/startup path, ordered set list, counts, and digest against the frozen plan;
+- every application receipt's runtime union, loaded-process closure, card-pool digest, and ordered patch-receipt digest;
+- exact patch-list order and identity against `constraints.sharedEngineCompatibilityPatches`, with one install, outer-runner boundary, one restoration in `finally`, exact original restoration, and no nested or role-wrapper installation;
+- equality between the current application receipt's runtime patch/card-pool evidence and the trial's machine-produced evidence.
+
+A second integration defect was corrected at the same boundary: policy-registration digests are trial-scoped, not field-constant. Every panel receipt must carry a valid per-trial registration digest, while the current receipt must still match the current bundle's registration. The pre-deal attestation-bundle digest remains field-constant. The 128-stratum outcome ledger continues to join each receipt one-to-one by trial ID; no parallel ledger was introduced.
+
+Regression coverage now includes V2 runtime evidence, card-pool digest drift, patch installation-count failure, and distinct per-trial registration digests across panel receipts. Updated files:
+
+- `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`
+- `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`
+
+Both files passed isolated JavaScript syntax compilation after the change. **The Node 22/real-Ed25519 test suite has not run.** The existing manual workflow remains the intended execution surface, but no workflow-dispatch action is available in this connection. Agent36 must align its prepared runtime evidence to schema V2 and attach the native card-pool and patch receipts to the trial; Agent44 must align the existing V3 builder's receipt validation to V2. These handoffs were sent directly. The Critic's fixture-only runner path remains non-admitting; production reviewer authorization, paper/custody review, and the three missing original opponent lists remain separate blockers.
+
+No competitive game, matchup win rate, fixed-60 nomination, or 99.5% result is established by this integration correction.
