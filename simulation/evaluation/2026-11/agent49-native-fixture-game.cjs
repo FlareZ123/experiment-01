@@ -656,9 +656,9 @@ function runNativeFixtureGame(input) {
         promptResolution,
         selectedCardIdentity:selectedIdentity,
         targetProjection,
-        policyInputKind,
-        actorObservationSha256,
-        promptResolverContext,
+        policyInputKind:record.policyInputKind,
+        actorObservationSha256:record.actorObservationSha256,
+        promptResolverContext:record.promptResolverContext,
         dispatchStatus:'pending',
         failure:null
       };
