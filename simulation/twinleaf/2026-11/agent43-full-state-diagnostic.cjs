@@ -241,7 +241,9 @@ function formatFixtureGameTraceText(game) {
     `turns=${game?.turns ?? 'unknown'}`,
     `winnerSeat=${game?.winnerSeat ?? 'unknown'}`,
   ];
-  for (const row of game?.decisionTrace ?? []) {
+  const partial = game?.fixtureGamePartial ?? null;
+  const decisionTrace = game?.decisionTrace ?? partial?.decisionTrace ?? [];
+  for (const row of decisionTrace) {
     lines.push('');
     lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision} inputKind=${row.policyInputKind ?? 'unknown'} dispatch=${row.dispatchStatus ?? 'unknown'}`);
     if (row.selectedCardIdentity) lines.push(`SELECTED CARD ${JSON.stringify(row.selectedCardIdentity)}`);
@@ -268,26 +270,30 @@ function formatFixtureGameTraceText(game) {
       lines.push(formatFullGameStateText(row.fullStateAfter));
     }
   }
-  if (game?.failedAction) {
+  const failedAction = game?.failedAction ?? partial?.failedAction ?? null;
+  if (failedAction) {
     lines.push('');
-    lines.push(`FAILED ACTION ${JSON.stringify(game.failedAction)}`);
+    lines.push(`FAILED ACTION ${JSON.stringify(failedAction)}`);
   }
-  if (game?.finalPublicState) {
+  const finalPublicState = game?.finalPublicState ?? partial?.finalPublicState ?? null;
+  if (finalPublicState) {
     lines.push('');
-    lines.push(`FINAL PUBLIC STATE ${JSON.stringify(game.finalPublicState)}`);
+    lines.push(`FINAL PUBLIC STATE ${JSON.stringify(finalPublicState)}`);
   }
-  if (game?.finalFullState) {
+  const finalFullState = game?.finalFullState ?? partial?.finalFullState ?? null;
+  if (finalFullState) {
     lines.push('');
     lines.push('--- FINAL FULL STATE ---');
-    lines.push(formatFullGameStateText(game.finalFullState));
+    lines.push(formatFullGameStateText(finalFullState));
   }
-  const finalDiagnosticFailure = game?.finalDiagnosticFailure ?? game?.diagnosticSnapshotFailure ?? null;
+  const finalDiagnosticFailure = game?.finalDiagnosticFailure ?? game?.diagnosticSnapshotFailure ?? partial?.diagnosticSnapshotFailure ?? null;
   if (finalDiagnosticFailure) {
     lines.push(`FINAL DIAGNOSTIC FAILURE ${JSON.stringify(finalDiagnosticFailure)}`);
   }
-  if (game?.failure) {
+  const failure = game?.failure ?? game?.nativeFixtureFailure ?? partial?.failure ?? null;
+  if (failure) {
     lines.push('');
-    lines.push(`FAILURE ${JSON.stringify(game.failure)}`);
+    lines.push(`FAILURE ${JSON.stringify(failure)}`);
   }
   return lines.join('\n');
 }
