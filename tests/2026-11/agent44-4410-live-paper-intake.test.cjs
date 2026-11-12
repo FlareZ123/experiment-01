@@ -234,4 +234,15 @@ test('4410 intake exposes the raw Cologne audit and card-specific review gate wi
   assert.match(source,/requiresTargetAndEffectReview/);
   assert.match(source,/rawCaptureRetainedRegardlessOfGate:true/);
   assert.match(source,/paperLegalityCertified:false/);
+  const optionsStart=source.indexOf('const policyOptions={');
+  const optionsEnd=source.indexOf('};',optionsStart);
+  assert.ok(optionsStart>=0&&optionsEnd>optionsStart,
+    'The frozen runner must retain an inspectable policy option object');
+  assert.doesNotMatch(source.slice(optionsStart,optionsEnd),
+    /paperCologneQuota\\s*:\\s*true/,
+    '4410 must not enable the optional simulator correction hook');
+  const workflow=fs.readFileSync(path.join(ROOT,
+    '.github/workflows/agent44-rank5-m4-paper-source-native.yml'),'utf8');
+  assert.doesNotMatch(workflow,/AGENT48_PAPER_COLOGNE_DEV/,
+    'The 4410 workflow must not enable the Cologne hook through environment');
 });
