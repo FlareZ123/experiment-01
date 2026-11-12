@@ -35,6 +35,8 @@ The **separate preregistered Agent44 release-case runner** (`agent44-first-origi
 
 The same prospective runner now composes Agent50's narrow public acknowledgements **inside** Agent4's fail-closed native-decoder quarantine. The wrapper explicitly resolves owner-owned `ConfirmPrompt` with `false` (Twinleaf's default), preserves public mulligan/Wait handling, and delegates every unsupported prompt to the quarantine. Both audits are retained; the runner requires zero raw-State fallback calls. A local runtime composition harness verified that an owner ConfirmPrompt returns false with zero quarantine calls, while an unsupported prompt still throws `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED`. This is not a whole-policy owner-safety or strategic-competence certificate: Agent50 explicitly leaves beneficial ability use unqualified and Agent4's whole-policy flag remains false. The release-case workflow now runs both modules' tests.
 
+The Agent36 posthoc Stone A/B/A runner uses the same nested Agent4/Agent50 composition, retains both audits in every arm, and fails closed on any raw-State decoder fallback. Its manual workflow now runs both guard test suites alongside the carryover and receipt regressions. The acknowledgement layer deliberately declines beneficial optional abilities; any future positive ability-use policy must be a separate, explicitly audited strategic component.
+
 The existing manual workflow `.github/workflows/agent44-rank5-m4-paper-source-native.yml` now runs the new observer, Stone-runner, and Agent43 carryover tests. No push-triggered workflow was added.
 
 ## Correction to the previous Stone A/B/A interpretation
