@@ -240,6 +240,11 @@ test('V3 builder freezes signed policy registration before deal and assembles th
   assert.equal(built.fullFieldPanelComplete,false);
   assert.equal(built.assessment.fixtureOnly,true);
   assert.equal(built.assessment.competitiveAdmission,false);
+  assert.throws(()=>buildV3GameBundle({
+    preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    policyPanelReceipts:[],reviews:[]
+  }),/fixture-only pre-deal artifacts/);
 });
 
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
