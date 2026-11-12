@@ -16,7 +16,7 @@ This is an evidence-capture defect, not a Twinleaf game-rule defect and not evid
 - before: `s0.hand:0`
 - after: `s0.active.energies:0`
 
-The new regression in `tests/2026-11/agent36-live-paper-root-receipts.test.cjs` constructs two 60-card physical decks, attaches one exact Energy object from the owner's hand to the Active Pokémon, and asserts the movement and clean 120-card custody result. The live recorder was also exercised in a local Store-shaped runtime harness: 120 original physical cards, one accepted root, exact Energy movement, zero duplicates/unregistered cards, and `settledPhysicalIdentityClean=true`. The changed JavaScript files and test sources passed syntax compilation.
+The new regression in `tests/2026-11/agent36-live-paper-root-receipts.test.cjs` constructs two 60-card physical decks, attaches exact Energy objects from the owner's hand to both Active and Benched Pokémon, and asserts both movements and clean 120-card custody. The live recorder was also exercised in a local Store-shaped runtime harness: 120 original physical cards, one accepted root, exact Energy movement, zero duplicates/unregistered cards, and `settledPhysicalIdentityClean=true`. The changed JavaScript files and test sources passed syntax compilation.
 
 ## Shared-runner integration
 
