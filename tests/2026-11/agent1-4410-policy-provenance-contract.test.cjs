@@ -167,7 +167,8 @@ test('source-only and source-scoped options are projected to the correct physica
   const options = {
     actorMewDceRecipientSourceOnly: true,
     actorMewDceRecipientRoot: true,
-    actorMewUltraBallRoot: true
+    actorMewUltraBallRoot: true,
+    sourceScopedQuickBallRoot: true
   };
   const source = effectiveOptionsForSeat(options, 0, 0);
   const candidate = effectiveOptionsForSeat(options, 1, 0);
@@ -176,6 +177,11 @@ test('source-only and source-scoped options are projected to the correct physica
   assert.equal(candidate.options.actorMewDceRecipientSourceOnly, false);
   assert.equal(candidate.options.actorMewDceRecipientRoot, false);
   assert.equal(candidate.options.actorMewUltraBallRoot, false);
+  assert.equal(source.options.quickBallRoot, true);
+  assert.equal(source.options.quickBallRootOwnerSeat, 0);
+  assert.equal(candidate.options.sourceScopedQuickBallRoot, false);
+  assert.equal(candidate.options.quickBallRoot, false);
+  assert.equal(candidate.options.quickBallRootOwnerSeat, null);
   assert.deepEqual(source.unknownSourceOnlyFlags, []);
   assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
 });
