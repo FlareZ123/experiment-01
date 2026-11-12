@@ -4,12 +4,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {generateKeyPairSync,sign} = require('node:crypto');
 const {
-  MANIFEST,evidenceBundleSha256
+  MANIFEST,REVIEW_SCHEMA,evidenceBundleSha256,reviewSigningBytes
 } = require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 const {rootDigest} =
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 const {
-  UNTIMED,CLOCK_NOT_APPLICABLE,policyAttestationSigningBytes
+  UNTIMED,CLOCK_NOT_APPLICABLE,inspectUntimedNaturalOutcome,
+  policyAttestationSigningBytes
 } = require('../../simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs');
 const {
   preparePreDealPolicyRegistration,
@@ -68,6 +69,8 @@ function makePolicyFixture() {
   const opponentPolicyBundleSha256=evidenceBundleSha256(policyPlanCore.opponentPolicyBundle);
   const candidateKeys=generateKeyPairSync('ed25519');
   const opponentKeys=generateKeyPairSync('ed25519');
+  const paperKeys=generateKeyPairSync('ed25519');
+  const strategyKeys=generateKeyPairSync('ed25519');
   const candidateAttestation=signed({
     schema:'aichi-policy-competence-attestation-v1',
     role:'candidate-policy',reviewerId:'candidate-policy-reviewer',
@@ -106,11 +109,16 @@ function makePolicyFixture() {
       {reviewerId:'candidate-policy-reviewer',roles:['candidate-policy'],
         publicKeyPem:candidateKeys.publicKey.export({type:'spki',format:'pem'})},
       {reviewerId:'opponent-policy-reviewer',roles:['opponent-policy'],
-        publicKeyPem:opponentKeys.publicKey.export({type:'spki',format:'pem'})}
+        publicKeyPem:opponentKeys.publicKey.export({type:'spki',format:'pem'})},
+      {reviewerId:'paper-game-reviewer',roles:['paper'],
+        publicKeyPem:paperKeys.publicKey.export({type:'spki',format:'pem'})},
+      {reviewerId:'strategy-game-reviewer',roles:['strategy'],
+        publicKeyPem:strategyKeys.publicKey.export({type:'spki',format:'pem'})}
     ]
   };
   return {
     candidate,ranks,policyPlanCore,policyAttestationBundle,reviewerRegistry,
+    paperKeys,strategyKeys,
     policyPlanSha256,policyConstraintsSha256,opponentPolicyBundleSha256
   };
 }
@@ -213,9 +221,12 @@ function makePreDealPersistenceReceipt(preDeal) {
     trialId:preDeal.trialId,repositoryFullName:'FlareZ123/experiment-01',
     artifactRef:preDeal.preDealArtifactRef,
     artifactSha256:preDeal.preDealArtifactSha256,
-    commitTimestampSource:'github-api-commit-committer-date',
+    serverTimestampSource:'github-actions-run-started-at',
+    workflowRunId:'1234567890',
+    workflowHeadSha:'a'.repeat(40),
     commitSha:'a'.repeat(40),blobSha:'b'.repeat(40),
-    committedAt:new Date(registeredAt+Math.floor((plannedDealAt-registeredAt)/2)).toISOString()
+    workflowRunStartedAt:new Date(registeredAt+
+      Math.floor((plannedDealAt-registeredAt)/2)).toISOString()
   };
 }
 
@@ -226,10 +237,53 @@ function makeDealGenerationReceipt(preDeal,trial,persistenceReceipt) {
     artifactRef:persistenceReceipt.artifactRef,
     artifactSha256:persistenceReceipt.artifactSha256,
     commitSha:persistenceReceipt.commitSha,blobSha:persistenceReceipt.blobSha,
-    generatedAt:trial.dealGeneratedAt,
+    workflowRunId:persistenceReceipt.workflowRunId,
+    workflowHeadSha:persistenceReceipt.workflowHeadSha,
+    jobId:'1234567891',
+    stepName:'Generate physical deal',
+    stepStartedAt:trial.dealGeneratedAt,
     runnerRevision:trial.researchRevisionSha,
     sourceDealFingerprint:trial.initialSourceDealFingerprint
   };
+}
+
+function makeGameReview(bundle,trial,fixture,role) {
+  const outcome=inspectUntimedNaturalOutcome(trial);
+  assert.ok(outcome,'review fixture requires a recorded natural terminal');
+  const review={
+    schema:REVIEW_SCHEMA,role,
+    reviewerId:role==='paper'?'paper-game-reviewer':'strategy-game-reviewer',
+    decision:'approve',
+    bundleSha256:evidenceBundleSha256(bundle),
+    paperOutcome:outcome.kind,paperWinnerSeat:outcome.winnerSeat,
+    reviewEvidenceRef:'review-evidence/'+role,
+    reviewEvidenceSha256:policyHash(role==='paper'?9001:9002)
+  };
+  if(role==='paper') Object.assign(review,{
+    timingMode:UNTIMED,
+    untimedProtocolVerified:true,
+    untimedProtocolPreDealVerified:true,
+    untimedProtocolEvidenceRef:trial.registrationRef,
+    untimedProtocolSha256:trial.preregistrationSha256,
+    noTournamentTimerUsed:true,
+    noOfficialEndCallObserved:true,
+    noEventStageAdjudicationUsed:true,
+    clockStatus:CLOCK_NOT_APPLICABLE,
+    naturalTerminalVerified:true,
+    naturalTerminalEvidenceRef:'review-evidence/natural-terminal',
+    timerBoundaryEvidenceRef:'review-evidence/timer-boundary',
+    exactJapanesePrinted60sVerified:true,
+    eventDateLegalityVerified:true,
+    initial120CardCustodyVerified:true,
+    actualSeatsAndFirstPlayerVerified:true,
+    printed60EvidenceRef:'review-evidence/printed-60',
+    initialPhysicalDealEvidenceRef:'review-evidence/physical-deal',
+    seatAndFirstPlayerEvidenceRef:'review-evidence/seats'
+  });
+  const keys=role==='paper'?fixture.paperKeys:fixture.strategyKeys;
+  review.signatureBase64=sign(null,reviewSigningBytes(review),keys.privateKey)
+    .toString('base64');
+  return review;
 }
 
 function makeEvidence() {
@@ -284,7 +338,7 @@ test('V3 builder freezes signed policy registration before deal and assembles th
 });
 
 
-test('postgame review packets remain external to the finalized bundle digest',()=>{
+test('valid signed postgame reviews remain external to the finalized bundle digest',()=>{
   const fixture=makePolicyFixture();
   const {input,result:preDeal}=makePreDeal(fixture);
   const trial=makeTrial(preDeal,fixture);
@@ -296,18 +350,19 @@ test('postgame review packets remain external to the finalized bundle digest',()
     preDealPersistenceReceipt,dealGenerationReceipt,policyPanelReceipts:[]
   };
   const withoutReviews=buildV3GameBundleFixture({...common,reviews:[]},fixture.reviewerRegistry);
-  const reviews=[{role:'paper',reviewerId:'external-paper-reviewer',
-    bundleSha256:evidenceBundleSha256(withoutReviews.bundle)}];
+  const reviews=[
+    makeGameReview(withoutReviews.bundle,trial,fixture,'paper'),
+    makeGameReview(withoutReviews.bundle,trial,fixture,'strategy')
+  ];
   const withReviews=buildV3GameBundleFixture({...common,reviews},fixture.reviewerRegistry);
   assert.equal(evidenceBundleSha256(withReviews.bundle),
     evidenceBundleSha256(withoutReviews.bundle));
-  assert.equal(withReviews.bundle.evidenceManifest.find(x=>
-    x.kind==='policy-and-counterplay').sha256,
-    withoutReviews.bundle.evidenceManifest.find(x=>
-      x.kind==='policy-and-counterplay').sha256);
+  assert.deepEqual(withReviews.bundle,withoutReviews.bundle);
   assert.equal(Object.hasOwn(withReviews.policyEvidence,'postgameReviews'),false);
+  assert.deepEqual(withReviews.assessment.signedReviewRoles.map(x=>({
+    role:x.role,valid:x.valid
+  })),[{role:'paper',valid:true},{role:'strategy',valid:true}]);
 });
-
 
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
   const fixture=makePolicyFixture();
@@ -375,30 +430,57 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/persisted pre-deal artifact changed/);
 
-  const latePersistence={...preDealPersistenceReceipt,committedAt:trial.dealGeneratedAt};
+  const latePersistence={...preDealPersistenceReceipt,
+    workflowRunStartedAt:trial.dealGeneratedAt};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,preDealPersistenceReceipt:latePersistence,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
-  },fixture.reviewerRegistry),/not after registration and before planned deal generation/);
+  },fixture.reviewerRegistry),/workflow did not start after registration and before planned deal generation/);
+
+  const wrongWorkflow={...dealGenerationReceipt,workflowRunId:'9876543210'};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongWorkflow,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/same server-timestamped workflow/);
+
+  const wrongHead={...preDealPersistenceReceipt,workflowHeadSha:'c'.repeat(40)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDealPersistenceReceipt:wrongHead,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/server-timestamped workflow run/);
+
+  const wrongStep={...dealGenerationReceipt,stepName:'untrusted generation step'};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongStep,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/same server-timestamped workflow/);
+
+  const earlyTime=new Date(Date.parse(preDeal.gameRegistration.dealGeneratedAt)-1000).toISOString();
+  const earlyStep={...dealGenerationReceipt,stepStartedAt:earlyTime};
+  const earlyTrial={...trial,dealGeneratedAt:earlyTime};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,trial:earlyTrial,dealGenerationReceipt:earlyStep,
+    policyApplicationReceipt:makeReceipt(preDeal,earlyTrial,fixture)
+  },fixture.reviewerRegistry),/did not start after preregistered time and workflow persistence/);
 
   const wrongDealFingerprint={...dealGenerationReceipt,
     sourceDealFingerprint:policyHash(8002)};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongDealFingerprint,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
-  },fixture.reviewerRegistry),/actual deal time or source-deal fingerprint disagrees/);
+  },fixture.reviewerRegistry),/server-timestamped generation step/);
 
   const wrongBlob={...dealGenerationReceipt,blobSha:'c'.repeat(40)};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongBlob,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
-  },fixture.reviewerRegistry),/not bound to the committed pre-deal artifact/);
+  },fixture.reviewerRegistry),/same server-timestamped workflow/);
 
   const wrongPersistenceTrial={...preDealPersistenceReceipt,trialId:'another-trial'};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,preDealPersistenceReceipt:wrongPersistenceTrial,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
-  },fixture.reviewerRegistry),/pre-deal persistence receipt is missing or not bound/);
+  },fixture.reviewerRegistry),/server-timestamped workflow run/);
 
   const wrongRunnerRevision={...dealGenerationReceipt,runnerRevision:'d'.repeat(40)};
   assert.throws(()=>buildV3GameBundleFixture({
