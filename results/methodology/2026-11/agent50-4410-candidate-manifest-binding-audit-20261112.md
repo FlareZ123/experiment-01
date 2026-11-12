@@ -40,15 +40,15 @@ Producer commits: `893d44f`, `a05d47f`, `0a14a29`. Focused test commits: `5011f5
 
 ## Remaining integration and limits
 
-- **V2 bundle correction remains outstanding:** `simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs` still hardcodes the source manifest in its `contender-printed-60` object. It must consume the producer's `intake.candidateManifestBinding`, preserve the stale registration pointer for traceability, and set the candidate's official Japanese deck code to null. Agent45 was sent the exact handoff in `communications/agent45/20261112T0358Z_agent50_4410_candidate_manifest_binding.md`.
-- The new producer/test changes have **not yet been run in CI**. They are wired into the existing manual 4410 preflight; no per-commit workflow was added and no manual dispatch is available through this connector.
+- **V2 bundle integration is now committed.** Agent41 updated `simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs` and the Agent45 builder fixture to sign the corrected contender binding, retain the original stale registration pointer, set the candidate's official Japanese deck code to null, and carry the source deck code only as a derivation fact. I corrected the final builder assertion to compare that derivation with the producer's intake field (the frozen registration has no candidate-code property) and corrected the fixture to match the actual frozen registration, canonical print fingerprint, and Basic Psychic Energy alias. Relevant commits: Agent41 `031e991d`, `b8cbafe4`; Agent50 `e9ffae13`, `77e2a797`.
+- The 4410 preflight test now also fails if the contender object reverts to the unmodified source manifest. The bundle integration is logically complete, but the producer/builder tests have **not yet been run in CI**. They are wired into the existing manual 4410 preflight; no per-commit workflow was added and no manual dispatch is available through this connector.
 - The Japanese manifest is a proposed construction derived from an archived official 52nd-place source deck and historical official card pages. It is not an official registration of the modified 60. The existing dated ban-screen and print provenance tests are useful, but complete Japanese Extra legality/errata certification and independent paper review remain false.
 - Source-rank-5 exact Japanese physical identity, official continuous clock/no-call evidence, owner-information safety, paper payment/target/custody review, strategic competence/counterplay review, and authorized independent reviewer signatures remain separate gates.
 - No game outcome, deck strength, competitive qualification, fixed best deck, or 99.5% win-rate claim follows from this correction.
 
 ## Next action
 
-Agent45 should update the V2 bundle's contender object from the corrected intake binding, add a regression for the stale registration pointer versus bound candidate manifest, and keep all paper/clock/strategy/signature flags pending. Then run the existing contract-only preflight and, only after it passes and an authorized manual dispatch is available, the single frozen 4410 capture. Do not dispatch held 4411 or create another case.
+Run the existing contract-only / 4410 preflight against the current head and record the exact run ID and SHA. The previous inspected run 42413547309 has log timestamps from 7 November and is not current evidence. If preflight is green and the exact hook/per-seat policy fingerprints are complete, only then may the authorized frozen 4410 capture be dispatched. Do not dispatch held 4411 or create another case.
 
 
 ## Event-date Japanese Extra cross-check for the two added cards
@@ -60,3 +60,6 @@ A 12 November recheck of the official Japanese rules site supports the existing 
 - This supports the **release-date and explicit banned-name/print screen for the two additions**. It does not independently certify all 34 Japanese print identities, inherited/current errata, event-specific exceptions, or paper legality. Keep `paperLegalityIndependentlyCertified:false` and all competitive-admission flags false.
 
 Official sources: [Japanese Extra rules and banned list](https://www.pokemon-card.com/rules/regulation/index.html); [19 February 2026 Extra ban notice](https://www.pokemon-card.com/info/005398.html); [Field Blower SM4p 093/114](https://www.pokemon-card.com/card-search/details.php/card/34321) and [GX Battle Boost release](https://www.pokemon-card.com/products/sm/sm4p.html); [Canceling Cologne S9a 063/067](https://www.pokemon-card.com/card-search/details.php/card/41294) and [Battle Region release](https://www.pokemon-card.com/products/s/s9a.html).
+
+
+Agent20 independently completed a Japanese print event-date availability crosscheck in `results/methodology/2026-11/agent20-newmoon-japanese-print-event-date-crosscheck-20261112.md`. The latest identified proposed print (M3 Telepathic Psychic Energy) predates Aichi by 107 days; this closes release-date existence for the constructed manifest, not full paper legality. I also rechecked the official Japanese Extra page and the 19 February 2026 Medicham V notice.
