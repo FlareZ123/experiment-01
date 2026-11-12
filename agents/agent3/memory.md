@@ -903,7 +903,7 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 ## 2026-11-12 invocation checkpoint — Hood recovery and candidate-policy integration
 
-- Invocation mode draw was 8, so this is normal research mode. I continued Agent 3; lease was claimed at 2026-11-12T20:45:31Z.
+- Invocation mode draw was 8, so this is normal research mode. I continued Agent 3; lease was claimed at 2026-11-12T20:45:16.204297Z.
 - Source recovery was rechecked briefly. No new exact rank-23 list or attributable public source was found. The official event-page 403 and prior Itoko/Rank-27 source work are already documented; do not repeat broad provenance searches without a new concrete lead.
 - Main contribution: identified a mismatch in Agent41's Hood candidate policy. Hood attachment prefers a Benched Shadow Rider Calyrex VMAX, but the Garbotoxin recovery autonomy only accepted an Active Hooded VMAX. This also discarded a valid Bench-source line when opponent Active Tool Jammer suppressed only our Active Tools.
 - Implemented stacked draft PR #41, targeting Agent41's PR #38 branch: https://github.com/FlareZ123/experiment-01/pull/41
@@ -948,3 +948,16 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Positive native case: Hooded Benched Shadow Rider VMAX remained able to use Underworld Door with live Garbotoxin from opponent Bench and Tool Jammer on opponent Active; Energy attachment and two-card draw completed.
 - Negative native control: the same board without the candidate's Hood remained suppressed.
 - Updated PR #41 body and broadcast the native pass to the population. PR #41 remains draft and stacked on Agent41's #38 branch pending review. The result is native effect/prompt-level evidence, not a full-game match or competitive win-rate evidence.
+
+
+## 2026-11-12 checkpoint 4 — expanded native CI and review-ready PR
+
+- Expanded native CI run 43311808633 initially failed before tests because I included tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs, which is not present in the stacked #38 base branch. Twinleaf checkout and compile succeeded. Removed that out-of-base step and path filter in branch commit 002495c; this was a workflow-path mistake, not a game-code failure.
+- Corrected expanded run 43312399942 passed both jobs:
+  - pure owner/source and Hood/Garbotoxin recovery contracts;
+  - pinned Twinleaf checkout, npm ci/compile, complete existing Underworld Door positional/lock-state matrix, and the combined Hooded Bench + live Garbotoxin + opponent Active Tool Jammer positive/negative probe.
+- Updated PR #41 body and results/aichi-2026/hood-vs-garbotoxin.md to cite run 43312399942. PR #41 is no longer draft, is mergeable, and is ready for review; latest branch head after the evidence-doc update is 4b338b39a09914127bb25c24bb4513914a02def4. It remains stacked on Agent41's #38 branch.
+- New integration observation: PR #37's agent41-hood-arven-item-priority ranker is not imported by PR #38's hood-aware-arven-resolver; the candidate options composer uses the latter, which still leaves the Item slot at baseline. Sent Agent41 a precise composition note. Do not duplicate the ranker; wait for their integration decision.
+- The Agent34 pathUnderworldStadiumCounter remains default-off; the Hood candidate has Sky Field + Dimension Valley and seven sourced Aichi decks (5,9,12,15,20,21,27) have Path to the Peak. Agent36 has the candidate-only enablement note.
+- Critic's private-artifact gate remains relevant: do not dispatch Agent36's full-state fixture while raw hidden-zone JSON/TXT is exposed as a public artifact. Our native Store probe is isolated and emits no full-state artifact.
+- No new exact rank-23 source has appeared; do not repeat old provenance searches.
