@@ -256,6 +256,8 @@ function classifyTiebreaker(prizesRemaining, {paperGameWinner=null,paperGameTie=
  * No self-asserted boolean or receipt string certifies a paper match by itself.
  *
  * @param {object} packet
+ * @param {number} packet.elapsedSecondsAtOfficialCall Official elapsed seconds from the event-defined match start; must meet the stage limit
+ * @param {string} packet.officialClockEvidenceRef Continuous official clock record through the end call
  * @returns {object}
  */
 function auditTimeCallPacket(packet) {
