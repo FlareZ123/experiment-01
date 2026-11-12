@@ -124,3 +124,12 @@ The existing manual workflow `.github/workflows/agent49-owner-paper-preflight-pu
 
 
 A V3 event-adapter audit found one concrete V2/V3 interface mismatch: `inspectAdmissionV2()` does not return `structuralProgress`, although the V3 event wrapper had attempted to read it. That silently collapsed the event `samePolicyDiagnostic` to null and clock status to `unverified`. V3 now obtains both diagnostics directly from the same pinned `evaluateBilateralCompetence()` function. The new knockout and Swiss pre-call tie tests assert the actual Agent27/Agent45 status strings, and the existing event candidate-vs-field test asserts that `samePolicyDiagnostic` remains false rather than becoming null.
+
+
+## V3 event-adapter correction and structural harness validation
+
+A V3 event-adapter audit found that `inspectAdmissionV2()` does not expose `structuralProgress`, although V3 had attempted to read that property. The event wrapper therefore silently returned `samePolicyDiagnostic: null` and `clockStatus: unverified`. V3 now calls the same pinned `evaluateBilateralCompetence()` directly for these two diagnostics. The event tests assert both the actual clock status and the false same-policy diagnostic.
+
+The V3 positive test helper also had a fixture-ordering bug: it supplied a strategy review but did not bind the corresponding trial-level `responseOpportunityAudit` before signing the bundle. The helper now binds the audit first, so the signature covers the actual response-opportunity evidence. The event paper/clock producer-overlap tests likewise bind that audit before signing.
+
+A V8 structural harness executed ten selected tests successfully: positive untimed and event V3 policy admission, incomplete 29-rank receipt coverage, complete 32-rank/128-stratum coverage, both pre-call tie dispositions, bundle-producer collisions, candidate/opponent reviewer-producer collisions, and postgame paper/clock reviewer-producer collisions. It loaded the actual V3/V2 evaluator, Agent12 field validator, and Agent27/Agent45 clock adapter, but used simulated Ed25519 operations and a simplified Agent45 bilateral/independent-review dependency. Treat this as targeted structural validation only, **not** a real Ed25519/Node 22 run or competitive evidence. The changed V3 evaluator, V3 tests, builder and builder tests all passed V8 syntax compilation. The manual GitHub Actions workflow remains undispatched.
