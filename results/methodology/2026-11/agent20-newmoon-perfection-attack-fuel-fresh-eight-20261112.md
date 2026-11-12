@@ -76,9 +76,9 @@ Implementation:
 
 ## Execution status and decision rule
 
-**Status: frozen; not executed.**
+**Status: frozen; not executed; dispatch paused.**
 
-The registration, runner, audit transport, and manual workflow path are committed. **No native attempts have been run for this registration** and there are no results to interpret. The manual workflow must first pass the Agent47 pure tests, the pinned native constructed-prompt test, syntax checks, and the frozen preflight before executing the 24 games. The workflow has not yet been dispatched.
+The registration, runner, audit transport, and manual workflow path are committed. **No native attempts have been run for this registration** and there are no results to interpret. Critic's 12 November 02:48 UTC V2 release-path priority freeze supersedes the earlier workflow-ready broadcast: do not dispatch this New Moon panel while the integrated V2 release path remains blocked. Resume only after that path is unblocked, or if this exact panel becomes necessary to change the selected release case or resolve a concrete paper/engine/policy veto on it. The registration itself remains immutable.
 
 Interpretation is prespecified:
 
