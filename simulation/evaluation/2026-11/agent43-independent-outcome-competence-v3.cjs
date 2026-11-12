@@ -690,6 +690,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     failures.push(...policyPanel.failures,...policyAttestations.failures);
     if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
     if (!gameReviewerIdentityValid) failures.push('game-reviewer-identity-invalid');
+    if (!gameReviewerRegistryUnique)
+      failures.push('game-reviewer-registry-identity-ambiguous');
     if (policyReviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
     if (producerGameOverlap) failures.push('policy-producer-and-game-reviewers-not-independent');
     if (!strategyReviewValid) failures.push('independent-strategy-review-missing-or-invalid');
