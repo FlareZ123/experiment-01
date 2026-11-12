@@ -283,10 +283,10 @@ function main(){
     ordinaryAttackActionCountImprovements:comparison.candidateAttackCountImprovements,
     candidateSettledAttackCountImprovements:attackSettlementPairs.filter(
       p=>p.candidateSettledAttackIncrease).length,
-    candidateChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
-      n+p.candidateChangedPayments,0),
-    sourceChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
-      n+p.sourceChangedPayments,0),
+    candidateAcceptedChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
+      n+p.candidateAcceptedChangedPayments,0),
+    sourceAcceptedChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
+      n+p.sourceAcceptedChangedPayments,0),
     unmatchedTreatmentDiscardSelections:paymentComparisons.reduce((n,p)=>
       n+p.unmatchedTreatmentSelections.length,0),
     arms:arms.map(a=>({id:a.id,summary:a.summary})),
@@ -306,7 +306,7 @@ function main(){
 
 if(require.main===module){
   if(process.argv.includes('--preflight')){
-    const {reg,engine}=preflight();
+    const {reg,engine,researchCommit}=preflight();
     console.log('AGENT20_NEWMOON_ATTACK_FUEL_PREFLIGHT',
       JSON.stringify({caseId:reg.caseId,engine,researchCommit,seeds:reg.seeds,
         registeredContexts:reg.registeredTrials.length,
