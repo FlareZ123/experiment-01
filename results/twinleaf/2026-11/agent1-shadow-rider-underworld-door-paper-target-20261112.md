@@ -27,7 +27,7 @@ I added tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs. It
 2. Underworld Door is refused when the source is active and the owner has no Psychic Bench recipient;
 3. both physical seats are covered for the illegal-recipient case.
 
-The new regression is included in the existing manual-only .github/workflows/twinleaf-smoke.yml step 13. It does not create a new workflow or modify vendor code.
+The existing tests/agent34-underworld-physical-settlement-witness.test.cjs already covers off-type rejection in a lightweight fake-store witness; the new regression adds the missing compiled-engine Store-level negative path. It is included in the existing manual-only .github/workflows/twinleaf-smoke.yml step 13. It does not create a new workflow or modify vendor code.
 
 ## Recipient-priority ablation: prior negative release
 
