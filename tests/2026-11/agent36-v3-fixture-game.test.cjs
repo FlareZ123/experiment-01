@@ -112,14 +112,16 @@ test('fixture runner injects offline full-state diagnostics and persists partial
 });
 
 
-test('V3 fixture requires a valid owner diagnostic recipient before native compilation', () => {
+test('V3 fixture requires a valid owner diagnostic recipient and always encrypts before upload', () => {
   const workflowPath = path.join(ROOT, '.github/workflows/agent36-bilateral-competence-v9.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
   const keyGuardAt = workflow.indexOf('Validate owner-controlled V3 diagnostic recipient key before native fixture');
   const compileAt = workflow.indexOf('Install and compile the pinned native server');
   const gameAt = workflow.indexOf('Execute one native V3 fixture game');
-  assert.ok(keyGuardAt >= 0 && compileAt > keyGuardAt && gameAt > compileAt,
-    'recipient-key validation must precede native compilation and fixture execution');
+  const encryptAt = workflow.indexOf('Encrypt private V3 fixture diagnostics before artifact upload');
+  const uploadAt = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
+  assert.ok(keyGuardAt >= 0 && compileAt > keyGuardAt && gameAt > compileAt && encryptAt > gameAt && uploadAt > encryptAt,
+    'key validation, compile, game, encryption, and upload must occur in that order');
 
   const keyGuard = workflow.slice(keyGuardAt, compileAt);
   assert.ok(keyGuard.includes('if: ${{ inputs.agent36_v3_fixture_game }}'));
@@ -127,4 +129,8 @@ test('V3 fixture requires a valid owner diagnostic recipient before native compi
   assert.ok(keyGuard.includes('crypto.createPublicKey(pem)'));
   assert.ok(keyGuard.includes("key.asymmetricKeyType !== 'rsa'"));
   assert.ok(keyGuard.includes('bits < 2048'));
+
+  const encryptionStep = workflow.slice(encryptAt, uploadAt);
+  assert.ok(encryptionStep.includes('if: ${{ always() && !inputs.contract_only }}'),
+    'private diagnostics must still be encrypted when the game step fails');
 });
