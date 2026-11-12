@@ -337,7 +337,7 @@ test('external clockEvidence is trial-bound, referenced, and passed through the 
   assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockEvidence,clockEvidence);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,clockEvidenceRef);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment.status,
-    'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+    'INSUFFICIENT_NO_CALL_EVIDENCE');
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
