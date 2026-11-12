@@ -122,26 +122,6 @@ function runNativeFixtureGame(input) {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
   }=native;
-  const settings=new GameSettings();
-  settings.format=Format.EXPANDED;
-  settings.recordingEnabled=false;
-  settings.rules={
-    ...(settings.rules??{}),
-    firstTurnDrawCard:true,
-    firstTurnUseSupporter:false,
-    attackFirstTurn:false
-  };
-
-  const store=new Store({onStateChange:()=>{}});
-  store.state.gameSettings=settings;
-  store.state.rules=settings.rules;
-
-  const seats=[
-    new SimpleTacticsAi({id:PLAYER_IDS[0]},input.botOptionsBySeat[0],input.deckA),
-    new SimpleTacticsAi({id:PLAYER_IDS[1]},input.botOptionsBySeat[1],input.deckB)
-  ];
-  input.onAgentsCreated?.(seats);
-
   const previousRandom=Math.random;
   const physicalRandom=seededRandom(input.seed);
   const policyRandom=POLICY_SEED_XORS.map(xor=>
@@ -151,9 +131,30 @@ function runNativeFixtureGame(input) {
   const actionCountsBySeat=[0,0];
   let actions=0;
   let actualFirstPlayerSeat=null;
+  let store;
+  let seats;
 
   try {
     Math.random=physicalRandom;
+    const settings=new GameSettings();
+    settings.format=Format.EXPANDED;
+    settings.recordingEnabled=false;
+    assert.ok(settings.rules&&typeof settings.rules==='object',
+      'Twinleaf GameSettings did not expose mutable rules');
+    settings.rules.firstTurnDrawCard=true;
+    settings.rules.firstTurnUseSupporter=false;
+    settings.rules.attackFirstTurn=false;
+
+    store=new Store({onStateChange:()=>{}});
+    store.state.gameSettings=settings;
+    store.state.rules=settings.rules;
+
+    seats=[
+      new SimpleTacticsAi({id:PLAYER_IDS[0]},input.botOptionsBySeat[0],input.deckA),
+      new SimpleTacticsAi({id:PLAYER_IDS[1]},input.botOptionsBySeat[1],input.deckB)
+    ];
+    input.onAgentsCreated?.(seats);
+
     store.dispatch(new AddPlayerAction(PLAYER_IDS[0],
       input.playerNames?.[0]??'fixture-candidate-seat-0',input.deckA));
     if(store.state.phase===GamePhase.FINISHED)
@@ -266,8 +267,10 @@ function runNativeFixtureGame(input) {
     const rawWinner=store.state.winner??null;
     const winnerPlayerId=rawWinner&&typeof rawWinner==='object'?
       (rawWinner.id??null):rawWinner;
-    const winnerSeat=store.state.players.findIndex(player=>
+    let winnerSeat=store.state.players.findIndex(player=>
       player.id===winnerPlayerId);
+    if(winnerSeat===-1 && (rawWinner===0 || rawWinner===1))
+      winnerSeat=rawWinner;
     const winner=rawWinner&&typeof rawWinner==='object'?
       {playerId:winnerPlayerId}:rawWinner;
 
