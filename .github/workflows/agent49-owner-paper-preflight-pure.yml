@@ -32,3 +32,5 @@ jobs:
         run: node --test tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs
       - name: Regress preregistered untimed and Aichi event admission modes
         run: node --test tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs
+      - name: Regress prospective V3 policy registration and complete-game bundle assembly
+        run: node --test tests/2026-11/agent44-v3-game-bundle-builder.test.cjs
