@@ -240,6 +240,7 @@ jobs:
           node --check simulation/twinleaf/agent47-actor-hand-discard.cjs
           node --check simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs
           node --check simulation/evaluation/2026-11/agent42-rank5-fresh-gengar-lillie-aba.cjs
+          node --check simulation/evaluation/2026-11/agent43-native-attack-damage-carryover.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
       - name: Run Agent47 attack-fuel pure contracts
         if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
@@ -250,6 +251,9 @@ jobs:
       - name: Test Agent20 native attack-fuel evidence joins
         if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
         run: node --test tests/2026-11/agent20-newmoon-attack-fuel-runner.test.cjs
+      - name: Test Agent43 native two-hit carryover screen
+        if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
+        run: node --test tests/2026-11/agent43-native-attack-damage-carryover.test.cjs
       - name: Verify frozen New Moon attack-fuel A-B-A registration
         if: ${{ inputs.run_rank5_newmoon_attack_fuel_fresh_eight }}
         run: node simulation/evaluation/2026-11/agent20-newmoon-perfection-attack-fuel-fresh-eight.cjs --preflight
