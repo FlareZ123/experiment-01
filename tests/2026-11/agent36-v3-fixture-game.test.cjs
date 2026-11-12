@@ -185,6 +185,6 @@ test('fixture CLI logs only a safe summary while full-state traces stay in artif
   assert.doesNotMatch(command, /decisionTrace|rootActionLedger|fullState|fixtureGamePartial/,
     'public Actions logs must not serialize the private fixture artifact');
 
-  assert.match(runnerSource, /partial artifacts preserved: '\) \+ outputPath/,
+  assert.ok(runnerSource.includes("partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath"),
     'failure logs may identify the artifact path but not print its contents');
 });
