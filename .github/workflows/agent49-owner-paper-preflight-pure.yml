@@ -35,6 +35,6 @@ jobs:
       - name: Regress Agent27 to Agent45 Aichi clock bridge and natural-tie stage rules
         run: node --test tests/2026-11/agent27-agent45-aichi-clock-bridge.test.cjs
       - name: Regress prospective V3 policy registration and complete-game bundle assembly
-        run: node --test tests/2026-11/agent44-v3-game-bundle-builder.test.cjs
+        run: node --test tests/2026-11/agent44-v3-game-bundle-builder.test.cjs tests/2026-11/agent44-actions-metadata-receipts.test.cjs
       - name: Regress seat-scoped role policy composition
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
