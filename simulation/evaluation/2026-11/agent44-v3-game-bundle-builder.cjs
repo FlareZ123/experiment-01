@@ -19,7 +19,9 @@ const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
 const POLICY_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
 const PREDEAL_PERSISTENCE_RECEIPT_SCHEMA = 'aichi-predeal-artifact-persistence-receipt-v1';
 const DEAL_GENERATION_RECEIPT_SCHEMA = 'aichi-physical-deal-generation-receipt-v1';
-const PERSISTENCE_TIME_SOURCE = 'github-api-commit-committer-date';
+const PERSISTENCE_TIME_SOURCE = 'github-actions-run-started-at';
+const DEAL_GENERATION_STEP_NAME = 'Generate physical deal';
+const RUN_ID = /^[1-9]\d*$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const OFFSET_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -321,10 +323,13 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
 }
 
 function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fixtureOnly) {
+  // These fields are consistency checks over GitHub Actions server metadata.
+  // The independent reviewer must fetch the run/job records and verify them;
+  // producer-supplied timestamps and Git commit committer dates are not clocks.
   if (!plainObject(persistenceReceipt) ||
       persistenceReceipt.schema!==PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
       persistenceReceipt.trialId!==preDeal.trialId ||
-      persistenceReceipt.commitTimestampSource!==PERSISTENCE_TIME_SOURCE ||
+      persistenceReceipt.serverTimestampSource!==PERSISTENCE_TIME_SOURCE ||
       !nonempty(persistenceReceipt.repositoryFullName) ||
       !persistenceReceipt.repositoryFullName.includes('/') ||
       persistenceReceipt.repositoryFullName.startsWith('/') ||
@@ -333,13 +338,15 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fix
       persistenceReceipt.artifactSha256!==preDeal.preDealArtifactSha256 ||
       !GIT_SHA.test(persistenceReceipt.commitSha??'') ||
       !GIT_SHA.test(persistenceReceipt.blobSha??'') ||
-      !dateTime(persistenceReceipt.committedAt))
-    fail('pre-deal persistence receipt is missing or not bound to the immutable artifact');
+      !RUN_ID.test(String(persistenceReceipt.workflowRunId??'')) ||
+      persistenceReceipt.workflowHeadSha!==persistenceReceipt.commitSha ||
+      !dateTime(persistenceReceipt.workflowRunStartedAt))
+    fail('pre-deal persistence receipt is missing or not bound to a server-timestamped workflow run');
   const registeredAt=Date.parse(preDeal.gameRegistration.registeredAt);
   const plannedDealAt=Date.parse(preDeal.gameRegistration.dealGeneratedAt);
-  const committedAt=Date.parse(persistenceReceipt.committedAt);
-  if (committedAt<registeredAt || committedAt>=plannedDealAt)
-    fail('pre-deal artifact commit was not after registration and before planned deal generation');
+  const runStartedAt=Date.parse(persistenceReceipt.workflowRunStartedAt);
+  if (runStartedAt<registeredAt || runStartedAt>=plannedDealAt)
+    fail('pre-deal artifact workflow did not start after registration and before planned deal generation');
 
   if (!plainObject(dealReceipt) ||
       dealReceipt.schema!==DEAL_GENERATION_RECEIPT_SCHEMA ||
@@ -348,19 +355,21 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fix
       dealReceipt.artifactSha256!==persistenceReceipt.artifactSha256 ||
       dealReceipt.commitSha!==persistenceReceipt.commitSha ||
       dealReceipt.blobSha!==persistenceReceipt.blobSha ||
+      dealReceipt.workflowRunId!==persistenceReceipt.workflowRunId ||
+      dealReceipt.workflowHeadSha!==persistenceReceipt.workflowHeadSha ||
+      !RUN_ID.test(String(dealReceipt.jobId??'')) ||
+      dealReceipt.stepName!==DEAL_GENERATION_STEP_NAME ||
+      !dateTime(dealReceipt.stepStartedAt) ||
       dealReceipt.runnerRevision!==trial.researchRevisionSha ||
       !GIT_SHA.test(dealReceipt.runnerRevision??'') ||
-      !dateTime(dealReceipt.generatedAt) ||
       !SHA256.test(dealReceipt.sourceDealFingerprint??''))
-    fail('physical deal-generation receipt is missing or not bound to the committed pre-deal artifact');
-  const generatedAt=Date.parse(dealReceipt.generatedAt);
-  if (generatedAt<plannedDealAt || generatedAt<=committedAt)
-    fail('physical deal was generated before the committed pre-deal artifact or before its registered generation time');
-  if (!fixtureOnly && generatedAt>Date.now())
-    fail('production postgame bundle cannot claim a future physical deal-generation time');
-  if (trial.dealGeneratedAt!==dealReceipt.generatedAt ||
+    fail('physical deal-generation receipt is missing or not bound to the same server-timestamped workflow');
+  const stepStartedAt=Date.parse(dealReceipt.stepStartedAt);
+  if (stepStartedAt<plannedDealAt || stepStartedAt<=runStartedAt)
+    fail('physical deal-generation step did not start after preregistered time and workflow persistence');
+  if (trial.dealGeneratedAt!==dealReceipt.stepStartedAt ||
       trial.initialSourceDealFingerprint!==dealReceipt.sourceDealFingerprint)
-    fail('trial actual deal time or source-deal fingerprint disagrees with deal-generation receipt');
+    fail('trial actual deal time or source-deal fingerprint disagrees with server-timestamped generation step');
   return {persistenceReceipt,dealReceipt};
 }
 
