@@ -7,27 +7,50 @@ const {
 } = require('./agent36-4410-policy-provenance.cjs');
 const {auditMode} = require('../agent3-observed-policy-closure.cjs');
 
-function jsonSafe(value) {
-  if (value === undefined) return null;
-  if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
-      (typeof value === 'number' && Number.isFinite(value))) return value;
-  if (typeof value === 'function' || typeof value === 'symbol' ||
-      typeof value === 'bigint') {
-    throw new TypeError(`Unsupported policy-provenance value: ${typeof value}`);
-  }
+function jsonSafe(value, at='$', ancestors=new WeakSet()) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean')
+    return value;
   if (typeof value === 'number') {
-    throw new TypeError('Unsupported non-finite policy-provenance number');
+    if (Number.isFinite(value)) return value;
+    throw new TypeError(`Non-finite provenance number at ${at}`);
   }
-  if (Array.isArray(value)) return value.map(jsonSafe);
-  if (value && typeof value === 'object') {
-    const prototype=Object.getPrototypeOf(value);
-    if(prototype!==Object.prototype&&prototype!==null){
-      throw new TypeError('Unsupported non-plain policy-provenance object');
+  if (typeof value === 'undefined')
+    throw new TypeError(`Undefined provenance value at ${at}`);
+  if (typeof value !== 'object')
+    throw new TypeError(`Unsupported provenance value at ${at}: ${typeof value}`);
+  if (ancestors.has(value))
+    throw new TypeError(`Cyclic provenance value at ${at}`);
+  if (Object.getOwnPropertySymbols(value).length)
+    throw new TypeError(`Symbol-keyed provenance property at ${at}`);
+
+  ancestors.add(value);
+  let result;
+  if (Array.isArray(value)) {
+    result = [];
+    for (let index = 0; index < value.length; index++) {
+      if (!Object.hasOwn(value, index))
+        throw new TypeError(`Sparse provenance array at ${at}[${index}]`);
+      result.push(jsonSafe(value[index], `${at}[${index}]`, ancestors));
     }
-    return Object.fromEntries(Object.keys(value).sort().map(key =>
-      [key, jsonSafe(value[key])]));
+    const allowed = new Set(Array.from({length:value.length}, (_, index) => String(index)));
+    if (Object.keys(value).some(key => !allowed.has(key)))
+      throw new TypeError(`Non-index provenance array property at ${at}`);
+  } else {
+    if (Object.getPrototypeOf(value) !== Object.prototype)
+      throw new TypeError(`Provenance value must be a plain JSON object at ${at}`);
+    result = {};
+    for (const key of Object.keys(value).sort()) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !Object.hasOwn(descriptor, 'value'))
+        throw new TypeError(`Accessor provenance property at ${at}.${key}`);
+      Object.defineProperty(result, key, {
+        value: jsonSafe(descriptor.value, `${at}.${key}`, ancestors),
+        enumerable: true, writable: true, configurable: true
+      });
+    }
   }
-  throw new TypeError(`Unsupported policy-provenance value: ${typeof value}`);
+  ancestors.delete(value);
+  return result;
 }
 
 /**
