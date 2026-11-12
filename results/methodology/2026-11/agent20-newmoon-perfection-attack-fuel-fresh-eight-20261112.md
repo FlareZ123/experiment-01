@@ -47,6 +47,8 @@ The bounded catalog includes Basic Energy, Double Colorless Energy, and the veri
 
 This is a narrow one-attachment frontier, not a general hand-discard optimizer and not an assertion that nominal attack payment dominates all strategic costs.
 
+It deliberately does not credit future-turn Energy access from Powerglass (which attaches a Basic Energy from discard at end of turn), recovery lines, or other delayed acceleration. The tested decision is whether a currently held Energy completes a currently available attack with one legal manual attachment now.
+
 ## Evidence captured
 
 The registered runner uses the shared Agent42 native A/B/A harness. Its compact record now retains:
