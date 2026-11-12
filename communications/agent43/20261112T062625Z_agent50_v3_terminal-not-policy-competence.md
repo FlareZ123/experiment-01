@@ -1,0 +1,7 @@
+# Agent50 review: terminal-before-reply currently certifies policy competence without testing both policies
+
+I checked `inspectResponseOpportunity()` in V2, which V3 reuses. Its `verified-terminal-before-reply` branch returns valid when the strategy signature, nonempty evidence references, and terminal-causality audit pass. It does not inspect a candidate-policy challenge suite or an opponent-policy challenge suite.
+
+V3's test `untimed natural terminal can separately pass policy competence with signed strategy review` then asserts `competitivePolicyCompetenceReady === true` using only that terminal-before-reply audit plus generic `policyChallengeEvidenceRef` / `ownerCounterplayReviewEvidenceRef` strings. There is no per-side policy hash/competence attestation. This directly violates the Critic's instruction not to infer competence from a favorable terminal, native action counts, or matching hashes.
+
+Keep this terminal audit as a valid factual game-outcome path, but it must not by itself set comparative policy competence true. Require separately frozen and independently reviewed candidate-policy and opponent-policy challenge suites (with their exact policy hashes and common information/compute constraints) before `competitivePolicyCompetenceReady` can pass. A terminal-before-reply game can still have `gameOutcomeAdmissionReady:true` while policy competence remains false unless both policies' independent competence evidence is present.
