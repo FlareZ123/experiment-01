@@ -169,6 +169,11 @@ test('live builder consumes frozen 4410 V2 intake, signs strategy evidence, and 
   assert.equal(result.bundle.trial.eventStage,null);
   assert.equal(result.bundle.trial.clockDisposition,null);
   assert.equal(result.bundle.trial.clockReceiptId,null);
+  assert.equal(result.bundle.trial.paperReceiptId,null);
+  assert.equal(result.bundle.trial.adjudicationProtocolSha,null);
+  assert.equal(result.bundle.trial.noCallClockPacket,null);
+  assert.equal(result.bundle.trial.timeCallPacket,null);
+  assert.equal(result.bundle.trial.extensionLedgerPacket,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidence,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,null);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment,null);
@@ -282,15 +287,22 @@ test('missing 120-card inventory and incomplete receipt coverage remain explicit
 test('external clockEvidence is trial-bound, referenced, and passed through the shared v3 scorer',()=>{
   const original=fixture();
   const clockEvidence={
-    trialId:TRIAL,eventStage:'open-swiss',
+    trialId:TRIAL,eventStage:'open-top32',
     clockDisposition:'no-official-call',paperReceiptId:'paper-terminal-4410',
     clockReceiptId:null,adjudicationProtocolSha:aichiClockProtocolSha256(),
-    noCallClockPacket:{stage:'open-swiss',paperTerminalEvidenceRef:'paper-terminal-4410'},
+    noCallClockPacket:{stage:'open-top32',officialEndCallObserved:false,
+      elapsedSecondsAtNaturalTerminal:600,
+      officialClockCoverageEvidenceRef:'clock/continuous-coverage',
+      stageEvidenceRef:'event/open-top32-pairing',
+      paperTerminalEvidenceRef:'paper-terminal-4410',
+      independentReviewEvidenceRef:'review/clock-and-paper',
+      noCallCoverageIndependentlyReviewed:true,
+      paperStateIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false},
     timeCallPacket:null,extensionLedgerPacket:null
   };
   const clockEvidenceRef='review/clock-receipt-4410.json';
   const result=build(original,{clockEvidence,clockEvidenceRef});
-  assert.equal(result.bundle.trial.eventStage,'open-swiss');
+  assert.equal(result.bundle.trial.eventStage,'open-top32');
   assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
   assert.equal(result.bundle.trial.paperReceiptId,'paper-terminal-4410');
   assert.equal(result.bundle.trial.clockReceiptId,null);
@@ -298,7 +310,8 @@ test('external clockEvidence is trial-bound, referenced, and passed through the 
   assert.deepEqual(result.bundle.trial.noCallClockPacket,clockEvidence.noCallClockPacket);
   assert.deepEqual(result.releaseNineObjects['clock-continuity'].clockEvidence,clockEvidence);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockEvidenceRef,clockEvidenceRef);
-  assert.ok(result.releaseNineObjects['clock-continuity'].clockAssessment);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment.shapeComplete,true);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment.status,'NORMAL_PAPER_GAME_WIN');
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
@@ -336,6 +349,9 @@ test('external Agent27 clock evidence maps exact fields without creating reviewe
     clockEvidenceRef);
   assert.equal(result.releaseNineObjects['clock-continuity'].clockProtocolSha256,
     aichiClockProtocolSha256());
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment.shapeComplete,false);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockAssessment.status,
+    'MISSING_OR_MISMATCHED_PAPER_PROTOCOL');
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
 });
