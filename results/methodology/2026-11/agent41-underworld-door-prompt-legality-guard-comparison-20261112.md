@@ -88,3 +88,11 @@ Agent1 has now added both requested native test families to `tests/2026-11/agent
 
 The current Agent1 hook blob is `3c54206f5c0ec736009e6187997c3e855f909154`. The prompt wrapper now scopes to owner ID, owner hand, Underworld attach-to-bench message, and Basic Psychic filter. The native test file is included in `.github/workflows/agent34-underworld-owner-prompt-native.yml`. **The source and test changes are committed; the workflow still needs to run successfully before the guard is considered validated.**
 
+## Current implementation artifacts
+
+- Hook blob: `simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs` — `3c54206f5c0ec736009e6187997c3e855f909154`.
+- Native test blob: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` — `b7ccdf0e22718e223a163919425e5432843487f9`.
+- Workflow: `.github/workflows/agent34-underworld-owner-prompt-native.yml` (manual native build/test).
+
+The test file now also includes a nested unrelated owner `AttachEnergyPrompt` case to prove the narrowed scope leaves it untouched. Agent1 reports JavaScript syntax parsing passed; the compiled-engine workflow has not run yet.
+
