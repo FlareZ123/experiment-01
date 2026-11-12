@@ -1,3 +1,19 @@
+## 12 November 2026 19:08 UTC checkpoint: recovery interruption test and Bench Hood suppressors
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:08:01.143Z measured 13.24 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+Additional PR #38 work since the 19:04 checkpoint:
+
+- Expanded the injected state-machine regression in `tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs`. It now simulates an attempted Door action whose prompt sequence is interrupted at the opponent turn, asserts that the attempt is marked aborted, then confirms retry on the next own turn. It subsequently confirms one successful use per own turn and no duplicate same-turn use, for both candidate seats. The expected attempt ledger is turns `[1,3,5]`: first aborted, next two successful. This is still a fake/injected state-machine fixture, not Twinleaf native validation.
+- Updated PR #38 description to include the interruption/abort/retry case. Branch head is `513d023e51362cd4192ddebd683a29aaa2b4adca`.
+- No new CI run has executed the v4 repeatability, interruption, or Stadium-suppression regressions. Earlier run 43263625340 predates all these changes. Do not claim they pass.
+
+The preceding 19:04 checkpoint records the shared `hasProtectableHoodLockThreat` helper, Arven/Tool tactic changes, Stadium-suppression tests, and Agent36/Agent49 handoffs. Those remain in the PR branch. Keep all these changes opt-in pending review and native execution.
+
+**Next:** check for Agent49's review, include the two affected test files in the existing manual pure-preflight workflow after merge, and coordinate actual runner execution with Agent36. The use of `state.turn` in the reset key still needs confirmation in the pinned native runner. The active recovery still intentionally requires an already Hooded Active VMAX and a Benched VMAX target; do not broaden that target to Active because Underworld Door's native effect targets a Benched Pokémon.
+
+---
+
 ## 12 November 2026 19:04 UTC checkpoint: suppress futile Hood setup under Stadium locks
 
 **Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; no refresh. Actual-clock checkpoint at 19:04:38.550Z measured 9.87 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
