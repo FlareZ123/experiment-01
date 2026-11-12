@@ -45,6 +45,22 @@ The candidate lost this completed game (`candidateSeat=1`, winner seat 0, turn 2
 
 This is a high-value policy review target: the common policy spent 12 attacks on Filch before its only Max Geist conversion, while the VMAX accumulated Energy on the Bench from turns 21–25. The final Max Geist did take two Prizes, but came immediately before the terminal sequence and did not prevent the loss. The public snapshots do not establish every retreat/switch option in hand at each earlier turn, so they do not prove exactly when an earlier Max Geist line was legally available. They do establish a very late conversion, repeated optional draw attacks, three additional Underworld Door draws, and a zero-card deck prompt immediately before the loss.
 
+## A second hard failure: rank 7 Snorlax Block and an unrecognized Hood counterline
+
+Both rank-7 Hood games were completed losses with **zero settled attacks**. The slot-A loss is especially actionable:
+
+- 60 turns / 247 actions; both players remained at 6 Prizes.
+- Opponent Active: Snorlax PGO with Block, already carrying 10 damage.
+- Candidate Active: Shadow Rider Calyrex VMAX with 2 Psychic Energy and no Tool.
+- Candidate Bench: Lillie's Clefairy ex with 7 Psychic Energy plus four other Pokémon; opponent also had five Benched Pokémon.
+- The fixed 60 contains 2 Stealthy Hood and 1 Arven, but no Hood was attached in the final board.
+
+The pinned engine implements Snorlax PGO Block as a `RetreatEffect` denial against the opponent's Active Pokémon (`src/sets/09-sword-and-shield/set-pokemon-go/snorlax.ts`, blob `89a5257a184735f0b8230586f9154d2e327d7e6d`). Stealthy Hood's pinned implementation uses `PREVENT_EFFECTS_OF_OPPONENTS_ABILITIES` and removes existing opponent-Ability effects from its attached Pokémon (`src/sets/08-sun-and-moon/set-unbroken-bonds/stealthy-hood.ts`, blob `e0594e4222394e3da1e019e1b0c74bfa6b22c343`). The current PR #38 `hasLiveOpponentAbilityLock` predicate only recognizes Iron Thorns Initialization and Garbotoxin, so it misses this third, materially different Hoodable ability effect: a retreat lock.
+
+**Rules-derived counterline to validate:** attach Stealthy Hood to the Active VMAX, removing Block; retreat it by paying its 2-Energy retreat cost; promote the Benched Clefairy ex. Full Moon Rondo costs [Psychic][Colorless] and does 20 + 20 for each Benched Pokémon on both sides. With five Benched Pokémon on each side, it reaches **220 damage**, enough to Knock Out the 150-HP Snorlax (already at 10 damage). The Clefairy has seven Psychic Energy and the VMAX has two, so the retreat/attack costs are nominally payable. The candidate's exact hand at that point is not present in the public snapshot, so this is a legal board-state counterline, not a demonstrated win or proof Hood/Arven was accessible.
+
+The slot-B loss also ended after 65 turns / 250 actions with zero settled attacks; its final board had the candidate's Active VMAX on 1 Energy and a Benched Marshadow on 6 Psychic Energy. Together, these games show that the old common policy did not have a robust stall-break/attacker-promotion plan. The Hood-specific policy should detect opponent Ability effects Hood can prevent—not only Ability suppression—and should at minimum test active Snorlax PGO Block. This is a candidate-policy coverage issue, not a reason to change the 60 before native validation.
+
 ## Decision for candidate-policy work
 
 Do not interpret this as a reason to cut or add a card. It is evidence that the old shared policy is not a competent evaluator of the Hood list's central attack engine. The next candidate role should:
