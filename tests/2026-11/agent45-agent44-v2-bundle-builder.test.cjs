@@ -208,7 +208,7 @@ function fixture(){
       firstMissingEvidence:'verified-exact-Japanese-candidate-physical-printings'}
   };
   const row={
-    trial:{id:TRIAL_ID},finished:true,winner:0,endReason:'natural-prize-win',
+    trial:{id:TRIAL_ID},candidateSeat:1,finished:true,winner:0,endReason:'natural-prize-win',
     finalPrizes:[0,6],error:null,rootCapReached:false,
     sourceDealFingerprint:'source-deal',fullPhysicalDealFingerprint:'full-deal',
     sourceDeckFingerprint:'source-deck',
@@ -368,6 +368,23 @@ test('capture-only policy provenance digests are canonical and never promote com
   assert.equal(strategy.policyProvenance.activatedHookManifest.complete,false);
   assert.equal(strategy.policyProvenance.policyEntryManifest.complete,false);
   assert.equal(strategy.competitivePolicyCompetenceReady,false);
+});
+
+test('native development row identity must remain bound to the frozen intake',()=>{
+  const wrongTrial=fixture();
+  wrongTrial.nativeDevelopmentRow.trial.id='transplanted-trial';
+  assert.throws(()=>build(wrongTrial),
+    /Native development row trial must match intake trial/);
+
+  const wrongCandidateSeat=fixture();
+  wrongCandidateSeat.nativeDevelopmentRow.candidateSeat=0;
+  assert.throws(()=>build(wrongCandidateSeat),
+    /Native development row candidateSeat must match intake candidate seat/);
+
+  const wrongSourceSeat=fixture();
+  wrongSourceSeat.nativeDevelopmentRow.sourceSeat=1;
+  assert.throws(()=>build(wrongSourceSeat),
+    /Native development row sourceSeat must match intake source seat/);
 });
 
 test('capture-only policy provenance cannot be transplanted across intake identity even after re-signing',()=>{
