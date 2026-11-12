@@ -23,9 +23,11 @@ function withinRoot(value) {
 /**
  * Intercept all synchronous CommonJS loads for a reproducible native game.
  * Unknown research module bytes fail *before* their JavaScript executes.
+ * Every research-owned module in the frozen map must already be loaded before
+ * the guard is installed; expected-but-lazy modules are not admitted later.
  * Caller must independently pin the expected file/SHA manifest before seeing
  * outcomes. This hook cannot establish paper legality, account for dynamic
- * `fs.readFileSync`/eval/ESM imports, or verify vendor/game-engine semantics.
+ * fs/eval/ESM imports, or verify vendor/game-engine semantics.
  *
  * @template T
  * @param {string} repositoryRoot
@@ -55,8 +57,9 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
   const previous = Object.getOwnPropertyDescriptor(Module, '_load');
   assert.equal(typeof previous?.value, 'function');
   const observed = new Map();
+  const preloaded = new Set();
   const audit = {version: VERSION, preloadedChecks: 0, requireChecks: 0,
-    endChecks: 0, files: [], guardRestored: false,
+    endChecks: 0, files: [], preloadedFiles: [], guardRestored: false,
     competitiveGameQualified: false,
     limitation: 'Synchronous CommonJS research modules only; external frozen manifest and paper/vendor/runtime-state verification remain necessary.'};
 
@@ -87,12 +90,22 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
     assert.equal(sha256(fs.readFileSync(file.filename)), expected,
       'Research module changed from independently frozen manifest: ' + file.name);
     observed.set(file.name, file.filename);
-    if (stage === 'preloaded') audit.preloadedChecks++;
+    if (stage === 'preloaded') {
+      audit.preloadedChecks++;
+      preloaded.add(file.name);
+    }
     if (stage === 'require') audit.requireChecks++;
     if (stage === 'end') audit.endChecks++;
   }
 
+  // First prove that no already-loaded research code is outside the manifest.
   for (const filename of Object.keys(require.cache)) check(filename, 'preloaded');
+  // Then prove the reverse: no manifest-only module can be lazily loaded later.
+  for (const name of pinned.keys()) {
+    assert.ok(preloaded.has(name),
+      'Expected research module not preloaded before runtime pin: ' + name);
+  }
+  audit.preloadedFiles = [...preloaded].sort();
 
   function pinnedLoad(request, parent, isMain) {
     const resolved = Module._resolveFilename(request, parent, isMain);
@@ -110,7 +123,14 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
         assert.ok(withinRoot(resolvedName),
           'Relative research import escapes repository: ' + request);
       }
-      check(resolved, 'require');
+      const file = researchFile(resolved);
+      if (file) {
+        // Check the manifest first so an unregistered late load gets the
+        // precise unregistered-module failure, then reject expected-but-late.
+        check(resolved, 'require');
+        assert.ok(preloaded.has(file.name),
+          'Research module was not preloaded before runtime pin: ' + file.name);
+      }
     }
     return previous.value.apply(this, arguments);
   }
