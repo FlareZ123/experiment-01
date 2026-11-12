@@ -87,3 +87,27 @@ Build a distinct Sentinel challenger rather than editing the current candidate i
 - Paper legality for the exact final printings and Japanese Extra banned-list version.
 
 **Status:** high-value, rules-derived deckbuilding hypothesis with a favorable 29-list printed counter screen. No native game has been run for this package, no matchup rate is established, and it is not the nominated best deck. It does not demonstrate or imply 99.5%.
+
+
+## Addendum — concrete 60-card challenger (12 November 2026)
+
+A fixed-60 challenger has now been written at [`candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv`](../candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv). It is **60 cards: 6 Energy / 26 Pokémon / 28 Trainers**. It preserves the existing Lopunny, Pidgeot, Relicanth and Vileplume strategy shell, and makes a coherent setup-package replacement:
+
+- Removed Budew ×1, Bunnelby ×2, and Technical Machine: Evolution ×2.
+- Added Whismur SM7 116 ×1, Rare Candy SVI 191 ×2, Stoutland BCR 122 ×1 (two total), and Lillipup CEC 174 ×1 (three total).
+
+The v2's planned turn-3/4 double-lock setup is more robust than the initial one-Rare-Candy sketch:
+
+1. Attach Stealthy Hood to **two Lillipup and one Oddish** before Vileplume enters play.
+2. Rare Candy one Lillipup into Stoutland #1.
+3. Rare Candy the Oddish into Vileplume #1.
+4. Play Grand Tree (a Stadium, not an Item) and use it on the second prior-turn Lillipup to chain Lillipup → Herdier → Stoutland #2.
+5. Attach Jet Energy from hand to one Benched Stoutland to switch it Active. Keep the second Stoutland on the Bench as an immediate replacement if the Active one is Knocked Out.
+
+This uses two Rare Candy plus Grand Tree to establish **two Stoutland and one Vileplume** in the same turn. The second Stoutland maintains the Supporter lock through one Active Stoutland Knock Out. The second Vileplume can be built later from the remaining Oddish/Gloom line; it is not yet on board at initial lock establishment. The exact 60 keeps 3 Stealthy Hood for the two Stoutland and first Vileplume.
+
+For the going-second bridge, use Whismur Bawl on the first turn and **hold Grand Tree until the lock-establishment turn**. This avoids giving the opponent an early Stadium/Field Blower/Faba target. The opponent's next turn is Trainer-locked, and Grand Tree can then replace any Stadium already in play. On the lock-establishment turn, play both Rare Candy cards and attach all three Hoods before Vileplume enters; then Grand Tree remains playable because it is a Stadium, not an Item. For a Temple of Sinnoh board, Grand Tree replaces it before Jet Energy is attached, restoring Jet Energy's switch effect.
+
+Going first, the same two-Rare-Candy + Grand Tree line is planned for the player's second turn; the opponent has one unrestricted turn to attack or disrupt the Basic setup. The Whismur attack is unavailable in that branch. Whismur is a one-of searchable by Fan Rotom's first-turn Fan Call (Colorless, 100 HP or less) if Fan Rotom is available; otherwise the list still aims for the double lock on schedule, but without the extra Trainer-denial bridge.
+
+**Status remains untested:** the list is a concrete challenger, not a nominated best deck. No Twinleaf game, matchup sample, paper-qualified game, or win-rate evidence exists for v2. The 29-list counter census is a reason to prioritize the test, not evidence that the lock survives attacks or wins games.
