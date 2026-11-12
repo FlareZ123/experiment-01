@@ -130,6 +130,8 @@ for (const ownerSeat of [0, 1]) {
       target(0), target(2)
     ]);
     assert.deepEqual(prompt.options.validCardTypes, [CardType.PSYCHIC]);
+    assert.equal(wrapped.audit.underworldDoorEffectCalls, 1);
+    assert.equal(wrapped.audit.promptsMatched, 1);
     assert.equal(wrapped.audit.promptsCorrected, 1);
     assert.equal(wrapped.audit.ownerZonesOnly, true);
     assert.equal(wrapped.audit.vendorModified, false);
@@ -155,7 +157,10 @@ for (const ownerSeat of [0, 1]) {
 test('paper hook refuses Underworld Door when the owner has no Psychic Bench target', () => {
   const scene = makeScene({benchTypes: [CardType.COLORLESS]});
   assert.throws(() => withUnderworldDoorPrintedTargetHook(() => useDoor(scene)),
-    error => error.message === GameStoreMessage.CANNOT_USE_POWER);
+    error => error.message === GameStoreMessage.CANNOT_USE_POWER &&
+      error.agent1UnderworldDoorPaperAudit?.underworldDoorEffectCalls === 1 &&
+      error.agent1UnderworldDoorPaperAudit?.promptsMatched === 1 &&
+      error.agent1UnderworldDoorPaperAudit?.noPsychicBenchRejections === 1);
   assert.equal(scene.captured.prompt, undefined);
 });
 
