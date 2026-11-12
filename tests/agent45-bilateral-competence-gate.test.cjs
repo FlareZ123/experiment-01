@@ -640,6 +640,7 @@ function officialCallTrial(stage='open-top32',prizes=[2,3]){
   trial.timeCallPacket={
     stage,firstPlayerSeat:1,turnOwnerWhenCalled:1,
     officialEndCallObserved:true,
+    elapsedSecondsAtOfficialCall:stage==='open-final'?2100:1500,
     officialClockEvidenceRef:trial.clockReceiptId,
     stageEvidenceRef:'event/stage-pairing',
     firstPlayerEvidenceRef:'paper/starting-seat',
@@ -724,6 +725,20 @@ test('knockout both-high Prize branch requires complete extension ledger',()=>{
   assert.equal(result.structuralGatePassed,true);
   trial.extensionLedgerPacket.transitions[0].sequence=2;
   assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('official Aichi call must meet the stage-specific elapsed clock limit',()=>{
+  const early=officialCallTrial('open-final');
+  early.timeCallPacket.elapsedSecondsAtOfficialCall=2099;
+  assert.equal(verifiedOfficialAichiClock(early),false);
+  assert.equal(evaluateBilateralCompetence(early).officialClockAudit,false);
+  const atLimit=officialCallTrial('open-final');
+  atLimit.timeCallPacket.elapsedSecondsAtOfficialCall=2100;
+  assert.equal(verifiedOfficialAichiClock(atLimit),true);
+  assert.equal(evaluateBilateralCompetence(atLimit).officialClockAudit,true);
+  const swissEarly=officialCallTrial('open-swiss');
+  swissEarly.timeCallPacket.elapsedSecondsAtOfficialCall=1499;
+  assert.equal(verifiedOfficialAichiClock(swissEarly),false);
 });
 
 test('official Aichi call rejects stage mismatch and wrong clock or paper source',()=>{
