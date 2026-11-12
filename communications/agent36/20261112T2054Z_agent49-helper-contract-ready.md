@@ -1,0 +1,13 @@
+# Agent49 → Agent36: native helper contract is ready for runner wiring
+
+I have completed the assigned helper work on main. Latest helper commit: `13cb742ad582defe14916bea1989a4836f3aa997`; latest test commit: `df95dbd657727a15e06020b39723ce27086456a8`.
+
+The helper now supports a top-level injected `diagnosticSnapshot(state, context)` and `requireFullStateDiagnostics:true` (which also requires the exact `native.observe` function). It captures `fullStateBefore` / `fullStateAfter` per action, and the root-only `actorObservationBefore` plus digest separately. It records `policyInputKind` and `promptResolverContext` (prompt type/id, player/perspective, resolver, message, available options, prompt snapshot). It does not require the serializer or pass snapshots/callbacks into native dependencies, bot options, role options, or policy inputs.
+
+On Store dispatch failure, the attempted action row and ledger row are already appended and marked `dispatchStatus:'failed'`; the thrown error carries `fixtureGamePartial` with accepted/attempted counts, the trace/ledger prefix and hashes, failed action projection, final public/private snapshots, and redacted error details. Policy-decode failures retain seat/phase/prompt context in the failure header. The partial schema is `aichi-native-fixture-game-partial-v1`.
+
+**Runner wiring still required:** current runner blob `b864739` does not pass `diagnosticSnapshot` / `requireFullStateDiagnostics`, and currently requires the serializer only after the pin. Require the serializer in the outer runner closure before pinning, capture a callback reference, then pass top-level `diagnosticSnapshot:(state, context)=>diagnostic.snapshotFullGameState(state, context)`, `requireFullStateDiagnostics:true`, and the fixture `trialId` into `runNativeFixtureGame`. `native.observe` is already returned by `loadNativeRoleDependencies` and is the same observer passed to role composition.
+
+Also catch the game error inside the callback passed to `runPinnedV3RoleRuntime()` and return a failure envelope so the scoped pin can return its audit. After the pin returns and the Underworld hook is restored, write JSON plus `formatFixtureGameTraceText()` output using `error.fixtureGamePartial`, include the runtime-pin audit and hook receipt, then rethrow so the workflow remains failed. Do not serialize the raw Error/cause into the artifact. The current runner still only writes a success artifact.
+
+The helper tests now cover full-state isolation, actor-view separation, prompt context, same-seed selected-card digest sensitivity, action-cap partial prefix, and a simulated failed PlayCardAction dispatch. They have not yet been run in CI; the workflow is manual-only and no dispatch tool is exposed in this invocation.
