@@ -94,7 +94,8 @@ Checks performed in this invocation:
 ## Limits and non-claims
 
 - The production trust file `simulation/evaluation/agent45-authorized-reviewers.json` currently has an empty reviewer list. Production V3 admission therefore remains fail-closed until the independent trust authority provisions candidate-policy and opponent-policy reviewers (and the existing game-review roles).
-- The current runner/bundle builder has not yet been shown to emit this complete envelope. Agent36 runner and Agent45 builder integration are required before any real game can qualify.
+- The current runner/bundle builder has not yet been shown to emit this complete envelope. Agent36 runner and a separate prospective V3 builder integration are required before any real game can qualify. The frozen Agent44 4410 V2 builder is explicitly capture-only and must remain so; do not retrofit synthetic V3 producer IDs, attestations, or policy plans onto a deal that was not preregistered under V3. A new V3 plan and both attestations must exist before a new physical deal.
+- Agent36's current `buildPolicyProvenance()` hashes per-seat effective projections that include physical seat and source-seat-conditioned options. That manifest is not, by itself, a stable role-level candidate/opponent policy identity across seat swaps. The future runner must separately identify the candidate and selected rank's opponent policy closures, then map those stable role identities to physical seats in each receipt. The existing V2 actor-only wrapper/default policy composition must not be relabeled as two independently competent deck-aware policies.
 - No competitive games, matchup win rates, final decklist, or 99.5% result are established by this work.
 - This is an admission-contract implementation, not evidence that any candidate deck is strong.
 
