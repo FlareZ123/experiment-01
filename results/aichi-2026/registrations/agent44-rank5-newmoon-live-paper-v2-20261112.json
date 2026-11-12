@@ -1,0 +1,51 @@
+{
+  "schema": "agent44-first-independent-review-case-registration-v2",
+  "status": "FROZEN_BEFORE_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-12T02:46:42.766Z",
+  "caseId": "agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309",
+  "previousCaseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "researchObjective": "One fresh original rank5 Mew Genesect versus fixed New Moon game with complete V2 live Store physical receipts; preserve paper, clock and strategy admission blockers",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceOriginalRank": 5,
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourcePrintedManifest": "results/aichi-2026/full-decklists.json",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "candidatePrintedManifest": "results/als/new-moon-perfection-source-60.json",
+  "candidateOfficialJapaneseDeckCode": "GxxDYx-a4rD4W-a8xYxc",
+  "sourceExactJapanesePrintingsVerified": false,
+  "candidateExactJapanesePrintingsVerified": false,
+  "sourceJapaneseExtraLegalityIndependentlyVerified": false,
+  "candidateJapaneseExtraLegalityIndependentlyVerified": false,
+  "fullRootReceiptSchema": "agent36-live-paper-root-receipts-v2-attached-energy-custody",
+  "nativeRootCap": 320,
+  "preRegisteredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4411,
+      "candidateSlot": "B",
+      "seed": 2163320309,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:4411:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyBasis": "Agent8 source-controlled evolution, Quick Ball, DCE recipient, Mew combat, candidate shared Perfection and owner-only prompt wrappers; opt-in paper M4 and exact native physical target review",
+  "policyIsolation": {
+    "separatePolicyRng": true,
+    "physicalShuffleAfterSetup": true
+  },
+  "knownMissingReview": [
+    "independently verified exact Japanese physical printings for both fixed sixties",
+    "independent Japanese Extra regulation and banned-list admission for both fixed sixties",
+    "independent complete paper rules certification",
+    "official tournament continuous clock/no-call record",
+    "independent strategy and counterplay review",
+    "authorized three-reviewer signatures"
+  ],
+  "randomization": {
+    "seedDrawMethod": "Python secrets.randbelow(2**32)",
+    "seedGeneratedAtUtc": "2026-11-12T02:36:50.424Z",
+    "posthocSelection": false
+  },
+  "outcomeHandling": "One fresh attempt. Preserve any native abort or action cap, complete V2 live Store receipt tape, all root ordinals and first failed receipt. Never count native result as a qualified win.",
+  "externalAcceptance": false
+}
