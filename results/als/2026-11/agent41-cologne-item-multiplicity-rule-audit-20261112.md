@@ -1,33 +1,30 @@
-# Canceling Cologne: Item-multiplicity rule audit for the 4410 paper gate
+# Canceling Cologne: correction — official Q&A confirms once-per-turn restriction
 
-**Agent 41 — 12 November 2026.** Rulebook/code audit; not a claim about an unobserved 4410 play.
+**Agent 41 — 12 November 2026.** This corrects and withdraws the preceding interpretation in this file's earlier revision.
 
-## Finding
+## Correct ruling
 
-The repository's advanced manual transcription, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, B-01 (Items), lines 388–397, says players may play **any number of Item cards during their turn**. It separately prohibits using an Item if its resolution would not change the game state.
+The repository's advanced manual transcription, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, B-01 (Items), lines 388–397, gives the general rule that any number of Item cards may be played during a turn. However, the official Japanese card-specific Q&A for Canceling Cologne explicitly asks whether it can be used again during the same turn and answers **no**. That specific ruling controls the generic Item rule for this card.
 
-Canceling Cologne is an Item. Therefore a second Cologne in the same turn is not illegal merely because it is second. It may be illegal if it is a no-op against the same unchanged Active Pokémon; it may be legal if the game state/target changed and the second use changes state. A per-seat/per-turn count cannot decide.
+Official sources:
+- [Canceling Cologne — S9a 063/067](https://www.pokemon-card.com/card-search/details.php/card/41294). Its printed effect lasts through the turn and explicitly includes Pokémon newly placed in the Active Spot; the page also identifies it as a `グッズ` (Item).
+- [Official Q&A search for Canceling Cologne](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%AD%E3%83%A3%E3%83%B3%E3%82%BB%E3%83%AB%E3%82%B3%E3%83%AD%E3%83%B3&regulation_faq_main_item1=all). One question asks whether a second Canceling Cologne can be used during the turn in which the first was used; the official answer is no. The same page confirms that the first Cologne's effect also removes the Ability of a newly promoted Active Pokémon for the remainder of the turn.
 
-## Exact false assumption
+## Code assessment
 
-1. `simulation/twinleaf/canceling-cologne-once-per-turn-hook.cjs` claims to enforce an "official Japanese ruling" that a player cannot play a second Canceling Cologne during the same turn. Its Store/card hooks enforce that absolute limit. The repository manual contradicts the claim. If retained, this is a **voluntary conservative policy quota**, not a rules correction.
+The original conclusion that the one-per-turn restriction was a false paper rule was **wrong**. I applied the generic B-01 Item rule without checking the card-specific official Q&A. The current implementation is consistent with the specific ruling:
 
-2. `simulation/evaluation/agent48-cologne-native-ledger-audit.cjs` groups accepted Cologne `PlayCardAction` roots by game epoch, seat, and turn. Count>1 becomes `duplicateAcceptedBySeatTurn` and `acceptedOncePerSeatTurn=false`. It does not inspect physical card identity, target identity, or per-use state change; it cannot distinguish a duplicate log, a second physical copy with a new legal target/effect, or a no-op.
+1. `simulation/twinleaf/canceling-cologne-once-per-turn-hook.cjs` enforces one Cologne use per player per turn. Its description as an official Japanese ruling is supported by the official Q&A. It is a rules-correcting hook, not merely a strategic quota.
+2. `simulation/evaluation/agent48-cologne-native-ledger-audit.cjs` counts accepted Cologne roots by game epoch, player slot, and turn. More than one accepted use in one player's turn is a paper-rule violation; authenticated sudden-death epoch segmentation prevents turn-number reuse from creating a false duplicate.
+3. `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` correctly blocks independent paper review when `acceptedOncePerSeatTurn` is false, even if `hookOptInEnabled` is false. The postgame audit must catch an illegal second use if the simulator hook was not enabled.
 
-3. `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` makes its review gate require `acceptedOncePerSeatTurn===true` even when `hookOptInEnabled===false`. The hook flag is recorded but does not affect `auditClear`. A structurally valid ledger with two distinct same-turn Cologne plays is therefore blocked from independent paper review when the hook is disabled.
+The frozen 4410 profile does not opt into `paperCologneQuota`, and the workflow does not set `AGENT48_PAPER_COLOGNE_DEV`. That does not invalidate the review gate: if the unpatched engine accepts a second Cologne in one player's turn, the audit should fail closed. If no second use occurs, the audit can pass.
 
-4. `simulation/evaluation/agent41-bilateral-v2-development.cjs` defaults `paperCologneQuota=false` and enables the hook only with `AGENT48_PAPER_COLOGNE_DEV==='true'`. The 4410 workflow does not set that variable; the frozen 4410 profile has no Cologne-quota option. Thus 4410 does not opt into the policy quota, yet the producer gate still treats the quota as paper law.
+## Retraction and instructions
 
-## Correct separation
+- **Retract** my earlier message that multiple same-turn Cologne plays should be allowed or that the review gate was wrong.
+- Do not remove or weaken the one-per-turn hook, `acceptedOncePerSeatTurn` audit, or producer review gate on the basis of my prior message.
+- The earlier recommendation to rename the same-turn count as harmless multi-use was also wrong.
+- No actual 4410 receipt packet was reviewed here; this confirms the rule and validates the gate, not any particular trial's actions.
 
-- **Native ledger integrity:** consecutive ordinals, real seat/turn, and authenticated sudden-death epochs. This can gate whether the ledger is reviewable.
-- **Optional policy quota:** if the explicitly named conservative one-per-turn hook was enabled, report its conformance as policy evidence only. It is not paper legality.
-- **Paper Item legality:** for every Cologne use, verify physical card movement, the opponent's then-Active target, and whether resolution changes game state. Multi-use turns need per-use target/effect evidence. A no-op second use fails B-01 step 1; count alone cannot establish that.
-
-Recommended gate: a structurally valid ledger remains **eligible for independent paper review** when `multipleAcceptedBySeatTurn` is non-empty; surface those rows as `requiresTargetAndEffectReview`. Report optional policy-quota conformance separately. Never set `paperLegalityCertified=true` from this count audit. Rename/document `duplicateAcceptedBySeatTurn` as multiple uses, not duplicate roots. Replace tests that block all same-turn multiple Item roots with tests for distinct physical cards/state-changing targets, no-op effects, and genuinely duplicated physical-card/root identities.
-
-## Scope
-
-This is a rules-model inconsistency, not evidence that a particular 4410 action was legal or illegal. The actual 4410 receipt packet has not been independently reviewed here. No frozen options, source registration, candidate 60, or gameplay are changed.
-
-Relevant official card record: [Canceling Cologne](https://www.pokemon-card.com/card-search/details.php/card/41294).
+The generic manual rule remains correct for Items generally; Canceling Cologne has a specific official card ruling that restricts a second use in the same turn.

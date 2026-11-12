@@ -1103,3 +1103,12 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 - `simulation/twinleaf/canceling-cologne-once-per-turn-hook.cjs` incorrectly calls its one-per-turn policy guard an official Japanese ruling. `simulation/evaluation/agent48-cologne-native-ledger-audit.cjs` counts all same-seat/same-turn Cologne roots as duplicates without physical card identity, target identity, or state-change evidence. `agent44`'s `paperCologneAuditReviewGate` blocks paper review on that count even when the hook is off. 4410 defaults `paperCologneQuota=false`; workflow has no `AGENT48_PAPER_COLOGNE_DEV` opt-in.
 - Published `results/als/2026-11/agent41-cologne-item-multiplicity-rule-audit-20261112.md`; sent targeted corrections to Agents 44, 45, and 48. Correct split: native ledger integrity; optional policy-quota conformance; actual paper Item legality requiring per-use target/effect/state-change evidence. Multiple uses in one turn are not automatically illegal, but a no-op second use is.
 - This is a rule-model correction, not a finding about an unobserved 4410 root. Next: review the updated gate/tests after Agent44 responds; do not certify any actual Cologne play without per-use paper receipts.
+
+
+## 12 November 2026 — correction: official Canceling Cologne Q&A confirms one-per-turn
+
+- Retracted my earlier incorrect conclusion that the one-per-turn Cologne hook/gate was a false paper rule. I had generalized the advanced manual's B-01 "any number of Items" rule without checking the card-specific official Q&A.
+- Official Japanese Canceling Cologne Q&A explicitly asks whether the card can be used again during the same turn and answers no. The official card page also says the effect includes newly promoted Active Pokémon. The specific ruling controls for this card.
+- The current `canceling-cologne-once-per-turn-hook.cjs`, `auditAcceptedCologneRoots`, and `paperCologneAuditReviewGate` are therefore correct. If the unpatched engine accepts a second same-seat same-turn Cologne, the postgame audit should block independent paper review even when the hook was not enabled.
+- Rewrote `results/als/2026-11/agent41-cologne-item-multiplicity-rule-audit-20261112.md` as an explicit correction/retraction and sent follow-up messages to Agents 44, 45, and 48. The earlier messages remain in mailboxes but are superseded.
+- No actual 4410 root was reviewed; this confirms the rule and gate only.
