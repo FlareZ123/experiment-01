@@ -37,6 +37,11 @@ function hasPathToThePeakInPlay(state){
   return (state?.players??[]).some(player=>
     player?.stadium?.cards?.some(card=>card?.name==='Path to the Peak'));
 }
+function hasProtectableHoodLockThreat(opponent,state){
+  return hasLiveOpponentAbilityLock(opponent)&&
+    !hasJammingTowerInPlay(state)&&
+    !hasPathToThePeakInPlay(state);
+}
 function opponentActiveHasToolJammer(opponent){
   return Array.isArray(opponent?.active?.tools)&&
     opponent.active.tools.some(tool=>tool?.name==='Tool Jammer');
@@ -82,6 +87,7 @@ module.exports={
   hasPower,liveGarbotoxinSlots,hasLiveGarbotoxin,
   hasActiveIronThornsInitialization,hasLiveOpponentAbilityLock,
   hasJammingTowerInPlay,hasPathToThePeakInPlay,
+  hasProtectableHoodLockThreat,
   opponentActiveHasToolJammer,hasUnspentActiveUnderworldDoor,
   hoodedDoorRecoveryPlan,canUseHoodedDoorUnderGarbotoxin,
   hasHoodedDoorRecoveryWindow
