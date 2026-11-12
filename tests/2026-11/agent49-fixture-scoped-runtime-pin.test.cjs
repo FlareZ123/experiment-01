@@ -9,6 +9,7 @@ const path=require('node:path');
 const Module=require('node:module');
 const {
   fixtureRolePolicyCacheEntries,
+  createFixtureRuntimePinEvidence,
   withFixtureScopedRolePin
 }=require('../../simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs');
 
@@ -59,6 +60,35 @@ test('fixture preflight inventories only the exact preloaded role-policy closure
       ...expected,'missing-role.cjs':sha256(Buffer.from('missing'))
     }),/every frozen candidate\/opponent role module must be preloaded/);
   });
+});
+
+test('fixture runtime evidence upgrades prepared role digests to V2 without claiming full closure',()=>{
+  const prepared={
+    runtimePinEvidence:{
+      schema:'aichi-runtime-pin-evidence-v1',
+      unionSha256:'a'.repeat(64),
+      loadedProcessClosureSha256:'b'.repeat(64),
+      cardPoolInitializationSha256:'c'.repeat(64)
+    },
+    runtimePinUnionSha256:'a'.repeat(64),
+    loadedProcessClosureSha256:'b'.repeat(64),
+    cardPoolInitializationSha256:'c'.repeat(64)
+  };
+  assert.deepEqual(createFixtureRuntimePinEvidence(prepared),{
+    schema:'aichi-runtime-pin-evidence-v2',
+    unionSha256:'a'.repeat(64),
+    loadedProcessClosureSha256:'b'.repeat(64),
+    cardPoolInitializationSha256:'c'.repeat(64),
+    fullProcessClosureCovered:false
+  });
+  assert.throws(()=>createFixtureRuntimePinEvidence({
+    ...prepared,runtimePinUnionSha256:'d'.repeat(64)
+  }),/prepared runtime digest differs from its V1 evidence/);
+  assert.throws(()=>createFixtureRuntimePinEvidence({
+    ...prepared,runtimePinEvidence:{
+      ...prepared.runtimePinEvidence,schema:'aichi-runtime-pin-evidence-v2'
+    }
+  }),/prepared V1 role-runtime evidence is required/);
 });
 
 test('fixture pin runs with role modules pinned, restores orchestration cache and marks scope non-admitting',()=>{
