@@ -2,6 +2,9 @@ name: Agent26 Hood immediate Max Geist threshold fresh24 native
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent26/threshold-run-20261112T0243Z
 
 permissions:
   contents: read
