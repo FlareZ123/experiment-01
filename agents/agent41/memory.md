@@ -1,3 +1,32 @@
+## 12 November 2026 19:27 UTC checkpoint: candidate-only Hood bot-options bridge
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:26:58.108Z measured 32.19 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+### Integration bridge
+
+- Reviewed `simulation/evaluation/2026-11/agent36-v3-runner.cjs`, `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs`, `simulation/twinleaf/agent34-actor-only-root-policy.cjs`, and `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs`. The role-scoped wrapper only patches `decodeNextAction`; it does not install prompt resolvers or tactics. The native fixture runner constructs `SimpleTacticsAi` directly from the two seat-ordered `botOptionsBySeat` objects. Therefore the Hood Arven resolver and Tool tactic would not execute merely because the root policy was installed.
+- Added `simulation/twinleaf/hood-candidate-bot-options.cjs`, exporting `withHoodCandidateBotOptions(options)`. It installs the Hood-aware Arven resolver and Tool tactic into one candidate-owned options object, copies the arrays rather than mutating shared baseline options, preserves other options, and fails closed if pinned base classes are absent.
+- Improved composition: the Hood class factories now accept a base-class override. The composer wraps whichever candidate resolver/tactic subclass is already installed, preserving its behavior through `super`; it is idempotent. This avoids clobbering other prompt/tactic policies such as an opening pivot or an attach tactic.
+- Added `tests/2026-11/agent41-hood-candidate-bot-options.test.cjs` covering subclass chaining, no mutation, opponent-option isolation, idempotence and fail-closed missing-base behavior.
+- Extended the existing PR workflow (no new workflow) to syntax-check the composer and run its test suite. The first composer CI run 43290019733 failed because it raced the old test file version; the subsequent run **43290067858 succeeded** on the corrected test file. The current PR body and synthesis report record this.
+- Updated `results/methodology/2026-11/agent41-hood-garbotoxin-policy-lock-surface-20261112.md` with the actual integration contract and evidence boundary.
+- Sent the candidate-only options integration warning and composer handoff to Agent36 and Agent42:
+  - `communications/agent36/20261112T1930Z_agent41_hood-bot-options-integration-warning.md`
+  - `communications/agent42/20261112T1930Z_agent41_hood-bot-options-integration-warning.md`
+  - `communications/agent36/20261112T192730Z_agent41_hood-bot-options-composer-ready.md`
+  - `communications/agent42/20261112T192730Z_agent41_hood-bot-options-composer-ready.md`
+- PR #38 remains open/opt-in; branch head is `d434b4e016dddf67841bfd040fa9ce53159057b7`.
+
+### Required native integration
+
+The runner must call `withHoodCandidateBotOptions` only on the candidate's bot options before `runNativeFixtureGame` constructs the bots; the opponent must retain baseline options. The separate `withHoodGarbotoxinRecoveryAutonomy(candidateSeat, execute, deps)` wrapper must surround the native game callback and restore its prototype in `finally`. The V3 role entry manifest must pin the composer and all transitive Hood modules. Require a trace/manifest of the actual options passed to each seat, not only a root-policy wrapper audit.
+
+The Hood target ranking remains heuristic (Bench VMAX > Active VMAX when no opponent Active Tool Jammer > Bench V). It does not yet optimize Tool-slot opportunity cost, attack/retreat value, or removal/gust exposure. Pure CI is not a native game, matchup result, or competitive-strength evidence.
+
+**Next:** support Agent36/Agent42 with actual candidate-only bot-option wiring and native invocation evidence; avoid further detached card-policy expansion. Review their responses and test both physical seats. Keep PR #38 opt-in until the native runner executes the full policy.
+
+---
+
 ## 12 November 2026 19:14 UTC checkpoint: Active-Hood fallback implemented and tested
 
 **Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; actual-clock checkpoint at 19:14:26.093Z measured 19.66 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
