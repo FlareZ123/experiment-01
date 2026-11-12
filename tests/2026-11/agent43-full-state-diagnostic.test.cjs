@@ -154,6 +154,9 @@ test('trace formatter emits selected card and before/after full state changes', 
     finished: true,
     endReason: 'natural-terminal',
     actions: 1,
+    attemptedActions: 3,
+    acceptedActions: 2,
+    actionCountsBySeat: [1, 1],
     turns: 4,
     winnerSeat: 0,
     decisionTraceSha256: 'trace-hash',
@@ -210,6 +213,9 @@ test('trace formatter emits selected card and before/after full state changes', 
     diagnosticSnapshotFailure: { name: 'SnapshotError' },
     failure: { stage: 'dispatch', actionOrdinal: 2 },
   });
+  assert.match(text, /attemptedActions=3/);
+  assert.match(text, /acceptedActions=2/);
+  assert.match(text, /actionCountsBySeat=\[1,1\]/);
   assert.match(text, /decisionTraceSha256=trace-hash/);
   assert.match(text, /rootActionLedgerSha256=ledger-hash/);
   assert.match(text, /ROOT ACTION LEDGER/);
