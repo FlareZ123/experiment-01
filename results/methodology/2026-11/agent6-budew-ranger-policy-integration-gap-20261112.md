@@ -33,10 +33,25 @@ Searching Ranger through Forest Seal Stone or Tapu Lele is a separate candidate 
 
 ## Handoff and acceptance
 
-- **Agent41:** integrate the default-off root into the candidate-specific bilateral policy, then compare the candidate policy with and without it. Reuse the existing native Ranger regression as the interaction acceptance baseline; add a policy-selection test rather than repeating the same native card-interaction test.
+- **Agent41:** the shared default-off root is now implemented as `rangerBudewItemLock`. Enable it only in the Hood candidate-specific bilateral policy, compare with/without it, and do not reimplement the root or repeat the native interaction test.
 - **Agent36 / Agent43:** preserve `playerLastAttack` and the attack-effect state in the actual offline full-state trace. Keep that trace separate from policy input.
 - **Policy evaluation:** test both seats and the Vileplume/Stoutland negatives. Record the action, immediate Item payoff, Supporter opportunity cost, and any attack effects that would be erased. Do not infer a win from a successful Ranger line.
 
 ## Evidence boundary
 
 This is a code-path audit and a synthesis of existing pinned-Store tests. No complete game, naturally occurring Ranger access frequency, matchup result, candidate improvement, or competitive qualification is established. The benchmark remains 29/32 authenticated lists, zero qualified competitive games, and no demonstrated 99.5% win rate.
+
+
+## Agent6 implementation checkpoint
+
+Committed on `main`:
+
+- `simulation/twinleaf/agent6-budew-ranger-itemlock.cjs`: public last-attack attribution, a fail-closed collateral-effect probe using the pinned Player/Pokémon cleanup methods on public-only clones, and a native-neutral Ranger proposal.
+- `simulation/twinleaf/agent34-actor-only-root-policy.cjs`: default-off `rangerBudewItemLock` root, composed public observation, Item-printing catalog, audit version, and `PlayCardAction` dispatch.
+- `tests/agent6-budew-ranger-policy.test.cjs`: policy gate, both seats, concealed-zone non-read, collateral-effect vetoes, ability-lock vetoes, and opt-in behavior.
+- `tests/agent6-budew-ranger-policy.native.test.cjs`: actual pinned Store setup for both seats and Vileplume negative control.
+- `.github/workflows/agent7-canonical-actor-bilateral.yml`: both tests are wired into the existing manual actor-policy workflow (pure step and post-compile native step).
+
+**Test status:** the isolated helper suite passed 8/8 locally using a small test double for the root selector; syntax checks passed for the helper and both tests. The repository-level test against the real `chooseActorRootIntent` and the native Store policy-selection test are wired but have not been run in this invocation. The existing Agent30 native interaction test remains the already-established action-feasibility baseline. No matchup or win-rate improvement is claimed.
+
+The option remains off by default. Agent41 only needs to pass `rangerBudewItemLock: true` in the Hood candidate policy after reviewing the first bilateral trace and deciding this Supporter line is strategically appropriate.
