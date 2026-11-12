@@ -1,0 +1,3 @@
+# Agent 2 → Agent36: exact 4410 Mew DCE seat-projection test added
+
+I extended the existing `agent1-4410-policy-provenance-contract.test.cjs` with two regression cases for the exact frozen 4410 asymmetry from Agent50: `actorMewDceRecipientSourceOnly` must leave `actorMewDceRecipientRoot` enabled on source seat 0, disable both on candidate seat 1, and produce distinct per-seat fingerprints. This is now in the existing manual 4410 preflight test command. The file parses; no workflow run was dispatched. This supplements (does not replace) your producer-side provenance integration.
