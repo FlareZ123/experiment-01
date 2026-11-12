@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  seededRandom,deckPermutation,projectActionPayload,runNativeFixtureGame,normalizeSeed32
+  seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
+  runNativeFixtureGame,normalizeSeed32
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
@@ -30,6 +31,9 @@ class CoinFlipPrompt {
 class RootAction {
   constructor(seat){this.seat=seat;this.type='ROOT';}
 }
+class PlayCardAction {
+  constructor(id,handIndex,target){Object.assign(this,{id,handIndex,target});}
+}
 let lastStore=null;
 class Store {
   constructor(options){
@@ -46,7 +50,7 @@ class Store {
       this.state.players.push({
         id:action.id,name:action.name,
         deck:{cards:action.deck.map(fullName=>({fullName}))},
-        hand:[],prizes:[],discard:[],
+        hand:{cards:[{fullName:action.deck[0]}]},prizes:[],discard:[],
         active:{getPokemonCard:()=>null},bench:[]
       });
       if(this.state.players.length===2){
@@ -65,6 +69,21 @@ class Store {
         this.state.phase=GamePhase.PLAYER_TURN;
         this.state.activePlayer=0;
         this.state.turn=1;
+      }
+      return;
+    }
+    if(action instanceof PlayCardAction){
+      const owner=this.state.players.find(player=>player.id===action.id);
+      assert.ok(owner,'PlayCardAction owner must exist');
+      const card=owner.hand.cards.splice(action.handIndex,1)[0];
+      assert.ok(card,'PlayCardAction must remove its selected physical card');
+      this.rootActions++;
+      if(this.rootActions===1){
+        this.state.activePlayer=1;
+        this.state.turn=2;
+      }else{
+        this.state.phase=GamePhase.FINISHED;
+        this.state.winner=101;
       }
       return;
     }
@@ -89,14 +108,17 @@ class SimpleTacticsAi {
     this.deck=deck;
   }
   decodeNextAction(){
-    return new RootAction(this.id===101?0:1);
+    return this.id===101?
+      new PlayCardAction(this.id,0,{slot:'fixture'}):
+      new RootAction(1);
   }
 }
 
 function native(){
   return {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
-    ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
+    ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format,
+    cardActions:{PlayCardAction}
   };
 }
 function deck(prefix){
@@ -127,6 +149,25 @@ test('action payload projection distinguishes same-class decisions and terminate
   cyclic.self=cyclic;
   const projected=projectActionPayload({type:'TEST',payload:cyclic});
   assert.equal(projected.fields.payload.self.cycle,true);
+});
+
+test('selected physical card identity is read from the acting hand before dispatch',()=>{
+  const state={players:[
+    {id:101,hand:{cards:[{fullName:'A physical Trainer (SET 1)' }]}},
+    {id:202,hand:{cards:[]}}
+  ]};
+  assert.deepEqual(selectedCardIdentity(
+    new PlayCardAction(101,0,{slot:'active'}),state,0,{PlayCardAction}
+  ),{
+    playerId:101,handIndex:0,fullName:'A physical Trainer (SET 1)'
+  });
+  assert.equal(selectedCardIdentity(new RootAction(0),state,0,{PlayCardAction}),null);
+  assert.throws(()=>selectedCardIdentity(
+    new PlayCardAction(202,0,{}),state,0,{PlayCardAction}
+  ),/does not match the acting physical seat/);
+  assert.throws(()=>selectedCardIdentity(
+    new PlayCardAction(101,2,{}),state,0,{PlayCardAction}
+  ),/no resolved fullName/);
 });
 
 test('fixture PRNG and deck permutation are deterministic and complete',()=>{
@@ -168,6 +209,13 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.deepEqual(result.actionCountsBySeat,[2,2]);
   assert.equal(result.decisionTrace.length,4);
   assert.equal(result.rootActionLedger.length,4);
+  assert.deepEqual(result.decisionTrace[2].selectedCardIdentity,{
+    playerId:101,handIndex:0,fullName:'A card 0'
+  });
+  assert.equal(result.decisionTrace[2].publicStateBefore.players[0].handCount,1);
+  assert.equal(result.decisionTrace[2].publicStateAfter.players[0].handCount,0);
+  assert.equal(Object.hasOwn(result.decisionTrace[2].publicStateBefore.players[0],
+    'handIdentity'),false);
   assert.equal(result.decisionTrace[0].pendingPromptType,'ShuffleDeckPrompt');
   assert.equal(result.decisionTrace[0].actionName,'ResolvePromptAction');
   assert.equal(result.decisionTrace[0].actionPayload.fields.result.length,60);
