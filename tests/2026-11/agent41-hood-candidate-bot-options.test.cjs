@@ -2,8 +2,9 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withHoodCandidateBotOptions}=
-  require('../../simulation/twinleaf/hood-candidate-bot-options.cjs');
+const {
+  withHoodCandidateBotOptions,withHoodCandidateBotOptionsBySeat
+}=require('../../simulation/twinleaf/hood-candidate-bot-options.cjs');
 
 function fixtureFactories(NativeResolver,NativeAttach) {
   return {
@@ -71,6 +72,39 @@ test('Hood bot-options composer is idempotent when already installed',()=>{
   const twice=withHoodCandidateBotOptions(once,factories);
   assert.equal(twice.promptResolvers[0],once.promptResolvers[0]);
   assert.equal(twice.tactics[0],once.tactics[0]);
+});
+
+test('seat-ordered Hood options isolate the candidate in either physical seat',()=>{
+  class ChooseCardsPromptResolver {}
+  class AttachToolTactic {}
+  const factories=fixtureFactories(ChooseCardsPromptResolver,AttachToolTactic);
+  const base={
+    promptResolvers:[ChooseCardsPromptResolver],
+    tactics:[AttachToolTactic],
+    scores:[{name:'score'}],
+    arbiter:{flipMode:'seeded'}
+  };
+  for(const candidateSeat of [0,1]) {
+    const bySeat=withHoodCandidateBotOptionsBySeat(base,candidateSeat,factories);
+    const opponentSeat=1-candidateSeat;
+    assert.equal(bySeat.length,2);
+    assert.notEqual(bySeat[0],bySeat[1]);
+    assert.notEqual(bySeat[0].promptResolvers,bySeat[1].promptResolvers);
+    assert.notEqual(bySeat[0].tactics,bySeat[1].tactics);
+    assert.equal(bySeat[candidateSeat].promptResolvers[0].name,
+      'HoodAwareArvenResolver');
+    assert.equal(bySeat[candidateSeat].tactics[0].name,
+      'HoodAwareAttachToolTactic');
+    assert.equal(bySeat[opponentSeat].promptResolvers[0],
+      ChooseCardsPromptResolver);
+    assert.equal(bySeat[opponentSeat].tactics[0],AttachToolTactic);
+    assert.equal(bySeat[candidateSeat].scores[0],base.scores[0]);
+    assert.equal(bySeat[opponentSeat].scores[0],base.scores[0]);
+  }
+  assert.deepEqual(base.promptResolvers,[ChooseCardsPromptResolver]);
+  assert.deepEqual(base.tactics,[AttachToolTactic]);
+  assert.throws(()=>withHoodCandidateBotOptionsBySeat(base,2,factories),
+    /candidateSeat must be physical seat/);
 });
 
 test('Hood bot-options composer fails closed when a pinned base class is absent',()=>{
