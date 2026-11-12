@@ -8,9 +8,12 @@ const {rootDigest}=
   require('../../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 const {BUNDLE_SCHEMA,MANIFEST,evidenceBundleSha256}=
   require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
+const {aichiClockProtocolSha256}=
+  require('../../simulation/evaluation/agent45-aichi-clock-receipt.cjs');
 
-const TRIAL='5:4411:B:new-moon-lockbreaker-v1';
-const CASE='agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309';
+const TRIAL='5:4410:B:new-moon-lockbreaker-v1';
+const CASE='agent44-20261109-original-rank5-newmoon-fresh-4410B';
+const REGISTRATION_REFERENCE='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
 
 function fixture(){
   const roots=[
@@ -47,9 +50,10 @@ function fixture(){
     competitiveGameQualified:false
   };
   const intake={
-    schema:INTAKE_SCHEMA,caseId:CASE,
+    schema:INTAKE_SCHEMA,caseId:CASE,registrationRef:REGISTRATION_REFERENCE,
     originalRank:5,sourceSeat:0,candidateSeat:1,
-    runtime:{researchRevisionSha:'research-revision-4411'},
+    runtime:{researchRevisionSha:'research-revision-4410',
+      engineActualCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'},
     rootReceiptAlignment:{schema:true,originalPhysicalCardCount:120,
       ledgerCount:2,receiptCount:2,acceptedStoreRootCount:2,
       rootCountMatches:true,exactOrdinalSeatActionParity:true,
@@ -59,10 +63,19 @@ function fixture(){
     sourcePrintedSha256:'source-printed-60',
     sourcePrintedInventorySha256:'source-inventory',
     candidatePrintedInventorySha256:'candidate-inventory',
-    native:{actualFirstSeat:0,sourceAttacks:1,candidateAttacks:0},
+    native:{actualFirstSeat:0,sourceAttacks:1,candidateAttacks:0,
+      sourceFirstAttackOrdinal:0,physicalPrizesAfter:[0,6]},
     nineEvidenceObjects:{
-      officialClockAndNoCall:{available:false,reason:'No clock packet'},
-      sourceReplyAndNextOriginalTurn:{replyWindow:[]}
+      officialClockAndNoCall:{available:false,reason:'No contemporaneous official clock'},
+      ownerPolicyDecisions:{available:true,
+        nativeDecisionTraceSha256:'decision-trace-4410',
+        knownHiddenInformationAudit:'not independently certified'},
+      attackKnockoutAndPrizes:{available:true,sourceAttackCount:1,
+        nativeRemainingPrizes:[0,6],independentPaperAttackResolution:false},
+      sourceReplyAndNextOriginalTurn:{available:true,
+        replyWindow:[{ordinal:0,turn:1,seat:0,action:'AttackAction'},
+          {ordinal:1,turn:2,seat:1,action:'PassTurnAction'}],
+        policyCompetenceIndependentlyReviewed:false}
     },
     releaseStatus:{competitiveAdmission:false,
       firstMissingEvidence:'verified-exact-Japanese-candidate-physical-printings'}
@@ -75,7 +88,19 @@ function fixture(){
     rootActionLedger:roots,rootActionLedgerSha256:rootDigest(roots),
     physicalZoneQualification:{physicalIntegrityQualified:true},
     nativeAcceptedTargetSidecar:{rootOrdinalLinked:true},
-    paperPromptPortfolioAudit:{},nativeQuickBallOwnerTransactions:[]
+    paperPromptPortfolioAudit:{},nativeQuickBallOwnerTransactions:[],
+    decisionTrace:[{seat:0,root:0,choice:'AttackAction'}],
+    nativePromptChoices:[{ordinal:0,choice:'attack'}],
+    policyAudit:{policy:'raw-policy-audit'},sourceAudit:{source:'rank5'},
+    supporterModalEvidence:{modal:'supporter'},
+    ownerSupporterOpportunityAudit:{available:true},
+    ownerCompressorOpportunityAudit:{available:false},
+    candidateRepliesAfterSourceAttacks:[{ordinal:1,action:'PassTurnAction'}],
+    candidateAttackSettlement:{settled:0},sourceAttackSettlement:{settled:1},
+    nativeAttackModalityLedger:[{ordinal:0,modality:'printed-attack'}],
+    nativeAttackPhysicalTape:[{ordinal:0,physical:true}],
+    firstSettledPublicAttack:{ordinal:0,attack:'Energy Drive'},
+    finalBoard:{winner:0},finalPrizes:[0,6]
   };
   const zoneTape={
     initialStablePhysicalDeal:{rootOrdinal:0,sha256:'opening-zones'},
@@ -83,8 +108,9 @@ function fixture(){
     allRootPhysicalZonesSha256:'all-root-zones'
   };
   const registration={
-    schema:'agent44-first-independent-review-case-registration-v2',
+    schema:'agent44-first-independent-review-case-registration-v1',
     caseId:intake.caseId,
+    enginePinnedCommit:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     preRegisteredTrials:[{id:TRIAL}]
   };
   return {schema:INTAKE_SCHEMA,registration,registrationSha256:'registration-hash',
@@ -92,24 +118,45 @@ function fixture(){
     rawNativePhysicalReceipts:raw};
 }
 
-test('live Agent44 builder consumes V2 raw receipts and selects production V2 admission',()=>{
+test('live Agent44 builder consumes frozen 4410 V1 registration through V2 intake and selects V2 admission',()=>{
   const original=fixture();
   const result=build(original);
   assert.equal(result.schema,'agent44-first-release-nine-object-bundle-intake-v2');
   assert.equal(result.caseId,CASE);
-  assert.equal(result.originalSourceArtifact,'agent44-first-independent-rank5-newmoon-live-paper-v2.json');
+  assert.equal(result.originalSourceArtifact,'agent44-first-independent-rank5-newmoon-case-v2.json');
   assert.equal(result.bundle.schema,BUNDLE_SCHEMA);
   assert.equal(result.bundle.admissionContract,V2_SCHEMA);
   assert.deepEqual(result.bundle.rawNativePhysicalReceipts,original.rawNativePhysicalReceipts);
   assert.equal(result.bundle.trial.fullRootPaperReceipts.length,0);
   assert.equal(result.bundle.trial.actionCertificates.length,0);
   assert.equal(result.bundle.trial.responseOpportunityAudit,null);
-  assert.equal(result.bundle.trial.registrationRef,
-    'results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json');
-  assert.equal(result.bundle.trial.researchRevisionSha,'research-revision-4411');
-  assert.equal(result.bundle.trial.runtime.researchRevisionSha,'research-revision-4411');
+  assert.equal(result.bundle.trial.registrationRef,REGISTRATION_REFERENCE);
+  assert.equal(result.bundle.trial.researchRevisionSha,'research-revision-4410');
+  assert.equal(result.bundle.trial.runtime.researchRevisionSha,'research-revision-4410');
+  assert.equal(result.bundle.trial.eventStage,null);
+  assert.equal(result.bundle.trial.clockDisposition,null);
+  assert.equal(result.bundle.trial.clockReceiptId,null);
+  assert.equal(result.bundle.trial.paperReceiptId,null);
+  assert.equal(result.bundle.trial.adjudicationProtocolSha,null);
+  assert.equal(result.bundle.trial.noCallClockPacket,null);
+  const clock=result.releaseNineObjects['clock-continuity'];
+  assert.equal(clock.externalClockReceiptInput,null);
+  assert.equal(clock.clockStructuralAudit,null);
+  assert.equal(clock.currentAdjudicationProtocolSha256,aichiClockProtocolSha256());
   assert.equal(result.releaseStatus.rawNativePhysicalReceiptCaptureComplete,true);
   assert.equal(result.releaseStatus.producerAlignmentMatches,true);
+  const strategy=result.releaseNineObjects['policy-and-counterplay'];
+  assert.equal(strategy.ownerPolicyDecisions.nativeDecisionTraceSha256,'decision-trace-4410');
+  assert.deepEqual(strategy.attackKnockoutAndPrizes,
+    original.intake.nineEvidenceObjects.attackKnockoutAndPrizes);
+  assert.deepEqual(strategy.sourceReplyAndNextOriginalTurn,
+    original.intake.nineEvidenceObjects.sourceReplyAndNextOriginalTurn);
+  assert.equal(strategy.nativeActionEvidence.nativePromptChoices[0].choice,'attack');
+  assert.deepEqual(strategy.nativeActionEvidence.nativeAttackPhysicalTape,
+    original.nativeDevelopmentRow.nativeAttackPhysicalTape);
+  assert.deepEqual(strategy.nativeActionEvidence.finalPrizes,[0,6]);
+  assert.equal(strategy.nativeRootActionLedgerSha256,
+    original.nativeDevelopmentRow.rootActionLedgerSha256);
   assert.equal(result.bundle.rootPaperReviewWorklist.length,2);
   const first=result.bundle.rootPaperReviewWorklist[0];
   assert.equal(first.rootOrdinal,0);
@@ -138,6 +185,53 @@ test('live Agent44 builder consumes V2 raw receipts and selects production V2 ad
     'missing-complete-root-paper-receipts'));
   assert.ok(result.independentAdmissionGate.failures.includes(
     'independent-paper-or-clock-review-missing'));
+});
+
+test('held 4411 registration cannot enter the frozen 4410 release builder',()=>{
+  const original=fixture();
+  original.registration.schema='agent44-first-independent-review-case-registration-v2';
+  original.registration.caseId='agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309';
+  original.registration.preRegisteredTrials[0].id='5:4411:B:new-moon-lockbreaker-v1';
+  original.intake.caseId=original.registration.caseId;
+  original.intake.registrationRef='results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json';
+  original.intake.trial.id='5:4411:B:new-moon-lockbreaker-v1';
+  assert.throws(()=>build(original),/agent44-first-independent-review-case-registration-v1/);
+});
+
+test('optional external clockReceiptInput is bound to 4410 and structurally scored without self-certifying review',()=>{
+  const original=fixture();
+  const clockReceiptInput={
+    trialId:TRIAL,eventStage:'open-top32',clockDisposition:'no-official-call',
+    paperReceiptId:'paper/independent-terminal-4410',clockReceiptId:null,
+    adjudicationProtocolSha:aichiClockProtocolSha256(),
+    noCallClockPacket:{
+      stage:'open-top32',officialEndCallObserved:false,
+      elapsedSecondsAtNaturalTerminal:600,
+      officialClockCoverageEvidenceRef:'clock/continuous-coverage',
+      stageEvidenceRef:'event/open-top32-pairing',
+      paperTerminalEvidenceRef:'paper/independent-terminal-4410',
+      independentReviewEvidenceRef:'review/clock-and-paper',
+      noCallCoverageIndependentlyReviewed:true,
+      paperStateIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false
+    },
+    timeCallPacket:null,extensionLedgerPacket:null
+  };
+  const result=build(original,clockReceiptInput);
+  assert.deepEqual(result.releaseNineObjects['clock-continuity'].externalClockReceiptInput,
+    clockReceiptInput);
+  assert.equal(result.releaseNineObjects['clock-continuity'].clockStructuralAudit.shapeComplete,true);
+  assert.equal(result.bundle.trial.eventStage,'open-top32');
+  assert.equal(result.bundle.trial.clockDisposition,'no-official-call');
+  assert.equal(result.bundle.trial.paperReceiptId,'paper/independent-terminal-4410');
+  assert.equal(result.bundle.trial.clockReceiptId,null);
+  assert.deepEqual(result.bundle.trial.noCallClockPacket,clockReceiptInput.noCallClockPacket);
+  assert.equal(result.releaseNineObjects['clock-continuity'].independentOfficialClockReview,'pending');
+  assert.equal(result.independentAdmissionGate.competitiveAdmission,false);
+});
+
+test('clockReceiptInput cannot be rebound from a different frozen trial',()=>{
+  assert.throws(()=>build(fixture(),{trialId:'5:4411:B:new-moon-lockbreaker-v1'}),
+    /External clock evidence must be bound to the exact frozen 4410 trial/);
 });
 
 test('V1 intake cannot silently enter the V2 release builder',()=>{
