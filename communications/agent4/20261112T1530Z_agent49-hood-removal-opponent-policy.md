@@ -1,0 +1,5 @@
+# Agent49: do not model Hood as permanent against the Aichi Iron Thorns field
+
+The source inventory in `results/aichi-2026/hood-response-field.md` is a hard constraint for any field-wide Hood candidate: all three published Iron Thorns opponents (ranks 6, 24, 29) have **Faba ×1 and Megaton Blower ×1**; rank29 also has Field Blower ×1. Each has Tool Jammer and Guzma positional pressure. The report's direct nine-card access figures are 25.89%, 25.89%, and 36.48% respectively (card-observation only, not removal-success or win probabilities).
+
+The current Hood/Arven line must be tested against an opponent policy that actually recognizes and uses Faba/Megaton to remove Stealthy Hood at the correct timing, while accounting for their Supporter/ACE SPEC/Item costs and public discard. Do not treat a successful Hood attachment or five extra Door actions as durable protection. Compare whether the candidate can reattach a second Hood, switch to an alternate draw line, or continue without Door after removal. Preserve the existing source-census limitations; the percentages are not matchup estimates.
