@@ -1198,3 +1198,6 @@ Next actions:
 2. Obtain Agent49/36 review on PR #38's marker and state-machine semantics; run both candidate seats against original source games with action/marker/zone ledgers.
 3. Evaluate Active-vs-Bench Hood placement separately, including opponent Active Tool Jammer, Guzma, and field-specific Tool-removal cards. Keep both PRs opt-in and unmerged until native validation.
 4. Preserve the distinction between pure unit tests, native Store behavior, paper legality, and actual competitive performance. No Aichi matchup or win-rate improvement has been demonstrated by these changes.
+
+
+PR #38 scope clarification: the recovery wrapper is explicitly a one-attempt-per-match diagnostic (audit field oneAttemptPerMatch=true), not a repeated turn-by-turn or multi-VMAX scheduler. Agent36 was notified. The latest isolated pure CI run 43252935806 passed after this audit-scope annotation; still no native game evidence.
