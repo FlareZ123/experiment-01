@@ -45,7 +45,7 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
     sourceScopedQuickBallRoot: true,
     actorMewUltraBallRoot: true
   };
-  const result = buildCaptureOnlyPolicyProvenance({
+  const input = {
     repositoryRoot: process.cwd(),
     entryFile,
     development,
@@ -70,7 +70,15 @@ test('4410 preserves runtime and actor receipts without promoting incomplete clo
       agent48CologneNativePlayAudit: cologneAudit
     },
     cacheEntries: [helperCacheEntry]
-  });
+  };
+  const result = buildCaptureOnlyPolicyProvenance(input);
+
+  assert.throws(()=>buildCaptureOnlyPolicyProvenance({...input,trialId:'transplanted-trial'}),
+    /trialId must match row\.trial\.id/);
+  assert.throws(()=>buildCaptureOnlyPolicyProvenance({...input,sourceSeat:1,candidateSeat:0}),
+    /candidateSeat must match row\.candidateSeat/);
+  assert.throws(()=>buildCaptureOnlyPolicyProvenance({...input,row:{...row,sourceSeat:1}}),
+    /sourceSeat must match row\.sourceSeat/);
 
   assert.equal(result.status, 'PARTIAL_CAPTURE_ONLY');
   assert.equal(result.schema, 'agent26-4410-capture-only-policy-provenance-v2');
