@@ -15,7 +15,7 @@ This creates a real alternative to trying to restore Mewtwo & Mew-GX's Perfectio
 3. If Powerglass is attached to the Active Gengar and a **Basic** Psychic Energy is in the discard pile at end of turn, Powerglass can attach it. Gengar then has the two Psychic Energy needed for Poltergeist on the following turn.
 4. Use that window to establish or recover the remaining board plan, including Field Blower/Cologne if Mewtwo's Ability is still suppressed.
 
-Iron Thorns ex and Garbodor's Garbotoxin suppress Pokémon Abilities; they do not suppress a printed attack. Powerglass is a Trainer Tool effect rather than a Pokémon Ability. Therefore the Gengar attack, and an already-attached Powerglass end-of-turn effect, are not disabled merely by those Ability locks. The line does **not** remove the lock, and the opponent may still attack or use effects already in play.
+Iron Thorns ex (SV6 77) and Garbodor (XY9 57)'s Garbotoxin suppress Pokémon Abilities; they do not suppress a printed attack. Powerglass is a Trainer Tool effect rather than a Pokémon Ability. Therefore the Gengar attack, and an already-attached Powerglass end-of-turn effect, are not disabled merely by those Ability locks. The line does **not** remove the lock, and the opponent may still attack or use effects already in play.
 
 Important timing: if Gengar attacks with only the one Psychic Energy required, a Powerglass attachment that occurs *after* the attack does not retroactively satisfy Horror House-GX's extra-Energy draw clause. To obtain that draw effect, the extra Psychic Energy must already be attached when the attack is declared. The GX attack is once per game, so using it with Gengar consumes the same once-per-game GX attack that Mewtwo & Mew-GX might otherwise copy.
 
@@ -26,7 +26,7 @@ I added a reproducible exact combinatorial model:
 - [Calculator](../../scripts/agent2-gengar-horror-house-access.cjs)
 - [Six regression tests](../../tests/2026-11/agent2-gengar-horror-house-access.test.cjs)
 
-The model uses the exact candidate counts: 1 Gengar, 6 Psychic Energy, 4 Fog Crystal, 16 other Basic Pokémon, and 33 other cards. It explicitly samples six Prize cards, a seven-card opening hand, and one or two ordered draws without replacement. Results are conditioned on a legal opening seven. Gengar must be in the opening seven so it can be selected as the starting Active; the model does not search for Gengar or switch a later-drawn Gengar Active.
+The Node test suite was executed locally: **6/6 passed**. The model uses the exact candidate counts: 1 Gengar, 6 Psychic Energy, 4 Fog Crystal, 16 other Basic Pokémon, and 33 other cards. It explicitly samples six Prize cards, a seven-card opening hand, and one or two ordered draws without replacement. Results are conditioned on a legal opening seven. Gengar must be in the opening seven so it can be selected as the starting Active; the model does not search for Gengar or switch a later-drawn Gengar Active.
 
 | Access event | Items playable (Ability-lock case) | Item lock active |
 |---|---:|---:|
@@ -60,7 +60,7 @@ Add a focused integration scenario using the exact candidate list and pinned eng
 2. Put Iron Thorns ex Active and Garbodor with a Pokémon Tool attached on the opponent's field.
 3. Verify Gengar can declare Horror House-GX despite Ability suppression, the opponent's next-turn hand-play restriction is recorded, and Powerglass attaches the Basic Psychic Energy at end of turn.
 4. Verify Gengar can legally declare Poltergeist on the following turn with two Psychic Energy, subject to the opponent's hand and normal game state.
-5. Repeat with an Item lock. The attack should still work if Gengar and the Energy are already in place; Fog Crystal/Powerglass cannot be newly played through the Item lock.
+5. Repeat with an Item lock. The attack should still work if Gengar and the Energy are already in place; Fog Crystal/Powerglass cannot be newly played through the Item lock, although an already-attached Powerglass should still resolve its end-of-turn Tool effect.
 6. Test the extra-Energy draw clause separately: it applies only when the extra Psychic Energy is attached before Horror House-GX resolves.
 
 This test validates a specific tactical interaction. It does not establish that the line wins the matchup, that the policy chooses it correctly, or that the 60-card deck is competitive across the field.
