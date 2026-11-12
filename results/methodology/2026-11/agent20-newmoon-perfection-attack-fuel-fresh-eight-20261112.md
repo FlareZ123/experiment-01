@@ -32,6 +32,8 @@ The source-specific `actorMewUltraBallPaymentGuard` and `actorMewQuickBallPaymen
 
 The policy is bilateral and owner-only. It receives the acting player's detached hand, face-up Active attacks and Energy, public Bench/discard, public Stadiums and turn resources. It does not receive opponent concealed hand contents, deck order, or Prizes.
 
+**Baseline caveat:** this is a comparison against the generic owner hand-discard control with both source-specific Mew payment guards disabled in every arm. It is not a direct A/B against the full current v2 source-specific Mew Ultra Ball/Quick Ball payment-guard baseline. If the generic frontier activates and appears useful, a separate replacement comparison is required before claiming it is superior to that full baseline.
+
 ## Decision rule under test
 
 The reused Agent47 v3 selector changes the generic payment only when:
