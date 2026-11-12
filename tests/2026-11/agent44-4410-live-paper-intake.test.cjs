@@ -179,7 +179,7 @@ test('4410 Cologne review gate fails closed on missing audit and retains duplica
   assert.equal(gate.paperRuleReviewBlocked,true);
   assert.deepEqual(gate.duplicateAcceptedBySeatTurn,
     audit.duplicateAcceptedBySeatTurn);
-  assert.equal(gate.hookInstalled,false,
+  assert.equal(gate.hookOptInEnabled,false,
     'The frozen 4410 policy must not enable the Cologne correction hook');
   assert.equal(gate.paperLegalityCertified,false);
   assert.equal(gate.rawCaptureRetainedRegardlessOfGate,true);
