@@ -67,6 +67,41 @@ test('native carryover stays separate, bilateral, and explicitly unqualified',()
   assert.equal(result.competitiveGameQualified,false);
 });
 
+test('carryover bridge preserves source/candidate roles and actual intervening replies',()=>{
+  const attack=(ordinal,before,after,prizeBefore,prizeAfter)=>({
+    actionOrdinal:ordinal,turnBefore:ordinal,
+    attackName:'Sample Attack',settledPromptChain:true,
+    settlementCrossesClockReset:false,
+    publicBoardBefore:[{active:{printing:'Source',damage:0}},
+      {active:{printing:'Target',damage:before}}],
+    publicBoardAfter:[{active:{printing:'Source',damage:0}},
+      {active:after===null?null:{printing:'Target',damage:after}}],
+    prizesBefore:[prizeBefore,6],prizesAfter:[prizeAfter,6]
+  });
+  const result=nativeAttackDamageCarryover({
+    trial:{id:'source-two-hit-fixture'},sourceSeat:0,candidateSeat:1,
+    roots:[
+      {actionOrdinal:11,playerSlot:1,action:'PlayCardAction',card:'Potion'},
+      {actionOrdinal:12,playerSlot:1,action:'PassTurnAction'}
+    ],
+    sourceAttackSettlement:{attacks:[
+      attack(10,0,110,6,6),attack(15,110,null,6,4)
+    ]},
+    candidateAttackSettlement:{attacks:[]}
+  });
+  assert.equal(result.trialId,'source-two-hit-fixture');
+  assert.equal(result.source.attackingSeat,0);
+  assert.equal(result.source.defenderSeat,1);
+  assert.equal(result.source.candidateTwoHitLinks.length,1);
+  const link=result.source.candidateTwoHitLinks[0];
+  assert.equal(link.nextAttackPrizesTaken,2);
+  assert.equal(link.interveningDefenderMaterialActionCount,1);
+  assert.equal(link.defenderPassedWithoutMaterialAction,false);
+  assert.equal(link.samePhysicalDefenderIndependentlyVerified,false);
+  assert.equal(link.printedAttackPaperLegalityVerified,false);
+  assert.equal(result.competitiveGameQualified,false);
+});
+
 test('native carryover refuses a missing settlement stream',()=>{
   assert.throws(()=>nativeAttackDamageCarryover({
     sourceSeat:1,candidateSeat:0,roots:[],
