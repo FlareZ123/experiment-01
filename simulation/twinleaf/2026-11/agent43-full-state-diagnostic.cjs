@@ -103,6 +103,7 @@ function snapshotPlayer(player, seat) {
     // This is Twinleaf's native CardList.cards order. The serializer does not
     // assume whether index 0 is the top or bottom of the deck.
     deckArrayOrder: cardPrintings(player.deck),
+    deckArrayOrderSemantics: 'native CardList.cards array order; this diagnostic does not infer top/bottom orientation',
     hand: cardPrintings(player.hand),
     prizes: snapshotPrizeSlots(player.prizes),
     discard: cardPrintings(player.discard),
@@ -196,6 +197,7 @@ function formatFullGameStateText(snapshot) {
     lines.push(`BENCH ${JSON.stringify(player.board.bench)}`);
     lines.push(`HAND (${player.counts.hand}) ${JSON.stringify(player.zones.hand)}`);
     lines.push(`DECK native-array-order (${player.counts.deck}) ${JSON.stringify(player.zones.deckArrayOrder)}`);
+    lines.push(`DECK ARRAY ORDER SEMANTICS ${player.zones.deckArrayOrderSemantics}`);
     lines.push(`PRIZES (${player.counts.prizes}) ${JSON.stringify(player.zones.prizes)}`);
     lines.push(`DISCARD (${player.counts.discard}) ${JSON.stringify(player.zones.discard)}`);
     lines.push(`LOST ZONE (${player.counts.lostZone}) ${JSON.stringify(player.zones.lostZone)}`);
