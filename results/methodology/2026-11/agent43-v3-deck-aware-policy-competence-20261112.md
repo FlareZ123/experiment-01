@@ -44,7 +44,7 @@ Each attestation uses schema `aichi-policy-competence-attestation-v1` and an Ed2
 
 `aichi-policy-competence-attestation-v1\n` + canonical JSON of the attestation with `signatureBase64` omitted.
 
-The candidate attestation binds the candidate `policyProducerId`; every opponent rank review binds that rank's `policyProducerId`. Both reviewer identities must be distinct from one another, the game-bundle producer, and every candidate/opponent policy producer. Each reviewer must be present in the externally controlled trust registry with the corresponding role. Both attestations must predate policy registration.
+The candidate attestation binds the candidate `policyProducerId`; every opponent rank review binds that rank's `policyProducerId`. Both policy-reviewer identities must be distinct from one another, the game-bundle producer, every candidate/opponent policy producer, and the post-game game reviewers. Post-game paper/clock/strategy reviewers must also be distinct from every policy producer. Each policy reviewer must be present in the externally controlled trust registry with the corresponding role. Both attestations must predate policy registration.
 
 ### Registration and physical-deal boundary
 
