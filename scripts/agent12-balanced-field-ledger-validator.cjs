@@ -387,6 +387,8 @@ function validateV3PolicyPanelJoin(request, attempts, problems,
  *   policyPanelReceipts; every outcome attempt must carry the matching
  *   policyApplicationReceiptSha256, policyRegistrationSha256 and
  *   policyAttestationBundleSha256. Receipts are joined one-to-one by trialId.
+ *   For full-field inference, policyPanelReceipts is the aggregate of actual
+ *   per-game receipts across all outcome attempts; never synthesize missing cells.
  * @param {readonly string[]} allowedStatuses Exact externally audited labels.
  * @param {string} unqualifiedLabel Rejection label when status is not allowed.
  * @returns {{target:number,confidence:number,rejectionReasons:string[],
