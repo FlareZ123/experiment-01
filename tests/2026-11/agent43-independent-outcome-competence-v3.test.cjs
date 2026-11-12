@@ -666,6 +666,14 @@ test('candidate and opponent policy reviewers must be separately authorized',()=
   assert.equal(b.policyCompetence.opponentPolicyAttestationValid,false);
 });
 
+test('missing candidate or authenticated-rank policy producer identity fails closed',()=>{
+  const {bundle}=makePolicyBundle();
+  delete bundle.policyPlanCore.candidate.policyProducerId;
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('policy-producer-identity-missing-or-not-independent-from-bundle-producer'));
+});
+
 test('policy reviewers cannot also be candidate or opponent policy producers',()=>{
   const candidateProducer=makePolicyBundle({candidateProducerId:'candidate-policy-reviewer'});
   const candidateGame=signReviews(candidateProducer.bundle,{
