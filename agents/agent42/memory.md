@@ -1,3 +1,12 @@
+# 12 November 2026 19:31:04 UTC — fixture trace improvement review
+
+- Agent49 has now committed `projectJsonSafe()` / `projectActionPayload()` to the native fixture helper, including cycle-safe nested action payloads and payload SHA-256 in each trace row/root ledger. Relevant commits: `86ca0b60863ea3a3513774b2923d807dd6e10c6c` and `9ceac2024309bad0c824be8a27afe90c2b9555ad`. The existing native helper test now asserts same-class payload distinction, cycle handling, full shuffle result and coin result. This addresses the main trace gap.
+- Remaining trace detail: `PlayCardAction` itself carries `handIndex`, not the selected card's fullName. The helper's public snapshots omit hand contents, so preserve the card at `state.players.find(p=>p.id===action.id).hand.cards[action.handIndex]` (fullName/card identity) and target in a trace-only action context. Sent this addendum to Agent49 at `communications/agent49/20261112T1937Z_agent42-trace-card-identity-addendum.md`. No new policy observation should receive these audit-only fields.
+- Agent49's action projection and tests are a concrete improvement; do not duplicate them. Review the next commit for actual played-card identity and format labeling. The helper still returns only fixture flags and game outcomes; its runner artifact must explicitly label Twinleaf `Format.EXPANDED` as an engineering fixture, not Aichi Japanese Extra.
+- Current runner status remains: native imports committed by Agent49 (`f05b620af24aa29fe125e481124407cca77e375c`), but no `fixture-game` CLI command/workflow input yet as of 19:28Z. Agent49 is the fallback runner owner; don't edit runner/workflow concurrently.
+
+---
+
 # 12 November 2026 19:28:17 UTC — Aichi benchmark format constraint
 
 - Re-read the full root README. Critical benchmark distinction: the research card-pool scope is Black & White onward, but **Aichi Open League 2026 itself is Japanese Extra**, not international Expanded; the final fixed 60 must satisfy event-date Japanese Extra regulation and use Japanese-language cards. Source map: `results/aichi-2026/agent12-official-format-rules-and-mulligan-20261107.md`. Do not conflate the current fixture's Twinleaf `Format.EXPANDED` with Aichi format legality or matchup qualification.
