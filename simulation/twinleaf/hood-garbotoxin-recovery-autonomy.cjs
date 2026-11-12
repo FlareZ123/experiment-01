@@ -4,19 +4,21 @@ const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const {
   liveGarbotoxinSlots,hasLiveGarbotoxin,
-  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow,
-  hoodedDoorRecoveryPlan
+  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow
 }=require('./hood-ability-lock-state.cjs');
 
 /** @param {string} suffix */
 const engine = suffix => require(path.join(output,suffix));
 
 /**
- * Conditional own-hand/public-board response to live Garbotoxin. Requires an
- * already Hooded Active Shadow Rider VMAX and an unspent Underworld Door
- * marker. Uses the least-cost visible Energy path: direct hand Energy,
- * Night Stretcher from discard, or Compressor plus Stretcher from deck.
- * It does not require Field Blower to be held; retaining one is telemetry.
+ * An own-hand/public-board candidate response to live Garbotoxin from an
+ * Active or Benched Garbodor with any Pokémon Tool while the player's Active
+ * VMAX has Stealthy Hood. It fails closed when Active Tool Jammer, Jamming
+ * Tower, or Path to the Peak suppresses the required Tool/Ability. All
+ * subsequent choices use the player's own legal Store prompts.
+ *
+ * The policy only demonstrates one possible conditional line, and does
+ * not evaluate its strategic opportunity costs.
  *
  * @template T
  * @param {0|1} candidateSeat
@@ -40,10 +42,8 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
   let phase='idle';
   let attempted=false;
   let selectedEnergy=null;
-  let recoveryPlan=null;
   let beforeDoor=null;
   const events=[];
-
   /** @param {object} own @param {string} name */
   const play=(own,name)=>{
     const index=own.hand.cards.findIndex(card=>card.name===name);
@@ -53,54 +53,41 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
   /** @param {object} state @param {string} step @param {object} action */
   const selected=(state,step,action)=>{
     events.push({turn:state.turn,kind:'selected-action',step,
-      action:action.constructor.name,recoveryPlan});
+      action:action.constructor.name});
     return action;
   };
   /** @param {object} state @param {string} reason */
   const abort=(state,reason)=>{
-    events.push({turn:state.turn,kind:'opportunity-aborted',reason,recoveryPlan});
+    events.push({turn:state.turn,kind:'opportunity-aborted',reason});
     phase='done';
   };
-
   function choose(state) {
     const own=state.players.find(player=>player.id===this.client?.id);
     if(own?.id!==ownId)return original.call(this,state);
     const opponent=state.players[1-candidateSeat];
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
-
     if(phase==='idle' && !attempted &&
         state.activePlayer===candidateSeat &&
-        state.phase===GamePhase.PLAYER_TURN && !pending) {
-      const plan=hoodedDoorRecoveryPlan(own);
-      if(plan&&hasHoodedDoorRecoveryWindow(own,opponent,state)) {
-        recoveryPlan=plan;
-        const firstCard=plan==='compressor-stretcher'?'Battle Compressor':
-          plan==='stretcher'?'Night Stretcher':null;
-        if(firstCard===null) {
-          attempted=true;
-          phase='door';
-        } else {
-          const action=play(own,firstCard);
-          if(action&&this.isValidAction(state,action)) {
-            attempted=true;
-            phase=plan==='compressor-stretcher'?'compressor-choice':'stretcher-choice';
-            events.push({turn:state.turn,kind:'eligible-own-state',recoveryPlan,
-              handPrintings:own.hand.cards.map(card=>card.fullName),
-              activeHoodPrintings:own.active.tools.map(card=>card.fullName),
-              liveGarbotoxinSources:liveGarbotoxinSlots(opponent)});
-            return selected(state,firstCard+' from hand',action);
-          }
-          events.push({turn:state.turn,kind:'play-rejected-by-legality-filter',
-            card:firstCard,recoveryPlan});
-          phase='done';
-        }
+        state.phase===GamePhase.PLAYER_TURN && !pending &&
+        hasHoodedDoorRecoveryWindow(own,opponent,state)) {
+      const action=play(own,'Battle Compressor');
+      if(action && this.isValidAction(state,action)) {
+        attempted=true;
+        phase='compressor-choice';
+        events.push({turn:state.turn,kind:'eligible-own-state',
+          handPrintings:own.hand.cards.map(card=>card.fullName),
+          activeHoodPrintings:own.active.tools.map(card=>card.fullName),
+          liveGarbotoxinSources:liveGarbotoxinSlots(opponent)});
+        return selected(state,'Battle Compressor from hand',action);
       }
+      events.push({turn:state.turn,kind:'play-rejected-by-legality-filter',
+        card:'Battle Compressor'});
     }
-
     if(phase==='compressor-choice') {
-      if(pending?.constructor.name==='ChooseCardsPrompt'&&pending.playerId===own.id) {
+      if(pending?.constructor.name==='ChooseCardsPrompt' &&
+          pending.playerId===own.id) {
         const energy=pending.cards.cards.find(card=>card.name==='Psychic Energy');
-        if(energy&&pending.validate([energy])) {
+        if(energy && pending.validate([energy])) {
           selectedEnergy=energy.fullName;
           phase='stretcher';
           return selected(state,'Discard Psychic Energy through deck search',
@@ -108,37 +95,37 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
         }
         abort(state,'No legal Psychic discard candidate in real search');
       }
-      if(!pending&&phase==='compressor-choice')
+      if(!pending && phase==='compressor-choice') {
         abort(state,'Battle Compressor did not present card-choice prompt');
+      }
     }
-
-    if(phase==='stretcher'&&!pending) {
+    if(phase==='stretcher' && !pending) {
       const action=play(own,'Night Stretcher');
-      if(action&&this.isValidAction(state,action)) {
+      if(action && this.isValidAction(state,action)) {
         phase='stretcher-choice';
         return selected(state,'Night Stretcher from hand',action);
       }
       abort(state,'Night Stretcher no longer legal');
     }
-
     if(phase==='stretcher-choice') {
-      if(pending?.constructor.name==='ChooseCardsPrompt'&&pending.playerId===own.id) {
-        const energy=pending.cards.cards.find(card=>card.name==='Psychic Energy');
-        if(energy&&pending.validate([energy])) {
-          selectedEnergy=energy.fullName;
+      if(pending?.constructor.name==='ChooseCardsPrompt' &&
+          pending.playerId===own.id) {
+        const energy=pending.cards.cards.find(card=>
+          card.name==='Psychic Energy');
+        if(energy && pending.validate([energy])) {
           phase='door';
           return selected(state,'Recover Psychic Energy through discard prompt',
             new ResolvePromptAction(pending.id,[energy]));
         }
         abort(state,'No legal Psychic recovery selection');
       }
-      if(!pending&&phase==='stretcher-choice')
+      if(!pending && phase==='stretcher-choice') {
         abort(state,'Night Stretcher did not present card-choice prompt');
+      }
     }
-
-    if(phase==='door'&&!pending) {
+    if(phase==='door' && !pending) {
       const energy=own.hand.cards.some(card=>card.name==='Psychic Energy');
-      if(canUseHoodedDoorUnderGarbotoxin(own,opponent,state)&&energy) {
+      if(canUseHoodedDoorUnderGarbotoxin(own,opponent,state) && energy) {
         const action=new UseAbilityAction(own.id,'Underworld Door',{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
         });
@@ -146,7 +133,8 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
           const bench=own.bench.find(slot=>
             slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
           if(bench) {
-            beforeDoor={hand:own.hand.cards.length,deck:own.deck.cards.length,
+            beforeDoor={hand:own.hand.cards.length,
+              deck:own.deck.cards.length,
               benchPsychic:bench.energies.cards.filter(card=>
                 card.name==='Psychic Energy').length};
             phase='attach';
@@ -157,13 +145,14 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
       }
       abort(state,'Protected Door action unpayable after recovery');
     }
-
     if(phase==='attach') {
-      if(pending?.constructor.name==='AttachEnergyPrompt'&&pending.playerId===own.id) {
-        const energy=pending.cardList.cards.find(card=>card.name==='Psychic Energy');
+      if(pending?.constructor.name==='AttachEnergyPrompt' &&
+          pending.playerId===own.id) {
+        const energy=pending.cardList.cards.find(card=>
+          card.name==='Psychic Energy');
         const index=own.bench.findIndex(slot=>
           slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
-        if(energy&&index>=0) {
+        if(energy && index>=0) {
           const assignment=[{card:energy,to:{
             player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
           }}];
@@ -175,39 +164,35 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
         }
         abort(state,'No valid Psychic attachment target in own prompt');
       }
-      if(!pending&&phase==='attach')abort(state,'Underworld Door prompt missing');
+      if(!pending && phase==='attach')abort(state,'Underworld Door prompt missing');
     }
-
-    if(phase==='verify'&&!pending) {
+    if(phase==='verify' && !pending) {
       const bench=own.bench.find(slot=>
         slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
       const attached=bench?.energies.cards.filter(card=>
-        card.name==='Psychic Energy').length===beforeDoor.benchPsychic+1;
-      const drawnTwo=own.deck.cards.length===beforeDoor.deck-2;
-      const active=own.active.getPokemonCard();
-      const doorSpent=typeof own.marker?.hasMarker==='function'&&
-        own.marker.hasMarker('UNDERWORLD_DOOR_MARKER',active);
-      const retainedFieldBlower=own.hand.cards.some(card=>card.name==='Field Blower');
+        card.name==='Psychic Energy').length === beforeDoor.benchPsychic+1;
+      const drawn=own.deck.cards.length===beforeDoor.deck-2;
+      const retained=own.hand.cards.some(card=>card.name==='Field Blower');
       const garbotoxinStillLive=hasLiveGarbotoxin(opponent);
       events.push({turn:state.turn,kind:'completed-source-effect',
-        attached,drawnTwo,doorSpent,retainedFieldBlower,garbotoxinStillLive,
-        recoveryPlan,recoveredEnergy:selectedEnergy});
+        attached,drawnTwo:drawn,retainedFieldBlower:retained,
+        garbotoxinStillLive,
+        recoveredEnergy: selectedEnergy});
       phase='done';
     }
-
     return original.call(this,state);
   }
-
   SimpleTacticsAi.prototype.decodeNextAction=choose;
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'hood-garbotoxin-recovery-autonomous-v3',
+      version:'hood-garbotoxin-recovery-autonomous-v2',
       candidateSeat,opponentSeat:1-candidateSeat,
-      triggered:attempted,recoveryPlan,phaseAtEnd:phase,
+      triggered:attempted,phaseAtEnd:phase,
       successfulEffect:events.some(event=>
         event.kind==='completed-source-effect'&&event.attached&&
-        event.drawnTwo&&event.doorSpent&&event.garbotoxinStillLive),
+        event.drawnTwo&&event.retainedFieldBlower&&
+        event.garbotoxinStillLive),
       events,qualifiedForCompetitiveInference:false
     }};
   } finally {
