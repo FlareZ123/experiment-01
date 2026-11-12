@@ -184,46 +184,51 @@ test('recovery repeats on a later own turn but never twice in one turn, from eit
     };
     const ai=new FakeSimpleTacticsAi(ownId);
 
-    const first=ai.decodeNextAction(state);
-    assert.ok(first instanceof FakeUseAbilityAction);
-    assert.equal(first.playerId,ownId);
-    assert.equal(first.target.player,'bottom');
+    const run=withHoodGarbotoxinRecoveryAutonomy(candidateSeat,()=>{
+      const first=ai.decodeNextAction(state);
+      assert.ok(first instanceof FakeUseAbilityAction);
+      assert.equal(first.playerId,ownId);
+      assert.equal(first.target.player,'bottom');
 
-    state.prompts=[new AttachEnergyPrompt(ownId,firstEnergy)];
-    const firstResolve=ai.decodeNextAction(state);
-    assert.ok(firstResolve instanceof FakeResolvePromptAction);
-    assert.equal(firstResolve.promptId,'attach-'+ownId);
-    assert.equal(firstResolve.result[0].to.player,'bottom');
-    own.hand.cards=own.hand.cards.filter(card=>card!==firstEnergy);
-    own.bench[0].energies.cards.push(firstEnergy);
-    own.deck.cards.splice(0,2);
-    own.marker.used=true;
-    state.prompts=[];
-    assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
-    assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
+      state.prompts=[new AttachEnergyPrompt(ownId,firstEnergy)];
+      const firstResolve=ai.decodeNextAction(state);
+      assert.ok(firstResolve instanceof FakeResolvePromptAction);
+      assert.equal(firstResolve.promptId,'attach-'+ownId);
+      assert.equal(firstResolve.result[0].to.player,'bottom');
+      own.hand.cards=own.hand.cards.filter(card=>card!==firstEnergy);
+      own.bench[0].energies.cards.push(firstEnergy);
+      own.deck.cards.splice(0,2);
+      own.marker.used=true;
+      state.prompts=[];
+      assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
+      assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
 
-    const secondEnergy=makeEnergy('second-'+candidateSeat);
-    own.hand.cards.push(secondEnergy);
-    own.deck.cards.push({id:'d5'},{id:'d6'});
-    own.marker.used=false;
-    state.turn=3;
+      const secondEnergy=makeEnergy('second-'+candidateSeat);
+      own.hand.cards.push(secondEnergy);
+      own.deck.cards.push({id:'d5'},{id:'d6'});
+      own.marker.used=false;
+      state.turn=3;
 
-    const second=ai.decodeNextAction(state);
-    assert.ok(second instanceof FakeUseAbilityAction);
-    assert.equal(second.playerId,ownId);
-    state.prompts=[new AttachEnergyPrompt(ownId,secondEnergy)];
-    const secondResolve=ai.decodeNextAction(state);
-    assert.ok(secondResolve instanceof FakeResolvePromptAction);
-    own.hand.cards=own.hand.cards.filter(card=>card!==secondEnergy);
-    own.bench[0].energies.cards.push(secondEnergy);
-    own.deck.cards.splice(0,2);
-    own.marker.used=true;
-    state.prompts=[];
-    ai.decodeNextAction(state);
+      const second=ai.decodeNextAction(state);
+      assert.ok(second instanceof FakeUseAbilityAction);
+      assert.equal(second.playerId,ownId);
+      state.prompts=[new AttachEnergyPrompt(ownId,secondEnergy)];
+      const secondResolve=ai.decodeNextAction(state);
+      assert.ok(secondResolve instanceof FakeResolvePromptAction);
+      own.hand.cards=own.hand.cards.filter(card=>card!==secondEnergy);
+      own.bench[0].energies.cards.push(secondEnergy);
+      own.deck.cards.splice(0,2);
+      own.marker.used=true;
+      state.prompts=[];
+      assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
+      return 'complete';
+    },{SimpleTacticsAi:FakeSimpleTacticsAi,actionTypes,GamePhase});
 
-    const run=withHoodGarbotoxinRecoveryAutonomy(candidateSeat,()=> 'complete',{
-      SimpleTacticsAi:FakeSimpleTacticsAi,actionTypes,GamePhase
-    });
     assert.equal(run.result,'complete');
+    assert.equal(run.policyAudit.version,'hood-garbotoxin-recovery-autonomy-v4-repeatable-own-turn');
+    assert.equal(run.policyAudit.attemptCount,2);
+    assert.equal(run.policyAudit.successfulEffectCount,2);
+    assert.deepEqual(run.policyAudit.attempts.map(attempt=>attempt.turn),[1,3]);
+    assert.ok(run.policyAudit.attempts.every(attempt=>attempt.successfulEffect));
   }
 });
