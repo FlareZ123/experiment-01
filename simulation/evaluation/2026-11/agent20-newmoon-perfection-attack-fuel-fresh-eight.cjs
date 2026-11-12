@@ -106,6 +106,42 @@ function discardSummary(arms){
   });
 }
 
+/** Compare prompt-closed native attack declarations and settlements, including Perfection. */
+function compareSettlements(arms){
+  const [control,treatment,repeat]=arms;
+  return control.records.map((a,index)=>{
+    const b=treatment.records[index],c=repeat.records[index];
+    const count=(row,side,key)=>row[side]?.[key]??0;
+    return {
+      id:a.id,seed:a.seed,candidateSeat:a.candidateSeat,
+      sameFull:a.fullFingerprint!==null&&a.fullFingerprint===b.fullFingerprint,
+      sameSource:a.sourceFingerprint!==null&&a.sourceFingerprint===b.sourceFingerprint,
+      repeatPhysicalIdentical:a.physicalTapeSha256!==null&&
+        a.physicalTapeSha256===c.physicalTapeSha256,
+      controlCandidateDeclarations:count(a,'candidateAttackSettlement','declarations'),
+      treatmentCandidateDeclarations:count(b,'candidateAttackSettlement','declarations'),
+      controlCandidateSettled:count(a,'candidateAttackSettlement','settled'),
+      treatmentCandidateSettled:count(b,'candidateAttackSettlement','settled'),
+      controlCandidateWithImmediateSourceReturn:
+        count(a,'candidateAttackSettlement','withImmediateSourceReturn'),
+      treatmentCandidateWithImmediateSourceReturn:
+        count(b,'candidateAttackSettlement','withImmediateSourceReturn'),
+      controlSourceDeclarations:count(a,'sourceAttackSettlement','declarations'),
+      treatmentSourceDeclarations:count(b,'sourceAttackSettlement','declarations'),
+      controlSourceSettled:count(a,'sourceAttackSettlement','settled'),
+      treatmentSourceSettled:count(b,'sourceAttackSettlement','settled'),
+      candidateSettledAttackIncrease:
+        count(b,'candidateAttackSettlement','settled')>
+        count(a,'candidateAttackSettlement','settled'),
+      treatmentCandidateAttackNames:
+        (b.candidateAttackSettlement?.attacks??[]).map(x=>({
+          attack:x.attackName,triggerAction:x.triggerAction,
+          settled:x.settledPromptChain,nextSource:x.nextSourceRoot
+        }))
+    };
+  });
+}
+
 /** @returns {object} All preregistered native contexts and their A/B/A comparison. */
 function main(){
   const {reg,engine}=preflight();
@@ -129,6 +165,7 @@ function main(){
     },extra);
   });
   const comparison=analyze(arms);
+  const attackSettlementPairs=compareSettlements(arms);
   const activation=discardSummary(arms);
   const result={
     schema:'agent20-newmoon-perfection-attack-fuel-native-fresh-eight-v1',
@@ -140,7 +177,7 @@ function main(){
     sourceSpecificMewPaymentGuardsDisabledInEveryArm:true,
     commonPolicySymmetricBothSeats:true,
     qualifiedPaperGames:0,qualifiedFieldWins:0,
-    activation,comparison,arms,
+    activation,comparison,attackSettlementPairs,arms,
     allAttemptIds:arms.flatMap(a=>a.records.map(r=>a.id+':'+r.id)),
     attemptLedgerSha256:hash(arms.map(a=>a.records.map(r=>({
       id:r.id,root:r.rootLedgerSha256,physical:r.physicalTapeSha256,
@@ -164,7 +201,9 @@ function main(){
     repeatPhysical:comparison.identicalRepeatPhysical,
     completePairs:comparison.completedPairs,
     treatmentWinnerReversals:comparison.newCandidateNativeWinnerReversals,
-    candidateAttackCountImprovements:comparison.candidateAttackCountImprovements,
+    ordinaryAttackActionCountImprovements:comparison.candidateAttackCountImprovements,
+    candidateSettledAttackCountImprovements:attackSettlementPairs.filter(
+      p=>p.candidateSettledAttackIncrease).length,
     arms:arms.map(a=>({id:a.id,summary:a.summary})),
     pairs:comparison.pairs.map(p=>({
       id:p.id,seed:p.seed,candidateSeat:p.candidateSeat,
