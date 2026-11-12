@@ -422,6 +422,16 @@ function runNativeFixtureGame(input) {
       const phaseBefore=state.phase;
       const turnBefore=state.turn;
       const activePlayerBefore=state.activePlayer??null;
+      const diagnosticSeat=inferredPromptSeat(state,pending);
+      failureContext={
+        stage:'pre-action-snapshot',
+        record:{
+          actionOrdinal,actingSeat:diagnosticSeat,
+          actingPlayerId:diagnosticSeat===null?null:PLAYER_IDS[diagnosticSeat],
+          phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
+          actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
+        }
+      };
       if(!pending && state.phase===GamePhase.PLAYER_TURN &&
           actualFirstPlayerSeat===null) {
         assert.ok(state.activePlayer===0||state.activePlayer===1,
@@ -432,7 +442,7 @@ function runNativeFixtureGame(input) {
       const fullStateBefore=captureDiagnostic(state,{
         stage:'before',
         actionOrdinal,
-        actingSeat:inferredPromptSeat(state,pending),
+        actingSeat:diagnosticSeat,
         turn:turnBefore,
         phase:phaseBefore,
         pendingPromptType,
