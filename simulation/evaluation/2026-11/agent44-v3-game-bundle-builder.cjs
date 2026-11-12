@@ -17,6 +17,10 @@ const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
 const POLICY_ATTESTATION_BUNDLE_SCHEMA = 'aichi-policy-attestation-bundle-v1';
 const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
 const POLICY_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
+const POLICY_RECEIPT_SCHEMA_V2 = 'aichi-policy-application-receipt-v2';
+const FIXTURE_PREDEAL_PERSISTENCE_RECEIPT_SCHEMA = 'aichi-fixture-predeal-artifact-persistence-receipt-v1';
+const FIXTURE_DEAL_GENERATION_RECEIPT_SCHEMA = 'aichi-fixture-physical-deal-generation-receipt-v1';
+const FIXTURE_CLOCK_SOURCE = 'local-fixture-clock';
 const PREDEAL_PERSISTENCE_RECEIPT_SCHEMA = 'aichi-predeal-artifact-persistence-receipt-v1';
 const DEAL_GENERATION_RECEIPT_SCHEMA = 'aichi-physical-deal-generation-receipt-v1';
 const PERSISTENCE_TIME_SOURCE = 'github-actions-run-started-at';
@@ -256,8 +260,16 @@ function checkedEvidence(kind,entry) {
 }
 
 function checkedReceipt(receipt,allowMissingDigest=false) {
-  if (!plainObject(receipt) || receipt.schema !== POLICY_RECEIPT_SCHEMA)
+  if (!plainObject(receipt) || ![POLICY_RECEIPT_SCHEMA,POLICY_RECEIPT_SCHEMA_V2].includes(receipt.schema))
     fail('policy application receipt schema invalid');
+  if (receipt.schema===POLICY_RECEIPT_SCHEMA_V2 &&
+      (!SHA256.test(receipt.runtimePinUnionSha256??'') ||
+       !SHA256.test(receipt.loadedProcessClosureSha256??'') ||
+       !SHA256.test(receipt.cardPoolInitializationSha256??'') ||
+       !Array.isArray(receipt.runtimePatchReceipts) ||
+       !SHA256.test(receipt.runtimePatchReceiptsSha256??'') ||
+       receipt.runtimePatchReceiptsSha256!==evidenceBundleSha256(receipt.runtimePatchReceipts)))
+    fail('V2 policy application receipt runtime evidence is incomplete or unhashed');
   const expected = digestWithout(receipt,'receiptSha256');
   if (receipt.receiptSha256 === undefined && allowMissingDigest)
     return {...receipt,receiptSha256:expected};
@@ -320,9 +332,90 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
       !SHA256.test(receipt.decisionTraceSha256??'') ||
       !['none','within-budget','not-exceeded'].includes(receipt.timeoutStatus))
     fail('application receipt engine, runner, trace or timeout status invalid');
+  if (receipt.schema===POLICY_RECEIPT_SCHEMA_V2) {
+    const runtime=core.runtimePinEvidence;
+    if (!plainObject(runtime) || runtime.schema!=='aichi-runtime-pin-evidence-v2' ||
+        receipt.runtimePinUnionSha256!==runtime.unionSha256 ||
+        receipt.loadedProcessClosureSha256!==runtime.loadedProcessClosureSha256 ||
+        receipt.cardPoolInitializationSha256!==runtime.cardPoolInitializationSha256)
+      fail('V2 application receipt does not match frozen runtime-pin evidence');
+    const cardPool=trial.cardPoolInitializationReceipt;
+    if (!plainObject(cardPool) ||
+        cardPool.schema!=='agent36-twinleaf-card-pool-initialization-v1' ||
+        cardPool.enginePin!==trial.vendorCommitSha ||
+        cardPool.startupPath!=='vendor/twinleaf/ptcg-server/start.js' ||
+        !SHA256.test(cardPool.startupSha256??'') ||
+        !Array.isArray(cardPool.setNames) || cardPool.setNames.length===0 ||
+        cardPool.setNames.some(name=>!nonempty(name)) ||
+        new Set(cardPool.setNames).size!==cardPool.setNames.length ||
+        cardPool.definedSetCount!==cardPool.setNames.length ||
+        !Number.isInteger(cardPool.cardCount) || cardPool.cardCount<=0 ||
+        evidenceBundleSha256(cardPool)!==receipt.cardPoolInitializationSha256)
+      fail('V2 application receipt card-pool initialization receipt is invalid');
+    if (!Array.isArray(trial.runtimePatchReceipts) ||
+        evidenceBundleSha256(trial.runtimePatchReceipts)!==receipt.runtimePatchReceiptsSha256)
+      fail('V2 application receipt runtime-patch receipts differ from the trial');
+    const expectedPatches=core.constraints?.sharedEngineCompatibilityPatches;
+    if (!Array.isArray(expectedPatches) || expectedPatches.length!==receipt.runtimePatchReceipts.length)
+      fail('V2 application receipt does not cover the frozen shared runtime-patch list');
+    for (let i=0;i<expectedPatches.length;i++) {
+      const expectedPatch=expectedPatches[i];
+      const actualPatch=receipt.runtimePatchReceipts[i];
+      if (!plainObject(expectedPatch) || !plainObject(actualPatch) ||
+          actualPatch.patchId!==expectedPatch.patchId ||
+          actualPatch.modulePath!==expectedPatch.modulePath ||
+          actualPatch.moduleSha256!==expectedPatch.moduleSha256 ||
+          actualPatch.target!==expectedPatch.target ||
+          actualPatch.installCount!==1 || actualPatch.restoreCount!==1 ||
+          actualPatch.restoredOriginal!==true || actualPatch.nestedInstallCount!==0 ||
+          actualPatch.wrapperInstallCount!==0)
+        fail('V2 application receipt runtime-patch receipt differs from the frozen patch at index '+i);
+    }
+  }
 }
 
 function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fixtureOnly) {
+  if (fixtureOnly) {
+    if (!plainObject(persistenceReceipt) ||
+        persistenceReceipt.schema!==FIXTURE_PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
+        persistenceReceipt.fixtureOnly!==true ||
+        persistenceReceipt.fixtureClockSource!==FIXTURE_CLOCK_SOURCE ||
+        persistenceReceipt.trialId!==preDeal.trialId ||
+        persistenceReceipt.artifactRef!==preDeal.preDealArtifactRef ||
+        persistenceReceipt.artifactSha256!==preDeal.preDealArtifactSha256 ||
+        !SHA256.test(persistenceReceipt.artifactSha256??'') ||
+        !dateTime(persistenceReceipt.persistedAt))
+      fail('fixture pre-deal persistence receipt is missing or not bound to the fixture artifact');
+    const registeredAt=Date.parse(preDeal.gameRegistration.registeredAt);
+    const plannedDealAt=Date.parse(preDeal.gameRegistration.dealGeneratedAt);
+    const persistedAt=Date.parse(persistenceReceipt.persistedAt);
+    if (persistedAt<registeredAt || persistedAt>=plannedDealAt)
+      fail('fixture pre-deal artifact was not persisted between registration and deal generation');
+    if (!plainObject(dealReceipt) ||
+        dealReceipt.schema!==FIXTURE_DEAL_GENERATION_RECEIPT_SCHEMA ||
+        dealReceipt.fixtureOnly!==true ||
+        dealReceipt.fixtureClockSource!==FIXTURE_CLOCK_SOURCE ||
+        dealReceipt.trialId!==trial.trialId ||
+        dealReceipt.artifactRef!==persistenceReceipt.artifactRef ||
+        dealReceipt.artifactSha256!==persistenceReceipt.artifactSha256 ||
+        !dateTime(dealReceipt.stepStartedAt) ||
+        dealReceipt.runnerRevision!==trial.researchRevisionSha ||
+        !GIT_SHA.test(dealReceipt.runnerRevision??'') ||
+        !SHA256.test(dealReceipt.sourceDealFingerprint??'') ||
+        dealReceipt.sourcePhysicalDealSha256!==trial.sourcePhysicalDealSha256 ||
+        dealReceipt.fullPhysicalDealSha256!==trial.fullPhysicalDealSha256 ||
+        !SHA256.test(dealReceipt.sourcePhysicalDealSha256??'') ||
+        !SHA256.test(dealReceipt.fullPhysicalDealSha256??''))
+      fail('fixture deal-generation receipt is missing or not bound to the native physical deal');
+    const stepStartedAt=Date.parse(dealReceipt.stepStartedAt);
+    if (stepStartedAt<plannedDealAt || stepStartedAt<=persistedAt ||
+        !dateTime(trial.dealGeneratedAt) || Date.parse(trial.dealGeneratedAt)<stepStartedAt)
+      fail('fixture deal-generation step did not follow fixture registration and persistence');
+    if (trial.dealGenerationStepStartedAt!==dealReceipt.stepStartedAt ||
+        trial.initialSourceDealFingerprint!==dealReceipt.sourceDealFingerprint)
+      fail('fixture trial generation time or source-deal fingerprint disagrees with receipt');
+    return {persistenceReceipt,dealReceipt};
+  }
   // These fields are consistency checks over GitHub Actions server metadata.
   // The independent reviewer must fetch the run/job records and verify them;
   // producer-supplied timestamps and Git commit committer dates are not clocks.
