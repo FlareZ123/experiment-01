@@ -1801,7 +1801,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
-    const ownerPlayerType=seat===1?PlayerType.TOP_PLAYER:ownerPlayerType;
+    const ownerPlayerType=seat===1?PlayerType.TOP_PLAYER:PlayerType.BOTTOM_PLAYER;
     if(seat===1) assert.ok(ownerPlayerType!==undefined,
       'Seat-scoped top-player policy requires PlayerType.TOP_PLAYER');
     const pending=state.prompts?.find(p=>p.result===undefined);
