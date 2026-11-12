@@ -23,27 +23,53 @@ const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-c
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
- * Fail closed on the native accepted-root Canceling Cologne quota audit.
- * This is an evidence-routing gate only: it never changes or rejects a game.
- * An audit-clear result permits independent paper review, not paper legality.
+ * Separate accepted-root audit availability, optional policy quota, and paper
+ * Item legality. B-01 permits any number of Items; each use still needs a
+ * per-use target/effect review. Count alone never establishes paper illegality.
+ * This is an evidence-routing gate only and never changes or rejects a game.
  */
 function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
   const auditPresent=Boolean(audit&&typeof audit==='object'&&!Array.isArray(audit));
-  const duplicates=auditPresent&&Array.isArray(audit.duplicateAcceptedBySeatTurn)
+  const multiple=auditPresent&&Array.isArray(audit.duplicateAcceptedBySeatTurn)
     ?audit.duplicateAcceptedBySeatTurn:null;
-  const auditClear=auditPresent&&audit.acceptedOncePerSeatTurn===true&&
-    Array.isArray(duplicates)&&duplicates.length===0;
+  const bySeat=auditPresent&&audit.bySeat&&typeof audit.bySeat==='object'
+    ?audit.bySeat:null;
+  const multipleRowsValid=Array.isArray(multiple)&&multiple.every(x=>
+    Number.isSafeInteger(x?.epoch)&&x.epoch>=0&&
+    [0,1].includes(x.seat)&&Number.isSafeInteger(x.turn)&&x.turn>=1&&
+    Number.isSafeInteger(x.count)&&x.count>=2);
+  const auditShapeValid=auditPresent&&
+    Number.isSafeInteger(audit.accepted)&&audit.accepted>=0&&
+    Number.isSafeInteger(bySeat?.['0'])&&bySeat['0']>=0&&
+    Number.isSafeInteger(bySeat?.['1'])&&bySeat['1']>=0&&
+    audit.accepted===bySeat['0']+bySeat['1']&&
+    Number.isSafeInteger(audit.episodes)&&audit.episodes>=1&&
+    Number.isSafeInteger(audit.authenticatedRestarts)&&
+    audit.authenticatedRestarts>=0&&
+    typeof audit.acceptedOncePerSeatTurn==='boolean'&&
+    multipleRowsValid&&
+    audit.acceptedOncePerSeatTurn===(multiple.length===0);
+  const policyQuotaConformance=!hookOptInEnabled?'not-applicable':
+    !auditShapeValid?'unassessable':
+      audit.acceptedOncePerSeatTurn?'pass':'fail';
+  const hasAcceptedUses=auditShapeValid&&audit.accepted>0;
   return {
-    schema:'agent44-paper-cologne-accepted-root-review-gate-v1',
+    schema:'agent44-paper-cologne-accepted-root-review-gate-v2',
     disposition:!auditPresent?'blocked-audit-missing':
-      !auditClear?'blocked-audit-not-clear':'eligible-pending-independent-paper-review',
+      !auditShapeValid?'blocked-audit-malformed':
+        'eligible-pending-independent-paper-review',
     auditPresent,
+    auditShapeValid,
     acceptedOncePerSeatTurn:auditPresent?
       audit.acceptedOncePerSeatTurn??null:null,
-    duplicateAcceptedBySeatTurn:duplicates,
-    auditClear,
-    paperRuleReviewBlocked:!auditClear,
+    multipleAcceptedBySeatTurn:multiple,
+    policyQuotaConformance,
     hookOptInEnabled:hookOptInEnabled===true,
+    paperRuleReviewBlocked:!auditShapeValid,
+    paperItemLegalityReviewStatus:!auditShapeValid?'blocked-audit-unavailable':
+      hasAcceptedUses?'pending-per-use-target-and-effect-review':
+        'no-accepted-cologne-use',
+    requiresTargetAndEffectReview:hasAcceptedUses,
     independentPaperReviewRequired:true,
     paperLegalityCertified:false,
     rawCaptureRetainedRegardlessOfGate:true
