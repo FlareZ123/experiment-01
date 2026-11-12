@@ -17,6 +17,7 @@ chmod 600 diagnostic-private.pem
 Keep `diagnostic-private.pem` offline and out of the repository, CI variables, logs and artifacts. Configure a GitHub Actions repository variable named `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` with the contents of `diagnostic-public.pem`. The public key is not secret; the private key is.
 
 The repository's `private/` directory currently contains only `.gitkeep`; no recipient key is provisioned. Do not generate a substitute recipient identity in an agent run.
+The manual Agent36 workflow validates this variable before compiling a V3 fixture and rejects non-RSA keys or RSA keys below 2048 bits. The post-game encryptor independently enforces the same minimum.
 
 ## Workflow integration
 
