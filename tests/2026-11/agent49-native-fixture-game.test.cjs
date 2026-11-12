@@ -28,6 +28,11 @@ class ShuffleDeckPrompt {
 class CoinFlipPrompt {
   constructor(id,playerId){Object.assign(this,{id,playerId,result:undefined});}
 }
+class TestPrompt {
+  constructor(id,playerId,message,options){
+    Object.assign(this,{id,playerId,message,options,result:undefined});
+  }
+}
 class RootAction {
   constructor(seat){this.seat=seat;this.type='ROOT';}
 }
@@ -37,6 +42,8 @@ class PlayCardAction {
 let lastStore=null;
 let failNextPlayCardDispatch=false;
 let failNextDecode=false;
+let failNextPromptDecode=false;
+let mutateBeforeDecodeFailure=false;
 class Store {
   constructor(options){
     this.options=options;
@@ -71,6 +78,8 @@ class Store {
         this.state.phase=GamePhase.PLAYER_TURN;
         this.state.activePlayer=0;
         this.state.turn=1;
+        if(failNextPromptDecode)
+          this.state.prompts.push(new TestPrompt(3,101,'Choose a card',['A card 0','A card 1']));
       }
       return;
     }
@@ -114,8 +123,16 @@ class SimpleTacticsAi {
     this.deck=deck;
   }
   decodeNextAction(){
+    if(failNextPromptDecode&&this.id===101){
+      failNextPromptDecode=false;
+      throw new Error('simulated owner-prompt decode failure');
+    }
     if(failNextDecode&&this.id===101){
       failNextDecode=false;
+      if(mutateBeforeDecodeFailure){
+        mutateBeforeDecodeFailure=false;
+        lastStore.state.players[0].discard.push({fullName:'mutation-before-decode-error'});
+      }
       throw new Error('simulated policy decode failure');
     }
     return this.id===101?
@@ -149,6 +166,25 @@ function input(overrides={}){
     candidateSeat:0,
     originalSourceSeat:1,
     ...overrides
+  };
+}
+
+function fixtureDiagnosticSnapshot(state,context){
+  return {
+    schema:'twinleaf-full-state-diagnostic-v1',
+    visibility:'private-offline-diagnostic-only',
+    context,
+    players:state.players.map(player=>({
+      hand:player.hand.cards.map(card=>card.fullName),
+      deck:player.deck.cards.map(card=>card.fullName),
+      discard:player.discard.map(card=>card.fullName)
+    })),
+    prompts:state.prompts.map(prompt=>({
+      id:prompt.id,
+      type:prompt.constructor.name,
+      playerId:prompt.playerId??null,
+      fields:{message:prompt.message??null,options:prompt.options??null}
+    }))
   };
 }
 
@@ -426,21 +462,48 @@ test('native fixture preserves accepted prefix and failed attempted action with 
 });
 
 
-test('native fixture policy-decode failure retains acting seat and phase context',()=>{
+test('native fixture policy-decode failure retains the attempted decision, pre-state and fresh failure snapshot',()=>{
   const originalRandom=Math.random;
   failNextDecode=true;
+  mutateBeforeDecodeFailure=true;
   let failure;
-  try { runNativeFixtureGame(input()); }
+  try {
+    runNativeFixtureGame(input({
+      requireFullStateDiagnostics:true,
+      diagnosticSnapshot:fixtureDiagnosticSnapshot
+    }));
+  }
   catch(error) { failure=error; }
-  finally { failNextDecode=false; }
+  finally {
+    failNextDecode=false;
+    mutateBeforeDecodeFailure=false;
+  }
 
   assert.ok(failure);
   assert.match(failure.message,/simulated policy decode failure/);
   assert.equal(Math.random,originalRandom);
   const partial=failure.fixtureGamePartial;
   assert.equal(partial.acceptedActions,2);
-  assert.equal(partial.attemptedActions,2);
-  assert.equal(partial.decisionTrace.length,2);
+  assert.equal(partial.attemptedActions,3);
+  assert.equal(partial.decisionTrace.length,3);
+  assert.equal(partial.rootActionLedger.length,3);
+  const failed=partial.decisionTrace[2];
+  assert.equal(failed.dispatchStatus,'not-dispatched');
+  assert.equal(failed.actionName,null);
+  assert.equal(failed.actionPayloadSha256,null);
+  assert.equal(failed.policyInputKind,'actor-observation');
+  assert.equal(failed.failureSnapshotStage,'failure-final');
+  assert.equal(failed.actorObservationBefore.actorSeat,0);
+  assert.deepEqual(failed.actorObservationBefore.ownHand,['A card 0']);
+  assert.match(failed.actorObservationSha256,/^[a-f0-9]{64}$/);
+  assert.equal(failed.fullStateBefore.visibility,'private-offline-diagnostic-only');
+  assert.deepEqual(failed.fullStateBefore.players[0].hand,['A card 0']);
+  assert.deepEqual(failed.fullStateBefore.players[0].discard,[]);
+  assert.deepEqual(failed.fullStateAfter.players[0].discard,
+    ['mutation-before-decode-error']);
+  assert.deepEqual(partial.finalFullState.players[0].discard,
+    ['mutation-before-decode-error']);
+  assert.notDeepEqual(failed.fullStateBefore,partial.finalFullState);
   assert.equal(partial.failure.stage,'policy-decode');
   assert.equal(partial.failure.actionOrdinal,2);
   assert.equal(partial.failure.actingSeat,0);
@@ -448,5 +511,41 @@ test('native fixture policy-decode failure retains acting seat and phase context
   assert.equal(partial.failure.phaseBefore,GamePhase.PLAYER_TURN);
   assert.equal(partial.failure.turnBefore,1);
   assert.equal(partial.failure.pendingPromptType,null);
+  assert.equal(partial.failedAction,null);
+  assert.equal(partial.rootActionLedger[2].dispatchStatus,'not-dispatched');
+  assert.equal(partial.rootActionLedger[2].action,null);
+  assert.equal(partial.rootActionLedger[2].actorObservationSha256,
+    failed.actorObservationSha256);
+});
+
+test('native owner-prompt decode failure preserves prompt options before decode',()=>{
+  failNextPromptDecode=true;
+  let failure;
+  try {
+    runNativeFixtureGame(input({
+      requireFullStateDiagnostics:true,
+      diagnosticSnapshot:fixtureDiagnosticSnapshot
+    }));
+  }
+  catch(error) { failure=error; }
+  finally { failNextPromptDecode=false; }
+
+  assert.ok(failure);
+  assert.match(failure.message,/simulated owner-prompt decode failure/);
+  const partial=failure.fixtureGamePartial;
+  assert.equal(partial.acceptedActions,2);
+  assert.equal(partial.attemptedActions,3);
+  assert.equal(partial.decisionTrace.length,3);
+  const failed=partial.decisionTrace[2];
+  assert.equal(failed.dispatchStatus,'not-dispatched');
+  assert.equal(failed.actionName,null);
+  assert.equal(failed.policyInputKind,'native-owner-prompt');
+  assert.equal(failed.promptResolverContext.promptType,'TestPrompt');
+  assert.equal(failed.promptResolverContext.message,'Choose a card');
+  assert.deepEqual(failed.promptResolverContext.availableOptions.options,
+    ['A card 0','A card 1']);
+  assert.equal(failed.fullStateBefore.prompts.find(prompt=>prompt.id===3).fields.message,
+    'Choose a card');
+  assert.equal(partial.failure.stage,'prompt-resolver-decode');
   assert.equal(partial.failedAction,null);
 });
