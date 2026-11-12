@@ -175,11 +175,17 @@ function selectedCardIdentity(action,state,actingSeat,cardActions) {
   const card=handCards[handIndex];
   assert.ok(card&&typeof card.fullName==='string'&&card.fullName.trim().length>0,
     'PlayCardAction selected physical card has no resolved fullName');
-  return {
+  const identity={
     playerId:owner.id,
     handIndex,
     fullName:card.fullName
   };
+  for(const key of ['name','set','setNumber','number','language']) {
+    const value=card[key];
+    if(typeof value==='string' || (typeof value==='number' && Number.isFinite(value)))
+      identity[key]=value;
+  }
+  return identity;
 }
 
 function validateInputs(input) {
@@ -203,6 +209,15 @@ function validateInputs(input) {
   }
   assert.ok(Array.isArray(input.botOptionsBySeat)&&input.botOptionsBySeat.length===2,
     'two seat-ordered SimpleTacticsAi option objects are required');
+  if(input.diagnosticSnapshot!==undefined)
+    assert.equal(typeof input.diagnosticSnapshot,'function',
+      'diagnosticSnapshot must be an injected outer-runner callback');
+  if(input.requireFullStateDiagnostics===true) {
+    assert.equal(typeof input.diagnosticSnapshot,'function',
+      'full-state diagnostics are required for this fixture');
+    assert.equal(typeof native.observe,'function',
+      'the exact actor-observation function is required for this fixture');
+  }
   normalizeSeed32(input.seed);
   assert.ok(input.candidateSeat===0||input.candidateSeat===1,
     'candidateSeat must be physical seat 0 or 1');
@@ -242,6 +257,130 @@ function runNativeFixtureGame(input) {
   let actualFirstPlayerSeat=null;
   let store;
   let seats;
+  let failureContext=null;
+
+  const redactError=error=>{
+    const message=String(error?.message??error??'native fixture failure');
+    return {
+      name:error?.name??'Error',
+      messageSha256:sha256Json({message}),
+      messageLength:message.length
+    };
+  };
+  const captureDiagnostic=(state,context)=>{
+    if(typeof input.diagnosticSnapshot!=='function') return null;
+    const snapshot=input.diagnosticSnapshot(state,{
+      trialId:input.trialId??null,
+      ...context
+    });
+    assert.ok(snapshot&&typeof snapshot==='object'&&!Array.isArray(snapshot),
+      'diagnosticSnapshot must return a detached object');
+    if(input.requireFullStateDiagnostics===true) {
+      assert.equal(snapshot.schema,'twinleaf-full-state-diagnostic-v1',
+        'full-state diagnostic schema is not the pinned fixture schema');
+      assert.equal(snapshot.visibility,'private-offline-diagnostic-only',
+        'full-state diagnostic must retain its private offline marker');
+    }
+    return projectJsonSafe(snapshot);
+  };
+  const safePublicSnapshot=state=>{
+    try { return state?publicStateSnapshot(state):null; }
+    catch(error) { return {snapshotFailure:redactError(error)}; }
+  };
+  const inferredPromptSeat=(state,pending)=>{
+    if(!pending) return state.activePlayer===0||state.activePlayer===1?
+      state.activePlayer:null;
+    if(pending instanceof ShuffleDeckPrompt) {
+      const ownerId=pending.getPerspectivePlayerId();
+      const seat=state.players.findIndex(player=>player.id===ownerId);
+      return seat===-1?null:seat;
+    }
+    if(pending.playerId===undefined) return null;
+    const seat=state.players.findIndex(player=>player.id===pending.playerId);
+    return seat===-1?null:seat;
+  };
+  const buildPartial=(error,context)=>{
+    const state=store?.state??null;
+    const last=decisionTrace[decisionTrace.length-1]??null;
+    const finalPublicState=safePublicSnapshot(state);
+    let finalFullState=last?.fullStateAfter??null;
+    let finalDiagnosticFailure=null;
+    if(!finalFullState&&state&&typeof input.diagnosticSnapshot==='function') {
+      try {
+        const pending=Array.isArray(state.prompts)?
+          state.prompts.find(prompt=>prompt.result===undefined)??null:null;
+        finalFullState=captureDiagnostic(state,{
+          stage:'failure-final',
+          actionOrdinal:decisionTrace.length,
+          actingSeat:inferredPromptSeat(state,pending),
+          turn:state.turn??null,
+          phase:state.phase??null,
+          pendingPromptType:pending?.constructor?.name??null,
+          pendingPromptId:pending?.id??null,
+          actualFirstPlayerSeat
+        });
+      } catch(diagnosticError) {
+        finalDiagnosticFailure=redactError(diagnosticError);
+      }
+    }
+    const failedRecord=context?.record??null;
+    const cause=error?.cause??error;
+    const failure={
+      stage:context?.stage??'game-loop',
+      actionOrdinal:failedRecord?.actionOrdinal??actions,
+      actingSeat:failedRecord?.actingSeat??null,
+      actingPlayerId:failedRecord?.actingPlayerId??null,
+      phaseBefore:failedRecord?.phaseBefore??state?.phase??null,
+      turnBefore:failedRecord?.turnBefore??state?.turn??null,
+      pendingPromptType:failedRecord?.pendingPromptType??null,
+      pendingPromptId:failedRecord?.pendingPromptId??null,
+      actionName:failedRecord?.actionName??null,
+      actionPayloadSha256:failedRecord?.actionPayloadSha256??null,
+      ...redactError(cause)
+    };
+    const partial={
+      schema:'aichi-native-fixture-game-partial-v1',
+      fixtureOnly:true,
+      admissionEligible:false,
+      competitiveGameQualified:false,
+      seed:input.seed,
+      seed32,
+      seedDerivation:typeof input.seed==='string'?'sha256-first-u32le':'identity-uint32',
+      randomizationProtocol:'xorshift32-physical-and-seat-policy-streams-v1',
+      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(seed32^xor)>>>0),
+      candidateSeat:input.candidateSeat,
+      originalSourceSeat:input.originalSourceSeat,
+      actualFirstPlayerSeat,
+      acceptedActions:actions,
+      attemptedActions:decisionTrace.length,
+      turns:state?.turn??null,
+      finished:false,
+      endReason:'fixture-execution-failed',
+      actionCountsBySeat:[...actionCountsBySeat],
+      decisionTrace,
+      rootActionLedger,
+      decisionTraceSha256:sha256Json(decisionTrace),
+      rootActionLedgerSha256:sha256Json(rootActionLedger),
+      failedAction:failedRecord&&failedRecord.dispatchStatus!=='succeeded'?
+        failedRecord:null,
+      finalPublicState,
+      finalPublicStateSha256:finalPublicState===null?null:sha256Json(finalPublicState),
+      finalFullState,
+      finalFullStateSha256:finalFullState===null?null:sha256Json(finalFullState),
+      finalDiagnosticFailure,
+      failure
+    };
+    return partial;
+  };
+  const wrapFailure=(error,context)=>{
+    const partial=buildPartial(error,context);
+    const wrapped=new Error(String(error?.message??error??'native fixture failure'));
+    wrapped.name=error?.name??'Error';
+    wrapped.cause=error;
+    wrapped.fixtureGamePartial=partial;
+    wrapped.nativeFixtureFailure=partial.failure;
+    return wrapped;
+  };
 
   try {
     Math.random=physicalRandom;
@@ -277,6 +416,24 @@ function runNativeFixtureGame(input) {
       const state=store.state;
       assert.ok(Array.isArray(state.prompts),'Twinleaf state.prompts is not an array');
       const pending=state.prompts.find(prompt=>prompt.result===undefined)??null;
+      const actionOrdinal=actions;
+      const pendingPromptType=pending?.constructor?.name??null;
+      const pendingPromptId=pending?.id??null;
+      const phaseBefore=state.phase;
+      const turnBefore=state.turn;
+      const activePlayerBefore=state.activePlayer??null;
+      const publicBefore=publicStateSnapshot(state);
+      const fullStateBefore=captureDiagnostic(state,{
+        stage:'before',
+        actionOrdinal,
+        actingSeat:inferredPromptSeat(state,pending),
+        turn:turnBefore,
+        phase:phaseBefore,
+        pendingPromptType,
+        pendingPromptId,
+        actualFirstPlayerSeat
+      });
+
       if(!pending && state.phase===GamePhase.PLAYER_TURN &&
           actualFirstPlayerSeat===null) {
         assert.ok(state.activePlayer===0||state.activePlayer===1,
@@ -288,6 +445,8 @@ function runNativeFixtureGame(input) {
       let actingSeat=null;
       let isRootDecision=false;
       let promptResolution=null;
+      let policyObservationBefore=null;
+      let policyInputKind='native-prompt';
       if(pending instanceof ShuffleDeckPrompt) {
         const ownerId=pending.getPerspectivePlayerId();
         const owner=state.players.find(player=>player.id===ownerId);
@@ -301,6 +460,7 @@ function runNativeFixtureGame(input) {
           kind:'shuffle',ownerSeat:actingSeat,cardCount:permutation.length,
           permutationSha256:sha256Json(permutation)
         };
+        policyInputKind='physical-randomization-prompt';
       } else if(pending instanceof CoinFlipPrompt) {
         if(pending.playerId!==undefined) {
           const seat=state.players.findIndex(player=>player.id===pending.playerId);
@@ -309,11 +469,15 @@ function runNativeFixtureGame(input) {
         const result=physicalRandom()<0.5;
         action=new ResolvePromptAction(pending.id,result);
         promptResolution={kind:'coin-flip',result};
+        policyInputKind='physical-randomization-prompt';
       } else if(pending) {
         actingSeat=state.players.findIndex(player=>player.id===pending.playerId);
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Unknown Twinleaf prompt player: '+pending.playerId);
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
+        if(typeof native.observe==='function'&&pending.playerId===state.players[actingSeat].id)
+          policyObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        policyInputKind='native-owner-prompt';
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
           throw new Error('Unhandled Twinleaf game phase: '+state.phase);
@@ -321,76 +485,122 @@ function runNativeFixtureGame(input) {
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Twinleaf activePlayer is outside the two seats');
         isRootDecision=true;
+        if(typeof native.observe==='function')
+          policyObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
+        policyInputKind='actor-observation';
       }
 
       if(!action)
         throw new Error('Native fixture policy failed to produce an action');
-      const before=publicStateSnapshot(state);
       const actionPayload=projectActionPayload(action);
       const actionPayloadSha256=sha256Json(actionPayload);
       const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
+      const targetProjection=action instanceof native.cardActions.PlayCardAction?
+        projectJsonSafe(action.target??null):null;
       const record={
-        actionOrdinal:actions,
+        actionOrdinal,
         actingSeat,
         actingPlayerId:actingSeat===null?null:PLAYER_IDS[actingSeat],
-        phaseBefore:state.phase,
-        turnBefore:state.turn,
-        activePlayerBefore:state.activePlayer??null,
-        pendingPromptType:pending?.constructor?.name??null,
-        pendingPromptId:pending?.id??null,
+        phaseBefore,
+        turnBefore,
+        activePlayerBefore,
+        pendingPromptType,
+        pendingPromptId,
         promptResolution,
         isRootDecision,
+        policyInputKind,
+        policyObservationBefore,
         actionName:actionName(action),
         actionType:action.type??null,
         actionPayload,
         actionPayloadSha256,
         selectedCardIdentity:selectedIdentity,
-        publicStateBefore:before
+        targetProjection,
+        publicStateBefore:publicBefore,
+        fullStateBefore,
+        dispatchStatus:'pending'
       };
-      try {
-        store.dispatch(action);
-      } catch(error) {
-        const digest=sha256Json({
-          name:error?.name??'Error',
-          message:String(error?.message??'native dispatch failed')
-        });
-        const failure=new Error('Native fixture Store.dispatch failed at action '+actions);
-        failure.cause=error;
-        failure.nativeFixtureFailure={
-          actionOrdinal:actions,actingSeat,phaseBefore:state.phase,
-          turnBefore:state.turn,pendingPromptType:record.pendingPromptType,
-          actionName:record.actionName,redactedErrorDigest:digest
-        };
-        throw failure;
-      }
-      actions++;
-      if(actingSeat===0||actingSeat===1) actionCountsBySeat[actingSeat]++;
-      const completed={
-        ...record,
-        publicStateAfter:publicStateSnapshot(store.state)
-      };
-      decisionTrace.push(completed);
-      rootActionLedger.push({
+      decisionTrace.push(record);
+      const ledgerRecord={
         actionOrdinal:record.actionOrdinal,
         turnBefore:record.turnBefore,
-        turnAfter:store.state.turn,
+        turnAfter:null,
         playerSlot:actingSeat,
         action:record.actionName,
         actionPayloadSha256:record.actionPayloadSha256,
         pendingPrompt:record.pendingPromptType,
         isRootDecision,
-        promptResolution
-      });
-      input.onAction?.(completed);
+        promptResolution,
+        selectedCardIdentity:selectedIdentity,
+        targetProjection,
+        policyInputKind,
+        dispatchStatus:'pending',
+        failure:null
+      };
+      rootActionLedger.push(ledgerRecord);
+
+      try {
+        store.dispatch(action);
+      } catch(error) {
+        record.dispatchStatus='failed';
+        record.failure=redactError(error);
+        try { record.publicStateAfter=publicStateSnapshot(store.state); }
+        catch(snapshotError) { record.publicStateAfterFailure=redactError(snapshotError); }
+        try {
+          record.fullStateAfter=captureDiagnostic(store.state,{
+            stage:'after-failed-dispatch',
+            actionOrdinal,
+            actingSeat,
+            turn:store.state.turn??null,
+            phase:store.state.phase??null,
+            pendingPromptType,
+            pendingPromptId,
+            actualFirstPlayerSeat
+          });
+        } catch(diagnosticError) {
+          record.diagnosticSnapshotFailure=redactError(diagnosticError);
+        }
+        ledgerRecord.turnAfter=store.state.turn??null;
+        ledgerRecord.dispatchStatus='failed';
+        ledgerRecord.failure=record.failure;
+        failureContext={stage:'dispatch',record};
+        throw error;
+      }
+
+      actions++;
+      if(actingSeat===0||actingSeat===1) actionCountsBySeat[actingSeat]++;
+      record.dispatchStatus='succeeded';
+      try { record.publicStateAfter=publicStateSnapshot(store.state); }
+      catch(snapshotError) {
+        record.publicStateAfterFailure=redactError(snapshotError);
+        failureContext={stage:'post-dispatch-public-snapshot',record};
+        throw snapshotError;
+      }
+      try {
+        record.fullStateAfter=captureDiagnostic(store.state,{
+          stage:'after',
+          actionOrdinal,
+          actingSeat,
+          turn:store.state.turn??null,
+          phase:store.state.phase??null,
+          pendingPromptType,
+          pendingPromptId,
+          actualFirstPlayerSeat
+        });
+      } catch(diagnosticError) {
+        record.diagnosticSnapshotFailure=redactError(diagnosticError);
+        failureContext={stage:'post-dispatch-full-state-snapshot',record};
+        throw diagnosticError;
+      }
+      ledgerRecord.turnAfter=store.state.turn;
+      ledgerRecord.dispatchStatus='succeeded';
+      input.onAction?.(record);
     }
 
     if(store.state.phase!==GamePhase.FINISHED) {
       const failure=new Error('Native fixture game exceeded maxActions without a natural terminal state');
-      failure.nativeFixtureFailure={
-        actions,turn:store.state.turn,phase:store.state.phase,maxActions,
-        actualFirstPlayerSeat
-      };
+      failureContext={stage:'action-cap',record:decisionTrace[decisionTrace.length-1]??null};
       throw failure;
     }
     if(actualFirstPlayerSeat!==0&&actualFirstPlayerSeat!==1)
@@ -427,6 +637,9 @@ function runNativeFixtureGame(input) {
       winner,
       winnerSeat:winnerSeat===-1?null:winnerSeat,
       actionCountsBySeat,
+      fullStateDiagnosticsEnabled:typeof input.diagnosticSnapshot==='function',
+      diagnosticVisibility:typeof input.diagnosticSnapshot==='function'?
+        'private-offline-diagnostic-only':null,
       decisionTrace,
       rootActionLedger,
       decisionTraceSha256:sha256Json(decisionTrace),
@@ -435,6 +648,9 @@ function runNativeFixtureGame(input) {
       finalPublicStateSha256:sha256Json(finalState)
     };
     return result;
+  } catch(error) {
+    if(error?.fixtureGamePartial) throw error;
+    throw wrapFailure(error,failureContext??{stage:'game-loop',record:null});
   } finally {
     Math.random=previousRandom;
   }
