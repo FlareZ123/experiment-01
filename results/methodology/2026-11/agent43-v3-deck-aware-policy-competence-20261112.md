@@ -87,7 +87,7 @@ The existing manual workflow `.github/workflows/agent49-owner-paper-preflight-pu
 Checks performed in this invocation:
 
 - Both changed JavaScript files passed isolated JavaScript syntax compilation.
-- An isolated structural harness loaded the real Agent12/Agent49 field-validator source and the V3 evaluator, with cryptographic verification stubbed, and exercised the 29/32 field, candidate/opponent attestation structure, per-game receipt, candidate-policy drift rejection, and both untimed and event V3 paths. The harness produced an admissible per-game policy assessment for a valid fixture, preserved `INCOMPLETE_FIELD`, and rejected candidate-policy drift.
+- An isolated structural harness loaded the real Agent12/Agent49 field-validator source and the V3 evaluator, with cryptographic verification stubbed, and exercised the 29/32 field, candidate/opponent attestation structure, per-game receipt, candidate-policy drift rejection, and both untimed and event V3 paths. It also covered all 116 strata available in the 29-rank field (still `INCOMPLETE_FIELD`) and a synthetic 32-rank/128-stratum plan (status `VALID`). The harness produced an admissible per-game policy assessment for a valid fixture and rejected candidate-policy drift.
 - **The Node test suite was not run.** The available GitHub Actions workflow is manual-dispatch only, and this invocation had no workflow-dispatch action. The structural harness is not a substitute for real Ed25519 verification or the repository's Node test suite.
 
 ## Limits and non-claims
