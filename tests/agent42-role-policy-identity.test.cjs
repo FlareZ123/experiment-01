@@ -274,6 +274,8 @@ test('partial runtime closure is fixture-only; production receipts require full 
   candidateIdentity:candidate,opponentIdentity:opponent,
   trial:{...fixtureTrial,fixtureOnly:false}}),/production application receipt requires complete process-closure coverage/);
  const productionPlan=preDeal(candidate,opponent,constraints,true);
+ assert.notEqual(fixturePlan.policyPlanSha256,productionPlan.policyPlanSha256,
+  'fixture/production closure scope must be frozen into distinct policy-plan digests');
  const productionTrial={...trial(candidate,opponent,0,1),fixtureOnly:false};
  const productionApplied=I.createPolicyApplicationReceipt({preDeal:productionPlan,
   candidateIdentity:candidate,opponentIdentity:opponent,trial:productionTrial});
