@@ -100,6 +100,26 @@ test('persistence receipt rejects a workflow from another repo or whose head omi
   }),/workflow head must be the exact commit/);
 });
 
+test('adapter accepts both UTC Z and explicit numeric-offset Actions timestamps',()=>{
+  const x=fixture();
+  const run={...x.run,run_started_at:'2026-11-12T17:05:00+00:00'};
+  const persistenceReceipt=createPreDealPersistenceReceipt({
+    preDeal:x.preDeal,run,artifact:x.artifact
+  });
+  const step={
+    ...x.step,
+    started_at:'2026-11-12T17:11:00+00:00',
+    completed_at:'2026-11-12T17:12:00+00:00'
+  };
+  const job={...x.job,steps:[step]};
+  const trial={...x.trial,dealGenerationStepStartedAt:step.started_at};
+  const dealReceipt=createDealGenerationReceipt({
+    preDeal:x.preDeal,trial,run,job,persistenceReceipt
+  });
+  assert.equal(persistenceReceipt.workflowRunStartedAt,run.run_started_at);
+  assert.equal(dealReceipt.stepStartedAt,step.started_at);
+});
+
 test('persistence receipt rejects run timestamps outside the preregistered window or without an offset',()=>{
   const x=fixture();
   assert.throws(()=>createPreDealPersistenceReceipt({
