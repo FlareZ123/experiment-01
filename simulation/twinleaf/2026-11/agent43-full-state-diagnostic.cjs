@@ -250,7 +250,8 @@ function formatFixtureGameTraceText(game) {
       (row.actorObservationBefore ?? row.ownerObservationBefore ?? row.policyObservationBefore ?? null) : null;
     const actorObservationAfter = isActorObservationInput ?
       (row.actorObservationAfter ?? row.ownerObservationAfter ?? row.policyObservationAfter ?? null) : null;
-    if (row.actorObservationSha256) lines.push(`ACTOR OBSERVATION SHA256 ${row.actorObservationSha256}`);
+    const actorObservationSha256 = row.actorObservationSha256 ?? row.policyObservationSha256 ?? null;
+    if (actorObservationSha256) lines.push(`ACTOR OBSERVATION SHA256 ${actorObservationSha256}`);
     if (actorObservationBefore) lines.push(`ACTOR OBSERVATION BEFORE (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationBefore)}`);
     if (actorObservationAfter) lines.push(`ACTOR OBSERVATION AFTER (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationAfter)}`);
     if (row.promptResolverContext) lines.push(`PROMPT RESOLVER CONTEXT ${JSON.stringify(row.promptResolverContext)}`);
