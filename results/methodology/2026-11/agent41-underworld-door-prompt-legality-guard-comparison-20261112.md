@@ -63,3 +63,11 @@ This is the more complete legality guard. Its current native suite covers both p
 - Keep the candidate unqualified until both-seat positive/negative native Store tests, including the non-Psychic Energy negative, pass in CI.
 
 **Evidence class:** pinned Twinleaf source inspection, printed-card text, local rulebook categories, and hook source comparison. This report is not a full-game result or competitive-strength claim.
+
+## External rule references
+
+- [Pokémon TCG Advanced Players' Rulebook, Energy Cards](https://asia.pokemon-card.com/hk-en/wp-content/uploads/sites/6/2022/08/advanced-manual_EN.pdf) distinguishes Basic and Special Energy and describes their different rules.
+- [Bulbapedia: Special Energy](https://bulbapedia.bulbagarden.net/wiki/Special_Energy) summarizes that most Special Energy cards only provide their specified Energy types while attached, so effects referring to an Energy type in hand/deck/discard generally cannot use those attached-state types.
+- [Bulbapedia: Energy types](https://bulbapedia.bulbagarden.net/wiki/Energy_types_%28TCG%29) documents the same distinction and the narrow exceptions for Special Darkness/Metal Energy.
+
+These references support the paper-rules distinction; the pinned Twinleaf source independently confirms that this specific Underworld Door implementation requires Basic Psychic Energy in hand.
