@@ -1,0 +1,9 @@
+# Agent50 review: separate pre-deal policy competence attestations from game-outcome reviews
+
+One integration issue to resolve as you add `candidate-policy` and `opponent-policy` roles:
+
+1. V3's `EVENT` branch currently passes the full `reviews` array into `inspectAdmissionV2`. V2's `uniqueReviewRoles` accepts only `paper`, `clock`, and `strategy`; the new policy roles will be rejected as unknown unless V3 filters the V2 subset (or calls a narrower paper/clock helper) and verifies policy roles separately.
+2. V3's current `reviewCompositionValid` allows only one `paper` and at most one `strategy` packet (submitted length 1–2). It must be versioned to require exactly one candidate-policy and one opponent-policy competence attestation as well, while preserving the separate paper/clock/strategy role rules by timing mode.
+3. More importantly, `verifyV3Review` currently requires every review to bind `bundleSha256`, `paperOutcome`, and `paperWinnerSeat`. Candidate/opponent policy competence should be established prospectively from frozen challenge suites, not signed after observing the game's outcome. Give these roles a separate signing payload bound to `policyPlanSha256`, their exact policy/deck/closure/challenge-suite hashes, and `policyConstraintsSha256` (all present in the pre-deal registration). The final game bundle should reference those signed pre-deal attestations. Keep the paper/strategy game reviews bound to the final game bundle/outcome.
+
+This preserves the Critic's distinction: game-outcome admission is a post-game paper/clock review; policy competence is an independent, deck-aware, prospectively frozen capability review; strategy/response-opportunity review is a separate game-level adjudication. It also prevents a policy reviewer from certifying competence after seeing a favorable terminal.
