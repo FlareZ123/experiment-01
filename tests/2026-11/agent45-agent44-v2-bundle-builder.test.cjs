@@ -344,6 +344,8 @@ test('clockEvidence from another or unidentified trial is rejected',()=>{
     clockEvidenceRef:'review/clock.json'}),/clockEvidence.trialId/);
   assert.throws(()=>build(original,{clockEvidence:{trialId:TRIAL},
     clockEvidenceRef:null}),/clockEvidenceRef/);
+  assert.throws(()=>build(original,{clockEvidence:null,
+    clockEvidenceRef:'review/orphan-clock.json'}),/clockEvidenceRef/);
 });
 
 test('external Agent27 clock evidence maps exact fields without creating reviewer evidence',()=>{
