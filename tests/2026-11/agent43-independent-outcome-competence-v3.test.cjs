@@ -678,6 +678,13 @@ test('postgame strategy reviewer cannot also be a candidate or opponent policy p
   assert.ok(r.failures.includes('policy-producer-and-game-reviewers-not-independent'));
 });
 
+test('padded policy producer identities are not accepted as stable identifiers',()=>{
+  const {bundle}=makePolicyBundle({candidateProducerId:'candidate-policy-author '});
+  const r=inspectPolicyPanelConsistency(bundle);
+  assert.equal(r.valid,false);
+  assert.ok(r.failures.includes('policy-producer-identity-missing-or-not-independent-from-bundle-producer'));
+});
+
 test('missing candidate or authenticated-rank policy producer identity fails closed',()=>{
   const {bundle}=makePolicyBundle();
   delete bundle.policyPlanCore.candidate.policyProducerId;
@@ -742,6 +749,16 @@ test('event mode applies the same deck-aware policy gate without inheriting V2 s
   assert.equal(r.competitivePolicyCompetenceReady,true);
   assert.equal(r.acceptanceReady,true);
   assert.equal(r.competitiveAdmission,false);
+});
+
+test('event game reviewers with duplicate trusted-registry identities are rejected',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  const game=signReviews(bundle,{roles:['paper','clock','strategy'],strategyAudit:terminalAudit()});
+  const registry=combineRegistries(policyRegistry,game.registry);
+  registry.reviewers.push({...game.registry.reviewers.find(x=>x.reviewerId==='paper-reviewer')});
+  const r=inspectAdmissionV3(bundle,game.reviews,registry);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.failures.includes('game-reviewer-registry-identity-ambiguous'));
 });
 
 test('event outcome remains factual when a panel policy mapping drifts, but competence fails',()=>{
