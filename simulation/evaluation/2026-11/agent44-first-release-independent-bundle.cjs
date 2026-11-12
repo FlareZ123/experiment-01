@@ -12,7 +12,10 @@ const {rootDigest}=
 const INTAKE_SCHEMA='agent44-first-independent-original-source-case-intake-v2';
 const V2_SCHEMA='aichi-outcome-and-competitive-admission-v2';
 const RAW_SCHEMA='agent36-live-paper-root-receipts-v2-attached-energy-custody';
-const REFERENCE='agent44-first-independent-rank5-newmoon-live-paper-v2.json';
+const REFERENCE='agent44-first-independent-rank5-newmoon-case-v2.json';
+const REGISTRATION_REFERENCE='results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json';
+const EXPECTED_CASE='agent44-20261109-original-rank5-newmoon-fresh-4410B';
+const EXPECTED_TRIAL='5:4410:B:new-moon-lockbreaker-v1';
 const RELEASE_REFERENCE='agent44-first-release-nine-object-intake-v2.json';
 
 function rootReviewWorklist(raw,roots){
@@ -114,13 +117,22 @@ function build(original){
   assert.equal(original?.schema,INTAKE_SCHEMA,
     'Only the prospective Agent44 V2 intake is accepted');
   assert.equal(original?.intake?.schema,INTAKE_SCHEMA);
-  assert.equal(original.registration.schema,'agent44-first-independent-review-case-registration-v2');
+  // The intake is V2, but the immutable 4410 registration is intentionally V1.
+  // Do not silently substitute the later, held 4411 registration.
+  assert.equal(original.registration.schema,'agent44-first-independent-review-case-registration-v1');
   assert.equal(original.registration.preRegisteredTrials.length,1);
-  assert.equal(original.registration.caseId,original.intake.caseId);
-  assert.equal(original.intake.caseId,'agent44-20261112-original-rank5-newmoon-livepaper-v2-2163320309');
+  assert.equal(original.registration.caseId,EXPECTED_CASE);
+  assert.equal(original.intake.caseId,EXPECTED_CASE);
+  assert.equal(original.intake.registrationRef,REGISTRATION_REFERENCE);
   assert.equal(original.intake.releaseStatus.competitiveAdmission,false);
   const trialId=original.intake.trial.id;
+  assert.equal(trialId,EXPECTED_TRIAL);
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
+  assert.ok(original.intake.runtime?.researchRevisionSha,
+    'The exact checked-out research revision must be captured');
+  assert.equal(original.intake.runtime?.engineActualCommit,
+    original.registration.enginePinnedCommit,
+    'The actual checked-out Twinleaf commit must match the frozen registration');
   const src=original.nativeDevelopmentRow;
   const roots=Array.isArray(src?.rootActionLedger)?src.rootActionLedger:
     Array.isArray(src?.nativeAbortEvidence?.rootActionLedger)?
@@ -216,10 +228,37 @@ function build(original){
       extensionLedgerPacket:null
     },
     'policy-and-counterplay':{
+      ownerPolicyDecisions:recorded.ownerPolicyDecisions??null,
+      sourceReplyAndNextOriginalTurn:
+        recorded.sourceReplyAndNextOriginalTurn??null,
+      attackKnockoutAndPrizes:recorded.attackKnockoutAndPrizes??null,
       originalSourceResponseWindow:
         recorded.sourceReplyAndNextOriginalTurn?.replyWindow??[],
       nativeSourceAttackCount:native.sourceAttacks??0,
       nativeCandidateAttackCount:native.candidateAttacks??0,
+      nativeSourceFirstAttackOrdinal:native.sourceFirstAttackOrdinal??null,
+      nativeRemainingPrizes:native.physicalPrizesAfter??src.finalPrizes??null,
+      nativeRootActionLedgerSha256:rootSha,
+      policySha256BySeat:
+        original.intake.policySha256BySeat??src.policySha256BySeat??[null,null],
+      // Preserve the producer's complete source/attack/owner decision evidence
+      // as raw evidence. It is not an independent strategy or paper review.
+      nativeActionEvidence:{
+        nativePromptChoices:src.nativePromptChoices??null,
+        policyAudit:src.policyAudit??null,
+        sourceAudit:src.sourceAudit??null,
+        supporterModalEvidence:src.supporterModalEvidence??null,
+        ownerSupporterOpportunityAudit:src.ownerSupporterOpportunityAudit??null,
+        ownerCompressorOpportunityAudit:src.ownerCompressorOpportunityAudit??null,
+        candidateRepliesAfterSourceAttacks:src.candidateRepliesAfterSourceAttacks??null,
+        candidateAttackSettlement:src.candidateAttackSettlement??null,
+        sourceAttackSettlement:src.sourceAttackSettlement??null,
+        nativeAttackModalityLedger:src.nativeAttackModalityLedger??null,
+        nativeAttackPhysicalTape:src.nativeAttackPhysicalTape??null,
+        firstSettledPublicAttack:src.firstSettledPublicAttack??null,
+        finalBoard:src.finalBoard??null,
+        finalPrizes:src.finalPrizes??null
+      },
       responseOpportunityAudit:null,
       independentlyReviewed:false,
       policyChallengeEvidenceRef:null,
@@ -240,8 +279,7 @@ function build(original){
     trialId,
     trial:{
       trialId,
-      registrationRef:
-        'results/aichi-2026/registrations/agent44-rank5-newmoon-live-paper-v2-20261112.json',
+      registrationRef:REGISTRATION_REFERENCE,
       originalSourceSeat:original.intake.sourceSeat,
       candidateSeat:original.intake.candidateSeat,
       runtime:original.intake.runtime??original.runtime??null,
