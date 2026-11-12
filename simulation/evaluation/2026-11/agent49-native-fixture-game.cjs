@@ -299,20 +299,54 @@ function runNativeFixtureGame(input) {
     const seat=state.players.findIndex(player=>player.id===pending.playerId);
     return seat===-1?null:seat;
   };
+  const buildPromptResolverContext=(pending,fullStateBefore,actingSeat)=>{
+    if(!pending) return null;
+    const promptSnapshot=fullStateBefore?.prompts?.find(prompt=>
+      prompt.id===pending.id)??projectJsonSafe(pending);
+    const promptFields=promptSnapshot?.fields??promptSnapshot??{};
+    return {
+      promptId:pending.id??null,
+      promptType:pending.constructor?.name??'UnknownPrompt',
+      playerId:pending.playerId??null,
+      perspectivePlayerId:promptSnapshot?.perspectivePlayerId??
+        (pending instanceof ShuffleDeckPrompt?
+          (actingSeat===null?null:PLAYER_IDS[actingSeat]):pending.playerId??null),
+      actingSeat,
+      resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
+        'physical-randomization':'native-prompt-resolver',
+      message:promptFields.message??promptFields.text??null,
+      availableOptions:{
+        cards:promptFields.cards??null,
+        options:promptFields.options??null,
+        choices:promptFields.choices??null,
+        targets:promptFields.targets??null,
+        availableCards:promptFields.availableCards??null,
+        eligibleCards:promptFields.eligibleCards??null,
+        selectedCards:promptFields.selectedCards??null,
+        min:promptFields.min??null,
+        max:promptFields.max??null,
+        minCards:promptFields.minCards??null,
+        maxCards:promptFields.maxCards??null,
+        allowCancel:promptFields.allowCancel??null
+      },
+      promptSnapshot
+    };
+  };
   const buildPartial=(error,context)=>{
     const state=store?.state??null;
-    const last=decisionTrace[decisionTrace.length-1]??null;
+    const failedRecord=context?.record??null;
+    const cause=error?.cause??error;
     const finalPublicState=safePublicSnapshot(state);
-    let finalFullState=last?.fullStateAfter??null;
+    let finalFullState=null;
     let finalDiagnosticFailure=null;
-    if(!finalFullState&&state&&typeof input.diagnosticSnapshot==='function') {
+    if(state&&typeof input.diagnosticSnapshot==='function') {
       try {
         const pending=Array.isArray(state.prompts)?
           state.prompts.find(prompt=>prompt.result===undefined)??null:null;
         finalFullState=captureDiagnostic(state,{
           stage:'failure-final',
-          actionOrdinal:decisionTrace.length,
-          actingSeat:inferredPromptSeat(state,pending),
+          actionOrdinal:failedRecord?.actionOrdinal??decisionTrace.length,
+          actingSeat:failedRecord?.actingSeat??inferredPromptSeat(state,pending),
           turn:state.turn??null,
           phase:state.phase??null,
           pendingPromptType:pending?.constructor?.name??null,
@@ -323,8 +357,44 @@ function runNativeFixtureGame(input) {
         finalDiagnosticFailure=redactError(diagnosticError);
       }
     }
-    const failedRecord=context?.record??null;
-    const cause=error?.cause??error;
+
+    if(failedRecord) {
+      const failureSummary=redactError(cause);
+      if(!decisionTrace.includes(failedRecord)) {
+        failedRecord.dispatchStatus=failedRecord.dispatchStatus??'not-dispatched';
+        failedRecord.failure=failureSummary;
+        if(failedRecord.publicStateAfter===undefined)
+          failedRecord.publicStateAfter=finalPublicState;
+        if(failedRecord.fullStateAfter===undefined)
+          failedRecord.fullStateAfter=finalFullState;
+        failedRecord.failureSnapshotStage='failure-final';
+        decisionTrace.push(failedRecord);
+      } else if(failedRecord.dispatchStatus!=='succeeded'&&!failedRecord.failure) {
+        failedRecord.failure=failureSummary;
+      }
+
+      if(!rootActionLedger.some(row=>row.actionOrdinal===failedRecord.actionOrdinal)) {
+        rootActionLedger.push({
+          actionOrdinal:failedRecord.actionOrdinal,
+          turnBefore:failedRecord.turnBefore??null,
+          turnAfter:state?.turn??null,
+          playerSlot:failedRecord.actingSeat??null,
+          action:failedRecord.actionName??null,
+          actionPayloadSha256:failedRecord.actionPayloadSha256??null,
+          pendingPrompt:failedRecord.pendingPromptType??null,
+          isRootDecision:failedRecord.isRootDecision===true,
+          promptResolution:failedRecord.promptResolution??null,
+          selectedCardIdentity:failedRecord.selectedCardIdentity??null,
+          targetProjection:failedRecord.targetProjection??null,
+          policyInputKind:failedRecord.policyInputKind??null,
+          actorObservationSha256:failedRecord.actorObservationSha256??null,
+          promptResolverContext:failedRecord.promptResolverContext??null,
+          dispatchStatus:failedRecord.dispatchStatus??'not-dispatched',
+          failure:failedRecord.failure??failureSummary
+        });
+      }
+    }
+
     const failure={
       stage:context?.stage??'game-loop',
       actionOrdinal:failedRecord?.actionOrdinal??actions,
@@ -422,18 +492,34 @@ function runNativeFixtureGame(input) {
       const phaseBefore=state.phase;
       const turnBefore=state.turn;
       const activePlayerBefore=state.activePlayer??null;
-      failureContext={
-        stage:'pre-action-snapshot',
-        record:{
-          actionOrdinal,actingSeat:null,actingPlayerId:null,
-          phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-          actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
-        }
-      };
       const diagnosticSeat=inferredPromptSeat(state,pending);
-      failureContext.record.actingSeat=diagnosticSeat;
-      failureContext.record.actingPlayerId=diagnosticSeat===null?null:
-        PLAYER_IDS[diagnosticSeat];
+      const attemptRecord={
+        actionOrdinal,
+        actingSeat:diagnosticSeat,
+        actingPlayerId:diagnosticSeat===null?null:PLAYER_IDS[diagnosticSeat],
+        phaseBefore,
+        turnBefore,
+        activePlayerBefore,
+        pendingPromptType,
+        pendingPromptId,
+        promptResolution:null,
+        isRootDecision:false,
+        policyInputKind:pending?'native-prompt':'actor-observation',
+        actorObservationBefore:null,
+        actorObservationSha256:null,
+        promptResolverContext:null,
+        actionName:null,
+        actionType:null,
+        actionPayload:null,
+        actionPayloadSha256:null,
+        selectedCardIdentity:null,
+        targetProjection:null,
+        publicStateBefore:null,
+        fullStateBefore:null,
+        dispatchStatus:'not-dispatched',
+        failure:null
+      };
+      failureContext={stage:'pre-action-snapshot',record:attemptRecord};
       if(!pending && state.phase===GamePhase.PLAYER_TURN &&
           actualFirstPlayerSeat===null) {
         assert.ok(state.activePlayer===0||state.activePlayer===1,
@@ -441,6 +527,7 @@ function runNativeFixtureGame(input) {
         actualFirstPlayerSeat=state.activePlayer;
       }
       const publicBefore=publicStateSnapshot(state);
+      attemptRecord.publicStateBefore=publicBefore;
       const fullStateBefore=captureDiagnostic(state,{
         stage:'before',
         actionOrdinal,
@@ -451,31 +538,27 @@ function runNativeFixtureGame(input) {
         pendingPromptId,
         actualFirstPlayerSeat
       });
+      attemptRecord.fullStateBefore=fullStateBefore;
 
       let action;
-      let actingSeat=null;
+      let actingSeat=diagnosticSeat;
       let isRootDecision=false;
       let promptResolution=null;
       let actorObservationBefore=null;
       let promptResolverContext=null;
       let policyInputKind='native-prompt';
       if(pending instanceof ShuffleDeckPrompt) {
-        failureContext={
-          stage:'physical-prompt-resolution',
-          record:{
-            actionOrdinal,actingSeat:inferredPromptSeat(state,pending),
-            actingPlayerId:inferredPromptSeat(state,pending)===null?null:
-              PLAYER_IDS[inferredPromptSeat(state,pending)],
-            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
-          }
-        };
+        failureContext.stage='physical-prompt-resolution';
         const ownerId=pending.getPerspectivePlayerId();
         const owner=state.players.find(player=>player.id===ownerId);
         if(!owner) throw new Error('Twinleaf shuffle prompt has no deck owner');
         actingSeat=state.players.indexOf(owner);
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Twinleaf shuffle prompt owner is outside the two seats');
+        attemptRecord.actingSeat=actingSeat;
+        attemptRecord.actingPlayerId=PLAYER_IDS[actingSeat];
+        promptResolverContext=buildPromptResolverContext(pending,fullStateBefore,actingSeat);
+        attemptRecord.promptResolverContext=promptResolverContext;
         const permutation=deckPermutation(owner.deck.cards.length,physicalRandom);
         action=new ResolvePromptAction(pending.id,permutation);
         promptResolution={
@@ -484,20 +567,15 @@ function runNativeFixtureGame(input) {
         };
         policyInputKind='physical-randomization-prompt';
       } else if(pending instanceof CoinFlipPrompt) {
-        failureContext={
-          stage:'physical-prompt-resolution',
-          record:{
-            actionOrdinal,actingSeat:inferredPromptSeat(state,pending),
-            actingPlayerId:inferredPromptSeat(state,pending)===null?null:
-              PLAYER_IDS[inferredPromptSeat(state,pending)],
-            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
-          }
-        };
+        failureContext.stage='physical-prompt-resolution';
         if(pending.playerId!==undefined) {
           const seat=state.players.findIndex(player=>player.id===pending.playerId);
           actingSeat=seat===-1?null:seat;
         }
+        attemptRecord.actingSeat=actingSeat;
+        attemptRecord.actingPlayerId=actingSeat===null?null:PLAYER_IDS[actingSeat];
+        promptResolverContext=buildPromptResolverContext(pending,fullStateBefore,actingSeat);
+        attemptRecord.promptResolverContext=promptResolverContext;
         const result=physicalRandom()<0.5;
         action=new ResolvePromptAction(pending.id,result);
         promptResolution={kind:'coin-flip',result};
@@ -506,14 +584,11 @@ function runNativeFixtureGame(input) {
         actingSeat=state.players.findIndex(player=>player.id===pending.playerId);
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Unknown Twinleaf prompt player: '+pending.playerId);
-        failureContext={
-          stage:'prompt-resolver-decode',
-          record:{
-            actionOrdinal,actingSeat,actingPlayerId:PLAYER_IDS[actingSeat],
-            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
-          }
-        };
+        attemptRecord.actingSeat=actingSeat;
+        attemptRecord.actingPlayerId=PLAYER_IDS[actingSeat];
+        promptResolverContext=buildPromptResolverContext(pending,fullStateBefore,actingSeat);
+        attemptRecord.promptResolverContext=promptResolverContext;
+        failureContext.stage='prompt-resolver-decode';
         policyInputKind='native-owner-prompt';
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
       } else {
@@ -523,104 +598,44 @@ function runNativeFixtureGame(input) {
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Twinleaf activePlayer is outside the two seats');
         isRootDecision=true;
-        failureContext={
-          stage:'actor-observation',
-          record:{
-            actionOrdinal,actingSeat,actingPlayerId:PLAYER_IDS[actingSeat],
-            phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-            actionName:null,actionPayloadSha256:null,dispatchStatus:'not-dispatched'
-          }
-        };
+        attemptRecord.actingSeat=actingSeat;
+        attemptRecord.actingPlayerId=PLAYER_IDS[actingSeat];
+        attemptRecord.isRootDecision=true;
+        failureContext.stage='actor-observation';
         if(typeof native.observe==='function')
           actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        attemptRecord.actorObservationBefore=actorObservationBefore;
+        attemptRecord.actorObservationSha256=actorObservationBefore===null?
+          null:sha256Json(actorObservationBefore);
         failureContext.stage='policy-decode';
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
         policyInputKind='actor-observation';
       }
-
       if(!action)
         throw new Error('Native fixture policy failed to produce an action');
-      failureContext={
-        stage:'trace-prepare',
-        record:{
-          actionOrdinal,actingSeat,
-          actingPlayerId:actingSeat===null?null:PLAYER_IDS[actingSeat],
-          phaseBefore,turnBefore,pendingPromptType,pendingPromptId,
-          actionName:actionName(action),actionPayloadSha256:null,
-          dispatchStatus:'not-dispatched'
-        }
-      };
+      failureContext.stage='trace-prepare';
       const actionPayload=projectActionPayload(action);
       const actionPayloadSha256=sha256Json(actionPayload);
-      failureContext.record.actionPayload=actionPayload;
-      failureContext.record.actionPayloadSha256=actionPayloadSha256;
+      attemptRecord.actionName=actionName(action);
+      attemptRecord.actionType=action.type??null;
+      attemptRecord.actionPayload=actionPayload;
+      attemptRecord.actionPayloadSha256=actionPayloadSha256;
       const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const targetProjection=action instanceof native.cardActions.PlayCardAction?
         projectJsonSafe(action.target??null):null;
-      failureContext.record.selectedCardIdentity=selectedIdentity;
-      failureContext.record.targetProjection=targetProjection;
-      if(pending) {
-        const promptSnapshot=fullStateBefore?.prompts?.find(prompt=>
-          prompt.id===pendingPromptId)??projectJsonSafe(pending);
-        const promptFields=promptSnapshot?.fields??promptSnapshot??{};
-        promptResolverContext={
-          promptId:pendingPromptId,
-          promptType:pendingPromptType,
-          playerId:pending.playerId??null,
-          perspectivePlayerId:promptSnapshot?.perspectivePlayerId??
-            (pending instanceof ShuffleDeckPrompt?
-              (actingSeat===null?null:PLAYER_IDS[actingSeat]):pending.playerId??null),
-          actingSeat,
-          resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
-            'physical-randomization':'native-prompt-resolver',
-          message:promptFields.message??promptFields.text??null,
-          availableOptions:{
-            cards:promptFields.cards??null,
-            options:promptFields.options??null,
-            choices:promptFields.choices??null,
-            targets:promptFields.targets??null,
-            availableCards:promptFields.availableCards??null,
-            eligibleCards:promptFields.eligibleCards??null,
-            selectedCards:promptFields.selectedCards??null,
-            min:promptFields.min??null,
-            max:promptFields.max??null,
-            minCards:promptFields.minCards??null,
-            maxCards:promptFields.maxCards??null,
-            allowCancel:promptFields.allowCancel??null
-          },
-          promptSnapshot
-        };
-      }
-      const actorObservationSha256=actorObservationBefore===null?
+      attemptRecord.selectedCardIdentity=selectedIdentity;
+      attemptRecord.targetProjection=targetProjection;
+      attemptRecord.actingSeat=actingSeat;
+      attemptRecord.actingPlayerId=actingSeat===null?null:PLAYER_IDS[actingSeat];
+      attemptRecord.promptResolution=promptResolution;
+      attemptRecord.isRootDecision=isRootDecision;
+      attemptRecord.policyInputKind=policyInputKind;
+      attemptRecord.actorObservationBefore=actorObservationBefore;
+      attemptRecord.actorObservationSha256=actorObservationBefore===null?
         null:sha256Json(actorObservationBefore);
-      failureContext.record.promptResolverContext=promptResolverContext;
-      failureContext.record.actorObservationBefore=actorObservationBefore;
-      failureContext.record.actorObservationSha256=actorObservationSha256;
-      const record={
-        actionOrdinal,
-        actingSeat,
-        actingPlayerId:actingSeat===null?null:PLAYER_IDS[actingSeat],
-        phaseBefore,
-        turnBefore,
-        activePlayerBefore,
-        pendingPromptType,
-        pendingPromptId,
-        promptResolution,
-        isRootDecision,
-        policyInputKind,
-        actorObservationBefore,
-        actorObservationSha256,
-        promptResolverContext,
-        actionName:actionName(action),
-        actionType:action.type??null,
-        actionPayload,
-        actionPayloadSha256,
-        selectedCardIdentity:selectedIdentity,
-        targetProjection,
-        publicStateBefore:publicBefore,
-        fullStateBefore,
-        dispatchStatus:'pending'
-      };
+      attemptRecord.promptResolverContext=promptResolverContext;
+      attemptRecord.dispatchStatus='pending';
+      const record=attemptRecord;
       decisionTrace.push(record);
       const ledgerRecord={
         actionOrdinal:record.actionOrdinal,
