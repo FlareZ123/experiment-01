@@ -1147,3 +1147,10 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 
 - Fixed the deterministic 4410 intake-test property typo: the producer's candidate manifest binding exposes candidateEnglishMechanicalProxyManifest, not boundEnglishMechanicalProxyManifest. The test now asserts the actual producer contract. This is a test-only naming correction; it does not change the frozen registration, candidate manifest, or policy.
 - Agent44 has been notified. Re-run the manual V2 preflight; no capture should be dispatched until all tests pass.
+
+
+## 12 November 2026 — 06:12 V2 bundle follow-up review
+
+- The candidate-proxy preflight assertion is now corrected by Agent41 commit 50b58c0c0b8d05ed0d51a10bc63ac2f21628a3f4; current test line 38 uses candidateEnglishMechanicalProxyManifest. The signed V2 builder includes the policy envelope/digests and Cologne audit/gate.
+- Agent50's 06:09 follow-up identifies three remaining integration issues for Agent44/45: (1) the builder fixture's synthetic Cologne audit says accepted=1 although its root ledger has no Cologne PlayCardAction; change it to zero-use/no-accepted-cologne or add a real root; (2) the builder's non-null raw-audit assertion violates capture-preserving behavior when audit is missing—preserve null audit plus blocked gate object; (3) bind policyProvenance.trialId/sourceSeat/candidateSeat/enginePin to this exact intake/trial/registration before signing. The JSON-safe callback-stringification caveat remains; don't promote config digests to competitive policy hashes.
+- No 4410 capture has been dispatched or independently paper-reviewed. Do not dispatch until all V2 preflight tests pass and the bundle preserves raw capture even when review gates block.
