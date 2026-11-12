@@ -111,11 +111,11 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     trialId,trial,evidenceManifest};
 }
 
-function signReviews(bundle,{roles=['paper'],strategyAudit=null}={}){
+function signReviews(bundle,{roles=['paper'],strategyAudit=null,reviewerIdOverrides={}}={}){
   const registry={schema:'aichi-trusted-reviewers-v1',reviewers:[]};
   const reviews=[];
   for(const role of roles){
-    const reviewerId='test-reviewer-'+role;
+    const reviewerId=reviewerIdOverrides[role]??'test-reviewer-'+role;
     const {privateKey,publicKey}=generateKeyPairSync('ed25519');
     registry.reviewers.push({reviewerId,roles:[role],
       publicKeyPem:publicKey.export({type:'spki',format:'pem'})});
@@ -350,8 +350,8 @@ function combineRegistries(...registries) {
     reviewers:registries.flatMap(x=>x?.reviewers??[])};
 }
 
-function signedV3Result(bundle,policyRegistry,{roles=['paper','strategy'],audit=terminalAudit()}={}) {
-  const game = signReviews(bundle,{roles,strategyAudit:audit});
+function signedV3Result(bundle,policyRegistry,{roles=['paper','strategy'],audit=terminalAudit(),reviewerIdOverrides={}}={}) {
+  const game = signReviews(bundle,{roles,strategyAudit:audit,reviewerIdOverrides});
   return inspectAdmissionV3(bundle,game.reviews,
     combineRegistries(policyRegistry,game.registry));
 }
@@ -664,6 +664,18 @@ test('candidate and opponent policy reviewers must be separately authorized',()=
   assert.equal(b.gameOutcomeAdmissionReady,true);
   assert.equal(b.competitivePolicyCompetenceReady,false);
   assert.equal(b.policyCompetence.opponentPolicyAttestationValid,false);
+});
+
+test('postgame strategy reviewer cannot also be a candidate or opponent policy producer',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const game=signReviews(bundle,{
+    roles:['paper','strategy'],strategyAudit:terminalAudit(),
+    reviewerIdOverrides:{strategy:'candidate-policy-author'}
+  });
+  const r=inspectAdmissionV3(bundle,game.reviews,combineRegistries(policyRegistry,game.registry));
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.ok(r.failures.includes('policy-producer-and-game-reviewers-not-independent'));
 });
 
 test('missing candidate or authenticated-rank policy producer identity fails closed',()=>{
