@@ -680,6 +680,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     const strategyReviewValid = (event.signedReviewRoles ?? [])
       .some(x => x?.role === 'strategy' && x?.valid === true);
     const policyRolesValid = policyAttestations.valid &&
+      gameReviewerIdentityValid && gameReviewerRegistryUnique &&
       !reviewerOverlap && !misplacedPolicyReviews;
     const competitivePolicyCompetenceReady = event.gameOutcomeAdmissionReady &&
       policyRolesValid && strategyReviewValid &&
