@@ -162,10 +162,15 @@ function environmentManifest(keys,allowlist,env) {
  * boundaries; neither is a general JavaScript sandbox.
  */
 function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindings,
-  orderedPromptChain,sharedEnginePatches=[],dataAssetPaths=[],environmentAllowlist=[],
-  environment={},enginePin,runnerRevision,nodeVersion=process.version}) {
+  orderedPromptChain,sharedEnginePatches=[],dataAssetPaths=[],dependencyLockPaths=[],
+  environmentAllowlist=[],enginePin,runnerRevision}) {
   const root=fs.realpathSync(repositoryRoot);
   const entry=canonicalPath(entrypoint,'entrypoint');
+  assert.ok(!entry.startsWith(VENDOR_PREFIX),'role policy entrypoint must be research-owned');
+  const runtimeEnvironment=Object.getOwnPropertyDescriptor(process,'env')?.value;
+  assert.ok(runtimeEnvironment&&typeof runtimeEnvironment==='object',
+    'actual Node process environment snapshot is unavailable');
+  const nodeVersion=process.version,nodePlatform=process.platform,nodeArch=process.arch;
   assert.ok(Array.isArray(commonRuntimeBindings),'commonRuntimeBindings must be an array');
   const names=new Set();
   const bindings=commonRuntimeBindings.map(binding=>{
@@ -174,39 +179,57 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
     const name=stableId(binding.name,'common runtime binding name');
     assert.ok(!names.has(name),'duplicate common runtime binding: '+name);
     names.add(name);
-    return {name,path:canonicalPath(binding.path,'common runtime binding path')};
+    const bindingPath=canonicalPath(binding.path,'common runtime binding path');
+    assert.ok(!bindingPath.startsWith('vendor/')||bindingPath.startsWith(VENDOR_PREFIX),
+      'only the pinned Twinleaf vendor subtree is accepted');
+    const exportName=binding.exportName===undefined?null:stableId(binding.exportName,'common runtime export name');
+    return {name,path:bindingPath,exportName};
   }).sort((a,b)=>a.name.localeCompare(b.name));
-  for(const name of REQUIRED_COMMON_BINDINGS)
-    assert.ok(names.has(name),'common runtime manifest must pin '+name);
+  for(const [name,exportName] of Object.entries(REQUIRED_COMMON_BINDING_EXPORTS)){
+    const binding=bindings.find(item=>item.name===name);
+    assert.ok(binding,'common runtime manifest must pin '+name);
+    assert.equal(binding.exportName,exportName,
+      'common runtime binding '+name+' must identify exact export '+exportName);
+  }
 
   assert.ok(Array.isArray(orderedPromptChain)&&orderedPromptChain.length>0,
     'orderedPromptChain must preserve at least one prompt module in execution order');
   const promptChain=orderedPromptChain.map((item,index)=>{
-    if(typeof item==='string')return {name:'prompt-'+index,path:canonicalPath(item,'prompt-chain path')};
-    assert.ok(item&&typeof item==='object'&&!Array.isArray(item),
-      'prompt-chain entry must be a path or named path');
-    return {name:stableId(item.name,'prompt-chain name'),path:canonicalPath(item.path,'prompt-chain path')};
+    const result=typeof item==='string'?
+      {name:'prompt-'+index,path:canonicalPath(item,'prompt-chain path')}:
+      (assert.ok(item&&typeof item==='object'&&!Array.isArray(item),
+        'prompt-chain entry must be a path or named path'),
+       {name:stableId(item.name,'prompt-chain name'),path:canonicalPath(item.path,'prompt-chain path')});
+    assert.ok(!result.path.startsWith('vendor/')||result.path.startsWith(VENDOR_PREFIX),
+      'only the pinned Twinleaf vendor subtree is accepted');
+    return result;
   });
   assert.equal(new Set(promptChain.map(x=>x.name)).size,promptChain.length,
     'prompt-chain names must be unique');
 
   assert.ok(Array.isArray(sharedEnginePatches),'sharedEnginePatches must be an array');
   const patches=sharedEnginePatches.map((item,index)=>{
-    if(typeof item==='string')return {name:'patch-'+index,path:canonicalPath(item,'engine patch path')};
-    assert.ok(item&&typeof item==='object'&&!Array.isArray(item),
-      'engine patch entry must be a path or named path');
-    return {name:stableId(item.name,'engine patch name'),path:canonicalPath(item.path,'engine patch path')};
+    const result=typeof item==='string'?
+      {name:'patch-'+index,path:canonicalPath(item,'engine patch path')}:
+      (assert.ok(item&&typeof item==='object'&&!Array.isArray(item),
+        'engine patch entry must be a path or named path'),
+       {name:stableId(item.name,'engine patch name'),path:canonicalPath(item.path,'engine patch path')});
+    assert.ok(!result.path.startsWith('vendor/')||result.path.startsWith(VENDOR_PREFIX),
+      'only the pinned Twinleaf vendor subtree is accepted');
+    return result;
   });
   assert.equal(new Set(patches.map(x=>x.name)).size,patches.length,
     'shared engine patch names must be unique');
 
   assert.match(enginePin??'',GIT_SHA,'enginePin must be a pinned Git commit');
   assert.match(runnerRevision??'',GIT_SHA,'runnerRevision must be a Git commit');
-  assert.match(nodeVersion??'',NODE_VERSION,'nodeVersion must be explicit and pinned');
+  assert.match(nodeVersion,NODE_VERSION,'runtime Node version is invalid');
 
-  const entries=[entry,...bindings.map(x=>x.path),...promptChain.map(x=>x.path),
+  const allEntries=[entry,...bindings.map(x=>x.path),...promptChain.map(x=>x.path),
     ...patches.map(x=>x.path)];
-  const closure=auditSourceClosure(root,entries);
+  const researchEntries=allEntries.filter(file=>!file.startsWith(VENDOR_PREFIX));
+  const directVendorPaths=allEntries.filter(file=>file.startsWith(VENDOR_PREFIX));
+  const closure=auditSourceClosure(root,researchEntries,{vendorPrefixes:[VENDOR_PREFIX]});
   const limits=closure.limitations??{};
   const nonBuiltinExternal=(limits.externalRequires??[]).filter(item=>
     !BUILTINS.has(item.request)||FORBIDDEN_EXTERNAL_BUILTINS.has(item.request));
@@ -220,7 +243,7 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
   for(const [kind,rows] of Object.entries(unresolved))
     assert.deepEqual(rows,[],'Unresolved role policy closure: '+kind);
   assert.ok(Array.isArray(closure.files)&&closure.files.length>0,
-    'role policy closure must contain source files');
+    'role policy closure must contain research-owned source files');
   assertNoUnsupportedRuntimeLoading(root,closure.files);
 
   const verifiedFiles=closure.files.map(file=>{
@@ -232,37 +255,87 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
   const closureSha256=hashBytes(Buffer.from(JSON.stringify(
     verifiedFiles.map(file=>[file.path,file.sha256])),'utf8'));
   assert.equal(closureSha256,closure.digest,
-    'source closure digest does not match the verified file list');
+    'research source closure digest does not match the verified file list');
   const fileByPath=new Map(verifiedFiles.map(file=>[file.path,file.sha256]));
-  const verifiedBindings=bindings.map(binding=>({...binding,sha256:fileByPath.get(binding.path)}));
+
+  const vendorMap=new Map();
+  function addVendorDependency(vendorPath,detail={}) {
+    assert.ok(vendorPath.startsWith(VENDOR_PREFIX),
+      'vendor dependency is outside the pinned Twinleaf subtree: '+vendorPath);
+    const filename=assertInsideRoot(root,vendorPath,'vendor dependency');
+    const actual=hashBytes(fs.readFileSync(filename));
+    if(detail.sha256)assert.equal(actual,detail.sha256,
+      'vendor dependency changed during source audit: '+vendorPath);
+    let item=vendorMap.get(vendorPath);
+    if(!item)item={path:vendorPath,sha256:actual,imports:[],bindings:[],promptChainNames:[],patchNames:[]};
+    assert.equal(item.sha256,actual,'vendor dependency hash disagreement: '+vendorPath);
+    if(detail.importer)item.imports.push({importer:detail.importer,request:detail.request});
+    if(detail.binding)item.bindings.push(detail.binding);
+    if(detail.promptChainName)item.promptChainNames.push(detail.promptChainName);
+    if(detail.patchName)item.patchNames.push(detail.patchName);
+    vendorMap.set(vendorPath,item);
+  }
+  for(const edge of closure.vendorImports??[])
+    addVendorDependency(edge.path,{sha256:edge.sha256,importer:edge.importer,request:edge.request});
+  for(const binding of bindings)if(binding.path.startsWith(VENDOR_PREFIX))
+    addVendorDependency(binding.path,{binding:{name:binding.name,exportName:binding.exportName}});
+  for(const item of promptChain)if(item.path.startsWith(VENDOR_PREFIX))
+    addVendorDependency(item.path,{promptChainName:item.name});
+  for(const item of patches)if(item.path.startsWith(VENDOR_PREFIX))
+    addVendorDependency(item.path,{patchName:item.name});
+  for(const vendorPath of directVendorPaths)assert.ok(vendorMap.has(vendorPath),
+    'direct vendor binding was not included in the vendor dependency manifest: '+vendorPath);
+  const vendorDependencies=[...vendorMap.values()].sort((a,b)=>a.path.localeCompare(b.path));
+  for(const item of vendorDependencies){
+    item.imports.sort((a,b)=>(a.importer+'\0'+a.request).localeCompare(b.importer+'\0'+b.request));
+    item.bindings.sort((a,b)=>a.name.localeCompare(b.name));
+    item.promptChainNames.sort();item.patchNames.sort();
+  }
+  const vendorByPath=new Map(vendorDependencies.map(item=>[item.path,item]));
+  const shaForPath=sourcePath=>{
+    const sha=fileByPath.get(sourcePath)??vendorByPath.get(sourcePath)?.sha256;
+    assert.match(sha??'',SHA256,'manifest path is absent from research/vendor closure: '+sourcePath);
+    return sha;
+  };
+  const verifiedBindings=bindings.map(binding=>({...binding,sha256:shaForPath(binding.path),
+    vendor:binding.path.startsWith(VENDOR_PREFIX)}));
   const observe=verifiedBindings.find(binding=>binding.name==='observe');
-  const verifiedPromptChain=promptChain.map(item=>({...item,sha256:fileByPath.get(item.path)}));
-  const verifiedPatches=patches.map(item=>({...item,sha256:fileByPath.get(item.path)}));
+  assert.ok(observe&&!observe.vendor,'observation contract must be research-owned');
+  const verifiedPromptChain=promptChain.map(item=>({...item,sha256:shaForPath(item.path),
+    vendor:item.path.startsWith(VENDOR_PREFIX)}));
+  const verifiedPatches=patches.map(item=>({...item,sha256:shaForPath(item.path),
+    vendor:item.path.startsWith(VENDOR_PREFIX)}));
   const assets=[...new Set(dataAssetPaths.map(p=>canonicalPath(p,'data asset path')))]
     .sort().map(assetPath=>({path:assetPath,
       sha256:hashBytes(fs.readFileSync(assertInsideRoot(root,assetPath,'data asset')))}));
-  const env=environmentManifest(closure.keys??[],environmentAllowlist,environment);
+  const dependencyLocks=[...new Set(dependencyLockPaths.map(p=>canonicalPath(p,'dependency lock path')))]
+    .sort().map(lockPath=>({path:lockPath,
+      sha256:hashBytes(fs.readFileSync(assertInsideRoot(root,lockPath,'dependency lockfile')))}));
+  const env=environmentManifest(closure.keys??[],environmentAllowlist,runtimeEnvironment);
   const allowedBuiltinRequires=(limits.externalRequires??[]).filter(item=>
     BUILTINS.has(item.request)&&!FORBIDDEN_EXTERNAL_BUILTINS.has(item.request))
     .sort((a,b)=>(a.file+'\0'+a.request).localeCompare(b.file+'\0'+b.request));
+  const vendorDependenciesSha256=evidenceBundleSha256(vendorDependencies);
   const manifest={
-    schema:ENTRY_MANIFEST_SCHEMA,complete:true,
-    entrypoint:entry,
-    sourceAuditVersion:closure.version,
-    sourceAuditLimitations:unresolved,
+    schema:ENTRY_MANIFEST_SCHEMA,complete:true,entrypoint:entry,
+    sourceAuditVersion:closure.version,sourceAuditLimitations:unresolved,
     allowedBuiltinRequires,
-    closureMethod:'static-literal-commonjs-require-closure; exact runtime load pin required',
+    closureMethod:'research-only literal CommonJS closure; vendor imports separately hashed and bound to enginePin',
     closureSha256,files:verifiedFiles,
     commonRuntimeBindings:verifiedBindings,
-    observationContractSha256:evidenceBundleSha256({name:observe.name,path:observe.path,sha256:observe.sha256}),
+    observationContractSha256:evidenceBundleSha256({name:observe.name,path:observe.path,
+      exportName:observe.exportName,sha256:observe.sha256}),
     orderedPromptChain:verifiedPromptChain,
     promptChainSha256:evidenceBundleSha256(verifiedPromptChain),
     sharedEnginePatches:verifiedPatches,
     sharedEnginePatchSha256:evidenceBundleSha256(verifiedPatches),
     dataAssets:assets,
+    dependencyState:{schema:'aichi-policy-dependency-state-v1',mode:'node-builtins-only',
+      lockfiles:dependencyLocks},
+    vendorPrefix:VENDOR_PREFIX,vendorDependencies,vendorDependenciesSha256,
     environment:env,
     runtimeGuard:{schema:'agent36-pre-execution-commonjs-module-pin-v1',required:true},
-    nodeVersion,enginePin,runnerRevision
+    nodeVersion,nodePlatform,nodeArch,enginePin,runnerRevision
   };
   const expectedByPath=Object.fromEntries(verifiedFiles.map(file=>[file.path,file.sha256]));
   return {manifest,entryManifestSha256:evidenceBundleSha256(manifest),
