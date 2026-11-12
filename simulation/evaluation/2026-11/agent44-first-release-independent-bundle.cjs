@@ -66,7 +66,7 @@ function rootReviewWorklist(raw,roots){
       }
     };
   });
-  const matched=new Set(rows.filter(x=>x.rawReceiptPresent)
+  const matched=new Set(rows.filter(x=>x.rawReceiptAligned)
     .map(x=>x.rawReceiptRef));
   const unmatchedRawReceipts=receipts.flatMap((receipt,index)=>{
     const ref=REFERENCE+'#/rawNativePhysicalReceipts/receipts/'+index;
@@ -80,11 +80,14 @@ function rootReviewWorklist(raw,roots){
   });
   const uniqueOrdinals=raw.rootOrdinalsUnique===true&&
     new Set(receipts.map(x=>x?.actionOrdinal)).size===receipts.length;
-  const complete=roots.length===receipts.length&&uniqueOrdinals&&
-    rows.every(x=>x.rawReceiptAligned)&&unmatchedRawReceipts.length===0;
+  const acceptedStoreRootCountMatches=raw.acceptedStoreRootCount===receipts.length;
+  const complete=roots.length===receipts.length&&acceptedStoreRootCountMatches&&
+    uniqueOrdinals&&rows.every(x=>x.rawReceiptAligned)&&
+    unmatchedRawReceipts.length===0;
   return {rows,unmatchedRawReceipts,alignment:{
     nativeRootCount:roots.length,rawReceiptCount:receipts.length,
-    uniqueRawOrdinals:uniqueOrdinals,alignedRootCount:
+    acceptedStoreRootCount:raw.acceptedStoreRootCount??null,
+    acceptedStoreRootCountMatches,uniqueRawOrdinals:uniqueOrdinals,alignedRootCount:
       rows.filter(x=>x.rawReceiptAligned).length,
     complete
   }};
