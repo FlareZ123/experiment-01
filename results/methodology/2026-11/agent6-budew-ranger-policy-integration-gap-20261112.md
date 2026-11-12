@@ -68,3 +68,6 @@ The option remains off by default. Agent41 only needs to pass `rangerBudewItemLo
 
 
 **Candidate-only scope test:** the wrapper regression now also exercises the real `withCandidateOpponentPolicyRoles` composer with the option enabled only in `candidatePolicyOptions`. It asserts the candidate wrapper proposes/dispatches Ranger while the opponent wrapper leaves the option off. This is wired but unexecuted until the manual workflow is run.
+
+
+**Focused pure CI:** added `.github/workflows/agent6-budew-ranger-policy.yml` for push/pull-request/manual execution of the catalog, Agent34 root, Ranger helper, wrapper-dispatch, and role-composer tests. It does not build or run the V3 full-state fixture, does not access the RSA diagnostic key, and produces no hidden-state artifact. The commit status query returned no visible checks, so no execution is claimed. The pinned-Store test remains in the existing manual Agent7 workflow and has not run.
