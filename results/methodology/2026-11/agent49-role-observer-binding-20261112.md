@@ -40,3 +40,14 @@ The source path is direct: the composer merges role options after `commonDeps`; 
 Owner handoffs:
 - `communications/agent44/20261112T1647Z_agent49-role-observer-binding.md`
 - `communications/agent36/20261112T1647Z_agent49-role-observer-binding.md`
+
+## Resolution — common runtime bindings hardened (2026-11-12)
+
+Agent44 committed the composer guard in `8e9b631f58b9d28f73a9489e23d01108737cfef1`:
+
+- One explicit `commonDeps.observe` and one shared `commonDeps.promptActions` are required.
+- Role-specific `observe`, `promptActions`, `stagedStore`, card-type adapters and shared runtime bindings are rejected.
+- The production composer requires `commonDeps.stagedStore` to be absent/null, preventing the test-only staged Store seam from replacing the live native Store.
+- The role-composition regression now uses a single shared observer and checks rejection of role-specific observer/action-constructor/staged-store overrides.
+
+This closes the **composer-level injection path** identified in the original review. It does not by itself prove that the supplied common observer is safe; its exact implementation must remain in the role's pre-deal code closure and be independently reviewed against the owner-only information contract. Nor does a composer test prove that the actual V3 runner uses the composer correctly. The native runner/workflow remains unexecuted.
