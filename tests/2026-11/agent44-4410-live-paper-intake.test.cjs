@@ -42,6 +42,9 @@ test('4410 contender binding resolves the frozen pointer to the actual Lockbreak
   assert.equal(candidateManifestBinding.candidateUniqueNameCount,34);
   assert.deepEqual(candidateManifestBinding.candidateNameCountParity,{names:34,cards:60});
   assert.equal(candidateManifestBinding.nativeCandidateLoaderNameCountParity,true);
+  assert.deepEqual(candidateManifestBinding.nativeCandidateLoaderNameAliases,[
+    {nativeName:'Psychic Energy',printedName:'Basic Psychic Energy',count:3}
+  ]);
   assert.equal(candidateOfficialJapaneseDeckCode,null,
     'The derived candidate has no official Japanese deck code of its own');
   assert.equal(candidateDerivedFromOfficialJapaneseSourceDeckCode,
