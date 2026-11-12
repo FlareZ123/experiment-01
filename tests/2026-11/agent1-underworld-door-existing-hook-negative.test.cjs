@@ -3,8 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
+const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {installUnderworldDoorPsychicRecipientHook}=require(
   '../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
 const native=name=>require(path.resolve(__dirname,
