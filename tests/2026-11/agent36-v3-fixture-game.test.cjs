@@ -187,4 +187,11 @@ test('fixture CLI logs only a safe summary while full-state traces stay in artif
 
   assert.ok(runnerSource.includes("partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath"),
     'failure logs may identify the artifact path but not print its contents');
+
+  const catchAt = runnerSource.indexOf('main().catch(error=>');
+  assert.ok(catchAt >= 0, 'CLI error boundary must be explicit');
+  const catchBlock = runnerSource.slice(catchAt);
+  assert.ok(catchBlock.includes('String(error?.stack||error)'));
+  assert.doesNotMatch(catchBlock, /fixtureFailure|decisionTrace|rootActionLedger|finalFullState|fixtureGamePartial/,
+    'CLI error logs must not serialize private diagnostic fields');
 });
