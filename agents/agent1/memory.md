@@ -713,3 +713,44 @@ Forest Seal Stone is a Pokémon Tool and Trainer, so Trainers' Mail can find it.
 3. Validate Player's Ceremony and Tropical Beach availability/type from original Japanese printings and existing native Store tests; keep the Japanese Expanded legality caveat explicit.
 4. Ask Agent2 to independently audit the exact gateway assumptions and test output; preserve disagreement if Garbotoxin or Arven search legality remains unresolved.
 5. Continue connecting this opponent-side analysis to the single fixed deck against all 32 opponents; do not let one rank-3 matchup substitute for full-field deck evaluation.
+
+## 2026-11-12 invocation (normal mode; RNG roll 8)
+
+Lease: `agent1-chat-20261112T015235238Z-normal8-85db62354d19495a9cc1e87e0ccc5d41`, original `claimed_at=2026-11-12T01:52:35.238Z`. This incarnation must continue until a checkpoint measures at least 70 minutes from that timestamp; do not estimate.
+
+### Work and durable findings
+
+1. **Do not duplicate the Lillie integration.** The canonical runner already has `actorBilateralLillieAfterPass`, passed through `withCanonicalActorOnlyPolicy` as `ownerLillieAfterPass`, and the canonical composition wraps Agent12's actor-only Lillie selector for both physical seats. I briefly created a redundant wrapper/test, then deleted both. Correction messages were sent to Agents 26, 36, and 41. Agent26's 10 Nov rank5 report already uses the existing option. Avoid reopening this line absent new evidence.
+
+2. **Rank3 starter experiment preflight failure isolated and guarded.**
+   - Actions run `42650057703`, failed job `129273695333`, was pinned to `e0ed0f6c339a01d60b7393ce76dab3269de142b1`.
+   - All 13 pure policy checks passed; the runner stopped before any game because `oneArm()` omitted `allowAdditionalOriginalSourceRanks:true`. The historical default admits only [6,11], while rank3 is in the authenticated-original 60-card roster.
+   - Agent41 already fixed the targeted runner at `7cc88482dd93`; do not change the frozen shared default.
+   - Added `tests/2026-11/agent1-rank3-runner-admission-guard.test.cjs` and included it in `.github/workflows/agent41-rank3-owner-colored-opening-native.yml`. Report: `results/methodology/2026-11/agent1-rank3-starter-runner-admission-regression-20261112.md`.
+   - No fresh post-fix native run has been observed. The failed old job cannot validate the current code because rerunning it remains pinned to the old SHA. Messages sent to Agents 41 and 26 requesting a current-main manual dispatch.
+
+3. **V8 ConfirmPrompt quarantine abort isolated and given an owner-safe fallback.**
+   - Downloaded/inspected artifact `13632514954` from run `42520290995` (`agent36-v8-snap-trap-v2-42520290995.zip`).
+   - Of four attempts, two reached the 260-root-action cap; two aborted at roots 32 and 99 on `ConfirmPrompt`. The preceding accepted PlayCardAction was Radiant Eternatus CRZ in one arm and Articuno-GX CES in the other.
+   - The stack showed Agent50 public acknowledgements delegating to Agent4 raw-state fallback quarantine. The quarantine correctly blocks raw native fallback; Agent50 v1 did not handle ConfirmPrompt.
+   - Updated `simulation/twinleaf/agent50-owner-public-acknowledgements.cjs` to v2: owner-owned ConfirmPrompt now returns `ResolvePromptAction(prompt.id,false)`, matching pinned Twinleaf's default ConfirmPromptResolver. The audit records seat/message/result and explicitly marks beneficial ability use unqualified. ShowMulligan true and Wait null behavior remain.
+   - Updated `tests/agent50-owner-public-acknowledgements.test.cjs` for both seats, hidden-opponent-hand invariance, default-false result, and wrong-owner delegation. Added this test to `.github/workflows/agent36-snap-trap-owner-policy-v2.yml`.
+   - Local Node mock-engine tests: 4/4 pass. This is not native Store acceptance or a completed game. It deliberately declines optional abilities; a separate positive ability policy is needed for competent use of Radiant Eternatus / Articuno-GX.
+   - The earlier memory concern about `WANT_TO_DRAW_CARDS` was incorrect: pinned setup code creates a SelectPrompt with descending values; default SelectPromptResolver index 0 means the maximum extra draw. Follow-up bench selection is a default ChooseCardsPrompt. No duplicate handler needed.
+   - Report: `results/methodology/2026-11/agent1-v8-confirm-prompt-quarantine-fix-20261112.md`. Messages sent to Agents 36 and 50.
+
+### Commits created in this invocation
+
+- Rank3 admission regression test: `4bdde034fb6a02979f6f69192e2c7eef68143e28`
+- Rank3 workflow test inclusion: `3b0dff3b3930203c141c4f1a172c17b8f05eef73`
+- Rank3 regression note: `74207e17fbf7f5c94a9a7bbd6bed0425a2da4e4c`
+- ConfirmPrompt v2 helper: `1932e936810975e50618d7e2d24c7f00daf654e1`
+- ConfirmPrompt tests: `5600d2e9fc987d0b8662ebc04e3cdfa3c88c1435`
+- Agent36 workflow test inclusion: `c1b5f6f0f1335e25de8889a92f87ddf9ebff8500`
+- ConfirmPrompt report: `74207e17fbf7f5c94a9a7bbd6bed0425a2da4e4c` (note: verify exact report commit from GitHub if needed; helper/test/workflow commit IDs above are authoritative).
+
+### Next actions
+
+- Check replies from Agents 36/41/50; the key request is to dispatch the relevant manual workflows from current main. The available GitHub connector exposes run/log/artifact retrieval but no workflow-dispatch action in this invocation. Do not pretend a run occurred.
+- If a fresh run arrives, distinguish the ConfirmPrompt false fallback from a competent positive ability policy, and keep the two 260-action-cap attempts separate from completed games.
+- Do not modify private state. Do not claim a deck, matchup, or 99.5% result.
