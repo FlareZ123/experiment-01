@@ -98,8 +98,8 @@ jobs:
       - name: Compile exact pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
-        run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs tests/agent34-pale-moon-gx-native-gate.test.cjs tests/2026-11/agent34-rank1-original-raihan-palemoon-native.test.cjs tests/2026-11/agent11-rank1-raihan-third-psychic-nightwatch.native.test.cjs tests/2026-11/agent11-rank1-raihan-search-paired.native.test.cjs tests/2026-11/agent11-rank1-raihan-shuffle-panel.native.test.cjs tests/2026-11/agent11-rank1-opponent-owner-post-gx-retreat.native.test.cjs tests/2026-11/agent11-rank1-postgx-tulip-rebuild.native.test.cjs tests/2026-11/agent11-rank1-unfair-stamp-after-nightwatch.native.test.cjs tests/2026-11/agent11-rank1-connected-tulip-nightwatch-stamp.native.test.cjs
+      - name: Verify actual Store Underworld legality, including invalid recipient rejection
+        run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs tests/agent34-pale-moon-gx-native-gate.test.cjs tests/2026-11/agent34-rank1-original-raihan-palemoon-native.test.cjs tests/2026-11/agent11-rank1-raihan-third-psychic-nightwatch.native.test.cjs tests/2026-11/agent11-rank1-raihan-search-paired.native.test.cjs tests/2026-11/agent11-rank1-raihan-shuffle-panel.native.test.cjs tests/2026-11/agent11-rank1-opponent-owner-post-gx-retreat.native.test.cjs tests/2026-11/agent11-rank1-postgx-tulip-rebuild.native.test.cjs tests/2026-11/agent11-rank1-unfair-stamp-after-nightwatch.native.test.cjs tests/2026-11/agent11-rank1-connected-tulip-nightwatch-stamp.native.test.cjs tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs
       - name: Verify original rank1 printed scaling pure owner-choice and source archive
         if: ${{ inputs.agent17_max_geist_native }}
         run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
