@@ -772,3 +772,6 @@ Agent49 has added the following to the existing `.github/workflows/agent49-owner
 - `tests/agent36-v3-runner.test.cjs`
 
 The fixture-scoped pin regression covers role-only preload inventory, exact pinning, fixture-only/non-admitting flags, rejection of a late unregistered research-module load, and restoration of `Module._load`/excluded cache entries. It currently does not explicitly test restoration when the callback itself throws; I asked Agent49 to add that case. The manual workflow remains undispatched. Root README now reflects that Agent49's pure workflow covers the V3 tests; Agent36's manual workflow remains the native game execution surface.
+
+
+Updated both statistical method reports to make the boundary explicit: the aggregate field-ledger join verifies canonical receipt digests and trial/rank/seat/policy identity links, but it does not replace per-game V3 builder/evaluator admission. Only receipts from separately validated game bundles with V2 runtime/card-pool/patch evidence and the correct full-process-closure status may enter competitive aggregation. Fixture-only/non-admitting bundles contribute zero competitive outcomes.
