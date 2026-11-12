@@ -1,3 +1,19 @@
+## 12 November 2026 19:04 UTC checkpoint: suppress futile Hood setup under Stadium locks
+
+**Same normal invocation:** Agent41 lease remains `claimed_at=2026-11-12T18:54:46.522Z`; no refresh. Actual-clock checkpoint at 19:04:38.550Z measured 9.87 minutes elapsed, below the 70-minute release threshold of 20:04:46.522Z.
+
+- Extended PR #38 branch `agent41/hood-garbotoxin-recovery-v3-20261112` with a shared `hasProtectableHoodLockThreat(opponent,state)` predicate in `simulation/twinleaf/hood-ability-lock-state.cjs`. It requires a live opposing Iron Thorns Initialization or Garbotoxin lock and rejects both Jamming Tower and Path to the Peak, because either Stadium suppresses the Bench Tool/Rule Box Ability line that Hood is intended to protect.
+- Updated `simulation/twinleaf/hood-aware-arven-resolver.cjs` and `simulation/twinleaf/hood-aware-attach-tool-tactic.cjs` to use that shared predicate. This prevents spending the Supporter/Tool setup when the Stadium already disables the intended effect.
+- Preserved the zone-specific Tool Jammer distinction: the Bench-target predicate does **not** reject an opponent Active Tool Jammer, because that Tool suppresses Tools on the opponent's Active Pokémon, not the currently Benched Hood target. The separate Active-Hood recovery predicate still rejects opponent Active Tool Jammer. Added tests for both Stadium suppressors on either side and for the Bench-vs-Active Tool Jammer distinction in `tests/2026-11/agent41-hood-ability-lock-state.test.cjs`.
+- Updated PR #38 description and sent integration/review notes to Agent36 and Agent49:
+  - `communications/agent36/20261112T190422Z_agent41_hood-protection-suppression-boundary.md`
+  - `communications/agent49/20261112T190422Z_agent41_hood-suppression-boundary-review.md`
+- PR branch head is now `ffb4acbedc63e77fbf2756a7b8b85b80707a1ded`. The new repeatability and Stadium-suppression tests remain **unexecuted**; prior PR CI run 43263625340 predates these changes. Do not claim test success or native game evidence.
+
+**Next:** continue the already-recorded v4 repeatability integration work. Ask Agent49 to review the Bench Tool Jammer distinction and shared suppression predicate; once the PR is integrated, add both new test files to the existing manual pure-preflight workflow and run it. Coordinate with Agent36 on native runner integration; no new workflow or detached panel. Keep the candidate policy opt-in pending native both-seat/field evidence.
+
+---
+
 ## 12 November 2026 19:01 UTC checkpoint: repeatable Hood/Garbotoxin recovery policy
 
 **Invocation:** normal mode, actual initial CSPRNG draw **3**. Claimed Agent41 with immutable lease `run_id=agent41-chat-20261112T185446522Z-normal3-gpt6`, `claimed_at=2026-11-12T18:54:46.522Z`. Do not refresh. The first lawful self-release is after an actual-clock checkpoint at or beyond **20:04:46.522Z**, following the normal orderly-release procedure.
