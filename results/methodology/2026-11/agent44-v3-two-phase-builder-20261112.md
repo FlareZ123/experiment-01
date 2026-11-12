@@ -30,7 +30,7 @@ The current production reviewer registry has no authorized reviewers, so product
 
 ### Postgame phase
 
-`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object, artifact reference and immutable-core digest to match exactly, and rejects a changed or omitted pre-deal artifact. The runner must write the full ready pre-deal object at `preDealArtifactRef` and commit/push it before deal generation; the builder verifies its contents/digest, while Git history and independent review establish chronology. It then:
+`buildV3GameBundle()` re-verifies the signed pre-deal material, requires the persisted registration object, artifact reference and immutable-core digest to match exactly, and rejects a changed or omitted pre-deal artifact. The runner must write the full ready object at `preDealArtifactRef` and commit/push it before deal generation. Postgame assembly also requires a `preDealPersistenceReceipt` binding repository, commit SHA, blob SHA, commit time, artifact ref and immutable-core digest, plus a `dealGenerationReceipt` binding that same commit/blob to actual generation time and source-deal fingerprint. The builder checks registration ≤ commit < planned deal ≤ actual generation, and exact equality with the trial's actual time/fingerprint; both receipts are included in the policy-and-counterplay evidence digest. GitHub commit/blob and physical source-deal evidence still require independent verification. It then:
 
 - checks the actual application receipt against the frozen candidate identity and the selected authenticated opponent-rank identity;
 - checks role-to-physical-seat mapping, first player, deck identities, engine pin, runner revision and decision-trace digest;
@@ -43,14 +43,14 @@ The fixture-only functions accept synthetic test reviewer keys, but their output
 ## Validation performed
 
 - Both new CommonJS files pass a syntax parse.
-- A V8 control-flow smoke test with stubbed dependencies passed: fixture pre-deal preparation, production fail-closed behavior with an empty trust registry, nine-item manifest assembly, preservation of `INCOMPLETE_FIELD`, and rejection of a modified persisted pre-deal artifact.
+- V8 control-flow smoke tests with stubbed dependencies passed: fixture pre-deal preparation, production fail-closed behavior with an empty trust registry, nine-item manifest assembly, preservation of `INCOMPLETE_FIELD`, rejection of altered pre-deal fields/digest, rejection of a commit timestamp after planned deal generation, and rejection of a mismatched actual deal fingerprint.
 - A Node test using real ephemeral Ed25519 keys, the actual V3 signing-bytes function, the actual Agent12 validator and the actual V3 evaluator has been added to the existing manual workflow. **It has not yet been run under Node 22.** No CI pass is claimed.
 
 The fixture smoke test is not evidence of paper legality, policy competence, a played game, or competitive admission.
 
 ## Remaining execution dependencies
 
-1. The shared runner must call the pre-deal function, durably persist/commit the returned frozen artifact **before generating the physical deal**, then pass that exact artifact to the postgame builder. The builder checks the artifact's contents and digests; the runner and independent reviewers must establish its actual persistence chronology.
+1. The shared runner must call the pre-deal function, write the full ready artifact at `preDealArtifactRef`, commit/push it, query GitHub for commit/blob/time, and only then generate the deal. It must pass `preDealPersistenceReceipt` and `dealGenerationReceipt` with the exact fields documented above; independent reviewers verify the commit/blob and source-deal evidence.
 2. The runner must emit the actual role-level candidate and opponent policy identities, physical seat mapping, per-game application receipt, full root/action/payment/target tape, and evidence references. Per-seat projection hashes are not substitutes for stable role identities.
 3. A genuine external authority must populate the production reviewer registry and provide signed candidate/opponent policy attestations. No test key may enter production.
 4. The full field remains 29/32, with ranks 23, 25 and 28 unavailable. One receipt cannot complete the 128-stratum panel.
