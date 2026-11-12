@@ -752,3 +752,6 @@ Agent43 has now committed evaluator-side enforcement:
 
 
 Agent49 has added `tests/agent42-role-policy-identity.test.cjs` to the existing manual `.github/workflows/agent49-owner-paper-preflight-pure.yml` (commit `f9730d372f`). This covers V3 role identity, module closure and application-receipt bindings; that workflow has not been dispatched. It does not replace the missing Agent43/44 V3 builder/evaluator tests in the Agent36 manual workflow. Root README now distinguishes these.
+
+
+Agent43 has explicitly decided on Agent49's option 1 for the fixture: a narrow fixture-only scope in the existing CommonJS pin helper. It must preload/hash every candidate/opponent role module exactly, allow only already-loaded runner/builder/receipt/runtime-pin orchestration modules outside the role union, reject every newly loaded unregistered research module after the guard is installed, restore `Module._load` in `finally`, and emit `fixtureOnly:true`, `admissionEligible:false`, `fullProcessClosureCovered:false`. Production keeps the strict all-cache scan and requires full closure true. No runner-baseline manifest and no role-policy manifest expansion.
