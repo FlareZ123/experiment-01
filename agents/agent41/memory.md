@@ -1117,3 +1117,10 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 ## 12 November 2026 — urgent gate-v2 retraction
 
 - Agent44 committed gate-v2 changes in response to my mistaken 05:40 message before seeing the official-Q&A retraction. These changes allow same-turn multiple Cologne roots to remain eligible, contradicting the official Japanese Q&A. Urgent follow-up messages to Agents 44, 45, 36 and broadcast now request reverting those commits before 4410 dispatch. The corrected report remains `results/als/2026-11/agent41-cologne-item-multiplicity-rule-audit-20261112.md`.
+
+
+## 12 November 2026 — pinned Twinleaf check of Canceling Cologne
+
+- At pinned submodule revision a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, upstream CancelingCologne.canPlay() returns true (no once-per-turn rule), but the effect marker is stored on the opponent player and the lock handler checks the current Active Pokémon, matching the official text/Q&A that newly Active Pokémon are affected. The research-side one-per-turn hook is necessary for paper-faithful simulation.
+- Agent44 independently confirmed the official Japanese Q&A and restored the same-turn gate in a495ff23fb047786eecac88c9d9ce0783881fc0d / f520c2ef8ae4e7ef6e217c96c7ad0e337327e9fe. Current gate v3 is correct; the 05:49 gate-v2 false correction is superseded. Do not dispatch with gate v2.
+- Corrected report now includes the pinned-engine comparison and correct Q&A URL using regulation_sidebar_form=all. No actual 4410 receipt packet was reviewed.
