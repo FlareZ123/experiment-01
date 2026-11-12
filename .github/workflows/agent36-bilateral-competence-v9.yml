@@ -113,6 +113,11 @@ on:
         required: false
         type: string
         default: ''
+      agent36_v3_fixture_game:
+        description: "Run one native Expanded fixture game with frozen role identities, scoped runtime pin, Underworld patch receipts, and complete trace; fixture-only, not competitive evidence."
+        type: boolean
+        required: false
+        default: false
       contract_only:
         description: 'Run pure Agent34/Agent41 policy and Agent36 Snap Trap prompt-gate/observer contracts without compiling Twinleaf or executing a game'
         required: false
@@ -164,6 +169,11 @@ jobs:
           if (!inputs.agent36_v3_predeal_artifact_ref) throw new Error('agent36_v3_predeal_artifact_ref is required for V3 pre-deal preflight');
           NODE
 
+      - name: Enforce isolated V3 fixture-game mode
+        if: ${{ inputs.agent36_v3_fixture_game && (inputs.agent24_v8_perfection_260root || inputs.agent24_perfection_energy_frontier || inputs.agent24_v8_bilateral_perfection || inputs.agent7_known_dead_off_control || inputs.agent7_bilateral_lillie_after_pass || inputs.agent43_box_fog_oneprize_after_pass || inputs.agent36_v9_vip_aba || inputs.agent36_v10b_paired_fresh_aba || inputs.agent3_owner_information_fallback_diagnostic || inputs.agent36_v8_snap_trap_vertical_slice || inputs.agent36_v8_snap_trap_vertical_slice_v2 || inputs.agent43_v8_snaptrap_owner_root_diagnostic || inputs.agent2_rank11_quickball_attack_priority || inputs.agent2_crispin_vs_seeker_treasure_native || inputs.agent36_v10_fresh_aba || inputs.agent20_box_fog_ace_trainer_aba || inputs.agent2_retreat_funding_native || inputs.agent2_retreat_funding_original_source || inputs.agent36_fresh_rank5_native || inputs.agent36_paper_root_native || inputs.agent36_v3_predeal_preflight || inputs.contract_only || inputs.agent36_v3_predeal_artifact_ref != '') }}
+        run: |
+          echo "agent36_v3_fixture_game must be the only selected workflow mode." >&2
+          exit 1
       - name: Set up pinned Node runtime with native dependency cache
         if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
         uses: actions/setup-node@v4
@@ -319,6 +329,17 @@ jobs:
           node --test tests/2026-11/agent2-retreat-funding-original-source.test.cjs
           node simulation/evaluation/2026-11/agent2-retreat-funding-original-source.cjs
 
+      - name: Check V3 fixture runner and policy closure syntax
+        if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/evaluation/2026-11/agent49-native-fixture-game.cjs
+          node --check simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs
+      - name: Verify fixed V3 fixture decks and role manifest
+        if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        run: node --test tests/2026-11/agent36-v3-fixture-game.test.cjs tests/2026-11/agent44-v3-game-bundle-builder.test.cjs tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
         if: ${{ inputs.agent36_v3_predeal_preflight }}
         env:
@@ -330,8 +351,11 @@ jobs:
         if: ${{ inputs.contract_only }}
         run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs tests/agent36-v3-runner.test.cjs
 
+      - name: Execute one native V3 fixture game
+        if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
@@ -441,6 +465,7 @@ jobs:
         with:
           name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
           path: |
+            artifacts/agent36-v3-fixture/
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent24-v8-bilateral-perfection/
             artifacts/agent24-v8-perfection-260root/

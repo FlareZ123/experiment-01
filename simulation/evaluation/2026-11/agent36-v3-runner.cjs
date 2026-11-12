@@ -102,13 +102,18 @@ function loadNativeRoleDependencies({enginePin}={}){
   }));
   const getNativeTrainerCatalog=()=>trainerCatalog??=(trainerPrintCatalog(
     CardManager.getInstance().getAllCards(),{TrainerCard,TrainerType}));
-  const baseBotOptions={
-    tactics:simpleBotDefinitions.allSimpleTactics,
-    promptResolvers:simpleBotDefinitions.allPromptResolvers,
-    scores:simpleBotDefinitions.defaultStateScores,
-    arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
-  };
-  const botOptionsBySeat=[baseBotOptions,baseBotOptions];
+  const makeBotOptions = () => ({
+    tactics: [...simpleBotDefinitions.allSimpleTactics],
+    promptResolvers: [...simpleBotDefinitions.allPromptResolvers],
+    scores: [...simpleBotDefinitions.defaultStateScores],
+    arbiter: {
+      flipMode: BotFlipMode.RANDOM,
+      shuffleMode: BotShuffleMode.RANDOM,
+    },
+  });
+  const botOptionsBySeat = [makeBotOptions(), makeBotOptions()];
+  assert.notEqual(botOptionsBySeat[0], botOptionsBySeat[1]);
+  assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
   return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
@@ -434,8 +439,613 @@ function writeJsonAtomic(filename,value){
   fs.renameSync(temp,filename);
   return filename;
 }
+
+const V3_FIXTURE = Object.freeze({
+  candidatePath: 'results/aichi-2026/candidate-hood-shadow-rider.json',
+  fieldPath: 'results/aichi-2026/full-decklists.json',
+  officialRank1Path: 'results/aichi-2026/official-rank1-deck-code.json',
+  originalAdmissionPath: 'results/aichi-2026/original-printed60-admission-v1.json',
+  candidateDeckSha256: '1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924',
+  opponentDeckSha256: '159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090',
+  candidateGitBlobSha: '24ace2d6feb9ce5d9056bcf271827cfe31b7357b',
+  fieldGitBlobSha: 'ae773f6201d7aa69d31914dbfee66f3fba692200',
+  engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+  seed: 'agent36-v3-fixture-hood-rank1-20261112-01',
+  maxActions: 6000,
+  trialId: 'agent36-v3-fixture-hood-rank1-20261112-01',
+  policyVersion: 'agent34-actor-only-root-v1',
+  candidateProducerId: 'agent36-fixture-candidate-agent34-baseline',
+  opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-baseline',
+  entrypoint: 'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
+  hookPath: 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs',
+  hookId: 'underworld-door-psychic-recipient-v1',
+  hookTarget: 'ShadowRiderCalyrexVMAX.prototype.reduceEffect',
+  outputDir: 'artifacts/agent36-v3-fixture',
+});
+
+const V3_FIXTURE_TEST_PATHS = [
+  'tests/agent34-actor-only-root-policy.test.cjs',
+  'tests/agent36-v3-runner.test.cjs',
+  'tests/agent42-role-policy-identity.test.cjs',
+  'tests/2026-11/agent49-native-fixture-game.test.cjs',
+  'tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs',
+  'tests/2026-11/agent44-v3-game-bundle-builder.test.cjs',
+  'tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs',
+  'tests/2026-11/agent36-v3-fixture-game.test.cjs',
+];
+
+const V3_FIXTURE_COMMON_BINDINGS = [
+  { name: 'observe', path: 'simulation/twinleaf/actor-observation-contract.cjs', exportName: 'actorObservation' },
+  { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
+  { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
+  { name: 'moduleLoadGuard', path: 'simulation/evaluation/agent36-runtime-module-pin.cjs', exportName: 'withPinnedResearchModuleLoads' },
+  { name: 'sourceClosureAudit', path: 'simulation/evaluation/agent36-source-closure-audit.cjs', exportName: 'auditSourceClosure' },
+  { name: 'roleIdentityHelper', path: 'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs', exportName: 'buildRolePolicyIdentity' },
+  { name: 'trainerCatalog', path: 'simulation/twinleaf/agent5-generic-owner-trainer-opportunity.cjs', exportName: 'trainerPrintCatalog' },
+  { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
+  { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
+  { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
+  { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
+  { name: 'nativeCoinFlipPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt.js', exportName: 'CoinFlipPrompt' },
+  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
+  { name: 'nativeCardManager', path: 'vendor/twinleaf/ptcg-server/output/game/cards/card-manager.js', exportName: 'CardManager' },
+  { name: 'nativeSets', path: 'vendor/twinleaf/ptcg-server/output/sets/index.js' },
+  { name: 'nativeSimpleTacticsAi', path: 'vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai.js', exportName: 'SimpleTacticsAi' },
+  { name: 'nativeSimpleBotDefinitions', path: 'vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions.js' },
+  { name: 'nativeBotArbiter', path: 'vendor/twinleaf/ptcg-server/output/game/bots/bot-arbiter.js' },
+  { name: 'nativeCardActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js' },
+  { name: 'nativeGameActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions.js' },
+  { name: 'nativePokemonCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card.js', exportName: 'PokemonCard' },
+  { name: 'nativeEnergyCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/energy-card.js', exportName: 'EnergyCard' },
+  { name: 'nativeTrainerCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card.js', exportName: 'TrainerCard' },
+  { name: 'nativeCardTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Format' },
+  { name: 'nativePokemonTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types.js', exportName: 'PowerType' },
+];
+
+const V3_FIXTURE_PROMPT_CHAIN = [
+  { name: 'candidate-opponent-role-composition', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs' },
+  { name: 'actor-only-root-policy', path: V3_FIXTURE.entrypoint },
+  { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
+];
+
+function printed60Fingerprint(deck) {
+  assert.ok(deck && Array.isArray(deck.cards), 'printed deck must contain cards');
+  const rows = deck.cards.map((row) => [
+    row.category,
+    row.name,
+    row.count,
+    row.printing && row.printing.set !== undefined ? row.printing.set : null,
+    row.printing && row.printing.number !== undefined ? row.printing.number : null,
+    row.printing && row.printing.language !== undefined ? row.printing.language : null,
+  ]);
+  rows.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  return createHash('sha256').update(JSON.stringify(rows), 'utf8').digest('hex');
+}
+
+function resolvePrintedDeck(deck, allCards, { label = 'deck', expectedSize = 60 } = {}) {
+  assert.ok(deck && Array.isArray(deck.cards), label + ' must contain a cards array');
+  const cards = Array.isArray(allCards) ? allCards : Array.from(allCards && allCards.values ? allCards.values() : []);
+  const byPrinting = new Map();
+  for (const card of cards) {
+    const key = JSON.stringify([card.name, card.set, String(card.setNumber)]);
+    const matches = byPrinting.get(key) || [];
+    matches.push(card);
+    byPrinting.set(key, matches);
+  }
+  const fullNames = [];
+  const resolvedRows = [];
+  const categoryCounts = {};
+  for (const row of deck.cards) {
+    assert.ok(row && typeof row.name === 'string' && Number.isInteger(row.count) && row.count > 0, label + ' contains an invalid card row');
+    assert.ok(row.printing && row.printing.language === 'en', label + ' requires an explicit English engine-proxy printing for ' + row.name);
+    const key = JSON.stringify([row.name, row.printing.set, String(row.printing.number)]);
+    const matches = byPrinting.get(key) || [];
+    assert.equal(matches.length, 1, label + ' exact printing must resolve once: ' + row.name + ' ' + row.printing.set + ' ' + row.printing.number + ' (matches=' + matches.length + ')');
+    const nativeCard = matches[0];
+    assert.ok(typeof nativeCard.fullName === 'string' && nativeCard.fullName.length > 0, label + ' resolved card is missing fullName');
+    for (let i = 0; i < row.count; i += 1) fullNames.push(nativeCard.fullName);
+    resolvedRows.push({
+      category: row.category,
+      name: row.name,
+      count: row.count,
+      printing: row.printing,
+      engineFullName: nativeCard.fullName,
+    });
+    categoryCounts[row.category] = (categoryCounts[row.category] || 0) + row.count;
+  }
+  assert.equal(fullNames.length, expectedSize, label + ' must resolve to exactly ' + expectedSize + ' cards');
+  if (deck.category_counts) assert.deepEqual(categoryCounts, deck.category_counts, label + ' category counts must match the frozen source');
+  return { fullNames, resolvedRows, categoryCounts, total: fullNames.length };
+}
+
+function fixtureBotOptionsProfile(options) {
+  return {
+    tactics: (options.tactics || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
+    promptResolvers: (options.promptResolvers || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
+    scores: (options.scores || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
+    arbiter: {
+      flipMode: options.arbiter && options.arbiter.flipMode !== undefined ? options.arbiter.flipMode : null,
+      shuffleMode: options.arbiter && options.arbiter.shuffleMode !== undefined ? options.arbiter.shuffleMode : null,
+    },
+  };
+}
+
+function buildFixtureRoleEntryManifest({
+  repositoryRoot = ROOT,
+  enginePin,
+  runnerRevision,
+  environment = process.env,
+} = {}) {
+  assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
+  assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
+  const commonRuntimeBindings = V3_FIXTURE_COMMON_BINDINGS.map((binding) => ({ ...binding }));
+  const orderedPromptChain = V3_FIXTURE_PROMPT_CHAIN.map((item) => ({ ...item }));
+  const sharedEnginePatches = [{ name: V3_FIXTURE.hookId, path: V3_FIXTURE.hookPath }];
+  const dataAssetPaths = [
+    V3_FIXTURE.candidatePath,
+    V3_FIXTURE.fieldPath,
+    V3_FIXTURE.officialRank1Path,
+    V3_FIXTURE.originalAdmissionPath,
+    'simulation/evaluation/2026-11/agent36-v3-runner.cjs',
+    'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+    'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
+    ...V3_FIXTURE_TEST_PATHS,
+  ];
+  const dependencyLockPaths = ['vendor/twinleaf/ptcg-server/package-lock.json'];
+  const researchEntries = [
+    V3_FIXTURE.entrypoint,
+    ...commonRuntimeBindings.map((binding) => binding.path),
+    ...orderedPromptChain.map((item) => item.path),
+    ...sharedEnginePatches.map((item) => item.path),
+  ].filter((item) => !item.startsWith('vendor/twinleaf/'));
+  const sourceClosure = auditSourceClosure(repositoryRoot, researchEntries, { vendorPrefixes: ['vendor/twinleaf/'] });
+  const environmentAllowlist = [...new Set((sourceClosure.keys || []).filter((key) => !key.startsWith('GITHUB_') && !key.startsWith('RUNNER_')))].sort();
+  const built = roleIdentity.createPolicyEntryManifest({
+    repositoryRoot,
+    entrypoint: V3_FIXTURE.entrypoint,
+    commonRuntimeBindings,
+    orderedPromptChain,
+    sharedEnginePatches,
+    dataAssetPaths,
+    dependencyLockPaths,
+    environmentAllowlist,
+    enginePin,
+    runnerRevision,
+    environment,
+  });
+  assert.equal(built.manifest.complete, true, 'fixture policy entry manifest must be complete');
+  return { ...built, environmentAllowlist, sourceClosureSummary: sourceClosure };
+}
+
+function fixtureChallengeSuiteSha256(entryManifest) {
+  const testAssets = (entryManifest.dataAssets || []).filter((asset) => asset.path.startsWith('tests/')).map((asset) => ({
+    path: asset.path,
+    sha256: asset.sha256,
+  }));
+  assert.ok(testAssets.length > 0, 'fixture challenge suite must bind test assets');
+  return evidenceBundleSha256(testAssets);
+}
+
+function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile }) {
+  return {
+    fixtureOnly: true,
+    engineFormat: 'Expanded',
+    benchmarkFormat: 'Japanese Extra',
+    crossFormatCompatibilityEstablished: false,
+    paperDeckLegalityEstablished: false,
+    policyProfile: 'agent34 actor-only root policy plus Twinleaf SimpleTacticsAi baseline',
+    candidateHoodOptionsApplied: false,
+    candidateRecoveryAutonomyApplied: false,
+    policyCompetenceIndependentlyReviewed: false,
+    botOptionsProfile,
+    observationSurface: 'actorObservation contract supplied to the existing role composer; whole-policy information safety not certified',
+    decisionBudget: { maxActions: V3_FIXTURE.maxActions },
+    randomizationProtocol: {
+      algorithm: 'xorshift32-physical-and-seat-policy-streams-v1',
+      seed: V3_FIXTURE.seed,
+      seedDerivation: 'sha256-first-u32le for string seed; identity for uint32 seed',
+      policySeedXors: [0x6a09e667, 0xbb67ae85],
+    },
+    paperFirstTurnRules: {
+      firstTurnDrawCard: true,
+      firstTurnUseSupporter: false,
+      attackFirstTurn: false,
+    },
+    sharedEngineCompatibilityPatches: [patchDescriptor],
+  };
+}
+
+function buildFixtureRoleIdentities({
+  manifestResult,
+  challengeSuiteSha256,
+  policyConstraintsSha256,
+  preparedRuntime,
+  candidateDeckSha256 = V3_FIXTURE.candidateDeckSha256,
+  opponentDeckSha256 = V3_FIXTURE.opponentDeckSha256,
+} = {}) {
+  const common = {
+    entryManifest: manifestResult.manifest,
+    entryManifestSha256: manifestResult.entryManifestSha256,
+    challengeSuiteSha256,
+    policyConstraintsSha256,
+    runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
+    loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
+    cardPoolInitializationSha256: preparedRuntime.cardPoolInitializationSha256,
+    policyVersion: V3_FIXTURE.policyVersion,
+    policyOptions: {},
+  };
+  const candidateIdentity = roleIdentity.buildRolePolicyIdentity({
+    ...common,
+    deckSha256: candidateDeckSha256,
+    role: 'candidate-policy',
+    rank: null,
+    producerId: V3_FIXTURE.candidateProducerId,
+  });
+  const opponentIdentity = roleIdentity.buildRolePolicyIdentity({
+    ...common,
+    deckSha256: opponentDeckSha256,
+    role: 'opponent-policy',
+    rank: 1,
+    producerId: V3_FIXTURE.opponentProducerId,
+  });
+  return { candidateIdentity, opponentIdentity };
+}
+
+function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constraints, runtimePinEvidence, trialId = V3_FIXTURE.trialId } = {}) {
+  const candidate = {
+    deckSha256: candidateIdentity.deckSha256,
+    policySha256: candidateIdentity.policySha256,
+    entryManifestSha256: candidateIdentity.entryManifestSha256,
+    challengeSuiteSha256: candidateIdentity.challengeSuiteSha256,
+    policyProducerId: candidateIdentity.policyProducerId,
+  };
+  const opponent = {
+    rank: 1,
+    sourceStatus: 'authenticated',
+    deckSha256: opponentIdentity.deckSha256,
+    policySha256: opponentIdentity.policySha256,
+    entryManifestSha256: opponentIdentity.entryManifestSha256,
+    challengeSuiteSha256: opponentIdentity.challengeSuiteSha256,
+    policyProducerId: opponentIdentity.policyProducerId,
+  };
+  const policyPlanCore = {
+    schema: 'aichi-policy-plan-core-v1',
+    fixtureOnly: true,
+    candidate,
+    opponentPolicyBundle: { fixtureOnly: true, ranks: [opponent] },
+    constraints,
+    runtimePinEvidence,
+  };
+  const policyPlanSha256 = evidenceBundleSha256(policyPlanCore);
+  const policyRegistration = {
+    schema: 'aichi-policy-registration-v1',
+    trialId,
+    policyPlanSha256,
+    fixtureOnly: true,
+  };
+  const policyAttestationBundle = {
+    schema: 'aichi-policy-attestation-bundle-v1',
+    trialId,
+    policyPlanSha256,
+    fixtureOnly: true,
+    signatures: [],
+    independentReviewers: [],
+  };
+  const preDeal = {
+    ready: true,
+    fixtureOnly: true,
+    trialId,
+    policyPlanCore,
+    policyPlanSha256,
+    policyRegistration,
+    policyRegistrationSha256: evidenceBundleSha256(policyRegistration),
+    policyAttestationBundle,
+    policyAttestationBundleSha256: evidenceBundleSha256(policyAttestationBundle),
+  };
+  return { policyPlanCore, policyPlanSha256, policyRegistration, policyAttestationBundle, preDeal };
+}
+
+function sha256Function(fn) {
+  assert.equal(typeof fn, 'function', 'runtime patch target must be a function');
+  return createHash('sha256').update(Function.prototype.toString.call(fn), 'utf8').digest('hex');
+}
+
+function createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256 } = {}) {
+  assert.ok(restoreHook && restoreHook.isRestored, 'Underworld hook must be restored in outer finally');
+  return {
+    schema: 'aichi-runtime-patch-installation-receipt-v1',
+    patchId: V3_FIXTURE.hookId,
+    modulePath: V3_FIXTURE.hookPath,
+    moduleSha256,
+    target: V3_FIXTURE.hookTarget,
+    originalReducerFingerprint: sha256Function(restoreHook.originalReducer),
+    installedReducerFingerprint: sha256Function(restoreHook.installedReducer),
+    installCount: 1,
+    installBoundary: 'outer-v3-runner-before-role-wrappers',
+    restoreCount: 1,
+    restoreBoundary: 'outer-finally',
+    restoredOriginal: true,
+    nestedInstallCount: 0,
+    wrapperInstallCount: 0,
+  };
+}
+
+function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FIXTURE.outputDir) } = {}) {
+  const repositoryRoot = ROOT;
+  const enginePin = env.AGENT36_TWINLEAF_COMMIT_SHA;
+  const runnerRevision = env.GITHUB_SHA;
+  assert.equal(enginePin, V3_FIXTURE.engineCommit, 'fixture must use the reviewed pinned Twinleaf commit');
+  assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture requires the exact research revision');
+
+  const candidateBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.candidatePath));
+  const fieldBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.fieldPath));
+  const officialRank1Bytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.officialRank1Path));
+  const admissionBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.originalAdmissionPath));
+  const candidateDeck = JSON.parse(candidateBytes.toString('utf8'));
+  const field = JSON.parse(fieldBytes.toString('utf8'));
+  const opponentDeck = field.decks.find((deck) => deck.rank === 1);
+  const admission = JSON.parse(admissionBytes.toString('utf8'));
+  const rank1Admission = admission.ranks.find((row) => row.rank === 1);
+  assert.ok(opponentDeck && rank1Admission, 'authenticated rank-1 source deck and admission row must exist');
+  assert.equal(gitBlobSha(candidateBytes), V3_FIXTURE.candidateGitBlobSha, 'candidate source blob changed');
+  assert.equal(gitBlobSha(fieldBytes), V3_FIXTURE.fieldGitBlobSha, 'Aichi field source blob changed');
+  assert.equal(printed60Fingerprint(candidateDeck), V3_FIXTURE.candidateDeckSha256, 'candidate printed-60 fingerprint changed');
+  assert.equal(printed60Fingerprint(opponentDeck), rank1Admission.printed60Sha256, 'rank-1 printed-60 fingerprint disagrees with the admission ledger');
+  assert.equal(rank1Admission.printed60Sha256, V3_FIXTURE.opponentDeckSha256, 'rank-1 printed-60 fingerprint changed');
+
+  const native = loadNativeRoleDependencies({ enginePin });
+  const allCards = native.CardManager.getInstance().getAllCards();
+  const candidateResolved = resolvePrintedDeck(candidateDeck, allCards, { label: 'Hood Shadow Rider candidate' });
+  const opponentResolved = resolvePrintedDeck(opponentDeck, allCards, { label: 'Aichi rank-1 Shadow Rider opponent' });
+  const botOptionsAuditBySeat = native.botOptionsBySeat.map((options, seat) => ({
+    seat,
+    profile: fixtureBotOptionsProfile(options),
+    distinctObject: true,
+  }));
+  assert.notEqual(native.botOptionsBySeat[0], native.botOptionsBySeat[1], 'physical seats must not share a mutable bot-options object');
+  assert.notEqual(native.botOptionsBySeat[0].arbiter, native.botOptionsBySeat[1].arbiter, 'physical seats must not share an arbiter object');
+  assert.deepEqual(botOptionsAuditBySeat[0].profile, botOptionsAuditBySeat[1].profile, 'fixture baseline bot options must be role-neutral and seat-invariant');
+
+  const hookModule = require('../../twinleaf/underworld-door-psychic-recipient-hook.cjs');
+  const hookBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.hookPath));
+  const hookModuleSha256 = createHash('sha256').update(hookBytes).digest('hex');
+  const patchDescriptor = {
+    patchId: V3_FIXTURE.hookId,
+    modulePath: V3_FIXTURE.hookPath,
+    moduleSha256: hookModuleSha256,
+    target: V3_FIXTURE.hookTarget,
+  };
+  const constraints = buildFixturePolicyConstraints({
+    patchDescriptor,
+    botOptionsProfile: botOptionsAuditBySeat[0].profile,
+  });
+  const policyConstraintsSha256 = evidenceBundleSha256(constraints);
+  const manifestResult = buildFixtureRoleEntryManifest({
+    repositoryRoot,
+    enginePin,
+    runnerRevision,
+    environment: env,
+  });
+  const challengeSuiteSha256 = fixtureChallengeSuiteSha256(manifestResult.manifest);
+  const combined = roleIdentity.combineRolePolicyEntryManifests(manifestResult.manifest, manifestResult.manifest);
+
+  // Preload only the manifest-owned research closure. The fixture pin helper scopes the
+  // cache for the native callback, while the V1 evidence builder remains unchanged.
+  for (const [relative, expectedSha256] of Object.entries(combined.expectedByPath).sort((a, b) => a[0].localeCompare(b[0]))) {
+    const filename = path.resolve(repositoryRoot, relative);
+    const bytes = fs.readFileSync(filename);
+    const actualSha256 = createHash('sha256').update(bytes).digest('hex');
+    assert.equal(actualSha256, expectedSha256, 'role source changed before preload: ' + relative);
+    Module._load(filename, module, false);
+  }
+  const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(repositoryRoot, combined.expectedByPath);
+  const preparedRuntime = prepareV3RoleRuntimeEvidence({
+    repositoryRoot,
+    candidateManifest: manifestResult.manifest,
+    opponentManifest: manifestResult.manifest,
+    cardPoolInitialization: native.cardPoolInitialization,
+    identityHelper: roleIdentity,
+    cacheEntries,
+  });
+  const runtimePinEvidence = fixtureRuntimePin.createFixtureRuntimePinEvidence(preparedRuntime);
+  const identities = buildFixtureRoleIdentities({
+    manifestResult,
+    challengeSuiteSha256,
+    policyConstraintsSha256,
+    preparedRuntime,
+  });
+  const policyPlan = buildFixturePolicyPlan({
+    candidateIdentity: identities.candidateIdentity,
+    opponentIdentity: identities.opponentIdentity,
+    constraints,
+    runtimePinEvidence,
+  });
+
+  const restoreHook = hookModule.installUnderworldDoorPsychicRecipientHook();
+  assert.equal(restoreHook.isInstalled, true, 'Underworld compatibility hook must install before role wrappers');
+  let pinned;
+  try {
+    pinned = runPinnedV3RoleRuntime({
+      repositoryRoot,
+      preparedRuntime,
+      pin: fixtureRuntimePin.withFixtureScopedRolePin,
+      run: () => runCandidateOpponentPolicyRoles(
+        () => runNativeFixtureGame({
+          deckA: candidateResolved.fullNames,
+          deckB: opponentResolved.fullNames,
+          candidateSeat: 0,
+          originalSourceSeat: 1,
+          seed: V3_FIXTURE.seed,
+          native,
+          botOptionsBySeat: native.botOptionsBySeat,
+          maxActions: V3_FIXTURE.maxActions,
+        }),
+        {
+          candidateSeat: 0,
+          opponentSeat: 1,
+          candidateIdentity: identities.candidateIdentity,
+          opponentIdentity: identities.opponentIdentity,
+          candidatePolicyOptions: {},
+          opponentPolicyOptions: {},
+          commonDeps: native,
+          composer: withCandidateOpponentPolicyRoles,
+        },
+      ),
+    });
+  } finally {
+    restoreHook();
+  }
+  assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
+  assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
+  const roleResult = pinned.result;
+  const gameResult = roleResult && roleResult.result;
+  assert.ok(gameResult && gameResult.finished === true && gameResult.endReason === 'engine-game-end', 'native game must reach a natural terminal state');
+
+  const patchReceipt = createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256: hookModuleSha256 });
+  const trial = {
+    trialId: V3_FIXTURE.trialId,
+    fixtureOnly: true,
+    opponentRank: 1,
+    candidateSeat: 0,
+    originalSourceSeat: 1,
+    actualFirstPlayerSeat: gameResult.actualFirstPlayerSeat,
+    candidatePrinted60Sha256: V3_FIXTURE.candidateDeckSha256,
+    originalPrinted60Sha256: V3_FIXTURE.opponentDeckSha256,
+    vendorCommitSha: enginePin,
+    researchRevisionSha: runnerRevision,
+    decisionTraceSha256: gameResult.decisionTraceSha256,
+    cardPoolInitializationReceipt: native.cardPoolInitialization,
+    runtimePatchReceipts: [patchReceipt],
+    seed: V3_FIXTURE.seed,
+  };
+  const application = roleIdentity.createPolicyApplicationReceipt({
+    preDeal: policyPlan.preDeal,
+    candidateIdentity: identities.candidateIdentity,
+    opponentIdentity: identities.opponentIdentity,
+    trial,
+    timeoutStatus: 'within-budget',
+  });
+  const artifact = {
+    fixtureOnly: true,
+    competitiveGameQualified: false,
+    admissionEligible: false,
+    benchmark: 'Aichi Open League 2026 Top 32',
+    benchmarkFormat: 'Japanese Extra',
+    engineFormat: 'Expanded',
+    candidate: {
+      label: candidateDeck.label,
+      sourcePath: V3_FIXTURE.candidatePath,
+      sourceGitBlobSha: gitBlobSha(candidateBytes),
+      printed60Sha256: V3_FIXTURE.candidateDeckSha256,
+      resolvedCards: candidateResolved.resolvedRows,
+      engineDeck: candidateResolved.fullNames,
+    },
+    opponent: {
+      rank: 1,
+      sourceStatus: 'authenticated',
+      player: opponentDeck.player,
+      archetype: opponentDeck.archetype,
+      sourcePath: V3_FIXTURE.fieldPath,
+      officialSourcePath: V3_FIXTURE.officialRank1Path,
+      sourceGitBlobSha: gitBlobSha(fieldBytes),
+      officialSourceGitBlobSha: gitBlobSha(officialRank1Bytes),
+      printed60Sha256: V3_FIXTURE.opponentDeckSha256,
+      resolvedCards: opponentResolved.resolvedRows,
+      engineDeck: opponentResolved.fullNames,
+    },
+    sourceAdmission: {
+      originalAdmissionPath: V3_FIXTURE.originalAdmissionPath,
+      originalAdmissionGitBlobSha: gitBlobSha(admissionBytes),
+      legalChainQualified: false,
+      note: 'The source ledger explicitly leaves original printed-60 legality and policy chains unqualified.',
+    },
+    engine: {
+      twinleafCommitSha: enginePin,
+      researchRevisionSha: runnerRevision,
+      nodeVersion: process.version,
+      format: 'EXPANDED',
+      rules: {
+        firstTurnDrawCard: true,
+        firstTurnUseSupporter: false,
+        attackFirstTurn: false,
+      },
+      cardPoolInitializationReceipt: native.cardPoolInitialization,
+    },
+    policy: {
+      candidateProfile: 'agent34 actor-only root policy plus Twinleaf SimpleTacticsAi baseline',
+      opponentProfile: 'same actor-only root policy and Twinleaf baseline',
+      candidateHoodOptionsApplied: false,
+      candidateRecoveryAutonomyApplied: false,
+      pendingDependency: 'PR #38: v4 repeatable Hood recovery and per-seat Hood candidate options',
+      policyCompetenceIndependentlyReviewed: false,
+      independentReviewers: [],
+      botOptionsAuditBySeat,
+      challengeSuiteSha256,
+      challengeSuiteScope: 'mechanical source/runtime contract tests only; not policy competence evidence',
+    },
+    policyPlanCore: policyPlan.policyPlanCore,
+    preDealFixtureEnvelope: {
+      fixtureOnly: true,
+      ready: true,
+      policyPlanSha256: policyPlan.policyPlanSha256,
+      policyRegistration: policyPlan.policyRegistration,
+      policyAttestationBundle: policyPlan.policyAttestationBundle,
+      attestationStatus: 'unsigned fixture-only envelope; no independent reviewers; not admission evidence',
+    },
+    candidatePolicyIdentity: identities.candidateIdentity,
+    opponentPolicyIdentity: identities.opponentIdentity,
+    roleApplicationReceipt: application.receipt,
+    roleSeatMap: application.roleSeatMap,
+    policySha256BySeat: application.policySha256BySeat,
+    roleComposerAudit: {
+      candidate: roleResult.candidateAudit,
+      opponent: roleResult.opponentAudit,
+    },
+    runtimePinEvidence,
+    runtimePinAudit: pinned.audit,
+    runtimePatchReceipts: [patchReceipt],
+    nativeGame: gameResult,
+    trial,
+    summary: {
+      winner: gameResult.winner,
+      winnerSeat: gameResult.winnerSeat,
+      endReason: gameResult.endReason,
+      actionCount: gameResult.actionCount,
+      turnsBySeat: gameResult.turnsBySeat,
+      decisionTraceSha256: gameResult.decisionTraceSha256,
+      rootActionLedgerSha256: gameResult.rootActionLedgerSha256,
+      roleApplicationReceiptSha256: application.receipt.receiptSha256,
+      runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
+      loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
+      fixtureOnly: true,
+      winRateEstimate: null,
+    },
+  };
+  const outputPath = path.join(outputDir, 'fixture-game.json');
+  writeJsonAtomic(outputPath, artifact);
+  return {
+    artifactPath: path.relative(repositoryRoot, outputPath).split(path.sep).join('/'),
+    trialId: trial.trialId,
+    winner: gameResult.winner,
+    winnerSeat: gameResult.winnerSeat,
+    endReason: gameResult.endReason,
+    actionCount: gameResult.actionCount,
+    decisionTraceSha256: gameResult.decisionTraceSha256,
+    roleApplicationReceiptSha256: application.receipt.receiptSha256,
+    fixtureOnly: true,
+    competitiveGameQualified: false,
+  };
+}
+
+
 async function main(argv=process.argv.slice(2),env=process.env){
   const [command,...args]=argv;
+  if(command==='fixture-game'){
+    const result=runV3FixtureGame({env});
+    process.stdout.write(JSON.stringify(result,null,2)+'\n');
+    return result;
+  }
   const repositoryRoot=ROOT;
   const common={
     repositoryFullName:env.GITHUB_REPOSITORY,
@@ -480,7 +1090,7 @@ async function main(argv=process.argv.slice(2),env=process.env){
     },null,2)+'\n');
     return result;
   }
-  throw new Error('Usage: node agent36-v3-runner.cjs predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref>');
+  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref>');
 }
 
 if(require.main===module){
@@ -498,4 +1108,14 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
   prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
-  readJsonFile,writeJsonAtomic,main};
+  readJsonFile,writeJsonAtomic,main,
+  printed60Fingerprint,
+  resolvePrintedDeck,
+  buildFixtureRoleEntryManifest,
+  fixtureChallengeSuiteSha256,
+  buildFixturePolicyConstraints,
+  buildFixtureRoleIdentities,
+  buildFixturePolicyPlan,
+  createUnderworldRuntimePatchReceipt,
+  runV3FixtureGame
+};

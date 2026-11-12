@@ -1,11 +1,20 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 
 const PLAYER_IDS=Object.freeze([101,202]);
 const POLICY_SEED_XORS=Object.freeze([0x6a09e667,0xbb67ae85]);
 const SCHEMA='aichi-native-fixture-game-v1';
+
+function normalizeSeed32(seed) {
+  if (Number.isInteger(seed) && seed >= 0 && seed <= 0xffffffff) return seed >>> 0;
+  assert.ok(typeof seed === 'string' && seed.trim().length > 0,
+    'fixture seed must be an unsigned 32-bit integer or a non-empty stable string');
+  const digest = createHash('sha256').update(seed, 'utf8').digest();
+  return digest.readUInt32LE(0);
+}
 
 function seededRandom(seed) {
   let state=seed>>>0;
@@ -160,8 +169,7 @@ function validateInputs(input) {
   }
   assert.ok(Array.isArray(input.botOptionsBySeat)&&input.botOptionsBySeat.length===2,
     'two seat-ordered SimpleTacticsAi option objects are required');
-  assert.ok(Number.isInteger(input.seed)&&input.seed>=0&&input.seed<=0xffffffff,
-    'fixture seed must be an unsigned 32-bit integer');
+  const seed32=normalizeSeed32(input.seed);
   assert.ok(input.candidateSeat===0||input.candidateSeat===1,
     'candidateSeat must be physical seat 0 or 1');
   assert.equal(input.originalSourceSeat,1-input.candidateSeat,
@@ -189,9 +197,9 @@ function runNativeFixtureGame(input) {
     ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
   }=native;
   const previousRandom=Math.random;
-  const physicalRandom=seededRandom(input.seed);
+  const physicalRandom=seededRandom(seed32);
   const policyRandom=POLICY_SEED_XORS.map(xor=>
-    seededRandom((input.seed^xor)>>>0));
+    seededRandom((seed32^xor)>>>0));
   const decisionTrace=[];
   const rootActionLedger=[];
   const actionCountsBySeat=[0,0];
@@ -368,8 +376,10 @@ function runNativeFixtureGame(input) {
       admissionEligible:false,
       competitiveGameQualified:false,
       seed:input.seed,
+      seed32,
+      seedDerivation:typeof input.seed==='string'?'sha256-first-u32le':'identity-uint32',
       randomizationProtocol:'xorshift32-physical-and-seat-policy-streams-v1',
-      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(input.seed^xor)>>>0),
+      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(seed32^xor)>>>0),
       candidateSeat:input.candidateSeat,
       originalSourceSeat:input.originalSourceSeat,
       actualFirstPlayerSeat,
@@ -400,4 +410,6 @@ module.exports={
   publicStateSnapshot,
   projectActionPayload,
   runNativeFixtureGame
+,
+  normalizeSeed32
 };

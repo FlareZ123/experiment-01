@@ -1003,29 +1003,28 @@ function withActorOnlyRootPolicy(run,deps={}){
   const policyOwnerSeat=deps.policyOwnerSeat??null;
   assert.ok(policyOwnerSeat===null||policyOwnerSeat===0||policyOwnerSeat===1,
     'policyOwnerSeat must be physical seat 0, seat 1, or null');
-  const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const SimpleTacticsAi=deps.SimpleTacticsAi??
-    require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
-    require(path.join(base,'game/store/actions/play-card-action'));
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const {AttackAction,PassTurnAction,RetreatAction,UseAbilityAction,
     UseStadiumAction}=deps.gameActions??
-    require(path.join(base,'game/store/actions/game-actions'));
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
   const getCatalog=deps.getCatalog??(()=>{
-    const {CardManager}=require(path.join(base,'game/cards/card-manager'));
-    const {PokemonCard}=require(path.join(base,'game/store/card/pokemon-card'));
-    const {EnergyCard}=require(path.join(base,'game/store/card/energy-card'));
-    const {TrainerCard}=require(path.join(base,'game/store/card/trainer-card'));
+    const {CardManager}=require('../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
+    const {PokemonCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
+    const {EnergyCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
+    const {TrainerCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
     const {Stage,EnergyType,CardType,TrainerType,SpecialCondition}=
-      require(path.join(base,'game/store/card/card-types'));
-    const {PowerType}=require(path.join(base,'game/store/card/pokemon-types'));
+      require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
+    const {PowerType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
     return buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
       PokemonCard,EnergyCard,TrainerCard,Stage,EnergyType,CardType,TrainerType,
       PowerType,SpecialCondition
     });
   });
   const observe=deps.observe??actorObservation;
-  const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
+  const Store=deps.Store??require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const beforeDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof beforeDispatch?.value,'function');
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
@@ -1050,7 +1049,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   // across all copies, keyed by the acting physical owner seat only.
   const genesectDrawUsedTurnBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
-    require(path.join(base,'game/store/state/state')).GamePhase;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state').GamePhase;
   // Test-only seam for an already constructed native, physically complete
   // staged Store. Real games discover their Store from AddPlayerAction below.
   // This explicit dependency is never inferred from cloned or speculative
@@ -1066,9 +1065,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   const copycatHistoryByStore=new WeakMap();
   const copycatHistoryTrackers=[];
   const getNativeTrainerCatalog=deps.getNativeTrainerCatalog??(()=>{
-    const {CardManager}=require(path.join(base,'game/cards/card-manager'));
-    const {TrainerCard}=require(path.join(base,'game/store/card/trainer-card'));
-    const {TrainerType}=require(path.join(base,'game/store/card/card-types'));
+    const {CardManager}=require('../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
+    const {TrainerCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
+    const {TrainerType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
     return require('./agent5-generic-owner-trainer-opportunity.cjs')
       .trainerPrintCatalog(CardManager.getInstance().getAllCards(),
         {TrainerCard,TrainerType});
@@ -1821,7 +1820,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       assert.equal(token.promptId,pending.id,
         'rank7 Faba/Nest response must match real owner pending prompt');
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const bridge=require('./2026-11/agent40-faba-jet-owner-bridge.cjs');
       const promptView=observe(state,seat);
       const proposal=token.kind==='faba'?
@@ -1845,9 +1844,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       assert.equal(pending.id,token.promptId,
         'Arven Hood search must resolve its own authenticated owner prompt');
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const {TrainerType}=deps.arvenTrainerTypes??
-        require(path.join(base,'game/store/card/card-types'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
       const response=require('./agent31/arven-hood-owner-frontier.cjs')
         .resolveArvenHoodSearch(
           state,seat,pending,ResolvePromptAction,TrainerType.ITEM);
@@ -1864,7 +1863,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.jetPostSeekerFabaContinuationOptIn)&&
        pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const token=ownerSeekerPending.get(playerId);
       assert.equal(pending.id,token.promptId,
         'VS Seeker response must match the authentic pending prompt');
@@ -1890,7 +1889,7 @@ function withActorOnlyRootPolicy(run,deps={}){
        ownerRank13CrispinPending.has(playerId)){
       const token=ownerRank13CrispinPending.get(playerId);
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const helper=require('./agent5/rank13-crispin-owner-funding.cjs');
       let response=null;
       if(token.stage==='search'&&token.promptId===pending.id&&
@@ -1913,7 +1912,7 @@ function withActorOnlyRootPolicy(run,deps={}){
        pending.playerId===playerId&&
        ownerEarlyCompressorPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const token=ownerEarlyCompressorPending.get(playerId);
       assert.equal(token.promptId,pending.id,
         'Early Compressor reply requires the actual source-owned prompt');
@@ -1931,9 +1930,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       assert.equal(token.promptId,pending.id,
         'Eri reply must originate from the accepted native reveal prompt');
       const {ResolvePromptAction}=deps.promptActions??
-        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
       const {SuperType,TrainerType,CardTag}=deps.eriCardTypes??
-        require(path.join(base,'game/store/card/card-types'));
+        require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
       const decision=require('./agent50-eri-revealed-item-prompt.cjs')
         .resolveEriRevealedItemPrompt(state,seat,pending,
           SuperType,TrainerType,ResolvePromptAction,CardTag);
@@ -1956,7 +1955,7 @@ function withActorOnlyRootPolicy(run,deps={}){
             state,seat,pending,copycatHistoryByStore.get(nativeStore)??null);
       if(chosen){
         const {ResolvePromptAction}=deps.promptActions??
-          require(path.join(base,'game/store/actions/resolve-prompt-action'));
+          require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
         audit.mimikyuApexTimelessPromptSelected++;
         return new ResolvePromptAction(pending.id,chosen);
       }
@@ -2961,7 +2960,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         const rival=this.state.players[1-choice.seat];
         const pending=this.state.prompts?.find(p=>p.result===undefined);
         const {SuperType,TrainerType}=deps.eriCardTypes??
-          require(path.join(base,'game/store/card/card-types'));
+          require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
         assert.ok(owner&&rival&&pending&&
           require('./agent50-eri-revealed-item-prompt.cjs')
             .observeEriRevealedItems(this.state,choice.seat,pending,

@@ -219,3 +219,9 @@ test('native fixture loop refuses to treat an action cap as a natural game end',
     /exceeded maxActions without a natural terminal state/);
   assert.equal(Math.random,originalRandom);
 });
+
+test('stable string seeds map to the same uint32 value', () => {
+  const seed = 'agent36-v3-fixture-hood-rank1-20261112-01';
+  assert.equal(normalizeSeed32(seed), normalizeSeed32(seed));
+  assert.notEqual(normalizeSeed32(seed), 0);
+});
