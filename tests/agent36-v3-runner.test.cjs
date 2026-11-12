@@ -1,0 +1,270 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const {
+  validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
+  collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
+  combineAndPinV3RoleRuntime
+}=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+
+const STEP='Generate physical deal';
+
+function fixture(){
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-v3-runner-'));
+  const ref='results/aichi-2026/registrations/v3-predeal.json';
+  const preDeal={
+    ready:true,status:'ready-before-deal',fixtureOnly:false,
+    producerId:'bundle-producer',trialId:'trial-001',
+    gameRegistration:{
+      registeredAt:'2026-11-12T17:00:00.000Z',
+      dealGeneratedAt:'2026-11-12T17:10:00.000Z'
+    },
+    policyPlanCore:{schema:'aichi-policy-plan-core-v1'},
+    policyPlanSha256:'a'.repeat(64),
+    policyAttestationBundle:{schema:'aichi-policy-attestation-bundle-v1'},
+    policyAttestationBundleSha256:'b'.repeat(64),
+    policyRegistration:{schema:'aichi-policy-registration-v1'},
+    policyRegistrationSha256:'c'.repeat(64),
+    preDealArtifactRef:ref,preDealArtifactSha256:'d'.repeat(64)
+  };
+  const filename=path.join(root,...ref.split('/'));
+  fs.mkdirSync(path.dirname(filename),{recursive:true});
+  const bytes=Buffer.from(JSON.stringify(preDeal,null,2)+'\n');
+  fs.writeFileSync(filename,bytes);
+  const blobSha=gitBlobSha(bytes);
+  const run={
+    id:12345,repository:{full_name:'owner/repo'},head_sha:'e'.repeat(40),
+    run_started_at:'2026-11-12T17:05:00.000Z'
+  };
+  const step={
+    name:STEP,status:'completed',conclusion:'success',
+    started_at:'2026-11-12T17:11:00.000Z',
+    completed_at:'2026-11-12T17:12:00.000Z'
+  };
+  const generationJob={
+    id:67890,run_id:12345,head_sha:run.head_sha,
+    status:'completed',conclusion:'success',steps:[step]
+  };
+  const trial={
+    trialId:preDeal.trialId,researchRevisionSha:'f'.repeat(40),
+    initialSourceDealFingerprint:'1'.repeat(64)
+  };
+  return {root,ref,preDeal,bytes,blobSha,run,step,generationJob,trial};
+}
+function response(data,{link=null,status=200,ok=true}={}){
+  return {ok,status,headers:{get:name=>name.toLowerCase()==='link'?link:null},
+    json:async()=>data,text:async()=>''};
+}
+function makeFetch(x,{wrongBlob=false,headSha=x.run.head_sha,jobPages=null}={}){
+  return async (url,options)=>{
+    assert.equal(options.headers.Authorization,'Bearer test-token');
+    const u=new URL(url);
+    if(u.pathname.endsWith('/actions/runs/12345/jobs')){
+      if(jobPages){
+        const page=u.searchParams.get('page')||'1';
+        return jobPages[page];
+      }
+      return response({jobs:[x.generationJob]});
+    }
+    if(u.pathname.endsWith('/actions/runs/12345'))
+      return response({...x.run,head_sha:headSha});
+    if(u.pathname.endsWith('/contents/'+x.ref)){
+      return response({
+        type:'file',encoding:'base64',
+        sha:wrongBlob?'0'.repeat(40):x.blobSha,
+        content:x.bytes.toString('base64')
+      });
+    }
+    throw Error('unexpected URL '+url);
+  };
+}
+function prepareFactory(preDeal){
+  return input=>{
+    assert.equal(input.trialId,preDeal.trialId);
+    return preDeal;
+  };
+}
+
+test('repository-relative artifact paths reject traversal and aliases',()=>{
+  assert.equal(validateArtifactRef('results/aichi-2026/predeal.json'),
+    'results/aichi-2026/predeal.json');
+  for(const value of ['../secret.json','/tmp/predeal.json',
+    'results/../private/x','results\\predeal.json','results//x'])
+    assert.throws(()=>validateArtifactRef(value));
+});
+
+test('persisted pre-deal artifact must exactly match a fresh production preparation',()=>{
+  const x=fixture();
+  try{
+    assert.equal(verifyPersistedPreDeal(x.preDeal,prepareFactory(x.preDeal)).trialId,
+      'trial-001');
+    assert.throws(()=>verifyPersistedPreDeal({
+      ...x.preDeal,policyPlanSha256:'9'.repeat(64)
+    },prepareFactory(x.preDeal)),/changed or omitted/);
+    assert.throws(()=>verifyPersistedPreDeal({
+      ...x.preDeal,fixtureOnly:true
+    },prepareFactory(x.preDeal)),/fixture-only/);
+  }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
+
+test('pre-deal collector binds run server time, exact head and committed artifact blob',async()=>{
+  const x=fixture();
+  try{
+    const result=await collectPreDealPersistenceReceipt({
+      preDeal:x.preDeal,repositoryRoot:x.root,repositoryFullName:'owner/repo',
+      runId:'12345',token:'test-token',expectedHeadSha:x.run.head_sha,
+      apiBaseUrl:'https://api.test',fetchImpl:makeFetch(x),
+      prepare:prepareFactory(x.preDeal)
+    });
+    assert.equal(result.receipt.workflowRunStartedAt,x.run.run_started_at);
+    assert.equal(result.receipt.schema,'aichi-predeal-artifact-persistence-receipt-v1');
+    assert.equal(result.receipt.blobSha,x.blobSha);
+    assert.equal(result.receipt.artifactSha256,x.preDeal.preDealArtifactSha256);
+  }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
+
+test('pre-deal collector rejects checkout/head or GitHub blob mismatch',async()=>{
+  const x=fixture();
+  try{
+    const args={
+      preDeal:x.preDeal,repositoryRoot:x.root,repositoryFullName:'owner/repo',
+      runId:'12345',token:'test-token',apiBaseUrl:'https://api.test',
+      prepare:prepareFactory(x.preDeal)
+    };
+    await assert.rejects(()=>collectPreDealPersistenceReceipt({
+      ...args,expectedHeadSha:'9'.repeat(40),fetchImpl:makeFetch(x)
+    }),/differs from the checked-out/);
+    await assert.rejects(()=>collectPreDealPersistenceReceipt({
+      ...args,expectedHeadSha:x.run.head_sha,fetchImpl:makeFetch(x,{wrongBlob:true})
+    }),/do not match the committed Git blob/);
+  }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
+
+test('postgame collector waits for the completed generation job and binds server step start',async()=>{
+  const x=fixture();
+  const persistenceReceipt={
+    schema:'aichi-predeal-artifact-persistence-receipt-v1',
+    trialId:x.preDeal.trialId,repositoryFullName:'owner/repo',
+    artifactRef:x.ref,artifactSha256:x.preDeal.preDealArtifactSha256,
+    serverTimestampSource:'github-actions-run-started-at',
+    workflowRunId:'12345',workflowHeadSha:x.run.head_sha,
+    commitSha:x.run.head_sha,blobSha:x.blobSha,
+    workflowRunStartedAt:x.run.run_started_at
+  };
+  const otherJob={
+    id:67889,run_id:12345,head_sha:x.run.head_sha,
+    status:'completed',conclusion:'success',steps:[]
+  };
+  const page1=response({jobs:[otherJob]},{link:
+    '<https://api.test/repos/owner/repo/actions/runs/12345/jobs?per_page=100&page=2>; rel="next"'});
+  const page2=response({jobs:[x.generationJob]});
+  try{
+    const result=await collectDealGenerationReceipt({
+      preDeal:x.preDeal,trial:x.trial,persistenceReceipt,
+      repositoryFullName:'owner/repo',runId:'12345',token:'test-token',
+      expectedHeadSha:x.run.head_sha,apiBaseUrl:'https://api.test',
+      fetchImpl:makeFetch(x,{jobPages:{'1':page1,'2':page2}})
+    });
+    assert.equal(result.trial.dealGenerationStepStartedAt,x.step.started_at);
+    assert.equal(result.receipt.jobId,'67890');
+    assert.equal(result.receipt.schema,'aichi-physical-deal-generation-receipt-v1');
+    assert.equal(result.jobs.length,2);
+  }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
+
+test('job metadata pagination rejects repeated page URLs',async()=>{
+  let count=0;
+  const fetchImpl=async()=>{
+    count++;
+    return response({jobs:[{id:1}]},{link:
+      '<https://api.test/repeat>; rel="next"'});
+  };
+  await assert.rejects(()=>fetchWorkflowJobs({
+    repositoryFullName:'owner/repo',runId:'12345',token:'test-token',
+    apiBaseUrl:'https://api.test',fetchImpl
+  }),/pagination loop/);
+  assert.equal(count,2);
+});
+
+test('role composer receives shared dependencies and policy options bound to role identity',()=>{
+  const commonDeps={
+    observe:()=>{},promptActions:{ResolvePromptAction:function ResolvePromptAction(){}}
+  };
+  const candidateIdentity={policyDefinition:{policyOptions:{mode:'candidate'}}};
+  const opponentIdentity={policyDefinition:{policyOptions:{mode:'opponent'}}};
+  const trial={candidateSeat:1,originalSourceSeat:0};
+  let received;
+  const composer=(run,options)=>{
+    received=options;
+    return {
+      result:run(),candidateAudit:{policyOwnerSeat:1},
+      opponentAudit:{policyOwnerSeat:0},roleSeatMap:{candidate:1,opponent:0}
+    };
+  };
+  const result=runCandidateOpponentPolicyRoles(()=>42,{
+    candidateSeat:1,opponentSeat:0,
+    candidatePolicyOptions:{mode:'candidate'},
+    opponentPolicyOptions:{mode:'opponent'},
+    candidateIdentity,opponentIdentity,trial,commonDeps,composer
+  });
+  assert.equal(result.result,42);
+  assert.equal(received.commonDeps,commonDeps);
+  assert.deepEqual(result.roleSeatMap,{candidate:1,opponent:0});
+  assert.throws(()=>runCandidateOpponentPolicyRoles(()=>42,{
+    candidateSeat:0,opponentSeat:1,trial,commonDeps,composer
+  }),/candidate role seat must be fixed/);
+});
+
+test('runtime pin wrapper requires exact loaded union before executing',()=>{
+  const candidate={expectedByPath:{'runner.cjs':'a'.repeat(64)}};
+  const opponent={expectedByPath:{'policy.cjs':'b'.repeat(64)}};
+  const identityHelper={
+    combineRolePolicyEntryManifests:()=>({
+      expectedByPath:{'runner.cjs':'a'.repeat(64),'policy.cjs':'b'.repeat(64)},
+      unionSha256:'c'.repeat(64)
+    }),
+    assertLoadedResearchModulesCovered:()=>({
+      files:[{path:'policy.cjs'},{path:'runner.cjs'}],sha256:'d'.repeat(64)
+    })
+  };
+  let called=false;
+  const pin=(root,expected,run)=>{
+    called=true;
+    return {result:run(),audit:{guardRestored:true}};
+  };
+  const result=combineAndPinV3RoleRuntime({
+    repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
+    run:()=>17,identityHelper,pin
+  });
+  assert.equal(called,true);
+  assert.equal(result.result,17);
+  assert.equal(result.runtimePinUnionSha256,'c'.repeat(64));
+  assert.equal(result.loadedProcessClosureSha256,'d'.repeat(64));
+  const incomplete={
+    ...identityHelper,
+    assertLoadedResearchModulesCovered:()=>({
+      files:[{path:'runner.cjs'}],sha256:'d'.repeat(64)
+    })
+  };
+  assert.throws(()=>combineAndPinV3RoleRuntime({
+    repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
+    run:()=>17,identityHelper:incomplete,pin
+  }),/every role-closure module must be preloaded/);
+});
+
+test('pre-deal receipt cannot bind a different in-memory registration to the committed artifact',async()=>{
+  const x=fixture();
+  try{
+    const substituted={...x.preDeal,policyPlanSha256:'9'.repeat(64)};
+    await assert.rejects(()=>collectPreDealPersistenceReceipt({
+      preDeal:substituted,repositoryRoot:x.root,repositoryFullName:'owner/repo',
+      runId:'12345',token:'test-token',expectedHeadSha:x.run.head_sha,
+      apiBaseUrl:'https://api.test',fetchImpl:makeFetch(x),
+      prepare:prepareFactory(substituted)
+    }),/artifact object differs from the verified policy registration/);
+  }finally{fs.rmSync(x.root,{recursive:true,force:true});}
+});
