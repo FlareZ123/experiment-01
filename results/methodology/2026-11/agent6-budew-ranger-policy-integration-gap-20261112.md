@@ -58,3 +58,6 @@ The option remains off by default. Agent41 only needs to pass `rangerBudewItemLo
 
 
 **Scoping clarification:** `rangerBudewItemLock` is a captured Agent34 wrapper option, not a self-contained deck-role flag. A single installed wrapper will apply the response to every actor it governs. Candidate-only activation requires genuinely separate role-scoped wrappers; otherwise evaluate it symmetrically or leave it disabled. Record this distinction in the experiment manifest.
+
+
+**Latest test hardening:** the pure suite now also asserts the effect-removal probe is non-mutating and rejects unrelated attack markers on either player. The native Store policy test now uses the actual pinned `CardManager`/card classes through `buildActorCardCatalog` rather than a hand-authored Item set, so it validates the new catalog integration as well as the Budew opportunity.
