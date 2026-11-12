@@ -1,4 +1,6 @@
 'use strict';
+const UNDERWORLD_DOOR_HOOK_ID='underworld-door-psychic-recipient-v1';
+const UNDERWORLD_DOOR_HOOK_TARGET='ShadowRiderCalyrexVMAX.prototype.reduceEffect';
 let uninstall=null;
 
 /**
@@ -16,7 +18,7 @@ let uninstall=null;
  * @returns {()=>void} Restores the pinned original reducer.
  */
 function installUnderworldDoorPsychicRecipientHook(){
-  if(uninstall)return uninstall;
+  if(uninstall)throw new Error('Underworld Door hook is already installed; install exactly once at the outer runner boundary');
   const {ShadowRiderCalyrexVMAX}=require('../../vendor/twinleaf/ptcg-server/output/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax');
   const {WAS_POWER_USED}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prefabs/prefabs');
   const {AttachEnergyPrompt}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/attach-energy-prompt');
@@ -90,14 +92,33 @@ function installUnderworldDoorPsychicRecipientHook(){
     finally{store.prompt=before;}
   }
 
-  ShadowRiderCalyrexVMAX.prototype.reduceEffect=corrected;
-  uninstall=()=>{
+  let restored=false;
+  const restore=()=>{
     if(ShadowRiderCalyrexVMAX.prototype.reduceEffect!==corrected)
       throw new Error('Underworld Door hook lost reducer ownership');
     ShadowRiderCalyrexVMAX.prototype.reduceEffect=original;
+    restored=true;
     uninstall=null;
   };
-  return uninstall;
+  Object.defineProperties(restore,{
+    patchId:{value:UNDERWORLD_DOOR_HOOK_ID,enumerable:true},
+    target:{value:UNDERWORLD_DOOR_HOOK_TARGET,enumerable:true},
+    originalReducer:{value:original},
+    installedReducer:{value:corrected},
+    isInstalled:{get:()=>ShadowRiderCalyrexVMAX.prototype.reduceEffect===corrected,
+      enumerable:true},
+    isRestored:{get:()=>restored&&ShadowRiderCalyrexVMAX.prototype.reduceEffect===original,
+      enumerable:true}
+  });
+  Object.defineProperty(corrected,'underworldDoorHookId',
+    {value:UNDERWORLD_DOOR_HOOK_ID});
+  ShadowRiderCalyrexVMAX.prototype.reduceEffect=corrected;
+  uninstall=restore;
+  return restore;
 }
 
-module.exports={installUnderworldDoorPsychicRecipientHook};
+module.exports={
+  installUnderworldDoorPsychicRecipientHook,
+  UNDERWORLD_DOOR_HOOK_ID,
+  UNDERWORLD_DOOR_HOOK_TARGET
+};
