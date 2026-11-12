@@ -549,6 +549,8 @@ function runNativeFixtureGame(input) {
       let policyInputKind='native-prompt';
       if(pending instanceof ShuffleDeckPrompt) {
         failureContext.stage='physical-prompt-resolution';
+        policyInputKind='physical-randomization-prompt';
+        attemptRecord.policyInputKind=policyInputKind;
         const ownerId=pending.getPerspectivePlayerId();
         const owner=state.players.find(player=>player.id===ownerId);
         if(!owner) throw new Error('Twinleaf shuffle prompt has no deck owner');
@@ -568,6 +570,8 @@ function runNativeFixtureGame(input) {
         policyInputKind='physical-randomization-prompt';
       } else if(pending instanceof CoinFlipPrompt) {
         failureContext.stage='physical-prompt-resolution';
+        policyInputKind='physical-randomization-prompt';
+        attemptRecord.policyInputKind=policyInputKind;
         if(pending.playerId!==undefined) {
           const seat=state.players.findIndex(player=>player.id===pending.playerId);
           actingSeat=seat===-1?null:seat;
@@ -590,6 +594,7 @@ function runNativeFixtureGame(input) {
         attemptRecord.promptResolverContext=promptResolverContext;
         failureContext.stage='prompt-resolver-decode';
         policyInputKind='native-owner-prompt';
+        attemptRecord.policyInputKind=policyInputKind;
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
@@ -608,6 +613,8 @@ function runNativeFixtureGame(input) {
         attemptRecord.actorObservationSha256=actorObservationBefore===null?
           null:sha256Json(actorObservationBefore);
         failureContext.stage='policy-decode';
+        policyInputKind='actor-observation';
+        attemptRecord.policyInputKind=policyInputKind;
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
         policyInputKind='actor-observation';
       }
