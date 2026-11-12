@@ -45,7 +45,8 @@ function fixture() {
   };
   const trial={
     trialId:preDeal.trialId,
-    dealGeneratedAt:step.started_at,
+    dealGeneratedAt:'2026-11-12T17:11:02.000Z',
+    dealGenerationStepStartedAt:step.started_at,
     researchRevisionSha:'d'.repeat(40),
     initialSourceDealFingerprint:'e'.repeat(64)
   };
@@ -150,10 +151,10 @@ test('deal receipt rejects a generation step before the planned time or run star
   }),/at or after the planned physical deal/);
 });
 
-test('deal receipt requires the trial time and a valid source-deal fingerprint',()=>{
+test('deal receipt requires the trial server step time and a valid source-deal fingerprint',()=>{
   const x=fixture();
   assert.throws(()=>createDealGenerationReceipt({
-    ...x,trial:{...x.trial,dealGeneratedAt:'2026-11-12T17:11:00.001Z'}
+    ...x,trial:{...x.trial,dealGenerationStepStartedAt:'2026-11-12T17:11:00.001Z'}
   }),/server-reported generation step start/);
   assert.throws(()=>createDealGenerationReceipt({
     ...x,trial:{...x.trial,initialSourceDealFingerprint:'f'.repeat(63)}
