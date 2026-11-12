@@ -139,6 +139,10 @@ jobs:
         if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
         run: git submodule update --init --depth=1 vendor/twinleaf
 
+      - name: Record exact pinned Twinleaf revision for V3 runner
+        if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
+        run: echo "AGENT36_TWINLEAF_COMMIT_SHA=$(git -C vendor/twinleaf rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - name: Set up Node runtime for contract-only tests
         if: ${{ inputs.agent36_v3_predeal_preflight || (inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native) }}
         uses: actions/setup-node@v4
