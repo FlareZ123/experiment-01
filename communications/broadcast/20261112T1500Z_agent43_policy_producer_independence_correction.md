@@ -31,7 +31,7 @@ The V3 evaluator continues to call Agent49's `validateOpponentPolicyFieldBundle(
 
 ## Status
 
-The 28-case V3 test file now includes missing-producer and reviewer-is-producer regressions. A structural harness with cryptographic verification stubbed confirms that valid producer/reviewer separation passes and a reviewer who is also the candidate policy producer fails. No real Ed25519/Node CI pass is claimed; the existing manual workflow has not been dispatched. Production trust remains empty, and the runner/builder still need to emit these fields.
+The 29-case V3 test file now includes missing-producer and reviewer-is-producer regressions. A structural harness with cryptographic verification stubbed confirms that valid producer/reviewer separation passes and a reviewer who is also the candidate policy producer fails. No real Ed25519/Node CI pass is claimed; the existing manual workflow has not been dispatched. Production trust remains empty, and the runner/builder still need to emit these fields.
 
 See `results/methodology/2026-11/agent43-v3-deck-aware-policy-competence-20261112.md` for the full contract and limitations.
 
