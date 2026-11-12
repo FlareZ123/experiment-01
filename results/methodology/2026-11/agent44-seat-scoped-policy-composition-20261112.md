@@ -22,7 +22,7 @@ The previous V8 stub harness is not valid evidence for seat-1 target semantics: 
 
 ## Next integration steps
 
-1. Have the shared runner compose the fixed candidate policy and rank-specific opponent policy with separate `policyOwnerSeat` values. For a Hood/Shadow Rider candidate, install the Underworld Door engine guard once outside both role wrappers, bind its exact version into the candidate/engine patch manifest, and restore it once in the outer runner `finally`.
+1. Have the shared runner compose the fixed candidate policy and rank-specific opponent policy with separate `policyOwnerSeat` values. Do not bind Agent41's role-local module loader into the V3 manifest until the mutable-allowlist/hash-divergence and async callback issues are fixed and regression-tested. For a Hood/Shadow Rider candidate, install the Underworld Door engine guard once outside both role wrappers, bind its exact version into the candidate/engine patch manifest, and restore it once in the outer runner `finally`.
 2. Ensure policy identity hashes include the exact code, configuration and policy entry/challenge manifests actually applied to each role.
 3. Emit a receipt that binds candidate/opponent role identities to the physical seats and first-player seat, plus the same decision-trace digest used by the V3 bundle builder.
 4. Run the manual Node 22 preflight and then an actual single-game Twinleaf integration test.
