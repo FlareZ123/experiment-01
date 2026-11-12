@@ -215,6 +215,12 @@ function formatFixtureGameTraceText(game) {
     lines.push('');
     lines.push(`ACTION #${row.actionOrdinal} turn=${row.turnBefore} seat=${row.actingSeat} playerId=${row.actingPlayerId} phase=${row.phaseBefore} name=${row.actionName} root=${row.isRootDecision}`);
     if (row.selectedCardIdentity) lines.push(`SELECTED CARD ${JSON.stringify(row.selectedCardIdentity)}`);
+    const actorObservationBefore = row.actorObservationBefore ?? row.ownerObservationBefore ?? null;
+    const actorObservationAfter = row.actorObservationAfter ?? row.ownerObservationAfter ?? null;
+    if (row.actorObservationSha256) lines.push(`ACTOR OBSERVATION SHA256 ${row.actorObservationSha256}`);
+    if (actorObservationBefore) lines.push(`ACTOR OBSERVATION BEFORE (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationBefore)}`);
+    if (actorObservationAfter) lines.push(`ACTOR OBSERVATION AFTER (ROOT POLICY CONTRACT) ${JSON.stringify(actorObservationAfter)}`);
+    if (row.promptResolverContext) lines.push(`PROMPT RESOLVER CONTEXT ${JSON.stringify(row.promptResolverContext)}`);
     if (row.promptResolution) lines.push(`PROMPT RESOLUTION ${JSON.stringify(row.promptResolution)}`);
     if (row.actionPayloadSha256) lines.push(`ACTION PAYLOAD SHA256 ${row.actionPayloadSha256}`);
     if (row.actionPayload) lines.push(`ACTION PAYLOAD ${JSON.stringify(row.actionPayload)}`);
