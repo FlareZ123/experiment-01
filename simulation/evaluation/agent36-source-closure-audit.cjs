@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent36-source-closure-audit-v1';
+const VERSION = 'agent36-source-closure-audit-v2-vendor-boundary';
 const LITERAL_REQUIRE = /\brequire\s*\(\s*(['"])([^'"]+)\1\s*\)/g;
 const ANY_REQUIRE = /\brequire\s*\(/g;
 const ENV_DOT = /\bprocess\s*\.\s*env\s*\.\s*([A-Za-z_$][\w$]*)/g;
@@ -46,23 +46,33 @@ function resolveRelative(importer, request) {
  * @param {string[]} entries Entry files relative to the repository directory.
  * @returns {{version:string,files:Array<object>,keys:string[],readers:Record<string,string[]>,digest:string,limitations:object}}
  */
-function auditSourceClosure(repositoryRoot, entries) {
+function auditSourceClosure(repositoryRoot, entries, options = {}) {
   assert.equal(typeof repositoryRoot, 'string');
   assert.ok(Array.isArray(entries) && entries.length > 0);
-  const root = path.resolve(repositoryRoot);
+  assert.ok(options && typeof options === 'object' && !Array.isArray(options));
+  const root = fs.realpathSync(repositoryRoot);
+  const vendorPrefixes = [...new Set(options.vendorPrefixes ?? ['vendor/twinleaf/'])].sort();
+  for (const prefix of vendorPrefixes) {
+    assert.equal(typeof prefix, 'string');
+    assert.ok(prefix.startsWith('vendor/') && prefix.endsWith('/') &&
+      !prefix.includes('..') && !prefix.includes('\\'),
+      'vendor prefix must be a canonical repository-relative directory');
+  }
   const files = new Map();
+  const vendorImports = [];
   const limitations = {dynamicRequireSites:[], computedEnvSites:[],
     unclassifiedEnvSites:[], missingRelativeImports:[], externalRequires:[]};
 
   /** @param {string} filename */
   function visit(filename) {
     const absolute = path.resolve(filename);
-    const relative = path.relative(root, absolute);
+    const real = fs.realpathSync(absolute);
+    const relative = path.relative(root, real);
     assert.ok(relative && relative !== '..' &&
       !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative),
     'Source escapes audited repository: '+filename);
     if (files.has(relative)) return;
-    const bytes = fs.readFileSync(absolute);
+    const bytes = fs.readFileSync(real);
     const text = bytes.toString('utf8');
     const direct = [...text.matchAll(LITERAL_REQUIRE)];
     const env = [...new Set([...text.matchAll(ENV_DOT)].map(match => match[1]))].sort();
@@ -85,12 +95,23 @@ function auditSourceClosure(repositoryRoot, entries) {
         }
         continue;
       }
-      const resolved = resolveRelative(absolute, request);
+      const resolved = resolveRelative(real, request);
       if (!resolved) {
         limitations.missingRelativeImports.push({file:relative,request});
         continue;
       }
-      visit(resolved);
+      const resolvedReal = fs.realpathSync(resolved);
+      const targetRelative = path.relative(root, resolvedReal).split(path.sep).join('/');
+      assert.ok(targetRelative && targetRelative !== '..' && !targetRelative.startsWith('../') &&
+        !path.isAbsolute(targetRelative), 'Import escapes audited repository: '+relative+' -> '+request);
+      const vendorPrefix = vendorPrefixes.find(prefix => targetRelative.startsWith(prefix));
+      if (vendorPrefix) {
+        const vendorBytes = fs.readFileSync(resolvedReal);
+        vendorImports.push({importer:relative,request,path:targetRelative,
+          vendorPrefix,sha256:sha256(vendorBytes)});
+        continue;
+      }
+      visit(resolvedReal);
     }
   }
 
@@ -103,10 +124,13 @@ function auditSourceClosure(repositoryRoot, entries) {
   const keys = Object.keys(readers).sort();
   for (const value of Object.values(readers)) value.sort();
   const digest = sha256(JSON.stringify(ordered.map(f=>[f.path,f.sha256])));
+  vendorImports.sort((a,b)=>(a.importer+'\\0'+a.request+'\\0'+a.path).localeCompare(
+    b.importer+'\\0'+b.request+'\\0'+b.path));
   for (const group of Object.values(limitations)) {
     group.sort((a,b)=>a.file.localeCompare(b.file));
   }
-  return {version:VERSION, files:ordered, keys, readers, digest, limitations};
+  return {version:VERSION, files:ordered, keys, readers, digest, limitations,
+    vendorPrefixes,vendorImports};
 }
 
 /**
