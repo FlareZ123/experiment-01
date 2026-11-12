@@ -1801,6 +1801,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const playerId=this.client?.id;
     const seat=state.players?.findIndex(p=>p.id===playerId);
+    const ownerPlayerType=seat===1?PlayerType.TOP_PLAYER:ownerPlayerType;
+    if(seat===1) assert.ok(ownerPlayerType!==undefined,
+      'Seat-scoped top-player policy requires PlayerType.TOP_PLAYER');
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(policyOwnerSeat!==null&&seat!==policyOwnerSeat){
       audit.nonOwnerSeatBypassCalls++;
@@ -2495,18 +2498,18 @@ function withActorOnlyRootPolicy(run,deps={}){
     switch(intent.kind){
       case 'evolve-pokemon':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,
+          player:ownerPlayerType,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.index});
         break;
       case 'bench-basic':
       case 'play-robo-after-jet':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
+          player:ownerPlayerType,slot:SlotType.BENCH,index:intent.benchIndex});
         break;
       case 'equip-bunnelby-tm':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,
+          player:ownerPlayerType,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
@@ -2517,11 +2520,11 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'attach-emergency-floatstone':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+          player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
         break;
       case 'use-forest-star-alchemy':
         action=new UseAbilityAction(ownerId,'Star Alchemy',{
-          player:PlayerType.BOTTOM_PLAYER,
+          player:ownerPlayerType,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0
         });
@@ -2534,12 +2537,12 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'equip-powerglass':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+          player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attach-special-energy':
       case 'attach-basic-energy':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,
+          player:ownerPlayerType,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
@@ -2589,7 +2592,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'attach-dce':
         action=new PlayCardAction(ownerId,intent.handIndex,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+          player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
         break;
       case 'retreat-emergency-floatstone':
         action=new RetreatAction(ownerId,intent.benchIndex);
@@ -2602,19 +2605,19 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'use-underworld-door':
       case 'use-genesect-fusion-draw':
         action=new UseAbilityAction(ownerId,intent.abilityName,{
-          player:PlayerType.BOTTOM_PLAYER,
+          player:ownerPlayerType,
           slot:intent.position==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.position==='bench'?intent.benchIndex:0
         });
         break;
       case 'use-farewell-letter':
         action=new UseAbilityAction(ownerId,intent.abilityName,{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+          player:ownerPlayerType,slot:SlotType.BENCH,
           index:intent.benchIndex});
         break;
       case 'perfection':
         action=new UseAbilityAction(ownerId,'Perfection',{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+          player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attack':action=new AttackAction(ownerId,intent.attackName);break;
       case 'use-tropical-beach':
