@@ -132,7 +132,7 @@ function loadedResearchCodeManifest({repositoryRoot, entryFiles = [],
   for (const filename of filenames) {
     const relative = path.relative(root, filename).split(path.sep).join('/');
     if (!(relative.startsWith('simulation/') || relative.startsWith('scripts/'))) {
-      if (relative.startsWith('results/')) excludedDataModules.push(relative);
+      if (relative.startsWith('results/') || relative.startsWith('resources/')) excludedDataModules.push(relative);
       else if (relative.startsWith('vendor/') || relative.startsWith('node_modules/') ||
           relative.startsWith('agents/') || relative.startsWith('communications/') ||
           relative.startsWith('artifacts/') || relative.startsWith('.github/')) {
