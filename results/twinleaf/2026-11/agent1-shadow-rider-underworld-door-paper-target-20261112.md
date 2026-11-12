@@ -35,6 +35,20 @@ The research-owned, opt-in adapter hook in simulation/twinleaf/2026-11/agent1-un
 
 The test covers both physical owner seats, legal Psychic targets, non-Psychic targets, invalid source Energy, no legal Psychic Bench, and prototype cleanup.
 
+
+## Historical archive audit
+
+I also audited the existing GitHub Actions artifact from run 42578010606, agent3-hood-vs-shadow-all29-native.zip. It contains two actualNativeRuns of 58 rows each (116 games total): champion-reference and hood-shield-v1.
+
+For each row, Underworld Door UseAbilityAction entries in rootActionLedger were joined to AttachEnergyPrompt resolutions in nativeAcceptedEnergyPromptSidecar by player seat and turn. All 304 Underworld Door roots had a matching prompt resolution (142 in champion-reference; 162 in hood-shield-v1). Every observed recipient printing was Psychic in the repository card pool:
+
+- champion-reference candidate side, 132 uses: Shadow Rider Calyrex VMAX CRE 75 (82), Lillie's Clefairy ex JTG 56 (12), Girafarig LOT 94 (9), Marshadow UNB 81 (10), Latias ex SSP 76 (6), Mimikyu GRI 58 (5), Trevenant & Dusknoir-GX SMP SM217 (8).
+- champion-reference opponent side, 10 uses: Shadow Rider Calyrex VMAX CRE 75 (8), Girafarig LOT 94 (2).
+- hood-shield-v1 candidate side, 156 uses: Shadow Rider Calyrex VMAX CRE 75 (104), Lillie's Clefairy ex JTG 56 (22), Girafarig LOT 94 (12), Marshadow UNB 81 (10), Latias ex SSP 76 (6), Tapu Lele-GX GRI 60 (2).
+- hood-shield-v1 opponent side, 6 uses: Shadow Rider Calyrex VMAX CRE 75 (4), Girafarig LOT 94 (2).
+
+**Zero illegal Underworld Door recipients were observed in this 116-game archive.** The native prompt remains permissive, but the generic resolver happened to choose only Psychic targets in these games. This specific defect is therefore not a reason to discard or retroactively invalidate this archive. Retain it as pre-correction evidence; use the paper hook for future runs so legality no longer depends on generic resolver behavior. This audit does not change the archive's existing non-qualification status or establish competitive strength.
+
 ## Reproducibility and limitations
 
 - Twinleaf repository: twinleafgg/twinleafgg
