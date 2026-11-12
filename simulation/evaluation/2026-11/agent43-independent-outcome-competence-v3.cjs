@@ -673,6 +673,11 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
         failures:['unverifiable-event-match-bundle',
           ...policyPanel.failures,...policyAttestations.failures]};
     }
+    // V2's assessment omits structuralProgress; recover these diagnostics from
+    // the same pinned structural evaluator rather than silently returning null.
+    let eventStructural = null;
+    try { eventStructural = evaluateBilateralCompetence(bundle?.trial); }
+    catch { /* The V2 outcome assessment already reports structural failure. */ }
     const gameReviewerIds = (event.signedReviewRoles ?? [])
       .filter(x => x?.valid === true).map(x => x.reviewerId).filter(Boolean);
     const gameReviewerIdentityValid = gameReviewerIds.every(stableIdentityId);
@@ -716,8 +721,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       policyFieldComplete:policyPanel.fieldComplete,
       policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
       policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
-      samePolicyDiagnostic:event.structuralProgress?.samePolicy ?? null,
-      clockStatus:event.structuralProgress?.officialClockStatus ?? 'unverified',
+      samePolicyDiagnostic:eventStructural?.samePolicy ?? null,
+      clockStatus:eventStructural?.officialClockStatus ?? 'unverified',
       failures:[...new Set(failures)],
       acceptanceReady:event.gameOutcomeAdmissionReady === true &&
         competitivePolicyCompetenceReady,
