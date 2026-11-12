@@ -169,7 +169,7 @@ function validateInputs(input) {
   }
   assert.ok(Array.isArray(input.botOptionsBySeat)&&input.botOptionsBySeat.length===2,
     'two seat-ordered SimpleTacticsAi option objects are required');
-  const seed32=normalizeSeed32(input.seed);
+  normalizeSeed32(input.seed);
   assert.ok(input.candidateSeat===0||input.candidateSeat===1,
     'candidateSeat must be physical seat 0 or 1');
   assert.equal(input.originalSourceSeat,1-input.candidateSeat,
@@ -192,6 +192,7 @@ function validateInputs(input) {
  */
 function runNativeFixtureGame(input) {
   const {native,maxActions}=validateInputs(input);
+  const seed32=normalizeSeed32(input.seed);
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
@@ -409,7 +410,6 @@ module.exports={
   deckPermutation,
   publicStateSnapshot,
   projectActionPayload,
-  runNativeFixtureGame
-,
+  runNativeFixtureGame,
   normalizeSeed32
 };

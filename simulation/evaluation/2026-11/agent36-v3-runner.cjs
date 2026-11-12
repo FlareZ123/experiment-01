@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const Module=require('node:module');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
@@ -10,6 +11,9 @@ const {preparePreDealPolicyRegistration}=require('./agent44-v3-game-bundle-build
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
+const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
+const {runNativeFixtureGame}=require('./agent49-native-fixture-game.cjs');
+const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
@@ -862,6 +866,15 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     runtimePinEvidence,
   });
 
+  const preGameTrial = {
+    trialId: V3_FIXTURE.trialId,
+    fixtureOnly: true,
+    candidateSeat: 0,
+    originalSourceSeat: 1,
+    vendorCommitSha: enginePin,
+    researchRevisionSha: runnerRevision,
+  };
+
   const restoreHook = hookModule.installUnderworldDoorPsychicRecipientHook();
   assert.equal(restoreHook.isInstalled, true, 'Underworld compatibility hook must install before role wrappers');
   let pinned;
@@ -884,6 +897,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
         {
           candidateSeat: 0,
           opponentSeat: 1,
+          trial: preGameTrial,
           candidateIdentity: identities.candidateIdentity,
           opponentIdentity: identities.opponentIdentity,
           candidatePolicyOptions: {},
@@ -910,6 +924,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     candidateSeat: 0,
     originalSourceSeat: 1,
     actualFirstPlayerSeat: gameResult.actualFirstPlayerSeat,
+    candidatePrinted60Ref: V3_FIXTURE.candidatePath,
+    originalPrinted60Ref: V3_FIXTURE.fieldPath + '#rank=1',
     candidatePrinted60Sha256: V3_FIXTURE.candidateDeckSha256,
     originalPrinted60Sha256: V3_FIXTURE.opponentDeckSha256,
     vendorCommitSha: enginePin,
@@ -918,6 +934,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     cardPoolInitializationReceipt: native.cardPoolInitialization,
     runtimePatchReceipts: [patchReceipt],
     seed: V3_FIXTURE.seed,
+    seed32: gameResult.seed32,
   };
   const application = roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,

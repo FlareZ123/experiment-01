@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  seededRandom,deckPermutation,projectActionPayload,runNativeFixtureGame
+  seededRandom,deckPermutation,projectActionPayload,runNativeFixtureGame,normalizeSeed32
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
