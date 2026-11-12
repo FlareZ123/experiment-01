@@ -361,7 +361,8 @@ function combineRolePolicyEntryManifests(...results) {
     }
   }
   const expectedByPath=Object.fromEntries(Object.entries(combined).sort(([a],[b])=>a.localeCompare(b)));
-  return {expectedByPath,unionSha256:evidenceBundleSha256(expectedByPath)};
+  const unionSha256=evidenceBundleSha256(expectedByPath);
+  return {expectedByPath,unionSha256,runtimePinUnionSha256:unionSha256};
 }
 
 /**
@@ -374,6 +375,14 @@ function assertLoadedResearchModulesCovered(repositoryRoot,expectedByPath,
   const root=fs.realpathSync(repositoryRoot);
   assert.ok(expectedByPath&&typeof expectedByPath==='object'&&!Array.isArray(expectedByPath),
     'runtime pin manifest must be a path-to-SHA object');
+  for(const [name,sha] of Object.entries(expectedByPath)){
+    canonicalPath(name,'runtime pin path');
+    assert.match(sha??'',SHA256,'invalid runtime pin SHA-256: '+name);
+    assert.ok(['.cjs','.js','.json'].includes(path.extname(name)),
+      'runtime pin supports CommonJS/JSON only: '+name);
+    assert.ok(!name.startsWith('vendor/')&&!name.startsWith('node_modules/'),
+      'vendor and package-manager code are pinned separately: '+name);
+  }
   const files=[];
   for(const entry of cacheEntries){
     const filename=typeof entry==='string'?entry:entry?.filename;
@@ -395,14 +404,19 @@ function assertLoadedResearchModulesCovered(repositoryRoot,expectedByPath,
     files.push({path:relative,sha256:actual});
   }
   files.sort((a,b)=>a.path.localeCompare(b.path));
+  const loadedPaths=new Set(files.map(file=>file.path));
+  const missing=Object.keys(expectedByPath).filter(name=>!loadedPaths.has(name)).sort();
+  assert.deepEqual(missing,[],
+    'every expected role/shared runtime module must be preloaded before pin installation');
+  const loadedProcessClosureSha256=evidenceBundleSha256(files);
   return {schema:'aichi-loaded-process-runtime-closure-v1',files,
-    sha256:evidenceBundleSha256(files)};
+    loadedProcessClosureSha256,sha256:loadedProcessClosureSha256};
 }
 
 /** Create a role identity whose digest is independent of physical seat/rank. */
 function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   policyVersion,entryManifest,entryManifestSha256,challengeSuiteSha256,
-  policyOptions,policyConstraintsSha256}) {
+  policyOptions,policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256}) {
   assert.ok(['candidate-policy','opponent-policy'].includes(role),'invalid policy role');
   if(role==='candidate-policy')assert.equal(rank,null,
     'candidate policy identity is field-wide and must not be rank-scoped');
@@ -410,7 +424,8 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
     'opponent policy identity requires a Top 32 rank');
   stableId(producerId,'policy producer ID');
   stableId(policyVersion,'policy version');
-  for(const [label,value] of Object.entries({deckSha256,entryManifestSha256,challengeSuiteSha256,policyConstraintsSha256}))
+  for(const [label,value] of Object.entries({deckSha256,entryManifestSha256,challengeSuiteSha256,
+    policyConstraintsSha256,runtimePinUnionSha256,loadedProcessClosureSha256}))
     assert.match(value??'',SHA256,label+' must be a SHA-256 digest');
   assert.ok(entryManifest?.schema===ENTRY_MANIFEST_SCHEMA&&entryManifest.complete===true,
     'entry manifest schema or completeness invalid');
@@ -425,9 +440,17 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
     'entry manifest must contain the exact audited file list');
   assert.equal(entryManifest.runtimeGuard?.required,true,
     'entry manifest must require the Agent36 runtime CommonJS load pin');
-  assert.ok(entryManifest.commonRuntimeBindings?.some(x=>x.name==='observe')&&
-    entryManifest.commonRuntimeBindings?.some(x=>x.name==='promptActions'),
-    'entry manifest must bind common observer and prompt-action adapters');
+  for(const [name,exportName] of Object.entries(REQUIRED_COMMON_BINDING_EXPORTS)){
+    const binding=entryManifest.commonRuntimeBindings?.find(x=>x.name===name);
+    assert.equal(binding?.exportName,exportName,
+      'entry manifest must bind exact common runtime export '+name+'.'+exportName);
+  }
+  assert.equal(entryManifest.vendorPrefix,VENDOR_PREFIX,'entry manifest vendor boundary is invalid');
+  assert.ok(Array.isArray(entryManifest.vendorDependencies),'vendor dependency list is missing');
+  assert.equal(entryManifest.vendorDependenciesSha256,evidenceBundleSha256(entryManifest.vendorDependencies),
+    'vendor dependency digest mismatch');
+  assert.equal(entryManifest.dependencyState?.mode,'node-builtins-only',
+    'policy dependency state must reject unpinned third-party packages');
   assert.ok(Array.isArray(entryManifest.orderedPromptChain)&&entryManifest.orderedPromptChain.length>0,
     'entry manifest must preserve an ordered prompt chain');
   assert.ok(Array.isArray(entryManifest.sharedEnginePatches),
@@ -441,7 +464,8 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
 
   const policyDefinition={
     schema:'aichi-role-policy-definition-v1',deckSha256,policyVersion,
-    entryManifestSha256,policyConstraintsSha256,observationContractSha256,
+    policyProducerId:producerId,entryManifestSha256,policyConstraintsSha256,
+    runtimePinUnionSha256,loadedProcessClosureSha256,observationContractSha256,
     promptChainSha256,sharedEnginePatchSha256,policyOptions
   };
   return {
@@ -449,6 +473,7 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
     deckSha256,policySha256:evidenceBundleSha256(policyDefinition),
     entryManifestSha256,challengeSuiteSha256,policyVersion,
     observationContractSha256,promptChainSha256,sharedEnginePatchSha256,
+    runtimePinUnionSha256,loadedProcessClosureSha256,
     policyOptionsSha256:evidenceBundleSha256(policyOptions),policyDefinition,entryManifest
   };
 }
@@ -474,6 +499,12 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   assert.equal(preDeal.policyPlanSha256,evidenceBundleSha256(core),
     'frozen policy plan digest does not match its contents');
   const candidate=core.candidate;
+  const runtimePinEvidence=core.runtimePinEvidence;
+  assert.ok(runtimePinEvidence?.schema==='aichi-runtime-pin-evidence-v1',
+    'frozen policy plan must contain runtime pin evidence');
+  assert.match(runtimePinEvidence.unionSha256??'',SHA256,'runtime pin union digest is invalid');
+  assert.match(runtimePinEvidence.loadedProcessClosureSha256??'',SHA256,
+    'loaded process closure digest is invalid');
   const opponent=core.opponentPolicyBundle.ranks.find(row=>row.rank===opponentIdentity.rank);
   assert.ok(opponent&&opponent.sourceStatus==='authenticated',
     'opponent rank must be authenticated in the frozen policy plan');
@@ -491,6 +522,12 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
       label+' policy definition constraints differ from the frozen policy plan');
     assert.equal(identity.policyDefinition.policyVersion,identity.policyVersion,
       label+' policy version does not match its hashed definition');
+    assert.equal(identity.policyDefinition.policyProducerId,identity.policyProducerId,
+      label+' producer does not match its hashed definition');
+    assert.equal(identity.policyDefinition.runtimePinUnionSha256,identity.runtimePinUnionSha256,
+      label+' runtime pin union digest mismatch');
+    assert.equal(identity.policyDefinition.loadedProcessClosureSha256,identity.loadedProcessClosureSha256,
+      label+' loaded process closure digest mismatch');
     assert.equal(identity.policyDefinition.observationContractSha256,identity.observationContractSha256,
       label+' observation contract digest mismatch');
     assert.equal(identity.policyDefinition.promptChainSha256,identity.promptChainSha256,
@@ -506,9 +543,15 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     'candidate and opponent must use the same observation contract');
   assert.equal(candidateIdentity.promptChainSha256,opponentIdentity.promptChainSha256,
     'candidate and opponent must use the same ordered prompt chain');
-  assert.equal(candidateIdentity.sharedEnginePatchSha256,opponentIdentity.sharedEnginePatchSha256,
-    'candidate and opponent must use the same shared engine patch set');
-  for(const key of ['enginePin','runnerRevision','nodeVersion'])
+  assert.equal(candidateIdentity.runtimePinUnionSha256,opponentIdentity.runtimePinUnionSha256,
+    'candidate and opponent must use the same runtime pin union');
+  assert.equal(candidateIdentity.loadedProcessClosureSha256,opponentIdentity.loadedProcessClosureSha256,
+    'candidate and opponent must use the same loaded process closure');
+  assert.equal(candidateIdentity.runtimePinUnionSha256,runtimePinEvidence.unionSha256,
+    'role identities do not match the frozen runtime pin union');
+  assert.equal(candidateIdentity.loadedProcessClosureSha256,runtimePinEvidence.loadedProcessClosureSha256,
+    'role identities do not match the frozen loaded process closure');
+  for(const key of ['enginePin','runnerRevision','nodeVersion','nodePlatform','nodeArch'])
     assert.equal(candidateIdentity.entryManifest[key],opponentIdentity.entryManifest[key],
       'candidate and opponent entry manifests must share '+key);
   assert.equal(preDeal.policyRegistrationSha256,evidenceBundleSha256(preDeal.policyRegistration),
@@ -567,6 +610,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
       [opponentIdentity.policySha256,candidateIdentity.policySha256],
     enginePin:trial.vendorCommitSha,runnerRevision:trial.researchRevisionSha,
     policyConstraintsSha256:constraintsSha,
+    runtimePinUnionSha256:candidateIdentity.runtimePinUnionSha256,
+    loadedProcessClosureSha256:candidateIdentity.loadedProcessClosureSha256,
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
