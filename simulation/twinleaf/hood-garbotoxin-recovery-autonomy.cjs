@@ -2,16 +2,20 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
-const {hasHoodedDoorWindow} = require('./rank8-hooded-door-source-reply.cjs');
+const {
+  liveGarbotoxinSlots,hasLiveGarbotoxin,
+  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow
+}=require('./hood-ability-lock-state.cjs');
 
 /** @param {string} suffix */
 const engine = suffix => require(path.join(output,suffix));
 
 /**
- * An own-hand/public-board candidate response to an opponent's equipped
- * Garbodor while the player's Active VMAX has Stealthy Hood. The trigger
- * and all subsequent choices use the player's own legal Store prompts.
- * Unlike the diagnostic source fork, there is no seed, rank, or turn trigger.
+ * An own-hand/public-board candidate response to live Garbotoxin from an
+ * Active or Benched Garbodor with any Pokémon Tool while the player's Active
+ * VMAX has Stealthy Hood. It fails closed when Active Tool Jammer, Jamming
+ * Tower, or Path to the Peak suppresses the required Tool/Ability. All
+ * subsequent choices use the player's own legal Store prompts.
  *
  * The policy only demonstrates one possible conditional line, and does
  * not evaluate its strategic opportunity costs.
@@ -65,7 +69,7 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
     if(phase==='idle' && !attempted &&
         state.activePlayer===candidateSeat &&
         state.phase===GamePhase.PLAYER_TURN && !pending &&
-        hasHoodedDoorWindow(own,opponent)) {
+        hasHoodedDoorRecoveryWindow(own,opponent,state)) {
       const action=play(own,'Battle Compressor');
       if(action && this.isValidAction(state,action)) {
         attempted=true;
@@ -73,9 +77,7 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
         events.push({turn:state.turn,kind:'eligible-own-state',
           handPrintings:own.hand.cards.map(card=>card.fullName),
           activeHoodPrintings:own.active.tools.map(card=>card.fullName),
-          opposingGarbodorTools:opponent.bench.flatMap(slot=>
-            slot.getPokemonCard()?.name==='Garbodor'?
-              slot.tools.map(card=>card.fullName):[])});
+          liveGarbotoxinSources:liveGarbotoxinSlots(opponent)});
         return selected(state,'Battle Compressor from hand',action);
       }
       events.push({turn:state.turn,kind:'play-rejected-by-legality-filter',
@@ -122,11 +124,8 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
       }
     }
     if(phase==='door' && !pending) {
-      const hood=own.active.tools.some(card=>card.name==='Stealthy Hood');
-      const lock=opponent.bench.some(slot=>
-        slot.getPokemonCard()?.name==='Garbodor'&&slot.tools.length>0);
       const energy=own.hand.cards.some(card=>card.name==='Psychic Energy');
-      if(hood && lock && energy) {
+      if(canUseHoodedDoorUnderGarbotoxin(own,opponent,state) && energy) {
         const action=new UseAbilityAction(own.id,'Underworld Door',{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
         });
@@ -174,11 +173,10 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
         card.name==='Psychic Energy').length === beforeDoor.benchPsychic+1;
       const drawn=own.deck.cards.length===beforeDoor.deck-2;
       const retained=own.hand.cards.some(card=>card.name==='Field Blower');
-      const stillEquipped=opponent.bench.some(slot=>
-        slot.getPokemonCard()?.name==='Garbodor'&&slot.tools.length>0);
+      const garbotoxinStillLive=hasLiveGarbotoxin(opponent);
       events.push({turn:state.turn,kind:'completed-source-effect',
         attached,drawnTwo:drawn,retainedFieldBlower:retained,
-        garbodorStillEquipped:stillEquipped,
+        garbotoxinStillLive,
         recoveredEnergy: selectedEnergy});
       phase='done';
     }
@@ -188,13 +186,13 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'hood-garbotoxin-recovery-autonomous-v1',
+      version:'hood-garbotoxin-recovery-autonomous-v2',
       candidateSeat,opponentSeat:1-candidateSeat,
       triggered:attempted,phaseAtEnd:phase,
       successfulEffect:events.some(event=>
         event.kind==='completed-source-effect'&&event.attached&&
         event.drawnTwo&&event.retainedFieldBlower&&
-        event.garbodorStillEquipped),
+        event.garbotoxinStillLive),
       events,qualifiedForCompetitiveInference:false
     }};
   } finally {
