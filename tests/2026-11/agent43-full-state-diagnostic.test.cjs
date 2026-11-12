@@ -152,6 +152,10 @@ test('trace formatter emits selected card and before/after full state changes', 
       actionName: 'PlayCardAction',
       isRootDecision: true,
       selectedCardIdentity: { playerId: 101, handIndex: 0, fullName: 'A Hand 1' },
+      actorObservationSha256: 'view123',
+      actorObservationBefore: { actorSeat: 0, ownHand: ['A Hand 1'], opponentPublic: { active: 'B Active' } },
+      actorObservationAfter: { actorSeat: 0, ownHand: ['A Hand 2'], opponentPublic: { active: 'B Active' } },
+      promptResolverContext: { playerId: 101, promptType: 'ChooseCardsPrompt' },
       actionPayloadSha256: 'abc123',
       fullStateBefore: before,
       fullStateAfter: after,
@@ -160,6 +164,9 @@ test('trace formatter emits selected card and before/after full state changes', 
   });
   assert.match(text, /ACTION #0 turn=1 seat=0/);
   assert.match(text, /SELECTED CARD .*A Hand 1/);
+  assert.match(text, /ACTOR OBSERVATION SHA256 view123/);
+  assert.match(text, /ACTOR OBSERVATION BEFORE \(ROOT POLICY CONTRACT\)/);
+  assert.match(text, /PROMPT RESOLVER CONTEXT/);
   assert.match(text, /ACTION PAYLOAD SHA256 abc123/);
   assert.match(text, /--- BEFORE ---/);
   assert.match(text, /--- AFTER ---/);
