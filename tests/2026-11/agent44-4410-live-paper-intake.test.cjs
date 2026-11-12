@@ -250,3 +250,31 @@ test('4410 intake exposes the raw Cologne audit and card-specific review gate wi
   assert.doesNotMatch(workflow,/AGENT48_PAPER_COLOGNE_DEV/,
     'The 4410 workflow must not enable the Cologne hook through environment');
 });
+
+test('4410 policy provenance receives callback-free JSON policy options',()=>{
+  const producer=fs.readFileSync(path.join(ROOT,
+    'simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs'),'utf8');
+  const helper=fs.readFileSync(path.join(ROOT,
+    'simulation/evaluation/2026-11/agent26-4410-capture-policy-provenance.cjs'),'utf8');
+  const policyOptionsStart=producer.indexOf('const policyOptions={');
+  const policyOptionsEnd=producer.indexOf('};',policyOptionsStart);
+  assert.ok(policyOptionsStart>=0&&policyOptionsEnd>policyOptionsStart,
+    'The effective policy option object must be explicit');
+  const policyOptions=producer.slice(policyOptionsStart,policyOptionsEnd);
+  assert.doesNotMatch(policyOptions,/onRootStoreCreated|onRootActionDispatched/,
+    'Store callbacks belong only to execution options, not policy configuration hashes');
+  const provenanceCallStart=producer.indexOf('buildCaptureOnlyPolicyProvenance({');
+  const provenanceCallEnd=producer.indexOf('});',provenanceCallStart);
+  assert.ok(provenanceCallStart>=0&&provenanceCallEnd>provenanceCallStart);
+  const provenanceCall=producer.slice(provenanceCallStart,provenanceCallEnd);
+  assert.match(provenanceCall,/options:policyOptions/);
+  assert.doesNotMatch(provenanceCall,/onRootStoreCreated|onRootActionDispatched/);
+  assert.match(producer,/onRootStoreCreated/);
+  assert.match(producer,/onRootActionDispatched/);
+  assert.match(helper,/typeof value === 'function'/,
+    'The provenance serializer must explicitly reject executable values');
+  assert.match(helper,/throw new TypeError/);
+  assert.doesNotMatch(helper,/return String\\(value\\)/,
+    'Executable callbacks must never be silently converted to source strings');
+});
+
