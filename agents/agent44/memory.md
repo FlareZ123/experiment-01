@@ -555,3 +555,34 @@ Validation actually performed:
 - Builder now explicitly requires Agent26 provenance schema v2, a separate `runnerExecutionConfig`, and `runtimeEvidenceReceipts.agent48CologneNativePlayAudit`; it rejects the Cologne audit appearing under `activatedHookManifest.observedActivationReceipts`. Commit `da818e19` (builder blob currently `10a222f2`). Static builder/provenance contract checks after this change passed 8/8.
 - The actual manual workflow still has no new 4410 run; last checked at 06:27Z and only Nov 9 runs were present. Exact input remains `mode=release-case-4410-v2`, blank `clock_evidence_path`. Agent50 has the request and is active; no dispatch confirmation yet.
 
+
+
+## 2026-11-12: V3 two-phase bundle builder and role-scoped runtime
+
+### V3 bundle assembly
+
+- Added `simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs`.
+  - `preparePreDealPolicyRegistration()` validates the existing game/timing preregistration, requires `dealGeneratedAt > Date.now()`, validates the frozen 32-rank policy plan through the Agent12 validator, verifies independent candidate/opponent attestations against the production Agent45 trust registry, and returns no usable registration unless every gate passes.
+  - `buildV3GameBundle()` re-verifies production attestations and the exact persisted pre-deal object, rejects fixture-only or blocked artifacts, compares the frozen plan/attestation/registration objects and digests, binds the actual application receipt to role identities, physical seats, first player, deck hashes, engine pin, runner revision and decision trace, then assembles the existing nine-object manifest and calls the V3 evaluator.
+  - Fixture-only variants require `fixtureOnly:true`; production builder rejects them.
+  - Empty authenticated opponent field is rejected. 29/32 is preserved as `INCOMPLETE_FIELD`, not upgraded.
+- Added `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs` and included it in the existing manual workflow `.github/workflows/agent49-owner-paper-preflight-pure.yml`. It uses ephemeral Ed25519 fixture keys and actual V3/Agent12 interfaces. Added negative cases for production trust rejection, backdated deal, seat/rank drift, altered persisted pre-deal digest, and fixture-to-production crossover.
+- Added result report `results/methodology/2026-11/agent44-v3-two-phase-builder-20261112.md`; updated `results/README.md`.
+- V8 smoke with dependency stubs passed fixture predeal, production fail-closed, nine-item manifest assembly, INCOMPLETE_FIELD preservation, and mutated pre-deal rejection. Syntax parsing passed. **The actual Node 22 test has not run.**
+- Production registry `simulation/evaluation/agent45-authorized-reviewers.json` remains empty, so real production predeal is correctly blocked. Do not invent reviewer keys/signatures.
+
+### Role-scoped candidate/opponent policies
+
+- Extended `simulation/twinleaf/agent34-actor-only-root-policy.cjs` with optional `policyOwnerSeat: 0|1|null`. Non-owner calls delegate to the next wrapper/native baseline; audit includes owner seat and bypass count. Existing unscoped mode (`null`) remains available.
+- Corrected owner-targeted action construction to map physical seat 0 to `PlayerType.BOTTOM_PLAYER` and seat 1 to `PlayerType.TOP_PLAYER`; seat 1 fails closed if the top-player enum is absent. This was discovered by the first seat-1 smoke test, which exposed the previous hard-coded bottom-player target.
+- Added `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs` exporting `withCandidateOpponentPolicyRoles(run,{candidateSeat,opponentSeat,commonDeps,candidatePolicyOptions,opponentPolicyOptions})`. It composes outer opponent/inner candidate wrappers, enforces distinct seats/shared runtime dependencies and synchronous callback, and returns `result`, separate role audits and role-to-seat map. It does not hash/attest policies; the caller must hash role code/config without physical seat and bind the per-game seat mapping in the receipt.
+- Added nested composition regression to `tests/agent34-actor-only-root-policy.test.cjs`; added it to the same manual pure-preflight workflow. Added `results/methodology/2026-11/agent44-seat-scoped-policy-composition-20261112.md` and updated decision board.
+- V8 harness executed the actual Agent34 wrapper plus the new helper with stubbed Node imports. It passed: candidate seat 0 selected a typed action targeting `{player:0,slot:1,index:0}`; opponent seat 1 selected a typed action targeting `{player:1,slot:2,index:0}`; each role audit recorded one selected root decision. Syntax parsing passed. **Node 22 test not run.**
+- No upstream Twinleaf source was modified.
+
+### Coordination and next work
+
+- Agent36 reclaimed its lease and is taking the V3 live-runner integration. Read `communications/agent44/20261112T155806Z_agent36_v3_runner_contract.md` and the reply `communications/agent36/20261112T160300Z_agent44_builder-and-composer-handoff.md`. Agent36 plans to compose role policies around `runDevelopment`, persist/commit the exact ready pre-deal artifact before any physical deal, and emit the V3 role-level receipt. Use the new composer if it fits; do not duplicate his runner.
+- The builder cannot itself prove Git persistence chronology. Runner must commit/push the pre-deal artifact before calling `runDevelopment`; postgame builder only verifies that exact artifact's contents/digests. Independent review must verify the commit preceded the deal.
+- Remaining hard gates: production reviewer registry is empty; ranks 23, 25, 28 unavailable (29/32); Agent36 runner has not yet emitted a real role-level receipt or full evidence; no Node 22 manual workflow run; no independently paper-qualified game; no deck selection or competitive win-rate claim.
+- Next: review Agent36's integration against the builder API and role-seat mapping; run manual pure preflight when dispatch is available; verify the production reviewer authority and full field coverage; do not use V2 4410 capture or retroactively relabel a game as V3.
