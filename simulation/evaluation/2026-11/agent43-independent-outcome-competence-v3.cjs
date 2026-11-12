@@ -86,9 +86,10 @@ function inspectTimingPreregistration(bundle) {
     if (protocol?.tournamentTimerApplies !== false ||
         protocol?.officialEndCallApplies !== false ||
         protocol?.eventStageAdjudicationApplies !== false ||
-        protocol?.eventStage != null)
+        !Object.hasOwn(protocol ?? {}, 'eventStage') ||
+        protocol.eventStage !== null)
       errors.push('untimed-preregistration-does-not-exclude-event-clock');
-    if (trial?.eventStage != null ||
+    if (!Object.hasOwn(trial ?? {}, 'eventStage') || trial.eventStage !== null ||
         trial?.clockDisposition !== CLOCK_NOT_APPLICABLE ||
         trial?.clockReceiptId != null ||
         trial?.adjudicationProtocolSha != null ||
@@ -347,6 +348,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     preregistrationSha256:trial.preregistrationSha256,
     clockStatus:CLOCK_NOT_APPLICABLE,
     naturalOutcome:outcome?.kind??null,candidateOutcome,
+    candidateWin:candidateOutcome === 'win',
+    candidateNonWin:candidateOutcome === 'loss' || candidateOutcome === 'tie',
     gameOutcomeAdmissionReady,
     competitivePolicyCompetenceReady,
     reciprocalEpisodeObserved:structural?.reciprocalEpisodeObserved??false,
