@@ -686,6 +686,17 @@ test('missing candidate or authenticated-rank policy producer identity fails clo
   assert.ok(r.failures.includes('policy-producer-identity-missing-or-not-independent-from-bundle-producer'));
 });
 
+test('duplicate trusted-registry identities cannot ambiguously authorize a policy reviewer',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const game=signReviews(bundle,{roles:['paper','strategy'],strategyAudit:terminalAudit()});
+  const registry=combineRegistries(policyRegistry,game.registry);
+  registry.reviewers.push({...policyRegistry.reviewers[0]});
+  const r=inspectAdmissionV3(bundle,game.reviews,registry);
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.policyCompetence.candidatePolicyAttestationValid,false);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+});
+
 test('policy reviewers cannot also be candidate or opponent policy producers',()=>{
   const candidateProducer=makePolicyBundle({candidateProducerId:'candidate-policy-reviewer'});
   const candidateGame=signReviews(candidateProducer.bundle,{
