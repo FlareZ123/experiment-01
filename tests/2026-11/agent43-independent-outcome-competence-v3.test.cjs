@@ -235,7 +235,8 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     schema:'aichi-runtime-pin-evidence-v2',
     unionSha256:policyHash(7003),
     loadedProcessClosureSha256:policyHash(7004),
-    cardPoolInitializationSha256:evidenceBundleSha256(cardPoolInitializationReceipt)
+    cardPoolInitializationSha256:evidenceBundleSha256(cardPoolInitializationReceipt),
+    fullProcessClosureCovered:false
   };
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
@@ -480,6 +481,7 @@ test('untimed natural win needs paper review but no clock receipt or clock revie
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.fixtureOnly,true);
   assert.equal(r.admissionEligible,false);
+  assert.equal(r.fullProcessClosureCovered,false);
 });
 
 test('untimed natural tie remains a tie and is not clock-adjudicated',()=>{
@@ -697,6 +699,22 @@ test('a complete authenticated 32-rank plan needs all 128 rank-seat-first-player
   assert.equal(r.fullFieldPanelComplete,true);
   assert.equal(r.observedAvailableStrata,128);
   assert.deepEqual(r.panelCoverageMissing,[]);
+});
+
+test('runtime process-closure status is explicit and partial closure is fixture-only',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  const result=signedV3Result(bundle,policyRegistry,{roles:['paper','clock','strategy']});
+  assert.equal(result.acceptanceReady,true);
+  assert.equal(result.fullProcessClosureCovered,false);
+  assert.equal(result.fixtureOnly,true);
+  assert.equal(result.competitiveAdmission,false);
+  assert.equal(result.admissionEligible,false);
+
+  const missing=makePolicyBundle().bundle;
+  delete missing.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered;
+  const panel=inspectPolicyPanelConsistency(missing);
+  assert.equal(panel.valid,false);
+  assert.ok(panel.failures.includes('policy-runtime-pin-evidence-missing-or-invalid'));
 });
 
 test('V3 application receipt v2 binds frozen runtime evidence and card-pool initialization',()=>{
@@ -963,6 +981,7 @@ test('event mode applies the same deck-aware policy gate without inheriting V2 s
   assert.equal(r.acceptanceReady,true);
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.admissionEligible,false);
+  assert.equal(r.fullProcessClosureCovered,false);
 });
 
 test('event game reviewers with duplicate trusted-registry identities are rejected',()=>{
@@ -1005,4 +1024,5 @@ test('wrong event stage and empty production trust registry fail closed',()=>{
   const production=evaluateCompetitiveAdmissionV3(untimed,signed.reviews);
   assert.equal(production.competitiveAdmission,false);
   assert.equal(production.admissionEligible,false);
+  assert.equal(production.fullProcessClosureCovered,false);
 });
