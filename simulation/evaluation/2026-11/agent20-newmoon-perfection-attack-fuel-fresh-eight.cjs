@@ -8,6 +8,8 @@ const {executeArm,analyze}=
   require('./agent42-rank5-fresh-gengar-lillie-aba.cjs');
 const {withActorBattleVipAfterPass}=
   require('../../twinleaf/agent9-battle-vip-owner-after-pass.cjs');
+const {inspectNativeGameCarryover}=
+  require('./agent43-native-attack-damage-carryover.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REG=path.join(ROOT,'results/aichi-2026/registrations',
@@ -211,6 +213,25 @@ function compareSettlements(arms){
   });
 }
 
+/** Apply Agent43's read-only two-hit screen to every accepted native root tape. */
+function carryoverRecords(arms){
+  return arms.map(arm=>({
+    id:arm.id,
+    records:arm.records.map(row=>({
+      id:row.id,
+      carryover:(row.sourceSeat===0||row.sourceSeat===1)&&
+        row.candidateSeat===1-row.sourceSeat
+        ?inspectNativeGameCarryover({
+          trial:{id:row.id},sourceSeat:row.sourceSeat,
+          candidateSeat:row.candidateSeat,
+          sourceAttackSettlement:row.sourceAttackSettlement,
+          candidateAttackSettlement:row.candidateAttackSettlement,
+          rootActionLedger:row.rootActions
+        }):null
+    }))
+  }));
+}
+
 /** @returns {object} All preregistered native contexts and their A/B/A comparison. */
 function main(){
   const {reg,engine,researchCommit}=preflight();
@@ -236,6 +257,18 @@ function main(){
   const comparison=analyze(arms);
   const attackSettlementPairs=compareSettlements(arms);
   const paymentComparisons=comparePayments(arms);
+  const nativeCarryover=carryoverRecords(arms);
+  const carryoverSummary=nativeCarryover.map(arm=>({
+    id:arm.id,attempts:arm.records.length,
+    sourceNoPrizeDamageCandidates:arm.records.reduce((n,row)=>
+      n+(row.carryover?.source.noPrizePositiveDamageCandidates.length??0),0),
+    candidateNoPrizeDamageCandidates:arm.records.reduce((n,row)=>
+      n+(row.carryover?.candidate.noPrizePositiveDamageCandidates.length??0),0),
+    sourceTwoHitLinks:arm.records.reduce((n,row)=>
+      n+(row.carryover?.source.candidateTwoHitLinks.length??0),0),
+    candidateTwoHitLinks:arm.records.reduce((n,row)=>
+      n+(row.carryover?.candidate.candidateTwoHitLinks.length??0),0)
+  }));
   const activation=discardSummary(arms);
   const result={
     schema:'agent20-newmoon-perfection-attack-fuel-native-fresh-eight-v1',
@@ -252,14 +285,17 @@ function main(){
       id:a.id,auditRows:a.auditRows,attempts:a.attempts,
       completedGamesMissingAudit:a.completedGamesMissingAudit
     })),
-    activation,comparison,attackSettlementPairs,paymentComparisons,arms,
+    activation,comparison,attackSettlementPairs,paymentComparisons,
+    nativeCarryover,carryoverSummary,arms,
     allAttemptIds:arms.flatMap(a=>a.records.map(r=>a.id+':'+r.id)),
     attemptLedgerSha256:hash(arms.map(a=>a.records.map(r=>({
       id:r.id,root:r.rootLedgerSha256,physical:r.physicalTapeSha256,
       finished:r.finished,winner:r.winner,error:r.error,
       handDiscard:r.handDiscardAudit,
       candidateAttackSettlement:r.candidateAttackSettlement,
-      sourceAttackSettlement:r.sourceAttackSettlement
+      sourceAttackSettlement:r.sourceAttackSettlement,
+      nativeCarryover:nativeCarryover.find(a=>a.id===arm.id)?.
+        records.find(x=>x.id===r.id)?.carryover??null
     }))))
   };
   assert.equal(result.allAttemptIds.length,24);
@@ -289,6 +325,7 @@ function main(){
       n+p.sourceAcceptedChangedPayments,0),
     unmatchedTreatmentDiscardSelections:paymentComparisons.reduce((n,p)=>
       n+p.unmatchedTreatmentSelections.length,0),
+    carryoverSummary,
     arms:arms.map(a=>({id:a.id,summary:a.summary})),
     pairs:comparison.pairs.map(p=>({
       id:p.id,seed:p.seed,candidateSeat:p.candidateSeat,
@@ -314,4 +351,4 @@ if(require.main===module){
   }else main();
 }
 module.exports={REG,OUTPUT,preflight,comparePayments,
-  compareSettlements,discardSummary,main};
+  compareSettlements,carryoverRecords,discardSummary,main};
