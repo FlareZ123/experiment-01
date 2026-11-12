@@ -83,6 +83,42 @@ function save(value){
   }
 }
 
+/** Pair actual native discard payments by seat, turn and prompt across A/B. */
+function comparePayments(arms){
+  const [control,treatment]=arms;
+  return control.records.map((a,index)=>{
+    const b=treatment.records[index];
+    assert.equal(a.id,b.id);
+    const key=row=>[row.seat,row.turn,row.promptId,row.requiredCount].join(':');
+    const left=new Map((a.handDiscardAudit.selections??[]).map(row=>[key(row),row]));
+    const right=new Map((b.handDiscardAudit.selections??[]).map(row=>[key(row),row]));
+    const keys=[...new Set([...left.keys(),...right.keys()])];
+    const changed=[],unmatchedControl=[],unmatchedTreatment=[];
+    for(const k of keys){
+      const x=left.get(k),y=right.get(k);
+      if(!x){unmatchedTreatment.push(y);continue;}
+      if(!y){unmatchedControl.push(x);continue;}
+      if(JSON.stringify(x.printings)!==JSON.stringify(y.printings)){
+        changed.push({
+          seat:y.seat,actorRole:y.seat===a.candidateSeat?'candidate':'source',
+          turn:y.turn,promptId:y.promptId,requiredCount:y.requiredCount,
+          controlPrintings:x.printings,treatmentPrintings:y.printings
+        });
+      }
+    }
+    return {
+      id:a.id,seed:a.seed,candidateSeat:a.candidateSeat,sourceSeat:a.sourceSeat,
+      controlAttackFuelSelected:a.handDiscardAudit.attackFuelSelected??0,
+      treatmentAttackFuelSelected:b.handDiscardAudit.attackFuelSelected??0,
+      changedPayments:changed,
+      candidateChangedPayments:changed.filter(x=>x.actorRole==='candidate').length,
+      sourceChangedPayments:changed.filter(x=>x.actorRole==='source').length,
+      unmatchedControlSelections:unmatchedControl,
+      unmatchedTreatmentSelections:unmatchedTreatment
+    };
+  });
+}
+
 /** Summarize actual native discard-adapter activation without inferring from wins. */
 function discardSummary(arms){
   return arms.map(arm=>{
@@ -177,6 +213,7 @@ function main(){
   });
   const comparison=analyze(arms);
   const attackSettlementPairs=compareSettlements(arms);
+  const paymentComparisons=comparePayments(arms);
   const activation=discardSummary(arms);
   const result={
     schema:'agent20-newmoon-perfection-attack-fuel-native-fresh-eight-v1',
@@ -189,7 +226,7 @@ function main(){
     sourceSpecificMewPaymentGuardsDisabledInEveryArm:true,
     commonPolicySymmetricBothSeats:true,
     qualifiedPaperGames:0,qualifiedFieldWins:0,
-    activation,comparison,attackSettlementPairs,arms,
+    activation,comparison,attackSettlementPairs,paymentComparisons,arms,
     allAttemptIds:arms.flatMap(a=>a.records.map(r=>a.id+':'+r.id)),
     attemptLedgerSha256:hash(arms.map(a=>a.records.map(r=>({
       id:r.id,root:r.rootLedgerSha256,physical:r.physicalTapeSha256,
@@ -216,6 +253,12 @@ function main(){
     ordinaryAttackActionCountImprovements:comparison.candidateAttackCountImprovements,
     candidateSettledAttackCountImprovements:attackSettlementPairs.filter(
       p=>p.candidateSettledAttackIncrease).length,
+    candidateChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
+      n+p.candidateChangedPayments,0),
+    sourceChangedDiscardPayments:paymentComparisons.reduce((n,p)=>
+      n+p.sourceChangedPayments,0),
+    unmatchedTreatmentDiscardSelections:paymentComparisons.reduce((n,p)=>
+      n+p.unmatchedTreatmentSelections.length,0),
     arms:arms.map(a=>({id:a.id,summary:a.summary})),
     pairs:comparison.pairs.map(p=>({
       id:p.id,seed:p.seed,candidateSeat:p.candidateSeat,
