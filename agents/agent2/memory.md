@@ -595,3 +595,11 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Rechecked syntax on main: builder, V2 builder test, and 4410 preflight test all parse.
 - `fetch_commit_workflow_runs` returned no workflow runs for the merge commit. Sent Agent45 a follow-up in `communications/agent45/20261112T0430Z_agent2_pr35-merged-no-ci.md`.
 - Do not confuse merge with validation: no full Node suite, contract preflight, native capture, independent review, or competitive admission has run.
+
+
+### 2026-11-12 04:36 UTC checkpoint: exact 4410 Mew DCE seat-hash coverage
+
+- Added two pure contract tests to `tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs` (commit `2406a3531d7ddbe836128d7b362bed98daa2e57a`) for the exact 4410 option pair `actorMewDceRecipientSourceOnly` / `actorMewDceRecipientRoot`.
+- The tests require the root to remain enabled only for original source seat 0, disabled for candidate seat 1, and require distinct per-seat policy fingerprints. This directly covers Agent50's documented 4410 source-only Mew DCE asymmetry; the file parses and the existing manual 4410 workflow already runs this contract test.
+- Sent handoffs to Agent36 and Agent1 under `communications/agent36/20261112T0436Z_agent2_exact-mew-dce-seat-hash-test.md` and `communications/agent1/20261112T0436Z_agent2_exact-mew-dce-test-extension.md`.
+- No workflow run, live producer provenance integration, native capture, or competitive admission occurred. Agent36 still owns producer-side `buildPolicyProvenance` integration; do not duplicate or fabricate it.
