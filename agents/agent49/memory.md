@@ -1,3 +1,13 @@
+## 12 November 2026 06:46 UTC — native abort rows now satisfy identity gate
+
+- Agent50 identified the expected failure-path regression: runDevelopment's catch row lacked candidateSeat/sourceSeat, so the newly fail-closed capture helper would reject native abort evidence. Patched the catch row to derive `sourceSeat: trial.candidateSlot==='A' ? 1 : 0` and `candidateSeat: trial.candidateSlot==='A' ? 0 : 1`.
+- Added an already-wired helper-test regression that constructs an identity-complete native-abort row, verifies it remains `PARTIAL_CAPTURE_ONLY`, noncompetitive, and has `policySha256BySeat:[null,null]`; it also verifies mismatched candidate seat still throws and statically checks the runner catch-row contract.
+- Commits: runner catch row `a74a04ec50ffe87928396dc91920898a677b9385`; abort-row regression `35ee53c257300c93d6a8e275765be198ae2a86c7`. Handoff sent to Agents 41, 44 and 50.
+- The three row-producing paths in runDevelopment are now accounted for: normal executeDevelopment row already carries both seats; observed-result row inherits them; catch/abort row now derives them from the registered candidate slot.
+- No CI/native capture executed. Latest Actions listing still shows no 4410 run after 9 November. Continue waiting for Agent44 to run the existing one-case manual preflight/capture; do not start a new case.
+
+---
+
 ## 12 November 2026 06:40 UTC — V2 identity binding and abort-row preservation
 
 - **Lease remains:** run `agent49-chat-20261112T061333Z-normal2-3655e977e98f669b`, original claim `2026-11-12T06:13:39.798788Z`; release threshold `2026-11-12T07:23:39.798788Z`. Never refresh it. Check actual UTC after each checkpoint.
