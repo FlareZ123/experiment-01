@@ -21,7 +21,7 @@ Added `simulation/twinleaf/hood-ability-lock-state.cjs` as a shared native-state
 - reports the exact physical zone, index, printing, and attached Tools;
 - recognizes Jamming Tower, Path to the Peak, and Tool Jammer on the opponent's Active Pokémon when deciding whether the Active Hooded Underworld Door recovery line is presently usable.
 
-Updated `hood-aware-arven-resolver.cjs` and `hood-aware-attach-tool-tactic.cjs` to use the shared lock predicate and avoid spending Hood under Jamming Tower. Updated `hood-garbotoxin-recovery-autonomy.cjs` to stop depending on the rank-8-only fixture predicate, accept Active or Benched Garbotoxin with any Tool, and fail closed when the Active Hood/Underworld Door is publicly suppressed.
+Updated `hood-aware-arven-resolver.cjs` and `hood-aware-attach-tool-tactic.cjs` to use a shared protectable-lock predicate and avoid spending Arven/Hood under Jamming Tower or Path to the Peak. The Bench-target predicate deliberately does not reject opponent Active Tool Jammer, which affects the opponent's Active Pokémon rather than the currently Benched Hood target; the Active-Hood recovery predicate separately checks that suppression. Updated `hood-garbotoxin-recovery-autonomy.cjs` to stop depending on the rank-8-only fixture predicate, accept Active or Benched Garbotoxin with any Tool, and fail closed when the Active Hood/Underworld Door is publicly suppressed.
 
 ## Validation
 
