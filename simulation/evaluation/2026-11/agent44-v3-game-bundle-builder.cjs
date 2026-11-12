@@ -19,6 +19,7 @@ const POLICY_REGISTRATION_SCHEMA = 'aichi-policy-registration-v1';
 const POLICY_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v1';
 const PREDEAL_PERSISTENCE_RECEIPT_SCHEMA = 'aichi-predeal-artifact-persistence-receipt-v1';
 const DEAL_GENERATION_RECEIPT_SCHEMA = 'aichi-physical-deal-generation-receipt-v1';
+const PERSISTENCE_TIME_SOURCE = 'github-api-commit-committer-date';
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const OFFSET_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -304,7 +305,9 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
       receipt.policySha256BySeat[receipt.candidateSeat]!==candidate.policySha256 ||
       receipt.policySha256BySeat[receipt.opponentSeat]!==opponent.policySha256)
     fail('actual role-to-seat policy mapping does not match frozen role identities');
-  if (!GIT_SHA.test(receipt.enginePin??'') ||
+  if (receipt.enginePin!==trial.vendorCommitSha ||
+      receipt.runnerRevision!==trial.researchRevisionSha ||
+      !GIT_SHA.test(receipt.enginePin??'') ||
       !GIT_SHA.test(receipt.runnerRevision??'') ||
       !SHA256.test(receipt.decisionTraceSha256??'') ||
       !['none','within-budget','not-exceeded'].includes(receipt.timeoutStatus))
@@ -315,6 +318,7 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
   if (!plainObject(persistenceReceipt) ||
       persistenceReceipt.schema!==PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
       persistenceReceipt.trialId!==preDeal.trialId ||
+      persistenceReceipt.commitTimestampSource!==PERSISTENCE_TIME_SOURCE ||
       !nonempty(persistenceReceipt.repositoryFullName) ||
       !persistenceReceipt.repositoryFullName.includes('/') ||
       persistenceReceipt.repositoryFullName.startsWith('/') ||
@@ -338,6 +342,8 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
       dealReceipt.artifactSha256!==persistenceReceipt.artifactSha256 ||
       dealReceipt.commitSha!==persistenceReceipt.commitSha ||
       dealReceipt.blobSha!==persistenceReceipt.blobSha ||
+      dealReceipt.runnerRevision!==trial.researchRevisionSha ||
+      !GIT_SHA.test(dealReceipt.runnerRevision??'') ||
       !dateTime(dealReceipt.generatedAt) ||
       !SHA256.test(dealReceipt.sourceDealFingerprint??''))
     fail('physical deal-generation receipt is missing or not bound to the committed pre-deal artifact');
