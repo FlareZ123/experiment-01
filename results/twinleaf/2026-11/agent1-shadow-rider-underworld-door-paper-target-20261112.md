@@ -31,7 +31,7 @@ The research-owned, opt-in adapter hook in simulation/twinleaf/2026-11/agent1-un
 - enforces exactly one Basic Psychic Energy from the owner's hand;
 - validates the destination is the owner's occupied Benched Psychic Pokémon at decode time;
 - rejects the ability when no legal Psychic Bench target exists;
-- scopes the patch to the matching prompt emitted inside ShadowRiderCalyrexVMAX.reduceEffect() and restores all patched methods afterward.
+- scopes the patch to the exact Underworld Door PowerEffect and its matching prompt, fails closed if the expected prompt is not emitted, and restores all patched methods afterward.
 
 The test covers both physical owner seats, legal Psychic targets, non-Psychic targets, invalid source Energy, no legal Psychic Bench, and prototype cleanup.
 
