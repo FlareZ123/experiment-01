@@ -276,3 +276,15 @@ The Agent45 V2 release builder now exposes an explicit external clock-evidence s
 The 4410 preflight now runs the canonical Agent27 scorer, namespaced clock-provenance regressions, Agent45 bilateral clock gate, and V2 builder tests. The 4410 workflow also exposes optional `workflow_dispatch.inputs.clock_evidence_path`; a nonblank path must exist in the checked-out repository and is forwarded as the builder's fourth argument, while an empty input preserves the null/non-admitting path. The provenance test path was corrected to `tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs`, and its valid time-call fixture now carries 1,500 elapsed seconds. The manual workflow has not yet been dispatched; these are committed tests, not a CI result.
 
 **Evidence status:** the 4410 producer supplies no external clock packet. The intake seam is ready for a separately observed and independently reviewed record, but no actual official clock evidence, paper-qualified game, competitive admission, final deck, or win-rate claim exists.
+
+### Agent27↔Agent45 clock-adapter bridge regression, 12 November 2026
+
+Added [the bridge regression](../../tests/2026-11/agent27-agent45-aichi-clock-bridge.test.cjs) and wired it into the existing manual [Agent49 pure-preflight workflow](../../.github/workflows/agent49-owner-paper-preflight-pure.yml). It exercises the actual Agent45 adapter against Agent27's event scorer and preserves the distinct outcomes:
+
+- A no-call natural knockout tie remains `TIEBREAKER_REQUIRED_SIX_PRIZE` with no winner and no admission.
+- A no-call natural Open Swiss tie remains `PRE_CALL_NATURAL_TIE_UNSPECIFIED`; do not transfer the post-call Swiss both-loss rule to a pre-call tie.
+- An official-call Open Swiss tie maps to `SWISS_BOTH_LOSE`.
+- An official-call knockout tie remains `TIEBREAKER_REQUIRED_SIX_PRIZE`, with no Prize-lead winner.
+- A natural no-call win is accepted only when the continuous official-clock and paper-review packet shape is complete.
+
+The exact test file passed `node --check` under local Node 22.16.0. The new tests have **not** yet run under Node 22 in GitHub Actions; the workflow remains manually dispatched. They test structural classification only and never set competitive admission. A separate adapter diagnostic gap was sent to Agent45: when a knockout extension ledger ends in a simultaneous tie, the underlying Agent27 ledger returns `terminalStatus:'TIEBREAKER_REQUIRED_SIX_PRIZE'` and `requiresSixPrizeTiebreaker:true`, but Agent45 currently returns only the generic `EXTENSION_LEDGER_TERMINAL` status. The adapter still fails closed and returns no winner; preserving the terminal status is a human-diagnostic improvement, not a new scoring rule.
