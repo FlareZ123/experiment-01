@@ -12,7 +12,8 @@ function makeStore() {
     hand:{cards:[]},discard:{cards:[]}, lostzone:{cards:[]},
     stadium:{cards:[]},supporter:{cards:[]},
     prizes:Array.from({length:6},()=>({cards:[]})),
-    active:{cards:[],tools:[],energies:{cards:[]}},\n    bench:[{cards:[],tools:[],energies:{cards:[]}}]});
+    active:{cards:[],tools:[],energies:{cards:[]}}, 
+    bench:[{cards:[],tools:[],energies:{cards:[]}}]});
   const state = {players:[player(0),player(1)],turn:1,phase:'PLAYER_TURN',
     activePlayer:0,prompts:[]};
   return {state, dispatch(action) {
@@ -22,7 +23,10 @@ function makeStore() {
       const actor=state.players[state.activePlayer];
       const at=actor.hand.cards.indexOf(action.card);
       if(at>=0){actor.hand.cards.splice(at,1);
-        if(action.attachEnergy) {\n          const slot=action.bench?actor.bench[0]:actor.active;\n          slot.energies.cards.push(action.card);\n        }
+        if(action.attachEnergy) {
+          const slot=action.bench?actor.bench[0]:actor.active;
+          slot.energies.cards.push(action.card);
+        }
         else actor.discard.cards.push(action.card);}
     }
     if(action.prompt) state.prompts.push(action.prompt);
