@@ -48,20 +48,25 @@ function manifest(root,entrypoint='candidate.cjs',extra={}){
   dataAssetPaths:['cards.json'],dependencyLockPaths:['package-lock.json'],
   enginePin:g(10),runnerRevision:g(11),...extra});
 }
+function cardPoolReceipt(enginePin){return {schema:'agent36-twinleaf-card-pool-initialization-v1',
+ enginePin,startupPath:'vendor/twinleaf/ptcg-server/start.js',startupSha256:h(903),
+ setNames:['base-set','expanded-set'],definedSetCount:2,cardCount:60};}
 function identity(role,rank,deck,entry,options={}){
  return I.buildRolePolicyIdentity({role,rank,producerId:role==='candidate-policy'?'candidate-author':'opponent-author',
   deckSha256:h(deck),policyVersion:'policy-v1',entryManifest:entry.manifest,
   entryManifestSha256:entry.entryManifestSha256,challengeSuiteSha256:h(900),
   policyOptions:options,policyConstraintsSha256:constraintsSha,
-  runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801)});
+  runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801),
+  cardPoolInitializationSha256:evidenceBundleSha256(cardPoolReceipt(entry.manifest.enginePin))});
 }
 function preDeal(candidate,opponent){
  const core={schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
   candidate:{deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
    entryManifestSha256:candidate.entryManifestSha256,challengeSuiteSha256:candidate.challengeSuiteSha256,
    policyProducerId:candidate.policyProducerId},
-  runtimePinEvidence:{schema:'aichi-runtime-pin-evidence-v1',unionSha256:candidate.runtimePinUnionSha256,
-   loadedProcessClosureSha256:candidate.loadedProcessClosureSha256},
+  runtimePinEvidence:{schema:'aichi-runtime-pin-evidence-v2',unionSha256:candidate.runtimePinUnionSha256,
+   loadedProcessClosureSha256:candidate.loadedProcessClosureSha256,
+   cardPoolInitializationSha256:candidate.cardPoolInitializationSha256},
   opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks:[{rank:opponent.rank,
    sourceStatus:'authenticated',deckSha256:opponent.deckSha256,policySha256:opponent.policySha256,
    entryManifestSha256:opponent.entryManifestSha256,challengeSuiteSha256:opponent.challengeSuiteSha256,
@@ -76,7 +81,8 @@ function trial(candidate,opponent,candidateSeat,firstPlayerSeat){
  return {trialId:'trial-1',opponentRank:opponent.rank,candidateSeat,originalSourceSeat:1-candidateSeat,
   actualFirstPlayerSeat:firstPlayerSeat,candidatePrinted60Sha256:candidate.deckSha256,
   originalPrinted60Sha256:opponent.deckSha256,vendorCommitSha:candidate.entryManifest.enginePin,
-  researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906)};
+  researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906),
+  cardPoolInitializationReceipt:cardPoolReceipt(candidate.entryManifest.enginePin)};
 }
 
 test('entry manifest pins research closure, vendor prompt binding, dependency lock and runtime',()=>repo(root=>{
@@ -85,6 +91,8 @@ test('entry manifest pins research closure, vendor prompt binding, dependency lo
  assert.ok(m.manifest.files.length>=8);
  assert.equal(m.manifest.vendorDependencies[0].path,'vendor/twinleaf/resolve-prompt-action.js');
  assert.equal(m.manifest.vendorDependenciesSha256,evidenceBundleSha256(m.manifest.vendorDependencies));
+ assert.equal(m.manifest.vendorImportsSha256,evidenceBundleSha256(m.manifest.vendorImports));
+ assert.ok(m.manifest.vendorImports.some(edge=>edge.path==='vendor/twinleaf/resolve-prompt-action.js'));
  assert.equal(m.manifest.dependencyState.lockfiles[0].path,'package-lock.json');
  assert.equal(m.manifest.nodeVersion,process.version);
  assert.equal(m.manifest.orderedPromptChain[0].name,'native-prompt');
@@ -106,15 +114,16 @@ test('candidate and opponent identities are invariant under seat and first-playe
  assert.equal(a.receipt.receiptSha256,evidenceBundleSha256(Object.fromEntries(Object.entries(a.receipt).filter(([k])=>k!=='receiptSha256'))));
 }));
 
-test('policy hash binds deck, closure, constraints and canonical config but not producer identity',()=>repo(root=>{
+test('policy hash binds deck, closure, constraints, canonical config and producer identity',()=>repo(root=>{
  const m=manifest(root),base={role:'candidate-policy',rank:null,producerId:'author-a',deckSha256:h(1),
   policyVersion:'v1',entryManifest:m.manifest,entryManifestSha256:m.entryManifestSha256,
-  challengeSuiteSha256:h(3),policyOptions:{mode:'public'},policyConstraintsSha256:constraintsSha};
+  challengeSuiteSha256:h(3),policyOptions:{mode:'public'},policyConstraintsSha256:constraintsSha,
+  runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801),cardPoolInitializationSha256:h(802)};
  const a=I.buildRolePolicyIdentity(base);
  assert.notEqual(I.buildRolePolicyIdentity({...base,deckSha256:h(2)}).policySha256,a.policySha256);
  assert.notEqual(I.buildRolePolicyIdentity({...base,policyConstraintsSha256:h(4)}).policySha256,a.policySha256);
  assert.notEqual(I.buildRolePolicyIdentity({...base,policyOptions:{mode:'owner'}}).policySha256,a.policySha256);
- assert.equal(I.buildRolePolicyIdentity({...base,producerId:'author-b'}).policySha256,a.policySha256);
+ assert.notEqual(I.buildRolePolicyIdentity({...base,producerId:'author-b'}).policySha256,a.policySha256);
  assert.throws(()=>I.buildRolePolicyIdentity({...base,policyOptions:{nested:{firstPlayerSeat:0}}}),/physical-game context/);
 }));
 
@@ -136,6 +145,20 @@ test('environment readers are allowlisted and actual values are hashed; secret k
   if(old===undefined)delete process.env.POLICY_MODE;else process.env.POLICY_MODE=old;
   if(oldToken===undefined)delete process.env.API_TOKEN;else process.env.API_TOKEN=oldToken;
  }
+}));
+
+test('GITHUB/RUNNER environment reads are allowed only in the exact trusted runner',()=>repo(root=>{
+ const runnerPath='simulation/evaluation/2026-11/agent36-v3-runner.cjs';
+ fs.mkdirSync(path.dirname(path.join(root,runnerPath)),{recursive:true});
+ fs.writeFileSync(path.join(root,runnerPath),"process.env.GITHUB_REPOSITORY; module.exports={run:()=>{}};\n");
+ const common=bindings.concat([{name:'runner',path:runnerPath,exportName:'run'}]);
+ const ok=I.createPolicyEntryManifest({repositoryRoot:root,entrypoint:'candidate.cjs',
+  commonRuntimeBindings:common,orderedPromptChain:[{name:'native-prompt',path:'prompt.cjs'}],
+  sharedEnginePatches:[{name:'underworld-door',path:'hook.cjs'}],dataAssetPaths:['cards.json'],
+  dependencyLockPaths:['package-lock.json'],enginePin:g(10),runnerRevision:g(11)});
+ assert.ok(ok.manifest.trustedOperationalEnvironmentReaders.some(x=>x.key==='GITHUB_REPOSITORY'));
+ fs.writeFileSync(path.join(root,'candidate.cjs'),"module.exports=process.env.GITHUB_SHA;\n");
+ assert.throws(()=>manifest(root),/untrusted-operational-environment/);
 }));
 
 test('dynamic require, ESM, external packages, file reads and unseeded randomness are rejected',()=>repo(root=>{
@@ -207,7 +230,8 @@ test('candidate and opponent may have different role-local engine patch dependen
   deckSha256:h(2),policyVersion:'policy-v1',entryManifest:altered,
   entryManifestSha256:evidenceBundleSha256(altered),challengeSuiteSha256:h(900),
   policyOptions:{},policyConstraintsSha256:constraintsSha,
-  runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801)});
+  runtimePinUnionSha256:h(800),loadedProcessClosureSha256:h(801),
+  cardPoolInitializationSha256:c.cardPoolInitializationSha256});
  const pd=preDeal(c,roleSpecificOpponent);
  const applied=I.createPolicyApplicationReceipt({preDeal:pd,candidateIdentity:c,
   opponentIdentity:roleSpecificOpponent,trial:trial(c,roleSpecificOpponent,0,1)});
