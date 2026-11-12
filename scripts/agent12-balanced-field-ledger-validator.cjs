@@ -36,8 +36,10 @@ function isStableProducerId(value) {
  * Validate the immutable V3 candidate-vs-field policy-plan core and its
  * per-game application receipts. This is structural/digest validation only:
  * it does not authenticate source lists, verify reviewer signatures, or prove
- * policy competence. An explicit source-unavailable rank keeps the 32-rank
- * aggregate incomplete; it is never silently omitted or treated as a bye.
+ * policy competence. Candidate/rank producer IDs and their receipt echoes are
+ * structural policy identity; reviewer/producer independence belongs to the
+ * V3 signed-attestation layer. An explicit source-unavailable rank keeps the
+ * 32-rank aggregate incomplete; it is never silently omitted or treated as a bye.
  *
  * @param {object} request {policyPlanCore, expectedPolicyPlanSha256?,
  *   gameReceipts?}
