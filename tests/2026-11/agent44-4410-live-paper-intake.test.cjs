@@ -4,7 +4,10 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {registration,receiptAlignment}=require('../../simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs');
+const {registration,receiptAlignment,paperCologneAuditReviewGate}=
+  require('../../simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs');
+const {auditAcceptedCologneRoots}=
+  require('../../simulation/evaluation/agent48-cologne-native-ledger-audit.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const RAW_SCHEMA='agent36-live-paper-root-receipts-v2-attached-energy-custody';
@@ -150,3 +153,68 @@ test('4410 V2 workflow exposes optional external clock evidence without inventin
   assert.ok(workflow.includes('artifacts/agent44-first-release-nine-object-intake-v2.json "$CLOCK_EVIDENCE_PATH"'));
   assert.ok(workflow.includes('artifacts/agent44-first-release-nine-object-intake-v2.json\n          fi'));
 });
+
+function cologneRoot(actionOrdinal,turnBefore,turnAfter,playerSlot=0){
+  return {actionOrdinal,turnBefore,turnAfter,playerSlot,
+    action:'PlayCardAction',card:'Canceling Cologne'};
+}
+
+test('4410 Cologne review gate fails closed on missing audit and retains duplicate accepted roots',()=>{
+  const missing=paperCologneAuditReviewGate(null,false);
+  assert.equal(missing.disposition,'blocked-audit-missing');
+  assert.equal(missing.paperRuleReviewBlocked,true);
+  assert.equal(missing.rawCaptureRetainedRegardlessOfGate,true);
+
+  const duplicateRoots=[
+    cologneRoot(0,1,1,0),
+    cologneRoot(1,1,1,0)
+  ];
+  const audit=auditAcceptedCologneRoots(duplicateRoots);
+  const gate=paperCologneAuditReviewGate(audit,false);
+  assert.equal(audit.acceptedOncePerSeatTurn,false);
+  assert.deepEqual(audit.duplicateAcceptedBySeatTurn,[
+    {epoch:0,seat:0,turn:1,count:2}
+  ]);
+  assert.equal(gate.disposition,'blocked-audit-not-clear');
+  assert.equal(gate.paperRuleReviewBlocked,true);
+  assert.deepEqual(gate.duplicateAcceptedBySeatTurn,
+    audit.duplicateAcceptedBySeatTurn);
+  assert.equal(gate.hookInstalled,false,
+    'The frozen 4410 policy must not enable the Cologne correction hook');
+  assert.equal(gate.paperLegalityCertified,false);
+  assert.equal(gate.rawCaptureRetainedRegardlessOfGate,true);
+});
+
+test('4410 Cologne audit segments authenticated sudden-death restarts before paper review',()=>{
+  const roots=[
+    cologneRoot(0,1,1,0),
+    {actionOrdinal:1,turnBefore:1,turnAfter:0,playerSlot:0,
+      action:'SuddenDeathRestartAction'},
+    cologneRoot(2,1,1,0)
+  ];
+  const resets=[{actionOrdinal:1,fromTurn:1,toTurn:0,
+    afterSuddenDeath:true,enteredSetup:true,action:'SuddenDeathRestartAction'}];
+  const audit=auditAcceptedCologneRoots(roots,resets);
+  assert.equal(audit.episodes,2);
+  assert.equal(audit.authenticatedRestarts,1);
+  assert.equal(audit.accepted,2);
+  assert.equal(audit.acceptedOncePerSeatTurn,true);
+  assert.deepEqual(audit.duplicateAcceptedBySeatTurn,[]);
+  const gate=paperCologneAuditReviewGate(audit,false);
+  assert.equal(gate.disposition,'eligible-pending-independent-paper-review');
+  assert.equal(gate.paperRuleReviewBlocked,false);
+  assert.equal(gate.independentPaperReviewRequired,true);
+  assert.equal(gate.paperLegalityCertified,false,
+    'A clear accepted-root audit is not independent paper legality certification');
+});
+
+test('4410 intake exposes the raw Cologne audit and fail-closed review gate without changing the frozen hook profile',()=>{
+  const source=fs.readFileSync(path.join(ROOT,
+    'simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs'),'utf8');
+  assert.match(source,/paperCologneNativePlayAudit:row\\.paperCologneNativePlayAudit\\?\\?null/);
+  assert.match(source,/paperCologneReviewGate:paperCologneAuditReviewGate/);
+  assert.match(source,/row\\.paperCologneQuotaOptIn===true/);
+  assert.match(source,/rawCaptureRetainedRegardlessOfGate:true/);
+  assert.match(source,/paperLegalityCertified:false/);
+});
+
