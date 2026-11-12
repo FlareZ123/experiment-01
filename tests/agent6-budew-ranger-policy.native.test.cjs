@@ -34,7 +34,7 @@ function buildNativeCatalog() {
 
 function stageBudewLock(attackerSeat, withVileplume = false) {
   const x = stage(attackerSeat);
-  initializeCards();
+  const manager = initializeCards();
   const catalog = buildNativeCatalog();
   let nextId = 730000 + 100 * attackerSeat + 10000 * Number(withVileplume);
   const card = name => {
