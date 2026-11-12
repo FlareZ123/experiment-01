@@ -167,6 +167,9 @@ for(const seat of [0,1])test(
     const {x,energy,dynamic}=stagedDynamicSource(seat,'Psychic Energy SVE');
     const {CheckPokemonTypeEffect}=native('game/store/effects/check-effects');
     const {CardType}=native('game/store/card/card-types');
+    const {pokemonHasCardType}=native('game/store/card/pokemon-card');
+    assert.equal(pokemonHasCardType(dynamic.getPokemonCard(),CardType.PSYCHIC),false,
+      'The pinned static card-type helper sees only Kecleon\'s printed Colorless type');
     const typeCheck=new CheckPokemonTypeEffect(dynamic);
     x.store.reduceEffect(x.state,typeCheck);
     assert.ok(typeCheck.cardTypes.includes(CardType.PSYCHIC),
