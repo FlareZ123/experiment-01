@@ -150,6 +150,38 @@ function projectActionPayload(action) {
   };
 }
 
+/**
+ * Resolve the actual card selected from the acting player's private hand
+ * before Store.dispatch mutates that hand. This identity is trace-only: it is
+ * never included in publicStateSnapshot or passed to a policy.
+ */
+function selectedCardIdentity(action,state,actingSeat,cardActions) {
+  const PlayCardAction=cardActions?.PlayCardAction;
+  assert.equal(typeof PlayCardAction,'function',
+    'native PlayCardAction class is required for trace identity');
+  if(!(action instanceof PlayCardAction)) return null;
+  assert.ok(actingSeat===0||actingSeat===1,
+    'PlayCardAction must be attributed to a physical acting seat');
+  const owner=state?.players?.[actingSeat];
+  assert.ok(owner,'PlayCardAction owner is missing from the native state');
+  assert.equal(owner.id,action.id,
+    'PlayCardAction player id does not match the acting physical seat');
+  const handIndex=action.handIndex;
+  assert.ok(Number.isInteger(handIndex)&&handIndex>=0,
+    'PlayCardAction has no valid physical hand index');
+  const handCards=owner.hand?.cards;
+  assert.ok(Array.isArray(handCards),
+    'PlayCardAction owner hand is not an array-backed native zone');
+  const card=handCards[handIndex];
+  assert.ok(card&&typeof card.fullName==='string'&&card.fullName.trim().length>0,
+    'PlayCardAction selected physical card has no resolved fullName');
+  return {
+    playerId:owner.id,
+    handIndex,
+    fullName:card.fullName
+  };
+}
+
 function validateInputs(input) {
   assert.ok(input&&typeof input==='object','fixture match input is required');
   const native=input.native;
@@ -157,6 +189,8 @@ function validateInputs(input) {
     'ResolvePromptAction','ShuffleDeckPrompt','CoinFlipPrompt']) {
     assert.equal(typeof native?.[name],'function','missing native dependency: '+name);
   }
+  assert.equal(typeof native?.cardActions?.PlayCardAction,'function',
+    'missing native dependency: PlayCardAction');
   assert.ok(native.GamePhase&&native.GamePhase.FINISHED!==undefined &&
     native.GamePhase.PLAYER_TURN!==undefined,'missing native GamePhase constants');
   assert.ok(native.Format&&native.Format.EXPANDED!==undefined,
@@ -295,6 +329,7 @@ function runNativeFixtureGame(input) {
       const before=publicStateSnapshot(state);
       const actionPayload=projectActionPayload(action);
       const actionPayloadSha256=sha256Json(actionPayload);
+      const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const record={
         actionOrdinal:actions,
         actingSeat,
@@ -310,6 +345,7 @@ function runNativeFixtureGame(input) {
         actionType:action.type??null,
         actionPayload,
         actionPayloadSha256,
+        selectedCardIdentity:selectedIdentity,
         publicStateBefore:before
       };
       try {
@@ -410,6 +446,7 @@ module.exports={
   deckPermutation,
   publicStateSnapshot,
   projectActionPayload,
+  selectedCardIdentity,
   runNativeFixtureGame,
   normalizeSeed32
 };
