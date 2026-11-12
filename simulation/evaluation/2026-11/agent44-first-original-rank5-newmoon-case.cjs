@@ -23,10 +23,10 @@ const OUTPUT=path.join(ROOT,'artifacts/agent44-first-independent-rank5-newmoon-c
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
- * Separate accepted-root audit availability, optional policy quota, and paper
- * Item legality. B-01 permits any number of Items; each use still needs a
- * per-use target/effect review. Count alone never establishes paper illegality.
- * This is an evidence-routing gate only and never changes or rejects a game.
+ * Separate accepted-root audit integrity from Canceling Cologne's
+ * card-specific one-use-per-turn paper ruling. The official Japanese Q&A
+ * prohibits a second use in the same turn; B-01's generic Item multiplicity
+ * rule does not override that specific ruling. This gate never changes a game.
  */
 function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
   const auditPresent=Boolean(audit&&typeof audit==='object'&&!Array.isArray(audit));
@@ -49,26 +49,29 @@ function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
     typeof audit.acceptedOncePerSeatTurn==='boolean'&&
     multipleRowsValid&&
     audit.acceptedOncePerSeatTurn===(multiple.length===0);
-  const policyQuotaConformance=!hookOptInEnabled?'not-applicable':
-    !auditShapeValid?'unassessable':
-      audit.acceptedOncePerSeatTurn?'pass':'fail';
+  const cardRuleConformance=!auditShapeValid?'unassessable':
+    audit.acceptedOncePerSeatTurn?'pass':'fail';
   const hasAcceptedUses=auditShapeValid&&audit.accepted>0;
+  const sameTurnViolation=auditShapeValid&&
+    audit.acceptedOncePerSeatTurn===false;
   return {
-    schema:'agent44-paper-cologne-accepted-root-review-gate-v2',
+    schema:'agent44-paper-cologne-accepted-root-review-gate-v3',
     disposition:!auditPresent?'blocked-audit-missing':
       !auditShapeValid?'blocked-audit-malformed':
-        'eligible-pending-independent-paper-review',
+        sameTurnViolation?'blocked-card-specific-once-per-turn-violation':
+          'eligible-pending-independent-paper-review',
     auditPresent,
     auditShapeValid,
     acceptedOncePerSeatTurn:auditPresent?
       audit.acceptedOncePerSeatTurn??null:null,
     multipleAcceptedBySeatTurn:multiple,
-    policyQuotaConformance,
+    cardSpecificOncePerTurnConformance:cardRuleConformance,
     hookOptInEnabled:hookOptInEnabled===true,
-    paperRuleReviewBlocked:!auditShapeValid,
+    paperRuleReviewBlocked:!auditShapeValid||sameTurnViolation,
     paperItemLegalityReviewStatus:!auditShapeValid?'blocked-audit-unavailable':
-      hasAcceptedUses?'pending-per-use-target-and-effect-review':
-        'no-accepted-cologne-use',
+      sameTurnViolation?'blocked-card-specific-once-per-turn-violation':
+        hasAcceptedUses?'pending-per-use-target-and-effect-review':
+          'no-accepted-cologne-use',
     requiresTargetAndEffectReview:hasAcceptedUses,
     independentPaperReviewRequired:true,
     paperLegalityCertified:false,
