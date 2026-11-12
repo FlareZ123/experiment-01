@@ -9,6 +9,7 @@ const DEAL_GENERATION_STEP_NAME='Generate physical deal';
 const RUN_ID=/^[1-9]\d*$/;
 const GIT_SHA=/^[0-9a-f]{40}$/;
 const SHA256=/^[0-9a-f]{64}$/;
+const OFFSET_ISO=/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/;
 
 function object(value,label) {
   assert.ok(value!==null&&typeof value==='object'&&!Array.isArray(value),
@@ -24,6 +25,7 @@ function positiveId(value,label) {
 
 function timestamp(value,label) {
   assert.equal(typeof value,'string',label+' must be an ISO timestamp');
+  assert.match(value,OFFSET_ISO,label+' must include an explicit UTC offset');
   const parsed=Date.parse(value);
   assert.ok(Number.isFinite(parsed),label+' must be parseable');
   return parsed;
@@ -114,9 +116,10 @@ function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt})
     'generation job must belong to the persisted workflow run');
   assert.equal(run.head_sha,persistenceReceipt.workflowHeadSha,
     'workflow head changed between persistence and generation receipts');
-  if(job.head_sha!==undefined)
-    assert.equal(job.head_sha,run.head_sha,
-      'generation job head SHA must equal workflow head SHA');
+  assert.match(job.head_sha??'',GIT_SHA,
+    'generation job head SHA is invalid');
+  assert.equal(job.head_sha,run.head_sha,
+    'generation job head SHA must equal workflow head SHA');
   assert.equal(persistenceReceipt.workflowHeadSha,run.head_sha,
     'generation receipt must use the same workflow head as persistence');
   assert.match(persistenceReceipt.commitSha??'',GIT_SHA,
