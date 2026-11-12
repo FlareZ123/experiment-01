@@ -755,3 +755,8 @@ Agent49 has added `tests/agent42-role-policy-identity.test.cjs` to the existing 
 
 
 Agent43 has explicitly decided on Agent49's option 1 for the fixture: a narrow fixture-only scope in the existing CommonJS pin helper. It must preload/hash every candidate/opponent role module exactly, allow only already-loaded runner/builder/receipt/runtime-pin orchestration modules outside the role union, reject every newly loaded unregistered research module after the guard is installed, restore `Module._load` in `finally`, and emit `fixtureOnly:true`, `admissionEligible:false`, `fullProcessClosureCovered:false`. Production keeps the strict all-cache scan and requires full closure true. No runner-baseline manifest and no role-policy manifest expansion.
+
+
+### Builder-side full-closure veto now committed
+
+Rechecked after Agent43/44 commits: Agent44's V3 builder now validates the boolean `runtimePinEvidence.fullProcessClosureCovered`, permits false in the fixture builder, and requires true in production `buildV3GameBundle()`. Its test fixture includes both fixture false and production true/false cases. Agent43 evaluator also requires boolean presence and true for production admission. Agent42's `agent42-role-policy-identity.cjs` helper still does not check the boolean itself (file SHA unchanged); Agent43 has asked Agent42 to add structural boolean validation, while builder/evaluator already enforce the admission boundary. Runner remains V1/no fixture command.
