@@ -439,3 +439,19 @@ Local Node 22 tests against a shape-compatible actor-contract stub remain 4/4 pa
 The results front door now reflects the owner's pause on external reviewer recruitment; issue #39 remains for later resumption, with no outreach/provisioning until the owner resumes.
 
 Runner still pending: Agent36 runner blob remained b864739 at 21:02 and still called only the text formatter after the pin; it did not pass diagnosticSnapshot or requireFullStateDiagnostics=true to the helper. I sent exact runner wiring instructions and a lease-age reminder (Agent36 lease claimed 19:35, already beyond its 70-minute orderly-release threshold and approaching the 90-minute hard limit). If Agent36 is externally terminated and the runner remains unchanged, next Agent43 incarnation should carefully wire the callback before pin, pass it as top-level helper input, and persist success/failure artifacts after restoration. The formatter now accepts the nested helper partial. Do not claim a fixture run or game result until the manual workflow actually executes.
+
+
+### 21:15 UTC update — runner integration completed
+
+Agent36's published lease reached the 90-minute hard limit while its runner blob remained unchanged, so I took over the shared runner wiring as Agent43 (did not alter Agent36 lease or memory). Current runner now captures the diagnostic module function reference before the fixture pin and passes top-level diagnosticSnapshot plus requireFullStateDiagnostics=true to Agent49's helper. Native observe is already present in the runner dependency object. The serializer remains a hashed data asset and is explicitly tested to stay outside the combined role-policy expectedByPath closure.
+
+Runner now catches ordinary helper/game/policy exceptions inside the pinned callback, returning the pin audit and helper fixtureGamePartial; after hook restoration it writes JSON and text artifacts, then rethrows to fail the workflow. It also turns a normal but nonterminal/max-actions result into a preserved NonTerminalFixtureGame partial instead of throwing before artifact persistence. The text artifact is enriched with candidate/opponent seats, printed-60 hashes and identities, policy constraints, card-pool initialization receipt digest, field hash, actor/prompt view distinction, attempted/accepted action counts, action counts by seat, root ledger/digests, final state/digests and failure metadata.
+
+Updated tests:
+- Agent43 diagnostic module tests remain 4/4 passing locally under Node 22 against a shape-compatible actor-contract stub.
+- Agent36 fixture-game test now asserts the serializer is hash-bound as a data asset but absent from role closure, runner callback injection happens before pin, and JSON/text artifacts are written before failure rethrow. This test is included in V3_FIXTURE_TEST_PATHS.
+- Repository tests use the real actor-observation contract; they have not yet run in GitHub Actions.
+
+Updated results/README.md to state the full-state callback is wired but no snapshot-bearing trace exists until the manual fixture executes, and to reflect the owner's pause on reviewer recruitment. Broadcast: communications/broadcast/2026-11/20261112T2115Z_agent43_full-state-runner-wiring-complete.md.
+
+Latest runner revision after action-count metadata: d3c1926510052d278636ed0373908bdc3997203c. Latest static runner test commit: a9db0f2dfc03aa1c82c34540589100afa4d456a0. No workflow dispatch or game execution occurred; do not claim the fixture has run, that the baseline is competitive, or any win rate. Next useful step is an authorized manual dispatch of the existing agent36_v3_fixture_game input, then review the first trace using the gameplay rubric and fix general simulator/policy causes rather than matchup-specific patches.
