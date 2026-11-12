@@ -302,3 +302,56 @@ test('policy manifest carries a canonical digest and remains explicitly incomple
   assert.equal(first.policySha256BySeat, null);
   assert.equal(first.policyManifest.complete, false);
 });
+
+test('full inherited Mew v6 source-only option set projects only to original source seat', () => {
+  const options = {
+    actorPotentialKoSourceOnly: true,
+    actorPotentialKoRoot: true,
+    actorGenericFundedFloatStoneSourceOnly: true,
+    actorGenericFundedFloatStoneRoot: true,
+    actorSeekerGuzmaSourceOnly: true,
+    actorSeekerGuzmaNominalKo: true,
+    actorOwnerMailAfterPassSourceOnly: true,
+    actorOwnerMailAfterPass: true,
+    actorNaturalEvolutionSourceOnly: true,
+    actorNaturalEvolutionRoot: true,
+    actorDceMewMobilitySourceOnly: true,
+    actorDceMewMobilityRoot: true,
+    actorMewGenesectTechnoBlastSourceOnly: true,
+    actorMewGenesectTechnoBlast: true,
+    actorMewDceRecipientSourceOnly: true,
+    actorMewDceRecipientRoot: true,
+    sourceScopedQuickBallRoot: true
+  };
+  const source = effectiveOptionsForSeat(options, 0, 0);
+  const candidate = effectiveOptionsForSeat(options, 1, 0);
+  const pairs = [
+    ['actorPotentialKoSourceOnly', 'actorPotentialKoRoot'],
+    ['actorGenericFundedFloatStoneSourceOnly', 'actorGenericFundedFloatStoneRoot'],
+    ['actorSeekerGuzmaSourceOnly', 'actorSeekerGuzmaNominalKo'],
+    ['actorOwnerMailAfterPassSourceOnly', 'actorOwnerMailAfterPass'],
+    ['actorNaturalEvolutionSourceOnly', 'actorNaturalEvolutionRoot'],
+    ['actorDceMewMobilitySourceOnly', 'actorDceMewMobilityRoot'],
+    ['actorMewGenesectTechnoBlastSourceOnly', 'actorMewGenesectTechnoBlast'],
+    ['actorMewDceRecipientSourceOnly', 'actorMewDceRecipientRoot']
+  ];
+  for (const [flag, feature] of pairs) {
+    assert.equal(source.options[flag], true, flag);
+    assert.equal(source.options[feature], true, feature);
+    assert.equal(candidate.options[flag], false, flag);
+    assert.equal(candidate.options[feature], false, feature);
+  }
+  assert.equal(source.options.sourceScopedQuickBallRoot, true);
+  assert.equal(candidate.options.sourceScopedQuickBallRoot, false);
+  assert.deepEqual(source.unknownSourceOnlyFlags, []);
+  assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
+
+  const result = policyDefinitionHashes(policyInput({ options }));
+  assert.equal(result.complete, true);
+  assert.equal(result.samePolicy, false);
+  assert.notEqual(result.policySha256BySeat[0], result.policySha256BySeat[1]);
+  assert.deepEqual(result.perSeat[0].enabledSourceOnlyFlags.slice().sort(),
+    pairs.map(([flag]) => flag).sort());
+  assert.deepEqual(result.perSeat[1].enabledSourceOnlyFlags, []);
+});
+
