@@ -134,6 +134,12 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.equal(Math.random,originalRandom);
   assert.equal(agentsCreated,2);
   assert.equal(result.schema,'aichi-native-fixture-game-v1');
+  assert.equal(result.seed,0x12345678);
+  assert.equal(result.randomizationProtocol,'xorshift32-physical-and-seat-policy-streams-v1');
+  assert.deepEqual(result.policySeedBySeat,[
+    (0x12345678^0x6a09e667)>>>0,
+    (0x12345678^0xbb67ae85)>>>0
+  ]);
   assert.equal(result.fixtureOnly,true);
   assert.equal(result.admissionEligible,false);
   assert.equal(result.competitiveGameQualified,false);
@@ -150,6 +156,13 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.equal(result.rootActionLedger.length,2);
   assert.equal(result.decisionTrace[0].pendingPromptType,'ShuffleDeckPrompt');
   assert.equal(result.decisionTrace[0].actionName,'ResolvePromptAction');
+  assert.deepEqual(result.decisionTrace[0].promptResolution,{
+    kind:'shuffle',ownerSeat:0,cardCount:60,
+    permutationSha256:result.decisionTrace[0].promptResolution.permutationSha256
+  });
+  assert.match(result.decisionTrace[0].promptResolution.permutationSha256,/^[a-f0-9]{64}$/);
+  assert.equal(result.decisionTrace[1].promptResolution.kind,'coin-flip');
+  assert.equal(typeof result.decisionTrace[1].promptResolution.result,'boolean');
   assert.equal(result.decisionTrace[0].publicStateAfter.pendingPrompts.length,1);
   assert.equal(result.decisionTrace[1].pendingPromptType,'CoinFlipPrompt');
   assert.equal(result.decisionTrace[1].publicStateAfter.phase,GamePhase.PLAYER_TURN);
