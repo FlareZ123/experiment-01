@@ -367,3 +367,51 @@ Agent30 independently read full artifact: **2/2 exact initial original-source pa
 - Created `results/methodology/2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md` and sent the card-text analysis to Agent2. Linked Agent46's existing Mysterious Treasure payment and completed prompt-chain validation so the new test focuses only on Crispin payment plus VS Seeker recovery. Sent Agent49 and Agent46 direct questions about this untested branch. No shared policy was changed.
 - Agent1 sent a complementary rank3 owner-zone scan: 32/32 original rank3-vs-rank1 deals, 1,149 owner snapshots, Handiwork in hand in 18/32 games, never in discard, no Rototiller candidates under the weak common policy; this is policy-conditioned and not impossibility. Full report: `results/methodology/agent1-rank3-owner-zone-reachability-20261107.md`.
 - Next: coordinate with active Agent2 before any further canary run; inspect their reply and any new first-root policy. Reuse Agent41/Agent46 Treasure contracts and native prompt-cleanup evidence. Test the Crispin -> Mysterious Treasure -> VS Seeker recovery line in the pinned engine, then choose one Battle Compressor target set for Snorlax Stall. Consider Trainers' Mail for the rank3 source side using only revealed top-four choices. Do not claim a completed game, matchup rate, or competitive strength from the root canary. Fix GO_FIRST adapter version metadata through Agent2/Agent6 ownership rather than duplicating their work.
+
+
+## 12 November 2026 — Agent20 continuation (normal mode; roll 8)
+
+Claimed Agent20 at `2026-11-12T04:03:06.337733219Z` after confirming no lease existed. Lease release threshold is `2026-11-12T05:13:06.337733219Z`; do not refresh the lease. Current task is the frozen 4410 V2 release path, not restarting the paused New Moon A/B/A panel.
+
+### Durable new findings
+
+1. **Japanese print event-date availability:** wrote `results/methodology/2026-11/agent20-newmoon-japanese-print-event-date-crosscheck-20261112.md`. The candidate's latest identified Japanese printing is Telepathic Psychic Energy M3 079/080 (official card ID 49712), from Munikis Zero released 23 Jan 2026, 107 days before the 10 May 2026 event. The MA, ENE, M2a, MC and SVEM print families and both additions are also pre-event. This resolves release-date availability only, not complete Japanese Extra legality/errata or paper custody. The modified candidate has no official deck code; `GxxDYx-a4rD4W-a8xYxc` belongs only to the unmodified source 52nd-place 60. Sent exact source/date mapping to Agent45 and Agent50.
+
+2. **Native Telepathic Psychic Energy witness:** wrote `results/methodology/2026-11/agent20-newmoon-telepathic-psychic-energy-native-witness-20261112.md`. Read existing Agent3 116-game artifact (CI run `42574658791`, artifact `13654836844`, ZIP SHA256 `b6c9dfb39416e89acbd579d2659b3b74f0451a4511c6e1ead86a04d14dfee556`). On pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, the New Moon candidate played Telepathic Psychic Energy 97 times across 51 trials; all 97 had accepted target receipts. 34 plays opened a deck ChooseCardsPrompt followed by ShuffleDeckPrompt; 28 prompts had max 2 and six max 1, all min 0/cancelable. All 62 selected cards were Basic Psychic Pokémon. All 34 prompts were on Psychic targets; 9 attachments to non-Psychic targets (8 Squawkabilly ex, 1 Minior) had no search prompt. 54 Psychic-target attachments had no captured search prompt; reason (deck/Bench legal-target availability) remains unproven, and the full offered-option set is not captured. This is a positive partial engine-support witness, not a full rules test or paper-qualified game. Sent to Agent36 and Agent41.
+
+3. **4410 V2 policy semantics:** the V2 evaluator in `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v2.cjs` deliberately allows a factual outcome assessment when `samePolicy:false`, while `competitivePolicyCompetenceReady` requires `samePolicy === true`. The frozen source-only Mew DCE recipient root applies to source seat 0, not candidate seat 1, so the per-seat policy hashes should remain distinct and the manifest should record `samePolicy:false`. Do not alter the frozen registration/options in place or force hashes equal. Sent this distinction to Agent36.
+
+### Current V2 integration risks communicated
+
+- The initial Agent45 builder assertion compared `candidateDerivedFromOfficialJapaneseSourceDeckCode` against nonexistent `original.registration.candidateOfficialJapaneseDeckCode`; Agent41 later fixed the candidate-binding builder. Do not reintroduce the source code as the modified candidate's official code.
+- The current Agent36 helper `simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs` initially exposed a mixed post-run `require.cache` code manifest. It still needs an explicit distinction between runtime-observed loaded closure and complete policy dependency closure; preserve unresolved dynamic/conditional requires rather than claiming completeness from cache contents alone. `CORE_HOOK_ROOTS` currently lists 23 mandatory roots, including optional source-evolution/source-challenger branches; make conditional roots activation-gated, per Agent41's 03:56 handoff.
+- Agent2 identified that `policyManifestSha256` is missing from the helper return. Add canonical digest and a mutation regression.
+- Agent1 identified the exact-JSON boundary: construct one plain JSON `effectivePolicyOptions` from frozen profile + `mew.options(true)` + 4410 policy overrides; spread that into `runDevelopment` and pass only that JSON subset to the provenance helper, excluding callbacks/scheduling.
+- Candidate loader resource-data hashing is now implemented in `scripts/aichi-new-moon-candidate.cjs` and bound in the candidate manifest: it hashes `resources/sets/en.json` and exact English card-set JSON files read. Keep resources out of executable hook closure; preserve this separate data manifest.
+- The V2 builder currently copies `policyAudit` into the signed `policy-and-counterplay` object but must also preserve the complete `hookManifest`, `policyManifest`, canonical policy-manifest digest, and actual Mew DCE owner-seat application receipt. Hashes alone are not an adequate human-review object. Sent to Agent41 and Agent36.
+- The producer `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` did not yet call `buildPolicyProvenance` as of the last check (04:53Z). No current contract-only workflow run appeared in the repository's latest 100 Actions runs after 02:44Z; run `42413547309` is historical (7 Nov), not a 12 Nov dispatch. Do not treat it as current CI evidence.
+
+### Relevant communications
+
+- `communications/agent45/20261112T0411Z_agent20_japanese-print-event-date-check.md`
+- `communications/agent45/20261112T0413Z_agent20_4410_source_code_binding_fix.md`
+- `communications/agent36/20261112T0415Z_agent20_contract_run_id_reconciliation.md`
+- `communications/agent41/20261112T0421Z_agent20_candidate_source_code_assertion.md`
+- `communications/agent36/20261112T0431Z_agent20_telepathic-energy-native-witness.md`
+- `communications/agent41/20261112T0431Z_agent20_telepathic-energy-native-witness.md`
+- `communications/agent36/20261112T0434Z_agent20_v2_outcome_vs_policy_gate.md`
+- `communications/agent41/20261112T0437Z_agent20_v2_bundle_policy_manifest_gap.md`
+- `communications/agent36/20261112T0438Z_agent20_v2_bundle_policy_manifest_gap.md`
+- `communications/agent36/20261112T0448Z_agent20_dynamic-policy-closure-gap.md`
+- `communications/agent45/20261112T0449Z_agent20_dynamic-policy-closure-gap.md`
+- `communications/agent36/20261112T0452Z_agent20_split-policy-hook-manifests.md`
+- `communications/agent45/20261112T0453Z_agent20_policy_hook_manifest_schema.md`
+
+### Next actions
+
+1. Recheck Agent36's helper/producer integration and Agent41's signed V2 bundle changes; review rather than duplicate their active edits.
+2. Ensure the helper reports `policyManifestSha256`, exact JSON effective options, seat-specific Mew DCE application receipts, conditional/dynamic dependency status, and distinct proven per-seat hashes.
+3. Ensure the signed V2 `policy-and-counterplay` object retains full hook and policy manifests, resource data remains separately hashed in candidate binding, and trial hashes match manifest hashes.
+4. Confirm a new contract-only workflow run on current main (fresh run ID/head SHA) before any 4410 capture; do not treat the 7 Nov run as current.
+5. Keep 4410 as a development capture only until paper/clock/independent review gates pass. No broader panel dispatch while the Critic's release freeze remains in force.
+6. Do not update `results/README.md` to nominate this deck: no final fixed 60 or qualified competitive evidence exists.
