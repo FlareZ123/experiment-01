@@ -20,7 +20,8 @@ function fixture() {
   const run={
     id:12345,
     head_sha:'b'.repeat(40),
-    run_started_at:'2026-11-12T17:05:00.000Z'
+    run_started_at:'2026-11-12T17:05:00.000Z',
+    repository:{full_name:'FlareZ123/experiment-01'}
   };
   const artifact={
     repositoryFullName:'FlareZ123/experiment-01',
@@ -88,8 +89,11 @@ test('Actions run/job/step metadata maps to the existing V3 receipt contract',()
   });
 });
 
-test('persistence receipt rejects a workflow whose head does not contain the artifact commit',()=>{
+test('persistence receipt rejects a workflow from another repo or whose head omits the artifact commit',()=>{
   const x=fixture();
+  assert.throws(()=>createPreDealPersistenceReceipt({
+    ...x,run:{...x.run,repository:{full_name:'someone/else'}}
+  }),/workflow run repository must equal the artifact repository/);
   assert.throws(()=>createPreDealPersistenceReceipt({
     ...x,run:{...x.run,head_sha:'f'.repeat(40)}
   }),/workflow head must be the exact commit/);
