@@ -367,9 +367,12 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fix
   const stepStartedAt=Date.parse(dealReceipt.stepStartedAt);
   if (stepStartedAt<plannedDealAt || stepStartedAt<=runStartedAt)
     fail('physical deal-generation step did not start after preregistered time and workflow persistence');
-  if (trial.dealGeneratedAt!==dealReceipt.stepStartedAt ||
+  // The producer's local dealGeneratedAt is informational only. The
+  // Actions step start is a server-timestamped lower bound; physical deal
+  // generation must occur inside that step after it starts.
+  if (trial.dealGenerationStepStartedAt!==dealReceipt.stepStartedAt ||
       trial.initialSourceDealFingerprint!==dealReceipt.sourceDealFingerprint)
-    fail('trial actual deal time or source-deal fingerprint disagrees with server-timestamped generation step');
+    fail('trial server-reported generation step time or source-deal fingerprint disagrees with receipt');
   return {persistenceReceipt,dealReceipt};
 }
 
