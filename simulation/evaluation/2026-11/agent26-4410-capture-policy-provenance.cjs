@@ -11,12 +11,23 @@ function jsonSafe(value) {
   if (value === undefined) return null;
   if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
       (typeof value === 'number' && Number.isFinite(value))) return value;
+  if (typeof value === 'function' || typeof value === 'symbol' ||
+      typeof value === 'bigint') {
+    throw new TypeError(`Unsupported policy-provenance value: ${typeof value}`);
+  }
+  if (typeof value === 'number') {
+    throw new TypeError('Unsupported non-finite policy-provenance number');
+  }
   if (Array.isArray(value)) return value.map(jsonSafe);
   if (value && typeof value === 'object') {
+    const prototype=Object.getPrototypeOf(value);
+    if(prototype!==Object.prototype&&prototype!==null){
+      throw new TypeError('Unsupported non-plain policy-provenance object');
+    }
     return Object.fromEntries(Object.keys(value).sort().map(key =>
       [key, jsonSafe(value[key])]));
   }
-  return String(value);
+  throw new TypeError(`Unsupported policy-provenance value: ${typeof value}`);
 }
 
 /**
@@ -26,9 +37,10 @@ function jsonSafe(value) {
  * independently resolved and attested.
  */
 function buildCaptureOnlyPolicyProvenance({
-  repositoryRoot, entryFile, development, row, options, sourceSeat,
-  candidateSeat, trialId, candidateManifestBlobSha, policyProfileBlobSha,
-  enginePin, activationReceipts = {}, cacheEntries
+  repositoryRoot, entryFile, development, row, options, runnerConfig = {},
+  sourceSeat, candidateSeat, trialId, candidateManifestBlobSha,
+  policyProfileBlobSha, enginePin, hookActivationReceipts = {},
+  runtimeEvidenceReceipts = {}, cacheEntries
 }) {
   if (!repositoryRoot || !entryFile || !development || !row ||
       !options || ![0, 1].includes(sourceSeat) ||
@@ -38,6 +50,9 @@ function buildCaptureOnlyPolicyProvenance({
   }
 
   const safeOptions = jsonSafe(options);
+  const safeRunnerConfig = jsonSafe(runnerConfig);
+  const safeHookActivationReceipts = jsonSafe(hookActivationReceipts);
+  const safeRuntimeEvidenceReceipts = jsonSafe(runtimeEvidenceReceipts);
   const runtimeLoadedCodeManifest = loadedResearchCodeManifest({
     repositoryRoot, entryFiles: [entryFile],
     ...(cacheEntries ? {cacheEntries} : {}),
@@ -63,9 +78,9 @@ function buildCaptureOnlyPolicyProvenance({
   const effectiveSeatConfiguration = [0, 1].map(seat => {
     const projected = effectiveOptionsForSeat(safeOptions, seat, sourceSeat);
     const value = {
-      schema: 'agent26-4410-effective-seat-configuration-projection-v1',
+      schema: 'agent26-4410-effective-seat-configuration-projection-v2',
       trialId, seat, sourceSeat, candidateSeat,
-      configuredRunnerOptions: safeOptions,
+      configuredPolicyOptions: safeOptions,
       effectiveSeatOptions: projected.options,
       unknownSourceOnlyFlags: projected.unknownSourceOnlyFlags,
       actorRuntimeDigest: actorRuntimeClosure?.observedRuntimeDigest ?? null
@@ -77,7 +92,7 @@ function buildCaptureOnlyPolicyProvenance({
   const mewDceRootApplicationReceipt =
     actorOnlyDecisionCoverage?.detailedComponentAudits?.root ?? null;
   const paperCologneNativePlayAudit = jsonSafe(row.paperCologneNativePlayAudit ?? null);
-  const safeActivationReceipts = jsonSafe(activationReceipts);
+  const safeActivationReceipts = safeHookActivationReceipts;
 
   const activatedHookManifest = {
     schema: 'agent26-4410-activated-hook-manifest-v1',
@@ -143,7 +158,7 @@ function buildCaptureOnlyPolicyProvenance({
   };
 
   const result = {
-    schema: 'agent26-4410-capture-only-policy-provenance-v1',
+    schema: 'agent26-4410-capture-only-policy-provenance-v2',
     status: 'PARTIAL_CAPTURE_ONLY',
     trialId, sourceSeat, candidateSeat,
     candidateManifestPath: 'results/als/new-moon-lockbreak-japanese-print-60.json',
@@ -153,7 +168,8 @@ function buildCaptureOnlyPolicyProvenance({
     enginePin,
     runtimeLoadedCodeManifest,
     runtimeLoadedCodeSnapshotSha256: runtimeLoadedCodeManifest.sha256,
-    configuredRunnerOptions: safeOptions,
+    runnerExecutionConfig: safeRunnerConfig,
+    runtimeEvidenceReceipts: safeRuntimeEvidenceReceipts,
     effectiveSeatConfiguration,
     effectiveSeatConfigSha256BySeat: effectiveSeatConfiguration.map(
       item => item.effectiveSeatConfigSha256),
