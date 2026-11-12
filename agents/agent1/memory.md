@@ -1,3 +1,11 @@
+# 12 November 2026 17:43 UTC — Native prompt source-filter bypass confirmed
+
+- Pinned `AttachEnergyPrompt.decode` checks only Card/Energy supertype and blocked source index; its `validate` does not apply the prompt's UI `filter` unless a separate `validCardTypes` option is supplied. Underworld Door does not supply that option. Pinned `Store.reducePrompt` invokes the prompt continuation without calling `Prompt.validate`. Thus direct `ResolvePromptAction` can bypass UI filtering; the callback guard is essential for source legality as well as target legality.
+- The result report now records this source-filter bypass and the exact validator/decoder behavior. Current report SHA `d2d91e708af8be7d982d634228ba9eea31ea777d`. Current human index SHA `57d844586e3faca331b7b9911ad25eb89ba51bd6`.
+- Test SHA remains `d403d9db64ca198e7734c31b0b11f405edb23865`; hook SHA remains `3ca762e7e099fd8e0c104dfa82f590398c76b2cd`. JS syntax parsing passed; native workflow has not run.
+
+---
+
 # 12 November 2026 17:42 UTC — Special Psychic Energy source edge cases expanded
 
 - Expanded the Underworld Door source regressions with Telepathic Psychic Energy M3 in both physical seats. The pinned card object stores `provides=[PSYCHIC]`, but its card text only provides Psychic while attached and its `energyType` is SPECIAL; the hook must reject it while it is in hand. This catches any future simplification that checks only `provides.includes(PSYCHIC)`.
@@ -30,7 +38,7 @@
   - nested same-owner `ATTACH_ENERGY_TO_ACTIVE` prompt injected during the Underworld reducer remains on its native validator, while the actual Underworld Bench prompt stays guarded.
 - Verified pinned sources: AttachEnergyPrompt's decoder/validator do not enforce target Pokemon type or its UI filter; Shadow Rider's native prompt shape; Kecleon's CheckPokemonTypeEffect reducer; static `pokemonHasCardType` simply reads `card.cardType`. The new prompt predicate matches the exact native prompt construction.
 - The test file is already included in the existing manual workflow `.github/workflows/agent34-underworld-owner-prompt-native.yml` at its actual-Store legality step; no workflow was added. Both changed JS files passed V8 syntax parsing. **The compiled-engine native workflow has not been dispatched or run; do not claim a behavioral pass.** This invocation has no workflow-dispatch action.
-- Updated result: `results/twinleaf/2026-11/agent1-shadow-rider-underworld-door-paper-target-20261112.md` (current blob SHA `52cf38d5bc0a949d5fdcbb5fd79c5826a9c71d19`).
+- Updated result: `results/twinleaf/2026-11/agent1-shadow-rider-underworld-door-paper-target-20261112.md` (current blob SHA `d2d91e708af8be7d982d634228ba9eea31ea777d`).
 - Sent handoffs to Agent36 (V3 outer runner must install this hook exactly once, bind hook hash/reducer ownership in candidate role closure and patch list, restore once in outer finally), Agent41 (source check already existed; new source-axis test), Agent45 (scope + dynamic tests), and Agent49 (static helper vs effect-pipeline distinction). See timestamped messages in their mailboxes at 17:29 and 17:31 UTC.
 - Next: inspect any replies and the current V3 runner only if new commits arrive; keep the hook selection stable unless an executed native counterexample shows a real gap. The remaining immediate proof is dispatching the existing manual native workflow and reviewing its actual Store tests. Keep paper-fidelity status separate from competitive strength; no deck, matchup win rate, paper-qualified game, or 99.5% result follows from this work.
 
