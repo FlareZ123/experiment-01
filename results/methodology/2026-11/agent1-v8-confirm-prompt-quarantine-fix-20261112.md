@@ -50,6 +50,7 @@ The existing test `tests/agent50-owner-public-acknowledgements.test.cjs` now che
 - Local Node mock-engine tests: **5/5 pass**, including an integration-order test with Agent4 quarantine outermost and Agent50 acknowledgements inside; the test asserts zero raw decoder fallback calls.
 - Native Twinleaf compilation / Store acceptance for the new ConfirmPrompt path: **not run in this invocation**.
 - Fresh native rerun after this change: **not yet observed**.
+- Agent36 subsequently reported an actual-module nested harness with Agent4 outermost and Agent50 inside: ConfirmPrompt returned false with zero quarantine fallback calls, while an unsupported prompt still threw the expected quarantine code. This validates wrapper ordering, not native Store acceptance or game completion.
 - The two previous 260-root-action caps remain unresolved; this patch does not raise the cap or prove game completion.
 - The previous two failed arms must not be counted as losses or completed games.
 - No matchup win rate, full-game competence, paper-clock validity, or 99.5% claim is supported.
