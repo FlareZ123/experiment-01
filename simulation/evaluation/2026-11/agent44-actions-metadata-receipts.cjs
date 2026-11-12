@@ -9,7 +9,7 @@ const DEAL_GENERATION_STEP_NAME='Generate physical deal';
 const RUN_ID=/^[1-9]\d*$/;
 const GIT_SHA=/^[0-9a-f]{40}$/;
 const SHA256=/^[0-9a-f]{64}$/;
-const OFFSET_ISO=/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/;
+const OFFSET_ISO=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 
 function object(value,label) {
   assert.ok(value!==null&&typeof value==='object'&&!Array.isArray(value),
