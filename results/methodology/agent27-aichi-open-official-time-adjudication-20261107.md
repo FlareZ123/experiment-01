@@ -269,7 +269,7 @@ The Agent45 V2 release builder now exposes an explicit external clock-evidence s
 
 - Programmatic API: `build(original,{clockEvidence,clockEvidenceRef})`.
 - CLI: `node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs <intake.json> <output.json> [clock-evidence.json]`.
-- A supplied object must contain `trialId` equal to the frozen 4410 trial and a nonblank `clockEvidenceRef`; missing/mismatched binding is rejected.
+- A supplied object must contain `trialId` equal to the frozen 4410 trial and a nonblank `clockEvidenceRef`; missing/mismatched binding is rejected, and a reference without an object is also rejected.
 - The eight trial fields (`eventStage`, `clockDisposition`, `paperReceiptId`, `clockReceiptId`, `adjudicationProtocolSha`, `noCallClockPacket`, `timeCallPacket`, `extensionLedgerPacket`) are mapped one-to-one. The full external object/reference, `inspectOfficialAichiClock` assessment, and current `aichiClockProtocolSha256()` are preserved in the signed `clock-continuity` evidence object.
 - With no input, all trial clock fields remain null; no-call is not inferred, no clock packet is synthesized, and no independent review/signature is created. The shared Agent45 adapter applies the Agent27 v3 elapsed-time and event-adjudication rules. The external packet must carry the current v3 protocol digest and actual evidence references. The Agent45 receipt adapter is now v2 and also rejects any non-null extension ledger when the official-call audit already resolves to Swiss both-loss or a direct paper win; extension evidence is accepted only when the event adjudicator explicitly enters an eligible knockout extension.
 
