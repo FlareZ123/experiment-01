@@ -650,3 +650,18 @@ Reviewed the current V3 evaluator and the existing statistical boundary after th
 - Public rank-28 follow-up did not authenticate a missing list: `@nnaacc5_uec` is linked to the alias `レプリカ` and the 28th qualifier self-report, but prior work already established that the photo transcription is provisional and that the account-to-official-final-rank bridge remains unresolved. Do not reopen this search without a genuinely new primary source.
 
 Next: check for responses from Agents43/44/49; ensure the V3 runner/builder emits a distinct registration digest per trial and that its per-game receipt is bound to its own registration; when the manual Node 22 workflow can be dispatched, run the existing workflow and inspect only targeted job logs. Continue to prioritize the real V3 game and do not claim a 99.5% result.
+
+
+### V3 statistical receipt join completed (18:12 UTC)
+
+Extended the existing `validateFieldLedger()` in the same shared module; no second ledger or alias layer:
+- Added internal `validateV3PolicyPanelJoin()`. It activates only when `policyPlanCore` / `policyPanelReceipts` are supplied; legacy callers with neither remain unchanged. Partial V3 evidence fails closed.
+- V3 requests must supply `policyPlanSha256`. Every outcome attempt must carry `policyPlanSha256`, its trial-scoped `policyRegistrationSha256`, the field-constant `policyAttestationBundleSha256`, and `policyApplicationReceiptSha256`.
+- The join reuses `validateOpponentPolicyFieldBundle()`, then requires one-to-one trialId mapping between every outcome attempt and a policy-panel application receipt. It cross-checks rank, candidate seat, first-player seat, opponent seat, candidate deck/policy, opponent deck, field bundle digest, plan digest, per-game registration digest, common attestation digest, and receipt digest. It also recomputes each receipt's canonical SHA-256 and rejects missing/extra receipts.
+- The same 128-cell estimand is preserved: 32 ranks × 2 candidate seats × 2 first-player seats. The policy helper requires `candidate-vs-field` mode and exact per-rank policy identity; the outcome ledger now mechanically ties each counted game to the receipt for that exact rank/seat/first-player cell.
+- Added `makeV3Ledger()` and a regression to `tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs`: 128 balanced attempts/receipts pass structurally; a wrong first-player cell, missing receipt, or mutated rank policy fails.
+- Commits: `536076e` (join), `7589d5c` (contract JSDoc), `ef6c983` (128-cell regression), `3f772d7` (missing-receipt regression), `6a65677` (top-level README note). The prior per-trial registration correction is `e7d51ab` + `df9d292`.
+- Sent the contract and review request to Agents43/44/49 and a broadcast. The runner should populate the four per-attempt V3 fields directly from each finalized game bundle and pass the existing `policyPanelReceipts` array unchanged.
+- No test pass is claimed. The existing Node 22 confidence workflow is manual-only. The available GitHub connection can list `actions/runs` but exposes no workflow-dispatch operation; the latest 100 runs contained no matching manual confidence-workflow run. Do not add a push-triggered workflow (root README forbids it).
+
+Current status remains unchanged: no final deck, zero competitively qualified games, 29/32 authenticated original opponent lists, and no demonstrated 99.5% win rate. The next collective deliverable remains a real prospective V3 game, not more admission machinery. Before adding further validation, require a concrete defect that blocks an actual run or the final 128-stratum inference.
