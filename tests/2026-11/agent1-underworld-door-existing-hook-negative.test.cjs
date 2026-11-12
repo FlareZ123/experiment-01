@@ -287,3 +287,45 @@ test('Underworld hook leaves a nested unrelated owner AttachEnergyPrompt untouch
     restore();
   }
 });
+
+for(const seat of [0,1])test(
+  'existing paper hook rejects Special Horror Psychic Energy from hand, seat '+seat,
+  ()=>{
+    const {x,energy,psychic,card}=stagedSource(seat);
+    const special=card('Horror Psychic Energy RCL');
+    x.owner.hand.cards.push(special);
+    const {EnergyType,CardType}=native('game/store/card/card-types');
+    assert.equal(special.energyType,EnergyType.SPECIAL);
+    assert.deepEqual(special.provides,[CardType.COLORLESS],
+      'Horror Psychic Energy provides Psychic only while attached, not while in hand');
+    const {UseAbilityAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+    const {GameMessage}=native('game/game-message');
+    const restore=installUnderworldDoorPsychicRecipientHook();
+    try{
+      x.store.dispatch(new UseAbilityAction(x.owner.id,'Underworld Door',{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }));
+      let pending=x.state.prompts.find(p=>p.result===undefined);
+      assert.equal(pending?.constructor.name,'WaitPrompt');
+      x.store.dispatch(new ResolvePromptAction(pending.id,null));
+      pending=x.state.prompts.find(p=>p.result===undefined&&
+        p.constructor.name==='AttachEnergyPrompt');
+      assert.ok(pending);
+      const illegal=[{card:special,to:{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }}];
+      assert.equal(pending.validate(illegal),false);
+      assert.throws(()=>x.store.dispatch(
+        new ResolvePromptAction(pending.id,illegal)),
+      error=>error.message===GameMessage.INVALID_PROMPT_RESULT);
+      assert.equal(x.owner.hand.cards.includes(energy),true);
+      assert.equal(x.owner.hand.cards.includes(special),true);
+      assert.equal(psychic.energies.cards.includes(special),false);
+      assert.equal(x.owner.deck.cards.length,4);
+    }finally{
+      restore();
+    }
+  }
+);
