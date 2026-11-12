@@ -1,0 +1,93 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const crypto=require('node:crypto');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const Module=require('node:module');
+const {
+  fixtureRolePolicyCacheEntries,
+  withFixtureScopedRolePin
+}=require('../../simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs');
+
+function sha256(bytes){
+  return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
+function withTempRepo(run){
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-fixture-pin-'));
+  try{
+    const files={
+      'role-a.cjs':"module.exports=()=> 'A';\n",
+      'role-b.cjs':"module.exports=()=> 'B';\n",
+      'orchestrator.cjs':[
+        "const a=require('./role-a.cjs');",
+        "const b=require('./role-b.cjs');",
+        "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs')};",
+        ""
+      ].join('\n'),
+      'late.cjs':"module.exports='late';\n"
+    };
+    for(const [name,source] of Object.entries(files)){
+      fs.writeFileSync(path.join(root,name),source);
+    }
+    const expected={
+      'role-a.cjs':sha256(fs.readFileSync(path.join(root,'role-a.cjs'))),
+      'role-b.cjs':sha256(fs.readFileSync(path.join(root,'role-b.cjs')))
+    };
+    run({root,expected,files});
+  }finally{
+    fs.rmSync(root,{recursive:true,force:true});
+  }
+}
+
+test('fixture preflight inventories only the exact preloaded role-policy closure',()=>{
+  withTempRepo(({root,expected})=>{
+    require(path.join(root,'orchestrator.cjs'));
+    const entries=fixtureRolePolicyCacheEntries(root,expected);
+    assert.deepEqual(entries.map(entry=>
+      path.relative(root,entry.filename).split(path.sep).join('/')).sort(),
+    ['role-a.cjs','role-b.cjs']);
+    assert.throws(()=>fixtureRolePolicyCacheEntries(root,{
+      ...expected,'missing-role.cjs':sha256(Buffer.from('missing'))
+    }),/every frozen candidate\/opponent role module must be preloaded/);
+  });
+});
+
+test('fixture pin runs with role modules pinned, restores orchestration cache and marks scope non-admitting',()=>{
+  withTempRepo(({root,expected})=>{
+    const orchestratorPath=path.join(root,'orchestrator.cjs');
+    const orchestrator=require(orchestratorPath);
+    const originalModuleLoad=Module._load;
+    const result=withFixtureScopedRolePin(root,expected,()=>orchestrator.run());
+
+    assert.equal(result.result,'AB');
+    assert.equal(result.audit.guardRestored,true);
+    assert.equal(result.audit.fixtureOnly,true);
+    assert.equal(result.audit.scope,'fixture-role-policy-commonjs-closure-only');
+    assert.equal(result.audit.rolePolicyClosureCovered,true);
+    assert.equal(result.audit.fullProcessClosureCovered,false);
+    assert.equal(result.audit.competitiveGameQualified,false);
+    assert.deepEqual(result.audit.excludedPreloadedResearchFiles,['orchestrator.cjs']);
+    assert.equal(result.audit.excludedPreloadedResearchFileCount,1);
+    assert.strictEqual(Module._load,originalModuleLoad);
+    assert.strictEqual(require.cache[orchestratorPath],orchestrator);
+  });
+});
+
+test('fixture pin rejects a late unregistered research module and restores both guards and cache',()=>{
+  withTempRepo(({root,expected})=>{
+    const orchestratorPath=path.join(root,'orchestrator.cjs');
+    const orchestrator=require(orchestratorPath);
+    const originalModuleLoad=Module._load;
+
+    assert.throws(()=>withFixtureScopedRolePin(root,expected,
+      ()=>orchestrator.loadLate()),
+    /Unregistered research module before execution: late\.cjs/);
+
+    assert.strictEqual(Module._load,originalModuleLoad);
+    assert.strictEqual(require.cache[orchestratorPath],orchestrator);
+  });
+});
