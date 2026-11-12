@@ -35,7 +35,7 @@ function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
   const bySeat=auditPresent&&audit.bySeat&&typeof audit.bySeat==='object'
     ?audit.bySeat:null;
   const multipleRowsValid=Array.isArray(multiple)&&multiple.every(x=>
-    Number.isSafeInteger(x?.epoch)&&x.epoch>=0&&
+    Number.isSafeInteger(x?.epoch)&&x.epoch>=0&&x.epoch<audit?.episodes&&
     [0,1].includes(x.seat)&&Number.isSafeInteger(x.turn)&&x.turn>=1&&
     Number.isSafeInteger(x.count)&&x.count>=2);
   const auditShapeValid=auditPresent&&
@@ -46,6 +46,8 @@ function paperCologneAuditReviewGate(audit,hookOptInEnabled=false){
     Number.isSafeInteger(audit.episodes)&&audit.episodes>=1&&
     Number.isSafeInteger(audit.authenticatedRestarts)&&
     audit.authenticatedRestarts>=0&&
+    audit.episodes===audit.authenticatedRestarts+1&&
+    typeof audit.scope==='string'&&audit.scope.length>0&&
     typeof audit.acceptedOncePerSeatTurn==='boolean'&&
     multipleRowsValid&&
     audit.acceptedOncePerSeatTurn===(multiple.length===0);
