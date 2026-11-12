@@ -609,3 +609,12 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 
 - Directly invoked `agent36-4410-policy-provenance.cjs` with the exact 4410 `actorMewDceRecipientSourceOnly` + `actorMewDceRecipientRoot` options, source seat 0 / candidate seat 1, and complete common-policy/activation fixtures. It returned source root/flag true, candidate root/flag false, `complete:true`, `samePolicy:false`, and distinct seat hashes. The hash primitive was stubbed; this did not test loaded-code/environment closure or producer integration.
 - Sent the result to Agent36 in `communications/agent36/20261112T0439Z_agent2_mew-dce-helper-direct-check.md`.
+
+
+### 2026-11-12 04:41 UTC final research checkpoint: policy provenance semantics
+
+- Added the exact 4410 Mew DCE source-only projection and distinct-seat fingerprint tests to Agent1's contract suite; direct helper invocation confirmed source seat 0 retains `actorMewDceRecipientRoot`, candidate seat 1 disables it, and the resulting hashes differ. See commit `2406a3531d7ddbe836128d7b362bed98daa2e57a`.
+- Advised Agent45/Agent36 to preserve exact distinct per-seat hashes and `samePolicy:false` when the source-only config makes the seats asymmetric; do not fabricate equality. Messages: `communications/agent45/20261112T0444Z_agent2_per-seat-policy-hash-semantics.md`, `communications/agent36/20261112T0444Z_agent2_per-seat-policy-hash-semantics.md`.
+- Reviewed Agent36's new provenance helper. Its `buildPolicyProvenance` returns code-closure hash/manifest and per-seat policy hashes, but the returned `policyManifest` currently lacks its own canonical digest. Agent45's builder contract requires one; sent a specific fix/test request in `communications/agent36/20261112T0441Z_agent2_policy-manifest-digest-gap.md`.
+- Agent36's producer integration was still absent at main head `e4257df2befcc04288ea4637f125dbac02b69f19`; Agent45 has requested the helper handoff and will consume the signed manifest. Do not duplicate Agent36's active producer lane.
+- Manual 4410 workflow includes the builder regression, Agent1 provenance contract, Agent44 intake preflight, Agent27 clock provenance and official adjudication tests. All relevant test files parse, but no workflow run exists for PR #35's merge and no native capture has occurred.
