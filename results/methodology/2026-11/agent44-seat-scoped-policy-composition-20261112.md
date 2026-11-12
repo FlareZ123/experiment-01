@@ -1,6 +1,6 @@
 # Agent 44: seat-scoped actor-policy composition
 
-**Status:** runtime hook implemented; V8 composition smoke passed; Node 22 regression and live V3 runner integration remain outstanding.
+**Status:** runtime hook and source-level boundary corrections implemented; pinned-engine/Node test execution and live V3 runner integration remain outstanding.
 
 ## Problem
 
@@ -12,25 +12,13 @@ Code: [Agent34 actor-only root policy](../../../simulation/twinleaf/agent34-acto
 Regression: [seat-scoped composition test](../../../tests/agent34-actor-only-root-policy.test.cjs)  
 CI: [manual pure-preflight workflow](../../../.github/workflows/agent49-owner-paper-preflight-pure.yml)
 
-The wrapper now accepts optional `policyOwnerSeat: 0 | 1 | null`. Agent44's `withCandidateOpponentPolicyRoles()` helper composes an inner candidate wrapper and outer opponent wrapper around one synchronous native match, enforces distinct physical seats and shared runtime classes/catalogs, rejects per-role overrides of the shared engine/catalog bindings, and returns the game result, role-to-seat map and separate candidate/opponent audits. It deliberately does not calculate policy hashes or attestations:
+The wrapper accepts optional `policyOwnerSeat: 0 | 1 | null`. Agent44's `withCandidateOpponentPolicyRoles()` helper composes an inner candidate wrapper and outer opponent wrapper around one synchronous native match, enforces distinct physical seats and common runtime classes/catalogs, requires one shared actor-only `commonDeps.observe` function and one shared native `commonDeps.promptActions.ResolvePromptAction` constructor, and returns the game result, role-to-seat map and separate candidate/opponent audits. It rejects role-specific overrides of `observe`, `stagedStore`, `promptActions`, `arvenTrainerTypes`, `eriCardTypes` and other pinned runtime bindings, and forbids the test-only staged Store in production. The caller still owns policy hashing, attestation, actual deck-aware policy configuration, native match execution and the V3 application receipt.
 
-- `null` preserves the existing unscoped mode.
-- `0` or `1` limits that wrapper's custom root and prompt handling to one physical seat.
-- Calls for the other seat delegate to the next wrapper/native AI, allowing two independently configured wrappers to compose around one native match.
-- Owner-targeted actions map seat 0 to `PlayerType.BOTTOM_PLAYER` and seat 1 to `PlayerType.TOP_PLAYER`; a seat-1 policy fails closed if the top-player enum is unavailable.
-- The audit records the configured owner seat, non-owner bypass count and seat-scoped version suffix.
-
-The option is a physical-seat scope, not a candidate/opponent identity. A runner must map role to seat for each game, hash each role's actual policy code plus configuration, and create the V3 role-level application receipt. The wrapper does not attest or invent those identities.
+The pinned Twinleaf source review found that `PlayerType` is relative to the acting player: `BOTTOM_PLAYER` leaves the supplied actor unchanged and `TOP_PLAYER` resolves the opponent. The prior seat-based mapping was wrong for physical seat 1. Agent34 now uses `PlayerType.BOTTOM_PLAYER` for owner-side PlayCardAction and UseAbilityAction targets for both seats; `policyOwnerSeat` controls only which policy handles the actor. The audit version suffix was bumped. The role-composer regression now uses one common observer and rejects role-specific runtime injection. A second regression calls the compiled pinned `StateUtils.getTarget` for both physical actors and Active/Bench targets; it is included in the existing Agent36 native workflow after submodule compilation and skips when the pure-only workflow has no compiled submodule.
 
 ## Validation performed
 
-A V8 harness executed the actual `withActorOnlyRootPolicy` implementation with stubbed Node imports and nested candidate-seat-0 / opponent-seat-1 wrappers. Both wrappers independently selected a typed native action, with targets:
-- candidate policy: `{ player: 0, slot: 1, index: 0 }`;
-- opponent policy: `{ player: 1, slot: 2, index: 0 }`.
-
-Each wrapper selected exactly one owner-seat root decision. The inner wrapper delegated the non-owner seat to the outer wrapper. This caught and corrected an initial top-seat target-mapping defect.
-
-The policy module, composition helper and regression test pass syntax parsing; the regression also rejects identical role seats and a role-specific catalog override. A V8 harness executed both the actual Agent34 wrapper and the new helper with stubbed Node imports: the helper returned `roleSeatMap: {candidate:0, opponent:1}`, candidate target `{player:0, slot:1, index:0}`, opponent target `{player:1, slot:2, index:0}`, and one selected owner-seat root decision in each audit. The nested-composition regression is included in the existing Node test and manual workflow. **The Node 22 test has not yet been run.** The V8 harness is not a substitute for the actual test suite or a Twinleaf game.
+The previous V8 stub harness is not valid evidence for seat-1 target semantics: it treated the supplied enum value as an absolute physical seat and never called pinned `StateUtils.getTarget`. Its prior seat-1 `TOP_PLAYER` assertion is explicitly superseded. The corrected pure regression asserts that both physical actors receive `BOTTOM_PLAYER`, verifies both roles use the same common observer, and rejects role-specific observer, prompt-action and staged-Store injection. The pinned `StateUtils.getTarget` test covers both actors and Active/Bench targets in the Agent36 native workflow. **Neither the updated pure test nor the pinned-engine regression has been executed in this invocation.** No Node20/Node22 pass or native game result is claimed.
 
 ## Next integration steps
 
