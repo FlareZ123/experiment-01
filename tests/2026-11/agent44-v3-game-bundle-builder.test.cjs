@@ -27,6 +27,7 @@ function signed(attestation,privateKey) {
 
 function makePolicyFixture() {
   const unavailable=[23,25,28];
+  const now=Date.now();
   const candidate={
     deckSha256:policyHash(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
@@ -76,7 +77,7 @@ function makePolicyFixture() {
     entryManifestSha256:candidate.entryManifestSha256,
     challengeSuiteSha256:candidate.challengeSuiteSha256,
     evidenceRef:'policy-review/candidate',evidenceSha256:policyHash(5001),
-    attestedAt:'2026-11-12T00:50:00.000Z'
+    attestedAt:new Date(now-120_000).toISOString()
   },candidateKeys.privateKey);
   const opponentAttestation=signed({
     schema:'aichi-policy-competence-attestation-v1',
@@ -93,7 +94,7 @@ function makePolicyFixture() {
       evidenceSha256:policyHash(6000+entry.rank)
     })),
     evidenceRef:'policy-review/opponent-field',evidenceSha256:policyHash(5002),
-    attestedAt:'2026-11-12T00:51:00.000Z'
+    attestedAt:new Date(now-110_000).toISOString()
   },opponentKeys.privateKey);
   const policyAttestationBundle={
     schema:'aichi-policy-attestation-bundle-v1',policyPlanSha256,
@@ -116,10 +117,8 @@ function makePolicyFixture() {
 
 function makeGameRegistration(trialId,{pastDeal=false}={}) {
   const now=Date.now();
-  const registeredAt=pastDeal?'2026-11-12T00:50:00.000Z':
-    new Date(now-30_000).toISOString();
-  const dealGeneratedAt=pastDeal?'2026-11-12T00:51:00.000Z':
-    new Date(now+60_000).toISOString();
+  const registeredAt=new Date(now-(pastDeal?120_000:30_000)).toISOString();
+  const dealGeneratedAt=new Date(now+(pastDeal?-60_000:300_000)).toISOString();
   const timingProtocol={
     schema:'aichi-game-timing-protocol-preregistration-v1',
     mode:UNTIMED,declaredBeforeDealGeneration:true,
@@ -157,7 +156,7 @@ function makeTrial(preDeal,fixture) {
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:policyHash(1),fullPhysicalDealSha256:policyHash(2),
     vendorCommitSha:'a'.repeat(40),researchRevisionSha:'b'.repeat(40),
-    hookRevisionSha:'c'.repeat(40),
+    hookRevisionSha:'c'.repeat(40),decisionTraceSha256:policyHash(7001),
     originalPrinted60Sha256:fixture.ranks[0].deckSha256,
     candidatePrinted60Sha256:fixture.candidate.deckSha256,
     nativeFinished:true,nativeWinner:0,nativeOutcome:'win',
