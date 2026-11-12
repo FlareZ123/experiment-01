@@ -27,6 +27,11 @@ function isExplicitConstraint(value) {
   return true;
 }
 
+function isStableProducerId(value) {
+  return typeof value === 'string' && value.trim().length > 0 &&
+    value.length <= 128 && value === value.trim();
+}
+
 /**
  * Validate the immutable V3 candidate-vs-field policy-plan core and its
  * per-game application receipts. This is structural/digest validation only:
@@ -77,6 +82,8 @@ function validateOpponentPolicyFieldBundle(request) {
       POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(candidate[field]))) {
     problems.add('candidate-policy-plan-identity-unverified');
   }
+  if (!isStableProducerId(candidate?.policyProducerId))
+    problems.add('candidate-policy-producer-unverified');
 
   const bundle = policyPlanCore.opponentPolicyBundle;
   const ranks = Array.isArray(bundle?.ranks) ? bundle.ranks : [];
@@ -105,13 +112,20 @@ function validateOpponentPolicyFieldBundle(request) {
       problems.add('opponent-rank-order-invalid');
 
     if (entry.sourceStatus === 'authenticated') {
-      if (POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field]))) {
-        problems.add('opponent-rank-identity-unverified');
+      const rankIdentityValid =
+        POLICY_IDENTITY_FIELDS.every(field => SHA256.test(entry[field])) &&
+        isStableProducerId(entry.policyProducerId);
+      if (!rankIdentityValid) {
+        if (POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field])))
+          problems.add('opponent-rank-identity-unverified');
+        if (!isStableProducerId(entry.policyProducerId))
+          problems.add('opponent-rank-policy-producer-unverified');
       } else {
         availableRanks.push(entry.rank);
       }
     } else if (entry.sourceStatus === 'source-unavailable') {
-      if (POLICY_IDENTITY_FIELDS.some(field => entry[field] !== null)) {
+      if (POLICY_IDENTITY_FIELDS.some(field => entry[field] !== null) ||
+          entry.policyProducerId !== null) {
         problems.add('unavailable-rank-has-identity');
       } else {
         unavailableRanks.push(entry.rank);
@@ -203,6 +217,8 @@ function validateOpponentPolicyFieldBundle(request) {
       'game-candidate-entry-manifest-mismatch');
     same(receipt.candidateChallengeSuiteSha256,candidate?.challengeSuiteSha256,
       'game-candidate-challenge-suite-mismatch');
+    same(receipt.candidatePolicyProducerId,candidate?.policyProducerId,
+      'game-candidate-policy-producer-mismatch');
     same(receipt.opponentDeckSha256 ?? receipt.source60Sha,entry.deckSha256,
       'game-opponent-deck-mismatch');
     same(receipt.opponentPolicySha256,entry.policySha256,
@@ -211,6 +227,8 @@ function validateOpponentPolicyFieldBundle(request) {
       'game-opponent-entry-manifest-mismatch');
     same(receipt.opponentChallengeSuiteSha256,entry.challengeSuiteSha256,
       'game-opponent-challenge-suite-mismatch');
+    same(receipt.opponentPolicyProducerId,entry.policyProducerId,
+      'game-opponent-policy-producer-mismatch');
     const receiptBundleSha = receipt.opponentPolicyBundleSha256 ?? receipt.opponentPolicyBundleSha;
     if (receiptBundleSha !== undefined)
       same(receiptBundleSha,opponentPolicyBundleSha256,
