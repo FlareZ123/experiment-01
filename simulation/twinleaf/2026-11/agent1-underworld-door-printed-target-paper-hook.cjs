@@ -238,6 +238,7 @@ function withUnderworldDoorPrintedTargetHook(execute, deps = {}) {
       if (owner === expectedOwner &&
           isUnderworldDoorPrompt(prompt, owner, engine)) {
         matchedPrompts++;
+        audit.promptsMatched++;
         if (prompt[PATCHED_PROMPT] !== true) {
           Object.defineProperty(prompt, PATCHED_PROMPT, {
             configurable: false,
@@ -263,7 +264,6 @@ function withUnderworldDoorPrintedTargetHook(execute, deps = {}) {
       if (matchedPrompts !== 1) {
         throw new Error('Underworld Door did not emit exactly one matching AttachEnergyPrompt; fail closed');
       }
-      audit.promptsMatched += matchedPrompts;
       return result;
     } finally {
       if (promptDescriptor) {
