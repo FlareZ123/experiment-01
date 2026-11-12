@@ -30,24 +30,23 @@ function hoodAwareAttachToolTacticClass() {
       const opponent = state.players.find(p => p.id !== player.id);
       if (hoodIndex !== -1 && opponent && !player.cannotPlayToolCards &&
           hasProtectableHoodLockThreat(opponent,state)) {
-          const candidates = [];
-          player.bench.forEach((slot, index) => {
-            const pokemon = slot.getPokemonCard();
-            if (!pokemon || slot.tools.length > 0) return;
-            if (pokemon.name === 'Shadow Rider Calyrex VMAX') {
-              candidates.push({index,priority:2});
-            } else if (pokemon.name === 'Shadow Rider Calyrex V') {
-              candidates.push({index,priority:1});
-            }
-          });
-          candidates.sort((a,b)=>b.priority-a.priority || a.index-b.index);
-          if (candidates.length > 0) {
-            return new PlayCardAction(player.id, hoodIndex, {
-              player:PlayerType.BOTTOM_PLAYER,
-              slot:SlotType.BENCH,
-              index:candidates[0].index
-            });
+        const candidates = [];
+        player.bench.forEach((slot, index) => {
+          const pokemon = slot.getPokemonCard();
+          if (!pokemon || slot.tools.length > 0) return;
+          if (pokemon.name === 'Shadow Rider Calyrex VMAX') {
+            candidates.push({index,priority:2});
+          } else if (pokemon.name === 'Shadow Rider Calyrex V') {
+            candidates.push({index,priority:1});
           }
+        });
+        candidates.sort((a,b)=>b.priority-a.priority || a.index-b.index);
+        if (candidates.length > 0) {
+          return new PlayCardAction(player.id, hoodIndex, {
+            player:PlayerType.BOTTOM_PLAYER,
+            slot:SlotType.BENCH,
+            index:candidates[0].index
+          });
         }
       }
       return super.useTactic(state,player);
