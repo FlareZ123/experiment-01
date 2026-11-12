@@ -878,8 +878,10 @@ test('seat-scoped actor policies compose independently across candidate and oppo
   assert.deepEqual(roleRun.roleSeatMap,{candidate:0,opponent:1});
   assert.ok(roleRun.result.candidateAction instanceof PlayCardAction);
   assert.ok(roleRun.result.opponentAction instanceof PlayCardAction);
-  assert.equal(roleRun.result.candidateAction.target.player,0);
-  assert.equal(roleRun.result.opponentAction.target.player,1);
+  assert.equal(roleRun.result.candidateAction.target.player,0,
+    'physical seat 0 own-side target is PlayerType.BOTTOM_PLAYER');
+  assert.equal(roleRun.result.opponentAction.target.player,0,
+    'physical seat 1 own-side target is also PlayerType.BOTTOM_PLAYER; seat is not the relative enum');
   assert.equal(roleRun.candidateAudit.policyOwnerSeat,0);
   assert.equal(roleRun.opponentAudit.policyOwnerSeat,1);
   assert.equal(roleRun.candidateAudit.nonOwnerSeatBypassCalls,1);
