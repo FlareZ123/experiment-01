@@ -167,9 +167,10 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   if(clockEvidence!==null){
     assert.equal(clockEvidence.trialId,trialId,
       'clockEvidence.trialId must match the frozen 4410 trial');
-    assert.equal(typeof clockEvidenceRef,'string');
+    assert.equal(typeof clockEvidenceRef,'string',
+      'clockEvidenceRef must identify the immutable external clock packet');
     assert.ok(clockEvidenceRef.trim().length>0,
-      'A nonempty external clock receipt reference is required');
+      'clockEvidenceRef must be a nonempty external reference');
   }else{
     assert.equal(clockEvidenceRef??null,null,
       'A clock evidence reference cannot be supplied without its receipt object');
@@ -543,7 +544,7 @@ if(require.main===module){
     competitiveAdmission:result.independentAdmissionGate.competitiveAdmission,
     clockEvidenceSupplied:Boolean(clockEvidenceRef),
     blockers:result.independentAdmissionGate.failures
-  })));
+  }));
 }
 module.exports={INTAKE_SCHEMA,V2_SCHEMA,RAW_SCHEMA,REFERENCE,CASE_ID,TRIAL_ID,
   REGISTRATION_REF,nativeJsonSha256,rootReviewWorklist,build,save};
