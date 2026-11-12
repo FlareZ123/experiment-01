@@ -444,7 +444,8 @@ function runNativeFixtureGame(input) {
       let actingSeat=null;
       let isRootDecision=false;
       let promptResolution=null;
-      let policyObservationBefore=null;
+      let actorObservationBefore=null;
+      let promptResolverContext=null;
       let policyInputKind='native-prompt';
       if(pending instanceof ShuffleDeckPrompt) {
         const ownerId=pending.getPerspectivePlayerId();
@@ -474,8 +475,6 @@ function runNativeFixtureGame(input) {
         if(actingSeat!==0&&actingSeat!==1)
           throw new Error('Unknown Twinleaf prompt player: '+pending.playerId);
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
-        if(typeof native.observe==='function'&&pending.playerId===state.players[actingSeat].id)
-          policyObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
         policyInputKind='native-owner-prompt';
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
@@ -485,7 +484,7 @@ function runNativeFixtureGame(input) {
           throw new Error('Twinleaf activePlayer is outside the two seats');
         isRootDecision=true;
         if(typeof native.observe==='function')
-          policyObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+          actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
         action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
         policyInputKind='actor-observation';
       }
@@ -497,6 +496,22 @@ function runNativeFixtureGame(input) {
       const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const targetProjection=action instanceof native.cardActions.PlayCardAction?
         projectJsonSafe(action.target??null):null;
+      if(pending) {
+        const promptSnapshot=fullStateBefore?.prompts?.find(prompt=>
+          prompt.id===pendingPromptId)??projectJsonSafe(pending);
+        promptResolverContext={
+          promptId:pendingPromptId,
+          promptType:pendingPromptType,
+          playerId:pending.playerId??null,
+          perspectivePlayerId:pending instanceof ShuffleDeckPrompt?
+            pending.getPerspectivePlayerId():null,
+          resolver:pending instanceof ShuffleDeckPrompt||pending instanceof CoinFlipPrompt?
+            'physical-randomization':'native-prompt-resolver',
+          promptSnapshot
+        };
+      }
+      const actorObservationSha256=actorObservationBefore===null?
+        null:sha256Json(actorObservationBefore);
       const record={
         actionOrdinal,
         actingSeat,
@@ -509,7 +524,9 @@ function runNativeFixtureGame(input) {
         promptResolution,
         isRootDecision,
         policyInputKind,
-        policyObservationBefore,
+        actorObservationBefore,
+        actorObservationSha256,
+        promptResolverContext,
         actionName:actionName(action),
         actionType:action.type??null,
         actionPayload,
@@ -534,6 +551,8 @@ function runNativeFixtureGame(input) {
         selectedCardIdentity:selectedIdentity,
         targetProjection,
         policyInputKind,
+        actorObservationSha256,
+        promptResolverContext,
         dispatchStatus:'pending',
         failure:null
       };
