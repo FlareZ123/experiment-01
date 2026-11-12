@@ -99,7 +99,7 @@ function validateGameRegistration(gameRegistration, trialId) {
  * Signed attestations are consumed, never created here. Production always
  * reads the separately controlled Agent45 trust registry.
  */
-function prepareWithRegistry(input, reviewerRegistry, fixtureOnly) {
+function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFutureDeal=false) {
   const failures = [];
   const producerId = input?.producerId;
   const trialId = input?.trialId;
@@ -110,6 +110,13 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly) {
   if (!stableId(producerId)) failures.push('bundle-producer-id-invalid');
   if (!stableId(trialId)) failures.push('trial-id-invalid');
   failures.push(...validateGameRegistration(gameRegistration,trialId));
+  if (requireFutureDeal && dateTime(gameRegistration?.registeredAt) &&
+      dateTime(gameRegistration?.dealGeneratedAt)) {
+    const now=Date.now();
+    if (Date.parse(gameRegistration.registeredAt)>now ||
+        Date.parse(gameRegistration.dealGeneratedAt)<=now)
+      failures.push('predeal-registration-is-not-currently-before-physical-deal');
+  }
   if (!plainObject(policyPlanCore) ||
       policyPlanCore.schema !== POLICY_PLAN_SCHEMA ||
       policyPlanCore.comparisonMode !== 'candidate-vs-field') {
@@ -193,7 +200,7 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly) {
 }
 
 function preparePreDealPolicyRegistration(input) {
-  return prepareWithRegistry(input,authorized,false);
+  return prepareWithRegistry(input,authorized,false,true);
 }
 
 /**
@@ -292,6 +299,22 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
       trial.preregistrationEvidenceRef!==preDeal.gameRegistration.registrationRef ||
       trial.timingMode!==preDeal.gameRegistration.timingProtocol.mode)
     fail('postgame trial does not preserve the exact pre-deal game registration');
+  if (trial.opponentRank!==undefined && trial.opponentRank!==null &&
+      trial.opponentRank!==policyApplicationReceipt?.opponentRank)
+    fail('runner trial opponent rank disagrees with policy application receipt');
+  if (trial.policyPlanSha256!==undefined &&
+      trial.policyPlanSha256!==preDeal.policyPlanSha256)
+    fail('runner trial policy-plan digest disagrees with pre-deal registration');
+  if (trial.policyAttestationBundleSha256!==undefined &&
+      trial.policyAttestationBundleSha256!==preDeal.policyAttestationBundleSha256)
+    fail('runner trial attestation digest disagrees with pre-deal registration');
+  if (trial.policyRegistrationSha256!==undefined &&
+      trial.policyRegistrationSha256!==preDeal.policyRegistrationSha256)
+    fail('runner trial registration digest disagrees with pre-deal registration');
+  if (trial.policySha256BySeat!==undefined &&
+      JSON.stringify(trial.policySha256BySeat)!==
+        JSON.stringify(policyApplicationReceipt?.policySha256BySeat))
+    fail('runner trial seat-policy hashes disagree with actual application receipt');
   if (trial.candidateSeat===trial.originalSourceSeat ||
       ![0,1].includes(trial.candidateSeat) ||
       ![0,1].includes(trial.originalSourceSeat) ||
@@ -373,7 +396,7 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     inspectAdmissionV3(bundle,reviews,reviewerRegistry) :
     evaluateCompetitiveAdmissionV3(bundle,reviews);
   return {
-    bundle,assessment,policyPanelConsistency:panel,
+    bundle,assessment,preDeal,policyEvidence,policyPanelConsistency:panel,
     fieldStatus:panel.status,
     fieldComplete:panel.fieldComplete,
     fullFieldPanelComplete:panel.fullFieldPanelComplete,
@@ -398,6 +421,7 @@ function buildV3GameBundle(input) {
 }
 
 function buildV3GameBundleFixture(input,fixtureRegistry) {
+  assert.ok(plainObject(fixtureRegistry),'Fixture reviewer registry is required');
   const preDealInput = {
     producerId:input?.preDeal?.producerId,
     trialId:input?.preDeal?.trialId,
