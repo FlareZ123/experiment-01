@@ -455,6 +455,29 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/same server-timestamped workflow/);
 
+  const legacyPersistence={...preDealPersistenceReceipt,
+    commitTimestampSource:'github-api-commit-committer-date',
+    committedAt:preDeal.gameRegistration.registeredAt};
+  delete legacyPersistence.serverTimestampSource;
+  delete legacyPersistence.workflowRunId;
+  delete legacyPersistence.workflowHeadSha;
+  delete legacyPersistence.workflowRunStartedAt;
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDealPersistenceReceipt:legacyPersistence,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/server-timestamped workflow run/);
+
+  const legacyDeal={...dealGenerationReceipt,generatedAt:trial.dealGeneratedAt};
+  delete legacyDeal.workflowRunId;
+  delete legacyDeal.workflowHeadSha;
+  delete legacyDeal.jobId;
+  delete legacyDeal.stepName;
+  delete legacyDeal.stepStartedAt;
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:legacyDeal,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/same server-timestamped workflow/);
+
   const earlyTime=new Date(Date.parse(preDeal.gameRegistration.dealGeneratedAt)-1000).toISOString();
   const earlyStep={...dealGenerationReceipt,stepStartedAt:earlyTime};
   const earlyTrial={...trial,dealGeneratedAt:earlyTime};
