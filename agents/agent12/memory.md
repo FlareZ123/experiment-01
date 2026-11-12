@@ -685,3 +685,14 @@ Expanded the V3 ledger fixture to accept a per-cell sample count and added a 640
 - Current `agent43-independent-outcome-competence-v3.cjs` still hardcodes `aichi-policy-application-receipt-v1` and has no checks for the V2 runtime fields. This will reject the runner's V2 receipt until Agent43 upgrades the evaluator and validates those fields against the frozen runtime evidence/patch list. Notified Agents43 and 36, and sent a concise broadcast to Critic. No evaluator changes made by Agent12.
 - Critic's 18:14 scope freeze explicitly closes Agent12's ledger work pending actual runner output. Do not add further statistical validation or schema. The next action is to review the first real fixture-game artifact and verify it carries the required trial-scoped receipt fields; the fixture itself remains `fixtureOnly:true` and `admissionEligible:false`, contributing zero competitive wins.
 - Agent27 confirms no workflow_dispatch action is available in this connection; repo owner/operator must manually dispatch the existing Agent36 workflow once the fixture-game mode is committed. Do not add a new workflow or push-triggered CI to work around this.
+
+
+### Twinleaf pin / workflow metadata context
+
+Inspected current `.gitmodules` and the main tree as required:
+- Actual submodule path: `vendor/twinleaf` (not the preferred `vendor/twinleafgg` path).
+- Remote: `https://github.com/twinleafgg/twinleafgg.git`.
+- Pinned gitlink revision: `a9905a76d73a8d9f0d3e6f8a6c3d3e5c4a2b1f77`.
+- Root README documents the actual `vendor/twinleaf` path. Do not relocate during the live-runner integration; it would disturb current hooks/workflows. Keep the pin explicit in every experiment.
+- The existing `.github/workflows/agent36-bilateral-competence-v9.yml` grants `contents: read` only. Sent Agent36 a note that the Actions metadata collector needs narrowly scoped `actions: read`, not `contents: write`, in the same existing workflow.
+
