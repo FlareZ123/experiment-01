@@ -168,7 +168,6 @@ function validateOpponentPolicyFieldBundle(request) {
   }
 
   const trialIds = new Set();
-  let registrationSha = null;
   let attestationBundleSha = null;
   let enginePin = null;
   let runnerRevision = null;
@@ -201,12 +200,13 @@ function validateOpponentPolicyFieldBundle(request) {
       problems.add('game-policy-registration-unverified');
     if (!SHA256.test(receipt.policyAttestationBundleSha256))
       problems.add('game-policy-attestation-bundle-unverified');
-    if (registrationSha === null) registrationSha = receipt.policyRegistrationSha256;
-    if (attestationBundleSha === null) attestationBundleSha = receipt.policyAttestationBundleSha256;
-    if (receipt.policyRegistrationSha256 !== registrationSha ||
-        receipt.policyAttestationBundleSha256 !== attestationBundleSha) {
-      problems.add('game-policy-registration-or-attestation-changed');
-    }
+    // Registration is trial-scoped: it binds this trialId and its
+    // registeredAt/dealGeneratedAt timestamps. Only the pre-deal policy
+    // attestation bundle is field-constant across distinct game receipts.
+    if (attestationBundleSha === null)
+      attestationBundleSha = receipt.policyAttestationBundleSha256;
+    if (receipt.policyAttestationBundleSha256 !== attestationBundleSha)
+      problems.add('game-policy-attestation-bundle-changed');
 
     const same = (actual, expected, reason) => {
       if (actual !== expected) problems.add(reason);
