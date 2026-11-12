@@ -27,6 +27,11 @@ The reproducible script is [`agent27-sentinel-lock-field-census.cjs`](../../simu
 | Path to the Peak | 7/29 | 5, 9, 12, 15, 20, 21, 27 |
 | Temple of Sinnoh | 5/29 | 3, 8, 11, 16, 22 |
 | Power Plant | 0/29 | — |
+| Grand Tree | 3/29 | 2, 15, 31 |
+| Dusknoir | 1/29 (4 copies) | 31 |
+| Trevenant & Dusknoir-GX | 1/29 | 1 |
+| Shadow Rider Calyrex VMAX | 1/29 (4 copies) | 1 |
+| Radiant Eternatus | 1/29 | 1 |
 
 Important co-occurrence results:
 
@@ -111,3 +116,19 @@ For the going-second bridge, use Whismur Bawl on the first turn and **hold Grand
 Going first, the same two-Rare-Candy + Grand Tree line is planned for the player's second turn; the opponent has one unrestricted turn to attack or disrupt the Basic setup. The Whismur attack is unavailable in that branch. Whismur is a one-of searchable by Fan Rotom's first-turn Fan Call (Colorless, 100 HP or less) if Fan Rotom is available; otherwise the list still aims for the double lock on schedule, but without the extra Trainer-denial bridge.
 
 **Status remains untested:** the list is a concrete challenger, not a nominated best deck. No Twinleaf game, matchup sample, paper-qualified game, or win-rate evidence exists for v2. The 29-list counter census is a reason to prioritize the test, not evidence that the lock survives attacks or wins games.
+
+
+## Addendum — opponent-side Stadium and attack engines (12 November 2026)
+
+A second pass over the same 29 full lists identified an important limitation of the Whismur bridge:
+
+- **Grand Tree is present in 3/29 lists:** rank 2 Vileplume Control, rank 15 Lopunny Vileplume, and rank 31 Dusknoir Chimecho.
+- Whismur Bawl prevents playing Trainer cards **from hand**. It does not prevent a player from using the effect of a Stadium that is already in play. If one of these opponents has Grand Tree in play before the Bawl turn, they can use its once-per-player-turn evolution effect during that turn. The v2 list therefore holds its own Grand Tree until the lock-establishment turn, but that does not disable an opponent's pre-existing Grand Tree.
+- Rank 2 and rank 15 are structurally similar Vileplume/Lopunny lists; treat them as explicit mirror/setup matchups, not as ordinary Trainer-lock victims.
+- Rank 31 contains four Dusknoir and Grand Tree. Its Dusknoir's Cursed Blast Ability places 13 damage counters and Knocks Out itself. Stealthy Hood on Vileplume/Stoutland should prevent the opponent's Ability effects done to those attached Pokémon, but this precise paper/Twinleaf interaction must be tested. The Bawl turn does not prevent Dusknoir from being evolved with an already-in-play Grand Tree or from using its Ability.
+- Rank 1 Shadow Rider contains four Shadow Rider Calyrex VMAX, Radiant Eternatus, and Trevenant & Dusknoir-GX. Its Night Watch attack does 150 damage; Stoutland BCR 122 is **140 HP**, so Night Watch can Knock it Out. Shadow Rider's Abilities and Radiant Eternatus can develop the opponent's board during a Trainer-denied turn. The 130-damage Max Geist line alone does not Knock Out a 140-HP Stoutland, but Night Watch does. V2's two Stoutland can preserve the Supporter lock through one Active Stoutland Knock Out; repeated Night Watch attacks may exhaust both unless the deck can rebuild a third Stoutland or otherwise prevent the attack.
+- The rank 1 list has no Grand Tree; ranks 2/15/31 are the relevant pre-existing-Grand-Tree cases. This is an exact list screen, not an inference that the opponent will have the Stadium in play at the required time.
+
+The census script now includes Grand Tree, Dusknoir, Trevenant & Dusknoir-GX, Shadow Rider Calyrex VMAX, Radiant Eternatus, and Wally, with the corresponding co-occurrence checks.
+
+**Updated test priority:** rank 1 Shadow Rider (Night Watch into two Stoutland; ability-powered development), ranks 2 and 15 (opponent's Grand Tree and lock mirror), and rank 31 (Grand Tree + Dusknoir Cursed Blast into Hood-protected lock pieces). Also test the exact rule that an already-in-play Grand Tree remains usable during Whismur Bawl. The candidate remains untested; this addendum narrows the risks rather than establishing performance.
