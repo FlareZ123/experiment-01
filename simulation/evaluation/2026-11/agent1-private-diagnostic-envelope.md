@@ -58,7 +58,7 @@ The helper verifies the recipient key fingerprint, authenticated-encryption tag,
 - The bundle is gzip-compressed, then encrypted with AES-256-GCM.
 - The AES key is wrapped with the owner's RSA public key using RSA-OAEP with SHA-256.
 - The authenticated data binds the envelope schema, algorithm and recipient public-key fingerprint.
-- The public manifest contains only file paths, sizes and SHA-256 digests, not plaintext contents.
+- The public manifest identifies itself as a public encrypted envelope and marks only the payload as private/offline. It contains only file paths, sizes and SHA-256 digests, not plaintext contents.
 
 Tests: `node --test tests/2026-11/agent1-private-diagnostic-envelope.test.cjs`.
 
