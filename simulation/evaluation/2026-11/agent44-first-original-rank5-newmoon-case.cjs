@@ -189,7 +189,7 @@ function execute(){
   const rawNativePhysicalReceipts=fullPaperObserver.result();
   if(executionError||!Array.isArray(development?.rows)||development.rows.length!==1){
     return {schema:'agent44-first-independent-original-source-case-v2-error',
-      caseId:reg.caseId,registration:reg,registrationSha256,runtime,
+      caseId:reg.caseId,registrationRef:REGPATH,registration:reg,registrationSha256,runtime,
       executionError:executionError??{message:'Expected exactly one development row',
         rowCount:development?.rows?.length??null},
       nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
@@ -268,7 +268,7 @@ function execute(){
   ].find(([okay])=>!okay)?.[1]??null;
   const intake={
     schema:'agent44-first-independent-original-source-case-intake-v2',
-    caseId:reg.caseId,originalRank:5,sourceSeat,candidateSeat,runtime,
+    caseId:reg.caseId,registrationRef:REGPATH,originalRank:5,sourceSeat,candidateSeat,runtime,
     fixedRegisteredSourceAndCandidateSixties:true,
     exactJapaneseSourcePrintingsIndependentlyVerified:false,
     exactJapaneseCandidatePrintingsIndependentlyVerified:false,
@@ -364,7 +364,7 @@ function execute(){
       nativeOutcomeNeverPromotedToPaperWin:true
     }
   };
-  return {schema:intake.schema,registration:reg,registrationSha256,runtime,
+  return {schema:intake.schema,registration:reg,registrationRef:REGPATH,registrationSha256,runtime,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
     rawNativePhysicalReceipts,
     nativeRawStateFallbackQuarantineAudit,ownerPublicAcknowledgementAudit,
