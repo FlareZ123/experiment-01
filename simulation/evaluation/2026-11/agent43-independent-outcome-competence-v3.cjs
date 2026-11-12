@@ -362,7 +362,8 @@ function inspectPolicyPanelConsistency(bundle) {
   if (runtimePinEvidence?.schema !== 'aichi-runtime-pin-evidence-v2' ||
       !HEX_SHA256.test(runtimePinEvidence?.unionSha256 ?? '') ||
       !HEX_SHA256.test(runtimePinEvidence?.loadedProcessClosureSha256 ?? '') ||
-      !HEX_SHA256.test(runtimePinEvidence?.cardPoolInitializationSha256 ?? ''))
+      !HEX_SHA256.test(runtimePinEvidence?.cardPoolInitializationSha256 ?? '') ||
+      typeof runtimePinEvidence?.fullProcessClosureCovered !== 'boolean')
     failures.push('policy-runtime-pin-evidence-missing-or-invalid');
   if (!validCardPoolInitializationReceipt(trial, runtimePinEvidence))
     failures.push('policy-card-pool-initialization-receipt-invalid');
@@ -566,6 +567,7 @@ function inspectPolicyPanelConsistency(bundle) {
     runtimePinUnionSha256:runtimePinEvidence?.unionSha256 ?? null,
     loadedProcessClosureSha256:runtimePinEvidence?.loadedProcessClosureSha256 ?? null,
     cardPoolInitializationSha256:runtimePinEvidence?.cardPoolInitializationSha256 ?? null,
+    fullProcessClosureCovered:runtimePinEvidence?.fullProcessClosureCovered === true,
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
     candidatePolicyProducerId,
     opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
@@ -799,7 +801,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       failures:[...new Set(failures)],
       acceptanceReady:event.gameOutcomeAdmissionReady === true &&
         competitivePolicyCompetenceReady,
-      fixtureOnly:true,competitiveAdmission:false,admissionEligible:false};
+      fixtureOnly:true,competitiveAdmission:false,admissionEligible:false,
+      fullProcessClosureCovered:bundle?.policyPlanCore?.runtimePinEvidence?.fullProcessClosureCovered === true};
   }
 
   const trial = bundle.trial;
@@ -929,18 +932,23 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     failures:uniqueFailures,
     acceptanceReady:gameOutcomeAdmissionReady &&
       competitivePolicyCompetenceReady,
-    fixtureOnly:true,competitiveAdmission:false,admissionEligible:false
+    fixtureOnly:true,competitiveAdmission:false,admissionEligible:false,
+      fullProcessClosureCovered:bundle?.policyPlanCore?.runtimePinEvidence?.fullProcessClosureCovered === true
   };
 }
 
 /** @param {object} bundle @param {object[]} reviews @returns {object} */
 function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   const assessment = inspectAdmissionV3(bundle,reviews,authorized);
+  const fullProcessClosureCovered =
+    bundle?.policyPlanCore?.runtimePinEvidence?.fullProcessClosureCovered === true;
+  const admissionEligible = assessment.acceptanceReady && fullProcessClosureCovered;
   return {...assessment,fixtureOnly:false,
-    competitiveAdmission:assessment.acceptanceReady,
-    admissionEligible:assessment.acceptanceReady,
-    disposition:assessment.acceptanceReady ? 'independently-admitted-v3' :
-      'unqualified-or-pending-evidence'};
+    competitiveAdmission:admissionEligible,
+    admissionEligible,fullProcessClosureCovered,
+    disposition:admissionEligible ? 'independently-admitted-v3' :
+      assessment.acceptanceReady && !fullProcessClosureCovered ?
+        'runtime-process-closure-incomplete' : 'unqualified-or-pending-evidence'};
 }
 
 module.exports = {
