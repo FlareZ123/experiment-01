@@ -126,6 +126,31 @@ function loadNativeRoleDependencies({enginePin}={}){
     cardPoolInitialization};
 }
 
+/**
+ * Normalize the result returned through the V3 role composer and runtime pin.
+ * A native-game exception is caught inside the composed callback, so its
+ * {fixtureFailure, fixtureGamePartial} envelope is nested under roleResult.result.
+ * A wrapper/runtime failure may instead return the envelope directly.
+ */
+function normalizeV3FixtureRoleResult(returnedResult){
+  const isObject=returnedResult!==null&&typeof returnedResult==='object';
+  const roleResult=isObject&&Object.prototype.hasOwnProperty.call(returnedResult,'result')?
+    returnedResult:null;
+  const directFailureEnvelope=isObject&&returnedResult.fixtureFailure?
+    returnedResult:null;
+  const roleExecutionResult=roleResult?.result??null;
+  const nestedFailureEnvelope=roleExecutionResult&&
+    typeof roleExecutionResult==='object'&&roleExecutionResult.fixtureFailure?
+      roleExecutionResult:null;
+  const failureEnvelope=directFailureEnvelope??nestedFailureEnvelope;
+  const gameResult=directFailureEnvelope?
+    (directFailureEnvelope.fixtureGamePartial??null):
+    nestedFailureEnvelope?
+      (nestedFailureEnvelope.fixtureGamePartial??null):
+      roleExecutionResult;
+  return {roleResult,failureEnvelope,gameResult};
+}
+
 /** Compose frozen role policies around one synchronous native game. */
 function runCandidateOpponentPolicyRoles(run,options={}){
   const {commonDeps:providedDeps,composer=withCandidateOpponentPolicyRoles,
@@ -936,11 +961,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   }
   assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
   assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
-  const returnedResult = pinned.result;
-  const thrownFailureEnvelope = returnedResult?.fixtureFailure ? returnedResult : null;
-  const roleResult = returnedResult?.result ? returnedResult : null;
-  const gameResult = roleResult?.result ?? thrownFailureEnvelope?.fixtureGamePartial ?? null;
-  let failureEnvelope = thrownFailureEnvelope;
+  const normalizedResult = normalizeV3FixtureRoleResult(pinned.result);
+  const { roleResult, gameResult } = normalizedResult;
+  let failureEnvelope = normalizedResult.failureEnvelope;
   if (!failureEnvelope && (!gameResult || gameResult.finished !== true || gameResult.endReason !== 'engine-game-end')) {
     const terminalState = {
       finished: gameResult?.finished ?? false,
@@ -1240,5 +1263,6 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
   createUnderworldRuntimePatchReceipt,
+  normalizeV3FixtureRoleResult,
   runV3FixtureGame
 };
