@@ -12,6 +12,7 @@ on:
       - 'tests/2026-11/agent41-hood-ability-lock-state.test.cjs'
       - 'tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs'
       - 'tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs'
+      - 'tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs'
       - 'simulation/twinleaf/underworld-door-action.cjs'
       - 'tests/2026-11/agent41-hood-candidate-bot-options.test.cjs'
       - '.github/workflows/agent31-underworld-door-owner-frontier.yml'
@@ -59,5 +60,9 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify native Underworld Door action and prompt contracts in both seats
+        run: node --test tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs
+      - name: Run the complete pinned Underworld Door positional and lock-state matrix
+        run: node simulation/twinleaf/underworld-door-action.cjs
       - name: Verify Benched Hood under live Garbotoxin plus opponent Active Tool Jammer
         run: node --test tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs
