@@ -237,9 +237,14 @@ test('runtime pin wrapper requires exact loaded union before executing',()=>{
     called=true;
     return {result:run(),audit:{guardRestored:true}};
   };
+  const cardPoolInitialization={
+    schema:'agent36-twinleaf-card-pool-initialization-v1',
+    enginePin:'e'.repeat(40),startupPath:'vendor/twinleaf/ptcg-server/start.js',
+    startupSha256:'f'.repeat(64),setNames:['BaseSet'],definedSetCount:1,cardCount:1
+  };
   const result=combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
-    run:()=>17,identityHelper,pin
+    cardPoolInitialization,run:()=>17,identityHelper,pin
   });
   assert.equal(called,true);
   assert.equal(result.result,17);
@@ -253,7 +258,7 @@ test('runtime pin wrapper requires exact loaded union before executing',()=>{
   };
   assert.throws(()=>combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
-    run:()=>17,identityHelper:incomplete,pin
+    cardPoolInitialization,run:()=>17,identityHelper:incomplete,pin
   }),/every role-closure module must be preloaded/);
 });
 
