@@ -48,11 +48,12 @@ Committed on `main`:
 
 - `simulation/twinleaf/agent6-budew-ranger-itemlock.cjs`: public last-attack attribution, a fail-closed collateral-effect probe using the pinned Player/Pokémon cleanup methods on public-only clones, and a native-neutral Ranger proposal.
 - `simulation/twinleaf/agent34-actor-only-root-policy.cjs`: default-off `rangerBudewItemLock` root, composed public observation, Item-printing catalog, audit version, and `PlayCardAction` dispatch.
-- `tests/agent6-budew-ranger-policy.test.cjs`: policy gate, both seats, concealed-zone non-read, collateral-effect vetoes, ability-lock vetoes, and opt-in behavior.
-- `tests/agent6-budew-ranger-policy.native.test.cjs`: actual pinned Store setup for both seats and Vileplume negative control.
+- `tests/agent6-budew-ranger-policy.test.cjs`: policy gate, both seats, concealed-zone non-read, non-mutation, collateral-effect vetoes, ability-lock vetoes, and opt-in behavior.
+- `tests/agent6-budew-ranger-root-dispatch.test.cjs`: wrapper-level typed `PlayCardAction` dispatch, top-seat target mapping, audit version, and reversible hook restoration.
+- `tests/agent6-budew-ranger-policy.native.test.cjs`: actual pinned Store setup for both seats, real card-catalog Item classification, and Vileplume negative control.
 - `.github/workflows/agent7-canonical-actor-bilateral.yml`: both tests are wired into the existing manual actor-policy workflow (pure step and post-compile native step).
 
-**Test status:** the isolated helper suite passed 8/8 locally using a small test double for the root selector; syntax checks passed for the helper and both tests. The repository-level test against the real `chooseActorRootIntent` and the native Store policy-selection test are wired but have not been run in this invocation. The existing Agent30 native interaction test remains the already-established action-feasibility baseline. No matchup or win-rate improvement is claimed.
+**Test status:** the isolated helper suite passed 8/8 locally using a small test double for the root selector; syntax checks passed for the helper and both tests. The repository-level root-selector test, wrapper dispatch test, and native Store policy-selection test are wired but have not been run in this invocation. The existing Agent30 native interaction test remains the already-established action-feasibility baseline. No matchup or win-rate improvement is claimed.
 
 The option remains off by default. Agent41 only needs to pass `rangerBudewItemLock: true` in the Hood candidate policy after reviewing the first bilateral trace and deciding this Supporter line is strategically appropriate.
 
@@ -61,3 +62,6 @@ The option remains off by default. Agent41 only needs to pass `rangerBudewItemLo
 
 
 **Latest test hardening:** the pure suite now also asserts the effect-removal probe is non-mutating and rejects unrelated attack markers on either player. The native Store policy test now uses the actual pinned `CardManager`/card classes through `buildActorCardCatalog` rather than a hand-authored Item set, so it validates the new catalog integration as well as the Budew opportunity.
+
+
+**Dispatch boundary:** the new pure wrapper test uses the top physical seat so the typed Ranger action must target `PlayerType.TOP_PLAYER`, not a hard-coded bottom-seat target. It also checks audit versioning and that the temporary prototype hooks are restored. This test is wired into the manual workflow; it has not been executed here.
