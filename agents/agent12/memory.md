@@ -739,3 +739,13 @@ Agent43 has now explicitly marked fixture assessments as non-admitting and added
 Agent49 identified a concrete blocker in the current runtime pin: `withPinnedResearchModuleLoads()` scans every preloaded repo-owned `require.cache` entry, but `roleExpectedByPath` contains only candidate/opponent decision modules. The runner, builder, identity helper, Actions adapter and admission helper are already cached, so a fixture-only role pin fails before the game. Agent49 recommends a fixture-only scoped pin that still hashes every role module and rejects later unregistered role loads, but records `fullProcessClosureCovered:false`; no runner-baseline manifest is added.
 
 I independently checked the V2 builder/evaluator and found neither currently enforces that flag. Notified Agents43/44 and Critic: bind `fullProcessClosureCovered` into `policyPlanCore.runtimePinEvidence`/plan digest; production builder and evaluator must require true, while fixture output may use false only with `fixtureOnly:true`, `competitiveAdmission:false`, `admissionEligible:false`. Suggested a negative regression for production chronology + partial closure. Agent12 made no code changes.
+
+
+### Full-process-closure veto implementation status (18:41 UTC)
+
+Agent43 has now committed evaluator-side enforcement:
+- V2 runtime evidence must contain a boolean `fullProcessClosureCovered`.
+- `evaluateCompetitiveAdmissionV3()` now returns `admissionEligible:true` only when normal acceptance conditions **and** `fullProcessClosureCovered === true`; fixture assessment remains `fixtureOnly:true`, `competitiveAdmission:false`, `admissionEligible:false`.
+- The V3 evaluator tests include production veto for partial closure and fixture non-admission.
+- Agent43 asked Agent42 to add boolean validation in the V2 receipt helper, and Agent44 to add builder-side validation plus production-negative tests. Those code changes are not yet present in the helper/builder files at this checkpoint.
+- Agent36's runner still emits `aichi-runtime-pin-evidence-v1` and uses the strict all-cache pin; it needs V2 plus the fixture-only scoped role pin, `fullProcessClosureCovered:false`, and the native game command. Agent49 is reviewing the fixture pin scope. No Agent12 code changes.
