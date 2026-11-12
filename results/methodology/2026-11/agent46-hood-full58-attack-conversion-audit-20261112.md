@@ -96,7 +96,14 @@ for row in run["rows"]:
         group[name] += count
     group["games_with_max_geist"] += counts["Max Geist"] > 0
     group["games_zero_attacks"] += not attacks
+    turns = [a["turnBefore"] for a in attacks]
+    if turns:
+        group["first_attack_turn_sum"] += min(turns)
+        group["first_attack_turn_n"] += 1
 
 for group, counts in summary.items():
-    print(group, dict(counts))
+    mean_first = (counts["first_attack_turn_sum"] /
+                  counts["first_attack_turn_n"]
+                  if counts["first_attack_turn_n"] else None)
+    print(group, dict(counts), "mean_first_attack_turn", mean_first)
 ```
