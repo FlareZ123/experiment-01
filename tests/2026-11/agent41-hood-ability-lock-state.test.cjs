@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const {
   liveGarbotoxinSlots,hasLiveGarbotoxin,
   hasActiveIronThornsInitialization,hasLiveOpponentAbilityLock,
+  hasProtectableHoodLockThreat,
   hasUnspentActiveUnderworldDoor,hoodedDoorRecoveryPlan,
   canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow
 }=require('../../simulation/twinleaf/hood-ability-lock-state.cjs');
@@ -69,6 +70,26 @@ test('Iron Thorns is a lock only in the Active Spot with Initialization',()=>{
   assert.equal(hasLiveOpponentAbilityLock(player({
     bench:[slot(garbodor(),[tool('Float Stone')])]
   })),true);
+});
+
+test('Hood only protects a Benched VMAX when no Stadium suppresses the Tool or Ability',()=>{
+  const foe=player({active:slot(garbodor(),[tool('Float Stone')])});
+  const plainState={players:[player(),foe]};
+  assert.equal(hasProtectableHoodLockThreat(foe,plainState),true);
+  for(const stadium of ['Jamming Tower','Path to the Peak']) {
+    const ownStadiumState={players:[player({stadium:[{name:stadium}]}),foe]};
+    const opponentStadiumState={players:[player(),player({
+      active:foe.active,stadium:[{name:stadium}]
+    })]};
+    assert.equal(hasProtectableHoodLockThreat(foe,ownStadiumState),false,stadium);
+    assert.equal(hasProtectableHoodLockThreat(foe,opponentStadiumState),false,stadium);
+  }
+});
+
+test('opponent Active Tool Jammer does not suppress Hood while the protected VMAX is Benched',()=>{
+  const foe=player({active:slot(garbodor(),[tool('Tool Jammer')])});
+  const state={players:[player(),foe]};
+  assert.equal(hasProtectableHoodLockThreat(foe,state),true);
 });
 
 test('direct Door plan works with Psychic Energy in hand and does not require Items or Field Blower',()=>{
