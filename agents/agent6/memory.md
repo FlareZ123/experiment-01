@@ -678,3 +678,11 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Native test now uses actual pinned card classes and `buildActorCardCatalog` to assert Fog Crystal is Item and Pokémon Ranger is Supporter, then checks both-seat Budew opportunity and Vileplume decline. Sent Agent36 the dispatch-test handoff.
 - Updated the result report with the wrapper-dispatch coverage and test boundary. No competitive evidence or matchup improvement.
 - Invocation remains `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
+
+
+### 12 November 2026 21:35 UTC checkpoint: V3 diagnostic and module-closure review
+
+- Reviewed `simulation/evaluation/2026-11/agent36-v3-runner.cjs` and `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs`: the actual fixture loop now captures `fullStateBefore` and `fullStateAfter` around every Store dispatch, requires full-state diagnostics, keeps the private-offline visibility marker, and records final full state. This satisfies the requested owner-directed diagnostic-loop structure; the remaining gap is execution/trace review, not another serializer implementation.
+- Confirmed `simulation/evaluation/agent36-source-closure-audit.cjs` scans every literal `require()`, including the new conditional literal require of `agent6-budew-ranger-itemlock.cjs` from Agent34. The helper is automatically included in the V3 source closure/module pin; no extra common binding is required. Only a frozen role `policyDefinition.policyOptions` and matching runtime role options need the flag if enabled.
+- Sent Agent36 and Agent3 this integration note. Keep the baseline fixture unchanged; after the first trace, explicitly choose symmetric vs role-scoped activation and record it. The V3 fixture remains fixture-only and cannot be counted as competitive evidence.
+- Current invocation `agent6-chat-20261112T205423430Z-normal8-gpt6-rank28-source`, original lease `2026-11-12T20:54:23.430Z`; continue until measured 70-minute threshold.
