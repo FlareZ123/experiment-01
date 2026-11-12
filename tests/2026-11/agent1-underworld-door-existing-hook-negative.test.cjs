@@ -5,8 +5,11 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
-const {installUnderworldDoorPsychicRecipientHook}=require(
-  '../../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
+const {
+  installUnderworldDoorPsychicRecipientHook,
+  UNDERWORLD_DOOR_HOOK_ID,
+  UNDERWORLD_DOOR_HOOK_TARGET
+}=require('../../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
 const native=name=>require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output',name));
 
@@ -371,3 +374,31 @@ for(const seat of [0,1])test(
     }
   }
 );
+
+test('hook exposes exact runtime ownership receipt and enforces one install/restore',()=>{
+  const {ShadowRiderCalyrexVMAX}=native(
+    'sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax');
+  const original=ShadowRiderCalyrexVMAX.prototype.reduceEffect;
+  const restore=installUnderworldDoorPsychicRecipientHook();
+  try{
+    assert.equal(restore.patchId,UNDERWORLD_DOOR_HOOK_ID);
+    assert.equal(restore.patchId,'underworld-door-psychic-recipient-v1');
+    assert.equal(restore.target,UNDERWORLD_DOOR_HOOK_TARGET);
+    assert.equal(restore.target,'ShadowRiderCalyrexVMAX.prototype.reduceEffect');
+    assert.equal(restore.originalReducer,original);
+    assert.equal(restore.installedReducer,
+      ShadowRiderCalyrexVMAX.prototype.reduceEffect);
+    assert.equal(restore.installedReducer.underworldDoorHookId,
+      UNDERWORLD_DOOR_HOOK_ID);
+    assert.equal(restore.isInstalled,true);
+    assert.equal(restore.isRestored,false);
+    assert.throws(()=>installUnderworldDoorPsychicRecipientHook(),
+      /already installed/);
+  }finally{
+    restore();
+  }
+  assert.equal(restore.isInstalled,false);
+  assert.equal(restore.isRestored,true);
+  assert.equal(ShadowRiderCalyrexVMAX.prototype.reduceEffect,original);
+  assert.throws(()=>restore(),/lost reducer ownership/);
+});
