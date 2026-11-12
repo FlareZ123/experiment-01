@@ -354,6 +354,10 @@ test('full inherited Mew v6 source-only option set projects only to original sou
   }
   assert.equal(source.options.sourceScopedQuickBallRoot, true);
   assert.equal(candidate.options.sourceScopedQuickBallRoot, false);
+  assert.equal(source.options.quickBallRoot, true);
+  assert.equal(source.options.quickBallRootOwnerSeat, 0);
+  assert.equal(candidate.options.quickBallRoot, false);
+  assert.equal(candidate.options.quickBallRootOwnerSeat, null);
   assert.deepEqual(source.unknownSourceOnlyFlags, []);
   assert.deepEqual(candidate.unknownSourceOnlyFlags, []);
 
