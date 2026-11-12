@@ -117,7 +117,7 @@ function makePolicyFixture() {
 
 function makeGameRegistration(trialId,{pastDeal=false}={}) {
   const now=Date.now();
-  const registeredAt=new Date(now-(pastDeal?120_000:30_000)).toISOString();
+  const registeredAt=new Date(now-(pastDeal?240_000:30_000)).toISOString();
   const dealGeneratedAt=new Date(now+(pastDeal?-60_000:300_000)).toISOString();
   const timingProtocol={
     schema:'aichi-game-timing-protocol-preregistration-v1',
@@ -213,6 +213,7 @@ function makePreDealPersistenceReceipt(preDeal) {
     trialId:preDeal.trialId,repositoryFullName:'FlareZ123/experiment-01',
     artifactRef:preDeal.preDealArtifactRef,
     artifactSha256:preDeal.preDealArtifactSha256,
+    commitTimestampSource:'github-api-commit-committer-date',
     commitSha:'a'.repeat(40),blobSha:'b'.repeat(40),
     committedAt:new Date(registeredAt+Math.floor((plannedDealAt-registeredAt)/2)).toISOString()
   };
@@ -226,6 +227,7 @@ function makeDealGenerationReceipt(preDeal,trial,persistenceReceipt) {
     artifactSha256:persistenceReceipt.artifactSha256,
     commitSha:persistenceReceipt.commitSha,blobSha:persistenceReceipt.blobSha,
     generatedAt:trial.dealGeneratedAt,
+    runnerRevision:trial.researchRevisionSha,
     sourceDealFingerprint:trial.initialSourceDealFingerprint
   };
 }
@@ -353,4 +355,41 @@ test('postgame builder rejects rank or physical-seat policy drift',()=>{
     ...common,dealGenerationReceipt:wrongDealFingerprint,
     policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
   },fixture.reviewerRegistry),/actual deal time or source-deal fingerprint disagrees/);
+
+  const wrongBlob={...dealGenerationReceipt,blobSha:'c'.repeat(40)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongBlob,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/not bound to the committed pre-deal artifact/);
+
+  const wrongPersistenceTrial={...preDealPersistenceReceipt,trialId:'another-trial'};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,preDealPersistenceReceipt:wrongPersistenceTrial,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/pre-deal persistence receipt is missing or not bound/);
+
+  const wrongRunnerRevision={...dealGenerationReceipt,runnerRevision:'d'.repeat(40)};
+  assert.throws(()=>buildV3GameBundleFixture({
+    ...common,dealGenerationReceipt:wrongRunnerRevision,
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture)
+  },fixture.reviewerRegistry),/not bound to the committed pre-deal artifact/);
+
+  const retroFixture=makePolicyFixture();
+  const retroTrialId='agent44-retroactive-ready-fixture';
+  const retroRegistration=makeGameRegistration(retroTrialId,{pastDeal:true});
+  const retroInput={
+    producerId:'agent44-v3-builder-test-producer',trialId:retroTrialId,
+    gameRegistration:retroRegistration,
+    preDealArtifactRef:retroRegistration.registrationRef+'.policy-predeal.json',
+    policyPlanCore:retroFixture.policyPlanCore,
+    policyAttestationBundle:retroFixture.policyAttestationBundle
+  };
+  const retroPreDeal=preparePreDealPolicyRegistrationFixture(retroInput,retroFixture.reviewerRegistry);
+  assert.equal(retroPreDeal.ready,true,'fixture can construct an internally consistent past-dated artifact');
+  const retroTrial=makeTrial(retroPreDeal,retroFixture);
+  assert.throws(()=>buildV3GameBundleFixture({
+    preDeal:{...retroInput,...retroPreDeal},trial:retroTrial,
+    evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(retroPreDeal,retroTrial,retroFixture)
+  },retroFixture.reviewerRegistry),/pre-deal persistence receipt is missing or not bound/);
 });
