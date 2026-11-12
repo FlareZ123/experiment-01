@@ -1,0 +1,1 @@
+Correction to the previous commit list: the full builder provenance-identity commit SHA is `6ed6e527ce97ded5fea4448c59545282b31a4e14a` (not the abbreviated placeholder).
