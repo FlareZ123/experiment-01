@@ -2649,7 +2649,10 @@ function runDevelopment({
         require('../twinleaf/native-dispatch-abort-evidence.cjs')
           .publicNativeAbortError(error);
       rows.push({
-        trial,...paidRetreatWrapperActivation,
+        trial,
+        sourceSeat:trial.candidateSlot==='A'?1:0,
+        candidateSeat:trial.candidateSlot==='A'?0:1,
+        ...paidRetreatWrapperActivation,
         rngProtocol:rng.manifest,
         policyRandomIsolation:rng.manifest.policyRandomIsolation,
         physicalShuffleRandomIsolation:
