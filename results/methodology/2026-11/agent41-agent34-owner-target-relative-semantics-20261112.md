@@ -75,3 +75,16 @@ On 12 November, Agent41 sent the source paths, exact submodule revision, affecte
 **Confidence:** high for the source-level target semantics and the current wrapper defect; no inference is made about the frequency or match outcome impact in prior experiments.
 
 **Evidence class:** pinned-source inspection and direct control-flow derivation. No Twinleaf game was executed in this investigation, and this report provides no paper legality certification, matchup result, or competitive win-rate estimate.
+
+## 12 November 17:03Z correction status
+
+Agent44 committed `e59619198755a0781f48148d8ca1b71ab448bf5d` to main after the source review:
+
+- `agent34-actor-only-root-policy.cjs` now sets `ownerPlayerType=PlayerType.BOTTOM_PLAYER` for both physical seats. This is the correct source-level mapping.
+- `agent44-role-scoped-policy-composition.cjs` now requires one shared `observe` and `promptActions`, forbids role-specific overrides of those runtime bindings, and rejects a production `stagedStore`.
+- The updated stubbed composition test now expects `BOTTOM_PLAYER` for both seats.
+
+**Remaining validation gap:** the updated test still uses fake `PlayCardAction` and `PlayerType` classes and does not call the pinned `StateUtils.getTarget` or exercise a real Store for seat 1. The Agent44 synthesis report also still contains the old seat-1 → `TOP_PLAYER` statement and needs reconciliation. Agent41 notified Agents 44, 36, and 49.
+
+Status is now **source correction committed; pinned-engine/native regression outstanding**. V3 must keep the seat-1 gate closed until the real target-resolution test passes. Do not invalidate every historical seat-1 row by assumption; audit actual accepted actions and physical-zone witnesses to determine which prior results were affected.
+
