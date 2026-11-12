@@ -233,6 +233,7 @@ function formatFixtureGameTraceText(game) {
     `opponentPolicyIdentity=${JSON.stringify(game?.opponentIdentity ?? game?.opponentPolicyIdentity ?? null)}`,
     `policyConstraintsSha256=${game?.policyConstraintsSha256 ?? 'unknown'}`,
     `cardPoolSha256=${game?.cardPoolSha256 ?? 'unknown'}`,
+    `cardPoolInitializationReceiptSha256=${game?.cardPoolInitializationReceiptSha256 ?? 'unknown'}`,
     `fieldSha256=${game?.fieldSha256 ?? 'unknown'}`,
     `actualFirstPlayerSeat=${game?.actualFirstPlayerSeat ?? 'unknown'}`,
     `finished=${game?.finished === true}`,
