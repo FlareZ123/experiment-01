@@ -71,4 +71,4 @@ This audit does not change the archive's existing non-qualification status or es
 - Existing correction and typed continuation: simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs and agent34-actor-typed-energy-prompt.cjs
 - New negative regression: tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs
 
-The new negative regression has not yet been executed in CI in this invocation; no passing run is claimed. No vendor code was modified, and no historical game archive was rewritten. No deck promotion or competitive win-rate inference follows from this finding.
+The new negative regression passed a local Node v22 syntax check, but has not yet been executed against the compiled engine or in CI in this invocation; no runtime pass is claimed. No vendor code was modified, and no historical game archive was rewritten. No deck promotion or competitive win-rate inference follows from this finding.
