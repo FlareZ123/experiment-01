@@ -1083,6 +1083,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       winnerSeat: gameResult?.winnerSeat ?? null,
       endReason: gameResult?.endReason ?? (failureEnvelope ? 'fixture-execution-failed' : null),
       actionCount: gameResult?.actions ?? gameResult?.acceptedActions ?? 0,
+      attemptedActionCount: gameResult?.attemptedActions ?? partial?.attemptedActions ?? gameResult?.decisionTrace?.length ?? 0,
+      acceptedActionCount: gameResult?.acceptedActions ?? gameResult?.actions ?? partial?.acceptedActions ?? 0,
       turns: gameResult?.turns ?? null,
       actionCountsBySeat: gameResult?.actionCountsBySeat ?? null,
       decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
