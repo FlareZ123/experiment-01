@@ -216,7 +216,9 @@ jobs:
         if: ${{ inputs.mode == 'gengar-forest-stone-posthoc' }}
         run: |
           node --check simulation/evaluation/2026-11/agent36-rank5-held-forest-stone-50801-aba.cjs
-          node --test tests/2026-11/agent17-early-forest-seal-root.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent36-rank5-held-forest-stone-50801-aba.test.cjs
+          node --check simulation/evaluation/2026-11/agent20-rank5-gengar-tempo-aba.cjs
+          node --check simulation/evaluation/2026-11/agent43-native-attack-damage-carryover.cjs
+          node --test tests/2026-11/agent17-early-forest-seal-root.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent36-rank5-held-forest-stone-50801-aba.test.cjs tests/2026-11/agent43-native-attack-damage-carryover.test.cjs
       - name: Replay held original-rank5 Stone native A-B-A with both-seat owner policy
         if: ${{ inputs.mode == 'gengar-forest-stone-posthoc' }}
         run: node simulation/evaluation/2026-11/agent36-rank5-held-forest-stone-50801-aba.cjs
