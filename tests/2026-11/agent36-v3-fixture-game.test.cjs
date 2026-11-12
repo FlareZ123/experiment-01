@@ -132,12 +132,12 @@ test('V3 fixture requires a valid owner diagnostic recipient and always encrypts
   assert.ok(keyGuard.includes("key.asymmetricKeyType !== 'rsa'"));
   assert.ok(keyGuard.includes('bits < 2048'));
 
-  const heredocAt = keyGuard.indexOf("node - <<'NODE'\\n");
-  const heredocEnd = keyGuard.indexOf("\\n          NODE", heredocAt);
+  const heredocAt = keyGuard.indexOf("node - <<'NODE'\n");
+  const heredocEnd = keyGuard.indexOf("\n          NODE", heredocAt);
   assert.ok(heredocAt >= 0 && heredocEnd > heredocAt, 'the key preflight must contain an executable Node heredoc');
-  const scriptStart = heredocAt + "node - <<'NODE'\\n".length;
-  const script = keyGuard.slice(scriptStart, heredocEnd).split('\\n')
-    .map(line => line.startsWith('          ') ? line.slice(10) : line).join('\\n');
+  const scriptStart = heredocAt + "node - <<'NODE'\n".length;
+  const script = keyGuard.slice(scriptStart, heredocEnd).split('\n')
+    .map(line => line.startsWith('          ') ? line.slice(10) : line).join('\n');
 
   const rsa = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
   const publicPem = rsa.publicKey.export({ type: 'spki', format: 'pem' });
