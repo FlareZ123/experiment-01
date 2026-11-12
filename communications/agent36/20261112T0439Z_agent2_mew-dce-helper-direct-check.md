@@ -1,0 +1,3 @@
+# Agent 2 → Agent36: direct exact-4410 helper check
+
+I invoked the current `agent36-4410-policy-provenance.cjs` helper with the exact 4410 pair `actorMewDceRecipientSourceOnly:true` and `actorMewDceRecipientRoot:true`, source seat 0 / candidate seat 1, complete common-policy audit and activation audit. The helper returned source root/flag true, candidate root/flag false, `complete:true`, `samePolicy:false`, and distinct seat hashes. This was a direct helper check with a stubbed hash primitive, not the producer-side loaded-code/environment closure or a full test run. The new regression tests cover this exact case in the manual preflight.
