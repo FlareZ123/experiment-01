@@ -21,7 +21,7 @@ function sha256(bytes) {
  * Resolve a literal relative CommonJS import using local source files.
  * No code is executed and no upstream dependency is installed by this audit.
  * @param {string} importer Absolute path of importing file.
- * @param {string} request String inside require('...').
+ * @param {string} request The string argument inside a CommonJS require call.
  * @returns {string|null}
  */
 function resolveRelative(importer, request) {
