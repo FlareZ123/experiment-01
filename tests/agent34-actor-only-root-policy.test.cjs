@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy,
   actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {withCandidateOpponentPolicyRoles}=require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
   abilityBasics:new Set(['Shadow Rider Calyrex V CRE']),
@@ -851,38 +852,38 @@ test('seat-scoped actor policies compose independently across candidate and oppo
   opponentView.ownPublic.bench=[null,null,null,null,null];
   const sharedDeps={
     SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
-    getCatalog:()=>catalog,
+    getCatalog:()=>catalog,getNativeTrainerCatalog:()=>({}),
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
       SlotType:{ACTIVE:1,BENCH:2}},
     gameActions:{AttackAction,PassTurnAction}
   };
-  const opponentScoped=withActorOnlyRootPolicy(()=>{
-    return withActorOnlyRootPolicy(()=>{
-      const store=new Store();
-      store.dispatch(new AddPlayerAction());
-      store.state.activePlayer=0;
-      const candidateAction=new SimpleTacticsAi(10).decodeNextAction(store.state);
-      store.state.activePlayer=1;
-      const opponentAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
-      return {candidateAction,opponentAction};
-    },{
-      ...sharedDeps,policyOwnerSeat:0,
-      observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
-    });
+  const roleRun=withCandidateOpponentPolicyRoles(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    store.state.activePlayer=0;
+    const candidateAction=new SimpleTacticsAi(10).decodeNextAction(store.state);
+    store.state.activePlayer=1;
+    const opponentAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
+    return {candidateAction,opponentAction};
   },{
-    ...sharedDeps,policyOwnerSeat:1,
-    observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{
+      observe:(state,seat)=>Object.freeze({...candidateView,actorSeat:seat})
+    },
+    opponentPolicyOptions:{
+      observe:(state,seat)=>Object.freeze({...opponentView,actorSeat:seat})
+    }
   });
-  const candidateScoped=opponentScoped.result;
-  assert.ok(opponentScoped.result.candidateAction instanceof PlayCardAction);
-  assert.ok(opponentScoped.result.opponentAction instanceof PlayCardAction);
-  assert.equal(opponentScoped.result.candidateAction.target.player,0);
-  assert.equal(opponentScoped.result.opponentAction.target.player,1);
-  assert.equal(candidateScoped.audit.policyOwnerSeat,0);
-  assert.equal(opponentScoped.audit.policyOwnerSeat,1);
-  assert.equal(candidateScoped.audit.nonOwnerSeatBypassCalls,1);
-  assert.equal(opponentScoped.audit.nonOwnerSeatBypassCalls,0,
+  assert.deepEqual(roleRun.roleSeatMap,{candidate:0,opponent:1});
+  assert.ok(roleRun.result.candidateAction instanceof PlayCardAction);
+  assert.ok(roleRun.result.opponentAction instanceof PlayCardAction);
+  assert.equal(roleRun.result.candidateAction.target.player,0);
+  assert.equal(roleRun.result.opponentAction.target.player,1);
+  assert.equal(roleRun.candidateAudit.policyOwnerSeat,0);
+  assert.equal(roleRun.opponentAudit.policyOwnerSeat,1);
+  assert.equal(roleRun.candidateAudit.nonOwnerSeatBypassCalls,1);
+  assert.equal(roleRun.opponentAudit.nonOwnerSeatBypassCalls,0,
     'The inner candidate wrapper delegates the opponent seat to the outer opponent wrapper');
-  assert.equal(candidateScoped.audit.selectedRootDecisions,1);
-  assert.equal(opponentScoped.audit.selectedRootDecisions,1);
+  assert.equal(roleRun.candidateAudit.selectedRootDecisions,1);
+  assert.equal(roleRun.opponentAudit.selectedRootDecisions,1);
 });
