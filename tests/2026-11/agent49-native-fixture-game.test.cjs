@@ -165,6 +165,9 @@ test('native fixture loop resolves setup prompts, drives both seats and records 
   assert.equal(lastStore.state.rules.attackFirstTurn,false);
   const shuffle=result.decisionTrace[0].publicStateAfter;
   assert.equal(shuffle.players[0].deckCount,60);
+  assert.deepEqual([...lastStore.state.prompts[0].result].sort((a,b)=>a-b),
+    Array.from({length:60},(_,i)=>i));
+  assert.equal(typeof lastStore.state.prompts[1].result,'boolean');
 });
 
 test('native fixture loop rejects incomplete decks and restores Math.random on failure',()=>{
