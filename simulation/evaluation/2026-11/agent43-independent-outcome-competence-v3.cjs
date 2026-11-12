@@ -649,8 +649,11 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     }
     const gameReviewerIds = (event.signedReviewRoles ?? [])
       .filter(x => x?.valid === true).map(x => x.reviewerId).filter(Boolean);
-    const reviewerOverlap = policyAttestations.reviewerIds.some(id =>
+    const policyReviewerOverlap = policyAttestations.reviewerIds.some(id =>
       gameReviewerIds.includes(id));
+    const producerGameOverlap = policyAttestations.policyProducerIds.some(id =>
+      gameReviewerIds.includes(id));
+    const reviewerOverlap = policyReviewerOverlap || producerGameOverlap;
     const strategyReviewValid = (event.signedReviewRoles ?? [])
       .some(x => x?.role === 'strategy' && x?.valid === true);
     const policyRolesValid = policyAttestations.valid &&
@@ -663,7 +666,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       code !== 'independent-policy-competence-unproven');
     failures.push(...policyPanel.failures,...policyAttestations.failures);
     if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
-    if (reviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+    if (policyReviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+    if (producerGameOverlap) failures.push('policy-producer-and-game-reviewers-not-independent');
     if (!strategyReviewValid) failures.push('independent-strategy-review-missing-or-invalid');
     if (event.responseOpportunityVerified !== true)
       failures.push('independent-response-opportunity-unproven');
@@ -748,8 +752,11 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     outcomeStructuralFailures.length === 0 && fullRootPaperAudit &&
     paperAttestationValid;
   const gameReviewerIds = [paperReview?.reviewerId,strategyReview?.reviewerId].filter(Boolean);
-  const reviewerOverlap = policyAttestations.reviewerIds.some(id =>
+  const policyReviewerOverlap = policyAttestations.reviewerIds.some(id =>
     gameReviewerIds.includes(id));
+  const producerGameOverlap = policyAttestations.policyProducerIds.some(id =>
+    gameReviewerIds.includes(id));
+  const reviewerOverlap = policyReviewerOverlap || producerGameOverlap;
   const competitivePolicyCompetenceReady = gameOutcomeAdmissionReady &&
     policyAttestations.valid && !reviewerOverlap && strategySignatureValid &&
     opportunity.valid;
@@ -766,7 +773,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     failures.push('untimed-protocol-or-natural-terminal-review-incomplete');
   if (policyPanel.failures.length) failures.push(...policyPanel.failures);
   if (policyAttestations.failures.length) failures.push(...policyAttestations.failures);
-  if (reviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+  if (policyReviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
+  if (producerGameOverlap) failures.push('policy-producer-and-game-reviewers-not-independent');
   if (structural?.samePolicy !== true &&
       ['same-deck-mirror','controlled-treatment'].includes(
         bundle?.policyPlanCore?.comparisonMode))
