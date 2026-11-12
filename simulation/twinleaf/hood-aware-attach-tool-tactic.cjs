@@ -9,7 +9,7 @@ const {hasProtectableHoodLockThreat} =
  * Return an opt-in SimpleTacticsAi AttachToolTactic subclass that gives
  * Stealthy Hood a priority on a Benched Shadow Rider under Active Iron Thorns
  * Initialization or an equipped Garbotoxin source in either opponent zone.
- * It fails closed under Jamming Tower. Standard tactic remains the fallback.
+ * It fails closed under Jamming Tower or Path to the Peak. Standard tactic remains the fallback.
  *
  * Intended to pair with hood-aware-arven-resolver.cjs. Does not account for
  * all Tool locks, future gust, Faba, recovery or opportunity cost.
