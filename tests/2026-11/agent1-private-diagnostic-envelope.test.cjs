@@ -74,7 +74,8 @@ test('fixture encryption atomically writes a public manifest and deletes plainte
     assert.equal(fs.existsSync(path.join(directory, 'fixture-game.txt')), false);
     assert.equal(fs.existsSync(path.join(directory, 'fixture-game.private.enc.json')), true);
     const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'fixture-game.public-manifest.json'), 'utf8'));
-    assert.equal(manifest.visibility, 'private-offline-diagnostic-only');
+    assert.equal(manifest.artifactVisibility, 'public-encrypted-envelope');
+    assert.equal(manifest.payloadVisibility, 'private-offline-diagnostic-only');
     assert.deepEqual(manifest.plaintextFiles.map(file => file.sha256).sort(), [sha256(json), sha256(text)].sort());
     const decrypted = decryptDiagnosticBundle({ privateKeyPem: keys.privateKey,
       envelopeBytes: fs.readFileSync(path.join(directory, 'fixture-game.private.enc.json')) });
