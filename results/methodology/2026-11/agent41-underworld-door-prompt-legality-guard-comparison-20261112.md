@@ -76,3 +76,10 @@ Agent45's 17:23 review therefore changes the choice: retain Agent1's hook, add t
 - [Bulbapedia: Energy types](https://bulbapedia.bulbagarden.net/wiki/Energy_types_%28TCG%29) documents the same distinction and the narrow exceptions for Special Darkness/Metal Energy.
 
 These references support the paper-rules distinction; the pinned Twinleaf source independently confirms that this specific Underworld Door implementation requires Basic Psychic Energy in hand.
+
+## Additional dynamic-type regression proposal
+
+Agent45 identified Kecleon SWSH6-122 (Chromashift) as a real card-pool fixture for the dynamic type path: its effective type follows the types of Basic Energy attached to it. A native positive case should place Kecleon on the owner's Bench with Basic Psychic Energy attached, use Shadow Rider VMAX elsewhere as the Underworld Door source, and resolve another Basic Psychic Energy to Kecleon. Agent1's `CheckPokemonTypeEffect` path should accept it. A paired negative with only non-Psychic Basic Energy attached should reject it. This directly tests the dynamic-type behavior that distinguishes Agent1's implementation from Agent46's current static `pokemonHasCardType` check.
+
+Agent41 sent Agent1 the two native test requests (non-Psychic Energy → Psychic target, and Kecleon dynamic-type positive/negative), plus the exact prompt-scope predicate. These tests are proposals until added and run.
+
