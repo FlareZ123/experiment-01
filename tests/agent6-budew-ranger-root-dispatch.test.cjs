@@ -162,3 +162,90 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
   assert.equal(result.audit.acceptedActorRoots, 1);
   assert.equal(result.audit.competitiveGameQualified, false);
 });
+
+
+const {withCandidateOpponentPolicyRoles} =
+  require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
+
+test('V3 role composer can enable Budew Ranger for candidate only', () => {
+  const store = new Store();
+  const candidateView = {
+    decisionKind: 'owner-root',
+    actorSeat: 1,
+    globalTurn: 2,
+    ownHand: [RANGER, 'Fog Crystal CRE'],
+    ownPublic: {
+      active: {
+        printing: 'Shadow Rider Calyrex V CRE',
+        energies: [], tools: [], attacks: [], abilities: [],
+        abilityDetails: [], specialConditions: [], publicRestrictions: {}
+      },
+      bench: [null, null, null, null, null],
+      stadium: [], resolvingSupporter: [], publicTurnRestrictions: {}
+    },
+    ownTurnResources: {
+      energyPlayedTurn: 0, energyPlayLocked: false, pokemonPlayLocked: false,
+      itemPlayLocked: true, supporterPlayedTurn: 0, supporterPlayLocked: false
+    },
+    opponentPublic: {
+      active: {printing: 'Budew ASC', abilities: [], abilityDetails: []},
+      bench: [null, null, null, null, null],
+      stadium: [], publicTurnRestrictions: {}
+    }
+  };
+  const opponentView = {
+    ...candidateView,
+    actorSeat: 0,
+    ownHand: [],
+    ownTurnResources: {
+      energyPlayedTurn: 0, energyPlayLocked: false, pokemonPlayLocked: false,
+      itemPlayLocked: false, supporterPlayedTurn: 0, supporterPlayLocked: false
+    },
+    budewRangerOpportunity: undefined
+  };
+  const catalog = {
+    basics: new Set(), abilityBasics: new Set(), basicEnergies: new Set(),
+    basicEnergyTypes: {}, colorlessEnergyType: 0, specialConditions: {},
+    itemPrintings: new Set(['Fog Crystal CRE'])
+  };
+  const commonDeps = {
+    SimpleTacticsAi,
+    Store,
+    GamePhase: {PLAYER_TURN: 2, FINISHED: 7},
+    observe: (state, seat) => Object.freeze(seat === 1 ? candidateView : opponentView),
+    getCatalog: () => catalog,
+    getNativeTrainerCatalog: () => ({}),
+    promptActions: {ResolvePromptAction: class ResolvePromptAction {}},
+    cardActions: {
+      PlayCardAction,
+      PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1},
+      SlotType: {ACTIVE: 1, BENCH: 2, BOARD: 3}
+    },
+    gameActions: {AttackAction, PassTurnAction}
+  };
+  const result = withCandidateOpponentPolicyRoles(() => {
+    store.state.activePlayer = 1;
+    const candidateAction = new SimpleTacticsAi(20).decodeNextAction(store.state);
+    assert.ok(candidateAction instanceof PlayCardAction);
+    assert.deepEqual(candidateAction.target, {player: 1, slot: 3, index: 0});
+    store.dispatch(candidateAction);
+
+    store.state.activePlayer = 0;
+    assert.throws(
+      () => new SimpleTacticsAi(10).decodeNextAction(store.state),
+      /generic hidden-state root must not run/
+    );
+    return candidateAction;
+  }, {
+    candidateSeat: 1,
+    opponentSeat: 0,
+    commonDeps,
+    candidatePolicyOptions: {rangerBudewItemLock: true},
+    opponentPolicyOptions: {}
+  });
+  assert.equal(result.candidateAudit.rangerBudewItemLockOptIn, true);
+  assert.equal(result.opponentAudit.rangerBudewItemLockOptIn, false);
+  assert.equal(result.candidateAudit.acceptedActorRoots, 1);
+  assert.equal(result.opponentAudit.acceptedActorRoots, 0);
+  assert.deepEqual(result.roleSeatMap, {candidate: 1, opponent: 0});
+});
