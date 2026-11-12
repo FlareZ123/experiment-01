@@ -88,4 +88,8 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   assert.ok(built.manifest.sharedEnginePatches.some((item) => item.path === 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs'));
   assert.ok(built.manifest.commonRuntimeBindings.some((item) => item.name === 'roleComposer'));
   assert.ok(built.manifest.commonRuntimeBindings.some((item) => item.name === 'observe'));
+  const diagnosticPath = 'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs';
+  const diagnosticAsset = built.manifest.dataAssets.find((item) => item.path === diagnosticPath);
+  assert.ok(diagnosticAsset && /^[0-9a-f]{64}$/i.test(diagnosticAsset.sha256), 'full-state serializer must be hash-bound as a data asset');
+  assert.equal(Object.prototype.hasOwnProperty.call(built.expectedByPath, diagnosticPath), false, 'full-state serializer must not enter the policy module closure');
 });
