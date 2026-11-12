@@ -179,6 +179,8 @@ test('untimed natural win needs paper review but no clock receipt or clock revie
   assert.equal(r.gameOutcomeAdmissionReady,true);
   assert.equal(r.competitivePolicyCompetenceReady,false);
   assert.equal(r.candidateOutcome,'loss');
+  assert.equal(r.candidateWin,false);
+  assert.equal(r.candidateNonWin,true);
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.fixtureOnly,true);
 });
@@ -188,6 +190,8 @@ test('untimed natural tie remains a tie and is not clock-adjudicated',()=>{
   assert.equal(r.gameOutcomeAdmissionReady,true);
   assert.equal(r.naturalOutcome,'tie');
   assert.equal(r.candidateOutcome,'tie');
+  assert.equal(r.candidateWin,false);
+  assert.equal(r.candidateNonWin,true);
   assert.equal(r.clockStatus,CLOCK_NOT_APPLICABLE);
   assert.equal(r.competitiveAdmission,false);
 });
@@ -209,6 +213,18 @@ test('missing or post-outcome preregistration cannot infer untimed mode from abs
   b.trial.preregistrationSha256=evidenceBundleSha256(b.trial.preregistration);
   b.evidenceManifest.find(x=>x.kind==='registration').sha256=b.trial.preregistrationSha256;
   assert.equal(inspect(b).gameOutcomeAdmissionReady,false);
+});
+
+test('untimed preregistration requires explicit null event stage rather than missing metadata',()=>{
+  const b=makeBundle();delete b.trial.eventStage;
+  assert.equal(inspect(b).gameOutcomeAdmissionReady,false);
+  const c=makeBundle();delete c.trial.preregistration.timingProtocol.eventStage;
+  c.trial.preregistration.timingProtocolSha256=
+    evidenceBundleSha256(c.trial.preregistration.timingProtocol);
+  c.trial.preregistrationSha256=evidenceBundleSha256(c.trial.preregistration);
+  c.evidenceManifest.find(x=>x.kind==='registration').sha256=
+    c.trial.preregistrationSha256;
+  assert.equal(inspect(c).gameOutcomeAdmissionReady,false);
 });
 
 test('actual timer, official call, or event adjudication invalidates untimed mode',()=>{
