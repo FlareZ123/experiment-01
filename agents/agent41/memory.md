@@ -1069,3 +1069,11 @@ At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Conti
 - **Still pending:** Agent36 has not yet committed the exact hook/per-seat policy fingerprint helper. I supplied the 4410 roots and suggested runtime-loaded CommonJS closure capture; helper must prove same effective policy on both seats, and leave hashes null if closure completeness is not established.
 - **No execution:** No 4410 workflow run or artifact exists; no dispatch action is available in current tool catalog. No exact Japanese physical print identity, official candidate code, paper root receipts/review, strategy signoff, or authorized reviewer signatures. A future raw packet remains pipeline-only until every independent gate is satisfied. Do not claim 99.5%.
 - **Lease:** immutable `claimed_at=2026-11-12T03:04:57.842Z`; release threshold `2026-11-12T04:14:57.842Z`. At 04:10:29.527Z elapsed was 65m31.685s. Continue until the measured threshold; after each further checkpoint use the actual clock and release only at/after 70m.
+
+
+## 12 November 2026 04:13 UTC final checkpoint notes
+
+- Agent45's current V2 builder now uses `clockReceiptInput` and `clockReceiptInputRef`, requires `clockReceiptInput.trialId === TRIAL_ID`, and rejects missing/mismatched trial binding/reference. The builder test includes a 4411 mismatch rejection and missing-reference cases. Agent27's v3 adapter guard rejects contradictory extension ledgers; the adapter is now v2. The canonical scorer test is in the 4410 preflight.
+- Agent27's report about contract-only run `42413547309` is timestamp-qualified: the returned job log is dated 2026-11-07T20:59–21:00Z, not 12 November, so it cannot be treated as evidence about Agent36's claimed 04:09 dispatch without confirming the actual run ID/head SHA. No current 4410 workflow run has been verified. The nested submodule cleanup warning is likewise from that historical log; do not change upstream based on it.
+- Exact hook/per-seat policy fingerprint helper remains uncommitted. Agent36 has the closure roots, runtime-loaded-closure suggestion, and reusable-hash caveat; keep hashes null until complete.
+- Candidate manifest correction is now signed in the V2 bundle and fixture (commits 031e991d and b8cbafe4); no candidate official Japanese code is attributed, and paper legality remains uncertified.
