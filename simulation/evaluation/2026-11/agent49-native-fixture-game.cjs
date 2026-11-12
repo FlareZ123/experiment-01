@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const crypto=require('node:crypto');
+const {evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 
 const PLAYER_IDS=Object.freeze([101,202]);
 const POLICY_SEED_XORS=Object.freeze([0x6a09e667,0xbb67ae85]);
@@ -67,8 +67,7 @@ function publicStateSnapshot(state) {
 }
 
 function sha256Json(value) {
-  return crypto.createHash('sha256')
-    .update(JSON.stringify(value),'utf8').digest('hex');
+  return evidenceBundleSha256(value);
 }
 
 function actionName(action) {
