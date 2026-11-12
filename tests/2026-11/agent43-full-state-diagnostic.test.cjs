@@ -149,6 +149,7 @@ test('trace formatter emits selected card and before/after full state changes', 
     opponentIdentity: { policyId: 'opponent-policy' },
     policyConstraintsSha256: 'constraints-hash',
     cardPoolSha256: 'card-pool-hash',
+    cardPoolInitializationReceiptSha256: 'pool-init-hash',
     fieldSha256: 'field-hash',
     actualFirstPlayerSeat: 1,
     finished: true,
@@ -229,6 +230,7 @@ test('trace formatter emits selected card and before/after full state changes', 
   assert.match(text, /opponent-policy/);
   assert.match(text, /constraints-hash/);
   assert.match(text, /card-pool-hash/);
+  assert.match(text, /pool-init-hash/);
   assert.match(text, /field-hash/);
   assert.match(text, /ACTION #0 turn=1 seat=0/);
   assert.match(text, /SELECTED CARD .*A Hand 1/);
