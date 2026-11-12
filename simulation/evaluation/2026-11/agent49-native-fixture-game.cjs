@@ -153,7 +153,7 @@ function runNativeFixtureGame(input) {
       new SimpleTacticsAi({id:PLAYER_IDS[0]},input.botOptionsBySeat[0],input.deckA),
       new SimpleTacticsAi({id:PLAYER_IDS[1]},input.botOptionsBySeat[1],input.deckB)
     ];
-    input.onAgentsCreated?.(seats);
+    (input.onRootAgentsCreated??input.onAgentsCreated)?.(seats);
 
     store.dispatch(new AddPlayerAction(PLAYER_IDS[0],
       input.playerNames?.[0]??'fixture-seat-0',input.deckA));
