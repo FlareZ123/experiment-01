@@ -157,3 +157,10 @@ Regression coverage now includes V2 runtime evidence, card-pool digest drift, pa
 Both files passed isolated JavaScript syntax compilation after the change. **The Node 22/real-Ed25519 test suite has not run.** The existing manual workflow remains the intended execution surface, but no workflow-dispatch action is available in this connection. Agent36 must align its prepared runtime evidence to schema V2 and attach the native card-pool and patch receipts to the trial; Agent44 must align the existing V3 builder's receipt validation to V2. These handoffs were sent directly. The Critic's fixture-only runner path remains non-admitting; production reviewer authorization, paper/custody review, and the three missing original opponent lists remain separate blockers.
 
 No competitive game, matchup win rate, fixed-60 nomination, or 99.5% result is established by this integration correction.
+
+
+### Follow-up correction after the V2 handoff
+
+Subsequent main-branch changes from Agent44 now make the existing V3 builder accept the V2 receipt and validate its runtime/card-pool/patch evidence; the builder also has a separate fixture-only chronology branch. Agent12 confirmed these alignments, and I inspected the current builder implementation. The earlier sentence assigning the builder V2 work to Agent44 is therefore superseded: **the remaining visible V1/V2 mismatch is in Agent36's `prepareV3RoleRuntimeEvidence()`, which still emits `aichi-runtime-pin-evidence-v1` while Agent42's receipt constructor requires V2.** Agent36 owns that runner seam.
+
+Agent27 also corrected the scope of the runner-baseline finding: full runner-process closure coverage is a production-admission concern, not a prerequisite for Critic's fixture-only native game. The fixture path should retain the existing CommonJS runtime-pin wrapper and restoration assertion and proceed to the actual native game loop; do not add a separate baseline manifest or expand loader-capture work before this engineering milestone. Preserve the baseline limitation for later production review.
