@@ -2,12 +2,15 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {hasLiveOpponentAbilityLock,hasJammingTowerInPlay} =
+  require('./hood-ability-lock-state.cjs');
 
 /**
  * Return an opt-in, research-owned replacement for Twinleaf's generic
  * ChooseCardsPromptResolver. It only changes Arven's one-Item-plus-one-Tool
- * selection when an opposing Iron Thorns or enabled Garbodor threatens a
- * vacant Tool slot on a Benched Shadow Rider.
+ * selection when Active Iron Thorns Initialization or equipped Garbotoxin
+ * threatens a vacant Tool slot on a Benched Shadow Rider. Active and Benched
+ * Garbotoxin sources are recognized by their printed Ability, not name alone.
  *
  * This is a proof-of-concept tactical policy, not a general optimizer.
  * It does not solve Item/Supporter sequencing or subsequent Tool attachment.
@@ -31,16 +34,13 @@ function hoodAwareArvenResolverClass() {
    */
   function underLockThreat(state, player) {
     const opponent = state.players.find(p => p.id !== player.id);
-    if (!opponent) return false;
-    const thorns = opponent.active.getPokemonCard()?.name === 'Iron Thorns ex';
-    const garbotoxin = opponent.bench.some(slot =>
-      slot.getPokemonCard()?.name === 'Garbodor' && slot.tools.length > 0
-    );
+    if (!opponent || hasJammingTowerInPlay(state) ||
+        !hasLiveOpponentAbilityLock(opponent)) return false;
     const unprotected = player.bench.some(slot =>
       ['Shadow Rider Calyrex V', 'Shadow Rider Calyrex VMAX']
         .includes(slot.getPokemonCard()?.name) && slot.tools.length === 0
     );
-    return (thorns || garbotoxin) && unprotected;
+    return unprotected;
   }
 
   class HoodAwareArvenResolver extends ChooseCardsPromptResolver {

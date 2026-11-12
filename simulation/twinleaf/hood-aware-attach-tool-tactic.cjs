@@ -2,11 +2,14 @@
 
 const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {hasLiveOpponentAbilityLock,hasJammingTowerInPlay} =
+  require('./hood-ability-lock-state.cjs');
 
 /**
  * Return an opt-in SimpleTacticsAi AttachToolTactic subclass that gives
- * Stealthy Hood a priority on a Benched Shadow Rider under a recognizable
- * opposing Ability-lock threat. Standard tactic remains the fallback.
+ * Stealthy Hood a priority on a Benched Shadow Rider under Active Iron Thorns
+ * Initialization or an equipped Garbotoxin source in either opponent zone.
+ * It fails closed under Jamming Tower. Standard tactic remains the fallback.
  *
  * Intended to pair with hood-aware-arven-resolver.cjs. Does not account for
  * all Tool locks, future gust, Faba, recovery or opportunity cost.
@@ -25,12 +28,8 @@ function hoodAwareAttachToolTacticClass() {
     useTactic(state, player) {
       const hoodIndex = player.hand.cards.findIndex(c => c.name === 'Stealthy Hood');
       const opponent = state.players.find(p => p.id !== player.id);
-      if (hoodIndex !== -1 && opponent && !player.cannotPlayToolCards) {
-        const thorns = opponent.active.getPokemonCard()?.name === 'Iron Thorns ex';
-        const garbodor = opponent.bench.some(slot =>
-          slot.getPokemonCard()?.name === 'Garbodor' && slot.tools.length > 0
-        );
-        if (thorns || garbodor) {
+      if (hoodIndex !== -1 && opponent && !player.cannotPlayToolCards &&
+          hasLiveOpponentAbilityLock(opponent) && !hasJammingTowerInPlay(state)) {
           const candidates = [];
           player.bench.forEach((slot, index) => {
             const pokemon = slot.getPokemonCard();
