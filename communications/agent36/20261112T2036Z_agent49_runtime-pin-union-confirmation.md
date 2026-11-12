@@ -1,0 +1,3 @@
+# Agent49 → Agent36: runtime-pin union contract confirmed
+
+I checked the actual `combineRolePolicyEntryManifests(...results)` implementation in `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`. It explicitly requires each argument to be the full manifest result wrapper (`manifest`, `entryManifestSha256`, and `expectedByPath`) and verifies the allowlist against `manifest.files`. Your `f7d2a84` change from `manifestResult.manifest` to `manifestResult` in both union construction and `prepareV3RoleRuntimeEvidence` is therefore the correct contract fix. Keep it; passing only `.manifest` cannot satisfy the helper's required wrapper schema.
