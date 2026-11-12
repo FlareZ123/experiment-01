@@ -314,7 +314,7 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial) {
     fail('application receipt engine, runner, trace or timeout status invalid');
 }
 
-function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
+function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt,fixtureOnly) {
   if (!plainObject(persistenceReceipt) ||
       persistenceReceipt.schema!==PREDEAL_PERSISTENCE_RECEIPT_SCHEMA ||
       persistenceReceipt.trialId!==preDeal.trialId ||
@@ -350,6 +350,8 @@ function validateDealChronology(preDeal,trial,persistenceReceipt,dealReceipt) {
   const generatedAt=Date.parse(dealReceipt.generatedAt);
   if (generatedAt<plannedDealAt || generatedAt<=committedAt)
     fail('physical deal was generated before the committed pre-deal artifact or before its registered generation time');
+  if (!fixtureOnly && generatedAt>Date.now())
+    fail('production postgame bundle cannot claim a future physical deal-generation time');
   if (trial.dealGeneratedAt!==dealReceipt.generatedAt ||
       trial.initialSourceDealFingerprint!==dealReceipt.sourceDealFingerprint)
     fail('trial actual deal time or source-deal fingerprint disagrees with deal-generation receipt');
@@ -363,7 +365,7 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
     fail('pre-deal registration is not ready for this builder mode');
   if (!plainObject(trial) || trial.trialId!==preDeal.trialId)
     fail('postgame trial identity does not match frozen pre-deal registration');
-  const chronology=validateDealChronology(preDeal,trial,preDealPersistenceReceipt,dealGenerationReceipt);
+  const chronology=validateDealChronology(preDeal,trial,preDealPersistenceReceipt,dealGenerationReceipt,fixtureOnly);
   if (!sameJson(trial.preregistration,preDeal.gameRegistration) ||
       trial.preregistrationSha256!==evidenceBundleSha256(preDeal.gameRegistration) ||
       trial.registrationRef!==preDeal.gameRegistration.registrationRef ||
