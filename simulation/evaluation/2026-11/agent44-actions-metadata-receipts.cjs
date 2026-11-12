@@ -86,16 +86,23 @@ function createPreDealPersistenceReceipt({preDeal,run,artifact}) {
  * the builder's existing deal receipt. The caller must ensure the deal was
  * physically generated only inside this dedicated step.
  */
-function createDealGenerationReceipt({preDeal,trial,run,job,persistenceReceipt}) {
+function createDealGenerationReceipt({preDeal,trial,run,jobs,persistenceReceipt}) {
   object(preDeal,'preDeal');
   object(preDeal.gameRegistration,'preDeal.gameRegistration');
   object(trial,'trial');
   object(run,'workflow run');
   object(run.repository,'workflow run repository');
-  object(job,'workflow job');
   object(persistenceReceipt,'pre-deal persistence receipt');
   assert.equal(run.repository.full_name,persistenceReceipt.repositoryFullName,
     'generation workflow repository must equal the persisted artifact repository');
+  assert.ok(Array.isArray(jobs)&&jobs.length>0,
+    'Actions workflow jobs response must contain job records');
+  const generationJobs=jobs.filter(candidate=>
+    Array.isArray(candidate?.steps)&&candidate.steps.some(step=>
+      step?.name===DEAL_GENERATION_STEP_NAME));
+  assert.equal(generationJobs.length,1,
+    'workflow run must contain exactly one job with the physical-deal generation step');
+  const job=object(generationJobs[0],'workflow job');
   const workflowRunId=positiveId(run.id,'workflow run id');
   const jobId=positiveId(job.id,'workflow job id');
   assert.equal(persistenceReceipt.schema,PREDEAL_PERSISTENCE_RECEIPT_SCHEMA,
