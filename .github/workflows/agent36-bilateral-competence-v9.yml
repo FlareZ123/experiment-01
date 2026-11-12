@@ -140,10 +140,25 @@ jobs:
         run: git submodule update --init --depth=1 vendor/twinleaf
 
       - name: Set up Node runtime for contract-only tests
-        if: ${{ (inputs.contract_only || inputs.agent36_v3_predeal_preflight) && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native }}
+        if: ${{ inputs.agent36_v3_predeal_preflight || (inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native) }}
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
+
+      - name: Enforce isolated V3 pre-deal preflight mode
+        if: ${{ inputs.agent36_v3_predeal_preflight }}
+        env:
+          INPUTS_JSON: ${{ toJSON(inputs) }}
+        run: |
+          node - <<'NODE'
+          const inputs = JSON.parse(process.env.INPUTS_JSON);
+          const allowed = new Set(['agent36_v3_predeal_preflight', 'agent36_v3_predeal_artifact_ref']);
+          const conflicts = Object.entries(inputs)
+            .filter(([key, value]) => !allowed.has(key) && value === true)
+            .map(([key]) => key);
+          if (conflicts.length) throw new Error('V3 pre-deal preflight is exclusive; conflicting mode inputs: ' + conflicts.join(', '));
+          if (!inputs.agent36_v3_predeal_artifact_ref) throw new Error('agent36_v3_predeal_artifact_ref is required for V3 pre-deal preflight');
+          NODE
 
       - name: Set up pinned Node runtime with native dependency cache
         if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
