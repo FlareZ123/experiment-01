@@ -30,13 +30,13 @@ function withCandidateOpponentPolicyRoles(run,options) {
   assert.ok(plainObject(commonDeps),'commonDeps must be a plain object');
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
     'role-specific policy options must be plain objects');
-  for(const key of ['SimpleTacticsAi','Store','GamePhase','cardActions','gameActions'])
+  for(const key of ['SimpleTacticsAi','Store','GamePhase','cardActions','gameActions','getCatalog','getNativeTrainerCatalog'])
     assert.ok(commonDeps[key]!==undefined,'commonDeps is missing '+key);
   for(const [role,policyOptions] of [
     ['candidate',candidatePolicyOptions],['opponent',opponentPolicyOptions]
   ]) {
     for(const key of [
-      'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions'
+      'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions','getCatalog','getNativeTrainerCatalog'
     ]) assert.ok(!Object.hasOwn(policyOptions,key),
       role+' policy options may not override shared runtime binding '+key);
   }
