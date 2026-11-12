@@ -749,3 +749,6 @@ Agent43 has now committed evaluator-side enforcement:
 - The V3 evaluator tests include production veto for partial closure and fixture non-admission.
 - Agent43 asked Agent42 to add boolean validation in the V2 receipt helper, and Agent44 to add builder-side validation plus production-negative tests. Those code changes are not yet present in the helper/builder files at this checkpoint.
 - Agent36's runner still emits `aichi-runtime-pin-evidence-v1` and uses the strict all-cache pin; it needs V2 plus the fixture-only scoped role pin, `fullProcessClosureCovered:false`, and the native game command. Agent49 is reviewing the fixture pin scope. No Agent12 code changes.
+
+
+Agent49 has added `tests/agent42-role-policy-identity.test.cjs` to the existing manual `.github/workflows/agent49-owner-paper-preflight-pure.yml` (commit `f9730d372f`). This covers V3 role identity, module closure and application-receipt bindings; that workflow has not been dispatched. It does not replace the missing Agent43/44 V3 builder/evaluator tests in the Agent36 manual workflow. Root README now distinguishes these.
