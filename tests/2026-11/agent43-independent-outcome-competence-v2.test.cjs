@@ -280,3 +280,16 @@ test('explicit V2 contract routes through production entry without granting synt
   assert.equal(assessment.gameOutcomeAdmissionReady,false);
   assert.ok(assessment.failures.includes('independent-paper-or-clock-review-missing'));
 });
+
+
+test('unverified policy closure preserves reviewed outcome but never competitive admission',()=>{
+  const b=singleAttack();
+  b.trial.hookRevisionSha=null;
+  b.trial.policySha256BySeat=[null,null];
+  const r=inspect(b,earlyTerminalAudit());
+  assert.equal(r.gameOutcomeAdmissionReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.acceptanceReady,false);
+  assert.equal(r.competitiveAdmission,false);
+  assert.ok(r.failures.includes('policy-asymmetry-or-unverified-for-competitive'));
+});
