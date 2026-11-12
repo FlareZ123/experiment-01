@@ -2,6 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const {verifyManifest} = require('../simulation/twinleaf/new-moon-lockbreak-validate.cjs');
 const base = require('../results/als/new-moon-perfection-english-map.json');
 const official = require('../results/als/new-moon-official-japanese-print-60.json');
@@ -22,6 +23,11 @@ function loadNewMoonCandidate() {
   }
   const sets = new Map(setData.map(s => [s.id, s.ptcgoCode]));
   const cache = new Map();
+  const resourceFiles = new Map();
+  const setDataPath = path.join(root, 'resources', 'sets', 'en.json');
+  const setDataRaw = fs.readFileSync(setDataPath, 'utf8');
+  resourceFiles.set('resources/sets/en.json',
+    createHash('sha256').update(setDataRaw, 'utf8').digest('hex'));
   const substitutions = [];
   const cards = proposal.entries.map(entry => {
     const id = entry.english_proxy_card_id;
@@ -32,9 +38,12 @@ function loadNewMoonCandidate() {
     const code = sets.get(setId);
     assert.ok(code, 'Unknown English set ' + setId);
     if (!cache.has(setId)) {
-      cache.set(setId, JSON.parse(fs.readFileSync(path.join(
-        root, 'resources', 'cards', 'en', setId + '.json'
-      ), 'utf8')));
+      const cardPath = path.join(root, 'resources', 'cards', 'en', setId + '.json');
+      const cardRaw = fs.readFileSync(cardPath, 'utf8');
+      const relativeCardPath = path.relative(root, cardPath).split(path.sep).join('/');
+      resourceFiles.set(relativeCardPath,
+        createHash('sha256').update(cardRaw, 'utf8').digest('hex'));
+      cache.set(setId, JSON.parse(cardRaw));
     }
     const found = cache.get(setId).filter(c => c.id === id);
     assert.equal(found.length, 1, 'Unknown English card ' + id);
@@ -54,7 +63,19 @@ function loadNewMoonCandidate() {
       printing: {set, number: printedNumber, language: 'en'}};
   });
   assert.equal(cards.reduce((n, x) => n + x.count, 0), 60);
-  return {id: 'new-moon-lockbreaker-v1', cards,
+  const resourceDataFiles = [...resourceFiles].map(([filePath, sha256]) => ({
+    path: filePath, sha256
+  })).sort((a, b) => a.path.localeCompare(b.path, 'en'));
+  const resourceDataManifest = {
+    schema: 'aichi-new-moon-candidate-resource-data-manifest-v1',
+    scope: 'exact resources/sets/en.json and English card-set JSON files read by the candidate loader',
+    files: resourceDataFiles,
+    fileCount: resourceDataFiles.length,
+    cardSetIds: [...cache.keys()].sort((a, b) => a.localeCompare(b, 'en')),
+    sha256: createHash('sha256')
+      .update(JSON.stringify(resourceDataFiles), 'utf8').digest('hex')
+  };
+  return {id: 'new-moon-lockbreaker-v1', cards, resourceDataManifest,
     provisionalEnglishProxy: true,
     sourceCode: official.source_code,
     proxyIdCountHash: proposal.canonical_id_count_sha256,
