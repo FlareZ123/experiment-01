@@ -216,7 +216,8 @@ test('role composer receives shared dependencies and policy options bound to rol
   assert.equal(received.commonDeps,commonDeps);
   assert.deepEqual(result.roleSeatMap,{candidate:1,opponent:0});
   assert.throws(()=>runCandidateOpponentPolicyRoles(()=>42,{
-    candidateSeat:0,opponentSeat:1,trial,commonDeps,composer
+    candidateSeat:0,opponentSeat:1,candidateIdentity,opponentIdentity,
+    trial,commonDeps,composer
   }),/candidate role seat must be fixed/);
 });
 
