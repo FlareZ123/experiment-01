@@ -134,6 +134,34 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
   const trialId=original.intake.trial.id;
   assert.equal(trialId,TRIAL_ID);
   assert.equal(original.registration.preRegisteredTrials[0].id,trialId);
+  const candidateManifestBinding=original.intake.candidateManifestBinding;
+  assert.ok(candidateManifestBinding&&typeof candidateManifestBinding==='object',
+    'The corrected contender print-manifest binding is required');
+  assert.equal(candidateManifestBinding.schema,'agent44-candidate-print-manifest-binding-v1');
+  assert.equal(candidateManifestBinding.status,
+    'PRE_EXECUTION_CORRECTIVE_BINDING_NOT_A_NEW_REGISTRATION');
+  assert.equal(candidateManifestBinding.registrationCandidateManifestPointer,
+    original.registration.candidatePrintedManifest);
+  assert.equal(candidateManifestBinding.registrationCandidateManifestPointerMatches,false);
+  assert.equal(candidateManifestBinding.boundCandidateJapanesePrintManifest,
+    'results/als/new-moon-lockbreak-japanese-print-60.json');
+  assert.equal(candidateManifestBinding.candidateEnglishMechanicalProxyManifest,
+    'results/als/new-moon-lockbreak-english-proxy-60.json');
+  assert.equal(candidateManifestBinding.candidatePrintedCardCount,60);
+  assert.equal(candidateManifestBinding.candidateUniqueNameCount,34);
+  assert.equal(candidateManifestBinding.nativeCandidateLoaderNameCountParity,true);
+  assert.deepEqual(candidateManifestBinding.candidateNameCountParity,{names:34,cards:60});
+  assert.equal(candidateManifestBinding.candidateJapanesePrintInventoryCanonicalSha256,
+    original.intake.candidatePrintedInventorySha256);
+  assert.equal(candidateManifestBinding.candidateOfficialJapaneseDeckCode,null,
+    'The source deck code must never be attributed to the Lockbreaker contender');
+  assert.equal(original.intake.candidateOfficialJapaneseDeckCode,null);
+  assert.equal(candidateManifestBinding.candidateDerivedFromOfficialJapaneseSourceDeckCode,
+    original.registration.candidateOfficialJapaneseDeckCode);
+  assert.equal(candidateManifestBinding.paperLegalityIndependentlyCertified,false);
+  const candidateManifestBindingSha256=nativeJsonSha256(candidateManifestBinding);
+  assert.equal(original.intake.candidateManifestBindingSha256,candidateManifestBindingSha256);
+  assert.equal(original.candidateManifestBindingSha256,candidateManifestBindingSha256);
   assert.ok(clockEvidence===null||(typeof clockEvidence==='object'&&!Array.isArray(clockEvidence)),
     'External clock receipt input must be one JSON object');
   if(clockEvidence!==null){
@@ -219,13 +247,34 @@ function build(original,{clockEvidence=null,clockEvidenceRef=null}={}){
         original.intake.exactJapaneseSourcePrintingsIndependentlyVerified===true
     },
     'contender-printed-60':{
-      manifest:'results/als/new-moon-perfection-source-60.json',
+      manifest:candidateManifestBinding.boundCandidateJapanesePrintManifest,
+      manifestSha256:candidateManifestBinding.candidateJapanesePrintManifestSha256,
       candidateId:'new-moon-lockbreaker-v1',
       published60Sha256:
         original.intake.candidatePrintedInventorySha256??null,
+      canonicalPrintIdCountSha256:
+        candidateManifestBinding.candidateJapanesePrintInventoryCanonicalSha256,
+      englishProxyManifest:candidateManifestBinding.candidateEnglishMechanicalProxyManifest,
+      englishProxyManifestSha256:
+        candidateManifestBinding.candidateEnglishMechanicalProxyManifestSha256,
+      englishProxyIdCountSha256:candidateManifestBinding.candidateEnglishProxyIdCountSha256,
+      nativeCandidateLoader:candidateManifestBinding.nativeCandidateLoader,
+      nativeCandidateId:candidateManifestBinding.nativeCandidateId,
+      nativeCandidateLoaderNameCountParity:
+        candidateManifestBinding.nativeCandidateLoaderNameCountParity,
+      nativeCandidateLoaderNameAliases:candidateManifestBinding.nativeCandidateLoaderNameAliases,
+      registrationCandidateManifestPointer:
+        candidateManifestBinding.registrationCandidateManifestPointer,
+      registrationCandidateManifestPointerMatches:
+        candidateManifestBinding.registrationCandidateManifestPointerMatches,
       candidateOfficialJapaneseDeckCode:
-        original.intake.candidateOfficialJapaneseDeckCode??
-        original.registration.candidateOfficialJapaneseDeckCode??null,
+        candidateManifestBinding.candidateOfficialJapaneseDeckCode,
+      candidateDerivedFromOfficialJapaneseSourceDeckCode:
+        candidateManifestBinding.candidateDerivedFromOfficialJapaneseSourceDeckCode,
+      proposedPrintManifestStatus:candidateManifestBinding.proposedPrintManifestStatus,
+      paperLegalityIndependentlyCertified:
+        candidateManifestBinding.paperLegalityIndependentlyCertified,
+      candidateManifestBinding,candidateManifestBindingSha256,
       exactJapanesePrintingsIndependentlyVerified:
         original.intake.exactJapaneseCandidatePrintingsIndependentlyVerified===true,
       independentlyVerifiedJapanesePrintingIdentity:false
