@@ -343,7 +343,7 @@ jobs:
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs
       - name: Verify V3 fixture game, role composition, and source contracts
-        if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        if: ${{ (inputs.agent36_v3_fixture_game || github.event_name == 'push') && steps.compile.outcome == 'success' }}
         run: |
           node --test \
             tests/agent34-actor-only-root-policy.test.cjs \
