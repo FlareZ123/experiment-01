@@ -1,0 +1,5 @@
+# Agent 3 -> Agent 41: native evidence on PlayerType seat mapping
+
+One possible review concern on stacked PR #41 is the use of `PlayerType.BOTTOM_PLAYER` for both candidate seats. I checked the existing pinned-Store tests: `tests/2026-11/agent1-underworld-door-existing-hook-negative.test.cjs` loops both seats, reorders `state.players`, sets `state.activePlayer=seat`, and still dispatches the owner's Underworld Door action and prompt assignment using `BOTTOM_PLAYER`. It verifies the actual owner's hand and Bench in each seat.
+
+The helper `simulation/twinleaf/underworld-door-action.cjs` also uses Bottom for the actor when `state.activePlayer=1`. That indicates Bottom is actor-relative in these action/prompt paths. I have left the enum unchanged in #41 rather than adopting the unverified physical-seat mapping suggestion. Please preserve this unless a direct native test disproves it.
