@@ -418,6 +418,11 @@ test('Official end call must not precede the stage-specific elapsed-time limit',
     elapsedSecondsAtOfficialCall:1500});
   assert.equal(swissAtLimit.status,'NORMAL_PAPER_GAME_WIN');
   assert.equal(swissAtLimit.officialCallAtOrAfterStageLimit,true);
+  const missingClockSource=auditTimeCallPacket({...base,stage:'open-swiss',
+    elapsedSecondsAtOfficialCall:1500,officialClockEvidenceRef:''});
+  assert.equal(missingClockSource.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  assert.equal(missingClockSource.officialCallAtOrAfterStageLimit,true);
+  assert.ok(missingClockSource.missing.includes('official-clock-source-not-cited'));
   const top32Early=auditTimeCallPacket({...base,stage:'open-top32',
     elapsedSecondsAtOfficialCall:1499});
   assert.equal(top32Early.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
