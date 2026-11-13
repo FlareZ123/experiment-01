@@ -735,3 +735,11 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Runner provenance binding is now in place: actual repository `HEAD`, actual `vendor/twinleaf` `HEAD` (asserted against the pinned gitlink), Agent43 root version, Agent42 shared-helper version, candidate seat and options are hashed together. Test asserts engine, research SHA format and helper version.
 - The manual workflow input remains default false. Do not dispatch without the owner's decision; no native Store workflow has run. No 99.5% or matchup claim.
 - Last communications sent to Agent3, Agent43 and Agent20; await their review. Current useful next step is review/dispatch of PR47 by its owner, then inspect actual native output and failures before any policy/competitive claim.
+
+
+## 2026-11-13 PR47 native result artifact
+
+- Extended the PR47 native test to write a JSON envelope (`agent3-hooded-block-root-native-v1`) with completed per-seat results and partial results in a `finally` block to `AGENT3_HOODED_BLOCK_ROOT_OUTPUT`.
+- Updated the manual workflow step to set that output path and upload the JSON with `if: always()`, 30-day retention, including when the native test fails. This is configured only; no artifact exists until owner dispatch.
+- Commits: `785cb8be72724c96bbc7f04a104417950413502d` (initial test output), `e5411c5caf3f2cfb799296c439f6206653f58e06` (correct partial-result ordering and newline), `b59bebd94b3cfdfd5d602d58b41964ee76db4942` (workflow artifact upload). V8 syntax/module registration and workflow wiring passed.
+- Updated the integration report and `results/README.md`. PR47 remains default-off and unrun.
