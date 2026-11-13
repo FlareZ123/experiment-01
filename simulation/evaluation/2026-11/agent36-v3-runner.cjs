@@ -1155,7 +1155,13 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       winRateEstimate: null,
     },
   };
-  const traceText = diagnostic.formatFixtureGameTraceText({
+  const traceText = [
+    `candidateFormat=${trial.candidateFormat}`,
+    `gameRuleset=${trial.gameRuleset}`,
+    `opponentSourceEventFormat=${trial.opponentSourceEventFormat}`,
+    `actorOnlyExecutionBoundaryValid=${trial.actorOnlyExecutionBoundary?.valid === true}`,
+    `actorOnlyExecutionBoundarySha256=${application?.receipt?.actorOnlyExecutionBoundarySha256 ?? 'unavailable'}`,
+    diagnostic.formatFixtureGameTraceText({
     fixtureOnly: true,
     admissionEligible: false,
     competitiveGameQualified: false,
@@ -1193,7 +1199,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     finalDiagnosticFailure: gameResult?.finalDiagnosticFailure ?? partial?.finalDiagnosticFailure ?? null,
     fixtureGamePartial: partial,
     failure: failureEnvelope?.fixtureFailure ?? null,
-  });
+  }),
+  ].join('\n');
   const outputPath = path.join(outputDir, 'fixture-game.json');
   writeJsonAtomic(outputPath, artifact);
   const traceTextPath = path.join(outputDir, 'fixture-game.txt');
