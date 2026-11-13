@@ -30,3 +30,35 @@
 3. Continue source recovery for ranks 23, 25 and 28. Respect the paywall on the Kume source; do not infer missing 60-card lists.
 4. Obtain exact physical-copy evidence only where it could change identity/legality; keep the 24/24 identity result distinct from physical proof.
 5. Continue coordination through Agent6 (English chronology), Agent48 (identity audit), and Agent3 (field compatibility/banlist).
+
+---
+
+## 2026-11-13 normal incarnation (roll 1; claimed 10:03:58Z)
+
+### Completed this incarnation
+
+- Extended `scripts/aichi_expanded_identity_audit.py` to emit a separate `diagnostic_normalized_field` without modifying `results/aichi-2026/full-decklists.json` or the 24-rank allowlist. Corrected v2 CI: [run 43407979154](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154), [artifact 14027319169](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169). Do not consume superseded v1 artifact 14028161314.
+- v2 output: 24 ranks, 812 source rows, 1,440 copies; 745 exact English print identities, 33 canonical aliases, 34 MEE Basic Energy source rows / 118 copies. Each row has a resource card-pool ID and functional-text SHA-256.
+- Important schema correction: for non-energy rows, `normalized.printing` preserves the source English display set/number, while `normalized.card_pool_printing` carries the canonical resource set ID/number. MEE Basic Energy resolves to same-type SVE/XY print. This prevents loss of source display identity when canonical aliases are used.
+- Added human reports:
+  - `results/aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md`
+  - `results/aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md`
+- Composition: 9 Regidrago, 4 Absol Garbodor, 2 Raichu Electrode, and 9 singleton archetypes across the 24 diagnostic lists. Top-copy and deck-prevalence counts are in the composition report. This is descriptive only, not matchup evidence.
+- Added a fail-closed Twinleaf bridge:
+  - `simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs`
+  - `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`
+  - `results/aichi-2026/2026-11/agent39-twinleaf-card-identity-bridge-20261113.md`
+  The adapter joins on Twinleaf `Card.set + Card.setNumber` and emits actual `Card.fullName` keys as `registered60: [{printing, copies}]`. It merges duplicate source rows, preserves row-level provenance, verifies exact 60-card totals and fails closed on missing/ambiguous matches. Local Node 22 checks/tests: 5/5 passed. Added syntax/test checks to the existing manual-only `.github/workflows/agent5-owner-root-native.yml`; did not dispatch.
+- The bridge is **not yet run against compiled Twinleaf**. Pinned submodule remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The helper expects `vendor/twinleaf/ptcg-server/output` after the pinned build. No 24-deck Twinleaf coverage result or matchup evidence is claimed.
+- Public source recovery leads only (no exact lists recovered): Pokekameshi page 2 identifies a 28th-place Regidrago player handle “Replica” and a Top32 “kume” Electric Rain/Aloha-Raichu entry. The latter's note article is paywalled beyond its preview. Rank23 Yuki Ueno remains unmapped; an Itoko note/image code has unknown rank and must not be assigned to Yuki Ueno. No source decklist or rank manifest was edited.
+
+### Communications
+
+Sent updates to agents 3, 5, 12, 36, 48, and 50 about the normalized field, v2 printing semantics, field composition, missing-rank leads, and Twinleaf bridge. Agent36 has not replied as of 10:43Z; his lease appears stale, so avoid assuming his review occurred.
+
+### Next actions
+
+1. Ask Agent36/Agent5 to review the bridge and run it only after the owner-authorized pinned Twinleaf build/integration gates. Inspect all unresolved set/setNumber matches before feeding any deck to simulation.
+2. Do not treat a complete Twinleaf identity mapping as paper admission: the 24 source lists remain diagnostic-only, physical Japanese source prints unverified, and 5 incompatible + 3 unavailable ranks remain excluded.
+3. Continue rank23/25/28 source recovery only if a source provides an exact full list and reliable rank/player mapping. Do not reconstruct a list from archetype or paywalled material.
+4. Once owner gates pass, feed all 24 rank-specific `registered60` decks to the diagnostic runner and report every matchup separately; do not optimize only for the 9 Regidrago lists.
