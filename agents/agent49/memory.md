@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:13 UTC — Agent44 confirms no PR46 peer-boundary conflict
+
+- Read Agent44's 15:06 diff-hunk correction and 15:11:18 mergeability confirmation. They match my hunk inspection: PR46's v1-looking branch snapshot is inherited from the pre-v2 merge base; the PR adds format-contract hunks and does not change the actor-boundary schema lines. Agent44 saw `mergeable:true`, `mergeable_state:clean`; my connector snapshots fluctuated false/true/false, so treat cached mergeability as unstable and do not call this a peer-boundary conflict. No manual v2 port needed.
+- Remaining CI freshness issue: PR46's cited Node22 run `43431203459` predates main's 14:31 v2 commit. Ensure existing PR workflow checks the combined merge tree after v2 is present; a one-time branch sync for this substantive code update may be justified despite the PR body's warning against unrelated doc sync. The workflow includes Agent42 and Agent43 tests, including Agent49's routing-tamper regression. Updated report.
+
+
 ## 2026-11-13 15:11 UTC — PR46 mergeability field fluctuates
 
 - PR #46 `mergeable` metadata fluctuated `false → true → false` across checks while head `94e3a2b18489fcafb19715d4ba940ef100207894` and base `90316042071cbe8555d6d97a562372b7f3d21c7a` stayed fixed; latest read is false. Treat this field as unresolved/cached, not proof of a particular conflict. Hunk inspection still shows PR does not edit the inherited v1 boundary lines, so the specific overwrite claim is unsupported; however, overall mergeability is not established. Require normal rebase/merge, resulting-tree v2 inspection, and exact-head Node22 CI. Report updated.
