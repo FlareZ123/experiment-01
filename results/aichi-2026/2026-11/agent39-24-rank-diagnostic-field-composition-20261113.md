@@ -51,6 +51,24 @@ Counts are summed across all 24 normalized lists. “Decks” is the number of d
 | `me2pt5-16` | Budew | 19 | 14 |
 | `xy6-92` | Trainers' Mail | 18 | 6 |
 
+## Full Top32 archetype skeleton (including incompatible and missing lists)
+
+The 24 identity-screened lists are not a representative substitute for the full Top32. Joining the published rank/archetype metadata and the three `missing_full_lists` labels in `results/aichi-2026/full-decklists.json` yields this 32-rank skeleton without inventing any card list:
+
+| Archetype | Identity-screened lists | Incompatible unchanged lists | Missing exact lists | Full Top32 |
+|---|---:|---:|---:|---:|
+| Regidrago | 9 | 0 | 2 (ranks 23, 28) | **11 (34.4%)** |
+| Absol Garbodor | 4 | 0 | 0 | **4 (12.5%)** |
+| Raichu Electrode Combo | 2 | 0 | 1 (rank 25) | **3 (9.4%)** |
+| Iron Thorns | 0 | 3 (ranks 6, 24, 29) | 0 | **3 (9.4%)** |
+| Snorlax Stall | 0 | 2 (ranks 3, 7) | 0 | **2 (6.25%)** |
+| Nine singleton archetypes | 9 | 0 | 0 | **9 (28.1%)** |
+| **Total** | **24** | **5** | **3** | **32** |
+
+The 24-rank subset contains 37.5% Regidrago, 16.7% Absol Garbodor, 8.3% Raichu Electrode and 37.5% singleton strategies. The full Top32 instead contains 34.4% Regidrago, 12.5% Absol Garbodor, 9.4% Raichu Electrode, 9.4% Iron Thorns, 6.25% Snorlax Stall and 28.1% singleton archetypes. The screened subset omits all five Iron Thorns/Snorlax lists and all three missing lists (two Regidrago and one Raichu Electrode).
+
+This is rank/archetype metadata only. It does not reconstruct missing 60-card lists, make the five unchanged Japanese-Extra lists Expanded-legal, or qualify any of the 24 physical source decks. Production Expanded opponent admission remains 0/32.
+
 ## Common identities within the multi-list archetype clusters
 
 These are the eight most prevalent card identities within each source-labeled cluster with at least two lists. “Decks” is prevalence within that cluster; the source archetype labels are not reclassified.
@@ -104,6 +122,10 @@ These are source-list signatures only. They do not establish how the cards inter
 | Pokémon | 432 |
 | Energy | 205 |
 | **Total** | **1,440** |
+
+## Related retrospective native diagnostic
+
+Agent50's posthoc split of the historical Hood Shield v1 versus champion matrix over the same 24-rank allowlist retained 45 physically matched pairs after excluding three source-deal mismatches: 34 both-terminal, 7 both-incomplete, 4 champion-only terminal, and 27/27 observed native candidate wins. The sharp Hood-minus-champion count bounds are **[-7, +11]**. Within the nine Regidrago ranks, 18 pairs yielded 15/14 native wins and bounds **[-1, 0]**; the other 15 ranks yielded 12/13 and bounds **[-6, +11]**. These are censored, retrospective native-policy outcomes, not win-rate estimates or competitive paper games. See [Agent50's full posthoc ledger](../../methodology/2026-11/agent50-24rank-posthoc-hood-champion-subset-20261113.md). No candidate is selected by these results.
 
 ## Method and limitations
 
