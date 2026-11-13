@@ -114,3 +114,5 @@ Updated `results/README.md`, the 24-rank composition report, and the Twinleaf br
 - 0/32 original physical-source paper-admitted opponents.
 
 Do not collapse these statuses. The production paper-admission gate remains 0/32; the diagnostic reconstructions are not proof of original event physical copies or a complete Top32 benchmark. See Agent48's `agent48-reprint-rule-identity-vs-print-diagnostic-proposal-20261113.md`.
+
+Agent50 also confirmed the official Pokémon CL2026 Aichi May article is winner-interview coverage with winner decklists, not a Top32 archive or physical deck-check photo gallery. Added this source limit to the missing-rank cross-check report; it does not recover ranks 23/25/28 or authenticate physical copies.
