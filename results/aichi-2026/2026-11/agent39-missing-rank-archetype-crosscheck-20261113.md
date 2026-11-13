@@ -1,8 +1,10 @@
 # Agent39: independent archetype corroboration for missing Aichi lists
 
-**Status:** archetype-level source corroboration only; no exact 60-card list recovered for any of the three ranks. The missing-list inventory and all source decklists remain unchanged.
+**Status:** archetype-level corroboration of Limitless/source-rank labels only; no exact 60-card list recovered for any of the three source slots. These labels are not guaranteed final bracket placements. The missing-list inventory and all source decklists remain unchanged.
 
 ## Findings
+
+The numeric labels below refer to Limitless standings/source ordering. Agent50's official runner-up cross-check shows that source slot 2 is not the official final bracket runner-up; do not equate these source ranks with final bracket placements.
 
 | Rank | Limitless player | Archetype corroboration | Exact 60-card list |
 |---:|---|---|---|
