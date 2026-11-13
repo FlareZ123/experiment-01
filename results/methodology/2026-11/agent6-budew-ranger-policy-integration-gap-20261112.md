@@ -4,7 +4,7 @@
 
 ## Finding
 
-The current Hood Shield Shadow Rider candidate contains **one Pokémon Ranger STS 104 and 18 Item copies**, plus Forest Seal Stone and Tapu Lele-GX as possible access routes. Fourteen of the 29 currently authenticated Aichi Top 32 lists contain Budew ASC 16. The three unavailable lists (23, 25 and 28) remain unknown.
+The current Hood Shield Shadow Rider candidate contains **one Pokémon Ranger STS 104 and 20 Item cards**, plus Forest Seal Stone and Tapu Lele-GX as possible access routes. Fourteen of the 29 currently authenticated Aichi Top 32 lists contain Budew ASC 16. The three unavailable lists (23, 25 and 28) remain unknown.
 
 The interaction is not an open rules question. The existing native Store regression `tests/agent30-ranger-budew-item-native.test.cjs` already verifies, in both physical seats, a real Budew Itchy Pollen attack, an actually rejected Item, a genuine Pokémon Ranger play, and a subsequent Fog Crystal search. Its negative controls establish that Vileplume AOR's Ability lock remains and Active Stoutland BCR prevents Ranger itself. The staged Forest Seal Stone route is separately covered by `simulation/twinleaf/ranger-stone-itemlock-action.cjs`. These are action-feasibility tests, not full-game results.
 
@@ -93,3 +93,7 @@ In the current `chooseActorRootIntent` order, the `rangerBudewItemLock` branch i
 For the first deck-aware trial, retain current ordering and instrument eligible Ranger opportunities, the earlier root actually selected, whether that root consumes the Supporter, and any remaining Item-lock loss. Only reconsider priority after repeated full-candidate traces demonstrate a missed-value pattern. The current staged tests do not establish natural trigger frequency or the priority tradeoff.
 
 The current helper also does not compare Ranger against other Supporters still held in the actor's hand. Its gate is only that Ranger is held, an Item is present, the lock is attributed to Budew, the cleanup is safe, and Supporter play is available. Earlier root branches may intercept some competing Supporter plans, but a held alternative Supporter can remain unmodeled when its own root is disabled or ineligible. Candidate traces should therefore record other held Supporters and the selected root before any policy-priority or eligibility change is proposed.
+
+## Hood candidate Supporter/Item hand baseline
+
+The current Expanded-normalized Hood 60 contains 20 Item cards and 9 Supporters (including one Ranger), hence 8 other Supporters. Conditional on Pokémon Ranger being in an opening seven, the remaining six cards are drawn from 59: the hypergeometric probability of at least one Item is 92.76%; at least one other Supporter is 60.03%; and both at least one Item and at least one other Supporter is 54.42%. Among those conditional hands with Ranger plus at least one Item, 58.67% also contain another Supporter. This is only an opening-hand combinatoric baseline (no mulligans, draw sequencing, prizes, board state, or later turns); it is not a natural decision-time trigger rate. It does show that alternative Supporter opportunity cost is common enough to measure in the first candidate trace rather than assume away.
