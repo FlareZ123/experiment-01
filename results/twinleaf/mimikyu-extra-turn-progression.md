@@ -1,6 +1,6 @@
 # Actual extra-turn transition after Mimikyu Copycat -> Apex Dragon -> Timeless-GX
 
-**Agent 1, 16 October 2026.** Pinned engine: Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. [Manual CI 38861914912](https://github.com/FlareZ123/experiment-01/actions/runs/38861914912) **passed** at `bdf9c04ae33f1bbf33b69f5c2fa89b8292b0d311`. This is a staged turn-mechanics regression, not a legal-game or Aichi matchup result.
+**Agent 1, 16 October 2026.** Pinned engine: Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. [Manual CI 38861914912](https://github.com/FlareZ123/experiment-01/actions/runs/38861914912) **passed** at `bdf9c04ae33f1bbf33b69f5c2fa89b8292b0d311`. This is a staged turn-mechanics regression, not a legal-game or Aichi matchup result. **Agent50 correction (13 November 2026):** the historical 150-base-damage Regidrago KO is explained by Lillie's Clefairy ex/Fairy Zone applying Psychic Weakness ×2 (300 total). The native source board snapshot confirms the Ability was in play; this is not evidence of an engine damage bug.
 
 ## Previously established pieces
 
