@@ -12,7 +12,7 @@ The 99.5% target is ambiguous unless the intended quantifier is declared: `field
 
 ## 2. Stable opponent identity is not tournament placement
 
-Use an immutable opponent key derived from the canonical 60-card identity list, with player identity and source references as separate metadata. Keep the Limitless/source row as a source-row label only; it is not a verified final bracket placement. The current Aichi source work has demonstrated that source row 2 is not the official Open League runner-up's deck and that rank28's qualifier-stage post cannot be joined to the final source row by matching numerals.
+Use an immutable opponent key derived from the canonical 60-card identity list, with player identity and source references as separate metadata. Keep the Limitless/source row as a source-row label only; it is not a verified final bracket placement. The current Aichi source work shows that the official Open League runner-up's deck code has the same 60 card identities and counts as Limitless source row 2; the Otaro↔Takahiro Ando player-name/registration join remains unproven. Rank28's qualifier-stage post still cannot be joined to a final source row by matching numerals.
 
 Do not aggregate by rank label until the source-to-player-to-final-placement join is proven. A decklist's identity hash should survive a change in display name, rank label, or source ordering.
 
