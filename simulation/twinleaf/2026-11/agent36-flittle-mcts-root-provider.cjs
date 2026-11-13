@@ -160,7 +160,7 @@ function assertFlittleStateEnvelope(state,seat,view,native) {
     assert.equal(pokemon.attacks[0].text??'','');
     assert.equal(pokemon.retreat.length,0);
 
-    const energies=player.active.energies??[];
+    const energies=player.active.energies?.cards??[];
     assert.ok(energies.length===1||energies.length===2);
     assert.ok(energies.every(card=>
       card.fullName===PSYCHIC&&card.energyType===native.EnergyType.BASIC));
@@ -213,7 +213,7 @@ function assertFlittleRootEnvelope(state,seat,view,native) {
   assert.ok(view.ownTurnResources.energyPlayedTurn<view.globalTurn);
   for(const physicalSeat of [0,1]) {
     const player=state.players[physicalSeat];
-    assert.equal(player.active.energies.length,1);
+    assert.equal(player.active.energies.cards.length,1);
     assert.equal(player.active.damage,0);
     assert.ok(player.energyPlayedTurn<state.turn);
   }
