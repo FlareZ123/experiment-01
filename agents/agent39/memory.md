@@ -145,6 +145,8 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 
 - Preserved the normalized source-side identity layer as `results/aichi-2026/2026-11/agent39-normalized-deck-hash-manifest-20261113.json`: 24 source ranks, 812 rows, 1,440 copies, 24 unique functional hashes and 24 unique source-print hashes, plus source artifact digests and explicit diagnostic-only status. Linked it from the bridge report and `results/README.md`. It intentionally contains no Twinleaf registered60 or runtime hashes.
 
+- Added the manifest as a durable source-side input for downstream deck deduplication; it was parsed back from GitHub and checked for 24 decks / 812 rows / 1,440 copies, 24 unique functional hashes, 24 unique source-print hashes, and the corrected rank-4 digest. The README now surfaces the uniqueness result and links the manifest.
+
 ### Exact execution blocker / current status
 
 - The actual Twinleaf mapping has **not** run. This container has no repository checkout, no `vendor/twinleaf` submodule or compiled `ptcg-server/output`; `git ls-remote https://github.com/twinleafgg/twinleafgg.git ...` failed with `Could not resolve host: github.com`. The local npm cache is empty.
