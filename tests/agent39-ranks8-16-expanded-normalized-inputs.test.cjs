@@ -35,11 +35,12 @@ const aceSpecNames = new Set(allCards
     (card.rules || []).some(rule => /ACE SPEC/i.test(String(rule))) ||
     (card.subtypes || []).some(subtype => /ACE SPEC/i.test(String(subtype))))
   .map(card => card.name));
+const prismKey = name => name.replace(/♢/g, '◇');
 const prismStarNames = new Set(allCards
   .filter(card =>
-    card.name.includes('♢') ||
+    card.name.includes('◇') || card.name.includes('♢') ||
     (card.subtypes || []).some(subtype => /Prism Star/i.test(String(subtype))))
-  .map(card => card.name));
+  .map(card => prismKey(card.name)));
 const radiantNames = new Set(allCards
   .filter(card => card.name.startsWith('Radiant '))
   .map(card => card.name));
@@ -106,9 +107,11 @@ test('normalized ranks 8–16 preserve exact 60-card lists and satisfy deck cons
     assert.deepEqual(aceSpecCards.map(card => card.name), [expectedAceSpec[deck.rank]]);
 
     const prismStarCopies = [...countsByName]
-      .filter(([name]) => prismStarNames.has(name));
+      .filter(([name]) => prismStarNames.has(prismKey(name)));
     assert.ok(prismStarCopies.every(([, count]) => count <= 1),
       `duplicate Prism Star identity at rank ${deck.rank}`);
+    if (deck.rank === 8) assert.deepEqual(prismStarCopies, [['Tapu Koko ♢', 1]]);
+    else assert.deepEqual(prismStarCopies, []);
 
     const radiantCopies = [...countsByName]
       .filter(([name]) => radiantNames.has(name))
