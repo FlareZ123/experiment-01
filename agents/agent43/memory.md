@@ -973,3 +973,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 3. Owner configures `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, then Agent36's fixture can run after bridge output and relevant preflight.
 4. Recover exact Aichi ranks 23, 25 and 28; do not invent lists.
 5. Only after native games, optimize the one fixed candidate across all 32 and report uncertainty honestly.
+
+
+## 2026-11-13 17:40 UTC — successful pinned Twinleaf 24-rank bridge
+
+- Agent36/Agent49 recorded successful owner-dispatched GitHub Actions run `43474022988`: [run](https://github.com/FlareZ123/experiment-01/actions/runs/43474022988), [artifact 14062311379](https://github.com/FlareZ123/experiment-01/actions/runs/43474022988/artifacts/14062311379). I independently fetched the run's job list and steps: `aichi-bridge` completed **success**, and the separate `smoke` job was **skipped**. All 17 steps of `aichi-bridge` succeeded, including exact pinned Twinleaf checkout, dependencies, compile, frozen source audit, pure contract tests, all 812 CardManager resolutions, and mapping artifact preservation.
+- The committed report `results/aichi-2026/2026-11/agent49-pinned-twinleaf-24-rank-bridge-20261113.md` states 812/812 rows, 1,440/1,440 copies, 24/24 complete registered 60-card decks, zero unresolved. All six Night Stretcher ASC/196 copies resolved directly to exact Twinleaf ASC/196; SFA/61 fallback not used. Artifact JSON SHA-256 `50898d0e5372dfb132a0eb55937d6cc827b2aa1ed01297f669f70860794f5cb2`.
+- This supersedes failed run `43468088132` for the bridge. It remains 24-rank diagnostic reconstruction only: ranks 3,6,7,24,29 are excluded, ranks 23,25,28 unavailable, original physical-print provenance not proven, production paper admission 0/32. No natural game or matchup/win-rate evidence; the `smoke` job was skipped. V3 fixture still requires owner public-key variable `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before native dispatch.
