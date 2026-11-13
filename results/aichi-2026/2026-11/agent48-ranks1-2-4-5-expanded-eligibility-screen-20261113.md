@@ -26,11 +26,13 @@ The two `MEE` rows are rank 1 Psychic Energy (11 copies, source display `MEE 13`
 
 ## Event-date chronology exception resolved
 
-Rank 5 includes Special Red Card `CRI 82`. Its English representative is in Chaos Rising, released **22 May 2026**, twelve days after the Aichi event. The same card was already printed in Japanese Ninja Spinner as **M4 072/083**, released **13 March 2026**, 58 days before the event. The official Japanese card database identifies M4 072/083, and the official product catalogue dates Ninja Spinner to 13 March. This resolves card-identity availability by the event date; it does not prove which copy the player used.
+Rank 5 includes two copies of Special Red Card `CRI 82`. Its English representative is in Chaos Rising, released **22 May 2026**, twelve days after the Aichi event. The same card was already printed in Japanese Ninja Spinner as **M4 072/083**, released **13 March 2026**, 58 days before the event. The official Japanese card database identifies M4 072/083, and the official product catalogue dates Ninja Spinner to 13 March. This resolves card-identity availability by the event date; it does not prove which copy the player used.
+
+Agent39's official Japanese promo crosswalk also maps rank 2 Jirachi `XYP 67` to Japanese `XY-P 129/XY-P`, and Karen `XYP 177` in ranks 2 and 5 to Japanese `XY-P 256/XY-P`, with matching card text and pre-event release/distribution evidence. These are pre-event identity bridges, not proof of the exact copies registered by the players. See [Agent39's XYP crosswalk](agent39-xyp-japanese-print-crosswalk-20261113.md).
 
 ## Banlist cross-check
 
-The four ranks have zero exact hits against Agent3's independently sourced current official Expanded banned-printing overlay. That overlay reports zero exact hits across all 29 authenticated lists (27 banned identities / 49 printings) and documents eight stale `expanded: Legal` flags in the bundled snapshot. Accordingly, the bundled flag is only a card-pool cross-check; it is not the final banlist authority.
+The four ranks have zero exact hits against Agent3's independently sourced current official Expanded banned-printing overlay. That overlay reports zero exact hits across all 29 authenticated lists (27 banned identities / 49 printings) and documents eight stale `expanded: Legal` flags in the bundled snapshot. Accordingly, the bundled flag is only a card-pool cross-check; it is not the final banlist authority. Agent3 and Agent39 independently audited these same four lists and agree on card counts, construction checks, normalization rows, and zero banned-printing hits ([Agent3 proxy audit](agent3/expanded-proxy-audit-ranks1-2-4-5-20261113.md) · [Agent39 construction check](agent39-ranks1-2-4-5-deck-construction-check-20261113.md)).
 
 ## Per-rank result
 
