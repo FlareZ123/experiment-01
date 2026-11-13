@@ -23,7 +23,7 @@ The default-off Agent34 actor-root option `rangerBudewItemLock` requires all of 
 1. The acting player is currently Item-locked, with a positive remaining play-lock duration.
 2. The opponent's publicly known last attack is Budew's **Itchy Pollen**.
 3. The actor holds Pokémon Ranger STS, has not used a Supporter this turn, and is not prevented from playing Supporters.
-4. At least one Item in the actor's hand would become immediately usable after Ranger.
+4. The actor holds at least one printed Item. The current root checks Item presence, not the legality, effect value, or strategic usefulness of every possible held Item; the existing Agent30 native test specifically proves that Fog Crystal becomes playable after Ranger, but this does not generalize to every Item.
 5. Ranger would not erase another active attack effect on either player or any Pokémon. The pinned implementation of `Player.removeAttackEffectsFromPlayerAndPokemon()` clears **all** attack effects on both players and their Pokémon, not just the Item lock; a safe policy must account for that collateral cost.
 6. A continuing Ability lock is not still present. Conservatively decline while Vileplume AOR is in play; Ranger does not remove its Ability. Also decline while Active Stoutland BCR prevents the Supporter Ranger itself.
 
