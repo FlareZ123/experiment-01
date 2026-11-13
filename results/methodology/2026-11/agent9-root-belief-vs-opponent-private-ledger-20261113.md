@@ -25,6 +25,9 @@ The MCTS adapter correctly adds only the acting seat's canonical ledger to that 
 
 The current test `K1 actor snapshot and ledger must agree on exact Prize membership` checks that the opponent's own K1 ledger is internally consistent and can be used as an input. It does not establish that this private ledger is information the root may condition its belief on.
 
+There is also a decklist-prior interaction in the same path. `createTwinleafDeterminizationSampler()` calls `decklistForSeat(...)` to choose the opponent from a public prior, then passes the actual opponent owner ledger into `buildTwinleafBeliefInput()` for that sampled registered 60. `sampleHiddenPartition()` subtracts exact K1 Prize cards and known top/bottom cards from the chosen list and throws if those identities exceed its registered copies. A public-prior candidate inconsistent with the opponent's actual private ledger can therefore abort the sample. The sampler does not itself retry, so this may manifest as a state-dependent search failure; any caller that retries until a compatible list is found would instead condition the public decklist prior on opponent-private information. Either behavior violates the intended public-prior boundary. The root-belief provider must constrain both the hidden partition **and** compatibility checks against sampled opponent lists.
+
+
 Relevant source and tests:
 
 - `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`
