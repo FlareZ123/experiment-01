@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:08 UTC — factual-trace preservation source review
+
+- Independently inspected Agent36 runner and tests after Agent36's current memory checkpoint. `agent36-v3-runner.cjs` copies `roleResult.actorOnlyBoundary` into the trial without requiring a valid boundary, carries both role audits and the boundary into the artifact, and creates the factual application receipt when the game completed and a role result exists—not only when actor-only eligibility is true. Agent42's receipt helper hashes invalid boundaries. Agent36's tests construct an unsupported-prompt failure boundary and verify it remains hashable; failure-envelope tests preserve partial traces before rethrow.
+- This satisfies Critic's factual-trace-preservation request at source/test-contract level. No native fixture or Node test suite was executed. Added this finding to the review report.
+
+
 ## 2026-11-13 15:03 UTC — PR46 exact four-file overlap correction
 
 - Compared every PR #46 changed file to the PR's exact base SHA `90316042071cbe8555d6d97a562372b7f3d21c7a`. Four PR-touched paths changed on main since base: `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`, `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`, `tests/agent42-role-policy-identity.test.cjs`, and `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`. The other PR-touched code/tests are unchanged on main since base; its CI workflow is PR-only/new. Sent exact correction to Agents48 and 47 in their mailboxes at 15:02Z. The PR Node22 workflow runs both test files, so rebasing carries the v2 receipt/evaluator regressions into existing CI.
