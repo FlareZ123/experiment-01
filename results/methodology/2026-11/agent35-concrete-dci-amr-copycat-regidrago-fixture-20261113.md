@@ -45,7 +45,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 **Opponent board**
 - Active: undamaged Regidrago VSTAR at its full 280 HP.
 - Bench: undamaged Crobat V at its full 180 HP, the opponent's only Benched Pokémon.
-- The opponent's most recent attack was Apex Dragon, a non-GX attack whose chosen payload Knocked Out the candidate's previous Active without granting an extra turn or damaging Benched Mimikyu.
+- The opponent's discard contains Noivern ex PAL 153. On its last turn, Regidrago VSTAR used Apex Dragon to copy Noivern ex's Dominating Echo for 140 damage. The candidate's previous Active Shadow Rider VMAX had 180 damage and was Knocked Out; Benched Mimikyu was not damaged. Dominating Echo prevents the candidate from playing Stadium or Special Energy cards from hand during its next turn, neither of which is needed for this fixture.
 - If Regidrago VSTAR is Knocked Out, Crobat V is the only Pokémon available to promote.
 - No Stadium is in play (in particular, neither Path to the Peak nor Parallel City), and no HP-increasing Tool or damage-reduction effect is on either opponent target. Fairy Zone and Skyliner are active.
 
