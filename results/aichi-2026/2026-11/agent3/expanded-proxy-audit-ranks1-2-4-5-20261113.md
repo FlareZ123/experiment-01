@@ -3,6 +3,8 @@
 **Agent 3 · 13 November 2026**  
 **Disposition:** no current international Expanded card-pool or deck-construction blocker identified in these four English-display lists. **Not admitted as verified Aichi physical opponents:** the Limitless manifest does not authenticate the original Japanese physical printings.
 
+This is an independent Agent 3 cross-check of [Agent 48's canonical ranks 1, 2, 4 and 5 identity screen](../agent48-ranks1-2-4-5-expanded-eligibility-screen-20261113.md). The canonical field index links Agent 48's report; this file is supplementary audit detail, not a separate field-admission result.
+
 ## Scope and source
 
 Audited ranks **1, 2, 4 and 5** from `results/aichi-2026/full-decklists.json` (240 total card slots). The source manifest states that printing IDs follow Limitless English display where available and that Japanese legality/original printings require separate verification. This is an international Expanded card-identity proxy screen, not a claim about the exact cards physically registered by the Japanese players.
@@ -22,14 +24,11 @@ All four lists total exactly 60 cards. No non-Basic card name exceeds four copie
 
 Across the four lists there are **104 distinct source display set/number/name tuples**:
 
-- **99** resolve through the normal `ptcgoCode` → set-ID crosswalk and exact collector number in `resources/sets/en.json` and `resources/cards/en/*.json`.
-- **Three** promo aliases resolve to exact English card records:
-  - Trevenant & Dusknoir-GX SMP 217 → `smp-SM217`
-  - Jirachi XYP 67 → `xyp-XY67`
-  - Karen XYP 177 → `xyp-XY177`
+- **96** match by exact source set code, collector number and displayed card name.
+- **Six** resolve through explicit name / promo-number normalization to exact English card records: Battle Compressor PHF 92 → Battle Compressor Team Flare Gear (`xy4-92`); Ditto ♢ LOT 154 → Ditto ◇ (`sm8-154`); Unit Energy LPM UPR 138 → Unit Energy LightningPsychicMetal (`sm5-138`); Trevenant & Dusknoir-GX SMP 217 → `smp-SM217`; Jirachi XYP 67 → `xyp-XY67`; Karen XYP 177 → `xyp-XY177`.
 - **Two** display tuples use the non-indexed `MEE` code for Basic Energy: Psychic Energy and Grass Energy. `MEE` is absent from `resources/sets/en.json`, but both Basic Energy identities have multiple English Expanded-legal printings in the bundled card pool (e.g. Psychic `bw1-109`; Grass `swsh8-283`).
 
-All **102 resolved English card records** are present and marked `legalities.expanded: "Legal"`. The display-name normalization differences are limited to Battle Compressor → Battle Compressor Team Flare Gear, Ditto ♢ → Ditto ◇, and Unit Energy LPM → Unit Energy LightningPsychicMetal. These are catalog naming differences, not missing card identities.
+All **102 resolved English card records** are present and marked `legalities.expanded: "Legal"`. These six normalization rows are catalog naming / promo-number differences, not card substitutions or missing identities.
 
 ## Official banlist overlay
 
