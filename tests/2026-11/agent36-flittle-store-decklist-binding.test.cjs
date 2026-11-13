@@ -97,9 +97,12 @@ test('trusted Store preflight binds both physical 60s and emits only digests/cou
 test('trusted Store preflight binds the opposite candidate physical seat',()=>{
   const store=makeStore(0);
   const receipt=createStoreDecklistBindingReceipt(input(store,0));
+  const swapped=createStoreDecklistBindingReceipt(input(store,1));
   assert.equal(receipt.candidateSeat,0);
   assert.equal(receipt.seatBindings[0].role,'candidate');
   assert.equal(receipt.seatBindings[1].role,'opponent');
+  assert.notEqual(receipt.storeStateSha256,swapped.storeStateSha256,
+    'Swapping candidate physical seat must change the Store binding digest');
 });
 
 test('trusted Store preflight rejects missing cards and duplicated physical objects',()=>{
