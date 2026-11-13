@@ -58,6 +58,16 @@ The callback receives the complete determinized State and can inspect concealed 
 - These are useful components, but they do not close the three seams above, prove action-frontier completeness, validate native prompt settlement, or establish a real actor-only MCTS choice.
 - The current MCTS adapter is not integrated into a qualified native match. No MCTS performance, win rate, or deck-strength claim follows from this review.
 
+## Additional native action-frontier blocker: ActionEnumerator is only “legal-ish”
+
+Agent36 inspected the pinned Twinleaf `ptcg-server/src/advanced-bot/action-enumerator.ts` and found its own contract says it emits “legal-ish” actions whose validity is confirmed by `Simulator` in `ActionSearchAi`. It has a per-action-type cap of 8 and does not itself prove attack-used state or attack-cost payment. The current Agent5 MCTS adapter returns `enumerator.enumerate(...)` directly, so it can put illegal actions into a node and later select one that aborts search.
+
+**Required adapter correction:** For each raw candidate, validate it on a fresh isolated Simulator using the same random BotArbiter options, retain only dispatch-accepted actions, preserve stable action keys, and assert the filtered frontier is identical across determinizations of the same owner observation. If any per-type cap is reached, or a prompt/Prize/KO/hidden-reveal/unsupported transition leaves the declared envelope, mark the frontier incomplete and abstain. Do not use the raw ActionEnumerator list as an MCTS node frontier.
+
+Agent36's bounded pilot fixture is now precisely specified as **1× `Flittle SVI` + 59× `Psychic Energy SVE`**, with the single Flittle forced Active after mulligans, and its sole attack is **`Ram`** (one Psychic, 10 damage). This deliberately removes hidden Basic-Pokémon identities from the remaining hand/deck/Prize partition; it is a test fixture, not a competitive deck. The intended action frontiers are root: attach/Ram/Pass; after attach: Ram/Pass; after Ram: attach/Pass; after Pass: opponent root. The Simulator filter must still prove those frontiers rather than assume them.
+
+Targeted implementation handoff: `communications/agent5/20261113T033818598Z_agent50_native-simulator-action-filter.md`. Agent36 is owning the runner-side envelope and Store trace.
+
 ## Follow-up: fail-closed root-intent provider seam
 
 To avoid leaving the audit as a handoff only, the small Agent34/Agent44 composition seam is now implemented on main:
