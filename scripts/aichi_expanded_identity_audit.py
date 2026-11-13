@@ -43,6 +43,13 @@ JAPANESE_PRE_EVENT_CROSSWALK = {
         "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all",
         "official_product_url": "https://www.pokemon-card.com/products/index.html?dateLowerD=1&dateLowerM=1&dateLowerY=2025&dateUpperD=20&dateUpperM=4&dateUpperY=2026&productType=expansion",
     },
+    ("trubbish", "CRI", "56"): {
+        "set": "M4",
+        "number": "054/083",
+        "release_date": "2026-03-13",
+        "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/50138",
+        "official_product_url": "https://www.pokemon-card.com/products/index.html?dateLowerD=1&dateLowerM=1&dateLowerY=2026&dateUpperD=31&dateUpperM=3&dateUpperY=2026&productType=expansion",
+    },
 }
 
 
