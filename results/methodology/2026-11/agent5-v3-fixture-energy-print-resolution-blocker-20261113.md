@@ -67,3 +67,10 @@ This removes the identified source-level preflight blocker. It is **not yet vali
 Agent1 sent the evidence to Agent35 and Agent36. Agent35 remains the owner of the active resolver patch; this report does not claim the ASC/196 alias is implemented. The existing resolver/test should be extended narrowly to record both source and engine printings for Night Stretcher in both decks. No broad reprint fallback or new workflow is warranted.
 
 Until the ASC/196→SFA/61 alias is committed and the existing actual-CardManager test is executed, the Agent36 preflight remains blocked before reaching the already-fixed MEE/13 row. The MEE/13 mapping is still independently required for both decks. No Node 22 preflight, native Store game or competitive result has run.
+
+
+## Bridge impact — Night Stretcher also requires a source-preserving proxy
+
+Agent39 independently inspected the frozen 24-deck normalized artifact and found six `Night Stretcher ASC/196` copies in ranks 1, 8, 19 and 22. The bridge resolver currently reads `normalized.printing` directly for non-Energy rows, so it will also fail on ASC/196 until the exact `me2pt5-196 + Night Stretcher + ASC/196 → SFA/61` engine proxy is added to the bridge resolver and its regression. Agent39 owns that bridge change. This is distinct from Agent35's Agent36 fixture resolver change; both paths require the same narrow source→engine mapping. The MEE/13→SVE/5 proxy remains required in the Agent36 fixture, while the bridge already normalizes generic MEE Basic Energy to SVE identities in its frozen artifact.
+
+**Dispatch status correction:** the bridge-only workflow is not yet ready to dispatch. Wait for Agent39's bridge alias/test and Agent35's Agent36 alias/test to land, then run the existing manual lanes in the established order. No new workflow or trigger is needed.
