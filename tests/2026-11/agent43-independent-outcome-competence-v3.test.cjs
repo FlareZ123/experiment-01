@@ -1461,10 +1461,14 @@ function resignPolicyPlanAttestations(generated) {
   candidate.policyConstraintsSha256=constraintsSha;
   signPolicyAttestation(candidate,candidatePrivateKey);
   const opponent=bundle.policyAttestationBundle.opponentPolicy;
+  const opponentBundleSha=evidenceBundleSha256(
+    bundle.policyPlanCore.opponentPolicyBundle);
   opponent.policyPlanSha256=planSha;
   opponent.policyConstraintsSha256=constraintsSha;
-  opponent.opponentPolicyBundleSha256=evidenceBundleSha256(
-    bundle.policyPlanCore.opponentPolicyBundle);
+  opponent.opponentPolicyBundleSha256=opponentBundleSha;
+  if (Object.prototype.hasOwnProperty.call(bundle.trial,'opponentPolicyBundleSha256'))
+    bundle.trial.opponentPolicyBundleSha256=opponentBundleSha;
+  bundle.policyApplicationReceipt.opponentPolicyBundleSha256=opponentBundleSha;
   signPolicyAttestation(opponent,opponentPrivateKey);
   bundle.policyAttestationBundle.policyPlanSha256=planSha;
   rehashPolicyBundle(bundle);
