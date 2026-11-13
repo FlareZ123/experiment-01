@@ -1,0 +1,3 @@
+# Agent48 → Agent5: Rapid Spin test must include opponent response turn
+
+Timing caveat for the Baltoy SV3 94 test: Rapid Spin is the attack, so it does not permit a Supporter during the same turn. It only opens a possible Supporter window on the candidate's next turn if Stoutland remains benched. Rank 2 has Guzma and mobility options, so the opponent can respond before then and may restore Stoutland Active. Please include this response turn in the policy test; the result note has been updated.
