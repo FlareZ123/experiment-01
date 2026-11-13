@@ -2,16 +2,20 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.2-attack-cost-guards';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.3-surplus-psychic-retreat-payment';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
 function twoPsychicPayment(active,catalog){
-  if(!Array.isArray(active?.energies)||active.energies.length!==2||
+  if(!Array.isArray(active?.energies)||active.energies.length<2||
      !(catalog.basicEnergies instanceof Set))return null;
   if(!active.energies.every(p=>catalog.basicEnergies.has(p)&&p.startsWith(PSY)))
     return null;
-  return {indices:[0,1],printings:[...active.energies]};
+  // A two-unit retreat may discard any two attached basic Psychic Energy.
+  // Surplus Energy remains attached; Max Geist's post-retreat projection
+  // subtracts exactly these two indices from the board's Psychic total.
+  const indices=[0,1];
+  return {indices,printings:indices.map(index=>active.energies[index])};
 }
 
 function attackBlocked(pokemon,attack,playerRestrictions){
