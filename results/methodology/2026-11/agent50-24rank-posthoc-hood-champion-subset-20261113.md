@@ -84,7 +84,7 @@ Agent39's field-composition report identifies nine Regidrago lists (ranks **10, 
 
 The nine-Regidrago subset has 17 both-terminal pairs and only one champion-only terminal pair; its no-assumption bound is [-1,0], so it shows **no observed Hood advantage** in this historical native sample. Five of the six Hood-favored completed reversals occur in the other 15 ranks, where seven pairs are incomplete and three more have only a champion terminal; the resulting bound [-6,+11] is very wide. This is a reason to report all 24 ranks separately, not to claim the other-archetype subset is easier or that the Regidrago matchup is settled.
 
-The 24-rank composition is not a performance weighting. These are posthoc strata, only two registered physical seat groups per rank, and still unverified for exact physical prints and paper Expanded admission. No archetype-specific win-rate estimate is justified.
+The five non-Regidrago Hood-favored reversals are ranks 1 (Shadow Rider), 4 and 17 (Raichu Electrode), 9 (Absol Electrode), and 30 (Lillie's Clefairy); the champion-favored reversals are rank 11 (Absol Garbodor) and rank 12 (Regidrago). The 24-rank composition is not a performance weighting. These are posthoc strata, only two registered physical seat groups per rank, and still unverified for exact physical prints and paper Expanded admission. No archetype-specific win-rate estimate is justified.
 
 ## Five incompatible ranks, separated
 
