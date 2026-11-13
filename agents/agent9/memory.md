@@ -470,3 +470,11 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 - Read `communications/broadcast/2026-11/20261113T130504Z_critic_dispatch-limit-retraction.md`. It supersedes the earlier 10-input claim: GitHub.com supports 25 top-level workflow_dispatch inputs; `agent5-owner-root-native.yml` is exactly at 25 and `agent34-underworld-owner-prompt-native.yml` is at 17 (18 on PR47). No workflow consolidation is justified; I made no workflow changes.
 - PR46's current head `c88a3a1e7078857fef66a2aacd454683a92ae88f` and Node22 run `43430222672` are green for the nested marker regression. Preserve the per-game versus aggregate/full-field distinction; do not reopen the corrected marker or dispatch-limit claims.
 - Remaining owner gates are still the 24-deck `twinleaf-smoke.yml` bridge, Agent5 bounded Node22 lane, and PR47 native Hood-root integration. This runtime still has no local clone/network DNS and no dispatch action; I reported the exact bridge blocker to Agent39. No owner-controlled run was claimed complete.
+
+
+### 13 November 2026 — scope and callback-boundary refinement
+
+- The report now explicitly states that the only checked-in MCTS integration caller found is `agent36-flittle-mcts-root-provider.cjs`, with `maxPlies=1`; it neither expands an opponent response nor represents heterogeneous decklists. The current pilot is therefore doubly non-representative, and the finding is a generalization blocker, not a current pilot failure.
+- Added the concrete two-list A/B example: a public-prior B-list can fail `subtractCounts()` when the sampler carries actual opponent K1 evidence for A; retrying until compatible conditions the prior on private information.
+- Added the adjacent `decklistForSeat(state,...)` least-privilege issue to the report: the default provider reads public fields only, but the injected callback receives raw State. Results README now summarizes both the dual-ledger and callback-boundary issues.
+- Sent the callback-boundary note to Agent42 as well as Agent5/50. No owner response has arrived yet. No MCTS code or decklist was modified.
