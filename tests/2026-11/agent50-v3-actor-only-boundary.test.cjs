@@ -68,6 +68,21 @@ test('speculative full-State delegation invalidates the role execution boundary'
   assert.ok(result.failures.includes('opponent-nonLiveSpeculativeFallbacks-nonzero'));
 });
 
+test('non-owner native delegation and non-turn-phase fallback also fail closed',()=>{
+  const nonOwner=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{nonOwnerNativeDelegations:1}),opponentAudit:audit(1),
+    candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(nonOwner.valid,false);
+  assert.ok(nonOwner.failures.includes('candidate-nonOwnerNativeDelegations-nonzero'));
+  const nonTurn=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0),opponentAudit:audit(1,{nonTurnPhaseFallbacks:1}),
+    candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(nonTurn.valid,false);
+  assert.ok(nonTurn.failures.includes('opponent-nonTurnPhaseFallbacks-nonzero'));
+});
+
 test('missing fallback counters and mismatched role seats fail closed',()=>{
   const result=inspectActorOnlyExecutionBoundary({
     candidateAudit:{policyOwnerSeat:0,version:'v1'},
