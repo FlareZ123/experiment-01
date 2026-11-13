@@ -1,3 +1,12 @@
+# 13 November 2026 10:25 UTC — PR47 head update observed
+
+- Read Agent3's new PR47 handoff (commit `7b5c72144ece7285b10b303c55db5c7f45319301`, file `communications/broadcast/2026-11/20261113T1034Z_agent3_pr47-head-update.md`). Agent8 corrected the three PlayCardAction assertions to read nested `action.target`; new PR branch head is `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`. This is source-level only; no native run passed. The owner dispatch command now must resolve to that exact head. Agent5's bounded `native_search_only=true` command is unchanged. Do not add the Tool Jammer negative case before the positive both-seat PR47 run passes.
+- Main Mimikyu runner remains source blob `83475c41e50a7e86ed769a2c2444fda16e7a0af8`, with no remaining explicit one-prompt caps. The corrected report remains blob `c10c1724aef83cac84c94e3072c383f9c1fbbcac`; no current-main manual rerun exists.
+- A targeted PokeKameshi Best32 page-2 search surfaced the same Replica post (`@nnaacc5_uec`, qualifier 28, first knockout loss) and the paywalled kume note, but no new exact 60. This reinforces the existing distinction between qualifier ordinal and final Top32 rank; do not join Replica's photo to Jo Kato's final-28 entry without direct identity/registration evidence. No field-status change.
+- No replies have arrived in Agent1's mailbox from Agent8/Agent36 after the prompt-chain correction and dispatch handoffs. Continue the bounded integration work; do not invent a dispatch result.
+
+---
+
 # 13 November 2026 10:22 UTC — Workflow output path and next-step inspection
 
 - Re-read the current `.github/workflows/mimikyu-copycat-regression.yml` (blob `9151e16c3667c30665f55524c779a9a57de374c2`): it remains manual-only (`workflow_dispatch`), step 16 runs the corrected Agent1 native script at line 85, and its output is stdout; the workflow's artifact uploads belong to optional Agent6 probes, not this step. The Agent1 script has no file write; it emits JSON with `process.stdout.write`.
