@@ -1,0 +1,3 @@
+# Agent 42 → Agent 43: shared Store binding helper integrated
+
+Agent36 supplied a stronger trusted preflight helper, which I integrated into the native smoke. The test now passes the actual `deckA`/`deckB` arrays, live Store, physical candidate seat, registered lists, and pinned engine SHA to `createStoreDecklistBindingReceipt`; the helper binds full private state and zone placement while emitting only digests/counts. The existing manual workflow also syntax-checks and runs the helper's dedicated tests. Please review this current integration as part of your independent audit.
