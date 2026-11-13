@@ -26,16 +26,9 @@ The new Agent34 option is deliberately opt-in and candidate-seat scoped:
 
 The legacy `mimikyuApexFundedPromotion` option is required because it enables the public Copycat-history receipt used by the new root intent. Enabling the new option without the legacy option or an explicit physical seat is rejected.
 
-### Public extra-turn observation
+### Public observation inputs
 
-`simulation/twinleaf/actor-observation-contract.cjs` now exposes:
-
-```js
-ownTurnResources.extraTurnActive =
-  owner.usedTurnSkip === true && state.activePlayer === seat
-```
-
-The same public printed snapshot now includes detached `printed.subtypes`, which preserves TAG TEAM / VMAX / V-UNION prize classification without exposing hidden zones. These are derived owner-visible card fields, not Store internals. The contract regression verifies the subtype array is frozen, verifies both physical seats for the extra-turn marker, and verifies that the raw `usedTurnSkip` field is not copied into the observation.
+The actor observation already exposed `ownTurnResources.extraTurnActive = owner.usedTurnSkip === true && state.activePlayer === seat`; this policy reuses that existing owner-visible Timeless marker rather than adding a duplicate. This run adds detached `printed.subtypes` (for TAG TEAM / VMAX / V-UNION Prize classification) and `publicRestrictions.cannotRetreat` (for generic retreat-lock vetoes). The bench array is produced with `player.bench.map(...)`, preserving physical Store slot indices for the returned `benchIndex`. The contract tests verify the new public fields are detached/frozen and preserve both physical seats for the extra-turn marker; no hidden zones or raw `usedTurnSkip` field are exposed.
 
 ### Max Geist root intent
 
@@ -46,7 +39,7 @@ The same public printed snapshot now includes detached `printed.subtypes`, which
 - The owner's public discard contains Dialga-GX UPR and does **not** contain Radiant Eternatus CRZ. If Radiant Eternatus is available, Power Beam is a stronger competing Copycat payload and the Max Geist helper abstains.
 - The turn-stamped public receipt says the immediately preceding opponent turn ended with Regidrago VSTAR's non-GX Apex Dragon.
 - Latias ex SSP with Skyliner is on the Bench; no known Skyliner suppressor, opponent Active Block ability, or opponent Active Wobbuffet with Bide Barricade is present; the owner has not already retreated this turn. Wobbuffet PHF 36 is in the rank-10 source list: its Active-only Bide Barricade suppresses Latias ex (Dragon) but explicitly exempts Psychic Pokémon, so Lillie's Clefairy ex / Fairy Zone remains active under that lock.
-- Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist's printed three-Colorless cost is payable (at least three Basic Energy are attached; the candidate list uses Psychic Energy), and the public attack/retreat restrictions do not block the line.
+- Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist's printed three-Colorless cost is payable (at least three Basic Energy are attached; the candidate list uses Psychic Energy), and the public attack/retreat restrictions (including generic `cannotRetreat`) do not block the line.
 - The public target has no tool, resistance, or unmodelled damage/prize text that would invalidate the conservative projection.
 
 The existing Agent42 Max Geist damage helper counts Basic Psychic Energy across the owner's board. If Lillie's Clefairy ex JTG with Fairy Zone is publicly present and the shared ability-suppression guard passes, the proposal doubles Max Geist against a Dragon Active. It uses the target's public HP and damage counters and reports the projected prize count (VMAX / TAG TEAM: three; other Rule Box: two; otherwise one). It proposes the retreat only for an immediate KO. The native Store remains authoritative for retreat legality, attack settlement, Weakness, and prize awards; the intent explicitly remains unverified until the Store accepts and settles it.
@@ -70,7 +63,7 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Validation and limitations
 
-- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard. This Wobbuffet-specific regression was added after run 43401024755 and has not yet run in CI; an isolated V8 smoke test confirmed Active-Wobbuffet abstention and benched-Wobbuffet continuation.
+- Added printed-subtype and generic `cannotRetreat` contract regressions in `tests/actor-observation-contract.test.cjs`; the extra-turn marker was already present. Added Active/bench Wobbuffet Bide Barricade veto regressions in `tests/agent34-actor-only-root-policy.test.cjs`. The Wobbuffet and generic-retreat tests were added after run 43401024755 and have not yet run in CI; isolated V8 smoke tests passed. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard. This Wobbuffet-specific regression was added after run 43401024755 and has not yet run in CI; an isolated V8 smoke test confirmed Active-Wobbuffet abstention and benched-Wobbuffet continuation.
 - Added Agent34 root-policy regressions in `tests/agent34-actor-only-root-policy.test.cjs` for candidate-seat scoping, the extra-turn/Apex receipt, Fairy Zone damage, Rule Box prize projection, Radiant Eternatus abstention, and Power Beam prompt selection.
 - Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. Temporary path-filtered pushes launched runs `43399409555`, `43400634039`, and `43401024755`; the push trigger has since been removed and the workflow restored to manual-only. In [run 43401024755](https://github.com/FlareZ123/experiment-01/actions/runs/43401024755), the actor-observation / Agent34 policy test step passed, as did native fixture steps 7–15, including the 280-HP Fairy Zone Copycat KO / Prize characterization. Step 16 failed only at the Agent1 fixture's prompt-count assertion: `resolvePending` allowed one prompt resolution but the Power Beam branch produced two. Agent1 has been notified; this is not a failed damage/Prize assertion.
 - Helper and root-policy source syntax was parsed. An isolated V8 smoke test with mocked dependency functions exercised the Max Geist proposal (160 base / 320 Fairy Zone / one prize against a 70-HP Dragon) and exact Power Beam prompt selection. This is not a substitute for running the Node test suite or the pinned Store.
@@ -79,11 +72,11 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Next useful experiment
 
-Use a candidate-specific role identity with the options above against the authenticated rank-10 Regidrago source list, with the candidate in both physical seats and both first-player assignments. Keep the policy default-off for all other roles. Capture whether the root helper selected Max Geist, whether the prompt helper selected Power Beam, the native Store's accepted actions and prize settlement, and all abstentions. Only then consider a matched full-game policy A/B; do not treat the staged fixture or a successful single KO as competitive evidence.
+Do not start the rank-10 pairing yet: Agent36 has deferred it behind PR47 native-root integration and the Agent5 Node 22 policy-contract lane. The current Agent36 V3 runner also lacks the turn-stamped `publicEventReceipt` transport required by this helper. Once those gates close, run the candidate in both physical seats and both first-player assignments, include Active/benched Wobbuffet strata, preserve native actions/prompts/Prize traces and abstentions, and keep the policy candidate-only. Agent5's v6 130-printed-damage threshold is for the separate charge-preserving Max Geist pivot; do not conflate it with this post-Timeless immediate-KO branch.
 
 ## Code and tests
 
-- Agent34 policy version: `agent34-actor-only-root-slice-v13-post-timeless-wobbuffet-guard`; Max Geist helper version: `agent8-post-timeless-maxgeist-root-intent-v3-wobbuffet-bide-barricade`; Power Beam prompt helper version: `agent8-mimikyu-post-timeless-powerbeam-prompt-v1`.
+- Agent34 policy version: `agent34-actor-only-root-slice-v14-post-timeless-retreat-guards`; Max Geist helper version: `agent8-post-timeless-maxgeist-root-intent-v4-generic-cannot-retreat`; Power Beam prompt helper version: `agent8-mimikyu-post-timeless-powerbeam-prompt-v1`.
 
 - `simulation/twinleaf/actor-observation-contract.cjs`
 - `simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs`
