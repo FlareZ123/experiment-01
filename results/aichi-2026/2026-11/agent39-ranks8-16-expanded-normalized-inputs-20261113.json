@@ -1,0 +1,6736 @@
+{
+  "schema_version": 1,
+  "author": "Agent39",
+  "created_at": "2026-11-13T06:54:00Z",
+  "event_date": "2026-05-10",
+  "status": "derived_normalized_inputs_not_physical_source_print_certification",
+  "source": {
+    "roster": "results/aichi-2026/full-decklists.json",
+    "roster_blob_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "coverage": "results/aichi-2026/card-coverage.json",
+    "coverage_blob_sha": "a7668331571f03faea7933af23b6b02f08504f88",
+    "card_pool_files": [
+      "resources/cards/en/sve.json",
+      "resources/cards/en/xy4.json"
+    ]
+  },
+  "normalization_policy": [
+    "Preserve every source card row and count.",
+    "Normalize only MEE-coded Basic Energy placeholders to an Expanded-legal SVE Basic Energy of the same type.",
+    "Normalize Battle Compressor PHF 92 shorthand to canonical card-pool identity xy4-92, retaining the PHF 92 printing.",
+    "Do not change any Pokémon, Trainer effect, Special Energy, or other card identity.",
+    "Keep the original source list alongside the derived normalized list."
+  ],
+  "card_pool_checks": {
+    "basic_energy": {
+      "Grass Energy": {
+        "normalized_name": "Basic Grass Energy",
+        "printing": {
+          "set": "SVE",
+          "number": "1",
+          "language": "en"
+        },
+        "card_id": "sve-1",
+        "expanded_legality": "Legal"
+      },
+      "Fire Energy": {
+        "normalized_name": "Basic Fire Energy",
+        "printing": {
+          "set": "SVE",
+          "number": "2",
+          "language": "en"
+        },
+        "card_id": "sve-2",
+        "expanded_legality": "Legal"
+      },
+      "Lightning Energy": {
+        "normalized_name": "Basic Lightning Energy",
+        "printing": {
+          "set": "SVE",
+          "number": "4",
+          "language": "en"
+        },
+        "card_id": "sve-4",
+        "expanded_legality": "Legal"
+      },
+      "Darkness Energy": {
+        "normalized_name": "Basic Darkness Energy",
+        "printing": {
+          "set": "SVE",
+          "number": "7",
+          "language": "en"
+        },
+        "card_id": "sve-7",
+        "expanded_legality": "Legal"
+      }
+    },
+    "battle_compressor": {
+      "source_name": "Battle Compressor",
+      "source_printing": {
+        "set": "PHF",
+        "number": "92",
+        "language": "en"
+      },
+      "canonical_name": "Battle Compressor Team Flare Gear",
+      "card_id": "xy4-92",
+      "expanded_legality": "Legal"
+    }
+  },
+  "banned_list_status": {
+    "international": "Agent3 official 49-printing overlay: zero exact banned-printing hits across all 29 source lists; eight stale bundled flags do not occur in this slice.",
+    "japanese": "Only same-name candidates are Unown AOR 30 (Farewell Letter, not DAMAGE/HAND) and Marshadow UNB 81 (Resetting Hole, not Let Loose)."
+  },
+  "physical_print_status": "The normalized English lists are not proof of which exact Japanese cards were registered or played. Keep physical-source-print status unresolved.",
+  "decks": [
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "archetype": "Absol Garbodor",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "PAR",
+            "number": "116",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "LTR",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Koko ♢",
+          "printing": {
+            "set": "TEU",
+            "number": "51",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Roxanne",
+          "printing": {
+            "set": "ASR",
+            "number": "150",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Wally",
+          "printing": {
+            "set": "ROS",
+            "number": "94",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Night Stretcher",
+          "printing": {
+            "set": "ASC",
+            "number": "196",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Pokémon Communication",
+          "printing": {
+            "set": "TEU",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Field Blower",
+          "printing": {
+            "set": "GRI",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Adventure Bag",
+          "printing": {
+            "set": "LOT",
+            "number": "167",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 5,
+          "name": "Darkness Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Lightning Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "PAR",
+            "number": "116",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "LTR",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Koko ♢",
+          "printing": {
+            "set": "TEU",
+            "number": "51",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Roxanne",
+          "printing": {
+            "set": "ASR",
+            "number": "150",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Wally",
+          "printing": {
+            "set": "ROS",
+            "number": "94",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Night Stretcher",
+          "printing": {
+            "set": "ASC",
+            "number": "196",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Pokémon Communication",
+          "printing": {
+            "set": "TEU",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Field Blower",
+          "printing": {
+            "set": "GRI",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Adventure Bag",
+          "printing": {
+            "set": "LOT",
+            "number": "167",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 5,
+          "name": "Basic Darkness Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "7",
+            "language": "en"
+          },
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "card_id": "sve-7",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Lightning Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "4",
+            "language": "en"
+          },
+          "source_name": "Lightning Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          },
+          "card_id": "sve-4",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "count": 5,
+          "target_name": "Basic Darkness Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "7"
+          },
+          "card_id": "sve-7"
+        },
+        {
+          "source_name": "Lightning Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Lightning Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "4"
+          },
+          "card_id": "sve-4"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "archetype": "Absol Electrode",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Unown",
+          "printing": {
+            "set": "AOR",
+            "number": "30",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Voltorb",
+          "printing": {
+            "set": "ROS",
+            "number": "21",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Electrode-GX",
+          "printing": {
+            "set": "CES",
+            "number": "48",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Toedscool",
+          "printing": {
+            "set": "PAR",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Toedscruel",
+          "printing": {
+            "set": "PAR",
+            "number": "17",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Sableye V",
+          "printing": {
+            "set": "SSH",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Gengar & Mimikyu-GX",
+          "printing": {
+            "set": "TEU",
+            "number": "53",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Plumeria",
+          "printing": {
+            "set": "BUS",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Trainers' Mail",
+          "printing": {
+            "set": "ROS",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Rescue Carrier",
+          "printing": {
+            "set": "EVS",
+            "number": "154",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Rescue Stretcher",
+          "printing": {
+            "set": "GRI",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Escape Rope",
+          "printing": {
+            "set": "BST",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Canceling Cologne",
+          "printing": {
+            "set": "ASR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "PokéStop",
+          "printing": {
+            "set": "PGO",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Prism Energy",
+          "printing": {
+            "set": "ASC",
+            "number": "216",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Darkness Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Telepathic Psychic Energy",
+          "printing": {
+            "set": "POR",
+            "number": "88",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Unown",
+          "printing": {
+            "set": "AOR",
+            "number": "30",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Voltorb",
+          "printing": {
+            "set": "ROS",
+            "number": "21",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Electrode-GX",
+          "printing": {
+            "set": "CES",
+            "number": "48",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Toedscool",
+          "printing": {
+            "set": "PAR",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Toedscruel",
+          "printing": {
+            "set": "PAR",
+            "number": "17",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Sableye V",
+          "printing": {
+            "set": "SSH",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Gengar & Mimikyu-GX",
+          "printing": {
+            "set": "TEU",
+            "number": "53",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Plumeria",
+          "printing": {
+            "set": "BUS",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Trainers' Mail",
+          "printing": {
+            "set": "ROS",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Rescue Carrier",
+          "printing": {
+            "set": "EVS",
+            "number": "154",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Rescue Stretcher",
+          "printing": {
+            "set": "GRI",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Escape Rope",
+          "printing": {
+            "set": "BST",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Canceling Cologne",
+          "printing": {
+            "set": "ASR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "PokéStop",
+          "printing": {
+            "set": "PGO",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Prism Energy",
+          "printing": {
+            "set": "ASC",
+            "number": "216",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Darkness Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "7",
+            "language": "en"
+          },
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "card_id": "sve-7",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Telepathic Psychic Energy",
+          "printing": {
+            "set": "POR",
+            "number": "88",
+            "language": "en"
+          }
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 1,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Darkness Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "7"
+          },
+          "card_id": "sve-7"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "archetype": "Regidrago",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Koraidon ex",
+          "printing": {
+            "set": "TEF",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Hisuian Goodra VSTAR",
+          "printing": {
+            "set": "LOR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Wobbuffet",
+          "printing": {
+            "set": "PHF",
+            "number": "36",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Faba",
+          "printing": {
+            "set": "LOT",
+            "number": "173",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Prime Catcher",
+          "printing": {
+            "set": "TEF",
+            "number": "157",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Grass Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Fire Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Koraidon ex",
+          "printing": {
+            "set": "TEF",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Hisuian Goodra VSTAR",
+          "printing": {
+            "set": "LOR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Wobbuffet",
+          "printing": {
+            "set": "PHF",
+            "number": "36",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Faba",
+          "printing": {
+            "set": "LOT",
+            "number": "173",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Prime Catcher",
+          "printing": {
+            "set": "TEF",
+            "number": "157",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Basic Grass Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "1",
+            "language": "en"
+          },
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "card_id": "sve-1",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Fire Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "2",
+            "language": "en"
+          },
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "card_id": "sve-2",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 1,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "count": 4,
+          "target_name": "Basic Grass Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "1"
+          },
+          "card_id": "sve-1"
+        },
+        {
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Fire Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "2"
+          },
+          "card_id": "sve-2"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "archetype": "Absol Garbodor",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "FST",
+            "number": "168",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "BKP",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Oranguru V",
+          "printing": {
+            "set": "ASR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Professor's Letter",
+          "printing": {
+            "set": "BKT",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Escape Rope",
+          "printing": {
+            "set": "BST",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Shopping Center",
+          "printing": {
+            "set": "EVS",
+            "number": "157",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 8,
+          "name": "Darkness Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "FST",
+            "number": "168",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "BKP",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Oranguru V",
+          "printing": {
+            "set": "ASR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Professor's Letter",
+          "printing": {
+            "set": "BKT",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Escape Rope",
+          "printing": {
+            "set": "BST",
+            "number": "125",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Shopping Center",
+          "printing": {
+            "set": "EVS",
+            "number": "157",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 8,
+          "name": "Basic Darkness Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "7",
+            "language": "en"
+          },
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "card_id": "sve-7",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "count": 8,
+          "target_name": "Basic Darkness Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "7"
+          },
+          "card_id": "sve-7"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "archetype": "Regidrago",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Koraidon ex",
+          "printing": {
+            "set": "TEF",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Fezandipiti ex",
+          "printing": {
+            "set": "ASC",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Professor Sycamore",
+          "printing": {
+            "set": "BKP",
+            "number": "107",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Echoing Horn",
+          "printing": {
+            "set": "CRE",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Counter Catcher",
+          "printing": {
+            "set": "PAR",
+            "number": "160",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Grass Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Fire Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Koraidon ex",
+          "printing": {
+            "set": "TEF",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Fezandipiti ex",
+          "printing": {
+            "set": "ASC",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Professor Sycamore",
+          "printing": {
+            "set": "BKP",
+            "number": "107",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Echoing Horn",
+          "printing": {
+            "set": "CRE",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Counter Catcher",
+          "printing": {
+            "set": "PAR",
+            "number": "160",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Basic Grass Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "1",
+            "language": "en"
+          },
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "card_id": "sve-1",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Fire Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "2",
+            "language": "en"
+          },
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "card_id": "sve-2",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "count": 4,
+          "target_name": "Basic Grass Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "1"
+          },
+          "card_id": "sve-1"
+        },
+        {
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Fire Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "2"
+          },
+          "card_id": "sve-2"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "archetype": "Regidrago",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Salamence ex",
+          "printing": {
+            "set": "JTG",
+            "number": "114",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Echoing Horn",
+          "printing": {
+            "set": "CRE",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Grass Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "name": "Fire Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Salamence ex",
+          "printing": {
+            "set": "JTG",
+            "number": "114",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Iono",
+          "printing": {
+            "set": "PAL",
+            "number": "185",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Echoing Horn",
+          "printing": {
+            "set": "CRE",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Parallel City",
+          "printing": {
+            "set": "BKT",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Basic Grass Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "1",
+            "language": "en"
+          },
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "card_id": "sve-1",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "name": "Basic Fire Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "2",
+            "language": "en"
+          },
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "card_id": "sve-2",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "count": 4,
+          "target_name": "Basic Grass Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "1"
+          },
+          "card_id": "sve-1"
+        },
+        {
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "count": 3,
+          "target_name": "Basic Fire Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "2"
+          },
+          "card_id": "sve-2"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "archetype": "Regidrago",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Mega Dragonite ex",
+          "printing": {
+            "set": "ASC",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Hisuian Goodra VSTAR",
+          "printing": {
+            "set": "LOR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Oricorio-GX",
+          "printing": {
+            "set": "CEC",
+            "number": "95",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Sudowoodo",
+          "printing": {
+            "set": "GRI",
+            "number": "66",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "N",
+          "printing": {
+            "set": "FCO",
+            "number": "105",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Counter Catcher",
+          "printing": {
+            "set": "PAR",
+            "number": "160",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Sky Field",
+          "printing": {
+            "set": "ROS",
+            "number": "89",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Grass Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Fire Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "name": "Regidrago V",
+          "printing": {
+            "set": "SIT",
+            "number": "135",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "name": "Regidrago VSTAR",
+          "printing": {
+            "set": "SIT",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dialga-GX",
+          "printing": {
+            "set": "UPR",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Mega Dragonite ex",
+          "printing": {
+            "set": "ASC",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dragapult ex",
+          "printing": {
+            "set": "TWM",
+            "number": "130",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Noivern ex",
+          "printing": {
+            "set": "PAL",
+            "number": "153",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Hisuian Goodra VSTAR",
+          "printing": {
+            "set": "LOR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Kyurem",
+          "printing": {
+            "set": "SFA",
+            "number": "47",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Oricorio-GX",
+          "printing": {
+            "set": "CEC",
+            "number": "95",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Latias ex",
+          "printing": {
+            "set": "SSP",
+            "number": "76",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Marshadow",
+          "printing": {
+            "set": "UNB",
+            "number": "81",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Sudowoodo",
+          "printing": {
+            "set": "GRI",
+            "number": "66",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Raihan",
+          "printing": {
+            "set": "EVS",
+            "number": "152",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Professor's Research",
+          "printing": {
+            "set": "JTG",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "N",
+          "printing": {
+            "set": "FCO",
+            "number": "105",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Crispin",
+          "printing": {
+            "set": "SCR",
+            "number": "133",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Mysterious Treasure",
+          "printing": {
+            "set": "FLI",
+            "number": "113",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Hisuian Heavy Ball",
+          "printing": {
+            "set": "ASR",
+            "number": "146",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Super Rod",
+          "printing": {
+            "set": "PAL",
+            "number": "188",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Counter Catcher",
+          "printing": {
+            "set": "PAR",
+            "number": "160",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Megaton Blower",
+          "printing": {
+            "set": "SSP",
+            "number": "182",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Sky Field",
+          "printing": {
+            "set": "ROS",
+            "number": "89",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Double Dragon Energy",
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "name": "Basic Grass Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "1",
+            "language": "en"
+          },
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "card_id": "sve-1",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Fire Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "2",
+            "language": "en"
+          },
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "card_id": "sve-2",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 1,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "count": 4,
+          "target_name": "Basic Grass Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "1"
+          },
+          "card_id": "sve-1"
+        },
+        {
+          "source_name": "Fire Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Fire Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "2"
+          },
+          "card_id": "sve-2"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 15,
+      "player": "Ryotaro Nozawa",
+      "archetype": "Lopunny Vileplume",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Oddish",
+          "printing": {
+            "set": "UNB",
+            "number": "5",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Gloom",
+          "printing": {
+            "set": "UNB",
+            "number": "7",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Vileplume",
+          "printing": {
+            "set": "AOR",
+            "number": "3",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Vileplume",
+          "printing": {
+            "set": "BUS",
+            "number": "6",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Buneary",
+          "printing": {
+            "set": "PFL",
+            "number": "83",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Lopunny ex",
+          "printing": {
+            "set": "PFL",
+            "number": "84",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Pidgey",
+          "printing": {
+            "set": "FLF",
+            "number": "75",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Pidgeotto",
+          "printing": {
+            "set": "TEU",
+            "number": "123",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Pidgeotto",
+          "printing": {
+            "set": "MEW",
+            "number": "17",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Pidgeot ex",
+          "printing": {
+            "set": "OBF",
+            "number": "164",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Bunnelby",
+          "printing": {
+            "set": "PRC",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Fan Rotom",
+          "printing": {
+            "set": "SCR",
+            "number": "118",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Eldegoss V",
+          "printing": {
+            "set": "RCL",
+            "number": "19",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tatsugiri",
+          "printing": {
+            "set": "TWM",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Guzma & Hala",
+          "printing": {
+            "set": "CEC",
+            "number": "193",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "N",
+          "printing": {
+            "set": "FCO",
+            "number": "105",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Tag Call",
+          "printing": {
+            "set": "CEC",
+            "number": "206",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Buddy-Buddy Poffin",
+          "printing": {
+            "set": "TEF",
+            "number": "144",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Xtransceiver",
+          "printing": {
+            "set": "NVI",
+            "number": "96",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Technical Machine: Evolution",
+          "printing": {
+            "set": "PAR",
+            "number": "178",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Stealthy Hood",
+          "printing": {
+            "set": "UNB",
+            "number": "186",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Choice Belt",
+          "printing": {
+            "set": "PAL",
+            "number": "176",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Artazon",
+          "printing": {
+            "set": "PAL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Grand Tree",
+          "printing": {
+            "set": "SCR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Jet Energy",
+          "printing": {
+            "set": "PAL",
+            "number": "190",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Grass Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Capture Energy",
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Powerful Colorless Energy",
+          "printing": {
+            "set": "DAA",
+            "number": "176",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Double Colorless Energy",
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Oddish",
+          "printing": {
+            "set": "UNB",
+            "number": "5",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Gloom",
+          "printing": {
+            "set": "UNB",
+            "number": "7",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Vileplume",
+          "printing": {
+            "set": "AOR",
+            "number": "3",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Vileplume",
+          "printing": {
+            "set": "BUS",
+            "number": "6",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Buneary",
+          "printing": {
+            "set": "PFL",
+            "number": "83",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Lopunny ex",
+          "printing": {
+            "set": "PFL",
+            "number": "84",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Pidgey",
+          "printing": {
+            "set": "FLF",
+            "number": "75",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Pidgeotto",
+          "printing": {
+            "set": "TEU",
+            "number": "123",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Pidgeotto",
+          "printing": {
+            "set": "MEW",
+            "number": "17",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Pidgeot ex",
+          "printing": {
+            "set": "OBF",
+            "number": "164",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Bunnelby",
+          "printing": {
+            "set": "PRC",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Fan Rotom",
+          "printing": {
+            "set": "SCR",
+            "number": "118",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Eldegoss V",
+          "printing": {
+            "set": "RCL",
+            "number": "19",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tatsugiri",
+          "printing": {
+            "set": "TWM",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Guzma & Hala",
+          "printing": {
+            "set": "CEC",
+            "number": "193",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "N",
+          "printing": {
+            "set": "FCO",
+            "number": "105",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Tag Call",
+          "printing": {
+            "set": "CEC",
+            "number": "206",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Buddy-Buddy Poffin",
+          "printing": {
+            "set": "TEF",
+            "number": "144",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Xtransceiver",
+          "printing": {
+            "set": "NVI",
+            "number": "96",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Technical Machine: Evolution",
+          "printing": {
+            "set": "PAR",
+            "number": "178",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Stealthy Hood",
+          "printing": {
+            "set": "UNB",
+            "number": "186",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Choice Belt",
+          "printing": {
+            "set": "PAL",
+            "number": "176",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Artazon",
+          "printing": {
+            "set": "PAL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Grand Tree",
+          "printing": {
+            "set": "SCR",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Path to the Peak",
+          "printing": {
+            "set": "CRE",
+            "number": "148",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Silent Lab",
+          "printing": {
+            "set": "PRC",
+            "number": "140",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Jet Energy",
+          "printing": {
+            "set": "PAL",
+            "number": "190",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 2,
+          "name": "Basic Grass Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "1",
+            "language": "en"
+          },
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "card_id": "sve-1",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Capture Energy",
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Powerful Colorless Energy",
+          "printing": {
+            "set": "DAA",
+            "number": "176",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 1,
+          "name": "Double Colorless Energy",
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Grass Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          },
+          "count": 2,
+          "target_name": "Basic Grass Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "1"
+          },
+          "card_id": "sve-1"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "archetype": "Absol Garbodor",
+      "source_card_count": 60,
+      "normalized_card_count": 60,
+      "source_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "CRI",
+            "number": "56",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "LTR",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Garbodor",
+          "printing": {
+            "set": "BKP",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Plumeria",
+          "printing": {
+            "set": "BUS",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Trainers' Mail",
+          "printing": {
+            "set": "ROS",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle Compressor",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 7,
+          "name": "Darkness Energy",
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        }
+      ],
+      "normalized_cards": [
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Mega Absol ex",
+          "printing": {
+            "set": "MEG",
+            "number": "86",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Trubbish",
+          "printing": {
+            "set": "CRI",
+            "number": "56",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Garbodor",
+          "printing": {
+            "set": "LTR",
+            "number": "68",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Garbodor",
+          "printing": {
+            "set": "BKP",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Budew",
+          "printing": {
+            "set": "ASC",
+            "number": "16",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "name": "Crobat V",
+          "printing": {
+            "set": "DAA",
+            "number": "104",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Tapu Lele-GX",
+          "printing": {
+            "set": "GRI",
+            "number": "60",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Dedenne-GX",
+          "printing": {
+            "set": "UNB",
+            "number": "57",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "name": "Squawkabilly ex",
+          "printing": {
+            "set": "PAL",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Marnie",
+          "printing": {
+            "set": "SSH",
+            "number": "169",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Lillie's Determination",
+          "printing": {
+            "set": "MEG",
+            "number": "119",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Carmine",
+          "printing": {
+            "set": "TWM",
+            "number": "145",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Guzma",
+          "printing": {
+            "set": "BUS",
+            "number": "115",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Plumeria",
+          "printing": {
+            "set": "BUS",
+            "number": "120",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Karen",
+          "printing": {
+            "set": "XYP",
+            "number": "177",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Quick Ball",
+          "printing": {
+            "set": "FST",
+            "number": "237",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Ultra Ball",
+          "printing": {
+            "set": "MEG",
+            "number": "131",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Trainers' Mail",
+          "printing": {
+            "set": "ROS",
+            "number": "92",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "VS Seeker",
+          "printing": {
+            "set": "PHF",
+            "number": "109",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Dark Patch",
+          "printing": {
+            "set": "ASR",
+            "number": "139",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "name": "Battle Compressor Team Flare Gear",
+          "printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92",
+          "normalization": "Limitless shorthand alias -> canonical card-pool identity; same PHF 92 printing"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Battle VIP Pass",
+          "printing": {
+            "set": "FST",
+            "number": "225",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Boost Shake",
+          "printing": {
+            "set": "EVS",
+            "number": "142",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Secret Box",
+          "printing": {
+            "set": "TWM",
+            "number": "163",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "name": "Float Stone",
+          "printing": {
+            "set": "BKT",
+            "number": "137",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Muscle Band",
+          "printing": {
+            "set": "XY",
+            "number": "121",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "name": "Forest Seal Stone",
+          "printing": {
+            "set": "SIT",
+            "number": "156",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "name": "Temple of Sinnoh",
+          "printing": {
+            "set": "ASR",
+            "number": "155",
+            "language": "en"
+          }
+        },
+        {
+          "category": "Energy",
+          "count": 7,
+          "name": "Basic Darkness Energy",
+          "printing": {
+            "set": "SVE",
+            "number": "7",
+            "language": "en"
+          },
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "card_id": "sve-7",
+          "normalization": "same-type Basic Energy placeholder -> Expanded-legal SVE Basic Energy"
+        }
+      ],
+      "normalization_changes": [
+        {
+          "source_name": "Battle Compressor",
+          "source_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "count": 3,
+          "target_name": "Battle Compressor Team Flare Gear",
+          "target_printing": {
+            "set": "PHF",
+            "number": "92",
+            "language": "en"
+          },
+          "card_id": "xy4-92"
+        },
+        {
+          "source_name": "Darkness Energy",
+          "source_printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          },
+          "count": 7,
+          "target_name": "Basic Darkness Energy",
+          "target_printing": {
+            "set": "SVE",
+            "number": "7"
+          },
+          "card_id": "sve-7"
+        }
+      ],
+      "source_print_status": "not independently authenticated",
+      "expanded_representation": "card-pool screen passed; normalized English-print representation",
+      "admitted_to_verified_field": false
+    }
+  ]
+}
