@@ -846,6 +846,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       code !== 'policy-asymmetry-or-unverified-for-competitive' &&
       code !== 'independent-policy-competence-unproven');
     failures.push(...policyPanel.failures,...policyAttestations.failures);
+    if (!policyPanel.actorOnlyExecutionBoundaryEligible)
+      failures.push('actor-only-execution-boundary-unverified-or-ineligible');
     if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
     if (!gameReviewerIdentityValid) failures.push('game-reviewer-identity-invalid');
     if (!gameReviewerRegistryUnique)
