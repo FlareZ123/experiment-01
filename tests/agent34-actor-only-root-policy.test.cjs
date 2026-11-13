@@ -1335,7 +1335,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     choosePostTimelessMaxGeistRetreat
   }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
   const psychic='Psychic Energy SVE';
-  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC'])};
+  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC','Latias ex SSP'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
     blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
@@ -1365,13 +1365,17 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     printing:'Mimikyu GRI',hp:70,damage:0,energies:[psychic,psychic],
     attacks:[{name:'Copycat',cost:[5,9],damage:null}],
     abilities:[],abilityDetails:[],tools:[],
-    publicRestrictions:{cannotRetreatNextTurn:false,cannotRetreatWhileActive:false},
-    specialConditions:[],printed:{stage:'Basic',types:['Psychic'],resistance:[]}
+    publicRestrictions:{cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
+      blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
+      onlyAllowedAttackNameNextTurn:null,attackCostIncreaseNextTurn:0,
+      attackCostIncreaseWhileActive:0,cannotRetreatNextTurn:false,
+      cannotRetreatWhileActive:false},
+    specialConditions:[],printed:{stage:'Basic',types:['Psychic'],weakness:[],resistance:[]}
   };
   const target={
     printing:'Dratini SIT',hp:70,damage:0,energies:[],attacks:[],
     abilities:[],abilityDetails:[],tools:[],publicRestrictions:{},
-    specialConditions:[],printed:{stage:'Basic',types:['Dragon'],resistance:[]}
+    specialConditions:[],printed:{stage:'Basic',types:['Dragon'],weakness:[],resistance:[]}
   };
   const view={
     decisionKind:'owner-root',actorSeat:0,globalTurn:8,ownHand:[],
@@ -1422,7 +1426,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     abilities:['Bide Barricade'],
     abilityDetails:[{name:'Bide Barricade',text:"If this Pokémon is your Active Pokémon, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities (except for Psychic Pokémon)."}],
     publicRestrictions:{},specialConditions:[],
-    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],resistance:[]}
+    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],weakness:[],resistance:[]}
   };
   const wobbuffetActiveView={
     ...view,opponentPublic:{...view.opponentPublic,active:wobbuffet}
@@ -1442,7 +1446,52 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ownPublic:{...view.ownPublic,discard:['Dialga-GX UPR','Radiant Eternatus CRZ']}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(withRadiant,postTimelessCatalog,{ownerSeat:0}),null,
-    'Power Beam is a competing Copycat payload and must not be ignored');
+    'when Power Beam also KOs, retain the safer one-Prize Mimikyu Active');
+
+  const opponentLatias={
+    ...target,printing:'Latias ex SSP',hp:210,damage:0,
+    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic','ex'],
+      weakness:[{type:'Darkness',value:2}],resistance:[]}
+  };
+  const sevenPsychicVmax={...vmax,
+    energies:[psychic,psychic,psychic,psychic,psychic]};
+  const withRadiantLatias={
+    ...view,
+    ownPublic:{...view.ownPublic,
+      bench:[latias,clefairy,sevenPsychicVmax],
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
+    opponentPublic:{...view.opponentPublic,active:opponentLatias}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    withRadiantLatias,postTimelessCatalog,{ownerSeat:0}),null,
+    'a unique 220-vs-200 KO is not enough to expose the three-Prize VMAX when the opponent can still respond');
+
+  const terminalWithRadiantLatias={
+    ...withRadiantLatias,
+    ownPublic:{...withRadiantLatias.ownPublic,prizeCount:2}
+  };
+  const terminalCrossover=choosePostTimelessMaxGeistRetreat(
+    terminalWithRadiantLatias,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(terminalCrossover,
+    'Max Geist may replace Power Beam when its unique KO immediately wins the game');
+  assert.equal(terminalCrossover.projectedPrintedDamage,220);
+  assert.equal(terminalCrossover.projectedDamage,220);
+  assert.equal(terminalCrossover.competingPowerBeamDamage,200);
+  assert.equal(terminalCrossover.competingPowerBeamWouldKo,false);
+  assert.equal(terminalCrossover.projectedPrizeCount,2);
+  assert.equal(terminalCrossover.projectedTerminalWin,true);
+  assert.equal(terminalCrossover.retainedBasicPsychicEnergyCount,7);
+  assert.equal(terminalCrossover.routeComparison,'max-geist-unique-terminal-ko');
+
+  const sixPsychicVmax={...vmax,energies:[psychic,psychic,psychic,psychic]};
+  const sixEnergyNoCrossover={
+    ...withRadiantLatias,
+    ownPublic:{...withRadiantLatias.ownPublic,
+      bench:[latias,clefairy,sixPsychicVmax],prizeCount:2}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    sixEnergyNoCrossover,postTimelessCatalog,{ownerSeat:0}),null,
+    'at six Psychic Energy, Max Geist is 190 and cannot beat Power Beam 200');
 
   const withoutExtraTurn={
     ...view,ownTurnResources:{...view.ownTurnResources,extraTurnActive:false}
@@ -1489,7 +1538,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
 
   const adpTarget={...target,printing:'Arceus & Dialga & Palkia-GX CEC',hp:280,
-    printed:{stage:'Basic',types:['Dragon'],subtypes:['Basic','TAG TEAM','GX'],resistance:[]}};
+    printed:{stage:'Basic',types:['Dragon'],subtypes:['Basic','TAG TEAM','GX'],weakness:[],resistance:[]}};
   const adpIntent=choosePostTimelessMaxGeistRetreat({
     ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
   },postTimelessCatalog,{ownerSeat:0});
