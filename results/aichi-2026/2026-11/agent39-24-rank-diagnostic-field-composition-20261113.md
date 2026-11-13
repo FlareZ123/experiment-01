@@ -132,7 +132,7 @@ Agent50's posthoc split of the historical Hood Shield v1 versus champion matrix 
 - Aggregate `normalized.count` by canonical `normalized.card_id`; count each card ID at most once per deck for the “Decks” column.
 - Archetype and rank are taken from the source audit. No archetype relabeling, opponent weighting, match simulation, or win-rate model is applied.
 - The 24 lists remain diagnostic-only: five unchanged Japanese-Extra-incompatible ranks (3, 6, 7, 24, 29) and three unavailable ranks (23, 25, 28) are not included. Original physical Japanese copies remain unverified: Limitless' card-version selector/catalog art is not evidence of the entrant's physical registered cards; see [Agent50's physical-print evidence limit](agent50-limitless-physical-print-evidence-limit-20261113.md). Paper/competitive admission remain false.
-- The separate official banned-printing overlay remains required; bundled card-pool Expanded flags alone are not authoritative.
+- The separate official banned-printing overlay remains required; bundled card-pool Expanded flags alone are not authoritative. The 24 lists are legal English Expanded diagnostic reconstructions (including same-type Basic Energy normalization) and may be used as labeled diagnostic proxies after Twinleaf resolution; original physical Japanese copies remain unverified and production paper admission remains 0/32.
 - The 24-rank subset is not the complete Aichi Top 32 and must not be used to claim a 99.5% field result.
 
 The machine-readable source and reproducible normalization policy are documented in the [identity-normalized diagnostic field report](agent39-identity-normalized-expanded-diagnostic-field-20261113.md).
