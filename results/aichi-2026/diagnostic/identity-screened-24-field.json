@@ -1,0 +1,89 @@
+{
+  "schema": "aichi-expanded-identity-screened-diagnostic-field-v1",
+  "event": {
+    "name": "Aichi Open League 2026",
+    "date": "2026-05-10",
+    "sourceFormat": "Japanese Extra"
+  },
+  "targetFormat": "Expanded",
+  "sourceDataset": "../full-decklists.json",
+  "sourceDeckCount": 29,
+  "identityScreenedRanks": [
+    1,
+    2,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    26,
+    27,
+    30,
+    31,
+    32
+  ],
+  "incompatibleRanks": [
+    3,
+    6,
+    7,
+    24,
+    29
+  ],
+  "unavailableRanks": [
+    23,
+    25,
+    28
+  ],
+  "diagnosticOnly": true,
+  "identityScreenStatus": "passed",
+  "physicalPrintStatus": "unverified",
+  "paperFormatStatus": "not-certified",
+  "paperAdmissionEligible": false,
+  "competitiveAdmissionEligible": false,
+  "normalizationPolicy": "Retain source card identities and counts unchanged. Any English-print normalization or generic Basic Energy resolution must be recorded as a separate, explicit transformation; never overwrite the source list.",
+  "evidenceRefs": [
+    "results/aichi-2026/2026-11/agent48-ranks1-2-4-5-expanded-eligibility-screen-20261113.md",
+    "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md",
+    "results/aichi-2026/2026-11/agent3/expanded-proxy-audit-ranks17-22-26-27-30-32-20261113.md",
+    "results/aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md",
+    "results/aichi-2026/2026-11/agent39-bwp-smp-japanese-print-crosswalk-20261113.md"
+  ],
+  "exclusions": {
+    "incompatible": {
+      "ranks": [
+        3,
+        6,
+        7,
+        24,
+        29
+      ],
+      "reason": "Contains card identities incompatible with unchanged international Expanded; see the field-format audit."
+    },
+    "unavailable": {
+      "ranks": [
+        23,
+        25,
+        28
+      ],
+      "reason": "Original source lists are unavailable; no list is reconstructed."
+    }
+  },
+  "notes": [
+    "This manifest is a rank allowlist for diagnostic proxy simulations only.",
+    "It does not promote any rank to the production validator's availableRanks.",
+    "The full 32-rank Aichi field remains incomplete.",
+    "Do not use diagnostic outcomes as paper matchup evidence or as support for a 99.5% claim."
+  ]
+}
