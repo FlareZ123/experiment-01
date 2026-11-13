@@ -43,7 +43,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 **Opponent board**
 - Active: Regidrago VSTAR at 280 HP.
 - Bench: Crobat V at 180 HP, the opponent's only Benched Pokémon.
-- The opponent's most recent attack was Apex Dragon, a non-GX attack; it Knocked Out the candidate's previous Active, not Mimikyu.
+- The opponent's most recent attack was Apex Dragon, a non-GX attack whose chosen payload Knocked Out the candidate's previous Active without granting an extra turn or damaging Benched Mimikyu.
 - If Regidrago VSTAR is Knocked Out, Crobat V is the only Pokémon available to promote.
 - No Path to the Peak or other Ability-locking effect is in play; Fairy Zone and Skyliner are active.
 
