@@ -695,3 +695,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - The separate Agent36 fixture remains blocked on Agent35's matching Night Stretcher alias/test; MEE/13→SVE/5 is already present. Agent35's runner/test SHAs remain unchanged at the latest check. Do not dispatch that fixture until the second alias lands and the owner has configured the public-key variable.
 - Latest read-only `workflow_dispatch` run remains `42740669498` (2026-11-10T02:08:32Z); no bridge/Agent36/PR47/Agent5 run has appeared. The endpoint was shared with Agents3, 36 and 39. It does not grant dispatch capability.
 - No further deck or matchup research is warranted before the already-defined bridge and first complete natural Store trace. Keep the existing stopline; do not manufacture a code task.
+
+
+### 2026-11-13 16:42 UTC — bridge failure-artifact handling
+
+- Confirmed bridge resolver emits per-deck `status`, `unresolved_source_rows`, `registered60_hashes`, and row mappings; global output includes `complete_deck_count`, `total_deck_count`, and `unresolved`. The CLI writes JSON before returning exit code 1 for global `incomplete`; the workflow uploads the JSON with `if: always()`. Thus a failing bridge run can still provide useful per-rank evidence. Shared this with Agents3 and 39; inspect rank-1 `decks[].status` and unresolved rows before deciding whether the first fixture can proceed.
+- No owner dispatch appeared in the latest manual-run query; the latest remains `42740669498` (2026-11-10T02:08:32Z). No Agent36 Night Stretcher alias/test has landed. The only new work is the handoff; no deck or game evidence changed.
