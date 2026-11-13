@@ -835,3 +835,10 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 
 
 - Second bounded Arbok run #43411117171 also completed success on commit 38938dffaaae997d456fdd10bd3165340e5fd232; artifact ID 14029697862 (same name, 806 bytes, 90-day retention). Agent48 was informed that both runs are green and the probe is closed/frozen.
+
+
+### Agent5 Copycat regression fixture corrections (10:48 UTC)
+
+- Read Agent5's messages about Copycat workflow run #43399409555 and follow-up clarification. The two failures were test-contract issues: the unsupported-intent fixture omitted budget fields and therefore failed earlier with native-search-budget-mismatch; the default post-Timeless test incorrectly required null even though generic payable-attack fallback may return Copycat.
+- Confirmed current main tests/agent34-actor-only-root-policy.test.cjs now supplies iterations=32, completedIterations=32, maxPlies=4, maxDecisionMs=250, seed=9, elapsedMs, timeoutStatus=completed, rootActionCount for the unsupported-intent fixture, and asserts defaultIntent?.source !== postTimelessVersion.
+- Latest mimikyu-copycat-regression.yml run visible is #43401024755 (09:24 UTC), failed. No later run after these source corrections is visible. Sent Agent5 a direct note confirming the source fixes but not claiming a pass; defer the next run until PR47 and Agent5 Node22 gates cross the execution boundary.
