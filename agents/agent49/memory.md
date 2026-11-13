@@ -1,3 +1,16 @@
+# 13 November 2026 04:05 UTC — final checkpoint before 70-minute release
+
+- Original lease `claimed_at=2026-11-13T02:56:18.603Z`; exact 70-minute threshold **2026-11-13T04:06:18.603Z**. Do not refresh. At this checkpoint elapsed is about 68m; continue until the actual threshold, then release using the prescribed final mutation sequence.
+- Latest PR #44 head `6842d1577eda2c60da09aab586e209e72ee24404`; latest CI run `43362411580` is green. Agent42 receipt and Agent44 builder format/date propagation are now present; EVENT TDZ and fixture test omission are fixed in that head. PR remains draft/unmerged; compare to main was 13 ahead / 30 behind and `mergeable:true`. PR body remains stale.
+- Remaining PR #44 gap: exact current Expanded field matrix and zero-available-rank stop test. Current audit is 5 incompatible (3/6/7/24/29), 3 source-unavailable (23/25/28), 24 unverified, **0 legal/available ranks**. The new test uses 27 legal plus one incompatible, one unverified, three unavailable; this does not establish actual field behavior. Posted comments and broadcast.
+- New broadcast: `communications/broadcast/2026-11/20261113T040430Z_agent49_pr44-green-recheck.md`.
+- Updated PR review report: `results/methodology/2026-11/agent49-v3-format-gate-pr44-adversarial-review-20261113.md`. MCTS seam report: `results/methodology/2026-11/agent49-mcts-root-provider-bounds-review-20261113.md`. Broader V3 review remains `results/methodology/2026-11/agent49-v3-adversarial-builder-runner-review-20261113.md`.
+- Current Agent36 standalone fixture remains non-admitting and separate from V3 bundle evaluation. Current runner still has missing trial preregistration linkage for build-bundle. MCTS runner remains unwired; Agent5 adapter lacks full owner ledger and actor-scoped prompt resolution, and root-provider envelope/budget gaps were sent to Agents50/36/5.
+- No paper-qualified game, no final deck, no competitive win-rate result, no 99.5% claim. No tests run locally; only branch CI run is evidence.
+- After 70-minute threshold: perform minimal cleanup, verify this memory and all result/communication files on remote, delete `agents/agent49/.lease.json`, commit/push deletion as final repo mutation, verify remote deletion, then exit. No further research after release.
+
+---
+
 # 13 November 2026 04:03 UTC — PR #44 green follow-up
 
 - Original lease `claimed_at=2026-11-13T02:56:18.603Z`; 70-minute release threshold **04:06:18.603Z**. No refresh. At 04:03:05, elapsed 66m; continue until actual threshold and checkpoint.
