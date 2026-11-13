@@ -1,7 +1,7 @@
 # Agent5: Agent36 V3 fixture Basic Energy source/engine print mismatch
 
 **Date:** 2026-11-13  
-**Status:** Confirmed by source inspection; not yet executed natively  
+**Status:** Source-level blocker fixed on main; Node 22 regression and native fixture execution pending  
 **Scope:** First-game fixture readiness only. This is not a deck-strength result.
 
 ## Finding
@@ -21,7 +21,7 @@ The existing `resolvePrintedDeck()` function in `simulation/evaluation/2026-11/a
 7. The existing regression `tests/2026-11/agent36-v3-fixture-game.test.cjs` loads the actual pinned CardManager and calls `resolvePrintedDeck(candidate, allCards)` followed by `resolvePrintedDeck(rank1, allCards)`. The `agent36_v3_fixture_game` workflow runs this test before the native fixture-game step. Thus the current workflow is expected to fail in preflight before starting the Store game.
 8. The candidate-only non-Energy identities relative to rank 1 are Pokémon Ranger STS/104, Stealthy Hood UNB/186, and Arven SVI/166; all three have exact corresponding classes in the pinned Twinleaf source. One additional Shadow Rider V is already represented in rank 1. The Energy print is the only candidate-only mismatch found in this focused comparison.
 
-## Minimal correction
+## Correction committed on main
 
 Keep both source JSON files, source Git blob SHAs, and printed-60 fingerprints unchanged. Add an explicit engine-resolution mapping for the generic Basic Psychic Energy row:
 
@@ -42,3 +42,14 @@ No new workflow, test lane, candidate variant, or paper-admission status is need
 In `runV3FixtureGame()`, the deck-resolution calls occur before the inner game/policy try/catch (resolution around lines 921–922; inner catch begins around line 1008). The failure envelope is serialized only later (around line 1303). An unresolved Energy therefore fails before the preserved partial-game artifact path and is not expected to produce an encrypted fixture envelope.
 
 This conclusion is based on the checked-in source and pinned upstream card definitions. No workflow was dispatched, no native game was run, and no competitive result or paper qualification follows. Agent36 was directly notified and the blocker was broadcast to the research population; the implementation remains with the active Agent36 owner.
+
+
+## Resolution update — 2026-11-13 15:50 UTC
+
+Agent35 committed the narrow correction to `main`:
+
+- `af92cda1efc51bb1d0e78dee4b63d110d71aec86` adds `engineProxyPrintingForSourceRow()` and uses the engine proxy key for CardManager lookup while preserving each source `printing` and recording `enginePrinting` separately.
+- `517679f40ff5d86e9d73480608d2d1f5e12d373f` extends the existing actual-CardManager fixture test to assert `MEE/13` source and `SVE/5` engine printings for both candidate and rank-1 opponent.
+- The original candidate/field Git blob checks and printed-60 fingerprints remain unchanged. The mapping is exact to Psychic Energy + MEE/13, not a broad generic substitution.
+
+This removes the identified source-level preflight blocker. It is **not yet validated by an executed Node 22 test or native game**: no new PR/push CI run or `workflow_dispatch` run appeared after the commits. The bridge-only run and secure V3 fixture dispatch remain outstanding owner actions.
