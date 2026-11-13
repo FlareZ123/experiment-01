@@ -570,3 +570,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 ### Actor-observation boundary check (10:08 UTC)
 
 - The committed `simulation/twinleaf/actor-observation-contract.cjs` confirms the positive fixture's opponent Tool Jammer-in-hand setup is a valid hidden-card boundary: `actorObservation` returns only `ownHand` for the acting player and `publicPlayer(opponent)` with `handCount`, not opponent hand identities. Its comments explicitly prohibit reading opponent hand identities, deck identities, or face-down Prize identities. The PR47 root uses this observer, so the Tool Jammer-in-hand positive fixture should not leak that identity to the candidate.
+
+
+### V3 fixture metadata confirms diagnostic-only baseline (10:09 UTC)
+
+- `buildFixturePolicyConstraints()` in `simulation/evaluation/2026-11/agent36-v3-runner.cjs` explicitly sets `candidateHoodOptionsApplied:false`, `candidateRecoveryAutonomyApplied:false`, `policyCompetenceIndependentlyReviewed:false`, `crossFormatCompatibilityEstablished:false`, `paperDeckLegalityEstablished:false`, and `formatReviewStatus:'unverified-fixture-only'`. The policy profile is actor-only Agent34 wrapper plus Twinleaf `SimpleTacticsAi` baseline.
+- The full-game fixture uses Aichi rank 1 as the opponent and records `opponentSourceEventFormat:'Japanese Extra'`; it does not presently constitute a test of PR47's Snorlax-Block-specific Hood root. Treat it only as a complete-game engine smoke until candidate-only policy wiring and a relevant opponent are explicitly selected in a later phase.
