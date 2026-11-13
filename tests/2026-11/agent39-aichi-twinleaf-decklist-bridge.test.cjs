@@ -106,6 +106,7 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.equal(result.decks[0].source_row_mappings[5].card_pool_printing.number, 'XY67');
   assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName; card_pool_printing.number is not the engine setNumber');
   assert.equal(result.diagnostic_only, true);
+  assert.equal(result.diagnostic_reconstruction_eligible, true);
   assert.equal(result.paper_admission_eligible, false);
   assert.equal(result.competitive_admission_eligible, false);
 });
