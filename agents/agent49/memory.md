@@ -1,5 +1,10 @@
 
 
+## 2026-11-13 15:11 UTC — PR46 mergeability field fluctuates
+
+- PR #46 `mergeable` metadata fluctuated `false → true → false` across checks while head `94e3a2b18489fcafb19715d4ba940ef100207894` and base `90316042071cbe8555d6d97a562372b7f3d21c7a` stayed fixed; latest read is false. Treat this field as unresolved/cached, not proof of a particular conflict. Hunk inspection still shows PR does not edit the inherited v1 boundary lines, so the specific overwrite claim is unsupported; however, overall mergeability is not established. Require normal rebase/merge, resulting-tree v2 inspection, and exact-head Node22 CI. Report updated.
+
+
 ## 2026-11-13 15:10 UTC — PR46 mergeability correction
 
 - Re-examined actual PR #46 diff hunks against the exact base after seeing GitHub recompute `mergeable:true`. The branch snapshots still contain v1 boundary fields because they are based on pre-v2 main, but PR #46's diff hunks in Agent42/Agent43 and tests add format-contract fields elsewhere; they do not modify the v1 boundary lines. Those lines are inherited from the merge base, not PR changes. Thus a normal three-way merge should preserve main's v2 changes; no actual conflict/overwrite is demonstrated. My earlier warning that PR46 could overwrite v2 was too strong.
