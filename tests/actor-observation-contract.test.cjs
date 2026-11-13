@@ -212,6 +212,7 @@ test('both actors see temporary attack/retreat bans and Special Conditions',()=>
   opponent.active.onlyAllowedAttackNameNextTurn='Only This';
   opponent.active.attackCostIncreaseNextTurn=1;
   opponent.active.attackCostIncreaseWhileActive=2;
+  opponent.active.cannotRetreat=true;
   opponent.active.cannotRetreatNextTurn=true;
   opponent.active.cannotRetreatWhileActive=true;
   opponent.active.cannotEvolveNextTurn=true;
@@ -226,6 +227,7 @@ test('both actors see temporary attack/retreat bans and Special Conditions',()=>
     onlyAllowedAttackNameNextTurn:'Only This',
     attackCostIncreaseNextTurn:1,
     attackCostIncreaseWhileActive:2,
+    cannotRetreat:true,
     cannotRetreatNextTurn:true,
     cannotRetreatWhileActive:true,
     cannotEvolveNextTurn:true
