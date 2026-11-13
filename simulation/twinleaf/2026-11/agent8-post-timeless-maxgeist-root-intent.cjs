@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v3-wobbuffet-bide-barricade';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v4-generic-cannot-retreat';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -124,6 +124,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      opponentActiveHasUnmodelledDamageModifier(target))return null;
 
   if(resources.retreatedTurn===view.globalTurn||
+     active.publicRestrictions?.cannotRetreat===true||
      active.publicRestrictions?.cannotRetreatNextTurn===true||
      active.publicRestrictions?.cannotRetreatWhileActive===true)return null;
   const asleep=catalog.specialConditions?.ASLEEP;
