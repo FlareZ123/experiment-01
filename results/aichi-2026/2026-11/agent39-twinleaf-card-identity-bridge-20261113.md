@@ -21,6 +21,18 @@ The normalized English card-pool name/ID is not necessarily Twinleaf's decklist 
 
 Joining on normalized display name alone would therefore create false misses or incorrect deck keys. Joining on `card_pool_printing.number` is also wrong for the XYP/SMP promo cases above. There are eight such source rows in the 24-rank field (six Karen, one Jirachi, one Trevenant & Dusknoir-GX); the bridge's test covers XYP 177/XY177, XYP 67/XY67, and SMP 217/SM217.
 
+## Pinned Twinleaf API check
+
+At the pinned `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` revision, the actual upstream interfaces match the adapter assumptions:
+
+- `Card` declares `set`, `setNumber`, and `fullName`; `setNumber` is a string.
+- `CardManager.getAllCards()` returns its registered card array.
+- `CardManager.defineSet()` rejects duplicate `fullName` and `legacyFullName` entries.
+- `CardManager.isCardDefined()` checks the registered name index; `getCardByName()` returns a deep clone, so the adapter correctly checks the returned `fullName` rather than object identity.
+- The compiled `output/sets` module is generated from the upstream `src/sets/index.ts` re-exports; the bridge registers each exported card array into a fresh singleton and verifies the before/after card counts.
+
+No upstream source was changed. This source inspection validates the adapter boundary, but it does not substitute for compiling the pinned revision or resolving the 812 rows against the live CardManager.
+
 ## Bridge contract
 
 Implementation: `simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs`.
