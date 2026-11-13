@@ -360,7 +360,10 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
   const mcts=createTwinleafMcts(h.deps,{
     iterations:8,maxPlies:2,maxDecisionMs:250,seed:9,now:()=>time+=0.01,
     opponentPolicyId:'test-fixed-opponent-v1',
-    opponentActionPolicy:(observation,actionKeys,seat)=>{
+    opponentActionPolicy:(observation,actionKeys,seat,random,context)=>{
+      assert.equal(context,undefined,
+        'The adapter must not expose live timing/deadline context to an opponent policy');
+      assert.equal(typeof random,'function');
       assert.equal(observation.actorSeat,seat);
       assert.deepEqual(actionKeys,[...actionKeys].sort());
       assert.equal(Object.hasOwn(observation,'nativeState'),false);
@@ -371,6 +374,8 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
   const result=mcts.search(h.state,0);
   assert.equal(result.audit.opponentModel,'fixed-actor-observation-policy');
   assert.equal(result.audit.opponentPolicyId,'test-fixed-opponent-v1');
+  assert.equal(result.audit.opponentPolicyRngProtocol,'mcts-opponent-policy-rng-v2');
+  assert.equal(result.audit.opponentPolicyContextProtocol,'no-context-v1');
   assert.ok(result.audit.opponentPolicyCalls>0);
   assert.equal(result.audit.opponentPolicyCalls,policyCalls.length);
   assert.ok(result.audit.opponentInformationSetCount>0);
