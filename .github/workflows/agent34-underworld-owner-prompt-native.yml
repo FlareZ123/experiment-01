@@ -95,7 +95,7 @@ jobs:
       - name: Verify pure source evidence integrity and owner-typed prompt
         run: node --test tests/agent34-fresh-underworld-abort-pair-audit.test.cjs tests/agent34-actor-typed-energy-prompt.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.test.cjs tests/agent31-retreat-same-printing-physical-witness.test.cjs
       - name: Independent conversion accounting pure unit regressions
-        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs tests/agent34-underworld-active-funding-priority.test.cjs tests/agent34-owner-psychic-bench-recipient.test.cjs tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs tests/agent34-frozen-rank3-guzma-palemoon-native.test.cjs
+        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs tests/agent34-underworld-active-funding-priority.test.cjs tests/agent34-owner-psychic-bench-recipient.test.cjs tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs tests/agent34-frozen-rank3-guzma-palemoon-native.test.cjs tests/agent43-hooded-block-bench-attack-root.test.cjs
       - name: Install exact pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
