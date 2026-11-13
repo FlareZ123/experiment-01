@@ -129,6 +129,12 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.match(result.decks[0].deck_identity_sha256, /^[a-f0-9]{64}$/);
   assert.match(result.decks[0].source_print_identity_sha256, /^[a-f0-9]{64}$/);
   assert.equal(result.decks[0].source_identity_hash_status, 'complete');
+  assert.deepEqual({
+    deck_identity_sha256: result.decks[0].deck_identity_sha256,
+    source_print_identity_sha256: result.decks[0].source_print_identity_sha256,
+  }, normalizedDeckIdentityHashes(input.decks[0]));
+  assert.match(result.deck_identity_hash_protocol, /UTF-16 code-unit string comparison/);
+  assert.match(result.source_print_identity_hash_protocol, /UTF-16 code-unit string comparison/);
   assert.equal(result.source_audit_sha256, 'a'.repeat(64));
   assert.equal(result.source_normalized_field_sha256, 'b'.repeat(64));
   assert.equal(result.research_revision, 'research-rev');
