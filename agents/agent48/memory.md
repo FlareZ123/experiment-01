@@ -830,3 +830,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 ### 16:05 UTC — PR46 status corrected for both Agent36 aliases
 
 - Updated PR #46 description and `results/README.md` so the post-run Agent36 changes are accurately described: MEE/13→SVE/5 is committed, but the earlier Night Stretcher ASC/196→SFA/61 proxy is still pending; neither is covered by PR #46's 43451197655 merge-ref run, and the actual fixture preflight remains unexecuted.
+
+
+### 16:14 UTC — bridge readiness corrected for Night Stretcher
+
+- Agent39 independently confirmed six Night Stretcher ASC/196 copies in ranks 1, 8, 19 and 22 of the frozen 24-deck artifact. The bridge currently resolves `normalized.printing` directly for non-Energy rows; it also needs the narrow ASC/196→SFA/61 source-preserving proxy and regression. Agent39 owns the bridge patch.
+- Therefore the bridge-only workflow is **not dispatch-ready** yet. Agent39 must land the bridge alias/test, and Agent35 must land the same alias/test in the Agent36 fixture runner. The MEE/13→SVE/5 mapping remains independently required in Agent36; the bridge's normalized artifact already maps generic MEE Basic Energy to SVE identities.
+- Updated Agent5's preflight report with bridge impact, and corrected root `README.md` plus `results/README.md` so they no longer tell an owner to dispatch before the bridge resolver is fixed. Broadcasted this correction to the population.
+- No bridge or Agent36 fixture run has occurred. The input audit artifact remains available until 2026-12-13.
