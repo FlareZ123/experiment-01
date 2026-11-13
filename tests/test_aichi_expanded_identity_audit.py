@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.aichi_expanded_identity_audit import (
     audit_deck_construction,
     audit_entry,
+    build_normalized_diagnostic_decks,
     normalize_name,
     number_candidates,
 )
@@ -137,10 +138,81 @@ class AichiExpandedIdentityAuditTests(unittest.TestCase):
         self.assertFalse(result["expanded_legal_identity"])
 
 
+    def test_normalized_diagnostic_field_preserves_rows_and_resolves_aliases(self):
+        exact = {
+            "id": "swsh6-74", "name": "Shadow Rider Calyrex V", "number": "74",
+            "supertype": "Pokémon", "subtypes": ["Basic", "V"],
+            "legalities": {"expanded": "Legal"}, "types": ["Psychic"],
+        }
+        alias = {
+            "id": "xy4-92", "name": "Battle Compressor Team Flare Gear", "number": "92",
+            "supertype": "Trainer", "subtypes": ["Item"],
+            "legalities": {"expanded": "Legal"}, "rules": ["Discard up to 2 cards."],
+        }
+        energy = {
+            "id": "sve-5", "name": "Basic Psychic Energy", "number": "5",
+            "supertype": "Energy", "subtypes": ["Basic"],
+            "legalities": {"expanded": "Legal"},
+        }
+        rows = [
+            {
+                "name": "Shadow Rider Calyrex V", "count": 3,
+                "source_printing": {"set": "CRE", "number": "74", "display_language": "en"},
+                "status": "english_expanded_legal_exact", "expanded_legal_identity": True,
+                "event_date_status": "english_counterpart_pre_event",
+                "matched_english_printing": {"name": exact["name"], "set_id": "swsh6", "number": "74"},
+            },
+            {
+                "name": "Battle Compressor", "count": 1,
+                "source_printing": {"set": "PHF", "number": "92", "display_language": "en"},
+                "status": "english_expanded_legal_normalized", "expanded_legal_identity": True,
+                "event_date_status": "english_counterpart_pre_event",
+                "matched_english_printing": {"name": alias["name"], "set_id": "xy4", "number": "92"},
+            },
+            {
+                "name": "Psychic Energy", "count": 56,
+                "source_printing": {"set": "MEE", "number": "13", "display_language": "en"},
+                "status": "basic_energy_identity_legal_printing_unresolved", "expanded_legal_identity": True,
+                "event_date_status": "not_applicable_basic_energy",
+                "matched_english_printing": None,
+            },
+        ]
+        rank = {
+            "rank": 1, "player": "Test Player", "archetype": "Test",
+            "card_rows": 3, "expanded_identity_status": "expanded_identity_screen_pass",
+            "deck_construction_status": "pass", "deck_construction": {"passed": True},
+            "cards": rows,
+        }
+        result = build_normalized_diagnostic_decks([rank], {
+            "cards_by_set": {"swsh6": [exact], "xy4": [alias], "sve": [energy]},
+        })
+        deck = result["decks"][0]
+        self.assertEqual(result["deck_count"], 1)
+        self.assertEqual(result["source_rows"], 3)
+        self.assertEqual(result["card_copies"], 60)
+        self.assertEqual([row["normalized"]["card_id"] for row in deck["cards"]], ["swsh6-74", "xy4-92", "sve-5"])
+        self.assertEqual(result["transformation_counts"], {
+            "canonical_english_identity_alias": 1,
+            "mee_basic_energy_to_same_type_legal_english_print": 1,
+        })
+        self.assertEqual(len(deck["cards"][0]["normalized"]["card_text_sha256"]), 64)
+        self.assertFalse(result["paper_admission_eligible"])
+        self.assertFalse(result["competitive_admission_eligible"])
+
+    def test_fairy_energy_is_exempt_from_four_copy_rule(self):
+        cards = [{"name": "Fairy Energy", "count": 5}] + [
+            {"name": f"Distinct filler {index}", "count": 1}
+            for index in range(55)
+        ]
+        result = audit_deck_construction(cards, total_copies=60)
+        self.assertTrue(result["sixty_card_total"])
+        self.assertEqual(result["four_copy_violations"], [])
+        self.assertTrue(result["passed"])
+
+
 if __name__ == "__main__":
     unittest.main()
 
-def test_fairy_energy_is_exempt_from_four_copy_rule():
     cards = [{"name": "Fairy Energy", "count": 5}] + [
         {"name": f"Distinct filler {index}", "count": 1}
         for index in range(55)
