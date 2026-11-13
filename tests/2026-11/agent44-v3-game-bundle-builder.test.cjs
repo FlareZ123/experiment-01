@@ -483,7 +483,7 @@ test('fixture builder uses local fixture chronology and rejects production-shape
   };
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongFingerprint
-  },fixture.reviewerRegistry),/fixture deal-generation receipt is missing or not bound/);
+  },fixture.reviewerRegistry),/fixture trial generation time or source-deal fingerprint disagrees with receipt/);
 });
 
 test('valid signed postgame reviews remain external to the finalized bundle digest',()=>{
