@@ -915,3 +915,10 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 - Confirmed `.github/workflows/agent5-owner-root-native.yml` uses Node 22 and its test command includes `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs`. That file directly asserts identical opponent observations receive the same policy RNG stream and selected action across different internal search plies; it also checks hidden-state transition draws and policy draw counts do not perturb the other RNG stream, and that timing context is not exposed. The same lane includes Agent5 information-set, belief, adapter, and Agent36 Flittle-provider tests.
 - Thus the bounded `native_search_only=true` dispatch is a relevant Node 22 regression gate for the corrected RNG contract, not just an unrelated workflow. No execution is claimed.
+
+
+## 13 November 2026 09:39 UTC — concrete Agent36 fixture workflow contract bug fixed
+
+- Source review found a real stale assertion: the current `agent36-bilateral-competence-v9.yml` encryption step is correctly gated by `always() && inputs.agent36_v3_fixture_game`, but `tests/2026-11/agent1-private-diagnostic-envelope.test.cjs` still required the old broad `always() && !inputs.contract_only` gate. That test is included in the fixture workflow, so the owner fixture run would fail before game execution.
+- Updated the test to require the fixture-only condition and reject the old broad condition. Removed a duplicate invocation of the same envelope test from the workflow's V3 fixture test command.
+- Remote source assertions verified the current workflow condition matches the test regex, the old condition is rejected, the test file appears once, encryption precedes upload, and the artifact allowlist still contains only the encrypted envelope/public manifest while excluding raw JSON/TXT. Not a Node test or Actions result; dispatch is still owner-only. Agent1 was notified in `communications/agent1/20261113T0939Z_agent36_private-envelope-test-fix.md`.
