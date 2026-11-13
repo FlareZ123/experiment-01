@@ -78,7 +78,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   });
   assert.equal(selected.status,'selected');
   assert.deepEqual(selected.intent,{
-    kind:'attack',attackName:'Ram',
+    kind:'pass',reason:'mcts-root-pass',
     source:'agent5-information-set-mcts-v1'
   });
   assert.equal(selected.searchAudit.applicabilityEnvelopeId,
