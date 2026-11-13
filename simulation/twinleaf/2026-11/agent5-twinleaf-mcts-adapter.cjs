@@ -10,6 +10,39 @@ function withRandom(random,fn) {
   finally{Math.random=previous;}
 }
 
+function ownerKnowledgeLedger(knowledge) {
+  assert.ok(knowledge&&knowledge.verified===true,
+    'MCTS observation requires the verified ledger used by determinization');
+  assert.ok(['K0','K1','PARTIAL'].includes(knowledge.mode),
+    'MCTS observation knowledge mode must be K0, K1 or PARTIAL');
+  const knownTopDeck=knowledge.knownTopDeck??[];
+  const knownBottomDeck=knowledge.knownBottomDeck??[];
+  const knownPrizePrintings=knowledge.knownPrizePrintings??[];
+  assert.ok(Array.isArray(knownTopDeck)&&Array.isArray(knownBottomDeck)&&
+    Array.isArray(knownPrizePrintings),'MCTS owner knowledge ledger arrays are invalid');
+  const snapshot=knowledge.ownerK1Snapshot??null;
+  if(snapshot!==null) {
+    assert.equal(typeof snapshot.exactMembershipKnown,'boolean');
+    assert.ok(Number.isSafeInteger(snapshot.epoch)&&snapshot.epoch>=0,
+      'MCTS owner K1 snapshot epoch is invalid');
+  }
+  return {
+    verified:true,
+    mode:knowledge.mode,
+    knownTopDeck:knownTopDeck.slice(),
+    knownBottomDeck:knownBottomDeck.slice(),
+    knownBottomDeckOrder:knowledge.knownBottomDeckOrder===true,
+    knownPrizePrintings:knownPrizePrintings.map(row=>
+      row&&typeof row==='object'?{...row}:row),
+    ownerK1Snapshot:snapshot===null?null:{
+      epoch:snapshot.epoch,
+      exactMembershipKnown:snapshot.exactMembershipKnown,
+      knownPrintings:snapshot.knownPrintings?.map(row=>({...row}))??null,
+      invalidationReason:snapshot.invalidationReason??null
+    }
+  };
+}
+
 function createTwinleafInformationSetSearch(deps,options={}) {
   const required=[
     'ActionEnumerator','Simulator','actorObservation','GamePhase',
@@ -23,8 +56,20 @@ function createTwinleafInformationSetSearch(deps,options={}) {
   assert.equal(deps.simulatorOptions.shuffleMode,deps.BotShuffleMode.RANDOM,
     'Search simulations must use random deck shuffles, not Twinleaf defaults');
   const enumerator=new deps.ActionEnumerator();
-  const knowledgeSnapshot=deps.knowledgeSnapshot??(()=>null);
-  if(deps.metadataByState) {
+  assert.equal(typeof deps.sampleDeterminization,'function');
+  const knowledgeBySeat=deps.sampleDeterminization.knowledgeBySeat;
+  assert.equal(typeof knowledgeBySeat,'function',
+    'MCTS sampler must expose the exact verified ledger provider used for determinization');
+  if(deps.knowledgeSnapshot!==undefined)
+    assert.equal(deps.knowledgeSnapshot,knowledgeBySeat,
+      'Observation and determinization must use the exact same knowledge provider');
+  const samplerMetadata=deps.sampleDeterminization.metadataByState;
+  if(deps.metadataByState&&samplerMetadata)
+    assert.equal(deps.metadataByState,samplerMetadata,
+      'MCTS adapter and determinizer must share the same state metadata map');
+  const metadataByState=deps.metadataByState??samplerMetadata;
+  if(metadataByState)assert.equal(typeof metadataByState.get,'function');
+  if(metadataByState) {
     assert.ok(deps.ownDecklistSeat===0||deps.ownDecklistSeat===1,
       'Decklist-aware observations require the bot physical seat');
     assert.ok(typeof deps.ownDecklistId==='string'&&deps.ownDecklistId.length>0,
@@ -56,13 +101,17 @@ function createTwinleafInformationSetSearch(deps,options={}) {
 
   return Object.freeze({
     observe(state,seat) {
+      const sampled=metadataByState?.get(state);
+      const knowledge=sampled?.knowledgeBySeat?.[seat]??knowledgeBySeat(state,seat);
+      const ledger=ownerKnowledgeLedger(knowledge);
       const observation=deps.actorObservation(state,seat,{
-        ownerK1Snapshot:knowledgeSnapshot(state,seat)
+        ownerK1Snapshot:ledger.ownerK1Snapshot
       });
-      const sampled=deps.metadataByState?.get(state);
+      const observationWithLedger={...observation,ownerKnowledgeLedger:ledger};
       const ownDecklistId=sampled?.decklistIds?.[seat]??
         (seat===deps.ownDecklistSeat?deps.ownDecklistId:null);
-      return ownDecklistId===null?observation:{...observation,ownDecklistId};
+      return ownDecklistId===null?observationWithLedger:
+        {...observationWithLedger,ownDecklistId};
     },
     activeSeat(state) {
       const seat=state.activePlayer;
