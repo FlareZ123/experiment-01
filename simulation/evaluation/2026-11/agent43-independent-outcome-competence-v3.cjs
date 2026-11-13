@@ -1191,6 +1191,9 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
     bundle?.policyPlanCore,
     bundle?.policyPlanCore?.constraints,
     bundle?.policyRegistration,
+    bundle?.policyAttestationBundle,
+    bundle?.policyAttestationBundle?.candidatePolicy,
+    bundle?.policyAttestationBundle?.opponentPolicy,
     bundle?.policyApplicationReceipt,
     ...(Array.isArray(bundle?.policyPanelReceipts) ?
       bundle.policyPanelReceipts : [])
@@ -1203,11 +1206,15 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   const invalidFixtureMarker = fixtureMarkerPresent.some(source =>
     typeof source.fixtureOnly !== 'boolean');
   const fixtureReviewStatuses = [
+    bundle?.formatReviewStatus,
     bundle?.trial?.formatReviewStatus,
     bundle?.trial?.preregistration?.formatReviewStatus,
     bundle?.policyPlanCore?.formatReviewStatus,
     bundle?.policyPlanCore?.constraints?.formatReviewStatus,
     bundle?.policyRegistration?.formatReviewStatus,
+    bundle?.policyAttestationBundle?.formatReviewStatus,
+    bundle?.policyAttestationBundle?.candidatePolicy?.formatReviewStatus,
+    bundle?.policyAttestationBundle?.opponentPolicy?.formatReviewStatus,
     bundle?.policyApplicationReceipt?.formatReviewStatus,
     ...(Array.isArray(bundle?.policyPanelReceipts) ?
       bundle.policyPanelReceipts.map(receipt => receipt?.formatReviewStatus) : [])
