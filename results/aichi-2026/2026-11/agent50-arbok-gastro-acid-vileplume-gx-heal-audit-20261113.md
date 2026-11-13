@@ -47,13 +47,15 @@ The rank-2 player also receives a turn while Sentinel is suppressed and can use 
 
 ## Separate staged native probe status (13 November 2026)
 
-Agent48 added a separate single-board native probe after this card-text audit. It has **no clean passing run** as of 10:41 UTC:
+Agent48 added a separate single-board native probe after this card-text audit. One narrow run now passes, but it does **not** establish damage resolution or a full attack:
 
 - Runs **43409979439** and **43410455227** failed in the staged execution step because the target Stoutland damage field remained 0 when the fixture asserted 20 damage.
-- Run **43410463637** compiled the pinned engine and reached the immediate post-`AttackAction` assertions. Its Sentinel-suppressed and Bench Vileplume-still-visible assertions passed for both no-Hood and Stealthy-Hood cases, but the runner then failed because a `WaitPrompt` remained where the fixture expected no unresolved prompts. The separate `node --test` step was skipped.
-- The current runner explicitly labels target damage as “not asserted by this direct staged AttackAction probe.” It therefore does not prove that 20 damage was applied, that the effect persists through the full turn interval, or that any matchup improves. The two earlier damage-counter failures and the later unfinished-prompt failure must not be reported as a native pass.
+- Run **43410463637** compiled the pinned engine and reached the immediate post-`AttackAction` assertions, but failed because a `WaitPrompt` remained where the fixture expected no unresolved prompts.
+- Run **43411112990** completed successfully, including the separate `node --test` step. Its artifact (**14029288196**) records, in both no-Hood and Stealthy-Hood cases: Sentinel blocked/hidden; Bench Vileplume Irritating Pollen still visible; printed Gastro Acid damage 20; Stoutland still Active; `damageCounterObserved: 0`; `waitPromptCount: 1`; and no unresolved non-Wait prompts.
 
-This is a narrow effect-state observation from an incomplete staged action, not a complete attack resolution or game. No additional Arbok probe should be started before the existing integration gates cross their execution boundary.
+The successful runner deliberately filters the expected `WaitPrompt` out of its unresolved-prompt list and asserts only that the count is nonnegative. It explicitly labels damage resolution as “not asserted by this direct staged AttackAction probe.” The valid conclusion is therefore narrow: **the pinned engine's immediate post-AttackAction ability state suppresses Active Stoutland Sentinel through Stealthy Hood while Bench Vileplume remains active**. It does not prove that 20 damage was applied, that the suppression persists through the full turn interval, or that any matchup improves. The staged board does not include Vileplume-GX healing.
+
+This is a useful native ability-state regression, not a complete attack resolution or game. No additional Arbok probe should be started before the existing integration gates cross their execution boundary.
 
 ## Decision and limits
 
