@@ -37,6 +37,11 @@ class Store {
       const owner = this.state.players.find(player => player.id === action.id);
       if (!owner) return true;
       const item = owner.hand.cards[action.handIndex];
+      if (item?.stage === 'BASIC') {
+        owner.hand.cards.splice(action.handIndex, 1);
+        owner.bench.push({ getPokemonCard: () => item });
+        return true;
+      }
       owner.hand.cards.splice(action.handIndex, 1);
       owner.supporter.cards.push(item);
       const offered = owner.hand.cards.slice();
@@ -100,6 +105,7 @@ function makeScenario() {
     id: 101,
     hand: { cards: [...energies, arven, item, floatStone] },
     supporter: { cards: [] },
+    bench: [],
     discard: { cards: [] },
     deck: { cards: [shadowRider, tapu] }
   };
@@ -147,6 +153,9 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
     assert.deepEqual(searchReply.result, [shadowRider]);
     store.dispatch(searchReply);
 
+    const targetPlay = new PlayCardAction(owner.id, owner.hand.cards.indexOf(shadowRider));
+    store.dispatch(targetPlay);
+
     return 'native Quick Ball chain completed';
   }, nativeDeps());
 
@@ -158,11 +167,17 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
   assert.equal(wrapped.audit.paymentPhysicalAcceptances, 1);
   assert.equal(wrapped.audit.searchPromptProposals, 1);
   assert.equal(wrapped.audit.targetPhysicalRetrievals, 1);
+  assert.equal(wrapped.audit.targetPhysicalBenchPlacements, 1);
+  assert.equal(wrapped.audit.targetPhysicalBenchPlacementFailures, 0);
   assert.equal(wrapped.audit.completedPhysicalChains, 1);
+  assert.equal(wrapped.audit.completedSetupChains, 1);
   assert.equal(wrapped.audit.nativeItemFinalizations, 1);
   assert.equal(wrapped.audit.nonLiveStateFallbacks, 1);
   assert.equal(wrapped.audit.pendingPlansAtEnd, 0);
   assert.equal(wrapped.audit.pendingFinalityAtEnd, 0);
+  assert.equal(wrapped.audit.pendingBenchPlacementsAtEnd, 0);
+  assert.strictEqual(owner.bench[0].getPokemonCard(), shadowRider);
+  assert.ok(!owner.hand.cards.includes(shadowRider));
   assert.strictEqual(owner.discard.cards[0], energies[0]);
   assert.ok(owner.hand.cards.includes(energies[1]));
   assert.ok(owner.hand.cards.includes(energies[2]));
@@ -171,6 +186,40 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
   assert.ok(owner.discard.cards.includes(item));
   assert.strictEqual(Store.prototype.dispatch, oldDispatch.value);
   assert.strictEqual(Bot.prototype.decodeNextAction, oldDecode.value);
+});
+
+test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench follow-through', () => {
+  const { state, owner, item, shadowRider } = makeScenario();
+  const wrapped = withOwnerQuickBallPromptContinuation(() => {
+    const store = new Store(state);
+    store.dispatch(new AddPlayerAction());
+    const bot = new Bot(owner.id);
+    store.dispatch(new PlayCardAction(owner.id, owner.hand.cards.indexOf(item)));
+
+    const costReply = bot.decodeNextAction(state);
+    assert.ok(costReply instanceof ResolvePromptAction);
+    store.dispatch(costReply);
+
+    const searchReply = bot.decodeNextAction(state);
+    assert.ok(searchReply instanceof ResolvePromptAction);
+    assert.deepEqual(searchReply.result, [shadowRider]);
+    store.dispatch(searchReply);
+
+    const samePrintingCopy = { ...shadowRider, id: 'shadow-rider-same-printing-copy' };
+    owner.hand.cards.push(samePrintingCopy);
+    store.dispatch(new PlayCardAction(owner.id, owner.hand.cards.indexOf(samePrintingCopy)));
+    return 'different physical copy benched';
+  }, nativeDeps());
+
+  assert.equal(wrapped.result, 'different physical copy benched');
+  assert.equal(wrapped.audit.targetPhysicalRetrievals, 1);
+  assert.equal(wrapped.audit.completedPhysicalChains, 1);
+  assert.equal(wrapped.audit.targetPhysicalBenchPlacements, 0);
+  assert.equal(wrapped.audit.targetPhysicalBenchPlacementFailures, 0);
+  assert.equal(wrapped.audit.completedSetupChains, 0);
+  assert.equal(wrapped.audit.pendingBenchPlacementsAtEnd, 1);
+  assert.ok(owner.hand.cards.includes(shadowRider));
+  assert.strictEqual(owner.bench[0].getPokemonCard(), samePrintingCopy);
 });
 
 test('same-printing but different physical Quick Ball cannot bind a pending prompt', () => {
