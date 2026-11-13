@@ -1007,6 +1007,10 @@ function actorSpecialEnergyEnabled(enabled,allowedSeat,actorSeat){
 const MCTS_ROOT_INTENT_KINDS=new Set([
   'bench-basic','attach-basic-energy','attack','pass','paid-retreat'
 ]);
+const MCTS_PROVIDER_ABSTENTION_REASONS=new Set([
+  'outside-applicability-envelope','unsupported-prompt','incomplete-action-frontier',
+  'ledger-unverified','budget-exhausted','unsupported-action','low-confidence'
+]);
 function isMctsRootIntentRecord(value){
   return value!==null&&typeof value==='object'&&!Array.isArray(value)&&
     Object.getPrototypeOf(value)===Object.prototype;
@@ -1083,8 +1087,8 @@ function invokeActorRootIntentProvider({
   if(decision&&typeof decision.then==='function')
     return abstain('async-provider-not-supported');
   if(decision?.status==='abstained')
-    return abstain(typeof decision.reason==='string'?
-      decision.reason.slice(0,100):'provider-abstained');
+    return abstain(MCTS_PROVIDER_ABSTENTION_REASONS.has(decision.reason)?
+      decision.reason:'provider-abstained');
   if(decision?.status!=='selected')return abstain('invalid-provider-status');
   if(searchCalls!==1||searchResult?.status!=='selected')
     return abstain('selected-without-one-successful-search');
@@ -1095,7 +1099,7 @@ function invokeActorRootIntentProvider({
      evidence.ownerLedgerInInformationSetKey!==true||
      evidence.promptResolutionActorScoped!==true||
      typeof evidence.applicabilityEnvelopeId!=='string'||
-     evidence.applicabilityEnvelopeId.length===0)
+     !/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(evidence.applicabilityEnvelopeId))
     return abstain('native-search-certification-incomplete');
   const intent=sanitizeMctsRootIntent(searchResult.intent);
   if(!intent)return abstain('native-search-intent-outside-bounded-vocabulary');
@@ -1200,7 +1204,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     rootIntentProvider:{
       configured:hasRootIntentProvider,attempts:0,selected:0,abstained:0,
       skipped:0,abstentionReasons:{},lastIntentKind:null,
-      lastApplicabilityEnvelopeId:null
+      lastApplicabilityEnvelopeId:null,lastSearchAudit:null
     },
     energyFrontierOptIn:deps.energyFrontier??
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
@@ -2522,6 +2526,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.rootIntentProvider.lastIntentKind=decision.intent.kind;
           audit.rootIntentProvider.lastApplicabilityEnvelopeId=
             decision.searchAudit.applicabilityEnvelopeId;
+          audit.rootIntentProvider.lastSearchAudit=decision.searchAudit;
         }else{
           audit.rootIntentProvider.abstained++;
           audit.rootIntentProvider.abstentionReasons[decision.reason]=
