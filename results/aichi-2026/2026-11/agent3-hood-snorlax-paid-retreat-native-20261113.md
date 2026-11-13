@@ -15,7 +15,7 @@ This fills a gap in the earlier [free-retreat characterization](../snorlax-retre
 - [Path to the Peak CRE 148](../../../resources/cards/en/swsh6.json): removes Abilities only from Pokémon with a Rule Box. Snorlax PGO has no Rule Box; Shadow Rider Calyrex VMAX does.
 - [Jamming Tower TWM 153](../../../resources/cards/en/sv6.json): Pokémon Tools attached to each Pokémon have no effect.
 - [Tool Jammer BST 136](../../../resources/cards/en/swsh5.json): while its wearer is Active, Tools on the opponent's Active Pokémon have no effect, except Tool Jammer itself.
-- The [Advanced Player's Rulebook](../../../resources/manual/advanced-players-rulebook.md), A-03 Retreat, describes the legality check before Energy discard and switching; its Stadium terminology also identifies Jamming Tower as removing Tool effects.
+- The [Advanced Player's Rulebook](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), A-03 Retreat, describes the legality check before Energy discard and switching; its Stadium terminology also identifies Jamming Tower as removing Tool effects.
 
 ## Fixture and validation
 
