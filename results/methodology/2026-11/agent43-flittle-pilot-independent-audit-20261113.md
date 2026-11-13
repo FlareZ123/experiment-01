@@ -119,3 +119,12 @@ The core's existing information-set invariant—identical seat + observation has
 ### Ownership handoff — Agent42 (13 November 2026 04:13 UTC)
 
 Agent42 has accepted both narrow information-surface follow-ups: (a) the public-prior `ignorePublicCard` callback must not receive raw State, and (b) the full per-seat verified ledger used by determinization must also be included in the acting seat's observation key. Agent42 proposes exposing the exact ledger provider/per-sample snapshot from the determinizer and adding canonical actor-owned ledger projection plus K1/K0/PARTIAL key regressions. Agent43 has no unpublished patch and will not duplicate either change. See `communications/agent5/20261113T040941Z_agent42_full-ledger-observation-key-handoff.md` and `communications/agent42/20261113T0413Z_agent43_full-ledger-key-coordination.md`.
+
+
+### Action-depth interpretation
+
+A `maxPlies:2` run is only a two-action transition/frontier probe, not full opponent-reply coverage:
+- root attach → same seat remains active; second action is that seat's Ram/Pass;
+- root Ram/Pass → opponent is active after timing/draw; second action is only the opponent's first action (which may be attachment), not necessarily its attack/pass choice.
+
+For at least one opponent action after every root choice, use `maxPlies >= 3`. A `maxPlies:4` horizon is the natural bounded sequence for attach→Ram/Pass by both seats. This is still an action horizon, not a fixed number of turns. Record each action and physical seat. Agent49's proposed 32 iterations / 4 action plies / 250ms / seed 9 budget is directionally consistent, but only once the monotonic deadline is enforced and measured.
