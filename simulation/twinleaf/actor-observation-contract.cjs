@@ -174,6 +174,9 @@ function actorObservation(state,seat,options={}){
       // Twinleaf's count of Supporters used in this owner's current turn.
       supporterPlayedTurn:owner.supporterTurn,
       retreatedTurn:owner.retreatedTurn,
+      // Timeless-GX's skipped opponent turn is a public owner-root condition.
+      // Expose only the derived active-seat boolean, never the Store internals.
+      extraTurnActive:owner.usedTurnSkip===true&&state.activePlayer===seat,
       energyPlayedTurn:owner.energyPlayedTurn,
       stadiumPlayedTurn:owner.stadiumPlayedTurn,
       // Public once-per-turn Stadium Ability usage, distinct from placing a
