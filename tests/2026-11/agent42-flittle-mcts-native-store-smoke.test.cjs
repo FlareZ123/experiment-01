@@ -7,6 +7,7 @@ const { execFileSync } = require('node:child_process');
 const headless = require('../../simulation/twinleaf/headless.cjs');
 const provider = require('../../simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs');
 const { createStoreDecklistBindingReceipt } = require('../../simulation/evaluation/2026-11/agent36-flittle-store-decklist-binding.cjs');
+const { inspectPhysicalCardZones, fixedDeckCountAnomalies } = require('../../simulation/twinleaf/physical-card-ledger.cjs');
 const { withActorOnlyRootPolicy } = require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const output = '../../vendor/twinleaf/ptcg-server/output/';
 const { GamePhase } = require(output + 'game/store/state/state');
@@ -48,12 +49,19 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
 
   const ensureRuntime = () => {
     assert.ok(store);
-    if (!runtime) runtime = provider.createFlittleMctsRuntime({
-      native, candidateSeat, enginePin, candidateDecklist, opponentDecklist,
-      storeDecklistBindingReceipt: createStoreDecklistBindingReceipt({
-        store, deckA, deckB, candidateSeat, candidateDecklist, opponentDecklist, enginePin
-      })
-    });
+    if (!runtime) {
+      const ledger = inspectPhysicalCardZones(store.state);
+      assert.deepEqual(fixedDeckCountAnomalies(ledger), []);
+      assert.deepEqual(ledger.referenceDuplications, []);
+      assert.deepEqual(ledger.energyWithoutPhysicalCard, []);
+      assert.deepEqual(ledger.repeatedEnergyIndexes, []);
+      runtime = provider.createFlittleMctsRuntime({
+        native, candidateSeat, enginePin, candidateDecklist, opponentDecklist,
+        storeDecklistBindingReceipt: createStoreDecklistBindingReceipt({
+          store, deckA, deckB, candidateSeat, candidateDecklist, opponentDecklist, enginePin
+        })
+      });
+    }
     return runtime;
   };
   const rootIntentProvider = args => {
