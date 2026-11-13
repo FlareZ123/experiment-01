@@ -13,7 +13,7 @@ The normalized English card-pool name/ID is not necessarily Twinleaf's decklist 
 - Resource name `Tapu Koko ◇` maps to Twinleaf fullName `Tapu Koko Prism Star TEU`.
 - Promo canonical card-pool numbers can carry prefixes absent from Twinleaf's engine set number: source XYP 177 has card-pool number `XY177`, but Twinleaf Karen XYP uses `setNumber = '177'`; source XYP 67 has card-pool number `XY67`, but Twinleaf Jirachi XYP uses `setNumber = '67'`; source SMP 217 has card-pool number `SM217`, while Twinleaf Trevenant & Dusknoir-GX SMP uses `setNumber = '217'`.
 
-Joining on normalized display name alone would therefore create false misses or incorrect deck keys. Joining on `card_pool_printing.number` is also wrong for the XYP/SMP promo cases above; the bridge's test covers XYP 177/XY177, XYP 67/XY67, and SMP 217/SM217.
+Joining on normalized display name alone would therefore create false misses or incorrect deck keys. Joining on `card_pool_printing.number` is also wrong for the XYP/SMP promo cases above. There are eight such source rows in the 24-rank field (six Karen, one Jirachi, one Trevenant & Dusknoir-GX); the bridge's test covers XYP 177/XY177, XYP 67/XY67, and SMP 217/SM217.
 
 ## Bridge contract
 
