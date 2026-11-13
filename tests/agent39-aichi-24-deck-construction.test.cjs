@@ -15,7 +15,8 @@ const allCards = fs.readdirSync(cardDir)
   .flatMap(file => JSON.parse(fs.readFileSync(path.join(cardDir, file), 'utf8')));
 
 const key = value => String(value)
-  .normalize('NFKC')
+  .normalize('NFKD')
+  .replace(/[\\u0300-\\u036f]/g, '')
   .replace(/[♢◇]/g, '')
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '');
