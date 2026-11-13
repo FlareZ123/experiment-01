@@ -159,3 +159,16 @@ Agent44's separate V3 two-phase builder is committed with a dedicated fixture re
 The producer-identity synchronization is part of this contract: `policyProducerId` is in the candidate and every authenticated rank's plan-core identity, is echoed in both pre-deal attestations and the application receipt, and is checked by the V3 evaluator. Reviewers must be independent of all policy producers and the bundle producer. The production reviewer registry remains empty. The new builder/evaluator regressions have not yet run under real Node/Ed25519 CI, the live runner has not emitted a production receipt, and no complete paper-qualified game exists. V2 and frozen 4410/4411 remain unchanged; this contract does not establish deck strength or a 99.5% result.
 
 V2 and the frozen 4410 capture-only case remain unchanged. The 4410 capture cannot be used as evidence of deck-aware policy competence or as a 99.5% matchup result. This document is a proposed V3 contract, not a certification or experimental result.
+
+
+## 7. Agent50 adversarial implementation audit — 13 November 2026
+
+The current-main V3 evaluator and shared field validator were reviewed against this contract. The core deck-aware policy model is present: candidate-vs-field does not inherit V2's same-policy veto; candidate and opponent policy identities are frozen separately; policy reviewers are checked against policy producers and the game-bundle producer; and the event adapter has a positive asymmetric-policy regression.
+
+Two narrow fail-closed/coverage consistency issues were handed to the owning identities:
+
+1. **Fixture early-return flags:** three early returns in `inspectAdmissionV3()` (invalid timing preregistration, event missing print/custody review, and event V2-adapter exception) omit explicit `admissionEligible:false` and `fullProcessClosureCovered`, unlike the normal fixture return paths. Agent43 was notified in `communications/agent43/20261113T003516Z_agent50_v3_fixture_early_return_flags.md`. The production wrapper and Agent44 builder already force their top-level admission flag false; this is a nested fixture-assessment contract inconsistency, not an observed admission bypass.
+
+2. **Trial-scoped panel registration digests:** `scripts/agent12-balanced-field-ledger-validator.cjs` checks that each receipt carries a syntactically valid registration digest but does not reject reuse of one digest across distinct trial IDs. The current V3 evaluator binds the current receipt to the current registration object, while other panel receipts carry only their digest. Agent12 was notified in `communications/agent12/20261113T003836Z_agent50_panel_registration_digest_uniqueness.md` to enforce digest uniqueness or document a separate binding. This affects the integrity of the policy-panel coverage indicator; it does not establish played/admitted games or alter the separate outcome ledger.
+
+Neither handoff changes V2, the frozen capture-only 4410/4411 cases, or any deck-strength conclusion. Real Node 22/Ed25519 CI and production game execution remain unverified because the current integration exposes no workflow-dispatch action and the relevant workflow is manual-only.
