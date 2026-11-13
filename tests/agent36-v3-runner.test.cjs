@@ -121,6 +121,16 @@ test('complete V3 bundle runner forwards frozen artifacts and evidence to the pr
   }),/must be callable/);
 });
 
+test('postgame runner can assemble the production bundle after verified generation metadata',()=>{
+  const runnerSource=fs.readFileSync(require.resolve(
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  assert.match(runnerSource,
+    /if\(applicationReceiptRef \|\| evidenceRef \|\| reviewsRef \|\| policyPanelReceiptsRef\)/);
+  assert.match(runnerSource,/bundleResult=buildV3BundleFromArtifacts\(/);
+  assert.match(runnerSource,/complete-game-bundle\.json/);
+  assert.match(runnerSource,/complete-game-assessment\.json/);
+});
+
 test('repository-relative artifact paths reject traversal and aliases',()=>{
   assert.equal(validateArtifactRef('results/aichi-2026/predeal.json'),
     'results/aichi-2026/predeal.json');
