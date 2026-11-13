@@ -12,7 +12,7 @@ const readJson = relative => JSON.parse(readText(relative));
 const gitBlobSha = text => {
   const bytes = Buffer.from(text, 'utf8');
   return crypto.createHash('sha1')
-    .update(Buffer.from(`blob ${bytes.length}\\0`, 'utf8'))
+    .update(Buffer.from(`blob ${bytes.length}\0`, 'utf8'))
     .update(bytes)
     .digest('hex');
 };
