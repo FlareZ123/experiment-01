@@ -6,6 +6,8 @@ const path=require('node:path');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {underworldOpportunity,installUnderworldMimikyuFocus}=
   require('../../simulation/twinleaf/2026-11/agent46-underworld-mimikyu-energy-focus.cjs');
+const {mimikyuCopycatReadiness}=
+  require('../../simulation/twinleaf/agent50-mimikyu-copycat-readiness.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} file @returns {any} */
@@ -121,4 +123,29 @@ for(const seat of [0,1]){
         /Conflicting Underworld owner/);
     }finally{restore();}
   });
+
+  test('Dimension Valley makes one Psychic sufficient; Underworld does not overfund Mimikyu, seat '+seat,()=>{
+    const x=fixture(seat);
+    x.mimikyu.energies.cards.push(x.card('Psychic Energy SVE'));
+    x.candidate.stadium.cards.push(x.card('Dimension Valley PHF'));
+    const readiness=mimikyuCopycatReadiness(x.state,x.candidate,seat,
+      {slot:'bench',index:0});
+    assert.equal(readiness.status,'payable');
+    assert.equal(readiness.required,1);
+    assert.equal(readiness.attached,1);
+    assert.deepEqual(readiness.costSymbols,['P']);
+    assert.equal(underworldOpportunity(x.state,x.candidate,seat),null,
+      'Underworld Door must not spend another Psychic on an already payable Copycat');
+  });
+
+  test('one Psychic without Dimension Valley remains underfunded, seat '+seat,()=>{
+    const x=fixture(seat);
+    x.mimikyu.energies.cards.push(x.card('Psychic Energy SVE'));
+    const readiness=mimikyuCopycatReadiness(x.state,x.candidate,seat,
+      {slot:'bench',index:0});
+    assert.equal(readiness.status,'not-payable');
+    assert.equal(readiness.required,2);
+    assert.equal(underworldOpportunity(x.state,x.candidate,seat)?.mimikyuIndex,0);
+  });
+
 }
