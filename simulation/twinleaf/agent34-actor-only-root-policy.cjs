@@ -1101,6 +1101,19 @@ function invokeActorRootIntentProvider({
      typeof evidence.applicabilityEnvelopeId!=='string'||
      !/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(evidence.applicabilityEnvelopeId))
     return abstain('native-search-certification-incomplete');
+  // A selected intent is accepted only when the core's own monotonic-clock
+  // receipt exactly matches the immutable budget handed to the capability.
+  // An outer wall-clock check by a provider cannot substitute for this proof.
+  const budgetMatches=
+    evidence.iterations===frozenBudget.iterations&&
+    evidence.completedIterations===frozenBudget.iterations&&
+    evidence.maxPlies===frozenBudget.maxPlies&&
+    evidence.maxDecisionMs===frozenBudget.maxDecisionMs&&
+    evidence.seed===frozenBudget.seed&&
+    evidence.timeoutStatus==='completed'&&
+    Number.isFinite(evidence.elapsedMs)&&evidence.elapsedMs>=0&&
+    evidence.elapsedMs<frozenBudget.maxDecisionMs;
+  if(!budgetMatches)return abstain('native-search-budget-mismatch');
   const intent=sanitizeMctsRootIntent(searchResult.intent);
   if(!intent)return abstain('native-search-intent-outside-bounded-vocabulary');
   if(evidence.applicabilityEnvelopeId==='flittle-basic-psychic-v1'&&
@@ -1110,7 +1123,22 @@ function invokeActorRootIntentProvider({
     frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
     ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
     applicabilityEnvelopeId:evidence.applicabilityEnvelopeId,
-    iterations:Number.isSafeInteger(evidence.iterations)?evidence.iterations:null,
+    iterations:evidence.iterations,
+    completedIterations:evidence.completedIterations,
+    maxPlies:evidence.maxPlies,
+    maxDecisionMs:evidence.maxDecisionMs,
+    seed:evidence.seed,
+    elapsedMs:evidence.elapsedMs,
+    timeoutStatus:evidence.timeoutStatus,
+    cPuct:Number.isFinite(evidence.cPuct)?evidence.cPuct:null,
+    maxActionTransitions:Number.isSafeInteger(evidence.maxActionTransitions)?
+      evidence.maxActionTransitions:null,
+    seatActionTransitions:Array.isArray(evidence.seatActionTransitions)?
+      evidence.seatActionTransitions.slice(0,2):null,
+    rolloutPaths:Array.isArray(evidence.rolloutPaths)?
+      evidence.rolloutPaths.slice(0,32):null,
+    selectedActionKey:typeof evidence.selectedActionKey==='string'?
+      evidence.selectedActionKey:null,
     rootActionCount:Number.isSafeInteger(evidence.rootActionCount)?
       evidence.rootActionCount:null
   }};
