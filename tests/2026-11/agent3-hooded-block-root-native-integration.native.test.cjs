@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('node:fs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
@@ -9,7 +10,9 @@ const {
 } = require('../../simulation/twinleaf/2026-11/agent3-hooded-block-root-native-integration.cjs');
 
 test('actual Agent34/Agent43 root maps Hood attach then paid retreat through pinned Store, candidate-only, both seats', () => {
-  for (const candidateSeat of [0, 1]) {
+  const results = [];
+  try {
+    for (const candidateSeat of [0, 1]) {
     const result = runNativeHoodedBlockRootCase(candidateSeat);
     const label = 'candidate physical seat ' + candidateSeat;
     assert.equal(result.candidateSeat, candidateSeat, label);
@@ -37,5 +40,11 @@ test('actual Agent34/Agent43 root maps Hood attach then paid retreat through pin
     assert.equal(result.nativeRootJoinReceipts.every(receipt =>
       receipt.accepted === true && receipt.seat === candidateSeat), true, label);
     assert.equal(result.competitiveGameQualified, false, label);
+    results.push(result);
+    }
+  } finally {
+    const output = process.env.AGENT3_HOODED_BLOCK_ROOT_OUTPUT;
+    if (output) fs.writeFileSync(output,
+      JSON.stringify({ schema: 'agent3-hooded-block-root-native-v1', results }, null, 2) + '\\n');
   }
 });
