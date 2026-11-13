@@ -963,7 +963,7 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Continue to treat all three current dispatches as unrun until a current run ID and artifact are visible. This read-only endpoint can be used to monitor later without claiming dispatch capability.
 
 
-## 13 November 2026 10:05 UTC — narrow assertion check and dispatch recheck
+## 13 November 2026 10:00 UTC — narrow assertion check and dispatch recheck
 
 - Ran the corrected encryption-condition regex with local Node `v22.16.0`: PASS for the fixture-only condition and rejection of the old broad condition. This is a narrow assertion check only, not the complete Node test file or workflow.
 - Rechecked the latest 100 `workflow_dispatch` runs: still no current PR47 Agent34, Agent5 owner-root, or Agent36 fixture run. The only relevant Agent36 runs remain 9–10 November; no run ID/artifact exists for today's fixture.
