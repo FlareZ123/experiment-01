@@ -40,3 +40,7 @@ test('real Boost Shake removes active Iron Thorns Initialization via Muk on eith
     assert.equal(row.after.latias.blocked,true);
   }
 });
+
+// Include the narrow Agent43 original-rank26 Exeggcute discard-zone lock suite
+// in this already-registered manual native runner. No separate workflow.
+require('./agent43-muk-exeggcute-crosszone.native.test.cjs');
