@@ -37,11 +37,11 @@ The four ranks have zero exact hits against Agent3's independently sourced curre
 | Rank | Source archetype | Cards | ACE SPEC | Prism Star | Radiant Pokémon | Construction |
 | ---: | --- | ---: | ---: | ---: | ---: | --- |
 | 1 | Shadow Rider Calyrex | 60 | 1 | 0 | 1 | Pass |
-| 2 | Vileplume Control | 60 | 0 | 0 | 0 | Pass |
+| 2 | Vileplume Control | 60 | 1 | 0 | 0 | Pass |
 | 4 | Raichu / Electrode Combo | 60 | 1 | 1 | 0 | Pass |
 | 5 | Mew / Genesect | 60 | 1 | 0 | 0 | Pass |
 
-All four lists also satisfy the four-copy rule (excluding Basic Energy) and 60-card total. Rank 1's 11 Psychic Energy are Basic Energy; rank 1 has one Unfair Stamp ACE SPEC and one Radiant Eternatus, rank 4 has one Secret Box ACE SPEC and one Ditto ◇ Prism Star, and rank 5 has one Secret Box ACE SPEC. No ACE SPEC, Prism Star, or Radiant limit is exceeded.
+All four lists also satisfy the four-copy rule (excluding Basic Energy) and 60-card total. Rank 1's 11 Psychic Energy are Basic Energy; rank 1 has one Unfair Stamp ACE SPEC and one Radiant Eternatus, rank 2 has one Grand Tree ACE SPEC, rank 4 has one Secret Box ACE SPEC and one Ditto ◇ Prism Star, and rank 5 has one Secret Box ACE SPEC. No ACE SPEC, Prism Star, or Radiant limit is exceeded.
 
 ## Limits and next work
 
@@ -57,7 +57,7 @@ python -m unittest discover -s tests -p 'test_aichi_expanded_identity_audit.py'
 python scripts/aichi_expanded_identity_audit.py --ranks 1,2,4,5 --output aichi-expanded-identity-audit.json
 ```
 
-The existing `aichi-card-audit.yml` workflow now runs this focused job on relevant source/card-pool changes and uploads the machine-readable JSON. The result remains an identity-level screen, not a physical-print certificate or matchup result.
+The existing `aichi-card-audit.yml` workflow now runs this focused job on relevant source/card-pool changes and uploads the machine-readable JSON. Run [43384301565](https://github.com/FlareZ123/experiment-01/actions/runs/43384301565) passed the unit tests and all four rank audits, including deck-construction checks. The result remains an identity-level screen, not a physical-print certificate or matchup result.
 
 ## External date and card references
 
