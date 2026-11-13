@@ -11,7 +11,8 @@ const {
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
   combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
-  bindFixtureFormatToApplicationReceipt
+  bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
+  V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,V3_FIXTURE_OPPONENT_POLICY_OPTIONS
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const {
   preparePreDealPolicyRegistration,
@@ -95,6 +96,60 @@ function prepareFactory(preDeal){
     return preDeal;
   };
 }
+
+test('V3 fixture role identities bind Quick Ball only to the candidate policy',()=>{
+  const vendorDependencies=[];
+  const vendorImports=[];
+  const manifest={
+    schema:'aichi-policy-entry-manifest-v2',
+    complete:true,
+    sourceAuditVersion:'fixture-role-options-test-v1',
+    sourceAuditLimitations:{
+      dynamicRequireSites:[],computedEnvSites:[],unclassifiedEnvSites:[],
+      missingRelativeImports:[],externalRequires:[]
+    },
+    files:[{path:'simulation/test-policy.cjs',sha256:'a'.repeat(64)}],
+    runtimeGuard:{required:true},
+    commonRuntimeBindings:[
+      {name:'observe',exportName:'actorObservation'},
+      {name:'promptActions',exportName:'ResolvePromptAction'},
+      {name:'roleComposer',exportName:'withCandidateOpponentPolicyRoles'},
+      {name:'moduleLoadGuard',exportName:'withPinnedResearchModuleLoads'},
+      {name:'sourceClosureAudit',exportName:'auditSourceClosure'},
+      {name:'roleIdentityHelper',exportName:'buildRolePolicyIdentity'}
+    ],
+    vendorPrefix:'vendor/twinleaf/',
+    vendorDependencies,
+    vendorDependenciesSha256:evidenceBundleSha256(vendorDependencies),
+    vendorImports,
+    vendorImportsSha256:evidenceBundleSha256(vendorImports),
+    dependencyState:{mode:'node-builtins-only'},
+    orderedPromptChain:[{name:'candidate-opponent-role-composition'}],
+    sharedEnginePatches:[],
+    observationContractSha256:'1'.repeat(64),
+    promptChainSha256:'2'.repeat(64),
+    sharedEnginePatchSha256:'3'.repeat(64)
+  };
+  const manifestResult={manifest,entryManifestSha256:evidenceBundleSha256(manifest)};
+  const identities=buildFixtureRoleIdentities({
+    manifestResult,
+    challengeSuiteSha256:'4'.repeat(64),
+    policyConstraintsSha256:'5'.repeat(64),
+    preparedRuntime:{
+      runtimePinUnionSha256:'6'.repeat(64),
+      loadedProcessClosureSha256:'7'.repeat(64),
+      cardPoolInitializationSha256:'8'.repeat(64)
+    }
+  });
+  assert.deepEqual(identities.candidateIdentity.policyDefinition.policyOptions,
+    V3_FIXTURE_CANDIDATE_POLICY_OPTIONS);
+  assert.deepEqual(identities.opponentIdentity.policyDefinition.policyOptions,
+    V3_FIXTURE_OPPONENT_POLICY_OPTIONS);
+  assert.deepEqual(identities.candidateIdentity.policyDefinition.policyOptions,{quickBallRoot:true});
+  assert.deepEqual(identities.opponentIdentity.policyDefinition.policyOptions,{});
+  assert.notEqual(identities.candidateIdentity.policySha256,identities.opponentIdentity.policySha256,
+    'different role options must produce distinct policy identities');
+});
 
 test('complete V3 bundle runner forwards frozen artifacts and evidence to the production builder',()=>{
   const artifacts={
