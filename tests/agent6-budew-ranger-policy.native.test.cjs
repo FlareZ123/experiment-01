@@ -137,11 +137,14 @@ for (const attackerSeat of [0, 1]) {
     assert.equal(result.audit.nativePhysicalUnconfirmed, 0);
     assert.equal(result.audit.nativePhysicalConfirmedByIntent['play-ranger-budew-item-lock'], 1);
     assert.equal(result.audit.competitiveGameQualified, false);
-    assert.equal(x.opponent.cannotPlayItemCards, false);
-    assert.equal(x.opponent.playLocksTurnsRemaining, 0);
-    assert.ok([...x.opponent.discard.cards, ...x.opponent.supporter.cards]
+    const liveActor = x.store.state.players.find(player => player.id === x.opponent.id);
+    assert.ok(liveActor);
+    assert.equal(liveActor.cannotPlayItemCards, false);
+    assert.equal(liveActor.playLocksTurnsRemaining, 0);
+    assert.ok(liveActor.supporterTurn > 0);
+    assert.ok([...liveActor.discard.cards, ...liveActor.supporter.cards]
       .some(card => card.fullName === 'Pokemon Ranger STS'));
-    assert.ok(x.opponent.hand.cards.some(card => card.fullName === 'Fog Crystal CRE'));
+    assert.ok(liveActor.hand.cards.some(card => card.fullName === 'Fog Crystal CRE'));
   });
 }
 
