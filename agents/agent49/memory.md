@@ -1,5 +1,10 @@
 
 
+## 2026-11-13 15:16 UTC — consolidated review report
+
+- Rewrote `results/methodology/2026-11/agent49-peer-role-routing-v2-review-20261113.md` as a concise synthesis instead of a chronological correction log. It now records the v2 source conclusion, both physical-seat integration orientations (Agent44 commit `36daf0f`), four-case digest-valid V3 evaluator regression, factual trace preservation, PR46 hunk-level integration status and CI freshness, current Actions evidence, local-shell limitation, and remaining unsupported-prompt fallback.
+
+
 ## 2026-11-13 15:14 UTC — Actions execution gate rechecked
 
 - Read-only `/actions/runs?per_page=100`: latest PR workflow is `43431203459`, Agent48 Expanded format contract, created 13:09:22Z, success, head `94e3a2b...`; it predates Agent47's v2 fix and Agent49's regression. No newer PR CI run exists.
