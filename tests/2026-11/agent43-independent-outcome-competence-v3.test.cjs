@@ -1619,6 +1619,56 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
   }
 });
 
+test('production evaluator scans separately supplied signed reviews for fixture markers and nested format statuses',()=>{
+  const variants=[
+    {
+      label:'signed paper review fixture marker',
+      paperOverrides:{fixtureOnly:true},
+      expectedFailure:'fixture-only-trial-not-eligible-for-competitive-admission'
+    },
+    {
+      label:'nested review-packet unknown format status',
+      paperOverrides:{reviewPacket:{formatReviewStatus:'unknown-review-state'}},
+      expectedFailure:'fixture-format-review-status-invalid'
+    }
+  ];
+  for(const variant of variants) {
+    const generated=makeFullClosurePolicyBundle();
+    const {bundle,policyRegistry}=generated;
+    const audit=terminalAudit();
+    bundle.trial.responseOpportunityAudit=audit;
+    const game=signReviews(bundle,{
+      roles:['paper','strategy'],strategyAudit:audit,
+      paperOverrides:variant.paperOverrides
+    });
+    const combined=combineRegistries(policyRegistry,game.registry);
+    const diagnostic=inspectAdmissionV3(bundle,game.reviews,combined);
+    assert.equal(diagnostic.acceptanceReady,true,
+      variant.label+': the otherwise valid signed review should pass the diagnostic evaluator');
+    assert.equal(diagnostic.signedReviewRoles.find(x=>x.role==='paper').valid,true,
+      variant.label+': the paper review signature must be valid');
+
+    const previous=authorizedReviewers.reviewers.slice();
+    authorizedReviewers.reviewers.splice(
+      0,authorizedReviewers.reviewers.length,...combined.reviewers);
+    try {
+      const production=evaluateCompetitiveAdmissionV3(bundle,game.reviews);
+      assert.equal(production.fixtureOnly,true,variant.label);
+      assert.equal(production.acceptanceReady,false,variant.label);
+      assert.equal(production.competitiveAdmission,false,variant.label);
+      assert.equal(production.admissionEligible,false,variant.label);
+      assert.equal(production.fullProcessClosureCovered,true,variant.label);
+      assert.ok(production.failures.includes(variant.expectedFailure),
+        variant.label+': '+production.failures.join(','));
+      assert.equal(production.disposition,'fixture-only-trial-not-admissible',
+        variant.label);
+    } finally {
+      authorizedReviewers.reviewers.splice(
+        0,authorizedReviewers.reviewers.length,...previous);
+    }
+  }
+});
+
 test('production evaluator preserves per-game admission with a nonempty incomplete 29-rank field',()=>{
   const generated=makeFullClosurePolicyBundle({unavailable:[23,25,28]});
   const {bundle,policyRegistry}=generated;
