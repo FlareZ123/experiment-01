@@ -2,7 +2,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy,
-  actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
+  invokeActorRootIntentProvider,actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
 let pinnedStateUtils=null,pinnedPlayerType=null,pinnedSlotType=null;
@@ -33,6 +33,148 @@ const base=()=>({
   ownTurnResources:{
     energyPlayedTurn:0,energyPlayLocked:false,pokemonPlayLocked:false
   }
+});
+
+test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
+  const state={privateOpponentHand:['not-for-provider']};
+  const view=Object.freeze({...base(),actorSeat:1});
+  const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
+  let providerContext=null;
+  const selected=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,
+    rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:context=>{
+      assert.strictEqual(context.state,state,
+        'only the trusted capability factory receives the live State');
+      assert.equal(context.actorSeat,1);
+      assert.deepEqual(context.budget,budget);
+      return ()=>({
+        status:'selected',
+        intent:{kind:'attack',attackName:'Shadow Mist'},
+        audit:{
+          frontierComplete:true,
+          bothSeatKnowledgeLedgersVerified:true,
+          ownerLedgerInInformationSetKey:true,
+          promptResolutionActorScoped:true,
+          applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+          iterations:32,rootActionCount:2
+        }
+      });
+    },
+    provider:context=>{
+      providerContext=context;
+      assert.equal(Object.hasOwn(context,'state'),false);
+      assert.equal(context.actorSeat,1);
+      assert.deepEqual(context.budget,budget);
+      assert.equal(typeof context.runSearch,'function');
+      assert.equal(context.runSearch().status,'selected');
+      return {status:'selected'};
+    }
+  });
+  assert.equal(selected.status,'selected');
+  assert.deepEqual(selected.intent,{
+    kind:'attack',attackName:'Shadow Mist',
+    source:'agent5-information-set-mcts-v1'
+  });
+  assert.equal(selected.searchAudit.applicabilityEnvelopeId,
+    'flittle-basic-psychic-v1');
+  assert.equal(Object.hasOwn(providerContext,'state'),false);
+
+  const selectedWithoutSearch=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected'}),
+    provider:()=>({status:'selected'})
+  });
+  assert.equal(selectedWithoutSearch.status,'abstained');
+  assert.equal(selectedWithoutSearch.reason,
+    'selected-without-one-successful-search');
+
+  const uncertified=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected',
+      intent:{kind:'attack',attackName:'Shadow Mist'},
+      audit:{frontierComplete:true,applicabilityEnvelopeId:'pilot'}}),
+    provider:context=>{context.runSearch();return {status:'selected'};}
+  });
+  assert.equal(uncertified.status,'abstained');
+  assert.equal(uncertified.reason,'native-search-certification-incomplete');
+
+  const unsupported=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected',
+      intent:{kind:'play-supporter',handIndex:0},
+      audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+        ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+        applicabilityEnvelopeId:'pilot'}}),
+    provider:context=>{context.runSearch();return {status:'selected'};}
+  });
+  assert.equal(unsupported.status,'abstained');
+  assert.equal(unsupported.reason,
+    'native-search-intent-outside-bounded-vocabulary');
+});
+
+test('certified MCTS root intent reaches the native actor action switch',()=>{
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){this.id=id;this.handIndex=handIndex;this.target=target;}
+  }
+  class AttackAction{constructor(id,name){this.clientId=id;this.name=name;}}
+  class PassTurnAction{constructor(id){this.clientId=id;}}
+  class Store{
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:empty(),bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],stadium:{cards:[]},
+        discard:{cards:[]},lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={players:[player(10),player(20)],activePlayer:0,
+        prompts:[],turn:2,phase:2};
+    }
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw new Error('hidden-state baseline should not run');}
+  }
+  const view=base();
+  view.ownHand=['Shadow Rider Calyrex V CRE'];
+  view.ownPublic.active.energies=['Psychic Energy MEE'];
+  view.ownTurnResources.energyPlayedTurn=2;
+  const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
+  const result=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi(10).decodeNextAction(store.state);
+  },{
+    SimpleTacticsAi,Store,policyOwnerSeat:0,rootIntentBudget:budget,
+    GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    observe:()=>Object.freeze(view),getCatalog:()=>catalog,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction},
+    createRootSearchCapability:context=>{
+      assert.equal(context.actorSeat,0);
+      return ()=>({status:'selected',
+        intent:{kind:'attack',attackName:'Shadow Mist'},
+        audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+          ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+          applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+          iterations:32,rootActionCount:2}});
+    },
+    rootIntentProvider:context=>{
+      assert.equal(context.actorSeat,0);
+      assert.equal(Object.hasOwn(context,'state'),false);
+      context.runSearch();
+      return {status:'selected'};
+    }
+  });
+  assert.ok(result.result instanceof AttackAction,
+    'MCTS typed intent must reach the existing native action switch');
+  assert.equal(result.audit.rootIntentProvider.attempts,1);
+  assert.equal(result.audit.rootIntentProvider.selected,1);
+  assert.equal(result.audit.rootIntentProvider.abstained,0);
+  assert.equal(result.audit.rootIntentProvider.lastIntentKind,'attack');
+  assert.equal(result.audit.competitiveGameQualified,false);
 });
 
 test('visible Basic bench precedes basic Energy',()=>{
@@ -924,6 +1066,29 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
     candidatePolicyOptions:{getCatalog:()=>catalog}
   }),/may not override shared runtime binding getCatalog/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{rootIntentProvider:()=>({status:'abstained'})}
+  }),/may not override shared runtime binding rootIntentProvider/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    opponentPolicyOptions:{createRootSearchCapability:()=>()=>({status:'abstained'})}
+  }),/may not override shared runtime binding createRootSearchCapability/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,
+    commonDeps:{...sharedDeps,rootIntentProvider:()=>({status:'abstained'})}
+  }),/must be supplied together/);
+  const providerDeps={...sharedDeps,
+    rootIntentProvider:()=>({status:'abstained'}),
+    createRootSearchCapability:()=>()=>({status:'abstained'})
+  };
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:providerDeps,
+    candidatePolicyOptions:{rootIntentBudget:{
+      iterations:32,maxPlies:4,maxDecisionMs:250,seed:9}},
+    opponentPolicyOptions:{rootIntentBudget:{
+      iterations:16,maxPlies:4,maxDecisionMs:250,seed:9}}
+  }),/exactly equal MCTS budgets/);
 });
 
 
