@@ -55,10 +55,13 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Bind candidate upstream pin for Agent36 V3 fixture integration tests
+        if: steps.revision.outputs.changed == 'true'
+        run: echo "AGENT36_TWINLEAF_COMMIT_SHA=$(git -C vendor/twinleaf rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Regress research-side adapter, real Store and source-deal boundary
         if: steps.revision.outputs.changed == 'true'
         run: |
-          node --test tests/turn_order_evidence.test.cjs tests/twinleaf-policy-rng-isolation.test.cjs tests/twinleaf-vendor-clone-compatibility.test.cjs tests/new-moon-opening-horror-house-store-preflight.test.cjs
+          node --test tests/turn_order_evidence.test.cjs tests/twinleaf-policy-rng-isolation.test.cjs tests/twinleaf-vendor-clone-compatibility.test.cjs tests/new-moon-opening-horror-house-store-preflight.test.cjs tests/2026-11/agent36-v3-fixture-game.test.cjs
           node simulation/twinleaf/smoke-test.cjs
           node simulation/twinleaf/card-coverage.cjs
           node simulation/twinleaf/resolve-field.cjs
