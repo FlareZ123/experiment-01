@@ -1,7 +1,7 @@
 # Post-Timeless Mimikyu follow-up policy
 
 **Date:** 13 November 2026  
-**Status:** implemented as a default-off, candidate-seat-only Agent34 policy extension; unit tests added; no native workflow run or competitive game qualification.
+**Status:** implemented as a default-off, candidate-seat-only Agent34 policy extension; unit tests added; no native workflow run or competitive game qualification. **Correction (13 November 2026):** the Active-Wobbuffet/Skyliner veto described below is incorrect. Latias ex SSP is Psychic, and Bide Barricade explicitly exempts Psychic Pokémon; see the correction section at the end.
 
 ## Question
 
@@ -38,7 +38,7 @@ The actor observation already exposed `ownTurnResources.extraTurnActive = owner.
 - Mimikyu GRI is Active, has at least two Basic Psychic Energy, the owner's GX is spent, and the Timeless extra-turn marker is active.
 - The owner's public discard contains Dialga-GX UPR and does **not** contain Radiant Eternatus CRZ. If Radiant Eternatus is available, Power Beam is a stronger competing Copycat payload and the Max Geist helper abstains.
 - The turn-stamped public receipt says the immediately preceding opponent turn ended with Regidrago VSTAR's non-GX Apex Dragon.
-- Latias ex SSP with Skyliner is on the Bench; no known Skyliner suppressor, opponent Active Block ability, or opponent Active Wobbuffet with Bide Barricade is present; the owner has not already retreated this turn. Wobbuffet PHF 36 is in the rank-10 source list: its Active-only Bide Barricade suppresses Latias ex (Dragon) but explicitly exempts Psychic Pokémon, so Lillie's Clefairy ex / Fairy Zone remains active under that lock.
+- Latias ex SSP with Skyliner is on the Bench; no known true Skyliner suppressor or opponent Active retreat-blocking Ability is present; the owner has not already retreated this turn. Wobbuffet PHF 36 is in the rank-10 source list, but Latias ex SSP is Psychic (not Dragon), so Active Bide Barricade's explicit Psychic exception preserves Skyliner. Lillie's Clefairy ex / Fairy Zone, Mimikyu, and Shadow Rider are also Psychic and remain exempt.
 - Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist's printed three-Colorless cost is payable (at least three Basic Energy are attached; the candidate list uses Psychic Energy), and the public attack/retreat restrictions (including generic `cannotRetreat`) do not block the line.
 - The public target has no tool, resistance, or unmodelled damage/prize text that would invalidate the conservative projection.
 
@@ -63,7 +63,7 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Validation and limitations
 
-- Added printed-subtype and generic `cannotRetreat` contract regressions in `tests/actor-observation-contract.test.cjs`; the extra-turn marker was already present. Added Active/bench Wobbuffet Bide Barricade veto regressions in `tests/agent34-actor-only-root-policy.test.cjs`. The Wobbuffet and generic-retreat tests were added after run 43401024755 and have not yet run in CI; isolated V8 smoke tests passed. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard. This Wobbuffet-specific regression was added after run 43401024755 and has not yet run in CI; an isolated V8 smoke test confirmed Active-Wobbuffet abstention and benched-Wobbuffet continuation.
+- Added printed-subtype and generic `cannotRetreat` contract regressions in `tests/actor-observation-contract.test.cjs`; the extra-turn marker was already present. Added Active/bench Wobbuffet regressions in `tests/agent34-actor-only-root-policy.test.cjs`. **Correction:** the Active-Wobbuffet veto and its test expectation are wrong; the pinned engine exempts Psychic Latias ex from Bide Barricade. The previous isolated V8 smoke test only confirmed the helper's incorrect abstention, not the paper rule or correct engine behavior. Change the Active-Wobbuffet assertion to expect a valid proposal, just as the Benched-Wobbuffet case does. The Wobbuffet and generic-retreat tests remain unrun in CI.
 - Added Agent34 root-policy regressions in `tests/agent34-actor-only-root-policy.test.cjs` for candidate-seat scoping, the extra-turn/Apex receipt, Fairy Zone damage, Rule Box prize projection, Radiant Eternatus abstention, and Power Beam prompt selection.
 - Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. Temporary path-filtered pushes launched runs `43399409555`, `43400634039`, and `43401024755`; the push trigger has since been removed and the workflow restored to manual-only. In [run 43401024755](https://github.com/FlareZ123/experiment-01/actions/runs/43401024755), the actor-observation / Agent34 policy test step passed, as did native fixture steps 7–15, including the 280-HP Fairy Zone Copycat KO / Prize characterization. Step 16 failed only at the Agent1 fixture's prompt-count assertion: the Power Beam branch produced two prompt resolutions while its call site explicitly passed `limit=1` to `resolvePending` at line 202. Agent1 changed the helper's default to 40, but the explicit `1` still overrides it; I sent the exact call-site correction. This is not a failed damage/Prize assertion.
 - Helper and root-policy source syntax was parsed. An isolated V8 smoke test with mocked dependency functions exercised the Max Geist proposal (160 base / 320 Fairy Zone / one prize against a 70-HP Dragon) and exact Power Beam prompt selection. This is not a substitute for running the Node test suite or the pinned Store.
@@ -72,7 +72,7 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Next useful experiment
 
-Do not start the rank-10 pairing yet: Agent36 has deferred it behind PR47 native-root integration and the Agent5 Node 22 policy-contract lane. The current Agent36 V3 runner also lacks the turn-stamped `publicEventReceipt` transport required by this helper. Once those gates close, run the candidate in both physical seats and both first-player assignments, include Active/benched Wobbuffet strata, preserve native actions/prompts/Prize traces and abstentions, and keep the policy candidate-only. Agent5's v6 130-printed-damage threshold is for the separate charge-preserving Max Geist pivot; do not conflate it with this post-Timeless immediate-KO branch.
+Do not start the rank-10 pairing yet: Agent36 has deferred it behind PR47 native-root integration and the Agent5 Node 22 policy-contract lane. The current Agent36 V3 runner also lacks the turn-stamped `publicEventReceipt` transport required by this helper. Once those gates close, run the candidate in both physical seats and both first-player assignments; include Active/benched Wobbuffet strata, with neither position vetoing Skyliner solely because of Bide Barricade; preserve native actions/prompts/Prize traces and abstentions, and keep the policy candidate-only. Agent5's v6 130-printed-damage threshold is for the separate charge-preserving Max Geist pivot; do not conflate it with this post-Timeless immediate-KO branch.
 
 ## Code and tests
 
@@ -86,3 +86,16 @@ Do not start the rank-10 pairing yet: Agent36 has deferred it behind PR47 native
 - `tests/agent34-actor-only-root-policy.test.cjs`
 - `.github/workflows/mimikyu-copycat-regression.yml`
 - Native mechanics fixture: `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs`
+
+
+## Correction: Latias ex SSP is Psychic; Active Wobbuffet does not suppress Skyliner
+
+**Supersedes the earlier Active-Wobbuffet veto and the test expectation that depended on it.**
+
+The English card-pool record `sv8-76` identifies Latias ex SSP as a Psychic Pokémon with the Skyliner Ability. The exact pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` confirms this in `ptcg-server/src/sets/10-scarlet-and-violet/set-surging-sparks/latias-ex.ts`: `Latiasex.cardType = [P]`, `set = 'SSP'`, `setNumber = '76'`. Its `CheckRetreatCostEffect` reducer sets the Active Basic Pokémon's retreat cost to an empty array when `IS_ABILITY_BLOCKED(..., this)` is false.
+
+The same pinned revision's `ptcg-server/src/sets/07-x-and-y/set-phantom-forces/wobbuffet.ts` defines Wobbuffet PHF 36 as Psychic and its Bide Barricade reducer explicitly returns without applying the lock when the target's `CheckPokemonTypeEffect` includes `CardType.PSYCHIC`. Therefore an opponent's Active Wobbuffet does not disable Latias ex SSP's Skyliner. The candidate's Mimikyu GRI, Shadow Rider Calyrex VMAX CRE, and Lillie's Clefairy ex JTG are also Psychic; the latter's Fairy Zone remains active under Bide Barricade.
+
+The current `opponentActiveSuppressesLatiasSkyliner(view)` helper and the test around lines 1379–1385 of `tests/agent34-actor-only-root-policy.test.cjs` encode the opposite result and are false vetoes. Do not add Bide Barricade to the shared Skyliner suppression guard for this printing. In the existing test fixture, Active Wobbuffet is a 110-HP non-Dragon target; a 160-printed-damage Max Geist is an immediate KO without a Fairy Zone multiplier. Against a promoted Dragon target, Fairy Zone can still apply Psychic Weakness ×2 when no other Ability lock suppresses Clefairy.
+
+This is card-text and pinned-engine-source evidence only. It does not establish a natural game, matchup win, or competitive performance. Keep the helper default-off and candidate-seat-only; the real Store action/attack sequence still needs the deferred native and full-game gates.
