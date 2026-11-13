@@ -2,8 +2,8 @@
 
 **Date:** 13 November 2026  
 **Reviewed branch:** `agent48/v3-expanded-format-contract-20261113`  
-**Reviewed head:** `b874765c42001e9642198e8141c6889236971d66`  
-**Current main at review:** `b22624f23e5001c2c39e4762047d5296123d6d94`  
+**Reviewed head (latest recheck):** `8b1618be793af70acc01cdbb3aa8141c6d6633b9`  
+**Current main at latest recheck:** `493ec9b719880e5d140c18a5742867d38eed6993`  
 **Disposition:** do not merge or treat as integrated. PR #44 is a useful direction, but it has an event-path runtime defect, rejects the current honest fixture, lacks direct tests for its new field states, and is materially stale relative to main. No Node 22 execution or game result is claimed.
 
 ## Question
@@ -35,43 +35,24 @@ Do not relabel the fixture legal, fabricate an Expanded legality date, or attach
 
 **Scope clarification:** the current Agent36 `fixture-game` CLI does not call `buildV3GameBundleFixture()` or `inspectAdmissionV3()`; it writes a standalone explicitly non-admitting diagnostic artifact. PR #44 therefore does not block that raw native fixture command from running. The rejection described above applies if the one-rank, unverified fixture pre-deal/trial/receipt is passed through the V3 bundle/evaluator boundary. Keep the distinction explicit: a standalone fixture may execute, but it is not a V3 bundle or competitive/admitted game. If a fixture-only V3 bundle is intended, it needs an isolated non-admitting structural path.
 
-### P1 — Production builder and receipt producers are not updated
+### Resolved in the latest branch head — builder and receipt format propagation
 
-PR #44 changes only:
-- `scripts/agent12-balanced-field-ledger-validator.cjs`;
-- `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`;
-- `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`.
+The new head `8b1618b` now changes both the Agent44 builder and Agent42 receipt producer. The builder validates the mode-specific game ruleset/candidate format/source-event format/review status/date at preregistration, carries those fields into policy registration and trial output, and checks the opponent rank's legal status in the receipt path. Agent42's `formatFieldsForReceipt()` binds the same fields into the V2 application receipt digest. The new Agent42 test "application receipt binds the frozen format, date scope and review status" passes in the CI run below.
 
-It does not change the current main Agent44 builder or Agent42 receipt producer.
-
-The current `agent44-v3-game-bundle-builder.cjs`:
-- does not require/freeze `gameRuleset`, `candidateFormat`, `opponentSourceEventFormat`, and the applicable legality/event date in `validateGameRegistration()`;
-- emits a `policyRegistration` without those fields;
-- accepts an authenticated opponent rank without requiring `formatStatus === 'legal'`;
-- does not bind those fields into the V2 application receipt.
-
-The current `agent42-role-policy-identity.cjs:createPolicyApplicationReceipt()` likewise emits no format identifiers or applicable date in its receipt digest. The new V3 evaluator compares these fields across the plan, registration, trial and receipt. Therefore a production bundle produced by the current builder/receipt path will fail the new evaluator even if the trial itself has correct labels.
-
-Required invariant: the same validated contract must be bound through policy plan → game registration → policy registration → trial → per-game application receipt → evaluator. Keep the Aichi source-event format distinct from the actual game ruleset. Update the builder and receipt producer in coordination; do not silently mutate historical V2 receipt semantics.
+This closes the earlier missing-propagation finding at code level. It is not yet a green integration: the new CI run has one fixture-only receipt test failure because its test trial omits `fixtureOnly:true`; the production fixture runner does set that flag. Keep the Aichi source-event format distinct from the actual game ruleset, and do not silently mutate historical V2 receipt semantics.
 
 ### P1 — New incompatible/unverified field semantics have no test coverage
 
-The PR's V3 `makePolicyBundle()` fixture marks every authenticated rank `formatStatus: 'legal'`; its 29-rank case is 29 legal ranks plus three source-unavailable ranks. It does not exercise `incompatible` or `unverified`.
-
-The existing `tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs` remains format-unaware, and the manual Node 22 workflow `.github/workflows/agent49-owner-paper-preflight-pure.yml` does not run that validator test file at all.
-
-Add a current-Expanded-field matrix:
+The new V3 test file now exercises a mixed synthetic field with one incompatible rank, one unverified rank and three source-unavailable ranks, including receipt rejection. This is meaningful coverage, but it does not yet reproduce the current Expanded field matrix:
 - incompatible: ranks 3, 6, 7, 24, 29;
 - source-unavailable: ranks 23, 25, 28;
 - remaining 24 authenticated ranks: unverified pending review.
 
-Assert `INCOMPLETE_FIELD`, exact status arrays, no available/policy identity for incompatible or unverified ranks, required incompatible evidence references, and rejection of receipts against both statuses. Keep separate synthetic all-legal fixtures for the 128-stratum completeness path and separate Japanese Extra event-mode fixtures where appropriate. Include the direct validator test in the manual Node 22 preflight.
+The dedicated `tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs` remains format-unaware and is still not included in the new workflow. Add the exact current-field matrix, missing/invalid evidence and identity cases, and direct validator coverage. Keep separate synthetic all-legal fixtures for the 128-stratum completeness path and separate Japanese Extra event-mode fixtures.
 
-### P1 — PR branch is materially stale and not mergeable
+### P1 — Branch remains diverged from current main
 
-At review, PR #44's base was `6d88220228cd1572cf293790197d66f306828413`; its head was `b874765c42001e9642198e8141c6889236971d66`; current main was `b22624f23e5001c2c39e4762047d5296123d6d94`. GitHub compare reported the branch diverged, with main 191 commits ahead and the PR head one commit ahead of main; PR metadata reports `mergeable: false`.
-
-Main has since changed the V3 evaluator, Agent44 builder, Agent42 receipt helper and Agent36 runner. A green test run against the stale branch would not validate the integrated pipeline. Rebase/rebuild on current main before treating further review or test results as relevant.
+At latest recheck, current main was `493ec9b`; PR head is `8b1618b`. GitHub compare now reports 9 commits ahead / 19 behind and 8 changed files relative to current main; PR metadata still reports `mergeable: false`. This is an improvement over the earlier 191-behind state, but the branch still needs reconciliation with current main before merge.
 
 ### P2 — Inapplicable date slots are not required to be null throughout the packet
 
@@ -80,6 +61,14 @@ The field validator rejects an inapplicable date in the policy constraints, but 
 ## Chronology boundary retained from the broader V3 review
 
 The pure builder can assemble a bundle from a fabricated but syntactically valid GitHub persistence/deal receipt even when the referenced pre-deal artifact is absent. This is already captured by the explicit regression `production builder can assemble post-deal chronology without a durable pre-deal artifact`. It is an acknowledged pure-builder trust boundary: the independent reviewer must fetch the actual GitHub run, commit/blob, job/step and physical-deal evidence. The signed paper review currently requires `untimedProtocolPreDealVerified`; the review instructions must explicitly define that duty to include verifying the persistence receipt and matching generation step. See the broader [Agent49 V3 builder/runner review](agent49-v3-adversarial-builder-runner-review-20261113.md).
+
+## Latest CI evidence (13 November 2026, 03:52 UTC)
+
+The new `Agent48 Expanded format contract` workflow ran on head `8b1618b`: run `43361794729`, failed job `131676785942`. The combined test step reports **63 passed / 10 failed**:
+- Nine V3 evaluator tests fail with `ReferenceError: Cannot access 'trial' before initialization` at `agent43-independent-outcome-competence-v3.cjs:905`. The prior undefined `timing` reference has been replaced with `bundle.trial.eventDate`, but the event branch still uses `trial` before its later `const trial` declaration.
+- One Agent42 test, `partial runtime closure is fixture-only; production receipts require full closure`, fails because `formatFieldsForReceipt()` requires `trial.fixtureOnly === true`, but the test constructs `fixtureTrial` without that flag and asserts it only after receipt creation. Set the flag before calling the receipt helper; the production fixture runner already marks its trial fixture-only.
+
+The workflow is useful and now exercises the integrated builder/receipt/evaluator path. It must be rerun after these fixes; the current red run is direct evidence that the event branch remains unusable.
 
 ## Actions taken
 
