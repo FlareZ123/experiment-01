@@ -39,7 +39,7 @@ function indexTwinleafCards(cardManager) {
 function resolveNormalizedRow(row, index, cardManager) {
   const normalized = row && row.normalized;
   const set = String(normalized && normalized.printing && normalized.printing.set || '');
-  const setNumber = String(normalized && normalized.card_pool_printing && normalized.card_pool_printing.number || '');
+  const setNumber = String(normalized && normalized.printing && normalized.printing.number || '');
   const count = normalized && normalized.count;
   if (!set || !setNumber) return { status: 'invalid_identity_key', set: set, set_number: setNumber };
   if (!Number.isSafeInteger(count) || count < 1) {
@@ -217,7 +217,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     complete_deck_count: completeDecks,
     total_deck_count: decks.length,
     twinleaf_revision: metadata.twinleaf_revision || null,
-    identity_join: 'Twinleaf Card.set + Card.setNumber -> Card.fullName; never join on display name alone',
+    identity_join: 'normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName; card_pool_printing.number is not the engine setNumber',
     decks: decks,
     unresolved: unresolved,
   };
