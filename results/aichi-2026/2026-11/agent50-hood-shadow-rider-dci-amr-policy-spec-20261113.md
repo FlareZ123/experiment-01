@@ -32,6 +32,7 @@ The counter-line is:
 **Opponent uses Apex Dragon → Mimikyu Copycat → nested Apex Dragon chooses Dialga-GX Timeless-GX from your discard.**
 
 The card-text/rule basis and remaining GX-allowance uncertainty are documented in the [Dialga counter-ALS audit](agent50-hood-shadow-rider-dialga-slot-audit-20261113.md).
+The exact candidate printings are paper-legal for this non-GX Copycat → Apex Dragon → own Dialga Timeless-GX line. The pinned vanilla Twinleaf resolver nevertheless rejects the non-GX Copycat path through an unprinted `copycatAttack` veto; source-faithful evaluation therefore requires the research-side non-GX Copycat compatibility and declared-attack-history hooks. Keep paper legality separate from the engine's default behavior; see the [paper/engine boundary audit](agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md) and [staged Store progression](../../twinleaf/mimikyu-extra-turn-progression.md).
 
 ### Regidrago-conditioned policy
 
@@ -39,8 +40,7 @@ The card-text/rule basis and remaining GX-allowance uncertainty are documented i
 | --- | --- | --- |
 | Dialga-GX | Effectively UDP while counter-line live | Preserve in discard; do not treat its unpayable normal attacks as evidence it is expendable |
 | Lillie's Clefairy ex | Very high DCI while Regidrago KO line is live | Keep Fairy Zone active; it changes Dragon Weakness to Psychic ×2, making the copied 150-base Timeless-GX deal 300 to Regidrago VSTAR |
-| Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Keep access and fund two Psychic Energy; its Psychic Copycat attack receives Fairy Zone's ×2 Weakness against Regidrago |
-| Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Preserve access; its Copycat attack costs Psychic + Colorless |
+| Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Preserve access and fund two Psychic Energy (Psychic + Colorless); its Copycat attack receives Fairy Zone's ×2 Weakness against Regidrago |
 | Battle Compressor | High AMR when Dialga is still in deck | Consider discarding Dialga among the three cards, but account for the other two cards' DCI |
 | Mysterious Treasure | High AMR when Dialga is in hand | Can discard Dialga as cost while finding a Psychic/Dragon Pokémon; preserve the line |
 | Night Stretcher | High DCI with Dialga in discard | Do not recover Dialga before the Copycat line unless deliberately resetting/rebuilding the line |
@@ -48,6 +48,22 @@ The card-text/rule basis and remaining GX-allowance uncertainty are documented i
 | Mimikyu Copycat timing | Conditional AMR | It can copy Apex Dragon only if the opponent used that non-GX attack during their last turn; the opponent can deny the line by choosing another attack |
 
 After the line is executed or made impossible, recompute Dialga's DCI. Do not permanently classify it as “never discard” or “always discard.”
+
+### Prize-only access multiplicity: a challenger hypothesis, not a deck change
+
+The fixed 60 currently has one Mimikyu, one Dialga-GX and one Hisuian Heavy Ball, with 14 total Basics. Agent21's exact model gives a **2.36690910% conditional Prize-only cut** for the two required Basic roles being inaccessible from the six Prizes, even under the optimistic assumption that every unprized Heavy Ball and every core card outside Prizes is otherwise available. The model is deliberately only a Prize-zone obstruction: it does not require Heavy Ball to be in hand or drawn, and it does not model the actual draw/search route, opponent, Energy, Bench, Ability or attack constraints.
+
+| Copies (Mimikyu / Dialga / Heavy Ball) | Total Basics in Agent21 model | Conditional Prize-only cut | 11/32 field contribution if every cut were a loss |
+| --- | ---: | ---: | ---: |
+| 1 / 1 / 1 (current) | 14 | 2.36690910% | 0.81362500 percentage points |
+| 2 / 1 / 1 | 15 | 0.94357297% | 0.32435321 percentage points |
+| 1 / 2 / 1 | 15 | 0.94357297% | 0.32435321 percentage points |
+| 2 / 2 / 1 | 16 | 0.11659566% | 0.04007976 percentage points |
+| 1 / 1 / 2 | 14 | 0.21949187% | 0.07545033 percentage points |
+
+The 1/1/2 configuration adds a second Heavy Ball while preserving the 14-Basic count; in this model it reduces this isolated cut by **10.78×** without increasing the Basic count. The field calculation uses 11 Regidrago archetype entries among 32 (nine published exact lists plus two unavailable original lists). If every occurrence of the cut were a loss, the current 1/1/1 obstruction alone would exceed the entire 0.5% equal-weight aggregate loss budget; the 1/1/2 obstruction would contribute 0.07545 percentage points. This is a deliberately pessimistic stress bound, **not** a prediction that every cut loses or that a second Heavy Ball improves actual games.
+
+**Disposition:** preserve the current 1/1/1 fixed 60 unchanged through the pending first native baseline game. After that baseline, register a separate 1/1/2 Heavy Ball whole-deck challenger against the same nine published Regidrago lists and the full 32-opponent field, with both seats, competent fixed opponent policies and explicit opportunity-cost accounting for the card cut. Do not make an untested one-card swap from this Prize-only model. Full source: [Agent21 Prize-access multiplicity sensitivity](../agent21-copycat-prize-access-multiplicity-sensitivity-20261107.md).
 
 ### Convert the extra turn into a second attack
 
