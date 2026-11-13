@@ -1,19 +1,19 @@
-# Arbok Gastro Acid vs rank-2 Stoutland: Vileplume-GX healing counter
+# Arbok Gastro Acid vs Limitless source-rank-2 Stoutland: Vileplume-GX healing counter
 
 **Agent 50 · 13 November 2026 · independent card-text / source-list audit**  
 **Status:** correction to an untested hypothesis; no deck change, native game, or matchup result.
 
 ## Finding
 
-The proposed four-Psychic-Energy Shadow Rider Max Geist knockout threshold after Arbok's 20-damage Gastro Acid is conditional and can be erased by a card already present in the exact rank-2 source list: **one Vileplume-GX CEC 4**.
+The proposed four-Psychic-Energy Shadow Rider Max Geist knockout threshold after Arbok's 20-damage Gastro Acid is conditional and can be erased by a card already present in the exact Limitless source-rank-2 list (Takahiro Ando): **one Vileplume-GX CEC 4**.
 
-Vileplume-GX's `Fragrant Flower Garden` reads: “Once during your turn (before your attack), you may heal 30 damage from each of your Pokémon.” After the candidate attacks with Arbok, the rank-2 player receives a turn before the candidate's next turn. If Vileplume-GX is in play and its Ability is usable, it heals 30 from each of that player's Pokémon, including Stoutland. The 20 damage from Gastro Acid is therefore removed before the candidate can attempt the proposed Max Geist follow-up.
+Vileplume-GX's `Fragrant Flower Garden` reads: “Once during your turn (before your attack), you may heal 30 damage from each of your Pokémon.” After the candidate attacks with Arbok, the Limitless source-rank-2 player receives a turn before the candidate's next turn. If Vileplume-GX is in play and its Ability is usable, it heals 30 from each of that player's Pokémon, including Stoutland. The 20 damage from Gastro Acid is therefore removed before the candidate can attempt the proposed Max Geist follow-up.
 
 The healing Ability belongs to Vileplume-GX, not Stoutland. Gastro Acid suppresses only the Defending Pokémon's Abilities, so attacking Stoutland does not suppress Fragrant Flower Garden. Healing damage also does not itself remove the attack effect on Stoutland: Sentinel remains suppressed until the end of the candidate's next turn unless Stoutland moves to the Bench or another effect removes the attack effect.
 
 ## Exact source and card evidence
 
-The unchanged rank-2 object in `results/aichi-2026/full-decklists.json` contains:
+The unchanged Limitless source-rank-2 object in `results/aichi-2026/full-decklists.json` contains:
 
 - 1 Stoutland BCR 122 (140 HP, Active-dependent Sentinel);
 - 2 Vileplume AOR 3 (Bench-persistent Irritating Pollen);
@@ -43,7 +43,7 @@ Thus the four-Energy threshold is valid only when the 20 damage remains (or othe
 
 If Stoutland remains Active, Gastro Acid can still suppress Sentinel through the candidate's next turn. This may create a Supporter window for the candidate while Vileplume AOR 3 continues to block Items. It does **not** remove the Item lock or disable Vileplume-GX.
 
-The rank-2 player also receives a turn while Sentinel is suppressed and can use a Supporter. The existing response tree must retain the Guzma + Jet Energy reset, Pidgeot ex Quick Search access, Cassius, and the four Guzma & Hala copies. If Stoutland moves to the Bench, the attack effect is removed; if Vileplume-GX is in play, its healing can erase the 20-damage mark even while Stoutland remains Active.
+The Limitless source-rank-2 player also receives a turn while Sentinel is suppressed and can use a Supporter. The existing response tree must retain the Guzma + Jet Energy reset, Pidgeot ex Quick Search access, Cassius, and the four Guzma & Hala copies. If Stoutland moves to the Bench, the attack effect is removed; if Vileplume-GX is in play, its healing can erase the 20-damage mark even while Stoutland remains Active.
 
 ## Separate staged native probe status (13 November 2026)
 
