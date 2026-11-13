@@ -57,14 +57,13 @@ function mixSeed(seed, iteration, salt = 0) {
   return value >>> 0;
 }
 
-function opponentPolicySeed(seed, iteration, seat, observationHash, ply) {
+function opponentPolicySeed(seed, iteration, seat, observationHash) {
   const digest = createHash('sha256').update(JSON.stringify({
-    protocol: 'mcts-opponent-policy-rng-v1',
+    protocol: 'mcts-opponent-policy-rng-v2',
     seed,
     iteration,
     seat,
-    observationHash,
-    ply
+    observationHash
   })).digest();
   return digest.readUInt32BE(0);
 }
@@ -167,7 +166,7 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {number} [config.maxDecisionMs=Infinity]
  * @param {()=>number} [config.now=performance.now]
  * @param {(state:object)=>boolean} [config.isStable]
- * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number,context:{seed:number,maxDecisionMs:number,checkDeadline:()=>void})=>string} [config.opponentActionPolicy]
+ * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number)=>string} [config.opponentActionPolicy]
  * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
  */
 function createInformationSetMcts(config) {
@@ -219,15 +218,6 @@ function createInformationSetMcts(config) {
       const searchContext = Object.freeze({
         startedAt, deadlineAt, maxDecisionMs, seed, now, checkDeadline
       });
-      // Opponent policies receive only stable budget metadata and a deadline
-      // check. A live clock/timing origin could expose hidden-state-dependent
-      // transition work through elapsed-time observations.
-      const opponentPolicyContext = opponentActionPolicy === null ? null :
-        Object.freeze({
-          seed,
-          maxDecisionMs,
-          checkDeadline: () => checkDeadline('opponent-policy-callback')
-        });
       checkDeadline('root-validation');
       assert.ok(rootSeat === 0 || rootSeat === 1);
       assert.equal(config.activeSeat(rootState), rootSeat,
@@ -321,15 +311,15 @@ function createInformationSetMcts(config) {
               finished = true;
               break;
             }
-            // The policy RNG is keyed only by public search inputs and this
-            // actor's information set. It cannot inherit hidden-state-dependent
-            // transition draw consumption, and its own draws cannot perturb the
-            // game-transition stream.
+            // The policy RNG is keyed to the same actor information set used
+            // by the node/frontier guard. Never include search-internal ply:
+            // different hidden-world paths can reach this same observation at
+            // different depths. It is isolated from game-transition randomness.
             const policyRandom = seededRandom(
-              opponentPolicySeed(seed, iteration, seat, observationHash, ply)
+              opponentPolicySeed(seed, iteration, seat, observationHash)
             );
             const selectedKey = opponentActionPolicy(
-              observation, actionKeys.slice(), seat, policyRandom, opponentPolicyContext
+              observation, actionKeys.slice(), seat, policyRandom
             );
             checkDeadline('opponent-policy');
             assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
@@ -447,9 +437,9 @@ function createInformationSetMcts(config) {
             'root-determinization-puct' : 'fixed-actor-observation-policy',
           opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
           opponentPolicyRngProtocol: opponentActionPolicy === null ? null :
-            'mcts-opponent-policy-rng-v1',
+            'mcts-opponent-policy-rng-v2',
           opponentPolicyContextProtocol: opponentActionPolicy === null ? null :
-            'actor-observation-deadline-only-v1',
+            'no-context-v1',
           opponentPolicyCalls,
           opponentInformationSetCount: opponentFrontiers.size,
           rootSeat,
