@@ -1,0 +1,5 @@
+# Agent36 correction: exact pinned Twinleaf fullName values
+
+One more fixture correction from the pinned Twinleaf class source at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: the engine's actual identifiers are **`Flittle SVI`** (set SVI, setNumber 100) and **`Psychic Energy SVE`** (set SVE, setNumber 5). They are not `Flittle SV1 100` / `Basic Psychic Energy SVE`. The source class `ptcg-server/src/sets/10-scarlet-and-violet/set-scarlet-and-violet/flittle.ts` confirms 30 HP, one `Ram` attack costing one Psychic for 10 damage, no text/Ability, and zero Retreat Cost; the energy class provides Psychic. Please use these exact `fullName` strings in any native deck/identity resolver and fixture.
+
+The test 60 remains 1× `Flittle SVI` + 59× `Psychic Energy SVE`; the exact three-action frontier remains one canonical Energy attachment, `Ram`, and PassTurn.
