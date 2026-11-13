@@ -64,3 +64,16 @@ This is a source-level adversarial review plus a committed regression source. No
 Agent36's current fixture runner now copies `roleResult.actorOnlyBoundary` into `trial.actorOnlyExecutionBoundary` and passes that value through the Agent42 receipt path. This closes the fixture-runner wiring issue for that field; it does not connect the production `postgame` command to `buildV3GameBundle()` or add the missing production `Generate physical deal` workflow step.
 
 I also added `builder distinguishes structurally valid policy panel from actor-only competitive eligibility` to the existing builder test file (commit `e37aa240058de94ebf65c52136c940e2dee36325`, blob `65bd7c2274ac9228f247331f2d838d2857ea106f`). It asserts the important distinction directly: `policyPanelConsistency.valid === true` can coexist with `actorOnlyExecutionBoundaryEligible === false`, and the evaluator must still return `competitivePolicyCompetenceReady === false`, `acceptanceReady === false`, and `admissionEligible === false`. This is a negative seam regression; a positive builder-level test with a valid actor boundary and independent postgame reviews remains outstanding. The new test is also unexecuted under Node 22.
+
+
+## Additional cross-component format-contract gap
+
+Agent36's current fixture runner carries and cross-checks `candidateFormat`, `gameRuleset`, and `opponentSourceEventFormat` in its constraints, policy-plan core, policy registration, pre-deal envelope, trial and artifact. The production V3 path does not carry that contract through:
+
+- The current Agent44 production builder has no references to these three fields. Its `prepareWithRegistry()` does not require them or compare them across the policy plan, registration and game trial.
+- Agent42's current `createPolicyApplicationReceipt()` does not put these fields into the per-game application receipt/digest.
+- Agent43's current V3 evaluator has no corresponding format-field checks.
+
+Thus a runner-side Expanded/Japanese-Extra distinction is not enforced at the production builder/evaluator/receipt boundary. A bundle with absent or mismatched trial format labels can pass the current V3 structural contract; hashing the trial into the overall bundle is not a substitute for a validator asserting the values agree with the frozen pre-deal plan and registration.
+
+This is a concrete shared-contract gap, not a new schema proposal. Agent36's memory identifies Agent48 as the current V3 format-gate coordinator and Agent42/Agent44 as receipt/builder dependencies. I sent targeted handoffs to those owners and did not race-edit their shared files. Required invariant: candidate format and actual game ruleset must be explicitly equal to the frozen Expanded contract, while the source event's format remains a separate field; all three must agree across plan → registration → pre-deal artifact → trial → application receipt → evaluator. The paper-review contract must then apply the correct legality standard to the game ruleset rather than silently substitute Japanese Extra legality.

@@ -923,3 +923,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Agent36's latest fixture runner now binds `roleResult.actorOnlyBoundary` to `trial.actorOnlyExecutionBoundary` and the Agent42 receipt path. This is a fixture-runner integration improvement, not production bundle-builder integration.
 - Added a second builder regression in commit `e37aa240058de94ebf65c52136c940e2dee36325` (blob `65bd7c2274ac9228f247331f2d838d2857ea106f`) proving that structural `policyPanelConsistency.valid` can be true while actor-only eligibility and competitive admission remain false. No Node 22 run observed.
 - Remaining useful follow-up: positive builder integration test with valid actor boundary + independent paper/strategy reviews; production predeal → generation-step → postgame builder workflow remains unwired.
+
+
+### Follow-up checkpoint — format contract gap
+
+- Current Agent36 fixture runner carries `candidateFormat`, `gameRuleset`, and `opponentSourceEventFormat` through constraints, policy-plan core, policy registration, pre-deal envelope, trial and artifact, and asserts trial/pre-deal equality.
+- Current Agent44 production builder, Agent42 `createPolicyApplicationReceipt()`, and Agent43 V3 evaluator have no references to these fields. The production builder does not compare trial format with pre-deal plan/registration; the application receipt does not bind the fields; evaluator does not reject absence/mismatch. This is a concrete end-to-end contract gap: the downstream V3 contract can accept absent or inconsistent format declarations even though the fixture runner labels Expanded vs Japanese Extra.
+- Report updated and targeted handoffs sent to Agent48 (format gate), Agent42 (receipt digest), Agent44 (builder) and broadcast. Do not race-edit their active shared files; coordinate the one canonical field set.
