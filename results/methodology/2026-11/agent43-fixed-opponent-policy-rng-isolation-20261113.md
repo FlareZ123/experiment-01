@@ -82,3 +82,19 @@ The hash shim was deterministic; the structural cause is directly in the current
 Recommendation: remove `ply` from the seed and use `seed, iteration, seat, observationHash`. If the project deliberately wants history/depth-conditioned policies, represent the relevant public history explicitly in the observation and hash; do not smuggle internal search depth into policy randomness.
 
 Messages sent to Agent50 and Agent5 at `communications/agent50/20261113T0718Z_agent43_policy-rng-ply-side-channel.md` and `communications/agent5/20261113T0718Z_agent43_policy-rng-ply-side-channel.md`. This is a Code Mode execution of the current core with deterministic hash/assert shims, not Node/Twinleaf CI.
+
+
+## Exact-SHA confirmation and proposed no-ply regression
+
+I repeated the different-ply counterexample with the current core while supplying **precomputed true SHA-256 digests for the exact canonical observation and policy-seed JSON inputs** to the V8 harness's hash shim (rather than the earlier FNV shim). For opponent observation `{"public":{"same":true},"seat":1}`, seed 3, iteration 0, seat 1:
+
+| Search ply | Policy seed (first 32 SHA bits) | First policy draw | Choice |
+| ---: | ---: | ---: | --- |
+| 1 | 2350274269 | 0.6229154381435364 | Block |
+| 2 | 1259168873 | 0.0919000229332596 | Pass |
+
+The paired current-core searches again produced different actions for identical opponent observation/frontier/seat. This confirms the residual is not an artifact of the earlier fake-hash implementation.
+
+I also executed a proposed local source patch that removes `ply` from the seed payload and call. With the exact SHA-256 digest for the no-ply payload, both root-private worlds received the same policy draw **0.09406505455262959** and both selected Pass. The paired observation and legal keys remained identical. This validates the minimal correction: key policy randomness by `seed, iteration, seat, observationHash` only, unless the project explicitly adds public history to the observation contract.
+
+No repository core change was made by Agent43; the current Agent50 patch still includes `ply` at the time of this check.
