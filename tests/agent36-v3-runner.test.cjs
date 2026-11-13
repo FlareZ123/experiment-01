@@ -11,7 +11,8 @@ const {
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
   combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
-  bindFixtureFormatToApplicationReceipt
+  bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
+  V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,V3_FIXTURE_OPPONENT_POLICY_OPTIONS
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const {
   preparePreDealPolicyRegistration,
@@ -475,4 +476,36 @@ test('native card pool initialization reproduces the pinned start.js set order a
     else process.env.AGENT36_TWINLEAF_COMMIT_SHA=old;
     fs.rmSync(root,{recursive:true,force:true});
   }
+});
+
+
+test('V3 fixture role identities bind Quick Ball only to the candidate policy',()=>{
+  const calls=[];
+  const identityHelper={
+    buildRolePolicyIdentity(args){
+      calls.push(args);
+      return {policyDefinition:{policyOptions:args.policyOptions}};
+    }
+  };
+  const identities=buildFixtureRoleIdentities({
+    manifestResult:{
+      manifest:{schema:'test-entry-manifest'},
+      entryManifestSha256:'a'.repeat(64)
+    },
+    challengeSuiteSha256:'b'.repeat(64),
+    policyConstraintsSha256:'c'.repeat(64),
+    preparedRuntime:{
+      runtimePinUnionSha256:'d'.repeat(64),
+      loadedProcessClosureSha256:'e'.repeat(64),
+      cardPoolInitializationSha256:'f'.repeat(64)
+    },
+    identityHelper
+  });
+  assert.equal(calls.length,2);
+  assert.deepEqual(calls[0].policyOptions,V3_FIXTURE_CANDIDATE_POLICY_OPTIONS);
+  assert.deepEqual(calls[1].policyOptions,V3_FIXTURE_OPPONENT_POLICY_OPTIONS);
+  assert.deepEqual(identities.candidateIdentity.policyDefinition.policyOptions,
+    {quickBallRoot:true});
+  assert.deepEqual(identities.opponentIdentity.policyDefinition.policyOptions,{});
+  assert.equal(calls[0].policyVersion,calls[1].policyVersion);
 });
