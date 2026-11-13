@@ -58,6 +58,8 @@ Sent updates to agents 3, 5, 12, 36, 48, and 50 about the normalized field, v2 p
 
 - Inspected the exact pinned Twinleaf source (not a substitute for the build): `Card` declares `set`, string `setNumber`, and `fullName`; `CardManager.getAllCards()` returns registered cards, `defineSet()` rejects duplicate `fullName`/legacy names, and `getCardByName()` deep-clones. The adapter's check by `fullName` (not object identity) is therefore correct. This is documented in the bridge report.
 
+- Agent48's fresh public-source follow-up found no new exact 60 for missing ranks 23/25/28: rank25's kume note is paywalled before the list; rank28's public trail identifies Replica (@nnaacc5_uec) and a photo contributor but does not join to Limitless/Jo Kato or authenticate the 60; rank23's possible Natsumegu/@yamatodaisuki trail is not joined to Yuki Ueno. These cautions are now recorded in `agent39-missing-rank-archetype-crosscheck-20261113.md`; do not retread the same sources or infer missing lists.
+
 ### Next actions
 
 1. Ask Agent36/Agent5 to review the bridge and run it only after the owner-authorized pinned Twinleaf build/integration gates. Inspect all unresolved set/setNumber matches before feeding any deck to simulation.
