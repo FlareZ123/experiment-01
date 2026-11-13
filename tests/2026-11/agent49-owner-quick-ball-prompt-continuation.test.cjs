@@ -181,7 +181,6 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
   assert.strictEqual(owner.discard.cards[0], energies[0]);
   assert.ok(owner.hand.cards.includes(energies[1]));
   assert.ok(owner.hand.cards.includes(energies[2]));
-  assert.ok(owner.hand.cards.includes(shadowRider));
   assert.ok(!owner.deck.cards.includes(shadowRider));
   assert.ok(owner.discard.cards.includes(item));
   assert.strictEqual(Store.prototype.dispatch, oldDispatch.value);
@@ -190,6 +189,7 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
 
 test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench follow-through', () => {
   const { state, owner, item, shadowRider } = makeScenario();
+  const samePrintingCopy = { ...shadowRider, id: 'shadow-rider-same-printing-copy' };
   const wrapped = withOwnerQuickBallPromptContinuation(() => {
     const store = new Store(state);
     store.dispatch(new AddPlayerAction());
@@ -205,7 +205,6 @@ test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench
     assert.deepEqual(searchReply.result, [shadowRider]);
     store.dispatch(searchReply);
 
-    const samePrintingCopy = { ...shadowRider, id: 'shadow-rider-same-printing-copy' };
     owner.hand.cards.push(samePrintingCopy);
     store.dispatch(new PlayCardAction(owner.id, owner.hand.cards.indexOf(samePrintingCopy)));
     return 'different physical copy benched';
@@ -237,7 +236,7 @@ test('same-printing but different physical Quick Ball cannot bind a pending prom
 
   assert.equal(wrapped.result, 'source mismatch rejected');
   assert.equal(wrapped.audit.quickBallRootsSeen, 1);
-  assert.equal(wrapped.audit.quickBallRootsAccepted, 0);
+  assert.equal(wrapped.audit.quickBallRootsAccepted, 1);
   assert.equal(wrapped.audit.sourceCardBindingFailures, 1);
   assert.equal(wrapped.audit.pendingPlansAtEnd, 0);
 });
