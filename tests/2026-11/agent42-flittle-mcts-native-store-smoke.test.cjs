@@ -174,11 +174,11 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
       accepted.push({ actorSeat: seat, turnBefore, ordinal, actionClass: action.constructor.name, intentKind: event.intent.kind });
       throw stop;
     }
-    if (opponentAttackBefforeRoot && runtime?.failures.length > 0 && runtime.events.length === 0 && fallbackAccepted.length === 0) {
+    if (opponentAttackBeforeRoot && runtime?.failures.length > 0 && runtime.events.length === 0 && fallbackAccepted.length === 0) {
       fallbackAccepted.push({ actorSeat: seat, turnBefore, ordinal, actionClass: action.constructor.name });
       throw stop;
     }
-    if (!opponentAttackBefforeRoot && runtime?.failures.length > 0 && runtime.events.length === 0) {
+    if (!opponentAttackBeforeRoot && runtime?.failures.length > 0 && runtime.events.length === 0) {
       throw new Error('Unexpected MCTS provider failure: ' + JSON.stringify(runtime.failures[0]));
     }
     if (++candidateDispatches > 5 && !runtime?.events.length && !runtime?.failures.length) {
@@ -192,7 +192,7 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
       deckA: cards.slice(), deckB: cards.slice(),
       seed: 20261113 + candidateSeat * 17 + (opponentAttackBeforeRoot ? 31 : 0),
       maxActions: 200,
-      label: 'agent4-flittle-mcts-native-store-smoke',
+      label: 'agent42-flittle-mcts-native-store-smoke',
       onRootStoreCreated: value => { store = value; },
       onRootAgentsCreated,
       onRootActionDispatched
