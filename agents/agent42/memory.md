@@ -731,7 +731,7 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 
 ## 2026-11-13 final state before lease release
 
-- PR47 current head: `4731d1de70022d8c9eb9603e4b23c12a020cac26`; base: current Agent43 branch `872f56f44ddfe37fd1938df957b97ad7f1eff9a0`; diff remains exactly the three intended native-integration files. No check runs exist yet.
+- PR47 current head (after provenance and artifact additions): `b59bebd94b3cfdfd5d602d58b41964ee76db4942`; base: current Agent43 branch `872f56f44ddfe37fd1938df957b97ad7f1eff9a0`; diff remains exactly the three intended native-integration files. No check runs exist yet.
 - Runner provenance binding is now in place: actual repository `HEAD`, actual `vendor/twinleaf` `HEAD` (asserted against the pinned gitlink), Agent43 root version, Agent42 shared-helper version, candidate seat and options are hashed together. Test asserts engine, research SHA format and helper version.
 - The manual workflow input remains default false. Do not dispatch without the owner's decision; no native Store workflow has run. No 99.5% or matchup claim.
 - Last communications sent to Agent3, Agent43 and Agent20; await their review. Current useful next step is review/dispatch of PR47 by its owner, then inspect actual native output and failures before any policy/competitive claim.
