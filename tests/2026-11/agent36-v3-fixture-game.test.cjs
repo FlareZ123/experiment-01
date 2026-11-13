@@ -450,6 +450,36 @@ test('fixture runner injects offline full-state diagnostics and persists partial
 });
 
 
+test('V3 fixture pins the bilateral Fog Crystal owner-prompt component after Agent34 role roots', () => {
+  assert.equal(runner.V3_FIXTURE.seed, 'agent36-v3-fixture-hood-rank1-20261112-01',
+    'paired policy comparison must retain the original deterministic game seed');
+  assert.equal(runner.V3_FIXTURE.trialId, 'agent36-v3-fixture-hood-rank1-20261113-fog-v1');
+  assert.equal(runner.V3_FIXTURE.policyVersion,
+    'agent34-actor-only-root-slice-v16-agent9-fog-crystal-setup');
+
+  assert.deepEqual(runner.V3_FIXTURE_PROMPT_CHAIN.map(entry => entry.name), [
+    'candidate-opponent-role-composition',
+    'actor-only-root-policy',
+    'owner-fog-crystal-prompt',
+    'native-prompt-resolution',
+  ]);
+  assert.ok(runner.V3_FIXTURE_COMMON_BINDINGS.some(binding =>
+    binding.name === 'fogCrystalPrompt' &&
+    binding.path === 'simulation/twinleaf/agent9-fog-actor-prompt.cjs' &&
+    binding.exportName === 'withActorFogCrystalPrompt'));
+  assert.ok(runner.V3_FIXTURE_TEST_PATHS.includes('tests/agent9-fog-actor-prompt.test.cjs'));
+
+  const runnerSource = fs.readFileSync(
+    path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  const composerAt = runnerSource.indexOf('const roleResult = runCandidateOpponentPolicyRoles(');
+  const fogAt = runnerSource.indexOf(
+    'const fog = withActorFogCrystalPrompt(() => runNativeFixtureGame({', composerAt);
+  assert.ok(composerAt >= 0 && fogAt > composerAt,
+    'Fog wrapper must be installed inside the role-composer callback, after Agent34 role wrappers');
+  assert.match(runnerSource, /fogCrystalAudit: roleResult\?\.fogCrystalAudit \?\? null/);
+  assert.match(runnerSource, /fogCrystalSearchPromptsAccepted:/);
+});
+
 test('V3 fixture requires a valid owner diagnostic recipient and always encrypts before upload', () => {
   const workflowPath = path.join(ROOT, '.github/workflows/agent36-bilateral-competence-v9.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
