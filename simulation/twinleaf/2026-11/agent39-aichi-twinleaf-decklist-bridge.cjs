@@ -33,6 +33,57 @@ function canonicalJson(value) {
   return JSON.stringify(value);
 }
 
+function compareText(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function normalizedDeckIdentityHashes(deck) {
+  if (!deck || !Array.isArray(deck.cards)) return null;
+  const functionalRows = [];
+  const sourcePrintRows = [];
+  for (const row of deck.cards) {
+    const normalized = row && row.normalized;
+    const printing = normalized && normalized.printing;
+    const cardPoolPrinting = normalized && normalized.card_pool_printing;
+    if (!normalized || typeof normalized.card_id !== 'string' || !normalized.card_id ||
+        typeof normalized.card_text_sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(normalized.card_text_sha256) ||
+        !Number.isSafeInteger(normalized.count) || normalized.count < 1 ||
+        !printing || typeof printing.set !== 'string' || !printing.set ||
+        typeof printing.number !== 'string' || !printing.number ||
+        !cardPoolPrinting || typeof cardPoolPrinting.set_id !== 'string' || !cardPoolPrinting.set_id ||
+        typeof cardPoolPrinting.number !== 'string' || !cardPoolPrinting.number) {
+      return null;
+    }
+    functionalRows.push({
+      card_id: normalized.card_id,
+      count: normalized.count,
+      card_text_sha256: normalized.card_text_sha256,
+    });
+    sourcePrintRows.push({
+      card_id: normalized.card_id,
+      count: normalized.count,
+      card_text_sha256: normalized.card_text_sha256,
+      printing: printing,
+      card_pool_printing: cardPoolPrinting,
+    });
+  }
+  functionalRows.sort((a, b) =>
+    compareText(a.card_id, b.card_id) ||
+    compareText(a.card_text_sha256, b.card_text_sha256) ||
+    a.count - b.count
+  );
+  sourcePrintRows.sort((a, b) =>
+    compareText(a.card_id, b.card_id) ||
+    compareText(a.printing.set, b.printing.set) ||
+    compareText(a.printing.number, b.printing.number) ||
+    a.count - b.count
+  );
+  return {
+    deck_identity_sha256: sha256Utf8(canonicalJson(functionalRows)),
+    source_print_identity_sha256: sha256Utf8(canonicalJson(sourcePrintRows)),
+  };
+}
+
 function registered60Hashes(registered60, registered60Counts) {
   if (!Array.isArray(registered60) || registered60.length !== 60 ||
       registered60.some(fullName => typeof fullName !== 'string' || !fullName)) {
@@ -76,7 +127,7 @@ function registered60Hashes(registered60, registered60Counts) {
 const REGISTERED60_HASH_PROTOCOL = {
   algorithm: 'SHA-256',
   ordered_input: 'UTF-8 bytes of compact JSON.stringify(registered60), the exact 60-element Twinleaf fullName array passed as decklist_for_seat.cards; entries are ordered by Unicode code-unit ascending fullName',
-  canonical_multiset: 'UTF-8 bytes of compact JSON.stringify(codepoint-sorted [{fullName,copies}]); duplicate fullName rows are aggregated before hashing',
+  canonical_multiset: 'UTF-8 bytes of compact JSON.stringify(UTF-16 code-unit-sorted [{fullName,copies}]); duplicate fullName rows are aggregated before hashing',
 };
 
 function indexTwinleafCards(cardManager) {
@@ -160,6 +211,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
   let resolvedRows = 0;
 
   for (const deck of field.decks) {
+    const sourceIdentityHashes = normalizedDeckIdentityHashes(deck);
     const merged = new Map();
     const rowMappings = [];
     let deckUnresolved = 0;
@@ -226,6 +278,9 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       player: deck.player,
       archetype: deck.archetype,
       status: complete ? 'complete' : 'incomplete',
+      deck_identity_sha256: sourceIdentityHashes ? sourceIdentityHashes.deck_identity_sha256 : null,
+      source_print_identity_sha256: sourceIdentityHashes ? sourceIdentityHashes.source_print_identity_sha256 : null,
+      source_identity_hash_status: sourceIdentityHashes ? 'complete' : 'invalid_source_identity',
       source_row_count: rowMappings.length,
       declared_source_row_count: deck.source_row_count == null ? null : deck.source_row_count,
       source_row_count_matches: sourceRowCountMatchesDeck,
@@ -267,6 +322,8 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     source_field_rows: field.source_rows,
     source_field_card_copies: field.card_copies,
     total_deck_card_copies: totalDeckCopies,
+    deck_identity_hash_protocol: 'SHA-256 of UTF-8 canonical JSON rows {card_id,count,card_text_sha256}, sorted by (card_id,card_text_sha256,count); print-independent functional identity',
+    source_print_identity_hash_protocol: 'SHA-256 of UTF-8 canonical JSON rows {card_id,count,card_text_sha256,printing,card_pool_printing}, sorted by (card_id,printing.set,printing.number,count); exact normalized source-print identity',
     registered60_hash_protocol: REGISTERED60_HASH_PROTOCOL,
     source_audit_sha256: metadata.source_audit_sha256 || null,
     source_normalized_field_sha256: metadata.source_normalized_field_sha256 || null,
@@ -399,6 +456,7 @@ module.exports = {
   sha256Utf8: sha256Utf8,
   canonicalJson: canonicalJson,
   registered60Hashes: registered60Hashes,
+  normalizedDeckIdentityHashes: normalizedDeckIdentityHashes,
   REGISTERED60_HASH_PROTOCOL: REGISTERED60_HASH_PROTOCOL,
   runCli: runCli,
 };
