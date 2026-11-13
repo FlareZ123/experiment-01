@@ -267,3 +267,71 @@ module.exports.binomialAtMostTwoFailures = binomialAtMostTwoFailures;
 module.exports.fourStrataTwoLossProbability = fourStrataTwoLossProbability;
 module.exports.twoLossPerOpponentDesign = twoLossPerOpponentDesign;
 module.exports.minimumGamesPerStratumForTwoLoss = minimumGamesPerStratumForTwoLoss;
+
+
+function balancedOneLossProbability(failureProbabilities,gamesPerStratum) {
+  if(!Array.isArray(failureProbabilities)||failureProbabilities.length<1)
+    throw new TypeError('failureProbabilities must be a nonempty array');
+  assertPositiveInteger(gamesPerStratum,'gamesPerStratum');
+  for(const q of failureProbabilities) assertProbability(q,'failureProbability');
+  let p0=1,oddsSum=0,forcedFailures=0;
+  for(const q of failureProbabilities) {
+    if(q===1) {forcedFailures+=gamesPerStratum;continue;}
+    p0*=Math.pow(1-q,gamesPerStratum);
+    oddsSum+=q/(1-q);
+  }
+  if(forcedFailures>=2) return 0;
+  if(forcedFailures===1) return p0;
+  return p0*(1+gamesPerStratum*oddsSum);
+}
+
+function fieldMeanOneLossConcavityApplies(gamesPerCell,target,cellCount) {
+  const Q=cellCount*(1-target);
+  if(gamesPerCell<=2||Q<=0||Q>=1) return false;
+  return 1+gamesPerCell*Q >= 2*(gamesPerCell-1)/(gamesPerCell-2);
+}
+
+function fieldMeanOneLossDesign({
+  gamesPerCell,
+  target=0.995,
+  confidence=0.95,
+  opponentCount=32
+}) {
+  assertPositiveInteger(gamesPerCell,'gamesPerCell');
+  assertProbability(target,'target');
+  assertProbability(confidence,'confidence');
+  assertPositiveInteger(opponentCount,'opponentCount');
+  if(target<=0.75||target>=1||confidence<=0||confidence>=1)
+    throw new RangeError('target must be in (0.75,1) and confidence in (0,1)');
+  const cellCount=opponentCount*STRATA_PER_OPPONENT;
+  const totalTrials=cellCount*gamesPerCell;
+  const proofApplies=fieldMeanOneLossConcavityApplies(gamesPerCell,target,cellCount);
+  const worstCasePValue=binomialAtMostOneFailures(totalTrials,1-target);
+  const alpha=1-confidence;
+  return {gamesPerCell,cellCount,totalTrials,target,confidence,alpha,
+    worstCasePValue,heterogeneityProofApplies:proofApplies,
+    passes:proofApplies&&worstCasePValue<=alpha};
+}
+
+function minimumGamesPerCellForFieldMeanOneLoss(options={}) {
+  const target=options.target??0.995;
+  const confidence=options.confidence??0.95;
+  const opponentCount=options.opponentCount??32;
+  assertProbability(target,'target');
+  assertProbability(confidence,'confidence');
+  assertPositiveInteger(opponentCount,'opponentCount');
+  if(target<=0.75||target>=1||confidence<=0||confidence>=1)
+    throw new RangeError('target must be in (0.75,1) and confidence in (0,1)');
+  const cellCount=opponentCount*STRATA_PER_OPPONENT;
+  for(let n=3;n<10000000;n++) {
+    if(fieldMeanOneLossConcavityApplies(n,target,cellCount)&&
+       binomialAtMostOneFailures(cellCount*n,1-target)<=1-confidence)
+      return fieldMeanOneLossDesign({gamesPerCell:n,target,confidence,opponentCount});
+  }
+  throw new RangeError('field-mean one-loss sample-size search exceeded its safety limit');
+}
+
+module.exports.balancedOneLossProbability=balancedOneLossProbability;
+module.exports.fieldMeanOneLossConcavityApplies=fieldMeanOneLossConcavityApplies;
+module.exports.fieldMeanOneLossDesign=fieldMeanOneLossDesign;
+module.exports.minimumGamesPerCellForFieldMeanOneLoss=minimumGamesPerCellForFieldMeanOneLoss;
