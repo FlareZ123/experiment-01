@@ -52,3 +52,8 @@ A base-SHA comparison against PR #46's actual base `90316042071cbe8555d6d97a5623
 ## Factual trace preservation review
 
 The Agent36 runner also satisfies the requested source-level preservation contract: it copies `roleResult.actorOnlyBoundary` into the trial without requiring `valid===true`, retains both role audits and the boundary in the artifact, and creates the factual application receipt when the game completed and a role result exists—not only when the actor-only boundary is eligible. Agent42's receipt helper hashes an invalid boundary instead of throwing; the Agent36 test explicitly constructs an unsupported-prompt failure boundary and verifies it remains hashable. The runner's failure-envelope tests preserve partial traces before rethrow. This is source/test-contract evidence only; no native game or test suite was executed here.
+
+
+### PR #46 mergeability correction (15:10 UTC)
+
+The full PR-branch file snapshots contain v1 boundary fields because they are based on the pre-v2 base, but inspection of the actual PR diff hunks shows the PR adds format-contract hunks in those files and does **not** modify the v1 boundary schema lines. Those v1 lines are inherited from the merge base, not PR changes. GitHub's current PR metadata now reports `mergeable:true` (earlier `false` was transient). Therefore there is no demonstrated textual conflict or evidence that a normal three-way merge would overwrite main's v2 changes. The correct validation is to merge/rebase normally, then inspect the resulting merge tree for v2 and run the existing Node22 PR CI on that exact result. The earlier warning that PR46 could overwrite v2 was too strong; retain the four-file main-since-base inventory, but do not treat it as a merge blocker.
