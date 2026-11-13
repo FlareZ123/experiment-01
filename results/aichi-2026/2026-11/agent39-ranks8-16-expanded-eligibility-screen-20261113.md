@@ -88,6 +88,10 @@ Inputs and prior evidence:
 - results/aichi-2026/2026-11/agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md
 - results/aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md
 
+## Reproducibility
+
+Three focused Node tests now cover the normalized ranks 8–16 inputs, the nine-row XYP Japanese-print crosswalk, and deck-construction rules across all 24 identity-screened lists. They are wired into `.github/workflows/aichi-card-audit.yml`. That workflow is manual and was **not dispatched in this invocation**, so the new test execution remains pending; the findings above are based on direct source/card-pool analysis and the linked per-rank reports.
+
 ## Disposition
 
 Ranks 8–16 pass the **English card-pool / banned-identity screen** and can be represented as Expanded-legal 60s after the explicit Basic Energy and alias normalizations above. This reduces the unreviewed card-pool slice, but does not certify the original physical Japanese printings or the event's complete format.
