@@ -131,6 +131,8 @@ test('policy hash binds deck, closure, constraints, canonical config and produce
  assert.notEqual(I.buildRolePolicyIdentity({...base,policyOptions:{mode:'owner'}}).policySha256,a.policySha256);
  assert.notEqual(I.buildRolePolicyIdentity({...base,producerId:'author-b'}).policySha256,a.policySha256);
  assert.throws(()=>I.buildRolePolicyIdentity({...base,policyOptions:{nested:{firstPlayerSeat:0}}}),/physical-game context/);
+ assert.throws(()=>I.buildRolePolicyIdentity({...base,policyOptions:{nativeOwnerTrainerFallback:true}}),/diagnostic native-state fallback/);
+ assert.throws(()=>I.buildRolePolicyIdentity({...base,policyOptions:{nested:{ownerFallbackDiagnosticView:true}}}),/diagnostic native-state fallback/);
 }));
 
 test('environment readers are allowlisted and actual values are hashed; secret keys fail closed',()=>repo(root=>{
