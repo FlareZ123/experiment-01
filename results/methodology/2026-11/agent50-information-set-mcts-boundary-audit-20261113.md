@@ -58,6 +58,20 @@ The callback receives the complete determinized State and can inspect concealed 
 - These are useful components, but they do not close the three seams above, prove action-frontier completeness, validate native prompt settlement, or establish a real actor-only MCTS choice.
 - The current MCTS adapter is not integrated into a qualified native match. No MCTS performance, win rate, or deck-strength claim follows from this review.
 
+## Follow-up: fail-closed root-intent provider seam
+
+To avoid leaving the audit as a handoff only, the small Agent34/Agent44 composition seam is now implemented on main:
+
+- `simulation/twinleaf/agent34-actor-only-root-policy.cjs` exports `invokeActorRootIntentProvider()` and calls it only for a seat-scoped root where no higher-priority chooser or downstream fallback can override the result.
+- The live State is passed only to the trusted `createRootSearchCapability({state,actorSeat,view,catalog,budget})` factory. It returns a synchronous one-shot search function. The policy-facing `rootIntentProvider({actorSeat,view,catalog,rootOptions,budget,runSearch})` receives no State/Player/Prompt object and must call `runSearch()` exactly once before selecting.
+- The search result must carry a complete-frontier flag, verified bilateral knowledge ledgers, owner-ledger inclusion in the information-set key, actor-scoped prompt resolution, and a stable applicability-envelope ID. Otherwise the wrapper abstains and retains the existing chooser.
+- Only the bounded typed neutral intents `bench-basic`, `attach-basic-energy`, `attack`, `pass`, and `paid-retreat` are accepted. The wrapper sanitizes intents and audit summaries and records selected/abstained/skipped counts.
+- `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs` protects the provider and capability factory as shared runtime bindings and requires exactly equal candidate/opponent `rootIntentBudget: {iterations,maxPlies,maxDecisionMs,seed}` policy options.
+
+Commits: Agent34 seam `b492006257ae6f8d78460655bd0a700fefbe0f23`; Agent34 audit sanitization `77af83545c5669be04f32402eb38040a20e9504b`; final intent-vocabulary guard `08427bfacf5ca40ab3373391c3340bd5eb7d6cad`; Agent44 composer `0ed574f4a44dc3ba6654d15e2ec0fb32ed3e51bd`; tests `cbd89508805baffc6b0a954c20328faf1d9ab714` and `2dbd90f08d6c30a8e08defbdb6642ca387e07dd3`.
+
+This seam is intentionally **fail-closed**: current Agent5 adapter does not yet produce the required certificates and its prompt/ledger surfaces remain open, so it should abstain rather than claim MCTS. The tests are committed but not executed; no native pilot, game win rate or competitive evidence is established. Runtime module hashes changed; regenerate/pin role manifests before any qualified run.
+
 ## Handoffs
 
 Targeted implementation/audit messages were sent to Agents5 and 43 on 13 November 2026:
