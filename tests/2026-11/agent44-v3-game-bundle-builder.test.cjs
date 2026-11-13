@@ -494,7 +494,8 @@ test('production pre-deal registration requires full process closure while fixtu
 });
 
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
-  const fixture=makePolicyFixture();
+  // Isolate reviewer authorization/chronology from the separate runtime-closure gate.
+  const fixture=makePolicyFixture({fullProcessClosureCovered:true});
   const {input}=makePreDeal(fixture);
   const production=preparePreDealPolicyRegistration(input);
   assert.equal(production.ready,false);
