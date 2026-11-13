@@ -1514,7 +1514,9 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     {nestedRankReviewFixtureMarker:true},
     {nestedRankReviewFormatReviewStatus:'unverified-fixture-only'},
     {nestedCoreCandidateFixtureMarker:true},
+    {nestedCoreCandidateFormatReviewStatus:'unknown-review-state'},
     {nestedCoreOpponentRankFixtureMarker:true},
+    {nestedTimingProtocolFixtureMarker:true},
     {nestedRankReviewFormatReviewStatus:'unknown-review-state'}
   ];
   for(const variant of variants) {
@@ -1550,10 +1552,22 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
         variant.nestedCoreCandidateFixtureMarker;
       resignPolicyPlanAttestations(generated);
     }
+    if (variant.nestedCoreCandidateFormatReviewStatus !== undefined) {
+      bundle.policyPlanCore.candidate.formatReviewStatus=
+        variant.nestedCoreCandidateFormatReviewStatus;
+      resignPolicyPlanAttestations(generated);
+    }
     if (variant.nestedCoreOpponentRankFixtureMarker !== undefined) {
       bundle.policyPlanCore.opponentPolicyBundle.ranks[0].fixtureOnly=
         variant.nestedCoreOpponentRankFixtureMarker;
       resignPolicyPlanAttestations(generated);
+    }
+    if (variant.nestedTimingProtocolFixtureMarker !== undefined) {
+      bundle.trial.preregistration.timingProtocol.fixtureOnly=
+        variant.nestedTimingProtocolFixtureMarker;
+      rehashTimingPreregistration(bundle);
+      rehashPolicyBundle(bundle);
+      populatePanelCoverage(bundle);
     }
     if (variant.trialFixtureMarker !== undefined)
       bundle.trial.fixtureOnly=variant.trialFixtureMarker;
@@ -1592,7 +1606,8 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
       assert.equal(production.fullProcessClosureCovered,true);
       assert.ok(production.failures.includes(
         'fixture-only-trial-not-eligible-for-competitive-admission'));
-      if (variant.nestedRankReviewFormatReviewStatus==='unknown-review-state')
+      if (variant.nestedRankReviewFormatReviewStatus==='unknown-review-state' ||
+          variant.nestedCoreCandidateFormatReviewStatus==='unknown-review-state')
         assert.ok(production.failures.includes('fixture-format-review-status-invalid'));
       if((variant.bundleFixtureMarker!==undefined &&
           typeof variant.bundleFixtureMarker!=='boolean') ||
