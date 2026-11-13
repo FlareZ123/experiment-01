@@ -62,7 +62,13 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
           ownerLedgerInInformationSetKey:true,
           promptResolutionActorScoped:true,
           applicabilityEnvelopeId:'flittle-basic-psychic-v1',
-          iterations:32,rootActionCount:2
+          iterations:32,completedIterations:32,maxPlies:4,
+          maxDecisionMs:250,seed:9,elapsedMs:12.5,
+          timeoutStatus:'completed',cPuct:1.4,
+          maxActionTransitions:4,seatActionTransitions:[64,64],
+          rolloutPaths:Array.from({length:32},(_,iteration)=>({
+            iteration,actions:[]
+          })),rootActionCount:2
         }
       });
     },
@@ -83,7 +89,31 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   });
   assert.equal(selected.searchAudit.applicabilityEnvelopeId,
     'flittle-basic-psychic-v1');
+  assert.equal(selected.searchAudit.iterations,32);
+  assert.equal(selected.searchAudit.completedIterations,32);
+  assert.equal(selected.searchAudit.maxPlies,4);
+  assert.equal(selected.searchAudit.maxDecisionMs,250);
+  assert.equal(selected.searchAudit.seed,9);
+  assert.equal(selected.searchAudit.elapsedMs,12.5);
+  assert.equal(selected.searchAudit.timeoutStatus,'completed');
+  assert.equal(selected.searchAudit.rolloutPaths.length,32);
   assert.equal(Object.hasOwn(providerContext,'state'),false);
+
+  const mismatchedBudget=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected',intent:{kind:'pass'},
+      audit:{
+        frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+        ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+        applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+        iterations:32,completedIterations:32,maxPlies:4,
+        maxDecisionMs:10000,seed:9,elapsedMs:20,
+        timeoutStatus:'completed',rootActionCount:2
+      }}),
+    provider:context=>{context.runSearch();return {status:'selected'};}
+  });
+  assert.equal(mismatchedBudget.status,'abstained');
+  assert.equal(mismatchedBudget.reason,'native-search-budget-mismatch');
 
   const selectedWithoutSearch=invokeActorRootIntentProvider({
     state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
@@ -184,7 +214,13 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
         audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
           ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
           applicabilityEnvelopeId:'flittle-basic-psychic-v1',
-          iterations:32,rootActionCount:2}});
+          iterations:32,completedIterations:32,maxPlies:4,
+          maxDecisionMs:250,seed:9,elapsedMs:12.5,
+          timeoutStatus:'completed',cPuct:1.4,
+          maxActionTransitions:4,seatActionTransitions:[64,64],
+          rolloutPaths:Array.from({length:32},(_,iteration)=>({
+            iteration,actions:[]
+          })),rootActionCount:2}});
     },
     rootIntentProvider:context=>{
       assert.equal(context.actorSeat,0);
@@ -200,6 +236,9 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
   assert.equal(result.audit.rootIntentProvider.abstained,0);
   assert.equal(result.audit.rootIntentProvider.lastIntentKind,'pass');
   assert.equal(result.audit.rootIntentProvider.lastSearchAudit.frontierComplete,true);
+  assert.equal(result.audit.rootIntentProvider.lastSearchAudit.maxDecisionMs,250);
+  assert.equal(result.audit.rootIntentProvider.lastSearchAudit.maxPlies,4);
+  assert.equal(result.audit.rootIntentProvider.lastSearchAudit.timeoutStatus,'completed');
   assert.equal(result.audit.competitiveGameQualified,false);
 });
 
