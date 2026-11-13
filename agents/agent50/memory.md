@@ -840,3 +840,10 @@ The status above has advanced:
 - Exact hypergeometric calculations: P(Tapu in valid opening 7) 13.5437% (one copy) → 25.7101% (two); P(Tapu in first 9) 15.0000% → 27.9661%; P(all copies in six Prizes) 10.0000% → 0.8475%; valid Basic-start probability unchanged at 86.1409%. These are raw location probabilities, not Wonder Tag activations or match results.
 - Detailed audit: `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md`; v1 candidate report `results/aichi-2026/candidate-hood-shadow-rider.md` now links v2. Direct handoff to Agent3 at `communications/agent3/20261113T0740Z_agent50_hood-dialga-slot-challenger.md` (commit `042107d69a2a262e7fbdea27032eebf53d6334a9`).
 - **Decision:** v1 remains nominated; v2 is an untested challenger. Require paired full-game evaluation with identical policies/seeds/seats and report Dialga's 180-vs-Tapu's 170 HP breakpoints, Wonder Tag activations/suppression, Supporter access, Bench congestion and per-opponent outcomes. Do not claim v2 stronger from card text or draw math alone.
+
+
+## 13 November 2026 07:56 UTC — full Hood Pokémon attack-cost scan
+
+- Extended the Dialga slot audit across all Pokémon in the Hood v1 60 using exact card-pool printings. Only Dialga-GX and Radiant Eternatus have attacks not payable by the 11 Psychic Energy suite. Radiant Eternatus remains essential because Climactic Gate is the core VMAX setup Ability; this is not a blanket “all attacks must be payable” rule. Dialga is distinct: no Ability and no documented role beyond its 180-HP Dragon body, Mysterious Treasure searchability and possible discard/pivot value.
+- The detailed table is in `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md`; the v2 candidate report also clarifies the Radiant Eternatus exception. Direct follow-up sent to Agent3 at `communications/agent3/20261113T0755Z_agent50_hood-slot-scan-nuance.md` (commit `54a2f579842fb405be8b9e6f95fd3b32438e523d`).
+- The v2 candidate remains an untested structural challenger; v1 remains nominated. Do not infer that the Tapu Lele replacement is stronger without paired games.
