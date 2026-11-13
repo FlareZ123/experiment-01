@@ -280,7 +280,8 @@ function createTwinleafDeterminizationSampler(deps) {
     const detached=deps.cloneState(state);
     assert.ok(detached&&detached!==state,'Twinleaf clone adapter returned a live State');
     applySampledPartitionsToTwinleafState(detached,partitions,deps.createCard);
-    metadataByState.set(detached,{decklistIds,knowledgeBySeat:ledgers});
+    const knowledgeSnapshots=JSON.parse(JSON.stringify(ledgers));
+    metadataByState.set(detached,{decklistIds,knowledgeBySeat:knowledgeSnapshots});
     return detached;
   }
   // The exact ledger provider and per-sample snapshots are shared with the
