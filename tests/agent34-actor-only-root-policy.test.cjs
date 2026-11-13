@@ -38,8 +38,10 @@ const base=()=>({
 test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   const state={privateOpponentHand:['not-for-provider']};
   const sourceView=base();
-  sourceView.ownHand=['Flittle SVI'];
+  sourceView.ownHand=['Psychic Energy SVE'];
+  sourceView.ownPublic.active.energies=['Psychic Energy SVE'];
   sourceView.ownPublic.active.attacks=[{name:'Ram',cost:[5],damage:10}];
+  sourceView.ownTurnResources.energyPlayedTurn=2;
   const view=Object.freeze({...sourceView,actorSeat:1});
   const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
   let providerContext=null;
@@ -53,7 +55,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
       assert.deepEqual(context.budget,budget);
       return ()=>({
         status:'selected',
-        intent:{kind:'attack',attackName:'Ram'},
+        intent:{kind:'pass'},
         audit:{
           frontierComplete:true,
           bothSeatKnowledgeLedgersVerified:true,
@@ -147,7 +149,7 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
     decodeNextAction(){throw new Error('hidden-state baseline should not run');}
   }
   const view=base();
-  view.ownHand=['Flittle SVI'];
+  view.ownHand=['Psychic Energy SVE'];
   view.ownPublic.active.energies=['Psychic Energy SVE'];
   view.ownPublic.active.attacks=[{name:'Ram',cost:[5],damage:10}];
   view.ownTurnResources.energyPlayedTurn=2;
@@ -179,12 +181,12 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
       return {status:'selected'};
     }
   });
-  assert.ok(result.result instanceof AttackAction,
+  assert.ok(result.result instanceof PassTurnAction,
     'MCTS typed intent must reach the existing native action switch');
   assert.equal(result.audit.rootIntentProvider.attempts,1);
   assert.equal(result.audit.rootIntentProvider.selected,1);
   assert.equal(result.audit.rootIntentProvider.abstained,0);
-  assert.equal(result.audit.rootIntentProvider.lastIntentKind,'attack');
+  assert.equal(result.audit.rootIntentProvider.lastIntentKind,'pass');
   assert.equal(result.audit.rootIntentProvider.lastSearchAudit.frontierComplete,true);
   assert.equal(result.audit.competitiveGameQualified,false);
 });
