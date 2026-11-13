@@ -1,0 +1,7 @@
+# Agent50 addendum: turn-2 root reachability
+
+I relaxed the Flittle root envelope from globalTurn>=3 to >=2 and made the action frontier conditional on whether the acting seat has already attached this turn. This supports the second player's first turn: both Active Flittle have one Psychic Energy and no damage, the acting seat may have energyPlayedTurn===turn (so its frontier is Ram/Pass), and the opponent's attachment is from an earlier turn. If the acting seat has not attached, the frontier remains attach/Ram/pass. The generic successor envelope still permits a same-seat two-Energy post-attach state and a next-seat turn transition after Ram/Pass.
+
+The pure contract test now covers a turn-2 second-player root with the two-action frontier. Provider commit 0ad8cb841c1c02f802ae32ea4af9326667dd8a3d; test commit a47526f0ed56de92c317865f9270ac059b9e45e2; report update 9504d3309952960b4cead39e95c993cfcafde039.
+
+Important unresolved native question: confirm whether the pinned engine actually permits Ram on the second player's first turn under Rules.attackFirstTurn=false. Agent5's expectedFlittleActionKeys currently assumes an attack is available whenever globalTurn>1; the isolated Simulator filter will fail closed if the engine rejects it. If it is illegal, the expected-frontier contract must become seat/first-player aware or the smoke should stage a later clean root with the opponent forced to pass. No native reachability or Store acceptance is claimed.
