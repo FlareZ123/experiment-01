@@ -33,25 +33,26 @@ The nested attack-cost and extra-turn mechanics are supported by the existing [D
 The acting player is piloting the candidate. The state immediately before Battle Compressor is:
 
 **Candidate board**
-- Active: Mimikyu GRI 58 with two Psychic Energy attached.
-- Bench: Lillie's Clefairy ex (Fairy Zone active), Latias ex, and three Shadow Rider Calyrex VMAX.
-- One Shadow Rider VMAX has three Psychic Energy attached; the other two have none.
-- The Bench is full (five Pokémon). There are five Psychic Energy attached across the candidate's Pokémon: two on Mimikyu and three on the powered VMAX.
+- Active: Mimikyu GRI 58 with two Psychic Energy attached. Mimikyu was on the Bench during the opponent's last Apex Dragon; that attack Knocked Out the candidate's previous Active, and Mimikyu was promoted afterward. Mimikyu is undamaged.
+- Bench: Lillie's Clefairy ex (Fairy Zone active), Latias ex, and two Shadow Rider Calyrex VMAX.
+- One Shadow Rider VMAX has three Psychic Energy attached; the other has none. There are five Psychic Energy attached across the candidate's Pokémon: two on Mimikyu and three on the powered VMAX.
+- The Bench has four Pokémon after Mimikyu's promotion; one slot is open. Girafarig could be benched if accessed, but has no Energy and no relevant Get Lost target, so it has no immediate attack line.
 - The once-per-game GX attack allowance is unused.
 - Battle Compressor is in hand. Dialga-GX, Radiant Eternatus, Marshadow and Girafarig are in the deck.
 
 **Opponent board**
 - Active: Regidrago VSTAR at 280 HP.
 - Bench: Crobat V at 180 HP, the opponent's only Benched Pokémon.
-- The opponent's most recent attack was Apex Dragon.
+- The opponent's most recent attack was Apex Dragon, a non-GX attack; it Knocked Out the candidate's previous Active, not Mimikyu.
 - If Regidrago VSTAR is Knocked Out, Crobat V is the only Pokémon available to promote.
 - No Path to the Peak or other Ability-locking effect is in play; Fairy Zone and Skyliner are active.
 
 **Access and information constraints**
-- The candidate has no other usable search/draw effect that can put Radiant Eternatus into the discard before the second attack. In the D2 branch, Radiant remains in the deck and is inaccessible during the extra turn.
-- The candidate's next extra-turn draw is not an access card. All four Mysterious Treasure, Quick Ball, all four Fog Crystal, Arven, Guzma & Hala, Tapu Lele-GX, Lillie's Determination and Iono are unavailable (in the discard pile or Prizes, or otherwise not playable). Forest Seal Stone is attached and its VSTAR Power has already been used. There is no Psychic Energy in hand, so Underworld Door cannot be activated to draw cards. Hisuian Heavy Ball cannot find Radiant because Radiant is not Prized; Night Stretcher cannot retrieve a card from the deck. Pokémon Communication, if available, only moves Radiant from deck to hand; it is not a discard outlet, and the hand-discard routes are unavailable, while the Bench is full.
+- The candidate has no other usable route to put Radiant Eternatus into the discard before the second attack. In the D2 branch, Radiant remains in the deck and is inaccessible during the extra turn.
+- All four Mysterious Treasure, Quick Ball, all four Fog Crystal, Arven, Guzma & Hala, Tapu Lele-GX, Teammates, Raihan, Lillie's Determination and Iono are unavailable (in the discard pile or Prizes, or otherwise not playable). Teammates and Raihan are specifically unavailable despite the previous Knock Out making their conditions live: Raihan could attach another Psychic Energy from the discard (raising Max Geist from 160 to 190), while Teammates could search an Energy or a discard outlet.
+- Forest Seal Stone is attached and its VSTAR Power has already been used. There is no Psychic Energy in hand, so Underworld Door cannot be activated to draw cards or attach another Energy. Hisuian Heavy Ball cannot find Radiant because Radiant is not Prized; Night Stretcher cannot retrieve a card from the deck.
+- Pokémon Communication, if available, only moves Radiant from deck to hand; it is not a discard outlet. The hand-discard routes are unavailable, so this does not make Radiant an Apex Dragon donor before the second attack.
 - The player knows its own deck contents after Battle Compressor's full-deck search (player-specific K1 information). No decision uses the opponent's hidden hand, deck order or face-down Prizes.
-
 This is a deliberately constructed state to expose the decision. It is not claimed to be a frequent or naturally observed board.
 
 ## The two legal discard sets
@@ -63,7 +64,7 @@ Both choices play the same Battle Compressor, discard exactly three cards, and i
 | **D1** | Dialga-GX, Radiant Eternatus, Marshadow | Discard pile |
 | **D2** | Dialga-GX, Girafarig, Marshadow | Remains in deck |
 
-Girafarig has no immediate line in this state: the Bench is full, it has no Energy, and the opponent's discard contains no relevant recovery target for Get Lost. Marshadow is held constant in both sets; the no-Path-to-the-Peak precondition means its Resetting Hole is not needed in this fixture. Their future option values are intentionally outside this narrow immediate-decision comparison. If either attack or a later Stadium/recovery line is live, the DCI comparison must be recomputed.
+Girafarig has no immediate line in this state: it has no Energy and the opponent's discard contains no relevant recovery target for Get Lost. It could occupy the open Bench slot, but cannot attack or change the immediate continuation. Marshadow is held constant in both sets; the no-Path-to-the-Peak precondition means its Resetting Hole is not needed in this fixture. Their future option values are intentionally outside this narrow immediate-decision comparison. If either attack or a later Stadium/recovery line is live, the DCI comparison must be recomputed.
 
 ## Same continuation policy, different outcome
 
