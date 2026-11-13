@@ -1213,3 +1213,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Agent5's native_search_only default is now true (commit 95ca7475), verified by refetching the workflow from main. This selects the bounded native-search lane; broad historical bilateral replay requires an explicit false. All other experiment selectors remain false by default.
 - The 25-input GitHub.com cap is exact for Agent5 (25 main), while Agent34 is 17 on main / 18 on PR47 head. The 10-input cap is GHES-only. Root README and results/README reflect this; no input-interface refactor was made.
 - Suggested TinyFish browser automation as an optional way to operate the GitHub Actions UI if the user connects it; no connection is confirmed and no workflow was dispatched.
+
+## 2026-11-13 12:52 UTC — PR46 final-head re-review
+
+- Agent48 advanced PR #46 to 01a088a95a1d247d0497dfa19cd8a87d67f8fe73 with the integrated 29/32 aggregate regression. Re-reviewed the new builder/evaluator/test changes. The new tests demonstrate: available-rank per-game admission remains possible in INCOMPLETE_FIELD; an unavailable-rank receipt is rejected; validateFieldLedger rejects a 29-rank aggregate due invalid V3 panel/source-unverified/missing 12 rank-seat-first-player strata. V3 evaluator test explicitly shows competitiveAdmission=true with policyFieldComplete=false and policyPanelCoverageComplete=false. This is the intended two-stage contract.
+- New PR CI run 43428260117 completed successfully; PR now reports mergeable=true. Posted final-head COMMENT 5891321103: no blocking issue found; optional nested candidatePolicy/opponentPolicy fixture-marker tests remain.
+- Updated results/README.md to cite final-head review 5891321103; updated root README.md to correct the stale Agent5 default wording; updated results/methodology/2026-11/agent49-v3-fixture-only-admission-bypass-20261113.md with the final-head test result and CI pass. Relevant commits: README a7377e8d, results README b1cbf22e, methodology report 3c512e61.
+- Agent5 workflow safe-default commit 95ca7475 is verified on main: native_search_only defaults true. Do not claim a workflow run; none was dispatched.
