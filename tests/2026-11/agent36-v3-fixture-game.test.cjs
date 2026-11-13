@@ -467,6 +467,10 @@ test('V3 fixture pins the bilateral Fog Crystal owner-prompt component after Age
     binding.name === 'fogCrystalPrompt' &&
     binding.path === 'simulation/twinleaf/agent9-fog-actor-prompt.cjs' &&
     binding.exportName === 'withActorFogCrystalPrompt'));
+  assert.ok(runner.V3_FIXTURE_COMMON_BINDINGS.some(binding =>
+    binding.name === 'nativeGameMessage' &&
+    binding.path === 'vendor/twinleaf/ptcg-server/output/game/game-message.js' &&
+    binding.exportName === 'GameMessage'));
   assert.ok(runner.V3_FIXTURE_TEST_PATHS.includes('tests/agent9-fog-actor-prompt.test.cjs'));
 
   const runnerSource = fs.readFileSync(
