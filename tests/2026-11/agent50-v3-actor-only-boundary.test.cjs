@@ -52,6 +52,21 @@ test('native owner trainer fallback makes comparative execution boundary invalid
   assert.ok(result.failures.includes('candidate-native-owner-trainer-fallback-enabled'));
 });
 
+test('owner fallback diagnostic view and hidden-information flags fail closed',()=>{
+  const result=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{nativeOwnerTrainerFallback:{
+      nativePolicyMayUseHiddenInformation:true,
+      firstUnsupportedOwnerRoot:null,
+      attemptedUnsupportedPasses:0
+    }}),
+    opponentAudit:audit(1),candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(result.valid,false);
+  assert.ok(result.failures.includes('candidate-native-owner-trainer-fallback-enabled'));
+  assert.ok(result.failures.includes('candidate-owner-fallback-diagnostic-view-enabled'));
+  assert.ok(result.failures.includes('candidate-native-policy-may-use-hidden-information'));
+});
+
 test('unsupported owner prompt fallback invalidates the role execution boundary',()=>{
   const result=inspectActorOnlyExecutionBoundary({
     candidateAudit:audit(0,{unsupportedPromptFallbacks:1}),
