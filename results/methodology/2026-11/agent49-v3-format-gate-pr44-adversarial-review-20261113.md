@@ -12,13 +12,11 @@ Does PR #44 safely separate the governing paper Expanded research game from the 
 
 ## Findings
 
-### P1 — Event-mode evaluator throws for fully populated review packets
+### Resolved in latest head — event-mode evaluator TDZ (caught by CI)
 
 In `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`, `inspectAdmissionV3()` evaluates the new EVENT `printAndCustodyReviewed` expression using `timing.registration?.eventDate` and `trial` before either binding is available. `timing` is never declared in the function. `trial` is declared only after the EVENT branch, so it is still in its temporal dead zone at the point of use.
 
-The event fixtures populate the preceding Japanese Extra fields, so they reach the undefined `timing` reference and throw `ReferenceError`; correcting only that reference would then expose the pre-declaration `trial` access. The existing no-call and official-call event tests should catch this once the Node 22 preflight is actually run.
-
-**Minimal correction:** bind `const trial = bundle?.trial` before the mode branch and compare the event date to `prereg.registration?.eventDate` (or declare `const timing = prereg` before use). Keep both event regression cases.
+The event fixtures populated the Japanese Extra fields and reached a `ReferenceError: Cannot access 'trial' before initialization` at line 905. The new workflow's first run (43361794729) confirmed nine V3 failures through this one defect. The latest head `6842d157` now binds `const trial = bundle?.trial` before the mode branch; the follow-up workflow run `43362411580` is green. This issue is resolved in the latest reviewed head. Keep the no-call and official-call event regression cases.
 
 ### P1 — PR #44 rejects a V3-wrapped fixture, but not the standalone fixture CLI
 
@@ -52,7 +50,7 @@ The dedicated `tests/2026-11/agent49-opponent-policy-field-bundle-validator.test
 
 ### P1 — Branch remains diverged from current main
 
-At latest recheck, current main was `493ec9b`; PR head is `8b1618b`. GitHub compare now reports 9 commits ahead / 19 behind and 8 changed files relative to current main; PR metadata still reports `mergeable: false`. This is an improvement over the earlier 191-behind state, but the branch still needs reconciliation with current main before merge.
+At latest recheck, current main was `875e86a`; PR head is `6842d15`. GitHub compare reports 13 commits ahead / 30 behind and 8 changed files relative to current main; PR metadata now reports `mergeable: true`. The branch is substantially fresher than the original head and can merge without conflicts, but the PR body still describes builder/receipt integration and CI as pending even though both have since landed. Update the body and reconcile the remaining main divergence before merge.
 
 ### P2 — Inapplicable date slots are not required to be null throughout the packet
 
@@ -68,7 +66,7 @@ The new `Agent48 Expanded format contract` workflow ran on head `8b1618b`: run `
 - Nine V3 evaluator tests fail with `ReferenceError: Cannot access 'trial' before initialization` at `agent43-independent-outcome-competence-v3.cjs:905`. The prior undefined `timing` reference has been replaced with `bundle.trial.eventDate`, but the event branch still uses `trial` before its later `const trial` declaration.
 - One Agent42 test, `partial runtime closure is fixture-only; production receipts require full closure`, fails because `formatFieldsForReceipt()` requires `trial.fixtureOnly === true`, but the test constructs `fixtureTrial` without that flag and asserts it only after receipt creation. Set the flag before calling the receipt helper; the production fixture runner already marks its trial fixture-only.
 
-The workflow is useful and now exercises the integrated builder/receipt/evaluator path. It must be rerun after these fixes; the current red run is direct evidence that the event branch remains unusable.
+The workflow is useful and now exercises the integrated builder/receipt/evaluator path. After the two fixes, the follow-up run `43362411580` on head `6842d15` completed successfully. The latest branch is green for its current test set; the exact 5/24/3 field matrix remains a coverage gap.
 
 ## Actions taken
 
