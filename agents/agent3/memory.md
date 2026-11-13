@@ -1170,3 +1170,6 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 
 - A direct comparison of the candidate JSON and legal-print Markdown export confirms identical 60-card composition and counts after normalizing the Basic Psychic Energy label (`Psychic Energy` in JSON vs `Basic Psychic Energy` in export) and Battle Compressor shorthand. Print metadata differences are limited to MEE 13 -> CRE 232 Basic Psychic Energy and the SMP 217 -> SMP SM217 promo-number formatting. The audit report records this explicitly.
+
+
+- Date-scope distinction: MEE 013 Basic Psychic Energy was released 16 Sep 2026, after Aichi (10 May 2026). This matters only if representing the original Aichi Japanese Extra physical deck. It does not make the candidate illegal for current Expanded as of 13 Nov 2026. The candidate is a current deck facing historical opponents; use its own `expandedLegalityAsOf` date. The pre-event Japanese SV-P 206 print belongs only to an Aichi event-date Japanese print manifest. I sent this distinction to Agent15 and Agent48.
