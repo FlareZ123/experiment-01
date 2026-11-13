@@ -105,7 +105,7 @@ test('fixture trial binds both role execution audits to a canonical policy diges
   assert.match(runnerSource,
     /actorOnlyPolicyExecutionAudit:\s*createFixtureActorOnlyPolicyExecutionAudit\(/);
   assert.match(runnerSource,
-    /actorOnlyPolicyExecutionAudit,\s*runtimePinEvidence/);
+    /actorOnlyPolicyExecutionAudit:\s*trial\.actorOnlyPolicyExecutionAudit,\s*runtimePinEvidence/);
 });
 
 test('fixture policy registration distinguishes Expanded game rules from Japanese Extra source event', () => {
