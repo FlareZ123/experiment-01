@@ -1,91 +1,81 @@
-# Hood Shadow Rider slot audit: Dialga-GX versus a second Tapu Lele-GX
+# Dialga-GX in Hood Shadow Rider: matchup-specific counter-ALS
 
 **Date:** 13 November 2026  
 **Author:** Agent 50  
-**Status:** structural candidate hypothesis; no game-strength evidence
+**Status:** critical correction; the Tapu Lele slot proposal is withdrawn
 
-## Question
+## Critical correction — Dialga is not a dead slot against Regidrago
 
-Is the single Dialga-GX in the current Hood Shield Shadow Rider v1 candidate a high-value slot, or should the deck test a second Tapu Lele-GX instead?
+The earlier slot proposal treated Dialga-GX as a low-value Basic because its printed attacks require Metal Energy while the candidate contains only Basic Psychic Energy. That card-text observation is true but strategically incomplete. It missed the matchup-specific Archetype-Line-Specific (ALS) documented in the repository's `resources/human_concepts.md`:
 
-## Card-pool finding
+**Mimikyu Copycat → opponent Regidrago VSTAR Apex Dragon → your Dialga-GX Timeless-GX from discard.**
 
-The exact source is the bundled English card pool, not an assumed type from the card name:
+1. Regidrago VSTAR's **Apex Dragon** is a non-GX attack. It chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
+2. Mimikyu GRI 58's **Copycat** says that if the opponent's Pokémon used a non-GX attack during their last turn, use it as this attack. Thus it can copy Apex Dragon.
+3. The copied Apex Dragon effect can choose **Timeless-GX** from your Dialga-GX in your discard pile.
+4. Mimikyu pays its own Copycat cost (Psychic + Colorless), which the deck's Psychic Energy can pay. The nested copied attack does not require paying Dialga's Metal attack cost under the rulebook's “use it as this attack” ruling.
 
-- `resources/cards/en/sm5.json`, Dialga-GX UPR 100: Dragon-type, 180 HP, no Ability. Its attacks are Overclock (Metal), Shred (Metal + 2 Colorless), and Timeless-GX (3 Metal + 2 Colorless).
-- `resources/cards/en/sm2.json`, Tapu Lele-GX GRI 60: Psychic Basic, 170 HP, with Wonder Tag. Energy Drive costs 2 Colorless; Tapu Cure-GX costs 1 Psychic.
-- `resources/cards/en/sm6.json`, Mysterious Treasure: searches Psychic or Dragon Pokémon, so it can search either card.
-- `resources/cards/en/swsh6.json`, Fog Crystal: searches a Basic Psychic Pokémon or Psychic Energy. It can search Tapu Lele-GX, not Dialga-GX.
-- `resources/cards/en/xy5.json`, Dimension Valley: reduces attack costs of Psychic Pokémon, not Dragon Pokémon.
+The bundled advanced manual, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, section **C-18**, page 37, says “use it as this attack” means choosing an attack and doing all its effects and damage; unless specified otherwise, the Pokémon does not need the Energy for the chosen attack. This supports the nested copy without paying Dialga's Metal Energy cost.
 
-The v1 list `results/aichi-2026/candidate-hood-shadow-rider.json` has 11 Basic Psychic Energy and no Metal Energy. Psychic Energy can satisfy Colorless symbols, but not Metal symbols. No card in this 60 supplies Metal Energy or changes Psychic Energy into Metal. Therefore **none of Dialga-GX's attacks is payable in this list**. This does not make Dialga a literal blank: it is a searchable 180-HP Dragon Basic body, can be found by Mysterious Treasure, and Latias ex can remove its Retreat Cost while Skyliner is active. Its value as a high-HP pivot or deliberate discard target is unproven. Radiant Eternatus also has an unpayable Power Beam attack (Fire + Darkness + Colorless) in this Energy suite, but remains essential because its Climactic Gate Ability searches two Pokémon VMAX and ends the turn. This is why the slot judgment is not based on attack-cost mismatch alone: Dialga has no Ability or other documented deck role beyond its body/typing/search/discard value.
+Timeless-GX's printed text includes “Take another turn after this one” and the once-per-game GX-attack restriction. The exact GX-attack allowance when the effect is reached through two nested copies still requires a focused paper-ruling and Twinleaf test. Preserve the GX attack for this line in the meantime; do not first use Trevenant & Dusknoir-GX's or Tapu Lele-GX's GX attack if the Regidrago counter-line is intended.
 
-A deck-wide attack-cost scan of the candidate's Pokémon makes the distinction clearer:
+This is strategically material: `candidate-temple-shadow-rider.md` records **nine published Regidrago lists** in the Aichi field. Removing Dialga without replacing this counter-ALS would weaken the full-field objective across a substantial part of the known field.
 
-| Pokémon | Attack-cost compatibility with Psychic-only Energy | Relevant Ability |
+## Card-text and energy audit
+
+The exact bundled card-pool entries are:
+
+- `resources/cards/en/sm5.json`, Dialga-GX UPR 100: Dragon-type, 180 HP, no Ability. Its printed attacks are Overclock (Metal), Shred (Metal + 2 Colorless), and Timeless-GX (3 Metal + 2 Colorless).
+- `resources/cards/en/sm2.json`, Mimikyu GRI 58: Copycat costs Psychic + Colorless and can copy a non-GX attack used by the opponent's Pokémon during their last turn.
+- `resources/cards/en/swsh12.json`, Regidrago VSTAR: Apex Dragon is a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
+- `resources/cards/en/sm2.json`, Tapu Lele-GX GRI 60: Psychic Basic, 170 HP, Wonder Tag; Energy Drive costs 2 Colorless and Tapu Cure-GX costs 1 Psychic.
+- `resources/cards/en/sm6.json`, Mysterious Treasure: searches Psychic or Dragon Pokémon, so it can find Dialga and Mimikyu.
+- `resources/cards/en/swsh6.json`, Fog Crystal: searches a Basic Psychic Pokémon or Psychic Energy; it can find Mimikyu/Tapu Lele but not Dialga.
+- `resources/cards/en/xy4.json`, Dimension Valley: reduces attack costs of Psychic Pokémon, not Dragon Pokémon.
+
+The candidate's 11 Basic Psychic Energy cannot pay Dialga's normal Metal attack symbols. That is not a reason to remove Dialga: its role is the Dragon payload in the discard pile, not a normal attacker. Mysterious Treasure can find it as a Dragon; Battle Compressor can put it in the discard pile; Mysterious Treasure can also discard it from hand as its cost. Night Stretcher can recover it, but doing so before the counter-line may remove the required payload from the discard pile.
+
+A deck-wide scan found two Pokémon whose printed attacks are not payable with Psychic-only Energy:
+
+| Pokémon | Normal attack-cost compatibility | Relevant role |
 | --- | --- | --- |
-| Shadow Rider Calyrex V / VMAX | All attacks payable | Underworld Door on VMAX |
-| Lillie's Clefairy ex | Payable | Fairy Zone |
-| Tapu Lele-GX | Payable | Wonder Tag |
-| Trevenant & Dusknoir-GX | Payable | None |
-| Latias ex | Payable | Skyliner |
-| Dialga-GX | **No attack payable** | None |
-| Mimikyu GRI 58 | Payable | None |
-| Girafarig LOT 94 | Payable | None |
-| Marshadow UNB 81 | Payable | Resetting Hole |
-| Radiant Eternatus | Power Beam is not payable (Fire + Darkness + Colorless) | **Climactic Gate is the essential VMAX setup Ability** |
+| Dialga-GX | No printed attack payable | Dragon discard payload for the Mimikyu/Apex Dragon/Timeless-GX counter-ALS |
+| Radiant Eternatus | Power Beam (Fire + Darkness + Colorless) not payable | Climactic Gate is the essential VMAX setup Ability |
+| All other candidate Pokémon | Printed attacks payable | Their ordinary attack/Ability roles remain available |
 
-Thus the list has two attack-cost mismatches, but only Dialga lacks a documented Ability role. Radiant Eternatus is retained for Climactic Gate despite its unusable attack. This makes the Dialga slot a more specific structural question than a blanket “every Pokémon must attack” rule.
+Radiant Eternatus is retained despite its unpayable attack because Climactic Gate is essential. Dialga is also retained, but for a different reason: its copied attack text is a matchup-specific payload. This is precisely why energy-cost scans must be combined with ALS and copied-attack rules.
 
-Tapu Lele-GX is also a two-Prize Basic but offers Wonder Tag when played from hand onto the Bench, can find any Supporter, and has attacks payable with the deck's Psychic Energy. It is searchable by all four Mysterious Treasure and all four Fog Crystal, plus Quick Ball and the one-time Forest Seal Stone search. Dialga is searchable by Mysterious Treasure and Quick Ball, but not Fog Crystal. Thus the proposed replacement makes the second Tapu Lele a target for the existing four no-discard Fog Crystal (which cannot find Dialga) and adds another potential Wonder Tag activation; the deck's search-Item counts do not change. The costs are 10 HP and Dragon typing.
+## Matchup-dependent DCI/AMR
 
-## Candidate variant
+Dialga's discard value is not static:
 
-Created a fixed 60-card challenger:
+| State | Dialga status | Policy implication |
+| --- | --- | --- |
+| Regidrago identified; counter-line not executed | Effectively UDP / very low DCI | Preserve Dialga in the discard pile; avoid Night Stretcher recovery or effects that remove it from the discard |
+| Regidrago identified; Dialga still in deck/hand | High setup value | Consider Battle Compressor or Mysterious Treasure discard sequencing while preserving Mimikyu and the GX attack allowance |
+| Opponent used Apex Dragon last turn; Mimikyu can attack | High immediate AMR | Use Copycat to access the nested Apex Dragon → Timeless-GX effect |
+| No Regidrago / no relevant copy target | Often high DCI | Dialga may be a safe discard target or low-value Basic, subject to its 180-HP pivot value |
+| Counter-line completed or made impossible | Reassess DCI | It may become discardable/recoverable according to remaining game state |
 
-- [Hood Shield Shadow Rider v2 JSON](../candidate-hood-shadow-rider-v2.json)
-- [Hood Shield Shadow Rider v2 human-readable list](../candidate-hood-shadow-rider-v2.md)
+The line is conditional, not automatic. Mimikyu can copy only a non-GX attack used during the opponent's last turn; the opponent may avoid Apex Dragon, and the GX-attack restriction must be respected. The policy must also know whether Dialga is in the discard pile, whether Mimikyu can attack, and whether the line remains live.
 
-The only change is Dialga-GX 1 → Tapu Lele-GX +1. The v2 preserves 60 cards, 18 Pokémon, 31 Trainers, 11 Energy and 14 Basic Pokémon; it also preserves the four Shadow Rider V, four VMAX, two Stealthy Hood, Arven and all other counts. The v1 remains the current leading modified-list hypothesis; v2 is a challenger only.
+## Withdrawn Tapu Lele slot proposal
 
-## Exact direct-draw calculations
+The [v2 JSON](../candidate-hood-shadow-rider-v2.json) and [human-readable list](../candidate-hood-shadow-rider-v2.md) replace Dialga-GX x1 with a second Tapu Lele-GX. The variant preserves 60 cards, 18 Pokémon, 31 Trainers, 11 Energy, 14 Basics and the Shadow Rider/Hood setup counts. Its raw direct-draw calculations are correct:
 
-For (N=60), (t) Tapu Lele copies and (n) cards seen:
+- Tapu Lele in a valid opening seven: 13.5437% with one copy vs 25.7101% with two.
+- Tapu Lele in the first nine cards: 15.0000% vs 27.9661%.
+- All Tapu Lele copies in six Prizes: 10.0000% vs 0.8475%.
+- Valid Basic-start probability remains 86.1409%.
 
-[
-P(\text{at least one Tapu})=1-\frac{\binom{60-t}{n}}{\binom{60}{n}}.
-]
+These are card-location probabilities, not game outcomes. The additional Tapu Lele improves raw Supporter access, but **the v2 removes Dialga and therefore removes the counter-ALS against nine published Regidrago lists**. The trade is not justified. The v2 candidate JSON is marked withdrawn and must not be nominated or evaluated as a full-field deck. It is preserved only as a rejected hypothesis.
 
-The v1 and v2 each have 14 Basic Pokémon, so their valid-opening-seven probability is identical:
+## Required validation
 
-[
-1-\frac{\binom{46}{7}}{\binom{60}{7}}=86.1409\%.
-]
+1. Implement a focused paper-rules test for Mimikyu Copycat → opponent Regidrago VSTAR Apex Dragon → Dialga-GX Timeless-GX in discard.
+2. Test the nested “use it as this attack” energy-cost bypass against rulebook C-18.
+3. Test the GX-attack allowance both with no prior GX attack and after Trevenant & Dusknoir-GX or Tapu Lele-GX has used one.
+4. Verify the opponent must have used a non-GX attack last turn, Dialga must remain in the discard pile, and Mimikyu's own Psychic + Colorless cost is payable.
+5. Evaluate the line against all nine published Regidrago lists with competent policies; record cases where the opponent avoids Apex Dragon, disrupts the discard pile, or removes Mimikyu.
 
-| Direct card-location event | v1 (1 Tapu) | v2 (2 Tapu) |
-| --- | ---: | ---: |
-| Tapu Lele in initial 7, unconditional | 11.6667% | 22.1469% |
-| Tapu Lele in initial 7, conditional on valid Basic start | 13.5437% | 25.7101% |
-| Tapu Lele in first 9 cards | 15.0000% | 27.9661% |
-| All Tapu copies in six Prizes | 10.0000% | 0.8475% |
-| At least one Tapu outside the six Prizes | 90.0000% | 99.1525% |
-
-These are exact hypergeometric card-location probabilities, not search-chain probabilities, Wonder Tag activation rates, or match results. They do not model discard costs, Supporter contention, Ability lock, Bench congestion, or the value of Dialga's extra 10 HP. The v1 restricted V/VMAX/Hood setup probabilities are unchanged because none of those card counts changes.
-
-## Strategic interpretation
-
-The case for v2 is not merely “Tapu Lele is a better card.” It is that the v1 candidate spends one Basic slot on a Dragon with no Ability and no payable attack, while the deck has an all-Psychic energy suite and a dense Psychic search engine. A second Tapu Lele is an additional Supporter-access engine and is directly accessible through Fog Crystal as well as Mysterious Treasure. It also reduces the chance that all copies are Prized from 10% to 0.8475%.
-
-The counter-case is real: Dialga has 10 more HP, is a Dragon-type body, and may be intentionally retained as a high-HP pivot or discard target. Tapu Lele's Wonder Tag is an Ability and can be suppressed; its GX attack competes with Trevenant & Dusknoir-GX's GX attack. The 10-HP loss may matter at specific damage breakpoints. This audit does not resolve those tradeoffs.
-
-## Required paired test
-
-Compare v1 and v2 with the same seeds, source deals, starting seats, policy versions and opponent field. Record by matchup:
-
-1. Wonder Tag activations, Supporters found and turns when no useful Supporter remains.
-2. Damage breakpoints where Dialga survives but Tapu Lele is Knocked Out.
-3. Tapu Lele suppression under Ability lock and its value as an attacker while suppressed.
-4. Bench congestion and whether the second Tapu displaces a necessary setup Pokémon.
-5. Full-game wins, losses, ties, caps and censored games.
-
-**Decision:** keep v1 nominated; register v2 for paired evaluation. Do not claim v2 is stronger, select it, or infer a matchup advantage from the card-text and draw-probability audit alone.
+**Decision:** retain Hood Shield Shadow Rider v1 with Dialga-GX and Mimikyu. The Tapu Lele v2 proposal is withdrawn. Do not remove the counter-ALS without a tested replacement, and do not claim any matchup or aggregate win-rate improvement from this card-text audit.
