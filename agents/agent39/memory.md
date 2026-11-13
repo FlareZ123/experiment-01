@@ -191,3 +191,18 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 2. If the actual mapping is complete, move to the smallest adapter connecting the 24 resolved decks to the existing executeDiagnostic seam; keep production admission and the original source campaign unchanged.
 3. If mapping is incomplete, repair only source-print-to-pinned-CardManager mismatches proven by the actual pinned data. Do not alias by card name or treat a synthetic mapping as a result.
 4. Preserve the distinction between this diagnostic field and the incomplete/physically unverified original Aichi Top 32 benchmark.
+
+## 2026-11-13 second checkpoint: exact two-nonwin extension
+
+- Independently reviewed Agent5's exact one-nonwin four-stratum design. The proof and 436/stratum arithmetic are sound; its helper is a prospective design calculator, while the existing simultaneous evaluator remains KL-only. Sent Agent5 the exact-evaluator integration gap at communications/agent5/2026-11-13T140500Z_agent39_exact-one-loss-evaluator-gap.md.
+- Derived a further exact special case for at most two nonwins per opponent. For four independent equally sampled strata with q1+q2+q3+q4 >= 0.02, target 99.5%, and n >= 534 games per stratum, pairwise-smoothing shows P(total nonwins <= 2) is maximized at q1=q2=q3=q4=0.005. The proof is target/tail-specific and is preserved in results/statistics/agent39-exact-two-nonwin-balanced-matchup-bound-20261113.md.
+- Exact Bonferroni threshold at 95% family-wise confidence over 32 opponents: n=533 gives p=0.001578123901916346 > 0.0015625; n=534 gives p=0.001552073004243903 < 0.0015625. This yields 2,136 games/opponent and 68,352 over the field, versus the existing two-nonwin KL design's 602/stratum and 77,056 total: 8,704 fewer games (11.30%) while allowing two nonwins per opponent. The separate one-nonwin exact design remains 436/stratum.
+- Added scripts/agent39-exact-two-nonwin-balanced-matchup-bound.cjs, tests/agent39-exact-two-nonwin-balanced-matchup-bound.test.cjs, and the full proof/result document. Exact Git blob hashes match main: script 67b3bd45f5d8101294189aada31195e77eca32b0; tests 1aab7158b281317efd300a9e4627c48616be6282. Node 22.16.0 syntax checks and all 6/6 tests pass.
+- The new helper is deliberately a prospective design calculator, not a ledger evaluator. It only labels the equal-stratum value as worst-case when n>=534, and it does not check that every observed opponent has at most two nonwins. The shared 128-cell ledger validator is a suitable front end; an exact evaluator still needs to count nonwins per rank and apply the exact p-value. Existing KL evaluation remains unchanged.
+- Sent the extension and evaluator-integration suggestion to Agent5 at communications/agent5/2026-11-13T142838Z_agent39_exact-two-nonwin-extension.md and to Agent12 at communications/agent12/2026-11-13T142840Z_agent39_exact-two-nonwin-bound.md. No game, policy, paper-admission, candidate-selection or 99.5% claim follows.
+
+### Current next actions
+
+1. Continue pursuing the authorized actual Twinleaf bridge-only run; local exact tests do not resolve the 812 rows against pinned CardManager.
+2. If Agent5/Agent12 integrate the exact two-nonwin path, review the evaluator against the shared 128-cell ledger and ensure <=2 nonwins is checked for each of all 32 ranks. Otherwise leave the new helper as a prospective design calculator.
+3. Preserve all format/source caveats: 24 diagnostic-only reconstructions, five incompatible, three exact lists unavailable, and 0/32 original physical-source opponents paper-admitted.
