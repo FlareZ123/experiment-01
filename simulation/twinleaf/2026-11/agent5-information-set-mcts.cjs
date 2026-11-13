@@ -223,6 +223,8 @@ function createInformationSetMcts(config) {
       let maxObservedDepth = 0;
       let maxActionTransitions = 0;
       let completedIterations = 0;
+      const seatActionTransitions = [0,0];
+      const rolloutPaths = [];
 
       for (let iteration = 0; iteration < iterations; iteration++) {
         checkDeadline('iteration-start');
@@ -243,6 +245,7 @@ function createInformationSetMcts(config) {
         checkDeadline('determinized-root-observation');
 
         const path = [];
+        const actionPath = [];
         let seat = rootSeat;
         let leafValue;
         let leafSeat;
@@ -295,6 +298,8 @@ function createInformationSetMcts(config) {
           const selectedAction = actionMap.get(selectedKey);
           assert.ok(selectedAction, 'Selected action is absent from current state frontier');
           path.push({node, actionKey: selectedKey, seat});
+          actionPath.push({seat,actionKey:selectedKey});
+          seatActionTransitions[seat]++;
           checkDeadline('transition-start');
           const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
           checkDeadline('transition-complete');
@@ -307,6 +312,7 @@ function createInformationSetMcts(config) {
             'Active-seat adapter returned an invalid physical seat');
         }
 
+        rolloutPaths.push({iteration,actions:actionPath});
         if (!finished) {
           const observation = config.observe(state, seat, searchContext);
           checkDeadline('leaf-observation');
@@ -352,10 +358,15 @@ function createInformationSetMcts(config) {
           iterations,
           completedIterations,
           maxDecisionMs: Number.isFinite(maxDecisionMs) ? maxDecisionMs : null,
+          maxPlies,
+          cPuct,
           elapsedMs: Number(elapsedMs.toFixed(3)),
+          timeoutStatus: 'completed',
           seed,
           rootActionCount: rootActionMap.size,
           maxActionTransitions,
+          seatActionTransitions,
+          rolloutPaths,
           rootVisits: rootNode.visits,
           nodeCount: nodes.size,
           terminalRollouts,
