@@ -241,10 +241,11 @@ function installBoard(state, candidateSeat) {
 }
 
 function createScenario(candidateSeat, hoodEnabled, deckNames) {
-  const baseOptionsBySeat = [makeBotOptions(), makeBotOptions()];
   const optionsBySeat = hoodEnabled ?
-    withHoodCandidateBotOptionsBySeat(baseOptionsBySeat, candidateSeat) :
-    baseOptionsBySeat;
+    withHoodCandidateBotOptionsBySeat(makeBotOptions(), candidateSeat) :
+    [makeBotOptions(), makeBotOptions()];
+  assert.notEqual(optionsBySeat[0], optionsBySeat[1]);
+  assert.notEqual(optionsBySeat[0].tactics, optionsBySeat[1].tactics);
   const bots = PLAYER_IDS.map((id, seat) =>
     new SimpleTacticsAi({id}, optionsBySeat[seat], [...deckNames]));
   const settings = new GameSettings();
@@ -265,7 +266,7 @@ function createScenario(candidateSeat, hoodEnabled, deckNames) {
   assert.equal(store.state.players.length, 2,
     'native Store must register both players');
   installBoard(store.state, candidateSeat);
-  return {store, bots, optionsBySeat, baseOptionsBySeat};
+  return {store, bots, optionsBySeat};
 }
 
 function pendingPrompt(state) {
