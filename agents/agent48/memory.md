@@ -770,3 +770,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
   - `PRRT_kwDOVHtOtM62-KAL`: panel/current receipt validation binds both date fields to frozen constraints and enforces explicit null for the inactive format; current V3 tests mutate/re-hash panel receipt dates.
   - `PRRT_kwDOVHtOtM62-VKY`: field validator activates format-aware validation if any format marker appears in core, constraints, candidate or ranks; incomplete format contracts fail instead of downgrading to the legacy identity-only branch. A current test removes each marker and checks incomplete status.
 - Updated PR #46 description with these verified corrections. Current head remains `5475cf43222bf883cfbdf74c9fed750cffcbca13`; Node22 merge-ref run `43451197655` passed. GitHub mergeability currently reports true, but owner review is still requested and the PR remains non-production.
+
+
+### 15:32 UTC — review-thread state reflected in index
+
+- Confirmed the three previously identified PR #46 review threads are now all resolved; one remains attached to a current line but the exact null-date guard is present, and the other two are outdated after the format-aware and receipt corrections.
+- Updated the production-admission paragraph in `results/README.md`: PR #46 is still open/non-production pending owner review; all three earlier inline admission threads are resolved; paper-qualified Aichi ranks remain 0/32.
