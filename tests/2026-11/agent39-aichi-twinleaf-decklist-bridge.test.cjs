@@ -6,6 +6,7 @@ const { createHash } = require('node:crypto');
 const {
   resolveDiagnosticField,
   registered60Hashes,
+  normalizedDeckIdentityHashes,
 } = require('./agent39-aichi-twinleaf-decklist-bridge.cjs');
 
 function sha256(value) {
@@ -35,6 +36,7 @@ function row(input) {
       card_id: input.cardId,
       name: input.name,
       count: input.count,
+      card_text_sha256: input.cardTextSha256 || 'a'.repeat(64),
       printing: { set: input.set, number: input.sourceNumber, language: 'en' },
       card_pool_printing: { set_id: input.cardId.split('-')[0], number: input.cardPoolNumber, language: 'en' },
     },
@@ -123,7 +125,10 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.match(deck.registered60_hashes.ordered_input_sha256, /^[a-f0-9]{64}$/);
   assert.match(deck.registered60_hashes.canonical_multiset_sha256, /^[a-f0-9]{64}$/);
   assert.match(result.registered60_hash_protocol.ordered_input, /exact 60-element Twinleaf fullName array/);
-  assert.match(result.registered60_hash_protocol.canonical_multiset, /codepoint-sorted/);
+  assert.match(result.registered60_hash_protocol.canonical_multiset, /UTF-16 code-unit-sorted/);
+  assert.match(result.decks[0].deck_identity_sha256, /^[a-f0-9]{64}$/);
+  assert.match(result.decks[0].source_print_identity_sha256, /^[a-f0-9]{64}$/);
+  assert.equal(result.decks[0].source_identity_hash_status, 'complete');
   assert.equal(result.source_audit_sha256, 'a'.repeat(64));
   assert.equal(result.source_normalized_field_sha256, 'b'.repeat(64));
   assert.equal(result.research_revision, 'research-rev');
@@ -236,4 +241,37 @@ test('registered60 hash helper rejects disagreement between the exact array and 
     Array(60).fill('Alpha Card SET'),
     [{ printing: 'Alpha Card SET', copies: 59 }],
   ), /inputs disagree/);
+});
+
+
+test('functional identity hash ignores printing while source-print identity hash preserves it', () => {
+  const rows = [
+    row({ index: 0, cardId: 'xy1-1', name: 'Alpha', count: 30, set: 'SET', sourceNumber: '1', cardPoolNumber: '1', cardTextSha256: 'a'.repeat(64) }),
+    row({ index: 1, cardId: 'xy1-2', name: 'Beta', count: 30, set: 'SET', sourceNumber: '2', cardPoolNumber: '2', cardTextSha256: 'b'.repeat(64) }),
+  ];
+  const original = normalizedDeckIdentityHashes({ cards: rows });
+  const reversed = normalizedDeckIdentityHashes({ cards: rows.slice().reverse() });
+  assert.deepEqual(reversed, original);
+
+  const reprinted = JSON.parse(JSON.stringify(rows));
+  reprinted[0].normalized.printing.number = '101';
+  reprinted[0].normalized.card_pool_printing.number = '101';
+  const afterReprint = normalizedDeckIdentityHashes({ cards: reprinted });
+  assert.equal(afterReprint.deck_identity_sha256, original.deck_identity_sha256);
+  assert.notEqual(afterReprint.source_print_identity_sha256, original.source_print_identity_sha256);
+
+  const changedText = JSON.parse(JSON.stringify(rows));
+  changedText[0].normalized.card_text_sha256 = 'c'.repeat(64);
+  const afterTextChange = normalizedDeckIdentityHashes({ cards: changedText });
+  assert.notEqual(afterTextChange.deck_identity_sha256, original.deck_identity_sha256);
+  assert.notEqual(afterTextChange.source_print_identity_sha256, original.source_print_identity_sha256);
+});
+
+test('normalized source identity hashes fail closed when card text identity is missing', () => {
+  const incomplete = row({
+    index: 0, cardId: 'xy1-1', name: 'Alpha', count: 60,
+    set: 'SET', sourceNumber: '1', cardPoolNumber: '1',
+  });
+  delete incomplete.normalized.card_text_sha256;
+  assert.equal(normalizedDeckIdentityHashes({ cards: [incomplete] }), null);
 });
