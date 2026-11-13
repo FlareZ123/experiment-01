@@ -196,7 +196,7 @@ function choosePlanWithAttachedHood(view, catalog, { assumeHoodEffect = false } 
     for (const attack of pokemon.attacks) {
       if (!attack || typeof attack.name !== 'string' || !Array.isArray(attack.cost) ||
           attack.gxAttack === true) continue;
-      if (attackBlocked(pokemon, attack) !== false ||
+      if (attackBlocked(pokemon, attack, view.ownPublic.publicTurnRestrictions) !== false ||
           !publicSpecialAttackPayable(view, catalog, pokemon, attack)) continue;
       const damage = postRetreatPrintedDamage(view, pokemon, attack, payment, catalog);
       if (!Number.isSafeInteger(damage)) continue;
