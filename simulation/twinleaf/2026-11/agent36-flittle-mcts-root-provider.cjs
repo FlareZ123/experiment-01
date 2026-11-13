@@ -197,6 +197,9 @@ function assertFlittleStateEnvelope(state,seat,view,native) {
     if(energies.length===2) {
       assert.equal(state.activePlayer,physicalSeat);
       assert.equal(player.energyPlayedTurn,state.turn);
+    } else if(player.energyPlayedTurn===state.turn) {
+      assert.equal(state.activePlayer,physicalSeat,
+        'A one-Energy attachment made this turn belongs to the active seat');
     } else {
       assert.ok(Number.isSafeInteger(player.energyPlayedTurn)&&
         player.energyPlayedTurn<state.turn);
@@ -228,13 +231,14 @@ function assertFlittleStateEnvelope(state,seat,view,native) {
  */
 function assertFlittleRootEnvelope(state,seat,view,native) {
   assertFlittleStateEnvelope(state,seat,view,native);
-  assert.ok(view.globalTurn>=3);
-  assert.ok(view.ownTurnResources.energyPlayedTurn<view.globalTurn);
+  assert.ok(view.globalTurn>=2);
+  assert.ok(view.ownTurnResources.energyPlayedTurn<=view.globalTurn);
   for(const physicalSeat of [0,1]) {
     const player=state.players[physicalSeat];
     assert.equal(player.active.energies.cards.length,1);
     assert.equal(player.active.damage,0);
-    assert.ok(player.energyPlayedTurn<state.turn);
+    if(physicalSeat===seat) assert.ok(player.energyPlayedTurn<=state.turn);
+    else assert.ok(player.energyPlayedTurn<state.turn);
   }
   assert.ok(view.ownHand.includes(PSYCHIC),
     'The certified root must contain a playable Psychic Energy');
@@ -251,17 +255,21 @@ function assertFlittleActionFrontier(actions,state,seat,view,deps) {
   const expected=expectedFlittleActionKeys(view,deps);
   assert.deepEqual(keys,expected,
     'Native Flittle root frontier differs from actor-observation-derived actions');
-  assert.equal(keys.length,3,
-    'Certified Flittle root must contain attach/Ram/pass');
+  assert.ok(keys.length===2||keys.length===3,
+    'Certified Flittle root must contain Ram/pass and attach only when still available');
   const attach=actions.find(action=>action instanceof deps.PlayCardAction);
   const attack=actions.find(action=>action instanceof deps.AttackAction);
   const pass=actions.find(action=>action instanceof deps.PassTurnAction);
-  assert.ok(attach&&attack&&pass);
+  assert.ok(attack&&pass);
+  assert.equal(Boolean(attach),view.ownTurnResources.energyPlayedTurn<view.globalTurn,
+    'Attach must be present exactly when this turn has not used the Energy attachment');
   assert.equal(attack.name,'Ram');
-  assert.equal(attach.target?.player,deps.PlayerType.BOTTOM_PLAYER);
-  assert.equal(attach.target?.slot,deps.SlotType.ACTIVE);
-  assert.equal(attach.target?.index,0);
-  assert.equal(state.players[seat].hand.cards[attach.handIndex]?.fullName,PSYCHIC);
+  if(attach) {
+    assert.equal(attach.target?.player,deps.PlayerType.BOTTOM_PLAYER);
+    assert.equal(attach.target?.slot,deps.SlotType.ACTIVE);
+    assert.equal(attach.target?.index,0);
+    assert.equal(state.players[seat].hand.cards[attach.handIndex]?.fullName,PSYCHIC);
+  }
   return keys;
 }
 
