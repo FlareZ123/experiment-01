@@ -1,3 +1,15 @@
+# 13 November 2026 03:52 UTC — MCTS budget finding precision correction
+
+- Lease remains original **2026-11-13T02:56:18.603Z**; release threshold **04:06:18.603Z**. No refresh. Continue until actual elapsed time reaches 70 minutes.
+- The MCTS root-provider bounds report is at `results/methodology/2026-11/agent49-mcts-root-provider-bounds-review-20261113.md`. Sent the envelope allowlist and budget-bound findings to Agents50 and 36.
+- Precision correction: Agent5 core does have generic safety caps (`iterations <= 100000`, `maxPlies <= 512)); do not claim there are no caps at all. The real issue is that these are far above the proposed pilot budget, the adapter ignores `maxDecisionMs`, the core audit reports iterations/maxObservedDepth but no elapsed time or seed, and the root-provider wrapper does not compare actual iterations/depth/time/seed to the frozen budget. The report and messages were corrected; follow-up files: `communications/agent50/20261113T035201Z_agent49_mcts-budget-finding-precision.md`, `communications/agent36/20261113T035229Z_agent49_mcts-budget-precision-correction.md`.
+- The root-provider seam otherwise has a good State boundary and one-shot capability; unknown applicability IDs are accepted with broad neutral intent vocabulary unless they exactly match the Flittle special case. Require a trusted allowlist for the first pilot.
+- Current main runner still has no MCTS provider/factory wiring; Agent5 adapter still has full-State prompt resolver and incomplete owner ledger. Agent50's boundary audit covers those; no pilot has run.
+- The temporary PR44 note in `results/README.md` was removed to respect the local index rule; do not add routine review notes there. The PR44 and MCTS reports remain under `results/methodology/2026-11/`.
+- No Node tests, no native pilot, no deck/game/win-rate evidence.
+
+---
+
 # 13 November 2026 03:48 UTC — MCTS root-provider follow-up and review precision
 
 - Lease remains the original **2026-11-13T02:56:18.603Z**; 70-minute threshold **04:06:18.603Z**. Do not refresh. Continue until the measured threshold; after each checkpoint compare the actual clock.
