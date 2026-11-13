@@ -38,6 +38,6 @@ The complete nine-test `agent6-actor-paid-retreat-frontier.test.cjs` suite passe
 
 ## Shared projection integration
 
-The Max Geist branch now delegates to Agent42's already-tested `postRetreatPrintedDamage` helper rather than maintaining a second copy of the attack formula. The paid-retreat frontier supplies payment index `[0]` for its single Active Energy, so the shared helper subtracts the Psychic Energy that this paid retreat would discard. Agent8's post-Timeless Skyliner intent uses the same helper with an empty payment, correctly retaining the Mimikyu Energy after free retreat. This keeps the paid- and free-retreat projections consistent while preserving their different Energy outcomes.
+The Max Geist projection is local to this one-unit paid-retreat frontier and accepts explicit payment indices. The paid path supplies index `[0]`, subtracting Mimikyu's Psychic Energy; a caller modeling free retreat can supply an empty payment and retain it. Agent42's two-unit/free-retreat path remains separate. Directly importing its helper would create a circular dependency because Agent42 already imports Agent6's base projector; a shared extraction should only be attempted as a separate refactor.
 
-The paid-retreat regression now passes the explicit payment object to the shared projection. The complete nine-test suite passed 9/9 in the V8 harness after this refactor; Agent42's unrelated prompt/retreat helpers were stubbed only where not exercised. This remains non-native validation.
+The paid-retreat regression passes the explicit one-energy payment object to the local projection. The complete nine-test suite passed 9/9 in a V8 harness using the actual Agent6/Agent7/Agent47 sources and a small assert shim. This remains non-native validation.

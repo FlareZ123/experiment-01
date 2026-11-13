@@ -3,10 +3,8 @@
 const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
-const {postRetreatPrintedDamage}=
-  require('./agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
-const VERSION='agent6-owner-visible-printed-retreat-and-damage-v4-shared-projection';
+const VERSION='agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit';
 const MIN_PROJECTED_DAMAGE=80;
 
 /**
@@ -21,7 +19,37 @@ const MIN_PROJECTED_DAMAGE=80;
  */
 function projectedPrintedDamage(view,pokemon,attack,catalog,
     payment={indices:[],printings:[]}){
-  return postRetreatPrintedDamage(view,pokemon,attack,payment,catalog);
+  if(pokemon.printing==="Lillie's Clefairy ex JTG"&&
+      attack.name==='Full Moon Rondo'&&attack.damage===20){
+    const benchCount=[...(view.ownPublic?.bench??[]),
+      ...(view.opponentPublic?.bench??[])].filter(Boolean).length;
+    return 20+20*benchCount;
+  }
+  // Shadow Rider Calyrex VMAX prints Max Geist as 10+, then adds 30 for
+  // each Psychic Energy attached to the player's Pokémon. Apply the explicit
+  // retreat payment indices so paid and free retreat projections differ only
+  // by the Energy actually discarded. Count catalogued Basic Psychic Energy.
+  if(pokemon.name==='Shadow Rider Calyrex VMAX'&&
+      attack.name==='Max Geist'&&attack.damage==='10+'&&
+      typeof attack.text==='string'&&
+      attack.text.includes('30 more damage for each Psychic Energy attached to all of your Pokémon')){
+    if(!catalog?.basicEnergies?.has||
+        !Number.isSafeInteger(catalog.basicEnergyTypes?.Psychic)||
+        !Array.isArray(payment?.indices))return null;
+    const isBasicPsychic=printing=>
+      typeof printing==='string'&&catalog.basicEnergies.has(printing)&&
+      printing.startsWith('Psychic Energy ');
+    const own=view.ownPublic??{};
+    const board=[own.active,...(own.bench??[])].filter(Boolean);
+    const totalPsychic=board.reduce((sum,slot)=>sum+
+      (slot.energies??[]).filter(isBasicPsychic).length,0);
+    const discardedPsychic=payment.indices.reduce((sum,index)=>{
+      const printing=own.active?.energies?.[index];
+      return sum+(isBasicPsychic(printing)?1:0);
+    },0);
+    return 10+30*Math.max(0,totalPsychic-discardedPsychic);
+  }
+  return Number.isSafeInteger(attack.damage)?attack.damage:null;
 }
 
 /**

@@ -1,3 +1,12 @@
+## 13 November 2026 09:10 UTC — remove Max Geist projection cycle
+
+- A direct import of Agent42's `postRetreatPrintedDamage` from Agent6 created a circular dependency: Agent42 already imports Agent6's base `projectedPrintedDamage`. Reverted that import immediately and kept the one-unit Max Geist projector local to Agent6, with explicit payment indices. Do not reintroduce the cross-import unless both projections are first extracted into an independent shared module.
+- Frontier version: `agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit`. The paid path supplies payment index 0 and subtracts the Psychic Energy discarded by Mimikyu's retreat; an empty payment preserves Energy for a free-retreat caller.
+- The Agent6/Agent7/Agent47 regression suite passed 9/9 in the V8 harness before the attempted shared-helper refactor; rerun after this cycle fix. This is not native Node/CI.
+- Existing Agent42/Agent8 two-unit/free-retreat logic remains separate. Hood policy still needs `paidRetreatRoot` + `mimikyuApexFundedPromotion` and native rank-19 replay.
+
+---
+
 ## 13 November 2026 09:08 UTC — reuse shared post-retreat Max Geist projection
 
 - Refactored Agent6's paid-retreat frontier to call Agent42's already-tested `postRetreatPrintedDamage` helper rather than duplicating the Max Geist formula. The paid path supplies payment index 0, subtracting the Active's one Psychic Energy; Agent8's free Skyliner path supplies no payment, retaining the Mimikyu Energy. The frontier version is now `agent6-owner-visible-printed-retreat-and-damage-v4-shared-projection`.
