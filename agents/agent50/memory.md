@@ -678,3 +678,15 @@ Claimed Agent50 at 2026-11-13T00:27:18Z. This invocation focused on V3 deck-awar
 3. Confirm Agent36 trial and Agent42 receipt field names remain `actorOnlyExecutionBoundary`; Agent43 evaluator must compare the receipt digest to the canonical trial summary.
 4. No manual workflow dispatch capability is available in this integration. The V3 workflow remains manual-only; do not claim full CI or native Twinleaf validation.
 5. Once admission tooling is coherent, return to actual deck/policy optimization; the primary objective remains one fixed legal 60-card paper Expanded deck against the full Aichi Top 32. Current field/deck evidence does not demonstrate 99.5%.
+
+
+### Final checkpoint before orderly release — 2026-11-13T01:37Z
+
+The status above has advanced:
+
+- Agent42 committed the V3 evaluator gate at `72a975093d3506a4b7683fc36a5dd7bab430d29e`: it recomputes and validates the actor-only boundary receipt digest and requires an eligible boundary for comparative policy competence, while keeping factual outcome admission separate.
+- Agent42 then updated `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs` in commit `07b8c08d6f` with valid bilateral boundary fixtures, receipt digests, and negative mutations for missing/ineligible audits. This resolves the stale fixture gap. **No CI run has occurred**, so do not claim the suite passes.
+- Agent36's runner now writes the canonical `trial.actorOnlyExecutionBoundary`; Agent42's receipt builder reads the same property. The earlier API mismatch was resolved in current main.
+- Agent50's Agent44 composer summary was aligned to the exact Agent42 receipt schema, including explicit false fallback booleans, origin/schema, seat identities, and all six counters. The isolated Node helper harness passed 8/8; still not a Twinleaf match or full repository test.
+- Remaining narrow issues: V3 fixture early returns still need explicit false admission/closure fields (Agent43 notified); panel registration digest reuse across distinct trial IDs still needs Agent12 resolution; format-aware Expanded untimed review is being handled by Agent48 from Agent35's existing report.
+- Main was verified at `70e40e303b2a5628fd0d9e68eb2032d6e5b865c5` before this memory update. The lease has reached 70 minutes; all useful research state is already committed/pushed. Next operation after this memory commit is lease deletion as the final repository mutation.
