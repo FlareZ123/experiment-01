@@ -185,6 +185,18 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
+function createFixtureActorOnlyPolicyExecutionAudit({trialId,candidateSeat,opponentSeat,
+  candidateIdentity,opponentIdentity,roleResult}={}) {
+  if(!roleResult)return null;
+  return roleIdentity.createActorOnlyPolicyExecutionAudit({
+    trialId,candidateSeat,opponentSeat,
+    candidatePolicySha256:candidateIdentity?.policySha256,
+    opponentPolicySha256:opponentIdentity?.policySha256,
+    candidateAudit:roleResult.candidateAudit,
+    opponentAudit:roleResult.opponentAudit,
+  });
+}
+
 function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries}){
   assert.equal(cardPoolInitialization?.schema,
@@ -661,6 +673,9 @@ function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile }) {
     fixtureOnly: true,
     engineFormat: 'Expanded',
     benchmarkFormat: 'Japanese Extra',
+    candidateFormat: 'Expanded',
+    gameRuleset: 'Expanded',
+    opponentSourceEventFormat: 'Japanese Extra',
     crossFormatCompatibilityEstablished: false,
     paperDeckLegalityEstablished: false,
     policyProfile: 'agent34 actor-only root policy plus Twinleaf SimpleTacticsAi baseline',
@@ -741,6 +756,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
   const policyPlanCore = {
     schema: 'aichi-policy-plan-core-v1',
     fixtureOnly: true,
+    candidateFormat: constraints.candidateFormat,
+    gameRuleset: constraints.gameRuleset,
+    opponentSourceEventFormat: constraints.opponentSourceEventFormat,
     candidate,
     opponentPolicyBundle: { fixtureOnly: true, ranks: [opponent] },
     constraints,
@@ -752,6 +770,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     trialId,
     policyPlanSha256,
     fixtureOnly: true,
+    candidateFormat: constraints.candidateFormat,
+    gameRuleset: constraints.gameRuleset,
+    opponentSourceEventFormat: constraints.opponentSourceEventFormat,
   };
   const policyAttestationBundle = {
     schema: 'aichi-policy-attestation-bundle-v1',
@@ -764,6 +785,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
   const preDeal = {
     ready: true,
     fixtureOnly: true,
+    candidateFormat: constraints.candidateFormat,
+    gameRuleset: constraints.gameRuleset,
+    opponentSourceEventFormat: constraints.opponentSourceEventFormat,
     trialId,
     policyPlanCore,
     policyPlanSha256,
@@ -900,6 +924,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const preGameTrial = {
     trialId: V3_FIXTURE.trialId,
     fixtureOnly: true,
+    candidateFormat: 'Expanded',
+    gameRuleset: 'Expanded',
+    opponentSourceEventFormat: 'Japanese Extra',
     candidateSeat: 0,
     originalSourceSeat: 1,
     vendorCommitSha: enginePin,
@@ -988,6 +1015,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const trial = {
     trialId: V3_FIXTURE.trialId,
     fixtureOnly: true,
+    candidateFormat: 'Expanded',
+    gameRuleset: 'Expanded',
+    opponentSourceEventFormat: 'Japanese Extra',
     opponentRank: 1,
     candidateSeat: 0,
     originalSourceSeat: 1,
@@ -1003,6 +1033,14 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     runtimePatchReceipts: [patchReceipt],
     seed: V3_FIXTURE.seed,
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
+    actorOnlyPolicyExecutionAudit: createFixtureActorOnlyPolicyExecutionAudit({
+      trialId: V3_FIXTURE.trialId,
+      candidateSeat: 0,
+      opponentSeat: 1,
+      candidateIdentity: identities.candidateIdentity,
+      opponentIdentity: identities.opponentIdentity,
+      roleResult,
+    }),
   };
   if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
@@ -1022,6 +1060,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     benchmark: 'Aichi Open League 2026 Top 32',
     benchmarkFormat: 'Japanese Extra',
     engineFormat: 'Expanded',
+    candidateFormat: trial.candidateFormat,
+    gameRuleset: trial.gameRuleset,
+    opponentSourceEventFormat: trial.opponentSourceEventFormat,
     candidate: {
       label: candidateDeck.label,
       sourcePath: V3_FIXTURE.candidatePath,
@@ -1055,6 +1096,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       researchRevisionSha: runnerRevision,
       nodeVersion: process.version,
       format: 'EXPANDED',
+      gameRuleset: trial.gameRuleset,
       rules: {
         firstTurnDrawCard: true,
         firstTurnUseSupporter: false,
@@ -1094,6 +1136,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       candidate: roleResult?.candidateAudit ?? null,
       opponent: roleResult?.opponentAudit ?? null,
     },
+    actorOnlyPolicyExecutionAudit: trial.actorOnlyPolicyExecutionAudit,
     runtimePinEvidence,
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
@@ -1113,6 +1156,11 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
       rootActionLedgerSha256: gameResult?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null,
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
+      actorOnlyPolicyExecutionAuditSha256: application?.receipt?.actorOnlyPolicyExecutionAuditSha256 ?? trial.actorOnlyPolicyExecutionAudit?.sha256 ?? null,
+      actorOnlyPolicyExecutionAuditVerified: application?.receipt?.actorOnlyPolicyExecutionAuditVerified ?? false,
+      actorOnlyPolicyExecutionAuditEligible: application?.receipt?.actorOnlyPolicyExecutionAuditEligible ?? false,
+      gameRuleset: trial.gameRuleset,
+      opponentSourceEventFormat: trial.opponentSourceEventFormat,
       runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
       loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
       fixtureOnly: true,
@@ -1264,5 +1312,6 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   buildFixturePolicyPlan,
   createUnderworldRuntimePatchReceipt,
   normalizeV3FixtureRoleResult,
+  createFixtureActorOnlyPolicyExecutionAudit,
   runV3FixtureGame
 };
