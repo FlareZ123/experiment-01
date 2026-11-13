@@ -216,6 +216,7 @@ function createInformationSetMcts(config) {
       const rootKey = rootSeat + ':' + rootObservationHash;
       const rootNode = createNode(rootKey, rootSeat, rootActions,
         rootObservation, config.actionPrior, config.actionKey);
+      checkDeadline('root-node-priors');
       const nodes = new Map([[rootKey, rootNode]]);
       let terminalRollouts = 0;
       let heuristicLeaves = 0;
@@ -235,9 +236,11 @@ function createInformationSetMcts(config) {
           'Determinized root must have no unresolved prompts');
         assert.equal(config.activeSeat(state), rootSeat,
           'Determinization changed the acting seat');
-        assert.equal(observationSha256(config.observe(state, rootSeat)),
+        assert.equal(observationSha256(
+          config.observe(state, rootSeat, searchContext)),
           rootObservationHash,
           'Determinization changed the root player\'s legal observation');
+        checkDeadline('determinized-root-observation');
 
         const path = [];
         let seat = rootSeat;
@@ -249,6 +252,7 @@ function createInformationSetMcts(config) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
             leafValue = config.terminalValue(state, seat);
+            checkDeadline('terminal-value');
             leafSeat = seat;
             terminalRollouts += 1;
             finished = true;
@@ -267,6 +271,7 @@ function createInformationSetMcts(config) {
           if (!node) {
             if (actionMap.size === 0) {
               leafValue = config.evaluateObservation(observation, seat);
+              checkDeadline('new-node-evaluation');
               leafSeat = seat;
               heuristicLeaves += 1;
               finished = true;
@@ -276,6 +281,7 @@ function createInformationSetMcts(config) {
               config.actionPrior, config.actionKey);
             nodes.set(nodeKey, node);
             leafValue = config.evaluateObservation(observation, seat);
+            checkDeadline('new-node-evaluation');
             leafSeat = seat;
             heuristicLeaves += 1;
             finished = true;
@@ -305,6 +311,7 @@ function createInformationSetMcts(config) {
           const observation = config.observe(state, seat, searchContext);
           checkDeadline('leaf-observation');
           leafValue = config.evaluateObservation(observation, seat);
+          checkDeadline('leaf-evaluation');
           leafSeat = seat;
           heuristicLeaves += 1;
         }
@@ -319,6 +326,12 @@ function createInformationSetMcts(config) {
       const elapsedMs = now() - startedAt;
       assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0,
         'Monotonic clock returned an invalid elapsed duration');
+      if(elapsedMs>=maxDecisionMs) {
+        const error=new Error('MCTS decision-time budget exceeded during result finalization');
+        error.code='MCTS_BUDGET_EXCEEDED';
+        error.stage='result-finalization';
+        throw error;
+      }
       const rootStats = [...rootNode.stats.entries()].map(([key, stat]) => ({
         actionKey: key,
         visits: stat.visits,
