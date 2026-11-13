@@ -15,9 +15,9 @@ try {
   // Agent36 native workflow compiles it and executes the same regression.
 }
 const catalog={
-  basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
+  basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST','Flittle SVI']),
   abilityBasics:new Set(['Shadow Rider Calyrex V CRE']),
-  basicEnergies:new Set(['Psychic Energy MEE','Darkness Energy MEE']),
+  basicEnergies:new Set(['Psychic Energy MEE','Darkness Energy MEE','Psychic Energy SVE']),
   basicEnergyTypes:{Psychic:5,Darkness:7},
   colorlessEnergyType:9,
   specialConditions:{ASLEEP:2,PARALYZED:0}
@@ -37,7 +37,10 @@ const base=()=>({
 
 test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   const state={privateOpponentHand:['not-for-provider']};
-  const view=Object.freeze({...base(),actorSeat:1});
+  const sourceView=base();
+  sourceView.ownHand=['Flittle SVI'];
+  sourceView.ownPublic.active.attacks=[{name:'Ram',cost:[5],damage:10}];
+  const view=Object.freeze({...sourceView,actorSeat:1});
   const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
   let providerContext=null;
   const selected=invokeActorRootIntentProvider({
@@ -50,7 +53,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
       assert.deepEqual(context.budget,budget);
       return ()=>({
         status:'selected',
-        intent:{kind:'attack',attackName:'Shadow Mist'},
+        intent:{kind:'attack',attackName:'Ram'},
         audit:{
           frontierComplete:true,
           bothSeatKnowledgeLedgersVerified:true,
@@ -73,7 +76,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   });
   assert.equal(selected.status,'selected');
   assert.deepEqual(selected.intent,{
-    kind:'attack',attackName:'Shadow Mist',
+    kind:'attack',attackName:'Ram',
     source:'agent5-information-set-mcts-v1'
   });
   assert.equal(selected.searchAudit.applicabilityEnvelopeId,
@@ -144,8 +147,9 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
     decodeNextAction(){throw new Error('hidden-state baseline should not run');}
   }
   const view=base();
-  view.ownHand=['Shadow Rider Calyrex V CRE'];
-  view.ownPublic.active.energies=['Psychic Energy MEE'];
+  view.ownHand=['Flittle SVI'];
+  view.ownPublic.active.energies=['Psychic Energy SVE'];
+  view.ownPublic.active.attacks=[{name:'Ram',cost:[5],damage:10}];
   view.ownTurnResources.energyPlayedTurn=2;
   const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
   const result=withActorOnlyRootPolicy(()=>{
