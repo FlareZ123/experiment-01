@@ -126,3 +126,16 @@ class AichiExpandedIdentityAuditTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+def test_fairy_energy_is_exempt_from_four_copy_rule():
+    cards = [{"name": "Fairy Energy", "count": 5}] + [
+        {"name": f"Distinct filler {index}", "count": 1}
+        for index in range(55)
+    ]
+
+    result = audit_deck_construction(cards, total_copies=60)
+
+    assert result["sixty_card_total"] is True
+    assert result["four_copy_violations"] == []
+    assert result["passed"] is True
+
