@@ -51,6 +51,51 @@ Counts are summed across all 24 normalized lists. “Decks” is the number of d
 | `me2pt5-16` | Budew | 19 | 14 |
 | `xy6-92` | Trainers' Mail | 18 | 6 |
 
+## Common identities within the multi-list archetype clusters
+
+These are the eight most prevalent card identities within each source-labeled cluster with at least two lists. “Decks” is prevalence within that cluster; the source archetype labels are not reclassified.
+
+**Regidrago (9 lists)**
+
+| Card-pool ID | Card | Copies | Decks |
+|---|---|---:|---:|
+| `sve-1` | Basic Grass Energy | 34 | 9/9 |
+| `xy6-97` | Double Dragon Energy | 34 | 9/9 |
+| `swsh12-135` | Regidrago V | 34 | 9/9 |
+| `sm6-113` | Mysterious Treasure | 33 | 9/9 |
+| `swsh8-237` | Quick Ball | 33 | 9/9 |
+| `swsh12-136` | Regidrago VSTAR | 27 | 9/9 |
+| `xy4-109` | VS Seeker | 23 | 9/9 |
+| `sve-2` | Basic Fire Energy | 20 | 9/9 |
+
+**Absol Garbodor (4 lists)**
+
+| Card-pool ID | Card | Copies | Decks |
+|---|---|---:|---:|
+| `sve-7` | Basic Darkness Energy | 25 | 4/4 |
+| `swsh8-237` | Quick Ball | 16 | 4/4 |
+| `xy8-137` | Float Stone | 15 | 4/4 |
+| `swsh10-139` | Dark Patch | 13 | 4/4 |
+| `swsh8-225` | Battle VIP Pass | 10 | 4/4 |
+| `xy4-109` | VS Seeker | 10 | 4/4 |
+| `me1-86` | Mega Absol ex | 9 | 4/4 |
+| `swsh10-155` | Temple of Sinnoh | 8 | 4/4 |
+
+**Raichu Electrode Combo (2 lists)**
+
+| Card-pool ID | Card | Copies | Decks |
+|---|---|---:|---:|
+| `xy4-92` | Battle Compressor Team Flare Gear | 8 | 2/2 |
+| `sm4-100` | Counter Energy | 8 | 2/2 |
+| `sv2-192` | Reversal Energy | 8 | 2/2 |
+| `sm5-138` | Unit Energy LightningPsychicMetal | 8 | 2/2 |
+| `sm2-130` | Rescue Stretcher | 7 | 2/2 |
+| `sm7-48` | Electrode-GX | 6 | 2/2 |
+| `swsh5-125` | Escape Rope | 6 | 2/2 |
+| `swsh8-225` | Battle VIP Pass | 5 | 2/2 |
+
+These are source-list signatures only. They do not establish how the cards interact, how a policy plays them, or the matchup performance of any candidate. Singleton archetypes are intentionally not aggregated.
+
 ## Card-type totals
 
 | Card supertype | Copies |
