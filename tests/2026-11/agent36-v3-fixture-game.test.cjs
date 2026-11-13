@@ -75,7 +75,7 @@ test('fixture trial binds and preserves the canonical composer actor-only execut
     candidateSeat: 0,
     opponentSeat: 1,
   });
-  assert.equal(boundary.schema, 'aichi-actor-only-execution-boundary-v1');
+  assert.equal(boundary.schema, 'aichi-actor-only-execution-boundary-v2');
   assert.equal(boundary.valid, true);
   assert.deepEqual(boundary.failures, []);
   assert.equal(boundary.candidate.ownerFallbackDiagnosticViewEnabled, false);

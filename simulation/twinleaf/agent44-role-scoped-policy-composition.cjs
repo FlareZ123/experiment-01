@@ -38,6 +38,10 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
       nonOwnerNativeDelegations:audit?.nonOwnerNativeDelegations??null,
       nonTurnPhaseFallbacks:audit?.nonTurnPhaseFallbacks??null,
       nonOwnerSeatBypassCalls:audit?.nonOwnerSeatBypassCalls??null,
+      peerRoleDispatchEnabled:typeof audit?.peerRoleDispatchEnabled==='boolean'?
+        audit.peerRoleDispatchEnabled:null,
+      ownerDecisionCalls:audit?.ownerDecisionCalls??null,
+      peerRoleDelegations:audit?.peerRoleDelegations??null,
       nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:
         audit?.nativeOwnerTrainerFallback?.attemptedUnsupportedPasses??0};
     if(!plainObject(audit)) failures.push(role+'-audit-missing-or-invalid');
@@ -53,15 +57,25 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
     if(summary.nativePolicyMayUseHiddenInformation)
       failures.push(role+'-native-policy-may-use-hidden-information');
     for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls','nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
-      if(!Number.isInteger(summary[key])||summary[key]<0)
+      if(!Number.isSafeInteger(summary[key])||summary[key]<0)
         failures.push(role+'-'+key+'-missing-or-invalid');
       else if(summary[key]!==0) failures.push(role+'-'+key+'-nonzero');
+    }
+    if(typeof summary.peerRoleDispatchEnabled!=='boolean')
+      failures.push(role+'-peerRoleDispatchEnabled-missing-or-invalid');
+    for(const key of ['ownerDecisionCalls','peerRoleDelegations']){
+      if(!Number.isSafeInteger(summary[key])||summary[key]<0)
+        failures.push(role+'-'+key+'-missing-or-invalid');
     }
     return summary;
   }
   const candidate=summarize(candidateAudit,'candidate',candidateSeat);
   const opponent=summarize(opponentAudit,'opponent',opponentSeat);
-  return {schema:'aichi-actor-only-execution-boundary-v1',
+  if(candidate.peerRoleDispatchEnabled!==true) failures.push('candidate-peer-role-dispatch-disabled');
+  if(opponent.peerRoleDispatchEnabled!==false) failures.push('opponent-peer-role-dispatch-enabled');
+  if(Number.isSafeInteger(candidate.peerRoleDelegations)&&Number.isSafeInteger(opponent.ownerDecisionCalls)&&candidate.peerRoleDelegations!==opponent.ownerDecisionCalls) failures.push('candidate-peer-role-delegation-count-mismatch');
+  if(opponent.peerRoleDelegations!==0) failures.push('opponent-peer-role-delegation-count-nonzero');
+  return {schema:'aichi-actor-only-execution-boundary-v2',
     valid:failures.length===0,failures,candidate,opponent};
 }
 
@@ -119,11 +133,13 @@ function withCandidateOpponentPolicyRoles(run,options) {
     'production role composition forbids the test-only stagedStore seam');
   assert.equal(commonDeps.policyOwnerSeat,undefined,
     'physical role seats are assigned only by the composer');
+  assert.equal(commonDeps.peerRoleDispatch,undefined,
+    'peer role dispatch is assigned only by the composer');
   const runtimeBindings=[
     'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
     'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
     'arvenTrainerTypes','eriCardTypes','nativeOwnerTrainerFallback',
-    'ownerFallbackDiagnosticView','rootIntentProvider',
+    'ownerFallbackDiagnosticView','peerRoleDispatch','rootIntentProvider',
     'createRootSearchCapability','rootIntentActionKey'
   ];
   for(const [role,policyOptions] of [
@@ -134,10 +150,10 @@ function withCandidateOpponentPolicyRoles(run,options) {
   }
 
   const candidateDeps={
-    ...commonDeps,...candidatePolicyOptions,policyOwnerSeat:candidateSeat
+    ...commonDeps,...candidatePolicyOptions,policyOwnerSeat:candidateSeat,peerRoleDispatch:true
   };
   const opponentDeps={
-    ...commonDeps,...opponentPolicyOptions,policyOwnerSeat:opponentSeat
+    ...commonDeps,...opponentPolicyOptions,policyOwnerSeat:opponentSeat,peerRoleDispatch:false
   };
   const opponentWrapped=withActorOnlyRootPolicy(()=>{
     return withActorOnlyRootPolicy(()=>{

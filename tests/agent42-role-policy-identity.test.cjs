@@ -90,8 +90,10 @@ function actorOnlyBoundary(candidateSeat,opponentSeat,candidateOverrides={},oppo
   nativePolicyMayUseHiddenInformation:false,unsupportedPromptFallbacks:0,
   nonLiveSpeculativeFallbacks:0,nonOwnerNativeDelegations:0,
   nonTurnPhaseFallbacks:0,nonOwnerSeatBypassCalls:0,
+  peerRoleDispatchEnabled:name==='candidate',
+  ownerDecisionCalls:1,peerRoleDelegations:name==='candidate'?1:0,
   nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,...overrides});
- return {schema:'aichi-actor-only-execution-boundary-v1',valid:true,failures:[],
+ return {schema:'aichi-actor-only-execution-boundary-v2',valid:true,failures:[],
   candidate:role('candidate',candidateSeat,candidateOverrides),
   opponent:role('opponent',opponentSeat,opponentOverrides)};
 }

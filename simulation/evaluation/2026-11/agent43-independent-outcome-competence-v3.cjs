@@ -105,7 +105,7 @@ function inspectActorOnlyExecutionBoundaryReceipt(item,trial=null) {
   if(!boundary||typeof boundary!=='object'||Array.isArray(boundary))
     return {verified:false,eligible:false,failures:['actor-only-execution-boundary-missing']};
   const boundarySha=safeDigest(boundary);
-  if(boundary.schema!=='aichi-actor-only-execution-boundary-v1')
+  if(boundary.schema!=='aichi-actor-only-execution-boundary-v2')
     integrityFailures.push('actor-only-execution-boundary-schema-invalid');
   if(!HEX_SHA256.test(item?.actorOnlyExecutionBoundarySha256??'')||
       boundarySha!==item.actorOnlyExecutionBoundarySha256)
@@ -132,14 +132,15 @@ function inspectActorOnlyExecutionBoundaryReceipt(item,trial=null) {
       if(typeof row[key]!=='boolean') integrityFailures.push(role+'-'+key+'-missing-or-invalid');
       else if(row[key]!==false) qualificationFailures.push(role+'-'+key+'-enabled');
     }
-    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
-      'nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls',
-      'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
-      if(!Number.isSafeInteger(row[key])||row[key]<0)
-        integrityFailures.push(role+'-'+key+'-missing-or-invalid');
+    if(typeof row.peerRoleDispatchEnabled!=='boolean') integrityFailures.push(role+'-peerRoleDispatchEnabled-missing-or-invalid');
+    else if(row.peerRoleDispatchEnabled!==(role==='candidate')) integrityFailures.push(role+'-peerRoleDispatchEnabled-role-mismatch');
+    for(const key of ['ownerDecisionCalls','peerRoleDelegations']) if(!Number.isSafeInteger(row[key])||row[key]<0) integrityFailures.push(role+'-'+key+'-missing-or-invalid');
+    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls','nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
+      if(!Number.isSafeInteger(row[key])||row[key]<0) integrityFailures.push(role+'-'+key+'-missing-or-invalid');
       else if(row[key]!==0) qualificationFailures.push(role+'-'+key+'-nonzero');
     }
   }
+  if(boundary.candidate?.peerRoleDelegations!==boundary.opponent?.ownerDecisionCalls||boundary.opponent?.peerRoleDelegations!==0) integrityFailures.push('actor-only-peer-role-routing-mismatch');
   if(trial&&safeDigest(trial.actorOnlyExecutionBoundary)!==boundarySha)
     integrityFailures.push('trial-actor-only-execution-boundary-mismatch');
   const verified=integrityFailures.length===0;

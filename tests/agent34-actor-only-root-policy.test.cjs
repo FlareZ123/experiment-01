@@ -1183,9 +1183,16 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     'physical seat 1 own-side target is also PlayerType.BOTTOM_PLAYER; seat is not the relative enum');
   assert.equal(roleRun.candidateAudit.policyOwnerSeat,0);
   assert.equal(roleRun.opponentAudit.policyOwnerSeat,1);
-  assert.equal(roleRun.candidateAudit.nonOwnerSeatBypassCalls,1);
-  assert.equal(roleRun.opponentAudit.nonOwnerSeatBypassCalls,0,
-    'The inner candidate wrapper delegates the opponent seat to the outer opponent wrapper');
+  assert.equal(roleRun.candidateAudit.peerRoleDispatchEnabled,true);
+  assert.equal(roleRun.opponentAudit.peerRoleDispatchEnabled,false);
+  assert.equal(roleRun.candidateAudit.ownerDecisionCalls,1);
+  assert.equal(roleRun.opponentAudit.ownerDecisionCalls,1);
+  assert.equal(roleRun.candidateAudit.peerRoleDelegations,1);
+  assert.equal(roleRun.opponentAudit.peerRoleDelegations,0);
+  assert.equal(roleRun.candidateAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(roleRun.opponentAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(roleRun.actorOnlyBoundary.schema,'aichi-actor-only-execution-boundary-v2');
+  assert.equal(roleRun.actorOnlyBoundary.valid,true);
   assert.equal(roleRun.candidateAudit.selectedRootDecisions,1);
   assert.equal(roleRun.opponentAudit.selectedRootDecisions,1);
   assert.ok(observedSeats.includes(0)&&observedSeats.includes(1),

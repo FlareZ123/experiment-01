@@ -1272,7 +1272,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     'Post-Timeless Max Geist root requires Mimikyu Apex history and a candidate seat');
   const audit={
     version:VERSION,origin:'detached-actor-observation',
-    policyOwnerSeat,nonOwnerSeatBypassCalls:0,
+    policyOwnerSeat,peerRoleDispatchEnabled:deps.peerRoleDispatch===true,
+    ownerDecisionCalls:0,peerRoleDelegations:0,nonOwnerSeatBypassCalls:0,
     rootIntentProvider:{
       configured:hasRootIntentProvider,attempts:0,selected:0,abstained:0,
       skipped:0,abstentionReasons:{},lastIntentKind:null,
@@ -2023,9 +2024,14 @@ function withActorOnlyRootPolicy(run,deps={}){
       'Actor-owned actions require PlayerType.BOTTOM_PLAYER');
     const pending=state.prompts?.find(p=>p.result===undefined);
     if(policyOwnerSeat!==null&&seat!==policyOwnerSeat){
+      if(deps.peerRoleDispatch===true&&seat===1-policyOwnerSeat){
+        audit.peerRoleDelegations++;
+        return original.value.call(this,state);
+      }
       audit.nonOwnerSeatBypassCalls++;
       return original.value.call(this,state);
     }
+    if(seat===0||seat===1)audit.ownerDecisionCalls++;
     if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);

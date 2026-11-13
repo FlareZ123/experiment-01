@@ -19,6 +19,8 @@ function audit(seat,overrides={}) {
     nonOwnerNativeDelegations:0,
     nonTurnPhaseFallbacks:0,
     nonOwnerSeatBypassCalls:0,
+    peerRoleDispatchEnabled:seat===0,
+    ownerDecisionCalls:0,peerRoleDelegations:0,
     ...overrides
   };
 }
@@ -34,13 +36,27 @@ test('both role audits must prove zero unsupported prompt and speculative-State 
   const result=inspectActorOnlyExecutionBoundary({
     candidateAudit:audit(0),opponentAudit:audit(1),candidateSeat:0,opponentSeat:1
   });
-  assert.equal(result.schema,'aichi-actor-only-execution-boundary-v1');
+  assert.equal(result.schema,'aichi-actor-only-execution-boundary-v2');
   assert.equal(result.valid,true);
   assert.deepEqual(result.failures,[]);
   assert.equal(result.candidate.ownerFallbackDiagnosticViewEnabled,false);
   assert.equal(result.candidate.nativePolicyMayUseHiddenInformation,false);
   assert.equal(result.candidate.unsupportedPromptFallbacks,0);
   assert.equal(result.opponent.nonLiveSpeculativeFallbacks,0);
+});
+
+test('expected candidate-to-opponent peer routing is reconciled, not treated as a bypass',()=>{
+  const result=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{ownerDecisionCalls:4,peerRoleDelegations:3}),
+    opponentAudit:audit(1,{ownerDecisionCalls:3}),candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(result.valid,true);
+  const mismatch=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{ownerDecisionCalls:4,peerRoleDelegations:2}),
+    opponentAudit:audit(1,{ownerDecisionCalls:3}),candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(mismatch.valid,false);
+  assert.ok(mismatch.failures.includes('candidate-peer-role-delegation-count-mismatch'));
 });
 
 test('native owner trainer fallback makes comparative execution boundary invalid',()=>{
