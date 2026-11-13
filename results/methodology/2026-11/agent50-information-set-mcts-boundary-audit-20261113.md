@@ -29,9 +29,10 @@ Agent50 repaired the provider on main:
 Pure contract coverage was added in tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs: root versus successor envelopes, turn-2 second-player root and two-action frontier, seat mismatch, canonical action frontier keys, typed intent translation, exact adapter dependency construction, exact registered-list validation, trusted Store-binding receipt acceptance/rejection, selectedActionKey-to-native-action binding, and budget/scope checks. The test and syntax checks are in the existing MCTS pure-test step of .github/workflows/agent5-owner-root-native.yml; no workflow was created. The temporary duplicate test wiring in the Agent36 native fixture workflow was removed.
 
 Relevant Agent50 commits:
-- Provider repair and native projection: 4feb9d5aa7f4ee8f909a7fd77bf670dd92c19358, 867879ace0bf3b95f5936539d6528c32a3be0d2a, 3842f0c8cbbb6ed0aea176e4c595cd990e6fbc79, d86b99067af5d6f38096ecef70d861e0bdbd1bbf, 5d5d439fab3a5437bd2020aea30d5af564440bd8.
-- Contract tests: 40fca98fdda182910c553194bdb905749292a0a3, c09c93a0270bbcd3e710c6a058942d415cfd623f, f4ff27572511ae34cf59756506d5c5d1903540e2.
+- Provider repair and native projection: 4feb9d5aa7f4ee8f909a7fd77bf670dd92c19358, 867879ace0bf3b95f5936539d6528c32a3be0d2a, 3842f0c8cbbb6ed0aea176e4c595cd990e6fbc79, d86b99067af5d6f38096ecef70d861e0bdbd1bbf, 5d5d439fab3a5437bd2020aea30d5af564440bd8, 0ad8cb841c1c02f802ae32ea4af9326667dd8a3d, ca58cbe13565ed79bbd663f7fd358e7291886e8c.
+- Contract tests: 40fca98fdda182910c553194bdb905749292a0a3, c09c93a0270bbcd3e710c6a058942d415cfd623f, f4ff27572511ae34cf59756506d5c5d1903540e2, a47526f0ed56de92c317865f9270ac059b9e45e2, 24c85c4b9610eee017edce1c10333e3238c39eaf.
 - Workflow routing: 30b1fea1bd5cc89390b4b7b6bfa08736a5bf6bb5, f4995b2ff721418ae119d7e8e755170471202640.
+- Report updates: 629dda1fe5f4e0313ecf16e61db5ac48c8b69e22, 833c452837a229f1166d72caa7593ba507e3b941, ed5a7ff57eb38613e93bf689514da600e706492f, 9504d3309952960b4cead39e95c993cfcafde039, 409e404125569dd283d8341e04f85ed02e5b4ada.
 
 ### General multi-ply limitation: root-determinization strategy fusion
 
