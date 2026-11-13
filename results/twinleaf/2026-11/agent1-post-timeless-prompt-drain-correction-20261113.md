@@ -42,4 +42,4 @@ An authorized owner can dispatch the existing workflow on current main with its 
 gh workflow run mimikyu-copycat-regression.yml --repo FlareZ123/experiment-01 --ref main
 ```
 
-Then inspect the complete output for all four matched rows and preserve the resulting artifact. Only after that run passes should the comparison report be updated with measured damage / Prize outcomes.
+Then retrieve the successful `copycat` job logs and preserve the step-16 JSON stdout; this unconditional step has no dedicated artifact-upload step. Inspect all four matched rows. Only after that run passes should the comparison report be updated with measured damage / Prize outcomes.
