@@ -31,9 +31,6 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
         audit?.nativeOwnerTrainerFallback!==null,
       ownerFallbackDiagnosticViewEnabled:Boolean(audit?.nativeOwnerTrainerFallback&&
         Object.hasOwn(audit.nativeOwnerTrainerFallback,'firstUnsupportedOwnerRoot')),
-      nativePolicyMayUseHiddenInformation:audit?.nativeOwnerTrainerFallback?.nativePolicyMayUseHiddenInformation===true,
-      ownerFallbackDiagnosticViewEnabled:Boolean(audit?.nativeOwnerTrainerFallback&&
-        Object.hasOwn(audit.nativeOwnerTrainerFallback,'firstUnsupportedOwnerRoot')),
       nativePolicyMayUseHiddenInformation:
         audit?.nativeOwnerTrainerFallback?.nativePolicyMayUseHiddenInformation===true,
       unsupportedPromptFallbacks:audit?.unsupportedPromptFallbacks??null,
