@@ -185,18 +185,6 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
-function createFixtureActorOnlyPolicyExecutionAudit({trialId,candidateSeat,opponentSeat,
-  candidateIdentity,opponentIdentity,roleResult}={}) {
-  if(!roleResult)return null;
-  return roleIdentity.createActorOnlyPolicyExecutionAudit({
-    trialId,candidateSeat,opponentSeat,
-    candidatePolicySha256:candidateIdentity?.policySha256,
-    opponentPolicySha256:opponentIdentity?.policySha256,
-    candidateAudit:roleResult.candidateAudit,
-    opponentAudit:roleResult.opponentAudit,
-  });
-}
-
 function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries}){
   assert.equal(cardPoolInitialization?.schema,
@@ -1033,14 +1021,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     runtimePatchReceipts: [patchReceipt],
     seed: V3_FIXTURE.seed,
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
-    actorOnlyPolicyExecutionAudit: createFixtureActorOnlyPolicyExecutionAudit({
-      trialId: V3_FIXTURE.trialId,
-      candidateSeat: 0,
-      opponentSeat: 1,
-      candidateIdentity: identities.candidateIdentity,
-      opponentIdentity: identities.opponentIdentity,
-      roleResult,
-    }),
+    actorOnlyExecutionBoundary: roleResult?.actorOnlyBoundary ?? null,
   };
   if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
@@ -1136,7 +1117,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       candidate: roleResult?.candidateAudit ?? null,
       opponent: roleResult?.opponentAudit ?? null,
     },
-    actorOnlyPolicyExecutionAudit: trial.actorOnlyPolicyExecutionAudit,
+    actorOnlyExecutionBoundary: trial.actorOnlyExecutionBoundary,
     runtimePinEvidence,
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
@@ -1156,9 +1137,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
       rootActionLedgerSha256: gameResult?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null,
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
-      actorOnlyPolicyExecutionAuditSha256: application?.receipt?.actorOnlyPolicyExecutionAuditSha256 ?? trial.actorOnlyPolicyExecutionAudit?.sha256 ?? null,
-      actorOnlyPolicyExecutionAuditVerified: application?.receipt?.actorOnlyPolicyExecutionAuditVerified ?? false,
-      actorOnlyPolicyExecutionAuditEligible: application?.receipt?.actorOnlyPolicyExecutionAuditEligible ?? false,
+      actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
+      actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
       runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
@@ -1312,6 +1292,5 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   buildFixturePolicyPlan,
   createUnderworldRuntimePatchReceipt,
   normalizeV3FixtureRoleResult,
-  createFixtureActorOnlyPolicyExecutionAudit,
   runV3FixtureGame
 };
