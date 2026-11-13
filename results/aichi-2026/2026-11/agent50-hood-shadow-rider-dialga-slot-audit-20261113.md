@@ -37,7 +37,7 @@ A deck-wide attack-cost scan of the candidate's Pokémon makes the distinction c
 
 Thus the list has two attack-cost mismatches, but only Dialga lacks a documented Ability role. Radiant Eternatus is retained for Climactic Gate despite its unusable attack. This makes the Dialga slot a more specific structural question than a blanket “every Pokémon must attack” rule.
 
-Tapu Lele-GX is also a two-Prize Basic but offers Wonder Tag when played from hand onto the Bench, can find any Supporter, and has attacks payable with the deck's Psychic Energy. It is searchable by all four Mysterious Treasure and all four Fog Crystal, plus Quick Ball and the one-time Forest Seal Stone search. Dialga is searchable by Mysterious Treasure and Quick Ball, but not Fog Crystal. Thus the proposed replacement adds four no-discard search outs and another potential Wonder Tag activation, at the cost of 10 HP and Dragon typing.
+Tapu Lele-GX is also a two-Prize Basic but offers Wonder Tag when played from hand onto the Bench, can find any Supporter, and has attacks payable with the deck's Psychic Energy. It is searchable by all four Mysterious Treasure and all four Fog Crystal, plus Quick Ball and the one-time Forest Seal Stone search. Dialga is searchable by Mysterious Treasure and Quick Ball, but not Fog Crystal. Thus the proposed replacement makes the second Tapu Lele a target for the existing four no-discard Fog Crystal (which cannot find Dialga) and adds another potential Wonder Tag activation; the deck's search-Item counts do not change. The costs are 10 HP and Dragon typing.
 
 ## Candidate variant
 
