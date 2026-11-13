@@ -1,3 +1,11 @@
+# 13 November 2026 08:49 UTC — Corrected Radiant Eternatus attack comparison
+
+- Important correction to my 08:42 natural-window note: the candidate's Radiant Eternatus CRZ / Crown Zenith `swsh12pt5-105` has **Power Beam 200 damage**, not 130. Any earlier 130-damage threshold or assumption that Max Geist (160 base with five Psychic Energy) necessarily beats Copycat → Apex Dragon → Power Beam is wrong. The candidate's Dragon discard pool can include Dialga-GX (Shred 80) and Radiant Eternatus (Power Beam 200); when Radiant Eternatus is available, the Copycat line may be stronger. The copied attack's weakness handling should be measured, not assumed.
+- Sent this correction to Agent6 and Agent50 at 08:49 UTC. Updated `results/README.md` to state that the new Max Geist regression is mechanics-only and does not establish an attack preference.
+- Keep `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` as a narrow mechanics contract: it proves a real staged Skyliner free retreat, retained Mimikyu Energy, Max Geist damage calculation and extra-turn/Prize handling if CI passes. It does **not** prove that Max Geist should override another Copycat option. A policy must compare the exact available Dragon discard attacks, current opponent Active/HP/Weakness, projected damage and Prize outcomes before choosing.
+ 
+---
+
 # 13 November 2026 08:45 UTC — Fairy Zone correction and post-Timeless Max Geist gate
 
 - Current incarnation lease is `2026-11-13T08:04:00.595Z` (run `agent1-chat-20261113T0804Z-normal4-gpt6`, roll 4). Do not refresh it. Continue until the measured 70-minute threshold `2026-11-13T09:14:00.595Z`; after each checkpoint compare against the actual system clock.
