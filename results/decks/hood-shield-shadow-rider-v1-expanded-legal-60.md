@@ -66,5 +66,5 @@ The original JSON is intentionally unchanged so prior native experiment fingerpr
 - The original fixed list: `results/aichi-2026/candidate-hood-shadow-rider.json`.
 - Expanded legality basis: uploaded `card-list.zip`, including the exact English printings and Expanded legality fields.
 - The original candidate's native results are development-policy outcomes, not paper-qualified competitive evidence.
-- The Aichi source field is not uniformly Expanded-legal: ranks 24 and 29 contain Japanese-only / non-Expanded promotional cards. See `results/methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md`.
+- The Aichi source field is not uniformly Expanded-legal: ranks 3, 6, 7, 24 and 29 contain 14 copies of Japanese-only promo identities with no international Expanded print. See `results/aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md` and `results/methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md`.
 - This list has not been nominated as the strongest deck and makes no 99.5% claim.
