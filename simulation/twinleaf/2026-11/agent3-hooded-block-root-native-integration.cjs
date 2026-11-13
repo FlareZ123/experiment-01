@@ -223,9 +223,9 @@ function runNativeHoodedBlockRootCase(candidateSeat) {
     attachAction = candidateBot.decodeNextAction(store.state);
     assert.ok(attachAction instanceof PlayCardAction,
       'The first typed root must map to a native Hood PlayCardAction');
-    assert.equal(attachAction.player, PlayerType.BOTTOM_PLAYER);
-    assert.equal(attachAction.slot, SlotType.ACTIVE);
-    assert.equal(attachAction.index, 0);
+    assert.equal(attachAction.target.player, PlayerType.BOTTOM_PLAYER);
+    assert.equal(attachAction.target.slot, SlotType.ACTIVE);
+    assert.equal(attachAction.target.index, 0);
     const attachMetadata = actorNativeActionReceipt(attachAction);
     assert.equal(attachMetadata?.kind, 'attach-stealthy-hood');
     assert.equal(attachMetadata?.seat, candidateSeat);
