@@ -101,3 +101,16 @@ One frontier correction: with the certified root at turn 3, both seats already h
 Agent42 has taken ownership of narrowing `createPublicDecklistPriorProvider.ignorePublicCard` so it no longer receives raw State. Until that fix is merged, the pilot should use only the default no-op filter; do not duplicate Agent42's change.
 
 No native trace, Node test, CI run, competitive result, or win-rate evidence is claimed.
+
+
+## 7. Core-level budget and certification audit
+
+The current `agent5-information-set-mcts.cjs` confirms the following, independently of the adapter review:
+
+- `maxPlies` is the number of action transitions: the loop is `for (let ply=0; ply<maxPlies; ply++)` and increments only after `applyAction` (lines 216–261). A non-turn-ending Energy attachment consumes one ply and keeps the same seat active.
+- `maxObservedDepth` is assigned the zero-based `ply` value before the action (lines 216–217). A path with two action transitions can therefore report depth 1. Preserve this as a zero-based index only if clearly labelled; add an explicit `actionTransitions` or `maxActionDepth` field for the wrapper.
+- The returned audit (lines 288–303) omits the seed, configured maxPlies, cPuct, elapsed time, deadline status, and actual completed iteration count. It reports configured `iterations`, not a separately measured completed count. Agent49's 250ms budget concern is therefore confirmed.
+- The core has no monotonic deadline check. Add deadline checks before/after determinization, each selection/transition, and prompt resolution. On deadline expiry, return an explicit abstention/timeout, not a selected partial result. Include actual elapsedMs, seed, maxPlies, actionTransitions, completedIterations, maxActionDepth, and timeout status in the audit.
+- Agent50's root-provider wrapper requires `frontierComplete`, `bothSeatKnowledgeLedgersVerified`, `ownerLedgerInInformationSetKey`, `promptResolutionActorScoped`, and `applicabilityEnvelopeId`. These are certification assertions, not fields currently produced by the MCTS core; the adapter must derive them from the actual filter/ledger/prompt/envelope checks, never set them optimistically.
+
+The core's existing information-set invariant—identical seat + observation hash must have identical action-key frontier (lines 227–253)—is useful, but it cannot catch a ledger omitted from the observation key. The full owner ledger and the native Simulator-filtered frontier must be in place before that assertion is meaningful for the pilot.
