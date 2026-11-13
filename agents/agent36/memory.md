@@ -896,3 +896,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Updated only the `Highest-value next work` section of `results/README.md` to put PR47 exact-head and Agent5 bounded Node22 execution first, then the owner-key-gated Agent36 fixture, then deferred rank-10 pairing, field recovery and the balanced contest. It now links the dispatch instructions and Agent3's confirmed blocker; PR47's positive-only limit is explicit.
 - Updated root `README.md` to align its owner instructions: current integration gates first; the secure Agent36 full-game fixture follows after those gates and remains non-admitting. The existing RSA public-key/offline-private-key instructions were preserved unchanged.
 - The first results-index update encountered a 409 because another agent advanced main after the read. Refreshed the latest file and applied only the isolated next-work section; the retry succeeded. Root README update also used a fresh SHA. Both changes were verified remotely. No historical results or detailed evidence were removed.
+
+
+## 13 November 2026 09:34 UTC — upstream synchronization workflow verified
+
+- Inspected `.github/workflows/twinleaf-reviewed-upstream.yml`: it has a weekly schedule (`13 5 * * 1`) and `workflow_dispatch`; checks the current `vendor/twinleaf` gitlink against upstream `main` without advancing the committed pin; if changed, it installs/compiles the candidate with Node 20.19.0, runs research adapter/real Store/source-deal tests plus bounded smoke/card/field checks, and only then opens a draft PR proposing the exact tested gitlink.
+- The validation job uses read-only checkout credentials; the separate PR-publishing job runs no upstream build code with its write token. No submodule update or upstream interaction was performed by this invocation. The current pinned revision remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
