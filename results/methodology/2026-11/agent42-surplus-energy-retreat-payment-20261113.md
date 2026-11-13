@@ -22,8 +22,8 @@ This expands the legal-looking proposal set without relaxing the payment-type as
 
 ## Validation
 
-- Local Node 22 regression: **4/4 passed**.
-- The exact updated repository source was evaluated in an isolated V8 harness: **6/6 cases passed**, covering two, three and four Psychic attachments, insufficient payment, unsupported Special Energy, and unknown catalog.
+- Local Node 22 regression: **5/5 passed**, including the post-retreat Max Geist projection with one surplus Psychic Energy retained on the retreating Active.
+- The exact updated repository source was evaluated in an isolated V8 harness: **7/7 cases passed**; the surplus-energy Max Geist projection returned 160 damage from seven board Psychic Energy minus the two selected retreat units, covering two, three and four Psychic attachments, insufficient payment, unsupported Special Energy, and unknown catalog.
 - New test: `tests/2026-11/agent42-retreat-payment-surplus-energy.test.cjs`.
 
 ## Limitations
