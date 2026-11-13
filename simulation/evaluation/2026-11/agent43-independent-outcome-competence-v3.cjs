@@ -901,7 +901,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       paper?.candidateFormat === 'Japanese Extra' &&
       paper?.opponentSourceEventFormat === 'Japanese Extra' &&
       paper?.formatReviewStatus === 'independently-reviewed' &&
-      paper?.eventDate === timing.registration?.eventDate &&
+      paper?.eventDate === bundle.trial.eventDate &&
       paper?.candidatePrinted60Sha256 === trial?.candidatePrinted60Sha256 &&
       paper?.opponentPrinted60Sha256 === trial?.originalPrinted60Sha256 &&
       paper?.exactJapaneseCandidatePrinted60Verified === true &&
