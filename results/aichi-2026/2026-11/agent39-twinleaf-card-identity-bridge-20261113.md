@@ -11,9 +11,9 @@ The normalized English card-pool name/ID is not necessarily Twinleaf's decklist 
 - Resource name `Battle Compressor Team Flare Gear` / card-pool ID `xy4-92` maps to Twinleaf fullName `Battle Compressor PHF`.
 - Resource name `Ditto ◇` maps to Twinleaf fullName `Ditto Prism Star LOT`.
 - Resource name `Tapu Koko ◇` maps to Twinleaf fullName `Tapu Koko Prism Star TEU`.
-- Promo display number and engine set number can differ: source XYP 177 maps to card-pool number `XY177`, which is the Twinleaf `setNumber`.
+- Promo canonical card-pool numbers can carry prefixes absent from Twinleaf's engine set number: source XYP 177 has card-pool number `XY177`, but Twinleaf Karen XYP uses `setNumber = '177'`; source SMP 217 has card-pool number `SM217`, while Twinleaf Trevenant & Dusknoir-GX SMP uses `setNumber = '217'`.
 
-Joining on normalized display name alone would therefore create false misses or incorrect deck keys.
+Joining on normalized display name alone would therefore create false misses or incorrect deck keys. Joining on `card_pool_printing.number` is also wrong for the XYP/SMP promo cases above; the bridge's test covers both prefix mismatches.
 
 ## Bridge contract
 
@@ -23,7 +23,7 @@ The bridge:
 
 1. Loads the pinned compiled Twinleaf `CardManager` and all arrays exported by `output/sets`.
 2. Builds an index by the actual Twinleaf fields `Card.set + Card.setNumber`.
-3. Resolves each normalized row using `normalized.printing.set` plus `normalized.card_pool_printing.number`, then emits the matched `Card.fullName`.
+3. Resolves each normalized row using `normalized.printing.set` plus `normalized.printing.number` (the printed set/number), then emits the matched `Card.fullName`. Keep `card_pool_printing.number` as canonical resource provenance; do not use it as Twinleaf's set number.
 4. Checks `isCardDefined` and `getCardByName` on the same manager instance.
 5. Merges duplicate source rows that resolve to one Twinleaf fullName, preserving row-level provenance separately.
 6. Emits `registered60: [{printing, copies}]` per deck, matching the input contract used by Agent5's public decklist prior provider.
