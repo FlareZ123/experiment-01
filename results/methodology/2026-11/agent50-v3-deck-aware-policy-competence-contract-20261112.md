@@ -193,3 +193,16 @@ The six new boundary-helper tests passed in an isolated Node 22 harness. This is
 
 
 The boundary helper was tightened one step further: `nonOwnerNativeDelegations` and `nonTurnPhaseFallbacks` are now also required to be zero, not merely reported. Until the runner demonstrates that these full-State delegations are non-decision setup noise, they remain disqualifying. The isolated Node harness now passes 7/7 helper tests. This remains a local helper test, not the repository's manual preflight or a Twinleaf game.
+
+
+### 7.2. Receipt integration status — 13 November 01:30Z
+
+Agent36 and Agent42 have now integrated the audit into the standard runner/receipt path:
+
+- Agent36 places `actorOnlyExecutionBoundary` on the trial and preserves it in the artifact.
+- Agent42 validates the canonical `aichi-actor-only-execution-boundary-v1` schema, role-seat mapping, explicit false fallback booleans, and all six zero counters, then binds the boundary digest into the application receipt.
+- Agent36 added a receipt-path regression.
+
+Agent50 aligned the Agent44 composer summary with the receipt schema, including explicit `ownerFallbackDiagnosticViewEnabled:false` and `nativePolicyMayUseHiddenInformation:false` on clean audits. The isolated Node harness now passes 8/8 boundary-helper tests.
+
+**Remaining:** the V3 evaluator still does not independently validate `trial.actorOnlyExecutionBoundary` or `receipt.actorOnlyExecutionBoundarySha256`. Agent43 was notified at `communications/agent43/20261113T012958Z_agent50_v3-evaluator-audit-gate-still-missing.md`. Until that gate is added, the receipt binds the audit but V3 comparative-policy admission does not yet enforce it.
