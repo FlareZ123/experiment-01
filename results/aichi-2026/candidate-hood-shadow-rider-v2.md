@@ -1,6 +1,8 @@
-# Hood Shield Shadow Rider v2 — Tapu Lele consistency challenger
+# WITHDRAWN — Hood Shield Shadow Rider v2 (Tapu Lele slot hypothesis)
 
-**Agent 50 · 13 November 2026 · fixed 60-card structural hypothesis · untested in games**
+**Agent 50 · 13 November 2026 · WITHDRAWN 08:05 UTC · not suitable for the full Aichi field**
+
+This fixed 60-card list is preserved as a rejected hypothesis. It removes Dialga-GX and thereby removes a matchup-specific Mimikyu → Regidrago VSTAR Apex Dragon → Dialga Timeless-GX counter-line. The published Aichi field contains nine Regidrago lists. Do not nominate or test this list as a full-field challenger unless an equivalent counter-line is restored and validated.
 
 [Machine-readable 60-card list](candidate-hood-shadow-rider-v2.json) · [v1 parent candidate](candidate-hood-shadow-rider.md) · [slot audit and calculations](2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md)
 
@@ -66,6 +68,22 @@ The v1 list contains 11 Basic Psychic Energy and no Metal Energy. Psychic Energy
 
 Tapu Lele-GX is a 170-HP Psychic Basic with Wonder Tag: when played from hand onto the Bench, it can search any Supporter. Its Energy Drive attack costs two Colorless, payable with Psychic Energy, and Tapu Cure-GX costs one Psychic Energy. The second copy offers another live Supporter-search opportunity and a playable attack while preserving the same Basic count and Prize liability class. It loses 10 HP relative to Dialga and is still vulnerable to Ability suppression; this is not a strict upgrade in every matchup.
 
+## Critical counter-ALS omitted from the original proposal
+
+The supplied `resources/human_concepts.md` explicitly identifies Dialga-GX plus Mimikyu GRI 58 as a Shadow Rider counter-ALS against Regidrago:
+
+1. Regidrago VSTAR uses Apex Dragon, a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
+2. If that was the opponent's attack last turn, Mimikyu GRI 58 can use Copycat (Psychic + Colorless) to use that non-GX Apex Dragon attack as its own attack.
+3. The nested Apex Dragon effect can then choose Timeless-GX from your Dialga-GX in your discard pile.
+
+The bundled advanced manual, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, section C-18 (page 37), defines “use it as this attack” as choosing an attack and doing all of its effects and damage; unless specified otherwise, the Pokémon does not need the Energy for the chosen attack. This supports the nested copy without paying Dialga's Metal attack cost. Mimikyu pays its own Copycat cost, which the Psychic-only Energy suite can pay.
+
+The exact GX-attack allowance and nested-copy behavior should still be tested against paper rulings and Twinleaf. The copied Timeless-GX text includes its once-per-game GX-attack restriction; do not spend another GX attack (for example, Trevenant & Dusknoir-GX's) before this line if preserving it is the plan.
+
+The field contains **nine published Regidrago lists** (see `candidate-temple-shadow-rider.md`). Dialga's value is therefore matchup-dependent: it may be a low-DCI discard target in many matchups, but it is a protected discard-pile payload against Regidrago. Battle Compressor and Mysterious Treasure can help place it in the discard pile; Night Stretcher can also remove it from the discard pile, so recovery decisions must account for whether the counter-line is still needed.
+
+**Why v2 is withdrawn:** replacing Dialga with a second Tapu Lele improves raw Supporter access, but deletes this counter-ALS against nine published opponents. The direct-draw calculations below remain mathematically correct; they are not sufficient to justify the trade. This is a useful failed hypothesis demonstrating matchup-dependent DCI/AMR, not a current candidate recommendation.
+
 ## Search access
 
 The exact printed search text matters:
@@ -118,4 +136,4 @@ Compare v1 and v2 under the same deck-aware policy, source deals, starting seats
 4. Bench congestion and whether the additional Tapu Lele displaces a necessary Shadow Rider or support Pokémon.
 5. Full-game wins, losses, ties, caps and censored games by opponent—not only opening consistency.
 
-**Decision:** retain v1 as the current leading modified-list hypothesis and register v2 as a structural challenger. Do not nominate v2, merge the variants, or claim a matchup advantage without paired full-game evidence. Neither list has a paper-qualified competitive win-rate result, and neither establishes the 99.5% target.
+**Decision:** v2 is withdrawn and must not be used as a full-field candidate because it removes the Regidrago counter-ALS. Retain v1 as the current leading modified-list hypothesis. The v2 direct-draw advantage does not compensate for an unmeasured loss in nine Regidrago matchups. Neither list has a paper-qualified competitive win-rate result, and neither establishes the 99.5% target.
