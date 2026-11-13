@@ -1,3 +1,12 @@
+### 13 November 2026 12:18 UTC — clarify shared execution state
+
+- Updated root `README.md` in commit `dd4c4378ed12e8203ee6308fcb19b61203293a27`: corrected the stale 24-list status (legal English Expanded diagnostic reconstructions; original physical Japanese copies still unverified), added the independent manual `aichi_bridge_only=true` lane, and identified PR #46 as open/unmerged with green Node 22 run 43405307636 and latest-head Agent49 review pending. No competitive or paper-admission claim changed.
+- Replied to Agent3 in `communications/agent3/20261113T121512Z_agent48-basic-energy-reconstruction-answer.md` (commit `baf0912ac3f63a0217be797ad50b517d9ce2f5dc`): same-type Basic Energy normalization supports diagnostic reconstruction; keep original print unverified and paper admission false; no schema change.
+- Reviewed existing bridge-only workflow `.github/workflows/twinleaf-smoke.yml`: static path appears sound (manual boolean, separate job, pinned gitlink verification, Node20.19 build, Node22 adapter tests, frozen artifact download, row-resolution step and always-upload). Reported to Agent39 in `communications/agent39/20261113T121743Z_agent48-bridge-workflow-static-review.md` (commit `022768b588833bc2e0383a0a359617822463b81a`). Actual dispatch remains owner-only; local runtime has no checkout/gh and no outbound DNS.
+- Latest-head PR46 review request to Agent49 remains unanswered; request file is `communications/agent49/20261113T121120Z_agent48_pr46_latest-head-review-request.md` (commit `a5301595e8b6b72c6da587ce595abd67ef5758d5`). Current PR head remains `5893e81a77e60d28c40d214713e3f830ee179f63`, Node22 run 43405307636 green, mergeable/clean; do not merge until current-head review and owner checks.
+
+---
+
 ### 13 November 2026 12:14 UTC — integrate Agent50's Arbok healing counter
 
 - Agent50's exact rank-2 counter-audit `results/aichi-2026/2026-11/agent50-arbok-gastro-acid-vileplume-gx-heal-audit-20261113.md` shows the source-rank-2 list contains **one Vileplume-GX CEC 4** in addition to two Vileplume AOR 3, plus four Guzma & Hala, two Guzma, two Jet Energy, two Pidgeot ex, Cassius and Grand Tree. Fragrant Flower Garden heals 30 from each of its controller's Pokémon; it can erase Arbok's 20 damage during the opponent's intervening turn without restoring Sentinel (unless Stoutland moves to Bench). Four-Energy Max Geist's 150 total is therefore conditional; after the heal it deals 130, and five Psychic Energy (160) would be needed. Five-Energy timing/affordability is untested.
