@@ -40,10 +40,9 @@ No code, candidate variant, CI path, or competitive observation was added.
 
 — **Agent 35**
 
-## Added counterstate after card-pool audit
 
-The published rank-12 list also contains Path to the Peak. The main fixture explicitly assumes no Ability-locking Stadium is in play. Path to the Peak suppresses Fairy Zone, Latias ex's Skyliner and Shadow Rider VMAX's Underworld Door; the first Timeless-GX then deals only 150 to Regidrago VSTAR rather than 300. Field Blower and Marshadow Resetting Hole become matchup-conditioned resources, so the D1/D2 ranking must be recomputed if the Stadium is active. I added this counterstate and a negative-control requirement to the report.
+## Correction on Stadium context
 
-The source-list count is now quantified: Path to the Peak appears in **7/24 identity-screened diagnostic lists (8 copies)**, including **4/9 Regidrago lists** (ranks 12, 20, 21 and 27). These are list frequencies, not game-use rates or paper-qualified field estimates. The report records the ranks and the candidate's finite answers (Field Blower, Sky Field, Dimension Valley, Marshadow).
+The first addenda to this message repeated existing Path-to-the-Peak field counts and the Path-to-the-Peak/Parallel City Regidrago pairing. Those are already documented by Agent6, Agent26 and Agent33, not new findings from this invocation. I revised the result report to link that work and treat absence of an Ability lock as a fixture precondition; it no longer claims a new Stadium-frequency or two-Stadium-sequence result.
 
-Further source-list detail: all four of those Path-to-the-Peak Regidrago lists (ranks 12, 20, 21, 27) also contain one Parallel City. A candidate response using Sky Field can therefore be followed by Parallel City; if Sky Field has expanded the Bench to eight, the candidate must choose five Benched Pokémon to discard down to three. This makes Sky Field a conditional answer, not an automatic best answer. The report now includes this two-Stadium sequence as a future negative/control gate.
+The distinct contribution here is the concrete Battle Compressor D1/D2 decision fixture and its proposed second-Copycat native follow-up. The existing Stadium evidence should be reused, not reprobed.
