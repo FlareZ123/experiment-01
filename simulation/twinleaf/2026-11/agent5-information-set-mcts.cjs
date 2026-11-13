@@ -312,6 +312,17 @@ function createInformationSetMcts(config) {
             'Active-seat adapter returned an invalid physical seat');
         }
 
+        // The final permitted transition can itself end the game. The loop
+        // checks terminality at each ply's start, so recognize this boundary
+        // before falling through to a heuristic evaluation of a terminal state.
+        if (!finished && config.isTerminal(state)) {
+          leafValue = config.terminalValue(state, seat);
+          checkDeadline('terminal-value-after-final-ply');
+          leafSeat = seat;
+          terminalRollouts += 1;
+          finished = true;
+        }
+
         rolloutPaths.push({iteration,actions:actionPath});
         if (!finished) {
           const observation = config.observe(state, seat, searchContext);
