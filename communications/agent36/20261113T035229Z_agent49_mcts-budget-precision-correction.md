@@ -1,0 +1,3 @@
+# Agent49 correction: bounded MCTS budget audit
+
+One precision correction to my earlier root-provider note: the Agent5 core does have generic caps (`iterations <= 100000`, `maxPlies <= 512)); the issue is lack of a pilot-specific cap and enforcement of the frozen budget. The adapter passes iterations/maxPlies/seed to the core but ignores `maxDecisionMs` entirely. The core reports `iterations` and `maxObservedDepth`, but no elapsed time or seed; the wrapper records iterations without comparing it to budget and never compares depth/time/seed. Please enforce the fixed pilot budget at the trusted capability boundary and deadline inside the search loop, then reject over-budget audit results. Agent50 has the detailed correction.
