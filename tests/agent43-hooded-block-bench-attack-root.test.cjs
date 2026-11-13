@@ -24,7 +24,8 @@ const catalog = {
   dragonPokemonPrintings: new Set(),
   ruleboxPokemonPrintings: new Set(),
   colorlessEnergyType: C,
-  specialConditions: { ASLEEP: 1, PARALYZED: 2, CONFUSED: 3 }
+  specialConditions: { ASLEEP: 1, PARALYZED: 2, CONFUSED: 3 },
+  stages: { BASIC: 0, STAGE_1: 1, STAGE_2: 2, VMAX: 3, VSTAR: 4 }
 };
 
 function restrictions(extra = {}) {
@@ -63,6 +64,7 @@ function pokemon(printing, options = {}) {
 
 function makeView(options = {}) {
   const active = pokemon('Shadow Rider Calyrex VMAX CRE', {
+    stage: 3,
     hp: 320,
     retreatCost: [C, C],
     energies: options.activeEnergies ?? [P, P],
@@ -97,6 +99,13 @@ function makeView(options = {}) {
     pokemon('Bench D')
   ];
   if (options.benchHood) ownBench[1].tools = [HOOD];
+  const skyliner = {
+    name: 'Skyliner',
+    text: 'Your Basic Pokémon in play have no Retreat Cost.'
+  };
+  if (options.ownBenchLatias) ownBench[1] = pokemon('Latias ex SSP 76', {
+    stage: 0, abilityDetails: [skyliner]
+  });
 
   const blockAbility = options.block === false ? [] : [{
     name: 'Block',
@@ -113,6 +122,15 @@ function makeView(options = {}) {
   const opponentBench = Array.from({ length: 5 }, (_, index) =>
     pokemon('Opponent Bench ' + index));
   if (options.benchToolJammer) opponentBench[0].tools = ['Tool Jammer BST 136'];
+  if (options.opponentBenchLatias) opponentBench[0] = pokemon('Latias ex SSP 76', {
+    stage: 0, abilityDetails: [skyliner]
+  });
+  if (options.opponentBenchMimikyu) opponentBench[0] = pokemon('Mimikyu PAL 97', {
+    stage: 0, abilityDetails: [{
+      name: 'Safeguard',
+      text: "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V."
+    }]
+  });
 
   const view = {
     decisionKind: 'owner-root',
@@ -244,6 +262,33 @@ test('other retreat abilities, Garbotoxin, unsupported stadiums and hidden zones
 
   assert.equal(chooseHoodedBlockBenchAttackRoot(
     makeView({ hoodOnActive: true, hoodInHand: false }), catalog)?.kind, 'paid-retreat');
+});
+
+
+test('Latias Skyliner on either Bench does not veto an evolved Shadow Rider Active', () => {
+  for (const options of [{ ownBenchLatias: true }, { opponentBenchLatias: true }]) {
+    const plan = chooseHoodedBlockBenchAttackRoot(
+      makeView({ hoodOnActive: true, hoodInHand: false, ...options }), catalog
+    );
+    assert.equal(plan?.kind, 'paid-retreat');
+  }
+  const unknownStage = makeView({
+    hoodOnActive: true, hoodInHand: false, ownBenchLatias: true
+  });
+  unknownStage.ownPublic.active.printed.stage = undefined;
+  assert.equal(chooseHoodedBlockBenchAttackRoot(unknownStage, catalog), null);
+});
+
+test('Mimikyu PAL Safeguard on opponent Bench does not veto an attack against Active Snorlax', () => {
+  const view = makeView({
+    hoodOnActive: true, hoodInHand: false, opponentBenchMimikyu: true
+  });
+  assert.equal(chooseHoodedBlockBenchAttackRoot(view, catalog)?.kind, 'paid-retreat');
+  view.opponentPublic.bench[0].abilityDetails = [{
+    name: 'Other Protection',
+    text: "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V."
+  }];
+  assert.equal(chooseHoodedBlockBenchAttackRoot(view, catalog), null);
 });
 
 test('root option is default-off and candidate root returns the typed Hood/Retreat intent', () => {
