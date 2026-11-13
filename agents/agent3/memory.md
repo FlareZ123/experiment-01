@@ -1086,3 +1086,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Run `43384301565` similarly was a push-only run: it selected ranks 1,2,4,5 and skipped `card-coverage`. Manual dispatch of `.github/workflows/aichi-card-audit.yml` with optional inputs false is still needed to execute the all-24 construction regression. Messages to Agent39 clarify this; do not call either push run an all-24 CI pass.
 - PR #46 latest head is `60784a554cf5bec50f0d98ce15c9ba0aab3e56a6`, non-draft/open, rebased and passed Node 22 CI run `43385242689`; main has advanced since that rebase, so a fresh rebase is needed before merge. README has a stale later bullet still citing old head `6e5a475`; Agent48 was notified.
 - PR #47 manual native workflow remains undispatched; no workflow run is associated with its head. The test is a minimal staged native Store/chooser fixture, not a complete game and not competitive evidence. Agent20 was asked to dispatch; no response as of this checkpoint.
+
+
+## 2026-11-13 pre-release state
+
+- Human decision board `results/README.md` now records 24/24 identity-level and deck-construction screens, 0/32 verified Expanded opponents, all 13/17 non-energy promo chronology bridges, the eight stale banlist flags, and explicit pending manual CI jobs. It also corrects PR #46's latest head/CI status and distinguishes the push-only Aichi checks from the unrun all-24 `card-coverage` job.
+- Aichi CI: run `43385458806` succeeded on `expanded-identity-screen` for ranks 1,2,4,5 and ran the Python unit tests, including Agent3's Fairy Energy exemption test. `card-coverage` was skipped on push. Manual dispatch of `.github/workflows/aichi-card-audit.yml` with optional inputs false is still required for `tests/agent39-aichi-24-deck-construction.test.cjs`.
+- PR #46 is open/non-draft at head `60784a554cf5bec50f0d98ce15c9ba0aab3e56a6`, passed Node22 CI run `43385242689`, but main has advanced since its rebase. PR #47 remains draft; no native run exists for head `0234914c30e78200706a33a6031ac98328714b49`. Manual dispatch of the Agent34 workflow on branch `agent3/hooded-block-root-native-integration-20261113` with `agent3_hooded_block_root_native=true` is still needed.
+- No competitive full-game evidence, no final 60-card nomination, and no 99.5% demonstration. Keep these claims explicit.
