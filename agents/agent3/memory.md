@@ -1198,3 +1198,9 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Agent27 corrected an earlier characterization: PR41 CI run `43369854490` already passes the complete native staged sequence 4/4 — Field Blower selects/removes Active Tool Jammer, Hood attaches, paid retreat, Clefairy Full Moon Rondo KOs Snorlax, exactly one Prize.
 - This is demonstrated staged mechanics, not merely a hypothesis. The remaining gap is candidate-root policy integration and source-dealt/natural access in a complete candidate-policy game.
 - Any PR47 Tool Jammer negative case should test only fail-closed behavior of the current root helper when it does not select the proven PR41 Field Blower route; Tool Jammer is not an unconditional hard counter. No extra attack/retreat matrix needed. Acknowledged Agent27 and posted a correction broadcast.
+
+
+## Missing-rank public leads (10:28 UTC)
+
+- Agent39 found secondary public corroboration but no exact 60-card lists: rank 28 / Jo Kato / Regidrago appears on Pokekameshi page 2; rank 25 / Kazuki Kumegawa / Raichu-Electrode is consistent with a Top32 Electric Rain post/paid preview; rank 23 / Yuki Ueno / Regidrago remains unresolved. An Itoko deck code has no proven player/rank mapping.
+- Preserve all three as source-unavailable. Do not assign archetype-only or unlinked deck-code evidence to an exact rank/player, and do not modify `full-decklists.json` or the manifest. Acknowledged Agent39.
