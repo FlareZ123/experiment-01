@@ -10,6 +10,7 @@ const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
   buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
+const {withActorFogCrystalPrompt}=require('../../twinleaf/agent9-fog-actor-prompt.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
@@ -546,10 +547,10 @@ const V3_FIXTURE = Object.freeze({
   engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
   seed: 'agent36-v3-fixture-hood-rank1-20261112-01',
   maxActions: 6000,
-  trialId: 'agent36-v3-fixture-hood-rank1-20261112-01',
-  policyVersion: 'agent34-actor-only-root-slice-v15-actor-owned-setup-prompts',
-  candidateProducerId: 'agent36-fixture-candidate-agent34-baseline',
-  opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-baseline',
+  trialId: 'agent36-v3-fixture-hood-rank1-20261113-fog-v1',
+  policyVersion: 'agent34-actor-only-root-slice-v16-agent9-fog-crystal-setup',
+  candidateProducerId: 'agent36-fixture-candidate-agent34-agent9-fog-v1',
+  opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-agent9-fog-v1',
   entrypoint: 'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
   hookPath: 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs',
   hookId: 'underworld-door-psychic-recipient-v1',
@@ -559,6 +560,7 @@ const V3_FIXTURE = Object.freeze({
 
 const V3_FIXTURE_TEST_PATHS = [
   'tests/agent34-actor-only-root-policy.test.cjs',
+  'tests/agent9-fog-actor-prompt.test.cjs',
   'tests/agent36-v3-runner.test.cjs',
   'tests/agent42-role-policy-identity.test.cjs',
   'tests/2026-11/agent49-native-fixture-game.test.cjs',
@@ -573,6 +575,7 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'observe', path: 'simulation/twinleaf/actor-observation-contract.cjs', exportName: 'actorObservation' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
+  { name: 'fogCrystalPrompt', path: 'simulation/twinleaf/agent9-fog-actor-prompt.cjs', exportName: 'withActorFogCrystalPrompt' },
   { name: 'moduleLoadGuard', path: 'simulation/evaluation/agent36-runtime-module-pin.cjs', exportName: 'withPinnedResearchModuleLoads' },
   { name: 'sourceClosureAudit', path: 'simulation/evaluation/agent36-source-closure-audit.cjs', exportName: 'auditSourceClosure' },
   { name: 'roleIdentityHelper', path: 'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs', exportName: 'buildRolePolicyIdentity' },
@@ -602,6 +605,9 @@ const V3_FIXTURE_COMMON_BINDINGS = [
 const V3_FIXTURE_PROMPT_CHAIN = [
   { name: 'candidate-opponent-role-composition', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs' },
   { name: 'actor-only-root-policy', path: V3_FIXTURE.entrypoint },
+  // Installed last inside the role-composer callback: Fog sees the decision
+  // first, then delegates all other roots/prompts to the scoped Agent34 chain.
+  { name: 'owner-fog-crystal-prompt', path: 'simulation/twinleaf/agent9-fog-actor-prompt.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
 ];
 
@@ -1041,19 +1047,28 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       pin: fixtureRuntimePin.withFixtureScopedRolePin,
       run: () => {
         try {
-          return runCandidateOpponentPolicyRoles(
-            () => runNativeFixtureGame({
-              deckA: candidateResolved.fullNames,
-              deckB: opponentResolved.fullNames,
-              candidateSeat: 0,
-              originalSourceSeat: 1,
-              seed: V3_FIXTURE.seed,
-              native,
-              botOptionsBySeat: native.botOptionsBySeat,
-              maxActions: V3_FIXTURE.maxActions,
-              diagnosticSnapshot: diagnostic.snapshotFullGameState,
-              requireFullStateDiagnostics: true,
-            }),
+          let fogCrystalAudit = null;
+          const roleResult = runCandidateOpponentPolicyRoles(
+            // Agent34 installs the two role-scoped root policies first. This
+            // wrapper is installed inside their run callback, so it sees the
+            // live decision first, prioritizes the actor's Fog Crystal setup
+            // route, and delegates every other decision back to Agent34.
+            () => {
+              const fog = withActorFogCrystalPrompt(() => runNativeFixtureGame({
+                deckA: candidateResolved.fullNames,
+                deckB: opponentResolved.fullNames,
+                candidateSeat: 0,
+                originalSourceSeat: 1,
+                seed: V3_FIXTURE.seed,
+                native,
+                botOptionsBySeat: native.botOptionsBySeat,
+                maxActions: V3_FIXTURE.maxActions,
+                diagnosticSnapshot: diagnostic.snapshotFullGameState,
+                requireFullStateDiagnostics: true,
+              }));
+              fogCrystalAudit = fog.audit;
+              return fog.result;
+            },
             {
               candidateSeat: 0,
               opponentSeat: 1,
@@ -1066,6 +1081,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
               composer: withCandidateOpponentPolicyRoles,
             },
           );
+          return { ...roleResult, fogCrystalAudit };
         } catch (error) {
           // Catch ordinary game/policy failures inside the pin so its audit can be
           // returned and persisted before the workflow is failed below.
@@ -1214,8 +1230,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       cardPoolInitializationReceipt: native.cardPoolInitialization,
     },
     policy: {
-      candidateProfile: 'agent34 actor-only root policy plus Twinleaf SimpleTacticsAi baseline',
-      opponentProfile: 'same actor-only root policy and Twinleaf baseline',
+      candidateProfile: 'Agent34 actor-only root policy plus Agent9 bilateral Fog Crystal owner-prompt component and Twinleaf SimpleTacticsAi fallback',
+      opponentProfile: 'same actor-only root policy, Agent9 bilateral Fog Crystal owner-prompt component and Twinleaf fallback',
       candidateHoodOptionsApplied: false,
       candidateRecoveryAutonomyApplied: false,
       deferredCompetitivePolicyWork: 'PR #38: candidate-specific Hood recovery and per-seat Hood options; not required for this baseline native fixture',
@@ -1244,6 +1260,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     roleComposerAudit: {
       candidate: roleResult?.candidateAudit ?? null,
       opponent: roleResult?.opponentAudit ?? null,
+      fogCrystal: roleResult?.fogCrystalAudit ?? null,
     },
     actorOnlyExecutionBoundary: trial.actorOnlyExecutionBoundary,
     runtimePinEvidence,
@@ -1267,6 +1284,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
       actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
+      fogCrystalItemRootsAccepted: roleResult?.fogCrystalAudit?.fogItemRootNativeAccepted ?? 0,
+      fogCrystalSearchPromptsAccepted: roleResult?.fogCrystalAudit?.fogPromptNativeAccepted ?? 0,
+      fogCrystalSourceCardBindingsAccepted: roleResult?.fogCrystalAudit?.sourceCardBindingAccepted ?? 0,
+      fogCrystalRejectedChoices: roleResult?.fogCrystalAudit?.rejectedNativeChoices ?? 0,
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
@@ -1483,7 +1504,8 @@ if(require.main===module){
   });
 }
 
-module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
+module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
+  V3_FIXTURE_COMMON_BINDINGS,V3_FIXTURE_PROMPT_CHAIN,validateRepositoryName,
   validateArtifactRef,gitBlobSha,preDealProjection,verifyPersistedPreDeal,
   resolveInsideRoot,apiUrl,parseNextLink,requestJson,validateRun,
   fetchWorkflowRun,fetchWorkflowJobs,fetchCommittedArtifact,
