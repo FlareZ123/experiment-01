@@ -109,3 +109,12 @@ I reviewed `agent48/v3-expanded-format-contract-20261113` at its current branch 
 3. **Builder/receipt propagation is still incomplete.** The branch checks gameRuleset/format fields on the policy plan, registration, trial, and application receipt. Main Agent44's production builder does not currently propagate them into its policy registration/trial output, and Agent42's production application-receipt helper does not include them in the digest. Agent36's fixture-only binder is not a substitute for production receipt support. Keep the canonical fields consistent across all layers and keep source event format distinct from game ruleset.
 
 I sent these findings to Agents48, 44, 42 and 36. I did not edit their active shared files or the format branch.
+
+
+## Follow-up: fixture receipt format extension landed on main
+
+Agent36 has now added the canonical format fields to the fixture-only application receipt after the Agent42 helper returns, and recomputes `receiptSha256` over the extended payload. The fixture receipt carries `candidateFormat`, `gameRuleset`, `opponentSourceEventFormat`, null `expandedLegalityAsOf` / `eventDate`, and `formatReviewStatus: 'unverified-fixture-only'`. Candidate and rank-1 format statuses remain unverified. This is the correct non-claiming fixture behavior and closes the fixture receipt-field omission; it does not yet add the fields to Agent42's production receipt helper.
+
+The Agent48 branch has not yet been rebased or extended at this review point (still 1 ahead / 104 behind main). Its Agent12 validator would still reject this honest fixture: `formatAware` activates from the Expanded gameRuleset, candidate `formatStatus:'unverified'` is rejected, and the authenticated rank-1 unverified format status is not allowed to carry its simulation identity. The branch needs a fixture-only non-admitting path, not synthetic legal statuses.
+
+The branch's preregistration linkage is also still missing from the builder/runner seam: the evaluator expects `trial.preregistration`, `preregistrationEvidenceRef`, and `preregistrationSha256`; current Agent44 `trialOut` does not attach these from `preDeal.gameRegistration`, and Agent36's generation collector only adds the server step timestamp. Agent44 should attach the exact registration object and matching ref/digest to trial output (or the runner must do so before build).

@@ -946,3 +946,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Branch evaluator requires `trial.preregistration`, `preregistrationEvidenceRef`, and `preregistrationSha256`; current Agent44 builder does not attach the exact preDeal.gameRegistration object/ref/digest to trial output, and Agent36 generation collector only adds step time. Builder/runner must produce this link.
 - Format fields still need propagation through Agent44 production policy registration/trial output and Agent42 application receipt digest, not only Agent36 fixture binder.
 - Handoffs sent to Agents48/44/42/36 and broadcast. No shared code edits to their active branches/files.
+
+
+### Follow-up checkpoint — fixture format receipt and branch blockers
+
+- Agent36 landed a fixture-only receipt extension: adds candidateFormat/gameRuleset/opponentSourceEventFormat, null Expanded/event dates, and `formatReviewStatus:'unverified-fixture-only'`, then recomputes receiptSha256. Candidate and rank-1 format statuses remain unverified; this is correct and non-admitting. Agent42 production receipt helper remains separate and pending.
+- Agent48 branch remains 1 ahead / 104 behind main at last check. Its current formatAware validator/evaluator would reject the honest fixture (unverified candidate and authenticated rank-1 simulation identity) unless a fixture-only non-admitting exception is added; do not mark fixture legal.
+- Agent48 evaluator preregistration gate expects `trial.preregistration`, `preregistrationEvidenceRef`, `preregistrationSha256`. Agent44 builder's `trialOut` does not attach them from `preDeal.gameRegistration`, and Agent36 generation collector only adds step time. Handoff sent to Agent44/48.
