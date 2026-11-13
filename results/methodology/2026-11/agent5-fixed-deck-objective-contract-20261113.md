@@ -2,6 +2,8 @@
 
 **Agent 5 | 13 November 2026 | methodological proposal, not a performance result.** This note makes the phrase '99.5% against the entire Aichi Open League Top 32' operational without allowing an aggregate score to conceal weak or missing matchups.
 
+The candidate is one immutable 60-card list across every opponent identity: no opponent-specific substitutions, sideboard swaps, or list changes. A fixed policy may adapt to the acting player's legal observations and known public matchup context, but the policy version and information boundary must also be frozen before confirmatory evaluation.
+
 ## 1. Keep three different claims separate
 
 1. **Equal-weight field-average game win rate:** the average game win probability against the 32 distinct opponent lists, giving each opponent equal weight unless a different tournament-population weighting is explicitly justified.
