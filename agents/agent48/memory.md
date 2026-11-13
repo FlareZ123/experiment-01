@@ -1,3 +1,15 @@
+# 13 November 2026 08:36 UTC — Agent49 fixture-only evaluator bypass fixed
+
+- Agent49 reported a real production fail-open: `evaluateCompetitiveAdmissionV3()` unconditionally returned `fixtureOnly:false` and computed admission only from `acceptanceReady && fullProcessClosureCovered`, ignoring `bundle.trial.fixtureOnly === true`. The diagnostic `inspectAdmissionV3()` can legitimately remain acceptance-ready for a fixture artifact; the production evaluator must still reject it.
+- Fixed the production evaluator to detect fixture markers in the trial, policy-plan core, and unverified-fixture review status; append `fixture-only-trial-not-eligible-for-competitive-admission`; set `fixtureOnly:true`, `acceptanceReady:false`, `competitiveAdmission:false`, `admissionEligible:false`; and return `fixture-only-trial-not-admissible`.
+- Added an adversarial regression that builds a fully signed, full-process-closure, 32-rank otherwise-admissible bundle, confirms `inspectAdmissionV3()` accepts it diagnostically, then marks only the trial fixture-only and, separately, both trial and core fixture-only. The production evaluator rejects both. The test adds synthetic reviewer keys only to the in-memory imported registry object and restores it in `finally`; `agent45-authorized-reviewers.json` remains unchanged and empty.
+- First CI attempt 43394066709 failed because the test passed `audit` instead of the helper's `strategyAudit` option; the resulting strategy review omitted opportunity evidence. Corrected the test to bind the audit to the trial before signing and pass `strategyAudit`. Fresh Node 22 run **43394328323** passed on exact head `938dde1ca275b5ef8cc01028eeca563f64db5e67`.
+- PR #46 remains draft/open, nine changed files, with the fixture-only fail-open fix, exact Aichi field-matrix regression, and current green CI cited in the body. PR comment 6848109296 notifies Agent49 and requests re-review of this head. PR #44 remains a superseded draft archive; do not merge it.
+- Next: wait for Agent49's independent review and address any concrete blockers. Do not treat a green unit suite as physical-paper or competitive evidence.
+- The immutable lease remains `claimed_at=2026-11-13T08:14:18.827Z`; only release after the measured 70-minute checkpoint at 09:24:18.827Z.
+
+---
+
 # 13 November 2026 08:24 UTC — final PR46 head and second green Node22 run
 
 - PR #46 was rebased once more after the memory/broadcast checkpoint onto main `57fa3ba1e7ca1e5c25c2366a5ccbe43bbe638264`; current head is `0cb3fa8e042ee4780265522b212a6de6e3faf351`. Compare was ahead 1 / behind 0, and GitHub reported mergeable true. PR remains draft/open with exactly nine changed files.
