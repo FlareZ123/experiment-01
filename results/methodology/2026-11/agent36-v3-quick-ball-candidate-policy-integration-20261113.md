@@ -1,6 +1,6 @@
 # Agent36 V3 candidate-only Quick Ball policy integration
 
-**Status:** candidate-only Quick Ball root and source-bound continuation are integrated as V3 policy v17. Agent50 has added exact selected-object-to-Bench follow-through and separate completed-setup accounting to the shared helper, with positive and same-printing/different-object negative regression coverage. The existing contract-only CI validation is pending; native rerun remains blocked by the owner-controlled diagnostic-key prerequisite. No game-performance result is claimed.
+**Status:** candidate-only Quick Ball root and source-bound continuation are integrated as V3 policy v17. Agent50 has added exact selected-object-to-Bench follow-through and separate completed-setup accounting to the shared helper, with positive and same-printing/different-object negative regression coverage. The existing Agent36 contract-only lane ran as [43508487195](https://github.com/FlareZ123/experiment-01/actions/runs/43508487195) and failed before native compilation: three Quick Ball helper test assertions need correction, plus 23 unrelated Agent44/Agent34/Agent45 suite failures. Native rerun remains blocked by the owner-controlled diagnostic-key prerequisite. No game-performance result is claimed.
 
 ## Correct opening-hand diagnosis
 
@@ -49,7 +49,7 @@ The implementation now distinguishes three stages:
 
 Agent50 added the follow-through in [helper commit a1cd4c3](https://github.com/FlareZ123/experiment-01/commit/a1cd4c380d8b1ef3a7d5781fa0f60fc2d18162b3) and added a positive end-to-end unit case plus a negative same-printing/different-physical-object case in [test commit a60e4f5](https://github.com/FlareZ123/experiment-01/commit/a60e4f5972b3d682e81a21346ee9478af0a8e35d). The pinned Twinleaf source supports the identity test: the PlayCard reducer passes the actual hand-card object into `PlayPokemonEffect`; the Basic-Pokémon reducer moves that same object from hand to the target `PokemonCardList` using `CardList.moveCardTo`; and `PokemonCardList.getPokemonCard()` returns the stored object. This is source-level support for the observer, not native-run evidence.
 
-Agent49 is coordinating validation through the existing Agent36 `contract_only=true` lane, which includes the helper test and avoids compiling Twinleaf or executing a game. That CI result is pending. It would still be incorrect to count retrieval to hand alone as a completed setup line.
+The existing Agent36 `contract_only=true` lane includes the helper test and avoids compiling Twinleaf or executing a game. [Run 43508487195](https://github.com/FlareZ123/experiment-01/actions/runs/43508487195) executed 369 tests (342 pass, 26 fail, 1 skip). The three Quick Ball helper failures are localized test defects: the positive case contradicts its earlier assertion that the selected target left hand; the same-printing negative case references `samePrintingCopy` outside its callback scope; and the source-binding negative case expects zero even though the helper correctly increments `sourceCardBindingFailures` for the deliberate mismatch. The other 23 failures are in unrelated Agent44 V3 bundle, Agent34 policy-composition and Agent45 adapter-version tests. Agent50 has been sent the exact failures for correction. The Quick Ball helper suite is not yet green, and no native Twinleaf compile or game occurred. It remains incorrect to count retrieval to hand alone as a completed setup line.
 
 ## Execution gate and limitations
 
@@ -64,6 +64,6 @@ Consequently:
 
 ## Next actions
 
-1. Confirm Agent49's existing `contract_only=true` lane passes on current main; it includes the helper regression and does not compile Twinleaf or execute a game. If it fails, fix only the evidenced helper/test issue.
+1. After Agent50 corrects the three Quick Ball helper test defects identified by run 43508487195, rerun the same existing `contract_only=true` lane and confirm the helper tests pass; do not add a workflow or change unrelated Agent44/Agent34/Agent45 tests under this task.
 2. After pure validation passes and the owner configures the public RSA key, use the existing encrypted fixture workflow with only `agent36_v3_fixture_game=true`; do not bypass the key gate or upload plaintext hidden zones.
 3. Inspect exact Quick Ball source binding, exact donor acceptance, exact target retrieval, same-object Bench placement, item finalization, pending counters, actor-only boundary, and full game result before making any further policy or card changes.
