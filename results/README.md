@@ -8,10 +8,11 @@
 | --- | ---: | --- |
 | Original Aichi lists authenticated | 29/32 | Ranks 23, 25 and 28 remain unavailable |
 | Unchanged lists incompatible with international Expanded | 5/32 | Ranks 3, 6, 7, 24 and 29 contain 14 copies of three Japanese-only promo identities |
-| Authenticated lists awaiting Expanded legality and physical-printing review | 24/32 | Not yet eligible for an Expanded matchup |
+| Authenticated lists with card-pool / banned-identity screen passed, physical source print unresolved | 9/24 | Ranks 8–16; normalized English card-pool screen only, not physical-print certification ([report](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md)) |
+| Other potentially compatible authenticated lists not yet per-rank screened | 15/24 | Ranks 1, 2, 4, 5, 17–22, 26, 27, 30–32 |
 | Verified Expanded-legal opponent lists | **0/32** | No rank currently qualifies for the Expanded field denominator |
 
-Do not equate 29 authenticated source lists with 29 legal opponents. Preserve all original lists; do not invent missing lists, substitute cards, or silently change the game ruleset to Japanese Extra. The current clean format-contract proposal is [PR #46](https://github.com/FlareZ123/experiment-01/pull/46); it is open and non-draft, and its current head has a green Node 22 CI run, but it remains unmerged and its branch has diverged from main. Its empty `availableRanks` result is not yet a production release. See the [source-format incompatibility audit](aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md), [Expanded legality review](methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md), and [missing-list source audit](aichi-2026/missing-opponent-list-source-audit-20261107.md).
+Do not equate 29 authenticated source lists with 29 legal opponents. The nine-rank screen is a card-pool / banned-identity pass only; exact physical Japanese prints remain unverified. The XYP chronology exceptions are now mapped to pre-event Japanese prints ([crosswalk](aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md)), but this does not prove which copies players used. Preserve all original lists; do not invent missing lists, substitute cards, or silently change the game ruleset to Japanese Extra. The current clean format-contract proposal is [PR #46](https://github.com/FlareZ123/experiment-01/pull/46); it is open and non-draft, and its current head has a green Node 22 CI run, but it remains unmerged and its branch has diverged from main. Its empty `availableRanks` result is not yet a production release. See the [source-format incompatibility audit](aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md), [Expanded legality review](methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md), and [missing-list source audit](aichi-2026/missing-opponent-list-source-audit-20261107.md).
 
 ## Fixed-60 candidates
 
@@ -35,14 +36,14 @@ No candidate has a certified winner ranking, field win-rate estimate, or final n
 
 ## Highest-value next work
 
-1. Recover original Aichi ranks **23, 25 and 28** and complete Expanded legality/printing dispositions for the other 24 authenticated lists. Keep the five unchanged format-incompatible lists explicitly out of the Expanded denominator.
+1. Recover original Aichi ranks **23, 25 and 28**; complete physical-print bridges for the nine card-pool-screened ranks 8–16 and per-rank screening for ranks 1, 2, 4, 5, 17–22, 26, 27, 30–32. Keep the five unchanged format-incompatible lists explicitly out of the Expanded denominator.
 2. Complete the candidate-specific Hood root-policy path through the real Agent34 actor-only chooser and pinned Store, using the staged native sequence as an acceptance fixture. Keep it default-off until the policy's suppressor/false-veto findings are independently resolved. Do not turn staged board evidence into a matchup claim.
 3. Once the owner configures the diagnostic public key, run the existing secure fixture once, inspect both actual decision traces, fix general causes, and replay. Keep this fixture non-admitting.
 4. Only after a nonempty, source-authenticated Expanded opponent field and independently competent frozen policies exist, execute the balanced field contest. Report each rank, both candidate seats and both first-player assignments separately; do not infer a 99.5% result from a subset or a proxy metric.
 
 ## Research map
 
-- [Original Aichi source coverage](aichi-2026/missing-opponent-list-source-audit-20261107.md) · [format incompatibility](aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md) · [Expanded field audit](methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md)
+- [Original Aichi source coverage](aichi-2026/missing-opponent-list-source-audit-20261107.md) · [format incompatibility](aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md) · [Expanded field audit](methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md) · [ranks 8–16 screen](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md) · [XYP Japanese-print crosswalk](aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md)
 - [V3 policy competence](methodology/2026-11/agent43-v3-deck-aware-policy-competence-20261112.md) · [balanced-field confidence design](statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md)
 - [Simulator fidelity](../simulation/twinleaf/) · [Twinleaf findings](twinleaf/) · [methodology](methodology/) · [strategy research](strategy/) · [historical decision-board snapshot](archive/decision-board-20261113-before-critic-compaction.md)
 
