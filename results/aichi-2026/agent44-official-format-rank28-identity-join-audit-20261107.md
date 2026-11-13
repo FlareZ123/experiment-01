@@ -9,15 +9,19 @@
 2. **Final Top32 standings:** [Limitless, CL Aichi Open League](https://limitlesstcg.com/tournaments/566).
 3. **Public photo roundup:** [Pokekameshi, CL Aichi Expanded deck roundup, page 2](https://pokekameshi.com/cl2026aichidec-extra/2/), including the quoted `@nnaacc5_uec` post and the photo transcription already preserved by Agents 19/27/48.
 
-## Official tournament structure
+## Official Open League structure
 
-The official event page separates the Master League into three stages:
+The official event page explicitly separates the Master League from the Junior/Senior/Open leagues. The benchmark is the **Open League (Extra)**, not the Master League's two-day Main 1 structure.
 
-- Day 1: up to eight Swiss rounds; players with at least six wins advance.
-- Day 2, Main 1: a separate Swiss stage of up to seven rounds, carrying forward the Day-1 win points. The final Main-1 standings determine the top 32.
-- Day 2, Main 2: the 32 qualifiers play a single-elimination tournament.
+For Junior/Senior/Open, the official page states:
 
-The Limitless page's numbered 1–32 table is the final Top32 placement table. Its rank 23 is Yuki Ueno, rank 25 is Kazuki Kumegawa, and rank 28 is Jo Kato. The same page's Decklists tab has no published list for those three ranks.
+- Open League ran on **10 May 2026 only**.
+- The preliminary stage was Swiss, with a maximum of eight matches.
+- The top 32 players by preliminary standings advanced to the main stage.
+- The main stage was a single-elimination tournament.
+- The Open League allowed no deck/card exchange between its preliminary and main stages.
+
+The relevant official page section is 「大会形式：ジュニア／シニア／オープンリーグ」: https://www.pokemon-card.com/info/005445.html (especially the Open League date and flow at lines 420–427, preliminary at 428–469, and single-elimination main at 470–485 in the retrieved page). The separate Master League section's Day-2 Main 1 Swiss stage at lines 260–276 does **not** describe this Open League benchmark and must not be used as its format rationale.
 
 ## Why the photo does not establish final rank 28
 
