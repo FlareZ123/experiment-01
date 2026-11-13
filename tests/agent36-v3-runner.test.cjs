@@ -8,7 +8,8 @@ const path=require('node:path');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
-  combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts
+  combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
+  revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 const STEP='Generate physical deal';
@@ -129,6 +130,53 @@ test('postgame runner can assemble the production bundle after verified generati
   assert.match(runnerSource,/bundleResult=buildV3BundleFromArtifacts\(/);
   assert.match(runnerSource,/complete-game-bundle\.json/);
   assert.match(runnerSource,/complete-game-assessment\.json/);
+});
+
+test('bundle assembly revalidates both persisted receipts against their original Actions runs',async()=>{
+  const common={repositoryFullName:'owner/repo',token:'test-token'};
+  const preDeal={trialId:'trial-001'};
+  const repositoryRoot='/repo';
+  const persistenceReceipt={
+    schema:'aichi-predeal-persistence-receipt-v1',
+    workflowRunId:123,
+    workflowHeadSha:'a'.repeat(40),
+  };
+  let persistenceArgs;
+  const persisted=await revalidatePreDealPersistenceReceipt({
+    preDeal,persistenceReceipt,repositoryRoot,common,
+    collector:async args=>{
+      persistenceArgs=args;
+      return {receipt:persistenceReceipt,run:{id:123},artifact:{blobSha:'b'.repeat(40)}};
+    }
+  });
+  assert.deepEqual(persisted,persistenceReceipt);
+  assert.equal(persistenceArgs.runId,123);
+  assert.equal(persistenceArgs.expectedHeadSha,'a'.repeat(40));
+  assert.equal(persistenceArgs.repositoryRoot,repositoryRoot);
+
+  const trial={trialId:'trial-001'};
+  const dealGenerationReceipt={
+    schema:'aichi-deal-generation-receipt-v1',
+    workflowRunId:123,
+    workflowHeadSha:'a'.repeat(40),
+  };
+  let generationArgs;
+  const generationResult={
+    receipt:dealGenerationReceipt,
+    trial:{...trial,dealGenerationStepStartedAt:'2026-11-13T02:00:00Z'},
+  };
+  const verified=await revalidateDealGenerationReceipt({
+    preDeal,trial,persistenceReceipt,dealGenerationReceipt,common,
+    collector:async args=>{generationArgs=args;return generationResult;}
+  });
+  assert.strictEqual(verified,generationResult);
+  assert.equal(generationArgs.runId,123);
+  assert.equal(generationArgs.expectedHeadSha,'a'.repeat(40));
+  await assert.rejects(()=>revalidatePreDealPersistenceReceipt({
+    preDeal,persistenceReceipt:{...persistenceReceipt,workflowHeadSha:'c'.repeat(40)},
+    repositoryRoot,common,
+    collector:async()=>({receipt:persistenceReceipt})
+  }),/differs from live GitHub run\/artifact evidence/);
 });
 
 test('repository-relative artifact paths reject traversal and aliases',()=>{
