@@ -25,7 +25,7 @@ Commits:
 
 ## Synthetic validation
 
-The exact PR-branch Agent42 and Agent43 modules were evaluated together in an isolated V8 harness with stubs for printed-damage and attack-payability dependencies. **6/6 scenarios passed**:
+The exact PR-branch Agent42 and Agent43 modules were evaluated together in an isolated V8 harness using the real Agent17 `publicSpecialAttackPayable`, Agent6 `projectedPrintedDamage`, and Agent35 Block detector. Agent6's unrelated `paysWithBasics` import was stubbed but not exercised. **6/6 scenarios passed**:
 
 1. Three attached Psychic Energy: proposal remains `paid-retreat`, selecting only indices `[0,1]`.
 2. Tool Jammer on opponent Active: abstain.
