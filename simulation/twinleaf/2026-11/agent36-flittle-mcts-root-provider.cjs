@@ -265,7 +265,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
       return {status:'abstained',reason:'outside-applicability-envelope'};
     const result=runSearch();
     return result?.status==='selected'?
-      {status:'selected'}:
+      {status:'selected',intent:result.intent,audit:result.audit}:
       {status:'abstained',reason:result?.reason??'low-confidence'};
   }
 
