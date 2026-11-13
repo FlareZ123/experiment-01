@@ -4,8 +4,11 @@ const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit';
+const VERSION='agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist';
 const MIN_PROJECTED_DAMAGE=80;
+// Keep a charged Shadow Rider VMAX on the Bench until Max Geist reaches a
+// meaningful 130 printed damage (four Psychic Energy after a one-Energy pivot).
+const MIN_MAX_GEIST_PROJECTED_DAMAGE=130;
 
 /**
  * One explicitly verified printed formula. Public Bench occupancy is known
@@ -106,7 +109,8 @@ function choosePaidRetreatToDamagingBench(view,catalog){
     for(const attack of pokemon.attacks??[]){
       const expected=projectedPrintedDamage(view,pokemon,attack,catalog,retreatPayment);
       if(attack.gxAttack===true||expected===null||
-         expected<MIN_PROJECTED_DAMAGE||
+         expected<(attack.name==='Max Geist'&&pokemon.name==='Shadow Rider Calyrex VMAX'?
+           MIN_MAX_GEIST_PROJECTED_DAMAGE:MIN_PROJECTED_DAMAGE)||
          !paysWithBasics(pokemon,attack,catalog))continue;
       if(pokemon.publicRestrictions?.blockedAttackNameNextTurn===attack.name||
          pokemon.publicRestrictions?.blockedAttackNameUntilLeavesActive===attack.name||

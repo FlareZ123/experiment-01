@@ -142,14 +142,18 @@ test('models Shadow Rider Max Geist after the Active Mimikyu pays its one-Energy
   };
   view.ownPublic.bench=[vmax,null,null];
   assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),100);
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null,
+    'three Psychic Energy projects only 100; preserve the Benched VMAX charge');
+  vmax.energies.push('Psychic Energy MEE');
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),130);
   const selected=choosePaidRetreatToDamagingBench(view,catalog);
   assert.equal(selected?.kind,'paid-retreat');
   assert.equal(selected?.printing,'Shadow Rider Calyrex VMAX CRE');
   assert.equal(selected?.attackName,'Max Geist');
-  assert.equal(selected?.projectedPrintedDamage,100);
+  assert.equal(selected?.projectedPrintedDamage,130);
   vmax.energies.push('Psychic Energy MEE');
-  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),130);
-  assert.equal(choosePaidRetreatToDamagingBench(view,catalog)?.projectedPrintedDamage,130);
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),160);
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog)?.projectedPrintedDamage,160);
   vmax.energies.pop();
   vmax.energies.pop();
   assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null,

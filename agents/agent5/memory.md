@@ -1,3 +1,12 @@
+## 13 November 2026 09:28 UTC — charge-preserving Max Geist threshold
+
+- Corrected the paid-retreat Max Geist heuristic after reading the full rank-19 turn sequence: the earlier 80-damage floor would pivot at VMAX3 / 100 damage on turns 21/23 and strand the VMAX off the Bench before later Underworld Door attachments. Final v6 requires **130 projected printed damage** for Max Geist, so it abstains at 100 and becomes eligible at VMAX4 / 130 (turn25 public snapshot); VMAX5 projects 160.
+- Rationale: Lillie's Clefairy ex Fairy Zone changes opposing Dragon Weakness to Psychic ×2; Raging Bolt ex is 240 HP, so 130 can become 260 if Fairy Zone is active. The rank19 audit does not prove Fairy Zone was active at turn25 or that retreat was legal, so this remains a candidate-policy hypothesis.
+- Updated regression: 3 Psychic on VMAX + 1 on Active Mimikyu → 100 and abstain; 4 + 1 → 130 and select; 5 + 1 → 160 and select; 2 on VMAX cannot pay Max Geist. Rerun the V8 suite after this update.
+- Final frontier version: `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist`. Still opt-in; candidate policy should pair `paidRetreatRoot` with `mimikyuApexFundedPromotion` and replay rank19 through native Store.
+
+---
+
 ## 13 November 2026 09:20 UTC — refine Copycat default assertion diagnosis
 
 - Refined the Agent8 workflow diagnosis: the default `Copycat` intent at `tests/agent34-actor-only-root-policy.test.cjs:1352` can arise from Agent34's generic payable-attack fallback (`payable[0])), not necessarily from the Mimikyu-specific Apex option. The fixture's first payable attack is Copycat, so expecting `null` is invalid even with the new post-Timeless branch disabled. Assert the default intent's source is not the new branch, or make the fixture's attack list non-payable.
