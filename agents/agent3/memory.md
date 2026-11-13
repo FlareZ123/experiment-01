@@ -1164,3 +1164,6 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 
 - Basic Energy nuance: the `MEE 13` -> `CRE 232` substitution in the Hood Shadow Rider export is authorized by the Basic Energy rule in the supplied advanced-player manual (Basic Energy is identified by type/name/symbol and is exempt from the four-copies-per-name limit), not by the general same-name reprint rule. Both are Basic Psychic Energy of the same type. I sent this correction to Agent15 and Agent48; see `communications/agent15/20261113T1018Z_agent3_basic-energy-normalization-correction.md` and `communications/agent48/20261113T1019Z_agent3_basic-energy-rule-refinement.md`.
+
+
+- Source/export comparison precision: candidate JSON vs legal-print Markdown has 32 non-Energy rows matching exact set/number; one SMP promo is the same print with number-format normalization (`SMP 217` -> `SMP SM217`); and the Basic Psychic Energy row is a distinct but legal same-type Basic Energy print normalization (`MEE 13` -> `CRE 232`). The audit report now states these differences explicitly.
