@@ -7,6 +7,10 @@ on:
         description: Run the pinned 24-rank Aichi diagnostic decklist-to-Twinleaf identity bridge only
         type: boolean
         default: false
+      source_audit_run_id:
+        description: Workflow run containing the frozen Aichi audit artifact; downloaded bytes must match the pinned SHA-256
+        type: string
+        default: '43407979154'
 
 permissions:
   contents: read
@@ -254,7 +258,7 @@ jobs:
         with:
           name: aichi-expanded-identity-audit
           path: .tmp/aichi-input
-          run-id: 43407979154
+          run-id: ${{ inputs.source_audit_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify the frozen source-audit bytes before mapping
         run: |
