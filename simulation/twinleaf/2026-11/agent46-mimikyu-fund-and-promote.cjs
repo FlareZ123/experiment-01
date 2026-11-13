@@ -6,6 +6,8 @@ const {installUnderworldMimikyuFocus}=
   require('./agent46-underworld-mimikyu-energy-focus.cjs');
 const {facingVisibleRegidrago}=
   require('./agent46-mimikyu-fog-search-setup.cjs');
+const {mimikyuCopycatReadiness}=
+  require('../agent50-mimikyu-copycat-readiness.cjs');
 const MIMIKYU='Mimikyu GRI';
 let installed=null;
 
@@ -72,7 +74,8 @@ function installMimikyuFundAndPromote({seat,onEvent}){
   }
   function ownerManualPsychic(state,player){
     const found=ownedMimikyu(state,player,seat);
-    if(!found||found.slot.energies.cards.length>=2||
+    if(!found||mimikyuCopycatReadiness(state,player,seat,
+        {slot:'bench',index:found.index}).status!=='not-payable'||
       player.energyPlayedTurn>=state.turn)
       return formerAttach.call(this,state,player);
     const i=player.hand.cards.findIndex(c=>c instanceof EnergyCard&&
@@ -87,7 +90,8 @@ function installMimikyuFundAndPromote({seat,onEvent}){
   }
   function chooseCopycatOnPromotion(state,player,prompt){
     const found=ownedMimikyu(state,player,seat);
-    if(found&&found.slot.energies.cards.length>=2&&
+    if(found&&mimikyuCopycatReadiness(state,player,seat,
+        {slot:'bench',index:found.index}).status==='payable'&&
       lastOpponentApex(state,player)&&
       prompt?.playerId===player.id&&
       prompt?.constructor?.name==='ChoosePokemonPrompt'&&
@@ -102,7 +106,8 @@ function installMimikyuFundAndPromote({seat,onEvent}){
   }
   function promoteCopycatByRetreat(state,player){
     const found=ownedMimikyu(state,player,seat);
-    if(!found||found.slot.energies.cards.length<2||
+    if(!found||mimikyuCopycatReadiness(state,player,seat,
+        {slot:'bench',index:found.index}).status!=='payable'||
       !lastOpponentApex(state,player)||
       player.retreatedTurn===state.turn||
       player.active.getPokemonCard()?.fullName===MIMIKYU)
