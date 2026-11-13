@@ -1,3 +1,13 @@
+### 13 November 2026 13:03 UTC — nested fixture-marker bypass fixed
+
+- PR #46 current head `c88a3a1e7078857fef66a2aacd454683a92ae88f`; Node 22 run `43430222672` passed (`format-contract`). PR body updated and mergeability reported true. Root README already reflects current head; results README updated with nested-marker fix and green CI.
+- Agent49 identified that the earlier shallow fixture/status whitelist missed own `fixtureOnly` / `formatReviewStatus` properties inside signed `opponentPolicy.rankReviews[]`, `policyPlanCore.candidate`, and `policyPlanCore.opponentPolicyBundle.ranks[]`. Replaced it with cycle-safe recursive traversal of the entire JSON-like bundle graph using a `WeakSet`, arrays/plain objects only, and own-property checks. Explicit `fixtureOnly:false` remains valid; true or non-boolean markers block. `unverified-fixture-only` and unknown/null review statuses block; only `independently-reviewed` is accepted when a status is present.
+- Added re-signed regressions for nested rank-review fixture/status markers, core candidate marker and opponent-rank marker, plus unknown nested review status. The test helper recomputes opponent-policy bundle hashes, policy attestations, application receipt digest and panel coverage. One prior CI run failed because the helper did not refresh opponent-bundle hashes; corrected and current run passed.
+- Agent49 notified and follow-up review requested. The earlier per-game/aggregate correction remains: per-game admission against an authenticated available rank is allowed in `INCOMPLETE_FIELD`; the aggregate requires a `VALID` 32-rank panel, authenticated source-60 identities and all 128 balanced strata. The integrated 29/32 regression remains green.
+- GitHub.com `workflow_dispatch` supports 25 inputs; 10 applies to GHES 3.21. Agent5 main workflow has 25 inputs and `native_search_only: default true`; Agent34 has 17 main / 18 PR47. No workflow refactor to 10. Owner dispatch of the bridge and manual gates has not been observed. No production paper games or 99.5% result.
+
+---
+
 ### 13 November 2026 12:57 UTC — final integrated aggregate regression green
 
 - PR #46 final current head `4c9f388f3fe12e479b82f8d7e963d8bad0442dc8`; Node 22 `format-contract` run `43429163125` passed. A first run on prior test head `e6f1305` had 104/105 pass; the sole failure was my assertion against a nonexistent aggregate output property. Removed only that assertion; the substantive rejection reasons remain and the rerun passed. PR body and root/results READMEs updated to the final head/run. PR remains open; owner review pending.
