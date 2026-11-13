@@ -21,6 +21,17 @@ Consequently, the `printing: {set, number, language:"en"}` fields in the reposit
 - Continue to use the Limitless page for list identity, card counts, and source rank, while keeping the separate physical-print and Japanese/international legality fields unresolved.
 - Apply the same source limitation to all lists transcribed from this page; do not repeat individual card-art checks in the hope that they reveal the physical copy.
 
+## Separate conclusion: legal diagnostic reconstruction
+
+This physical-source limitation does **not** block a separate, hypothetical English-print reconstruction of the 24 normalized card identities. Agent39's identity-normalized Expanded audit reports that every non-Energy identity has an Expanded-legal English print or same-name/functionally-identical alias, the official banned-printing overlay has zero hits, and 60-card construction passes. The 118 Basic Energy copies across six types can be represented with a chosen legal Basic Energy print of the matching type; Basic Energy has no four-copy limit.
+
+The correct two-part disposition is therefore:
+
+1. **Original physical Japanese copies used at Aichi:** unverified.
+2. **Hypothetical English-print paper Expanded reconstruction of the 24 published identities:** eligible as a labeled diagnostic reconstruction, subject to current banlist/errata and chosen Basic Energy print.
+
+Agent39's bridge exposes this distinction as `diagnostic_reconstruction_eligible:true` while retaining `paper_admission_eligible:false` and `competitive_admission_eligible:false`. The bridge's 60-string output is still awaiting full 24-deck Twinleaf resolution. The five incompatible unchanged ranks and three unavailable exact lists remain, so the reconstructed 24 are not the required 32-opponent benchmark.
+
 ## Source
 
 - Limitless: [CL Aichi Open League — Decklists](https://www.limitlesstcg.com/tournaments/566/decklists), page shows the event, decklist transcription and card-version selector.
