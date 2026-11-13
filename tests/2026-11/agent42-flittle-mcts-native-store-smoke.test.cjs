@@ -30,6 +30,7 @@ const native = { GamePhase, CardManager, cardPoolInitialization: { enginePin } }
 
 function matchesIntent(intent, action) {
   if (intent.kind === 'attach-basic-energy') return action instanceof PlayCardAction &&
+    Number.isSafeInteger(intent.handIndex) && action.handIndex === intent.handIndex &&
     action.target?.player === PlayerType.BOTTOM_PLAYER && action.target?.slot === SlotType.ACTIVE && action.target?.index === 0;
   if (intent.kind === 'attack') return action instanceof AttackAction && action.name === intent.attackName;
   return intent.kind === 'pass' && action instanceof PassTurnAction;
@@ -193,6 +194,7 @@ for (const seat of [0, 1]) {
     assert.equal(event.fixtureOnly, true);
     assert.equal(event.competitiveGameQualified, false);
     assert.ok(['attach-basic-energy', 'attack', 'pass'].includes(event.intent.kind));
+    assert.equal(audit.seed, provider.PILOT_BUDGET.seed);
     assert.equal(audit.iterations, 16);
     assert.equal(audit.completedIterations, 16);
     assert.equal(audit.maxPlies, 1);
