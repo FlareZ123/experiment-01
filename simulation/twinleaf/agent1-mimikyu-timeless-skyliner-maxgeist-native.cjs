@@ -199,7 +199,7 @@ function runSeat(seat,followup='max-geist'){
           powerBeamPrompts.push({family:p.constructor.name,choice:'Power Beam',
             defenderDamageAfterResolution:copycatPowerBeamDamageBeforeKo});
         }else{
-          powerBeamPrompts.push(...resolvePending(x,{opponentDialga,ownerDialga},1));
+          powerBeamPrompts.push(...resolvePending(x,{opponentDialga,ownerDialga}));
         }
       }
       assert.ok(Number.isFinite(copycatPowerBeamDamageBeforeKo)&&copycatPowerBeamDamageBeforeKo>0,
