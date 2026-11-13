@@ -783,3 +783,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - The PR-info wrapper returned `mergeable:false` at 15:32, while a direct REST PR read returned `mergeable:true`, `mergeable_state:'clean'`, and `refs/pull/46/merge` still points to the successful synthetic merge commit `2887d4a71d60457df1f4caae2d6dfd7cc062afcd`.
 - That merge ref's main parent is `55a4b4b9ca4d3151f91961642be0edd53db20f54`; current main `940d58b6e96b9f3dbd9ce0ef476bc1ae3d86abad` has advanced since then only through non-overlapping docs/index, memory and communications. The PR branch itself is unchanged.
 - Treat mergeability metadata as inconsistent/stale and do not merge without owner review. The merge-ref CI result is valid for its recorded tree; no code/test path changed afterward.
+
+
+### 15:37 UTC — owner bridge input rechecked
+
+- Confirmed source-audit run `43407979154` still has the unexpired `aichi-expanded-identity-audit` artifact (110,708 bytes), created `2026-11-13T10:17:09Z`, expiry `2026-12-13T10:17:08Z`. Its pinned SHA-256 is checked by the workflow before mapping.
+- The exact manual dispatch inputs remain `aichi_bridge_only=true` and `source_audit_run_id=43407979154`; expected output artifact is `aichi-twinleaf-decklist-bridge`. No workflow-dispatch run has appeared since `42740669498` on 2026-11-10.
