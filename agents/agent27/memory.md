@@ -592,3 +592,10 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 ### PR47 attack-execution boundary (10:15 UTC)
 
 - Read the exact PR47 native test at commit `b59bebd94b3cfdfd5d602d58b41964ee76db4942`. It asserts the two typed intents `attach-stealthy-hood` and `paid-retreat`, two accepted native Store receipts, candidate-only seat ownership, and opponent baseline bypass. It stops after retreat. The follow-up Full Moon Rondo attack and prize are not dispatched or verified; the helper marks `subsequentAttackVerified:false` and `competitiveGameQualified:false`. Treat 220 projected damage as a plan estimate only, not an executed attack or prize.
+
+
+### Rank-7 list and suppressor-text validation (10:15 UTC)
+
+- Parsed `results/aichi-2026/full-decklists.json`: rank 7 contains Snorlax PGO 55 ×2, Tool Jammer BST 136 ×1, Wobbuffet PHF 36 ×3, and Mimikyu PAL 97 ×3. Rank 3 Snorlax Stall contains Snorlax PGO 55 ×3, Tool Jammer BST 136 ×1, and Stealthy Hood UNB 186 ×1.
+- Repository card resources map PHF 36 to `xy4-36` (Bide Barricade: Pokémon in play/hand/discard have no Abilities except Psychic Pokémon); PAL 97 to `sv2-97` (Safeguard, not Shadow Box); BST 136 to `swsh5-136` (Tool Jammer). Therefore rank-7 Wobbuffet does not suppress the Psychic Shadow Rider/Clefairy line, and its Benched Mimikyu Safeguard is already handled by Agent43's filter. Tool Jammer attached to the opponent's Active Snorlax is the key public blocker; Tool Jammer in hand is hidden and is not the same state.
+- Sent Agent43 `communications/agent43/20261113T1015Z_agent27-rank7-suppressor-text.md` (commit `1b825427d7359eff29c40752babea6c13935ccb9`). This narrows, rather than broadens, the current PR47 scope.
