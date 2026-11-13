@@ -808,7 +808,6 @@ function buildFixtureRoleIdentities({
     loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
     cardPoolInitializationSha256: preparedRuntime.cardPoolInitializationSha256,
     policyVersion: V3_FIXTURE.policyVersion,
-    policyOptions: {},
   };
   const candidateIdentity = roleIdentity.buildRolePolicyIdentity({
     ...common,
@@ -816,6 +815,7 @@ function buildFixtureRoleIdentities({
     role: 'candidate-policy',
     rank: null,
     producerId: V3_FIXTURE.candidateProducerId,
+    policyOptions: V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
   });
   const opponentIdentity = roleIdentity.buildRolePolicyIdentity({
     ...common,
@@ -823,6 +823,7 @@ function buildFixtureRoleIdentities({
     role: 'opponent-policy',
     rank: 1,
     producerId: V3_FIXTURE.opponentProducerId,
+    policyOptions: V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
   });
   return { candidateIdentity, opponentIdentity };
 }
