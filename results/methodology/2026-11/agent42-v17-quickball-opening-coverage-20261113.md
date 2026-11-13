@@ -26,17 +26,18 @@ The exact fixture multiset has unconditional probability 660 / 386,206,920 (abou
 
 ## Method
 
-For each distinct printing (i) with (c_i) copies, the number of (k)-card subsets with no repeated printing is the coefficient
+For each distinct printing (i) with (c_i) copies, let `D_k = [x^k] ∏_i (1 + c_i x)`; this coefficient counts (k)-card subsets with no repeated printing.
 
-[
-D_k = [x^k]prod_i(1+c_i x).
-]
+After fixing the unique Quick Ball in the opening seven, choose six cards from the remaining 59. The root-gate count is:
 
-After fixing the unique Quick Ball in the opening seven, the other six cards are chosen from 59. The root-gate count is
+```text
+root_gate_count =
+    C(59, 6) - C(45, 6) - D6 + D6_nonbasic
+    - (C(14, 6) - D6_basic)
+  = 16,687,315
 
-[
-C(59,6) - C(45,6) - D_6 + D^{nonbasic}_6 - (C(14,6) - D^{Basic}_6)
-= 16,687,315, where D^{Basic}_6 = 924.
+D6_basic = 924
+```
 
 The terms respectively count all six-card subsets, remove hands with no Basic, remove all-distinct-printing hands, restore all-distinct non-Basic hands, and remove only the 2,079 six-Basic hands that also contain a duplicate and therefore fill the Active plus five Bench slots under the setup policy. The 924 all-distinct six-Basic hands were already removed by the all-distinct term. The donor-branch split separately counts hands with no repeated non-Energy printing while allowing repeated Psychic Energy.
 
