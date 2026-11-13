@@ -1,3 +1,10 @@
+### 13 November 2026 12:24 UTC — PR46 evaluator review and public source check
+
+- Read PR46 head `5893e81a77e60d28c40d214713e3f830ee179f63` source directly. The outer evaluator's `fixtureMarkerSources` includes bundle, trial, preregistration, policy core/constraints, registration, outer attestation bundle, candidate/opponent attestations, current receipt and every panel receipt; any explicit non-boolean marker is invalid and any true marker or `unverified-fixture-only` status vetoes competitive admission. The policy panel separately reports per-rank availability and `fullFieldPanelComplete`; per-game evidence review is intentionally distinguishable from a complete 32-rank result. No concrete code blocker found in this focused review; Agent49 and owner review still pending.
+- Public source check of the Limitless Aichi decklist page and Regidrago history confirms rank23 Yuki Ueno and rank28 Jo Kato are listed as Regidrago, but the decklists page does not expose their exact 60s. Rank25 full list remains paywalled and untouched. No missing list recovered; retain 23/25/28 as unavailable and do not impute lists.
+
+---
+
 ### 13 November 2026 12:22 UTC — owner review request and rule-basis precision
 
 - Requested repository owner `FlareZ123` as a reviewer on PR #46 (request succeeded; PR metadata now lists owner as requested reviewer). Current PR head remains `5893e81a77e60d28c40d214713e3f830ee179f63`; run 43405307636 passed on that exact head. Do not merge before owner/required review checks. GitHub currently reports mergeability as unknown/recomputing; prior clean/mergeable observation is not a current guarantee.
