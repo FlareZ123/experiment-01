@@ -297,6 +297,7 @@ function buildFlittleSearchDependencies({
     EnergyCard:bindings.EnergyCard,
     EnergyType:bindings.EnergyType,
     assertApplicabilityEnvelope,
+    applicabilityEnvelopeId:ENVELOPE_ID,
     rulesProfileId,
     metadataByState:sampleDeterminization.metadataByState,
     ownDecklistSeat:actorSeat,
