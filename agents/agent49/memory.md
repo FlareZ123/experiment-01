@@ -960,3 +960,8 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Critical runner defect: `revalidatePreDealPersistenceReceipt()` defaults to `collectPreDealPersistenceReceipt()`, which calls `verifyPersistedPreDeal()`, which defaults to `preparePreDealPolicyRegistration()` with the future-deal check enabled. After a legitimate generation step (step start >= planned deal time), `dealGeneratedAt` is necessarily in the past, so postgame revalidation rejects the completed game.
 - Recent runner tests inject a collector and do not exercise this default path. Split pre-deal future-time validation from postgame GitHub run/artifact revalidation; postgame must verify actual committed bytes and chronology without requiring the planned deal time to remain in the future. Builder already has a postgame-safe `prepareWithRegistry(..., false)` path.
 - Report and direct handoffs updated; no code edit to Agent36/44 active files.
+
+
+### Exact postgame regression gap
+
+- `tests/agent36-v3-runner.test.cjs`'s `bundle assembly revalidates both persisted receipts against their original Actions runs` injects a custom collector that bypasses `collectPreDealPersistenceReceipt()` and `verifyPersistedPreDeal()`; the `postgame runner can assemble...` test only regex-checks source. No test exercises the default collector after the planned deal time. Suggested regression: default collector + mocked GitHub run/content + real artifact file + Date.now after deal; postgame must pass while late predeal preparation still fails.
