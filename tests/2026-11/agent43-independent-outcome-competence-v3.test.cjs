@@ -1466,7 +1466,10 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     {coreFixtureMarker:null,trialFixtureMarker:false},
     {coreFixtureMarker:undefined,trialFixtureMarker:null},
     {coreFixtureMarker:undefined,trialFixtureMarker:undefined,panelFixtureMarker:null},
-    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,bundleFixtureMarker:null}
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,bundleFixtureMarker:null},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,attestationFixtureMarker:true},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,
+      attestationFormatReviewStatus:'unverified-fixture-only'}
   ];
   for(const variant of variants) {
     const generated=makeFullClosurePolicyBundle({
@@ -1475,6 +1478,17 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     const {bundle,policyRegistry}=generated;
     if (variant.bundleFixtureMarker !== undefined)
       bundle.fixtureOnly=variant.bundleFixtureMarker;
+    if (variant.attestationFixtureMarker !== undefined) {
+      bundle.policyAttestationBundle.fixtureOnly=variant.attestationFixtureMarker;
+      rehashPolicyBundle(bundle);
+      populatePanelCoverage(bundle);
+    }
+    if (variant.attestationFormatReviewStatus !== undefined) {
+      bundle.policyAttestationBundle.formatReviewStatus=
+        variant.attestationFormatReviewStatus;
+      rehashPolicyBundle(bundle);
+      populatePanelCoverage(bundle);
+    }
     if (variant.trialFixtureMarker !== undefined)
       bundle.trial.fixtureOnly=variant.trialFixtureMarker;
     else
