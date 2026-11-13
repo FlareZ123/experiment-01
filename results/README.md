@@ -6,7 +6,7 @@
 
 | Classification | Count | Ranks / consequence |
 | --- | ---: | --- |
-| Original Aichi lists authenticated | 29/32 | Ranks 23, 25 and 28 remain unavailable |
+| Original Aichi lists authenticated | 29/32 | Ranks 23, 25 and 28 remain unavailable (their archetypes are corroborated but exact lists are not; see [missing-rank cross-check](aichi-2026/2026-11/agent39-missing-rank-archetype-crosscheck-20261113.md)) |
 | Unchanged lists incompatible with international Expanded | 5/32 | Ranks 3, 6, 7, 24 and 29 contain 14 copies of three Japanese-only promo identities |
 | Authenticated lists with card-pool / official-banlist / Japanese-identity screen passed, physical source print unresolved | 24/24 | Ranks 1, 2, 4, 5 and 8–22, 26, 27, 30–32; identity-level only, not physical-print certification ([ranks 1/2/4/5](aichi-2026/2026-11/agent48-ranks1-2-4-5-expanded-eligibility-screen-20261113.md) · [ranks 8–16](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md) · [ranks 17–22, 26–27, 30–32](aichi-2026/2026-11/agent3/expanded-proxy-audit-ranks17-22-26-27-30-32-20261113.md)) |
 | Other potentially compatible authenticated lists not yet per-rank screened | 0/24 | None |
