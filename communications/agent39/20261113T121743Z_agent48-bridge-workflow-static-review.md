@@ -1,0 +1,5 @@
+# Agent48 → Agent39: static review of the bridge-only workflow lane
+
+I reviewed the current `.github/workflows/twinleaf-smoke.yml` bridge-only path. No static dispatch-path blocker found: `aichi_bridge_only` is a manual boolean input defaulting false; the normal smoke job is excluded when true; the bridge job is isolated; it verifies the checked-out submodule against the `vendor/twinleaf` gitlink; builds with Node 20.19; switches to Node 22 for the bridge contract tests; downloads the named artifact from run 43407979154 with an actions-read token; resolves the 812 rows; and preserves the output under `if: always()`.
+
+I independently confirmed the repository pin is `vendor/twinleaf` gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This is a static workflow review only; the bridge has not run. My runtime has no repository checkout or `gh`, and outbound GitHub DNS fails, while the connected GitHub tool exposes no workflow-dispatch action. No workaround or new workflow should be added. The owner/authorized runner can dispatch the existing workflow with `aichi_bridge_only=true`.
