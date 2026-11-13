@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "author": "Agent39",
+  "created_at": "2026-11-13T07:18:00Z",
+  "event_date": "2026-05-10",
+  "source_file": "results/aichi-2026/full-decklists.json",
+  "coverage": {
+    "source_rows": 4,
+    "physical_copies": 5,
+    "distinct_english_printings": 2
+  },
+  "cards": [
+    {
+      "name": "Tropical Beach",
+      "english_printing": {
+        "set": "BWP",
+        "number": "50",
+        "card_id": "bwp-BW50",
+        "expanded_legality": "Legal"
+      },
+      "japanese_printing": {
+        "name": "トロピカルビーチ",
+        "set": "BW-P",
+        "number": "050/BW-P",
+        "distribution": "WCS 2012 participation card"
+      },
+      "availability": {
+        "available_by": "2012 World Championships",
+        "precision": "event-year",
+        "basis": "Official Japanese card page identifies the card as a WCS 2012 participation card; supporting promo index maps the 2012 printing to 050/BW-P."
+      },
+      "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/28636",
+      "supporting_number_source_url": "https://tradecard.jp/articles/bw-p",
+      "source_rows": [
+        {
+          "rank": 3,
+          "player": "Haruto Miki",
+          "count": 1
+        },
+        {
+          "rank": 6,
+          "player": "Ryusei Tanimura",
+          "count": 1
+        },
+        {
+          "rank": 29,
+          "player": "Shogo Yamada",
+          "count": 2
+        }
+      ],
+      "matching_text": [
+        "Stadium: each player may draw until they have 7 cards; if they do, their turn ends.",
+        "Standard Stadium replacement rule."
+      ],
+      "notes": "English BWP #50 is an Expanded-legal identity. The Japanese 2012 WCS print is pre-event; ranks 3, 6 and 29 remain incompatible for other Japanese-only promo identities."
+    },
+    {
+      "name": "Trevenant & Dusknoir-GX",
+      "english_printing": {
+        "set": "SMP",
+        "number": "217",
+        "card_id": "smp-SM217",
+        "expanded_legality": "Legal"
+      },
+      "japanese_printings": [
+        {
+          "set": "SM12a",
+          "number": "179/173",
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37447"
+        },
+        {
+          "set": "SM12a",
+          "number": "053/173",
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37257"
+        }
+      ],
+      "availability": {
+        "date": "2019-10-04",
+        "precision": "exact",
+        "basis": "Official Pokémon Card announcement gives the release date of High Class Pack TAG TEAM GX Tag All Stars; the official card page identifies Trevenant & Dusknoir-GX as SM12a 179/173 (and 053/173)."
+      },
+      "official_product_url": "https://www.pokemon-card.com/info/2019/20190913_002059.html",
+      "source_rows": [
+        {
+          "rank": 1,
+          "player": "Yuta Sato",
+          "count": 1
+        }
+      ],
+      "matching_text": [
+        "Night Watch 150 with two random cards from the opponent's hand revealed and shuffled into their deck.",
+        "Pale Moon-GX delayed Knock Out and optional Energy discard.",
+        "TAG TEAM rule: opponent takes 3 Prize cards when this Pokémon is Knocked Out."
+      ],
+      "notes": "The English SM217 promo and Japanese SM12a printing share the same attacks, effects, HP and TAG TEAM rule. The Japanese printing is pre-event."
+    }
+  ],
+  "combined_manual_crosswalk_status": {
+    "raw_english_only_metadata_census": {
+      "rows": 57,
+      "copies": 151
+    },
+    "japanese_pre_event_bridged": {
+      "xyp": {
+        "rows": 9,
+        "copies": 12
+      },
+      "bwp_tropical_beach": {
+        "rows": 3,
+        "copies": 4
+      },
+      "smp_trevenant_dusknoir": {
+        "rows": 1,
+        "copies": 1
+      },
+      "total": {
+        "rows": 13,
+        "copies": 17
+      }
+    },
+    "remaining_without_japanese_print_bridge": {
+      "rows": 44,
+      "copies": 134
+    },
+    "remaining_breakdown": [
+      {
+        "source_code": "MEE",
+        "identity": "Basic Energy placeholders",
+        "rows": 35,
+        "copies": 120,
+        "interpretation": "Generic Basic Energy identities; normalize to any legal Basic Energy of the same type."
+      },
+      {
+        "source_code": "BWP",
+        "identity": "Palace Belt",
+        "rows": 2,
+        "copies": 3,
+        "source_ranks": [
+          6,
+          29
+        ]
+      },
+      {
+        "source_code": "SMP",
+        "identity": "Palace Book",
+        "rows": 3,
+        "copies": 6,
+        "source_ranks": [
+          6,
+          7,
+          24
+        ]
+      },
+      {
+        "source_code": "SP",
+        "identity": "Player's Ceremony",
+        "rows": 4,
+        "copies": 5,
+        "source_ranks": [
+          3,
+          6,
+          24,
+          29
+        ]
+      }
+    ],
+    "non_energy_unbridged_promo_identities": 3,
+    "non_energy_unbridged_promo_rows": 9,
+    "non_energy_unbridged_promo_copies": 14
+  },
+  "interpretation": {
+    "established": [
+      "All 13 source rows / 17 copies in XYP, BWP 50 and SMP 217 now have pre-event Japanese print bridges with matching text.",
+      "The only remaining non-energy rows without a Japanese print bridge are Palace Book, Palace Belt and Player's Ceremony, totaling 9 rows / 14 copies in the five already format-incompatible lists.",
+      "For the 24 potentially compatible lists, the only remaining date-code placeholders are MEE Basic Energy rows."
+    ],
+    "not_established": [
+      "The exact physical Japanese printing each player registered or used.",
+      "Any Expanded legality for the five lists containing Palace Book, Palace Belt or Player's Ceremony.",
+      "Any matchup or win-rate result."
+    ]
+  }
+}
