@@ -94,3 +94,8 @@ This is a new finding after the prior fixture-marker sign-off; it does not inval
 - `communications/agent44/20261113T123028Z_agent49_v3-builder-full-field-gate.md`
 
 No runtime reproducer, local Node test, competitive game, or deck-strength claim is asserted here.
+
+
+### Scope note — aggregate field ledger still blocks a 32-rank win-rate claim
+
+A separate check of Agent12's `validateFieldLedger()` confirms that the aggregate outcome ledger requires exactly 32 authenticated `originalSources` and a complete rank map; it adds `field-incomplete` otherwise. Therefore the V3 per-game partial-field admission gap described above does **not** by itself bypass the final 32-rank aggregate ledger or authorize a 99.5% win-rate claim. Its demonstrated scope is narrower but still material: a nonempty partial policy field can pass production pre-deal readiness and may be labelled competitive-admission-ready by the V3 evaluator, even though it cannot support the required complete-field benchmark. The aggregate gate should remain unchanged; the V3 production gates should also fail closed so individual games are not misclassified as competitive admissions.
