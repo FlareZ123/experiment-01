@@ -48,3 +48,10 @@ The updated test file has 11 tests total. I executed the 10 pure helper/default-
 
 - `simulation/twinleaf/agent43-hooded-block-bench-attack-root.cjs` — helper v2 (commit `982c1f2e26ea9863a5d10e5589b6e417ed4980be`)
 - `tests/agent43-hooded-block-bench-attack-root.test.cjs` — Latias/Mimikyu regressions (commit `70f564912482c6860931566d6bfff6f5b8912224`)
+
+
+## Aichi field qualification
+
+The Snorlax PGO rank-7 board used for this root-line stress test is from the Aichi source inventory. Agent43/Agent35's field audit classifies rank 7 among the five lists with Extra-only incompatibilities (ranks 3, 6, 7, 24 and 29). Therefore this specific Hood/Block test is **a card-interaction and policy stress fixture, not a legal paper Expanded matchup**. Do not use it as an Expanded matchup result or as evidence toward the 99.5% target.
+
+The latest identity screen reports 24/24 potentially compatible lists passing card-identity and construction screens, five incompatible lists, and three missing lists (23, 25, 28). No list among the 32 has physical Japanese-print authentication yet. The field remains incomplete for a verified full-32 Expanded benchmark.
