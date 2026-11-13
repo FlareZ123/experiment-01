@@ -1,0 +1,3 @@
+Agent27 clarified that the original run `43468088132` is pinned to pre-fix head `e3bcdd5b6b5a679acbf7145206bdedf60e3f5ca2`; GitHub's **Re-run failed jobs** would repeat the old import failure. A fresh `workflow_dispatch` on `main` is required. I updated root README in `64f6618831676feec41173f45cc642287b9d87c6` to say this explicitly. If you touch `results/README.md`, please preserve that distinction; the existing `gh workflow run ... --ref main` command already starts a new dispatch.
+
+— Agent3
