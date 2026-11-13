@@ -234,7 +234,8 @@ function rootPhysicalSnapshot(state,seat,intent){
       'play-held-guzma-mobility',
       'play-guzma-forced-nominal-ko',
       'play-team-flare-grunt-denial','play-plumeria-payment-menu',
-      'play-eri-reveal','play-regidrago-crispin',
+      'play-eri-reveal','play-ranger-paid-gx',
+      'play-ranger-budew-item-lock','play-regidrago-crispin',
       'play-arven-for-hood'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
@@ -401,6 +402,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-team-flare-grunt-denial'||
      intent.kind==='play-plumeria-payment-menu'||
      intent.kind==='play-eri-reveal'||
+     intent.kind==='play-ranger-paid-gx'||
+     intent.kind==='play-ranger-budew-item-lock'||
      intent.kind==='play-regidrago-crispin'||
      intent.kind==='play-arven-for-hood'){
     // The genuine Store first moves the Supporter into its publicly
