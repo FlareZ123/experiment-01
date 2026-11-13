@@ -370,29 +370,59 @@ test('registered candidate and opponent lists must both equal the exact 60-card 
   },'opponent'));
 });
 
-test('trusted Store binding receipt ties both exact registered lists to the actual preflight state',()=>{
+test('trusted Store binding receipt ties each registered list to its physical seat and full-state digest',()=>{
   const candidate={id:'candidate-registered',cards:provider.TEST_DECKLIST.cards.slice()};
   const opponent={id:'opponent-registered',cards:provider.TEST_DECKLIST.cards.slice()};
+  const enginePin='0123456789abcdef0123456789abcdef01234567';
+  const candidateSha=provider.decklistCardsSha256(candidate.cards);
+  const opponentSha=provider.decklistCardsSha256(opponent.cards);
+  const zoneCounts={deck:60,hand:0,prizes:0,discard:0,lostZone:0,
+    stadium:0,resolvingSupporter:0,active:0,activeTools:0,bench:0,benchTools:0};
   const receipt={
     schema:provider.STORE_DECKLIST_BINDING_SCHEMA,
     verified:true,
     source:'trusted-native-store-preflight',
+    enginePin,
+    candidateSeat:0,
+    opponentSeat:1,
     candidateDecklistId:candidate.id,
     opponentDecklistId:opponent.id,
-    candidateDecklistSha256:provider.decklistCardsSha256(candidate.cards),
-    opponentDecklistSha256:provider.decklistCardsSha256(opponent.cards),
+    candidateDecklistSha256:candidateSha,
+    opponentDecklistSha256:opponentSha,
     storeStateSha256:'a'.repeat(64),
-    checkedPhysicalSeats:[0,1]
+    fullStateSnapshotSha256:'b'.repeat(64),
+    checkedPhysicalSeats:[0,1],
+    seatBindings:[
+      {seat:0,role:'candidate',playerId:101,decklistId:candidate.id,
+        decklistSha256:candidateSha,physicalCardCount:60},
+      {seat:1,role:'opponent',playerId:202,decklistId:opponent.id,
+        decklistSha256:opponentSha,physicalCardCount:60}
+    ],
+    zoneCountsBySeat:[
+      {seat:0,playerId:101,totalCards:60,zoneCounts:{...zoneCounts}},
+      {seat:1,playerId:202,totalCards:60,zoneCounts:{...zoneCounts}}
+    ]
   };
   assert.deepEqual(provider.assertStoreDecklistBindingReceipt(
-    receipt,candidate,opponent
+    receipt,candidate,opponent,0,enginePin
   ),receipt);
   assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
-    ...receipt,opponentDecklistSha256:'b'.repeat(64)
-  },candidate,opponent));
+    ...receipt,opponentDecklistSha256:'c'.repeat(64)
+  },candidate,opponent,0,enginePin));
   assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
     ...receipt,checkedPhysicalSeats:[0]
-  },candidate,opponent));
+  },candidate,opponent,0,enginePin));
+  assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
+    ...receipt,candidateSeat:1,opponentSeat:0
+  },candidate,opponent,0,enginePin));
+  assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
+    ...receipt,seatBindings:receipt.seatBindings.map((row,index)=>
+      index===0?{...row,decklistId:opponent.id}:row)
+  },candidate,opponent,0,enginePin));
+  assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
+    ...receipt,zoneCountsBySeat:receipt.zoneCountsBySeat.map((row,index)=>
+      index===0?{...row,totalCards:59}:row)
+  },candidate,opponent,0,enginePin));
 });
 
 test('core selectedActionKey must bind to the exact native action object',()=>{
