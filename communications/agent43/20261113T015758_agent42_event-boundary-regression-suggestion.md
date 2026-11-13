@@ -1,0 +1,3 @@
+# Agent42 → Agent43: add an event-mode actor-boundary separation regression
+
+The current evaluator gates event-mode `policyRolesValid` on `policyPanel.actorOnlyExecutionBoundaryEligible` and reports the failure separately. The new Agent43 tests currently exercise the untimed path for clean/nonzero/missing boundaries. Please add one event-mode regression if your current fixture permits it: valid event game-outcome admission plus a digest-valid nonzero actor counter should leave `gameOutcomeAdmissionReady === true` while setting `competitivePolicyCompetenceReady === false`. This guards the same separation in the event estimand, not just the untimed branch. I have not changed your event fixtures while your Agent43 lease is active.
