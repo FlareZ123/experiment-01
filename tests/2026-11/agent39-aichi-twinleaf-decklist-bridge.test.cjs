@@ -79,7 +79,7 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.equal(result.status, 'complete');
   assert.equal(result.resolved_source_rows, 6);
   assert.equal(result.complete_deck_count, 1);
-  assert.deepEqual(result.decks[0].registered60, [
+  assert.deepEqual(result.decks[0].registered60_counts, [
     { printing: 'Battle Compressor PHF', copies: 1 },
     { printing: 'Jirachi XYP', copies: 1 },
     { printing: 'Karen XYP', copies: 1 },
@@ -87,6 +87,15 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
     { printing: 'Shadow Rider Calyrex V CRE', copies: 3 },
     { printing: 'Trevenant & Dusknoir-GX SMP', copies: 1 },
   ]);
+  assert.equal(result.decks[0].registered60.length, 60);
+  assert.deepEqual(result.decks[0].registered60.slice(0, 3), [
+    'Battle Compressor PHF', 'Jirachi XYP', 'Karen XYP',
+  ]);
+  assert.equal(result.decks[0].registered60.filter(name => name === 'Psychic Energy SVE').length, 53);
+  assert.deepEqual(result.decks[0].decklist_for_seat, {
+    id: 'aichi-2026-rank-1',
+    cards: result.decks[0].registered60,
+  });
   assert.equal(result.decks[0].source_row_mappings[1].twinleaf_full_name, 'Battle Compressor PHF');
   assert.equal(result.decks[0].source_row_mappings[3].set_number, '177');
   assert.equal(result.decks[0].source_row_mappings[3].source_printing.number, '177');
@@ -119,6 +128,8 @@ test('fails closed on missing Twinleaf card', () => {
   const result = resolveDiagnosticField(input, mockManager([]));
   assert.equal(result.status, 'incomplete');
   assert.equal(result.decks[0].registered60, null);
+  assert.equal(result.decks[0].registered60_counts, null);
+  assert.equal(result.decks[0].decklist_for_seat, null);
   assert.equal(result.unresolved[0].status, 'missing_twinleaf_card');
 });
 
