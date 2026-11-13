@@ -352,7 +352,16 @@ function completeHoodedSnorlaxSequence(options = {}) {
     assert.equal(expectedRondoDamage, 220);
 
     store.dispatch(new AttackAction(candidate.id, 'Full Moon Rondo'));
-    let snorlaxDamageAfterAttackAction = snorlaxSlot.damage;
+    let snorlaxDamageAfterAttackAction = null;
+    const observeSnorlaxDamage = () => {
+      const liveOpponent = store.state.players.find(p => p.id === opponent.id);
+      const active = liveOpponent?.active;
+      if (active?.getPokemonCard()?.fullName === 'Snorlax PGO' &&
+          Number.isFinite(active.damage) && active.damage >= 150) {
+        snorlaxDamageAfterAttackAction = active.damage;
+      }
+    };
+    observeSnorlaxDamage();
     const prompts = [];
     for (let i = 0; i < 24; i++) {
       const prompt = pending();
@@ -382,10 +391,7 @@ function completeHoodedSnorlaxSequence(options = {}) {
           'Invalid native ' + name + ' resolution');
       }
       store.dispatch(new ResolvePromptAction(prompt.id, selection));
-      if (Number.isFinite(snorlaxSlot.damage)) {
-        snorlaxDamageAfterAttackAction = Math.max(
-          snorlaxDamageAfterAttackAction, snorlaxSlot.damage);
-      }
+      observeSnorlaxDamage();
     }
     assert.equal(pending(), undefined,
       'Full Moon Rondo must finish all prize and promotion prompts');
