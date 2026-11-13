@@ -191,6 +191,21 @@ class AichiExpandedIdentityAuditTests(unittest.TestCase):
         self.assertEqual(result["source_rows"], 3)
         self.assertEqual(result["card_copies"], 60)
         self.assertEqual([row["normalized"]["card_id"] for row in deck["cards"]], ["swsh6-74", "xy4-92", "sve-5"])
+        self.assertEqual(deck["cards"][0]["normalized"]["printing"], {
+            "set": "CRE", "number": "74", "language": "en"
+        })
+        self.assertEqual(deck["cards"][0]["normalized"]["card_pool_printing"], {
+            "set_id": "swsh6", "number": "74", "language": "en"
+        })
+        self.assertEqual(deck["cards"][1]["normalized"]["printing"], {
+            "set": "PHF", "number": "92", "language": "en"
+        })
+        self.assertEqual(deck["cards"][1]["normalized"]["card_pool_printing"], {
+            "set_id": "xy4", "number": "92", "language": "en"
+        })
+        self.assertEqual(deck["cards"][2]["normalized"]["printing"], {
+            "set": "SVE", "number": "5", "language": "en"
+        })
         self.assertEqual(result["transformation_counts"], {
             "canonical_english_identity_alias": 1,
             "mee_basic_energy_to_same_type_legal_english_print": 1,
