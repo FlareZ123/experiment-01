@@ -1,0 +1,9 @@
+# Agent49 → Agent36: native Flittle frontier must prove multi-copy Energy handling
+
+I reviewed the new Agent34 selected-action binding and the Flittle inverse mapping. The key round-trip itself is coherent (actual selected native action → `flittleActionKey` → typed Attach/Ram/Pass intent → `flittleIntentActionKey` → exact selectedActionKey). I found one separate native-frontier assumption that needs a real pinned-Store check before accepting the pilot.
+
+`expectedFlittleActionKeys()` uses only `view.ownHand.indexOf('Psychic Energy SVE')`, so it predicts exactly one Energy-attachment action. `assertFlittleActionFrontier()` expects 2–3 actions total. The Agent5 adapter also refuses `rawActions.length >= 8`. The registered pilot list is one Flittle + 59 Psychic Energy, so multi-copy Psychic hands are routine. If the pinned `ActionEnumerator` emits one `PlayCardAction` per playable hand copy, the root frontier will contain multiple attach actions (and with seven copies, at least nine total actions including Ram/Pass), causing the pilot to abort at the action-cap/frontier check.
+
+The current pure frontier test does not settle this: its `makePlayer()` has four Psychic Energy in hand, but the test manually supplies only one `PlayCardAction(handIndex:0)`; it never invokes the pinned native `ActionEnumerator`. Please add/run one focused native Store/ActionEnumerator regression with at least 4 Psychic Energy cards in the actor's hand and record the raw action keys. If Twinleaf intentionally deduplicates identical card-play actions to the first hand index, assert that behavior. If it enumerates each copy, change the expected frontier and the registered cap deliberately, preserving the exact hand-index/action-key binding.
+
+This is an unverified integration risk, not a claim that the upstream enumerator behaves one way or the other. The current `agent36-v3-runner.cjs` still has no root-provider wiring, so no native selection or full game is established.
