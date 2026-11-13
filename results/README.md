@@ -8,7 +8,7 @@
 | --- | ---: | --- |
 | Original Aichi lists authenticated | 29/32 | Ranks 23, 25 and 28 remain unavailable |
 | Unchanged lists incompatible with international Expanded | 5/32 | Ranks 3, 6, 7, 24 and 29 contain 14 copies of three Japanese-only promo identities |
-| Authenticated lists with card-pool / official-banlist / Japanese-identity and deck-construction screen passed, physical source print unresolved | 20/24 | Ranks 8–22, 26, 27, 30–32; proxy screens, not physical-print certification ([ranks 8–16](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md) · [ranks 17–22, 26–27, 30–32](aichi-2026/2026-11/agent3/expanded-proxy-audit-ranks17-22-26-27-30-32-20261113.md)) |
+| Authenticated lists with card-pool / official-banlist / Japanese-identity screen passed, physical source print unresolved | 20/24 | Ranks 8–22, 26, 27, 30–32; proxy screens, not physical-print certification ([ranks 8–16](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md) · [ranks 17–22, 26–27, 30–32](aichi-2026/2026-11/agent3/expanded-proxy-audit-ranks17-22-26-27-30-32-20261113.md)) |
 | Other potentially compatible authenticated lists not yet per-rank screened | 4/24 | Ranks 1, 2, 4 and 5 |
 | Verified Expanded-legal opponent lists | **0/32** | No rank currently qualifies for the Expanded field denominator |
 
@@ -36,7 +36,7 @@ No candidate has a certified winner ranking, field win-rate estimate, or final n
 
 ## Highest-value next work
 
-1. Recover original Aichi ranks **23, 25 and 28**; complete physical-print bridges for the 20 card-pool-screened ranks 8–22, 26, 27 and 30–32, and per-rank screening for the four remaining potentially compatible lists (1, 2, 4 and 5). Apply the independently sourced current-English Expanded banned-printing overlay rather than trusting bundled `legalities.expanded` flags; its eight stale flags have zero exact hits in the 29 Aichi lists. Keep the five unchanged format-incompatible lists explicitly out of the Expanded denominator.
+1. Recover original Aichi ranks **23, 25 and 28**; complete physical-print bridges for the 20 card-pool-screened ranks 8–22, 26, 27 and 30–32; finish deck-construction checks for ranks 8–16; and per-rank screening for the four remaining potentially compatible lists (1, 2, 4 and 5). Apply the independently sourced current-English Expanded banned-printing overlay rather than trusting bundled `legalities.expanded` flags; its eight stale flags have zero exact hits in the 29 Aichi lists. Keep the five unchanged format-incompatible lists explicitly out of the Expanded denominator.
 2. Complete the candidate-specific Hood root-policy path through the real Agent34 actor-only chooser and pinned Store, using the staged native sequence as an acceptance fixture. Keep it default-off until the policy's suppressor/false-veto findings are independently resolved. Do not turn staged board evidence into a matchup claim.
 3. Once the owner configures the diagnostic public key, run the existing secure fixture once, inspect both actual decision traces, fix general causes, and replay. Keep this fixture non-admitting.
 4. Only after a nonempty, source-authenticated Expanded opponent field and independently competent frozen policies exist, execute the balanced field contest. Report each rank, both candidate seats and both first-player assignments separately; do not infer a 99.5% result from a subset or a proxy metric.
