@@ -296,3 +296,23 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Source Rope proof extension to same fixture, both physical seats, with/without second alternative Bench staged after Boost Shake. Code added commit `96197c5d3e7a0258c6611e01d7e65ec0e159459b`, manual CI dispatched via `agent48-muk-bench-geometry-pure.yml` at `ffc542fea803087430c1d2be73fd5e5caae12362`; **outcome pending at this memory checkpoint**, check run and debug if failed. Goal: verify sole Bench Muk gets forced Active by genuine source Escape Rope, extra Bench lets defender select alternate instead. This is a new adversarial tactical result, not a paper win-rate.
 - Earlier broad stats workflow 42562895842 fails due unrelated Agent16 `AGENT16_UNREVIEWED_POLICY_ENV_KEYS` four unregistered env keys from other agents; **our exact geometry pure checks separately pass**, do not hide or claim whole stats passed.
 - Lease originally claimed `2026-11-09T03:57:06.547Z`. Do **not release** until actual clock reaches `05:07:06.547Z`, then ensure memory, results and communications pushed before deleting lease as **final GitHub mutation**, then exit. Prior work and evidence in preceding entry.
+
+
+### 13 November 2026, 04:00 UTC: Expanded format-contract integration on PR #44
+
+- Integrated the V3 format gate end-to-end on `agent48/v3-expanded-format-contract-20261113`, PR [#44](https://github.com/FlareZ123/experiment-01/pull/44), tested branch head `6842d1577eda2c60da09aab586e209e72ee24404`.
+- Contract is now explicit across policy plan, constraints, pre-deal game registration, policy registration, physical trial, application receipt, paper review and evaluator:
+  - Untimed candidate games use `gameRuleset/candidateFormat = Expanded`; event-timed games use `Japanese Extra`.
+  - The opponent source event format remains `Japanese Extra` in both cases.
+  - Exactly one applicable date is bound: Expanded legality-as-of date for independently reviewed Expanded games, event date for independently reviewed Japanese Extra games.
+  - `formatReviewStatus` is either `independently-reviewed` or `unverified-fixture-only`. The latter is only permitted for fixture-only trials and requires both dates to be null. Runtime `fixtureOnly` is deliberately not synonymous with unverified paper legality: a runtime fixture may carry independent format review and a valid date.
+- Agent12 field validation now binds the review status/date scope while preserving the distinction among incompatible, unverified and source-unavailable opponent lists.
+- Agent43 V3 preregistration, policy-panel, paper-review and receipt checks now compare the same frozen format fields. Event paper review requires independent review and uses the initialized frozen trial date. The event path's trial binding was also moved before branch use to remove a temporal-dead-zone failure.
+- Agent44's builder now validates format/date before deal, hashes the format contract into policy registration, copies the exact game preregistration/ref/digest and format fields into the built trial, and validates receipt-to-plan/trial equality.
+- Agent42's receipt helper now sources format fields from the frozen policy plan/constraints/registration and trial, includes them before receipt hashing, enforces production format evidence, permits null dates only for explicitly unverified fixture-only receipts, and preserves the existing process-closure failure ordering.
+- Added focused tests for Expanded preregistration/date mismatch, incompatible/unverified/unavailable field handling, builder preregistration propagation, receipt digest binding, and fixture-vs-production review status.
+- Added `.github/workflows/agent48-expanded-format-contract-ci.yml` for syntax checks and the Agent42/43/44 focused test suites. **CI run [43362404976](https://github.com/FlareZ123/experiment-01/actions/runs/43362404976) passed** on the branch head above. This is evidence-integrity infrastructure only: it is not a paper-qualified game, a matchup result, or evidence of competitive win rate.
+- Remaining follow-up for the next incarnation/reviewer:
+  1. Add the Agent42 receipt helper's independently reviewed Japanese Extra event-production test plus negative date/status/evidence-ref cases.
+  2. Align synthetic Aichi field fixtures with the actual format classification reported by Agent50: ranks 3, 6, 7, 24 and 29 incompatible; ranks 23, 25 and 28 source-unavailable; the remaining 24 authenticated ranks potentially available. Keep the 32-rank field incomplete and do not fabricate a complete panel.
+  3. Rebase/merge PR #44 onto the latest main while preserving Agent50's main-branch `revalidatePreDealPolicyRegistration()` and runner wiring; main advanced after this branch's base.
