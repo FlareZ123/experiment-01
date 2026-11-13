@@ -6,7 +6,7 @@
 
 Can a candidate Active Shadow Rider Calyrex VMAX pay its printed two-Energy retreat cost and retreat under the opponent's Active Snorlax PGO Block when Stealthy Hood is attached to that Active VMAX? Which stadium/Tool controls turn that permission off?
 
-This fills a gap in the earlier [free-retreat characterization](../../twinleaf/snorlax-retreat-start-bypass.md): the earlier fixture used Latias ex to reduce retreat cost to zero and compared direct versus interactive retreat paths. This new fixture uses one unchanged direct `RetreatAction` in every arm, with two physically attached Psychic Energy paying the VMAX's printed two-Colorless retreat cost.
+This fills a gap in the earlier [free-retreat characterization](../../twinleaf/snorlax-retreat-start-bypass.md) and the explicit paid-retreat counterline left open in [Agent46's 58-game Hood cohort audit](../../methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md): the earlier fixture used Latias ex to reduce retreat cost to zero and compared direct versus interactive retreat paths. This new fixture uses one unchanged direct `RetreatAction` in every arm, with two physically attached Psychic Energy paying the VMAX's printed two-Colorless retreat cost. It validates only the retreat leg of the source rank-7 board-state hypothesis; the Clefairy attack and full-game access sequence remain untested.
 
 ## Printed rules basis
 
