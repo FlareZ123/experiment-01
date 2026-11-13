@@ -103,15 +103,35 @@ function opponentHasUnmodeledDamageOrPrizeText(view) {
   });
 }
 function postRetreatPrintedDamage(view, pokemon, attack, payment, catalog) {
-  // The shared projection helper is intentionally broader than this root's
-  // evidence boundary. Only use formulas explicitly modeled for this line;
-  // an integer attack.damage field alone does not validate arbitrary effects.
-  const supported =
-    (pokemon?.printing === SHADOW_RIDER && attack?.name === 'Max Geist') ||
-    (pokemon?.printing === CLEFAIRY &&
-     attack?.name === 'Full Moon Rondo' && attack?.damage === 20);
-  if (!supported) return null;
-  return basePostRetreatPrintedDamage(view, pokemon, attack, payment, catalog);
+  // Full Moon Rondo's pinned card implementation marks its additive damage
+  // calculation with '+'. Its printed text is an exact, public formula over
+  // occupied Bench slots, so calculate that one supported attack directly
+  // rather than sending the marker to the generic projection (which correctly
+  // rejects unmodeled damageCalculation values).
+  if (pokemon?.printing === CLEFAIRY &&
+      attack?.name === 'Full Moon Rondo' &&
+      attack?.damage === 20 &&
+      attack?.damageCalculation === '+' &&
+      attack?.text === "This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's).") {
+    const ownBench = view.ownPublic?.bench;
+    const opponentBench = view.opponentPublic?.bench;
+    if (!Array.isArray(ownBench) || !Array.isArray(opponentBench)) return null;
+    const occupiedCount = bench => {
+      if (!bench.every(slot => slot === null ||
+          (slot !== undefined && typeof slot === 'object'))) return null;
+      return bench.filter(Boolean).length;
+    };
+    const ownCount = occupiedCount(ownBench);
+    const opponentCount = occupiedCount(opponentBench);
+    if (ownCount === null || opponentCount === null) return null;
+    return 20 + 20 * (ownCount + opponentCount);
+  }
+
+  // Max Geist remains on the separately modeled Shadow Rider projection.
+  if (pokemon?.printing === SHADOW_RIDER && attack?.name === 'Max Geist') {
+    return basePostRetreatPrintedDamage(view, pokemon, attack, payment, catalog);
+  }
+  return null;
 }
 
 function projectedPrizeOutcome(view, catalog, damage) {

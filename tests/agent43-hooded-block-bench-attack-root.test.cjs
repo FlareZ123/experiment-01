@@ -94,7 +94,8 @@ function makeView(options = {}) {
       name: 'Full Moon Rondo',
       cost: [PSY, C],
       damage: 20,
-      damageCalculation: null,
+      damageCalculation: '+',
+      text: "This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's).",
       gxAttack: false
     }]
   });
@@ -224,6 +225,21 @@ test('an already attached Active Hood permits only a funded public-KO paid-retre
   assert.equal(plan.projectedTerminalWin, false);
   assert.deepEqual(plan.discardEnergyIndices, [0, 1]);
   assert.equal(plan.nativeStorePaymentVerified, false);
+});
+
+test('Full Moon Rondo additive damage is derived only from public occupied Bench slots', () => {
+  const view = makeView({ hoodOnActive: true, hoodInHand: false });
+  const fullBench = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(fullBench.projectedPrintedDamage, 220);
+
+  view.ownPublic.bench[4] = null;
+  view.opponentPublic.bench[4] = null;
+  const reducedBench = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(reducedBench.projectedPrintedDamage, 180);
+
+  const unsupportedFormula = makeView({ hoodOnActive: true, hoodInHand: false });
+  unsupportedFormula.ownPublic.bench[0].attacks[0].text = 'Unrecognized damage formula';
+  assert.equal(chooseHoodedBlockBenchAttackRoot(unsupportedFormula, catalog), null);
 });
 
 test('surplus basic Psychic Energy can pay the two-unit retreat while the Active cannot attack', () => {
