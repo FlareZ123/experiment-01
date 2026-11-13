@@ -796,17 +796,17 @@ test('V3 actor-only boundary is digest-bound and separates factual outcome from 
 
 test('V3 evaluator rejects digest-valid peer-role routing mismatches without erasing factual outcome',()=>{
   const mutations=[
-    ['candidate peer delegation count',boundary=>{
+    ['candidate peer delegation count','actor-only-peer-role-routing-mismatch',boundary=>{
       boundary.candidate.peerRoleDelegations++;
     }],
-    ['opponent peer delegation',boundary=>{
+    ['opponent peer delegation','actor-only-peer-role-routing-mismatch',boundary=>{
       boundary.opponent.peerRoleDelegations=1;
     }],
-    ['candidate peer dispatch flag',boundary=>{
+    ['candidate peer dispatch flag','candidate-peerRoleDispatchEnabled-role-mismatch',boundary=>{
       boundary.candidate.peerRoleDispatchEnabled=false;
     }]
   ];
-  for(const [label,mutate] of mutations){
+  for(const [label,expectedFailure,mutate] of mutations){
     const {bundle,policyRegistry}=makePolicyBundle();
     const boundary=bundle.trial.actorOnlyExecutionBoundary;
     mutate(boundary);
@@ -825,6 +825,8 @@ test('V3 evaluator rejects digest-valid peer-role routing mismatches without era
     assert.equal(result.policyPanelConsistency.currentReceiptValid,true,label);
     assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryVerified,false,label);
     assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryEligible,false,label);
+    assert.ok(result.policyPanelConsistency.actorOnlyExecutionBoundaryFailures.includes(
+      expectedFailure),label);
     assert.ok(result.failures.includes(
       'actor-only-execution-boundary-unverified-or-ineligible'),label);
   }
