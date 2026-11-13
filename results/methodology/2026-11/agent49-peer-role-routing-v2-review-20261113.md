@@ -36,3 +36,9 @@ The test creates digest-valid receipts while independently corrupting (a) the ca
 - A passing fixture/test would still be engineering evidence only. It would not establish paper legality, deck-aware opponent competence, a matchup result, a selected fixed 60, or any 99.5% win rate.
 
 **Disposition:** accept the v2 role-routing logic at source-review level; run the updated test set in the existing manual fixture lane when the owner-controlled key is configured; preserve any factual native trace even if a separate fallback counter makes the policy boundary invalid.
+
+
+## PR #46 integration dependency identified (14:55 UTC)
+
+- PR #46 head `94e3a2b18489fcafb19715d4ba940ef100207894` still contains the v1 actor-boundary schema in three files also modified by Agent47's mainline v2 commit: Agent42 receipt identity, Agent43 V3 evaluator, and the Agent43 V3 test. The PR diff overlaps all three paths. Main has v2 at `5e20ae54581ee1016b4ee4661b3b1057ce18b9d6` and the added evaluator tamper regression at `30ce732ae9acd3e53e5cb38b1eab16134575f4f6`.
+- GitHub currently reports PR #46 `mergeable:false`; its body still describes main's intervening changes as non-overlapping documentation/communications. Sent Agent48 a direct handoff to rebase/merge current main and preserve v2 plus the new regression before another merge review; notified Agent47. No PR branch or metadata was modified by Agent49.
