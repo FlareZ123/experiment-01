@@ -5,16 +5,18 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 
 /**
  * Return a candidate-only RetreatTactic subclass that evaluates an actual
- * retreat followed by Max Geist against the best attack available to the
- * current Active and the native RetreatTactic's preferred retreat line.
+ * retreat followed by Max Geist against the best current-Active attack and
+ * the native RetreatTactic's preferred retreat line. Each attack line also
+ * includes the opponent's best legal immediate retreat response.
  *
  * Max Geist is considered only when the pinned Simulator accepts the attack
  * after a real RetreatAction. This deliberately avoids treating Energy counts
  * or a Bench VMAX as proof that the attack is available. The existing
  * StateScore is used consistently for both sides of the comparison.
  *
- * This is a one-turn tactical heuristic. It does not model the opponent's
- * response, future gust, or a complete prize-map search.
+ * This is a one-opponent-action tactical heuristic: it models legal retreat
+ * responses after passing the turn, not the opponent's complete turn, future
+ * gust, or a full prize-map search.
  *
  * @param {Function|null} BaseTacticOverride Test seam / currently installed
  *   candidate RetreatTactic subclass. Native callers omit it.
@@ -27,22 +29,43 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
     engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic;
   const actionTypes=deps.actionTypes??
     engine('game/store/actions/game-actions');
-  const {AttackAction,RetreatAction}=actionTypes;
-  if(typeof AttackAction!=='function'||typeof RetreatAction!=='function') {
-    throw new TypeError('Pinned AttackAction and RetreatAction constructors are required');
+  const {AttackAction,RetreatAction,PassTurnAction}=actionTypes;
+  if(typeof AttackAction!=='function'||typeof RetreatAction!=='function'||
+     typeof PassTurnAction!=='function') {
+    throw new TypeError('Pinned AttackAction, RetreatAction, and PassTurnAction constructors are required');
   }
   const scoreMargin=Number.isFinite(deps.scoreMargin)?deps.scoreMargin:0;
 
   class HoodMaxGeistRetreatTactic extends BaseTactic {
+    scoreAfterBestPublicRetreatResponse(afterAttackState,playerId) {
+      if(afterAttackState.winner!==undefined&&afterAttackState.winner!==null) {
+        return this.getStateScore(afterAttackState,playerId);
+      }
+      const afterPass=this.simulateAction(afterAttackState,
+        new PassTurnAction(playerId));
+      if(!afterPass)return this.getStateScore(afterAttackState,playerId);
+      const opponent=afterPass.players.find(item=>item.id!==playerId);
+      let worst=this.getStateScore(afterPass,playerId);
+      if(!opponent)return worst;
+      for(let benchIndex=0;benchIndex<(opponent.bench??[]).length;benchIndex++) {
+        const response=this.simulateAction(afterPass,
+          new RetreatAction(opponent.id,benchIndex));
+        if(response)worst=Math.min(worst,this.getStateScore(response,playerId));
+      }
+      return worst;
+    }
+
     bestAttackScore(state,playerId) {
       const player=state.players.find(item=>item.id===playerId);
       const active=player?.active?.getPokemonCard?.();
       const attackBonus=this.options?.scores?.tactics?.attackBonus??0;
       let best=this.getStateScore(state,playerId)-attackBonus;
       for(const attack of active?.attacks??[]) {
-        const score=this.evaluateAction(state,playerId,
+        const afterAttack=this.simulateAction(state,
           new AttackAction(playerId,attack.name));
-        if(score!==undefined&&score>best)best=score;
+        if(!afterAttack)continue;
+        const score=this.scoreAfterBestPublicRetreatResponse(afterAttack,playerId);
+        if(score>best)best=score;
       }
       return best;
     }
@@ -80,12 +103,15 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
         if(afterPlayer?.active?.getPokemonCard?.()?.name!==
            'Shadow Rider Calyrex VMAX')continue;
 
-        // evaluateAction uses the same pinned Simulator and StateScore as the
-        // ordinary AttackTactic; an unpayable or otherwise invalid attack is
-        // rejected and cannot trigger the retreat.
-        const maxGeistScore=this.evaluateAction(afterRetreat,player.id,
+        // Simulate the actual attack, then include the opponent's best legal
+        // immediate retreat response. This prevents a free-retreat target from
+        // being valued as though it must remain Active for the next turn.
+        const afterAttack=this.simulateAction(afterRetreat,
           new AttackAction(player.id,'Max Geist'));
-        if(maxGeistScore!==undefined&&maxGeistScore>bestScore+scoreMargin) {
+        if(!afterAttack)continue;
+        const maxGeistScore=this.scoreAfterBestPublicRetreatResponse(
+          afterAttack,player.id);
+        if(maxGeistScore>bestScore+scoreMargin) {
           bestScore=maxGeistScore;
           bestRetreat=retreatAction;
         }
