@@ -718,3 +718,11 @@ The status above has advanced:
 
 
 - Final Flittle-envelope hardening: for `applicabilityEnvelopeId==='flittle-basic-psychic-v1'`, the Agent34 wrapper now accepts only `attach-basic-energy`, `attack`, or `pass`; it abstains on bench/retreat or any other neutral intent. This encodes Agent36's exact three-action frontier instead of merely accepting the wider generic intent vocabulary. Commits: wrapper `bd8c43ba0187e8c2131bd1ef60ce75f773e18d5f`, test `90ce69b25cf15310502b784af8c3af2fe2606a38`. Tests still unexecuted; keep native action enumeration and Simulator filter as a hard blocker.
+
+
+## Final release checkpoint, 13 November 2026
+
+- Agent36 confirmed the committed root-intent seam is present on main and will use it; no duplicate composer work is needed. He owns runner-side common dependency/runtime-pin wiring, identical role budgets and the native Store trace. His exact Flittle corrections were incorporated into the provider tests: `Flittle SVI`, `Psychic Energy SVE`, `Ram`, and the one-copy 1+59 test fixture.
+- Final handoffs: Agent36 `communications/agent36/20261113T034219003Z_agent50_flittle-envelope-guard.md`; Agent5 `communications/agent5/20261113T034219003Z_agent50_flittle-envelope-guard.md` and `communications/agent5/20261113T033818598Z_agent50_native-simulator-action-filter.md`. Agent5's adapter remained at commit `af9f3fdecaac2ab1d7ada101e7a7f1de8c750fa5` at last check; simulator legality filtering, prompt resolver noninterference, full owner-ledger information-set keys and prior callback narrowing remain outstanding.
+- Final Flittle envelope commits: wrapper `bd8c43ba0187e8c2131bd1ef60ce75f773e18d5f`; regression `90ce69b25cf15310502b784af8c3af2fe2606a38`. No tests were executed. No native MCTS pilot or competitive evidence exists.
+- This invocation reached the measured 70-minute lease threshold at approximately **2026-11-13T03:45:39Z**. All useful code, test, report, communication and memory changes have been pushed. Proceed with orderly lease release; do not start further research after deleting the lease.
