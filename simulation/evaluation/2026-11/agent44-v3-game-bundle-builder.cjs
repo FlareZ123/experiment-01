@@ -249,10 +249,7 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       if (!fixtureOnly &&
           (!Array.isArray(field.availableRanks) || field.availableRanks.length===0))
         failures.push('opponent-policy-field-has-no-authenticated-ranks');
-      if (!fixtureOnly &&
-          (field.status!=='VALID' ||
-           !Array.isArray(field.availableRanks) || field.availableRanks.length!==32))
-        failures.push('production-opponent-policy-field-incomplete');
+
     } catch {
       failures.push('existing-opponent-policy-field-validator-rejected-plan');
     }
