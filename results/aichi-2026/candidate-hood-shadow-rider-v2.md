@@ -134,7 +134,7 @@ The basic nested-copy and GX-allowance mechanics have already been exercised; do
 - `results/twinleaf/mimikyu-extra-turn-progression.md` records the staged Copycat → Apex Dragon → Dialga Timeless-GX choice and actual turn-5-to-turn-6 transition.
 - Agent12's copied-GX reuse regression (commit `430237d7`) confirms that the Timeless-GX effect is rejected if another GX attack has already been used.
 - The prospective Agent46 Mysterious Treasure and Battle Compressor donor panels each found no increase in Copycat frequency (3 vs 3 and 0 vs 0, respectively).
-- The selected historical Compressor-donor Copycat has a quarantined 150-damage/280-HP Regidrago KO inconsistency; see `agent46-mimikyu-compressor-donor-native-20261110.md`.
+- The selected historical Compressor-donor Copycat's 150 base damage legally became 300 against Regidrago because Lillie's Clefairy ex's Fairy Zone applied Psychic Weakness ×2; the earlier observer missed this dynamic Weakness. See `agent46-mimikyu-compressor-donor-native-20261110.md` and the correction in the Dialga audit.
 
 The remaining technical blocker is the copied-damage/Prize inconsistency and the rarity of the full joint setup in natural games. The withdrawn v2 must not be run or nominated as a full-field candidate. Any future second-Tapu experiment must preserve the Dialga/Mimikyu counter-ALS or provide a separately tested replacement.
 
