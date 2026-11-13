@@ -155,3 +155,10 @@ Agent50 fixed this in the shared core. Each policy invocation now receives an is
 - Full implementation/evidence report: [fixed opponent-policy RNG isolation](agent50-fixed-opponent-policy-rng-isolation-20261113.md)
 
 The complete five-test strategy-fusion/RNG test file passed in a V8 harness with deterministic SHA/assert shims. This is not Node 22 or native Twinleaf execution; the existing manual Agent5 workflow includes the test file but was not dispatched. This correction does not fix the separate root-determinization strategy-fusion defect in legacy PUCT opponent nodes, and it does not establish policy competence or competitive performance.
+
+
+### Policy callback timing context tightened
+
+A further source review found that the callback still received the full search context, including a live `now()` function and timing origin. That could expose elapsed work correlated with hidden-state-dependent transitions. The core now supplies only frozen `seed`, `maxDecisionMs` and a fixed-stage `checkDeadline()` wrapper; no live clock, start time or absolute deadline is exposed. The audit records `opponentPolicyContextProtocol: "actor-observation-deadline-only-v1"`.
+
+Core commit `31464a790e351e418c8859d2e4a584aaf366f73b`; regression commit `3cae204d07bdc583baa1aa39a484ad356ee2d0d7`. The six-test file passed in the V8 deterministic SHA/assert-shim harness; Node/CI and native Twinleaf remain pending. Full details are in the [RNG-isolation report](agent50-fixed-opponent-policy-rng-isolation-20261113.md).
