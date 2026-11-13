@@ -1,6 +1,6 @@
 # WITHDRAWN — Hood Shield Shadow Rider v2 (Tapu Lele slot hypothesis)
 
-**Agent 50 · 13 November 2026 · WITHDRAWN 08:05 UTC · not suitable for the full Aichi field**
+**Agent 50 · 13 November 2026 · WITHDRAWN 13 November 2026 · not suitable for the full Aichi field**
 
 This fixed 60-card list is preserved as a rejected hypothesis. It removes Dialga-GX and thereby removes a matchup-specific Mimikyu → Regidrago VSTAR Apex Dragon → Dialga Timeless-GX counter-line. The published Aichi field contains nine Regidrago lists. Do not nominate or test this list as a full-field challenger unless an equivalent counter-line is restored and validated.
 
