@@ -1,3 +1,29 @@
+## 2026-11-13 — Information-set PUCT / hidden-world sampler (current)
+
+Built and locally tested a research-owned, two-seat information-set search foundation. The human-readable report is `results/methodology/agent5-information-set-mcts-v1.md`.
+
+New implementation:
+- `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`: observation-hash-keyed PUCT, determinization sampling, adversarial seat-perspective backpropagation, root action audit, and fail-closed root-observation/action-frontier checks.
+- `simulation/twinleaf/2026-11/agent5-hidden-partition-sampler.cjs`: registered-60 multiset partition sampling for hands, deck and Prizes; K0/K1/partial Prize knowledge; top/bottom deck constraints; public-conditioned opponent decklist prior.
+- `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`: actor-only Twinleaf belief inputs for both seats, public-only opponent prior provider, detached-state sampled-face replacement preserving opaque card IDs, and per-seat private decklist metadata.
+- `simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs`: injected Twinleaf ActionEnumerator/Simulator boundary, random coin/shuffle requirement, prompt-owner routing, and private decklist metadata propagation through Simulator clones.
+- Tests: `tests/2026-11/agent5-information-set-search.test.cjs`, `agent5-hidden-partition-search.test.cjs`, `agent5-twinleaf-belief-search.test.cjs`, `agent5-twinleaf-adapter-search.test.cjs`.
+
+Validation at creation: Node v22.16.0; 25/25 local tests passed and all source syntax checks passed. The tests use synthetic games and mocks. This is AlphaZero-inspired PUCT, not AlphaZero proper: no learned policy/value network or self-play training. The Twinleaf adapter is not yet connected to a native match, and no real game/matchup/deck win-rate was measured.
+
+Critical integration constraints:
+1. `knowledgeBySeat` must return verified K0/K1/PARTIAL ledgers for both players. Do not silently assume K0 after a search; K1 must include the exact Prize multiset; Ticket-like Prize redeal needs PARTIAL plus the known bottom-deck block.
+2. `decklistForSeat` must give the acting seat its exact 60 and sample the opponent only from public evidence/prior. The public-prior helper intentionally fails if no candidate contains all observed public cards.
+3. The current upstream ActionEnumerator is capped and is not an Expanded-complete legal action frontier. The MCTS core detects hidden-dependent frontiers but cannot add omitted actions.
+4. Prompt resolvers must be actor-scoped and must not score from the other player's concealed information. The adapter routes by prompt owner but does not certify resolver safety.
+5. Value and prior functions are injected and untrained. The search result is not competitive evidence.
+
+Useful upstream context remains: Twinleaf pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; upstream AdvancedBot is Standard/Dragapult-specific and its ActionSearchAi is shallow same-turn beam search. Existing K0/K1 work to integrate/reconcile: `simulation/twinleaf/own-deck-determinization-hook.cjs`, `simulation/twinleaf/owner-k0-draw-belief.cjs`, `simulation/twinleaf/strict-k0-unknown.cjs`, and `results/twinleaf/prize-redeal-information-state.md`.
+
+Next high-value steps: wire the determinizer to the pinned Twinleaf clone/prototype-normalization helper and CardManager; implement a general per-seat knowledge ledger for deck searches/reveals/redeals; replace/circumvent ActionEnumerator caps with an Expanded-complete action frontier; audit prompt resolvers; then run native fixed-seed seat-swapped matches with equal compute budgets before any field-wide claim. Do not update the strongest-deck nomination or report win-rate from this method-only contribution.
+
+---
+
 ## 9 November 2026 10:17 UTC: original rank13 first-own-turn Battle Compressor recovery
 
 - Invocation RNG 7, normal research mode. Agent5 lease claimed and confirmed at **2026-11-09T09:56:32.448Z** run_id **agent5-chat-20261109T095632448Z-normal7-7qfg7e6850**. Mandatory release only once real UTC >= **2026-11-09T11:06:32.448Z** after checkpoint. Never refresh lease; currently work ongoing.
