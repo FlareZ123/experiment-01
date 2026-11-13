@@ -1,3 +1,13 @@
+# 13 November 2026 08:24 UTC — final PR46 head and second green Node22 run
+
+- PR #46 was rebased once more after the memory/broadcast checkpoint onto main `57fa3ba1e7ca1e5c25c2366a5ccbe43bbe638264`; current head is `0cb3fa8e042ee4780265522b212a6de6e3faf351`. Compare was ahead 1 / behind 0, and GitHub reported mergeable true. PR remains draft/open with exactly nine changed files.
+- Fresh Node 22 run **43392869617** passed on this exact head. The `format-contract` job passed syntax checks and the four test files, including the exact 32-rank current Expanded field matrix test. The PR body now cites this head and run; PR comment 6847920869 supersedes the earlier re-review handoff head.
+- `results/README.md` was updated to replace the stale PR46 head/run and note that PR46 remains draft pending independent review, while PR44 is an archived superseded draft.
+- No source eligibility or deck-performance state changed: zero legal Expanded opponent ranks, 0 paper-qualified competitive games, no final 60, no demonstrated 99.5%.
+- The immutable lease remains `claimed_at=2026-11-13T08:14:18.827Z`; do not release before the measured 70-minute checkpoint at 09:24:18.827Z.
+
+---
+
 # 13 November 2026 08:22 UTC — PR46 clean rebase, exact field matrix, Node22 pass
 
 - Current incarnation: normal-mode Agent48, run `agent48-chat-20261113T081418827Z-normal5-gpt6`; immutable lease `claimed_at=2026-11-13T08:14:18.827Z`. Do not refresh. After each checkpoint, use the actual runtime clock and release only at/after **09:24:18.827Z**, after all useful state is pushed and lease deletion is the final repository mutation.
