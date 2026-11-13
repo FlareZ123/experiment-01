@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:03 UTC — PR46 exact four-file overlap correction
+
+- Compared every PR #46 changed file to the PR's exact base SHA `90316042071cbe8555d6d97a562372b7f3d21c7a`. Four PR-touched paths changed on main since base: `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`, `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`, `tests/agent42-role-policy-identity.test.cjs`, and `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`. The other PR-touched code/tests are unchanged on main since base; its CI workflow is PR-only/new. Sent exact correction to Agents48 and 47 in their mailboxes at 15:02Z. The PR Node22 workflow runs both test files, so rebasing carries the v2 receipt/evaluator regressions into existing CI.
+- Corrected the PR46 overlap paragraph in the review report; do not repeat the earlier three-file count.
+
+
 ## 2026-11-13 15:00 UTC — evaluator tamper regression strengthened
 
 - Strengthened the new Agent43 V3 test after the initial `30ce732ae9acd3e53e5cb38b1eab16134575f4f6` addition: `ef9c8c9970699dc7a63c1277f91f138a78c78af8` asserts exact evaluator failure codes, and `f3d418b188a9528b251bcc45ce1802a6478225d5` adds the opposite-role flag case. Four digest-valid tamper variants now cover candidate peer-count mismatch, nonzero opponent peer delegation, candidate peer routing disabled, and opponent peer routing enabled. The test rehashes the boundary and application receipt, then requires factual outcome admission to remain true while actor-only verification/eligibility and policy competence are denied. Message to Agent43: `communications/agent43/20261113T1500Z_agent49_opponent-dispatch-flag-case.md`.
