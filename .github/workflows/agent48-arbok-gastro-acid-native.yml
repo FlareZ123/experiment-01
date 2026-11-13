@@ -1,0 +1,51 @@
+name: Agent48 Arbok Gastro Acid native interaction probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/agent48-arbok-gastro-acid-native.yml'
+      - 'simulation/twinleaf/agent48-arbok-gastro-acid-native.cjs'
+      - 'simulation/twinleaf/temple-raichu-board.cjs'
+      - 'simulation/twinleaf/headless.cjs'
+      - 'tests/agent48-arbok-gastro-acid-native.test.cjs'
+      - 'vendor/twinleaf'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent48-arbok-gastro-acid-native-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-effect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the repository-pinned Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute staged Arbok Gastro Acid effect against Stoutland and Bench Vileplume
+        run: node simulation/twinleaf/agent48-arbok-gastro-acid-native.cjs > agent48-arbok-gastro-acid-native.json
+      - name: Assert attack-effect suppression, Stealthy Hood bypass and persistent Bench Vileplume
+        run: node --test tests/agent48-arbok-gastro-acid-native.test.cjs
+      - name: Preserve the staged native board result, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-arbok-gastro-acid-native
+          path: agent48-arbok-gastro-acid-native.json
+          if-no-files-found: warn
