@@ -10,6 +10,7 @@ At minimum, a deck-aware policy needs:
 
 - Opponent archetype/posterior and confidence, updated from mulligan reveals and early board state.
 - Whether the opponent is Regidrago and whether its last attack was Apex Dragon.
+- Whether at least one Lillie's Clefairy ex is in play with Fairy Zone active; this changes opposing Dragon Weakness to Psychic ×2 and is required for the 150-base Timeless-GX to reach 300 damage against a 280-HP Regidrago.
 - Dialga-GX location: deck, hand, discard, Prizes, in play or otherwise unavailable.
 - Mimikyu location and whether it can attack this turn.
 - Whether the GX attack allowance has already been used; which GX attack was used.
@@ -37,6 +38,8 @@ The card-text/rule basis and remaining GX-allowance uncertainty are documented i
 | Piece | DCI/UDP state | Policy |
 | --- | --- | --- |
 | Dialga-GX | Effectively UDP while counter-line live | Preserve in discard; do not treat its unpayable normal attacks as evidence it is expendable |
+| Lillie's Clefairy ex | Very high DCI while Regidrago KO line is live | Keep Fairy Zone active; it changes Dragon Weakness to Psychic ×2, making the copied 150-base Timeless-GX deal 300 to Regidrago VSTAR |
+| Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Keep access and fund two Psychic Energy; its Psychic Copycat attack receives Fairy Zone's ×2 Weakness against Regidrago |
 | Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Preserve access; its Copycat attack costs Psychic + Colorless |
 | Battle Compressor | High AMR when Dialga is still in deck | Consider discarding Dialga among the three cards, but account for the other two cards' DCI |
 | Mysterious Treasure | High AMR when Dialga is in hand | Can discard Dialga as cost while finding a Psychic/Dragon Pokémon; preserve the line |
@@ -105,13 +108,13 @@ The following work already exists; policy development should build on it rather 
 - The fresh Agent46 Battle Compressor donor panel (`results/aichi-2026/2026-11/agent46-compressor-donor-prospective-source-ab-20261110.md`) ran 16 matched source pairs. Control/treatment had 27/28 Apex declarations and zero Copycat attacks in either arm; treatment produced three real donor searches but no Copycat increase.
 - The selected historical Compressor-donor Copycat (`results/aichi-2026/2026-11/agent46-mimikyu-compressor-donor-native-20261110.md`) selected Dialga's Timeless-GX and dealt 150 base damage to a full-health 280-HP Regidrago VSTAR. The board snapshot shows Lillie's Clefairy ex in play; Fairy Zone changes opposing Dragon Weakness to Psychic ×2, so Psychic Mimikyu's copied Timeless-GX deals 300 and the two-Prize Knock Out is legal. The raw observer recorded printed weakness only, not the dynamic Ability-modified Weakness. Do not treat this as a damage bug.
 
-**Policy implication:** Dialga/Mimikyu is a supported staged counter-ALS, but the current weak native policies rarely execute it. Donor payment alone is not the bottleneck: the joint state (Mimikyu available and Active, two Psychic Energy, Dialga in discard, opponent's last attack Apex Dragon, GX allowance unused) is rare. Improve the joint sequencing/promotion policy and repair copied damage before evaluating any Prize or win-rate benefit. Do not repeat isolated Treasure/Compressor donor A/Bs; they have prospective null Copycat results.
+**Policy implication:** Dialga/Mimikyu is a supported staged counter-ALS, but the current weak native policies rarely execute it. Donor payment alone is not the bottleneck: the joint state (Mimikyu available and Active, two Psychic Energy, Dialga in discard, opponent's last attack Apex Dragon, GX allowance unused, and Fairy Zone active) is rare. Improve joint sequencing/promotion and preserve Lillie's Clefairy ex; the historical 150-base/280-HP KO is explained by Psychic Weakness ×2, not a damage bug. Do not repeat isolated Treasure/Compressor donor A/Bs; they have prospective null Copycat results.
 
 ## Policy evaluation requirements
 
 Any implementation derived from this note should be evaluated against at least:
 
-1. Regidrago lists with and without an Apex Dragon last-turn opportunity.
+1. Regidrago lists with and without an Apex Dragon last-turn opportunity, and with Fairy Zone active versus absent.
 2. Ability-lock matchups where Tapu Lele Wonder Tag is suppressed and Hood protection is contested by Tool removal.
 3. Matchups where Girafarig, Marshadow, Mimikyu, Ranger or Field Blower are dead/low-value.
 4. Bench-constrained states and turns where Radiant Eternatus ends the turn.
