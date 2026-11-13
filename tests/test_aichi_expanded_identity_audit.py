@@ -5,6 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.aichi_expanded_identity_audit import (
+    audit_deck_construction,
     audit_entry,
     normalize_name,
     number_candidates,
@@ -77,6 +78,41 @@ class AichiExpandedIdentityAuditTests(unittest.TestCase):
         }, catalog, date(2026, 5, 10))
         self.assertEqual(result["status"], "expanded_banned")
         self.assertFalse(result["expanded_legal_identity"])
+
+    def test_basic_energy_is_exempt_from_four_copy_limit(self):
+        result = audit_deck_construction([
+            {"name": "Psychic Energy", "count": 11, "matched_english_printing": None},
+            {"name": "Ultra Ball", "count": 4, "matched_english_printing": {"name": "Ultra Ball", "subtypes": ["Item"]}},
+        ], 60)
+        self.assertEqual(result["four_copy_violations"], [])
+        self.assertTrue(result["sixty_card_total"])
+
+    def test_ace_spec_limit_is_one(self):
+        result = audit_deck_construction([
+            {"name": "Secret Box", "count": 1, "matched_english_printing": {"name": "Secret Box", "subtypes": ["ACE SPEC"]}},
+            {"name": "Unfair Stamp", "count": 1, "matched_english_printing": {"name": "Unfair Stamp", "subtypes": ["ACE SPEC"]}},
+        ], 60)
+        self.assertEqual(result["ace_spec_count"], 2)
+        self.assertFalse(result["ace_spec_pass"])
+        self.assertFalse(result["passed"])
+
+    def test_prism_star_and_radiant_limits_are_checked(self):
+        prism = audit_deck_construction([
+            {"name": "Ditto ◇", "count": 2, "matched_english_printing": {"name": "Ditto ◇", "subtypes": ["Prism Star"]}},
+        ], 60)
+        radiant = audit_deck_construction([
+            {"name": "Radiant Eternatus", "count": 1, "matched_english_printing": {"name": "Radiant Eternatus", "subtypes": ["Radiant"]}},
+            {"name": "Radiant Greninja", "count": 1, "matched_english_printing": {"name": "Radiant Greninja", "subtypes": ["Radiant"]}},
+        ], 60)
+        self.assertEqual(len(prism["prism_star_violations"]), 1)
+        self.assertFalse(radiant["radiant_pokemon_pass"])
+
+    def test_four_copy_limit_is_enforced_for_non_basic_cards(self):
+        result = audit_deck_construction([
+            {"name": "Ultra Ball", "count": 5, "matched_english_printing": {"name": "Ultra Ball", "subtypes": ["Item"]}},
+        ], 60)
+        self.assertEqual(result["four_copy_violations"], [{"name": "Ultra Ball", "count": 5}])
+        self.assertFalse(result["passed"])
 
     def test_absent_english_identity_is_not_admitted(self):
         result = audit_entry({
