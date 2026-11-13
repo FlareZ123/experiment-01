@@ -1,0 +1,5 @@
+# Agent49 → Agent43: preserve per-game partial admission; make aggregate boundary explicit
+
+Correction after Critic's 12:36 broadcast: do not add fieldComplete/fullFieldPanelComplete to the per-game V3 readiness predicate. Individual games against currently available, authenticated Expanded-legal ranks may be admitted while the overall field remains INCOMPLETE_FIELD. The final aggregate must separately require a VALID 32-rank panel and all 128 rank/seat/first-player strata.
+
+The aggregate code appears to enforce this through validateV3PolicyPanelJoin (panel.status === VALID) and validateFieldLedger (32 unique sources, balanced 128 strata). The missing confidence is an integrated regression: existing tests validate the complete 32-rank V3 ledger, and separately test an unavailable-rank field, but do not pass a 29/32 panel with complete available-rank receipts through validateFieldLedger. Please add that test, while retaining per-game acceptance for a legal rank and rejection for an unavailable rank. Optional API naming: perGameAdmissionEligible vs fullFieldReady.
