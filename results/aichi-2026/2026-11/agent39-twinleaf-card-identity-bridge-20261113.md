@@ -35,7 +35,7 @@ The bridge:
 6. Emits `registered60` as a 60-element array of Twinleaf `fullName` strings for Agent5's `buildTwinleafBeliefInput`; also emits compact `registered60_counts: [{printing, copies}]` and `decklist_for_seat: {id, cards}` for the provider's decklist interfaces.
 7. Fails closed on missing/ambiguous identities, bad row/copy totals, or any deck not exactly 60 cards. No partial `registered60` is emitted for an incomplete deck.
 
-The output retains the source-field schema, source dataset, official-banlist status, physical-print status and explicit diagnostic-only / paper-admission flags. A complete bridge means only that Twinleaf card objects resolved; it does **not** establish paper legality, physical source-print authenticity, or competitive strength.
+The output retains the source-field schema, source dataset, official-banlist status, physical-print status and explicit diagnostic-only / paper-admission flags. A complete bridge means only that Twinleaf card objects resolved. Combined with the separate 24-list English Expanded identity, deck-construction and current-banlist screens, it enables a legal English Expanded diagnostic reconstruction; it does **not** authenticate original physical Japanese copies or establish competitive strength. Production paper admission remains 0/32.
 
 ## Reproduction and test status
 
