@@ -108,6 +108,24 @@ Opponent archetype inference from public cards or mulligans may update a belief 
 | 'A search card reaches the singleton.' | What is the probability the singleton is accessible under this player's K0/K1 information, and what recovery connectors can also be Prized or consumed? |
 | 'This attack is payable on the printed board.' | Can the player realistically fund it before the opponent's next consequential action, and what resource or attacker is stranded by doing so? |
 
+## Synthetic decision fixture (illustrative only)
+
+Consider one legal search action whose non-discard effect is held fixed. Two discard sets are legal:
+
+- `D1 = {dead filler C, dead filler D}` preserves components `A` and `B` for a high-value two-card continuation;
+- `D2 = {component A, dead filler C}` breaks that continuation but leaves a simpler fallback line.
+
+Under the same continuation policy class and opponent policy, suppose the resulting values are:
+
+| Choice | `P(execute by deadline)` | `E[ΔU | execute]` | `E[ΔU | not execute]` | Expected `ΔU` |
+| --- | ---: | ---: | ---: | ---: |
+| `D1` | 0.60 | 1.00 | 0.10 | 0.64 |
+| `D2` | 0.90 | 0.40 | 0.20 | 0.38 |
+
+These numbers are arbitrary utility units, not Pokémon card values or game-win estimates. A reachability-only score prefers `D2` because its line executes more often (0.90 vs 0.60), while the fallback-inclusive expected value prefers `D1` (0.64 vs 0.38). With the same action cost and non-discard effect, the set-level DCI difference is `DCI(D1 versus D2) = 0.26`. If `A` and `B` are jointly required, their combined value cannot be reconstructed by adding two context-free per-card discard scores.
+
+The fixture illustrates why AMR must retain both execution and fallback branches and why DCI must compare legal sets under a fixed continuation contract. It does not validate the model on a real game state.
+
 ## Validation plan
 
 1. Start with one small, fully specified, fully observed decision fixture with two legal discard sets and two contingent continuations against a declared opponent policy. Verify that the continuation contract ranks the sets correctly and that the fallback branch is included.
