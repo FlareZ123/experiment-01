@@ -233,7 +233,7 @@ test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompt
   let time=0;
   const h=makeHarness();
   const mcts=createTwinleafMcts(h.deps,{
-    iterations:2,maxPlies:4,maxDecisionMs:250,seed:9,now:()=>time+=0.01
+    iterations:8,maxPlies:4,maxDecisionMs:250,seed:9,now:()=>time+=0.01
   });
   const result=mcts.search(h.state,0);
   assert.equal(result.audit.rootActionCount,3);
@@ -242,11 +242,19 @@ test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompt
   assert.equal(result.audit.ownerLedgerInInformationSetKey,true);
   assert.equal(result.audit.promptResolutionActorScoped,true);
   assert.equal(result.audit.applicabilityEnvelopeId,FLITTLE_ENVELOPE_ID);
-  assert.equal(result.audit.iterations,2);
-  assert.equal(result.audit.completedIterations,2);
+  assert.equal(result.audit.iterations,8);
+  assert.equal(result.audit.completedIterations,8);
+  assert.equal(result.audit.maxPlies,4);
+  assert.equal(result.audit.cPuct,1.4);
+  assert.equal(result.audit.timeoutStatus,'completed');
   assert.equal(result.audit.seed,9);
   assert.ok(result.audit.elapsedMs>=0&&result.audit.elapsedMs<250);
   assert.ok(result.audit.maxActionTransitions<=4);
+  assert.deepEqual(result.audit.seatActionTransitions.length,2);
+  assert.equal(result.audit.rolloutPaths.length,8);
+  assert.ok(result.audit.rolloutPaths.some(path=>
+    path.actions.some(action=>action.seat===1)),
+    'four-ply rollouts must actually traverse the opponent seat');
   assert.ok(result.audit.waitPromptResolutions>0);
 });
 
