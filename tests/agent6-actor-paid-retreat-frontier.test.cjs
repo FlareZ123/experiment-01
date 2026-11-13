@@ -141,14 +141,14 @@ test('models Shadow Rider Max Geist after the Active Mimikyu pays its one-Energy
     publicRestrictions:{},specialConditions:[]
   };
   view.ownPublic.bench=[vmax,null,null];
-  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog),100);
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),100);
   const selected=choosePaidRetreatToDamagingBench(view,catalog);
   assert.equal(selected?.kind,'paid-retreat');
   assert.equal(selected?.printing,'Shadow Rider Calyrex VMAX CRE');
   assert.equal(selected?.attackName,'Max Geist');
   assert.equal(selected?.projectedPrintedDamage,100);
   vmax.energies.push('Psychic Energy MEE');
-  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog),130);
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog,{indices:[0],printings:['Psychic Energy MEE']}),130);
   assert.equal(choosePaidRetreatToDamagingBench(view,catalog)?.projectedPrintedDamage,130);
   vmax.energies.pop();
   vmax.energies.pop();

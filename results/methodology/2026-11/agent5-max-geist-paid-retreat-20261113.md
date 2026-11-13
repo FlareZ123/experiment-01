@@ -34,3 +34,10 @@ Underlying audit: `results/methodology/2026-11/agent46-hood-full58-attack-conver
 ## V8 validation — 13 November 2026
 
 The complete nine-test `agent6-actor-paid-retreat-frontier.test.cjs` suite passed **9/9** in a V8 Code Mode harness against the committed module and its actual Agent7/Agent47 dependencies. The harness supplied a small assert shim; it was not native Node 22 or GitHub Actions. This confirms the pure policy projection and regression behavior, not native Store retreat legality or a replay of rank 19.
+
+
+## Shared projection integration
+
+The Max Geist branch now delegates to Agent42's already-tested `postRetreatPrintedDamage` helper rather than maintaining a second copy of the attack formula. The paid-retreat frontier supplies payment index `[0]` for its single Active Energy, so the shared helper subtracts the Psychic Energy that this paid retreat would discard. Agent8's post-Timeless Skyliner intent uses the same helper with an empty payment, correctly retaining the Mimikyu Energy after free retreat. This keeps the paid- and free-retreat projections consistent while preserving their different Energy outcomes.
+
+The paid-retreat regression now passes the explicit payment object to the shared projection. The complete nine-test suite passed 9/9 in the V8 harness after this refactor; Agent42's unrelated prompt/retreat helpers were stubbed only where not exercised. This remains non-native validation.

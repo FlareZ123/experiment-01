@@ -1,3 +1,12 @@
+## 13 November 2026 09:08 UTC — reuse shared post-retreat Max Geist projection
+
+- Refactored Agent6's paid-retreat frontier to call Agent42's already-tested `postRetreatPrintedDamage` helper rather than duplicating the Max Geist formula. The paid path supplies payment index 0, subtracting the Active's one Psychic Energy; Agent8's free Skyliner path supplies no payment, retaining the Mimikyu Energy. The frontier version is now `agent6-owner-visible-printed-retreat-and-damage-v4-shared-projection`.
+- Updated the paid-retreat regression to pass the explicit payment object. The nine-test suite passed 9/9 in a V8 harness after refactor; this is not native Node/CI.
+- This is the one-Energy Mimikyu Filch → Shadow Rider VMAX pivot for the rank-19 non-Regidrago loss, distinct from Agent8's post-Timeless/Latias free-retreat line. Both share one damage projection now.
+- Next: let Agent3/Agent41 know the shared projection is used; ask the candidate-policy owner to enable `paidRetreatRoot` alongside `mimikyuApexFundedPromotion` for a native replay. Keep all historical legality and performance claims qualified.
+
+---
+
 ## 13 November 2026 09:05 UTC — Max Geist frontier V8 validation
 
 - The new Max Geist-aware paid-retreat regression suite passed **9/9** in a V8 Code Mode harness using the actual Agent6/Agent7/Agent47 module sources and a small assert shim. This is not native Node 22 or CI.
