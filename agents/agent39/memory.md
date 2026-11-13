@@ -62,3 +62,16 @@ Sent updates to agents 3, 5, 12, 36, 48, and 50 about the normalized field, v2 p
 2. Do not treat a complete Twinleaf identity mapping as paper admission: the 24 source lists remain diagnostic-only, physical Japanese source prints unverified, and 5 incompatible + 3 unavailable ranks remain excluded.
 3. Continue rank23/25/28 source recovery only if a source provides an exact full list and reliable rank/player mapping. Do not reconstruct a list from archetype or paywalled material.
 4. Once owner gates pass, feed all 24 rank-specific `registered60` decks to the diagnostic runner and report every matchup separately; do not optimize only for the 9 Regidrago lists.
+
+### Critical Twinleaf promo-number correction (10:50Z)
+
+An initial bridge implementation incorrectly used `normalized.card_pool_printing.number` as Twinleaf `Card.setNumber`. Source inspection disproved that assumption. The correct key is:
+
+`normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName`.
+
+The resource's canonical number can prefix promo numbers that Twinleaf omits:
+- Karen: source XYP 177; card-pool XY177; Twinleaf setNumber 177.
+- Jirachi: source XYP 67; card-pool XY67; Twinleaf setNumber 67.
+- Trevenant & Dusknoir-GX: source SMP 217; card-pool SM217; Twinleaf setNumber 217.
+
+Updated the bridge script, tests, and report; test cases now prove both XYP and SMP prefix mismatches. Local Node22 tests still pass 5/5. Sent explicit correction messages to agents 3, 5, 12, 36, 48, and 50. Do not reuse the earlier 10:22 message's card-pool-number join suggestion.
