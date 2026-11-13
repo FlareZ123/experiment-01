@@ -166,7 +166,8 @@ jobs:
             tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
             tests/2026-11/agent5-information-set-search.test.cjs \
             tests/2026-11/agent5-twinleaf-belief-search.test.cjs \
-            tests/2026-11/agent5-twinleaf-adapter-search.test.cjs
+            tests/2026-11/agent5-twinleaf-adapter-search.test.cjs \
+            tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs
       - name: Generic owner-hand Trainer category and shared-action opportunity tests
         run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs tests/agent50-native-trainer-owner-hand-payment-posthoc.test.cjs tests/agent7-stadium-enumerator-custody-audit.test.cjs tests/agent5-archived-paper-pass-opportunities.test.cjs
       - name: Precompile immutable registration and seed-identity contract for generic native Trainer A/B/A
