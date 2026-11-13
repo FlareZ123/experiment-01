@@ -16,7 +16,7 @@ const engine = modulePath => require(path.join(output, modulePath));
  * legal Bench destination. This deliberately does not use Latias, Float Stone,
  * or any zero-cost retreat shortcut.
  *
- * @param {{hood?:boolean,toolJammer?:boolean,stadium?:string,candidateSeat?:0|1}} options
+ * @param {{hood?:boolean,benchHood?:boolean,toolJammer?:boolean,stadium?:string,candidateSeat?:0|1}} options
  */
 function paidRetreatAgainstSnorlax(options = {}) {
   const candidateSeat = options.candidateSeat ?? 0;
@@ -79,6 +79,16 @@ function paidRetreatAgainstSnorlax(options = {}) {
   benchTarget.cards.push(card('Shadow Rider Calyrex V CRE'));
   candidate.bench.push(benchTarget);
 
+  if (options.benchHood) {
+    const benchVmax = new PokemonCardList();
+    benchVmax.cards.push(
+      card('Shadow Rider Calyrex V CRE'),
+      card('Shadow Rider Calyrex VMAX CRE')
+    );
+    benchVmax.tools.push(card('Stealthy Hood UNB'));
+    candidate.bench.push(benchVmax);
+  }
+
   const snorlax = card('Snorlax PGO');
   opponent.active.cards.push(snorlax);
   if (options.toolJammer) {
@@ -137,6 +147,8 @@ function paidRetreatAgainstSnorlax(options = {}) {
       physicalPsychicEnergyBefore: psychicEnergy.length,
       hoodPhysicallyAttached: vmaxSlot.tools.some(tool =>
         tool.name === 'Stealthy Hood'),
+      benchHoodPhysicallyAttached: candidate.bench.some(slot =>
+        slot.tools.some(tool => tool.name === 'Stealthy Hood')),
       blockListed,
       underworldDoorListed,
       activeAfter,
