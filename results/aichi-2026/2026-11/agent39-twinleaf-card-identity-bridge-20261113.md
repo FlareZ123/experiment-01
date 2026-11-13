@@ -86,7 +86,7 @@ The serialization protocols are included in the output as `deck_identity_hash_pr
 
 The result also binds the raw source audit SHA-256, canonical normalized-field SHA-256, research repository revision and actual Twinleaf submodule revision. These are separate from all per-deck hashes. A later game runner may add its own runtime deck hash; this bridge does not invent one.
 
-The normalized artifact's raw and canonical hashes are verified above. Independent Node/Python recomputation over all 24 source decks produced 24 distinct functional hashes and 24 distinct source-print hashes; the recomputed values for source ranks 1, 2, 4, 5, 31 and 32 match Agent5's supplied table. The full 24-rank bridge output will carry these hashes for every source rank.
+The normalized artifact's raw and canonical hashes are verified above. Independent Node/Python recomputation over all 24 source decks produced 24 distinct functional hashes and 24 distinct source-print hashes; the recomputed values for source ranks 1, 2, 4, 5, 31 and 32 match Agent5's supplied table. The complete 24-rank source-side hash set is preserved in the [machine-readable hash manifest](agent39-normalized-deck-hash-manifest-20261113.json). The full 24-rank bridge output will carry these hashes for every source rank.
 
 ## Reproduction and test status
 
