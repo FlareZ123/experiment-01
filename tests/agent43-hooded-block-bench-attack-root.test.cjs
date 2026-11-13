@@ -109,6 +109,23 @@ function makeView(options = {}) {
   if (options.ownBenchLatias) ownBench[1] = pokemon('Latias ex SSP 76', {
     stage: 0, abilityDetails: [skyliner]
   });
+  if (options.unsupportedBenchAttack) ownBench[1] = pokemon('Unmodeled attacker', {
+    energies: [P],
+    attacks: [{
+      name: 'Unmodeled effect attack',
+      cost: [PSY],
+      damage: 999,
+      damageCalculation: null,
+      gxAttack: false
+    }]
+  });
+  if (options.ownBenchAlolanMuk) ownBench[1] = pokemon('Alolan Muk SUM 58', {
+    stage: 1,
+    abilityDetails: [{
+      name: 'Power of Alchemy',
+      text: "Each Basic Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities."
+    }]
+  });
 
   const blockAbility = options.block === false ? [] : [{
     name: 'Block',
@@ -132,6 +149,13 @@ function makeView(options = {}) {
     stage: 0, abilityDetails: [{
       name: 'Safeguard',
       text: "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V."
+    }]
+  });
+  if (options.opponentBenchAlolanMuk) opponentBench[0] = pokemon('Alolan Muk SUM 58', {
+    stage: 1,
+    abilityDetails: [{
+      name: 'Power of Alchemy',
+      text: "Each Basic Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities."
     }]
   });
 
@@ -315,6 +339,26 @@ test('Mimikyu PAL Safeguard on opponent Bench does not veto an attack against Ac
     text: "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V."
   }];
   assert.equal(chooseHoodedBlockBenchAttackRoot(view, catalog), null);
+});
+
+test('unmodeled integer-damage attack cannot displace the explicitly modeled Clefairy line', () => {
+  const view = makeView({
+    hoodOnActive: true, hoodInHand: false, unsupportedBenchAttack: true
+  });
+  const plan = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(plan?.printing, "Lillie's Clefairy ex JTG");
+  assert.equal(plan?.attackName, 'Full Moon Rondo');
+  assert.equal(plan?.projectedPrintedDamage, 220);
+});
+
+test('Alolan Muk Power of Alchemy fails closed because it suppresses Basic Snorlax Block', () => {
+  for (const options of [
+    { ownBenchAlolanMuk: true },
+    { opponentBenchAlolanMuk: true }
+  ]) {
+    const view = makeView({ hoodOnActive: true, hoodInHand: false, ...options });
+    assert.equal(chooseHoodedBlockBenchAttackRoot(view, catalog), null);
+  }
 });
 
 test('root option is default-off and candidate root returns the typed Hood/Retreat intent', () => {
