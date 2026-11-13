@@ -129,4 +129,40 @@ for(const seat of [0,1]){
         /Conflicting Mimikyu fund owner/);
     }finally{restore();}
   });
+
+  test('one Psychic plus Dimension Valley makes Mimikyu eligible for post-Apex promotion, seat '+seat,()=>{
+    const f=fixture(seat),events=[];
+    f.owner.hand.cards.splice(f.owner.hand.cards.indexOf(f.energy1),1);
+    f.mimikyu.energies.cards.push(f.energy1);
+    f.owner.stadium.cards.push(f.card('Dimension Valley PHF'));
+    f.state.playerLastAttack[f.opponent.id]={
+      attack:{name:'Apex Dragon'},sourceCard:f.card('Regidrago VSTAR SIT')
+    };
+    const prompt=new f.ChoosePokemonPrompt(f.owner.id,
+      f.GameMessage.CHOOSE_NEW_ACTIVE_POKEMON,
+      f.PlayerType.BOTTOM_PLAYER,[f.SlotType.BENCH],
+      {min:1,max:1,allowCancel:false});
+    const restore=installMimikyuFundAndPromote({seat,
+      onEvent:e=>events.push(e)});
+    try{
+      const action=f.choose.resolvePrompt(f.state,f.owner,prompt);
+      assert.equal(action?.constructor.name,'ResolvePromptAction');
+      assert.deepEqual(action.result,[f.mimikyu]);
+      assert.ok(events.some(e=>e.kind==='proposed-funded-mimikyu-ko-promotion'));
+    }finally{restore();}
+  });
+
+  test('manual funding does not attach a second Psychic when Dimension Valley already pays Copycat, seat '+seat,()=>{
+    const f=fixture(seat),events=[];
+    f.owner.hand.cards.splice(f.owner.hand.cards.indexOf(f.energy1),1);
+    f.mimikyu.energies.cards.push(f.energy1);
+    f.owner.stadium.cards.push(f.card('Dimension Valley PHF'));
+    const restore=installMimikyuFundAndPromote({seat,
+      onEvent:e=>events.push(e)});
+    try{
+      f.attach.useTactic(f.state,f.owner);
+      assert.equal(events.some(e=>e.kind==='proposed-manual-psychic-to-mimikyu'),false);
+    }finally{restore();}
+  });
+
 }
