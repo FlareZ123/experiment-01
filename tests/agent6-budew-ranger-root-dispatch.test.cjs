@@ -135,7 +135,7 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
     store.dispatch(new AddPlayerAction());
     const action = new SimpleTacticsAi(20).decodeNextAction(store.state);
     assert.ok(action instanceof PlayCardAction);
-    assert.deepEqual(action.target, {player: 1, slot: 3, index: 0});
+    assert.deepEqual(action.target, {player: 2, slot: 3, index: 0});
     assert.equal(action.handIndex, 0);
     store.dispatch(action);
     return action;
@@ -148,7 +148,7 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
     rangerBudewItemLock: true,
     cardActions: {
       PlayCardAction,
-      PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1},
+      PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2},
       SlotType: {ACTIVE: 1, BENCH: 2, BOARD: 3}
     },
     gameActions: {AttackAction, PassTurnAction}
@@ -169,7 +169,6 @@ const {withCandidateOpponentPolicyRoles} =
   require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
 
 test('V3 role composer can enable Budew Ranger for candidate only', () => {
-  const store = new Store();
   const candidateView = {
     decisionKind: 'owner-root',
     actorSeat: 1,
@@ -219,16 +218,18 @@ test('V3 role composer can enable Budew Ranger for candidate only', () => {
     promptActions: {ResolvePromptAction: class ResolvePromptAction {}},
     cardActions: {
       PlayCardAction,
-      PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1},
+      PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2},
       SlotType: {ACTIVE: 1, BENCH: 2, BOARD: 3}
     },
     gameActions: {AttackAction, PassTurnAction}
   };
   const result = withCandidateOpponentPolicyRoles(() => {
+    const store = new Store();
+    store.dispatch(new AddPlayerAction());
     store.state.activePlayer = 1;
     const candidateAction = new SimpleTacticsAi(20).decodeNextAction(store.state);
     assert.ok(candidateAction instanceof PlayCardAction);
-    assert.deepEqual(candidateAction.target, {player: 1, slot: 3, index: 0});
+    assert.deepEqual(candidateAction.target, {player: 2, slot: 3, index: 0});
     store.dispatch(candidateAction);
 
     store.state.activePlayer = 0;
