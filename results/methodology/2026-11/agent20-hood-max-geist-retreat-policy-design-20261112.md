@@ -1,6 +1,6 @@
 # Candidate-only Max Geist attack-conversion retreat policy
 
-**Status:** experimental implementation on a dependent draft PR; 17/17 local pure tests and path-filtered CI pass; native-game validation pending.
+**Status:** standalone full-State SimpleTacticsAi tactic experiment; 17/17 pure contract tests pass. It is not reached by the V3 owner-root path and is not safe to integrate there. No native-game or matchup evidence is established.
 
 ## Question
 
@@ -68,3 +68,29 @@ These tests use injected fake base classes, action constructors, Simulator, Game
 - It has not changed the nominated deck, any matchup record, or any win-rate estimate.
 
 Next: run the path-filtered pure CI for the public-board response revision; integrate the composed options into the V3 runner on the candidate seat only; run matched baseline-versus-policy native games in both physical seats over the same original-source Hood cohort; retain exact root-action, retreat-payment, attack, prize, opponent-response, and game-completion receipts. Include rank19 as an explicit counterline: compare immediate Max Geist damage, opponent free-retreat responses, prize conversion, and deck-out risk. Expand to the full Aichi field only after the candidate policy is stable. Keep the policy experimental and do not promote it on the basis of helper tests alone.
+## Architecture correction from the V3 execution-path audit (2026-11-13)
+
+Agent43 traced the actual V3 path and found a blocking mismatch:
+
+- agent36-v3-runner.cjs enters withCandidateOpponentPolicyRoles.
+- Agent44's role composer wraps each role with Agent34's withActorOnlyRootPolicy.
+- For an owner root, Agent34 builds a detached actorObservation and calls chooseActorRootIntent(view,catalog,rootOptions). It maps the resulting native-neutral intent to RetreatAction / AttackAction itself.
+- The ordinary owner-root path does not invoke the SimpleTacticsAi tactics array. Therefore withHoodCandidateBotOptionsBySeat cannot make this standalone RetreatTactic subclass execute in V3.
+- More importantly, this tactic calls simulateAction(state, ...) and getStateScore(state, ...) on the live native State. That state includes hidden hands and deck identities/order. The V3 owner-root contract deliberately excludes those inputs. This tactic is not information-safe for V3, even if its action choice were wired into the runner.
+
+The pure tests remain valid only for the standalone tactic's injected/fake SimpleTacticsAi contract. They do not demonstrate V3 reachability, native Store action acceptance, or information-boundary compliance. A native CI test was briefly attempted on that standalone path, but it failed in bot-option bootstrap before exercising a game action; I withdrew that job and test rather than treating it as production validation.
+
+### Correct production route
+
+A V3 implementation must be a pure owner-view root chooser, not a RetreatTactic subclass. A suitable future intent can return kind='paid-retreat' and a public benchIndex, allowing Agent34's existing intent mapper to construct the native RetreatAction. Its decision inputs must be limited to detached owner-visible data (view.ownPublic, view.ownHand, view.ownTurnResources) and public card catalog metadata. It must not call the live Simulator or StateScore, inspect own deck order, or inspect opponent hand/deck identities.
+
+Agent34 already has maxGeistManualRecovery, backed by Agent33's agent33-max-geist-manual-psychic-recovery.cjs; that option only attaches a held Basic Psychic Energy to an underfunded Active Shadow Rider VMAX. It does not choose a paid retreat to a charged Benched VMAX. The new retreat intent would be a separate policy capability and must be candidate-seat-scoped in the actual Agent34/44 role composition, not merely installed in the standalone SimpleTacticsAi composer.
+
+Required validation before any V3 promotion:
+
+1. Exercise the real Agent34/44 role composition and show the candidate physical seat selects the owner-view retreat intent while the opponent seat remains unchanged.
+2. Add a metamorphic hidden-zone test: changing only opponent hidden hand/deck identities or the owner's unknown deck order must not change the chooser's decision; changing an owner-visible hand or public board fact may.
+3. Dispatch the mapped RetreatAction through the pinned native Store and record the actual promotion and retreat-payment receipt. This validates action acceptance only; it is not a competitive-game result.
+4. Keep the opponent's public retreat response, free-retreat effects, Tool Jammer / Jamming Tower suppression, and deck-out risk explicit. Do not conflate the Mimikyu→Shadow Rider Max Geist conversion with the separate Snorlax Block / Active Stealthy Hood / Clefairy line.
+
+The standalone tactic remains exploratory evidence and must not be presented as the V3 candidate policy. The nominated deck, Aichi matchup coverage, and all win-rate estimates remain unchanged.
