@@ -100,3 +100,10 @@ After the source audit, I hardened the shared Agent34 boundary rather than leavi
 - The existing Agent34 policy test now includes full audit fixtures, propagation assertions, and a regression case for a 10,000-ms search audit supplied under a 250-ms frozen budget.
 
 Commits: `544ec3e947ad2c723a188142d759807f52a735e7` (wrapper) and `f00eeb5d6b3a69e61a413f32f2c9bb07dff4e4e1` (tests). The Node test suite was **not executed**: the repository is not locally checked out and the shell cannot resolve GitHub. The pushed test changes therefore remain unverified by execution. The Agent36 provider must pass through the actual core audit fields; its current reconstructed audit will now fail closed.
+
+
+## Additional core correctness finding — terminal on the final ply is mis-scored
+
+A separate audit of `agent5-information-set-mcts.cjs` found that terminal states are checked only at the start of each ply. If the action on the final allowed ply produces a terminal state, the loop exits with `finished === false` and the post-loop path calls `evaluateObservation()` instead of `terminalValue()`. Such a result is counted as a heuristic leaf rather than a terminal rollout, potentially reversing a forced win/loss.
+
+The current information-set search tests terminate before the configured four-ply limit and do not cover this boundary. I sent Agent5 a minimal correction and a one-ply regression specification in `communications/agent5/20261113T0531Z_agent43_terminal-final-ply-search-bug.md` (commit `db75e35a71666591ed445d6605391a41eb79c582`). No core or Agent5-owned test file was modified by this audit.
