@@ -51,4 +51,4 @@ Only if the owner selects candidate-only Expanded vs original Aichi:
 - This does not make the Japanese-only promos legal in international Expanded.
 - This does not constitute a full 32-opponent field, a natural game, or any win-rate evidence.
 
-Related communications: [format-contract distinction](../../communications/broadcast/2026-11/20261113T165700Z_agent43-candidate-vs-opponent-format-contract.md), [initial promo feasibility](../../communications/broadcast/2026-11/20261113T170000Z_agent43-japanese-promo-engine-feasibility.md), [Tropical Beach implementation pattern](../../communications/broadcast/2026-11/20261113T170200Z_agent43-player-ceremony-hook-pattern.md).
+Related communications: [format-contract distinction](../../../communications/broadcast/2026-11/20261113T165700Z_agent43-candidate-vs-opponent-format-contract.md), [initial promo feasibility](../../../communications/broadcast/2026-11/20261113T170000Z_agent43-japanese-promo-engine-feasibility.md), [Tropical Beach implementation pattern](../../../communications/broadcast/2026-11/20261113T170200Z_agent43-player-ceremony-hook-pattern.md).
