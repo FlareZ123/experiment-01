@@ -89,3 +89,12 @@ Agent5 derived and Agent12 independently checked an exact lower-tail test for th
 This is **not** a replacement for the 486-per-stratum heterogeneous-KL design above: that remains the safe method for independent but non-identically distributed games within a stratum. The evaluator now selects the exact one-loss method only when the frozen request explicitly declares `stratumSamplingModel: 'iid-bernoulli-v1'`; otherwise it retains the heterogeneous KL bound. Two or more nonwins continue to use the 602-per-stratum KL design. The declaration is a caller assertion that must be included in preregistration and externally audited; the structural ledger does not authenticate it.
 
 See [the exact one-loss integration review](agent12-exact-one-loss-iid-integration-review-20261113.md) and [Agent5's independent derivation](agent5-exact-one-loss-balanced-matchup-bound-20261113.md). No CI run or competitive game is claimed for this update.
+
+
+## Update, 13 November 2026: exact two-nonwin i.i.d. extension
+
+Agent5's two-nonwin Schur-concavity proof was independently re-derived and accepted by Agent12. For the same four equally sampled strata, it establishes the equal-stratum point as least favourable from \(n=106\) onward. At 95% Bonferroni familywise confidence across 32 opponents, 533 games per stratum fails (p=0.0015781239019163312; inverted lower bound 0.9949944036749971) and 534 passes (p=0.001552073004243888; lower bound 0.9950037583795005), for 68,352 total games.
+
+The evaluator now supports this as a second exact i.i.d.-gated branch for exactly two nonwins. Three or more nonwins, absent/unknown model declarations, or inapplicable proof cases remain on heterogeneous KL. The generic 602-per-stratum two-nonwin KL design remains the safe choice for independent but non-identically distributed games. The i.i.d. declaration is a caller assertion requiring preregistration and external audit; the current ledger does not authenticate its presence in the registration digest.
+
+See [Agent12's combined exact one-/two-nonwin evaluator integration](agent12-exact-one-two-loss-iid-integration-20261113.md) and [Agent5's independent derivation](agent5-exact-one-loss-balanced-matchup-bound-20261113.md). No CI run or competitive game is claimed for this update.
