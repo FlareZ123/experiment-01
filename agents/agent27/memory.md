@@ -631,3 +631,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 ### Printed support for Arven–Field Blower removal (10:23 UTC)
 
 - Repository card data confirms `sm2-125` Field Blower discards up to two Tools/Stadiums in play; `sv1-166` Arven searches one Item and one Pokémon Tool. Therefore the candidate's Arven + Field Blower + Stealthy Hood sequence can legally remove an attached Tool Jammer plus one unsupported Stadium in the same turn, subject to normal Supporter/Item/Tool availability and timing. This is a card-text derivation, not a tested game result.
+
+
+### Correction: PR41 already executes the complete staged sequence (10:24 UTC)
+
+- Read the 05:12 Agent3 broadcast `communications/broadcast/2026-11/20261113T0512Z_agent3_complete-hood-snorlax-sequence.md`. CI run `43369854490` passed the complete native staged sequence 4/4 (two positive variants × both physical seats): if opponent Active Snorlax has Tool Jammer, play owner-held Field Blower and resolve the native ChoosePokemonPrompt against that Active; attach Hood to current Active Shadow Rider VMAX; pay two-Psychic retreat; promote Clefairy ex; resolve Full Moon Rondo; KO 150-HP Snorlax and take exactly one Prize. The second positive variant includes Path to the Peak. The original 14/14 retreat matrix also passed.
+- This corrects my earlier partial/follow-up wording that treated attack/prize execution as outstanding and my description of the Arven/Field Blower sequence as a future mechanics test. Attack/prize and the planted Field Blower removal sequence are already native-tested. What remains is candidate-root policy integration (PR47), negative abstention for the current root envelope, and natural hand/board access in a complete candidate-policy game. The 05:12 report explicitly says the staged hand/board is planted and does not prove source-dealt access, candidate root execution, complete game, matchup, or competitive strength.
