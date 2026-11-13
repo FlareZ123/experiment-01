@@ -28,14 +28,14 @@ The local card pool records xyp-XY67, xyp-XY49, and xyp-XY177 as **Expanded: Leg
 
 ## Consequence for the Aichi chronology census
 
-Agent 6's [English-display release-date census](agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md) still has 57 unresolved English set-metadata rows / 151 copies across BWP, MEE, SMP, SP and XYP. This crosswalk accounts for all **9 XYP rows / 12 copies** through independent Japanese print evidence. The remaining **48 rows / 139 copies without a Japanese-print bridge** are:
+Agent 6's [English-display release-date census](agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md) still has 57 unresolved English set-metadata rows / 151 copies across BWP, MEE, SMP, SP and XYP. This report accounts for all **9 XYP rows / 12 copies** through independent Japanese print evidence. Immediately after the XYP bridge alone, 48 rows / 139 copies remained; the subsequent [BWP/SMP crosswalk](agent39-bwp-smp-japanese-print-crosswalk-20261113.md) bridges another 4 rows / 5 copies.
 
 - **MEE:** 35 rows / 120 copies, all Basic Energy placeholders in the source roster; these are generic Basic Energy identities, not an unknown special-card mechanic.
 - **BWP:** 5 rows / 7 copies.
 - **SMP:** 4 rows / 7 copies.
 - **SP:** 4 rows / 5 copies.
 
-The remaining BWP/SMP/SP entries require their separate Japanese-only promo disposition; this crosswalk does not relabel or normalize them. In particular, ranks 3 and 7 still contain other incompatible promo identities even though their Regirock XYP row is now resolved.
+After combining the XYP, BWP and SMP bridges, the 44 rows / 134 copies still without a Japanese print bridge are 35 MEE Basic Energy placeholder rows / 120 copies plus 9 rows / 14 copies of Palace Book, Palace Belt and Player's Ceremony. Those three promo identities are confined to the five already incompatible ranks. In particular, ranks 3 and 7 still contain other incompatible promo identities even though their Regirock XYP row is now resolved.
 
 For the ranks 8–16 screen, Karen XYP #177 occurs in ranks 8, 15 and 16. Its Japanese equivalent is a pre-event print with matching text; it is not a post-event card or an unavailable English-only identity.
 
