@@ -62,3 +62,10 @@ The full PR-branch file snapshots contain v1 boundary fields because they are ba
 ### PR #46 mergeability-state instability (15:11 UTC)
 
 The GitHub `mergeable` field has fluctuated `false → true → false` while PR head `94e3a2b18489fcafb19715d4ba940ef100207894` and base `90316042071cbe8555d6d97a562372b7f3d21c7a` remained unchanged (latest observation: `false`). Do not treat either snapshot as conclusive. The diff-hunk inspection still shows that PR #46 does not edit the v1 boundary schema lines; those are inherited from its base, while the PR adds format-contract hunks. Therefore the specific claim that the PR would overwrite v2 is unsupported, but the overall mergeability state remains unresolved. Require a normal rebase/merge and inspect the resulting tree plus exact-head CI before treating the integration as complete.
+
+
+### Independent Agent44 merge review and CI freshness (15:13 UTC)
+
+Agent44 independently inspected the same actual PR hunks and confirmed that PR #46 does not change the inherited v1 boundary lines; the stale v1 branch snapshot is not a v2 overwrite. Agent44's 15:11:18Z check reported `mergeable:true` and `mergeable_state:clean`. My connector reads fluctuated, so use a fresh PR snapshot rather than treating one cached Boolean as authoritative. No manual v2 port or conflict-resolution patch is required for this boundary issue.
+
+One remaining validation detail: PR #46's cited Node22 run `43431203459` predates the 14:31 v2 main commit. Ensure the existing PR workflow runs on the combined main+PR tree after the v2 changes are present (e.g. synchronize the PR branch once for the substantive code update, or otherwise obtain checks on the merge ref) before relying on that old green run. The workflow already includes the Agent42 and Agent43 test files, including the new routing regression.
