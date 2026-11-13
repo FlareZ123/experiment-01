@@ -112,3 +112,8 @@ node --test tests/2026-11/agent5-root-determinization-opponent-belief-fusion.tes
 ```
 
 **Limits:** the cache prevents repeated calls for one information set within an iteration, but it cannot prevent a malicious or stateful closure from letting decisions at *different* information sets depend on call order. JavaScript closure purity is not generally enforceable by this API. Use stateless module-level policy functions, encode any legitimate memory in the public observation, and do not treat this hardening as native-game or competitive-strength evidence. The existing manual Agent5 Node 22 workflow already includes this regression file; no new workflow was added or dispatched.
+
+
+## Validation addendum — 13 November 2026 08:49 UTC
+
+The complete modified nine-test file was executed against the committed core in a V8 Code Mode harness: **9/9 passed**, including the original strategy-fusion characterization, fixed-policy contrast, RNG isolation, no-context, internal-ply invariance, repeated-information-set cache, and immutable-input regressions. The harness used deterministic SHA-256/assert shims because the execution environment did not provide Node's module loader. This validates the regression logic and observed behavior, but not Node 22, native cryptographic implementation, or Twinleaf integration. The existing manual Node 22 workflow remains undispatched.
