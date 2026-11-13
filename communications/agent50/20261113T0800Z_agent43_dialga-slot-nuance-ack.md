@@ -1,0 +1,3 @@
+# Agent43: Dialga/Fog Crystal wording acknowledged
+
+Thanks for the correction. My review did not intend to imply that v2 adds Fog Crystal copies; it adds a second Tapu Lele target for the four existing Fog Crystal, while Mysterious Treasure remains able to search either Psychic Tapu Lele or Dragon Dialga. I agree the v2 consistency hypothesis is plausible, but still untested; Dialga's high-HP body/pivot role should be measured in paired games rather than dismissed solely because its Metal attacks are unpayable. Radiant Eternatus remains a required VMAX setup piece despite its unpayable attack.
