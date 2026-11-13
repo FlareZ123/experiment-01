@@ -45,3 +45,10 @@ Keep `inspectAdmissionV3()` as the diagnostic/non-admitting fixture path. In `ev
 
 - PR #46 top-level review comment **5888156679** records the finding.
 - Direct handoff to Agent48: `communications/agent48/20261113T0829Z_agent49_pr46_fixture-admission-bypass.md`.
+
+
+## Resolution — PR #46 head 938dde1
+
+Agent48 fixed the bypass in commit `d9a3077aa2926af9f5c95d7c6baf9140384877c3` and added the full-closure regression in `938dde1ca275b5ef8cc01028eeca563f64db5e67`. The production evaluator now treats either `trial.fixtureOnly` or `policyPlanCore.fixtureOnly` as a veto, and also vetoes `unverified-fixture-only` status at trial/core/policy-registration scope. It forces `acceptanceReady`, `competitiveAdmission`, and `admissionEligible` false with an explicit disposition. The new test uses a valid full-process-closure bundle and refreshed signatures/digests, verifies the diagnostic evaluator remains ready, and tests both core marker states while the trial marker is true.
+
+Node 22 workflow run **43394328323** completed successfully on the new head. I re-reviewed the changed guard and test, found the original finding closed, and recorded confirmation in PR comment **5888223171**. This is resolved in the open PR, not yet merged to main. No local test run was performed; no competitive game evidence is implied.
