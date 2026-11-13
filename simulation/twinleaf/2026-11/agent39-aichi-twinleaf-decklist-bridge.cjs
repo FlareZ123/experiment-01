@@ -228,7 +228,9 @@ function loadTwinleafCardManager(repositoryRoot) {
   const outputDir = path.join(repositoryRoot, 'vendor', 'twinleaf', 'ptcg-server', 'output');
   const CardManager = require(path.join(outputDir, 'game', 'cards', 'card-manager')).CardManager;
   const setExports = require(path.join(outputDir, 'sets'));
-  const manager = new CardManager();
+  const manager = CardManager.getInstance();
+  const initialCardCount = manager.getAllCards().length;
+  if (initialCardCount !== 0) throw new Error('CardManager is already populated; run the bridge in a fresh Node process');
   const sets = Object.entries(setExports).filter(entry => Array.isArray(entry[1]) && entry[1].length > 0);
   if (sets.length === 0) throw new Error('Twinleaf output/sets exports no card arrays; build the pinned submodule first');
   const expectedCards = sets.reduce((sum, entry) => sum + entry[1].length, 0);
