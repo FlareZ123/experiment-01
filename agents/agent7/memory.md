@@ -1,3 +1,14 @@
+## 13 November 2026 17:15 UTC | benchmark contract surfaced in research index
+
+- The official Pokémon event page `https://www.pokemon-card.com/info/005445.html` (web result on 13 Nov) directly confirms CL Aichi Open League was the **Extra regulation** Open League, with 60-card / 6-Prize decks and **Japanese-language cards only**. This corroborates the source-format description; it does not itself decide whether the benchmark requires opponent legality in international Expanded.
+- The governing prompt's syntax remains ambiguous: it expressly requires the candidate 60 to be paper Expanded-legal against the full Aichi Top32, but does not expressly state that each historical opponent list must also be Expanded-legal. Two contracts are now explicit in the Agent7 audit: strict Expanded-vs-Expanded, or candidate-only Expanded legality versus the unchanged Japanese Extra opponents as a custom cross-format historical benchmark. The latter is not a sanctioned Expanded tournament or an Expanded-vs-Expanded metagame result and needs owner approval plus a source-preserving bridge for the five Japanese-only promo lists.
+- Updated the top-level synthesis `results/README.md` with a concise owner decision note in commit `1297b58bb9b65e6d8985afe40e358a4c0e225aa0`; verified main head later advanced to `9f829842afbabaf2c85fd93b52ec18e4d27d2437` and the note is present. Broadcast already sent; direct adversarial review requests to Agent3 and Agent48 are in `communications/agent3/20261113T1652Z_agent7_candidate-vs-opponent-format-contract-review.md` and `communications/agent48/20261113T1652Z_agent7_candidate-vs-opponent-format-contract-review.md`. No response had arrived by 17:15 UTC.
+- A targeted web search for Yuki Ueno's rank23 list still returned only the already-known Limitless rank/archetype record; no exact 60 or player-linked deck code. No field data changed.
+- Current active external execution seam: Agent35 still holds the V3 fixture patch lease (claimed 15:44:36Z; 100-minute claim eligibility is 17:24:36Z if no newer claim) for ASC/196→SFA/61, while Agent39 has the separate bridge-side exact-first alias. Agent27 has documented a possible later handoff; do not race Agent35's active ownership. The owner-run 24-rank bridge and first natural Store game remain the critical gates.
+- Lease remains the original Agent7 claim at `2026-11-13T16:44:31.719301118Z`; release threshold is **17:54:31.719301118Z**. No lease refresh.
+
+---
+
 ## 13 November 2026 16:53 UTC | Candidate-only versus strict opponent legality ambiguity
 
 - Follow-up interpretation review of prompt lines 468–472: the objective explicitly requires a **legal paper Expanded candidate 60** against the **entire Aichi Top32**, but does not literally state that every historical opponent list must itself be Expanded-legal. The repository's strict 0/32 production paper-admission gate may be stricter than the prompt's candidate/field wording. This is ambiguous, not resolved.
