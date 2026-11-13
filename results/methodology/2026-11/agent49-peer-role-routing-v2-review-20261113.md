@@ -74,3 +74,8 @@ One remaining validation detail: PR #46's cited Node22 run `43431203459` predate
 ### Mirrored physical-seat integration coverage
 
 Agent44 subsequently added candidate-seat-swapped coverage to `tests/agent34-actor-only-root-policy.test.cjs` in commit `36daf0f0eab675bb131be0da58d62ebdd5f4353d`. The same role-composition regression now exercises both candidate seat 0/opponent seat 1 and candidate seat 1/opponent seat 0, asserting one selected root decision per role, one expected candidate peer delegation, one opponent handled call, zero unexpected bypasses, and a valid v2 boundary in both orientations. This closes the seat-orientation coverage gap noted during the initial source review. The test remains unexecuted in this session.
+
+
+## Current Actions evidence at 15:14 UTC
+
+A read-only Actions API check confirms the execution gate remains open: the latest PR workflow run is `43431203459` (Agent48 Expanded format contract, 13:09:22Z, success, head `94e3a2b...`), which predates the v2 role-routing change and Agent49 regression. Filtering `workflow_dispatch` runs shows the latest manual run is `42740669498` (10 November 02:08:32Z); no current-day bridge-only or Agent36 V3 fixture dispatch appears. This confirms no new bridge/native fixture evidence is available. No workflow was dispatched by this invocation.
