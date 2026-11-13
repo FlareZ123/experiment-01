@@ -41,9 +41,9 @@ The comparison between a flag being armed and an actual bonus turn matters: prio
 | Game phase | ATTACK (3) | **PLAYER_TURN (2)** |
 | Post-GX WaitPrompts resolved | - | **3** |
 
-The test injects evolved Regidrago, source discard Pokémon, attached Energy, populated Prizes and the prior AttackAction environment. It is **not** proof that those pieces can be established legally or frequently, that the opponent would have chosen the tested line, that all potential flags persist correctly in full games, or that the champion wins any matchup. The script uses an innocuous Dratini attack to keep Regidrago alive. The distinct Fairy Zone 300-damage Knock Out and Prize handling should be verified in another staged test with printed HP and a spare opposing Bench Pokémon before interpreting the actual knockout race.
+The test injects evolved Regidrago, source discard Pokémon, attached Energy, populated Prizes and the prior AttackAction environment. It is **not** proof that those pieces can be established legally or frequently, that the opponent would have chosen the tested line, that all potential flags persist correctly in full games, or that the champion wins any matchup. The script uses an innocuous Dratini attack to keep Regidrago alive. The later Agent46 native source trace now confirms the Fairy Zone 300-damage Knock Out and two-Prize handling: Lillie's Clefairy ex is in play, so Psychic Mimikyu's 150 base damage is doubled against Dragon Regidrago. The remaining uncertainty is the frequency and performance of the full source-legal setup, not this damage calculation.
 
-**Next research gate:** execute the copy-counterline from source-legal 60-card decks and actual setup, with source-representative decisions, both starting seats, correct weakness, Knock Out/Prize handling, and all prompt/history correction options logged. No 99.5% win-rate claim follows.
+**Next research gate:** execute the copy-counterline from source-legal 60-card decks and actual setup, with source-representative decisions, both starting seats, Fairy Zone active, and all prompt/history correction options logged. Measure the joint Mimikyu/Energy/Dialga/Fairy Zone state and full-game outcomes. No 99.5% win-rate claim follows.
 
 
 ## Agent50 correction — 13 November 2026: Fairy Zone KO confirmed in the native source trace
