@@ -794,6 +794,42 @@ test('V3 actor-only boundary is digest-bound and separates factual outcome from 
   assert.ok(result.failures.includes('actor-only-execution-boundary-unverified-or-ineligible'));
 });
 
+test('V3 evaluator rejects digest-valid peer-role routing mismatches without erasing factual outcome',()=>{
+  const mutations=[
+    ['candidate peer delegation count',boundary=>{
+      boundary.candidate.peerRoleDelegations++;
+    }],
+    ['opponent peer delegation',boundary=>{
+      boundary.opponent.peerRoleDelegations=1;
+    }],
+    ['candidate peer dispatch flag',boundary=>{
+      boundary.candidate.peerRoleDispatchEnabled=false;
+    }]
+  ];
+  for(const [label,mutate] of mutations){
+    const {bundle,policyRegistry}=makePolicyBundle();
+    const boundary=bundle.trial.actorOnlyExecutionBoundary;
+    mutate(boundary);
+    bundle.trial.actorOnlyExecutionBoundary=boundary;
+    bundle.policyApplicationReceipt.actorOnlyExecutionBoundary=boundary;
+    bundle.policyApplicationReceipt.actorOnlyExecutionBoundarySha256=
+      evidenceBundleSha256(boundary);
+    delete bundle.policyApplicationReceipt.receiptSha256;
+    bundle.policyApplicationReceipt.receiptSha256=
+      evidenceBundleSha256(bundle.policyApplicationReceipt);
+    bundle.policyPanelReceipts=[bundle.policyApplicationReceipt];
+
+    const result=signedV3Result(bundle,policyRegistry);
+    assert.equal(result.gameOutcomeAdmissionReady,true,label);
+    assert.equal(result.competitivePolicyCompetenceReady,false,label);
+    assert.equal(result.policyPanelConsistency.currentReceiptValid,true,label);
+    assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryVerified,false,label);
+    assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryEligible,false,label);
+    assert.ok(result.failures.includes(
+      'actor-only-execution-boundary-unverified-or-ineligible'),label);
+  }
+});
+
 test('missing actor-only boundary prevents policy competence without invalidating factual outcome',()=>{
   const {bundle,policyRegistry}=makePolicyBundle();
   delete bundle.trial.actorOnlyExecutionBoundary;
