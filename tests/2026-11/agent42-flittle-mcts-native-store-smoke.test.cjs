@@ -186,31 +186,34 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
     }
   };
 
-  let stopped = false;
-  try {
-    withActorOnlyRootPolicy(() => headless.runMatch({
-      deckA: cards.slice(), deckB: cards.slice(),
-      seed: 20261113 + candidateSeat * 17 + (opponentAttackBeforeRoot ? 31 : 0),
-      maxActions: 200,
-      label: 'agent42-flittle-mcts-native-store-smoke',
-      onRootStoreCreated: value => { store = value; },
-      onRootAgentsCreated,
-      onRootActionDispatched
-    }), {
-      policyOwnerSeat: candidateSeat,
-      rootIntentProvider,
-      createRootSearchCapability,
-      rootIntentActionKey: intent => ensureRuntime().rootIntentActionKey(intent),
-      rootIntentBudget: provider.PILOT_BUDGET,
-      SimpleTacticsAi,
-      Store
-    });
-  } catch (error) {
-    if (error === stop) stopped = true;
-    else throw error;
-  }
-  assert.equal(stopped, true, 'Smoke must stop immediately after the target native dispatch');
-  return { runtime, providerDecisions, accepted, fallbackAccepted, opponentAttackAccepted };
+  const policyResult = withActorOnlyRootPolicy(() => {
+    try {
+      return headless.runMatch({
+        deckA: cards.slice(), deckB: cards.slice(),
+        seed: 20261113 + candidateSeat * 17 + (opponentAttackBeforeRoot ? 31 : 0),
+        maxActions: 200,
+        label: 'agent42-flittle-mcts-native-store-smoke',
+        onRootStoreCreated: value => { store = value; },
+        onRootAgentsCreated,
+        onRootActionDispatched
+      });
+    } catch (error) {
+      if (error === stop) return { boundedStop: true };
+      throw error;
+    }
+  }, {
+    policyOwnerSeat: candidateSeat,
+    rootIntentProvider,
+    createRootSearchCapability,
+    rootIntentActionKey: intent => ensureRuntime().rootIntentActionKey(intent),
+    rootIntentBudget: provider.PILOT_BUDGET,
+    SimpleTacticsAi,
+    Store
+  });
+  assert.equal(policyResult.result?.boundedStop, true,
+    'Smoke must stop immediately after the target native dispatch');
+  return { runtime, policyAudit: policyResult.audit, providerDecisions, accepted,
+    fallbackAccepted, opponentAttackAccepted };
 }
 
 for (const seat of [0, 1]) {
@@ -222,6 +225,11 @@ for (const seat of [0, 1]) {
     assert.equal(result.accepted.length, 1);
     assert.equal(result.accepted[0].actorSeat, seat);
     assert.ok(result.accepted[0].turnBefore >= 3);
+    assert.equal(result.policyAudit.rootIntentProvider.attempts, 1);
+    assert.equal(result.policyAudit.rootIntentProvider.selected, 1);
+    assert.equal(result.policyAudit.rootIntentProvider.abstained, 0);
+    assert.equal(result.policyAudit.rootIntentProvider.lastApplicabilityEnvelopeId, provider.ENVELOPE_ID);
+    assert.ok(result.policyAudit.nativeRootAcceptances.some(item => item.accepted === true && item.seat === seat));
     const event = result.runtime.events[0];
     const audit = event.audit;
     assert.equal(event.actorSeat, seat);
@@ -248,6 +256,8 @@ for (const seat of [0, 1]) {
     assert.equal(audit.storeDecklistBindingSchema, provider.STORE_DECKLIST_BINDING_SCHEMA);
     assert.equal(audit.storeStateSha256, result.runtime.storeDecklistBindingReceipt.storeStateSha256);
     assert.equal(audit.competitiveGameQualified, false);
+    assert.equal(result.policyAudit.rootIntentProvider.lastIntentKind, event.intent.kind);
+    assert.equal(result.policyAudit.rootIntentProvider.lastSearchAudit.selectedActionKey, audit.selectedActionKey);
   });
 }
 
@@ -259,4 +269,9 @@ test('out-of-envelope native root abstains and the existing actor policy dispatc
   assert.equal(result.fallbackAccepted.length, 1);
   assert.equal(result.fallbackAccepted[0].actorSeat, 0);
   assert.equal(result.opponentAttackAccepted, true);
+  assert.equal(result.policyAudit.rootIntentProvider.attempts, 1);
+  assert.equal(result.policyAudit.rootIntentProvider.selected, 0);
+  assert.equal(result.policyAudit.rootIntentProvider.abstained, 1);
+  assert.equal(result.policyAudit.rootIntentProvider.abstentionReasons['outside-applicability-envelope'], 1);
+  assert.ok(result.policyAudit.nativeRootAcceptances.some(item => item.accepted === true && item.seat === 0));
 });
