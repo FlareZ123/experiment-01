@@ -204,6 +204,8 @@ def audit_entry(entry: dict[str, Any], catalog: dict[str, Any], event_date: date
             "number": chosen.get("number"),
             "expanded_flag": expanded_flag(chosen),
             "english_release_date": release_date,
+            "supertype": chosen.get("supertype"),
+            "subtypes": chosen.get("subtypes") or [],
         }
     return {
         "name": name,
@@ -215,6 +217,57 @@ def audit_entry(entry: dict[str, Any], catalog: dict[str, Any], event_date: date
         "event_date_status": chronology,
         "matched_english_printing": matched,
         "japanese_pre_event_crosswalk": crosswalk,
+    }
+
+
+def audit_deck_construction(cards: list[dict[str, Any]], total_copies: int) -> dict[str, Any]:
+    name_counts: dict[str, int] = defaultdict(int)
+    display_names: dict[str, str] = {}
+    prism_counts: dict[str, int] = defaultdict(int)
+    prism_names: dict[str, str] = {}
+    ace_spec_count = 0
+    radiant_count = 0
+
+    for card in cards:
+        count = int(card["count"])
+        matched = card.get("matched_english_printing") or {}
+        canonical_name = str(matched.get("name") or card["name"])
+        key = normalize_name(canonical_name)
+        display_names[key] = canonical_name
+        if key not in BASIC_ENERGY_NAMES:
+            name_counts[key] += count
+        subtypes = set(matched.get("subtypes") or [])
+        if "ACE SPEC" in subtypes:
+            ace_spec_count += count
+        if "Prism Star" in subtypes:
+            prism_counts[key] += count
+            prism_names[key] = canonical_name
+        if "Radiant" in subtypes:
+            radiant_count += count
+
+    four_copy_violations = [
+        {"name": display_names[key], "count": count}
+        for key, count in sorted(name_counts.items()) if count > 4
+    ]
+    prism_star_violations = [
+        {"name": prism_names[key], "count": count}
+        for key, count in sorted(prism_counts.items()) if count > 1
+    ]
+    size_ok = total_copies == 60
+    ace_ok = ace_spec_count <= 1
+    radiant_ok = radiant_count <= 1
+    passed = size_ok and not four_copy_violations and ace_ok and not prism_star_violations and radiant_ok
+    return {
+        "sixty_card_total": size_ok,
+        "card_copies": total_copies,
+        "four_copy_violations": four_copy_violations,
+        "ace_spec_count": ace_spec_count,
+        "ace_spec_pass": ace_ok,
+        "prism_star_counts": {prism_names[k]: v for k, v in sorted(prism_counts.items())},
+        "prism_star_violations": prism_star_violations,
+        "radiant_pokemon_count": radiant_count,
+        "radiant_pokemon_pass": radiant_ok,
+        "passed": passed,
     }
 
 
@@ -238,6 +291,7 @@ def audit_decks(deck_data: dict[str, Any], catalog: dict[str, Any],
             card["event_date_status"] == "english_counterpart_post_event_requires_japanese_crosswalk"
         ]
         status = "expanded_identity_screen_pass" if copies == 60 and not unresolved else "needs_review"
+        construction = audit_deck_construction(cards, copies)
         rank_results.append({
             "rank": int(deck["rank"]),
             "player": deck.get("player"),
@@ -247,6 +301,8 @@ def audit_decks(deck_data: dict[str, Any], catalog: dict[str, Any],
             "unique_source_rows": len({(c["name"], c["source_printing"]["set"], c["source_printing"]["number"]) for c in cards}),
             "expanded_identity_status": status,
             "physical_source_print_status": "unverified",
+            "deck_construction": construction,
+            "deck_construction_status": "pass" if construction["passed"] else "needs_review",
             "unresolved_rows": unresolved,
             "cards": cards,
         })
@@ -311,7 +367,7 @@ def main() -> int:
         args.output.write_text(rendered, encoding="utf-8")
     else:
         sys.stdout.write(rendered)
-    failed = [r["rank"] for r in result["ranks"] if r["expanded_identity_status"] != "expanded_identity_screen_pass"]
+    failed = [r["rank"] for r in result["ranks"] if r["expanded_identity_status"] != "expanded_identity_screen_pass" or not r["deck_construction"]["passed"]]
     return 1 if failed else 0
 
 
