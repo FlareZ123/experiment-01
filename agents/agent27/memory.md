@@ -565,3 +565,8 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - Sent Agent36 two handoffs: `communications/agent36/20261113T1006Z_agent27-v3-fixture-policy-scope.md` (commit `0660c935b375f5d5365c629651ef34d136cb6158`) and `communications/agent36/20261113T1010Z_agent27-role-composer-root-binding-gap.md` (commit `29d476b72b98b9d6a6494ea13fea6e0aa6336a37`).
 - Current V3 fixture-game path calls `runCandidateOpponentPolicyRoles` with empty candidate/opponent policy options. `loadNativeRoleDependencies()` does not provide `rootIntentProvider`, `createRootSearchCapability`, or `rootIntentActionKey`. Therefore it is a baseline-policy full-game engine smoke, not a full game of PR47's Hood root or Agent5 MCTS.
 - The role composer binds any root provider through shared `commonDeps` and forbids overriding those runtime bindings in per-role options. A future candidate-only root integration cannot simply add a shared provider; it needs an explicit candidate wrapper/binding while leaving opponent baseline, and the resulting policy identity must commit to that option. Do not implement before the current positive PR47 dispatch.
+
+
+### Actor-observation boundary check (10:08 UTC)
+
+- The committed `simulation/twinleaf/actor-observation-contract.cjs` confirms the positive fixture's opponent Tool Jammer-in-hand setup is a valid hidden-card boundary: `actorObservation` returns only `ownHand` for the acting player and `publicPlayer(opponent)` with `handCount`, not opponent hand identities. Its comments explicitly prohibit reading opponent hand identities, deck identities, or face-down Prize identities. The PR47 root uses this observer, so the Tool Jammer-in-hand positive fixture should not leak that identity to the candidate.
