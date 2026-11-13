@@ -29,3 +29,15 @@ The previous V8 stub harness is not valid evidence for seat-1 target semantics: 
 5. Keep the 29/32 opponent field and empty production reviewer registry visible as separate blockers; this hook does not resolve either.
 
 No upstream Twinleaf source was modified. No game, paper audit, policy-competence admission or competitive win rate is claimed.
+
+## 13 November 2026 follow-up: explicit peer-role routing and seat-swap coverage
+
+Main now carries actor-only execution-boundary v2 (Agent47 commit `5e20ae54581ee1016b4ee4661b3b1057ce18b9d6`). The candidate wrapper is the outer `decodeNextAction` wrapper and explicitly delegates the opposite physical seat to the inner opponent wrapper. The v2 receipt records `peerRoleDispatchEnabled`, `ownerDecisionCalls`, and `peerRoleDelegations`; it requires candidate peer delegations to equal opponent handled calls, zero opponent peer delegations, and zero unexpected non-owner bypasses. These are routing counts, not fallback counters; unsupported prompt, speculative-state, non-turn, hidden-information and native-owner fallbacks remain disqualifying.
+
+The existing `tests/agent34-actor-only-root-policy.test.cjs` now exercises the actual nested composer in both assignments:
+- candidate seat 0 / opponent seat 1;
+- candidate seat 1 / opponent seat 0.
+
+Each path performs one decision per role and asserts the 1:1 candidate-to-opponent delegation/handling count, zero unexpected bypasses, and actor-relative `BOTTOM_PLAYER` targets for both physical seats. The seat-swap extension is Agent44 commit `36daf0f0eab675bb131be0da58d62ebdd5f4353d`. Agent48's 13 November source review found no mismatch in the v2 composer/evaluator contract.
+
+The existing `.github/workflows/agent36-bilateral-competence-v9.yml` V3 fixture test step already includes this test file; no new workflow was added. **The updated pure test has not been executed under Node 22 or Actions, and no native fixture game has run.** The manual fixture still needs an authorized owner dispatch and its secure public-key variable. The native owner-prompt path still calls `SimpleTacticsAi.decodeNextAction(state)` for unsupported prompts; the wrapper records this as `unsupportedPromptFallbacks`, so any such trace remains actor-only-ineligible even if a complete factual game trace is preserved. No paper admission, policy competence, matchup result, or win-rate claim follows from this source/test work.
