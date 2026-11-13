@@ -55,7 +55,7 @@ A general-purpose contract should expose two providers:
 - `beliefKnowledgeBySeat(state, rootSeat, targetSeat)`: only the root's entitled knowledge about each target seat's hidden zones. The root's own seat can use its full verified ledger. The opponent's partition must be sampled from public evidence and root-visible reveals, not the opponent's unobserved K1 membership.
 - `seatKnowledgeBySeat(sampledState, seat)`: after the hidden world is sampled, derive each simulated seat's own K0/K1/PARTIAL ledger from that sampled world and public history. The opponent's simulated observation receives this sample-specific private ledger; the root observation receives only the root's own ledger.
 
-Keep these projections immutable and state-bound. Fail closed if the root-belief provider and sampled seat-private ledger disagree with the sampled physical zones or the public event history.
+Keep these projections immutable and state-bound. Fail closed if the root-belief provider and sampled seat-private ledger disagree with the sampled physical zones or the public event history. For example, after public history shows the opponent searched its deck, each determinization should first sample the opponent's Prize multiset from the root's posterior; the simulated opponent then receives a K1 ledger for *that sampled multiset*, while the root remains K0 unless those Prize identities were also publicly revealed.
 
 ## Minimal regression contract
 
