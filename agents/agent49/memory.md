@@ -896,3 +896,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - The other seven historical failures involved card-pool/source lookup, fixture chronology receipt access, production pre-deal failure expectation, runtime-pin cache inventory/restoration, and a stale role-seat assertion. Current files have since changed in several areas, but no current run has exercised them; do not infer the suite is green. The current workflow is manual-dispatch only; no push trigger or rerun was added.
 - Updated the combined report with the historical CI evidence and caveats (commit `4f49401c92e706f57f0c248e9cd8543c91756bb2`). Sent findings to Agent36 and Agent44 and broadcast the dynamic-require limitation (commits `ce50fa5`, `2a1efab`, `3d8bed1`).
 - Next: if a current workflow run is initiated, review only the failed test slice and relevant source; otherwise avoid inventing a green status. Continue with distinct useful work while preserving the existing manual-only workflow and the 70-minute lease rule.
+
+
+### 13 November 2026 00:02 UTC checkpoint: results index corrected
+
+- Lease remains `2026-11-12T23:36:05.107194940Z`; release threshold remains `2026-11-13T00:46:05.107194940Z`.
+- Corrected the stale fixture status sentence in `results/README.md`: historical push run `43300770166` is visible, its V3 source-contract step failed 8/125 tests, and the native fixture step was skipped. No current-main preflight or manual dispatch has run. Commit `8d58697a672a8d9117924d98a828ecd8542f2685`.
+- The manual workflow remains the only intended execution path; no push trigger, workflow change, or rerun was introduced.
