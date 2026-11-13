@@ -2,13 +2,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createHash } = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 
 const headless = require('../../simulation/twinleaf/headless.cjs');
 const provider = require('../../simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs');
+const { createStoreDecklistBindingReceipt } = require('../../simulation/evaluation/2026-11/agent36-flittle-store-decklist-binding.cjs');
 const { withActorOnlyRootPolicy } = require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
-const { inspectPhysicalCardZones, fixedDeckCountAnomalies } = require('../../simulation/twinleaf/physical-card-ledger.cjs');
 const output = '../../vendor/twinleaf/ptcg-server/output/';
 const { GamePhase } = require(output + 'game/store/state/state');
 const { CardManager } = require(output + 'game/cards/card-manager');
@@ -28,63 +27,6 @@ const initializedCardManager = headless.initializeCards();
 assert.ok(initializedCardManager.getAllCards().length > 0);
 const native = { GamePhase, CardManager, cardPoolInitialization: { enginePin } };
 
-const cardsIn = zone => Array.isArray(zone?.cards) ? zone.cards : [];
-function physicalCards(player) {
-  const result = [
-    ...cardsIn(player.deck), ...cardsIn(player.hand), ...cardsIn(player.discard),
-    ...cardsIn(player.lostzone), ...cardsIn(player.stadium), ...cardsIn(player.supporter),
-    ...(player.prizes ?? []).flatMap(prize => prize.cards ?? [])
-  ];
-  for (const slot of [player.active, ...(player.bench ?? [])]) {
-    result.push(...(slot?.cards ?? []), ...(slot?.tools ?? []));
-  }
-  return result;
-}
-
-// Read both physical inventories only for trusted deck-registration preflight;
-// the policy receives only this digest, never the opponent's hidden card faces.
-function storeBindingReceipt(store, candidateSeat) {
-  const state = store.state;
-  assert.equal(state.players.length, 2);
-  const ledger = inspectPhysicalCardZones(state);
-  assert.deepEqual(fixedDeckCountAnomalies(ledger), []);
-  assert.deepEqual(ledger.referenceDuplications, []);
-  assert.deepEqual(ledger.energyWithoutPhysicalCard, []);
-  assert.deepEqual(ledger.repeatedEnergyIndexes, []);
-  const playerReceipts = state.players.map((player, seat) => {
-    const located = physicalCards(player);
-    assert.equal(located.length, 60);
-    assert.equal(new Set(located).size, 60);
-    const actual = located.map(card => card.fullName).sort();
-    const expected = (seat === candidateSeat ? candidateDecklist : opponentDecklist).cards.slice().sort();
-    assert.deepEqual(actual, expected);
-    return {
-      seat,
-      count: located.length,
-      decklistSha256: provider.decklistCardsSha256(actual),
-      zones: [player.deck.cards.length, player.hand.cards.length,
-        player.prizes.reduce((n, prize) => n + prize.cards.length, 0),
-        player.active.cards.length, player.bench.reduce((n, slot) => n + slot.cards.length, 0),
-        player.discard.cards.length, player.lostzone.cards.length]
-    };
-  });
-  return {
-    schema: provider.STORE_DECKLIST_BINDING_SCHEMA,
-    verified: true,
-    source: 'trusted-native-store-preflight',
-    candidateDecklistId: candidateDecklist.id,
-    opponentDecklistId: opponentDecklist.id,
-    candidateDecklistSha256: provider.decklistCardsSha256(candidateDecklist.cards),
-    opponentDecklistSha256: provider.decklistCardsSha256(opponentDecklist.cards),
-    storeStateSha256: createHash('sha256').update(JSON.stringify({
-      enginePin, turn: state.turn, phase: state.phase,
-      activePlayer: state.activePlayer, canonicalCounts: ledger.canonicalCounts,
-      players: playerReceipts
-    })).digest('hex'),
-    checkedPhysicalSeats: [0, 1]
-  };
-}
-
 function matchesIntent(intent, action) {
   if (intent.kind === 'attach-basic-energy') return action instanceof PlayCardAction &&
     action.target?.player === PlayerType.BOTTOM_PLAYER && action.target?.slot === SlotType.ACTIVE && action.target?.index === 0;
@@ -94,6 +36,8 @@ function matchesIntent(intent, action) {
 
 function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
   let store = null;
+  const deckA = cards.slice();
+  const deckB = cards.slice();
   let runtime = null;
   let opponentAttackAccepted = false;
   const providerDecisions = [];
@@ -106,7 +50,9 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
     assert.ok(store);
     if (!runtime) runtime = provider.createFlittleMctsRuntime({
       native, candidateSeat, enginePin, candidateDecklist, opponentDecklist,
-      storeDecklistBindingReceipt: storeBindingReceipt(store, candidateSeat)
+      storeDecklistBindingReceipt: createStoreDecklistBindingReceipt({
+        store, deckA, deckB, candidateSeat, candidateDecklist, opponentDecklist, enginePin
+      })
     });
     return runtime;
   };
@@ -189,7 +135,7 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
   const policyResult = withActorOnlyRootPolicy(() => {
     try {
       return headless.runMatch({
-        deckA: cards.slice(), deckB: cards.slice(),
+        deckA, deckB,
         seed: 20261113 + candidateSeat * 17 + (opponentAttackBeforeRoot ? 31 : 0),
         maxActions: 200,
         label: 'agent42-flittle-mcts-native-store-smoke',
