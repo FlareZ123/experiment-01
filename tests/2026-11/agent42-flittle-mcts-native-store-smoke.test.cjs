@@ -240,8 +240,10 @@ for (const seat of [0, 1]) {
     assert.equal(audit.bothSeatKnowledgeLedgersVerified, true);
     assert.equal(audit.ownerLedgerInInformationSetKey, true);
     assert.equal(audit.promptResolutionActorScoped, true);
+    assert.deepEqual(audit.knowledgeModes, ['K1', 'K1']);
     assert.equal(audit.applicabilityEnvelopeId, provider.ENVELOPE_ID);
     assert.ok(audit.rootActionKeys.includes(audit.selectedActionKey));
+    assert.equal(audit.bothRegisteredDecklistsMatchFixture, true);
     assert.equal(audit.storeDecklistBindingSchema, provider.STORE_DECKLIST_BINDING_SCHEMA);
     assert.equal(audit.storeStateSha256, result.runtime.storeDecklistBindingReceipt.storeStateSha256);
     assert.equal(audit.competitiveGameQualified, false);
