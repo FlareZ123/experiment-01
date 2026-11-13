@@ -7,6 +7,8 @@ const {
   resolveDiagnosticField,
   registered60Hashes,
   normalizedDeckIdentityHashes,
+  indexTwinleafCards,
+  resolveNormalizedRow,
 } = require('./agent39-aichi-twinleaf-decklist-bridge.cjs');
 
 function sha256(value) {
@@ -146,11 +148,74 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.equal(result.decks[0].source_row_mappings[4].card_pool_printing.number, 'SM217');
   assert.equal(result.decks[0].source_row_mappings[5].set_number, '67');
   assert.equal(result.decks[0].source_row_mappings[5].card_pool_printing.number, 'XY67');
-  assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName; card_pool_printing.number is not the engine setNumber');
+  assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> exact source-keyed engine proxy when declared (ASC/196 -> SFA/61), otherwise unchanged -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged');
   assert.equal(result.diagnostic_only, true);
   assert.equal(result.diagnostic_reconstruction_eligible, true);
   assert.equal(result.paper_admission_eligible, false);
   assert.equal(result.competitive_admission_eligible, false);
+});
+
+
+test('resolves the exact Night Stretcher ASC/196 source through SFA/61 without rewriting source identity', () => {
+  const cards = [{ set: 'SFA', setNumber: '61', fullName: 'Night Stretcher SFA' }];
+  const input = field([
+    row({
+      index: 0,
+      cardId: 'me2pt5-196',
+      name: 'Night Stretcher',
+      count: 60,
+      set: 'ASC',
+      sourceNumber: '196',
+      cardPoolNumber: '196',
+    }),
+  ]);
+  const result = resolveDiagnosticField(input, mockManager(cards));
+  assert.equal(result.status, 'complete');
+  const mapping = result.decks[0].source_row_mappings[0];
+  assert.deepEqual(mapping.source_printing, {
+    set: 'ASC', number: '196', display_language: 'en',
+  });
+  assert.deepEqual(mapping.card_pool_printing, {
+    set_id: 'me2pt5', number: '196', language: 'en',
+  });
+  assert.equal(mapping.set, 'SFA');
+  assert.equal(mapping.set_number, '61');
+  assert.equal(mapping.twinleaf_full_name, 'Night Stretcher SFA');
+  assert.deepEqual(result.decks[0].registered60_counts, [
+    { printing: 'Night Stretcher SFA', copies: 60 },
+  ]);
+  assert.equal(result.decks[0].registered60.length, 60);
+  assert.deepEqual({
+    deck_identity_sha256: result.decks[0].deck_identity_sha256,
+    source_print_identity_sha256: result.decks[0].source_print_identity_sha256,
+  }, normalizedDeckIdentityHashes(input.decks[0]));
+});
+
+test('Night Stretcher proxy is exact and fails closed for nearby source identities', () => {
+  const manager = mockManager([
+    { set: 'SFA', setNumber: '61', fullName: 'Night Stretcher SFA' },
+  ]);
+  const index = indexTwinleafCards(manager);
+  const negativeControls = [
+    row({
+      index: 0, cardId: 'me2pt5-195', name: 'Night Stretcher', count: 1,
+      set: 'ASC', sourceNumber: '195', cardPoolNumber: '195',
+    }),
+    row({
+      index: 1, cardId: 'other-196', name: 'Night Stretcher', count: 1,
+      set: 'ASC', sourceNumber: '196', cardPoolNumber: '196',
+    }),
+    row({
+      index: 2, cardId: 'me2pt5-196', name: 'Other Item', count: 1,
+      set: 'ASC', sourceNumber: '196', cardPoolNumber: '196',
+    }),
+  ];
+  for (const sourceRow of negativeControls) {
+    assert.equal(
+      resolveNormalizedRow(sourceRow, index, manager).status,
+      'missing_twinleaf_card',
+    );
+  }
 });
 
 test('merges duplicate source rows that resolve to the same Twinleaf printing', () => {
