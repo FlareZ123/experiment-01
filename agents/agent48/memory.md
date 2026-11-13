@@ -1,3 +1,11 @@
+### 13 November 2026 13:10 UTC — optional nested-status coverage green
+
+- PR #46 current head `94e3a2b18489fcafb19715d4ba940ef100207894`; Node 22 run `43431203459` passed. PR body, root README and results README updated; GitHub reports PR mergeable true, owner review still pending.
+- Added candidate-level unknown `formatReviewStatus` coverage to the recursive marker tests. A timing-protocol marker test was attempted but correctly failed because the timing protocol has its own attestation signature; removed that optional test rather than weakening timing validation. The recursive scan still covers all object types, nested rankReviews, candidate and opponent-rank markers/statuses, and unknown review status. The final test suite passes.
+- Core semantics unchanged: per-game admission for authenticated available ranks may proceed in `INCOMPLETE_FIELD`; full-field aggregate requires `VALID` 32-rank panel, authenticated source-60 identities, and 128 balanced strata. Fixture-marked cores remain production-ineligible.
+
+---
+
 ### 13 November 2026 13:06 UTC — final recursive scan expanded and green
 
 - PR #46 current head `4cac346c8657a3e8ab6aaece3864d76f218e7f00`; Node 22 run `43430699862` passed (`format-contract`). PR body updated and GitHub reported mergeable true. Root README and results README now point to this head/run.
