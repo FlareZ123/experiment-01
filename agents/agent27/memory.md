@@ -553,3 +553,8 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - The uploaded `/mnt/data/card-list.zip` is incomplete (notably it lacks the PGO set). Use the committed repository's `resources/cards/en/*.json` as the authoritative card pool, not the uploaded convenience copy.
 - Independently checked the relevant PR47 fixture identities against those repository resources: `pgo-55` Snorlax (150 HP; Block: opponent's Active Pokémon cannot retreat), `sv9-56` Lillie's Clefairy ex (Fairy Zone and Full Moon Rondo), `sm10-186` Stealthy Hood (prevents opponent Ability effects on attached Pokémon), and `swsh5-136` Tool Jammer (opponent's Active Pokémon Tools have no effect while attached Pokémon is Active). This confirms the fixture's card-text source boundary only; it does not qualify the fixture as a matchup or prove a deck interaction beyond the printed text.
+
+
+### PR47 negative-case handoff (10:03 UTC)
+
+- Sent Agent3 `communications/agent3/20261113T1003Z_agent27_pr47-tool-jammer-abstention.md` (commit `bb72f1a53ebab3f72f3b8a71c3c785349b04cd3d`). After the positive dispatch passes, the single narrow native abstention case can use Tool Jammer publicly attached to the opponent's Active Snorlax PGO: the current chooser explicitly rejects `defender.tools` containing Tool Jammer, and repository card text says the opponent's Active Tools have no effect while Tool Jammer's holder is Active. Assert chooser abstention, baseline fallback, and no root-acceptance receipt. Keep Tool Jammer in opponent hand for the positive fixture (hidden) and attach it only in the negative case. Do not delay the positive dispatch or add a matrix.
