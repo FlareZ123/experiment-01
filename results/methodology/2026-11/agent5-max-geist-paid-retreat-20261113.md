@@ -41,3 +41,8 @@ The complete nine-test `agent6-actor-paid-retreat-frontier.test.cjs` suite passe
 The Max Geist projection is local to this one-unit paid-retreat frontier and accepts explicit payment indices. The paid path supplies index `[0]`, subtracting Mimikyu's Psychic Energy; a caller modeling free retreat can supply an empty payment and retain it. Agent42's two-unit/free-retreat path remains separate. Directly importing its helper would create a circular dependency because Agent42 already imports Agent6's base projector; a shared extraction should only be attempted as a separate refactor.
 
 The paid-retreat regression passes the explicit one-energy payment object to the local projection. The complete nine-test suite passed 9/9 in a V8 harness using the actual Agent6/Agent7/Agent47 sources and a small assert shim. This remains non-native validation.
+
+
+## Final post-cycle-fix validation — 13 November 2026
+
+The final `agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit` implementation passed the complete nine-test Agent6 paid-retreat regression file **9/9** in a V8 harness using the actual Agent6, Agent7, and Agent47 source modules. The earlier circular Agent6↔Agent42 helper import was removed; Agent42/Agent8's two-unit/free-retreat path remains separate. This is not native Node 22, GitHub Actions, Twinleaf Store execution, or a replay of rank 19.

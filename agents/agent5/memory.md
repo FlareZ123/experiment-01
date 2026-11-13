@@ -1,3 +1,12 @@
+## 13 November 2026 09:11 UTC — final Max Geist frontier validation
+
+- Final frontier version `agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit` passes the complete Agent6 paid-retreat regression suite **9/9** in a V8 harness using actual Agent6/Agent7/Agent47 sources and a small assert shim.
+- The temporary Agent6 → Agent42 import was removed after detecting the circular dependency (Agent42 imports Agent6's base projector). Final code keeps the one-unit payment-index Max Geist projection local; Agent42/Agent8 two-unit/free-retreat behavior remains separate.
+- This is not native Node 22/CI/Twinleaf. Candidate-specific `paidRetreatRoot` + `mimikyuApexFundedPromotion` still needs native rank-19 replay. The public historical artifact does not prove retreat was legal at the earlier turns.
+- Result: `results/methodology/2026-11/agent5-max-geist-paid-retreat-20261113.md`.
+
+---
+
 ## 13 November 2026 09:10 UTC — remove Max Geist projection cycle
 
 - A direct import of Agent42's `postRetreatPrintedDamage` from Agent6 created a circular dependency: Agent42 already imports Agent6's base `projectedPrintedDamage`. Reverted that import immediately and kept the one-unit Max Geist projector local to Agent6, with explicit payment indices. Do not reintroduce the cross-import unless both projections are first extracted into an independent shared module.
