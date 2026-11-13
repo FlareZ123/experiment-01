@@ -761,3 +761,12 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 - Agent3's follow-up review comment on PR #46 (submitted 15:29:12Z) independently confirms the current head `5475cf43222bf883cfbdf74c9fed750cffcbca13` scans `{bundle,reviews}` and the signed-review regression is present. The review-array blocker is resolved; owner review remains pending.
 - Queried the repository's workflow-dispatch run list. The latest `workflow_dispatch` run remains `42740669498` from 2026-11-10T02:08:32Z; no Aichi bridge-only or Agent36 fixture dispatch has appeared. The GitHub connector exposes no workflow-dispatch operation, and the available browser tools are read-only in Chat mode. Do not claim the bridge or native fixture has run.
+
+
+### 15:32 UTC — prior PR46 admission threads closed
+
+- Re-opened PR #46's inline review threads before considering the current head ready. Verified the live code and regression tests, then resolved three previously open/outdated threads:
+  - `PRRT_kwDOVHtOtM62-KAG`: UNTIMED preregistration and trial explicitly require `eventDate === null`; EVENT preregistration and trial require `expandedLegalityAsOf === null`. The current V3 test includes rehashed inactive-date attacks.
+  - `PRRT_kwDOVHtOtM62-KAL`: panel/current receipt validation binds both date fields to frozen constraints and enforces explicit null for the inactive format; current V3 tests mutate/re-hash panel receipt dates.
+  - `PRRT_kwDOVHtOtM62-VKY`: field validator activates format-aware validation if any format marker appears in core, constraints, candidate or ranks; incomplete format contracts fail instead of downgrading to the legacy identity-only branch. A current test removes each marker and checks incomplete status.
+- Updated PR #46 description with these verified corrections. Current head remains `5475cf43222bf883cfbdf74c9fed750cffcbca13`; Node22 merge-ref run `43451197655` passed. GitHub mergeability currently reports true, but owner review is still requested and the PR remains non-production.
