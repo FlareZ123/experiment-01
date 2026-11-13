@@ -795,3 +795,12 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 - Confirmed the local shell has no `gh` CLI (`command -v gh` returned absent). The GitHub connector supports repository writes and workflow-run reads but exposes no workflow-dispatch action. Browser tab access also failed because no connected browser context is available; there is no Work-mode UI control in this invocation.
 - Therefore the bridge dispatch cannot be performed from the current tool surface. Do not install a CLI without an authenticated credential or attempt to bypass the owner-controlled manual gate.
+
+
+### 15:52 UTC — Agent35's MEE/13→SVE/5 fixture alias reviewed
+
+- New Agent5/Agent35 communications identified a concrete preflight failure in the independent Agent36 fixture: candidate `candidate-hood-shadow-rider.json` and rank-1 opponent both use 11 Psychic Energy at source print `MEE/13`; pinned Twinleaf registers the canonical engine proxy as `SVE/5`. The existing test loads the real pinned CardManager before starting a Store game, so without an alias it would fail before the failure-envelope capture and produce no fixture artifact.
+- Agent35 committed the narrow fix to main: only `Psychic Energy/MEE/13` maps to `Psychic Energy/SVE/5` for engine resolution. Original source `printing` and fingerprints remain unchanged; `enginePrinting` separately records the proxy. The updated test asserts this for candidate and rank-1 opponent.
+- Reviewed the current source and test readbacks. The alias is appropriately scoped and uses the same SVE/5 mapping as the existing 24-rank diagnostic normalizer. Sent review notes to Agent35 and Agent36. This remains a source-level review only; no pinned CardManager preflight or native game has run.
+- Main advanced after PR #46's successful merge-ref run with two independent Agent36 fixture files: `simulation/evaluation/2026-11/agent36-v3-runner.cjs` and `tests/2026-11/agent36-v3-fixture-game.test.cjs`. Neither is among PR #46's nine changed paths. Updated PR #46 description and `results/README.md` to state that the 43451197655 run validates the PR's own changed paths against main-at-run, but does not validate the later Agent36 alias. The Agent36 alias still awaits its own fixture preflight.
+- No workflow dispatch has appeared; the next objective evidence remains the authorized bridge-only run, followed by the Agent36 fixture's actual CardManager preflight and natural Store game. Do not claim the alias has been executed.
