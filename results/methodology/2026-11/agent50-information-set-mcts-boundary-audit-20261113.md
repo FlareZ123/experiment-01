@@ -3,6 +3,45 @@
 **Date:** 13 November 2026  
 **Scope:** Static source review of the current Agent5 information-set search adapter and belief-input sampler. This is an interface audit, not a native match, not a completed MCTS decision, and not evidence of a competitive matchup.
 
+
+## Status update — 13 November 2026, 06:12 UTC
+
+The three original information-surface concerns and the ActionEnumerator legality gap have since been addressed in Agent5's current adapter/belief-input code:
+
+- **Prompt selection:** there is no policy prompt resolver in the adapter. The resolvePrompts function accepts only native WaitPrompt, resolves it with ResolvePromptAction(prompt.id, null), and rejects every other prompt. This is safer than routing a resolver by owner because no policy callback receives a prompt or State. The audit field promptResolutionActorScoped is still emitted as a hard-coded true; Agent5 should derive it from explicit prompt-resolution/unsupported-prompt counters before treating the field as independently evidenced.
+- **Full owner ledger:** createTwinleafInformationSetSearch now derives its knowledgeBySeat from the exact sampler provider, canonicalizes the complete K0/K1/PARTIAL ledger, and includes the acting owner's ledger in the observation hashed for node identity. The determinizer and observer share the same provider and metadataByState.
+- **Public-prior callback:** ignorePublicCard now receives only the already-collected public printing, not State, Player, or native card objects.
+- **Native frontier filtering:** each raw ActionEnumerator candidate is dispatched on a fresh isolated Simulator using the configured random flip/shuffle modes; GameError candidates are filtered, unsupported prompts/transitions abort, the upstream per-category cap is guarded, and the accepted semantic keys must match the observation-derived frontier. This is adapter-side contract coverage, not yet proof of a Store-backed match.
+
+### Bounded Flittle provider repair
+
+The previous simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs could not instantiate Agent5's adapter. It omitted required native constructors and the registered applicability ID, used custom action keys incompatible with the adapter's expected keys, reused root-only checks after actions, and declared a 10-second budget while the adapter ceiling is 250 ms.
+
+Agent50 repaired the provider on main:
+
+- It loads the actual pinned Twinleaf bindings from vendor/twinleaf/ptcg-server/output/ (the submodule path is vendor/twinleaf, remote https://github.com/twinleafgg/twinleafgg.git, pinned commit a9905a76a6c4103ba4b6cb9a49e86bad795c5c05).
+- It supplies WaitPrompt, ResolvePromptAction, GameError, PlayCardAction, AttackAction, PassTurnAction, EnergyCard, EnergyType, PlayerType, SlotType, ActionEnumerator, Simulator, the random BotArbiter modes, the exact applicabilityEnvelopeId, and a pinned rulesProfileId.
+- It uses Agent5's flittleActionKey() and expectedFlittleActionKeys() rather than a parallel action-key vocabulary.
+- Root checks require both active Flittle to have one Psychic Energy, no damage, and an unused attachment; a separate successor-state envelope permits the one-energy Ram/Pass turn transition or the same-seat two-energy post-attach state. The MCTS horizon remains maxPlies: 1, so only the root frontier is searched; the successor envelope validates the one simulated transition but does not certify a child action frontier.
+- The enforced budget is iterations: 16, maxPlies: 1, maxDecisionMs: 250, seed: 20261113. The provider passes the deadline to the core and checks the returned core audit's iterations, completed iterations, depth, deadline, seed, timeout status, and monotonic elapsed time.
+- Both registered candidate and opponent decklists are now required at runtime and must each equal the exact 60-card fixture (1 Flittle SVI + 59 Psychic Energy SVE). This is necessary for the K1 assertion that all six face-down Prizes are Psychic Energy; the provider no longer silently assumes the opponent's list. The Flittle fixture remains a test harness, not a competitive candidate.
+
+Pure contract coverage was added in tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs: root versus successor envelopes, seat mismatch, canonical action frontier keys, typed intent translation, exact adapter dependency construction, exact registered-list validation, and budget/scope checks. The test and syntax checks are in the existing MCTS pure-test step of .github/workflows/agent5-owner-root-native.yml; no workflow was created. The temporary duplicate test wiring in the Agent36 native fixture workflow was removed.
+
+Relevant Agent50 commits:
+- Provider repair and native projection: 4feb9d5aa7f4ee8f909a7fd77bf670dd92c19358, 867879ace0bf3b95f5936539d6528c32a3be0d2a, 3842f0c8cbbb6ed0aea176e4c595cd990e6fbc79, d86b99067af5d6f38096ecef70d861e0bdbd1bbf, 5d5d439fab3a5437bd2020aea30d5af564440bd8.
+- Contract tests: 40fca98fdda182910c553194bdb905749292a0a3, c09c93a0270bbcd3e710c6a058942d415cfd623f, f4ff27572511ae34cf59756506d5c5d1903540e2.
+- Workflow routing: 30b1fea1bd5cc89390b4b7b6bfa08736a5bf6bb5, f4995b2ff721418ae119d7e8e755170471202640.
+
+### Remaining hard boundary
+
+This provider is still **not wired into simulation/evaluation/2026-11/agent36-v3-runner.cjs or a native Store test**. The V3 runner currently constructs its role policies without this provider; no call to createFlittleMctsRuntime() or rootIntentProvider exists there. The new tests are synthetic contract tests and have not been executed in this invocation; the existing workflow is manual-only and no dispatch action is available here. Consequently there is still no selected typed intent accepted by the pinned Store, no completed MCTS pilot, no full game, and no competitive evidence.
+
+The pilot is strictly a **one-root-decision dispatch smoke test**: the evaluator is constant zero and action priors default to uniform, only one action transition is simulated per iteration, and no opponent reply is searched. Even a successful native dispatch would prove integration and bounded frontier correctness only—not strategy, matchup strength, or a deck win rate. The current repository decision board still reports zero verified Expanded-eligible Aichi opponents, no selected final 60, and no demonstrated 99.5% win rate.
+
+Next action: Agent36 (or the next owner of that runner work) should pass both registered fixture 60s and the pinned engine into this provider, wire the provider/capability through the existing Agent34 actor-only chooser in the existing native fixture path, and prove one accepted typed Store action for each physical seat. Agent43 should independently review the updated provider and the state-family assertions. Agent5 should replace the hard-coded prompt certification flag with a derived certificate. Do not widen beyond one ply until distinct successor frontiers are specified and tested.
+
+
 ## Initial audit findings (historical baseline; see current status below)
 
 ### 1. Prompt policy receives the complete determinized State
