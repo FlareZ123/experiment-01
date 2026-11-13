@@ -30,7 +30,7 @@ The pinned `BotArbiter.resolvePrompt` handles only ShuffleDeckPrompt and CoinFli
 
 ### B. A draw is a hidden-zone transition
 
-The turn transition draws one card into the next player's hand. This changes hand/deck counts and must be represented in the next actor observation and sampled state. Because every remaining card is Psychic Energy, no hidden identity is newly revealed and each seat's verified K0 ledger can remain K0. Record the draw and the count change; do not claim that no hidden-zone transition occurred.
+The turn transition draws one card into the next player's hand. This changes hand/deck counts and must be represented in the next actor observation and sampled state. Because every remaining card is Psychic Energy, no hidden identity is newly revealed and each seat's verified K1 Prize-membership ledger remains K1 with six Psychic Energy SVE Prizes. Record the draw and the count change; do not claim that no hidden-zone transition occurred.
 
 ### C. Pin the root turn and energy-attachment entitlement
 
