@@ -834,3 +834,27 @@ test('production builder can assemble post-deal chronology without a durable pre
     productionReviewerRegistry.reviewers=originalReviewers;
   }
 });
+
+
+test('builder distinguishes structurally valid policy panel from actor-only competitive eligibility',()=>{
+  const fixture=makePolicyFixture();
+  const {input,result:preDeal}=makePreDeal(fixture);
+  const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
+  const built=buildV3GameBundleFixture({
+    preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    preDealPersistenceReceipt,dealGenerationReceipt,
+    policyPanelReceipts:[],reviews:[]
+  },fixture.reviewerRegistry);
+
+  assert.equal(built.policyPanelConsistency.valid,true);
+  assert.equal(built.policyPanelConsistency.actorOnlyExecutionBoundaryEligible,false);
+  assert.ok(built.policyPanelConsistency.actorOnlyExecutionBoundaryFailures
+    .includes('actor-only-execution-boundary-missing'));
+  assert.equal(built.assessment.competitivePolicyCompetenceReady,false);
+  assert.equal(built.assessment.acceptanceReady,false);
+  assert.equal(built.admissionEligible,false);
+  assert.equal(built.competitiveAdmission,false);
+});
