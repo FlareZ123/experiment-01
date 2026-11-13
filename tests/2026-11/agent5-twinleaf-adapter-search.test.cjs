@@ -47,6 +47,44 @@ test('bounded MCTS adapter abstains on unresolved prompts without invoking a pol
   assert.equal(resolverCalls,0,'bounded adapter must never expose a prompt to policy resolvers');
 });
 
+test('bounded MCTS adapter also abstains when an actual transition opens a prompt',()=>{
+  let simulatorInstances=0;
+  class ActionEnumerator {
+    enumerate(state) {
+      return state.activePlayer===0?[{name:'root-action'}]:[];
+    }
+  }
+  class Simulator {
+    constructor(state) {
+      this.instance=++simulatorInstances;
+      this.store={state:JSON.parse(JSON.stringify(state))};
+    }
+    dispatch() {
+      if(this.instance===3)this.store.state.prompts=[{result:undefined}];
+      return this.store.state;
+    }
+  }
+  const sampleDeterminization=state=>JSON.parse(JSON.stringify(state));
+  sampleDeterminization.knowledgeBySeat=()=>({
+    verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
+    knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null
+  });
+  const mcts=createTwinleafMcts({
+    ActionEnumerator,Simulator,
+    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
+    GamePhase:{FINISHED:'FINISHED'},
+    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
+    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
+    actionKey:action=>action.name,sampleDeterminization,
+    evaluateObservation:()=>0,winnerSeat:()=>null
+  },{iterations:1,maxPlies:2,seed:9});
+  assert.throws(()=>mcts.search({activePlayer:0,turn:1,phase:'PLAY',prompts:[],
+    players:[{id:1},{id:2}]},0),
+    error=>error.code==='MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE');
+  assert.equal(simulatorInstances,3,
+    'one root preflight, one determinized preflight, and one actual transition were expected');
+});
+
 test('private sampled decklist identity follows each seat through Twinleaf state clones',()=>{
   const seen=[];
   const metadataByState=new WeakMap();
