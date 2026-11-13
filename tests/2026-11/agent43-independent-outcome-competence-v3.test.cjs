@@ -830,8 +830,13 @@ test('V3 panel preserves the actual Aichi Expanded matrix as zero available rank
   const {bundle}=makePolicyBundle({
     incompatible,unverified,unavailable
   });
+  // Remove the synthetic current receipt: no actual Aichi rank is Expanded-eligible.
+  bundle.policyApplicationReceipt=null;
+  bundle.policyPanelReceipts=[];
   const panel=inspectPolicyPanelConsistency(bundle);
   assert.equal(panel.status,'INCOMPLETE_FIELD');
+  assert.equal(panel.valid,false);
+  assert.ok(panel.failures.includes('current-policy-application-receipt-not-in-panel-ledger'));
   assert.deepEqual(panel.formatIncompatibleRanks,incompatible);
   assert.deepEqual(panel.formatUnverifiedRanks,unverified);
   assert.deepEqual(panel.unavailableRanks,unavailable);
