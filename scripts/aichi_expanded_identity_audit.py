@@ -33,6 +33,7 @@ NAME_ALIASES = {
 BASIC_ENERGY_NAMES = {
     "grassenergy", "fireenergy", "waterenergy", "lightningenergy",
     "psychicenergy", "fightingenergy", "darknessenergy", "metalenergy",
+    "fairyenergy",
 }
 JAPANESE_PRE_EVENT_CROSSWALK = {
     ("specialredcard", "CRI", "82"): {
