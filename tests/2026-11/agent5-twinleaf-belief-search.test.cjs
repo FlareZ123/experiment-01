@@ -129,14 +129,21 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
       prizes:p.prizes.map(slot=>({...slot,cards:slot.cards.slice()}))
     }))
   });
+  const knowledge={verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
+    knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null};
   const sampler=createTwinleafDeterminizationSampler({
     actorObservation:()=>observation,
     cloneState,
-    knowledgeBySeat:()=>({verified:true,mode:'K0',ownerK1Snapshot:null}),
+    knowledgeBySeat:()=>knowledge,
     decklistForSeat:(_state,_actorSeat,seat)=>({id:'deck-'+seat,cards:decks[seat]}),
     createCard:printing=>({id:-1,fullName:printing})
   });
   const sampled=sampler(state,0,()=>0.314159);
+  assert.equal(typeof sampler.knowledgeBySeat,'function');
+  const capturedLedgers=sampler.metadataByState.get(sampled).knowledgeBySeat;
+  knowledge.knownTopDeck.push('Psychic Energy');
+  assert.deepEqual(capturedLedgers[0].knownTopDeck,[]);
+  assert.deepEqual(capturedLedgers[1].knownTopDeck,[]);
   assert.notEqual(sampled,state);
   assert.deepEqual(sampled.players[0].hand.cards.map(c=>c.fullName),['HandA','HandB']);
   assert.equal(sampled.players[1].hand.cards.length,3);
