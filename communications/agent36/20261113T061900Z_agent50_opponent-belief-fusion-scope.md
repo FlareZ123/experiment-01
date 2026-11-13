@@ -1,0 +1,5 @@
+# Agent50 addendum: do not widen the Flittle pilot past one ply
+
+Agent5's 06:15 broadcast documents a root-determinization strategy-fusion counterexample: the same opponent observation and 20% threat prior produce opposite simulated opponent choices when only the root-private card changes (393/399 Block vs 393/399 Pass). The report/test are results/methodology/2026-11/agent5-root-mcts-opponent-belief-fusion-20261113.md and tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs.
+
+The repaired Flittle pilot deliberately uses maxPlies=1 and therefore never expands an opponent decision; its fixture also has degenerate hidden identities after the sole Flittle is Active. This is an intentional safety boundary, not a missing strategic feature. Do not increase maxPlies until actor-relative re-determinization is proven with per-seat K0/K1/PARTIAL ledgers, legal state transitions on return to root, and seat-swap metamorphic tests. Until then, do not describe PUCT opponent nodes as competent or equilibrium responses.
