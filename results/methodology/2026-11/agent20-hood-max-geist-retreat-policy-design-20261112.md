@@ -1,6 +1,6 @@
 # Candidate-only Max Geist attack-conversion retreat policy
 
-**Status:** experimental implementation on a dependent draft PR; pure local tests and the initial path-filtered CI pass; the response-envelope revision awaits CI and native-game validation.
+**Status:** experimental implementation on a dependent draft PR; 14/14 local pure tests and the response-envelope path-filtered CI pass; native-game validation pending.
 
 ## Question
 
@@ -57,7 +57,7 @@ Local Node 22 isolated pure tests passed:
 - 10 attack-conversion cases: legal promotion; unpayable Max Geist; superior current attack; preservation of a better native retreat line; selection among multiple VMAX; illegal retreat; non-Shadow-Rider exclusion; an already-Active VMAX with a better Benched VMAX; rejection when an opponent retreat erases the Max Geist score advantage; and promotion when Max Geist remains superior after that response.
 - 4 composer cases: subclass wrapping and opponent immutability; idempotence; candidate-seat isolation in both physical seats; and fail-closed behavior when a pinned base class is missing.
 
-The initial GitHub Actions run 43333911226 passed the prior pure revision. This response-envelope revision is awaiting its own path-filtered CI run. These tests use injected fake base classes and action constructors; they establish the policy contract, not compatibility with a running Twinleaf build.
+GitHub Actions run 43337837365 completed successfully for the response-envelope revision. It ran the path-filtered syntax checks and pure-contract tests; it did not build Twinleaf or run a game. These tests use injected fake base classes and action constructors; they establish the policy contract, not compatibility with a running Twinleaf build.
 
 ## Limitations and next validation
 
