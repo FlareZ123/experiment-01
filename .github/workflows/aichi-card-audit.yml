@@ -1,6 +1,15 @@
 name: Aichi 2026 English card coverage audit
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/aichi-card-audit.yml"
+      - "scripts/aichi_expanded_identity_audit.py"
+      - "tests/test_aichi_expanded_identity_audit.py"
+      - "results/aichi-2026/full-decklists.json"
+      - "resources/sets/en.json"
+      - "resources/cards/en/**"
   workflow_dispatch:
     inputs:
       commit_results:
@@ -68,8 +77,31 @@ jobs:
           node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
           node tests/agent12-adp-goodra-rollingiron-ryuno-damage-threshold.sft.cjs
 
+  expanded-identity-screen:
+    if: ${{ github.event_name == 'push' || (!inputs.native_print_release_census && !inputs.agent12_adp_strict_screen && !inputs.agent35_trainer_gate_only) }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and test the reusable Aichi Expanded identity screen
+        run: |
+          python -m py_compile scripts/aichi_expanded_identity_audit.py
+          python -m unittest discover -s tests -p 'test_aichi_expanded_identity_audit.py'
+      - name: Audit Aichi ranks 1, 2, 4 and 5 against the bundled English Expanded card pool
+        run: python scripts/aichi_expanded_identity_audit.py --ranks 1,2,4,5 --output aichi-expanded-identity-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aichi-expanded-identity-audit
+          path: aichi-expanded-identity-audit.json
+          retention-days: 30
+
   card-coverage:
-    if: ${{ !inputs.native_print_release_census && !inputs.agent12_adp_strict_screen && !inputs.agent35_trainer_gate_only }}
+    if: ${{ github.event_name != 'push' && !inputs.native_print_release_census && !inputs.agent12_adp_strict_screen && !inputs.agent35_trainer_gate_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
