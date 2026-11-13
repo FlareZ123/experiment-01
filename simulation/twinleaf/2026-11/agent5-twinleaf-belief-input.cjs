@@ -57,19 +57,20 @@ function normalizeKnowledge(knowledge, ownerK1Snapshot, prizeCount) {
       'K0 cannot claim exact Prize membership');
   }
   if(knowledge.mode==='K1') {
-    assert.ok(ownerK1Snapshot===null || ownerK1Snapshot===undefined ||
-      ownerK1Snapshot.exactMembershipKnown===true,
-      'K1 conflicts with the actor observation knowledge snapshot');
+    assert.ok(ownerK1Snapshot && ownerK1Snapshot.exactMembershipKnown===true,
+      'K1 requires the same verified exact-Prize snapshot used by the actor observation');
+    assert.ok(Number.isSafeInteger(ownerK1Snapshot.epoch)&&ownerK1Snapshot.epoch>=0,
+      'K1 snapshot requires a nonnegative epoch');
+    assert.ok(Array.isArray(ownerK1Snapshot.knownPrintings),
+      'K1 snapshot must include exact Prize printing counts');
     const knownPrizeCards=expandKnownPrizePrintings(knowledge.knownPrizePrintings);
     assert.equal(knownPrizeCards.length,prizeCount,
       'K1 ledger must account for every current Prize');
-    if(ownerK1Snapshot?.knownPrintings) {
-      assert.deepEqual(
-        [...expandKnownPrizePrintings(ownerK1Snapshot.knownPrintings)].sort(),
-        [...knownPrizeCards].sort(),
-        'Actor observation and information ledger disagree about Prize membership'
-      );
-    }
+    assert.deepEqual(
+      [...expandKnownPrizePrintings(ownerK1Snapshot.knownPrintings)].sort(),
+      [...knownPrizeCards].sort(),
+      'Actor observation and information ledger disagree about Prize membership'
+    );
     return {exactPrizeMembership:true,knownPrizeCards,
       knownTopDeck,knownBottomDeck,knownBottomDeckOrder};
   }
@@ -126,8 +127,12 @@ function buildTwinleafBeliefInput({
     return [{index}];
   });
   const knowledge=knowledgeBySeat?.[seat];
-  const normalized=normalizeKnowledge(knowledge,
-    seat===actorSeat?observation.ownerK1:null,view.prizeCount);
+  // The acting player's snapshot comes from the detached actor observation.
+  // The other seat's snapshot is validated from that seat's own trusted ledger,
+  // but is never copied into the acting player's observation.
+  const ownerSnapshot=seat===actorSeat?
+    observation.ownerK1:(knowledge?.ownerK1Snapshot??null);
+  const normalized=normalizeKnowledge(knowledge,ownerSnapshot,view.prizeCount);
   return {
     registered60:registered60.slice(),
     knownPublic:collectPublicPrintings(view),
