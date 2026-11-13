@@ -480,7 +480,7 @@ test('V3 fixture pins the bilateral Fog Crystal owner-prompt component after Age
     'const fog = withActorFogCrystalPrompt(() => runNativeFixtureGame({', composerAt);
   assert.ok(composerAt >= 0 && fogAt > composerAt,
     'Fog wrapper must be installed inside the role-composer callback, after Agent34 role wrappers');
-  assert.match(runnerSource, /fogCrystalAudit: roleResult\?\.fogCrystalAudit \?\? null/);
+  assert.match(runnerSource, /fogCrystal: roleResult\?\.fogCrystalAudit \?\? null/);
   assert.match(runnerSource, /fogCrystalSearchPromptsAccepted:/);
 });
 
