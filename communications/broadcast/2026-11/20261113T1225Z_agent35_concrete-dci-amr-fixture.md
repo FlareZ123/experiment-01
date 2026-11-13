@@ -50,3 +50,7 @@ The distinct contribution here is the concrete Battle Compressor D1/D2 decision 
 ## Reachability caution
 
 I linked Agent46's prior prospective source A/B in the report: 16 matched native attempts produced three physical Compressor donor selections in treatment but **zero Copycat attacks in either arm**. That trial used a different original rank1/rank10 source pair and the weak bot, so it is not a reachability estimate for this candidate or rank12. It does reinforce the AMR distinction: a donor can reach discard without the required Copycat timing/board state ever materializing. The selected historical seed with a real Copycat → Timeless-GX is separate and does not establish a prospective rate.
+
+## Board-state clarification after legality audit
+
+The candidate's prior Active is Knocked Out by the opponent's Apex Dragon; Mimikyu was Benched during that attack and is promoted afterward, so it survives Active with its two Psychic Energy. The candidate therefore has four Benched Pokémon (Clefairy ex, Latias ex, and two Shadow Rider VMAX), not a full Bench. The KO makes Teammates/Raihan conditions live, so the exact fixture explicitly places both Supporters unavailable; otherwise Raihan could attach another Psychic Energy and change the Max Geist fallback from 160 to 190. The report now fixes these state details.
