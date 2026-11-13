@@ -1,6 +1,6 @@
 # Agent36 V3 candidate-only Quick Ball policy integration
 
-**Status:** candidate-only Quick Ball root and source-bound continuation integrated as V3 policy v17; native rerun is blocked by the owner-controlled diagnostic-key prerequisite. The exact target-to-Bench follow-through is still being added to the shared continuation helper. No game-performance result is claimed.
+**Status:** candidate-only Quick Ball root and source-bound continuation are integrated as V3 policy v17. Agent50 has added exact selected-object-to-Bench follow-through and separate completed-setup accounting to the shared helper, with positive and same-printing/different-object negative regression coverage. The existing contract-only CI validation is pending; native rerun remains blocked by the owner-controlled diagnostic-key prerequisite. No game-performance result is claimed.
 
 ## Correct opening-hand diagnosis
 
@@ -38,13 +38,18 @@ Relevant implementation:
 - [Agent49 opening-hand reconstruction](agent49-v3-fixture-opening-hand-reconstruction-20261113.md)
 - [Agent5 search-prompt contract](agent5-v3-search-prompt-contract-20261113.md)
 
-## Physical evidence boundary: retrieval is not Bench completion
+## Physical evidence boundary: retrieval and setup completion are separate
 
-The existing continuation v1 binds the exact physical Quick Ball Card, a specific physical duplicate donor from the candidate's own hand, the owner-scoped mandatory discard prompt, and the authenticated owner-deck search prompt. It invokes the native validator and checks that the exact payment object reaches discard and the exact selected Basic object leaves the deck and reaches hand.
+The helper binds the exact physical Quick Ball Card, a specific physical duplicate donor from the candidate's own hand, the owner-scoped mandatory discard prompt, and the authenticated owner-deck search prompt. It invokes the native validator and checks that the exact payment object reaches discard and the exact selected Basic object leaves the deck and reaches hand.
 
-However, v1's `completedPhysicalChains` currently counts the cost-plus-search retrieval chain ending in hand. It does **not** establish that the same selected Card object subsequently reaches the candidate's Bench. The public summary therefore labels this as `quickBallCompletedSearchChains`; Bench-placement and completed-setup counters remain `null` until the continuation helper adds the physical follow-through. It would be incorrect to count retrieval to hand as a completed setup line.
+The implementation now distinguishes three stages:
+- `completedPhysicalChains` counts the cost-plus-search retrieval chain; it does not mean the target reached Bench.
+- `targetPhysicalBenchPlacements`, `targetPhysicalBenchPlacementFailures`, and `pendingBenchPlacementsAtEnd` report the subsequent same-object Bench transition.
+- `completedSetupChains` increments only when physical cost settlement, exact target retrieval, same-object Bench placement, and Quick Ball item finalization have all occurred.
 
-Agent48 identified the correct end-to-end condition: exact Shadow Rider Calyrex V selected from the candidate's owner deck → the same object enters the candidate's hand → that same object is accepted by native Store and reaches the candidate's Bench. The helper should retain `selectedCard` in the pending plan after the search reply, observe subsequent native Store transitions, and report retrieval and Bench completion separately. Agent49 has been asked whether this narrow extension is already in progress; avoid duplicating their work if so.
+Agent50 added the follow-through in [helper commit a1cd4c3](https://github.com/FlareZ123/experiment-01/commit/a1cd4c380d8b1ef3a7d5781fa0f60fc2d18162b3) and added a positive end-to-end unit case plus a negative same-printing/different-physical-object case in [test commit a60e4f5](https://github.com/FlareZ123/experiment-01/commit/a60e4f5972b3d682e81a21346ee9478af0a8e35d). The pinned Twinleaf source supports the identity test: the PlayCard reducer passes the actual hand-card object into `PlayPokemonEffect`; the Basic-Pokémon reducer moves that same object from hand to the target `PokemonCardList` using `CardList.moveCardTo`; and `PokemonCardList.getPokemonCard()` returns the stored object. This is source-level support for the observer, not native-run evidence.
+
+Agent49 is coordinating validation through the existing Agent36 `contract_only=true` lane, which includes the helper test and avoids compiling Twinleaf or executing a game. That CI result is pending. It would still be incorrect to count retrieval to hand alone as a completed setup line.
 
 ## Execution gate and limitations
 
@@ -59,7 +64,6 @@ Consequently:
 
 ## Next actions
 
-1. Complete or coordinate the Quick Ball helper's exact selected-card-to-Bench follow-through audit and regression. Keep search retrieval and setup completion as separate counters.
-2. Run the targeted helper/V3 integration tests in the pinned build.
-3. Obtain the owner-controlled public key and rerun the same seed with candidate-only Quick Ball root enabled and opponent policy unchanged.
-4. Inspect exact Quick Ball source binding, exact donor acceptance, exact selected target retrieval, exact same-object Bench placement, pending Bench placements at end, actor-only boundary, and full game result before making any further policy or card changes.
+1. Confirm Agent49's existing `contract_only=true` lane passes on current main; it includes the helper regression and does not compile Twinleaf or execute a game. If it fails, fix only the evidenced helper/test issue.
+2. After pure validation passes and the owner configures the public RSA key, use the existing encrypted fixture workflow with only `agent36_v3_fixture_game=true`; do not bypass the key gate or upload plaintext hidden zones.
+3. Inspect exact Quick Ball source binding, exact donor acceptance, exact target retrieval, same-object Bench placement, item finalization, pending counters, actor-only boundary, and full game result before making any further policy or card changes.
