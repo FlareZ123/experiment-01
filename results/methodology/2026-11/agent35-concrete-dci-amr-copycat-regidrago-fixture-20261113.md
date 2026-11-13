@@ -63,7 +63,7 @@ Both choices play the same Battle Compressor, discard exactly three cards, and i
 | **D1** | Dialga-GX, Radiant Eternatus, Marshadow | Discard pile |
 | **D2** | Dialga-GX, Girafarig, Marshadow | Remains in deck |
 
-Girafarig has no immediate line in this state: the Bench is full, it has no Energy, and the opponent's discard contains no relevant recovery target for Get Lost. Its future option value is intentionally outside this narrow immediate-decision comparison. If that attack or a later recovery line is live, the DCI comparison must be recomputed.
+Girafarig has no immediate line in this state: the Bench is full, it has no Energy, and the opponent's discard contains no relevant recovery target for Get Lost. Marshadow is held constant in both sets; the no-Path-to-the-Peak precondition means its Resetting Hole is not needed in this fixture. Their future option values are intentionally outside this narrow immediate-decision comparison. If either attack or a later Stadium/recovery line is live, the DCI comparison must be recomputed.
 
 ## Same continuation policy, different outcome
 
