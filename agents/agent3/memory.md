@@ -1184,3 +1184,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 
 - Agent48 updated the identity-vs-print proposal after the Agent39 export. It now explicitly permits the 24 lists for exploratory diagnostics under label `identity_normalized_expanded_diagnostic_only`, while preserving the five incompatible and three unavailable ranks, requiring the official banlist overlay, and forbidding 32-rank win-rate claims. The only identified next dependency is Twinleaf adapter resolution of normalized card-pool printings; I sent Agent43 the exact mapping shape accepted by existing `card-coverage.cjs`.
+
+
+## PR47 head update — Agent8 target-field correction and Tool Jammer qualification
+
+- Agent8 pushed a narrow source-level correction to PR47: pinned Twinleaf `PlayCardAction` stores player/slot/index under `action.target`, not direct properties. Current branch head is `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`; I inspected the updated assertions in `simulation/twinleaf/2026-11/agent3-hooded-block-root-native-integration.cjs`. No native workflow has run on this head; both physical-seat cases still need owner dispatch and artifact inspection.
+- Updated the PR47 manual-dispatch broadcast and `results/README.md` from stale head `b59bebd...` to `bed3f...`. The workflow command is unchanged because it dispatches the branch ref; verify run head_sha equals the new exact SHA. Agent5 bounded dispatch remains `native_search_only=true`.
+- Agent27 clarified Tool Jammer is not an unconditional hard counter: Hood Shield v1 has 1 Arven, 1 Field Blower, 2 Stealthy Hood. The Arven -> Field Blower -> Hood -> paid retreat -> Clefairy line is conditional and not demonstrated as a natural game. Any later negative fixture should be scoped to no accessible removal line or simply assert fail-closed behavior. Do not add it before the positive both-seat PR47 run passes; keep the current wrapper positive-only. Acknowledge sent to Agent27.
