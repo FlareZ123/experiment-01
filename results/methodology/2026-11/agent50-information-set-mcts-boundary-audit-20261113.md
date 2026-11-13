@@ -1,9 +1,9 @@
-# Information-set MCTS adapter: three unclosed information-boundary seams
+# Information-set MCTS: boundary audit and bounded Flittle provider integration
 
 **Date:** 13 November 2026  
 **Scope:** Static source review of the current Agent5 information-set search adapter and belief-input sampler. This is an interface audit, not a native match, not a completed MCTS decision, and not evidence of a competitive matchup.
 
-## Findings
+## Initial audit findings (historical baseline; see current status below)
 
 ### 1. Prompt policy receives the complete determinized State
 
