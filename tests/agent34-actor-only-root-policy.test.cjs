@@ -1375,9 +1375,9 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const wobbuffetActiveView={
     ...view,opponentPublic:{...view.opponentPublic,active:wobbuffet}
   };
-  assert.equal(choosePostTimelessMaxGeistRetreat(
-    wobbuffetActiveView,postTimelessCatalog,{ownerSeat:0}),null,
-    'active Wobbuffet Bide Barricade suppresses Latias ex Skyliner');
+  assert.ok(choosePostTimelessMaxGeistRetreat(
+    wobbuffetActiveView,postTimelessCatalog,{ownerSeat:0}),
+    'Psychic Latias ex Skyliner is exempt from Active Wobbuffet Bide Barricade');
   const wobbuffetBenchedView={
     ...view,opponentPublic:{...view.opponentPublic,bench:[wobbuffet]}
   };
