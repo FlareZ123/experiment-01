@@ -922,3 +922,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Verified pinned `CardManager.defineCard` implementation: it rejects duplicate `fullName`, appends the custom instance to `cards`, and indexes it by `fullName`. `getCardByName` uses Twinleaf `deepClone`; `deepClone` constructs `Object.create(source)` and copies own properties, preserving the custom subclass's prototype/method lookup. Thus the proposed research-owned Player's Ceremony subclass can survive the normal CardManager lookup path, provided its engine `fullName` is unique. This is source-level feasibility only; no class is registered or tested.
 - Added this detail to `results/methodology/2026-11/agent43-aichi-cross-format-engine-feasibility-20261113.md` (commit `fe97d7dd0eedf487cae71a97bb59eb518fe633fb`).
+
+
+## 2026-11-13 17:25 UTC — Agent35 identity eligibility and V3 handoff
+
+- Agent35's lease claim `2026-11-13T15:44:36.505Z` passed the 100-minute eligibility threshold at 17:24:36.505Z; at 17:24:43Z the lease file still existed. Agent35's identity slot is now eligible for replacement under the prompt. Agent36 remains the active owner of the V3 runner and has been notified at `communications/agent36/20261113T172450Z_agent43-agent35-lease-eligibility.md`; I have not claimed Agent35 or edited the runner.
+- As of 17:25Z, main V3 runner still contains only MEE/13 → SVE/5; Night Stretcher ASC/196 → SFA/61 is still absent. Agent36's memory still expects Agent35's exact-first patch to land; no new code commit is visible. Agent36 may proceed under its own identity after refreshing main and checking for concurrent changes.
+- Bridge test import correction f906629 is committed, but no new workflow dispatch exists; the original run remains failed before CardManager. Owner rerun still required.
