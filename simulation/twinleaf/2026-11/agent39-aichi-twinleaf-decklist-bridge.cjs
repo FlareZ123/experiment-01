@@ -1,0 +1,308 @@
+'use strict';
+
+/*
+ * Fail-closed bridge from the Aichi normalized diagnostic field to Twinleaf's
+ * registered-deck input. It joins on Twinleaf Card.set + Card.setNumber and
+ * emits matched Card.fullName strings for the MCTS deck provider.
+ * Requires the pinned Twinleaf submodule built under vendor/twinleaf.
+ * A complete mapping is not paper-format or physical-print admission.
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+
+function compositeKey(set, setNumber) {
+  return String(set) + String.fromCharCode(0) + String(setNumber);
+}
+
+function indexTwinleafCards(cardManager) {
+  if (!cardManager || typeof cardManager.getAllCards !== 'function') {
+    throw new TypeError('cardManager.getAllCards() is required');
+  }
+  const cards = cardManager.getAllCards();
+  if (!Array.isArray(cards)) throw new TypeError('getAllCards() must return an array');
+  const index = new Map();
+  for (const card of cards) {
+    const set = String(card && card.set != null ? card.set : '');
+    const setNumber = String(card && card.setNumber != null ? card.setNumber : '');
+    const fullName = String(card && card.fullName != null ? card.fullName : '');
+    if (!set || !setNumber || !fullName) continue;
+    const key = compositeKey(set, setNumber);
+    const matches = index.get(key) || [];
+    matches.push(card);
+    index.set(key, matches);
+  }
+  return index;
+}
+
+function resolveNormalizedRow(row, index, cardManager) {
+  const normalized = row && row.normalized;
+  const set = String(normalized && normalized.printing && normalized.printing.set || '');
+  const setNumber = String(normalized && normalized.card_pool_printing && normalized.card_pool_printing.number || '');
+  const count = normalized && normalized.count;
+  if (!set || !setNumber) return { status: 'invalid_identity_key', set: set, set_number: setNumber };
+  if (!Number.isSafeInteger(count) || count < 1) {
+    return { status: 'invalid_copy_count', set: set, set_number: setNumber, count: count };
+  }
+  const matches = index.get(compositeKey(set, setNumber)) || [];
+  if (matches.length === 0) return { status: 'missing_twinleaf_card', set: set, set_number: setNumber };
+  if (matches.length !== 1) {
+    return { status: 'ambiguous_twinleaf_card', set: set, set_number: setNumber, match_count: matches.length };
+  }
+  const card = matches[0];
+  const fullName = String(card.fullName || '');
+  if (!fullName || String(card.set) !== set || String(card.setNumber) !== setNumber) {
+    return { status: 'twinleaf_record_mismatch', set: set, set_number: setNumber, full_name: fullName };
+  }
+  if (typeof cardManager.isCardDefined === 'function' && !cardManager.isCardDefined(fullName)) {
+    return { status: 'card_manager_rejects_full_name', set: set, set_number: setNumber, full_name: fullName };
+  }
+  if (typeof cardManager.getCardByName === 'function') {
+    let lookedUp;
+    try {
+      lookedUp = cardManager.getCardByName(fullName);
+    } catch (error) {
+      return {
+        status: 'card_manager_lookup_error',
+        set: set,
+        set_number: setNumber,
+        full_name: fullName,
+        error: String(error && error.message || error),
+      };
+    }
+    if (!lookedUp || String(lookedUp.fullName || '') !== fullName) {
+      return { status: 'card_manager_lookup_mismatch', set: set, set_number: setNumber, full_name: fullName };
+    }
+  }
+  return {
+    status: 'resolved',
+    set: set,
+    set_number: setNumber,
+    full_name: fullName,
+    card_id: String(normalized.card_id || ''),
+    count: count,
+  };
+}
+
+function resolveDiagnosticField(field, cardManager, metadata) {
+  metadata = metadata || {};
+  if (!field || !Array.isArray(field.decks)) {
+    throw new TypeError('diagnostic_normalized_field.decks is required');
+  }
+  const index = indexTwinleafCards(cardManager);
+  const decks = [];
+  const unresolved = [];
+  let sourceRows = 0;
+  let resolvedRows = 0;
+
+  for (const deck of field.decks) {
+    const merged = new Map();
+    const rowMappings = [];
+    let deckUnresolved = 0;
+    for (const row of deck.cards || []) {
+      const rowIndex = row && row.source && row.source.row_index;
+      sourceRows++;
+      const resolved = resolveNormalizedRow(row, index, cardManager);
+      if (resolved.status !== 'resolved') {
+        deckUnresolved++;
+        unresolved.push({
+          rank: deck.rank,
+          source_row_index: rowIndex,
+          source_name: row && row.source && row.source.name || null,
+          source_printing: row && row.source && row.source.printing || null,
+          card_id: row && row.normalized && row.normalized.card_id || null,
+          normalized_name: row && row.normalized && row.normalized.name || null,
+          card_pool_printing: row && row.normalized && row.normalized.card_pool_printing || null,
+          ...resolved,
+        });
+        rowMappings.push({
+          source_row_index: rowIndex,
+          status: resolved.status,
+          source_name: row && row.source && row.source.name || null,
+          source_printing: row && row.source && row.source.printing || null,
+          normalized_name: row && row.normalized && row.normalized.name || null,
+          card_id: row && row.normalized && row.normalized.card_id || null,
+        });
+        continue;
+      }
+      resolvedRows++;
+      const existing = merged.get(resolved.full_name) || { printing: resolved.full_name, copies: 0 };
+      existing.copies += resolved.count;
+      merged.set(resolved.full_name, existing);
+      rowMappings.push({
+        source_row_index: rowIndex,
+        status: 'resolved',
+        source_name: row && row.source && row.source.name || null,
+        source_printing: row && row.source && row.source.printing || null,
+        normalized_name: row && row.normalized && row.normalized.name || null,
+        card_id: resolved.card_id,
+        card_pool_printing: row && row.normalized && row.normalized.card_pool_printing || null,
+        twinleaf_full_name: resolved.full_name,
+        set: resolved.set,
+        set_number: resolved.set_number,
+        copies: resolved.count,
+      });
+    }
+
+    const registered60 = Array.from(merged.values()).sort((a, b) => a.printing.localeCompare(b.printing));
+    const totalCopies = registered60.reduce((sum, row) => sum + row.copies, 0);
+    const sourceRowCountMatchesDeck = Number.isSafeInteger(deck.source_row_count) && rowMappings.length === deck.source_row_count;
+    const sourceCardCopyCountMatchesDeck = Number.isSafeInteger(deck.card_copies) && totalCopies === deck.card_copies && totalCopies === 60;
+    const complete = deckUnresolved === 0 && sourceRowCountMatchesDeck && sourceCardCopyCountMatchesDeck;
+    if (!sourceRowCountMatchesDeck) {
+      unresolved.push({ rank: deck.rank, status: 'deck_source_row_count_mismatch', expected: deck.source_row_count, actual: rowMappings.length });
+    }
+    if (!sourceCardCopyCountMatchesDeck) {
+      unresolved.push({ rank: deck.rank, status: 'deck_card_copy_count_mismatch', expected: deck.card_copies, actual: totalCopies });
+    }
+    decks.push({
+      rank: deck.rank,
+      player: deck.player,
+      archetype: deck.archetype,
+      status: complete ? 'complete' : 'incomplete',
+      source_row_count: rowMappings.length,
+      declared_source_row_count: deck.source_row_count == null ? null : deck.source_row_count,
+      source_row_count_matches: sourceRowCountMatchesDeck,
+      resolved_source_rows: rowMappings.filter(row => row.status === 'resolved').length,
+      source_card_copies: deck.card_copies == null ? null : deck.card_copies,
+      card_copies: totalCopies,
+      source_card_copy_count_matches: sourceCardCopyCountMatchesDeck,
+      registered60: complete ? registered60 : null,
+      source_row_mappings: rowMappings,
+    });
+  }
+
+  const completeDecks = decks.filter(deck => deck.status === 'complete').length;
+  const totalDeckCopies = decks.reduce((sum, deck) => sum + deck.card_copies, 0);
+  const sourceRowCountMatches = Number.isSafeInteger(field.source_rows) && sourceRows === field.source_rows;
+  const sourceDeckCountMatches = Number.isSafeInteger(field.deck_count) && decks.length === field.deck_count;
+  const sourceCopyCountMatches = Number.isSafeInteger(field.card_copies) && totalDeckCopies === field.card_copies;
+  const complete = completeDecks === decks.length && unresolved.length === 0 &&
+    sourceRowCountMatches && sourceDeckCountMatches && sourceCopyCountMatches;
+
+  if (!sourceRowCountMatches) unresolved.push({ status: 'source_row_count_mismatch', expected: field.source_rows, actual: sourceRows });
+  if (!sourceDeckCountMatches) unresolved.push({ status: 'source_deck_count_mismatch', expected: field.deck_count, actual: decks.length });
+  if (!sourceCopyCountMatches) unresolved.push({ status: 'source_card_copy_count_mismatch', expected: field.card_copies, actual: totalDeckCopies });
+
+  return {
+    schema: 'aichi-twinleaf-registered60-bridge-v1',
+    status: complete ? 'complete' : 'incomplete',
+    source_field_schema: field.schema,
+    source_field_status: field.status,
+    source_field_ranks: field.included_ranks || decks.map(deck => deck.rank),
+    source_field_deck_count: field.deck_count,
+    source_field_rows: field.source_rows,
+    source_field_card_copies: field.card_copies,
+    total_deck_card_copies: totalDeckCopies,
+    diagnostic_only: field.diagnostic_only === true,
+    physical_source_print_status: field.physical_source_print_status || null,
+    paper_admission_eligible: field.paper_admission_eligible === true,
+    competitive_admission_eligible: field.competitive_admission_eligible === true,
+    target_format: field.target_format || null,
+    source_event_format: field.source_event_format || null,
+    official_banlist_status: field.official_banlist_status || null,
+    official_banlist_report: field.official_banlist_report || null,
+    field_manifest: field.field_manifest || null,
+    normalization_policy: field.normalization_policy || [],
+    source_dataset: field.source_dataset || null,
+    interpretation_limit: 'A complete bridge means Twinleaf card identities resolved; it does not establish paper legality, physical source-print authenticity, or competitive strength.',
+    source_row_count_matches: sourceRowCountMatches,
+    source_deck_count_matches: sourceDeckCountMatches,
+    source_card_copy_count_matches: sourceCopyCountMatches,
+    twinleaf_cards_indexed: Array.from(index.values()).reduce((sum, rows) => sum + rows.length, 0),
+    twinleaf_unique_set_number_keys: index.size,
+    resolved_source_rows: resolvedRows,
+    unresolved_source_rows: unresolved.filter(row => Number.isInteger(row.source_row_index)).length,
+    complete_deck_count: completeDecks,
+    total_deck_count: decks.length,
+    twinleaf_revision: metadata.twinleaf_revision || null,
+    identity_join: 'Twinleaf Card.set + Card.setNumber -> Card.fullName; never join on display name alone',
+    decks: decks,
+    unresolved: unresolved,
+  };
+}
+
+function loadTwinleafCardManager(repositoryRoot) {
+  repositoryRoot = repositoryRoot || path.resolve(__dirname, '../../..');
+  const outputDir = path.join(repositoryRoot, 'vendor', 'twinleaf', 'ptcg-server', 'output');
+  const CardManager = require(path.join(outputDir, 'game', 'cards', 'card-manager')).CardManager;
+  const setExports = require(path.join(outputDir, 'sets'));
+  const manager = new CardManager();
+  const sets = Object.entries(setExports).filter(entry => Array.isArray(entry[1]) && entry[1].length > 0);
+  if (sets.length === 0) throw new Error('Twinleaf output/sets exports no card arrays; build the pinned submodule first');
+  const expectedCards = sets.reduce((sum, entry) => sum + entry[1].length, 0);
+  for (const entry of sets) manager.defineSet(entry[1]);
+  const actualCards = manager.getAllCards().length;
+  if (actualCards !== expectedCards) {
+    throw new Error('Twinleaf CardManager registered ' + actualCards + ' unique cards from ' + expectedCards + ' set entries; refusing duplicate/overwritten identities');
+  }
+  return {
+    manager: manager,
+    set_export_count: sets.length,
+    expected_card_count: expectedCards,
+    actual_card_count: actualCards,
+  };
+}
+
+function readTwinleafRevision(repositoryRoot) {
+  const submodulePath = path.join(repositoryRoot, 'vendor', 'twinleaf');
+  try {
+    return execFileSync('git', ['-C', submodulePath, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch (_) {
+    return null;
+  }
+}
+
+function runCli(argv) {
+  argv = argv || process.argv.slice(2);
+  const auditPath = argv[0];
+  const outputPath = argv[1];
+  if (!auditPath) {
+    throw new Error('Usage: node agent39-aichi-twinleaf-decklist-bridge.cjs <aichi-expanded-identity-audit.json> [output.json]');
+  }
+  const repositoryRoot = path.resolve(__dirname, '../../..');
+  const audit = JSON.parse(fs.readFileSync(path.resolve(auditPath), 'utf8'));
+  const field = audit.diagnostic_normalized_field;
+  const loaded = loadTwinleafCardManager(repositoryRoot);
+  const result = resolveDiagnosticField(field, loaded.manager, {
+    twinleaf_revision: readTwinleafRevision(repositoryRoot),
+  });
+  result.source_audit = {
+    schema: audit.schema || null,
+    event_date: audit.event_date || null,
+    decklist_source: audit.decklist_source || null,
+    card_pool: audit.card_pool || null,
+    selection: audit.selection || null,
+    field_inventory: audit.field_inventory || null,
+    summary: audit.summary || null,
+    official_banlist_overlay: audit.official_banlist_overlay || null,
+    physical_print_limit: audit.physical_print_limit || null,
+  };
+  result.twinleaf_set_export_count = loaded.set_export_count;
+  result.twinleaf_expected_card_count = loaded.expected_card_count;
+  result.twinleaf_actual_card_count = loaded.actual_card_count;
+  const output = JSON.stringify(result, null, 2) + '\n';
+  if (outputPath) fs.writeFileSync(path.resolve(outputPath), output);
+  else process.stdout.write(output);
+  if (result.status !== 'complete') process.exitCode = 1;
+}
+
+if (require.main === module) {
+  try {
+    runCli();
+  } catch (error) {
+    process.stderr.write(String(error && error.stack || error) + '\n');
+    process.exitCode = 2;
+  }
+}
+
+module.exports = {
+  compositeKey: compositeKey,
+  indexTwinleafCards: indexTwinleafCards,
+  resolveNormalizedRow: resolveNormalizedRow,
+  resolveDiagnosticField: resolveDiagnosticField,
+  loadTwinleafCardManager: loadTwinleafCardManager,
+  readTwinleafRevision: readTwinleafRevision,
+  runCli: runCli,
+};
