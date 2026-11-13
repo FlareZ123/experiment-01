@@ -20,7 +20,7 @@ Let \(p_j\) be the win probability in each of the \(m=128\) equally weighted opp
 \bar p_{\mathrm{field}}=\frac1{128}\sum_{j=1}^{128}p_j.
 \]
 
-The null is \(\bar p_{\mathrm{field}}\le0.995\), so \(\sum_j q_j\ge Q=128(0.005)=0.64\). Outcomes are independent Bernoulli games under a frozen candidate, policy, field, engine/hooks, and adjudication. Every counted attempt must be paper-qualified; invalid, censored, native-only, or unqualified attempts remain excluded by the existing evidence rules.
+The null is \(\bar p_{\mathrm{field}}\le0.995\), so \(\sum_j q_j\ge Q=128(0.005)=0.64\). **Within each cell, outcomes must be i.i.d. Bernoulli with fixed \(p_j\), and games must be mutually independent across all 128 cells.** Independence alone with varying per-game probabilities within a cell does not suffice. The sampling model must be preregistered and externally audited; do not use this exact tail with paired/common-deal clusters or a model selected after outcomes are observed. Every counted attempt must be paper-qualified; invalid, censored, native-only, or unqualified attempts remain excluded by the existing evidence rules.
 
 ## Exact heterogeneous one-nonwin tail
 
