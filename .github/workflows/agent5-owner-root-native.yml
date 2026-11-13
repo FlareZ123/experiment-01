@@ -7,7 +7,7 @@ on:
         description: Run bounded native rank-7 owner-search gate without full-game replay
         required: false
         type: boolean
-        default: false
+        default: true
       three_prize_tagteam_native:
         description: Preregistered synthetic TAG TEAM three-Prize native both-seat test
         required: false
