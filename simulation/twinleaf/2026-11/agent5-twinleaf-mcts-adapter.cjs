@@ -448,7 +448,11 @@ function createTwinleafMcts(deps,options={}) {
   const search=createInformationSetMcts({
     ...searchDependencies,
     iterations,maxPlies,cPuct,seed,maxDecisionMs,
-    ...(options.now?{now:options.now}:{})
+    ...(options.now?{now:options.now}:{}),
+    ...(options.opponentActionPolicy?{
+      opponentActionPolicy:options.opponentActionPolicy,
+      opponentPolicyId:options.opponentPolicyId
+    }:{})
   });
   return Object.freeze({
     search(rootState,rootSeat) {
