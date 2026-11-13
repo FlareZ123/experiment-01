@@ -583,6 +583,7 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeGameMessage', path: 'vendor/twinleaf/ptcg-server/output/game/game-message.js', exportName: 'GameMessage' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
