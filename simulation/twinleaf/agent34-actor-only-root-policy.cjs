@@ -1044,7 +1044,7 @@ function sanitizeMctsRootIntent(intent){
   }
 }
 function invokeActorRootIntentProvider({
-  provider,capabilityFactory,state,actorSeat,view,catalog,rootOptions
+  provider,capabilityFactory,rootIntentActionKey,state,actorSeat,view,catalog,rootOptions
 }){
   const abstain=reason=>({status:'abstained',reason});
   if(typeof provider!=='function'||typeof capabilityFactory!=='function')
@@ -1119,6 +1119,21 @@ function invokeActorRootIntentProvider({
   if(evidence.applicabilityEnvelopeId==='flittle-basic-psychic-v1'&&
      !['attach-basic-energy','attack','pass'].includes(intent.kind))
     return abstain('intent-outside-flittle-envelope');
+  const providerIntent=sanitizeMctsRootIntent(decision.intent);
+  if(!providerIntent||JSON.stringify(providerIntent)!==JSON.stringify(intent))
+    return abstain('native-search-intent-binding-mismatch');
+  const selectedActionKey=evidence.selectedActionKey;
+  if(typeof selectedActionKey!=='string'||selectedActionKey.length===0)
+    return abstain('native-search-action-key-unbound');
+  if(typeof rootIntentActionKey!=='function')
+    return abstain('native-search-action-key-binding-unavailable');
+  let expectedActionKey;
+  try{
+    expectedActionKey=rootIntentActionKey(intent,Object.freeze({actorSeat,view,catalog}));
+  }catch{return abstain('native-search-action-key-binding-failed');}
+  if(typeof expectedActionKey!=='string'||expectedActionKey.length===0||
+     expectedActionKey!==selectedActionKey)
+    return abstain('native-search-action-key-intent-mismatch');
   return {status:'selected',intent,searchAudit:{
     frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
     ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
@@ -1153,12 +1168,15 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok(policyOwnerSeat===null||policyOwnerSeat===0||policyOwnerSeat===1,
     'policyOwnerSeat must be physical seat 0, seat 1, or null');
   const hasRootIntentProvider=deps.rootIntentProvider!==undefined||
-    deps.createRootSearchCapability!==undefined;
+    deps.createRootSearchCapability!==undefined||
+    deps.rootIntentActionKey!==undefined;
   if(hasRootIntentProvider){
     assert.equal(typeof deps.rootIntentProvider,'function',
       'rootIntentProvider must be a protected runtime callback');
     assert.equal(typeof deps.createRootSearchCapability,'function',
       'createRootSearchCapability must be a protected runtime callback');
+    assert.equal(typeof deps.rootIntentActionKey,'function',
+      'rootIntentActionKey must be a trusted adapter mapping');
   }
   const SimpleTacticsAi=deps.SimpleTacticsAi??
     require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
@@ -2549,6 +2567,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         const decision=invokeActorRootIntentProvider({
           provider:deps.rootIntentProvider,
           capabilityFactory:deps.createRootSearchCapability,
+          rootIntentActionKey:deps.rootIntentActionKey,
           state,actorSeat:seat,view,catalog,rootOptions
         });
         if(decision.status==='selected'){
