@@ -2,7 +2,15 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { resolveDiagnosticField } = require('./agent39-aichi-twinleaf-decklist-bridge.cjs');
+const { createHash } = require('node:crypto');
+const {
+  resolveDiagnosticField,
+  registered60Hashes,
+} = require('./agent39-aichi-twinleaf-decklist-bridge.cjs');
+
+function sha256(value) {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
+}
 
 function mockManager(cards) {
   const byName = new Map(cards.map(card => [card.fullName, card]));
@@ -75,7 +83,12 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
     row({ index: 4, cardId: 'smp-SM217', name: 'Trevenant & Dusknoir-GX', count: 1, set: 'SMP', sourceNumber: '217', cardPoolNumber: 'SM217' }),
     row({ index: 5, cardId: 'xyp-XY67', name: 'Jirachi', count: 1, set: 'XYP', sourceNumber: '67', cardPoolNumber: 'XY67' }),
   ]);
-  const result = resolveDiagnosticField(input, mockManager(cards), { twinleaf_revision: 'test-rev' });
+  const result = resolveDiagnosticField(input, mockManager(cards), {
+    twinleaf_revision: 'test-rev',
+    research_revision: 'research-rev',
+    source_audit_sha256: 'a'.repeat(64),
+    source_normalized_field_sha256: 'b'.repeat(64),
+  });
   assert.equal(result.status, 'complete');
   assert.equal(result.resolved_source_rows, 6);
   assert.equal(result.complete_deck_count, 1);
@@ -96,6 +109,23 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
     id: 'aichi-2026-rank-1',
     cards: result.decks[0].registered60,
   });
+  const deck = result.decks[0];
+  const canonicalPairs = deck.registered60_counts.map(row => ({
+    fullName: row.printing,
+    copies: row.copies,
+  })).sort((a, b) => a.fullName < b.fullName ? -1 : a.fullName > b.fullName ? 1 : 0);
+  assert.equal(deck.registered60_hashes.algorithm, 'SHA-256');
+  assert.equal(deck.registered60_hashes.ordered_input_sha256,
+    sha256(JSON.stringify(deck.registered60)));
+  assert.equal(deck.registered60_hashes.canonical_multiset_sha256,
+    sha256(JSON.stringify(canonicalPairs)));
+  assert.match(deck.registered60_hashes.ordered_input_sha256, /^[a-f0-9]{64}$/);
+  assert.match(deck.registered60_hashes.canonical_multiset_sha256, /^[a-f0-9]{64}$/);
+  assert.match(result.registered60_hash_protocol.ordered_input, /exact 60-element Twinleaf fullName array/);
+  assert.match(result.registered60_hash_protocol.canonical_multiset, /codepoint-sorted/);
+  assert.equal(result.source_audit_sha256, 'a'.repeat(64));
+  assert.equal(result.source_normalized_field_sha256, 'b'.repeat(64));
+  assert.equal(result.research_revision, 'research-rev');
   assert.equal(result.decks[0].source_row_mappings[1].twinleaf_full_name, 'Battle Compressor PHF');
   assert.equal(result.decks[0].source_row_mappings[3].set_number, '177');
   assert.equal(result.decks[0].source_row_mappings[3].source_printing.number, '177');
@@ -122,6 +152,7 @@ test('merges duplicate source rows that resolve to the same Twinleaf printing', 
   assert.deepEqual(result.decks[0].registered60_counts, [{ printing: 'Shadow Rider Calyrex V CRE', copies: 60 }]);
   assert.equal(result.decks[0].registered60.length, 60);
   assert.equal(result.decks[0].decklist_for_seat.cards.length, 60);
+  assert.ok(result.decks[0].registered60_hashes);
 });
 
 test('fails closed on missing Twinleaf card', () => {
@@ -133,6 +164,7 @@ test('fails closed on missing Twinleaf card', () => {
   assert.equal(result.decks[0].registered60, null);
   assert.equal(result.decks[0].registered60_counts, null);
   assert.equal(result.decks[0].decklist_for_seat, null);
+  assert.equal(result.decks[0].registered60_hashes, null);
   assert.equal(result.unresolved[0].status, 'missing_twinleaf_card');
 });
 
@@ -146,6 +178,7 @@ test('fails closed on ambiguous set + setNumber', () => {
   ]);
   const result = resolveDiagnosticField(input, mockManager(cards));
   assert.equal(result.status, 'incomplete');
+  assert.equal(result.decks[0].registered60_hashes, null);
   assert.equal(result.unresolved[0].status, 'ambiguous_twinleaf_card');
 });
 
@@ -172,5 +205,33 @@ test('fails closed when a resolved deck has fewer than 60 copies', () => {
   const result = resolveDiagnosticField(input, mockManager(cards));
   assert.equal(result.status, 'incomplete');
   assert.equal(result.decks[0].registered60, null);
+  assert.equal(result.decks[0].registered60_hashes, null);
   assert.ok(result.unresolved.some(item => item.status === 'deck_card_copy_count_mismatch'));
+});
+
+
+test('ordered input hash binds exact engine order while canonical multiset hash ignores order', () => {
+  const firstOrder = [
+    ...Array(30).fill('Alpha Card SET'),
+    ...Array(30).fill('Beta Card SET'),
+  ];
+  const secondOrder = [
+    ...Array(30).fill('Beta Card SET'),
+    ...Array(30).fill('Alpha Card SET'),
+  ];
+  const rows = [
+    { printing: 'Alpha Card SET', copies: 30 },
+    { printing: 'Beta Card SET', copies: 30 },
+  ];
+  const first = registered60Hashes(firstOrder, rows);
+  const second = registered60Hashes(secondOrder, rows.slice().reverse());
+  assert.notEqual(first.ordered_input_sha256, second.ordered_input_sha256);
+  assert.equal(first.canonical_multiset_sha256, second.canonical_multiset_sha256);
+});
+
+test('registered60 hash helper rejects disagreement between the exact array and compressed counts', () => {
+  assert.throws(() => registered60Hashes(
+    Array(60).fill('Alpha Card SET'),
+    [{ printing: 'Alpha Card SET', copies: 59 }],
+  ), /inputs disagree/);
 });
