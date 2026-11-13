@@ -118,6 +118,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent42_flittle_mcts_native_smoke:
+        description: "Run bounded one-root Flittle MCTS Store-dispatch checks for both physical seats plus an out-of-envelope fallback; fixture-only, not competitive evidence."
+        type: boolean
+        required: false
+        default: false
       contract_only:
         description: 'Run pure Agent34/Agent41 policy and Agent36 Snap Trap prompt-gate/observer contracts without compiling Twinleaf or executing a game'
         required: false
@@ -170,7 +175,7 @@ jobs:
           NODE
 
       - name: Enforce isolated V3 fixture-game mode
-        if: ${{ inputs.agent36_v3_fixture_game && (inputs.agent24_v8_perfection_260root || inputs.agent24_perfection_energy_frontier || inputs.agent24_v8_bilateral_perfection || inputs.agent7_known_dead_off_control || inputs.agent7_bilateral_lillie_after_pass || inputs.agent43_box_fog_oneprize_after_pass || inputs.agent36_v9_vip_aba || inputs.agent36_v10b_paired_fresh_aba || inputs.agent3_owner_information_fallback_diagnostic || inputs.agent36_v8_snap_trap_vertical_slice || inputs.agent36_v8_snap_trap_vertical_slice_v2 || inputs.agent43_v8_snaptrap_owner_root_diagnostic || inputs.agent2_rank11_quickball_attack_priority || inputs.agent2_crispin_vs_seeker_treasure_native || inputs.agent36_v10_fresh_aba || inputs.agent20_box_fog_ace_trainer_aba || inputs.agent2_retreat_funding_native || inputs.agent2_retreat_funding_original_source || inputs.agent36_fresh_rank5_native || inputs.agent36_paper_root_native || inputs.agent36_v3_predeal_preflight || inputs.contract_only || inputs.agent36_v3_predeal_artifact_ref != '') }}
+        if: ${{ inputs.agent36_v3_fixture_game && (inputs.agent24_v8_perfection_260root || inputs.agent24_perfection_energy_frontier || inputs.agent24_v8_bilateral_perfection || inputs.agent7_known_dead_off_control || inputs.agent7_bilateral_lillie_after_pass || inputs.agent43_box_fog_oneprize_after_pass || inputs.agent36_v9_vip_aba || inputs.agent36_v10b_paired_fresh_aba || inputs.agent3_owner_information_fallback_diagnostic || inputs.agent36_v8_snap_trap_vertical_slice || inputs.agent36_v8_snap_trap_vertical_slice_v2 || inputs.agent43_v8_snaptrap_owner_root_diagnostic || inputs.agent2_rank11_quickball_attack_priority || inputs.agent2_crispin_vs_seeker_treasure_native || inputs.agent36_v10_fresh_aba || inputs.agent20_box_fog_ace_trainer_aba || inputs.agent2_retreat_funding_native || inputs.agent2_retreat_funding_original_source || inputs.agent36_fresh_rank5_native || inputs.agent36_paper_root_native || inputs.agent36_v3_predeal_preflight || inputs.contract_only || inputs.agent36_v3_predeal_artifact_ref != '' || inputs.agent42_flittle_mcts_native_smoke) }}
         run: |
           echo "agent36_v3_fixture_game must be the only selected workflow mode." >&2
           exit 1
@@ -181,6 +186,24 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Enforce isolated Flittle MCTS native Store smoke mode
+        if: ${{ inputs.agent42_flittle_mcts_native_smoke }}
+        env:
+          WORKFLOW_INPUTS_JSON: ${{ toJSON(inputs) }}
+        run: |
+          node - <<'NODE'
+          const inputs = JSON.parse(process.env.WORKFLOW_INPUTS_JSON || '{}');
+          const allowed = new Set(['agent42_flittle_mcts_native_smoke']);
+          const conflicts = Object.entries(inputs)
+            .filter(([name, value]) => !allowed.has(name) &&
+              value !== false && value !== '' && value !== null && value !== undefined)
+            .map(([name]) => name);
+          if (conflicts.length) {
+            throw new Error('agent42_flittle_mcts_native_smoke must be the only selected workflow mode: ' +
+              conflicts.join(', '));
+          }
+          NODE
 
       - name: Validate owner-controlled V3 diagnostic recipient key before native fixture
         if: ${{ inputs.agent36_v3_fixture_game }}
@@ -285,9 +308,13 @@ jobs:
           node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
           node --check tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs
+          node --check simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs
+          node --check tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs
+          node --check tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
-        if: ${{ !inputs.contract_only && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game && github.event_name != 'push' }}
+        if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game && github.event_name != 'push' }}
         run: |
           node --test \
             tests/agent36-funded-perfection-pass-observer.test.cjs \
@@ -387,11 +414,18 @@ jobs:
         if: ${{ inputs.contract_only }}
         run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs tests/agent36-v3-runner.test.cjs
 
+      - name: Execute bounded Flittle MCTS root intents through the pinned native Store
+        if: ${{ inputs.agent42_flittle_mcts_native_smoke && steps.compile.outcome == 'success' }}
+        run: |
+          node --test \
+            tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
+            tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
+
       - name: Execute one native V3 fixture game
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
+        if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
