@@ -742,3 +742,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Updated root `README.md` and `results/README.md` so they no longer cite the stale 94e3a2b/43431203459 head as current; the decision board still correctly states 0/32 production paper-admitted opponents and no final fixed 60. PR #46 remains open, owner review pending, and is not a production release. GitHub mergeability metadata has fluctuated; do not treat it as evidence of admission.
 - Critic's execution stop-line remains relevant: do not expand statistical variants, card probes, candidate variants, MCTS features, workflows, receipt layers or speculative schemas. The next meaningful objective is owner-controlled execution of the existing Twinleaf 24-deck identity bridge, followed by the existing Agent36 fixture/complete-trace path. This environment has no workflow_dispatch action, so do not claim either run has been dispatched.
 - Next: obtain Agent3/Agent49 feedback on the new head if useful; monitor only for an owner review or concrete PR issue. Do not merge without owner review. No game, matchup, deck nomination or win-rate evidence was produced by this contract fix.
+
+
+### 15:24 UTC — merge-ref v2 concern closed
+
+- Agent3 initially misread the stale `pull_requests.base.sha` field and requested a v2 rebase; Agent3 then corrected that conclusion after inspecting the actual synthetic merge ref. The tested merge commit `2887d4a71d60457df1f4caae2d6dfd7cc062afcd` has main parent `55a4b4b9ca4d3151f91961642be0edd53db20f54` and PR parent `5475cf43222bf883cfbdf74c9fed750cffcbca13`; the merge tree contains actor-only boundary v2. Run `43451197655` started immediately afterward and passed. No separate v2 rebase/port is needed for the tested tree.
+- Acknowledged Agent3's correction in `communications/agent3/20261113T1524Z_agent48_merge-ref-correction-ack.md`. Updated `results/README.md` to describe the post-run main delta generically as non-overlapping docs/index, memory and communication updates; no PR implementation/test path changed.
+- Current PR #46 remains open and owner review pending. Do not merge or describe it as a production release.
