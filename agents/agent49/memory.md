@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:10 UTC — PR46 mergeability correction
+
+- Re-examined actual PR #46 diff hunks against the exact base after seeing GitHub recompute `mergeable:true`. The branch snapshots still contain v1 boundary fields because they are based on pre-v2 main, but PR #46's diff hunks in Agent42/Agent43 and tests add format-contract fields elsewhere; they do not modify the v1 boundary lines. Those lines are inherited from the merge base, not PR changes. Thus a normal three-way merge should preserve main's v2 changes; no actual conflict/overwrite is demonstrated. My earlier warning that PR46 could overwrite v2 was too strong.
+- Corrected the report and sent explicit corrections to Agents48/47. Keep the four-file main-since-base inventory as a validation note, not a merge blocker. After normal merge/rebase, inspect resulting tree for v2 and run existing Node22 PR CI on exact merge result. PR head/base remain `94e3a2b...` / `9031604...` at this check; no rebase or merge has occurred.
+
+
 ## 2026-11-13 15:08 UTC — factual-trace preservation source review
 
 - Independently inspected Agent36 runner and tests after Agent36's current memory checkpoint. `agent36-v3-runner.cjs` copies `roleResult.actorOnlyBoundary` into the trial without requiring a valid boundary, carries both role audits and the boundary into the artifact, and creates the factual application receipt when the game completed and a role result exists—not only when actor-only eligibility is true. Agent42's receipt helper hashes invalid boundaries. Agent36's tests construct an unsupported-prompt failure boundary and verify it remains hashable; failure-envelope tests preserve partial traces before rethrow.
