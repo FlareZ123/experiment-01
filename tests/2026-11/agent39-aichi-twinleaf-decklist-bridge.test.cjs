@@ -58,33 +58,39 @@ function field(cards) {
   };
 }
 
-test('resolves by set + canonical setNumber and emits Twinleaf fullName', () => {
+test('resolves by source set + printed set number and emits Twinleaf fullName', () => {
   const cards = [
     { set: 'CRE', setNumber: '74', fullName: 'Shadow Rider Calyrex V CRE' },
     { set: 'PHF', setNumber: '92', fullName: 'Battle Compressor PHF' },
     { set: 'SVE', setNumber: '5', fullName: 'Psychic Energy SVE' },
-    { set: 'XYP', setNumber: 'XY177', fullName: 'Karen XYP' },
+    { set: 'XYP', setNumber: '177', fullName: 'Karen XYP' },
+    { set: 'SMP', setNumber: '217', fullName: 'Trevenant & Dusknoir-GX SMP' },
   ];
   const input = field([
     row({ index: 0, cardId: 'swsh6-74', name: 'Shadow Rider Calyrex V', count: 3, set: 'CRE', sourceNumber: '74', cardPoolNumber: '74' }),
     row({ index: 1, cardId: 'xy4-92', name: 'Battle Compressor Team Flare Gear', count: 1, set: 'PHF', sourceNumber: '92', cardPoolNumber: '92' }),
-    row({ index: 2, cardId: 'sve-5', name: 'Basic Psychic Energy', count: 55, set: 'SVE', sourceNumber: '5', cardPoolNumber: '5' }),
+    row({ index: 2, cardId: 'sve-5', name: 'Basic Psychic Energy', count: 54, set: 'SVE', sourceNumber: '5', cardPoolNumber: '5' }),
     row({ index: 3, cardId: 'xyp-XY177', name: 'Karen', count: 1, set: 'XYP', sourceNumber: '177', cardPoolNumber: 'XY177' }),
+    row({ index: 4, cardId: 'smp-SM217', name: 'Trevenant & Dusknoir-GX', count: 1, set: 'SMP', sourceNumber: '217', cardPoolNumber: 'SM217' }),
   ]);
   const result = resolveDiagnosticField(input, mockManager(cards), { twinleaf_revision: 'test-rev' });
   assert.equal(result.status, 'complete');
-  assert.equal(result.resolved_source_rows, 4);
+  assert.equal(result.resolved_source_rows, 5);
   assert.equal(result.complete_deck_count, 1);
   assert.deepEqual(result.decks[0].registered60, [
     { printing: 'Battle Compressor PHF', copies: 1 },
     { printing: 'Karen XYP', copies: 1 },
-    { printing: 'Psychic Energy SVE', copies: 55 },
+    { printing: 'Psychic Energy SVE', copies: 54 },
     { printing: 'Shadow Rider Calyrex V CRE', copies: 3 },
+    { printing: 'Trevenant & Dusknoir-GX SMP', copies: 1 },
   ]);
   assert.equal(result.decks[0].source_row_mappings[1].twinleaf_full_name, 'Battle Compressor PHF');
-  assert.equal(result.decks[0].source_row_mappings[3].set_number, 'XY177');
+  assert.equal(result.decks[0].source_row_mappings[3].set_number, '177');
   assert.equal(result.decks[0].source_row_mappings[3].source_printing.number, '177');
-  assert.equal(result.identity_join, 'Twinleaf Card.set + Card.setNumber -> Card.fullName; never join on display name alone');
+  assert.equal(result.decks[0].source_row_mappings[3].card_pool_printing.number, 'XY177');
+  assert.equal(result.decks[0].source_row_mappings[4].set_number, '217');
+  assert.equal(result.decks[0].source_row_mappings[4].card_pool_printing.number, 'SM217');
+  assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName; card_pool_printing.number is not the engine setNumber');
   assert.equal(result.diagnostic_only, true);
   assert.equal(result.paper_admission_eligible, false);
   assert.equal(result.competitive_admission_eligible, false);
