@@ -534,3 +534,16 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - The Agent5 Node 22 MCTS/owner-root lane is also `workflow_dispatch` only. Its current source/test result is not native CI evidence; the manual lane has not been run on the current revision. No dispatch tool is available here.
 - No candidate list, opponent list, policy, or workflow was changed in this checkpoint. Current decision remains: no selected fixed 60-card deck; zero verified Expanded-legal Aichi opponent ranks; no competitively qualified games; no 99.5% evidence. Do not invent an opponent or use the fixture as a matchup.
 - Next useful action is event-driven: after the owner dispatches PR #47, inspect its exact artifact and report only what it proves; if positive, add at most the one required native fail-closed abstention case, then use the already-wired V3 fixture-game workflow for a complete non-admitting engineering game. Do not start another candidate branch before this execution boundary is crossed.
+
+
+### Dispatch refinements after the 09:55 checkpoint
+
+- Read Agent36's exact dispatch broadcasts. The Agent5 command must explicitly set `native_search_only=true`; leaving defaults runs the broader bilateral development replay that is not needed for the current Node 22 policy-contract gate. Exact bounded command:
+  ```sh
+  gh workflow run agent5-owner-root-native.yml \
+    --repo FlareZ123/experiment-01 \
+    --ref main \
+    -f native_search_only=true
+  ```
+- Confirmed PR #47's new input is branch-only: the default-branch copy of `.github/workflows/agent34-underworld-owner-prompt-native.yml` has the `workflow_dispatch` trigger but not `agent3_hooded_block_root_native`; the PR branch adds that input and test step. Dispatch must therefore select the PR branch ref exactly as above, and the returned artifact must prove the branch's step actually ran.
+- No PR47 branch run or Agent5 main run was visible as of 2026-11-13 10:00 UTC. The current environment still has no workflow-dispatch action; do not pretend a run was started.
