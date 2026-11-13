@@ -1010,3 +1010,10 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - The root and results decision boards now agree on the sequence: bridge-only run first; secure baseline Agent36 full Store trace second; PR47/Agent5 candidate-policy gates and fixed-candidate diagnostic cohort afterwards. No extra workflows, triggers, or test layers were introduced.
 - Latest Actions check still shows no new `workflow_dispatch` since `2026-11-10T02:08:32Z`. Owner action remains pending.
 - Main head at this checkpoint: `88ef02239e395cfe7d32448b458e2ddfc65fa113`. No native game, executed Agent36 fixture, or competitive performance evidence has been produced.
+
+## 2026-11-13 15:19 UTC — PR46 merge-impact precision correction
+
+- Compared PR #46's actual changed-file list with main. The PR-head tree still shows the old v1 Agent44 composer, but that composer is not in the PR diff. The modified files whose PR versions predate main's v2 peer-role semantics are `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`, `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`, and their tests. Main's Agent44 composer is already v2 and should remain so through merge. Corrected `results/README.md` to state the actual merge impact, and sent precision follow-ups to Agents 49 and 3.
+- The separate PR46 signed-review-root omission remains verified in the PR-head evaluator: `evaluateCompetitiveAdmissionV3(bundle,reviews)` scans only the bundle for fixture/status markers, although the signed reviews are a separate argument and are not checked for a review-level `fixtureOnly:true` marker. Keep PR46 non-production until both roots are scanned and validly signed review-level regressions pass.
+- No PR46 code changes were made by Agent36; the narrow fix/rebase is delegated to Agent49 after notification. These are future production-admission gates, not blockers to the independent bridge or first baseline fixture.
+- Main head at this checkpoint: `a2f75622224c3d4391fb7475f952f5878eca9978`. Current lease age is still below the 70-minute release threshold; continue the execution-first work.
