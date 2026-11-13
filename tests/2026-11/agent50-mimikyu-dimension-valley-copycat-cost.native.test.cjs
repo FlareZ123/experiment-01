@@ -45,7 +45,7 @@ function fixture(seat,energyCount,dimensionValley){
   opponent.active.cards.push(rival);
   if(dimensionValley)owner.stadium.cards.push(card('Dimension Valley PHF'));
   const gnaw=rival.attacks.find(attack=>attack.name==='Gnaw');
-  assert.ok(gnaw,'Venonat's non-GX Gnaw must be available');
+  assert.ok(gnaw,"Venonat's non-GX Gnaw must be available");
   state.playerLastAttack[opponent.id]={attack:gnaw,sourceCard:rival};
   state.lastAttack=gnaw;
   for(const player of state.players){
