@@ -90,6 +90,20 @@ function withCandidateOpponentPolicyRoles(run,options) {
   assertNoDiagnosticFallbackFlags(commonDeps,'commonDeps');
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
     'role-specific policy options must be plain objects');
+  const rootProviderConfigured=commonDeps.rootIntentProvider!==undefined||
+    commonDeps.createRootSearchCapability!==undefined;
+  assert.equal(rootProviderConfigured,
+    typeof commonDeps.rootIntentProvider==='function'&&
+    typeof commonDeps.createRootSearchCapability==='function',
+    'rootIntentProvider and createRootSearchCapability must be supplied together');
+  if(rootProviderConfigured){
+    assert.ok(plainObject(candidatePolicyOptions.rootIntentBudget)&&
+      plainObject(opponentPolicyOptions.rootIntentBudget),
+      'both roles must declare the fixed rootIntentBudget in policy options');
+    assert.deepEqual(candidatePolicyOptions.rootIntentBudget,
+      opponentPolicyOptions.rootIntentBudget,
+      'candidate and opponent must receive exactly equal MCTS budgets');
+  }
   for(const key of [
     'SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
     'getCatalog','getNativeTrainerCatalog','observe','promptActions'
@@ -107,7 +121,8 @@ function withCandidateOpponentPolicyRoles(run,options) {
     'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
     'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
     'arvenTrainerTypes','eriCardTypes','nativeOwnerTrainerFallback',
-    'ownerFallbackDiagnosticView'
+    'ownerFallbackDiagnosticView','rootIntentProvider',
+    'createRootSearchCapability'
   ];
   for(const [role,policyOptions] of [
     ['candidate',candidatePolicyOptions],['opponent',opponentPolicyOptions]
