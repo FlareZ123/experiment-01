@@ -1304,7 +1304,8 @@ async function main(argv=process.argv.slice(2),env=process.env){
     return result;
   }
   if(command==='postgame'){
-    const [preDealRef,trialRef,persistenceReceiptRef]=args;
+    const [preDealRef,trialRef,persistenceReceiptRef,applicationReceiptRef,
+      evidenceRef,reviewsRef,policyPanelReceiptsRef]=args;
     const preDeal=readJsonFile(repositoryRoot,preDealRef);
     const trial=readJsonFile(repositoryRoot,trialRef);
     const persistenceReceipt=readJsonFile(repositoryRoot,persistenceReceiptRef);
@@ -1314,12 +1315,34 @@ async function main(argv=process.argv.slice(2),env=process.env){
     const dir=path.join(repositoryRoot,'artifacts/agent36-v3');
     writeJsonAtomic(path.join(dir,'trial-with-server-generation-time.json'),result.trial);
     writeJsonAtomic(path.join(dir,'deal-generation-receipt.json'),result.receipt);
+    let bundleResult=null;
+    if(applicationReceiptRef || evidenceRef || reviewsRef || policyPanelReceiptsRef){
+      assert.ok(applicationReceiptRef && evidenceRef,
+        'application-receipt and evidence-map refs must be supplied together');
+      bundleResult=buildV3BundleFromArtifacts({
+        preDeal,trial:result.trial,preDealPersistenceReceipt:persistenceReceipt,
+        dealGenerationReceipt:result.receipt,
+        policyApplicationReceipt:readJsonFile(repositoryRoot,applicationReceiptRef),
+        evidence:readJsonFile(repositoryRoot,evidenceRef),
+        reviews:reviewsRef?readJsonFile(repositoryRoot,reviewsRef):[],
+        policyPanelReceipts:policyPanelReceiptsRef?
+          readJsonFile(repositoryRoot,policyPanelReceiptsRef):[]
+      });
+      writeJsonAtomic(path.join(dir,'complete-game-bundle.json'),bundleResult.bundle);
+      writeJsonAtomic(path.join(dir,'complete-game-assessment.json'),bundleResult.assessment);
+    }
     process.stdout.write(JSON.stringify({
-      status:'DEAL_GENERATION_METADATA_VERIFIED',trialId:result.trial.trialId,
+      status:bundleResult?
+        (bundleResult.competitiveAdmission?'COMPETITIVE_BUNDLE_ADMITTED':
+          'BUNDLE_BUILT_NOT_COMPETITIVELY_ADMITTED'):
+        'DEAL_GENERATION_METADATA_VERIFIED',
+      trialId:result.trial.trialId,
       jobId:result.receipt.jobId,stepStartedAt:result.receipt.stepStartedAt,
+      admissionEligible:bundleResult?.admissionEligible??false,
+      competitiveAdmission:bundleResult?.competitiveAdmission??false,
       output:dir
     },null,2)+'\n');
-    return result;
+    return {...result,bundleResult};
   }
   if(command==='build-bundle'){
     const [preDealRef,trialRef,persistenceReceiptRef,dealGenerationReceiptRef,
@@ -1352,7 +1375,7 @@ async function main(argv=process.argv.slice(2),env=process.env){
     },null,2)+'\n');
     return result;
   }
-  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
+  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> [application-receipt-ref evidence-map-ref [reviews-ref] [policy-panel-receipts-ref]] | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
 }
 
 if(require.main===module){
