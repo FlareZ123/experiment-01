@@ -118,7 +118,9 @@ test('merges duplicate source rows that resolve to the same Twinleaf printing', 
   ]);
   const result = resolveDiagnosticField(input, mockManager(cards));
   assert.equal(result.status, 'complete');
-  assert.deepEqual(result.decks[0].registered60, [{ printing: 'Shadow Rider Calyrex V CRE', copies: 60 }]);
+  assert.deepEqual(result.decks[0].registered60_counts, [{ printing: 'Shadow Rider Calyrex V CRE', copies: 60 }]);
+  assert.equal(result.decks[0].registered60.length, 60);
+  assert.equal(result.decks[0].decklist_for_seat.cards.length, 60);
 });
 
 test('fails closed on missing Twinleaf card', () => {
@@ -156,4 +158,18 @@ test('fails closed when declared source row or copy totals disagree', () => {
   assert.equal(result.status, 'incomplete');
   assert.equal(result.decks[0].registered60, null);
   assert.ok(result.unresolved.some(item => item.status === 'deck_source_row_count_mismatch'));
+});
+
+
+test('fails closed when a resolved deck has fewer than 60 copies', () => {
+  const cards = [{ set: 'CRE', setNumber: '74', fullName: 'Shadow Rider Calyrex V CRE' }];
+  const input = field([
+    row({ index: 0, cardId: 'swsh6-74', name: 'Shadow Rider Calyrex V', count: 59, set: 'CRE', sourceNumber: '74', cardPoolNumber: '74' }),
+  ]);
+  input.card_copies = 59;
+  input.decks[0].card_copies = 59;
+  const result = resolveDiagnosticField(input, mockManager(cards));
+  assert.equal(result.status, 'incomplete');
+  assert.equal(result.decks[0].registered60, null);
+  assert.ok(result.unresolved.some(item => item.status === 'deck_card_copy_count_mismatch'));
 });
