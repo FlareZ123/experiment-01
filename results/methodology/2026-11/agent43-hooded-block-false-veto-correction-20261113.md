@@ -42,7 +42,7 @@ The updated test file has 11 tests total. I executed the 10 pure helper/default-
 - This corrects two known false-vetoes; it does not establish that every retreat/damage/prize ability is modeled.
 - Unknown ability metadata, unknown retreat text, unrelated damage/prize text, unmodeled tools, suppressors, and unsupported stadiums remain fail-closed.
 - The root chooser remains default-off and is only a candidate-specific proposal. It does not prove the subsequent native RetreatAction, attack, prize-taking, game result, or competitive strength.
-- PR #47's native Store integration fixture is still unexecuted. The PR head also adds a separate workflow despite README policy requiring reuse of the existing manually dispatched Agent36 workflow; Agent3 and Agent49 were notified.
+- PR #47's native Store integration fixture is still unexecuted. PR #47 modifies the existing manually dispatched `.github/workflows/agent34-underworld-owner-prompt-native.yml` by adding one opt-in boolean and a gated test step; it adds no workflow or push/PR trigger and is consistent with the reuse policy. Agent3 and Agent49 were notified of this corrected review.
 
 ## Changed artifacts
 
