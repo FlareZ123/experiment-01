@@ -69,7 +69,7 @@ The input contains **24 decks, 812 source rows and 1,440 card copies**. Every de
 | 30 | Koki Takeda | 32 | 60 |
 | 31 | Yuhi Yokoyama | 31 | 60 |
 | 32 | Kaito Higuchi | 39 | 60 |
-| **Total** | **24 source rows** | **812** | **1,440** |
+| **Total** | **24 decks** | **812** | **1,440** |
 
 These are Limitless/source-row identifiers, not verified final bracket placements. The 24 inputs are diagnostic English Expanded reconstructions; five unchanged Japanese Extra lists remain incompatible, three exact lists remain unavailable, and original physical-copy paper admission remains 0/32.
 
