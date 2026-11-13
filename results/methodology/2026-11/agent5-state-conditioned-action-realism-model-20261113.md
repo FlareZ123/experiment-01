@@ -96,6 +96,8 @@ All calculations must use `I_p`, not the opponent's concealed hand or Prize card
 
 The repository already contains separate, tested building blocks for [K0 joint hidden deck/Prize sampling](../../twinleaf/k0-joint-hidden-zone-sampling.md), [K1 unknown Prize-position sampling](../../twinleaf/k1-unlocated-prize-position-sampling.md), and [the option value of K0-to-K1 information](../../statistics/agent4-k0-k1-information-potential.md). The [joint-versus-marginal Prize-cut analysis](../../statistics/agent27-prize-joint-versus-marginal.md) is another warning against multiplying or substituting marginals without preserving the event definition. The AMR/DCI proposal should consume these as belief/information inputs, not duplicate their samplers or combinatorial calculations.
 
+These information boundaries are grounded in `resources/advanced-players-rulebook.md`: setup step 7 sets Prizes face down without looking; section H makes a searched deck visible to the searching player but not the opponent; section C-20 says only the player using a look effect sees face-down cards unless otherwise specified.
+
 Opponent archetype inference from public cards or mulligans may update a belief over opponent policies and therefore the value of a line. It must not reveal hidden cards or convert a prior into certainty.
 
 ## Worked distinctions
