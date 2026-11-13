@@ -108,7 +108,7 @@ The AMR tuple must keep conditional execution separate from state reachability:
 
 - Conditional on the fully specified state, the first Timeless-GX line is executable in both arms.
 - Conditional on the same state, the second Copycat → Power Beam line is executable in D1 and unavailable in D2.
-- D2's fallback is not zero: Max Geist deals 160, but does not take the second Knock Out.
+- D2's fallback is not zero: Max Geist deals 160, but does not take the second Knock Out. This 160 result depends on Raihan and Teammates being unavailable despite their conditions being live; either Supporter can add a Psychic Energy and raise Max Geist to 190, which would Knock Out Crobat and erase this particular D1/D2 terminal distinction.
 - The probability of reaching the entire state is unknown. It depends on the candidate's setup, the opponent choosing Apex Dragon as its last attack, the GX allowance remaining unused, and the joint availability of Mimikyu, Energy, Dialga, Fairy Zone and the target board. This note does not estimate that probability.
 
 This is the intended distinction: **conditional payoff is not execution probability, and execution probability is not the probability of reaching the state.** A deck-aware policy must report all three rather than treating a line as generally available because it is technically reachable.
