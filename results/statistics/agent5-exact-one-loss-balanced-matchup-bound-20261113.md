@@ -171,7 +171,7 @@ D(R)
 +\frac{n(n-1)}2R^2.
 \]
 
-For \(n\ge106\), \(D'(R)=n((n-1)R-(1+2r_{\max}))\) is nonnegative for every \(R\ge R_{\min}\), and \(D(R_{\min})\) is nonnegative (at \(n=106\), it is approximately 0.0104012; its derivative with respect to \(R\) there is approximately 113.392). Hence \(H\ge f'(r)\), so the Schur criterion holds: whenever \(q_i>q_j\), the corresponding partial derivative of \(\log G_2\) is no greater. Thus \(G_2\) is Schur-concave on the simplex. By symmetry, its maximum is at the equal point \(q_j=0.005\).
+For \(n\ge106\), \(D'(R)=n((n-1)R-(1+2r_{\max}))\) is nonnegative for every \(R\ge R_{\min}\). Also \(D(R_{\min})\) is nonnegative at \(n=106\) (approximately 0.0104012) and increases with \(n\ge106\), since its derivative with respect to \(n\) is \(R_{\min}((n-1/2)R_{\min}-(1+2r_{\max}))>0\). At \(n=106\), \(D'(R_{\min})\) is approximately 113.392. Hence \(H\ge f'(r)\), so the Schur criterion holds: whenever \(q_i>q_j\), the corresponding partial derivative of \(\log G_2\) is no greater. Thus \(G_2\) is Schur-concave on the simplex. By symmetry, its maximum is at the equal point \(q_j=0.005\).
 
 Consequently, the exact worst-case probability under \(\bar p\le0.995\) is
 
