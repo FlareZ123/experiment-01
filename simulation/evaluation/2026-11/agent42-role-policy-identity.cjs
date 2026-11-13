@@ -11,13 +11,11 @@ const {evidenceBundleSha256} = require('../agent45-independent-competitive-admis
 const ENTRY_MANIFEST_SCHEMA = 'aichi-policy-entry-manifest-v2';
 const ROLE_IDENTITY_SCHEMA = 'aichi-role-policy-identity-v2';
 const APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v2';
-const ACTOR_ONLY_POLICY_EXECUTION_AUDIT_SCHEMA = 'aichi-actor-only-policy-execution-audit-v1';
-const FORBIDDEN_COMPETITIVE_FALLBACK_OPTIONS = new Set([
-  'nativeownertrainerfallback','ownerfallbackdiagnosticview'
-]);
-const ACTOR_AUDIT_COUNTERS = [
-  'unsupportedPromptFallbacks','nonOwnerNativeDelegations',
-  'nonLiveSpeculativeFallbacks','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls'
+const ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA = 'aichi-actor-only-execution-boundary-v1';
+const ACTOR_ONLY_EXECUTION_BOUNDARY_COUNTERS = [
+  'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
+  'nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls',
+  'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses'
 ];
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
@@ -108,20 +106,6 @@ function plainJson(value,label) {
   evidenceBundleSha256(value);
   assertNoPhysicalContext(value,label);
   return value;
-}
-function assertNoCompetitiveFallbackOptions(value,at='policyOptions') {
-  if(Array.isArray(value)){
-    value.forEach((item,index)=>assertNoCompetitiveFallbackOptions(item,at+'['+index+']'));
-    return;
-  }
-  if(value&&typeof value==='object'){
-    for(const [key,child] of Object.entries(value)){
-      const normalized=key.toLowerCase().replace(/[^a-z0-9]/g,'');
-      if(FORBIDDEN_COMPETITIVE_FALLBACK_OPTIONS.has(normalized)&&child===true)
-        assert.fail(at+' may not enable '+key+' for a V3 role identity');
-      assertNoCompetitiveFallbackOptions(child,at+'.'+key);
-    }
-  }
 }
 function assertInsideRoot(root,relative,label) {
   const real=fs.realpathSync(path.join(root,relative));
@@ -538,7 +522,6 @@ function buildRolePolicyIdentity({role,rank=null,producerId,deckSha256,
   assert.ok(Array.isArray(entryManifest.sharedEnginePatches),
     'entry manifest must preserve the shared engine patch set');
   plainJson(policyOptions,'policyOptions');
-  assertNoCompetitiveFallbackOptions(policyOptions);
   const observationContractSha256=entryManifest.observationContractSha256;
   const promptChainSha256=entryManifest.promptChainSha256;
   const sharedEnginePatchSha256=entryManifest.sharedEnginePatchSha256;
@@ -623,93 +606,34 @@ function validateRuntimePatchReceipts(core,trial,candidateIdentity,opponentIdent
   return validated;
 }
 
-function nonnegativeAuditCount(value,label) {
-  assert.ok(Number.isSafeInteger(value)&&value>=0,label+' must be a non-negative safe integer');
-  return value;
-}
-function summarizeActorOnlyRoleAudit(audit,role,expectedSeat) {
-  assert.ok(audit&&typeof audit==='object'&&!Array.isArray(audit),role+' actor-only audit is required');
-  assert.equal(audit.policyOwnerSeat,expectedSeat,role+' actor-only audit is bound to the wrong physical seat');
-  assert.ok(nonempty(audit.version),role+' actor-only audit version is missing');
-  assert.equal(audit.origin,'detached-actor-observation',role+' actor-only audit origin is invalid');
-  assert.equal(audit.observationSchema,'agent2-public-native-dispatch-diff-v1',
-    role+' actor-only audit observation schema is invalid');
-  const fallback=audit.nativeOwnerTrainerFallback;
-  assert.ok(fallback===undefined||fallback===null||
-    (typeof fallback==='object'&&!Array.isArray(fallback)),
-    role+' native-owner fallback audit must be an object when enabled');
-  const fallbackEnabled=fallback!==undefined&&fallback!==null;
-  const summary={
-    role,policyOwnerSeat:expectedSeat,auditVersion:audit.version,
-    origin:audit.origin,observationSchema:audit.observationSchema,
-    nativeOwnerTrainerFallbackEnabled:fallbackEnabled,
-    ownerFallbackDiagnosticViewEnabled:Boolean(fallback&&
-      Object.hasOwn(fallback,'firstUnsupportedOwnerRoot')),
-    nativePolicyMayUseHiddenInformation:fallback?.nativePolicyMayUseHiddenInformation===true,
-    unsupportedPromptFallbacks:nonnegativeAuditCount(audit.unsupportedPromptFallbacks,
-      role+' unsupportedPromptFallbacks'),
-    nonOwnerNativeDelegations:nonnegativeAuditCount(audit.nonOwnerNativeDelegations,
-      role+' nonOwnerNativeDelegations'),
-    nonLiveSpeculativeFallbacks:nonnegativeAuditCount(audit.nonLiveSpeculativeFallbacks,
-      role+' nonLiveSpeculativeFallbacks'),
-    nonTurnPhaseFallbacks:nonnegativeAuditCount(audit.nonTurnPhaseFallbacks,
-      role+' nonTurnPhaseFallbacks'),
-    nonOwnerSeatBypassCalls:nonnegativeAuditCount(audit.nonOwnerSeatBypassCalls,
-      role+' nonOwnerSeatBypassCalls'),
-    nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:fallback?
-      nonnegativeAuditCount(fallback.attemptedUnsupportedPasses,
-        role+' nativeOwnerTrainerFallback.attemptedUnsupportedPasses'):0
-  };
-  return summary;
-}
-function createActorOnlyPolicyExecutionAudit({trialId,candidateSeat,opponentSeat,
-  candidatePolicySha256,opponentPolicySha256,candidateAudit,opponentAudit}) {
-  stableId(trialId,'actor-only audit trial ID');
-  assert.ok([0,1].includes(candidateSeat)&&[0,1].includes(opponentSeat)&&
-    candidateSeat!==opponentSeat,'actor-only audit role seats must be distinct physical seats');
-  assert.match(candidatePolicySha256??'',SHA256,'candidate policy digest is invalid for actor-only audit');
-  assert.match(opponentPolicySha256??'',SHA256,'opponent policy digest is invalid for actor-only audit');
-  const payload={
-    schema:ACTOR_ONLY_POLICY_EXECUTION_AUDIT_SCHEMA,trialId,candidateSeat,opponentSeat,
-    candidatePolicySha256,opponentPolicySha256,
-    candidate:summarizeActorOnlyRoleAudit(candidateAudit,'candidate-policy',candidateSeat),
-    opponent:summarizeActorOnlyRoleAudit(opponentAudit,'opponent-policy',opponentSeat)
-  };
-  return {...payload,sha256:evidenceBundleSha256(payload)};
-}
-function inspectActorOnlyPolicyExecutionAudit(audit,expected) {
-  if(audit===undefined||audit===null)return {verified:false,eligible:false,sha256:null};
-  assert.ok(audit&&typeof audit==='object'&&!Array.isArray(audit),
-    'actor-only policy execution audit must be an object');
-  const {sha256,...payload}=audit;
-  assert.equal(audit.schema,ACTOR_ONLY_POLICY_EXECUTION_AUDIT_SCHEMA,
-    'actor-only policy execution audit schema is invalid');
-  assert.match(sha256??'',SHA256,'actor-only policy execution audit digest is invalid');
-  assert.equal(sha256,evidenceBundleSha256(payload),
-    'actor-only policy execution audit digest does not match its contents');
-  for(const key of ['trialId','candidateSeat','opponentSeat','candidatePolicySha256','opponentPolicySha256'])
-    assert.equal(audit[key],expected[key],'actor-only policy execution audit '+key+' mismatch');
-  const candidate=audit.candidate,opponent=audit.opponent;
+function validateActorOnlyExecutionBoundary(boundary,expected) {
+  assert.ok(boundary&&typeof boundary==='object'&&!Array.isArray(boundary),
+    'trial must carry the composer actor-only execution boundary');
+  assert.equal(boundary.schema,ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA,
+    'actor-only execution boundary schema is invalid');
+  assert.equal(boundary.valid,true,'actor-only execution boundary must be valid');
+  assert.deepEqual(boundary.failures,[],
+    'actor-only execution boundary must contain no fallback failures');
   for(const [role,row,seat] of [
-    ['candidate-policy',candidate,expected.candidateSeat],
-    ['opponent-policy',opponent,expected.opponentSeat]
+    ['candidate',boundary.candidate,expected.candidateSeat],
+    ['opponent',boundary.opponent,expected.opponentSeat]
   ]){
-    assert.ok(row&&typeof row==='object'&&!Array.isArray(row),role+' actor-only summary is missing');
-    assert.equal(row.role,role,role+' actor-only summary role mismatch');
-    assert.equal(row.policyOwnerSeat,seat,role+' actor-only summary seat mismatch');
-    for(const key of ['nativeOwnerTrainerFallbackEnabled','ownerFallbackDiagnosticViewEnabled',
-      'nativePolicyMayUseHiddenInformation'])
-      assert.equal(typeof row[key],'boolean',role+' '+key+' must be boolean');
-    for(const key of [...ACTOR_AUDIT_COUNTERS,'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses'])
-      nonnegativeAuditCount(row[key],role+' '+key);
+    assert.ok(row&&typeof row==='object'&&!Array.isArray(row),
+      role+' actor-only execution boundary summary is missing');
+    assert.equal(row.role,role,role+' actor-only execution boundary role mismatch');
+    assert.equal(row.policyOwnerSeat,seat,
+      role+' actor-only execution boundary is bound to the wrong physical seat');
+    assert.ok(nonempty(row.version),role+' actor-only execution boundary version is missing');
+    for(const key of ['nativeOwnerTrainerFallbackEnabled',
+      'ownerFallbackDiagnosticViewEnabled','nativePolicyMayUseHiddenInformation'])
+      assert.equal(row[key],false,role+' '+key+' must be explicitly false');
+    for(const key of ACTOR_ONLY_EXECUTION_BOUNDARY_COUNTERS){
+      assert.ok(Number.isSafeInteger(row[key])&&row[key]>=0,
+        role+' '+key+' must be a non-negative safe integer');
+      assert.equal(row[key],0,role+' '+key+' must be zero for competitive execution');
+    }
   }
-  const eligible=[candidate,opponent].every(row=>
-    row.nativeOwnerTrainerFallbackEnabled===false&&
-    row.ownerFallbackDiagnosticViewEnabled===false&&
-    row.nativePolicyMayUseHiddenInformation===false&&
-    [...ACTOR_AUDIT_COUNTERS,'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']
-      .every(key=>row[key]===0));
-  return {verified:true,eligible,sha256};
+  return evidenceBundleSha256(boundary);
 }
 
 function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdentity,
@@ -839,12 +763,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   const candidateSeat=trial.candidateSeat;
   const opponentSeat=trial.originalSourceSeat;
   const firstPlayerSeat=trial.actualFirstPlayerSeat;
-  const actorOnlyAuditState=inspectActorOnlyPolicyExecutionAudit(
-    trial.actorOnlyPolicyExecutionAudit,{
-      trialId:trial.trialId,candidateSeat,opponentSeat,
-      candidatePolicySha256:candidateIdentity.policySha256,
-      opponentPolicySha256:opponentIdentity.policySha256
-    });
+  const actorOnlyExecutionBoundarySha256=validateActorOnlyExecutionBoundary(
+    trial.actorOnlyExecutionBoundary,{candidateSeat,opponentSeat});
   assert.ok([0,1].includes(candidateSeat)&&[0,1].includes(opponentSeat)&&
     candidateSeat!==opponentSeat&&[0,1].includes(firstPlayerSeat),
     'trial physical-seat mapping is invalid');
@@ -891,10 +811,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     loadedProcessClosureSha256:candidateIdentity.loadedProcessClosureSha256,
     cardPoolInitializationSha256:candidateIdentity.cardPoolInitializationSha256,
     runtimePatchReceipts,runtimePatchReceiptsSha256,
-    actorOnlyPolicyExecutionAudit:trial.actorOnlyPolicyExecutionAudit??null,
-    actorOnlyPolicyExecutionAuditSha256:actorOnlyAuditState.sha256,
-    actorOnlyPolicyExecutionAuditVerified:actorOnlyAuditState.verified,
-    actorOnlyPolicyExecutionAuditEligible:actorOnlyAuditState.eligible,
+    actorOnlyExecutionBoundary:trial.actorOnlyExecutionBoundary,
+    actorOnlyExecutionBoundarySha256,
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
@@ -906,8 +824,8 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
 
 module.exports={
   ENTRY_MANIFEST_SCHEMA,ROLE_IDENTITY_SCHEMA,APPLICATION_RECEIPT_SCHEMA,
-  ACTOR_ONLY_POLICY_EXECUTION_AUDIT_SCHEMA,
+  ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA,validateActorOnlyExecutionBoundary,
   createPolicyEntryManifest,combineRolePolicyEntryManifests,
   preloadResearchModules,assertLoadedResearchModulesCovered,buildRolePolicyIdentity,
-  createActorOnlyPolicyExecutionAudit,createPolicyApplicationReceipt
+  createPolicyApplicationReceipt
 };
