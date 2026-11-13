@@ -52,3 +52,16 @@ Test blob: `63e51c63d476eee280f6525494c32ab4fd17029c`
 2. Keep policy RNG and transition RNG as separate interfaces in any future adapter/provider; reject regressions that pass one stream to both.
 3. Before expanding MCTS depth, independently validate actor-relative information sets, legal-state consistency on return to the root, and seat-swap invariance.
 4. Treat fixed opponent-policy mode as policy-conditioned search, not equilibrium modelling; qualify every per-rank opponent policy independently before field evaluation.
+
+
+## Follow-up — policy callback context boundary
+
+A second possible side channel remained after RNG isolation: the callback's fifth argument was the full search context, including `now()`, `startedAt` and `deadlineAt`. A policy could inspect elapsed computation time, which can vary with hidden-state-dependent work.
+
+The core now passes a frozen, restricted context containing only `seed`, `maxDecisionMs` and a fixed-stage `checkDeadline()` function. It exposes no live clock, timing origin or absolute deadline. The core still enforces the deadline immediately after the callback returns. The audit adds `opponentPolicyContextProtocol: "actor-observation-deadline-only-v1"`.
+
+- Core follow-up commit: `31464a790e351e418c8859d2e4a584aaf366f73b` (blob `bca845dc984adc502c13b3774800499c8b6203c7`).
+- Context-boundary regression commit: `3cae204d07bdc583baa1aa39a484ad356ee2d0d7` (blob `6db7b56e6b7ebb9079a88c731795e837c05d8163`).
+- The test also models hidden-state-dependent calls to the transition context's clock and asserts that the opponent policy receives only the three stable fields.
+
+After this follow-up, the complete six-test file passed in the same V8 harness with deterministic SHA/assert shims (**6/6**). Native Node 22/CI and Twinleaf execution remain pending. The test file remains included in the existing manual Agent5 workflow.
