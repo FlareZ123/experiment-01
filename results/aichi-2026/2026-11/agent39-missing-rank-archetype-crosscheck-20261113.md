@@ -17,6 +17,7 @@
 - [Pokekameshi CL Aichi 2026 Extra page 2](https://pokekameshi.com/cl2026aichidec-extra/2/) reports a 28th-place Regidrago finisher using the handle “Replica”. This is a likely correlation with the Limitless rank28 archetype, but the handle-to-name identity join is not independently established.
 - [kume's public note preview](https://note.com/kume_pokeca/n/n6cfd126f5774) says the author advanced 25th with an Electric Rain / Alolan Raichu one-shot list. The complete article is priced; no paywalled content was accessed or reproduced.
 - [Limitless Aichi decklist index](https://limitlesstcg.com/tournaments/566/decklists) does not expose exact 60-card lists for these three missing ranks.
+- [Official Pokémon Card Game CL2026 Aichi May article](https://www.pokemon-card.com/info/005499.html) is a champion-interview page with winner decklists, not a Top32 archive or physical deck-check photo gallery; it does not recover ranks 23, 25 or 28 or authenticate original physical copies.
 
 ## Decision and limits
 
