@@ -28,7 +28,7 @@ This is a **normalized card-pool pass**, not proof of the exact physical Japanes
 | 14 | Manaya Asano | Regidrago | 53 | 1 | 6 | Marshadow UNB 81 ×1 — Resetting Hole |
 | 15 | Ryotaro Nozawa | Lopunny / Vileplume | 58 | 0 | 2 | — |
 | 16 | Takumi Matsumoto | Absol / Garbodor | 50 | 3 | 7 | — |
-| **Total** |  | **9 × 60** | **479** | **10** | **51** | **4 non-banned candidate copies** |
+| **Total** |  | **9 × 60** | **479** | **10** | **51** | **7 non-banned candidate copies** |
 
 Accounting source: results/aichi-2026/full-decklists.json and results/aichi-2026/card-coverage.json. Every row sums to 60 copies. The three columns sum to 540.
 
