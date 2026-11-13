@@ -20,6 +20,7 @@ test('pinned Twinleaf Arbok Gastro Acid suppresses Stoutland through Stealthy Ho
     assert.equal(row.stoutlandStillActive,true);
     assert.equal(row.vileplumeOnBench,true);
     assert.deepEqual(row.unresolvedPrompts,[]);
+    assert.ok(row.waitPromptCount >= 0);
   }
   assert.equal(result.cases[0].withStealthyHood,false);
   assert.equal(result.cases[1].withStealthyHood,true);
