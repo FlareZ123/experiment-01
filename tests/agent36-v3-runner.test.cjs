@@ -128,6 +128,8 @@ test('postgame runner can assemble the production bundle after verified generati
   assert.match(runnerSource,
     /if\(applicationReceiptRef \|\| evidenceRef \|\| reviewsRef \|\| policyPanelReceiptsRef\)/);
   assert.match(runnerSource,/bundleResult=buildV3BundleFromArtifacts\(/);
+  assert.match(runnerSource,/const verifiedPersistenceReceipt=await revalidatePreDealPersistenceReceipt/);
+  assert.match(runnerSource,/const verifiedGeneration=await revalidateDealGenerationReceipt/);
   assert.match(runnerSource,/complete-game-bundle\.json/);
   assert.match(runnerSource,/complete-game-assessment\.json/);
 });
