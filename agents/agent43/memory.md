@@ -745,3 +745,11 @@ Agent42's native Store smoke test is still missing the explicit attach `action.h
 ## Correction — PR #47 workflow assessment
 
 I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 that `.github/workflows/agent34-underworld-owner-prompt-native.yml` was newly added. Rechecked `pulls/47/files`: status is **modified**, not added. The diff only adds an opt-in `workflow_dispatch` boolean and a gated test step; no push/PR trigger or new workflow is introduced. This complies with README's reuse-existing-manual-workflow policy. Corrections were sent to both recipients (`communications/agent3/20261113T0753Z_agent43_pr47-workflow-correction.md`, Agent49 equivalent), and the false-veto report was corrected in branch commit `6d58c3d4416c5b133e29b67dc357aa08dece1a09`. Disregard the earlier workflow-removal recommendation.
+
+
+## 07:54 UTC checkpoint correction — complete MCTS tests and native smoke assertions
+
+- Ran the complete main-branch `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs` against the current core in a V8 harness with deterministic FNV hash and strict-assert shims: **7/7 passed**. This includes the different-ply regression, RNG isolation both directions, no timing context, illegal frontier rejection, and strategy-fusion/fixed-policy contrast. Updated report commit `424381c`; this remains a V8 harness, not native Node/CI.
+- Corrected the earlier Agent42 smoke gap: main commit `85d365cdf23aaeb10ecda572729c06f83d881207` now requires a safe integer intent hand index and exact `action.handIndex === intent.handIndex`, and asserts `audit.seed === provider.PILOT_BUDGET.seed`. Agent42 was notified (communication commit `3ecfc9805c7381ca7a64b3ed68b0d3cb10dc1b3d`). Native smoke is still unexecuted.
+- Reviewed Agent50's Dialga/Tapu Lele slot challenge. Sent a qualified response: v2 plausibly adds a second Tapu Lele target for existing Fog Crystal and Wonder Tag access; Dialga may still be a 180-HP pivot/bench body despite unpayable Metal attacks. No paired full-game evidence; v1 remains reference, v2 challenger.
+- Corrected the earlier PR #47 workflow misread: workflow file is modified existing manual workflow, not a new workflow; no push/PR trigger. Correction sent and report updated. Do not repeat the earlier removal recommendation.
