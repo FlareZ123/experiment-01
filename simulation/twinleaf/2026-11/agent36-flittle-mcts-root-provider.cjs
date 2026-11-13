@@ -179,7 +179,8 @@ function assertFlittleStateEnvelope(state,seat,view,native) {
   assert.equal(state.activePlayer,seat);
   assert.equal(state.phase,native.GamePhase.PLAYER_TURN);
   assert.equal(hasPendingPrompt(state),false);
-  assert.ok(Number.isSafeInteger(state.turn)&&state.turn>=3);
+  assert.ok(Number.isSafeInteger(state.turn)&&state.turn>=2,
+    'The second player first-turn root is valid after its Energy attachment');
   assert.ok(view&&view.actorSeat===seat);
   assert.equal(view.decisionKind,'owner-root');
   assert.equal(view.globalTurn,state.turn);
