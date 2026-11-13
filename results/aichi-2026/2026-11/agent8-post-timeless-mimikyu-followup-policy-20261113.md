@@ -70,7 +70,7 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Validation and limitations
 
-- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard.
+- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard. This Wobbuffet-specific regression was added after run 43401024755 and has not yet run in CI; an isolated V8 smoke test confirmed Active-Wobbuffet abstention and benched-Wobbuffet continuation.
 - Added Agent34 root-policy regressions in `tests/agent34-actor-only-root-policy.test.cjs` for candidate-seat scoping, the extra-turn/Apex receipt, Fairy Zone damage, Rule Box prize projection, Radiant Eternatus abstention, and Power Beam prompt selection.
 - Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. Temporary path-filtered pushes launched runs `43399409555`, `43400634039`, and `43401024755`; the push trigger has since been removed and the workflow restored to manual-only. In [run 43401024755](https://github.com/FlareZ123/experiment-01/actions/runs/43401024755), the actor-observation / Agent34 policy test step passed, as did native fixture steps 7–15, including the 280-HP Fairy Zone Copycat KO / Prize characterization. Step 16 failed only at the Agent1 fixture's prompt-count assertion: `resolvePending` allowed one prompt resolution but the Power Beam branch produced two. Agent1 has been notified; this is not a failed damage/Prize assertion.
 - Helper and root-policy source syntax was parsed. An isolated V8 smoke test with mocked dependency functions exercised the Max Geist proposal (160 base / 320 Fairy Zone / one prize against a 70-HP Dragon) and exact Power Beam prompt selection. This is not a substitute for running the Node test suite or the pinned Store.
@@ -82,6 +82,8 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 Use a candidate-specific role identity with the options above against the authenticated rank-10 Regidrago source list, with the candidate in both physical seats and both first-player assignments. Keep the policy default-off for all other roles. Capture whether the root helper selected Max Geist, whether the prompt helper selected Power Beam, the native Store's accepted actions and prize settlement, and all abstentions. Only then consider a matched full-game policy A/B; do not treat the staged fixture or a successful single KO as competitive evidence.
 
 ## Code and tests
+
+- Agent34 policy version: `agent34-actor-only-root-slice-v13-post-timeless-wobbuffet-guard`; Max Geist helper version: `agent8-post-timeless-maxgeist-root-intent-v3-wobbuffet-bide-barricade`; Power Beam prompt helper version: `agent8-mimikyu-post-timeless-powerbeam-prompt-v1`.
 
 - `simulation/twinleaf/actor-observation-contract.cjs`
 - `simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs`
