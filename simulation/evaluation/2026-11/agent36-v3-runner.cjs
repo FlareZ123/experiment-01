@@ -470,6 +470,32 @@ function buildV3BundleFromArtifacts({preDeal,trial,policyApplicationReceipt,
     preDealPersistenceReceipt,dealGenerationReceipt,policyPanelReceipts,reviews
   });
 }
+async function revalidatePreDealPersistenceReceipt({preDeal,persistenceReceipt,
+  repositoryRoot,common,collector=collectPreDealPersistenceReceipt}={}) {
+  assert.ok(persistenceReceipt&&typeof persistenceReceipt==='object',
+    'pre-deal persistence receipt is required');
+  const verified=await collector({
+    ...common,preDeal,repositoryRoot,
+    runId:persistenceReceipt.workflowRunId,
+    expectedHeadSha:persistenceReceipt.workflowHeadSha
+  });
+  assert.deepEqual(verified.receipt,persistenceReceipt,
+    'pre-deal persistence receipt differs from live GitHub run/artifact evidence');
+  return verified.receipt;
+}
+async function revalidateDealGenerationReceipt({preDeal,trial,persistenceReceipt,
+  dealGenerationReceipt,common,collector=collectDealGenerationReceipt}={}) {
+  assert.ok(dealGenerationReceipt&&typeof dealGenerationReceipt==='object',
+    'deal-generation receipt is required');
+  const verified=await collector({
+    ...common,preDeal,trial,persistenceReceipt,
+    runId:dealGenerationReceipt.workflowRunId,
+    expectedHeadSha:dealGenerationReceipt.workflowHeadSha
+  });
+  assert.deepEqual(verified.receipt,dealGenerationReceipt,
+    'deal-generation receipt differs from live GitHub run/job/step evidence');
+  return verified;
+}
 function writeJsonAtomic(filename,value){
   fs.mkdirSync(path.dirname(filename),{recursive:true});
   const temp=filename+'.'+process.pid+'.tmp';
@@ -1309,8 +1335,11 @@ async function main(argv=process.argv.slice(2),env=process.env){
     const preDeal=readJsonFile(repositoryRoot,preDealRef);
     const trial=readJsonFile(repositoryRoot,trialRef);
     const persistenceReceipt=readJsonFile(repositoryRoot,persistenceReceiptRef);
+    const verifiedPersistenceReceipt=await revalidatePreDealPersistenceReceipt({
+      preDeal,persistenceReceipt,repositoryRoot,common
+    });
     const result=await collectDealGenerationReceipt({
-      ...common,preDeal,trial,persistenceReceipt
+      ...common,preDeal,trial,persistenceReceipt:verifiedPersistenceReceipt
     });
     const dir=path.join(repositoryRoot,'artifacts/agent36-v3');
     writeJsonAtomic(path.join(dir,'trial-with-server-generation-time.json'),result.trial);
@@ -1351,11 +1380,21 @@ async function main(argv=process.argv.slice(2),env=process.env){
       preDealRef,trialRef,persistenceReceiptRef,dealGenerationReceiptRef,
       applicationReceiptRef,evidenceRef
     })) assert.ok(value,name+' is required for V3 bundle assembly');
+    const preDeal=readJsonFile(repositoryRoot,preDealRef);
+    const trial=readJsonFile(repositoryRoot,trialRef);
+    const persistenceReceipt=readJsonFile(repositoryRoot,persistenceReceiptRef);
+    const dealGenerationReceipt=readJsonFile(repositoryRoot,dealGenerationReceiptRef);
+    const verifiedPersistenceReceipt=await revalidatePreDealPersistenceReceipt({
+      preDeal,persistenceReceipt,repositoryRoot,common
+    });
+    const verifiedGeneration=await revalidateDealGenerationReceipt({
+      preDeal,trial,persistenceReceipt:verifiedPersistenceReceipt,
+      dealGenerationReceipt,common
+    });
     const result=buildV3BundleFromArtifacts({
-      preDeal:readJsonFile(repositoryRoot,preDealRef),
-      trial:readJsonFile(repositoryRoot,trialRef),
-      preDealPersistenceReceipt:readJsonFile(repositoryRoot,persistenceReceiptRef),
-      dealGenerationReceipt:readJsonFile(repositoryRoot,dealGenerationReceiptRef),
+      preDeal,trial:verifiedGeneration.trial,
+      preDealPersistenceReceipt:verifiedPersistenceReceipt,
+      dealGenerationReceipt:verifiedGeneration.receipt,
       policyApplicationReceipt:readJsonFile(repositoryRoot,applicationReceiptRef),
       evidence:readJsonFile(repositoryRoot,evidenceRef),
       reviews:reviewsRef?readJsonFile(repositoryRoot,reviewsRef):[],
@@ -1393,7 +1432,8 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
   prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
-  readJsonFile,buildV3BundleFromArtifacts,writeJsonAtomic,main,
+  readJsonFile,buildV3BundleFromArtifacts,revalidatePreDealPersistenceReceipt,
+  revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
   resolvePrintedDeck,
   buildFixtureRoleEntryManifest,
