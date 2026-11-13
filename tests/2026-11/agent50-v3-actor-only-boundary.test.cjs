@@ -11,11 +11,14 @@ function audit(seat,overrides={}) {
   return {
     policyOwnerSeat:seat,
     version:'agent34-actor-only-root-policy-v1',
+    origin:'detached-actor-observation',
+    observationSchema:'agent2-public-native-dispatch-diff-v1',
     nativeOwnerTrainerFallback:undefined,
     unsupportedPromptFallbacks:0,
     nonLiveSpeculativeFallbacks:0,
     nonOwnerNativeDelegations:0,
     nonTurnPhaseFallbacks:0,
+    nonOwnerSeatBypassCalls:0,
     ...overrides
   };
 }
@@ -81,6 +84,20 @@ test('non-owner native delegation and non-turn-phase fallback also fail closed',
   });
   assert.equal(nonTurn.valid,false);
   assert.ok(nonTurn.failures.includes('opponent-nonTurnPhaseFallbacks-nonzero'));
+});
+
+test('non-owner seat bypass and unsupported fallback-pass counters fail closed',()=>{
+  const bypass=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{nonOwnerSeatBypassCalls:1}),opponentAudit:audit(1),
+    candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(bypass.valid,false);
+  assert.ok(bypass.failures.includes('candidate-nonOwnerSeatBypassCalls-nonzero'));
+  const fallback=inspectActorOnlyExecutionBoundary({
+    candidateAudit:audit(0,{nativeOwnerTrainerFallback:{attemptedUnsupportedPasses:1}}),
+    opponentAudit:audit(1),candidateSeat:0,opponentSeat:1
+  });
+  assert.equal(fallback.valid,false);
 });
 
 test('missing fallback counters and mismatched role seats fail closed',()=>{
