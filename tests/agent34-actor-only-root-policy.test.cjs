@@ -117,6 +117,22 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   assert.equal(mismatchedBudget.status,'abstained');
   assert.equal(mismatchedBudget.reason,'native-search-budget-mismatch');
 
+  const elapsedOverBudget=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected',intent:{kind:'pass'},
+      audit:{
+        frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+        ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+        applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+        iterations:32,completedIterations:32,maxPlies:4,
+        maxDecisionMs:250,seed:9,elapsedMs:250,
+        timeoutStatus:'completed',rootActionCount:2
+      }}),
+    provider:context=>{context.runSearch();return {status:'selected'};}
+  });
+  assert.equal(elapsedOverBudget.status,'abstained');
+  assert.equal(elapsedOverBudget.reason,'native-search-budget-mismatch');
+
   const selectedWithoutSearch=invokeActorRootIntentProvider({
     state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
     capabilityFactory:()=>()=>({status:'selected'}),
