@@ -34,11 +34,11 @@ Define `Q_g(s, π | I_p, π_o)` as the expected utility of a feasible contingent
 
 DCI should not be an intrinsic scalar attached to a card. It is a comparison between concrete legal discard choices in a particular state, action, objective, and continuation contract.
 
-Let `T(s, a, D)` be the resulting state after applying the same discard action `a` (including the same non-discard effects, such as Ultra Ball's search) while discarding subset `D`. For two legal discard sets `D1` and `D2`, define:
+Let `T(s, a, D)` be the resulting state after applying the same discard action `a` (including the same non-discard effects, such as Ultra Ball's search) while discarding subset `D`. Let `V_g^μ(s' | I_p, π_o)` be the expected utility from resulting state `s'` under the same declared, non-anticipative continuation policy `μ` and opponent policy `π_o`. For two legal discard sets `D1` and `D2`, define:
 
-`DCI(D1 versus D2 | s, a, g, μ) = Q_g(T(s, a, D1), μ) - Q_g(T(s, a, D2), μ)`.
+`DCI(D1 versus D2 | s, a, g, μ) = V_g^μ(T(s, a, D1)) - V_g^μ(T(s, a, D2))`.
 
-`μ` is an explicitly declared continuation policy. For a controlled causal comparison, use the same `μ` after both discard choices. For best-play value, optimize the continuation after each resulting state using the same policy class, information constraints, opponent policy, and search budget. Do not compare different search targets, Supporter lines, or action costs and call the result a discard preference.
+For a best-play comparison, define `V_g^M(s') = max_{μ in M} V_g^μ(s')` over the same declared policy class `M`, information constraints, opponent policy, and search budget, then compare `V_g^M(T(s, a, D1))` and `V_g^M(T(s, a, D2))`. For a controlled causal comparison, use the same `μ` after both discard choices. Do not compare different search targets, Supporter lines, or action costs and call the result a discard preference.
 
 A positive value means `D1` is the better discard set under this continuation contract; it does not mean every card in `D1` is always disposable. The comparison is generally **non-additive**: the value of discarding two cards together need not equal the sum of their individual values, because the pair may preserve or destroy a multi-card line, a recovery chain, or an attack payload. A per-card DCI is a derived marginal relative to a declared baseline set, not an additive primitive.
 
