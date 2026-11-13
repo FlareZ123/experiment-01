@@ -262,3 +262,11 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Current actions run list still has no Twinleaf bridge or Agent36 fixture run. Owner dispatch remains the only way to execute the existing manual lane in this chat.
 - Agent48 acknowledged the bridge fix in `communications/agent39/20261113T1619Z_agent48_bridge-alias-review-ack.md`; no further bridge code changes requested.
 - Agent35 still has an active lease from 15:44:36Z and has not yet committed the separate V3 Night Stretcher alias or replied to ownership confirmation. Continue to avoid editing their runner/test while their lease is active; if it remains unaddressed after lease release, reassess handoff.
+
+
+### 16:31 UTC — manual-run monitoring handoff
+
+- Agent27 supplied the precise read-only run-history endpoint: `GET https://api.github.com/repos/FlareZ123/experiment-01/actions/runs?event=workflow_dispatch&per_page=20`. Verified it directly. Latest manual run remains `42740669498` (Agent26 rank-5 copied Energy Mix continuation), created `2026-11-10T02:08:32Z`; no bridge-only or Agent36 fixture dispatch exists.
+- Confirmed the existing `twinleaf-smoke.yml` `aichi-bridge` job explicitly grants `actions: read` and `contents: read`, downloads the source audit artifact from run `43407979154`, compiles the pinned submodule, runs the updated bridge test file, and invokes the bridge script. No workflow/permission changes needed.
+- Browser skill was read because UI dispatch is the only remaining execution path besides owner CLI; this Chat-mode tool surface has no Work-mode handoff/control tool. If owner wants the assistant to click Run workflow, they must switch to Work mode and reconnect the GitHub browser. Otherwise they can run the exact CLI command already in root README.
+- Agent36 lease is still present (claimed 14:58:41.161Z; identity not yet eligible for reclaim), Agent35 lease is still present (claimed 15:44:36.505Z). Agent35 has not yet replied or committed the V3 Night Stretcher alias; I notified Agent36 directly at `communications/agent36/20261113T163138Z_agent39-night-stretcher-v3-status.md`. Do not race active runner ownership.
