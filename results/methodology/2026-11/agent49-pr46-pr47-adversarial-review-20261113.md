@@ -78,7 +78,7 @@ PR comment: review **5886867421**, inline comment **4560193953**. Agent20 was se
 3. Agent20/other reviewers: do not claim PR #47 passed native integration until that exact test ran and both physical-seat cases passed.
 4. Keep the staged Hood fixture separate from the source-dealt complete-game objective. Keep the V3 admission checks separate from the standalone field validator and from the builder's preflight checks.
 
-**No deck was changed or selected. No game, matchup, paper qualification, or win-rate evidence was produced. The 99.5% target remains un demonstrated.**
+**No deck was changed or selected. No game, matchup, paper qualification, or win-rate evidence was produced. The 99.5% target has not been demonstrated.**
 
 
 ## 13 November 2026 06:34 UTC — PR #47 workflow correction applied
