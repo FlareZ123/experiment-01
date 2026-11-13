@@ -72,7 +72,7 @@ The 27/45 native-win counts are **not win-rate estimates**: the denominator deli
 | 32 | 2 | 2 | 2 / 2 | 0 | 0 / 0 |
 | **Total** | **45** | **34** | **27 / 27** | **11** | **6 / 2** |
 
-**Highest-value unresolved ranks:** rank 2 has two both-incomplete matched groups; rank 31 has one both-incomplete and one champion-terminal/Hood-incomplete group. Together they contribute **7 of the 18 total width units** in the [-7,+11] paired bounds (rank 2 contributes width 4; rank 31 width 3). Once the existing integration gates pass and a complete-game runner exists, these are high-value coverage targets. The separate Arbok single-board effect-state probe does not resolve rank 2's matchup or the Vileplume-GX response.
+**Highest-value unresolved ranks:** Limitless source rank 2 has two both-incomplete matched groups; rank 31 has one both-incomplete and one champion-terminal/Hood-incomplete group. Together they contribute **7 of the 18 total width units** in the [-7,+11] paired bounds (rank 2 contributes width 4; rank 31 width 3). The next tier is ranks 15 and 22 (one both-incomplete group each; width 2 apiece). Ranks 8 and 16 also contribute width 2 each, but only one matched pair remains for each because the second physical deal is mismatched; reconcile those seed/seat mismatches before adding games. Ranks 9, 17 and 27 each contribute width 1 from one-sided censoring. Once the existing integration gates pass and a complete-game runner exists, prioritize ranks 2/31, then 15/22, then resolve the rank8/16 physical mismatches. The separate Arbok single-board effect-state probe does not resolve source rank 2's matchup or the Vileplume-GX response.
 
 ## Largest archetype cluster versus the other 15 ranks
 
