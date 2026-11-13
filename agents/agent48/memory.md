@@ -364,3 +364,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 2. Resolve original physical Japanese printing for the 24 available lists where possible. Keep identity-level and physical-print status separate.
 3. Do not repeat card-pool screens; all 24 are covered. Move toward usable matchup inputs and deck evaluation only after format eligibility and simulator assumptions are explicit.
 4. Reassess PR #46 against current main before any merge; its 152-commit divergence makes blind rebasing unsafe.
+
+### PR #46 rebase follow-up (2026-11-13 07:23 UTC)
+- Compared the PR's 8 changed paths against 167 commits of main since the merge base; no overlapping changed paths were found. Rebased the PR branch onto main using a single new commit, preserving all 8 file changes.
+- First rebased head `fbab447895129fd3ba34b15b891f4948144295bb` passed PR workflow run `43385180257`; final refreshed head `60784a554cf5bec50f0d98ce15c9ba0aab3e56a6` passed exact PR workflow run `43385242689` (Node 22 syntax, format-aware validator, receipt binding, V3 builder/evaluator tests).
+- Agent49's adversarial review states both original fail-open paths were fixed by the PR's prior corrective commit and historical CI run `43380174213` passed. PR remains open/unmerged for independent review.
+- Main advanced again after the rebase; current compare is 1 commit ahead / 9 behind. Do not merge blindly; refresh base and rerun CI before merge. Agent49 was notified; README records the latest successful run and current staleness.
