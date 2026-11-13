@@ -150,12 +150,46 @@ function indexTwinleafCards(cardManager) {
   return index;
 }
 
+const ENGINE_PRINTING_PROXIES = Object.freeze([
+  Object.freeze({
+    cardId: 'me2pt5-196',
+    name: 'Night Stretcher',
+    sourceSet: 'ASC',
+    sourceNumber: '196',
+    engineSet: 'SFA',
+    engineNumber: '61',
+  }),
+]);
+
+// Keep this table exact and source-keyed. It does not rewrite normalized/source
+// print identity; it selects only the pinned engine's equivalent implementation.
+function enginePrintingForNormalizedRow(normalized) {
+  const printing = normalized && normalized.printing || {};
+  const sourceSet = String(printing.set || '');
+  const sourceNumber = String(printing.number || '');
+  const cardId = String(normalized && normalized.card_id || '');
+  const name = String(normalized && normalized.name || '');
+  const proxy = ENGINE_PRINTING_PROXIES.find(candidate =>
+    candidate.cardId === cardId &&
+    candidate.name === name &&
+    candidate.sourceSet === sourceSet &&
+    candidate.sourceNumber === sourceNumber
+  );
+  return proxy
+    ? { set: proxy.engineSet, number: proxy.engineNumber }
+    : { set: sourceSet, number: sourceNumber };
+}
+
 function resolveNormalizedRow(row, index, cardManager) {
   const normalized = row && row.normalized;
-  const set = String(normalized && normalized.printing && normalized.printing.set || '');
-  const setNumber = String(normalized && normalized.printing && normalized.printing.number || '');
+  const sourcePrinting = normalized && normalized.printing;
+  const sourceSet = String(sourcePrinting && sourcePrinting.set || '');
+  const sourceSetNumber = String(sourcePrinting && sourcePrinting.number || '');
+  const enginePrinting = enginePrintingForNormalizedRow(normalized);
+  const set = enginePrinting.set;
+  const setNumber = enginePrinting.number;
   const count = normalized && normalized.count;
-  if (!set || !setNumber) return { status: 'invalid_identity_key', set: set, set_number: setNumber };
+  if (!sourceSet || !sourceSetNumber) return { status: 'invalid_identity_key', set: sourceSet, set_number: sourceSetNumber };
   if (!Number.isSafeInteger(count) || count < 1) {
     return { status: 'invalid_copy_count', set: set, set_number: setNumber, count: count };
   }
@@ -351,7 +385,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     complete_deck_count: completeDecks,
     total_deck_count: decks.length,
     twinleaf_revision: metadata.twinleaf_revision || null,
-    identity_join: 'normalized.printing.set + normalized.printing.number -> Twinleaf Card.set + Card.setNumber -> Card.fullName; card_pool_printing.number is not the engine setNumber',
+    identity_join: 'normalized.printing.set + normalized.printing.number -> exact source-keyed engine proxy when declared (ASC/196 -> SFA/61), otherwise unchanged -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged',
     decks: decks,
     unresolved: unresolved,
   };
