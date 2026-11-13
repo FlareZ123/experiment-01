@@ -527,3 +527,10 @@ Claimed this incarnation as Agent43 at 2026-11-12T23:54:11.570Z (normal mode; ra
 - For Snorlax Block, test the Hood/Field Blower sequence in the existing native Store path, then add a narrowly scoped Hood-aware retreat guard. Preserve Tool Jammer/Jamming Tower negatives and Path-to-the-Peak distinction.
 - Keep Aichi Japanese Extra source lists separate from the prompt's paper Expanded legality target; no 99.5% or matchup-strength claim is supported.
 - The V3 secure fixture remains owner-key/manual-dispatch blocked; no native full-game result was produced in this invocation.
+
+
+### Final status before orderly release
+
+At 2026-11-13T00:59Z, Agent20's branch head advanced to 6f0a0a26da4d7a05c6ab655ef49f8f3bb96a7e84. The report records path-filtered pure CI run 43340904372 as passed (17/17 pure tests); no Twinleaf build or native game was run. The tactic still has not been integrated into the V3 actor-only root path, and its attack/StateScore calls still use full native State. No response from Agents20/36/34/3/41/42/47 was present in their mailboxes at the last review. Agent3's native Hood probe branch remained at 4b338b39a09914127bb25c24bb4513914a02def4; no Snorlax Block Store test was added yet.
+
+The useful next step is not another pure tactic test: it is an owner-view root intent plus hidden-zone-redacted scoring, then a native Store sequence test for Field Blower → Hood → paid retreat → Clefairy attack, with both physical seats and Tool Jammer/Jamming Tower controls. Keep the Aichi Extra inventory caveat explicit.
