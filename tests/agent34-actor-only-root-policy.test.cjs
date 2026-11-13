@@ -1399,3 +1399,76 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(adpIntent.projectedPrizeCount,3,
     'the public prize projection must retain Tag Team three-prize value');
 });
+
+
+test('post-Timeless Mimikyu prompt selects the strongest public non-GX Dragon payload',()=>{
+  const {
+    VERSION:powerBeamVersion,
+    chooseNativeMimikyuPostTimelessPowerBeamPrompt
+  }=require('../simulation/twinleaf/2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs');
+  const powerBeam={name:'Power Beam',damage:200,gxAttack:false};
+  const radiant={fullName:'Radiant Eternatus CRZ',attacks:[powerBeam]};
+  const dialga={fullName:'Dialga-GX UPR',attacks:[
+    {name:'Overclock',damage:null,text:'Search your deck for Energy cards.'},
+    {name:'Shred',damage:80,gxAttack:false},
+    {name:'Timeless-GX',damage:150,gxAttack:true}
+  ]};
+  const owner={
+    id:0,active:{getPokemonCard:()=>({fullName:'Mimikyu GRI'})},
+    usedGX:true,usedTurnSkip:true,discard:{cards:[dialga,radiant]}
+  };
+  const opponent={id:1};
+  const state={activePlayer:0,turn:8,players:[owner,opponent]};
+  const tracker={
+    getCopycatChoices:id=>id===1?[{turn:7,
+      sourceCardFullName:'Regidrago VSTAR SIT',attackName:'Apex Dragon',
+      gxAttack:false}]:[],
+    getPreviousTurnSnapshot:id=>id===1?{turn:7}:null
+  };
+  class ChooseAttackPrompt {
+    constructor(){
+      this.playerId=owner.id;
+      this.cards=[dialga,radiant];
+      this.validate=attack=>attack===powerBeam||
+        dialga.attacks.includes(attack);
+    }
+  }
+  const prompt=new ChooseAttackPrompt();
+  const selected=chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    state,0,prompt,tracker);
+  assert.equal(selected,powerBeam,
+    'the exact validated Power Beam Attack object should be returned');
+  assert.equal(selected.damage,200);
+  assert.equal(powerBeamVersion,'agent8-mimikyu-post-timeless-powerbeam-prompt-v1');
+
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[{...owner,usedTurnSkip:false},opponent]},
+    0,prompt,tracker),null,'no bonus turn means no post-Timeless prompt');
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[{...owner,usedGX:false},opponent]},
+    0,prompt,tracker),null,'an unspent GX must remain with Timeless selection');
+  const nonApex={...tracker,getCopycatChoices:()=>[{
+    turn:7,sourceCardFullName:'Regidrago VSTAR SIT',
+    attackName:'Dragon Energy',gxAttack:false
+  }]};
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    state,0,prompt,nonApex),null);
+  const stronger={...dialga,attacks:[...dialga.attacks,
+    {name:'Greater Dragon Blast',damage:220,gxAttack:false}]};
+  const strongerPrompt=new ChooseAttackPrompt();
+  strongerPrompt.cards=[stronger,radiant];
+  strongerPrompt.validate=()=>true;
+  const strongerOwner={...owner,discard:{cards:[stronger,radiant]}};
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[strongerOwner,opponent]},0,strongerPrompt,tracker),null,
+    'do not select Power Beam when a stronger legal non-GX payload exists');
+  const unknown={name:'Variable Dragon Attack',damage:null,
+    damageCalculation:{kind:'variable'},text:'This attack does damage based on Energy.'};
+  const unknownPrompt=new ChooseAttackPrompt();
+  unknownPrompt.cards=[{...dialga,attacks:[unknown]},radiant];
+  unknownPrompt.validate=()=>true;
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[{...owner,discard:{cards:[unknownPrompt.cards[0],radiant]}},opponent]},
+    0,unknownPrompt,tracker),null,
+    'unknown variable damage must fail closed');
+});
