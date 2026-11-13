@@ -91,6 +91,16 @@ class Store {
   }
 }
 
+function opaqueCardSlots(zone, count) {
+  const slots = new Array(count);
+  return new Proxy(slots, {
+    get(target, property, receiver) {
+      if (property === 'length') return target.length;
+      throw new Error(`${zone} identities must not be read`);
+    }
+  });
+}
+
 function makeScenario() {
   const energies = Array.from({ length: 3 }, (_, index) => ({
     id: `energy-${index}`, name: 'Psychic Energy', fullName: 'Psychic Energy SVE'
@@ -116,13 +126,8 @@ function makeScenario() {
   };
   const opponent = {
     id: 202,
-    hand: {
-      isPublic: false,
-      get cards() { throw new Error('opponent hand identities must not be read'); }
-    },
-    deck: {
-      get cards() { throw new Error('opponent deck identities must not be read'); }
-    }
+    hand: { isPublic: false, cards: opaqueCardSlots('opponent hand', 1) },
+    deck: { cards: opaqueCardSlots('opponent deck', 53) }
   };
   const state = { players: [owner, opponent], activePlayer: 0, turn: 2, prompts: [] };
   return { state, owner, opponent, item, energies, shadowRider, tapu };
@@ -228,7 +233,9 @@ test('actor-only root selects Quick Ball and then Benches the exact searched obj
     player.bench = Array.from({ length: 5 }, emptySlot);
     player.stadium = { cards: [] };
     player.lostzone = { cards: [] };
-    player.prizes = Array.from({ length: 6 }, () => ({ cards: [] }));
+    player.prizes = Array.from({ length: 6 }, () => ({
+      cards: opaqueCardSlots('hidden Prize', 1)
+    }));
     player.hand.isPublic = false;
   }
   completePublicZones(owner, publicPokemon(
