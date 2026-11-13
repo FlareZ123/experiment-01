@@ -370,6 +370,7 @@ jobs:
             tests/2026-11/agent49-native-fixture-game.test.cjs \
             tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs \
             tests/2026-11/agent44-v3-game-bundle-builder.test.cjs \
+            tests/2026-11/agent50-v3-actor-only-boundary.test.cjs \
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
             tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
