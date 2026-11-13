@@ -31,7 +31,7 @@ All call sites now use the helper's existing bounded default of `limit=40`. The 
 - The current main branch contains both code corrections.
 - The failed run's preceding native steps 7–15 remain useful passed evidence.
 - **The workflow has not been rerun on the corrected source.** It is manual-only, and this environment has no workflow-dispatch action. Do not describe the correction as a passing test.
-- The failure was a prompt-draining assertion, not an observed damage or Prize assertion failure.
+- The failure was a prompt-draining assertion, not an observed damage or Prize assertion failure. After step 16 exited nonzero, checkout post-job cleanup also emitted a nested-submodule warning (`No url found for submodule path 'vendor/twinleaf/vendor/pokemon-cards-css'`); that later cleanup warning is separate from the observed step-16 root cause.
 - Even after a successful rerun, the four-row staged Store comparison (both physical seats × Max Geist / second Copycat Power Beam) remains a mechanics diagnostic. It is not a natural game, candidate-policy selection result, Aichi matchup, paper-qualified game, or win-rate estimate.
 
 ## Next action
