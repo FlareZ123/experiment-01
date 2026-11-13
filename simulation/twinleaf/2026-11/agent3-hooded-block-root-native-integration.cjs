@@ -292,7 +292,7 @@ function runNativeHoodedBlockRootCase(candidateSeat) {
     policyOwnerSeat: frozenPolicyIdentity.candidateSeat,
     hoodedBlockBenchAttackRoot:
       frozenPolicyIdentity.options.hoodedBlockBenchAttackRoot,
-    losslessNativeRootJoinOptIn: true,
+    losslessNativeRootJoin: true,
     observe
   });
 
