@@ -11,10 +11,73 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { createHash } = require('node:crypto');
 
 function compositeKey(set, setNumber) {
   return String(set) + String.fromCharCode(0) + String(setNumber);
 }
+
+function sha256Utf8(value) {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) {
+    return '[' + value.map(canonicalJson).join(',') + ']';
+  }
+  if (value && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map(key =>
+      JSON.stringify(key) + ':' + canonicalJson(value[key])
+    ).join(',') + '}';
+  }
+  return JSON.stringify(value);
+}
+
+function registered60Hashes(registered60, registered60Counts) {
+  if (!Array.isArray(registered60) || registered60.length !== 60 ||
+      registered60.some(fullName => typeof fullName !== 'string' || !fullName)) {
+    throw new TypeError('registered60 hash input must be exactly 60 non-empty Twinleaf fullName strings');
+  }
+  if (!Array.isArray(registered60Counts)) {
+    throw new TypeError('registered60Counts must be an array');
+  }
+
+  const aggregated = new Map();
+  for (const row of registered60Counts) {
+    if (!row || typeof row.printing !== 'string' || !row.printing ||
+        !Number.isSafeInteger(row.copies) || row.copies < 1) {
+      throw new TypeError('registered60Counts rows require a fullName printing and positive integer copies');
+    }
+    aggregated.set(row.printing, (aggregated.get(row.printing) || 0) + row.copies);
+  }
+
+  const canonicalPairs = Array.from(aggregated, ([fullName, copies]) => ({
+    fullName: fullName,
+    copies: copies,
+  })).sort((a, b) => a.fullName < b.fullName ? -1 : a.fullName > b.fullName ? 1 : 0);
+
+  const expandedCounts = new Map();
+  for (const fullName of registered60) {
+    expandedCounts.set(fullName, (expandedCounts.get(fullName) || 0) + 1);
+  }
+  if (expandedCounts.size !== canonicalPairs.length ||
+      canonicalPairs.some(row => expandedCounts.get(row.fullName) !== row.copies) ||
+      canonicalPairs.reduce((sum, row) => sum + row.copies, 0) !== 60) {
+    throw new Error('registered60 hash inputs disagree; refusing to emit inconsistent deck hashes');
+  }
+
+  return {
+    algorithm: 'SHA-256',
+    ordered_input_sha256: sha256Utf8(JSON.stringify(registered60)),
+    canonical_multiset_sha256: sha256Utf8(JSON.stringify(canonicalPairs)),
+  };
+}
+
+const REGISTERED60_HASH_PROTOCOL = {
+  algorithm: 'SHA-256',
+  ordered_input: 'UTF-8 bytes of compact JSON.stringify(registered60), the exact 60-element Twinleaf fullName array passed as decklist_for_seat.cards; entries are ordered by Unicode code-unit ascending fullName',
+  canonical_multiset: 'UTF-8 bytes of compact JSON.stringify(codepoint-sorted [{fullName,copies}]); duplicate fullName rows are aggregated before hashing',
+};
 
 function indexTwinleafCards(cardManager) {
   if (!cardManager || typeof cardManager.getAllCards !== 'function') {
@@ -145,11 +208,13 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       });
     }
 
-    const registered60Counts = Array.from(merged.values()).sort((a, b) => a.printing.localeCompare(b.printing));
+    const registered60Counts = Array.from(merged.values()).sort((a, b) => a.printing < b.printing ? -1 : a.printing > b.printing ? 1 : 0);
     const totalCopies = registered60Counts.reduce((sum, row) => sum + row.copies, 0);
     const sourceRowCountMatchesDeck = Number.isSafeInteger(deck.source_row_count) && rowMappings.length === deck.source_row_count;
     const sourceCardCopyCountMatchesDeck = Number.isSafeInteger(deck.card_copies) && totalCopies === deck.card_copies && totalCopies === 60;
     const complete = deckUnresolved === 0 && sourceRowCountMatchesDeck && sourceCardCopyCountMatchesDeck;
+    const registered60 = complete ? registered60Counts.flatMap(row => Array(row.copies).fill(row.printing)) : null;
+    const deckHashes = complete ? registered60Hashes(registered60, registered60Counts) : null;
     if (!sourceRowCountMatchesDeck) {
       unresolved.push({ rank: deck.rank, status: 'deck_source_row_count_mismatch', expected: deck.source_row_count, actual: rowMappings.length });
     }
@@ -168,11 +233,12 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       source_card_copies: deck.card_copies == null ? null : deck.card_copies,
       card_copies: totalCopies,
       source_card_copy_count_matches: sourceCardCopyCountMatchesDeck,
-      registered60: complete ? registered60Counts.flatMap(row => Array(row.copies).fill(row.printing)) : null,
+      registered60: registered60,
       registered60_counts: complete ? registered60Counts : null,
+      registered60_hashes: deckHashes,
       decklist_for_seat: complete ? {
         id: 'aichi-2026-rank-' + deck.rank,
-        cards: registered60Counts.flatMap(row => Array(row.copies).fill(row.printing)),
+        cards: registered60,
       } : null,
       source_row_mappings: rowMappings,
     });
@@ -200,6 +266,10 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     source_field_rows: field.source_rows,
     source_field_card_copies: field.card_copies,
     total_deck_card_copies: totalDeckCopies,
+    registered60_hash_protocol: REGISTERED60_HASH_PROTOCOL,
+    source_audit_sha256: metadata.source_audit_sha256 || null,
+    source_normalized_field_sha256: metadata.source_normalized_field_sha256 || null,
+    research_revision: metadata.research_revision || null,
     diagnostic_only: field.diagnostic_only === true,
     diagnostic_reconstruction_eligible: field.status === 'identity_normalized_expanded_diagnostic_only' && field.diagnostic_only === true && field.target_format === 'paper Expanded (Black & White onward)',
     physical_source_print_status: field.physical_source_print_status || null,
@@ -262,6 +332,14 @@ function readTwinleafRevision(repositoryRoot) {
   }
 }
 
+function readResearchRevision(repositoryRoot) {
+  try {
+    return execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch (_) {
+    return null;
+  }
+}
+
 function runCli(argv) {
   argv = argv || process.argv.slice(2);
   const auditPath = argv[0];
@@ -270,11 +348,15 @@ function runCli(argv) {
     throw new Error('Usage: node agent39-aichi-twinleaf-decklist-bridge.cjs <aichi-expanded-identity-audit.json> [output.json]');
   }
   const repositoryRoot = path.resolve(__dirname, '../../..');
-  const audit = JSON.parse(fs.readFileSync(path.resolve(auditPath), 'utf8'));
+  const auditText = fs.readFileSync(path.resolve(auditPath), 'utf8');
+  const audit = JSON.parse(auditText);
   const field = audit.diagnostic_normalized_field;
   const loaded = loadTwinleafCardManager(repositoryRoot);
   const result = resolveDiagnosticField(field, loaded.manager, {
     twinleaf_revision: readTwinleafRevision(repositoryRoot),
+    research_revision: readResearchRevision(repositoryRoot),
+    source_audit_sha256: sha256Utf8(auditText),
+    source_normalized_field_sha256: sha256Utf8(canonicalJson(field)),
   });
   result.source_audit = {
     schema: audit.schema || null,
@@ -312,5 +394,10 @@ module.exports = {
   resolveDiagnosticField: resolveDiagnosticField,
   loadTwinleafCardManager: loadTwinleafCardManager,
   readTwinleafRevision: readTwinleafRevision,
+  readResearchRevision: readResearchRevision,
+  sha256Utf8: sha256Utf8,
+  canonicalJson: canonicalJson,
+  registered60Hashes: registered60Hashes,
+  REGISTERED60_HASH_PROTOCOL: REGISTERED60_HASH_PROTOCOL,
   runCli: runCli,
 };
