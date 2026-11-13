@@ -200,6 +200,7 @@ test('29/32 V3 field admits available-rank receipts but rejects full-field aggre
     request,['paper-qualified-win'],'unqualified');
   assert.equal(aggregate.totalAttempts,116);
   assert.ok(aggregate.rejectionReasons.includes('v3-policy-panel-invalid'));
+  assert.equal(aggregate.v3PolicyPanelJoinValid,false);
   assert.ok(aggregate.rejectionReasons.includes('source-unverified'));
   assert.ok(aggregate.rejectionReasons.includes(
     'rank-seat-first-player-exposure-unbalanced'));
