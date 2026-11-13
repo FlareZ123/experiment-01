@@ -41,3 +41,13 @@ Ranks 1, 8, 19 and 22 resolved all six Night Stretcher copies directly to Twinle
 - Ran `node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs <audit.json> <result.json>` locally. GitHub Actions run [43468088132](https://github.com/FlareZ123/experiment-01/actions/runs/43468088132) remains the earlier pre-mapping failure.
 
 The registered decks are diagnostic English Expanded reconstructions. Ranks 3, 6, 7, 24 and 29 remain outside this diagnostic panel because of Japanese-only promo identities. Original lists for ranks 23, 25 and 28 remain unavailable. Paper admission and competitively qualified games remain at zero.
+
+
+## Owner-dispatched GitHub Actions confirmation
+
+The corrected bridge was subsequently run successfully in [GitHub Actions run 43474022988](https://github.com/FlareZ123/experiment-01/actions/runs/43474022988) (`workflow_dispatch`, research revision `0b6b58f7316fa5e66439d265c64aa20f200cc791`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`). The `aichi-bridge` job completed checkout, dependency installation, Twinleaf compilation, bridge regression tests, and CardManager mapping successfully.
+
+- [Downloaded CI artifact](https://github.com/FlareZ123/experiment-01/actions/runs/43474022988/artifacts/14062311379), ID `14062311379`; ZIP SHA-256 `6af623d6ec694a6b707973e45f503d88ccad737ce9f014371c442a834321de`; JSON SHA-256 `50898d0e5372dfb132a0eb55937d6cc827b2aa1ed01297f669f70860794f5cb2`.
+- CI artifact independently confirms `status=complete`, 812/812 source rows, 1,440/1,440 copies, 24/24 registered 60-card decks, and zero unresolved rows. Input audit SHA-256 `6ac2fbaec602f7c9ffd49c2a90c4c79be78df696cc56decc3631f5ad50c1812b` and normalized-field SHA-256 `fba71e372f7e25b174473dc4c22ce2db90ae404a30d9ca14383816ecf94ca7c2` match the frozen inputs. The rank-1 registered multiset hash matches the table above.
+- All six Night Stretcher ASC/196 copies in ranks 1, 8, 19 and 22 resolved directly to Twinleaf ASC/196; the SFA/61 fallback was not used.
+- This successful CI run supersedes the earlier pre-mapping failure in run `43468088132`. It remains a 24-rank diagnostic reconstruction only: no original physical-copy proof, no production paper admission, and no competitive matchup or win-rate evidence.
