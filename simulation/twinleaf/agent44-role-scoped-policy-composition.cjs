@@ -75,7 +75,9 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
  * game and returns the two wrapper audits separately.
  *
  * The caller still owns policy hashing/attestation, actual deck-aware policy
- * configuration, the native match, and the V3 application receipt.
+ * configuration, the native match, and the V3 application receipt. An invalid
+ * boundary is returned with the game result; it must not erase factual outcome
+ * evidence, but it cannot establish comparative policy competence.
  */
 function withCandidateOpponentPolicyRoles(run,options) {
   assert.equal(typeof run,'function','run must be a synchronous match callback');
@@ -140,13 +142,9 @@ function withCandidateOpponentPolicyRoles(run,options) {
     candidateAudit:candidateWrapped.audit,opponentAudit:opponentWrapped.audit,
     candidateSeat,opponentSeat
   });
-  if(!actorOnlyBoundary.valid){
-    const error=new Error('V3 role execution crossed the actor-only boundary: '+
-      actorOnlyBoundary.failures.join('; '));
-    error.code='ACTOR_ONLY_BOUNDARY_VIOLATION';
-    error.actorOnlyBoundary=actorOnlyBoundary;
-    throw error;
-  }
+  // Preserve the native match result even when the policy audit is not
+  // competence-eligible. The receipt/evaluator bind this failed boundary and
+  // withhold comparative policy competence without erasing a factual outcome.
   return {
     actorOnlyBoundary,
     result:candidateWrapped.result,
