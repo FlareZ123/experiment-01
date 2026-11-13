@@ -30,6 +30,18 @@ const TEST_DECKLIST=Object.freeze({
   cards:Object.freeze([FLITTLE,...Array(59).fill(PSYCHIC)])
 });
 
+function assertRegisteredFlittleDecklist(decklist,label) {
+  assert.ok(decklist&&typeof decklist.id==='string'&&decklist.id.length>0,
+    (label??'Registered decklist')+' requires a stable ID');
+  assert.ok(Array.isArray(decklist.cards),
+    (label??'Registered decklist')+' requires a card array');
+  assert.equal(decklist.cards.length,60,
+    (label??'Registered decklist')+' must contain exactly 60 cards');
+  assert.deepEqual(decklist.cards.slice().sort(),TEST_DECKLIST.cards.slice().sort(),
+    (label??'Registered decklist')+' differs from the one-Flittle/59-Psychic fixture');
+  return {id:decklist.id,cards:decklist.cards.slice()};
+}
+
 function prizeCount(state,seat) {
   return state.players[seat].prizes.reduce(
     (sum,slot)=>sum+(slot.cards?.length??0),0
@@ -265,11 +277,12 @@ function sameBudget(actual) {
 }
 
 function buildFlittleSearchDependencies({
-  bindings,actorSeat,simulatorOptions,sampleDeterminization,
+  bindings,actorSeat,ownDecklistId,simulatorOptions,sampleDeterminization,
   assertApplicabilityEnvelope,rulesProfileId
 }) {
   assert.ok(bindings&&typeof bindings==='object');
   assert.ok(actorSeat===0||actorSeat===1);
+  assert.ok(typeof ownDecklistId==='string'&&ownDecklistId.length>0);
   assert.equal(typeof sampleDeterminization,'function');
   assert.equal(typeof sampleDeterminization.knowledgeBySeat,'function');
   assert.ok(sampleDeterminization.metadataByState instanceof WeakMap);
@@ -301,7 +314,7 @@ function buildFlittleSearchDependencies({
     rulesProfileId,
     metadataByState:sampleDeterminization.metadataByState,
     ownDecklistSeat:actorSeat,
-    ownDecklistId:TEST_DECKLIST.id
+    ownDecklistId
   };
 }
 
@@ -328,11 +341,16 @@ function loadTwinleafBindings(native) {
   };
 }
 
-function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:providedBindings}) {
+function createFlittleMctsRuntime({native,candidateSeat,enginePin,
+  candidateDecklist,opponentDecklist,bindings:providedBindings}) {
   assert.ok(native&&native.GamePhase&&native.CardManager);
   assert.ok(candidateSeat===0||candidateSeat===1);
   assert.ok(typeof enginePin==='string'&&/^[0-9a-f]{40}$/i.test(enginePin));
   assert.equal(native.cardPoolInitialization?.enginePin,enginePin);
+  const registeredCandidateDecklist=assertRegisteredFlittleDecklist(
+    candidateDecklist,'Candidate fixture decklist');
+  const registeredOpponentDecklist=assertRegisteredFlittleDecklist(
+    opponentDecklist,'Opponent fixture decklist');
   const bindings=providedBindings??loadTwinleafBindings(native);
   const simulatorOptions=Object.freeze({
     flipMode:bindings.BotFlipMode.RANDOM,
@@ -350,8 +368,8 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:provi
     return knowledgeBySeat(state,seat);
   };
   const decklistForSeat=createPublicDecklistPriorProvider({
-    ownDecklist:TEST_DECKLIST,
-    opponentPrior:[TEST_DECKLIST]
+    ownDecklist:registeredCandidateDecklist,
+    opponentPrior:[registeredOpponentDecklist]
   });
   const sampleDeterminization=createTwinleafDeterminizationSampler({
     actorObservation,
@@ -421,7 +439,8 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:provi
         }
 
         const searchDependencies=buildFlittleSearchDependencies({
-          bindings,actorSeat,simulatorOptions,sampleDeterminization,
+          bindings,actorSeat,ownDecklistId:registeredCandidateDecklist.id,
+          simulatorOptions,sampleDeterminization,
           assertApplicabilityEnvelope,rulesProfileId
         });
         const certifiedSearch=createTwinleafMcts({
@@ -460,13 +479,24 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:provi
           physicalSeat:actorSeat,
           rulesProfileId,
           rootActionKeys,
-          knowledgeModes:['K1','K1']
+          candidateDecklistId:registeredCandidateDecklist.id,
+          opponentDecklistId:registeredOpponentDecklist.id,
+          bothRegisteredDecklistsMatchFixture:true,
+          knowledgeModes:['K1','K1'],
+          scope:'one-root-decision-dispatch-smoke-test',
+          fixtureOnly:true,
+          competitiveGameQualified:false
         };
         events.push({
           actorSeat,
           globalTurn:view.globalTurn,
           enginePin,
           budget:{...budget},
+          candidateDecklistId:registeredCandidateDecklist.id,
+          opponentDecklistId:registeredOpponentDecklist.id,
+          scope:'one-root-decision-dispatch-smoke-test',
+          fixtureOnly:true,
+          competitiveGameQualified:false,
           intent,
           audit
         });
@@ -488,7 +518,11 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:provi
 
   return Object.freeze({
     budget:PILOT_BUDGET,
-    decklist:TEST_DECKLIST,
+    decklist:registeredCandidateDecklist,
+    opponentDecklist:registeredOpponentDecklist,
+    scope:'one-root-decision-dispatch-smoke-test',
+    fixtureOnly:true,
+    competitiveGameQualified:false,
     observe,
     knowledgeBySeat:trackedKnowledgeBySeat,
     rootIntentProvider,
@@ -505,6 +539,7 @@ module.exports={
   PILOT_BUDGET,
   TEST_DECKLIST,
   knowledgeBySeat,
+  assertRegisteredFlittleDecklist,
   observe,
   actionKey,
   assertPublicPokemon,
