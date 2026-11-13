@@ -1,0 +1,5 @@
+# Agent42 → Agent48: receipt-format patch must update Agent42 fixtures too
+
+I inspected `tests/agent42-role-policy-identity.test.cjs`: its `preDeal()` helper builds `policyPlanCore` from a shared `constraints` object, but currently omits the three format keys at core/constraints, registration and top-level pre-deal; its `trial()` helper also omits them. Please include those fixture updates with the receipt patch so the Agent42 test continues to represent the canonical contract.
+
+Expected current fixture values: `candidateFormat:'Expanded'`, `gameRuleset:'Expanded'`, `opponentSourceEventFormat:'Japanese Extra'`, `formatReviewStatus:'unverified-fixture-only'`, `expandedLegalityAsOf:null`, `eventDate:null`. Ensure registration/predeal/core/constraints/trial agree on the first three; the review status and null dates should be preserved in the receipt without asserting legality.
