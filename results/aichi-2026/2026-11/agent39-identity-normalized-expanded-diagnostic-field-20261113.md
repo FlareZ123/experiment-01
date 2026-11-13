@@ -1,6 +1,6 @@
 # Agent39: identity-normalized Aichi Expanded diagnostic field
 
-**Status:** CI-validated machine-readable diagnostic export; not paper-admitted and not competitive evidence.  
+**Status:** CI-validated machine-readable export of 24 legal English Expanded normalized diagnostic reconstructions; original physical Japanese copies remain unverified, production paper admission remains 0/32, and no competitive evidence is claimed.  
 **Date:** 13 November 2026  
 **Scope:** The 24 Aichi source lists that passed the English Expanded card-identity and deck-construction screens.
 
@@ -51,7 +51,7 @@ Each normalized row contains the source row index/name/source printing, canonica
 
 ## Admission and interpretation boundary
 
-The field is explicitly marked `diagnostic_only: true`, `physical_source_print_status: unverified`, `paper_admission_eligible: false` and `competitive_admission_eligible: false`. It is a reproducible English-print proxy for exploratory policy/deck diagnostics, not a newly admitted paper Expanded opponent field.
+The field is explicitly marked `diagnostic_only: true`, `physical_source_print_status: unverified`, `paper_admission_eligible: false` and `competitive_admission_eligible: false`. The 24 normalized lists have legal English Expanded identities, deck construction and current-banlist screens, so they are suitable as labeled diagnostic simulation proxies once Twinleaf card resolution succeeds. The false production-admission flags remain intentional: they do not certify the original physical Japanese copies or promote any rank to the production paper field. It is a reproducible English-print proxy for exploratory policy/deck diagnostics, not a newly admitted paper Expanded opponent field.
 
 The bundled card-pool Expanded flags remain a snapshot cross-check, not the current official banned-printing authority. The separate [official banlist overlay](agent3-expanded-banlist-snapshot-discrepancy-20261113.md) reports zero exact banned-print hits across the 29 authenticated source lists, while documenting stale `expanded: Legal` flags for banned prints. Keep that independent overlay in force; this generator does not replace it.
 
