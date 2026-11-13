@@ -229,7 +229,7 @@ for (const seat of [0, 1]) {
     assert.equal(result.policyAudit.rootIntentProvider.selected, 1);
     assert.equal(result.policyAudit.rootIntentProvider.abstained, 0);
     assert.equal(result.policyAudit.rootIntentProvider.lastApplicabilityEnvelopeId, provider.ENVELOPE_ID);
-    assert.ok(result.policyAudit.nativeRootAcceptances.some(item => item.accepted === true && item.seat === seat));
+    assert.ok(result.policyAudit.nativeRootAcceptances.some(item => item.accepted === true && item.seat === seat && item.kind === result.runtime.events[0].intent.kind));
     const event = result.runtime.events[0];
     const audit = event.audit;
     assert.equal(event.actorSeat, seat);
