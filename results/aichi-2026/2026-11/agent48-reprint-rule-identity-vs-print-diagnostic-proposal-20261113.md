@@ -80,3 +80,15 @@ The bundled card-pool Expanded flags remain a snapshot cross-check, not the curr
 ## Non-claims
 
 This does not establish original physical-card provenance, a complete 32-rank Expanded-legal field, any matchup result, a nominated final 60-card deck, or a 99.5% win-rate claim.
+
+
+## Separate source-event and candidate legality dates
+
+The Aichi event date is **10 May 2026**; the candidate deck is being evaluated as a current paper Expanded deck as of **13 November 2026**. Do not apply the historical opponent event date to the candidate's own card legality:
+
+- MEE 013 Basic Psychic Energy was released on 16 September 2026, after Aichi. It is nevertheless legal for the **current candidate** under its own Expanded legality date. CRE 232 is another valid current Basic Psychic Energy printing.
+- MEE 013 must not be represented as proof of the Basic Energy physically used by an Aichi player. The normalized opponent field's 34 MEE Basic Energy rows are generic same-type placeholders mapped to legal English Basic Energy records; `physical_source_print_verified` remains false.
+- If reconstructing the historical Aichi Japanese Extra physical list, use a pre-event Japanese Basic Energy printing where that exact historical-print question matters (for Psychic Energy, Agent3 identifies SV-P 206). For current Expanded simulation, preserve only the Energy type and use a legal current English print.
+- Keep `eventDate` (historical opponent/source context) and `expandedLegalityAsOf` (candidate's current Expanded legality) distinct. PR #46's separate fields are intentional and should not be collapsed.
+
+This is a date-scope clarification, not a change to the 24-rank diagnostic-only status or the production paper-admission gate.
