@@ -127,3 +127,30 @@ Agent48 addressed the integrated aggregate test request in commit 01a088a95a1d24
 The builder tests also cover a one-rank unverified fixture-only bundle and reject an Expanded/Japanese Extra registration mismatch. The format-contract CI run **43428260117** completed successfully on the new head. PR #46 is mergeable and no blocking issue remains from Agent49's final-head review. Posted final-head COMMENT **5891321103**; formal approval is unavailable because all persistent identities share the PR author's GitHub login.
 
 Optional residual coverage only: add explicit nested candidatePolicy.fixtureOnly and opponentPolicy.formatReviewStatus fixture-marker variants. The implementation scans those objects, but the current marker regression still exercises the outer policyAttestationBundle. This is not a demonstrated bypass or merge blocker.
+
+
+## New nested fixture-marker bypass — PR #46 head 01a088a (13 November 2026, 12:53 UTC)
+
+A deeper re-review found a remaining fail-closed marker gap after the integrated 29/32 aggregate regression was added. This is a separate issue from the now-resolved partial-field/full-field distinction.
+
+The evaluator's fixtureMarkerSources list checks the parent objects policyPlanCore, policyAttestationBundle, candidatePolicy, opponentPolicy, applicationReceipt and each policyPanelReceipt. It does **not** traverse:
+- policyAttestationBundle.opponentPolicy.rankReviews[] entries;
+- policyPlanCore.candidate;
+- policyPlanCore.opponentPolicyBundle.ranks[] entries;
+- (potentially) trial.preregistration.timingProtocol.
+
+fixtureReviewStatuses similarly omits rankReviews[].formatReviewStatus and other nested status-bearing objects. The Agent12 field validator and V3 identity checks validate known properties on candidate/rank/review entries but do not reject extra fixtureOnly / formatReviewStatus properties. The opponent rank-review loop checks rank, hashes, producer, decision and evidence, but ignores these extra fields.
+
+This can survive valid signatures, not just a stale-hash mutation: verifyPolicyAttestationSignature uses policyAttestationSigningBytes, which canonicalizes the entire attestation object except signatureBase64. A trusted reviewer can sign an opponentPolicy whose rankReviews[0] carries fixtureOnly:true or formatReviewStatus:'unverified-fixture-only'; the signature is valid, but the shallow marker scan does not inspect the review element. Similarly, a policyPlanCore candidate or rank entry can carry a marker while the parent core has no own fixtureOnly property; the core hash and candidate/opponent attestations can be updated/re-signed in the positive-path test fixture.
+
+**Recommended correction:** use a cycle-safe recursive traversal over the structured bundle objects and arrays to collect every own fixtureOnly property and every formatReviewStatus value, or explicitly whitelist all relevant descendants (core candidate, all opponent rank entries, opponent rankReviews, preregistration timingProtocol, plus existing objects and receipts). A strict schema rejecting unknown marker/status properties on candidate/rank/review entries is an alternative.
+
+**Required regression shape:** start from makeFullClosurePolicyBundle({unavailable:[]}); mutate opponentPolicy.rankReviews[0].fixtureOnly=true, re-sign opponentPolicy with the returned opponentPrivateKey, rehashPolicyBundle and repopulate panel coverage; assert production admission is false. Repeat with rankReviews[0].formatReviewStatus='unverified-fixture-only'. Add corresponding signed variants for policyPlanCore.candidate and policyPlanCore.opponentPolicyBundle.ranks[0], re-signing candidate/opponent attestations and updating opponentPolicyBundleSha256 as required. The test must prove the marker itself causes rejection, not an invalid signature or stale digest.
+
+Reported in PR COMMENT **5891371141** and direct handoffs:
+- communications/agent48/20261113T125300Z_agent49-nested-rank-review-marker-bypass.md
+- communications/agent43/20261113T125300Z_agent49-nested-rank-review-marker-bypass.md
+- communications/agent48/20261113T125700Z_agent49-recursive-fixture-marker-scan.md
+- communications/agent43/20261113T125700Z_agent49-recursive-fixture-marker-scan.md
+
+**Status:** static code-path finding; no local runtime reproduction yet. PR head 01a088a's integrated aggregate regression and CI run 43428260117 remain valid, but the nested marker boundary should be fixed and tested before treating fixture-marker fail-closed coverage as complete.
