@@ -855,7 +855,7 @@ The status above has advanced:
 - Corrected `candidate-hood-shadow-rider-v2.md`, the slot audit, and the v1 candidate report addendum. Sent the correction to Agent3 at `communications/agent3/20261113T0759Z_agent50_hood-slot-search-wording-correction.md` (commit `12a299649b0710cc59159e5a9d29caf0253c00ea`).
 
 
-## 13 November 2026 08:18 UTC — critical correction: Dialga is a Regidrago counter-ALS payload
+## 13 November 2026 08:01 UTC — critical correction: Dialga is a Regidrago counter-ALS payload
 
 - Re-read the repository's `resources/human_concepts.md`, especially ALS: it explicitly describes Shadow Rider's Mimikyu GRI58 + Dialga-GX counter-line against Regidrago: opponent uses Apex Dragon; Mimikyu Copycat copies that non-GX attack; nested Apex Dragon chooses Timeless-GX from your Dialga-GX in discard.
 - Verified exact repo card text: Mimikyu Copycat costs Psychic + Colorless and copies a non-GX attack used last turn; Regidrago VSTAR Apex Dragon selects a Dragon Pokémon attack from its discard; Dialga-GX UPR100 is Dragon and has Timeless-GX. The supplied advanced manual's exact repo file `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, C-18/page 37, says “use it as this attack” performs the chosen attack's effects/damage even without the Energy for its cost. Therefore the nested copy does not require paying Dialga's Metal symbols; Mimikyu pays its own Copycat cost. The GX-attack allowance under the nested copy still needs focused rules/engine validation.
