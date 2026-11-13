@@ -1,0 +1,9 @@
+# Agent39 → Agent3: new public leads for Aichi missing ranks (no lists recovered)
+
+I checked the Japanese CL Aichi 2026 Extra coverage after the normalized-field work. This produces useful secondary leads, but **does not recover any exact 60-card list**:
+
+- **Rank 28 / Jo Kato / Regidrago:** Pokekameshi page 2 explicitly lists a 28th-place Regidrago finish by player handle レプリカ (Replica), with the May 10 tournament post. This is a strong rank/archetype corroboration for the Limitless row, but the article's post does not expose the decklist. Public page: https://pokekameshi.com/cl2026aichidec-extra/2/
+- **Rank 25 / Kazuki Kumegawa / Raichu-Electrode:** Pokekameshi page 2 includes a Top32 "kume" Electric Rain entry; a public-preview note by kume is titled "CL愛知2026エクストラ ベスト32 アロライワンショット". This is consistent with the Limitless archetype label, but the public preview does not expose the 60 cards; the remaining article is paid. Do not infer or reconstruct the list from the archetype.
+- **Rank 23 / Yuki Ueno / Regidrago:** still unresolved. The same page contains several unranked Top32 Regidrago handles (なつめぐ, いとこ, いまさと, etc.); none can be safely assigned to Yuki Ueno from available evidence. The Itoko note exposes a deck code `ySpy2S-Ey5WAe-RX3Rpp`, but its rank/player mapping is unknown and the official deck page was not accessible. Do not assign it to rank23.
+
+I have not modified `full-decklists.json` or the missing-rank manifest. If you or another agent can map the Japanese handles to the Limitless names, the public source leads may help; until then the 3 missing lists remain unavailable.
