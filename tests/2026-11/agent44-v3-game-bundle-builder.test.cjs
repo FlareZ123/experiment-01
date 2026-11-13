@@ -548,6 +548,38 @@ test('production pre-deal registration requires full process closure while fixtu
   }
 });
 
+test('production pre-deal registration rejects a nonempty incomplete 29-rank field',()=>{
+  const fixture=makePolicyFixture({
+    fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[23,25,28]
+  });
+  const original=productionReviewerRegistry.reviewers;
+  try {
+    productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
+    const {result}=makePreDeal(fixture,{fixtureOnly:false});
+    assert.equal(result.ready,false);
+    assert.equal(result.policyRegistration,null);
+    assert.ok(result.failures.includes('production-opponent-policy-field-incomplete'));
+  } finally {
+    productionReviewerRegistry.reviewers=original;
+  }
+});
+
+test('production pre-deal registration rejects a fixture-marked core even with 32 legal ranks',()=>{
+  const fixture=makePolicyFixture({
+    fullProcessClosureCovered:true,fixtureOnly:true,unavailable:[]
+  });
+  const original=productionReviewerRegistry.reviewers;
+  try {
+    productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
+    const {result}=makePreDeal(fixture,{fixtureOnly:false});
+    assert.equal(result.ready,false);
+    assert.equal(result.policyRegistration,null);
+    assert.ok(result.failures.includes('policy-plan-core-fixture-marker-mismatch'));
+  } finally {
+    productionReviewerRegistry.reviewers=original;
+  }
+});
+
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
   // Isolate reviewer authorization/chronology from the separate runtime-closure gate.
   const fixture=makePolicyFixture({
