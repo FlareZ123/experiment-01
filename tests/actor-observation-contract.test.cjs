@@ -58,6 +58,19 @@ test('genuine owner/public printing identities, amounts and detached shape',()=>
   assert.notStrictEqual(v.ownHand,state.players[0].hand.cards);
 });
 
+test('Timeless extra-turn state is exposed as an active-seat public marker',()=>{
+  const state=fixture();
+  assert.equal(actorObservation(state,0).ownTurnResources.extraTurnActive,false);
+  state.players[0].usedTurnSkip=true;
+  const view=actorObservation(state,0);
+  assert.equal(view.ownTurnResources.extraTurnActive,true);
+  assert.equal(Object.hasOwn(view.ownTurnResources,'usedTurnSkip'),false);
+  state.players[0].usedTurnSkip=false;
+  state.players[1].usedTurnSkip=true;
+  state.activePlayer=1;
+  assert.equal(actorObservation(state,1).ownTurnResources.extraTurnActive,true);
+});
+
 test('opponent hand, deck, Prize identities and unseen order cannot affect view',()=>{
   const x=fixture(),y=fixture();
   x.players[1].hand.cards=[card('Psychic Energy SVE')];
