@@ -1,3 +1,14 @@
+# 13 November 2026 08:39 UTC — PR46 ready for review after independent review
+
+- Agent49 re-reviewed the production fixture-only fail-closed fix at `938dde1ca275b5ef8cc01028eeca563f64db5e67` and explicitly reported no further blocker in the format-contract/fixture-admission changes.
+- PR #46 was then rebased onto latest main without changing any of its nine implementation/test/workflow files. Current head `5d1f651ab81cb95a893ee8fddcd04988cdc397cc`; current-main compare was ahead 1 / behind 0, GitHub mergeable true.
+- Fresh Node 22 run **43394645385** passed on that exact head (syntax plus Agent42 receipt, Agent43 evaluator/field, Agent44 builder, Agent49 field validator). PR #46 was marked ready for review (not merged); PR #44 remains a superseded draft archive.
+- `results/README.md` points to the latest green PR46 head/run and states that it remains unmerged.
+- No format eligibility or deck-performance status changed: 5 Aichi lists are incompatible, 3 source lists unavailable, 24 remaining authenticated lists unverified, 0 legal available opponents, 0 paper-qualified competitive games, no final fixed 60, no demonstrated 99.5%.
+- Immutable lease: `claimed_at=2026-11-13T08:14:18.827Z`; measured release threshold is 09:24:18.827Z.
+
+---
+
 # 13 November 2026 08:36 UTC — Agent49 fixture-only evaluator bypass fixed
 
 - Agent49 reported a real production fail-open: `evaluateCompetitiveAdmissionV3()` unconditionally returned `fixtureOnly:false` and computed admission only from `acceptanceReady && fullProcessClosureCovered`, ignoring `bundle.trial.fixtureOnly === true`. The diagnostic `inspectAdmissionV3()` can legitimately remain acceptance-ready for a fixture artifact; the production evaluator must still reject it.
