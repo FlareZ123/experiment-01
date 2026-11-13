@@ -4,10 +4,10 @@ const assert=require('node:assert/strict');
 const {createTwinleafInformationSetSearch,createTwinleafMcts}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs');
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
-test('Twinleaf adapter resolves a prompt with the prompt owner, not the root player',()=>{
-  const promptSeats=[];
+test('bounded MCTS adapter abstains on unresolved prompts without invoking a policy resolver',()=>{
+  let resolverCalls=0;
   class ActionEnumerator {
-    enumerate(state,player) {
+    enumerate(state) {
       return state.activePlayer===0?[{name:'root-action'}]:[];
     }
   }
@@ -20,10 +20,6 @@ test('Twinleaf adapter resolves a prompt with the prompt owner, not the root pla
       if(action.name==='root-action') {
         state.activePlayer=1;
         state.prompts=[{playerId:22,result:undefined}];
-      } else if(action.name==='resolve-prompt') {
-        state.prompts[0].result=action;
-        state.phase='FINISHED';
-        state.winner=1;
       }
       return state;
     }
@@ -42,19 +38,13 @@ test('Twinleaf adapter resolves a prompt with the prompt owner, not the root pla
     actionKey:action=>action.name,
     sampleDeterminization,
     evaluateObservation:()=>0,
-    promptOwnerSeat:(state,prompt)=>state.players.findIndex(p=>p.id===prompt.playerId),
-    promptResolverForSeat:seat=>({resolvePrompt:()=>{
-      promptSeats.push(seat);
-      return {name:'resolve-prompt'};
-    }}),
-    winnerSeat:state=>state.winner
+    winnerSeat:state=>state.winner,
+    promptResolverForSeat:()=>{resolverCalls++;return {resolvePrompt:()=>({name:'unsafe'})};}
   },{iterations:1,maxPlies:2,seed:7});
-  const result=mcts.search({activePlayer:0,turn:4,phase:'PLAY',winner:null,
-    prompts:[],players:[{id:11},{id:22}]},0);
-  assert.equal(result.actionKey,'root-action');
-  assert.deepEqual(promptSeats,[1]);
-  assert.equal(result.audit.terminalRollouts,1);
-  assert.equal(result.audit.rootActions[0].meanValue,-1);
+  assert.throws(()=>mcts.search({activePlayer:0,turn:4,phase:'PLAY',winner:null,
+    prompts:[],players:[{id:11},{id:22}]},0),
+    error=>error.code==='MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE');
+  assert.equal(resolverCalls,0,'bounded adapter must never expose a prompt to policy resolvers');
 });
 
 test('private sampled decklist identity follows each seat through Twinleaf state clones',()=>{
@@ -149,5 +139,45 @@ test('MCTS observation key binds the full owner ledger and sampled states reuse 
   assert.equal(observationSha256(afterProviderChange),sampledHash,
     'sampled determinization must retain the exact ledger snapshot used to create it');
   assert.deepEqual(afterProviderChange.ownerKnowledgeLedger,partial.ownerKnowledgeLedger);
+});
+
+
+test('Simulator filters illegal candidates and a reached ActionEnumerator class cap abstains',()=>{
+  const base={
+    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
+    GamePhase:{FINISHED:'FINISHED'},
+    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
+    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
+    actionKey:action=>action.name,
+    sampleDeterminization:Object.assign(state=>({...state}),{
+      knowledgeBySeat:()=>({verified:true,mode:'K0',knownTopDeck:[],
+        knownBottomDeck:[],knownBottomDeckOrder:false,knownPrizePrintings:[],
+        ownerK1Snapshot:null})
+    }),
+    evaluateObservation:()=>0,winnerSeat:()=>null
+  };
+  const dispatches=[];
+  class Simulator {
+    constructor(state){this.store={state:{...state}};}
+    dispatch(action){
+      dispatches.push(action.name);
+      if(action.name==='illegal')throw new Error('Simulator rejected illegal candidate');
+      return this.store.state;
+    }
+  }
+  const adapter=createTwinleafInformationSetSearch({
+    ...base,Simulator,
+    ActionEnumerator:class {enumerate(){return [{name:'legal'},{name:'illegal'}];}}
+  });
+  const state={activePlayer:0,turn:1,phase:'PLAY',prompts:[],players:[{id:1},{id:2}]};
+  assert.deepEqual(adapter.enumerateActions(state,0).map(action=>action.name),['legal']);
+  assert.deepEqual(dispatches,['legal','illegal']);
+
+  const capped=createTwinleafInformationSetSearch({
+    ...base,Simulator,
+    ActionEnumerator:class {enumerate(){return Array.from({length:8},(_,i)=>({name:'a'+i}));}}
+  });
+  assert.throws(()=>capped.enumerateActions(state,0),
+    error=>error.code==='MCTS_ABSTAIN_ACTION_FRONTIER_CAPPED');
 });
 
