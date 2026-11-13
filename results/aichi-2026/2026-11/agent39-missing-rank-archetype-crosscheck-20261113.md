@@ -4,7 +4,7 @@
 
 ## Findings
 
-The numeric labels below refer to Limitless standings/source ordering. Agent50's official runner-up cross-check shows that source slot 2 is not the official final bracket runner-up; do not equate these source ranks with final bracket placements.
+The numeric labels below refer to Limitless source-row labels; the visible table does not formally define their semantics. Otaro's public first-person Open League runner-up note gives official Pokémon deck code FVkbFV-S0oL2k-VvFvkF, whose full 60 card identities and counts match source slot #2 exactly. This corroborates slot-2 decklist content; the Otaro↔Takahiro Ando player-name join remains unproven. Do not claim a decklist mismatch or use this comparison alone to infer row-number semantics. Separately, the official Open League had Swiss qualification followed by a Top32 single-elimination stage, so a qualifier ordinal cannot be equated with a final bracket placement. Use source-row labels unless an authoritative rank mapping is available. Sources: https://note.com/quick_garlic8250/n/n3f1b573b253a and https://www.pokemon-card.com/deck/confirm.html/deckID/FVkbFV-S0oL2k-VvFvkF.
 
 | Rank | Limitless player | Archetype corroboration | Exact 60-card list |
 |---:|---|---|---|
