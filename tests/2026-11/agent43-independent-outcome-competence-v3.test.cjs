@@ -291,6 +291,9 @@ function rehashPolicyBundle(bundle) {
   return bundle;
 }
 
+// Synthetic positive-path fixture: by default, 29 authenticated ranks are modeled
+// as reviewed legal and three are absent. This is not the actual Aichi Expanded
+// matrix; that matrix is asserted separately with five incompatible and 24 unverified.
 function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],incompatible=[],unverified=[],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author',rankProducerOverrides={}}={}) {
   const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
   bundle.trial.vendorCommitSha='a'.repeat(40);
@@ -771,7 +774,7 @@ test('V3 event pre-call Swiss tie remains unresolved rather than applying post-c
 });
 
 
-test('deck-aware V3 accepts distinct frozen policies and keeps the 29-rank field explicitly incomplete',()=>{
+test('deck-aware V3 accepts distinct policies for a synthetic 29-rank fixture but keeps it explicitly incomplete',()=>{
   const {bundle,policyRegistry}=makePolicyBundle();
   const r=signedV3Result(bundle,policyRegistry);
   assert.equal(r.gameOutcomeAdmissionReady,true);
@@ -806,7 +809,7 @@ test('V3 postgame reviews sign the finalized bundle externally without changing 
 });
 
 
-test('complete 29-rank receipt coverage still cannot complete the missing three-rank field',()=>{
+test('synthetic 29-rank receipt coverage still cannot complete the missing three-rank field',()=>{
   const {bundle}=makePolicyBundle();
   const receipts=populatePanelCoverage(bundle);
   const r=inspectPolicyPanelConsistency(bundle);
@@ -817,6 +820,25 @@ test('complete 29-rank receipt coverage still cannot complete the missing three-
   assert.equal(r.observedAvailableStrata,116);
   assert.deepEqual(r.panelCoverageMissing,[]);
   assert.equal(r.fullFieldPanelComplete,false);
+});
+
+test('V3 panel preserves the actual Aichi Expanded matrix as zero available ranks',()=>{
+  const incompatible=[3,6,7,24,29];
+  const unavailable=[23,25,28];
+  const unverified=Array.from({length:32},(_,index)=>index+1)
+    .filter(rank=>!incompatible.includes(rank)&&!unavailable.includes(rank));
+  const {bundle}=makePolicyBundle({
+    incompatible,unverified,unavailable
+  });
+  const panel=inspectPolicyPanelConsistency(bundle);
+  assert.equal(panel.status,'INCOMPLETE_FIELD');
+  assert.deepEqual(panel.formatIncompatibleRanks,incompatible);
+  assert.deepEqual(panel.formatUnverifiedRanks,unverified);
+  assert.deepEqual(panel.unavailableRanks,unavailable);
+  assert.deepEqual(panel.availableRanks,[]);
+  assert.equal(panel.expectedAvailableStrata,0);
+  assert.equal(panel.observedAvailableStrata,0);
+  assert.equal(panel.fullFieldPanelComplete,false);
 });
 
 test('a complete authenticated 32-rank plan needs all 128 rank-seat-first-player strata',()=>{
