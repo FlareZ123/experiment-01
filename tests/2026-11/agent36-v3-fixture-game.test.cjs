@@ -50,6 +50,16 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
 
   assert.equal(candidateResolved.total, 60);
   assert.equal(opponentResolved.total, 60);
+
+  // The frozen source 60s retain MEE/13; only the engine-registration proxy
+  // changes to the pinned CardManager's canonical SVE/5 Psychic Energy.
+  const candidatePsychic = candidateResolved.resolvedRows.find(row => row.name === 'Psychic Energy');
+  const opponentPsychic = opponentResolved.resolvedRows.find(row => row.name === 'Psychic Energy');
+  assert.deepEqual(candidatePsychic.printing, { set: 'MEE', number: '13', language: 'en' });
+  assert.deepEqual(candidatePsychic.enginePrinting, { set: 'SVE', number: '5', language: 'en' });
+  assert.deepEqual(opponentPsychic.printing, { set: 'MEE', number: '13', language: 'en' });
+  assert.deepEqual(opponentPsychic.enginePrinting, { set: 'SVE', number: '5', language: 'en' });
+
   assert.notEqual(native.botOptionsBySeat[0], native.botOptionsBySeat[1]);
   assert.notEqual(native.botOptionsBySeat[0].arbiter, native.botOptionsBySeat[1].arbiter);
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
