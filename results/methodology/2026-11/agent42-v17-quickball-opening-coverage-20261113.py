@@ -80,8 +80,11 @@ nonbasic_nonenergy_print_counts = list(EVOLUTION.values()) + list(TRAINERS.value
 nonbasic_print_counts = nonbasic_nonenergy_print_counts + list(ENERGY.values())
 all_distinct_no_basic_six = coefficient_at_most_one(nonbasic_print_counts, 6)
 all_six_basic = comb(14, 6)
+all_six_basic_distinct = coefficient_at_most_one(list(BASIC.values()), 6)
+all_six_basic_duplicate = all_six_basic - all_six_basic_distinct
 
-quickball_root_hands = all_six - no_basic_six - all_distinct_six + all_distinct_no_basic_six - all_six_basic
+# All-distinct six-Basic hands were already removed by all_distinct_six.
+quickball_root_hands = all_six - no_basic_six - all_distinct_six + all_distinct_no_basic_six - all_six_basic_duplicate
 
 nonenergy_print_counts = list(BASIC.values()) + list(EVOLUTION.values()) + list(TRAINERS.values())
 no_dup_nonenergy_all = no_duplicate_nonenergy_six(nonenergy_print_counts)
@@ -94,9 +97,9 @@ nonenergy_duplicate_hands = quickball_root_hands - energy_only_duplicate_hands
 
 exact_fixture_hands = comb(4, 1) * comb(11, 3)
 
-assert quickball_root_hands == 16_686_391
+assert quickball_root_hands == 16_687_315
 assert energy_only_duplicate_hands == 9_134_158
-assert nonenergy_duplicate_hands == 7_552_233
+assert nonenergy_duplicate_hands == 7_553_157
 assert exact_fixture_hands == 660
 
 result = {
