@@ -236,12 +236,125 @@ test('recovery aborts across turns and retries later, then repeats per own turn 
     },{SimpleTacticsAi:FakeSimpleTacticsAi,actionTypes,GamePhase});
 
     assert.equal(run.result,'complete');
-    assert.equal(run.policyAudit.version,'hood-garbotoxin-recovery-autonomy-v4-repeatable-own-turn');
+    assert.equal(run.policyAudit.version,'hood-garbotoxin-recovery-autonomy-v5-active-or-bench-source');
     assert.equal(run.policyAudit.attemptCount,3);
     assert.equal(run.policyAudit.successfulEffectCount,2);
     assert.deepEqual(run.policyAudit.attempts.map(attempt=>attempt.turn),[1,3,5]);
     assert.equal(run.policyAudit.attempts[0].aborted,'Recovery sequence crossed a turn boundary');
     assert.equal(run.policyAudit.attempts[0].successfulEffect,false);
     assert.ok(run.policyAudit.attempts.slice(1).every(attempt=>attempt.successfulEffect));
+  }
+});
+
+
+test('a Hooded Benched VMAX sources Underworld Door under Active Tool Jammer in both physical seats',()=>{
+  const {withHoodGarbotoxinRecoveryAutonomy}=
+    require('../../simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs');
+
+  class FakeSimpleTacticsAi {
+    constructor(id){this.client={id};}
+    isValidAction(){return true;}
+    decodeNextAction(){return {kind:'baseline'};}
+  }
+  class FakePlayCardAction {
+    constructor(playerId,index,target){Object.assign(this,{playerId,index,target});}
+  }
+  class FakeResolvePromptAction {
+    constructor(promptId,result){Object.assign(this,{promptId,result});}
+  }
+  class FakeUseAbilityAction {
+    constructor(playerId,ability,target){Object.assign(this,{playerId,ability,target});}
+  }
+  class AttachEnergyPrompt {
+    constructor(playerId,energy){
+      this.id='bench-attach-'+playerId;
+      this.playerId=playerId;
+      this.cardList={cards:[energy]};
+      this.validate=assignment=>Array.isArray(assignment)&&
+        assignment.length===1&&assignment[0].card===energy;
+    }
+  }
+  const actionTypes={
+    PlayCardAction:FakePlayCardAction,
+    ResolvePromptAction:FakeResolvePromptAction,
+    UseAbilityAction:FakeUseAbilityAction,
+    PlayerType:{ANY:'any',BOTTOM_PLAYER:'bottom',TOP_PLAYER:'top'},
+    SlotType:{BOARD:'board',ACTIVE:'active',BENCH:'bench'}
+  };
+  const GamePhase={PLAYER_TURN:'PLAYER_TURN'};
+  const makeSlot=(pokemon,tools=[])=>({
+    tools,energies:{cards:[]},getPokemonCard(){return pokemon;}
+  });
+
+  for(const candidateSeat of [0,1]){
+    const ownId=candidateSeat===0?101:202;
+    const opponentId=candidateSeat===0?202:101;
+    const energy={name:'Psychic Energy',fullName:'Psychic Energy BENCH '+candidateSeat};
+    const activePokemon={name:'Shadow Rider Calyrex VMAX',
+      powers:[{name:'Underworld Door'}]};
+    const sourcePokemon={name:'Shadow Rider Calyrex VMAX',
+      fullName:'Shadow Rider Calyrex VMAX HOODED '+candidateSeat,
+      powers:[{name:'Underworld Door'}]};
+    const targetPokemon={name:'Shadow Rider Calyrex VMAX',
+      powers:[{name:'Underworld Door'}]};
+    const garbodor={name:'Garbodor',powers:[{name:'Garbotoxin'}]};
+    const own={
+      id:ownId,
+      active:makeSlot(activePokemon,[]),
+      bench:[
+        makeSlot(sourcePokemon,[{name:'Stealthy Hood',fullName:'Stealthy Hood UNB 186'}]),
+        makeSlot(targetPokemon,[])
+      ],
+      hand:{cards:[energy]},
+      discard:{cards:[]},
+      deck:{cards:[{id:'d1'},{id:'d2'},{id:'d3'},{id:'d4'}]},
+      prizes:[{cards:[]},{cards:[]}],
+      marker:{used:new Set(),hasMarker(_,pokemon){return this.used.has(pokemon);}},
+      stadium:{cards:[]}
+    };
+    const opponent={
+      id:opponentId,
+      active:makeSlot(garbodor,[{name:'Tool Jammer',fullName:'Tool Jammer BST 136'}]),
+      bench:[],hand:{cards:[]},discard:{cards:[]},deck:{cards:[]},
+      prizes:[{cards:[]}],marker:{hasMarker(){return false;}},
+      stadium:{cards:[]}
+    };
+    const state={
+      players:candidateSeat===0?[own,opponent]:[opponent,own],
+      activePlayer:candidateSeat,turn:1,phase:'PLAYER_TURN',prompts:[]
+    };
+    const ai=new FakeSimpleTacticsAi(ownId);
+
+    const run=withHoodGarbotoxinRecoveryAutonomy(candidateSeat,()=>{
+      const use=ai.decodeNextAction(state);
+      assert.ok(use instanceof FakeUseAbilityAction);
+      assert.equal(use.playerId,ownId);
+      assert.equal(use.ability,'Underworld Door');
+      assert.deepEqual(use.target,{player:'bottom',slot:'bench',index:0});
+
+      state.prompts=[new AttachEnergyPrompt(ownId,energy)];
+      const resolve=ai.decodeNextAction(state);
+      assert.ok(resolve instanceof FakeResolvePromptAction);
+      assert.equal(resolve.promptId,'bench-attach-'+ownId);
+      assert.deepEqual(resolve.result[0].to,
+        {player:'bottom',slot:'bench',index:1});
+
+      own.hand.cards=own.hand.cards.filter(card=>card!==energy);
+      own.bench[1].energies.cards.push(energy);
+      own.deck.cards.splice(0,2);
+      own.marker.used.add(sourcePokemon);
+      state.prompts=[];
+      assert.deepEqual(ai.decodeNextAction(state),{kind:'baseline'});
+      return 'complete';
+    },{SimpleTacticsAi:FakeSimpleTacticsAi,actionTypes,GamePhase});
+
+    assert.equal(run.result,'complete');
+    assert.equal(run.policyAudit.version,'hood-garbotoxin-recovery-autonomy-v5-active-or-bench-source');
+    assert.equal(run.policyAudit.attemptCount,1);
+    assert.equal(run.policyAudit.successfulEffectCount,1);
+    assert.equal(run.policyAudit.attempts[0].sourceZone,'bench');
+    assert.equal(run.policyAudit.attempts[0].sourceIndex,0);
+    assert.equal(run.policyAudit.attempts[0].sourcePrinting,sourcePokemon.fullName);
+    assert.equal(run.policyAudit.attempts[0].receipt.successfulEffect,true);
   }
 });

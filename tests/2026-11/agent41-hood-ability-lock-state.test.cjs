@@ -7,7 +7,9 @@ const {
   hasActiveIronThornsInitialization,hasLiveOpponentAbilityLock,
   hasProtectableHoodLockThreat,hoodAttachTargets,
   hasUnspentActiveUnderworldDoor,hoodedDoorRecoveryPlan,
-  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow
+  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow,
+  selectHoodedDoorSource,isHoodedDoorSourceUsable,
+  hasUnspentUnderworldDoorAt
 }=require('../../simulation/twinleaf/hood-ability-lock-state.cjs');
 
 const power=name=>({name});
@@ -211,4 +213,60 @@ test('missing marker API fails closed rather than assuming Door is unspent',()=>
   delete b.own.marker;
   assert.equal(hasUnspentActiveUnderworldDoor(b.own),false);
   assert.equal(hasHoodedDoorRecoveryWindow(b.own,b.opponent,b.state),false);
+});
+
+
+test('a Hooded Benched VMAX can source Underworld Door under opponent Active Tool Jammer',()=>{
+  const own=player({
+    active:slot(shadowVmax()),
+    bench:[
+      slot(shadowVmax(),[tool('Stealthy Hood')]),
+      slot(shadowVmax())
+    ],
+    hand:[{name:'Psychic Energy'}]
+  });
+  const opponent=player({
+    active:slot(garbodor(),[tool('Tool Jammer')])
+  });
+  const state={players:[own,opponent]};
+  const source=selectHoodedDoorSource(own,opponent,state);
+  assert.equal(source.zone,'bench');
+  assert.equal(source.index,0);
+  assert.strictEqual(source.pokemon,own.bench[0].getPokemonCard());
+  assert.equal(isHoodedDoorSourceUsable(own,opponent,state,source),true);
+  assert.equal(canUseHoodedDoorUnderGarbotoxin(own,opponent,state),true);
+  assert.equal(hasHoodedDoorRecoveryWindow(own,opponent,state),true);
+  assert.equal(hasUnspentUnderworldDoorAt(own,'bench',0),true);
+});
+
+test('the Hooded Bench source is preferred over an available Active source',()=>{
+  const own=player({
+    active:slot(shadowVmax(),[tool('Stealthy Hood')]),
+    bench:[slot(shadowVmax(),[tool('Stealthy Hood')])]
+  });
+  const opponent=player({
+    active:slot(garbodor(),[tool('Float Stone')])
+  });
+  const source=selectHoodedDoorSource(own,opponent,{players:[own,opponent]});
+  assert.equal(source.zone,'bench');
+  assert.equal(source.index,0);
+});
+
+test('Active Tool Jammer rejects an Active-only source but not a Benched source',()=>{
+  const opponent=player({
+    active:slot(garbodor(),[tool('Tool Jammer')])
+  });
+  const activeOnly=player({
+    active:slot(shadowVmax(),[tool('Stealthy Hood')]),
+    bench:[slot(shadowVmax())]
+  });
+  const stateA={players:[activeOnly,opponent]};
+  assert.equal(selectHoodedDoorSource(activeOnly,opponent,stateA),null);
+
+  const benchSource=player({
+    active:slot(shadowVmax()),
+    bench:[slot(shadowVmax(),[tool('Stealthy Hood')])]
+  });
+  const stateB={players:[benchSource,opponent]};
+  assert.equal(selectHoodedDoorSource(benchSource,opponent,stateB).zone,'bench');
 });

@@ -36,6 +36,7 @@ function underworldDoorAction(options) {
   locker.id = 101;
   if (options.garbodorPrint) {
     locker.active.cards.push(get('Shadow Rider Calyrex V CRE'));
+    if (options.jammer) locker.active.tools.push(get('Tool Jammer BST'));
     const garbodorSlot = new PokemonCardList();
     garbodorSlot.cards.push(get('Trubbish BKP'), get('Garbodor ' + options.garbodorPrint));
     if (options.garbodorTool !== false) {
@@ -252,6 +253,8 @@ function runTest() {
     {hood:false,jammer:false,active:false,wobbuffetActive:true,actingSeat:true,allowed:true},
     {hood:false,jammer:true,active:false,wobbuffetActive:true,actingSeat:true,allowed:true},
     {hood:true,jammer:false,active:false,garbodorPrint:'BKP',allowed:true},
+    {hood:true,jammer:true,active:false,garbodorPrint:'BKP',allowed:true},
+    {hood:false,jammer:true,active:false,garbodorPrint:'BKP',allowed:false},
     {hood:true,jammer:false,active:false,garbodorPrint:'LTR',allowed:true},
     {hood:false,jammer:false,active:false,garbodorPrint:'BKP',allowed:false},
     {hood:false,jammer:false,active:false,garbodorPrint:'LTR',allowed:false},

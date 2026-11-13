@@ -38,3 +38,19 @@ Because the champion retains fourteen Basic Pokémon, even four hypothetical uns
 The pinned engine had two relevant missing effects, so these regressions rely on research-owned, reversible [Tool Jammer and Megaton Blower hooks](../twinleaf/anti-hood-tool-fidelity.md), with the complete-game smoke test separately passing. Other game semantics, decisions and winning rates remain unverified.
 
 **Classification:** conditional card-rule interaction validated with a deterministic pinned-engine full Ability action; published opponent list composition verified; practical 60-card deck strength unknown.
+
+
+## Combined Garbotoxin + opponent Active Tool Jammer validation (12 November 2026)
+
+The earlier native cases tested Hood against Bench Garbotoxin and separately tested Active Tool Jammer against an Active Hood. A new pinned-engine probe now covers the combined state that motivated the candidate recovery correction:
+
+- Opponent Bench: Garbodor with a Pokémon Tool, so Garbotoxin is live.
+- Opponent Active: a Pokémon with Tool Jammer attached.
+- Candidate Bench: Shadow Rider Calyrex VMAX with Stealthy Hood.
+- Candidate Active: an unprotected Pokémon.
+
+The positive case allows the Benched VMAX to use Underworld Door, attaches one Psychic Energy, and draws two cards. The otherwise identical no-Hood control remains blocked. The probe is implemented in [underworld-door-action.cjs](../../simulation/twinleaf/underworld-door-action.cjs) and [agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs](../../tests/2026-11/agent3-hooded-bench-garbotoxin-tooljammer.native.test.cjs).
+
+**Pinned-engine evidence:** PR CI run [43312399942](https://github.com/FlareZ123/experiment-01/actions/runs/43312399942), native-bench-source job, passed after submodule checkout and engine compilation. It ran the complete existing Underworld Door positional/lock-state matrix and the combined positive/negative Garbotoxin + Active Tool Jammer probe. The pure source-selection and recovery state-machine job passed in the same run. The policy implementation is in [stacked PR #41](https://github.com/FlareZ123/experiment-01/pull/41).
+
+This closes the specific combined-interaction gap at native effect/prompt level. It does not establish full-game sequencing, resistance to later Tool removal, a matchup result, or any competitive win-rate improvement.

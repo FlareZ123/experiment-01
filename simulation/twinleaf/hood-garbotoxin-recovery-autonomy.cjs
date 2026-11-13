@@ -4,8 +4,9 @@ const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const {
   liveGarbotoxinSlots,hasLiveGarbotoxin,
-  canUseHoodedDoorUnderGarbotoxin,hasHoodedDoorRecoveryWindow,
-  hoodedDoorRecoveryPlan,hasUnspentActiveUnderworldDoor
+  hasHoodedDoorRecoveryWindow,hoodedDoorRecoveryPlan,
+  selectHoodedDoorSource,isHoodedDoorSourceUsable,
+  hasUnspentUnderworldDoorAt
 }=require('./hood-ability-lock-state.cjs');
 
 /** @param {string} suffix */
@@ -73,9 +74,10 @@ function hoodedDoorEffectReceipt(args) {
 
 /**
  * An own-hand/public-board candidate response to live Garbotoxin from an
- * Active or Benched Garbodor with any Pokémon Tool while the player's Active
- * VMAX has Stealthy Hood. It fails closed when Active Tool Jammer, Jamming
- * Tower, or Path to the Peak suppresses the required Tool/Ability.
+ * Active or Benched Garbodor with any Pokémon Tool while a Hooded Shadow Rider
+ * VMAX is in either the Active or Bench position. It fails closed when a
+ * Stadium suppresses the Tool/Ability, or when Active Tool Jammer suppresses
+ * an Active source. A Benched source remains usable under Active Tool Jammer.
  *
  * The policy supports three owner-visible Energy routes, in preference order:
  * direct Psychic Energy from hand; Night Stretcher from discard; or Battle
@@ -113,6 +115,7 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   let recoveryPlan=null;
   let selectedEnergyCard=null;
   let beforeDoor=null;
+  let doorSource=null;
   let activeAttempt=null;
   const attempts=[];
   const events=[];
@@ -126,7 +129,10 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   const selected=(state,step,action)=>{
     const event={turn:state.turn,kind:'selected-action',step,
       recoveryPlan,action:action.constructor.name,
-      energy:selectedEnergyCard?.fullName??null};
+      energy:selectedEnergyCard?.fullName??null,
+      sourceZone:doorSource?.zone??null,
+      sourceIndex:doorSource?.index??null,
+      sourcePrinting:doorSource?.printing??null};
     events.push(event);
     activeAttempt?.events.push(event);
     return action;
@@ -134,7 +140,10 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   /** @param {object} state @param {string} reason */
   const abort=(state,reason)=>{
     const event={turn:state.turn,kind:'opportunity-aborted',reason,
-      recoveryPlan,energy:selectedEnergyCard?.fullName??null};
+      recoveryPlan,energy:selectedEnergyCard?.fullName??null,
+      sourceZone:doorSource?.zone??null,
+      sourceIndex:doorSource?.index??null,
+      sourcePrinting:doorSource?.printing??null};
     events.push(event);
     activeAttempt?.events.push(event);
     if(activeAttempt)activeAttempt.aborted=reason;
@@ -146,7 +155,10 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
       if(phase!=='done') {
         const reason='Recovery sequence crossed a turn boundary';
         const event={turn:state.turn,kind:'opportunity-aborted',reason,
-          recoveryPlan,energy:selectedEnergyCard?.fullName??null};
+          recoveryPlan,energy:selectedEnergyCard?.fullName??null,
+          sourceZone:doorSource?.zone??null,
+          sourceIndex:doorSource?.index??null,
+          sourcePrinting:doorSource?.printing??null};
         events.push(event);
         activeAttempt?.events.push(event);
         if(activeAttempt)activeAttempt.aborted=reason;
@@ -156,28 +168,35 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
       recoveryPlan=null;
       selectedEnergyCard=null;
       beforeDoor=null;
+      doorSource=null;
       activeAttempt=null;
     }
     const own=state.players.find(player=>player.id===this.client?.id);
     if(own?.id!==ownId)return original.call(this,state);
     const opponent=state.players[1-candidateSeat];
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
+    const availableDoorSource=selectHoodedDoorSource(own,opponent,state);
     if(phase==='idle'&&phaseTurnKey!==turnKey&&
        state.activePlayer===candidateSeat&&
        state.phase===GamePhase.PLAYER_TURN&&!pending&&
-       hasHoodedDoorRecoveryWindow(own,opponent,state)) {
+       availableDoorSource&&hasHoodedDoorRecoveryWindow(own,opponent,state)) {
       const entry=hoodedDoorRecoveryEntry(own);
       if(entry) {
         phaseTurnKey=turnKey;
         recoveryPlan=entry.plan;
         selectedEnergyCard=entry.energyCard;
+        doorSource=availableDoorSource;
         activeAttempt={turn:state.turn,candidateSeat,recoveryPlan,
           selectedEnergy:selectedEnergyCard?.fullName??null,
+          sourceZone:doorSource.zone,sourceIndex:doorSource.index,
+          sourcePrinting:doorSource.printing,
           successfulEffect:false,events:[]};
         attempts.push(activeAttempt);
         const event={turn:state.turn,kind:'eligible-own-state',
           recoveryPlan,handPrintings:own.hand.cards.map(card=>card.fullName),
-          activeHoodPrintings:own.active.tools.map(card=>card.fullName),
+          sourceZone:doorSource.zone,sourceIndex:doorSource.index,
+          sourcePrinting:doorSource.printing,
+          sourceHoodPrintings:doorSource.tools,
           liveGarbotoxinSources:liveGarbotoxinSlots(opponent),
           selectedEnergy:selectedEnergyCard?.fullName??null};
         events.push(event);
@@ -243,23 +262,32 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
     if(phase==='door'&&!pending) {
       const energyInHand=!!selectedEnergyCard&&
         own.hand.cards.includes(selectedEnergyCard);
-      if(energyInHand&&canUseHoodedDoorUnderGarbotoxin(own,opponent,state)&&
-         hasUnspentActiveUnderworldDoor(own)) {
+      if(energyInHand&&
+         isHoodedDoorSourceUsable(own,opponent,state,doorSource)) {
+        const sourceSlot=doorSource.zone==='active'?
+          SlotType.ACTIVE:SlotType.BENCH;
+        const sourceIndex=doorSource.zone==='active'?0:doorSource.index;
         const action=new UseAbilityAction(own.id,'Underworld Door',{
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+          player:PlayerType.BOTTOM_PLAYER,slot:sourceSlot,index:sourceIndex
         });
         if(this.isValidAction(state,action)) {
-          const benchIndex=own.bench.findIndex(slot=>
-            slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX');
-          if(benchIndex>=0) {
-            beforeDoor={deck:own.deck.cards.length,benchIndex};
+          const benchTargets=own.bench.map((slot,index)=>({slot,index}))
+            .filter(({slot})=>
+              slot.getPokemonCard()?.name==='Shadow Rider Calyrex VMAX')
+            .map(({index})=>index);
+          const benchIndex=benchTargets.find(index=>
+            doorSource.zone!=='bench'||index!==doorSource.index)??benchTargets[0];
+          if(Number.isSafeInteger(benchIndex)) {
+            beforeDoor={deck:own.deck.cards.length,benchIndex,
+              sourceZone:doorSource.zone,sourceIndex:doorSource.index};
             phase='attach';
-            return selected(state,'Hooded Active Underworld Door under Garbotoxin',
+            return selected(state,
+              'Hooded '+doorSource.zone+' Underworld Door under Garbotoxin',
               action);
           }
         }
       }
-      abort(state,'Protected Door action or exact Energy is no longer available');
+      abort(state,'Protected Door source, action or exact Energy is no longer available');
     }
     if(phase==='attach') {
       if(pending?.constructor.name==='AttachEnergyPrompt'&&
@@ -286,7 +314,8 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
       const receipt=hoodedDoorEffectReceipt({
         own,selectedEnergyCard,targetBenchIndex:beforeDoor?.benchIndex,
         deckBefore:beforeDoor?.deck,
-        markerSpent:!hasUnspentActiveUnderworldDoor(own),
+        markerSpent:!hasUnspentUnderworldDoorAt(
+          own,beforeDoor?.sourceZone,beforeDoor?.sourceIndex),
         garbotoxinStillLive:hasLiveGarbotoxin(opponent)
       });
       const event={turn:state.turn,kind:'completed-source-effect',
@@ -305,9 +334,12 @@ function withHoodGarbotoxinRecoveryAutonomy(candidateSeat,execute,deps={}) {
   try {
     const result=execute();
     return {result,policyAudit:{
-      version:'hood-garbotoxin-recovery-autonomy-v4-repeatable-own-turn',
+      version:'hood-garbotoxin-recovery-autonomy-v5-active-or-bench-source',
       candidateSeat,opponentSeat:1-candidateSeat,
       recoveryPlan,selectedEnergy:selectedEnergyCard?.fullName??null,
+      sourceZone:doorSource?.zone??null,
+      sourceIndex:doorSource?.index??null,
+      sourcePrinting:doorSource?.printing??null,
       triggered:attempts.length>0,attemptCount:attempts.length,
       successfulEffect:attempts.some(attempt=>attempt.successfulEffect),
       successfulEffectCount:attempts.filter(attempt=>attempt.successfulEffect).length,
