@@ -81,3 +81,23 @@ Direct handoff: `communications/agent43/20261113T061900383Z_agent49_root-search-
 The earlier unregistered-envelope concern also remains in the current code: the boundary accepts any regex-valid `applicabilityEnvelopeId` and applies the Flittle-specific action restriction only to the exact Flittle ID. The first pilot itself supplies a fixed ID and has its own envelope assertions, but the generic boundary has no trusted registration/allowlist. Keep the prior regression recommendation for an unknown, fully certified envelope with an otherwise permitted intent.
 
 No native MCTS decision, full game, matchup, or competitive result was produced.
+
+## 13 November 2026 06:30 UTC — independent review of Agent50's provider repair
+
+Agent50's updated provider is now present on main (provider blob `00a35d0144c114797ac02c9c3e6110923208ff72`; registered-list change commit `5d5d439fab3a5437bd2020aea30d5af564440bd8`; pure contract test commit `f4ff27572511ae34cf59756506d5c5d1903540e2`). The earlier provider-specific missing constructors, canonical action-key dependency, 10-second budget, and root predicate reuse were repaired. The provider now supplies the pinned WaitPrompt/ResolvePromptAction/GameError/action bindings, the adapter's canonical Flittle action-key functions, a 16-iteration/1-ply/250ms fixed budget, and separate root/successor envelopes. The provider-specific adapter also requires the exact registered Flittle envelope ID. The one-ply cap remains appropriate in light of Agent5's root-determinization strategy-fusion counterexample.
+
+The root/successor state-family checks are internally consistent for the declared one-ply smoke: root requires one Psychic on each active Flittle and zero damage; the successor envelope allows two Energy only on the still-active just-attaching seat, and after Ram/Pass expects the next active seat with one Energy after WaitPrompt resolution. The public projection checks correctly compare the PokemonCardList stack projection (`evolutionPrintings`, including attached Energy) with the energy-only projection (`energies`). The `PlayerType.BOTTOM_PLAYER` target is relative to the acting player in Twinleaf, so it is correct for both physical seats.
+
+### Remaining runner contract: the live Store must be built from the registered lists
+
+The provider validates that the supplied candidate and opponent decklist objects are exactly one Flittle + 59 Psychic Energy. However, the live Twinleaf `state` is not independently tied to those registered list IDs. `knowledgeBySeat()` assumes every Prize is Psychic from the fixture composition, while the determinization input intentionally does not inspect concealed opponent identities. This is sound only if the runner constructs the actual native Store from the exact same two registered 60-card lists and passes those same IDs into the runtime. A correct metadata list paired with a Store built from a different hidden deck would make the K1 Prize assertion and opponent prior false.
+
+Before native acceptance, the runner must bind Store construction to these exact list IDs/digests (or perform a trusted state-composition preflight before exposing only the actor view) and record the binding in the receipt. Add a negative mismatched-Store/list regression. Agent50 was sent this requirement in `communications/agent50/20261113T063046010Z_agent49_independent-flittle-provider-review.md`, commit `01c9448a8156bd38cc2a764ca05bb29d79151982`.
+
+### Selected-action audit binding remains open
+
+The provider maps `selected.action` to a neutral intent but does not assert that `selected.audit.selectedActionKey` names that same action. The generic Agent34 boundary does not require the key at all; its positive stub test omits it and still returns selected. Require a nonempty canonical key and bind it to the mapped intent in the provider and/or trusted boundary; add missing-key and mismatch regressions. Agent43 was sent the generic-boundary finding in `communications/agent43/20261113T061900383Z_agent49_root-search-intent-audit-binding.md`.
+
+### Evidence boundary
+
+The provider's current tests are pure/synthetic; they do not instantiate the pinned native Store or prove the real PokemonCardList projection. The provider remains unintegrated with the V3 runner. No native MCTS decision, Store acceptance, full game, matchup, or competitive result has been demonstrated. Do not widen beyond one ply; Agent5's 06:15 root-determinization strategy-fusion counterexample blocks using the current PUCT opponent nodes as a competent multi-ply model.
