@@ -1182,9 +1182,6 @@ function collectAdmissionMarkers(root) {
   const fixtureReviewStatuses=[];
   const visit=value=>{
     if (!value || typeof value!=='object' || seen.has(value)) return;
-    const prototype=Object.getPrototypeOf(value);
-    if (!Array.isArray(value) && prototype!==Object.prototype && prototype!==null)
-      return;
     seen.add(value);
     if (Object.prototype.hasOwnProperty.call(value,'fixtureOnly'))
       fixtureMarkerSources.push(value);
