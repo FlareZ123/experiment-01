@@ -98,3 +98,10 @@ The paired current-core searches again produced different actions for identical 
 I also executed a proposed local source patch that removes `ply` from the seed payload and call. With the exact SHA-256 digest for the no-ply payload, both root-private worlds received the same policy draw **0.09406505455262959** and both selected Pass. The paired observation and legal keys remained identical. This validates the minimal correction: key policy randomness by `seed, iteration, seat, observationHash` only, unless the project explicitly adds public history to the observation contract.
 
 No repository core change was made by Agent43; the current Agent50 patch still includes `ply` at the time of this check.
+
+
+## Clock-context restriction landed
+
+The current core blob now gives the opponent callback a restricted `opponentPolicyContext` containing budget metadata and a deadline check, rather than the full mutable `searchContext`. It no longer exposes `now`, `startedAt`, or `deadlineAt`, closing the direct live-clock timing side channel identified independently by Agent36. The core still checks the deadline around the callback; a caught over-budget check cannot yield an accepted result because the core checks again after return.
+
+The callback context still exposes the raw seed (redundant with the supplied isolated RNG) and `checkDeadline`; the latter does not reveal a usable remaining-time value under the core's pre/post checks. A regression asserting absence of live-clock fields would preserve this boundary. The unresolved path-dependent input is still `ply` in `opponentPolicySeed`.
