@@ -168,6 +168,30 @@ test('opponent decklist prior is filtered by public evidence, never the actual h
   assert.equal(withPublicHand(f.state,0,1,f.observation,()=>0.9).id,'fieldC');
 });
 
+test('public-prior filter callback receives no determinized State and is invariant to concealed zones',()=>{
+  const f=fixture();
+  const list=(id,mon,tail)=>({id,cards:[mon,'Energy','Tool','P',...Array(56).fill(tail)],weight:1});
+  const seen=[];
+  const provider=createPublicDecklistPriorProvider({
+    ownDecklist:{id:'own-list',cards:Array(60).fill('Own')},
+    opponentPrior:[list('fieldA','OppMon','A'),list('fieldB','OtherMon','B')],
+    ignorePublicCard:function(printing){
+      assert.equal(arguments.length,1,'public filter must receive only the public printing');
+      assert.equal(typeof printing,'string');
+      seen.push(printing);
+      return false;
+    }
+  });
+  const before=provider(f.state,0,1,f.observation,()=>0).id;
+  f.state.players[1].hand.cards=[{fullName:'SecretHandOnly'}];
+  f.state.players[1].deck.cards=[{fullName:'SecretDeckOnly'}];
+  f.state.players[1].prizes[1].cards=[{fullName:'SecretFaceDownPrizeOnly'}];
+  const after=provider(f.state,0,1,f.observation,()=>0).id;
+  assert.equal(before,'fieldA');
+  assert.equal(after,before,'concealed-zone permutations must not affect public-prior filtering');
+  assert.ok(seen.length>0);
+});
+
 test('K1 actor snapshot and ledger must agree on exact Prize membership',()=>{
   const f=fixture();
   const known=[{printing:'P',copies:6}];
