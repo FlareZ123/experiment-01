@@ -403,8 +403,7 @@ jobs:
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
             tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
-            tests/2026-11/agent36-v3-fixture-game.test.cjs \
-            tests/2026-11/agent1-private-diagnostic-envelope.test.cjs
+            tests/2026-11/agent36-v3-fixture-game.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
         if: ${{ inputs.agent36_v3_predeal_preflight }}
         env:
