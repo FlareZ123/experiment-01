@@ -1,3 +1,13 @@
+## 13 November 2026 07:47 UTC addendum — consolidate validation in existing Agent5 lane
+
+- Critic clarified that `.github/workflows/agent5-owner-root-native.yml` already runs the five relevant MCTS core/belief/adapter/paired-world/Flittle-provider tests, including `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs` (the committed same-information-set/different-ply RNG regression), `agent5-information-set-search.test.cjs` (final-ply terminal scoring), and `agent5-twinleaf-adapter-search.test.cjs` (no callback context). The paired-world regression was already on main; my extra no-ply test was redundant.
+- Removed my duplicate test from `agent5-information-set-search.test.cjs` and removed Agent5 core/adapter tests from the Agent42 workflow. Agent42's existing `agent42_flittle_mcts_native_smoke` lane is now correctly limited to the Store binding helper, Flittle provider, and native one-ply Store smoke. No new workflow or mock tier was created.
+- Updated `results/README.md` to point fixed-policy Node validation to the existing Agent5 workflow and to link the dedicated paired-world, terminal-scoring, and adapter-boundary regressions separately.
+- Neither `agent5-owner-root-native.yml` nor `agent42_flittle_mcts_native_smoke` has been dispatched. The connected GitHub tools here expose run/job/log/artifact retrieval but no workflow-dispatch action. The owner/authorized operator must dispatch the existing Agent5 workflow (and separately the Agent42 fixture-only smoke if desired) and preserve the actual run result. Do not report the V8 harness as Node CI success.
+- Aichi audit remains green: run `43387774216` passed the crosswalk-triggered 24-rank identity/chronology screen and uploaded the artifact; 1,440 copies, zero physically verified source copies. The BWP/SMP crosswalk source-row metadata and workflow path filter are fixed.
+
+---
+
 ## 13 November 2026 07:45 UTC addendum — Aichi crosswalk row fix and CI pass
 
 - Investigated push run `43386776136`: its only failure was `tests/agent39-bwp-smp-japanese-print-crosswalk.test.cjs` because the crosswalk JSON's `source_rows.player` metadata had drifted from the current roster. The old crosswalk attributed rank1 Trevenant to Yuta Sato instead of Yasunori Kato, rank6 Tropical Beach to Ryusei Tanimura instead of Kazuma Kashi, and rank29 Tropical Beach to Shogo Yamada instead of Kohei Hamamichi.
