@@ -173,7 +173,14 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
       intent:{kind:'play-supporter',handIndex:0},
       audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
         ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
-        applicabilityEnvelopeId:'pilot'}}),
+        applicabilityEnvelopeId:'pilot',
+        iterations:32,completedIterations:32,maxPlies:4,
+        maxDecisionMs:250,seed:9,elapsedMs:12.5,
+        timeoutStatus:'completed',cPuct:1.4,
+        maxActionTransitions:1,seatActionTransitions:[0,32],
+        rolloutPaths:Array.from({length:32},(_,iteration)=>({
+          iteration,actions:[{seat:1,actionKey:'PASS_TURN'}]
+        })),rootActionCount:2,selectedActionKey:'PASS_TURN'}}),
     provider:context=>{context.runSearch();return {status:'selected'};}
   });
   assert.equal(unsupported.status,'abstained');
@@ -1349,8 +1356,9 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(integrated.source,postTimelessVersion,
     'the Agent34 actor-only chooser must select the candidate-only follow-up');
 
-  assert.equal(chooseActorRootIntent(view,postTimelessCatalog,{}),null,
-    'the new branch is opt-in and does not change default policy');
+  const defaultIntent=chooseActorRootIntent(view,postTimelessCatalog,{});
+  assert.notEqual(defaultIntent?.source,postTimelessVersion,
+    'the new Max Geist branch is opt-in; existing default Copycat policy may still act');
   assert.equal(choosePostTimelessMaxGeistRetreat(view,postTimelessCatalog,{ownerSeat:1}),null,
     'the proposal cannot cross the candidate-seat boundary');
 
