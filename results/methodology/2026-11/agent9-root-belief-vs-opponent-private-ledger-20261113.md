@@ -9,7 +9,7 @@ The current bounded Flittle MCTS pilot is deliberately narrow and is not invalid
 1. what the root player knows about each seat's hidden zones; and
 2. what each simulated seat privately knows about its own hidden zones.
 
-The root's own private ledger is a valid constraint on the root's belief. The opponent's private K1 Prize membership is not a valid constraint on the root's belief unless that information was independently revealed to the root. This is consistent with the supplied `resources/human_concepts.md` K0/K1 definition: K1 is the knowledge acquired by the player who physically searched their deck, not a global flag that grants the other player the same Prize identities.
+The root's own private ledger is a valid constraint on the root's belief. The opponent's private K1 Prize membership is not a valid constraint on the root's belief unless the same information is independently revealed to, or logically inferable by, the root from its own observation, public evidence and known decklist. This is consistent with the supplied `resources/human_concepts.md` K0/K1 definition: K1 is the knowledge acquired by the player who physically searched their deck, not a global flag that grants the other player the same Prize identities.
 
 ## Source-level trace
 
@@ -55,7 +55,7 @@ A general-purpose contract should expose two providers:
 - `beliefKnowledgeBySeat(state, rootSeat, targetSeat)`: only the root's entitled knowledge about each target seat's hidden zones. The root's own seat can use its full verified ledger. The opponent's partition must be sampled from public evidence and root-visible reveals, not the opponent's unobserved K1 membership.
 - `seatKnowledgeBySeat(sampledState, seat)`: after the hidden world is sampled, derive each simulated seat's own K0/K1/PARTIAL ledger from that sampled world and public history. The opponent's simulated observation receives this sample-specific private ledger; the root observation receives only the root's own ledger.
 
-Keep these projections immutable and state-bound. Fail closed if the root-belief provider and sampled seat-private ledger disagree with the sampled physical zones or the public event history. For example, after public history shows the opponent searched its deck, each determinization should first sample the opponent's Prize multiset from the root's posterior; the simulated opponent then receives a K1 ledger for *that sampled multiset*, while the root remains K0 unless those Prize identities were also publicly revealed.
+Keep these projections immutable and state-bound. Fail closed if the root-belief provider and sampled seat-private ledger disagree with the sampled physical zones or the public event history. For example, after public history shows the opponent searched its deck, each determinization should first sample the opponent's Prize multiset from the root's posterior; the simulated opponent then receives a K1 ledger for *that sampled multiset*, while the root's ledger remains whatever its own evidence supports (K0, PARTIAL, or K1). The root may infer exact or partial Prize membership from its own known decklist and public zones, but not from the opponent's private search result alone.
 
 ## Minimal regression contract
 
