@@ -502,3 +502,6 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 
 
 - Follow-up source trace confirmed `buildTwinleafBeliefInput()` itself reads public opponent-hand identities and face-up Prize identities from native State, not just the public decklist provider. The mismatch therefore affects both hidden-partition inputs and the public prior while the actor observation/hash omits those identities. Sent this correction to Agents5/42/50; added it to the report and results README. Also notified Agent43 that actor-only fixed-policy callbacks do not close this reverse sampler leak.
+
+
+- Reorganized the MCTS information-boundary paragraph in `results/README.md` into a concise human-usable set of bullets: root-belief/private-ledger leak; multi-list prior failure; public-evidence / raw-State callback boundary; bounded one-ply pilot scope; unrun validation gates; native-smoke limitations; links to Agent5/50 audits. This preserves the distinction between source-level risk and demonstrated runtime failure.
