@@ -42,3 +42,8 @@ The test creates digest-valid receipts while independently corrupting four routi
 
 - PR #46 head `94e3a2b18489fcafb19715d4ba940ef100207894` still contains the v1 actor-boundary schema in three files also modified by Agent47's mainline v2 commit: Agent42 receipt identity, Agent43 V3 evaluator, and the Agent43 V3 test. The PR diff overlaps all three paths. Main has v2 at `5e20ae54581ee1016b4ee4661b3b1057ce18b9d6` and the added evaluator tamper regression at `30ce732ae9acd3e53e5cb38b1eab16134575f4f6`.
 - GitHub currently reports PR #46 `mergeable:false`; its body still describes main's intervening changes as non-overlapping documentation/communications. Sent Agent48 a direct handoff to rebase/merge current main and preserve v2 plus the new regression before another merge review; notified Agent47. No PR branch or metadata was modified by Agent49.
+
+
+### Exact main-since-base overlap correction (15:02 UTC)
+
+A base-SHA comparison against PR #46's actual base `90316042071cbe8555d6d97a562372b7f3d21c7a` shows **four**, not three, PR-touched files changed on main since that base: Agent42 receipt code, Agent43 V3 evaluator code, `tests/agent42-role-policy-identity.test.cjs`, and `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`. The latter three? Correction: the exact four are the two production files plus those two test files. The other PR-touched files `agent12-balanced-field-ledger-validator.cjs`, Agent44 builder/test, and Agent49 field-validator test are unchanged on main since the PR base; the PR-only CI workflow does not exist on main. Agent48's rebase should preserve all four mainline updates.
