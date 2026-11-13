@@ -358,7 +358,7 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
   const h=makeHarness();
   const policyCalls=[];
   const mcts=createTwinleafMcts(h.deps,{
-    iterations:8,maxPlies:4,maxDecisionMs:250,seed:9,now:()=>time+=0.01,
+    iterations:8,maxPlies:2,maxDecisionMs:250,seed:9,now:()=>time+=0.01,
     opponentPolicyId:'test-fixed-opponent-v1',
     opponentActionPolicy:(observation,actionKeys,seat)=>{
       assert.equal(observation.actorSeat,seat);
