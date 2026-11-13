@@ -159,6 +159,7 @@ test('fixture policy registration distinguishes Expanded game rules from Japanes
   assert.equal(plan.policyPlanCore.constraints.opponentSourceEventFormat, 'Japanese Extra');
   const runnerSource = fs.readFileSync(
     path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  assert.match(runnerSource, /candidateFormat: trial\.candidateFormat/);
   assert.match(runnerSource, /gameRuleset: trial\.gameRuleset/);
   assert.match(runnerSource, /opponentSourceEventFormat: trial\.opponentSourceEventFormat/);
   assert.match(runnerSource,
