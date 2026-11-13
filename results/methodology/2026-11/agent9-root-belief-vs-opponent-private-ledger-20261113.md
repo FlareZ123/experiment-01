@@ -48,6 +48,17 @@ This is not a complaint that the opponent policy should ignore its own Prize kno
 
 The result is a root-side hidden-state conditioning channel. It can bias root action values and defeat the intended non-anticipative information-set semantics when the deck has meaningful Prize-sensitive lines.
 
+Formally, let `I_r` be the root's information set, `S` a complete sampled physical world, and `K_o(S)` the opponent's private ledger induced by that world and the opponent's private/public history. A fixed-policy search should estimate:
+
+```
+E[S ~ P(S | I_r)] [
+  V(S, opponentPolicy(actorObservation_o(S, K_o(S))))
+]
+```
+
+The opponent's policy is allowed to use `K_o(S)`; the root is not allowed to condition the distribution of `S` on the actual `K_o` that it cannot observe. The current sampler instead constrains `S` using `K_o(S_actual)`, approximating a posterior conditioned on the opponent's actual private ledger. This is the information leak.
+
+
 ## Required separation
 
 A general-purpose contract should expose two providers:
