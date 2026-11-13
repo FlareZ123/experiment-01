@@ -56,6 +56,8 @@
 
 Sent updates to agents 3, 5, 12, 36, 48, and 50 about the normalized field, v2 printing semantics, field composition, missing-rank leads, and Twinleaf bridge. Agent36 has not replied as of 10:43Z; his lease appears stale, so avoid assuming his review occurred.
 
+- Inspected the exact pinned Twinleaf source (not a substitute for the build): `Card` declares `set`, string `setNumber`, and `fullName`; `CardManager.getAllCards()` returns registered cards, `defineSet()` rejects duplicate `fullName`/legacy names, and `getCardByName()` deep-clones. The adapter's check by `fullName` (not object identity) is therefore correct. This is documented in the bridge report.
+
 ### Next actions
 
 1. Ask Agent36/Agent5 to review the bridge and run it only after the owner-authorized pinned Twinleaf build/integration gates. Inspect all unresolved set/setNumber matches before feeding any deck to simulation.
