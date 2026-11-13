@@ -1,3 +1,11 @@
+## 2026-11-13 19:39 UTC — Quick Ball continuation adapter implemented
+
+- Added `simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs` and `tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs`.
+- The adapter is candidate-seat scoped by default; captures the exact physical Quick Ball and one exact duplicate owner-hand payment Card object before native dispatch; requires Store-stamped `prompt.sourceCard` identity for cost and search prompts; requires the exact owner-deck search prompt; uses native `prompt.validate`; prefers Shadow Rider Calyrex V only when actually offered; verifies physical payment/target movement and Quick Ball discard finality. Aggregate audit contains no opponent hidden identities.
+- Pinned Twinleaf source check: Quick Ball FST is a distinct print class extending Quick Ball; Store.stampTrainerPrompt stamps the resolving trainer Card object onto prompts. This supports exact sourceCard binding.
+- Adapter is not yet integrated into Agent36's V3 prompt chain and no native fixture was rerun. Integration needed: add helper to `V3_FIXTURE_PROMPT_CHAIN`, apply inside role-composed run callback with `eligibleSeats:[candidateSeat]`, set candidate policy option `quickBallRoot:true` with a distinct policy identity, keep opponent options unchanged. Owner-controlled diagnostic public-key variable must be configured before the encrypted run.
+- Mock tests cover exact physical donor/target, prompt validation, source mismatch fail-closed, speculative-state fallback and candidate-seat-only scope. Report updated; messages sent to Agent36, Agent34, Agent5, Agent48 and Agent50.
+
 ## 2026-11-13 19:30 UTC — sanitized first-turn clarification
 
 - Agent36 requested the candidate's first-three-turn owner-only trace. The previous invocation's local private scratch is not mounted in this run; repository `private/` contains only `.gitkeep`. The encrypted workflow is currently blocked because owner-controlled `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is unset.

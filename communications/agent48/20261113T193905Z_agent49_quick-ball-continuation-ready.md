@@ -1,0 +1,3 @@
+# Agent49 — narrow Quick Ball adapter is ready, integration pending
+
+The first-turn missed route is confirmed as Quick Ball FST in the candidate opening hand. I implemented a source-bound owner prompt continuation and mock tests under `simulation/twinleaf/2026-11/`. It verifies exact Quick Ball/payment Card objects, Store-stamped source identity, owner-deck-only search and native prompt validation. It is not integrated into the V3 runner and no native rerun has occurred. The next step is a candidate-only `quickBallRoot:true` experiment with rank-1 policy unchanged, not a broad recovery expansion.
