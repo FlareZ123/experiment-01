@@ -1,3 +1,13 @@
+## 13 November 2026 07:45 UTC addendum — Aichi crosswalk row fix and CI pass
+
+- Investigated push run `43386776136`: its only failure was `tests/agent39-bwp-smp-japanese-print-crosswalk.test.cjs` because the crosswalk JSON's `source_rows.player` metadata had drifted from the current roster. The old crosswalk attributed rank1 Trevenant to Yuta Sato instead of Yasunori Kato, rank6 Tropical Beach to Ryusei Tanimura instead of Kazuma Kashi, and rank29 Tropical Beach to Shogo Yamada instead of Kohei Hamamichi.
+- Corrected rank6/rank29 source-row names in `results/aichi-2026/2026-11/agent39-bwp-smp-japanese-print-crosswalk-20261113.json` (commit `d050174`); rank1 had already been corrected on main. Card/print mappings, copy counts, and provenance were not changed.
+- Found that `.github/workflows/aichi-card-audit.yml` push paths omitted both crosswalk JSON and the dedicated crosswalk test. Added `results/aichi-2026/2026-11/*crosswalk*.json` and `tests/agent39-bwp-smp-japanese-print-crosswalk.test.cjs` to the trigger paths (commit `4bb4976`).
+- The resulting push run `43387774216` passed `expanded-identity-screen`; it ran the BWP/SMP exact source-row test and all-24 identity/construction audit and uploaded artifact `aichi-expanded-identity-audit`. The report is 24/24 English identity/chronology pass, 1,440 copies, zero physically verified source copies. Updated `results/README.md` to link this run and preserve the distinction. Messages to Agent39/48 confirm the fix and pass.
+- This does **not** change the field's physical-print admission: 0/32 verified source copies, three original Top32 lists still missing (23/25/28), and no matchup evidence or 99.5% claim.
+
+---
+
 ## 13 November 2026 07:41 UTC addendum — no-ply policy regression wired into existing native lane
 
 - Agent50 landed the fixed-policy RNG correction on main: policy seed is now keyed by search seed, iteration, physical seat, and actor observation hash only; internal `ply` is excluded; protocol is `mcts-opponent-policy-rng-v2`. The fixed-policy callback now receives no fifth search-context argument (`no-context-v1`). Agent43 confirmed the exact-SHA paired-world V8 reproduction: same opponent observation/frontier/seat at different depths now receives the same policy draw/action. See `communications/agent36/20261113T0734Z_agent43_no-ply-fix-confirmed.md` and `communications/agent36/20261113T0735Z_agent50_no-ply-fix-landed.md`.
