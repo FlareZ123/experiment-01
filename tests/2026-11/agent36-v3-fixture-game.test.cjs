@@ -65,6 +65,28 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
 });
 
+
+test('MEE/13 Psychic engine proxy does not rewrite other source printings', () => {
+  const deck = {
+    cards: [
+      { category: 'Energy', name: 'Psychic Energy', count: 1,
+        printing: { set: 'MEE', number: '12', language: 'en' } },
+      { category: 'Energy', name: 'Darkness Energy', count: 1,
+        printing: { set: 'MEE', number: '13', language: 'en' } },
+    ],
+  };
+  const cards = [
+    { name: 'Psychic Energy', set: 'MEE', setNumber: '12', fullName: 'Psychic Energy MEE 12' },
+    { name: 'Darkness Energy', set: 'MEE', setNumber: '13', fullName: 'Darkness Energy MEE 13' },
+  ];
+  const resolved = runner.resolvePrintedDeck(deck, cards, { label: 'alias-negative-controls', expectedSize: 2 });
+  assert.deepEqual(resolved.resolvedRows.map(row => row.enginePrinting), [
+    { set: 'MEE', number: '12', language: 'en' },
+    { set: 'MEE', number: '13', language: 'en' },
+  ]);
+  assert.deepEqual(resolved.fullNames, ['Psychic Energy MEE 12', 'Darkness Energy MEE 13']);
+});
+
 test('fixture trial binds and preserves the canonical composer actor-only execution boundary', () => {
   const audit = (seat, overrides = {}) => ({
     policyOwnerSeat: seat,
