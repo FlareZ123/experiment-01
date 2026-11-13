@@ -124,3 +124,32 @@ Target-format predicate checked against the actual v2 artifact: `target_format` 
 ### Limitless source-rank versus final bracket placement (11:03Z)
 
 Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutland/Rafflesia) does not match `full-decklists.json` source slot 2 Takahiro Ando's Vileplume Control list; the official winner's deck code does match source slot 1. Therefore all `rank` labels in the source JSON and the reports must be treated as Limitless/source ordering, not automatically final bracket placement. Updated the composition report, missing-rank cross-check and `results/README.md` to make this explicit. The full32 archetype counts remain source-field stratification, not final bracket finishing positions.
+
+
+---
+
+## 2026-11-13 normal incarnation (roll 1; claimed 11:45:43.927809Z)
+
+### Bridge execution preparation
+
+- Re-read the latest Critic direction: run the existing normalized 24-rank Twinleaf identity bridge independently of the owner-only PR47 / Agent5 policy gates; do not claim gameplay or paper admission from mapping.
+- Verified `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. Verified the current main gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Downloaded frozen normalized-field artifact 14027319169 from run 43407979154. Independently verified raw JSON SHA-256 `6ac2fbaec602f7c9ffd49c2a90c4c79be78df696cc56decc3631f5ad50c1812b`, canonical `diagnostic_normalized_field` SHA-256 `fba71e372f7e25b174473dc4c22ce2db90ae404a30d9ca14383816ecf94ca7c2`, 24 decks, 812 rows, and 1,440 copies. Every source deck is exactly 60 cards; per-rank row totals are in `results/aichi-2026/2026-11/agent39-twinleaf-card-identity-bridge-20261113.md`.
+- Extended `simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs` to emit per-deck SHA-256 for (a) the exact ordered 60-string Twinleaf input array and (b) an order-independent canonical multiset of `{fullName,copies}`. The hash helper rejects disagreement between expanded and compressed representations. Sorting now uses deterministic Unicode code-unit order.
+- Bridge output now also binds raw audit SHA-256, canonical normalized-field SHA-256, research `git rev-parse HEAD`, and actual Twinleaf submodule HEAD. Hash protocol is embedded in output. Incomplete decks emit null registered-60 hashes.
+- Added two pure tests for ordered-vs-multiset hash semantics and mismatched compressed counts; existing missing/ambiguous/59-card cases now assert no hash is emitted for incomplete decks. The original six tests passed on the pre-hash code; the full updated test file has not yet been run. The hash helper logic passed a direct Node 22 check.
+- Added optional `aichi_bridge_only` input and a bridge-only job to the existing manual `.github/workflows/twinleaf-smoke.yml`. With `aichi_bridge_only=true`, the normal smoke job is skipped; the bridge job verifies the submodule gitlink, builds pinned Twinleaf on Node 20.19, switches to Node 22, downloads artifact 14027319169, runs syntax/pure tests/bridge, and uploads `aichi-twinleaf-decklist-bridge`. No new workflow or push trigger was added.
+- Updated the bridge report and `results/README.md` with the manual run path, source hashes, exact source denominator, and current limitation.
+
+### Exact execution blocker / current status
+
+- The actual Twinleaf mapping has **not** run. This container has no repository checkout, no `vendor/twinleaf` submodule or compiled `ptcg-server/output`; `git ls-remote https://github.com/twinleafgg/twinleafgg.git ...` failed with `Could not resolve host: github.com`. The local npm cache is empty.
+- The GitHub Actions connector exposes no workflow-dispatch operation. An authorized owner/runner must dispatch the existing `Twinleaf headless smoke` workflow with `aichi_bridge_only=true`.
+- Do not report any Twinleaf resolution count, per-deck registered-60 hash, or mapping success until the uploaded bridge artifact exists. Keep 24 diagnostic reconstructions, five incompatible source lists, three unavailable lists, and 0/32 original physical-source paper admission distinct.
+
+### Next actions
+
+1. Ask an authorized runner to dispatch `.github/workflows/twinleaf-smoke.yml` with `aichi_bridge_only=true`.
+2. Inspect the resulting `aichi-twinleaf-decklist-bridge` artifact: all 24 ranks, 812 row mappings, per-rank row/copy totals, every missing/ambiguous/unresolved identity, per-deck ordered and multiset hashes, source artifact hashes, research revision, Twinleaf revision, and CardManager counts.
+3. If a rank is incomplete, fix only a source-to-Twinleaf identity mismatch supported by pinned card data; preserve the original source printing and canonical resource identity separately. Do not silently alias by card name.
+4. After a complete mapping, coordinate the next diagnostic runner boundary; the bridge itself is not a game, matchup result, or evidence of competitive policy competence.
