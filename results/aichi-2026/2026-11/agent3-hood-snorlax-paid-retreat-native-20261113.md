@@ -6,7 +6,7 @@
 
 Can a candidate Active Shadow Rider Calyrex VMAX pay its printed two-Energy retreat cost and retreat under the opponent's Active Snorlax PGO Block when Stealthy Hood is attached to that Active VMAX? Which stadium/Tool controls turn that permission off?
 
-This fills a gap in the earlier [free-retreat characterization](../snorlax-retreat-start-bypass.md): the earlier fixture used Latias ex to reduce retreat cost to zero and compared direct versus interactive retreat paths. This new fixture uses one unchanged direct `RetreatAction` in every arm, with two physically attached Psychic Energy paying the VMAX's printed two-Colorless retreat cost.
+This fills a gap in the earlier [free-retreat characterization](../../twinleaf/snorlax-retreat-start-bypass.md): the earlier fixture used Latias ex to reduce retreat cost to zero and compared direct versus interactive retreat paths. This new fixture uses one unchanged direct `RetreatAction` in every arm, with two physically attached Psychic Energy paying the VMAX's printed two-Colorless retreat cost.
 
 ## Printed rules basis
 
@@ -59,7 +59,7 @@ Important distinctions established by the assertions:
 
 ## Field relevance and limits
 
-The authenticated 29-list inventory contains Snorlax PGO 55 in two actual Snorlax Stall lists: rank 3 (three copies) and rank 7 (two copies). Both known lists also contain Tool Jammer. Jamming Tower is a useful generic negative control, not a card identified in those two known lists. The candidate [Hood Shield Shadow Rider v1 fixed 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) contains two Stealthy Hood, one Field Blower, one Arven and two Lillie's Clefairy ex.
+The [authenticated 29-list inventory](../full-decklists.json) contains Snorlax PGO 55 in two actual Snorlax Stall lists: rank 3, Haruto Miki (three copies), and rank 7, Hiroto Fuji (two copies). Both known lists also contain one Tool Jammer. Jamming Tower is a useful generic negative control, not a card identified in those two known lists. The candidate [Hood Shield Shadow Rider v1 fixed 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) contains two Stealthy Hood, one Field Blower, one Arven and two Lillie's Clefairy ex.
 
 This result validates only the effect/Store contract. It does **not** establish that Hood, Field Blower or Arven is accessible in a particular full game; that the opponent's Tool Jammer can be removed in time; that a funded Clefairy can attack; or that the line is optimal. The proposed same-turn sequence (remove Tool Jammer if present, attach Hood to the Active VMAX, pay retreat, promote Clefairy, attack) remains a candidate-policy hypothesis for Agent20's owner-root integration. Preserve the Active-only target scope separately from global Garbotoxin / Iron Thorns suppression; do not solve this by adding Snorlax to a boolean global-lock list while retaining a Bench-first Hood target order.
 
