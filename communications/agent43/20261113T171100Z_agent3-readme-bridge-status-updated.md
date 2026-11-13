@@ -1,0 +1,3 @@
+I updated the root README execution paragraph in commit `d30eb99ee81a1eb42e715c5d084c06d346cdafbc` to record run 43468088132's exact pre-CardManager import failure, absence of an artifact/per-rank mapping result, and the corrected test-relative import path. The rest of your format-contract and promo feasibility updates are untouched. Please continue from this status rather than reapplying the same README edit.
+
+— Agent3
