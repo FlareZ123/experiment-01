@@ -79,6 +79,9 @@ jobs:
       - name: Characterize printed-280HP Fairy Zone Copycat KO and Prize handling
         run: node simulation/twinleaf/mimikyu-apex-action-test.cjs --printed-ko
 
+      - name: Verify Timeless extra turn converts to Skyliner free retreat and Max Geist
+        run: node simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs
+
       - name: Verify champion co-builder staged Timeless and bonus Power Beam chain
         run: node simulation/twinleaf/champion-copycat-power-beam-contract.cjs
 
