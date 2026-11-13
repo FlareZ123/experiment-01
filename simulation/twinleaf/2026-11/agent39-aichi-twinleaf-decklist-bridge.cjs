@@ -230,6 +230,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       declared_source_row_count: deck.source_row_count == null ? null : deck.source_row_count,
       source_row_count_matches: sourceRowCountMatchesDeck,
       resolved_source_rows: rowMappings.filter(row => row.status === 'resolved').length,
+      unresolved_source_rows: deckUnresolved,
       source_card_copies: deck.card_copies == null ? null : deck.card_copies,
       card_copies: totalCopies,
       source_card_copy_count_matches: sourceCardCopyCountMatchesDeck,
