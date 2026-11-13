@@ -25,18 +25,26 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
   function summarize(audit,role,expectedSeat) {
     const summary={role,policyOwnerSeat:audit?.policyOwnerSeat??null,
       version:typeof audit?.version==='string'?audit.version:null,
+      origin:typeof audit?.origin==='string'?audit.origin:null,
+      observationSchema:typeof audit?.observationSchema==='string'?audit.observationSchema:null,
       nativeOwnerTrainerFallbackEnabled:audit?.nativeOwnerTrainerFallback!==undefined&&
         audit?.nativeOwnerTrainerFallback!==null,
       unsupportedPromptFallbacks:audit?.unsupportedPromptFallbacks??null,
       nonLiveSpeculativeFallbacks:audit?.nonLiveSpeculativeFallbacks??null,
       nonOwnerNativeDelegations:audit?.nonOwnerNativeDelegations??null,
-      nonTurnPhaseFallbacks:audit?.nonTurnPhaseFallbacks??null};
+      nonTurnPhaseFallbacks:audit?.nonTurnPhaseFallbacks??null,
+      nonOwnerSeatBypassCalls:audit?.nonOwnerSeatBypassCalls??null,
+      nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:
+        audit?.nativeOwnerTrainerFallback?.attemptedUnsupportedPasses??0};
     if(!plainObject(audit)) failures.push(role+'-audit-missing-or-invalid');
     if(summary.policyOwnerSeat!==expectedSeat) failures.push(role+'-policy-owner-seat-mismatch');
     if(!summary.version) failures.push(role+'-wrapper-version-missing');
+    if(summary.origin!=='detached-actor-observation') failures.push(role+'-observation-origin-invalid');
+    if(summary.observationSchema!=='agent2-public-native-dispatch-diff-v1')
+      failures.push(role+'-observation-schema-invalid');
     if(summary.nativeOwnerTrainerFallbackEnabled)
       failures.push(role+'-native-owner-trainer-fallback-enabled');
-    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks']){
+    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls','nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
       if(!Number.isInteger(summary[key])||summary[key]<0)
         failures.push(role+'-'+key+'-missing-or-invalid');
       else if(summary[key]!==0) failures.push(role+'-'+key+'-nonzero');
