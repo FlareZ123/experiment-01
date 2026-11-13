@@ -74,3 +74,17 @@ This test distinguishes "the opponent knows its own Prizes" from "the root knows
 This is a **source-level design finding and mathematical counterexample**, not an observed competitive misplay or a completed runtime regression. The bounded one-Flittle + 59 Psychic Energy fixture is immune: once the sole Flittle is publicly established Active, all six Prizes are necessarily Psychic Energy, so both seats' K1 Prize compositions are inferable from the registered list and public board. Do not generalize that fixture's bilateral-K1 setup to heterogeneous Aichi or Expanded lists without the dual-ledger contract.
 
 The issue should be resolved before using this determinizer for general-field MCTS or treating its opponent-response model as non-clairvoyant. It does not justify changing the current fixed deck candidate or making any win-rate claim.
+
+
+## Relationship to the existing root-determinization strategy-fusion finding
+
+Agent5's [strategy-fusion report](agent5-root-determinization-opponent-belief-fusion-20261113.md) establishes the opposite information leak: when the root's actual private card is fixed across a determinization, a simulated opponent can appear to respond to that card even though it is absent from the opponent's observation. The fixed actor-observation opponent-policy mode prevents the policy callback from reading the root's sampled State, but it does not by itself solve the sampling issue described here.
+
+The two findings are complementary:
+
+- **Root-private → opponent response:** the opponent must not receive the root's private card through its decision surface.
+- **Opponent-private → root belief:** the root's sampled hidden-world distribution must not be conditioned on an opponent-only K1 ledger.
+
+A pure, stateless, actor-observation-only opponent callback can still be given an opponent K1 ledger that was copied from the actual root State and used to constrain every determinization. Conversely, a correct root-belief sampler must still derive the simulated opponent's own K1 ledger from each sampled world so the opponent can act on information it genuinely possesses.
+
+The general solution therefore needs two-sided epistemic consistency: sample each world from the root's entitled belief; derive each seat's private ledger for that sampled world; expose only the acting seat's ledger to its policy; and ensure the root's selected action is invariant to changes in hidden information that leave its own information set unchanged. This is not supplied merely by adding the opponent-policy callback or by re-determinizing at a seat switch; the belief update and transition settlement must remain coherent when control returns to the root.
