@@ -251,6 +251,15 @@ function preparePreDealPolicyRegistration(input) {
 }
 
 /**
+ * Revalidate an already persisted pre-deal registration after its physical
+ * deal exists. All structural, signature, field and chronology checks remain;
+ * only the pre-deal wall-clock future-deal requirement is disabled.
+ */
+function revalidatePreDealPolicyRegistration(input) {
+  return prepareWithRegistry(input,authorized,false,false);
+}
+
+/**
  * Fixture-only key injection for tests. The result is permanently marked
  * fixtureOnly and cannot be passed to the production postgame builder.
  */
@@ -676,6 +685,7 @@ function buildV3GameBundleFixture(input,fixtureRegistry) {
 module.exports = {
   POLICY_PLAN_SCHEMA,POLICY_ATTESTATION_BUNDLE_SCHEMA,POLICY_REGISTRATION_SCHEMA,
   POLICY_RECEIPT_SCHEMA,preparePreDealPolicyRegistration,
+  revalidatePreDealPolicyRegistration,
   preparePreDealPolicyRegistrationFixture,buildV3GameBundle,
   buildV3GameBundleFixture
 };
