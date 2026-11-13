@@ -239,6 +239,16 @@ test('wrong Hood target, no Hood, occupied Tool slot, or non-Block Active never 
 });
 
 test('payability, retreat, attack and prize projections fail closed', () => {
+  const nextTurnCostIncrease = makeView({ hoodOnActive: true, hoodInHand: false });
+  nextTurnCostIncrease.ownPublic.bench[0].publicRestrictions.attackCostIncreaseNextTurn = 1;
+  assert.equal(chooseHoodedBlockBenchAttackRoot(nextTurnCostIncrease, catalog), null);
+  const whileActiveCostIncrease = makeView({ hoodOnActive: true, hoodInHand: false });
+  whileActiveCostIncrease.ownPublic.bench[0].publicRestrictions.attackCostIncreaseWhileActive = 1;
+  assert.equal(chooseHoodedBlockBenchAttackRoot(whileActiveCostIncrease, catalog), null);
+  const playerAttackCeiling = makeView({ hoodOnActive: true, hoodInHand: false });
+  playerAttackCeiling.ownPublic.publicTurnRestrictions.attackMaxEnergy = 1;
+  playerAttackCeiling.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining = 1;
+  assert.equal(chooseHoodedBlockBenchAttackRoot(playerAttackCeiling, catalog), null);
   assert.equal(chooseHoodedBlockBenchAttackRoot(
     makeView({ hoodOnActive: true, hoodInHand: false, activePayable: true }), catalog), null);
   assert.equal(chooseHoodedBlockBenchAttackRoot(
