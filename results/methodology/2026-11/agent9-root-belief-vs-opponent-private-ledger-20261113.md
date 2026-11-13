@@ -9,7 +9,7 @@ The current bounded Flittle MCTS pilot is deliberately narrow and is not invalid
 1. what the root player knows about each seat's hidden zones; and
 2. what each simulated seat privately knows about its own hidden zones.
 
-The root's own private ledger is a valid constraint on the root's belief. The opponent's private K1 Prize membership is not a valid constraint on the root's belief unless that information was independently revealed to the root.
+The root's own private ledger is a valid constraint on the root's belief. The opponent's private K1 Prize membership is not a valid constraint on the root's belief unless that information was independently revealed to the root. This is consistent with the supplied `resources/human_concepts.md` K0/K1 definition: K1 is the knowledge acquired by the player who physically searched their deck, not a global flag that grants the other player the same Prize identities.
 
 ## Source-level trace
 
