@@ -82,6 +82,38 @@ test('two-player PUCT accounts for an adversarial response',()=>{
   assert.equal(result.actionKey,'safe');
 });
 
+test('scores a terminal state reached on the final allowed action ply',()=>{
+  let terminalValueCalls=0,heuristicCalls=0;
+  const search=createInformationSetMcts({
+    iterations:1,maxPlies:1,seed:17,
+    observe:(s,seat)=>({seat,terminal:s.terminal}),
+    activeSeat:s=>s.seat,
+    enumerateActions:()=>[{name:'win'}],
+    actionKey:a=>a.name,
+    sampleDeterminization:s=>({...s}),
+    applyAction:s=>({...s,seat:1,terminal:true,winner:0}),
+    isTerminal:s=>s.terminal,
+    terminalValue:(s,seat)=>{
+      terminalValueCalls++;
+      return s.winner===seat?1:-1;
+    },
+    evaluateObservation:()=>{
+      heuristicCalls++;
+      return -1;
+    }
+  });
+  const result=search.search({seat:0,terminal:false,winner:null},0);
+  assert.equal(terminalValueCalls,1);
+  assert.equal(heuristicCalls,0);
+  assert.equal(result.audit.terminalRollouts,1);
+  assert.equal(result.audit.heuristicLeaves,0);
+  assert.equal(result.audit.completedIterations,1);
+  assert.equal(result.audit.maxActionTransitions,1);
+  assert.deepEqual(result.audit.seatActionTransitions,[1,0]);
+  assert.equal(result.audit.rootActions[0].meanValue,1,
+    'terminal winner value must be backpropagated to the acting root seat');
+});
+
 test('rejects a determinization that changes the root legal observation',()=>{
   const search=createInformationSetMcts({
     iterations:1,
