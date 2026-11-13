@@ -127,11 +127,11 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     },
     actionKey:deps.actionKey,
     applyAction(state,action,random) {
-      const metadata=deps.metadataByState?.get(state);
+      const metadata=metadataByState?.get(state);
       const simulator=withRandom(random,()=>new deps.Simulator(state,deps.simulatorOptions));
       withRandom(random,()=>simulator.dispatch(action));
       const next=withRandom(random,()=>resolvePrompts(simulator,random));
-      if(metadata&&deps.metadataByState)deps.metadataByState.set(next,metadata);
+      if(metadata&&metadataByState)metadataByState.set(next,metadata);
       return next;
     },
     sampleDeterminization:deps.sampleDeterminization,
