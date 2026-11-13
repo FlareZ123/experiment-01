@@ -179,6 +179,16 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       policyPlanCore.comparisonMode !== 'candidate-vs-field') {
     failures.push('candidate-vs-field-policy-plan-core-invalid');
   }
+  if (plainObject(policyPlanCore)) {
+    const hasFixtureMarker=Object.prototype.hasOwnProperty.call(
+      policyPlanCore,'fixtureOnly');
+    if (hasFixtureMarker &&
+        (typeof policyPlanCore.fixtureOnly!=='boolean' ||
+         policyPlanCore.fixtureOnly!==fixtureOnly))
+      failures.push('policy-plan-core-fixture-marker-mismatch');
+    if (fixtureOnly && !hasFixtureMarker)
+      failures.push('fixture-policy-plan-core-marker-missing');
+  }
   const expectedRuleset=gameRegistration?.mode===UNTIMED?'Expanded':'Japanese Extra';
   const formatReviewStatus=policyPlanCore?.formatReviewStatus;
   const formatConstraints=policyPlanCore?.constraints;
@@ -239,6 +249,10 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       if (!fixtureOnly &&
           (!Array.isArray(field.availableRanks) || field.availableRanks.length===0))
         failures.push('opponent-policy-field-has-no-authenticated-ranks');
+      if (!fixtureOnly &&
+          (field.status!=='VALID' ||
+           !Array.isArray(field.availableRanks) || field.availableRanks.length!==32))
+        failures.push('production-opponent-policy-field-incomplete');
     } catch {
       failures.push('existing-opponent-policy-field-validator-rejected-plan');
     }
