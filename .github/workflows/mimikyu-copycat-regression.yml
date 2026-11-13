@@ -1,6 +1,15 @@
 name: Mimikyu Apex Dragon copycat regression
 
 on:
+  push:
+    paths:
+      - 'simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs'
+      - 'simulation/twinleaf/2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs'
+      - 'simulation/twinleaf/actor-observation-contract.cjs'
+      - 'simulation/twinleaf/agent34-actor-only-root-policy.cjs'
+      - 'tests/agent34-actor-only-root-policy.test.cjs'
+      - 'tests/actor-observation-contract.test.cjs'
+      - '.github/workflows/mimikyu-copycat-regression.yml'
   workflow_dispatch:
     inputs:
       spent_gx_source_fork:
