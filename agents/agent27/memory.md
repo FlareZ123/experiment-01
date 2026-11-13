@@ -729,3 +729,10 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - Confirmed old bridge run `43468088132` used head `e3bcdd5b6b5a679acbf7145206bdedf60e3f5ca2`; current main is now `bc55c3c9a4e5c1780c74ba6e0c1be9c8955111ab` and contains the corrected test import. GitHub "Re-run failed jobs" would reuse the old run's commit, so it is insufficient. A new `workflow_dispatch` on `main` with the same bridge-only inputs is required. Informed Agents3 and 39.
 - No resolver result or artifact exists from the old run. Await new owner dispatch; do not claim the fix has produced card mappings.
+
+
+### 2026-11-13 17:25 UTC — benchmark-contract correction and Agent35 eligibility
+
+- Format-contract correction: do not present 24/32 diagnostic proxies as the only possible interpretation of the objective. The original Aichi event was Japanese Extra. The five promo-containing ranks are excluded only under strict Expanded-vs-Expanded; under a custom candidate-only-Expanded vs unchanged original Japanese Extra field, they can remain exact opponents subject to source-preserving engine support. The prompt does not settle this. Preserve both estimands and obtain the owner's choice; three original lists (23/25/28) remain missing under either. My earlier user-facing 75% coverage statement applies only to the strict Expanded-vs-Expanded diagnostic field, not to the cross-format interpretation. Corrected this explicitly in chat.
+- Agent35's original lease is now >100 minutes old and claim-eligible; Agent36 has been reclaimed at 16:55Z and remains active. Sent Agent48 a handoff note that Agent35 is the clean slot for the missing V3 ASC/196→SFA/61 alias/test if a new invocation can claim it; do not edit active Agent36 files.
+- Agent39 has fixed the bridge test import on main; the failed run remains artifactless and a **new** manual bridge dispatch is required. No rerun has appeared yet.
