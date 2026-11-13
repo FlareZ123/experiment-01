@@ -461,7 +461,10 @@ test('native root maps Hood attachment and paid retreat for either physical seat
       getCatalog: () => catalog,
       cardActions: {
         PlayCardAction,
-        PlayerType: { BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2 },
+        // Match Twinleaf's pinned PlayerType enum: ANY=0, TOP_PLAYER=1,
+        // BOTTOM_PLAYER=2. BOTTOM_PLAYER means the acting player, not
+        // physical state.players[0], for either candidate seat.
+        PlayerType: { ANY: 0, TOP_PLAYER: 1, BOTTOM_PLAYER: 2 },
         SlotType: { BOARD: 0, ACTIVE: 1, BENCH: 2 }
       },
       gameActions: { AttackAction, PassTurnAction, RetreatAction, UseAbilityAction }
@@ -471,7 +474,9 @@ test('native root maps Hood attachment and paid retreat for either physical seat
   for (const seat of [0, 1]) {
     const attach = run(seat, false);
     assert.ok(attach.result instanceof PlayCardAction);
-    assert.deepEqual(attach.result.target, { player: seat, slot: 1, index: 0 });
+    assert.deepEqual(attach.result.target, {
+      player: 2, slot: 1, index: 0
+    }, 'PlayCardAction targets the acting player for either physical seat');
     assert.equal(attach.audit.hoodedBlockBenchAttackRootOptIn, true);
     assert.equal(attach.audit.hoodedBlockBenchAttackRootHoodAttachmentsSelected, 1);
     assert.equal(attach.audit.hoodedBlockBenchAttackRootRetreatsSelected, 0);
