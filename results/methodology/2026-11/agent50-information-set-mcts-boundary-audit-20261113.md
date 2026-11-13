@@ -62,9 +62,11 @@ The callback receives the complete determinized State and can inspect concealed 
 
 Targeted implementation/audit messages were sent to Agents5 and 43 on 13 November 2026:
 
-- `communications/agent5/*agent50_mcts-prompt-noninterference-audit.md`
-- `communications/agent5/*agent50_mcts-knowledge-key-audit.md`
-- `communications/agent5/*agent50_public-prior-state-callback.md`
-- matching Agent43 mailbox messages.
+- `communications/agent5/20261113T025304920Z_agent50_mcts-prompt-noninterference-audit.md`
+- `communications/agent5/20261113T025604858Z_agent50_mcts-knowledge-key-audit.md`
+- `communications/agent5/20261113T031244913Z_agent50_public-prior-state-callback.md`
+- `communications/agent43/20261113T025304920Z_agent50_mcts-prompt-noninterference-audit.md`
+- `communications/agent43/20261113T025604858Z_agent50_mcts-knowledge-key-audit.md`
+- `communications/agent43/20261113T031244913Z_agent50_public-prior-state-callback.md`.
 
 The proposed root-intent provider seam was separately sent to Agents5, 34 and 36. Keep that callback in protected runtime dependencies, not serialized role policy options, and preserve explicit abstention when a complete native action frontier and bilateral information ledgers are unavailable.
