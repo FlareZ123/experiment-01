@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
+const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 const { initializeCards } = require('../headless.cjs');
 const { actorObservation } = require('../actor-observation-contract.cjs');
@@ -13,11 +14,15 @@ const {
 const {
   VERSION: ROOT_VERSION
 } = require('../agent43-hooded-block-bench-attack-root.cjs');
+const {
+  VERSION: SHARED_HELPER_VERSION
+} = require('../agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
 const PINNED_TWINLEAF =
   'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const output = path.resolve(__dirname,
-  '../../../vendor/twinleaf/ptcg-server/output');
+const repositoryRoot = path.resolve(__dirname, '../../..');
+const twinleafRoot = path.resolve(repositoryRoot, 'vendor/twinleaf');
+const output = path.resolve(twinleafRoot, 'ptcg-server/output');
 const native = name => require(path.join(output, name));
 
 function publicOpponentSnapshot(player) {
@@ -41,6 +46,12 @@ function publicOpponentSnapshot(player) {
  */
 function runNativeHoodedBlockRootCase(candidateSeat) {
   assert.ok(candidateSeat === 0 || candidateSeat === 1);
+  const researchCommit = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'],
+    { encoding: 'utf8' }).trim();
+  const engineCommit = execFileSync('git', ['-C', twinleafRoot, 'rev-parse', 'HEAD'],
+    { encoding: 'utf8' }).trim();
+  assert.equal(engineCommit, PINNED_TWINLEAF,
+    'The checked-out Twinleaf submodule must match the recorded engine pin');
   const {
     Store
   } = native('game/store/store');
@@ -175,8 +186,10 @@ function runNativeHoodedBlockRootCase(candidateSeat) {
   const frozenPolicyIdentity = Object.freeze({
     schema: 'candidate-only-hooded-block-root-identity-v1',
     rootVersion: ROOT_VERSION,
+    sharedHelperVersion: SHARED_HELPER_VERSION,
+    researchCommit,
     candidateSeat,
-    engineCommit: PINNED_TWINLEAF,
+    engineCommit,
     options: Object.freeze({ hoodedBlockBenchAttackRoot: true })
   });
   const policyIdentitySha256 = createHash('sha256')
@@ -317,12 +330,15 @@ function runNativeHoodedBlockRootCase(candidateSeat) {
   assert.equal(policyIdentitySha256.length, 64);
 
   return {
-    engine: 'twinleafgg/' + PINNED_TWINLEAF,
+    engine: 'twinleafgg/' + engineCommit,
+    engineCommit,
+    researchCommit,
     candidateSeat,
     opponentSeat,
     policyIdentitySha256,
     policyIdentityOwnerSeat: frozenPolicyIdentity.candidateSeat,
     policyRootVersion: frozenPolicyIdentity.rootVersion,
+    policySharedHelperVersion: frozenPolicyIdentity.sharedHelperVersion,
     observedDecisionSeats: observedViews.map(item => item.seat),
     postAttachmentHoodVisible: true,
     typedIntents: audit.nativeRootAcceptances.map(item => item.kind),
@@ -336,4 +352,8 @@ function runNativeHoodedBlockRootCase(candidateSeat) {
   };
 }
 
-module.exports = { runNativeHoodedBlockRootCase };
+module.exports = {
+  runNativeHoodedBlockRootCase,
+  PINNED_TWINLEAF,
+  SHARED_HELPER_VERSION
+};
