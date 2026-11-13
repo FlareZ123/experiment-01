@@ -7,7 +7,7 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
-const {preparePreDealPolicyRegistration}=require('./agent44-v3-game-bundle-builder.cjs');
+const {preparePreDealPolicyRegistration,buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
@@ -460,6 +460,15 @@ async function collectDealGenerationReceipt({preDeal,trial,persistenceReceipt,
 function readJsonFile(repositoryRoot,relativePath){
   const filename=resolveInsideRoot(repositoryRoot,relativePath);
   return JSON.parse(fs.readFileSync(filename,'utf8'));
+}
+function buildV3BundleFromArtifacts({preDeal,trial,policyApplicationReceipt,
+  preDealPersistenceReceipt,dealGenerationReceipt,evidence,
+  policyPanelReceipts=[],reviews=[],builder=buildV3GameBundle}={}) {
+  assert.equal(typeof builder,'function','V3 bundle builder must be callable');
+  return builder({
+    preDeal,trial,evidence,policyApplicationReceipt,
+    preDealPersistenceReceipt,dealGenerationReceipt,policyPanelReceipts,reviews
+  });
 }
 function writeJsonAtomic(filename,value){
   fs.mkdirSync(path.dirname(filename),{recursive:true});
@@ -1280,7 +1289,38 @@ async function main(argv=process.argv.slice(2),env=process.env){
     },null,2)+'\n');
     return result;
   }
-  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref>');
+  if(command==='build-bundle'){
+    const [preDealRef,trialRef,persistenceReceiptRef,dealGenerationReceiptRef,
+      applicationReceiptRef,evidenceRef,reviewsRef,policyPanelReceiptsRef]=args;
+    for(const [name,value] of Object.entries({
+      preDealRef,trialRef,persistenceReceiptRef,dealGenerationReceiptRef,
+      applicationReceiptRef,evidenceRef
+    })) assert.ok(value,name+' is required for V3 bundle assembly');
+    const result=buildV3BundleFromArtifacts({
+      preDeal:readJsonFile(repositoryRoot,preDealRef),
+      trial:readJsonFile(repositoryRoot,trialRef),
+      preDealPersistenceReceipt:readJsonFile(repositoryRoot,persistenceReceiptRef),
+      dealGenerationReceipt:readJsonFile(repositoryRoot,dealGenerationReceiptRef),
+      policyApplicationReceipt:readJsonFile(repositoryRoot,applicationReceiptRef),
+      evidence:readJsonFile(repositoryRoot,evidenceRef),
+      reviews:reviewsRef?readJsonFile(repositoryRoot,reviewsRef):[],
+      policyPanelReceipts:policyPanelReceiptsRef?
+        readJsonFile(repositoryRoot,policyPanelReceiptsRef):[]
+    });
+    const dir=path.join(repositoryRoot,'artifacts/agent36-v3');
+    writeJsonAtomic(path.join(dir,'complete-game-bundle.json'),result.bundle);
+    writeJsonAtomic(path.join(dir,'complete-game-assessment.json'),result.assessment);
+    process.stdout.write(JSON.stringify({
+      status:result.competitiveAdmission?'COMPETITIVE_BUNDLE_ADMITTED':
+        'BUNDLE_BUILT_NOT_COMPETITIVELY_ADMITTED',
+      trialId:result.bundle.trialId,
+      admissionEligible:result.admissionEligible,
+      competitiveAdmission:result.competitiveAdmission,
+      output:dir
+    },null,2)+'\\n');
+    return result;
+  }
+  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
 }
 
 if(require.main===module){
@@ -1298,7 +1338,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
   prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
-  readJsonFile,writeJsonAtomic,main,
+  readJsonFile,buildV3BundleFromArtifacts,writeJsonAtomic,main,
   printed60Fingerprint,
   resolvePrintedDeck,
   buildFixtureRoleEntryManifest,
