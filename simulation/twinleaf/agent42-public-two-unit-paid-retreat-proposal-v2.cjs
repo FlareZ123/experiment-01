@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.4-opponent-active-tool-jammer-guard';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.4-tool-jammer-predicate';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
