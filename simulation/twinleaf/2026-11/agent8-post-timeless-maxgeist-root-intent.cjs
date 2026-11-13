@@ -187,10 +187,9 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(!Array.isArray(target.printed?.weakness))return null;
   const psychicWeakness=target.printed.weakness.find(entry=>
     entry?.type==='Psychic');
-  let weaknessMultiplier=1;
-  if(fairyZoneActive&&targetIsDragon){
-    weaknessMultiplier=2;
-  }else if(psychicWeakness){
+  const fairyZoneMultiplier=fairyZoneActive&&targetIsDragon?2:1;
+  let weaknessMultiplier=fairyZoneMultiplier;
+  if(!fairyZoneMultiplier&&psychicWeakness){
     const value=psychicWeakness.value;
     if(value===2||value==='2'||value==='x2'||value==='×2')
       weaknessMultiplier=2;
@@ -229,6 +228,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     projectedDamage,
     fairyZoneActive,
     fairyZoneMultiplier,
+    weaknessMultiplier,
     targetRemainingHp,
     projectedPrizeCount,
     projectedTerminalWin,
