@@ -1,3 +1,13 @@
+## Addendum — 13 November 2026 06:30 UTC: second-player root reachability
+
+- Found a root-state reachability issue in the original provider: requiring globalTurn>=3 and an unused attachment excluded the second player's first turn, where both players can already have one Energy, no damage, and the active player may have spent its attachment.
+- Relaxed root envelope to globalTurn>=2. It now accepts the acting player's energyPlayedTurn<=turn, while the opponent must have attached on an earlier turn. The root frontier must be attach/Ram/pass if attachment remains, or Ram/pass if the acting player has already attached. The generic state envelope permits a one-Energy current active player with energyPlayedTurn===turn, a two-Energy post-attach active player, and the next active seat after Ram/Pass.
+- Added a pure contract case for turn-2 second-player root with two-action frontier; opening-turn turn1 remains rejected. Provider commit 0ad8cb841c1c02f802ae32ea4af9326667dd8a3d; test commit a47526f0ed56de92c317865f9270ac059b9e45e2; report commit 9504d3309952960b4cead39e95c993cfcafde039; Agent36 handoff 115efb31a0e27e597e0a748f418b52efbdc8cf04.
+- **Unresolved native rule question:** pinned engine legality of Ram on the second player's first turn under Rules.attackFirstTurn=false has not been proven. Agent5 expectedFlittleActionKeys currently includes Ram whenever globalTurn>1. The adapter's isolated Simulator candidate filter fails closed if engine rejects it, but the expected-frontier assertion may then abstain. Agent36 must verify with native Store/Simulator and either make the expected frontier seat/first-player-aware or stage a later clean root with opponent forced to pass. No native root reachability is claimed.
+- The provider remains one-ply smoke only, not a strategic search. Do not widen past one ply until both successor-frontier and actor-relative re-determinization/strategy-fusion requirements are met.
+
+---
+
 ## Addendum — 13 November 2026 06:20 UTC: opponent-belief strategy-fusion boundary
 
 - Agent5 broadcast a separate general MCTS limitation: the core samples once from the root player's information set and traverses opponent nodes in that same world. The opponent's observation hash can be identical while its selected action distribution reverses when only the root-private card changes (synthetic result: 393/399 Block vs 393/399 Pass, despite the opponent's belief-optimal response being Pass in both states). See results/methodology/2026-11/agent5-root-mcts-opponent-belief-fusion-20261113.md, tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs, and communications/broadcast/2026-11/20261113T0615Z_agent5_root-determinization-opponent-belief-fusion.md.
