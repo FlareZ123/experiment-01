@@ -33,6 +33,7 @@ The counter-line is:
 
 The card-text/rule basis and remaining GX-allowance uncertainty are documented in the [Dialga counter-ALS audit](agent50-hood-shadow-rider-dialga-slot-audit-20261113.md).
 The exact candidate printings are paper-legal for this non-GX Copycat → Apex Dragon → own Dialga Timeless-GX line. The pinned vanilla Twinleaf resolver nevertheless rejects the non-GX Copycat path through an unprinted `copycatAttack` veto; source-faithful evaluation therefore requires the research-side non-GX Copycat compatibility and declared-attack-history hooks. Keep paper legality separate from the engine's default behavior; see the [paper/engine boundary audit](agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md) and [staged Store progression](../../twinleaf/mimikyu-extra-turn-progression.md).
+The bundled card pool confirms Dialga-GX UPR 100 is Dragon-type (`resources/cards/en/sm5.json`, ID `sm5-100`) and Mysterious Treasure's printed rule searches Psychic or Dragon Pokémon (`resources/cards/en/sm6.json`, ID `sm6-113`). This makes Treasure a direct deck-to-hand Dialga connector as well as a Dialga-to-discard cost that can fetch Mimikyu; do not model it only as a discard outlet.
 
 ### Regidrago-conditioned policy
 
@@ -42,7 +43,7 @@ The exact candidate printings are paper-legal for this non-GX Copycat → Apex D
 | Lillie's Clefairy ex | Very high DCI while Regidrago KO line is live | Keep Fairy Zone active; it changes Dragon Weakness to Psychic ×2, making the copied 150-base Timeless-GX deal 300 to Regidrago VSTAR |
 | Mimikyu GRI 58 | Effectively UDP while Apex Dragon counter is live | Preserve access and fund two Psychic Energy (Psychic + Colorless); its Copycat attack receives Fairy Zone's ×2 Weakness against Regidrago |
 | Battle Compressor | High AMR when Dialga is still in deck | Consider discarding Dialga among the three cards, but account for the other two cards' DCI |
-| Mysterious Treasure | High AMR when Dialga is in hand | Can discard Dialga as cost while finding a Psychic/Dragon Pokémon; preserve the line |
+| Mysterious Treasure | High DCI while the Dialga/Mimikyu line is live; AMR depends on the missing target and current hand | It can search Dragon-type Dialga-GX UPR 100 directly from deck, or discard Dialga from hand as its cost while finding Psychic Mimikyu/Clefairy (or another Psychic/Dragon target). Preserve it while either access route is needed; reevaluate after the line is secured or impossible |
 | Night Stretcher | High DCI with Dialga in discard | Do not recover Dialga before the Copycat line unless deliberately resetting/rebuilding the line |
 | GX attacks on Tapu Lele / Trevenant & Dusknoir | Preserve the once-per-game allowance | Do not spend a GX attack before Timeless-GX if the counter-line is intended; verify nested-copy ruling |
 | Mimikyu Copycat timing | Conditional AMR | It can copy Apex Dragon only if the opponent used that non-GX attack during their last turn; the opponent can deny the line by choosing another attack |
