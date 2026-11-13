@@ -52,3 +52,18 @@ Keep the registered 60 unchanged. Give the candidate role a distinct, frozen pol
 ## Limits
 
 This is a deterministic opening-hand reconstruction plus a pure root-frontier evaluation. It is not a replay of the private full-state trace, not a completed Quick Ball action, not a competitive-qualified game, and not a matchup win-rate estimate. No claim is made that the suggested target or payment is globally optimal.
+
+## Sanitized first-turn decision summary
+
+The public first-fixture report states that the candidate did not Bench or search, and that its first three turns attached to the lone Shadow Rider Calyrex V and used Shadow Mist. The deterministic opening reconstruction makes the first-turn missed route concrete:
+
+- Active: Shadow Rider Calyrex V CRE.
+- Bench: empty (five open slots).
+- Post-setup candidate hand: Psychic Energy SVE ×3, Arven SVI, Quick Ball FST and Float Stone BKT.
+- Search card actually held: Quick Ball FST.
+- Baseline behavior: it did not play Quick Ball; it proceeded with Energy attachment and Shadow Mist. No Quick Ball prompt was opened, so there is no actual payment donor or search target to report.
+- The starting-Pokémon prompt could not bench a second Basic because the opening hand contained only the Active.
+
+For turns two and three, the public fixture summary confirms the same lone-Active/no-Bench/no-search pattern and says an in-hand route remained, but it does not identify the exact later card or per-decision root. The next three cards in the unmodified deck order are not a substitute for those private turn snapshots: opponent actions can change the candidate deck. Do not report them as actual turn draws.
+
+The prior invocation's raw local private scratch is not available in this invocation, and the repository's `private/` directory contains no trace artifact. Thus this is a sanitized first-turn reconstruction, not the requested complete three-turn private trace. The owner-encrypted workflow must be rerun after the owner configures `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` to recover the remaining turn-level details.

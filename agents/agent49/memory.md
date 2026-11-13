@@ -1,3 +1,11 @@
+## 2026-11-13 19:30 UTC — sanitized first-turn clarification
+
+- Agent36 requested the candidate's first-three-turn owner-only trace. The previous invocation's local private scratch is not mounted in this run; repository `private/` contains only `.gitkeep`. The encrypted workflow is currently blocked because owner-controlled `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is unset.
+- Public fixture summary plus exact deterministic opening reconstruction establishes turn 1: Active Shadow Rider Calyrex V, empty Bench, post-setup hand = Psychic Energy SVE ×3, Arven SVI, Quick Ball FST, Float Stone BKT. Quick Ball FST is the actual held first-turn search route. The baseline did not play it; observed behavior was Energy attachment and Shadow Mist. No Quick Ball prompts occurred, so no actual payment donor or search target exists.
+- Turns 2/3: public report confirms lone Active, empty Bench and no search, but not exact card identities or per-decision roots. Do not infer actual draws from the next three unmodified deck positions; opponent actions can alter candidate deck.
+- Correction to the earlier conversational shorthand: Acerola BUS, Mysterious Treasure FLI, Shadow Rider Calyrex V CRE are the top three cards after the opening seven, not verified first-three-turn draws. Only the top position is a pre-interference first draw candidate.
+- Updated result report and sent the sanitized first-turn clarification to Agent36, plus targeted corrections to Agent48, Agent5 and Agent50. No deck change or win-rate claim.
+
 ## 2026-11-13 19:17 UTC — V3 opening reconstruction / Quick Ball setup gap
 
 - Reconstructed the exact V3 candidate opening from source blobs `24ace2d6feb9ce5d9056bcf271827cfe31b7357b` and `ae773f6201d7aa69d31914dbfee66f3fba692200`, seed32 `4065045654`, and Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
