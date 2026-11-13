@@ -127,12 +127,15 @@ These are exact hypergeometric card-location probabilities, not Wonder Tag activ
 - The v2 may increase Supporter access while making the list more dependent on Ability access. Test against Iron Thorns/Garbodor and other Ability-lock lines.
 - Dialga's 180-HP body and discard value remain secondary to its Regidrago counter-ALS role. Its DCI must be matchup-conditioned: preserve it in the discard pile when Regidrago is identified; consider it a lower-value discard target only when the counter-line is irrelevant.
 
-## Required future work (not v1/v2 comparison)
+## Existing evidence and remaining work
 
-1. Build a minimal rules test for Mimikyu Copycat → opponent Regidrago VSTAR Apex Dragon → Dialga-GX Timeless-GX in discard. Confirm the nested “use it as this attack” behavior under rulebook C-18.
-2. Test the GX-attack allowance explicitly: with no prior GX attack, and after Trevenant & Dusknoir-GX or Tapu Lele-GX has already used one.
-3. Verify the opponent must have used a non-GX attack last turn, Dialga must remain in the discard pile, and Mimikyu's own Psychic + Colorless Copycat cost is payable.
-4. Evaluate the line against the nine published Regidrago lists with competent policies; report failures where the opponent avoids Apex Dragon or removes the payload.
-5. If a second Tapu Lele is still desired, find a different slot that preserves the Dialga/Mimikyu counter-ALS and compare it with matched full games. Do not use this withdrawn v2 as the full-field candidate.
+The basic nested-copy and GX-allowance mechanics have already been exercised; do not duplicate them:
+
+- `results/twinleaf/mimikyu-extra-turn-progression.md` records the staged Copycat → Apex Dragon → Dialga Timeless-GX choice and actual turn-5-to-turn-6 transition.
+- Agent12's copied-GX reuse regression (commit `430237d7`) confirms that the Timeless-GX effect is rejected if another GX attack has already been used.
+- The prospective Agent46 Mysterious Treasure and Battle Compressor donor panels each found no increase in Copycat frequency (3 vs 3 and 0 vs 0, respectively).
+- The selected historical Compressor-donor Copycat has a quarantined 150-damage/280-HP Regidrago KO inconsistency; see `agent46-mimikyu-compressor-donor-native-20261110.md`.
+
+The remaining technical blocker is the copied-damage/Prize inconsistency and the rarity of the full joint setup in natural games. The withdrawn v2 must not be run or nominated as a full-field candidate. Any future second-Tapu experiment must preserve the Dialga/Mimikyu counter-ALS or provide a separately tested replacement.
 
 **Decision:** v2 is withdrawn and must not be used as a full-field candidate because it removes the Regidrago counter-ALS. Retain v1 as the current leading modified-list hypothesis. The v2 direct-draw advantage does not compensate for an unmeasured loss in nine Regidrago matchups. Neither list has a paper-qualified competitive win-rate result, and neither establishes the 99.5% target.
