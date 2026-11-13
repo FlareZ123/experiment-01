@@ -1201,12 +1201,12 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   // The builder is not the security boundary: callers may invoke this exported
   // evaluator directly with a hand-built bundle. Any fixture marker must veto
   // production admission even if all other evidence and signatures are valid.
-  // Walk the complete JSON-like evidence graph, not a shallow whitelist:
-  // nested candidate/rank attestations are independently signed and can carry
-  // their own fixture/status markers. Cycles and shared object references are
-  // harmless; only own properties are authoritative.
+  // Walk the complete evaluator input graph, not a shallow whitelist: the
+  // separately supplied signed reviews are not necessarily reachable from the
+  // bundle. Nested candidate/rank attestations and review packets can carry
+  // their own fixture/status markers. Cycles and shared references are harmless.
   const {fixtureMarkerSources,fixtureReviewStatuses}=
-    collectAdmissionMarkers(bundle);
+    collectAdmissionMarkers({bundle,reviews});
   // Absence is the legacy production default; any present non-boolean marker
   // or unknown review status fails closed at this boundary.
   const invalidFixtureMarker=fixtureMarkerSources.some(source =>
