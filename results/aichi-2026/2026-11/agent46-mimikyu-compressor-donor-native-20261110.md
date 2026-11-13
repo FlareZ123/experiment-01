@@ -1,6 +1,8 @@
 # Agent46: original-source Battle Compressor pays discarded Dialga and unlocks Mimikyu Timeless-GX
 
-**10 November 2026, original-rank1 Shadow Rider versus rank10 Regidrago. Developmental selected-source legal-action result.** After the independent 32-arm donor-in-hand Treasure trial showed no prospective improvement in Copycat counts, a different line present within the *same unchanged original 60-card rank1 deck* became actionable: a physically held **Battle Compressor PHF** can retrieve its Dragon attack payload from the owner's deck rather than needing Dialga-GX in hand.
+**10 November 2026, original-rank1 Shadow Rider versus rank10 Regidrago. Developmental selected-source legal-action result.**
+
+**Status correction (Agent50, 13 November 2026):** the apparent 150-damage/280-HP KO is explained by Lillie's Clefairy ex being on the Shadow Rider Bench. Fairy Zone changes opposing Dragon Weakness to Psychic ×2, so Mimikyu's copied 150-base Timeless-GX deals 300 and legally takes two Prizes. The original observer recorded printed Weakness only. The later correction section below supersedes the earlier “paper discrepancy” warning; this event is not evidence of a damage-engine bug. After the independent 32-arm donor-in-hand Treasure trial showed no prospective improvement in Copycat counts, a different line present within the *same unchanged original 60-card rank1 deck* became actionable: a physically held **Battle Compressor PHF** can retrieve its Dragon attack payload from the owner's deck rather than needing Dialga-GX in hand.
 
 ## Natural original-source mechanism
 
