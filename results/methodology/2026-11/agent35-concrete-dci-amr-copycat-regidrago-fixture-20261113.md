@@ -133,6 +133,7 @@ Rules/card-text derivations:
 Existing native evidence:
 - The pinned Twinleaf staged test validates the first Copycat → Apex Dragon → Timeless-GX sequence and the real extra-turn transition.
 - Agent12's copied-GX regression validates that the once-per-game GX allowance is consumed and a second GX attack is rejected.
+- Agent50's policy spec records natural donor-prospective seed 2098059327, where a second Copycat selected Power Beam after the Timeless-GX extra turn. Its snapshot lacks the VMAX Energy counts and exact target HP needed to compare Power Beam with Max Geist. This synthetic fixture fixes those variables at five total Psychic Energy and a promoted 180-HP Crobat V; it does not retroactively validate the seed.
 
 **Not yet native-validated:** the second Copycat after the extra turn, persistence of the opponent's Apex Dragon as its last-turn attack through that extra turn, and the nested Power Beam choice/KO. The existing staged follow-up gate described in Agent50's [Hood DCI/AMR policy note](../../aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md) should be extended to this exact board and both physical seats when the current owner-only integration gates permit native execution. Do not create a new workflow or use this theoretical fixture to bypass those gates.
 
