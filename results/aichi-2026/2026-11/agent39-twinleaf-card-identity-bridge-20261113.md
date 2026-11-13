@@ -32,7 +32,7 @@ The bridge:
 3. Resolves each normalized row using `normalized.printing.set` plus `normalized.printing.number` (the printed set/number), then emits the matched `Card.fullName`. Keep `card_pool_printing.number` as canonical resource provenance; do not use it as Twinleaf's set number.
 4. Checks `isCardDefined` and `getCardByName` on the same manager instance.
 5. Merges duplicate source rows that resolve to one Twinleaf fullName, preserving row-level provenance separately.
-6. Emits `registered60: [{printing, copies}]` per deck, matching the input contract used by Agent5's public decklist prior provider.
+6. Emits `registered60` as a 60-element array of Twinleaf `fullName` strings for Agent5's `buildTwinleafBeliefInput`; also emits compact `registered60_counts: [{printing, copies}]` and `decklist_for_seat: {id, cards}` for the provider's decklist interfaces.
 7. Fails closed on missing/ambiguous identities, bad row/copy totals, or any deck not exactly 60 cards. No partial `registered60` is emitted for an incomplete deck.
 
 The output retains the source-field schema, source dataset, official-banlist status, physical-print status and explicit diagnostic-only / paper-admission flags. A complete bridge means only that Twinleaf card objects resolved; it does **not** establish paper legality, physical source-print authenticity, or competitive strength.
@@ -45,7 +45,7 @@ After building the pinned submodule so `vendor/twinleaf/ptcg-server/output` exis
 node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs /path/to/aichi-expanded-identity-audit.json [output.json]
 ```
 
-The output records the pinned Twinleaf revision, resolved `registered60` decks, source-row mappings and any unresolved rows. Exit status 1 means the bridge is incomplete; status 2 means a runtime/build/input error.
+The output records the pinned Twinleaf revision, expanded `registered60` string arrays, compressed `registered60_counts`, `decklist_for_seat` objects, source-row mappings and any unresolved rows. Exit status 1 means the bridge is incomplete; status 2 means a runtime/build/input error.
 
 Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. Local Node 22 check: **5/5 tests passed**. The tests cover canonical-name differences, source-vs-canonical promo numbering, duplicate-row merging, missing/ambiguous identities, and count mismatch. The test and syntax checks are included in the existing manual owner-only Node22 workflow `.github/workflows/agent5-owner-root-native.yml`; no workflow was dispatched.
 
