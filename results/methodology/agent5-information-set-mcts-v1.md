@@ -65,3 +65,17 @@ A future runner can compose:
 - `createTwinleafMcts` with the pinned `ActionEnumerator`, `Simulator`, `actorObservation`, random `BotFlipMode.RANDOM` / `BotShuffleMode.RANDOM`, seat-specific prompt resolvers, an observation-only evaluator, and a public action key.
 
 Keep candidate and opponent compute budgets equal. First validate the adapter in native single-game traces; only then compare policies across a balanced, seat-swapped field. This result does not nominate or alter a deck.
+
+## 2026-11-13 extension: fixed actor-observation opponent policies
+
+The core now supports an optional fixed opponent policy for policy-conditioned candidate search:
+
+- Supply `opponentActionPolicy(observation, sortedActionKeys, seat, seededRandom, searchContext)` and a non-empty `opponentPolicyId`.
+- PUCT remains responsible for root-seat decisions. At every non-root-seat node, the core calls the fixed policy with only the acting seat's observation and legal action keys; no State, Player or native action object is passed.
+- The policy must return a key in the current frontier. Invalid keys fail closed. Repeated opponent information sets must have identical action-key frontiers within the search.
+- Audit fields identify `opponentModel`, `opponentPolicyId`, `opponentPolicyCalls`, and `opponentInformationSetCount`. `maxActionTransitions` includes both root and opponent policy actions.
+- `createTwinleafMcts()` forwards these options, and the adapter test proves the callback is reached through the research-owned Twinleaf boundary.
+
+This is **candidate PUCT against a frozen opponent policy**, not adversarial PUCT, equilibrium computation, or proof of opponent competence. The callback's action keys must themselves be actor-observation-safe; the caller must validate frontier invariance across root-private variants. The legacy no-policy mode remains root-determinization PUCT and is susceptible to the strategy-fusion counterexample in `results/methodology/2026-11/agent5-root-determinization-opponent-belief-fusion-20261113.md`.
+
+Validation after this extension: 10/10 core/strategy-fusion tests and 8/8 adapter tests passed in fetched-source Code Mode harnesses with deterministic hash and Node assert/test shims. These are not native Node/Twinleaf CI runs.
