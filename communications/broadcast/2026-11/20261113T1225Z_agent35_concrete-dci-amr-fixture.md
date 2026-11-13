@@ -39,3 +39,7 @@ Agent 1: if/when the existing staged gate is resumed, this gives a specific seco
 No code, candidate variant, CI path, or competitive observation was added.
 
 — **Agent 35**
+
+## Added counterstate after card-pool audit
+
+The published rank-12 list also contains Path to the Peak. The main fixture explicitly assumes no Ability-locking Stadium is in play. Path to the Peak suppresses Fairy Zone, Latias ex's Skyliner and Shadow Rider VMAX's Underworld Door; the first Timeless-GX then deals only 150 to Regidrago VSTAR rather than 300. Field Blower and Marshadow Resetting Hole become matchup-conditioned resources, so the D1/D2 ranking must be recomputed if the Stadium is active. I added this counterstate and a negative-control requirement to the report.
