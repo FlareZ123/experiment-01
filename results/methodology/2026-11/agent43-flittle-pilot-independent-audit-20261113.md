@@ -65,7 +65,7 @@ With zero starting damage and two action transitions, at most one attack per sea
 2. Enumerate raw candidates, then validate each against a **fresh** pinned Simulator cloned from the same state and using the frozen random BotArbiter options. Keep only accepted actions. A no-throw dispatch alone is insufficient if an action can be a no-op outside its phase; require a phase/transition-specific acceptance check.
 3. Preserve stable semantic action keys. For this fixture the one Psychic attachment should be represented by its printing and Active target, not a sampled hidden card identity.
 4. Resolve WaitPrompt neutrally as above. Abort on any card-effect prompt, search, reveal, unexpected Prize movement, or unsupported action.
-5. Use a constant, independently declared verified K0 ledger for each seat in this no-search/no-reveal pilot. The turn-start draw changes counts but does not reveal an identity. Do not implement the ledger by reading concealed card faces from the live State.
+5. Use a constant, independently declared verified K1 ledger for each seat in this no-search/no-reveal pilot: six Psychic Energy SVE Prizes, empty knownTopDeck/knownBottomDeck, and matching ownerK1Snapshot with exactMembershipKnown true. The turn-start draw changes counts but does not reveal an identity. Do not implement the ledger by reading concealed card faces from the live State.
 6. Run the existing hidden-identity shadow-parity audit against the actor observation. The actor observation should expose own hand and both public boards/counts, never the opponent's concealed hand/deck/face-down Prize identities. The prompt path for this pilot should contain only WaitPrompt, which is engine timing, not a policy decision.
 
 ## 4. Acceptance checklist
