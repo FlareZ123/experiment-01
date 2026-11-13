@@ -1,6 +1,8 @@
 'use strict';
 
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
 const assert = require('node:assert/strict');
 const {generateKeyPairSync,sign} = require('node:crypto');
 const {
@@ -751,6 +753,84 @@ test('production builder retains server chronology and rejects partial runtime c
       ...common,dealGenerationReceipt:wrongRunnerRevision
     }),/same server-timestamped workflow/);
   } finally {
+    productionReviewerRegistry.reviewers=originalReviewers;
+  }
+});
+
+
+test('production builder can assemble post-deal chronology without a durable pre-deal artifact',()=>{
+  const realDateNow=Date.now;
+  const actualNow=realDateNow();
+  const simulatedPreparationNow=actualNow-600_000;
+  const originalReviewers=productionReviewerRegistry.reviewers;
+  let fixture,input,preDeal;
+  productionReviewerRegistry.reviewers=[];
+  try {
+    // Prepare a valid in-memory registration as though it were created ten
+    // minutes earlier. Restore the real clock before postgame assembly.
+    Date.now=()=>simulatedPreparationNow;
+    fixture=makePolicyFixture({fullProcessClosureCovered:true});
+    const trialId='agent49-v3-postdeal-unpersisted-20261113';
+    const gameRegistration=makeGameRegistration(trialId);
+    input={
+      producerId:'agent49-v3-unpersisted-test-producer',
+      trialId,gameRegistration,
+      preDealArtifactRef:gameRegistration.registrationRef+'.policy-predeal.json',
+      policyPlanCore:fixture.policyPlanCore,
+      policyAttestationBundle:fixture.policyAttestationBundle
+    };
+    productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
+    preDeal=preparePreDealPolicyRegistration(input);
+    assert.equal(preDeal.ready,true,preDeal.failures.join(','));
+    assert.equal(preDeal.fixtureOnly,false);
+    Date.now=realDateNow;
+
+    const trial=makeTrial(preDeal,fixture,{fixtureOnly:false});
+    assert.ok(Date.parse(trial.dealGenerationStepStartedAt)<actualNow,
+      'the supplied generation step must already be in the past');
+    assert.ok(Date.parse(trial.dealGeneratedAt)<actualNow,
+      'the supplied physical-deal time must already be in the past');
+    assert.equal(fs.existsSync(path.resolve(process.cwd(),preDeal.preDealArtifactRef)),false,
+      'the referenced pre-deal artifact must not exist in the checkout');
+
+    // These are syntactically valid placeholders, not GitHub API responses.
+    // The pure builder never fetches the referenced commit, blob, run, job or step.
+    const commitSha='d'.repeat(40);
+    const blobSha='e'.repeat(40);
+    const workflowRunId='1234567890';
+    const preDealPersistenceReceipt={
+      schema:'aichi-predeal-artifact-persistence-receipt-v1',
+      trialId,serverTimestampSource:'github-actions-run-started-at',
+      repositoryFullName:'FlareZ123/experiment-01',
+      artifactRef:preDeal.preDealArtifactRef,
+      artifactSha256:preDeal.preDealArtifactSha256,
+      commitSha,blobSha,workflowRunId,workflowHeadSha:commitSha,
+      workflowRunStartedAt:new Date(
+        Date.parse(gameRegistration.registeredAt)+1000).toISOString()
+    };
+    const dealGenerationReceipt={
+      schema:'aichi-physical-deal-generation-receipt-v1',
+      trialId,artifactRef:preDealPersistenceReceipt.artifactRef,
+      artifactSha256:preDealPersistenceReceipt.artifactSha256,
+      commitSha,blobSha,workflowRunId,workflowHeadSha:commitSha,
+      jobId:'1234567891',stepName:'Generate physical deal',
+      stepStartedAt:trial.dealGenerationStepStartedAt,
+      runnerRevision:trial.researchRevisionSha,
+      sourceDealFingerprint:trial.initialSourceDealFingerprint
+    };
+    const built=buildV3GameBundle({
+      preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+      policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+      preDealPersistenceReceipt,dealGenerationReceipt,
+      policyPanelReceipts:[],reviews:[]
+    });
+    assert.equal(built.bundle.trial.trialId,trialId);
+    assert.equal(built.preDealPersistenceReceipt.commitSha,commitSha);
+    assert.equal(built.preDealPersistenceReceipt.blobSha,blobSha);
+    assert.equal(built.admissionEligible,false);
+    assert.equal(built.competitiveAdmission,false);
+  } finally {
+    Date.now=realDateNow;
     productionReviewerRegistry.reviewers=originalReviewers;
   }
 });
