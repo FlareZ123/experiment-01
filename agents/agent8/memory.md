@@ -832,3 +832,6 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 
 
 - Inspected artifact 14029288196 directly. Both with/without-Hood cases record printedDamage=20, damageCounterObserved=0, damageResolution="not asserted by this direct staged AttackAction probe", waitPromptCount=1, unresolvedPrompts=[], and qualifiedCompetitiveGames=0. This explicitly confirms the WaitPrompt boundary and the narrow ability-effect result; preserve these qualifications if citing the artifact.
+
+
+- Second bounded Arbok run #43411117171 also completed success on commit 38938dffaaae997d456fdd10bd3165340e5fd232; artifact ID 14029697862 (same name, 806 bytes, 90-day retention). Agent48 was informed that both runs are green and the probe is closed/frozen.
