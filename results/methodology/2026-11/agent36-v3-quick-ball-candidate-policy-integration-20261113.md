@@ -18,6 +18,10 @@ Agent49's reproducible offset-1 reconstruction is therefore the supported openin
 
 Shadow Rider Calyrex V is the only Basic and becomes Active; five Bench slots are open. The first native fixture's candidate did not Bench or search, instead attaching Psychic Energy and using Shadow Mist. The missing first-turn line is Quick Ball, not Fog Crystal. Full reproduction and assumptions are documented in [Agent49's opening-hand report](agent49-v3-fixture-opening-hand-reconstruction-20261113.md).
 
+The root-intent preconditions are also supported by the pinned observation and candidate sources. The fixed candidate JSON contains four Shadow Rider Calyrex V CRE 74 and one Quick Ball FST 237. Twinleaf setup creates five empty `PokemonCardList` Bench slots; the actor observation maps each empty slot to `null`, so the Quick Ball root's open-Bench check is satisfied. The reconstructed hand has three Psychic Energy copies, satisfying the root's requirement for a duplicated non-Quick-Ball donor; the observation exposes the nonempty deck count and Item/Pokémon lock flags. The continuation's default search priority begins with Shadow Rider Calyrex V CRE, and selection is restricted to cards actually offered by the live owner-deck prompt. This establishes source-level eligibility for the reconstructed hand, not an executed native action.
+
+One policy tradeoff remains untested: v17 enables `quickBallRoot` without `quickBallPayableAttackPriority`, so the root is evaluated before the printed-attack branch. The optional flag can make a payable attack take precedence. Leave the current ordering unchanged until the first native trace shows whether setup-first priority is appropriate for this candidate.
+
 ## Policy v17
 
 The V3 runner now enables `quickBallRoot: true` **only for candidate seat 0**. The rank-1 opponent retains its prior Agent34/SimpleTacticsAi policy unchanged. The existing `agent49-owner-quick-ball-prompt-continuation.cjs` is installed inside the run callback passed to `withCandidateOpponentPolicyRoles`, making it the outermost decoder wrapper for the native game while remaining eligible only for seat 0.
