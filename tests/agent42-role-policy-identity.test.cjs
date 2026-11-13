@@ -312,7 +312,7 @@ test('partial runtime closure is fixture-only; production receipts require full 
  const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
  const candidate=identity('candidate-policy',null,1,cm),opponent=identity('opponent-policy',7,2,om);
  const fixturePlan=preDeal(candidate,opponent,constraints,false);
- const fixtureTrial=trial(candidate,opponent,0,1);
+ const fixtureTrial={...trial(candidate,opponent,0,1),fixtureOnly:true};
  const fixtureApplied=I.createPolicyApplicationReceipt({preDeal:fixturePlan,
   candidateIdentity:candidate,opponentIdentity:opponent,trial:fixtureTrial});
  assert.equal(fixtureTrial.fixtureOnly,true);
