@@ -217,6 +217,7 @@ function validateOpponentPolicyFieldBundle(request) {
           problems.add('opponent-rank-identity-unverified');
         if (entry.formatStatus === 'legal') {
           const rankIdentityValid =
+            SHA256.test(entry.deckSha256 ?? '') &&
             POLICY_ONLY_IDENTITY_FIELDS.every(field => SHA256.test(entry[field])) &&
             isStableProducerId(entry.policyProducerId) &&
             validEvidenceRef(entry.formatStatusEvidenceRef);
