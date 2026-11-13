@@ -300,6 +300,7 @@ test('search dependency builder supplies the exact pinned adapter contract and o
   const deps=provider.buildFlittleSearchDependencies({
     bindings,
     actorSeat:1,
+    ownDecklistId:'candidate-fixture-registered-60',
     simulatorOptions:{flipMode:'random',shuffleMode:'random'},
     sampleDeterminization:sample,
     assertApplicabilityEnvelope:applicability,
@@ -316,6 +317,19 @@ test('search dependency builder supplies the exact pinned adapter contract and o
   assert.equal(deps.applicabilityEnvelopeId,provider.ENVELOPE_ID);
   assert.equal(Object.hasOwn(deps,'knowledgeSnapshot'),false);
   assert.equal(Object.hasOwn(deps,'promptOwnerSeat'),false);
+});
+
+test('registered candidate and opponent lists must both equal the exact 60-card fixture',()=>{
+  const candidate={id:'candidate-registered',cards:provider.TEST_DECKLIST.cards.slice()};
+  const opponent={id:'opponent-registered',cards:provider.TEST_DECKLIST.cards.slice()};
+  assert.deepEqual(provider.assertRegisteredFlittleDecklist(candidate,'candidate'),candidate);
+  assert.deepEqual(provider.assertRegisteredFlittleDecklist(opponent,'opponent'),opponent);
+  assert.throws(()=>provider.assertRegisteredFlittleDecklist({
+    id:'wrong-opponent',cards:['Flittle SVI',...Array(58).fill(PSYCHIC),'Quick Ball']
+  },'opponent'));
+  assert.throws(()=>provider.assertRegisteredFlittleDecklist({
+    id:'short-list',cards:provider.TEST_DECKLIST.cards.slice(1)
+  },'opponent'));
 });
 
 test('pilot budget is explicitly a 250ms one-action dispatch smoke test, not a strategic rollout',()=>{
