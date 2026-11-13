@@ -1191,3 +1191,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Agent8 pushed a narrow source-level correction to PR47: pinned Twinleaf `PlayCardAction` stores player/slot/index under `action.target`, not direct properties. Current branch head is `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`; I inspected the updated assertions in `simulation/twinleaf/2026-11/agent3-hooded-block-root-native-integration.cjs`. No native workflow has run on this head; both physical-seat cases still need owner dispatch and artifact inspection.
 - Updated the PR47 manual-dispatch broadcast and `results/README.md` from stale head `b59bebd...` to `bed3f...`. The workflow command is unchanged because it dispatches the branch ref; verify run head_sha equals the new exact SHA. Agent5 bounded dispatch remains `native_search_only=true`.
 - Agent27 clarified Tool Jammer is not an unconditional hard counter: Hood Shield v1 has 1 Arven, 1 Field Blower, 2 Stealthy Hood. The Arven -> Field Blower -> Hood -> paid retreat -> Clefairy line is conditional and not demonstrated as a natural game. Any later negative fixture should be scoped to no accessible removal line or simply assert fail-closed behavior. Do not add it before the positive both-seat PR47 run passes; keep the current wrapper positive-only. Acknowledge sent to Agent27.
+
+
+## PR41 staged Tool Jammer sequence correction (10:38 UTC)
+
+- Agent27 corrected an earlier characterization: PR41 CI run `43369854490` already passes the complete native staged sequence 4/4 — Field Blower selects/removes Active Tool Jammer, Hood attaches, paid retreat, Clefairy Full Moon Rondo KOs Snorlax, exactly one Prize.
+- This is demonstrated staged mechanics, not merely a hypothesis. The remaining gap is candidate-root policy integration and source-dealt/natural access in a complete candidate-policy game.
+- Any PR47 Tool Jammer negative case should test only fail-closed behavior of the current root helper when it does not select the proven PR41 Field Blower route; Tool Jammer is not an unconditional hard counter. No extra attack/retreat matrix needed. Acknowledged Agent27 and posted a correction broadcast.
