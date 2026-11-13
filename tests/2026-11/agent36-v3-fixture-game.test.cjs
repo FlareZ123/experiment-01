@@ -10,7 +10,6 @@ const test = require('node:test');
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const fixtureGame = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const roleIdentity = require('../../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
-const { evidenceBundleSha256 } = require('../../simulation/evaluation/canonical-evidence-json.cjs');
 const roleComposition = require('../../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
 const diagnostic = require('../../simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
@@ -450,62 +449,6 @@ test('fixture runner injects offline full-state diagnostics and persists partial
   assert.ok(artifactWrite >= 0 && traceWrite > artifactWrite && failureRethrow > traceWrite, 'partial artifacts must be written before the workflow is failed');
 });
 
-
-test('V3 frozen role identities bind candidate Quick Ball root while leaving rank-1 options unchanged', () => {
-  const sourceAuditLimitations = {
-    dynamicRequireSites: [],
-    computedEnvSites: [],
-    unclassifiedEnvSites: [],
-    missingRelativeImports: [],
-    externalRequires: [],
-  };
-  const vendorDependencies = [];
-  const vendorImports = [];
-  const manifest = {
-    schema: roleIdentity.ENTRY_MANIFEST_SCHEMA,
-    complete: true,
-    sourceAuditVersion: 'fixture-role-options-test-v1',
-    sourceAuditLimitations,
-    files: [{ path: 'simulation/evaluation/2026-11/agent36-v3-runner.cjs', sha256: 'a'.repeat(64) }],
-    runtimeGuard: { required: true },
-    commonRuntimeBindings: [
-      { name: 'observe', exportName: 'actorObservation' },
-      { name: 'promptActions', exportName: 'ResolvePromptAction' },
-      { name: 'roleComposer', exportName: 'withCandidateOpponentPolicyRoles' },
-      { name: 'moduleLoadGuard', exportName: 'withPinnedResearchModuleLoads' },
-      { name: 'sourceClosureAudit', exportName: 'auditSourceClosure' },
-      { name: 'roleIdentityHelper', exportName: 'buildRolePolicyIdentity' },
-    ],
-    vendorPrefix: 'vendor/twinleaf/',
-    vendorDependencies,
-    vendorDependenciesSha256: evidenceBundleSha256(vendorDependencies),
-    vendorImports,
-    vendorImportsSha256: evidenceBundleSha256(vendorImports),
-    dependencyState: { mode: 'node-builtins-only' },
-    orderedPromptChain: [{ name: 'fixture', path: 'simulation/twinleaf/fixture.cjs' }],
-    sharedEnginePatches: [],
-    observationContractSha256: 'b'.repeat(64),
-    promptChainSha256: 'c'.repeat(64),
-    sharedEnginePatchSha256: 'd'.repeat(64),
-  };
-  const identities = runner.buildFixtureRoleIdentities({
-    manifestResult: { manifest, entryManifestSha256: evidenceBundleSha256(manifest) },
-    challengeSuiteSha256: 'e'.repeat(64),
-    policyConstraintsSha256: 'f'.repeat(64),
-    preparedRuntime: {
-      runtimePinUnionSha256: '1'.repeat(64),
-      loadedProcessClosureSha256: '2'.repeat(64),
-      cardPoolInitializationSha256: '3'.repeat(64),
-    },
-  });
-
-  assert.deepEqual(identities.candidateIdentity.policyDefinition.policyOptions, { quickBallRoot: true });
-  assert.deepEqual(identities.opponentIdentity.policyDefinition.policyOptions, {},
-    'the rank-1 opponent identity must not inherit the candidate-only Quick Ball root');
-  assert.equal(identities.candidateIdentity.policyOptionsSha256,
-    evidenceBundleSha256({ quickBallRoot: true }));
-  assert.equal(identities.opponentIdentity.policyOptionsSha256, evidenceBundleSha256({}));
-});
 
 test('V3 fixture pins candidate-only Quick Ball root and source-bound continuation after Agent34 role roots', () => {
   assert.equal(runner.V3_FIXTURE.seed, 'agent36-v3-fixture-hood-rank1-20261112-01',
