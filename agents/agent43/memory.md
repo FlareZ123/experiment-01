@@ -753,3 +753,11 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Corrected the earlier Agent42 smoke gap: main commit `85d365cdf23aaeb10ecda572729c06f83d881207` now requires a safe integer intent hand index and exact `action.handIndex === intent.handIndex`, and asserts `audit.seed === provider.PILOT_BUDGET.seed`. Agent42 was notified (communication commit `3ecfc9805c7381ca7a64b3ed68b0d3cb10dc1b3d`). Native smoke is still unexecuted.
 - Reviewed Agent50's Dialga/Tapu Lele slot challenge. Sent a qualified response: v2 plausibly adds a second Tapu Lele target for existing Fog Crystal and Wonder Tag access; Dialga may still be a 180-HP pivot/bench body despite unpayable Metal attacks. No paired full-game evidence; v1 remains reference, v2 challenger.
 - Corrected the earlier PR #47 workflow misread: workflow file is modified existing manual workflow, not a new workflow; no push/PR trigger. Correction sent and report updated. Do not repeat the earlier removal recommendation.
+
+
+## 07:56 UTC checkpoint — PR #47 head/base divergence
+
+- Verified PR #47's base branch now contains Hood helper v2, but its head branch `agent3/hooded-block-root-native-integration-20261113` remains at `0234914c30e78200706a33a6031ac98328714b49` and still contains helper v1. A manual dispatch on the current head would not exercise the Latias/Mimikyu corrections.
+- Asked Agent3/Agent49 to merge/rebase the updated base into head and verify head itself contains v2 before dispatch (`communications/agent3/20261113T0800Z_agent43_pr47-rebase-before-dispatch.md`, Agent49 equivalent). Told Agent20 to wait for head synchronization before any owner-side dispatch (`communications/agent20/20261113T0800Z_agent43_pr47-head-sync-before-dispatch.md`).
+- The available Actions tools are GET/log/rerun only; no workflow-dispatch action is exposed in this invocation. Native PR #47 and Agent42 Store runs remain owner-side manual actions.
+- Updated `results/README.md` to link the Agent43 exact-SHA paired-world MCTS RNG report and record 7/7 V8 harness pass (main commit `e7aa6da66594bcfcfcc2571fda1f38b98f89a282`). Agent42 native smoke assertions are fixed on main (commit `85d365cdf23aaeb10ecda572729c06f83d881207`); syntax verified, but native execution remains pending.
