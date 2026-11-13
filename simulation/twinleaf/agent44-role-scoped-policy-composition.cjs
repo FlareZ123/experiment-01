@@ -42,6 +42,12 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
         audit.peerRoleDispatchEnabled:null,
       ownerDecisionCalls:audit?.ownerDecisionCalls??null,
       peerRoleDelegations:audit?.peerRoleDelegations??null,
+      setupStartingBasicPromptsHandled:audit?.setupStartingBasicPromptsHandled??null,
+      setupStartingBasicPromptsBySeat:audit?.setupStartingBasicPromptsBySeat??null,
+      setupGoFirstPromptsHandled:audit?.setupGoFirstPromptsHandled??null,
+      setupGoFirstPromptsBySeat:audit?.setupGoFirstPromptsBySeat??null,
+      setupPromptActionsSubmitted:audit?.setupPromptActionsSubmitted??null,
+      setupPromptActionsRejected:audit?.setupPromptActionsRejected??null,
       nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:
         audit?.nativeOwnerTrainerFallback?.attemptedUnsupportedPasses??0};
     if(!plainObject(audit)) failures.push(role+'-audit-missing-or-invalid');
@@ -138,6 +144,7 @@ function withCandidateOpponentPolicyRoles(run,options) {
   const runtimeBindings=[
     'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
     'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
+    'setupPromptTypes',
     'arvenTrainerTypes','eriCardTypes','nativeOwnerTrainerFallback',
     'ownerFallbackDiagnosticView','peerRoleDispatch','rootIntentProvider',
     'createRootSearchCapability','rootIntentActionKey'
