@@ -67,6 +67,19 @@ class AichiExpandedIdentityAuditTests(unittest.TestCase):
         self.assertEqual(result["event_date_status"], "japanese_counterpart_pre_event_verified")
         self.assertEqual(result["japanese_pre_event_crosswalk"]["number"], "072/083")
 
+    def test_post_event_english_trubbish_uses_pre_event_japanese_counterpart(self):
+        catalog = catalog_for("CRI", "me4", {
+            "name": "Trubbish",
+            "number": "56",
+            "legalities": {"expanded": "Legal"},
+        }, release_date="2026/05/22")
+        result = audit_entry({
+            "name": "Trubbish", "count": 2,
+            "printing": {"set": "CRI", "number": "56", "language": "en"},
+        }, catalog, date(2026, 5, 10))
+        self.assertEqual(result["event_date_status"], "japanese_counterpart_pre_event_verified")
+        self.assertEqual(result["japanese_pre_event_crosswalk"]["number"], "054/083")
+
     def test_banned_card_pool_flag_is_not_returned_as_legal(self):
         catalog = catalog_for("TST", "tst", {
             "name": "Test Card", "number": "1",
