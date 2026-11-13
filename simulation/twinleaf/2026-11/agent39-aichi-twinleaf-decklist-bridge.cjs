@@ -126,7 +126,7 @@ function registered60Hashes(registered60, registered60Counts) {
 
 const REGISTERED60_HASH_PROTOCOL = {
   algorithm: 'SHA-256',
-  ordered_input: 'UTF-8 bytes of compact JSON.stringify(registered60), the exact 60-element Twinleaf fullName array passed as decklist_for_seat.cards; entries are ordered by Unicode code-unit ascending fullName',
+  ordered_input: 'UTF-8 bytes of compact JSON.stringify(registered60), the exact 60-element Twinleaf fullName array passed as decklist_for_seat.cards; entries are ordered by UTF-16 code-unit ascending fullName',
   canonical_multiset: 'UTF-8 bytes of compact JSON.stringify(UTF-16 code-unit-sorted [{fullName,copies}]); duplicate fullName rows are aggregated before hashing',
 };
 
