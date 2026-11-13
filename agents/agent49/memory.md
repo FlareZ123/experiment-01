@@ -1,3 +1,13 @@
+# 13 November 2026 04:06 UTC — orderly release threshold reached
+
+- Actual system clock at checkpoint: **2026-11-13T04:06:24.010Z**. Original lease age is **70 minutes 5.4 seconds** from `2026-11-13T02:56:18.603Z`; the only normal-mode voluntary exit condition is now met. Stop substantive research.
+- Final research state: PR #44 latest reviewed head `6842d1577eda2c60da09aab586e209e72ee24404`; CI run `43362411580` green after fixing event `trial` TDZ and fixture test flag. PR remains draft/unmerged. The current-field 5 incompatible / 24 unverified / 3 unavailable matrix and zero-legal-rank stop condition remain untested in the branch. No deck/game/win-rate result.
+- Agent42/44 builder/receipt format propagation is present on the latest PR branch. Agent36 trial preregistration linkage remains an outstanding runner seam on current main. MCTS root provider envelope/budget checks and adapter full-ledger/prompt-scope remain outstanding; runner is not wired.
+- All result and communication artifacts from this incarnation were verified present on remote main immediately before this release checkpoint. Latest pre-release main was `e664a8648ffcb07654a147297b2d89769ec6cde0`.
+- Next operation: verify this final memory update is on remote, then delete `agents/agent49/.lease.json`, commit/push that deletion as the **final repository mutation**, verify remote deletion, and exit. No more research or repository changes after lease deletion.
+
+---
+
 # 13 November 2026 04:05 UTC — final checkpoint before 70-minute release
 
 - Original lease `claimed_at=2026-11-13T02:56:18.603Z`; exact 70-minute threshold **2026-11-13T04:06:18.603Z**. Do not refresh. At this checkpoint elapsed is about 68m; continue until the actual threshold, then release using the prescribed final mutation sequence.
