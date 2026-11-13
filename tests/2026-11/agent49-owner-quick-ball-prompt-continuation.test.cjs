@@ -10,6 +10,7 @@ const {
 } = require('../../simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs');
 
 class AddPlayerAction {}
+class StartNextTurnAction {}
 class PlayCardAction {
   constructor(id, handIndex) { Object.assign(this, { id, handIndex }); }
 }
@@ -32,6 +33,12 @@ class Store {
   constructor(state) { this.state = state; }
   dispatch(action) {
     if (action instanceof AddPlayerAction) return true;
+    if (action instanceof StartNextTurnAction) {
+      const owner = this.state.players[this.state.activePlayer];
+      owner.discard.cards.push(...owner.supporter.cards.splice(0));
+      this.state.activePlayer = (this.state.activePlayer + 1) % this.state.players.length;
+      return true;
+    }
     if (action instanceof PlayCardAction) {
       if (action.id === 202) return true;
       const owner = this.state.players.find(player => player.id === action.id);
@@ -75,9 +82,6 @@ class Store {
           owner.deck.cards.splice(owner.deck.cards.indexOf(target), 1);
           owner.hand.cards.push(target);
         }
-        const item = prompt.sourceCard;
-        owner.supporter.cards.splice(owner.supporter.cards.indexOf(item), 1);
-        owner.discard.cards.push(item);
         this.state.prompts = [];
         return true;
       }
@@ -128,10 +132,11 @@ function nativeDeps() {
   };
 }
 
-test('exact physical Psychic Energy donor and offered Shadow Rider V complete the native prompt chain', () => {
+test('synthetic Store prompt chain preserves Quick Ball until next-turn cleanup', () => {
   const { state, owner, item, energies, shadowRider } = makeScenario();
   const oldDecode = Object.getOwnPropertyDescriptor(Bot.prototype, 'decodeNextAction');
   const oldDispatch = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
+  const trace = [];
 
   const wrapped = withOwnerQuickBallPromptContinuation(() => {
     const store = new Store(state);
@@ -155,11 +160,15 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
 
     const targetPlay = new PlayCardAction(owner.id, owner.hand.cards.indexOf(shadowRider));
     store.dispatch(targetPlay);
+    assert.ok(owner.supporter.cards.includes(item));
+    assert.ok(!owner.discard.cards.includes(item));
+    trace.push({ phase: 'test-before-start-next-turn' });
+    store.dispatch(new StartNextTurnAction());
 
-    return 'native Quick Ball chain completed';
-  }, nativeDeps());
+    return 'synthetic Quick Ball chain completed';
+  }, { ...nativeDeps(), trace: event => trace.push(event) });
 
-  assert.equal(wrapped.result, 'native Quick Ball chain completed');
+  assert.equal(wrapped.result, 'synthetic Quick Ball chain completed');
   assert.equal(wrapped.audit.version, VERSION);
   assert.equal(wrapped.audit.quickBallRootsSeen, 1);
   assert.equal(wrapped.audit.quickBallRootsAccepted, 1);
@@ -178,6 +187,10 @@ test('exact physical Psychic Energy donor and offered Shadow Rider V complete th
   assert.equal(wrapped.audit.pendingBenchPlacementsAtEnd, 0);
   assert.strictEqual(owner.bench[0].getPokemonCard(), shadowRider);
   assert.ok(!owner.hand.cards.includes(shadowRider));
+  const phases = trace.map(event => event.phase);
+  assert.ok(phases.indexOf('quick-ball-target-physically-benched') < phases.indexOf('test-before-start-next-turn'));
+  assert.ok(phases.indexOf('test-before-start-next-turn') < phases.indexOf('quick-ball-setup-chain-completed'));
+  assert.ok(phases.indexOf('quick-ball-setup-chain-completed') < phases.indexOf('quick-ball-native-item-finalized'));
   assert.strictEqual(owner.discard.cards[0], energies[0]);
   assert.ok(owner.hand.cards.includes(energies[1]));
   assert.ok(owner.hand.cards.includes(energies[2]));
@@ -217,6 +230,9 @@ test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench
   assert.equal(wrapped.audit.targetPhysicalBenchPlacementFailures, 0);
   assert.equal(wrapped.audit.completedSetupChains, 0);
   assert.equal(wrapped.audit.pendingBenchPlacementsAtEnd, 1);
+  assert.equal(wrapped.audit.pendingFinalityAtEnd, 1);
+  assert.ok(owner.supporter.cards.includes(item));
+  assert.ok(!owner.discard.cards.includes(item));
   assert.ok(owner.hand.cards.includes(shadowRider));
   assert.strictEqual(owner.bench[0].getPokemonCard(), samePrintingCopy);
 });
