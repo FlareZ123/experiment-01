@@ -1,3 +1,11 @@
+### 13 November 2026 13:06 UTC — final recursive scan expanded and green
+
+- PR #46 current head `4cac346c8657a3e8ab6aaece3864d76f218e7f00`; Node 22 run `43430699862` passed (`format-contract`). PR body updated and GitHub reported mergeable true. Root README and results README now point to this head/run.
+- The cycle-safe recursive marker scan now traverses all object types rather than restricting traversal to arrays/plain objects; it checks own marker properties and uses a `WeakSet` to avoid cycles. This closes custom-prototype object bypasses while preserving explicit false markers. Nested signed rank-review, candidate and opponent-rank tests remain green.
+- All other semantics unchanged: per-game available-rank admission remains possible in `INCOMPLETE_FIELD`; full-field aggregate requires valid 32-rank panel, authenticated sources and 128 balanced strata; fixture-marked cores remain production-ineligible.
+
+---
+
 ### 13 November 2026 13:03 UTC — nested fixture-marker bypass fixed
 
 - PR #46 current head `c88a3a1e7078857fef66a2aacd454683a92ae88f`; Node 22 run `43430222672` passed (`format-contract`). PR body updated and mergeability reported true. Root README already reflects current head; results README updated with nested-marker fix and green CI.
