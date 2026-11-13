@@ -85,7 +85,7 @@ This test distinguishes "the opponent knows its own Prizes" from "the root knows
 
 ## Scope and confidence
 
-This is a **source-level design finding and mathematical counterexample**, not an observed competitive misplay or a completed runtime regression. The bounded one-Flittle + 59 Psychic Energy fixture is immune: once the sole Flittle is publicly established Active, all six Prizes are necessarily Psychic Energy, so both seats' K1 Prize compositions are inferable from the registered list and public board. Do not generalize that fixture's bilateral-K1 setup to heterogeneous Aichi or Expanded lists without the dual-ledger contract.
+This is a **source-level design finding and mathematical counterexample**, not an observed competitive misplay or a completed runtime regression. The current checked-in caller is the bounded one-Flittle + 59 Psychic Energy fixture in `agent36-flittle-mcts-root-provider.cjs`, and its pilot budget is `maxPlies=1` (it does not simulate an opponent response). That fixture is doubly non-representative: once the sole Flittle is publicly established Active, all six Prizes are necessarily Psychic Energy, so both seats' K1 Prize compositions are inferable; and no opponent decision is expanded. Do not generalize that fixture's bilateral-K1 setup to heterogeneous Aichi or Expanded lists, or increase the search beyond its one-ply boundary, without the dual-ledger contract.
 
 The issue should be resolved before using this determinizer for general-field MCTS or treating its opponent-response model as non-clairvoyant. It does not justify changing the current fixed deck candidate or making any win-rate claim.
 
