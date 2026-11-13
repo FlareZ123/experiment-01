@@ -11,21 +11,21 @@ The current governing candidate format is paper Expanded (Black & White onward).
 
 ## Rank-level construction checks
 
-| Rank | Player | Archetype | Cards | Unique lines | Pokémon / Trainer / Energy | ACE SPEC |
+| Rank | Player | Archetype | Cards | Unique lines | Pokémon / Trainer / Energy | ACE SPEC | Radiant |
 | ---: | --- | --- | ---: | ---: | ---: | --- |
-| 17 | Yuya Yamano | Raichu Electrode Combo | 60 | 27 | 18 / 30 / 12 | Secret Box (TWM 163) |
-| 18 | Hayato Omuro | Regidrago | 60 | 33 | 21 / 31 / 8 | Prime Catcher (TEF 157) |
-| 19 | Mark Takahashi | Raging Bolt | 60 | 37 | 16 / 31 / 13 | Secret Box (TWM 163) |
-| 20 | Satoru Imamura | Regidrago | 60 | 36 | 20 / 30 / 10 | Megaton Blower (SSP 182) |
-| 21 | Shun Nakajima | Regidrago | 60 | 38 | 20 / 30 / 10 | Megaton Blower (SSP 182) |
-| 22 | Haruya Mori | Absol Garbodor | 60 | 36 | 14 / 38 / 8 | Secret Box (TWM 163) |
-| 26 | Hibiki Yamada | Meloetta Donk | 60 | 32 | 12 / 45 / 3 | Dowsing Machine (PLS 128) |
-| 27 | Yuya Nagatsuma | Regidrago | 60 | 37 | 20 / 30 / 10 | Prime Catcher (TEF 157) |
-| 30 | Koki Takeda | Lillie's Clefairy | 60 | 32 | 16 / 37 / 7 | Secret Box (TWM 163) |
-| 31 | Yuhi Yokoyama | Dusknoir Chimecho | 60 | 31 | 22 / 33 / 5 | Grand Tree (SCR 136) |
-| 32 | Kaito Higuchi | Regidrago | 60 | 39 | 20 / 30 / 10 | Megaton Blower (SSP 182) |
+| 17 | Yuya Yamano | Raichu Electrode Combo | 60 | 27 | 18 / 30 / 12 | Secret Box (TWM 163) | 0 |
+| 18 | Hayato Omuro | Regidrago | 60 | 33 | 21 / 31 / 8 | Prime Catcher (TEF 157) | 0 |
+| 19 | Mark Takahashi | Raging Bolt | 60 | 37 | 16 / 31 / 13 | Secret Box (TWM 163) | 0 |
+| 20 | Satoru Imamura | Regidrago | 60 | 36 | 20 / 30 / 10 | Megaton Blower (SSP 182) | 0 |
+| 21 | Shun Nakajima | Regidrago | 60 | 38 | 20 / 30 / 10 | Megaton Blower (SSP 182) | 0 |
+| 22 | Haruya Mori | Absol Garbodor | 60 | 36 | 14 / 38 / 8 | Secret Box (TWM 163) | 0 |
+| 26 | Hibiki Yamada | Meloetta Donk | 60 | 32 | 12 / 45 / 3 | Dowsing Machine (PLS 128) | 0 |
+| 27 | Yuya Nagatsuma | Regidrago | 60 | 37 | 20 / 30 / 10 | Prime Catcher (TEF 157) | 0 |
+| 30 | Koki Takeda | Lillie's Clefairy | 60 | 32 | 16 / 37 / 7 | Secret Box (TWM 163) | 0 |
+| 31 | Yuhi Yokoyama | Dusknoir Chimecho | 60 | 31 | 22 / 33 / 5 | Grand Tree (SCR 136) | 1 (Alakazam) |
+| 32 | Kaito Higuchi | Regidrago | 60 | 39 | 20 / 30 / 10 | Megaton Blower (SSP 182) | 0 |
 
-All 11 lists total exactly 60 cards. Every non-Basic card name is at or below four copies. Each list has exactly one ACE SPEC card. No list has more than one copy of the same Prism Star identity. Basic Energy counts are treated separately from the four-copy rule.
+All 11 lists total exactly 60 cards. Every non-Basic card name is at or below four copies. Each list has exactly one ACE SPEC card. No list has more than one copy of the same Prism Star identity. No list exceeds one Radiant Pokémon; rank 31 has one Radiant Alakazam and the other ten have none. Basic Energy counts are treated separately from the four-copy rule.
 
 ## English Expanded printing coverage
 
@@ -65,7 +65,7 @@ Rank 26 contains one Special Red Card CRI 82. CRI's English release date is 22 M
 
 ## What this does and does not establish
 
-**Established for these 11 rows:** 60-card count; four-copy rule; one-ACE-SPEC rule; Prism Star copy check; English card-pool resolution for 136 exact printings plus the seven documented aliases; no exact current international Expanded banned printing.
+**Established for these 11 rows:** 60-card count; four-copy rule; one-ACE-SPEC rule; Prism Star copy check; Radiant Pokémon limit; English card-pool resolution for 136 exact printings plus the seven documented aliases; no exact current international Expanded banned printing.
 
 **Not established:** the exact original Japanese physical printing for every source row; full Japanese event-date legality of every original card; player identity or registration authenticity beyond the published source manifest; Twinleaf support/fidelity; competitive playability; any matchup outcome or win rate.
 
