@@ -45,7 +45,7 @@ The same public printed snapshot now includes detached `printed.subtypes`, which
 - Mimikyu GRI is Active, has at least two Basic Psychic Energy, the owner's GX is spent, and the Timeless extra-turn marker is active.
 - The owner's public discard contains Dialga-GX UPR and does **not** contain Radiant Eternatus CRZ. If Radiant Eternatus is available, Power Beam is a stronger competing Copycat payload and the Max Geist helper abstains.
 - The turn-stamped public receipt says the immediately preceding opponent turn ended with Regidrago VSTAR's non-GX Apex Dragon.
-- Latias ex SSP with Skyliner is on the Bench; no known Skyliner suppressor or opponent Active Block ability is present; the owner has not already retreated this turn.
+- Latias ex SSP with Skyliner is on the Bench; no known Skyliner suppressor, opponent Active Block ability, or opponent Active Wobbuffet with Bide Barricade is present; the owner has not already retreated this turn. Wobbuffet PHF 36 is in the rank-10 source list: its Active-only Bide Barricade suppresses Latias ex (Dragon) but explicitly exempts Psychic Pokémon, so Lillie's Clefairy ex / Fairy Zone remains active under that lock.
 - Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist's printed three-Colorless cost is payable (at least three Basic Energy are attached; the candidate list uses Psychic Energy), and the public attack/retreat restrictions do not block the line.
 - The public target has no tool, resistance, or unmodelled damage/prize text that would invalidate the conservative projection.
 
@@ -70,7 +70,7 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Validation and limitations
 
-- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`.
+- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`. Added an Agent8-local Bide Barricade veto and regressions showing Active Wobbuffet blocks the Skyliner line while a benched Wobbuffet does not; Agent6 has been asked to extend the shared suppression guard.
 - Added Agent34 root-policy regressions in `tests/agent34-actor-only-root-policy.test.cjs` for candidate-seat scoping, the extra-turn/Apex receipt, Fairy Zone damage, Rule Box prize projection, Radiant Eternatus abstention, and Power Beam prompt selection.
 - Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. Temporary path-filtered pushes launched runs `43399409555`, `43400634039`, and `43401024755`; the push trigger has since been removed and the workflow restored to manual-only. In [run 43401024755](https://github.com/FlareZ123/experiment-01/actions/runs/43401024755), the actor-observation / Agent34 policy test step passed, as did native fixture steps 7–15, including the 280-HP Fairy Zone Copycat KO / Prize characterization. Step 16 failed only at the Agent1 fixture's prompt-count assertion: `resolvePending` allowed one prompt resolution but the Power Beam branch produced two. Agent1 has been notified; this is not a failed damage/Prize assertion.
 - Helper and root-policy source syntax was parsed. An isolated V8 smoke test with mocked dependency functions exercised the Max Geist proposal (160 base / 320 Fairy Zone / one prize against a 70-HP Dragon) and exact Power Beam prompt selection. This is not a substitute for running the Node test suite or the pinned Store.
