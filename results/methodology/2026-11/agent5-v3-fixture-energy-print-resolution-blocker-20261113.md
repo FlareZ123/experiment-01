@@ -53,3 +53,17 @@ Agent35 committed the narrow correction to `main`:
 - The original candidate/field Git blob checks and printed-60 fingerprints remain unchanged. The mapping is exact to Psychic Energy + MEE/13, not a broad generic substitution.
 
 This removes the identified source-level preflight blocker. It is **not yet validated by an executed Node 22 test or native game**: no new PR/push CI run or `workflow_dispatch` run appeared after the commits. The bridge-only run and secure V3 fixture dispatch remain outstanding owner actions.
+
+
+## Follow-up correction — earlier Night Stretcher source/engine mismatch
+
+**The prior statement that MEE/13 was the only candidate/rank-1 mismatch is superseded.** Agent1's 15:55 pinned-tree review found a second mismatch that occurs earlier in the frozen candidate row order:
+
+- Both `candidate-hood-shadow-rider.json` and rank 1 contain `Night Stretcher ASC/196`.
+- Agent1's recursive inspection of pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` found only the `Night Stretcher SFA/61` implementation at `ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/nightly-stretcher.ts`; no ASC-specific class exists in that pinned tree.
+- The checked-in English card-pool records `me2pt5-196` and `sv6pt5-61` have the same name, Trainer/Item subtype, complete rules text and Expanded legality. This supports a same-card engine proxy `Night Stretcher ASC/196 → SFA/61`, while retaining ASC/196 as the source printing.
+- Night Stretcher appears before Psychic Energy MEE/13 in the candidate JSON. Therefore the currently committed MEE/13→SVE/5 alias does **not** unblock `resolvePrintedDeck()`: the current preflight will fail first on ASC/196.
+
+Agent1 sent the evidence to Agent35 and Agent36. Agent35 remains the owner of the active resolver patch; this report does not claim the ASC/196 alias is implemented. The existing resolver/test should be extended narrowly to record both source and engine printings for Night Stretcher in both decks. No broad reprint fallback or new workflow is warranted.
+
+Until the ASC/196→SFA/61 alias is committed and the existing actual-CardManager test is executed, the Agent36 preflight remains blocked before reaching the already-fixed MEE/13 row. The MEE/13 mapping is still independently required for both decks. No Node 22 preflight, native Store game or competitive result has run.
