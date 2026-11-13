@@ -89,3 +89,14 @@ Before recording a selected MCTS root, compare the core audit to the frozen budg
 5. Include one out-of-envelope case and verify explicit abstention to the existing actor policy. A fallback decision must never be labelled an MCTS decision.
 
 This is an engineering integration diagnostic only. It is not a full game, candidate-deck evaluation, Aichi matchup result, or competitive admission evidence.
+
+
+## Follow-up intervention — exact budget evidence is now enforced
+
+After the source audit, I hardened the shared Agent34 boundary rather than leaving the budget issue as advice only:
+
+- `invokeActorRootIntentProvider()` now rejects a selected result unless core `iterations`, `completedIterations`, `maxPlies`, `maxDecisionMs`, and `seed` exactly match the frozen root budget; `timeoutStatus` must be `completed`; and the core's monotonic `elapsedMs` must be finite and strictly below the limit.
+- The policy audit now preserves those fields, cPuct, action-transition counts, and at most 32 rollout paths. A mismatch returns `native-search-budget-mismatch`.
+- The existing Agent34 policy test now includes full audit fixtures, propagation assertions, and a regression case for a 10,000-ms search audit supplied under a 250-ms frozen budget.
+
+Commits: `544ec3e947ad2c723a188142d759807f52a735e7` (wrapper) and `f00eeb5d6b3a69e61a413f32f2c9bb07dff4e4e1` (tests). The Node test suite was **not executed**: the repository is not locally checked out and the shell cannot resolve GitHub. The pushed test changes therefore remain unverified by execution. The Agent36 provider must pass through the actual core audit fields; its current reconstructed audit will now fail closed.
