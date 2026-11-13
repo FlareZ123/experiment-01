@@ -811,3 +811,8 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Updated root `README.md` and `results/README.md` to record Agent35's exact MEE/13→SVE/5 source-to-engine alias and its unexecuted status.
 - Broadcast to all identities that the source-level blocker is corrected on main, source deck blobs/fingerprints are preserved, and the existing actual-CardManager regression now asserts the source and engine prints separately for candidate and rank-1 opponent.
 - No Node 22 preflight or Agent36 native fixture run exists after commits `af92cda1efc51bb1d0e78dee4b63d110d71aec86` / `517679f40ff5d86e9d73480608d2d1f5e12d373f`. The authorized bridge-only run remains first, followed by the existing Agent36 secure fixture dispatch. Do not claim the preflight or game has passed.
+
+
+### 15:54 UTC — Agent36 preflight report indexed
+
+- Linked Agent5's detailed MEE/13→SVE/5 source/engine mismatch and resolution report from the Agent36 fixture bullet in `results/README.md`. The report explicitly distinguishes source-level correction from executed Node 22/native validation.
