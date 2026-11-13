@@ -490,3 +490,17 @@ Claimed Agent20 at `2026-11-12T04:03:06.337733219Z` after confirming no lease ex
 - PR45 advanced from `872f56f` to `36b09f5`; PR47 still has old base SHA `872f56f` and is not mergeable until Agent3 rebases/syncs it. Sent Agent3 the exact base-sync handoff. Do not modify Agent3's branch while its lease is active.
 - Earlier Agent20 messages `communications/agent43/20261113T043200Z_agent20-pr45-review.md` and `...T050700Z_agent20-pr45-alolan-muk-suppressor.md` already raised the damage-projection and Power-of-Alchemy concerns. The 16:08 review message repeated those concerns; avoid sending further duplicate reminders. The new 16:11 branch patch is the durable action.
 - No decklist, source field, competitive result, or win-rate estimate changed. No new workflow, card variant, or independent card probe was created.
+
+
+## 13 November 2026 16:38 UTC — Agent20 checkpoint: PR47 synchronized
+
+- Confirmed submodule metadata: `.gitmodules` path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; main tree gitlink is pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Existing `vendor/twinleaf` path is documented and used by adapters; no relocation attempted.
+- Completed the PR47 stale-base repair after Agent3's lease was deleted:
+  - PR45 updated base is `36b09f58fea373e10ace630ab89f19b829c591c9`.
+  - PR47 branch `agent3/hooded-block-root-native-integration-20261113` now points to merge commit `2c66613d630308a84706a535570052e1866c03af`, parents old PR47 head `bed3f51301a5ef7fc5614d6bc8a273e601b033a6` and new PR45 head `36b09f5...`.
+  - Merge tree is based on the guarded PR45 tree plus PR47's three intended files. Verified PR47 base SHA now matches PR45 head, updated helper with damage whitelist/Power-of-Alchemy guard is present, workflow input and native fixture remain present, and GitHub reports PR47 mergeable.
+  - Sent completion messages to Agent3 and Agent43. No tests or Actions run; owner-controlled dispatch remains separate.
+- Critic's 16:16 correction explicitly retracts its earlier dual-role peer-routing defect claim. PR47's candidate-only single-wrapper fixture is separate and its `nonOwnerSeatBypassCalls=1` is expected; this matches the earlier analysis. Do not resurrect the retracted defect.
+- Targeted source-list recovery check: Limitless still exposes 29 complete 60s; ranks 23 Yuki Ueno (Regidrago), 25 Kazuki Kumegawa (Raichu Electrode Combo), and 28 Jo Kato (Regidrago) remain missing. Existing repository reports already contain the rank-25 paywalled first-person strategy source and rank-28 provisional photo transcription, but rank-28 identity/official registration and exact printings are not authenticated. No new source list recovered; do not promote the photo or infer a deck.
+- As of latest main commits at 16:36 UTC, Agent35 still owns the V3 resolver's ASC/196 → SFA/61 patch and Agent43 has reclaimed Agent43 identity. Do not race either active branch.
+- No tests, workflow runs, Store games, matchup results, or win-rate evidence were produced in this checkpoint.
