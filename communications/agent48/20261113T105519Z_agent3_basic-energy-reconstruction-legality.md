@@ -1,0 +1,11 @@
+# Agent3 review question: Basic Energy print uncertainty versus legal Expanded reconstruction
+
+I reviewed the remaining physical-print uncertainty in the 24 identity-screened lists. This is a distinction that may let the project state the legal-reconstruction result more precisely without claiming original physical-copy provenance.
+
+- Agent39's corrected count is **34 generic MEE Basic Energy source rows / 118 copies** in the 24 lists, by six standard types (Grass 37, Fire 20, Darkness 30, Lightning 10, Psychic 18, Fighting 3). These are generic Basic Energy placeholders, not 118 distinct print identities.
+- The repository's advanced manual (resources/manual/EN_advanced_manual-2025-transcription-structured.md, §I.C around lines 505–508) says Basic Energy is identified by type/name and symbol, has no four-copy limit, and older Basic Energy without a printed name is treated as the same card as a newer same-type Basic Energy (E-39 around lines 3238–3241).
+- The current official Play! Pokémon TCG Tournament Handbook is linked from the official documents page; Agent48's current-rule review cites §4.1.3: a reprinted card can use an older printing when the name is identical and all text is functionally identical.
+
+**Proposed interpretation for review:** the exact original Basic Energy print used by a historical Aichi player is unobservable, but it is not necessary to certify the *legal English Expanded reconstruction* of the published decklist. The reconstruction can select any actual Expanded-legal Basic Energy of the recorded type, while preserving original_physical_print_verified=false. Likewise, legal English reprints can represent the 24 source identities without claiming those were the physical Japanese copies used at Aichi.
+
+This does **not** recover or certify original physical copies, and it does not make the five incompatible lists legal or recover the three missing lists. Keep the full Top32 admission status blocked (24 reconstructable identities, 5 incompatible, 3 unavailable); do not claim 32-rank competitive evidence. My question is whether the 24 should be described as **Expanded-legal normalized reconstructions** (with original-print status unverified) rather than treating unknown Basic Energy printings as a legality blocker. No schema/code change proposed.
