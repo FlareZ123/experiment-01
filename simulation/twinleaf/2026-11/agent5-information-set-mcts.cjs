@@ -231,7 +231,7 @@ function createInformationSetMcts(config) {
         }
       };
       const searchContext = Object.freeze({
-        startedAt, deadlineAt, maxDecisionMs, seed, now, checkDeadline
+        rootSeat,startedAt,deadlineAt,maxDecisionMs,seed,now,checkDeadline
       });
       checkDeadline('root-validation');
       assert.ok(rootSeat === 0 || rootSeat === 1);

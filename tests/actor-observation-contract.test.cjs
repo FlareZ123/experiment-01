@@ -52,6 +52,8 @@ test('genuine owner/public printing identities, amounts and detached shape',()=>
     ['PSYCHIC','COLORLESS']);
   assert.deepEqual(v.opponentPublic.handCount,1);
   assert.equal(v.opponentPublic.prizeCount,1);
+  assert.equal(v.opponentPublic.publicHand,null);
+  assert.deepEqual(v.opponentPublic.prizeSlots,[{index:0}]);
   assert.ok(Object.isFrozen(v));
   assert.ok(Object.isFrozen(v.opponentPublic.active.energies));
   assert.ok(Object.isFrozen(v.ownHand));
@@ -69,6 +71,24 @@ test('Timeless extra-turn state is exposed as an active-seat public marker',()=>
   state.players[1].usedTurnSkip=true;
   state.activePlayer=1;
   assert.equal(actorObservation(state,1).ownTurnResources.extraTurnActive,true);
+});
+
+test('public hand identities and face-up Prize identities enter the actor observation',()=>{
+  const x=fixture(),y=fixture();
+  x.players[1].hand.isPublic=true;
+  x.players[1].prizes[0].faceUpPrize=true;
+  y.players[1].hand.isPublic=true;
+  y.players[1].prizes[0].faceUpPrize=true;
+  x.players[1].hand.cards=[card('Psychic Energy SVE')];
+  y.players[1].hand.cards=[card('Secret Box TWM')];
+  x.players[1].prizes[0].cards=[card('Dark Patch ASR')];
+  y.players[1].prizes[0].cards=[card('Mysterious Treasure FLI')];
+  const xv=actorObservation(x,0),yv=actorObservation(y,0);
+  assert.deepEqual(xv.opponentPublic.publicHand,['Psychic Energy SVE']);
+  assert.deepEqual(xv.opponentPublic.prizeSlots,
+    [{index:0,printing:'Dark Patch ASR'}]);
+  assert.notDeepEqual(xv,yv,
+    'Publicly revealed hand and Prize identities must alter the information key');
 });
 
 test('opponent hand, deck, Prize identities and unseen order cannot affect view',()=>{

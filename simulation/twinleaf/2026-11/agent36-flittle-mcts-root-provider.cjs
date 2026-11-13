@@ -114,21 +114,48 @@ function hasPendingPrompt(state) {
  */
 function knowledgeBySeat(state,seat) {
   assert.ok(seat===0||seat===1);
-  const count=prizeCount(state,seat);
+  return knowledgeForPrizeCount(prizeCount(state,seat));
+}
+
+function knowledgeForPrizeCount(count) {
   const knownPrizePrintings=count===0?[]:[{printing:PSYCHIC,copies:count}];
   return {
-    verified:true,
-    mode:'K1',
-    knownPrizePrintings,
-    knownTopDeck:[],
-    knownBottomDeck:[],
-    knownBottomDeckOrder:false,
+    verified:true,mode:'K1',knownPrizePrintings,
+    knownTopDeck:[],knownBottomDeck:[],knownBottomDeckOrder:false,
     ownerK1Snapshot:{
-      epoch:0,
-      exactMembershipKnown:true,
+      epoch:0,exactMembershipKnown:true,
       knownPrintings:knownPrizePrintings.map(row=>({...row}))
     }
   };
+}
+
+function rootKnowledgeBySeat({rootSeat,observation}) {
+  assert.ok(rootSeat===0||rootSeat===1);
+  // Closed fixture: one Flittle plus 59 Psychic Energy. No hidden face is read.
+  return knowledgeForPrizeCount(observation.ownPublic.prizeCount);
+}
+
+function beliefKnowledgeBySeat({rootSeat,targetSeat,observation,decklistInfo}) {
+  assert.ok(rootSeat===0||rootSeat===1);
+  assert.equal(targetSeat,1-rootSeat);
+  assertRegisteredFlittleDecklist(decklistInfo,'Opponent root-belief decklist');
+  const count=observation.opponentPublic.prizeCount;
+  const knownPrizePrintings=count===0?[]:[{printing:PSYCHIC,copies:count}];
+  return {
+    verified:true,mode:'K1',knownPrizePrintings,
+    knownTopDeck:[],knownBottomDeck:[],knownBottomDeckOrder:false,
+    exactPrizeSnapshot:{
+      epoch:0,exactMembershipKnown:true,
+      knownPrintings:knownPrizePrintings.map(row=>({...row}))
+    }
+  };
+}
+
+function seatKnowledgeBySeat({state,seat,decklistInfo}) {
+  assert.ok(seat===0||seat===1);
+  assertRegisteredFlittleDecklist(decklistInfo,'Sampled seat decklist');
+  // The sampler validates this K1 claim against the sampled Prize faces.
+  return knowledgeForPrizeCount(prizeCount(state,seat));
 }
 
 function observe(state,seat) {
@@ -367,6 +394,7 @@ function buildFlittleSearchDependencies({
   assert.equal(typeof sampleDeterminization,'function');
   assert.equal(typeof sampleDeterminization.knowledgeBySeat,'function');
   assert.ok(sampleDeterminization.metadataByState instanceof WeakMap);
+  assert.equal(typeof sampleDeterminization.refreshMetadata,'function');
   assert.equal(typeof assertApplicabilityEnvelope,'function');
   assert.ok(typeof rulesProfileId==='string'&&rulesProfileId.length>0);
   return {
@@ -452,6 +480,18 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     observedLedgerSeats.add(seat);
     return knowledgeBySeat(state,seat);
   };
+  const trackedRootKnowledgeBySeat=input=>{
+    observedLedgerSeats.add(input.rootSeat);
+    return rootKnowledgeBySeat(input);
+  };
+  const trackedBeliefKnowledgeBySeat=input=>{
+    observedLedgerSeats.add(input.targetSeat);
+    return beliefKnowledgeBySeat(input);
+  };
+  const trackedSeatKnowledgeBySeat=input=>{
+    observedLedgerSeats.add(input.seat);
+    return seatKnowledgeBySeat(input);
+  };
   const decklistForSeat=createPublicDecklistPriorProvider({
     ownDecklist:registeredCandidateDecklist,
     opponentPrior:[registeredOpponentDecklist]
@@ -460,7 +500,9 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     actorObservation,
     cloneState:state=>new bindings.Simulator(
       state,simulatorOptions).store.state,
-    knowledgeBySeat:trackedKnowledgeBySeat,
+    rootKnowledgeBySeat:trackedRootKnowledgeBySeat,
+    beliefKnowledgeBySeat:trackedBeliefKnowledgeBySeat,
+    seatKnowledgeBySeat:trackedSeatKnowledgeBySeat,
     decklistForSeat,
     createCard:printing=>{
       if(printing===FLITTLE)return new bindings.Flittle();
@@ -616,6 +658,9 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     competitiveGameQualified:false,
     observe,
     knowledgeBySeat:trackedKnowledgeBySeat,
+    rootKnowledgeBySeat:trackedRootKnowledgeBySeat,
+    beliefKnowledgeBySeat:trackedBeliefKnowledgeBySeat,
+    seatKnowledgeBySeat:trackedSeatKnowledgeBySeat,
     rootIntentProvider,
     createRootSearchCapability,
     rootIntentActionKey:intent=>flittleIntentActionKey(intent,bindings),

@@ -87,6 +87,19 @@ function publicPlayer(player,hidePokemon=false){
     discard:player.discard.cards.map(printing),
     lostZone:player.lostzone.cards.map(printing),
     resolvingSupporter:player.supporter.cards.map(printing),
+    // Public hidden-zone reveals participate in the actor information key.
+    // Concealed hand and face-down Prize identities remain absent.
+    publicHand:player.hand.isPublic===true?
+      player.hand.cards.map(printing):null,
+    prizeSlots:player.prizes.flatMap((slot,index)=>{
+      if(slot.cards.length===0)return [];
+      if(slot.faceUpPrize===true) {
+        assert.equal(slot.cards.length,1,
+          'A face-up Prize slot must contain exactly one card');
+        return [{index,printing:printing(slot.cards[0])}];
+      }
+      return [{index}];
+    }),
     // These are public game-use and player-wide constraints. They exclude
     // opponent concealed hand contents and the identity of any unknown cards.
     publicTurnRestrictions:{
@@ -126,9 +139,9 @@ function freezeView(value){
 /**
  * Construct the only native-State-derived input admitted to an actor-owned
  * decision module at a root or pending owner-authenticated prompt.
- * The own hand is private to its owner; the two public
- * boards, discard piles and counts are visible to both sides. Hidden deck,
- * face-down Prize, and opponent hand *identities* are never read.
+ * The own hand is private to its owner; public boards, explicitly public
+ * hands, face-up Prizes, discard piles and counts are visible to both sides.
+ * Concealed hand, deck and face-down Prize identities are never read.
  *
  * The caller may supply an authenticated owner K1 snapshot. This routine
  * refuses physical deck/Prize identities even if the owner has performed

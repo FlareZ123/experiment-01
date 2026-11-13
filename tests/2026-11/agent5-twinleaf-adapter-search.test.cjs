@@ -153,14 +153,28 @@ function makeHarness(options={}) {
     knownTopDeck:[],knownBottomDeck:[],knownBottomDeckOrder:false,
     ownerK1Snapshot:snapshot()
   };
-  const knowledgeBySeat=()=>ledger;
   const metadataByState=new WeakMap();
+  const knowledgeBySeat=(source,seat,context={})=>{
+    const metadata=metadataByState.get(source);
+    if(metadata)return metadata.knowledgeBySeat[seat];
+    assert.equal(context.rootSeat,seat,
+      'Undeterminized root State cannot expose the opponent private ledger');
+    return ledger;
+  };
   const sampleDeterminization=(source)=>{
     const sampled=clone(source);
-    metadataByState.set(sampled,{decklistIds:['flittle','flittle']});
+    metadataByState.set(sampled,{
+      decklistIds:['flittle','flittle'],knowledgeBySeat:[ledger,ledger]
+    });
     return sampled;
   };
   sampleDeterminization.knowledgeBySeat=knowledgeBySeat;
+  sampleDeterminization.refreshMetadata=(fromState,toState)=>{
+    const metadata=metadataByState.get(fromState);
+    if(!metadata)return false;
+    metadataByState.set(toState,{...metadata,knowledgeBySeat:[ledger,ledger]});
+    return true;
+  };
   sampleDeterminization.metadataByState=metadataByState;
 
   function actorObservation(source,seat,{ownerK1Snapshot}) {
@@ -239,6 +253,7 @@ test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompt
   assert.equal(result.audit.rootActionCount,3);
   assert.equal(result.audit.frontierComplete,true);
   assert.equal(result.audit.bothSeatKnowledgeLedgersVerified,true);
+  assert.equal(result.audit.rootLedgerPreserved,true);
   assert.equal(result.audit.ownerLedgerInInformationSetKey,true);
   assert.equal(result.audit.promptResolutionActorScoped,true);
   assert.equal(result.audit.applicabilityEnvelopeId,FLITTLE_ENVELOPE_ID);
@@ -282,7 +297,7 @@ test('native Simulator filter rejects unpaid turn-one Ram and no-op candidates',
   h.state.players[0].energyPlayedTurn=1;
   h.state.players[1].energyPlayedTurn=1;
   const adapter=createTwinleafInformationSetSearch(h.deps);
-  const actions=adapter.enumerateActions(h.state,0);
+  const actions=adapter.enumerateActions(h.state,0,{rootSeat:0});
   assert.deepEqual(actions.map(actionKey),['PASS_TURN']);
 });
 
@@ -298,7 +313,7 @@ test('unsupported card-effect prompts abort instead of reaching a policy resolve
 test('full owner ledger changes produce distinct actor information-set hashes',()=>{
   const h=makeHarness();
   const adapter=createTwinleafInformationSetSearch(h.deps);
-  const first=observationSha256(adapter.observe(h.state,0));
+  const first=observationSha256(adapter.observe(h.state,0,{rootSeat:0}));
   const nextLedger={
     ...h.deps.knowledgeBySeat(h.state,0),
     ownerK1Snapshot:{
@@ -307,7 +322,7 @@ test('full owner ledger changes produce distinct actor information-set hashes',(
     }
   };
   h.setLedger(nextLedger);
-  const second=observationSha256(adapter.observe(h.state,0));
+  const second=observationSha256(adapter.observe(h.state,0,{rootSeat:0}));
   assert.notEqual(first,second,'K1 epoch must be part of the information-set key');
 });
 
@@ -318,13 +333,13 @@ test('known top-deck and bottom-deck knowledge also participates in the node key
     knownPrizePrintings:[],ownerK1Snapshot:null
   }});
   const adapter=createTwinleafInformationSetSearch(h.deps);
-  const first=observationSha256(adapter.observe(h.state,0));
+  const first=observationSha256(adapter.observe(h.state,0,{rootSeat:0}));
   h.setLedger({
     verified:true,mode:'PARTIAL',knownTopDeck:['Psychic Energy SVE','Psychic Energy SVE'],
     knownBottomDeck:['Psychic Energy SVE'],knownBottomDeckOrder:false,
     knownPrizePrintings:[],ownerK1Snapshot:null
   });
-  const second=observationSha256(adapter.observe(h.state,0));
+  const second=observationSha256(adapter.observe(h.state,0,{rootSeat:0}));
   assert.notEqual(first,second,'known top-deck prefix must be part of the information-set key');
 });
 

@@ -39,9 +39,9 @@ function expandKnownPrizePrintings(rows) {
   return result;
 }
 
-function normalizeKnowledge(knowledge, ownerK1Snapshot, prizeCount) {
-  assert.ok(knowledge && knowledge.verified===true,
-    'Each seat requires an authenticated information-state ledger');
+function normalizeKnowledge(knowledge, exactPrizeSnapshot, prizeCount) {
+  assert.ok(knowledge&&knowledge.verified===true,
+    'Each belief requires an authenticated information-state ledger');
   assert.ok(['K0','K1','PARTIAL'].includes(knowledge.mode),
     'Knowledge mode must be K0, K1 or PARTIAL');
   const knownTopDeck=knowledge.knownTopDeck??[];
@@ -49,38 +49,50 @@ function normalizeKnowledge(knowledge, ownerK1Snapshot, prizeCount) {
   assert.ok(Array.isArray(knownTopDeck)&&Array.isArray(knownBottomDeck));
   const knownBottomDeckOrder=knowledge.knownBottomDeckOrder===true;
   if(knowledge.mode==='K0') {
-    assert.equal(knownTopDeck.length,0,
-      'K0 cannot retain a verified top-deck prefix');
-    assert.equal(knownBottomDeck.length,0,
-      'K0 cannot retain a known bottom-deck block');
+    assert.equal(knownTopDeck.length,0,'K0 cannot retain a verified top-deck prefix');
+    assert.equal(knownBottomDeck.length,0,'K0 cannot retain a known bottom-deck block');
     assert.equal((knowledge.knownPrizePrintings??[]).length,0,
       'K0 cannot claim exact Prize membership');
   }
   if(knowledge.mode==='K1') {
-    assert.ok(ownerK1Snapshot && ownerK1Snapshot.exactMembershipKnown===true,
-      'K1 requires the same verified exact-Prize snapshot used by the actor observation');
-    assert.ok(Number.isSafeInteger(ownerK1Snapshot.epoch)&&ownerK1Snapshot.epoch>=0,
-      'K1 snapshot requires a nonnegative epoch');
-    assert.ok(Array.isArray(ownerK1Snapshot.knownPrintings),
-      'K1 snapshot must include exact Prize printing counts');
+    assert.ok(exactPrizeSnapshot&&exactPrizeSnapshot.exactMembershipKnown===true,
+      'K1 requires an exact Prize snapshot in this information perspective');
+    assert.ok(Number.isSafeInteger(exactPrizeSnapshot.epoch)&&exactPrizeSnapshot.epoch>=0,
+      'Exact Prize snapshot requires a nonnegative epoch');
+    assert.ok(Array.isArray(exactPrizeSnapshot.knownPrintings),
+      'Exact Prize snapshot must include printing counts');
     const knownPrizeCards=expandKnownPrizePrintings(knowledge.knownPrizePrintings);
-    assert.equal(knownPrizeCards.length,prizeCount,
-      'K1 ledger must account for every current Prize');
+    assert.equal(knownPrizeCards.length,prizeCount,'K1 ledger must account for every current Prize');
     assert.deepEqual(
-      [...expandKnownPrizePrintings(ownerK1Snapshot.knownPrintings)].sort(),
+      [...expandKnownPrizePrintings(exactPrizeSnapshot.knownPrintings)].sort(),
       [...knownPrizeCards].sort(),
-      'Actor observation and information ledger disagree about Prize membership'
+      'Exact Prize snapshot and information ledger disagree about Prize membership'
     );
     return {exactPrizeMembership:true,knownPrizeCards,
       knownTopDeck,knownBottomDeck,knownBottomDeckOrder};
   }
-  assert.ok(ownerK1Snapshot===null || ownerK1Snapshot===undefined ||
-    ownerK1Snapshot.exactMembershipKnown===false,
-    'K0/PARTIAL conflicts with the actor observation K1 snapshot');
+  assert.ok(exactPrizeSnapshot===null||exactPrizeSnapshot===undefined||
+    exactPrizeSnapshot.exactMembershipKnown===false,
+    'K0/PARTIAL conflicts with an exact Prize snapshot');
   assert.equal((knowledge.knownPrizePrintings??[]).length,0,
     'K0/PARTIAL cannot silently discard a partial Prize membership list');
   return {exactPrizeMembership:false,knownPrizeCards:[],
     knownTopDeck,knownBottomDeck,knownBottomDeckOrder};
+}
+
+function collectPublicEvidence(view) {
+  assert.ok(view&&typeof view==='object');
+  const result=collectPublicPrintings(view);
+  if(view.publicHand!==null&&view.publicHand!==undefined) {
+    assert.ok(Array.isArray(view.publicHand));
+    result.push(...view.publicHand);
+  }
+  assert.ok(Array.isArray(view.prizeSlots),
+    'Actor observation is missing public Prize-slot evidence');
+  for(const slot of view.prizeSlots) {
+    if(slot.printing!==undefined&&slot.printing!==null)result.push(slot.printing);
+  }
+  return result;
 }
 
 /**
@@ -89,50 +101,44 @@ function normalizeKnowledge(knowledge, ownerK1Snapshot, prizeCount) {
  * are used, except when a hand or Prize slot is explicitly public.
  */
 function buildTwinleafBeliefInput({
-  state,actorSeat,seat,observation,registered60,knowledgeBySeat
+  actorSeat,seat,observation,registered60,beliefKnowledgeBySeat
 }) {
-  assert.ok(state?.players?.length===2);
   assert.ok((actorSeat===0||actorSeat===1)&&(seat===0||seat===1));
-  assert.ok(observation && observation.actorSeat===actorSeat);
-  const player=state.players[seat];
+  assert.ok(observation&&observation.actorSeat===actorSeat);
   const view=seat===actorSeat?observation.ownPublic:observation.opponentPublic;
-  assert.ok(view && typeof view==='object');
-  assert.equal(view.handCount,player.hand.cards.length,
-    'Observation hand count differs from native hidden-zone cardinality');
-  assert.equal(view.deckCount,player.deck.cards.length,
-    'Observation deck count differs from native hidden-zone cardinality');
-  const physicalPrizeCount=player.prizes.reduce((sum,slot)=>sum+slot.cards.length,0);
-  assert.equal(view.prizeCount,physicalPrizeCount,
-    'Observation Prize count differs from native hidden-zone cardinality');
+  assert.ok(view&&typeof view==='object');
+  assert.ok(Number.isSafeInteger(view.handCount)&&view.handCount>=0);
+  assert.ok(Number.isSafeInteger(view.deckCount)&&view.deckCount>=0);
+  assert.ok(Number.isSafeInteger(view.prizeCount)&&view.prizeCount>=0);
+  assert.ok(Array.isArray(view.prizeSlots),
+    'Actor observation is missing occupied Prize-slot geometry');
+  assert.equal(view.prizeSlots.length,view.prizeCount,
+    'Public Prize-slot geometry differs from the public Prize count');
 
   let knownHand;
-  if(seat===actorSeat) {
-    knownHand=observation.ownHand.slice();
-  } else if(player.hand.isPublic===true) {
-    knownHand=player.hand.cards.map(card=>card.fullName);
-  } else {
+  if(seat===actorSeat)knownHand=observation.ownHand.slice();
+  else if(Array.isArray(view.publicHand))knownHand=view.publicHand.slice();
+  else {
+    assert.ok(view.publicHand===null||view.publicHand===undefined,
+      'Public hand must be an array or null');
     knownHand=null;
   }
   const hiddenHandCount=view.handCount-(knownHand?.length??0);
-  assert.ok(hiddenHandCount>=0,'Visible hand exceeds native hand count');
+  assert.ok(hiddenHandCount>=0,'Visible hand exceeds public hand count');
 
-  const prizeSlots=player.prizes.flatMap((slot,index)=>{
-    assert.ok(slot.cards.length===0||slot.cards.length===1,
-      'Each physical Prize position must contain at most one card');
-    if(slot.cards.length===0)return [];
-    if(slot.faceUpPrize===true) {
-      return [{index,printing:slot.cards[0].fullName}];
-    }
-    // Face-down Prize identities are deliberately not inspected.
-    return [{index}];
+  const prizeSlots=view.prizeSlots.map(slot=>{
+    assert.ok(Number.isSafeInteger(slot?.index)&&slot.index>=0);
+    if(slot.printing===undefined||slot.printing===null)return {index:slot.index};
+    assert.ok(typeof slot.printing==='string'&&slot.printing.length>0);
+    return {index:slot.index,printing:slot.printing};
   });
-  const knowledge=knowledgeBySeat?.[seat];
-  // The acting player's snapshot comes from the detached actor observation.
-  // The other seat's snapshot is validated from that seat's own trusted ledger,
-  // but is never copied into the acting player's observation.
-  const ownerSnapshot=seat===actorSeat?
-    observation.ownerK1:(knowledge?.ownerK1Snapshot??null);
-  const normalized=normalizeKnowledge(knowledge,ownerSnapshot,view.prizeCount);
+  assert.equal(new Set(prizeSlots.map(slot=>slot.index)).size,prizeSlots.length,
+    'Public Prize-slot indexes must be unique');
+
+  const knowledge=beliefKnowledgeBySeat?.[seat];
+  const exactPrizeSnapshot=seat===actorSeat?
+    observation.ownerK1:(knowledge?.exactPrizeSnapshot??null);
+  const normalized=normalizeKnowledge(knowledge,exactPrizeSnapshot,view.prizeCount);
   return {
     registered60:registered60.slice(),
     knownPublic:collectPublicPrintings(view),
@@ -221,83 +227,197 @@ function applySampledPartitionsToTwinleafState(state,partitionsBySeat,createCard
 }
 
 /**
- * Per-player public decklist prior: exact own list, opponent sampled only from
- * public evidence. It never reads a concealed opponent hand or deck.
+ * The prior receives only a detached actor observation, never native State or
+ * concealed Player zones.
  */
 function createPublicDecklistPriorProvider({ownDecklist,opponentPrior,ignorePublicCard=()=>false}) {
-  assert.ok(ownDecklist&&typeof ownDecklist.id==='string'&&
-    Array.isArray(ownDecklist.cards));
+  assert.ok(ownDecklist&&typeof ownDecklist.id==='string'&&Array.isArray(ownDecklist.cards));
   assert.ok(Array.isArray(opponentPrior)&&opponentPrior.length>0);
   assert.equal(typeof ignorePublicCard,'function');
-  return function decklistForSeat(state,actorSeat,seat,observation,random) {
+  return function decklistForSeat(observation,actorSeat,seat,random) {
+    assert.ok(observation&&observation.actorSeat===actorSeat);
+    assert.ok((actorSeat===0||actorSeat===1)&&(seat===0||seat===1));
     if(seat===actorSeat)return {id:ownDecklist.id,cards:ownDecklist.cards.slice()};
-    const view=observation.opponentPublic;
-    const player=state.players[seat];
-    const observed=collectPublicPrintings(view);
-    if(player.hand.isPublic===true)
-      observed.push(...player.hand.cards.map(card=>card.fullName));
-    for(const prize of player.prizes) {
-      if(prize.faceUpPrize===true) {
-        assert.equal(prize.cards.length,1);
-        observed.push(prize.cards[0].fullName);
-      }
-    }
-    // The injectable filter receives only the already-collected public printing.
-    // Never hand it the determinized State, Player, or concealed-zone objects.
-    const deckEvidence=observed.filter(printing=>!ignorePublicCard(printing));
-    return sampleDecklistPrior(opponentPrior,deckEvidence,random);
+    const evidence=collectPublicEvidence(observation.opponentPublic)
+      .filter(printing=>!ignorePublicCard(printing));
+    return sampleDecklistPrior(opponentPrior,evidence,random);
   };
 }
 
+function cloneJson(value) { return JSON.parse(JSON.stringify(value)); }
+
+function countPrintings(cards) {
+  const counts=new Map();
+  for(const card of cards)counts.set(card,(counts.get(card)||0)+1);
+  return counts;
+}
+
+function canonicalKnowledge(knowledge) {
+  const snapshot=knowledge.ownerK1Snapshot??null;
+  return {
+    verified:knowledge.verified===true,mode:knowledge.mode,
+    knownTopDeck:(knowledge.knownTopDeck??[]).slice(),
+    knownBottomDeck:knowledge.knownBottomDeckOrder===true?
+      (knowledge.knownBottomDeck??[]).slice():(knowledge.knownBottomDeck??[]).slice().sort(),
+    knownBottomDeckOrder:knowledge.knownBottomDeckOrder===true,
+    knownPrizePrintings:(knowledge.knownPrizePrintings??[])
+      .map(row=>({printing:row.printing,copies:row.copies}))
+      .sort((a,b)=>a.printing.localeCompare(b.printing)),
+    ownerK1Snapshot:snapshot===null?null:{
+      epoch:snapshot.epoch,exactMembershipKnown:snapshot.exactMembershipKnown,
+      knownPrintings:snapshot.knownPrintings===null?null:
+        snapshot.knownPrintings.map(row=>({printing:row.printing,copies:row.copies}))
+          .sort((a,b)=>a.printing.localeCompare(b.printing)),
+      invalidationReason:snapshot.invalidationReason??null
+    }
+  };
+}
+
+/** Read only the selected simulated seat's private zones for validation. */
+function ownPrivateZones(state,seat) {
+  assert.ok(state?.players?.length===2&&(seat===0||seat===1));
+  const player=state.players[seat];
+  return {
+    hand:player.hand.cards.map(card=>card.fullName),
+    deck:player.deck.cards.map(card=>card.fullName),
+    prizes:player.prizes.map((slot,index)=>({
+      index,faceUpPrize:slot.faceUpPrize===true,
+      cards:slot.cards.map(card=>card.fullName)
+    }))
+  };
+}
+
+function validateSeatKnowledge(zones,knowledge) {
+  const prizeCards=zones.prizes.flatMap(slot=>slot.cards);
+  const normalized=normalizeKnowledge(
+    knowledge,knowledge.ownerK1Snapshot??null,prizeCards.length
+  );
+  if(normalized.exactPrizeMembership)
+    assert.deepEqual([...normalized.knownPrizeCards].sort(),[...prizeCards].sort(),
+      'Sampled seat K1 ledger does not match its own determinized Prizes');
+  assert.deepEqual(zones.deck.slice(0,normalized.knownTopDeck.length),
+    normalized.knownTopDeck,
+    'Sampled seat known top-deck prefix does not match its determinized deck');
+  const bottom=normalized.knownBottomDeck;
+  if(bottom.length>0) {
+    const actual=zones.deck.slice(-bottom.length);
+    if(normalized.knownBottomDeckOrder)assert.deepEqual(actual,bottom,
+      'Sampled seat known bottom-deck order does not match its determinized deck');
+    else {
+      const a=[...countPrintings(actual)].sort((x,y)=>x[0].localeCompare(y[0]));
+      const b=[...countPrintings(bottom)].sort((x,y)=>x[0].localeCompare(y[0]));
+      assert.deepEqual(a,b,
+        'Sampled seat known bottom-deck multiset does not match its determinized deck');
+    }
+  }
+  return cloneJson(knowledge);
+}
+
 /**
- * Factory for a complete two-seat hidden-world sampler. The decklistForSeat
- * callback must return the acting seat's registered 60 and a public-prior
- * sample for the opponent; it must not reveal the opponent's actual list.
- * knowledgeBySeat must provide a verified K0/K1/PARTIAL ledger for each seat.
+ * Root belief is built from public actor evidence and a public-prior list.
+ * Simulated seat-private ledgers are derived after sampling and refreshed
+ * after every simulated transition. The opponent's actual private ledger is
+ * never used to constrain root sampling.
  */
 function createTwinleafDeterminizationSampler(deps) {
-  for(const name of ['actorObservation','cloneState','knowledgeBySeat',
-    'decklistForSeat','createCard']) {
+  for(const name of ['actorObservation','cloneState','rootKnowledgeBySeat',
+    'beliefKnowledgeBySeat','seatKnowledgeBySeat','decklistForSeat','createCard'])
     assert.equal(typeof deps[name],'function','Missing determinizer dependency: '+name);
-  }
   const metadataByState=deps.metadataByState??new WeakMap();
+
+  function knowledgeBySeat(state,seat,context={}) {
+    const metadata=metadataByState.get(state);
+    if(metadata)return metadata.knowledgeBySeat[seat];
+    assert.ok(context&&context.rootSeat===seat,
+      'The undeterminized State may expose only the root actor private ledger');
+    const observation=deps.actorObservation(state,seat,{ownerK1Snapshot:null});
+    return deps.rootKnowledgeBySeat({rootSeat:seat,observation});
+  }
+
   function sampleDeterminization(state,actorSeat,random) {
     assert.equal(typeof random,'function');
-    const actorKnowledge=deps.knowledgeBySeat(state,actorSeat);
-    const observation=deps.actorObservation(state,actorSeat,{
-      ownerK1Snapshot:actorKnowledge.ownerK1Snapshot??null
+    assert.ok(state?.players?.length===2&&(actorSeat===0||actorSeat===1));
+    const rootBaseObservation=deps.actorObservation(state,actorSeat,{ownerK1Snapshot:null});
+    const rootKnowledge=deps.rootKnowledgeBySeat({
+      rootSeat:actorSeat,observation:rootBaseObservation
     });
-    const ledgers=[0,1].map(seat=>deps.knowledgeBySeat(state,seat));
-    const decklistIds=[null,null];
-    const partitions=[0,1].map(seat=>{
-      const decklistInfo=deps.decklistForSeat(state,actorSeat,seat,observation,random);
-      assert.ok(decklistInfo&&typeof decklistInfo.id==='string'&&
-        Array.isArray(decklistInfo.cards),
+    const observation=deps.actorObservation(state,actorSeat,{
+      ownerK1Snapshot:rootKnowledge.ownerK1Snapshot??null
+    });
+    const decklistInfoBySeat=[0,1].map(seat=>
+      deps.decklistForSeat(observation,actorSeat,seat,random));
+    for(const info of decklistInfoBySeat) {
+      assert.ok(info&&typeof info.id==='string'&&Array.isArray(info.cards),
         'Decklist provider must return {id,cards} for each seat');
-      const registered60=decklistInfo.cards;
-      decklistIds[seat]=decklistInfo.id;
+      assert.equal(info.cards.length,60,'Every sampled decklist must contain exactly 60 cards');
+    }
+    const rootBeliefBySeat=[0,1].map(seat=>{
+      if(seat===actorSeat)return cloneJson(rootKnowledge);
+      return deps.beliefKnowledgeBySeat({
+        rootSeat:actorSeat,targetSeat:seat,observation,
+        publicEvidence:collectPublicEvidence(observation.opponentPublic),
+        decklistInfo:cloneJson(decklistInfoBySeat[seat])
+      });
+    });
+    const partitions=[0,1].map(seat=>{
       const input=buildTwinleafBeliefInput({
-        state,actorSeat,seat,observation,registered60,
-        knowledgeBySeat:ledgers
+        actorSeat,seat,observation,registered60:decklistInfoBySeat[seat].cards,
+        beliefKnowledgeBySeat:rootBeliefBySeat
       });
       return sampleHiddenPartition({...input,random});
     });
     const detached=deps.cloneState(state);
     assert.ok(detached&&detached!==state,'Twinleaf clone adapter returned a live State');
     applySampledPartitionsToTwinleafState(detached,partitions,deps.createCard);
-    const knowledgeSnapshots=JSON.parse(JSON.stringify(ledgers));
-    metadataByState.set(detached,{decklistIds,knowledgeBySeat:knowledgeSnapshots});
+    const knowledgeSnapshots=[0,1].map(seat=>{
+      const knowledge=deps.seatKnowledgeBySeat({
+        state:detached,seat,rootSeat:actorSeat,
+        previousLedger:seat===actorSeat?cloneJson(rootKnowledge):null,
+        previousState:null,rootObservation:observation,
+        decklistInfo:cloneJson(decklistInfoBySeat[seat])
+      });
+      return validateSeatKnowledge(ownPrivateZones(detached,seat),knowledge);
+    });
+    assert.deepEqual(canonicalKnowledge(knowledgeSnapshots[actorSeat]),
+      canonicalKnowledge(rootKnowledge),
+      'Determinization changed the root actor private ledger');
+    metadataByState.set(detached,{
+      rootSeat:actorSeat,decklistIds:decklistInfoBySeat.map(info=>info.id),
+      decklistInfoBySeat:cloneJson(decklistInfoBySeat),
+      rootBeliefBySeat:cloneJson(rootBeliefBySeat),
+      knowledgeBySeat:cloneJson(knowledgeSnapshots),rootObservation:observation
+    });
     return detached;
   }
-  // The exact ledger provider and per-sample snapshots are shared with the
-  // MCTS observation adapter so its information-set key cannot omit belief data.
+
+  function refreshMetadata(fromState,toState) {
+    const previous=metadataByState.get(fromState);
+    if(!previous)return false;
+    const knowledgeSnapshots=[0,1].map(seat=>{
+      const knowledge=deps.seatKnowledgeBySeat({
+        state:toState,seat,rootSeat:previous.rootSeat,
+        previousLedger:cloneJson(previous.knowledgeBySeat[seat]),
+        previousState:fromState,rootObservation:previous.rootObservation,
+        decklistInfo:cloneJson(previous.decklistInfoBySeat[seat])
+      });
+      return validateSeatKnowledge(ownPrivateZones(toState,seat),knowledge);
+    });
+    metadataByState.set(toState,{...previous,knowledgeBySeat:cloneJson(knowledgeSnapshots)});
+    return true;
+  }
+
   sampleDeterminization.metadataByState=metadataByState;
-  sampleDeterminization.knowledgeBySeat=deps.knowledgeBySeat;
+  sampleDeterminization.knowledgeBySeat=knowledgeBySeat;
+  sampleDeterminization.refreshMetadata=refreshMetadata;
+  sampleDeterminization.rootKnowledgeBySeat=deps.rootKnowledgeBySeat;
+  sampleDeterminization.beliefKnowledgeBySeat=deps.beliefKnowledgeBySeat;
+  sampleDeterminization.seatKnowledgeBySeat=deps.seatKnowledgeBySeat;
   return sampleDeterminization;
 }
 
 module.exports={
   collectPublicPrintings,
+  collectPublicEvidence,
   expandKnownPrizePrintings,
   normalizeKnowledge,
   buildTwinleafBeliefInput,

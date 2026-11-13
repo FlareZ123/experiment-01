@@ -13,7 +13,9 @@ const hiddenCards=n=>Array.from({length:n},throwingHiddenCard);
 const publicView=(name,handCount,deckCount,prizeCount)=>({
   active:{printing:name,evolutionPrintings:[name,'Energy'],energies:['Energy'],tools:['Tool']},
   bench:[null,null,null,null,null],stadium:[],discard:[],lostZone:[],
-  resolvingSupporter:[],handCount,deckCount,prizeCount
+  resolvingSupporter:[],handCount,deckCount,prizeCount,publicHand:null,
+  prizeSlots:Array.from({length:prizeCount},(_,index)=>
+    name==='OppMon'&&index===0?{index,printing:'P'}:{index})
 });
 const k0=()=>({verified:true,mode:'K0'});
 
@@ -43,10 +45,12 @@ function fixture(){
 
 test('builds both seat beliefs without reading concealed hand, deck or face-down Prize identities',()=>{
   const f=fixture();
-  const a=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
-    observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat});
-  const b=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:1,
-    observation:f.observation,registered60:f.registered[1],knowledgeBySeat:f.knowledgeBySeat});
+  const a=buildTwinleafBeliefInput({actorSeat:0,seat:0,
+    observation:f.observation,registered60:f.registered[0],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
+  const b=buildTwinleafBeliefInput({actorSeat:0,seat:1,
+    observation:f.observation,registered60:f.registered[1],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.deepEqual(a.knownHand,['A','B']);
   assert.deepEqual(a.knownPublic,['OwnMon','Energy','Tool']);
   assert.equal(a.hiddenHandCount,0);
@@ -112,7 +116,9 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     ownPublic:{...publicView('Mon0',2,49,6),active:{printing:'Mon0',
       evolutionPrintings:['Mon0','Energy0'],energies:['Energy0'],tools:['Tool0']}},
     opponentPublic:{...publicView('Mon1',3,48,6),active:{printing:'Mon1',
-      evolutionPrintings:['Mon1','Energy1'],energies:['Energy1'],tools:['Tool1']}},
+      evolutionPrintings:['Mon1','Energy1'],energies:['Energy1'],tools:['Tool1']},
+      prizeSlots:Array.from({length:6},(_,index)=>
+        index===0?{index,printing:'P1'}:{index})},
     ownerK1:null};
   const decks=[
     ['Mon0','Energy0','Tool0','HandA','HandB',...Array(49).fill('D0'),...Array(6).fill('P0')],
@@ -131,19 +137,71 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   });
   const knowledge={verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
     knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null};
+  const rootKnowledgeCalls=[],beliefCalls=[],seatLedgerCalls=[];
   const sampler=createTwinleafDeterminizationSampler({
     actorObservation:()=>observation,
     cloneState,
-    knowledgeBySeat:()=>knowledge,
-    decklistForSeat:(_state,_actorSeat,seat)=>({id:'deck-'+seat,cards:decks[seat]}),
+    rootKnowledgeBySeat:input=>{
+      rootKnowledgeCalls.push(input);
+      assert.equal(Object.hasOwn(input,'state'),false);
+      assert.equal(input.rootSeat,0);
+      return knowledge;
+    },
+    beliefKnowledgeBySeat:input=>{
+      beliefCalls.push(input);
+      assert.equal(Object.hasOwn(input,'state'),false);
+      assert.equal(input.targetSeat,1);
+      return knowledge;
+    },
+    seatKnowledgeBySeat:input=>{
+      seatLedgerCalls.push(input.seat);
+      if(input.seat===0)return input.previousLedger;
+      const prizes=input.state.players[input.seat].prizes
+        .flatMap(slot=>slot.cards.map(card=>card.fullName));
+      const counts=new Map();
+      for(const printing of prizes)counts.set(printing,(counts.get(printing)||0)+1);
+      const knownPrizePrintings=[...counts]
+        .map(([printing,copies])=>({printing,copies}))
+        .sort((a,b)=>a.printing.localeCompare(b.printing));
+      return {
+        verified:true,mode:'K1',knownPrizePrintings,
+        knownTopDeck:[],knownBottomDeck:[],knownBottomDeckOrder:false,
+        ownerK1Snapshot:{
+          epoch:1,exactMembershipKnown:true,
+          knownPrintings:knownPrizePrintings.map(row=>({...row}))
+        }
+      };
+    },
+    decklistForSeat:(actorObservation,actorSeat,seat)=>{
+      assert.equal(Object.hasOwn(actorObservation,'players'),false,
+        'Decklist prior must not receive native State');
+      return {id:'deck-'+seat,cards:decks[seat]};
+    },
     createCard:printing=>({id:-1,fullName:printing})
   });
   const sampled=sampler(state,0,()=>0.314159);
   assert.equal(typeof sampler.knowledgeBySeat,'function');
-  const capturedLedgers=sampler.metadataByState.get(sampled).knowledgeBySeat;
+  const metadata=sampler.metadataByState.get(sampled);
+  const capturedLedgers=metadata.knowledgeBySeat;
+  assert.equal(metadata.rootBeliefBySeat[1].mode,'K0',
+    'Root sampling must use only root-visible belief for the opponent');
+  assert.equal(capturedLedgers[0].mode,'K0');
+  assert.equal(capturedLedgers[1].mode,'K1',
+    'The opponent policy receives its own sampled-world private ledger');
+  assert.deepEqual(capturedLedgers[1].knownPrizePrintings,
+    [{printing:'P1',copies:6}]);
+  assert.equal(rootKnowledgeCalls.length,1);
+  assert.equal(beliefCalls.length,1);
+  assert.deepEqual(seatLedgerCalls.sort(),[0,1]);
+  assert.equal(sampler.knowledgeBySeat(state,0,{rootSeat:0}).mode,'K0');
+  assert.throws(()=>sampler.knowledgeBySeat(state,1,{rootSeat:0}),
+    /only the root actor private ledger/);
   knowledge.knownTopDeck.push('Psychic Energy');
   assert.deepEqual(capturedLedgers[0].knownTopDeck,[]);
   assert.deepEqual(capturedLedgers[1].knownTopDeck,[]);
+  const successor=cloneState(sampled);
+  assert.equal(sampler.refreshMetadata(sampled,successor),true);
+  assert.equal(sampler.metadataByState.get(successor).knowledgeBySeat[1].mode,'K1');
   assert.notEqual(sampled,state);
   assert.deepEqual(sampled.players[0].hand.cards.map(c=>c.fullName),['HandA','HandB']);
   assert.equal(sampled.players[1].hand.cards.length,3);
@@ -163,16 +221,17 @@ test('opponent decklist prior is filtered by public evidence, never the actual h
     ownDecklist:{id:'own-list',cards:Array(60).fill('Own')},
     opponentPrior:[list('fieldA','OppMon','A'),list('fieldB','OtherMon','B')]
   });
-  assert.equal(provider(f.state,0,0,f.observation,()=>0).id,'own-list');
-  assert.equal(provider(f.state,0,1,f.observation,()=>0).id,'fieldA');
+  assert.equal(provider(f.observation,0,0,()=>0).id,'own-list');
+  assert.equal(provider(f.observation,0,1,()=>0).id,'fieldA');
   f.state.players[1].hand.isPublic=true;
   f.state.players[1].hand.cards=[{fullName:'H'}];
+  f.observation.opponentPublic.publicHand=['H'];
   const withPublicHand=createPublicDecklistPriorProvider({
     ownDecklist:{id:'own-list',cards:Array(60).fill('Own')},
     opponentPrior:[list('fieldA','OppMon','A'),
       {id:'fieldC',cards:['OppMon','Energy','Tool','P','H',...Array(55).fill('C')],weight:1}]
   });
-  assert.equal(withPublicHand(f.state,0,1,f.observation,()=>0.9).id,'fieldC');
+  assert.equal(withPublicHand(f.observation,0,1,()=>0.9).id,'fieldC');
 });
 
 test('public-prior filter callback receives no determinized State and is invariant to concealed zones',()=>{
@@ -189,11 +248,11 @@ test('public-prior filter callback receives no determinized State and is invaria
       return false;
     }
   });
-  const before=provider(f.state,0,1,f.observation,()=>0).id;
+  const before=provider(f.observation,0,1,()=>0).id;
   f.state.players[1].hand.cards=[{fullName:'SecretHandOnly'}];
   f.state.players[1].deck.cards=[{fullName:'SecretDeckOnly'}];
   f.state.players[1].prizes[1].cards=[{fullName:'SecretFaceDownPrizeOnly'}];
-  const after=provider(f.state,0,1,f.observation,()=>0).id;
+  const after=provider(f.observation,0,1,()=>0).id;
   assert.equal(before,'fieldA');
   assert.equal(after,before,'concealed-zone permutations must not affect public-prior filtering');
   assert.ok(seen.length>0);
@@ -206,22 +265,25 @@ test('K1 actor snapshot and ledger must agree on exact Prize membership',()=>{
   f.observation.ownerK1=snapshot;
   f.knowledgeBySeat[0]={verified:true,mode:'K1',
     knownPrizePrintings:known,ownerK1Snapshot:snapshot};
-  const result=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
-    observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat});
+  const result=buildTwinleafBeliefInput({actorSeat:0,seat:0,
+    observation:f.observation,registered60:f.registered[0],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.equal(result.exactPrizeMembership,true);
   assert.deepEqual(result.knownPrizeCards,Array(6).fill('P'));
   f.knowledgeBySeat[1]={verified:true,mode:'K1',
     knownPrizePrintings:known,
-    ownerK1Snapshot:{epoch:8,exactMembershipKnown:true,knownPrintings:known}};
-  const opponent=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:1,
-    observation:f.observation,registered60:f.registered[1],knowledgeBySeat:f.knowledgeBySeat});
+    exactPrizeSnapshot:{epoch:8,exactMembershipKnown:true,knownPrintings:known}};
+  const opponent=buildTwinleafBeliefInput({actorSeat:0,seat:1,
+    observation:f.observation,registered60:f.registered[1],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.deepEqual(opponent.knownPrizeCards,Array(6).fill('P'),
     'opponent K1 must be validated from its own ledger without entering actor view');
   f.knowledgeBySeat[0]={verified:true,mode:'K1',
     knownPrizePrintings:[{printing:'P',copies:5},{printing:'D',copies:1}],
     ownerK1Snapshot:snapshot};
-  assert.throws(()=>buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
-    observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat}),
+  assert.throws(()=>buildTwinleafBeliefInput({actorSeat:0,seat:0,
+    observation:f.observation,registered60:f.registered[0],
+    beliefKnowledgeBySeat:f.knowledgeBySeat}),
     /disagree about Prize membership/);
 });
 
@@ -230,8 +292,9 @@ test('Ticket-like K1 invalidation requires PARTIAL knowledge and a known bottom 
   f.observation.ownerK1={epoch:4,exactMembershipKnown:false,knownPrintings:null,
     invalidationReason:'redeal'};
   f.knowledgeBySeat[0]={verified:true,mode:'PARTIAL',knownBottomDeck:['P','P','P','P','P','P']};
-  const result=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
-    observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat});
+  const result=buildTwinleafBeliefInput({actorSeat:0,seat:0,
+    observation:f.observation,registered60:f.registered[0],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.equal(result.exactPrizeMembership,false);
   assert.equal(result.knownBottomDeck.length,6);
 });
@@ -239,8 +302,9 @@ test('Ticket-like K1 invalidation requires PARTIAL knowledge and a known bottom 
 test('refuses an unverified opponent knowledge assumption',()=>{
   const f=fixture();
   f.knowledgeBySeat[1]={mode:'K0'};
-  assert.throws(()=>buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:1,
-    observation:f.observation,registered60:f.registered[1],knowledgeBySeat:f.knowledgeBySeat}),
+  assert.throws(()=>buildTwinleafBeliefInput({actorSeat:0,seat:1,
+    observation:f.observation,registered60:f.registered[1],
+    beliefKnowledgeBySeat:f.knowledgeBySeat}),
     /authenticated information-state ledger/);
 });
 
@@ -248,8 +312,10 @@ test('a public opponent hand is included as known hand rather than sampled',()=>
   const f=fixture();
   f.state.players[1].hand.isPublic=true;
   f.state.players[1].hand.cards=[{fullName:'H'},{fullName:'H'},{fullName:'H'}];
-  const result=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:1,
-    observation:f.observation,registered60:f.registered[1],knowledgeBySeat:f.knowledgeBySeat});
+  f.observation.opponentPublic.publicHand=['H','H','H'];
+  const result=buildTwinleafBeliefInput({actorSeat:0,seat:1,
+    observation:f.observation,registered60:f.registered[1],
+    beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.deepEqual(result.knownHand,['H','H','H']);
   assert.equal(result.hiddenHandCount,0);
 });

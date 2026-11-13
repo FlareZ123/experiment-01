@@ -194,8 +194,11 @@ function createTwinleafInformationSetSearch(deps,options={}) {
   assert.equal(typeof stateFingerprint,'function');
   assert.equal(typeof actionKey,'function');
   assert.equal(typeof expectedActionKeys,'function');
+  assert.equal(typeof deps.sampleDeterminization.refreshMetadata,'function',
+    'Determinization must refresh per-seat private ledgers after transitions');
   const certification={
-    frontierChecks:0,ledgerChecks:0,ownerLedgerKeyChecks:0,
+    frontierChecks:0,ledgerChecks:0,rootLedgerChecks:0,
+    rootLedgerPreservationChecks:0,ownerLedgerKeyChecks:0,
     waitPromptResolutions:0,maxRawActionCount:0,maxAcceptedActionCount:0,
     envelopeChecks:0
   };
@@ -216,42 +219,55 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     return state.players[seat].prizes.reduce(
       (sum,slot)=>sum+(slot.cards?.length??0),0);
   }
-  function verifyBothLedgers(state) {
+  function verifyBothLedgers(state,context) {
     assert.ok(state?.players?.length===2);
+    assert.ok(metadataByState?.has(state),
+      'Both seat-private ledgers exist only for a sampled State');
     const ledgers=[0,1].map(seat=>
-      canonicalOwnerLedger(knowledgeBySeat(state,seat),prizeCount(state,seat)));
+      canonicalOwnerLedger(knowledgeBySeat(state,seat,context),prizeCount(state,seat)));
     certification.ledgerChecks++;
     return ledgers;
   }
+  function verifyRootLedger(state,seat,context) {
+    assert.equal(seat,context?.rootSeat,
+      'The undeterminized State may be observed only by the root actor');
+    const ledger=canonicalOwnerLedger(
+      knowledgeBySeat(state,seat,context),prizeCount(state,seat));
+    certification.rootLedgerChecks++;
+    return ledger;
+  }
   function observe(state,seat,context) {
     checkDeadline(context,'observation-start');
-    const ledgers=verifyBothLedgers(state);
-    const ownerLedger=ledgers[seat];
+    const sampled=metadataByState?.has(state);
+    const ownerLedger=sampled?
+      verifyBothLedgers(state,context)[seat]:
+      verifyRootLedger(state,seat,context);
     const base=deps.actorObservation(state,seat,{
       ownerK1Snapshot:ownerLedger.ownerK1Snapshot
     });
-    assert.equal(base.actorSeat,seat,
-      'Actor observation belongs to a different physical seat');
+    assert.equal(base.actorSeat,seat,'Actor observation belongs to a different physical seat');
     assert.deepEqual(base.ownerK1,ownerLedger.ownerK1Snapshot,
       'Actor observation omitted or changed the owner K1 snapshot');
     const ownTurnResources={
       ...(base.ownTurnResources??{}),
       attacksThisTurn:state.players[seat].active?.attacksThisTurn??0
     };
-    const sampled=metadataByState?.get(state);
-    const ownDecklistId=sampled?.decklistIds?.[seat]??
+    const sampledMetadata=metadataByState?.get(state);
+    const ownDecklistId=sampledMetadata?.decklistIds?.[seat]??
       (seat===deps.ownDecklistSeat?deps.ownDecklistId:null);
     const observation={
-      ...base,
-      ownTurnResources,
-      ownerKnowledgeLedger:ownerLedger,
+      ...base,ownTurnResources,ownerKnowledgeLedger:ownerLedger,
       rulesProfileId:deps.rulesProfileId,
-      ...(ownDecklistId===null||ownDecklistId===undefined?
-        {}:{ownDecklistId})
+      ...(ownDecklistId===null||ownDecklistId===undefined?{}:{ownDecklistId})
     };
     certification.ownerLedgerKeyChecks++;
     checkDeadline(context,'observation-complete');
     return deepFreeze(observation);
+  }
+  function copyMetadata(fromState,toState) {
+    if(!metadataByState?.has(fromState))return;
+    assert.equal(deps.sampleDeterminization.refreshMetadata(fromState,toState),true,
+      'Sampled-state transition lost its private-ledger refresh capability');
   }
   function assertEnvelope(state,seat,context) {
     checkDeadline(context,'envelope-start');
@@ -381,13 +397,14 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     },
     sampleDeterminization(state,seat,random,context) {
       checkDeadline(context,'determinization-start');
-      const before=verifyBothLedgers(state);
+      const before=verifyRootLedger(state,seat,context);
       const sampled=deps.sampleDeterminization(state,seat,random);
       assert.ok(sampled&&sampled!==state,
         'Determinization must return a detached Twinleaf State');
-      const after=verifyBothLedgers(sampled);
-      assert.deepEqual(after,before,
-        'Sampling changed either physical seat knowledge ledger');
+      const after=verifyBothLedgers(sampled,context);
+      assert.deepEqual(after[seat],before,
+        'Sampling changed the root actor private ledger');
+      certification.rootLedgerPreservationChecks++;
       assertEnvelope(sampled,activeSeat(sampled),context);
       checkDeadline(context,'determinization-complete');
       return sampled;
@@ -410,12 +427,15 @@ function createTwinleafInformationSetSearch(deps,options={}) {
       return {
         frontierComplete:certification.frontierChecks>0,
         bothSeatKnowledgeLedgersVerified:certification.ledgerChecks>0,
+        rootLedgerPreserved:certification.rootLedgerPreservationChecks>0,
         ownerLedgerInInformationSetKey:certification.ownerLedgerKeyChecks>0,
         promptResolutionActorScoped:true,
         applicabilityEnvelopeId:FLITTLE_ENVELOPE_ID,
         frontierChecks:certification.frontierChecks,
         envelopeChecks:certification.envelopeChecks,
         ledgerChecks:certification.ledgerChecks,
+        rootLedgerChecks:certification.rootLedgerChecks,
+        rootLedgerPreservationChecks:certification.rootLedgerPreservationChecks,
         ownerLedgerKeyChecks:certification.ownerLedgerKeyChecks,
         waitPromptResolutions:certification.waitPromptResolutions,
         maxRawActionCount:certification.maxRawActionCount,

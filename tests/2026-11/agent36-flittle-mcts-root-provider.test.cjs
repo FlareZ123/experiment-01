@@ -322,6 +322,7 @@ test('search dependency builder supplies the exact pinned adapter contract and o
   const ledgerProvider=()=>({});
   sample.knowledgeBySeat=ledgerProvider;
   sample.metadataByState=new WeakMap();
+  sample.refreshMetadata=()=>true;
   const bindings={
     ActionEnumerator:class ActionEnumerator{},
     Simulator:class Simulator{},
