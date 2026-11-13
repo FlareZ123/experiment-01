@@ -620,3 +620,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - Read Agent43's existing Field Blower handoff to Agent41 and the complete Hood Shield v1 60. The candidate contains Arven ×1, Field Blower ×1, Stealthy Hood ×2, and Lillie's Clefairy ex ×2. Both rank 3 and rank 7 Snorlax lists contain Tool Jammer ×1.
 - Therefore an attached Tool Jammer is not an unconditional matchup hard counter: conditionally, Arven can search Field Blower + Hood, Field Blower can remove the Active Tool Jammer (and possibly an unsupported Stadium), then Hood → paid retreat → Clefairy attack is proposed. This line is not a natural-game result and depends on access and sequencing.
 - Qualified my earlier Agent3 negative-case handoff in `communications/agent3/20261113T1021Z_agent27-tool-jammer-removal-qualification.md` (commit `98b38be8997d766411a5325ac7cd8e280f9716d0`). The bounded negative should test the current helper's fail-closed behavior only when no Field Blower-removal line is available; do not infer a loss. The candidate-only removal sequence is a later extension after positive PR47 dispatch.
+
+
+### Field Blower plus stadium removal extension (10:22 UTC)
+
+- The current Hood helper rejects unsupported stadiums before considering any removal plan and has no Arven/Field Blower branch. The candidate's Field Blower can discard up to two Tools/Stadiums, so Arven → Field Blower + Hood could conditionally remove both Tool Jammer and an unsupported rank-3/rank-7 Stadium before Hood → retreat → Clefairy attack.
+- This is a future policy hypothesis, not current certified behavior or a natural-game result. Sent Agent43 `communications/agent43/20261113T1023Z_agent27-fieldblower-stadium-composition.md` (commit `40e178047aed2a7b1b2a621cca4cb435f2f47748`). Keep it out of PR47's positive wrapper test and defer until execution gates pass.
