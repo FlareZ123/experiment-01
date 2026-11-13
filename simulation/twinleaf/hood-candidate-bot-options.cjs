@@ -4,6 +4,8 @@ const {hoodAwareArvenResolverClass} =
   require('./hood-aware-arven-resolver.cjs');
 const {hoodAwareAttachToolTacticClass} =
   require('./hood-aware-attach-tool-tactic.cjs');
+const {hoodAwareMaxGeistRetreatTacticClass} =
+  require('./hood-aware-max-geist-retreat-tactic.cjs');
 
 function currentClassEntry(list,nativeBase,policyName,label) {
   if(!Array.isArray(list))throw new TypeError(label+' options must be an array');
@@ -22,21 +24,21 @@ function replaceAt(list,index,replacement) {
 }
 
 /**
- * Install Hood-specific Arven and Tool tactics into one seat's bot options.
- * The caller must pass a candidate-owned options object; this function never
- * mutates the supplied object or its arrays, so the opponent can retain the
- * baseline definitions.
+ * Install Hood-specific Arven, Tool, and attack-conversion tactics into one
+ * seat's bot options. The caller must pass a candidate-owned options object;
+ * this function never mutates the supplied object or its arrays, so the
+ * opponent can retain the baseline definitions.
  *
  * It wraps the currently installed resolver/tactic subclass when another
  * candidate policy already replaced the native base class. This preserves
- * earlier opening/search and Tool-tactic behavior through super calls.
+ * earlier opening/search, Tool, and retreat behavior through super calls.
  *
  * Optional class factories make the replacement contract testable without
  * loading the pinned Twinleaf build. Native callers should omit them.
  *
  * @param {object} options Candidate seat's SimpleTacticsAi options.
  * @param {object} [factories] Optional resolver/tactic class factories.
- * @returns {object} New options object with candidate-only resolver/tactic.
+ * @returns {object} New options object with candidate-only resolver/tactics.
  */
 function withHoodCandidateBotOptions(options,factories={}) {
   if(!options||typeof options!=='object') {
@@ -47,6 +49,8 @@ function withHoodCandidateBotOptions(options,factories={}) {
     hoodAwareArvenResolverClass;
   const makeAttachTactic=factories.hoodAwareAttachToolTacticClass??
     hoodAwareAttachToolTacticClass;
+  const makeRetreatTactic=factories.hoodAwareMaxGeistRetreatTacticClass??
+    hoodAwareMaxGeistRetreatTacticClass;
 
   const resolverProbe=makeResolver();
   const nativeResolverBase=Object.getPrototypeOf(resolverProbe);
@@ -61,18 +65,33 @@ function withHoodCandidateBotOptions(options,factories={}) {
     options.promptResolvers:
     replaceAt(options.promptResolvers,resolverEntry.index,HoodAwareArvenResolver);
 
-  const tacticProbe=makeAttachTactic();
-  const nativeTacticBase=Object.getPrototypeOf(tacticProbe);
-  if(typeof nativeTacticBase!=='function') {
+  const attachProbe=makeAttachTactic();
+  const nativeAttachBase=Object.getPrototypeOf(attachProbe);
+  if(typeof nativeAttachBase!=='function') {
     throw new TypeError('Hood tactic must extend the pinned AttachToolTactic');
   }
-  const tacticEntry=currentClassEntry(options.tactics,
-    nativeTacticBase,'HoodAwareAttachToolTactic','AttachToolTactic');
-  const HoodAwareAttachToolTactic=tacticEntry.installed?
-    tacticEntry.current:makeAttachTactic(tacticEntry.current);
-  const tactics=tacticEntry.installed?
-    options.tactics:
-    replaceAt(options.tactics,tacticEntry.index,HoodAwareAttachToolTactic);
+  const attachEntry=currentClassEntry(options.tactics,
+    nativeAttachBase,'HoodAwareAttachToolTactic','AttachToolTactic');
+  const HoodAwareAttachToolTactic=attachEntry.installed?
+    attachEntry.current:makeAttachTactic(attachEntry.current);
+
+  const retreatProbe=makeRetreatTactic();
+  const nativeRetreatBase=Object.getPrototypeOf(retreatProbe);
+  if(typeof nativeRetreatBase!=='function') {
+    throw new TypeError('Hood retreat tactic must extend the pinned RetreatTactic');
+  }
+  const retreatEntry=currentClassEntry(options.tactics,
+    nativeRetreatBase,'HoodMaxGeistRetreatTactic','RetreatTactic');
+  const HoodMaxGeistRetreatTactic=retreatEntry.installed?
+    retreatEntry.current:makeRetreatTactic(retreatEntry.current);
+
+  let tactics=options.tactics;
+  if(!attachEntry.installed) {
+    tactics=replaceAt(tactics,attachEntry.index,HoodAwareAttachToolTactic);
+  }
+  if(!retreatEntry.installed) {
+    tactics=replaceAt(tactics,retreatEntry.index,HoodMaxGeistRetreatTactic);
+  }
 
   return {...options,promptResolvers,tactics};
 }
