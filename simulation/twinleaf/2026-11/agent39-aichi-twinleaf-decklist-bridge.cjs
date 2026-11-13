@@ -145,8 +145,8 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       });
     }
 
-    const registered60 = Array.from(merged.values()).sort((a, b) => a.printing.localeCompare(b.printing));
-    const totalCopies = registered60.reduce((sum, row) => sum + row.copies, 0);
+    const registered60Counts = Array.from(merged.values()).sort((a, b) => a.printing.localeCompare(b.printing));
+    const totalCopies = registered60Counts.reduce((sum, row) => sum + row.copies, 0);
     const sourceRowCountMatchesDeck = Number.isSafeInteger(deck.source_row_count) && rowMappings.length === deck.source_row_count;
     const sourceCardCopyCountMatchesDeck = Number.isSafeInteger(deck.card_copies) && totalCopies === deck.card_copies && totalCopies === 60;
     const complete = deckUnresolved === 0 && sourceRowCountMatchesDeck && sourceCardCopyCountMatchesDeck;
@@ -168,7 +168,12 @@ function resolveDiagnosticField(field, cardManager, metadata) {
       source_card_copies: deck.card_copies == null ? null : deck.card_copies,
       card_copies: totalCopies,
       source_card_copy_count_matches: sourceCardCopyCountMatchesDeck,
-      registered60: complete ? registered60 : null,
+      registered60: complete ? registered60Counts.flatMap(row => Array(row.copies).fill(row.printing)) : null,
+      registered60_counts: complete ? registered60Counts : null,
+      decklist_for_seat: complete ? {
+        id: 'aichi-2026-rank-' + deck.rank,
+        cards: registered60Counts.flatMap(row => Array(row.copies).fill(row.printing)),
+      } : null,
       source_row_mappings: rowMappings,
     });
   }
