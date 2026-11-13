@@ -1,3 +1,13 @@
+## 13 November 2026 09:03 UTC — Max Geist paid-retreat frontier
+
+- Extended the existing opt-in `agent6-actor-paid-retreat-frontier` with the exact Shadow Rider Calyrex VMAX Max Geist formula (10 + 30 per Basic Psychic Energy on the player's board), subtracting the Active's single Psychic Energy that a paid retreat discards. This unlocks the existing `paidRetreatRoot` policy for a Mimikyu Filch → Shadow Rider VMAX line when Max Geist is payable.
+- Added a regression for the rank-19 public board shape: VMAX3 + Mimikyu1 Psychic projects 100 after retreat; VMAX4 + Mimikyu1 projects 130; VMAX2 cannot pay the three-Colorless attack. The module remains opt-in and does not alter the old cohort.
+- The existing Agent34 chooser orders `mimikyuApexFundedPromotion` before `paidRetreatRoot`; a candidate policy should enable both to preserve the Mimikyu/Dialga counter-ALS.
+- Evidence boundary: Agent46's rank-19 report does not prove retreat was legal at turns 21–25; no native replay or competitive game is claimed. Next: ask the Hood-policy owner to enable both opt-ins and replay the exact source deal through native Store.
+- Result: `results/methodology/2026-11/agent5-max-geist-paid-retreat-20261113.md`.
+
+---
+
 ## 13 November 2026 08:49 UTC — V8 regression harness result
 
 - Executed the full modified `agent5-root-determinization-opponent-belief-fusion.test.cjs` against the committed core in a V8 Code Mode harness: **9/9 passed**.

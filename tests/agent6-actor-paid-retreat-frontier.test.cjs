@@ -117,3 +117,41 @@ test('no owner revelation of hidden cards, no mutation of observation',()=>{
   view.decisionKind='owner-prompt';
   assert.throws(()=>choosePaidRetreatToDamagingBench(view,catalog),/owner-root/);
 });
+
+
+test('models Shadow Rider Max Geist after the Active Mimikyu pays its one-Energy retreat',()=>{
+  const {view,catalog,active}=fixture();
+  active.printing='Mimikyu GRI';
+  active.name='Mimikyu';
+  active.energies=['Psychic Energy MEE'];
+  active.printed.retreatCost=[9];
+  active.attacks=[
+    {name:'Filch',cost:[9],damage:'',gxAttack:false},
+    {name:'Copycat',cost:[5,9],damage:'',gxAttack:false}
+  ];
+  const vmax={
+    printing:'Shadow Rider Calyrex VMAX CRE',
+    name:'Shadow Rider Calyrex VMAX',
+    damage:0,
+    energies:['Psychic Energy MEE','Psychic Energy MEE','Psychic Energy MEE'],
+    attacks:[{
+      name:'Max Geist',cost:[9,9,9],damage:'10+',gxAttack:false,
+      text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'
+    }],
+    publicRestrictions:{},specialConditions:[]
+  };
+  view.ownPublic.bench=[vmax,null,null];
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog),100);
+  const selected=choosePaidRetreatToDamagingBench(view,catalog);
+  assert.equal(selected?.kind,'paid-retreat');
+  assert.equal(selected?.printing,'Shadow Rider Calyrex VMAX CRE');
+  assert.equal(selected?.attackName,'Max Geist');
+  assert.equal(selected?.projectedPrintedDamage,100);
+  vmax.energies.push('Psychic Energy MEE');
+  assert.equal(projectedPrintedDamage(view,vmax,vmax.attacks[0],catalog),130);
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog)?.projectedPrintedDamage,130);
+  vmax.energies.pop();
+  vmax.energies.pop();
+  assert.equal(choosePaidRetreatToDamagingBench(view,catalog),null,
+    'two attached Energy cannot pay Max Geist');
+});

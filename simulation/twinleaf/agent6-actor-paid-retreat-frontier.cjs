@@ -16,12 +16,35 @@ const MIN_PROJECTED_DAMAGE=80;
  * @param {object} attack Its printed attack.
  * @returns {number|null}
  */
-function projectedPrintedDamage(view,pokemon,attack){
-  if(pokemon.printing==='Lillie\'s Clefairy ex JTG'&&
+function projectedPrintedDamage(view,pokemon,attack,catalog){
+  if(pokemon.printing==="Lillie's Clefairy ex JTG"&&
       attack.name==='Full Moon Rondo'&&attack.damage===20){
     const benchCount=[...(view.ownPublic?.bench??[]),
       ...(view.opponentPublic?.bench??[])].filter(Boolean).length;
     return 20+20*benchCount;
+  }
+  // Shadow Rider Calyrex VMAX prints Max Geist as 10+, then adds 30 for
+  // every Psychic Energy attached to the player's Pokémon. This planner is
+  // selecting a paid retreat to a Benched attacker, so conservatively remove
+  // the Active's one Psychic Energy that the retreat will discard. Only
+  // catalogued Basic Psychic Energy is counted; Special Energy is out of scope.
+  if(pokemon.name==='Shadow Rider Calyrex VMAX'&&
+      attack.name==='Max Geist'&&attack.damage==='10+'&&
+      typeof attack.text==='string'&&
+      attack.text.includes('30 more damage for each Psychic Energy attached to all of your Pokémon')){
+    if(!catalog?.basicEnergies?.has||
+        !Number.isSafeInteger(catalog.basicEnergyTypes?.Psychic))return null;
+    const isBasicPsychic=printing=>
+      catalog.basicEnergies.has(printing)&&
+      typeof printing==='string'&&printing.startsWith('Psychic Energy ');
+    const own=view.ownPublic??{};
+    const board=[own.active,...(own.bench??[])].filter(Boolean);
+    const totalPsychic=board.reduce((sum,slot)=>sum+
+      (slot.energies??[]).filter(isBasicPsychic).length,0);
+    const activePsychic=(own.active?.energies??[]).filter(isBasicPsychic).length;
+    const psychicAfterRetreat=Math.max(0,totalPsychic-
+      (pokemon===own.active?0:Math.min(activePsychic,1)));
+    return 10+30*psychicAfterRetreat;
   }
   return Number.isSafeInteger(attack.damage)?attack.damage:null;
 }
@@ -77,7 +100,7 @@ function choosePaidRetreatToDamagingBench(view,catalog){
          x===catalog.specialConditions.ASLEEP||
          x===catalog.specialConditions.PARALYZED))continue;
     for(const attack of pokemon.attacks??[]){
-      const expected=projectedPrintedDamage(view,pokemon,attack);
+      const expected=projectedPrintedDamage(view,pokemon,attack,catalog);
       if(attack.gxAttack===true||expected===null||
          expected<MIN_PROJECTED_DAMAGE||
          !paysWithBasics(pokemon,attack,catalog))continue;
