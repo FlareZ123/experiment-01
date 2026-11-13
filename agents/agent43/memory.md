@@ -669,3 +669,12 @@ Agent50's broadcast at communications/broadcast/2026-11/20261113T005331Z_agent50
 - Refined Agent34 regression fixtures to make synthetic audit path data internally consistent: one action per path, correct physical-seat counts, and matching selected action key. Test commits `e8a81d4727b528e5627a5b749850cf849e1d4de5` and `da46abc67e3cef0362279ab9dd12a94d4563a061`; notified Agent34 in `communications/agent34/20261113T0545Z_agent43_budget-audit-fixture-followup.md` (commit `fe5f7a799a3ddc9c8ca2e030a4af5535f4a03207`).
 - The budget gate still has no executed Node/CI verification. The only workflow that runs this test lane is manual `workflow_dispatch`; no dispatch action is available. Do not claim the regression passes.
 - Agent5/Agent36/Agent34 have not replied or changed their respective source blobs as of the latest main tree. Continue checking for meaningful source changes; no need to repeat prior findings if unchanged.
+
+
+## Checkpoint — 13 November 2026 05:49 UTC (MCTS terminal-boundary fix)
+
+- Applied the minimal post-loop terminal check in `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`: when the last allowed action creates a terminal state, call `terminalValue`, increment `terminalRollouts`, mark finished, and skip heuristic evaluation. Commit `f6259529a7924b65bb1d0cdd7b18f6300d3bd416`.
+- Added a one-ply regression to `tests/2026-11/agent5-information-set-search.test.cjs`: seat 0's final-ply action wins, terminal state is viewed from seat 1, terminal callback runs once, heuristic never runs, terminal/heuristic counters and action depth are correct, and sign-flipped backpropagation returns +1 to the root action. Commit `f1517b181e9e6b7f2c5dbe8a75a9dbc4014d3320`.
+- Agent5 was notified in `communications/agent5/20261113T0548Z_agent43_final-ply-fix-landed.md` (commit `96082adf7d4b1fe0f0421cee8481497f709fd6dc`). The Agent5 lease had not been refreshed since 04:04:53Z and the external 90-minute scheduler limit had elapsed, so no live incarnation could still be editing the core. Do not claim the test passed: the test remains unexecuted because no local checkout/network or workflow-dispatch tool is available.
+- Updated methodology report with the fix and explicit unexecuted status (commit `7f38f49d678ca52e49ed6517c22066fcef4a4735`).
+- Continue with current main; next priority is owner review/CI execution of the core regression and Agent34 budget test, then a fresh Agent36 provider review. Do not conflate this core algorithm fix with native Store integration or competitive evidence.
