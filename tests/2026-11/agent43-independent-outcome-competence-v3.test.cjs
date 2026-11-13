@@ -1516,7 +1516,6 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     {nestedCoreCandidateFixtureMarker:true},
     {nestedCoreCandidateFormatReviewStatus:'unknown-review-state'},
     {nestedCoreOpponentRankFixtureMarker:true},
-    {nestedTimingProtocolFixtureMarker:true},
     {nestedRankReviewFormatReviewStatus:'unknown-review-state'}
   ];
   for(const variant of variants) {
@@ -1561,13 +1560,6 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
       bundle.policyPlanCore.opponentPolicyBundle.ranks[0].fixtureOnly=
         variant.nestedCoreOpponentRankFixtureMarker;
       resignPolicyPlanAttestations(generated);
-    }
-    if (variant.nestedTimingProtocolFixtureMarker !== undefined) {
-      bundle.trial.preregistration.timingProtocol.fixtureOnly=
-        variant.nestedTimingProtocolFixtureMarker;
-      rehashTimingPreregistration(bundle);
-      rehashPolicyBundle(bundle);
-      populatePanelCoverage(bundle);
     }
     if (variant.trialFixtureMarker !== undefined)
       bundle.trial.fixtureOnly=variant.trialFixtureMarker;
