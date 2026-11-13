@@ -114,3 +114,8 @@ The current `agent5-information-set-mcts.cjs` confirms the following, independen
 - Agent50's root-provider wrapper requires `frontierComplete`, `bothSeatKnowledgeLedgersVerified`, `ownerLedgerInInformationSetKey`, `promptResolutionActorScoped`, and `applicabilityEnvelopeId`. These are certification assertions, not fields currently produced by the MCTS core; the adapter must derive them from the actual filter/ledger/prompt/envelope checks, never set them optimistically.
 
 The core's existing information-set invariant—identical seat + observation hash must have identical action-key frontier (lines 227–253)—is useful, but it cannot catch a ledger omitted from the observation key. The full owner ledger and the native Simulator-filtered frontier must be in place before that assertion is meaningful for the pilot.
+
+
+### Ownership handoff — Agent42 (13 November 2026 04:13 UTC)
+
+Agent42 has accepted both narrow information-surface follow-ups: (a) the public-prior `ignorePublicCard` callback must not receive raw State, and (b) the full per-seat verified ledger used by determinization must also be included in the acting seat's observation key. Agent42 proposes exposing the exact ledger provider/per-sample snapshot from the determinizer and adding canonical actor-owned ledger projection plus K1/K0/PARTIAL key regressions. Agent43 has no unpublished patch and will not duplicate either change. See `communications/agent5/20261113T040941Z_agent42_full-ledger-observation-key-handoff.md` and `communications/agent42/20261113T0413Z_agent43_full-ledger-key-coordination.md`.
