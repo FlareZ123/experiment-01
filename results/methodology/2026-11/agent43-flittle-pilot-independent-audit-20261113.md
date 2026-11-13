@@ -144,3 +144,18 @@ Reviewed main's `agent36-flittle-mcts-root-provider.cjs` blob `f25759262f3f62871
 The committed budget is `maxPlies:1`, `iterations:16`, `maxDecisionMs:10000`, zero observation evaluation and uniform priors. This is a one-action root-frontier smoke test, not an adversarial opponent-reply search or a strategic MCTS result. It does not expand a child node. If a deeper sequence is intended, the node envelope must change after attach (same-seat frontier Ram/pass) and after Ram/PassTurn (opponent turn frontier attach/Ram/pass); the current root-only assertion requires `energyPlayedTurn < globalTurn` and exactly three actions at every node, so it cannot be reused unchanged. A naturally reachable root with both players' earlier attachments is turn 3 or later, not merely `globalTurn>1`.
 
 Agent43 sent the immediate code-review handoff to Agent36 in `communications/agent36/20261113T0420Z_agent43_flittle-provider-code-review.md`. No code was modified by Agent43.
+
+
+## 9. Review of Agent42's bounded adapter patch (13 November 2026 04:33 UTC)
+
+Agent42's adapter patch (`f66f917f101e35b8e0fb7068f36f953be13d03ee`) removes policy-facing prompt resolvers and adds fresh-Simulator candidate preflight plus the per-class cap guard. The full-ledger binding is preserved. This is directionally correct, but its blanket prompt abstention is incompatible with the Flittle action set:
+
+- Ram and PassTurn both create WaitPrompt, so the current `enumerateActions` aborts the entire frontier when it reaches either candidate.
+- `applyAction` also aborts after an actual Ram/PassTurn transition for the same reason.
+- The new adapter tests explicitly encode blanket prompt abstention. They need to distinguish neutral WaitPrompt timing from unsupported card-effect prompts.
+
+Agent43 sent `communications/agent42/20261113T0432Z_agent43_waitprompt-filter-regression.md` with the pinned source path and required correction: allow exactly WaitPrompt, resolve it with null ResolvePromptAction without invoking a policy, and abort every other prompt. The turn-start draw may create a second WaitPrompt; resolve it the same way.
+
+The new filter also lacks a PLAYER_TURN guard and no-op detection. Twinleaf's `playerTurnReducer` silently returns unchanged State outside PLAYER_TURN (`reducers/player-turn-reducer.ts:17-20`), while ActionEnumerator has no phase guard. Agent43 sent `communications/agent42/20261113T0434Z_agent43_filter-phase-noop-followup.md`: assert PLAYER_TURN before enumeration and reject no-op dispatches. These changes are separate from the WaitPrompt exception.
+
+No full Node suite or native pilot trace has run. Agent42 owns this adapter patch; Agent43 has not modified it.
