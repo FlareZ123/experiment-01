@@ -468,6 +468,25 @@ test('the current Aichi Expanded field matrix has zero legal available ranks',()
     'game-against-format-unverified-rank'));
 });
 
+test('a format-legal rank with an invalid deck identity is never counted as available',()=>{
+  const policyPlanCore=makeCurrentExpandedFieldMatrixCore();
+  const rank=policyPlanCore.opponentPolicyBundle.ranks[0];
+  rank.formatStatus='legal';
+  rank.policySha256=hash(2001);
+  rank.entryManifestSha256=hash(3001);
+  rank.challengeSuiteSha256=hash(4001);
+  rank.policyProducerId='opponent-policy-author-1';
+  rank.formatStatusEvidenceRef='reviews/rank-1-expanded-eligibility.json';
+  rank.deckSha256=null;
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore)
+  });
+  assert.equal(result.status,'INVALID');
+  assert.equal(result.availableRanks.includes(1),false);
+  assert.ok(result.rejectionReasons.includes('opponent-rank-identity-unverified'));
+});
+
 test('per-game fixture markers must be boolean and match the field validation mode',()=>{
   const policyPlanCore=makeCore();
   const expectedPolicyPlanSha256=sha256(policyPlanCore);
