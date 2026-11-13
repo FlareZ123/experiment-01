@@ -1601,7 +1601,6 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false,
   allowExtendedRegisteredNativeRootCap=false
 }={}){
-  assertManifest();
   const naturalEvolutionOptions=actorGarbodorResponseRootOptions(
     actorNaturalEvolutionRoot,actorGarbodorResponseOwnerSeat,
     actorGarbodorToolRoot,actorGarbodorToolRootDeferForStarAlchemy);
@@ -1949,6 +1948,9 @@ function runDevelopment({
     'Compare public-context and narrow Special root as distinct policies');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
+  // Validate pure policy configuration before checking frozen source files;
+  // still fail closed before loading a candidate or starting any game.
+  assertManifest();
   const {planAichi}=require('./aichi-pilot.cjs');
   const {loadNewMoonCandidate}=require('../../scripts/aichi-new-moon-candidate.cjs');
   const roster=JSON.parse(fs.readFileSync(path.join(root,
