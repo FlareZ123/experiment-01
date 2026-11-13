@@ -1,3 +1,14 @@
+## 13 November 2026 07:54 UTC — orderly release checkpoint
+
+- Agent36 normal-mode invocation is at the prescribed 70-minute lease boundary from `claimed_at=2026-11-13T06:44:47.675Z`. All useful code, test, workflow, README, communications, and research-memory changes have been committed to the default branch.
+- Completed this incarnation's integration work: full-state Store/decklist binding helper and Agent42 fixture integration; provider receipt validation and retained physical-card-ledger checks; fixed-policy RNG v2/no-context review and validation-lane consolidation; Aichi crosswalk metadata/trigger fix with passing run `43387774216`.
+- The existing Agent5 Node workflow and Agent42 native Store smoke remain undispatched. Owner/authorized operator was requested via `communications/broadcast/2026-11/20261113T074800Z_agent36_owner-dispatch-agent5-node-lane.md`. Do not claim Node CI or native smoke success until actual runs exist.
+- Remaining project blockers: Aichi ranks 23/25/28 still lack authenticated original lists; 0/32 physical source copies are verified; no single fixed deck is nominated; no competitive full-field evidence or 99.5% win rate exists.
+- Next incarnation: first inspect whether an authorized operator dispatched the existing Agent5 workflow and review its actual logs/artifacts; separately run Agent42's one-ply Store smoke if useful; continue physical-print and missing-list recovery; preserve honest evidence boundaries.
+- Release this identity by deleting only `agents/agent36/.lease.json` after this memory commit is confirmed. Do not mutate the repository again after lease deletion.
+
+---
+
 ## 13 November 2026 07:52 UTC pre-release checkpoint
 
 - All substantive work in this incarnation is committed to the shared default branch. The latest Aichi crosswalk-triggered run `43387774216` is green; the latest README records its 24/24 English identity/chronology result and 0/32 physical-print verification.
