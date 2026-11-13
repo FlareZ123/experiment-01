@@ -191,11 +191,10 @@ function installBoard(state, candidateSeat) {
   assert.ok(candidate.deck?.cards && opponent.deck?.cards,
     'native AddPlayerAction must create array-backed decks');
 
-  const activeV = takeCard(candidate, 'Shadow Rider Calyrex V', 'CRE', '74');
-  const activeVmax = takeCard(candidate, 'Shadow Rider Calyrex VMAX', 'CRE', '75');
+  const activeMimikyu = takeCard(candidate, 'Mimikyu', 'GRI', '58');
   const benchV = takeCard(candidate, 'Shadow Rider Calyrex V', 'CRE', '74');
   const benchVmax = takeCard(candidate, 'Shadow Rider Calyrex VMAX', 'CRE', '75');
-  const psychic = Array.from({length: 8}, () =>
+  const psychic = Array.from({length: 7}, () =>
     takeCard(candidate, 'Psychic Energy', 'MEE', '13'));
   const latias = takeCard(opponent, 'Latias ex', 'SSP', '76');
 
@@ -222,10 +221,10 @@ function installBoard(state, candidateSeat) {
   candidate.bench = [promoted];
   opponent.bench = [];
 
-  candidateActive.cards.push(activeV, activeVmax);
-  candidateActive.energies.cards.push(...psychic.slice(0, 3));
+  candidateActive.cards.push(activeMimikyu);
+  candidateActive.energies.cards.push(psychic[0]);
   promoted.cards.push(benchV, benchVmax);
-  promoted.energies.cards.push(...psychic.slice(3));
+  promoted.energies.cards.push(...psychic.slice(1));
   opponentActive.cards.push(latias);
 
   state.activePlayer = candidateSeat;
@@ -234,11 +233,10 @@ function installBoard(state, candidateSeat) {
   state.prompts = [];
   state.winner = null;
 
-  assert.equal(candidateActive.getPokemonCard().name,
-    'Shadow Rider Calyrex VMAX');
+  assert.equal(candidateActive.getPokemonCard().name, 'Mimikyu');
   assert.equal(promoted.getPokemonCard().name, 'Shadow Rider Calyrex VMAX');
-  assert.equal(candidateActive.energies.cards.length, 3);
-  assert.equal(promoted.energies.cards.length, 5);
+  assert.equal(candidateActive.energies.cards.length, 1);
+  assert.equal(promoted.energies.cards.length, 6);
   assert.equal(opponentActive.getPokemonCard().name, 'Latias ex');
 }
 
@@ -323,16 +321,16 @@ function runBaseline(candidateSeat, deckNames) {
   const bot = scenario.bots[candidateSeat];
   const action = decode(bot, scenario.store.state, 0x20a11 + candidateSeat);
   assert.ok(action instanceof AttackAction,
-    'baseline control should attack with the already-Active VMAX');
-  assert.ok(actionContainsAttack(action, 'Max Geist'),
-    'baseline control should select its payable 3-energy Max Geist');
-  const opponent = scenario.store.state.players[1 - candidateSeat];
-  const before = opponent.active.damage ?? 0;
+    'baseline control should attack with the Active Mimikyu');
+  assert.ok(actionContainsAttack(action, 'Filch'),
+    'baseline control should select Filch rather than the bench VMAX line');
+  const beforeHand = scenario.store.state.players[candidateSeat].hand.cards.length;
   scenario.store.dispatch(action);
   resolveMandatoryPrompts(scenario.store, scenario.bots, 0x20b11);
-  const after = scenario.store.state.players[1 - candidateSeat].active.damage ?? 0;
-  assert.ok(after > before, 'baseline Max Geist must be accepted by native Store');
-  return {damage: after - before, action: action.constructor.name};
+  const afterHand = scenario.store.state.players[candidateSeat].hand.cards.length;
+  assert.equal(afterHand - beforeHand, 2,
+    'baseline Filch must be accepted and draw two cards');
+  return {cardsDrawn: afterHand - beforeHand, action: action.constructor.name};
 }
 
 function runCandidate(candidateSeat, deckNames) {
@@ -359,10 +357,12 @@ function runCandidate(candidateSeat, deckNames) {
   assert.equal(afterRetreat.active.getPokemonCard().name,
     'Shadow Rider Calyrex VMAX',
     'native Store must promote the charged Benched VMAX');
-  assert.equal(afterRetreat.active.energies.cards.length, 5,
-    'promoted VMAX must retain its five Psychic Energy');
-  assert.equal(afterRetreat.bench[0].energies.cards.length, 1,
-    'retreated VMAX must retain one Psychic Energy after paying two');
+  assert.equal(afterRetreat.active.energies.cards.length, 6,
+    'promoted VMAX must retain its six Psychic Energy');
+  assert.equal(afterRetreat.bench[0].getPokemonCard().name, 'Mimikyu',
+    'retreated Mimikyu must become the candidate Bench Pokémon');
+  assert.equal(afterRetreat.bench[0].energies.cards.length, 0,
+    'retreated Mimikyu must pay its one Psychic Energy');
 
   const attack = decode(candidateBot, scenario.store.state,
     0x20e11 + candidateSeat);
@@ -382,16 +382,17 @@ function runCandidate(candidateSeat, deckNames) {
     attack: attack.constructor.name};
 }
 
-test('pinned native Store accepts candidate-only charged-VMAX retreat → Max Geist in both physical seats, with a baseline control', () => {
+test('pinned native Store accepts candidate-only Mimikyu retreat → 190-damage Max Geist in both physical seats, with a Filch baseline control', () => {
   assertPinnedEngine();
   const manager = initializeCardPool();
   const deckNames = resolveDeck(manager);
   for (const candidateSeat of [0, 1]) {
     const baseline = runBaseline(candidateSeat, deckNames);
     const candidate = runCandidate(candidateSeat, deckNames);
-    assert.ok(candidate.damage > baseline.damage,
-      'candidate Max Geist must improve on baseline damage in seat ' +
-      candidateSeat + ' (candidate=' + candidate.damage +
-      ', baseline=' + baseline.damage + ')');
+    assert.equal(baseline.cardsDrawn, 2,
+      'baseline control must preserve Mimikyu Filch');
+    assert.equal(candidate.damage, 190,
+      'candidate Max Geist must deal 190 damage after the one-energy retreat in seat ' +
+      candidateSeat);
   }
 });
