@@ -32,7 +32,7 @@ All 11 lists total exactly 60 cards. Every non-Basic card name is at or below fo
 Across the 11 lists there are **143 distinct source display set/number/name tuples**:
 
 - **136** resolve to exact English card records by set-code crosswalk and collector number in `resources/sets/en.json` plus `resources/cards/en/*.json`. Each matched record is present and its bundled `legalities.expanded` value is `Legal`.
-- **One** display promo alias, Karen XYP 177, resolves to `xyp-XY177` in `resources/cards/en/xyp.json`; its Expanded flag is Legal.
+- **One** display promo alias, Karen XYP 177, resolves to `xyp-XY177` in `resources/cards/en/xyp.json`; its Expanded flag is Legal. Agent39's [official Japanese-print crosswalk](../agent39-xyp-japanese-print-crosswalk-20261113.md) maps rank 22's Karen to **XY-P 256/XY-P**, with matching text and pre-event distribution (2016-08-01 to 2016-09-30). This establishes an available Japanese counterpart, not the exact physical copy used by the player.
 - **Six** display tuples use the non-indexed `MEE` code for Basic Energy: Grass, Fire, Lightning, Fighting, Darkness and Psychic. `MEE` is absent from `resources/sets/en.json`, but each Basic Energy type has multiple English Expanded-legal printings in the bundled card pool. Representative exact records are:
 
 | Basic Energy identity | English Expanded-legal example |
