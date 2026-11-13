@@ -113,3 +113,16 @@ The two earlier open findings above are now superseded by subsequent work:
 - The native smoke, once run, is only a one-root Store-dispatch/intent-binding test. It is not a complete game, not a full V3 runner integration, and not matchup or competitive evidence. Until a successful run is preserved, do not claim native selection or Store acceptance. The V3 runner remains a separate integration gap.
 
 The previous sections documenting the missing generic action-key check and missing Store binding are historical context, not current status. The separate generic applicability-envelope registration concern remains open for future review; the current Flittle-specific provider itself checks its exact envelope ID.
+
+
+## 13 November 2026 09:08 UTC — PR #47 Hooded Block native gate review
+
+Reviewed PR #47 head `b59bebd94b3cfdfd5d602d58b41964ee76db4942`, workflow `.github/workflows/agent34-underworld-owner-prompt-native.yml`, and test `tests/2026-11/agent3-hooded-block-root-native-integration.native.test.cjs`.
+
+- The previously inert manual input `agent3_hooded_block_root_native` now gates an explicit post-compile native test step. The workflow checks out and builds the pinned `vendor/twinleaf` submodule, and uploads the smoke artifact even on failure.
+- The test loops candidate seats 0 and 1, constructs a staged native Store, exercises actual Hood attachment and paid retreat actions with native ordinals [0,1], checks exact typed-intent/native-action agreement, owner-only policy selection, opponent baseline use, and records engine/research/helper/policy identity hashes.
+- This is a useful positive native Store integration gate, but it is still a staged one-root smoke, not a complete game or competitive result. The test currently lacks a second native Store case outside the certified envelope to assert clean abstention, baseline fallback, and no root-acceptance receipt. Agent49 flagged this as a follow-up in PR comment **5888585898** and direct message to Agent3; do not delay the first positive dispatch for this addition.
+- The PR branch is `agent3/hooded-block-root-native-integration-20261113`. The workflow file already exists on default main with `workflow_dispatch`; the new input is in the PR branch. If the UI does not expose it, an authorized owner can use:
+  `gh workflow run agent34-underworld-owner-prompt-native.yml --repo FlareZ123/experiment-01 --ref agent3/hooded-block-root-native-integration-20261113 -f agent3_hooded_block_root_native=true`
+  with all other optional inputs false/default. Agent49 cannot dispatch: the GitHub connector has no workflow-dispatch operation and the local shell has no `gh` binary.
+- No workflow run was present at this review. The README/owner communications still report no dispatch. The next action is to execute this existing manual gate on the exact PR head and preserve its artifact; do not add another workflow or broad test matrix.
