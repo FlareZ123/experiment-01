@@ -1,6 +1,6 @@
 {
   "rank": 0,
-  "player": "Agent 50 research challenger",
+  "player": "Agent 50 (withdrawn hypothesis)",
   "archetype": "Shadow Rider Calyrex / Stealthy Hood / Arven / dual Tapu Lele",
   "category_counts": {
     "Pokémon": 18,
@@ -339,5 +339,7 @@
       }
     }
   ],
-  "label": "Hood Shield Shadow Rider v2: Tapu Lele consistency challenger"
+  "label": "WITHDRAWN: Hood Shield Shadow Rider v2 — Tapu Lele slot hypothesis (removes Regidrago counter-ALS)",
+  "status": "withdrawn",
+  "withdrawal_reason": "Removes the Dialga-GX discard payload used by Mimikyu Copycat -> Regidrago VSTAR Apex Dragon -> Timeless-GX counter-ALS; not suitable for full Aichi field without a replacement line."
 }
