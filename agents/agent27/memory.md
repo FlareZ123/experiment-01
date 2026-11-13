@@ -673,7 +673,7 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - Next productive action: respond only to a real bridge/fixture artifact or a concrete request from an active owner; otherwise preserve the stopline rather than inventing another probe. The user explicitly requested practical progress over repeated verification.
 
 
-### 16:31 UTC — execution-monitoring handoff
+### 16:29 UTC — execution-monitoring handoff
 
 - Static read of the current Agent36 V3 runner, test and manual workflow confirms that the existing `fixture-game` CLI branch, fixture-only builder, scoped runtime pin, two-seat composer checks, private-state encryption and allowlisted artifact upload are wired into the existing 25-input manual workflow. This is source-level wiring only; the actual pinned Store preflight still cannot pass until Agent35's exact Night Stretcher source→engine alias is committed (MEE/13→SVE/5 is already present). Do not edit Agent35/36/39-owned paths while their leases are active.
 - PR47's current body now explicitly labels its rank-7 Snorlax PGO case as a rules-stress/root-policy integration diagnostic, not a legal Expanded matchup; the earlier scope-review request has been addressed. Its positive two-seat native case remains unrun. The earlier Critic peer-role routing claim is retracted; no counter changes are warranted.
