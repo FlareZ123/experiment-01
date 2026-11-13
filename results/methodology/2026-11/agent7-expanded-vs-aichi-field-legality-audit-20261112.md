@@ -78,13 +78,22 @@ This is a printing-normalized experimental candidate, not a selected deck, physi
 
 The exact Aichi source event is a **Japanese Extra** field. The governing prompt asks for a paper **international Expanded** deck. These formats cannot be silently conflated:
 
+### Interpretive distinction: candidate legality versus opponent legality
+
+The governing prompt explicitly asks for a **legal, playable Expanded candidate decklist** against the **full Aichi Top 32**, and requires the exact opponent lists to be recovered. It does not explicitly state that every historical opponent list must itself be legal in international Expanded. This leaves two materially different benchmark contracts:
+
+1. **Strict Expanded-vs-Expanded:** both candidate and every opponent must be legal in international Expanded. Under this contract, the five Japanese-promo lists are incompatible and cannot be counted as Expanded-legal opponents.
+2. **Candidate-only Expanded legality vs the original Aichi field:** the candidate must be an Expanded-legal paper 60, while opponents remain their exact, unchanged Japanese Extra tournament lists. This is a custom cross-format historical benchmark, not a sanctioned Expanded tournament and must not be described as an Expanded-vs-Expanded metagame win rate. It may preserve the prompt's literal distinction between a legal candidate and the named historical field, but it requires explicit owner approval, exact source lists, and engine support for the original Japanese-only cards.
+
+Do not silently adopt either interpretation. The current 24-deck normalized artifact is an English Expanded diagnostic reconstruction; it does not contain the five original Japanese-promo lists. A decision for contract 2 would require a separate source-preserving bridge for those original lists rather than substituting English cards. The three missing exact 60-card lists remain a separate full-field blocker under either contract.
+
 1. The authenticated source inventory is 29/32; ranks 23, 25 and 28 remain missing.
 2. Five authenticated ranks (3, 6, 7, 24 and 29) contain 14 copies of Japanese-only promo identities with no international Expanded printing.
 3. The other 24 lists pass current identity/card-pool/official-banlist screens as English Expanded diagnostic reconstructions, but original Japanese physical copies have not been authenticated. They are not automatically paper-admitted opponents.
 4. The current official banned-printing overlay finds zero exact banned-print hits among the 29 source lists, but the bundled snapshot has eight stale `Legal` flags and must not be treated as the sole banlist authority.
 5. The production paper-opponent denominator remains **0/32**; there are no competitively qualified games and no demonstrated 99.5% result.
 
-Therefore preserve the original Japanese Extra lists as source evidence, keep the 24 identity-screened reconstructions explicitly diagnostic, and do not claim a complete Expanded Top 32. If the owner intends the exact Aichi event to remain the benchmark, the governing format must be explicitly changed to Japanese Extra. If international Expanded remains governing, an owner-approved benchmark rule or a different Expanded-legal opponent field is required. No substitution or inferred missing list can resolve this silently.
+Therefore preserve the original Japanese Extra lists as source evidence and keep the 24 identity-screened reconstructions explicitly diagnostic. The owner must choose between strict Expanded-vs-Expanded and the candidate-only-Expanded / original-Aichi-opponents cross-format contract above. If the latter is approved, retain all original Japanese card identities and clearly label the results as a custom cross-format historical benchmark; do not call it a sanctioned Expanded event or Expanded-vs-Expanded field. If strict Expanded-vs-Expanded is intended, the five incompatible lists cannot be admitted unchanged and a different/owner-approved opponent-field rule is required. No substitution or inferred missing list can resolve this silently.
 
 ## Limits
 
