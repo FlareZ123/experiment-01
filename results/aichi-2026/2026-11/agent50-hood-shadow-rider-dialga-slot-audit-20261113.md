@@ -70,12 +70,16 @@ The [v2 JSON](../candidate-hood-shadow-rider-v2.json) and [human-readable list](
 
 These are card-location probabilities, not game outcomes. The additional Tapu Lele improves raw Supporter access, but **the v2 removes Dialga and therefore removes the counter-ALS against nine published Regidrago lists**. The trade is not justified. The v2 candidate JSON is marked withdrawn and must not be nominated or evaluated as a full-field deck. It is preserved only as a rejected hypothesis.
 
-## Required validation
+## Existing tests and remaining blockers
 
-1. Implement a focused paper-rules test for Mimikyu Copycat → opponent Regidrago VSTAR Apex Dragon → Dialga-GX Timeless-GX in discard.
-2. Test the nested “use it as this attack” energy-cost bypass against rulebook C-18.
-3. Test the GX-attack allowance both with no prior GX attack and after Trevenant & Dusknoir-GX or Tapu Lele-GX has used one.
-4. Verify the opponent must have used a non-GX attack last turn, Dialga must remain in the discard pile, and Mimikyu's own Psychic + Colorless cost is payable.
-5. Evaluate the line against all nine published Regidrago lists with competent policies; record cases where the opponent avoids Apex Dragon, disrupts the discard pile, or removes Mimikyu.
+Do not duplicate the already completed staged tests:
+
+- `results/twinleaf/mimikyu-extra-turn-progression.md` records the real Twinleaf Store dispatch and WaitPrompt chain: Regidrago Apex Dragon → Mimikyu Copycat → Dialga Timeless-GX choice; the copied effect arms the extra-turn flag and the actual WaitPrompts advance from turn 5 to turn 6 with the same Mimikyu player active. This is a staged mechanics regression, not a legal full-game result.
+- Agent12's copied-GX reuse regression (commit `430237d7`) verifies the GX allowance in the pinned engine: with GX unused, the Timeless-GX effect resolves and arms the turn skip; after another GX attack has been used, the copied Timeless-GX choice is rejected without damage or an extra turn.
+- The fresh Agent46 Mysterious Treasure donor panel, `results/aichi-2026/2026-11/agent46-mimikyu-donor-prospective-source-ab-20261110.md`, ran 16 matched source pairs. Both arms had 25 opponent Apex Dragon declarations and 3 Copycat attacks; treatment produced two physical donor Treasure payments but no Copycat increase.
+- The fresh Agent46 Battle Compressor donor panel, `results/aichi-2026/2026-11/agent46-compressor-donor-prospective-source-ab-20261110.md`, ran 16 matched source pairs. Control/treatment had 27/28 Apex declarations and zero Copycat attacks in either arm; treatment produced three physical donor searches but no Copycat increase.
+- The selected historical Compressor-donor Copycat is documented in `results/aichi-2026/2026-11/agent46-mimikyu-compressor-donor-native-20261110.md`. Its 150-damage Timeless-GX event allegedly Knocked Out a full-health 280-HP weakness-free Regidrago VSTAR with no prior damage. The raw DealDamageEffect observer also recorded 150, while the game awarded two Prizes. This is an engine/delegated-copy damage-resolution defect or an unmodeled interaction; quarantine the KO/Prize outcome and do not use it as paper-game evidence.
+
+The actual remaining gate is therefore not proving the basic copy/turn mechanics again. It is repairing or isolating the copied-damage/Prize inconsistency, improving the joint natural timing of Mimikyu-on-board + two Psychic Energy + Dialga donor + opponent Apex, and then testing source-legal full games against all nine published Regidrago lists with competent policies. The two isolated donor-payment interventions have already been tested prospectively and did not increase Copycat frequency; do not repeat them in isolation.
 
 **Decision:** retain Hood Shield Shadow Rider v1 with Dialga-GX and Mimikyu. The Tapu Lele v2 proposal is withdrawn. Do not remove the counter-ALS without a tested replacement, and do not claim any matchup or aggregate win-rate improvement from this card-text audit.
