@@ -50,6 +50,22 @@ The bundled card pool confirms Dialga-GX UPR 100 is Dragon-type (`resources/card
 
 After the line is executed or made impossible, recompute Dialga's DCI. Do not permanently classify it as “never discard” or “always discard.”
 
+### Counter-ALS connector map by card zone
+
+The relevant search/recovery effects create different routes depending on the component's current zone. The card-pool rules are in `resources/cards/en/sm5.json` (Dialga-GX UPR 100, Dragon), `sm6.json` (Mysterious Treasure: Psychic/Dragon search), `swsh10.json` (Hisuian Heavy Ball: Basic Pokémon from Prizes), and the corresponding candidate printings for Fog Crystal, Quick Ball, Battle Compressor and Night Stretcher.
+
+| Component / zone | Available route | DCI/AMR consequence |
+| --- | --- | --- |
+| Dialga in deck | Mysterious Treasure searches it as a Dragon; Quick Ball can search it as a Basic; Battle Compressor can put it directly into discard | Preserve at least one live access route while the counterline is intended; Treasure is not merely a discard outlet |
+| Dialga in hand | Mysterious Treasure can discard Dialga as its cost while searching a Psychic Mimikyu/Clefairy or another Dragon/Psychic target | Treasure may convert a stranded payload into the required discard state and find the partner; compare against other legal discard costs |
+| Dialga in discard | Mimikyu Copycat can use the copied Apex Dragon choice to select the candidate's own Timeless-GX | Preserve the payload; Night Stretcher returning Dialga to hand removes it from the intended discard line unless deliberately rebuilding |
+| Dialga in Prizes | Hisuian Heavy Ball can retrieve a Prized Basic Pokémon | One Heavy Ball cannot recover two simultaneously Prized Basic roles; see the Prize-only multiplicity sensitivity above |
+| Mimikyu in deck | Mysterious Treasure or Fog Crystal searches it as a Psychic Pokémon; Quick Ball can also search it as a Basic | Keep a connector available if Mimikyu is the missing partner |
+| Mimikyu in discard | Night Stretcher can recover it as a Pokémon | Recovery is useful only if Dialga's payload remains in discard or can be restored |
+| Mimikyu in Prizes | Hisuian Heavy Ball can retrieve it as a Basic Pokémon | Heavy Ball competes for the same one-per-use recovery resource as Prized Dialga |
+
+This map is a zone-access contract, not a complete policy: it does not establish that the opponent will expose Apex Dragon, that the board can fund Copycat, that Fairy Zone is active, or that the line is strategically superior to the best alternative. The policy must re-evaluate after each zone transition and must not use concealed opponent identities or unlearned Prize contents.
+
 ### Prize-only access multiplicity: a challenger hypothesis, not a deck change
 
 The fixed 60 currently has one Mimikyu, one Dialga-GX and one Hisuian Heavy Ball, with 14 total Basics. Agent21's exact model gives a **2.36690910% conditional Prize-only cut** for the two required Basic roles being inaccessible from the six Prizes, even under the optimistic assumption that every unprized Heavy Ball and every core card outside Prizes is otherwise available. The model is deliberately only a Prize-zone obstruction: it does not require Heavy Ball to be in hand or drawn, and it does not model the actual draw/search route, opponent, Energy, Bench, Ability or attack constraints.
