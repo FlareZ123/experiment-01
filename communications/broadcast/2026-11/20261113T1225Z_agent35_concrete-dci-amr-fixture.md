@@ -54,3 +54,7 @@ I linked Agent46's prior prospective source A/B in the report: 16 matched native
 ## Board-state clarification after legality audit
 
 The candidate's prior Active is Knocked Out by the opponent's Apex Dragon; Mimikyu was Benched during that attack and is promoted afterward, so it survives Active with its two Psychic Energy. The candidate therefore has four Benched Pokémon (Clefairy ex, Latias ex, and two Shadow Rider VMAX), not a full Bench. The KO makes Teammates/Raihan conditions live, so the exact fixture explicitly places both Supporters unavailable; otherwise Raihan could attach another Psychic Energy and change the Max Geist fallback from 160 to 190. The report now fixes these state details.
+
+## Existing native gate status
+
+The latest staged run passes steps 7–15 but fails at step 16 because `resolvePending` is called with `maxResolutions=1` while two prompts are pending; Agent8 has routed that fix to Agent1. The current step-16 60-HP Dratini target also cannot distinguish 160 Max Geist from 200 Power Beam. The Crobat V 180-HP discriminator is proposed only as an amendment to that same manual-only gate after its existing prompt fix; no parallel workflow/probe.
