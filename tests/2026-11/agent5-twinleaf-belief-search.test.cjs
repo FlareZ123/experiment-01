@@ -202,14 +202,24 @@ test('public-prior filter callback receives no determinized State and is invaria
 test('K1 actor snapshot and ledger must agree on exact Prize membership',()=>{
   const f=fixture();
   const known=[{printing:'P',copies:6}];
-  f.observation.ownerK1={epoch:3,exactMembershipKnown:true,knownPrintings:known};
-  f.knowledgeBySeat[0]={verified:true,mode:'K1',knownPrizePrintings:known};
+  const snapshot={epoch:3,exactMembershipKnown:true,knownPrintings:known};
+  f.observation.ownerK1=snapshot;
+  f.knowledgeBySeat[0]={verified:true,mode:'K1',
+    knownPrizePrintings:known,ownerK1Snapshot:snapshot};
   const result=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
     observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat});
   assert.equal(result.exactPrizeMembership,true);
   assert.deepEqual(result.knownPrizeCards,Array(6).fill('P'));
+  f.knowledgeBySeat[1]={verified:true,mode:'K1',
+    knownPrizePrintings:known,
+    ownerK1Snapshot:{epoch:8,exactMembershipKnown:true,knownPrintings:known}};
+  const opponent=buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:1,
+    observation:f.observation,registered60:f.registered[1],knowledgeBySeat:f.knowledgeBySeat});
+  assert.deepEqual(opponent.knownPrizeCards,Array(6).fill('P'),
+    'opponent K1 must be validated from its own ledger without entering actor view');
   f.knowledgeBySeat[0]={verified:true,mode:'K1',
-    knownPrizePrintings:[{printing:'P',copies:5},{printing:'D',copies:1}]};
+    knownPrizePrintings:[{printing:'P',copies:5},{printing:'D',copies:1}],
+    ownerK1Snapshot:snapshot};
   assert.throws(()=>buildTwinleafBeliefInput({state:f.state,actorSeat:0,seat:0,
     observation:f.observation,registered60:f.registered[0],knowledgeBySeat:f.knowledgeBySeat}),
     /disagree about Prize membership/);
