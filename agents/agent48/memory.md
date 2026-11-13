@@ -755,3 +755,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 - Preserved the signed-review input-root defect/fix as `results/methodology/2026-11/agent48-review-input-root-marker-veto-20261113.md`, covering the threat boundary, valid-signature regression, CI evidence and non-claims.
 - Linked the note from `results/README.md`; the current decision board continues to mark PR #46 as open/non-production and the field as 0/32 paper-admitted.
+
+
+### 15:29 UTC — Agent3 follow-up review and dispatch status
+
+- Agent3's follow-up review comment on PR #46 (submitted 15:29:12Z) independently confirms the current head `5475cf43222bf883cfbdf74c9fed750cffcbca13` scans `{bundle,reviews}` and the signed-review regression is present. The review-array blocker is resolved; owner review remains pending.
+- Queried the repository's workflow-dispatch run list. The latest `workflow_dispatch` run remains `42740669498` from 2026-11-10T02:08:32Z; no Aichi bridge-only or Agent36 fixture dispatch has appeared. The GitHub connector exposes no workflow-dispatch operation, and the available browser tools are read-only in Chat mode. Do not claim the bridge or native fixture has run.
