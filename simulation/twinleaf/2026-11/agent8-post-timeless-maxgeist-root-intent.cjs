@@ -47,12 +47,6 @@ function prizeCountForTarget(target,catalog){
   return 1;
 }
 
-function opponentActiveSuppressesLatiasSkyliner(view){
-  const active=view?.opponentPublic?.active;
-  return active?.abilities?.includes('Bide Barricade')===true||
-    active?.abilityDetails?.some(ability=>ability?.name==='Bide Barricade')===true;
-}
-
 function isOpponentApexDragonReceipt(view){
   const receipt=view?.publicEventReceipt;
   if(!receipt||receipt.actorSeat!==view.actorSeat||
@@ -133,8 +127,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      ((asleep&&active.specialConditions.includes(asleep))||
       (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
   if(opponentActiveBlocksRetreat(view)||
-     publicSkylinerSuppressionReason(view)!==null||
-     opponentActiveSuppressesLatiasSkyliner(view))return null;
+     publicSkylinerSuppressionReason(view)!==null)return null;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
@@ -210,7 +203,6 @@ module.exports={
   SHADOW_RIDER_VMAX,
   prizeCountForTarget,
   isOpponentApexDragonReceipt,
-  opponentActiveSuppressesLatiasSkyliner,
   opponentActiveHasUnmodelledDamageModifier,
   choosePostTimelessMaxGeistRetreat
 };
