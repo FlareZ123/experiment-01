@@ -35,3 +35,10 @@ The exact PR-branch Agent42 and Agent43 modules were evaluated together in an is
 6. Active player `attackMaxEnergy` restriction: abstain.
 
 The branch commit has no GitHub check runs yet. This harness is not a native Twinleaf Store test; it does not validate full game sequencing, attack legality, or matchup performance. The PR's existing Tool Jammer guard was preserved. The generic Agent42 proposal does not rely on Hood; its separate reusable Tool Jammer predicate is not wired into that generic proposal.
+
+
+## Stacked PR47 synchronization (13 November 2026)
+
+PR47 (`agent3/hooded-block-root-native-integration-20261113`) was 9 commits behind its Agent43 base and still carried helper v2.1. After updating PR45's Agent43 branch, I created a two-parent merge commit `0aad8d6f2311dc9f1fb47fd5cd2e3bf7d17948c7` with the updated Agent43 base (`872f56f44ddfe37fd1938df957b97ad7f1eff9a0`). The PR47 diff is again limited to its three intended native-integration files: the manual workflow, Agent3 native runner, and native test. Its base is now the updated Agent43 branch; no PR47 workflow or native test has been dispatched.
+
+The same **6/6** isolated V8 integration scenarios were rerun against the PR47 branch's exact Agent42 and Agent43 modules using real Agent17 payability, Agent6 damage projection, and Agent35 Block detection. No CI check runs were present. See merge commit `0aad8d6`; PR47 head is synchronized but remains an unexecuted staged mechanics fixture.
