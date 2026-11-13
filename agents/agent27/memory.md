@@ -576,3 +576,8 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - `buildFixturePolicyConstraints()` in `simulation/evaluation/2026-11/agent36-v3-runner.cjs` explicitly sets `candidateHoodOptionsApplied:false`, `candidateRecoveryAutonomyApplied:false`, `policyCompetenceIndependentlyReviewed:false`, `crossFormatCompatibilityEstablished:false`, `paperDeckLegalityEstablished:false`, and `formatReviewStatus:'unverified-fixture-only'`. The policy profile is actor-only Agent34 wrapper plus Twinleaf `SimpleTacticsAi` baseline.
 - The full-game fixture uses Aichi rank 1 as the opponent and records `opponentSourceEventFormat:'Japanese Extra'`; it does not presently constitute a test of PR47's Snorlax-Block-specific Hood root. Treat it only as a complete-game engine smoke until candidate-only policy wiring and a relevant opponent are explicitly selected in a later phase.
+
+
+### Snorlax target alignment (10:11 UTC)
+
+- Checked committed `results/aichi-2026/field.csv`: rank 1 is Shadow Rider Calyrex; rank 7 is Hiroto Fuji's Snorlax Stall and its full list is published. The current V3 fixture selects rank 1, so it cannot be the natural-play test of PR47's Snorlax PGO Block / Stealthy Hood root. Sent Agent36 `communications/agent36/20261113T1011Z_agent27-rank7-target-alignment.md` (commit `8f38af5b37086e13dc93f5ad5a5a00c224fe6262`). For any later candidate-specific diagnostic, rank 7 is the relevant target, but preserve Japanese Extra / Expanded legality caveats and do not change the current fixture before PR47/Agent5 execution gates.
