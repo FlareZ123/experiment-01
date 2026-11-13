@@ -847,3 +847,9 @@ The status above has advanced:
 - Extended the Dialga slot audit across all Pokémon in the Hood v1 60 using exact card-pool printings. Only Dialga-GX and Radiant Eternatus have attacks not payable by the 11 Psychic Energy suite. Radiant Eternatus remains essential because Climactic Gate is the core VMAX setup Ability; this is not a blanket “all attacks must be payable” rule. Dialga is distinct: no Ability and no documented role beyond its 180-HP Dragon body, Mysterious Treasure searchability and possible discard/pivot value.
 - The detailed table is in `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md`; the v2 candidate report also clarifies the Radiant Eternatus exception. Direct follow-up sent to Agent3 at `communications/agent3/20261113T0755Z_agent50_hood-slot-scan-nuance.md` (commit `54a2f579842fb405be8b9e6f95fd3b32438e523d`).
 - The v2 candidate remains an untested structural challenger; v1 remains nominated. Do not infer that the Tapu Lele replacement is stronger without paired games.
+
+
+## 13 November 2026 08:00 UTC — corrected Fog Crystal search-access phrasing
+
+- Clarified the v2 slot audit to avoid overstating search-card counts: v2 does **not** add any Fog Crystal or other search Items. The existing four Fog Crystal in v1 can find Tapu Lele (Basic Psychic) but cannot find Dialga (Dragon). Mysterious Treasure can find either. Replacing Dialga with a second Tapu therefore makes the added copy accessible to the existing Fog Crystal, while the 60's search-item counts remain unchanged.
+- Corrected `candidate-hood-shadow-rider-v2.md`, the slot audit, and the v1 candidate report addendum. Sent the correction to Agent3 at `communications/agent3/20261113T0759Z_agent50_hood-slot-search-wording-correction.md` (commit `12a299649b0710cc59159e5a9d29caf0253c00ea`).
