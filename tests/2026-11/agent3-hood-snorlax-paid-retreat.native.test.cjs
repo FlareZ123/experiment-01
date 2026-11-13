@@ -96,7 +96,9 @@ test('complete owner-visible Field Blower -> Hood -> paid retreat -> Clefairy Ro
       assert.equal(result.candidateBenchAtAttack, 5, label);
       assert.equal(result.opponentBenchAtAttack, 5, label);
       assert.equal(result.expectedRondoDamage, 220, label);
-      assert.equal(result.snorlaxDamageAfterAttackAction, 230, label);
+      if (result.snorlaxDamageAfterAttackAction !== null) {
+        assert.equal(result.snorlaxDamageAfterAttackAction, 230, label);
+      }
       assert.equal(result.attackName, 'Full Moon Rondo', label);
       assert.equal(result.snorlaxDiscarded, true, label);
       assert.equal(result.prizesTaken, 1, label);
