@@ -1570,3 +1570,145 @@ test('post-Timeless Mimikyu prompt selects the strongest public non-GX Dragon pa
     0,unknownPrompt,tracker),null,
     'unknown variable damage must fail closed');
 });
+
+test('bilateral setup prompts stay inside the owner-scoped actor-only role boundary',()=>{
+  const GamePhase={SETUP:1,PLAYER_TURN:2,FINISHED:7};
+  const GameMessage={
+    CHOOSE_STARTING_POKEMONS:'CHOOSE_STARTING_POKEMONS',
+    GO_FIRST:'GO_FIRST'
+  };
+  const Stage={BASIC:0,STAGE_1:1};
+  const CardTag={PLAY_DURING_SETUP:'PLAY_DURING_SETUP'};
+  const makeCard=(fullName,stage,tags=[])=>({fullName,stage,tags});
+  const candidate={
+    id:101,
+    hand:{cards:[
+      makeCard('Candidate Basic A',Stage.BASIC),
+      makeCard('Candidate Evolution',Stage.STAGE_1),
+      makeCard('Candidate Basic B',Stage.BASIC)
+    ]}
+  };
+  const opponent={
+    id:202,
+    hand:{cards:[makeCard('Opponent Basic',Stage.BASIC)]}
+  };
+  for(const owner of [candidate,opponent]){
+    Object.defineProperty(owner,'deck',{get(){
+      throw new Error('setup policy must not inspect either hidden deck');
+    }});
+  }
+  class ChooseCardsPrompt{
+    constructor(id,owner){
+      this.id=id;this.playerId=owner.id;
+      this.message=GameMessage.CHOOSE_STARTING_POKEMONS;
+      this.cards=owner.hand;this.result=undefined;
+      this.options={min:1,max:6,blocked:[],allowCancel:false};
+    }
+    validate(selection){
+      return Array.isArray(selection)&&
+        selection.length>=this.options.min&&
+        selection.length<=this.options.max&&
+        selection.every(card=>this.cards.cards.includes(card)&&
+          (card.stage===Stage.BASIC||
+            card.tags.includes(CardTag.PLAY_DURING_SETUP))&&
+          !this.options.blocked.includes(this.cards.cards.indexOf(card)));
+    }
+  }
+  class ConfirmPrompt{
+    constructor(id,playerId){
+      this.id=id;this.playerId=playerId;
+      this.message=GameMessage.GO_FIRST;this.result=undefined;
+    }
+  }
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class AddPlayerAction{}
+  class Store{
+    constructor(){
+      this.state={players:[candidate,opponent],activePlayer:0,
+        turn:0,phase:GamePhase.SETUP,prompts:[]};
+    }
+    dispatch(action){
+      if(action instanceof ResolvePromptAction){
+        const prompt=this.state.prompts.find(item=>item.id===action.id);
+        assert.ok(prompt,'native Store receives the exact pending prompt');
+        prompt.result=action.result;
+        this.state.prompts=this.state.prompts.filter(item=>item!==prompt);
+      }
+      return true;
+    }
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){return 'UNSAFE_NATIVE_PROMPT_FALLBACK';}
+  }
+  const setupPromptTypes={ChooseCardsPrompt,ConfirmPrompt,GameMessage,Stage,CardTag};
+  const commonDeps={
+    SimpleTacticsAi,Store,GamePhase,setupPromptTypes,
+    promptActions:{ResolvePromptAction},
+    observe:()=>base(),getCatalog:()=>catalog,getNativeTrainerCatalog:()=>({}),
+    cardActions:{PlayCardAction:class{},
+      PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction:class{},PassTurnAction:class{}}
+  };
+  const roles=withCandidateOpponentPolicyRoles(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+
+    const candidateStart=new ChooseCardsPrompt(1,candidate);
+    store.state.prompts=[candidateStart];
+    const candidateStartAction=new SimpleTacticsAi(candidate.id)
+      .decodeNextAction(store.state);
+    assert.ok(candidateStartAction instanceof ResolvePromptAction);
+    assert.deepEqual(candidateStartAction.result.map(card=>card.fullName),
+      ['Candidate Basic A','Candidate Basic B']);
+    store.dispatch(candidateStartAction);
+
+    const opponentStart=new ChooseCardsPrompt(2,opponent);
+    store.state.prompts=[opponentStart];
+    const opponentStartAction=new SimpleTacticsAi(opponent.id)
+      .decodeNextAction(store.state);
+    assert.ok(opponentStartAction instanceof ResolvePromptAction);
+    assert.deepEqual(opponentStartAction.result.map(card=>card.fullName),
+      ['Opponent Basic']);
+    store.dispatch(opponentStartAction);
+
+    const goFirst=new ConfirmPrompt(3,candidate.id);
+    store.state.prompts=[goFirst];
+    const goFirstAction=new SimpleTacticsAi(candidate.id)
+      .decodeNextAction(store.state);
+    assert.ok(goFirstAction instanceof ResolvePromptAction);
+    assert.equal(goFirstAction.result,false,
+      'GO_FIRST reproduces Twinleaf ConfirmPromptResolver default');
+    store.dispatch(goFirstAction);
+
+    return {candidateStartAction,opponentStartAction,goFirstAction};
+  },{
+    candidateSeat:0,opponentSeat:1,commonDeps
+  });
+
+  assert.equal(roles.actorOnlyBoundary.valid,true,
+    roles.actorOnlyBoundary.failures.join(','));
+  assert.deepEqual(roles.actorOnlyBoundary.failures,[]);
+  assert.equal(roles.candidateAudit.setupStartingBasicPromptsHandled,1);
+  assert.deepEqual(roles.candidateAudit.setupStartingBasicPromptsBySeat,[1,0]);
+  assert.equal(roles.candidateAudit.setupGoFirstPromptsHandled,1);
+  assert.deepEqual(roles.candidateAudit.setupGoFirstPromptsBySeat,[1,0]);
+  assert.equal(roles.opponentAudit.setupStartingBasicPromptsHandled,1);
+  assert.deepEqual(roles.opponentAudit.setupStartingBasicPromptsBySeat,[0,1]);
+  assert.equal(roles.opponentAudit.setupGoFirstPromptsHandled,0);
+  assert.equal(roles.candidateAudit.unsupportedPromptFallbacks,0);
+  assert.equal(roles.opponentAudit.unsupportedPromptFallbacks,0);
+  assert.equal(roles.candidateAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(roles.opponentAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(roles.candidateAudit.peerRoleDelegations,1);
+  assert.equal(roles.opponentAudit.ownerDecisionCalls,1);
+  assert.equal(roles.candidateAudit.setupPromptActionsSubmitted,2);
+  assert.equal(roles.opponentAudit.setupPromptActionsSubmitted,1);
+  assert.ok(roles.candidateAudit.setupPromptDecisions.every(
+    receipt=>receipt.nativeDispatch==='dispatch-returned'));
+  assert.ok(roles.opponentAudit.setupPromptDecisions.every(
+    receipt=>receipt.nativeDispatch==='dispatch-returned'));
+});
