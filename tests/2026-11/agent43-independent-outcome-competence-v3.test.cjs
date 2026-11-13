@@ -1452,6 +1452,23 @@ test('omitting constraints.gameRuleset cannot downgrade an incompatible rank wit
 });
 
 
+function resignPolicyPlanAttestations(generated) {
+  const {bundle,candidatePrivateKey,opponentPrivateKey}=generated;
+  const planSha=evidenceBundleSha256(bundle.policyPlanCore);
+  const constraintsSha=evidenceBundleSha256(bundle.policyPlanCore.constraints);
+  const candidate=bundle.policyAttestationBundle.candidatePolicy;
+  candidate.policyPlanSha256=planSha;
+  candidate.policyConstraintsSha256=constraintsSha;
+  signPolicyAttestation(candidate,candidatePrivateKey);
+  const opponent=bundle.policyAttestationBundle.opponentPolicy;
+  opponent.policyPlanSha256=planSha;
+  opponent.policyConstraintsSha256=constraintsSha;
+  signPolicyAttestation(opponent,opponentPrivateKey);
+  bundle.policyAttestationBundle.policyPlanSha256=planSha;
+  rehashPolicyBundle(bundle);
+  populatePanelCoverage(bundle);
+}
+
 function makeFullClosurePolicyBundle({coreFixtureMarker,unavailable=[]}={}) {
   const generated=makePolicyBundle({unavailable});
   const {bundle,candidatePrivateKey,opponentPrivateKey}=generated;
@@ -1487,7 +1504,12 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     {coreFixtureMarker:undefined,trialFixtureMarker:undefined,bundleFixtureMarker:null},
     {coreFixtureMarker:undefined,trialFixtureMarker:undefined,attestationFixtureMarker:true},
     {coreFixtureMarker:undefined,trialFixtureMarker:undefined,
-      attestationFormatReviewStatus:'unverified-fixture-only'}
+      attestationFormatReviewStatus:'unverified-fixture-only'},
+    {nestedRankReviewFixtureMarker:true},
+    {nestedRankReviewFormatReviewStatus:'unverified-fixture-only'},
+    {nestedCoreCandidateFixtureMarker:true},
+    {nestedCoreRankFormatReviewStatus:'unverified-fixture-only'},
+    {nestedRankReviewFormatReviewStatus:'unknown-review-state'}
   ];
   for(const variant of variants) {
     const generated=makeFullClosurePolicyBundle({
@@ -1506,6 +1528,26 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
         variant.attestationFormatReviewStatus;
       rehashPolicyBundle(bundle);
       populatePanelCoverage(bundle);
+    }
+    if (variant.nestedRankReviewFixtureMarker !== undefined) {
+      bundle.policyAttestationBundle.opponentPolicy.rankReviews[0].fixtureOnly=
+        variant.nestedRankReviewFixtureMarker;
+      resignPolicyPlanAttestations(generated);
+    }
+    if (variant.nestedRankReviewFormatReviewStatus !== undefined) {
+      bundle.policyAttestationBundle.opponentPolicy.rankReviews[0].formatReviewStatus=
+        variant.nestedRankReviewFormatReviewStatus;
+      resignPolicyPlanAttestations(generated);
+    }
+    if (variant.nestedCoreCandidateFixtureMarker !== undefined) {
+      bundle.policyPlanCore.candidate.fixtureOnly=
+        variant.nestedCoreCandidateFixtureMarker;
+      resignPolicyPlanAttestations(generated);
+    }
+    if (variant.nestedCoreRankFormatReviewStatus !== undefined) {
+      bundle.policyPlanCore.opponentPolicyBundle.ranks[0].formatReviewStatus=
+        variant.nestedCoreRankFormatReviewStatus;
+      resignPolicyPlanAttestations(generated);
     }
     if (variant.trialFixtureMarker !== undefined)
       bundle.trial.fixtureOnly=variant.trialFixtureMarker;
@@ -1544,6 +1586,8 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
       assert.equal(production.fullProcessClosureCovered,true);
       assert.ok(production.failures.includes(
         'fixture-only-trial-not-eligible-for-competitive-admission'));
+      if (variant.nestedRankReviewFormatReviewStatus==='unknown-review-state')
+        assert.ok(production.failures.includes('fixture-format-review-status-invalid'));
       if((variant.bundleFixtureMarker!==undefined &&
           typeof variant.bundleFixtureMarker!=='boolean') ||
          (variant.trialFixtureMarker!==undefined &&
