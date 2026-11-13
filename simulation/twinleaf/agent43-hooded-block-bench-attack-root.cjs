@@ -8,10 +8,10 @@ const { publicSpecialAttackPayable } =
 const {
   twoPsychicPayment, attackBlocked, activeHasCompetingAttack,
   ownerHasUnmodeledFreeMobility, postRetreatPrintedDamage,
-  opponentHasUnmodeledDamageOrPrizeText, projectedPrizeOutcome
+  opponentHasUnmodeledDamageOrPrizeText: baseOpponentHasUnmodeledDamageOrPrizeText
 } = require('./agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
-const VERSION = 'agent43-hooded-block-bench-attack-root-v1';
+const VERSION = 'agent43-hooded-block-bench-attack-root-v2';
 const HOOD = 'Stealthy Hood UNB';
 const SHADOW_RIDER = 'Shadow Rider Calyrex VMAX CRE';
 const SNORLAX = 'Snorlax PGO';
@@ -38,28 +38,84 @@ function hasBlockAbility(active) {
     ).length === 1;
 }
 
-function hasUnexpectedRetreatAbility(view) {
+function hasUnexpectedRetreatAbility(view, catalog, active) {
   const own = view.ownPublic;
   const opponent = view.opponentPublic;
   const ownBoard = [own?.active, ...(own?.bench ?? [])].filter(Boolean);
   const opponentBoard = [opponent?.active, ...(opponent?.bench ?? [])].filter(Boolean);
+  const basicStage = catalog.stages?.BASIC;
+  const activeStage = active?.printed?.stage;
   for (const pokemon of ownBoard) {
     if (!Array.isArray(pokemon.abilityDetails)) return true;
-    if (pokemon.abilityDetails.some(ability =>
-      typeof ability?.text === 'string' && /retreat/i.test(ability.text))) return true;
+    for (const ability of pokemon.abilityDetails) {
+      // Skyliner only grants free retreat to Basic Pokémon. It is irrelevant
+      // to this evolved Shadow Rider VMAX line, but fail closed if stage data
+      // is absent or the active itself is Basic.
+      if (ability?.name === 'Skyliner') {
+        if (basicStage === undefined || activeStage === undefined ||
+            activeStage === basicStage) return true;
+        continue;
+      }
+      if (typeof ability?.text === 'string' && /retreat/i.test(ability.text))
+        return true;
+    }
   }
   for (const pokemon of opponentBoard) {
     if (!Array.isArray(pokemon.abilityDetails)) return true;
     for (const ability of pokemon.abilityDetails) {
-      if (typeof ability?.text !== 'string' || !/retreat/i.test(ability.text)) continue;
+      const text = ability?.text;
+      // The opponent's Skyliner affects only the opponent's own Basic Pokémon,
+      // never the candidate's Active retreat.
+      if (ability?.name === 'Skyliner') continue;
+      if (typeof text !== 'string' || !/retreat/i.test(text)) continue;
       if (pokemon === opponent.active && ability.name === 'Block' &&
-          BLOCK_TEXT.test(ability.text) &&
+          BLOCK_TEXT.test(text) &&
           /(?:as long as|while) this pok[eé]mon is (?:in the active spot|your active pok[eé]mon)/i
-            .test(ability.text)) continue;
+            .test(text)) continue;
       return true;
     }
   }
   return false;
+}
+function isBenchedMimikyuSafeguard(pokemon, ability) {
+  return startsWithPrinting(pokemon?.printing, 'Mimikyu PAL') &&
+    ability?.name === 'Safeguard' &&
+    typeof ability?.text === 'string' &&
+    /prevent all damage done to this pok[eé]mon by attacks from your opponent['’]s pok[eé]mon ex and pok[eé]mon v/i
+      .test(ability.text);
+}
+function opponentHasUnmodeledDamageOrPrizeText(view) {
+  const opponent = view.opponentPublic;
+  if (!opponent || !Array.isArray(opponent.bench)) return true;
+  const bench = opponent.bench.map(pokemon => {
+    if (!pokemon || !Array.isArray(pokemon.abilityDetails)) return pokemon;
+    const abilityDetails = pokemon.abilityDetails.filter(
+      ability => !isBenchedMimikyuSafeguard(pokemon, ability)
+    );
+    return abilityDetails.length === pokemon.abilityDetails.length ?
+      pokemon : { ...pokemon, abilityDetails };
+  });
+  return baseOpponentHasUnmodeledDamageOrPrizeText({
+    ...view,
+    opponentPublic: { ...opponent, bench }
+  });
+}
+function projectedPrizeOutcome(view, catalog, damage) {
+  const own = view.ownPublic;
+  const defender = view.opponentPublic?.active;
+  if (!defender || !Number.isSafeInteger(defender.hp) ||
+      !Number.isSafeInteger(defender.damage) ||
+      !Array.isArray(defender.printed?.resistance) ||
+      defender.printed.resistance.length !== 0 ||
+      !(catalog.ruleboxPokemonPrintings instanceof Set) ||
+      catalog.ruleboxPokemonPrintings.has(defender.printing) ||
+      !Number.isSafeInteger(own?.prizeCount) || own.prizeCount < 1 ||
+      opponentHasUnmodeledDamageOrPrizeText(view)) return null;
+  const remainingHp = defender.hp - defender.damage;
+  if (!Number.isSafeInteger(remainingHp) || remainingHp <= 0 ||
+      damage < remainingHp) return null;
+  return { opponentActiveRemainingHp: remainingHp, projectedPrizeCount: 1,
+    projectedTerminalWin: own.prizeCount === 1 };
 }
 
 function hasAbilitySuppressor(view) {
@@ -119,7 +175,7 @@ function choosePlanWithAttachedHood(view, catalog, { assumeHoodEffect = false } 
       !supportedStadiums(view) ||
       defender.tools?.some(tool => startsWithPrinting(tool, TOOL_JAMMER)) ||
       hasAbilitySuppressor(view) ||
-      hasUnexpectedRetreatAbility(view) ||
+      hasUnexpectedRetreatAbility(view, catalog, active) ||
       ownerHasUnmodeledFreeMobility(view) ||
       opponentHasUnmodeledDamageOrPrizeText(view)) return null;
 
