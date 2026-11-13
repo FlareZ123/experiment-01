@@ -2,12 +2,18 @@ name: Twinleaf headless smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      aichi_bridge_only:
+        description: Run the pinned 24-rank Aichi diagnostic decklist-to-Twinleaf identity bridge only
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   smoke:
+    if: ${{ !inputs.aichi_bridge_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -207,3 +213,63 @@ jobs:
           SMOKE_STEP_CONTEXT: ${{ toJSON(steps) }}
         run: |
           node -e 'const fs=require("node:fs"); const a=Object.entries(JSON.parse(process.env.SMOKE_STEP_CONTEXT)).filter(([k])=>/^smoke_check_[0-9]+$/.test(k)); const bad=a.filter(([,v])=>v.outcome!=="success"); const report="Twinleaf independent smoke checks: " +a.length+"/39 present, "+bad.length+" failed or non-success\n"+a.map(([k,v])=>k+": "+v.outcome).join("\n")+"\n"; console.log(report); fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,"## Independent smoke checks\n\n"+report+"\n"); if(a.length!==39||bad.length>0) process.exitCode=1;'
+
+
+  aichi-bridge:
+    if: ${{ inputs.aichi_bridge_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out exactly the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify the checked-out Twinleaf revision matches the repository gitlink
+        run: |
+          expected="$(git ls-tree HEAD vendor/twinleaf | awk '{print $3}')"
+          actual="$(git -C vendor/twinleaf rev-parse HEAD)"
+          test -n "$expected" && test "$actual" = "$expected"
+          echo "Twinleaf revision: $actual"
+      - name: Set up upstream Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned upstream server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile upstream server without modifying vendor
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Set up research Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download the frozen 24-rank normalized diagnostic field
+        uses: actions/download-artifact@v4
+        with:
+          name: aichi-expanded-identity-audit
+          path: .tmp/aichi-input
+          run-id: 43407979154
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate bridge code and pure contract tests
+        run: |
+          node --check simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs
+          node --test tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs
+      - name: Resolve all 812 normalized source rows against pinned Twinleaf CardManager
+        run: |
+          node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs \
+            .tmp/aichi-input/aichi-expanded-identity-audit.json \
+            aichi-twinleaf-decklist-bridge.json
+      - name: Preserve row-level mappings, per-deck registered60 hashes and unresolved identities
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aichi-twinleaf-decklist-bridge
+          path: aichi-twinleaf-decklist-bridge.json
+          if-no-files-found: warn
+          retention-days: 30
