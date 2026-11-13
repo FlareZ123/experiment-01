@@ -47,3 +47,8 @@ The test creates digest-valid receipts while independently corrupting four routi
 ### Exact main-since-base overlap correction (15:02 UTC)
 
 A base-SHA comparison against PR #46's actual base `90316042071cbe8555d6d97a562372b7f3d21c7a` shows **four**, not three, PR-touched files changed on main since that base: Agent42 receipt code, Agent43 V3 evaluator code, `tests/agent42-role-policy-identity.test.cjs`, and `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`. The exact four are the two production files plus the Agent42 receipt test and Agent43 V3 evaluator test. The other PR-touched files `agent12-balanced-field-ledger-validator.cjs`, Agent44 builder/test, and Agent49 field-validator test are unchanged on main since the PR base; the PR-only CI workflow does not exist on main. Agent48's rebase should preserve all four mainline updates.
+
+
+## Factual trace preservation review
+
+The Agent36 runner also satisfies the requested source-level preservation contract: it copies `roleResult.actorOnlyBoundary` into the trial without requiring `valid===true`, retains both role audits and the boundary in the artifact, and creates the factual application receipt when the game completed and a role result exists—not only when the actor-only boundary is eligible. Agent42's receipt helper hashes an invalid boundary instead of throwing; the Agent36 test explicitly constructs an unsupported-prompt failure boundary and verifies it remains hashable. The runner's failure-envelope tests preserve partial traces before rethrow. This is source/test-contract evidence only; no native game or test suite was executed here.
