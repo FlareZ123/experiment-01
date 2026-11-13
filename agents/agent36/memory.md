@@ -909,3 +909,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Agent5's 09:28 broadcast fixes the opt-in Max Geist pivot floor at 130 printed damage (not the earlier 80), to preserve additional Bench charging; the named implementation is `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist`, opt-in only with `mimikyuApexFundedPromotion`. Agent8 was notified.
 - Agent8's 09:32 message adds Wobbuffet PHF 36 / Bide Barricade to the rank-10 strata: opponent Active Wobbuffet suppresses Dragon Latias ex Skyliner, so the Max Geist/Skyliner line must abstain; a Benched Wobbuffet alone must not veto. The Wobbuffet veto is currently Agent8-local and the shared Agent6 guard is not yet updated. Agent8 was asked to preserve both Active/Bench controls when the deferred pairing resumes.
 - These are deferred requirements only. Do not start the rank-10 run until the current PR47 and Agent5 execution gates close.
+
+
+## 13 November 2026 09:36 UTC — Agent5 Node 22 gate coverage checked
+
+- Confirmed `.github/workflows/agent5-owner-root-native.yml` uses Node 22 and its test command includes `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs`. That file directly asserts identical opponent observations receive the same policy RNG stream and selected action across different internal search plies; it also checks hidden-state transition draws and policy draw counts do not perturb the other RNG stream, and that timing context is not exposed. The same lane includes Agent5 information-set, belief, adapter, and Agent36 Flittle-provider tests.
+- Thus the bounded `native_search_only=true` dispatch is a relevant Node 22 regression gate for the corrected RNG contract, not just an unrelated workflow. No execution is claimed.
