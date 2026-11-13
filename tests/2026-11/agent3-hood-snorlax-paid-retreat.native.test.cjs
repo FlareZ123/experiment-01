@@ -10,6 +10,8 @@ const cases = [
     pathToPeak: false },
   { name: 'Active VMAX Hood permits the same paid retreat', options: { hood: true },
     allowed: true, pathToPeak: false },
+  { name: 'Hood on a Benched VMAX does not protect the different Active VMAX',
+    options: { benchHood: true }, allowed: false, pathToPeak: false },
   { name: 'Path to the Peak does not suppress non-Rule-Box Snorlax Block',
     options: { stadium: 'Path to the Peak CRE' }, allowed: false,
     pathToPeak: true },
@@ -40,6 +42,7 @@ test('pinned Store applies Active-only Snorlax Block to a real two-Psychic paid 
       assert.equal(result.underworldDoorListed, !row.pathToPeak,
         label + ': Path to the Peak should suppress only the VMAX Rule-Box Ability');
       assert.equal(result.hoodPhysicallyAttached, !!row.options.hood, label);
+      assert.equal(result.benchHoodPhysicallyAttached, !!row.options.benchHood, label);
       assert.equal(result.retreatSucceeded, row.allowed, label);
       assert.equal(result.activeAfter,
         row.allowed ? 'Shadow Rider Calyrex V' : 'Shadow Rider Calyrex VMAX',
