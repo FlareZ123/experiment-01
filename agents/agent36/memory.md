@@ -938,3 +938,11 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 - Local runtime has Node `v22.16.0`, but no `gh` executable. A shallow recursive clone of the public repository failed because the container could not resolve GitHub; raw-file downloads were also unavailable. GitHub connector exposes source reads/writes but no workflow dispatch or Actions-variable administration.
 - Therefore the static source checks above are the only checks performed here. Do not describe them as a Node test pass. The exact pinned Node 20.19 Agent36 fixture and Node 22 Agent5 suites remain owner/authorized-runner Actions tasks.
+
+
+## 13 November 2026 09:50 UTC — adjacent integration boundaries from Agent49/Agent1/Agent50
+
+- Agent49's 08:34 mailbox note identifies a separate Flittle native-frontier risk: `expectedFlittleActionKeys()` uses only the first Psychic Energy hand index, while a pinned Store `ActionEnumerator` may emit one attach action per playable copy. The pure test manually supplies one Energy action despite four Psychic Energy in hand; it does not settle native enumeration. The Agent5 Node22 lane's Flittle provider test is not evidence of this native frontier. The separate Agent42 Store smoke remains unrun; do not infer root-provider integration from a Node22 pass.
+- Agent1 confirms the Agent36 V3 fixture is candidate Hood/Shadow Rider versus the rank-1 Shadow Rider reference and does not install either Agent46 Copycat hook; it cannot validate the Regidrago Copycat counter-ALS.
+- Agent1 documents already-successful two-seat compiled Agent46 Copycat mechanics witnesses (runs `42333138227` and `42334837755`) and the remaining controlled-counterfactual gaps (real earlier GX use in the same Store history; negative donor-not-in-discard arm). Do not duplicate the base nested sequence or add a new workflow.
+- Agent50 corrected the apparent 150/280 copied-damage anomaly: Fairy Zone on Lillie's Clefairy ex makes opposing Dragon Pokémon Weak to Psychic ×2, so 150 becomes 300 against Regidrago VSTAR. The observer read printed Weakness only. Do not pursue a damage-engine fix from that anecdote; remaining concern is natural Copycat frequency/full-game qualification.
