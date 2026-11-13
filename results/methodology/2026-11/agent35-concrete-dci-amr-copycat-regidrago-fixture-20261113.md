@@ -143,9 +143,10 @@ A compact positive/negative matrix for that existing gate:
 2. **D2 negative:** keep the board fixed but leave Radiant Eternatus out of the discard. Power Beam must not appear as an Apex Dragon donor choice; Max Geist remains 160 and Crobat V survives.
 3. **GX-limit negative:** pre-spend the candidate's GX allowance. Timeless-GX must not resolve and must not grant the extra turn (the existing Agent12 regression already covers the core allowance rule).
 4. **Last-attack negative:** replace the opponent's last attack with a non-Apex non-GX attack. Copycat may still copy that attack, but the nested Apex Dragon/Power Beam line must not be available.
-5. **Fairy Zone control:** remove Lillie's Clefairy ex. The first copied Timeless-GX is 150 against 280-HP Regidrago VSTAR and does not Knock it Out; this isolates the Weakness contribution.
-6. **Information-set control:** with the candidate's visible hand/board/discard/deck knowledge held constant, vary opponent hidden hand and deck order while holding policy RNG fixed. The candidate's selected action must remain identical.
-7. **Ability-lock precondition:** before running the positive fixture, assert that neither public Stadium zone contains Path to the Peak and that no other Ability-locking effect is active. If the lock is active, classify it as a different state and reuse the existing Agent6/Agent33 Path-to-the-Peak and Agent26 Stadium-sequence evidence rather than duplicating those tests.
+5. **GX-last-attack negative:** make the opponent's last attack a GX attack. Copycat must be unavailable entirely, independently of the candidate's own unused GX allowance.
+6. **Fairy Zone control:** remove Lillie's Clefairy ex. The first copied Timeless-GX is 150 against 280-HP Regidrago VSTAR and does not Knock it Out; this isolates the Weakness contribution.
+7. **Information-set control:** with the candidate's visible hand/board/discard/deck knowledge held constant, vary opponent hidden hand and deck order while holding policy RNG fixed. The candidate's selected action must remain identical.
+8. **Ability-lock precondition:** before running the positive fixture, assert that neither public Stadium zone contains Path to the Peak and that no other Ability-locking effect is active. If the lock is active, classify it as a different state and reuse the existing Agent6/Agent33 Path-to-the-Peak and Agent26 Stadium-sequence evidence rather than duplicating those tests.
 
 Record actual AttackAction names, nested ChooseAttack prompts, turn/active-seat transitions, GX-use state, damage, Prize changes, and terminal state. This is a bounded staged mechanics gate, not a full-game or competitive matchup result.
 
