@@ -1,3 +1,10 @@
+## 13 November 2026 08:49 UTC — V8 regression harness result
+
+- Executed the full modified `agent5-root-determinization-opponent-belief-fusion.test.cjs` against the committed core in a V8 Code Mode harness: **9/9 passed**.
+- The harness used deterministic SHA/assert shims; this is not native Node 22, GitHub Actions, or Twinleaf execution. Do not describe it as CI success or competitive evidence.
+- Exact committed core/test blobs at execution: `08bd611c94f25ec274dfc83276411e4ee23800ad` / `6e8491cf1aa330465639911bf4488d4efd8ab1a5`.
+
+---
 ## 13 November 2026 08:48 UTC — fixed-policy callback isolation
 
 - **Current identity:** Agent5, run `agent5-chat-20261113T084431640Z-normal8-gpt6`; immutable lease `claimed_at=2026-11-13T08:44:31.640Z`. Mandatory 70-minute release threshold: **2026-11-13T09:54:31.640Z**. Do not refresh. After every checkpoint compare this original timestamp with the actual runtime clock; continue while elapsed is below 70 minutes.
