@@ -492,3 +492,38 @@ Used the V8 parser on the exact current GitHub blobs (without executing them): r
 
 
 Final small diagnostic refinement: the full-state snapshot now labels deck ordering as the raw native CardList.cards array order and explicitly refuses to infer which end is top/bottom. This avoids silently assuming draw direction from array order. The text formatter prints the caveat; the serializer test asserts it. Current serializer blob 548a34d8e2b3d24b3f8d358062b5845fb8981483 parses successfully, and the local Node 22 suite is 4/4.
+
+
+---
+
+## 2026-11-13 invocation addendum — V3 root-policy integration and Snorlax Block
+
+Claimed this incarnation as Agent43 at 2026-11-12T23:54:11.570Z (normal mode; random roll 2). Do not refresh the lease. At the latest checkpoint (2026-11-13T00:58:08Z), elapsed lease age was ~64 minutes; mandatory release begins at 70 minutes.
+
+### Durable findings
+
+1. **V3 does not execute the new native RetreatTactic wrapper for ordinary owner-root decisions.** The path is:
+   - simulation/evaluation/2026-11/agent36-v3-runner.cjs → runCandidateOpponentPolicyRoles;
+   - simulation/twinleaf/agent44-role-scoped-policy-composition.cjs → withActorOnlyRootPolicy;
+   - simulation/twinleaf/agent34-actor-only-root-policy.cjs intercepts decodeNextAction, builds detached actorObservation, and calls chooseActorRootIntent(view,catalog,rootOptions), mapping intents directly to native actions. The native SimpleTacticsAi tactics array is not the ordinary owner-root decision surface (original decoder remains for prompt/non-owner and explicit fallback paths).
+   - Agent20's withHoodCandidateBotOptionsBySeat changes the native tactics array, so it does not make its Max Geist RetreatTactic run in V3.
+2. **The current Agent20 tactic is also not V3 information-safe.** Its latest revision still runs Simulator and StateScore on live full State for candidate attack evaluation. The public-board opponent-retreat counterfactual avoids PassTurnAction/hidden opponent draws, but does not redact the candidate attack inputs or StateScore. Full State contains opponent hand/deck identities and own deck order; a simulated Filch can draw from the actual hidden deck order. V3 must use detached owner view/public opponent data or a tested redacted state projection. A metamorphic test should vary hidden opponent zones and own deck order without changing policy output.
+3. Durable architecture report: results/methodology/2026-11/agent43-v3-root-tactic-bypass-audit-20261113.md. Messages with code-path diagnosis were sent to Agent20 and Agent36; a root-intent integration handoff was sent to Agent34. Latest reviewed Agent20 revision: commit 5850fcbf93be178976031552fd7c2e158f6cfcc3; branch agent20/hood-max-geist-conversion-20261112. It remains a standalone tactic experiment, not V3 candidate policy, until root-intent and information-boundary issues are solved.
+4. **Snorlax PGO Block is a concrete source-list stress case, not Expanded field prevalence.** results/aichi-2026/full-decklists.json has 3 Snorlax PGO in rank 3 Haruto Miki and 2 in rank 7 Hiroto Fuji. Both are source-faithful Japanese Extra Snorlax Stall lists. Agent35's latest scope handoff clarifies 29/32 is source name/count authentication, not 29/32 Expanded-eligible opponents; ranks 3,6,7,24,29 have Extra-only incompatibilities. Do not describe these as legal Expanded matchups or silently normalize cards.
+5. Candidate file results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md contains 2 Stealthy Hood, 1 Arven, 1 Field Blower, 2 Lillie's Clefairy ex, 1 Guzma, 1 Float Stone, and **no Switch**. Agent46's rank-7 board snapshot records candidate Active Shadow Rider VMAX with 2 Psychic, Benched Clefairy ex with 7 Psychic, five Benched Pokémon on each side, opponent Active Snorlax PGO with 10 damage. Rules-derived line: Arven can access Field Blower + Hood (or use cards already in hand); Field Blower removes opponent Active Tool Jammer if present; attach Hood to the affected Active; pay two Psychic to retreat; promote Clefairy; Full Moon Rondo = 20 + 20×10 = 220, enough to KO Snorlax's remaining 140 HP. Conditional on exact hand/board and no other restrictions; not a demonstrated legal game or win. Both known lists have one Tool Jammer; rank3 has Faba/Megaton Blower, rank7 has Field Blower/Megaton Blower, so same-turn conversion matters. Neither known list has Jamming Tower.
+6. Existing shared lock substrate:
+   - simulation/twinleaf/agent35-opponent-active-retreat-lock.cjs detects opponent Active retreat prohibition from owner-visible Ability text, including Snorlax Block.
+   - simulation/twinleaf/agent35-block-switch-ko-frontier.cjs / Agent34 opponentBlockSwitchRoot is a narrow Switch SVI rescue requiring a zero-Energy Active and a funded Benched attacker. Candidate list has no Switch; rank7 Active has 2 Energy.
+   - Agent42 v2 paid-retreat guard rejects Snorlax Block but does not allow the Hood-protected Active exception; Agent35 generic detector also does not account for Hood. A correct exception must require Hood on the currently affected Active and no opponent Active Tool Jammer/Jamming Tower. Path to the Peak does not disable Snorlax PGO (no Rule Box) or Hood.
+7. Agent3 PR #41 native Store probe currently tests Hooded Benched VMAX / Garbotoxin / Tool Jammer. Requested a separate Snorlax Block RetreatAction positive/negative probe. No response or probe result observed as of 00:58Z.
+8. Agent20 branch's standalone Max Geist retreat tactic returns only RetreatAction; the ordinary next AttackTactic must still choose Max Geist. Requested a native sequence regression (retreat accepted, next root chooses Max Geist). Also sent field-list and deck-out-risk context to Agent20.
+9. Agent46 incorporated the Snorlax Block correction into results/methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md. A separate Agent43 Snorlax note was created then deleted as redundant; rely on Agent46's synthesis.
+10. No code was changed in shared policy/runner files. Only durable result created by this incarnation is the V3 root-tactic bypass audit; the rest are one-message-per-file communications in Agent20/34/36/41/42/46/47/3 mailboxes. All were committed/pushed through GitHub API.
+
+### Next actions
+
+- Before lease release, check replies from Agent20, Agent36, Agent34, Agent42, Agent47 and Agent3; evaluate their responses, do not modify their branches without coordination.
+- Prioritize a V3 actor-only root intent for best funded Bench attacker conversion, using owner-visible view and Agent35 lock detection; do not install full-State SimpleTacticsAi scoring into V3.
+- For Snorlax Block, test the Hood/Field Blower sequence in the existing native Store path, then add a narrowly scoped Hood-aware retreat guard. Preserve Tool Jammer/Jamming Tower negatives and Path-to-the-Peak distinction.
+- Keep Aichi Japanese Extra source lists separate from the prompt's paper Expanded legality target; no 99.5% or matchup-strength claim is supported.
+- The V3 secure fixture remains owner-key/manual-dispatch blocked; no native full-game result was produced in this invocation.
