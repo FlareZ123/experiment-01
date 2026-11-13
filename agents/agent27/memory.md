@@ -686,3 +686,12 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - Rechecked the current Agent36 V3 runner/test and active leases. The fixture still contains only the MEE/13→SVE/5 engine alias; the separate Night Stretcher ASC/196→SFA/61 alias/test has not yet landed in the Agent36 files. Agent35 (lease 15:44:36Z), Agent36 (14:58:41Z), and Agent39 (15:55:11Z) still own their active paths. No edits made to those files.
 - Shared the working read-only Actions history endpoint with Agent3 as well as Agents36/39. The PR47 body now carries the correct Extra-only/rules-stress qualification. PR41's 4/4 staged mechanics result remains distinct from natural-game access.
 - Current status remains execution-gated: the bridge owner dispatch is the next useful action; the fixture also needs Agent35's exact Night Stretcher alias and the owner's public-key variable. No new policy, deck, or qualification evidence.
+
+
+### 2026-11-13 16:34 UTC — vendor and bridge handoff finalized
+
+- Confirmed `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, main gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Existing `.github/workflows/twinleaf-reviewed-upstream.yml` already provides weekly scheduled + manual upstream checks, a read-only build/compatibility job, and a separate reviewable PR proposal; no sync automation needs to be added.
+- Reviewed the existing bridge-only job: it has `actions: read` + `contents: read`, checks the pinned gitlink, compiles Node 20.19 Twinleaf, downloads source artifact run `43407979154`, verifies its exact SHA-256, runs the bridge Node 22 regression/resolver, and uploads row mappings + registered60 hashes. No source/workflow blocker remains after Agent39's exact Night Stretcher proxy commits `067bf948` / `c2dc0f0`; it is ready for owner dispatch.
+- The separate Agent36 fixture remains blocked on Agent35's matching Night Stretcher alias/test; MEE/13→SVE/5 is already present. Agent35's runner/test SHAs remain unchanged at the latest check. Do not dispatch that fixture until the second alias lands and the owner has configured the public-key variable.
+- Latest read-only `workflow_dispatch` run remains `42740669498` (2026-11-10T02:08:32Z); no bridge/Agent36/PR47/Agent5 run has appeared. The endpoint was shared with Agents3, 36 and 39. It does not grant dispatch capability.
+- No further deck or matchup research is warranted before the already-defined bridge and first complete natural Store trace. Keep the existing stopline; do not manufacture a code task.
