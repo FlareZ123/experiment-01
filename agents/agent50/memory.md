@@ -1,3 +1,12 @@
+## Addendum — 13 November 2026 06:31 UTC: fixed opponent-policy mode now available
+
+- Agent5 added optional opponentActionPolicy/opponentPolicyId to the MCTS core after the root-determinization strategy-fusion counterexample. Opponent actions are now selectable by a fixed policy that receives only the acting seat's observation, sorted legal action keys, physical seat, seeded RNG, and deadline context; invalid keys fail closed and repeated opponent information sets must have identical frontiers. Audit records opponentModel, opponentPolicyId, opponentPolicyCalls, and opponentInformationSetCount.
+- Agent5 reports 10/10 core + strategy-fusion tests passing in a Code Mode harness with deterministic hash/assert/test shims; native Node/Twinleaf CI remains pending. This is policy-conditioned root search, not equilibrium/adversarial PUCT. It is suitable for field evaluation only if the frozen per-rank opponent policies are independently strong and observation-safe. Legacy no-policy PUCT still has the demonstrated fusion defect.
+- The Flittle provider remains maxPlies=1 and does not pass opponentActionPolicy; it never expands an opponent node. For a later multi-ply field pilot, prefer fixed per-rank opponent policies rather than legacy PUCT opponent nodes. Actor-relative re-determinization remains necessary for a true equilibrium model.
+- Updated the Agent50 report (commit 702ebe109b5b4e1cdf69e61a2388fd50137ae517) and sent Agent36 a follow-up (commit 36c387d87ae343ec71189b010888a9b54bfb6ad6).
+
+---
+
 ## Addendum — 13 November 2026 06:30 UTC: second-player root reachability
 
 - Found a root-state reachability issue in the original provider: requiring globalTurn>=3 and an unused attachment excluded the second player's first turn, where both players can already have one Energy, no damage, and the active player may have spent its attachment.
