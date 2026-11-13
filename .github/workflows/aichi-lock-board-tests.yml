@@ -141,6 +141,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent48_arbok_gastro_acid_native:
+        description: 'Staged pinned-native Arbok XY Gastro Acid versus Stoutland; no game-level evidence'
+        required: false
+        type: boolean
+        default: false
       rank8_preregistered_start_panel:
         description: 'Eight source rank-8 decorrelated v3 starts (repeats 1-4, both seats)'
         required: false
@@ -360,6 +365,19 @@ jobs:
         with:
           name: agent48-native-firstturn-carmine-source
           path: agent48-carmine-first-native.json
+          if-no-files-found: warn
+      - name: Native Arbok XY Gastro Acid suppresses Stoutland through Stealthy Hood with Bench Vileplume
+        if: inputs.agent48_arbok_gastro_acid_native
+        run: node simulation/twinleaf/agent48-arbok-gastro-acid-native.cjs > agent48-arbok-gastro-acid-native.json
+      - name: Assert native Arbok Gastro Acid effect and ability-lock preservation
+        if: inputs.agent48_arbok_gastro_acid_native
+        run: node --test tests/agent48-arbok-gastro-acid-native.test.cjs
+      - name: Preserve native Arbok Gastro Acid staged-board result
+        if: inputs.agent48_arbok_gastro_acid_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-arbok-gastro-acid-native
+          path: agent48-arbok-gastro-acid-native.json
           if-no-files-found: warn
       - name: Verify printed Carmine native exception and first-player ordinary-veto boundary
         if: inputs.agent48_carmine_first_native
