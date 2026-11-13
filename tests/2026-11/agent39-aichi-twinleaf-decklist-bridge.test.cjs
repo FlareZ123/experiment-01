@@ -148,7 +148,7 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
   assert.equal(result.decks[0].source_row_mappings[4].card_pool_printing.number, 'SM217');
   assert.equal(result.decks[0].source_row_mappings[5].set_number, '67');
   assert.equal(result.decks[0].source_row_mappings[5].card_pool_printing.number, 'XY67');
-  assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> exact source-keyed engine proxy when declared (ASC/196 -> SFA/61), otherwise unchanged -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged');
+  assert.equal(result.identity_join, 'normalized.printing.set + normalized.printing.number -> exact Twinleaf print when present; otherwise exact source-keyed engine proxy (ASC/196 -> SFA/61) -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged');
   assert.equal(result.diagnostic_only, true);
   assert.equal(result.diagnostic_reconstruction_eligible, true);
   assert.equal(result.paper_admission_eligible, false);
@@ -189,6 +189,29 @@ test('resolves the exact Night Stretcher ASC/196 source through SFA/61 without r
     deck_identity_sha256: result.decks[0].deck_identity_sha256,
     source_print_identity_sha256: result.decks[0].source_print_identity_sha256,
   }, normalizedDeckIdentityHashes(input.decks[0]));
+});
+
+
+test('prefers the exact ASC/196 Twinleaf print if a future pinned revision registers it', () => {
+  const cards = [
+    { set: 'ASC', setNumber: '196', fullName: 'Night Stretcher ASC' },
+    { set: 'SFA', setNumber: '61', fullName: 'Night Stretcher SFA' },
+  ];
+  const sourceRow = row({
+    index: 0,
+    cardId: 'me2pt5-196',
+    name: 'Night Stretcher',
+    count: 1,
+    set: 'ASC',
+    sourceNumber: '196',
+    cardPoolNumber: '196',
+  });
+  const manager = mockManager(cards);
+  const resolved = resolveNormalizedRow(sourceRow, indexTwinleafCards(manager), manager);
+  assert.equal(resolved.status, 'resolved');
+  assert.equal(resolved.set, 'ASC');
+  assert.equal(resolved.set_number, '196');
+  assert.equal(resolved.full_name, 'Night Stretcher ASC');
 });
 
 test('Night Stretcher proxy is exact and fails closed for nearby source identities', () => {
