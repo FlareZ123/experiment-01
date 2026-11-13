@@ -123,6 +123,7 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
   const plans = new Map();
   const plannedReplies = new WeakMap();
   const awaitingFinality = new Map();
+  const awaitingBenchPlacement = new Map();
   const audit = {
     version: VERSION,
     ownerOnly: true,
@@ -136,6 +137,9 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
     paymentPhysicalFailures: 0,
     searchPromptProposals: 0,
     targetPhysicalRetrievals: 0,
+    targetPhysicalBenchPlacements: 0,
+    targetPhysicalBenchPlacementFailures: 0,
+    completedSetupChains: 0,
     emptySearchAcceptances: 0,
     searchPhysicalFailures: 0,
     completedPhysicalChains: 0,
@@ -147,6 +151,7 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
     excludedAuxiliaryDispatches: 0,
     pendingPlansAtEnd: 0,
     pendingFinalityAtEnd: 0,
+    pendingBenchPlacementsAtEnd: 0,
     actorDecisionPolicyChanged: false,
     competitiveQualifiedGames: 0
   };
@@ -161,6 +166,18 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
     });
   }
 
+  function maybeCompleteSetup(plan) {
+    if (plan?.costSettled === true &&
+        plan?.targetRetrieved === true &&
+        plan?.targetBenched === true &&
+        plan?.itemFinalized === true &&
+        plan.setupCompleted !== true) {
+      plan.setupCompleted = true;
+      audit.completedSetupChains++;
+      log('quick-ball-setup-chain-completed', plan);
+    }
+  }
+
   function settleFinality(state) {
     for (const [ownerId, plan] of awaitingFinality) {
       const owner = state.players?.[plan.seat];
@@ -170,8 +187,47 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
       ) === true;
       if (!sourcePromptsPending && owner.discard?.cards?.includes(plan.itemRef)) {
         audit.nativeItemFinalizations++;
+        plan.itemFinalized = true;
         awaitingFinality.delete(ownerId);
+        maybeCompleteSetup(plan);
         log('quick-ball-native-item-finalized', plan);
+      }
+    }
+  }
+
+  function settleBenchPlacement(state) {
+    for (const [ownerId, plan] of awaitingBenchPlacement) {
+      const owner = state.players?.[plan.seat];
+      if (!owner) continue;
+      const inBench = Array.isArray(owner.bench) && owner.bench.some(slot => {
+        try {
+          return typeof slot?.getPokemonCard === 'function'
+            ? slot.getPokemonCard() === plan.selectedCard
+            : slot === plan.selectedCard;
+        } catch {
+          return false;
+        }
+      });
+      const inHand = owner.hand?.cards?.includes(plan.selectedCard) === true;
+      const inDeck = owner.deck?.cards?.includes(plan.selectedCard) === true;
+      if (inBench && !inHand && !inDeck) {
+        plan.targetBenched = true;
+        audit.targetPhysicalBenchPlacements++;
+        awaitingBenchPlacement.delete(ownerId);
+        maybeCompleteSetup(plan);
+        log('quick-ball-target-physically-benched', plan);
+        continue;
+      }
+      const ownerTurnEnded = state.activePlayer !== plan.seat;
+      const targetLeftExpectedZones = !inHand && !inDeck && !inBench;
+      if (ownerTurnEnded || targetLeftExpectedZones) {
+        audit.targetPhysicalBenchPlacementFailures++;
+        awaitingBenchPlacement.delete(ownerId);
+        log('quick-ball-target-bench-placement-failed', plan, {
+          ownerTurnEnded,
+          targetStillInHand: inHand,
+          targetStillInDeck: inDeck
+        });
       }
     }
   }
@@ -272,6 +328,7 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
       liveStore = this;
       plans.clear();
       awaitingFinality.clear();
+      awaitingBenchPlacement.clear();
     }
     const real = this === liveStore;
     if (!real) {
@@ -399,6 +456,9 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
         }
         if (settled && plan?.costSettled === true && reply.selectedCard) {
           audit.completedPhysicalChains++;
+          plan.selectedCard = reply.selectedCard;
+          plan.targetRetrieved = true;
+          awaitingBenchPlacement.set(reply.ownerId, plan);
         }
         plans.delete(reply.ownerId);
         if (plan) awaitingFinality.set(reply.ownerId, plan);
@@ -409,6 +469,7 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
     }
 
     settleFinality(this.state);
+    settleBenchPlacement(this.state);
     return result;
   }
 
@@ -420,6 +481,7 @@ function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
     const result = execute();
     audit.pendingPlansAtEnd = plans.size;
     audit.pendingFinalityAtEnd = awaitingFinality.size;
+    audit.pendingBenchPlacementsAtEnd = awaitingBenchPlacement.size;
     return { result, audit };
   } finally {
     assert.strictEqual(Bot.prototype.decodeNextAction, decode);
