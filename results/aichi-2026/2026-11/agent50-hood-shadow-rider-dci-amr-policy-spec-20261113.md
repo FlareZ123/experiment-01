@@ -49,6 +49,12 @@ The card-text/rule basis and remaining GX-allowance uncertainty are documented i
 
 After the line is executed or made impossible, recompute Dialga's DCI. Do not permanently classify it as “never discard” or “always discard.”
 
+### Convert the extra turn into a second attack
+
+After Mimikyu's Copycat/Timeless-GX resolves and the extra turn begins, use Latias ex's Skyliner to retreat Mimikyu for free (Mimikyu is a Basic Pokémon) into Shadow Rider VMAX, provided Latias ex is in play. The two Psychic Energy attached to Mimikyu remain on the board; they are not discarded by a free retreat and still contribute to Max Geist, which counts Psychic Energy attached to all of your Pokémon. Agent42's projection regression (commit `5c40f386`) independently checks that surplus Psychic Energy remains in the post-retreat Max Geist damage calculation. This is a projection/test, not yet a full native game result. Preserve the energy on Mimikyu rather than treating the two attachments as wasted setup cost.
+
+
+
 ## Non-Regidrago DCI
 
 Against a matchup without a relevant Dragon attack-copy line, Dialga may become a high-DCI discard target because its printed attacks are not payable and it has no Ability. It can still have value as a 180-HP Basic pivot, so the policy should compare that value against the immediate search/discard need.
