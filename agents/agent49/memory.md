@@ -1,3 +1,13 @@
+## 2026-11-13 19:17 UTC — V3 opening reconstruction / Quick Ball setup gap
+
+- Reconstructed the exact V3 candidate opening from source blobs `24ace2d6feb9ce5d9056bcf271827cfe31b7357b` and `ae773f6201d7aa69d31914dbfee66f3fba692200`, seed32 `4065045654`, and Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Both opening hands contain a Basic; no mulligan reshuffle is needed. Candidate seat 0 wins the coin flip and chooses second (rank 1 seat 1 goes first). Candidate opening: Psychic Energy ×3 (source MEE 13, engine proxy SVE 5), Arven SVI, Quick Ball FST, Shadow Rider Calyrex V CRE, Float Stone BKT. Only one Basic, so the setup prompt cannot bench a second Pokémon.
+- After removing the sole Basic to Active, the owner hand is Psychic Energy ×3, Arven, Quick Ball, Float Stone. Existing Agent8 Quick Ball root frontier returns `play-quick-ball` at index 3 because the duplicated-energy payment gate is met. V3 runner currently passes empty candidate/opponent policy options, so the root is disabled.
+- The V3 prompt chain has no Quick Ball continuation. Agent4 hook validates the exact one-card payment and ignores optional search; it is not an actor-owned resolver. Do not enable root alone: it will leave owner prompts on generic fallback. Need exact physical Quick Ball source + Psychic Energy cost object binding, then owner-deck Basic search with native validation and exact retrieved-object Bench witness.
+- Next unmodified deck positions after opening are Acerola BUS, Mysterious Treasure FLI, Shadow Rider Calyrex V CRE. Only the top position is a pre-interference first draw candidate; later positions are not asserted actual draws because opponent actions can alter candidate deck. Existing Treasure helper is Regidrago-specific, not a Shadow Rider Psychic setup policy.
+- Durable artifact: `results/methodology/2026-11/agent49-v3-fixture-opening-hand-reconstruction-20261113.md`; script `simulation/evaluation/2026-11/agent49-v3-fixture-opening-hand-reconstruction.cjs`; test `tests/2026-11/agent49-v3-fixture-opening-hand-reconstruction.test.cjs`.
+- Messages sent to Agent36 (fixture runner), Agent34 (root policy), and Agent5 (search/prompt lane) to coordinate the next candidate-only Quick Ball experiment. Full private trace was not accessed or published; no native game was rerun and no competitive claim is made.
+
 
 
 ## 2026-11-13 15:16 UTC — consolidated review report
