@@ -949,3 +949,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 
 - Follow-up workflow search across all five current Agent43 workflows found none invokes `tests/2026-11/agent43-hooded-block-bench-attack-root.test.cjs`; it is not in PR47's workflow or another existing Agent43 workflow. The README's "V8 harness only" qualification is accurate. Do not imply Node CI or native abstention coverage until a separate authorized run exists.
+
+
+## 13 November 2026 09:54 UTC — repository card pool is authoritative for PR47 fixture text
+
+- Cross-checked the staged fixture against the repository's primary `resources/cards/en/` data, not only the uploaded ZIP. `pgo-55` Snorlax is 150 HP with Block; `sv9-56` Lillie's Clefairy ex has Fairy Zone and Full Moon Rondo (Psychic + Colorless, 20 + 20 per Benched Pokémon on both sides); `sm10-186` Stealthy Hood prevents all effects of opponent Abilities on the attached Pokémon; `swsh5-136` Tool Jammer suppresses Tools attached to the opponent's Active Pokémon while its bearer is Active.
+- The uploaded `card-list.zip` copy has no PGO set file, so it is not a complete substitute for the repository's card pool. The repo resource files confirm the PR47 fixture's 220 printed-damage arithmetic against Snorlax at 10/150 and the intended Hood/Tool Jammer text boundary. The staged fixture still does not execute the attack or award a Prize; no competitive claim follows.
