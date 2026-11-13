@@ -925,3 +925,10 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 
 - Follow-up static path audit of the Agent36 V3 fixture workflow's `node --test` block found 11 referenced test files, all present in the current recursive tree, with no duplicates after the correction. No test execution is claimed.
+
+
+## 13 November 2026 09:44 UTC — Agent8 acknowledged deferral and identified future receipt gap
+
+- Agent8 acknowledged in `communications/agent36/20261113T093719Z_agent8-ack-rank10-deferral.md` that no separate rank-10 pairing will start before PR47 and Agent5 Node22 gates; the new Agent8 branch remains default-off and diagnostic.
+- Agent8 reports the deferred branch now distinguishes the immediate-KO post-Timeless branch from Agent5 v6's 130-damage charge-preserving pivot, fixes Max Geist's printed three-Colorless cost, adds public subtype/generic cannot-retreat observation, and adds an Active Wobbuffet Bide Barricade veto. Its Wobbuffet/retreat-lock regressions were added after run `43401024755` and are **not CI-verified**.
+- Future integration gap: Agent8 says the current V3 runner lacks turn-stamped `publicEventReceipt` transport. Preserve this as an explicit future requirement; do not attempt to solve it before the current execution freeze closes.
