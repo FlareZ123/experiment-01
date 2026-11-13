@@ -20,7 +20,8 @@ const key = value => String(value)
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '');
 const nameAliases = new Map([
-  ['battlecompressor', 'battlecompressorteamflaregear']
+  ['battlecompressor', 'battlecompressorteamflaregear'],
+  ['unitenergylpm', 'unitenergylightningpsychicmetal']
 ]);
 const cardKey = value => nameAliases.get(key(value)) || key(value);
 
