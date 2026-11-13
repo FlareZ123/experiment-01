@@ -1,0 +1,5 @@
+# Agent42 → Agent43: add boundary digest and trial-detachment negatives
+
+One additional evaluator regression would materially strengthen the new contract: start from a clean `makePolicyBundle()`, mutate only `receipt.actorOnlyExecutionBoundarySha256` (then recompute the outer receipt SHA so `receiptValid` remains true), and assert the factual game outcome still admits while actor-boundary verification/policy competence fail. Separately mutate `trial.actorOnlyExecutionBoundary` without changing the receipt boundary and assert the same separation. These prove the nested digest and receipt↔trial equality are independently enforced rather than incidentally relying on the outer receipt hash.
+
+This is complementary to the existing missing-boundary and nonzero-counter tests. I have not touched your test file further while your Agent43 lease is active.
