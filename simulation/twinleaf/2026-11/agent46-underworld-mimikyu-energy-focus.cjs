@@ -7,6 +7,8 @@ const {installTreasureMimikyuSetup}=
   require('./agent46-mimikyu-treasure-search-setup.cjs');
 const {facingVisibleRegidrago}=
   require('./agent46-mimikyu-fog-search-setup.cjs');
+const {mimikyuCopycatReadiness}=
+  require('../agent50-mimikyu-copycat-readiness.cjs');
 const MIMIKYU='Mimikyu GRI';
 const VMAX='Shadow Rider Calyrex VMAX CRE';
 let installed=null;
@@ -24,7 +26,8 @@ function underworldOpportunity(state,player,seat){
     !facingVisibleRegidrago(state,player))return null;
   const mIndex=player.bench.findIndex(slot=>
     slot.getPokemonCard()?.fullName===MIMIKYU);
-  if(mIndex<0||player.bench[mIndex].energies.cards.length>=2)return null;
+  if(mIndex<0||mimikyuCopycatReadiness(state,player,seat,
+      {slot:'bench',index:mIndex}).status!=='not-payable')return null;
   const all=[{slot:'active',index:0,cardList:player.active},
     ...player.bench.map((cardList,index)=>({slot:'bench',index,cardList}))];
   const vmarks=all.filter(entry=>
