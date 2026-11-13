@@ -54,6 +54,104 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
 });
 
+test('fixture trial binds both role execution audits to a canonical policy digest', () => {
+  const audit = (seat) => ({
+    policyOwnerSeat: seat,
+    version: 'agent34-actor-only-root-slice-test',
+    origin: 'detached-actor-observation',
+    observationSchema: 'agent2-public-native-dispatch-diff-v1',
+    nativeOwnerTrainerFallback: null,
+    unsupportedPromptFallbacks: 0,
+    nonOwnerNativeDelegations: 0,
+    nonLiveSpeculativeFallbacks: 0,
+    nonTurnPhaseFallbacks: 0,
+    nonOwnerSeatBypassCalls: 0,
+  });
+  const args = {
+    trialId: 'agent36-v3-fixture-audit-test',
+    candidateSeat: 0,
+    opponentSeat: 1,
+    candidateIdentity: { policySha256: 'a'.repeat(64) },
+    opponentIdentity: { policySha256: 'b'.repeat(64) },
+    roleResult: { candidateAudit: audit(0), opponentAudit: audit(1) },
+  };
+  const summary = runner.createFixtureActorOnlyPolicyExecutionAudit(args);
+  assert.equal(summary.trialId, args.trialId);
+  assert.equal(summary.candidate.policyOwnerSeat, 0);
+  assert.equal(summary.opponent.policyOwnerSeat, 1);
+  assert.equal(summary.candidate.nativeOwnerTrainerFallbackEnabled, false);
+  assert.equal(summary.opponent.unsupportedPromptFallbacks, 0);
+  assert.match(summary.sha256, /^[0-9a-f]{64}$/);
+
+  const changed = runner.createFixtureActorOnlyPolicyExecutionAudit({
+    ...args,
+    roleResult: {
+      candidateAudit: { ...audit(0), unsupportedPromptFallbacks: 1 },
+      opponentAudit: audit(1),
+    },
+  });
+  assert.notEqual(changed.sha256, summary.sha256,
+    'a changed role fallback counter must change the trial-bound audit digest');
+  assert.throws(() => runner.createFixtureActorOnlyPolicyExecutionAudit({
+    ...args,
+    roleResult: { candidateAudit: audit(1), opponentAudit: audit(1) },
+  }), /wrong physical seat/);
+  assert.equal(runner.createFixtureActorOnlyPolicyExecutionAudit({
+    ...args, roleResult: null,
+  }), null);
+
+  const runnerSource = fs.readFileSync(
+    path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  assert.match(runnerSource,
+    /actorOnlyPolicyExecutionAudit:\s*createFixtureActorOnlyPolicyExecutionAudit\(/);
+  assert.match(runnerSource,
+    /actorOnlyPolicyExecutionAudit,\s*runtimePinEvidence/);
+});
+
+test('fixture policy registration distinguishes Expanded game rules from Japanese Extra source event', () => {
+  const constraints = runner.buildFixturePolicyConstraints({
+    patchDescriptor: {
+      patchId: 'fixture-test-hook',
+      modulePath: 'simulation/twinleaf/test-hook.cjs',
+      moduleSha256: 'c'.repeat(64),
+      target: 'fixture-test-target',
+    },
+    botOptionsProfile: {},
+  });
+  assert.equal(constraints.candidateFormat, 'Expanded');
+  assert.equal(constraints.gameRuleset, 'Expanded');
+  assert.equal(constraints.opponentSourceEventFormat, 'Japanese Extra');
+
+  const candidateIdentity = {
+    deckSha256: 'a'.repeat(64),
+    policySha256: 'b'.repeat(64),
+    entryManifestSha256: 'c'.repeat(64),
+    challengeSuiteSha256: 'd'.repeat(64),
+    policyProducerId: 'fixture-candidate',
+  };
+  const opponentIdentity = {
+    deckSha256: 'e'.repeat(64),
+    policySha256: 'f'.repeat(64),
+    entryManifestSha256: '1'.repeat(64),
+    challengeSuiteSha256: '2'.repeat(64),
+    policyProducerId: 'fixture-opponent',
+  };
+  const plan = runner.buildFixturePolicyPlan({
+    candidateIdentity, opponentIdentity, constraints, runtimePinEvidence: {},
+  });
+  for (const object of [plan.policyPlanCore, plan.policyRegistration, plan.preDeal]) {
+    assert.equal(object.candidateFormat, 'Expanded');
+    assert.equal(object.gameRuleset, 'Expanded');
+    assert.equal(object.opponentSourceEventFormat, 'Japanese Extra');
+  }
+  assert.equal(plan.policyPlanCore.constraints.gameRuleset, 'Expanded');
+  assert.equal(plan.policyPlanCore.constraints.opponentSourceEventFormat, 'Japanese Extra');
+  const runnerSource = fs.readFileSync(
+    path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
+  assert.match(runnerSource, /gameRuleset: trial\.gameRuleset/);
+  assert.match(runnerSource, /opponentSourceEventFormat: trial\.opponentSourceEventFormat/);
+});
+
 test('string trial seed maps deterministically to a recorded uint32 stream seed', () => {
   const seed = 'agent36-v3-fixture-hood-rank1-20261112-01';
   const first = fixtureGame.normalizeSeed32(seed);
