@@ -6,39 +6,45 @@ const {
   createPublicDecklistPriorProvider,
   normalizeKnowledge
 }=require('./agent5-twinleaf-belief-input.cjs');
-const {createTwinleafMcts}=require('./agent5-twinleaf-mcts-adapter.cjs');
-const {observationSha256}=require('./agent5-information-set-mcts.cjs');
+const {
+  createTwinleafMcts,
+  flittleActionKey,
+  expectedFlittleActionKeys,
+  flittleNativeActionToIntent
+}=require('./agent5-twinleaf-mcts-adapter.cjs');
 const {actorObservation}=require('../actor-observation-contract.cjs');
 
 const FLITTLE='Flittle SVI';
 const PSYCHIC='Psychic Energy SVE';
 const ENVELOPE_ID='flittle-basic-psychic-v1';
+const RULES_PROFILE_PREFIX='twinleaf-default-rules-flittle-v1';
 const PILOT_BUDGET=Object.freeze({
   iterations:16,
   maxPlies:1,
-  maxDecisionMs:10000,
+  maxDecisionMs:250,
   seed:20261113
 });
 const TEST_DECKLIST=Object.freeze({
   id:ENVELOPE_ID,
   cards:Object.freeze([FLITTLE,...Array(59).fill(PSYCHIC)])
 });
-const EXPECTED_ACTION_COUNT=3;
 
 function prizeCount(state,seat) {
   return state.players[seat].prizes.reduce(
-    (sum,slot)=>sum+slot.cards.length,0
+    (sum,slot)=>sum+(slot.cards?.length??0),0
   );
-}
-
-function prizeCounts(state) {
-  return [prizeCount(state,0),prizeCount(state,1)];
 }
 
 function hasPendingPrompt(state) {
   return (state.prompts??[]).some(prompt=>prompt.result===undefined);
 }
 
+/**
+ * The registered test deck has one Flittle, forced Active, and 59 Basic
+ * Psychic Energy. Prize identities are inferred from that closed list and
+ * the publicly established Active; this function reads Prize cardinality
+ * only, never face-down Prize card faces.
+ */
 function knowledgeBySeat(state,seat) {
   assert.ok(seat===0||seat===1);
   const count=prizeCount(state,seat);
@@ -65,150 +71,183 @@ function observe(state,seat) {
   });
 }
 
-function assertPublicPokemon(view,expectedDamageLimit=30) {
+function assertPublicPokemon(view,energyCount,maxDamage=10) {
   assert.ok(view&&typeof view==='object');
   assert.equal(view.printing,FLITTLE);
-  assert.deepEqual(view.evolutionPrintings,[FLITTLE]);
-  assert.deepEqual(view.energies,[PSYCHIC]);
+  // Twinleaf's public PokemonCardList.cards projection includes attached
+  // Energy. energies is a second projection of those same physical cards.
+  assert.deepEqual(view.evolutionPrintings,
+    [FLITTLE,...Array(energyCount).fill(PSYCHIC)]);
+  assert.deepEqual(view.energies,Array(energyCount).fill(PSYCHIC));
   assert.deepEqual(view.tools,[]);
   assert.equal(view.hp,30);
   assert.ok(Number.isInteger(view.damage)&&view.damage>=0&&
-    view.damage<expectedDamageLimit);
+    view.damage<=maxDamage);
   assert.deepEqual(view.specialConditions,[]);
   assert.equal(view.attacks.length,1);
   assert.equal(view.attacks[0].name,'Ram');
   assert.deepEqual(view.attacks[0].cost,['Psychic']);
   assert.equal(view.attacks[0].damage,10);
+  const restrictions=view.publicRestrictions??{};
+  assert.equal(restrictions.cannotAttackNextTurn,false);
+  assert.deepEqual(restrictions.cannotUseAttacksNextTurn,[]);
+  assert.equal(restrictions.blockedAttackNameNextTurn,null);
+  assert.equal(restrictions.blockedAttackNameUntilLeavesActive,null);
+  assert.equal(restrictions.onlyAllowedAttackNameNextTurn,null);
 }
 
-function assertFlittleRootEnvelope(state,seat,view,native) {
+function assertPublicPlayerZones(view) {
+  assert.equal(view.bench.length,5);
+  assert.ok(view.bench.every(slot=>slot===null));
+  assert.deepEqual(view.stadium,[]);
+  assert.deepEqual(view.discard,[]);
+  assert.deepEqual(view.lostZone,[]);
+  assert.deepEqual(view.resolvingSupporter,[]);
+  assert.equal(view.prizeCount,6);
+  const restrictions=view.publicTurnRestrictions??{};
+  assert.equal(restrictions.energyPlayLocked,false);
+  assert.equal(restrictions.attackLockTurnsRemaining,0);
+  assert.ok(restrictions.attackMaxEnergy===null||
+    restrictions.attackMaxEnergy===undefined);
+}
+
+function assertVerifiedK1Ledgers(state,actorSeat,view) {
+  for(const physicalSeat of [0,1]) {
+    const ledger=knowledgeBySeat(state,physicalSeat);
+    const normalized=normalizeKnowledge(
+      ledger,ledger.ownerK1Snapshot,prizeCount(state,physicalSeat));
+    assert.equal(normalized.exactPrizeMembership,true);
+    assert.deepEqual(normalized.knownPrizeCards,Array(6).fill(PSYCHIC),
+      'The one-Flittle/59-Psychic fixture must retain six known Psychic Prizes');
+  }
+  const actorLedger=knowledgeBySeat(state,actorSeat);
+  assert.deepEqual(view.ownerK1,actorLedger.ownerK1Snapshot,
+    'Actor observation and the acting seat K1 ledger must agree');
+}
+
+function assertFlittleStateEnvelope(state,seat,view,native) {
   assert.ok(state&&state.players?.length===2);
   assert.ok(seat===0||seat===1);
   assert.equal(state.activePlayer,seat);
   assert.equal(state.phase,native.GamePhase.PLAYER_TURN);
   assert.equal(hasPendingPrompt(state),false);
+  assert.ok(Number.isSafeInteger(state.turn)&&state.turn>=3);
   assert.ok(view&&view.actorSeat===seat);
   assert.equal(view.decisionKind,'owner-root');
-  assert.equal(view.globalTurn>1,true);
-  assert.equal(view.activePlayer,seat);
-  assert.equal(view.ownTurnResources.energyPlayedTurn<view.globalTurn,true);
+  assert.equal(view.globalTurn,state.turn);
+  assert.equal(view.ownTurnResources.energyPlayedTurn,
+    state.players[seat].energyPlayedTurn);
 
-  assertPublicPokemon(view.ownPublic.active);
-  assertPublicPokemon(view.opponentPublic.active);
-  assert.equal(view.ownPublic.bench.length,5);
-  assert.equal(view.opponentPublic.bench.length,5);
-  assert.ok(view.ownPublic.bench.every(slot=>slot===null));
-  assert.ok(view.opponentPublic.bench.every(slot=>slot===null));
-  assert.deepEqual(view.ownPublic.stadium,[]);
-  assert.deepEqual(view.opponentPublic.stadium,[]);
-  assert.deepEqual(view.ownPublic.discard,[]);
-  assert.deepEqual(view.opponentPublic.discard,[]);
-  assert.deepEqual(view.ownPublic.lostZone,[]);
-  assert.deepEqual(view.opponentPublic.lostZone,[]);
-  assert.deepEqual(view.ownPublic.resolvingSupporter,[]);
-  assert.deepEqual(view.opponentPublic.resolvingSupporter,[]);
-  assert.equal(view.ownPublic.prizeCount,6);
-  assert.equal(view.opponentPublic.prizeCount,6);
-  assert.equal(view.ownPublic.handCount,view.ownHand.length);
-  assert.ok(view.ownHand.length>0);
-  assert.ok(view.ownHand.every(printing=>printing===PSYCHIC));
-  assert.equal(view.ownerK1?.exactMembershipKnown,true);
-  assert.deepEqual(view.ownerK1?.knownPrintings,[
-    {printing:PSYCHIC,copies:6}
-  ]);
+  // Freeze the exact default Rules profile. No first-turn attack exception,
+  // unlimited attachment, or omitted first-turn draw is permitted.
+  assert.equal(state.rules.attackFirstTurn,false);
+  assert.equal(state.rules.unlimitedEnergyAttachments,false);
+  assert.equal(state.rules.firstTurnDrawCard,true);
 
-  const ownPlayer=state.players[seat];
-  const opponentPlayer=state.players[1-seat];
-  assert.ok(ownPlayer.active&&opponentPlayer.active);
-  assert.equal(ownPlayer.active.getPokemonCard().fullName,FLITTLE);
-  assert.equal(opponentPlayer.active.getPokemonCard().fullName,FLITTLE);
-  assert.equal(ownPlayer.active.getPokemonCard().powers.length,0);
-  assert.equal(opponentPlayer.active.getPokemonCard().powers.length,0);
-  assert.equal(ownPlayer.active.getPokemonCard().attacks.length,1);
-  assert.equal(ownPlayer.active.getPokemonCard().attacks[0].name,'Ram');
-  assert.equal(ownPlayer.active.getPokemonCard().attacks[0].text??'', '');
-  assert.equal(ownPlayer.active.getPokemonCard().retreat.length,0);
-  assert.equal(opponentPlayer.active.getPokemonCard().retreat.length,0);
-  assert.ok(ownPlayer.hand.cards.length>0);
-  assert.ok(ownPlayer.hand.cards.every(card=>card.fullName===PSYCHIC));
-  assert.equal(prizeCount(state,seat),6);
-  assert.equal(prizeCount(state,1-seat),6);
+  const publicBySeat=[null,null];
+  publicBySeat[seat]=view.ownPublic;
+  publicBySeat[1-seat]=view.opponentPublic;
 
   for(const physicalSeat of [0,1]) {
-    const ledger=knowledgeBySeat(state,physicalSeat);
-    const ownerView=observe(state,physicalSeat);
-    normalizeKnowledge(ledger,ownerView.ownerK1,prizeCount(state,physicalSeat));
+    const player=state.players[physicalSeat];
+    const publicView=publicBySeat[physicalSeat];
+    assert.ok(player.active&&player.active.getPokemonCard());
+    const pokemon=player.active.getPokemonCard();
+    assert.equal(pokemon.fullName,FLITTLE);
+    assert.equal(pokemon.powers.length,0);
+    assert.equal(pokemon.attacks.length,1);
+    assert.equal(pokemon.attacks[0].name,'Ram');
+    assert.equal(pokemon.attacks[0].text??'','');
+    assert.equal(pokemon.retreat.length,0);
+
+    const energies=player.active.energies??[];
+    assert.ok(energies.length===1||energies.length===2);
+    assert.ok(energies.every(card=>
+      card.fullName===PSYCHIC&&card.energyType===native.EnergyType.BASIC));
+    assert.equal(player.active.cards.length,1+energies.length);
+    assert.ok(player.active.cards.every(card=>
+      card.fullName===FLITTLE||card.fullName===PSYCHIC));
+    assert.deepEqual(player.active.tools??[],[]);
+    assert.deepEqual(player.active.specialConditions??[],[]);
+    assert.ok(Number.isInteger(player.active.damage)&&
+      player.active.damage>=0&&player.active.damage<=10);
+
+    // A two-Energy state is reachable only immediately after the active
+    // player attaches. After Ram/Pass timing resolves, the next active seat
+    // has one Energy and the previous actor's attachment clock is in the past.
+    if(energies.length===2) {
+      assert.equal(state.activePlayer,physicalSeat);
+      assert.equal(player.energyPlayedTurn,state.turn);
+    } else {
+      assert.ok(Number.isSafeInteger(player.energyPlayedTurn)&&
+        player.energyPlayedTurn<state.turn);
+    }
+
+    assertPublicPokemon(publicView.active,energies.length,10);
+    assertPublicPlayerZones(publicView);
+    assert.equal(prizeCount(state,physicalSeat),6);
+    if(physicalSeat===seat) {
+      assert.ok(Array.isArray(view.ownHand));
+      assert.deepEqual(view.ownHand,player.hand.cards.map(card=>card.fullName));
+      assert.ok(view.ownHand.every(printing=>printing===PSYCHIC));
+      assert.equal(view.ownPublic.handCount,view.ownHand.length);
+      assert.equal(view.ownTurnResources.energyPlayLocked,false);
+    }
   }
+
+  // The active seat must not already have attacked in this turn. Inactive
+  // players may have attacked immediately before the turn transition.
+  assert.equal(state.players[seat].active.attacksThisTurn??0,0);
+  assertVerifiedK1Ledgers(state,seat,view);
   return true;
 }
 
-function actionKey(action) {
-  const name=action?.constructor?.name;
-  if(name==='PlayCardAction') {
-    const target=action.target??{};
-    return 'attach:'+action.handIndex+':'+target.player+':'+
-      target.slot+':'+target.index;
+/**
+ * Root-only conditions are stricter than the post-action state validator:
+ * both players have one Energy from an earlier turn, no damage, and the
+ * acting player still has an attachment available.
+ */
+function assertFlittleRootEnvelope(state,seat,view,native) {
+  assertFlittleStateEnvelope(state,seat,view,native);
+  assert.ok(view.globalTurn>=3);
+  assert.ok(view.ownTurnResources.energyPlayedTurn<view.globalTurn);
+  for(const physicalSeat of [0,1]) {
+    const player=state.players[physicalSeat];
+    assert.equal(player.active.energies.length,1);
+    assert.equal(player.active.damage,0);
+    assert.ok(player.energyPlayedTurn<state.turn);
   }
-  if(name==='AttackAction') return 'attack:'+action.name;
-  if(name==='PassTurnAction') return 'pass';
-  throw new Error('Unsupported action in certified Flittle frontier: '+String(name));
+  assert.ok(view.ownHand.includes(PSYCHIC),
+    'The certified root must contain a playable Psychic Energy');
+  return true;
 }
 
-function assertFlittleActionFrontier(actions,state,seat,PlayerType,SlotType) {
+function actionKey(action,deps) {
+  return flittleActionKey(action,deps);
+}
+
+function assertFlittleActionFrontier(actions,state,seat,view,deps) {
   assert.ok(Array.isArray(actions));
-  assert.equal(actions.length,EXPECTED_ACTION_COUNT,
-    'Certified Flittle root must have exactly three action representatives');
-  const attach=actions.filter(action=>action.constructor?.name==='PlayCardAction');
-  const attacks=actions.filter(action=>action.constructor?.name==='AttackAction');
-  const passes=actions.filter(action=>action.constructor?.name==='PassTurnAction');
-  assert.equal(attach.length,1);
-  assert.equal(attacks.length,1);
-  assert.equal(passes.length,1);
-  assert.equal(attacks[0].name,'Ram');
-  assert.equal(attach[0].target?.player,PlayerType.BOTTOM_PLAYER);
-  assert.equal(attach[0].target?.slot,SlotType.ACTIVE);
-  assert.equal(attach[0].target?.index,0);
-  assert.equal(state.players[seat].hand.cards[attach[0].handIndex]?.fullName,PSYCHIC);
-  assert.equal(new Set(actions.map(actionKey)).size,EXPECTED_ACTION_COUNT);
-  return actions.map(actionKey).sort();
+  const keys=actions.map(action=>flittleActionKey(action,deps)).sort();
+  const expected=expectedFlittleActionKeys(view,deps);
+  assert.deepEqual(keys,expected,
+    'Native Flittle root frontier differs from actor-observation-derived actions');
+  assert.equal(keys.length,3,
+    'Certified Flittle root must contain attach/Ram/pass');
+  const attach=actions.find(action=>action instanceof deps.PlayCardAction);
+  const attack=actions.find(action=>action instanceof deps.AttackAction);
+  const pass=actions.find(action=>action instanceof deps.PassTurnAction);
+  assert.ok(attach&&attack&&pass);
+  assert.equal(attack.name,'Ram');
+  assert.equal(attach.target?.player,deps.PlayerType.BOTTOM_PLAYER);
+  assert.equal(attach.target?.slot,deps.SlotType.ACTIVE);
+  assert.equal(attach.target?.index,0);
+  assert.equal(state.players[seat].hand.cards[attach.handIndex]?.fullName,PSYCHIC);
+  return keys;
 }
 
-function validateNativeRootActions(state,seat,actions,Simulator,simulatorOptions,GamePhase) {
-  const promptsBefore=state.prompts?.length??0;
-  const prizesBefore=prizeCounts(state);
-  for(const action of actions) {
-    const simulator=new Simulator(state,simulatorOptions);
-    simulator.dispatch(action);
-    const next=simulator.store.state;
-    assert.equal((next.prompts??[]).length,promptsBefore,
-      'A certified root action unexpectedly created or removed a prompt');
-    assert.deepEqual(prizeCounts(next),prizesBefore,
-      'A certified root action unexpectedly changed Prize membership');
-    assert.notEqual(next.phase,GamePhase.FINISHED,
-      'A certified root action unexpectedly ended the game');
-  }
-}
-
-function mapActionToIntent(action,state,seat,PlayerType,SlotType) {
-  const name=action?.constructor?.name;
-  if(name==='PlayCardAction') {
-    assert.equal(action.target?.player,PlayerType.BOTTOM_PLAYER);
-    assert.equal(action.target?.slot,SlotType.ACTIVE);
-    assert.equal(action.target?.index,0);
-    assert.equal(state.players[seat].hand.cards[action.handIndex]?.fullName,PSYCHIC);
-    return {
-      kind:'attach-basic-energy',
-      handIndex:action.handIndex,
-      slot:'active',
-      index:0
-    };
-  }
-  if(name==='AttackAction') {
-    assert.equal(action.name,'Ram');
-    return {kind:'attack',attackName:'Ram'};
-  }
-  if(name==='PassTurnAction') return {kind:'pass'};
-  throw new Error('Cannot map unsupported native action to actor intent');
+function mapActionToIntent(action,state,seat,deps) {
+  return flittleNativeActionToIntent(action,state,seat,deps);
 }
 
 function sameBudget(actual) {
@@ -218,26 +257,85 @@ function sameBudget(actual) {
     actual.seed===PILOT_BUDGET.seed;
 }
 
-function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
+function buildFlittleSearchDependencies({
+  bindings,actorSeat,simulatorOptions,sampleDeterminization,
+  assertApplicabilityEnvelope,rulesProfileId
+}) {
+  assert.ok(bindings&&typeof bindings==='object');
+  assert.ok(actorSeat===0||actorSeat===1);
+  assert.equal(typeof sampleDeterminization,'function');
+  assert.equal(typeof sampleDeterminization.knowledgeBySeat,'function');
+  assert.ok(sampleDeterminization.metadataByState instanceof WeakMap);
+  assert.equal(typeof assertApplicabilityEnvelope,'function');
+  assert.ok(typeof rulesProfileId==='string'&&rulesProfileId.length>0);
+  return {
+    ActionEnumerator:bindings.ActionEnumerator,
+    Simulator:bindings.Simulator,
+    WaitPrompt:bindings.WaitPrompt,
+    ResolvePromptAction:bindings.ResolvePromptAction,
+    GameError:bindings.GameError,
+    actorObservation,
+    GamePhase:bindings.GamePhase,
+    BotFlipMode:bindings.BotFlipMode,
+    BotShuffleMode:bindings.BotShuffleMode,
+    simulatorOptions,
+    sampleDeterminization,
+    evaluateObservation:()=>0,
+    winnerSeat:()=>null,
+    PlayCardAction:bindings.PlayCardAction,
+    AttackAction:bindings.AttackAction,
+    PassTurnAction:bindings.PassTurnAction,
+    PlayerType:bindings.PlayerType,
+    SlotType:bindings.SlotType,
+    EnergyCard:bindings.EnergyCard,
+    EnergyType:bindings.EnergyType,
+    assertApplicabilityEnvelope,
+    rulesProfileId,
+    metadataByState:sampleDeterminization.metadataByState,
+    ownDecklistSeat:actorSeat,
+    ownDecklistId:TEST_DECKLIST.id
+  };
+}
+
+function loadTwinleafBindings(native) {
+  const root='../../../vendor/twinleaf/ptcg-server/output/';
+  const {ActionEnumerator}=require(root+'advanced-bot/action-enumerator');
+  const {Simulator}=require(root+'game/bots/simulator');
+  const {BotFlipMode,BotShuffleMode}=require(root+'game/bots/bot-arbiter');
+  const {PlayerType,SlotType}=require(root+'game');
+  const {WaitPrompt}=require(root+'game/store/prompts/wait-prompt');
+  const {ResolvePromptAction}=require(root+'game/store/actions/resolve-prompt-action');
+  const {GameError}=require(root+'game/game-error');
+  const {PlayCardAction}=require(root+'game/store/actions/play-card-action');
+  const {AttackAction,PassTurnAction}=require(root+'game/store/actions/game-actions');
+  const {EnergyCard}=require(root+'game/store/card/energy-card');
+  const {EnergyType}=require(root+'game/store/card/card-types');
+  const {Flittle}=require(root+'sets/10-scarlet-and-violet/set-scarlet-and-violet/flittle');
+  const {PsychicEnergy}=require(root+'sets/10-scarlet-and-violet/set-scarlet-and-violet-energy/psychic-energy');
+  return {
+    ActionEnumerator,Simulator,BotFlipMode,BotShuffleMode,PlayerType,SlotType,
+    WaitPrompt,ResolvePromptAction,GameError,PlayCardAction,AttackAction,
+    PassTurnAction,EnergyCard,EnergyType,Flittle,PsychicEnergy,
+    GamePhase:native.GamePhase
+  };
+}
+
+function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:providedBindings}) {
   assert.ok(native&&native.GamePhase&&native.CardManager);
   assert.ok(candidateSeat===0||candidateSeat===1);
   assert.equal(native.cardPoolInitialization?.enginePin,enginePin);
-  const ActionEnumerator=require('../../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator').ActionEnumerator;
-  const Simulator=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/simulator').Simulator;
-  const {BotFlipMode,BotShuffleMode}=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/bot-arbiter');
-  const {PlayerType,SlotType}=require('../../../vendor/twinleaf/ptcg-server/output/game');
-  const {Flittle}=require('../../../vendor/twinleaf/ptcg-server/output/sets/10-scarlet-and-violet/set-scarlet-and-violet/flittle');
-  const {PsychicEnergy}=require('../../../vendor/twinleaf/ptcg-server/output/sets/10-scarlet-and-violet/set-scarlet-and-violet-energy/psychic-energy');
-
+  const bindings=providedBindings??loadTwinleafBindings(native);
   const simulatorOptions=Object.freeze({
-    flipMode:BotFlipMode.RANDOM,
-    shuffleMode:BotShuffleMode.RANDOM
+    flipMode:bindings.BotFlipMode.RANDOM,
+    shuffleMode:bindings.BotShuffleMode.RANDOM
   });
+  assert.equal(simulatorOptions.flipMode,bindings.BotFlipMode.RANDOM);
+  assert.equal(simulatorOptions.shuffleMode,bindings.BotShuffleMode.RANDOM);
+
   const searchedSeats=new Set();
   const events=[];
   const failures=[];
   const observedLedgerSeats=new Set();
-
   const trackedKnowledgeBySeat=(state,seat)=>{
     observedLedgerSeats.add(seat);
     return knowledgeBySeat(state,seat);
@@ -248,21 +346,27 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
   });
   const sampleDeterminization=createTwinleafDeterminizationSampler({
     actorObservation,
-    cloneState:state=>new Simulator(state,simulatorOptions).store.state,
+    cloneState:state=>new bindings.Simulator(
+      state,simulatorOptions).store.state,
     knowledgeBySeat:trackedKnowledgeBySeat,
     decklistForSeat,
     createCard:printing=>{
-      if(printing===FLITTLE)return new Flittle();
-      if(printing===PSYCHIC)return new PsychicEnergy();
+      if(printing===FLITTLE)return new bindings.Flittle();
+      if(printing===PSYCHIC)return new bindings.PsychicEnergy();
       throw new Error('Unsupported hidden printing in certified Flittle deck');
     }
   });
+  const rulesProfileId=RULES_PROFILE_PREFIX+'-'+enginePin;
+  const assertApplicabilityEnvelope=(state,seat,view)=>
+    assertFlittleStateEnvelope(state,seat,view,{
+      ...native,EnergyType:bindings.EnergyType
+    });
 
   function rootIntentProvider({actorSeat,rootOptions,budget,runSearch}) {
     if(actorSeat!==candidateSeat||searchedSeats.has(actorSeat))
       return {status:'abstained',reason:'outside-applicability-envelope'};
     if(!sameBudget(budget)||!sameBudget(rootOptions?.rootIntentBudget))
-      return {status:'abstained',reason:'outside-applicability-envelope'};
+      return {status:'abstained',reason:'native-search-budget-mismatch'};
     const result=runSearch();
     return result?.status==='selected'?
       {status:'selected',intent:result.intent,audit:result.audit}:
@@ -275,30 +379,31 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
       if(called)return {status:'abstained',reason:'outside-applicability-envelope'};
       called=true;
       if(actorSeat!==candidateSeat||searchedSeats.has(actorSeat)||!sameBudget(budget))
-        return {status:'abstained',reason:'outside-applicability-envelope'};
+        return {status:'abstained',reason:'native-search-budget-mismatch'};
       try {
-        assertFlittleRootEnvelope(state,actorSeat,view,native);
-        const rawEnumerator=new ActionEnumerator();
+        assertFlittleRootEnvelope(state,actorSeat,view,{
+          ...native,EnergyType:bindings.EnergyType
+        });
+        const rawEnumerator=new bindings.ActionEnumerator();
         const player=state.players[actorSeat];
-        const actions=rawEnumerator.enumerate(state,player,player.id);
+        const rootActions=rawEnumerator.enumerate(state,player,player.id);
+        const rootDeps={...bindings};
         const rootActionKeys=assertFlittleActionFrontier(
-          actions,state,actorSeat,PlayerType,SlotType
-        );
-        validateNativeRootActions(
-          state,actorSeat,actions,Simulator,simulatorOptions,native.GamePhase
+          rootActions,state,actorSeat,view,rootDeps
         );
 
-        let promptResolverCalls=0;
         const frontierRecorder={calls:0,frontiers:[]};
-        class CertifiedActionEnumerator extends ActionEnumerator {
+        class CertifiedActionEnumerator extends bindings.ActionEnumerator {
           enumerate(searchState,searchPlayer,playerId) {
             const seat=searchState.players.indexOf(searchPlayer);
             assert.ok(seat===0||seat===1);
             const ownerView=observe(searchState,seat);
-            assertFlittleRootEnvelope(searchState,seat,ownerView,native);
+            assertFlittleRootEnvelope(searchState,seat,ownerView,{
+              ...native,EnergyType:bindings.EnergyType
+            });
             const candidates=super.enumerate(searchState,searchPlayer,playerId);
             const keys=assertFlittleActionFrontier(
-              candidates,searchState,seat,PlayerType,SlotType
+              candidates,searchState,seat,ownerView,rootDeps
             );
             frontierRecorder.calls++;
             frontierRecorder.frontiers.push(keys);
@@ -306,95 +411,47 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
           }
         }
 
-        const knowledgeSnapshot=(searchState,seat)=>
-          trackedKnowledgeBySeat(searchState,seat).ownerK1Snapshot??null;
-        const search=createTwinleafMcts({
-          ActionEnumerator:CertifiedActionEnumerator,
-          Simulator,
-          actorObservation,
-          GamePhase:native.GamePhase,
-          BotFlipMode,
-          BotShuffleMode,
-          simulatorOptions,
-          actionKey,
-          sampleDeterminization,
-          metadataByState:sampleDeterminization.metadataByState,
-          knowledgeBySeat:trackedKnowledgeBySeat,
-          knowledgeSnapshot,
-          evaluateObservation:()=>0,
-          actionPrior:()=>1,
-          promptOwnerSeat:()=>{
-            promptResolverCalls++;
-            throw new Error('Unexpected prompt in certified prompt-free envelope');
-          },
-          promptResolverForSeat:()=>({
-            resolvePrompt:()=>{
-              promptResolverCalls++;
-              throw new Error('Unexpected prompt in certified prompt-free envelope');
-            }
-          }),
-          winnerSeat:()=>null,
-          ownDecklistSeat:actorSeat,
-          ownDecklistId:TEST_DECKLIST.id
+        const searchDependencies=buildFlittleSearchDependencies({
+          bindings,actorSeat,simulatorOptions,sampleDeterminization,
+          assertApplicabilityEnvelope,rulesProfileId
+        });
+        const certifiedSearch=createTwinleafMcts({
+          ...searchDependencies,
+          ActionEnumerator:CertifiedActionEnumerator
         },{
           iterations:budget.iterations,
           maxPlies:budget.maxPlies,
+          maxDecisionMs:budget.maxDecisionMs,
           cPuct:1.4,
           seed:budget.seed
         });
-
-        const started=Date.now();
-        const selected=search.search(state,actorSeat);
-        const elapsedMs=Date.now()-started;
-        assert.ok(elapsedMs<=budget.maxDecisionMs,
-          'Bounded MCTS decision exceeded its frozen wall-clock budget');
+        const selected=certifiedSearch.search(state,actorSeat);
         assert.equal(selected.audit.iterations,budget.iterations);
-        assert.equal(selected.audit.rootActions.length,EXPECTED_ACTION_COUNT);
+        assert.equal(selected.audit.completedIterations,budget.iterations);
+        assert.equal(selected.audit.maxPlies,budget.maxPlies);
+        assert.equal(selected.audit.maxDecisionMs,budget.maxDecisionMs);
+        assert.equal(selected.audit.seed,budget.seed);
+        assert.equal(selected.audit.timeoutStatus,'completed');
+        assert.ok(selected.audit.elapsedMs>=0&&
+          selected.audit.elapsedMs<budget.maxDecisionMs);
+        assert.equal(selected.audit.rootActionCount,rootActionKeys.length);
         assert.ok(frontierRecorder.calls>=budget.iterations);
         assert.ok(frontierRecorder.frontiers.length>0);
         assert.ok(frontierRecorder.frontiers.every(keys=>
           JSON.stringify(keys)===JSON.stringify(rootActionKeys)
         ));
-        assert.equal(promptResolverCalls,0);
         assert.ok(observedLedgerSeats.has(0)&&observedLedgerSeats.has(1));
 
-        const rootObservation={
-          ...observe(state,actorSeat),
-          ownDecklistId:TEST_DECKLIST.id
-        };
-        const rootObservationSha256=observationSha256(rootObservation);
-        assert.equal(selected.audit.rootObservationSha256,rootObservationSha256);
-        const changedKnowledgeObservation={
-          ...rootObservation,
-          ownerK1:{
-            ...rootObservation.ownerK1,
-            epoch:rootObservation.ownerK1.epoch+1
-          }
-        };
-        const ownerLedgerInInformationSetKey=
-          observationSha256(changedKnowledgeObservation)!==rootObservationSha256;
-        assert.equal(ownerLedgerInInformationSetKey,true);
-
-        const intent=mapActionToIntent(
-          selected.action,state,actorSeat,PlayerType,SlotType
-        );
+        const intent=mapActionToIntent(selected.action,state,actorSeat,searchDependencies);
+        assert.ok(intent,'Selected native action did not map to a bounded neutral intent');
         searchedSeats.add(actorSeat);
         const audit={
-          frontierComplete:true,
-          bothSeatKnowledgeLedgersVerified:true,
-          ownerLedgerInInformationSetKey:true,
-          promptResolutionActorScoped:true,
-          applicabilityEnvelopeId:ENVELOPE_ID,
-          iterations:selected.audit.iterations,
-          maxPlies:budget.maxPlies,
-          seed:budget.seed,
-          elapsedMs,
-          rootActionCount:selected.audit.rootActions.length,
-          rootObservationSha256,
+          ...selected.audit,
+          enginePin,
+          physicalSeat:actorSeat,
+          rulesProfileId,
           rootActionKeys,
-          selectedActionKey:selected.actionKey,
-          knowledgeModes:['K1','K1'],
-          promptResolverCalls
+          knowledgeModes:['K1','K1']
         };
         events.push({
           actorSeat,
@@ -424,6 +481,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin}) {
     budget:PILOT_BUDGET,
     decklist:TEST_DECKLIST,
     observe,
+    knowledgeBySeat:trackedKnowledgeBySeat,
     rootIntentProvider,
     createRootSearchCapability,
     events,
@@ -440,9 +498,13 @@ module.exports={
   knowledgeBySeat,
   observe,
   actionKey,
+  assertPublicPokemon,
+  assertFlittleStateEnvelope,
   assertFlittleRootEnvelope,
   assertFlittleActionFrontier,
-  validateNativeRootActions,
   mapActionToIntent,
+  sameBudget,
+  buildFlittleSearchDependencies,
+  loadTwinleafBindings,
   createFlittleMctsRuntime
 };
