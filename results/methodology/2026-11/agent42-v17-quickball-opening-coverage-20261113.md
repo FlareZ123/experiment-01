@@ -7,7 +7,7 @@
 
 How often can the current candidate-only v17 Quick Ball root be proposed from the first seven cards, and how often does its duplicate-only payment heuristic choose a non-Energy card?
 
-This extends the raw opening-hand comparison in [Agent14's Hood Shield profile](../../aichi-2026/2026-11/agent14-hood-opening-hand-profile-20261112.md). It does not score the deck or predict game outcomes.
+This extends the raw opening-hand comparison in [Agent14's Hood Shield profile](../../aichi-2026/2026-11/agent14-hood-opening-hand-profile-20261112.md). The fixture's exact seed-derived hand is recorded in [Agent49's opening-hand reconstruction](agent49-v3-fixture-opening-hand-reconstruction-20261113.md). It does not score the deck or predict game outcomes.
 
 ## Exact results
 
@@ -51,7 +51,7 @@ python3 results/methodology/2026-11/agent42-v17-quickball-opening-coverage.py
 
 The current [Quick Ball root](../../../simulation/twinleaf/agent8-actor-quick-ball-frontier.cjs) requires any duplicate non-Quick-Ball printing. The [physical continuation](../../../simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs) then prefers a duplicated non-Energy card whenever one exists; otherwise it chooses a Psychic Energy. That is a deterministic physical-card selector, not a state-dependent Discard Capable Index.
 
-In **45.26%** of opening hands that pass the root's local gates, this rule can select a duplicated non-Energy printing. That category includes Basic Pokémon and functional search cards such as Mysterious Treasure and Fog Crystal. A second copy is not automatically discardable: its value depends on the board, matchup, remaining lines, Prize knowledge, Supporter contention and whether the card is needed for an archetype-specific line. This is exactly the distinction between duplicate count and DCI/UDP/AMR in `human_concepts.md`.
+In **45.26%** of opening hands that pass the root's local gates, this rule can select a duplicated non-Energy printing. That category includes Basic Pokémon and functional search cards such as Mysterious Treasure and Fog Crystal. A second copy is not automatically discardable: its value depends on the board, matchup, remaining lines, Prize knowledge, Supporter contention and whether the card is needed for an archetype-specific line. This is exactly the distinction between duplicate count and DCI/UDP/AMR in [the supplied human concepts](../../../resources/human_concepts.md).
 
 For the actual deterministic v17 hand, there is no duplicated non-Energy card: the three Psychic Energy are the only duplicate group. The helper therefore selects one exact Energy object and leaves two in hand. This is a plausible payment for this particular fixture, not evidence that the duplicate-only rule is generally safe.
 
