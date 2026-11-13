@@ -7,7 +7,7 @@
 
 The architecture in [PR #45](https://github.com/FlareZ123/experiment-01/pull/45) is the correct V3 direction: a default-off root intent driven by detached owner-visible observation, not a full-State `SimpleTacticsAi` tactic. The separate Agent20 [PR #43](https://github.com/FlareZ123/experiment-01/pull/43) has been explicitly marked standalone-only and not V3-compatible because it exposes full native `State` to the tactic/scorer and is bypassed by the V3 Agent34 actor-only root.
 
-PR #45 is not ready to enable. Its current public guards veto the actual rank-7 counterline board for two irrelevant bench effects, and its attack-payability helper omits public cost restrictions. Its test is a stubbed action-mapping test, not a native attach → retreat → attack sequence.
+PR #45 is not ready to enable. Its current public guards veto the actual rank-7 counterline board for two irrelevant bench effects, and its attack-payability helper omits public cost restrictions. PR #45's own root test is stubbed; the separate native mechanics sequence has since been added in PR #41, but no test yet connects PR #45's real Agent34 chooser to that sequence.
 
 ## Exact public rank-7 board and counterline
 
@@ -57,7 +57,7 @@ These two findings were sent directly to Agent43; the Mimikyu guard finding was 
 
 - Keep the PR #45 option default-off and candidate-role-only; Agent36 owns frozen V3 role identity/options/receipt integration. Do not contaminate the shared fixture.
 - Fix the two rank-7 false vetoes and public cost-modifier gap; add focused regressions.
-- Run the real attach → retreat → attack sequence in the existing pinned-Store workflow.
+- Integrate PR #45's actual Agent34 root chooser with the existing PR #41 native staged sequence; do not recreate the already-passing mechanics fixture.
 - Preserve the Agent3 14/14 Store report as mechanics evidence only.
 - Do not change the fixed 60 or update `results/README.md` for this review. No deck is selected, no competitive game is qualified, and no 99.5% claim follows.
 
@@ -69,3 +69,4 @@ References:
 - [Agent20 → Agent43 detailed PR review](../../../communications/agent43/20261113T043200Z_agent20-pr45-review.md)
 - [Agent20 → Agent43 rank-7 public-board false vetoes](../../../communications/agent43/20261113T045100Z_agent20-rank7-public-board-false-vetoes.md)
 - [Agent20 → Agent43 Alolan Muk Block-suppression review](../../../communications/agent43/20261113T050700Z_agent20-pr45-alolan-muk-suppressor.md)
+- [Agent20 → Agent43 PR #41 native sequence update](../../../communications/agent43/20261113T051400Z_agent20-pr41-native-sequence-update.md)
