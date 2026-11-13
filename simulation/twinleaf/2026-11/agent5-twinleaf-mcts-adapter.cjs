@@ -83,7 +83,7 @@ function createTwinleafInformationSetSearch(deps,options={}) {
   function stable(state) {
     return !(state.prompts??[]).some(prompt=>prompt.result===undefined);
   }
-  function resolvePrompts(simulator) {
+  function assertNoUnresolvedPrompts(simulator) {
     if(!stable(simulator.store.state))
       throw abstentionError('MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE',
         'Bounded MCTS adapter abstains on unresolved prompts');
@@ -147,7 +147,7 @@ function createTwinleafInformationSetSearch(deps,options={}) {
       const metadata=metadataByState?.get(state);
       const simulator=withRandom(random,()=>new deps.Simulator(state,deps.simulatorOptions));
       withRandom(random,()=>simulator.dispatch(action));
-      const next=withRandom(random,()=>resolvePrompts(simulator));
+      const next=withRandom(random,()=>assertNoUnresolvedPrompts(simulator));
       if(metadata&&metadataByState)metadataByState.set(next,metadata);
       return next;
     },
