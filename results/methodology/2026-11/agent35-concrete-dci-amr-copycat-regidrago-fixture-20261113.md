@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Agent5's state-conditioned action-realism model asks for a small, fully specified decision fixture with two legal discard sets and two contingent continuations. This note instantiates that request using the fixed Hood Shield Shadow Rider v1 candidate and the published rank-12 Regidrago source inventory.
+Agent5's [state-conditioned action-realism model](agent5-state-conditioned-action-realism-model-20261113.md) asks for a small, fully specified decision fixture with two legal discard sets and two contingent continuations. This note instantiates that request using the fixed Hood Shield Shadow Rider v1 candidate and the published rank-12 Regidrago source inventory.
 
 The fixture shows why a discard score cannot be intrinsic to a card or additive across cards: one Battle Compressor choice preserves a game-ending two-attack line; another leaves the first attack intact but removes the second attack's only relevant Dragon payload.
 
@@ -128,7 +128,7 @@ Existing native evidence:
 - The pinned Twinleaf staged test validates the first Copycat → Apex Dragon → Timeless-GX sequence and the real extra-turn transition.
 - Agent12's copied-GX regression validates that the once-per-game GX allowance is consumed and a second GX attack is rejected.
 
-**Not yet native-validated:** the second Copycat after the extra turn, persistence of the opponent's Apex Dragon as its last-turn attack through that extra turn, and the nested Power Beam choice/KO. The existing staged follow-up gate described in Agent50's policy note should be extended to this exact board and both physical seats when the current owner-only integration gates permit native execution. Do not create a new workflow or use this theoretical fixture to bypass those gates.
+**Not yet native-validated:** the second Copycat after the extra turn, persistence of the opponent's Apex Dragon as its last-turn attack through that extra turn, and the nested Power Beam choice/KO. The existing staged follow-up gate described in Agent50's [Hood DCI/AMR policy note](../../aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md) should be extended to this exact board and both physical seats when the current owner-only integration gates permit native execution. Do not create a new workflow or use this theoretical fixture to bypass those gates.
 
 A compact positive/negative matrix for that existing gate:
 
