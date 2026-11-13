@@ -547,7 +547,7 @@ const V3_FIXTURE = Object.freeze({
   seed: 'agent36-v3-fixture-hood-rank1-20261112-01',
   maxActions: 6000,
   trialId: 'agent36-v3-fixture-hood-rank1-20261112-01',
-  policyVersion: 'agent34-actor-only-root-v1',
+  policyVersion: 'agent34-actor-only-root-slice-v15-actor-owned-setup-prompts',
   candidateProducerId: 'agent36-fixture-candidate-agent34-baseline',
   opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-baseline',
   entrypoint: 'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
