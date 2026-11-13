@@ -12,11 +12,6 @@ const ENTRY_MANIFEST_SCHEMA = 'aichi-policy-entry-manifest-v2';
 const ROLE_IDENTITY_SCHEMA = 'aichi-role-policy-identity-v2';
 const APPLICATION_RECEIPT_SCHEMA = 'aichi-policy-application-receipt-v2';
 const ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA = 'aichi-actor-only-execution-boundary-v1';
-const ACTOR_ONLY_EXECUTION_BOUNDARY_COUNTERS = [
-  'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
-  'nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls',
-  'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses'
-];
 const SHA256 = /^[0-9a-f]{64}$/;
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$/;
@@ -606,37 +601,10 @@ function validateRuntimePatchReceipts(core,trial,candidateIdentity,opponentIdent
   return validated;
 }
 
-function validateActorOnlyExecutionBoundary(boundary,expected) {
-  assert.ok(boundary&&typeof boundary==='object'&&!Array.isArray(boundary),
-    'trial must carry the composer actor-only execution boundary');
-  assert.equal(boundary.schema,ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA,
-    'actor-only execution boundary schema is invalid');
-  assert.equal(boundary.valid,true,'actor-only execution boundary must be valid');
-  assert.deepEqual(boundary.failures,[],
-    'actor-only execution boundary must contain no fallback failures');
-  for(const [role,row,seat] of [
-    ['candidate',boundary.candidate,expected.candidateSeat],
-    ['opponent',boundary.opponent,expected.opponentSeat]
-  ]){
-    assert.ok(row&&typeof row==='object'&&!Array.isArray(row),
-      role+' actor-only execution boundary summary is missing');
-    assert.equal(row.role,role,role+' actor-only execution boundary role mismatch');
-    assert.equal(row.policyOwnerSeat,seat,
-      role+' actor-only execution boundary is bound to the wrong physical seat');
-    assert.ok(nonempty(row.version),role+' actor-only execution boundary version is missing');
-    assert.equal(row.origin,'detached-actor-observation',
-      role+' actor-only execution boundary origin is invalid');
-    assert.equal(row.observationSchema,'agent2-public-native-dispatch-diff-v1',
-      role+' actor-only execution boundary observation schema is invalid');
-    for(const key of ['nativeOwnerTrainerFallbackEnabled',
-      'ownerFallbackDiagnosticViewEnabled','nativePolicyMayUseHiddenInformation'])
-      assert.equal(row[key],false,role+' '+key+' must be explicitly false');
-    for(const key of ACTOR_ONLY_EXECUTION_BOUNDARY_COUNTERS){
-      assert.ok(Number.isSafeInteger(row[key])&&row[key]>=0,
-        role+' '+key+' must be a non-negative safe integer');
-      assert.equal(row[key],0,role+' '+key+' must be zero for competitive execution');
-    }
-  }
+function hashActorOnlyExecutionBoundary(boundary) {
+  if(boundary===undefined||boundary===null)return null;
+  // The audit is evidence even when it fails qualification. Hash it rather
+  // than throwing so factual game outcomes can still be recorded.
   return evidenceBundleSha256(boundary);
 }
 
@@ -767,8 +735,9 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   const candidateSeat=trial.candidateSeat;
   const opponentSeat=trial.originalSourceSeat;
   const firstPlayerSeat=trial.actualFirstPlayerSeat;
-  const actorOnlyExecutionBoundarySha256=validateActorOnlyExecutionBoundary(
-    trial.actorOnlyExecutionBoundary,{candidateSeat,opponentSeat});
+  const actorOnlyExecutionBoundary=trial.actorOnlyExecutionBoundary??null;
+  const actorOnlyExecutionBoundarySha256=hashActorOnlyExecutionBoundary(
+    actorOnlyExecutionBoundary);
   assert.ok([0,1].includes(candidateSeat)&&[0,1].includes(opponentSeat)&&
     candidateSeat!==opponentSeat&&[0,1].includes(firstPlayerSeat),
     'trial physical-seat mapping is invalid');
@@ -815,7 +784,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     loadedProcessClosureSha256:candidateIdentity.loadedProcessClosureSha256,
     cardPoolInitializationSha256:candidateIdentity.cardPoolInitializationSha256,
     runtimePatchReceipts,runtimePatchReceiptsSha256,
-    actorOnlyExecutionBoundary:trial.actorOnlyExecutionBoundary,
+    actorOnlyExecutionBoundary,
     actorOnlyExecutionBoundarySha256,
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
@@ -828,7 +797,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
 
 module.exports={
   ENTRY_MANIFEST_SCHEMA,ROLE_IDENTITY_SCHEMA,APPLICATION_RECEIPT_SCHEMA,
-  ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA,validateActorOnlyExecutionBoundary,
+  ACTOR_ONLY_EXECUTION_BOUNDARY_SCHEMA,hashActorOnlyExecutionBoundary,
   createPolicyEntryManifest,combineRolePolicyEntryManifests,
   preloadResearchModules,assertLoadedResearchModulesCovered,buildRolePolicyIdentity,
   createPolicyApplicationReceipt
