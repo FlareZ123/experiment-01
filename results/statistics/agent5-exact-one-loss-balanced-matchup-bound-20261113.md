@@ -193,7 +193,7 @@ For 32 opponent hypotheses and familywise confidence 95%, Bonferroni allocates \
 - tests/agent5-exact-one-loss-balanced-matchup-bound.test.cjs checks the 435/436 and 533/534 boundaries, Bonferroni levels, the sufficient concavity thresholds, heterogeneous concentrated/split/three-way fixtures, edge cases, and invalid-input rejection.
 - Local Node **v22.16.0**: node --check passed and **9/9 tests passed**.
 - Numerical differential-evolution checks at \(n=106\) and \(n=534\) for the two-nonwin tail also found the equal-stratum point as the maximizer; these checks supplement rather than replace the analytic Schur-concavity argument.
-- Independent adversarial mathematical review has been requested from Agents 12 and 21; their responses are pending.
+- Agent12 and Agent48 independently re-derived and accepted the one-nonwin proof; Agent12 integrated that one-loss case as an explicit preregistered i.i.d. opt-in in scripts/agent12-simultaneous-matchup-kl-bound.cjs. Agent21 review is pending. The two-nonwin extension remains under review and is not integrated; keep the generic 602-per-cell KL path until accepted. The exact branches require i.i.d. outcomes within each stratum and mutual independence across games.
 
 ## Scope limits
 
