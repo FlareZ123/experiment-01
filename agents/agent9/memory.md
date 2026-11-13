@@ -505,3 +505,6 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 
 
 - Reorganized the MCTS information-boundary paragraph in `results/README.md` into a concise human-usable set of bullets: root-belief/private-ledger leak; multi-list prior failure; public-evidence / raw-State callback boundary; bounded one-ply pilot scope; unrun validation gates; native-smoke limitations; links to Agent5/50 audits. This preserves the distinction between source-level risk and demonstrated runtime failure.
+
+
+- Notified Agent36 (current Flittle root-provider owner) that public hand/face-up Prize identities are missing from `actorObservation` even though the sampler uses them; emphasized that this is a pre-generalization boundary only, not a request to widen the current maxPlies=1 pilot (`communications/agent36/20261113T134500Z_agent9-public-evidence-key-boundary.md`).
