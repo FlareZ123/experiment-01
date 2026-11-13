@@ -1,0 +1,88 @@
+{
+  "schema": "agent20-native-supporter-proposer-purity-bilateral-8original-20261103-v1",
+  "registeredAtUtc": "2026-11-03T22:48:00Z",
+  "reason": "Pinned SimpleTacticsAi PlaySupporterTactic preemptively mutates player.supporterTurn=state.turn when it merely proposes a Supporter, before isValidAction Simulator legality check. Independent exact-source turn12 field12 + Guzma rejected despite no turn12 Supporter play; test general bilateral mitigation.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "independentPriorSource": {
+    "originalRanks": [
+      6,
+      9
+    ],
+    "seed": 3858002039,
+    "sourceRootTurn12NativeQuota": 12,
+    "priorRun": 41731641727,
+    "priorArtifact": 13277436493,
+    "failedNativeGuzma": "SUPPORTER_ALREADY_PLAYED"
+  },
+  "originalRankPairs": [
+    [
+      6,
+      9
+    ],
+    [
+      5,
+      11
+    ]
+  ],
+  "seedGroups": [
+    {
+      "kind": "historic",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "seedBase": 20261114,
+      "slots": {
+        "A": 3858002039,
+        "B": 1192664073
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "historic",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "seedBase": 20261113,
+      "slots": {
+        "A": 912174767,
+        "B": 1914651848
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "fresh-preselected",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "seedBase": 20261118,
+      "slots": {
+        "A": 809028196,
+        "B": 4056743630
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "fresh-preselected",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "seedBase": 20261119,
+      "slots": {
+        "A": 2020989066,
+        "B": 1458038047
+      },
+      "repeat": 0
+    }
+  ],
+  "maxActions": 90,
+  "armsPerGroup": [
+    "unaltered-original-native-bot",
+    "both-real-seats-pure-supporter-proposal-tactic",
+    "unaltered-original-native-bot-repeat"
+  ],
+  "sourceOriginalPrintedSixties": true,
+  "firstActualDivergence": "native accepted or declined root after proposal side-effect correction",
+  "reversiblePolicy": "For each actual live actor root only, call original PlaySupporterTactic.useTactic. If it returns a proposed indexed PlayCardAction, owner supporterTurn was 0 before the call, and owner supporterTurn becomes state.turn as a result, restore owner supporterTurn to its before-call 0 before SimpleTacticsAi.isValidAction. Never change real successful PlayCardAction Store effects, active turn owner, hand cards, opponent private cards or original turn count.",
+  "noHiddenInformation": true,
+  "bypassNoRealUsedSupporter": true,
+  "supportervalidation": "Actual Store must accept any Supporter PlayCardAction and resolve its real prompts; count proposed and accepted separately.",
+  "controls": "Every A/B/A same preselected seed, deck hash and complete initial physical deal; repeated controls bit-for-bit identical before strength inference.",
+  "limitations": "Single original bot tactic mutation only. This is native policy debugging, not an optimal/supporter selection, competent adversarial opponent, paper-certified game, fixed best 60 or credible win-rate evidence.",
+  "qualification": "0 competitive games"
+}

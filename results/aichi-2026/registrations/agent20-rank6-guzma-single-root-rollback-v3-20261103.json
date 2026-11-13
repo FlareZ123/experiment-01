@@ -1,0 +1,76 @@
+{
+  "schema": "agent20-original6v9-guzma-turn12-decode-sideeffect-conditional-rollback-v3",
+  "registeredAtUtc": "2026-11-03T22:42:00Z",
+  "source": {
+    "ranks": [
+      6,
+      9
+    ],
+    "seat6": 0,
+    "seat9": 1,
+    "seed": 3858002039,
+    "physicalDealSha256": "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e",
+    "vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "prerequisite": {
+    "sourceTurn10Stadium": "Thunder Mountain Prism Star LOT",
+    "previous": "Wondrous Labyrinth Prism Star TEU",
+    "sourceStadiumOwnerSeat": 0,
+    "rank9Turn11Rope": "Escape Rope BST",
+    "rank9RopeOwnerSeat": 1,
+    "rank9RopeTurn": 11
+  },
+  "intervention": {
+    "turn": 12,
+    "seat": 0,
+    "requiredPreviousNativeAction": "PassTurnAction",
+    "heldPhysicalSupporter": "Guzma BUS",
+    "requiredSupporterQuotaUnused": true,
+    "requiredOwnBench": true,
+    "requiredOpponentBench": true,
+    "expectedFundedBenchEnergyNames": [
+      "Capture Energy RCL",
+      "Speed Lightning Energy RCL"
+    ],
+    "expectedOpponentBench": "Unown AOR",
+    "expectedSourceAttack": "Volt Cyclone"
+  },
+  "arms": [
+    "stadium-plus-rope-native-source-control",
+    "stadium-plus-rope-select-one-source-guzma",
+    "stadium-plus-rope-native-source-control-repeat"
+  ],
+  "maxActions": 130,
+  "primaryMetric": "Whether selected Guzma prompt resolves into funded Active Iron Thorns and settled Volt Cyclone / opponent Prize with opponent continuation",
+  "qualification": "Historical conditional correction of native speculative proposer state. Selected physical action and exact prompts are native Store developmental evidence only; no qualified games or win-rate claim.",
+  "stagedEvidence": {
+    "priorV1": {
+      "run": 41730452843,
+      "artifact": 13278000253,
+      "selected": 0,
+      "rawSupporterTurn": "not-captured",
+      "controlsIdentical": true,
+      "allPhysicalMatched": true
+    },
+    "priorV2": {
+      "run": 41731641727,
+      "artifact": 13277436493,
+      "JSONSha256": "f49cfcf6e385ac9f61bc2c0bcab516df96de3f9d28c2457c47bc5984f6bd8b58",
+      "exactNativeTurn12SupporterTurn": 12,
+      "realStoreGuzma": "SUPPORTER_ALREADY_PLAYED",
+      "naturalTurn12PriorRootActions": [
+        "ResolvePromptAction WaitPrompt"
+      ],
+      "noAcceptedSupporterTurn12": true
+    }
+  },
+  "v3SingleRootRepair": {
+    "guard": "Only after actual source seat0 global turn12 unmodified native decoder returns Pass, and printed hand Guzma + funded Bench Thorns + opponent Benched Unown + Rope in opponent discard remain",
+    "beforeDecoderSupporterTurn": 0,
+    "afterDecoderSupporterTurn": 12,
+    "action": "Restore only this one source player's supporterTurn from 12 back to its captured pre-decode 0, then select one genuinely held Guzma BUS indexed PlayCardAction; otherwise no repair and no intervention",
+    "counterfactual": "Treat proposal-before-validation mutation as reversible native policy bug; preserve raw pre/post, real Store and prompt settlement evidence",
+    "banned": "No global rule change, no changes to other physical seats, no synthetic source hand, no upstream Twinleaf edits, no projected match wins",
+    "controls": "Original registered source Thunder and opponent Rope both remain selected in all three arms, repeated identical full native control."
+  }
+}
