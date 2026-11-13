@@ -75,8 +75,16 @@ test('trusted Store preflight binds both physical 60s and emits only digests/cou
   assert.equal(receipt.zoneCountsBySeat[0].zoneCounts.hand,1);
   assert.equal(receipt.zoneCountsBySeat[0].zoneCounts.prizes,6);
   assert.equal(receipt.zoneCountsBySeat[0].zoneCounts.deck,51);
+  assert.equal(receipt.zoneCountsBySeat[0].zoneCounts.activeTools,0);
+  assert.equal(receipt.zoneCountsBySeat[0].zoneCounts.benchTools,0);
   assert.match(receipt.storeStateSha256,/^[0-9a-f]{64}$/);
   assert.match(receipt.fullStateSnapshotSha256,/^[0-9a-f]{64}$/);
+  const originalStoreDigest=receipt.storeStateSha256;
+  const moved=store.state.players[0].deck.cards.pop();
+  store.state.players[0].hand.cards.push(moved);
+  const relocated=createStoreDecklistBindingReceipt(input(store,1));
+  assert.notEqual(relocated.storeStateSha256,originalStoreDigest,
+    'Full Store digest must bind physical zone placement, not only the printed 60');
   const serialized=JSON.stringify(receipt);
   assert.equal(serialized.includes(FLITTLE),false);
   assert.equal(serialized.includes(PSYCHIC),false);
