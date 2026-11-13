@@ -35,6 +35,8 @@ function restrictions(extra = {}) {
     blockedAttackNameNextTurn: null,
     blockedAttackNameUntilLeavesActive: null,
     onlyAllowedAttackNameNextTurn: null,
+    attackCostIncreaseNextTurn: 0,
+    attackCostIncreaseWhileActive: 0,
     cannotRetreatNextTurn: false,
     cannotRetreatWhileActive: false,
     ...extra
@@ -70,7 +72,8 @@ function makeView(options = {}) {
     energies: options.activeEnergies ?? [P, P],
     tools: options.hoodOnActive ? [HOOD] : [],
     publicRestrictions: restrictions({
-      cannotRetreatWhileActive: options.cannotRetreatWhileActive === true
+      cannotRetreatWhileActive: options.cannotRetreatWhileActive === true,
+      cannotAttackNextTurn: options.activeCannotAttack === true
     }),
     attacks: [{
       name: 'Max Geist',
@@ -148,6 +151,8 @@ function makeView(options = {}) {
       stadium: [],
       publicTurnRestrictions: {
         attackLockTurnsRemaining: options.attackLock ? 1 : 0,
+        attackMaxEnergy: null,
+        attackMaxEnergyTurnsRemaining: 0,
         toolPlayLocked: options.toolPlayLocked === true
       }
     },
@@ -191,6 +196,17 @@ test('an already attached Active Hood permits only a funded public-KO paid-retre
   assert.equal(plan.projectedTerminalWin, false);
   assert.deepEqual(plan.discardEnergyIndices, [0, 1]);
   assert.equal(plan.nativeStorePaymentVerified, false);
+});
+
+test('surplus basic Psychic Energy can pay the two-unit retreat while the Active cannot attack', () => {
+  const view = makeView({
+    hoodOnActive: true, hoodInHand: false,
+    activeEnergies: [P, P, P], activeCannotAttack: true
+  });
+  const plan = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(plan.kind, 'paid-retreat');
+  assert.deepEqual(plan.discardEnergyIndices, [0, 1]);
+  assert.deepEqual(plan.discardEnergyPrintings, [P, P]);
 });
 
 test('Path to the Peak leaves Snorlax Block active; Jamming Tower suppresses Hood', () => {
