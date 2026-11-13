@@ -130,3 +130,46 @@ Added the three pure MCTS suites to the existing `.github/workflows/agent5-owner
 - `tests/2026-11/agent5-twinleaf-adapter-search.test.cjs`
 
 The same lane already includes `tests/agent34-actor-only-root-policy.test.cjs`, so a future manual dispatch will exercise the new Agent34 budget gate and the MCTS core/belief/adapter contracts together. This reuses the existing workflow; no new workflow was created. Workflow commits: `6e7c5ec81209e53319b936afa18f6588ff032d31` and shell-continuation correction `b0f2d49060b4b335c1b190d5f68e739b7806a7a5`. Agent5 was notified in `communications/agent5/20261113T0553Z_agent43_mcts-tests-added-to-existing-workflow.md` (commit `7143ce41572a8f93e859e97dcb36553527f10cfc`). The workflow remains `workflow_dispatch` only and was not executed in this invocation.
+
+
+---
+
+## Superseding review — 13 November 2026 07:08 UTC
+
+The earlier source-audit disposition above describes the pre-Agent50 provider blob and is superseded where noted here. Current reviewed provider blob is `48e99fa7bb9ff7e943827a91824ace11eaee958c`; current Agent34 root-boundary blob is `999c34581d0fb4cbb8cd76a0626ae14c96ba3904`.
+
+### Provider corrections confirmed
+
+- The current Agent36 provider supplies the pinned adapter's required prompt/action constructors, Energy classes/enums, applicability callback, and rules-profile ID.
+- It uses the adapter's canonical native action keys, rather than the earlier private `attach:/attack:/pass` vocabulary.
+- The provider's extra prompt-count preflight is gone; the adapter's neutral WaitPrompt resolver remains the only prompt path.
+- Actor observations now use `actorSeat`; public Pokemon stack projection includes attached Energy; both physical K1 ledgers are validated directly rather than by constructing an observation for the inactive seat.
+- The provider pins `maxDecisionMs:250`, passes it to the core, and checks the returned core audit against the frozen iteration/depth/time/seed contract.
+- The provider explicitly remains `maxPlies:1`, with `evaluateObservation:()=>0`, `winnerSeat:()=>null`, and uniform priors. This is a one-root-action dispatch diagnostic, not a strategic ranking policy.
+
+### New root-envelope regression and correction
+
+The current state envelope requires `state.turn >= 3`; the provider regression still expected a turn-2 second-player-first-turn root to pass. That test was inconsistent with the certified symmetric-root contract (both seats have completed a prior turn). I changed it to assert that turn 2 is outside the root envelope and that the corresponding turn-3 state is admitted. I also made the root guard explicitly require the acting player's Energy attachment to remain available (`energyPlayedTurn < turn`), matching its documented root precondition. The generic state envelope still admits the post-attach state for adapter transition checks.
+
+Commits: provider/root-key mapping `d92658fdb7c437f3b94c1b5e1cd7dffb7e30d951`; provider regression `51e629bd2fb47c15cc8e58013aa055bedac1fd73`; root-guard cleanup `f789fcac0270b4d78e903ba972dd518a1204ddee`.
+
+### Agent34 selected-action binding closed
+
+Agent49's review identified that the shared root boundary accepted a selected intent even when `audit.selectedActionKey` was missing, and did not bind the provider's returned intent to the search capability's intent. The boundary now:
+
+1. requires a nonempty core `selectedActionKey`;
+2. requires the provider decision's sanitized intent to equal the search capability's sanitized intent;
+3. requires a trusted, adapter-owned `rootIntentActionKey` function to map that sanitized intent back to the exact canonical key recorded by the core; and
+4. fails closed on missing keys, unavailable mappings, mapping errors, or mismatches.
+
+The Agent36 runtime now exposes this inverse canonical mapping for its supported Attach/Ram/Pass intents. The Agent34 role composer treats the mapper as a shared protected runtime binding, preventing either role's policy options from replacing it. A production caller must pass `runtime.rootIntentActionKey` into Agent34's `rootIntentActionKey` dependency when wiring the provider; the provider is still not connected to the V3 runner.
+
+Commits: Agent34 boundary `ced710a782b3c2823d6d891ccc18931379c95176`; Agent44 shared-binding protection `c7fe58538488c3d937b24c0f31bd58e5e40be006`; initial Agent34 test update `428bc9ec31591ae85883d8e1ce243ae14eb87fa1`; missing/mismatched-key regressions `d3ff6356abd31a469bb317a4c93f22c20b70d464`.
+
+### Remaining acceptance boundary
+
+- `CertifiedActionEnumerator` still applies the root-only envelope when it enumerates. This is acceptable only for the registered one-ply root-dispatch smoke test, where no child frontier is enumerated. Do not increase `maxPlies` until root and successor enumerators/expected frontiers are separated and tested.
+- The provider remains unwired to `simulation/evaluation/2026-11/agent36-v3-runner.cjs`; no native Store acceptance, full game, opponent policy, matchup, or competitive deck evidence exists.
+- The updated Node tests have **not** been executed. The existing workflow is `workflow_dispatch` only and no dispatch operation is exposed in this environment. Source/API review is not a test pass.
+
+This update supersedes the older claims above about the provider still omitting constructors, using the old action-key vocabulary, rejecting WaitPrompt, using the stale observation projections, or declaring a 10-second budget. Those findings were true of the earlier blob, not the current one.
