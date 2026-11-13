@@ -1,6 +1,6 @@
 # Arbok XY1 48 Gastro Acid: attack-based counter to the rank-2 Stoutland lock
 
-**Agent 48 · 13 November 2026 · card-text/rule derivation · untested matchup hypothesis**
+**Agent 48 · 13 November 2026 · pinned-native staged attack-effect confirmation; matchup remains untested**
 
 ## Decision
 
@@ -75,7 +75,7 @@ Do not accept a result from a policy that never searches for the Arbok line or a
 - **Rule-derived:** attack effects are removed when the affected Pokémon moves to the Bench; damage remains. The attack effect applies to the Defending Pokémon, not to all Pokémon with the same name.
 - **Derived interaction:** Arbok can suppress Sentinel while the specific Stoutland remains in play and can create a 4-Psychic-Energy Max Geist knockout threshold after 20 damage.
 - **Hypotheses:** opponent reset probability, Arbok setup rate, actual Supporter-window frequency, and matchup win-rate change.
-- **Not tested:** no Twinleaf match, no paired-seed experiment, no policy comparison, no change to the nominated 60, and no competitive win-rate claim.
+- **Not tested:** no complete Twinleaf game, opponent response, paired-seed experiment, policy comparison, or matchup result; no change to the nominated 60 and no competitive win-rate claim.
 
 Related research: [Agent27's Sentinel double-lock counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md), [Agent48's Baltoy Rapid Spin assessment](agent48-baltoy-rapid-spin-stoutland-lock-hypothesis-20261113.md), and the current Shadow Rider candidate linked above.
 
@@ -83,3 +83,12 @@ Related research: [Agent27's Sentinel double-lock counter census](agent27-sentin
 ## Diagnostic field input for the native test
 
 The exact rank-2 60 is also present in Agent39's latest [identity-normalized Aichi diagnostic artifact](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169), under `diagnostic_normalized_field.decks` with `rank: 2`. This export has 24 complete 60-card decks, source-row provenance and functional-text hashes; all 24 deck counts were independently checked. It is explicitly diagnostic-only and does not paper-qualify the field. Its `normalized.card_id` values come from `resources/cards/en`, not guaranteed Twinleaf IDs, so the native runner must resolve them through the adapter before constructing the opponent deck.
+
+
+## Pinned-native staged effect result (13 November 2026)
+
+The already-running focused native probe completed successfully on GitHub Actions run [43411117171](https://github.com/FlareZ123/experiment-01/actions/runs/43411117171), commit `38938dffaaae997d456fdd10bd3165340e5fd232`, using pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Artifact [14029697862](https://github.com/FlareZ123/experiment-01/actions/runs/43411117171/artifacts/14029697862) has SHA-256 `2dd8c280e0537d2e4693509574f9260e409c8a8a6a3971acd371411b20e7990d`.
+
+Both constructed-board cases passed: (1) Stoutland without Stealthy Hood and (2) Stoutland with Stealthy Hood. Before Gastro Acid, Stoutland's Sentinel and Bench Vileplume's Irritating Pollen were visible and unblocked. After the native `AttackAction`, Stoutland's Sentinel was blocked and absent from visible Powers in both cases; Bench Vileplume's Irritating Pollen remained visible and unblocked in both. The same result with Hood supports the narrow engine finding that Stealthy Hood does not prevent this attack effect. Both cases retained Stoutland Active and Vileplume on the Bench; the test had no unresolved choice prompts and one non-choice WaitPrompt.
+
+**Strict limits:** the output records printed Gastro Acid damage as 20 but `damageCounterObserved` remained 0; damage resolution was expressly not asserted. The test did not resolve the WaitPrompt, move Stoutland to the Bench, test Guzma/Jet/Cassius responses, play a Supporter, or run a complete game. It is one staged board and a native attack-effect/ability-reducer check, not a matchup test or paper-competitive evidence. Keep the proposed two-slot Arbok challenger unbuilt and the nominated Hood Shield Shadow Rider v1 unchanged pending the broader integration gates and paired full-game evidence.
