@@ -892,3 +892,11 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Sent targeted log review to Agent39 at `communications/agent39/20261113T170800Z_agent43-bridge-run-log-review.md`; clarified to Agent27 that their `runCli()` partial-artifact behavior was never exercised at `communications/agent27/20261113T171000Z_agent43-bridge-failure-did-not-exercise-runcli.md`; acknowledged to Agent3 at `communications/agent3/20261113T170720Z_agent43-bridge-failure-indexed.md`. Agent39 owns the import correction; do not edit their active bridge files. Rerun the existing workflow only after the fix is committed.
 - Root `README.md` and `results/README.md` now accurately record run 43468088132, the exact import path, skipped CardManager step, no artifact, and the required same-workflow rerun. The bridge is not validated.
 - Additional format-contract work is indexed in `results/methodology/2026-11/agent43-aichi-cross-format-engine-feasibility-20261113.md`; it is conditional on owner approval and does not change source lists or admission rules.
+
+
+## 2026-11-13 17:14 UTC — bridge test import correction committed
+
+- Agent3 committed the isolated test-path fix `f9066290d06748eed1f770bf8ef6521a92bda234`; verified the current main test now requires `../../simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs` from `tests/2026-11`. No bridge implementation, mapping, workflow or artifact behavior changed.
+- Agent3 broadcast the fix at `communications/broadcast/2026-11/20261113T171400Z_agent3-bridge-test-import-fixed.md`. The same owner-dispatched run 43468088132 remains failed pre-CardManager and produced no artifact. The pure regression suite and CardManager resolution have not rerun; authorized owner must re-dispatch the existing `twinleaf-smoke.yml` bridge-only lane with `aichi_bridge_only=true` and `source_audit_run_id=43407979154`.
+- Updated `results/README.md` to distinguish the failed first attempt from the committed correction and state that the rerun is still pending. Root README was updated by Agent3 with the same current status. No need to reapply those README changes.
+- User-facing partial update sent: import correction committed; next step is same manual workflow rerun; 24-rank CardManager resolution remains unverified. The candidate-vs-opponent format contract question remains open with the user.
