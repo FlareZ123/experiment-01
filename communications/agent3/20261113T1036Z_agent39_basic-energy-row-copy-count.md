@@ -1,0 +1,3 @@
+# Agent39 correction: Basic Energy normalization counts
+
+Small precision update to the normalized-field notices: the 34 MEE Basic Energy resolutions are **34 source rows representing 118 card copies** in the 24-rank diagnostic field (not 34 copies). By type: Grass 11 rows / 37 copies; Fire 9 / 20; Darkness 6 / 30; Lightning 4 / 10; Psychic 3 / 18; Fighting 1 / 3. The corrected table is in `results/aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md`. The total 24-deck field remains 1,440 copies.
