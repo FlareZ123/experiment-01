@@ -2,61 +2,81 @@
 
 **Author:** Agent48  
 **Date:** 13 November 2026  
-**Status:** methodology proposal; awaiting Agent3's rules/field-owner response  
-**Scope:** diagnostic use of the 24 identity-screened Aichi lists. This does not change the production paper-Expanded admission gate.
+**Status:** identity-level diagnostic interpretation confirmed by Agent3; normalized field generated and CI-validated. Production paper-admission gate remains unchanged.  
+**Scope:** diagnostic use of the 24 authenticated Aichi lists. This does not change the production paper-Expanded admission gate.
 
-## Question
+## Question and decision
 
-The 24 authenticated Aichi lists have passed English Expanded card-identity, deck-construction, and current-banlist screens. Their exact original physical Japanese copies have not been authenticated. Should that uncertainty prevent all use of the lists, or should identity legality and original-print provenance be represented separately?
+The 24 authenticated Aichi lists have passed English Expanded card-identity, deck-construction, and current-banlist screens. Their exact original physical Japanese copies have not been authenticated. The correct treatment is to separate:
 
-## Relevant rule
+1. the original published card identity and its provenance;
+2. whether that identity has a legal English/international Expanded printing with functionally identical text;
+3. the exact physical copy used by the historical Japanese event player; and
+4. the language/printing rules for the hypothetical paper-Expanded reconstruction.
 
-The public Play! Pokémon TCG Rules & Formats handbook (2023 edition), §5.2, permits an older printing when a card with the same name and functionally identical text is legal in the format. The handbook's deck-list correction guidance also treats an entry that cannot reasonably be identified from the submitted information as a deck-list issue to be corrected with Basic Energy of the player's choice.
+Agent3's review confirms that the exact historical Japanese physical copy is not a prerequisite for a **diagnostic identity-normalized Expanded deck** when a legal English printing with identical name and functionally identical text exists. The 2026 handbook's reprint rule and language requirements are separate. This does **not** authenticate the original event cards or promote any rank to production paper-admitted status.
 
-Reference: https://assets.pokemon.com/assets/cms2/pdf/play-pokemon/rules/play-pokemon-tcg-rules-and-formats-en.pdf
+## Current rule references
 
-This is a useful distinction between **card identity/format legality** and **proof of the exact physical copy used by a historical player**. It is not, by itself, proof that the Aichi event used these exact copies or that every local event rule matches the handbook. The event is in Japan, so card-language and event-sanctioning rules must be considered separately; Agent3 should confirm the exact event context.
+Use the **Play! Pokémon TCG Tournament Handbook, revision 1 September 2026**, rather than the older 2023 Rules & Formats handbook previously cited here:
+
+- §4.1.3, Reprinted Cards in the Standard & Expanded Formats: an older printing may be played if the new card has an identical name and all text is functionally identical. Reference: [official Pokémon TCG Tournament Handbook PDF](https://assets.pokemon.com/assets/cms2/pdf/play-pokemon/rules/play-pokemon-tcg-tournament-handbook-en.pdf).
+- §2.3, card-language requirements: the language used in a diagnostic deck must be legal for the applicable tournament region/event. This is separate from whether the source player physically used a Japanese card at Aichi.
+- Basic Energy is treated separately from ordinary named-card identity/copy limits. For a generic Basic Energy placeholder, normalization may select an Expanded-legal English Basic Energy of the same type; it must not change the Energy type or imply proof of the original physical card.
+
+The 2026 handbook is the current reference for this analysis. The 2023 handbook §5.2 remains historical context only and should not be cited as the controlling current rule.
 
 ## What the 24-list audit establishes
 
-- Ranks 1, 2, 4, 5; 8–22; 26, 27; and 30–32 are the 24 identity-screened lists.
-- Each source list is an authenticated 60-card list; the relevant audits pass deck construction and the independently sourced Expanded banned-printing overlay.
-- Japanese promo/display-name crosswalks bridge the identified non-energy rows. The remaining unresolved rows in the compatible set are generic MEE Basic Energy placeholders; they do not identify a text-distinct non-energy card.
-- The five incompatible ranks remain 3, 6, 7, 24, and 29. Ranks 23, 25, and 28 remain unavailable. No missing list is reconstructed here.
+- Included ranks: **1, 2, 4, 5; 8–22; 26, 27; 30–32**.
+- All 24 published lists are authenticated 60-card source lists.
+- Every non-energy identity in these lists has an exact English Expanded-legal printing or an explicit canonical English identity alias with functionally identical text.
+- The generic MEE Basic Energy placeholders are normalized to an Expanded-legal English Basic Energy of the same type.
+- The five incompatible ranks remain **3, 6, 7, 24, 29**.
+- Ranks **23, 25, 28** remain unavailable. No missing list is reconstructed.
 
-Primary audit references:
-- `results/aichi-2026/2026-11/agent48-ranks1-2-4-5-expanded-eligibility-screen-20261113.md`
-- `results/aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md`
-- `results/aichi-2026/2026-11/agent3/expanded-proxy-audit-ranks17-22-26-27-30-32-20261113.md`
-- `results/aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md`
-- `results/aichi-2026/2026-11/agent39-bwp-smp-japanese-print-crosswalk-20261113.md`
+## Machine-readable normalized field
+
+Agent39's committed generator now emits a separate `diagnostic_normalized_field` without rewriting `results/aichi-2026/full-decklists.json`.
+
+- Generator: `scripts/aichi_expanded_identity_audit.py` (`build_normalized_diagnostic_decks`).
+- Regression: `tests/test_aichi_expanded_identity_audit.py`.
+- Successful CI: [run 43407979154](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154), generator head `6d476d316be93bfd0d5d09ca59c3af9db59b2260`.
+- Machine-readable output: [artifact 14027319169](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169), ZIP member `aichi-expanded-identity-audit.json`, 30-day retention.
+- Read `diagnostic_normalized_field.decks` for the 24 full 60-card lists. The existing `results/aichi-2026/diagnostic/identity-screened-24-field.json` remains only the rank allowlist, not the decklists.
+- Source decklist remains `results/aichi-2026/full-decklists.json`, blob `ae773f6201d7aa69d31914dbfee66f3fba692200`.
+
+The current export contains 24 decks, 812 source card rows and 1,440 copies: 745 exact English print-identity rows, 33 explicit canonical English identity aliases, and 34 same-type MEE Basic Energy resolutions. Every normalized row preserves the source rank-local row index, source name/printing, event-date/identity status, normalized card-pool ID, English name/count/supertype/subtypes, and a SHA-256 digest of the functional card-text fields. Non-energy rows keep source display printing separate from the canonical card-pool record.
+
+The normalized card IDs are from `resources/cards/en`; a Twinleaf integration must explicitly resolve them through the adapter before constructing simulator decks. The export does not assert direct Twinleaf-ID compatibility.
 
 ## Proposed status separation
 
 Keep the production V3 contract conservative. Do **not** change any of the 24 ranks to production `formatStatus: legal` solely on this analysis.
 
-For exploratory simulation, represent the dimensions separately:
-
 | Dimension | 24-rank status | Meaning |
 |---|---|---|
 | Source list | authenticated | Exact published card names/counts and rank are retained |
-| Card-identity screen | passed | Every non-energy identity is bridged to an Expanded-legal identity; deck construction and banlist screens pass |
-| Original physical print | unverified | The exact Japanese physical copy each player used is not proven |
+| Card-identity screen | passed | Every non-energy identity is bridged to an Expanded-legal identity; deck construction and current banlist screens pass |
+| Diagnostic English printing | normalized | A legal English card-pool record with matching name/functionally identical text is selected; Basic Energy preserves type |
+| Original physical Japanese copy | unverified | The exact card physically used by each historical player is not proven |
 | Paper competitive admission | not eligible | No original-print/paper review packet has qualified the rank |
-| Diagnostic proxy use | permitted only as labeled | Simulation may use the unchanged card identities with explicit normalizations; results are not paper-matchup evidence |
+| Diagnostic proxy use | permitted only as labeled | Simulation may use the normalized 60s; results are not original-event paper matchup evidence |
 
-This would allow a **24-rank identity-screened diagnostic field** for deck-policy exploration without misrepresenting it as a complete or paper-qualified Aichi field. The existing production validator should continue to report zero verified paper-legal available ranks until its evidence requirements are met.
+The 24-rank identity-normalized field is now suitable for exploratory policy/deck diagnostics, provided every result is labeled `identity_normalized_expanded_diagnostic_only`. It is **not** a complete Top32 evaluation: five ranks are format-incompatible and three source lists are unavailable. It must not be aggregated into a 32-rank competitive win-rate claim.
 
-## Recommendation and uncertainty
+## Banlist and event-format boundary
 
-1. Keep the five incompatible and three unavailable ranks excluded exactly as they are.
-2. Preserve the 24 original lists and their source rows unchanged.
-3. If Agent3 confirms the identity-level interpretation, expose a separate diagnostic rank set rather than weakening `availableRanks` or the production V3 gate.
-4. Keep every resulting simulation labeled `diagnostic-only`; do not aggregate it into a 32-rank competitive win-rate claim.
-5. If the event's own rules require exact physical-copy proof for this benchmark, retain the current stricter treatment.
+The bundled card-pool Expanded flags remain a snapshot cross-check, not the current official banned-printing authority. Keep the separate official banlist overlay in force; the identity-normalization generator does not replace it. The source event was Japanese Extra; the diagnostic field is a hypothetical English-print Expanded reconstruction, not a claim that the original event was played under Expanded rules.
 
-Agent48 asked Agent3 to resolve this distinction in `communications/agent3/2026-11-13T0849Z_agent48_identity-vs-print-legality-question.md` and supplied the official reprint-rule reference in the follow-up message. No production status change is made pending that answer.
+## Recommendation
+
+1. Preserve all 32 rank statuses and original source rows unchanged.
+2. Use the 24 normalized 60-card lists for diagnostic simulation as soon as the Twinleaf adapter resolves their card-pool IDs.
+3. Keep the five incompatible and three unavailable ranks visible in all field-level reports.
+4. Keep production V3 `availableRanks` and paper-admission status separate; do not weaken the evidence gate.
+5. Report per-rank diagnostic outcomes, sample sizes, policy/engine versions and uncertainty. Never extrapolate the 24-rank diagnostic result to all 32 opponents.
 
 ## Non-claims
 
-This note does not establish a complete 32-rank field, authenticate original physical cards, prove any matchup, nominate a final 60-card deck, or support a 99.5% win-rate claim.
+This does not establish original physical-card provenance, a complete 32-rank Expanded-legal field, any matchup result, a nominated final 60-card deck, or a 99.5% win-rate claim.
