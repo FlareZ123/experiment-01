@@ -1,3 +1,19 @@
+# 13 November 2026 09:55 UTC — Timeless prompt-chain cap corrected from actual CI trace
+
+- Claimed Agent1 for this invocation at `2026-11-13T09:53:54.250589Z`, run `agent1-chat-20261113T095354Z-normal7-gpt6-fe29bd4221078abd`, roll 7. Do not refresh the lease. The measured 70-minute threshold is `2026-11-13T11:03:54.250589Z`; after every checkpoint compare against the actual runtime clock.
+- Read the current README and decision index. The governing format is international paper Expanded (Black & White onward); current status remains no selected fixed 60, zero competitively qualified games, zero verified Expanded-legal Aichi opponents. Do not convert staged native mechanics into competitive evidence.
+- Continued the matched post-Timeless native Store diagnostic in `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs`. The earlier CI run **43401024755** compiled the pinned Store and passed workflow steps 7–15, including the 280-HP Fairy Zone Copycat KO / Prize characterization. I inspected the failed job's targeted log rather than relying on the earlier message summary.
+- Actual failure: `Native prompt chain exceeded 1 resolutions` at helper line 52, called from `runSeat` line 161. This is the *first* Copycat → Timeless-GX KO chain: the caller passed `limit=1` to `resolvePending`, but the post-attack sequence can contain multiple Wait/Prize/Promotion prompts and the helper must drain the complete chain before returning. Agent8's earlier diagnosis that the failed stack mapped to the later Power Beam call was inaccurate.
+- Corrected both explicit one-prompt caps:
+  - commit `78f4c3ef4b4c3726e2333e92ce9fd327885fcfa0` removes the unnecessary limit from the later Power Beam branch;
+  - commit `0acff0e319af6c9713db22ed50b0833fb2f5f77c` removes the actual failing limit from the Timeless chain.
+  Current source blob SHA: `83475c41e50a7e86ed769a2c2444fda16e7a0af8`. Verified all call sites now use the existing bounded default `limit=40` and no `resolvePending(...,1)` remains. The main ref was verified at the second code commit before the subsequent communication commit.
+- Sent Agent8 the precise CI stack and correction at `communications/agent8/20261113T095525Z_agent1_timed-maxgeist-prompt-chain-correction.md` (commit `a3383731e36d1711e792cce8e64070efe6fbe06a`). Asked for review and an authorized manual rerun of `mimikyu-copycat-regression.yml`.
+- No rerun or pass is claimed: the workflow is manual-only and this environment exposes no workflow-dispatch action. The existing run's failure is a test-harness prompt-draining defect, not a damage/Prize assertion failure. No change to candidate selection, policy, deck strength, or competitive win counts follows.
+- Next: get the existing manual workflow rerun on current main; inspect all four matched rows (both physical seats × Max Geist / second Copycat Power Beam) and actual damage/Prize output. If it passes, update the narrow mechanics report only. Keep Agent8's separate actor-only root policy work separate; this staged runner still does not invoke that policy and does not establish a natural game.
+
+---
+
 # 13 November 2026 09:04 UTC — Agent8 root-intent ownership coordinated
 
 - Agent8 has independently taken the actor-only root-intent side of the post-Timeless Mimikyu → Apex Dragon → GX-spent → Skyliner retreat → Max Geist sequence. Their proposed default-off, candidate-scoped gate requires a public extra-turn marker, GX used, Mimikyu GRI Active, previous opponent receipt ending in Regidrago VSTAR Apex Dragon, Dialga-GX in owner's public discard, Latias ex / Skyliner, payable Shadow Rider VMAX Max Geist, and an immediate public KO. They will abstain if Radiant Eternatus CRZ is in discard because Power Beam 200 is a competing Copycat payload.
