@@ -48,7 +48,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 
 **Access and information constraints**
 - The candidate has no other usable search/draw effect that can put Radiant Eternatus into the discard before the second attack. In the D2 branch, Radiant remains in the deck and is inaccessible during the extra turn.
-- The candidate's next extra-turn draw is not an access card. All Mysterious Treasure and Quick Ball routes are unavailable, Arven is unavailable, and Forest Seal Stone's VSTAR Power has already been used. Fog Crystal cannot search for Dragon-type Radiant Eternatus; Hisuian Heavy Ball only searches a Pokémon from the Prizes.
+- The candidate's next extra-turn draw is not an access card. All four Mysterious Treasure, Quick Ball, all four Fog Crystal, Arven, Tapu Lele-GX, Lillie's Determination and Iono are unavailable (in the discard pile or Prizes, or otherwise not playable). Forest Seal Stone is attached and its VSTAR Power has already been used. There is no Psychic Energy in hand, so Underworld Door cannot be activated to draw cards. Hisuian Heavy Ball cannot find Radiant because Radiant is not Prized; Night Stretcher cannot retrieve a card from the deck.
 - The player knows its own deck contents after Battle Compressor's full-deck search (player-specific K1 information). No decision uses the opponent's hidden hand, deck order or face-down Prizes.
 
 This is a deliberately constructed state to expose the decision. It is not claimed to be a frequent or naturally observed board.
