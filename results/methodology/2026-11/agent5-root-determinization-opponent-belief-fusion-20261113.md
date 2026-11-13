@@ -71,3 +71,20 @@ node --test tests/2026-11/agent5-root-determinization-opponent-belief-fusion.tes
 ```
 
 The existing manual Agent5 workflow now includes this characterization test alongside the three core/belief/adapter contract suites. No new workflow or automatic push trigger was added.
+
+## Follow-up — fixed actor-observation opponent policy mode
+
+A practical evaluation path is now implemented in the MCTS core at `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`:
+
+- Optional `config.opponentActionPolicy` plus a required stable `config.opponentPolicyId`.
+- At non-root-seat nodes, the core supplies only the acting player's observation, sorted legal action keys, physical seat, seeded RNG and deadline context. It does not pass the native State or action objects to the opponent policy.
+- The policy must return one key in the current legal frontier; otherwise search fails closed.
+- Repeated opponent information sets must retain an identical action-key frontier.
+- PUCT remains the candidate/root-seat planner; opponent actions follow the frozen policy. This is **policy-conditioned root search**, not adversarial PUCT or equilibrium search.
+- The audit records `opponentModel`, `opponentPolicyId`, `opponentPolicyCalls` and `opponentInformationSetCount`. The legacy no-policy mode is explicitly marked `root-determinization-puct`.
+
+The characterization test now includes the counterexample plus the fixed-policy mode. The fixed policy sees the same opponent observation in both root-private worlds and chooses Pass 400/400 times; the root's terminal values still differ because the actual root-private card is preserved for outcome evaluation. A third regression rejects a policy action outside its visible frontier.
+
+**Current source-level validation:** 10/10 core + strategy-fusion tests passed in the Code Mode harness using deterministic hash and Node assert/test shims. The harness is not native Node/Twinleaf CI. The test file is included in the existing Agent5 manual workflow.
+
+This mode is a practical way to evaluate against a frozen per-rank opponent policy without allowing the root's private hand to steer the opponent's action rule. It does not make a weak policy competent, certify that every action key is observation-safe across all root-private worlds, or close the Expanded action-frontier problem. Those remain explicit requirements. The default mode without a supplied policy still has the counterexample above.
