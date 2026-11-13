@@ -202,3 +202,112 @@ test('rejects a fixed opponent policy action outside its visible frontier', () =
     /outside its observation-safe frontier/
   );
 });
+
+
+function runOpponentPolicyRngProbe(rootPrivateCard, policyDrawCount) {
+  const policyRandomValues = [];
+  const policySelectedKeys = [];
+  const transitionValuesAfterPolicy = [];
+  const opponentObservationHashes = [];
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 2,
+    seed: 2,
+    observe: (state, seat) => {
+      const observation = seat === 0 ? {
+        seat,
+        privateCard: state.privateCard,
+        public: state.public,
+        choice: state.choice
+      } : {
+        seat,
+        public: state.public,
+        choice: state.choice
+      };
+      if (seat === 1) opponentObservationHashes.push(observationSha256(observation));
+      return observation;
+    },
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === 0 ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    sampleDeterminization: state => ({...state}),
+    applyAction: (state, action, random) => {
+      if (state.seat === 0) {
+        // Model a hidden-state-dependent shuffle/coin path consuming a
+        // different number of transition draws before the same opponent view.
+        if (state.privateCard === 'threat') random();
+        return {...state, choice: action.name, seat: 1};
+      }
+      transitionValuesAfterPolicy.push(random());
+      return {...state, terminal: true, winner: 0};
+    },
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0,
+    opponentPolicyId: 'rng-isolation-probe-v1',
+    opponentActionPolicy: (observation, actionKeys, seat, random) => {
+      assert.equal(seat, 1);
+      assert.equal(Object.hasOwn(observation, 'privateCard'), false);
+      assert.deepEqual(actionKeys, ['block', 'pass']);
+      const value = random();
+      policyRandomValues.push(value);
+      for (let i = 1; i < policyDrawCount; i++) random();
+      const selected = value > 0.5 ? 'block' : 'pass';
+      policySelectedKeys.push(selected);
+      return selected;
+    }
+  });
+  const result = search.search({
+    seat: 0,
+    privateCard: rootPrivateCard,
+    public: {opponentThreatPrior: 0.2},
+    choice: null,
+    terminal: false
+  }, 0);
+  return {
+    result,
+    policyRandomValues,
+    policySelectedKeys,
+    transitionValuesAfterPolicy,
+    opponentObservationHashes
+  };
+}
+
+test('fixed opponent-policy RNG is isolated from hidden-state transition consumption', () => {
+  const threat = runOpponentPolicyRngProbe('threat', 1);
+  const bluff = runOpponentPolicyRngProbe('bluff', 1);
+
+  assert.equal(
+    threat.opponentObservationHashes[0],
+    bluff.opponentObservationHashes[0],
+    'The opponent information set must be identical across root-private worlds'
+  );
+  assert.equal(
+    threat.policyRandomValues[0],
+    bluff.policyRandomValues[0],
+    'Hidden-state-dependent transition draws must not shift policy randomness'
+  );
+  assert.equal(
+    threat.policySelectedKeys[0],
+    bluff.policySelectedKeys[0],
+    'A stochastic policy must make the same decision at the same information set'
+  );
+  assert.equal(
+    threat.result.audit.opponentPolicyRngProtocol,
+    'mcts-opponent-policy-rng-v1'
+  );
+});
+
+test('fixed opponent-policy draws cannot advance the game-transition RNG', () => {
+  const onePolicyDraw = runOpponentPolicyRngProbe('bluff', 1);
+  const threePolicyDraws = runOpponentPolicyRngProbe('bluff', 3);
+
+  assert.equal(onePolicyDraw.policyRandomValues[0], threePolicyDraws.policyRandomValues[0]);
+  assert.equal(
+    onePolicyDraw.transitionValuesAfterPolicy[0],
+    threePolicyDraws.transitionValuesAfterPolicy[0],
+    'Changing policy RNG consumption must not perturb later game randomness'
+  );
+});
