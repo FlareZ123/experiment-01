@@ -352,3 +352,28 @@ test('monotonic decision deadline aborts without returning a partial selection',
   assert.throws(()=>mcts.search(h.state,0),error=>
     error.code==='MCTS_BUDGET_EXCEEDED');
 });
+
+test('Twinleaf adapter forwards a fixed actor-observation opponent policy into the core',()=>{
+  let time=0;
+  const h=makeHarness();
+  const policyCalls=[];
+  const mcts=createTwinleafMcts(h.deps,{
+    iterations:8,maxPlies:4,maxDecisionMs:250,seed:9,now:()=>time+=0.01,
+    opponentPolicyId:'test-fixed-opponent-v1',
+    opponentActionPolicy:(observation,actionKeys,seat)=>{
+      assert.equal(observation.actorSeat,seat);
+      assert.deepEqual(actionKeys,[...actionKeys].sort());
+      assert.equal(Object.hasOwn(observation,'nativeState'),false);
+      policyCalls.push({seat,actionKeys});
+      return actionKeys.includes('PASS_TURN')?'PASS_TURN':actionKeys[0];
+    }
+  });
+  const result=mcts.search(h.state,0);
+  assert.equal(result.audit.opponentModel,'fixed-actor-observation-policy');
+  assert.equal(result.audit.opponentPolicyId,'test-fixed-opponent-v1');
+  assert.ok(result.audit.opponentPolicyCalls>0);
+  assert.equal(result.audit.opponentPolicyCalls,policyCalls.length);
+  assert.ok(result.audit.opponentInformationSetCount>0);
+  assert.ok(policyCalls.every(call=>call.seat===1&&call.actionKeys.includes('PASS_TURN')));
+  assert.ok(result.audit.seatActionTransitions[1]>0);
+});
