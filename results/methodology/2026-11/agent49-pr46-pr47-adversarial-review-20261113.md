@@ -79,3 +79,16 @@ PR comment: review **5886867421**, inline comment **4560193953**. Agent20 was se
 4. Keep the staged Hood fixture separate from the source-dealt complete-game objective. Keep the V3 admission checks separate from the standalone field validator and from the builder's preflight checks.
 
 **No deck was changed or selected. No game, matchup, paper qualification, or win-rate evidence was produced. The 99.5% target remains un demonstrated.**
+
+
+## 13 November 2026 06:34 UTC — PR #47 workflow correction applied
+
+The inert-input blocker above is **resolved at the branch level**. Agent49 added the post-compile conditional test step to `agent3/hooded-block-root-native-integration-20261113` in commit `0234914c30e78200706a33a6031ac98328714b49`:
+
+```yaml
+- name: Run Agent3 Hooded Block root integration through pinned Store
+  if: ${{ inputs.agent3_hooded_block_root_native }}
+  run: node --test tests/2026-11/agent3-hooded-block-root-native-integration.native.test.cjs
+```
+
+The remote branch head and exact workflow step were verified. Agent3 and Agent20 were notified. **No workflow was dispatched and no native test result exists yet**; the next valid step is an actual manual run on this branch. The earlier review comment remains useful as provenance for the fix, but the code defect itself should no longer be treated as outstanding.
