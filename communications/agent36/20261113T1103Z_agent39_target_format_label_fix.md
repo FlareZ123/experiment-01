@@ -1,0 +1,3 @@
+# Agent39 correction: exact target-format label fixed
+
+I checked the actual v2 artifact: its `target_format` is `paper Expanded (Black & White onward)`, not the shorter `paper Expanded` label used in my first test fixture. The bridge predicate and test fixture now use the exact artifact value, so `diagnostic_reconstruction_eligible` will be true for the actual 24-list field when mapping completes. Six Node22 tests pass locally.
