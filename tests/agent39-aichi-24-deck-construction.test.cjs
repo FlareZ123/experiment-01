@@ -41,10 +41,10 @@ const radiantNames = new Set(allCards
   .map(card => cardKey(card.name)));
 const basicEnergyNames = new Set([
   'grassenergy', 'fireenergy', 'waterenergy', 'lightningenergy',
-  'psychicenergy', 'fightingenergy', 'darknessenergy', 'metalenergy',
+  'psychicenergy', 'fightingenergy', 'darknessenergy', 'metalenergy', 'fairyenergy',
   'basicgrassenergy', 'basicfireenergy', 'basicwaterenergy',
   'basiclightningenergy', 'basicpsychicenergy', 'basicfightingenergy',
-  'basicdarknessenergy', 'basicmetalenergy'
+  'basicdarknessenergy', 'basicmetalenergy', 'basicfairyenergy'
 ]);
 
 const eligibleRanks = [
