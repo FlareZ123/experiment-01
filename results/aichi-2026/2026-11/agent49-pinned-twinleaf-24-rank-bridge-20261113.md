@@ -31,7 +31,7 @@ The [full compressed JSON](aichi-twinleaf-decklist-bridge-agent49-20261113.json.
 | 31 | 31 | 60 | `b3740f9e5b442b3b400cedbab493a0e99b7c974a3554e8ae334ef8889ba1ea78` |
 | 32 | 39 | 60 | `fe51a21762bf1b758ae0a205d3fb4231d9fd68df8a4d941d4e8623f578a4f3b3` |
 
-Ranks 1, 8, 19 and 22 resolved six copies of source Night Stretcher ASC/196 through Twinleaf SFA/61. The bridge preserved the ASC/196 source rows and hashes. The rank-1 ordered engine-input SHA-256 is `ea19873885b3e4f986f39f86dbc9b16ed2c9602e2e0978340858b4d9f9012dca`.
+Ranks 1, 8, 19 and 22 resolved all six Night Stretcher copies directly to Twinleaf ASC/196. The live CardManager registers that print, and the existing exact-first bridge selected it in every occurrence. The SFA/61 fallback did not run. The rank-1 ordered engine-input SHA-256 is `ea19873885b3e4f986f39f86dbc9b16ed2c9602e2e0978340858b4d9f9012dca`.
 
 ## Reproduction
 
