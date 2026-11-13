@@ -185,8 +185,6 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
   const resources=view.ownTurnResources,opponent=view.opponentPublic;
   if(catalog.specialConditions?.CONFUSED===undefined)return null;
   if(ownerHasUnmodeledFreeMobility(view))return null;
-  // Tool Jammer on the opponent's Active disables Stealthy Hood on ours.
-  if(opponentActiveToolJammerDisablesHood(view)!==false)return null;
   if(active&&retreatAbilityGuard(view,catalog,active)!=='printed')return null;
   if(!active||!opponent?.active||!Array.isArray(own?.bench)||
      !Array.isArray(own.stadium)||!Array.isArray(opponent.stadium)||
