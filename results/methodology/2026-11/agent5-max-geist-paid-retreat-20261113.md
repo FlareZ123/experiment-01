@@ -48,7 +48,7 @@ The paid-retreat regression passes the explicit one-energy payment object to the
 
 ## Final post-cycle-fix validation — 13 November 2026
 
-The final `agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit` implementation passed the complete nine-test Agent6 paid-retreat regression file **9/9** in a V8 harness using the actual Agent6, Agent7, and Agent47 source modules. The earlier circular Agent6↔Agent42 helper import was removed; Agent42/Agent8's two-unit/free-retreat path remains separate. This is not native Node 22, GitHub Actions, Twinleaf Store execution, or a replay of rank 19.
+The final `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist` implementation, including the 130-damage abstention threshold, passed the complete nine-test Agent6 paid-retreat regression file **9/9** in a V8 harness using the actual Agent6, Agent7, and Agent47 source modules. The earlier circular Agent6↔Agent42 helper import was removed; Agent42/Agent8's two-unit/free-retreat path remains separate. This is not native Node 22, GitHub Actions, Twinleaf Store execution, or a replay of rank 19.
 
 
 ## Charge-preserving threshold correction

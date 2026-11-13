@@ -1,3 +1,11 @@
+## 13 November 2026 09:29 UTC — v6 Max Geist threshold test passed
+
+- The v6 charge-preserving Max Geist frontier passed all **9/9** paid-retreat regression tests in the V8 harness after the 130-damage threshold change. Actual Agent6/Agent7/Agent47 source modules were used; this is not native Node/CI.
+- Test now confirms 3 Psychic on VMAX + 1 on Active Mimikyu projects 100 and abstains; 4 + 1 projects 130 and selects; 5 + 1 projects 160 and selects. The 130 floor avoids taking the VMAX off the Bench while it is still charging at 100.
+- Final code version: `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist`. Candidate-policy integration and native rank19 replay remain outstanding.
+
+---
+
 ## 13 November 2026 09:28 UTC — charge-preserving Max Geist threshold
 
 - Corrected the paid-retreat Max Geist heuristic after reading the full rank-19 turn sequence: the earlier 80-damage floor would pivot at VMAX3 / 100 damage on turns 21/23 and strand the VMAX off the Bench before later Underworld Door attachments. Final v6 requires **130 projected printed damage** for Max Geist, so it abstains at 100 and becomes eligible at VMAX4 / 130 (turn25 public snapshot); VMAX5 projects 160.
