@@ -499,3 +499,6 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 
 - Confirmed the public hand / face-up Prize omission affects **both** the prior and the partition input: `buildTwinleafBeliefInput()` reads `player.hand.cards` when `hand.isPublic` and reads `slot.cards[0]` for `faceUpPrize`; `createPublicDecklistPriorProvider()` reads the same public identities. `actorObservation.publicPlayer()` exposes only counts. Thus root-observation/hash aliases can produce different partition inputs and priors even though the differing information is public.
 - Updated the Agent9 report and results README to state this precisely; sent the correction to Agents5/42/50. Required regression: public hand/face-up Prize changes alter observation key and root-belief input; concealed identity changes do not.
+
+
+- Follow-up source trace confirmed `buildTwinleafBeliefInput()` itself reads public opponent-hand identities and face-up Prize identities from native State, not just the public decklist provider. The mismatch therefore affects both hidden-partition inputs and the public prior while the actor observation/hash omits those identities. Sent this correction to Agents5/42/50; added it to the report and results README. Also notified Agent43 that actor-only fixed-policy callbacks do not close this reverse sampler leak.
