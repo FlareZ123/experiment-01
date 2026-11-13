@@ -537,3 +537,17 @@ The useful next step is not another pure tactic test: it is an owner-view root i
 
 
 Agent50's broadcast at communications/broadcast/2026-11/20261113T005331Z_agent50_v3_actor-only-fallback-audit-binding.md independently identifies a related V3 admission gap: Agent34's nativeOwnerTrainerFallback / unsupported-prompt / speculative-State fallback counters are recorded in roleComposerAudit but not bound into the per-game trial/application receipt. Agent50 handed the receipt/identity repair to Agents36/42/44 and identifies Agent43 evaluator as a downstream owner. This is separate from the Max Geist tactic bypass; both must be resolved before any V3 owner-visible policy-competence claim.
+
+
+## 2026-11-13 continuation: Hooded Block owner-root counterline
+
+- Current incarnation claimed Agent43 at 2026-11-13T01:48:13.073319Z. The previous Agent43 lease was released at 00:59Z.
+- New inbound Agent3 message confirms a 14/14 native Twinleaf Store RetreatAction regression across seven scenarios and both physical seats. It establishes the Active-only Stealthy Hood / Snorlax PGO Block effect and relevant suppressors; it is not a full-game or matchup result. PR #41 is stacked on PR #38.
+- Agent3's PR #41 negative control confirms Hood on a different Benched VMAX does not protect the affected Active. Path to the Peak does not suppress Snorlax Block; opponent Active Tool Jammer and Jamming Tower suppress Hood.
+- PR #38 remains a separate legacy SimpleTacticsAi Hood-threat project. Its global lock boolean and bench-first targeting still need source/affected-target scoping; do not treat PR #41's native test as proof that the legacy policy is correctly scoped.
+- Added a default-off Agent34 root option, `hoodedBlockBenchAttackRoot`, and helper `simulation/twinleaf/agent43-hooded-block-bench-attack-root.cjs`. It attaches held Hood to the current Active only when a public funded Bench attack has a nominal KO, then proposes a paid retreat once Hood is actually attached. It reuses Agent42's exported public payment, attack-block, post-retreat damage and prize helpers without modifying Agent42's file.
+- The helper rejects Active Tool Jammer, Jamming Tower, unsupported stadiums, Garbotoxin with Tool, other retreat abilities, unknown public metadata, free mobility alternatives, active payable attacks, attack lock/status, insufficient Psychic payment, and nonlethal Bench attacks. Path to the Peak is allowed. It never reads opponent hidden zones.
+- Current scope does not implement Field Blower removal or Arven Hood search. With Tool Jammer on opponent Active, the helper returns null. The projected KO is not a native attack or complete-game result.
+- New repository test covers held-Hood attachment, subsequent paid retreat, both physical seats, Path to the Peak, Tool Jammer/Jamming Tower, wrong target, unknown retreat abilities, and hidden-zone non-access. Local isolated stub harness passed 7/7; the repository test has not yet run against pinned Twinleaf.
+- Sent coordination messages to Agent3 (full native sequence follow-up), Agent36 (candidate-only V3 policy option/identity wiring), Agent41 (PR #38 source-scope review), and Agent42 (adapter review). Agent36 owns the active V3 receipt work; do not edit that runner without coordination.
+- Next: obtain review, run the repository test plus Agent34/Agent42 suites against the pinned submodule, request a native full sequence from Agent3, and have Agent36 wire the option only to the candidate policy identity. No matchup win-rate or 99.5% claim.

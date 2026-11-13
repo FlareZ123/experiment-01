@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v9-seat-relative-bottom-target';
+const VERSION='agent34-actor-only-root-slice-v10-seat-relative-bottom-target-hooded-block-root';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -296,6 +296,11 @@ function chooseActorRootIntent(view,catalog,options={}){
     const rescue=require('./agent35-block-switch-ko-frontier.cjs')
       .chooseBlockSwitchFundedKo(view,catalog);
     if(rescue)return rescue;
+  }
+  if(options.hoodedBlockBenchAttackRoot===true){
+    const hooded=require('./agent43-hooded-block-bench-attack-root.cjs')
+      .chooseHoodedBlockBenchAttackRoot(view,catalog);
+    if(hooded)return hooded;
   }
   // Opt-in owner-only, fully funded post-Apex Mimikyu Active promotion.
   // Its public attack-history receipt comes from the real Store tracker.
@@ -1126,6 +1131,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
     genericTacticalSwitchRootOptIn:deps.genericTacticalSwitchRoot===true,
     opponentBlockSwitchRootOptIn:deps.opponentBlockSwitchRoot===true,
+    hoodedBlockBenchAttackRootOptIn:deps.hoodedBlockBenchAttackRoot===true,
+    hoodedBlockBenchAttackRootSelected:0,
+    hoodedBlockBenchAttackRootHoodAttachmentsSelected:0,
+    hoodedBlockBenchAttackRootRetreatsSelected:0,
+    hoodedBlockBenchAttackRootSelectedBySeat:[0,0],
+    hoodedBlockBenchAttackRootSelectedUnknownSeat:0,
     zeroEnergyStrandFloatStoneRootOptIn:
       deps.zeroEnergyStrandFloatStoneRoot===true,
     zeroEnergyStrandFloatStoneTargetTurn:
@@ -2141,6 +2152,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
       genericTacticalSwitchRoot:audit.genericTacticalSwitchRootOptIn===true,
       opponentBlockSwitchRoot:audit.opponentBlockSwitchRootOptIn===true,
+      hoodedBlockBenchAttackRoot:audit.hoodedBlockBenchAttackRootOptIn===true,
       zeroEnergyStrandFloatStoneRoot:
         audit.zeroEnergyStrandFloatStoneRootOptIn===true&&
         (audit.zeroEnergyStrandFloatStoneOwnerSeat===null||
@@ -2489,6 +2501,16 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(intent.kind==='paid-retreat')
         audit.retreatFundingBridgeRetreatsSelected++;
     }
+    if(intent.source===require('./agent43-hooded-block-bench-attack-root.cjs').VERSION){
+      audit.hoodedBlockBenchAttackRootSelected++;
+      if(intent.kind==='attach-stealthy-hood')
+        audit.hoodedBlockBenchAttackRootHoodAttachmentsSelected++;
+      if(intent.kind==='paid-retreat')
+        audit.hoodedBlockBenchAttackRootRetreatsSelected++;
+      if(seat===0||seat===1)
+        audit.hoodedBlockBenchAttackRootSelectedBySeat[seat]++;
+      else audit.hoodedBlockBenchAttackRootSelectedUnknownSeat++;
+    }
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
       audit.twoUnitPaidRetreatRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v2'){
@@ -2611,6 +2633,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'attach-dce':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'attach-stealthy-hood':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:ownerPlayerType,slot:SlotType.ACTIVE,index:0});
         break;
