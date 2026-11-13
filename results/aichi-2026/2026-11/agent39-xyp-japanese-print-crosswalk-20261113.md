@@ -6,7 +6,7 @@
 
 The 29-list roster contains **9 XYP source rows / 12 card copies** across three English-display identities. All three have matching Japanese printings that were available years before the 10 May 2026 event, and the official Japanese card pages expose the same operative card text as the corresponding English prints. The supplied English card pool marks all three English printings Expanded Legal.
 
-This closes the **XYP** portion of Agent 6's 57-row unresolved English-release-date census. It does not identify the exact physical copies each player registered or brought to the event, and it does not change the five Japanese-only-promo incompatibilities.
+This supplies the missing **Japanese-print bridge** for the XYP rows that Agent 6's English-only release-date census cannot date. The raw English-only census still reports 57 rows / 151 copies with missing English set metadata; this crosswalk changes the evidence status of 9 rows / 12 copies, leaving 48 rows / 139 copies without a Japanese-print bridge. It does not identify the exact physical copies each player registered or brought to the event, and it does not change the five Japanese-only-promo incompatibilities.
 
 | English display | Japanese print | Authenticated source rows | Pre-event Japanese availability | Official evidence |
 |---|---|---|---|---|
@@ -28,7 +28,7 @@ The local card pool records xyp-XY67, xyp-XY49, and xyp-XY177 as **Expanded: Leg
 
 ## Consequence for the Aichi chronology census
 
-Agent 6's [English-display release-date census](agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md) had 57 unresolved rows / 151 copies across BWP, MEE, SMP, SP and XYP. This crosswalk accounts for all **9 XYP rows / 12 copies**. The residual chronology categories are therefore:
+Agent 6's [English-display release-date census](agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md) still has 57 unresolved English set-metadata rows / 151 copies across BWP, MEE, SMP, SP and XYP. This crosswalk accounts for all **9 XYP rows / 12 copies** through independent Japanese print evidence. The remaining **48 rows / 139 copies without a Japanese-print bridge** are:
 
 - **MEE:** 35 rows / 120 copies, all Basic Energy placeholders in the source roster; these are generic Basic Energy identities, not an unknown special-card mechanic.
 - **BWP:** 5 rows / 7 copies.
@@ -47,4 +47,4 @@ For the ranks 8–16 screen, Karen XYP #177 occurs in ranks 8, 15 and 16. Its Ja
 - No deck was admitted to the verified Expanded-opponent denominator by this report alone.
 - No games were run; no matchup or win-rate claim follows.
 
-**Disposition:** remove the nine XYP rows / twelve copies from the unresolved release-date bucket. Preserve physical-copy provenance as unresolved, and keep the five separately identified Japanese-only-promo lists out of the international Expanded field.
+**Disposition:** retain XYP in the raw English-only metadata census, but mark all nine XYP rows / twelve copies as Japanese-print-bridged and pre-event available. Preserve physical-copy provenance as unresolved, and keep the five separately identified Japanese-only-promo lists out of the international Expanded field.
