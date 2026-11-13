@@ -100,3 +100,7 @@ Agent48's rebased head `69e410d03010048f2fa34c8c52c32d6450df30b7` closes both or
 The first CI run `43379875294` failed only because the existing Agent44 paper-review test helper omitted `eventDate:null` while signing the review. Agent48 fixed the fixture in commit `6e5a475dfbae11365c063f212cc639163b77e8ae`; the paper signature is then generated over the explicit null. I independently checked workflow run `43380174213`: **completed / success**. PR #46 currently reports `mergeable:true`. The two original code-review blockers are resolved at this head.
 
 This closes the PR review, not the research objective: the Aichi Expanded field still has zero verified eligible ranks, no candidate deck has been selected, and no games or win-rate evidence have been produced.
+
+## PR #47 fixture card-text cross-check
+
+The uploaded card-pool archive independently confirms the intended line's arithmetic and text: Snorlax PGO 55's Block prevents the opponent's Active Pokémon from retreating; Stealthy Hood SM10 186 prevents opposing Ability effects on its attached Pokémon; Shadow Rider Calyrex VMAX SWSH6 75 has a two-Colorless retreat cost; Lillie's Clefairy ex ME2.5 76's Full Moon Rondo deals 20 + 20 per Benched Pokémon on both sides. With five Benched Pokémon per side, the attack is 220 damage. Snorlax has 150 HP and 10 prior damage, leaving 140, so the attack is a nominal KO. Two Psychic Energy pay Shadow Rider's retreat cost. This is a card-text cross-check only; it does not replace the pending native Store run or a complete game.
