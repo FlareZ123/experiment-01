@@ -331,20 +331,36 @@ test('application receipt binds the exact composer actor-only boundary and all f
   Object.fromEntries(Object.entries(applied.receipt).filter(([key])=>key!=='receiptSha256'))));
 
  const speculative=actorOnlyBoundary(0,1,{nonLiveSpeculativeFallbacks:1});
- assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,
+ speculative.valid=false;
+ speculative.failures=['candidate-nonLiveSpeculativeFallbacks-nonzero'];
+ const speculativeApplied=I.createPolicyApplicationReceipt({preDeal:pd,
   candidateIdentity:candidate,opponentIdentity:opponent,
-  trial:{...t,actorOnlyExecutionBoundary:speculative}}),/nonLiveSpeculativeFallbacks must be zero/);
+  trial:{...t,actorOnlyExecutionBoundary:speculative}});
+ assert.deepEqual(speculativeApplied.receipt.actorOnlyExecutionBoundary,speculative);
+ assert.equal(speculativeApplied.receipt.actorOnlyExecutionBoundarySha256,
+  evidenceBundleSha256(speculative));
+
  const hidden=actorOnlyBoundary(0,1,{nativeOwnerTrainerFallbackEnabled:true});
- assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,
+ hidden.valid=false;
+ hidden.failures=['candidate-native-owner-trainer-fallback-enabled'];
+ const hiddenApplied=I.createPolicyApplicationReceipt({preDeal:pd,
   candidateIdentity:candidate,opponentIdentity:opponent,
-  trial:{...t,actorOnlyExecutionBoundary:hidden}}),/nativeOwnerTrainerFallbackEnabled must be explicitly false/);
- assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,
+  trial:{...t,actorOnlyExecutionBoundary:hidden}});
+ assert.equal(hiddenApplied.receipt.actorOnlyExecutionBoundarySha256,
+  evidenceBundleSha256(hidden));
+
+ const wrongSeat=actorOnlyBoundary(1,0);
+ const wrongSeatApplied=I.createPolicyApplicationReceipt({preDeal:pd,
   candidateIdentity:candidate,opponentIdentity:opponent,
-  trial:{...t,actorOnlyExecutionBoundary:actorOnlyBoundary(1,0)}}),
-  /candidate actor-only execution boundary is bound to the wrong physical seat/);
- assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:pd,
+  trial:{...t,actorOnlyExecutionBoundary:wrongSeat}});
+ assert.equal(wrongSeatApplied.receipt.actorOnlyExecutionBoundarySha256,
+  evidenceBundleSha256(wrongSeat));
+
+ const missingApplied=I.createPolicyApplicationReceipt({preDeal:pd,
   candidateIdentity:candidate,opponentIdentity:opponent,
-  trial:{...t,actorOnlyExecutionBoundary:undefined}}),/trial must carry the composer actor-only execution boundary/);
+  trial:{...t,actorOnlyExecutionBoundary:undefined}});
+ assert.equal(missingApplied.receipt.actorOnlyExecutionBoundary,null);
+ assert.equal(missingApplied.receipt.actorOnlyExecutionBoundarySha256,null);
 }));
 
 test('candidate and opponent may have different role-local engine patch dependencies',()=>repo(root=>{
