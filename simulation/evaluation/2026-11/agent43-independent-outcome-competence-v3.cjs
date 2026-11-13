@@ -96,6 +96,58 @@ function validCardPoolInitializationReceipt(trial, runtimePinEvidence) {
 }
 
 /**
+ * Verify the per-game actor-only boundary without conflating a policy fallback
+ * with the factual validity of the game's natural terminal outcome.
+ */
+function inspectActorOnlyExecutionBoundaryReceipt(item,trial=null) {
+  const boundary=item?.actorOnlyExecutionBoundary;
+  const integrityFailures=[],qualificationFailures=[];
+  if(!boundary||typeof boundary!=='object'||Array.isArray(boundary))
+    return {verified:false,eligible:false,failures:['actor-only-execution-boundary-missing']};
+  const boundarySha=safeDigest(boundary);
+  if(boundary.schema!=='aichi-actor-only-execution-boundary-v1')
+    integrityFailures.push('actor-only-execution-boundary-schema-invalid');
+  if(!HEX_SHA256.test(item?.actorOnlyExecutionBoundarySha256??'')||
+      boundarySha!==item.actorOnlyExecutionBoundarySha256)
+    integrityFailures.push('actor-only-execution-boundary-digest-mismatch');
+  if(typeof boundary.valid!=='boolean'||!Array.isArray(boundary.failures)||
+      !boundary.failures.every(nonempty))
+    integrityFailures.push('actor-only-execution-boundary-status-malformed');
+  else if(boundary.valid!==true||boundary.failures.length!==0)
+    qualificationFailures.push('actor-only-execution-boundary-reports-fallback-failure');
+  for(const [role,row,seat] of [
+    ['candidate',boundary.candidate,item?.candidateSeat],
+    ['opponent',boundary.opponent,item?.opponentSeat]
+  ]){
+    if(!row||typeof row!=='object'||Array.isArray(row)){
+      integrityFailures.push(role+'-actor-only-execution-boundary-summary-missing');
+      continue;
+    }
+    if(row.role!==role||row.policyOwnerSeat!==seat||!nonempty(row.version)||
+        row.origin!=='detached-actor-observation'||
+        row.observationSchema!=='agent2-public-native-dispatch-diff-v1')
+      integrityFailures.push(role+'-actor-only-execution-boundary-role-or-observation-binding-invalid');
+    for(const key of ['nativeOwnerTrainerFallbackEnabled',
+      'ownerFallbackDiagnosticViewEnabled','nativePolicyMayUseHiddenInformation']){
+      if(typeof row[key]!=='boolean') integrityFailures.push(role+'-'+key+'-missing-or-invalid');
+      else if(row[key]!==false) qualificationFailures.push(role+'-'+key+'-enabled');
+    }
+    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
+      'nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls',
+      'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
+      if(!Number.isSafeInteger(row[key])||row[key]<0)
+        integrityFailures.push(role+'-'+key+'-missing-or-invalid');
+      else if(row[key]!==0) qualificationFailures.push(role+'-'+key+'-nonzero');
+    }
+  }
+  if(trial&&safeDigest(trial.actorOnlyExecutionBoundary)!==boundarySha)
+    integrityFailures.push('trial-actor-only-execution-boundary-mismatch');
+  const verified=integrityFailures.length===0;
+  return {verified,eligible:verified&&qualificationFailures.length===0,
+    failures:[...integrityFailures,...qualificationFailures],sha256:boundarySha};
+}
+
+/**
  * Validate the frozen registration and its explicit timing mode. The exact
  * registration snapshot is included in the signed bundle digest and its hash
  * must match the registration entry in the evidence manifest.
@@ -413,6 +465,19 @@ function inspectPolicyPanelConsistency(bundle) {
 
   const panelReceipts = Array.isArray(bundle?.policyPanelReceipts) ?
     bundle.policyPanelReceipts : receipt ? [receipt] : [];
+  const panelActorBoundaries=panelReceipts.map(item=>
+    inspectActorOnlyExecutionBoundaryReceipt(item,item?.trialId===trial?.trialId?trial:null));
+  const currentActorBoundary=receipt?
+    inspectActorOnlyExecutionBoundaryReceipt(receipt,trial):
+    {verified:false,eligible:false,failures:['current-actor-only-execution-boundary-missing']};
+  const actorOnlyExecutionBoundaryVerified=panelActorBoundaries.length>0&&
+    panelActorBoundaries.every(status=>status.verified)&&currentActorBoundary.verified;
+  const actorOnlyExecutionBoundaryEligible=actorOnlyExecutionBoundaryVerified&&
+    panelActorBoundaries.every(status=>status.eligible)&&currentActorBoundary.eligible;
+  const actorOnlyExecutionBoundaryFailures=[...new Set([
+    ...panelActorBoundaries.flatMap(status=>status.failures),
+    ...currentActorBoundary.failures
+  ])];
   if (!receipt || panelReceipts.length === 0)
     failures.push('policy-application-receipt-missing');
   const receiptValid = item => {
@@ -581,6 +646,9 @@ function inspectPolicyPanelConsistency(bundle) {
     panelCoverageMissing,
     currentReceiptValid:Boolean(receipt && receiptValid(receipt) &&
       !failures.includes('current-policy-application-receipt-does-not-match-trial')),
+    actorOnlyExecutionBoundaryVerified,
+    actorOnlyExecutionBoundaryEligible,
+    actorOnlyExecutionBoundaryFailures,
     failures:[...new Set(failures)]
   };
 }
@@ -768,6 +836,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     const strategyReviewValid = (event.signedReviewRoles ?? [])
       .some(x => x?.role === 'strategy' && x?.valid === true);
     const policyRolesValid = policyAttestations.valid &&
+      policyPanel.actorOnlyExecutionBoundaryEligible === true &&
       gameReviewerIdentityValid && gameReviewerRegistryUnique &&
       !reviewerOverlap && !misplacedPolicyReviews;
     const competitivePolicyCompetenceReady = event.gameOutcomeAdmissionReady &&
@@ -874,7 +943,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     gameReviewerIds.includes(id));
   const reviewerOverlap = policyReviewerOverlap || producerGameOverlap;
   const competitivePolicyCompetenceReady = gameOutcomeAdmissionReady &&
-    policyAttestations.valid && !reviewerOverlap && strategySignatureValid &&
+    policyAttestations.valid && policyPanel.actorOnlyExecutionBoundaryEligible === true &&
+    !reviewerOverlap && strategySignatureValid &&
     opportunity.valid;
   const candidateOutcome = outcome === null ? null : outcome.kind === 'tie' ?
     'tie' : outcome.winnerSeat === trial.candidateSeat ? 'win' : 'loss';
@@ -888,6 +958,8 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   if (!paperAttestationValid)
     failures.push('untimed-protocol-or-natural-terminal-review-incomplete');
   if (policyPanel.failures.length) failures.push(...policyPanel.failures);
+  if (!policyPanel.actorOnlyExecutionBoundaryEligible)
+    failures.push('actor-only-execution-boundary-unverified-or-ineligible');
   if (policyAttestations.failures.length) failures.push(...policyAttestations.failures);
   if (policyReviewerOverlap) failures.push('policy-and-game-reviewers-not-independent');
   if (producerGameOverlap) failures.push('policy-producer-and-game-reviewers-not-independent');
@@ -918,6 +990,9 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     policyFieldComplete:policyPanel.fieldComplete,
     policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
     policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
+    actorOnlyExecutionBoundaryVerified:policyPanel.actorOnlyExecutionBoundaryVerified,
+    actorOnlyExecutionBoundaryEligible:policyPanel.actorOnlyExecutionBoundaryEligible,
+    actorOnlyExecutionBoundaryFailures:policyPanel.actorOnlyExecutionBoundaryFailures,
     responseOpportunityDisposition:opportunity.disposition,
     responseOpportunityVerified:opportunity.valid,
     responseOpportunityEvidenceStatus:opportunity.reason,
