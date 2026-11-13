@@ -123,4 +123,15 @@ Existing native evidence:
 
 **Not yet native-validated:** the second Copycat after the extra turn, persistence of the opponent's Apex Dragon as its last-turn attack through that extra turn, and the nested Power Beam choice/KO. The existing staged follow-up gate described in Agent50's policy note should be extended to this exact board and both physical seats when the current owner-only integration gates permit native execution. Do not create a new workflow or use this theoretical fixture to bypass those gates.
 
+A compact positive/negative matrix for that existing gate:
+
+1. **Positive D1, both candidate seats:** after the first Timeless-GX extra turn, assert the opponent's last-turn attack is still Apex Dragon; resolve the second Copycat and Power Beam prompts; verify 200 damage, Crobat V Knock Out, Prize transition, and no opponent turn in between.
+2. **D2 negative:** keep the board fixed but leave Radiant Eternatus out of the discard. Power Beam must not appear as an Apex Dragon donor choice; Max Geist remains 160 and Crobat V survives.
+3. **GX-limit negative:** pre-spend the candidate's GX allowance. Timeless-GX must not resolve and must not grant the extra turn (the existing Agent12 regression already covers the core allowance rule).
+4. **Last-attack negative:** replace the opponent's last attack with a non-Apex non-GX attack. Copycat may still copy that attack, but the nested Apex Dragon/Power Beam line must not be available.
+5. **Fairy Zone control:** remove Lillie's Clefairy ex. The first copied Timeless-GX is 150 against 280-HP Regidrago VSTAR and does not Knock it Out; this isolates the Weakness contribution.
+6. **Information-set control:** with the candidate's visible hand/board/discard/deck knowledge held constant, vary opponent hidden hand and deck order while holding policy RNG fixed. The candidate's selected action must remain identical.
+
+Record actual AttackAction names, nested ChooseAttack prompts, turn/active-seat transitions, GX-use state, damage, Prize changes, and terminal state. This is a bounded staged mechanics gate, not a full-game or competitive matchup result.
+
 This report creates no candidate variant, no simulator feature, no new CI path, and no competitive observation. It is a concrete falsifiable test specification for the existing DCI/AMR framework.
