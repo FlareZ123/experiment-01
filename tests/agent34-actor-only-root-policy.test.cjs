@@ -1265,3 +1265,120 @@ test('pinned Twinleaf StateUtils resolves own Active/Bench targets for either ac
     }),opponent.bench[3],`TOP_PLAYER Bench resolves to opponent from physical seat ${seat}`);
   }
 });
+
+
+test('candidate-only post-Timeless Max Geist root uses public extra-turn and Apex receipts',()=>{
+  const {
+    VERSION:postTimelessVersion,
+    choosePostTimelessMaxGeistRetreat
+  }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
+  const psychic='Psychic Energy SVE';
+  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set()};
+  const restrictions={
+    cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
+    blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
+    onlyAllowedAttackNameNextTurn:null,attackCostIncreaseNextTurn:0,
+    attackCostIncreaseWhileActive:0
+  };
+  const latias={
+    printing:'Latias ex SSP',hp:210,damage:0,energies:[],attacks:[],
+    abilities:['Skyliner'],abilityDetails:[{name:'Skyliner',text:'Your Basic Pokémon have no Retreat Cost.'}],
+    tools:[],publicRestrictions:{},specialConditions:[],
+    printed:{stage:'Basic',types:['Psychic'],resistance:[]}
+  };
+  const vmax={
+    printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:0,
+    energies:[psychic,psychic,psychic],
+    attacks:[{name:'Max Geist',cost:[5,5],damage:null,damageCalculation:{kind:'max-geist'}}],
+    abilities:[],abilityDetails:[],tools:[],publicRestrictions:{...restrictions},
+    specialConditions:[],printed:{stage:'VMAX',types:['Psychic'],resistance:[]}
+  };
+  const active={
+    printing:'Mimikyu GRI',hp:70,damage:0,energies:[psychic,psychic],
+    attacks:[{name:'Copycat',cost:[5,9],damage:null}],
+    abilities:[],abilityDetails:[],tools:[],
+    publicRestrictions:{cannotRetreatNextTurn:false,cannotRetreatWhileActive:false},
+    specialConditions:[],printed:{stage:'Basic',types:['Psychic'],resistance:[]}
+  };
+  const target={
+    printing:'Dratini SIT',hp:70,damage:0,energies:[],attacks:[],
+    abilities:[],abilityDetails:[],tools:[],publicRestrictions:{},
+    specialConditions:[],printed:{stage:'Basic',types:['Dragon'],resistance:[]}
+  };
+  const view={
+    decisionKind:'owner-root',actorSeat:0,globalTurn:8,ownHand:[],
+    ownTurnResources:{extraTurnActive:true,retreatedTurn:7,
+      energyPlayedTurn:7,energyPlayLocked:false,pokemonPlayLocked:false},
+    ownPublic:{
+      prizeCount:6,active,bench:[latias,vmax],discard:['Dialga-GX UPR'],
+      stadium:[],
+      publicTurnRestrictions:{gxUsed:true,attackLockTurnsRemaining:0,
+        attackMaxEnergyTurnsRemaining:0,attackMaxEnergy:null,
+        attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0}
+    },
+    opponentPublic:{prizeCount:6,active:target,bench:[],stadium:[]},
+    publicEventReceipt:{
+      actorSeat:0,turn:8,opponentLastTurnTurn:7,
+      opponentLastTurnAttacks:[{turn:7,sourcePrinting:'Regidrago VSTAR SIT',
+        attackName:'Apex Dragon',gxAttack:false,copycatAttack:false}]
+    }
+  };
+
+  const intent=choosePostTimelessMaxGeistRetreat(view,postTimelessCatalog,{ownerSeat:0});
+  assert.equal(intent.source,postTimelessVersion);
+  assert.equal(intent.kind,'skyliner-free-retreat');
+  assert.equal(intent.benchIndex,1);
+  assert.equal(intent.attackName,'Max Geist');
+  assert.equal(intent.projectedPrintedDamage,160);
+  assert.equal(intent.targetRemainingHp,70);
+  assert.equal(intent.projectedPrizeCount,1);
+
+  const integrated=chooseActorRootIntent(view,postTimelessCatalog,{
+    mimikyuApexFundedPromotion:true,
+    mimikyuTimelessMaxGeistRetreatRoot:true,
+    mimikyuTimelessMaxGeistRetreatRootOwnerSeat:0
+  });
+  assert.equal(integrated.source,postTimelessVersion,
+    'the Agent34 actor-only chooser must select the candidate-only follow-up');
+
+  assert.equal(chooseActorRootIntent(view,postTimelessCatalog,{}),null,
+    'the new branch is opt-in and does not change default policy');
+  assert.equal(choosePostTimelessMaxGeistRetreat(view,postTimelessCatalog,{ownerSeat:1}),null,
+    'the proposal cannot cross the candidate-seat boundary');
+
+  const withRadiant={
+    ...view,
+    ownPublic:{...view.ownPublic,discard:['Dialga-GX UPR','Radiant Eternatus CRZ']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(withRadiant,postTimelessCatalog,{ownerSeat:0}),null,
+    'Power Beam is a competing Copycat payload and must not be ignored');
+
+  const withoutExtraTurn={
+    ...view,ownTurnResources:{...view.ownTurnResources,extraTurnActive:false}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(withoutExtraTurn,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const noApex={
+    ...view,publicEventReceipt:{...view.publicEventReceipt,
+      opponentLastTurnAttacks:[{turn:7,sourcePrinting:'Regidrago VSTAR SIT',
+        attackName:'Dragon Energy',gxAttack:false,copycatAttack:false}]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(noApex,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const noImmediateKo={
+    ...view,opponentPublic:{...view.opponentPublic,
+      active:{...target,hp:200}}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(noImmediateKo,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const latiasMissing={
+    ...view,ownPublic:{...view.ownPublic,bench:[vmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(latiasMissing,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const sameRegidrago={
+    ...view,opponentPublic:{...view.opponentPublic,
+      active:{...target,printing:'Regidrago VSTAR SIT',hp:280}}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
+});
