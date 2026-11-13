@@ -177,7 +177,7 @@ function enginePrintingForNormalizedRow(normalized) {
   );
   return proxy
     ? { set: proxy.engineSet, number: proxy.engineNumber }
-    : { set: sourceSet, number: sourceNumber };
+    : null;
 }
 
 function resolveNormalizedRow(row, index, cardManager) {
@@ -185,15 +185,24 @@ function resolveNormalizedRow(row, index, cardManager) {
   const sourcePrinting = normalized && normalized.printing;
   const sourceSet = String(sourcePrinting && sourcePrinting.set || '');
   const sourceSetNumber = String(sourcePrinting && sourcePrinting.number || '');
-  const enginePrinting = enginePrintingForNormalizedRow(normalized);
-  const set = enginePrinting.set;
-  const setNumber = enginePrinting.number;
   const count = normalized && normalized.count;
   if (!sourceSet || !sourceSetNumber) return { status: 'invalid_identity_key', set: sourceSet, set_number: sourceSetNumber };
   if (!Number.isSafeInteger(count) || count < 1) {
-    return { status: 'invalid_copy_count', set: set, set_number: setNumber, count: count };
+    return { status: 'invalid_copy_count', set: sourceSet, set_number: sourceSetNumber, count: count };
   }
-  const matches = index.get(compositeKey(set, setNumber)) || [];
+  // Prefer the exact normalized printing whenever the pinned engine registers it.
+  // Only use a narrowly declared engine proxy when that exact source print is absent.
+  let set = sourceSet;
+  let setNumber = sourceSetNumber;
+  let matches = index.get(compositeKey(set, setNumber)) || [];
+  if (matches.length === 0) {
+    const enginePrinting = enginePrintingForNormalizedRow(normalized);
+    if (enginePrinting) {
+      set = enginePrinting.set;
+      setNumber = enginePrinting.number;
+      matches = index.get(compositeKey(set, setNumber)) || [];
+    }
+  }
   if (matches.length === 0) return { status: 'missing_twinleaf_card', set: set, set_number: setNumber };
   if (matches.length !== 1) {
     return { status: 'ambiguous_twinleaf_card', set: set, set_number: setNumber, match_count: matches.length };
@@ -385,7 +394,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     complete_deck_count: completeDecks,
     total_deck_count: decks.length,
     twinleaf_revision: metadata.twinleaf_revision || null,
-    identity_join: 'normalized.printing.set + normalized.printing.number -> exact source-keyed engine proxy when declared (ASC/196 -> SFA/61), otherwise unchanged -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged',
+    identity_join: 'normalized.printing.set + normalized.printing.number -> exact Twinleaf print when present; otherwise exact source-keyed engine proxy (ASC/196 -> SFA/61) -> Twinleaf Card.set + Card.setNumber -> Card.fullName; source_printing and card_pool_printing remain unchanged',
     decks: decks,
     unresolved: unresolved,
   };
