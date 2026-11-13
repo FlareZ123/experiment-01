@@ -176,6 +176,22 @@ function policyHash(n) {
   return n.toString(16).padStart(64,'0');
 }
 
+function actorOnlyBoundary(candidateSeat,opponentSeat,candidateOverrides={},opponentOverrides={}) {
+  const role=(name,seat,overrides)=>({
+    role:name,policyOwnerSeat:seat,version:'agent34-actor-only-root-policy-v1',
+    origin:'detached-actor-observation',
+    observationSchema:'agent2-public-native-dispatch-diff-v1',
+    nativeOwnerTrainerFallbackEnabled:false,ownerFallbackDiagnosticViewEnabled:false,
+    nativePolicyMayUseHiddenInformation:false,unsupportedPromptFallbacks:0,
+    nonLiveSpeculativeFallbacks:0,nonOwnerNativeDelegations:0,
+    nonTurnPhaseFallbacks:0,nonOwnerSeatBypassCalls:0,
+    nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,...overrides
+  });
+  return {schema:'aichi-actor-only-execution-boundary-v1',valid:true,failures:[],
+    candidate:role('candidate',candidateSeat,candidateOverrides),
+    opponent:role('opponent',opponentSeat,opponentOverrides)};
+}
+
 function signPolicyAttestation(attestation, privateKey) {
   attestation.signatureBase64 = sign(null,policyAttestationSigningBytes(attestation),privateKey)
     .toString('base64');
@@ -340,6 +356,8 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   bundle.trial.policyPlanSha256=planSha;
   bundle.trial.policyAttestationBundleSha256=attestationSha;
   bundle.trial.policyRegistrationSha256=registrationSha;
+  bundle.trial.actorOnlyExecutionBoundary=actorOnlyBoundary(
+    bundle.trial.candidateSeat,bundle.trial.originalSourceSeat);
   const receipt = {
     schema:'aichi-policy-application-receipt-v2',
     trialId:bundle.trialId,policyPlanSha256:planSha,
@@ -367,6 +385,8 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     cardPoolInitializationSha256:runtimePinEvidence.cardPoolInitializationSha256,
     runtimePatchReceipts,
     runtimePatchReceiptsSha256:evidenceBundleSha256(runtimePatchReceipts),
+    actorOnlyExecutionBoundary:bundle.trial.actorOnlyExecutionBoundary,
+    actorOnlyExecutionBoundarySha256:evidenceBundleSha256(bundle.trial.actorOnlyExecutionBoundary),
     decisionTraceSha256:bundle.trial.decisionTraceSha256,
     timeoutStatus:'within-budget'
   };
@@ -421,8 +441,11 @@ function populatePanelCoverage(bundle) {
           receipts.push(current);
           continue;
         }
+        const boundary=actorOnlyBoundary(candidateSeat,1-candidateSeat);
         const receipt={
           ...current,
+          actorOnlyExecutionBoundary:boundary,
+          actorOnlyExecutionBoundarySha256:evidenceBundleSha256(boundary),
           trialId:'panel-'+opponent.rank+'-'+candidateSeat+'-'+firstPlayerSeat,
           opponentRank:opponent.rank,
           candidateDeckSha256:candidate.deckSha256,
@@ -457,7 +480,12 @@ function populatePanelCoverage(bundle) {
 }
 
 function addPanelReceipt(bundle,overrides) {
+  const candidateSeat=overrides.candidateSeat??bundle.policyApplicationReceipt.candidateSeat;
+  const opponentSeat=overrides.opponentSeat??(1-candidateSeat);
+  const boundary=actorOnlyBoundary(candidateSeat,opponentSeat);
   const receipt={...bundle.policyApplicationReceipt,...overrides,
+    actorOnlyExecutionBoundary:boundary,
+    actorOnlyExecutionBoundarySha256:evidenceBundleSha256(boundary),
     trialId:'additional-panel-trial'};
   receipt.policyRegistrationSha256=evidenceBundleSha256({
     ...bundle.policyRegistration,trialId:receipt.trialId
@@ -733,6 +761,51 @@ test('V3 application receipt v2 binds frozen runtime evidence and card-pool init
   const badCardPool=makePolicyBundle().bundle;
   badCardPool.trial.cardPoolInitializationReceipt.cardCount++;
   assert.equal(inspectPolicyPanelConsistency(badCardPool).valid,false);
+});
+
+test('V3 actor-only boundary is digest-bound and separates factual outcome from policy competence',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  const panel=inspectPolicyPanelConsistency(bundle);
+  assert.equal(panel.actorOnlyExecutionBoundaryVerified,true);
+  assert.equal(panel.actorOnlyExecutionBoundaryEligible,true);
+  assert.equal(panel.currentReceiptValid,true);
+
+  const boundary=bundle.trial.actorOnlyExecutionBoundary;
+  boundary.valid=false;
+  boundary.failures=['candidate-nonLiveSpeculativeFallbacks-nonzero'];
+  boundary.candidate.nonLiveSpeculativeFallbacks=1;
+  bundle.policyApplicationReceipt.actorOnlyExecutionBoundary=boundary;
+  bundle.policyApplicationReceipt.actorOnlyExecutionBoundarySha256=evidenceBundleSha256(boundary);
+  delete bundle.policyApplicationReceipt.receiptSha256;
+  bundle.policyApplicationReceipt.receiptSha256=evidenceBundleSha256(bundle.policyApplicationReceipt);
+  bundle.policyPanelReceipts=[bundle.policyApplicationReceipt];
+
+  const result=signedV3Result(bundle,policyRegistry);
+  assert.equal(result.gameOutcomeAdmissionReady,true,
+    'actor-only policy fallback must not erase the factual natural-terminal outcome');
+  assert.equal(result.competitivePolicyCompetenceReady,false,
+    'speculative full-State fallback must disqualify comparative policy competence');
+  assert.equal(result.policyPanelConsistency.currentReceiptValid,true,
+    'the factual application receipt remains structurally valid');
+  assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryVerified,true);
+  assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryEligible,false);
+  assert.ok(result.failures.includes('actor-only-execution-boundary-unverified-or-ineligible'));
+});
+
+test('missing actor-only boundary prevents policy competence without invalidating factual outcome',()=>{
+  const {bundle,policyRegistry}=makePolicyBundle();
+  delete bundle.trial.actorOnlyExecutionBoundary;
+  delete bundle.policyApplicationReceipt.actorOnlyExecutionBoundary;
+  delete bundle.policyApplicationReceipt.actorOnlyExecutionBoundarySha256;
+  delete bundle.policyApplicationReceipt.receiptSha256;
+  bundle.policyApplicationReceipt.receiptSha256=evidenceBundleSha256(bundle.policyApplicationReceipt);
+  bundle.policyPanelReceipts=[bundle.policyApplicationReceipt];
+  const result=signedV3Result(bundle,policyRegistry);
+  assert.equal(result.gameOutcomeAdmissionReady,true);
+  assert.equal(result.competitivePolicyCompetenceReady,false);
+  assert.equal(result.policyPanelConsistency.currentReceiptValid,true);
+  assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryVerified,false);
+  assert.equal(result.policyPanelConsistency.actorOnlyExecutionBoundaryEligible,false);
 });
 
 test('V3 application receipt v2 rejects missing, reordered or incorrectly restored runtime patches',()=>{
