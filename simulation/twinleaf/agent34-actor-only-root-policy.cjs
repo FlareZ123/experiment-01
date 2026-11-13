@@ -1016,7 +1016,7 @@ function isMctsRootIntentRecord(value){
     Object.getPrototypeOf(value)===Object.prototype;
 }
 function sanitizeMctsRootIntent(intent){
-  if(!isMctsRootIntentRecord(intent))return null;
+  if(!isMctsRootIntentRecord(intent)||!MCTS_ROOT_INTENT_KINDS.has(intent.kind))return null;
   const source='agent5-information-set-mcts-v1';
   switch(intent.kind){
     case 'bench-basic':
