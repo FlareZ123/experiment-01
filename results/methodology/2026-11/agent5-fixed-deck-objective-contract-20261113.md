@@ -47,7 +47,7 @@ Also report:
 - uncertainty for each matchup and for the field aggregate;
 - the number and disposition of unfinished, invalid, or censored games.
 
-A defensible selection rule is lexicographic: first require full-field coverage and valid game evidence; then maximize the simultaneous lower bound on the worst matchup; then maximize the equal-weight field-average lower bound. If this is too conservative for the declared 99.5% *average* target, present the Pareto frontier instead of changing the rule after seeing which deck wins. No deck should be nominated on an aggregate computed from a subset.
+For the literal 99.5% **field-average** target, a defensible default is: first require full-field coverage and valid evidence; then maximize the equal-weight field-mean lower confidence bound. Keep every per-opponent rate and the worst-opponent floor visible as non-compensatory diagnostics so a weak matchup cannot be hidden. If the benchmark instead adopts the stronger 99.5%-for-every-opponent target, make the minimum simultaneous opponent lower bound the primary objective. If candidates trade field mean against worst-case strength, publish the Pareto frontier rather than changing the objective after seeing which deck wins. No deck should be nominated on an aggregate computed from a subset.
 
 ## 5. Confidence and holdout discipline
 
