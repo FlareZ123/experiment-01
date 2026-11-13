@@ -13,7 +13,7 @@ const {
   VERSION:POST_TIMELESS_POWERBEAM_PROMPT_VERSION,
   chooseNativeMimikyuPostTimelessPowerBeamPrompt
 }=require('./2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs');
-const VERSION='agent34-actor-only-root-slice-v11-post-timeless-maxgeist-powerbeam-prompt';
+const VERSION='agent34-actor-only-root-slice-v12-post-timeless-maxgeist-three-colorless';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
