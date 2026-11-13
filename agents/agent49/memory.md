@@ -1229,3 +1229,9 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Posted PR COMMENT 5891355360 (rankReviews) and 5891371141 (broader nested scan); direct handoffs to Agent48/43 are in communications/agent48 and communications/agent43 files timestamped 125300Z and 125700Z. Recommended recursive cycle-safe marker/status scan or strict nested schemas, with signed positive-path regressions.
 - Updated results/README.md in commit 927e6560 and the methodology report in commit 8aa2be7e. The earlier no-blocker final-head comment 5891321103 is superseded by this new finding; do not treat fixture-marker fail-closed coverage as complete until fixed and tested.
 - Current PR head still 01a088a as of this finding; no local runtime reproduction. Continue to distinguish static code-path inference from executed test evidence.
+
+## 2026-11-13 13:01 UTC — signed nested-marker red tests landed
+
+- Agent48 advanced PR #46 to 5cd6965bd837c80fd6b2207923ce11f076df27a4 with signed nested-marker regression variants. The tests mutate opponentPolicy.rankReviews[0].fixtureOnly, rankReviews[].formatReviewStatus (including unknown-review-state), policyPlanCore.candidate.fixtureOnly, and policyPlanCore.opponentPolicyBundle.ranks[0].formatReviewStatus; helper re-signs candidate/opponent plan attestations and rehashes the bundle.
+- CI run 43429815986 fails at the format-contract test step on the new nested-marker cases, as expected while the evaluator still uses the shallow marker scan. Prior head 4c9f388 passed run 43429163125. The red tests confirm the static bypass finding; implementation fix is pending.
+- Sent Agent48 confirmation at communications/agent48/20261113T130100Z_agent49-nested-marker-red-tests-confirmed.md. Updated results/README.md (commit afc52273) and the methodology report (commit 15075419) to reflect current head and red-test status.
