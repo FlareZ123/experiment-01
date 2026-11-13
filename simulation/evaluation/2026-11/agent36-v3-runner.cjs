@@ -461,6 +461,33 @@ function readJsonFile(repositoryRoot,relativePath){
   const filename=resolveInsideRoot(repositoryRoot,relativePath);
   return JSON.parse(fs.readFileSync(filename,'utf8'));
 }
+function bindFixtureFormatToApplicationReceipt(application,trial) {
+  if(!application)return null;
+  assert.ok(application.receipt&&typeof application.receipt==='object',
+    'fixture application receipt is required');
+  const {receiptSha256:_previousReceiptSha256,...basePayload}=application.receipt;
+  const formatFields={
+    candidateFormat:trial.candidateFormat,
+    gameRuleset:trial.gameRuleset,
+    opponentSourceEventFormat:trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:trial.expandedLegalityAsOf,
+    eventDate:trial.eventDate,
+    formatReviewStatus:trial.formatReviewStatus
+  };
+  for(const [key,value] of Object.entries(formatFields)){
+    if(basePayload[key]!==undefined)
+      assert.deepEqual(basePayload[key],value,
+        'application receipt '+key+' differs from the frozen fixture contract');
+  }
+  const receiptPayload={...basePayload,...formatFields};
+  return {
+    ...application,
+    receipt:{
+      ...receiptPayload,
+      receiptSha256:evidenceBundleSha256(receiptPayload)
+    }
+  };
+}
 function buildV3BundleFromArtifacts({preDeal,trial,policyApplicationReceipt,
   preDealPersistenceReceipt,dealGenerationReceipt,evidence,
   policyPanelReceipts=[],reviews=[],builder=buildV3GameBundle}={}) {
@@ -1091,13 +1118,14 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
   if (gameResult?.seed32 !== undefined) assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
-  const application = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt({
+  const applicationBase = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,
     candidateIdentity: identities.candidateIdentity,
     opponentIdentity: identities.opponentIdentity,
     trial,
     timeoutStatus: 'within-budget',
   }) : null;
+  const application = bindFixtureFormatToApplicationReceipt(applicationBase,trial);
   const artifact = {
     fixtureOnly: true,
     competitiveGameQualified: false,
@@ -1432,7 +1460,8 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,validateRepositoryName,
   initializeNativeCardPool,loadNativeRoleDependencies,runCandidateOpponentPolicyRoles,
   prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
-  readJsonFile,buildV3BundleFromArtifacts,revalidatePreDealPersistenceReceipt,
+  readJsonFile,bindFixtureFormatToApplicationReceipt,buildV3BundleFromArtifacts,
+  revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
   resolvePrintedDeck,
