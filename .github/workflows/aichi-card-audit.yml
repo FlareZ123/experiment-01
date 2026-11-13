@@ -99,8 +99,25 @@ jobs:
           python -m py_compile scripts/aichi_expanded_identity_audit.py
           python -m unittest discover -s tests -p 'test_aichi_expanded_identity_audit.py'
       - name: Audit all 24 potentially compatible Aichi ranks against the bundled English Expanded card pool
-        run: python scripts/aichi_expanded_identity_audit.py --ranks 1,2,4,5,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,26,27,30,31,32 --output aichi-expanded-identity-audit.json
+        run: |
+          set +e
+          python scripts/aichi_expanded_identity_audit.py --ranks 1,2,4,5,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,26,27,30,31,32 --output aichi-expanded-identity-audit.json
+          audit_status=$?
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("aichi-expanded-identity-audit.json")
+          if path.exists():
+              data = json.loads(path.read_text(encoding="utf-8"))
+              for rank in data.get("ranks", []):
+                  if rank.get("expanded_identity_status") != "expanded_identity_screen_pass" or not rank.get("deck_construction", {}).get("passed"):
+                      print(f"REVIEW rank={rank.get('rank')} status={rank.get('expanded_identity_status')} construction={rank.get('deck_construction_status')}")
+                      for card in rank.get("unresolved_rows", []):
+                          print(f"  {card.get('name')} {card.get('source_printing')} identity={card.get('status')} date={card.get('event_date_status')}")
+          PY
+          exit "$audit_status"
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: aichi-expanded-identity-audit
           path: aichi-expanded-identity-audit.json
