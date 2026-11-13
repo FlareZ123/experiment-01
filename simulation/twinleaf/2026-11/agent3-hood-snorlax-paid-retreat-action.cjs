@@ -352,7 +352,7 @@ function completeHoodedSnorlaxSequence(options = {}) {
     assert.equal(expectedRondoDamage, 220);
 
     store.dispatch(new AttackAction(candidate.id, 'Full Moon Rondo'));
-    const snorlaxDamageAfterAttackAction = snorlaxSlot.damage;
+    let snorlaxDamageAfterAttackAction = snorlaxSlot.damage;
     const prompts = [];
     for (let i = 0; i < 24; i++) {
       const prompt = pending();
@@ -382,6 +382,10 @@ function completeHoodedSnorlaxSequence(options = {}) {
           'Invalid native ' + name + ' resolution');
       }
       store.dispatch(new ResolvePromptAction(prompt.id, selection));
+      if (Number.isFinite(snorlaxSlot.damage)) {
+        snorlaxDamageAfterAttackAction = Math.max(
+          snorlaxDamageAfterAttackAction, snorlaxSlot.damage);
+      }
     }
     assert.equal(pending(), undefined,
       'Full Moon Rondo must finish all prize and promotion prompts');
