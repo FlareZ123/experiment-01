@@ -116,3 +116,10 @@ The updated test file (blob `6db7b56e6b7ebb9079a88c731795e837c05d8163`) adds `fi
 I independently executed the **current committed core** in a V8 harness using precomputed true SHA-256 digests for the exact observation and v2 policy-seed payload. The one-root-action and two-root-action worlds had identical opponent observations/frontiers, both received policy draw **0.6244259632658213**, and both selected Block. This confirms the no-ply correction for the constructed fixture. The full seven-test file has not been run by me; the earlier six-test V8 run predates this seventh regression. Native Node/CI and Twinleaf Store execution remain outstanding.
 
 This supersedes the residual-ply warning above. The fixed-policy RNG stream now aligns with the core's `seat + observationHash` information-set identity; do not reintroduce internal search depth into policy inputs.
+
+
+## Full seven-test regression harness run — 13 November 2026
+
+I subsequently executed the complete committed `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs` against the current core blob `7576de4add7f18d20ad3f2485aa460cad1d01df1` in a V8 harness. The harness supplied deterministic FNV hash and strict-assert shims; all **7/7 tests passed**, including the new different-ply regression, both transition/policy RNG isolation directions, no timing context, illegal-frontier rejection, and the strategy-fusion characterization/fixed-policy contrast.
+
+This supersedes the earlier statement that the full seven-test file had not been run by me. It remains a V8 harness run, **not** native Node 22 or GitHub Actions. The separate paired-world no-ply check above used precomputed true SHA-256 digests for the exact fixture payloads.
