@@ -40,15 +40,15 @@ BASIC_ENERGY_NAMES = {
 # Deterministic legal English printings for generic MEE Basic Energy placeholders.
 # SVE has the first eight Basic Energy types; Fairy Energy uses its XY1 reprint.
 BASIC_ENERGY_DIAGNOSTIC_PRINTINGS = {
-    "grassenergy": ("sve", "1"),
-    "fireenergy": ("sve", "2"),
-    "waterenergy": ("sve", "3"),
-    "lightningenergy": ("sve", "4"),
-    "psychicenergy": ("sve", "5"),
-    "fightingenergy": ("sve", "6"),
-    "darknessenergy": ("sve", "7"),
-    "metalenergy": ("sve", "8"),
-    "fairyenergy": ("xy1", "140"),
+    "grassenergy": ("sve", "1", "SVE"),
+    "fireenergy": ("sve", "2", "SVE"),
+    "waterenergy": ("sve", "3", "SVE"),
+    "lightningenergy": ("sve", "4", "SVE"),
+    "psychicenergy": ("sve", "5", "SVE"),
+    "fightingenergy": ("sve", "6", "SVE"),
+    "darknessenergy": ("sve", "7", "SVE"),
+    "metalenergy": ("sve", "8", "SVE"),
+    "fairyenergy": ("xy1", "140", "XY"),
 }
 CARD_TEXT_FIELDS = (
     "name", "supertype", "subtypes", "hp", "types", "evolvesFrom",
@@ -336,8 +336,13 @@ def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
                 key = normalize_name(row["name"])
                 if key not in BASIC_ENERGY_DIAGNOSTIC_PRINTINGS:
                     raise ValueError(f"No same-type Basic Energy printing configured for {row['name']}")
-                set_id, number = BASIC_ENERGY_DIAGNOSTIC_PRINTINGS[key]
+                set_id, number, display_set = BASIC_ENERGY_DIAGNOSTIC_PRINTINGS[key]
                 card = _find_card_by_set_and_number(catalog, set_id, number)
+                normalized_printing = {
+                    "set": display_set,
+                    "number": str(number),
+                    "language": "en",
+                }
                 allowed_names = {
                     normalize_name(row["name"]),
                     normalize_name(f"Basic {row['name']}"),
@@ -367,6 +372,11 @@ def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
                     if row["status"] == "english_expanded_legal_exact"
                     else "canonical_english_identity_alias"
                 )
+                normalized_printing = {
+                    "set": source_printing.get("set"),
+                    "number": str(source_printing.get("number") or ""),
+                    "language": source_printing.get("display_language") or "en",
+                }
             card_id = str(card.get("id") or "")
             if not card_id:
                 raise ValueError(f"Missing card-pool ID for {row['name']}")
@@ -376,7 +386,8 @@ def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
                 "count": int(row["count"]),
                 "supertype": card.get("supertype"),
                 "subtypes": card.get("subtypes") or [],
-                "printing": {
+                "printing": normalized_printing,
+                "card_pool_printing": {
                     "set_id": str(set_id),
                     "number": str(number),
                     "language": "en",
@@ -405,6 +416,7 @@ def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
                         "card_id": card_id,
                         "name": normalized["name"],
                         "printing": normalized["printing"],
+                        "card_pool_printing": normalized["card_pool_printing"],
                     },
                     "reason": normalization,
                 })
@@ -434,7 +446,7 @@ def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
         "official_banlist_report": "results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md",
         "normalization_policy": [
             "Preserve source row order, names, printings, and counts; never overwrite the source decklist.",
-            "Resolve non-energy rows to the English card-pool record selected by source set/collector number/name, with explicit canonical aliases where required.",
+            "Resolve non-energy rows to the English card-pool record selected by source set/collector number/name, with explicit canonical aliases where required; retain the source English display printing separately from the canonical card-pool printing.",
             "Resolve MEE Basic Energy placeholders to a same-type Expanded-legal English Basic Energy printing; never change the Energy type.",
             "Bind each normalized card to a SHA-256 digest of its functional card-text fields.",
             "This diagnostic field does not authenticate the original Japanese physical copies or qualify paper competitive matchups.",
