@@ -60,6 +60,15 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.deepEqual(opponentPsychic.printing, { set: 'MEE', number: '13', language: 'en' });
   assert.deepEqual(opponentPsychic.enginePrinting, { set: 'SVE', number: '5', language: 'en' });
 
+  // Both frozen 60s preserve the source ASC/196 printing while the pinned
+  // CardManager resolves the exact-name SFA/61 engine proxy.
+  const candidateNightStretcher = candidateResolved.resolvedRows.find(row => row.name === 'Night Stretcher');
+  const opponentNightStretcher = opponentResolved.resolvedRows.find(row => row.name === 'Night Stretcher');
+  assert.deepEqual(candidateNightStretcher.printing, { set: 'ASC', number: '196', language: 'en' });
+  assert.deepEqual(candidateNightStretcher.enginePrinting, { set: 'SFA', number: '61', language: 'en' });
+  assert.deepEqual(opponentNightStretcher.printing, { set: 'ASC', number: '196', language: 'en' });
+  assert.deepEqual(opponentNightStretcher.enginePrinting, { set: 'SFA', number: '61', language: 'en' });
+
   assert.notEqual(native.botOptionsBySeat[0], native.botOptionsBySeat[1]);
   assert.notEqual(native.botOptionsBySeat[0].arbiter, native.botOptionsBySeat[1].arbiter);
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
@@ -85,6 +94,60 @@ test('MEE/13 Psychic engine proxy does not rewrite other source printings', () =
     { set: 'MEE', number: '13', language: 'en' },
   ]);
   assert.deepEqual(resolved.fullNames, ['Psychic Energy MEE 12', 'Darkness Energy MEE 13']);
+});
+
+test('ASC/196 Night Stretcher proxy is narrow and exact-print-first', () => {
+  const sourcePrinting = { set: 'ASC', number: '196', language: 'en' };
+  const deck = {
+    cards: [
+      { category: 'Trainer', name: 'Night Stretcher', count: 1, printing: sourcePrinting },
+    ],
+  };
+  const proxyCard = {
+    name: 'Night Stretcher', set: 'SFA', setNumber: '61',
+    fullName: 'Night Stretcher SFA 61',
+  };
+
+  const proxied = runner.resolvePrintedDeck(deck, [proxyCard], {
+    label: 'night-stretcher-source-proxy', expectedSize: 1,
+  });
+  assert.deepEqual(proxied.resolvedRows[0].printing, sourcePrinting);
+  assert.deepEqual(proxied.resolvedRows[0].enginePrinting, {
+    set: 'SFA', number: '61', language: 'en',
+  });
+  assert.deepEqual(proxied.fullNames, ['Night Stretcher SFA 61']);
+
+  const wrongNumber = {
+    cards: [{ ...deck.cards[0], printing: { set: 'ASC', number: '195', language: 'en' } }],
+  };
+  assert.throws(() => runner.resolvePrintedDeck(wrongNumber, [proxyCard], {
+    label: 'night-stretcher-wrong-source-number', expectedSize: 1,
+  }), /must resolve once/);
+
+  const wrongName = {
+    cards: [{ ...deck.cards[0], name: 'Night Stretcher EX' }],
+  };
+  assert.throws(() => runner.resolvePrintedDeck(wrongName, [proxyCard], {
+    label: 'night-stretcher-wrong-name', expectedSize: 1,
+  }), /must resolve once/);
+
+  const exactCard = {
+    name: 'Night Stretcher', set: 'ASC', setNumber: '196',
+    fullName: 'Night Stretcher ASC 196',
+  };
+  const exactFirst = runner.resolvePrintedDeck(deck, [proxyCard, exactCard], {
+    label: 'night-stretcher-exact-first', expectedSize: 1,
+  });
+  assert.deepEqual(exactFirst.resolvedRows[0].enginePrinting, sourcePrinting);
+  assert.deepEqual(exactFirst.fullNames, ['Night Stretcher ASC 196']);
+
+  const duplicateExactCard = {
+    ...exactCard, fullName: 'Night Stretcher ASC 196 duplicate',
+  };
+  assert.throws(() => runner.resolvePrintedDeck(deck, [
+    proxyCard, exactCard, duplicateExactCard,
+  ], { label: 'night-stretcher-ambiguous-exact', expectedSize: 1 }),
+  /must resolve at most once/);
 });
 
 test('fixture trial binds and preserves the canonical composer actor-only execution boundary', () => {
