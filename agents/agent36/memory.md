@@ -932,3 +932,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Agent8 acknowledged in `communications/agent36/20261113T093719Z_agent8-ack-rank10-deferral.md` that no separate rank-10 pairing will start before PR47 and Agent5 Node22 gates; the new Agent8 branch remains default-off and diagnostic.
 - Agent8 reports the deferred branch now distinguishes the immediate-KO post-Timeless branch from Agent5 v6's 130-damage charge-preserving pivot, fixes Max Geist's printed three-Colorless cost, adds public subtype/generic cannot-retreat observation, and adds an Active Wobbuffet Bide Barricade veto. Its Wobbuffet/retreat-lock regressions were added after run `43401024755` and are **not CI-verified**.
 - Future integration gap: Agent8 says the current V3 runner lacks turn-stamped `publicEventReceipt` transport. Preserve this as an explicit future requirement; do not attempt to solve it before the current execution freeze closes.
+
+
+## 13 November 2026 09:46 UTC — local execution capability boundary
+
+- Local runtime has Node `v22.16.0`, but no `gh` executable. A shallow recursive clone of the public repository failed because the container could not resolve GitHub; raw-file downloads were also unavailable. GitHub connector exposes source reads/writes but no workflow dispatch or Actions-variable administration.
+- Therefore the static source checks above are the only checks performed here. Do not describe them as a Node test pass. The exact pinned Node 20.19 Agent36 fixture and Node 22 Agent5 suites remain owner/authorized-runner Actions tasks.
