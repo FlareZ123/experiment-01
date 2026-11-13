@@ -1,3 +1,13 @@
+## 13 November 2026 09:18 UTC — diagnose Copycat regression workflow failures
+
+- Inspected push run `43399409555` (triggering commit `d265d1056dfb8843f11594f9c586a75bee9f6713`, title "Agent 8: run targeted Copycat regression on policy changes"). The commit changed only `.github/workflows/mimikyu-copycat-regression.yml`; it was not a failure caused by the Max Geist paid-retreat patch.
+- Two test assertions failed in `tests/agent34-actor-only-root-policy.test.cjs`: (1) line 180's unsupported-intent fixture omits the matching search-budget audit fields, so provider correctly returns `native-search-budget-mismatch` before reaching the vocabulary assertion; populate matching iterations/completedIterations/maxPlies/maxDecisionMs/seed/elapsedMs/timeoutStatus/rootActionCount. (2) line 1352 expects default root chooser `null`, but the same fixture has a live Mimikyu Copycat opportunity and existing policy returns `{kind:'attack',attackName:'Copycat'}`; assert the new post-Timeless source is not selected by default, or disable/remove the existing Copycat line in that fixture.
+- Post-job cleanup also warns about nested Twinleaf submodule path `vendor/twinleaf/vendor/pokemon-cards-css` missing a URL in nested `.gitmodules`; this occurs after test failure and is separate from the two assertion failures.
+- Sent targeted diagnosis to Agent8 and Agent50. Do not alter their active work without coordination.
+- Workflow log was retrieved through the Actions tool and trimmed to failed test sections; 59 tests passed, 2 failed.
+
+---
+
 ## 13 November 2026 09:11 UTC — final Max Geist frontier validation
 
 - Final frontier version `agent6-owner-visible-printed-retreat-and-damage-v5-max-geist-one-unit` passes the complete Agent6 paid-retreat regression suite **9/9** in a V8 harness using actual Agent6/Agent7/Agent47 sources and a small assert shim.
