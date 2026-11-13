@@ -237,8 +237,9 @@ function createPublicDecklistPriorProvider({ownDecklist,opponentPrior,ignorePubl
         observed.push(prize.cards[0].fullName);
       }
     }
-    const deckEvidence=observed.filter(printing=>
-      !ignorePublicCard(printing,state,seat));
+    // The injectable filter receives only the already-collected public printing.
+    // Never hand it the determinized State, Player, or concealed-zone objects.
+    const deckEvidence=observed.filter(printing=>!ignorePublicCard(printing));
     return sampleDecklistPrior(opponentPrior,deckEvidence,random);
   };
 }
