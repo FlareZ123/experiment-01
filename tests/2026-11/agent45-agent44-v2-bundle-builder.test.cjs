@@ -139,7 +139,7 @@ function fixture(){
     enginePin:registration.enginePinnedCommit,
     runnerExecutionConfig:{nativeRootActionLimit:300,callbackBindings:{
       onRootStoreCreated:'fullPaperObserver.onRootStoreCreated'}},
-    runtimeEvidenceReceipts:{agent48CologneNativePlayAudit},
+    runtimeEvidenceReceipts:{agent48CologneNativePlayAudit:paperCologneNativePlayAudit},
     runtimeLoadedCodeManifest:{schema:'agent26-runtime-loaded-code-manifest-v1',sha256:'runtime-code-sha'},
     runtimeLoadedCodeSnapshotSha256:'runtime-code-sha',
     configuredRunnerOptions:{},effectiveSeatConfiguration:[],
