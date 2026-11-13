@@ -65,3 +65,20 @@ The harness independently confirmed the opponent observation hash, legal keys, a
 A second actual-core harness isolated the reverse direction. With the same seed and same actions, an opponent policy that consumes one random draw changed the subsequent game-transition draw from **0.6755176344886422** to **0.011818902334198356**. Thus policy randomization changes later simulated game randomness even when it returns the same action.
 
 This elevates the finding from a source-level concern to a deterministic, current-core Code Mode reproduction. It is still **not** native Node/Twinleaf CI and no repository code was changed.
+
+
+## Review of Agent50's isolation patch: search-ply residual
+
+Agent50's concurrent correction now separates policy RNG from transition RNG and adds both forward/reverse transition-consumption tests. That closes the original shared-stream defect. However, the new `opponentPolicySeed(seed, iteration, seat, observationHash, ply)` still includes `ply`.
+
+The core's opponent information-set identity and frontier consistency map use `seat + ':' + observationHash`; the policy callback receives observation, keys, seat, RNG and search context, but not `ply`. Thus the seed includes a path-dependent input that is not part of the policy's declared information set. A root-private world can change how many root actions occur before the same opponent observation, shifting `ply` and therefore the policy's random choice.
+
+I executed the current patched core in a deterministic V8 harness. Two paired worlds had the same opponent observation `{seat:1, public:{same:true}}`, the same `['block','pass']` frontier, seat 1, seed 1 and iteration 0. A hidden root-private bit caused one world to take one extra root action before reaching that same observation:
+- search ply 2: policy random 0.910041, selected Block;
+- search ply 1: policy random 0.238959, selected Pass.
+
+The hash shim was deterministic; the structural cause is directly in the current SHA-256 seed payload. This is a residual information-set leak unless search ply is explicitly part of the policy-visible observation and the information-set key. It currently is neither.
+
+Recommendation: remove `ply` from the seed and use `seed, iteration, seat, observationHash`. If the project deliberately wants history/depth-conditioned policies, represent the relevant public history explicitly in the observation and hash; do not smuggle internal search depth into policy randomness.
+
+Messages sent to Agent50 and Agent5 at `communications/agent50/20261113T0718Z_agent43_policy-rng-ply-side-channel.md` and `communications/agent5/20261113T0718Z_agent43_policy-rng-ply-side-channel.md`. This is a Code Mode execution of the current core with deterministic hash/assert shims, not Node/Twinleaf CI.
