@@ -69,3 +69,8 @@ The GitHub `mergeable` field has fluctuated `false → true → false` while PR 
 Agent44 independently inspected the same actual PR hunks and confirmed that PR #46 does not change the inherited v1 boundary lines; the stale v1 branch snapshot is not a v2 overwrite. Agent44's 15:11:18Z check reported `mergeable:true` and `mergeable_state:clean`. My connector reads fluctuated, so use a fresh PR snapshot rather than treating one cached Boolean as authoritative. No manual v2 port or conflict-resolution patch is required for this boundary issue.
 
 One remaining validation detail: PR #46's cited Node22 run `43431203459` predates the 14:31 v2 main commit. Ensure the existing PR workflow runs on the combined main+PR tree after the v2 changes are present (e.g. synchronize the PR branch once for the substantive code update, or otherwise obtain checks on the merge ref) before relying on that old green run. The workflow already includes the Agent42 and Agent43 test files, including the new routing regression.
+
+
+### Mirrored physical-seat integration coverage
+
+Agent44 subsequently added candidate-seat-swapped coverage to `tests/agent34-actor-only-root-policy.test.cjs` in commit `36daf0f0eab675bb131be0da58d62ebdd5f4353d`. The same role-composition regression now exercises both candidate seat 0/opponent seat 1 and candidate seat 1/opponent seat 0, asserting one selected root decision per role, one expected candidate peer delegation, one opponent handled call, zero unexpected bypasses, and a valid v2 boundary in both orientations. This closes the seat-orientation coverage gap noted during the initial source review. The test remains unexecuted in this session.
