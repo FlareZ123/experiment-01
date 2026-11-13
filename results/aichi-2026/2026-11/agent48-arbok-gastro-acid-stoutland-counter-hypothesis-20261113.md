@@ -1,12 +1,12 @@
-# Arbok XY1 48 Gastro Acid: attack-based counter to the rank-2 Stoutland lock
+# Arbok XY1 48 Gastro Acid: conditional pressure on the rank-2 Stoutland lock
 
-**Agent 48 · 13 November 2026 · pinned-native staged attack-effect confirmation; matchup remains untested**
+**Agent 48 · 13 November 2026 · pinned-native staged ability-state confirmation; matchup remains untested**
 
 ## Decision
 
-Test **one Ekans XY1 47 + one Arbok XY1 48** as an alternative to the one-of Baltoy Rapid Spin idea against the exact rank-2 Vileplume/Stoutland deck. Arbok's one-Colorless **Gastro Acid** attack deals 20 and makes the Defending Pokémon have no Abilities until the end of the candidate's next turn. It targets Stoutland directly, does not rely on an opponent-selected switch, and is an attack effect rather than an Ability effect.
+Retain **one Ekans XY1 47 + one Arbok XY1 48** only as an untested challenger hypothesis against the exact rank-2 Vileplume/Stoutland deck. Do **not** build the challenger, change the nominated 60, or start another card-specific probe before the existing native integration gates cross their execution boundary. Arbok's one-Colorless **Gastro Acid** attack deals 20 and makes the Defending Pokémon have no Abilities until the end of the candidate's next turn.
 
-This is **not** a proven lock break. The opponent can move Stoutland to the Bench, which removes the attack effect, and the rank-2 list has a credible Guzma + Jet Energy restoration line. The point is that Arbok creates a more direct, testable pressure line than Baltoy, while its 20 damage also changes Shadow Rider VMAX's Stoutland knockout threshold.
+This is **not** a proven lock break or a demonstrated matchup counter. If Stoutland moves to the Bench, the attack effect is removed; the opponent has Guzma + Jet Energy and other reset options. Vileplume-GX can also heal the 20 damage before the candidate's next turn, so the earlier four-Energy Max Geist knockout arithmetic is conditional. The only pinned-native evidence is the narrow immediate ability-state result documented below.
 
 ## Grounded card and rules facts
 
@@ -33,14 +33,16 @@ The [Limitless rank-2 decklist](https://limitlesstcg.com/decks/list/26808) conta
 - 1 Stoutland BCR 122;
 - 2 Vileplume AOR 3;
 - 2 Pidgeot ex with **Quick Search** (once per turn, search the deck for any card);
+- 1 Vileplume-GX CEC 4 with **Fragrant Flower Garden** (once during its controller's turn, heal 30 damage from each of that player's Pokémon);
 - 2 Guzma;
+- 4 Guzma & Hala;
 - 2 Jet Energy;
 - 1 Cassius;
 - 1 Grand Tree;
 - 3 Stealthy Hood;
 - 1 Lusamine and 1 Team Yell's Cheer.
 
-Pidgeot ex can find a missing Guzma or other response card. The two Guzma are finite, but the list also has Supporter recovery. Vileplume's Item lock remains active while Vileplume is on the Bench, so the candidate cannot assume that Gastro Acid unlocks Mysterious Treasure, Fog Crystal, VS Seeker, or an unplayed Float Stone.
+Pidgeot ex can find a missing Guzma or other response card; four Guzma & Hala add further access to Special Energy/Tool/Stadium resources, including Jet Energy. Vileplume AOR's Item lock remains active while it is on the Bench, so the candidate cannot assume that Gastro Acid unlocks Mysterious Treasure, Fog Crystal, VS Seeker, or an unplayed Float Stone. Vileplume-GX's healing is an independent counter to the proposed damage threshold.
 
 ## Candidate turn and opponent response branches
 
@@ -48,13 +50,13 @@ Pidgeot ex can find a missing Guzma or other response card. The two Guzma are fi
 2. **Opponent uses Guzma to move Stoutland to the Bench.** This removes the Gastro Acid effect, but Stoutland is now Benched and Sentinel does not apply. The candidate still has a Supporter window on its next turn. Stoutland has 20 damage counters' worth of damage (20 damage) and can be targeted if it is brought Active.
 3. **Opponent uses Guzma plus Jet Energy to restore Stoutland in the same turn.** Guzma can switch Stoutland to the Bench (clearing the attack effect) and Jet Energy attached from hand to the Benched Stoutland can switch it back Active. Sentinel is restored before the candidate's next turn. The opponent needs both the Supporter and the Energy attachment; Pidgeot ex can search for one missing card if the other is already accessible. This is the principal direct counterexample to a guaranteed Supporter window.
 4. **Opponent uses Cassius to remove the affected Stoutland.** Cassius shuffles Stoutland and its attachments into the deck, clearing the attack effect and healing the damage. Pidgeot ex can search for Stoutland again. A prior-turn Herdier can evolve into it, or Grand Tree may enable a Lillipup → Herdier → Stoutland chain. A Jet Energy can promote the rebuilt Stoutland. This is a resource-intensive but plausible reset; test the exact evolution/attachment timing rather than assume it succeeds.
-5. **Candidate attacks the damaged Stoutland with Max Geist.** Max Geist does 10 + 30 for each Psychic Energy attached across the candidate's Pokémon. Four Psychic Energy yield 130; plus Gastro Acid's 20 damage, the affected Stoutland has 150 total damage against 140 HP. If the candidate can attack the restored/remaining Stoutland with Shadow Rider VMAX, four total Psychic Energy are enough to Knock it Out. The opponent's Guzma also chooses the candidate's replacement Active Pokémon, so the candidate must demonstrate that Shadow Rider can still be promoted/retreated and attack.
+5. **Candidate attacks the damaged Stoutland with Max Geist.** Max Geist does 10 + 30 for each Psychic Energy attached across the candidate's Pokémon. Four Psychic Energy yield 130; plus Gastro Acid's 20 damage, the affected Stoutland has 150 total damage against 140 HP. This is only a conditional threshold: Vileplume-GX CEC 4's Fragrant Flower Garden heals 30 from each of its controller's Pokémon during the intervening opponent turn, erasing Gastro Acid's 20 damage if the Ability is usable. After that heal, four-Energy Max Geist does only 130 and five Psychic Energy would be needed for 160. Neither five-Energy timing nor affordability is established. The opponent's Guzma also chooses the candidate's replacement Active Pokémon, so the candidate must demonstrate that Shadow Rider can still be promoted/retreated and attack.
 
-These branches imply a **conditional one-turn Supporter window / resource-tax / knockout setup**, not an unconditional lock removal. Stealthy Hood is not a defense against Gastro Acid itself, but the opponent's switch, Jet Energy, Cassius and evolution lines may still answer it.
+These branches imply only a **hypothetical one-turn Supporter window / response-tax**; they do not establish a reliable knockout setup or unconditional lock removal. Stealthy Hood is not a defense against Gastro Acid itself, but the opponent's own Supporter, Guzma + Jet Energy, Cassius, evolution lines and Vileplume-GX healing may answer or blunt the line.
 
-## Paired experiment required
+## Future evaluation gate (deferred)
 
-Keep the current nominated 60 unchanged as the baseline. Build a separate 60-card Arbok challenger by adding one Ekans XY1 47 and one Arbok XY1 48, with two explicitly documented cuts. Run paired seeds against the exact rank-2 list, both starting orders, and a competent opponent policy that knows the reset lines.
+No further Arbok-specific probe or challenger construction should start before the existing native integration gates run. If a future authorized full-game evaluation is approved, keep the nominated 60 unchanged as baseline and create a separate 60-card Arbok challenger with one Ekans XY1 47 + one Arbok XY1 48 and two explicitly documented cuts. Use paired seeds against the exact rank-2 list, both starting orders, and an opponent policy that can use its Guzma, Guzma & Hala, Jet Energy, Cassius, Pidgeot ex and Vileplume-GX healing lines.
 
 Record at minimum:
 
@@ -77,7 +79,7 @@ Do not accept a result from a policy that never searches for the Arbok line or a
 - **Hypotheses:** opponent reset probability, Arbok setup rate, actual Supporter-window frequency, and matchup win-rate change.
 - **Not tested:** no complete Twinleaf game, opponent response, paired-seed experiment, policy comparison, or matchup result; no change to the nominated 60 and no competitive win-rate claim.
 
-Related research: [Agent27's Sentinel double-lock counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md), [Agent48's Baltoy Rapid Spin assessment](agent48-baltoy-rapid-spin-stoutland-lock-hypothesis-20261113.md), and the current Shadow Rider candidate linked above.
+Related research: [Agent27's Sentinel double-lock counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md), [Agent48's Baltoy Rapid Spin assessment](agent48-baltoy-rapid-spin-stoutland-lock-hypothesis-20261113.md), [Agent50's Vileplume-GX healing counter-audit](agent50-arbok-gastro-acid-vileplume-gx-heal-audit-20261113.md), and the current Shadow Rider candidate linked above.
 
 
 ## Diagnostic field input for the native test
@@ -92,3 +94,12 @@ The already-running focused native probe completed successfully on GitHub Action
 Both constructed-board cases passed: (1) Stoutland without Stealthy Hood and (2) Stoutland with Stealthy Hood. Before Gastro Acid, Stoutland's Sentinel and Bench Vileplume's Irritating Pollen were visible and unblocked. After the native `AttackAction`, Stoutland's Sentinel was blocked and absent from visible Powers in both cases; Bench Vileplume's Irritating Pollen remained visible and unblocked in both. The same result with Hood supports the narrow engine finding that Stealthy Hood does not prevent this attack effect. Both cases retained Stoutland Active and Vileplume on the Bench; the test had no unresolved choice prompts and one non-choice WaitPrompt.
 
 **Strict limits:** the output records printed Gastro Acid damage as 20 but `damageCounterObserved` remained 0; damage resolution was expressly not asserted. The test did not resolve the WaitPrompt, move Stoutland to the Bench, test Guzma/Jet/Cassius responses, play a Supporter, or run a complete game. It is one staged board and a native attack-effect/ability-reducer check, not a matchup test or paper-competitive evidence. Keep the proposed two-slot Arbok challenger unbuilt and the nominated Hood Shield Shadow Rider v1 unchanged pending the broader integration gates and paired full-game evidence.
+
+
+## Vileplume-GX healing counter-audit (Agent50)
+
+The exact source-rank-2 list contains **one Vileplume-GX CEC 4** in addition to its two Vileplume AOR 3. Vileplume-GX's Fragrant Flower Garden heals 30 damage from each of its controller's Pokémon once during that player's turn. If usable during the opponent's intervening turn, it removes Gastro Acid's 20 damage from Stoutland before the candidate can attempt Max Geist. Gastro Acid still suppresses Stoutland's Sentinel while that specific Stoutland remains Active; it does not suppress Vileplume-GX, because the Defending Pokémon is Stoutland.
+
+Corrected threshold: with the 20 damage intact, four-Psychic Max Geist (130) reaches 150 and Knocks Out 140-HP Stoutland. If Fragrant Flower Garden heals the 20, four-Energy Max Geist deals only 130 and Stoutland survives; five Psychic Energy would deal 160, but its timely availability is untested. The source list also has four Guzma & Hala, two Guzma, two Jet Energy, two Pidgeot ex, Cassius and Grand Tree. See [Agent50's exact source/card-text counter-audit](agent50-arbok-gastro-acid-vileplume-gx-heal-audit-20261113.md).
+
+This counter-audit weakens the proposed knockout line; it does not change the narrow native ability-state result. No new card-specific probe is authorized before the integration stopline is cleared.
