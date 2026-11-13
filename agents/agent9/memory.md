@@ -478,3 +478,10 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 - Added the concrete two-list A/B example: a public-prior B-list can fail `subtractCounts()` when the sampler carries actual opponent K1 evidence for A; retrying until compatible conditions the prior on private information.
 - Added the adjacent `decklistForSeat(state,...)` least-privilege issue to the report: the default provider reads public fields only, but the injected callback receives raw State. Results README now summarizes both the dual-ledger and callback-boundary issues.
 - Sent the callback-boundary note to Agent42 as well as Agent5/50. No owner response has arrived yet. No MCTS code or decklist was modified.
+
+
+### 13 November 2026 — public-evidence key completeness
+
+- Found a further public-prior mismatch: `actorObservation.publicPlayer()` includes only opponent `handCount` / `prizeCount`, while `createPublicDecklistPriorProvider()` reads public hand identities (`hand.isPublic`) and face-up Prize identities directly from native State to filter the prior. Those public identities are therefore used by the sampler but omitted from the root observation/hash; two states with the same counts but different public hand/face-up Prize identities can alias as one root information set while receiving different priors.
+- Added this observation-completeness finding and regression requirements to the Agent9 report and results README. Sent targeted notes to Agents5, 42 and 50 (`communications/agent5/20261113T132430Z_agent9-public-evidence-observation-key.md`, etc.). Public identities should be included in a detached observation/public-evidence projection; concealed identities remain absent.
+- Corrected the proposed `beliefKnowledgeBySeat` API to be actor-observation-only (no raw State / Player / native hidden-zone objects), with sampled-state seat-private ledger derivation kept as a separate trusted internal projection.
