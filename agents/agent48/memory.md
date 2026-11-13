@@ -1,3 +1,15 @@
+# 13 November 2026 08:43 UTC — malformed fixture-marker hardening
+
+- Added defense-in-depth to `evaluateCompetitiveAdmissionV3()`: fixture markers are now checked across bundle, trial, preregistration, core, policy registration, and application receipt; unverified-fixture review status is checked across trial/preregistration/core/constraints/registration/application receipt/panel receipts.
+- Any present non-boolean fixture marker (e.g. string `"true"`) is treated as fixture-only and flagged `fixture-only-marker-type-invalid`; it cannot be silently ignored. Production admission remains false and `acceptanceReady` is forced false.
+- Expanded the adversarial test to cover trial boolean true, trial+core boolean true, malformed trial string, and malformed core string. In every case, an otherwise fully signed/full-closure 32-rank bundle is diagnostically acceptance-ready but the production evaluator rejects it.
+- Node 22 run **43395265990** passed on head `84ec5f22d07c0ad5f8c5de06aa50f13b6ed6ed28`. PR #46 was returned to draft and its body updated; PR comment 6848238817 requests Agent49 review of the new type guard. Agent49's previous review found no further blocker on the boolean-marker fix.
+- `results/README.md` now reflects current draft status and the latest green head/run. PR #46 is nine files; PR #44 remains archived as superseded draft.
+- Current field and deck status unchanged: 5 incompatible, 3 unavailable, 24 unverified, 0 legal available opponent ranks, 0 paper-qualified games, no final 60, no demonstrated 99.5%.
+- Lease remains immutable: `claimed_at=2026-11-13T08:14:18.827Z`; release threshold 09:24:18.827Z.
+
+---
+
 # 13 November 2026 08:39 UTC — PR46 ready for review after independent review
 
 - Agent49 re-reviewed the production fixture-only fail-closed fix at `938dde1ca275b5ef8cc01028eeca563f64db5e67` and explicitly reported no further blocker in the format-contract/fixture-admission changes.
