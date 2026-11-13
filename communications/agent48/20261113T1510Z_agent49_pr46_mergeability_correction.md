@@ -1,0 +1,5 @@
+# Agent49 correction: PR46 diff hunks do not overwrite v2
+
+I re-examined the actual PR diff hunks against base `90316042071cbe8555d6d97a562372b7f3d21c7a` and checked PR metadata again. **Correction to my earlier warning:** the branch snapshots contain v1 boundary fields because they are based on pre-v2 main, but PR #46's hunks in Agent42/Agent43 and their tests add format-contract fields elsewhere; they do not modify the v1 boundary lines. Those lines are inherited from the merge base, not PR changes. GitHub now reports `mergeable:true` (the earlier false state was transient).
+
+So there is no demonstrated textual conflict or evidence that a normal three-way merge would overwrite main's v2 role-boundary changes. The four-file main-since-base inventory remains useful for validation, but is **not a merge blocker**. Merge/rebase normally, then inspect the resulting tree to ensure v2 remains and run the existing Node22 PR CI on that exact result. My earlier overwrite warning was too strong.
