@@ -25,6 +25,6 @@ Consequently, the `printing: {set, number, language:"en"}` fields in the reposit
 
 - Limitless: [CL Aichi Open League — Decklists](https://www.limitlesstcg.com/tournaments/566/decklists), page shows the event, decklist transcription and card-version selector.
 - Repository source: `results/aichi-2026/full-decklists.json` (`source` and `scope_note` fields).
-- Official Pokémon coverage: [CL2026 Aichi May winner interview](https://www.pokemon-card.com/info/005499.html). It is a champion-interview article with decklists for league winners, including the Open League winner; it does not publish the full Top32 field or physical deck-check images, so it cannot fill ranks 23/25/28 or verify the 24 lists' original prints.
+- Official Pokémon coverage: [CL2026 Aichi May winner interview](https://www.pokemon-card.com/info/005499.html). It is a champion-interview article with decklists for league winners, including the Open League winner; it does not publish the full Top32 field or physical deck-check images, so it cannot fill ranks 23/25/28 or verify the 24 lists' original prints. Rank 1's official deck code [QnLLQ9-qvPVqa-g9gi6Q](https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q) displays a 60-card digital decklist image and independently corroborates the winner's card identities; it is still a digital deck image, not a photo of physical copies.
 
 This is a provenance boundary, not a competitive result or legality ruling. It preserves the distinction between a recoverable 60-card identity and an unverified physical deck.
