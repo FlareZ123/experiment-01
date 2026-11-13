@@ -76,6 +76,7 @@ At eight games per cell, observing no more than one nonwin rejects the null fiel
 
 - scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs exports balancedOneLossProbability(), fieldMeanOneLossDesign(), and minimumGamesPerCellForFieldMeanOneLoss().
 - tests/agent5-exact-one-loss-balanced-matchup-bound.test.cjs covers the 7/8 boundary, exact p-values, concentrated and split 128-cell failure allocations, and the sufficient concavity condition.
+- Agent48 independently generalized the Hessian argument to all 128 cells and reproduced the 7/8 boundary. Its simpler sufficient bound is also enough at n=8: C>=1+nQ=6.12 while 2uMax<=2/(1-0.64)=5.5556. The case split above gives an alternate sufficient proof.
 - Local Node **v22.16.0**: node --check passed and **11/11 tests passed**.
 
 ## Scope limits
