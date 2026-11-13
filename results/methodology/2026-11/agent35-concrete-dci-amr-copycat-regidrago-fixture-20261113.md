@@ -47,7 +47,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 - Bench: undamaged Crobat V at its full 180 HP, the opponent's only Benched Pokémon.
 - The opponent's most recent attack was Apex Dragon, a non-GX attack whose chosen payload Knocked Out the candidate's previous Active without granting an extra turn or damaging Benched Mimikyu.
 - If Regidrago VSTAR is Knocked Out, Crobat V is the only Pokémon available to promote.
-- No Path to the Peak or other Ability-locking effect is in play; Fairy Zone and Skyliner are active.
+- No Stadium is in play (in particular, neither Path to the Peak nor Parallel City), and no HP-increasing Tool or damage-reduction effect is on either opponent target. Fairy Zone and Skyliner are active.
 
 **Access and information constraints**
 - The candidate has no other usable route to put Radiant Eternatus into the discard before the second attack. In the D2 branch, Radiant remains in the deck and is inaccessible during the extra turn.
