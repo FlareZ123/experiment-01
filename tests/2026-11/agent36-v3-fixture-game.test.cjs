@@ -55,8 +55,8 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
 });
 
-test('fixture trial binds the canonical composer actor-only execution boundary to its receipt', () => {
-  const audit = (seat) => ({
+test('fixture trial binds and preserves the canonical composer actor-only execution boundary', () => {
+  const audit = (seat, overrides = {}) => ({
     policyOwnerSeat: seat,
     version: 'agent34-actor-only-root-slice-test',
     origin: 'detached-actor-observation',
@@ -67,6 +67,7 @@ test('fixture trial binds the canonical composer actor-only execution boundary t
     nonLiveSpeculativeFallbacks: 0,
     nonTurnPhaseFallbacks: 0,
     nonOwnerSeatBypassCalls: 0,
+    ...overrides,
   });
   const boundary = roleComposition.inspectActorOnlyExecutionBoundary({
     candidateAudit: audit(0),
@@ -80,20 +81,24 @@ test('fixture trial binds the canonical composer actor-only execution boundary t
   assert.equal(boundary.candidate.ownerFallbackDiagnosticViewEnabled, false);
   assert.equal(boundary.candidate.nativePolicyMayUseHiddenInformation, false);
   assert.equal(boundary.opponent.policyOwnerSeat, 1);
-  const boundarySha256 = roleIdentity.validateActorOnlyExecutionBoundary(boundary, {
+  const boundarySha256 = roleIdentity.hashActorOnlyExecutionBoundary(boundary);
+  assert.match(boundarySha256, /^[0-9a-f]{64}$/);
+  assert.equal(roleIdentity.hashActorOnlyExecutionBoundary(null), null);
+
+  // An audit failure is still factual evidence. The receipt helper hashes it;
+  // the V3 evaluator, not receipt creation, withholds policy competence.
+  const invalid = roleComposition.inspectActorOnlyExecutionBoundary({
+    candidateAudit: audit(0, { unsupportedPromptFallbacks: 1 }),
+    opponentAudit: audit(1),
     candidateSeat: 0,
     opponentSeat: 1,
   });
-  assert.match(boundarySha256, /^[0-9a-f]{64}$/);
+  assert.equal(invalid.valid, false);
+  assert.ok(invalid.failures.includes('candidate-unsupportedPromptFallbacks-nonzero'));
+  const invalidSha256 = roleIdentity.hashActorOnlyExecutionBoundary(invalid);
+  assert.match(invalidSha256, /^[0-9a-f]{64}$/);
+  assert.notEqual(invalidSha256, boundarySha256);
 
-  const invalid = {
-    ...boundary,
-    candidate: { ...boundary.candidate, unsupportedPromptFallbacks: 1 },
-  };
-  assert.throws(() => roleIdentity.validateActorOnlyExecutionBoundary(invalid, {
-    candidateSeat: 0,
-    opponentSeat: 1,
-  }), /must be zero/);
   const wrongSeat = roleComposition.inspectActorOnlyExecutionBoundary({
     candidateAudit: audit(1),
     opponentAudit: audit(1),
@@ -102,6 +107,7 @@ test('fixture trial binds the canonical composer actor-only execution boundary t
   });
   assert.equal(wrongSeat.valid, false);
   assert.ok(wrongSeat.failures.includes('candidate-policy-owner-seat-mismatch'));
+  assert.match(roleIdentity.hashActorOnlyExecutionBoundary(wrongSeat), /^[0-9a-f]{64}$/);
 
   const runnerSource = fs.readFileSync(
     path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
@@ -109,6 +115,8 @@ test('fixture trial binds the canonical composer actor-only execution boundary t
     /actorOnlyExecutionBoundary:\s*roleResult\?\.actorOnlyBoundary\s*\?\?\s*null/);
   assert.match(runnerSource,
     /actorOnlyExecutionBoundary:\s*trial\.actorOnlyExecutionBoundary,\s*runtimePinEvidence/);
+  assert.match(runnerSource,
+    /const application = gameCompleted && roleResult \? roleIdentity\.createPolicyApplicationReceipt/);
 });
 
 test('fixture policy registration distinguishes Expanded game rules from Japanese Extra source event', () => {
