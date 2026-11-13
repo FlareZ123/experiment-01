@@ -5,6 +5,17 @@ const fs=require('node:fs');
 const path=require('node:path');
 
 const VERSION='agent10-original-printing-energy-recipient-flags-v1';
+const PRINT_SET_INDEX='resources/sets/en.json';
+
+function readPublicSetIndex(root) {
+  return JSON.parse(fs.readFileSync(path.resolve(root,PRINT_SET_INDEX),'utf8'));
+}
+
+function readPublicCardSet(root,setId) {
+  assert.match(setId,/^[a-z0-9]+$/,'public card set has an invalid ID');
+  return JSON.parse(fs.readFileSync(path.resolve(root,'resources/cards/en',setId+'.json'),'utf8'));
+}
+
 
 /**
  * Rule Box and evolution state must come from a printed Pokémon definition.
@@ -60,8 +71,7 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
   assert.equal(sourceCard.printing?.language,'en');
   assert.ok(typeof code==='string'&&typeof number==='string');
   if(!cache.setCodeToIds){
-    const setEntries=JSON.parse(fs.readFileSync(
-      path.resolve(root,'resources/sets/en.json'),'utf8'));
+    const setEntries=readPublicSetIndex(root);
     cache.setCodeToIds=new Map();
     for(const item of setEntries){
       if(!item.ptcgoCode)continue;
@@ -81,8 +91,7 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
   const normalize=name=>name.replaceAll('♢','◇');
   for(const setId of setIds){
     if(!cache.cardsBySet.has(setId)){
-      const filename=path.resolve(root,'resources/cards/en',setId+'.json');
-      const entries=JSON.parse(fs.readFileSync(filename,'utf8'));
+      const entries=readPublicCardSet(root,setId);
       cache.cardsBySet.set(setId,
         new Map(entries.map(card=>[card.id,card])));
     }
@@ -137,15 +146,13 @@ function energyContextFromPublic(ownPublic,opponentPublic,printedProfile){
  * @returns {Map<string,ReturnType<typeof classifyPrintedPokemon>|null>}
  */
 function buildPublicPokemonProfileIndex(root){
-  const setEntries=JSON.parse(fs.readFileSync(
-    path.resolve(root,'resources/sets/en.json'),'utf8'));
+  const setEntries=readPublicSetIndex(root);
   const result=new Map();
   const fields=['isEvolution','hasRuleBox','isPokemonGX','isPokemonEX',
     'prizesOnKnockout'];
   for(const set of setEntries){
     if(!set.ptcgoCode)continue;
-    const filename=path.resolve(root,'resources/cards/en',set.id+'.json');
-    const entries=JSON.parse(fs.readFileSync(filename,'utf8'));
+    const entries=readPublicCardSet(root,set.id);
     for(const card of entries){
       if(card.supertype!=='Pokémon')continue;
       const profile=classifyPrintedPokemon(card);

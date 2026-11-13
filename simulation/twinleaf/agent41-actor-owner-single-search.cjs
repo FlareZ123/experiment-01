@@ -1,7 +1,6 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
 const VERSION = 'agent41-owner-bounded-search-actor-v4-complete-bundles';
@@ -164,15 +163,15 @@ function chooseActorSingleSearch(input){
  */
 function withActorOwnerSingleSearch(execute,deps={}){
   assert.equal(typeof execute,'function');
-  const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+
   const SimpleTacticsAi=deps.SimpleTacticsAi??
-    require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const Store=deps.Store??
-    require(path.join(base,'game/store/store')).Store;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const ResolvePromptAction=deps.ResolvePromptAction??
-    require(path.join(base,'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const GamePhase=deps.GamePhase??
-    require(path.join(base,'game/store/state/state')).GamePhase;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state').GamePhase;
   const attackPhaseSearchOptIn=deps.attackPhaseSearch===true||
     (deps.attackPhaseSearch===undefined&&
       process.env.AGENT37_OWNER_ATTACK_SEARCH_DEV==='true');

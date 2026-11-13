@@ -1,14 +1,12 @@
 'use strict';
 
-const path=require('node:path');
 const assert=require('node:assert/strict');
 
-const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const {AttackAction}=
-  require(path.join(output,'game/store/actions/game-actions'));
+  require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
 const {ResolvePromptAction}=
-  require(path.join(output,'game/store/actions/resolve-prompt-action'));
-const {GameMessage}=require(path.join(output,'game/game-message'));
+  require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
+const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
 
 /**
  * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,

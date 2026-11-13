@@ -28,6 +28,9 @@ class ShuffleDeckPrompt {
 class CoinFlipPrompt {
   constructor(id,playerId){Object.assign(this,{id,playerId,result:undefined});}
 }
+class WaitPrompt {
+  constructor(id,playerId){Object.assign(this,{id,playerId,result:undefined});}
+}
 class TestPrompt {
   constructor(id,playerId,message,options){
     Object.assign(this,{id,playerId,message,options,result:undefined});
@@ -43,6 +46,7 @@ let lastStore=null;
 let failNextPlayCardDispatch=false;
 let failNextDecode=false;
 let failNextPromptDecode=false;
+let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
 class Store {
   constructor(options){
@@ -65,7 +69,8 @@ class Store {
       if(this.state.players.length===2){
         this.state.prompts=[
           new ShuffleDeckPrompt(1,101),
-          new CoinFlipPrompt(2,202)
+          new CoinFlipPrompt(2,202),
+          ...(insertWaitPrompt?[new WaitPrompt(4,101)]:[])
         ];
       }
       return;
@@ -144,7 +149,7 @@ class SimpleTacticsAi {
 function native(){
   return {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
-    ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format,
+    ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format,
     cardActions:{PlayCardAction},
     observe:(state,seat)=>({
       actorSeat:seat,
@@ -187,6 +192,28 @@ function fixtureDiagnosticSnapshot(state,context){
     }))
   };
 }
+
+test('engine WaitPrompt is acknowledged without consulting either policy', () => {
+  insertWaitPrompt=true;
+  try {
+    const result=runNativeFixtureGame({
+      deckA:Array(60).fill('Card A'),
+      deckB:Array(60).fill('Card B'),
+      candidateSeat:0,
+      originalSourceSeat:1,
+      seed:77,
+      native:native(),
+      botOptionsBySeat:[{},{}],
+    });
+    const wait=result.decisionTrace.find(row=>row.pendingPromptType==='WaitPrompt');
+    assert.equal(result.finished,true);
+    assert.equal(wait.policyInputKind,'engine-wait-prompt');
+    assert.deepEqual(wait.promptResolution,{kind:'engine-wait',ownerSeat:0});
+    assert.equal(wait.actionPayload.fields.result,null);
+  } finally {
+    insertWaitPrompt=false;
+  }
+});
 
 test('action payload projection distinguishes same-class decisions and terminates cycles',()=>{
   const first=projectActionPayload(new RootAction(0));

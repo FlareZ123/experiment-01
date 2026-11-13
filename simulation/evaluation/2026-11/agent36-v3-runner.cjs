@@ -88,6 +88,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {AddPlayerAction}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action');
   const {ShuffleDeckPrompt}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt');
   const {CoinFlipPrompt}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt');
+  const {WaitPrompt}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt');
   const simpleBotDefinitions=require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-bot-definitions');
   const {BotFlipMode,BotShuffleMode}=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/bot-arbiter');
   const {PokemonCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
@@ -110,7 +111,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   const makeBotOptions = () => ({
     tactics: [...simpleBotDefinitions.allSimpleTactics],
     promptResolvers: [...simpleBotDefinitions.allPromptResolvers],
-    scores: [...simpleBotDefinitions.defaultStateScores],
+    scores: structuredClone(simpleBotDefinitions.defaultStateScores),
     arbiter: {
       flipMode: BotFlipMode.RANDOM,
       shuffleMode: BotShuffleMode.RANDOM,
@@ -123,7 +124,7 @@ function loadNativeRoleDependencies({enginePin}={}){
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
     ResolvePromptAction:promptActions.ResolvePromptAction,
-    ShuffleDeckPrompt,CoinFlipPrompt,botOptionsBySeat,CardManager,sets,
+    ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,botOptionsBySeat,CardManager,sets,
     cardPoolInitialization};
 }
 
@@ -581,6 +582,7 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
+  { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
   { name: 'nativeCoinFlipPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt.js', exportName: 'CoinFlipPrompt' },
   { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
   { name: 'nativeCardManager', path: 'vendor/twinleaf/ptcg-server/output/game/cards/card-manager.js', exportName: 'CardManager' },
@@ -619,8 +621,8 @@ function printed60Fingerprint(deck) {
 
 function engineProxyPrintingForSourceRow(row) {
   const sourcePrinting = row.printing;
-  // Preserve source identities. The pinned Twinleaf pool uses SFA/61 for
-  // Night Stretcher ASC/196 and SVE/5 for Basic Psychic Energy MEE/13.
+  // Preserve source identities when an exact printing is absent from the
+  // engine. The reviewed corresponding printings are SFA/61 and SVE/5.
   if (row.name === 'Night Stretcher'
       && sourcePrinting.set === 'ASC'
       && String(sourcePrinting.number) === '196') {
@@ -682,7 +684,7 @@ function fixtureBotOptionsProfile(options) {
   return {
     tactics: (options.tactics || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
     promptResolvers: (options.promptResolvers || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
-    scores: (options.scores || []).map((item) => item && (item.name || item.constructor && item.constructor.name) || String(item)),
+    scores: structuredClone(options.scores),
     arbiter: {
       flipMode: options.arbiter && options.arbiter.flipMode !== undefined ? options.arbiter.flipMode : null,
       shuffleMode: options.arbiter && options.arbiter.shuffleMode !== undefined ? options.arbiter.shuffleMode : null,
@@ -834,6 +836,8 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     entryManifestSha256: opponentIdentity.entryManifestSha256,
     challengeSuiteSha256: opponentIdentity.challengeSuiteSha256,
     policyProducerId: opponentIdentity.policyProducerId,
+    formatStatus: 'unverified',
+    formatStatusEvidenceRef: null,
   };
   const policyPlanCore = {
     schema: 'aichi-policy-plan-core-v1',

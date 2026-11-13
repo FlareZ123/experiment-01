@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {BASIC_ENERGY_TYPE}=require('./printed-basic-energy-audit.cjs');
 
@@ -555,19 +554,18 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
 function withOwnerRootSlice(candidateSeat,work,deps={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   assert.equal(typeof work,'function');
-  const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-  const engine=p=>require(path.join(output,p));
+
   const SimpleTacticsAi=deps.SimpleTacticsAi??
-    engine('simple-bot/simple-tactics-ai').SimpleTacticsAi;
-  const Store=deps.Store??engine('game/store/store').Store;
-  const {GamePhase}=deps.GamePhase??engine('game/store/state/state');
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store=deps.Store??require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
+  const {GamePhase}=deps.GamePhase??require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
   const actionClasses=deps.actionClasses??{
-    ...engine('game/store/actions/play-card-action'),
-    ...engine('game/store/actions/game-actions')
+    ...require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action'),
+    ...require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions')
   };
   const enums=deps.enums??{
-    ...engine('game/store/card/card-types'),
-    ...engine('game/store/card/pokemon-types')
+    ...require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'),
+    ...require('../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types')
   };
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');

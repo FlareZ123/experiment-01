@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
@@ -141,13 +140,13 @@ function resolvePhysicalHandCards(prompt,names){
  */
 function withActorHandDiscard(execute,deps={},options={}){
   assert.equal(typeof execute,'function');
-  const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+
   const SimpleTacticsAi=deps.SimpleTacticsAi??
-    require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const Store=deps.Store??
-    require(path.join(base,'game/store/store')).Store;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const ResolvePromptAction=deps.ResolvePromptAction??
-    require(path.join(base,'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorHandDiscardInput;
   const choose=deps.choose??chooseActorHandDiscard;
   const validate=deps.validate??assertValidPromptAction;

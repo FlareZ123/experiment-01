@@ -1,10 +1,5 @@
 'use strict';
 
-const path = require('node:path');
-const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
-/** @param {string} moduleName */
-function engine(moduleName) { return require(path.join(output, moduleName)); }
-
 const PRINTING = 'Cynthia & Caitlin CEC';
 const POLICY_VERSION = 'CynthiaCaitlinPrintedMandatoryRecovery-v1';
 
@@ -27,9 +22,9 @@ function isPrintedCynthiaCaitlinRecovery(prompt) {
 /** Return a source-locked, explicitly opt-in printed mode-zero responder. */
 function makePrintedRecoveryResolver() {
   const { PromptResolver } =
-    engine('simple-bot/prompt-resolver/prompt-resolver');
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/prompt-resolver/prompt-resolver');
   const { ResolvePromptAction } =
-    engine('game/store/actions/resolve-prompt-action');
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   return class PrintedCynthiaCaitlinRecoveryResolver extends PromptResolver {
     /** @param {object} state @param {object} player @param {object} prompt */
     resolvePrompt(state, player, prompt) {

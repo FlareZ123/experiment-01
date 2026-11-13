@@ -60,18 +60,19 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.deepEqual(opponentPsychic.printing, { set: 'MEE', number: '13', language: 'en' });
   assert.deepEqual(opponentPsychic.enginePrinting, { set: 'SVE', number: '5', language: 'en' });
 
-  // Both frozen 60s preserve the source ASC/196 printing while the pinned
-  // CardManager resolves the exact-name SFA/61 engine proxy.
+  // Pinned CardManager defines the exact ASC/196 printing for both frozen 60s.
   const candidateNightStretcher = candidateResolved.resolvedRows.find(row => row.name === 'Night Stretcher');
   const opponentNightStretcher = opponentResolved.resolvedRows.find(row => row.name === 'Night Stretcher');
   assert.deepEqual(candidateNightStretcher.printing, { set: 'ASC', number: '196', language: 'en' });
-  assert.deepEqual(candidateNightStretcher.enginePrinting, { set: 'SFA', number: '61', language: 'en' });
+  assert.deepEqual(candidateNightStretcher.enginePrinting, candidateNightStretcher.printing);
   assert.deepEqual(opponentNightStretcher.printing, { set: 'ASC', number: '196', language: 'en' });
-  assert.deepEqual(opponentNightStretcher.enginePrinting, { set: 'SFA', number: '61', language: 'en' });
+  assert.deepEqual(opponentNightStretcher.enginePrinting, opponentNightStretcher.printing);
 
   assert.notEqual(native.botOptionsBySeat[0], native.botOptionsBySeat[1]);
   assert.notEqual(native.botOptionsBySeat[0].arbiter, native.botOptionsBySeat[1].arbiter);
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
+  assert.notEqual(native.botOptionsBySeat[0].scores.hand, native.botOptionsBySeat[1].scores.hand);
+  assert.deepEqual(native.botOptionsBySeat[0].scores, native.botOptionsBySeat[1].scores);
 });
 
 
@@ -162,6 +163,9 @@ test('fixture trial binds and preserves the canonical composer actor-only execut
     nonLiveSpeculativeFallbacks: 0,
     nonTurnPhaseFallbacks: 0,
     nonOwnerSeatBypassCalls: 0,
+    peerRoleDispatchEnabled: seat === 0,
+    ownerDecisionCalls: 1,
+    peerRoleDelegations: seat === 0 ? 1 : 0,
     ...overrides,
   });
   const boundary = roleComposition.inspectActorOnlyExecutionBoundary({
@@ -211,7 +215,7 @@ test('fixture trial binds and preserves the canonical composer actor-only execut
   assert.match(runnerSource,
     /actorOnlyExecutionBoundary:\s*trial\.actorOnlyExecutionBoundary,\s*runtimePinEvidence/);
   assert.match(runnerSource,
-    /const application = gameCompleted && roleResult \? roleIdentity\.createPolicyApplicationReceipt/);
+    /const applicationBase = gameCompleted && roleResult \? roleIdentity\.createPolicyApplicationReceipt/);
 });
 
 test('fixture policy registration distinguishes Expanded game rules from Japanese Extra source event', () => {
@@ -289,37 +293,16 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   const combined = roleIdentity.combineRolePolicyEntryManifests(built, built);
   assert.deepEqual(combined.expectedByPath, built.expectedByPath);
   assert.equal(combined.unionSha256.length, 64);
-  const sourceLimitations = built.manifest.sourceAuditLimitations || {};
-  for (const [name, values] of Object.entries(sourceLimitations)) {
-    if (name === 'dynamicRequireSites') {
-      // Keep every known path-derived require site explicit. The fixture-scoped
-      // Module._load guard rejects any actual module request outside the frozen
-      // role map; this static limitation does not certify full-process closure.
-      const actualSites = values.map((value) => ({
-        file: value.file,
-        count: value.count,
-      })).sort((a, b) => a.file.localeCompare(b.file));
-      const expectedSites = [
-        { file: 'simulation/twinleaf/agent12-actor-only-lillie-after-pass.cjs', count: 3 },
-        { file: 'simulation/twinleaf/agent37/native-genesect-power-availability.cjs', count: 1 },
-        { file: 'simulation/twinleaf/agent4-underworld-visible-thorns-veto.cjs', count: 1 },
-        { file: 'simulation/twinleaf/agent41-actor-owner-single-search.cjs', count: 4 },
-        { file: 'simulation/twinleaf/agent43-guzma-prompt-continuation.cjs', count: 2 },
-        { file: 'simulation/twinleaf/agent47-actor-hand-discard.cjs', count: 3 },
-        { file: 'simulation/twinleaf/agent5-owner-root-slice.cjs', count: 1 },
-        { file: 'simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs', count: 3 },
-        { file: 'simulation/twinleaf/agent8-funded-apex-compressor-owner-bridge.cjs', count: 1 },
-        { file: 'simulation/twinleaf/copycat-multiattack-history.cjs', count: 3 },
-        { file: 'simulation/twinleaf/cynthia-caitlin-required-recovery.cjs', count: 1 },
-        { file: 'simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs', count: 3 },
-      ].sort((a, b) => a.file.localeCompare(b.file));
-      assert.deepEqual(actualSites, expectedSites,
-        'known dynamic require sites changed; review the frozen role closure');
-    } else {
-      assert.deepEqual(values, [], 'source audit limitation ' + name + ' must be empty');
-    }
-  }
+  assert.deepEqual(built.manifest.sourceAuditLimitations, {
+    dynamicRequireSites: [],
+    computedEnvSites: [],
+    unclassifiedEnvSites: [],
+    missingRelativeImports: [],
+    externalRequires: [],
+  });
   assert.ok(built.manifest.vendorDependencies.some((item) => item.path === 'vendor/twinleaf/ptcg-server/start.js'));
+  assert.ok(built.manifest.dataAssets.some((item) => item.path === 'resources/sets/en.json'));
+  assert.ok(built.manifest.dataAssets.some((item) => item.path === 'resources/cards/en/xy4.json'));
   assert.ok(built.manifest.sharedEnginePatches.some((item) => item.path === 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs'));
   assert.ok(built.manifest.commonRuntimeBindings.some((item) => item.name === 'roleComposer'));
   assert.ok(built.manifest.commonRuntimeBindings.some((item) => item.name === 'observe'));
@@ -517,7 +500,7 @@ test('V3 fixture requires a valid owner diagnostic recipient and always encrypts
   assert.notEqual(invalidRun.status, 0, 'non-RSA recipient key must fail preflight');
 
   const encryptionStep = workflow.slice(encryptAt, uploadAt);
-  assert.ok(encryptionStep.includes('if: ${{ always() && !inputs.contract_only }}'),
+  assert.ok(encryptionStep.includes('if: ${{ always() && inputs.agent36_v3_fixture_game }}'),
     'private diagnostics must still be encrypted when the game step fails');
 });
 

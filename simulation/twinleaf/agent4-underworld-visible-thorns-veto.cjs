@@ -50,8 +50,7 @@ function classifyVisibleThornsVeto(view,intent){
  */
 function withPublicThornsUnderworldVeto(work){
   assert.equal(typeof work,'function');
-  const modulePath=require.resolve('./agent31-underworld-door-owner-frontier.cjs');
-  const chosen=require(modulePath);
+  const chosen=require('./agent31-underworld-door-owner-frontier.cjs');
   const original=chosen.chooseUnderworldDoorRoot;
   assert.equal(typeof original,'function');
   const audit={

@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {chooseHeldGuzmaMobility,isGuzma}=
   require('./agent2-held-guzma-mobility-frontier.cjs');
@@ -11,7 +10,6 @@ const {VERSION:GUST_VERSION,chooseNominalGuzmaGust}=
   require('./agent43-guzma-nominal-gust-frontier.cjs');
 
 const VERSION='agent43-owner-guzma-native-prompt-continuation-v1';
-const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
  * Construct a catalog solely from public static printings, without a game
@@ -19,13 +17,12 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * @returns {object} Existing actor-only public card catalog.
  */
 function publicCatalog(){
-  const native=name=>require(path.join(OUTPUT,name));
-  const {CardManager}=native('game/cards/card-manager');
-  const {PokemonCard}=native('game/store/card/pokemon-card');
-  const {EnergyCard}=native('game/store/card/energy-card');
+  const {CardManager}=require('../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
+  const {PokemonCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
+  const {EnergyCard}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {Stage,EnergyType,CardType,SpecialCondition}=
-    native('game/store/card/card-types');
-  const {PowerType}=native('game/store/card/pokemon-types');
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
+  const {PowerType}=require('../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
   return require('./agent34-actor-only-root-policy.cjs')
     .buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
       PokemonCard,EnergyCard,Stage,EnergyType,CardType,
@@ -51,12 +48,12 @@ function publicCatalog(){
  */
 function withGuzmaOwnerPromptContinuation(execute,deps={}){
   assert.equal(typeof execute,'function');
-  const native=name=>require(path.join(OUTPUT,name));
+
   const Bot=deps.SimpleTacticsAi??
-    native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
-  const Store=deps.Store??native('game/store/store').Store;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store=deps.Store??require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const ResolvePromptAction=deps.ResolvePromptAction??
-    native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choosePlan=deps.choosePlan??((view,catalog)=>{
     if(deps.seekerGuzmaNominalKo===true){

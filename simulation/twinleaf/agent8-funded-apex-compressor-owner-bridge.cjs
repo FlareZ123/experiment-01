@@ -44,7 +44,6 @@ function chooseFundedApexCompressor(view) {
     paperPaymentUnverified:true, competingUsesNotRanked:true};
 }
 
-
 /**
  * Independent, owner-information-safe necessary-condition diagnostic.
  * Each true flag is observed independently; the first failed gate is a
@@ -121,18 +120,16 @@ function chooseActualOwnerDeckDonors(prompt, owner) {
 function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
   assert.equal(typeof work, 'function');
   assert.ok(sourceSeat === 0 || sourceSeat === 1);
-  const output = path.resolve(__dirname,
-    '../../vendor/twinleaf/ptcg-server/output');
-  const native = name => require(path.join(output, name));
+
   const SimpleTacticsAi = deps.SimpleTacticsAi ??
-    native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
-  const Store = deps.Store ?? native('game/store/store').Store;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store = deps.Store ?? require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const GamePhase = deps.GamePhase ??
-    native('game/store/state/state').GamePhase;
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state').GamePhase;
   const {PlayCardAction, PlayerType, SlotType} = deps.cardActions ??
-    native('game/store/actions/play-card-action');
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const {ResolvePromptAction} = deps.promptActions ??
-    native('game/store/actions/resolve-prompt-action');
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const observe = deps.actorObservation ?? actorObservation;
   const oldChoose = Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype, 'decodeNextAction');

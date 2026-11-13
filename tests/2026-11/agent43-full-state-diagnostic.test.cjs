@@ -96,7 +96,7 @@ test('full diagnostic captures both players private zones while actor observatio
   assert.equal(snapshot.prompts[0].extraFields.customPromptResolverToken, 'private-prompt-token');
   assert.equal(Object.hasOwn(snapshot.prompts[0].extraFields, 'cards'), false);
   assert.equal(Object.hasOwn(snapshot.players[0].board.active.extraStateFields, 'energies'), false);
-  assert.equal(actorObservation(state, 0).active.extraStateFields, undefined);
+  assert.equal(actorObservation(state, 0).ownPublic.active.extraStateFields, undefined);
   assert.equal(snapshot.prompts[0].fields.cards[0].fullName, 'A Prompt Card');
   assert.equal(snapshot.engineExtraFields.effectStack[0].source.fullName, 'A Triggered Effect');
   assert.equal(snapshot.players[0].extraStateFields.customLockCounter, 3);

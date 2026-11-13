@@ -443,7 +443,7 @@ test('fixture builder uses local fixture chronology and rejects production-shape
   };
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongFingerprint
-  },fixture.reviewerRegistry),/fixture deal-generation receipt is missing or not bound/);
+  },fixture.reviewerRegistry),/fixture trial generation time or source-deal fingerprint disagrees with receipt/);
 });
 
 test('valid signed postgame reviews remain external to the finalized bundle digest',()=>{
@@ -586,7 +586,7 @@ test('fixture postgame builder rejects rank, seat, trial-mode, and local chronol
   const wrongRunnerRevision={...dealGenerationReceipt,runnerRevision:'d'.repeat(40)};
   assert.throws(()=>buildV3GameBundleFixture({
     ...common,dealGenerationReceipt:wrongRunnerRevision
-  },fixture.reviewerRegistry),/fixture deal-generation receipt is missing or not bound/);
+  },fixture.reviewerRegistry),/fixture deal-generation receipt is missing or not bound to the native physical deal/);
 
   const retroFixture=makePolicyFixture();
   const retroTrialId='agent44-retroactive-ready-fixture';

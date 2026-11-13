@@ -6,7 +6,7 @@ const path = require('node:path');
 const Module = require('node:module');
 const {createHash} = require('node:crypto');
 const {auditSourceClosure} = require('../agent36-source-closure-audit.cjs');
-const {evidenceBundleSha256} = require('../agent45-independent-competitive-admission.cjs');
+const {evidenceBundleSha256} = require('../canonical-evidence-json.cjs');
 
 const ENTRY_MANIFEST_SCHEMA = 'aichi-policy-entry-manifest-v2';
 const ROLE_IDENTITY_SCHEMA = 'aichi-role-policy-identity-v2';
@@ -51,6 +51,20 @@ const TRUSTED_FILE_READERS = new Set([
   'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs',
   'simulation/evaluation/2026-11/agent36-v3-runner.cjs'
 ]);
+// This reader only accesses the public English print catalog. Bind the exact
+// set index and every enumerated card file whenever a policy can call it.
+const PRINT_CATALOG_READER = 'simulation/twinleaf/agent10-original-printing-energy-flags.cjs';
+const PRINT_SET_INDEX = 'resources/sets/en.json';
+
+function publicPrintCatalogAssets(root) {
+  const sets = JSON.parse(fs.readFileSync(assertInsideRoot(root, PRINT_SET_INDEX, 'public print index'), 'utf8'));
+  const cardFiles = sets.filter(set => set.ptcgoCode).map(set => {
+    assert.match(set.id, /^[a-z0-9]+$/, 'public card set has an invalid ID');
+    return 'resources/cards/en/' + set.id + '.json';
+  });
+  return [PRINT_SET_INDEX, ...cardFiles];
+}
+
 const REQUIRED_COMMON_BINDING_EXPORTS = {
   observe:'actorObservation',promptActions:'ResolvePromptAction',
   roleComposer:'withCandidateOpponentPolicyRoles',
@@ -146,7 +160,7 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
       const usesUnseededRandom=/\bMath\s*\.\s*random\s*\(/.test(line)||
         /\b(?:randomBytes|randomUUID|randomInt|randomFill|randomFillSync|getRandomValues)\s*\(/.test(line);
       if(usesDynamicCode||usesProcessOrWorker||usesNetwork||usesUnseededRandom||
-        (usesFileReader&&!TRUSTED_FILE_READERS.has(file.path)))
+        (usesFileReader&&!TRUSTED_FILE_READERS.has(file.path)&&file.path!==PRINT_CATALOG_READER))
         unsupported.push({file:file.path,line:i+1,kind:usesDynamicCode?'dynamic-code':
           usesProcessOrWorker?'process-or-worker':usesNetwork?'network':
           usesUnseededRandom?'unseeded-random':'unreviewed-file-read'});
@@ -322,7 +336,8 @@ function createPolicyEntryManifest({repositoryRoot,entrypoint,commonRuntimeBindi
     vendor:item.path.startsWith(VENDOR_PREFIX)}));
   const verifiedPatches=patches.map(item=>({...item,sha256:shaForPath(item.path),
     vendor:item.path.startsWith(VENDOR_PREFIX)}));
-  const assets=[...new Set(dataAssetPaths.map(p=>canonicalPath(p,'data asset path')))]
+  const printCatalogAssets = fileByPath.has(PRINT_CATALOG_READER) ? publicPrintCatalogAssets(root) : [];
+  const assets=[...new Set([...dataAssetPaths, ...printCatalogAssets].map(p=>canonicalPath(p,'data asset path')))]
     .sort().map(assetPath=>({path:assetPath,
       sha256:hashBytes(fs.readFileSync(assertInsideRoot(root,assetPath,'data asset')))}));
   const dependencyLocks=[...new Set(dependencyLockPaths.map(p=>canonicalPath(p,'dependency lock path')))]

@@ -50,13 +50,12 @@ function immediateHoodFunding(actorView, catalog, intent) {
  */
 function withImmediateFundedHoodOnly(work) {
   assert.equal(typeof work,'function');
-  const key='AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV';
-  const before=process.env[key];
-  process.env[key]='true';
+  const before=process.env.AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV;
+  process.env.AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV='true';
   try{return work();}
   finally{
-    if(before===undefined)delete process.env[key];
-    else process.env[key]=before;
+    if(before===undefined)delete process.env.AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV;
+    else process.env.AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV=before;
   }
 }
 module.exports={

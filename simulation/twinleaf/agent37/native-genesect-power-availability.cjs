@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
 
 const VERSION='agent37-native-genesect-power-availability-v1';
 const SOURCE='Genesect V FST',POWER='Fusion Strike System';
@@ -26,8 +25,7 @@ function nativeGenesectPowerAvailability(state,store,seat,dependencies={}){
   assert.ok(player);
   const {CheckPokemonPowersEffect}=dependencies.CheckPokemonPowersEffect?{
     CheckPokemonPowersEffect:dependencies.CheckPokemonPowersEffect
-  }:require(path.resolve(__dirname,
-    '../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects'));
+  }:require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
   const slots=[
     {position:'active',benchIndex:null,slot:player.active},
     ...player.bench.map((slot,benchIndex)=>({

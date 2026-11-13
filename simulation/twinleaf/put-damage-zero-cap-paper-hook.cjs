@@ -1,8 +1,5 @@
 'use strict';
 
-const path=require('node:path');
-const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-
 /**
  * Check the printed target restrictions and damage packet units of a native
  * PutDamagePrompt answer. The pinned Store does NOT call prompt.validate()
@@ -58,11 +55,9 @@ function paperPutDamageRejectReason(prompt,answer,state){
  * @returns {()=>void} Restore original Store.dispatch exactly.
  */
 function installPutDamageZeroCapPaperHook(){
-  const {Store}=require(path.join(output,'game/store/store'));
-  const {PutDamagePrompt}=require(path.join(
-    output,'game/store/prompts/put-damage-prompt'));
-  const {ResolvePromptAction}=require(path.join(
-    output,'game/store/actions/resolve-prompt-action'));
+  const {Store}=require('../../vendor/twinleaf/ptcg-server/output/game/store/store');
+  const {PutDamagePrompt}=require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/put-damage-prompt');
+  const {ResolvePromptAction}=require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const original=Store.prototype.dispatch;
   Store.prototype.dispatch=function guardedDispatch(action,clientRoleId){
     if(action instanceof ResolvePromptAction){

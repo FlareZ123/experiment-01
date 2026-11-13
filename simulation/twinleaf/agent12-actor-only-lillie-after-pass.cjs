@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
 const VERSION='agent12-actor-only-lillie-after-pass-v1';
@@ -53,12 +52,12 @@ function chooseLillieAfterPass(view){
  */
 function withActorOnlyLillieAfterPass(run,deps={}){
   assert.equal(typeof run,'function');
-  const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+
   const SimpleTacticsAi=deps.SimpleTacticsAi??
-    require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
-  const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
+    require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store=deps.Store??require('../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
-    require(path.join(base,'game/store/actions/play-card-action'));
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const observe=deps.observe??actorObservation;
   const beforeDecode=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');

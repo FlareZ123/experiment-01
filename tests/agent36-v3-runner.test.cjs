@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
+const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
@@ -240,7 +241,7 @@ test('fixture application receipt binds unverified Expanded format contract into
   assert.equal(receiptSha256,evidenceBundleSha256(payload));
   assert.notEqual(receiptSha256,application.receipt.receiptSha256);
   assert.equal(application.receipt.candidateFormat,undefined,
-    'the extension must not mutate the helper's base receipt');
+    "the extension must not mutate the helper's base receipt");
   assert.throws(()=>bindFixtureFormatToApplicationReceipt({
     receipt:{...application.receipt,gameRuleset:'Japanese Extra'}
   },trial),/differs from the frozen fixture contract/);

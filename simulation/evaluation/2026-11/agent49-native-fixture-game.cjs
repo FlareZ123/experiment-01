@@ -192,7 +192,7 @@ function validateInputs(input) {
   assert.ok(input&&typeof input==='object','fixture match input is required');
   const native=input.native;
   for(const name of ['Store','GameSettings','SimpleTacticsAi','AddPlayerAction',
-    'ResolvePromptAction','ShuffleDeckPrompt','CoinFlipPrompt']) {
+    'ResolvePromptAction','ShuffleDeckPrompt','CoinFlipPrompt','WaitPrompt']) {
     assert.equal(typeof native?.[name],'function','missing native dependency: '+name);
   }
   assert.equal(typeof native?.cardActions?.PlayCardAction,'function',
@@ -244,7 +244,7 @@ function runNativeFixtureGame(input) {
   const seed32=normalizeSeed32(input.seed);
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
-    ShuffleDeckPrompt,CoinFlipPrompt,GamePhase,Format
+    ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format
   }=native;
   const previousRandom=Math.random;
   const physicalRandom=seededRandom(seed32);
@@ -592,6 +592,14 @@ function runNativeFixtureGame(input) {
         action=new ResolvePromptAction(pending.id,result);
         promptResolution={kind:'coin-flip',result};
         policyInputKind='physical-randomization-prompt';
+      } else if(pending instanceof WaitPrompt) {
+        failureContext.stage='engine-wait-prompt-resolution';
+        policyInputKind='engine-wait-prompt';
+        attemptRecord.policyInputKind=policyInputKind;
+        if(actingSeat!==0&&actingSeat!==1)
+          throw new Error('Twinleaf wait prompt has no known player');
+        action=new ResolvePromptAction(pending.id,null);
+        promptResolution={kind:'engine-wait',ownerSeat:actingSeat};
       } else if(pending) {
         actingSeat=state.players.findIndex(player=>player.id===pending.playerId);
         if(actingSeat!==0&&actingSeat!==1)
