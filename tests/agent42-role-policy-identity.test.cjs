@@ -424,5 +424,5 @@ test('application receipt binds the frozen format, date scope and review status'
  assert.throws(()=>I.createPolicyApplicationReceipt({
   preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,
   trial:{...t,formatReviewStatus:'independently-reviewed'}
- }),/format review status/);
+ }),/trial formatReviewStatus mismatch/);
 }));
