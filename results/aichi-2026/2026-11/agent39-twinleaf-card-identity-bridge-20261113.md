@@ -79,7 +79,7 @@ For each fully resolved deck, the bridge now emits two distinct SHA-256 values:
 
 - `ordered_input_sha256`: SHA-256 of UTF-8 `JSON.stringify(registered60)`, where `registered60` is the exact 60-element Twinleaf `Card.fullName` array supplied to `decklist_for_seat.cards`.
 - `canonical_multiset_sha256`: SHA-256 of UTF-8 `JSON.stringify([{fullName,copies}, ...])`, with rows aggregated by full name and sorted by Unicode code-unit order. This is invariant to source-row order.
-- The exact serialization protocol is included in the result as `registered60_hash_protocol`. Hashes are null for incomplete decks; partial mappings never produce a deck hash.
+- The exact serialization protocol is included in the result as `registered60_hash_protocol`. Hashes are null for incomplete decks; partial mappings never produce a deck hash. Each rank entry reports source-row total, resolved and unresolved row counts, 60-copy total, completion status, and the complete row-level mapping table.
 - The result also binds the raw source audit SHA-256, canonical normalized-field SHA-256, research repository revision, and actual Twinleaf submodule revision. These are separate from the registered-60 hashes.
 
 The registered-60 hashes are **not yet available** because the pinned CardManager mapping has not run. The raw/canonical source-artifact hashes above are input provenance only and must not be substituted for engine-input hashes.
