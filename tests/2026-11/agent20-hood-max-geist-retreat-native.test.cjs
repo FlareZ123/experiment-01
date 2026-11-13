@@ -64,9 +64,7 @@ function initializeCardPool() {
   return manager;
 }
 
-function resolveDeck(manager) {
-  const spec = JSON.parse(fs.readFileSync(path.join(ROOT,
-    'results/aichi-2026/candidate-hood-shadow-rider.json'), 'utf8'));
+function buildTestDeck(manager) {
   const byPrinting = new Map();
   for (const card of manager.getAllCards()) {
     const key = JSON.stringify([card.name, card.set, String(card.setNumber)]);
@@ -74,18 +72,39 @@ function resolveDeck(manager) {
     matches.push(card);
     byPrinting.set(key, matches);
   }
-  const names = [];
-  for (const row of spec.cards) {
-    const key = JSON.stringify([
-      row.name, row.printing.set, String(row.printing.number)
-    ]);
-    const matches = byPrinting.get(key) ?? [];
+  const exact = (name, set, number) => {
+    const matches = byPrinting.get(JSON.stringify([
+      name, set, String(number)
+    ])) ?? [];
     assert.equal(matches.length, 1,
-      'exact native printing must resolve once: ' + row.name);
-    for (let i = 0; i < row.count; i++) names.push(matches[0].fullName);
-  }
+      'exact native printing must resolve once: ' + name + ' ' + set + ' ' + number);
+    return matches[0];
+  };
+  const shadowV = exact('Shadow Rider Calyrex V', 'CRE', '74');
+  const shadowVmax = exact('Shadow Rider Calyrex VMAX', 'CRE', '75');
+  const mimikyu = exact('Mimikyu', 'GRI', '58');
+  const latias = exact('Latias ex', 'SSP', '76');
+  const psychic = manager.getAllCards()
+    .filter(card => card.name === 'Psychic Energy')
+    .sort((a, b) => a.fullName.localeCompare(b.fullName))[0];
+  assert.ok(psychic, 'pinned native card pool must contain Basic Psychic Energy');
+
+  // This is a legal, synthetic 60-card action-test shell, not the nominated
+  // candidate deck or a competitive-game input. Use a Twinleaf-supported
+  // Basic Psychic Energy printing rather than the candidate's MEE printing,
+  // which is not present in this pinned engine revision.
+  const names = [
+    ...Array(4).fill(shadowV.fullName),
+    ...Array(4).fill(shadowVmax.fullName),
+    ...Array(4).fill(mimikyu.fullName),
+    ...Array(4).fill(latias.fullName),
+    ...Array(44).fill(psychic.fullName)
+  ];
   assert.equal(names.length, 60);
-  return names;
+  return {
+    names,
+    psychicEnergy: {set: psychic.set, setNumber: psychic.setNumber}
+  };
 }
 
 function makeBotOptions() {
@@ -145,8 +164,9 @@ function takeCard(player, name, set, number) {
   const arrays = cardArrays(player);
   for (const cards of arrays) {
     const index = cards.findIndex(card =>
-      card?.name === name && card?.set === set &&
-      String(card?.setNumber) === String(number));
+      card?.name === name &&
+      (set === undefined || card?.set === set) &&
+      (number === undefined || String(card?.setNumber) === String(number)));
     if (index >= 0) return cards.splice(index, 1)[0];
   }
   assert.fail('physical card not found in player zones: ' +
@@ -183,7 +203,7 @@ function clearHand(player) {
   hand.splice(0, hand.length);
 }
 
-function installBoard(state, candidateSeat) {
+function installBoard(state, candidateSeat, testDeck) {
   const opponentSeat = 1 - candidateSeat;
   const candidate = state.players[candidateSeat];
   const opponent = state.players[opponentSeat];
@@ -195,7 +215,8 @@ function installBoard(state, candidateSeat) {
   const benchV = takeCard(candidate, 'Shadow Rider Calyrex V', 'CRE', '74');
   const benchVmax = takeCard(candidate, 'Shadow Rider Calyrex VMAX', 'CRE', '75');
   const psychic = Array.from({length: 7}, () =>
-    takeCard(candidate, 'Psychic Energy', 'MEE', '13'));
+    takeCard(candidate, 'Psychic Energy', testDeck.psychicEnergy.set,
+      testDeck.psychicEnergy.setNumber));
   const latias = takeCard(opponent, 'Latias ex', 'SSP', '76');
 
   const candidateActive = ensureSlot(candidate.active, 'candidate active');
@@ -240,14 +261,14 @@ function installBoard(state, candidateSeat) {
   assert.equal(opponentActive.getPokemonCard().name, 'Latias ex');
 }
 
-function createScenario(candidateSeat, hoodEnabled, deckNames) {
+function createScenario(candidateSeat, hoodEnabled, testDeck) {
   const optionsBySeat = hoodEnabled ?
     withHoodCandidateBotOptionsBySeat(makeBotOptions(), candidateSeat) :
     [makeBotOptions(), makeBotOptions()];
   assert.notEqual(optionsBySeat[0], optionsBySeat[1]);
   assert.notEqual(optionsBySeat[0].tactics, optionsBySeat[1].tactics);
   const bots = PLAYER_IDS.map((id, seat) =>
-    new SimpleTacticsAi({id}, optionsBySeat[seat], [...deckNames]));
+    new SimpleTacticsAi({id}, optionsBySeat[seat], [...testDeck.names]));
   const settings = new GameSettings();
   settings.format = Format.EXPANDED;
   settings.recordingEnabled = false;
@@ -260,12 +281,12 @@ function createScenario(candidateSeat, hoodEnabled, deckNames) {
   store.state.gameSettings = settings;
   store.state.rules = settings.rules;
   store.dispatch(new AddPlayerAction(PLAYER_IDS[0], 'hood-seat-0',
-    [...deckNames]));
+    [...testDeck.names]));
   store.dispatch(new AddPlayerAction(PLAYER_IDS[1], 'hood-seat-1',
-    [...deckNames]));
+    [...testDeck.names]));
   assert.equal(store.state.players.length, 2,
     'native Store must register both players');
-  installBoard(store.state, candidateSeat);
+  installBoard(store.state, candidateSeat, testDeck);
   return {store, bots, optionsBySeat};
 }
 
@@ -317,8 +338,8 @@ function actionContainsAttack(action, name) {
   return JSON.stringify(action).includes(name);
 }
 
-function runBaseline(candidateSeat, deckNames) {
-  const scenario = createScenario(candidateSeat, false, deckNames);
+function runBaseline(candidateSeat, testDeck) {
+  const scenario = createScenario(candidateSeat, false, testDeck);
   const bot = scenario.bots[candidateSeat];
   const action = decode(bot, scenario.store.state, 0x20a11 + candidateSeat);
   assert.ok(action instanceof AttackAction,
@@ -334,8 +355,8 @@ function runBaseline(candidateSeat, deckNames) {
   return {cardsDrawn: afterHand - beforeHand, action: action.constructor.name};
 }
 
-function runCandidate(candidateSeat, deckNames) {
-  const scenario = createScenario(candidateSeat, true, deckNames);
+function runCandidate(candidateSeat, testDeck) {
+  const scenario = createScenario(candidateSeat, true, testDeck);
   const candidateBot = scenario.bots[candidateSeat];
   const opponentSeat = 1 - candidateSeat;
   const candidateOptions = scenario.optionsBySeat[candidateSeat];
@@ -386,10 +407,10 @@ function runCandidate(candidateSeat, deckNames) {
 test('pinned native Store accepts candidate-only Mimikyu retreat → 190-damage Max Geist in both physical seats, with a Filch baseline control', () => {
   assertPinnedEngine();
   const manager = initializeCardPool();
-  const deckNames = resolveDeck(manager);
+  const testDeck = buildTestDeck(manager);
   for (const candidateSeat of [0, 1]) {
-    const baseline = runBaseline(candidateSeat, deckNames);
-    const candidate = runCandidate(candidateSeat, deckNames);
+    const baseline = runBaseline(candidateSeat, testDeck);
+    const candidate = runCandidate(candidateSeat, testDeck);
     assert.equal(baseline.cardsDrawn, 2,
       'baseline control must preserve Mimikyu Filch');
     assert.equal(candidate.damage, 190,
