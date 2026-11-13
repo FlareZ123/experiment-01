@@ -78,7 +78,17 @@ class Store {
       }
     };
   }
-  dispatch() { return true; }
+  dispatch(action) {
+    if (action instanceof PlayCardAction) {
+      const owner = this.state.players.find(player => player.id === action.id);
+      assert.ok(owner);
+      const [card] = owner.hand.cards.splice(action.handIndex, 1);
+      assert.ok(card);
+      owner.supporter.cards.push(card);
+      owner.supporterTurn = this.state.turn;
+    }
+    return true;
+  }
 }
 class SimpleTacticsAi {
   constructor(id) { this.client = {id}; }
@@ -161,6 +171,8 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
   assert.equal(result.audit.policyOwnerSeat, 1);
   assert.equal(result.audit.selectedRootDecisions, 1);
   assert.equal(result.audit.acceptedActorRoots, 1);
+  assert.equal(result.audit.nativePhysicalConfirmed, 1);
+  assert.equal(result.audit.nativePhysicalUnconfirmed, 0);
   assert.equal(result.audit.competitiveGameQualified, false);
 });
 
@@ -250,6 +262,8 @@ test('V3 role composer can enable Budew Ranger for candidate only', () => {
   assert.equal(result.candidateAudit.policyOwnerSeat, 1);
   assert.equal(result.opponentAudit.policyOwnerSeat, 0);
   assert.equal(result.candidateAudit.acceptedActorRoots, 1);
+  assert.equal(result.candidateAudit.nativePhysicalConfirmed, 1);
+  assert.equal(result.candidateAudit.nativePhysicalUnconfirmed, 0);
   assert.equal(result.opponentAudit.acceptedActorRoots, 0);
   assert.deepEqual(result.roleSeatMap, {candidate: 1, opponent: 0});
 });
