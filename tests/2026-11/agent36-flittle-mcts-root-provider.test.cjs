@@ -177,8 +177,17 @@ test('root and post-action envelopes are distinct and preserve the native energy
     energyCounts:[1,1],
     energyPlayedTurns:[1,2]
   });
+  assert.throws(()=>provider.assertFlittleRootEnvelope(
+    secondPlayerFirstTurn,1,makeView(secondPlayerFirstTurn,1),native));
+
+  const secondPlayerSecondTurn=makeState({
+    activePlayer:1,
+    turn:3,
+    energyCounts:[1,1],
+    energyPlayedTurns:[1,2]
+  });
   assert.equal(provider.assertFlittleRootEnvelope(
-    secondPlayerFirstTurn,1,makeView(secondPlayerFirstTurn,1),native),true);
+    secondPlayerSecondTurn,1,makeView(secondPlayerSecondTurn,1),native),true);
 
   const afterAttach=makeState({
     energyCounts:[2,1],
@@ -294,6 +303,18 @@ test('native intent translation preserves only the bounded Flittle action vocabu
     reason:'mcts-root-pass',
     source:'agent5-flittle-basic-psychic-v1'
   });
+  assert.equal(provider.flittleIntentActionKey({
+    kind:'attach-basic-energy',handIndex:0,slot:'active',index:0
+  },{PlayerType,SlotType}),'PLAY_CARD_ACTION:0:2:1:0');
+  assert.equal(provider.flittleIntentActionKey({
+    kind:'attack',attackName:'Ram'
+  },{PlayerType,SlotType}),'ATTACK_ACTION:Ram');
+  assert.equal(provider.flittleIntentActionKey({
+    kind:'pass'
+  },{PlayerType,SlotType}),'PASS_TURN');
+  assert.equal(provider.flittleIntentActionKey({
+    kind:'bench-basic',handIndex:0,benchIndex:0
+  },{PlayerType,SlotType}),null);
 });
 
 test('search dependency builder supplies the exact pinned adapter contract and one shared K1 provider',()=>{
