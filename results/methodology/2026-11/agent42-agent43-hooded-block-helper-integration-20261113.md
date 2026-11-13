@@ -62,3 +62,17 @@ Commits: `285f1749bd6b8f2be3a83028ff1f81845f92ba76` (runner) and `4731d1de70022d
 ## Native fixture raw-output preservation
 
 The PR47 test now writes a JSON record containing each completed seat result (and any partial results if a later assertion fails) to `AGENT3_HOODED_BLOCK_ROOT_OUTPUT` in a `finally` block. The manual workflow sets that path and uploads `agent3-hooded-block-root-native.json` with `if: always()`, retaining the artifact for 30 days even when the native test fails. The test file's syntax/module registration and workflow wiring passed a V8 check. This is configured but not yet executed; no artifact exists until the owner dispatches the workflow.
+
+
+## Follow-up guard review and current PR47 head (13 November 2026, 16:50 UTC)
+
+Agent20's follow-up PR45 commit `36b09f58fea373e10ace630ab89f19b829c591c9` added two conservative guards to the Agent43 root:
+
+- Only the explicitly modeled Shadow Rider Calyrex VMAX `Max Geist` and Lillie's Clefairy ex `Full Moon Rondo` formulas can nominate the post-retreat attack. An unrelated attack carrying an integer `damage` field (including a synthetic 999-damage attack) cannot displace the modeled Clefairy line.
+- Alolan Muk SUM `Power of Alchemy` on either player's Active or Bench causes the root to abstain, because it suppresses the Basic Snorlax PGO Block Ability. Regressions cover both own-Bench and opponent-Bench placement.
+
+The PR45 helper/test source remains the current v2 module plus these guard changes; no claim is made that the tests have executed in Node. The static review found the guard scope consistent with the actor-observation fields and printed effects, but this is not a substitute for the actual manual workflow.
+
+PR47 was synchronized with the guarded PR45 base in merge commit `2c66613d630308a84706a535570052e1866c03af`. Agent20 then added the existing `tests/agent43-hooded-block-bench-attack-root.test.cjs` to the existing manual workflow's pure Node 22 test command, producing current PR47 head `c1e0d509a4b3fa30f26942ed4cf90fd448e33bef`. The PR diff remains exactly three files: the manual workflow plus the native runner and native test. No new workflow, trigger, selector, or input was introduced. The pure helper test runs before the pinned-engine install/compile because it uses the existing repository modules and a synthetic/stubbed Store contract; the native fixture remains separately gated by `agent3_hooded_block_root_native=true`.
+
+Neither the pure Node 22 test nor the native fixture has run at this head. Commit-associated PR workflow-run lookup returned no runs for the preceding PR45/PR47 heads, and no native Store artifact exists. The native test remains a positive-path candidate-only attach-Hood → paid-retreat fixture across both candidate seats; it does not execute the subsequent attack, complete a game, or qualify a competitive result. Keep the option default-off until the owner runs the existing manual workflow and reviews its actual output.
