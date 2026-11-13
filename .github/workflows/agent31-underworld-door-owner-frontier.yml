@@ -14,6 +14,7 @@ on:
       - 'tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs'
       - 'tests/2026-11/agent41-hood-candidate-bot-options.test.cjs'
       - 'tests/2026-11/agent20-hood-max-geist-retreat-tactic.test.cjs'
+      - 'tests/2026-11/agent20-hood-max-geist-retreat-native.test.cjs'
       - '.github/workflows/agent31-underworld-door-owner-frontier.yml'
 
 permissions:
@@ -41,3 +42,38 @@ jobs:
           node --check simulation/twinleaf/hood-aware-max-geist-retreat-tactic.cjs
           node --check simulation/twinleaf/hood-candidate-bot-options.cjs
           node --test tests/2026-11/agent41-hood-ability-lock-state.test.cjs tests/2026-11/agent41-hood-garbotoxin-recovery-autonomy.test.cjs tests/2026-11/agent41-hood-candidate-bot-options.test.cjs tests/2026-11/agent20-hood-max-geist-retreat-tactic.test.cjs
+
+  native-hood-retreat-integration:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Set up the pinned Twinleaf Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Assert the reviewed Twinleaf pin
+        run: |
+          actual=$(git -C vendor/twinleaf rev-parse HEAD)
+          test "$actual" = "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+          echo "Pinned Twinleaf revision: $actual"
+
+      - name: Install and compile the pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Run native candidate retreat-to-Max-Geist regression
+        run: |
+          node --check tests/2026-11/agent20-hood-max-geist-retreat-native.test.cjs
+          node --test tests/2026-11/agent20-hood-max-geist-retreat-native.test.cjs
