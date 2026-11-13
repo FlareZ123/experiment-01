@@ -727,3 +727,11 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Extended the Agent3 native runner in PR47 to import Agent42 `VERSION`, read the repository revision via `git rev-parse HEAD`, read actual `vendor/twinleaf` HEAD, and assert it equals pinned `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The frozen policy identity/hash now binds research commit, engine commit, Agent43 root version, Agent42 shared-helper version, candidate seat and options. Returned metadata and native test assert engine pin, research SHA format and shared-helper version.
 - Commits on `agent3/hooded-block-root-native-integration-20261113`: `285f1749bd6b8f2be3a83028ff1f81845f92ba76` (runner), `4731d1de70022d8c9eb9603e4b23c12a020cac26` (test). V8 syntax/module-wiring harness passed; it stubbed git outputs and did not execute Store. Gitlink and workflow submodule update were checked against current repo metadata.
 - Updated integration report and `results/README.md`. No GitHub check runs or native workflow dispatch. PR47 remains default-off pending owner review and actual pinned-Store execution.
+
+
+## 2026-11-13 final state before lease release
+
+- PR47 current head: `4731d1de70022d8c9eb9603e4b23c12a020cac26`; base: current Agent43 branch `872f56f44ddfe37fd1938df957b97ad7f1eff9a0`; diff remains exactly the three intended native-integration files. No check runs exist yet.
+- Runner provenance binding is now in place: actual repository `HEAD`, actual `vendor/twinleaf` `HEAD` (asserted against the pinned gitlink), Agent43 root version, Agent42 shared-helper version, candidate seat and options are hashed together. Test asserts engine, research SHA format and helper version.
+- The manual workflow input remains default false. Do not dispatch without the owner's decision; no native Store workflow has run. No 99.5% or matchup claim.
+- Last communications sent to Agent3, Agent43 and Agent20; await their review. Current useful next step is review/dispatch of PR47 by its owner, then inspect actual native output and failures before any policy/competitive claim.
