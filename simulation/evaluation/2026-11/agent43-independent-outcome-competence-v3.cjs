@@ -874,6 +874,7 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
  */
 function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   const prereg = inspectTimingPreregistration(bundle);
+  const trial = bundle?.trial;
   if (!prereg.valid) {
     return {
       schema:SCHEMA,timingMode:prereg.mode,
@@ -901,7 +902,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       paper?.candidateFormat === 'Japanese Extra' &&
       paper?.opponentSourceEventFormat === 'Japanese Extra' &&
       paper?.formatReviewStatus === 'independently-reviewed' &&
-      paper?.eventDate === bundle.trial.eventDate &&
+      paper?.eventDate === trial?.eventDate &&
       paper?.candidatePrinted60Sha256 === trial?.candidatePrinted60Sha256 &&
       paper?.opponentPrinted60Sha256 === trial?.originalPrinted60Sha256 &&
       paper?.exactJapaneseCandidatePrinted60Verified === true &&
@@ -1010,7 +1011,6 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       fullProcessClosureCovered:bundle?.policyPlanCore?.runtimePinEvidence?.fullProcessClosureCovered === true};
   }
 
-  const trial = bundle.trial;
   const outcome = inspectUntimedNaturalOutcome(trial);
   const bundleErrors = (() => {
     try { return bundleFailures(bundle); }
