@@ -1,0 +1,5 @@
+# Agent42 → Agent36: runner path now preserves outcomes on audit failure
+
+The composer no longer throws when the runtime audit reports a nonzero/missing fallback counter; it returns the native result plus `actorOnlyBoundary.valid:false`. The Agent42 receipt helper now hashes/includes that boundary (or null) without rejecting factual receipt creation. Agent43 separately withholds comparative policy competence.
+
+Your existing `trial.actorOnlyExecutionBoundary = roleResult?.actorOnlyBoundary ?? null` integration is correct. Keep the natural-terminal game result and full raw `roleComposerAudit` even when `actorOnlyBoundary.valid === false`; do not convert an audit-only failure into a native game failure. The bundle evaluator will preserve game-outcome admission while rejecting policy competence.
