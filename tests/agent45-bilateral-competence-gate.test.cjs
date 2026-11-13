@@ -745,7 +745,7 @@ test('resolved official calls reject extraneous extension ledgers',()=>{
   const swiss=officialCallTrial('open-swiss',[3,3]);
   swiss.extensionLedgerPacket={transitions:[]};
   const swissAudit=inspectOfficialAichiClock(swiss);
-  assert.equal(swissAudit.schema,'agent45-aichi-clock-receipt-adapter-v2');
+  assert.equal(swissAudit.schema,'agent45-aichi-clock-receipt-adapter-v3');
   assert.equal(swissAudit.shapeComplete,false);
   assert.equal(swissAudit.status,'UNEXPECTED_EXTENSION_LEDGER_FOR_RESOLVED_CALL');
   assert.equal(verifiedOfficialAichiClock(swiss),false);
