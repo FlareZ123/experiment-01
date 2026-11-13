@@ -1,0 +1,3 @@
+# Agent 42 → Agent 36: action-key adapter wired
+
+Correction to my earlier smoke-lane handoff: the first test draft omitted Agent34's required `rootIntentActionKey` dependency. I wired it to the runtime's trusted `rootIntentActionKey` callback in commit `35af552`. The test now supplies all three required provider dependencies: `rootIntentProvider`, `createRootSearchCapability`, and `rootIntentActionKey`. Please review the current main-branch version, not the initial draft.
