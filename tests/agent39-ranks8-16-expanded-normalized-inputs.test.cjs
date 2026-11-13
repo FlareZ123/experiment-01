@@ -12,7 +12,7 @@ const readJson = relative => JSON.parse(readText(relative));
 const gitBlobSha = text => {
   const bytes = Buffer.from(text, 'utf8');
   return crypto.createHash('sha1')
-    .update(Buffer.from(`blob ${bytes.length}\0`, 'utf8'))
+    .update(Buffer.from(`blob ${bytes.length}\\0`, 'utf8'))
     .update(bytes)
     .digest('hex');
 };
@@ -26,14 +26,47 @@ const normalized = readJson(
 const sve = readJson('resources/cards/en/sve.json');
 const xy4 = readJson('resources/cards/en/xy4.json');
 
+const cardDir = path.join(root, 'resources/cards/en');
+const allCards = fs.readdirSync(cardDir)
+  .filter(file => file.endsWith('.json'))
+  .flatMap(file => JSON.parse(fs.readFileSync(path.join(cardDir, file), 'utf8')));
+const aceSpecNames = new Set(allCards
+  .filter(card =>
+    (card.rules || []).some(rule => /ACE SPEC/i.test(String(rule))) ||
+    (card.subtypes || []).some(subtype => /ACE SPEC/i.test(String(subtype))))
+  .map(card => card.name));
+const prismStarNames = new Set(allCards
+  .filter(card =>
+    card.name.includes('♢') ||
+    (card.subtypes || []).some(subtype => /Prism Star/i.test(String(subtype))))
+  .map(card => card.name));
+const radiantNames = new Set(allCards
+  .filter(card => card.name.startsWith('Radiant '))
+  .map(card => card.name));
+
+const basicEnergyNames = new Set([
+  'Grass Energy', 'Fire Energy', 'Water Energy', 'Lightning Energy',
+  'Psychic Energy', 'Fighting Energy', 'Darkness Energy', 'Metal Energy'
+]);
 const energyMap = {
   'Grass Energy': { name: 'Basic Grass Energy', number: '1', id: 'sve-1' },
   'Fire Energy': { name: 'Basic Fire Energy', number: '2', id: 'sve-2' },
   'Lightning Energy': { name: 'Basic Lightning Energy', number: '4', id: 'sve-4' },
   'Darkness Energy': { name: 'Basic Darkness Energy', number: '7', id: 'sve-7' }
 };
+const expectedAceSpec = {
+  8: 'Secret Box',
+  9: 'Secret Box',
+  10: 'Prime Catcher',
+  11: 'Secret Box',
+  12: 'Megaton Blower',
+  13: 'Megaton Blower',
+  14: 'Megaton Blower',
+  15: 'Grand Tree',
+  16: 'Secret Box'
+};
 
-test('normalized ranks 8–16 remain exact 60-card representations with only safe normalizations', () => {
+test('normalized ranks 8–16 preserve exact 60-card lists and satisfy deck construction rules', () => {
   assert.equal(gitBlobSha(rosterText), normalized.source.roster_blob_sha);
   assert.equal(gitBlobSha(coverageText), normalized.source.coverage_blob_sha);
   assert.deepEqual(normalized.decks.map(deck => deck.rank),
@@ -58,6 +91,29 @@ test('normalized ranks 8–16 remain exact 60-card representations with only saf
     assert.equal(sourceTotal, 60);
     assert.equal(normalizedTotal, 60);
     totalCards += normalizedTotal;
+
+    const countsByName = new Map();
+    for (const card of sourceDeck.cards) {
+      countsByName.set(card.name, (countsByName.get(card.name) || 0) + card.count);
+    }
+    const fourCopyViolations = [...countsByName]
+      .filter(([name, count]) => !basicEnergyNames.has(name) && count > 4);
+    assert.deepEqual(fourCopyViolations, [], `four-copy violation at rank ${deck.rank}`);
+
+    const aceSpecCards = sourceDeck.cards.filter(card => aceSpecNames.has(card.name));
+    const aceSpecCopies = aceSpecCards.reduce((sum, card) => sum + card.count, 0);
+    assert.equal(aceSpecCopies, 1, `expected exactly one ACE SPEC at rank ${deck.rank}`);
+    assert.deepEqual(aceSpecCards.map(card => card.name), [expectedAceSpec[deck.rank]]);
+
+    const prismStarCopies = [...countsByName]
+      .filter(([name]) => prismStarNames.has(name));
+    assert.ok(prismStarCopies.every(([, count]) => count <= 1),
+      `duplicate Prism Star identity at rank ${deck.rank}`);
+
+    const radiantCopies = [...countsByName]
+      .filter(([name]) => radiantNames.has(name))
+      .reduce((sum, [, count]) => sum + count, 0);
+    assert.ok(radiantCopies <= 1, `Radiant Pokémon limit exceeded at rank ${deck.rank}`);
 
     for (let i = 0; i < sourceDeck.cards.length; i++) {
       const source = sourceDeck.cards[i];
