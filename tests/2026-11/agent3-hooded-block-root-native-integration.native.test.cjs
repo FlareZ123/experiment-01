@@ -3,7 +3,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  runNativeHoodedBlockRootCase
+  runNativeHoodedBlockRootCase,
+  PINNED_TWINLEAF,
+  SHARED_HELPER_VERSION
 } = require('../../simulation/twinleaf/2026-11/agent3-hooded-block-root-native-integration.cjs');
 
 test('actual Agent34/Agent43 root maps Hood attach then paid retreat through pinned Store, candidate-only, both seats', () => {
@@ -13,6 +15,10 @@ test('actual Agent34/Agent43 root maps Hood attach then paid retreat through pin
     assert.equal(result.candidateSeat, candidateSeat, label);
     assert.equal(result.opponentSeat, 1 - candidateSeat, label);
     assert.equal(result.policyIdentityOwnerSeat, candidateSeat, label);
+    assert.equal(result.engineCommit, PINNED_TWINLEAF, label);
+    assert.equal(result.engine, 'twinleafgg/' + PINNED_TWINLEAF, label);
+    assert.match(result.researchCommit, /^[a-f0-9]{40}$/, label);
+    assert.equal(result.policySharedHelperVersion, SHARED_HELPER_VERSION, label);
     assert.match(result.policyIdentitySha256, /^[a-f0-9]{64}$/, label);
     assert.equal(result.postAttachmentHoodVisible, true, label);
     assert.deepEqual(result.observedDecisionSeats,
