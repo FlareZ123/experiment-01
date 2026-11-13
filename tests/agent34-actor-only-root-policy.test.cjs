@@ -123,6 +123,18 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   assert.equal(unsupported.status,'abstained');
   assert.equal(unsupported.reason,
     'native-search-intent-outside-bounded-vocabulary');
+
+  const outsideFlittleEnvelope=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'selected',
+      intent:{kind:'bench-basic',handIndex:0,benchIndex:0},
+      audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+        ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+        applicabilityEnvelopeId:'flittle-basic-psychic-v1'}}),
+    provider:context=>{context.runSearch();return {status:'selected'};}
+  });
+  assert.equal(outsideFlittleEnvelope.status,'abstained');
+  assert.equal(outsideFlittleEnvelope.reason,'intent-outside-flittle-envelope');
 });
 
 test('certified MCTS root intent reaches the native actor action switch',()=>{
