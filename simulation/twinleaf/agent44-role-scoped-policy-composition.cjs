@@ -8,6 +8,47 @@ function plainObject(value) {
     (Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null);
 }
 
+
+const DIAGNOSTIC_ONLY_ROLE_FLAGS = Object.freeze([
+  'nativeOwnerTrainerFallback','ownerFallbackDiagnosticView'
+]);
+
+function assertNoDiagnosticFallbackFlags(source,label) {
+  for(const key of DIAGNOSTIC_ONLY_ROLE_FLAGS)
+    assert.notEqual(source?.[key],true,
+      label+'.'+key+' is diagnostic-only and forbidden in competitive V3 role composition');
+}
+
+function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
+  candidateSeat,opponentSeat}) {
+  const failures=[];
+  function summarize(audit,role,expectedSeat) {
+    const summary={role,policyOwnerSeat:audit?.policyOwnerSeat??null,
+      version:typeof audit?.version==='string'?audit.version:null,
+      nativeOwnerTrainerFallbackEnabled:audit?.nativeOwnerTrainerFallback!==undefined&&
+        audit?.nativeOwnerTrainerFallback!==null,
+      unsupportedPromptFallbacks:audit?.unsupportedPromptFallbacks??null,
+      nonLiveSpeculativeFallbacks:audit?.nonLiveSpeculativeFallbacks??null,
+      nonOwnerNativeDelegations:audit?.nonOwnerNativeDelegations??null,
+      nonTurnPhaseFallbacks:audit?.nonTurnPhaseFallbacks??null};
+    if(!plainObject(audit)) failures.push(role+'-audit-missing-or-invalid');
+    if(summary.policyOwnerSeat!==expectedSeat) failures.push(role+'-policy-owner-seat-mismatch');
+    if(!summary.version) failures.push(role+'-wrapper-version-missing');
+    if(summary.nativeOwnerTrainerFallbackEnabled)
+      failures.push(role+'-native-owner-trainer-fallback-enabled');
+    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks']){
+      if(!Number.isInteger(summary[key])||summary[key]<0)
+        failures.push(role+'-'+key+'-missing-or-invalid');
+      else if(summary[key]!==0) failures.push(role+'-'+key+'-nonzero');
+    }
+    return summary;
+  }
+  const candidate=summarize(candidateAudit,'candidate',candidateSeat);
+  const opponent=summarize(opponentAudit,'opponent',opponentSeat);
+  return {schema:'aichi-actor-only-execution-boundary-v1',
+    valid:failures.length===0,failures,candidate,opponent};
+}
+
 /**
  * Run one synchronous native match with independently configured candidate-
  * and opponent-role actor policies. Role identity remains independent of
@@ -28,6 +69,7 @@ function withCandidateOpponentPolicyRoles(run,options) {
     (opponentSeat===0||opponentSeat===1)&&candidateSeat!==opponentSeat,
   'candidate and opponent must occupy distinct physical seats 0 and 1');
   assert.ok(plainObject(commonDeps),'commonDeps must be a plain object');
+  assertNoDiagnosticFallbackFlags(commonDeps,'commonDeps');
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
     'role-specific policy options must be plain objects');
   for(const key of [
@@ -46,7 +88,8 @@ function withCandidateOpponentPolicyRoles(run,options) {
   const runtimeBindings=[
     'policyOwnerSeat','SimpleTacticsAi','Store','GamePhase','cardActions','gameActions',
     'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
-    'arvenTrainerTypes','eriCardTypes'
+    'arvenTrainerTypes','eriCardTypes','nativeOwnerTrainerFallback',
+    'ownerFallbackDiagnosticView'
   ];
   for(const [role,policyOptions] of [
     ['candidate',candidatePolicyOptions],['opponent',opponentPolicyOptions]
@@ -74,7 +117,19 @@ function withCandidateOpponentPolicyRoles(run,options) {
     'candidate policy wrapper did not return its audit');
   assert.equal(candidateWrapped.audit.policyOwnerSeat,candidateSeat);
   assert.equal(opponentWrapped.audit.policyOwnerSeat,opponentSeat);
+  const actorOnlyBoundary=inspectActorOnlyExecutionBoundary({
+    candidateAudit:candidateWrapped.audit,opponentAudit:opponentWrapped.audit,
+    candidateSeat,opponentSeat
+  });
+  if(!actorOnlyBoundary.valid){
+    const error=new Error('V3 role execution crossed the actor-only boundary: '+
+      actorOnlyBoundary.failures.join('; '));
+    error.code='ACTOR_ONLY_BOUNDARY_VIOLATION';
+    error.actorOnlyBoundary=actorOnlyBoundary;
+    throw error;
+  }
   return {
+    actorOnlyBoundary,
     result:candidateWrapped.result,
     candidateAudit:candidateWrapped.audit,
     opponentAudit:opponentWrapped.audit,
@@ -82,4 +137,4 @@ function withCandidateOpponentPolicyRoles(run,options) {
   };
 }
 
-module.exports={withCandidateOpponentPolicyRoles};
+module.exports={withCandidateOpponentPolicyRoles,assertNoDiagnosticFallbackFlags,inspectActorOnlyExecutionBoundary};
