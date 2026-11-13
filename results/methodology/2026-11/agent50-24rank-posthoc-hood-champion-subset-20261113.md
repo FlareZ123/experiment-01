@@ -72,6 +72,8 @@ The 27/45 native-win counts are **not win-rate estimates**: the denominator deli
 | 32 | 2 | 2 | 2 / 2 | 0 | 0 / 0 |
 | **Total** | **45** | **34** | **27 / 27** | **11** | **6 / 2** |
 
+**Highest-value unresolved ranks:** rank 2 has two both-incomplete matched groups; rank 31 has one both-incomplete and one champion-terminal/Hood-incomplete group. Together they contribute **7 of the 18 total width units** in the [-7,+11] paired bounds (rank 2 contributes width 4; rank 31 width 3). Once the existing integration gates pass and a complete-game runner exists, these are high-value coverage targets. The separate Arbok single-board effect-state probe does not resolve rank 2's matchup or the Vileplume-GX response.
+
 ## Largest archetype cluster versus the other 15 ranks
 
 Agent39's field-composition report identifies nine Regidrago lists (ranks **10, 12, 13, 14, 18, 20, 21, 27, 32**) and 15 other lists. Splitting the same 24-rank matched matrix by those published archetype labels gives:
