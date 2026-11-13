@@ -18,7 +18,7 @@ test('native printed class catalog uses numeric CardType and SpecialCondition',(
   const types={
     PokemonCard,EnergyCard,Stage:{BASIC:2},EnergyType:{BASIC:0},
     PowerType:{ABILITY:2},CardType:{PSYCHIC:5,COLORLESS:9},
-    SpecialCondition:{ASLEEP:2,PARALYZED:0}
+    SpecialCondition:{ASLEEP:2,BURNED:1,CONFUSED:3,PARALYZED:0,POISONED:4}
   };
   const cards=[
     new PokemonCard('A',2,[{powerType:2}]),
@@ -33,5 +33,5 @@ test('native printed class catalog uses numeric CardType and SpecialCondition',(
   assert.deepEqual([...catalog.basicEnergies],['Psychic Energy SVE']);
   assert.equal(catalog.basicEnergyTypes.Psychic,5);
   assert.equal(catalog.colorlessEnergyType,9);
-  assert.deepEqual(catalog.specialConditions,{ASLEEP:2,PARALYZED:0});
+  assert.deepEqual(catalog.specialConditions,{ASLEEP:2,BURNED:1,CONFUSED:3,PARALYZED:0,POISONED:4});
 });
