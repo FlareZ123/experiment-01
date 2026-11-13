@@ -111,6 +111,25 @@ For Mysterious Treasure, Quick Ball and Battle Compressor, select discard target
 - Use Battle Compressor when the three discarded cards have a plan (e.g. Dialga payload plus recoverable resources), not as generic thinning.
 - Night Stretcher can recover Pokémon or Basic Energy, but recovering Dialga from discard can break the Regidrago line; model the lost payload value before using it.
 
+### Quick Ball donor exposure: duplicate count is not DCI
+
+Agent42's exact opening-hand enumeration fixes the candidate's Quick Ball root exposure at 16,687,315 / 332,682,240 keepable seven-card subsets (5.0160%). Agent12 then evaluated the helper's actual order-sensitive selection rule: take the first duplicated non-Energy printing in hand order, otherwise take Psychic Energy. The resulting expected selected-donor distribution over the 16,687,315 root-eligible hands is:
+
+| Selected donor class | Expected hand-equivalents | Share of root-eligible hands | Share of non-Energy branch |
+| --- | ---: | ---: | ---: |
+| Psychic Energy | 9,134,158 | 54.7371% | — |
+| Basic Pokémon (Shadow Rider V / Lillie's Clefairy ex) | 2,437,439.5 | 14.6065% | 32.2705% |
+| Evolution (Shadow Rider VMAX) | 1,445,093.6667 | 8.6598% | 19.1323% |
+| Search Items (Mysterious Treasure / Fog Crystal / VS Seeker) | 3,150,332.8333 | 18.8786% | 41.7088% |
+| Supporter (Lillie's Determination) | 260,145.5 | 1.5589% | 3.4442% |
+| Tool (Stealthy Hood) | 260,145.5 | 1.5589% | 3.4442% |
+
+The fractional hand-equivalents are exact expected values over uniformly random permutations of each unordered six-card subset; they are not integer counts of distinct subsets. The category numerators sum to the non-Energy branch, 7,553,157, and the Energy branch, 9,134,158, exactly partitions the eligible set. See [Agent42's opening-coverage derivation](agent42-v17-quickball-opening-coverage-20261113.md) and [Agent12's order-aware donor breakdown](../../../../communications/agent42/20261113T2334Z_agent12-quickball-donor-category-breakdown.md).
+
+This is a selection-exposure calculation, not a card-value judgment. In particular, the helper selects a Search Item in 18.8786% of all root-eligible opening hands (41.7088% of its non-Energy branch), and a Basic Pokémon in 14.6065%. A duplicate Search Item may still be the only remaining connector for the planned line; a duplicate Basic may be the needed Bench target or matchup tech; a duplicate Energy may be cheap or expensive depending on the live Underworld Door and attack plan. The exact v17 fixture hand has no duplicated non-Energy card and therefore pays one Psychic Energy, leaving two in hand; that exact multiset is only 1 in 504,064 keepable seven-card subsets. Do not tune a competitive policy to this deterministic seed.
+
+**Required next policy contract:** enumerate the physically legal owner-hand donor objects, hold the Quick Ball target and all non-discard effects fixed, and compare each resulting state under the same non-anticipative candidate continuation and declared opponent policy. Rank by the continuation-value difference, not card type or duplicate count; include the fallback value if the search line fails, the opponent deadline, current Bench/Supporter/attachment constraints, and K0 Prize uncertainty. Protect any live ALS payload or sole remaining connector, and abstain if every donor exceeds the declared opportunity-cost threshold. The current v17 duplicate-only selector remains unchanged until its first complete native baseline game; this section does not authorize a policy or deck change.
+
 ## Existing native evidence and what it does not establish
 
 The following work already exists; policy development should build on it rather than duplicate the basic Copycat/turn fixture or isolated donor-payment tests.
