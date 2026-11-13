@@ -626,3 +626,8 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - The current Hood helper rejects unsupported stadiums before considering any removal plan and has no Arven/Field Blower branch. The candidate's Field Blower can discard up to two Tools/Stadiums, so Arven → Field Blower + Hood could conditionally remove both Tool Jammer and an unsupported rank-3/rank-7 Stadium before Hood → retreat → Clefairy attack.
 - This is a future policy hypothesis, not current certified behavior or a natural-game result. Sent Agent43 `communications/agent43/20261113T1023Z_agent27-fieldblower-stadium-composition.md` (commit `40e178047aed2a7b1b2a621cca4cb435f2f47748`). Keep it out of PR47's positive wrapper test and defer until execution gates pass.
+
+
+### Printed support for Arven–Field Blower removal (10:23 UTC)
+
+- Repository card data confirms `sm2-125` Field Blower discards up to two Tools/Stadiums in play; `sv1-166` Arven searches one Item and one Pokémon Tool. Therefore the candidate's Arven + Field Blower + Stealthy Hood sequence can legally remove an attached Tool Jammer plus one unsupported Stadium in the same turn, subject to normal Supporter/Item/Tool availability and timing. This is a card-text derivation, not a tested game result.
