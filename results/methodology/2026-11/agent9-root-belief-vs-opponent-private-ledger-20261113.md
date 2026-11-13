@@ -89,6 +89,7 @@ Hold the root observation, root belief ledger, public evidence, registered deckl
 3. The root observation and root node key must not vary with the actual opponent-private ledger.
 4. Repeat with physical seats swapped.
 5. Include a positive control where a Prize identity is publicly revealed to the root; that revealed identity must constrain the root's belief.
+6. With a two-list public prior, changing only the actual opponent-private K1 ledger must not change the sampled decklist distribution or make a candidate list fail compatibility. A sampled B-list world must derive a B-compatible opponent K1 ledger from its own sampled Prize multiset, not inherit A-list private Prize identities.
 
 This test distinguishes "the opponent knows its own Prizes" from "the root knows the opponent's Prizes."
 
