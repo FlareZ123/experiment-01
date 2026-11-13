@@ -113,6 +113,8 @@ test('exact one-loss iid branch passes at 436, not 435 games per stratum', () =>
   assert.equal(result.perRank[0].winCount, 1743);
   assert.equal(result.perRank[0].nonwinCount, 1);
   assert.equal(result.perRank[0].boundMethod, 'exact-one-loss-iid');
+  assert.equal(result.samplingModelDeclaration,
+    'iid-bernoulli-v1 (caller assertion; external audit required)');
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
     0.9950010946446439) < 1e-12);
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
@@ -148,9 +150,44 @@ test('generic heterogeneous-KL one-loss bound first passes at 486 games per stra
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
 });
 
-test('two nonwins retain heterogeneous KL even when iid model is declared', () => {
-  const tooSmall = fixture(601);
+test('exact two-loss iid branch passes at 534, not 533 games per stratum', () => {
+  const tooSmall = fixture(533);
   tooSmall.stratumSamplingModel = 'iid-bernoulli-v1';
+  tooSmall.attempts[0].status = 'paper-qualified-loss';
+  tooSmall.attempts[1].status = 'paper-qualified-tie';
+  const failed = assessSimultaneousMatchups(tooSmall);
+  assert.equal(failed.perRank[0].boundMethod, 'exact-two-loss-iid');
+  assert.ok(Math.abs(failed.perRank[0].conditionalLowerBound -
+    0.9949944036749971) < 1e-12);
+  assert.equal(failed.conditionalSimultaneousThresholdMet, false);
+
+  const request = fixture(534);
+  request.stratumSamplingModel = 'iid-bernoulli-v1';
+  request.attempts[0].status = 'paper-qualified-loss';
+  request.attempts[1].status = 'paper-qualified-tie';
+  const result = assessSimultaneousMatchups(request);
+  assert.equal(result.totalAttempts, 68352);
+  assert.equal(result.perRank[0].totalAttempts, 2136);
+  assert.equal(result.perRank[0].winCount, 2134);
+  assert.equal(result.perRank[0].nonwinCount, 2);
+  assert.equal(result.perRank[0].boundMethod, 'exact-two-loss-iid');
+  assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
+    0.9950037583795005) < 1e-12);
+  assert.equal(result.samplingModelDeclaration,
+    'iid-bernoulli-v1 (caller assertion; external audit required)');
+  assert.equal(result.conditionalSimultaneousThresholdMet, true);
+
+  const unregistered = fixture(534);
+  unregistered.attempts[0].status = 'paper-qualified-loss';
+  unregistered.attempts[1].status = 'paper-qualified-tie';
+  const fallback = assessSimultaneousMatchups(unregistered);
+  assert.equal(fallback.perRank[0].boundMethod, 'heterogeneous-kl');
+  assert.ok(fallback.perRank[0].conditionalLowerBound < 0.995);
+  assert.equal(fallback.conditionalSimultaneousThresholdMet, false);
+});
+
+test('two nonwins retain heterogeneous KL when iid model is absent', () => {
+  const tooSmall = fixture(601);
   tooSmall.attempts[0].status = 'paper-qualified-loss';
   tooSmall.attempts[1].status = 'paper-qualified-tie';
   const failed = assessSimultaneousMatchups(tooSmall);
@@ -160,7 +197,6 @@ test('two nonwins retain heterogeneous KL even when iid model is declared', () =
   assert.equal(failed.conditionalSimultaneousThresholdMet, false);
 
   const request = fixture(602);
-  request.stratumSamplingModel = 'iid-bernoulli-v1';
   request.attempts[0].status = 'paper-qualified-loss';
   request.attempts[1].status = 'paper-qualified-tie';
   const result = assessSimultaneousMatchups(request);
@@ -171,7 +207,20 @@ test('two nonwins retain heterogeneous KL even when iid model is declared', () =
   assert.equal(result.perRank[0].boundMethod, 'heterogeneous-kl');
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
     0.9950046403347648) < 1e-12);
+  assert.equal(result.samplingModelDeclaration,
+    'heterogeneous-independent-Bernoulli default');
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
+});
+
+test('three nonwins retain heterogeneous KL even when iid model is declared', () => {
+  const request = fixture(602);
+  request.stratumSamplingModel = 'iid-bernoulli-v1';
+  request.attempts[0].status = 'paper-qualified-loss';
+  request.attempts[1].status = 'paper-qualified-tie';
+  request.attempts[2].status = 'paper-qualified-loss';
+  const result = assessSimultaneousMatchups(request);
+  assert.equal(result.perRank[0].nonwinCount, 3);
+  assert.equal(result.perRank[0].boundMethod, 'heterogeneous-kl');
 });
 
 test('native errors, censored attempts and missing original opponents fail closed', () => {
