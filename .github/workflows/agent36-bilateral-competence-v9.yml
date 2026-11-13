@@ -496,7 +496,7 @@ jobs:
           node simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
 
       - name: Encrypt private V3 fixture diagnostics before artifact upload
-        if: ${{ always() && !inputs.contract_only }}
+        if: ${{ always() && inputs.agent36_v3_fixture_game }}
         env:
           AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
         run: node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture
@@ -507,6 +507,7 @@ jobs:
         with:
           name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
           path: |
+            artifacts/agent36-v3/
             artifacts/agent36-v3-fixture/fixture-game.private.enc.json
             artifacts/agent36-v3-fixture/fixture-game.public-manifest.json
             !artifacts/agent36-v3-fixture/fixture-game.json
