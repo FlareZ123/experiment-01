@@ -10,6 +10,10 @@ const {
   chooseActorRootIntent,
   withActorOnlyRootPolicy
 } = require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {
+  rootPhysicalSnapshot,
+  rootPhysicalWitness
+} = require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
 
 const P = 'Psychic Energy MEE';
 const C = 9;
@@ -367,6 +371,38 @@ test('root option is default-off and candidate root returns the typed Hood/Retre
   assert.equal(chooseActorRootIntent(view, catalog, {
     hoodedBlockBenchAttackRoot: true
   })?.kind, 'attach-stealthy-hood');
+});
+
+test('Stealthy Hood attachment has an exact Active Tool physical witness', () => {
+  const pokemon = { fullName: 'Shadow Rider Calyrex VMAX CRE' };
+  const owner = {
+    active: {
+      getPokemonCard: () => pokemon,
+      energies: { cards: [] },
+      tools: []
+    },
+    bench: [],
+    hand: { cards: [{ fullName: HOOD }] },
+    stadium: { cards: [] },
+    stadiumUsedTurn: 0
+  };
+  const opponent = { stadium: { cards: [] } };
+  const state = { players: [owner, opponent], turn: 22, phase: 2, activePlayer: 0 };
+  const intent = { kind: 'attach-stealthy-hood', toolPrinting: HOOD };
+  const before = rootPhysicalSnapshot(state, 0, intent);
+
+  owner.active.tools.push({ fullName: HOOD });
+  owner.hand.cards.pop();
+  const after = rootPhysicalSnapshot(state, 0, intent);
+
+  assert.equal(rootPhysicalWitness(intent, before, after, { FINISHED: 7 }),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent, before, {
+    ...after, toolRecipientPokemonPrinting: 'Different Active Pokemon'
+  }, { FINISHED: 7 }), 'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent, before, {
+    ...after, toolRecipientToolPrintings: ['Other Tool']
+  }, { FINISHED: 7 }), 'no-confirmed-public-effect');
 });
 
 test('native root maps Hood attachment and paid retreat for either physical seat', () => {
