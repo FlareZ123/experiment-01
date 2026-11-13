@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v2-three-colorless-cost';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v3-wobbuffet-bide-barricade';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -45,6 +45,12 @@ function prizeCountForTarget(target,catalog){
   if(catalog.ruleboxPokemonPrintings instanceof Set&&
      catalog.ruleboxPokemonPrintings.has(target.printing))return 2;
   return 1;
+}
+
+function opponentActiveSuppressesLatiasSkyliner(view){
+  const active=view?.opponentPublic?.active;
+  return active?.abilities?.includes('Bide Barricade')===true||
+    active?.abilityDetails?.some(ability=>ability?.name==='Bide Barricade')===true;
 }
 
 function isOpponentApexDragonReceipt(view){
@@ -126,7 +132,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      ((asleep&&active.specialConditions.includes(asleep))||
       (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
   if(opponentActiveBlocksRetreat(view)||
-     publicSkylinerSuppressionReason(view)!==null)return null;
+     publicSkylinerSuppressionReason(view)!==null||
+     opponentActiveSuppressesLatiasSkyliner(view))return null;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
@@ -202,6 +209,7 @@ module.exports={
   SHADOW_RIDER_VMAX,
   prizeCountForTarget,
   isOpponentApexDragonReceipt,
+  opponentActiveSuppressesLatiasSkyliner,
   opponentActiveHasUnmodelledDamageModifier,
   choosePostTimelessMaxGeistRetreat
 };
