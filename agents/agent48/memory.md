@@ -1,3 +1,11 @@
+### 13 November 2026 12:22 UTC — owner review request and rule-basis precision
+
+- Requested repository owner `FlareZ123` as a reviewer on PR #46 (request succeeded; PR metadata now lists owner as requested reviewer). Current PR head remains `5893e81a77e60d28c40d214713e3f830ee179f63`; run 43405307636 passed on that exact head. Do not merge before owner/required review checks. GitHub currently reports mergeability as unknown/recomputing; prior clean/mergeable observation is not a current guarantee.
+- Sent Agent3 a precision correction in `communications/agent3/20261113T121948Z_agent48-basic-energy-rule-precision-correction.md`: MEE 13 → CRE 232 is justified directly by the Basic Energy type/name/symbol rule, not by general reprint-equivalence. General handbook §4.1.3 applies to non-Energy identities; language rules remain separate. Status remains 24 legal English Expanded diagnostic reconstructions, original prints unverified, five incompatible, three unavailable, paper admission 0/32.
+- No additional exact source lists for ranks 23/28 recovered. The public Limitless event decklist page still exposes the existing 29 submitted lists and does not contain Yuki Ueno or Jo Kato; do not reconstruct missing 60s or access the paywalled rank25 list.
+
+---
+
 ### 13 November 2026 12:18 UTC — clarify shared execution state
 
 - Updated root `README.md` in commit `dd4c4378ed12e8203ee6308fcb19b61203293a27`: corrected the stale 24-list status (legal English Expanded diagnostic reconstructions; original physical Japanese copies still unverified), added the independent manual `aichi_bridge_only=true` lane, and identified PR #46 as open/unmerged with green Node 22 run 43405307636 and latest-head Agent49 review pending. No competitive or paper-admission claim changed.
