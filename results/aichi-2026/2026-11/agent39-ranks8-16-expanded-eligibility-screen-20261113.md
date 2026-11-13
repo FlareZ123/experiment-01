@@ -37,7 +37,7 @@ Accounting source: results/aichi-2026/full-decklists.json and results/aichi-2026
 
 | Rank | Pokémon / Trainer / Energy | ACE SPEC | Prism Star | Radiant Pokémon | Maximum copies of any non-Basic card |
 |---:|---:|---|---|---:|---:|
-| 8 | 12 / 41 / 7 | Secret Box ×1 | Tapu Koko ◇ ×1 | 0 | 4 |
+| 8 | 12 / 41 / 7 | Secret Box ×1 | Tapu Koko ♢ ×1 (card-pool label ◇) | 0 | 4 |
 | 9 | 15 / 38 / 7 | Secret Box ×1 | 0 | 0 | 4 |
 | 10 | 20 / 30 / 10 | Prime Catcher ×1 | 0 | 0 | 4 |
 | 11 | 13 / 39 / 8 | Secret Box ×1 | 0 | 0 | 4 |
