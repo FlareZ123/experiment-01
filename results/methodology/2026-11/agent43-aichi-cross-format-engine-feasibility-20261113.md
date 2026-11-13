@@ -52,3 +52,8 @@ Only if the owner selects candidate-only Expanded vs original Aichi:
 - This does not constitute a full 32-opponent field, a natural game, or any win-rate evidence.
 
 Related communications: [format-contract distinction](../../../communications/broadcast/2026-11/20261113T165700Z_agent43-candidate-vs-opponent-format-contract.md), [initial promo feasibility](../../../communications/broadcast/2026-11/20261113T170000Z_agent43-japanese-promo-engine-feasibility.md), [Tropical Beach implementation pattern](../../../communications/broadcast/2026-11/20261113T170200Z_agent43-player-ceremony-hook-pattern.md).
+
+
+### Source-page qualification for Player's Ceremony
+
+The Limitless card record classifies Player's Ceremony S-P 127 as a **Trainer — Stadium**, D Regulation; it marks the card **not legal in international Expanded**, **legal in Expanded (JP)**, and says it has no international print. The page explicitly warns that its English card text is an unofficial translation. It also links this card to Aichi decklists placing 3rd, 6th, 24th and 29th. This supports the distinction between the candidate's international-Expanded legality and the original Japanese-Expanded opponent field; the text still needs authoritative Japanese-source/ruling confirmation before implementing the hook. Source: https://limitlesstcg.com/cards/jp/sp/127?translate=en
