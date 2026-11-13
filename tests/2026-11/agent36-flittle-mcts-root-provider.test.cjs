@@ -308,11 +308,12 @@ test('search dependency builder supplies the exact pinned adapter contract and o
   for(const key of [
     'WaitPrompt','ResolvePromptAction','GameError','PlayCardAction',
     'AttackAction','PassTurnAction','EnergyCard','EnergyType',
-    'assertApplicabilityEnvelope','rulesProfileId'
+    'assertApplicabilityEnvelope','applicabilityEnvelopeId','rulesProfileId'
   ]) assert.ok(deps[key]!==undefined,key+' must be bound');
   assert.equal(deps.sampleDeterminization.knowledgeBySeat,ledgerProvider);
   assert.equal(deps.metadataByState,sample.metadataByState);
   assert.equal(deps.assertApplicabilityEnvelope,applicability);
+  assert.equal(deps.applicabilityEnvelopeId,provider.ENVELOPE_ID);
   assert.equal(Object.hasOwn(deps,'knowledgeSnapshot'),false);
   assert.equal(Object.hasOwn(deps,'promptOwnerSeat'),false);
 });
