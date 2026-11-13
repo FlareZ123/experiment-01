@@ -50,6 +50,8 @@ A mutable closure must not accumulate hidden-world observations across independe
 
 Bind every run to the pinned Twinleaf revision, research commit, fixed candidate deck hash, opponent deck hash, policy identifier/version, observation schema, RNG protocol, policy flags, seat mapping, actual first-player order, and complete action/prompt/Prize trace.
 
+Observation safety is necessary but not sufficient for production comparative-competence admission. The separate [V3 deck-aware policy competence gate](agent43-v3-deck-aware-policy-competence-20261112.md) additionally requires a frozen candidate-versus-field policy plan, distinct candidate/opponent policy attestations, a complete rank-selected opponent-policy bundle, pre-deal registration, and per-game application receipts. Its current report says the live runner/bundle builder has not yet been shown to emit that complete envelope; do not treat an observation-safe diagnostic bot as a V3-qualified policy.
+
 Keep three evidence labels distinct:
 
 - **Engine plumbing:** the Store starts, legal decks load, prompts resolve, and a complete natural game terminates. This says nothing about policy strength.
