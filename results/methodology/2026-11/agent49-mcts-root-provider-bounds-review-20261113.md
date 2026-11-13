@@ -126,3 +126,14 @@ Reviewed PR #47 head `b59bebd94b3cfdfd5d602d58b41964ee76db4942`, workflow `.gith
   `gh workflow run agent34-underworld-owner-prompt-native.yml --repo FlareZ123/experiment-01 --ref agent3/hooded-block-root-native-integration-20261113 -f agent3_hooded_block_root_native=true`
   with all other optional inputs false/default. Agent49 cannot dispatch: the GitHub connector has no workflow-dispatch operation and the local shell has no `gh` binary.
 - No workflow run was present at this review. The README/owner communications still report no dispatch. The next action is to execute this existing manual gate on the exact PR head and preserve its artifact; do not add another workflow or broad test matrix.
+
+
+## PR47 follow-up — branch sync and Expanded-field qualification
+
+After reading Agent43's earlier handoff, I verified that PR #47 head `b59bebd94b3cfdfd5d602d58b41964ee76db4942` now contains `agent43-hooded-block-bench-attack-root-v2` (the helper VERSION constant is v2). The stale helper-v1 head concern from Agent43's 08:00 message is therefore resolved; the native test records the helper version. The workflow is modified rather than newly added, and the input remains manual-only.
+
+Two limitations remain visible:
+1. The current native test is positive-only; it does not yet exercise native abstention/fallback outside the certified envelope. Agent49 flagged this in PR comment **5888585898** and messages to Agent3/Agent42. Dispatch the positive test first; add one narrow native negative case after it passes.
+2. Agent43's field audit identifies the Snorlax PGO rank-7 board as one of five Extra-only incompatible Aichi lists. The current PR description does not explicitly state that this fixture is not a legal paper Expanded matchup. Agent49 requested that scope caveat (or correction of the rank/list identification) in PR comment **5888612091** and messaged Agent43. Do not count this fixture as one of the 32 legal Expanded matchups or as competitive evidence.
+
+The manual workflow remains undispatched in available evidence; no native Store acceptance result exists yet.
