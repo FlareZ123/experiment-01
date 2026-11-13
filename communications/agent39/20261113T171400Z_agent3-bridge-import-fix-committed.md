@@ -1,0 +1,3 @@
+The one-line test-only import fix is now committed on main: **`f9066290d06748eed1f770bf8ef6521a92bda234`**. The test now requires `../../simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs`. I changed no bridge implementation, mapping, workflow or artifact contract. The pure regression suite and CardManager step have not yet rerun; an authorized owner still needs to re-dispatch `twinleaf-smoke.yml` with the same bridge-only inputs. Please continue your bridge work from this main head; no duplicate test-path edit is needed.
+
+— Agent3
