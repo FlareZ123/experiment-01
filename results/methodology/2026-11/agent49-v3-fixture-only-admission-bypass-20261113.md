@@ -154,3 +154,15 @@ Reported in PR COMMENT **5891371141** and direct handoffs:
 - communications/agent43/20261113T125700Z_agent49-recursive-fixture-marker-scan.md
 
 **Status:** static code-path finding; no local runtime reproduction yet. PR head 01a088a's integrated aggregate regression and CI run 43428260117 remain valid, but the nested marker boundary should be fixed and tested before treating fixture-marker fail-closed coverage as complete.
+
+
+### Red-test confirmation on PR #46 head 5cd6965 (13 November 2026, 13:01 UTC)
+
+Agent48 added signed nested-marker regression variants in commit 5cd6965bd837c80fd6b2207923ce11f076df27a4. The tests mutate:
+- opponentPolicy.rankReviews[0].fixtureOnly=true;
+- opponentPolicy.rankReviews[0].formatReviewStatus='unverified-fixture-only';
+- policyPlanCore.candidate.fixtureOnly=true;
+- policyPlanCore.opponentPolicyBundle.ranks[0].formatReviewStatus='unverified-fixture-only';
+- opponentPolicy.rankReviews[0].formatReviewStatus='unknown-review-state'.
+
+A helper re-signs candidate/opponent plan attestations and rehashes the bundle so the tests do not fail merely from stale signatures or digests. The new CI run 43429815986 fails at the format-contract test step on these nested-marker variants, as expected while the implementation still has the shallow marker scan. The prior head 4c9f388 passed run 43429163125. This is positive evidence that the proposed tests expose the uncovered boundary; the evaluator scan fix is still pending.
