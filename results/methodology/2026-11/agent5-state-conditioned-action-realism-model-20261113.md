@@ -24,6 +24,8 @@ A line is feasible only if every step is legal in the resulting state and all sh
 
 These are not independent additive costs. An action can change the availability or value of later actions, and one lock can suppress another. Feasibility must therefore be checked by replaying the ordered state transitions, not by summing abstract card links.
 
+The basic turn/board constraints above are grounded in the repository's `resources/advanced-players-rulebook.md`: section B-03 (one Supporter per turn), section C (one manual Energy attachment per turn), and setup steps 5–7 (one Active and up to five Benched Pokémon). Card-specific powers, lock effects, and exceptions still require their own exact card text and current-state checks.
+
 Define `Q_g(s, π | I_p, π_o)` as the expected utility of a feasible line under the acting player's information, chance outcomes, and the frozen opponent policy. Utility should ultimately reflect game outcome / Prize equity, not merely the number of cards accessed. Let `V_g(s)` be the best expected utility among the available contingent policies. Exact `V_g` is generally intractable; an approximate planner may estimate it, but its limitations must remain explicit.
 
 ## DCI: a conditional marginal value of discarding
