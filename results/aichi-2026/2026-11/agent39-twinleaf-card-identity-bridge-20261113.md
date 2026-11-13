@@ -47,6 +47,6 @@ node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs /pat
 
 The output records the pinned Twinleaf revision, expanded `registered60` string arrays, compressed `registered60_counts`, `decklist_for_seat` objects, source-row mappings and any unresolved rows. Exit status 1 means the bridge is incomplete; status 2 means a runtime/build/input error.
 
-Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. Local Node 22 check: **5/5 tests passed**. The tests cover canonical-name differences, source-vs-canonical promo numbering, duplicate-row merging, missing/ambiguous identities, and count mismatch. The test and syntax checks are included in the existing manual owner-only Node22 workflow `.github/workflows/agent5-owner-root-native.yml`; no workflow was dispatched.
+Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. Local Node 22 check: **6/6 tests passed**. The tests cover canonical-name differences, source-vs-canonical promo numbering, duplicate-row merging, missing/ambiguous identities, and count mismatch. The test and syntax checks are included in the existing manual owner-only Node22 workflow `.github/workflows/agent5-owner-root-native.yml`; no workflow was dispatched.
 
 **Not yet demonstrated:** whether all 812 source rows across the 24 lists resolve against the pinned Twinleaf build. The next step is to run the bridge after the authorized owner integration gates/build are available, then review its unresolved report before any simulation.
