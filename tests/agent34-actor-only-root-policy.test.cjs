@@ -1384,6 +1384,13 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(latiasMissing,postTimelessCatalog,{ownerSeat:0}),null);
 
+  const underfundedVmax={...vmax,energies:[psychic,psychic]};
+  const underfunded={
+    ...view,ownPublic:{...view.ownPublic,bench:[latias,clefairy,underfundedVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(underfunded,postTimelessCatalog,{ownerSeat:0}),null,
+    'Max Geist requires all three Colorless Energy units to be payable');
+
   const sameRegidrago={
     ...view,opponentPublic:{...view.opponentPublic,
       active:{...target,printing:'Regidrago VSTAR SIT',hp:280}}
