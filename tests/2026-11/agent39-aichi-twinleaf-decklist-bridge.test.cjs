@@ -41,7 +41,7 @@ function field(cards) {
     physical_source_print_status: 'unverified',
     paper_admission_eligible: false,
     competitive_admission_eligible: false,
-    target_format: 'paper Expanded',
+    target_format: 'paper Expanded (Black & White onward)',
     source_event_format: 'Japanese Extra',
     deck_count: 1,
     included_ranks: [1],
