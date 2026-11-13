@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {
   createTwinleafDeterminizationSampler,
   createPublicDecklistPriorProvider,
@@ -18,6 +19,7 @@ const FLITTLE='Flittle SVI';
 const PSYCHIC='Psychic Energy SVE';
 const ENVELOPE_ID='flittle-basic-psychic-v1';
 const RULES_PROFILE_PREFIX='twinleaf-default-rules-flittle-v1';
+const STORE_DECKLIST_BINDING_SCHEMA='flittle-store-decklist-binding-v1';
 // One-action root-dispatch smoke test only. It does not search an opponent reply.
 const PILOT_BUDGET=Object.freeze({
   iterations:16,
@@ -40,6 +42,33 @@ function assertRegisteredFlittleDecklist(decklist,label) {
   assert.deepEqual(decklist.cards.slice().sort(),TEST_DECKLIST.cards.slice().sort(),
     (label??'Registered decklist')+' differs from the one-Flittle/59-Psychic fixture');
   return {id:decklist.id,cards:decklist.cards.slice()};
+}
+
+function decklistCardsSha256(cards) {
+  return createHash('sha256').update(JSON.stringify(cards.slice().sort())).digest('hex');
+}
+
+function assertStoreDecklistBindingReceipt(receipt,candidateDecklist,opponentDecklist) {
+  assert.ok(receipt&&typeof receipt==='object');
+  assert.equal(receipt.schema,STORE_DECKLIST_BINDING_SCHEMA);
+  assert.equal(receipt.verified,true);
+  assert.equal(receipt.source,'trusted-native-store-preflight');
+  assert.equal(receipt.candidateDecklistId,candidateDecklist.id);
+  assert.equal(receipt.opponentDecklistId,opponentDecklist.id);
+  assert.equal(receipt.candidateDecklistSha256,decklistCardsSha256(candidateDecklist.cards));
+  assert.equal(receipt.opponentDecklistSha256,decklistCardsSha256(opponentDecklist.cards));
+  assert.ok(typeof receipt.storeStateSha256==='string'&&/^[0-9a-f]{64}$/i.test(receipt.storeStateSha256));
+  assert.deepEqual(receipt.checkedPhysicalSeats,[0,1]);
+  return receipt;
+}
+
+function assertSelectedActionBinding(selected,deps) {
+  assert.ok(selected?.action&&selected?.audit);
+  const key=flittleActionKey(selected.action,deps);
+  assert.ok(typeof selected.audit.selectedActionKey==='string');
+  assert.equal(selected.audit.selectedActionKey,key,
+    'Core selectedActionKey must bind to the exact native selected action');
+  return key;
 }
 
 function prizeCount(state,seat) {
@@ -350,7 +379,8 @@ function loadTwinleafBindings(native) {
 }
 
 function createFlittleMctsRuntime({native,candidateSeat,enginePin,
-  candidateDecklist,opponentDecklist,bindings:providedBindings}) {
+  candidateDecklist,opponentDecklist,storeDecklistBindingReceipt,
+  bindings:providedBindings}) {
   assert.ok(native&&native.GamePhase&&native.CardManager);
   assert.ok(candidateSeat===0||candidateSeat===1);
   assert.ok(typeof enginePin==='string'&&/^[0-9a-f]{40}$/i.test(enginePin));
@@ -359,6 +389,8 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     candidateDecklist,'Candidate fixture decklist');
   const registeredOpponentDecklist=assertRegisteredFlittleDecklist(
     opponentDecklist,'Opponent fixture decklist');
+  const verifiedStoreBinding=assertStoreDecklistBindingReceipt(
+    storeDecklistBindingReceipt,registeredCandidateDecklist,registeredOpponentDecklist);
   const bindings=providedBindings??loadTwinleafBindings(native);
   const simulatorOptions=Object.freeze({
     flipMode:bindings.BotFlipMode.RANDOM,
@@ -478,6 +510,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
         ));
         assert.ok(observedLedgerSeats.has(0)&&observedLedgerSeats.has(1));
 
+        const selectedActionKey=assertSelectedActionBinding(selected,searchDependencies);
         const intent=mapActionToIntent(selected.action,state,actorSeat,searchDependencies);
         assert.ok(intent,'Selected native action did not map to a bounded neutral intent');
         searchedSeats.add(actorSeat);
@@ -490,6 +523,9 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
           candidateDecklistId:registeredCandidateDecklist.id,
           opponentDecklistId:registeredOpponentDecklist.id,
           bothRegisteredDecklistsMatchFixture:true,
+          storeDecklistBindingSchema:verifiedStoreBinding.schema,
+          storeStateSha256:verifiedStoreBinding.storeStateSha256,
+          selectedActionKey,
           knowledgeModes:['K1','K1'],
           scope:'one-root-decision-dispatch-smoke-test',
           fixtureOnly:true,
@@ -502,6 +538,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
           budget:{...budget},
           candidateDecklistId:registeredCandidateDecklist.id,
           opponentDecklistId:registeredOpponentDecklist.id,
+          storeStateSha256:verifiedStoreBinding.storeStateSha256,
           scope:'one-root-decision-dispatch-smoke-test',
           fixtureOnly:true,
           competitiveGameQualified:false,
@@ -528,6 +565,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     budget:PILOT_BUDGET,
     decklist:registeredCandidateDecklist,
     opponentDecklist:registeredOpponentDecklist,
+    storeDecklistBindingReceipt:verifiedStoreBinding,
     scope:'one-root-decision-dispatch-smoke-test',
     fixtureOnly:true,
     competitiveGameQualified:false,
@@ -543,11 +581,15 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
 module.exports={
   FLITTLE,
   PSYCHIC,
+  STORE_DECKLIST_BINDING_SCHEMA,
   ENVELOPE_ID,
   PILOT_BUDGET,
   TEST_DECKLIST,
   knowledgeBySeat,
   assertRegisteredFlittleDecklist,
+  decklistCardsSha256,
+  assertStoreDecklistBindingReceipt,
+  assertSelectedActionBinding,
   observe,
   actionKey,
   assertPublicPokemon,
