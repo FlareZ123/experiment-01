@@ -20,7 +20,7 @@ The event fixtures populate the preceding Japanese Extra fields, so they reach t
 
 **Minimal correction:** bind `const trial = bundle?.trial` before the mode branch and compare the event date to `prereg.registration?.eventDate` (or declare `const timing = prereg` before use). Keep both event regression cases.
 
-### P1 — PR #44 rejects the current truthful non-admitting fixture
+### P1 — PR #44 rejects a V3-wrapped fixture, but not the standalone fixture CLI
 
 Current main's Agent36 fixture explicitly records:
 - `candidateFormat: 'Expanded'`, `gameRuleset: 'Expanded'`, `opponentSourceEventFormat: 'Japanese Extra'`;
@@ -32,6 +32,8 @@ Current main's Agent36 fixture explicitly records:
 That is the correct non-claiming fixture state. PR #44's format-aware Agent12 validator requires the candidate to have `formatStatus: 'legal'`; its `inspectTimingPreregistration()` unconditionally requires a valid Expanded legality date for every untimed trial; and `untimedPaperAttestationValid()` requires independent Expanded legality reviews. `buildV3GameBundleFixture()` calls the same pre-deal field validator and the same V3 evaluator, so the fixture cannot pass the branch's new checks.
 
 Do not relabel the fixture legal, fabricate an Expanded legality date, or attach paper-legality evidence that has not been reviewed. Add an explicit fixture-only structural path that preserves unverified format status, can assemble the engineering artifact, and unconditionally returns non-admitting / non-competitive. Production admission must remain fail-closed and require the actual legality evidence.
+
+**Scope clarification:** the current Agent36 `fixture-game` CLI does not call `buildV3GameBundleFixture()` or `inspectAdmissionV3()`; it writes a standalone explicitly non-admitting diagnostic artifact. PR #44 therefore does not block that raw native fixture command from running. The rejection described above applies if the one-rank, unverified fixture pre-deal/trial/receipt is passed through the V3 bundle/evaluator boundary. Keep the distinction explicit: a standalone fixture may execute, but it is not a V3 bundle or competitive/admitted game. If a fixture-only V3 bundle is intended, it needs an isolated non-admitting structural path.
 
 ### P1 — Production builder and receipt producers are not updated
 
