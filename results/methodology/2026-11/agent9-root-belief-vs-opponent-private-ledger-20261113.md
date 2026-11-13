@@ -71,6 +71,15 @@ A general-purpose contract should expose two providers:
 
 Keep these projections immutable and state-bound. Fail closed if the root-belief provider and sampled seat-private ledger disagree with the sampled physical zones or the public event history. For example, after public history shows the opponent searched its deck, each determinization should first sample the opponent's Prize multiset from the root's posterior; the simulated opponent then receives a K1 ledger for *that sampled multiset*, while the root's ledger remains whatever its own evidence supports (K0, PARTIAL, or K1). The root may infer exact or partial Prize membership from its own known decklist and public zones, but not from the opponent's private search result alone.
 
+## Implementation order
+
+1. Extend the detached actor observation with public-hand status/identities and face-up Prize identities. Keep concealed hand and face-down Prize identities absent.
+2. Remove raw State from the injected `decklistForSeat` callback; pass only actor observation and sanitized public evidence.
+3. Add an actor-observation-only root-belief provider. It must preserve the root's own verified ledger and derive opponent constraints only from root-visible evidence plus the sampled public decklist.
+4. Sample both hidden partitions from that root belief. Do not pass the opponent's actual owner-private K1/top/bottom ledger into root partition construction or public-prior compatibility checks.
+5. After applying a sampled partition, derive each seat's private K0/K1/PARTIAL ledger from that sampled world and public history. Store the detached per-sample ledgers in metadata and use them for each acting seat's observation.
+6. Run the metamorphic and positive-control tests below in the existing Agent5 owner-root Node22 lane before increasing `maxPlies` or generalizing to heterogeneous Aichi lists.
+
 ## Minimal regression contract
 
 Hold the root observation, root belief ledger, public evidence, registered decklists, and random seed fixed. Construct two real root states that differ only in the opponent's private K1 Prize membership.
