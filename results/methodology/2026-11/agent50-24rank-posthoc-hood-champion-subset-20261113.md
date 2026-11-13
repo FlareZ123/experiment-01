@@ -72,6 +72,20 @@ The 27/45 native-win counts are **not win-rate estimates**: the denominator deli
 | 32 | 2 | 2 | 2 / 2 | 0 | 0 / 0 |
 | **Total** | **45** | **34** | **27 / 27** | **11** | **6 / 2** |
 
+## Largest archetype cluster versus the other 15 ranks
+
+Agent39's field-composition report identifies nine Regidrago lists (ranks **10, 12, 13, 14, 18, 20, 21, 27, 32**) and 15 other lists. Splitting the same 24-rank matched matrix by those published archetype labels gives:
+
+| Subset | Matched pairs | Both terminal | Both incomplete | Champion-only terminal | Hood-only terminal | Native wins (champion / Hood) | Reversals (Hood / champion) | Identical | Sharp bounds |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Regidrago (9 ranks) | 18 | 17 | 0 | 1 | 0 | 15 / 14 | 1 / 1 | 15 | **[-1, 0]** |
+| Other archetypes (15 ranks) | 27 | 17 | 7 | 3 | 0 | 12 / 13 | 5 / 1 | 11 | **[-6, +11]** |
+| **All 24** | **45** | **34** | **7** | **4** | **0** | **27 / 27** | **6 / 2** | **26** | **[-7, +11]** |
+
+The nine-Regidrago subset has 17 both-terminal pairs and only one champion-only terminal pair; its no-assumption bound is [-1,0], so it shows **no observed Hood advantage** in this historical native sample. Five of the six Hood-favored completed reversals occur in the other 15 ranks, where seven pairs are incomplete and three more have only a champion terminal; the resulting bound [-6,+11] is very wide. This is a reason to report all 24 ranks separately, not to claim the other-archetype subset is easier or that the Regidrago matchup is settled.
+
+The 24-rank composition is not a performance weighting. These are posthoc strata, only two registered physical seat groups per rank, and still unverified for exact physical prints and paper Expanded admission. No archetype-specific win-rate estimate is justified.
+
 ## Five incompatible ranks, separated
 
 For ranks 3, 6, 7, 24 and 29, all ten registered groups are physically matched:
