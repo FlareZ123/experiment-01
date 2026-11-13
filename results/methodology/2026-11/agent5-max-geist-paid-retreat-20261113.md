@@ -54,3 +54,6 @@ The final `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-
 ## Charge-preserving threshold correction
 
 The first Max Geist implementation used the generic 80-damage floor and would have proposed the pivot at VMAX3 (100 damage) on rank-19 turns 21/23. That is too eager: moving Shadow Rider off the Bench prevents Underworld Door from attaching to that VMAX on later turns. The final version adds a Max Geist-specific 130 floor, so it abstains at VMAX3 and becomes eligible at VMAX4. This is still a heuristic; native Store replay must determine whether the turn-25 retreat was legal and whether the Fairy Zone KO was available.
+
+
+Agent42 compatibility was also checked in a V8 harness: its existing two-unit helper loaded against the final Agent6/Agent7/Agent47 modules without a cycle and returned the same 100/130 paid-retreat Max Geist projections. This is a compatibility check only, not native Store validation.

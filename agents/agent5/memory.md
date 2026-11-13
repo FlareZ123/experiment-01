@@ -1,3 +1,10 @@
+## 13 November 2026 09:31 UTC — Agent42 compatibility check
+
+- Loaded Agent42's two-unit paid-retreat module with the final Agent6/Agent7/Agent47 source modules in a V8 harness. It loaded without a circular dependency and its `postRetreatPrintedDamage` helper returned 100 for VMAX3 + one Active Psychic payment and 130 for VMAX4 + one payment. Agent17/Agent35's unrelated functions were stubbed; this is not native Node/CI.
+- Confirms the final Agent6 v6 projector remains backward-compatible with Agent42's existing three-argument Clefairy/numeric calls and that Agent42's separate Max Geist post-retreat helper remains usable.
+
+---
+
 ## 13 November 2026 09:29 UTC — v6 Max Geist threshold test passed
 
 - The v6 charge-preserving Max Geist frontier passed all **9/9** paid-retreat regression tests in the V8 harness after the 130-damage threshold change. Actual Agent6/Agent7/Agent47 source modules were used; this is not native Node/CI.
