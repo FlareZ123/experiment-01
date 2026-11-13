@@ -945,3 +945,31 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Corrected root `README.md` to remove the stale statement that the Agent36 fixture still lacks the Night Stretcher alias. Agent27's later release checkpoint also carries the corrected current status. The results index already records the eight-assertion isolated smoke and unrun native preflight.
 - Agent27 released their persistent identity at main head `b484e35ab6040322b9fb79fed942df13a69d2c9c`; no effect on Agent43 lease.
 - Independent bridge remains separate: run `43468088132` failed before CardManager on test import; Agent3 fix `f9066290` is committed; no new owner dispatch/artifact. The same workflow needs a new dispatch on main.
+
+
+## 2026-11-13 17:37 UTC — end-of-incarnation handoff snapshot (pre-release)
+
+### Identity and lifecycle
+- Normal research mode selected by actual uniform RNG draw `4`; Agent43 lease claimed at `2026-11-13T16:35:19Z`. Measured 70-minute release threshold is `17:45:19Z`. Do not exit before the threshold; after final checkpoint, release the lease as the last repository mutation.
+
+### Deck and evidence status
+- No final nominated fixed 60-card deck; no completed natural Store games; no matchup-level evidence; no 99.5% claim. Aichi source field remains 29/32 published full lists, with ranks 23, 25 and 28 unavailable. Strict international-Expanded diagnostics remain 24/32; production paper-admitted opponents 0/32.
+- Opponent-format contract remains unresolved. Prompt requires an international-Expanded candidate and exact full Aichi Top 32, while Aichi source event is Japanese Extra. Asked the user whether opponents must also be international-Expanded-legal or whether candidate-only Expanded vs exact original Aichi is intended. Preserve both estimands pending answer.
+- Conditional cross-format feasibility is documented at `results/methodology/2026-11/agent43-aichi-cross-format-engine-feasibility-20261113.md`: Palace Book/Belt classes already exist in pinned Twinleaf; Player's Ceremony S-P 127 is officially a Stadium with Japanese effect text verified; CardManager.defineCard + headless.initializeCards + Tropical Beach turn-flow pattern provide a research-owned registration seam. No hook or source-list change implemented.
+
+### Execution gates
+- PR47 remains open draft, head `c1e0d509a4b3fa30f26942ed4cf90fd448e33bef`; Agent20's pure Agent43 helper regression is in its existing manual Node 22 test step. No PR47 workflow run or native Store fixture.
+- Independent bridge owner run `43468088132` failed before CardManager due test import path; Agent3 committed the test-only correction `f9066290d06748eed1f770bf8ef6521a92bda234`. No new workflow dispatch/artifact; the owner must dispatch a new run on main with `aichi_bridge_only=true`, `source_audit_run_id=43407979154`. Do not use "Re-run failed jobs". Environment exposes no workflow-dispatch action.
+- Agent36 has committed V3 exact-first, source-preserving aliases/tests for Night Stretcher ASC/196→SFA/61 and Psychic Energy MEE/13→SVE/5 (runner `7f2726913d94998cd1a894d54de3f81ddbc6886f`, test `413b2bd592af87a4ec287011ea470ba4cbdacb50`). Eight isolated Node 22 resolver assertions passed. Pinned CardManager preflight and native Store fixture remain unrun; owner must configure `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before fixture dispatch.
+
+### Durable repository outputs
+- Root `README.md` and `results/README.md` updated to reflect the current execution gates, bridge failure/fix, V3 alias landing, and unresolved format contract.
+- Agent43 broadcasts/direct messages and the methodology report preserve the cross-format analysis, official Japanese Player's Ceremony text, and source-to-engine mapping plan.
+- No further source-list, candidate-deck, or game-rule modifications made.
+
+### Best next actions
+1. Obtain the user's explicit opponent-format contract decision.
+2. Owner dispatches the corrected bridge-only workflow; inspect artifact even if incomplete, but distinguish CardManager result from 24-rank completion.
+3. Owner configures `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, then Agent36's fixture can run after bridge output and relevant preflight.
+4. Recover exact Aichi ranks 23, 25 and 28; do not invent lists.
+5. Only after native games, optimize the one fixed candidate across all 32 and report uncertainty honestly.
