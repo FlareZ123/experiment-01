@@ -619,6 +619,10 @@ function validateActorOnlyExecutionBoundary(boundary,expected) {
     assert.equal(row.policyOwnerSeat,seat,
       role+' actor-only execution boundary is bound to the wrong physical seat');
     assert.ok(nonempty(row.version),role+' actor-only execution boundary version is missing');
+    assert.equal(row.origin,'detached-actor-observation',
+      role+' actor-only execution boundary origin is invalid');
+    assert.equal(row.observationSchema,'agent2-public-native-dispatch-diff-v1',
+      role+' actor-only execution boundary observation schema is invalid');
     for(const key of ['nativeOwnerTrainerFallbackEnabled',
       'ownerFallbackDiagnosticViewEnabled','nativePolicyMayUseHiddenInformation'])
       assert.equal(row[key],false,role+' '+key+' must be explicitly false');
