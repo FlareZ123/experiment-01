@@ -90,6 +90,7 @@ test('resolves by source set + printed set number and emits Twinleaf fullName', 
     source_normalized_field_sha256: 'b'.repeat(64),
   });
   assert.equal(result.status, 'complete');
+  assert.equal(result.decks[0].unresolved_source_rows, 0);
   assert.equal(result.resolved_source_rows, 6);
   assert.equal(result.complete_deck_count, 1);
   assert.deepEqual(result.decks[0].registered60_counts, [
@@ -165,6 +166,7 @@ test('fails closed on missing Twinleaf card', () => {
   assert.equal(result.decks[0].registered60_counts, null);
   assert.equal(result.decks[0].decklist_for_seat, null);
   assert.equal(result.decks[0].registered60_hashes, null);
+  assert.equal(result.decks[0].unresolved_source_rows, 1);
   assert.equal(result.unresolved[0].status, 'missing_twinleaf_card');
 });
 
