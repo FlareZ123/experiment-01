@@ -18,6 +18,7 @@ const FLITTLE='Flittle SVI';
 const PSYCHIC='Psychic Energy SVE';
 const ENVELOPE_ID='flittle-basic-psychic-v1';
 const RULES_PROFILE_PREFIX='twinleaf-default-rules-flittle-v1';
+// One-action root-dispatch smoke test only. It does not search an opponent reply.
 const PILOT_BUDGET=Object.freeze({
   iterations:16,
   maxPlies:1,
@@ -94,6 +95,8 @@ function assertPublicPokemon(view,energyCount,maxDamage=10) {
   assert.equal(restrictions.blockedAttackNameNextTurn,null);
   assert.equal(restrictions.blockedAttackNameUntilLeavesActive,null);
   assert.equal(restrictions.onlyAllowedAttackNameNextTurn,null);
+  assert.equal(restrictions.attackCostIncreaseNextTurn,0);
+  assert.equal(restrictions.attackCostIncreaseWhileActive,0);
 }
 
 function assertPublicPlayerZones(view) {
@@ -109,6 +112,10 @@ function assertPublicPlayerZones(view) {
   assert.equal(restrictions.attackLockTurnsRemaining,0);
   assert.ok(restrictions.attackMaxEnergy===null||
     restrictions.attackMaxEnergy===undefined);
+  assert.equal(restrictions.attackMaxEnergyTurnsRemaining,0);
+  assert.deepEqual(restrictions.ignoreAttackCostCardTypes,[]);
+  assert.equal(restrictions.ignoreAttackCostTurnsRemaining,0);
+  assert.equal(restrictions.specialEnergyPlayLocked,false);
 }
 
 function assertVerifiedK1Ledgers(state,actorSeat,view) {
@@ -323,6 +330,7 @@ function loadTwinleafBindings(native) {
 function createFlittleMctsRuntime({native,candidateSeat,enginePin,bindings:providedBindings}) {
   assert.ok(native&&native.GamePhase&&native.CardManager);
   assert.ok(candidateSeat===0||candidateSeat===1);
+  assert.ok(typeof enginePin==='string'&&/^[0-9a-f]{40}$/i.test(enginePin));
   assert.equal(native.cardPoolInitialization?.enginePin,enginePin);
   const bindings=providedBindings??loadTwinleafBindings(native);
   const simulatorOptions=Object.freeze({
