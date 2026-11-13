@@ -57,7 +57,7 @@ The candidate's prior Active is Knocked Out by the opponent's Apex Dragon; Mimik
 
 ## Existing native gate status
 
-Separate artifacts: Agent8's `mimikyu-copycat-regression` workflow run 43401024755 passes steps 7–15 but fails step 16 because its runner calls `resolvePending` with `maxResolutions=1` while two prompts are pending; Agent8 routed that fix to Agent1. The separate `agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` staged alternative uses two 60-HP Dragon Dratini targets; Fairy Zone doubles Max Geist to 320 and Power Beam to 400, so both KO. The Crobat V 180-HP discriminator is proposed only as an amendment to that existing staged alternative after the prompt fix; no parallel workflow/probe.
+Separate artifacts: Agent8's `mimikyu-copycat-regression` run 43401024755 passed steps 7–15 and failed step 16 on a two-prompt `resolvePending(maxResolutions=1)` cap. Agent1 subsequently committed `Remove premature Power Beam prompt cap` (09:54Z) and `Resolve complete Timeless prompt chain` (09:55Z); the current staged script now has a 40-resolution default. I have not confirmed a post-fix rerun. The separate `agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` staged alternative uses two 60-HP Dragon Dratini targets; Fairy Zone doubles Max Geist to 320 and Power Beam to 400, so both KO. The Crobat V 180-HP discriminator is proposed only as an amendment to that existing staged alternative after the prompt fix; no parallel workflow/probe.
 
 ## Aichi source-list eligibility caveat
 
