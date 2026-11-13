@@ -126,8 +126,10 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const vmax=bench[benchIndex];
   const maxGeist=Array.isArray(vmax.attacks)?
     vmax.attacks.find(attack=>attack?.name==='Max Geist'):null;
+  const psychicType=catalog.basicEnergyTypes?.Psychic;
   if(!maxGeist||!Array.isArray(maxGeist.cost)||
-     maxGeist.cost.length!==2||maxGeist.cost.some(cost=>cost!=='PSYCHIC')||
+     !Number.isSafeInteger(psychicType)||maxGeist.cost.length!==2||
+     maxGeist.cost.some(cost=>cost!==psychicType)||
      !Array.isArray(vmax.energies)||
      vmax.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<2)
     return null;
