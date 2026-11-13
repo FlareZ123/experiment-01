@@ -45,3 +45,14 @@ jobs:
           path: agent5-generic-owner-trainer-frontier-original-5-v-11.json
           retention-days: 30
           if-no-files-found: warn
+      - name: Verify seat-specific quota corrections and simulator-clone exclusion
+        run: node --test tests/agent37-seat-scoped-supporter-proposal-purity.test.cjs
+      - name: Execute precommitted original-source 2x2 Supporter proposal factorial
+        run: node simulation/evaluation/agent37-supporter-proposer-factorial-native.cjs > agent37-supporter-proposer-factorial-native.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent37-original-source-supporter-proposal-factorial
+          path: agent37-supporter-proposer-factorial-native.json
+          retention-days: 30
+          if-no-files-found: warn
