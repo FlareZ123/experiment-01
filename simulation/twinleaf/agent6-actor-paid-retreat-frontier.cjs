@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent6-owner-visible-printed-retreat-and-damage-v2';
+const VERSION='agent6-owner-visible-printed-retreat-and-damage-v3-max-geist';
 const MIN_PROJECTED_DAMAGE=80;
 
 /**
@@ -14,6 +14,7 @@ const MIN_PROJECTED_DAMAGE=80;
  * @param {object} view Detached public battlefield.
  * @param {object} pokemon Candidate public Pokémon.
  * @param {object} attack Its printed attack.
+ * @param {object} catalog Public card-printing catalog.
  * @returns {number|null}
  */
 function projectedPrintedDamage(view,pokemon,attack,catalog){
@@ -25,8 +26,9 @@ function projectedPrintedDamage(view,pokemon,attack,catalog){
   }
   // Shadow Rider Calyrex VMAX prints Max Geist as 10+, then adds 30 for
   // every Psychic Energy attached to the player's Pokémon. This planner is
-  // selecting a paid retreat to a Benched attacker, so conservatively remove
-  // the Active's one Psychic Energy that the retreat will discard. Only
+  // selecting a paid retreat to a Benched attacker, so conservatively subtract
+  // the Active's one Psychic Energy under a paid-retreat assumption. If a
+  // free-retreat effect preserves it, this remains a lower bound. Only
   // catalogued Basic Psychic Energy is counted; Special Energy is out of scope.
   if(pokemon.name==='Shadow Rider Calyrex VMAX'&&
       attack.name==='Max Geist'&&attack.damage==='10+'&&

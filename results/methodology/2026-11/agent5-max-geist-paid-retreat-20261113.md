@@ -10,7 +10,7 @@ The existing `paidRetreatRoot` path already proposes a one-Energy paid retreat f
 
 ## Change
 
-`simulation/twinleaf/agent6-actor-paid-retreat-frontier.cjs` now recognizes the exact printed Shadow Rider Calyrex VMAX Max Geist formula: 10 + 30 for each Psychic Energy attached to the player's Pokémon. Because this planner proposes a paid retreat, the projection conservatively subtracts the Active's one Psychic Basic Energy that would be discarded to pay the retreat. It counts only catalogued Basic Psychic Energy and returns a pre-modifier printed-damage estimate.
+`simulation/twinleaf/agent6-actor-paid-retreat-frontier.cjs` now recognizes the exact printed Shadow Rider Calyrex VMAX Max Geist formula: 10 + 30 for each Psychic Energy attached to the player's Pokémon. Because this planner proposes a paid retreat, the projection conservatively subtracts the Active's one Psychic Basic Energy under a paid-retreat assumption. If a free-retreat effect preserves it, the projection is a lower bound and undercounts rather than overstates. It counts only catalogued Basic Psychic Energy and returns a pre-modifier printed-damage estimate.
 
 For the rank-19 public board shape:
 - VMAX with 3 Psychic Energy + Active Mimikyu with 1 Psychic Energy projects **100** after retreat;
@@ -29,3 +29,8 @@ A regression now covers the Mimikyu Filch → paid retreat → Max Geist line, t
 **Recommended next experiment:** enable `paidRetreatRoot` and `mimikyuApexFundedPromotion` together in a Hood-only candidate policy, then replay the rank-19 source deal through the native Store and inspect the physical RetreatAction, Energy discard, Max Geist attack, and prize delta. Do not change the nominated deck or its competitive status from this proposal alone.
 
 Underlying audit: `results/methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md`.
+
+
+## V8 validation — 13 November 2026
+
+The complete nine-test `agent6-actor-paid-retreat-frontier.test.cjs` suite passed **9/9** in a V8 Code Mode harness against the committed module and its actual Agent7/Agent47 dependencies. The harness supplied a small assert shim; it was not native Node 22 or GitHub Actions. This confirms the pure policy projection and regression behavior, not native Store retreat legality or a replay of rank 19.

@@ -1,3 +1,12 @@
+## 13 November 2026 09:05 UTC — Max Geist frontier V8 validation
+
+- The new Max Geist-aware paid-retreat regression suite passed **9/9** in a V8 Code Mode harness using the actual Agent6/Agent7/Agent47 module sources and a small assert shim. This is not native Node 22 or CI.
+- Bumped the frontier version to `agent6-owner-visible-printed-retreat-and-damage-v3-max-geist`. The Max Geist projection is a conservative lower bound: it subtracts one Active Psychic Energy under the paid-retreat assumption, even if an unmodeled free-retreat effect might preserve it.
+- The existing opt-in `paidRetreatRoot` can now see Max Geist as a damaging bench attack; the candidate-specific policy still needs to enable it together with `mimikyuApexFundedPromotion` and replay rank 19 through native Store. No historic turn is asserted to have a legal retreat; no win-rate claim.
+- Result: `results/methodology/2026-11/agent5-max-geist-paid-retreat-20261113.md`.
+
+---
+
 ## 13 November 2026 09:03 UTC — Max Geist paid-retreat frontier
 
 - Extended the existing opt-in `agent6-actor-paid-retreat-frontier` with the exact Shadow Rider Calyrex VMAX Max Geist formula (10 + 30 per Basic Psychic Energy on the player's board), subtracting the Active's single Psychic Energy that a paid retreat discards. This unlocks the existing `paidRetreatRoot` policy for a Mimikyu Filch → Shadow Rider VMAX line when Max Geist is payable.
