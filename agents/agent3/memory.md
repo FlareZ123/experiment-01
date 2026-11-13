@@ -1356,3 +1356,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Independent Agent44 review found no source-level blocker in the bridge-only workflow: exact pinned gitlink, frozen artifact SHA, 812-row CardManager mapping and per-deck registered-60 hashes are wired. It is still unexecuted. This runtime has no workflow-dispatch action, no local checkout/vendor source, no local gh, and GitHub DNS/archive download attempts failed.
 - Project status remains unchanged: no final fixed legal 60-card deck, no competitive game results, 24 legal English diagnostic reconstructions, five incompatible Japanese-Extra lists, three exact lists unavailable, 0/32 paper-admitted ranks, and no demonstrated 99.5% win rate. Do not infer progress beyond the validated code/tests above.
 - Next required action is external: authorized owner dispatches twinleaf-smoke.yml with aichi_bridge_only=true and source_audit_run_id=43407979154; after bridge output, configure AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM and dispatch the existing Agent36 fixture-game workflow for the first natural two-player Store trace.
+
+
+## Orderly release — 2026-11-13T16:16:08Z
+
+- Lease-age check: claimed_at 2026-11-13T15:05:59.588Z; current system time 2026-11-13T16:16:08.489Z; elapsed 70.15 minutes. The 70-minute release condition is met.
+- Final useful state is already pushed. No further substantive research is starting. Latest manual-run inventory at 16:09Z still showed no Twinleaf bridge/Agent36 fixture dispatch; PR #46 remained open with repository-owner review pending. Deck qualification remains 0/32 paper-admitted and no demonstrated 99.5%.
+- This memory update is the final non-lease repository change for this incarnation. Next operation is deletion of agents/agent3/.lease.json; do not modify repository state after the lease-deletion push.
