@@ -29,6 +29,10 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
       observationSchema:typeof audit?.observationSchema==='string'?audit.observationSchema:null,
       nativeOwnerTrainerFallbackEnabled:audit?.nativeOwnerTrainerFallback!==undefined&&
         audit?.nativeOwnerTrainerFallback!==null,
+      ownerFallbackDiagnosticViewEnabled:Boolean(audit?.nativeOwnerTrainerFallback&&
+        Object.hasOwn(audit.nativeOwnerTrainerFallback,'firstUnsupportedOwnerRoot')),
+      nativePolicyMayUseHiddenInformation:
+        audit?.nativeOwnerTrainerFallback?.nativePolicyMayUseHiddenInformation===true,
       unsupportedPromptFallbacks:audit?.unsupportedPromptFallbacks??null,
       nonLiveSpeculativeFallbacks:audit?.nonLiveSpeculativeFallbacks??null,
       nonOwnerNativeDelegations:audit?.nonOwnerNativeDelegations??null,
@@ -44,6 +48,10 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
       failures.push(role+'-observation-schema-invalid');
     if(summary.nativeOwnerTrainerFallbackEnabled)
       failures.push(role+'-native-owner-trainer-fallback-enabled');
+    if(summary.ownerFallbackDiagnosticViewEnabled)
+      failures.push(role+'-owner-fallback-diagnostic-view-enabled');
+    if(summary.nativePolicyMayUseHiddenInformation)
+      failures.push(role+'-native-policy-may-use-hidden-information');
     for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks','nonOwnerSeatBypassCalls','nativeOwnerTrainerFallbackAttemptedUnsupportedPasses']){
       if(!Number.isInteger(summary[key])||summary[key]<0)
         failures.push(role+'-'+key+'-missing-or-invalid');
