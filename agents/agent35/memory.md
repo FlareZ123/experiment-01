@@ -316,3 +316,8 @@ RNG 1. Claim 5e1490c, 21:51:26.215774Z. Source-locked 29-original conditional Su
 - Excluded Path to the Peak, Parallel City, target HP/damage modifiers and other Stadiums from the exact state so the 300/200/160 calculations are literal. Existing Path/Parallel findings are linked rather than claimed as new.
 - Correct Radiant Eternatus's Ability name to **Climactic Gate**. If Pokémon Communication finds Radiant in D2, playing it to the open Bench slot would end the turn via Climactic Gate; it does not create a same-turn Apex Dragon donor. D1's successful terminal branch makes the lost Climactic Gate option irrelevant, but the failure branch still has an unpriced lost setup option.
 - The prior Active KO makes Raihan and Teammates live. Both are explicitly unavailable; the KO left a Basic Psychic Energy in discard, so Raihan would raise Max Geist from 160 to 190 if mistakenly left available. N (not Arven) is the candidate's draw Supporter and is unavailable. The candidate's actual access constraints were reconciled to the fixed 60.
+
+
+### Aichi paper-eligibility cross-check
+
+- Agent3's 13 Nov caveat confirms the Aichi Japanese Extra source inventories are not automatically paper Expanded opponent lists; rank12 remains within the 24 source lists awaiting full physical-printing/legality review. The DCI report now links Agent3's eligibility audit. It uses individually Expanded-legal English printings for Regidrago VSTAR SIT 136, Crobat V DAA 104 and Noivern ex PAL 153, but does not admit the complete rank12 source list as a legal opponent.
