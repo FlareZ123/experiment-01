@@ -25,6 +25,11 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     schema:'aichi-game-level-preregistration-v1',
     registrationRef:'results/aichi-2026/registrations/v3-game-001.json',
     trialId,mode,registeredBeforeDealGeneration:true,
+    candidateFormat:mode===UNTIMED?'Expanded':'Japanese Extra',
+    gameRuleset:mode===UNTIMED?'Expanded':'Japanese Extra',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:mode===UNTIMED?'2026-11-13':null,
+    eventDate:mode===EVENT?'2026-05-10':null,
     registeredAt:'2026-11-12T01:00:00.000Z',
     dealGeneratedAt:'2026-11-12T01:01:00.000Z',
     timingProtocol:{
@@ -42,6 +47,9 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     preregistrationEvidenceRef:registration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(registration),
     preregistration:registration,timingMode:mode,
+    candidateFormat:registration.candidateFormat,gameRuleset:registration.gameRuleset,
+    opponentSourceEventFormat:registration.opponentSourceEventFormat,
+    expandedLegalityAsOf:registration.expandedLegalityAsOf,eventDate:registration.eventDate,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:sha(1),fullPhysicalDealSha256:sha(2),
     vendorCommitSha:sha(3),researchRevisionSha:sha(4),hookRevisionSha:sha(5),
@@ -126,21 +134,45 @@ function signReviews(bundle,{roles=['paper'],strategyAudit=null,reviewerIdOverri
       reviewEvidenceRef:'review/'+role,
       reviewEvidenceSha256:sha(8)};
     if(role==='paper') Object.assign(review,{
-      timingMode:UNTIMED,untimedProtocolVerified:true,
-      untimedProtocolPreDealVerified:true,
-      untimedProtocolEvidenceRef:bundle.trial.registrationRef,
-      untimedProtocolSha256:bundle.trial.preregistrationSha256,
-      noTournamentTimerUsed:true,noOfficialEndCallObserved:true,
-      noEventStageAdjudicationUsed:true,
-      clockStatus:CLOCK_NOT_APPLICABLE,
-      naturalTerminalVerified:true,
-      naturalTerminalEvidenceRef:'paper/natural-terminal',
-      timerBoundaryEvidenceRef:'paper/timer-boundary',
-      exactJapanesePrinted60sVerified:true,eventDateLegalityVerified:true,
+      timingMode:bundle.trial.timingMode,gameRuleset:bundle.trial.gameRuleset,
+      candidateFormat:bundle.trial.candidateFormat,
+      opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+      candidatePrinted60Sha256:bundle.trial.candidatePrinted60Sha256,
+      opponentPrinted60Sha256:bundle.trial.originalPrinted60Sha256,
       initial120CardCustodyVerified:true,actualSeatsAndFirstPlayerVerified:true,
-      printed60EvidenceRef:'paper/printed-sixties',
       initialPhysicalDealEvidenceRef:'paper/initial-120',
-      seatAndFirstPlayerEvidenceRef:'paper/seats-first-player'
+      seatAndFirstPlayerEvidenceRef:'paper/seats-first-player',
+      ...(bundle.trial.timingMode===UNTIMED?{
+        expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+        untimedProtocolVerified:true,untimedProtocolPreDealVerified:true,
+        untimedProtocolEvidenceRef:bundle.trial.registrationRef,
+        untimedProtocolSha256:bundle.trial.preregistrationSha256,
+        noTournamentTimerUsed:true,noOfficialEndCallObserved:true,
+        noEventStageAdjudicationUsed:true,clockStatus:CLOCK_NOT_APPLICABLE,
+        naturalTerminalVerified:true,naturalTerminalEvidenceRef:'paper/natural-terminal',
+        timerBoundaryEvidenceRef:'paper/timer-boundary',
+        exactExpandedCandidatePrinted60Verified:true,
+        exactExpandedOpponentPrinted60Verified:true,
+        candidateExpandedLegalityVerified:true,opponentExpandedLegalityVerified:true,
+        candidateExpandedPrinted60EvidenceRef:'paper/candidate-expanded-60',
+        opponentExpandedPrinted60EvidenceRef:'paper/opponent-expanded-60',
+        candidateExpandedLegalityEvidenceRef:'legality/candidate-expanded',
+        opponentExpandedLegalityEvidenceRef:'legality/opponent-expanded',
+        expandedRulesetEvidenceRef:'rules/expanded'
+      }:{
+        eventDate:bundle.trial.eventDate,
+        exactJapanesePrinted60sVerified:true,eventDateLegalityVerified:true,
+        exactJapaneseCandidatePrinted60Verified:true,
+        exactJapaneseOpponentPrinted60Verified:true,
+        candidateEventDateLegalityVerified:true,opponentEventDateLegalityVerified:true,
+        candidateJapanesePrinted60EvidenceRef:'paper/candidate-japanese-60',
+        opponentJapanesePrinted60EvidenceRef:'paper/opponent-japanese-60',
+        candidateEventDateLegalityEvidenceRef:'legality/candidate-japanese-extra',
+        opponentEventDateLegalityEvidenceRef:'legality/opponent-japanese-extra',
+        japaneseExtraRulesetEvidenceRef:'rules/japanese-extra',
+        printed60EvidenceRef:'paper/printed-sixties',
+        eventDateLegalityEvidenceRef:'legality/event-date'
+      })
     });
     if(role==='strategy'&&strategyAudit){
       Object.assign(review,{
@@ -257,16 +289,19 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
-    policyProducerId:candidateProducerId
+    policyProducerId:candidateProducerId,
+    formatStatus:'legal',formatStatusEvidenceRef:'format/candidate-legal'
   };
   const ranks = Array.from({length:32},(_,index)=>{
     const rank=index+1;
     if(unavailable.includes(rank)) return {
-      rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
+      rank,sourceStatus:'source-unavailable',formatStatus:null,formatStatusEvidenceRef:null,
+      deckSha256:null,policySha256:null,
       entryManifestSha256:null,challengeSuiteSha256:null,policyProducerId:null
     };
     return {
-      rank,sourceStatus:'authenticated',
+      rank,sourceStatus:'authenticated',formatStatus:'legal',
+      formatStatusEvidenceRef:'format/opponent-rank-'+rank,
       deckSha256:rank===1?sha(6):policyHash(1000+rank),
       policySha256:policyHash(2000+rank),
       entryManifestSha256:policyHash(3000+rank),
@@ -275,6 +310,11 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     };
   });
   const constraints = {
+    gameRuleset:bundle.trial.gameRuleset,
+    candidateFormat:bundle.trial.candidateFormat,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
     observationSurface:{ownerVisible:true,publicState:true},
     hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
     decisionBudget:{maxNodes:128,deadlineMs:250},
@@ -291,6 +331,9 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   };
   const core = {
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
     },constraints,runtimePinEvidence
@@ -318,7 +361,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     decision:'approve',policyPlanSha256:planSha,
     policyConstraintsSha256:constraintsSha,
     opponentPolicyBundleSha256:opponentBundleSha,
-    rankReviews:ranks.filter(x=>x.sourceStatus==='authenticated').map(entry=>({
+    rankReviews:ranks.filter(x=>x.sourceStatus==='authenticated' && x.formatStatus==='legal').map(entry=>({
       rank:entry.rank,deckSha256:entry.deckSha256,
       policySha256:entry.policySha256,
       entryManifestSha256:entry.entryManifestSha256,
@@ -340,6 +383,11 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const registration = {
     schema:'aichi-policy-registration-v1',trialId:bundle.trialId,
     policyPlanSha256:planSha,policyAttestationBundleSha256:attestationSha,
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
     candidatePolicyAttestationRef:candidateAttestation.evidenceRef,
     opponentPolicyAttestationBundleRef:opponentAttestation.evidenceRef,
     registeredAt:bundle.trial.preregistration.registeredAt,
@@ -361,6 +409,11 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const receipt = {
     schema:'aichi-policy-application-receipt-v2',
     trialId:bundle.trialId,policyPlanSha256:planSha,
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
     policyRegistrationSha256:registrationSha,
     policyAttestationBundleSha256:attestationSha,
     opponentPolicyBundleSha256:opponentBundleSha,

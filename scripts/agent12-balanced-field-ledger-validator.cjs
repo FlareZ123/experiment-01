@@ -14,6 +14,23 @@ const OPPONENT_BUNDLE_SCHEMA = 'aichi-opponent-policy-bundle-v1';
 const POLICY_IDENTITY_FIELDS = Object.freeze([
   'deckSha256','policySha256','entryManifestSha256','challengeSuiteSha256'
 ]);
+const POLICY_ONLY_IDENTITY_FIELDS = Object.freeze([
+  'policySha256','entryManifestSha256','challengeSuiteSha256'
+]);
+const GAME_RULESETS = new Set(['Expanded','Japanese Extra']);
+
+function validDateOnly(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(value + 'T00:00:00.000Z');
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10) === value;
+}
+
+function validEvidenceRef(value) {
+  if (typeof value !== 'string' || value.length === 0 || value !== value.trim() ||
+      value.startsWith('/') || value.includes('\\')) return false;
+  return value.split('/').every(part => part && part !== '.' && part !== '..') &&
+    !/[\u0000-\u001f\u007f]/.test(value);
+}
 const REQUIRED_POLICY_CONSTRAINTS = Object.freeze([
   'observationSurface','hiddenInformationBoundary','decisionBudget',
   'timeoutPolicy','randomizationProtocol','publicHistoryWindow','resourceAccounting'
@@ -79,6 +96,28 @@ function validateOpponentPolicyFieldBundle(request) {
     problems.add('policy-plan-core-mixes-attestation-or-outcome-data');
   }
 
+  const constraints = policyPlanCore.constraints;
+  const gameRuleset = constraints?.gameRuleset;
+  const formatAware = gameRuleset !== undefined;
+  if (formatAware) {
+    if (!GAME_RULESETS.has(gameRuleset) ||
+        policyPlanCore.gameRuleset !== gameRuleset ||
+        policyPlanCore.candidateFormat !== gameRuleset ||
+        constraints?.candidateFormat !== gameRuleset ||
+        policyPlanCore.opponentSourceEventFormat !== 'Japanese Extra' ||
+        constraints?.opponentSourceEventFormat !== 'Japanese Extra')
+      problems.add('policy-plan-game-ruleset-format-mismatch');
+    if (gameRuleset === 'Expanded' &&
+        (!validDateOnly(constraints?.expandedLegalityAsOf) ||
+         (constraints?.eventDate !== null && constraints?.eventDate !== undefined)))
+      problems.add('expanded-legality-date-unverified');
+    if (gameRuleset === 'Japanese Extra' &&
+        (!validDateOnly(constraints?.eventDate) ||
+         (constraints?.expandedLegalityAsOf !== null &&
+          constraints?.expandedLegalityAsOf !== undefined)))
+      problems.add('japanese-extra-event-date-unverified');
+  }
+
   const candidate = policyPlanCore.candidate;
   if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate) ||
       POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(candidate[field]))) {
@@ -86,6 +125,10 @@ function validateOpponentPolicyFieldBundle(request) {
   }
   if (!isStableProducerId(candidate?.policyProducerId))
     problems.add('candidate-policy-producer-unverified');
+  if (formatAware && candidate?.formatStatus !== 'legal')
+    problems.add('candidate-format-not-verified-legal');
+  if (formatAware && !validEvidenceRef(candidate?.formatStatusEvidenceRef))
+    problems.add('candidate-format-evidence-ref-unverified');
 
   const bundle = policyPlanCore.opponentPolicyBundle;
   const ranks = Array.isArray(bundle?.ranks) ? bundle.ranks : [];
@@ -97,6 +140,8 @@ function validateOpponentPolicyFieldBundle(request) {
   const rankByNumber = new Map();
   const availableRanks = [];
   const unavailableRanks = [];
+  const formatIncompatibleRanks = [];
+  const formatUnverifiedRanks = [];
   for (let index = 0; index < ranks.length; index++) {
     const entry = ranks[index];
     if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
@@ -114,16 +159,57 @@ function validateOpponentPolicyFieldBundle(request) {
       problems.add('opponent-rank-order-invalid');
 
     if (entry.sourceStatus === 'authenticated') {
-      const rankIdentityValid =
-        POLICY_IDENTITY_FIELDS.every(field => SHA256.test(entry[field])) &&
-        isStableProducerId(entry.policyProducerId);
-      if (!rankIdentityValid) {
-        if (POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field])))
+      if (formatAware) {
+        if (!SHA256.test(entry.deckSha256 ?? ''))
           problems.add('opponent-rank-identity-unverified');
-        if (!isStableProducerId(entry.policyProducerId))
-          problems.add('opponent-rank-policy-producer-unverified');
+        if (entry.formatStatus === 'legal') {
+          const rankIdentityValid =
+            POLICY_ONLY_IDENTITY_FIELDS.every(field => SHA256.test(entry[field])) &&
+            isStableProducerId(entry.policyProducerId) &&
+            validEvidenceRef(entry.formatStatusEvidenceRef);
+          if (!rankIdentityValid) {
+            if (POLICY_ONLY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field])))
+              problems.add('opponent-rank-policy-identity-unverified');
+            if (!isStableProducerId(entry.policyProducerId))
+              problems.add('opponent-rank-policy-producer-unverified');
+            if (!validEvidenceRef(entry.formatStatusEvidenceRef))
+              problems.add('opponent-rank-format-evidence-ref-unverified');
+          } else {
+            availableRanks.push(entry.rank);
+          }
+        } else if (entry.formatStatus === 'incompatible') {
+          if (POLICY_ONLY_IDENTITY_FIELDS.some(field => entry[field] !== null) ||
+              entry.policyProducerId !== null)
+            problems.add('format-incompatible-rank-has-policy-identity');
+          if (!validEvidenceRef(entry.formatStatusEvidenceRef))
+            problems.add('format-incompatible-rank-evidence-ref-missing');
+          formatIncompatibleRanks.push(entry.rank);
+          incomplete.add('field-format-incompatible');
+        } else if (entry.formatStatus === 'unverified') {
+          if (POLICY_ONLY_IDENTITY_FIELDS.some(field => entry[field] !== null) ||
+              entry.policyProducerId !== null)
+            problems.add('format-unverified-rank-has-policy-identity');
+          if (entry.formatStatusEvidenceRef !== null &&
+              entry.formatStatusEvidenceRef !== undefined &&
+              !validEvidenceRef(entry.formatStatusEvidenceRef))
+            problems.add('format-unverified-rank-evidence-ref-invalid');
+          formatUnverifiedRanks.push(entry.rank);
+          incomplete.add('field-format-unverified');
+        } else {
+          problems.add('opponent-format-status-invalid');
+        }
       } else {
-        availableRanks.push(entry.rank);
+        const rankIdentityValid =
+          POLICY_IDENTITY_FIELDS.every(field => SHA256.test(entry[field])) &&
+          isStableProducerId(entry.policyProducerId);
+        if (!rankIdentityValid) {
+          if (POLICY_IDENTITY_FIELDS.some(field => !SHA256.test(entry[field])))
+            problems.add('opponent-rank-identity-unverified');
+          if (!isStableProducerId(entry.policyProducerId))
+            problems.add('opponent-rank-policy-producer-unverified');
+        } else {
+          availableRanks.push(entry.rank);
+        }
       }
     } else if (entry.sourceStatus === 'source-unavailable') {
       if (POLICY_IDENTITY_FIELDS.some(field => entry[field] !== null) ||
@@ -133,6 +219,9 @@ function validateOpponentPolicyFieldBundle(request) {
         unavailableRanks.push(entry.rank);
         incomplete.add('field-incomplete');
       }
+      if (formatAware && entry.formatStatus !== null &&
+          entry.formatStatus !== undefined)
+        problems.add('source-unavailable-rank-has-format-status');
     } else {
       problems.add('opponent-source-status-invalid');
     }
@@ -149,7 +238,6 @@ function validateOpponentPolicyFieldBundle(request) {
     problems.add('opponent-policy-bundle-noncanonical');
   }
 
-  const constraints = policyPlanCore.constraints;
   if (!constraints || typeof constraints !== 'object' ||
       Array.isArray(constraints)) {
     problems.add('policy-constraints-invalid');
@@ -194,6 +282,20 @@ function validateOpponentPolicyFieldBundle(request) {
       problems.add('game-against-source-unavailable-rank');
       continue;
     }
+    if (formatAware && entry.formatStatus !== 'legal') {
+      problems.add(entry.formatStatus === 'incompatible' ?
+        'game-against-format-incompatible-rank' :
+        'game-against-format-unverified-rank');
+      continue;
+    }
+    if (formatAware && (
+        receipt.gameRuleset !== gameRuleset ||
+        receipt.candidateFormat !== policyPlanCore.candidateFormat ||
+        receipt.opponentSourceEventFormat !== policyPlanCore.opponentSourceEventFormat ||
+        (gameRuleset === 'Expanded' &&
+          receipt.expandedLegalityAsOf !== constraints.expandedLegalityAsOf) ||
+        (gameRuleset === 'Japanese Extra' && receipt.eventDate !== constraints.eventDate)))
+      problems.add('game-receipt-game-ruleset-format-mismatch');
     if (receipt.policyPlanSha256 !== policyPlanSha256)
       problems.add('game-policy-plan-digest-mismatch');
     if (!SHA256.test(receipt.policyRegistrationSha256))
@@ -279,6 +381,9 @@ function validateOpponentPolicyFieldBundle(request) {
     policyPlanSha256, opponentPolicyBundleSha256, policyConstraintsSha256,
     availableRanks: availableRanks.sort((a,b)=>a-b),
     unavailableRanks: unavailableRanks.sort((a,b)=>a-b),
+    formatIncompatibleRanks: formatIncompatibleRanks.sort((a,b)=>a-b),
+    formatUnverifiedRanks: formatUnverifiedRanks.sort((a,b)=>a-b),
+    gameRuleset: formatAware ? gameRuleset : null,
     receiptCount: gameReceipts.length, rejectionReasons
   };
 }

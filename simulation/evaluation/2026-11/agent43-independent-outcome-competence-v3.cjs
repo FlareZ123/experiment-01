@@ -201,7 +201,21 @@ function inspectTimingPreregistration(bundle) {
       registration?.timingProtocolSha256 !== safeDigest(protocol))
     errors.push('timing-protocol-attestation-missing-or-mismatched');
 
+  const expectedRuleset = mode === UNTIMED ? 'Expanded' :
+    mode === EVENT ? 'Japanese Extra' : null;
+  if (registration?.gameRuleset !== expectedRuleset ||
+      trial?.gameRuleset !== expectedRuleset ||
+      registration?.candidateFormat !== expectedRuleset ||
+      trial?.candidateFormat !== expectedRuleset ||
+      registration?.opponentSourceEventFormat !== 'Japanese Extra' ||
+      trial?.opponentSourceEventFormat !== 'Japanese Extra')
+    errors.push('game-ruleset-format-not-frozen-before-deal');
+
   if (mode === UNTIMED) {
+    const expandedLegalityAsOf = registration?.expandedLegalityAsOf;
+    if (!validDateOnly(expandedLegalityAsOf) ||
+        trial?.expandedLegalityAsOf !== expandedLegalityAsOf)
+      errors.push('expanded-legality-date-not-frozen-before-deal');
     if (protocol?.tournamentTimerApplies !== false ||
         protocol?.officialEndCallApplies !== false ||
         protocol?.eventStageAdjudicationApplies !== false ||
@@ -217,6 +231,9 @@ function inspectTimingPreregistration(bundle) {
         trial?.extensionLedgerPacket != null)
       errors.push('untimed-trial-has-missing-or-event-clock-evidence');
   } else if (mode === EVENT) {
+    const eventDate = registration?.eventDate;
+    if (!validDateOnly(eventDate) || trial?.eventDate !== eventDate)
+      errors.push('japanese-extra-event-date-not-frozen-before-deal');
     if (protocol?.tournamentTimerApplies !== true ||
         protocol?.officialEndCallApplies !== true ||
         protocol?.eventStageAdjudicationApplies !== true ||
@@ -303,7 +320,23 @@ function verifyV3Review(bundle, review, role, registry, outcome, usedIds) {
  * @returns {boolean}
  */
 function untimedPaperAttestationValid(review, trial, prereg) {
+  const candidateDeckSha = trial?.candidatePrinted60Sha256;
+  const opponentDeckSha = trial?.originalPrinted60Sha256;
+  const legalityAsOf = prereg?.expandedLegalityAsOf;
   return review?.timingMode === UNTIMED &&
+    review?.gameRuleset === 'Expanded' &&
+    review?.candidateFormat === 'Expanded' &&
+    review?.opponentSourceEventFormat === 'Japanese Extra' &&
+    trial?.gameRuleset === 'Expanded' &&
+    trial?.candidateFormat === 'Expanded' &&
+    trial?.opponentSourceEventFormat === 'Japanese Extra' &&
+    validDateOnly(legalityAsOf) &&
+    trial?.expandedLegalityAsOf === legalityAsOf &&
+    review?.expandedLegalityAsOf === legalityAsOf &&
+    review?.candidatePrinted60Sha256 === candidateDeckSha &&
+    review?.opponentPrinted60Sha256 === opponentDeckSha &&
+    HEX_SHA256.test(candidateDeckSha ?? '') &&
+    HEX_SHA256.test(opponentDeckSha ?? '') &&
     review?.untimedProtocolVerified === true &&
     review?.untimedProtocolPreDealVerified === true &&
     review?.untimedProtocolEvidenceRef === trial?.registrationRef &&
@@ -315,11 +348,17 @@ function untimedPaperAttestationValid(review, trial, prereg) {
     review?.naturalTerminalVerified === true &&
     nonempty(review?.naturalTerminalEvidenceRef) &&
     nonempty(review?.timerBoundaryEvidenceRef) &&
-    review?.exactJapanesePrinted60sVerified === true &&
-    review?.eventDateLegalityVerified === true &&
+    review?.exactExpandedCandidatePrinted60Verified === true &&
+    review?.exactExpandedOpponentPrinted60Verified === true &&
+    review?.candidateExpandedLegalityVerified === true &&
+    review?.opponentExpandedLegalityVerified === true &&
     review?.initial120CardCustodyVerified === true &&
     review?.actualSeatsAndFirstPlayerVerified === true &&
-    nonempty(review?.printed60EvidenceRef) &&
+    nonempty(review?.candidateExpandedPrinted60EvidenceRef) &&
+    nonempty(review?.opponentExpandedPrinted60EvidenceRef) &&
+    nonempty(review?.candidateExpandedLegalityEvidenceRef) &&
+    nonempty(review?.opponentExpandedLegalityEvidenceRef) &&
+    nonempty(review?.expandedRulesetEvidenceRef) &&
     nonempty(review?.initialPhysicalDealEvidenceRef) &&
     nonempty(review?.seatAndFirstPlayerEvidenceRef) &&
     prereg?.timingProtocol?.mode === UNTIMED;
@@ -338,6 +377,12 @@ function policyAttestationSigningBytes(attestation) {
 function validOffsetDateTime(value) {
   return typeof value === 'string' && OFFSET_ISO_DATE_TIME.test(value) &&
     Number.isFinite(Date.parse(value));
+}
+
+function validDateOnly(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(value + 'T00:00:00.000Z');
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10) === value;
 }
 
 function verifyPolicyAttestationSignature(attestation, role, reviewerRegistry,
@@ -404,13 +449,40 @@ function inspectPolicyPanelConsistency(bundle) {
     core.opponentPolicyBundle.ranks : [];
   const policyProducerIds = new Set([
     candidatePolicyProducerId,
-    ...rankEntries.filter(x => x?.sourceStatus === 'authenticated')
-      .map(x => x?.policyProducerId)
+    ...rankEntries.filter(x => x?.sourceStatus === 'authenticated' &&
+      x?.formatStatus === 'legal').map(x => x?.policyProducerId)
   ].filter(stableIdentityId));
 
   if (!core || core.schema !== 'aichi-policy-plan-core-v1' ||
       core.comparisonMode !== 'candidate-vs-field')
     failures.push('policy-plan-schema-or-comparison-mode-invalid');
+  const expectedRuleset = trial?.timingMode === UNTIMED ? 'Expanded' :
+    trial?.timingMode === EVENT ? 'Japanese Extra' : null;
+  if (!expectedRuleset || core?.gameRuleset !== expectedRuleset ||
+      core?.constraints?.gameRuleset !== expectedRuleset ||
+      core?.candidateFormat !== expectedRuleset ||
+      core?.constraints?.candidateFormat !== expectedRuleset ||
+      core?.opponentSourceEventFormat !== 'Japanese Extra' ||
+      core?.constraints?.opponentSourceEventFormat !== 'Japanese Extra' ||
+      core?.candidate?.formatStatus !== 'legal' ||
+      trial?.gameRuleset !== expectedRuleset ||
+      trial?.candidateFormat !== expectedRuleset ||
+      trial?.opponentSourceEventFormat !== 'Japanese Extra')
+    failures.push('policy-plan-game-ruleset-format-mismatch');
+  if (registration?.gameRuleset !== expectedRuleset ||
+      registration?.candidateFormat !== expectedRuleset ||
+      registration?.opponentSourceEventFormat !== 'Japanese Extra')
+    failures.push('policy-registration-game-ruleset-format-mismatch');
+  if (expectedRuleset === 'Expanded' &&
+      (!validDateOnly(core?.constraints?.expandedLegalityAsOf) ||
+       core?.constraints?.expandedLegalityAsOf !== trial?.expandedLegalityAsOf ||
+       registration?.expandedLegalityAsOf !== trial?.expandedLegalityAsOf))
+    failures.push('policy-registration-expanded-legality-date-mismatch');
+  if (expectedRuleset === 'Japanese Extra' &&
+      (!validDateOnly(core?.constraints?.eventDate) ||
+       core?.constraints?.eventDate !== trial?.eventDate ||
+       registration?.eventDate !== trial?.eventDate))
+    failures.push('policy-registration-event-date-mismatch');
   if (runtimePinEvidence?.schema !== 'aichi-runtime-pin-evidence-v2' ||
       !HEX_SHA256.test(runtimePinEvidence?.unionSha256 ?? '') ||
       !HEX_SHA256.test(runtimePinEvidence?.loadedProcessClosureSha256 ?? '') ||
@@ -423,7 +495,7 @@ function inspectPolicyPanelConsistency(bundle) {
     failures.push('bundle-producer-identity-invalid');
   if (!stableIdentityId(candidatePolicyProducerId) ||
       candidatePolicyProducerId === bundle?.producerId ||
-      rankEntries.some(x => x?.sourceStatus === 'authenticated' &&
+      rankEntries.some(x => x?.sourceStatus === 'authenticated' && x?.formatStatus === 'legal' &&
         (!stableIdentityId(x.policyProducerId) || x.policyProducerId === bundle?.producerId)) ||
       rankEntries.some(x => x?.sourceStatus === 'source-unavailable' &&
         x.policyProducerId !== null))
@@ -493,6 +565,14 @@ function inspectPolicyPanelConsistency(bundle) {
         item.opponentPolicyBundleSha256 !== opponentBundleSha ||
         item.candidatePolicyProducerId !== candidatePolicyProducerId ||
         item.opponentPolicyProducerId !== opponentEntry?.policyProducerId ||
+        opponentEntry?.formatStatus !== 'legal' ||
+        item.gameRuleset !== core?.gameRuleset ||
+        item.candidateFormat !== core?.candidateFormat ||
+        item.opponentSourceEventFormat !== core?.opponentSourceEventFormat ||
+        (core?.gameRuleset === 'Expanded' &&
+          item.expandedLegalityAsOf !== core?.constraints?.expandedLegalityAsOf) ||
+        (core?.gameRuleset === 'Japanese Extra' &&
+          item.eventDate !== core?.constraints?.eventDate) ||
         !nonempty(item.trialId) ||
         !Number.isInteger(item.opponentRank) || item.opponentRank < 1 ||
         item.opponentRank > 32 ||
@@ -524,6 +604,13 @@ function inspectPolicyPanelConsistency(bundle) {
   const rank = trial?.opponentRank ?? trial?.originalRank ?? trial?.rank;
   if (receipt && (
       receipt.trialId !== bundle?.trialId ||
+      receipt.gameRuleset !== trial?.gameRuleset ||
+      receipt.candidateFormat !== trial?.candidateFormat ||
+      receipt.opponentSourceEventFormat !== trial?.opponentSourceEventFormat ||
+      (trial?.gameRuleset === 'Expanded' &&
+        receipt.expandedLegalityAsOf !== trial?.expandedLegalityAsOf) ||
+      (trial?.gameRuleset === 'Japanese Extra' &&
+        receipt.eventDate !== trial?.eventDate) ||
       receipt.opponentRank !== rank ||
       receipt.candidateSeat !== trial?.candidateSeat ||
       receipt.opponentSeat !== trial?.originalSourceSeat ||
@@ -634,9 +721,13 @@ function inspectPolicyPanelConsistency(bundle) {
     cardPoolInitializationSha256:runtimePinEvidence?.cardPoolInitializationSha256 ?? null,
     fullProcessClosureCovered:runtimePinEvidence?.fullProcessClosureCovered === true,
     availableRanks,unavailableRanks:field.unavailableRanks ?? [],
+    formatIncompatibleRanks:field.formatIncompatibleRanks ?? [],
+    formatUnverifiedRanks:field.formatUnverifiedRanks ?? [],
+    gameRuleset:core?.gameRuleset ?? null,
     candidatePolicyProducerId,
     opponentPolicyProducerIds:[...new Set(rankEntries.filter(x =>
-      x?.sourceStatus === 'authenticated').map(x => x.policyProducerId).filter(stableIdentityId))],
+      x?.sourceStatus === 'authenticated' && x?.formatStatus === 'legal')
+      .map(x => x.policyProducerId).filter(stableIdentityId))],
     fieldComplete:field.status === 'VALID',
     availableRankStrataComplete,
     fullFieldPanelComplete:field.status === 'VALID' &&
@@ -662,7 +753,8 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
   const candidate = core?.candidate;
   const opponentBundle = core?.opponentPolicyBundle;
   const available = Array.isArray(opponentBundle?.ranks) ?
-    opponentBundle.ranks.filter(x => x?.sourceStatus === 'authenticated') : [];
+    opponentBundle.ranks.filter(x => x?.sourceStatus === 'authenticated' &&
+      x?.formatStatus === 'legal') : [];
   const constraintsSha = safeDigest(core?.constraints);
   const policyProducerIds = new Set([
     candidate?.policyProducerId,
@@ -682,7 +774,8 @@ function inspectPolicyCompetenceAttestations(bundle, reviewerRegistry, panel) {
   const producerIndependenceValid = policyProducerProvenanceValid &&
     reviewerProducerIndependenceValid;
 
-  const candidateIdentityValid = candidateAttestation?.policyProducerId === candidate?.policyProducerId &&
+  const candidateIdentityValid = candidate?.formatStatus === 'legal' &&
+    candidateAttestation?.policyProducerId === candidate?.policyProducerId &&
     candidateAttestation?.deckSha256 === candidate?.deckSha256 &&
     candidateAttestation?.policySha256 === candidate?.policySha256 &&
     candidateAttestation?.entryManifestSha256 === candidate?.entryManifestSha256 &&
@@ -779,11 +872,23 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     const misplacedPolicyReviews = gameReviews.length !== submitted.length;
     const paperPackets = gameReviews.filter(x => x?.role === 'paper');
     const paper = paperPackets.length === 1 ? paperPackets[0] : null;
-    const printAndCustodyReviewed = paper?.exactJapanesePrinted60sVerified === true &&
-      paper?.eventDateLegalityVerified === true &&
+    const printAndCustodyReviewed = paper?.gameRuleset === 'Japanese Extra' &&
+      paper?.candidateFormat === 'Japanese Extra' &&
+      paper?.opponentSourceEventFormat === 'Japanese Extra' &&
+      paper?.eventDate === timing.registration?.eventDate &&
+      paper?.candidatePrinted60Sha256 === trial?.candidatePrinted60Sha256 &&
+      paper?.opponentPrinted60Sha256 === trial?.originalPrinted60Sha256 &&
+      paper?.exactJapaneseCandidatePrinted60Verified === true &&
+      paper?.exactJapaneseOpponentPrinted60Verified === true &&
+      paper?.candidateEventDateLegalityVerified === true &&
+      paper?.opponentEventDateLegalityVerified === true &&
       paper?.initial120CardCustodyVerified === true &&
       paper?.actualSeatsAndFirstPlayerVerified === true &&
-      nonempty(paper?.printed60EvidenceRef) &&
+      nonempty(paper?.candidateJapanesePrinted60EvidenceRef) &&
+      nonempty(paper?.opponentJapanesePrinted60EvidenceRef) &&
+      nonempty(paper?.candidateEventDateLegalityEvidenceRef) &&
+      nonempty(paper?.opponentEventDateLegalityEvidenceRef) &&
+      nonempty(paper?.japaneseExtraRulesetEvidenceRef) &&
       nonempty(paper?.initialPhysicalDealEvidenceRef) &&
       nonempty(paper?.seatAndFirstPlayerEvidenceRef);
     if (!printAndCustodyReviewed) {
@@ -867,6 +972,9 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       policyFieldComplete:policyPanel.fieldComplete,
       policyPanelCoverageComplete:policyPanel.fullFieldPanelComplete,
       policyApplicationReceiptVerified:policyPanel.currentReceiptValid,
+      actorOnlyExecutionBoundaryVerified:policyPanel.actorOnlyExecutionBoundaryVerified,
+      actorOnlyExecutionBoundaryEligible:policyPanel.actorOnlyExecutionBoundaryEligible,
+      actorOnlyExecutionBoundaryFailures:policyPanel.actorOnlyExecutionBoundaryFailures,
       samePolicyDiagnostic:eventStructural?.samePolicy ?? null,
       clockStatus:eventStructural?.officialClockStatus ?? 'unverified',
       failures:[...new Set(failures)],
