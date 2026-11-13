@@ -35,7 +35,7 @@ ownTurnResources.extraTurnActive =
   owner.usedTurnSkip === true && state.activePlayer === seat
 ```
 
-This is a derived owner-visible boolean. It does not expose Store internals or hidden zones. The contract regression verifies both physical seats and verifies that the raw `usedTurnSkip` field is not copied into the observation.
+The same public printed snapshot now includes detached `printed.subtypes`, which preserves TAG TEAM / VMAX / V-UNION prize classification without exposing hidden zones. These are derived owner-visible card fields, not Store internals. The contract regression verifies the subtype array is frozen, verifies both physical seats for the extra-turn marker, and verifies that the raw `usedTurnSkip` field is not copied into the observation.
 
 ### Max Geist root intent
 
@@ -46,7 +46,7 @@ This is a derived owner-visible boolean. It does not expose Store internals or h
 - The owner's public discard contains Dialga-GX UPR and does **not** contain Radiant Eternatus CRZ. If Radiant Eternatus is available, Power Beam is a stronger competing Copycat payload and the Max Geist helper abstains.
 - The turn-stamped public receipt says the immediately preceding opponent turn ended with Regidrago VSTAR's non-GX Apex Dragon.
 - Latias ex SSP with Skyliner is on the Bench; no known Skyliner suppressor or opponent Active Block ability is present; the owner has not already retreated this turn.
-- Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist has its printed two-Psychic cost, at least two Basic Psychic Energy are attached, and the public attack/retreat restrictions do not block the line.
+- Shadow Rider Calyrex VMAX CRE is on the Bench, Max Geist's printed three-Colorless cost is payable (at least three Basic Energy are attached; the candidate list uses Psychic Energy), and the public attack/retreat restrictions do not block the line.
 - The public target has no tool, resistance, or unmodelled damage/prize text that would invalidate the conservative projection.
 
 The existing Agent42 Max Geist damage helper counts Basic Psychic Energy across the owner's board. If Lillie's Clefairy ex JTG with Fairy Zone is publicly present and the shared ability-suppression guard passes, the proposal doubles Max Geist against a Dragon Active. It uses the target's public HP and damage counters and reports the projected prize count (VMAX / TAG TEAM: three; other Rule Box: two; otherwise one). It proposes the retreat only for an immediate KO. The native Store remains authoritative for retreat legality, attack settlement, Weakness, and prize awards; the intent explicitly remains unverified until the Store accepts and settles it.
@@ -70,9 +70,9 @@ This creates a conservative split: when Radiant Eternatus is available, keep Mim
 
 ## Validation and limitations
 
-- Added a public extra-turn contract regression in `tests/actor-observation-contract.test.cjs`.
+- Added public extra-turn and printed-subtype contract regressions in `tests/actor-observation-contract.test.cjs`.
 - Added Agent34 root-policy regressions in `tests/agent34-actor-only-root-policy.test.cjs` for candidate-seat scoping, the extra-turn/Apex receipt, Fairy Zone damage, Rule Box prize projection, Radiant Eternatus abstention, and Power Beam prompt selection.
-- Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. That workflow has **not** been dispatched in this invocation.
+- Added those tests to the existing manual `.github/workflows/mimikyu-copycat-regression.yml` workflow. A temporary path-filtered push trigger launched run `43399409555`; the push trigger has since been removed and the workflow restored to manual-only. The run was still in progress at the time of this update.
 - Helper and root-policy source syntax was parsed. An isolated V8 smoke test with mocked dependency functions exercised the Max Geist proposal (160 base / 320 Fairy Zone / one prize against a 70-HP Dragon) and exact Power Beam prompt selection. This is not a substitute for running the Node test suite or the pinned Store.
 - The existing native staged runner `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` already compares the two native follow-up mechanics, but it does not yet call this new Agent34 policy. Its workflow is also manual and has not been dispatched here.
 - No complete source-dealt game, both-seat paired run, full rank-10 matchup, or paper-qualified Expanded game was produced. The Aichi benchmark remains at zero verified Expanded-legal opponent lists in the current decision board. No win-rate estimate is supported, and there is no 99.5% claim.
