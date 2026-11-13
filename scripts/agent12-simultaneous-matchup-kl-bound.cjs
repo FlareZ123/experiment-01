@@ -63,7 +63,7 @@ function exactOneLossIidLowerBound(gamesPerStratum, alpha, target) {
  * As with the one-loss case, outcomes must be i.i.d. within each stratum.
  */
 function exactTwoLossIidLowerBound(gamesPerStratum, alpha, target) {
-  if (!Number.isSafeInteger(gamesPerStratum) || gamesPerStratum < 106 ||
+  if (!Number.isSafeInteger(gamesPerStratum) || gamesPerStratum < 2 ||
       !(alpha > 0 && alpha < 1) || !(target > 0.75 && target < 1)) {
     return null;
   }
@@ -138,8 +138,8 @@ function exactTwoLossIidLowerBound(gamesPerStratum, alpha, target) {
  * cases retain the heterogeneous KL method. Bonferroni across 32 ranks provides familywise
  * confidence of at least the requested level.
  *
- * The exact one-loss mode assumes identically distributed outcomes within
- * each rank/seat/first-player stratum, not merely independent outcomes. The
+ * The exact one- and two-loss modes assume identically distributed outcomes
+ * within each rank/seat/first-player stratum, not merely independent outcomes. The
  * sampling-model declaration must be frozen in the registration and audited
  * externally. Without it, the evaluator never selects the exact branch.
  *
@@ -172,6 +172,11 @@ function assessSimultaneousMatchups(request) {
     STRATA_PER_OPPONENT * requiredPerStratumForAllWinTarget;
   const requiredTotalForAllWinTarget =
     FIELD_SIZE * requiredPerOpponentForAllWinTarget;
+  const exactIidMode =
+    request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const samplingModelDeclaration = exactIidMode
+    ? 'iid-bernoulli-v1 (caller assertion; external audit required)'
+    : 'heterogeneous-independent-Bernoulli default';
 
   if (!admissible) {
     return {
@@ -185,6 +190,7 @@ function assessSimultaneousMatchups(request) {
       requiredPerStratumForAllWinTarget,
       requiredPerOpponentForAllWinTarget,
       requiredTotalForAllWinTarget,
+      samplingModelDeclaration,
       rejectionReasons: v.rejectionReasons,
       externalPaperAndIndependenceAuditRequired: true
     };
@@ -198,8 +204,6 @@ function assessSimultaneousMatchups(request) {
     if (attempt.status === 'paper-qualified-win') wins[index]++;
   }
 
-  const exactIidMode =
-    request.stratumSamplingModel === 'iid-bernoulli-v1';
   const perRank = totals.map((total, index) => {
     const winCount = wins[index];
     const nonwinCount = total - winCount;
@@ -257,6 +261,7 @@ function assessSimultaneousMatchups(request) {
     requiredPerStratumForAllWinTarget,
     requiredPerOpponentForAllWinTarget,
     requiredTotalForAllWinTarget,
+    samplingModelDeclaration,
     rejectionReasons: v.rejectionReasons,
     externalPaperAndIndependenceAuditRequired: true
   };
