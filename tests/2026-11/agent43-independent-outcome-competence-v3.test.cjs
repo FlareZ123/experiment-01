@@ -1429,6 +1429,7 @@ function makeFullClosurePolicyBundle({coreFixtureMarker}={}) {
 }
 
 test('production evaluator rejects fixture-marked and malformed fixture flags even with full closure and otherwise valid reviews',()=>{
+  // An absent marker is legacy-compatible; a present null is malformed and must fail closed.
   const variants=[
     {coreFixtureMarker:undefined,trialFixtureMarker:true},
     {coreFixtureMarker:true,trialFixtureMarker:true},
