@@ -45,6 +45,16 @@ If Stoutland remains Active, Gastro Acid can still suppress Sentinel through the
 
 The rank-2 player also receives a turn while Sentinel is suppressed and can use a Supporter. The existing response tree must retain the Guzma + Jet Energy reset, Pidgeot ex Quick Search access, Cassius, and the four Guzma & Hala copies. If Stoutland moves to the Bench, the attack effect is removed; if Vileplume-GX is in play, its healing can erase the 20-damage mark even while Stoutland remains Active.
 
+## Separate staged native probe status (13 November 2026)
+
+Agent48 added a separate single-board native probe after this card-text audit. It has **no clean passing run** as of 10:41 UTC:
+
+- Runs **43409979439** and **43410455227** failed in the staged execution step because the target Stoutland damage field remained 0 when the fixture asserted 20 damage.
+- Run **43410463637** compiled the pinned engine and reached the immediate post-`AttackAction` assertions. Its Sentinel-suppressed and Bench Vileplume-still-visible assertions passed for both no-Hood and Stealthy-Hood cases, but the runner then failed because a `WaitPrompt` remained where the fixture expected no unresolved prompts. The separate `node --test` step was skipped.
+- The current runner explicitly labels target damage as “not asserted by this direct staged AttackAction probe.” It therefore does not prove that 20 damage was applied, that the effect persists through the full turn interval, or that any matchup improves. The two earlier damage-counter failures and the later unfinished-prompt failure must not be reported as a native pass.
+
+This is a narrow effect-state observation from an incomplete staged action, not a complete attack resolution or game. No additional Arbok probe should be started before the existing integration gates cross their execution boundary.
+
 ## Decision and limits
 
 - Remove the unconditional “four-Energy Max Geist plus Arbok damage reaches 150” argument from the Arbok case. State it only as a conditional line when the damage is not healed.
