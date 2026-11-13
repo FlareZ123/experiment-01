@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.3-surplus-psychic-retreat-payment';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.4-opponent-active-tool-jammer-guard';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
@@ -95,6 +95,12 @@ function postRetreatPrintedDamage(view,pokemon,attack,payment,catalog){
   return projectedPrintedDamage(view,pokemon,attack);
 }
 
+function opponentActiveToolJammerDisablesHood(view){
+  const tools=view?.opponentPublic?.active?.tools;
+  if(!Array.isArray(tools)||!tools.every(tool=>typeof tool==='string'))return null;
+  return tools.some(tool=>tool.startsWith('Tool Jammer '));
+}
+
 function opponentHasUnmodeledDamageOrPrizeText(view){
   const opponent=view.opponentPublic;
   if(!opponent?.active||!Array.isArray(opponent.bench))return true;
@@ -179,6 +185,8 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
   const resources=view.ownTurnResources,opponent=view.opponentPublic;
   if(catalog.specialConditions?.CONFUSED===undefined)return null;
   if(ownerHasUnmodeledFreeMobility(view))return null;
+  // Tool Jammer on the opponent's Active disables Stealthy Hood on ours.
+  if(opponentActiveToolJammerDisablesHood(view)!==false)return null;
   if(active&&retreatAbilityGuard(view,catalog,active)!=='printed')return null;
   if(!active||!opponent?.active||!Array.isArray(own?.bench)||
      !Array.isArray(own.stadium)||!Array.isArray(opponent.stadium)||
@@ -242,5 +250,5 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
 
 module.exports={VERSION,twoPsychicPayment,attackBlocked,
   activeHasCompetingAttack,ownerHasUnmodeledFreeMobility,postRetreatPrintedDamage,
-  opponentHasUnmodeledDamageOrPrizeText,projectedPrizeOutcome,
+  opponentHasUnmodeledDamageOrPrizeText,opponentActiveToolJammerDisablesHood,projectedPrizeOutcome,
   proposeTwoUnitPaidRetreatV2};
