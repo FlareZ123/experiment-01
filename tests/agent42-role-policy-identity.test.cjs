@@ -8,7 +8,14 @@ const {evidenceBundleSha256}=require('../simulation/evaluation/agent45-independe
 const {withPinnedResearchModuleLoads}=require('../simulation/evaluation/agent36-runtime-module-pin.cjs');
 const I=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const h=n=>n.toString(16).padStart(64,'0'),g=n=>n.toString(16).padStart(40,'0');
-const constraints={decisionBudget:{maxNodes:128,deadlineMs:250},hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},sharedEngineCompatibilityPatches:[]};
+const constraints={
+ candidateFormat:'Expanded',gameRuleset:'Expanded',
+ opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf:null,eventDate:null,
+ formatReviewStatus:'unverified-fixture-only',
+ decisionBudget:{maxNodes:128,deadlineMs:250},
+ hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
+ sharedEngineCompatibilityPatches:[]
+};
 const constraintsSha=evidenceBundleSha256(constraints);
 const bindings=[
  {name:'observe',path:'observe.cjs',exportName:'actorObservation'},
@@ -63,10 +70,21 @@ function identity(role,rank,deck,entry,options={},policyConstraintsSha256=constr
    entry.manifest.vendorDependencies.find(x=>x.path==='vendor/twinleaf/ptcg-server/start.js').sha256))});
 }
 function preDeal(candidate,opponent,planConstraints=constraints,fullProcessClosureCovered=false){
+ const formatReviewStatus=fullProcessClosureCovered?'independently-reviewed':'unverified-fixture-only';
+ const expandedLegalityAsOf=fullProcessClosureCovered?'2026-11-13':null;
+ const effectiveConstraints={
+  ...planConstraints,candidateFormat:'Expanded',gameRuleset:'Expanded',
+  opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf,eventDate:null,
+  formatReviewStatus
+ };
  const core={schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+  fixtureOnly:true,candidateFormat:'Expanded',gameRuleset:'Expanded',
+  opponentSourceEventFormat:'Japanese Extra',formatReviewStatus,
   candidate:{deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
    entryManifestSha256:candidate.entryManifestSha256,challengeSuiteSha256:candidate.challengeSuiteSha256,
-   policyProducerId:candidate.policyProducerId},
+   policyProducerId:candidate.policyProducerId,
+   formatStatus:fullProcessClosureCovered?'legal':'unverified',
+   formatStatusEvidenceRef:fullProcessClosureCovered?'format/candidate-expanded':null},
   runtimePinEvidence:{schema:'aichi-runtime-pin-evidence-v2',unionSha256:candidate.runtimePinUnionSha256,
    loadedProcessClosureSha256:candidate.loadedProcessClosureSha256,
    cardPoolInitializationSha256:candidate.cardPoolInitializationSha256,
@@ -74,10 +92,19 @@ function preDeal(candidate,opponent,planConstraints=constraints,fullProcessClosu
   opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks:[{rank:opponent.rank,
    sourceStatus:'authenticated',deckSha256:opponent.deckSha256,policySha256:opponent.policySha256,
    entryManifestSha256:opponent.entryManifestSha256,challengeSuiteSha256:opponent.challengeSuiteSha256,
-   policyProducerId:opponent.policyProducerId}]},constraints:planConstraints};
- const registration={schema:'aichi-policy-registration-v1',trialId:'trial-1',policyPlanSha256:evidenceBundleSha256(core)};
+   policyProducerId:opponent.policyProducerId,
+   formatStatus:fullProcessClosureCovered?'legal':'unverified',
+   formatStatusEvidenceRef:fullProcessClosureCovered?'format/opponent-rank-'+opponent.rank:null}]},
+  constraints:effectiveConstraints};
+ const registration={
+  schema:'aichi-policy-registration-v1',trialId:'trial-1',
+  policyPlanSha256:evidenceBundleSha256(core),
+  candidateFormat:'Expanded',gameRuleset:'Expanded',
+  opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf,
+  eventDate:null,formatReviewStatus
+ };
  const attestation={schema:'aichi-policy-attestation-bundle-v1',policyPlanSha256:evidenceBundleSha256(core)};
- return {ready:true,trialId:'trial-1',policyPlanCore:core,policyPlanSha256:evidenceBundleSha256(core),
+ return {ready:true,fixtureOnly:true,trialId:'trial-1',policyPlanCore:core,policyPlanSha256:evidenceBundleSha256(core),
   policyRegistration:registration,policyRegistrationSha256:evidenceBundleSha256(registration),
   policyAttestationBundle:attestation,policyAttestationBundleSha256:evidenceBundleSha256(attestation)};
 }
@@ -98,7 +125,11 @@ function actorOnlyBoundary(candidateSeat,opponentSeat,candidateOverrides={},oppo
   opponent:role('opponent',opponentSeat,opponentOverrides)};
 }
 function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchReceipts=[]){
- return {trialId:'trial-1',fixtureOnly:true,opponentRank:opponent.rank,candidateSeat,originalSourceSeat:1-candidateSeat,
+ return {trialId:'trial-1',fixtureOnly:true,opponentRank:opponent.rank,
+  candidateFormat:'Expanded',gameRuleset:'Expanded',
+  opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf:null,eventDate:null,
+  formatReviewStatus:'unverified-fixture-only',
+  candidateSeat,originalSourceSeat:1-candidateSeat,
   actualFirstPlayerSeat:firstPlayerSeat,candidatePrinted60Sha256:candidate.deckSha256,
   originalPrinted60Sha256:opponent.deckSha256,vendorCommitSha:candidate.entryManifest.enginePin,
   researchRevisionSha:candidate.entryManifest.runnerRevision,decisionTraceSha256:h(906),
@@ -283,7 +314,7 @@ test('partial runtime closure is fixture-only; production receipts require full 
  const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
  const candidate=identity('candidate-policy',null,1,cm),opponent=identity('opponent-policy',7,2,om);
  const fixturePlan=preDeal(candidate,opponent,constraints,false);
- const fixtureTrial=trial(candidate,opponent,0,1);
+ const fixtureTrial={...trial(candidate,opponent,0,1),fixtureOnly:true};
  const fixtureApplied=I.createPolicyApplicationReceipt({preDeal:fixturePlan,
   candidateIdentity:candidate,opponentIdentity:opponent,trial:fixtureTrial});
  assert.equal(fixtureTrial.fixtureOnly,true);
@@ -292,15 +323,23 @@ test('partial runtime closure is fixture-only; production receipts require full 
  assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:fixturePlan,
   candidateIdentity:candidate,opponentIdentity:opponent,
   trial:{...fixtureTrial,fixtureOnly:false}}),/production application receipt requires complete process-closure coverage/);
- const productionPlan=preDeal(candidate,opponent,constraints,true);
+ const productionConstraints={
+  ...constraints,expandedLegalityAsOf:'2026-11-13',
+  formatReviewStatus:'independently-reviewed'
+ };
+ const productionConstraintsSha=evidenceBundleSha256(productionConstraints);
+ const productionCandidate=identity('candidate-policy',null,1,cm,{},productionConstraintsSha);
+ const productionOpponent=identity('opponent-policy',7,2,om,{},productionConstraintsSha);
+ const productionPlan=preDeal(productionCandidate,productionOpponent,productionConstraints,true);
  assert.notEqual(fixturePlan.policyPlanSha256,productionPlan.policyPlanSha256,
   'fixture/production closure scope must be frozen into distinct policy-plan digests');
- const productionTrial={...trial(candidate,opponent,0,1),fixtureOnly:false};
+ const productionTrial={...trial(productionCandidate,productionOpponent,0,1),fixtureOnly:false,
+  expandedLegalityAsOf:'2026-11-13',formatReviewStatus:'independently-reviewed'};
  const productionApplied=I.createPolicyApplicationReceipt({preDeal:productionPlan,
-  candidateIdentity:candidate,opponentIdentity:opponent,trial:productionTrial});
+  candidateIdentity:productionCandidate,opponentIdentity:productionOpponent,trial:productionTrial});
  assert.match(productionApplied.receipt.receiptSha256,/^[0-9a-f]{64}$/);
  assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:productionPlan,
-  candidateIdentity:candidate,opponentIdentity:opponent,
+  candidateIdentity:productionCandidate,opponentIdentity:productionOpponent,
   trial:{...productionTrial,fixtureOnly:true}}),/fixture-only trial must explicitly use fixture-scoped process closure/);
 }));
 
@@ -381,3 +420,29 @@ test('candidate and opponent may have different role-local engine patch dependen
  assert.equal(applied.receipt.opponentPolicySha256,roleSpecificOpponent.policySha256);
 }));
 
+
+
+test('application receipt binds the frozen format, date scope and review status',()=>repo(root=>{
+ const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
+ const candidate=identity('candidate-policy',null,1,cm);
+ const opponent=identity('opponent-policy',7,2,om);
+ const pd=preDeal(candidate,opponent);
+ const t=trial(candidate,opponent,0,1);
+ const applied=I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,trial:t
+ });
+ for(const key of ['candidateFormat','gameRuleset','opponentSourceEventFormat',
+   'expandedLegalityAsOf','eventDate','formatReviewStatus'])
+  assert.equal(applied.receipt[key],t[key]);
+ assert.equal(applied.receipt.formatReviewStatus,'unverified-fixture-only');
+ assert.equal(applied.receipt.receiptSha256,evidenceBundleSha256(
+  Object.fromEntries(Object.entries(applied.receipt).filter(([key])=>key!=='receiptSha256'))));
+ assert.throws(()=>I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,
+  trial:{...t,gameRuleset:'Japanese Extra'}
+ }),/trial gameRuleset mismatch/);
+ assert.throws(()=>I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,
+  trial:{...t,formatReviewStatus:'independently-reviewed'}
+ }),/trial formatReviewStatus mismatch/);
+}));

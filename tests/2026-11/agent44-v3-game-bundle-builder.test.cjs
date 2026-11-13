@@ -36,12 +36,14 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
   const candidate={
     deckSha256:policyHash(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
-    policyProducerId:'candidate-policy-author'
+    policyProducerId:'candidate-policy-author',
+    formatStatus:'legal',formatStatusEvidenceRef:'format/candidate-expanded'
   };
   const ranks=Array.from({length:32},(_,index)=>{
     const rank=index+1;
     if(unavailable.includes(rank)) return {
-      rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
+      rank,sourceStatus:'source-unavailable',formatStatus:null,formatStatusEvidenceRef:null,
+      deckSha256:null,policySha256:null,
       entryManifestSha256:null,challengeSuiteSha256:null,policyProducerId:null
     };
     return {
@@ -50,7 +52,8 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
       policySha256:policyHash(2000+rank),
       entryManifestSha256:policyHash(3000+rank),
       challengeSuiteSha256:policyHash(4000+rank),
-      policyProducerId:'opponent-policy-author'
+      policyProducerId:'opponent-policy-author',
+      formatStatus:'legal',formatStatusEvidenceRef:'format/opponent-rank-'+rank
     };
   });
   const cardPoolInitializationReceipt={
@@ -86,6 +89,10 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
     fullProcessClosureCovered
   };
   const constraints={
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:'2026-11-13',eventDate:null,
+    formatReviewStatus:'independently-reviewed',
     observationSurface:{ownerVisible:true,publicState:true},
     hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
     decisionBudget:{maxNodes:128,deadlineMs:250},
@@ -102,6 +109,9 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
   };
   const policyPlanCore={
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+    fixtureOnly:true,candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    formatReviewStatus:'independently-reviewed',
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
     },constraints,runtimePinEvidence
@@ -181,7 +191,11 @@ function makeGameRegistration(trialId,{pastDeal=false}={}) {
     registrationRef:'results/aichi-2026/registrations/'+trialId+'.json',
     trialId,mode:UNTIMED,registeredBeforeDealGeneration:true,
     registeredAt,dealGeneratedAt,timingProtocol,
-    timingProtocolSha256:evidenceBundleSha256(timingProtocol)
+    timingProtocolSha256:evidenceBundleSha256(timingProtocol),
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:'2026-11-13',eventDate:null,
+    formatReviewStatus:'independently-reviewed'
   };
 }
 
@@ -211,6 +225,10 @@ function makeTrial(preDeal,fixture,{fixtureOnly=true}={}) {
     preregistrationEvidenceRef:preDeal.gameRegistration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(preDeal.gameRegistration),
     preregistration:preDeal.gameRegistration,timingMode:UNTIMED,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:'2026-11-13',eventDate:null,
+    formatReviewStatus:'independently-reviewed',
     dealGeneratedAt,dealGenerationStepStartedAt,initialSourceDealFingerprint,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:policyHash(1),fullPhysicalDealSha256:policyHash(2),
@@ -239,6 +257,10 @@ function makeReceipt(preDeal,trial,fixture) {
   return {
     schema:'aichi-policy-application-receipt-v2',
     trialId:preDeal.trialId,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:'2026-11-13',eventDate:null,
+    formatReviewStatus:'independently-reviewed',
     policyPlanSha256:preDeal.policyPlanSha256,
     policyRegistrationSha256:preDeal.policyRegistrationSha256,
     policyAttestationBundleSha256:preDeal.policyAttestationBundleSha256,
@@ -310,6 +332,12 @@ function makeGameReview(bundle,trial,fixture,role) {
   };
   if(role==='paper') Object.assign(review,{
     timingMode:UNTIMED,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:trial.expandedLegalityAsOf,
+    formatReviewStatus:'independently-reviewed',
+    candidatePrinted60Sha256:trial.candidatePrinted60Sha256,
+    opponentPrinted60Sha256:trial.originalPrinted60Sha256,
     untimedProtocolVerified:true,
     untimedProtocolPreDealVerified:true,
     untimedProtocolEvidenceRef:trial.registrationRef,
@@ -321,8 +349,15 @@ function makeGameReview(bundle,trial,fixture,role) {
     naturalTerminalVerified:true,
     naturalTerminalEvidenceRef:'review-evidence/natural-terminal',
     timerBoundaryEvidenceRef:'review-evidence/timer-boundary',
-    exactJapanesePrinted60sVerified:true,
-    eventDateLegalityVerified:true,
+    exactExpandedCandidatePrinted60Verified:true,
+    exactExpandedOpponentPrinted60Verified:true,
+    candidateExpandedLegalityVerified:true,
+    opponentExpandedLegalityVerified:true,
+    candidateExpandedPrinted60EvidenceRef:'review-evidence/candidate-expanded-60',
+    opponentExpandedPrinted60EvidenceRef:'review-evidence/opponent-expanded-60',
+    candidateExpandedLegalityEvidenceRef:'review-evidence/candidate-expanded-legality',
+    opponentExpandedLegalityEvidenceRef:'review-evidence/opponent-expanded-legality',
+    expandedRulesetEvidenceRef:'review-evidence/expanded-ruleset',
     initial120CardCustodyVerified:true,
     actualSeatsAndFirstPlayerVerified:true,
     printed60EvidenceRef:'review-evidence/printed-60',
@@ -372,6 +407,11 @@ test('V3 builder freezes signed policy registration before deal and assembles th
 
   assert.equal(built.fixtureOnly,true);
   assert.equal(built.bundle.trial.trialId,preDeal.trialId);
+  assert.equal(built.bundle.trial.gameRuleset,'Expanded');
+  assert.equal(built.bundle.trial.preregistrationSha256,
+    evidenceBundleSha256(preDeal.gameRegistration));
+  assert.equal(built.bundle.policyRegistration.formatReviewStatus,'independently-reviewed');
+  assert.equal(built.bundle.policyApplicationReceipt.gameRuleset,'Expanded');
   assert.deepEqual(built.bundle.evidenceManifest.map(x=>x.kind),MANIFEST);
   assert.equal(built.bundle.evidenceManifest.length,9);
   assert.equal(built.bundle.policyPanelReceipts.length,1);
@@ -857,4 +897,17 @@ test('builder distinguishes structurally valid policy panel from actor-only comp
   assert.equal(built.assessment.acceptanceReady,false);
   assert.equal(built.admissionEligible,false);
   assert.equal(built.competitiveAdmission,false);
+});
+
+
+test('format-aware pre-deal registration rejects an Expanded/Japanese Extra mismatch',()=>{
+  const fixture=makePolicyFixture();
+  const {input,result:preDeal}=makePreDeal(fixture);
+  assert.equal(preDeal.ready,true,preDeal.failures.join(','));
+  const wrongRegistration={...input.gameRegistration,candidateFormat:'Japanese Extra'};
+  const rejected=preparePreDealPolicyRegistrationFixture({
+    ...input,gameRegistration:wrongRegistration
+  },fixture.reviewerRegistry);
+  assert.equal(rejected.ready,false);
+  assert.ok(rejected.failures.includes('game-ruleset-format-review-status-not-frozen-before-deal'));
 });
