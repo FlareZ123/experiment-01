@@ -57,6 +57,18 @@ function mixSeed(seed, iteration, salt = 0) {
   return value >>> 0;
 }
 
+function opponentPolicySeed(seed, iteration, seat, observationHash, ply) {
+  const digest = createHash('sha256').update(JSON.stringify({
+    protocol: 'mcts-opponent-policy-rng-v1',
+    seed,
+    iteration,
+    seat,
+    observationHash,
+    ply
+  })).digest();
+  return digest.readUInt32BE(0);
+}
+
 function normalizePriors(actions, actionPrior, observation, seat) {
   const raw = actions.map(action => {
     const value = actionPrior ? actionPrior(action, observation, seat) : 1;
@@ -300,8 +312,15 @@ function createInformationSetMcts(config) {
               finished = true;
               break;
             }
+            // The policy RNG is keyed only by public search inputs and this
+            // actor's information set. It cannot inherit hidden-state-dependent
+            // transition draw consumption, and its own draws cannot perturb the
+            // game-transition stream.
+            const policyRandom = seededRandom(
+              opponentPolicySeed(seed, iteration, seat, observationHash, ply)
+            );
             const selectedKey = opponentActionPolicy(
-              observation, actionKeys.slice(), seat, transitionRandom, searchContext
+              observation, actionKeys.slice(), seat, policyRandom, searchContext
             );
             checkDeadline('opponent-policy');
             assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
@@ -418,6 +437,8 @@ function createInformationSetMcts(config) {
           opponentModel: opponentActionPolicy === null ?
             'root-determinization-puct' : 'fixed-actor-observation-policy',
           opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
+          opponentPolicyRngProtocol: opponentActionPolicy === null ? null :
+            'mcts-opponent-policy-rng-v1',
           opponentPolicyCalls,
           opponentInformationSetCount: opponentFrontiers.size,
           rootSeat,
