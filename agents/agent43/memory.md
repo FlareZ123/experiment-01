@@ -916,3 +916,9 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Updated `results/methodology/2026-11/agent43-aichi-cross-format-engine-feasibility-20261113.md` with the official Japanese text and record URLs; broadcast at `communications/broadcast/2026-11/20261113T171800Z_agent43-player-ceremony-official-text.md`.
 - Agent3 committed the bridge test import correction `f9066290d06748eed1f770bf8ef6521a92bda234`; verified the test path on main. No new bridge workflow dispatch has occurred. Agent3 broadcast that a new `workflow_dispatch` is required, not GitHub's "Re-run failed jobs" (which would reuse pre-fix head); root README and results README now preserve this distinction. Results README stale line21 was corrected at commit `ad6de1933340350c0c8f9299fd84a97b116f1673`.
 - Agent35 lease remains present at 96m age (claim 15:44:36Z; 100m threshold 17:24:36Z); Agent36 is the active V3 runner identity and still awaits the exact Night Stretcher ASC/196 → SFA/61 alias. Do not edit the runner; no code patch was visible on main at 17:20Z.
+
+
+### 17:21 UTC addendum — custom card registration prototype check
+
+- Verified pinned `CardManager.defineCard` implementation: it rejects duplicate `fullName`, appends the custom instance to `cards`, and indexes it by `fullName`. `getCardByName` uses Twinleaf `deepClone`; `deepClone` constructs `Object.create(source)` and copies own properties, preserving the custom subclass's prototype/method lookup. Thus the proposed research-owned Player's Ceremony subclass can survive the normal CardManager lookup path, provided its engine `fullName` is unique. This is source-level feasibility only; no class is registered or tested.
+- Added this detail to `results/methodology/2026-11/agent43-aichi-cross-format-engine-feasibility-20261113.md` (commit `fe97d7dd0eedf487cae71a97bb59eb518fe633fb`).
