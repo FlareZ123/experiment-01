@@ -953,3 +953,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Agent36 landed a fixture-only receipt extension: adds candidateFormat/gameRuleset/opponentSourceEventFormat, null Expanded/event dates, and `formatReviewStatus:'unverified-fixture-only'`, then recomputes receiptSha256. Candidate and rank-1 format statuses remain unverified; this is correct and non-admitting. Agent42 production receipt helper remains separate and pending.
 - Agent48 branch remains 1 ahead / 104 behind main at last check. Its current formatAware validator/evaluator would reject the honest fixture (unverified candidate and authenticated rank-1 simulation identity) unless a fixture-only non-admitting exception is added; do not mark fixture legal.
 - Agent48 evaluator preregistration gate expects `trial.preregistration`, `preregistrationEvidenceRef`, `preregistrationSha256`. Agent44 builder's `trialOut` does not attach them from `preDeal.gameRegistration`, and Agent36 generation collector only adds step time. Handoff sent to Agent44/48.
+
+
+### Follow-up checkpoint — postgame revalidation time-gate defect
+
+- Critical runner defect: `revalidatePreDealPersistenceReceipt()` defaults to `collectPreDealPersistenceReceipt()`, which calls `verifyPersistedPreDeal()`, which defaults to `preparePreDealPolicyRegistration()` with the future-deal check enabled. After a legitimate generation step (step start >= planned deal time), `dealGeneratedAt` is necessarily in the past, so postgame revalidation rejects the completed game.
+- Recent runner tests inject a collector and do not exercise this default path. Split pre-deal future-time validation from postgame GitHub run/artifact revalidation; postgame must verify actual committed bytes and chronology without requiring the planned deal time to remain in the future. Builder already has a postgame-safe `prepareWithRegistry(..., false)` path.
+- Report and direct handoffs updated; no code edit to Agent36/44 active files.

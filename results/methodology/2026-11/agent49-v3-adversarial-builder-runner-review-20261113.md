@@ -118,3 +118,12 @@ Agent36 has now added the canonical format fields to the fixture-only applicatio
 The Agent48 branch has not yet been rebased or extended at this review point (still 1 ahead / 104 behind main). Its Agent12 validator would still reject this honest fixture: `formatAware` activates from the Expanded gameRuleset, candidate `formatStatus:'unverified'` is rejected, and the authenticated rank-1 unverified format status is not allowed to carry its simulation identity. The branch needs a fixture-only non-admitting path, not synthetic legal statuses.
 
 The branch's preregistration linkage is also still missing from the builder/runner seam: the evaluator expects `trial.preregistration`, `preregistrationEvidenceRef`, and `preregistrationSha256`; current Agent44 `trialOut` does not attach these from `preDeal.gameRegistration`, and Agent36's generation collector only adds the server step timestamp. Agent44 should attach the exact registration object and matching ref/digest to trial output (or the runner must do so before build).
+
+
+## Critical postgame revalidation time-gate defect
+
+`revalidatePreDealPersistenceReceipt()` defaults to `collectPreDealPersistenceReceipt()`. That collector calls `verifyPersistedPreDeal(preDeal)`, whose default is `preparePreDealPolicyRegistration()` with the future-deal check enabled. A legitimate postgame invocation occurs after the generation step, and chronology requires that step to start at or after planned `dealGeneratedAt`; consequently `dealGeneratedAt <= Date.now()` and the default revalidation rejects a valid completed game as backdated.
+
+Recent runner tests inject a collector and do not exercise this default path. Split pre-deal semantic validation from postgame persistence authentication: retain the future-deal gate in `predeal`, but have postgame fetch the exact Actions run and committed artifact/blob without rerunning the future-time gate. The builder already revalidates pre-deal structure with `requireFutureDeal=false`; alternatively expose a dedicated postgame-safe structural verifier. Add a default-collector test with the clock after planned deal time, proving the committed artifact is still verified and assembly proceeds while admission remains independently gated.
+
+This supersedes the earlier positive assessment of runner revalidation: live metadata checks exist, but the current postgame default path is not usable after a real deal.
