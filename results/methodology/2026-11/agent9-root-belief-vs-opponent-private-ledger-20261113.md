@@ -41,9 +41,9 @@ Relevant source and tests:
 
 Consider a 60-card registered list containing one copy each of cards A and B. The root has no public information identifying either card's Prize status. With six Prizes:
 
-[
-P(A\text{ is Prized})=P(B\text{ is Prized})=6/60=0.10.
-]
+$
+P(A\text{ is Prized}) = P(B\text{ is Prized}) = \frac{6}{60} = 0.10.
+$
 
 The root's observable state and belief are identical whether the opponent privately knows A is Prized or privately knows B is Prized. Yet if the sampler conditions the opponent partition on the actual opponent K1 ledger, the sampled Prize composition is fixed by that private ledger in every root determinization. The root's simulated opponent responses can therefore vary with a hidden fact the root does not know, despite identical root observations.
 
