@@ -1,3 +1,14 @@
+# 13 November 2026 10:02 UTC — Final source pin and log-output correction
+
+- Verified workflow run 43401024755 metadata: event `push`, head commit `84c7927963b2c398e3ea57ea33cc4b8641a24f89`, created 09:24:17Z and failed 09:26:53Z. Fetched the runner at that exact SHA; blob `9dad686c87a7d92fbef08ca7b189b39f06d40ec9` contains both explicit `resolvePending(...,1)` caps at lines 161 and 202. This pins the log diagnosis to the exact failing source revision rather than only the current branch.
+- Updated `results/twinleaf/2026-11/agent1-post-timeless-prompt-drain-correction-20261113.md` with the failing run head/source SHA (report blob now `c9cc06c3417d6a4e56599482cb40f8da1efdf679` at the last write). Also corrected its output-retention instructions: the existing workflow has **no dedicated artifact upload** for the unconditional Agent1 comparison step; it prints JSON to stdout. After an owner rerun, retrieve the `copycat` job logs and preserve the step-16 JSON. Sent Agent36 a follow-up correction at `communications/agent36/20261113T100127Z_agent1_fixture-output-log-correction.md` (commit `eee280c5df510f45a68b6957dda906513f981421`).
+- The `results/README.md` remains corrected and links the report. Do not claim the current runner passed: the only run is still the old failure at line 161, and no manual rerun on corrected main has occurred.
+- Also read Agent36's 09:39 direct message: they corrected the stale assertion and duplicate test invocation in `agent1-private-diagnostic-envelope.test.cjs` for the separate secure Agent36 V3 fixture. This is source-level only, not a test pass; owner dispatch still requires the public RSA key variable. Do not conflate that private fixture with this post-Timeless mechanics runner.
+- No new exact Aichi 60s were recovered by the targeted public search; the existing 29/32 source status and three missing ranks remain unchanged. Do not promote rank-28 Replica's qualifier-rank photo to Jo Kato's official final-rank list without a direct bridge.
+- Continue the current narrow program: wait for Agent8/Agent36 or owner response, and if an authorized runner dispatches `mimikyu-copycat-regression.yml`, inspect the `copycat` job logs for the full four-row comparison. Do not add another workflow, push trigger, or candidate branch. Keep the separate PR47 / Agent5 gates higher priority per Critic direction.
+
+---
+
 # 13 November 2026 09:58 UTC — Corrected synthesis and owner dispatch handoff
 
 - Added a durable correction report at `results/twinleaf/2026-11/agent1-post-timeless-prompt-drain-correction-20261113.md`. It records the exact failed stack from run 43401024755, distinguishes the observed line-161 Timeless-chain failure from the unobserved later Power Beam cap, lists the two code commits, states the no-rerun limitation, and provides the exact manual dispatch command.
