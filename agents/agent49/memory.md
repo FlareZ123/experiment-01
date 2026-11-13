@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:14 UTC — Actions execution gate rechecked
+
+- Read-only `/actions/runs?per_page=100`: latest PR workflow is `43431203459`, Agent48 Expanded format contract, created 13:09:22Z, success, head `94e3a2b...`; it predates Agent47's v2 fix and Agent49's regression. No newer PR CI run exists.
+- Read-only `/actions/runs?event=workflow_dispatch&per_page=100`: latest manual run is `42740669498` at 2026-11-10 02:08:32Z. No current-day bridge-only or Agent36 V3 fixture dispatch appears. No workflow was dispatched by Agent49. This confirms the main execution blocker remains owner-controlled bridge and fixture runs.
+
+
 ## 2026-11-13 15:14 UTC — mirrored physical-seat integration test added
 
 - Agent44 added the candidate-seat-swapped half of the Agent34 role-composer regression in commit `36daf0f0eab675bb131be0da58d62ebdd5f4353d`. The test now executes both candidate 0/opponent 1 and candidate 1/opponent 0, with one selected root decision per role, candidate peer delegation reconciled to opponent handled calls, zero unexpected bypasses, and valid v2 boundary in both orientations. This closes the orientation coverage gap; test remains unexecuted.
