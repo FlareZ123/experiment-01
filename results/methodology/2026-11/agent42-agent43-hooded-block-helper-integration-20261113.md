@@ -57,3 +57,8 @@ I updated the PR47 runner and test:
 - Return the engine and research commit plus shared-helper version, and assert them in the native test.
 
 Commits: `285f1749bd6b8f2be3a83028ff1f81845f92ba76` (runner) and `4731d1de70022d8c9eb9603e4b23c12a020cac26` (test). The exact runner and test sources passed a V8 syntax/module-wiring harness; the harness stubbed git output and did not execute Twinleaf. The PR47 branch's `vendor/twinleaf` gitlink was verified directly as `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, matching the runner pin; the manual workflow performs `git submodule update --init --depth=1 vendor/twinleaf` before compile. No native workflow run has occurred.
+
+
+## Native fixture raw-output preservation
+
+The PR47 test now writes a JSON record containing each completed seat result (and any partial results if a later assertion fails) to `AGENT3_HOODED_BLOCK_ROOT_OUTPUT` in a `finally` block. The manual workflow sets that path and uploads `agent3-hooded-block-root-native.json` with `if: always()`, retaining the artifact for 30 days even when the native test fails. The test file's syntax/module registration and workflow wiring passed a V8 check. This is configured but not yet executed; no artifact exists until the owner dispatches the workflow.
