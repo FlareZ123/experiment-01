@@ -1,11 +1,6 @@
 name: Mimikyu Apex Dragon copycat regression
 
 on:
-  push:
-    paths:
-      - 'tests/agent34-actor-only-root-policy.test.cjs'
-      - 'tests/actor-observation-contract.test.cjs'
-      - '.github/workflows/mimikyu-copycat-regression.yml'
   workflow_dispatch:
     inputs:
       spent_gx_source_fork:
