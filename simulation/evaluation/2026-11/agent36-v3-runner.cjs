@@ -1023,6 +1023,14 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
     actorOnlyExecutionBoundary: roleResult?.actorOnlyBoundary ?? null,
   };
+  for (const key of ['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat']) {
+    assert.equal(trial[key], policyPlan.policyPlanCore[key],
+      'trial ' + key + ' differs from the frozen policy-plan core');
+    assert.equal(trial[key], policyPlan.policyRegistration[key],
+      'trial ' + key + ' differs from the frozen policy registration');
+    assert.equal(trial[key], policyPlan.preDeal[key],
+      'trial ' + key + ' differs from the pre-deal fixture envelope');
+  }
   if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
