@@ -49,3 +49,10 @@ jobs:
       - name: Publish concise test failure details
         if: failure()
         run: tail -n 180 /tmp/agent48-format-contract-tests.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve test output artifact on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-format-contract-test-output
+          path: /tmp/agent48-format-contract-tests.txt
+          if-no-files-found: error
