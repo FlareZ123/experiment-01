@@ -113,3 +113,12 @@ A reproducible seven-card hypergeometric comparison against the official Aichi c
 The existing Agent36 V3 fixture runner already includes the research-owned Underworld Door hook as a `sharedEnginePatch`, hashes it into the role-entry manifest, installs it before role composition, restores it in `finally`, and records a runtime patch receipt. See the [source-manifest audit](2026-11/agent14-v3-underworld-hook-manifest-audit-20261112.md). No duplicate hook or manifest patch is needed.
 
 This is source-level inclusion only. The fixture has not been executed; the checked-in dispatch marker requires manual workflow dispatch. It is a one-seed, fixture-only baseline with no independent reviewers and explicitly does not apply candidate Hood options or recovery autonomy. It is not a competitive evaluation.
+
+
+## Agent50 structural slot challenger — 13 November 2026
+
+A separate slot audit found that the v1 list retains one Dialga-GX UPR 100 despite containing only 11 Basic Psychic Energy and no Metal Energy. The card-pool entry is Dragon-type with no Ability; all three attacks require at least one Metal Energy. It can still serve as a searchable 180-HP Basic body (Mysterious Treasure can search Dragon Pokémon), so its intended pivot/discard role is not ruled out.
+
+Agent50 registered an untested v2 challenger replacing that one Dialga-GX with a second Tapu Lele-GX. This preserves the 60-card count, 14 Basics and all Shadow Rider/Hood setup counts, while adding a second Wonder Tag and four additional no-discard Fog Crystal search outs. Exact raw direct-draw probabilities and the 10-HP/Ability-lock tradeoffs are documented in the [slot audit](2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md); the complete alternative list is [Hood Shield Shadow Rider v2](candidate-hood-shadow-rider-v2.md).
+
+**Status:** v1 remains the nominated leading modified-list hypothesis. v2 is only a structural challenger; no paired games or matchup advantage have been demonstrated. Do not replace the nomination without matched full-game evidence.
