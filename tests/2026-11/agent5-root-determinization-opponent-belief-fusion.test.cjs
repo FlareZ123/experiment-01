@@ -306,7 +306,7 @@ test('fixed opponent-policy RNG is isolated from hidden-state transition consump
   );
   assert.equal(
     threat.result.audit.opponentPolicyRngProtocol,
-    'mcts-opponent-policy-rng-v1'
+    'mcts-opponent-policy-rng-v2'
   );
 });
 
@@ -323,17 +323,90 @@ test('fixed opponent-policy draws cannot advance the game-transition RNG', () =>
 });
 
 
-test('fixed opponent policy context excludes live clock and timing origin', () => {
+test('fixed opponent policy receives no timing context', () => {
   const result = runOpponentPolicyRngProbe('threat', 1);
-  const context = result.policyContexts[0];
 
-  assert.equal(Object.isFrozen(context), true);
-  assert.deepEqual(Object.keys(context).sort(),
-    ['checkDeadline', 'maxDecisionMs', 'seed']);
-  assert.equal(context.seed, 2);
-  assert.equal(context.maxDecisionMs, Infinity);
-  assert.equal(typeof context.checkDeadline, 'function');
-  assert.equal(context.checkDeadline(), undefined);
-  assert.equal(result.result.audit.opponentPolicyContextProtocol,
-    'actor-observation-deadline-only-v1');
+  assert.equal(result.policyContexts[0], undefined,
+    'The actor-observation policy must not receive live timing or deadline functions');
+  assert.equal(result.result.audit.opponentPolicyContextProtocol, 'no-context-v1');
+});
+
+
+function runOpponentPolicyPlyProbe(rootPrivateCard) {
+  const policyRandomValues = [];
+  const policySelectedKeys = [];
+  const opponentObservationHashes = [];
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 3,
+    seed: 3,
+    observe: (state, seat) => {
+      const observation = seat === 0 ? {
+        seat,
+        privateCard: state.privateCard
+      } : {
+        seat,
+        public: state.public
+      };
+      if (seat === 1) opponentObservationHashes.push(observationSha256(observation));
+      return observation;
+    },
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === 0 ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    sampleDeterminization: state => ({...state}),
+    applyAction: (state, action) => {
+      if (state.seat === 0) {
+        const rootActionCount = state.rootActionCount ?? 0;
+        if (state.privateCard === 'bluff' && rootActionCount === 0) {
+          // This hidden-world path requires an extra root action but does not
+          // change the opponent's eventual observation or legal frontier.
+          return {...state, rootActionCount: 1, seat: 0};
+        }
+        return {...state, rootActionCount: rootActionCount + 1, seat: 1};
+      }
+      return {...state, terminal: true, winner: 0};
+    },
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0,
+    opponentPolicyId: 'internal-ply-isolation-probe-v1',
+    opponentActionPolicy: (observation, actionKeys, seat, random) => {
+      assert.equal(seat, 1);
+      assert.equal(Object.hasOwn(observation, 'privateCard'), false);
+      assert.deepEqual(actionKeys, ['block', 'pass']);
+      const value = random();
+      policyRandomValues.push(value);
+      const selected = value > 0.5 ? 'block' : 'pass';
+      policySelectedKeys.push(selected);
+      return selected;
+    }
+  });
+  const result = search.search({
+    seat: 0,
+    privateCard: rootPrivateCard,
+    rootActionCount: 0,
+    public: {same: true},
+    terminal: false
+  }, 0);
+  return {result, policyRandomValues, policySelectedKeys, opponentObservationHashes};
+}
+
+test('fixed opponent-policy RNG is independent of internal search ply', () => {
+  const oneRootAction = runOpponentPolicyPlyProbe('threat');
+  const twoRootActions = runOpponentPolicyPlyProbe('bluff');
+
+  assert.equal(oneRootAction.opponentObservationHashes[0],
+    twoRootActions.opponentObservationHashes[0]);
+  assert.equal(oneRootAction.result.audit.rolloutPaths[0].actions
+    .filter(action => action.seat === 0).length, 1);
+  assert.equal(twoRootActions.result.audit.rolloutPaths[0].actions
+    .filter(action => action.seat === 0).length, 2);
+  assert.equal(oneRootAction.policyRandomValues[0], twoRootActions.policyRandomValues[0],
+    'The same actor information set must receive the same stream at different internal plies');
+  assert.equal(oneRootAction.policySelectedKeys[0], twoRootActions.policySelectedKeys[0]);
+  assert.equal(oneRootAction.result.audit.opponentPolicyRngProtocol,
+    'mcts-opponent-policy-rng-v2');
 });
