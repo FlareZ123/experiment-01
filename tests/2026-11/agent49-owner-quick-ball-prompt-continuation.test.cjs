@@ -116,12 +116,16 @@ function makeScenario() {
   };
   const opponent = {
     id: 202,
-    get hand() { throw new Error('opponent hand must not be read'); },
-    get deck() { throw new Error('opponent deck must not be read'); },
-    get prizes() { throw new Error('opponent prizes must not be read'); }
+    hand: {
+      isPublic: false,
+      get cards() { throw new Error('opponent hand identities must not be read'); }
+    },
+    deck: {
+      get cards() { throw new Error('opponent deck identities must not be read'); }
+    }
   };
   const state = { players: [owner, opponent], activePlayer: 0, turn: 2, prompts: [] };
-  return { state, owner, item, energies, shadowRider, tapu };
+  return { state, owner, opponent, item, energies, shadowRider, tapu };
 }
 
 function stubDeps() {
@@ -231,12 +235,6 @@ test('actor-only root selects Quick Ball and then Benches the exact searched obj
     'Shadow Rider Calyrex V CRE', 'Shadow Rider Calyrex V', 210
   ));
   completePublicZones(opponent, publicPokemon('Pidgey MEW', 'Pidgey', 60));
-  Object.defineProperty(opponent, 'hand', {
-    configurable: true, value: { cards: [{ fullName: 'Hidden opponent hand card' }], isPublic: false }
-  });
-  Object.defineProperty(opponent, 'deck', {
-    configurable: true, value: { cards: [{ fullName: 'Hidden opponent deck card' }] }
-  });
   opponent.supporter = { cards: [] };
   opponent.discard = { cards: [] };
 
