@@ -10,6 +10,12 @@ function withRandom(random,fn) {
   finally{Math.random=previous;}
 }
 
+function abstentionError(code,message) {
+  const error=new Error(message);
+  error.code=code;
+  return error;
+}
+
 function ownerKnowledgeLedger(knowledge) {
   assert.ok(knowledge&&knowledge.verified===true,
     'MCTS observation requires the verified ledger used by determinization');
@@ -47,8 +53,7 @@ function createTwinleafInformationSetSearch(deps,options={}) {
   const required=[
     'ActionEnumerator','Simulator','actorObservation','GamePhase',
     'BotFlipMode','BotShuffleMode','simulatorOptions',
-    'actionKey','sampleDeterminization','evaluateObservation',
-    'promptOwnerSeat','promptResolverForSeat','winnerSeat'
+    'actionKey','sampleDeterminization','evaluateObservation','winnerSeat'
   ];
   for(const name of required)assert.ok(deps[name], 'Missing Twinleaf adapter dependency: '+name);
   assert.equal(deps.simulatorOptions.flipMode,deps.BotFlipMode.RANDOM,
@@ -75,27 +80,13 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     assert.ok(typeof deps.ownDecklistId==='string'&&deps.ownDecklistId.length>0,
       'Decklist-aware observations require the bot own decklist ID');
   }
-  const maxPromptResolutions=options.maxPromptResolutions??64;
-
   function stable(state) {
     return !(state.prompts??[]).some(prompt=>prompt.result===undefined);
   }
-  function resolvePrompts(simulator,random) {
-    let count=0;
-    while(!stable(simulator.store.state)) {
-      assert.ok(count++<maxPromptResolutions,
-        'Prompt resolution exceeded the safety bound');
-      const state=simulator.store.state;
-      const prompt=state.prompts.find(item=>item.result===undefined);
-      const seat=deps.promptOwnerSeat(state,prompt);
-      assert.ok(seat===0||seat===1,'Prompt owner could not be mapped to a physical seat');
-      const resolver=deps.promptResolverForSeat(seat);
-      assert.ok(resolver&&typeof resolver.resolvePrompt==='function',
-        'Prompt owner has no actor-scoped resolver');
-      const action=resolver.resolvePrompt(state.players[seat],state,prompt);
-      assert.ok(action,'Prompt resolver returned no action');
-      simulator.dispatch(action);
-    }
+  function resolvePrompts(simulator) {
+    if(!stable(simulator.store.state))
+      throw abstentionError('MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE',
+        'Bounded MCTS adapter abstains on unresolved prompts');
     return simulator.store.state;
   }
 
@@ -123,14 +114,40 @@ function createTwinleafInformationSetSearch(deps,options={}) {
       const player=state.players[seat];
       const actions=enumerator.enumerate(state,player,player.id);
       assert.ok(Array.isArray(actions));
-      return actions;
+      const perClass=new Map();
+      for(const action of actions) {
+        const actionClass=action?.constructor?.name??action?.type??'unknown';
+        const count=(perClass.get(actionClass)??0)+1;
+        perClass.set(actionClass,count);
+        if(count>=8)
+          throw abstentionError('MCTS_ABSTAIN_ACTION_FRONTIER_CAPPED',
+            'ActionEnumerator per-class cap may have truncated the legal frontier');
+      }
+      const legal=[];
+      const legalityRandom=()=>0.5;
+      for(const action of actions) {
+        const simulator=withRandom(legalityRandom,()=>
+          new deps.Simulator(state,deps.simulatorOptions));
+        assert.ok(simulator?.store?.state,
+          'Legality-check Simulator did not expose a Store state');
+        try {
+          withRandom(legalityRandom,()=>simulator.dispatch(action));
+        } catch {
+          continue;
+        }
+        if(!stable(simulator.store.state))
+          throw abstentionError('MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE',
+            'A candidate action creates an unresolved prompt outside the bounded envelope');
+        legal.push(action);
+      }
+      return legal;
     },
     actionKey:deps.actionKey,
     applyAction(state,action,random) {
       const metadata=metadataByState?.get(state);
       const simulator=withRandom(random,()=>new deps.Simulator(state,deps.simulatorOptions));
       withRandom(random,()=>simulator.dispatch(action));
-      const next=withRandom(random,()=>resolvePrompts(simulator,random));
+      const next=withRandom(random,()=>resolvePrompts(simulator));
       if(metadata&&metadataByState)metadataByState.set(next,metadata);
       return next;
     },
