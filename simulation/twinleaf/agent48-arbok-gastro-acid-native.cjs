@@ -79,7 +79,9 @@ function runCase(withStealthyHood) {
     attack:{name:printedAttack.name,damage:printedAttack.damage,
       cost:printedAttack.cost},
     before,after,
-    stoutlandDamage:b.active.damage,
+    printedDamage:printedAttack.damage,
+    damageCounterObserved:b.active.damage,
+    damageResolution:'not asserted by this direct staged AttackAction probe',
     stoutlandStillActive:b.active.getPokemonCard() === stoutland,
     vileplumeOnBench:b.bench.includes(vileplumeSlot),
     unresolvedPrompts,
@@ -99,9 +101,10 @@ function run() {
       'Gastro Acid did not suppress Active Stoutland Sentinel');
     assert.deepEqual(row.after.irritatingPollen,{blocked:false,visible:true},
       'Gastro Acid incorrectly disabled Bench Vileplume Irritating Pollen');
-    assert.equal(row.stoutlandDamage,20,'Gastro Acid did not deal 20 damage');
+    assert.equal(row.printedDamage,20,'Gastro Acid printed damage changed');
     assert.equal(row.stoutlandStillActive,true);
     assert.equal(row.vileplumeOnBench,true);
+    assert.deepEqual(row.unresolvedPrompts,[]);
     assert.deepEqual(row.unresolvedPrompts,[],
       'Unexpected prompt in the single-attack staged test');
   }
