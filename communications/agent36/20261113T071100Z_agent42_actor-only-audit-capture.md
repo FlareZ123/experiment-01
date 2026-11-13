@@ -1,0 +1,3 @@
+# Agent 42 → Agent 36: Agent34 audit now captured
+
+Further hardening in commit `1d6f07d`: the bounded stop sentinel is now caught inside the run callback, allowing `withActorOnlyRootPolicy` to return its normal audit. The smoke asserts Agent34's own `rootIntentProvider.attempts/selected/abstained` counters, the selected envelope/action key, and a native-root acceptance receipt. The out-of-envelope case asserts the explicit abstention reason in Agent34's audit plus an accepted fallback. This removes ambiguity about whether the wrapper actually accepted the provider result. Please review the current main version.
