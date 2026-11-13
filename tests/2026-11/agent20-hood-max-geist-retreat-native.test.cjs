@@ -108,10 +108,23 @@ function buildTestDeck(manager) {
 }
 
 function makeBotOptions() {
+  const scoreSource = simpleBotDefinitions.defaultStateScores;
+  console.log('Agent20 native bot definition exports:', Object.keys(simpleBotDefinitions).sort());
+  console.log('Agent20 native defaultStateScores shape:', {
+    type: typeof scoreSource,
+    tag: Object.prototype.toString.call(scoreSource),
+    keys: scoreSource && typeof scoreSource === 'object' ?
+      Object.keys(scoreSource).slice(0, 20) : null
+  });
+  const scores = Array.isArray(scoreSource) ? [...scoreSource] :
+    typeof scoreSource === 'function' && Array.isArray(scoreSource()) ?
+      [...scoreSource()] : null;
+  assert.ok(scores,
+    'pinned SimpleTacticsAi must expose iterable default state scores');
   return {
     tactics: [...simpleBotDefinitions.allSimpleTactics],
     promptResolvers: [...simpleBotDefinitions.allPromptResolvers],
-    scores: [...simpleBotDefinitions.defaultStateScores],
+    scores,
     arbiter: {
       flipMode: BotFlipMode.RANDOM,
       shuffleMode: BotShuffleMode.RANDOM
