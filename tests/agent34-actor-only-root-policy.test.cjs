@@ -193,6 +193,50 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   assert.equal(outsideFlittleEnvelope.reason,'intent-outside-flittle-envelope');
 });
 
+test('MCTS selected action key is mandatory and bound to the sanitized intent',()=>{
+  const state={privateOpponentHand:['not-for-provider']};
+  const view=Object.freeze({...base(),actorSeat:1});
+  const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
+  const invoke=(selectedActionKey,providerIntent={kind:'pass'})=>{
+    const audit={
+      frontierComplete:true,
+      bothSeatKnowledgeLedgersVerified:true,
+      ownerLedgerInInformationSetKey:true,
+      promptResolutionActorScoped:true,
+      applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+      iterations:32,completedIterations:32,maxPlies:4,
+      maxDecisionMs:250,seed:9,elapsedMs:12.5,
+      timeoutStatus:'completed'
+    };
+    if(selectedActionKey!==null)audit.selectedActionKey=selectedActionKey;
+    return invokeActorRootIntentProvider({
+      rootIntentActionKey:rootIntentActionKeyForTest,
+      state,actorSeat:1,view,catalog,
+      rootOptions:{rootIntentBudget:budget},
+      capabilityFactory:()=>()=>({
+        status:'selected',intent:{kind:'pass'},audit
+      }),
+      provider:context=>{
+        context.runSearch();
+        return {status:'selected',intent:providerIntent};
+      }
+    });
+  };
+
+  assert.equal(invoke('PASS_TURN').status,'selected');
+  const missingKey=invoke(null);
+  assert.equal(missingKey.status,'abstained');
+  assert.equal(missingKey.reason,'native-search-action-key-unbound');
+
+  const mismatchedKey=invoke('ATTACK_ACTION:Ram');
+  assert.equal(mismatchedKey.status,'abstained');
+  assert.equal(mismatchedKey.reason,'native-search-action-key-intent-mismatch');
+
+  const mismatchedIntent=invoke('PASS_TURN',{kind:'attack',attackName:'Ram'});
+  assert.equal(mismatchedIntent.status,'abstained');
+  assert.equal(mismatchedIntent.reason,'native-search-intent-binding-mismatch');
+});
+
 test('certified MCTS root intent reaches the native actor action switch',()=>{
   class AddPlayerAction{}
   class PlayCardAction{
