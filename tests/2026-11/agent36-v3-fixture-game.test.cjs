@@ -153,6 +153,8 @@ test('fixture policy registration distinguishes Expanded game rules from Japanes
     path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource, /gameRuleset: trial\.gameRuleset/);
   assert.match(runnerSource, /opponentSourceEventFormat: trial\.opponentSourceEventFormat/);
+  assert.match(runnerSource,
+    /for \(const key of \['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat'\]\)/);
 });
 
 test('string trial seed maps deterministically to a recorded uint32 stream seed', () => {
