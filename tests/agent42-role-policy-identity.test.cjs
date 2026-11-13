@@ -318,16 +318,23 @@ test('partial runtime closure is fixture-only; production receipts require full 
  assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:fixturePlan,
   candidateIdentity:candidate,opponentIdentity:opponent,
   trial:{...fixtureTrial,fixtureOnly:false}}),/production application receipt requires complete process-closure coverage/);
- const productionPlan=preDeal(candidate,opponent,constraints,true);
+ const productionConstraints={
+  ...constraints,expandedLegalityAsOf:'2026-11-13',
+  formatReviewStatus:'independently-reviewed'
+ };
+ const productionConstraintsSha=evidenceBundleSha256(productionConstraints);
+ const productionCandidate=identity('candidate-policy',null,1,cm,{},productionConstraintsSha);
+ const productionOpponent=identity('opponent-policy',7,2,om,{},productionConstraintsSha);
+ const productionPlan=preDeal(productionCandidate,productionOpponent,productionConstraints,true);
  assert.notEqual(fixturePlan.policyPlanSha256,productionPlan.policyPlanSha256,
   'fixture/production closure scope must be frozen into distinct policy-plan digests');
- const productionTrial={...trial(candidate,opponent,0,1),fixtureOnly:false,
+ const productionTrial={...trial(productionCandidate,productionOpponent,0,1),fixtureOnly:false,
   expandedLegalityAsOf:'2026-11-13',formatReviewStatus:'independently-reviewed'};
  const productionApplied=I.createPolicyApplicationReceipt({preDeal:productionPlan,
-  candidateIdentity:candidate,opponentIdentity:opponent,trial:productionTrial});
+  candidateIdentity:productionCandidate,opponentIdentity:productionOpponent,trial:productionTrial});
  assert.match(productionApplied.receipt.receiptSha256,/^[0-9a-f]{64}$/);
  assert.throws(()=>I.createPolicyApplicationReceipt({preDeal:productionPlan,
-  candidateIdentity:candidate,opponentIdentity:opponent,
+  candidateIdentity:productionCandidate,opponentIdentity:productionOpponent,
   trial:{...productionTrial,fixtureOnly:true}}),/fixture-only trial must explicitly use fixture-scoped process closure/);
 }));
 
