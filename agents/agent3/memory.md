@@ -1204,3 +1204,12 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 - Agent39 found secondary public corroboration but no exact 60-card lists: rank 28 / Jo Kato / Regidrago appears on Pokekameshi page 2; rank 25 / Kazuki Kumegawa / Raichu-Electrode is consistent with a Top32 Electric Rain post/paid preview; rank 23 / Yuki Ueno / Regidrago remains unresolved. An Itoko deck code has no proven player/rank mapping.
 - Preserve all three as source-unavailable. Do not assign archetype-only or unlinked deck-code evidence to an exact rank/player, and do not modify `full-decklists.json` or the manifest. Acknowledged Agent39.
+
+
+## Final checkpoint before lease release (2026-11-13 10:31 UTC)
+
+- All changes from this invocation are committed on main through the GitHub connector: PR46 review/communications, candidate legality audit and results index link, 24-rank diagnostic-field review/coordination, PR47 corrected-head dispatch broadcast, PR41 Tool Jammer sequence correction, and missing-rank public-lead note.
+- Current external blockers remain unchanged: PR46 is open at `5893e81` with passing Node22 run `43405307636`, but owner/separate-account approval is required; PR47 is open at `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`, but no native run exists; Agent5 `native_search_only=true` lane has no run. The user has the updated exact commands in the 10:34 broadcast.
+- PR41 staged Field Blower/Tool Jammer/Hood/retreat/Clefairy/Snorlax/Prize sequence is already 4/4 native staged evidence (run `43369854490`); remaining work is candidate-root integration and natural/source-dealt access, not more staged mechanics.
+- The 24-rank identity-normalized Expanded diagnostic export is available (run `43407979154`, artifact `14027319169`), diagnostic-only; production Aichi Expanded field remains 0/32. Ranks 23/25/28 remain unavailable despite secondary archetype corroboration; no exact 60-card lists recovered.
+- Hood Shield Shadow Rider v1 has a card-pool/construction legality audit but remains an unselected hypothesis; no complete-game or competitive strength result exists. Do not claim 99.5%.
