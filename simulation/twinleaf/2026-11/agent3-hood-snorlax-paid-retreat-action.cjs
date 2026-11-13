@@ -16,9 +16,12 @@ const engine = modulePath => require(path.join(output, modulePath));
  * legal Bench destination. This deliberately does not use Latias, Float Stone,
  * or any zero-cost retreat shortcut.
  *
- * @param {{hood?:boolean,toolJammer?:boolean,stadium?:string}} options
+ * @param {{hood?:boolean,toolJammer?:boolean,stadium?:string,candidateSeat?:0|1}} options
  */
 function paidRetreatAgainstSnorlax(options = {}) {
+  const candidateSeat = options.candidateSeat ?? 0;
+  assert.ok(candidateSeat === 0 || candidateSeat === 1,
+    'Candidate must occupy one of the two physical player seats');
   const manager = initializeCards();
   const { Store } = engine('game/store/store');
   const { Player } = engine('game/store/state/player');
@@ -37,17 +40,17 @@ function paidRetreatAgainstSnorlax(options = {}) {
   };
 
   const candidate = new Player();
-  candidate.id = 101;
+  candidate.id = candidateSeat === 0 ? 101 : 202;
   candidate.name = 'Shadow Rider candidate';
   const opponent = new Player();
-  opponent.id = 202;
+  opponent.id = candidateSeat === 0 ? 202 : 101;
   opponent.name = 'Snorlax Block opponent';
 
   const store = new Store({ onStateChange() {} });
   const state = store.state;
-  state.players = [candidate, opponent];
+  state.players = candidateSeat === 0 ? [candidate, opponent] : [opponent, candidate];
   state.turn = 3;
-  state.activePlayer = 0;
+  state.activePlayer = candidateSeat;
   state.phase = GamePhase.PLAYER_TURN;
   state.gameSettings.format = Format.EXPANDED;
 
@@ -128,8 +131,8 @@ function paidRetreatAgainstSnorlax(options = {}) {
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       format: 'EXPANDED',
       action: 'RetreatAction',
-      options: { hood: !!options.hood, toolJammer: !!options.toolJammer,
-        stadium: options.stadium ?? null },
+      options: { candidateSeat, hood: !!options.hood,
+        toolJammer: !!options.toolJammer, stadium: options.stadium ?? null },
       retreatCostEnergyCount: retreatCost.cost.length,
       physicalPsychicEnergyBefore: psychicEnergy.length,
       hoodPhysicallyAttached: vmaxSlot.tools.some(tool =>
