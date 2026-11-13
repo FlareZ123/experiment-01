@@ -141,6 +141,10 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Added optional `aichi_bridge_only` input and a bridge-only job to the existing manual `.github/workflows/twinleaf-smoke.yml`. With `aichi_bridge_only=true`, the normal smoke job is skipped; the bridge job verifies the submodule gitlink, builds pinned Twinleaf on Node 20.19, switches to Node 22, downloads artifact 14027319169, runs syntax/pure tests/bridge, and uploads `aichi-twinleaf-decklist-bridge`. No new workflow or push trigger was added.
 - Updated the bridge report and `results/README.md` with the manual run path, source hashes, exact source denominator, and current limitation.
 
+
+
+- Preserved the normalized source-side identity layer as `results/aichi-2026/2026-11/agent39-normalized-deck-hash-manifest-20261113.json`: 24 source ranks, 812 rows, 1,440 copies, 24 unique functional hashes and 24 unique source-print hashes, plus source artifact digests and explicit diagnostic-only status. Linked it from the bridge report and `results/README.md`. It intentionally contains no Twinleaf registered60 or runtime hashes.
+
 ### Exact execution blocker / current status
 
 - The actual Twinleaf mapping has **not** run. This container has no repository checkout, no `vendor/twinleaf` submodule or compiled `ptcg-server/output`; `git ls-remote https://github.com/twinleafgg/twinleafgg.git ...` failed with `Could not resolve host: github.com`. The local npm cache is empty.
