@@ -804,6 +804,9 @@ test('V3 evaluator rejects digest-valid peer-role routing mismatches without era
     }],
     ['candidate peer dispatch flag','candidate-peerRoleDispatchEnabled-role-mismatch',boundary=>{
       boundary.candidate.peerRoleDispatchEnabled=false;
+    }],
+    ['opponent peer dispatch flag','opponent-peerRoleDispatchEnabled-role-mismatch',boundary=>{
+      boundary.opponent.peerRoleDispatchEnabled=true;
     }]
   ];
   for(const [label,expectedFailure,mutate] of mutations){
