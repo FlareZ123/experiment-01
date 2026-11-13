@@ -1,6 +1,6 @@
 # Agent39: Aichi diagnostic field → Twinleaf card identity bridge
 
-**Status:** adapter and pure contract tests committed; actual 24-deck Twinleaf resolution has **not** yet been run.  
+**Status:** adapter, per-deck registered-60 hash protocol, and a manual pinned-build lane are committed; actual 24-deck Twinleaf resolution has **not** yet been run.  
 **Source field:** CI run [43407979154](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154), artifact [14027319169](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169).  
 **Pinned vendor:** `vendor/twinleaf`, commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
@@ -37,6 +37,53 @@ The bridge:
 
 The output retains the source-field schema, source dataset, official-banlist status, physical-print status and explicit diagnostic-only / paper-admission flags. It also exposes `diagnostic_reconstruction_eligible` from the audit field status: this identifies a legal English Expanded diagnostic reconstruction eligible for labeled simulation once all Twinleaf rows resolve, without changing the false production paper-admission flag. A complete bridge means only that Twinleaf card objects resolved. Combined with the separate 24-list English Expanded identity, deck-construction and current-banlist screens, it enables a legal English Expanded diagnostic reconstruction; it does **not** authenticate original physical Japanese copies or establish competitive strength. Production paper admission remains 0/32.
 
+## Frozen diagnostic input and exact source denominator
+
+The frozen artifact is run **43407979154**, artifact **14027319169**. Its raw file SHA-256 is `6ac2fbaec602f7c9ffd49c2a90c4c79be78df696cc56decc3631f5ad50c1812b`; the canonical JSON SHA-256 of `diagnostic_normalized_field` is `fba71e372f7e25b174473dc4c22ce2db90ae404a30d9ca14383816ecf94ca7c2`. These values were independently recomputed from the downloaded artifact.
+
+The input contains **24 decks, 812 source rows and 1,440 card copies**. Every deck declares exactly 60 copies:
+
+| Source row | Player | Source rows | Copies |
+|---:|---|---:|---:|
+| 1 | Yasunori Kato | 33 | 60 |
+| 2 | Takahiro Ando | 38 | 60 |
+| 4 | Shu Hosoda | 31 | 60 |
+| 5 | Yamato Nakano | 30 | 60 |
+| 8 | Yusuke Kobayashi | 37 | 60 |
+| 9 | Shun Ito | 33 | 60 |
+| 10 | Haruku Yoshioka | 36 | 60 |
+| 11 | Wataru Yano | 26 | 60 |
+| 12 | Risa Sato | 35 | 60 |
+| 13 | Hiromu Sasaki | 34 | 60 |
+| 14 | Manaya Asano | 37 | 60 |
+| 15 | Ryotaro Nozawa | 35 | 60 |
+| 16 | Takumi Matsumoto | 29 | 60 |
+| 17 | Yuya Yamano | 27 | 60 |
+| 18 | Hayato Omuro | 33 | 60 |
+| 19 | Mark Takahashi | 37 | 60 |
+| 20 | Satoru Imamura | 36 | 60 |
+| 21 | Shun Nakajima | 38 | 60 |
+| 22 | Haruya Mori | 36 | 60 |
+| 26 | Hibiki Yamada | 32 | 60 |
+| 27 | Yuya Nagatsuma | 37 | 60 |
+| 30 | Koki Takeda | 32 | 60 |
+| 31 | Yuhi Yokoyama | 31 | 60 |
+| 32 | Kaito Higuchi | 39 | 60 |
+| **Total** | **24 source rows** | **812** | **1,440** |
+
+These are Limitless/source-row identifiers, not verified final bracket placements. The 24 inputs are diagnostic English Expanded reconstructions; five unchanged Japanese Extra lists remain incompatible, three exact lists remain unavailable, and original physical-copy paper admission remains 0/32.
+
+## Hash and revision bindings
+
+For each fully resolved deck, the bridge now emits two distinct SHA-256 values:
+
+- `ordered_input_sha256`: SHA-256 of UTF-8 `JSON.stringify(registered60)`, where `registered60` is the exact 60-element Twinleaf `Card.fullName` array supplied to `decklist_for_seat.cards`.
+- `canonical_multiset_sha256`: SHA-256 of UTF-8 `JSON.stringify([{fullName,copies}, ...])`, with rows aggregated by full name and sorted by Unicode code-unit order. This is invariant to source-row order.
+- The exact serialization protocol is included in the result as `registered60_hash_protocol`. Hashes are null for incomplete decks; partial mappings never produce a deck hash.
+- The result also binds the raw source audit SHA-256, canonical normalized-field SHA-256, research repository revision, and actual Twinleaf submodule revision. These are separate from the registered-60 hashes.
+
+The registered-60 hashes are **not yet available** because the pinned CardManager mapping has not run. The raw/canonical source-artifact hashes above are input provenance only and must not be substituted for engine-input hashes.
+
 ## Reproduction and test status
 
 After building the pinned submodule so `vendor/twinleaf/ptcg-server/output` exists, extract `aichi-expanded-identity-audit.json` from artifact 14027319169 and run:
@@ -47,6 +94,10 @@ node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs /pat
 
 The output records the pinned Twinleaf revision, expanded `registered60` string arrays, compressed `registered60_counts`, `decklist_for_seat` objects, source-row mappings and any unresolved rows. Exit status 1 means the bridge is incomplete; status 2 means a runtime/build/input error.
 
-Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. Local Node 22 check: **6/6 tests passed**, including the diagnostic-reconstruction eligibility flag and strict 60-card rejection. The tests cover canonical-name differences, source-vs-canonical promo numbering, duplicate-row merging, missing/ambiguous identities, and count mismatch. The test and syntax checks are included in the existing manual owner-only Node22 workflow `.github/workflows/agent5-owner-root-native.yml`; no workflow was dispatched.
+Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. The original six tests passed locally on Node 22 before the hash extension; two new hash tests now cover order-sensitive engine-input hashes, order-independent multiset hashes, and mismatch rejection. The hash helper itself was checked in Node 22 against reordered 60-card arrays, but the full updated repository test file has not yet been run in this environment.
 
-**Not yet demonstrated:** whether all 812 source rows across the 24 lists resolve against the pinned Twinleaf build. The next step is to run the bridge after the authorized owner integration gates/build are available, then review its unresolved report before any simulation.
+A bridge-only execution path now exists in the **existing manual** `.github/workflows/twinleaf-smoke.yml`: dispatch with `aichi_bridge_only=true`. That job checks out and verifies the repository-pinned submodule, builds Twinleaf using its upstream Node 20.19 runtime, switches to Node 22 for the adapter tests, downloads artifact 14027319169, runs the bridge, and uploads the full row-level JSON. It adds no workflow or push trigger. The default smoke behavior remains unchanged.
+
+**Exact local blocker:** this execution container has no repository checkout, no `vendor/twinleaf` submodule or compiled `ptcg-server/output`, and outbound GitHub DNS/network access is unavailable (the attempted clone failed with `Could not resolve host: github.com`; the local npm cache is empty). The normalized audit artifact is available and its 24/812/1,440 denominators and hashes were verified, but the pinned Twinleaf build cannot be created here. The connected GitHub actions interface also exposes no workflow-dispatch operation. An owner/authorized runner must dispatch the existing manual workflow with `aichi_bridge_only=true` to obtain the actual mapping.
+
+**Not yet demonstrated:** whether all 812 source rows across the 24 lists resolve against the pinned Twinleaf build. No per-rank unresolved count, registered-60 hash, Twinleaf CardManager count, or deck-resolution success is claimed until that run produces its artifact.
