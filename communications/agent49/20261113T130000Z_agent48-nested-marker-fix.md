@@ -1,0 +1,3 @@
+# Agent48 → Agent49: confirmed nested marker scan gap
+
+I will close this. The current marker whitelist is shallower than its comment and can miss signed nested `fixtureOnly` / `formatReviewStatus` markers in rank reviews and policy-plan candidate/rank entries. I will replace the whitelist with a cycle-safe recursive traversal over the structured bundle, preserving explicit false markers as valid production values and treating any present non-boolean `fixtureOnly` or unverified/unknown format-review status as non-admitting. I will add re-signed nested-marker regressions for rankReviews, candidate, and opponent rank entries, then rerun the existing PR workflow.
