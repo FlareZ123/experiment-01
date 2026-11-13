@@ -16,15 +16,15 @@ The published [rank-12 source inventory](../../aichi-2026/full-decklists.json) i
 
 Relevant card text in the bundled English pool:
 
-- Battle Compressor PHF 92 (\`resources/cards/en/xy4.json\`) searches the deck for up to three cards and discards them, then shuffles.
-- Mimikyu GRI 58 (\`resources/cards/en/sm2.json\`)'s Copycat costs Psychic + Colorless and uses an attack that the opponent's Pokémon used during its last turn, provided that attack was not a GX attack.
-- Regidrago VSTAR SIT 136 (\`resources/cards/en/swsh12.json\`)'s Apex Dragon is a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
-- Dialga-GX UPR 100 (\`resources/cards/en/sm5.json\`) is **Dragon type** despite its Metal attack costs. Timeless-GX does 150 damage and takes another turn after this one, skipping the between-turns step; only one GX attack may be used per game.
-- Radiant Eternatus CRZ 105 (\`resources/cards/en/swsh12pt5.json\`) is Dragon type and its Power Beam does 200 damage.
-- Lillie's Clefairy ex (\`resources/cards/en/me2pt5.json\`)'s Fairy Zone changes the Weakness of the opponent's Dragon Pokémon in play to Psychic ×2.
-- Shadow Rider Calyrex VMAX (\`resources/cards/en/swsh6.json\`)'s Max Geist does 10 + 30 damage for each Psychic Energy attached to all of the player's Pokémon.
-- Latias ex (\`resources/cards/en/sv8.json\`)'s Skyliner gives the player's Basic Pokémon in play no Retreat Cost. Mimikyu is Basic.
-- Crobat V DAA 104 (\`resources/cards/en/swsh3.json\`) has 180 HP, is Darkness type, and has Fighting Weakness ×2 (not Psychic Weakness).
+- Battle Compressor PHF 92 (`resources/cards/en/xy4.json`) searches the deck for up to three cards and discards them, then shuffles.
+- Mimikyu GRI 58 (`resources/cards/en/sm2.json`)'s Copycat costs Psychic + Colorless and uses an attack that the opponent's Pokémon used during its last turn, provided that attack was not a GX attack.
+- Regidrago VSTAR SIT 136 (`resources/cards/en/swsh12.json`)'s Apex Dragon is a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
+- Dialga-GX UPR 100 (`resources/cards/en/sm5.json`) is **Dragon type** despite its Metal attack costs. Timeless-GX does 150 damage and takes another turn after this one, skipping the between-turns step; only one GX attack may be used per game.
+- Radiant Eternatus CRZ 105 (`resources/cards/en/swsh12pt5.json`) is Dragon type and its Power Beam does 200 damage.
+- Lillie's Clefairy ex (`resources/cards/en/me2pt5.json`)'s Fairy Zone changes the Weakness of the opponent's Dragon Pokémon in play to Psychic ×2.
+- Shadow Rider Calyrex VMAX (`resources/cards/en/swsh6.json`)'s Max Geist does 10 + 30 damage for each Psychic Energy attached to all of the player's Pokémon.
+- Latias ex (`resources/cards/en/sv8.json`)'s Skyliner gives the player's Basic Pokémon in play no Retreat Cost. Mimikyu is Basic.
+- Crobat V DAA 104 (`resources/cards/en/swsh3.json`) has 180 HP, is Darkness type, and has Fighting Weakness ×2 (not Psychic Weakness).
 
 The nested attack-cost and extra-turn mechanics are supported by the existing [Dialga counter-ALS audit](../../aichi-2026/2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md) and [Mimikyu extra-turn progression test](../../twinleaf/mimikyu-extra-turn-progression.md). The latter proves the first Copycat → Apex Dragon → Timeless-GX dispatch and the actual turn-5-to-turn-6 transition with the same player active. It does **not** test the second Copycat after that extra turn; that part of this fixture remains a rules-derived hypothesis requiring a future native regression.
 
@@ -43,7 +43,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 **Opponent board**
 - Active: Regidrago VSTAR at 280 HP.
 - Bench: Crobat V at 180 HP, the opponent's only Benched Pokémon.
- - The opponent's most recent attack was Apex Dragon.
+- The opponent's most recent attack was Apex Dragon.
 - If Regidrago VSTAR is Knocked Out, Crobat V is the only Pokémon available to promote.
 - No Path to the Peak or other Ability-locking effect is in play; Fairy Zone and Skyliner are active.
 
