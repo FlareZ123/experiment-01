@@ -10,6 +10,7 @@ const test = require('node:test');
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const fixtureGame = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const roleIdentity = require('../../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
+const roleComposition = require('../../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
 const diagnostic = require('../../simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -54,7 +55,7 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   assert.notEqual(native.botOptionsBySeat[0].tactics, native.botOptionsBySeat[1].tactics);
 });
 
-test('fixture trial binds both role execution audits to a canonical policy digest', () => {
+test('fixture trial binds the canonical composer actor-only execution boundary to its receipt', () => {
   const audit = (seat) => ({
     policyOwnerSeat: seat,
     version: 'agent34-actor-only-root-slice-test',
@@ -67,45 +68,47 @@ test('fixture trial binds both role execution audits to a canonical policy diges
     nonTurnPhaseFallbacks: 0,
     nonOwnerSeatBypassCalls: 0,
   });
-  const args = {
-    trialId: 'agent36-v3-fixture-audit-test',
+  const boundary = roleComposition.inspectActorOnlyExecutionBoundary({
+    candidateAudit: audit(0),
+    opponentAudit: audit(1),
     candidateSeat: 0,
     opponentSeat: 1,
-    candidateIdentity: { policySha256: 'a'.repeat(64) },
-    opponentIdentity: { policySha256: 'b'.repeat(64) },
-    roleResult: { candidateAudit: audit(0), opponentAudit: audit(1) },
-  };
-  const summary = runner.createFixtureActorOnlyPolicyExecutionAudit(args);
-  assert.equal(summary.trialId, args.trialId);
-  assert.equal(summary.candidate.policyOwnerSeat, 0);
-  assert.equal(summary.opponent.policyOwnerSeat, 1);
-  assert.equal(summary.candidate.nativeOwnerTrainerFallbackEnabled, false);
-  assert.equal(summary.opponent.unsupportedPromptFallbacks, 0);
-  assert.match(summary.sha256, /^[0-9a-f]{64}$/);
-
-  const changed = runner.createFixtureActorOnlyPolicyExecutionAudit({
-    ...args,
-    roleResult: {
-      candidateAudit: { ...audit(0), unsupportedPromptFallbacks: 1 },
-      opponentAudit: audit(1),
-    },
   });
-  assert.notEqual(changed.sha256, summary.sha256,
-    'a changed role fallback counter must change the trial-bound audit digest');
-  assert.throws(() => runner.createFixtureActorOnlyPolicyExecutionAudit({
-    ...args,
-    roleResult: { candidateAudit: audit(1), opponentAudit: audit(1) },
-  }), /wrong physical seat/);
-  assert.equal(runner.createFixtureActorOnlyPolicyExecutionAudit({
-    ...args, roleResult: null,
-  }), null);
+  assert.equal(boundary.schema, 'aichi-actor-only-execution-boundary-v1');
+  assert.equal(boundary.valid, true);
+  assert.deepEqual(boundary.failures, []);
+  assert.equal(boundary.candidate.ownerFallbackDiagnosticViewEnabled, false);
+  assert.equal(boundary.candidate.nativePolicyMayUseHiddenInformation, false);
+  assert.equal(boundary.opponent.policyOwnerSeat, 1);
+  const boundarySha256 = roleIdentity.validateActorOnlyExecutionBoundary(boundary, {
+    candidateSeat: 0,
+    opponentSeat: 1,
+  });
+  assert.match(boundarySha256, /^[0-9a-f]{64}$/);
+
+  const invalid = {
+    ...boundary,
+    candidate: { ...boundary.candidate, unsupportedPromptFallbacks: 1 },
+  };
+  assert.throws(() => roleIdentity.validateActorOnlyExecutionBoundary(invalid, {
+    candidateSeat: 0,
+    opponentSeat: 1,
+  }), /must be zero/);
+  const wrongSeat = roleComposition.inspectActorOnlyExecutionBoundary({
+    candidateAudit: audit(1),
+    opponentAudit: audit(1),
+    candidateSeat: 0,
+    opponentSeat: 1,
+  });
+  assert.equal(wrongSeat.valid, false);
+  assert.ok(wrongSeat.failures.includes('candidate-policy-owner-seat-mismatch'));
 
   const runnerSource = fs.readFileSync(
     path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource,
-    /actorOnlyPolicyExecutionAudit:\s*createFixtureActorOnlyPolicyExecutionAudit\(/);
+    /actorOnlyExecutionBoundary:\s*roleResult\?\.actorOnlyBoundary\s*\?\?\s*null/);
   assert.match(runnerSource,
-    /actorOnlyPolicyExecutionAudit:\s*trial\.actorOnlyPolicyExecutionAudit,\s*runtimePinEvidence/);
+    /actorOnlyExecutionBoundary:\s*trial\.actorOnlyExecutionBoundary,\s*runtimePinEvidence/);
 });
 
 test('fixture policy registration distinguishes Expanded game rules from Japanese Extra source event', () => {
