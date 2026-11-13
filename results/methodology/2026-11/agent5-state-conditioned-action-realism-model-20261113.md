@@ -17,7 +17,7 @@ A line is feasible only if every step is legal in the resulting state and all sh
 - one Supporter play per turn;
 - one manual Energy attachment per turn;
 - five Bench spaces and one Active position;
-- once-per-game powers and one-copy resources;
+- once-per-game powers and unique/singleton card-access constraints (including the one-ACE-SPEC deckbuilding limit where relevant);
 - actual card zones, evolution timing, retreat costs, attack costs, and target availability;
 - locks that remove or alter later actions;
 - the remaining turn and match clock.
