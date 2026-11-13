@@ -529,7 +529,7 @@ test('production pre-deal registration requires full process closure while fixtu
   const original=productionReviewerRegistry.reviewers;
   try {
     const partialProduction=makePolicyFixture({
-      fullProcessClosureCovered:false,fixtureOnly:false,unavailable:[]
+      fullProcessClosureCovered:false,fixtureOnly:false,unavailable:[23,25,28]
     });
     productionReviewerRegistry.reviewers=partialProduction.reviewerRegistry.reviewers;
     const {result:blocked}=makePreDeal(partialProduction,{fixtureOnly:false});
@@ -537,7 +537,7 @@ test('production pre-deal registration requires full process closure while fixtu
     assert.ok(blocked.failures.includes('production-runtime-process-closure-incomplete'));
 
     const complete=makePolicyFixture({
-      fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[]
+      fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[23,25,28]
     });
     productionReviewerRegistry.reviewers=complete.reviewerRegistry.reviewers;
     const {result:accepted}=makePreDeal(complete,{fixtureOnly:false});
@@ -548,7 +548,7 @@ test('production pre-deal registration requires full process closure while fixtu
   }
 });
 
-test('production pre-deal registration rejects a nonempty incomplete 29-rank field',()=>{
+test('production pre-deal registration permits a nonempty incomplete 29-rank field for per-game use',()=>{
   const fixture=makePolicyFixture({
     fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[23,25,28]
   });
@@ -556,9 +556,10 @@ test('production pre-deal registration rejects a nonempty incomplete 29-rank fie
   try {
     productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
     const {result}=makePreDeal(fixture,{fixtureOnly:false});
-    assert.equal(result.ready,false);
-    assert.equal(result.policyRegistration,null);
-    assert.ok(result.failures.includes('production-opponent-policy-field-incomplete'));
+    assert.equal(result.ready,true,result.failures.join(','));
+    assert.equal(result.fieldStatus,'INCOMPLETE_FIELD');
+    assert.equal(result.availableRanks.length,29);
+    assert.deepEqual(result.unavailableRanks,[23,25,28]);
   } finally {
     productionReviewerRegistry.reviewers=original;
   }
