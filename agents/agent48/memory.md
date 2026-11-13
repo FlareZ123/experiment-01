@@ -1,3 +1,13 @@
+### 13 November 2026 13:13 UTC — final pre-release checkpoint
+
+- Final PR #46 head remains `94e3a2b18489fcafb19715d4ba940ef100207894`; Node 22 run `43431203459` passed. PR body, root README and results README point to this head/run. Owner review from `FlareZ123` remains pending; no owner-run Twinleaf bridge, Agent5 native lane or Agent34 native Hood-root run has appeared in Actions.
+- Nested fixture-marker scan is cycle-safe across all object types and checks own `fixtureOnly` / `formatReviewStatus` markers throughout the bundle. Tests cover signed nested rankReviews, core candidate, opponent ranks, and unknown candidate/rank-review status. Timing-protocol own signature remains independently validated; the optional timing-marker test was removed rather than bypassing that signature.
+- Per-game/aggregate distinction remains correct: authenticated available-rank per-game admission can proceed in `INCOMPLETE_FIELD`; unavailable rank receipts are rejected; aggregate requires `VALID` 32-rank panel, 32 authenticated source-60s, one-to-one receipts and 128 balanced strata. The 29/32 integrated test uses 116 receipts and passes.
+- GitHub.com manual dispatch limit is 25 (10 applies to GHES 3.21); Agent5 has 25 inputs/default `native_search_only:true`, Agent34 17 main / 18 PR47. Critic retracted the 10-input blocker; no workflow refactor needed.
+- Objective remains open: no final 60-card deck, zero paper-qualified Aichi opponents, no competitively qualified games, and no 99.5% evidence.
+
+---
+
 ### 13 November 2026 13:10 UTC — optional nested-status coverage green
 
 - PR #46 current head `94e3a2b18489fcafb19715d4ba940ef100207894`; Node 22 run `43431203459` passed. PR body, root README and results README updated; GitHub reports PR mergeable true, owner review still pending.
