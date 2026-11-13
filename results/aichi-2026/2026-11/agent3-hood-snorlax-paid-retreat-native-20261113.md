@@ -22,7 +22,7 @@ This fills a gap in the earlier [free-retreat characterization](../../twinleaf/s
 The fixture creates an Expanded turn-3 Twinleaf Store with:
 - candidate Active Shadow Rider Calyrex V evolved into Shadow Rider Calyrex VMAX;
 - exactly two Psychic Energy physically attached to that VMAX;
-- one plain Shadow Rider Calyrex V as the legal Bench destination;
+- one plain Shadow Rider Calyrex V as the legal retreat destination, plus an optional separate Benched Shadow Rider VMAX carrying Hood for the target-scope negative control;
 - opponent Active Snorlax PGO with Block;
 - no Status Conditions, no other retreat restriction, and no free-retreat Ability or Tool;
 - optional Stealthy Hood on the candidate's current Active, optional Path to the Peak or Jamming Tower, or Tool Jammer on the opponent's Active.
@@ -36,12 +36,13 @@ Implementation:
 
 ## Results
 
-All six scenarios passed from both physical seats: **12/12 native Store cases**.
+All seven scenarios passed from both physical seats: **14/14 native Store cases**.
 
 | Scenario | Snorlax Block listed | Shadow Rider Underworld Door listed | Hood effective on Active | Paid retreat |
 | --- | --- | --- | --- | --- |
 | No Hood, no Stadium | Yes | Yes | No Hood | Blocked |
 | Hood on Active VMAX | Yes | Yes | Yes | Accepted |
+| Hood on a Benched VMAX while a different VMAX is Active | Yes | Yes | No on affected Active | Blocked |
 | Path to the Peak, no Hood | Yes | No | No Hood | Blocked |
 | Path to the Peak + Hood on Active VMAX | Yes | No | Yes | Accepted |
 | Jamming Tower + Hood on Active VMAX | Yes | Yes | No | Blocked |
