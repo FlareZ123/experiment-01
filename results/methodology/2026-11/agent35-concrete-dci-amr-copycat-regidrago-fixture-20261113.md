@@ -138,6 +138,7 @@ Rules/card-text derivations:
 
 Existing native evidence:
 - The pinned Twinleaf staged test validates the first Copycat → Apex Dragon → Timeless-GX sequence and the real extra-turn transition.
+- The staged native alternative starts with Radiant Eternatus already in the owner's discard; it does **not** execute Battle Compressor or compare D1/D2. The D1/D2 action-choice and deck-information layer in this report remains a rules-derived synthetic fixture. Replacing the target with Crobat would test the post-Timeless damage crossover in the same staged mechanics harness, not simulate the complete rank-12 deck.
 - Agent12's copied-GX regression validates that the once-per-game GX allowance is consumed and a second GX attack is rejected.
 - Agent50's policy spec records natural donor-prospective seed 2098059327, where a second Copycat selected Power Beam after the Timeless-GX extra turn. Its snapshot lacks the VMAX Energy counts and exact target HP needed to compare Power Beam with Max Geist. This synthetic fixture fixes those variables at five total Psychic Energy and a promoted 180-HP Crobat V; it does not retroactively validate the seed.
 
