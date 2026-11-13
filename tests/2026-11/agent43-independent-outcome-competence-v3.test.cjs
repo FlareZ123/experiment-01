@@ -787,15 +787,34 @@ test('deck-aware V3 accepts distinct policies for a synthetic 29-rank fixture bu
   assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
   assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
   assert.equal(r.responseOpportunityVerified,true);
-  assert.equal(r.competitivePolicyCompetenceReady,true);
-  assert.equal(r.acceptanceReady,true);
+  assert.equal(r.competitivePolicyCompetenceReady,false);
+  assert.equal(r.acceptanceReady,false);
+  assert.ok(r.failures.includes('opponent-policy-field-incomplete'));
   assert.equal(r.fixtureOnly,true);
   assert.equal(r.competitiveAdmission,false);
 });
 
 
+test('V3 event and untimed admission reject a nonempty incomplete 29-rank field',()=>{
+  for (const {mode,roles} of [
+    {mode:UNTIMED,roles:['paper','strategy']},
+    {mode:EVENT,roles:['paper','clock','strategy']}
+  ]) {
+    const {bundle,policyRegistry}=makePolicyBundle({mode});
+    const r=signedV3Result(bundle,policyRegistry,{roles});
+    assert.equal(r.gameOutcomeAdmissionReady,true);
+    assert.equal(r.policyPanelConsistency.valid,true);
+    assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
+    assert.equal(r.policyFieldComplete,false);
+    assert.equal(r.competitivePolicyCompetenceReady,false);
+    assert.equal(r.acceptanceReady,false);
+    assert.ok(r.failures.includes('opponent-policy-field-incomplete'));
+  }
+});
+
+
 test('V3 postgame reviews sign the finalized bundle externally without changing its digest',()=>{
-  const {bundle,policyRegistry}=makePolicyBundle();
+  const {bundle,policyRegistry}=makePolicyBundle({unavailable:[]});
   const audit=terminalAudit();
   bundle.trial.responseOpportunityAudit=audit;
   const finalBundleSha=evidenceBundleSha256(bundle);
@@ -860,7 +879,7 @@ test('a complete authenticated 32-rank plan needs all 128 rank-seat-first-player
 });
 
 test('runtime process-closure status is explicit and partial closure is fixture-only',()=>{
-  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT,unavailable:[]});
   const result=signedV3Result(bundle,policyRegistry,{roles:['paper','clock','strategy']});
   assert.equal(result.acceptanceReady,true);
   assert.equal(result.fullProcessClosureCovered,false);
@@ -1171,7 +1190,7 @@ test('a correctly re-signed policy attestation created after the deal is rejecte
 });
 
 test('event mode applies the same deck-aware policy gate without inheriting V2 samePolicy veto',()=>{
-  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT});
+  const {bundle,policyRegistry}=makePolicyBundle({mode:EVENT,unavailable:[]});
   const r=signedV3Result(bundle,policyRegistry,{roles:['paper','clock','strategy']});
   assert.equal(r.timingMode,EVENT);
   assert.equal(r.gameOutcomeAdmissionReady,true);
@@ -1434,8 +1453,8 @@ test('omitting constraints.gameRuleset cannot downgrade an incompatible rank wit
 });
 
 
-function makeFullClosurePolicyBundle({coreFixtureMarker}={}) {
-  const generated=makePolicyBundle({unavailable:[]});
+function makeFullClosurePolicyBundle({coreFixtureMarker,unavailable=[]}={}) {
+  const generated=makePolicyBundle({unavailable});
   const {bundle,candidatePrivateKey,opponentPrivateKey}=generated;
   bundle.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered=true;
   if(coreFixtureMarker!==undefined) bundle.policyPlanCore.fixtureOnly=coreFixtureMarker;
@@ -1543,3 +1562,33 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     }
   }
 });
+
+test('production evaluator rejects a nonempty incomplete 29-rank field despite full process closure and valid reviews',()=>{
+  const generated=makeFullClosurePolicyBundle({unavailable:[23,25,28]});
+  const {bundle,policyRegistry}=generated;
+  const audit=terminalAudit();
+  bundle.trial.responseOpportunityAudit=audit;
+  const game=signReviews(bundle,{roles:['paper','strategy'],strategyAudit:audit});
+  const combined=combineRegistries(policyRegistry,game.registry);
+  const diagnostic=inspectAdmissionV3(bundle,game.reviews,combined);
+  assert.equal(diagnostic.gameOutcomeAdmissionReady,true);
+  assert.equal(diagnostic.policyFieldComplete,false);
+  assert.equal(diagnostic.acceptanceReady,false);
+  assert.ok(diagnostic.failures.includes('opponent-policy-field-incomplete'));
+
+  const previous=authorizedReviewers.reviewers.slice();
+  authorizedReviewers.reviewers.splice(
+    0,authorizedReviewers.reviewers.length,...combined.reviewers);
+  try {
+    const production=evaluateCompetitiveAdmissionV3(bundle,game.reviews);
+    assert.equal(production.fixtureOnly,false);
+    assert.equal(production.acceptanceReady,false);
+    assert.equal(production.competitiveAdmission,false);
+    assert.equal(production.admissionEligible,false);
+    assert.ok(production.failures.includes('opponent-policy-field-incomplete'));
+  } finally {
+    authorizedReviewers.reviewers.splice(
+      0,authorizedReviewers.reviewers.length,...previous);
+  }
+});
+
