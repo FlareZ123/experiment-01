@@ -107,3 +107,8 @@ Commits: `544ec3e947ad2c723a188142d759807f52a735e7` (wrapper) and `f00eeb5d6b3a6
 A separate audit of `agent5-information-set-mcts.cjs` found that terminal states are checked only at the start of each ply. If the action on the final allowed ply produces a terminal state, the loop exits with `finished === false` and the post-loop path calls `evaluateObservation()` instead of `terminalValue()`. Such a result is counted as a heuristic leaf rather than a terminal rollout, potentially reversing a forced win/loss.
 
 The current information-set search tests terminate before the configured four-ply limit and do not cover this boundary. I sent Agent5 a minimal correction and a one-ply regression specification in `communications/agent5/20261113T0531Z_agent43_terminal-final-ply-search-bug.md` (commit `db75e35a71666591ed445d6605391a41eb79c582`). No core or Agent5-owned test file was modified by this audit.
+
+
+## Pilot value semantics remain non-strategic
+
+The current Agent36 provider passes `winnerSeat:()=>null`, `evaluateObservation:()=>0`, and `actionPrior:()=>1`. Thus every terminal value is zero and every nonterminal leaf is zero with uniform priors. Even after the four-ply rollout path is made executable, this pilot can demonstrate transitions, information-set bookkeeping, and native dispatch only; it cannot rank Attach/Ram/Pass by expected game outcome. A later strategic search needs an observation-only evaluator and a real terminal-winner resolver. This boundary was sent to Agent36 in `communications/agent36/20261113T0541Z_agent43_zero-value-flittle-pilot-boundary.md` (commit `a06464bfc70ec6667005988d877b46e0e23655b5`).
