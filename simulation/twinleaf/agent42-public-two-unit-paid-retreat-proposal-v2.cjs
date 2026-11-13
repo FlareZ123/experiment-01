@@ -2,19 +2,23 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.1';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.4-tool-jammer-predicate';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
 function twoPsychicPayment(active,catalog){
-  if(!Array.isArray(active?.energies)||active.energies.length!==2||
+  if(!Array.isArray(active?.energies)||active.energies.length<2||
      !(catalog.basicEnergies instanceof Set))return null;
   if(!active.energies.every(p=>catalog.basicEnergies.has(p)&&p.startsWith(PSY)))
     return null;
-  return {indices:[0,1],printings:[...active.energies]};
+  // A two-unit retreat may discard any two attached basic Psychic Energy.
+  // Surplus Energy remains attached; Max Geist's post-retreat projection
+  // subtracts exactly these two indices from the board's Psychic total.
+  const indices=[0,1];
+  return {indices,printings:indices.map(index=>active.energies[index])};
 }
 
-function attackBlocked(pokemon,attack){
+function attackBlocked(pokemon,attack,playerRestrictions){
   const r=pokemon?.publicRestrictions;
   if(!r||typeof r.cannotAttackNextTurn!=='boolean'||
      !Array.isArray(r.cannotUseAttacksNextTurn)||
@@ -23,7 +27,20 @@ function attackBlocked(pokemon,attack){
      !(r.blockedAttackNameUntilLeavesActive===null||
        typeof r.blockedAttackNameUntilLeavesActive==='string')||
      !(r.onlyAllowedAttackNameNextTurn===null||
-       typeof r.onlyAllowedAttackNameNextTurn==='string'))return null;
+       typeof r.onlyAllowedAttackNameNextTurn==='string')||
+     !Number.isSafeInteger(r.attackCostIncreaseNextTurn)||
+     !Number.isSafeInteger(r.attackCostIncreaseWhileActive)||
+     !playerRestrictions||
+     !Number.isSafeInteger(playerRestrictions.attackMaxEnergyTurnsRemaining)||
+     playerRestrictions.attackMaxEnergyTurnsRemaining<0||
+     !(playerRestrictions.attackMaxEnergy===null||
+       Number.isSafeInteger(playerRestrictions.attackMaxEnergy)))return null;
+  // Printed-cost projection does not model live cost increases or the
+  // player-wide attack-energy ceiling. Abstain rather than certify an
+  // attack that may become illegal when the Benched Pokémon is promoted.
+  if(r.attackCostIncreaseNextTurn!==0||
+     r.attackCostIncreaseWhileActive!==0||
+     playerRestrictions.attackMaxEnergyTurnsRemaining>0)return null;
   return r.cannotAttackNextTurn===true||
     r.blockedAttackNameNextTurn===attack.name||
     r.blockedAttackNameUntilLeavesActive===attack.name||
@@ -41,7 +58,7 @@ function activeHasCompetingAttack(view,catalog,active){
   for(const attack of active.attacks){
     if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
       return null;
-    const blocked=attackBlocked(active,attack);
+    const blocked=attackBlocked(active,attack,view.ownPublic?.publicTurnRestrictions);
     if(blocked===null)return null;
     if(blocked)continue;
     if(attack.gxAttack===true){
@@ -76,6 +93,12 @@ function postRetreatPrintedDamage(view,pokemon,attack,payment,catalog){
   if(attack.damageCalculation!==null&&
      attack.damageCalculation!==undefined)return null;
   return projectedPrintedDamage(view,pokemon,attack);
+}
+
+function opponentActiveToolJammerDisablesHood(view){
+  const tools=view?.opponentPublic?.active?.tools;
+  if(!Array.isArray(tools)||!tools.every(tool=>typeof tool==='string'))return null;
+  return tools.some(tool=>tool.startsWith('Tool Jammer '));
 }
 
 function opponentHasUnmodeledDamageOrPrizeText(view){
@@ -197,7 +220,7 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
     for(const attack of pokemon.attacks){
       if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
         return null;
-      const blocked=attackBlocked(pokemon,attack);
+      const blocked=attackBlocked(pokemon,attack,own.publicTurnRestrictions);
       if(blocked===null)return null;
       if(attack.gxAttack===true||blocked||
          !publicSpecialAttackPayable(view,catalog,pokemon,attack))continue;
@@ -225,5 +248,5 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
 
 module.exports={VERSION,twoPsychicPayment,attackBlocked,
   activeHasCompetingAttack,ownerHasUnmodeledFreeMobility,postRetreatPrintedDamage,
-  opponentHasUnmodeledDamageOrPrizeText,projectedPrizeOutcome,
+  opponentHasUnmodeledDamageOrPrizeText,opponentActiveToolJammerDisablesHood,projectedPrizeOutcome,
   proposeTwoUnitPaidRetreatV2};
