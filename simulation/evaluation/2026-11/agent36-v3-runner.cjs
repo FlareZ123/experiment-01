@@ -7,7 +7,8 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
-const {preparePreDealPolicyRegistration,buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
+const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
+  buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
@@ -504,7 +505,8 @@ async function revalidatePreDealPersistenceReceipt({preDeal,persistenceReceipt,
   const verified=await collector({
     ...common,preDeal,repositoryRoot,
     runId:persistenceReceipt.workflowRunId,
-    expectedHeadSha:persistenceReceipt.workflowHeadSha
+    expectedHeadSha:persistenceReceipt.workflowHeadSha,
+    prepare:revalidatePreDealPolicyRegistration
   });
   assert.deepEqual(verified.receipt,persistenceReceipt,
     'pre-deal persistence receipt differs from live GitHub run/artifact evidence');
