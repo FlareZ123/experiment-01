@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v1';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v2-three-colorless-cost';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -138,12 +138,12 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const vmax=bench[benchIndex];
   const maxGeist=Array.isArray(vmax.attacks)?
     vmax.attacks.find(attack=>attack?.name==='Max Geist'):null;
-  const psychicType=catalog.basicEnergyTypes?.Psychic;
+  const colorlessType=catalog.colorlessEnergyType;
   if(!maxGeist||!Array.isArray(maxGeist.cost)||
-     !Number.isSafeInteger(psychicType)||maxGeist.cost.length!==2||
-     maxGeist.cost.some(cost=>cost!==psychicType)||
-     !Array.isArray(vmax.energies)||
-     vmax.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<2)
+     !Number.isSafeInteger(colorlessType)||maxGeist.cost.length!==3||
+     maxGeist.cost.some(cost=>cost!==colorlessType)||
+     !Array.isArray(vmax.energies)||vmax.energies.length<3||
+     vmax.energies.some(energy=>!catalog.basicEnergies.has(energy)))
     return null;
   const blocked=attackBlocked(vmax,maxGeist,restrictions);
   if(blocked===null||blocked)return null;
