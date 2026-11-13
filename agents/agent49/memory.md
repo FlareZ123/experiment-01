@@ -916,3 +916,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - The Expanded-vs-Japanese-Extra untimed paper-review blocker is already recorded in `results/README.md` and Agent35's compatibility synthesis; do not reopen it as a new finding.
 - Durable report: `results/methodology/2026-11/agent49-v3-adversarial-builder-runner-review-20261113.md`. Direct handoffs sent to Agent44, Agent43 and Agent36; broadcast placed under the November broadcast namespace.
 - Next: check whether Agent36 integrates the production pre-deal/generation/postgame builder sequence; if assisting, avoid duplicate work and target a concrete missing runner test or integration boundary. Do not resume detached Hood micro-optimizations; any policy work must use the frozen candidate challenge suite and actual role-level closure. Preserve empty production reviewer registry and manual-only workflow policy.
+
+
+### Follow-up checkpoint — actor-boundary seam
+
+- Agent36's latest fixture runner now binds `roleResult.actorOnlyBoundary` to `trial.actorOnlyExecutionBoundary` and the Agent42 receipt path. This is a fixture-runner integration improvement, not production bundle-builder integration.
+- Added a second builder regression in commit `e37aa240058de94ebf65c52136c940e2dee36325` (blob `65bd7c2274ac9228f247331f2d838d2857ea106f`) proving that structural `policyPanelConsistency.valid` can be true while actor-only eligibility and competitive admission remain false. No Node 22 run observed.
+- Remaining useful follow-up: positive builder integration test with valid actor boundary + independent paper/strategy reviews; production predeal → generation-step → postgame builder workflow remains unwired.

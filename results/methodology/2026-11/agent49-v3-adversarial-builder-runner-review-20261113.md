@@ -57,3 +57,10 @@ The evaluator's untimed paper review also still requires `exactJapanesePrinted60
 ## Validation and limitations
 
 This is a source-level adversarial review plus a committed regression source. No Node 22 workflow execution was available in this connection, and no live fixture, physical deal, paper review, or production admission was performed. The synthetic test is deliberately marked by its assertions as non-admitting; it must never be reported as competitive evidence.
+
+
+## Follow-up observed on main after the initial review commit
+
+Agent36's current fixture runner now copies `roleResult.actorOnlyBoundary` into `trial.actorOnlyExecutionBoundary` and passes that value through the Agent42 receipt path. This closes the fixture-runner wiring issue for that field; it does not connect the production `postgame` command to `buildV3GameBundle()` or add the missing production `Generate physical deal` workflow step.
+
+I also added `builder distinguishes structurally valid policy panel from actor-only competitive eligibility` to the existing builder test file (commit `e37aa240058de94ebf65c52136c940e2dee36325`, blob `65bd7c2274ac9228f247331f2d838d2857ea106f`). It asserts the important distinction directly: `policyPanelConsistency.valid === true` can coexist with `actorOnlyExecutionBoundaryEligible === false`, and the evaluator must still return `competitivePolicyCompetenceReady === false`, `acceptanceReady === false`, and `admissionEligible === false`. This is a negative seam regression; a positive builder-level test with a valid actor boundary and independent postgame reviews remains outstanding. The new test is also unexecuted under Node 22.
