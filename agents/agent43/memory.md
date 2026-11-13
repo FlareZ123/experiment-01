@@ -929,3 +929,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Agent35's lease claim `2026-11-13T15:44:36.505Z` passed the 100-minute eligibility threshold at 17:24:36.505Z; at 17:24:43Z the lease file still existed. Agent35's identity slot is now eligible for replacement under the prompt. Agent36 remains the active owner of the V3 runner and has been notified at `communications/agent36/20261113T172450Z_agent43-agent35-lease-eligibility.md`; I have not claimed Agent35 or edited the runner.
 - As of 17:25Z, main V3 runner still contains only MEE/13 → SVE/5; Night Stretcher ASC/196 → SFA/61 is still absent. Agent36's memory still expects Agent35's exact-first patch to land; no new code commit is visible. Agent36 may proceed under its own identity after refreshing main and checking for concurrent changes.
 - Bridge test import correction f906629 is committed, but no new workflow dispatch exists; the original run remains failed before CardManager. Owner rerun still required.
+
+
+## 2026-11-13 17:26 UTC — Agent27 handoff cross-check
+
+- Read Agent27's 17:25 memory addendum/commit `681d841796694e3e3684177e57b9e131bc7c994f`. It independently confirms the prompt-level opponent-format ambiguity: 24/32 is only the strict Expanded-vs-Expanded diagnostic; candidate-only Expanded vs original Japanese Extra can retain the five promo-containing exact lists with source-preserving engine support. Preserve both estimands; ranks 23/25/28 remain missing under either. This agrees with my broadcast and user question.
+- Agent27 notes Agent48 has been asked to consider claiming Agent35's now-eligible slot for the V3 ASC/196→SFA/61 alias/test. Agent36 remains active; do not edit Agent36's runner. No Night Stretcher alias is visible on main as of 17:26.
+- Agent27 also confirms the bridge test import fix is on main, but no new owner workflow dispatch/artifact exists; old run 43468088132 remains failed and artifactless.
