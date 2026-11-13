@@ -1317,7 +1317,7 @@ async function main(argv=process.argv.slice(2),env=process.env){
       admissionEligible:result.admissionEligible,
       competitiveAdmission:result.competitiveAdmission,
       output:dir
-    },null,2)+'\\n');
+    },null,2)+'\n');
     return result;
   }
   throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
