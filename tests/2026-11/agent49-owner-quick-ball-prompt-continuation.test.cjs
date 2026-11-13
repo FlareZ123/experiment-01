@@ -8,11 +8,12 @@ const {
   chooseQuickBallSearchTarget,
   withOwnerQuickBallPromptContinuation
 } = require('../../simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs');
+const { withActorOnlyRootPolicy } = require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 class AddPlayerAction {}
 class StartNextTurnAction {}
 class PlayCardAction {
-  constructor(id, handIndex) { Object.assign(this, { id, handIndex }); }
+  constructor(id, handIndex, target = null) { Object.assign(this, { id, handIndex, target }); }
 }
 class ResolvePromptAction {
   constructor(id, result) { Object.assign(this, { id, result }); }
@@ -198,6 +199,136 @@ test('synthetic Store prompt chain preserves Quick Ball until next-turn cleanup'
   assert.ok(owner.discard.cards.includes(item));
   assert.strictEqual(Store.prototype.dispatch, oldDispatch.value);
   assert.strictEqual(Bot.prototype.decodeNextAction, oldDecode.value);
+});
+
+test('actor-only root selects Quick Ball and then Benches the exact searched object', () => {
+  const { state, owner, opponent, item, energies, shadowRider } = makeScenario();
+  state.phase = 2;
+
+  const emptySlot = () => ({
+    cards: [],
+    getPokemonCard() { return this.cards[0] ?? null; },
+    energies: { cards: [] },
+    tools: [],
+    damage: 0,
+    specialConditions: [],
+    pokemonPlayedTurn: 0,
+  });
+  const publicPokemon = (fullName, name, hp) => ({
+    fullName, name, hp, stage: 'BASIC', subtypes: [], cardType: [],
+    retreat: [], weakness: [], resistance: [], attacks: [], powers: [],
+  });
+  function completePublicZones(player, activeCard) {
+    player.active = emptySlot();
+    player.active.cards.push(activeCard);
+    player.bench = Array.from({ length: 5 }, emptySlot);
+    player.stadium = { cards: [] };
+    player.lostzone = { cards: [] };
+    player.prizes = Array.from({ length: 6 }, () => ({ cards: [] }));
+    player.hand.isPublic = false;
+  }
+  completePublicZones(owner, publicPokemon(
+    'Shadow Rider Calyrex V CRE', 'Shadow Rider Calyrex V', 210
+  ));
+  completePublicZones(opponent, publicPokemon('Pidgey MEW', 'Pidgey', 60));
+  Object.defineProperty(opponent, 'hand', {
+    configurable: true, value: { cards: [{ fullName: 'Hidden opponent hand card' }], isPublic: false }
+  });
+  Object.defineProperty(opponent, 'deck', {
+    configurable: true, value: { cards: [{ fullName: 'Hidden opponent deck card' }] }
+  });
+  opponent.supporter = { cards: [] };
+  opponent.discard = { cards: [] };
+
+  class ActorStore extends Store {
+    dispatch(action) {
+      if (action instanceof PlayCardAction) {
+        const player = this.state.players.find(candidate => candidate.id === action.id);
+        const card = player?.hand.cards[action.handIndex];
+        if (card?.stage === 'BASIC') {
+          player.hand.cards.splice(action.handIndex, 1);
+          const index = Number.isInteger(action.target?.index)
+            ? action.target.index
+            : player.bench.findIndex(slot => slot.getPokemonCard() === null);
+          const slot = player.bench[index];
+          assert.ok(slot, 'actor-only Bench action must target an open physical slot');
+          slot.cards.push(card);
+          return true;
+        }
+      }
+      return super.dispatch(action);
+    }
+  }
+
+  const store = new ActorStore(state);
+  const bot = new Bot(owner.id);
+  const actorWrapped = withActorOnlyRootPolicy(() =>
+    withOwnerQuickBallPromptContinuation(() => {
+      const quickBallAction = bot.decodeNextAction(state);
+      assert.ok(quickBallAction instanceof PlayCardAction);
+      assert.strictEqual(owner.hand.cards[quickBallAction.handIndex], item,
+        'the actor-only root, not the test, must choose Quick Ball');
+      store.dispatch(quickBallAction);
+
+      const costReply = bot.decodeNextAction(state);
+      assert.ok(costReply instanceof ResolvePromptAction);
+      assert.strictEqual(costReply.result[0], energies[0]);
+      store.dispatch(costReply);
+
+      const searchReply = bot.decodeNextAction(state);
+      assert.ok(searchReply instanceof ResolvePromptAction);
+      assert.deepEqual(searchReply.result, [shadowRider]);
+      store.dispatch(searchReply);
+
+      const benchAction = bot.decodeNextAction(state);
+      assert.ok(benchAction instanceof PlayCardAction,
+        'the actor-only root must choose the post-search Bench action');
+      assert.strictEqual(owner.hand.cards[benchAction.handIndex], shadowRider,
+        'the Bench action must address the exact object retrieved by Quick Ball');
+      assert.deepEqual(benchAction.target, { player: 0, slot: 2, index: 0 });
+      store.dispatch(benchAction);
+      assert.strictEqual(owner.bench[0].getPokemonCard(), shadowRider);
+      store.dispatch(new StartNextTurnAction());
+      return 'actor-only Quick Ball chain completed';
+    }, { ...stubDeps(), Store: ActorStore, initialLiveStore: store }),
+  {
+    SimpleTacticsAi: Bot,
+    Store: ActorStore,
+    GamePhase: { PLAYER_TURN: 2, FINISHED: 7 },
+    policyOwnerSeat: 0,
+    quickBallRoot: true,
+    quickBallRootOwnerSeat: 0,
+    stagedStore: store,
+    getCatalog: () => ({
+      basics: new Set(['Shadow Rider Calyrex V CRE']),
+      abilityBasics: new Set(),
+    }),
+    cardActions: {
+      PlayCardAction,
+      PlayerType: { BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2 },
+      SlotType: { ACTIVE: 1, BENCH: 2, BOARD: 3 },
+    },
+    gameActions: {
+      AttackAction: class AttackAction {},
+      PassTurnAction: class PassTurnAction {},
+      RetreatAction: class RetreatAction {},
+      UseAbilityAction: class UseAbilityAction {},
+      UseStadiumAction: class UseStadiumAction {},
+    },
+  });
+
+  assert.equal(actorWrapped.result.result, 'actor-only Quick Ball chain completed');
+  assert.equal(actorWrapped.result.audit.quickBallRootsAccepted, 1);
+  assert.equal(actorWrapped.result.audit.targetPhysicalRetrievals, 1);
+  assert.equal(actorWrapped.result.audit.targetPhysicalBenchPlacements, 1);
+  assert.equal(actorWrapped.result.audit.targetPhysicalBenchPlacementFailures, 0);
+  assert.equal(actorWrapped.result.audit.completedSetupChains, 1);
+  assert.equal(actorWrapped.audit.selectedRootDecisions, 2,
+    'both the Quick Ball root and its post-search Bench action are actor-only decisions');
+  assert.equal(actorWrapped.audit.acceptedActorRoots, 2);
+  assert.strictEqual(owner.bench[0].getPokemonCard(), shadowRider);
+  assert.ok(!owner.hand.cards.includes(shadowRider));
+  assert.ok(owner.discard.cards.includes(item));
 });
 
 test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench follow-through', () => {
