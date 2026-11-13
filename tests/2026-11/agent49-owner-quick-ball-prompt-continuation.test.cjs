@@ -110,7 +110,22 @@ function makeScenario() {
   const floatStone = { id: 'float', name: 'Float Stone', fullName: 'Float Stone BKT' };
   const shadowRider = {
     id: 'shadow-rider-v', name: 'Shadow Rider Calyrex V',
-    fullName: 'Shadow Rider Calyrex V CRE', stage: 'BASIC'
+    fullName: 'Shadow Rider Calyrex V CRE', stage: 'BASIC',
+    // The exact searched object is later benched and serialized by the
+    // actor-only public observer; provide its complete face-up printing data.
+    hp: 210,
+    subtypes: ['Basic', 'V'],
+    cardType: ['Psychic'],
+    retreat: ['Colorless', 'Colorless'],
+    weakness: [{ type: 'Darkness', value: '×2' }],
+    resistance: [{ type: 'Fighting', value: '-30' }],
+    attacks: [
+      { name: 'Shadow Mist', cost: ['Psychic'], damage: '10',
+        text: "During your opponent's next turn, they can't play any Special Energy or Stadium cards from their hand." },
+      { name: 'Astral Barrage', cost: ['Colorless', 'Colorless', 'Colorless'],
+        damage: '', text: "Choose 2 of your opponent's Pokémon and put 5 damage counters on each of them." }
+    ],
+    powers: []
   };
   const tapu = {
     id: 'tapu-lele', name: 'Tapu Lele-GX',
