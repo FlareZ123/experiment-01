@@ -53,14 +53,15 @@ function resolvePending(x,{opponentDialga,ownerDialga},limit=40){
 }
 
 /**
- * Full staged native Store sequence in both physical seats:
+ * Matched staged native Store sequences in both physical seats:
  * Regidrago Apex Dragon -> Mimikyu Copycat -> Dialga Timeless-GX ->
- * actual extra turn -> Latias ex / Skyliner free Retreat -> Shadow Rider
- * Calyrex VMAX Max Geist. Fairy Zone doubles both Psychic attacks against
- * Dragon targets. The two Psychic Energy left on Mimikyu must still count
- * toward Max Geist after the free Retreat.
+ * actual extra turn, followed by either (A) Latias ex / Skyliner free Retreat
+ * -> Shadow Rider VMAX Max Geist or (B) a second Copycat -> Radiant Eternatus
+ * Power Beam. Compare the real damage/Prize outcomes; do not assume either
+ * follow-up is strategically superior. The Max Geist branch verifies that
+ * Mimikyu's two Psychic Energy remain attached and count toward its damage.
  */
-function runSeat(seat){
+function runSeat(seat,followup='max-geist'){
   const clearCopyAttackSessionsForTests=native('game/store/prefabs/copy-attack-delegation')
     .clearCopyAttackSessionsForTests;
   clearCopyAttackSessionsForTests();
@@ -87,9 +88,12 @@ function runSeat(seat){
       make('Psychic Energy SVE')];
     const sourceEnergy=[make('Double Dragon Energy ROS'),make('Double Dragon Energy ROS')];
     const opponentDialga=make('Dialga-GX UPR');
+    const radiantEternatus=make('Radiant Eternatus CRZ');
     const ownerDialga=staged.target;
+    x.owner.discard.cards.push(radiantEternatus);
     assert.ok(ownerDialga,'Owner Dialga-GX UPR must begin in the own discard');
     assert.equal(shadowRider.attacks.some(a=>a.name==='Max Geist'),true);
+    assert.equal(Number(radiantEternatus.attacks.find(a=>a.name==='Power Beam')?.damage),200);
     assert.equal(latias.powers.some(p=>p.name==='Skyliner'),true);
     assert.equal(clefairy.powers.some(p=>p.name==='Fairy Zone'),true);
     assert.equal(dratiniOne.cardType.includes(native('game/store/card/card-types').CardType.DRAGON),true);
@@ -174,6 +178,57 @@ function runSeat(seat){
     assert.equal(x.store.hasPrompts(),false);
     const extraTurnNumber=x.state.turn;
 
+    if(followup==='copycat-power-beam'){
+      // Matched alternative from the same public board: keep Mimikyu Active
+      // and use the second Copycat to select Radiant Eternatus / Power Beam.
+      x.store.dispatch(new AttackAction(x.owner.id,'Copycat'));
+      let copycatPowerBeamDamageBeforeKo=null;
+      const powerBeamPrompts=[];
+      for(let i=0;i<40;i++){
+        const p=x.state.prompts.find(q=>q.result===undefined);
+        if(!p)break;
+        if(p.constructor.name==='ChooseAttackPrompt'){
+          assert.ok(p.cards.includes(radiantEternatus),
+            "Second Apex Dragon prompt must expose Radiant Eternatus from the owner's discard");
+          const attack=radiantEternatus.attacks.find(a=>a.name==='Power Beam');
+          assert.ok(attack);
+          assert.equal(p.validate(attack),true);
+          const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+          x.store.dispatch(new ResolvePromptAction(p.id,attack));
+          copycatPowerBeamDamageBeforeKo=x.opponent.active.damage;
+          powerBeamPrompts.push({family:p.constructor.name,choice:'Power Beam',
+            defenderDamageAfterResolution:copycatPowerBeamDamageBeforeKo});
+        }else{
+          powerBeamPrompts.push(...resolvePending(x,{opponentDialga,ownerDialga},1));
+        }
+      }
+      assert.ok(Number.isFinite(copycatPowerBeamDamageBeforeKo)&&copycatPowerBeamDamageBeforeKo>0,
+        'Second Copycat must resolve the actual Power Beam attack');
+      assert.equal(x.opponent.discard.cards.some(c=>c.id===dratiniOne.id),true,
+        'Power Beam must Knock Out the promoted Dragon Dratini');
+      assert.equal(x.opponent.active.getPokemonCard(),dratiniTwo);
+      assert.equal(x.owner.prizes.filter(p=>p.cards.length>0).length,3);
+      assert.equal(x.owner.usedGX,true);
+      assert.equal(x.owner.active.energies.cards.length,2,
+        'Copycat follow-up must retain Mimikyu Energy');
+      return {
+        seat,followup,
+        actualSecondCopycat:true,
+        selectedDragonDonor:radiantEternatus.fullName,
+        copycatPowerBeamPrintedDamage:200,
+        copycatPowerBeamDamageBeforeKo,
+        dratiniKnockedOut:true,
+        secondPrizeCount:1,
+        totalPrizesTaken:3,
+        finalPendingPrompts:x.state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name),
+        apexPrompts,copycatResolved,powerBeamPrompts,
+        competitiveGamesQualified:0,
+        scope:'Matched staged native Store alternative; not a natural game or policy result'
+      };
+    }
+    assert.equal(followup,'max-geist','Unknown post-Timeless follow-up branch');
+
     // Latias ex is on the Bench, so Mimikyu's printed Basic retreat is free.
     // Retreat must preserve both Psychic Energy on Mimikyu; Max Geist counts
     // Psychic Energy on all of the owner's Pokémon, including that Bench slot.
@@ -209,7 +264,7 @@ function runSeat(seat){
     assert.equal(x.owner.usedGX,true);
 
     return {
-      seat,
+      seat,followup,
       actualSourceApex:true,
       actualMimikyuCopycat:true,
       actualNestedTimelessGX:true,
@@ -240,17 +295,30 @@ function runSeat(seat){
 }
 
 function run(){
-  const rows=[runSeat(0),runSeat(1)];
+  const rows=[runSeat(0,'max-geist'),runSeat(1,'max-geist'),
+    runSeat(0,'copycat-power-beam'),runSeat(1,'copycat-power-beam')];
   for(const row of rows){
     assert.equal(row.finalPendingPrompts.length,0);
-    assert.equal(row.timelessDamageBeforeKo,300);
-    assert.equal(row.maxGeistDamageBeforeKo,320);
-    assert.equal(row.mimikyuEnergyRetained,2);
     assert.equal(row.totalPrizesTaken,3);
+    if(row.followup==='max-geist'){
+      assert.equal(row.timelessDamageBeforeKo,300);
+      assert.equal(row.maxGeistDamageBeforeKo,320);
+      assert.equal(row.mimikyuEnergyRetained,2);
+    }else{
+      assert.equal(row.actualSecondCopycat,true);
+      assert.ok(row.copycatPowerBeamDamageBeforeKo>=200);
+    }
   }
-  const out={schema:'agent1-mimikyu-timeless-skyliner-max-geist-native-v1',
+  const comparisons=[0,1].map(seat=>{
+    const max=rows.find(row=>row.seat===seat&&row.followup==='max-geist');
+    const copy=rows.find(row=>row.seat===seat&&row.followup==='copycat-power-beam');
+    return {seat,maxGeistDamage:max.maxGeistDamageBeforeKo,
+      copycatPowerBeamDamage:copy.copycatPowerBeamDamageBeforeKo,
+      maxGeistPrizes:max.totalPrizesTaken,copycatPrizes:copy.totalPrizesTaken};
+  });
+  const out={schema:'agent1-post-timeless-max-geist-vs-copycat-power-beam-native-v1',
     twinleafPin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    bothPhysicalSeats:true,rows,qualifiedCompetitiveGames:0};
+    bothPhysicalSeats:true,rows,comparisons,qualifiedCompetitiveGames:0};
   process.stdout.write(JSON.stringify(out,null,2)+'\n');
   return out;
 }
