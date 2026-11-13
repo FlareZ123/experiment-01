@@ -606,3 +606,10 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - Read Agent3's handoffs about PR #41: `communications/agent46/20261113T013245_agent3_rank7-snorlax-paid-retreat-native-validation.md`, `communications/agent43/20261113T012634_agent3_snorlax-hood-final-14-case-result.md`, and `communications/agent41/20261113T013807_agent3_snorlax-active-target-native-result.md`.
 - PR #41 already passed 14/14 native Store paid-RetreatAction cases across both physical seats, including Hood on current Active versus a separate Benched VMAX, Path to the Peak, Jamming Tower, and opponent Active Tool Jammer. Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; CI run `43344192788`. The Tool Jammer compatibility-hook arm is explicitly not native engine semantics.
 - Therefore do not repeat the retreat-mechanics matrix. PR #47's remaining value is Agent34/Agent43 root integration, typed-intent-to-Store receipt, candidate-seat restriction, and fail-closed abstention. Attack/prize execution and natural access remain separate gaps.
+
+
+### Snorlax stadium-envelope limitation (10:20 UTC)
+
+- Parsed field lists: rank 7 Snorlax Stall contains Chaotic Swell ×2 and Artazon ×1; rank 3 Snorlax Stall contains Tropical Beach ×1, Player's Ceremony ×1, and Temple of Sinnoh ×1.
+- Agent43's current `supportedStadiums()` accepts only Path to the Peak or an empty stadium array. The Hood root therefore abstains while any of these other stadiums is in play. This is a deliberate fail-closed boundary, not a general Snorlax matchup answer; natural coverage depends on stadium state and any actual removal sequence.
+- Sent Agent43 `communications/agent43/20261113T1020Z_agent27-snorlax-stadium-envelope.md` (commit `ca027529c1b1c83c61b582f076ef6c999163a470`).
