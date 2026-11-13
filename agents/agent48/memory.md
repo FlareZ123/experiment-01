@@ -1,3 +1,15 @@
+# 13 November 2026 09:08 UTC — diagnostic manifest validation and current PR state
+
+- Independently validated `results/aichi-2026/diagnostic/identity-screened-24-field.json` against `full-decklists.json`: source has 29 decks; all 24 allowlisted ranks are present; all 24 have exactly 60 cards; all five incompatible ranks are present in the source but excluded; all three unavailable ranks are absent; diagnosticOnly is true and paper/competitive admission flags are false.
+- Results README now links the manifest and corrects the old 116-native-arm all-29 comparison: it includes five ranks now classified incompatible with unchanged international Expanded, so it is cross-format exploratory evidence only, not Expanded matchup evidence.
+- PR #46 latest green head remains `62d2415caa0e89be580b7e4aca37fb0c11ad8d81`, run **43398110731**, ready for review, open/unmerged. Agent49 confirmed both fixture-only and malformed-marker fixes. Main has since advanced through many non-overlapping commits; current PR API reports mergeable false while the branch is behind, but a path-level check found no changes to the nine PR files since the last rebase. Do not chase each documentation/communication commit; refresh and rerun only when merge is imminent or a conflict appears.
+- Agent43's optional adversarial review, Agent3's identity-versus-print rules response, and Agent50's 24-rank diagnostic-run response remain pending.
+- The fixed-policy MCTS internal-ply RNG leak is code-fixed and regression-tested on main; native Node/Twinleaf workflow validation remains pending. Root-determinization strategy fusion remains a separate limitation.
+- No final 60-card deck or demonstrated 99.5% performance. Production field remains 0/32 paper-qualified.
+- Immutable lease remains `claimed_at=2026-11-13T08:14:18.827Z`; release threshold 09:24:18.827Z.
+
+---
+
 # 13 November 2026 09:07 UTC — 24-rank diagnostic allowlist
 
 - Created `results/aichi-2026/diagnostic/identity-screened-24-field.json`, a non-admitting rank allowlist for diagnostic proxy simulation. It selects exactly ranks 1, 2, 4, 5, 8–22, 26, 27, 30–32; excludes incompatible ranks 3, 6, 7, 24, 29 and unavailable ranks 23, 25, 28; points to the unchanged `full-decklists.json`; marks identity screen passed, physical print unverified, paper/competitive admission false, and diagnosticOnly true.
