@@ -16,7 +16,7 @@ const {
  * card remains fixed in every determinization and leaks into the opponent's
  * simulated best response through terminal values.
  */
-function runRootSearch(rootPrivateCard) {
+function runRootSearch(rootPrivateCard, useFixedOpponentPolicy = false) {
   const opponentObservationHashes = [];
   const search = createInformationSetMcts({
     iterations: 400,
@@ -61,7 +61,19 @@ function runRootSearch(rootPrivateCard) {
     },
     isTerminal: state => state.terminal === true,
     terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
-    evaluateObservation: () => 0
+    evaluateObservation: () => 0,
+    ...(useFixedOpponentPolicy ? {
+      opponentPolicyId: 'synthetic-belief-optimal-v1',
+      opponentActionPolicy: (observation, actionKeys, seat) => {
+        assert.equal(seat, 1);
+        assert.equal(Object.hasOwn(observation, 'privateCard'), false);
+        assert.deepEqual(actionKeys, ['block', 'pass']);
+        const p = observation.public.opponentThreatPrior;
+        const blockValue = p - (1 - p);
+        const passValue = (1 - p) - p;
+        return passValue > blockValue ? 'pass' : 'block';
+      }
+    } : {})
   });
 
   const result = search.search({
@@ -131,4 +143,32 @@ test('characterizes root-determinization strategy fusion across the same opponen
   assert.ok(bluff.opponentActions.pass > 350);
   assert.ok(threat.opponentActions.block > threat.opponentActions.pass);
   assert.ok(bluff.opponentActions.pass > bluff.opponentActions.block);
+});
+
+test('fixed opponent policy uses only its observation and avoids root-private strategy fusion', () => {
+  const threat = runRootSearch('threat', true);
+  const bluff = runRootSearch('bluff', true);
+
+  assert.equal(
+    threat.result.audit.opponentModel,
+    'fixed-actor-observation-policy'
+  );
+  assert.equal(
+    threat.result.audit.opponentPolicyId,
+    'synthetic-belief-optimal-v1'
+  );
+  assert.equal(threat.result.audit.opponentPolicyCalls, 400);
+  assert.equal(bluff.result.audit.opponentPolicyCalls, 400);
+  assert.equal(threat.result.audit.opponentInformationSetCount, 1);
+  assert.equal(bluff.result.audit.opponentInformationSetCount, 1);
+  assert.equal(threat.result.audit.maxActionTransitions, 2);
+  assert.equal(bluff.result.audit.maxActionTransitions, 2);
+  assert.deepEqual(threat.opponentActions, {block: 0, pass: 400});
+  assert.deepEqual(bluff.opponentActions, {block: 0, pass: 400});
+  assert.equal(
+    threat.opponentObservationHashes[0],
+    bluff.opponentObservationHashes[0]
+  );
+  assert.equal(threat.result.audit.rootActions[0].meanValue, 1);
+  assert.equal(bluff.result.audit.rootActions[0].meanValue, -1);
 });
