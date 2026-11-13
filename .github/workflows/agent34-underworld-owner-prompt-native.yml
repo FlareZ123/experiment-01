@@ -71,6 +71,10 @@ on:
         description: Preregistered 16 unseen rank1 groups, 64 native prompt-recipient attempts
         type: boolean
         default: false
+      agent3_hooded_block_root_native:
+        description: Actual Agent34/Agent43 candidate-only Hood attach and paid-retreat root integration through pinned Store
+        type: boolean
+        default: false
 
 permissions:
   contents: read
