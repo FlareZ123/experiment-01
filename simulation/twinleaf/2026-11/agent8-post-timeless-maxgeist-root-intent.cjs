@@ -39,9 +39,9 @@ function hasSkyliner(pokemon){
 function prizeCountForTarget(target,catalog){
   if(Number.isSafeInteger(target?.prizeCount))return target.prizeCount;
   const subtypes=Array.isArray(target?.printed?.subtypes)?
-    target.printed.subtypes.map(value=>String(value).toUpperCase()):[];
-  if(subtypes.includes('VMAX')||subtypes.includes('TAG TEAM')||
-     subtypes.includes('TAGTEAM'))return 3;
+    target.printed.subtypes.map(value=>String(value).toUpperCase().replace(/[^A-Z]/g,'')):[];
+  if(subtypes.includes('VMAX')||subtypes.includes('TAGTEAM')||
+     subtypes.includes('VUNION'))return 3;
   if(catalog.ruleboxPokemonPrintings instanceof Set&&
      catalog.ruleboxPokemonPrintings.has(target.printing))return 2;
   return 1;
