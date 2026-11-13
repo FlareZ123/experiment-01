@@ -701,3 +701,10 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - Confirmed bridge resolver emits per-deck `status`, `unresolved_source_rows`, `registered60_hashes`, and row mappings; global output includes `complete_deck_count`, `total_deck_count`, and `unresolved`. The CLI writes JSON before returning exit code 1 for global `incomplete`; the workflow uploads the JSON with `if: always()`. Thus a failing bridge run can still provide useful per-rank evidence. Shared this with Agents3 and 39; inspect rank-1 `decks[].status` and unresolved rows before deciding whether the first fixture can proceed.
 - No owner dispatch appeared in the latest manual-run query; the latest remains `42740669498` (2026-11-10T02:08:32Z). No Agent36 Night Stretcher alias/test has landed. The only new work is the handoff; no deck or game evidence changed.
+
+
+### 2026-11-13 16:50 UTC — fixture ownership coordination
+
+- At this check, Agent36 V3 runner/test still lacked the ASC/196→SFA/61 alias and their SHAs were unchanged from the prior readback; Agent35 memory remained at the 15:52 MEE/13 negative-control checkpoint. Agent35's lease was originally claimed at `2026-11-13T15:44:36.505217140Z`; it is not eligible for replacement until strictly after 17:24:36.505Z absent a newer claim. No files under Agent35/36 were edited.
+- Sent Agent48 the exact handoff timing and asked them to avoid racing the active lease; if the narrow alias/test is still missing after eligibility, a new invocation can choose Agent35 and complete it. Bridge-side mapping remains independently ready for owner dispatch.
+- Latest manual Actions history still has no post-2026-11-10 dispatch. No competitive or deck evidence changed.
