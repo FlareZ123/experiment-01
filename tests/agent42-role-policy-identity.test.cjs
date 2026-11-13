@@ -313,7 +313,7 @@ test('V3 role identities reject diagnostic native-state fallback options',()=>re
  assert.throws(()=>I.buildRolePolicyIdentity({...base,
   policyOptions:{nativeOwnerTrainerFallback:true}}),/diagnostic native-state fallback/);
  assert.throws(()=>I.buildRolePolicyIdentity({...base,
-  policyOptions:{nested:{ownerFallbackDiagnosticView:true}}),/diagnostic native-state fallback/);
+  policyOptions:{nested:{ownerFallbackDiagnosticView:true}}}),/diagnostic native-state fallback/);
  assert.throws(()=>I.buildRolePolicyIdentity({...base,
   policyOptions:{nativeOwnerTrainerFallback:false}}),/diagnostic native-state fallback/);
 }));
