@@ -25,26 +25,32 @@ const cases = [
 ];
 
 test('pinned Store applies Active-only Snorlax Block to a real two-Psychic paid RetreatAction with Hood and Stadium controls', () => {
-  for (const row of cases) {
-    const result = paidRetreatAgainstSnorlax(row.options);
-    assert.equal(result.action, 'RetreatAction', row.name);
-    assert.equal(result.retreatCostEnergyCount, 2, row.name);
-    assert.equal(result.physicalPsychicEnergyBefore, 2, row.name);
-    assert.equal(result.blockListed, true,
-      row.name + ': Snorlax PGO Block must remain active in every arm');
-    assert.equal(result.underworldDoorListed, !row.pathToPeak,
-      row.name + ': Path to the Peak should suppress only the VMAX Rule-Box Ability');
-    assert.equal(result.hoodPhysicallyAttached, !!row.options.hood, row.name);
-    assert.equal(result.retreatSucceeded, row.allowed, row.name);
-    assert.equal(result.activeAfter,
-      row.allowed ? 'Shadow Rider Calyrex V' : 'Shadow Rider Calyrex VMAX',
-      row.name);
-    assert.equal(result.discardedPsychicEnergy, row.allowed ? 2 : 0, row.name);
-    assert.equal(result.vmaxEnergyAfter, row.allowed ? 0 : 2, row.name);
-    if (row.allowed) {
-      assert.equal(result.exception, null, row.name);
-    } else {
-      assert.match(result.exception ?? '', /BLOCKED_BY_EFFECT/, row.name);
+  for (const candidateSeat of [0, 1]) {
+    for (const row of cases) {
+      const label = 'candidate physical seat ' + candidateSeat + ': ' + row.name;
+      const result = paidRetreatAgainstSnorlax({
+        ...row.options, candidateSeat
+      });
+      assert.equal(result.options.candidateSeat, candidateSeat, label);
+      assert.equal(result.action, 'RetreatAction', label);
+      assert.equal(result.retreatCostEnergyCount, 2, label);
+      assert.equal(result.physicalPsychicEnergyBefore, 2, label);
+      assert.equal(result.blockListed, true,
+        label + ': Snorlax PGO Block must remain active in every arm');
+      assert.equal(result.underworldDoorListed, !row.pathToPeak,
+        label + ': Path to the Peak should suppress only the VMAX Rule-Box Ability');
+      assert.equal(result.hoodPhysicallyAttached, !!row.options.hood, label);
+      assert.equal(result.retreatSucceeded, row.allowed, label);
+      assert.equal(result.activeAfter,
+        row.allowed ? 'Shadow Rider Calyrex V' : 'Shadow Rider Calyrex VMAX',
+        label);
+      assert.equal(result.discardedPsychicEnergy, row.allowed ? 2 : 0, label);
+      assert.equal(result.vmaxEnergyAfter, row.allowed ? 0 : 2, label);
+      if (row.allowed) {
+        assert.equal(result.exception, null, label);
+      } else {
+        assert.match(result.exception ?? '', /BLOCKED_BY_EFFECT/, label);
+      }
     }
   }
 });
