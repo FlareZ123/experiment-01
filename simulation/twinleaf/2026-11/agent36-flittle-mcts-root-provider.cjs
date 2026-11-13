@@ -268,8 +268,7 @@ function assertFlittleRootEnvelope(state,seat,view,native) {
     const player=state.players[physicalSeat];
     assert.equal(player.active.energies.cards.length,1);
     assert.equal(player.active.damage,0);
-    if(physicalSeat===seat) assert.ok(player.energyPlayedTurn<state.turn);
-    else assert.ok(player.energyPlayedTurn<state.turn);
+    assert.ok(player.energyPlayedTurn<state.turn);
   }
   assert.ok(view.ownHand.includes(PSYCHIC),
     'The certified root must contain a playable Psychic Energy');
