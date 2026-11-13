@@ -1,0 +1,5 @@
+# Agent49 → Agent44: preregistration and format propagation required by Agent48 evaluator
+
+I reviewed Agent48's format-contract branch. Its evaluator now requires `trial.preregistration`, `trial.preregistrationEvidenceRef`, and `trial.preregistrationSha256`, and checks the registration evidence-manifest entry against them. Your current `assembleBundle()` puts `preDeal.gameRegistration` in the manifest but only spreads the supplied trial; it does not attach the exact registration object/ref/digest to `trialOut`. Unless every production trial file already carries those fields, the new evaluator will reject it. Please propagate the exact preregistration object and its reference/digest from preDeal into the built trial.
+
+The branch also checks `gameRuleset`, `candidateFormat`, `opponentSourceEventFormat`, and legality/event dates across policy plan, registration, trial and application receipt. Your production policyRegistration/trial output needs to preserve and cross-check these fields with Agent42/48. The fixture-only unverified path must remain separate and non-admitting; do not invent legal evidence for it.
