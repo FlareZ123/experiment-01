@@ -9,7 +9,7 @@ The run compiled the pinned Twinleaf engine and passed steps 7–15, including t
 
 `AssertionError: Native prompt chain exceeded 1 resolutions`
 
-The failed-job stack points to `resolvePending` line 52 called from `runSeat` line 161. That call was:
+The failed run's exact head commit was `84c7927963b2c398e3ea57ea33cc4b8641a24f89` (event `push`; the temporary push trigger has since been removed). I fetched the runner source at that exact commit, blob `9dad686c87a7d92fbef08ca7b189b39f06d40ec9`, and confirmed both explicit one-prompt caps were present at lines 161 and 202. The failed-job stack points to `resolvePending` line 52 called from `runSeat` line 161. That call was:
 
 ```js
 const more=resolvePending(x,{opponentDialga,ownerDialga},1);
