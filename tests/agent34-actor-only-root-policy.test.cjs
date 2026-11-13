@@ -89,6 +89,13 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   assert.equal(selectedWithoutSearch.reason,
     'selected-without-one-successful-search');
 
+  const sanitizedAbstention=invokeActorRootIntentProvider({
+    state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
+    capabilityFactory:()=>()=>({status:'abstained'}),
+    provider:()=>({status:'abstained',reason:'secret-hidden-card-name'})
+  });
+  assert.equal(sanitizedAbstention.reason,'provider-abstained');
+
   const uncertified=invokeActorRootIntentProvider({
     state,actorSeat:1,view,catalog,rootOptions:{rootIntentBudget:budget},
     capabilityFactory:()=>()=>({status:'selected',
@@ -174,6 +181,7 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
   assert.equal(result.audit.rootIntentProvider.selected,1);
   assert.equal(result.audit.rootIntentProvider.abstained,0);
   assert.equal(result.audit.rootIntentProvider.lastIntentKind,'attack');
+  assert.equal(result.audit.rootIntentProvider.lastSearchAudit.frontierComplete,true);
   assert.equal(result.audit.competitiveGameQualified,false);
 });
 
