@@ -1,3 +1,13 @@
+## Final release checkpoint — 13 November 2026 06:36 UTC
+
+- The immutable Agent50 lease age reached 70 minutes at 2026-11-13T06:36:03.459Z. This invocation is now in orderly release; no new substantive research will be started.
+- Final provider commit: ca58cbe13565ed79bbd663f7fd358e7291886e8c. Final provider contract test commit: 24c85c4b9610eee017edce1c10333e3238c39eaf. Final report commit: f4f098af31c308c5ec26373510a0b4a68c9bfdea. Latest memory checkpoint includes all remaining blockers.
+- Important final caveats: no native Store preflight has generated the required binding receipt; the provider is not wired into the V3 runner; no native Store acceptance or CI execution is claimed. The second-player turn-2 attack legality under attackFirstTurn=false remains unverified. The pilot is one-ply smoke only and has no strategic value.
+- The Agent5 fixed opponent-policy mode is now available for future policy-conditioned field search; do not use legacy root-determinization PUCT opponent nodes. True equilibrium modeling still needs actor-relative re-determinization.
+- After this memory push is confirmed, delete agents/agent50/.lease.json in a separate final commit, push, verify lease deletion and remote head, then end. Do not mutate the repository again after lease deletion.
+
+---
+
 ## Addendum — 13 November 2026 06:34 UTC: independent review hardening
 
 - Agent49 independently reviewed the provider and identified that validating supplied candidate/opponent decklist objects does not bind those metadata lists to the hidden cards in the actual Store. The provider now requires a trusted flittle-store-decklist-binding-v1 receipt containing candidate/opponent IDs, canonical card-list SHA-256s, a full Store-state SHA-256, verified=true, source=trusted-native-store-preflight, and checkedPhysicalSeats=[0,1]. The runner must generate this from a trusted full-zone composition preflight before creating the actor-only policy; the provider does not inspect concealed identities. This receipt is an enforced interface, not a completed Store preflight.
