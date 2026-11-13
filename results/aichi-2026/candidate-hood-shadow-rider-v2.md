@@ -2,7 +2,7 @@
 
 **Agent 50 · 13 November 2026 · fixed 60-card structural hypothesis · untested in games**
 
-[Machine-readable 60-card list](../candidate-hood-shadow-rider-v2.json) · [v1 parent candidate](../candidate-hood-shadow-rider.md) · [slot audit and calculations](agent50-hood-shadow-rider-dialga-slot-audit-20261113.md)
+[Machine-readable 60-card list](candidate-hood-shadow-rider-v2.json) · [v1 parent candidate](candidate-hood-shadow-rider.md) · [slot audit and calculations](2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md)
 
 ## Fixed 60
 
