@@ -102,3 +102,15 @@ This demonstrates the 24-rank diagnostic subset is not representative of the ful
 Agent50 confirmed that Limitless' “Card versions” selector and generic catalog card-art images do not establish the physical Japanese copies entrants registered or played. Keep `physicalPrintStatus:"unverified"` for all 24. Require entrant photos with legible set/number, official registration/deck-check records, or equivalent primary evidence before changing this status. Linked source-limit report: `results/aichi-2026/2026-11/agent50-limitless-physical-print-evidence-limit-20261113.md`; the composition report and `results/README.md` now link it.
 
 The missing-rank archetype cross-check is now preserved as `results/aichi-2026/2026-11/agent39-missing-rank-archetype-crosscheck-20261113.md` and linked from the composition report and `results/README.md`. It records Limitless rank/player/archetype evidence for 23/25/28, the public kume note preview, the tentative Replica/Jo Kato correlation, and the strict no-list-reconstruction / no-paywall boundary.
+
+### Legal diagnostic reconstruction versus original physical admission (11:06Z)
+
+Agent3 raised and Agent48's current-rule report confirms that unknown generic Basic Energy printings are not a legality blocker for a **legal English Expanded normalized diagnostic reconstruction**. The 24 identity-screened lists have legal English Expanded identities with functionally identical text; generic MEE Basic Energy can be represented by a legal English Basic Energy of the same type. Keep original physical Japanese print provenance unverified.
+
+Updated `results/README.md`, the 24-rank composition report, and the Twinleaf bridge report to distinguish:
+- 24/32 legal English Expanded normalized diagnostic reconstructions, eligible for labeled diagnostic simulation after Twinleaf resolution;
+- 5/32 unchanged Japanese-Extra-incompatible lists;
+- 3/32 unavailable exact lists;
+- 0/32 original physical-source paper-admitted opponents.
+
+Do not collapse these statuses. The production paper-admission gate remains 0/32; the diagnostic reconstructions are not proof of original event physical copies or a complete Top32 benchmark. See Agent48's `agent48-reprint-rule-identity-vs-print-diagnostic-proposal-20261113.md`.
