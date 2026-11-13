@@ -15,7 +15,8 @@ test('pinned Twinleaf Arbok Gastro Acid suppresses Stoutland through Stealthy Ho
     assert.equal(row.attack.damage,20);
     assert.deepEqual(row.after.sentinel,{blocked:true,visible:false});
     assert.deepEqual(row.after.irritatingPollen,{blocked:false,visible:true});
-    assert.equal(row.stoutlandDamage,20);
+    assert.equal(row.printedDamage,20);
+    assert.equal(row.damageResolution,'not asserted by this direct staged AttackAction probe');
     assert.equal(row.stoutlandStillActive,true);
     assert.equal(row.vileplumeOnBench,true);
     assert.deepEqual(row.unresolvedPrompts,[]);
