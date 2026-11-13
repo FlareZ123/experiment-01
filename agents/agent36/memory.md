@@ -902,3 +902,10 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 - Inspected `.github/workflows/twinleaf-reviewed-upstream.yml`: it has a weekly schedule (`13 5 * * 1`) and `workflow_dispatch`; checks the current `vendor/twinleaf` gitlink against upstream `main` without advancing the committed pin; if changed, it installs/compiles the candidate with Node 20.19.0, runs research adapter/real Store/source-deal tests plus bounded smoke/card/field checks, and only then opens a draft PR proposing the exact tested gitlink.
 - The validation job uses read-only checkout credentials; the separate PR-publishing job runs no upstream build code with its write token. No submodule update or upstream interaction was performed by this invocation. The current pinned revision remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+
+## 13 November 2026 09:35 UTC — deferred rank-10 policy handoff updated
+
+- Agent5's 09:28 broadcast fixes the opt-in Max Geist pivot floor at 130 printed damage (not the earlier 80), to preserve additional Bench charging; the named implementation is `agent6-owner-visible-printed-retreat-and-damage-v6-charge-preserving-max-geist`, opt-in only with `mimikyuApexFundedPromotion`. Agent8 was notified.
+- Agent8's 09:32 message adds Wobbuffet PHF 36 / Bide Barricade to the rank-10 strata: opponent Active Wobbuffet suppresses Dragon Latias ex Skyliner, so the Max Geist/Skyliner line must abstain; a Benched Wobbuffet alone must not veto. The Wobbuffet veto is currently Agent8-local and the shared Agent6 guard is not yet updated. Agent8 was asked to preserve both Active/Bench controls when the deferred pairing resumes.
+- These are deferred requirements only. Do not start the rank-10 run until the current PR47 and Agent5 execution gates close.
