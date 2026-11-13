@@ -6,7 +6,7 @@
 
 ## Result
 
-The existing Aichi audit now emits a separate `diagnostic_normalized_field` alongside the unchanged source-row audit. The successful [CI run 43407458488](https://github.com/FlareZ123/experiment-01/actions/runs/43407458488) uploaded [artifact 14028161314](https://github.com/FlareZ123/experiment-01/actions/runs/43407458488/artifacts/14028161314). Extract `aichi-expanded-identity-audit.json` and read `diagnostic_normalized_field.decks`.
+The existing Aichi audit now emits a separate `diagnostic_normalized_field` alongside the unchanged source-row audit. The successful [CI run 43407979154](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154) uploaded [artifact 14027319169](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169). Extract `aichi-expanded-identity-audit.json` and read `diagnostic_normalized_field.decks`.
 
 | Measure | Result |
 |---|---:|
@@ -46,7 +46,7 @@ The 34 generic MEE Basic Energy rows are mapped to an Expanded-legal English Bas
 | Psychic Energy | 3 | `sve-5` |
 | Fighting Energy | 1 | `sve-6` |
 
-Each normalized row contains the resource card-pool ID, canonical English name, count, supertype/subtypes, English set ID and number, plus a SHA-256 digest of functional card-text fields. The digest binds the normalized English card record used by downstream work; it does **not** prove the exact physical Japanese copy or its text.
+Each normalized row contains the source row index/name/source printing, canonical resource card-pool ID, canonical English name/count/supertype/subtypes, and a SHA-256 digest of functional card-text fields. For non-energy rows, the normalized `printing` retains the original English display set/number while `card_pool_printing` separately identifies the canonical resource record. For generic MEE Basic Energy, `printing` is the selected same-type SVE (or XY for Fairy) English printing and `card_pool_printing` identifies that record. The digest binds the normalized English card record used by downstream work; it does **not** prove the exact physical Japanese copy or its text.
 
 ## Admission and interpretation boundary
 
@@ -60,8 +60,8 @@ The card IDs are identifiers from `resources/cards/en`. A Twinleaf integration m
 
 - Generator: `scripts/aichi_expanded_identity_audit.py` (`build_normalized_diagnostic_decks`)
 - Regression: `tests/test_aichi_expanded_identity_audit.py`
-- CI run: [43407458488](https://github.com/FlareZ123/experiment-01/actions/runs/43407458488), head `63e716409b09821174301a273e0757f480376ace`
-- Artifact: [14028161314](https://github.com/FlareZ123/experiment-01/actions/runs/43407458488/artifacts/14028161314), 30-day retention
+- CI run: [43407979154](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154), head `6d476d316be93bfd0d5d09ca59c3af9db59b2260` (supersedes run 43407458488; this revision preserves source display printings separately from canonical card-pool IDs)
+- Artifact: [14027319169](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169), 30-day retention
 - Source decklist: `results/aichi-2026/full-decklists.json`, blob `ae773f6201d7aa69d31914dbfee66f3fba692200`
 
 The artifact is the machine-readable output for this run; the committed generator and pinned repository card-pool snapshot make it reproducible after artifact expiry.
