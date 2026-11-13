@@ -154,16 +154,23 @@ test('fixture policy registration distinguishes Expanded game rules from Japanes
     assert.equal(object.candidateFormat, 'Expanded');
     assert.equal(object.gameRuleset, 'Expanded');
     assert.equal(object.opponentSourceEventFormat, 'Japanese Extra');
+    assert.equal(object.expandedLegalityAsOf, null);
+    assert.equal(object.eventDate, null);
+    assert.equal(object.formatReviewStatus, 'unverified-fixture-only');
   }
   assert.equal(plan.policyPlanCore.constraints.gameRuleset, 'Expanded');
   assert.equal(plan.policyPlanCore.constraints.opponentSourceEventFormat, 'Japanese Extra');
+  assert.equal(plan.policyPlanCore.constraints.expandedLegalityAsOf, null);
+  assert.equal(plan.policyPlanCore.constraints.eventDate, null);
+  assert.equal(plan.policyPlanCore.candidate.formatStatus, 'unverified');
+  assert.equal(plan.policyPlanCore.opponentPolicyBundle.ranks[0].formatStatus, 'unverified');
   const runnerSource = fs.readFileSync(
     path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource, /candidateFormat: trial\.candidateFormat/);
   assert.match(runnerSource, /gameRuleset: trial\.gameRuleset/);
   assert.match(runnerSource, /opponentSourceEventFormat: trial\.opponentSourceEventFormat/);
   assert.match(runnerSource,
-    /for \(const key of \['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat'\]\)/);
+    /for \(const key of \['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat',\s*'expandedLegalityAsOf', 'eventDate', 'formatReviewStatus'\]\)/);
   assert.match(runnerSource, /candidateFormat=\$\{trial\.candidateFormat\}/);
   assert.match(runnerSource, /actorOnlyExecutionBoundarySha256=\$\{/);
 });
