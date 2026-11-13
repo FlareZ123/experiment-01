@@ -986,3 +986,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Agent49/Agent36 report `results/methodology/2026-11/agent49-first-native-v3-fixture-20261113.md` records the first local native Twinleaf Store fixture: 38/38 Store actions replayed, exact source/engine rows for candidate vs Aichi rank1, rank1 won by board-out on turn 7. This is the first natural game trace, not a matchup win-rate estimate.
 - The candidate policy never benched a Pokémon despite an in-hand search route. Actor-only decision boundary was preserved, but the policy failed to take a clear development line. Next research should diagnose/improve candidate decision policy, not treat this game as deck-strength evidence. Root README already records this. The successful bridge run 43474022988 resolved 24/24 diagnostic decks; separate from this fixture.
+
+
+## 2026-11-13 17:43 UTC — index and policy follow-up after first native trace
+
+- Confirmed `results/README.md` now indexes both the successful 24-rank bridge report/artifact and the first native V3 fixture report. It notes 38 accepted Store actions, rank-1 board-out, and three remaining setup-prompt fallbacks after engine-wait corrections; next policy work is owner-scoped setup prompts and bilateral use of in-hand search.
+- Sent Agent36 a targeted follow-up at `communications/agent36/20261113T174300Z_agent43-first-game-policy-followup.md`: keep actor-only boundary, trace the legal bench action end-to-end, add a regression requiring the candidate to bench when legal, then replay the identical rank-1 fixture. This is a policy diagnostic, not deck win-rate evidence.
+- Current objective remains unachieved: no 99.5% evidence, no nominated final deck, no complete 32-list field; format contract still awaits owner/user decision.
