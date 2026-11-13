@@ -16,10 +16,10 @@ The fixed candidate [Hood Shield Shadow Rider v1](../../aichi-2026/candidate-hoo
 | Event | Exact count / denominator | Probability |
 |---|---:|---:|
 | A keepable raw seven-card hand (at least one of 14 Basics) | 332,682,240 / 386,206,920 | 86.14% |
-| Quick Ball root passes its opening-hand gates: Quick Ball + a Basic + a duplicate printing + an open Bench | 16,686,391 / 332,682,240 keepable hands | **5.0157%** |
-| Same Quick Ball-root gate, unconditional over all raw seven-card hands | 16,686,391 / 386,206,920 | 4.3206% |
-| Among root-eligible hands, a duplicated non-Energy printing exists (so the helper prefers non-Energy) | 7,552,233 / 16,686,391 | **45.2598%** |
-| Among root-eligible hands, Psychic Energy is the only duplicated printing | 9,134,158 / 16,686,391 | **54.7402%** |
+| Quick Ball root passes its opening-hand gates: Quick Ball + a Basic + a duplicate printing + an open Bench | 16,687,315 / 332,682,240 keepable hands | **5.0160%** |
+| Same Quick Ball-root gate, unconditional over all raw seven-card hands | 16,687,315 / 386,206,920 | 4.3208% |
+| Among root-eligible hands, a duplicated non-Energy printing exists (so the helper prefers non-Energy) | 7,553,157 / 16,687,315 | **45.2629%** |
+| Among root-eligible hands, Psychic Energy is the only duplicated printing | 9,134,158 / 16,687,315 | **54.7371%** |
 | Exact v17 fixture hand: Quick Ball, Arven, Float Stone, one Shadow Rider Calyrex V, and three Psychic Energy | 660 / 332,682,240 keepable hands | **1 in 504,064** |
 
 The exact fixture multiset has unconditional probability 660 / 386,206,920 (about 1 in 585,162 raw seven-card hands). Its rarity is not a defect in a deterministic mechanics fixture, but it is not a representative opener or a sample of deck performance.
@@ -35,15 +35,10 @@ D_k = [x^k]prod_i(1+c_i x).
 After fixing the unique Quick Ball in the opening seven, the other six cards are chosen from 59. The root-gate count is
 
 [
-inom{59}{6}
--inom{45}{6}
--D_6
-+D^{	ext{nonbasic}}_6
--inom{14}{6}
-=16{,}686{,}391.
-]
+C(59,6) - C(45,6) - D_6 + D^{nonbasic}_6 - (C(14,6) - D^{Basic}_6)
+= 16,687,315, where D^{Basic}_6 = 924.
 
-The terms respectively count all six-card subsets, remove hands with no Basic, remove all-distinct-printing hands, restore all-distinct non-Basic hands, and remove six-Basic hands that fill the Active plus five Bench slots under the setup policy. The donor-branch split separately counts hands with no repeated non-Energy printing while allowing repeated Psychic Energy.
+The terms respectively count all six-card subsets, remove hands with no Basic, remove all-distinct-printing hands, restore all-distinct non-Basic hands, and remove only the 2,079 six-Basic hands that also contain a duplicate and therefore fill the Active plus five Bench slots under the setup policy. The 924 all-distinct six-Basic hands were already removed by the all-distinct term. The donor-branch split separately counts hands with no repeated non-Energy printing while allowing repeated Psychic Energy.
 
 The complete standard-library reproduction is [agent42-v17-quickball-opening-coverage.py](agent42-v17-quickball-opening-coverage.py). Run:
 
