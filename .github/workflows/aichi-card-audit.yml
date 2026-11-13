@@ -82,6 +82,8 @@ jobs:
         run: node --test tests/agent6-original-field-japanese-only-promo-census.test.cjs
       - name: Verify source SHA and official event language boundary
         run: node --test tests/agent6-official-aichi-language-source-gate.test.cjs
+      - name: Validate normalized Expanded opponent inputs for Aichi ranks 8–16
+        run: node --test tests/agent39-ranks8-16-expanded-normalized-inputs.test.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
