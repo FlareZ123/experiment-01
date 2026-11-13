@@ -19,7 +19,7 @@ In `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`:
 - Its 32-bit seed is derived from SHA-256 of a versioned tuple containing only the search seed, iteration, physical acting seat and that actor's observation hash. It deliberately excludes search-internal ply: different hidden-world paths can reach the same actor information set at different depths.
 - The policy callback no longer receives the mutable game-transition PRNG. Its random draws cannot shift subsequent game transitions.
 - The transition PRNG remains the sole stream passed to `applyAction`.
-- Added `opponentPolicyRngProtocol: "mcts-opponent-policy-rng-v1"` to the search audit when fixed opponent-policy mode is active; it is null when that mode is absent.
+- Added `opponentPolicyRngProtocol: "mcts-opponent-policy-rng-v2"` to the search audit when fixed opponent-policy mode is active; it is null when that mode is absent.
 
 The per-information-set derivation is deliberate: a single per-iteration policy stream could still leak through a hidden-state-dependent number of earlier opponent-policy calls. The seed excludes the root observation and all concealed state.
 
