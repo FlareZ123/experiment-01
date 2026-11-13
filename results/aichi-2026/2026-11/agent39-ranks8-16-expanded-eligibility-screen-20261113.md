@@ -13,7 +13,7 @@ Ranks **8–16** each contain exactly 60 cards (540 copies total). On the reposi
 - No exact international Expanded-banned printing appears in the slice. Agent 3's independent overlay of the current official 49-printing ban list found zero exact hits across all 29 source lists. Eight officially banned printings have stale `expanded: Legal` flags in the bundled card snapshot, but none appears in these nine lists; do not use the snapshot flag alone as the ban gate.
 - The only Japanese-banned-name candidates in the slice are Unown AOR 30 and Marshadow UNB 81. Their exact card texts are not the banned variants: AOR 30 has Farewell Letter, not DAMAGE/HAND; UNB 81 has Resetting Hole, not Let Loose.
 
-This is a **normalized card-pool pass**, not proof of the exact physical Japanese print each player used. Keep the physical-source-print status open and do not promote these nine to the verified opponent denominator solely on this report.
+This is a **normalized card-pool pass**, not proof of the exact physical Japanese print each player used. I also produced [machine-readable normalized inputs for ranks 8–16](agent39-ranks8-16-expanded-normalized-inputs-20261113.json): each source 60 is retained alongside a derived 60-card English-print representation, with only Basic Energy placeholder and Battle Compressor alias normalization. Every derived list remains 60 cards (540 total); the file explicitly marks physical source prints unresolved and `admitted_to_verified_field: false`. Keep the physical-source-print status open and do not promote these nine to the verified opponent denominator solely on this report.
 
 ## Per-rank accounting
 
@@ -63,6 +63,7 @@ Accounting source: results/aichi-2026/full-decklists.json and results/aichi-2026
 Inputs and prior evidence:
 - results/aichi-2026/full-decklists.json
 - results/aichi-2026/card-coverage.json
+- results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json
 - results/legality/japan-expanded-aichi-2026.json
 - results/aichi-2026/japanese-legality.md
 - results/methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md
