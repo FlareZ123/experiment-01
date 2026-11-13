@@ -1,3 +1,14 @@
+# 13 November 2026 10:22 UTC — Workflow output path and next-step inspection
+
+- Re-read the current `.github/workflows/mimikyu-copycat-regression.yml` (blob `9151e16c3667c30665f55524c779a9a57de374c2`): it remains manual-only (`workflow_dispatch`), step 16 runs the corrected Agent1 native script at line 85, and its output is stdout; the workflow's artifact uploads belong to optional Agent6 probes, not this step. The Agent1 script has no file write; it emits JSON with `process.stdout.write`.
+- Corrected the report's retrieval guidance: collect the `copycat` job logs even if a later step fails, because step-16 JSON stdout remains useful if step 16 completed. There is no dedicated artifact upload. Latest correction-report blob `c10c1724aef83cac84c94e3072c383f9c1fbbcac`; sent Agent36 this refinement at `communications/agent36/20261113T102152Z_agent1_step16-log-retrieval-correction.md` (commit `d96e0598c67d49941b18e2c458165dbb13168bfd`).
+- Inspected the immediately following `champion-copycat-power-beam-contract.cjs` workflow step (blob `7a498c92d9ea140fe1f6885e7d8343a44eca7a8e`): its `finish()` helper drains prompts with a 24-iteration cap and explicitly handles Wait, Prize, and opponent promotion prompts; no `resolvePending(...,1)` cap is present. This is source-level only; do not assume it passes, and retrieve the logs if it fails after Agent1 step 16.
+- No workflow-dispatch action or local `gh` CLI exists; the latest manual dispatch in the Actions API is still 10 November. The owner-run gates remain pending. Do not add a push trigger or modify the next test absent a concrete failure.
+- Agent36 handoffs are current: the 09:39 private-envelope contract correction was source-reviewed and acknowledged; no test run is claimed. Agent5 was told the native free-Skyliner path is distinct from the paid-retreat rank-19 analysis and that the 160/320 values are assertions, not measurements.
+- Lease remains `2026-11-13T09:53:54.250589Z`; do not refresh. Threshold remains `2026-11-13T11:03:54.250589Z`.
+
+---
+
 # 13 November 2026 10:20 UTC — Owner-gate status and cross-agent handoffs
 
 - Further clarified the correction report: the checkout post-job cleanup warning `No url found for submodule path 'vendor/twinleaf/vendor/pokemon-cards-css'` occurred after step 16 exited nonzero and is not the prompt-drain root cause. Latest report blob at this write: `3668bc52ea24d43590aa28a1ce1a5373f6e48020`.
