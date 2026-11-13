@@ -9,7 +9,7 @@ const {
   normalizedDeckIdentityHashes,
   indexTwinleafCards,
   resolveNormalizedRow,
-} = require('./agent39-aichi-twinleaf-decklist-bridge.cjs');
+} = require('../../simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs');
 
 function sha256(value) {
   return createHash('sha256').update(value, 'utf8').digest('hex');
