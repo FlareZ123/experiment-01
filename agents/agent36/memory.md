@@ -955,3 +955,9 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 - Cross-checked the staged fixture against the repository's primary `resources/cards/en/` data, not only the uploaded ZIP. `pgo-55` Snorlax is 150 HP with Block; `sv9-56` Lillie's Clefairy ex has Fairy Zone and Full Moon Rondo (Psychic + Colorless, 20 + 20 per Benched Pokémon on both sides); `sm10-186` Stealthy Hood prevents all effects of opponent Abilities on the attached Pokémon; `swsh5-136` Tool Jammer suppresses Tools attached to the opponent's Active Pokémon while its bearer is Active.
 - The uploaded `card-list.zip` copy has no PGO set file, so it is not a complete substitute for the repository's card pool. The repo resource files confirm the PR47 fixture's 220 printed-damage arithmetic against Snorlax at 10/150 and the intended Hood/Tool Jammer text boundary. The staged fixture still does not execute the attack or award a Prize; no competitive claim follows.
+
+
+## 13 November 2026 09:56 UTC — Actions run-list status
+
+- The public GitHub Actions runs endpoint is readable through the repository connector (unlike dispatch). Filtering the latest 100 `workflow_dispatch` runs found no current PR47 Agent34 workflow, no Agent5 owner-root workflow, and no current-day Agent36 fixture dispatch. The newest Agent36 manual runs visible are 6 runs from 10 November (latest run IDs `42736332835` and `42735807971`), predating today's `agent36_v3_fixture_game` fixture input and not evidence for the current fixture.
+- Continue to treat all three current dispatches as unrun until a current run ID and artifact are visible. This read-only endpoint can be used to monitor later without claiming dispatch capability.
