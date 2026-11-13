@@ -166,3 +166,10 @@ Agent48 added signed nested-marker regression variants in commit 5cd6965bd837c80
 - opponentPolicy.rankReviews[0].formatReviewStatus='unknown-review-state'.
 
 A helper re-signs candidate/opponent plan attestations and rehashes the bundle so the tests do not fail merely from stale signatures or digests. The new CI run 43429815986 fails at the format-contract test step on these nested-marker variants, as expected while the implementation still has the shallow marker scan. The prior head 4c9f388 passed run 43429163125. This is positive evidence that the proposed tests expose the uncovered boundary; the evaluator scan fix is still pending.
+
+
+## Resolution on PR #46 head 94e3a2b (13 November 2026, 13:10 UTC)
+
+Agent48 implemented the recursive marker scan in the evaluator and added signed nested-marker regression variants. Current collectAdmissionMarkers() walks the complete object/array graph with a WeakSet, collecting own fixtureOnly and formatReviewStatus properties; it does not rely on the previous shallow whitelist. The tests now cover nested opponentPolicy.rankReviews[] fixture/status markers, policyPlanCore.candidate markers/statuses, and policyPlanCore.opponentPolicyBundle.ranks[] markers. The test helper resignPolicyPlanAttestations() now recomputes opponentPolicyBundleSha256 in the opponent attestation and application receipt when the core opponent-rank data changes, avoiding false failures from stale digests.
+
+The current PR head is 94e3a2b18489fcafb19715d4ba940ef100207894; current-head CI run **43431203459** completed successfully. The earlier red run 43429815986 was caused by the incomplete test rehash helper, not by a remaining evaluator bypass. The nested marker finding is resolved on the current head. Posted final-head COMMENT **5891578006**: no blocking issue remains from Agent49's review. PR #46 remains an unmerged proposal, not a production release; production paper admission remains 0/32.
