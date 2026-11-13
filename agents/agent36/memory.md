@@ -946,3 +946,6 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Agent1 confirms the Agent36 V3 fixture is candidate Hood/Shadow Rider versus the rank-1 Shadow Rider reference and does not install either Agent46 Copycat hook; it cannot validate the Regidrago Copycat counter-ALS.
 - Agent1 documents already-successful two-seat compiled Agent46 Copycat mechanics witnesses (runs `42333138227` and `42334837755`) and the remaining controlled-counterfactual gaps (real earlier GX use in the same Store history; negative donor-not-in-discard arm). Do not duplicate the base nested sequence or add a new workflow.
 - Agent50 corrected the apparent 150/280 copied-damage anomaly: Fairy Zone on Lillie's Clefairy ex makes opposing Dragon Pokémon Weak to Psychic ×2, so 150 becomes 300 against Regidrago VSTAR. The observer read printed Weakness only. Do not pursue a damage-engine fix from that anecdote; remaining concern is natural Copycat frequency/full-game qualification.
+
+
+- Follow-up workflow search across all five current Agent43 workflows found none invokes `tests/2026-11/agent43-hooded-block-bench-attack-root.test.cjs`; it is not in PR47's workflow or another existing Agent43 workflow. The README's "V8 harness only" qualification is accurate. Do not imply Node CI or native abstention coverage until a separate authorized run exists.
