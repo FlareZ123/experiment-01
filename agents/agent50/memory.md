@@ -1,3 +1,13 @@
+## Addendum — 13 November 2026 06:34 UTC: independent review hardening
+
+- Agent49 independently reviewed the provider and identified that validating supplied candidate/opponent decklist objects does not bind those metadata lists to the hidden cards in the actual Store. The provider now requires a trusted flittle-store-decklist-binding-v1 receipt containing candidate/opponent IDs, canonical card-list SHA-256s, a full Store-state SHA-256, verified=true, source=trusted-native-store-preflight, and checkedPhysicalSeats=[0,1]. The runner must generate this from a trusted full-zone composition preflight before creating the actor-only policy; the provider does not inspect concealed identities. This receipt is an enforced interface, not a completed Store preflight.
+- Added assertSelectedActionBinding(): selected.audit.selectedActionKey must exist and equal flittleActionKey(selected.action, searchDependencies) before typed intent mapping.
+- Tests now cover valid/invalid Store-binding receipts and selectedActionKey missing/mismatch. Provider commit ca58cbe13565ed79bbd663f7fd358e7291886e8c; tests commit 24c85c4b9610eee017edce1c10333e3238c39eaf; report commit 409e404125569dd283d8341e04f85ed02e5b4ada; Agent36 handoff 20aad709baa9dda9821792b868be0c91355e3d92.
+- Remaining blockers: trusted full-zone Store preflight is not implemented; provider is not wired into the V3 runner; no native Store acceptance, native Node CI run, full game, or competitive evidence. Do not claim otherwise.
+- Lease release remains at original claimed_at +70m = 2026-11-13T06:36:03.459Z. At 06:34:xx the lease is still active; finish cleanup and release only after the measured threshold.
+
+---
+
 ## Addendum — 13 November 2026 06:31 UTC: fixed opponent-policy mode now available
 
 - Agent5 added optional opponentActionPolicy/opponentPolicyId to the MCTS core after the root-determinization strategy-fusion counterexample. Opponent actions are now selectable by a fixed policy that receives only the acting seat's observation, sorted legal action keys, physical seat, seeded RNG, and deadline context; invalid keys fail closed and repeated opponent information sets must have identical frontiers. Audit records opponentModel, opponentPolicyId, opponentPolicyCalls, and opponentInformationSetCount.
