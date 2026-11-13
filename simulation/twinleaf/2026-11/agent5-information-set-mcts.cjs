@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
+const {performance} = require('node:perf_hooks');
 
 function canonicalJson(value, seen = new Set()) {
   if (value === null) return 'null';
@@ -151,6 +152,8 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {number} [config.maxPlies=16]
  * @param {number} [config.cPuct=1.4]
  * @param {number} [config.seed=1]
+ * @param {number} [config.maxDecisionMs=Infinity]
+ * @param {()=>number} [config.now=performance.now]
  * @param {(state:object)=>boolean} [config.isStable]
  */
 function createInformationSetMcts(config) {
@@ -164,14 +167,37 @@ function createInformationSetMcts(config) {
   const maxPlies = config.maxPlies ?? 16;
   const cPuct = config.cPuct ?? 1.4;
   const seed = config.seed ?? 1;
+  const maxDecisionMs = config.maxDecisionMs ?? Infinity;
+  const now = config.now ?? (() => performance.now());
   assert.ok(Number.isSafeInteger(iterations) && iterations > 0 && iterations <= 100000);
   assert.ok(Number.isSafeInteger(maxPlies) && maxPlies > 0 && maxPlies <= 512);
   assert.ok(Number.isFinite(cPuct) && cPuct > 0);
   assert.ok(Number.isSafeInteger(seed) && seed >= 0 && seed <= 0xffffffff);
+  assert.ok(maxDecisionMs === Infinity ||
+    (Number.isFinite(maxDecisionMs) && maxDecisionMs > 0),
+    'maxDecisionMs must be positive or Infinity');
+  assert.equal(typeof now, 'function');
   const isStable = config.isStable ?? (() => true);
 
   return Object.freeze({
     search(rootState, rootSeat) {
+      const startedAt = now();
+      assert.ok(Number.isFinite(startedAt), 'Monotonic clock returned a non-finite value');
+      const deadlineAt = startedAt + maxDecisionMs;
+      const checkDeadline = stage => {
+        const current = now();
+        assert.ok(Number.isFinite(current), 'Monotonic clock returned a non-finite value');
+        if (current - startedAt >= maxDecisionMs) {
+          const error = new Error('MCTS decision-time budget exceeded at ' + stage);
+          error.code = 'MCTS_BUDGET_EXCEEDED';
+          error.stage = stage;
+          throw error;
+        }
+      };
+      const searchContext = Object.freeze({
+        startedAt, deadlineAt, maxDecisionMs, seed, now, checkDeadline
+      });
+      checkDeadline('root-validation');
       assert.ok(rootSeat === 0 || rootSeat === 1);
       assert.equal(config.activeSeat(rootState), rootSeat,
         'Search root must belong to the acting physical seat');
@@ -180,9 +206,11 @@ function createInformationSetMcts(config) {
       assert.equal(isStable(rootState), true,
         'Search root must have no unresolved prompts');
 
-      const rootObservation = config.observe(rootState, rootSeat);
+      const rootObservation = config.observe(rootState, rootSeat, searchContext);
+      checkDeadline('root-observation');
       const rootObservationHash = observationSha256(rootObservation);
-      const rootActions = config.enumerateActions(rootState, rootSeat);
+      const rootActions = config.enumerateActions(rootState, rootSeat, searchContext);
+      checkDeadline('root-frontier');
       const rootActionMap = buildActionMap(rootActions, config.actionKey);
       assert.ok(rootActionMap.size > 0, 'Search root has no legal actions');
       const rootKey = rootSeat + ':' + rootObservationHash;
@@ -192,11 +220,15 @@ function createInformationSetMcts(config) {
       let terminalRollouts = 0;
       let heuristicLeaves = 0;
       let maxObservedDepth = 0;
+      let maxActionTransitions = 0;
+      let completedIterations = 0;
 
       for (let iteration = 0; iteration < iterations; iteration++) {
+        checkDeadline('iteration-start');
         const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
         const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
-        let state = config.sampleDeterminization(rootState, rootSeat, sampleRandom);
+        let state = config.sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
+        checkDeadline('determinization');
         assert.ok(state && typeof state === 'object' && state !== rootState,
           'Determinization must return a detached state');
         assert.equal(isStable(state), true,
@@ -224,11 +256,13 @@ function createInformationSetMcts(config) {
           }
           assert.equal(isStable(state), true,
             'Transition adapter returned a state with unresolved prompts');
-          const observation = config.observe(state, seat);
+          const observation = config.observe(state, seat, searchContext);
+          checkDeadline('node-observation');
           const observationHash = observationSha256(observation);
           const nodeKey = seat + ':' + observationHash;
           let node = nodes.get(nodeKey);
-          const actions = config.enumerateActions(state, seat);
+          const actions = config.enumerateActions(state, seat, searchContext);
+          checkDeadline('node-frontier');
           const actionMap = buildActionMap(actions, config.actionKey);
           if (!node) {
             if (actionMap.size === 0) {
@@ -255,17 +289,21 @@ function createInformationSetMcts(config) {
           const selectedAction = actionMap.get(selectedKey);
           assert.ok(selectedAction, 'Selected action is absent from current state frontier');
           path.push({node, actionKey: selectedKey, seat});
-          const nextState = config.applyAction(state, selectedAction, transitionRandom);
+          checkDeadline('transition-start');
+          const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+          checkDeadline('transition-complete');
           assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
             'Action adapter must return a detached successor state');
           state = nextState;
+          maxActionTransitions = Math.max(maxActionTransitions, path.length);
           seat = config.activeSeat(state);
           assert.ok(seat === 0 || seat === 1,
             'Active-seat adapter returned an invalid physical seat');
         }
 
         if (!finished) {
-          const observation = config.observe(state, seat);
+          const observation = config.observe(state, seat, searchContext);
+          checkDeadline('leaf-observation');
           leafValue = config.evaluateObservation(observation, seat);
           leafSeat = seat;
           heuristicLeaves += 1;
@@ -273,8 +311,14 @@ function createInformationSetMcts(config) {
         assert.ok(Number.isFinite(leafValue) && leafValue >= -1 && leafValue <= 1,
           'Leaf value must be finite and normalized to [-1, 1]');
         backpropagate(path, leafValue, leafSeat);
+        completedIterations += 1;
+        checkDeadline('iteration-complete');
       }
 
+      checkDeadline('search-complete');
+      const elapsedMs = now() - startedAt;
+      assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0,
+        'Monotonic clock returned an invalid elapsed duration');
       const rootStats = [...rootNode.stats.entries()].map(([key, stat]) => ({
         actionKey: key,
         visits: stat.visits,
@@ -293,6 +337,12 @@ function createInformationSetMcts(config) {
           rootSeat,
           rootObservationSha256: rootObservationHash,
           iterations,
+          completedIterations,
+          maxDecisionMs: Number.isFinite(maxDecisionMs) ? maxDecisionMs : null,
+          elapsedMs: Number(elapsedMs.toFixed(3)),
+          seed,
+          rootActionCount: rootActionMap.size,
+          maxActionTransitions,
           rootVisits: rootNode.visits,
           nodeCount: nodes.size,
           terminalRollouts,
