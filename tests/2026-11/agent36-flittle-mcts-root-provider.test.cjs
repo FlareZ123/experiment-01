@@ -171,6 +171,15 @@ test('root and post-action envelopes are distinct and preserve the native energy
   assert.equal(provider.assertFlittleRootEnvelope(
     root,0,makeView(root,0),native),true);
 
+  const secondPlayerFirstTurn=makeState({
+    activePlayer:1,
+    turn:2,
+    energyCounts:[1,1],
+    energyPlayedTurns:[1,2]
+  });
+  assert.equal(provider.assertFlittleRootEnvelope(
+    secondPlayerFirstTurn,1,makeView(secondPlayerFirstTurn,1),native),true);
+
   const afterAttach=makeState({
     energyCounts:[2,1],
     energyPlayedTurns:[3,2]
@@ -204,8 +213,8 @@ test('root and post-action envelopes are distinct and preserve the native energy
 
 test('root envelope rejects opening-turn and non-fixture states',()=>{
   const opening=makeState({
-    turn:2,
-    energyPlayedTurns:[1,1]
+    turn:1,
+    energyPlayedTurns:[0,0]
   });
   assert.throws(()=>provider.assertFlittleRootEnvelope(
     opening,0,makeView(opening,0),native));
@@ -242,6 +251,14 @@ test('certified action frontier uses the adapter canonical action keys',()=>{
     'PASS_TURN',
     'PLAY_CARD_ACTION:0:2:1:0'
   ]);
+
+  const secondTurn=makeState({
+    activePlayer:1,turn:2,energyCounts:[1,1],energyPlayedTurns:[1,2]
+  });
+  const secondTurnActions=[new AttackAction('Ram'),new PassTurnAction()];
+  assert.deepEqual(provider.assertFlittleActionFrontier(
+    secondTurnActions,secondTurn,1,makeView(secondTurn,1),deps
+  ),['ATTACK_ACTION:Ram','PASS_TURN']);
 });
 
 test('native intent translation preserves only the bounded Flittle action vocabulary',()=>{
