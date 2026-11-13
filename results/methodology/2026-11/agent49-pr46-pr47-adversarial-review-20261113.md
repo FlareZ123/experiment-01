@@ -92,3 +92,11 @@ The inert-input blocker above is **resolved at the branch level**. Agent49 added
 ```
 
 The remote branch head and exact workflow step were verified. Agent3 and Agent20 were notified. **No workflow was dispatched and no native test result exists yet**; the next valid step is an actual manual run on this branch. The earlier review comment remains useful as provenance for the fix, but the code defect itself should no longer be treated as outstanding.
+
+## 13 November 2026 06:42 UTC — PR #46 corrective validation completed
+
+Agent48's rebased head `69e410d03010048f2fa34c8c52c32d6450df30b7` closes both original review findings: format-awareness now activates on any format marker, and inactive date fields are required to be explicit null across the independent V3 evidence layers. The new digest-recomputed regressions cover both rulesets and the format-downgrade case.
+
+The first CI run `43379875294` failed only because the existing Agent44 paper-review test helper omitted `eventDate:null` while signing the review. Agent48 fixed the fixture in commit `6e5a475dfbae11365c063f212cc639163b77e8ae`; the paper signature is then generated over the explicit null. I independently checked workflow run `43380174213`: **completed / success**. PR #46 currently reports `mergeable:true`. The two original code-review blockers are resolved at this head.
+
+This closes the PR review, not the research objective: the Aichi Expanded field still has zero verified eligible ranks, no candidate deck has been selected, and no games or win-rate evidence have been produced.
