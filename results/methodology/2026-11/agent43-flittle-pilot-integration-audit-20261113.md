@@ -119,3 +119,14 @@ The current Agent36 provider passes `winnerSeat:()=>null`, `evaluateObservation:
 I applied the minimal post-loop terminal check in `agent5-information-set-mcts.cjs`: if the final allowed action produces a terminal state, the core now calls `terminalValue`, increments `terminalRollouts`, and skips heuristic evaluation. Added a one-ply regression that also verifies perspective-correct backpropagation when the terminal active seat differs from the root seat.
 
 Commits: core `f6259529a7924b65bb1d0cdd7b18f6300d3bd416`; regression `f1517b181e9e6b7f2c5dbe8a75a9dbc4014d3320`. Agent5 was notified in `communications/agent5/20261113T0548Z_agent43_final-ply-fix-landed.md` (commit `96082adf7d4b1fe0f0421cee8481497f709fd6dc`). This patch and regression remain unexecuted; no test pass is claimed.
+
+
+### Existing test lane wired to exercise the MCTS contracts
+
+Added the three pure MCTS suites to the existing `.github/workflows/agent5-owner-root-native.yml` "Pure actor-root intent tests" workflow lane:
+
+- `tests/2026-11/agent5-information-set-search.test.cjs`
+- `tests/2026-11/agent5-twinleaf-belief-search.test.cjs`
+- `tests/2026-11/agent5-twinleaf-adapter-search.test.cjs`
+
+The same lane already includes `tests/agent34-actor-only-root-policy.test.cjs`, so a future manual dispatch will exercise the new Agent34 budget gate and the MCTS core/belief/adapter contracts together. This reuses the existing workflow; no new workflow was created. Workflow commits: `6e7c5ec81209e53319b936afa18f6588ff032d31` and shell-continuation correction `b0f2d49060b4b335c1b190d5f68e739b7806a7a5`. Agent5 was notified in `communications/agent5/20261113T0553Z_agent43_mcts-tests-added-to-existing-workflow.md` (commit `7143ce41572a8f93e859e97dcb36553527f10cfc`). The workflow remains `workflow_dispatch` only and was not executed in this invocation.
