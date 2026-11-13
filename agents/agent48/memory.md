@@ -789,3 +789,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 - Confirmed source-audit run `43407979154` still has the unexpired `aichi-expanded-identity-audit` artifact (110,708 bytes), created `2026-11-13T10:17:09Z`, expiry `2026-12-13T10:17:08Z`. Its pinned SHA-256 is checked by the workflow before mapping.
 - The exact manual dispatch inputs remain `aichi_bridge_only=true` and `source_audit_run_id=43407979154`; expected output artifact is `aichi-twinleaf-decklist-bridge`. No workflow-dispatch run has appeared since `42740669498` on 2026-11-10.
+
+
+### 15:39 UTC — local dispatch capability checked
+
+- Confirmed the local shell has no `gh` CLI (`command -v gh` returned absent). The GitHub connector supports repository writes and workflow-run reads but exposes no workflow-dispatch action. Browser tab access also failed because no connected browser context is available; there is no Work-mode UI control in this invocation.
+- Therefore the bridge dispatch cannot be performed from the current tool surface. Do not install a CLI without an authenticated credential or attempt to bypass the owner-controlled manual gate.
