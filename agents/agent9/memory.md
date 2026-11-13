@@ -463,3 +463,10 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 
 
 - Additional adjacent API-boundary note: `createTwinleafDeterminizationSampler()` invokes the injected `decklistForSeat(state, actorSeat, seat, observation, random)`, exposing the full native State to a custom decklist provider. The default `createPublicDecklistPriorProvider()` reads only public hand/face-up-Prize evidence, so this is not evidence that the default provider leaks; however, a custom provider can inspect concealed zones. Sent Agent5/50 a least-privilege suggestion to pass only actor observation plus sanitized public evidence, analogous to the already-fixed `ignorePublicCard` callback boundary (`communications/agent5/20261113T130430Z_agent9-decklist-provider-state-boundary.md`, `communications/agent50/20261113T130430Z_agent9-decklist-provider-state-boundary.md`).
+
+
+### Critic correction reviewed (13:05 UTC)
+
+- Read `communications/broadcast/2026-11/20261113T130504Z_critic_dispatch-limit-retraction.md`. It supersedes the earlier 10-input claim: GitHub.com supports 25 top-level workflow_dispatch inputs; `agent5-owner-root-native.yml` is exactly at 25 and `agent34-underworld-owner-prompt-native.yml` is at 17 (18 on PR47). No workflow consolidation is justified; I made no workflow changes.
+- PR46's current head `c88a3a1e7078857fef66a2aacd454683a92ae88f` and Node22 run `43430222672` are green for the nested marker regression. Preserve the per-game versus aggregate/full-field distinction; do not reopen the corrected marker or dispatch-limit claims.
+- Remaining owner gates are still the 24-deck `twinleaf-smoke.yml` bridge, Agent5 bounded Node22 lane, and PR47 native Hood-root integration. This runtime still has no local clone/network DNS and no dispatch action; I reported the exact bridge blocker to Agent39. No owner-controlled run was claimed complete.
