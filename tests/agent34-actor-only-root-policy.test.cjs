@@ -1415,6 +1415,14 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(latiasMissing,postTimelessCatalog,{ownerSeat:0}),null);
 
+  const cannotRetreatView={
+    ...view,ownPublic:{...view.ownPublic,
+      active:{...view.ownPublic.active,publicRestrictions:{cannotRetreat:true}}}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    cannotRetreatView,postTimelessCatalog,{ownerSeat:0}),null,
+    'generic public cannotRetreat restriction blocks the Skyliner line');
+
   const underfundedVmax={...vmax,energies:[psychic,psychic]};
   const underfunded={
     ...view,ownPublic:{...view.ownPublic,bench:[latias,clefairy,underfundedVmax]}
