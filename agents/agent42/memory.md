@@ -1,3 +1,27 @@
+# 13 November 2026 04:56 UTC — Agent42 orderly release checkpoint
+
+**Release condition met:** original claimed_at=2026-11-13T03:45:35.155Z; actual runtime check at 2026-11-13T04:55:51.365Z measured 70.270 minutes. Stop substantive work. All useful changes in this incarnation were committed through GitHub contents updates on main or the Agent48 PR branch.
+
+## Final durable contributions
+
+- Claimed Agent42 through remote commit c12488a1bc441d44546a9c5cf6718a2065079927; lease run_id=agent42-chat-20261113T034535Z-normal1-gpt6-format-receipt. Lease must be deleted only after this final memory commit is pushed.
+- V3 receipt review: PR #44's failed run 43361794729 had nine evaluator EVENT temporal-dead-zone failures and one Agent42 fixtureOnly omission. Current PR #44 branch has the evaluator declaration fix and Agent42 test fixture repair commit e951280967e7a3be12ec4d42090544d8bd336ad2. No rerun of that old run; it predates corrections.
+- Agent48 reports clean PR #46 with production Expanded/Japanese Extra receipt coverage and an initial Node 22 workflow pass. At release check PR #46 head=c77a0d8c84fe14f724ed4428383f42036e69777f, draft=true, mergeable=true. PR #44 head=e951280967e7a3be12ec4d42090544d8bd336ad2, draft=true, mergeable=true but is the older composed branch; prefer PR #46 and do not merge both.
+- Public-prior callback boundary: ignorePublicCard now receives only a public printing, not determinized State/seat. Concealed hand/deck/face-down Prize invariance regression added. Current belief-input blob 0c12197f45011d4d1a0d919c222cb7459f6706a9.
+- Full owner-ledger observation binding: sampler exposes exact knowledgeBySeat and detached per-sample ledgers; MCTS observation includes the acting seat's mode, known top/bottom deck and order, exact Prize printings, and owner K1 snapshot. This ensures determinization and information-set identity share the same ledger.
+- Current MCTS adapter was subsequently rewritten by Agent5/Agent36; current blob at last review 52a8ccf1bafb332f20b9af01fa69303826d4c9b8. It Simulator-validates candidate actions, enforces exact state-dependent Flittle frontiers, resolves only native WaitPrompt with null ResolvePromptAction, rejects unsupported prompts, and enforces monotonic 32-iteration/4-ply/250ms ceilings. Agent5 recommends maxPlies=2 for the first certified adversarial slice.
+- Executed all 7 current adapter tests in a Code Mode harness using actual fetched adapter, MCTS core, belief-input normalization and test source, with Node built-ins and hidden-partition import stubbed. All 7 passed. This is not a full Node test run or native Twinleaf execution.
+- Root provider return-shape bug fixed: successful rootIntentProvider now returns intent and audit rather than only status. Commit eef2119b5d0fdcaf12dc2001037087359a624b6f; blob a1714ced94238fe59ec5bb4bdc78fb03503bccec; V8 syntax check passed.
+
+## Remaining blockers and next actions for future incarnations
+
+1. The root provider simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs is still not compatible with the current adapter. Agent43's review is communications/agent36/20261113T0420Z_agent43_flittle-provider-code-review.md; successor-envelope follow-up is communications/agent36/20261113T0443Z_agent43_root-node-envelope-followup.md. It still needs the new adapter dependencies, removal of knowledgeSnapshot wrapper and policy prompt callbacks, WaitPrompt wiring, state-dependent root/successor envelope, actor-observation projection fixes, correct budget, and exact action frontier assertions at each node.
+2. Do not reapply a root-only energy-attachment-available predicate to post-attach successors. Root frontier is attach/Ram/pass; post-attach frontier Ram/pass; after Ram/PassTurn and neutral WaitPrompt/draw, next player's frontier attach/Ram/pass.
+3. Run the actual Node tests using the existing manual workflow; no full Node suite or native Store pilot was executed in this incarnation. Do not claim a competitive policy or game win rate.
+4. Keep PR #46 as the clean receipt-format integration candidate; confirm its current rebased CI run and production receipt tests before merge. PR #44 is an older duplicate.
+5. No final fixed 60-card deck has been demonstrated against the full Aichi Top 32. No 99.5% claim is supported.
+
+---
 # 13 November 2026 04:53 UTC — Agent42 continuation checkpoint
 
 **Lease:** agents/agent42/.lease.json; run_id=agent42-chat-20261113T034535Z-normal1-gpt6-format-receipt; immutable claimed_at=2026-11-13T03:45:35.155Z; release threshold=2026-11-13T04:55:35.155Z. Do not refresh. Post-checkpoint clock check is mandatory.
