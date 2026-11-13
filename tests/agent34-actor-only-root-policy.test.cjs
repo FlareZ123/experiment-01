@@ -22,6 +22,13 @@ const catalog={
   colorlessEnergyType:9,
   specialConditions:{ASLEEP:2,PARALYZED:0}
 };
+function rootIntentActionKeyForTest(intent){
+  if(intent.kind==='pass')return 'PASS_TURN';
+  if(intent.kind==='attack')return 'ATTACK_ACTION:'+intent.attackName;
+  if(intent.kind==='attach-basic-energy')
+    return 'PLAY_CARD_ACTION:'+intent.handIndex+':0:1:'+intent.index;
+  return null;
+}
 const base=()=>({
   decisionKind:'owner-root',globalTurn:2,
   ownHand:['Shadow Rider Calyrex V CRE','Psychic Energy MEE'],
@@ -46,6 +53,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   const budget={iterations:32,maxPlies:4,maxDecisionMs:250,seed:9};
   let providerContext=null;
   const selected=invokeActorRootIntentProvider({
+    rootIntentActionKey:rootIntentActionKeyForTest,
     state,actorSeat:1,view,catalog,
     rootOptions:{rootIntentBudget:budget},
     capabilityFactory:context=>{
@@ -68,7 +76,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
           maxActionTransitions:1,seatActionTransitions:[0,32],
           rolloutPaths:Array.from({length:32},(_,iteration)=>({
             iteration,actions:[{seat:1,actionKey:'PASS_TURN'}]
-          })),rootActionCount:2
+          })),rootActionCount:2,selectedActionKey:'PASS_TURN'
         }
       });
     },
@@ -79,7 +87,7 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
       assert.deepEqual(context.budget,budget);
       assert.equal(typeof context.runSearch,'function');
       assert.equal(context.runSearch().status,'selected');
-      return {status:'selected'};
+      return {status:'selected',intent:{kind:'pass'}};
     }
   });
   assert.equal(selected.status,'selected');
@@ -220,6 +228,7 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
     return new SimpleTacticsAi(10).decodeNextAction(store.state);
   },{
     SimpleTacticsAi,Store,policyOwnerSeat:0,rootIntentBudget:budget,
+    rootIntentActionKey:rootIntentActionKeyForTest,
     GamePhase:{PLAYER_TURN:2,FINISHED:7},
     observe:()=>Object.freeze(view),getCatalog:()=>catalog,
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
@@ -228,7 +237,7 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
     createRootSearchCapability:context=>{
       assert.equal(context.actorSeat,0);
       return ()=>({status:'selected',
-        intent:{kind:'attack',attackName:'Shadow Mist'},
+        intent:{kind:'pass'},
         audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
           ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
           applicabilityEnvelopeId:'flittle-basic-psychic-v1',
@@ -237,14 +246,14 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
           timeoutStatus:'completed',cPuct:1.4,
           maxActionTransitions:1,seatActionTransitions:[32,0],
           rolloutPaths:Array.from({length:32},(_,iteration)=>({
-            iteration,actions:[{seat:0,actionKey:'ATTACK_ACTION:Shadow Mist'}]
-          })),rootActionCount:2}});
+            iteration,actions:[{seat:0,actionKey:'PASS_TURN'}]
+          })),rootActionCount:2,selectedActionKey:'PASS_TURN'}});
     },
     rootIntentProvider:context=>{
       assert.equal(context.actorSeat,0);
       assert.equal(Object.hasOwn(context,'state'),false);
       context.runSearch();
-      return {status:'selected'};
+      return {status:'selected',intent:{kind:'pass'}};
     }
   });
   assert.ok(result.result instanceof PassTurnAction,
@@ -1160,12 +1169,17 @@ test('seat-scoped actor policies compose independently across candidate and oppo
     opponentPolicyOptions:{createRootSearchCapability:()=>()=>({status:'abstained'})}
   }),/may not override shared runtime binding createRootSearchCapability/);
   assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
+    candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
+    candidatePolicyOptions:{rootIntentActionKey:rootIntentActionKeyForTest}
+  }),/may not override shared runtime binding rootIntentActionKey/);
+  assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
     candidateSeat:0,opponentSeat:1,
     commonDeps:{...sharedDeps,rootIntentProvider:()=>({status:'abstained'})}
   }),/must be supplied together/);
   const providerDeps={...sharedDeps,
     rootIntentProvider:()=>({status:'abstained'}),
-    createRootSearchCapability:()=>()=>({status:'abstained'})
+    createRootSearchCapability:()=>()=>({status:'abstained'}),
+    rootIntentActionKey:rootIntentActionKeyForTest
   };
   assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
     candidateSeat:0,opponentSeat:1,commonDeps:providerDeps,
