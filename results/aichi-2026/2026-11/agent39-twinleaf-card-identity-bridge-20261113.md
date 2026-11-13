@@ -75,14 +75,18 @@ These are Limitless/source-row identifiers, not verified final bracket placement
 
 ## Hash and revision bindings
 
-For each fully resolved deck, the bridge now emits two distinct SHA-256 values:
+The bridge keeps four per-deck identity layers distinct:
 
-- `ordered_input_sha256`: SHA-256 of UTF-8 `JSON.stringify(registered60)`, where `registered60` is the exact 60-element Twinleaf `Card.fullName` array supplied to `decklist_for_seat.cards`.
-- `canonical_multiset_sha256`: SHA-256 of UTF-8 `JSON.stringify([{fullName,copies}, ...])`, with rows aggregated by full name and sorted by Unicode code-unit order. This is invariant to source-row order.
-- The exact serialization protocol is included in the result as `registered60_hash_protocol`. Hashes are null for incomplete decks; partial mappings never produce a deck hash. Each rank entry reports source-row total, resolved and unresolved row counts, 60-copy total, completion status, and the complete row-level mapping table.
-- The result also binds the raw source audit SHA-256, canonical normalized-field SHA-256, research repository revision, and actual Twinleaf submodule revision. These are separate from the registered-60 hashes.
+1. `deck_identity_sha256`: print-independent functional identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256}`, sorted by `(card_id,card_text_sha256,count)`.
+2. `source_print_identity_sha256`: normalized source-print identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256,printing,card_pool_printing}`, sorted by `(card_id,printing.set,printing.number,count)`. This is the source-side hash previously called `normalized_deck_sha256`; it is not a Twinleaf hash.
+3. `registered60_hashes.ordered_input_sha256`: SHA-256 of UTF-8 `JSON.stringify(registered60)`, where `registered60` is the exact 60-element Twinleaf `Card.fullName` array supplied to `decklist_for_seat.cards`.
+4. `registered60_hashes.canonical_multiset_sha256`: SHA-256 of UTF-8 `JSON.stringify([{fullName,copies}, ...])`, with duplicate full names aggregated and rows sorted by JavaScript UTF-16 code-unit order. This is invariant to source-row order.
 
-The registered-60 hashes are **not yet available** because the pinned CardManager mapping has not run. The raw/canonical source-artifact hashes above are input provenance only and must not be substituted for engine-input hashes.
+The serialization protocols are included in the output as `deck_identity_hash_protocol`, `source_print_identity_hash_protocol` and `registered60_hash_protocol`. Functional and source-print hashes can be computed from the normalized source rows before Twinleaf resolution; registered-60 hashes are emitted only for complete 60-card mappings and are null for incomplete decks. Each rank entry reports source-row total, resolved and unresolved row counts, 60-copy total, completion status, and the complete row-level mapping table.
+
+The result also binds the raw source audit SHA-256, canonical normalized-field SHA-256, research repository revision and actual Twinleaf submodule revision. These are separate from all per-deck hashes. A later game runner may add its own runtime deck hash; this bridge does not invent one.
+
+The normalized artifact's raw and canonical hashes are verified above. Independent Node/Python recomputation of the functional and source-print definitions matched Agent5's supplied values for source ranks 1, 2, 4, 5, 31 and 32. The full 24-rank bridge output will carry the hashes for every source rank.
 
 ## Reproduction and test status
 
@@ -94,7 +98,7 @@ node simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs /pat
 
 The output records the pinned Twinleaf revision, expanded `registered60` string arrays, compressed `registered60_counts`, `decklist_for_seat` objects, source-row mappings and any unresolved rows. Exit status 1 means the bridge is incomplete; status 2 means a runtime/build/input error.
 
-Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. The original six tests passed locally on Node 22 before the hash extension; two new hash tests now cover order-sensitive engine-input hashes, order-independent multiset hashes, and mismatch rejection. The hash helper itself was checked in Node 22 against reordered 60-card arrays, but the full updated repository test file has not yet been run in this environment.
+Pure contract tests: `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. The original six tests passed locally on Node 22 before the hash extensions. Four new tests now cover ordered-input versus canonical-multiset hashing, compressed-count mismatch rejection, functional versus source-print identity separation, and missing-text-hash rejection; per-rank unresolved-row assertions were also added. Direct Node 22 checks of the hash algorithms and cross-checks against six supplied rank hashes passed, but the full updated repository test file has not yet been run in this environment.
 
 A bridge-only execution path now exists in the **existing manual** `.github/workflows/twinleaf-smoke.yml`: dispatch with `aichi_bridge_only=true`. That job checks out and verifies the repository-pinned submodule, builds Twinleaf using its upstream Node 20.19 runtime, switches to Node 22 for the adapter tests, downloads artifact 14027319169, runs the bridge, and uploads the full row-level JSON. It adds no workflow or push trigger. The default smoke behavior remains unchanged.
 
