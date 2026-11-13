@@ -776,3 +776,25 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Updated `results/README.md` (main commit `cd44769b59044d4484dbe248dc18d7ae43a42625`) to record that PR #47's **base** branch contains the targeted Latias/Mimikyu false-veto fixes, while the **head** branch remains v1 and must synchronize before dispatch. The option remains default-off pending independent review and native Store validation.
 - The same README now links the Agent43 MCTS exact-SHA RNG report and records the 7/7 V8 harness run plus the caller-side stateless-policy caveat.
 - No new response from Agent3/Agent49/Agent20; PR head remains stale at 0234914. Continue toward lease threshold.
+
+
+---
+
+# Orderly release — 13 November 2026 08:04:38 UTC
+
+**Lease age:** 70.095 minutes from immutable `claimed_at=2026-11-13T06:54:32.418Z`. The 70-minute release condition is met. This is the final memory update for `agent43-chat-20261113T065432418Z-normal4-gpt6`.
+
+## Durable outcomes
+
+1. **MCTS policy information boundary:** main core v2 removes search `ply` from opponent-policy RNG and keys it by seed/iteration/physical seat/actor-observation hash; callback gets no search/clock context. The complete seven-test regression file passed 7/7 in a V8 harness, and an exact-SHA paired-world harness confirmed same action at different plies. The report and results README record the tests and limitations. Callback closure purity remains a caller contract: no state retained across independent determinizations. Native Node 22/CI and native multi-ply Store matches remain outstanding.
+2. **Hood false-veto correction:** the existing Agent43 PR #47 base branch has helper v2 and tests for stage-scoped Latias Skyliner and exact benched Mimikyu PAL Safeguard. Ten pure helper/default-off tests passed in a V8 harness with helper dependencies stubbed. The rank-7 Snorlax fixture is Extra-only incompatible and is a rules/policy stress fixture, not an Expanded matchup. The PR head remains helper v1 at `0234914c30e78200706a33a6031ac98328714b49`; Agent3/Agent49 were asked to sync the updated base before dispatch. No response/update was present at release. Native Store run remains pending.
+3. **Agent42 native smoke assertions:** main test now checks safe integer intent hand index, exact native `action.handIndex === intent.handIndex`, and `audit.seed === provider.PILOT_BUDGET.seed` (commit `85d365cdf23aaeb10ecda572729c06f83d881207`). Syntax was checked; the manual native smoke has not run.
+4. **Deck/field status:** no final fixed-60 deck selected and no credible 99.5% result. Aichi source inventory: 29/32 lists authenticated, 24 potentially compatible lists pass identity/construction screening but lack physical-print authentication, five incompatible (ranks 3, 6, 7, 24, 29), three missing (23, 25, 28), and 0/32 verified Expanded-legal opponents. Hood Shield Shadow Rider v1 remains a leading modified-list hypothesis only; the v2 Tapu Lele challenger is untested. The 116-arm comparison remains censored and unresolved.
+5. **Workflow access:** PR #47 and Agent42 native Store modes are owner-side manual actions. Available Actions tools in this invocation expose GET/log/rerun only, not workflow dispatch. Do not claim native validation until an owner dispatches the existing manual workflow on a synchronized branch.
+
+## Next actions for the next incarnation
+
+- Recheck PR #47 head/base synchronization. Require head to contain helper v2 before the owner dispatches `agent3_hooded_block_root_native`; keep option default-off until the pinned Store fixture passes.
+- Run the existing Agent5 owner-root Node/CI workflow and Agent42 native Store smoke when owner-side dispatch is available.
+- Continue recovering Aichi ranks 23/25/28 and exact physical-print evidence; never invent missing lists or count Extra-only lists as Expanded opponents.
+- Compare candidate v1/v2 only with reproducible full-game paired evaluation against an admitted field and stateless actor-observation policies. Do not claim 99.5% without evidence.
