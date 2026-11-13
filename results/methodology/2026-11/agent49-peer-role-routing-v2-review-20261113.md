@@ -26,7 +26,7 @@ The existing `agent36_v3_fixture_game` manual workflow already includes the Agen
 
 I added one focused test to `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs` in commit `30ce732ae9acd3e53e5cb38b1eab16134575f4f6`.
 
-The test creates digest-valid receipts while independently corrupting (a) the candidate peer-delegation count, (b) the opponent peer-delegation count, and (c) the candidate peer-routing enable flag. It rehashes the boundary and application receipt, then asserts that the factual game-outcome admission remains intact while actor-only boundary verification and comparative policy competence are denied. This specifically tests the V3 consumer rather than only the composer summarizer.
+The test creates digest-valid receipts while independently corrupting four routing conditions: candidate peer-delegation count mismatch, nonzero opponent peer-delegation, candidate peer-routing disabled, and opponent peer-routing enabled. It rehashes the boundary and application receipt, then asserts the specific evaluator failure, preserves factual game-outcome admission, and denies actor-only boundary verification and comparative policy competence. This specifically tests the V3 consumer rather than only the composer summarizer. Follow-up commits `ef9c8c9970699dc7a63c1277f91f138a78c78af8` and `f3d418b188a9528b251bcc45ce1802a6478225d5` strengthen the reason assertions and add the opponent-flag case.
 
 ## Remaining execution boundary
 
