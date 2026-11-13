@@ -619,8 +619,13 @@ function printed60Fingerprint(deck) {
 
 function engineProxyPrintingForSourceRow(row) {
   const sourcePrinting = row.printing;
-  // Preserve the source roster's MEE/13 identity. The pinned Twinleaf pool
-  // registers this Basic Psychic Energy engine proxy as SVE/5.
+  // Preserve source identities. The pinned Twinleaf pool uses SFA/61 for
+  // Night Stretcher ASC/196 and SVE/5 for Basic Psychic Energy MEE/13.
+  if (row.name === 'Night Stretcher'
+      && sourcePrinting.set === 'ASC'
+      && String(sourcePrinting.number) === '196') {
+    return { ...sourcePrinting, set: 'SFA', number: '61' };
+  }
   if (row.name === 'Psychic Energy'
       && sourcePrinting.set === 'MEE'
       && String(sourcePrinting.number) === '13') {
@@ -645,10 +650,16 @@ function resolvePrintedDeck(deck, allCards, { label = 'deck', expectedSize = 60 
   for (const row of deck.cards) {
     assert.ok(row && typeof row.name === 'string' && Number.isInteger(row.count) && row.count > 0, label + ' contains an invalid card row');
     assert.ok(row.printing && row.printing.language === 'en', label + ' requires an explicit English source printing for ' + row.name);
-    const enginePrinting = engineProxyPrintingForSourceRow(row);
+    // Prefer the exact source printing whenever the pinned engine has it.
+    // A proxy is only a fallback for a missing source print; ambiguous exact
+    // registrations fail closed instead of silently selecting a proxy.
+    const sourceKey = JSON.stringify([row.name, row.printing.set, String(row.printing.number)]);
+    const sourceMatches = byPrinting.get(sourceKey) || [];
+    assert.ok(sourceMatches.length <= 1, label + ' exact source printing must resolve at most once before proxy fallback: ' + row.name + ' ' + row.printing.set + ' ' + row.printing.number + ' (matches=' + sourceMatches.length + ')');
+    const enginePrinting = sourceMatches.length === 1 ? row.printing : engineProxyPrintingForSourceRow(row);
     const key = JSON.stringify([row.name, enginePrinting.set, String(enginePrinting.number)]);
-    const matches = byPrinting.get(key) || [];
-    assert.equal(matches.length, 1, label + ' exact engine-proxy printing must resolve once: ' + row.name + ' ' + enginePrinting.set + ' ' + enginePrinting.number + ' (source=' + row.printing.set + '/' + row.printing.number + ', matches=' + matches.length + ')');
+    const matches = sourceMatches.length === 1 ? sourceMatches : (byPrinting.get(key) || []);
+    assert.equal(matches.length, 1, label + ' exact or approved engine-proxy printing must resolve once: ' + row.name + ' ' + enginePrinting.set + ' ' + enginePrinting.number + ' (source=' + row.printing.set + '/' + row.printing.number + ', matches=' + matches.length + ')');
     const nativeCard = matches[0];
     assert.ok(typeof nativeCard.fullName === 'string' && nativeCard.fullName.length > 0, label + ' resolved card is missing fullName');
     for (let i = 0; i < row.count; i += 1) fullNames.push(nativeCard.fullName);
