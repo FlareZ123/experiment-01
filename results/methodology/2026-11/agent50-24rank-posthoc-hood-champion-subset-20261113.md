@@ -17,6 +17,8 @@ This analysis uses the existing compact paired indicator matrix:
 
 The allowlist is explicit: `diagnosticOnly:true`, `physicalPrintStatus:"unverified"`, `paperAdmissionEligible:false`, `competitiveAdmissionEligible:false`. Its 24 ranks are **1, 2, 4, 5, 8–22, 26, 27, 30–32**. The excluded incompatible ranks are **3, 6, 7, 24, 29**. The unavailable original lists **23, 25, 28** were never in the 29-source experiment and are not imputed. The 24-rank set is heterogeneous (9 Regidrago, 4 Absol Garbodor, 2 Raichu Electrode Combo and nine one-off archetypes); see the [field-composition report](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md).
 
+**Rank semantics:** all rank numbers in this report are Limitless source slots from `full-decklists.json`, not confirmed final top-cut placements. Official runner-up Otaro's deck code does not match Limitless source slot 2 (Takahiro Ando); the mapping of all source slots to final bracket placements is unresolved. All stratification below is by source slot.
+
 Each of the 29 authenticated source ranks had two registered candidate-seat groups. The original paired matrix marks three physical source-deal mismatches as `X` (rank 8 seat A, rank 16 seat B, rank 26 seat A). Those rows are excluded from paired inference. Filtering the 24-rank allowlist and then excluding those three mismatches leaves **45 physically matched pairs**. This is a posthoc subset of the original 116 native attempts, not a new prospective experiment.
 
 ## 24-rank diagnostic subset
