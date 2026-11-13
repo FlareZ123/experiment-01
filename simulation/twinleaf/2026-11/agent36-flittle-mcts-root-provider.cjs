@@ -261,13 +261,14 @@ function assertFlittleStateEnvelope(state,seat,view,native) {
  */
 function assertFlittleRootEnvelope(state,seat,view,native) {
   assertFlittleStateEnvelope(state,seat,view,native);
-  assert.ok(view.globalTurn>=2);
-  assert.ok(view.ownTurnResources.energyPlayedTurn<=view.globalTurn);
+  assert.ok(view.globalTurn>=3);
+  assert.ok(view.ownTurnResources.energyPlayedTurn<view.globalTurn,
+    'The certified root must retain its once-per-turn Energy attachment');
   for(const physicalSeat of [0,1]) {
     const player=state.players[physicalSeat];
     assert.equal(player.active.energies.cards.length,1);
     assert.equal(player.active.damage,0);
-    if(physicalSeat===seat) assert.ok(player.energyPlayedTurn<=state.turn);
+    if(physicalSeat===seat) assert.ok(player.energyPlayedTurn<state.turn);
     else assert.ok(player.energyPlayedTurn<state.turn);
   }
   assert.ok(view.ownHand.includes(PSYCHIC),
@@ -277,6 +278,24 @@ function assertFlittleRootEnvelope(state,seat,view,native) {
 
 function actionKey(action,deps) {
   return flittleActionKey(action,deps);
+}
+
+function flittleIntentActionKey(intent,deps) {
+  assert.ok(intent&&typeof intent==='object');
+  if(intent.kind==='attach-basic-energy') {
+    assert.ok(Number.isSafeInteger(intent.handIndex)&&intent.handIndex>=0);
+    assert.equal(intent.slot,'active');
+    assert.equal(intent.index,0);
+    assert.ok(deps?.PlayerType&&deps?.SlotType);
+    return 'PLAY_CARD_ACTION:'+intent.handIndex+':'+
+      deps.PlayerType.BOTTOM_PLAYER+':'+deps.SlotType.ACTIVE+':0';
+  }
+  if(intent.kind==='attack') {
+    assert.ok(typeof intent.attackName==='string'&&intent.attackName.length>0);
+    return 'ATTACK_ACTION:'+intent.attackName;
+  }
+  if(intent.kind==='pass') return 'PASS_TURN';
+  return null;
 }
 
 function assertFlittleActionFrontier(actions,state,seat,view,deps) {
@@ -574,6 +593,7 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
     knowledgeBySeat:trackedKnowledgeBySeat,
     rootIntentProvider,
     createRootSearchCapability,
+    rootIntentActionKey:intent=>flittleIntentActionKey(intent,bindings),
     events,
     failures
   });
@@ -598,6 +618,7 @@ module.exports={
   assertFlittleRootEnvelope,
   assertFlittleActionFrontier,
   mapActionToIntent,
+  flittleIntentActionKey,
   sameBudget,
   buildFlittleSearchDependencies,
   loadTwinleafBindings,
