@@ -79,14 +79,15 @@ function paidRetreatAgainstSnorlax(options = {}) {
   benchTarget.cards.push(card('Shadow Rider Calyrex V CRE'));
   candidate.bench.push(benchTarget);
 
+  let benchHoodSlot = null;
   if (options.benchHood) {
-    const benchVmax = new PokemonCardList();
-    benchVmax.cards.push(
+    benchHoodSlot = new PokemonCardList();
+    benchHoodSlot.cards.push(
       card('Shadow Rider Calyrex V CRE'),
       card('Shadow Rider Calyrex VMAX CRE')
     );
-    benchVmax.tools.push(card('Stealthy Hood UNB'));
-    candidate.bench.push(benchVmax);
+    benchHoodSlot.tools.push(card('Stealthy Hood UNB'));
+    candidate.bench.push(benchHoodSlot);
   }
 
   const snorlax = card('Snorlax PGO');
@@ -147,8 +148,8 @@ function paidRetreatAgainstSnorlax(options = {}) {
       physicalPsychicEnergyBefore: psychicEnergy.length,
       hoodPhysicallyAttached: vmaxSlot.tools.some(tool =>
         tool.name === 'Stealthy Hood'),
-      benchHoodPhysicallyAttached: candidate.bench.some(slot =>
-        slot.tools.some(tool => tool.name === 'Stealthy Hood')),
+      benchHoodPhysicallyAttached: !!benchHoodSlot &&
+        benchHoodSlot.tools.some(tool => tool.name === 'Stealthy Hood'),
       blockListed,
       underworldDoorListed,
       activeAfter,
