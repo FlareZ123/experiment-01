@@ -1463,6 +1463,8 @@ function resignPolicyPlanAttestations(generated) {
   const opponent=bundle.policyAttestationBundle.opponentPolicy;
   opponent.policyPlanSha256=planSha;
   opponent.policyConstraintsSha256=constraintsSha;
+  opponent.opponentPolicyBundleSha256=evidenceBundleSha256(
+    bundle.policyPlanCore.opponentPolicyBundle);
   signPolicyAttestation(opponent,opponentPrivateKey);
   bundle.policyAttestationBundle.policyPlanSha256=planSha;
   rehashPolicyBundle(bundle);
@@ -1508,7 +1510,7 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
     {nestedRankReviewFixtureMarker:true},
     {nestedRankReviewFormatReviewStatus:'unverified-fixture-only'},
     {nestedCoreCandidateFixtureMarker:true},
-    {nestedCoreRankFormatReviewStatus:'unverified-fixture-only'},
+    {nestedCoreOpponentRankFixtureMarker:true},
     {nestedRankReviewFormatReviewStatus:'unknown-review-state'}
   ];
   for(const variant of variants) {
@@ -1544,9 +1546,9 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
         variant.nestedCoreCandidateFixtureMarker;
       resignPolicyPlanAttestations(generated);
     }
-    if (variant.nestedCoreRankFormatReviewStatus !== undefined) {
-      bundle.policyPlanCore.opponentPolicyBundle.ranks[0].formatReviewStatus=
-        variant.nestedCoreRankFormatReviewStatus;
+    if (variant.nestedCoreOpponentRankFixtureMarker !== undefined) {
+      bundle.policyPlanCore.opponentPolicyBundle.ranks[0].fixtureOnly=
+        variant.nestedCoreOpponentRankFixtureMarker;
       resignPolicyPlanAttestations(generated);
     }
     if (variant.trialFixtureMarker !== undefined)
