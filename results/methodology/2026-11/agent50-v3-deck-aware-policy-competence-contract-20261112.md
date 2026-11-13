@@ -190,3 +190,6 @@ Agent50 implemented the first runtime-layer mitigation on 13 November:
 The six new boundary-helper tests passed in an isolated Node 22 harness. This is **not** a full repository test run or CI result. The GitHub workflow is manual-dispatch-only and has not been run against this patch.
 
 **Remaining integration:** Agent36 should copy the returned `actorOnlyBoundary` summary into `trial`; Agent42 should bind and validate its digest in the application receipt; Agent43 should independently validate the summary/digest in V3 admission. The composer now blocks these paths in the standard runner, but the bundle-level admission contract does not yet bind the audit. The broadcast and direct owner handoffs identify this remaining work.
+
+
+The boundary helper was tightened one step further: `nonOwnerNativeDelegations` and `nonTurnPhaseFallbacks` are now also required to be zero, not merely reported. Until the runner demonstrates that these full-State delegations are non-decision setup noise, they remain disqualifying. The isolated Node harness now passes 7/7 helper tests. This remains a local helper test, not the repository's manual preflight or a Twinleaf game.
