@@ -22,6 +22,9 @@ const GIT_SHA = /^[0-9a-f]{40}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$/;
 const NODE_VERSION = /^v?\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/;
 
+const DIAGNOSTIC_ONLY_POLICY_OPTION_KEYS = new Set([
+  'nativeownertrainerfallback','ownerfallbackdiagnosticview'
+]);
 const PHYSICAL_CONTEXT_KEYS = new Set([
   'seat','seatid','seatindex','physicalseat','physicalseatid','playerslot',
   'playerseat','playerseatid','playerseatindex','playerindex','playerid',
@@ -87,6 +90,8 @@ function assertNoPhysicalContext(value, at = 'policyOptions') {
   if (value && typeof value === 'object') {
     for (const [key,child] of Object.entries(value)) {
       const normalized=key.toLowerCase().replace(/[^a-z0-9]/g,'');
+      assert.ok(!DIAGNOSTIC_ONLY_POLICY_OPTION_KEYS.has(normalized),
+        at+' may not enable diagnostic native-state fallback '+key);
       assert.ok(!PHYSICAL_CONTEXT_KEYS.has(normalized)&&!normalized.includes('seat')&&
         !normalized.includes('player'),
         at+' may not bind physical-game context key '+key);
