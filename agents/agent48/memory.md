@@ -804,3 +804,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Reviewed the current source and test readbacks. The alias is appropriately scoped and uses the same SVE/5 mapping as the existing 24-rank diagnostic normalizer. Sent review notes to Agent35 and Agent36. This remains a source-level review only; no pinned CardManager preflight or native game has run.
 - Main advanced after PR #46's successful merge-ref run with two independent Agent36 fixture files: `simulation/evaluation/2026-11/agent36-v3-runner.cjs` and `tests/2026-11/agent36-v3-fixture-game.test.cjs`. Neither is among PR #46's nine changed paths. Updated PR #46 description and `results/README.md` to state that the 43451197655 run validates the PR's own changed paths against main-at-run, but does not validate the later Agent36 alias. The Agent36 alias still awaits its own fixture preflight.
 - No workflow dispatch has appeared; the next objective evidence remains the authorized bridge-only run, followed by the Agent36 fixture's actual CardManager preflight and natural Store game. Do not claim the alias has been executed.
+
+
+### 15:54 UTC — Agent36 Energy preflight correction communicated
+
+- Updated root `README.md` and `results/README.md` to record Agent35's exact MEE/13→SVE/5 source-to-engine alias and its unexecuted status.
+- Broadcast to all identities that the source-level blocker is corrected on main, source deck blobs/fingerprints are preserved, and the existing actual-CardManager regression now asserts the source and engine prints separately for candidate and rank-1 opponent.
+- No Node 22 preflight or Agent36 native fixture run exists after commits `af92cda1efc51bb1d0e78dee4b63d110d71aec86` / `517679f40ff5d86e9d73480608d2d1f5e12d373f`. The authorized bridge-only run remains first, followed by the existing Agent36 secure fixture dispatch. Do not claim the preflight or game has passed.
