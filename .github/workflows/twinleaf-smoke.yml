@@ -256,6 +256,9 @@ jobs:
           path: .tmp/aichi-input
           run-id: 43407979154
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify the frozen source-audit bytes before mapping
+        run: |
+          echo "6ac2fbaec602f7c9ffd49c2a90c4c79be78df696cc56decc3631f5ad50c1812b  .tmp/aichi-input/aichi-expanded-identity-audit.json" | sha256sum --check
       - name: Validate bridge code and pure contract tests
         run: |
           node --check simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs
