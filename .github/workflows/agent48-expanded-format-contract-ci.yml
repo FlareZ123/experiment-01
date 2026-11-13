@@ -36,7 +36,7 @@ jobs:
           node --check simulation/evaluation/2026-11/agent42-role-policy-identity.cjs
           node --check simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs
           node --check simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs
-      - name: Test format-aware field validation, receipt binding and V3 builder/evaluator
+      - name: Test format-aware field validation, receipt binding and V3 admission, including panel/null fixture markers
         run: |
           set -o pipefail
           node --test \
