@@ -7,6 +7,7 @@ on:
       - ".github/workflows/aichi-card-audit.yml"
       - "scripts/aichi_expanded_identity_audit.py"
       - "tests/test_aichi_expanded_identity_audit.py"
+      - "tests/agent39-aichi-24-deck-construction.test.cjs"
       - "results/aichi-2026/full-decklists.json"
       - "resources/sets/en.json"
       - "resources/cards/en/**"
@@ -88,6 +89,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all 24 identity-screened Aichi lists satisfy deck-construction limits
+        run: node --test tests/agent39-aichi-24-deck-construction.test.cjs
       - name: Compile and test the reusable Aichi Expanded identity screen
         run: |
           python -m py_compile scripts/aichi_expanded_identity_audit.py
