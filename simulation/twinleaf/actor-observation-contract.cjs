@@ -49,6 +49,7 @@ function visiblePokemon(slot){
       onlyAllowedAttackNameNextTurn:slot.onlyAllowedAttackNameNextTurn??null,
       attackCostIncreaseNextTurn:slot.attackCostIncreaseNextTurn??0,
       attackCostIncreaseWhileActive:slot.attackCostIncreaseWhileActive??0,
+      cannotRetreat:slot.cannotRetreat===true,
       cannotRetreatNextTurn:slot.cannotRetreatNextTurn===true,
       cannotRetreatWhileActive:slot.cannotRetreatWhileActive===true,
       cannotEvolveNextTurn:slot.cannotEvolveNextTurn===true
