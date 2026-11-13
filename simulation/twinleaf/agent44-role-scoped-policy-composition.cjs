@@ -36,7 +36,7 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
     if(!summary.version) failures.push(role+'-wrapper-version-missing');
     if(summary.nativeOwnerTrainerFallbackEnabled)
       failures.push(role+'-native-owner-trainer-fallback-enabled');
-    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks']){
+    for(const key of ['unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks','nonOwnerNativeDelegations','nonTurnPhaseFallbacks']){
       if(!Number.isInteger(summary[key])||summary[key]<0)
         failures.push(role+'-'+key+'-missing-or-invalid');
       else if(summary[key]!==0) failures.push(role+'-'+key+'-nonzero');
