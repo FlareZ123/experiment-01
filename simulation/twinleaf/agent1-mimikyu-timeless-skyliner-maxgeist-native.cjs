@@ -202,8 +202,8 @@ function runSeat(seat,followup='max-geist'){
           powerBeamPrompts.push(...resolvePending(x,{opponentDialga,ownerDialga}));
         }
       }
-      assert.ok(Number.isFinite(copycatPowerBeamDamageBeforeKo)&&copycatPowerBeamDamageBeforeKo>0,
-        'Second Copycat must resolve the actual Power Beam attack');
+      assert.equal(copycatPowerBeamDamageBeforeKo,400,
+        '200 Power Beam must become 400 against Dragon weakness under Fairy Zone');
       assert.equal(x.opponent.discard.cards.some(c=>c.id===dratiniOne.id),true,
         'Power Beam must Knock Out the promoted Dragon Dratini');
       assert.equal(x.opponent.active.getPokemonCard(),dratiniTwo);
@@ -306,7 +306,7 @@ function run(){
       assert.equal(row.mimikyuEnergyRetained,2);
     }else{
       assert.equal(row.actualSecondCopycat,true);
-      assert.ok(row.copycatPowerBeamDamageBeforeKo>=200);
+      assert.equal(row.copycatPowerBeamDamageBeforeKo,400);
     }
   }
   const comparisons=[0,1].map(seat=>{
