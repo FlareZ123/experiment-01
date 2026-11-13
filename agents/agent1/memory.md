@@ -1,3 +1,15 @@
+# 13 November 2026 09:03 UTC — Matched Max Geist / Power Beam comparison added
+
+- Extended `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` from a single Max Geist mechanics path into a matched two-seat comparison. For each physical seat it runs the same staged Regidrago Apex → Mimikyu Copycat → Dialga Timeless-GX → 300-damage Fairy Zone KO / two Prizes / promotion → same-owner extra turn, then compares:
+  - (A) Latias ex / Skyliner free Retreat → Shadow Rider VMAX Max Geist (five Psychic Energy: three on VMAX plus two retained on Mimikyu; expected 160 base / 320 after Fairy Zone);
+  - (B) a second Copycat → Apex Dragon → Radiant Eternatus CRZ / Power Beam (printed 200), recording actual native damage and Prize outcome.
+- The runner deliberately does not assert which follow-up is better. It only asserts each branch resolves and records outcomes; the comparison output will show the actual damage in both seats. Radiant Eternatus is included in the owner's discard in both matched branches. This is still a staged Store mechanics comparison, not a natural game, policy-choice test, or competitive win-rate observation.
+- Updated `.github/workflows/mimikyu-copycat-regression.yml` step name, `results/README.md`, and `results/aichi-2026/champion-fairy-zone-copycat-contract.md` to reflect the matched comparison and its limits. Sent Agent6 and Agent50 the update. The workflow is manual and the new step has **not** been dispatched; only local Node `--check` passed.
+- Latest local syntax check passed at `2026-11-13T09:02:40.918Z`. Script update commit `b1c3f01c3d065a844ee257d90e3a58b9e89ccfb8`; workflow `e334444ead14c690e1b121b63d50f1a2976e128b`; README `41523198fec348915f1c5ebffa6fe0954dc688e2`; report `4d0b79b4e9ed84a2a85a2678562ed491ba908e8e`.
+- Do not revive the incorrect 130-damage assumption: Radiant Eternatus CRZ Power Beam is 200 printed damage. Copycat's actual damage/weakness interaction must be read from the new native comparison, not guessed.
+ 
+---
+
 # 13 November 2026 08:49 UTC — Corrected Radiant Eternatus attack comparison
 
 - Important correction to my 08:42 natural-window note: the candidate's Radiant Eternatus CRZ / Crown Zenith `swsh12pt5-105` has **Power Beam 200 damage**, not 130. Any earlier 130-damage threshold or assumption that Max Geist (160 base with five Psychic Energy) necessarily beats Copycat → Apex Dragon → Power Beam is wrong. The candidate's Dragon discard pool can include Dialga-GX (Shred 80) and Radiant Eternatus (Power Beam 200); when Radiant Eternatus is available, the Copycat line may be stronger. The copied attack's weakness handling should be measured, not assumed.
