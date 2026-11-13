@@ -57,6 +57,74 @@ function exactOneLossIidLowerBound(gamesPerStratum, alpha, target) {
 }
 
 /**
+ * Exact lower confidence bound for two nonwins in four equally sampled
+ * Bernoulli strata. The Schur-concavity proof requires D(Q)>=0 and
+ * D'(R_min)>=0; the two quadratic inequalities define the Q interval below.
+ * As with the one-loss case, outcomes must be i.i.d. within each stratum.
+ */
+function exactTwoLossIidLowerBound(gamesPerStratum, alpha, target) {
+  if (!Number.isSafeInteger(gamesPerStratum) || gamesPerStratum < 106 ||
+      !(alpha > 0 && alpha < 1) || !(target > 0.75 && target < 1)) {
+    return null;
+  }
+  const n = gamesPerStratum;
+  const Q = STRATA_PER_OPPONENT * (1 - target);
+  if (!(Q > 0 && Q < 1)) return null;
+  const rMax = Q / (1 - Q);
+  const RMin = Q / (1 - Q / STRATA_PER_OPPONENT);
+  const DMin = -rMax - n * RMin * (1 + 2 * rMax) +
+    n * (n - 1) * RMin * RMin / 2;
+  const derivativeMin = n *
+    ((n - 1) * RMin - (1 + 2 * rMax));
+  if (DMin < 0 || derivativeMin < 0) return null;
+
+  // D(R_min)>=0 is equivalent to A*Q^2+B*Q+C<=0.
+  const dA = 8 * n * n - 12 * n + 1;
+  const dB = -8 * n * n + 20 * n - 8;
+  const dC = 16 * n + 16;
+  const dDiscriminant = dB * dB - 4 * dA * dC;
+  if (!(dA > 0 && dDiscriminant >= 0)) return null;
+  const dRoot = Math.sqrt(dDiscriminant);
+  const dHigh = (-dB + dRoot) / (2 * dA);
+  const dLow = dC / (dA * dHigh);
+
+  // D'(R_min)>=0 is equivalent to A2*Q^2+B2*Q+C2<=0.
+  const pA = 4 * n - 5;
+  const pB = -(4 * n - 7);
+  const pC = 4;
+  const pDiscriminant = pB * pB - 4 * pA * pC;
+  if (!(pA > 0 && pDiscriminant >= 0)) return null;
+  const pRoot = Math.sqrt(pDiscriminant);
+  const pHigh = (-pB + pRoot) / (2 * pA);
+  const pLow = pC / (pA * pHigh);
+
+  const qLow = Math.max(dLow, pLow);
+  const qHigh = Math.min(dHigh, pHigh);
+  if (!(qLow < qHigh && Q >= qLow && Q <= qHigh)) return null;
+  const pLowBound = 1 - qHigh / STRATA_PER_OPPONENT;
+  const pHighBound = 1 - qLow / STRATA_PER_OPPONENT;
+  const total = STRATA_PER_OPPONENT * n;
+
+  // P[Binomial(total, 1-p) <= 2], monotone increasing in p.
+  const tail = p => {
+    const q = 1 - p;
+    return Math.pow(p, total) +
+      total * q * Math.pow(p, total - 1) +
+      total * (total - 1) / 2 * q * q * Math.pow(p, total - 2);
+  };
+  if (tail(pLowBound) > alpha || tail(pHighBound) < alpha) return null;
+
+  let lo = pLowBound;
+  let hi = pHighBound;
+  for (let i = 0; i < 120; i++) {
+    const mid = (lo + hi) / 2;
+    if (tail(mid) <= alpha) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+/**
  * Simultaneous one-sided confidence bounds for all 32 original matchups.
  *
  * Each opponent's target win probability is the equally weighted mean over
@@ -65,9 +133,9 @@ function exactOneLossIidLowerBound(gamesPerStratum, alpha, target) {
  * rank/seat/first-player strata. By default, the heterogeneous Bernoulli
  * Chernoff-KL bound is applied to each rank's 4k games. If the preregistration
  * explicitly declares stratumSamplingModel='iid-bernoulli-v1', a rank with
- * exactly one nonwin may use the sharper exact one-loss bound, but only when
- * its concavity proof applies. Two or more nonwins and all other cases retain
- * the heterogeneous KL method. Bonferroni across 32 ranks provides familywise
+ * exactly one or two nonwins may use their sharper exact bounds, but only when
+ * the relevant concavity proof applies. Three or more nonwins and all other
+ * cases retain the heterogeneous KL method. Bonferroni across 32 ranks provides familywise
  * confidence of at least the requested level.
  *
  * The exact one-loss mode assumes identically distributed outcomes within
@@ -151,6 +219,15 @@ function assessSimultaneousMatchups(request) {
         lower = lowerKlBound(winCount, total, confidenceEach);
         boundMethod = 'heterogeneous-kl';
       }
+    } else if (nonwinCount === 2 && exactIidMode) {
+      lower = exactTwoLossIidLowerBound(
+        v.attemptsPerRankSeatAndFirstPlayer, alphaEach, v.target);
+      if (lower !== null) {
+        boundMethod = 'exact-two-loss-iid';
+      } else {
+        lower = lowerKlBound(winCount, total, confidenceEach);
+        boundMethod = 'heterogeneous-kl';
+      }
     } else {
       lower = lowerKlBound(winCount, total, confidenceEach);
       boundMethod = 'heterogeneous-kl';
@@ -185,4 +262,5 @@ function assessSimultaneousMatchups(request) {
   };
 }
 
-module.exports = {assessSimultaneousMatchups, exactOneLossIidLowerBound};
+module.exports = {assessSimultaneousMatchups, exactOneLossIidLowerBound,
+  exactTwoLossIidLowerBound};
