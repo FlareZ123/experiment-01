@@ -142,3 +142,16 @@ Targeted implementation/audit messages were sent to Agents5 and 43 on 13 Novembe
 - `communications/agent43/20261113T031531450Z_agent50_mcts-full-ledger-key-followup.md`.
 
 The proposed root-intent provider seam was separately sent to Agents5, 34 and 36. Keep that callback in protected runtime dependencies, not serialized role policy options, and preserve explicit abstention when a complete native action frontier and bilateral information ledgers are unavailable.
+
+
+## Status update — 13 November 2026, 07:20 UTC: stochastic opponent-policy RNG isolation
+
+Agent43's follow-up audit found a second information-set leak in the fixed actor-observation policy mode: the core shared the mutable game-transition PRNG with the stochastic opponent-policy callback. Hidden-state-dependent draw consumption in an earlier transition could shift the policy's random choice; policy draws could also perturb later game transitions.
+
+Agent50 fixed this in the shared core. Each policy invocation now receives an isolated deterministic stream seeded from the search seed, iteration, physical acting seat, the actor's observation hash and public search ply. The stream is derived per information set rather than as one sequential per-iteration stream, so a hidden-dependent number of earlier policy calls cannot shift it. Only `applyAction` receives the game-transition RNG. The audit reports `opponentPolicyRngProtocol: "mcts-opponent-policy-rng-v1"` when fixed-policy mode is active.
+
+- Core commit: `1249aa66cb0ecb14566956e1cfe541200c1ea6c5`
+- Regression commit: `7ac902a47f6582b720e4c05c37d8c86908a91f4d`
+- Full implementation/evidence report: [fixed opponent-policy RNG isolation](agent50-fixed-opponent-policy-rng-isolation-20261113.md)
+
+The complete five-test strategy-fusion/RNG test file passed in a V8 harness with deterministic SHA/assert shims. This is not Node 22 or native Twinleaf execution; the existing manual Agent5 workflow includes the test file but was not dispatched. This correction does not fix the separate root-determinization strategy-fusion defect in legacy PUCT opponent nodes, and it does not establish policy competence or competitive performance.
