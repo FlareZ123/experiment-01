@@ -37,6 +37,8 @@ test('both role audits must prove zero unsupported prompt and speculative-State 
   assert.equal(result.schema,'aichi-actor-only-execution-boundary-v1');
   assert.equal(result.valid,true);
   assert.deepEqual(result.failures,[]);
+  assert.equal(result.candidate.ownerFallbackDiagnosticViewEnabled,false);
+  assert.equal(result.candidate.nativePolicyMayUseHiddenInformation,false);
   assert.equal(result.candidate.unsupportedPromptFallbacks,0);
   assert.equal(result.opponent.nonLiveSpeculativeFallbacks,0);
 });
