@@ -48,17 +48,42 @@ function decklistCardsSha256(cards) {
   return createHash('sha256').update(JSON.stringify(cards.slice().sort())).digest('hex');
 }
 
-function assertStoreDecklistBindingReceipt(receipt,candidateDecklist,opponentDecklist) {
+function assertStoreDecklistBindingReceipt(
+  receipt,candidateDecklist,opponentDecklist,candidateSeat,enginePin
+) {
   assert.ok(receipt&&typeof receipt==='object');
   assert.equal(receipt.schema,STORE_DECKLIST_BINDING_SCHEMA);
   assert.equal(receipt.verified,true);
   assert.equal(receipt.source,'trusted-native-store-preflight');
+  assert.equal(receipt.enginePin,enginePin);
+  assert.equal(receipt.candidateSeat,candidateSeat);
+  assert.equal(receipt.opponentSeat,1-candidateSeat);
   assert.equal(receipt.candidateDecklistId,candidateDecklist.id);
   assert.equal(receipt.opponentDecklistId,opponentDecklist.id);
-  assert.equal(receipt.candidateDecklistSha256,decklistCardsSha256(candidateDecklist.cards));
-  assert.equal(receipt.opponentDecklistSha256,decklistCardsSha256(opponentDecklist.cards));
+  const candidateSha=decklistCardsSha256(candidateDecklist.cards);
+  const opponentSha=decklistCardsSha256(opponentDecklist.cards);
+  assert.equal(receipt.candidateDecklistSha256,candidateSha);
+  assert.equal(receipt.opponentDecklistSha256,opponentSha);
   assert.ok(typeof receipt.storeStateSha256==='string'&&/^[0-9a-f]{64}$/i.test(receipt.storeStateSha256));
+  assert.ok(typeof receipt.fullStateSnapshotSha256==='string'&&/^[0-9a-f]{64}$/i.test(receipt.fullStateSnapshotSha256));
   assert.deepEqual(receipt.checkedPhysicalSeats,[0,1]);
+  assert.ok(Array.isArray(receipt.seatBindings)&&receipt.seatBindings.length===2);
+  for(const seat of [0,1]) {
+    const binding=receipt.seatBindings[seat];
+    const isCandidate=seat===candidateSeat;
+    assert.equal(binding.seat,seat);
+    assert.equal(binding.role,isCandidate?'candidate':'opponent');
+    assert.equal(binding.decklistId,isCandidate?candidateDecklist.id:opponentDecklist.id);
+    assert.equal(binding.decklistSha256,isCandidate?candidateSha:opponentSha);
+    assert.equal(binding.physicalCardCount,60);
+  }
+  assert.ok(Array.isArray(receipt.zoneCountsBySeat)&&receipt.zoneCountsBySeat.length===2);
+  for(const seat of [0,1]) {
+    const zones=receipt.zoneCountsBySeat[seat];
+    assert.equal(zones.seat,seat);
+    assert.equal(zones.totalCards,60);
+    assert.equal(Object.values(zones.zoneCounts??{}).reduce((sum,count)=>sum+count,0),60);
+  }
   return receipt;
 }
 
@@ -409,7 +434,8 @@ function createFlittleMctsRuntime({native,candidateSeat,enginePin,
   const registeredOpponentDecklist=assertRegisteredFlittleDecklist(
     opponentDecklist,'Opponent fixture decklist');
   const verifiedStoreBinding=assertStoreDecklistBindingReceipt(
-    storeDecklistBindingReceipt,registeredCandidateDecklist,registeredOpponentDecklist);
+    storeDecklistBindingReceipt,registeredCandidateDecklist,
+    registeredOpponentDecklist,candidateSeat,enginePin);
   const bindings=providedBindings??loadTwinleafBindings(native);
   const simulatorOptions=Object.freeze({
     flipMode:bindings.BotFlipMode.RANDOM,
