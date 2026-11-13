@@ -97,7 +97,7 @@ DCI(D1\text{ versus }D2\mid s,\text{Battle Compressor},g,\mu)
 =V_g^\mu(T(s,a,D1))-V_g^\mu(T(s,a,D2)).
 \]
 
-Under a binary terminal-win utility in this exact state, D1 yields 1 and D2 yields 0: the state-conditional difference is +1. Under a Prize-count objective measured before the opponent's next turn, D1 yields four Prizes and D2 yields two: a +2 Prize difference. These are deterministic fixture outcomes, not probabilities, card scores, or game-win-rate estimates.
+Under a one-step terminal indicator (1 if the opponent is already eliminated before its next turn, 0 otherwise), D1 yields 1 and D2 yields 0. This is a terminal-state indicator, not an eventual game-win probability: D2 is nonterminal and could still win later. Under a Prize-count objective measured before the opponent's next turn, D1 yields four Prizes and D2 yields two: a +2 Prize difference. These are deterministic fixture outcomes, not probabilities, card scores, or game-win-rate estimates.
 
 The AMR tuple must keep conditional execution separate from state reachability:
 
