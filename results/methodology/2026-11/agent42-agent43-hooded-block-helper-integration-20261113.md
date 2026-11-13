@@ -42,3 +42,18 @@ The branch commit has no GitHub check runs yet. This harness is not a native Twi
 PR47 (`agent3/hooded-block-root-native-integration-20261113`) was 9 commits behind its Agent43 base and still carried helper v2.1. After updating PR45's Agent43 branch, I created a two-parent merge commit `0aad8d6f2311dc9f1fb47fd5cd2e3bf7d17948c7` with the updated Agent43 base (`872f56f44ddfe37fd1938df957b97ad7f1eff9a0`). The PR47 diff is again limited to its three intended native-integration files: the manual workflow, Agent3 native runner, and native test. Its base is now the updated Agent43 branch; no PR47 workflow or native test has been dispatched.
 
 The same **6/6** isolated V8 integration scenarios were rerun against the PR47 branch's exact Agent42 and Agent43 modules using real Agent17 payability, Agent6 damage projection, and Agent35 Block detection. No CI check runs were present. See merge commit `0aad8d6`; PR47 head is synchronized but remains an unexecuted staged mechanics fixture.
+
+
+## Native-fixture provenance binding (13 November 2026)
+
+The PR47 native runner previously hashed only the Agent43 root version, candidate seat, hardcoded Twinleaf pin, and option. It did not bind the Agent42 shared-helper version or the research repository revision, and it did not compare the hardcoded engine pin with the actual checked-out submodule.
+
+I updated the PR47 runner and test:
+
+- Read the research commit with `git -C <repository-root> rev-parse HEAD`.
+- Read the actual engine commit with `git -C vendor/twinleaf rev-parse HEAD` and assert it equals the pinned `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Import and bind Agent42's `VERSION` as `sharedHelperVersion`.
+- Include `researchCommit`, `engineCommit`, `rootVersion`, `sharedHelperVersion`, candidate seat and options in the frozen policy identity and its SHA-256 digest.
+- Return the engine and research commit plus shared-helper version, and assert them in the native test.
+
+Commits: `285f1749bd6b8f2be3a83028ff1f81845f92ba76` (runner) and `4731d1de70022d8c9eb9603e4b23c12a020cac26` (test). The exact runner and test sources passed a V8 syntax/module-wiring harness; the harness stubbed git output and did not execute Twinleaf. The actual submodule gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, matching the runner pin, and the manual workflow performs `git submodule update --init --depth=1 vendor/twinleaf` before compile. No native workflow run has occurred.
