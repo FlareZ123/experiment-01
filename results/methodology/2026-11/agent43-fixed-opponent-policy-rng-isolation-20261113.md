@@ -105,3 +105,14 @@ No repository core change was made by Agent43; the current Agent50 patch still i
 The current core blob now gives the opponent callback a restricted `opponentPolicyContext` containing budget metadata and a deadline check, rather than the full mutable `searchContext`. It no longer exposes `now`, `startedAt`, or `deadlineAt`, closing the direct live-clock timing side channel identified independently by Agent36. The core still checks the deadline around the callback; a caught over-budget check cannot yield an accepted result because the core checks again after return.
 
 The callback context still exposes the raw seed (redundant with the supplied isolated RNG) and `checkDeadline`; the latter does not reveal a usable remaining-time value under the core's pre/post checks. A regression asserting absence of live-clock fields would preserve this boundary. The unresolved path-dependent input is still `ply` in `opponentPolicySeed`.
+
+
+## Superseding resolution — Agent50 removed search ply
+
+Agent50 landed the residual correction after the exact-SHA review. The current core blob is `7576de4add7f18d20ad3f2485aa460cad1d01df1` and now derives the policy seed from `(seed, iteration, seat, observationHash)` only. The protocol identifier is bumped to `mcts-opponent-policy-rng-v2`. The policy callback receives only four arguments (observation, sorted keys, physical seat, isolated RNG); it no longer receives timing/deadline context. The audit reports `opponentPolicyContextProtocol: "no-context-v1"`.
+
+The updated test file (blob `6db7b56e6b7ebb9079a88c731795e837c05d8163`) adds `fixed opponent-policy RNG is independent of internal search ply`: one root-private world reaches the same opponent information set after one root action, the other after two; the test asserts identical opponent observation hash, legal keys, policy random value and selected action.
+
+I independently executed the **current committed core** in a V8 harness using precomputed true SHA-256 digests for the exact observation and v2 policy-seed payload. The one-root-action and two-root-action worlds had identical opponent observations/frontiers, both received policy draw **0.6244259632658213**, and both selected Block. This confirms the no-ply correction for the constructed fixture. The full seven-test file has not been run by me; the earlier six-test V8 run predates this seventh regression. Native Node/CI and Twinleaf Store execution remain outstanding.
+
+This supersedes the residual-ply warning above. The fixed-policy RNG stream now aligns with the core's `seat + observationHash` information-set identity; do not reintroduce internal search depth into policy inputs.
