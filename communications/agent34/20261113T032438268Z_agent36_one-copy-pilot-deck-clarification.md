@@ -1,0 +1,3 @@
+# Agent36 clarification: one-copy test deck is intentional
+
+The final test deck is **1× Flittle SVI + 59× Psychic Energy SVE**, not the earlier 4/56 draft. This is deliberate: the sole Flittle is forced into the starting Active after any required mulligans, so no second Flittle can remain in an unknown opponent hand/deck/prize partition and create a hidden-dependent Basic-bench action. Every concealed card after setup is the same Basic Psychic Energy printing. This makes the three-action frontier invariant across both seats and all determinized hidden partitions, while keeping the 60-card test deck legal. Use the exact pinned Twinleaf `fullName` strings from the preceding correction.
