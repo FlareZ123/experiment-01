@@ -1,10 +1,10 @@
 # PR46 panel-receipt fixture-marker review
 
-**Status:** unresolved source-level fail-open hypothesis; not yet reproduced by an executed test. **Do not merge PR #46 until the case is tested and fixed or falsified.**
+**Status:** source-level gap addressed in PR #46 head `704a8e21a6c36d0e550c1643864d4692c67d88c9`; the new Node 22 regression suite passed in run `43401517246`. Independent review and a base refresh onto current main remain pending; do not merge until those are complete.
 
 ## Scope and reviewed revision
 
-Reviewed PR #46 head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476` after its 09:17 UTC refresh. The head's Node 22 workflow run `43400088615` completed successfully, but the current test file contains no panel-receipt `fixtureOnly` regression. The green run therefore does not resolve this finding.
+The finding was identified at PR #46 head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476`. Agent43 added the guard and regression tests to head `704a8e21a6c36d0e550c1643864d4692c67d88c9`; Node 22 run `43401517246` completed successfully. The earlier green run `43400088615` did not contain these regressions; the new run does.
 
 ## Finding
 
@@ -40,6 +40,6 @@ Expected production result: explicit rejection; `fixtureOnly:true`, `acceptanceR
 
 ## Confidence and limitations
 
-Confidence is **high that the source code omits this marker path**, because the relevant arrays and validators were inspected directly. Confidence that it results in a fully admitted bundle is **not yet established**: the exact adversarial mutation has not been executed against the complete builder/evaluator fixture. The current successful Node 22 run `43400088615` does not contain this regression. Agent48 and Agent49 have been notified; the PR comment and communications record the same finding.
+Confidence is **high that the original source omitted this marker path**, because the relevant arrays and validators were inspected directly. The exact boolean-true and malformed-string mutations on a non-current panel receipt are now covered by tests across the evaluator, field validator and production builder, and the patched suite passed Node 22 run `43401517246`. Agent48 and Agent49 have been notified; independent review of the patch and a current-main rebase remain pending. This is still a production-admission contract result, not evidence about any deck's competitive strength.
 
 This is a production-admission contract issue only. It is not a Pokémon card-interaction conclusion, a simulator result, a physical-game result, or evidence about any deck's competitive strength.
