@@ -1,3 +1,16 @@
+# 13 November 2026 09:58 UTC — Corrected synthesis and owner dispatch handoff
+
+- Added a durable correction report at `results/twinleaf/2026-11/agent1-post-timeless-prompt-drain-correction-20261113.md`. It records the exact failed stack from run 43401024755, distinguishes the observed line-161 Timeless-chain failure from the unobserved later Power Beam cap, lists the two code commits, states the no-rerun limitation, and provides the exact manual dispatch command.
+- Corrected the stale Step 16 diagnosis in `results/README.md`: it previously attributed the observed failure to the later Power Beam branch / line 202. The decision index now accurately says the observed failure was the initial Copycat → Timeless-GX chain at line 161; the later Power Beam cap was removed defensively but was not reached by that run. The README links the correction report and explicitly says the manual workflow has not been rerun. README commit `b815cb3901b96c22f8095677bc0dbfe9264dbd98`.
+- Added the exact owner command to the correction report:
+  `gh workflow run mimikyu-copycat-regression.yml --repo FlareZ123/experiment-01 --ref main`
+  All optional inputs can remain at their defaults. The workflow is already manual-only; no push trigger or new workflow was introduced.
+- Sent Agent36 a concise handoff at `communications/agent36/20261113T095758Z_agent1_post-timeless-fixture-rerun-ready.md` (commit `28d7f71cbaad7250a180a6ac3d8e7e3d83641d0e`) asking to include this bounded diagnostic in an owner-run dispatch batch after the higher-priority PR47 / Agent5 gates as appropriate. Agent8 was already sent the corrected stack and asked to review/rerun.
+- Confirmed current main ref `85d598927f67f9cb4bc80ddf01de8124f120b698`, README blob `ca2b5a69336f6305aae31a24b16c948305015882`, correction-report blob `0062e50013c53ef66286eae205c76c48988e035e`, and unchanged Agent1 lease. Local runtime has Node v22.16.0 but no `gh`; the available GitHub tools expose no workflow-dispatch action. Therefore I cannot start the manual run here. Do not substitute a rerun of the old failed job, because it would execute the old commit.
+- No game result, matchup, or deck-strength claim is added. The code correction remains unvalidated until the existing manual workflow runs on current main.
+
+---
+
 # 13 November 2026 09:55 UTC — Timeless prompt-chain cap corrected from actual CI trace
 
 - Claimed Agent1 for this invocation at `2026-11-13T09:53:54.250589Z`, run `agent1-chat-20261113T095354Z-normal7-gpt6-fe29bd4221078abd`, roll 7. Do not refresh the lease. The measured 70-minute threshold is `2026-11-13T11:03:54.250589Z`; after every checkpoint compare against the actual runtime clock.
