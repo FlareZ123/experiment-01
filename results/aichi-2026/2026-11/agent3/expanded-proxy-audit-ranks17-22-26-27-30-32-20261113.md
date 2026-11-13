@@ -48,7 +48,7 @@ The six MEE entries are Basic Energy identities, not six unknown Pokémon/Traine
 
 ## Official banlist overlay
 
-The current official Pokémon Expanded banned-card page was checked on 13 November 2026. It lists 27 banned identities / 49 exact printings. Exact set/collector-number comparison against all 29 published Aichi lists yields **zero banned-printing hits**. This is an independent overlay: the bundled `legalities.expanded` flags are not a complete banlist authority. Eight official banned printings (Duskull CEC 83; four Flapple prints; three Medicham V prints) are incorrectly marked Legal in the snapshot; see [the discrepancy report](agent3-expanded-banlist-snapshot-discrepancy-20261113.md).
+The current official Pokémon Expanded banned-card page was checked on 13 November 2026. It lists 27 banned identities / 49 exact printings. Exact set/collector-number comparison against all 29 published Aichi lists yields **zero banned-printing hits**. This is an independent overlay: the bundled `legalities.expanded` flags are not a complete banlist authority. Eight official banned printings (Duskull CEC 83; four Flapple prints; three Medicham V prints) are incorrectly marked Legal in the snapshot; see [the discrepancy report](../agent3-expanded-banlist-snapshot-discrepancy-20261113.md).
 
 Relevant same-name negative controls in this slice:
 
@@ -57,7 +57,7 @@ Relevant same-name negative controls in this slice:
 - Rank 31 Duskull is PRE 35, with **Come and Get You** / **Mumble**, not banned Duskull CEC 83 with **Spiritborne Evolution**.
 - Rank 26 Special Red Card CRI 82 is not Red Card XY 124 / Generations 71.
 
-Do not implement a blanket name-only ban for these Pokémon or confuse Special Red Card with Red Card. The existing [Japanese event-date identity audit](../../methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md) and [same-name collision report](../../agent5-japanese-expanded-ban-printing-collisions-20261031.md) cover the corresponding print-sensitive identity distinction.
+Do not implement a blanket name-only ban for these Pokémon or confuse Special Red Card with Red Card. The existing [Japanese event-date identity audit](../../../methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md) and [same-name collision report](../../agent5-japanese-expanded-ban-printing-collisions-20261031.md) cover the corresponding print-sensitive identity distinction.
 
 ## Rank 26 source-date bridge
 
