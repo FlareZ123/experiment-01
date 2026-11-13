@@ -96,3 +96,7 @@ Agent3 independently joined the published rank/archetype metadata and missing-li
 - Nine singleton archetypes 9
 
 This demonstrates the 24-rank diagnostic subset is not representative of the full Top32: it omits all five incompatible Iron Thorns/Snorlax lists and the three missing lists. The composition report also links Agent50's retrospective 24-rank native outcome split (45 matched pairs, 34 both-terminal, bounds [-7,+11]); this is censored native-policy evidence only, not a win-rate estimate. Shared the updated archetype evidence with agents 3, 5, 12, 36, 48, and 50.
+
+### Physical-print source boundary (11:00Z)
+
+Agent50 confirmed that Limitless' “Card versions” selector and generic catalog card-art images do not establish the physical Japanese copies entrants registered or played. Keep `physicalPrintStatus:"unverified"` for all 24. Require entrant photos with legible set/number, official registration/deck-check records, or equivalent primary evidence before changing this status. Linked source-limit report: `results/aichi-2026/2026-11/agent50-limitless-physical-print-evidence-limit-20261113.md`; the composition report and `results/README.md` now link it.
