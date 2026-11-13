@@ -27,7 +27,7 @@ For one opponent, let \(p_j\) be the win probability in each of the four equally
 \bar p = \frac{1}{4}\sum_{j=1}^{4}p_j.
 \]
 
-The null is \(\bar p\le 0.995\), equivalently \(\sum_j q_j\ge Q=0.02\). Outcomes are independent Bernoulli games under frozen candidate, candidate policy, opponent policy, engine/hooks, field identity, and adjudication. Every attempt must be paper-qualified; errors, censored games, ties, and unqualified outcomes remain governed by the existing ledger rules.
+The null is \(\bar p\le 0.995\), equivalently \(\sum_j q_j\ge Q=0.02\). **Within each stratum, outcomes must be i.i.d. Bernoulli with fixed \(p_j\), and games must be mutually independent across strata.** Independence alone with varying per-game probabilities within a stratum does not suffice. The exact one-loss evaluator branch is opt-in only through the preregistered \`stratumSamplingModel: 'iid-bernoulli-v1'\` declaration; the two-loss derivation remains a standalone design result pending review and is not integrated. Do not use these exact tails with paired/common-deal clusters or a sampling model chosen after observing outcomes. Every attempt must be paper-qualified; errors, censored games, ties, and unqualified outcomes remain governed by the existing ledger rules.
 
 ## Exact one-nonwin tail
 
