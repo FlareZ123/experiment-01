@@ -8,7 +8,7 @@ const path=require('node:path');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
-  combineAndPinV3RoleRuntime,initializeNativeCardPool
+  combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 const STEP='Generate physical deal';
@@ -88,6 +88,38 @@ function prepareFactory(preDeal){
     return preDeal;
   };
 }
+
+test('complete V3 bundle runner forwards frozen artifacts and evidence to the production builder',()=>{
+  const artifacts={
+    preDeal:{trialId:'trial-001'},
+    trial:{trialId:'trial-001'},
+    policyApplicationReceipt:{trialId:'trial-001',receiptSha256:'a'.repeat(64)},
+    preDealPersistenceReceipt:{trialId:'trial-001'},
+    dealGenerationReceipt:{trialId:'trial-001'},
+    evidence:{'original-printed-60':{ref:'review/printed-60.md',sha256:'b'.repeat(64)}},
+    policyPanelReceipts:[{trialId:'panel-001'}],
+    reviews:[{reviewerId:'reviewer-1'}],
+  };
+  let received;
+  const expected={bundle:{trialId:'trial-001'},assessment:{admissionEligible:false}};
+  const result=buildV3BundleFromArtifacts({
+    ...artifacts,
+    builder:input=>{received=input;return expected;}
+  });
+  assert.strictEqual(result,expected);
+  assert.deepEqual(received,artifacts);
+
+  let defaults;
+  buildV3BundleFromArtifacts({
+    ...artifacts,
+    builder:input=>{defaults=input;return expected;}
+  });
+  assert.deepEqual(defaults.policyPanelReceipts,artifacts.policyPanelReceipts);
+  assert.deepEqual(defaults.reviews,artifacts.reviews);
+  assert.throws(()=>buildV3BundleFromArtifacts({
+    ...artifacts,builder:null
+  }),/must be callable/);
+});
 
 test('repository-relative artifact paths reject traversal and aliases',()=>{
   assert.equal(validateArtifactRef('results/aichi-2026/predeal.json'),
