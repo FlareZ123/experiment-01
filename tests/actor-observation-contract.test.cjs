@@ -302,7 +302,7 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
 test('face-up attack metadata and vulnerabilities stay detached',()=>{
   const s=fixture(),c=s.players[1].active.getPokemonCard();
   Object.assign(c,{
-    stage:5,cardType:['DRAGON'],retreat:['COLORLESS'],
+    stage:5,subtypes:['Basic','TAG TEAM','GX'],cardType:['DRAGON'],retreat:['COLORLESS'],
     weakness:[{type:'FAIRY'}],resistance:[{type:'FIGHTING',value:-30}]
   });
   Object.assign(c.attacks[0],{damage:130,damageCalculation:'+',
@@ -310,13 +310,14 @@ test('face-up attack metadata and vulnerabilities stay detached',()=>{
   Object.assign(c.powers[0],{powerType:2,text:'Printed power description'});
   const p=actorObservation(s,0).opponentPublic.active;
   assert.deepEqual(p.printed,{
-    stage:5,types:['DRAGON'],retreatCost:['COLORLESS'],
+    stage:5,subtypes:['Basic','TAG TEAM','GX'],types:['DRAGON'],retreatCost:['COLORLESS'],
     weakness:[{type:'FAIRY',value:null}],
     resistance:[{type:'FIGHTING',value:-30}]
   });
   assert.equal(p.attacks[0].damage,130);
   assert.equal(p.attacks[0].gxAttack,true);
   assert.equal(p.abilityDetails[0].text,'Printed power description');
+  assert.ok(Object.isFrozen(p.printed.subtypes));
   assert.ok(Object.isFrozen(p.printed.weakness[0]));
   assert.ok(Object.isFrozen(p.abilityDetails[0]));
   c.cardType.push('PSYCHIC');
