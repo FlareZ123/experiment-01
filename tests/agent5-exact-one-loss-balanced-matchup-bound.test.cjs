@@ -58,3 +58,54 @@ test('invalid inputs fail closed', () => {
   assert.throws(()=>fourStrataOneLossProbability([0,0,0],10),/four/);
   assert.throws(()=>fourStrataOneLossProbability([0,0,0,1.2],10),/probability/);
 });
+
+
+test('exact balanced two-nonwin boundary is 534 games per stratum', () => {
+  const {
+    twoLossPerOpponentDesign,
+    minimumGamesPerStratumForTwoLoss
+  } = require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  const failed = twoLossPerOpponentDesign({gamesPerStratum:533});
+  const passed = twoLossPerOpponentDesign({gamesPerStratum:534});
+  assert.equal(failed.heterogeneityProofApplies, true);
+  assert.equal(failed.passes, false);
+  assert.ok(Math.abs(failed.worstCasePValue -
+    0.001578123901916331) < 1e-15);
+  assert.equal(passed.passes, true);
+  assert.equal(passed.gamesPerOpponent, 2136);
+  assert.equal(passed.totalForField, 68352);
+  assert.ok(Math.abs(passed.alphaEach - 0.0015625) < 1e-15);
+  assert.ok(Math.abs(passed.worstCasePValue -
+    0.001552073004243888) < 1e-15);
+  assert.equal(passed.minimumStratumForConcavity, 106);
+  assert.ok(passed.concavityTerms.DMin > 0);
+  assert.ok(passed.concavityTerms.derivativeMin > 0);
+  assert.equal(minimumGamesPerStratumForTwoLoss().gamesPerStratum, 534);
+});
+
+test('equal failure probabilities maximize the two-loss tail in adversarial fixtures', () => {
+  const {
+    binomialAtMostTwoFailures,
+    fourStrataTwoLossProbability
+  } = require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  const n = 534;
+  const equal = fourStrataTwoLossProbability([0.005,0.005,0.005,0.005],n);
+  const concentrated = fourStrataTwoLossProbability([0.02,0,0,0],n);
+  const split = fourStrataTwoLossProbability([0.01,0.01,0,0],n);
+  const threeWay = fourStrataTwoLossProbability([0.02/3,0.02/3,0.02/3,0],n);
+  assert.ok(concentrated < equal);
+  assert.ok(split < equal);
+  assert.ok(threeWay < equal);
+  assert.ok(Math.abs(equal - binomialAtMostTwoFailures(4*n,0.005)) < 1e-15);
+});
+
+test('two-loss probability handles zero and unit failure rates', () => {
+  const {fourStrataTwoLossProbability} =
+    require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  assert.equal(fourStrataTwoLossProbability([0,0,0,0],10),1);
+  assert.equal(fourStrataTwoLossProbability([1,0,0,0],10),0);
+  assert.equal(fourStrataTwoLossProbability([1,0,0,0],1),1);
+  assert.equal(fourStrataTwoLossProbability([1,0,0,0],2),1);
+  assert.equal(fourStrataTwoLossProbability([1,1,0,0],1),1);
+  assert.equal(fourStrataTwoLossProbability([1,1,1,0],1),0);
+});
