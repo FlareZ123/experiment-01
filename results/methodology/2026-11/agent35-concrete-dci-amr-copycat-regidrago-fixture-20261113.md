@@ -21,7 +21,7 @@ Relevant card text in the bundled English pool:
 - Regidrago VSTAR SIT 136 (`resources/cards/en/swsh12.json`)'s Apex Dragon is a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
 - Dialga-GX UPR 100 (`resources/cards/en/sm5.json`) is **Dragon type** despite its Metal attack costs. Timeless-GX does 150 damage and takes another turn after this one, skipping the between-turns step; only one GX attack may be used per game.
 - Radiant Eternatus CRZ 105 (`resources/cards/en/swsh12pt5.json`) is Dragon type and its Power Beam does 200 damage.
-- Lillie's Clefairy ex (`resources/cards/en/me2pt5.json`)'s Fairy Zone changes the Weakness of the opponent's Dragon Pokémon in play to Psychic ×2.
+- Lillie's Clefairy ex JTG 56 (`resources/cards/en/sv9.json`)'s Fairy Zone changes the Weakness of the opponent's Dragon Pokémon in play to Psychic ×2.
 - Shadow Rider Calyrex VMAX (`resources/cards/en/swsh6.json`)'s Max Geist does 10 + 30 damage for each Psychic Energy attached to all of the player's Pokémon.
 - Latias ex (`resources/cards/en/sv8.json`)'s Skyliner gives the player's Basic Pokémon in play no Retreat Cost. Mimikyu is Basic.
 - Crobat V DAA 104 (`resources/cards/en/swsh3.json`) has 180 HP, is Darkness type, and has Fighting Weakness ×2 (not Psychic Weakness).
@@ -109,6 +109,12 @@ The AMR tuple must keep conditional execution separate from state reachability:
 
 This is the intended distinction: **conditional payoff is not execution probability, and execution probability is not the probability of reaching the state.** A deck-aware policy must report all three rather than treating a line as generally available because it is technically reachable.
 
+## Important counterstate: Path to the Peak
+
+The rank-12 source inventory also contains one Path to the Peak. The fixture explicitly assumes no Ability-locking Stadium is in play. Path to the Peak says Pokémon with a Rule Box have no Abilities; it therefore suppresses Fairy Zone on Lillie's Clefairy ex, Skyliner on Latias ex, and Underworld Door on Shadow Rider Calyrex VMAX.
+
+With Path to the Peak active, the first copied Timeless-GX is only 150 damage against Regidrago VSTAR, not 300, so it does not Knock Out the 280-HP target. The extra turn still occurs, but the immediate two-KO line in the main fixture no longer follows. The retreat/Max Geist fallback also changes because Skyliner is disabled. The candidate has one Field Blower, and Marshadow UNB 81 has Resetting Hole while on the Bench, but both are finite, state-dependent answers; in this constructed full-Bench state Marshadow cannot be benched. Consequently, Field Blower's DCI rises sharply while Path to the Peak is live, and the D1/D2 discard ranking must be recomputed rather than treated as universal.
+
 ## Validation boundary and next native gate
 
 Rules/card-text derivations:
@@ -132,6 +138,7 @@ A compact positive/negative matrix for that existing gate:
 4. **Last-attack negative:** replace the opponent's last attack with a non-Apex non-GX attack. Copycat may still copy that attack, but the nested Apex Dragon/Power Beam line must not be available.
 5. **Fairy Zone control:** remove Lillie's Clefairy ex. The first copied Timeless-GX is 150 against 280-HP Regidrago VSTAR and does not Knock it Out; this isolates the Weakness contribution.
 6. **Information-set control:** with the candidate's visible hand/board/discard/deck knowledge held constant, vary opponent hidden hand and deck order while holding policy RNG fixed. The candidate's selected action must remain identical.
+7. **Path to the Peak control:** put Path to the Peak in play. Verify Fairy Zone, Skyliner and Underworld Door are disabled; Timeless-GX deals 150 rather than 300 to Regidrago VSTAR; and the policy values Field Blower/Marshadow access before relying on the unblocked line.
 
 Record actual AttackAction names, nested ChooseAttack prompts, turn/active-seat transitions, GX-use state, damage, Prize changes, and terminal state. This is a bounded staged mechanics gate, not a full-game or competitive matchup result.
 
