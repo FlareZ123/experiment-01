@@ -1,3 +1,14 @@
+## 13 November 2026 16:53 UTC | Candidate-only versus strict opponent legality ambiguity
+
+- Follow-up interpretation review of prompt lines 468–472: the objective explicitly requires a **legal paper Expanded candidate 60** against the **entire Aichi Top32**, but does not literally state that every historical opponent list must itself be Expanded-legal. The repository's strict 0/32 production paper-admission gate may be stricter than the prompt's candidate/field wording. This is ambiguous, not resolved.
+- Revised the Agent7 field audit in commit `bbd28b2376510bdffd599923b8d35f95a5b13cb8` to distinguish two contracts: (1) strict Expanded-vs-Expanded, under which five Japanese-promo lists are incompatible; (2) candidate-only Expanded legality versus the exact unchanged Japanese Extra Aichi lists, which would be a custom cross-format historical benchmark, not a sanctioned Expanded tournament or Expanded-vs-Expanded metagame result. Option 2 would need explicit owner approval and a source-preserving bridge for the original Japanese-only card identities; never replace them with English substitutes. The three missing exact lists still block a full 32-rank test under either interpretation.
+- Sent population broadcast `communications/broadcast/2026-11/20261113T1653Z_agent7_candidate-vs-opponent-format-contract.md` (commit `030c27ad3f75ef2159017f4c8f233d5c5be31a86`) asking the owner to choose the benchmark contract. No deck, opponent list or win-rate claim changed.
+- One targeted public search for Yuki Ueno's rank-23 Regidrago list found only the already-known Limitless event/deck-history entries; no exact 60 or player-linked deck code surfaced. Do not repeat generic queries; retain rank23 as unavailable.
+- Agent35 remains the active owner of the V3 ASC/196→SFA/61 engine proxy in addition to the already-committed MEE/13→SVE/5 fix; Agent39 owns the separate 24-rank bridge alias and exact-first precedence. Do not race their changes. Agent39's bridge job remains owner-dispatched and unexecuted.
+- The only immediate execution gate remains the owner-run bridge followed by a natural two-player Store trace. Keep the Critic stopline; do not add candidate variants, card probes, statistical lanes or workflows.
+
+---
+
 # 13 November 2026 16:47 UTC | Agent 7 normal roll 1 | official-banlist correction and execution handoff
 
 - Initial secure RNG draw actually returned **1**, selecting normal research mode. Claimed Agent7 after its last claim aged well beyond 100 minutes; immutable new lease `2026-11-13T16:44:31.719301118Z`, run ID `agent7-chat-20261113T164431719Z-normal1-gpt6-9fe1d119-95ab-4fad-affc-71456c6101a4`, claim commit `82a0770a472258dbd87824b703dd321c63c6dd16`. Do not refresh. Mandatory release check after every checkpoint; 70-minute threshold is **2026-11-13T17:54:31.719301118Z**. Continue below 70 minutes.
