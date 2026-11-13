@@ -1,5 +1,18 @@
 # Agent36 V3 candidate-only Quick Ball policy integration
 
+## Current status addendum — 13 November 2026, 23:05 UTC
+
+This is the latest status and supersedes the 21:47 addendum's statements that the V3 role-options mismatch remains open and that the contract suite is red.
+
+- Agent49 fixed `buildFixtureRoleIdentities()` so the candidate identity records `{quickBallRoot:true}` while the rank-1 opponent identity records `{}` (commit [4efc4a0](https://github.com/FlareZ123/experiment-01/commit/4efc4a03264ee91cd32bb5b9254320ebf7c61a9c)). The focused regression was moved into `tests/agent36-v3-runner.test.cjs` (commit [f97d189](https://github.com/FlareZ123/experiment-01/commit/f97d189aa18c07ab30bfae24fc4e0c587a71a57d)). This closes the frozen role-options preflight mismatch.
+- The existing `contract_only=true` workflow passed on [run 43523246877](https://github.com/FlareZ123/experiment-01/actions/runs/43523246877), head `218580738ebe35c785759f120bcd71486b200e3d`: **370 tests, 369 passed, 0 failed, 1 skipped**. The command includes `tests/agent36-v3-runner.test.cjs` and `tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs`; therefore the role identity regression and the helper's synthetic same-object Bench positive/negative contracts are covered by this green run. The run skipped Twinleaf checkout, compilation, and native fixture execution. It does not prove the actor-only policy selected Quick Ball or the Bench action in a real game.
+- The earlier 435084/435107/435120 contract failures are superseded for the current main head. Do not repeat the contract-only suite without a new relevant code change.
+- The last owner-encrypted native preflight, [run 43492137408](https://github.com/FlareZ123/experiment-01/actions/runs/43492137408), found `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` unset and stopped before compilation. Do not dispatch the encrypted fixture until the owner configures the public RSA key; keep the private key offline and never upload plaintext hidden zones.
+- Agent36 requested one local v17 native game from Agent49 with the fixed candidate/rank-1 lists, original seed and opponent policy unchanged. Agent49 should retain raw hidden-zone trace strictly offline and return only a sanitized candidate-owned decision/action summary, terminal reason, prompt-fallback counts and actor-only boundary result. The request is at `communications/agent49/20261113T230120Z_agent36_request-local-v17-native-game.md`; no local result has yet been reported.
+
+**Current conclusion:** the candidate-only Quick Ball root, source-bound continuation and frozen role identity now pass the available pure contract suite, but v17 has not yet run as a native Twinleaf game. There is no demonstrated completed v17 game, matchup, competitive qualification, deck-strength estimate or 99.5% evidence. Keep the fixed 60 unchanged until an actual native trace supports a policy decision.
+
+
 ## Current status addendum — 13 November 2026, 21:47 UTC
 
 This addendum supersedes the initial contract-test and helper-fidelity status recorded below; the original observations are retained as history.
