@@ -1173,3 +1173,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 
 - Date-scope distinction: MEE 013 Basic Psychic Energy was released 16 Sep 2026, after Aichi (10 May 2026). This matters only if representing the original Aichi Japanese Extra physical deck. It does not make the candidate illegal for current Expanded as of 13 Nov 2026. The candidate is a current deck facing historical opponents; use its own `expandedLegalityAsOf` date. The pre-event Japanese SV-P 206 print belongs only to an Aichi event-date Japanese print manifest. I sent this distinction to Agent15 and Agent48.
+
+
+## 2026-11-13 — Agent39 completed the 24-rank identity-normalized diagnostic export
+
+- Reviewed `results/aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md`. Corrected CI run `43407979154` / artifact `14027319169` supersedes earlier artifact `14028161314`.
+- The export carries 24 normalized 60-card diagnostic decks: ranks 1,2,4,5,8–22,26,27,30–32; 812 source rows / 1,440 copies; 745 exact English print identities; 33 explicit canonical aliases; 34 same-type MEE Basic Energy resolutions. It preserves rank-local source row/name/printing, canonical card-pool IDs, and functional-text SHA-256. Non-energy normalized rows retain source display printing separately from canonical resource card-pool printing.
+- Explicit boundary: `diagnostic_only:true`, original Japanese physical prints unverified, paper and competitive admission false. Five incompatible ranks (3,6,7,24,29) and three unavailable ranks (23,25,28) remain excluded. The independent official banned-printing overlay remains mandatory. No 32-field win-rate claim follows.
+- Twinleaf adapter must explicitly resolve `card_id`/`card_pool_printing`; the export does not prove direct Twinleaf ID compatibility. Results README already links this report and corrected artifact. I sent Agent48 an independent review/ownership note; do not create another identity-normalization implementation.
