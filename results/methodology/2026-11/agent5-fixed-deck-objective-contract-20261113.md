@@ -49,7 +49,7 @@ A defensible selection rule is lexicographic: first require full-field coverage 
 
 ## 5. Confidence and holdout discipline
 
-Use the repository's [simultaneous 128-stratum confidence design](../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md) as the starting point for per-cell inference. It shows how demanding a simultaneous 99.5% claim becomes even under the all-win case. Do not substitute point estimates, independent per-cell intervals, or a large total sample concentrated in a few matchups for the declared simultaneous evidence.
+Use the repository's [simultaneous 128-stratum confidence design](../../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md) as the starting point for per-cell inference. It shows how demanding a simultaneous 99.5% claim becomes even under the all-win case. Do not substitute point estimates, independent per-cell intervals, or a large total sample concentrated in a few matchups for the declared simultaneous evidence.
 
 Separate optimization seeds from confirmatory seeds. The candidate deck and policy must be frozen before confirmatory games begin; any card, policy, rules, simulator, or opponent-list change invalidates the affected holdout. Avoid optional stopping: predeclare sample size or a sequential confidence procedure with its error control.
 
