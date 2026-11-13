@@ -13,7 +13,7 @@ const {
   VERSION:POST_TIMELESS_POWERBEAM_PROMPT_VERSION,
   chooseNativeMimikyuPostTimelessPowerBeamPrompt
 }=require('./2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs');
-const VERSION='agent34-actor-only-root-slice-v14-post-timeless-retreat-guards';
+const VERSION='agent34-actor-only-root-slice-v15-actor-owned-setup-prompts';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -26,6 +26,30 @@ const actorNativeActionMetadata=new WeakMap();
 function actorNativeActionReceipt(action){
   return action&&typeof action==='object'?
     actorNativeActionMetadata.get(action)??null:null;
+}
+
+/**
+ * Select only Basic or setup-tagged cards from the authenticated owner's
+ * exact hand object. The native prompt validator remains the final legality
+ * check; no other player's hand, deck, or hidden zone is consulted.
+ */
+function chooseActorStartingBasics(prompt,owner,Stage,CardTag){
+  if(prompt.cards!==owner?.hand||typeof prompt.validate!=='function')return null;
+  const cards=owner.hand?.cards;
+  const maximum=prompt.options?.max;
+  if(!Array.isArray(cards)||!Number.isSafeInteger(maximum)||maximum<1)return null;
+  const blocked=new Set(Array.isArray(prompt.options.blocked)?
+    prompt.options.blocked:[]);
+  const selected=[];
+  for(let index=0;index<cards.length&&selected.length<maximum;index++){
+    if(blocked.has(index))continue;
+    const card=cards[index];
+    if(!(card?.stage===Stage.BASIC||
+         card?.tags?.includes(CardTag.PLAY_DURING_SETUP)))continue;
+    const proposed=[...selected,card];
+    if(prompt.validate(proposed))selected.push(card);
+  }
+  return selected.length>0&&prompt.validate(selected)?selected:null;
 }
 
 /**
@@ -1223,6 +1247,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
+  const actorSetupPromptActions=new WeakMap();
   const copycatHistoryByAction=new WeakMap();
   const nativeTrainerFallbackActions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
@@ -1243,6 +1268,13 @@ function withActorOnlyRootPolicy(run,deps={}){
   const genesectDrawUsedTurnBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state').GamePhase;
+  const setupPromptTypes=()=>deps.setupPromptTypes??{
+    ChooseCardsPrompt:require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
+    ConfirmPrompt:require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/confirm-prompt').ConfirmPrompt,
+    GameMessage:require('../../vendor/twinleaf/ptcg-server/output/game/game-message').GameMessage,
+    Stage:require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types').Stage,
+    CardTag:require('../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types').CardTag
+  };
   // Test-only seam for an already constructed native, physically complete
   // staged Store. Real games discover their Store from AddPlayerAction below.
   // This explicit dependency is never inferred from cloned or speculative
@@ -1274,6 +1306,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     version:VERSION,origin:'detached-actor-observation',
     policyOwnerSeat,peerRoleDispatchEnabled:deps.peerRoleDispatch===true,
     ownerDecisionCalls:0,peerRoleDelegations:0,nonOwnerSeatBypassCalls:0,
+    setupStartingBasicPromptsHandled:0,setupStartingBasicPromptsBySeat:[0,0],
+    setupGoFirstPromptsHandled:0,setupGoFirstPromptsBySeat:[0,0],
+    setupPromptActionsSubmitted:0,setupPromptActionsRejected:0,
+    setupPromptDecisions:[],
     rootIntentProvider:{
       configured:hasRootIntentProvider,attempts:0,selected:0,abstained:0,
       skipped:0,abstentionReasons:{},lastIntentKind:null,
@@ -2032,6 +2068,47 @@ function withActorOnlyRootPolicy(run,deps={}){
       return original.value.call(this,state);
     }
     if(seat===0||seat===1)audit.ownerDecisionCalls++;
+    if((seat===0||seat===1)&&pending&&pending.playerId===playerId&&
+       state.turn===0&&state.phase===engineGamePhase().SETUP){
+      const owner=state.players[seat];
+      if(owner?.id===playerId){
+        const setup=setupPromptTypes();
+        const ResolvePromptAction=(deps.promptActions??require(
+          '../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action'
+        )).ResolvePromptAction;
+        if(pending instanceof setup.ChooseCardsPrompt&&
+           pending.message===setup.GameMessage.CHOOSE_STARTING_POKEMONS){
+          const selected=chooseActorStartingBasics(
+            pending,owner,setup.Stage,setup.CardTag);
+          if(selected){
+            const action=new ResolvePromptAction(pending.id,selected);
+            const receipt={seat,turn:state.turn,kind:'starting-basics',
+              promptId:pending.id,
+              selectedHandIndices:selected.map(card=>owner.hand.cards.indexOf(card)),
+              selectedPrintings:selected.map(card=>card.fullName??card.name??null),
+              nativeDispatch:'pending'};
+            actorSetupPromptActions.set(action,receipt);
+            audit.setupStartingBasicPromptsHandled++;
+            audit.setupStartingBasicPromptsBySeat[seat]++;
+            audit.setupPromptDecisions.push(receipt);
+            return action;
+          }
+        }
+        if(pending instanceof setup.ConfirmPrompt&&
+           pending.message===setup.GameMessage.GO_FIRST){
+          // Twinleaf's pinned ConfirmPromptResolver returns false by default.
+          const action=new ResolvePromptAction(pending.id,false);
+          const receipt={seat,turn:state.turn,kind:'go-first',
+            promptId:pending.id,result:false,nativeDefaultEquivalent:true,
+            nativeDispatch:'pending'};
+          actorSetupPromptActions.set(action,receipt);
+          audit.setupGoFirstPromptsHandled++;
+          audit.setupGoFirstPromptsBySeat[seat]++;
+          audit.setupPromptDecisions.push(receipt);
+          return action;
+        }
+      }
+    }
     if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);
@@ -3166,6 +3243,22 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
     if(!choice){
+      const setupReceipt=this===nativeStore?
+        actorSetupPromptActions.get(action):undefined;
+      if(setupReceipt){
+        try{
+          const result=beforeDispatch.value.apply(this,[action,...args]);
+          setupReceipt.nativeDispatch='dispatch-returned';
+          setupReceipt.nativeDispatchReturnType=typeof result;
+          audit.setupPromptActionsSubmitted++;
+          return result;
+        }catch(error){
+          setupReceipt.nativeDispatch='dispatch-threw';
+          setupReceipt.nativeError=String(error?.message||error).slice(0,240);
+          audit.setupPromptActionsRejected++;
+          throw error;
+        }
+      }
       const fallback=this===nativeStore?
         nativeTrainerFallbackActions.get(action):undefined;
       if(!fallback)return beforeDispatch.value.apply(this,[action,...args]);
