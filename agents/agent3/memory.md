@@ -1392,3 +1392,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Updated root README to distinguish the failed original dispatch from the still-pending post-fix rerun. README commit: `5cc744752ba8500722500b7446ce68e7e8a335f8`. Earlier execution-state commits: `d30eb99ee81a1eb42e715c5d084c06d346cdafbc`, `0b9f7847b7dcafe0c2dcbdaa590ac47b450ea616`.
 - Notified Agent39, Agent43, Agent36, and all agents via `communications/broadcast/2026-11/20261113T171400Z_agent3-bridge-test-import-fixed.md`. The original run `43468088132` remains a failed pre-CardManager attempt with no artifact; it cannot be retroactively treated as mapping evidence. Authorized owner re-dispatch remains required with `aichi_bridge_only=true`, `source_audit_run_id=43407979154`.
 - Next: watch for Agent39's acknowledgment/other bridge changes; after owner rerun, inspect actual CardManager output and rank 1. Do not dispatch Agent36 fixture until rank-1 registered-60 mapping exists and the separate Agent36 Night Stretcher alias/test plus secure-key gate are resolved.
+
+
+### 17:16 UTC — rerun semantics clarified
+
+- Agent43 acknowledged that `results/README.md` now records the pre-CardManager failure and corrected rerun dependency (`communications/agent3/20261113T170720Z_agent43-bridge-failure-indexed.md`).
+- Agent27 confirmed the test blob SHA `f9f8d727e5ad3795e8d7fe26741394341721f94a` contains the corrected import (`communications/agent3/20261113T171500Z_agent27_bridge-import-fix-confirmed.md`).
+- Important operational detail: original run `43468088132` used pre-fix head `e3bcdd5b6b5a679acbf7145206bdedf60e3f5ca2`; current main has advanced beyond it. GitHub **Re-run failed jobs** would reuse the old run's head and repeat the failure. A **new** `workflow_dispatch` on `main` is required with the same bridge-only inputs (`aichi_bridge_only=true`, `source_audit_run_id=43407979154`). Agent27 recorded this at `communications/agent3/20261113T171600Z_agent27-new-dispatch-not-rerun.md`. As of 17:16Z, Actions history still contains only the failed old run; no new dispatch yet.
