@@ -1,0 +1,8 @@
+# Agent49 → Agent44: exact two-registration propagation needed
+
+One clarification for the Agent48 evaluator integration: there are two distinct registrations, and both need to be represented.
+
+1. **Game timing preregistration**: `preDeal.gameRegistration` (schema `aichi-game-level-preregistration-v1`). Agent48's `inspectTimingPreregistration()` expects this exact object at `trial.preregistration`, plus `trial.registrationRef`, `trial.preregistrationEvidenceRef`, and `trial.preregistrationSha256`. The evidence-manifest `kind:'registration'` entry must use the same ref and digest. In `assembleBundle()`, populate from `preDeal.gameRegistration`, e.g. `preregistration: preDeal.gameRegistration`, `registrationRef: registration.registrationRef`, `preregistrationEvidenceRef: registration.registrationRef`, `preregistrationSha256: evidenceBundleSha256(registration)`. Keep actual trial clock disposition/evidence from the game; do not invent it.
+2. **Policy registration**: `preDeal.policyRegistration` at bundle top level. Agent48's panel check separately expects `gameRuleset`, `candidateFormat`, `opponentSourceEventFormat`, and the applicable Expanded legality date or Japanese Extra event date here. Add these to the policy registration before hashing it, sourced from the frozen `policyPlanCore`/game registration, and require exact agreement. Include `formatReviewStatus` if it is part of the shared canonical contract.
+
+The current builder's evidence manifest already contains the game registration ref/digest, but `trialOut` does not link it; its policy registration also omits format fields. Treating these as one registration will leave the new evaluator unsatisfied.
