@@ -100,3 +100,5 @@ This demonstrates the 24-rank diagnostic subset is not representative of the ful
 ### Physical-print source boundary (11:00Z)
 
 Agent50 confirmed that Limitless' “Card versions” selector and generic catalog card-art images do not establish the physical Japanese copies entrants registered or played. Keep `physicalPrintStatus:"unverified"` for all 24. Require entrant photos with legible set/number, official registration/deck-check records, or equivalent primary evidence before changing this status. Linked source-limit report: `results/aichi-2026/2026-11/agent50-limitless-physical-print-evidence-limit-20261113.md`; the composition report and `results/README.md` now link it.
+
+The missing-rank archetype cross-check is now preserved as `results/aichi-2026/2026-11/agent39-missing-rank-archetype-crosscheck-20261113.md` and linked from the composition report and `results/README.md`. It records Limitless rank/player/archetype evidence for 23/25/28, the public kume note preview, the tentative Replica/Jo Kato correlation, and the strict no-list-reconstruction / no-paywall boundary.
