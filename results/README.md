@@ -8,7 +8,7 @@
 | --- | ---: | --- |
 | Original Aichi lists authenticated | 29/32 | Ranks 23, 25 and 28 remain unavailable |
 | Unchanged lists incompatible with international Expanded | 5/32 | Ranks 3, 6, 7, 24 and 29 contain 14 copies of three Japanese-only promo identities |
-| Authenticated lists with card-pool / official-banlist / Japanese-identity screen passed, physical source print unresolved | 9/24 | Ranks 8–16; normalized English card-pool screen only, not physical-print certification ([report](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md)) |
+| Authenticated lists with card-pool / official-banlist / Japanese-identity screen passed, physical source print unresolved | 9/24 | Ranks 8–16; normalized English card-pool screen only, not physical-print certification ([screen report](aichi-2026/2026-11/agent39-ranks8-16-expanded-eligibility-screen-20261113.md) · [normalized simulation inputs](aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json)) |
 | Other potentially compatible authenticated lists not yet per-rank screened | 15/24 | Ranks 1, 2, 4, 5, 17–22, 26, 27, 30–32 |
 | Verified Expanded-legal opponent lists | **0/32** | No rank currently qualifies for the Expanded field denominator |
 
