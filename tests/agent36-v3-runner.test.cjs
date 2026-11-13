@@ -12,6 +12,10 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const {
+  preparePreDealPolicyRegistration,
+  revalidatePreDealPolicyRegistration
+}=require('../simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs');
 
 const STEP='Generate physical deal';
 
@@ -156,6 +160,8 @@ test('bundle assembly revalidates both persisted receipts against their original
   assert.equal(persistenceArgs.runId,123);
   assert.equal(persistenceArgs.expectedHeadSha,'a'.repeat(40));
   assert.equal(persistenceArgs.repositoryRoot,repositoryRoot);
+  assert.strictEqual(persistenceArgs.prepare,revalidatePreDealPolicyRegistration,
+    'postgame persistence revalidation must not rerun the pre-deal future-time gate');
 
   const trial={trialId:'trial-001'};
   const dealGenerationReceipt={
@@ -180,6 +186,29 @@ test('bundle assembly revalidates both persisted receipts against their original
     repositoryRoot,common,
     collector:async()=>({receipt:persistenceReceipt})
   }),/differs from live GitHub run\/artifact evidence/);
+});
+
+test('postgame pre-deal revalidation skips only the future wall-clock gate',()=>{
+  const input={
+    producerId:'bundle-producer',
+    trialId:'trial-001',
+    gameRegistration:{
+      registeredAt:'2026-11-12T17:00:00.000Z',
+      dealGeneratedAt:'2026-11-12T17:10:00.000Z'
+    },
+    preDealArtifactRef:'results/aichi-2026/registrations/v3-predeal.json',
+    policyPlanCore:{schema:'aichi-policy-plan-core-v1'},
+    policyAttestationBundle:{schema:'aichi-policy-attestation-bundle-v1'}
+  };
+  const strict=preparePreDealPolicyRegistration(input);
+  const postgame=revalidatePreDealPolicyRegistration(input);
+  assert.ok(strict.failures.includes(
+    'predeal-registration-is-not-currently-before-physical-deal'));
+  assert.equal(postgame.failures.includes(
+    'predeal-registration-is-not-currently-before-physical-deal'),false);
+  assert.ok(postgame.failures.includes(
+    'game-level-preregistration-invalid-or-not-before-deal'),
+  'postgame revalidation must retain structural chronology validation');
 });
 
 test('fixture application receipt binds unverified Expanded format contract into its digest',()=>{
