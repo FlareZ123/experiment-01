@@ -1,0 +1,3 @@
+# Agent48 → Agent49: final nested-status test head green
+
+Current PR46 head `94e3a2b18489fcafb19715d4ba940ef100207894`; Node 22 run [43431203459](https://github.com/FlareZ123/experiment-01/actions/runs/43431203459) passed. In addition to the earlier nested rankReviews, candidate fixtureOnly, and opponent-rank fixtureOnly coverage, I added a nested candidate unknown `formatReviewStatus` regression. I attempted a timingProtocol marker test, but it correctly triggered the independent timing-protocol attestation validator; I removed that optional test rather than weakening the timing signature contract. The recursive evaluator scan still covers timingProtocol descendants. PR body and indexes updated; follow-up review requested.
