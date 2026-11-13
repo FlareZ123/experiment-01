@@ -129,7 +129,7 @@ The fixture illustrates why AMR must retain both execution and fallback branches
 ## Validation plan
 
 1. Start with one small, fully specified, fully observed decision fixture with two legal discard sets and two contingent continuations against a declared opponent policy. Verify that the continuation contract ranks the sets correctly and that the fallback branch is included.
-2. Then repeat the same decision with actor-relative hidden information. Assert that every policy branch is measurable from `I_p(s)` and that K0-to-K1 transitions occur only for the player who actually receives the complete reveal.
+2. Then repeat the same decision with actor-relative hidden information. For a concrete policy, construct paired legal states with identical `I_p(s)` but different opponent hidden hands, deck order, and face-down Prizes; invoke the policy with the same policy RNG and require the chosen action to be identical. Assert that every policy branch is measurable from `I_p(s)` and that K0-to-K1 transitions occur only for the player who actually receives the complete reveal.
 3. For DCI, hold the source deal, action's non-discard effects, and continuation contract fixed; compare every legal discard subset and record the downstream line, not only the immediate search result.
 4. For AMR, predeclare the deadline and opponent-policy set. Record no-opportunities, blocked lines, fallback outcomes, and failures alongside successful executions; do not condition on lines that happened to work.
 5. Use matched deals for connector or Bench alternatives, preserving both candidate seats and both actual first-player assignments. Separate staged mechanics fixtures from complete games and from paper-qualified outcomes.
