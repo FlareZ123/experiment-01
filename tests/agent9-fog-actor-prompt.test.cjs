@@ -32,8 +32,9 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
       this.energyType=0;this.name='Psychic Energy';}
   }
   class ChooseCardsPrompt {
-    constructor(id,deck){
+    constructor(id,deck,sourceCard){
       this.id=7;this.playerId=id;this.cards=deck;
+      this.sourceCard=sourceCard;
       this.result=undefined;this.message='CHOOSE_CARD_TO_HAND';
     }
     validate(cards){return Array.isArray(cards)&&cards.length<=1&&
@@ -91,12 +92,13 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     const bot=new Bot(101);
     const speculative=Object.assign({},state);
     assert.deepEqual(bot.decodeNextAction(speculative),{type:'OLD_FALLBACK'});
+    const fogSourceCard=state.players[0].hand.cards[0];
     const root=bot.decodeNextAction(state);
     assert.ok(root instanceof PlayCardAction);
     assert.equal(root.handIndex,0);
     store.dispatch(root);
     state.players[0].hand.cards.splice(0,1);
-    state.prompts=[new ChooseCardsPrompt(101,deck)];
+    state.prompts=[new ChooseCardsPrompt(101,deck,fogSourceCard)];
     const choice=bot.decodeNextAction(state);
     assert.ok(choice instanceof ResolvePromptAction);
     assert.deepEqual(choice.result,[deck.cards[0]]);
@@ -108,8 +110,10 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     store.dispatch(new PlayCardAction(101,0,{player:1,slot:2,index:0}));
     // A fresh native Store can reuse the same player ID and global turn.
     // It must still offer a new Fog Crystal action, despite the first game.
+    const secondFogSource={fullName:'Fog Crystal CRE',trainerType:7};
+    const samePrintingDecoy={fullName:'Fog Crystal CRE',trainerType:7};
     const secondState={players:[
-      {id:101,hand:{cards:[{fullName:'Fog Crystal CRE',trainerType:7}]},deck},
+      {id:101,hand:{cards:[secondFogSource]},deck},
       {id:202,hand:{cards:[]},deck:{cards:[]}}
     ],turn:2,activePlayer:0,prompts:[]};
     const secondStore=new Store();
@@ -118,11 +122,19 @@ test('interceptor materializes authentic owner Item and Choice and observes nati
     const secondRoot=bot.decodeNextAction(secondState);
     assert.ok(secondRoot instanceof PlayCardAction);
     secondStore.dispatch(secondRoot);
+    secondState.players[0].hand.cards.splice(0,1);
+    secondState.prompts=[new ChooseCardsPrompt(101,deck,samePrintingDecoy)];
+    assert.deepEqual(bot.decodeNextAction(secondState),{type:'OLD_FALLBACK'},
+      'same-printing but different physical Fog Crystal cannot authorize search');
     return 'synthetic completed channel';
   },{engine,observe});
   assert.equal(result.result,'synthetic completed channel');
   assert.equal(result.audit.fogItemRootNativeAccepted,2);
   assert.equal(result.audit.fogPromptNativeAccepted,1);
+  assert.equal(result.audit.sourceCardBindingAccepted,2);
+  assert.equal(result.audit.sourceCardBindingFailures,1);
+  assert.equal(result.audit.unsupportedPrompts,1);
+  assert.equal(result.audit.sourceCardBindingEvents.length,2);
   assert.equal(result.audit.postSearchPhysicalCardPlays,1);
   assert.equal(result.audit.rejectedNativeChoices,0);
   assert.equal(result.audit.nonLiveSpeculativeFallbacks,1);
