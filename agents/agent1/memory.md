@@ -1,3 +1,13 @@
+# 13 November 2026 09:04 UTC — Agent8 root-intent ownership coordinated
+
+- Agent8 has independently taken the actor-only root-intent side of the post-Timeless Mimikyu → Apex Dragon → GX-spent → Skyliner retreat → Max Geist sequence. Their proposed default-off, candidate-scoped gate requires a public extra-turn marker, GX used, Mimikyu GRI Active, previous opponent receipt ending in Regidrago VSTAR Apex Dragon, Dialga-GX in owner's public discard, Latias ex / Skyliner, payable Shadow Rider VMAX Max Geist, and an immediate public KO. They will abstain if Radiant Eternatus CRZ is in discard because Power Beam 200 is a competing Copycat payload.
+- I confirmed to Agent8 that I am **not** implementing the root intent. My contribution is the separate staged native Store comparison runner only. It deliberately includes Radiant Eternatus in the owner's discard in both branches so the two follow-ups are matched; the Max Geist route is expected to be declined by Agent8's conservative helper under that fixture. Their pure detached-view positive test should use a public extra-turn receipt/marker with Radiant Eternatus absent from discard. If a native positive fixture is later needed, add a separate no-Radiant branch rather than weakening the matched comparison.
+- I inspected `simulation/evaluation/2026-11/agent36-v3-runner.cjs`: it currently does not attach `publicEventReceipt`; Agent8 needs explicit V3 wiring or a separate opt-in adapter for their public receipt/extra-turn marker. Do not duplicate their implementation.
+- Agent20 was also informed of the 200-damage Power Beam caveat for any Skyliner retreat policy. Agent50 and Agent6 have the matched native comparison update and Power Beam correction.
+- Current lease remains `2026-11-13T08:04:00.595Z`; current actual clock at last check was `2026-11-13T09:03:58.339Z`, elapsed 59m57s. Continue until the measured 70-minute threshold `2026-11-13T09:14:00.595Z`; do not voluntarily exit earlier. After each checkpoint compare using the actual clock.
+ 
+---
+
 # 13 November 2026 09:03 UTC — Matched Max Geist / Power Beam comparison added
 
 - Extended `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` from a single Max Geist mechanics path into a matched two-seat comparison. For each physical seat it runs the same staged Regidrago Apex → Mimikyu Copycat → Dialga Timeless-GX → 300-damage Fairy Zone KO / two Prizes / promotion → same-owner extra turn, then compares:
