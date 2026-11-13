@@ -10,7 +10,7 @@ const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
   buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
-const {withActorFogCrystalPrompt}=require('../../twinleaf/agent9-fog-actor-prompt.cjs');
+const {withOwnerQuickBallPromptContinuation}=require('../../twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
@@ -547,10 +547,10 @@ const V3_FIXTURE = Object.freeze({
   engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
   seed: 'agent36-v3-fixture-hood-rank1-20261112-01',
   maxActions: 6000,
-  trialId: 'agent36-v3-fixture-hood-rank1-20261113-fog-v1',
-  policyVersion: 'agent34-actor-only-root-slice-v16-agent9-fog-crystal-setup',
-  candidateProducerId: 'agent36-fixture-candidate-agent34-agent9-fog-v1',
-  opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-agent9-fog-v1',
+  trialId: 'agent36-v3-fixture-hood-rank1-20261113-quick-ball-v1',
+  policyVersion: 'agent34-actor-only-root-slice-v17-agent49-quick-ball-source-bound-v1',
+  candidateProducerId: 'agent36-fixture-candidate-agent34-agent49-quick-ball-v1',
+  opponentProducerId: 'agent36-fixture-rank1-opponent-agent34-baseline',
   entrypoint: 'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
   hookPath: 'simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs',
   hookId: 'underworld-door-psychic-recipient-v1',
@@ -558,9 +558,12 @@ const V3_FIXTURE = Object.freeze({
   outputDir: 'artifacts/agent36-v3-fixture',
 });
 
+const V3_FIXTURE_CANDIDATE_POLICY_OPTIONS = Object.freeze({ quickBallRoot: true });
+const V3_FIXTURE_OPPONENT_POLICY_OPTIONS = Object.freeze({});
+
 const V3_FIXTURE_TEST_PATHS = [
   'tests/agent34-actor-only-root-policy.test.cjs',
-  'tests/agent9-fog-actor-prompt.test.cjs',
+  'tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs',
   'tests/agent36-v3-runner.test.cjs',
   'tests/agent42-role-policy-identity.test.cjs',
   'tests/2026-11/agent49-native-fixture-game.test.cjs',
@@ -575,7 +578,7 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'observe', path: 'simulation/twinleaf/actor-observation-contract.cjs', exportName: 'actorObservation' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
-  { name: 'fogCrystalPrompt', path: 'simulation/twinleaf/agent9-fog-actor-prompt.cjs', exportName: 'withActorFogCrystalPrompt' },
+  { name: 'quickBallPromptContinuation', path: 'simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs', exportName: 'withOwnerQuickBallPromptContinuation' },
   { name: 'moduleLoadGuard', path: 'simulation/evaluation/agent36-runtime-module-pin.cjs', exportName: 'withPinnedResearchModuleLoads' },
   { name: 'sourceClosureAudit', path: 'simulation/evaluation/agent36-source-closure-audit.cjs', exportName: 'auditSourceClosure' },
   { name: 'roleIdentityHelper', path: 'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs', exportName: 'buildRolePolicyIdentity' },
@@ -583,7 +586,6 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
-  { name: 'nativeGameMessage', path: 'vendor/twinleaf/ptcg-server/output/game/game-message.js', exportName: 'GameMessage' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
@@ -606,9 +608,9 @@ const V3_FIXTURE_COMMON_BINDINGS = [
 const V3_FIXTURE_PROMPT_CHAIN = [
   { name: 'candidate-opponent-role-composition', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs' },
   { name: 'actor-only-root-policy', path: V3_FIXTURE.entrypoint },
-  // Installed last inside the role-composer callback: Fog sees the decision
-  // first, then delegates all other roots/prompts to the scoped Agent34 chain.
-  { name: 'owner-fog-crystal-prompt', path: 'simulation/twinleaf/agent9-fog-actor-prompt.cjs' },
+  // Installed last inside the role-composer callback: the candidate-only
+  // Quick Ball continuation resolves exact owner payment/search prompts.
+  { name: 'owner-quick-ball-prompt-continuation', path: 'simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
 ];
 
@@ -1048,27 +1050,29 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       pin: fixtureRuntimePin.withFixtureScopedRolePin,
       run: () => {
         try {
-          let fogCrystalAudit = null;
+          let quickBallAudit = null;
           const roleResult = runCandidateOpponentPolicyRoles(
-            // Agent34 installs the two role-scoped root policies first. This
-            // wrapper is installed inside their run callback, so it sees the
-            // live decision first, prioritizes the actor's Fog Crystal setup
-            // route, and delegates every other decision back to Agent34.
+            // Agent34 installs separate candidate/opponent root policies.
+            // The Quick Ball continuation is installed inside their run
+            // callback and is eligible only for candidate seat 0.
             () => {
-              const fog = withActorFogCrystalPrompt(() => runNativeFixtureGame({
-                deckA: candidateResolved.fullNames,
-                deckB: opponentResolved.fullNames,
-                candidateSeat: 0,
-                originalSourceSeat: 1,
-                seed: V3_FIXTURE.seed,
-                native,
-                botOptionsBySeat: native.botOptionsBySeat,
-                maxActions: V3_FIXTURE.maxActions,
-                diagnosticSnapshot: diagnostic.snapshotFullGameState,
-                requireFullStateDiagnostics: true,
-              }));
-              fogCrystalAudit = fog.audit;
-              return fog.result;
+              const quickBall = withOwnerQuickBallPromptContinuation(
+                () => runNativeFixtureGame({
+                  deckA: candidateResolved.fullNames,
+                  deckB: opponentResolved.fullNames,
+                  candidateSeat: 0,
+                  originalSourceSeat: 1,
+                  seed: V3_FIXTURE.seed,
+                  native,
+                  botOptionsBySeat: native.botOptionsBySeat,
+                  maxActions: V3_FIXTURE.maxActions,
+                  diagnosticSnapshot: diagnostic.snapshotFullGameState,
+                  requireFullStateDiagnostics: true,
+                }),
+                { eligibleSeats: [0] },
+              );
+              quickBallAudit = quickBall.audit;
+              return quickBall.result;
             },
             {
               candidateSeat: 0,
@@ -1076,13 +1080,13 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
               trial: preGameTrial,
               candidateIdentity: identities.candidateIdentity,
               opponentIdentity: identities.opponentIdentity,
-              candidatePolicyOptions: {},
-              opponentPolicyOptions: {},
+              candidatePolicyOptions: V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
+              opponentPolicyOptions: V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
               commonDeps: native,
               composer: withCandidateOpponentPolicyRoles,
             },
           );
-          return { ...roleResult, fogCrystalAudit };
+          return { ...roleResult, quickBallAudit };
         } catch (error) {
           // Catch ordinary game/policy failures inside the pin so its audit can be
           // returned and persisted before the workflow is failed below.
@@ -1231,8 +1235,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       cardPoolInitializationReceipt: native.cardPoolInitialization,
     },
     policy: {
-      candidateProfile: 'Agent34 actor-only root policy plus Agent9 bilateral Fog Crystal owner-prompt component and Twinleaf SimpleTacticsAi fallback',
-      opponentProfile: 'same actor-only root policy, Agent9 bilateral Fog Crystal owner-prompt component and Twinleaf fallback',
+      candidateProfile: 'Agent34 actor-only root policy with candidate-only Quick Ball root plus Agent49 exact physical payment/search continuation; native SimpleTacticsAi fallback',
+      opponentProfile: 'Agent34 actor-only root policy and Twinleaf SimpleTacticsAi fallback; no Quick Ball root opt-in',
+      candidatePolicyOptions: V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
+      opponentPolicyOptions: V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
       candidateHoodOptionsApplied: false,
       candidateRecoveryAutonomyApplied: false,
       deferredCompetitivePolicyWork: 'PR #38: candidate-specific Hood recovery and per-seat Hood options; not required for this baseline native fixture',
@@ -1261,7 +1267,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     roleComposerAudit: {
       candidate: roleResult?.candidateAudit ?? null,
       opponent: roleResult?.opponentAudit ?? null,
-      fogCrystal: roleResult?.fogCrystalAudit ?? null,
+      quickBall: roleResult?.quickBallAudit ?? null,
     },
     actorOnlyExecutionBoundary: trial.actorOnlyExecutionBoundary,
     runtimePinEvidence,
@@ -1285,10 +1291,13 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
       actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
-      fogCrystalItemRootsAccepted: roleResult?.fogCrystalAudit?.fogItemRootNativeAccepted ?? 0,
-      fogCrystalSearchPromptsAccepted: roleResult?.fogCrystalAudit?.fogPromptNativeAccepted ?? 0,
-      fogCrystalSourceCardBindingsAccepted: roleResult?.fogCrystalAudit?.sourceCardBindingAccepted ?? 0,
-      fogCrystalRejectedChoices: roleResult?.fogCrystalAudit?.rejectedNativeChoices ?? 0,
+      quickBallRootsAccepted: roleResult?.quickBallAudit?.quickBallRootsAccepted ?? 0,
+      quickBallPaymentPhysicalAcceptances: roleResult?.quickBallAudit?.paymentPhysicalAcceptances ?? 0,
+      quickBallTargetPhysicalRetrievals: roleResult?.quickBallAudit?.targetPhysicalRetrievals ?? 0,
+      quickBallTargetPhysicalBenchPlacements: roleResult?.quickBallAudit?.targetPhysicalBenchPlacements ?? 0,
+      quickBallCompletedPhysicalChains: roleResult?.quickBallAudit?.completedPhysicalChains ?? 0,
+      quickBallPendingBenchPlacementsAtEnd: roleResult?.quickBallAudit?.pendingBenchPlacementsAtEnd ?? 0,
+      quickBallRejectedNativeReplies: roleResult?.quickBallAudit?.rejectedNativeReplies ?? 0,
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
@@ -1506,7 +1515,8 @@ if(require.main===module){
 }
 
 module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
-  V3_FIXTURE_COMMON_BINDINGS,V3_FIXTURE_PROMPT_CHAIN,validateRepositoryName,
+  V3_FIXTURE_COMMON_BINDINGS,V3_FIXTURE_PROMPT_CHAIN,
+  V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,V3_FIXTURE_OPPONENT_POLICY_OPTIONS,validateRepositoryName,
   validateArtifactRef,gitBlobSha,preDealProjection,verifyPersistedPreDeal,
   resolveInsideRoot,apiUrl,parseNextLink,requestJson,validateRun,
   fetchWorkflowRun,fetchWorkflowJobs,fetchCommittedArtifact,
