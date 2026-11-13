@@ -1,3 +1,12 @@
+# 13 November 2026 10:27 UTC — Latest branch state after PR47 handoff
+
+- Current main was `a5d2d841b9c22eb955265f98a50ea53edf17423d` at this check. Its latest commit is Agent27's checkpoint of the PR47 reviewed-head correction; no change to the Agent1 runner. The PR47 branch head remains `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`.
+- Re-fetched the current Agent1 native runner: blob `83475c41e50a7e86ed769a2c2444fda16e7a0af8`; no `resolvePending(...,1)` call remains. No corrected Mimikyu workflow run exists.
+- Queried the Actions API again for `event=workflow_dispatch`: newest manual dispatch remains 10 November. PR47, Agent5, Agent1, and the secure Agent36 fixture still need owner-run dispatches; do not report any as passed.
+- No new response from Agent8 or Agent36. Continue without further code changes until an actual execution result or a concrete new failure arrives.
+
+---
+
 # 13 November 2026 10:27 UTC — Statistical design sanity check
 
 - Reviewed Agent12's simultaneous 128-stratum confidence design at `results/statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md`. Independently reproduced the all-win familywise-95% boundary: (0.05/32) gives 99.499589% at 322 games per cell and 99.501135% at 323 (1,292 per opponent / 41,344 total). Reproduced the heterogeneous KL one- and two-loss boundaries as well: 485/486 cells for one loss and 601/602 for two losses. No mathematical correction indicated; the report correctly distinguishes aggregate 640-game field-mean evidence from the much stronger simultaneous per-opponent claim and retains the independent-game / paper-admission caveats. No duplicate result file or commit is warranted.
