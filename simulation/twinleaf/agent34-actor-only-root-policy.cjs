@@ -9,7 +9,11 @@ const {
   VERSION:POST_TIMELESS_MAX_GEIST_VERSION,
   choosePostTimelessMaxGeistRetreat
 }=require('./2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
-const VERSION='agent34-actor-only-root-slice-v10-post-timeless-maxgeist-root-intent';
+const {
+  VERSION:POST_TIMELESS_POWERBEAM_PROMPT_VERSION,
+  chooseNativeMimikyuPostTimelessPowerBeamPrompt
+}=require('./2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs');
+const VERSION='agent34-actor-only-root-slice-v11-post-timeless-maxgeist-powerbeam-prompt';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -1315,6 +1319,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     mimikyuTimelessMaxGeistRetreatRootOwnerSeat:
       deps.mimikyuTimelessMaxGeistRetreatRootOwnerSeat??null,
     mimikyuTimelessMaxGeistRetreatRootSelected:0,
+    mimikyuPostTimelessPowerBeamPromptSelected:0,
     mimikyuApexFundedPromotionSelected:0,
     mimikyuApexCopycatSelected:0,
     mimikyuApexTimelessPromptSelected:0,
@@ -1631,8 +1636,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
-  if(audit.mimikyuTimelessMaxGeistRetreatRootOptIn)
+  if(audit.mimikyuTimelessMaxGeistRetreatRootOptIn){
     audit.version+='+'+POST_TIMELESS_MAX_GEIST_VERSION;
+    audit.version+='+'+POST_TIMELESS_POWERBEAM_PROMPT_VERSION;
+  }
   if(audit.copycatHistoryRootOptIn){
     audit.version+='+'+require('./agent7-copycat-history-root.cjs').VERSION;
     audit.copycatHistoryRoot={
@@ -2167,6 +2174,17 @@ function withActorOnlyRootPolicy(run,deps={}){
           require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
         audit.mimikyuApexTimelessPromptSelected++;
         return new ResolvePromptAction(pending.id,chosen);
+      }
+      if(audit.mimikyuTimelessMaxGeistRetreatRootOptIn===true&&
+         audit.mimikyuTimelessMaxGeistRetreatRootOwnerSeat===seat){
+        const powerBeam=chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+          state,seat,pending,copycatHistoryByStore.get(nativeStore)??null);
+        if(powerBeam){
+          const {ResolvePromptAction}=deps.promptActions??
+            require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
+          audit.mimikyuPostTimelessPowerBeamPromptSelected++;
+          return new ResolvePromptAction(pending.id,powerBeam);
+        }
       }
     }
     if(seat===-1||pending||state.activePlayer!==seat){
