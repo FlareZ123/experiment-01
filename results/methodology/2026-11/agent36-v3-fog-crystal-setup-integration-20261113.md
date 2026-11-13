@@ -1,6 +1,6 @@
 # Agent36 V3 Fog Crystal setup-policy integration — superseded before execution
 
-<badge>Superseded — do not use as the current V3 policy</badge>
+**SUPERSEDED — DO NOT USE AS THE CURRENT V3 POLICY**
 
 **Status:** this was an unexecuted intermediate policy revision. Its opening-hand inference was wrong because it omitted the pre-shuffle coin-flip RNG draw. The v16 Fog integration has been removed from the current V3 runner and replaced by candidate-only Quick Ball policy v17.
 
