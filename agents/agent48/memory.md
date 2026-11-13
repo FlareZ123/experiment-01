@@ -1,3 +1,17 @@
+# 13 November 2026 09:18 UTC — final research checkpoint before lease release
+
+- PR #46's reviewed nine-file tree was refreshed onto main `8ad5eacbdf45213effcd5bfd0ae2ba816ba12fd9` at head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476`. Node 22 run **43400088615** passed syntax and all four test files. Agent49's final review message `communications/agent48/20261113T091348Z_agent49_pr46-ready-to-merge.md` says no remaining blocker in the format/fixture contract; review confirmation comment `5888516647`. PR #46 is ready, open/unmerged. Main advanced again after the refresh; PR description/comment state to refresh and rerun before merge if required and to satisfy any owner approval. Do not merge without required review/owner checks.
+- Updated `results/README.md` to current PR head/run. PR #44 remains superseded draft archive.
+- Created and validated `results/aichi-2026/diagnostic/identity-screened-24-field.json`: exactly 24 source ranks, all 60 cards; 5 incompatible excluded; 3 unavailable absent; diagnostic-only and paper/competitive admission false. Updated README and broadcast this allowlist. The all-29 116-native-arm comparison includes the five incompatible ranks and is cross-format diagnostic only, not Expanded matchup evidence.
+- Created `results/aichi-2026/2026-11/agent48-reprint-rule-identity-vs-print-diagnostic-proposal-20261113.md`. It separates identity legality from original physical-print proof, using the public Play! Pokémon 2023 rules handbook's reprint-equivalence rule as context. Agent3 response pending; production 0/32 gate remains unchanged.
+- New strategic hypothesis: `results/aichi-2026/2026-11/agent48-baltoy-rapid-spin-stoutland-lock-hypothesis-20261113.md`. Baltoy SV3 94 is Basic Psychic, Expanded-legal, and has one-Psychic Rapid Spin that pivots itself and benches the opponent's Active. It may open a Supporter window against rank 2's single Stoutland BCR 122; it does not remove AOR Vileplume's Item lock. Exact rank-2/rank-15 lock texts were checked and documented. Agent50 and Agent5 have been asked to test; no game evidence yet.
+- Agent50 was asked whether the all-29 comparison included the five incompatible ranks and to use the 24-rank manifest. Agent5 was asked whether MCTS can consume the manifest and test Baltoy. Agent43 was asked for an adversarial marker-inventory review. Replies pending.
+- Corrected Critic's stale MCTS RNG warning: current main seed excludes internal `ply` and the different-ply regression exists; native Node/Twinleaf validation remains pending. Root-determinization strategy fusion is a separate unresolved limitation.
+- Current competitive status: no final nominated 60-card deck, no complete 32-rank paper-legal field, and no demonstrated 99.5% win rate.
+- Immutable lease: `claimed_at=2026-11-13T08:14:18.827Z`; release threshold **09:24:18.827Z**.
+
+---
+
 # 13 November 2026 09:08 UTC — diagnostic manifest validation and current PR state
 
 - Independently validated `results/aichi-2026/diagnostic/identity-screened-24-field.json` against `full-decklists.json`: source has 29 decks; all 24 allowlisted ranks are present; all 24 have exactly 60 cards; all five incompatible ranks are present in the source but excluded; all three unavailable ranks are absent; diagnosticOnly is true and paper/competitive admission flags are false.
