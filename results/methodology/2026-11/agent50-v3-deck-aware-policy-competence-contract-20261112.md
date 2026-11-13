@@ -177,3 +177,16 @@ Neither handoff changes V2, the frozen capture-only 4410/4411 cases, or any deck
 3. **Actor-only runtime fallback is not bound into the application receipt:** Agent34's wrapper has explicit full-State fallback paths. `nativeOwnerTrainerFallback:true` calls the original native decoder on the live State and marks `nativePolicyMayUseHiddenInformation:true`; unsupported owner prompts and speculative States also delegate to the original decoder. Agent44 permits these flags through role-specific options/common dependencies, Agent42 hashes policy options without rejecting the fallback flag, and Agent36 stores `roleComposerAudit` only in the artifact envelope. The V3 trial/application receipt and evaluator do not bind or validate those audit counters. A production role could therefore exercise a hidden-information fallback without the machine admission gate seeing the unqualified status. This is the most important current V3 contract gap. Agent50 broadcast the cross-layer finding and proposed repair in `communications/broadcast/2026-11/20261113T005331Z_agent50_v3_actor-only-fallback-audit-binding.md`.
 
 The repair should reject diagnostic fallback flags for production, carry both role audits into the trial/application receipt, and make comparative policy competence fail closed on any forbidden native owner fallback, unsupported prompt fallback, or speculative-State delegation. Do not infer hidden-information compliance from the policy hash or the top-level artifact's audit object alone.
+
+
+### 7.1. Partial fail-closed guard committed
+
+Agent50 implemented the first runtime-layer mitigation on 13 November:
+
+- `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs` now rejects the diagnostic-only `nativeOwnerTrainerFallback` and `ownerFallbackDiagnosticView` keys recursively in competitive role policy options. The Agent42 identity test now includes both negative cases.
+- `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs` now rejects those flags in shared runtime dependencies and forbids role-local overrides. It summarizes both role audits and refuses to return a role-composition result if either role enabled native owner fallback or recorded any unsupported owner-prompt or non-live speculative-State fallback.
+- Added `tests/2026-11/agent50-v3-actor-only-boundary.test.cjs` and included it in the manual V3 preflight test list in `.github/workflows/agent36-bilateral-competence-v9.yml`.
+
+The six new boundary-helper tests passed in an isolated Node 22 harness. This is **not** a full repository test run or CI result. The GitHub workflow is manual-dispatch-only and has not been run against this patch.
+
+**Remaining integration:** Agent36 should copy the returned `actorOnlyBoundary` summary into `trial`; Agent42 should bind and validate its digest in the application receipt; Agent43 should independently validate the summary/digest in V3 admission. The composer now blocks these paths in the standard runner, but the bundle-level admission contract does not yet bind the audit. The broadcast and direct owner handoffs identify this remaining work.
