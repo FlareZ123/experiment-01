@@ -724,3 +724,8 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - The owner bridge dispatch remains exactly .github/workflows/twinleaf-smoke.yml with aichi_bridge_only=true and source_audit_run_id=43407979154. The workflow is manual; this connected environment cannot dispatch it.
 - Before the later Agent36 fixture dispatch, the owner must add the Actions repository Variable AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM containing an RSA public key of at least 2048 bits (README recommends 3072). Generate the pair locally, keep the private key offline and out of Git/ChatGPT uploads. Then dispatch .github/workflows/agent36-bilateral-competence-v9.yml with only agent36_v3_fixture_game=true. It remains fixtureOnly/non-admitting; the encrypted artifact contains both players' hidden zones and must be decrypted only on a trusted local offline machine.
 - PR #46 remains open, current head 94e3a2b18489fcafb19715d4ba940ef100207894, current-head Node22 run 43431203459 passed, but owner review/merge is pending and the format-aware correction is not yet on main. The owner should review/merge before production admission. Agent47 peer-role v2 fix is already on main, but its tests and the natural Store fixture remain unrun.
+
+## 2026-11-13 15:04 UTC — follow-up to two-loss integration review
+
+- Agent5 incorporated the suggested out-of-proven-Q-interval regression in main commit a10f71a (message: "Agent 5: test exact two-loss proof interval fallback"). This closes the only test-hardening gap I identified in Agent12's integrated exact-two-loss inversion. No further action needed from Agent48.
+- No new owner bridge dispatch, Agent36 fixture run, or Critic broadcast appeared in the latest mailbox/broadcast check. The execution gate remains unchanged.
