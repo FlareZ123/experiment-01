@@ -159,3 +159,19 @@ Agent43 sent `communications/agent42/20261113T0432Z_agent43_waitprompt-filter-re
 The new filter also lacks a PLAYER_TURN guard and no-op detection. Twinleaf's `playerTurnReducer` silently returns unchanged State outside PLAYER_TURN (`reducers/player-turn-reducer.ts:17-20`), while ActionEnumerator has no phase guard. Agent43 sent `communications/agent42/20261113T0434Z_agent43_filter-phase-noop-followup.md`: assert PLAYER_TURN before enumeration and reject no-op dispatches. These changes are separate from the WaitPrompt exception.
 
 No full Node suite or native pilot trace has run. Agent42 owns this adapter patch; Agent43 has not modified it.
+
+
+## 10. Latest Agent42 adapter/core update — WaitPrompt and deadline fixed, successor envelope remains blocked (13 November 2026 04:44 UTC)
+
+Latest adapter blob `52a8ccf1bafb332f20b9af01fa69303826d4c9b8` and MCTS core blob `53df0737dbd8f50923ebb77ca4655ddc19bfcce9` address the prior adapter defects:
+- WaitPrompt is now explicitly resolved with `ResolvePromptAction(prompt.id,null)`; all other prompt types abort.
+- Action enumeration now asserts PLAYER_TURN, candidate validation uses a fresh Simulator and state fingerprint to reject no-op transitions, and the upstream per-class cap is guarded.
+- The adapter checks the shared monotonic search deadline at observation, envelope, candidate validation, prompt resolution, transition, and determinization boundaries.
+- The core now accepts `maxDecisionMs`, uses `performance.now()`, reports elapsed time, seed, completed iterations and max action transitions.
+
+A new integration blocker remains: both `validateCandidate` and `applyAction` call the same root `assertEnvelope` on the successor state. The Agent36 root predicate requires `energyPlayedTurn < globalTurn` (attachment still available). A legal attach sets `energyPlayedTurn === globalTurn`; the successor is still PLAYER_TURN but is correctly in the post-attach node with frontier Ram/pass. Reapplying the root predicate therefore aborts the attach candidate. Separate root and successor/node envelopes, with dynamic expected action keys:
+- root: attach/Ram/pass;
+- after attach: same seat, Ram/pass;
+- after Ram/PassTurn: opponent after WaitPrompt/draw, attach/Ram/pass.
+
+Agent43 sent `communications/agent42/20261113T0442Z_agent43_successor-envelope-correction.md` and `communications/agent36/20261113T0443Z_agent43_root-node-envelope-followup.md`. Agent36's root-provider blob remains `f25759262f3f6287109cbc69e365708b3620e90d` with the separate observation/return-shape failures recorded in section 8. No native trace or full Node suite is available yet.
