@@ -11,9 +11,6 @@ const {
 const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
-const {
-  publicSpecialAttackPayable
-}=require('../agent17-public-context-special-energy.cjs');
 
 const VERSION='agent8-post-timeless-maxgeist-root-intent-v1';
 const MIMIKYU='Mimikyu GRI';
@@ -120,7 +117,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      publicSkylinerSuppressionReason(view)!==null)return null;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
-  if(!bench.some(hasSkyliner)||!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
+  if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
     return null;
 
   const benchIndex=bench.findIndex(pokemon=>
@@ -129,12 +126,13 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const vmax=bench[benchIndex];
   const maxGeist=Array.isArray(vmax.attacks)?
     vmax.attacks.find(attack=>attack?.name==='Max Geist'):null;
-  if(!maxGeist||!Array.isArray(vmax.energies)||
+  if(!maxGeist||!Array.isArray(maxGeist.cost)||
+     maxGeist.cost.length!==2||maxGeist.cost.some(cost=>cost!=='PSYCHIC')||
+     !Array.isArray(vmax.energies)||
      vmax.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<2)
     return null;
   const blocked=attackBlocked(vmax,maxGeist,restrictions);
-  if(blocked===null||blocked||
-     !publicSpecialAttackPayable(view,catalog,vmax,maxGeist))return null;
+  if(blocked===null||blocked)return null;
 
   const projectedPrintedDamage=postRetreatPrintedDamage(
     view,vmax,maxGeist,{indices:[],printings:[]},catalog);
@@ -147,7 +145,9 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const targetRemainingHp=hp-damage;
   if(projectedPrintedDamage<targetRemainingHp)return null;
 
-  const prize=projectedPrizeOutcome(view,catalog,projectedPrintedDamage);
+  const prizeView={...view,opponentPublic:{...opponent,
+    active:{...target,hp,damage}}};
+  const prize=projectedPrizeOutcome(prizeView,catalog,projectedPrintedDamage);
   if(!prize)return null;
   return {
     kind:'skyliner-free-retreat',
