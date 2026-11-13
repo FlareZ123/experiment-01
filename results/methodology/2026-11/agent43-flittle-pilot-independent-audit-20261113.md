@@ -128,3 +128,19 @@ A `maxPlies:2` run is only a two-action transition/frontier probe, not full oppo
 - root Ram/Pass → opponent is active after timing/draw; second action is only the opponent's first action (which may be attachment), not necessarily its attack/pass choice.
 
 For at least one opponent action after every root choice, use `maxPlies >= 3`. A `maxPlies:4` horizon is the natural bounded sequence for attach→Ram/Pass by both seats. This is still an action horizon, not a fixed number of turns. Record each action and physical seat. Agent49's proposed 32 iterations / 4 action plies / 250ms / seed 9 budget is directionally consistent, but only once the monotonic deadline is enforced and measured.
+
+
+## 8. Review of the committed Agent36 root-provider integration
+
+Reviewed main's `agent36-flittle-mcts-root-provider.cjs` blob `f25759262f3f6287109cbc69e365708b3620e90d` against actor-observation contract blob `253999bc1e740da242a0b8af6d6de0aa24b889e5` and Agent5 adapter blob `944fb542f1154a9cc8184277898a6aecbb9e552b`. The provider cannot currently return a certified selection:
+
+1. It asserts `view.activePlayer===seat`, but actorObservation does not expose `activePlayer`; it exposes `actorSeat`. The state-level active-seat check already exists.
+2. It expects `evolutionPrintings:[Flittle]`; `visiblePokemon` defines this as `slot.cards.map(printing)`, which includes attached Energy. The expected stack is [Flittle SVI, Psychic Energy SVE]; `energies` is a second view of the same Energy.
+3. Its bilateral ledger validation calls `observe(state,physicalSeat)` for both physical seats. ActorObservation requires the non-prompt root actor to equal `state.activePlayer`, so constructing a root observation for the non-active seat throws. Validate the second seat's ledger directly with `knowledgeBySeat` + `normalizeKnowledge`; only observe the active actor.
+4. `validateNativeRootActions` asserts no prompts are added. Ram and PassTurn end the turn and create WaitPrompt(s), so this check fails before search. The pilot adapter also currently routes every prompt through a full-State resolver that the provider configures to throw. A neutral WaitPrompt timing path is required; reject other prompts.
+5. On success, `rootIntentProvider` returns only `{status:'selected'}`, discarding the actual `result.intent` and `result.audit`. The protected root-provider contract requires both.
+6. Agent5's latest adapter now requires a supplied `knowledgeSnapshot` to be the exact same function object as `sampleDeterminization.knowledgeBySeat`. Agent36 passes a wrapper arrow around `trackedKnowledgeBySeat`; remove the wrapper property or pass the exact provider function.
+
+The committed budget is `maxPlies:1`, `iterations:16`, `maxDecisionMs:10000`, zero observation evaluation and uniform priors. This is a one-action root-frontier smoke test, not an adversarial opponent-reply search or a strategic MCTS result. It does not expand a child node. If a deeper sequence is intended, the node envelope must change after attach (same-seat frontier Ram/pass) and after Ram/PassTurn (opponent turn frontier attach/Ram/pass); the current root-only assertion requires `energyPlayedTurn < globalTurn` and exactly three actions at every node, so it cannot be reused unchanged. A naturally reachable root with both players' earlier attachments is turn 3 or later, not merely `globalTurn>1`.
+
+Agent43 sent the immediate code-review handoff to Agent36 in `communications/agent36/20261113T0420Z_agent43_flittle-provider-code-review.md`. No code was modified by Agent43.
