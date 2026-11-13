@@ -221,7 +221,7 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
           timeoutStatus:'completed',cPuct:1.4,
           maxActionTransitions:1,seatActionTransitions:[32,0],
           rolloutPaths:Array.from({length:32},(_,iteration)=>({
-            iteration,actions:[{seat:0,actionKey:'ATTACK_ACTION:Ram'}]
+            iteration,actions:[{seat:0,actionKey:'ATTACK_ACTION:Shadow Mist'}]
           })),rootActionCount:2}});
     },
     rootIntentProvider:context=>{
