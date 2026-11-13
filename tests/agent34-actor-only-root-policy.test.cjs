@@ -1365,6 +1365,26 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(view,postTimelessCatalog,{ownerSeat:1}),null,
     'the proposal cannot cross the candidate-seat boundary');
 
+  const wobbuffet={
+    printing:'Wobbuffet PHF',hp:110,damage:0,tools:[],
+    abilities:['Bide Barricade'],
+    abilityDetails:[{name:'Bide Barricade',text:"If this Pokémon is your Active Pokémon, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities (except for Psychic Pokémon)."}],
+    publicRestrictions:{},specialConditions:[],
+    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],resistance:[]}
+  };
+  const wobbuffetActiveView={
+    ...view,opponentPublic:{...view.opponentPublic,active:wobbuffet}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    wobbuffetActiveView,postTimelessCatalog,{ownerSeat:0}),null,
+    'active Wobbuffet Bide Barricade suppresses Latias ex Skyliner');
+  const wobbuffetBenchedView={
+    ...view,opponentPublic:{...view.opponentPublic,bench:[wobbuffet]}
+  };
+  assert.ok(choosePostTimelessMaxGeistRetreat(
+    wobbuffetBenchedView,postTimelessCatalog,{ownerSeat:0}),
+    'Bide Barricade only applies while Wobbuffet is Active');
+
   const withRadiant={
     ...view,
     ownPublic:{...view.ownPublic,discard:['Dialga-GX UPR','Radiant Eternatus CRZ']}
