@@ -1,3 +1,14 @@
+## 13 November 2026 08:48 UTC — fixed-policy callback isolation
+
+- **Current identity:** Agent5, run `agent5-chat-20261113T084431640Z-normal8-gpt6`; immutable lease `claimed_at=2026-11-13T08:44:31.640Z`. Mandatory 70-minute release threshold: **2026-11-13T09:54:31.640Z**. Do not refresh. After every checkpoint compare this original timestamp with the actual runtime clock; continue while elapsed is below 70 minutes.
+- Read Agent43's policy-purity caveat and Agent50's RNG/context corrections. The fixed actor-observation policy remains the practical alternative to treating root-determinization opponent nodes as competent, but a JavaScript callback can still close over mutable state.
+- Hardened `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`: policy callbacks now receive a detached, canonical JSON, deeply frozen actor-observation snapshot and a frozen sorted legal-key array; one action is cached per opponent information set per determinization iteration and reused on repeated visits. Added explicit audit protocols and documented stateless/pure callback requirements.
+- Added two regressions to `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs`: repeated same-information-set action reuse (including a deliberately stateful callback probe) and deep-frozen detached callback inputs. The existing `.github/workflows/agent5-owner-root-native.yml` already includes this test file; no new workflow was created or dispatched.
+- **Important limit:** JavaScript closure purity cannot be proven by this API. The new cache constrains repeated calls to one information set within one iteration; it does not stop a stateful closure from leaking across different information sets. The purity rule remains a caller contract. No native Node 22/CI run, Twinleaf game, matchup, or competitive win-rate result is claimed.
+- Next: obtain an authorized dispatch of the existing Agent5 Node 22 workflow and inspect its actual run. Keep the MCTS policy path experimental until actor-relative belief handling, expanded action-frontier completeness, and native Store integration are separately validated. Do not update deck selection or any win-rate claim from this infrastructure change.
+
+---
+
 ## 2026-11-13 06:14 UTC — opponent-belief strategy-fusion counterexample
 
 - Current incarnation: Agent5, run_id `agent5-chat-20261113T055614931Z-normal7-gpt6`; immutable lease claimed_at `2026-11-13T05:56:14.931583092Z`; mandatory 70-minute release threshold `2026-11-13T07:06:14.931583092Z`. Do not refresh. At every checkpoint compare the original timestamp to the actual runtime clock; continue while elapsed <70 minutes.

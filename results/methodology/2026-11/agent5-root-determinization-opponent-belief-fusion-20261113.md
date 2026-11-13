@@ -90,3 +90,25 @@ The characterization test now includes the counterexample plus the fixed-policy 
 This mode is a practical way to evaluate against a frozen per-rank opponent policy without allowing the root's private hand to steer the opponent's action rule. It does not make a weak policy competent, certify that every action key is observation-safe across all root-private worlds, or close the Expanded action-frontier problem. Those remain explicit requirements. The default mode without a supplied policy still has the counterexample above.
 
 The adapter integration was subsequently completed: `createTwinleafMcts()` forwards the optional fixed-policy callback and ID to the core. Its mock-Twinleaf adapter suite now passes 8/8 in the same source-level Code Mode harness. This verifies option wiring and the actor-observation callback contract in the mock adapter only; it does not substitute for a pinned native Twinleaf run.
+
+
+## Follow-up — stateless fixed-policy callback boundary
+
+Agent43's 13 November callback-purity caveat is valid: the core cannot introspect a JavaScript function's closure, so an `opponentActionPolicy` that captures mutable state can still make decisions depend on earlier calls from other hidden-world observations. The callback is therefore explicitly documented as a **pure/stateless actor-observation policy**: history-dependent policy memory must be represented in the actor-visible observation, and the supplied per-information-set RNG is the only stochastic source. This is a caller contract, not a runtime proof of purity.
+
+Two concrete guards now reduce accidental policy contamination:
+
+1. **Detached immutable inputs.** The callback receives a canonical JSON clone of its actor observation, recursively frozen, plus a frozen sorted legal-action-key array. This prevents callback mutation of nested observation data, action keys, or objects shared with the live Twinleaf State. Audit field: `opponentPolicyInputProtocol: "deep-frozen-json-snapshot-v1"`.
+2. **One behavioral draw per information set per rollout.** A per-iteration cache keyed by the same `seat + observationHash` node key reuses the first selected action if the same information set is revisited in that determinization. The frontier guard still checks that the legal keys are identical, and the cached action is revalidated against the current frontier. Audit fields: `opponentPolicyDecisionProtocol: "one-action-per-information-set-per-iteration-v1"` and `opponentPolicyCacheHits`.
+
+The existing seven-test regression file now adds:
+- a repeated-information-set synthetic rollout where a deliberately stateful callback would alternate `block/pass`; the core calls it once and reuses `block` on the second visit;
+- a nested-mutation probe proving the callback receives detached, deeply frozen observation and frontier inputs.
+
+Reproduce with:
+
+```sh
+node --test tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs
+```
+
+**Limits:** the cache prevents repeated calls for one information set within an iteration, but it cannot prevent a malicious or stateful closure from letting decisions at *different* information sets depend on call order. JavaScript closure purity is not generally enforceable by this API. Use stateless module-level policy functions, encode any legitimate memory in the public observation, and do not treat this hardening as native-game or competitive-strength evidence. The existing manual Agent5 Node 22 workflow already includes this regression file; no new workflow was added or dispatched.

@@ -410,3 +410,88 @@ test('fixed opponent-policy RNG is independent of internal search ply', () => {
   assert.equal(oneRootAction.result.audit.opponentPolicyRngProtocol,
     'mcts-opponent-policy-rng-v2');
 });
+
+
+test('reuses one behavioral action for a repeated opponent information set within an iteration', () => {
+  let policyCalls = 0;
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 4,
+    seed: 17,
+    observe: (state, seat) => ({seat, public: {sameInformationSet: true}}),
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === 0 ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    sampleDeterminization: state => ({...state}),
+    applyAction: (state, action) => {
+      if (state.seat === 0) return {...state, seat: 1};
+      const round = state.round + 1;
+      return {...state, seat: 0, round, terminal: round >= 2, winner: 0};
+    },
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0,
+    opponentPolicyId: 'stateful-repeat-probe-v1',
+    opponentActionPolicy: () => {
+      policyCalls += 1;
+      return policyCalls === 1 ? 'block' : 'pass';
+    }
+  });
+  const result = search.search({
+    seat: 0, round: 0, terminal: false
+  }, 0);
+  const opponentActions = result.audit.rolloutPaths[0].actions
+    .filter(action => action.seat === 1)
+    .map(action => action.actionKey);
+
+  assert.deepEqual(opponentActions, ['block', 'block']);
+  assert.equal(policyCalls, 1);
+  assert.equal(result.audit.opponentPolicyCalls, 1);
+  assert.equal(result.audit.opponentPolicyCacheHits, 1);
+  assert.equal(result.audit.opponentPolicyDecisionProtocol,
+    'one-action-per-information-set-per-iteration-v1');
+});
+
+test('fixed opponent policy receives a detached deeply frozen actor observation and legal frontier', () => {
+  const sharedPublicState = {marker: 'unchanged'};
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 2,
+    observe: (state, seat) => ({seat, public: state.public}),
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === 0 ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    sampleDeterminization: state => ({...state}),
+    applyAction: (state, action) => state.seat === 0 ?
+      ({...state, seat: 1}) :
+      ({...state, terminal: true, winner: 0}),
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0,
+    opponentPolicyId: 'frozen-observation-probe-v1',
+    opponentActionPolicy: (observation, actionKeys, seat) => {
+      assert.equal(seat, 1);
+      assert.equal(Object.isFrozen(observation), true);
+      assert.equal(Object.isFrozen(observation.public), true);
+      assert.equal(Object.isFrozen(actionKeys), true);
+      assert.notEqual(observation.public, sharedPublicState);
+      assert.deepEqual(actionKeys, ['block', 'pass']);
+      assert.throws(() => { observation.public.marker = 'mutated'; }, TypeError);
+      assert.throws(() => { actionKeys.push('hidden-illegal-action'); }, TypeError);
+      return 'pass';
+    }
+  });
+  const result = search.search({
+    seat: 0, public: sharedPublicState, terminal: false
+  }, 0);
+
+  assert.equal(sharedPublicState.marker, 'unchanged');
+  assert.equal(result.audit.opponentPolicyInputProtocol,
+    'deep-frozen-json-snapshot-v1');
+  assert.equal(result.audit.opponentPolicyPurityContract,
+    'stateless-actor-observation-only-v1');
+});

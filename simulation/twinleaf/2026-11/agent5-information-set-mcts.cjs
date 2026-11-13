@@ -36,6 +36,18 @@ function observationSha256(observation) {
   return createHash('sha256').update(canonicalJson(observation)).digest('hex');
 }
 
+function deepFreezePolicySnapshot(value) {
+  if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
+  for (const child of Object.values(value)) deepFreezePolicySnapshot(child);
+  return Object.freeze(value);
+}
+
+function frozenPolicyObservation(observation) {
+  // Clone the canonical actor view before freezing it. Never freeze objects
+  // that may still be shared with the live Twinleaf State.
+  return deepFreezePolicySnapshot(JSON.parse(canonicalJson(observation)));
+}
+
 function seededRandom(seed) {
   let state = seed >>> 0;
   if (state === 0) state = 0x9e3779b9;
@@ -166,7 +178,10 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {number} [config.maxDecisionMs=Infinity]
  * @param {()=>number} [config.now=performance.now]
  * @param {(state:object)=>boolean} [config.isStable]
- * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number)=>string} [config.opponentActionPolicy]
+ * @param {(observation:object,actionKeys:ReadonlyArray<string>,seat:0|1,random:()=>number)=>string} [config.opponentActionPolicy]
+ *   Must be pure/stateless across independent determinization rollouts. Any
+ *   history-dependent memory must be represented in the actor-visible
+ *   observation; the supplied RNG is the only stochastic source.
  * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
  */
 function createInformationSetMcts(config) {
@@ -248,9 +263,12 @@ function createInformationSetMcts(config) {
       const rolloutPaths = [];
       const opponentFrontiers = new Map();
       let opponentPolicyCalls = 0;
+      let opponentPolicyCacheHits = 0;
 
       for (let iteration = 0; iteration < iterations; iteration++) {
         checkDeadline('iteration-start');
+        // A behavioral policy chooses once for each information set in this rollout.
+        const opponentPolicyDecisions = new Map();
         const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
         const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
         let state = config.sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
@@ -295,7 +313,7 @@ function createInformationSetMcts(config) {
           checkDeadline('node-frontier');
           const actionMap = buildActionMap(actions, config.actionKey);
           if (seat !== rootSeat && opponentActionPolicy !== null) {
-            const actionKeys = [...actionMap.keys()].sort();
+            const actionKeys = Object.freeze([...actionMap.keys()].sort());
             const previousFrontier = opponentFrontiers.get(nodeKey);
             if (previousFrontier) {
               assert.deepEqual(previousFrontier, actionKeys,
@@ -311,23 +329,36 @@ function createInformationSetMcts(config) {
               finished = true;
               break;
             }
-            // The policy RNG is keyed to the same actor information set used
-            // by the node/frontier guard. Never include search-internal ply:
-            // different hidden-world paths can reach this same observation at
-            // different depths. It is isolated from game-transition randomness.
-            const policyRandom = seededRandom(
-              opponentPolicySeed(seed, iteration, seat, observationHash)
-            );
-            const selectedKey = opponentActionPolicy(
-              observation, actionKeys.slice(), seat, policyRandom
-            );
-            checkDeadline('opponent-policy');
+            let selectedKey;
+            if (opponentPolicyDecisions.has(nodeKey)) {
+              // Reuse the first behavioral draw if this information set is
+              // revisited within the same determinization rollout.
+              selectedKey = opponentPolicyDecisions.get(nodeKey);
+              opponentPolicyCacheHits += 1;
+            } else {
+              // The policy RNG is keyed to the same actor information set used
+              // by the node/frontier guard. Never include search-internal ply:
+              // different hidden-world paths can reach this same observation
+              // at different depths. It is isolated from transition randomness.
+              const policyObservation = frozenPolicyObservation(observation);
+              const policyRandom = seededRandom(
+                opponentPolicySeed(seed, iteration, seat, observationHash)
+              );
+              selectedKey = opponentActionPolicy(
+                policyObservation, actionKeys, seat, policyRandom
+              );
+              checkDeadline('opponent-policy');
+              assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
+                'Opponent policy selected an action outside its observation-safe frontier');
+              opponentPolicyDecisions.set(nodeKey, selectedKey);
+              opponentPolicyCalls += 1;
+            }
+            checkDeadline('opponent-policy-decision');
             assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
               'Opponent policy selected an action outside its observation-safe frontier');
             const selectedAction = actionMap.get(selectedKey);
             actionPath.push({seat,actionKey:selectedKey});
             seatActionTransitions[seat]++;
-            opponentPolicyCalls++;
             checkDeadline('transition-start');
             const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
             checkDeadline('transition-complete');
@@ -440,7 +471,14 @@ function createInformationSetMcts(config) {
             'mcts-opponent-policy-rng-v2',
           opponentPolicyContextProtocol: opponentActionPolicy === null ? null :
             'no-context-v1',
+          opponentPolicyInputProtocol: opponentActionPolicy === null ? null :
+            'deep-frozen-json-snapshot-v1',
+          opponentPolicyDecisionProtocol: opponentActionPolicy === null ? null :
+            'one-action-per-information-set-per-iteration-v1',
+          opponentPolicyPurityContract: opponentActionPolicy === null ? null :
+            'stateless-actor-observation-only-v1',
           opponentPolicyCalls,
+          opponentPolicyCacheHits,
           opponentInformationSetCount: opponentFrontiers.size,
           rootSeat,
           rootObservationSha256: rootObservationHash,
