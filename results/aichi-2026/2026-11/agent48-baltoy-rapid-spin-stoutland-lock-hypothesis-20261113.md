@@ -25,11 +25,11 @@ This is unusually compatible with Shadow Rider:
 ## Exact Aichi target
 
 The authenticated rank-2 list (Takahiro Ando, Vileplume Control) contains:
-- 1 Stoutland BCR 122 — its Supporter lock applies while it is Active.
-- 2 Vileplume AOR 3.
-- 1 Vileplume-GX CEC 4.
+- 1 Stoutland BCR 122 — Sentinel prevents the opponent from playing Supporters while Stoutland is Active.
+- 2 Vileplume AOR 3 — Irritating Pollen prevents both players from playing Items while Vileplume is in play.
+- 1 Vileplume-GX CEC 4 — Fragrant Flower Garden heals 30 damage from each of its controller's Pokémon once per turn; it is not an Item lock.
 
-Rank 15 (Ryotaro Nozawa, Lopunny Vileplume) contains three Vileplume but no Stoutland. This is therefore a specific rank-2 counterplay hypothesis, not a general Vileplume answer.
+Rank 15 (Ryotaro Nozawa, Lopunny Vileplume) contains two Vileplume AOR 3 (Irritating Pollen) and one Vileplume BUS 6 (Disgusting Pollen prevents the opponent's Basic Pokémon from attacking while this Vileplume is Active), but no Stoutland. This is therefore a specific rank-2 counterplay hypothesis, not a general Vileplume answer.
 
 ## Hypothesis
 
