@@ -310,7 +310,9 @@ jobs:
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
           node --check simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs
           node --check simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs
+          node --check simulation/evaluation/2026-11/agent36-flittle-store-decklist-binding.cjs
           node --check tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs
+          node --check tests/2026-11/agent36-flittle-store-decklist-binding.test.cjs
           node --check tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
@@ -419,6 +421,7 @@ jobs:
         run: |
           node --test \
             tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
+            tests/2026-11/agent36-flittle-store-decklist-binding.test.cjs \
             tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
       - name: Execute one native V3 fixture game
