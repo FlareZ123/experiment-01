@@ -90,7 +90,7 @@ Inputs and prior evidence:
 
 ## Reproducibility
 
-Three focused Node tests now cover the normalized ranks 8–16 inputs, the nine-row XYP Japanese-print crosswalk, and deck-construction rules across all 24 identity-screened lists. They are wired into `.github/workflows/aichi-card-audit.yml`. That workflow is manual and was **not dispatched in this invocation**, so the new test execution remains pending; the findings above are based on direct source/card-pool analysis and the linked per-rank reports.
+The all-24 deck-construction Node test and the Python English Expanded identity audit both passed in push workflow run [#43386479504](https://github.com/FlareZ123/experiment-01/actions/runs/43386479504); the machine-readable identity result is preserved as [artifact 14018014550](https://github.com/FlareZ123/experiment-01/actions/runs/43386479504/artifacts/14018014550). The normalized ranks 8–16 input test and the XYP/BWP/SMP Japanese-print crosswalk tests are also wired into the manual `card-coverage` job, but that manual job was skipped on the push run and those three tests remain pending execution.
 
 ## Disposition
 
