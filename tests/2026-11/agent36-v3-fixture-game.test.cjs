@@ -80,7 +80,7 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
       // Module._load guard rejects any actual module request outside the frozen
       // role map; this static limitation does not certify full-process closure.
       const actualSites = values.map((value) => ({
-        file: value.file ?? value.modulePath,
+        file: value.file,
         count: value.count,
       })).sort((a, b) => a.file.localeCompare(b.file));
       const expectedSites = [
