@@ -3,7 +3,7 @@
 const {
   attackBlocked,
   postRetreatPrintedDamage,
-  projectedPrizeOutcome
+  opponentHasUnmodeledDamageOrPrizeText
 }=require('../agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 const {
   opponentActiveBlocksRetreat
@@ -18,6 +18,7 @@ const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
 const REGIDRAGO_VSTAR='Regidrago VSTAR SIT';
 const LATIAS_EX='Latias ex SSP';
+const CLEFAIRY_EX="Lillie's Clefairy ex JTG";
 const SHADOW_RIDER_VMAX='Shadow Rider Calyrex VMAX CRE';
 
 function isPsychicBasic(printing,catalog){
@@ -33,6 +34,17 @@ function hasSkyliner(pokemon){
     (Array.isArray(pokemon.abilityDetails)&&
       pokemon.abilityDetails.some(ability=>ability?.name==='Skyliner'))
   );
+}
+
+function prizeCountForTarget(target,catalog){
+  if(Number.isSafeInteger(target?.prizeCount))return target.prizeCount;
+  const subtypes=Array.isArray(target?.printed?.subtypes)?
+    target.printed.subtypes.map(value=>String(value).toUpperCase()):[];
+  if(subtypes.includes('VMAX')||subtypes.includes('TAG TEAM')||
+     subtypes.includes('TAGTEAM'))return 3;
+  if(catalog.ruleboxPokemonPrintings instanceof Set&&
+     catalog.ruleboxPokemonPrintings.has(target.printing))return 2;
+  return 1;
 }
 
 function isOpponentApexDragonReceipt(view){
@@ -69,10 +81,10 @@ function opponentActiveHasUnmodelledDamageModifier(active){
  * Candidate-only, owner-view proposal for the extra turn created by
  * Mimikyu Copycat -> Regidrago Apex Dragon -> Dialga Timeless-GX.
  *
- * It deliberately abstains when Radiant Eternatus is in the owner's discard:
- * Power Beam is then a competing non-GX Copycat payload and needs a separate
- * comparison. It also uses Max Geist's unmodified base damage for the KO
- * threshold, so Fairy Zone weakness is never assumed by this proposal.
+ * It abstains when Radiant Eternatus is in the owner's discard because
+ * Power Beam is a stronger competing Copycat payload. Fairy Zone is applied
+ * only when Lillie's Clefairy ex is publicly present and the shared ability
+ * suppression guard confirms the ability is not disabled.
  *
  * @param {object} view detached owner/public actor observation
  * @param {object} catalog pinned card catalog
@@ -143,22 +155,31 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const hp=Number(target.hp);
   const damage=Number(target.damage??0);
   if(!Number.isSafeInteger(hp)||!Number.isSafeInteger(damage)||
-     hp<=damage)return null;
+     hp<=damage||opponentHasUnmodeledDamageOrPrizeText(view))return null;
   const targetRemainingHp=hp-damage;
-  if(projectedPrintedDamage<targetRemainingHp)return null;
-
-  const prizeView={...view,opponentPublic:{...opponent,
-    active:{...target,hp,damage}}};
-  const prize=projectedPrizeOutcome(prizeView,catalog,projectedPrintedDamage);
-  if(!prize)return null;
+  const ownBoard=[own.active,...bench].filter(Boolean);
+  const fairyZoneActive=ownBoard.some(pokemon=>
+    pokemon?.printing===CLEFAIRY_EX&&
+    Array.isArray(pokemon.abilities)&&pokemon.abilities.includes('Fairy Zone'));
+  const targetIsDragon=Array.isArray(target.printed?.types)&&
+    target.printed.types.includes('Dragon');
+  const fairyZoneMultiplier=fairyZoneActive&&targetIsDragon?2:1;
+  const projectedDamage=projectedPrintedDamage*fairyZoneMultiplier;
+  if(projectedDamage<targetRemainingHp)return null;
+  const projectedPrizeCount=prizeCountForTarget(target,catalog);
   return {
     kind:'skyliner-free-retreat',
     benchIndex,
     printing:SHADOW_RIDER_VMAX,
     attackName:'Max Geist',
     projectedPrintedDamage,
+    projectedDamage,
+    fairyZoneActive,
+    fairyZoneMultiplier,
     targetRemainingHp,
-    ...prize,
+    projectedPrizeCount,
+    projectedTerminalWin:Number.isSafeInteger(own.prizeCount)&&
+      own.prizeCount<=projectedPrizeCount,
     source:VERSION,
     ownerVisibleOnly:true,
     nativeStoreRetreatVerified:false,
@@ -177,7 +198,9 @@ module.exports={
   RADIANT_ETERNATUS,
   REGIDRAGO_VSTAR,
   LATIAS_EX,
+  CLEFAIRY_EX,
   SHADOW_RIDER_VMAX,
+  prizeCountForTarget,
   isOpponentApexDragonReceipt,
   opponentActiveHasUnmodelledDamageModifier,
   choosePostTimelessMaxGeistRetreat
