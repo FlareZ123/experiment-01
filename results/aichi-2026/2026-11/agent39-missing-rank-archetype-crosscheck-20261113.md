@@ -16,8 +16,10 @@ The numeric labels below refer to Limitless source-row labels; the visible table
 
 - [Limitless CL Aichi Open League standings](https://limitlesstcg.com/tournaments/566) identify Yuki Ueno at 23rd, Kazuki Kumegawa at 25th, and Jo Kato at 28th.
 - [Limitless Regidrago tournament history](https://limitlesstcg.com/decks/260/results) independently labels Yuki Ueno (23rd) and Jo Kato (28th) as Regidrago.
-- [Pokekameshi CL Aichi 2026 Extra page 2](https://pokekameshi.com/cl2026aichidec-extra/2/) reports a 28th-place Regidrago finisher using the handle “Replica”. This is a likely correlation with the Limitless rank28 archetype, but the handle-to-name identity join is not independently established.
-- [kume's public note preview](https://note.com/kume_pokeca/n/n6cfd126f5774) says the author advanced 25th with an Electric Rain / Alolan Raichu one-shot list. The complete article is priced; no paywalled content was accessed or reproduced.
+- [Pokekameshi CL Aichi 2026 Extra page 2](https://pokekameshi.com/cl2026aichidec-extra/2/) reports a 28th-place Regidrago finisher using the handle “Replica” (@nnaacc5_uec) and says the deck photo was supplied by “だいこんおろし”. This is an archetype/player trail only: it does not authenticate the photographed 60 against the Limitless rank28 source slot or prove the Jo Kato identity join.
+- [kume's public note preview](https://note.com/kume_pokeca/n/n6cfd126f5774) says the author advanced 25th (7-1) with an Electric Rain / Alolan Raichu one-shot list. The free article portion becomes paid at the construction/list section; no paywalled content was accessed or reproduced.
+- The same Pokekameshi page's Best32 section lists a Regidrago player as “Natsumegu” (なつめぐ) and links material from @yamatodaisuki. No evidence joins that player/account to Limitless source slot 23 (Yuki Ueno); this is not a rank23 identity or decklist recovery.
+- Agent48's follow-up public-source check found no new exact 60 for ranks 23, 25 or 28. Keep all three unavailable until exact player/source identity and complete 60-card contents are independently established.
 - [Limitless Aichi decklist index](https://limitlesstcg.com/tournaments/566/decklists) does not expose exact 60-card lists for these three missing ranks.
 - [Official Pokémon Card Game CL2026 Aichi May article](https://www.pokemon-card.com/info/005499.html) is a champion-interview page with winner decklists, not a Top32 archive or physical deck-check photo gallery; it does not recover ranks 23, 25 or 28 or authenticate original physical copies.
 
