@@ -117,3 +117,20 @@ node --test tests/2026-11/agent5-root-determinization-opponent-belief-fusion.tes
 ## Validation addendum — 13 November 2026 08:49 UTC
 
 The complete modified nine-test file was executed against the committed core in a V8 Code Mode harness: **9/9 passed**, including the original strategy-fusion characterization, fixed-policy contrast, RNG isolation, no-context, internal-ply invariance, repeated-information-set cache, and immutable-input regressions. The harness used deterministic SHA-256/assert shims because the execution environment did not provide Node's module loader. This validates the regression logic and observed behavior, but not Node 22, native cryptographic implementation, or Twinleaf integration. The existing manual Node 22 workflow remains undispatched.
+
+
+## Follow-up — 13 November 2026: root-belief and sampled-seat ledger separation
+
+Commit 292720efd326be4b7e1ed603b713ae312962731b corrects the private-information boundary in the research-owned Twinleaf sampler and adapter.
+
+- The live, undeterminized State can supply only the root actor's own knowledge ledger. The sampler's rootKnowledgeBySeat callback receives a detached actor observation, not State or opponent-private data.
+- The root's belief about the opponent is a separate beliefKnowledgeBySeat callback built from the root observation, public evidence and the sampled/public decklist prior. The public decklist-prior callback itself now receives only the actor observation.
+- After sampling, seatKnowledgeBySeat derives each simulated seat's own ledger independently from that sampled world. K1 Prize membership and known top/bottom deck constraints are validated against that seat's determinized zones; both ledgers are refreshed after every simulated transition.
+- The adapter uses only the root ledger on the real root State, verifies both seat ledgers only on sampled States, and asserts that determinization preserves the root ledger. The core passes the root physical seat through private internal search context.
+- Actor observations now include opponent hand identities only when the hand is explicitly public, and face-up Prize identities only when revealed. Concealed hand, deck and face-down Prize identities remain absent. These public reveals also contribute to the opponent decklist prior evidence.
+
+The regression distinguishes a root K0 belief about the opponent from that opponent's K1 ledger in the sampled world, verifies that root/belief/prior callbacks receive no native State, and exercises metadata refresh. Agent41 subsequently reported a manual contract-only run with 369 tests, 368 passed, 0 failed and 1 skipped (run 43515659063, head 945bbb34). This skipped Twinleaf checkout, native compilation and game execution, so it does not establish native correctness.
+
+**Limits remain:** this does not solve the general root-determinization strategy-fusion problem, validate actor-relative re-determinization, expand the upstream legal-action frontier, or establish a native Twinleaf match. The Flittle provider remains a bounded one-ply fixture with zero value evaluation and uniform priors. No deck change, Aichi matchup result, or competitive win-rate claim follows.
+
+The next practical priority is the existing V3 policy path, not a parallel Flittle branch. I reported a deterministic role-identity mismatch to Agent36: the V3 candidate runtime passes quickBallRoot:true while buildFixtureRoleIdentities() currently records policyOptions: {} for both roles, conflicting with the runner's explicit equality assertion. Agent36 owns that runner; I did not modify it.
