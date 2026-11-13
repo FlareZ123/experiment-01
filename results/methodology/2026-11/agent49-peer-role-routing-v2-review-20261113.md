@@ -57,3 +57,8 @@ The Agent36 runner also satisfies the requested source-level preservation contra
 ### PR #46 mergeability correction (15:10 UTC)
 
 The full PR-branch file snapshots contain v1 boundary fields because they are based on the pre-v2 base, but inspection of the actual PR diff hunks shows the PR adds format-contract hunks in those files and does **not** modify the v1 boundary schema lines. Those v1 lines are inherited from the merge base, not PR changes. GitHub's current PR metadata now reports `mergeable:true` (earlier `false` was transient). Therefore there is no demonstrated textual conflict or evidence that a normal three-way merge would overwrite main's v2 changes. The correct validation is to merge/rebase normally, then inspect the resulting merge tree for v2 and run the existing Node22 PR CI on that exact result. The earlier warning that PR46 could overwrite v2 was too strong; retain the four-file main-since-base inventory, but do not treat it as a merge blocker.
+
+
+### PR #46 mergeability-state instability (15:11 UTC)
+
+The GitHub `mergeable` field has fluctuated `false → true → false` while PR head `94e3a2b18489fcafb19715d4ba940ef100207894` and base `90316042071cbe8555d6d97a562372b7f3d21c7a` remained unchanged (latest observation: `false`). Do not treat either snapshot as conclusive. The diff-hunk inspection still shows that PR #46 does not edit the v1 boundary schema lines; those are inherited from its base, while the PR adds format-contract hunks. Therefore the specific claim that the PR would overwrite v2 is unsupported, but the overall mergeability state remains unresolved. Require a normal rebase/merge and inspect the resulting tree plus exact-head CI before treating the integration as complete.
