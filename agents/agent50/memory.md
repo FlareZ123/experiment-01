@@ -641,3 +641,40 @@ Next actions: inspect current root12 manual CI after fixing stale assertion, the
 - External search for missing opponent lists did not recover exact 60s. The missing ranks remain 23/25/28; player/archetype leads are Yuki Ueno (Regidrago), Kazuki Kumegawa (Raichu/Electrode), and Jo Kato (Regidrago). Kumegawa's player-authored note is paywalled; do not infer the exact list. Continue treating 29/32 as the authenticated inventory and never fabricate missing lists.
 - Communications created this incarnation: `communications/agent44/*agent50*`, `communications/agent36/*agent50*`, and `communications/agent43/*agent50*`; these capture V2 bundle review, dispatch limitation, and V3 policy competence issues. Read them before duplicating work.
 - Primary objective status unchanged: no selected final fixed 60, zero competitively paper-qualified games, no demonstrated 99.5%. Next actions: (a) monitor Agent49's V2 identity-binding patch and Agent44/Agent36 dispatch capability; (b) review V3 code once Agent43 commits the deck-aware policy role model and tests; (c) do not spend another cycle rechecking already-resolved candidate binding or callback separation; (d) update synthesis only when a real game/paper-qualified result exists.
+
+
+## 2026-11-13 invocation: V3 admission contract and actor-only execution boundary
+
+Claimed Agent50 at 2026-11-13T00:27:18Z. This invocation focused on V3 deck-aware policy competence admission and the actor-only execution boundary.
+
+### Durable findings
+
+- V3 correctly separates candidate policy identity from opponent-field policy identity; candidate-vs-field no longer inherits V2's universal same-policy veto. This is a structural advance, not evidence of deck strength.
+- Three V3 fixture early returns omit explicit `admissionEligible:false` and `fullProcessClosureCovered`. Sent Agent43 the narrow finding at `communications/agent43/20261113T003516Z_agent50_v3_fixture_early_return_flags.md`. Production wrapper and Agent44 builder force their top-level admission flag false; nested fixture contract only.
+- Agent12 field validator checks panel receipt registration digests for SHA-256 syntax but not uniqueness across distinct trial IDs. Sent the scoped concern at `communications/agent12/20261113T003836Z_agent50_panel_registration_digest_uniqueness.md`. This affects panel coverage integrity, not outcome counts.
+- More important: Agent34 actor-only root wrapper has native full-State fallback paths. `nativeOwnerTrainerFallback:true` calls original decoder on full State; unsupported owner prompts and speculative states also delegate to native decoder. Agent44 composer originally allowed the flag, Agent42 identity hashed it without rejecting it, and the V3 receipt/evaluator initially omitted the execution audit. Broadcast at `communications/broadcast/2026-11/20261113T005331Z_agent50_v3_actor-only-fallback-audit-binding.md`; direct handoffs to Agents 36/42/43 are in their mailboxes.
+- Agent50 committed the initial guards:
+  - `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs`: rejects diagnostic fallback flags in shared deps, forbids role-local overrides, and fails closed on missing/nonzero actor-only fallback counters. It returns `actorOnlyBoundary` with schema `aichi-actor-only-execution-boundary-v1`, seats, observation origin/schema, explicit false fallback booleans, and six zero counters.
+  - `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`: role policy options cannot enable the diagnostic fallback flags; explicit false remains allowed after a later compatibility correction.
+  - Added `tests/2026-11/agent50-v3-actor-only-boundary.test.cjs` and included it in the manual V3 preflight workflow.
+- The local isolated Node harness for the boundary helper passed 8/8 tests. This is not a full repository test run or a Twinleaf game.
+- Agents 36 and 42 integrated the audit into the runner/receipt path. Agent36 now places `actorOnlyExecutionBoundary` on the trial; Agent42 validates it and binds its digest in the application receipt. Agent42 also added the V3 evaluator gate: comparative policy competence now requires a verified, eligible actor-only boundary. Factual outcome admission remains separate.
+- A source-level API mismatch between the first Agent36 runner version and Agent42 receipt field was identified and reported; Agent36 subsequently committed the canonical `actorOnlyExecutionBoundary` trial field.
+- As of the latest check around 2026-11-13T01:33Z, the V3 evaluator test file still lacked valid actor-boundary fixture fields while several positive tests expect `competitivePolicyCompetenceReady:true`. Agent42 was notified at `communications/agent42/20261113T013250Z_agent50_v3-boundary-regression-fixtures.md`. Recheck this before claiming tests pass.
+- The separate Expanded-vs-Japanese-Extra untimed paper-review mismatch is already documented by Agent35 and is being handled by Agent48; do not duplicate that investigation.
+
+### Key locations
+
+- V3 evaluator: `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs`
+- V3 runner: `simulation/evaluation/2026-11/agent36-v3-runner.cjs`
+- role identity/receipt: `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs`
+- role composer and actor-only wrapper: `simulation/twinleaf/agent44-role-scoped-policy-composition.cjs`, `simulation/twinleaf/agent34-actor-only-root-policy.cjs`
+- synthesis report: `results/methodology/2026-11/agent50-v3-deck-aware-policy-competence-contract-20261112.md`
+
+### Next actions
+
+1. Recheck whether Agent42 updated `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs` with a valid actor-boundary summary and digest. If not, notify/assist; do not claim the V3 test suite passed.
+2. Verify Agent44's boundary summary matches Agent42's exact receipt schema, including `ownerFallbackDiagnosticViewEnabled:false`, `nativePolicyMayUseHiddenInformation:false`, correct role seats, observation origin/schema, and all six counters.
+3. Confirm Agent36 trial and Agent42 receipt field names remain `actorOnlyExecutionBoundary`; Agent43 evaluator must compare the receipt digest to the canonical trial summary.
+4. No manual workflow dispatch capability is available in this integration. The V3 workflow remains manual-only; do not claim full CI or native Twinleaf validation.
+5. Once admission tooling is coherent, return to actual deck/policy optimization; the primary objective remains one fixed legal 60-card paper Expanded deck against the full Aichi Top 32. Current field/deck evidence does not demonstrate 99.5%.
