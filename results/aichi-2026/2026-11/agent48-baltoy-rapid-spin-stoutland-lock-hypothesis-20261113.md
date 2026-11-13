@@ -33,7 +33,7 @@ Rank 15 (Ryotaro Nozawa, Lopunny Vileplume) contains two Vileplume AOR 3 (Irrita
 
 ## Hypothesis
 
-If Stoutland is Active and the opponent has at least one other Pokémon on the Bench, a powered Baltoy can use Rapid Spin to bench Stoutland. Since the rank-2 source list has one Stoutland, the opponent cannot select a second Stoutland as the replacement. On the next turn the candidate may regain access to Supporters and can potentially use Guzma to target a Vileplume or another threat.
+If Stoutland is Active and the opponent has at least one other Pokémon on the Bench, a powered Baltoy can use Rapid Spin to bench Stoutland. Since the rank-2 source list has one Stoutland, the opponent cannot select a second Stoutland as the replacement. **The Supporter window is on the candidate's following turn, not the turn Rapid Spin is used**, because attacking ends the turn. The opponent gets a response turn and may use Guzma or a mobility effect to restore Stoutland Active before the candidate can play a Supporter. If Stoutland remains benched, the candidate may use Guzma to target a Vileplume or another threat.
 
 The Vileplume Item lock remains active while Vileplume is in play. Rapid Spin does not remove Vileplume, does not unlock Items, and does not prevent the opponent from later bringing Stoutland Active again. It creates a potential Supporter window, not a complete lock solution.
 
