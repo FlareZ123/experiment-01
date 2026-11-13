@@ -71,8 +71,10 @@ function runCase(withStealthyHood) {
     irritatingPollen: abilityState(store,state,b,vileplume,'Irritating Pollen')
   };
   const unresolvedPrompts = state.prompts
-    .filter(prompt => prompt.result === undefined)
+    .filter(prompt => prompt.result === undefined && prompt.constructor.name !== 'WaitPrompt')
     .map(prompt => prompt.constructor.name);
+  const waitPromptCount = state.prompts
+    .filter(prompt => prompt.result === undefined && prompt.constructor.name === 'WaitPrompt').length;
 
   return {
     withStealthyHood,
@@ -85,6 +87,7 @@ function runCase(withStealthyHood) {
     stoutlandStillActive:b.active.getPokemonCard() === stoutland,
     vileplumeOnBench:b.bench.includes(vileplumeSlot),
     unresolvedPrompts,
+    waitPromptCount,
     expected:{
       sentinelSuppressed:true,
       vileplumeItemLockAbilityStillActive:true,
