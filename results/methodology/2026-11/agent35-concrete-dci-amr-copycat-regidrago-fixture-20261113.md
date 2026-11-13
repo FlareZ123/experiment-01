@@ -111,9 +111,9 @@ This is the intended distinction: **conditional payoff is not execution probabil
 
 ## Important counterstate: Path to the Peak
 
-The rank-12 source inventory also contains one Path to the Peak. The fixture explicitly assumes no Ability-locking Stadium is in play. Path to the Peak says Pokémon with a Rule Box have no Abilities; it therefore suppresses Fairy Zone on Lillie's Clefairy ex, Skyliner on Latias ex, and Underworld Door on Shadow Rider Calyrex VMAX.
+The rank-12 source inventory also contains one Path to the Peak (resources/cards/en/swsh10.json). The fixture explicitly assumes no Ability-locking Stadium is in play. Path to the Peak says Pokémon with a Rule Box have no Abilities; it therefore suppresses Fairy Zone on Lillie's Clefairy ex, Skyliner on Latias ex, and Underworld Door on Shadow Rider Calyrex VMAX.
 
-With Path to the Peak active, the first copied Timeless-GX is only 150 damage against Regidrago VSTAR, not 300, so it does not Knock Out the 280-HP target. The extra turn still occurs, but the immediate two-KO line in the main fixture no longer follows. The retreat/Max Geist fallback also changes because Skyliner is disabled. The candidate has one Field Blower, and Marshadow UNB 81 has Resetting Hole while on the Bench, but both are finite, state-dependent answers; in this constructed full-Bench state Marshadow cannot be benched. Consequently, Field Blower's DCI rises sharply while Path to the Peak is live, and the D1/D2 discard ranking must be recomputed rather than treated as universal.
+With Path to the Peak active, the first copied Timeless-GX is only 150 damage against Regidrago VSTAR, not 300, so it does not Knock Out the 280-HP target. The extra turn still occurs, but the immediate two-KO line in the main fixture no longer follows. The retreat/Max Geist fallback also changes because Skyliner is disabled. The candidate has one Field Blower GRI 125 (resources/cards/en/sm2.json), which can discard Stadiums, and Marshadow UNB 81 (resources/cards/en/sm10.json) has Resetting Hole while on the Bench, but both are finite, state-dependent answers; in this constructed full-Bench state Marshadow cannot be benched. Consequently, Field Blower's DCI rises sharply while Path to the Peak is live, and the D1/D2 discard ranking must be recomputed rather than treated as universal.
 
 ## Validation boundary and next native gate
 
