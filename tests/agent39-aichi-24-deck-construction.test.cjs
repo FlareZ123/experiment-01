@@ -81,8 +81,8 @@ test('all 24 identity-screened Aichi lists pass 60-card construction rules', () 
     const aceSpecCopies = [...countsByName]
       .filter(([name]) => aceSpecNames.has(name))
       .reduce((sum, [, count]) => sum + count, 0);
-    assert.equal(aceSpecCopies, 1,
-      `rank ${deck.rank} must contain exactly one ACE SPEC`);
+    assert.ok(aceSpecCopies <= 1,
+      `rank ${deck.rank} must contain at most one ACE SPEC`);
 
     const prismStarCopies = [...countsByName]
       .filter(([name]) => prismStarNames.has(name));
