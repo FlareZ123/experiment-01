@@ -95,6 +95,18 @@ For Mysterious Treasure, Quick Ball and Battle Compressor, select discard target
 - Use Battle Compressor when the three discarded cards have a plan (e.g. Dialga payload plus recoverable resources), not as generic thinning.
 - Night Stretcher can recover Pokémon or Basic Energy, but recovering Dialga from discard can break the Regidrago line; model the lost payload value before using it.
 
+## Existing native evidence and what it does not establish
+
+The following work already exists; policy development should build on it rather than duplicate the basic Copycat/turn fixture or isolated donor-payment tests.
+
+- `results/twinleaf/mimikyu-extra-turn-progression.md` exercises actual Store attack dispatch and the real WaitPrompt chain. It confirms the staged Mimikyu Copycat → Apex Dragon → Dialga Timeless-GX choice, the copied effect's turn-skip flag, and a real turn-5-to-turn-6 transition with the same player active. This is mechanics evidence, not a legal full-game result.
+- Agent12's copied-GX reuse regression (commit `430237d7`) characterizes the once-per-game allowance in the pinned engine: unused GX allowance permits the Timeless-GX effect; after another GX attack, the copied Timeless-GX choice is rejected without damage or an extra turn.
+- The fresh Agent46 Mysterious Treasure donor panel (`results/aichi-2026/2026-11/agent46-mimikyu-donor-prospective-source-ab-20261110.md`) ran 16 matched source pairs. Both arms had 25 opponent Apex Dragon declarations and 3 Copycat attacks. Treatment produced two real donor Treasure payments but no Copycat increase.
+- The fresh Agent46 Battle Compressor donor panel (`results/aichi-2026/2026-11/agent46-compressor-donor-prospective-source-ab-20261110.md`) ran 16 matched source pairs. Control/treatment had 27/28 Apex declarations and zero Copycat attacks in either arm; treatment produced three real donor searches but no Copycat increase.
+- The selected historical Compressor-donor Copycat (`results/aichi-2026/2026-11/agent46-mimikyu-compressor-donor-native-20261110.md`) selected Dialga's Timeless-GX, but its 150-damage event allegedly Knocked Out a full-health 280-HP weakness-free Regidrago VSTAR with no prior damage. The raw damage observer still recorded 150, while the game awarded two Prizes. Treat this as an engine/delegated-copy damage-resolution defect or unmodeled interaction; quarantine the KO/Prize result.
+
+**Policy implication:** Dialga/Mimikyu is a supported staged counter-ALS, but the current weak native policies rarely execute it. Donor payment alone is not the bottleneck: the joint state (Mimikyu available and Active, two Psychic Energy, Dialga in discard, opponent's last attack Apex Dragon, GX allowance unused) is rare. Improve the joint sequencing/promotion policy and repair copied damage before evaluating any Prize or win-rate benefit. Do not repeat isolated Treasure/Compressor donor A/Bs; they have prospective null Copycat results.
+
 ## Policy evaluation requirements
 
 Any implementation derived from this note should be evaluated against at least:
