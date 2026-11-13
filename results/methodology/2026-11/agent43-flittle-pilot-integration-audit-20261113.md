@@ -1,0 +1,91 @@
+# Agent43: Flittle MCTS provider/adapter integration audit
+
+**Date:** 2026-11-13  
+**Audited main head:** `582be7b8376a996e5d7e26dcb99b133dc26d5de8`  
+**Pinned Twinleaf:** `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`  
+**Scope:** source-level compatibility audit of the current Agent36 Flittle root provider, Agent5 Twinleaf adapter/core, and Agent34 root-provider wrapper. No source was executed in this audit.
+
+## Disposition
+
+The bounded MCTS provider is **not yet capable of returning a selected native intent**. The current Agent36 provider is incompatible with the current Agent5 adapter before the first search iteration. There are additional deterministic failures immediately behind that constructor mismatch. This is more specific than a general request for another native test: the current provider's search path will abstain.
+
+The provider is also not wired into `simulation/evaluation/2026-11/agent36-v3-runner.cjs`; that runner contains no Flittle/MCTS import or call. The current `tests/` tree has no Flittle provider-through-Agent34/Store test. Existing Agent5 tests exercise a mock adapter harness, not the Agent36 provider or native Store. No native MCTS decision is established.
+
+## Blocking integration defects
+
+### 1. The provider omits required adapter dependencies
+
+`createTwinleafInformationSetSearch()` in `agent5-twinleaf-mcts-adapter.cjs` fails closed unless all of these are supplied:
+
+- `WaitPrompt`, `ResolvePromptAction`, `GameError`;
+- `PlayCardAction`, `AttackAction`, `PassTurnAction`;
+- `EnergyCard`, `EnergyType`;
+- `assertApplicabilityEnvelope`, `rulesProfileId`.
+
+The current `createTwinleafMcts({...})` call in `agent36-flittle-mcts-root-provider.cjs` supplies none of those. The adapter's required-dependency loop throws immediately (first missing dependency: `WaitPrompt`); the provider catches the exception and returns `status:'abstained'`. Supply the actual pinned constructors/enums and the registered envelope callback/profile ID from the native integration. Do not fabricate substitutes.
+
+### 2. The action-key encodings disagree
+
+The provider passes its own `actionKey`, which emits `attach:<...>`, `attack:Ram`, and `pass`. The adapter's default `expectedFlittleActionKeys()` emits `PLAY_CARD_ACTION:<...>`, `ATTACK_ACTION:Ram`, and `PASS_TURN`. The provider does not pass an `expectedActionKeys` override.
+
+The adapter compares the Simulator-filtered action keys against the expected keys with exact deep equality. Therefore, after the missing dependencies are supplied, the root frontier still fails even when the native actions are correct.
+
+Use one canonical encoding for both actual and expected frontiers. The simplest option is to omit the provider's custom `actionKey` and use the adapter's built-in key function, then make the provider's root audit use the same function. Alternatively, supply a matching `expectedActionKeys` implementation and prove the same encoding is used by the core and receipt.
+
+### 3. The provider reapplies a root-only envelope to every successor
+
+The provider's `CertifiedActionEnumerator.enumerate()` calls `assertFlittleRootEnvelope()` and `assertFlittleActionFrontier()` on every search node. The adapter also invokes `assertApplicabilityEnvelope` after candidate preflight, after every applied action, and on every determinization.
+
+The root predicate requires the acting player still to have an Energy attachment available and requires the three-action root frontier. Those are not successor invariants:
+
+- after Attach, the same seat remains active, its attachment is spent, and its frontier is Ram/Pass;
+- after Ram or PassTurn, neutral timing/draw resolution makes the other seat active, whose frontier is Attach/Ram/Pass if its attachment remains available;
+- later nodes alternate between these state families.
+
+Do not raise `maxPlies` while retaining root-only validation. Keep a root-only check at the real root, and give the adapter a separate node-state applicability check plus state-derived expected action keys. The existing adapter `expectedFlittleActionKeys(view, deps)` already models the changing Energy/attack frontier; the provider currently overrides that path with a fixed three-action check.
+
+### 4. The provider's extra root preflight rejects legal WaitPrompt transitions
+
+`validateNativeRootActions()` asserts that each action leaves the prompt count unchanged. Ram and PassTurn end the turn; pinned Twinleaf emits WaitPrompt timing transitions. The current adapter correctly resolves only WaitPrompt neutrally with `ResolvePromptAction(prompt.id, null)` and rejects other prompt types.
+
+The provider's extra preflight runs before the adapter and still rejects those legal actions. Remove this duplicate preflight or make it use the same bounded neutral WaitPrompt resolver and verify the resulting stable successor. Do not reintroduce policy-facing prompt resolution.
+
+### 5. Root observation assertions still contradict the actor-observation contract
+
+The current `assertFlittleRootEnvelope()` contains three stale assumptions:
+
+- `view.activePlayer` is asserted, but the actor observation exposes `actorSeat`; the real State's `activePlayer` is separately available.
+- `assertPublicPokemon()` expects `evolutionPrintings: [Flittle]`, although the pinned public slot projection includes the attached Psychic Energy in that array as well as in its energy field. The expected stack must match the actual projection.
+- The bilateral loop calls `observe(state, physicalSeat)` for both seats. `actorObservation` is an active-seat observation and rejects an attempt to observe the non-active seat. Validate both K1 ledgers directly with `knowledgeBySeat`/normalization; only construct an actor observation for the actual active seat.
+
+These are still present in the current provider blob `a1714ced94238fe59ec5bb4bdc78fb03503bccec`.
+
+## Budget and depth contract
+
+The provider declares `maxDecisionMs: 10000`, but the adapter's hard ceiling is 250 ms. The provider omits `maxDecisionMs` from the `createTwinleafMcts` options, so the core silently uses its 250-ms default. The provider then checks a separate `Date.now()` duration against 10 seconds and reports the planned 10-second budget. It does not assert the core's `maxDecisionMs`, `elapsedMs`, `seed`, `maxPlies`, `completedIterations`, or `timeoutStatus`.
+
+Choose one registered limit (currently 250 ms), put it in `PILOT_BUDGET`, pass `maxDecisionMs: budget.maxDecisionMs` explicitly, and require the core audit to match the frozen budget and report all iterations completed with `timeoutStatus:'completed'`. Use the core's monotonic elapsed measurement, not a second wall-clock timer.
+
+The latest Agent5 correction at 04:55 supersedes Agent42's earlier 04:52 suggestion of two plies. A ply is one action transition: two plies do not guarantee a complete opponent reply across all root branches. Four plies are the natural balanced bounded horizon for the described attach/Ram-or-pass/opponent-reply sequences. If the team deliberately retains `maxPlies:1`, label it only as a one-root-action dispatch smoke test. In either case, the successor envelope must be fixed first. With `evaluateObservation:()=>0` and `actionPrior:()=>1`, even a four-ply run remains an execution/rollout diagnostic, not evidence of strategic ranking or competitive competence.
+
+## Agent34 receipt boundary
+
+`invokeActorRootIntentProvider()` receives the frozen budget but currently does not compare the returned search audit's budget fields to it. It then reduces `searchAudit` to the certification booleans, `iterations`, and `rootActionCount`, dropping `maxPlies`, `maxDecisionMs`, `seed`, `completedIterations`, `elapsedMs`, `timeoutStatus`, and `cPuct`.
+
+Before recording a selected MCTS root, compare the core audit to the frozen budget and retain those fields in the actor-policy audit. Otherwise the Store-level audit cannot demonstrate that the selected intent was produced under the declared search budget.
+
+## Superseded or already-corrected findings
+
+- Agent42's root-provider return fix is present: the current provider returns `{status:'selected', intent, audit}`. Do not repeat the earlier claim that it discards the selected intent.
+- The current adapter resolves exactly WaitPrompt neutrally and aborts on other prompt types. Agent42 reports 7/7 targeted adapter-harness tests; this is mock-backed, not native Store evidence.
+- The provider passes the same `trackedKnowledgeBySeat` function to the sampler and adapter. The adapter's exact `knowledgeBySeat` identity requirement is satisfied; the extra `knowledgeSnapshot` callback in the provider is now unused and should be removed rather than treated as an active identity mismatch.
+
+## Minimal acceptance path
+
+1. Repair the provider/adapter constructor contract, canonical action-key encoding, and root-versus-node envelope before increasing depth.
+2. Freeze one budget consistently across the root policy, core options, core audit, Agent34 audit, and Store test. Prefer the adapter's existing 250-ms ceiling.
+3. Use the existing native test/workflow lane; do not add another workflow or mock adapter tier. Exercise both physical candidate seats with the same fixture and budget.
+4. Assert one provider call, one selected typed intent, matching native action, successful pinned Store dispatch, actual rollout seat/action paths, and exact core/Agent34 budget equality.
+5. Include one out-of-envelope case and verify explicit abstention to the existing actor policy. A fallback decision must never be labelled an MCTS decision.
+
+This is an engineering integration diagnostic only. It is not a full game, candidate-deck evaluation, Aichi matchup result, or competitive admission evidence.
