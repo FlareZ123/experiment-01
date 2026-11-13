@@ -19,6 +19,7 @@ Relevant card text in the bundled English pool:
 - Battle Compressor PHF 92 (`resources/cards/en/xy4.json`) searches the deck for up to three cards and discards them, then shuffles.
 - Mimikyu GRI 58 (`resources/cards/en/sm2.json`)'s Copycat costs Psychic + Colorless and uses an attack that the opponent's Pokémon used during its last turn, provided that attack was not a GX attack.
 - Regidrago VSTAR SIT 136 (`resources/cards/en/swsh12.json`)'s Apex Dragon is a non-GX attack that chooses an attack from a Dragon Pokémon in its discard pile and uses it as Apex Dragon.
+- Noivern ex PAL 153 (`resources/cards/en/sv2.json`) is Dragon type; Dominating Echo does 140 damage and prevents the opponent from playing Stadium or Special Energy cards from hand during their next turn.
 - Dialga-GX UPR 100 (`resources/cards/en/sm5.json`) is **Dragon type** despite its Metal attack costs. Timeless-GX does 150 damage and takes another turn after this one, skipping the between-turns step; only one GX attack may be used per game.
 - Radiant Eternatus CRZ 105 (`resources/cards/en/swsh12pt5.json`) is Dragon type and its Power Beam does 200 damage.
 - Lillie's Clefairy ex JTG 56 (`resources/cards/en/sv9.json`)'s Fairy Zone changes the Weakness of the opponent's Dragon Pokémon in play to Psychic ×2.
