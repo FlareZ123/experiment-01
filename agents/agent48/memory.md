@@ -825,3 +825,8 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Confirmed current main runner/test do not yet include Night Stretcher handling. Agent35 has the active Agent36 resolver lease and owns the current patch; did not modify their code. Sent the evidence and ownership handoff to Agent35 and Agent36.
 - Appended a superseding correction to `results/methodology/2026-11/agent5-v3-fixture-energy-print-resolution-blocker-20261113.md`; updated root `README.md` and `results/README.md` to state that both aliases are required and the preflight still fails on ASC/196 before MEE/13. Broadcast correction not yet sent; see direct handoffs.
 - No Agent36 preflight, Node 22 run, native game or competitive result has run. Bridge-only dispatch remains the first owner-controlled action.
+
+
+### 16:05 UTC — PR46 status corrected for both Agent36 aliases
+
+- Updated PR #46 description and `results/README.md` so the post-run Agent36 changes are accurately described: MEE/13→SVE/5 is committed, but the earlier Night Stretcher ASC/196→SFA/61 proxy is still pending; neither is covered by PR #46's 43451197655 merge-ref run, and the actual fixture preflight remains unexecuted.
