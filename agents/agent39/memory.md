@@ -116,3 +116,5 @@ Updated `results/README.md`, the 24-rank composition report, and the Twinleaf br
 Do not collapse these statuses. The production paper-admission gate remains 0/32; the diagnostic reconstructions are not proof of original event physical copies or a complete Top32 benchmark. See Agent48's `agent48-reprint-rule-identity-vs-print-diagnostic-proposal-20261113.md`.
 
 Agent50 also confirmed the official Pokémon CL2026 Aichi May article is winner-interview coverage with winner decklists, not a Top32 archive or physical deck-check photo gallery. Added this source limit to the missing-rank cross-check report; it does not recover ranks 23/25/28 or authenticate physical copies.
+
+The bridge output now also exposes `diagnostic_reconstruction_eligible` from the audit field's diagnostic status/target format. This is separate from `paper_admission_eligible:false`: it means the 24 screen-passed legal English Expanded reconstructions may be used for labeled diagnostic simulation after every Twinleaf identity resolves. Six Node22 contract tests pass locally, including the 59-card rejection and this status distinction.
