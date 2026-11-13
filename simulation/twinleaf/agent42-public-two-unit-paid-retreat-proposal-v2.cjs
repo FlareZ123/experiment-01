@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.1';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.2-attack-cost-guards';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
@@ -14,7 +14,7 @@ function twoPsychicPayment(active,catalog){
   return {indices:[0,1],printings:[...active.energies]};
 }
 
-function attackBlocked(pokemon,attack){
+function attackBlocked(pokemon,attack,playerRestrictions){
   const r=pokemon?.publicRestrictions;
   if(!r||typeof r.cannotAttackNextTurn!=='boolean'||
      !Array.isArray(r.cannotUseAttacksNextTurn)||
@@ -23,7 +23,20 @@ function attackBlocked(pokemon,attack){
      !(r.blockedAttackNameUntilLeavesActive===null||
        typeof r.blockedAttackNameUntilLeavesActive==='string')||
      !(r.onlyAllowedAttackNameNextTurn===null||
-       typeof r.onlyAllowedAttackNameNextTurn==='string'))return null;
+       typeof r.onlyAllowedAttackNameNextTurn==='string')||
+     !Number.isSafeInteger(r.attackCostIncreaseNextTurn)||
+     !Number.isSafeInteger(r.attackCostIncreaseWhileActive)||
+     !playerRestrictions||
+     !Number.isSafeInteger(playerRestrictions.attackMaxEnergyTurnsRemaining)||
+     playerRestrictions.attackMaxEnergyTurnsRemaining<0||
+     !(playerRestrictions.attackMaxEnergy===null||
+       Number.isSafeInteger(playerRestrictions.attackMaxEnergy)))return null;
+  // Printed-cost projection does not model live cost increases or the
+  // player-wide attack-energy ceiling. Abstain rather than certify an
+  // attack that may become illegal when the Benched Pokémon is promoted.
+  if(r.attackCostIncreaseNextTurn!==0||
+     r.attackCostIncreaseWhileActive!==0||
+     playerRestrictions.attackMaxEnergyTurnsRemaining>0)return null;
   return r.cannotAttackNextTurn===true||
     r.blockedAttackNameNextTurn===attack.name||
     r.blockedAttackNameUntilLeavesActive===attack.name||
@@ -41,7 +54,7 @@ function activeHasCompetingAttack(view,catalog,active){
   for(const attack of active.attacks){
     if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
       return null;
-    const blocked=attackBlocked(active,attack);
+    const blocked=attackBlocked(active,attack,view.ownPublic?.publicTurnRestrictions);
     if(blocked===null)return null;
     if(blocked)continue;
     if(attack.gxAttack===true){
@@ -197,7 +210,7 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
     for(const attack of pokemon.attacks){
       if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
         return null;
-      const blocked=attackBlocked(pokemon,attack);
+      const blocked=attackBlocked(pokemon,attack,own.publicTurnRestrictions);
       if(blocked===null)return null;
       if(attack.gxAttack===true||blocked||
          !publicSpecialAttackPayable(view,catalog,pokemon,attack))continue;
