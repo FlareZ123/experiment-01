@@ -1198,6 +1198,51 @@ test('seat-scoped actor policies compose independently across candidate and oppo
   assert.ok(observedSeats.includes(0)&&observedSeats.includes(1),
     'both roles must use the same common observer binding');
 
+  // Mirror the exact same role contract with candidate and opponent
+  // physical seats swapped. Role identity must not depend on seat numbering.
+  const swappedObservedSeats=[];
+  const swappedDeps={
+    ...sharedDeps,
+    observe:(state,seat)=>{
+      swappedObservedSeats.push(seat);
+      return Object.freeze({... (seat===1?candidateView:opponentView),actorSeat:seat});
+    }
+  };
+  const swappedRoleRun=withCandidateOpponentPolicyRoles(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    store.state.activePlayer=1;
+    const candidateAction=new SimpleTacticsAi(20).decodeNextAction(store.state);
+    store.state.activePlayer=0;
+    const opponentAction=new SimpleTacticsAi(10).decodeNextAction(store.state);
+    return {candidateAction,opponentAction};
+  },{
+    candidateSeat:1,opponentSeat:0,commonDeps:swappedDeps
+  });
+  assert.deepEqual(swappedRoleRun.roleSeatMap,{candidate:1,opponent:0});
+  assert.ok(swappedRoleRun.result.candidateAction instanceof PlayCardAction);
+  assert.ok(swappedRoleRun.result.opponentAction instanceof PlayCardAction);
+  assert.equal(swappedRoleRun.result.candidateAction.target.player,0,
+    'physical seat 1 candidate still uses actor-relative BOTTOM_PLAYER');
+  assert.equal(swappedRoleRun.result.opponentAction.target.player,0,
+    'physical seat 0 opponent still uses actor-relative BOTTOM_PLAYER');
+  assert.equal(swappedRoleRun.candidateAudit.policyOwnerSeat,1);
+  assert.equal(swappedRoleRun.opponentAudit.policyOwnerSeat,0);
+  assert.equal(swappedRoleRun.candidateAudit.peerRoleDispatchEnabled,true);
+  assert.equal(swappedRoleRun.opponentAudit.peerRoleDispatchEnabled,false);
+  assert.equal(swappedRoleRun.candidateAudit.ownerDecisionCalls,1);
+  assert.equal(swappedRoleRun.opponentAudit.ownerDecisionCalls,1);
+  assert.equal(swappedRoleRun.candidateAudit.peerRoleDelegations,1);
+  assert.equal(swappedRoleRun.opponentAudit.peerRoleDelegations,0);
+  assert.equal(swappedRoleRun.candidateAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(swappedRoleRun.opponentAudit.nonOwnerSeatBypassCalls,0);
+  assert.equal(swappedRoleRun.actorOnlyBoundary.schema,'aichi-actor-only-execution-boundary-v2');
+  assert.equal(swappedRoleRun.actorOnlyBoundary.valid,true);
+  assert.equal(swappedRoleRun.candidateAudit.selectedRootDecisions,1);
+  assert.equal(swappedRoleRun.opponentAudit.selectedRootDecisions,1);
+  assert.ok(swappedObservedSeats.includes(0)&&swappedObservedSeats.includes(1),
+    'both swapped roles must use the same common observer binding');
+
   assert.throws(()=>withCandidateOpponentPolicyRoles(()=>null,{
     candidateSeat:0,opponentSeat:1,commonDeps:sharedDeps,
     candidatePolicyOptions:{observe:sharedObserve}
