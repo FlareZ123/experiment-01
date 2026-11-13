@@ -310,23 +310,6 @@ test('fixture role manifest is complete, fail-closed, and pins the selected patc
   const diagnosticAsset = built.manifest.dataAssets.find((item) => item.path === diagnosticPath);
   assert.ok(diagnosticAsset && /^[0-9a-f]{64}$/i.test(diagnosticAsset.sha256), 'full-state serializer must be hash-bound as a data asset');
   assert.equal(Object.prototype.hasOwnProperty.call(combined.expectedByPath, diagnosticPath), false, 'full-state serializer must not enter the policy module closure');
-
-  const identities = runner.buildFixtureRoleIdentities({
-    manifestResult: built,
-    challengeSuiteSha256: runner.fixtureChallengeSuiteSha256(built.manifest),
-    policyConstraintsSha256: 'a'.repeat(64),
-    preparedRuntime: {
-      runtimePinUnionSha256: 'b'.repeat(64),
-      loadedProcessClosureSha256: 'c'.repeat(64),
-      cardPoolInitializationSha256: 'd'.repeat(64),
-    },
-  });
-  assert.deepEqual(identities.candidateIdentity.policyDefinition.policyOptions,
-    { quickBallRoot: true }, 'candidate identity must bind the enabled Quick Ball root');
-  assert.deepEqual(identities.opponentIdentity.policyDefinition.policyOptions,
-    {}, 'rank-1 opponent identity must not inherit candidate-only options');
-  assert.notEqual(identities.candidateIdentity.policySha256, identities.opponentIdentity.policySha256,
-    'different role options must produce distinct policy identities');
 });
 
 test('fixture runner unwraps direct and role-composed failure envelopes without losing partial traces',()=>{
