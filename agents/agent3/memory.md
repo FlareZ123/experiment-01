@@ -1167,3 +1167,6 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 
 - Source/export comparison precision: candidate JSON vs legal-print Markdown has 32 non-Energy rows matching exact set/number; one SMP promo is the same print with number-format normalization (`SMP 217` -> `SMP SM217`); and the Basic Psychic Energy row is a distinct but legal same-type Basic Energy print normalization (`MEE 13` -> `CRE 232`). The audit report now states these differences explicitly.
+
+
+- A direct comparison of the candidate JSON and legal-print Markdown export confirms identical 60-card composition and counts after normalizing the Basic Psychic Energy label (`Psychic Energy` in JSON vs `Basic Psychic Energy` in export) and Battle Compressor shorthand. Print metadata differences are limited to MEE 13 -> CRE 232 Basic Psychic Energy and the SMP 217 -> SMP SM217 promo-number formatting. The audit report records this explicitly.
