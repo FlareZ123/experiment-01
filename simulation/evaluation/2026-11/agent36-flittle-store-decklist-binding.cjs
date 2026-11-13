@@ -58,18 +58,17 @@ function collectPlayerPhysicalCards(player,seat,seenReferences) {
     stadium:zoneCards(player.stadium),
     resolvingSupporter:zoneCards(player.supporter),
     active:zoneCards(player.active),
-    bench:player.bench.flatMap(slot=>zoneCards(slot))
+    activeTools:zoneCards(player.active?.tools),
+    bench:player.bench.flatMap(slot=>zoneCards(slot)),
+    benchTools:player.bench.flatMap(slot=>zoneCards(slot?.tools))
   };
 
   for(const slot of [player.active,...player.bench]) {
     if(!slot)continue;
     const slotCards=zoneCards(slot);
-    for(const attached of [
-      ...zoneCards(slot.energies),
-      ...zoneCards(slot.tools)
-    ]) {
-      assert.ok(slotCards.includes(attached),
-        'Attached Energy/Tool is absent from its owning PokemonCardList.cards');
+    for(const attachedEnergy of zoneCards(slot.energies)) {
+      assert.ok(slotCards.includes(attachedEnergy),
+        'Attached Energy is absent from its owning PokemonCardList.cards');
     }
   }
 
