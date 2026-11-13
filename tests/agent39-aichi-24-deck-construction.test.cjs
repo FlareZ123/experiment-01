@@ -16,7 +16,7 @@ const allCards = fs.readdirSync(cardDir)
 
 const key = value => String(value)
   .normalize('NFKD')
-  .replace(/[\\u0300-\\u036f]/g, '')
+  .replace(/[\u0300-\u036f]/g, '')
   .replace(/[♢◇]/g, '')
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '');
