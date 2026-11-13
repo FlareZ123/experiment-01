@@ -118,6 +118,8 @@ jobs:
         run: node --test tests/agent39-ranks8-16-expanded-normalized-inputs.test.cjs
       - name: Validate Aichi XYP Japanese print crosswalk
         run: node --test tests/agent39-xyp-japanese-print-crosswalk.test.cjs
+      - name: Validate deck construction for all 24 identity-screened Aichi lists
+        run: node --test tests/agent39-aichi-24-deck-construction.test.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
