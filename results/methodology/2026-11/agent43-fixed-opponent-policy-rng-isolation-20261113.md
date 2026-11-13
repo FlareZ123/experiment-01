@@ -123,3 +123,8 @@ This supersedes the residual-ply warning above. The fixed-policy RNG stream now 
 I subsequently executed the complete committed `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs` against the current core blob `7576de4add7f18d20ad3f2485aa460cad1d01df1` in a V8 harness. The harness supplied deterministic FNV hash and strict-assert shims; all **7/7 tests passed**, including the new different-ply regression, both transition/policy RNG isolation directions, no timing context, illegal-frontier rejection, and the strategy-fusion characterization/fixed-policy contrast.
 
 This supersedes the earlier statement that the full seven-test file had not been run by me. It remains a V8 harness run, **not** native Node 22 or GitHub Actions. The separate paired-world no-ply check above used precomputed true SHA-256 digests for the exact fixture payloads.
+
+
+## Remaining caller contract: policy callback purity
+
+The core now prevents direct transition-RNG, search-ply, and clock-context leakage, but it cannot enforce that a caller-supplied `opponentActionPolicy` has no mutable closure state. A stateful callback could retain observations/actions across separate determinization rollouts and thereby accumulate information from sampled worlds that a real opponent would not share. Current provider/test callbacks are stateless. Competitive policy implementations should be pure across independent determinizations; any memory must derive only from actor-visible public history within one simulated trajectory and be reset between determinized rollouts (or explicitly represented in the observation/policy-state model). This is a caller contract, not a remaining seed-derivation defect.
