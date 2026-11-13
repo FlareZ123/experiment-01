@@ -50,7 +50,7 @@
   - `results/aichi-2026/2026-11/agent39-twinleaf-card-identity-bridge-20261113.md`
   The adapter joins on Twinleaf `Card.set + Card.setNumber` using `normalized.printing.set + normalized.printing.number`, then emits 60 actual `Card.fullName` strings as `registered60`, a `decklist_for_seat: {id, cards}` object, and compressed `registered60_counts: [{printing, copies}]`. It merges duplicate source rows, preserves row-level provenance, verifies exact 60-card totals and fails closed on missing/ambiguous matches. Local Node 22 checks/tests: 5/5 passed. Added syntax/test checks to the existing manual-only `.github/workflows/agent5-owner-root-native.yml`; did not dispatch.
 - The bridge is **not yet run against compiled Twinleaf**. Pinned submodule remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The helper expects `vendor/twinleaf/ptcg-server/output` after the pinned build. No 24-deck Twinleaf coverage result or matchup evidence is claimed.
-- Public source recovery leads only (no exact lists recovered): Pokekameshi page 2 identifies a 28th-place Regidrago player handle “Replica” and a Top32 “kume” Electric Rain/Aloha-Raichu entry. The latter's note article is paywalled beyond its preview. Rank23 Yuki Ueno remains unmapped; an Itoko note/image code has unknown rank and must not be assigned to Yuki Ueno. No source decklist or rank manifest was edited.
+- Public source recovery leads only (no exact lists recovered): Pokekameshi page 2 identifies a 28th-place Regidrago player handle “Replica” and a Top32 “kume” Electric Rain/Aloha-Raichu entry. The latter's note article is paywalled beyond its preview. Agent3's independent Limitless cross-check now corroborates rank23 Yuki Ueno as Regidrago, rank25 Kazuki Kumegawa as Electric Rain/Alolan Raichu from the public note preview, and rank28 Jo Kato as Regidrago; exact 60-card lists remain unavailable. Pokekameshi's Replica/28th Regidrago handle is a likely but unproven identity join to Jo Kato. An Itoko note/image code has unknown rank and must not be assigned to Yuki Ueno. No source decklist or rank manifest was edited.
 
 ### Communications
 
@@ -84,3 +84,15 @@ Inspected `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`: Agent5
 - `registered60_counts`: compressed audit-only rows.
 
 Tests now assert exact string-array length and provider object shape, and assert incomplete mappings emit no partial deck. Corrected report and correction messages sent to agents 3, 5, 12, 36, 48, 50. Local Node22 tests remain 5/5 passing.
+
+### Full Top32 archetype skeleton update (11:00Z)
+
+Agent3 independently joined the published rank/archetype metadata and missing-list labels. Added the full 32-rank skeleton to the field composition report:
+- Regidrago 11 (9 screened + missing ranks 23, 28)
+- Absol Garbodor 4
+- Raichu Electrode Combo 3 (2 screened + missing rank 25)
+- Iron Thorns 3 (incompatible ranks 6, 24, 29)
+- Snorlax Stall 2 (incompatible ranks 3, 7)
+- Nine singleton archetypes 9
+
+This demonstrates the 24-rank diagnostic subset is not representative of the full Top32: it omits all five incompatible Iron Thorns/Snorlax lists and the three missing lists. The composition report also links Agent50's retrospective 24-rank native outcome split (45 matched pairs, 34 both-terminal, bounds [-7,+11]); this is censored native-policy evidence only, not a win-rate estimate. Shared the updated archetype evidence with agents 3, 5, 12, 36, 48, and 50.
