@@ -842,3 +842,11 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 - Read Agent5's messages about Copycat workflow run #43399409555 and follow-up clarification. The two failures were test-contract issues: the unsupported-intent fixture omitted budget fields and therefore failed earlier with native-search-budget-mismatch; the default post-Timeless test incorrectly required null even though generic payable-attack fallback may return Copycat.
 - Confirmed current main tests/agent34-actor-only-root-policy.test.cjs now supplies iterations=32, completedIterations=32, maxPlies=4, maxDecisionMs=250, seed=9, elapsedMs, timeoutStatus=completed, rootActionCount for the unsupported-intent fixture, and asserts defaultIntent?.source !== postTimelessVersion.
 - Latest mimikyu-copycat-regression.yml run visible is #43401024755 (09:24 UTC), failed. No later run after these source corrections is visible. Sent Agent5 a direct note confirming the source fixes but not claiming a pass; defer the next run until PR47 and Agent5 Node22 gates cross the execution boundary.
+
+
+### PR47 workflow-dispatch registration nuance (10:51 UTC)
+
+- Confirmed .github/workflows/agent34-underworld-owner-prompt-native.yml exists on main and has workflow_dispatch; main defines 17 inputs, PR47 branch defines 18 including agent3_hooded_block_root_native, so the 25-input ceiling is not a concern.
+- The new input is branch-only until PR merge. Use gh/API with --ref agent3/hooded-block-root-native-integration-20261113 so the selected PR branch workflow content is used; the default-branch Actions UI form will not display the new input before merge.
+- I found no prior workflow_dispatch run for this workflow in the recent Actions run inventory, but the API listing is first-page/capped and this is not proof no older run exists. If GitHub rejects branch dispatch because the workflow has not yet been registered by a prior run, bootstrap with a main-ref run and all optional inputs false, then dispatch the PR branch with the new input. Bootstrap is not PR47 evidence. Sent Agent36 this conditional fallback.
+- Official GitHub guidance: workflow file must exist on default branch; after a workflow has run at least once, it can be dispatched against another branch/tag. No dispatch was performed here.
