@@ -10,6 +10,7 @@ and the bundled legalities flags are NOT a substitute for the official banlist.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -35,6 +36,25 @@ BASIC_ENERGY_NAMES = {
     "psychicenergy", "fightingenergy", "darknessenergy", "metalenergy",
     "fairyenergy",
 }
+
+# Deterministic legal English printings for generic MEE Basic Energy placeholders.
+# SVE has the first eight Basic Energy types; Fairy Energy uses its XY1 reprint.
+BASIC_ENERGY_DIAGNOSTIC_PRINTINGS = {
+    "grassenergy": ("sve", "1"),
+    "fireenergy": ("sve", "2"),
+    "waterenergy": ("sve", "3"),
+    "lightningenergy": ("sve", "4"),
+    "psychicenergy": ("sve", "5"),
+    "fightingenergy": ("sve", "6"),
+    "darknessenergy": ("sve", "7"),
+    "metalenergy": ("sve", "8"),
+    "fairyenergy": ("xy1", "140"),
+}
+CARD_TEXT_FIELDS = (
+    "name", "supertype", "subtypes", "hp", "types", "evolvesFrom",
+    "abilities", "attacks", "rules", "ancientTrait", "weaknesses",
+    "resistances", "retreatCost", "convertedRetreatCost", "text", "effect",
+)
 JAPANESE_PRE_EVENT_CROSSWALK = {
     ("specialredcard", "CRI", "82"): {
         "set": "M4",
@@ -279,6 +299,157 @@ def audit_deck_construction(cards: list[dict[str, Any]], total_copies: int) -> d
     }
 
 
+def _find_card_by_set_and_number(catalog: dict[str, Any], set_id: str, number: str) -> dict[str, Any]:
+    matches = [
+        card for card in catalog["cards_by_set"].get(str(set_id), [])
+        if str(card.get("number") or "") == str(number)
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one card for {set_id}-{number}; found {len(matches)}")
+    return matches[0]
+
+
+def _card_text_sha256(card: dict[str, Any]) -> str:
+    payload = {key: card[key] for key in CARD_TEXT_FIELDS if key in card}
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def build_normalized_diagnostic_decks(rank_results: list[dict[str, Any]],
+                                      catalog: dict[str, Any]) -> dict[str, Any]:
+    """Build a separate English-print diagnostic field without changing source lists."""
+    decks = []
+    transformations = []
+    excluded = []
+    for rank in rank_results:
+        if rank["expanded_identity_status"] != "expanded_identity_screen_pass" or not rank["deck_construction"]["passed"]:
+            excluded.append({
+                "rank": rank["rank"],
+                "identity_status": rank["expanded_identity_status"],
+                "construction_status": rank["deck_construction_status"],
+            })
+            continue
+        normalized_rows = []
+        for row_index, row in enumerate(rank["cards"]):
+            source_printing = row["source_printing"]
+            if row["status"] == "basic_energy_identity_legal_printing_unresolved":
+                key = normalize_name(row["name"])
+                if key not in BASIC_ENERGY_DIAGNOSTIC_PRINTINGS:
+                    raise ValueError(f"No same-type Basic Energy printing configured for {row['name']}")
+                set_id, number = BASIC_ENERGY_DIAGNOSTIC_PRINTINGS[key]
+                card = _find_card_by_set_and_number(catalog, set_id, number)
+                allowed_names = {
+                    normalize_name(row["name"]),
+                    normalize_name(f"Basic {row['name']}"),
+                }
+                if normalize_name(card.get("name") or "") not in allowed_names:
+                    raise ValueError(f"Basic Energy type mismatch for {row['name']} -> {card.get('name')}")
+                if card.get("supertype") != "Energy" or "Basic" not in (card.get("subtypes") or []):
+                    raise ValueError(f"Selected printing is not a Basic Energy: {card.get('id')}")
+                if expanded_flag(card) != "Legal":
+                    raise ValueError(f"Selected Basic Energy printing is not Expanded legal: {card.get('id')}")
+                normalization = "mee_basic_energy_to_same_type_legal_english_print"
+            else:
+                matched = row.get("matched_english_printing") or {}
+                if not matched or row.get("expanded_legal_identity") is not True:
+                    raise ValueError(f"Identity audit did not produce a legal English print for {row['name']}")
+                set_id = matched.get("set_id")
+                number = matched.get("number")
+                if not set_id or not number:
+                    raise ValueError(f"Missing canonical English print identity for {row['name']}")
+                card = _find_card_by_set_and_number(catalog, set_id, number)
+                if normalize_name(card.get("name") or "") != normalize_name(matched.get("name") or ""):
+                    raise ValueError(f"Canonical card-name mismatch for {row['name']} -> {card.get('id')}")
+                if expanded_flag(card) != "Legal":
+                    raise ValueError(f"Canonical English printing is not Expanded legal: {card.get('id')}")
+                normalization = (
+                    "exact_english_print_identity"
+                    if row["status"] == "english_expanded_legal_exact"
+                    else "canonical_english_identity_alias"
+                )
+            card_id = str(card.get("id") or "")
+            if not card_id:
+                raise ValueError(f"Missing card-pool ID for {row['name']}")
+            normalized = {
+                "card_id": card_id,
+                "name": str(card.get("name") or ""),
+                "count": int(row["count"]),
+                "supertype": card.get("supertype"),
+                "subtypes": card.get("subtypes") or [],
+                "printing": {
+                    "set_id": str(set_id),
+                    "number": str(number),
+                    "language": "en",
+                },
+                "card_text_sha256": _card_text_sha256(card),
+            }
+            source = {
+                "row_index": row_index,
+                "name": row["name"],
+                "printing": source_printing,
+                "identity_status": row["status"],
+                "event_date_status": row["event_date_status"],
+                "physical_source_print_verified": False,
+            }
+            normalized_rows.append({
+                "source": source,
+                "normalized": normalized,
+                "normalization": normalization,
+            })
+            if normalization != "exact_english_print_identity":
+                transformations.append({
+                    "rank": rank["rank"],
+                    "source_row_index": row_index,
+                    "source": source,
+                    "normalized": {
+                        "card_id": card_id,
+                        "name": normalized["name"],
+                        "printing": normalized["printing"],
+                    },
+                    "reason": normalization,
+                })
+        card_copies = sum(item["normalized"]["count"] for item in normalized_rows)
+        if card_copies != 60 or len(normalized_rows) != rank["card_rows"]:
+            raise ValueError(f"Normalized rank {rank['rank']} changed row count or 60-card total")
+        decks.append({
+            "rank": rank["rank"],
+            "player": rank["player"],
+            "archetype": rank["archetype"],
+            "source_row_count": len(normalized_rows),
+            "card_copies": card_copies,
+            "cards": normalized_rows,
+        })
+    return {
+        "schema": "aichi-identity-normalized-expanded-diagnostic-decklists-v1",
+        "status": "identity_normalized_expanded_diagnostic_only",
+        "target_format": "paper Expanded (Black & White onward)",
+        "source_event_format": "Japanese Extra",
+        "source_dataset": "results/aichi-2026/full-decklists.json",
+        "field_manifest": "results/aichi-2026/diagnostic/identity-screened-24-field.json",
+        "diagnostic_only": True,
+        "physical_source_print_status": "unverified",
+        "paper_admission_eligible": False,
+        "competitive_admission_eligible": False,
+        "official_banlist_status": "Separate exact-printing overlay required; bundled card-pool flags are not authoritative.",
+        "official_banlist_report": "results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md",
+        "normalization_policy": [
+            "Preserve source row order, names, printings, and counts; never overwrite the source decklist.",
+            "Resolve non-energy rows to the English card-pool record selected by source set/collector number/name, with explicit canonical aliases where required.",
+            "Resolve MEE Basic Energy placeholders to a same-type Expanded-legal English Basic Energy printing; never change the Energy type.",
+            "Bind each normalized card to a SHA-256 digest of its functional card-text fields.",
+            "This diagnostic field does not authenticate the original Japanese physical copies or qualify paper competitive matchups.",
+        ],
+        "deck_count": len(decks),
+        "included_ranks": [deck["rank"] for deck in decks],
+        "source_rows": sum(deck["source_row_count"] for deck in decks),
+        "card_copies": sum(deck["card_copies"] for deck in decks),
+        "transformation_counts": dict(Counter(item["reason"] for item in transformations)),
+        "excluded_ranks": excluded,
+        "transformations": transformations,
+        "decks": decks,
+    }
+
+
 def audit_decks(deck_data: dict[str, Any], catalog: dict[str, Any],
                 ranks: set[int] | None = None, event_date: date = date(2026, 5, 10),
                 expected_ranks: int = 32) -> dict[str, Any]:
@@ -347,6 +518,7 @@ def audit_decks(deck_data: dict[str, Any], catalog: dict[str, Any],
             "report": "results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md",
         },
         "physical_print_limit": "The Limitless export is an English display/identity normalization; it does not authenticate the physical Japanese print used by each player.",
+        "diagnostic_normalized_field": build_normalized_diagnostic_decks(rank_results, catalog),
         "ranks": rank_results,
     }
 
