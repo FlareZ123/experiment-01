@@ -617,6 +617,18 @@ function printed60Fingerprint(deck) {
   return createHash('sha256').update(JSON.stringify(rows), 'utf8').digest('hex');
 }
 
+function engineProxyPrintingForSourceRow(row) {
+  const sourcePrinting = row.printing;
+  // Preserve the source roster's MEE/13 identity. The pinned Twinleaf pool
+  // registers this Basic Psychic Energy engine proxy as SVE/5.
+  if (row.name === 'Psychic Energy'
+      && sourcePrinting.set === 'MEE'
+      && String(sourcePrinting.number) === '13') {
+    return { ...sourcePrinting, set: 'SVE', number: '5' };
+  }
+  return sourcePrinting;
+}
+
 function resolvePrintedDeck(deck, allCards, { label = 'deck', expectedSize = 60 } = {}) {
   assert.ok(deck && Array.isArray(deck.cards), label + ' must contain a cards array');
   const cards = Array.isArray(allCards) ? allCards : Array.from(allCards && allCards.values ? allCards.values() : []);
@@ -632,10 +644,11 @@ function resolvePrintedDeck(deck, allCards, { label = 'deck', expectedSize = 60 
   const categoryCounts = {};
   for (const row of deck.cards) {
     assert.ok(row && typeof row.name === 'string' && Number.isInteger(row.count) && row.count > 0, label + ' contains an invalid card row');
-    assert.ok(row.printing && row.printing.language === 'en', label + ' requires an explicit English engine-proxy printing for ' + row.name);
-    const key = JSON.stringify([row.name, row.printing.set, String(row.printing.number)]);
+    assert.ok(row.printing && row.printing.language === 'en', label + ' requires an explicit English source printing for ' + row.name);
+    const enginePrinting = engineProxyPrintingForSourceRow(row);
+    const key = JSON.stringify([row.name, enginePrinting.set, String(enginePrinting.number)]);
     const matches = byPrinting.get(key) || [];
-    assert.equal(matches.length, 1, label + ' exact printing must resolve once: ' + row.name + ' ' + row.printing.set + ' ' + row.printing.number + ' (matches=' + matches.length + ')');
+    assert.equal(matches.length, 1, label + ' exact engine-proxy printing must resolve once: ' + row.name + ' ' + enginePrinting.set + ' ' + enginePrinting.number + ' (source=' + row.printing.set + '/' + row.printing.number + ', matches=' + matches.length + ')');
     const nativeCard = matches[0];
     assert.ok(typeof nativeCard.fullName === 'string' && nativeCard.fullName.length > 0, label + ' resolved card is missing fullName');
     for (let i = 0; i < row.count; i += 1) fullNames.push(nativeCard.fullName);
@@ -644,6 +657,7 @@ function resolvePrintedDeck(deck, allCards, { label = 'deck', expectedSize = 60 
       name: row.name,
       count: row.count,
       printing: row.printing,
+      enginePrinting,
       engineFullName: nativeCard.fullName,
     });
     categoryCounts[row.category] = (categoryCounts[row.category] || 0) + row.count;
