@@ -38,6 +38,7 @@ The acting player is piloting the candidate. The state immediately before Battle
 - One Shadow Rider VMAX has three Psychic Energy attached; the other has none. There are five Psychic Energy attached across the candidate's Pokémon: two on Mimikyu and three on the powered VMAX.
 - The Bench has four Pokémon after Mimikyu's promotion; one slot is open. Girafarig could be benched if accessed, but has no Energy and no relevant Get Lost target, so it has no immediate attack line.
 - The once-per-game GX attack allowance is unused.
+- The Knocked Out prior Active left at least one Basic Psychic Energy in the candidate's discard, so Raihan would have a valid attachment target if it were available.
 - Battle Compressor is in hand. Dialga-GX, Radiant Eternatus, Marshadow and Girafarig are in the deck.
 
 **Opponent board**
