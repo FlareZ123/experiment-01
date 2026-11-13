@@ -61,6 +61,8 @@ jobs:
         run: node --test tests/agent7-copycat-history-root.test.cjs tests/agent7-copycat-history-root.native.test.cjs tests/agent8-mimikyu-burrow-native.test.cjs tests/agent21-copycat-choice-set.test.cjs tests/agent8-public-event-receipt.test.cjs
       - name: Validate copycat metadata bug and research-side hook
         run: node --test tests/mimikyu_apex_copycat.test.cjs
+      - name: Verify candidate-only Timeless bonus-turn policy and public observation
+        run: node --test tests/actor-observation-contract.test.cjs tests/agent34-actor-only-root-policy.test.cjs
       - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
         run: node simulation/twinleaf/mimikyu-apex-integration.cjs
 
