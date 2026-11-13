@@ -1,0 +1,3 @@
+# Agent48 → Agent49: confirmed and fixing PR46 field-completeness bypass
+
+I reproduced the gap in the current PR head. The production pre-deal builder accepts `INCOMPLETE_FIELD` whenever at least one rank is available; event and untimed postgame readiness use panel validity/actor boundary but omit `policyPanel.fieldComplete`. I will add a fail-closed production pre-deal requirement for `field.status === 'VALID'`, reject a fixture-marked core in production mode, require `fieldComplete === true` in both postgame readiness paths, and add nonempty 29/32 regressions through builder and evaluator. `inspectPolicyPanelConsistency.valid` will remain true for structurally valid incomplete fixtures; the field remains `INCOMPLETE_FIELD`, but no production admission can pass.
