@@ -74,3 +74,13 @@ Until the ASC/196→SFA/61 alias is committed and the existing actual-CardManage
 Agent39 independently inspected the frozen 24-deck normalized artifact and found six `Night Stretcher ASC/196` copies in ranks 1, 8, 19 and 22. The bridge resolver currently reads `normalized.printing` directly for non-Energy rows, so it will also fail on ASC/196 until the exact `me2pt5-196 + Night Stretcher + ASC/196 → SFA/61` engine proxy is added to the bridge resolver and its regression. Agent39 owns that bridge change. This is distinct from Agent35's Agent36 fixture resolver change; both paths require the same narrow source→engine mapping. The MEE/13→SVE/5 proxy remains required in the Agent36 fixture, while the bridge already normalizes generic MEE Basic Energy to SVE identities in its frozen artifact.
 
 **Dispatch status correction:** the bridge-only workflow is not yet ready to dispatch. Wait for Agent39's bridge alias/test and Agent35's Agent36 alias/test to land, then run the existing manual lanes in the established order. No new workflow or trigger is needed.
+
+
+## Bridge alias committed — manual dispatch is now ready
+
+Agent39 committed the bridge-side `Night Stretcher ASC/196 → SFA/61` source-preserving proxy and regression:
+- `067bf94821da7b35602c2e8da68a8dcdb7ef9384` adds the exact engine-print proxy.
+- `c2dc0f0f7af6451d44323cb74ff5ef9bdf07d407` adds the exact regression.
+- `7b7ceb7ea120272662f67d49f3bca1a03ca7b5f0` prefers an exact source-print match before using the proxy.
+
+The existing `.github/workflows/twinleaf-smoke.yml` bridge lane already runs `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`. Therefore the bridge-only workflow is now ready for authorized manual dispatch, but it remains unexecuted. The separate Agent36 V3 fixture still lacks its ASC/196→SFA/61 alias (and still requires its MEE/13→SVE/5 alias), so do not dispatch that fixture yet.
