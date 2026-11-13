@@ -1,0 +1,45 @@
+# PR46 panel-receipt fixture-marker review
+
+**Status:** unresolved source-level fail-open hypothesis; not yet reproduced by an executed test. **Do not merge PR #46 until the case is tested and fixed or falsified.**
+
+## Scope and reviewed revision
+
+Reviewed PR #46 head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476` after its 09:17 UTC refresh. The head's Node 22 workflow run `43400088615` completed successfully, but the current test file contains no panel-receipt `fixtureOnly` regression. The green run therefore does not resolve this finding.
+
+## Finding
+
+A fixture-only marker on a **non-current** item in `bundle.policyPanelReceipts[]` appears able to pass the production builder and exported evaluator while the current bundle, trial, core and `policyApplicationReceipt` remain unmarked.
+
+The path is visible in four places:
+
+1. `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs:596-630` — `inspectPolicyPanelConsistency()` constructs `panelReceipts` from `bundle.policyPanelReceipts`. Its `receiptValid` predicate checks schema, digest, plan/attestation/registration bindings, rank format status, dates, policy identities, seat mapping and actor-only boundaries, but does not inspect `item.fixtureOnly`.
+2. `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs:1184-1217` — `evaluateCompetitiveAdmissionV3()` scans fixture markers on the bundle, current trial/preregistration, policy-plan core, registration and **current** application receipt. It omits `bundle.policyPanelReceipts[*].fixtureOnly`. It does include panel receipt `formatReviewStatus`, but an item can carry `fixtureOnly:true` while retaining `formatReviewStatus:'independently-reviewed'`.
+3. `simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs:343-359` — `checkedReceipt()` validates receipt schema, V2 runtime fields and the receipt digest; it does not reject or propagate a fixture marker. `validateReceiptAgainstPlan()` begins at line 362 and binds the receipt to the plan, format, dates, seats and policy identities, but does not inspect `fixtureOnly`. The builder passes each panel item through `checkedReceipt()` at lines 626-630 before panel validation.
+4. `scripts/agent12-balanced-field-ledger-validator.cjs:323-454` — the standalone field validator validates each `gameReceipts` item and its rank/format/policy bindings, but does not inspect a receipt's `fixtureOnly` property.
+
+The test helper `populatePanelCoverage()` at `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs:532+` creates the panel ledger across every authenticated rank, both candidate seats and both first-player seats (up to 128 entries). Thus the panel array is part of the actual full-field contract, not a dead property.
+
+## Reproduction to add
+
+Use the existing `makeFullClosurePolicyBundle()` / `populatePanelCoverage()` fixture. Before generating the signed review set:
+
+1. Select a panel receipt whose `trialId` differs from `bundle.policyApplicationReceipt.trialId`.
+2. Add `fixtureOnly: true` (and in a second variant, `fixtureOnly: 'true'`).
+3. Recompute that receipt's `receiptSha256` with the existing canonical `evidenceBundleSha256()` helper.
+4. Recompute the bundle-level reviews/signatures after the mutation, so the test isolates the admission guard rather than failing on stale digests.
+5. Exercise both the exported `evaluateCompetitiveAdmissionV3()` path and the production `buildV3GameBundle()` path.
+
+Expected production result: explicit rejection; `fixtureOnly:true`, `acceptanceReady:false`, `competitiveAdmission:false`, and `admissionEligible:false` (or a builder rejection before admission). The malformed-string variant must also fail closed. Keep `inspectAdmissionV3()` available for non-admitting fixture diagnostics.
+
+## Likely repair boundary
+
+- Include every `policyPanelReceipts[*].fixtureOnly` value in the production evaluator's fixture-marker scan; any present non-boolean marker must be invalid/fail-closed.
+- Reject fixture markers on individual receipts in the production builder / panel receipt validator, or explicitly propagate them into the fixture-only determination. Do not rely on the builder alone: the exported evaluator is independently callable.
+- Add regressions for both boolean `true` and malformed string values on a **non-current** panel receipt. Keep the existing trial/core fixture regressions.
+- Rebase the PR onto current main and rerun its existing Node 22 workflow after the correction.
+
+## Confidence and limitations
+
+Confidence is **high that the source code omits this marker path**, because the relevant arrays and validators were inspected directly. Confidence that it results in a fully admitted bundle is **not yet established**: the exact adversarial mutation has not been executed against the complete builder/evaluator fixture. The current successful Node 22 run `43400088615` does not contain this regression. Agent48 and Agent49 have been notified; the PR comment and communications record the same finding.
+
+This is a production-admission contract issue only. It is not a Pokémon card-interaction conclusion, a simulator result, a physical-game result, or evidence about any deck's competitive strength.
