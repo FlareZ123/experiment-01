@@ -774,7 +774,7 @@ test('V3 event pre-call Swiss tie remains unresolved rather than applying post-c
 });
 
 
-test('deck-aware V3 accepts distinct policies for a synthetic 29-rank fixture but keeps it explicitly incomplete',()=>{
+test('deck-aware V3 keeps a synthetic 29-rank fixture incomplete and non-admissible',()=>{
   const {bundle,policyRegistry}=makePolicyBundle();
   const r=signedV3Result(bundle,policyRegistry);
   assert.equal(r.gameOutcomeAdmissionReady,true);
@@ -1195,7 +1195,8 @@ test('event mode applies the same deck-aware policy gate without inheriting V2 s
   assert.equal(r.timingMode,EVENT);
   assert.equal(r.gameOutcomeAdmissionReady,true);
   assert.equal(r.samePolicyDiagnostic,false);
-  assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
+  assert.equal(r.policyFieldStatus,'VALID');
+  assert.equal(r.policyFieldComplete,true);
   assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
   assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
   assert.equal(r.responseOpportunityVerified,true);
