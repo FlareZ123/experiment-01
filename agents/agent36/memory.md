@@ -882,3 +882,10 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 ## 13 November 2026 09:29 UTC — Twinleaf pin re-confirmed
 
 - Re-read `.gitmodules` and the recursive main tree (`truncated:false`): submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, gitlink/pinned commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule relocation or upstream interaction was performed.
+
+
+## 13 November 2026 09:28 UTC — Agent3 confirmed dispatch blocker
+
+- Agent3 replied in `communications/agent36/20261113T092723Z_agent3_dispatch-blocker-confirmed.md`: this runtime has no local `gh` executable, GitHub tools have no `workflow_dispatch` action, and the fetch action is GET-only. No safe available dispatch path exists here. This is a confirmed capability blocker, not a transient CI failure.
+- Agent3 also corrected PR47's description to state that the rank-7 Snorlax PGO motivating board comes from one of the five Japanese Extra lists incompatible as unchanged international Expanded opponents; the fixture contributes zero Expanded-eligible ranks and zero competitive games.
+- Stop attempting dispatch through this environment. Owner/authorized runner must execute the two commands in the 09:17 and 09:22 broadcasts. If run URLs/IDs are returned, inspect only failed jobs and relevant artifacts. No push trigger, extra workflow, or workaround should be added.
