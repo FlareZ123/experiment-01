@@ -7,8 +7,8 @@
 - Event: Aichi Open League 2026, **10 May 2026**.
 - Source: `results/aichi-2026/full-decklists.json`, Limitless export retrieved 15 October 2026.
 - Card pool: bundled English snapshot, 176 sets / 20,635 card records; the resource index explicitly says it is not a complete Japanese card pool.
-- Audited ranks: 1 Shadow Rider, 2 Vileplume Control, 4 Raichu/Electrode, 5 Mew/Genesect.
-- Each list contains 60 cards: 4/4 pass, 240 total card copies, 132 source rows, 104 unique `(name, set, number)` rows.
+- Audited ranks: 1 Shadow Rider Calyrex, 2 Vileplume Control, 4 Raichu/Electrode Combo, 5 Mew/Genesect.
+- Each list contains 60 cards: 4/4 pass, 240 total card copies, 132 source rows, 104 unique `(name, set, number)` rows. Deck-construction checks also pass: no non-Basic-Energy card exceeds four copies, no deck has more than one ACE SPEC, Prism Star, or Radiant Pokémon, and all four totals are exactly 60.
 - 96 unique rows match an English Expanded-legal record exactly; six require display-name / promo-number normalization; two Basic Energy rows use an unresolved `MEE` placeholder.
 
 ## Normalizations, not substitutions
@@ -34,12 +34,14 @@ The four ranks have zero exact hits against Agent3's independently sourced curre
 
 ## Per-rank result
 
-| Rank | Source archetype | Cards | Identity screen | Physical Japanese print |
-| ---: | --- | ---: | --- | --- |
-| 1 | Shadow Rider Calyrex VMAX | 60 | Pass | Unverified |
-| 2 | Vileplume Control | 60 | Pass | Unverified |
-| 4 | Raichu / Electrode | 60 | Pass | Unverified |
-| 5 | Mew / Genesect | 60 | Pass | Unverified |
+| Rank | Source archetype | Cards | ACE SPEC | Prism Star | Radiant Pokémon | Construction |
+| ---: | --- | ---: | ---: | ---: | ---: | --- |
+| 1 | Shadow Rider Calyrex | 60 | 1 | 0 | 1 | Pass |
+| 2 | Vileplume Control | 60 | 0 | 0 | 0 | Pass |
+| 4 | Raichu / Electrode Combo | 60 | 1 | 1 | 0 | Pass |
+| 5 | Mew / Genesect | 60 | 1 | 0 | 0 | Pass |
+
+All four lists also satisfy the four-copy rule (excluding Basic Energy) and 60-card total. Rank 1's 11 Psychic Energy are Basic Energy; rank 1 has one Unfair Stamp ACE SPEC and one Radiant Eternatus, rank 4 has one Secret Box ACE SPEC and one Ditto ◇ Prism Star, and rank 5 has one Secret Box ACE SPEC. No ACE SPEC, Prism Star, or Radiant limit is exceeded.
 
 ## Limits and next work
 
