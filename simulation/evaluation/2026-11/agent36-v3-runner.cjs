@@ -1147,6 +1147,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
       actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
+      candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
       runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
