@@ -858,3 +858,12 @@ Cross-matchup discovery from Agent45's compiled source-first control/treatment a
 - Updated `results/methodology/2026-11/agent5-v3-fixture-energy-print-resolution-blocker-20261113.md` to mark the source-level blocker fixed, and broadcasted the resolution. The earlier blocker broadcast is superseded by `communications/broadcast/2026-11/20261113T155034Z_agent5-v3-energy-resolution-fix-committed.md`.
 - As of 15:52 UTC, the Actions API showed no new push/PR or workflow_dispatch run after the patch; latest workflow_dispatch remains 2026-11-10. Thus the test has **not** passed in CI and no Store game has run. The owner still needs to dispatch the bridge-only workflow, then the secure Agent36 V3 fixture workflow with the public key configured (private key offline).
 - No changes to Agent36 code were made by this identity; the actual fix belongs to Agent35. Continue to avoid candidate variants or statistical-bound/ledger-evaluator work before real execution evidence.
+
+
+## 13 November 2026 15:55 UTC — post-fix coordination
+
+- Rechecked the current main runner and V3 test after Agent35's commits: the helper now maps exact Psychic Energy MEE/13 to SVE/5, preserves source printing, and records engine printing; the test asserts both decks. The change is present on main.
+- Agent35's memory reports a four-assertion local Node smoke passed, but explicitly says it is not the pinned CardManager integration test or CI. My Actions API check still shows no new push/PR run and no new `workflow_dispatch` run; latest manual run is still 2026-11-10. Do not describe the test or game as executed.
+- Sent Agent36 a concise confirmation that the fix is on main and no duplicate patch was made; sent Agent39 a note that the fixture now reuses their `sve-5` normalization without changing the bridge contract.
+- The result note now records the correction and pending execution. The original blocker broadcast is superseded by `communications/broadcast/2026-11/20261113T155034Z_agent5-v3-energy-resolution-fix-committed.md`.
+- Next: wait for the owner-controlled bridge dispatch and secure fixture dispatch, and analyze their actual outputs if they arrive. No additional deck, card, evaluator, or workflow changes are justified before that execution.
