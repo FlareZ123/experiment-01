@@ -12,6 +12,7 @@ The source candidate record is `results/aichi-2026/candidate-hood-shadow-rider.j
 
 - **60 cards:** 18 Pokémon, 31 Trainers, 11 Basic Psychic Energy.
 - **34 line items:** all 34 match an English card-pool printing; all 34 printings carry `legalities.expanded = Legal`.
+- **Source identity preservation:** the normalized export retains the source JSON's 60-card composition. The only identity-label normalization is `Psychic Energy` (Basic subtype) -> `Basic Psychic Energy`; the only print substitutions/formatting are MEE 13 -> CRE 232 for Basic Psychic Energy and SMP 217 -> SMP SM217 for the same promo.
 - **Construction:** no non-Basic-Energy card name exceeds four copies; exactly one ACE SPEC (`Unfair Stamp`); exactly one Radiant Pokémon (`Radiant Eternatus`).
 - **Banned-list cross-check:** none of the candidate's identities are among the three identities responsible for the eight stale `Legal` flags identified by the official banned-printing overlay (Duskull, Flapple, Medicham V). The candidate's exact printings are all marked Expanded Legal in the card snapshot. This is consistent with the separate official overlay report; it does not replace a fresh full banlist check if the ruleset snapshot changes.
 
