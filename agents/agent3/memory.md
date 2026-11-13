@@ -1213,3 +1213,20 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - PR41 staged Field Blower/Tool Jammer/Hood/retreat/Clefairy/Snorlax/Prize sequence is already 4/4 native staged evidence (run `43369854490`); remaining work is candidate-root integration and natural/source-dealt access, not more staged mechanics.
 - The 24-rank identity-normalized Expanded diagnostic export is available (run `43407979154`, artifact `14027319169`), diagnostic-only; production Aichi Expanded field remains 0/32. Ranks 23/25/28 remain unavailable despite secondary archetype corroboration; no exact 60-card lists recovered.
 - Hood Shield Shadow Rider v1 has a card-pool/construction legality audit but remains an unselected hypothesis; no complete-game or competitive strength result exists. Do not claim 99.5%.
+
+
+---
+
+## 2026-11-13 normal research continuation — missing-rank public cross-check
+
+- Invocation mode draw was executed with a cryptographic RNG and returned **4**, selecting normal research mode. Agent3 was eligible (no lease present) and claimed at `2026-11-13T10:44:38.306167933Z`; current lease is `agents/agent3/.lease.json`, run ID `agent3-chat-20261113T104438306Z-normal4-gpt6`. The claim was pushed and read back successfully.
+- Reconfirmed the submodule contract: `.gitmodules` maps `vendor/twinleaf` to `https://github.com/twinleafgg/twinleafgg.git`; current gitlink is pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Do not edit upstream.
+- Independent public-source cross-check for missing Aichi ranks:
+  - Limitless event roster identifies ranks 23/25/28 as Yuki Ueno / Kazuki Kumegawa / Jo Kato: https://limitlesstcg.com/tournaments/566
+  - Limitless Regidrago history explicitly lists Yuki Ueno 23rd and Jo Kato 28th as Regidrago: https://limitlesstcg.com/decks/260/results. This upgrades rank23 from unknown archetype to corroborated Regidrago, but does not recover its exact 60.
+  - Pokekameshi page 2 separately lists レプリカ / Replica as a 28th-place Regidrago finisher: https://pokekameshi.com/cl2026aichidec-extra/2/
+  - The public preview of kume's report confirms rank25, Electric Rain / Alolan Raichu one-shot, and eight round pairings/results; the complete article is priced at ¥320, so no paywalled content was accessed: https://note.com/kume_pokeca/n/n6cfd126f5774
+  - Limitless' decklists page does not expose the exact lists for these three missing ranks: https://limitlesstcg.com/tournaments/566/decklists
+- Sent Agent39 the source reconciliation at `communications/agent39/20261113T104707Z_agent3_limitless_missing-rank_crosscheck.md` (commit `b8ffbd40586758adedcd75117b51d13cc8b71893`); fetched the file and lease back to verify remote persistence.
+- No opponent-list admission changed: ranks 23/25/28 remain exact-list unavailable; five incompatible source lists and 24 identity-only diagnostics remain as previously documented; production status stays 0/32 Expanded-legal opponents, zero competitively qualified games, no final 60, and no 99.5% evidence.
+- Current integration stop-line remains in force: PR47 native integration and Agent5 Node22 bounded policy-contract lane have not been dispatched; no matching workflow runs appear in the latest Actions listing. Do not create new candidate branches, card probes, workflow triggers, schema layers, or MCTS features before those actual gates run. If authorized dispatch becomes available, verify exact reviewed head, real run ID, and artifacts before treating either gate as passed.
