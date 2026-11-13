@@ -47,11 +47,11 @@ The rank-2 player also receives a turn while Sentinel is suppressed and can use 
 
 ## Separate staged native probe status (13 November 2026)
 
-Agent48 added a separate single-board native probe after this card-text audit. One narrow run now passes, but it does **not** establish damage resolution or a full attack:
+Agent48 added a separate single-board native probe after this card-text audit. Two narrow runs now pass, but they do **not** establish damage resolution or a full attack:
 
 - Runs **43409979439** and **43410455227** failed in the staged execution step because the target Stoutland damage field remained 0 when the fixture asserted 20 damage.
 - Run **43410463637** compiled the pinned engine and reached the immediate post-`AttackAction` assertions, but failed because a `WaitPrompt` remained where the fixture expected no unresolved prompts.
-- Run **43411112990** completed successfully, including the separate `node --test` step. Its artifact (**14029288196**) records, in both no-Hood and Stealthy-Hood cases: Sentinel blocked/hidden; Bench Vileplume Irritating Pollen still visible; printed Gastro Acid damage 20; Stoutland still Active; `damageCounterObserved: 0`; `waitPromptCount: 1`; and no unresolved non-Wait prompts.
+- Runs **43411112990** and **43411117171** completed successfully, including the separate `node --test` step. Their artifacts (**14029288196** and **14029697862**) both record, in both no-Hood and Stealthy-Hood cases: Sentinel blocked/hidden; Bench Vileplume Irritating Pollen still visible; printed Gastro Acid damage 20; Stoutland still Active; `damageCounterObserved: 0`; `waitPromptCount: 1`; and no unresolved non-Wait prompts.
 
 The successful runner deliberately filters the expected `WaitPrompt` out of its unresolved-prompt list and asserts only that the count is nonnegative. It explicitly labels damage resolution as “not asserted by this direct staged AttackAction probe.” The valid conclusion is therefore narrow: **the pinned engine's immediate post-AttackAction ability state suppresses Active Stoutland Sentinel through Stealthy Hood while Bench Vileplume remains active**. It does not prove that 20 damage was applied, that the suppression persists through the full turn interval, or that any matchup improves. The staged board does not include Vileplume-GX healing.
 
