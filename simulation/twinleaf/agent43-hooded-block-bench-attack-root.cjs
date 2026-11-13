@@ -301,6 +301,7 @@ function chooseHoodedBlockBenchAttackRoot(view, catalog) {
     kind: 'attach-stealthy-hood',
     source: VERSION,
     handIndex,
+    toolPrinting: view.ownHand[handIndex],
     targetSlot: 'active',
     plannedFollowup: 'paid-retreat',
     blockEffectProjectedSuppressedByHood: true,

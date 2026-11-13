@@ -129,7 +129,8 @@ function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
   const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const toolRecipient=(intent.kind==='equip-bunnelby-tm'||
-    intent.kind==='attach-tool-candidate')?
+    intent.kind==='attach-tool-candidate'||
+    intent.kind==='attach-stealthy-hood')?
     (intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const jetRecipient=intent.kind==='attach-special-energy'&&
     intent.slot==='bench'?owner.bench[intent.index]:null;
@@ -307,6 +308,21 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     const afterTools=after.toolRecipientToolPrintings;
     const count=cards=>cards.filter(x=>x===intent.printing).length;
     return before.toolRecipientPokemonPrinting!==null&&
+      before.toolRecipientPokemonPrinting===after.toolRecipientPokemonPrinting&&
+      Array.isArray(beforeTools)&&Array.isArray(afterTools)&&
+      count(beforeTools)===0&&count(afterTools)===1&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='attach-stealthy-hood'){
+    // The Hood root is a two-step plan. This receipt confirms only the exact
+    // physical Tool attachment to the same Active Pokemon; paid retreat and
+    // the follow-up attack require their own separate Store witnesses.
+    const beforeTools=before.toolRecipientToolPrintings;
+    const afterTools=after.toolRecipientToolPrintings;
+    const count=cards=>cards.filter(card=>card===intent.toolPrinting).length;
+    return typeof intent.toolPrinting==='string'&&
+      before.toolRecipientPokemonPrinting!==null&&
       before.toolRecipientPokemonPrinting===after.toolRecipientPokemonPrinting&&
       Array.isArray(beforeTools)&&Array.isArray(afterTools)&&
       count(beforeTools)===0&&count(afterTools)===1&&
