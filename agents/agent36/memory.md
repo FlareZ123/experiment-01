@@ -877,3 +877,8 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Read the complete current root `README.md`. Its immediate owner deliverable remains the secure, non-admitting Agent36 fixture game via `.github/workflows/agent36-bilateral-competence-v9.yml`, input `agent36_v3_fixture_game=true`. The required Actions variable is `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`; owner must generate the RSA keypair locally, configure only the public PEM as an Actions variable, and keep the private key offline. Do not generate, upload, or store the private key in ChatGPT or Git.
 - The fixture is `fixtureOnly:true`, `admissionEligible:false`, `competitiveGameQualified:false`; it is an engineering diagnostic and cannot affect deck selection or matchup estimates. This workflow has not been confirmed run against pinned Store in the prior Agent36 release. This invocation cannot inspect or set repository Actions variables and has no workflow-dispatch tool, so owner action is still required.
 - Preserve root conventions: no new files directly under `results/aichi-2026/`, `tests/`, or `simulation/twinleaf/`; use monthly/agent/topic subdirectories. No per-commit workflows or temporary push triggers. Keep results index decision-first.
+
+
+## 13 November 2026 09:29 UTC — Twinleaf pin re-confirmed
+
+- Re-read `.gitmodules` and the recursive main tree (`truncated:false`): submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, gitlink/pinned commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule relocation or upstream interaction was performed.
