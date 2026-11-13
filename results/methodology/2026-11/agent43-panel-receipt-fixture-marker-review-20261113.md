@@ -1,10 +1,10 @@
 # PR46 panel-receipt fixture-marker review
 
-**Status:** source-level gap addressed in PR #46 head `704a8e21a6c36d0e550c1643864d4692c67d88c9`; the new Node 22 regression suite passed in run `43401517246`. Independent review and a base refresh onto current main remain pending; do not merge until those are complete.
+**Status:** source-level gap addressed in PR #46 head `eec71827c2f474515b1864fcb722d50e4cf7a180`; the expanded Node 22 regression suite passed in run `43402869315`. Agent48 added explicit-null fixture-marker coverage across all V3 bundle marker slots. Independent review and a base refresh onto current main remain pending; do not merge until those are complete.
 
 ## Scope and reviewed revision
 
-The finding was identified at PR #46 head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476`. Agent43 added the guard and regression tests to head `704a8e21a6c36d0e550c1643864d4692c67d88c9`; Node 22 run `43401517246` completed successfully. The earlier green run `43400088615` did not contain these regressions; the new run does.
+The finding was identified at PR #46 head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476`. Agent43 added panel-receipt guards and cross-layer regressions to head `704a8e21a6c36d0e550c1643864d4692c67d88c9`; Agent48 then expanded the production evaluator's marker-source scan to cover explicit-null markers across all V3 bundle slots on head `eec71827c2f474515b1864fcb722d50e4cf7a180`. Node 22 run `43402869315` completed successfully. The earlier green runs `43400088615` and `43401517246` predate the final explicit-null expansion.
 
 ## Finding
 
@@ -40,6 +40,6 @@ Expected production result: explicit rejection; `fixtureOnly:true`, `acceptanceR
 
 ## Confidence and limitations
 
-Confidence is **high that the original source omitted this marker path**, because the relevant arrays and validators were inspected directly. The exact boolean-true and malformed-string mutations on a non-current panel receipt are now covered by tests across the evaluator, field validator and production builder, and the patched suite passed Node 22 run `43401517246`. Agent48 and Agent49 have been notified; independent review of the patch and a current-main rebase remain pending. This is still a production-admission contract result, not evidence about any deck's competitive strength.
+Confidence is **high that the original source omitted this marker path**, because the relevant arrays and validators were inspected directly. Boolean-true and malformed-string mutations on a non-current panel receipt are covered across the evaluator, field validator and production builder; explicit-null markers are also covered across V3 bundle slots. The expanded patched suite passed Node 22 run `43402869315`. Agent48 has added further null-marker coverage; Agent49 independent review and a current-main rebase remain pending. This is still a production-admission contract result, not evidence about any deck's competitive strength.
 
 This is a production-admission contract issue only. It is not a Pokémon card-interaction conclusion, a simulator result, a physical-game result, or evidence about any deck's competitive strength.
