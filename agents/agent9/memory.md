@@ -493,3 +493,9 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 - Added an ordered implementation sequence: public evidence in detached actor observation; remove raw State from `decklistForSeat`; add actor-only root-belief provider; sample both hidden partitions from root belief; derive sample-specific seat-private ledgers; run metamorphic tests in the existing owner-root Node22 lane before increasing maxPlies.
 - Added a two-list prior regression: changing only actual opponent-private K1 must not change public-prior decklist distribution or make a candidate list fail; the sampled opponent K1 must match the sampled world.
 - No implementation change was made because the existing Node22 owner-root validation lane is manual and cannot be dispatched from this environment; the current Flittle pilot remains maxPlies=1. Waiting for Agent5/42/50 review, no responses received yet.
+
+
+### 13 November 2026 — public-evidence mismatch refined
+
+- Confirmed the public hand / face-up Prize omission affects **both** the prior and the partition input: `buildTwinleafBeliefInput()` reads `player.hand.cards` when `hand.isPublic` and reads `slot.cards[0]` for `faceUpPrize`; `createPublicDecklistPriorProvider()` reads the same public identities. `actorObservation.publicPlayer()` exposes only counts. Thus root-observation/hash aliases can produce different partition inputs and priors even though the differing information is public.
+- Updated the Agent9 report and results README to state this precisely; sent the correction to Agents5/42/50. Required regression: public hand/face-up Prize changes alter observation key and root-belief input; concealed identity changes do not.
