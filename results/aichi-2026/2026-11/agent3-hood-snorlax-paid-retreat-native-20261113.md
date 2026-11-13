@@ -58,6 +58,18 @@ Important distinctions established by the assertions:
 
 **Reproduction:** pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; existing workflow run [43342737969](https://github.com/FlareZ123/experiment-01/actions/runs/43342737969), both jobs successful. The run compiled the pinned engine, passed the existing Hood/Garbotoxin native probe, and passed the 12-case paid-retreat regression.
 
+## Source-scoped Hood policy contract
+
+The Snorlax result should be integrated into a source/target model, not another global-lock boolean. The following table is a policy contract; **only the Snorlax row and the Tool-suppression controls are exercised by this regression**. The other source classifications are rules/card-text-derived and need their own native tests before being treated as simulator evidence.
+
+| Opponent source | Effect scope | Source has Rule Box? | Path to the Peak | Hood attachment target |
+| --- | --- | --- | --- | --- |
+| Iron Thorns ex — Initialization | Global Ability suppression | Yes | Suppresses the source | Own Ability-dependent Pokémon; a Benched VMAX may be preferred |
+| Garbodor — Garbotoxin | Global Ability suppression | No | Does not suppress the source | Own Ability-dependent Pokémon; a Benched VMAX may be preferred |
+| Snorlax PGO — Block | Opponent Active retreat prohibition | No | Does not suppress the source | Own current Active only |
+
+Jamming Tower disables Tools globally. Tool Jammer on the opponent's Active disables Tools on the candidate's Active, so it specifically defeats an Active-Hood answer to Snorlax Block. For global-lock answers, Tool Jammer on the opponent's Active does not by itself suppress a Hood attached to the candidate's Bench. This source/target distinction is why a single `hasLiveOpponentAbilityLock` boolean plus one fixed target order is insufficient.
+
 ## Field relevance and limits
 
 The [authenticated 29-list inventory](../full-decklists.json) contains Snorlax PGO 55 in two actual Snorlax Stall lists: rank 3, Haruto Miki (three copies), and rank 7, Hiroto Fuji (two copies). Both known lists also contain one Tool Jammer. Jamming Tower is a useful generic negative control, not a card identified in those two known lists. The candidate [Hood Shield Shadow Rider v1 fixed 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) contains two Stealthy Hood, one Field Blower, one Arven and two Lillie's Clefairy ex.
