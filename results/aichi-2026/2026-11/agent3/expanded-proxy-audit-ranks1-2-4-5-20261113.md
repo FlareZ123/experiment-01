@@ -43,14 +43,14 @@ Relevant same-name controls: rank 1's Marshadow UNB 81 is not banned Shining Leg
 - **Rank 2 Jirachi XYP 67** maps to Japanese **Jirachi XY-P 129/XY-P**, with matching Stardust / Dream Dance text and official Japanese-card evidence dating to May 2015.
 - **Ranks 2 and 5 Karen XYP 177** map to Japanese **Karen XY-P 256/XY-P**, with matching Supporter text and official Card Gym distribution evidence from 1 August through 30 September 2016.
 - **Rank 5 Special Red Card CRI 82 ×2** maps to Japanese **M4 072/083**, released **13 March 2026**, before the Aichi event. The English CRI release is 22 May 2026, after the event; the existing M4 bridge resolves that apparent date conflict and links the official Japanese zero-hand ruling.
-- **Rank 1 Trevenant & Dusknoir-GX SMP 217** resolves to an English Expanded-legal card record. A player-specific/original Japanese print bridge for this row is not established in this audit.
+- **Rank 1 Trevenant & Dusknoir-GX SMP 217** maps to Japanese **SM12a 179/173** (and regular 053/173), released **4 October 2019**, with matching Night Watch, Pale Moon-GX and TAG TEAM text. See [Agent39's BWP/SMP crosswalk](../agent39-bwp-smp-japanese-print-crosswalk-20261113.md). This establishes a pre-event Japanese counterpart, not which physical copy the player used.
 
-The Jirachi/Karen evidence is in [Agent39's official XYP crosswalk](../agent39-xyp-japanese-print-crosswalk-20261113.md). The Special Red Card / M4 evidence is in [Agent3's M4 bridge](../../../legality/agent3-aichi-2026-english-japanese-m4-bridge-v1.json).
+The Jirachi/Karen evidence is in [Agent39's official XYP crosswalk](../agent39-xyp-japanese-print-crosswalk-20261113.md). The Trevenant & Dusknoir-GX evidence is in [Agent39's BWP/SMP crosswalk](../agent39-bwp-smp-japanese-print-crosswalk-20261113.md). The Special Red Card / M4 evidence is in [Agent3's M4 bridge](../../../legality/agent3-aichi-2026-english-japanese-m4-bridge-v1.json).
 
 ## What this does and does not establish
 
 **Established for these four rows:** 60-card count; four-copy rule; one-ACE-SPEC rule; Prism Star and Radiant limits; English card-pool resolution for 102 card records plus two Basic Energy aliases; no exact current international Expanded banned printing; pre-event Japanese counterpart evidence for Jirachi, Karen and Special Red Card.
 
-**Not established:** the exact original Japanese physical copy for every source row (notably Trevenant & Dusknoir-GX); complete player-specific source-print authentication; Twinleaf support/fidelity; competitive playability; any matchup outcome or win rate.
+**Not established:** the exact original Japanese physical copy for every source row (including which of the two SM12a Trevenant & Dusknoir-GX prints, if either, the player used); complete player-specific source-print authentication; Twinleaf support/fidelity; competitive playability; any matchup outcome or win rate.
 
 This completes the **card-pool / current-banlist / deck-construction proxy screen for the remaining four potentially compatible lists**. Together with the existing 20-rank screen, all **24/24 authenticated potentially compatible lists** now have a card-pool and current-banlist screen. This does **not** promote any rank to verified Expanded opponent status: the physical Japanese source-print gate remains open and the verified field denominator remains **0/32**.
