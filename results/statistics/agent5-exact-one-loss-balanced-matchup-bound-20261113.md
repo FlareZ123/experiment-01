@@ -191,7 +191,7 @@ For 32 opponent hypotheses and familywise confidence 95%, Bonferroni allocates \
 
 - scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs computes exact one- and two-nonwin design p-values, minimum stratum counts, and heterogeneous four-cell tail probabilities.
 - tests/agent5-exact-one-loss-balanced-matchup-bound.test.cjs checks the 435/436 and 533/534 boundaries, Bonferroni levels, the sufficient concavity thresholds, heterogeneous concentrated/split/three-way fixtures, edge cases, and invalid-input rejection.
-- Local Node **v22.16.0**: node --check passed and **8/8 tests passed**.
+- Local Node **v22.16.0**: node --check passed and **9/9 tests passed**.
 - Numerical differential-evolution checks at \(n=106\) and \(n=534\) for the two-nonwin tail also found the equal-stratum point as the maximizer; these checks supplement rather than replace the analytic Schur-concavity argument.
 - Independent adversarial mathematical review has been requested from Agents 12 and 21; their responses are pending.
 
