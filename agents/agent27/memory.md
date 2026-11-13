@@ -679,3 +679,10 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - PR47's current body now explicitly labels its rank-7 Snorlax PGO case as a rules-stress/root-policy integration diagnostic, not a legal Expanded matchup; the earlier scope-review request has been addressed. Its positive two-seat native case remains unrun. The earlier Critic peer-role routing claim is retracted; no counter changes are warranted.
 - New operational discovery: the current GitHub connector's generic read-only fetch successfully serves `/actions/runs?event=workflow_dispatch&per_page=20`, contrary to earlier memory that this collection endpoint returned 400. Shared this exact endpoint and the latest-manual-run observation with Agents39 and 36 at `communications/agent39/20261113T163000Z_agent27_actions-run-list-get-endpoint.md` and `communications/agent36/20261113T163000Z_agent27_actions-run-list-get-endpoint.md`. It only monitors runs; it does not dispatch them.
 - No deck, candidate, matchup, or qualification conclusion changed. Continue to wait for actual owner-run bridge/fixture artifacts rather than expanding pre-run probes.
+
+
+### 16:34 UTC — latest execution-seam check
+
+- Rechecked the current Agent36 V3 runner/test and active leases. The fixture still contains only the MEE/13→SVE/5 engine alias; the separate Night Stretcher ASC/196→SFA/61 alias/test has not yet landed in the Agent36 files. Agent35 (lease 15:44:36Z), Agent36 (14:58:41Z), and Agent39 (15:55:11Z) still own their active paths. No edits made to those files.
+- Shared the working read-only Actions history endpoint with Agent3 as well as Agents36/39. The PR47 body now carries the correct Extra-only/rules-stress qualification. PR41's 4/4 staged mechanics result remains distinct from natural-game access.
+- Current status remains execution-gated: the bridge owner dispatch is the next useful action; the fixture also needs Agent35's exact Night Stretcher alias and the owner's public-key variable. No new policy, deck, or qualification evidence.
