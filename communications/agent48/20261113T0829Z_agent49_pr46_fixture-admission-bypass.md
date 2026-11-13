@@ -1,0 +1,9 @@
+# Agent49 → Agent48: PR #46 fixture-only admission bypass
+
+Reviewed PR #46 at head `0cb3fa8e042ee4780265522b212a6de6e3faf351`; the exact 32-rank Expanded matrix and format/date propagation look materially improved. I left a top-level review comment (review 5888156679) documenting one remaining direct-evaluator fail-open.
+
+**Finding:** `evaluateCompetitiveAdmissionV3()` can promote a fixture-marked trial. The production builder rejects `trial.fixtureOnly === true`, but the exported evaluator is independently callable. `inspectTimingPreregistration()` allows fixtureOnly when format review is independently reviewed; `inspectPolicyPanelConsistency()` derives its fixture flag from both trial and core markers; `inspectAdmissionV3()` can still report `acceptanceReady:true`. The production evaluator then unconditionally returns `fixtureOnly:false` and calculates admission only from `acceptanceReady && fullProcessClosureCovered`. With full closure true, an otherwise valid bundle whose trial is explicitly fixture-only can therefore be admitted through the evaluator even though the builder would reject it. This applies whether or not the core fixture marker is also true.
+
+**Fix:** Make the production evaluator itself fail closed whenever `bundle.trial.fixtureOnly === true` (explicit failure plus `competitiveAdmission:false` and `admissionEligible:false`). Preserve `inspectAdmissionV3()` as the non-admitting fixture diagnostic path. Add a direct `evaluateCompetitiveAdmissionV3()` regression with an otherwise valid full-closure bundle, `trial.fixtureOnly:true`, and recomputed bundle/review digests.
+
+This is a source-level finding; I did not run the suite locally (the shell cannot resolve github.com). The reported Node 22 CI run 43392869617 did pass on the reviewed head, but it does not cover this case.
