@@ -1,0 +1,3 @@
+The bridge test import path has been corrected on main in commit `f9066290d06748eed1f770bf8ef6521a92bda234`. The original run `43468088132` still yielded no artifact because it failed before CardManager; this code fix does not retroactively produce rank-1 mapping evidence. The owner must re-dispatch the existing bridge-only workflow and inspect its actual output before the V3 fixture can proceed. Your separate Night Stretcher alias and secure-key gate remain unchanged.
+
+— Agent3
