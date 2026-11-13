@@ -1176,6 +1176,26 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   };
 }
 
+function collectAdmissionMarkers(root) {
+  const seen=new WeakSet();
+  const fixtureMarkerSources=[];
+  const fixtureReviewStatuses=[];
+  const visit=value=>{
+    if (!value || typeof value!=='object' || seen.has(value)) return;
+    const prototype=Object.getPrototypeOf(value);
+    if (!Array.isArray(value) && prototype!==Object.prototype && prototype!==null)
+      return;
+    seen.add(value);
+    if (Object.prototype.hasOwnProperty.call(value,'fixtureOnly'))
+      fixtureMarkerSources.push(value);
+    if (Object.prototype.hasOwnProperty.call(value,'formatReviewStatus'))
+      fixtureReviewStatuses.push(value.formatReviewStatus);
+    for (const child of Object.values(value)) visit(child);
+  };
+  visit(root);
+  return {fixtureMarkerSources,fixtureReviewStatuses};
+}
+
 /** @param {object} bundle @param {object[]} reviews @returns {object} */
 function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   const assessment = inspectAdmissionV3(bundle,reviews,authorized);
@@ -1184,50 +1204,30 @@ function evaluateCompetitiveAdmissionV3(bundle, reviews) {
   // The builder is not the security boundary: callers may invoke this exported
   // evaluator directly with a hand-built bundle. Any fixture marker must veto
   // production admission even if all other evidence and signatures are valid.
-  const fixtureMarkerSources = [
-    bundle,
-    bundle?.trial,
-    bundle?.trial?.preregistration,
-    bundle?.policyPlanCore,
-    bundle?.policyPlanCore?.constraints,
-    bundle?.policyRegistration,
-    bundle?.policyAttestationBundle,
-    bundle?.policyAttestationBundle?.candidatePolicy,
-    bundle?.policyAttestationBundle?.opponentPolicy,
-    bundle?.policyApplicationReceipt,
-    ...(Array.isArray(bundle?.policyPanelReceipts) ?
-      bundle.policyPanelReceipts : [])
-  ];
-  // Absence is the legacy production default; an explicitly present null (or
-  // any other non-boolean) is malformed and must fail closed at this boundary.
-  const fixtureMarkerPresent = fixtureMarkerSources.filter(source =>
-    source && typeof source === 'object' &&
-    Object.prototype.hasOwnProperty.call(source,'fixtureOnly'));
-  const invalidFixtureMarker = fixtureMarkerPresent.some(source =>
-    typeof source.fixtureOnly !== 'boolean');
-  const fixtureReviewStatuses = [
-    bundle?.formatReviewStatus,
-    bundle?.trial?.formatReviewStatus,
-    bundle?.trial?.preregistration?.formatReviewStatus,
-    bundle?.policyPlanCore?.formatReviewStatus,
-    bundle?.policyPlanCore?.constraints?.formatReviewStatus,
-    bundle?.policyRegistration?.formatReviewStatus,
-    bundle?.policyAttestationBundle?.formatReviewStatus,
-    bundle?.policyAttestationBundle?.candidatePolicy?.formatReviewStatus,
-    bundle?.policyAttestationBundle?.opponentPolicy?.formatReviewStatus,
-    bundle?.policyApplicationReceipt?.formatReviewStatus,
-    ...(Array.isArray(bundle?.policyPanelReceipts) ?
-      bundle.policyPanelReceipts.map(receipt => receipt?.formatReviewStatus) : [])
-  ];
-  const fixtureOnly = fixtureMarkerPresent.some(source =>
-    source.fixtureOnly === true) ||
+  // Walk the complete JSON-like evidence graph, not a shallow whitelist:
+  // nested candidate/rank attestations are independently signed and can carry
+  // their own fixture/status markers. Cycles and shared object references are
+  // harmless; only own properties are authoritative.
+  const {fixtureMarkerSources,fixtureReviewStatuses}=
+    collectAdmissionMarkers(bundle);
+  // Absence is the legacy production default; any present non-boolean marker
+  // or unknown review status fails closed at this boundary.
+  const invalidFixtureMarker=fixtureMarkerSources.some(source =>
+    typeof source.fixtureOnly!=='boolean');
+  const invalidFormatReviewStatus=fixtureReviewStatuses.some(status =>
+    !['independently-reviewed','unverified-fixture-only'].includes(status));
+  const fixtureOnly=fixtureMarkerSources.some(source =>
+    source.fixtureOnly===true) ||
     invalidFixtureMarker ||
-    fixtureReviewStatuses.includes('unverified-fixture-only');
+    fixtureReviewStatuses.includes('unverified-fixture-only') ||
+    invalidFormatReviewStatus;
   const failures = [...(assessment.failures ?? [])];
   if (fixtureOnly)
     failures.push('fixture-only-trial-not-eligible-for-competitive-admission');
   if (invalidFixtureMarker)
     failures.push('fixture-only-marker-type-invalid');
+  if (invalidFormatReviewStatus)
+    failures.push('fixture-format-review-status-invalid');
   const acceptanceReady = assessment.acceptanceReady === true && !fixtureOnly;
   const admissionEligible = acceptanceReady && fullProcessClosureCovered;
   return {...assessment,
