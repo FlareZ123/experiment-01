@@ -200,6 +200,7 @@ function runNativeStoreCase(candidateSeat, opponentAttackBeforeRoot = false) {
       policyOwnerSeat: candidateSeat,
       rootIntentProvider,
       createRootSearchCapability,
+      rootIntentActionKey: intent => ensureRuntime().rootIntentActionKey(intent),
       rootIntentBudget: provider.PILOT_BUDGET,
       SimpleTacticsAi,
       Store
