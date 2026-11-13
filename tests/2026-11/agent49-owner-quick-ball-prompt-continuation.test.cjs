@@ -123,7 +123,7 @@ function makeScenario() {
   return { state, owner, item, energies, shadowRider, tapu };
 }
 
-function nativeDeps() {
+function stubDeps() {
   return {
     SimpleTacticsAi: Bot,
     Store,
@@ -166,7 +166,7 @@ test('synthetic Store prompt chain preserves Quick Ball until next-turn cleanup'
     store.dispatch(new StartNextTurnAction());
 
     return 'synthetic Quick Ball chain completed';
-  }, { ...nativeDeps(), trace: event => trace.push(event) });
+  }, { ...stubDeps(), trace: event => trace.push(event) });
 
   assert.equal(wrapped.result, 'synthetic Quick Ball chain completed');
   assert.equal(wrapped.audit.version, VERSION);
@@ -221,7 +221,7 @@ test('same-printing Basic copy does not satisfy exact Quick Ball target-to-Bench
     owner.hand.cards.push(samePrintingCopy);
     store.dispatch(new PlayCardAction(owner.id, owner.hand.cards.indexOf(samePrintingCopy)));
     return 'different physical copy benched';
-  }, nativeDeps());
+  }, stubDeps());
 
   assert.equal(wrapped.result, 'different physical copy benched');
   assert.equal(wrapped.audit.targetPhysicalRetrievals, 1);
@@ -248,7 +248,7 @@ test('same-printing but different physical Quick Ball cannot bind a pending prom
     prompt.sourceCard = { fullName: 'Quick Ball FST' };
     assert.deepEqual(bot.decodeNextAction(state), { type: 'GENERIC_FALLBACK' });
     return 'source mismatch rejected';
-  }, nativeDeps());
+  }, stubDeps());
 
   assert.equal(wrapped.result, 'source mismatch rejected');
   assert.equal(wrapped.audit.quickBallRootsSeen, 1);
@@ -296,7 +296,7 @@ test('candidate-seat scope does not inspect or resolve opponent Quick Ball promp
     store.dispatch(new PlayCardAction(202, 0));
     assert.deepEqual(bot.decodeNextAction(state), { type: 'GENERIC_FALLBACK' });
     return 'opponent prompt untouched';
-  }, nativeDeps());
+  }, stubDeps());
 
   assert.equal(wrapped.result, 'opponent prompt untouched');
   assert.equal(wrapped.audit.quickBallRootsSeen, 0);
