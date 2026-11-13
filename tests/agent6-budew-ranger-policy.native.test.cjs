@@ -12,7 +12,7 @@ const {
   observePublicBudewItemLock,
   proposeRangerForBudewItemLock
 } = require('../simulation/twinleaf/agent6-budew-ranger-itemlock.cjs');
-const {buildActorCardCatalog} =
+const {buildActorCardCatalog, withActorOnlyRootPolicy} =
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const OUTPUT = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
@@ -71,6 +71,78 @@ function stageBudewLock(attackerSeat, withVileplume = false) {
   const view = actorObservation(x.store.state, actorSeat);
   const observed = observePublicBudewItemLock(x.store.state, actorSeat, view);
   return {x, actorSeat, observed, catalog};
+}
+
+function dispatchNativeRanger(x, actorSeat, catalog) {
+  const {Store} = native('game/store/store');
+  const {SimpleTacticsAi} = native('simple-bot/simple-tactics-ai');
+  const definitions = native('simple-bot/simple-bot-definitions');
+  const {BotFlipMode, BotShuffleMode} = native('game/bots/bot-arbiter');
+  const options = {
+    tactics: definitions.allSimpleTactics,
+    promptResolvers: definitions.allPromptResolvers,
+    scores: definitions.defaultStateScores,
+    arbiter: {flipMode: BotFlipMode.RANDOM, shuffleMode: BotShuffleMode.RANDOM}
+  };
+  const cardActions = native('game/store/actions/play-card-action');
+  const gameActions = native('game/store/actions/game-actions');
+  const promptActions = native('game/store/actions/resolve-prompt-action');
+  const priorBot = SimpleTacticsAi.prototype.decodeNextAction;
+  const priorDispatch = Store.prototype.dispatch;
+  const result = withActorOnlyRootPolicy(() => {
+    const bot = new SimpleTacticsAi({id: x.opponent.id}, options, []);
+    const action = bot.decodeNextAction(x.store.state);
+    assert.ok(action instanceof cardActions.PlayCardAction);
+    assert.equal(action.target.player, cardActions.PlayerType.ANY);
+    x.store.dispatch(action);
+    return action;
+  }, {
+    Store,
+    SimpleTacticsAi,
+    GamePhase: x.GamePhase,
+    policyOwnerSeat: actorSeat,
+    stagedStore: x.store,
+    observe: actorObservation,
+    getCatalog: () => catalog,
+    rangerBudewItemLock: true,
+    cardActions,
+    gameActions,
+    promptActions
+  });
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction, priorBot);
+  assert.strictEqual(Store.prototype.dispatch, priorDispatch);
+  const {ResolvePromptAction} = promptActions;
+  for (let n = 0; n < 24; n++) {
+    const pending = x.store.state.prompts.find(prompt => prompt.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.constructor.name, 'WaitPrompt');
+    x.store.dispatch(new ResolvePromptAction(pending.id, null));
+  }
+  assert.equal(x.store.hasPrompts(), false);
+  return result;
+}
+
+for (const attackerSeat of [0, 1]) {
+  test('native Store wrapper dispatches Ranger and clears the actual Budew Item lock, attacker seat ' +
+    attackerSeat, () => {
+    const {x, actorSeat, catalog} = stageBudewLock(attackerSeat, false);
+    assert.equal(x.opponent.cannotPlayItemCards, true);
+    assert.ok(x.opponent.playLocksTurnsRemaining > 0);
+    const result = dispatchNativeRanger(x, actorSeat, catalog);
+    assert.ok(result.result instanceof native('game/store/actions/play-card-action').PlayCardAction);
+    assert.equal(result.audit.policyOwnerSeat, actorSeat);
+    assert.equal(result.audit.rangerBudewItemLockOptIn, true);
+    assert.equal(result.audit.acceptedActorRoots, 1);
+    assert.equal(result.audit.nativePhysicalConfirmed, 1);
+    assert.equal(result.audit.nativePhysicalUnconfirmed, 0);
+    assert.equal(result.audit.nativePhysicalConfirmedByIntent['play-ranger-budew-item-lock'], 1);
+    assert.equal(result.audit.competitiveGameQualified, false);
+    assert.equal(x.opponent.cannotPlayItemCards, false);
+    assert.equal(x.opponent.playLocksTurnsRemaining, 0);
+    assert.ok([...x.opponent.discard.cards, ...x.opponent.supporter.cards]
+      .some(card => card.fullName === 'Pokemon Ranger STS'));
+    assert.ok(x.opponent.hand.cards.some(card => card.fullName === 'Fog Crystal CRE'));
+  });
 }
 
 for (const attackerSeat of [0, 1]) {
