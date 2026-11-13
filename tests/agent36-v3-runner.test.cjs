@@ -9,7 +9,8 @@ const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
   combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
-  revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt
+  revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
+  bindFixtureFormatToApplicationReceipt
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 const STEP='Generate physical deal';
@@ -179,6 +180,41 @@ test('bundle assembly revalidates both persisted receipts against their original
     repositoryRoot,common,
     collector:async()=>({receipt:persistenceReceipt})
   }),/differs from live GitHub run\/artifact evidence/);
+});
+
+test('fixture application receipt binds unverified Expanded format contract into its digest',()=>{
+  const application={
+    receipt:{
+      schema:'aichi-policy-application-receipt-v2',
+      trialId:'fixture-001',
+      actorOnlyExecutionBoundarySha256:'a'.repeat(64),
+      receiptSha256:'b'.repeat(64),
+    },
+    policySha256BySeat:{0:'c'.repeat(64),1:'d'.repeat(64)},
+  };
+  const trial={
+    candidateFormat:'Expanded',
+    gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:null,
+    eventDate:null,
+    formatReviewStatus:'unverified-fixture-only',
+  };
+  const bound=bindFixtureFormatToApplicationReceipt(application,trial);
+  assert.equal(bound.receipt.candidateFormat,'Expanded');
+  assert.equal(bound.receipt.gameRuleset,'Expanded');
+  assert.equal(bound.receipt.opponentSourceEventFormat,'Japanese Extra');
+  assert.equal(bound.receipt.expandedLegalityAsOf,null);
+  assert.equal(bound.receipt.eventDate,null);
+  assert.equal(bound.receipt.formatReviewStatus,'unverified-fixture-only');
+  const {receiptSha256,...payload}=bound.receipt;
+  assert.equal(receiptSha256,evidenceBundleSha256(payload));
+  assert.notEqual(receiptSha256,application.receipt.receiptSha256);
+  assert.equal(application.receipt.candidateFormat,undefined,
+    'the extension must not mutate the helper's base receipt');
+  assert.throws(()=>bindFixtureFormatToApplicationReceipt({
+    receipt:{...application.receipt,gameRuleset:'Japanese Extra'}
+  },trial),/differs from the frozen fixture contract/);
 });
 
 test('repository-relative artifact paths reject traversal and aliases',()=>{
