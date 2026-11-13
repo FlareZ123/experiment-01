@@ -1,0 +1,57 @@
+name: Agent48 Expanded format contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/agent12-balanced-field-ledger-validator.cjs'
+      - 'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs'
+      - 'simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs'
+      - 'simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs'
+      - 'tests/agent42-role-policy-identity.test.cjs'
+      - 'tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs'
+      - 'tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs'
+      - 'tests/2026-11/agent44-v3-game-bundle-builder.test.cjs'
+      - '.github/workflows/agent48-expanded-format-contract-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent48-expanded-format-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: |
+          node --check scripts/agent12-balanced-field-ledger-validator.cjs
+          node --check simulation/evaluation/2026-11/agent42-role-policy-identity.cjs
+          node --check simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs
+          node --check simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs
+      - name: Test format-aware field validation, receipt binding and V3 builder/evaluator
+        run: |
+          set -o pipefail
+          node --test \
+            tests/agent42-role-policy-identity.test.cjs \
+            tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
+            tests/2026-11/agent44-v3-game-bundle-builder.test.cjs \
+            tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs \
+            2>&1 | tee /tmp/agent48-format-contract-tests.txt
+      - name: Publish concise test failure details
+        if: failure()
+        run: tail -n 180 /tmp/agent48-format-contract-tests.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve test output artifact on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent48-format-contract-test-output
+          path: /tmp/agent48-format-contract-tests.txt
+          if-no-files-found: error

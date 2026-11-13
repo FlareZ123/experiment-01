@@ -13,8 +13,13 @@ const {aichiClockProtocolSha256,inspectOfficialAichiClock} =
 const {
   SCHEMA,UNTIMED,EVENT,CLOCK_NOT_APPLICABLE,
   inspectAdmissionV3,evaluateCompetitiveAdmissionV3,
-  policyAttestationSigningBytes,inspectPolicyPanelConsistency
+  policyAttestationSigningBytes,inspectPolicyPanelConsistency,
+  inspectTimingPreregistration,untimedPaperAttestationValid
 } = require('../../simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs');
+const {validateOpponentPolicyFieldBundle} =
+  require('../../scripts/agent12-balanced-field-ledger-validator.cjs');
+const authorizedReviewers =
+  require('../../simulation/evaluation/agent45-authorized-reviewers.json');
 
 const trialId = 'v3-preregistered-untimed-game-001';
 const sha = n => String(n).repeat(64);
@@ -25,6 +30,12 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     schema:'aichi-game-level-preregistration-v1',
     registrationRef:'results/aichi-2026/registrations/v3-game-001.json',
     trialId,mode,registeredBeforeDealGeneration:true,
+    candidateFormat:mode===UNTIMED?'Expanded':'Japanese Extra',
+    gameRuleset:mode===UNTIMED?'Expanded':'Japanese Extra',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:mode===UNTIMED?'2026-11-13':null,
+    eventDate:mode===EVENT?'2026-05-10':null,
+    formatReviewStatus:'independently-reviewed',
     registeredAt:'2026-11-12T01:00:00.000Z',
     dealGeneratedAt:'2026-11-12T01:01:00.000Z',
     timingProtocol:{
@@ -42,6 +53,10 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     preregistrationEvidenceRef:registration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(registration),
     preregistration:registration,timingMode:mode,
+    candidateFormat:registration.candidateFormat,gameRuleset:registration.gameRuleset,
+    opponentSourceEventFormat:registration.opponentSourceEventFormat,
+    expandedLegalityAsOf:registration.expandedLegalityAsOf,eventDate:registration.eventDate,
+    formatReviewStatus:registration.formatReviewStatus,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:sha(1),fullPhysicalDealSha256:sha(2),
     vendorCommitSha:sha(3),researchRevisionSha:sha(4),hookRevisionSha:sha(5),
@@ -111,7 +126,7 @@ function makeBundle({mode=UNTIMED,outcome='win',samePolicy=true,clockPath='none'
     trialId,trial,evidenceManifest};
 }
 
-function signReviews(bundle,{roles=['paper'],strategyAudit=null,reviewerIdOverrides={}}={}){
+function signReviews(bundle,{roles=['paper'],strategyAudit=null,reviewerIdOverrides={},paperOverrides={}}={}){
   const registry={schema:'aichi-trusted-reviewers-v1',reviewers:[]};
   const reviews=[];
   for(const role of roles){
@@ -126,22 +141,50 @@ function signReviews(bundle,{roles=['paper'],strategyAudit=null,reviewerIdOverri
       reviewEvidenceRef:'review/'+role,
       reviewEvidenceSha256:sha(8)};
     if(role==='paper') Object.assign(review,{
-      timingMode:UNTIMED,untimedProtocolVerified:true,
-      untimedProtocolPreDealVerified:true,
-      untimedProtocolEvidenceRef:bundle.trial.registrationRef,
-      untimedProtocolSha256:bundle.trial.preregistrationSha256,
-      noTournamentTimerUsed:true,noOfficialEndCallObserved:true,
-      noEventStageAdjudicationUsed:true,
-      clockStatus:CLOCK_NOT_APPLICABLE,
-      naturalTerminalVerified:true,
-      naturalTerminalEvidenceRef:'paper/natural-terminal',
-      timerBoundaryEvidenceRef:'paper/timer-boundary',
-      exactJapanesePrinted60sVerified:true,eventDateLegalityVerified:true,
+      timingMode:bundle.trial.timingMode,gameRuleset:bundle.trial.gameRuleset,
+      candidateFormat:bundle.trial.candidateFormat,
+      opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+      formatReviewStatus:bundle.trial.formatReviewStatus,
+      candidatePrinted60Sha256:bundle.trial.candidatePrinted60Sha256,
+      opponentPrinted60Sha256:bundle.trial.originalPrinted60Sha256,
       initial120CardCustodyVerified:true,actualSeatsAndFirstPlayerVerified:true,
-      printed60EvidenceRef:'paper/printed-sixties',
       initialPhysicalDealEvidenceRef:'paper/initial-120',
-      seatAndFirstPlayerEvidenceRef:'paper/seats-first-player'
+      seatAndFirstPlayerEvidenceRef:'paper/seats-first-player',
+      ...(bundle.trial.timingMode===UNTIMED?{
+        expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+        eventDate:null,
+        untimedProtocolVerified:true,untimedProtocolPreDealVerified:true,
+        untimedProtocolEvidenceRef:bundle.trial.registrationRef,
+        untimedProtocolSha256:bundle.trial.preregistrationSha256,
+        noTournamentTimerUsed:true,noOfficialEndCallObserved:true,
+        noEventStageAdjudicationUsed:true,clockStatus:CLOCK_NOT_APPLICABLE,
+        naturalTerminalVerified:true,naturalTerminalEvidenceRef:'paper/natural-terminal',
+        timerBoundaryEvidenceRef:'paper/timer-boundary',
+        exactExpandedCandidatePrinted60Verified:true,
+        exactExpandedOpponentPrinted60Verified:true,
+        candidateExpandedLegalityVerified:true,opponentExpandedLegalityVerified:true,
+        candidateExpandedPrinted60EvidenceRef:'paper/candidate-expanded-60',
+        opponentExpandedPrinted60EvidenceRef:'paper/opponent-expanded-60',
+        candidateExpandedLegalityEvidenceRef:'legality/candidate-expanded',
+        opponentExpandedLegalityEvidenceRef:'legality/opponent-expanded',
+        expandedRulesetEvidenceRef:'rules/expanded'
+      }:{
+        eventDate:bundle.trial.eventDate,
+        expandedLegalityAsOf:null,
+        exactJapanesePrinted60sVerified:true,eventDateLegalityVerified:true,
+        exactJapaneseCandidatePrinted60Verified:true,
+        exactJapaneseOpponentPrinted60Verified:true,
+        candidateEventDateLegalityVerified:true,opponentEventDateLegalityVerified:true,
+        candidateJapanesePrinted60EvidenceRef:'paper/candidate-japanese-60',
+        opponentJapanesePrinted60EvidenceRef:'paper/opponent-japanese-60',
+        candidateEventDateLegalityEvidenceRef:'legality/candidate-japanese-extra',
+        opponentEventDateLegalityEvidenceRef:'legality/opponent-japanese-extra',
+        japaneseExtraRulesetEvidenceRef:'rules/japanese-extra',
+        printed60EvidenceRef:'paper/printed-sixties',
+        eventDateLegalityEvidenceRef:'legality/event-date'
+      })
     });
+    if(role==='paper') Object.assign(review,paperOverrides);
     if(role==='strategy'&&strategyAudit){
       Object.assign(review,{
         responseOpportunityDisposition:strategyAudit.disposition,
@@ -216,7 +259,39 @@ function refreshPolicyEnvelope(bundle) {
   return bundle;
 }
 
-function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author',rankProducerOverrides={}}={}) {
+function rehashTimingPreregistration(bundle) {
+  const digest=evidenceBundleSha256(bundle.trial.preregistration);
+  bundle.trial.preregistrationSha256=digest;
+  const registrationEntry=bundle.evidenceManifest.find(x=>x.kind==='registration');
+  registrationEntry.sha256=digest;
+  return bundle;
+}
+
+function rehashPolicyBundle(bundle) {
+  const planSha=evidenceBundleSha256(bundle.policyPlanCore);
+  bundle.policyPlanSha256=planSha;
+  bundle.policyAttestationBundle.policyPlanSha256=planSha;
+  const attestationSha=evidenceBundleSha256(bundle.policyAttestationBundle);
+  bundle.policyAttestationBundleSha256=attestationSha;
+  bundle.policyRegistration.policyPlanSha256=planSha;
+  bundle.policyRegistration.policyAttestationBundleSha256=attestationSha;
+  const registrationSha=evidenceBundleSha256(bundle.policyRegistration);
+  bundle.policyRegistrationSha256=registrationSha;
+  bundle.trial.policyPlanSha256=planSha;
+  bundle.trial.policyAttestationBundleSha256=attestationSha;
+  bundle.trial.policyRegistrationSha256=registrationSha;
+  const receipt=bundle.policyApplicationReceipt;
+  receipt.policyPlanSha256=planSha;
+  receipt.policyConstraintsSha256=evidenceBundleSha256(bundle.policyPlanCore.constraints);
+  receipt.policyAttestationBundleSha256=attestationSha;
+  receipt.policyRegistrationSha256=registrationSha;
+  delete receipt.receiptSha256;
+  receipt.receiptSha256=evidenceBundleSha256(receipt);
+  bundle.policyPanelReceipts=[receipt];
+  return bundle;
+}
+
+function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],incompatible=[],unverified=[],candidateProducerId='candidate-policy-author',opponentProducerId='opponent-policy-author',rankProducerOverrides={}}={}) {
   const bundle = makeBundle({mode,samePolicy:false,clockPath:mode===EVENT?'no-call':'none'});
   bundle.trial.vendorCommitSha='a'.repeat(40);
   bundle.trial.researchRevisionSha='b'.repeat(40);
@@ -257,24 +332,36 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const candidate = {
     deckSha256:sha(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
-    policyProducerId:candidateProducerId
+    policyProducerId:candidateProducerId,
+    formatStatus:'legal',formatStatusEvidenceRef:'format/candidate-legal'
   };
   const ranks = Array.from({length:32},(_,index)=>{
     const rank=index+1;
     if(unavailable.includes(rank)) return {
-      rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
+      rank,sourceStatus:'source-unavailable',formatStatus:null,formatStatusEvidenceRef:null,
+      deckSha256:null,policySha256:null,
       entryManifestSha256:null,challengeSuiteSha256:null,policyProducerId:null
     };
+    const formatStatus=incompatible.includes(rank)?'incompatible':
+      unverified.includes(rank)?'unverified':'legal';
+    const policyIdentityAvailable=formatStatus==='legal';
     return {
-      rank,sourceStatus:'authenticated',
+      rank,sourceStatus:'authenticated',formatStatus,
+      formatStatusEvidenceRef:formatStatus==='unverified'?null:'format/opponent-rank-'+rank,
       deckSha256:rank===1?sha(6):policyHash(1000+rank),
-      policySha256:policyHash(2000+rank),
-      entryManifestSha256:policyHash(3000+rank),
-      challengeSuiteSha256:policyHash(4000+rank),
-      policyProducerId:rankProducerOverrides[rank]??opponentProducerId
+      policySha256:policyIdentityAvailable?policyHash(2000+rank):null,
+      entryManifestSha256:policyIdentityAvailable?policyHash(3000+rank):null,
+      challengeSuiteSha256:policyIdentityAvailable?policyHash(4000+rank):null,
+      policyProducerId:policyIdentityAvailable?(rankProducerOverrides[rank]??opponentProducerId):null
     };
   });
   const constraints = {
+    gameRuleset:bundle.trial.gameRuleset,
+    candidateFormat:bundle.trial.candidateFormat,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
+    formatReviewStatus:'independently-reviewed',
     observationSurface:{ownerVisible:true,publicState:true},
     hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
     decisionBudget:{maxNodes:128,deadlineMs:250},
@@ -291,6 +378,10 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   };
   const core = {
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    formatReviewStatus:'independently-reviewed',
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
     },constraints,runtimePinEvidence
@@ -318,7 +409,7 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
     decision:'approve',policyPlanSha256:planSha,
     policyConstraintsSha256:constraintsSha,
     opponentPolicyBundleSha256:opponentBundleSha,
-    rankReviews:ranks.filter(x=>x.sourceStatus==='authenticated').map(entry=>({
+    rankReviews:ranks.filter(x=>x.sourceStatus==='authenticated' && x.formatStatus==='legal').map(entry=>({
       rank:entry.rank,deckSha256:entry.deckSha256,
       policySha256:entry.policySha256,
       entryManifestSha256:entry.entryManifestSha256,
@@ -340,6 +431,12 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const registration = {
     schema:'aichi-policy-registration-v1',trialId:bundle.trialId,
     policyPlanSha256:planSha,policyAttestationBundleSha256:attestationSha,
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
+    formatReviewStatus:bundle.trial.formatReviewStatus,
     candidatePolicyAttestationRef:candidateAttestation.evidenceRef,
     opponentPolicyAttestationBundleRef:opponentAttestation.evidenceRef,
     registeredAt:bundle.trial.preregistration.registeredAt,
@@ -361,6 +458,12 @@ function makePolicyBundle({mode=UNTIMED,unavailable=[23,25,28],candidateProducer
   const receipt = {
     schema:'aichi-policy-application-receipt-v2',
     trialId:bundle.trialId,policyPlanSha256:planSha,
+    candidateFormat:bundle.trial.candidateFormat,
+    gameRuleset:bundle.trial.gameRuleset,
+    opponentSourceEventFormat:bundle.trial.opponentSourceEventFormat,
+    expandedLegalityAsOf:bundle.trial.expandedLegalityAsOf,
+    eventDate:bundle.trial.eventDate,
+    formatReviewStatus:bundle.trial.formatReviewStatus,
     policyRegistrationSha256:registrationSha,
     policyAttestationBundleSha256:attestationSha,
     opponentPolicyBundleSha256:opponentBundleSha,
@@ -1098,4 +1201,304 @@ test('wrong event stage and empty production trust registry fail closed',()=>{
   assert.equal(production.competitiveAdmission,false);
   assert.equal(production.admissionEligible,false);
   assert.equal(production.fullProcessClosureCovered,false);
+});
+
+
+test('Expanded preregistration binds game ruleset, source event format and legality date',()=>{
+  const bundle=makeBundle();
+  assert.equal(inspectTimingPreregistration(bundle).valid,true);
+  const wrongRuleset={...bundle,trial:{...bundle.trial,gameRuleset:'Japanese Extra'}};
+  assert.ok(inspectTimingPreregistration(wrongRuleset).errors.includes(
+    'game-ruleset-format-not-frozen-before-deal'));
+  const missingDate={...bundle,trial:{...bundle.trial,expandedLegalityAsOf:null}};
+  assert.ok(inspectTimingPreregistration(missingDate).errors.includes(
+    'expanded-legality-date-not-frozen-before-deal'));
+});
+
+test('Expanded field validator fails closed on the actual Aichi-to-Expanded rank matrix',()=>{
+  const incompatibleRanks=[3,6,7,24,29];
+  const unavailableRanks=[23,25,28];
+  const unverifiedRanks=Array.from({length:32},(_,index)=>index+1)
+    .filter(rank=>!incompatibleRanks.includes(rank)&&!unavailableRanks.includes(rank));
+  const {bundle}=makePolicyBundle({
+    incompatible:incompatibleRanks,unverified:unverifiedRanks,unavailable:unavailableRanks
+  });
+  const core=bundle.policyPlanCore;
+  const planSha=evidenceBundleSha256(core);
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore:core,expectedPolicyPlanSha256:planSha,gameReceipts:[]
+  });
+  assert.equal(result.status,'INCOMPLETE_FIELD');
+  assert.deepEqual(result.formatIncompatibleRanks,incompatibleRanks);
+  assert.deepEqual(result.formatUnverifiedRanks,unverifiedRanks);
+  assert.deepEqual(result.unavailableRanks,unavailableRanks);
+  assert.deepEqual(result.availableRanks,[]);
+  const receipt={...bundle.policyApplicationReceipt,opponentRank:3,
+    policyPlanSha256:planSha,
+    opponentPolicyBundleSha256:evidenceBundleSha256(core.opponentPolicyBundle)};
+  delete receipt.receiptSha256;
+  receipt.receiptSha256=evidenceBundleSha256(receipt);
+  const rejected=validateOpponentPolicyFieldBundle({
+    policyPlanCore:core,expectedPolicyPlanSha256:planSha,gameReceipts:[receipt]
+  });
+  assert.ok(rejected.rejectionReasons.includes('game-against-format-incompatible-rank'));
+});
+
+ 
+test('format-aware field validator rejects missing legality evidence and identity leakage',()=>{
+  const validate=core=>validateOpponentPolicyFieldBundle({
+    policyPlanCore:core,expectedPolicyPlanSha256:evidenceBundleSha256(core),gameReceipts:[]
+  });
+  const candidateMissing=makePolicyBundle().bundle.policyPlanCore;
+  candidateMissing.candidate.formatStatusEvidenceRef=null;
+  assert.ok(validate(candidateMissing).rejectionReasons.includes(
+    'candidate-format-evidence-ref-unverified'));
+  const candidateUnverified=makePolicyBundle().bundle.policyPlanCore;
+  candidateUnverified.candidate.formatStatus='unverified';
+  assert.ok(validate(candidateUnverified).rejectionReasons.includes(
+    'candidate-format-not-verified-legal'));
+
+  const legalOpponentMissing=makePolicyBundle().bundle.policyPlanCore;
+  legalOpponentMissing.opponentPolicyBundle.ranks[0].formatStatusEvidenceRef=null;
+  assert.ok(validate(legalOpponentMissing).rejectionReasons.includes(
+    'opponent-rank-format-evidence-ref-unverified'));
+
+  const incompatibleMissing=makePolicyBundle({incompatible:[3]}).bundle.policyPlanCore;
+  incompatibleMissing.opponentPolicyBundle.ranks[2].formatStatusEvidenceRef=null;
+  assert.ok(validate(incompatibleMissing).rejectionReasons.includes(
+    'format-incompatible-rank-evidence-ref-missing'));
+  const incompatibleIdentity=makePolicyBundle({incompatible:[3]}).bundle.policyPlanCore;
+  incompatibleIdentity.opponentPolicyBundle.ranks[2].policySha256=policyHash(8888);
+  assert.ok(validate(incompatibleIdentity).rejectionReasons.includes(
+    'format-incompatible-rank-has-policy-identity'));
+
+  const unverifiedIdentity=makePolicyBundle({unverified:[4]}).bundle.policyPlanCore;
+  unverifiedIdentity.opponentPolicyBundle.ranks[3].policySha256=policyHash(9999);
+  assert.ok(validate(unverifiedIdentity).rejectionReasons.includes(
+    'format-unverified-rank-has-policy-identity'));
+
+  const unavailableWithFormat=makePolicyBundle().bundle.policyPlanCore;
+  unavailableWithFormat.opponentPolicyBundle.ranks[22].formatStatus='unverified';
+  assert.ok(validate(unavailableWithFormat).rejectionReasons.includes(
+    'source-unavailable-rank-has-format-status'));
+});
+
+
+
+test('timing preregistration rejects a non-null inactive format date after its registration digest is recomputed',()=>{
+  const expanded=makeBundle();
+  expanded.trial.preregistration.eventDate='2026-05-10';
+  expanded.trial.eventDate='2026-05-10';
+  rehashTimingPreregistration(expanded);
+  assert.ok(inspectTimingPreregistration(expanded).errors.includes(
+    'untimed-preregistration-has-event-date'));
+
+  const event=makeBundle({mode:EVENT,clockPath:'no-call'});
+  event.trial.preregistration.expandedLegalityAsOf='2026-11-13';
+  event.trial.expandedLegalityAsOf='2026-11-13';
+  rehashTimingPreregistration(event);
+  assert.ok(inspectTimingPreregistration(event).errors.includes(
+    'event-preregistration-has-expanded-legality-date'));
+});
+
+test('untimed paper review requires a null inactive Japanese Extra event date',()=>{
+  const bundle=makeBundle();
+  const signed=signReviews(bundle);
+  assert.equal(untimedPaperAttestationValid(
+    signed.reviews[0],bundle.trial,bundle.trial.preregistration),true);
+  assert.equal(untimedPaperAttestationValid({
+    ...signed.reviews[0],eventDate:'2026-05-10'
+  },bundle.trial,bundle.trial.preregistration),false);
+});
+
+test('Japanese Extra paper review rejects a non-null inactive Expanded legality date',()=>{
+  const bundle=makeBundle({mode:EVENT,clockPath:'no-call'});
+  const signed=signReviews(bundle,{
+    roles:['paper','clock','strategy'],
+    strategyAudit:terminalAudit(),
+    paperOverrides:{expandedLegalityAsOf:'2026-11-13'}
+  });
+  const result=inspectAdmissionV3(bundle,signed.reviews,signed.registry);
+  assert.equal(result.gameOutcomeAdmissionReady,false);
+  assert.ok(result.failures.includes(
+    'independent-printed-60-or-physical-deal-review-missing'));
+});
+
+test('V3 policy panel rejects inactive ruleset dates across registration, trial and receipts after rehashing',()=>{
+  const expanded=makePolicyBundle().bundle;
+  expanded.policyRegistration.eventDate='2026-05-10';
+  expanded.trial.eventDate='2026-05-10';
+  expanded.policyApplicationReceipt.eventDate='2026-05-10';
+  rehashPolicyBundle(expanded);
+  const expandedResult=inspectPolicyPanelConsistency(expanded);
+  assert.equal(expandedResult.valid,false);
+  assert.ok(expandedResult.failures.includes(
+    'policy-registration-expanded-legality-date-mismatch'));
+  assert.ok(expandedResult.failures.includes(
+    'policy-application-receipt-invalid-or-unhashed'));
+
+  const event=makePolicyBundle({mode:EVENT}).bundle;
+  event.policyRegistration.expandedLegalityAsOf='2026-11-13';
+  event.trial.expandedLegalityAsOf='2026-11-13';
+  event.policyApplicationReceipt.expandedLegalityAsOf='2026-11-13';
+  rehashPolicyBundle(event);
+  const eventResult=inspectPolicyPanelConsistency(event);
+  assert.equal(eventResult.valid,false);
+  assert.ok(eventResult.failures.includes(
+    'policy-registration-event-date-mismatch'));
+  assert.ok(eventResult.failures.includes(
+    'policy-application-receipt-invalid-or-unhashed'));
+});
+
+
+test('any partial format marker in the core, constraints, candidate or ranks activates the complete V3 format contract',()=>{
+  const base=makePolicyBundle().bundle.policyPlanCore;
+  const markerFields=[
+    'gameRuleset','candidateFormat','opponentSourceEventFormat',
+    'formatReviewStatus','expandedLegalityAsOf','eventDate',
+    'formatStatus','formatStatusEvidenceRef'
+  ];
+  const legacy=structuredClone(base);
+  for(const target of [
+    legacy,legacy.constraints,legacy.candidate,...legacy.opponentPolicyBundle.ranks
+  ]) {
+    for(const field of markerFields) delete target[field];
+  }
+  const validate=core=>validateOpponentPolicyFieldBundle({
+    policyPlanCore:core,
+    expectedPolicyPlanSha256:evidenceBundleSha256(core),
+    gameReceipts:[]
+  });
+  assert.equal(validate(legacy).status,'INCOMPLETE_FIELD');
+
+  const variants=[
+    ['core',core=>{core.gameRuleset='Expanded';}],
+    ['constraints',core=>{core.constraints.eventDate=null;}],
+    ['candidate',core=>{core.candidate.formatStatus='legal';}],
+    ['ranks',core=>{core.opponentPolicyBundle.ranks[0].formatStatus='legal';}]
+  ];
+  for(const [label,mutate] of variants) {
+    const partial=structuredClone(legacy);
+    mutate(partial);
+    const result=validate(partial);
+    assert.ok(result.rejectionReasons.includes(
+      'policy-plan-format-contract-incomplete'),label);
+  }
+});
+
+test('omitting constraints.gameRuleset cannot downgrade an incompatible rank with policy hashes to legacy availability',()=>{
+  const core=makePolicyBundle({incompatible:[3]}).bundle.policyPlanCore;
+  delete core.constraints.gameRuleset;
+  Object.assign(core.opponentPolicyBundle.ranks[2],{
+    policySha256:policyHash(8801),
+    entryManifestSha256:policyHash(8802),
+    challengeSuiteSha256:policyHash(8803),
+    policyProducerId:'opponent-policy-author'
+  });
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore:core,
+    expectedPolicyPlanSha256:evidenceBundleSha256(core),
+    gameReceipts:[]
+  });
+  assert.equal(result.status,'INVALID');
+  assert.equal(result.availableRanks.includes(3),false);
+  assert.ok(result.rejectionReasons.includes('policy-plan-format-contract-incomplete'));
+  assert.ok(result.rejectionReasons.includes('format-incompatible-rank-has-policy-identity'));
+});
+
+
+function makeFullClosurePolicyBundle({coreFixtureMarker}={}) {
+  const generated=makePolicyBundle({unavailable:[]});
+  const {bundle,candidatePrivateKey,opponentPrivateKey}=generated;
+  bundle.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered=true;
+  if(coreFixtureMarker!==undefined) bundle.policyPlanCore.fixtureOnly=coreFixtureMarker;
+  const planSha=evidenceBundleSha256(bundle.policyPlanCore);
+  const constraintsSha=evidenceBundleSha256(bundle.policyPlanCore.constraints);
+  const candidate=bundle.policyAttestationBundle.candidatePolicy;
+  candidate.policyPlanSha256=planSha;
+  candidate.policyConstraintsSha256=constraintsSha;
+  signPolicyAttestation(candidate,candidatePrivateKey);
+  const opponent=bundle.policyAttestationBundle.opponentPolicy;
+  opponent.policyPlanSha256=planSha;
+  opponent.policyConstraintsSha256=constraintsSha;
+  signPolicyAttestation(opponent,opponentPrivateKey);
+  bundle.policyAttestationBundle.policyPlanSha256=planSha;
+  rehashPolicyBundle(bundle);
+  populatePanelCoverage(bundle);
+  return generated;
+}
+
+test('production evaluator rejects fixture-marked and malformed fixture flags even with full closure and otherwise valid reviews',()=>{
+  const variants=[
+    {coreFixtureMarker:undefined,trialFixtureMarker:true},
+    {coreFixtureMarker:true,trialFixtureMarker:true},
+    {coreFixtureMarker:undefined,trialFixtureMarker:'true'},
+    {coreFixtureMarker:'true',trialFixtureMarker:false},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,panelFixtureMarker:true},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,panelFixtureMarker:'true'},
+    {coreFixtureMarker:null,trialFixtureMarker:false},
+    {coreFixtureMarker:undefined,trialFixtureMarker:null},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,panelFixtureMarker:null},
+    {coreFixtureMarker:undefined,trialFixtureMarker:undefined,bundleFixtureMarker:null}
+  ];
+  for(const variant of variants) {
+    const generated=makeFullClosurePolicyBundle({
+      coreFixtureMarker:variant.coreFixtureMarker
+    });
+    const {bundle,policyRegistry}=generated;
+    if (variant.bundleFixtureMarker !== undefined)
+      bundle.fixtureOnly=variant.bundleFixtureMarker;
+    if (variant.trialFixtureMarker !== undefined)
+      bundle.trial.fixtureOnly=variant.trialFixtureMarker;
+    else
+      delete bundle.trial.fixtureOnly;
+    if (variant.panelFixtureMarker !== undefined) {
+      const panelReceipt=bundle.policyPanelReceipts.find(item =>
+        item.trialId !== bundle.policyApplicationReceipt.trialId);
+      assert.ok(panelReceipt,'non-current panel receipt must exist');
+      panelReceipt.fixtureOnly=variant.panelFixtureMarker;
+      delete panelReceipt.receiptSha256;
+      panelReceipt.receiptSha256=evidenceBundleSha256(panelReceipt);
+    }
+    const audit=terminalAudit();
+    bundle.trial.responseOpportunityAudit=audit;
+    const game=signReviews(bundle,{roles:['paper','strategy'],strategyAudit:audit});
+    const combined=combineRegistries(policyRegistry,game.registry);
+    const diagnostic=inspectAdmissionV3(bundle,game.reviews,combined);
+    assert.equal(diagnostic.acceptanceReady,
+      variant.panelFixtureMarker === undefined,diagnostic.failures.join(','));
+    if (variant.panelFixtureMarker === true)
+      assert.ok(diagnostic.failures.includes('game-fixture-marker-mismatch'));
+    if (variant.panelFixtureMarker === 'true')
+      assert.ok(diagnostic.failures.includes('game-fixture-marker-type-invalid'));
+    assert.equal(bundle.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered,true);
+
+    const previous=authorizedReviewers.reviewers.slice();
+    authorizedReviewers.reviewers.splice(
+      0,authorizedReviewers.reviewers.length,...combined.reviewers);
+    try {
+      const production=evaluateCompetitiveAdmissionV3(bundle,game.reviews);
+      assert.equal(production.fixtureOnly,true);
+      assert.equal(production.acceptanceReady,false);
+      assert.equal(production.competitiveAdmission,false);
+      assert.equal(production.admissionEligible,false);
+      assert.equal(production.fullProcessClosureCovered,true);
+      assert.ok(production.failures.includes(
+        'fixture-only-trial-not-eligible-for-competitive-admission'));
+      if((variant.bundleFixtureMarker!==undefined &&
+          typeof variant.bundleFixtureMarker!=='boolean') ||
+         (variant.trialFixtureMarker!==undefined &&
+          typeof variant.trialFixtureMarker!=='boolean') ||
+         (variant.coreFixtureMarker!==undefined &&
+          typeof variant.coreFixtureMarker!=='boolean') ||
+         (variant.panelFixtureMarker!==undefined &&
+          typeof variant.panelFixtureMarker!=='boolean')) {
+        assert.ok(production.failures.includes('fixture-only-marker-type-invalid'));
+      }
+      assert.equal(production.disposition,'fixture-only-trial-not-admissible');
+    } finally {
+      authorizedReviewers.reviewers.splice(
+        0,authorizedReviewers.reviewers.length,...previous);
+    }
+  }
 });

@@ -51,6 +51,11 @@ function dateTime(value) {
   return typeof value === 'string' && OFFSET_ISO.test(value) &&
     Number.isFinite(Date.parse(value));
 }
+function validDateOnly(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(value+'T00:00:00.000Z');
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0,10) === value;
+}
 function digestWithout(object, field) {
   const copy = {...object};
   delete copy[field];
@@ -71,7 +76,7 @@ function fail(message) {
  * This mirrors the V3 timing boundary; the evaluator remains authoritative
  * for postgame admission.
  */
-function validateGameRegistration(gameRegistration, trialId) {
+function validateGameRegistration(gameRegistration, trialId, fixtureOnly=false) {
   if (!plainObject(gameRegistration) ||
       gameRegistration.schema !== 'aichi-game-level-preregistration-v1' ||
       gameRegistration.trialId !== trialId ||
@@ -106,6 +111,26 @@ function validateGameRegistration(gameRegistration, trialId) {
        !['open-swiss','open-top32','open-final'].includes(timing.eventStage))) {
     return ['event-mode-clock-and-stage-preregistration-incomplete'];
   }
+  const expectedRuleset=timing.mode===UNTIMED?'Expanded':'Japanese Extra';
+  const reviewStatus=gameRegistration.formatReviewStatus;
+  if (gameRegistration.candidateFormat!==expectedRuleset ||
+      gameRegistration.gameRuleset!==expectedRuleset ||
+      gameRegistration.opponentSourceEventFormat!=='Japanese Extra' ||
+      !['independently-reviewed','unverified-fixture-only'].includes(reviewStatus) ||
+      (reviewStatus==='unverified-fixture-only' && !fixtureOnly))
+    return ['game-ruleset-format-review-status-not-frozen-before-deal'];
+  if (expectedRuleset==='Expanded' &&
+      ((reviewStatus==='independently-reviewed' ?
+        !validDateOnly(gameRegistration.expandedLegalityAsOf) :
+        gameRegistration.expandedLegalityAsOf!==null) ||
+       gameRegistration.eventDate!==null))
+    return ['expanded-legality-date-not-frozen-before-deal'];
+  if (expectedRuleset==='Japanese Extra' &&
+      ((reviewStatus==='independently-reviewed' ?
+        !validDateOnly(gameRegistration.eventDate) :
+        gameRegistration.eventDate!==null) ||
+       gameRegistration.expandedLegalityAsOf!==null))
+    return ['event-date-legality-not-frozen-before-deal'];
   return [];
 }
 
@@ -141,7 +166,7 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
 
   if (!stableId(producerId)) failures.push('bundle-producer-id-invalid');
   if (!stableId(trialId)) failures.push('trial-id-invalid');
-  failures.push(...validateGameRegistration(gameRegistration,trialId));
+  failures.push(...validateGameRegistration(gameRegistration,trialId,fixtureOnly));
   if (requireFutureDeal && dateTime(gameRegistration?.registeredAt) &&
       dateTime(gameRegistration?.dealGeneratedAt)) {
     const now=Date.now();
@@ -154,6 +179,26 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       policyPlanCore.comparisonMode !== 'candidate-vs-field') {
     failures.push('candidate-vs-field-policy-plan-core-invalid');
   }
+  const expectedRuleset=gameRegistration?.mode===UNTIMED?'Expanded':'Japanese Extra';
+  const formatReviewStatus=policyPlanCore?.formatReviewStatus;
+  const formatConstraints=policyPlanCore?.constraints;
+  if (policyPlanCore?.candidateFormat!==expectedRuleset ||
+      policyPlanCore?.gameRuleset!==expectedRuleset ||
+      policyPlanCore?.opponentSourceEventFormat!=='Japanese Extra' ||
+      !['independently-reviewed','unverified-fixture-only'].includes(formatReviewStatus) ||
+      (formatReviewStatus==='unverified-fixture-only' && !fixtureOnly) ||
+      formatReviewStatus!==gameRegistration?.formatReviewStatus ||
+      formatConstraints?.candidateFormat!==expectedRuleset ||
+      formatConstraints?.gameRuleset!==expectedRuleset ||
+      formatConstraints?.opponentSourceEventFormat!=='Japanese Extra' ||
+      formatConstraints?.formatReviewStatus!==formatReviewStatus ||
+      (expectedRuleset==='Expanded' &&
+        (formatConstraints?.expandedLegalityAsOf!==gameRegistration?.expandedLegalityAsOf ||
+         formatConstraints?.eventDate!==null)) ||
+      (expectedRuleset==='Japanese Extra' &&
+        (formatConstraints?.eventDate!==gameRegistration?.eventDate ||
+         formatConstraints?.expandedLegalityAsOf!==null)))
+    failures.push('policy-plan-game-ruleset-format-review-status-mismatch');
   const runtimePinEvidence=policyPlanCore?.runtimePinEvidence;
   if (!plainObject(runtimePinEvidence) ||
       runtimePinEvidence.schema!=='aichi-runtime-pin-evidence-v2' ||
@@ -186,11 +231,13 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       failures.push('policy-attestation-bundle-plan-digest-mismatch');
     try {
       field = validateOpponentPolicyFieldBundle({
-        policyPlanCore,expectedPolicyPlanSha256:policyPlanSha256,gameReceipts:[]
+        policyPlanCore,expectedPolicyPlanSha256:policyPlanSha256,gameReceipts:[],
+        fixtureOnly
       });
       if (field.status === 'INVALID')
         failures.push(...field.rejectionReasons.map(x=>'policy-field:'+x));
-      if (!Array.isArray(field.availableRanks) || field.availableRanks.length===0)
+      if (!fixtureOnly &&
+          (!Array.isArray(field.availableRanks) || field.availableRanks.length===0))
         failures.push('opponent-policy-field-has-no-authenticated-ranks');
     } catch {
       failures.push('existing-opponent-policy-field-validator-rejected-plan');
@@ -207,6 +254,12 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       policyAttestationBundleSha256,
       candidatePolicyAttestationRef:candidateAttestation?.evidenceRef,
       opponentPolicyAttestationBundleRef:opponentAttestation?.evidenceRef,
+      candidateFormat:policyPlanCore.candidateFormat,
+      gameRuleset:policyPlanCore.gameRuleset,
+      opponentSourceEventFormat:policyPlanCore.opponentSourceEventFormat,
+      expandedLegalityAsOf:formatConstraints.expandedLegalityAsOf ?? null,
+      eventDate:formatConstraints.eventDate ?? null,
+      formatReviewStatus:policyPlanCore.formatReviewStatus,
       registeredAt:gameRegistration.registeredAt,
       dealGeneratedAt:gameRegistration.dealGeneratedAt,
       registeredBeforeDealGeneration:true
@@ -218,11 +271,20 @@ function prepareWithRegistry(input, reviewerRegistry, fixtureOnly, requireFuture
       opponentPolicyBundleSha256:field.opponentPolicyBundleSha256,
       policyConstraintsSha256:field.policyConstraintsSha256
     };
-    policyCompetence = inspectPolicyCompetenceAttestations({
-      producerId,policyPlanCore,policyAttestationBundle,policyRegistration
-    },reviewerRegistry,panel);
-    if (!policyCompetence.valid)
-      failures.push(...policyCompetence.failures);
+    if (fixtureOnly) {
+      policyCompetence={
+        valid:false,fixtureOnly:true,
+        candidatePolicyAttestationValid:false,
+        opponentPolicyAttestationValid:false,
+        failures:['fixture-only-policy-competence-not-admitted']
+      };
+    } else {
+      policyCompetence = inspectPolicyCompetenceAttestations({
+        producerId,policyPlanCore,policyAttestationBundle,policyRegistration
+      },reviewerRegistry,panel);
+      if (!policyCompetence.valid)
+        failures.push(...policyCompetence.failures);
+    }
   }
 
   const ready = failures.length === 0;
@@ -278,9 +340,15 @@ function checkedEvidence(kind,entry) {
   return {kind,ref:entry.ref,sha256};
 }
 
-function checkedReceipt(receipt,allowMissingDigest=false) {
+function checkedReceipt(receipt,allowMissingDigest=false,fixtureOnly=false) {
   if (!plainObject(receipt) || ![POLICY_RECEIPT_SCHEMA,POLICY_RECEIPT_SCHEMA_V2].includes(receipt.schema))
     fail('policy application receipt schema invalid');
+  if (Object.prototype.hasOwnProperty.call(receipt,'fixtureOnly')) {
+    if (typeof receipt.fixtureOnly !== 'boolean')
+      fail('policy application receipt fixture marker must be boolean');
+    if (receipt.fixtureOnly !== fixtureOnly)
+      fail('policy application receipt fixture marker does not match bundle mode');
+  }
   if (receipt.schema===POLICY_RECEIPT_SCHEMA_V2 &&
       (!SHA256.test(receipt.runtimePinUnionSha256??'') ||
        !SHA256.test(receipt.loadedProcessClosureSha256??'') ||
@@ -313,6 +381,12 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial,fixtureOnly) {
     [receipt.policyAttestationBundleSha256,preDeal.policyAttestationBundleSha256,'attestation bundle digest'],
     [receipt.opponentPolicyBundleSha256,opponentBundleSha,'opponent policy bundle digest'],
     [receipt.policyConstraintsSha256,constraintsSha,'policy constraints digest'],
+    [receipt.candidateFormat,core.candidateFormat,'candidate format'],
+    [receipt.gameRuleset,core.gameRuleset,'game ruleset'],
+    [receipt.opponentSourceEventFormat,core.opponentSourceEventFormat,'opponent source event format'],
+    [receipt.expandedLegalityAsOf,core.constraints?.expandedLegalityAsOf ?? null,'Expanded legality-as-of date'],
+    [receipt.eventDate,core.constraints?.eventDate ?? null,'Japanese Extra event date'],
+    [receipt.formatReviewStatus,preDeal.policyRegistration.formatReviewStatus,'format review status'],
     [receipt.candidateDeckSha256,candidate.deckSha256,'candidate deck identity'],
     [receipt.candidatePolicySha256,candidate.policySha256,'candidate policy identity'],
     [receipt.candidatePolicyProducerId,candidate.policyProducerId,'candidate policy producer'],
@@ -323,6 +397,12 @@ function validateReceiptAgainstPlan(receipt,preDeal,trial,fixtureOnly) {
     [receipt.opponentPolicyProducerId,opponent.policyProducerId,'opponent policy producer'],
     [receipt.opponentEntryManifestSha256,opponent.entryManifestSha256,'opponent entry manifest'],
     [receipt.opponentChallengeSuiteSha256,opponent.challengeSuiteSha256,'opponent challenge suite'],
+    [receipt.candidateFormat,trial.candidateFormat,'trial candidate format'],
+    [receipt.gameRuleset,trial.gameRuleset,'trial game ruleset'],
+    [receipt.opponentSourceEventFormat,trial.opponentSourceEventFormat,'trial opponent source event format'],
+    [receipt.expandedLegalityAsOf,trial.expandedLegalityAsOf ?? null,'trial Expanded legality-as-of date'],
+    [receipt.eventDate,trial.eventDate ?? null,'trial event date'],
+    [receipt.formatReviewStatus,trial.formatReviewStatus,'trial format review status'],
     [receipt.candidateSeat,trial.candidateSeat,'candidate seat'],
     [receipt.opponentSeat,trial.originalSourceSeat,'opponent seat'],
     [receipt.firstPlayerSeat,trial.actualFirstPlayerSeat,'first-player seat'],
@@ -505,12 +585,26 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
       'fixture builder requires trial.fixtureOnly:true' :
       'production builder rejects fixture-only trials');
   const chronology=validateDealChronology(preDeal,trial,preDealPersistenceReceipt,dealGenerationReceipt,fixtureOnly);
-  if (!sameJson(trial.preregistration,preDeal.gameRegistration) ||
-      trial.preregistrationSha256!==evidenceBundleSha256(preDeal.gameRegistration) ||
-      trial.registrationRef!==preDeal.gameRegistration.registrationRef ||
-      trial.preregistrationEvidenceRef!==preDeal.gameRegistration.registrationRef ||
-      trial.timingMode!==preDeal.gameRegistration.timingProtocol.mode)
-    fail('postgame trial does not preserve the exact pre-deal game registration');
+  const gameRegistration=preDeal.gameRegistration;
+  const preregistrationSha256=evidenceBundleSha256(gameRegistration);
+  const boundRegistrationFields={
+    preregistration:gameRegistration,
+    registrationRef:gameRegistration.registrationRef,
+    preregistrationEvidenceRef:gameRegistration.registrationRef,
+    preregistrationSha256,
+    timingMode:gameRegistration.mode,
+    candidateFormat:preDeal.policyPlanCore.candidateFormat,
+    gameRuleset:preDeal.policyPlanCore.gameRuleset,
+    opponentSourceEventFormat:preDeal.policyPlanCore.opponentSourceEventFormat,
+    expandedLegalityAsOf:gameRegistration.expandedLegalityAsOf ?? null,
+    eventDate:gameRegistration.eventDate ?? null,
+    formatReviewStatus:preDeal.policyRegistration.formatReviewStatus
+  };
+  for (const [field,value] of Object.entries(boundRegistrationFields)) {
+    if (trial[field]!==undefined && !sameJson(trial[field],value))
+      fail('postgame trial '+field+' differs from the frozen pre-deal registration');
+  }
+  const boundTrial={...trial,...boundRegistrationFields};
   if (trial.opponentRank!==undefined && trial.opponentRank!==null &&
       trial.opponentRank!==policyApplicationReceipt?.opponentRank)
     fail('runner trial opponent rank disagrees with policy application receipt');
@@ -533,9 +627,9 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
       ![0,1].includes(trial.actualFirstPlayerSeat))
     fail('trial seat and first-player fields are invalid');
 
-  const receipt = checkedReceipt(policyApplicationReceipt,true);
-  validateReceiptAgainstPlan(receipt,preDeal,trial,fixtureOnly);
-  const receipts = [...policyPanelReceipts.map(x=>checkedReceipt(x,false))];
+  const receipt = checkedReceipt(policyApplicationReceipt,true,fixtureOnly);
+  validateReceiptAgainstPlan(receipt,preDeal,boundTrial,fixtureOnly);
+  const receipts = [...policyPanelReceipts.map(x=>checkedReceipt(x,false,fixtureOnly))];
   if (!receipts.some(x=>x.trialId===receipt.trialId &&
       x.receiptSha256===receipt.receiptSha256)) receipts.push(receipt);
   const trialIds = new Set();
@@ -545,7 +639,7 @@ function assembleBundle({preDeal,trial,evidence,policyApplicationReceipt,
   }
 
   const trialOut = {
-    ...trial,
+    ...boundTrial,
     opponentRank:receipt.opponentRank,
     policySha256BySeat:receipt.policySha256BySeat,
     policyPlanSha256:preDeal.policyPlanSha256,

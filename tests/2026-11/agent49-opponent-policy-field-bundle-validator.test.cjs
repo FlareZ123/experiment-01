@@ -400,3 +400,98 @@ test('policy plan core cannot include its own digest or post-deal attestation fi
   assert.ok(validateOpponentPolicyFieldBundle({policyPlanCore:attested})
     .rejectionReasons.includes('policy-plan-core-mixes-attestation-or-outcome-data'));
 });
+
+
+function makeCurrentExpandedFieldMatrixCore() {
+  const core=makeCore([23,25,28]);
+  const incompatibleRanks=[3,6,7,24,29];
+  core.candidateFormat='Expanded';
+  core.gameRuleset='Expanded';
+  core.opponentSourceEventFormat='Japanese Extra';
+  core.formatReviewStatus='independently-reviewed';
+  core.candidate.formatStatus='legal';
+  core.candidate.formatStatusEvidenceRef=
+    'reviews/candidate-expanded-legality-2026-11-13.json';
+  Object.assign(core.constraints,{
+    candidateFormat:'Expanded',
+    gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    formatReviewStatus:'independently-reviewed',
+    expandedLegalityAsOf:'2026-11-13',
+    eventDate:null
+  });
+  for(const rank of core.opponentPolicyBundle.ranks) {
+    if(rank.sourceStatus==='source-unavailable') continue;
+    rank.formatStatus=incompatibleRanks.includes(rank.rank) ?
+      'incompatible' : 'unverified';
+    rank.policySha256=null;
+    rank.entryManifestSha256=null;
+    rank.challengeSuiteSha256=null;
+    rank.policyProducerId=null;
+    rank.formatStatusEvidenceRef=rank.formatStatus==='incompatible' ?
+      'results/aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md' :
+      null;
+  }
+  return core;
+}
+
+test('the current Aichi Expanded field matrix has zero legal available ranks',()=>{
+  const policyPlanCore=makeCurrentExpandedFieldMatrixCore();
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore)
+  });
+  const expectedUnverified=Array.from({length:32},(_,index)=>index+1)
+    .filter(rank=>![3,6,7,23,24,25,28,29].includes(rank));
+  assert.equal(expectedUnverified.length,24);
+  assert.equal(result.status,'INCOMPLETE_FIELD');
+  assert.deepEqual(result.availableRanks,[]);
+  assert.deepEqual(result.formatIncompatibleRanks,[3,6,7,24,29]);
+  assert.deepEqual(result.formatUnverifiedRanks,expectedUnverified);
+  assert.deepEqual(result.unavailableRanks,[23,25,28]);
+  assert.deepEqual(result.rejectionReasons.sort(),[
+    'field-format-incompatible','field-format-unverified','field-incomplete'
+  ].sort());
+
+  const incompatibleReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[makeReceipt(policyPlanCore,3)]
+  });
+  assert.equal(incompatibleReceipt.status,'INVALID');
+  assert.ok(incompatibleReceipt.rejectionReasons.includes(
+    'game-against-format-incompatible-rank'));
+
+  const unverifiedReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[makeReceipt(policyPlanCore,1)]
+  });
+  assert.equal(unverifiedReceipt.status,'INVALID');
+  assert.ok(unverifiedReceipt.rejectionReasons.includes(
+    'game-against-format-unverified-rank'));
+});
+
+test('per-game fixture markers must be boolean and match the field validation mode',()=>{
+  const policyPlanCore=makeCore();
+  const expectedPolicyPlanSha256=sha256(policyPlanCore);
+
+  const fixtureReceipt=makeReceipt(policyPlanCore,7);
+  fixtureReceipt.fixtureOnly=true;
+  const fixtureMismatch=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[fixtureReceipt]
+  });
+  assert.equal(fixtureMismatch.status,'INVALID');
+  assert.ok(fixtureMismatch.rejectionReasons.includes('game-fixture-marker-mismatch'));
+
+  const malformedReceipt=makeReceipt(policyPlanCore,7);
+  malformedReceipt.fixtureOnly='true';
+  const malformed=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[malformedReceipt]
+  });
+  assert.equal(malformed.status,'INVALID');
+  assert.ok(malformed.rejectionReasons.includes('game-fixture-marker-type-invalid'));
+
+  const explicitFalseReceipt=makeReceipt(policyPlanCore,7);
+  explicitFalseReceipt.fixtureOnly=false;
+  const explicitFalse=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[explicitFalseReceipt]
+  });
+  assert.equal(explicitFalse.status,'VALID');
+});
