@@ -10,7 +10,7 @@ Ranks **8–16** each contain exactly 60 cards (540 copies total). On the reposi
 - 10/540 copies are the same Trainer represented by the source shorthand Battle Compressor PHF 92; the card-pool match is Battle Compressor Team Flare Gear XY4 92.
 - 51/540 copies are MEE-coded Basic Energy placeholders (not special Energy or distinct mechanics); a paper Expanded normalization must choose an actual legal Basic Energy printing.
 - No Japanese-only promo identity appears in these nine lists.
-- No exact English Expanded-banned printing appears in the slice; Agent 7's broader 29-list scan also found zero exact English Expanded-banned printings.
+- No exact international Expanded-banned printing appears in the slice. Agent 3's independent overlay of the current official 49-printing ban list found zero exact hits across all 29 source lists. Eight officially banned printings have stale `expanded: Legal` flags in the bundled card snapshot, but none appears in these nine lists; do not use the snapshot flag alone as the ban gate.
 - The only Japanese-banned-name candidates in the slice are Unown AOR 30 and Marshadow UNB 81. Their exact card texts are not the banned variants: AOR 30 has Farewell Letter, not DAMAGE/HAND; UNB 81 has Resetting Hole, not Let Loose.
 
 This is a **normalized card-pool pass**, not proof of the exact physical Japanese print each player used. Keep the physical-source-print status open and do not promote these nine to the verified opponent denominator solely on this report.
@@ -56,8 +56,8 @@ Accounting source: results/aichi-2026/full-decklists.json and results/aichi-2026
 
 1. Read each 60-card inventory from the frozen roster and join every source row to card-coverage status by rank.
 2. Resolve only the known PHF 92 Battle Compressor alias to XY4 92; preserve all other source set/number identities.
-3. Compare exact English source printings with the supplied card pool's Expanded legality metadata. Agent 7's 12 November audit scanned all 41 English printings marked Expanded: Banned and found zero exact banned printings across the 29 source lists and Hood Shield candidate.
-4. Compare card names that collide with Japanese banned identities against the actual ability/attack on the exact source English print. Only Unown AOR 30 and Marshadow UNB 81 occur in this slice, and neither has the banned Ability.
+3. Compare exact English source printings with the current official international Expanded banned-printing list. Agent 3's 13 November overlay covers 27 banned identities / 49 exact printings and finds zero exact hits across all 29 Aichi source lists. Eight officially banned printings have stale `expanded: Legal` flags in the bundled snapshot (Duskull CEC 83; four Flapple prints; three Medicham V prints), so the card-pool flag alone is not a sufficient ban gate.
+4. Separately compare card names that collide with Japanese banned identities against the actual Ability/attack on the exact source English print. Only Unown AOR 30 and Marshadow UNB 81 occur in this slice, and neither has the banned Ability.
 5. Resolve the only post-event English-display row in this slice (Trubbish CRI 56) against its pre-event Japanese M4 counterpart. Resolve the XYP promo chronology separately through official Japanese card pages.
 
 Inputs and prior evidence:
@@ -66,6 +66,7 @@ Inputs and prior evidence:
 - results/legality/japan-expanded-aichi-2026.json
 - results/aichi-2026/japanese-legality.md
 - results/methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md
+- results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md
 - results/aichi-2026/2026-11/agent6-english-cri-japanese-m4-aichi-date-crosswalk-20261103.md
 - results/aichi-2026/2026-11/agent39-xyp-japanese-print-crosswalk-20261113.md
 
