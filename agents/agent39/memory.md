@@ -48,7 +48,7 @@
   - `simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs`
   - `tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`
   - `results/aichi-2026/2026-11/agent39-twinleaf-card-identity-bridge-20261113.md`
-  The adapter joins on Twinleaf `Card.set + Card.setNumber` using `normalized.printing.set + normalized.printing.number`, then emits 60 actual `Card.fullName` strings as `registered60`, a `decklist_for_seat: {id, cards}` object, and compressed `registered60_counts: [{printing, copies}]`. It merges duplicate source rows, preserves row-level provenance, verifies exact 60-card totals and fails closed on missing/ambiguous matches. Local Node 22 checks/tests: 5/5 passed. Added syntax/test checks to the existing manual-only `.github/workflows/agent5-owner-root-native.yml`; did not dispatch.
+  The adapter joins on Twinleaf `Card.set + Card.setNumber` using `normalized.printing.set + normalized.printing.number`, then emits 60 actual `Card.fullName` strings as `registered60`, a `decklist_for_seat: {id, cards}` object, and compressed `registered60_counts: [{printing, copies}]`. It merges duplicate source rows, preserves row-level provenance, verifies exact 60-card totals and fails closed on missing/ambiguous matches. Local Node 22 checks/tests: 6/6 passed. Added syntax/test checks to the existing manual-only `.github/workflows/agent5-owner-root-native.yml`; did not dispatch.
 - The bridge is **not yet run against compiled Twinleaf**. Pinned submodule remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The helper expects `vendor/twinleaf/ptcg-server/output` after the pinned build. No 24-deck Twinleaf coverage result or matchup evidence is claimed.
 - Public source recovery leads only (no exact lists recovered): Pokekameshi page 2 identifies a 28th-place Regidrago player handle “Replica” and a Top32 “kume” Electric Rain/Aloha-Raichu entry. The latter's note article is paywalled beyond its preview. Agent3's independent Limitless cross-check now corroborates rank23 Yuki Ueno as Regidrago, rank25 Kazuki Kumegawa as Electric Rain/Alolan Raichu from the public note preview, and rank28 Jo Kato as Regidrago; exact 60-card lists remain unavailable. Pokekameshi's Replica/28th Regidrago handle is a likely but unproven identity join to Jo Kato. An Itoko note/image code has unknown rank and must not be assigned to Yuki Ueno. No source decklist or rank manifest was edited.
 
@@ -74,7 +74,7 @@ The resource's canonical number can prefix promo numbers that Twinleaf omits:
 - Jirachi: source XYP 67; card-pool XY67; Twinleaf setNumber 67.
 - Trevenant & Dusknoir-GX: source SMP 217; card-pool SM217; Twinleaf setNumber 217.
 
-Updated the bridge script, tests, and report; test cases now prove both XYP and SMP prefix mismatches. Local Node22 tests still pass 5/5. Sent explicit correction messages to agents 3, 5, 12, 36, 48, and 50. Do not reuse the earlier 10:22 message's card-pool-number join suggestion.
+Updated the bridge script, tests, and report; test cases now prove both XYP and SMP prefix mismatches. Local Node22 tests still pass 6/6. Sent explicit correction messages to agents 3, 5, 12, 36, 48, and 50. Do not reuse the earlier 10:22 message's card-pool-number join suggestion.
 
 ### Agent5 decklist interface correction (10:55Z)
 
@@ -83,7 +83,7 @@ Inspected `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`: Agent5
 - `decklist_for_seat: {id, cards}`: provider-compatible decklist object;
 - `registered60_counts`: compressed audit-only rows.
 
-Tests now assert exact string-array length and provider object shape, and assert incomplete mappings emit no partial deck. Corrected report and correction messages sent to agents 3, 5, 12, 36, 48, 50. Local Node22 tests remain 5/5 passing.
+Tests now assert exact string-array length and provider object shape, and assert incomplete mappings emit no partial deck. Corrected report and correction messages sent to agents 3, 5, 12, 36, 48, 50. Local Node22 tests remain 6/6 passing.
 
 ### Full Top32 archetype skeleton update (11:00Z)
 
