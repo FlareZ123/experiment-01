@@ -77,8 +77,8 @@ These are Limitless/source-row identifiers, not verified final bracket placement
 
 The bridge keeps four per-deck identity layers distinct:
 
-1. `deck_identity_sha256`: print-independent functional identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256}`, sorted by `(card_id,card_text_sha256,count)`.
-2. `source_print_identity_sha256`: normalized source-print identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256,printing,card_pool_printing}`, sorted by `(card_id,printing.set,printing.number,count)`. This is the source-side hash previously called `normalized_deck_sha256`; it is not a Twinleaf hash.
+1. `deck_identity_sha256`: print-independent functional identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256}`, sorted by `(card_id,card_text_sha256,count)` using JavaScript UTF-16 code-unit comparison.
+2. `source_print_identity_sha256`: normalized source-print identity. SHA-256 of UTF-8 canonical JSON rows `{card_id,count,card_text_sha256,printing,card_pool_printing}`, sorted by `(card_id,printing.set,printing.number,count)` using JavaScript UTF-16 code-unit comparison. This is the source-side hash previously called `normalized_deck_sha256`; it is not a Twinleaf hash.
 3. `registered60_hashes.ordered_input_sha256`: SHA-256 of UTF-8 `JSON.stringify(registered60)`, where `registered60` is the exact 60-element Twinleaf `Card.fullName` array supplied to `decklist_for_seat.cards`.
 4. `registered60_hashes.canonical_multiset_sha256`: SHA-256 of UTF-8 `JSON.stringify([{fullName,copies}, ...])`, with duplicate full names aggregated and rows sorted by JavaScript UTF-16 code-unit order. This is invariant to source-row order.
 
