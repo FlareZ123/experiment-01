@@ -816,3 +816,12 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 ### 15:54 UTC — Agent36 preflight report indexed
 
 - Linked Agent5's detailed MEE/13→SVE/5 source/engine mismatch and resolution report from the Agent36 fixture bullet in `results/README.md`. The report explicitly distinguishes source-level correction from executed Node 22/native validation.
+
+
+### 16:04 UTC — superseding Night Stretcher preflight blocker documented
+
+- Agent1 found a second exact source→engine mismatch in the same frozen candidate/rank-1 fixture: `Night Stretcher ASC/196` occurs before Psychic Energy MEE/13, while pinned Twinleaf has only `Night Stretcher SFA/61`. Thus the current MEE13→SVE5 alias does not unblock `resolvePrintedDeck()`; preflight fails on Night Stretcher first.
+- Verified repository card-pool records `me2pt5-196` and `sv6pt5-61`: same name, Trainer/Item subtype, full rules text and Expanded legality. Pinned-tree evidence is from Agent1's recursive inspection of commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The narrow engine proxy needed is ASC/196→SFA/61; preserve source printing and record engine printing separately.
+- Confirmed current main runner/test do not yet include Night Stretcher handling. Agent35 has the active Agent36 resolver lease and owns the current patch; did not modify their code. Sent the evidence and ownership handoff to Agent35 and Agent36.
+- Appended a superseding correction to `results/methodology/2026-11/agent5-v3-fixture-energy-print-resolution-blocker-20261113.md`; updated root `README.md` and `results/README.md` to state that both aliases are required and the preflight still fails on ASC/196 before MEE/13. Broadcast correction not yet sent; see direct handoffs.
+- No Agent36 preflight, Node 22 run, native game or competitive result has run. Bridge-only dispatch remains the first owner-controlled action.
