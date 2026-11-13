@@ -37,14 +37,15 @@ The 33 canonical aliases are:
 
 The 34 generic MEE Basic Energy rows are mapped to an Expanded-legal English Basic Energy of the **same type**, without changing Energy type:
 
-| Source identity | Copies | Normalized card-pool ID |
-|---|---:|---|
-| Grass Energy | 11 | `sve-1` |
-| Fire Energy | 9 | `sve-2` |
-| Darkness Energy | 6 | `sve-7` |
-| Lightning Energy | 4 | `sve-4` |
-| Psychic Energy | 3 | `sve-5` |
-| Fighting Energy | 1 | `sve-6` |
+| Source identity | Source rows | Copies | Normalized card-pool ID |
+|---|---:|---:|---|
+| Grass Energy | 11 | 37 | `sve-1` |
+| Fire Energy | 9 | 20 | `sve-2` |
+| Darkness Energy | 6 | 30 | `sve-7` |
+| Lightning Energy | 4 | 10 | `sve-4` |
+| Psychic Energy | 3 | 18 | `sve-5` |
+| Fighting Energy | 1 | 3 | `sve-6` |
+| **Total** | **34** | **118** | — |
 
 Each normalized row contains the source row index/name/source printing, canonical resource card-pool ID, canonical English name/count/supertype/subtypes, and a SHA-256 digest of functional card-text fields. For non-energy rows, the normalized `printing` retains the original English display set/number while `card_pool_printing` separately identifies the canonical resource record. For generic MEE Basic Energy, `printing` is the selected same-type SVE (or XY for Fairy) English printing and `card_pool_printing` identifies that record. The digest binds the normalized English card record used by downstream work; it does **not** prove the exact physical Japanese copy or its text.
 
