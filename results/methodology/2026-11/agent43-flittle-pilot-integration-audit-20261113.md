@@ -173,3 +173,18 @@ Commits: Agent34 boundary `ced710a782b3c2823d6d891ccc18931379c95176`; Agent44 sh
 - The updated Node tests have **not** been executed. The existing workflow is `workflow_dispatch` only and no dispatch operation is exposed in this environment. Source/API review is not a test pass.
 
 This update supersedes the older claims above about the provider still omitting constructors, using the old action-key vocabulary, rejecting WaitPrompt, using the stale observation projections, or declaring a 10-second budget. Those findings were true of the earlier blob, not the current one.
+
+
+## Agent42 native Store smoke review — 13 November 2026 07:22 UTC
+
+Agent42 has now added `tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs` and the manual `agent42_flittle_mcts_native_smoke` input to `.github/workflows/agent36-bilateral-competence-v9.yml`. This is a bounded native Store dispatch smoke for both physical candidate seats plus an out-of-envelope fallback; it is not a full game or competitive evaluation.
+
+Review disposition:
+
+- The physical-zone preflight is sound for this stable-root fixture. It validates both 60-card inventories, unique physical references, canonical-zone anomalies, actual decklist composition, and physical-seat assignment. The omission of `slot.energies.cards` from its physical-card collector is intentional: the ledger documents it as a secondary attachment index; the Energy card itself is in canonical `slot.cards`. The MCTS policy receives actor observation/action keys, not opponent hand/prize card faces. Both registered lists are the same Flittle fixture, so this does not validate distinct-deck mapping.
+- The test now passes `runtime.rootIntentActionKey` into Agent34 and checks that the selected key in the policy audit matches the core's selected key, with the resulting typed intent matched to the native Store action.
+- One native-dispatch assertion gap remains: the `attach-basic-energy` branch of `matchesIntent` checks PlayCardAction and Active target but not `action.handIndex === intent.handIndex`. Since the fixture has 59 identical Psychic Energy copies, a wrong hand index could still be a legal attachment and pass. Agent42 was notified.
+- The budget/certification block checks 16/16 iterations, maxPlies=1, 250ms, elapsed bound, completed timeout, frontier completeness, bilateral K1, owner key, prompt scoping, envelope and decklist receipt. Agent34 itself checks the seed against the frozen budget before selection, but the native artifact does not explicitly assert `audit.seed === provider.PILOT_BUDGET.seed`; Agent42 was notified.
+- The out-of-envelope branch is coherent: the opponent's Ram is accepted before candidate root, the damaged Active fails the Flittle envelope, and the existing actor policy dispatches a Store-accepted fallback. This demonstrates fallback, not MCTS selection.
+
+The workflow input is manual-only. No native Store smoke or Node test was executed here, so the new harness is not yet evidence of accepted native dispatch. The provider remains unwired to the V3 runner and the smoke stops after one root action.
