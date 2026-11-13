@@ -78,7 +78,7 @@ The exact printed search text matters:
 | Forest Seal Stone | 1 | Yes — once-per-game any card search | Yes — once-per-game any card search |
 | Hisuian Heavy Ball | 1 | Only if in the Prizes | Only if in the Prizes |
 
-The replacement adds four no-discard Fog Crystal outs to the second Tapu Lele, while retaining Mysterious Treasure access. Mysterious Treasure and Quick Ball still have discard costs; this table is a search-path inventory, not a probability that the line is playable in a real hand. The DCI/AMR of discard costs, Supporter contention, Ability lock, Bench space and K0/K1 Prize knowledge remain state-dependent.
+The replacement makes the second Tapu Lele searchable by the existing four no-discard Fog Crystal (which cannot find Dialga), while retaining Mysterious Treasure access. The number of search Items in the 60 is unchanged. Mysterious Treasure and Quick Ball still have discard costs; this table is a search-path inventory, not a probability that the line is playable in a real hand. The DCI/AMR of discard costs, Supporter contention, Ability lock, Bench space and K0/K1 Prize knowledge remain state-dependent.
 
 ## Exact direct-draw effects
 
