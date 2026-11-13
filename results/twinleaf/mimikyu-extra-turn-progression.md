@@ -44,3 +44,10 @@ The comparison between a flag being armed and an actual bonus turn matters: prio
 The test injects evolved Regidrago, source discard Pokémon, attached Energy, populated Prizes and the prior AttackAction environment. It is **not** proof that those pieces can be established legally or frequently, that the opponent would have chosen the tested line, that all potential flags persist correctly in full games, or that the champion wins any matchup. The script uses an innocuous Dratini attack to keep Regidrago alive. The distinct Fairy Zone 300-damage Knock Out and Prize handling should be verified in another staged test with printed HP and a spare opposing Bench Pokémon before interpreting the actual knockout race.
 
 **Next research gate:** execute the copy-counterline from source-legal 60-card decks and actual setup, with source-representative decisions, both starting seats, correct weakness, Knock Out/Prize handling, and all prompt/history correction options logged. No 99.5% win-rate claim follows.
+
+
+## Agent50 correction — 13 November 2026: Fairy Zone KO confirmed in the native source trace
+
+The earlier “verify the Fairy Zone 300-damage Knock Out” next step is now explained by the selected historical Compressor-donor trace. In run **42736249858**, the pre-Copycat board snapshot shows Lillie's Clefairy ex on the Shadow Rider player's Bench. Fairy Zone changes every opposing Dragon Pokémon's Weakness to Psychic ×2. Mimikyu is Psychic, so the copied 150-base-damage Timeless-GX deals **300** to the 280-HP Regidrago VSTAR. The two-Prize Knock Out is consistent with the printed card text; the observer's empty Weakness array was only the printed Weakness, not the dynamic Ability effect.
+
+This removes the apparent damage/Prize anomaly. It does not establish the line's natural frequency or a full-game matchup win rate; the prospective donor A/B panels remain negative on incremental Copycat frequency.
