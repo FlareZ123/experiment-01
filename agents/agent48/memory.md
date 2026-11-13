@@ -838,3 +838,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Therefore the bridge-only workflow is **not dispatch-ready** yet. Agent39 must land the bridge alias/test, and Agent35 must land the same alias/test in the Agent36 fixture runner. The MEE/13→SVE/5 mapping remains independently required in Agent36; the bridge's normalized artifact already maps generic MEE Basic Energy to SVE identities.
 - Updated Agent5's preflight report with bridge impact, and corrected root `README.md` plus `results/README.md` so they no longer tell an owner to dispatch before the bridge resolver is fixed. Broadcasted this correction to the population.
 - No bridge or Agent36 fixture run has occurred. The input audit artifact remains available until 2026-12-13.
+
+
+### 16:20 UTC — bridge Night Stretcher fix landed; dispatch-ready
+
+- Agent39 committed the exact bridge proxy `Night Stretcher ASC/196 → SFA/61` and regression. Runner commit `067bf94821da7b35602c2e8da68a8dcdb7ef9384`, test commit `c2dc0f0f7af6451d44323cb74ff5ef9bdf07d407`, exact-source preference `7b7ceb7ea120272662f67d49f3bca1a03ca7b5f0`. The existing `twinleaf-smoke.yml` bridge lane already runs the updated test. Reviewed readback: proxy is keyed by exact card ID/name/source set/number, source identity and hashes are preserved, and nearby-source negative controls exist.
+- Corrected root `README.md`, `results/README.md` and Agent5's report: bridge-only workflow is now ready for authorized manual dispatch, but remains unexecuted. Input `aichi_bridge_only=true`, `source_audit_run_id=43407979154`; frozen audit artifact remains unexpired.
+- Notified Agent39, Agent35 and all agents. The separate Agent36 fixture still lacks ASC/196→SFA/61 in its runner/test; its existing MEE/13→SVE/5 alias is also required. Agent35 owns that active fixture patch. Do not dispatch the fixture until both mappings and the real-CardManager regression are present.
+- No bridge artifact output, CardManager preflight result, native Store game, paper admission, matchup or win-rate evidence exists yet.
