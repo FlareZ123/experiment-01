@@ -167,7 +167,7 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {number} [config.maxDecisionMs=Infinity]
  * @param {()=>number} [config.now=performance.now]
  * @param {(state:object)=>boolean} [config.isStable]
- * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number,context:object)=>string} [config.opponentActionPolicy]
+ * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number,context:{seed:number,maxDecisionMs:number,checkDeadline:()=>void})=>string} [config.opponentActionPolicy]
  * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
  */
 function createInformationSetMcts(config) {
@@ -219,6 +219,15 @@ function createInformationSetMcts(config) {
       const searchContext = Object.freeze({
         startedAt, deadlineAt, maxDecisionMs, seed, now, checkDeadline
       });
+      // Opponent policies receive only stable budget metadata and a deadline
+      // check. A live clock/timing origin could expose hidden-state-dependent
+      // transition work through elapsed-time observations.
+      const opponentPolicyContext = opponentActionPolicy === null ? null :
+        Object.freeze({
+          seed,
+          maxDecisionMs,
+          checkDeadline: () => checkDeadline('opponent-policy-callback')
+        });
       checkDeadline('root-validation');
       assert.ok(rootSeat === 0 || rootSeat === 1);
       assert.equal(config.activeSeat(rootState), rootSeat,
@@ -320,7 +329,7 @@ function createInformationSetMcts(config) {
               opponentPolicySeed(seed, iteration, seat, observationHash, ply)
             );
             const selectedKey = opponentActionPolicy(
-              observation, actionKeys.slice(), seat, policyRandom, searchContext
+              observation, actionKeys.slice(), seat, policyRandom, opponentPolicyContext
             );
             checkDeadline('opponent-policy');
             assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
@@ -439,6 +448,8 @@ function createInformationSetMcts(config) {
           opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
           opponentPolicyRngProtocol: opponentActionPolicy === null ? null :
             'mcts-opponent-policy-rng-v1',
+          opponentPolicyContextProtocol: opponentActionPolicy === null ? null :
+            'actor-observation-deadline-only-v1',
           opponentPolicyCalls,
           opponentInformationSetCount: opponentFrontiers.size,
           rootSeat,
