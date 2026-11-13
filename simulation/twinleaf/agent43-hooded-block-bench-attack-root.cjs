@@ -7,7 +7,8 @@ const { publicSpecialAttackPayable } =
   require('./agent17-public-context-special-energy.cjs');
 const {
   twoPsychicPayment, attackBlocked, activeHasCompetingAttack,
-  ownerHasUnmodeledFreeMobility, postRetreatPrintedDamage,
+  ownerHasUnmodeledFreeMobility,
+  postRetreatPrintedDamage: basePostRetreatPrintedDamage,
   opponentHasUnmodeledDamageOrPrizeText: baseOpponentHasUnmodeledDamageOrPrizeText
 } = require('./agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
@@ -15,6 +16,7 @@ const VERSION = 'agent43-hooded-block-bench-attack-root-v2';
 const HOOD = 'Stealthy Hood UNB';
 const SHADOW_RIDER = 'Shadow Rider Calyrex VMAX CRE';
 const SNORLAX = 'Snorlax PGO';
+const CLEFAIRY = "Lillie's Clefairy ex JTG";
 const BLOCK_TEXT = /your opponent['’]s active pok[eé]mon can['’]t retreat/i;
 const TOOL_JAMMER = 'Tool Jammer ';
 const PATH_TO_PEAK = 'Path to the Peak ';
@@ -100,6 +102,18 @@ function opponentHasUnmodeledDamageOrPrizeText(view) {
     opponentPublic: { ...opponent, bench }
   });
 }
+function postRetreatPrintedDamage(view, pokemon, attack, payment, catalog) {
+  // The shared projection helper is intentionally broader than this root's
+  // evidence boundary. Only use formulas explicitly modeled for this line;
+  // an integer attack.damage field alone does not validate arbitrary effects.
+  const supported =
+    (pokemon?.printing === SHADOW_RIDER && attack?.name === 'Max Geist') ||
+    (pokemon?.printing === CLEFAIRY &&
+     attack?.name === 'Full Moon Rondo' && attack?.damage === 20);
+  if (!supported) return null;
+  return basePostRetreatPrintedDamage(view, pokemon, attack, payment, catalog);
+}
+
 function projectedPrizeOutcome(view, catalog, damage) {
   const own = view.ownPublic;
   const defender = view.opponentPublic?.active;
@@ -128,6 +142,15 @@ function hasAbilitySuppressor(view) {
         pokemon.publicRestrictions?.abilitySuppressed === true) return true;
     if (!Array.isArray(pokemon.abilityDetails) || !Array.isArray(pokemon.tools))
       return true;
+    // Power of Alchemy removes Abilities from every Basic Pokémon in play,
+    // including the Basic Snorlax whose Block text this root is trying to
+    // bypass. The current actor observation does not emit a complete generic
+    // suppression receipt, so recognize this known global suppressor directly.
+    if (pokemon.abilityDetails.some(ability =>
+      ability?.name === 'Power of Alchemy' &&
+      typeof ability.text === 'string' &&
+      /each basic pok[eé]mon in play/i.test(ability.text) &&
+      /has no abilities/i.test(ability.text))) return true;
     if (pokemon.tools.length > 0 &&
         pokemon.abilityDetails.some(ability => ability?.name === 'Garbotoxin'))
       return true;
