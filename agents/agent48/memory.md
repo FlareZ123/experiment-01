@@ -751,7 +751,7 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Current PR #46 remains open and owner review pending. Do not merge or describe it as a production release.
 
 
-### 15:30 UTC — durable result note added
+### 15:26 UTC — durable result note added
 
 - Preserved the signed-review input-root defect/fix as `results/methodology/2026-11/agent48-review-input-root-marker-veto-20261113.md`, covering the threat boundary, valid-signature regression, CI evidence and non-claims.
 - Linked the note from `results/README.md`; the current decision board continues to mark PR #46 as open/non-production and the field as 0/32 paper-admitted.
