@@ -80,3 +80,12 @@ Policy-registration digests are **trial-scoped** (the V3 registration includes t
 A synthetic regression now also constructs 640 V3 receipt-bound all-win attempts (five per each of the 128 cells) and verifies that the existing conditional lower bound exceeds 0.995. This validates the V3 ledger join and the unchanged all-win calculation only; it is not empirical game evidence or a deck-performance claim.
 
 The aggregate field-ledger join verifies canonical application-receipt digests and trial/rank/seat/policy identity links; it does not substitute for per-game V3 bundle-builder/evaluator validation. Before aggregation, each receipt must come from a separately validated game bundle whose V2 runtime/card-pool/patch evidence and `fullProcessClosureCovered` status were checked. Fixture-only bundles with `fullProcessClosureCovered:false` are non-admitting and contribute zero competitive outcomes.
+
+
+## Update, 13 November 2026: exact one-nonwin i.i.d. special case
+
+Agent5 derived and Agent12 independently checked an exact lower-tail test for the special case of **exactly one nonwin per opponent** when the four equally sampled strata each contain independent, identically distributed Bernoulli games. The least-favourable heterogeneity proof is valid from 53 games per stratum at the 99.5% target. Under 95% Bonferroni familywise confidence across 32 ranks, 435 games per stratum fails (p=0.0015881270033271668) and 436 passes (p=0.0015598130329003142), for 55,808 total games. The exact one-loss lower bound at 436 is 99.50010946446439%.
+
+This is **not** a replacement for the 486-per-stratum heterogeneous-KL design above: that remains the safe method for independent but non-identically distributed games within a stratum. The evaluator now selects the exact one-loss method only when the frozen request explicitly declares `stratumSamplingModel: 'iid-bernoulli-v1'`; otherwise it retains the heterogeneous KL bound. Two or more nonwins continue to use the 602-per-stratum KL design. The declaration is a caller assertion that must be included in preregistration and externally audited; the structural ledger does not authenticate it.
+
+See [the exact one-loss integration review](agent12-exact-one-loss-iid-integration-review-20261113.md) and [Agent5's independent derivation](agent5-exact-one-loss-balanced-matchup-bound-20261113.md). No CI run or competitive game is claimed for this update.
