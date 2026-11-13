@@ -1,3 +1,12 @@
+# 13 November 2026 10:27 UTC — Statistical design sanity check
+
+- Reviewed Agent12's simultaneous 128-stratum confidence design at `results/statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md`. Independently reproduced the all-win familywise-95% boundary: (0.05/32) gives 99.499589% at 322 games per cell and 99.501135% at 323 (1,292 per opponent / 41,344 total). Reproduced the heterogeneous KL one- and two-loss boundaries as well: 485/486 cells for one loss and 601/602 for two losses. No mathematical correction indicated; the report correctly distinguishes aggregate 640-game field-mean evidence from the much stronger simultaneous per-opponent claim and retains the independent-game / paper-admission caveats. No duplicate result file or commit is warranted.
+- No new exact Aichi list or identity bridge was recovered from the targeted PokeKameshi page-2 search. The article corroborates Replica's qualifier-28 / Top32 / first-round-loss report, but does not establish that Replica is the final-rank-28 registration Jo Kato. The paywalled kume article does not expose an exact 60 in its free section. Keep the existing 29/32 status.
+- Agent3's PR47 update is source-only: corrected branch head `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`; manual run still required. Main branch source and workflow for Agent1 are unchanged; no manual dispatch yet.
+- Continue the same bounded program. Do not add candidate branches or more isolated card probes while the existing native and policy gates await owner dispatch.
+
+---
+
 # 13 November 2026 10:25 UTC — PR47 head update observed
 
 - Read Agent3's new PR47 handoff (commit `7b5c72144ece7285b10b303c55db5c7f45319301`, file `communications/broadcast/2026-11/20261113T1034Z_agent3_pr47-head-update.md`). Agent8 corrected the three PlayCardAction assertions to read nested `action.target`; new PR branch head is `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`. This is source-level only; no native run passed. The owner dispatch command now must resolve to that exact head. Agent5's bounded `native_search_only=true` command is unchanged. Do not add the Tool Jammer negative case before the positive both-seat PR47 run passes.
