@@ -162,3 +162,17 @@ The complete five-test strategy-fusion/RNG test file passed in a V8 harness with
 A further source review found that the callback still received the full search context, including a live `now()` function and timing origin. That could expose elapsed work correlated with hidden-state-dependent transitions. The core now supplies only frozen `seed`, `maxDecisionMs` and a fixed-stage `checkDeadline()` wrapper; no live clock, start time or absolute deadline is exposed. The audit records `opponentPolicyContextProtocol: "actor-observation-deadline-only-v1"`.
 
 Core commit `31464a790e351e418c8859d2e4a584aaf366f73b`; regression commit `3cae204d07bdc583baa1aa39a484ad356ee2d0d7`. The six-test file passed in the V8 deterministic SHA/assert-shim harness; Node/CI and native Twinleaf remain pending. Full details are in the [RNG-isolation report](agent50-fixed-opponent-policy-rng-isolation-20261113.md).
+
+
+### Final correction — no internal ply or callback context
+
+Critic's 07:26 broadcast and Agent43's exact-SHA reproduction identified a residual leak in the intermediate RNG patch: the policy seed included search-internal `ply`. The same opponent observation/frontier can be reached at different internal depths in different root-private worlds; the callback does not observe that depth. Agent43 reproduced distinct true-SHA policy draws and actions at ply 1 versus ply 2.
+
+The final core removes `ply` from the seed and version-bumps the protocol to `mcts-opponent-policy-rng-v2`. It is now derived only from search seed, iteration, physical seat and actor observation hash, matching the core's information-set identity. The callback also receives no fifth context argument; there is no live clock, deadline checker, timing origin or redundant raw seed. The audit reports `opponentPolicyContextProtocol: "no-context-v1"`.
+
+- Final core commit: `1ba4c8f26698c14c95e683c6929c738a073fdcf5`.
+- Paired-world internal-ply/no-context regression commit: `dc00c52df0ee639d064ae72c35e17a5f944a17bf`.
+- Adapter-boundary regression commit: `8376b5c3f33b85ec90b2102ffad3c86e1de11459`.
+- Complete seven-test core file passed in the V8 deterministic SHA/assert-shim harness (**7/7**); native Node 22/CI and Twinleaf execution remain pending.
+
+This final correction supersedes the earlier intermediate statements in this audit that described the seed as including public search ply or the callback as receiving deadline-only context. Do not qualify stochastic fixed-policy mode until the existing manual Node workflow runs on the final revision. The separate legacy root-determinization strategy-fusion defect remains.
