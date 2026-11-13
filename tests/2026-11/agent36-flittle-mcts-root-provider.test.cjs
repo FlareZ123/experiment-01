@@ -349,6 +349,47 @@ test('registered candidate and opponent lists must both equal the exact 60-card 
   },'opponent'));
 });
 
+test('trusted Store binding receipt ties both exact registered lists to the actual preflight state',()=>{
+  const candidate={id:'candidate-registered',cards:provider.TEST_DECKLIST.cards.slice()};
+  const opponent={id:'opponent-registered',cards:provider.TEST_DECKLIST.cards.slice()};
+  const receipt={
+    schema:provider.STORE_DECKLIST_BINDING_SCHEMA,
+    verified:true,
+    source:'trusted-native-store-preflight',
+    candidateDecklistId:candidate.id,
+    opponentDecklistId:opponent.id,
+    candidateDecklistSha256:provider.decklistCardsSha256(candidate.cards),
+    opponentDecklistSha256:provider.decklistCardsSha256(opponent.cards),
+    storeStateSha256:'a'.repeat(64),
+    checkedPhysicalSeats:[0,1]
+  };
+  assert.deepEqual(provider.assertStoreDecklistBindingReceipt(
+    receipt,candidate,opponent
+  ),receipt);
+  assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
+    ...receipt,opponentDecklistSha256:'b'.repeat(64)
+  },candidate,opponent));
+  assert.throws(()=>provider.assertStoreDecklistBindingReceipt({
+    ...receipt,checkedPhysicalSeats:[0]
+  },candidate,opponent));
+});
+
+test('core selectedActionKey must bind to the exact native action object',()=>{
+  const deps={PlayCardAction,AttackAction,PassTurnAction};
+  const selected={
+    action:new AttackAction('Ram'),
+    audit:{selectedActionKey:'ATTACK_ACTION:Ram'}
+  };
+  assert.equal(provider.assertSelectedActionBinding(selected,deps),
+    'ATTACK_ACTION:Ram');
+  assert.throws(()=>provider.assertSelectedActionBinding({
+    ...selected,audit:{selectedActionKey:'PASS_TURN'}
+  },deps));
+  assert.throws(()=>provider.assertSelectedActionBinding({
+    ...selected,audit:{}
+  },deps));
+});
+
 test('pilot budget is explicitly a 250ms one-action dispatch smoke test, not a strategic rollout',()=>{
   assert.equal(provider.PILOT_BUDGET.iterations,16);
   assert.equal(provider.PILOT_BUDGET.maxPlies,1);
