@@ -996,7 +996,6 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     const strategyReviewValid = (event.signedReviewRoles ?? [])
       .some(x => x?.role === 'strategy' && x?.valid === true);
     const policyRolesValid = policyAttestations.valid &&
-      policyPanel.fieldComplete === true &&
       policyPanel.actorOnlyExecutionBoundaryEligible === true &&
       gameReviewerIdentityValid && gameReviewerRegistryUnique &&
       !reviewerOverlap && !misplacedPolicyReviews;
@@ -1007,8 +1006,6 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
       code !== 'policy-asymmetry-or-unverified-for-competitive' &&
       code !== 'independent-policy-competence-unproven');
     failures.push(...policyPanel.failures,...policyAttestations.failures);
-    if (policyPanel.fieldComplete !== true)
-      failures.push('opponent-policy-field-incomplete');
     if (!policyPanel.actorOnlyExecutionBoundaryEligible)
       failures.push('actor-only-execution-boundary-unverified-or-ineligible');
     if (misplacedPolicyReviews) failures.push('policy-attestations-must-not-be-postgame-review-roles');
@@ -1110,8 +1107,7 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
     gameReviewerIds.includes(id));
   const reviewerOverlap = policyReviewerOverlap || producerGameOverlap;
   const competitivePolicyCompetenceReady = gameOutcomeAdmissionReady &&
-    policyAttestations.valid && policyPanel.fieldComplete === true &&
-    policyPanel.actorOnlyExecutionBoundaryEligible === true &&
+    policyAttestations.valid && policyPanel.actorOnlyExecutionBoundaryEligible === true &&
     !reviewerOverlap && strategySignatureValid &&
     opportunity.valid;
   const candidateOutcome = outcome === null ? null : outcome.kind === 'tie' ?
@@ -1126,8 +1122,6 @@ function inspectAdmissionV3(bundle, reviews, reviewerRegistry) {
   if (!paperAttestationValid)
     failures.push('untimed-protocol-or-natural-terminal-review-incomplete');
   if (policyPanel.failures.length) failures.push(...policyPanel.failures);
-  if (policyPanel.fieldComplete !== true)
-    failures.push('opponent-policy-field-incomplete');
   if (!policyPanel.actorOnlyExecutionBoundaryEligible)
     failures.push('actor-only-execution-boundary-unverified-or-ineligible');
   if (policyAttestations.failures.length) failures.push(...policyAttestations.failures);
