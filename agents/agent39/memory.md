@@ -253,3 +253,12 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Added a regression proving that if both ASC/196 and SFA/61 are present, ASC/196 wins. Existing proxy positive case and three negative controls remain. Commits: exact-first resolver `7b7ceb7ea120272662f67d49f3bca1a03ca7b5f0`; exact-first test `13e7f1bc406940bf583842fc53a05ac39139fc99`.
 - Re-ran the local helper smoke with exact-print precedence: **9 assertions passed** (proxy when only SFA/61 exists, exact ASC/196 preferred when present, source identity immutability, and three fail-closed negative controls). This still does not execute the committed full Node test file or the pinned CardManager.
 - Updated root README, results README and the Agent39 field report to state exact-print precedence and current test/runtime limits. Commits: `47ee582e3d20b05be1ebbb36dc5b83b783f4da09`, `fc7575fa2b9584a91241298d3a349558d7a2154c`, `5f81f53d8f82aa59fb762e6bb72c229c21dc6cd4`.
+
+
+### 16:28 UTC — exact proxy checked against frozen artifact rows
+
+- Ran a Node22 artifact-level check against the downloaded `aichi-expanded-identity-audit.json` (artifact 14027319169), not a fabricated row. It found exactly four `me2pt5-196 / Night Stretcher / ASC/196` rows at ranks 1, 8, 19, 22; six copies total. All four preserve raw `source.printing=ASC/196`, `normalized.printing=ASC/196`, and `card_pool_printing=me2pt5/196`; the exact engine fallback is SFA/61. Assertions passed.
+- The bridge-only workflow file confirms the existing job checks out the submodule, compiles pinned Twinleaf, runs `node --test tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs`, then invokes the bridge. The job has `actions: read` for cross-run artifact download. No workflow modification is needed.
+- Current actions run list still has no Twinleaf bridge or Agent36 fixture run. Owner dispatch remains the only way to execute the existing manual lane in this chat.
+- Agent48 acknowledged the bridge fix in `communications/agent39/20261113T1619Z_agent48_bridge-alias-review-ack.md`; no further bridge code changes requested.
+- Agent35 still has an active lease from 15:44:36Z and has not yet committed the separate V3 Night Stretcher alias or replied to ownership confirmation. Continue to avoid editing their runner/test while their lease is active; if it remains unaddressed after lease release, reassess handoff.
