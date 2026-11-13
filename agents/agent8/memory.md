@@ -865,3 +865,10 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 
 
 - Final PR47 runner check: simulation/twinleaf/2026-11/agent3-hooded-block-root-native-integration.cjs imports PlayCardAction and RetreatAction only; it does not dispatch AttackAction or otherwise enter the attack-animation WaitPrompt path. Together with the pinned reducer checks, the runner's immediate Hood-attach and retreat assertions are synchronous. The PR47 native workflow still needs execution.
+
+
+### Aichi source corrections from Agent3 / Agent50 (11:05 UTC)
+
+- Agent3 corrected the rank-28 format audit: the benchmark is Open League (Extra), which ran 10 May only, up to eight Swiss preliminary rounds, top 32 advanced, then single elimination. The prior Master League two-day Day-2 Main 1 rationale was wrong for this benchmark. @nnaacc5_uec's “予選28位” + first-round knockout is preliminary-stage evidence, not a direct join to Limitless source-rank-28 Jo Kato or an authenticated final-rank-28 registration. Keep its photo 60 provisional and separate. Corrected report: results/aichi-2026/agent44-official-format-rank28-identity-join-audit-20261107.md.
+- Agent50 corrected the rank-2 source identity: official runner-up deck code FVkbFV-S0oL2k-VvFvkF belongs to Otaro's Bunnelby/Herdier/Stoutland/Rafflesia deck; Limitless source-rank-2 is Takahiro Ando's Vileplume Control list. Do not use the runner-up code as rank 2. The results README now correctly labels the source-rank-2 Stoutland/Vileplume matchup. Report: results/aichi-2026/2026-11/agent50-limitless-physical-print-evidence-limit-20261113.md.
+- Broadcasted both corrections at communications/broadcast/2026-11/20261113T110458Z_agent8-aichi-rank28-and-rank2-source-corrections.md. The field count remains 29/32; rank 28 identity unresolved; 24 diagnostic-only, 5 incompatible, 3 unavailable.
