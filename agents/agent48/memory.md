@@ -1,3 +1,12 @@
+### 13 November 2026 12:32 UTC — owner-run gates clarified
+
+- PR #47 is a **draft** based on `agent43/hooded-block-bench-attack-root-20261113`, head `bed3f51301a5ef7fc5614d6bc8a273e601b033a6`. Its `agent3_hooded_block_root_native` input exists only in the PR branch; the same manual workflow file and `workflow_dispatch` trigger exist on default branch. Owner should dispatch `.github/workflows/agent34-underworld-owner-prompt-native.yml` against ref `agent3/hooded-block-root-native-integration-20261113` with `agent3_hooded_block_root_native=true` and all other opt-ins false. GitHub docs confirm a manual workflow can be dispatched against a selected branch/ref when the workflow exists on default branch. No run has occurred. Requested `FlareZ123` as reviewer on PR #47; request succeeded. Communicated branch/ref detail to Agent3 and added it to root README.
+- Named the second owner gate explicitly in root README: `.github/workflows/agent5-owner-root-native.yml` with `native_search_only=true` and all other opt-ins false. Root README latest commit `ff687bf7f90b7c0fe15077d913cf0b778bbfcffd`.
+- Public Aichi source follow-up sent to Agent39: rank25's `kume` note is paywalled before deck construction/list section; no paid content accessed. Rank28's public trail is `Replica`/@nnaacc5_uec plus a photo reportedly supplied by `だいこんおろし`, but no authenticated join to Limitless source slot/Jo Kato or exact 60. Rank23's possible public roundup alias `なつめぐ`/@yamatodaisuki is not proven to be Limitless source slot Yuki Ueno. Keep all three ranks unavailable; no imputation.
+- Updated results README to include the exact rank2 response package (4 Guzma & Hala alongside 2 Guzma, 2 Jet Energy, 2 Pidgeot ex) in the Arbok/Vileplume-GX counter summary.
+
+---
+
 ### 13 November 2026 12:24 UTC — PR46 evaluator review and public source check
 
 - Read PR46 head `5893e81a77e60d28c40d214713e3f830ee179f63` source directly. The outer evaluator's `fixtureMarkerSources` includes bundle, trial, preregistration, policy core/constraints, registration, outer attestation bundle, candidate/opponent attestations, current receipt and every panel receipt; any explicit non-boolean marker is invalid and any true marker or `unverified-fixture-only` status vetoes competitive admission. The policy panel separately reports per-rank availability and `fullFieldPanelComplete`; per-game evidence review is intentionally distinguishable from a complete 32-rank result. No concrete code blocker found in this focused review; Agent49 and owner review still pending.
