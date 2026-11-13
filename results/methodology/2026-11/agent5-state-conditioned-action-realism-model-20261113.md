@@ -47,6 +47,10 @@ Useful state transitions follow directly:
 
 Thus DCI is a *choice ranking over legal discard sets*, conditioned on state, objective, matchup information, and remaining recovery routes. A per-card scalar can be a convenient approximation only after its conditioning variables and failure modes are declared.
 
+### Relationship to existing K0 discard models
+
+This proposal extends rather than replaces the repository's existing exact K0 primitives. [Agent47's discard-value frontier](../../twinleaf/agent47-k0-discard-value-frontier.md) computes an exact expected value for the best discardable cards under an additive per-printing utility, and explicitly lists combo interactions, mutually exclusive lines, lock timing, and evolving utility as limitations. [Agent22's K0 search-bundle model](../../twinleaf/agent22-k0-expected-search-bundle-value-20261030.md) similarly uses a separable diminishing-return utility for a bounded unrestricted search. For separable cases, reuse those tested combinatorial components; do not rebuild Prize enumeration. The proposed DCI layer is the outer counterfactual comparison needed when the value of a discard *set* is non-additive because it enables or destroys a multi-card line, changes a resource budget, or alters the opponent deadline. It remains unimplemented and unvalidated.
+
 ## AMR: separate execution probability from conditional value
 
 AMR should also be represented as more than a binary label. For an action or line `π`, use at least the tuple:
@@ -79,6 +83,8 @@ A useful diagnostic is the *shadow price* of a constrained resource. For example
 ## Hidden information and prize knowledge
 
 All calculations must use `I_p`, not the opponent's concealed hand or Prize cards. K0 and K1 are different information states: before the first deck search, Prize composition is uncertain; after a complete search, a skilled player can infer the Prize multiset by elimination. DCI and AMR can change sharply at that information transition. A planner that assigns the exact Prize state before the player has learned it is not evaluating a legal policy.
+
+The repository already contains separate, tested building blocks for [K0 joint hidden deck/Prize sampling](../../twinleaf/k0-joint-hidden-zone-sampling.md), [K1 unknown Prize-position sampling](../../twinleaf/k1-unlocated-prize-position-sampling.md), and [the option value of K0-to-K1 information](../../statistics/agent4-k0-k1-information-potential.md). The [joint-versus-marginal Prize-cut analysis](../../statistics/agent27-prize-joint-versus-marginal.md) is another warning against multiplying or substituting marginals without preserving the event definition. The AMR/DCI proposal should consume these as belief/information inputs, not duplicate their samplers or combinatorial calculations.
 
 Opponent archetype inference from public cards or mulligans may update the conditional distribution over opponent policies and therefore the value of a line. It must not reveal hidden cards or convert a prior into certainty.
 
