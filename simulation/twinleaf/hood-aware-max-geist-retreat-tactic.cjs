@@ -6,21 +6,20 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 /**
  * Return a candidate-only RetreatTactic subclass that evaluates an actual
  * retreat followed by Max Geist against the best current-Active attack and
- * the native RetreatTactic's preferred retreat line. Each attack line also
- * includes the opponent's best legal immediate retreat response.
+ * the native RetreatTactic's preferred retreat line. It also evaluates the
+ * opponent's immediate legal retreat options on a public-board counterfactual.
  *
- * Max Geist is considered only when the pinned Simulator accepts the attack
- * after a real RetreatAction. This deliberately avoids treating Energy counts
- * or a Bench VMAX as proof that the attack is available. The existing
- * StateScore is used consistently for both sides of the comparison.
+ * Attack/retreat simulations use the pinned Simulator directly and abstain
+ * when an unresolved player-choice prompt would be required. This avoids
+ * using the native prompt resolvers to inspect hidden opponent information.
  *
  * This is a one-opponent-action tactical heuristic: it models legal retreat
- * responses after passing the turn, not the opponent's complete turn, future
- * gust, or a full prize-map search.
+ * responses on the current public board, not between-turn effects, the
+ * opponent's complete turn, future gust, or a full prize-map search.
  *
  * @param {Function|null} BaseTacticOverride Test seam / currently installed
  *   candidate RetreatTactic subclass. Native callers omit it.
- * @param {object} [deps] Test-only action constructor injection.
+ * @param {object} [deps] Test-only engine/action constructor injection.
  * @returns {Function} Candidate-specific tactic constructor.
  */
 function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
@@ -29,30 +28,77 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
     engine('simple-bot/simple-tactics/retreat-tactic').RetreatTactic;
   const actionTypes=deps.actionTypes??
     engine('game/store/actions/game-actions');
-  const {AttackAction,RetreatAction,PassTurnAction}=actionTypes;
+  const {AttackAction,RetreatAction}=actionTypes;
+  const Simulator=deps.Simulator??engine('game/bots/simulator').Simulator;
+  const GamePhase=deps.GamePhase??engine('game/store/state/state').GamePhase;
+  const GameError=deps.GameError??engine('game/game-error').GameError;
+  const GameMessage=deps.GameMessage??engine('game/game-message').GameMessage;
   if(typeof AttackAction!=='function'||typeof RetreatAction!=='function'||
-     typeof PassTurnAction!=='function') {
-    throw new TypeError('Pinned AttackAction, RetreatAction, and PassTurnAction constructors are required');
+     typeof Simulator!=='function'||!GamePhase?.PLAYER_TURN||
+     typeof GameError!=='function'||!GameMessage) {
+    throw new TypeError('Pinned AttackAction, RetreatAction, Simulator, GamePhase, GameError, and GameMessage are required');
   }
+  const expectedIllegalMessages=new Set([
+    GameMessage.NOT_ENOUGH_ENERGY,
+    GameMessage.UNKNOWN_ATTACK,
+    GameMessage.CANNOT_USE_ATTACK,
+    GameMessage.CANNOT_ATTACK_ON_FIRST_TURN,
+    GameMessage.CANNOT_RETREAT,
+    GameMessage.BLOCKED_BY_EFFECT
+  ]);
   const scoreMargin=Number.isFinite(deps.scoreMargin)?deps.scoreMargin:0;
 
   class HoodMaxGeistRetreatTactic extends BaseTactic {
+    simulateWithoutPlayerChoice(state,action) {
+      try {
+        const nextState=new Simulator(state,this.options.arbiter).dispatch(action);
+        if(nextState?.prompts?.some(prompt=>prompt.result===undefined)) {
+          return {state:undefined,needsChoice:true};
+        }
+        return {state:nextState,needsChoice:false};
+      } catch(error) {
+        // Known game-rule rejections are ordinary invalid candidates. An
+        // unexpected engine error is not treated as evidence that an attack
+        // is unavailable; abstain rather than promote on an incomplete model.
+        if(error instanceof GameError&&expectedIllegalMessages.has(error.message)) {
+          return {state:undefined,needsChoice:false};
+        }
+        return {state:undefined,needsChoice:true};
+      }
+    }
+
     scoreAfterBestPublicRetreatResponse(afterAttackState,playerId) {
       if(afterAttackState.winner!==undefined&&afterAttackState.winner!==null) {
-        return this.getStateScore(afterAttackState,playerId);
+        return {score:this.getStateScore(afterAttackState,playerId),complete:true};
       }
-      const afterPass=this.simulateAction(afterAttackState,
-        new PassTurnAction(playerId));
-      if(!afterPass)return this.getStateScore(afterAttackState,playerId);
-      const opponent=afterPass.players.find(item=>item.id!==playerId);
-      let worst=this.getStateScore(afterPass,playerId);
-      if(!opponent)return worst;
+      const turnOwner=afterAttackState.players[afterAttackState.activePlayer];
+      if(turnOwner?.usedTurnSkip) {
+        return {score:this.getStateScore(afterAttackState,playerId),complete:true};
+      }
+      const opponentIndex=afterAttackState.players.findIndex(item=>item.id!==playerId);
+      if(opponentIndex<0) {
+        return {score:this.getStateScore(afterAttackState,playerId),complete:true};
+      }
+      const opponent=afterAttackState.players[opponentIndex];
+      let worst=this.getStateScore(afterAttackState,playerId);
       for(let benchIndex=0;benchIndex<(opponent.bench??[]).length;benchIndex++) {
-        const response=this.simulateAction(afterPass,
+        // Retreat legality depends on public board state (including abilities
+        // such as Skyliner). Switch the active seat only on a shallow state
+        // shell; Simulator deep-clones it before applying the action. Do not
+        // PassTurnAction here: that would draw from the opponent's hidden deck.
+        const opponentTurnState=Object.assign(
+          Object.create(Object.getPrototypeOf(afterAttackState)),
+          afterAttackState,
+          {activePlayer:opponentIndex,phase:GamePhase.PLAYER_TURN}
+        );
+        const response=this.simulateWithoutPlayerChoice(opponentTurnState,
           new RetreatAction(opponent.id,benchIndex));
-        if(response)worst=Math.min(worst,this.getStateScore(response,playerId));
+        if(response.needsChoice)return {score:undefined,complete:false};
+        if(response.state) {
+          worst=Math.min(worst,this.getStateScore(response.state,playerId));
+        }
       }
-      return worst;
+      return {score:worst,complete:true};
     }
 
     bestAttackScore(state,playerId) {
@@ -61,13 +107,15 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
       const attackBonus=this.options?.scores?.tactics?.attackBonus??0;
       let best=this.getStateScore(state,playerId)-attackBonus;
       for(const attack of active?.attacks??[]) {
-        const afterAttack=this.simulateAction(state,
+        const attempt=this.simulateWithoutPlayerChoice(state,
           new AttackAction(playerId,attack.name));
-        if(!afterAttack)continue;
-        const score=this.scoreAfterBestPublicRetreatResponse(afterAttack,playerId);
-        if(score>best)best=score;
+        if(attempt.needsChoice)return {score:undefined,complete:false};
+        if(!attempt.state)continue;
+        const response=this.scoreAfterBestPublicRetreatResponse(attempt.state,playerId);
+        if(!response.complete)return response;
+        if(response.score>best)best=response.score;
       }
-      return best;
+      return {score:best,complete:true};
     }
 
     useTactic(state,player) {
@@ -81,14 +129,18 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
       // Preserve the existing generic retreat line as a baseline, including
       // any better non-Shadow-Rider promotion it already selected.
       const baseRetreat=super.useTactic(state,player);
-      let baselineScore=this.bestAttackScore(state,player.id);
+      const currentAttack=this.bestAttackScore(state,player.id);
+      if(!currentAttack.complete)return baseRetreat;
+      let baselineScore=currentAttack.score;
       if(baseRetreat) {
         const afterBaseRetreat=this.simulateAction(state,baseRetreat);
         if(afterBaseRetreat) {
+          const baseAttack=this.bestAttackScore(afterBaseRetreat,player.id);
+          if(!baseAttack.complete)return baseRetreat;
           baselineScore=Math.max(
             baselineScore,
             this.getStateScore(afterBaseRetreat,player.id),
-            this.bestAttackScore(afterBaseRetreat,player.id)
+            baseAttack.score
           );
         }
       }
@@ -97,22 +149,21 @@ function hoodAwareMaxGeistRetreatTacticClass(BaseTacticOverride=null,deps={}) {
       let bestScore=baselineScore;
       for(const benchIndex of maxGeistBenchIndices) {
         const retreatAction=new RetreatAction(player.id,benchIndex);
-        const afterRetreat=this.simulateAction(state,retreatAction);
-        if(!afterRetreat)continue;
+        const retreatAttempt=this.simulateWithoutPlayerChoice(state,retreatAction);
+        if(retreatAttempt.needsChoice||!retreatAttempt.state)continue;
+        const afterRetreat=retreatAttempt.state;
         const afterPlayer=afterRetreat.players.find(item=>item.id===player.id);
         if(afterPlayer?.active?.getPokemonCard?.()?.name!==
            'Shadow Rider Calyrex VMAX')continue;
 
-        // Simulate the actual attack, then include the opponent's best legal
-        // immediate retreat response. This prevents a free-retreat target from
-        // being valued as though it must remain Active for the next turn.
-        const afterAttack=this.simulateAction(afterRetreat,
+        const attackAttempt=this.simulateWithoutPlayerChoice(afterRetreat,
           new AttackAction(player.id,'Max Geist'));
-        if(!afterAttack)continue;
-        const maxGeistScore=this.scoreAfterBestPublicRetreatResponse(
-          afterAttack,player.id);
-        if(maxGeistScore>bestScore+scoreMargin) {
-          bestScore=maxGeistScore;
+        if(attackAttempt.needsChoice||!attackAttempt.state)continue;
+        const response=this.scoreAfterBestPublicRetreatResponse(
+          attackAttempt.state,player.id);
+        if(!response.complete)continue;
+        if(response.score>bestScore+scoreMargin) {
+          bestScore=response.score;
           bestRetreat=retreatAction;
         }
       }

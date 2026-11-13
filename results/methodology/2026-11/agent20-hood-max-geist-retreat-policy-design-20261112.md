@@ -1,6 +1,6 @@
 # Candidate-only Max Geist attack-conversion retreat policy
 
-**Status:** experimental implementation on a dependent draft PR; 14/14 local pure tests and the response-envelope path-filtered CI pass; native-game validation pending.
+**Status:** experimental implementation on a dependent draft PR; 17/17 local pure tests pass; the public-board response revision awaits CI and native-game validation.
 
 ## Question
 
@@ -44,27 +44,27 @@ For each own Benched Shadow Rider Calyrex VMAX with Max Geist:
 
 1. Simulate the actual RetreatAction through the pinned tactic's simulator. If retreat is illegal, the line is rejected.
 2. Verify the simulated Active is the intended Shadow Rider VMAX.
-3. Simulate Max Geist from that post-retreat state. If the attack is unpayable or otherwise invalid, the line is rejected.
-4. After each attack line, simulate PassTurnAction and every legal opponent RetreatAction, taking the worst StateScore among no-retreat and retreat responses.
-5. Compare the resulting score with the best current-Active attack and the native RetreatTactic's preferred retreat-plus-attack line. Select the best Max Geist retreat only when it strictly improves on those alternatives; otherwise preserve the native retreat result.
+3. Simulate Max Geist from that post-retreat state through the pinned Simulator and score the resulting state with StateScore. If the attack is unpayable or would require an unresolved player-choice prompt, the line is rejected.
+4. Compare the projected score with the best current-Active attack and the native RetreatTactic's preferred retreat-plus-attack line. Current attacks are simulated directly; if any potentially legal attack requires an unresolved player choice, the helper abstains.
+5. Select the best Max Geist retreat only when it strictly improves on those alternatives; otherwise preserve the native retreat result.
 
-The helper is installed through the existing withHoodCandidateBotOptions composer. It wraps an already-installed candidate RetreatTactic subclass instead of replacing it, is idempotent, and is applied only to the candidate seat by withHoodCandidateBotOptionsBySeat. The opponent's resolver and tactic classes remain unchanged. No card list or shared baseline policy is modified. It does not directly inspect opponent hand/deck card identities; it uses the native action simulation and public retreat legality. The V3 actor-observation boundary still needs to be confirmed in integration tests.
+The helper is installed through the existing withHoodCandidateBotOptions composer. It wraps an already-installed candidate RetreatTactic subclass instead of replacing it, is idempotent, and is applied only to the candidate seat by withHoodCandidateBotOptionsBySeat. The opponent's resolver and tactic classes remain unchanged. No card list or shared baseline policy is modified. Attack and retreat candidates use the pinned Simulator directly. If an unresolved player-choice prompt or an unexpected engine error occurs, the helper abstains rather than invoking prompt resolvers; only known game-rule rejections are treated as ordinary unpayable/illegal candidates. For the opponent response, it creates a shallow public-board counterfactual with the opponent as active player and simulates every legal RetreatAction. It deliberately does not dispatch PassTurnAction, which would draw from the opponent's hidden deck. The V3 actor-observation boundary still needs to be confirmed in integration tests.
 
 ## Validation
 
 Local Node 22 isolated pure tests passed:
 
-- 10 attack-conversion cases: legal promotion; unpayable Max Geist; superior current attack; preservation of a better native retreat line; selection among multiple VMAX; illegal retreat; non-Shadow-Rider exclusion; an already-Active VMAX with a better Benched VMAX; rejection when an opponent retreat erases the Max Geist score advantage; and promotion when Max Geist remains superior after that response.
+- 13 attack-conversion cases: legal promotion; unpayable Max Geist; superior current attack; preservation of a better native retreat line; selection among multiple VMAX; illegal retreat; non-Shadow-Rider exclusion; an already-Active VMAX with a better Benched VMAX; rejection when an opponent retreat erases the Max Geist score advantage; promotion when Max Geist remains superior after that response; abstention when current-attack evaluation would require a player-choice prompt; abstention on unexpected Simulator errors; and recognition of a known NOT_ENOUGH_ENERGY GameError as an ordinary unpayable attack.
 - 4 composer cases: subclass wrapping and opponent immutability; idempotence; candidate-seat isolation in both physical seats; and fail-closed behavior when a pinned base class is missing.
 
-GitHub Actions run 43337837365 completed successfully for the response-envelope revision. It ran the path-filtered syntax checks and pure-contract tests; it did not build Twinleaf or run a game. These tests use injected fake base classes and action constructors; they establish the policy contract, not compatibility with a running Twinleaf build.
+These tests use injected fake base classes, action constructors, Simulator, GamePhase, GameError, and GameMessage. They establish the policy contract, not compatibility with a running Twinleaf build. The existing path-filtered pure PR workflow is extended to run the new test and syntax check; the public-board response revision is awaiting CI.
 
 ## Limitations and next validation
 
 - The existing StateScore is a heuristic, not a full game-theoretic value function.
-- The policy models only the opponent's immediate legal retreat options after passing the turn. It does not model the opponent's other actions (Trainer cards, abilities, attacks), future gust, or a complete prize map.
+- The policy models only the opponent's immediate legal retreat options on a public-board counterfactual; it does not apply between-turn effects or draw from the opponent's deck. It also does not model the opponent's other actions (Trainer cards, abilities, attacks), future gust, or a complete prize map.
 - It does not prove that the earlier turn25 retreat in rank19 was legal; the pinned simulator must evaluate the exact original game state.
 - It is not yet installed in the V3 candidate role and has no native complete-game result.
 - It has not changed the nominated deck, any matchup record, or any win-rate estimate.
 
-Next: rerun the path-filtered pure CI for the response-envelope revision; integrate the composed options into the V3 runner on the candidate seat only; run matched baseline-versus-policy native games in both physical seats over the same original-source Hood cohort; retain exact root-action, retreat-payment, attack, prize, opponent-response, and game-completion receipts. Include rank19 as an explicit counterline: compare immediate Max Geist damage, opponent free-retreat responses, prize conversion, and deck-out risk. Expand to the full Aichi field only after the candidate policy is stable. Keep the policy experimental and do not promote it on the basis of helper tests alone.
+Next: run the path-filtered pure CI for the public-board response revision; integrate the composed options into the V3 runner on the candidate seat only; run matched baseline-versus-policy native games in both physical seats over the same original-source Hood cohort; retain exact root-action, retreat-payment, attack, prize, opponent-response, and game-completion receipts. Include rank19 as an explicit counterline: compare immediate Max Geist damage, opponent free-retreat responses, prize conversion, and deck-out risk. Expand to the full Aichi field only after the candidate policy is stable. Keep the policy experimental and do not promote it on the basis of helper tests alone.

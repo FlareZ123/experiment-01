@@ -12,50 +12,67 @@ class FakeAttackAction {
 class FakeRetreatAction {
   constructor(clientId,benchIndex){this.clientId=clientId;this.benchIndex=benchIndex;}
 }
-class FakePassTurnAction {
-  constructor(clientId){this.clientId=clientId;}
+class FakeGameError {
+  constructor(message){this.message=message;}
+}
+class FakeSimulator {
+  constructor(state){this.state=state;}
+  dispatch(action){
+    if(action instanceof FakeAttackAction) {
+      if(this.state.throwUnexpectedOnAttack?.[action.name]) {
+        throw new Error('unexpected simulator failure');
+      }
+      if(this.state.gameErrorOnAttack?.[action.name]) {
+        throw new FakeGameError(this.state.gameErrorOnAttack[action.name]);
+      }
+      return this.state.attackResults?.[action.name];
+    }
+    if(action instanceof FakeRetreatAction) {
+      if(this.state.activePlayer===1) {
+        return this.state.opponentRetreatResults?.[action.benchIndex];
+      }
+      return this.state.retreatResults?.[action.benchIndex];
+    }
+    return undefined;
+  }
 }
 class FakeRetreatTactic {
   constructor(options={}){this.options=options;}
   getStateScore(state){return state.baseScore??0;}
   simulateAction(state,action){
-    if(action instanceof FakeAttackAction) {
-      return state.attackResults?.[action.name];
-    }
-    if(action instanceof FakePassTurnAction) {
-      return state.afterPassState;
-    }
-    if(action instanceof FakeRetreatAction) {
-      return state.retreatResults?.[action.benchIndex]??
-        state.opponentRetreatResults?.[action.benchIndex];
-    }
+    if(action instanceof FakeRetreatAction)return state.retreatResults?.[action.benchIndex];
     return undefined;
   }
   useTactic(state){return state.baseRetreatAction;}
 }
 
 const Tactic=hoodAwareMaxGeistRetreatTacticClass(FakeRetreatTactic,{
-  actionTypes:{AttackAction:FakeAttackAction,RetreatAction:FakeRetreatAction,
-    PassTurnAction:FakePassTurnAction}
+  actionTypes:{AttackAction:FakeAttackAction,RetreatAction:FakeRetreatAction},
+  Simulator:FakeSimulator,GamePhase:{PLAYER_TURN:'PLAYER_TURN'},
+  GameError:FakeGameError,GameMessage:{NOT_ENOUGH_ENERGY:'NOT_ENOUGH_ENERGY',
+    UNKNOWN_ATTACK:'UNKNOWN_ATTACK',CANNOT_USE_ATTACK:'CANNOT_USE_ATTACK',
+    CANNOT_ATTACK_ON_FIRST_TURN:'CANNOT_ATTACK_ON_FIRST_TURN',
+    CANNOT_RETREAT:'CANNOT_RETREAT',BLOCKED_BY_EFFECT:'BLOCKED_BY_EFFECT'}
 });
 const pokemon=(name,attacks=[])=>({name,attacks});
 const slot=card=>({getPokemonCard:()=>card});
-function attackOutcome(score,responseScores=[]) {
+function attackOutcome(score,responseScores=[],needsChoice=false) {
   const candidate={id:101,active:slot(pokemon('Candidate Active')),bench:[]};
   const opponent={id:202,active:slot(pokemon('Latias ex')),
     bench:responseScores.map(()=>slot(pokemon('Raging Bolt ex')))};
   const opponentRetreatResults={};
   for(let i=0;i<responseScores.length;i++) {
-    opponentRetreatResults[i]={players:[candidate,opponent],baseScore:responseScores[i]};
+    opponentRetreatResults[i]={players:[candidate,opponent],baseScore:responseScores[i],prompts:[]};
   }
-  return {players:[candidate,opponent],winner:null,afterPassState:{
-    players:[candidate,opponent],baseScore:score,opponentRetreatResults
-  }};
+  return {players:[candidate,opponent],activePlayer:0,phase:'PLAYER_TURN',
+    baseScore:score,opponentRetreatResults,prompts:needsChoice?[{}]:[]};
 }
 function board({active='Mimikyu',activeAttacks=['Filch','Copycat'],
   bench=['Shadow Rider Calyrex VMAX'],currentScores={Filch:10},
-  currentResponseScores={},maxGeistScores=[100],maxGeistResponseScores=[[]],
-  retreatLegal=[true],baseRetreatAction=undefined,baseAfterRetreat=null}={}) {
+  currentResponseScores={},currentNeedsChoice={},maxGeistScores=[100],
+  maxGeistResponseScores=[[]],maxGeistGameError=undefined,retreatLegal=[true],
+  baseRetreatAction=undefined,baseAfterRetreat=null,throwUnexpectedOnAttack={},
+  gameErrorOnAttack={}}={}) {
   const player={id:101,active:slot(pokemon(active,activeAttacks.map(name=>({name})))),
     bench:bench.map(name=>slot(pokemon(name,name==='Shadow Rider Calyrex VMAX'?
       [{name:'Max Geist'}]:[{name:'Other attack'}])))};
@@ -66,8 +83,10 @@ function board({active='Mimikyu',activeAttacks=['Filch','Copycat'],
       const nextPlayer={...player,active:player.bench[i],
         bench:player.bench.map((b,j)=>j===i?player.active:b)};
       const outcome=attackOutcome(maxGeistScores[i],maxGeistResponseScores[i]??[]);
-      retreatResults[i]={players:[nextPlayer,opponent],baseScore:0,
-        attackResults:{'Max Geist':outcome}};
+      retreatResults[i]={players:[nextPlayer,opponent],activePlayer:0,
+        phase:'PLAYER_TURN',baseScore:0,
+        attackResults:{'Max Geist':outcome},prompts:[],
+        gameErrorOnAttack:maxGeistGameError?{'Max Geist':maxGeistGameError}:{}};
     }
   }
   if(baseAfterRetreat!==null&&baseRetreatAction) {
@@ -75,14 +94,16 @@ function board({active='Mimikyu',activeAttacks=['Filch','Copycat'],
   }
   const attackResults={};
   for(const [name,score] of Object.entries(currentScores)) {
-    if(score!==undefined)attackResults[name]=attackOutcome(score,currentResponseScores[name]??[]);
+    if(score!==undefined)attackResults[name]=attackOutcome(score,
+      currentResponseScores[name]??[],Boolean(currentNeedsChoice[name]));
   }
-  return {players:[player,opponent],player,baseScore:0,
-    attackResults,retreatResults,baseRetreatAction};
+  return {players:[player,opponent],player,activePlayer:0,phase:'PLAYER_TURN',
+    baseScore:0,attackResults,retreatResults,baseRetreatAction,prompts:[],
+    throwUnexpectedOnAttack,gameErrorOnAttack};
 }
 
 function choose(state) {
-  const tactic=new Tactic({scores:{tactics:{attackBonus:100}}});
+  const tactic=new Tactic({arbiter:{},scores:{tactics:{attackBonus:100}}});
   return tactic.useTactic(state,state.player);
 }
 
@@ -107,8 +128,10 @@ test('keeps the current Active when its best simulated attack scores higher',()=
 test('preserves a better retreat and attack line selected by the native tactic',()=>{
   const baseRetreatAction=new FakeRetreatAction(101,1);
   const otherAfterRetreat={id:101,active:slot(pokemon('Other Pokémon',[{name:'Other attack'}])),bench:[]};
-  const baseAfterRetreat={players:[otherAfterRetreat],baseScore:0,
-    attackResults:{'Other attack':attackOutcome(130)}};
+  const opponent={id:202,active:slot(pokemon('Latias ex')),bench:[]};
+  const baseAfterRetreat={players:[otherAfterRetreat,opponent],activePlayer:0,
+    phase:'PLAYER_TURN',baseScore:0,
+    attackResults:{'Other attack':attackOutcome(130)},prompts:[]};
   const state=board({
     bench:['Other Pokémon','Shadow Rider Calyrex VMAX'],
     currentScores:{Filch:10},maxGeistScores:[undefined,100],
@@ -164,4 +187,27 @@ test('keeps Max Geist when it remains superior after the opponent retreat respon
   const action=choose(state);
   assert.ok(action instanceof FakeRetreatAction);
   assert.equal(action.benchIndex,0);
+});
+
+test('abstains when evaluating the current attack would require a player-choice prompt',()=>{
+  const state=board({
+    currentScores:{Filch:10},currentNeedsChoice:{Filch:true},maxGeistScores:[100]
+  });
+  assert.equal(choose(state),undefined);
+});
+
+test('abstains rather than treating an unexpected Simulator error as an unpayable attack',()=>{
+  const state=board({
+    currentScores:{Filch:10},maxGeistScores:[100],
+    throwUnexpectedOnAttack:{Filch:true}
+  });
+  assert.equal(choose(state),undefined);
+});
+
+test('treats a known NOT_ENOUGH_ENERGY GameError as an unpayable Max Geist attack',()=>{
+  const state=board({
+    currentScores:{Filch:10},maxGeistScores:[100],
+    maxGeistGameError:'NOT_ENOUGH_ENERGY'
+  });
+  assert.equal(choose(state),undefined);
 });
