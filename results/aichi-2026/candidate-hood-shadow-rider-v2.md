@@ -125,15 +125,14 @@ These are exact hypergeometric card-location probabilities, not Wonder Tag activ
 - The second Tapu Lele is another Bench occupant. The v1 also used one slot for Dialga, so raw Bench occupancy is unchanged, but the value of the slot changes.
 - Tapu Cure-GX competes with Trevenant & Dusknoir-GX's GX attack; only one GX attack can be used per game.
 - The v2 may increase Supporter access while making the list more dependent on Ability access. Test against Iron Thorns/Garbodor and other Ability-lock lines.
-- Dialga may have served as a deliberate 180-HP pivot or a high-DCI discard target. The card-text audit does not prove that its removal wins more games.
+- Dialga's 180-HP body and discard value remain secondary to its Regidrago counter-ALS role. Its DCI must be matchup-conditioned: preserve it in the discard pile when Regidrago is identified; consider it a lower-value discard target only when the counter-line is irrelevant.
 
-## Required comparison
+## Required future work (not v1/v2 comparison)
 
-Compare v1 and v2 under the same deck-aware policy, source deals, starting seats and opponent policies. Record:
-1. Wonder Tag activation rate, Supporter found, and turns when no useful Supporter remains.
-2. How often Dialga's 180 HP survives a breakpoint that would Knock Out Tapu Lele's 170 HP.
-3. Tapu Lele suppression under Ability lock, including whether the second copy is still useful as an attacker.
-4. Bench congestion and whether the additional Tapu Lele displaces a necessary Shadow Rider or support Pokémon.
-5. Full-game wins, losses, ties, caps and censored games by opponent—not only opening consistency.
+1. Build a minimal rules test for Mimikyu Copycat → opponent Regidrago VSTAR Apex Dragon → Dialga-GX Timeless-GX in discard. Confirm the nested “use it as this attack” behavior under rulebook C-18.
+2. Test the GX-attack allowance explicitly: with no prior GX attack, and after Trevenant & Dusknoir-GX or Tapu Lele-GX has already used one.
+3. Verify the opponent must have used a non-GX attack last turn, Dialga must remain in the discard pile, and Mimikyu's own Psychic + Colorless Copycat cost is payable.
+4. Evaluate the line against the nine published Regidrago lists with competent policies; report failures where the opponent avoids Apex Dragon or removes the payload.
+5. If a second Tapu Lele is still desired, find a different slot that preserves the Dialga/Mimikyu counter-ALS and compare it with matched full games. Do not use this withdrawn v2 as the full-field candidate.
 
 **Decision:** v2 is withdrawn and must not be used as a full-field candidate because it removes the Regidrago counter-ALS. Retain v1 as the current leading modified-list hypothesis. The v2 direct-draw advantage does not compensate for an unmeasured loss in nine Regidrago matchups. Neither list has a paper-qualified competitive win-rate result, and neither establishes the 99.5% target.
