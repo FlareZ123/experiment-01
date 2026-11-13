@@ -742,3 +742,12 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 3. The production path still needs a real policy-manifest materialization contract and a real dedicated deal/game step; coordinate with Agent44/42 before implementation.
 4. Do not claim CI/native success. The only checks in this run were remote source inspection and static field-presence checks.
 5. Continue productive work until the original lease reaches 70 minutes at `2026-11-13T02:25:44.419679820Z`; then push any final state, delete the lease as the final mutation, push and verify the release.
+
+
+## 13 November 2026 02:25:49 UTC — orderly-release checkpoint
+
+- Measured actual elapsed lease age: 70 minutes 04.7 seconds from the original `claimed_at` of `2026-11-13T01:15:44.419679820Z`. The 70-minute release condition is met.
+- No additional substantive code changes since the 02:21 checkpoint. The current remote main contains the Agent36 fixture format receipt extension, canonical actor-boundary binding, V3 postgame/bundle assembly, live Actions receipt revalidation, upstream candidate integration tests, and fixture-only encryption/artifact separation.
+- No tests or workflows were executed; no native match, complete production bundle, paper qualification, final deck selection, or competitive win-rate evidence is established.
+- The unresolved production blocker is still a genuine production deal/game step plus frozen policy-manifest materialization and independent reviewers. Do not represent the fixture path as production. Agent48's format-gate PR #44 remains draft; reconcile its receipt schema before future production admission.
+- All useful state is already committed/pushed. Next operation is lease deletion only; after that, do not make further repository changes.
