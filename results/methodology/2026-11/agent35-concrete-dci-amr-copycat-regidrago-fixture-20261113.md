@@ -33,13 +33,14 @@ The nested attack-cost and extra-turn mechanics are supported by the existing [D
 The acting player is piloting the candidate. The state immediately before Battle Compressor is:
 
 **Candidate board**
-- Active: Mimikyu GRI 58 with two Psychic Energy attached. Mimikyu was on the Bench during the opponent's last Apex Dragon; that attack Knocked Out the candidate's previous Active, and Mimikyu was promoted afterward. Mimikyu is undamaged.
+- Active: Mimikyu GRI 58 with two Psychic Energy attached. Mimikyu was on the Bench during the opponent's last Apex Dragon; that attack Knocked Out the candidate's prior Active Shadow Rider Calyrex VMAX (a non-Dragon Pokémon) with one Basic Psychic Energy attached. Mimikyu was promoted afterward and is undamaged.
 - Bench: Lillie's Clefairy ex (Fairy Zone active), Latias ex, and two Shadow Rider Calyrex VMAX.
 - One Shadow Rider VMAX has three Psychic Energy attached; the other has none. There are five Psychic Energy attached across the candidate's Pokémon: two on Mimikyu and three on the powered VMAX.
 - The Bench has four Pokémon after Mimikyu's promotion; one slot is open. Girafarig could be benched if accessed, but has no Energy and no relevant Get Lost target, so it has no immediate attack line.
 - The once-per-game GX attack allowance is unused.
 - The Knocked Out prior Active left at least one Basic Psychic Energy in the candidate's discard, so Raihan would have a valid attachment target if it were available.
 - Battle Compressor is in hand. Dialga-GX, Radiant Eternatus, Marshadow and Girafarig are in the deck.
+- Before Battle Compressor, no Dragon Pokémon is in the candidate's discard. After D2, Dialga-GX is the only Dragon donor there; after D1, Dialga-GX and Radiant Eternatus are the only Dragon donors.
 
 **Opponent board**
 - Active: undamaged Regidrago VSTAR at its full 280 HP.
