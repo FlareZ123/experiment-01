@@ -109,3 +109,15 @@ test('two-loss probability handles zero and unit failure rates', () => {
   assert.equal(fourStrataTwoLossProbability([1,1,0,0],1),1);
   assert.equal(fourStrataTwoLossProbability([1,1,1,0],1),0);
 });
+
+
+test('one- and two-loss heterogeneity proofs expose their sufficient minimum cell sizes', () => {
+  const {oneLossPerOpponentDesign,twoLossPerOpponentDesign} =
+    require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  assert.equal(oneLossPerOpponentDesign({gamesPerStratum:52}).minimumStratumForConcavity,53);
+  assert.equal(oneLossPerOpponentDesign({gamesPerStratum:52}).heterogeneityProofApplies,false);
+  assert.equal(oneLossPerOpponentDesign({gamesPerStratum:53}).heterogeneityProofApplies,true);
+  assert.equal(twoLossPerOpponentDesign({gamesPerStratum:105}).minimumStratumForConcavity,106);
+  assert.equal(twoLossPerOpponentDesign({gamesPerStratum:105}).heterogeneityProofApplies,false);
+  assert.equal(twoLossPerOpponentDesign({gamesPerStratum:106}).heterogeneityProofApplies,true);
+});
