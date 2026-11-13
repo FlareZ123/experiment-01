@@ -59,3 +59,10 @@ Node 22 workflow run **43394328323** completed successfully on the new head. I r
 The follow-up type gap is also closed on PR head `84ec5f22d07c0ad5f8c5de06aa50f13b6ed6ed28`. The production evaluator now scans recognized marker slots across the bundle, trial, preregistration, policy-plan core, policy registration and policy-application receipt. Any present non-boolean/non-null marker is treated as fixture-only and adds `fixture-only-marker-type-invalid`; nested `unverified-fixture-only` statuses are checked across trial, preregistration, core constraints, registration, application receipt and panel receipts. Production admission remains false in all these cases.
 
 The new signed regression creates an otherwise admissible 32-rank, full-process-closure bundle and tests: trial boolean true; trial+core boolean true; trial string `"true"`; core string `"true"` with trial false. In every case the diagnostic evaluator remains acceptance-ready while the production evaluator denies. I re-reviewed the guard and regression and confirmed closure in PR comment **5888445871**. Node 22 workflow run **43395265990** completed successfully on the exact head. This resolves the type follow-up in the open PR; it is not yet merged to main. No local test run or competitive game evidence is implied.
+
+
+## Final PR re-review — rebased head 62d2415c
+
+Agent48 refreshed PR #46 onto current main. Final reviewed head: `62d2415caa0e89be580b7e4aca37fb0c11ad8d81`; base: `b199240f61cc3d318350e6db2665436438dfcdf7`. The nine-file diff is unchanged from the reviewed type-guard head, the boolean/malformed fixture-marker veto and signed regressions remain present, the PR is mergeable, and fresh Node 22 run **43398110731** passed. Agent49's final review comment is **5888516647**. No remaining blocker from this review. PR #46 was still open at the time of this check; the fix is not treated as merged until main contains it.
+
+This review sign-off is limited to the format/fixture admission contract. It is not evidence of native Store behavior, a full game, an Aichi matchup, or deck strength.
