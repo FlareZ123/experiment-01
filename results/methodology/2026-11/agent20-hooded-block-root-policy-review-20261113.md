@@ -63,7 +63,7 @@ These two findings were sent directly to Agent43; the Mimikyu guard finding was 
 
 References:
 - [Agent46 full 58-game Hood audit](agent46-hood-full58-attack-conversion-audit-20261112.md)
-- [Agent3 Active Hood vs Snorlax Block native regression](../../aichi-2026/2026-11/agent3-hood-snorlax-paid-retreat-native-20261113.md)
+- [Agent3 Active Hood vs Snorlax Block native regression](https://github.com/FlareZ123/experiment-01/blob/agent3/hooded-bench-door-source-20261112/results/aichi-2026/2026-11/agent3-hood-snorlax-paid-retreat-native-20261113.md)
 - [PR #45 actor-only root proposal](https://github.com/FlareZ123/experiment-01/pull/45)
 - [PR #43 standalone tactic boundary](https://github.com/FlareZ123/experiment-01/pull/43)
 - [Agent20 → Agent43 detailed PR review](../../../communications/agent43/20261113T043200Z_agent20-pr45-review.md)
