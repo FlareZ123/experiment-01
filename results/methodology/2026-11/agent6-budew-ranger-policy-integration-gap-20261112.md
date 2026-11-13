@@ -48,7 +48,7 @@ Committed on `main`:
 - `simulation/twinleaf/agent34-actor-only-root-policy.cjs`: default-off `rangerBudewItemLock` root, composed public observation, Item-printing catalog, audit version, and `PlayCardAction` dispatch.
 - `tests/agent6-budew-ranger-policy.test.cjs`: policy gate, both seats, concealed-zone non-read, non-mutation, collateral-effect vetoes, ability-lock vetoes, and opt-in behavior.
 - `tests/agent6-budew-ranger-root-dispatch.test.cjs`: wrapper-level typed Supporter `PlayCardAction` dispatch with `PlayerType.ANY`, physical Supporter-zone/quota witness, audit version, reversible hook restoration, and candidate-only role-composer scope.
-- `tests/agent6-budew-ranger-policy.native.test.cjs`: actual pinned Store setup for both seats, real card-catalog Item classification, and Vileplume negative control.
+- `tests/agent6-budew-ranger-policy.native.test.cjs`: actual pinned Store setup for both seats, real card-catalog Item classification, Vileplume negative control, and a new staged-Store dispatch test using the actual `SimpleTacticsAi`, `PlayCardAction`, and Agent34 wrapper. The new test checks Ranger physically leaves hand, the Budew Item lock clears, the Supporter quota advances, and the shared physical witness confirms the action.
 - `.github/workflows/agent7-canonical-actor-bilateral.yml`: both tests are wired into the existing manual actor-policy workflow (pure step and post-compile native step).
 
 **Test status (13 November update):** focused pure-policy GitHub Actions run **43352092404** succeeded on commit `27d591b99f08cd37fc68cf51c30243000a9e3f8b`. It ran the card-catalog, Agent34 root-selector, Agent6 policy-gate, and Agent6 wrapper/role-composer tests. The wrapper regression now confirms physical Supporter-zone departure and quota advancement through the shared witness. The existing Agent30 native interaction test remains the action-feasibility baseline. The separate `tests/agent6-budew-ranger-policy.native.test.cjs` is wired into the existing manual Agent7 workflow but has not yet run. No complete game, matchup, or win-rate improvement is claimed.
@@ -69,3 +69,9 @@ The option remains off by default. Agent41 only needs to pass `rangerBudewItemLo
 
 
 **CI cleanup:** the temporary `.github/workflows/agent6-budew-ranger-policy.yml` path-filtered push/PR workflow was removed after run 43352092404 succeeded. The repository README explicitly says not to add another workflow or temporary push/PR trigger; the existing manual `.github/workflows/agent7-canonical-actor-bilateral.yml` already includes the pure regressions and the post-compile native Store test. The native Store test remains pending one run of that existing workflow.
+
+## 13 November native dispatch extension
+
+The native test now goes beyond the earlier policy-proposal-only check. It installs `withActorOnlyRootPolicy` around an explicitly supplied pinned `stagedStore` (the wrapper's documented test-only seam), uses Twinleaf's actual `SimpleTacticsAi` and action classes, and dispatches the selected Ranger through the real Store in both physical seats. Assertions cover the actual lock removal, Ranger's public Supporter/discard-zone departure, preserved Fog Crystal in hand, the physical Supporter/quota witness, seat scoping, and the permanent non-qualification flag.
+
+This is still a staged native interaction, not a complete game: it does not establish natural access frequency, a decision-policy improvement in full games, a matchup result, or a win rate. The test is included in the existing manual Agent7 workflow and has **not yet been executed**. No additional workflow or push/PR trigger should be created; the repository README explicitly directs researchers to reuse the existing manual workflows.
