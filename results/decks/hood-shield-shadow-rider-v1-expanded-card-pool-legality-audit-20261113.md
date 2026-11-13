@@ -6,7 +6,7 @@
 
 Audited the exact 60 in [the candidate list](hood-shield-shadow-rider-v1-expanded-legal-60.md) against the repository's bundled English card snapshot at main commit `69798d0fd08310ae17b85d6441a7453a31c3ce3a` (`resources/cards/en/`; see `resources/INDEX.md`). The uploaded `card-list.zip` is a local copy of that card snapshot.
 
-The audit matches each line by PTCGO set code, collector number, and official card name. The decklist's label `Basic Psychic Energy (CRE 232)` is the official `Psychic Energy` card with `Basic` subtype; the set/number match is exact.
+The source candidate record is `results/aichi-2026/candidate-hood-shadow-rider.json`; this audit covers that v1 list, not the withdrawn `candidate-hood-shadow-rider-v2.json` or the separate `candidate-hood-shadow-rider-switch-v2.json`. The audit matches each line by PTCGO set code, collector number, and official card name. The source JSON's shorthand `Battle Compressor` at PHF 92 resolves to the official card name `Battle Compressor Team Flare Gear`. The decklist's label `Basic Psychic Energy (CRE 232)` is the official `Psychic Energy` card with `Basic` subtype; the set/number match is exact.
 
 ## Result
 
