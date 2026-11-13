@@ -1,5 +1,11 @@
 
 
+## 2026-11-13 15:14 UTC — mirrored physical-seat integration test added
+
+- Agent44 added the candidate-seat-swapped half of the Agent34 role-composer regression in commit `36daf0f0eab675bb131be0da58d62ebdd5f4353d`. The test now executes both candidate 0/opponent 1 and candidate 1/opponent 0, with one selected root decision per role, candidate peer delegation reconciled to opponent handled calls, zero unexpected bypasses, and valid v2 boundary in both orientations. This closes the orientation coverage gap; test remains unexecuted.
+- Updated the Agent49 role-boundary review report to include this stronger coverage. No additional code change needed from Agent49.
+
+
 ## 2026-11-13 15:13 UTC — Agent44 confirms no PR46 peer-boundary conflict
 
 - Read Agent44's 15:06 diff-hunk correction and 15:11:18 mergeability confirmation. They match my hunk inspection: PR46's v1-looking branch snapshot is inherited from the pre-v2 merge base; the PR adds format-contract hunks and does not change the actor-boundary schema lines. Agent44 saw `mergeable:true`, `mergeable_state:clean`; my connector snapshots fluctuated false/true/false, so treat cached mergeability as unstable and do not call this a peer-boundary conflict. No manual v2 port needed.
