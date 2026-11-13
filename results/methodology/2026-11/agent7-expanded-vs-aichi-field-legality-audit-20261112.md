@@ -1,58 +1,97 @@
 # Paper Expanded legality audit of the Aichi source field
 
-**Agent 7, 12 November 2026.** This audit resolves the format conflict at the card-pool level rather than treating the repository's current Japanese Extra label as interchangeable with the governing `prompt.md` scope of paper Expanded (Black & White onward).
+**Agent 7 · revised 13 November 2026.** This audit resolves the format conflict at the card-pool and official-banlist levels. The governing `prompt.md` scope is paper international Expanded (Black & White onward); the Aichi Open League 2026 source event is Japanese Extra.
 
 ## Inputs
 
-- `results/aichi-2026/full-decklists.json`: 29 available Aichi Top 32 lists, with ranks 23, 25, and 28 missing.
-- Uploaded `card-list.zip`: 20,635 English card-printing records with Expanded legality fields where supplied.
-- `results/aichi-2026/candidate-hood-shadow-rider.json`: current Hood Shield 60-card hypothesis.
+- `results/aichi-2026/full-decklists.json`: 29 published Aichi Top 32 card-name/count inventories; ranks 23, 25 and 28 remain unavailable.
+- Uploaded `card-list.zip` / repository `resources/cards/en/`: 20,635 English card-printing records with snapshot legality fields.
+- `results/aichi-2026/candidate-hood-shadow-rider.json`: the Hood Shield v1 experimental 60.
+- Current official Expanded banned-card page: https://www.pokemon.com/es/jcc-pokemon-lista-de-cartas-prohibidas/ (checked 13 November 2026; exact-printing overlay reproduced in `results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md`).
 
-## Findings
+## 1. Official Expanded banned-printing overlay
 
-### Banned-printing scan
+The original 12 November scan found zero exact hits among the 41 English printings that the bundled snapshot itself marked `Expanded: Banned`. That statement remains true but is not a complete official-banlist audit: eight exact official banned printings are incorrectly marked `Legal` in the bundled snapshot.
 
-The card pool contains 41 exact English printings marked `Expanded: Banned`. A scan by exact source set/number found **zero** of those banned printings in the 29 available source lists or the Hood Shield candidate. This is a narrow banned-list result; it does not establish that every source printing is available/legal in English Expanded.
+The current official list enumerates **27 banned card identities / 49 exact printings**. All 49 printings resolve to records in the bundled English card pool; only 41 of those records carry the expected `Banned` flag. The eight stale flags are:
 
-### Aichi ranks that are not directly represented in the supplied Expanded pool
+| Card | Official banned printing | Bundled card ID | Bundled Expanded flag |
+| --- | --- | --- | --- |
+| Duskull | Cosmic Eclipse 83/236 | `sm12-83` | Legal |
+| Flapple | Rebel Clash 22/192 | `swsh2-22` | Legal |
+| Flapple | Shining Fates SV013/SV122 | `swsh45sv-SV013` | Legal |
+| Flapple | Astral Radiance TG02/TG30 | `swsh10tg-TG02` | Legal |
+| Flapple | Sword & Shield Promo SWSH022 | `swshp-SWSH022` | Legal |
+| Medicham V | Evolving Skies 83/203 | `swsh7-83` | Legal |
+| Medicham V | Evolving Skies 185/203 | `swsh7-185` | Legal |
+| Medicham V | Evolving Skies 186/203 | `swsh7-186` | Legal |
 
-The following source entries are present in the published lists but do not resolve to an English card printing in the supplied pool:
+An exact set/collector-number comparison of all 49 official printings against all **29 available Aichi source lists** finds **zero banned-printing hits**. The only same-name collision is rank 31 Duskull PRE 35, whose attacks are Come and Get You / Mumble; it is not banned Duskull CEC 83 with Spiritborne Evolution. The rank-31 card is therefore not a banned-printing hit. No Flapple or Medicham V appears in the 29 lists.
 
-| Rank | Published card entry | Count | Card-pool / format finding |
-| --- | --- | ---: | --- |
-| 24 | Palace Book — SMP NAN25 | 2 | No matching English card-pool printing; Palace Book is a Japanese XY-P / SM-P promotional card without an official English release. |
-| 24 | Player's Ceremony — SP 127 | 2 | No matching English card-pool printing; Japanese S-P Promo 127. The card database marks it not Expanded-legal. |
-| 29 | Palace Belt — BWP 153 | 2 | No matching English card-pool printing; Japanese BW-P Promo 153 without an official English release. |
-| 29 | Player's Ceremony — SP 127 | 1 | No matching English card-pool printing; Japanese S-P Promo 127, not Expanded-legal in the card database. |
+The Hood Shield v1 candidate also contains none of the identities responsible for the eight stale flags. Its normalized English-print export is separately audited at `results/decks/hood-shield-shadow-rider-v1-expanded-card-pool-legality-audit-20261113.md`.
 
-Public card references:
-- Palace Book: https://bulbapedia.bulbagarden.net/wiki/Palace_Book_(XY-P_Promo)
-- Palace Belt: https://bulbapedia.bulbagarden.net/wiki/Palace_Belt
-- Player's Ceremony: https://bulbapedia.bulbagarden.net/wiki/Player%27s_Ceremony_(SM-P_Promo_248)
-- Expanded legality entry for Player's Ceremony: https://poketcg.dragonshield.com/card/playersceremonysp127
+**Validation rule:** never use `card.legalities.expanded === "Legal"` alone as proof that a printing is not currently banned. Apply a versioned official exact-printing overlay. Preserve set and collector number; name-only matching would falsely conflate Duskull PRE 35 with Duskull CEC 83.
 
-The event lists use English-translated names and a `language: en` metadata value for these entries, but that does not turn the Japanese-only promotional printings into English Expanded cards. In particular, Player's Ceremony is explicitly not Expanded legal. Do not silently replace these cards with similarly named legal cards; that would change the registered opponent list.
+## 2. Aichi source identities incompatible with international Expanded
 
-### Current Hood Shield candidate
+A complete name/identity review of the 29 published lists finds three Japanese-only promo identities absent from the English card pool and not legal in international Expanded. They occur in **five** published lists, across **14 copies**:
 
-All non-energy card entries in `candidate-hood-shadow-rider.json` resolve to English Expanded-legal printings in the supplied card pool. The one normalization issue is its 11 Basic Psychic Energy entries recorded as `MEE 13`, which is a nonstandard placeholder rather than a printing in the supplied card database. Before calling the 60 fully paper-legal, normalize those entries to an actual legal Basic Psychic Energy printing (for example Chilling Reign CRE 232, which the card pool marks Expanded Legal). The `Battle Compressor PHF 92` shorthand resolves to the legal `Battle Compressor Team Flare Gear` printing.
+| Card identity | Japanese printing | Aichi ranks | Copies |
+| --- | --- | --- | ---: |
+| Player's Ceremony | S-P 127 | 3, 6, 24, 29 | 5 |
+| Palace Book | SM-P NAN25 | 6, 7, 24 | 6 |
+| Palace Belt | BW-P 153 | 6, 29 | 3 |
 
-## Consequence for the governing objective
+Exact per-rank inventory:
 
-The user-selected `prompt.md` defines the research scope as paper Expanded. The repository README and much of the current Aichi research instead describe Japanese Extra. At least ranks 24 and 29 contain Japanese-only / non-Expanded cards, so the exact 29-list Aichi field is **not** a uniformly legal Expanded opponent field. The three missing lists remain unverified as well.
+| Rank | Player's Ceremony | Palace Book | Palace Belt |
+| ---: | ---: | ---: | ---: |
+| 3 | 1 | 0 | 0 |
+| 6 | 1 | 1 | 1 |
+| 7 | 0 | 3 | 0 |
+| 24 | 2 | 2 | 0 |
+| 29 | 1 | 0 | 2 |
 
-Therefore:
-1. Treat paper Expanded as the governing objective for this invocation.
-2. Do not claim that the current Aichi Top 32 is an Expanded-legal field or that Japanese Extra native results establish Expanded strength.
-3. Preserve ranks 24 and 29 as authentic Japanese Extra source lists; do not rewrite them to manufacture Expanded legality.
-4. If the owner wants the Aichi event itself to remain the exact benchmark, the format must be explicitly changed to Japanese Extra. If Expanded remains governing, the benchmark needs an owner-approved rule for handling these non-Expanded opponents, or a different Expanded-legal opponent field.
-5. Normalize the candidate's Basic Energy placeholder before publishing it as a legal fixed 60.
+References and event-format evidence:
+
+- Player's Ceremony S-P 127: https://limitlesstcg.com/cards/jp/sp/127?translate=en — no international print; Expanded is not legal and Expanded (JP) is legal.
+- Palace Book SM-P NAN25: https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en — no international print; Expanded is not legal and Expanded (JP) is legal.
+- Palace Belt BW-P 153: https://bulbapedia.bulbagarden.net/wiki/Palace_Belt — Japanese BW-P promo with no official English release.
+- Official CL Aichi 2026 event page: https://www.pokemon-card.com/info/005445.html — specifies Extra regulation and Japanese-language cards only.
+
+The source JSON's English-translated names and `language: en` metadata are normalization fields, not evidence that the original event cards were English printings. These five lists are valid Japanese Extra source inventories but are not unchanged international Expanded opponents. Do not replace the promo cards with similarly named cards or otherwise rewrite the source 60s to manufacture legality.
+
+The five-rank result and exact copy counts are documented in `results/aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md`. The three missing ranks 23, 25 and 28 may contain further incompatibilities; they cannot be classified from archetype guesses.
+
+## 3. Candidate printing normalization
+
+The original Hood Shield v1 JSON records 11 Basic Psychic Energy entries as `MEE 13`, and its original card composition is retained unchanged for experiment fingerprints. A human-usable Expanded printing-normalized export now exists at `results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`:
+
+- 18 Pokémon, 31 Trainers, 11 Basic Psychic Energy = 60 cards.
+- The 11 Basic Psychic Energy entries are normalized to CRE 232.
+- Battle Compressor PHF 92 is written under its full name, Battle Compressor Team Flare Gear.
+- The independent construction / card-pool audit confirms 34 printing rows resolve to English printings marked Expanded Legal, one ACE SPEC, one Radiant Pokémon, and no non-Energy copy-limit violation.
+
+This is a printing-normalized experimental candidate, not a selected deck, physical inspection, Twinleaf game, or strength result. See the linked legality audit for the exact print crosswalk and limitations.
+
+## 4. Consequence for the governing objective
+
+The exact Aichi source event is a **Japanese Extra** field. The governing prompt asks for a paper **international Expanded** deck. These formats cannot be silently conflated:
+
+1. The authenticated source inventory is 29/32; ranks 23, 25 and 28 remain missing.
+2. Five authenticated ranks (3, 6, 7, 24 and 29) contain 14 copies of Japanese-only promo identities with no international Expanded printing.
+3. The other 24 lists pass current identity/card-pool/official-banlist screens as English Expanded diagnostic reconstructions, but original Japanese physical copies have not been authenticated. They are not automatically paper-admitted opponents.
+4. The current official banned-printing overlay finds zero exact banned-print hits among the 29 source lists, but the bundled snapshot has eight stale `Legal` flags and must not be treated as the sole banlist authority.
+5. The production paper-opponent denominator remains **0/32**; there are no competitively qualified games and no demonstrated 99.5% result.
+
+Therefore preserve the original Japanese Extra lists as source evidence, keep the 24 identity-screened reconstructions explicitly diagnostic, and do not claim a complete Expanded Top 32. If the owner intends the exact Aichi event to remain the benchmark, the governing format must be explicitly changed to Japanese Extra. If international Expanded remains governing, an owner-approved benchmark rule or a different Expanded-legal opponent field is required. No substitution or inferred missing list can resolve this silently.
 
 ## Limits
 
-- This is a card-pool/printing audit, not an independent tournament-rules ruling on foreign-language cards.
-- The supplied card pool is the repository's local source of truth; external card references are corroboration.
-- The 29 source lists are incomplete: ranks 23, 25, and 28 are still missing.
-- No games were run, no deck was promoted, and no win-rate inference follows.
+- The official banlist overlay is a current exact-printing screen, not a substitute for future versioned updates.
+- The 29 source inventories are incomplete and do not authenticate every original physical printing.
+- The five incompatible ranks are preserved as original Japanese Extra lists; the three unavailable ranks are not inferred.
+- The 24 diagnostic reconstructions do not establish original physical-card identity or production paper admission.
+- No games were run by this audit, no deck was promoted, and no matchup or win-rate inference follows.
 
-**Bottom line:** the current candidate can be normalized into an Expanded-legal 60, but the Aichi field as currently registered cannot be represented as an exact, uniformly Expanded-legal Top 32. The project must stop conflating Japanese Extra evidence with the prompt's Expanded objective.
+**Bottom line:** the prior 41-flag scan was incomplete, but the official overlay still finds zero exact banned-print hits in the 29 source lists. The decisive format incompatibility is unchanged and broader than the original two-rank note: five of 29 available Aichi lists are not unchanged international Expanded decks. The normalized Hood v1 60 has a human-usable Expanded printing export, but neither it nor any other candidate has been selected or competitively qualified.
