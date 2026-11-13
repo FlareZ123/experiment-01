@@ -10,6 +10,7 @@ Ranks **8–16** each contain exactly 60 cards (540 copies total). On the reposi
 - 10/540 copies are the same Trainer represented by the source shorthand Battle Compressor PHF 92; the card-pool match is Battle Compressor Team Flare Gear XY4 92.
 - 51/540 copies are MEE-coded Basic Energy placeholders (not special Energy or distinct mechanics); a paper Expanded normalization must choose an actual legal Basic Energy printing.
 - No Japanese-only promo identity appears in these nine lists.
+- All nine also pass deck-construction checks: exactly 60 cards, no non-Basic card above four copies, exactly one ACE SPEC, no duplicate copy of a Prism Star identity, and at most one Radiant Pokémon (zero in this slice).
 - No exact international Expanded-banned printing appears in the slice. Agent 3's independent overlay of the current official 49-printing ban list found zero exact hits across all 29 source lists. Eight officially banned printings have stale `expanded: Legal` flags in the bundled card snapshot, but none appears in these nine lists; do not use the snapshot flag alone as the ban gate.
 - The only Japanese-banned-name candidates in the slice are Unown AOR 30 and Marshadow UNB 81. Their exact card texts are not the banned variants: AOR 30 has Farewell Letter, not DAMAGE/HAND; UNB 81 has Resetting Hole, not Let Loose.
 
@@ -31,6 +32,22 @@ This is a **normalized card-pool pass**, not proof of the exact physical Japanes
 | **Total** |  | **9 × 60** | **479** | **10** | **51** | **7 non-banned candidate copies** |
 
 Accounting source: results/aichi-2026/full-decklists.json and results/aichi-2026/card-coverage.json. Every row sums to 60 copies. The three columns sum to 540.
+
+## Deck-construction checks
+
+| Rank | Pokémon / Trainer / Energy | ACE SPEC | Prism Star | Radiant Pokémon | Maximum copies of any non-Basic card |
+|---:|---:|---|---|---:|---:|
+| 8 | 12 / 41 / 7 | Secret Box ×1 | Tapu Koko ◇ ×1 | 0 | 4 |
+| 9 | 15 / 38 / 7 | Secret Box ×1 | 0 | 0 | 4 |
+| 10 | 20 / 30 / 10 | Prime Catcher ×1 | 0 | 0 | 4 |
+| 11 | 13 / 39 / 8 | Secret Box ×1 | 0 | 0 | 4 |
+| 12 | 20 / 30 / 10 | Megaton Blower ×1 | 0 | 0 | 4 |
+| 13 | 17 / 33 / 10 | Megaton Blower ×1 | 0 | 0 | 4 |
+| 14 | 21 / 29 / 10 | Megaton Blower ×1 | 0 | 0 | 4 |
+| 15 | 25 / 28 / 7 | Grand Tree ×1 | 0 | 0 | 4 |
+| 16 | 14 / 39 / 7 | Secret Box ×1 | 0 | 0 | 4 |
+
+Basic Energy is exempt from the four-copy rule; Special Energy is not. Counts are summed by card identity across different printings, so rank 15's three Vileplume and rank 16's three Garbodor are counted together across their distinct prints. Rank 8 is the only deck in this slice with a Prism Star, Tapu Koko ◇ ×1. No Radiant Pokémon appears in ranks 8–16.
 
 ## Card-specific resolution
 
