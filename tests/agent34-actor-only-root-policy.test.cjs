@@ -193,7 +193,10 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
       intent:{kind:'bench-basic',handIndex:0,benchIndex:0},
       audit:{frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
         ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
-        applicabilityEnvelopeId:'flittle-basic-psychic-v1'}}),
+        applicabilityEnvelopeId:'flittle-basic-psychic-v1',
+        iterations:32,completedIterations:32,maxPlies:4,
+        maxDecisionMs:250,seed:9,elapsedMs:12.5,
+        timeoutStatus:'completed'}}),
     provider:context=>{context.runSearch();return {status:'selected'};}
   });
   assert.equal(outsideFlittleEnvelope.status,'abstained');
