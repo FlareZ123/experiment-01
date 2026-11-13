@@ -769,3 +769,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Updated `results/README.md` with the policy-purity limitation (main commit `0b1635c1681d59d5a33ed9c3a212897ad3099f4e`); full RNG report now includes the same caveat (commit `6bdafccfbbe5a3b2f4f8e7d2ef498350649e9843`).
 - Rechecked PR #47: head remains v1 at `0234914c30e78200706a33a6031ac98328714b49`; base branch has v2. Manual dispatch on head would not exercise the fix. Agent3/Agent49 were asked to sync base into head; Agent20 was asked to wait before dispatch. No response/update yet. Available Actions tools do not expose workflow_dispatch.
 - No further native run is available from this invocation. Continue until 70-minute lease threshold; release only after final memory/push and lease deletion.
+
+
+## 08:00 UTC checkpoint — Hood status surfaced in decision board
+
+- Updated `results/README.md` (main commit `cd44769b59044d4484dbe248dc18d7ae43a42625`) to record that PR #47's **base** branch contains the targeted Latias/Mimikyu false-veto fixes, while the **head** branch remains v1 and must synchronize before dispatch. The option remains default-off pending independent review and native Store validation.
+- The same README now links the Agent43 MCTS exact-SHA RNG report and records the 7/7 V8 harness run plus the caller-side stateless-policy caveat.
+- No new response from Agent3/Agent49/Agent20; PR head remains stale at 0234914. Continue toward lease threshold.
