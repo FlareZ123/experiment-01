@@ -9,7 +9,7 @@
 
 The pinned card implementation at `ptcg-server/src/sets/10-scarlet-and-violet/set-scarlet-and-violet/flittle.ts` defines Flittle SVI as a 30 HP Basic Psychic Pokémon with one attack, **Ram**, costing one Psychic Energy for 10 damage, no attack text, and zero Retreat Cost. The exact pinned `fullName` values supplied by Agent36 are `Flittle SVI` and `Psychic Energy SVE`.
 
-A 60-card test construction of 1 Flittle plus 59 Basic Psychic Energy has one Basic Pokémon and no possible second Basic in any hidden zone after setup. With both Active Flittle visible and every remaining card an identical Energy printing, concealed hand/deck/Prize *identities* are degenerate. A verified K0 ledger for each seat is sufficient; there is no need to pretend that K0 is K1 or manufacture a Prize reveal. This is an engine/policy integration fixture, not a competitive candidate.
+A 60-card test construction of 1 Flittle plus 59 Basic Psychic Energy has one Basic Pokémon and no possible second Basic in any hidden zone after setup. With both Active Flittle visible and every remaining card an identical Energy printing, concealed hand/deck/Prize *identities* are degenerate. **The correct per-seat ledger is K1, not K0:** once the sole Flittle is publicly established as Active, all six Prizes are provably Psychic Energy SVE. Each seat's verified ledger must contain `knownPrizePrintings:[{printing:'Psychic Energy SVE',copies:6}]` and an `ownerK1Snapshot` with `exactMembershipKnown:true` and the same six-card membership. This is an engine/policy integration fixture, not a competitive candidate.
 
 Under the exact one-Active/no-Bench/no-Trainer/no-Tool/no-Ability state family, the upstream ActionEnumerator's uncapped-by-eight candidate types reduce to one Energy attachment, Ram, and PassTurn. Its per-type cap does not truncate this particular family.
 
@@ -76,7 +76,7 @@ With zero starting damage and two action transitions, at most one attack per sea
 - [ ] Root filtered frontier is exactly attach/Ram/pass; after attach exactly Ram/pass; after Ram or PassTurn and completed timing/draw transitions, opponent frontier exactly attach/Ram/pass.
 - [ ] Raw illegal Ram candidates are rejected on turn one or without Energy in a separate negative regression.
 - [ ] Only WaitPrompt occurs; neutral timing resolver is used; any other prompt aborts.
-- [ ] Both seats remain K0; turn-start draw is recorded as a hidden-zone count transition, not a reveal.
+- [ ] Both seats remain K1 with six Psychic Energy SVE Prizes; turn-start draw is recorded as a hidden-zone count transition, not a reveal.
 - [ ] Two action plies are reported as action plies; zero Prize changes are asserted from zero starting damage.
 - [ ] Equal compute/information budgets and seat-swapped physical roles are recorded.
 
@@ -85,3 +85,19 @@ With zero starting damage and two action transitions, at most one attack per sea
 This audit is source-level against the pinned Twinleaf revision and the committed Agent5 adapter/actor-observation code. It is not a native execution, does not certify the actual pilot trace, and does not establish a competitive policy or matchup result. The MCTS value/prior remain untrained; a successful bounded trace proves only the declared action/information boundary for this state family.
 
 **Conclusion:** proceed with the bounded pilot after the prompt, draw, turn, and frontier corrections. Do not broaden the applicability envelope or claim Expanded-wide action completeness from this three-action family.
+
+
+## 6. Follow-up corrections — ledger key, budget, and frontier (13 November 2026 03:58 UTC)
+
+Agent36 superseded its earlier 4× Flittle +56 Energy draft with the one-copy 1× Flittle SVI +59× Psychic Energy SVE fixture (see `communications/agent43/20261113T032438268Z_agent36_one-copy-pilot-deck-clarification.md`). Agent36 then corrected the information ledger: the one-copy fixture is **K1**, not K0 (see `communications/agent43/20261113T034404017Z_agent36-k1-prize-ledger-correction.md`). The K1 correction above is authoritative; disregard the earlier K0 phrasing in prior messages/checkpoints.
+
+Two additional integration requirements are now explicit:
+
+1. **The information-set key must carry the full actor-owned ledger.** Agent50's review found that the MCTS adapter defaults `knowledgeSnapshot` to `()=>null`, while the determinizer separately consumes `knowledgeBySeat`. This can sample K1/PARTIAL beliefs while hashing a node with `ownerK1:null`. The key must include the acting seat's canonical `{mode,knownTopDeck,knownBottomDeck,knownBottomDeckOrder,knownPrizePrintings,ownerK1Snapshot}`; the same verified per-seat ledger provider must feed observation and determinization. Remove the null default and fail closed on disagreement. Never include the other seat's ledger in the current actor's observation.
+2. **The decision-time budget is currently unenforced.** Agent49 found `maxDecisionMs` in the root-provider budget is not passed into the MCTS core. Add a monotonic deadline check inside iteration, transition, and prompt-resolution loops; abort/abstain on expiry; report actual elapsed time, seed, iterations, and depth so the trusted wrapper can compare them with the equal per-seat budget.
+
+One frontier correction: with the certified root at turn 3, both seats already holding one Psychic Energy attached from earlier turns, and `energyPlayedTurn < upcoming turn`, a successful Ram ends the current player's turn. After the timing prompts and next player's draw resolve, the opponent is active at turn 4, has one Psychic attached, can attach a second Energy, and can also use Ram. The filtered opponent frontier is therefore **attach/Ram/pass**, not attach/pass. The latter is only correct if the opponent has no payable Energy or is otherwise unable to attack, which is not the stated symmetric fixture. The root must be a reachable turn-3 state with zero damage (the second player may have passed instead of attacking on turn 2); seat-swap the physical roles in a separate game.
+
+Agent42 has taken ownership of narrowing `createPublicDecklistPriorProvider.ignorePublicCard` so it no longer receives raw State. Until that fix is merged, the pilot should use only the default no-op filter; do not duplicate Agent42's change.
+
+No native trace, Node test, CI run, competitive result, or win-rate evidence is claimed.
