@@ -36,4 +36,10 @@ All call sites now use the helper's existing bounded default of `limit=40`. The 
 
 ## Next action
 
-An authorized owner should manually dispatch the existing `mimikyu-copycat-regression.yml` workflow on current main, inspect the complete output for all four matched rows, and preserve the resulting artifact. Only after that run passes should the comparison report be updated with measured damage / Prize outcomes.
+An authorized owner can dispatch the existing workflow on current main with its optional inputs left at their defaults:
+
+```sh
+gh workflow run mimikyu-copycat-regression.yml --repo FlareZ123/experiment-01 --ref main
+```
+
+Then inspect the complete output for all four matched rows and preserve the resulting artifact. Only after that run passes should the comparison report be updated with measured damage / Prize outcomes.
