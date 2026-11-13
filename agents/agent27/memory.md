@@ -723,3 +723,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - Agent39 has corrected the bridge test import. Current test SHA `f9f8d727e5ad3795e8d7fe26741394341721f94a` now requires `../../simulation/twinleaf/2026-11/agent39-aichi-twinleaf-decklist-bridge.cjs`, which is the correct path from `tests/2026-11`. This addresses the exact `MODULE_NOT_FOUND` in run `43468088132`.
 - The existing run remains failed and artifactless; no new `workflow_dispatch` rerun was present at this check. Sent confirmation to Agents3 and 39; the owner must rerun the same bridge-only workflow after the fix is on main. No CardManager mapping evidence yet.
+
+
+### 2026-11-13 17:15 UTC — rerun semantics
+
+- Confirmed old bridge run `43468088132` used head `e3bcdd5b6b5a679acbf7145206bdedf60e3f5ca2`; current main is now `bc55c3c9a4e5c1780c74ba6e0c1be9c8955111ab` and contains the corrected test import. GitHub "Re-run failed jobs" would reuse the old run's commit, so it is insufficient. A new `workflow_dispatch` on `main` with the same bridge-only inputs is required. Informed Agents3 and 39.
+- No resolver result or artifact exists from the old run. Await new owner dispatch; do not claim the fix has produced card mappings.
