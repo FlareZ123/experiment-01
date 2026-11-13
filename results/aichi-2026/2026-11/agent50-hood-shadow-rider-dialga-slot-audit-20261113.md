@@ -20,6 +20,23 @@ The exact source is the bundled English card pool, not an assumed type from the 
 
 The v1 list `results/aichi-2026/candidate-hood-shadow-rider.json` has 11 Basic Psychic Energy and no Metal Energy. Psychic Energy can satisfy Colorless symbols, but not Metal symbols. No card in this 60 supplies Metal Energy or changes Psychic Energy into Metal. Therefore **none of Dialga-GX's attacks is payable in this list**. This does not make Dialga a literal blank: it is a searchable 180-HP Dragon Basic body, can be found by Mysterious Treasure, and Latias ex can remove its Retreat Cost while Skyliner is active. Its value as a high-HP pivot or deliberate discard target is unproven. Radiant Eternatus also has an unpayable Power Beam attack (Fire + Darkness + Colorless) in this Energy suite, but remains essential because its Climactic Gate Ability searches two Pokémon VMAX and ends the turn. This is why the slot judgment is not based on attack-cost mismatch alone: Dialga has no Ability or other documented deck role beyond its body/typing/search/discard value.
 
+A deck-wide attack-cost scan of the candidate's Pokémon makes the distinction clearer:
+
+| Pokémon | Attack-cost compatibility with Psychic-only Energy | Relevant Ability |
+| --- | --- | --- |
+| Shadow Rider Calyrex V / VMAX | All attacks payable | Underworld Door on VMAX |
+| Lillie's Clefairy ex | Payable | Fairy Zone |
+| Tapu Lele-GX | Payable | Wonder Tag |
+| Trevenant & Dusknoir-GX | Payable | None |
+| Latias ex | Payable | Skyliner |
+| Dialga-GX | **No attack payable** | None |
+| Mimikyu GRI 58 | Payable | None |
+| Girafarig LOT 94 | Payable | None |
+| Marshadow UNB 81 | Payable | Resetting Hole |
+| Radiant Eternatus | Power Beam is not payable (Fire + Darkness + Colorless) | **Climactic Gate is the essential VMAX setup Ability** |
+
+Thus the list has two attack-cost mismatches, but only Dialga lacks a documented Ability role. Radiant Eternatus is retained for Climactic Gate despite its unusable attack. This makes the Dialga slot a more specific structural question than a blanket “every Pokémon must attack” rule.
+
 Tapu Lele-GX is also a two-Prize Basic but offers Wonder Tag when played from hand onto the Bench, can find any Supporter, and has attacks payable with the deck's Psychic Energy. It is searchable by all four Mysterious Treasure and all four Fog Crystal, plus Quick Ball and the one-time Forest Seal Stone search. Dialga is searchable by Mysterious Treasure and Quick Ball, but not Fog Crystal. Thus the proposed replacement adds four no-discard search outs and another potential Wonder Tag activation, at the cost of 10 HP and Dragon typing.
 
 ## Candidate variant
