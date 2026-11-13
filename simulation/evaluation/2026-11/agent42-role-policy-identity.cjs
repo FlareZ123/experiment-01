@@ -687,7 +687,6 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   const core=preDeal.policyPlanCore;
   assert.ok(core&&core.candidate&&core.opponentPolicyBundle&&
     Array.isArray(core.opponentPolicyBundle.ranks),'pre-deal policy plan is incomplete');
-  const formatFields=formatFieldsForReceipt(preDeal,trial);
   assert.equal(preDeal.policyPlanSha256,evidenceBundleSha256(core),
     'frozen policy plan digest does not match its contents');
   const candidate=core.candidate;
@@ -826,6 +825,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   assert.match(preDeal.policyRegistrationSha256??'',SHA256,'policy registration digest is invalid');
   assert.match(preDeal.policyAttestationBundleSha256??'',SHA256,'policy attestation bundle digest is invalid');
 
+  const formatFields=formatFieldsForReceipt(preDeal,trial);
   const receipt={
     schema:APPLICATION_RECEIPT_SCHEMA,trialId:preDeal.trialId,
     ...(formatFields??{}),
