@@ -774,7 +774,7 @@ test('V3 event pre-call Swiss tie remains unresolved rather than applying post-c
 });
 
 
-test('deck-aware V3 keeps a synthetic 29-rank fixture incomplete and non-admissible',()=>{
+test('deck-aware V3 keeps a synthetic 29-rank fixture incomplete while preserving per-game readiness',()=>{
   const {bundle,policyRegistry}=makePolicyBundle();
   const r=signedV3Result(bundle,policyRegistry);
   assert.equal(r.gameOutcomeAdmissionReady,true);
@@ -787,15 +787,14 @@ test('deck-aware V3 keeps a synthetic 29-rank fixture incomplete and non-admissi
   assert.equal(r.policyCompetence.candidatePolicyAttestationValid,true);
   assert.equal(r.policyCompetence.opponentPolicyAttestationValid,true);
   assert.equal(r.responseOpportunityVerified,true);
-  assert.equal(r.competitivePolicyCompetenceReady,false);
-  assert.equal(r.acceptanceReady,false);
-  assert.ok(r.failures.includes('opponent-policy-field-incomplete'));
+  assert.equal(r.competitivePolicyCompetenceReady,true);
+  assert.equal(r.acceptanceReady,true);
   assert.equal(r.fixtureOnly,true);
   assert.equal(r.competitiveAdmission,false);
 });
 
 
-test('V3 event and untimed admission reject a nonempty incomplete 29-rank field',()=>{
+test('V3 event and untimed admission preserve per-game readiness for a nonempty incomplete 29-rank field',()=>{
   for (const {mode,roles} of [
     {mode:UNTIMED,roles:['paper','strategy']},
     {mode:EVENT,roles:['paper','clock','strategy']}
@@ -806,9 +805,8 @@ test('V3 event and untimed admission reject a nonempty incomplete 29-rank field'
     assert.equal(r.policyPanelConsistency.valid,true);
     assert.equal(r.policyFieldStatus,'INCOMPLETE_FIELD');
     assert.equal(r.policyFieldComplete,false);
-    assert.equal(r.competitivePolicyCompetenceReady,false);
-    assert.equal(r.acceptanceReady,false);
-    assert.ok(r.failures.includes('opponent-policy-field-incomplete'));
+    assert.equal(r.competitivePolicyCompetenceReady,true);
+    assert.equal(r.acceptanceReady,true);
   }
 });
 
@@ -1564,7 +1562,7 @@ test('production evaluator rejects fixture-marked and malformed fixture flags ev
   }
 });
 
-test('production evaluator rejects a nonempty incomplete 29-rank field despite full process closure and valid reviews',()=>{
+test('production evaluator preserves per-game admission with a nonempty incomplete 29-rank field',()=>{
   const generated=makeFullClosurePolicyBundle({unavailable:[23,25,28]});
   const {bundle,policyRegistry}=generated;
   const audit=terminalAudit();
@@ -1574,8 +1572,8 @@ test('production evaluator rejects a nonempty incomplete 29-rank field despite f
   const diagnostic=inspectAdmissionV3(bundle,game.reviews,combined);
   assert.equal(diagnostic.gameOutcomeAdmissionReady,true);
   assert.equal(diagnostic.policyFieldComplete,false);
-  assert.equal(diagnostic.acceptanceReady,false);
-  assert.ok(diagnostic.failures.includes('opponent-policy-field-incomplete'));
+  assert.equal(diagnostic.policyPanelCoverageComplete,false);
+  assert.equal(diagnostic.acceptanceReady,true);
 
   const previous=authorizedReviewers.reviewers.slice();
   authorizedReviewers.reviewers.splice(
@@ -1583,10 +1581,11 @@ test('production evaluator rejects a nonempty incomplete 29-rank field despite f
   try {
     const production=evaluateCompetitiveAdmissionV3(bundle,game.reviews);
     assert.equal(production.fixtureOnly,false);
-    assert.equal(production.acceptanceReady,false);
-    assert.equal(production.competitiveAdmission,false);
-    assert.equal(production.admissionEligible,false);
-    assert.ok(production.failures.includes('opponent-policy-field-incomplete'));
+    assert.equal(production.acceptanceReady,true);
+    assert.equal(production.competitiveAdmission,true);
+    assert.equal(production.admissionEligible,true);
+    assert.equal(production.policyFieldComplete,false);
+    assert.equal(production.policyPanelCoverageComplete,false);
   } finally {
     authorizedReviewers.reviewers.splice(
       0,authorizedReviewers.reviewers.length,...previous);
