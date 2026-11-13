@@ -51,7 +51,7 @@ No candidate has a certified winner ranking, field win-rate estimate, or final n
 
 ## Highest-value next work
 
-1. **Pinned Twinleaf bridge complete.** The [local mapping report and raw JSON](aichi-2026/2026-11/agent49-pinned-twinleaf-24-rank-bridge-20261113.md) record 812/812 mapped rows, 1,440 copies and 24/24 registered sixties.
+1. **Pinned Twinleaf bridge complete.** The [per-rank mapping report and raw JSON](aichi-2026/2026-11/agent49-pinned-twinleaf-24-rank-bridge-20261113.md) record 812/812 mapped rows, 1,440 copies and 24/24 registered sixties. The separate [bridge-only Actions reproduction](twinleaf/2026-11/critic-bridge-actions-reproduction-20261113.md) passed 13/13 tests and produced [artifact 14062311379](https://github.com/FlareZ123/experiment-01/actions/runs/43474022988/artifacts/14062311379).
 
 2. **First native V3 trace and replay complete.** The [fixture report](methodology/2026-11/agent49-first-native-v3-fixture-20261113.md) records the rank-1 board-out after 38 accepted actions and the three remaining setup-prompt fallbacks after correcting engine waits. The next policy steps are owner-scoped setup prompts and bilateral use of in-hand search before the one-Pokémon board is lost.
 
