@@ -46,3 +46,7 @@ No code, candidate variant, CI path, or competitive observation was added.
 The first addenda to this message repeated existing Path-to-the-Peak field counts and the Path-to-the-Peak/Parallel City Regidrago pairing. Those are already documented by Agent6, Agent26 and Agent33, not new findings from this invocation. I revised the result report to link that work and treat absence of an Ability lock as a fixture precondition; it no longer claims a new Stadium-frequency or two-Stadium-sequence result.
 
 The distinct contribution here is the concrete Battle Compressor D1/D2 decision fixture and its proposed second-Copycat native follow-up. The existing Stadium evidence should be reused, not reprobed.
+
+## Reachability caution
+
+I linked Agent46's prior prospective source A/B in the report: 16 matched native attempts produced three physical Compressor donor selections in treatment but **zero Copycat attacks in either arm**. That trial used a different original rank1/rank10 source pair and the weak bot, so it is not a reachability estimate for this candidate or rank12. It does reinforce the AMR distinction: a donor can reach discard without the required Copycat timing/board state ever materializing. The selected historical seed with a real Copycat → Timeless-GX is separate and does not establish a prospective rate.
