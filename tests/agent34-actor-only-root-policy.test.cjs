@@ -1273,7 +1273,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     choosePostTimelessMaxGeistRetreat
   }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
   const psychic='Psychic Energy SVE';
-  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set()};
+  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
     blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
@@ -1283,6 +1283,12 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const latias={
     printing:'Latias ex SSP',hp:210,damage:0,energies:[],attacks:[],
     abilities:['Skyliner'],abilityDetails:[{name:'Skyliner',text:'Your Basic Pokémon have no Retreat Cost.'}],
+    tools:[],publicRestrictions:{},specialConditions:[],
+    printed:{stage:'Basic',types:['Psychic'],resistance:[]}
+  };
+  const clefairy={
+    printing:"Lillie's Clefairy ex JTG",hp:190,damage:0,energies:[],attacks:[],
+    abilities:['Fairy Zone'],abilityDetails:[{name:'Fairy Zone',text:'The Weakness of each of your opponent\'s Dragon Pokémon in play is now Psychic.'}],
     tools:[],publicRestrictions:{},specialConditions:[],
     printed:{stage:'Basic',types:['Psychic'],resistance:[]}
   };
@@ -1310,7 +1316,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ownTurnResources:{extraTurnActive:true,retreatedTurn:7,
       energyPlayedTurn:7,energyPlayLocked:false,pokemonPlayLocked:false},
     ownPublic:{
-      prizeCount:6,active,bench:[latias,vmax],discard:['Dialga-GX UPR'],
+      prizeCount:6,active,bench:[latias,clefairy,vmax],discard:['Dialga-GX UPR'],
       stadium:[],
       publicTurnRestrictions:{gxUsed:true,attackLockTurnsRemaining:0,
         attackMaxEnergyTurnsRemaining:0,attackMaxEnergy:null,
@@ -1327,9 +1333,11 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const intent=choosePostTimelessMaxGeistRetreat(view,postTimelessCatalog,{ownerSeat:0});
   assert.equal(intent.source,postTimelessVersion);
   assert.equal(intent.kind,'skyliner-free-retreat');
-  assert.equal(intent.benchIndex,1);
+  assert.equal(intent.benchIndex,2);
   assert.equal(intent.attackName,'Max Geist');
   assert.equal(intent.projectedPrintedDamage,160);
+  assert.equal(intent.projectedDamage,320);
+  assert.equal(intent.fairyZoneMultiplier,2);
   assert.equal(intent.targetRemainingHp,70);
   assert.equal(intent.projectedPrizeCount,1);
 
@@ -1367,12 +1375,12 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const noImmediateKo={
     ...view,opponentPublic:{...view.opponentPublic,
-      active:{...target,hp:200}}
+      active:{...target,hp:400}}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(noImmediateKo,postTimelessCatalog,{ownerSeat:0}),null);
 
   const latiasMissing={
-    ...view,ownPublic:{...view.ownPublic,bench:[vmax]}
+    ...view,ownPublic:{...view.ownPublic,bench:[clefairy,vmax]}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(latiasMissing,postTimelessCatalog,{ownerSeat:0}),null);
 
@@ -1381,4 +1389,13 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
       active:{...target,printing:'Regidrago VSTAR SIT',hp:280}}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const adpTarget={...target,printing:'Arceus & Dialga & Palkia-GX CEC',hp:280,
+    printed:{stage:'Basic',types:['Dragon'],subtypes:['Basic','TAG TEAM','GX'],resistance:[]}};
+  const adpIntent=choosePostTimelessMaxGeistRetreat({
+    ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
+  },postTimelessCatalog,{ownerSeat:0});
+  assert.equal(adpIntent.projectedDamage,320);
+  assert.equal(adpIntent.projectedPrizeCount,3,
+    'the public prize projection must retain Tag Team three-prize value');
 });
