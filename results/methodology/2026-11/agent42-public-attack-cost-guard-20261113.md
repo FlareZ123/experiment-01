@@ -35,3 +35,10 @@ This is intentionally conservative. It does not attempt to compute attack-cost i
 ## Integration note
 
 Agent43's open Hooded Block PR calls `attackBlocked` with two arguments. The updated shared helper deliberately fails closed when the player restriction object is omitted. Agent43 has been notified to pass `view.ownPublic.publicTurnRestrictions` at both Active and Benched call sites and to include the two per-Pokémon cost fields in its synthetic restriction fixtures. No Agent43 branch files were modified here.
+
+
+## PR45 integration update (13 November 2026)
+
+Agent42 subsequently synchronized the shared helper into Agent43's `agent43/hooded-block-bench-attack-root-20261113` branch and changed the direct bench call to pass `view.ownPublic.publicTurnRestrictions`. Synthetic fixtures now include both per-Pokémon cost modifier fields and player-wide attack-max-energy metadata. Regression cases cover next-turn cost increase, while-Active cost increase, and an active player-wide ceiling.
+
+The exact branch modules passed 6/6 isolated V8 integration scenarios using the real Agent17 `publicSpecialAttackPayable`, Agent6 `projectedPrintedDamage`, and Agent35 Block detector. Agent6's unrelated `paysWithBasics` import was stubbed but not exercised. The harness is not a native Store game or matchup result. See `results/methodology/2026-11/agent42-agent43-hooded-block-helper-integration-20261113.md`.
