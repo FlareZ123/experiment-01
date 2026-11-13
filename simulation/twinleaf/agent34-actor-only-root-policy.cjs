@@ -1003,6 +1003,112 @@ function actorSpecialEnergyEnabled(enabled,allowedSeat,actorSeat){
  * @param {object} [deps] Injectable pinned classes or pure test fixtures.
  * @returns {{result:T,audit:object}}
  */
+
+const MCTS_ROOT_INTENT_KINDS=new Set([
+  'bench-basic','attach-basic-energy','attack','pass','paid-retreat'
+]);
+function isMctsRootIntentRecord(value){
+  return value!==null&&typeof value==='object'&&!Array.isArray(value)&&
+    Object.getPrototypeOf(value)===Object.prototype;
+}
+function sanitizeMctsRootIntent(intent){
+  if(!isMctsRootIntentRecord(intent))return null;
+  const source='agent5-information-set-mcts-v1';
+  switch(intent.kind){
+    case 'bench-basic':
+      if(!Number.isSafeInteger(intent.handIndex)||intent.handIndex<0||
+         !Number.isSafeInteger(intent.benchIndex)||intent.benchIndex<0)return null;
+      return {kind:'bench-basic',handIndex:intent.handIndex,
+        benchIndex:intent.benchIndex,source,
+        ...(typeof intent.printing==='string'?{printing:intent.printing}:{})};
+    case 'attach-basic-energy':
+      if(!Number.isSafeInteger(intent.handIndex)||intent.handIndex<0||
+         !['active','bench'].includes(intent.slot))return null;
+      if(intent.slot==='bench'&&
+         (!Number.isSafeInteger(intent.index)||intent.index<0))return null;
+      return {kind:'attach-basic-energy',handIndex:intent.handIndex,
+        slot:intent.slot,index:intent.slot==='bench'?intent.index:0,source};
+    case 'attack':
+      if(typeof intent.attackName!=='string'||intent.attackName.length===0)return null;
+      return {kind:'attack',attackName:intent.attackName,source};
+    case 'pass':
+      return {kind:'pass',reason:'mcts-root-pass',source};
+    case 'paid-retreat':
+      if(!Number.isSafeInteger(intent.benchIndex)||intent.benchIndex<0)return null;
+      return {kind:'paid-retreat',benchIndex:intent.benchIndex,source};
+    default:return null;
+  }
+}
+function invokeActorRootIntentProvider({
+  provider,capabilityFactory,state,actorSeat,view,catalog,rootOptions
+}){
+  const abstain=reason=>({status:'abstained',reason});
+  if(typeof provider!=='function'||typeof capabilityFactory!=='function')
+    return abstain('provider-or-capability-unavailable');
+  if(actorSeat!==0&&actorSeat!==1)return abstain('invalid-actor-seat');
+  const budget=rootOptions?.rootIntentBudget;
+  if(!isMctsRootIntentRecord(budget)||
+     !Number.isSafeInteger(budget.iterations)||budget.iterations<1||
+     !Number.isSafeInteger(budget.maxPlies)||budget.maxPlies<1||
+     !Number.isFinite(budget.maxDecisionMs)||budget.maxDecisionMs<=0||
+     !Number.isSafeInteger(budget.seed)||budget.seed<0)
+    return abstain('fixed-search-budget-unbound-or-invalid');
+  const frozenBudget=Object.freeze({
+    iterations:budget.iterations,maxPlies:budget.maxPlies,
+    maxDecisionMs:budget.maxDecisionMs,seed:budget.seed
+  });
+  let searchCapability;
+  try{
+    searchCapability=capabilityFactory(Object.freeze({
+      state,actorSeat,view,catalog,budget:frozenBudget
+    }));
+  }catch{return abstain('search-capability-construction-failed');}
+  if(typeof searchCapability!=='function')
+    return abstain('search-capability-not-callable');
+  let searchCalls=0,searchResult=null;
+  const runSearch=()=>{
+    if(searchCalls!==0)throw new Error('root-search-capability-is-one-shot');
+    searchCalls++;
+    searchResult=searchCapability();
+    return searchResult;
+  };
+  let decision;
+  try{
+    decision=provider(Object.freeze({
+      actorSeat,view,catalog,
+      rootOptions:Object.freeze({...rootOptions}),
+      budget:frozenBudget,runSearch
+    }));
+  }catch{return abstain('root-intent-provider-failed');}
+  if(decision&&typeof decision.then==='function')
+    return abstain('async-provider-not-supported');
+  if(decision?.status==='abstained')
+    return abstain(typeof decision.reason==='string'?
+      decision.reason.slice(0,100):'provider-abstained');
+  if(decision?.status!=='selected')return abstain('invalid-provider-status');
+  if(searchCalls!==1||searchResult?.status!=='selected')
+    return abstain('selected-without-one-successful-search');
+  const evidence=searchResult.audit;
+  if(!isMctsRootIntentRecord(evidence)||
+     evidence.frontierComplete!==true||
+     evidence.bothSeatKnowledgeLedgersVerified!==true||
+     evidence.ownerLedgerInInformationSetKey!==true||
+     evidence.promptResolutionActorScoped!==true||
+     typeof evidence.applicabilityEnvelopeId!=='string'||
+     evidence.applicabilityEnvelopeId.length===0)
+    return abstain('native-search-certification-incomplete');
+  const intent=sanitizeMctsRootIntent(searchResult.intent);
+  if(!intent)return abstain('native-search-intent-outside-bounded-vocabulary');
+  return {status:'selected',intent,searchAudit:{
+    frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
+    ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
+    applicabilityEnvelopeId:evidence.applicabilityEnvelopeId,
+    iterations:Number.isSafeInteger(evidence.iterations)?evidence.iterations:null,
+    rootActionCount:Number.isSafeInteger(evidence.rootActionCount)?
+      evidence.rootActionCount:null
+  }};
+}
+
 function withActorOnlyRootPolicy(run,deps={}){
   assert.equal(typeof run,'function');
   // Optional physical-seat scope permits two independently configured
@@ -1011,6 +1117,14 @@ function withActorOnlyRootPolicy(run,deps={}){
   const policyOwnerSeat=deps.policyOwnerSeat??null;
   assert.ok(policyOwnerSeat===null||policyOwnerSeat===0||policyOwnerSeat===1,
     'policyOwnerSeat must be physical seat 0, seat 1, or null');
+  const hasRootIntentProvider=deps.rootIntentProvider!==undefined||
+    deps.createRootSearchCapability!==undefined;
+  if(hasRootIntentProvider){
+    assert.equal(typeof deps.rootIntentProvider,'function',
+      'rootIntentProvider must be a protected runtime callback');
+    assert.equal(typeof deps.createRootSearchCapability,'function',
+      'createRootSearchCapability must be a protected runtime callback');
+  }
   const SimpleTacticsAi=deps.SimpleTacticsAi??
     require('../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
@@ -1083,6 +1197,11 @@ function withActorOnlyRootPolicy(run,deps={}){
   const audit={
     version:VERSION,origin:'detached-actor-observation',
     policyOwnerSeat,nonOwnerSeatBypassCalls:0,
+    rootIntentProvider:{
+      configured:hasRootIntentProvider,attempts:0,selected:0,abstained:0,
+      skipped:0,abstentionReasons:{},lastIntentKind:null,
+      lastApplicabilityEnvelopeId:null
+    },
     energyFrontierOptIn:deps.energyFrontier??
       (process.env.AGENT10_BASIC_ENERGY_FRONTIER_DEV==='true'),
     energyRecipientFrontierOptIn:deps.energyRecipientFrontier??
@@ -2364,6 +2483,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         });
       }else audit.garbotoxinToolRootStatusSamplesOmitted++;
     }
+    rootOptions.rootIntentBudget=deps.rootIntentBudget??null;
     const soloChoice=audit.thornsSoloEnergyRetentionOptIn?
       require('./agent14-owner-solo-bench-choice-contract.cjs')
         .collectSoloBenchChoice(view,catalog,chooseActorRootIntent,rootOptions):null;
@@ -2376,7 +2496,40 @@ function withActorOnlyRootPolicy(run,deps={}){
           ...soloChoice
         });
     }
-    const firstIntent=soloChoice?.chosen??
+    let providerChoice=null;
+    if(audit.rootIntentProvider.configured){
+      const eligible=policyOwnerSeat!==null&&!soloChoice&&
+        !audit.sameRootProposalChoiceOptIn&&!audit.terminalArbitrationOptIn&&
+        !audit.nativeOwnerTrainerFallback;
+      if(!eligible){
+        audit.rootIntentProvider.skipped++;
+        const reason=policyOwnerSeat===null?'unscoped-policy-owner-seat':
+          soloChoice?'higher-priority-solo-choice':
+          audit.nativeOwnerTrainerFallback?'native-trainer-fallback-enabled':
+          'downstream-arbitration-enabled';
+        audit.rootIntentProvider.abstentionReasons[reason]=
+          (audit.rootIntentProvider.abstentionReasons[reason]??0)+1;
+      }else{
+        audit.rootIntentProvider.attempts++;
+        const decision=invokeActorRootIntentProvider({
+          provider:deps.rootIntentProvider,
+          capabilityFactory:deps.createRootSearchCapability,
+          state,actorSeat:seat,view,catalog,rootOptions
+        });
+        if(decision.status==='selected'){
+          providerChoice=decision;
+          audit.rootIntentProvider.selected++;
+          audit.rootIntentProvider.lastIntentKind=decision.intent.kind;
+          audit.rootIntentProvider.lastApplicabilityEnvelopeId=
+            decision.searchAudit.applicabilityEnvelopeId;
+        }else{
+          audit.rootIntentProvider.abstained++;
+          audit.rootIntentProvider.abstentionReasons[decision.reason]=
+            (audit.rootIntentProvider.abstentionReasons[decision.reason]??0)+1;
+        }
+      }
+    }
+    const firstIntent=soloChoice?.chosen??providerChoice?.intent??
       chooseActorRootIntent(view,catalog,rootOptions);
     // Partial owner-view alternative collection is explicitly opt-in. The
     // first-return action is a control offer, never previously dispatched.
@@ -3213,5 +3366,6 @@ function withActorOnlyRootPolicy(run,deps={}){
   }
 }
 module.exports={VERSION,buildActorCardCatalog,chooseActorRootIntent,
+  invokeActorRootIntentProvider,
   actorSpecialEnergyEnabled,publicDispatchState,withActorOnlyRootPolicy,
   actorNativeActionReceipt,bindActorNativeStoreOrdinal};
