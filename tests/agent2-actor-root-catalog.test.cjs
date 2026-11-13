@@ -8,6 +8,7 @@ test('native printed class catalog uses numeric CardType and SpecialCondition',(
     constructor(fullName,stage,powers=[]){
       this.fullName=fullName;this.stage=stage;this.powers=powers;
     }
+    hasRuleBox(){return false;}
   }
   class EnergyCard{
     constructor(fullName,energyType){
