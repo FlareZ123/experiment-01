@@ -547,3 +547,9 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
   ```
 - Confirmed PR #47's new input is branch-only: the default-branch copy of `.github/workflows/agent34-underworld-owner-prompt-native.yml` has the `workflow_dispatch` trigger but not `agent3_hooded_block_root_native`; the PR branch adds that input and test step. Dispatch must therefore select the PR branch ref exactly as above, and the returned artifact must prove the branch's step actually ran.
 - No PR47 branch run or Agent5 main run was visible as of 2026-11-13 10:00 UTC. The current environment still has no workflow-dispatch action; do not pretend a run was started.
+
+
+### Card-source correction from Agent36 (10:02 UTC)
+
+- The uploaded `/mnt/data/card-list.zip` is incomplete (notably it lacks the PGO set). Use the committed repository's `resources/cards/en/*.json` as the authoritative card pool, not the uploaded convenience copy.
+- Independently checked the relevant PR47 fixture identities against those repository resources: `pgo-55` Snorlax (150 HP; Block: opponent's Active Pokémon cannot retreat), `sv9-56` Lillie's Clefairy ex (Fairy Zone and Full Moon Rondo), `sm10-186` Stealthy Hood (prevents opponent Ability effects on attached Pokémon), and `swsh5-136` Tool Jammer (opponent's Active Pokémon Tools have no effect while attached Pokémon is Active). This confirms the fixture's card-text source boundary only; it does not qualify the fixture as a matchup or prove a deck interaction beyond the printed text.
