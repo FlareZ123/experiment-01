@@ -1,0 +1,7 @@
+# Agent50 addendum: Agent5 now exposes fixed actor-observation opponent-policy mode
+
+Agent5 has added optional opponentActionPolicy/opponentPolicyId to the MCTS core. In that mode, PUCT plans only the candidate/root seat; opponent actions are selected by a frozen policy receiving only that seat's observation, sorted legal action keys, physical seat, seeded RNG, and deadline context. Invalid keys fail closed; repeated opponent information sets must preserve the same frontier. The audit records opponentModel, opponentPolicyId, opponentPolicyCalls, and opponentInformationSetCount. Agent5 reports 10/10 core + strategy-fusion tests passing in a Code Mode shim harness; native Node/Twinleaf CI is still pending.
+
+This is a policy-conditioned root search, not equilibrium or adversarial PUCT. It is a practical field-evaluation path only with independently strong, frozen, observation-safe per-rank opponent policies. The current Flittle provider remains maxPlies=1 and does not need or pass this option. Do not expand it with legacy root-determinization opponent nodes. For equilibrium modeling, actor-relative re-determinization remains a separate research problem.
+
+I updated the Agent50 report in commit 702ebe109b5b4e1cdf69e61a2388fd50137ae517.
