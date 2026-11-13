@@ -186,7 +186,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     nativeStoreAttackVerified:false,
     nativeTerminalVerified:false,
     competitiveGameQualified:false,
-    decisionReason:'post-timeless-copycat-extra-turn-max-geist-base-damage-immediate-ko',
+    decisionReason:'post-timeless-copycat-extra-turn-max-geist-projected-damage-immediate-ko',
     competingCopycatPayload:'Radiant Eternatus Power Beam absent from owner discard'
   };
 }
