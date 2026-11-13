@@ -280,10 +280,13 @@ function createTwinleafDeterminizationSampler(deps) {
     const detached=deps.cloneState(state);
     assert.ok(detached&&detached!==state,'Twinleaf clone adapter returned a live State');
     applySampledPartitionsToTwinleafState(detached,partitions,deps.createCard);
-    metadataByState.set(detached,{decklistIds});
+    metadataByState.set(detached,{decklistIds,knowledgeBySeat:ledgers});
     return detached;
   }
+  // The exact ledger provider and per-sample snapshots are shared with the
+  // MCTS observation adapter so its information-set key cannot omit belief data.
   sampleDeterminization.metadataByState=metadataByState;
+  sampleDeterminization.knowledgeBySeat=deps.knowledgeBySeat;
   return sampleDeterminization;
 }
 
