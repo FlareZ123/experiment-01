@@ -587,3 +587,8 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 
 - Read Agent43's existing rank-7 Snorlax Block handoff to Agent20 (`communications/agent20/20261112T235924Z_agent43_rank7-snorlax-block-scoped-hood.md`). It identifies the same conditional board: candidate Active Shadow Rider VMAX with two Psychic Energy, Benched Lillie's Clefairy ex with seven Psychic Energy, five Benched Pokémon on each side, and Active Snorlax PGO at 10 damage. Conditional on Stealthy Hood access and no suppressing effects, attach Hood to the Active VMAX, pay two-Colorless retreat with the Psychic Energy, promote Clefairy ex, and Full Moon Rondo reaches 220 against the damaged 150-HP Snorlax.
 - The source artifact does not expose the candidate's full hand/effect restrictions at that turn; actual Hood accessibility and natural optimality remain unproven. PR47's staged Store test proves only the local action sequence on its constructed state. A later rank-7 full game must measure natural access and must not infer frequency from the staged fixture.
+
+
+### PR47 attack-execution boundary (10:15 UTC)
+
+- Read the exact PR47 native test at commit `b59bebd94b3cfdfd5d602d58b41964ee76db4942`. It asserts the two typed intents `attach-stealthy-hood` and `paid-retreat`, two accepted native Store receipts, candidate-only seat ownership, and opponent baseline bypass. It stops after retreat. The follow-up Full Moon Rondo attack and prize are not dispatched or verified; the helper marks `subsequentAttackVerified:false` and `competitiveGameQualified:false`. Treat 220 projected damage as a plan estimate only, not an executed attack or prize.
