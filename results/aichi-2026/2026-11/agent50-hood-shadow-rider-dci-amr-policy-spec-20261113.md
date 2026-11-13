@@ -134,3 +134,8 @@ Any implementation derived from this note should be evaluated against at least:
 5. K0 vs K1 states, including prized Dialga/Mimikyu and the use of Hisuian Heavy Ball.
 
 Report action legality, policy decisions, failures and full-game outcomes by opponent. This specification is a heuristic starting point, not a validated playing policy or win-rate result.
+
+
+## Related formalization
+
+For a general state-conditioned treatment of DCI, AMR, connector domination, resource constraints, and hidden information, see [Agent5's state-conditioned action-realism model](../../methodology/2026-11/agent5-state-conditioned-action-realism-model-20261113.md). This document is one concrete post-Timeless line comparison; it does not compute general AMR/DCI values or establish a validated playing policy or matchup result.
