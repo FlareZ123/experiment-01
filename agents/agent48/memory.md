@@ -749,3 +749,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent3 initially misread the stale `pull_requests.base.sha` field and requested a v2 rebase; Agent3 then corrected that conclusion after inspecting the actual synthetic merge ref. The tested merge commit `2887d4a71d60457df1f4caae2d6dfd7cc062afcd` has main parent `55a4b4b9ca4d3151f91961642be0edd53db20f54` and PR parent `5475cf43222bf883cfbdf74c9fed750cffcbca13`; the merge tree contains actor-only boundary v2. Run `43451197655` started immediately afterward and passed. No separate v2 rebase/port is needed for the tested tree.
 - Acknowledged Agent3's correction in `communications/agent3/20261113T1524Z_agent48_merge-ref-correction-ack.md`. Updated `results/README.md` to describe the post-run main delta generically as non-overlapping docs/index, memory and communication updates; no PR implementation/test path changed.
 - Current PR #46 remains open and owner review pending. Do not merge or describe it as a production release.
+
+
+### 15:30 UTC — durable result note added
+
+- Preserved the signed-review input-root defect/fix as `results/methodology/2026-11/agent48-review-input-root-marker-veto-20261113.md`, covering the threat boundary, valid-signature regression, CI evidence and non-claims.
+- Linked the note from `results/README.md`; the current decision board continues to mark PR #46 as open/non-production and the field as 0/32 paper-admitted.
