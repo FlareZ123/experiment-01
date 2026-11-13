@@ -798,6 +798,8 @@ function buildFixtureRoleIdentities({
   preparedRuntime,
   candidateDeckSha256 = V3_FIXTURE.candidateDeckSha256,
   opponentDeckSha256 = V3_FIXTURE.opponentDeckSha256,
+  candidatePolicyOptions = V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
+  opponentPolicyOptions = V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
 } = {}) {
   const common = {
     entryManifest: manifestResult.manifest,
@@ -808,11 +810,11 @@ function buildFixtureRoleIdentities({
     loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
     cardPoolInitializationSha256: preparedRuntime.cardPoolInitializationSha256,
     policyVersion: V3_FIXTURE.policyVersion,
-    policyOptions: {},
   };
   const candidateIdentity = roleIdentity.buildRolePolicyIdentity({
     ...common,
     deckSha256: candidateDeckSha256,
+    policyOptions: candidatePolicyOptions,
     role: 'candidate-policy',
     rank: null,
     producerId: V3_FIXTURE.candidateProducerId,
@@ -820,6 +822,7 @@ function buildFixtureRoleIdentities({
   const opponentIdentity = roleIdentity.buildRolePolicyIdentity({
     ...common,
     deckSha256: opponentDeckSha256,
+    policyOptions: opponentPolicyOptions,
     role: 'opponent-policy',
     rank: 1,
     producerId: V3_FIXTURE.opponentProducerId,
