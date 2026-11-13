@@ -91,11 +91,13 @@ function withCandidateOpponentPolicyRoles(run,options) {
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
     'role-specific policy options must be plain objects');
   const rootProviderConfigured=commonDeps.rootIntentProvider!==undefined||
-    commonDeps.createRootSearchCapability!==undefined;
+    commonDeps.createRootSearchCapability!==undefined||
+    commonDeps.rootIntentActionKey!==undefined;
   assert.equal(rootProviderConfigured,
     typeof commonDeps.rootIntentProvider==='function'&&
-    typeof commonDeps.createRootSearchCapability==='function',
-    'rootIntentProvider and createRootSearchCapability must be supplied together');
+    typeof commonDeps.createRootSearchCapability==='function'&&
+    typeof commonDeps.rootIntentActionKey==='function',
+    'rootIntentProvider, createRootSearchCapability, and rootIntentActionKey must be supplied together');
   if(rootProviderConfigured){
     assert.ok(plainObject(candidatePolicyOptions.rootIntentBudget)&&
       plainObject(opponentPolicyOptions.rootIntentBudget),
@@ -122,7 +124,7 @@ function withCandidateOpponentPolicyRoles(run,options) {
     'getCatalog','getNativeTrainerCatalog','observe','stagedStore','promptActions',
     'arvenTrainerTypes','eriCardTypes','nativeOwnerTrainerFallback',
     'ownerFallbackDiagnosticView','rootIntentProvider',
-    'createRootSearchCapability'
+    'createRootSearchCapability','rootIntentActionKey'
   ];
   for(const [role,policyOptions] of [
     ['candidate',candidatePolicyOptions],['opponent',opponentPolicyOptions]
