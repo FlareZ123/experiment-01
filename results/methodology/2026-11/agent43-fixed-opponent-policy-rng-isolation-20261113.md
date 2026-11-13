@@ -47,3 +47,21 @@ Add a core test with two searches using the same seed and identical opponent obs
 ## Evidence boundary
 
 This is a direct source-level finding from the current core implementation, with the PRNG values mathematically reproduced from its `mixSeed` and `seededRandom` algorithms. No code was changed and no Node/CI test was executed. The existing 10/10 strategy-fusion harness does not exercise this RNG-coupling case. This finding does not imply a competitive deck result; it blocks treating stochastic fixed-opponent-policy mode as information-set-isolated until the RNG streams are separated.
+
+
+## Actual-core Code Mode reproduction
+
+I then executed the **current fetched core module itself** in a V8 Code Mode harness, supplying only deterministic hash/assert shims for its Node imports. This is not a reimplementation of the search loop.
+
+The paired searches used the same search seed (2), one iteration, identical opponent observation, identical `['block','pass']` frontier, and the same opponent physical seat. Only the root-private world differed. The root transition consumed one transition-RNG draw in the `threat` world and zero in the `bluff` world. The actual core produced:
+
+| Root-private world | Opponent action |
+| --- | --- |
+| threat (one prior transition draw) | pass |
+| bluff (no prior transition draw) | block |
+
+The harness independently confirmed the opponent observation hash, legal keys, and physical seat were identical. This directly reproduces the information leak in the current core.
+
+A second actual-core harness isolated the reverse direction. With the same seed and same actions, an opponent policy that consumes one random draw changed the subsequent game-transition draw from **0.6755176344886422** to **0.011818902334198356**. Thus policy randomization changes later simulated game randomness even when it returns the same action.
+
+This elevates the finding from a source-level concern to a deterministic, current-core Code Mode reproduction. It is still **not** native Node/Twinleaf CI and no repository code was changed.
