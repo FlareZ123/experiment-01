@@ -65,7 +65,7 @@ The 24 identity-screened lists are not a representative substitute for the full 
 | Nine singleton archetypes | 9 | 0 | 0 | **9 (28.1%)** |
 | **Total** | **24** | **5** | **3** | **32** |
 
-The 24-rank subset contains 37.5% Regidrago, 16.7% Absol Garbodor, 8.3% Raichu Electrode and 37.5% singleton strategies. The full Top32 instead contains 34.4% Regidrago, 12.5% Absol Garbodor, 9.4% Raichu Electrode, 9.4% Iron Thorns, 6.25% Snorlax Stall and 28.1% singleton archetypes. The screened subset omits all five Iron Thorns/Snorlax lists and all three missing lists (two Regidrago and one Raichu Electrode).
+The 24-rank subset contains 37.5% Regidrago, 16.7% Absol Garbodor, 8.3% Raichu Electrode and 37.5% singleton strategies. The missing-rank archetype labels are independently corroborated by [Limitless and Japanese public-source cross-checks](agent39-missing-rank-archetype-crosscheck-20261113.md); exact lists remain unavailable. The full Top32 instead contains 34.4% Regidrago, 12.5% Absol Garbodor, 9.4% Raichu Electrode, 9.4% Iron Thorns, 6.25% Snorlax Stall and 28.1% singleton archetypes. The screened subset omits all five Iron Thorns/Snorlax lists and all three missing lists (two Regidrago and one Raichu Electrode).
 
 This is rank/archetype metadata only. It does not reconstruct missing 60-card lists, make the five unchanged Japanese-Extra lists Expanded-legal, or qualify any of the 24 physical source decks. Production Expanded opponent admission remains 0/32.
 
