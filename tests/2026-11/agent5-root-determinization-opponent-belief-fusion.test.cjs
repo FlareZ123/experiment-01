@@ -172,3 +172,33 @@ test('fixed opponent policy uses only its observation and avoids root-private st
   assert.equal(threat.result.audit.rootActions[0].meanValue, 1);
   assert.equal(bluff.result.audit.rootActions[0].meanValue, -1);
 });
+
+test('rejects a fixed opponent policy action outside its visible frontier', () => {
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 2,
+    observe: (state, seat) => ({seat, public: state.public}),
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === 0 ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    sampleDeterminization: state => ({...state}),
+    applyAction: (state, action) => state.seat === 0 ?
+      ({...state, seat: 1}) :
+      ({...state, terminal: true, winner: 0}),
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0,
+    opponentPolicyId: 'invalid-action-policy',
+    opponentActionPolicy: () => 'hidden-illegal-action'
+  });
+  assert.throws(
+    () => search.search({
+      seat: 0,
+      public: {opponentThreatPrior: 0.2},
+      terminal: false
+    }, 0),
+    /outside its observation-safe frontier/
+  );
+});
