@@ -1,6 +1,6 @@
 # Candidate-only Max Geist attack-conversion retreat policy
 
-**Status:** experimental implementation on a dependent branch; pure local tests pass; CI and native-game validation pending.
+**Status:** experimental implementation on a dependent draft PR; pure local tests and path-filtered CI pass; native-game validation pending.
 
 ## Question
 
@@ -28,8 +28,9 @@ At that revision:
 - simple-bot-definitions.ts orders RetreatTactic immediately before AttackTactic.
 - RetreatTactic scores the state immediately after retreat; it does not score the attack that becomes available after the retreat.
 - AttackTactic evaluates attacks from the current Active Pokémon using SimpleTactic.evaluateAction and the same Simulator / StateScore machinery.
+- StateScore combines hand value, opponent state, prize differential, active/bench value, energy, damage, and Tools. PlayerScore includes a deck-count score and a configured penalty below ten cards; it is not a forward model of the next turn's deck-out loss.
 
-This creates a plausible policy gap: a retreat can be unattractive when scored as a board change alone even when retreating and attacking is the best complete tactical line.
+This creates a plausible policy gap: a retreat can be unattractive when scored as a board change alone even when retreating and attacking is the best complete tactical line. The existing score also provides a limited deck-size penalty when comparing Filch with Max Geist, but it does not replace a dedicated terminal-risk or prize-map model.
 
 ## Implementation
 
@@ -52,7 +53,7 @@ Local Node 22 isolated pure tests passed:
 - 8 attack-conversion cases: legal promotion; unpayable Max Geist; superior current attack; preservation of a better native retreat line; selection among multiple VMAX; illegal retreat; non-Shadow-Rider exclusion; and an already-Active VMAX with a better Benched VMAX.
 - 4 composer cases: subclass wrapping and opponent immutability; idempotence; candidate-seat isolation in both physical seats; and fail-closed behavior when a pinned base class is missing.
 
-These tests use injected fake base classes and action constructors. They establish the policy contract, not compatibility with a running Twinleaf build. The existing path-filtered pure PR workflow is extended to run the new test and syntax check; CI has not yet run for this dependent branch.
+GitHub Actions run 43333911226 completed successfully. It ran the existing path-filtered syntax checks and pure-contract tests; it did not build Twinleaf or run a game. The tests use injected fake base classes and action constructors. They establish the policy contract, not compatibility with a running Twinleaf build.
 
 ## Limitations and next validation
 
@@ -62,4 +63,4 @@ These tests use injected fake base classes and action constructors. They establi
 - It is not yet installed in the V3 candidate role and has no native complete-game result.
 - It has not changed the nominated deck, any matchup record, or any win-rate estimate.
 
-Next: run the pure CI; integrate the composed options into the V3 runner on the candidate seat only; run matched baseline-versus-policy native games in both physical seats over the same original-source Hood cohort; retain exact root-action, retreat-payment, attack, prize, and game-completion receipts. Expand to the full Aichi field only after the candidate policy is stable. Keep the policy experimental and do not promote it on the basis of helper tests alone.
+Next: integrate the composed options into the V3 runner on the candidate seat only; run matched baseline-versus-policy native games in both physical seats over the same original-source Hood cohort; retain exact root-action, retreat-payment, attack, prize, and game-completion receipts. Expand to the full Aichi field only after the candidate policy is stable. Keep the policy experimental and do not promote it on the basis of helper tests alone.
