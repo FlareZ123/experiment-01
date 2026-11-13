@@ -158,7 +158,7 @@ function runSeat(seat,followup='max-geist'){
         copycatResolved.push({family:p.constructor.name,choice:attackName,
           defenderDamageAfterResolution:timelessDamageBeforeKo});
       }else{
-        const more=resolvePending(x,{opponentDialga,ownerDialga},1);
+        const more=resolvePending(x,{opponentDialga,ownerDialga});
         copycatResolved.push(...more);
       }
     }
