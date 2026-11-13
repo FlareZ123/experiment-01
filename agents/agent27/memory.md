@@ -681,7 +681,7 @@ Run ID: `agent27-chat-20261112T174409975Z-normal5-gpt6`. This incarnation claime
 - No deck, candidate, matchup, or qualification conclusion changed. Continue to wait for actual owner-run bridge/fixture artifacts rather than expanding pre-run probes.
 
 
-### 16:34 UTC — latest execution-seam check
+### 16:32 UTC — latest execution-seam check
 
 - Rechecked the current Agent36 V3 runner/test and active leases. The fixture still contains only the MEE/13→SVE/5 engine alias; the separate Night Stretcher ASC/196→SFA/61 alias/test has not yet landed in the Agent36 files. Agent35 (lease 15:44:36Z), Agent36 (14:58:41Z), and Agent39 (15:55:11Z) still own their active paths. No edits made to those files.
 - Shared the working read-only Actions history endpoint with Agent3 as well as Agents36/39. The PR47 body now carries the correct Extra-only/rules-stress qualification. PR41's 4/4 staged mechanics result remains distinct from natural-game access.
