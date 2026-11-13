@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "author": "Agent39",
+  "created_at": "2026-11-13T06:49:37Z",
+  "event_date": "2026-05-10",
+  "source_file": "results/aichi-2026/full-decklists.json",
+  "purpose": "Resolve all English-display XYP rows in the authenticated Aichi Top 32 roster to pre-event Japanese printings with matching card text.",
+  "coverage": {
+    "source_rows": 9,
+    "physical_copies": 12,
+    "distinct_english_printings": 3,
+    "all_xyp_rows_accounted_for": true
+  },
+  "cards": [
+    {
+      "name": "Jirachi",
+      "english_printing": {
+        "set": "XYP",
+        "number": "67",
+        "card_id": "xyp-XY67",
+        "expanded_legality": "Legal"
+      },
+      "japanese_printing": {
+        "name": "ジラーチ",
+        "set": "XY-P",
+        "number": "129/XY-P"
+      },
+      "availability": {
+        "earliest_evidence": "2015-05",
+        "precision": "month",
+        "basis": "Official Japanese card page identifies Promotion Card Pack (2015/5)."
+      },
+      "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/31068",
+      "source_rows": [
+        {
+          "rank": 2,
+          "player": "Takahiro Ando",
+          "count": 1
+        }
+      ],
+      "matching_text": [
+        "Stardust",
+        "Dream Dance"
+      ],
+      "notes": "Official Japanese page gives the same two attack names and effects as English XYP #67."
+    },
+    {
+      "name": "Regirock",
+      "english_printing": {
+        "set": "XYP",
+        "number": "49",
+        "card_id": "xyp-XY49",
+        "expanded_legality": "Legal"
+      },
+      "japanese_printing": {
+        "name": "レジロック",
+        "set": "XY-P",
+        "number": "104/XY-P"
+      },
+      "availability": {
+        "earliest_evidence": "2015-02 issue",
+        "precision": "issue-month",
+        "basis": "Official Japanese card page identifies the CoroCoro Ichiban! February 2015 issue insert; exact distribution day is not stated on that page."
+      },
+      "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/30850",
+      "source_rows": [
+        {
+          "rank": 3,
+          "player": "Haruto Miki",
+          "count": 1
+        },
+        {
+          "rank": 7,
+          "player": "Hiroto Fuji",
+          "count": 2
+        }
+      ],
+      "matching_text": [
+        "Ω Barrier",
+        "Land Maker",
+        "Stone Edge"
+      ],
+      "notes": "Official Japanese page gives the same Ancient Trait and attack effects as English XYP #49. These two ranks remain incompatible for separate Japanese-only promo cards; this crosswalk does not change that."
+    },
+    {
+      "name": "Karen",
+      "english_printing": {
+        "set": "XYP",
+        "number": "177",
+        "card_id": "xyp-XY177",
+        "expanded_legality": "Legal"
+      },
+      "japanese_printing": {
+        "name": "カリン",
+        "set": "XY-P",
+        "number": "256/XY-P"
+      },
+      "availability": {
+        "start": "2016-08-01",
+        "end": "2016-09-30",
+        "precision": "official event period",
+        "basis": "Official Pokémon Card Gym Karen Night Battle page states that Karen was the participation prize throughout this period."
+      },
+      "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/32325",
+      "official_distribution_event_url": "https://www.pokemon-card.com/event/card-event/karin/",
+      "source_rows": [
+        {
+          "rank": 2,
+          "player": "Takahiro Ando",
+          "count": 1
+        },
+        {
+          "rank": 5,
+          "player": "Yamato Nakano",
+          "count": 2
+        },
+        {
+          "rank": 8,
+          "player": "Yusuke Kobayashi",
+          "count": 1
+        },
+        {
+          "rank": 15,
+          "player": "Ryotaro Nozawa",
+          "count": 2
+        },
+        {
+          "rank": 16,
+          "player": "Takumi Matsumoto",
+          "count": 1
+        },
+        {
+          "rank": 22,
+          "player": "Haruya Mori",
+          "count": 1
+        }
+      ],
+      "matching_text": [
+        "Supporter: each player shuffles all Pokémon in their discard pile into their deck."
+      ],
+      "notes": "Official Japanese card page identifies 256/XY-P and the same effect as English XYP #177; official event page confirms the card was distributed before the Aichi event."
+    }
+  ],
+  "interpretation": {
+    "established": [
+      "Every XYP source row in the 29 authenticated lists maps to one of these three English Expanded-legal identities.",
+      "A Japanese print with matching text existed before 2026-05-10 for each identity.",
+      "The nine XYP rows and twelve copies are no longer unresolved solely because the English XYP set has no release date in the chronology registry."
+    ],
+    "not_established": [
+      "Which exact physical Japanese copy each player registered or used.",
+      "A full physical-print audit of every non-XYP card in any list.",
+      "Expanded legality of ranks 3 and 7, which contain separate Japanese-only promo identities."
+    ]
+  }
+}
