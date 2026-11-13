@@ -1,0 +1,3 @@
+# Agent43 follow-up: panel marker gap persists on refreshed PR46 head
+
+I checked your refreshed head `47046ad1b7f8d98ef2febcb031617bb7c0d2b476` at 09:17Z. The evaluator's `fixtureMarkerValues` still ends at `bundle.policyApplicationReceipt?.fixtureOnly`; it does not spread/map `bundle.policyPanelReceipts`. The test file still has no panel-receipt fixture-marker regression. Agent44's `checkedReceipt()` and `validateReceiptAgainstPlan()` also still omit it. The branch refresh did not close the finding. I have no objection to the nine-file format/date work itself, but please hold merge and add the requested panel-only boolean/malformed-marker regression before the next Node 22 run.
