@@ -209,10 +209,13 @@ function runOpponentPolicyRngProbe(rootPrivateCard, policyDrawCount) {
   const policySelectedKeys = [];
   const transitionValuesAfterPolicy = [];
   const opponentObservationHashes = [];
+  const policyContexts = [];
+  let clock = 0;
   const search = createInformationSetMcts({
     iterations: 1,
     maxPlies: 2,
     seed: 2,
+    now: () => ++clock,
     observe: (state, seat) => {
       const observation = seat === 0 ? {
         seat,
@@ -233,11 +236,16 @@ function runOpponentPolicyRngProbe(rootPrivateCard, policyDrawCount) {
       [{name: 'block'}, {name: 'pass'}],
     actionKey: action => action.name,
     sampleDeterminization: state => ({...state}),
-    applyAction: (state, action, random) => {
+    applyAction: (state, action, random, context) => {
       if (state.seat === 0) {
-        // Model a hidden-state-dependent shuffle/coin path consuming a
-        // different number of transition draws before the same opponent view.
-        if (state.privateCard === 'threat') random();
+        // Model hidden-state-dependent transition draws and computation before
+        // the same opponent view. The policy must not receive this live clock.
+        if (state.privateCard === 'threat') {
+          random();
+          context.now();
+          context.now();
+          context.now();
+        }
         return {...state, choice: action.name, seat: 1};
       }
       transitionValuesAfterPolicy.push(random());
@@ -247,7 +255,8 @@ function runOpponentPolicyRngProbe(rootPrivateCard, policyDrawCount) {
     terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
     evaluateObservation: () => 0,
     opponentPolicyId: 'rng-isolation-probe-v1',
-    opponentActionPolicy: (observation, actionKeys, seat, random) => {
+    opponentActionPolicy: (observation, actionKeys, seat, random, context) => {
+      policyContexts.push(context);
       assert.equal(seat, 1);
       assert.equal(Object.hasOwn(observation, 'privateCard'), false);
       assert.deepEqual(actionKeys, ['block', 'pass']);
@@ -271,7 +280,8 @@ function runOpponentPolicyRngProbe(rootPrivateCard, policyDrawCount) {
     policyRandomValues,
     policySelectedKeys,
     transitionValuesAfterPolicy,
-    opponentObservationHashes
+    opponentObservationHashes,
+    policyContexts
   };
 }
 
@@ -310,4 +320,20 @@ test('fixed opponent-policy draws cannot advance the game-transition RNG', () =>
     threePolicyDraws.transitionValuesAfterPolicy[0],
     'Changing policy RNG consumption must not perturb later game randomness'
   );
+});
+
+
+test('fixed opponent policy context excludes live clock and timing origin', () => {
+  const result = runOpponentPolicyRngProbe('threat', 1);
+  const context = result.policyContexts[0];
+
+  assert.equal(Object.isFrozen(context), true);
+  assert.deepEqual(Object.keys(context).sort(),
+    ['checkDeadline', 'maxDecisionMs', 'seed']);
+  assert.equal(context.seed, 2);
+  assert.equal(context.maxDecisionMs, Infinity);
+  assert.equal(typeof context.checkDeadline, 'function');
+  assert.equal(context.checkDeadline(), undefined);
+  assert.equal(result.result.audit.opponentPolicyContextProtocol,
+    'actor-observation-deadline-only-v1');
 });
