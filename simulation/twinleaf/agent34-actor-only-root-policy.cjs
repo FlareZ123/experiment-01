@@ -1103,6 +1103,9 @@ function invokeActorRootIntentProvider({
     return abstain('native-search-certification-incomplete');
   const intent=sanitizeMctsRootIntent(searchResult.intent);
   if(!intent)return abstain('native-search-intent-outside-bounded-vocabulary');
+  if(evidence.applicabilityEnvelopeId==='flittle-basic-psychic-v1'&&
+     !['attach-basic-energy','attack','pass'].includes(intent.kind))
+    return abstain('intent-outside-flittle-envelope');
   return {status:'selected',intent,searchAudit:{
     frontierComplete:true,bothSeatKnowledgeLedgersVerified:true,
     ownerLedgerInInformationSetKey:true,promptResolutionActorScoped:true,
