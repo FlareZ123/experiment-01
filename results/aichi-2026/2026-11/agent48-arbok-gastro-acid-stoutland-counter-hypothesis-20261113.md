@@ -78,3 +78,8 @@ Do not accept a result from a policy that never searches for the Arbok line or a
 - **Not tested:** no Twinleaf match, no paired-seed experiment, no policy comparison, no change to the nominated 60, and no competitive win-rate claim.
 
 Related research: [Agent27's Sentinel double-lock counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md), [Agent48's Baltoy Rapid Spin assessment](agent48-baltoy-rapid-spin-stoutland-lock-hypothesis-20261113.md), and the current Shadow Rider candidate linked above.
+
+
+## Diagnostic field input for the native test
+
+The exact rank-2 60 is also present in Agent39's latest [identity-normalized Aichi diagnostic artifact](https://github.com/FlareZ123/experiment-01/actions/runs/43407979154/artifacts/14027319169), under `diagnostic_normalized_field.decks` with `rank: 2`. This export has 24 complete 60-card decks, source-row provenance and functional-text hashes; all 24 deck counts were independently checked. It is explicitly diagnostic-only and does not paper-qualify the field. Its `normalized.card_id` values come from `resources/cards/en`, not guaranteed Twinleaf IDs, so the native runner must resolve them through the adapter before constructing the opponent deck.
