@@ -82,8 +82,9 @@ function preDeal(candidate,opponent,planConstraints=constraints,fullProcessClosu
   opponentSourceEventFormat:'Japanese Extra',formatReviewStatus,
   candidate:{deckSha256:candidate.deckSha256,policySha256:candidate.policySha256,
    entryManifestSha256:candidate.entryManifestSha256,challengeSuiteSha256:candidate.challengeSuiteSha256,
-   policyProducerId:candidate.policyProducerId,formatStatus:'unverified',
-   formatStatusEvidenceRef:null},
+   policyProducerId:candidate.policyProducerId,
+   formatStatus:fullProcessClosureCovered?'legal':'unverified',
+   formatStatusEvidenceRef:fullProcessClosureCovered?'format/candidate-expanded':null},
   runtimePinEvidence:{schema:'aichi-runtime-pin-evidence-v2',unionSha256:candidate.runtimePinUnionSha256,
    loadedProcessClosureSha256:candidate.loadedProcessClosureSha256,
    cardPoolInitializationSha256:candidate.cardPoolInitializationSha256,
@@ -91,8 +92,10 @@ function preDeal(candidate,opponent,planConstraints=constraints,fullProcessClosu
   opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks:[{rank:opponent.rank,
    sourceStatus:'authenticated',deckSha256:opponent.deckSha256,policySha256:opponent.policySha256,
    entryManifestSha256:opponent.entryManifestSha256,challengeSuiteSha256:opponent.challengeSuiteSha256,
-   policyProducerId:opponent.policyProducerId,formatStatus:'unverified',
-   formatStatusEvidenceRef:null}]},constraints:effectiveConstraints};
+   policyProducerId:opponent.policyProducerId,
+   formatStatus:fullProcessClosureCovered?'legal':'unverified',
+   formatStatusEvidenceRef:fullProcessClosureCovered?'format/opponent-rank-'+opponent.rank:null}]},
+  constraints:effectiveConstraints};
  const registration={
   schema:'aichi-policy-registration-v1',trialId:'trial-1',
   policyPlanSha256:evidenceBundleSha256(core),
