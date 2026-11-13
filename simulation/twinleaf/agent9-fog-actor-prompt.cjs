@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-fog-crystal-owner-prompt-v2-live-state';
+const VERSION='agent9-fog-crystal-owner-prompt-v3-source-bound';
 const AOR_GATE_VERSION='agent8-effective-aor-item-veto-optin-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
@@ -74,6 +74,8 @@ function withActorFogCrystalPrompt(run,deps={}) {
     fogPromptProposals:0,fogPromptNativeAccepted:0,
     postSearchPhysicalCardPlays:0,postSearchPhysicalEvents:[],
     rejectedNativeChoices:0,unsupportedPrompts:0,
+    sourceCardBindingAccepted:0,sourceCardBindingFailures:0,
+    sourceCardBindingEvents:[],
     nonLiveSpeculativeFallbacks:0,
     nativeAorItemLockOptIn:nativeAorItemLock,
     nativeAorItemGateVersion:nativeAorItemLock?AOR_GATE_VERSION:null,
@@ -148,18 +150,21 @@ function withActorFogCrystalPrompt(run,deps={}) {
     const actor=state.players[seat];
     let history=perOwner.get(actor.id);
     if(!history||history.turn!==state.turn) {
-      history={turn:state.turn,itemUsed:false,awaitingFog:false};
+      history={turn:state.turn,itemUsed:false,awaitingFog:false,
+        fogSourceCard:null,fogSourceHandIndex:null,promptPendingId:null};
       perOwner.set(actor.id,history);
     }
     if(active) {
-      if(history.awaitingFog &&
+      const expectedFogPrompt=history.awaitingFog &&
         active.constructor.name==='ChooseCardsPrompt' &&
         active.playerId===actor.id && active.cards===actor.deck &&
-        active.message===GameMessage.CHOOSE_CARD_TO_HAND) {
+        active.message===GameMessage.CHOOSE_CARD_TO_HAND;
+      if(expectedFogPrompt && history.fogSourceCard &&
+         active.sourceCard===history.fogSourceCard) {
         const view=observe(state,seat);
         assert.equal(view.pendingOwnerDeckSearch,true);
         const offered=active.cards.cards.map(card=>({
-          printing:card.fullName,permitted:active.validate([card]),
+          printing:card.fullName,permitted:active.validate([card],state),
           basicPsychic:card.superType===SuperType.POKEMON &&
             card.stage===Stage.BASIC &&
             card.cardType?.includes(CardType.PSYCHIC),
@@ -172,14 +177,27 @@ function withActorFogCrystalPrompt(run,deps={}) {
           active.cards.cards.find((card,index)=>card.fullName===chosen &&
             offered[index].permitted)
         ];
-        assert.ok(active.validate(selected),
+        assert.ok(active.validate(selected,state),
           'Selected Fog Crystal target fails native Choice validation');
-        history.awaitingFog=false;
         const action=new ResolvePromptAction(active.id,selected);
         actions.set(action,{kind:'fog-search',seat,turn:state.turn,
-          chosen:chosen??null,selectedCard:selected[0]??null});
+          chosen:chosen??null,selectedCard:selected[0]??null,
+          sourceCard:history.fogSourceCard,
+          sourceHandIndex:history.fogSourceHandIndex,
+          sourcePrinting:history.fogSourceCard.fullName});
+        history.promptPendingId=active.id;
         audit.fogPromptProposals++;
         return action;
+      }
+      if(history.awaitingFog) {
+        if(expectedFogPrompt&&active.sourceCard!==history.fogSourceCard)
+          audit.sourceCardBindingFailures++;
+        // Do not let a later unrelated owner prompt inherit this Fog Crystal
+        // authorization. A mismatched source fails closed to the native bot.
+        history.awaitingFog=false;
+        history.fogSourceCard=null;
+        history.fogSourceHandIndex=null;
+        history.promptPendingId=null;
       }
       audit.unsupportedPrompts++;
       return originalBot.value.call(this,state);
@@ -202,10 +220,14 @@ function withActorFogCrystalPrompt(run,deps={}) {
     const action=new PlayCardAction(actor.id,handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     });
+    const sourceCard=actor.hand.cards[handIndex];
     history.itemUsed=true;
     history.awaitingFog=true;
+    history.fogSourceCard=sourceCard;
+    history.fogSourceHandIndex=handIndex;
     actions.set(action,{kind:'fog-item',seat,turn:state.turn,
-      chosen:view.ownHand[handIndex]});
+      chosen:view.ownHand[handIndex],sourceCard,sourceHandIndex:handIndex,
+      sourcePrinting:sourceCard.fullName});
     audit.fogItemRootProposals++;
     return action;
   }
@@ -239,12 +261,44 @@ function withActorFogCrystalPrompt(run,deps={}) {
       }
       return result;
     }
-    const {selectedCard,...logged}=choice;
+    const {selectedCard,sourceCard,...logged}=choice;
     try {
+      if(choice.kind==='fog-item'&&played!==sourceCard)
+        throw new Error('Fog Crystal physical source Card changed before Store dispatch');
+      if(choice.kind==='fog-search'){
+        const owner=this.state?.players?.[choice.seat];
+        const prompt=this.state?.prompts?.find(item=>item.id===action.id);
+        if(!owner||!prompt||prompt.sourceCard!==sourceCard||
+           prompt.playerId!==owner.id||prompt.cards!==owner.deck)
+          throw new Error('Fog Crystal search prompt lost its exact physical source/owner/deck binding');
+        if(selectedCard&&!prompt.cards.cards.includes(selectedCard))
+          throw new Error('Fog Crystal target is no longer the exact offered Card object');
+        if(!prompt.validate(action.result,this.state))
+          throw new Error('Fog Crystal target fails native prompt validation at dispatch');
+      }
       const result=originalDispatch.value.apply(this,[action,...rest]);
-      if(choice.kind==='fog-item')audit.fogItemRootNativeAccepted++;
-      else {
+      if(choice.kind==='fog-item'){
+        const history=perOwner.get(player.id);
+        if(history){
+          history.fogSourceCard=sourceCard;
+          history.fogSourceHandIndex=choice.sourceHandIndex;
+          history.awaitingFog=true;
+        }
+        audit.fogItemRootNativeAccepted++;
+        audit.sourceCardBindingAccepted++;
+        audit.sourceCardBindingEvents.push({kind:'fog-item',seat:choice.seat,
+          turn:choice.turn,sourcePrinting:choice.sourcePrinting,
+          sourceHandIndex:choice.sourceHandIndex,sourceCardBound:true});
+      } else {
         audit.fogPromptNativeAccepted++;
+        const owner=this.state.players[choice.seat];
+        const history=perOwner.get(owner.id);
+        if(history){
+          history.awaitingFog=false;
+          history.fogSourceCard=null;
+          history.fogSourceHandIndex=null;
+          history.promptPendingId=null;
+        }
         if(selectedCard) {
           const id=this.state.players[choice.seat].id;
           const previous=searchedPhysicalCards.get(id)??[];
@@ -257,6 +311,20 @@ function withActorFogCrystalPrompt(run,deps={}) {
       return result;
     }catch(err) {
       audit.rejectedNativeChoices++;
+      if(choice.kind==='fog-item'){
+        const history=perOwner.get(player?.id);
+        if(history){
+          history.itemUsed=false;history.awaitingFog=false;
+          history.fogSourceCard=null;history.fogSourceHandIndex=null;
+        }
+      }else if(choice.kind==='fog-search'){
+        const owner=this.state?.players?.[choice.seat];
+        const history=owner?perOwner.get(owner.id):null;
+        if(history){
+          history.awaitingFog=false;history.fogSourceCard=null;
+          history.fogSourceHandIndex=null;history.promptPendingId=null;
+        }
+      }
       audit.events.push({...logged,nativeStoreAccepted:false,
         error:String(err?.message??err)});
       throw err;
