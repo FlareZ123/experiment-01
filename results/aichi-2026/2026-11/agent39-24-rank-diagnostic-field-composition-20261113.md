@@ -5,6 +5,8 @@
 
 ## Field composition
 
+**Rank-label caveat:** rank numbers throughout this report are the Limitless/source ordering stored in `full-decklists.json`, not guaranteed final bracket placements. Agent50 verified that the official final runner-up Otaro's deck code is a Bunnelby/Herdier/Stoutland/Rafflesia list and does not match source slot 2 Takahiro Ando's Vileplume Control list; the official winner's code does match source slot 1. Keep source-slot IDs for provenance and do not describe source slot 2 as the final runner-up.
+
 The 24 identity-screened lists contain 1,440 card copies, 812 source card rows and 211 distinct canonical English card-pool identities. Every list has exactly 60 copies. Archetype labels and ranks are preserved from the source data.
 
 | Archetype | Ranks | Decks | Share of 24 |
