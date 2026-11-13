@@ -5,7 +5,11 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v9-seat-relative-bottom-target';
+const {
+  VERSION:POST_TIMELESS_MAX_GEIST_VERSION,
+  choosePostTimelessMaxGeistRetreat
+}=require('./2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
+const VERSION='agent34-actor-only-root-slice-v10-post-timeless-maxgeist-root-intent';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -270,6 +274,16 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseDittoStage1EvolutionIntent(
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
+  }
+  // The extra-turn follow-up is narrower than the general Skyliner pivot:
+  // only a candidate-owned, publicly evidenced Timeless-GX turn can propose
+  // Max Geist, and the helper abstains when Power Beam is a competing donor.
+  if(options.mimikyuTimelessMaxGeistRetreatRoot===true&&
+     options.mimikyuApexFundedPromotion===true){
+    const followUp=choosePostTimelessMaxGeistRetreat(view,catalog,{
+      ownerSeat:options.mimikyuTimelessMaxGeistRetreatRootOwnerSeat
+    });
+    if(followUp)return followUp;
   }
   // Source-independent effective zero-cost Skyliner pivot to an already
   // funded Benched attacker. The native Store determines true Ability
@@ -1247,6 +1261,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       .trainerPrintCatalog(CardManager.getInstance().getAllCards(),
         {TrainerCard,TrainerType});
   });
+  assert.ok(deps.mimikyuTimelessMaxGeistRetreatRoot!==true||
+    (deps.mimikyuApexFundedPromotion===true&&
+     (deps.mimikyuTimelessMaxGeistRetreatRootOwnerSeat===0||
+      deps.mimikyuTimelessMaxGeistRetreatRootOwnerSeat===1)),
+    'Post-Timeless Max Geist root requires Mimikyu Apex history and a candidate seat');
   const audit={
     version:VERSION,origin:'detached-actor-observation',
     policyOwnerSeat,nonOwnerSeatBypassCalls:0,
@@ -1291,6 +1310,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     maxGeistManualRecoveryOptIn:deps.maxGeistManualRecovery===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     mimikyuApexFundedPromotionOptIn:deps.mimikyuApexFundedPromotion===true,
+    mimikyuTimelessMaxGeistRetreatRootOptIn:
+      deps.mimikyuTimelessMaxGeistRetreatRoot===true,
+    mimikyuTimelessMaxGeistRetreatRootOwnerSeat:
+      deps.mimikyuTimelessMaxGeistRetreatRootOwnerSeat??null,
+    mimikyuTimelessMaxGeistRetreatRootSelected:0,
     mimikyuApexFundedPromotionSelected:0,
     mimikyuApexCopycatSelected:0,
     mimikyuApexTimelessPromptSelected:0,
@@ -1607,6 +1631,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  if(audit.mimikyuTimelessMaxGeistRetreatRootOptIn)
+    audit.version+='+'+POST_TIMELESS_MAX_GEIST_VERSION;
   if(audit.copycatHistoryRootOptIn){
     audit.version+='+'+require('./agent7-copycat-history-root.cjs').VERSION;
     audit.copycatHistoryRoot={
@@ -2309,6 +2335,11 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.pathUnderworldStadiumCounterOptIn===true,
       mimikyuApexFundedPromotion:
         audit.mimikyuApexFundedPromotionOptIn===true,
+      mimikyuTimelessMaxGeistRetreatRoot:
+        audit.mimikyuTimelessMaxGeistRetreatRootOptIn===true&&
+        audit.mimikyuTimelessMaxGeistRetreatRootOwnerSeat===seat&&
+        audit.mimikyuApexFundedPromotionOptIn===true,
+      mimikyuTimelessMaxGeistRetreatRootOwnerSeat:seat,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
       genericTacticalSwitchRoot:audit.genericTacticalSwitchRootOptIn===true,
@@ -2620,6 +2651,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(audit.copycatHistoryRootOptIn&&
         intent.source===require('./agent7-copycat-history-root.cjs').VERSION)
       audit.copycatHistoryRoot.selected++;
+    if(intent.source===POST_TIMELESS_MAX_GEIST_VERSION)
+      audit.mimikyuTimelessMaxGeistRetreatRootSelected++;
     if(intent.source?.startsWith('agent36-garbotoxin-'))
       audit.garbotoxinToolRootSelected++;
     if(intent.source==='agent36-garbotoxin-float-stone-v1')
