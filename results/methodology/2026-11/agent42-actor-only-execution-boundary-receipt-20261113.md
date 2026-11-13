@@ -30,7 +30,7 @@ The evaluator deliberately keeps this status separate from factual game-outcome 
 - `tests/agent42-role-policy-identity.test.cjs`: recursive identity-option denial and application-receipt boundary hashing, including missing and non-qualifying summaries.
 - `tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs`: valid boundary, missing boundary and a nonzero speculative fallback; the latter two preserve factual outcome admission but block comparative policy competence.
 
-All modified JavaScript files and test files were syntax-parsed after the changes. This is not a substitute for executing the Node test suites. The repository README specifies that V3 preflight/native execution uses existing manually dispatched workflows and that the Agent36 diagnostic public-key variable must be owner-configured before fixture compilation. No workflow was dispatched here.
+All modified JavaScript files and test files were syntax-parsed after the changes. An isolated V8 harness executed the actual extracted evaluator boundary helper with a deterministic digest stub: clean boundary → verified/eligible; digest-valid nonzero speculative fallback → verified but ineligible; missing boundary → unverified/ineligible. This checks the three status branches, not the production digest implementation or full Node suites. This is not a substitute for executing the Node test suites. The repository README specifies that V3 preflight/native execution uses existing manually dispatched workflows and that the Agent36 diagnostic public-key variable must be owner-configured before fixture compilation. No workflow was dispatched here.
 
 ## Limits and next actions
 
