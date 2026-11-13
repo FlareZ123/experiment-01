@@ -1295,7 +1295,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const vmax={
     printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:0,
     energies:[psychic,psychic,psychic],
-    attacks:[{name:'Max Geist',cost:[5,5],damage:null,damageCalculation:{kind:'max-geist'}}],
+    attacks:[{name:'Max Geist',cost:[9,9,9],damage:null,damageCalculation:{kind:'max-geist'}}],
     abilities:[],abilityDetails:[],tools:[],publicRestrictions:{...restrictions},
     specialConditions:[],printed:{stage:'VMAX',types:['Psychic'],resistance:[]}
   };
