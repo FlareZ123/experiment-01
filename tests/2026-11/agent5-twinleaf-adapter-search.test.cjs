@@ -1,221 +1,346 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {createTwinleafInformationSetSearch,createTwinleafMcts}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs');
+const {
+  FLITTLE_ENVELOPE_ID,createTwinleafInformationSetSearch,createTwinleafMcts,
+  flittleActionKey,flittleNativeActionToIntent
+}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs');
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
-test('bounded MCTS adapter abstains on unresolved prompts without invoking a policy resolver',()=>{
-  let resolverCalls=0;
+class WaitPrompt {
+  constructor(id,playerId,stage=0) {
+    this.id=id;this.playerId=playerId;this.stage=stage;this.result=undefined;
+  }
+}
+class ResolvePromptAction {
+  constructor(id,result) {this.id=id;this.result=result;}
+}
+class GameError {
+  constructor(message) {this.message=message;}
+}
+class PlayCardAction {
+  constructor(id,handIndex,target) {
+    this.type='PLAY_CARD_ACTION';this.id=id;this.handIndex=handIndex;this.target=target;
+  }
+}
+class AttackAction {
+  constructor(clientId,name) {this.type='ATTACK_ACTION';this.clientId=clientId;this.name=name;}
+}
+class PassTurnAction {
+  constructor(clientId) {this.type='PASS_TURN';this.clientId=clientId;}
+}
+class NoopAction {}
+
+class EnergyCard {
+  constructor(fullName='Psychic Energy SVE') {
+    this.fullName=fullName;this.energyType='BASIC';
+  }
+}
+
+function clone(value) {return JSON.parse(JSON.stringify(value));}
+function endTurn(state,player) {
+  state.phase='BETWEEN_TURNS';
+  state.prompts.push(new WaitPrompt(500+state.turn,player.id,0));
+  return state;
+}
+
+function makeHarness(options={}) {
   class ActionEnumerator {
-    enumerate(state) {
-      return state.activePlayer===0?[{name:'root-action'}]:[];
+    enumerate(state,player) {
+      const actions=[];
+      const energyIndex=player.hand.cards.findIndex(
+        card=>card.fullName==='Psychic Energy SVE');
+      if(energyIndex>=0&&player.energyPlayedTurn<state.turn) {
+        actions.push(new PlayCardAction(player.id,energyIndex,{
+          player:2,slot:1,index:0
+        }));
+      }
+      // Deliberately legal-ish: raw Ram is emitted even when unpaid or on turn 1.
+      actions.push(new AttackAction(player.id,'Ram'));
+      actions.push(new PassTurnAction(player.id));
+      if(options.includeNoop)actions.push(new NoopAction());
+      return actions;
     }
   }
   class Simulator {
-    constructor(state) {
-      this.store={state:JSON.parse(JSON.stringify(state))};
-    }
+    constructor(state) {this.store={state:clone(state)};}
     dispatch(action) {
       const state=this.store.state;
-      if(action.name==='root-action') {
-        state.activePlayer=1;
-        state.prompts=[{playerId:22,result:undefined}];
+      if(action instanceof ResolvePromptAction) {
+        const index=state.prompts.findIndex(prompt=>prompt.id===action.id);
+        if(index<0)throw new GameError('missing prompt');
+        const prompt=state.prompts[index];
+        prompt.result=action.result;
+        state.prompts.splice(index,1);
+        if(prompt.stage===0) {
+          state.activePlayer=1-state.activePlayer;
+          state.turn++;
+          const next=state.players[state.activePlayer];
+          next.active.attacksThisTurn=0;
+          if(next.deck.cards.length)next.hand.cards.push(next.deck.cards.pop());
+          state.phase='DRAW';
+          state.prompts.push(new WaitPrompt(prompt.id+1,next.id,1));
+        } else {
+          state.phase='PLAYER_TURN';
+        }
+        return state;
       }
-      return state;
+      if(action instanceof PlayCardAction) {
+        const player=state.players.find(item=>item.id===action.id);
+        if(state.phase!=='PLAYER_TURN'||player.energyPlayedTurn>=state.turn)
+          throw new GameError('energy attachment is not legal');
+        const card=player.hand.cards[action.handIndex];
+        if(!card||card.fullName!=='Psychic Energy SVE')
+          throw new GameError('not a Psychic Energy');
+        player.hand.cards.splice(action.handIndex,1);
+        player.active.cards.push(card);
+        player.active.energies.push(card);
+        player.energyPlayedTurn=state.turn;
+        return state;
+      }
+      if(action instanceof AttackAction) {
+        const player=state.players.find(item=>item.id===action.clientId);
+        if(state.phase!=='PLAYER_TURN'||state.turn===1||
+           !player.active.energies.some(card=>card.fullName==='Psychic Energy SVE')||
+           player.active.attacksThisTurn>0)
+          throw new GameError('attack is not legal');
+        if(options.unsupportedPromptOnAttack) {
+          state.prompts.push({id:901,playerId:player.id,result:undefined,
+            constructor:{name:'ChooseCardsPrompt'}});
+          return state;
+        }
+        player.active.damage+=10;
+        player.active.attacksThisTurn++;
+        return endTurn(state,player);
+      }
+      if(action instanceof PassTurnAction) {
+        const player=state.players.find(item=>item.id===action.clientId);
+        return endTurn(state,player);
+      }
+      if(action instanceof NoopAction)return state;
+      throw new Error('unknown action');
     }
   }
-  const sampleDeterminization=state=>JSON.parse(JSON.stringify(state));
-  sampleDeterminization.knowledgeBySeat=()=>({
-    verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
-    knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null
-  });
-  const mcts=createTwinleafMcts({
-    ActionEnumerator,Simulator,
-    actorObservation:(state,seat)=>({actorSeat:seat,visibleTurn:state.turn}),
-    GamePhase:{FINISHED:'FINISHED'},
-    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
-    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
-    actionKey:action=>action.name,
-    sampleDeterminization,
-    evaluateObservation:()=>0,
-    winnerSeat:state=>state.winner,
-    promptResolverForSeat:()=>{resolverCalls++;return {resolvePrompt:()=>({name:'unsafe'})};}
-  },{iterations:1,maxPlies:2,seed:7});
-  assert.throws(()=>mcts.search({activePlayer:0,turn:4,phase:'PLAY',winner:null,
-    prompts:[],players:[{id:11},{id:22}]},0),
-    error=>error.code==='MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE');
-  assert.equal(resolverCalls,0,'bounded adapter must never expose a prompt to policy resolvers');
-});
 
-test('bounded MCTS adapter also abstains when an actual transition opens a prompt',()=>{
-  let simulatorInstances=0;
-  class ActionEnumerator {
-    enumerate(state) {
-      return state.activePlayer===0?[{name:'root-action'}]:[];
-    }
-  }
-  class Simulator {
-    constructor(state) {
-      this.instance=++simulatorInstances;
-      this.store={state:JSON.parse(JSON.stringify(state))};
-    }
-    dispatch() {
-      if(this.instance===3)this.store.state.prompts=[{result:undefined}];
-      return this.store.state;
-    }
-  }
-  const sampleDeterminization=state=>JSON.parse(JSON.stringify(state));
-  sampleDeterminization.knowledgeBySeat=()=>({
-    verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
-    knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null
+  const makePlayer=(id)=> {
+    const attached=new EnergyCard();
+    return {
+      id,
+      hand:{cards:[new EnergyCard(),new EnergyCard()]},
+      deck:{cards:Array.from({length:20},()=>new EnergyCard())},
+      prizes:Array.from({length:6},()=>({cards:[new EnergyCard()],faceUpPrize:false})),
+      active:{
+        cards:[{fullName:'Flittle SVI'},attached],
+        energies:[attached],tools:[],damage:0,specialConditions:[],
+        attacksThisTurn:0
+      },
+      bench:[],stadium:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},
+      supporter:{cards:[]},energyPlayedTurn:2
+    };
+  };
+  const state={
+    activePlayer:0,turn:3,phase:'PLAYER_TURN',prompts:[],
+    rules:{attackFirstTurn:false,unlimitedEnergyAttachments:false,
+      firstTurnDrawCard:true},
+    players:[makePlayer(11),makePlayer(22)]
+  };
+  const snapshot=()=>({
+    epoch:0,exactMembershipKnown:true,
+    knownPrintings:[{printing:'Psychic Energy SVE',copies:6}]
   });
-  const mcts=createTwinleafMcts({
-    ActionEnumerator,Simulator,
-    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
-    GamePhase:{FINISHED:'FINISHED'},
-    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
-    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
-    actionKey:action=>action.name,sampleDeterminization,
-    evaluateObservation:()=>0,winnerSeat:()=>null
-  },{iterations:1,maxPlies:2,seed:9});
-  assert.throws(()=>mcts.search({activePlayer:0,turn:1,phase:'PLAY',prompts:[],
-    players:[{id:1},{id:2}]},0),
-    error=>error.code==='MCTS_ABSTAIN_PROMPT_OUTSIDE_ENVELOPE');
-  assert.equal(simulatorInstances,3,
-    'one root preflight, one determinized preflight, and one actual transition were expected');
-});
-
-test('private sampled decklist identity follows each seat through Twinleaf state clones',()=>{
-  const seen=[];
+  let ledger=options.knowledge??{
+    verified:true,mode:'K1',knownPrizePrintings:[{printing:'Psychic Energy SVE',copies:6}],
+    knownTopDeck:[],knownBottomDeck:[],knownBottomDeckOrder:false,
+    ownerK1Snapshot:snapshot()
+  };
+  const knowledgeBySeat=()=>ledger;
   const metadataByState=new WeakMap();
-  class ActionEnumerator {
-    enumerate(state) {
-      return state.activePlayer===0?[{name:'root'}]:[{name:'reply'}];
-    }
-  }
-  class Simulator {
-    constructor(state){this.store={state:JSON.parse(JSON.stringify(state))};}
-    dispatch(action){
-      const s=this.store.state;
-      if(action.name==='root')s.activePlayer=1;
-      else {s.phase='FINISHED';s.winner=0;}
-      return s;
-    }
-  }
-  const sampler=(state)=>{
-    const copy=JSON.parse(JSON.stringify(state));
-    metadataByState.set(copy,{decklistIds:['candidate-list','sampled-opponent-list']});
-    return copy;
+  const sampleDeterminization=(source)=>{
+    const sampled=clone(source);
+    metadataByState.set(sampled,{decklistIds:['flittle','flittle']});
+    return sampled;
   };
-  sampler.metadataByState=metadataByState;
-  sampler.knowledgeBySeat=()=>({
-    verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
-    knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null
-  });
-  const mcts=createTwinleafMcts({
-    ActionEnumerator,Simulator,
-    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
-    GamePhase:{FINISHED:'FINISHED'},
+  sampleDeterminization.knowledgeBySeat=knowledgeBySeat;
+  sampleDeterminization.metadataByState=metadataByState;
+
+  function actorObservation(source,seat,{ownerK1Snapshot}) {
+    const own=source.players[seat],opponent=source.players[1-seat];
+    const publicPlayer=player=>({
+      active:{
+        printing:'Flittle SVI',
+        energies:player.active.energies.map(card=>card.fullName),
+        attacks:[{name:'Ram'}],
+        specialConditions:[],
+        publicRestrictions:{
+          cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
+          blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
+          onlyAllowedAttackNameNextTurn:null
+        }
+      },
+      bench:[],stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+      publicTurnRestrictions:{
+        attackLockTurnsRemaining:0,attackMaxEnergy:null,
+        energyPlayLocked:false
+      },
+      handCount:player.hand.cards.length,deckCount:player.deck.cards.length,
+      prizeCount:player.prizes.reduce((sum,slot)=>sum+slot.cards.length,0)
+    });
+    return {
+      actorSeat:seat,globalTurn:source.turn,phase:source.phase,
+      decisionKind:'owner-root',
+      ownHand:own.hand.cards.map(card=>card.fullName),
+      ownPublic:publicPlayer(own),opponentPublic:publicPlayer(opponent),
+      ownTurnResources:{energyPlayedTurn:own.energyPlayedTurn,energyPlayLocked:false},
+      ownerK1:ownerK1Snapshot
+    };
+  }
+  const assertApplicabilityEnvelope=(source)=>{
+    assert.equal(source.phase,'PLAYER_TURN');
+    assert.ok(source.turn>=1);
+    assert.equal(source.rules.attackFirstTurn,false);
+    assert.equal(source.rules.unlimitedEnergyAttachments,false);
+    assert.equal(source.rules.firstTurnDrawCard,true);
+    for(const player of source.players) {
+      assert.equal(player.active.cards[0].fullName,'Flittle SVI');
+      assert.ok(player.active.energies.length<=2);
+      assert.ok(player.active.damage<=20);
+      assert.deepEqual(player.active.specialConditions,[]);
+      assert.deepEqual(player.active.tools,[]);
+      assert.deepEqual(player.bench,[]);
+    }
+    return true;
+  };
+  const deps={
+    ActionEnumerator,Simulator,WaitPrompt,ResolvePromptAction,GameError,
+    actorObservation,GamePhase:{PLAYER_TURN:'PLAYER_TURN',FINISHED:'FINISHED'},
     BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
     simulatorOptions:{flipMode:'random',shuffleMode:'random'},
-    actionKey:a=>a.name,sampleDeterminization:sampler,
-    metadataByState,ownDecklistSeat:0,ownDecklistId:'candidate-list',
-    evaluateObservation:(observation)=>{seen.push(observation.ownDecklistId);return 0;},
-    promptOwnerSeat:()=>0,promptResolverForSeat:()=>({resolvePrompt:()=>({name:'noop'})}),
-    winnerSeat:s=>s.winner
-  },{iterations:1,maxPlies:3,seed:4});
-  mcts.search({activePlayer:0,turn:1,phase:'PLAY',winner:null,prompts:[],players:[{id:1},{id:2}]},0);
-  assert.ok(seen.includes('sampled-opponent-list'));
-});
-
-test('MCTS observation key binds the full owner ledger and sampled states reuse its exact snapshot',()=>{
-  const metadataByState=new WeakMap();
-  const ledgers=[
-    {verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
-      knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null},
-    {verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
-      knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null}
-  ];
-  const sampler=state=>{
-    const copy=JSON.parse(JSON.stringify(state));
-    metadataByState.set(copy,{knowledgeBySeat:ledgers.map(x=>JSON.parse(JSON.stringify(x)))});
-    return copy;
+    sampleDeterminization,evaluateObservation:()=>0,winnerSeat:()=>null,
+    PlayCardAction,AttackAction,PassTurnAction,PlayerType:{BOTTOM_PLAYER:2},
+    SlotType:{ACTIVE:1},EnergyCard,EnergyType:{BASIC:'BASIC'},
+    knowledgeBySeat,metadataByState,ownDecklistSeat:0,ownDecklistId:'flittle',
+    applicabilityEnvelopeId:FLITTLE_ENVELOPE_ID,
+    assertApplicabilityEnvelope,rulesProfileId:'twinleaf-standard-flittle-v1'
   };
-  sampler.metadataByState=metadataByState;
-  sampler.knowledgeBySeat=(_state,seat)=>ledgers[seat];
-  const adapter=createTwinleafInformationSetSearch({
-    ActionEnumerator:class {},
-    Simulator:class {},
-    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
-    GamePhase:{FINISHED:'FINISHED'},
-    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
-    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
-    actionKey:action=>action.name,
-    sampleDeterminization:sampler,
-    evaluateObservation:()=>0,
-    promptOwnerSeat:()=>0,
-    promptResolverForSeat:()=>({resolvePrompt:()=>({name:'noop'})}),
-    winnerSeat:()=>null
+  if(options.actionKey)deps.actionKey=options.actionKey;
+  if(options.expectedActionKeys)deps.expectedActionKeys=options.expectedActionKeys;
+  if(options.assertApplicabilityEnvelope)
+    deps.assertApplicabilityEnvelope=options.assertApplicabilityEnvelope;
+  return {deps,state,knowledgeBySeat,setLedger:value=>{ledger=value;},metadataByState};
+}
+
+test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompts and audits its budget',()=>{
+  let time=0;
+  const h=makeHarness();
+  const mcts=createTwinleafMcts(h.deps,{
+    iterations:2,maxPlies:4,maxDecisionMs:250,seed:9,now:()=>time+=0.01
   });
-  const state={activePlayer:0,turn:1,phase:'PLAY',prompts:[],players:[{id:1},{id:2}]};
-  const k0=adapter.observe(state,0);
-  const k0Hash=observationSha256(k0);
-  ledgers[0]={...ledgers[0],mode:'PARTIAL',
-    knownBottomDeck:['Psychic Energy'],knownBottomDeckOrder:true};
-  const partial=adapter.observe(state,0);
-  assert.notEqual(observationSha256(partial),k0Hash,
-    'owner-known bottom-deck identities/order must distinguish information-set keys');
-  const sampled=sampler(state,0,()=>0.1);
-  const sampledObservation=adapter.observe(sampled,0);
-  const sampledHash=observationSha256(sampledObservation);
-  ledgers[0]={...ledgers[0],mode:'K1',
-    knownPrizePrintings:[{printing:'PrizeCard',copies:6}],
-    ownerK1Snapshot:{epoch:7,exactMembershipKnown:true,
-      knownPrintings:[{printing:'PrizeCard',copies:6}]}
-  };
-  const afterProviderChange=adapter.observe(sampled,0);
-  assert.equal(observationSha256(afterProviderChange),sampledHash,
-    'sampled determinization must retain the exact ledger snapshot used to create it');
-  assert.deepEqual(afterProviderChange.ownerKnowledgeLedger,partial.ownerKnowledgeLedger);
+  const result=mcts.search(h.state,0);
+  assert.equal(result.audit.rootActionCount,3);
+  assert.equal(result.audit.frontierComplete,true);
+  assert.equal(result.audit.bothSeatKnowledgeLedgersVerified,true);
+  assert.equal(result.audit.ownerLedgerInInformationSetKey,true);
+  assert.equal(result.audit.promptResolutionActorScoped,true);
+  assert.equal(result.audit.applicabilityEnvelopeId,FLITTLE_ENVELOPE_ID);
+  assert.equal(result.audit.iterations,2);
+  assert.equal(result.audit.completedIterations,2);
+  assert.equal(result.audit.seed,9);
+  assert.ok(result.audit.elapsedMs>=0&&result.audit.elapsedMs<250);
+  assert.ok(result.audit.maxActionTransitions<=4);
+  assert.ok(result.audit.waitPromptResolutions>0);
 });
 
-
-test('Simulator filters illegal candidates and a reached ActionEnumerator class cap abstains',()=>{
-  const base={
-    actorObservation:(state,seat)=>({actorSeat:seat,turn:state.turn}),
-    GamePhase:{FINISHED:'FINISHED'},
-    BotFlipMode:{RANDOM:'random'},BotShuffleMode:{RANDOM:'random'},
-    simulatorOptions:{flipMode:'random',shuffleMode:'random'},
-    actionKey:action=>action.name,
-    sampleDeterminization:Object.assign(state=>({...state}),{
-      knowledgeBySeat:()=>({verified:true,mode:'K0',knownTopDeck:[],
-        knownBottomDeck:[],knownBottomDeckOrder:false,knownPrizePrintings:[],
-        ownerK1Snapshot:null})
-    }),
-    evaluateObservation:()=>0,winnerSeat:()=>null
+test('native Simulator filter rejects unpaid turn-one Ram and no-op candidates',()=>{
+  const actionKey=action=>{
+    if(action instanceof PlayCardAction)return flittleActionKey(action,{
+      PlayCardAction,AttackAction,PassTurnAction
+    });
+    if(action instanceof AttackAction)return 'ATTACK_ACTION:'+action.name;
+    if(action instanceof PassTurnAction)return 'PASS_TURN';
+    return 'NOOP';
   };
-  const dispatches=[];
-  class Simulator {
-    constructor(state){this.store={state:{...state}};}
-    dispatch(action){
-      dispatches.push(action.name);
-      if(action.name==='illegal')throw new Error('Simulator rejected illegal candidate');
-      return this.store.state;
+  const h=makeHarness({
+    includeNoop:true,
+    actionKey,
+    assertApplicabilityEnvelope:()=>true
+  });
+  h.state.turn=1;
+  h.state.players[0].active.energies=[];
+  h.state.players[1].active.energies=[];
+  h.state.players[0].active.cards=[{fullName:'Flittle SVI'}];
+  h.state.players[1].active.cards=[{fullName:'Flittle SVI'}];
+  h.state.players[0].hand.cards=[];
+  h.state.players[1].hand.cards=[];
+  h.state.players[0].energyPlayedTurn=1;
+  h.state.players[1].energyPlayedTurn=1;
+  const adapter=createTwinleafInformationSetSearch(h.deps);
+  const actions=adapter.enumerateActions(h.state,0);
+  assert.deepEqual(actions.map(actionKey),['PASS_TURN']);
+});
+
+test('unsupported card-effect prompts abort instead of reaching a policy resolver',()=>{
+  const h=makeHarness({unsupportedPromptOnAttack:true});
+  const mcts=createTwinleafMcts(h.deps,{
+    iterations:1,maxPlies:2,maxDecisionMs:250,seed:9
+  });
+  assert.throws(()=>mcts.search(h.state,0),error=>
+    error.code==='MCTS_UNSUPPORTED_PROMPT');
+});
+
+test('full owner ledger changes produce distinct actor information-set hashes',()=>{
+  const h=makeHarness();
+  const adapter=createTwinleafInformationSetSearch(h.deps);
+  const first=observationSha256(adapter.observe(h.state,0));
+  const nextLedger={
+    ...h.deps.knowledgeBySeat(h.state,0),
+    ownerK1Snapshot:{
+      epoch:1,exactMembershipKnown:true,
+      knownPrintings:[{printing:'Psychic Energy SVE',copies:6}]
     }
-  }
-  const adapter=createTwinleafInformationSetSearch({
-    ...base,Simulator,
-    ActionEnumerator:class {enumerate(){return [{name:'legal'},{name:'illegal'}];}}
-  });
-  const state={activePlayer:0,turn:1,phase:'PLAY',prompts:[],players:[{id:1},{id:2}]};
-  assert.deepEqual(adapter.enumerateActions(state,0).map(action=>action.name),['legal']);
-  assert.deepEqual(dispatches,['legal','illegal']);
-
-  const capped=createTwinleafInformationSetSearch({
-    ...base,Simulator,
-    ActionEnumerator:class {enumerate(){return Array.from({length:8},(_,i)=>({name:'a'+i}));}}
-  });
-  assert.throws(()=>capped.enumerateActions(state,0),
-    error=>error.code==='MCTS_ABSTAIN_ACTION_FRONTIER_CAPPED');
+  };
+  h.setLedger(nextLedger);
+  const second=observationSha256(adapter.observe(h.state,0));
+  assert.notEqual(first,second,'K1 epoch must be part of the information-set key');
 });
 
+test('known top-deck and bottom-deck knowledge also participates in the node key',()=>{
+  const h=makeHarness({knowledge:{
+    verified:true,mode:'PARTIAL',knownTopDeck:['Psychic Energy SVE'],
+    knownBottomDeck:['Psychic Energy SVE'],knownBottomDeckOrder:false,
+    knownPrizePrintings:[],ownerK1Snapshot:null
+  }});
+  const adapter=createTwinleafInformationSetSearch(h.deps);
+  const first=observationSha256(adapter.observe(h.state,0));
+  h.setLedger({
+    verified:true,mode:'PARTIAL',knownTopDeck:['Psychic Energy SVE','Psychic Energy SVE'],
+    knownBottomDeck:['Psychic Energy SVE'],knownBottomDeckOrder:false,
+    knownPrizePrintings:[],ownerK1Snapshot:null
+  });
+  const second=observationSha256(adapter.observe(h.state,0));
+  assert.notEqual(first,second,'known top-deck prefix must be part of the information-set key');
+});
+
+test('the native action translator emits only the bounded neutral intent vocabulary',()=>{
+  const h=makeHarness();
+  const attach=new PlayCardAction(11,0,{player:2,slot:1,index:0});
+  assert.deepEqual(flittleNativeActionToIntent(attach,h.state,0,h.deps),{
+    kind:'attach-basic-energy',handIndex:0,slot:'active',index:0,
+    source:'agent5-flittle-basic-psychic-v1'
+  });
+  assert.deepEqual(flittleNativeActionToIntent(new AttackAction(11,'Ram'),h.state,0,h.deps),{
+    kind:'attack',attackName:'Ram',source:'agent5-flittle-basic-psychic-v1'
+  });
+  assert.deepEqual(flittleNativeActionToIntent(new PassTurnAction(11),h.state,0,h.deps),{
+    kind:'pass',reason:'mcts-root-pass',source:'agent5-flittle-basic-psychic-v1'
+  });
+});
+
+test('monotonic decision deadline aborts without returning a partial selection',()=>{
+  let time=0;
+  const h=makeHarness();
+  const mcts=createTwinleafMcts(h.deps,{
+    iterations:2,maxPlies:4,maxDecisionMs:20,seed:9,now:()=>time+=10
+  });
+  assert.throws(()=>mcts.search(h.state,0),error=>
+    error.code==='MCTS_BUDGET_EXCEEDED');
+});
