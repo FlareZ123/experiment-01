@@ -673,6 +673,9 @@ function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile }) {
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
     opponentSourceEventFormat: 'Japanese Extra',
+    expandedLegalityAsOf: null,
+    eventDate: null,
+    formatReviewStatus: 'unverified-fixture-only',
     crossFormatCompatibilityEstablished: false,
     paperDeckLegalityEstablished: false,
     policyProfile: 'agent34 actor-only root policy plus Twinleaf SimpleTacticsAi baseline',
@@ -740,6 +743,8 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     entryManifestSha256: candidateIdentity.entryManifestSha256,
     challengeSuiteSha256: candidateIdentity.challengeSuiteSha256,
     policyProducerId: candidateIdentity.policyProducerId,
+    formatStatus: 'unverified',
+    formatStatusEvidenceRef: null,
   };
   const opponent = {
     rank: 1,
@@ -756,6 +761,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     candidateFormat: constraints.candidateFormat,
     gameRuleset: constraints.gameRuleset,
     opponentSourceEventFormat: constraints.opponentSourceEventFormat,
+    expandedLegalityAsOf: constraints.expandedLegalityAsOf,
+    eventDate: constraints.eventDate,
+    formatReviewStatus: constraints.formatReviewStatus,
     candidate,
     opponentPolicyBundle: { fixtureOnly: true, ranks: [opponent] },
     constraints,
@@ -770,6 +778,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     candidateFormat: constraints.candidateFormat,
     gameRuleset: constraints.gameRuleset,
     opponentSourceEventFormat: constraints.opponentSourceEventFormat,
+    expandedLegalityAsOf: constraints.expandedLegalityAsOf,
+    eventDate: constraints.eventDate,
+    formatReviewStatus: constraints.formatReviewStatus,
   };
   const policyAttestationBundle = {
     schema: 'aichi-policy-attestation-bundle-v1',
@@ -785,6 +796,9 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     candidateFormat: constraints.candidateFormat,
     gameRuleset: constraints.gameRuleset,
     opponentSourceEventFormat: constraints.opponentSourceEventFormat,
+    expandedLegalityAsOf: constraints.expandedLegalityAsOf,
+    eventDate: constraints.eventDate,
+    formatReviewStatus: constraints.formatReviewStatus,
     trialId,
     policyPlanCore,
     policyPlanSha256,
@@ -924,6 +938,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
     opponentSourceEventFormat: 'Japanese Extra',
+    expandedLegalityAsOf: null,
+    eventDate: null,
+    formatReviewStatus: 'unverified-fixture-only',
     candidateSeat: 0,
     originalSourceSeat: 1,
     vendorCommitSha: enginePin,
@@ -1015,6 +1032,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
     opponentSourceEventFormat: 'Japanese Extra',
+    expandedLegalityAsOf: null,
+    eventDate: null,
+    formatReviewStatus: 'unverified-fixture-only',
     opponentRank: 1,
     candidateSeat: 0,
     originalSourceSeat: 1,
@@ -1032,7 +1052,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
     actorOnlyExecutionBoundary: roleResult?.actorOnlyBoundary ?? null,
   };
-  for (const key of ['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat']) {
+  for (const key of ['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat',
+    'expandedLegalityAsOf', 'eventDate', 'formatReviewStatus']) {
     assert.equal(trial[key], policyPlan.policyPlanCore[key],
       'trial ' + key + ' differs from the frozen policy-plan core');
     assert.equal(trial[key], policyPlan.policyRegistration[key],
@@ -1061,6 +1082,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     candidateFormat: trial.candidateFormat,
     gameRuleset: trial.gameRuleset,
     opponentSourceEventFormat: trial.opponentSourceEventFormat,
+    expandedLegalityAsOf: trial.expandedLegalityAsOf,
+    eventDate: trial.eventDate,
+    formatReviewStatus: trial.formatReviewStatus,
     candidate: {
       label: candidateDeck.label,
       sourcePath: V3_FIXTURE.candidatePath,
@@ -1072,6 +1096,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     opponent: {
       rank: 1,
       sourceStatus: 'authenticated',
+      formatStatus: 'unverified',
+      formatStatusEvidenceRef: null,
       player: opponentDeck.player,
       archetype: opponentDeck.archetype,
       sourcePath: V3_FIXTURE.fieldPath,
@@ -1159,6 +1185,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
+      expandedLegalityAsOf: trial.expandedLegalityAsOf,
+      eventDate: trial.eventDate,
+      formatReviewStatus: trial.formatReviewStatus,
       runtimePinUnionSha256: preparedRuntime.runtimePinUnionSha256,
       loadedProcessClosureSha256: preparedRuntime.loadedProcessClosureSha256,
       fixtureOnly: true,
@@ -1169,6 +1198,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     `candidateFormat=${trial.candidateFormat}`,
     `gameRuleset=${trial.gameRuleset}`,
     `opponentSourceEventFormat=${trial.opponentSourceEventFormat}`,
+    `expandedLegalityAsOf=${trial.expandedLegalityAsOf ?? 'unverified'}`,
+    `eventDate=${trial.eventDate ?? 'not-applicable'}`,
+    `formatReviewStatus=${trial.formatReviewStatus}`,
     `actorOnlyExecutionBoundaryValid=${trial.actorOnlyExecutionBoundary?.valid === true}`,
     `actorOnlyExecutionBoundarySha256=${application?.receipt?.actorOnlyExecutionBoundarySha256 ?? 'unavailable'}`,
     diagnostic.formatFixtureGameTraceText({
