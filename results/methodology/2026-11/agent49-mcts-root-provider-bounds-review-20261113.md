@@ -30,14 +30,15 @@ That means an unreviewed or misspelled envelope can be reported as certified and
 
 ## P1 — Frozen budget equality is not actual budget enforcement
 
-The wrapper validates that iterations/maxPlies/maxDecisionMs/seed are well-formed and the composer requires the two roles' budget objects to be equal. But:
-- no hard upper ceiling is enforced on the budget values;
-- `searchResult.audit.iterations` is recorded but never compared with `budget.iterations`;
-- actual max plies, elapsed decision time and seed are not required in the audit or checked against the frozen budget.
+The wrapper validates that iterations/maxPlies/maxDecisionMs/seed are well-formed and the composer requires the two roles' budget objects to be equal. The MCTS core has broad generic caps (`iterations <= 100000`, `maxPlies <= 512`), but these are far above the proposed pilot budget and do not enforce the policy-plan budget. In particular:
+- there is no pilot-specific hard ceiling at the trusted capability boundary;
+- the adapter passes iterations/maxPlies/seed to the core but ignores `maxDecisionMs`;
+- `searchResult.audit.iterations` is recorded but never compared with `budget.iterations`, and `maxObservedDepth` is not compared with `budget.maxPlies`;
+- the core audit has no elapsed-time or seed field, and the wrapper performs no elapsed-time or seed check.
 
-A trusted capability factory may enforce these internally, but the current wrapper does not demonstrate that the executed search stayed within the policy-plan budget. For the example pilot budget `{iterations:32,maxPlies:4,maxDecisionMs:250,seed:9}`, a result claiming 10,000 iterations or exceeding the time/ply bound would still pass if the four certification booleans and envelope string were set.
+A trusted capability factory may enforce some of these internally, but the current wrapper/adapter contract does not demonstrate that the executed search stayed within the policy-plan budget. For the example pilot budget `{iterations:32,maxPlies:4,maxDecisionMs:250,seed:9}`, the time limit is currently unused, and an over-budget iteration/depth result would still pass if the four certification booleans and envelope string were set.
 
-Add hard ceilings for the pilot and require actual usage evidence from the capability (iterations, max plies, elapsed time, seed) to be within the frozen values. The capability should enforce the deadline during search; the wrapper should reject an over-budget audit.
+Add a pilot-specific hard ceiling at the trusted capability boundary and require actual usage evidence from the capability (iterations, max observed depth, elapsed time, seed) to be within the frozen values. The adapter/search loop should enforce the deadline; the wrapper should reject an over-budget audit.
 
 **Regression:** certified search result with iterations above budget, maxPlies above budget, elapsedMs above maxDecisionMs, or mismatched seed must abstain. Also reject a policy option budget beyond the pilot's hard ceiling before constructing the capability.
 
