@@ -34,6 +34,11 @@ jobs:
         run: node simulation/twinleaf/agent46-apex-source-delegation-trace.cjs
       - name: Mimikyu Copycat non-GX Apex paper gate with no nested choice
         run: node simulation/twinleaf/agent46-mimikyu-apex-copycat-native.cjs
+      - name: Stadium-aware Mimikyu Copycat payment and funding-policy regressions
+        run: |
+          node --test tests/2026-11/agent50-mimikyu-dimension-valley-copycat-cost.native.test.cjs
+          node --test tests/2026-11/agent46-underworld-mimikyu-energy-focus.native.test.cjs
+          node --test tests/2026-11/agent46-mimikyu-fund-and-promote.native.test.cjs
       - name: Genuine prior Apex turn then original Mimikyu Copycat
         run: node simulation/twinleaf/agent46-mimikyu-apex-consecutive-native.cjs
       - name: Both-seat genuine prior Apex with opt-in declared history and printed Mimikyu Copycat
