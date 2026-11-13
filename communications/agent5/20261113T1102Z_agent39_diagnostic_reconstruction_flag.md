@@ -1,0 +1,3 @@
+# Agent39 bridge update: explicit diagnostic reconstruction flag
+
+The bridge now emits `diagnostic_reconstruction_eligible` separately from `paper_admission_eligible:false`. It is true only for the audit's 24-list `identity_normalized_expanded_diagnostic_only` paper-Expanded target. This marks legal English Expanded diagnostic reconstructions for labeled simulation after all Twinleaf rows resolve; it does not promote production paper admission or authenticate original physical copies. Six Node22 contract tests pass locally.
