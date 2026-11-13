@@ -65,9 +65,9 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
           iterations:32,completedIterations:32,maxPlies:4,
           maxDecisionMs:250,seed:9,elapsedMs:12.5,
           timeoutStatus:'completed',cPuct:1.4,
-          maxActionTransitions:4,seatActionTransitions:[64,64],
+          maxActionTransitions:1,seatActionTransitions:[0,32],
           rolloutPaths:Array.from({length:32},(_,iteration)=>({
-            iteration,actions:[]
+            iteration,actions:[{seat:1,actionKey:'PASS_TURN'}]
           })),rootActionCount:2
         }
       });
@@ -97,6 +97,8 @@ test('MCTS root provider is actor-only, one-shot and certification-gated',()=>{
   assert.equal(selected.searchAudit.elapsedMs,12.5);
   assert.equal(selected.searchAudit.timeoutStatus,'completed');
   assert.equal(selected.searchAudit.rolloutPaths.length,32);
+  assert.equal(selected.searchAudit.rolloutPaths[0].actions[0].seat,1);
+  assert.deepEqual(selected.searchAudit.seatActionTransitions,[0,32]);
   assert.equal(Object.hasOwn(providerContext,'state'),false);
 
   const mismatchedBudget=invokeActorRootIntentProvider({
@@ -217,9 +219,9 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
           iterations:32,completedIterations:32,maxPlies:4,
           maxDecisionMs:250,seed:9,elapsedMs:12.5,
           timeoutStatus:'completed',cPuct:1.4,
-          maxActionTransitions:4,seatActionTransitions:[64,64],
+          maxActionTransitions:1,seatActionTransitions:[32,0],
           rolloutPaths:Array.from({length:32},(_,iteration)=>({
-            iteration,actions:[]
+            iteration,actions:[{seat:0,actionKey:'ATTACK_ACTION:Ram'}]
           })),rootActionCount:2}});
     },
     rootIntentProvider:context=>{
@@ -239,6 +241,8 @@ test('certified MCTS root intent reaches the native actor action switch',()=>{
   assert.equal(result.audit.rootIntentProvider.lastSearchAudit.maxDecisionMs,250);
   assert.equal(result.audit.rootIntentProvider.lastSearchAudit.maxPlies,4);
   assert.equal(result.audit.rootIntentProvider.lastSearchAudit.timeoutStatus,'completed');
+  assert.equal(result.audit.rootIntentProvider.lastSearchAudit.rolloutPaths[0].actions[0].seat,0);
+  assert.deepEqual(result.audit.rootIntentProvider.lastSearchAudit.seatActionTransitions,[32,0]);
   assert.equal(result.audit.competitiveGameQualified,false);
 });
 
