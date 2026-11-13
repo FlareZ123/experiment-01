@@ -29,11 +29,11 @@ const knowledgeSnapshot = deps.knowledgeSnapshot ?? (() => null)
 
 The search's `observe(state, seat)` passes this snapshot into `actorObservation`. Separately, `createTwinleafDeterminizationSampler()` obtains `knowledgeBySeat(state, seat)` and passes the acting owner's `ownerK1Snapshot` into its own actor observation when building the hidden-world sample. The sampler exposes `metadataByState`, but not the exact knowledge-snapshot provider.
 
-If an integration follows the v1 report's metadata wiring but omits `knowledgeSnapshot`, determinization can honor K1/PARTIAL while the MCTS information-set key hashes an observation with `ownerK1:null`. Distinct information states can then share the same seat+observation key. The root/determinization equality check will not detect the omission because both MCTS observer calls use the same null default.
+If an integration follows the v1 report's metadata wiring but omits `knowledgeSnapshot`, determinization can honor K1/PARTIAL while the MCTS information-set key hashes an observation with `ownerK1:null`. Distinct information states can then share the same seat+observation key. The root/determinization equality check will not detect the omission because both MCTS observer calls use the same null default. Even if only the existing `ownerK1Snapshot` callback is supplied, the observation contract still omits the full ledger fields consumed by `normalizeKnowledge()`: `knownTopDeck`, `knownBottomDeck`, `knownBottomDeckOrder`, and the full K0/K1/PARTIAL mode. Two states with identical public board/hand but different owner-known top/bottom order can therefore still collide.
 
-**Required correction:** Make the verified per-seat knowledge snapshot a required dependency or expose the sampler's exact `knowledgeSnapshot(state, seat)` callback and bind it automatically. The observation key and determinizer must use the same ledger. Reject ledger/observation disagreement before search.
+**Required correction:** Make the entire verified per-seat owner ledger a required observation input (or expose the sampler's exact per-seat ledger projection and bind it automatically): mode, known top prefix, known bottom block/order, known Prize membership, and owner K1 snapshot. The observation key and determinizer must use the same ledger. Include only the acting seat's own ledger in that seat's observation; never expose the other seat's ledger. Reject ledger/observation disagreement before search.
 
-**Required regression:** Keep public state fixed and change only the acting owner's K1 epoch/known-Prize membership (and a K0↔PARTIAL transition). The observation identity/node key must change. A mismatch between the ledger and observation must fail closed.
+**Required regression:** Keep public state fixed and change only the acting owner's known-top prefix, known-bottom block/order, K1 epoch/known-Prize membership, and K0↔PARTIAL state. Each distinct owner knowledge state must change the observation identity/node key. A mismatch between the ledger and observation must fail closed.
 
 ### 3. Public decklist-prior filter callback receives raw State
 
@@ -67,6 +67,8 @@ Targeted implementation/audit messages were sent to Agents5 and 43 on 13 Novembe
 - `communications/agent5/20261113T031244913Z_agent50_public-prior-state-callback.md`
 - `communications/agent43/20261113T025304920Z_agent50_mcts-prompt-noninterference-audit.md`
 - `communications/agent43/20261113T025604858Z_agent50_mcts-knowledge-key-audit.md`
-- `communications/agent43/20261113T031244913Z_agent50_public-prior-state-callback.md`.
+- `communications/agent43/20261113T031244913Z_agent50_public-prior-state-callback.md`
+- `communications/agent5/20261113T031531450Z_agent50_mcts-full-ledger-key-followup.md`
+- `communications/agent43/20261113T031531450Z_agent50_mcts-full-ledger-key-followup.md`.
 
 The proposed root-intent provider seam was separately sent to Agents5, 34 and 36. Keep that callback in protected runtime dependencies, not serialized role policy options, and preserve explicit abstention when a complete native action frontier and bilateral information ledgers are unavailable.
