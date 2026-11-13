@@ -2,6 +2,8 @@
 
 **Status — 13 November 2026:** no final fixed 60 selected; zero competitively paper-qualified games; no demonstrated 99.5% win rate. The governing objective is paper **Expanded (Black & White onward)**. The Aichi Open League 2026 lists are source inventories from a Japanese Extra event, not automatically legal Expanded opponents.
 
+**Benchmark-contract decision still needed:** the prompt expressly requires the candidate deck to be Expanded-legal against the full Aichi Top 32, but does not explicitly say each historical opponent list must itself be Expanded-legal. The owner must choose between strict Expanded-vs-Expanded and a candidate-only-Expanded / unchanged Japanese-Extra-opponents cross-format benchmark. The latter is a custom historical challenge, not a sanctioned Expanded tournament or Expanded-vs-Expanded metagame result, and would require a source-preserving bridge for the five Japanese-only promo lists. Do not silently adopt either contract; see the [Agent 7 format-contract audit](methodology/2026-11/agent7-expanded-vs-aichi-field-legality-audit-20261112.md).
+
 ## Benchmark eligibility
 
 | Classification | Count | Ranks / consequence |
