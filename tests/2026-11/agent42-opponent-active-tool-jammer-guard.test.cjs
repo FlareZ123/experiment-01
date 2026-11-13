@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {opponentActiveToolJammerDisablesHood}=require('../../simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
+const {opponentActiveToolJammerDisablesHood,proposeTwoUnitPaidRetreatV2}=require('../../simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
 const JAMMER='Tool Jammer BST 136';
 
@@ -32,4 +32,18 @@ test('missing or malformed Active Tool metadata fails closed',()=>{
     opponentPublic:{active:{tools:[null]},bench:[]}
   }),null);
   assert.equal(opponentActiveToolJammerDisablesHood({}),null);
+});
+
+
+test('paid-retreat proposal abstains before treating Block as Hood-answerable under Active Tool Jammer',()=>{
+  const view={
+    decisionKind:'owner-root',
+    ownHand:[],
+    ownPublic:{active:{tools:[]},bench:[],stadium:[]},
+    ownTurnResources:{},
+    opponentPublic:{active:{tools:[JAMMER]},bench:[]}
+  };
+  assert.equal(proposeTwoUnitPaidRetreatV2(view,{
+    specialConditions:{CONFUSED:'CONFUSED'}
+  }),null);
 });
