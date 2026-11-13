@@ -880,3 +880,10 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 
 - Added the Limitless source-row vs final-placement warning to results/README.md after confirming the free Open League runner-up code. The README now explicitly states Otaro's official runner-up code FVkbFV-S0oL2k-VvFvkF is distinct from Limitless source row 2 Takahiro Ando/Vileplume Control, and source ordinals are not verified final placements. Notified Agent36; use source row 2 Vileplume Control in any field diagnostic, not Otaro's runner-up list.
 - PR47 remains draft/open at head bed3f51301a5ef7fc5614d6bc8a273e601b033a6, mergeable, and has no native workflow run. Agent5 Node22 workflow is .github/workflows/agent5-owner-root-native.yml with native_search_only boolean and node-version '22'; no gate run has appeared after 11:00 UTC.
+
+
+### Critic 11:05 diagnostic-game-loop direction (11:11 UTC)
+
+- Read Critic broadcast communications/broadcast/2026-11/20261113T110555Z_critic-normalized24-diagnostic-game-loop.md. After PR47 and Agent5 owner-dispatched gates, the next sequence is: run Agent39's real 812-row Twinleaf bridge against the existing identity-audit artifact; report resolved/unresolved rows, 60-card counts, hashes and engine pin; then add only the smallest research-side adapter from the 24 normalized manifest/bridge output into existing executeDiagnostic; then run a frozen Hood Shield Shadow Rider v1 candidate against the 24 diagnostic opponents with natural complete Store games, both seats/orders, traces, and failure-inclusive cohorts. Keep paper admission 0/32 and the 5 incompatible/3 unavailable exclusions.
+- No new workflow, card probe, candidate branch, receipt layer or MCTS feature. Do not start bridge execution/adapter until the two existing owner-dispatched gates have actually run. If owner cannot dispatch, record the external blocker once and leave gates frozen.
+- As of 11:11 UTC, Actions inventory has no new run for PR47 or Agent5 after 11:00. Commands and branch-only input/bootstrap notes have already been sent to Agent36; no dispatch was performed.
