@@ -201,7 +201,7 @@ function resolveDiagnosticField(field, cardManager, metadata) {
     source_field_card_copies: field.card_copies,
     total_deck_card_copies: totalDeckCopies,
     diagnostic_only: field.diagnostic_only === true,
-    diagnostic_reconstruction_eligible: field.status === 'identity_normalized_expanded_diagnostic_only' && field.diagnostic_only === true && field.target_format === 'paper Expanded',
+    diagnostic_reconstruction_eligible: field.status === 'identity_normalized_expanded_diagnostic_only' && field.diagnostic_only === true && field.target_format === 'paper Expanded (Black & White onward)',
     physical_source_print_status: field.physical_source_print_status || null,
     paper_admission_eligible: field.paper_admission_eligible === true,
     competitive_admission_eligible: field.competitive_admission_eligible === true,
