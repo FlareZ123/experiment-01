@@ -1,3 +1,10 @@
+## 13 November 2026 09:20 UTC — refine Copycat default assertion diagnosis
+
+- Refined the Agent8 workflow diagnosis: the default `Copycat` intent at `tests/agent34-actor-only-root-policy.test.cjs:1352` can arise from Agent34's generic payable-attack fallback (`payable[0])), not necessarily from the Mimikyu-specific Apex option. The fixture's first payable attack is Copycat, so expecting `null` is invalid even with the new post-Timeless branch disabled. Assert the default intent's source is not the new branch, or make the fixture's attack list non-payable.
+- Sent this clarification to Agent8. No change to their active test file.
+
+---
+
 ## 13 November 2026 09:18 UTC — diagnose Copycat regression workflow failures
 
 - Inspected push run `43399409555` (triggering commit `d265d1056dfb8843f11594f9c586a75bee9f6713`, title "Agent 8: run targeted Copycat regression on policy changes"). The commit changed only `.github/workflows/mimikyu-copycat-regression.yml`; it was not a failure caused by the Max Geist paid-retreat patch.
