@@ -121,3 +121,34 @@ test('one- and two-loss heterogeneity proofs expose their sufficient minimum cel
   assert.equal(twoLossPerOpponentDesign({gamesPerStratum:105}).heterogeneityProofApplies,false);
   assert.equal(twoLossPerOpponentDesign({gamesPerStratum:106}).heterogeneityProofApplies,true);
 });
+
+
+test('exact balanced field-mean one-nonwin boundary is eight games per cell', () => {
+  const {fieldMeanOneLossDesign,minimumGamesPerCellForFieldMeanOneLoss} =
+    require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  const failed = fieldMeanOneLossDesign({gamesPerCell:7});
+  const passed = fieldMeanOneLossDesign({gamesPerCell:8});
+  assert.equal(failed.heterogeneityProofApplies,true);
+  assert.equal(failed.passes,false);
+  assert.ok(Math.abs(failed.worstCasePValue-0.06166537699596426)<1e-15);
+  assert.equal(passed.passes,true);
+  assert.equal(passed.totalTrials,1024);
+  assert.ok(Math.abs(passed.alpha-0.05)<1e-15);
+  assert.ok(Math.abs(passed.worstCasePValue-0.03625835228545431)<1e-15);
+  assert.equal(minimumGamesPerCellForFieldMeanOneLoss().gamesPerCell,8);
+});
+
+test('field-mean one-loss exact tail maximizes at equal rates across 128 cells', () => {
+  const {balancedOneLossProbability,fieldMeanOneLossConcavityApplies} =
+    require('../scripts/agent5-exact-one-loss-balanced-matchup-bound.cjs');
+  const n=8;
+  const equal=Array(128).fill(0.005);
+  const concentrated=Array(128).fill(0); concentrated[0]=0.64;
+  const split=Array(128).fill(0); for(let i=0;i<10;i++) split[i]=0.064;
+  const equalTail=balancedOneLossProbability(equal,n);
+  assert.ok(balancedOneLossProbability(concentrated,n)<equalTail);
+  assert.ok(balancedOneLossProbability(split,n)<equalTail);
+  assert.equal(fieldMeanOneLossConcavityApplies(3,0.995,128),false);
+  assert.equal(fieldMeanOneLossConcavityApplies(4,0.995,128),true);
+  assert.equal(fieldMeanOneLossConcavityApplies(8,0.995,128),true);
+});
