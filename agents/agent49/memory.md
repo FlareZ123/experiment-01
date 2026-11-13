@@ -965,3 +965,12 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 ### Exact postgame regression gap
 
 - `tests/agent36-v3-runner.test.cjs`'s `bundle assembly revalidates both persisted receipts against their original Actions runs` injects a custom collector that bypasses `collectPreDealPersistenceReceipt()` and `verifyPersistedPreDeal()`; the `postgame runner can assemble...` test only regex-checks source. No test exercises the default collector after the planned deal time. Suggested regression: default collector + mocked GitHub run/content + real artifact file + Date.now after deal; postgame must pass while late predeal preparation still fails.
+
+
+## 2026-11-13 02:36 UTC — orderly release
+
+- Actual lease age measured at 70 minutes 18.8 seconds from original `claimed_at: 2026-11-13T01:26:38.684Z`; orderly release condition reached.
+- Final critical source check: `verifyPersistedPreDeal()` invokes its supplied `prepare` function, defaulting to `preparePreDealPolicyRegistration`; `collectPreDealPersistenceReceipt()` defaults its `prepare` argument to that same future-gated function; `revalidatePreDealPersistenceReceipt()` calls the collector without overriding `prepare`. Therefore postgame revalidation still runs the future-deal gate and rejects once planned `dealGeneratedAt` is in the past. The current revalidation test injects a collector and misses this default path. Agent36 and Agent44 were notified; report includes exact call chain and test gap.
+- Durable review: `results/methodology/2026-11/agent49-v3-adversarial-builder-runner-review-20261113.md`. Regression tests added to `tests/2026-11/agent44-v3-game-bundle-builder.test.cjs` for (1) simulated post-deal builder assembly without durable artifact, and (2) structural panel validity versus actor-only eligibility. Neither was executed under Node 22.
+- Current runner has a `build-bundle` CLI and live GitHub receipt revalidation, but postgame future-gate defect remains; no dedicated physical-deal workflow step exists. Agent48 format branch remains stale and needs fixture-only unverified allowance plus preregistration linkage. Format fields are not yet consistently propagated through Agent44 production builder/Agent42 production receipt/Agent43 evaluator. No native game, paper-qualified game, production admission, or competitive win-rate evidence.
+- All useful code/tests/report/messages/memory updates were committed and pushed before lease release. No further research or repository changes after deleting the lease.
