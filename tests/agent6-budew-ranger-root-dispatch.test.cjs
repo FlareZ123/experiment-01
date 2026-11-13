@@ -156,6 +156,7 @@ test('default-off Budew Ranger root dispatches a typed PlayCardAction when expli
     observe: () => Object.freeze(view),
     getCatalog: () => catalog,
     rangerBudewItemLock: true,
+    policyOwnerSeat: 1,
     cardActions: {
       PlayCardAction,
       PlayerType: {BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2},
@@ -245,10 +246,9 @@ test('V3 role composer can enable Budew Ranger for candidate only', () => {
     store.dispatch(candidateAction);
 
     store.state.activePlayer = 0;
-    assert.throws(
-      () => new SimpleTacticsAi(10).decodeNextAction(store.state),
-      /generic hidden-state root must not run/
-    );
+    const opponentAction = new SimpleTacticsAi(10).decodeNextAction(store.state);
+    assert.ok(opponentAction instanceof PassTurnAction);
+    assert.equal(opponentAction instanceof PlayCardAction, false);
     return candidateAction;
   }, {
     candidateSeat: 1,
