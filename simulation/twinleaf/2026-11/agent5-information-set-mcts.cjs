@@ -155,6 +155,8 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {number} [config.maxDecisionMs=Infinity]
  * @param {()=>number} [config.now=performance.now]
  * @param {(state:object)=>boolean} [config.isStable]
+ * @param {(observation:object,actionKeys:string[],seat:0|1,random:()=>number,context:object)=>string} [config.opponentActionPolicy]
+ * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
  */
 function createInformationSetMcts(config) {
   const required = [
@@ -178,6 +180,14 @@ function createInformationSetMcts(config) {
     'maxDecisionMs must be positive or Infinity');
   assert.equal(typeof now, 'function');
   const isStable = config.isStable ?? (() => true);
+  const opponentActionPolicy = config.opponentActionPolicy ?? null;
+  if (opponentActionPolicy !== null) {
+    assert.equal(typeof opponentActionPolicy, 'function',
+      'opponentActionPolicy must be a synchronous function');
+    assert.ok(typeof config.opponentPolicyId === 'string' &&
+      config.opponentPolicyId.length > 0,
+      'opponentActionPolicy requires a stable opponentPolicyId');
+  }
 
   return Object.freeze({
     search(rootState, rootSeat) {
@@ -225,6 +235,8 @@ function createInformationSetMcts(config) {
       let completedIterations = 0;
       const seatActionTransitions = [0,0];
       const rolloutPaths = [];
+      const opponentFrontiers = new Map();
+      let opponentPolicyCalls = 0;
 
       for (let iteration = 0; iteration < iterations; iteration++) {
         checkDeadline('iteration-start');
@@ -271,6 +283,45 @@ function createInformationSetMcts(config) {
           const actions = config.enumerateActions(state, seat, searchContext);
           checkDeadline('node-frontier');
           const actionMap = buildActionMap(actions, config.actionKey);
+          if (seat !== rootSeat && opponentActionPolicy !== null) {
+            const actionKeys = [...actionMap.keys()].sort();
+            const previousFrontier = opponentFrontiers.get(nodeKey);
+            if (previousFrontier) {
+              assert.deepEqual(previousFrontier, actionKeys,
+                'Opponent legal action frontier depends on hidden state for an identical observation');
+            } else {
+              opponentFrontiers.set(nodeKey, actionKeys);
+            }
+            if (actionMap.size === 0) {
+              leafValue = config.evaluateObservation(observation, seat);
+              checkDeadline('opponent-no-action-evaluation');
+              leafSeat = seat;
+              heuristicLeaves += 1;
+              finished = true;
+              break;
+            }
+            const selectedKey = opponentActionPolicy(
+              observation, actionKeys.slice(), seat, transitionRandom, searchContext
+            );
+            checkDeadline('opponent-policy');
+            assert.ok(typeof selectedKey === 'string' && actionMap.has(selectedKey),
+              'Opponent policy selected an action outside its observation-safe frontier');
+            const selectedAction = actionMap.get(selectedKey);
+            actionPath.push({seat,actionKey:selectedKey});
+            seatActionTransitions[seat]++;
+            opponentPolicyCalls++;
+            checkDeadline('transition-start');
+            const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+            checkDeadline('transition-complete');
+            assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
+              'Action adapter must return a detached successor state');
+            state = nextState;
+            maxActionTransitions = Math.max(maxActionTransitions, actionPath.length);
+            seat = config.activeSeat(state);
+            assert.ok(seat === 0 || seat === 1,
+              'Active-seat adapter returned an invalid physical seat');
+            continue;
+          }
           if (!node) {
             if (actionMap.size === 0) {
               leafValue = config.evaluateObservation(observation, seat);
@@ -306,7 +357,7 @@ function createInformationSetMcts(config) {
           assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
             'Action adapter must return a detached successor state');
           state = nextState;
-          maxActionTransitions = Math.max(maxActionTransitions, path.length);
+          maxActionTransitions = Math.max(maxActionTransitions, actionPath.length);
           seat = config.activeSeat(state);
           assert.ok(seat === 0 || seat === 1,
             'Active-seat adapter returned an invalid physical seat');
@@ -364,6 +415,11 @@ function createInformationSetMcts(config) {
         actionKey: selected.actionKey,
         audit: {
           protocol: 'observation-keyed-determinization-puct-v1',
+          opponentModel: opponentActionPolicy === null ?
+            'root-determinization-puct' : 'fixed-actor-observation-policy',
+          opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
+          opponentPolicyCalls,
+          opponentInformationSetCount: opponentFrontiers.size,
           rootSeat,
           rootObservationSha256: rootObservationHash,
           iterations,
