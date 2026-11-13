@@ -26,6 +26,7 @@ function visiblePokemon(slot){
     // or retreat-cost calculation; effects may modify them in the Store.
     printed:{
       stage:pokemon.stage??null,
+      subtypes:[...(pokemon.subtypes??[])],
       types:[...(pokemon.cardType??[])],
       retreatCost:[...(pokemon.retreat??[])],
       weakness:(pokemon.weakness??[]).map(weakness=>({
