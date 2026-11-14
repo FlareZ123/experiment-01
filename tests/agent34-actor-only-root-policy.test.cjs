@@ -1850,8 +1850,16 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     abilityDetails:[{name:'Fairy Zone',
       text:"The Weakness of each of your opponent's Dragon Pokémon in play is now Psychic."}]
   };
+  const candidateDialga={
+    ...target,printing:'Dialga-GX UPR',
+    abilities:[],abilityDetails:[],energies:[],tools:[],attacks:[],
+    printed:{stage:'Basic',types:['Dragon'],subtypes:['Basic','GX'],
+      weakness:[],resistance:[]}
+  };
   const opponentFairyZoneView={
     ...view,
+    ownPublic:{...view.ownPublic,
+      bench:[latias,clefairy,vmax,candidateDialga]},
     opponentPublic:{...view.opponentPublic,bench:[opponentFairyZone]}
   };
   assert.ok(choosePostTimelessMaxGeistRetreat(
@@ -1880,6 +1888,10 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(
     swayingRetreatView,postTimelessCatalog,{ownerSeat:0}),null,
     'Cradily SM12 blocks retreat of a status-affected Mimikyu even when it is Benched');
+  assert.ok(choosePostTimelessMaxGeistRetreat({
+    ...view,opponentPublic:{...view.opponentPublic,bench:[swayingCradily]}
+  },postTimelessCatalog,{ownerSeat:0}),
+  'Cradily SM12 does not block a retreating Pokémon with no Special Condition');
 
   const suctionCradily={
     ...target,printing:'Cradily EX2 3',
