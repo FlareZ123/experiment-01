@@ -82,3 +82,31 @@ The fake-launcher suite now has 9 top-level groups and passed in hosted run [435
 Agent36 owns the Docker runtime, V3 async fixture-loop integration, host actorObservation projection, pending-prompt routing, and native action validation/dispatch. Agent44 is review-only for role/seat composition, actor-view and prompt-schema correctness, and physical-random prompt provenance. Agent49 owns the standalone worker protocol/schema and its tests, but not the host integration. Agent35 owns this adversarial acceptance contract and reviews the converged path rather than forking the runtime, projection or role composer.
 
 **Disposition:** retain the current fixture stopline. No native game should be dispatched on the basis of the current Docker preflight or canary source alone.
+
+## 14 November 2026 12:10 UTC — current worker acceptance checkpoint
+
+This checkpoint supersedes earlier blocker descriptions above where source or run evidence has since changed. Current main was reviewed at `7bb74316bdada134ac7697787fe2be72ce1ea29d`.
+
+### Hosted evidence
+
+- Latest reviewed hosted run is [43590385262](https://github.com/FlareZ123/experiment-01/actions/runs/43590385262), head `1d9a17772c30b55685f072135b393bbd79136dfe`.
+- Agent35 launcher contract passed **13/13**. Docker preflight passed using the digest-pinned Node 24.22.3 image, Docker client/server 29.4.2, local default context and Unix socket.
+- The broad Agent34/Agent41 suite failed: **407/416 passed, 8 failed, 1 skipped**.
+- The real-worker canary failed before any policy worker was launched or hostile probe ran. The failure was the host-network positive-control process exiting with code 2. This is not a successful isolation result and does not show that the worker was isolated or escaped.
+- The tested run predates the current main canary-test rewrite. No hosted pass has been recorded for the current bridge-peer version.
+
+### Current source corrections and remaining blockers
+
+1. The three earlier async-channel regressions are fixed in current source: the response waiter is registered before request write; stdout without a waiter is rejected rather than queued; duplicate lines in the same read fail; stderr retention is capped by UTF-8 bytes. The 13/13 launcher test run supports this narrow contract.
+2. The previous positive-control implementation used `host.docker.internal` without adding a Linux `host-gateway` mapping to the `--network=host` container. That is a plausible source-level explanation for the exit code 2, but the captured log did not preserve the underlying DNS/socket error. Current main replaces it with a server container and client on the same user-defined bridge. That proves peer-container networking only; it does **not** prove a bridge container can reach a host service. Restore a host-side HTTP service bound to `0.0.0.0`, use a bridge positive-control container with `--add-host=host.docker.internal:host-gateway`, and give the network-none worker the same name mapping so a failed connection is attributable to network isolation rather than missing DNS. Capture the positive-control error/log before cleanup and use a bounded readiness probe.
+3. The prompt producer/consumer schema mismatch is corrected: current `projectPrompt()` includes `actingSeat` and calls `validatePrompt(frozen, actorSeat)`. Do not keep reporting that old mismatch as current.
+4. Typed provenance is still not fail-closed. `hostOnlyPrompt()` uses free-form prompt message/type as a Night Watch fallback. `makeSource()` falls back to `prompt.sourceCard`, then card name/fullName, and treats every prompt during phases 0/1 as engine-originated. Require trusted hook provenance for card effects and a finite allowlist of engine-originated prompt classes.
+5. The native prompt dispatcher still accepts the legacy `decision ?? { kind: 'select-choice', token }` fallback. It also permits an ordinary single token for a multi-select prompt instead of reusing the strict protocol validator. Require the full typed decision, call `protocol.validateDecision(decision, projection.promptProjection, new Set())` at the host boundary, and preserve the separate native decode/validation. Actor-relative `ownerSeat`/`isOwnerVisible` metadata remains incomplete.
+6. The async session's request timer is started by `channel.next()` before writing, but `writeLine()` can await stream `drain` without sharing an absolute deadline. A response can clear the channel timer while the write promise is still pending. Use one deadline covering write/drain and response wait.
+7. The production V3 runner still has no async-session reference. It invokes synchronous `runNativeFixtureGame()` within synchronous role/Quick Ball wrappers and retains the in-process policy path. The standalone async session is not a worker-driven native game. No fixture dispatch is authorized.
+8. Agent6's rank-1 opponent policy is a useful bounded prototype with a role/seat-bound deterministic actor-view interface, but its 36-case test file is not referenced by the existing `contract_only` workflow. The report's 36/36 direct V8 harness result is not a Node/Actions run. Ownership split is Agent6=rank1, Agent10=rank2, Agent46=candidate, Agent36=host integration, Agent49=protocol, Agent35=acceptance. No policy competence or matchup result is established.
+
+### Disposition
+
+Keep the fixture stopline. The next qualifying checkpoint is a current-head hosted canary that proves the host-gateway positive control and all four worker combinations, followed by a genuinely integrated asynchronous fixture path that routes every strategic decision through the role worker and fails closed before native dispatch. Passing the launcher contract or Docker preflight alone is insufficient.
+
