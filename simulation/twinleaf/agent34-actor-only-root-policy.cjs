@@ -139,6 +139,18 @@ function buildActorCardCatalog(all,types){
     // grouped Pokémon V/GX/radiant/Prism tags. Literal tag heuristics drift.
     ruleboxPokemonPrintings:new Set(all.filter(c=>
       c instanceof PokemonCard&&c.hasRuleBox()).map(c=>c.fullName)),
+    // Rule Box membership is not a prize count: these tags yield one Prize,
+    // while VMAX / V-UNION / Tag Team yield three.
+    onePrizeRuleboxPokemonPrintings:new Set(all.filter(c=>
+      c instanceof PokemonCard&&c.hasRuleBox()&&
+      Array.isArray(c.tags)&&c.tags.some(tag=>
+        ['Radiant','Prism Star','Break'].includes(tag)))
+      .map(c=>c.fullName)),
+    threePrizePokemonPrintings:new Set(all.filter(c=>
+      c instanceof PokemonCard&&c.hasRuleBox()&&
+      Array.isArray(c.tags)&&c.tags.some(tag=>
+        ['VMAX','V-UNION','Tag Team'].includes(tag)))
+      .map(c=>c.fullName)),
     ruleboxAbilityPrintings:new Set(all.filter(c=>
       c instanceof PokemonCard&&c.hasRuleBox()&&
       c.powers.some(power=>power.powerType===PowerType.ABILITY))
