@@ -29,7 +29,8 @@ function player(activeName){
     discard:{cards:[card('Fog Crystal CRE')]},
     lostzone:{cards:[]},stadium:{cards:[card('Sky Field ROS')]},
     supporter:{cards:[]},supporterTurn:0,energyPlayedTurn:0,
-    stadiumPlayedTurn:0,usedVSTAR:false,cannotPlayItemCards:false,
+    stadiumPlayedTurn:0,stadiumAndToolHaveNoEffectTurnsRemaining:0,
+    usedVSTAR:false,cannotPlayItemCards:false,
     cannotPlaySupporterCards:false,cannotPlayStadiumCards:false,
     cannotPlaySpecialEnergyCards:false
   };
@@ -276,6 +277,7 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
   opponent.cannotAttackMaxEnergyTurnsRemaining=1;
   opponent.ignoreAttackCostCardTypes=[5];
   opponent.ignoreAttackCostTurnsRemaining=2;
+  opponent.stadiumAndToolHaveNoEffectTurnsRemaining=2;
   opponent.cannotUseGXAttacks=true;
   opponent.cannotPlayPokemonCards=true;
   opponent.cannotPlayPokemonWithAbilities=true;
@@ -292,6 +294,7 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
     attackLockTurnsRemaining:2,attackMaxEnergy:3,
     attackMaxEnergyTurnsRemaining:1,
     ignoreAttackCostCardTypes:[5],ignoreAttackCostTurnsRemaining:2,
+    stadiumAndToolHaveNoEffectTurnsRemaining:2,
     cannotUseGXAttacks:true,pokemonPlayLocked:true,
     abilityPokemonPlayLocked:true,evolutionPlayLocked:true,
     itemPlayLocked:true,supporterPlayLocked:true,
@@ -308,6 +311,7 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
     usedGX:true,usedVSTAR:true,cannotAttackTurnsRemaining:2,
     cannotAttackMaxEnergy:3,cannotAttackMaxEnergyTurnsRemaining:1,
     ignoreAttackCostCardTypes:[5],ignoreAttackCostTurnsRemaining:2,
+    stadiumAndToolHaveNoEffectTurnsRemaining:2,
     cannotUseGXAttacks:true,
     cannotPlayPokemonCards:true,cannotPlayPokemonWithAbilities:true,
     cannotEvolvePokemonCards:true,cannotPlayItemCards:true,
@@ -319,6 +323,27 @@ test('public player-wide restrictions are visible without concealed cards',()=>{
   cards.deck.cards=[card('Ultra Ball SVI')];
   cards.prizes[0].cards=[card('Iono PAL')];
   assert.deepEqual(actorObservation(s,0),actorObservation(other,0));
+});
+
+test('Stadium and Tool suppression epoch is public for each physical player',()=>{
+  const s=fixture();
+  s.players[0].stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  s.players[1].stadiumAndToolHaveNoEffectTurnsRemaining=2;
+  const first=actorObservation(s,0);
+  assert.equal(first.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining,1);
+  assert.equal(first.opponentPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining,2);
+  s.activePlayer=1;
+  const second=actorObservation(s,1);
+  assert.equal(second.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining,2);
+  assert.equal(second.opponentPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining,1);
+  s.players[1].stadiumAndToolHaveNoEffectTurnsRemaining=-1;
+  assert.equal(actorObservation(s,1).ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining,null,
+    'malformed epochs remain unknown rather than being treated as inactive');
 });
 
 test('face-up attack metadata and vulnerabilities stay detached',()=>{
