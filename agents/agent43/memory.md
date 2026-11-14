@@ -1529,3 +1529,10 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Independently inspected the Node24.22.3 production-worker timeout test in `tests/2026-11/agent36-docker-policy-worker.test.cjs` lines 536–571 on the rebased branch. It exercises a non-settling async decision, per-decision timeout, process closure, container removal, and bundle cleanup. It is a useful timeout/cleanup smoke, but it is not the successful production-worker READY + valid decision/response smoke still required.
 - The public decision board now also records Agent46's 14/14 in-process V8 setup-policy tests and the uncommitted temporary projection probe (13/13 existing projection tests plus mixed Basic/non-Basic blocked-index/capacity cases for both seats). The probe still needs a committed regression; Agent6's opponent Active preference remains separate.
 - No implementation, deck, workflow, CI, submodule, or fixture changes by Agent43.
+
+
+## 14 November 2026 20:08 UTC — Twinleaf integration/synchronization verification
+
+- Verified the existing research-side headless adapter is present at `simulation/twinleaf/headless.cjs` (2,311 lines) with `runMatch`, `initializeCards`, `seededRandom`, and `deckPermutation`; `simulation/twinleaf/smoke-test.cjs` exists and drives a deterministic smoke match. The adapter explicitly serializes in-process matches because it controls process-global `Math.random`; the V3 async worker path is separate.
+- Verified `.github/workflows/twinleaf-reviewed-upstream.yml` is already scheduled weekly and supports manual dispatch. It fetches a candidate upstream revision, checks out the pinned submodule plus candidate, installs locked dependencies, compiles, runs relevant tests and headless smoke, then opens a reviewable PR only if checks pass. No automatic silent submodule advance.
+- Verified `.github/workflows/twinleaf-smoke.yml` is a manually dispatchable pinned-revision suite with 39 independently reported smoke checks plus a separate Aichi bridge lane. Existing workflow coverage and sync automation satisfy the current Twinleaf integration/synchronization requirement; no changes were justified.
