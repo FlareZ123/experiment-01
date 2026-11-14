@@ -25,3 +25,5 @@ The current guard is correct and materially improves reproducibility. Keep it. A
 A stronger automated gate would validate the proposed submodule pin on the actual PR merge commit or require the branch to be up to date with a passing compatibility check. Do not add a broad new workflow unless branch protection can make that check an actual merge prerequisite; a non-required check alone would not close the risk.
 
 No upstream fetch, submodule update, workflow dispatch, CI run, or vendor change was performed by this review. No claim is made that a newer Twinleaf revision is compatible.
+
+At review time, GitHub reported the main branch as unprotected (`protected: false`). Therefore a required PR status check or up-to-date-branch rule is not currently enforceable through branch protection. The practical current safeguard is the explicit human merge checklist; a stronger automated guarantee would require the repository owner to enable branch protection/rulesets and require the merge-commit compatibility check.
