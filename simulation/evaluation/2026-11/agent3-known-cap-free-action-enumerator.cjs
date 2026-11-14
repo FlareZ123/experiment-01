@@ -10,8 +10,9 @@ function requireNative(native) {
     'pinned Twinleaf ActionEnumerator is required');
   assert.ok(native.cardActions && typeof native.cardActions.PlayCardAction === 'function',
     'pinned PlayCardAction constructor is required');
-  assert.ok(native.gameActions && typeof native.gameActions.UseAbilityAction === 'function',
-    'pinned UseAbilityAction constructor is required');
+  assert.ok(native.gameActions && typeof native.gameActions.UseAbilityAction === 'function' &&
+    typeof native.gameActions.AttackAction === 'function',
+    'pinned UseAbilityAction and AttackAction constructors are required');
   assert.ok(typeof native.PokemonCard === 'function' &&
     typeof native.TrainerCard === 'function' && typeof native.EnergyCard === 'function',
   'pinned card constructors are required');
@@ -20,7 +21,8 @@ function requireNative(native) {
     native.SlotType.BOARD !== undefined && native.SlotType.DISCARD !== undefined &&
     native.Stage && native.Stage.BASIC !== undefined && native.TrainerType &&
     native.TrainerType.ITEM !== undefined && native.TrainerType.TOOL !== undefined &&
-    native.TrainerType.SUPPORTER !== undefined,
+    native.TrainerType.SUPPORTER !== undefined && native.SpecialCondition &&
+    native.SpecialCondition.PARALYZED !== undefined && native.SpecialCondition.ASLEEP !== undefined,
   'pinned action enums are incomplete');
 }
 
@@ -43,7 +45,8 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
 
   const PlayCardAction = native.cardActions.PlayCardAction;
   const UseAbilityAction = native.gameActions.UseAbilityAction;
-  const { PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType, Stage, TrainerType } = native;
+  const AttackAction = native.gameActions.AttackAction;
+  const { PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType, Stage, TrainerType, SpecialCondition } = native;
   const originalBasicActions = enumerator.playBasicActions.bind(enumerator);
 
   enumerator.evolveActions = (state, player) => {
@@ -155,12 +158,40 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
       for (const power of card.powers) {
         if (power.useWhenInPlay) actions.push(new UseAbilityAction(player.id, power.name, target));
       }
+      for (const tool of cardList.tools) {
+        if (!(tool instanceof TrainerCard)) continue;
+        for (const power of tool.powers) {
+          if (power.useWhenInPlay) actions.push(new UseAbilityAction(player.id, power.name, target));
+        }
+      }
     });
     return actions;
   };
 
+  enumerator.attackActions = (state, player) => {
+    const conditions = player.active.specialConditions;
+    if (conditions.includes(SpecialCondition.PARALYZED) || conditions.includes(SpecialCondition.ASLEEP)) {
+      return [];
+    }
+    const active = player.active.getPokemonCard();
+    if (!active) return [];
+    const actions = active.attacks.map(attack => new AttackAction(player.id, attack.name));
+    player.bench.forEach(benchSlot => {
+      const benchPokemon = benchSlot.getPokemonCard();
+      if (benchPokemon && benchPokemon.attacks.some(attack => attack.useOnBench)) {
+        const benchAttacks = benchPokemon.attacks.filter(attack => attack.useOnBench);
+        actions.push(...benchAttacks.map(attack => new AttackAction(player.id, attack.name)));
+      }
+    });
+    const activeTool = player.active.tools[0];
+    if (activeTool && activeTool.attacks.length > 0) {
+      actions.push(...activeTool.attacks.map(attack => new AttackAction(player.id, attack.name)));
+    }
+    return actions;
+  };
+
   Object.defineProperty(enumerator, '__agent3UncappedAdapter', {
-    value: Object.freeze({ schema: SCHEMA, enginePin, removedPerFamilyCap: 8 }),
+    value: Object.freeze({ schema: SCHEMA, enginePin, removedPerFamilyCap: 8, includesAttachedToolPowers: true, includesToolAndBenchAttacks: true }),
     writable: false,
     configurable: false,
     enumerable: false
