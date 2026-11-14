@@ -17,33 +17,33 @@ All 29 original Aichi lists are retained for the primary calculation. The five u
 
 ## Exact paired model
 
-For a 60-card deck with (b) Basic Pokémon, let
+For a 60-card deck with `b` Basic Pokémon, let
 
-[
+\[
 q(b)=\frac{\binom{60-b}{7}}{\binom{60}{7}},\qquad p(b)=1-q(b).
-]
+\]
 
-For candidate (c=14) and opponent (o=b), write (q_c=q(c)), (q_o=q(o)), (p_c=1-q_c), (p_o=1-q_o), and (D=1-q_cq_o). The both-fail round repeats with probability (q_cq_o); shared restarts do not award a bonus. On the first decisive round, the mutually exclusive events are candidate-only failure, opponent-only failure, or both valid. Therefore:
+For candidate `c=14` and opponent `o=b`, write `q_c=q(c)`, `q_o=q(o)`, `p_c=1-q_c`, `p_o=1-q_o`, and `D=1-q_cq_o`. The both-fail round repeats with probability (q_cq_o); shared restarts do not award a bonus. On the first decisive round, the mutually exclusive events are candidate-only failure, opponent-only failure, or both valid. Therefore:
 
-[
+\[
 P(\text{candidate eligible for }\ge1)=\frac{p_cq_o}{D},
 \qquad
 E[\text{candidate maximum optional allowance}]=\frac{p_cq_o}{Dp_o}.
-]
+\]
 
-[
+\[
 P(\text{opponent eligible for }\ge1)=\frac{q_cp_o}{D},
 \qquad
 E[\text{opponent maximum optional allowance}]=\frac{q_cp_o}{Dp_c}.
-]
+\]
 
-For (k\ge1), the tail probabilities are
+For integer `k >= 1`, the tail probabilities are
 
-[
+\[
 P(\text{candidate eligible for }\ge k)=\frac{p_cq_o^k}{D},
 \qquad
 P(\text{opponent eligible for }\ge k)=\frac{p_oq_c^k}{D}.
-]
+\]
 
 The expectations are maximum *optional eligibility*, not cards necessarily drawn. The successful player may choose any number up to the one-sided mulligan count; this analysis reports the maximum allowance. It does not model the value of those cards, public-information/tempo effects, optional choices, whether a drawn Basic is benched, or any play after setup.
 
