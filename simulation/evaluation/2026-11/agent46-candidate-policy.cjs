@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Agent46 candidate-only policy v1.
+ * Agent46 candidate-only policy v2.
  *
  * This module is deliberately a pure worker bundle: it has no imports, engine
  * objects, native actions, Store access, filesystem/network/process access,
@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v1';
+const POLICY_VERSION = 'agent46-hood-candidate-v2';
 
 const P = Object.freeze({
   SHADOW_RIDER_V: 'Shadow Rider Calyrex V CRE',
