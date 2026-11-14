@@ -357,6 +357,11 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     opponentLastTurnAttacks: [barrageFirst, barrageSecond],
     opponentCopycatChoices: [barrageFirst, barrageSecond]
   }, copycatView);
+  const independentSecond = { ...eventRow, turn: 0, sourcePrinting: 'Other Attacker', attackName: 'Other Attack' };
+  protocol.validatePublicEventReceipt({ ...receipt,
+    opponentLastTurnAttacks: [eventRow, independentSecond],
+    opponentCopycatChoices: [eventRow, independentSecond]
+  }, copycatView);
   assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
     opponentLastTurnAttacks: [{ ...eventRow, barragePairIndex: 0 }],
     opponentCopycatChoices: [{ ...eventRow, barragePairIndex: 0 }]
