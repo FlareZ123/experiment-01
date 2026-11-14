@@ -95,6 +95,226 @@ function assertNoForbiddenFields(value) {
   }
 }
 
+const ACTOR_KEYS = [
+  'actorSeat', 'globalTurn', 'phase', 'decisionKind', 'pendingPromptType',
+  'pendingOwnerDeckSearch', 'ownHand', 'ownPublic', 'opponentPublic',
+  'ownTurnResources', 'ownerK1'
+];
+const PLAYER_KEYS = [
+  'active', 'bench', 'stadium', 'discard', 'lostZone', 'resolvingSupporter',
+  'publicHand', 'prizeSlots', 'publicTurnRestrictions', 'handCount', 'deckCount', 'prizeCount'
+];
+const POKEMON_KEYS = [
+  'printing', 'name', 'hp', 'damage', 'lastPlayedOrEvolvedTurn', 'printed',
+  'specialConditions', 'publicRestrictions', 'evolutionPrintings', 'energies',
+  'tools', 'attacks', 'abilities', 'abilityDetails'
+];
+const PRINTED_KEYS = ['stage', 'subtypes', 'types', 'retreatCost', 'weakness', 'resistance'];
+const PUBLIC_RESTRICTION_KEYS = [
+  'cannotAttackNextTurn', 'cannotUseAttacksNextTurn', 'blockedAttackNameNextTurn',
+  'blockedAttackNameUntilLeavesActive', 'onlyAllowedAttackNameNextTurn',
+  'attackCostIncreaseNextTurn', 'attackCostIncreaseWhileActive', 'cannotRetreat',
+  'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn'
+];
+const PLAYER_RESTRICTION_KEYS = [
+  'gxUsed', 'vstarUsed', 'attackLockTurnsRemaining', 'attackMaxEnergy',
+  'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostCardTypes',
+  'ignoreAttackCostTurnsRemaining', 'cannotUseGXAttacks', 'pokemonPlayLocked',
+  'abilityPokemonPlayLocked', 'evolutionPlayLocked', 'itemPlayLocked',
+  'supporterPlayLocked', 'stadiumPlayLocked', 'toolPlayLocked',
+  'energyPlayLocked', 'specialEnergyPlayLocked'
+];
+const TURN_RESOURCE_KEYS = [
+  'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
+  'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
+  'abilityPokemonPlayLocked', 'evolutionPlayLocked', 'itemPlayLocked',
+  'supporterPlayLocked', 'stadiumPlayLocked', 'toolPlayLocked',
+  'energyPlayLocked', 'specialEnergyPlayLocked'
+];
+const ACTION_META_KEYS = [
+  'damage', 'damageAfterWeakness', 'damageAfterResistance', 'targetHp', 'targetDamage',
+  'targetPrizeCount', 'prizeCount', 'ownPrizeCount', 'opponentPrizeCount',
+  'energyCount', 'psychicEnergyCount', 'energyAfterRetreat', 'retreatEnergyCost',
+  'freeRetreat', 'attackCostPayable', 'stadiumPrinting', 'stadiumEffectLive',
+  'stadiumEffectSuppressed', 'stadiumSuppressionTurnsRemaining', 'weaknessType',
+  'weaknessValue', 'weaknessMultiplier', 'resistanceType', 'resistanceValue',
+  'damagePrevented', 'damageReduced', 'hasUnmodeledModifier', 'deckCount',
+  'ownDeckCount', 'opponentDeckCount', 'sourceZone', 'targetZone', 'handIndex',
+  'benchIndex', 'slotIndex', 'paymentCount', 'paymentEnergyCount', 'cardType',
+  'energyType', 'choiceIndex', 'prizeLiability', 'turnsRemaining', 'abilityLive',
+  'abilitySuppressed', 'publicReceiptVersion', 'priorAttackName', 'priorSourcePrinting',
+  'priorAttackTurn', 'gxAttack', 'copycatAttack', 'movedFromBenchToActiveThisTurn',
+  'attackCost', 'abilityName', 'stadiumName', 'retreatPayment', 'targetHasWeakness',
+  'targetHasResistance', 'hasPrevention', 'toolPresent', 'restrictionCode',
+  'damageCalculation', 'damageText', 'ownerPsychicEnergyCount', 'retreatEnergyCount',
+  'benchCount', 'ownDeckRemaining', 'isFreeRetreat', 'isLegal', 'supporterCount',
+  'itemCount', 'handCount', 'pokemonPlayLocked', 'attackLocked', 'canAttack',
+  'canRetreat', 'canPlay', 'isPublic', 'isOwnerVisible'
+];
+const PROMPT_META_KEYS = [
+  'sourceZone', 'targetZone', 'handIndex', 'benchIndex', 'slotIndex', 'cardType',
+  'energyType', 'amount', 'count', 'selectionIndex', 'isPublic', 'isOwnerVisible',
+  'sourcePrinting', 'sourceAttack', 'sourceEffect', 'eligible', 'energyCount',
+  'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
+  'sourceCardType', 'selectionType', 'zone', 'ownerSeat'
+];
+
+function scalarOrNull(value) {
+  return value === null || ['string', 'number', 'boolean'].includes(typeof value);
+}
+function stringArray(value) {
+  if (!Array.isArray(value) || value.length > 2048 ||
+      value.some(item => typeof item !== 'string' || item.length > 512)) fail('BAD_STRING_ARRAY');
+}
+function validateFlatMetadata(value, allowedKeys, code) {
+  if (value === undefined) return;
+  if (!isRecord(value)) fail(code);
+  exactKeys(value, [], allowedKeys);
+  for (const child of Object.values(value)) if (!scalarOrNull(child)) fail(code);
+}
+function validatePokemonSlot(slot, allowConcealed) {
+  if (slot === null) return;
+  if (!isRecord(slot)) fail('BAD_POKEMON_SLOT');
+  if (allowConcealed && slot.concealed === true) {
+    exactKeys(slot, ['concealed']);
+    return;
+  }
+  exactKeys(slot, POKEMON_KEYS);
+  if (!boundedString(slot.printing, null, 256) || !boundedString(slot.name, null, 128)) fail('BAD_POKEMON_IDENTITY');
+  if (!Number.isFinite(slot.hp) || !Number.isFinite(slot.damage)) fail('BAD_POKEMON_VITALS');
+  if (slot.lastPlayedOrEvolvedTurn !== null && !Number.isSafeInteger(slot.lastPlayedOrEvolvedTurn)) fail('BAD_POKEMON_TURN');
+  exactKeys(slot.printed, PRINTED_KEYS);
+  if (!scalarOrNull(slot.printed.stage)) fail('BAD_PRINTED_STAGE');
+  for (const key of ['subtypes', 'types', 'retreatCost']) {
+    if (!Array.isArray(slot.printed[key])) fail('BAD_PRINTED_ARRAY');
+    assertBoundedJson(slot.printed[key]);
+  }
+  for (const key of ['weakness', 'resistance']) {
+    if (!Array.isArray(slot.printed[key])) fail('BAD_PRINTED_MODIFIERS');
+    for (const row of slot.printed[key]) {
+      exactKeys(row, ['type', 'value']);
+      if (!scalarOrNull(row.type) || !scalarOrNull(row.value)) fail('BAD_PRINTED_MODIFIER');
+    }
+  }
+  if (!Array.isArray(slot.specialConditions)) fail('BAD_SPECIAL_CONDITIONS');
+  assertBoundedJson(slot.specialConditions);
+  exactKeys(slot.publicRestrictions, PUBLIC_RESTRICTION_KEYS);
+  assertBoundedJson(slot.publicRestrictions);
+  for (const key of ['evolutionPrintings', 'energies', 'tools', 'abilities']) stringArray(slot[key]);
+  if (!Array.isArray(slot.attacks)) fail('BAD_ATTACKS');
+  for (const attack of slot.attacks) {
+    exactKeys(attack, ['name', 'cost', 'damage', 'damageCalculation', 'text', 'gxAttack', 'barrage'], ['canUseOnFirstTurn']);
+    if (!boundedString(attack.name, null, 128) || !Array.isArray(attack.cost) ||
+        !scalarOrNull(attack.damage) || !scalarOrNull(attack.damageCalculation) ||
+        !(attack.text === null || typeof attack.text === 'string') ||
+        typeof attack.gxAttack !== 'boolean' || typeof attack.barrage !== 'boolean' ||
+        (attack.canUseOnFirstTurn !== undefined && typeof attack.canUseOnFirstTurn !== 'boolean')) fail('BAD_ATTACK_RECORD');
+    assertBoundedJson(attack.cost);
+  }
+  if (!Array.isArray(slot.abilityDetails)) fail('BAD_ABILITY_DETAILS');
+  for (const ability of slot.abilityDetails) {
+    exactKeys(ability, ['name', 'powerType', 'text']);
+    if (!boundedString(ability.name, null, 128) || !scalarOrNull(ability.powerType) ||
+        !(ability.text === null || typeof ability.text === 'string')) fail('BAD_ABILITY_RECORD');
+  }
+}
+function validatePublicPlayer(player, allowConcealed) {
+  exactKeys(player, PLAYER_KEYS);
+  validatePokemonSlot(player.active, allowConcealed);
+  if (!Array.isArray(player.bench) || player.bench.length > 10) fail('BAD_BENCH');
+  for (const slot of player.bench) validatePokemonSlot(slot, allowConcealed);
+  for (const key of ['stadium', 'discard', 'lostZone', 'resolvingSupporter']) stringArray(player[key]);
+  if (player.publicHand !== null) stringArray(player.publicHand);
+  if (!Array.isArray(player.prizeSlots)) fail('BAD_PRIZE_SLOTS');
+  for (const slot of player.prizeSlots) {
+    exactKeys(slot, ['index'], ['printing']);
+    if (!Number.isSafeInteger(slot.index) || slot.index < 0 ||
+        (slot.printing !== undefined && !boundedString(slot.printing, null, 256))) fail('BAD_PRIZE_SLOT');
+  }
+  exactKeys(player.publicTurnRestrictions, PLAYER_RESTRICTION_KEYS);
+  assertBoundedJson(player.publicTurnRestrictions);
+  for (const key of ['handCount', 'deckCount', 'prizeCount']) {
+    if (!Number.isSafeInteger(player[key]) || player[key] < 0) fail('BAD_PUBLIC_COUNT');
+  }
+}
+function validateActorObservation(view, seat) {
+  exactKeys(view, ACTOR_KEYS);
+  if (view.actorSeat !== seat || !Number.isSafeInteger(view.globalTurn) ||
+      !Number.isSafeInteger(view.phase) || !['owner-root', 'owner-prompt'].includes(view.decisionKind) ||
+      typeof view.pendingOwnerDeckSearch !== 'boolean') fail('BAD_ACTOR_OBSERVATION');
+  if (view.pendingPromptType !== null && !boundedString(view.pendingPromptType, /^[A-Za-z][A-Za-z0-9._-]{0,95}$/)) fail('BAD_PENDING_PROMPT_TYPE');
+  if (view.decisionKind === 'owner-root' && (view.pendingPromptType !== null || view.pendingOwnerDeckSearch)) fail('ROOT_HAS_PENDING_PROMPT');
+  if (view.decisionKind === 'owner-prompt' && view.pendingPromptType === null) fail('PROMPT_TYPE_MISSING');
+  stringArray(view.ownHand);
+  validatePublicPlayer(view.ownPublic, false);
+  validatePublicPlayer(view.opponentPublic, view.phase === 0 || view.phase === 1);
+  exactKeys(view.ownTurnResources, TURN_RESOURCE_KEYS);
+  assertBoundedJson(view.ownTurnResources);
+  if (view.ownerK1 !== null) {
+    exactKeys(view.ownerK1, ['epoch', 'exactMembershipKnown', 'knownPrintings', 'invalidationReason']);
+    if (!Number.isSafeInteger(view.ownerK1.epoch) || view.ownerK1.epoch < 0 ||
+        typeof view.ownerK1.exactMembershipKnown !== 'boolean' ||
+        !(view.ownerK1.invalidationReason === null || typeof view.ownerK1.invalidationReason === 'string')) fail('BAD_OWNER_K1');
+    if (view.ownerK1.knownPrintings !== null) {
+      if (!Array.isArray(view.ownerK1.knownPrintings)) fail('BAD_OWNER_K1_PRINTINGS');
+      for (const row of view.ownerK1.knownPrintings) {
+        exactKeys(row, ['printing', 'copies']);
+        if (!boundedString(row.printing, null, 256) || !Number.isSafeInteger(row.copies) || row.copies < 0) fail('BAD_OWNER_K1_PRINTING');
+      }
+    }
+  }
+  assertBoundedJson(view);
+}
+function validateEventPokemon(slot) {
+  if (slot === null) return;
+  exactKeys(slot, ['printing', 'movedFromBenchToActiveThisTurn', 'knownAbilityUse']);
+  if (!boundedString(slot.printing, null, 256) ||
+      !(slot.movedFromBenchToActiveThisTurn === null || typeof slot.movedFromBenchToActiveThisTurn === 'boolean') ||
+      !Array.isArray(slot.knownAbilityUse)) fail('BAD_EVENT_POKEMON');
+  for (const ability of slot.knownAbilityUse) {
+    exactKeys(ability, ['name', 'usedThisTurn']);
+    if (!boundedString(ability.name, null, 128) ||
+        !(ability.usedThisTurn === null || typeof ability.usedThisTurn === 'boolean')) fail('BAD_EVENT_ABILITY');
+  }
+}
+function validateEventAttack(row) {
+  exactKeys(row, ['turn', 'sourcePrinting', 'attackName', 'gxAttack', 'copycatAttack'], ['barragePairIndex', 'barragePairRole']);
+  if (!Number.isSafeInteger(row.turn) || !boundedString(row.sourcePrinting, null, 256) ||
+      !boundedString(row.attackName, null, 128) || typeof row.gxAttack !== 'boolean' ||
+      typeof row.copycatAttack !== 'boolean') fail('BAD_EVENT_ATTACK');
+  if (row.barragePairIndex !== undefined && (!Number.isSafeInteger(row.barragePairIndex) || row.barragePairIndex < 0)) fail('BAD_BARRAGE_INDEX');
+  if (row.barragePairRole !== undefined && !['first', 'second'].includes(row.barragePairRole)) fail('BAD_BARRAGE_ROLE');
+}
+function validatePublicEventReceipt(receipt, view) {
+  if (receipt === null) return;
+  exactKeys(receipt, [
+    'version', 'actorSeat', 'turn', 'ownerActive', 'ownerBench', 'priorOpponentTurnKO',
+    'opponentLastTurnAttack', 'opponentLastTurnTurn', 'opponentLastTurnAttacks'
+  ], ['opponentCopycatChoices', 'mimikyuCopycatCompatible']);
+  if (receipt.version !== 'agent8-public-event-receipt-v3-turn-stamped' ||
+      receipt.actorSeat !== view.actorSeat || receipt.turn !== view.globalTurn) fail('BAD_PUBLIC_EVENT_RECEIPT');
+  validateEventPokemon(receipt.ownerActive);
+  if (!Array.isArray(receipt.ownerBench) || receipt.ownerBench.length > 10) fail('BAD_EVENT_BENCH');
+  for (const slot of receipt.ownerBench) validateEventPokemon(slot);
+  exactKeys(receipt.priorOpponentTurnKO, ['any', 'byAttack']);
+  for (const key of ['any', 'byAttack']) {
+    if (!(receipt.priorOpponentTurnKO[key] === null || typeof receipt.priorOpponentTurnKO[key] === 'boolean')) fail('BAD_PRIOR_KO');
+  }
+  if (receipt.opponentLastTurnAttack !== null) fail('LEGACY_ATTACK_RECEIPT_FORBIDDEN');
+  if (receipt.opponentLastTurnTurn !== null && (!Number.isSafeInteger(receipt.opponentLastTurnTurn) || receipt.opponentLastTurnTurn >= view.globalTurn)) fail('BAD_PREVIOUS_TURN');
+  if (receipt.opponentLastTurnAttacks !== null) {
+    if (!Array.isArray(receipt.opponentLastTurnAttacks) || receipt.opponentLastTurnAttacks.length > 32) fail('BAD_EVENT_ATTACKS');
+    for (const row of receipt.opponentLastTurnAttacks) validateEventAttack(row);
+  }
+  if (receipt.opponentCopycatChoices !== undefined && receipt.opponentCopycatChoices !== null) {
+    if (!Array.isArray(receipt.opponentCopycatChoices) || receipt.opponentCopycatChoices.length > 2) fail('BAD_COPYCAT_CHOICES');
+    for (const row of receipt.opponentCopycatChoices) validateEventAttack(row);
+  }
+  if (receipt.mimikyuCopycatCompatible !== undefined &&
+      !(receipt.mimikyuCopycatCompatible === null || typeof receipt.mimikyuCopycatCompatible === 'boolean')) fail('BAD_COPYCAT_COMPATIBILITY');
+  assertBoundedJson(receipt);
+}
+
 function assertToken(value) {
   if (!boundedString(value, /^[A-Za-z0-9._:-]+$/, LIMITS.maxTokenLength)) {
     fail('INVALID_TOKEN');
@@ -122,6 +342,7 @@ function validateInit(message) {
   if (!boundedString(message.policyVersion, /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/)) fail('BAD_POLICY_VERSION');
   if (!boundedString(message.bundleSha256, /^[a-f0-9]{64}$/)) fail('BAD_BUNDLE_DIGEST');
   if (!isRecord(message.config)) fail('BAD_POLICY_CONFIG');
+  exactKeys(message.config, []); // Policy-specific settings are frozen in the role-only bundle.
   assertBoundedJson(message.config);
   assertNoForbiddenFields(message);
   return message;
@@ -140,7 +361,7 @@ function validatePrompt(prompt, seat) {
     if (!boundedString(choice.kind, /^[A-Za-z][A-Za-z0-9._-]{0,63}$/)) fail('BAD_CHOICE_KIND');
     if (choice.printing !== undefined && !boundedString(choice.printing, null, 256)) fail('BAD_CHOICE_PRINTING');
     if (choice.label !== undefined && !boundedString(choice.label, null, 256)) fail('BAD_CHOICE_LABEL');
-    if (choice.publicMetadata !== undefined) assertBoundedJson(choice.publicMetadata);
+    if (choice.publicMetadata !== undefined) validateFlatMetadata(choice.publicMetadata, PROMPT_META_KEYS, 'BAD_PROMPT_METADATA');
   }
   return prompt;
 }
@@ -156,7 +377,7 @@ function validateFrontier(frontier) {
     for (const key of ['label', 'actorPrinting', 'targetPrinting', 'attackName']) {
       if (item[key] !== undefined && !boundedString(item[key], null, 256)) fail('BAD_ACTION_METADATA');
     }
-    if (item.publicMetadata !== undefined) assertBoundedJson(item.publicMetadata);
+    if (item.publicMetadata !== undefined) validateFlatMetadata(item.publicMetadata, ACTION_META_KEYS, 'BAD_ACTION_METADATA');
   }
   return tokens;
 }
@@ -172,15 +393,12 @@ function validateRequest(message, init, expectedSequence, seenRequestIds) {
   if (!Number.isSafeInteger(message.sequence) || message.sequence !== expectedSequence) fail('BAD_SEQUENCE');
   if (message.role !== init.role || message.seat !== init.seat) fail('ROLE_SEAT_CHANGED');
   if (message.observationSchema !== OBSERVATION_SCHEMA) fail('BAD_OBSERVATION_SCHEMA');
-  if (!isRecord(message.observation) || message.observation.actorSeat !== init.seat) fail('BAD_ACTOR_OBSERVATION');
-  if (!['owner-root', 'owner-prompt'].includes(message.observation.decisionKind)) fail('BAD_DECISION_KIND');
+  validateActorObservation(message.observation, init.seat);
   if (message.prompt !== null && message.observation.decisionKind !== 'owner-prompt') fail('PROMPT_ROOT_MISMATCH');
   if (message.prompt === null && message.observation.decisionKind === 'owner-prompt') fail('MISSING_PROMPT_PROJECTION');
   const prompt = validatePrompt(message.prompt, init.seat);
   if (prompt && message.observation.pendingPromptType !== prompt.promptType) fail('PROMPT_TYPE_MISMATCH');
-  if (message.publicEventReceipt !== null) {
-    if (!isRecord(message.publicEventReceipt) || message.publicEventReceipt.schema !== EVENT_SCHEMA) fail('BAD_PUBLIC_EVENT_RECEIPT');
-  }
+  validatePublicEventReceipt(message.publicEventReceipt, message.observation);
   const actionTokens = validateFrontier(message.actionFrontier);
   assertBoundedJson(message);
   assertNoForbiddenFields(message);
@@ -191,12 +409,14 @@ function validateRequest(message, init, expectedSequence, seenRequestIds) {
 function validateDecision(decision, prompt, actionTokens) {
   if (!isRecord(decision)) fail('POLICY_RETURNED_NON_OBJECT');
   if (decision.kind === 'select-action') {
+    if (prompt !== null) fail('ACTION_DURING_PROMPT');
     exactKeys(decision, ['kind', 'token']);
     assertToken(decision.token);
     if (!actionTokens.has(decision.token)) fail('POLICY_SELECTED_UNKNOWN_ACTION');
     return { kind: 'select-action', token: decision.token };
   }
   if (decision.kind === 'select-choice') {
+    if (prompt === null) fail('CHOICE_DURING_ROOT');
     exactKeys(decision, ['kind', 'token']);
     assertToken(decision.token);
     if (!prompt || !prompt.choices.some(choice => choice.token === decision.token)) {
@@ -349,5 +569,6 @@ if (require.main === module) {
 module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_SCHEMA, FRONTIER_SCHEMA,
-  LIMITS, validateInit, validateRequest, validateDecision, disablePolicyRandomness
+  LIMITS, validateInit, validateRequest, validateDecision, validateActorObservation,
+  validatePublicEventReceipt, validateFlatMetadata, disablePolicyRandomness
 };
