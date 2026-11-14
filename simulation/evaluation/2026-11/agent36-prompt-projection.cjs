@@ -585,7 +585,6 @@ function hostOnlyPrompt(prompt, provenance) {
       provenance.effectName === 'Night Watch' &&
       sourceCard?.name === 'Trevenant & Dusknoir-GX' &&
       sourceCard?.set === 'SMP' &&
-      String(sourceCard?.setNumber) === '217' &&
       printing(sourceCard) === 'Trevenant & Dusknoir-GX SMP') {
     return { hostOnly: true, reason: 'NightWatchPhysicalRandom' };
   }
