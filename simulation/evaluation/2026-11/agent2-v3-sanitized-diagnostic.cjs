@@ -237,18 +237,93 @@ function sanitizeDecisionRecord(record) {
   };
 }
 
-function sanitizeBoundary(boundary) {
-  if(!boundary||typeof boundary!=='object')return null;
+const ROLE_BOUNDARY_COUNTER_FIELDS=Object.freeze([
+  'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
+  'nonOwnerNativeDelegations','nonTurnPhaseFallbacks',
+  'nonOwnerSeatBypassCalls','ownerDecisionCalls','peerRoleDelegations',
+  'setupStartingBasicPromptsHandled','setupGoFirstPromptsHandled',
+  'setupPromptActionsSubmitted','setupPromptActionsRejected',
+  'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses'
+]);
+const ROLE_BOUNDARY_BOOLEAN_FIELDS=Object.freeze([
+  'nativeOwnerTrainerFallbackEnabled','ownerFallbackDiagnosticViewEnabled',
+  'nativePolicyMayUseHiddenInformation','peerRoleDispatchEnabled'
+]);
+const ROLE_BOUNDARY_TEXT_FIELDS=Object.freeze([
+  'version','origin','observationSchema'
+]);
+const ROLE_BOUNDARY_ARRAY_FIELDS=Object.freeze([
+  'setupStartingBasicPromptsBySeat','setupGoFirstPromptsBySeat'
+]);
+const ROLE_BOUNDARY_FAILURE_SUFFIXES=Object.freeze([
+  'audit-missing-or-invalid','policy-owner-seat-mismatch',
+  'wrapper-version-missing','observation-origin-invalid',
+  'observation-schema-invalid','native-owner-trainer-fallback-enabled',
+  'owner-fallback-diagnostic-view-enabled','native-policy-may-use-hidden-information',
+  ...ROLE_BOUNDARY_COUNTER_FIELDS.filter(key=>![
+    'ownerDecisionCalls','peerRoleDelegations',
+    'setupStartingBasicPromptsHandled','setupGoFirstPromptsHandled',
+    'setupPromptActionsSubmitted','setupPromptActionsRejected'
+  ].includes(key)).flatMap(key=>[key+'-missing-or-invalid',key+'-nonzero']),
+  'peerRoleDispatchEnabled-missing-or-invalid',
+  'ownerDecisionCalls-missing-or-invalid',
+  'peerRoleDelegations-missing-or-invalid'
+]);
+const ROLE_BOUNDARY_FAILURE_CODES=new Set([
+  ...['candidate','opponent'].flatMap(role=>
+    ROLE_BOUNDARY_FAILURE_SUFFIXES.map(suffix=>role+'-'+suffix)),
+  'candidate-peer-role-dispatch-disabled',
+  'opponent-peer-role-dispatch-enabled',
+  'candidate-peer-role-delegation-count-mismatch',
+  'opponent-peer-role-delegation-count-nonzero'
+]);
+
+function sanitizeRoleBoundarySummary(source,expectedRole) {
+  if(!source||typeof source!=='object'||Array.isArray(source))return null;
   const result={
-    valid:boundary.valid===true,
-    hiddenInformationSafe:boundary.hiddenInformationSafe===true
+    role:source.role===expectedRole?expectedRole:null,
+    roleMatches:source.role===expectedRole
   };
-  for(const key of [
-    'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
-    'nonTurnPhaseFallbacks','rawStateDecoderCalls'
-  ]) {
-    if(Number.isSafeInteger(boundary[key]))result[key]=boundary[key];
+  if(source.policyOwnerSeat===0||source.policyOwnerSeat===1||
+      source.policyOwnerSeat===null)result.policyOwnerSeat=source.policyOwnerSeat;
+  for(const key of ROLE_BOUNDARY_TEXT_FIELDS) {
+    const value=source[key];
+    if(typeof value==='string'&&value.length<=128)result[key]=value;
   }
+  for(const key of ROLE_BOUNDARY_BOOLEAN_FIELDS) {
+    if(typeof source[key]==='boolean')result[key]=source[key];
+  }
+  for(const key of ROLE_BOUNDARY_COUNTER_FIELDS) {
+    if(Number.isSafeInteger(source[key])&&source[key]>=0)result[key]=source[key];
+  }
+  for(const key of ROLE_BOUNDARY_ARRAY_FIELDS) {
+    const value=source[key];
+    if(Array.isArray(value)&&value.length===2&&
+        value.every(item=>Number.isSafeInteger(item)&&item>=0))
+      result[key]=value.slice();
+  }
+  return result;
+}
+
+function sanitizeBoundary(boundary) {
+  if(!boundary||typeof boundary!=='object'||Array.isArray(boundary))return null;
+  const result={
+    valid:typeof boundary.valid==='boolean'?boundary.valid:null
+  };
+  if(boundary.schema==='aichi-actor-only-execution-boundary-v2')
+    result.schema=boundary.schema;
+  // This field is not emitted by the current role composer. Preserve it only
+  // when an upstream source explicitly provides a boolean; never invent false.
+  if(typeof boundary.hiddenInformationSafe==='boolean')
+    result.hiddenInformationSafe=boundary.hiddenInformationSafe;
+  if(Array.isArray(boundary.failures)) {
+    const allowed=boundary.failures.filter(code=>
+      typeof code==='string'&&ROLE_BOUNDARY_FAILURE_CODES.has(code));
+    result.failures=allowed.slice(0,64);
+    result.unrecognizedFailureCount=boundary.failures.length-allowed.length;
+  }
+  result.candidate=sanitizeRoleBoundarySummary(boundary.candidate,'candidate');
+  result.opponent=sanitizeRoleBoundarySummary(boundary.opponent,'opponent');
   if(typeof boundary.nativePolicyMayUseHiddenInformation==='boolean')
     result.nativePolicyMayUseHiddenInformation=boundary.nativePolicyMayUseHiddenInformation;
   return result;
