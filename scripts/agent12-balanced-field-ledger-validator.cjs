@@ -523,6 +523,9 @@ function validateFieldSamplingRegistration(request, originalSources, attempts,
  *   policyPanelReceipts; every outcome attempt must carry the matching
  *   policyApplicationReceiptSha256, policyRegistrationSha256 and
  *   policyAttestationBundleSha256. Receipts are joined one-to-one by trialId.
+ *   Exact iid field-mean mode additionally supplies stratumSamplingModel and
+ *   fieldSamplingRegistration; its canonical SHA-256 must equal registrationSha,
+ *   and its fixed trial roster must match every observed attempt.
  *   For full-field inference, policyPanelReceipts is the aggregate of actual
  *   per-game receipts across all outcome attempts; never synthesize missing cells.
  * @param {readonly string[]} allowedStatuses Exact externally audited labels.
