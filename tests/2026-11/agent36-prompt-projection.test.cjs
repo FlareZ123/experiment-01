@@ -79,6 +79,18 @@ function provenance(sourceCard, effectName = 'Quick Ball') {
   return { getPromptProvenance: () => ({ sourceKind:'card-effect',sourceCard,effectName }) };
 }
 
+function nightWatchSource(state,prompt) {
+  const card={
+    fullName:'Trevenant & Dusknoir-GX SMP',
+    name:'Trevenant & Dusknoir-GX',
+    set:'SMP',
+    setNumber:'217'
+  };
+  state.players[0].discard.cards.push(card);
+  prompt.sourceCard=card;
+  return card;
+}
+
 function basePrompt(Class, state, overrides = {}) {
   const prompt = new Class();
   Object.assign(prompt, {
@@ -359,9 +371,10 @@ test('host-only Night Watch and Copycat prompts fail closed rather than leaking 
     cards: state.players[1].hand,
     options: { min: 1, max: 1, allowCancel: false }
   });
+  const sourceCard=nightWatchSource(state,nightWatch);
   const hostOnly = projectPrompt({
     prompt: nightWatch, state, actorSeat: 0, native,
-    provenanceHook: provenance(nightWatch.sourceCard, 'Night Watch')
+    provenanceHook: provenance(sourceCard, 'Night Watch')
   });
   assert.equal(hostOnly.hostOnly, true);
   assert.equal(hostOnly.reason, 'NightWatchPhysicalRandom');
@@ -379,6 +392,29 @@ test('host-only Night Watch and Copycat prompts fail closed rather than leaking 
 });
 
 
+test('Night Watch classification requires the exact typed card-effect source, never prompt text alone', () => {
+  const state=makeState();
+  const spoof=basePrompt(NightWatchPrompt,state,{
+    message:'Night Watch',
+    cards:state.players[0].hand,
+    options:{min:0,max:0,allowCancel:false}
+  });
+  const untrusted=projectPrompt({
+    prompt:spoof,state,actorSeat:0,native,
+    provenanceHook:provenance(spoof.sourceCard,'Night Watch')
+  });
+  assert.equal(untrusted.hostOnly,undefined);
+  assert.equal(untrusted.promptProjection.source.sourcePrinting,'Quick Ball');
+
+  const noProvenance=basePrompt(NightWatchPrompt,state,{
+    message:'Night Watch',
+    cards:state.players[0].hand,
+    options:{min:0,max:0,allowCancel:false}
+  });
+  assert.throws(()=>projectPrompt({prompt:noProvenance,state,actorSeat:0,native}),
+    error=>error.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+});
+
 test('host-only prompt preparation returns a native action without dispatching it', () => {
   const state=makeState();
   state.players[1].hand.cards.push(
@@ -391,9 +427,10 @@ test('host-only prompt preparation returns a native action without dispatching i
   });
   let dispatches=0;
   const store={state,dispatch(){dispatches++;return {ok:true};}};
+  const sourceCard=nightWatchSource(state,prompt);
   const prepared=resolveHostOnlyPrompt({
     prompt,state,store,native,physicalRandom:()=>0.25,
-    provenanceHook:provenance(prompt.sourceCard,'Night Watch'),dispatch:false
+    provenanceHook:provenance(sourceCard,'Night Watch'),dispatch:false
   });
   assert.equal(prepared.action.promptId,7);
   assert.equal(prepared.summary.kind,'NightWatchPhysicalRandom');
