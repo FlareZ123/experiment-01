@@ -108,6 +108,7 @@ function summarizePhysicalZoneTransfers(packet){
     withinZoneReorders:totalDeckReorders,
     temporaryUnaccountedIdentityEvents:totalUnaccounted,
     prizeCardsMovedToOwnerHand:timeline.reduce((n,r)=>n+r.prizeClaims.length,0),
+    energyAttachments:timeline.reduce((n,r)=>n+r.energyAttachments.length,0),
     energyDeckAttachments:timeline.reduce((n,r)=>
       n+r.energyDeckAttachments.length,0),
     crossSeatPhysicalMovements:timeline.reduce((n,r)=>
