@@ -369,6 +369,11 @@ test('production actorObservation projection matches the closed worker schema an
   ]);
   assert.deepEqual(setupView.opponentPublic.bench[0], { concealed: true });
   assert.doesNotMatch(JSON.stringify(setupView.opponentPublic), /SECRET OPPONENT HAND|SECRET FACE-DOWN PRIZE/);
+  opponent.hand.cards = [fixtureCard('PUBLIC OPPONENT HAND')];
+  opponent.hand.isPublic = true;
+  const publicHandView = actorObservation(state, 0);
+  protocol.validateActorObservation(publicHandView, 0);
+  assert.deepEqual(publicHandView.opponentPublic.publicHand, ['PUBLIC OPPONENT HAND']);
 });
 
 test('actual Agent7/Agent8 public event receipt passes the worker schema', () => {
