@@ -38,28 +38,46 @@ function fraction(numerator, denominator) {
 function ratio(numerator, denominator) { return Number(numerator) / Number(denominator); }
 
 /**
- * Exact combinatorial upper-bound model for early recovery of Prized
- * Mimikyu/Dialga-GX via Hisuian Heavy Ball. Categories are Mimikyu, Dialga,
- * Heavy Ball, Arven, other Basic Pokémon, and all remaining non-Basic cards.
+ * Exact combinatorial upper-bound model for early recovery of Prized Mimikyu
+ * and Dialga-GX via Hisuian Heavy Ball. If at least one copy of a core species
+ * is outside Prizes, that species is optimistically treated as accessible.
+ * A Heavy Ball is needed only for a species whose every copy is Prized.
  *
- * Assumptions: any unprized core Basic is otherwise accessible; any seen
- * Arven can fetch one unprized Heavy Ball from deck; Arven has an eligible
- * Tool target; Heavy Ball can be played when seen; no opponent disruption.
- * This is access feasibility, not counterline execution or win probability.
+ * Arven, when seen, may fetch one additional unprized Heavy Ball from deck.
+ * Assumes an eligible Tool remains, the Heavy Ball can be played, and no
+ * opponent disruption. This is access feasibility, not line execution or win.
  */
-function exactEarlyAccess({ heavyBallCopies, naturalDraws, includeArven = true }) {
-  if (![1, 2].includes(heavyBallCopies)) throw new RangeError('heavyBallCopies must be 1 or 2');
-  if (![0, 1, 2].includes(naturalDraws)) throw new RangeError('naturalDraws must be 0, 1 or 2');
-  const mimikyu = 1, dialga = 1, arven = includeArven ? 1 : 0, otherBasics = 12;
-  const otherNonBasics = 60 - mimikyu - dialga - heavyBallCopies - arven - otherBasics;
-  const totals = [mimikyu, dialga, heavyBallCopies, arven, otherBasics, otherNonBasics];
+function exactEarlyAccess({
+  mimikyuCopies = 1,
+  dialgaCopies = 1,
+  heavyBallCopies = 1,
+  naturalDraws = 0,
+  includeArven = true,
+  totalBasics = 14
+}) {
+  for (const [name, value, min, max] of [
+    ['mimikyuCopies', mimikyuCopies, 1, 4],
+    ['dialgaCopies', dialgaCopies, 1, 4],
+    ['heavyBallCopies', heavyBallCopies, 1, 4],
+    ['naturalDraws', naturalDraws, 0, 2],
+    ['totalBasics', totalBasics, 2, 20]
+  ]) {
+    if (!Number.isSafeInteger(value) || value < min || value > max) throw new RangeError(name + ' out of range');
+  }
+  const arven = includeArven ? 1 : 0;
+  const otherBasics = totalBasics - mimikyuCopies - dialgaCopies;
+  if (otherBasics < 0) throw new RangeError('core Basic copies exceed totalBasics');
+  const otherNonBasics = 60 - mimikyuCopies - dialgaCopies - heavyBallCopies - arven - otherBasics;
+  if (otherNonBasics < 0) throw new RangeError('card counts exceed 60');
+  const totals = [mimikyuCopies, dialgaCopies, heavyBallCopies, arven, otherBasics, otherNonBasics];
   const denominator = choose(60, 6) * choose(54, 7) * choose(47, naturalDraws);
   let validWays = 0n, successWays = 0n, hardPrizeBlockWays = 0n, earlyAccessMissWays = 0n;
-  const prizedCoreWays = [0n, 0n, 0n];
+  const requiredHeavyWays = [0n, 0n, 0n];
+
   for (const prizes of compositions(6, totals)) {
     const prizeWays = product(totals.map((count, i) => choose(count, prizes[i])));
     const afterPrizes = totals.map((count, i) => count - prizes[i]);
-    const prizedCore = prizes[0] + prizes[1];
+    const requiredHeavy = Number(prizes[0] === mimikyuCopies) + Number(prizes[1] === dialgaCopies);
     const unprizedHeavy = heavyBallCopies - prizes[2];
     for (const hand of compositions(7, afterPrizes)) {
       if (hand[0] + hand[1] + hand[4] === 0) continue;
@@ -69,13 +87,13 @@ function exactEarlyAccess({ heavyBallCopies, naturalDraws, includeArven = true }
         const drawWays = product(afterHand.map((count, i) => choose(count, draws[i])));
         const ways = prizeWays * handWays * drawWays;
         validWays += ways;
-        prizedCoreWays[prizedCore] += ways;
+        requiredHeavyWays[requiredHeavy] += ways;
         const seenHeavy = hand[2] + draws[2];
         const arvenSeen = includeArven && hand[3] + draws[3] > 0;
         const arvenSearch = arvenSeen && unprizedHeavy > seenHeavy ? 1 : 0;
         const accessibleHeavy = Math.min(unprizedHeavy, seenHeavy + arvenSearch);
-        if (prizedCore > unprizedHeavy) hardPrizeBlockWays += ways;
-        else if (accessibleHeavy < prizedCore) earlyAccessMissWays += ways;
+        if (requiredHeavy > unprizedHeavy) hardPrizeBlockWays += ways;
+        else if (accessibleHeavy < requiredHeavy) earlyAccessMissWays += ways;
         else successWays += ways;
       }
     }
@@ -85,9 +103,10 @@ function exactEarlyAccess({ heavyBallCopies, naturalDraws, includeArven = true }
   }
   const conditional = n => ratio(n, validWays);
   return {
-    heavyBallCopies, naturalDraws, includeArven,
+    mimikyuCopies, dialgaCopies, heavyBallCopies, naturalDraws, includeArven,
+    totalBasics, otherBasics,
     validOpeningProbability: ratio(validWays, denominator),
-    corePrizeDistributionGivenValidOpening: prizedCoreWays.map(conditional),
+    requiredHeavyDistributionGivenValidOpening: requiredHeavyWays.map(conditional),
     earlyCoreRecoveryProbabilityGivenValidOpening: conditional(successWays),
     hardPrizeOnlyObstructionGivenValidOpening: conditional(hardPrizeBlockWays),
     recoverableButNotSeenByHorizonGivenValidOpening: conditional(earlyAccessMissWays),
@@ -99,9 +118,15 @@ function exactEarlyAccess({ heavyBallCopies, naturalDraws, includeArven = true }
     }
   };
 }
+
 function run() {
-  return [1, 2].flatMap(heavyBallCopies => [0, 1, 2].map(naturalDraws =>
-    exactEarlyAccess({ heavyBallCopies, naturalDraws, includeArven: true })));
+  const variants = [
+    [1, 1, 1], [1, 1, 2], [2, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 2]
+  ];
+  return variants.flatMap(([mimikyuCopies, dialgaCopies, heavyBallCopies]) =>
+    [0, 1, 2].map(naturalDraws => exactEarlyAccess({
+      mimikyuCopies, dialgaCopies, heavyBallCopies, naturalDraws, includeArven: true
+    })));
 }
 if (require.main === module) console.log(JSON.stringify(run(), null, 2));
 module.exports = { exactEarlyAccess, run };
