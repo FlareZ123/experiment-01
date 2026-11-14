@@ -41,6 +41,12 @@ function fakeNative() {
       name: 'Unavailable Attack'
     },
     {
+      type: 'USE_ABILITY_ACTION',
+      clientId: 'p0',
+      name: 'Opponent Hand Targeting Ability',
+      target: { player: 2, slot: 3, index: 0 }
+    },
+    {
       type: 'PASS_TURN',
       clientId: 'p0'
     }
@@ -110,12 +116,12 @@ test('frontier is Simulator-validated, actor-visible, and opaque-token mapped', 
   const state = fixtureState();
   const native = fakeNative();
   const built = buildNativeActionFrontier({ state, actorSeat: 0, native });
-  assert.equal(built.diagnostics.enumeratedCount, 3);
-  assert.equal(built.diagnostics.validatedCount, 2);
+  assert.equal(built.diagnostics.enumeratedCount, 4);
+  assert.equal(built.diagnostics.validatedCount, 3);
   assert.equal(built.diagnostics.rejectedCount, 1);
   assert.equal(built.diagnostics.unsupportedCount, 0);
   assert.equal(built.actionFrontier.schema, protocol.FRONTIER_SCHEMA);
-  assert.deepEqual(built.actionFrontier.items.map(item => item.kind), ['play-card', 'pass']);
+  assert.deepEqual(built.actionFrontier.items.map(item => item.kind), ['play-card', 'use-ability', 'pass']);
   assert.equal(built.actionFrontier.items[0].actorPrinting, 'Test Item');
   assert.equal(built.actionFrontier.items[0].targetPrinting, 'Own Bench Pokemon');
   assert.deepEqual(built.actionFrontier.items[0].publicMetadata, {
@@ -125,6 +131,13 @@ test('frontier is Simulator-validated, actor-visible, and opaque-token mapped', 
     targetZone: 'bench',
     targetIndex: 0
   });
+  assert.deepEqual(built.actionFrontier.items[1].publicMetadata, {
+    abilityName: 'Opponent Hand Targeting Ability',
+    sourceZone: 'hand',
+    sourceSeat: 'opponent'
+  });
+  assert.equal(Object.hasOwn(built.actionFrontier.items[1].publicMetadata, 'sourceIndex'), false);
+  protocol.validateFrontier(built.actionFrontier);
   const serialized = JSON.stringify(built.actionFrontier);
   assert.equal(serialized.includes('HIDDEN_OPPONENT_HAND_SENTINEL'), false);
   assert.equal(serialized.includes('clientId'), false);
