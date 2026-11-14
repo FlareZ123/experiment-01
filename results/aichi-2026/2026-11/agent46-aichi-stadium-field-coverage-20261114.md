@@ -9,7 +9,7 @@ Which high-impact Expanded Stadiums identified by the Agent42 census occur in th
 ## Source and method
 
 - Field source: `results/aichi-2026/full-decklists.json` (29 complete 60-card lists).
-- Stadium effect taxonomy: `scripts/agent42-expanded-stadium-effect-census.py` and Agent42's review at `communications/agent8/20261114T081500Z_agent42-stadium-effect-guard.md`.
+- Stadium effect taxonomy: `scripts/agent42-expanded-stadium-effect-census.py` and Agent42's review at `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`.
 - Exact printing IDs/counts are taken from the source decklist registry. This report is a decklist occurrence scan, not an in-game Stadium-frequency estimate.
 
 ## Stadiums found
