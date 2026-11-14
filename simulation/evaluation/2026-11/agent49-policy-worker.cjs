@@ -450,6 +450,7 @@ function validatePrompt(prompt, seat) {
         !boundedString(prompt.source[key], null, 256)) fail('BAD_PROMPT_SOURCE');
   }
   const hasCopiedSource = prompt.source.copiedSourcePrinting !== undefined || prompt.source.copiedAttackName !== undefined;
+  if (hasCopiedSource && prompt.source.sourceKind !== 'card-effect') fail('BAD_ENGINE_PROMPT_SOURCE');
   if (hasCopiedSource &&
       (!boundedString(prompt.source.copiedSourcePrinting, null, 256) ||
        !boundedString(prompt.source.copiedAttackName, null, 256))) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
