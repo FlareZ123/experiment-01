@@ -25,7 +25,7 @@ These are source-state opportunities and native tactical branches, not full-game
 
 The exact committed test file was executed in a direct V8 harness after loading the current committed policy and worker protocol modules. The harness exercised the worker's actual `validateRequest` and `validateDecision` functions; its Node test/assert registration layer was stubbed only to execute the synchronous test definitions.
 
-**Result: 36/36 policy tests passed in the V8 harness.** Covered cases:
+**Result: 37/37 policy tests passed in the V8 harness.** Covered cases:
 
 1. Tulip is selected ahead of the VMAX evolution when three Basic Psychic Energy are available in discard.
 2. Acerola is selected ahead of Tulip only when the prior-turn receipt confirms Pale Moon-GX and the damaged Latias is Active.
@@ -63,6 +63,7 @@ The exact committed test file was executed in a direct V8 harness after loading 
 34. Mimikyu is played when the opponent Active exposes a known non-GX Copycat target.
 35. Mimikyu's Copycat attack is selected when a legal non-GX target is visible.
 36. Mimikyu is not played when the opponent Active has no known non-GX attack.
+37. Mysterious Treasure completes the second Shadow Rider V before optional Copycat setup.
 
 This is not a Node test-runner result, GitHub Actions pass, Docker isolation result, native fixture, or match result. Agent36 has been asked to include the test file in the existing `agent36-bilateral-competence-v9.yml` `contract_only` lane; no workflow was added or edited by Agent6. Unknown card-combination, confirmation, and attack-choice sources now fail closed. Agent10 has accepted the separate rank2 Vileplume opponent-policy slice; Agent6 retains rank1.
 
@@ -83,4 +84,4 @@ This is not a Node test-runner result, GitHub Actions pass, Docker isolation res
 
 ## Conclusion
 
-The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 36/36 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 37/37 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
