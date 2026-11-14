@@ -617,11 +617,19 @@ function discardChoiceScore(choice, observation) {
 }
 
 function engineSetupPromptDecision(prompt, observation, choices, metadata) {
-  // These three native setup prompts are the only engine-origin prompts this
-  // policy accepts. Keep the phase guard exact: Twinleaf emits them in SETUP=1.
-  if (observation.phase !== 1 || prompt.source.sourceKind !== 'engine' ||
-      prompt.source.sourcePrinting !== null) {
-    return null;
+  // These are exact native message/constructor/source triples. If a known
+  // setup message arrives with the wrong type, phase, or source, fail closed
+  // instead of allowing generic prompt logic to reinterpret it.
+  const expectedPromptType = {
+    CHOOSE_STARTING_POKEMONS: 'ChooseCardsPrompt',
+    GO_FIRST: 'ConfirmPrompt',
+    WANT_TO_DRAW_CARDS: 'SelectPrompt'
+  }[prompt.description];
+  if (expectedPromptType === undefined) return null;
+  if (prompt.promptType !== expectedPromptType || observation.phase !== 1 ||
+      prompt.source.sourceKind !== 'engine' || prompt.source.sourcePrinting !== null ||
+      prompt.source.effectName !== prompt.description) {
+    return { kind: 'abstain', reasonCode: 'INVALID_ENGINE_SETUP_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseCardsPrompt' &&
@@ -659,16 +667,10 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
       if (active !== null || cardChoices.length === 0) {
         return { kind: 'abstain', reasonCode: 'NO_VISIBLE_STARTING_POKEMON' };
       }
-      // The first selected card becomes Active. Prefer the deck's primary
-      // Shadow Rider V; preserve native hand order for all remaining Basics.
-      const ordered = cardChoices.slice();
-      const primaryIndex = ordered.findIndex(choice =>
-        matches(choice.printing, PRINT.shadowRiderV));
-      if (primaryIndex > 0) {
-        ordered.unshift(ordered.splice(primaryIndex, 1)[0]);
-      }
+      // This handler is the protocol-only setup path: preserve native choice
+      // order and avoid rank-specific card priorities in the acceptance slice.
       const capacity = 1 + emptyBenchSlots;
-      const tokens = ordered.slice(0, Math.min(max, capacity))
+      const tokens = cardChoices.slice(0, Math.min(max, capacity))
         .map(choice => choice.token);
       return tokens.length >= min
         ? { kind: 'select-choices', tokens }
@@ -679,7 +681,9 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
       if (active === null) {
         return { kind: 'abstain', reasonCode: 'MISSING_ACTIVE_FOR_EXTRA_BENCH' };
       }
-      const tokens = cardChoices.slice(0, Math.min(max, emptyBenchSlots))
+      // Twinleaf's starting-Pokemon callback applies actual Bench capacity
+      // after prompt resolution; preserve all offered choices up to native max.
+      const tokens = cardChoices.slice(0, max)
         .map(choice => choice.token);
       if (tokens.length > 0) return { kind: 'select-choices', tokens };
       const empty = choices.find(choice => choice.kind === 'empty-selection');
@@ -693,13 +697,14 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
 
   if (prompt.promptType === 'ConfirmPrompt' &&
       prompt.description === 'GO_FIRST') {
-    if (metadata.selectionType !== 'confirm') {
+    if (metadata.selectionType !== 'confirm' || metadata.allowCancel === true ||
+        choices.length !== 2 || choices.some(choice => choice.kind !== 'confirm')) {
       return { kind: 'abstain', reasonCode: 'INVALID_GO_FIRST_CONFIRMATION' };
     }
     const yes = choices.find(choice =>
-      choice.kind === 'confirm' && /^yes$/i.test(choice.label ?? ''));
+      /^yes$/i.test(choice.label ?? ''));
     const no = choices.find(choice =>
-      choice.kind === 'confirm' && /^no$/i.test(choice.label ?? ''));
+      /^no$/i.test(choice.label ?? ''));
     if (!yes || !no) {
       return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_GO_FIRST_CHOICES' };
     }
@@ -711,12 +716,12 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
   if (prompt.promptType === 'SelectPrompt' &&
       prompt.description === 'WANT_TO_DRAW_CARDS') {
     const count = metadata.count;
-    if (metadata.selectionType !== 'option' ||
+    if (metadata.selectionType !== 'option' || metadata.allowCancel !== false ||
         !Number.isSafeInteger(count) || count < 1) {
       return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_OPTIONS' };
     }
     const options = choices.filter(choice => choice.kind === 'option');
-    if (options.length !== count) {
+    if (options.length === 0 || options.length !== choices.length) {
       return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_OPTIONS' };
     }
 
@@ -729,15 +734,12 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
         return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_INDEX' };
       }
       seen.add(choiceIndex);
-      const expectedDrawCount = count - 1 - choiceIndex;
       const labelMatch = String(choice.label ?? '').match(/^Draw (\d+) card\(s\)$/i);
-      if (!labelMatch || Number(labelMatch[1]) !== expectedDrawCount) {
-        return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
+      const drawCount = labelMatch ? Number(labelMatch[1]) : NaN;
+      if (!Number.isSafeInteger(drawCount) || drawCount < 0) {
+        return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_LABEL' };
       }
-      ranked.push({ choice, drawCount: expectedDrawCount, choiceIndex });
-    }
-    if (seen.size !== count) {
-      return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_INDEXES' };
+      ranked.push({ choice, drawCount, choiceIndex });
     }
     ranked.sort((a, b) =>
       b.drawCount - a.drawCount || a.choiceIndex - b.choiceIndex);
