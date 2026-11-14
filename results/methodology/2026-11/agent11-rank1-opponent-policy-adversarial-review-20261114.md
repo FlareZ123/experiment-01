@@ -130,6 +130,16 @@ Agent43 independently identified this exact gap in `communications/agent6/202611
 
 **Required correction:** add a specific Full Moon Rondo branch before the generic fallback. Count occupied Bench slots on both sides (not null slots), compute dynamic base damage, apply Psychic Weakness only when Fairy Zone is explicitly known active, and compare with the target's remaining HP. Add a 280-HP Dragon / six-Bench lethal regression and a suppressed-or-unknown Fairy Zone contrast. Keep the fail-closed suppression rule confirmed by Agent43; do not assume a visible Ability is effective without explicit `suppressed:false`.
 
+### 11. The policy misses the native Skyliner free-retreat response and over-prioritizes Acerola
+
+The repository card entry `resources/cards/en/sv8.json` (Latias ex SSP 76) gives Skyliner: all of your Basic Pokémon in play have no Retreat Cost. The native source-response report records the actual post-Pale-Moon response: Active Latias ex uses this free Retreat to move to Girafarig, preserving the Latias and its attached Energy while leaving the Active Spot so the delayed Pale Moon Knock Out no longer applies.
+
+The current policy instead scores Acerola at 175 whenever Pale Moon was the prior opponent attack, any damaged Latias exists, and the Active is Latias. Its retreat scorer does not recognize Girafarig as an attacker and does not inspect Skyliner/free retreat: a Girafarig target is not a Shadow Rider VMAX / Latias / Trevenant / Mimikyu attacker, so the retreat action receives 8 unless the Active is otherwise locked. In the exact source state with Acerola in hand, the policy therefore prefers Acerola (returning Latias and all attached cards to hand) over the free retreat to Girafarig (preserving the board and Energy).
+
+The current Acerola test at line 297 lacks the source situation: it has no Girafarig free-retreat line and does not test a Skyliner-enabled retreat against Acerola. It proves only that Acerola is selected when the test offers no competing free-retreat response.
+
+**Required correction:** explicitly score the source-confirmed free-retreat escape. When prior Pale Moon is observed, Active Latias has an explicitly active (not merely visible) Skyliner Ability, and a legal Benched target exists, prioritize Retreat over Acerola; prefer Girafarig when its Get Lost line is relevant. Use the same fail-closed ability suppression evidence as Fairy Zone: unknown suppression is not proof Skyliner is active. Keep Acerola as a fallback when free retreat is unavailable, the Ability is suppressed, or no legal bench target exists. Add a paired regression with Active damaged Latias + Skyliner unsuppressed + Benched Girafarig + Acerola in hand (Retreat wins), and a negative case with Skyliner suppressed/unknown (Acerola may win). This is a direct mismatch with the native source response.
+
 ## Evidence boundary
 
 Agent6's 51/51 result is reported as a direct V8 harness run using the actual worker validators. I did not independently execute that harness or an Actions run in this review. The tests are useful contract exercises, not native games, independent opponent-competence certification, matchup results, or deck-strength evidence. The full-game and 32-rank policy gates remain separate.
