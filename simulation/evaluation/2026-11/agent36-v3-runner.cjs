@@ -199,55 +199,75 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
-function hostRoleRuntimeExpectedByPath(expectedByPath,workerOnlyPaths=[]) {
+function assertWorkerOnlyPolicyPathsAbsentFromHostClosure(expectedByPath,workerOnlyPaths=[]) {
   assert.ok(expectedByPath&&typeof expectedByPath==='object'&&!Array.isArray(expectedByPath),
     'role manifest expectedByPath must be an object');
   assert.ok(Array.isArray(workerOnlyPaths),'workerOnlyPaths must be an array');
   const workerOnly=[...new Set(workerOnlyPaths)].sort();
+  assert.equal(workerOnly.length,2,
+    'candidate and opponent policy sources must be separately pinned worker-only assets');
   for(const relative of workerOnly){
     assert.equal(typeof relative,'string');
-    assert.ok(Object.hasOwn(expectedByPath,relative),
-      'worker-only policy entrypoint must remain in the role manifest: '+relative);
+    assert.equal(Object.hasOwn(expectedByPath,relative),false,
+      'worker-only policy source must not appear in the host role source closure: '+relative);
   }
-  return Object.fromEntries(Object.entries(expectedByPath)
-    .filter(([relative])=>!workerOnly.includes(relative))
-    .sort(([a],[b])=>a.localeCompare(b)));
+  return expectedByPath;
 }
 
-function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPaths=[]}={}) {
+function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPaths=[],
+  workerOnlyHashes={}}={}) {
   const root=fs.realpathSync(repositoryRoot);
-  const hostExpectedByPath=hostRoleRuntimeExpectedByPath(expectedByPath,workerOnlyPaths);
+  assert.ok(workerOnlyHashes&&typeof workerOnlyHashes==='object'&&!Array.isArray(workerOnlyHashes),
+    'worker-only policy hashes must be supplied separately from host expectedByPath');
   const workerOnly=[...new Set(workerOnlyPaths)].sort();
-  for(const relative of workerOnly){
+  const workerOnlyHashKeys=Object.keys(workerOnlyHashes).sort();
+  assert.deepEqual(workerOnlyHashKeys,workerOnly,
+    'every worker-only policy path must have exactly one separately verified source hash');
+  function resolveInsideRepository(relative,label){
+    assert.equal(typeof relative,'string');
     const filename=path.resolve(root,relative);
     const relativeCheck=path.relative(root,filename);
-    assert.ok(relativeCheck&&relativeCheck!=='..'&&!relativeCheck.startsWith('..'+path.sep)&&
-      !path.isAbsolute(relativeCheck),'worker-only policy path must remain inside the repository');
+    assert.ok(relativeCheck&&relativeCheck!=='.'&&relativeCheck!=='..'&&
+      !relativeCheck.startsWith('..'+path.sep)&&!path.isAbsolute(relativeCheck),
+      label+' path must remain inside the repository: '+relative);
+    return filename;
+  }
+  for(const relative of workerOnly){
+    assert.equal(Object.hasOwn(expectedByPath,relative),false,
+      'worker-only policy source cannot be part of host expectedByPath: '+relative);
+    assert.match(workerOnlyHashes[relative]??'',SHA256,
+      'worker-only policy source hash is invalid: '+relative);
+    const filename=resolveInsideRepository(relative,'worker-only policy');
     const bytes=fs.readFileSync(filename);
     const actualSha256=createHash('sha256').update(bytes).digest('hex');
-    assert.equal(actualSha256,expectedByPath[relative],
+    assert.equal(actualSha256,workerOnlyHashes[relative],
       'worker-only policy source changed before Docker bundle creation: '+relative);
     assert.equal(require.cache[filename],undefined,
-      'worker-only policy entrypoint must not be evaluated in the host process: '+relative);
+      'worker-only policy entrypoint must not be evaluated in the host process before preload: '+relative);
   }
+  const hostExpectedByPath=Object.fromEntries(Object.entries(expectedByPath).sort(([a],[b])=>a.localeCompare(b)));
   const loadedPaths=[];
   for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
-    const filename=path.resolve(root,relative);
-    const relativeCheck=path.relative(root,filename);
-    assert.ok(relativeCheck&&relativeCheck!=='..'&&!relativeCheck.startsWith('..'+path.sep)&&
-      !path.isAbsolute(relativeCheck),'host runtime path must remain inside the repository: '+relative);
+    const filename=resolveInsideRepository(relative,'host runtime');
     const bytes=fs.readFileSync(filename);
     const actualSha256=createHash('sha256').update(bytes).digest('hex');
     assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
     Module._load(filename,module,false);
     loadedPaths.push(relative);
   }
-  return {hostExpectedByPath,workerOnlyPaths:workerOnly,loadedPaths};
+  // Recheck after all host dependencies have loaded: a transitive require of a
+  // worker-only policy source is just as disqualifying as a direct preload.
+  for(const relative of workerOnly){
+    const filename=resolveInsideRepository(relative,'worker-only policy');
+    assert.equal(require.cache[filename],undefined,
+      'host dependency transitively evaluated a worker-only policy source: '+relative);
+  }
+  return {hostExpectedByPath,workerOnlyPaths:workerOnly,workerOnlyHashes:{...workerOnlyHashes},loadedPaths};
 }
 
 function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries,
-  workerOnlyPaths=[],hostExpectedByPath:providedHostExpectedByPath}){
+  workerOnlyPaths=[],workerOnlyHashes={},hostExpectedByPath:providedHostExpectedByPath}){
   assert.equal(cardPoolInitialization?.schema,
     'agent36-twinleaf-card-pool-initialization-v1',
     'pinned native card-pool initialization receipt is required');
@@ -268,16 +288,31 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
     'candidate entry manifest engine pin differs from card-pool initialization');
   assert.equal(opponentManifest?.manifest?.enginePin,cardPoolInitialization.enginePin,
     'opponent entry manifest engine pin differs from card-pool initialization');
-  const combined=identityHelper.combineRolePolicyEntryManifests(
-    candidateManifest,opponentManifest);
-  const manifestEntrypoints=[candidateManifest.manifest.entrypoint,opponentManifest.manifest.entrypoint];
-  const expectedWorkerOnlyPaths=[...new Set(manifestEntrypoints)].sort();
-  assert.deepEqual([...new Set(workerOnlyPaths)].sort(),expectedWorkerOnlyPaths,
-    'only the two role-policy entrypoints may be excluded from host execution');
-  const hostExpectedByPath=hostRoleRuntimeExpectedByPath(combined.expectedByPath,expectedWorkerOnlyPaths);
+  assert.equal(candidateManifest?.manifest?.entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'candidate role manifest must identify the host-owned orchestration adapter');
+  assert.equal(opponentManifest?.manifest?.entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'opponent role manifest must identify the host-owned orchestration adapter');
+  const combined=identityHelper.combineRolePolicyEntryManifests(candidateManifest,opponentManifest);
+  const hostExpectedByPath=assertWorkerOnlyPolicyPathsAbsentFromHostClosure(
+    combined.expectedByPath,workerOnlyPaths
+  );
   if(providedHostExpectedByPath!==undefined)
     assert.deepEqual(providedHostExpectedByPath,hostExpectedByPath,
-      'host preload map must be the exact role-manifest map minus worker-only policy entrypoints');
+      'host preload map must equal the complete host role source closure');
+  const manifestDataAssetPaths=new Set([
+    ...(candidateManifest.manifest.dataAssets??[]).map(asset=>asset.path),
+    ...(opponentManifest.manifest.dataAssets??[]).map(asset=>asset.path)
+  ]);
+  for(const relative of workerOnlyPaths){
+    assert.ok(manifestDataAssetPaths.has(relative),
+      'worker-only policy source must be recorded as a hashed role-manifest data asset: '+relative);
+    assert.match(workerOnlyHashes[relative]??'',SHA256,
+      'worker-only policy source hash is invalid: '+relative);
+  }
+  assert.equal(Object.hasOwn(hostExpectedByPath,V3_FIXTURE.workerPath),false,
+    'Docker worker executable must not appear in host source closure');
+  assert.equal(Object.hasOwn(hostExpectedByPath,V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker canary executable must not appear in host source closure');
   const loaded=identityHelper.assertLoadedResearchModulesCovered(
     repositoryRoot,hostExpectedByPath,cacheEntries);
   const expectedPaths=Object.keys(hostExpectedByPath).sort();
@@ -290,7 +325,8 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
     loadedProcessClosureSha256:loaded.sha256,
     cardPoolInitializationSha256};
   return {expectedByPath:hostExpectedByPath,roleExpectedByPath:combined.expectedByPath,
-    workerOnlyPolicyPaths:expectedWorkerOnlyPaths,runtimePinEvidence,
+    workerOnlyPolicyPaths:[...new Set(workerOnlyPaths)].sort(),
+    workerOnlyPolicyHashes:{...workerOnlyHashes},runtimePinEvidence,
     runtimePinUnionSha256:combined.unionSha256,
     loadedProcessClosureSha256:loaded.sha256,cardPoolInitializationSha256,
     loadedProcessClosure:loaded};
