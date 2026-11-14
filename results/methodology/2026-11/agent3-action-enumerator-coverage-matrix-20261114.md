@@ -52,7 +52,8 @@ Eight Node v22.16.0 synthetic tests pass. They validate source-shaped enumeratio
 
 1. Agent49 exposes the already-imported PokemonCard, TrainerCard, EnergyCard, Stage, TrainerType and SpecialCondition bindings from loadNativeRoleDependencies. gameActions and SlotType are already returned.
 2. Construct the adapter with the exact experiment engine pin; reject pin drift.
-3. Use assertKnownCapFreeAdapterAdmissionClear() on every root. It requires the adapter marker/pin and rejects the outer frontier's truncated flag or nonzero omittedCount.
+3. Update projectNativeAction() to project USE_TRAINER_ABILITY_ACTION and USE_ENERGY_ABILITY_ACTION through targetProjection; add source metadata for active Tool and Bench attacks where the action name permits.
+4. Use assertKnownCapFreeAdapterAdmissionClear() on every root. It requires the adapter marker/pin and rejects the outer frontier's truncated flag, nonzero omittedCount, or nonzero unsupportedCount. Do not admit roots with unprojected action types.
 4. Persist the adapter marker, engine pin and frontier diagnostics per root.
 5. Add the test file to the existing bounded contract-only lane; do not create another workflow.
 6. Run against the compiled pinned Store and verify that Simulator accepts/rejects the added actions as expected before any game is qualified.
