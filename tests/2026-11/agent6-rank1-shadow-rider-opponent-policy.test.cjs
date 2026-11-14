@@ -1508,7 +1508,7 @@ test('Fairy Zone doubles Max Geist damage against Dragon and changes attack choi
       }),
       bench: [clefairy]
     }),
-    opponentPublic: player({ active: opponentDragon, handCount: 5 }),
+    opponentPublic: player({ active: opponentDragon, handCount: 4 }),
     items: [
       { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
       { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
@@ -1552,7 +1552,7 @@ test('Fairy Zone is not applied when publicly suppressed by Path to the Peak', (
       bench: [clefairy],
       stadium: ['Path to the Peak CRE 148']
     }),
-    opponentPublic: player({ active: opponentDragon, handCount: 4 }),
+    opponentPublic: player({ active: opponentDragon, handCount: 5 }),
     items: [
       { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
       { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
