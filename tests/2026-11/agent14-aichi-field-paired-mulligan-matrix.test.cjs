@@ -65,6 +65,10 @@ test('all-29 and strict-24 sensitivity summaries are reproducible', () => {
   close(strict.meanCandidateExpectedBonus, 0.17153370008556315);
   close(strict.meanOpponentExpectedBonus, 0.13816747652801217);
   close(strict.meanNetCandidateMinusOpponent, 0.03336622355755098);
+  close(all.meanCandidateBonusProbability, 0.18787519648139356);
+  close(all.meanOpponentBonusProbability, 0.11255292947209822);
+  close(strict.meanCandidateBonusProbability, 0.141221104236653);
+  close(strict.meanOpponentBonusProbability, 0.11901875188172832);
   close(incompatible.meanNetCandidateMinusOpponent, 0.8453099629949561);
 });
 
