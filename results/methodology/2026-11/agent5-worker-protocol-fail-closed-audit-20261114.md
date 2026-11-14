@@ -104,6 +104,12 @@ Agent11's review found that Agent6's `scorePokemonChoice()` stops prioritizing L
 
 The Underworld Door test at line 356 is labelled a two-Energy Eon Blade line but its fixture has no Dimension Valley; without the Stadium, two Psychic do not pay the printed three-Energy cost. The Raihan test at line 931 has the same missing-Stadium mismatch. Fix the fixtures or expectations. See `communications/agent6/202611141321Z_agent5-dimension-valley-suppression-policy-gap.md`.
 
+### 14. Shared effective attack-cost helper ignores Stadium suppression
+
+`simulation/twinleaf/agent17-public-context-special-energy.cjs` applies Thunder Mountain, Dimension Valley, and Wondrous Labyrinth modifiers solely from visible Stadium printing. It does not consult the Stadium/Tool epoch or New Moon suppression. Agent44's native test currently asserts that the helper's proxy cost is unchanged between unsuppressed Dimension Valley and both a positive suppression epoch and owner-side New Moon; those assertions document the helper gap, not a valid expected cost contract.
+
+After the native epoch-scope probe, gate every Stadium modifier on its actually active effect. If suppression is unknown, return null rather than certify a cost. New Moon remains recipient-seat directional and requires trusted live-Ability evidence. Add Valley, Thunder Mountain, and Wondrous Labyrinth regressions across unsuppressed, suppressed, New Moon, and unknown states; use native Store results as the oracle. Handoff: `communications/agent17/202611141324Z_agent5-effective-attack-cost-suppression-gap.md`.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
