@@ -132,6 +132,11 @@ function activeStadiums(observation) {
   ];
 }
 
+function pathLockActive(observation) {
+  return activeStadiums(observation).some(stadium =>
+    /Path to the Peak|Silent Lab/i.test(stadium));
+}
+
 function copycatTargetAvailable(request) {
   const attacks = list(request?.observation?.opponentPublic?.active?.attacks);
   return attacks.some(attack => attack && attack.name &&
@@ -209,6 +214,7 @@ function scoreAction(item, request) {
     if (ability === 'Underworld Door' && psychicHand > 0) return 150;
     if (ability === 'Climactic Gate' &&
         countPrinting(hand, PRINT.shadowRiderVmax) > 0 && boardV > 0) return 145;
+    if (ability === 'Resetting Hole' && pathLockActive(observation)) return 138;
     if (ability === 'Star Alchemy' &&
         observation.ownTurnResources.vstarUsed === false) return 132;
     if (ability === 'Wonder Tag') {
@@ -250,8 +256,11 @@ function scoreAction(item, request) {
 
     if (includes(card, 'Mysterious Treasure') &&
         (boardV < 2 || (copycatTargetAvailable(request) &&
-          !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu))) &&
-        hand.length > 1) return 112;
+          !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) ||
+          (pathLockActive(observation) && !boardHas(own, PRINT.marshadow) &&
+            !hasPrinting(hand, PRINT.marshadow))) && hand.length > 1) return 132;
+
+    if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
 
     if (includes(card, 'Fog Crystal') &&
         (psychicHand === 0 || boardV < 2)) return 108;
@@ -433,9 +442,12 @@ function cardSearchScore(printing, request, effectName) {
     return 20;
   }
 
+  if (matches(printing, PRINT.marshadow) && pathLockActive(observation) &&
+      !boardHas(own, PRINT.marshadow) && !hasPrinting(hand, PRINT.marshadow)) return 170;
+
   if (includes(effectName, 'Star Alchemy') || includes(effectName, 'Forest Seal Stone')) {
-    if (includes(printing, 'Field Blower') &&
-        activeStadiums(observation).some(stadium => /Path to the Peak|Silent Lab/i.test(stadium))) return 180;
+    if (includes(printing, 'Field Blower') && pathLockActive(observation)) return 180;
+    if (matches(printing, PRINT.marshadow) && pathLockActive(observation)) return 170;
     if (includes(printing, 'Unfair Stamp') &&
         (priorOpponentTurnKO(request) || (opponent.handCount ?? 0) >= hand.length + 3)) return 170;
     if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
