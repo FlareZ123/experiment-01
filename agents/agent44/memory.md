@@ -758,3 +758,41 @@ Validation actually performed:
 - Reviewed Agent35's proposed canary and sent a precision correction at `communications/agent35/20261114T063706Z_agent44-os-sandbox-canary-precision.md`: OS namespaces cannot prevent Node built-in module resolution itself. The canary should assert denied effects/capabilities (forbidden filesystem reads, process creation if required, host network, host /proc/memory), not necessarily failed `require('node:fs')`; Node Permission Model can be defense-in-depth, not the security claim.
 - Agent35 separately reported a generic effective-seed collision: `seededRandom(0)` canonicalizes to `0x9e3779b9`, while `normalizePolicySeedBySeat()` compares pre-canonical values. Agent36 has been notified; do not duplicate the active fix. Canonicalize effective RNG state before checking distinctness if this resurfaces.
 - No new workflow, dispatch, native fixture, deck change, or competitive claim was made. No fixed 60 is selected; there are zero competitively qualified games and no demonstrated 99.5% win rate. Keep the Critic stopline: no repeat fixture on current architecture. Continue reviewing the concrete worker integration and independently useful policy/seed contracts; do not re-run completed bridge, Quick Ball chain, or unchanged contract-only suite.
+
+
+## 2026-11-14 invocation: policy process isolation review
+
+Claimed Agent44 at 2026-11-14T06:25:46Z. Reviewed the V3 runner/worker split and the Critic's actor-safe IPC/seed-disclosure stopline. Sent actionable review and handoff messages to Agent36, Agent49 and Agent35. Agent36 owns the fixture runner/Docker launcher and host prompt/action projection; Agent49 owns worker-side policy/prompt modules; Agent35 owns adversarial acceptance. I accepted the reviewer role and did not edit Agent36's active runner or Docker helper.
+
+### Local unshare/chroot proof (not the hosted CI solution)
+
+Created:
+- `simulation/evaluation/2026-11/agent44-os-policy-sandbox.cjs`
+- `tests/2026-11/fixtures/agent44-os-policy-canary.cjs`
+- `tests/local-only/agent44-os-policy-sandbox.local.cjs`
+- `results/methodology/2026-11/agent44-os-policy-sandbox-prototype-20261114.md`
+
+The helper builds a hash-checked allowlisted Node/policy rootfs and launches through Linux user/mount/network/IPC/PID namespaces, chroot, read-only root, no proc/dev/sys, tmpfs /tmp, dropped capabilities, no_new_privs, RLIMIT_CORE=0, NOFILE=64, NPROC=256, CPU=120s, AS=2GiB, and a mandatory finite wall timeout. It accepts no caller-supplied environment; worker data belongs in explicit IPC. The local persistent harness passed on Linux / Node v22.16.0: both physical seats, two sequential NDJSON requests per worker, OS-only and Node Permission Model modes; host sentinel/proc/network reads denied, child process confined, worker threads denied or confined, host Math.random setter trap untouched, host physical RNG closure never invoked.
+
+**Critical correction:** Agent5 observed that GitHub-hosted Ubuntu rejects unprivileged user namespaces with `write failed /proc/self/uid_map: Operation not permitted`. Therefore the unshare helper and test are local-only references; do not add the local test to hosted contract_only. The current hosted path is Agent36's digest-pinned Docker worker. The local test was moved to `tests/local-only/agent44-os-policy-sandbox.local.cjs` so broad test globs do not execute a known-blocked userns test.
+
+### Docker review findings to track
+
+Agent36's `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs` is the hosted integration target. I sent review findings:
+- preflight returns undefined dockerClientVersion/dockerServerVersion identifiers;
+- `--pid=private` and `--uts=private` are invalid Docker CLI values; Docker defaults are private;
+- reject remote DOCKER_HOST/DOCKER_CONTEXT because bind-mount sources resolve on the daemon host;
+- require finite timeout and kill/remove the daemon-managed container on timeout/abnormal close, not only the local Docker CLI;
+- reserve `bundle-manifest.json` and verify its digest;
+- account for bounded writable /dev/shm under private IPC;
+- upgrade the worker image from EOL Node 20 to a tested pinned Node 24 LTS digest (Agent5 proposed 24.22.3);
+- current Docker canary host sentinel files were mode 0600 (vacuous for UID 65532), hiddenOpponentSentinel was unused, and it sent one request per container instead of testing persistent NDJSON. Use mode 0444 fake markers, include hidden-opponent path, and send two sequential request IDs to the same worker.
+
+I did not modify Agent36's Docker helper or tests. Agent36 has the full review messages in `communications/agent36/`.
+
+### Next actions
+
+1. Re-fetch Agent36's Docker helper/test after fixes; review preflight, local-daemon assertion, container cleanup, resource ceilings, /dev/shm, image digest and persistent two-seat NDJSON canary.
+2. Review Agent49's actual worker modules for actor-safe prompt projection, typed intent/action mapping, no native State/Store/physical RNG/physical seed, and no hidden opponent data.
+3. Do not run a V3 fixture/game until the full decision surface (root/setup/prompts/fallbacks/continuations) is isolated, both seats pass the Docker-backed canary, and the owner has made the physical-seed disclosure choice.
+4. Keep this sandbox result explicitly separate from deck strength. No deck win-rate claim was made in this invocation.
