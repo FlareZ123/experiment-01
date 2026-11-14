@@ -74,11 +74,18 @@ function sanitizePublicPokemon(pokemon) {
   };
 }
 
-function sanitizePublicPlayer(player) {
+function sanitizePublicPlayer(player,hideSetupPokemon=false) {
   if(!player||typeof player!=='object')return null;
+  const bench=Array.isArray(player.bench)?player.bench:[];
   return {
-    active:sanitizePublicPokemon(player.active),
-    bench:Array.isArray(player.bench)?player.bench.map(sanitizePublicPokemon):[],
+    active:hideSetupPokemon?null:sanitizePublicPokemon(player.active),
+    ...(hideSetupPokemon?{
+      activeOccupied:player.active!==null&&player.active!==undefined
+    }:{}),
+    bench:bench.map(slot=>hideSetupPokemon?null:sanitizePublicPokemon(slot)),
+    ...(hideSetupPokemon?{
+      benchOccupied:bench.map(slot=>slot!==null&&slot!==undefined)
+    }:{}),
     stadium:strings(player.stadium),
     discard:strings(player.discard),
     lostZone:strings(player.lostZone),
@@ -125,8 +132,10 @@ function sanitizeActorObservation(observation) {
       observation.ownHand.length:
       (Number.isSafeInteger(observation.ownPublic?.handCount)?
         observation.ownPublic.handCount:null),
-    ownPublic:sanitizePublicPlayer(observation.ownPublic),
-    opponentPublic:sanitizePublicPlayer(observation.opponentPublic),
+    ownPublic:sanitizePublicPlayer(observation.ownPublic,
+      observation.phase===0||observation.phase===1),
+    opponentPublic:sanitizePublicPlayer(observation.opponentPublic,
+      observation.phase===0||observation.phase===1),
     ownTurnResources:resources,
     ownerK1
   };
@@ -134,15 +143,26 @@ function sanitizeActorObservation(observation) {
 
 function sanitizePublicState(state) {
   if(!state||typeof state!=='object')return null;
+  const hideSetupPokemon=state.phase===0||state.phase===1;
   return {
     ...pick(state,['phase','turn','activePlayer']),
     pendingPrompts:strings(state.pendingPrompts),
-    players:Array.isArray(state.players)?state.players.map(player=>({
-      ...pick(player,['seat','handCount','deckCount','prizeCount','discardCount']),
-      active:typeof player.active==='string'?player.active:null,
-      bench:Array.isArray(player.bench)?player.bench.map(value=>
-        typeof value==='string'?value:null):[]
-    })):[]
+    players:Array.isArray(state.players)?state.players.map(player=>{
+      const bench=Array.isArray(player.bench)?player.bench:[];
+      return {
+        ...pick(player,['seat','handCount','deckCount','prizeCount','discardCount']),
+        active:hideSetupPokemon?null:
+          (typeof player.active==='string'?player.active:null),
+        ...(hideSetupPokemon?{
+          activeOccupied:typeof player.active==='string'
+        }:{}),
+        bench:bench.map(value=>hideSetupPokemon?null:
+          (typeof value==='string'?value:null)),
+        ...(hideSetupPokemon?{
+          benchOccupied:bench.map(value=>typeof value==='string')
+        }:{})
+      };
+    }):[]
   };
 }
 
@@ -406,6 +426,7 @@ function sanitizeFixtureArtifact(artifact) {
       ownerPrizeIdentitiesEmitted:false,
       promptOptionIdentitiesEmitted:false,
       opponentConcealedZonesEmitted:false,
+      setupPokemonIdentitiesEmitted:false,
       policyApplicationReceiptEmitted:false,
       note:'This is a sanitized fixture diagnostic, not a policy-competence or competitive-game admission artifact.'
     }
