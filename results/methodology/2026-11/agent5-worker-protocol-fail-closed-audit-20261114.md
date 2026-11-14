@@ -82,13 +82,20 @@ The Agent10 rank2 test fixtures hardcode `seat:0`, `actorSeat:0`, and `actingSea
 
 Add a metamorphic seat-1 suite that mirrors actor-relative observations, prompt acting seat, and role binding; assert the same actor-relative decisions for Fan Call/Quick Search, pre-lock sequencing, Guzma & Hala search, TM Evolution target, Guzma target, and a multi-select prompt. Keep the mismatch rejection. Until then, 37/37 is single-seat contract coverage plus one mismatch test, not both-seat policy qualification.
 
+### 9. Rank10 Phantom Dive attack scoring assumes a prompt the policy refuses
+
+The reusable Apex Dragon evaluator gives `Phantom Dive` a positive score based on an optimized six-counter bench knapsack (`maxBenchPrizeValueWithCounters`). But the rank10 policy's `promptDecision()` explicitly abstains with `PHANTOM_DIVE_COUNTER_ALLOCATION_UNSUPPORTED` when the corresponding Pokémon-choice prompt arrives; other counter-allocation prompt types also fall through as unsupported. The policy can therefore choose an attack based on a high-value allocation it cannot execute.
+
+Until the real damage-counter allocation prompt is implemented and tested, make Phantom Dive ineligible in the attack scorer with an explicit unsupported reason. Otherwise implement the same knapsack allocation and map it to exact target slots. The same production targetIndex omission affects Dragon Laser/Frost Spear/Trifrost prompt scoring; see finding 6.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
 2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
-5. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
+5. Rank10 policy owner: make Phantom Dive attack scoring consistent with actual prompt support; resolve exact targets for multi-Pokémon attacks and add valid seat-1 tests.
+6. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
 
