@@ -7,7 +7,7 @@ const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v2';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v1';
-const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v1';
+const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v2';
 const EVENT_SCHEMA = 'aichi-public-event-receipt-v1';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
 
