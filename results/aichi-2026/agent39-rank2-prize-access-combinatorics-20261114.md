@@ -143,3 +143,38 @@ at_least_one_of_four = 1 - exactly_k_prized(4, 0)
 - No simulation, human game, matchup result, policy improvement, or win-rate claim is made.
 - The recovery routes are card-text possibilities; their practical availability depends on board, Energy, Supporter timing, and the opponent's lock/disruption.
 - The 99.5% Aichi Top 32 objective remains wholly unproven.
+
+
+## Candidate policy value model (hypothesis to test, not a result)
+
+The safe replacement count should be state-dependent. A useful starting abstraction is a **Prize-replacement cost** for each hand card (c) in state (s):
+
+[
+C_{\mathrm{prize}}(c\mid s)=V_{\mathrm{keep}}(c\mid s)-V_{\mathrm{prize}}(c\mid s).
+]
+
+- (V_{\mathrm{keep}}) includes the card's immediate role in the current turn, unique lock/setup function, energy/resource reserve, and likely next-turn line.
+- (V_{\mathrm{prize}}) includes the probability and cost of later access through Peonia, Gladion, or normal Prize-taking, conditioned on current K0/K1 information.
+- **Do not count Lusamine, Team Yell's Cheer, or Bunnelby as direct recovery from the Prize zone.** They recover cards from discard; a card placed face down as a Prize requires a Prize-access route or normal Prize-taking.
+
+Let (R(s)) be the hand cards whose replacement cost is below a calibrated threshold and which are not reserved for an immediate line. Then:
+
+[
+\mathrm{safeReplacementCount}(s)=\min(3,|R(s)|).
+]
+
+A candidate Peonia utility for selecting (k) cards is:
+
+[
+U_P(k\mid s)=E[\text{value of the }k\text{ selected Prizes}\mid K0/K1,s]
+-\sum_{c\in R_k(s)}C_{\mathrm{prize}}(c\mid s)
+-C_{\mathrm{Supporter}}(s),
+]
+
+where (R_k(s)) is the (k) lowest-cost safe replacement cards and (C_{\mathrm{Supporter}}) is the opportunity cost of spending the turn's Supporter play. Choose only (1\leq k\leq\mathrm{safeReplacementCount}(s)), and only when the marginal value is positive. The helper's fresh-slot-first rule maximizes distinct original Prize coverage when positions are exchangeable.
+
+For a specific known target among (n) unknown Prize positions, the hit probability is (k/n). Before K1 establishes that a singleton is Prized, the blind hit probability is (k/60). These are different information states and should not be conflated.
+
+A corresponding Gladion utility is the value of the best card among the authenticated owner-visible Prize reveal, less Supporter opportunity cost and the cost of destroying the old positional mapping. Gladion does not require a hand replacement, but it does require a source-scoped owner-only reveal and resets the Peonia slot ledger after its shuffle. When both Supporters are available, compare (U_P) and (U_G) rather than hardcoding one as always preferred.
+
+This is a testable policy hypothesis only. The threshold, card values, opportunity costs, and interaction with the rank-2 lock plan require policy tests and then qualified games after the shared worker path is accepted.
