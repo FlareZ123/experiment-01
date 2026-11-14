@@ -360,6 +360,7 @@ function validatePublicEventReceipt(receipt, view) {
       if (!Array.isArray(choices) || choices.length > 2 || !Array.isArray(receipt.opponentLastTurnAttacks)) fail('BAD_COPYCAT_CHOICES');
       for (const row of choices) {
         validateEventAttack(row);
+        if (row.gxAttack || row.copycatAttack) fail('INELIGIBLE_COPYCAT_ATTACK');
         if (!receipt.opponentLastTurnAttacks.some(attack => eventAttackSignature(attack) === eventAttackSignature(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
       }
       if (choices.length === 1 && (choices[0].barragePairIndex !== undefined || choices[0].barragePairRole !== undefined)) fail('BAD_SINGLE_COPYCAT_CHOICE');
