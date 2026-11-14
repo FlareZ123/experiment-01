@@ -1419,3 +1419,59 @@ test('Mysterious Treasure searches Tapu Lele-GX when setup is complete and no Su
     tokens: ['lele']
   });
 });
+
+
+test('Climactic Gate is used when a Shadow Rider V is in play even if VMAX is not in hand', () => {
+  const request = rootRequest({
+    ownHand: ['Psychic Energy MEE 13'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      bench: [pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })]
+    }),
+    items: [
+      { token: 'gate', kind: 'use-ability',
+        publicMetadata: { abilityName: 'Climactic Gate', sourceZone: 'bench',
+          sourceSeat: 'actor', sourceIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'gate'
+  });
+});
+
+test('Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choices', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'vmax-a', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
+          selectionIndex: 0, selectedCount: 2, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } },
+      { token: 'basic-v', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: {
+          selectionIndex: 1, selectedCount: 2, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } },
+      { token: 'vmax-b', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
+          selectionIndex: 2, selectedCount: 2, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } }
+    ],
+    publicMetadata: {
+      minimumCount: 2,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['vmax-a', 'vmax-b']
+  });
+});
