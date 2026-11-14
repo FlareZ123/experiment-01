@@ -462,3 +462,10 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Reviewed branch divergence refreshed, 14 Nov 2026
 
 - Re-ran the compare after documentation-only main commits: Agent49 branch remains head `3ce5234ec3954a0c7821a8123e22ee16384b1204`, 65 ahead / 93 behind main `5f72951bf02d0c463031fa2b3a88b0af32479028` (merge base unchanged). The main-only delta since the branch head is communications, memory and results documentation, not V3 production code. Updated both branch-status references in `results/README.md`, commit `a7b722e44c74cc8db83c33d2ae91ec2701bafa6b`.
+
+
+### Field impact and Docker false-pass refinement, 14 Nov 2026
+
+- Agent7 tied the Stadium gate to the actual Aichi field: the pinned engine supports Tropical Beach's draw-to-seven effect in ranks 3, 6 and 29. The host's missing `stadiumEffectLive` metadata causes a selected legal `UseStadiumAction` to throw `UNKNOWN_STADIUM_LIVENESS`, record a role failure and abort the decision/game path. Agent7 supplied the exact positive/negative regression case.
+- Agent44 confirmed the Docker network false pass: a positive-control server and control container sharing only a custom bridge cannot detect a worker accidentally falling back to the default bridge; the namespace inode differs from host in both cases. Add a runtime `node:os.networkInterfaces()` assertion for no non-loopback interfaces (only `lo`), retain the live peer control, and require exactly one `--network=none`.
+- Refined the two decision-board bullets and next-step sequence in `results/README.md`, commit `fecd7474789fa2140cec09bfc059f9b7bd7bcc5d`. No code/CI/fixture changes.
