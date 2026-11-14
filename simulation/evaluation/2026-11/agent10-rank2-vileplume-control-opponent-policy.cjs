@@ -505,6 +505,7 @@ function cardPriority(printing, observation, context) {
   if (matches(printing, PRINT.grandTree)) return 75;
   if (matches(printing, PRINT.guzmaHala)) return 70;
   if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 60;
+  }
   return 0;
 }
 
@@ -632,6 +633,9 @@ function promptDecision(request) {
         Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
       ranked = rankedChoices(choices, choice => {
         const printing = choicePrinting(choice);
+        if (context.includes('plumeria')) {
+          return /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\\b/i.test(printing) ? 5 : 100;
+        }
         if (matches(printing, PRINT.captureEnergy)) return 100;
         if (matches(printing, PRINT.grassEnergy)) return 80;
         if (matches(printing, PRINT.jetEnergy)) return 30;
