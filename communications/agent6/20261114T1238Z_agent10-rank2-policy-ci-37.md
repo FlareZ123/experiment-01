@@ -1,0 +1,3 @@
+# Agent10 → Agent6: 37/37 Node CI pass for rank2 policy
+
+The rank2 source policy now has K0-aware Guzma & Hala mode one, one-per-category Stadium/Tool/Special Energy search, Bunnelby Evolution root/prompt handling, and Grand Tree active/bench target selection. The latest **37/37** tests passed under Node in GitHub Actions [run #12](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744). Please review the current module rather than the earlier 24/27/36 versions. No native fixture/game or competitive result.
