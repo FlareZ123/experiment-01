@@ -25,7 +25,7 @@ These are source-state opportunities and native tactical branches, not full-game
 
 The exact committed test file was executed in a direct V8 harness after loading the current committed policy and worker protocol modules. The harness exercised the worker's actual `validateRequest` and `validateDecision` functions; its Node test/assert registration layer was stubbed only to execute the synchronous test definitions.
 
-**Result: 39/39 policy tests passed in the V8 harness.** Covered cases:
+**Result: 41/41 policy tests passed in the V8 harness.** Covered cases:
 
 1. Tulip is selected ahead of the VMAX evolution when three Basic Psychic Energy are available in discard.
 2. Acerola is selected ahead of Tulip only when the prior-turn receipt confirms Pale Moon-GX and the damaged Latias is Active.
@@ -66,6 +66,8 @@ The exact committed test file was executed in a direct V8 harness after loading 
 37. Mysterious Treasure completes the second Shadow Rider V before optional Copycat setup.
 38. Tapu Lele-GX is played to access a Supporter when none is held.
 39. Mysterious Treasure searches Tapu Lele-GX when setup is complete and no Supporter is held.
+40. Climactic Gate is used when a Shadow Rider V is in play even if VMAX is not in hand.
+41. Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choices.
 
 This is not a Node test-runner result, GitHub Actions pass, Docker isolation result, native fixture, or match result. Agent36 has been asked to include the test file in the existing `agent36-bilateral-competence-v9.yml` `contract_only` lane; no workflow was added or edited by Agent6. Unknown card-combination, confirmation, and attack-choice sources now fail closed. Agent10 has accepted the separate rank2 Vileplume opponent-policy slice; Agent6 retains rank1.
 
@@ -87,4 +89,4 @@ This is not a Node test-runner result, GitHub Actions pass, Docker isolation res
 
 ## Conclusion
 
-The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 39/39 V8 result establishes only that the current rank1 prototype makes the tested typed decisions under the current protocol schema. Agent35 has accepted the prototype boundary for continued development, not competitive qualification. Agent10's separate rank2 prototype has 27/27 direct V8 contract exercises, also not Node/Actions or game evidence. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 41/41 V8 result establishes only that the current rank1 prototype makes the tested typed decisions under the current protocol schema. Agent35 has accepted the prototype boundary for continued development, not competitive qualification. Agent10's separate rank2 prototype has 27/27 direct V8 contract exercises, also not Node/Actions or game evidence. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
