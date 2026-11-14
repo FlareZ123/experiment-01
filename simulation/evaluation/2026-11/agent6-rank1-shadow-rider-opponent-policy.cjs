@@ -383,21 +383,53 @@ function sortedChoiceTokens(choices, score) {
     .map(row => row.choice.token);
 }
 
-function cardSearchScore(printing, observation, effectName) {
+function cardSearchScore(printing, request, effectName) {
+  const observation = request.observation;
   const hand = observation.ownHand;
   const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
   const boardV = countBoard(own, PRINT.shadowRiderV);
   const boardVmax = countBoard(own, PRINT.shadowRiderVmax);
   const psychicHand = psychicCountInHand(observation);
+  const psychicDiscard = psychicCountInDiscard(observation);
   const psychicBoard = psychicCountOnBoard(observation);
+
+  if (includes(effectName, 'VS Seeker')) {
+    if (includes(printing, 'Acerola') && priorPaleMoon(request) &&
+        damagedLatias(own) && matches(own.active?.printing ?? '', PRINT.latias)) return 180;
+    if (includes(printing, 'Tulip') && psychicDiscard >= 2) return 170;
+    if (includes(printing, 'Raihan') && priorOpponentTurnKO(request)) return 160;
+    if (includes(printing, 'Teammates') && priorOpponentTurnKO(request)) return 150;
+    if (includes(printing, 'Guzma') && opponentHasWeakBenchTarget(observation)) return 140;
+    return 20;
+  }
+
+  if (includes(effectName, 'Raihan')) {
+    if (matches(printing, PRINT.shadowRiderVmax) && boardVmax < 2) return 160;
+    if (matches(printing, PRINT.shadowRiderV) && boardV < 2) return 150;
+    if (includes(printing, 'Unfair Stamp') &&
+        (priorOpponentTurnKO(request) ||
+          (opponent.handCount ?? 0) >= hand.length + 3)) return 145;
+    if (includes(printing, 'Mysterious Treasure') && boardV < 2) return 140;
+    if (includes(printing, 'Tulip') && psychicDiscard >= 2) return 130;
+    if (matches(printing, PRINT.psychic)) return 20;
+  }
+
+  if (includes(effectName, 'Fog Crystal')) {
+    const vInHand = hasPrinting(hand, PRINT.shadowRiderV);
+    if (matches(printing, PRINT.shadowRiderV) && boardV < 2 && !vInHand) return 160;
+    if (matches(printing, PRINT.psychic) && psychicHand === 0) return 140;
+  }
+
+  if (includes(effectName, 'Battle Compressor') &&
+      (hasPrinting(hand, /Tulip PAR\\b/i) || hasPrinting(hand, /VS Seeker PHF\\b/i))) {
+    if (matches(printing, PRINT.psychic)) return 165;
+    if (includes(printing, 'VS Seeker') || includes(printing, 'Tulip')) return 120;
+  }
 
   if (matches(printing, PRINT.psychic)) {
     if (includes(effectName, 'Tulip')) return 140;
-    if (includes(effectName, 'Raihan') && psychicBoard < 3) return 145;
-    if (includes(effectName, 'Fog Crystal') && psychicHand === 0) return 135;
     if (includes(effectName, 'Night Stretcher') && psychicHand === 0) return 135;
-    if (includes(effectName, 'Battle Compressor') &&
-        (hasPrinting(hand, /Tulip PAR\b/i) || hasPrinting(hand, /VS Seeker PHF\b/i))) return 125;
     return 80;
   }
 
@@ -508,7 +540,7 @@ function promptDecision(request) {
           choice => discardChoiceScore(choice, observation));
       } else {
         scored = sortedChoiceTokens(cardChoices, choice =>
-          cardSearchScore(choicePrinting(choice), observation, effect));
+          cardSearchScore(choicePrinting(choice), request, effect));
       }
       let tokens = scored.slice(0, Math.min(max, scored.length));
       if (tokens.length < min && includes(effect, 'Mysterious Treasure') &&
