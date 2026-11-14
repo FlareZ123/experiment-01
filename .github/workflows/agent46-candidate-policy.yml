@@ -1,0 +1,33 @@
+name: Agent46 candidate policy contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs'
+      - 'tests/2026-11/agent46-candidate-policy.test.cjs'
+      - 'simulation/evaluation/2026-11/agent49-policy-worker.cjs'
+      - '.github/workflows/agent46-candidate-policy.yml'
+  pull_request:
+    paths:
+      - 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs'
+      - 'tests/2026-11/agent46-candidate-policy.test.cjs'
+      - 'simulation/evaluation/2026-11/agent49-policy-worker.cjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check pure policy
+        run: node --check simulation/evaluation/2026-11/agent46-candidate-policy.cjs
+      - name: Run protocol-backed candidate policy tests
+        run: node --test tests/2026-11/agent46-candidate-policy.test.cjs
