@@ -275,6 +275,7 @@ async function run() {
     };
     assertNoForbiddenFields(response);
     await writeLine(response);
+    await policyRuntime.settle();
     if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     expectedSequence++;
   }
