@@ -794,6 +794,32 @@ function rankedChoices(choices, scorer, limit) {
     .slice(0, limit);
 }
 
+function guzmaHalaSearchCategory(printing) {
+  if (matches(printing, PRINT.grandTree) || matches(printing, PRINT.artazon)) return 'stadium';
+  if (matches(printing, PRINT.tmEvolution) || matches(printing, PRINT.stealthyHood) ||
+      matches(printing, PRINT.counterGain)) return 'tool';
+  if (matches(printing, PRINT.jetEnergy) || matches(printing, PRINT.captureEnergy) ||
+      matches(printing, PRINT.memoryEnergy)) return 'energy';
+  return null;
+}
+
+function guzmaHalaSearchSelection(choices, observation, minimum, maximum) {
+  const categories = ['stadium', 'tool', 'energy'];
+  const best = [];
+  for (const category of categories) {
+    const candidates = list(choices).filter(choice =>
+      guzmaHalaSearchCategory(choicePrinting(choice)) === category);
+    const selected = rankedChoices(candidates,
+      choice => cardPriority(choicePrinting(choice), observation, 'guzma & hala'), 1)[0];
+    if (selected && selected.score > 0) best.push(selected);
+  }
+  best.sort((a, b) => b.score - a.score || a.index - b.index);
+  const limit = Math.min(3, maximum);
+  const selected = best.slice(0, limit);
+  if (selected.length < minimum || selected.length === 0) return null;
+  return selected.map(row => row.choice.token);
+}
+
 function emptyOrAbstain(prompt, choices, reasonCode) {
   const metadata = prompt.publicMetadata ?? {};
   const empty = list(choices).find(choice => choice.kind === 'empty-selection');
@@ -838,6 +864,11 @@ function promptDecision(request) {
       const discardPrompt = (context.includes('guzma & hala') ||
         context.includes('plumeria')) &&
         choices.some(choice => choiceZone(choice) === 'hand');
+      if (!discardPrompt && context.includes('guzma & hala')) {
+        const selected = guzmaHalaSearchSelection(choices, request.observation, min, max);
+        return selected ? { kind: 'select-choices', tokens: selected } :
+          { kind: 'abstain', reasonCode: 'NO_VALID_GUZMA_HALA_SEARCH_SET' };
+      }
       ranked = rankedChoices(choices, choice => {
         if (discardPrompt) return discardPriority(choice, request.observation);
         return cardPriority(choicePrinting(choice), request.observation, context);
