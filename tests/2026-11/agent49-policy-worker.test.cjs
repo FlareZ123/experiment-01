@@ -221,7 +221,7 @@ async function expectFailure(message, code, mode = 'normal', init = initFor()) {
   }
 }
 
-test('persistent seed-free worker accepts two ordered decisions in one process', async () => {
+test('persistent worker accepts ordered decisions without RNG seed IPC', async () => {
   const worker = startWorker();
   try {
     writeLine(worker.child.stdin, worker.init);
