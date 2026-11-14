@@ -14,9 +14,10 @@ const {withOwnerQuickBallPromptContinuation}=require('../../twinleaf/2026-11/age
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
-const {runNativeFixtureGame,runNativeFixtureGameAsync}=require('./agent49-native-fixture-game.cjs');
+const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProcessLock,releaseNativeFixtureProcessLock}=require('./agent49-native-fixture-game.cjs');
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
+const {installPromptProvenanceHook}=require('./agent36-prompt-provenance.cjs');
 const workerProtocol=require('./agent49-policy-worker.cjs');
 const workerLauncher=require('./agent36-docker-policy-worker.cjs');
 const {createDockerPolicySession}=require('./agent36-async-docker-policy-session.cjs');
@@ -593,6 +594,7 @@ const V3_FIXTURE_TEST_PATHS = [
   'tests/2026-11/agent36-v3-fixture-game.test.cjs',
   'tests/2026-11/agent36-native-action-frontier.test.cjs',
   'tests/2026-11/agent36-prompt-projection.test.cjs',
+  'tests/2026-11/agent36-prompt-provenance.test.cjs',
   'tests/2026-11/agent49-policy-worker.test.cjs',
   'tests/agent36-runtime-module-pin.test.cjs',
 ];
@@ -648,6 +650,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
+  { name: 'promptProvenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs', exportName: 'installPromptProvenanceHook' },
   { name: 'nativeActionEnumerator', path: 'vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js', exportName: 'ActionEnumerator' },
   { name: 'nativeSimulator', path: 'vendor/twinleaf/ptcg-server/output/game/bots/simulator.js', exportName: 'Simulator' },
   { name: 'nativePlayerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'PlayerType' },
@@ -685,6 +688,7 @@ const V3_FIXTURE_WORKER_PROMPT_CHAIN = [
   { name: 'actor-observation-v3', path: 'simulation/twinleaf/actor-observation-contract.cjs' },
   { name: 'public-event-receipt-v3', path: 'simulation/twinleaf/agent8-public-event-receipt.cjs' },
   { name: 'host-native-action-frontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs' },
+  { name: 'active-effect-prompt-provenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs' },
   { name: 'typed-owner-prompt-projection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs' },
   { name: 'role-scoped-worker-protocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
@@ -1081,6 +1085,17 @@ function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
   return {bundle,workerSha256,policySha256};
 }
 
+function assertTrustedActionSelection(frontier,token) {
+  const item=frontier?.actionFrontier?.items?.find(candidate=>candidate.token===token);
+  assert.ok(item,'worker selected an action token outside the frozen native frontier');
+  if(item.kind==='use-stadium'&&item.publicMetadata?.stadiumEffectLive!==true) {
+    const error=new Error('Stadium action requires verified liveness metadata; the current engine frontier does not establish it');
+    error.code='UNKNOWN_STADIUM_LIVENESS';
+    throw error;
+  }
+  return item;
+}
+
 function resolveFixtureSeatAssignment({candidateSeat,opponentSeat,candidateDeck,opponentDeck}={}) {
   const roleSeatMap=candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   assert.ok(Array.isArray(candidateDeck)&&Array.isArray(opponentDeck),
@@ -1126,6 +1141,7 @@ function createV3WorkerDecisionResolver({
   promptProjection=nativePromptProjection,
   eventReceipt=publicEventReceipt,
   provenanceHook=null,
+  provenanceContext=null,
 }={}) {
   assert.ok(sessionsBySeat&&typeof sessionsBySeat==='object');
   assert.ok(native&&typeof native.observe==='function');
@@ -1162,13 +1178,15 @@ function createV3WorkerDecisionResolver({
       const receipt=request.state.activePlayer===actorSeat?
         eventReceipt(request.state,actorSeat,null,null):null;
       if(request.prompt){
+        const activeProvenanceHook=provenanceContext?.current??provenanceHook;
         const projected=promptProjection.projectPrompt({
-          prompt:request.prompt,state:request.state,actorSeat,native,provenanceHook
+          prompt:request.prompt,state:request.state,actorSeat,native,
+          provenanceHook:activeProvenanceHook
         });
         if(projected.hostOnly){
           const resolved=promptProjection.resolveHostOnlyPrompt({
             prompt:request.prompt,state:request.state,store:request.store,native,
-            physicalRandom:request.physicalRandom,provenanceHook,dispatch:false
+            physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,dispatch:false
           });
           roleAudit.hostOnlyPromptCount++;
           workerAudit.totalHostOnlyPrompts++;
@@ -1214,9 +1232,11 @@ function createV3WorkerDecisionResolver({
         error.code='NATIVE_ACTION_FRONTIER_BINDINGS_MISSING';
         throw error;
       }
-      const frontier=actionFrontier.buildNativeActionFrontier({
-        state:request.state,actorSeat,native
-      });
+      const frontier=request.withPhysicalRandom?
+        request.withPhysicalRandom(()=>actionFrontier.buildNativeActionFrontier({
+          state:request.state,actorSeat,native
+        })):
+        actionFrontier.buildNativeActionFrontier({state:request.state,actorSeat,native});
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
@@ -1231,6 +1251,7 @@ function createV3WorkerDecisionResolver({
       }
       assert.equal(response.decision?.kind,'select-action',
         'worker returned a non-action decision for an owner root');
+      assertTrustedActionSelection(frontier,response.decision.token);
       return actionFrontier.dispatchSelectedNativeAction({
         store:request.store,frontier,token:response.decision.token,
         state:request.state,actorSeat,native,dispatch:false
@@ -1391,10 +1412,13 @@ async function runV3FixtureGame({
     researchRevisionSha: runnerRevision,
   };
 
-  const restoreHook = hookModule.installUnderworldDoorPsychicRecipientHook();
-  assert.equal(restoreHook.isInstalled, true, 'Underworld compatibility hook must install before role wrappers');
+  const processLockToken=acquireNativeFixtureProcessLock('agent36-v3-fixture-runner');
+  let restoreHook=null;
   let pinned;
   try {
+    restoreHook=hookModule.installUnderworldDoorPsychicRecipientHook();
+    assert.equal(restoreHook.isInstalled,true,
+      'Underworld compatibility hook must install before role wrappers');
     pinned = await runPinnedV3RoleRuntime({
       repositoryRoot,
       preparedRuntime,
@@ -1458,6 +1482,7 @@ async function runV3FixtureGame({
             [candidateSeat]:candidateSession,
             [opponentSeat]:opponentSession,
           };
+          const provenanceContext={current:null};
           const gameResult=await runNativeFixtureGameAsync({
             deckA:seatAssignment.deckA,
             deckB:seatAssignment.deckB,
@@ -1470,13 +1495,27 @@ async function runV3FixtureGame({
             maxActions:V3_FIXTURE.maxActions,
             diagnosticSnapshot:diagnostic.snapshotFullGameState,
             requireFullStateDiagnostics:true,
+            processLockToken,
+            onStoreCreated(store){
+              const hook=installPromptProvenanceHook(store);
+              provenanceContext.current=hook;
+              return hook;
+            },
           },createV3WorkerDecisionResolver({
             sessionsBySeat,
             candidateSeat:candidateSeat,
             opponentSeat:opponentSeat,
             native,
             workerAudit,
+            provenanceContext,
           }));
+          workerAudit.promptProvenanceHook=gameResult.promptProvenanceHook??null;
+          assert.equal(gameResult.promptProvenanceHook?.installed,true,
+            'typed prompt provenance hook must be installed before first store dispatch');
+          assert.equal(gameResult.promptProvenanceHook?.restored,true,
+            'typed prompt provenance hook must restore after the native game');
+          assert.equal(gameResult.promptProvenanceHook?.activeEffectDepth,0,
+            'typed prompt provenance stack must be empty after the native game');
           workerAudit.completed=gameResult.finished===true&&
             gameResult.endReason==='engine-game-end';
           workerAudit.actionCount=gameResult.actions??gameResult.acceptedActions??0;
@@ -1509,9 +1548,13 @@ async function runV3FixtureGame({
       },
     });
   } finally {
-    restoreHook();
+    try {
+      if(restoreHook) restoreHook();
+    } finally {
+      releaseNativeFixtureProcessLock(processLockToken);
+    }
   }
-  assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
+  assert.ok(restoreHook?.isRestored, 'Underworld compatibility hook must restore in outer finally');
   assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
   const normalizedResult = normalizeV3FixtureRoleResult(pinned.result);
   const { roleResult, gameResult, workerExecutionAudit } = normalizedResult;
