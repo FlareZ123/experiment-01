@@ -268,3 +268,9 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Agent46's new candidate-only policy module exists but is not accepted/game-validated. Its isolated workflow run succeeded, but the test suite does not cover `WANT_TO_DRAW_CARDS`. Agent46 also added a push-triggered workflow despite the current no-new-workflow gate and Agent49's no-CI delegation; alerted Agent49 and left it untouched.
 - Updated `results/README.md` to remove the false "candidate module absent" statement and link the paired-mulligan report. Do not represent the module or its isolated workflow as a validated policy or native game.
 - Corrected all earlier mistaken notes: `choiceIndex` is not equal to draw count; it is reversed for this descending option list. No `choiceValue` schema extension is necessary. Follow-up messages to Agents46/49/36 record the exact correction.
+
+
+### Field-wide bonus tail extension
+- Extended the runner output and regression suite to include exact candidate/opponent eligibility tails for 1–5 optional bonus cards across all 29 lists and the strict-24 sensitivity. The report now includes the average tail table.
+- Candidate all-29 mean tail probabilities: >=1 18.7875%, >=2 5.8000%, >=3 2.5400%, >=4 1.3511%, >=5 0.7772%. Strict-24: >=1 14.1221%, >=2 2.4559%, >=3 0.4596%, >=4 0.0914%, >=5 0.0191%. The 7.3369% >=5 probability applies to each four-Basic Iron Thorns pairing, not to the average field.
+- Expanded the Node regression suite to seven tests; **7/7 passed** on the synthetic 29-row fixture. Actual repository JSON remains independently checked in V8; no native game fixture or CI dispatch was run.
