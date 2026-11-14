@@ -1276,6 +1276,7 @@ function createV3WorkerExecutionAudit({
     timeoutCount:0,lastFailureCode:null,
     workerProcessClosed:false,containerRemoved:false,policyBundleRemoved:false,
     containerIdSha256:null,policyStreamProtocol:null,policyDrawCount:null,
+    policyDrawCounts:[],policyDrawViolationCount:0,policyRngReplayable:true,
   });
   return {
     schema:'agent49-v3-worker-execution-audit-v1',
@@ -1288,6 +1289,7 @@ function createV3WorkerExecutionAudit({
       opponent:role('opponent',opponentSeat,opponentPolicyVersion),
     },
     totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    policyRngViolations:0,replayableEvidence:true,
     cleanupVerified:false,cleanupFailureCount:0,cleanupReceipts:[],promptProvenanceHook:null,
   };
 }
@@ -1319,8 +1321,21 @@ function createV3WorkerDecisionResolver({
       workerAudit.totalFailures++;
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
-    if(String(session?.channel?.stderr??'').includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE'))
+    const stderr=String(session?.stderr??session?.channel?.stderr??'');
+    const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\\d+)/.exec(stderr);
+    if(drawMatch){
+      roleAudit.policyDrawCount=Number(drawMatch[1]);
+      roleAudit.policyDrawViolationCount++;
+      roleAudit.policyRngReplayable=false;
+      workerAudit.policyRngViolations++;
+      workerAudit.replayableEvidence=false;
+    }else if(stderr.includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE')){
       roleAudit.policyDrawCount=null;
+      roleAudit.policyDrawViolationCount++;
+      roleAudit.policyRngReplayable=false;
+      workerAudit.policyRngViolations++;
+      workerAudit.replayableEvidence=false;
+    }
     roleAudit.lastFailureCode=code;
   };
   return async request=>{
@@ -1364,6 +1379,8 @@ function createV3WorkerDecisionResolver({
           publicEventReceipt:receipt,actionFrontier:emptyFrontier
         });
         roleAudit.decisionCount++;
+        roleAudit.policyDrawCount=response.policyDrawCount;
+        roleAudit.policyDrawCounts.push(response.policyDrawCount);
         roleAudit.promptDecisionCount++;
         workerAudit.totalWorkerDecisions++;
         if(response.decision?.kind==='abstain'){
@@ -1405,6 +1422,8 @@ function createV3WorkerDecisionResolver({
         actionFrontier:frontier.actionFrontier
       });
       roleAudit.decisionCount++;
+      roleAudit.policyDrawCount=response.policyDrawCount;
+      roleAudit.policyDrawCounts.push(response.policyDrawCount);
       roleAudit.rootDecisionCount++;
       workerAudit.totalWorkerDecisions++;
       if(response.decision?.kind==='abstain'){
