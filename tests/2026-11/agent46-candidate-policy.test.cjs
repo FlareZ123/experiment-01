@@ -254,7 +254,7 @@ test('Guzma own-recipient prompt recomputes Rondo versus Max Geist and chooses l
     hp: 190, subtypes: ['Basic', 'ex'],
     energies: ['Psychic Energy SVE', 'Psychic Energy SVE'],
     attacks: [attack('Full Moon Rondo', ['Psychic', 'Colorless'], '20+', {
-      text: '20 more damage for each Benched Pokémon (both yours and your opponent\\'s).'
+      text: '20 more damage for each Benched Pokémon (both yours and your opponent\'s).'
     })],
     abilities: ['Fairy Zone'], suppression: false
   });
