@@ -1,21 +1,21 @@
-# Agent49 policy-worker protocol v3
+# Agent49 policy-worker protocol v4
 
-**Status:** worker-side validation and response contract are implemented. Agent36 has landed the host prompt projector/dispatcher refactor: actor-seat binding, per-item tokens, typed select-choices mapping and native raw-result validation are in place. The legacy token-only dispatcher fallback and actor-relative ownerSeat/isOwnerVisible metadata remain to be closed; the persistent async fixture loop remains unintegrated and the launcher/capability/RNG/permission gate remains unverified. The shared async session now arms response waiters before writes, rejects unsolicited/duplicate stdout, and bounds stderr by UTF-8 bytes; its regression tests have not been run under Node or GitHub Actions. This is an interface specification, not evidence of a completed simulator or competitive result.
+**Status (2026-11-14):** the async Docker-worker fixture path, actor-bound prompt projection, per-item action frontier, typed multi-select mapping, and native raw-result validation are implemented in the current integration branch. Host code now imports the pure protocol module separately; candidate/opponent policy source is hash-pinned as role-manifest data assets, never as host entrypoints, and must not be evaluated by the host preloader. The worker bundle contains the worker executable, protocol module, and one role policy. The worker evaluates policy source in a restricted VM context with code generation disabled, no ambient process/module/clock/network/timer/crypto/weak-reference/finalizer globals, and locked `globalThis`, `Object`, and `Math` bindings. A worker-local CSPRNG stream is created inside each worker and exposed only through a non-serializable `rng` closure; the VM Math.random wrapper uses the same counted stream. Every successful response reports its cumulative `policyDrawCount` (required to be zero); any draw fails closed and the worker reports the observed count on stderr for the runner audit. Competitive policies must remain zero-draw until the owner approves a reproducible entropy model. The host session applies a 15-second per-decision deadline and terminates the worker/container if an asynchronous policy does not settle. These changes and their regression tests are not yet accepted: pinned Node 24 Docker execution, host-preload sentinel test, manifest closure tests, cleanup assertions, CI contract lane, and owner seed-disclosure decision remain pending. This is an interface and acceptance specification, not evidence of a completed simulator or competitive result.
 
 ## Envelope and projection versions
 
 | Layer | Schema/version |
 |---|---|
 | Worker init | `aichi-policy-worker-init-v2` |
-| Worker ready | `aichi-policy-worker-ready-v2` |
+| Worker ready | `aichi-policy-worker-ready-v3` |
 | Decision request | `aichi-policy-request-v2` |
-| Decision response | `aichi-policy-response-v3` |
-| Actor observation | `aichi-actor-observation-v2` |
+| Decision response | `aichi-policy-response-v4` (includes `policyDrawCount`) |
+| Actor observation | `aichi-actor-observation-v3` |
 | Owner prompt projection | `aichi-owner-prompt-projection-v3` |
 | Action frontier | `aichi-action-frontier-v1` |
 | Public event receipt | `agent8-public-event-receipt-v3-turn-stamped` |
 
-The worker exports the protocol constants and pure validators from `agent49-policy-worker.cjs`. Host response validation should use the exported `RESPONSE_SCHEMA`, not duplicate a literal.
+The pure protocol constants and validators live in `agent49-policy-protocol.cjs`; the host runner, async session, prompt projector, and action-frontier adapter import this module. The Docker bundle separately includes `worker.cjs`, `agent49-policy-protocol.cjs`, and the role-specific `policy.cjs`. Host response validation should use the exported `RESPONSE_SCHEMA`, not duplicate a literal.
 
 ## Decision union
 
@@ -72,6 +72,12 @@ The only executable action kinds are:
 
 Flat action metadata may include actor-relative `ownerSeat`, `targetSeat`, `sourceSeat`, `targetIndex`, `sourceIndex`, and `isOwnerVisible`. Seat values are actor-relative (`actor` or `opponent`); indices, when present, must be non-negative safe integers. Do not assign an optional index property to `undefined`: the validator rejects own-properties with undefined values. Omit the property when no public index exists.
 
+## Docker OS canary separation
+
+`agent49-policy-worker.cjs` is the production worker and evaluates role policy source inside the restricted VM. It must not be weakened to permit filesystem, process, child-process, worker-thread, or network probes.
+
+`agent49-docker-canary-worker.cjs` is a separate test-only executable used by the Docker OS-isolation canary. It deliberately loads the canary policy in the Node process inside the container so the policy can attempt the OS operations the Docker boundary is supposed to restrict. It is pinned as a test data asset, is not a role-manifest entrypoint, and must never be included in a competitive worker bundle. VM capability tests and Docker OS canary tests are separate acceptance layers.
+
 ## Actor and prompt boundary
 
 - `validatePrompt(prompt, seat)` requires `prompt.actingSeat === seat`; the host must include `actingSeat: actorSeat` and pass the seat argument.
@@ -79,18 +85,24 @@ Flat action metadata may include actor-relative `ownerSeat`, `targetSeat`, `sour
 - Opponent hidden hand/decklist/hidden-zone aliases and other forbidden native/private state fields are rejected.
 - Public event receipts are versioned and checked against the actor seat, turn, owner active/bench, prior-turn attack facts, and Copycat-related public evidence.
 - Public Stadium state and complete known ability-suppression records are part of the actor view where applicable.
-- The worker's structural validation does not prove the host constructed the view truthfully, and it does not prove runtime RNG denial or Docker isolation.
+- The worker's structural validation does not prove the host constructed the view truthfully. The restricted VM and worker-local RNG implementation are defense-in-depth; they remain unverified until the pinned Node 24 Docker acceptance tests pass. Host policy entrypoints are hash-checked but never evaluated in the host process.
 
-## Host integration checklist
+## Host integration and worker acceptance checklist
 
 1. [x] Include `actingSeat: actorSeat` in the frozen prompt projection and call `protocol.validatePrompt(frozen, actorSeat)`.
 2. [x] For the five multi-select prompt types, emit individual item tokens plus the required special choices; remove combination/permutation enumeration.
-3. [x] Pass the complete validated decision object to the prompt dispatcher. [ ] Remove the remaining legacy token-only fallback and re-run `protocol.validateDecision(decision, promptProjection, new Set())` at the dispatcher boundary before mapping raw results.
+3. [x] Pass the complete validated decision object to the prompt dispatcher and validate it at the dispatcher boundary before mapping raw results.
 4. [x] Map ordered token arrays to native raw selections and run native decode/validation before Store dispatch.
-5. [x] Omit undefined source/target indices (Agent36 has added the source-index guard and regression test).
+5. [x] Omit undefined source/target indices and retain the source-index regression test.
 6. [ ] Emit actor-relative `ownerSeat` and `isOwnerVisible` metadata where the target projection makes them unambiguous.
-7. [ ] Integrate the persistent worker into the awaited fixture loop with timeout, abort, stale-prompt and illegal-decision handling.
-8. [ ] Keep the existing launcher/RNG/permission gate closed until its separate tests pass.
+7. [x] Integrate the persistent worker into the awaited fixture loop with timeout, abort, stale-prompt and illegal-decision handling.
+8. [x] Keep the Docker worker executable out of host source closure; hash-check role policy entrypoints without host evaluation.
+9. [x] Bundle the worker executable, pure protocol module, and role-specific policy source together.
+10. [x] Create worker-local CSPRNG state inside the worker and expose only a non-serializable `rng` closure; do not add a seed or RNG object to IPC.
+11. [x] Count all policy RNG draws (including VM `Math.random`) and fail closed if a policy draws under the current evidence protocol.
+12. [ ] Run the complete pinned Node 24 Docker worker tests, real role-manifest tests, host-preload sentinel test, and temporary-bundle cleanup assertions.
+13. [ ] Pass the existing `contract_only` gate and obtain independent review of the integration diff.
+14. [ ] Obtain the owner's explicit physical-seed / policy-entropy disclosure decision before any canary or fixture dispatch.
 
 ## Current evidence and limitations
 
