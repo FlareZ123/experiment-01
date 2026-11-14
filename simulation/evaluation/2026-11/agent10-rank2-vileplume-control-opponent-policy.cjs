@@ -663,21 +663,28 @@ function cardPriority(printing, observation, context) {
 
   // Pidgeot ex Quick Search and Pidgeotto Air Mail are unrestricted searches.
   if (context.includes('quick search') || context.includes('air mail')) {
-  if (matches(printing, PRINT.vileplume) && !boardHas(own, PRINT.vileplume)) return 160;
-  if (matches(printing, PRINT.stoutland) && !boardHas(own, PRINT.stoutland)) return 155;
-  if (matches(printing, PRINT.pidgeot) && !boardHas(own, PRINT.pidgeot)) return 140;
-  if (matches(printing, PRINT.gloom) && !boardHas(own, PRINT.gloom)) return 125;
-  if (matches(printing, PRINT.herdier) && !boardHas(own, PRINT.herdier)) return 120;
-  if (matches(printing, PRINT.pidgeotto) && !boardHas(own, PRINT.pidgeotto)) return 110;
-  if (matches(printing, PRINT.oddish) && !boardHas(own, PRINT.oddish)) return 100;
-  if (matches(printing, PRINT.lillipup) && !boardHas(own, PRINT.lillipup)) return 96;
-  if (matches(printing, PRINT.pidgey) && !boardHas(own, PRINT.pidgey)) return 90;
-  if (matches(printing, PRINT.jetEnergy) && handCount(hand, PRINT.jetEnergy) === 0) return 85;
-  if (matches(printing, PRINT.tmEvolution) && handCount(hand, PRINT.tmEvolution) === 0) return 80;
-  if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 95;
-  if (matches(printing, PRINT.grandTree)) return 75;
-  if (matches(printing, PRINT.guzmaHala)) return 70;
-  if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 60;
+    if (matches(printing, PRINT.vileplume) && boardHas(own, PRINT.gloom) && !boardHas(own, PRINT.vileplume)) return 175;
+    if (matches(printing, PRINT.stoutland) && boardHas(own, PRINT.herdier) && !boardHas(own, PRINT.stoutland)) return 168;
+    if (matches(printing, PRINT.pidgeot) && boardHas(own, PRINT.pidgeotto) && !boardHas(own, PRINT.pidgeot)) return 160;
+    if (matches(printing, PRINT.gloom) && boardHas(own, PRINT.oddish)) return 150;
+    if (matches(printing, PRINT.herdier) && boardHas(own, PRINT.lillipup)) return 145;
+    if (matches(printing, PRINT.pidgeotto) && boardHas(own, PRINT.pidgey)) return 140;
+    if (matches(printing, PRINT.tmEvolution) && bunnelbyInPlay(observation) && hasK0PossibleBenchEvolutionTarget(observation) && !bunnelbyHasTool(observation, PRINT.tmEvolution) && handCount(hand, PRINT.tmEvolution) === 0) return 155;
+    if (matches(printing, PRINT.grandTree)) return hasK0PossibleGrandTreeTarget(observation) ? 150 : 45;
+    if (matches(printing, PRINT.artazon)) return list(own.bench).some(slot => slot === null) && missingLinePriority(observation) > 0 ? 135 : 50;
+    if (matches(printing, PRINT.jetEnergy)) {
+      const jetInPlay = boardSlots(own).some(row => list(row.pokemon.energies).some(energy => matches(energy, PRINT.jetEnergy)));
+      return handCount(hand, PRINT.jetEnergy) === 0 && !jetInPlay ? 140 : 55;
+    }
+    if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 130;
+    if (matches(printing, PRINT.stealthyHood) && opponentHasGarbotoxin(observation.opponentPublic)) return 125;
+    if (matches(printing, PRINT.guzmaHala) && canUseGuzmaHalaMode1(observation, { guzmaInHand: true })) return 120;
+    if (matches(printing, PRINT.tagCall) && sourceCopyPossible(observation, PRINT.guzmaHala) && canUseGuzmaHalaMode1(observation, { excludePatterns: [PRINT.tagCall], guzmaInHand: true })) return 115;
+    if (matches(printing, PRINT.oddish) && !boardHas(own, PRINT.oddish)) return 105;
+    if (matches(printing, PRINT.lillipup) && !boardHas(own, PRINT.lillipup)) return 100;
+    if (matches(printing, PRINT.pidgey) && !boardHas(own, PRINT.pidgey)) return 95;
+    if (matches(printing, PRINT.bunnelby) && boardCount(own, PRINT.bunnelby) < 2) return 90;
+    if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 60;
   }
   return 0;
 }
