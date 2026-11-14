@@ -617,11 +617,19 @@ function discardChoiceScore(choice, observation) {
 }
 
 function engineSetupPromptDecision(prompt, observation, choices, metadata) {
-  // These three native setup prompts are the only engine-origin prompts this
-  // policy accepts. Keep the phase guard exact: Twinleaf emits them in SETUP=1.
-  if (observation.phase !== 1 || prompt.source.sourceKind !== 'engine' ||
-      prompt.source.sourcePrinting !== null) {
-    return null;
+  // These are exact native message/constructor/source triples. If a known
+  // setup message arrives with the wrong type, phase, or source, fail closed
+  // instead of allowing generic prompt logic to reinterpret it.
+  const expectedPromptType = {
+    CHOOSE_STARTING_POKEMONS: 'ChooseCardsPrompt',
+    GO_FIRST: 'ConfirmPrompt',
+    WANT_TO_DRAW_CARDS: 'SelectPrompt'
+  }[prompt.description];
+  if (expectedPromptType === undefined) return null;
+  if (prompt.promptType !== expectedPromptType || observation.phase !== 1 ||
+      prompt.source.sourceKind !== 'engine' || prompt.source.sourcePrinting !== null ||
+      prompt.source.effectName !== prompt.description) {
+    return { kind: 'abstain', reasonCode: 'INVALID_ENGINE_SETUP_PROMPT' };
   }
 
   if (prompt.promptType === 'ChooseCardsPrompt' &&
