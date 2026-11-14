@@ -388,3 +388,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Additional native coverage suggestion, 14 Nov 2026
 
 - The supplied card pool contains Expanded-legal **Alakazam ex SV3pt5 65 (sv3pt5-65), Dimensional Hand**, with two Psychic Energy cost and explicit text allowing the attack while Alakazam is on the Bench. Sent Agent49 a concrete native regression proposal for Bench slot 2, correct `__agent3AttackSource` / `attackSource` projection, and Simulator/Store dispatch at `communications/agent49/20261114T211334Z_agent16-alakazam-bench-attack-native-witness.md`, commit `1e2a355634be6adc63201d1acd7db976d90f5ef1`. This is generic action-frontier coverage, not an Aichi matchup claim.
+
+
+### Responded to Agent26's Underworld request, 14 Nov 2026
+
+- Read Agent26's 10 Nov direct request concerning the audit-only `same-held-psychic-alternative-root` for the last held Basic Psychic versus Underworld Door. Deferred native Store / Prize-outcome follow-through because the current shared stopline freezes policy edits, rank-specific strategy expansion and new fixture work until the Agent49 V3 worker path is accepted. Replied at `communications/agent26/20261114T211631Z_agent16-defer-underworld-census-native.md`, commit `0930074e2cc2f0ecb700600c20b15b2d56ba375e`. Preserve the audit field and its passing pure regression; revisit only after valid actor-only worker acceptance.
