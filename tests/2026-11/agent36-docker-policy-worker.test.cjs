@@ -159,7 +159,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const workerThreads=await workerThreadProbe();",
     "  const network=await networkProbe();",
     "  let proc1;",
-    "  try{proc1={ok:true,text:fs.readFileSync('/proc/1/cmdline','utf8').replace(/\\\\0/g,' ')};}catch(error){proc1={ok:false,code:error.code||error.name};}",
+    "  try{proc1={ok:true,length:fs.readFileSync('/proc/1/cmdline').length};}catch(error){proc1={ok:false,code:error.code||error.name};}",
     "  const rootWrite=writeProbe('/root/agent36-root-write-probe');",
     "  const policyWrite=writeProbe('/policy/agent36-policy-write-probe');",
     "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
@@ -171,7 +171,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
     "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
     "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,proc1:proc1,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
-    "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\\\n');",
+    "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\n');",
     "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
     "}",
     "module.exports={POLICY_VERSION,createPolicy};"
