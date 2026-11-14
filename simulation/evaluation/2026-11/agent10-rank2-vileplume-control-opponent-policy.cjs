@@ -399,7 +399,7 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.counterGain)) {
     return ownBehindOnPrizes(observation) &&
-      target === own.active?.printing ? 118 : 0;
+      target === own.active?.printing ? 190 : 0;
   }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
