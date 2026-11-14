@@ -55,6 +55,7 @@ test('shuffle changes card positions without increasing genuine zone transfers',
   assert.equal(result.trueZoneTransfers,2);
   assert.equal(result.temporaryUnaccountedIdentityEvents,0);
   assert.equal(result.prizeCardsMovedToOwnerHand,1);
+  assert.equal(result.energyAttachments,1);
   assert.equal(result.energyDeckAttachments,1);
   assert.equal(result.crossSeatPhysicalMovements,0);
   assert.equal(result.timeline[0].rawChangedPhysicalCards,2);
@@ -66,18 +67,20 @@ test('shuffle changes card positions without increasing genuine zone transfers',
 });
 
 
-test('v2 attached-energy custody schema counts dedicated Energy-stack attachments',()=>{
+test('v2 attached-energy custody schema counts hand-to-Energy attachments',()=>{
   const packet=fakePacket();
   packet.schema='agent36-live-paper-root-receipts-v2-attached-energy-custody';
-  const before=snapshot(entries);
+  const before={...snapshot(entries),'0:0':'s0.hand:0'};
   const after={...before,'0:0':'s0.active.energies:0'};
   packet.receipts=[receipt(0,4,0,'AttachEnergyAction',before,after)];
   const result=summarizePhysicalZoneTransfers(packet);
   assert.equal(result.rootCount,1);
-  assert.equal(result.energyDeckAttachments,1);
-  assert.equal(result.timeline[0].energyDeckAttachments[0].fromZone,'s0.deck');
-  assert.equal(result.timeline[0].energyDeckAttachments[0].toZone,
+  assert.equal(result.energyAttachments,1);
+  assert.equal(result.energyDeckAttachments,0);
+  assert.equal(result.timeline[0].energyAttachments[0].fromZone,'s0.hand');
+  assert.equal(result.timeline[0].energyAttachments[0].toZone,
     's0.active.energies');
+  assert.equal(result.timeline[0].energyDeckAttachments.length,0);
   assert.equal(result.completeOriginalFullPhysicalCustodyClaim,true);
   assert.equal(result.competitiveGameQualified,false);
 });
