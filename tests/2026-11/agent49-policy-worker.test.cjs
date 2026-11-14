@@ -294,6 +294,8 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   assert.throws(() => protocol.validateRequest(unknownSourcePrompt, initFor(), 1, new Set()), /UNKNOWN_PROMPT_SOURCE/);
   const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
+  const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
+  assert.throws(() => protocol.validateRequest(incompleteCopycat, initFor(), 1, new Set()), /COPYCAT_SOURCE_MISSING/);
   assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
 });
 
