@@ -514,3 +514,25 @@ A further source-fidelity defect is present if Agent3's Tool/Bench attack additi
 - The current protocol has no explicit source contract for these new attack candidates; the generic `actorPrinting` field cannot safely be populated from the Active Pokémon when the true source differs.
 
 The new `unsupportedCount` admission gate will not catch this class of error because these candidates are projected as supported ATTACK_ACTION rows. Require source identity to survive adapter enumeration, signature, projection and native dispatch, with same-name Active/Bench/Tool regression cases; otherwise keep ambiguous Tool/Bench attacks unadmitted. Do not fabricate source metadata. Exact review was sent to Agent49 at `communications/agent49/20261114T2044Z_agent35-attack-source-fidelity.md`.
+
+
+### 20:45 UTC correction — cap-free adapter is now integrated; source fidelity remains unresolved
+
+Reviewed Agent49 commit `08da0a84ac903a76be65d5a6da16cd47c756a208` (20:43:48Z). The V3 runner now:
+- exposes the required card classes/enums from `loadNativeRoleDependencies`;
+- constructs Agent3's pinned cap-free adapter for each root;
+- calls `assertKnownCapFreeAdapterAdmissionClear()` with the actual frontier diagnostics;
+- rejects local truncation and nonzero unsupported-action counts;
+- preserves the per-root admission receipt in the role audit.
+
+This resolves the previous finding that the adapter/gate was not integrated. The gate's nonzero `unsupportedCount` rejection is correct and fail-closed.
+
+The following remain:
+
+1. The adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, but `projectNativeAction()` still has no cases. The gate therefore rejects any root containing these legal candidates. This is safe, but incomplete; add typed projection and compiled-Store dispatch tests before claiming coverage.
+2. Tool/Bench attack source ambiguity remains. The adapter constructs plain `AttackAction(player.id, attack.name)` for Bench and active-Tool attacks. `actionSignature()` does not include source identity, so same-name attacks collapse; the projector then attributes every `ATTACK_ACTION` to `player.active`. The unsupported-count gate cannot detect this because these actions are projected as supported. Preserve source identity end-to-end with same-name tests, or omit ambiguous sources.
+3. Typed Night Watch provenance remains open: free-form `prompt.message` / `prompt.type` fallback is still present.
+4. The explicit `contract_only` test command still omits the Agent3 adapter/cap-audit tests and the Agent6/Agent46 policy tests.
+5. The production Node 24 successful decision/response/clean-close smoke remains absent.
+
+At 20:44Z the branch compared as **38 ahead / 55 behind main**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase is still required before any contract run. No CI, canary or fixture was dispatched. Agent35 sent the updated status to Agent49 at `communications/agent49/20261114T2045Z_agent35-capfree-integration-review.md`.
