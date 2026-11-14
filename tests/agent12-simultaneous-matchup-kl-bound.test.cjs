@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const {sha256} = require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 const {assessSimultaneousMatchups} =
   require('../scripts/agent12-simultaneous-matchup-kl-bound.cjs');
 
@@ -51,6 +52,34 @@ function fixture(perStratum) {
   };
 }
 
+function bindIidSamplingModel(request) {
+  request.stratumSamplingModel = 'iid-bernoulli-v1';
+  request.fieldSamplingRegistration = {
+    schema: 'aichi-field-sampling-registration-v1',
+    stratumSamplingModel: 'iid-bernoulli-v1',
+    registeredAt: '2026-11-14T00:00:00Z',
+    target: request.target ?? 0.995,
+    confidence: request.confidence ?? 0.95,
+    registeredAttemptCount: request.registeredAttemptCount,
+    gamesPerStratum: request.attempts.length / 128,
+    randomizationProtocol:
+      'One independently shuffled physical game per unique trial and deal ID; no paired/common-deal clusters; fixed policies and versions within each stratum.',
+    originalSources: request.originalSources.map(({rank,source60Sha}) =>
+      ({rank,source60Sha})),
+    candidate60Sha: request.attempts[0].candidate60Sha,
+    candidatePolicySha: request.attempts[0].candidatePolicySha,
+    engineAndHooksSha: request.attempts[0].engineAndHooksSha,
+    opponentPolicyBundleSha: request.attempts[0].opponentPolicyBundleSha,
+    adjudicationProtocolSha: request.attempts[0].adjudicationProtocolSha,
+    attempts: request.attempts.map(({trialId,rank,seat,firstPlayerSeat,
+      physicalDealId}) => ({trialId,rank,seat,firstPlayerSeat,physicalDealId}))
+  };
+  request.registrationSha = sha256(request.fieldSamplingRegistration);
+  for (const attempt of request.attempts)
+    attempt.registrationSha = request.registrationSha;
+  return request;
+}
+
 test('323 wins per 128-stratum cell give simultaneous 99.5% per-rank bounds', () => {
   const result = assessSimultaneousMatchups(fixture(323));
   assert.equal(result.totalAttempts, 41344);
@@ -83,6 +112,7 @@ test('322 wins per cell miss the first-player-balanced simultaneous threshold', 
 test('a single loss in one rank fails its simultaneous matchup bound under generic KL', () => {
   const request = fixture(323);
   request.attempts[0].status = 'paper-qualified-loss';
+  bindIidSamplingModel(request);
   const result = assessSimultaneousMatchups(request);
   assert.equal(result.perRank[0].winCount, 1291);
   assert.equal(result.perRank[0].nonwinCount, 1);
@@ -96,8 +126,8 @@ test('a single loss in one rank fails its simultaneous matchup bound under gener
 
 test('exact one-loss iid branch passes at 436, not 435 games per stratum', () => {
   const tooSmall = fixture(435);
-  tooSmall.stratumSamplingModel = 'iid-bernoulli-v1';
   tooSmall.attempts[0].status = 'paper-qualified-loss';
+  bindIidSamplingModel(tooSmall);
   const failed = assessSimultaneousMatchups(tooSmall);
   assert.equal(failed.perRank[0].boundMethod, 'exact-one-loss-iid');
   assert.ok(Math.abs(failed.perRank[0].conditionalLowerBound -
@@ -105,7 +135,6 @@ test('exact one-loss iid branch passes at 436, not 435 games per stratum', () =>
   assert.equal(failed.conditionalSimultaneousThresholdMet, false);
 
   const request = fixture(436);
-  request.stratumSamplingModel = 'iid-bernoulli-v1';
   request.attempts[0].status = 'paper-qualified-loss';
   const result = assessSimultaneousMatchups(request);
   assert.equal(result.totalAttempts, 55808);
@@ -114,7 +143,7 @@ test('exact one-loss iid branch passes at 436, not 435 games per stratum', () =>
   assert.equal(result.perRank[0].nonwinCount, 1);
   assert.equal(result.perRank[0].boundMethod, 'exact-one-loss-iid');
   assert.equal(result.samplingModelDeclaration,
-    'iid-bernoulli-v1 (caller assertion; external audit required)');
+    'iid-bernoulli-v1 (bound to canonical field registration; external audit required)');
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
     0.9950010946446439) < 1e-12);
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
@@ -152,9 +181,9 @@ test('generic heterogeneous-KL one-loss bound first passes at 486 games per stra
 
 test('exact two-loss iid branch passes at 534, not 533 games per stratum', () => {
   const tooSmall = fixture(533);
-  tooSmall.stratumSamplingModel = 'iid-bernoulli-v1';
   tooSmall.attempts[0].status = 'paper-qualified-loss';
   tooSmall.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(tooSmall);
   const failed = assessSimultaneousMatchups(tooSmall);
   assert.equal(failed.perRank[0].boundMethod, 'exact-two-loss-iid');
   assert.ok(Math.abs(failed.perRank[0].conditionalLowerBound -
@@ -162,9 +191,9 @@ test('exact two-loss iid branch passes at 534, not 533 games per stratum', () =>
   assert.equal(failed.conditionalSimultaneousThresholdMet, false);
 
   const request = fixture(534);
-  request.stratumSamplingModel = 'iid-bernoulli-v1';
   request.attempts[0].status = 'paper-qualified-loss';
   request.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(request);
   const result = assessSimultaneousMatchups(request);
   assert.equal(result.totalAttempts, 68352);
   assert.equal(result.perRank[0].totalAttempts, 2136);
@@ -174,7 +203,7 @@ test('exact two-loss iid branch passes at 534, not 533 games per stratum', () =>
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
     0.9950037583795005) < 1e-12);
   assert.equal(result.samplingModelDeclaration,
-    'iid-bernoulli-v1 (caller assertion; external audit required)');
+    'iid-bernoulli-v1 (bound to canonical field registration; external audit required)');
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
 
   const unregistered = fixture(534);
@@ -214,10 +243,10 @@ test('two nonwins retain heterogeneous KL when iid model is absent', () => {
 
 test('three nonwins retain heterogeneous KL even when iid model is declared', () => {
   const request = fixture(602);
-  request.stratumSamplingModel = 'iid-bernoulli-v1';
   request.attempts[0].status = 'paper-qualified-loss';
   request.attempts[1].status = 'paper-qualified-tie';
   request.attempts[2].status = 'paper-qualified-loss';
+  bindIidSamplingModel(request);
   const result = assessSimultaneousMatchups(request);
   assert.equal(result.perRank[0].nonwinCount, 3);
   assert.equal(result.perRank[0].boundMethod, 'heterogeneous-kl');
