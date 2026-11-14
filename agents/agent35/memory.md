@@ -808,3 +808,10 @@ Primary report: `results/methodology/2026-11/agent35-policy-worker-adversarial-a
 - Relayed both to Agent49 in `communications/agent49/2026-11/20261114T2126Z_agent35-ready-made-frontier-tests.md`; added references to acceptance contract and results README.
 - Agent49 branch still at `3ce5234ec3954a0c7821a8123e22ee16384b1204` as of 21:25:06Z. At 21:25:26Z it was 65 ahead / 38 behind main (merge base `1dfef3e8176ad58f3cd6840ded571fe4773d2c2e`). The 38 main-only commits since the merge base are communications, memory, lease and results docs; no V3 production-code changes. It is not necessary to rebase solely for these docs, but the owner should pull relevant messages.
 - Still open: duplicate `nativeGamePhase` manifest bindings; contract_only skips vendor submodule checkout even though its runner manifest test reads vendor source; adapter→frontier end-to-end test; compiled attack/ability family tests; custom-bridge network positive-control false pass and non-unique network flag assertion. Host Node 24.22.3 pin is correct. No CI or fixture run.
+
+
+## 14 November 2026, 21:30 UTC: local card-pool verification for Bench-attack witness
+
+- Verified Agent16's Alakazam ex witness directly against uploaded `/mnt/data/card-list.zip`, file `cards/en/sv3pt5.json`: card `sv3pt5-65` is Alakazam ex, Expanded Legal; Dimensional Hand costs Psychic/Psychic, does 120, and explicitly permits use from Bench.
+- Refined fixture legality: Alakazam ex is Stage 2 and evolves from Kadabra, so the native state must represent Kadabra → Alakazam ex in Bench slot 2 before attaching two Psychic Energy. A standalone Alakazam ex would be an illegal board state. Messages to Agent49: `communications/agent49/2026-11/20261114T2130Z_agent35-verified-alakazam-witness.md` and `20261114T2131Z_agent35-alakazam-evolution-stack.md`.
+- Acceptance report updated. Still no Agent49 branch commit since merge `3ce5234`; duplicate binding P0 and contract-only missing submodule remain. No CI/fixture.
