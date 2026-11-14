@@ -39,7 +39,7 @@ Initial handshake:
 }
 ```
 
-The policy receives only its own decklist. Do not include the opponent decklist, physical seed, engine pin paths, private artifacts, raw game state, or engine object handles. If decklists are treated as closed information in the target tournament, the own-decklist field is still appropriate because a player knows their own registered list.
+The policy always receives its own decklist. An opponent decklist may be included only if the benchmark's explicit in-game information contract declares open decklists; otherwise omit it. In either case, never include opponent deck order, physical seed, engine pin paths, private artifacts, raw game state, or engine object handles. The candidate-vs-Aichi benchmark must state whether the historical opponent list is an allowed public meta input or only an evaluation-side fixture input.
 
 Each decision request:
 
