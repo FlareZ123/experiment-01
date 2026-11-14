@@ -77,9 +77,9 @@ For the two direct Prize-access cards Peonia and Gladion:
 
 | Initial configuration | Probability | Consequence |
 |---|---:|---|
-| Neither Prized | 80.8475% | Both are available outside Prizes |
-| Exactly one Prized | 18.3051% | The other access card may recover it |
-| Both Prized | 0.8475% | Direct Peonia/Gladion cross-access is unavailable |
+| Neither Prized | 80.7291% | Both are available outside Prizes |
+| Exactly one Prized | 18.4125% | The other access card may recover it (9.2063% in either direction) |
+| Both Prized | 0.8584% | Direct Peonia/Gladion cross-access is unavailable |
 
 If Peonia is Prized and Gladion is not, Gladion can reveal the remaining own Prizes and select Peonia if it is still there.
 
@@ -89,7 +89,7 @@ If Gladion is Prized and Peonia is not, Peonia can select face-down Prize slots.
 P(\text{hit}mid\text{target among }n)=\frac{k}{n}.
 ]
 
-With six remaining unknown Prizes, selecting 1, 2, or 3 gives 16.667%, 33.333%, or 50%. Before the first physical deck search (K0), if the player does not know whether a singleton target is Prized at all, the blind hit probability is instead (k/60): 1.667%, 3.333%, or 5%.
+With six remaining unknown Prizes, selecting 1, 2, or 3 gives 16.667%, 33.333%, or 50%. Under K0 immediately after a valid opening hand, the unresolved pool is 53 cards, not 60; conditional on a specific target not being in the known hand, a blind selection of `k` Prize slots hits it with probability `k/53`. Averaged over valid opening hands, a specific non-Basic singleton is in hand 11.0954%, so the initial probability that Peonia finds it is `(1 - 0.110954) × k/53`: 1.6774%, 3.3549%, or 5.0323% for `k=1,2,3`.
 
 This is why safe hand-replacement capacity matters. The policy should not simply select three every time: it should choose the largest (k\leq3) for which it can safely replace (k) cards, while recognizing that fewer replacements reduce the chance of hitting a known Prized singleton.
 
@@ -123,23 +123,53 @@ The human-concepts document's UDP/DCI/AMR ideas are useful heuristics here: repl
 
 ## Reproduction
 
-The calculations use only combinations of physical card copies:
+The exact setup-adjusted probabilities integrate over valid seven-card opening hands, then draw six Prizes from the remaining 53:
 
 ```python
 from math import comb
 
-den = comb(60, 6)
+N, B, H, P = 60, 14, 7, 6
+valid_hands = comb(N, H) - comb(N - B, H)
+den = valid_hands * comb(N - H, P)
 
-def exactly_k_prized(m, k):
-    return comb(m, k) * comb(60 - m, 6 - k) / den
+def prize_dist_nonbasic(m):
+    out = {}
+    for k in range(m + 1):
+        numerator = 0
+        for j in range(m + 1):
+            hands = comb(m, j) * (
+                comb(N - m, H - j) - comb(N - m - B, H - j)
+            )
+            remaining_named = m - j
+            if k <= remaining_named:
+                prizes = comb(remaining_named, k) * comb(
+                    N - H - remaining_named, P - k
+                )
+                numerator += hands * prizes
+        out[k] = numerator / den
+    return out
 
-for k in range(5):
-    print(k, exactly_k_prized(4, k))
+def prize_dist_basic(m):
+    out = {}
+    for k in range(m + 1):
+        numerator = 0
+        for j in range(m + 1):
+            if j == 0:
+                hands = comb(N - m, H) - comb(N - B, H)
+            else:
+                hands = comb(m, j) * comb(N - m, H - j)
+            remaining_named = m - j
+            if k <= remaining_named:
+                prizes = comb(remaining_named, k) * comb(
+                    N - H - remaining_named, P - k
+                )
+                numerator += hands * prizes
+        out[k] = numerator / den
+    return out
 
-both_specific_singletons = comb(58, 4) / den
-three_specific_singletons = comb(57, 3) / den
-four_specific_singletons = comb(56, 2) / den
-at_least_one_of_four = 1 - exactly_k_prized(4, 0)
+print(prize_dist_nonbasic(4))  # Peonia/Lusamine/Gladion/Team Yell's Cheer
+print(prize_dist_nonbasic(2))  # Peonia + Gladion; also two Pidgeot ex
+print(prize_dist_basic(2))     # two Bunnelby
 ```
 
 ## Limitations
@@ -178,7 +208,7 @@ U_P(k\mid s)=E[\text{value of the }k\text{ selected Prizes}\mid K0/K1,s]
 
 where (R_k(s)) is the (k) lowest-cost safe replacement cards and (C_{\mathrm{Supporter}}) is the opportunity cost of spending the turn's Supporter play. Choose only (1\leq k\leq\mathrm{safeReplacementCount}(s)), and only when the marginal value is positive. The helper's fresh-slot-first rule maximizes distinct original Prize coverage when positions are exchangeable.
 
-For a specific known target among `n` unknown Prize positions, the hit probability is `k/n`. Under K0, if the target is one card in a current pool of `M` unresolved cards and there is no other location information, the blind hit probability is `k/M`; for the initial 60-card deal, `M=60`, giving `k/60`. Later K0 states must condition on cards already observed in hand, discard, play, or other zones rather than reusing 60. These are different information states and should not be conflated.
+For a specific known target among `n` unknown Prize positions, the hit probability is `k/n`. Under K0, if the target is one card in a current pool of `M` unresolved cards and there is no other location information, the blind hit probability is `k/M`; immediately after a valid opening hand, `M=53`, so conditional on the target not being in hand the hit probability is `k/53`. Later K0 states must condition on cards already observed in hand, discard, play, or other zones rather than reusing 53. These are different information states and should not be conflated.
 
 A corresponding Gladion utility is the value of the best card among the authenticated owner-visible Prize reveal, less Supporter opportunity cost and the cost of destroying the old positional mapping. Gladion does not require a hand replacement, but it does require a source-scoped owner-only reveal and resets the Peonia slot ledger after its shuffle. When both Supporters are available, compare (U_P) and (U_G) rather than hardcoding one as always preferred.
 
