@@ -96,8 +96,6 @@ function basePrompt(Class, state, overrides = {}) {
   return prompt;
 }
 
-class ChooseStartingPokemonPrompt extends ChooseCardsPrompt {}
-
 class ChooseCardsPrompt {
   decode(result) {
     if (result === null) return null;
@@ -110,6 +108,8 @@ class ChooseCardsPrompt {
       decoded.every(card => this.cards.cards.includes(card));
   }
 }
+
+class ChooseStartingPokemonPrompt extends ChooseCardsPrompt {}
 
 class ChoosePokemonPrompt {
   decode(result) { return result; }
