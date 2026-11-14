@@ -916,6 +916,16 @@ test('restricted VM denies ambient capabilities and serializes policy failures',
   }
 });
 
+test('production worker loads role policy source only inside its restricted VM',()=>{
+  const source=fs.readFileSync(WORKER_SOURCE,'utf8');
+  assert.match(source,/vm\.createContext/);
+  assert.match(source,/codeGeneration:\{strings:false,wasm:false\}/);
+  assert.match(source,/fs\.readFileSync\(path\.join\(__dirname, 'policy\.cjs'\), 'utf8'\)/);
+  assert.match(source,/require\('\.\/agent49-policy-protocol\.cjs'\)/);
+  assert.doesNotMatch(source,/require\('\.\/policy\.cjs'\)/);
+  assert.doesNotMatch(source,/Module\._load\([^)]*policy\.cjs/);
+});
+
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
   const first=createWorkerLocalPolicyStream();
   const second=createWorkerLocalPolicyStream();
