@@ -1545,6 +1545,25 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(adpIntent.projectedDamage,320);
   assert.equal(adpIntent.projectedPrizeCount,3,
     'the public prize projection must retain Tag Team three-prize value');
+
+  const psychicWeakTarget={
+    ...target,printing:'Synthetic Psychic-weak non-Dragon target',hp:300,damage:0,
+    printed:{stage:'Basic',types:['Fighting'],weakness:[{type:'Psychic',value:2}],
+      resistance:[]}
+  };
+  const printedPsychicWeakView={
+    ...view,
+    ownPublic:{...view.ownPublic,bench:[latias,vmax]},
+    opponentPublic:{...view.opponentPublic,active:psychicWeakTarget}
+  };
+  const printedPsychicWeakIntent=choosePostTimelessMaxGeistRetreat(
+    printedPsychicWeakView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(printedPsychicWeakIntent,
+    'printed Psychic Weakness must be applied even without Fairy Zone or a Dragon target');
+  assert.equal(printedPsychicWeakIntent.fairyZoneActive,false);
+  assert.equal(printedPsychicWeakIntent.fairyZoneMultiplier,1);
+  assert.equal(printedPsychicWeakIntent.weaknessMultiplier,2);
+  assert.equal(printedPsychicWeakIntent.projectedDamage,320);
 });
 
 
