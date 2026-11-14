@@ -55,7 +55,7 @@ Special choices use `select-choice`, never an empty `select-choices` array:
 - Exactly one `kind: 'empty-selection'` choice is required iff the minimum count is zero. It represents a valid zero-item selection, distinct from cancellation.
 - For a multi-select prompt, `select-choice` may select only one of those special choices. Selecting an ordinary item token singly is rejected, even if the min/max happens to be one.
 
-The host must project one token per selectable item, not enumerate all combinations or permutations. The host maps a `select-choices` token array, in order, to the corresponding native raw-result array, then invokes the native prompt's decode/validation path before dispatching `ResolvePromptAction`. A cancel token maps to the native cancellation value; an empty-selection token maps to the valid empty raw result.
+The host must project one token per selectable item, not enumerate all combinations or permutations. The item choice kind is fixed by selection type: `card-combination` → `card`, `pokemon` → `pokemon`, `energy-payment` → `energy`, `prize-slots` → `prize`, and `card-order` → `card-order-item`. The validator rejects combination/set/permutation rows masquerading as individual items. The host maps a `select-choices` token array, in order, to the corresponding native raw-result array, then invokes the native prompt's decode/validation path before dispatching `ResolvePromptAction`. A cancel token maps to the native cancellation value; an empty-selection token maps to the valid empty raw result.
 
 ## Action frontier and executable authority
 
