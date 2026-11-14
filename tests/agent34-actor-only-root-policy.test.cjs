@@ -1996,6 +1996,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const ownerEpochPositiveOpponentUnknown={
     ...hqTwoEnergyView,
     opponentPublic:{...hqTwoEnergyView.opponentPublic,
+      active:{...hqTwoEnergyView.opponentPublic.active,hp:250},
       publicTurnRestrictions:{
         ...hqTwoEnergyView.opponentPublic.publicTurnRestrictions,
         stadiumAndToolHaveNoEffectTurnsRemaining:undefined
