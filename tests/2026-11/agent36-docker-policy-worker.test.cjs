@@ -432,7 +432,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       });
     }
     assert.equal(hostConnections, 1,
-      'a policy worker reached the host gateway after the positive control');
+      'a network-isolated policy worker reached the host service after the positive control');
     assert.equal(hostPhysicalRandomCalls, 0,
       'worker boundary unexpectedly invoked the host-only physical random source');
 
