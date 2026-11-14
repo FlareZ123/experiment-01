@@ -98,10 +98,10 @@ function publicRestrictions(options = {}) {
     energyPlayLocked: false,
     specialEnergyPlayLocked: false
   };
-  if (!options.omitStadiumSuppression) {
-    result.stadiumAndToolHaveNoEffectTurnsRemaining =
-      options.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0;
-  }
+  result.stadiumAndToolHaveNoEffectTurnsRemaining =
+    options.omitStadiumSuppression
+      ? null
+      : (options.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0);
   return result;
 }
 
