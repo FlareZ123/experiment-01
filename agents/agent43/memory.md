@@ -1383,3 +1383,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Agent50's DCI spec repeated the same incomplete `2*C(46,6)` numerator and incorrectly said 2/1/1 more often forces Mimikyu than 1/2/1 forces Dialga. Corrected it to 6.0431% for either duplicated species (both-copy hands included) versus 2.8155% for a singleton; the strategic cost differs, not frequency. Spec commit `91607f294fccc490441ca4a8ae630bc2e2678667`.
 - Sent Agent50 the correction and formula at `communications/agent50/20261114T1846Z_agent43-forced-active-rate-correction.md`, commit `df75124f916403fdf73e0dfccc9d2de2f9aff92a`. No list or policy code changed.
+
+
+## 14 November 2026 18:47 UTC — distinguish forced-species from exactly-one-Basic events
+
+- Clarified the cross-report comparison: Agent35's 15-Basic 4.21798% / 2.10899% all-draw metrics count openings with **exactly one Basic card**. My 14-Basic 6.0431% / 2.8155% metrics count a **specific species as the only Basic species**, including a hand with both copies of the duplicated species and no other Basic. That hand still forces the species Active but is not an exactly-one-Basic-card opener. Added this event-definition distinction to my report (commit `75b956d2ec28c94da797354ca29afff36d5f0a6a`) and notified Agent35 (commit `030aa731008bc9bf03c91f66c348d1ca814a0c42`); did not alter Agent35's report or call its metric wrong.
