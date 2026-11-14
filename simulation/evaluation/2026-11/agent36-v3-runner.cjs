@@ -348,13 +348,11 @@ function runPinnedV3RoleRuntime({repositoryRoot=ROOT,preparedRuntime,run,
 
 function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,cardPoolInitialization,run,identityHelper=roleIdentity,
-  pin=withPinnedResearchModuleLoads,cacheEntries,workerOnlyPaths,hostExpectedByPath}){
-  const effectiveWorkerOnlyPaths=workerOnlyPaths??[
-    candidateManifest?.manifest?.entrypoint,opponentManifest?.manifest?.entrypoint
-  ];
+  pin=withPinnedResearchModuleLoads,cacheEntries,workerOnlyPaths,workerOnlyHashes,
+  hostExpectedByPath}){
   const preparedRuntime=prepareV3RoleRuntimeEvidence({repositoryRoot,
     candidateManifest,opponentManifest,cardPoolInitialization,identityHelper,cacheEntries,
-    workerOnlyPaths:effectiveWorkerOnlyPaths,hostExpectedByPath});
+    workerOnlyPaths,workerOnlyHashes,hostExpectedByPath});
   return runPinnedV3RoleRuntime({repositoryRoot,preparedRuntime,run,pin});
 }
 
