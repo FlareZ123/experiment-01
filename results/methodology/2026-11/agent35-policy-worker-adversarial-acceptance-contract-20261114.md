@@ -764,3 +764,8 @@ Expanded the same failed-only job log to the policy-worker test step. In run 436
 A fresh source review of Agent49 branch `3ce5234` confirms the intended host/worker boundary is present: the host entrypoint is `agent44-role-scoped-policy-composition.cjs`; the host imports the pure `agent49-policy-protocol.cjs`; the production `agent49-policy-worker.cjs` and test-only `agent49-docker-canary-worker.cjs` are separately hashed `dataAssets`, not host `manifest.files` or `expectedByPath`; and the runner verifies both are excluded from the host prompt/common-binding chain. Host preload verifies policy hashes/cache absence, temporarily guards `Module._load`, and checks transitive imports do not execute the policy. This is a positive source-level result and should not be reopened without contrary evidence.
 
 The remaining role-manifest blockers are narrower: duplicate `nativeGamePhase` entries in the two common-binding arrays on 3ce, and the host launcher's single computed environment lookup (`process.env[key]`) that failed the manifest audit on the Agent2/current-main run. The production worker executable is already correctly treated as a data asset; do not "fix" the audit by adding it to host closure.
+
+
+### Pinned Twinleaf checkout reference
+
+The current main `.gitmodules` declares path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; the Git tree pins submodule commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` (mode 160000). The contract-only checkout fix must initialize this exact path/pin. No upstream interaction or submodule change was made.
