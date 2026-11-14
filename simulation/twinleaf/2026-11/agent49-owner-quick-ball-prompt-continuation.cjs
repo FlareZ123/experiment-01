@@ -1,7 +1,6 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const path = require('node:path');
 
 const VERSION = 'agent49-owner-quick-ball-source-bound-continuation-v1';
 const PRINTINGS = new Set(['Quick Ball FST', 'Quick Ball SSH']);
@@ -19,7 +18,6 @@ const DEFAULT_BASIC_PRIORITY = Object.freeze([
   'Marshadow UNB',
   'Radiant Eternatus CRZ'
 ]);
-const OUTPUT = path.resolve(__dirname, '../../../vendor/twinleaf/ptcg-server/output');
 
 function isQuickBall(card) {
   return PRINTINGS.has(card?.fullName);
@@ -104,11 +102,12 @@ function chooseQuickBallSearchTarget(prompt, state, preferredFullNames = DEFAULT
  */
 function withOwnerQuickBallPromptContinuation(execute, deps = {}) {
   assert.equal(typeof execute, 'function');
-  const native = name => require(path.join(OUTPUT, name));
-  const Bot = deps.SimpleTacticsAi ?? native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
-  const Store = deps.Store ?? native('game/store/store').Store;
+  const Bot = deps.SimpleTacticsAi ??
+    require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store = deps.Store ??
+    require('../../../vendor/twinleaf/ptcg-server/output/game/store/store').Store;
   const ResolvePromptAction = deps.ResolvePromptAction ??
-    native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
+    require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const choosePayment = deps.choosePayment ?? chooseQuickBallPaymentCard;
   const preferredFullNames = deps.preferredBasicFullNames ?? DEFAULT_BASIC_PRIORITY;
   const eligibleSeats = new Set(deps.eligibleSeats ?? [0]);
