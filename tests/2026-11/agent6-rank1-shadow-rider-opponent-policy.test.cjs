@@ -1989,7 +1989,7 @@ test('phase-1 starting Pokémon setup preserves native hand order for both physi
       description: 'CHOOSE_STARTING_POKEMONS',
       source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
       choices: [
-        setupCardChoice('basic-first', 'Mewtwo VSTAR PGO 31'),
+        setupCardChoice('basic-first', 'Mew V CEL 6'),
         setupCardChoice('rider-second', 'Shadow Rider Calyrex V CRE 74'),
         setupCardChoice('basic-third', 'Lugia V SIT 138')
       ],
@@ -2011,10 +2011,10 @@ test('phase-1 repeated optional Bench setup fills only available slots in native
       description: 'CHOOSE_STARTING_POKEMONS',
       source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
       choices: [
-        setupCardChoice('first', 'Mewtwo VSTAR PGO 31'),
+        setupCardChoice('first', 'Mew V CEL 6'),
         setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74'),
         setupCardChoice('third', 'Lugia V SIT 138'),
-        setupCardChoice('fourth', 'Mew V CEL 6')
+        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60')
       ],
       publicMetadata: setupMetadata(0, 5),
       observation: {
@@ -2022,9 +2022,9 @@ test('phase-1 repeated optional Bench setup fills only available slots in native
         ownPublic: player({
           active: pokemon('Girafarig LOT 94'),
           bench: [
-            pokemon('Mewtwo VSTAR PGO 31'),
-            pokemon('Lugia V SIT 138'),
-            pokemon('Mew V CEL 6')
+            pokemon('Latias ex SSP 76'),
+            pokemon("Lillie's Clefairy ex JTG 56"),
+            pokemon('Dialga-GX UPR 100')
           ]
         })
       }
@@ -2059,7 +2059,7 @@ test('engine setup prompts fail closed outside phase 1', () => {
     promptType: 'ChooseCardsPrompt',
     description: 'CHOOSE_STARTING_POKEMONS',
     source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
-    choices: [setupCardChoice('basic', 'Mewtwo VSTAR PGO 31')],
+    choices: [setupCardChoice('basic', 'Mew V CEL 6')],
     publicMetadata: setupMetadata(1, 6),
     observation: { phase: 0, ownPublic: player() }
   });
