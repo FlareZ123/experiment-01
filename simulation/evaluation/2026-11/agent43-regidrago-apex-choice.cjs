@@ -32,9 +32,10 @@ function occupiedBench(player) {
 function prizeValue(pokemon) {
   const subtypes = list(pokemon?.printed?.subtypes).map(String);
   const printing = printingValue(pokemon?.printing ?? pokemon);
-  if (subtypes.includes('VMAX') || /VMAX/i.test(printing)) return 3;
+  if (subtypes.includes('VMAX') || subtypes.includes('TAG TEAM') || subtypes.includes('V-UNION') ||
+      /VMAX|TAG\s*TEAM|V-UNION/i.test(printing)) return 3;
   if (subtypes.some(value => ['V', 'VSTAR', 'GX', 'ex'].includes(value)) ||
-      /(?:-GX|\bVSTAR\b|\bVMAX\b|\bex\b)/i.test(printing)) return 2;
+      /(?:-GX|\bVSTAR\b|\bex\b)/i.test(printing)) return 2;
   return 1;
 }
 
