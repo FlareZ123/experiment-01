@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const test = require('node:test');
 
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
@@ -432,21 +433,20 @@ test('fixture runner unwraps direct and role-composed failure envelopes without 
   assert.equal(success.gameResult,successGame);
 });
 
-test('fixture runner injects offline full-state diagnostics and persists partial failures before rethrow', () => {
+test('fixture runner selects a no-full-state sanitized mode while preserving encrypted diagnostics', () => {
   const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
-  assert.match(runnerSource, /diagnosticSnapshot:\s*diagnostic\.snapshotFullGameState/);
-  assert.match(runnerSource, /requireFullStateDiagnostics:\s*true/);
-  const diagnosticRequire = runnerSource.indexOf("const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs')");
-  const pinInstall = runnerSource.indexOf('runPinnedV3RoleRuntime({', diagnosticRequire);
-  assert.ok(diagnosticRequire >= 0 && pinInstall > diagnosticRequire, 'diagnostic function reference must be captured before the fixture pin');
+  assert.match(runnerSource, /diagnosticSnapshot:\s*diagnosticMode\s*===\s*'encrypted-full'\s*\?\s*diagnostic\.snapshotFullGameState\s*:\s*undefined/);
+  assert.match(runnerSource, /requireFullStateDiagnostics:\s*diagnosticMode\s*===\s*'encrypted-full'/);
+  assert.match(runnerSource, /sanitizedDiagnostic\.sanitizeFixtureArtifact\(artifact\)/);
   assert.match(runnerSource, /fixtureGamePartial/);
   assert.match(runnerSource, /NonTerminalFixtureGame/);
   assert.match(runnerSource, /attemptedActionCount/);
   assert.match(runnerSource, /acceptedActionCount/);
-  const artifactWrite = runnerSource.indexOf('writeJsonAtomic(outputPath, artifact)');
-  const traceWrite = runnerSource.indexOf("fs.writeFileSync(traceTextPath, traceText, 'utf8')");
+  const artifactWrite = runnerSource.indexOf('writeJsonAtomic(outputPath, persistedArtifact)');
+  const traceWrite = runnerSource.indexOf("fs.writeFileSync(traceTextPath, persistedTraceText, 'utf8')");
   const failureRethrow = runnerSource.indexOf('throw error;', traceWrite);
-  assert.ok(artifactWrite >= 0 && traceWrite > artifactWrite && failureRethrow > traceWrite, 'partial artifacts must be written before the workflow is failed');
+  assert.ok(artifactWrite >= 0 && traceWrite > artifactWrite && failureRethrow > traceWrite,
+    'sanitized or encrypted partial artifacts must be written before the workflow is failed');
 });
 
 
@@ -485,60 +485,70 @@ test('V3 fixture pins candidate-only Quick Ball root and source-bound continuati
   assert.match(runnerSource, /quickBallTargetPhysicalBenchPlacements:/);
 });
 
-test('V3 fixture requires a valid owner diagnostic recipient and always encrypts before upload', () => {
+test('V3 fixture uses encrypted diagnostics with an owner key and safe summaries without one', () => {
   const workflowPath = path.join(ROOT, '.github/workflows/agent36-bilateral-competence-v9.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const keyGuardAt = workflow.indexOf('Validate owner-controlled V3 diagnostic recipient key before native fixture');
+  const keyGuardAt = workflow.indexOf('Select encrypted or sanitized-only V3 diagnostic mode');
   const compileAt = workflow.indexOf('Install and compile the pinned native server');
   const gameAt = workflow.indexOf('Execute one native V3 fixture game');
   const encryptAt = workflow.indexOf('Encrypt private V3 fixture diagnostics before artifact upload');
   const uploadAt = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
   assert.ok(keyGuardAt >= 0 && compileAt > keyGuardAt && gameAt > compileAt && encryptAt > gameAt && uploadAt > encryptAt,
-    'key validation, compile, game, encryption, and upload must occur in that order');
+    'mode selection, compile, game, conditional encryption, and upload must occur in that order');
 
   const keyGuard = workflow.slice(keyGuardAt, compileAt);
+  assert.ok(keyGuard.includes('id: diagnostic_recipient'));
   assert.ok(keyGuard.includes('if: ${{ inputs.agent36_v3_fixture_game }}'));
   assert.ok(keyGuard.includes('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}'));
   assert.ok(keyGuard.includes('crypto.createPublicKey(pem)'));
-  assert.ok(keyGuard.includes("key.asymmetricKeyType !== 'rsa'"));
+  assert.ok(keyGuard.includes('mode=sanitized-only'));
+  assert.ok(keyGuard.includes('mode=encrypted-full'));
+  assert.ok(keyGuard.includes("process.exit(0)"));
   assert.ok(keyGuard.includes('bits < 2048'));
 
   const heredocAt = keyGuard.indexOf("node - <<'NODE'\n");
   const heredocEnd = keyGuard.indexOf("\n          NODE", heredocAt);
-  assert.ok(heredocAt >= 0 && heredocEnd > heredocAt, 'the key preflight must contain an executable Node heredoc');
+  assert.ok(heredocAt >= 0 && heredocEnd > heredocAt, 'the key/mode preflight must contain an executable Node heredoc');
   const scriptStart = heredocAt + "node - <<'NODE'\n".length;
   const script = keyGuard.slice(scriptStart, heredocEnd).split('\n')
     .map(line => line.startsWith('          ') ? line.slice(10) : line).join('\n');
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-v3-recipient-'));
+  const outputPath = path.join(tempDir, 'github-output');
+  const run = env => {
+    fs.writeFileSync(outputPath, '');
+    return spawnSync(process.execPath, ['-e', script], {
+      encoding: 'utf8',
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, ...env }
+    });
+  };
 
   const rsa = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
   const publicPem = rsa.publicKey.export({ type: 'spki', format: 'pem' });
-  const validRun = spawnSync(process.execPath, ['-e', script], {
-    encoding: 'utf8',
-    env: { ...process.env, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem }
-  });
+  const validRun = run({ AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem });
   assert.equal(validRun.status, 0, validRun.stderr || 'valid RSA-2048 recipient key should pass preflight');
+  assert.match(fs.readFileSync(outputPath, 'utf8'), /mode=encrypted-full/);
 
-  const missingEnv = { ...process.env };
-  delete missingEnv.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
-  const missingRun = spawnSync(process.execPath, ['-e', script], {
-    encoding: 'utf8',
-    env: missingEnv
-  });
-  assert.notEqual(missingRun.status, 0, 'missing recipient key must fail before native compilation');
+  const missingRun = run({ AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: '' });
+  assert.equal(missingRun.status, 0, missingRun.stderr || 'missing key should select sanitized-only mode');
+  assert.match(fs.readFileSync(outputPath, 'utf8'), /mode=sanitized-only/);
 
   const ec = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
-  const invalidRun = spawnSync(process.execPath, ['-e', script], {
-    encoding: 'utf8',
-    env: { ...process.env, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:
-      ec.publicKey.export({ type: 'spki', format: 'pem' }) }
-  });
-  assert.notEqual(invalidRun.status, 0, 'non-RSA recipient key must fail preflight');
+  const invalidRun = run({ AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:
+    ec.publicKey.export({ type: 'spki', format: 'pem' }) });
+  assert.notEqual(invalidRun.status, 0, 'a configured non-RSA recipient key must fail closed');
 
   const encryptionStep = workflow.slice(encryptAt, uploadAt);
-  assert.ok(encryptionStep.includes('if: ${{ always() && inputs.agent36_v3_fixture_game }}'),
-    'private diagnostics must still be encrypted when the game step fails');
+  assert.ok(encryptionStep.includes("steps.diagnostic_recipient.outputs.mode == 'encrypted-full'"),
+    'full private diagnostics must be encrypted even when the game step fails');
+  const gameStep = workflow.slice(gameAt, workflow.indexOf('Execute registered rank11/New Moon', gameAt));
+  assert.ok(gameStep.includes('AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}'));
+  const uploadStep = workflow.slice(uploadAt);
+  assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.sanitized.json'));
+  assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.sanitized.txt'));
+  assert.ok(uploadStep.includes('!artifacts/agent36-v3-fixture/fixture-game.json'));
+  assert.ok(uploadStep.includes('!artifacts/agent36-v3-fixture/fixture-game.txt'));
+  fs.rmSync(tempDir, { recursive: true, force: true });
 });
-
 
 test('fixture CLI logs only a safe summary while full-state traces stay in artifacts', () => {
   const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
