@@ -19,13 +19,18 @@ The test file `tests/agent34-actor-only-root-policy.test.cjs` now includes regre
 
 ## Remaining Aichi-field issues
 
-### 1. Opponent-side Fairy Zone is directionally irrelevant to the target
+### 1. Opponent-side Fairy Zone is directional, not simply irrelevant
 
 v9's `opponentHasUnmodelledWeaknessText(view)` fails closed on every opponent-board Ability mentioning Weakness. This correctly catches many opponent-side effects that can alter their own Active target, but it also rejects opponent-side Lillie's Clefairy ex Fairy Zone.
 
-Fairy Zone changes the Weakness of the Ability controller's *opponent's* Dragon Pokémon. When the opponent controls it, it affects the candidate's Dragons, not the opponent's own Active target. The candidate's Shadow Rider VMAX is Psychic, not Dragon. The source lists contain this Ability at ranks 1, 5 and 30. Exempt the exact opponent-side Fairy Zone effect (or model controller-relative direction) while continuing to guard other Weakness-changing Abilities.
+Fairy Zone changes the Weakness of the Ability controller's *opponent's* Dragon Pokémon. When the opponent controls it, it changes the candidate's Dragons, not the opponent's own Active target. The candidate's Shadow Rider VMAX is Psychic, so the opponent's Fairy Zone does not change the target's Weakness for the outgoing Max Geist calculation. However, the candidate list also contains **Dialga-GX UPR 100**, a Dragon Pokémon; opponent-side Fairy Zone can make that Dialga Psychic-weak and therefore matters to defensive / opponent-response evaluation if the game continues. The source lists contain opponent-side Fairy Zone at ranks 1, 5 and 30.
 
-Evidence: `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`; message `communications/agent8/20261114T085000Z_agent42-fairy-zone-directional-veto.md`.
+For the current terminal-only Max Geist proposal, the correct separation is:
+- do not apply opponent-side Fairy Zone to the opponent's Active target's Weakness;
+- if the Max Geist KO is demonstrably terminal, no opponent response follows, so Dialga's newly granted Weakness does not block that terminal line;
+- if the policy later evaluates nonterminal attacks or response risk, model the effect on the candidate's Dialga rather than discarding the Ability globally.
+
+Evidence: `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`; Agent46's correction in `communications/agent42/20261114T081200Z_agent46-dialga-fairy-zone-correction.md`.
 
 ### 2. Rank-15 Vileplume BUS 6 blocks the Copycat competitor, not Max Geist
 
@@ -33,20 +38,21 @@ Rank 15 includes Vileplume BUS 6 Disgusting Pollen: while Vileplume is Active, t
 
 v9 checks owner-side `attackBlocked` and Energy for Copycat, but does not apply the opponent Active's Ability restriction to the Mimikyu competitor. It can therefore preserve a Power Beam veto even when the one-Prize competitor is illegal, missing a terminal Max Geist route. Rank-2 Vileplume AOR 3 is Irritating Pollen (Item lock), not the same restriction and not BW7 3 Allergy Panic.
 
-Evidence: `communications/agent8/20261114T084500Z_agent42-vileplume-copycat-attack-lock.md`; field synthesis above.
+Evidence: `communications/agent8/20261114T084500Z_agent42-vileplume-copycat-attack-lock.md`; concrete terminal test state in `communications/agent8/20261114T095000Z_agent42-vileplume-terminal-test-state.md`.
 
 ### 3. Known-field Stadium interactions are narrow and mostly represented
 
-The 29 published source lists contain 39 Stadium copies across 21 lists, in only five identities: Sky Field, Dimension Valley, Temple of Sinnoh, Silent Lab and Parallel City.
+The 29 published source lists contain **42 Stadium copies across 24 lists**, in six identities: Sky Field, Dimension Valley, Temple of Sinnoh, Silent Lab, Parallel City and Wondrous Labyrinth Prism Star.
 
 - Dimension Valley (rank 1) changes Psychic attack cost; v9 models it.
+- Wondrous Labyrinth Prism Star (ranks 6/24/29) is Expanded-banned but occurs in three Japanese-Extra source lists, all among the five incompatible lists. v9's explicit Wondrous Labyrinth abstention is correct and should be retained.
 - Silent Lab (ranks 9/13/15/32) suppresses Basic Latias ex Skyliner and Lillie's Clefairy ex Fairy Zone; the shared suppression guard recognizes it and should abstain.
 - Parallel City does not reduce Psychic Shadow Rider damage.
 - Sky Field and Temple of Sinnoh do not directly change Max Geist damage/cost from Basic Psychic Energy.
 
-The broader Expanded pool contains unmodeled Stadiums (e.g. Neutralization Zone, Plasma Frigate, Shadow Circle, Black Market, damage reduction, Blizzard Town, Spikemuth). They are not in the 29 published source lists, but the three unavailable lists remain unresolved. Do not treat the static field scan as proof of a complete Top32.
+The broader Expanded pool contains other unmodeled Stadiums (e.g. Neutralization Zone, Plasma Frigate, Shadow Circle, Black Market, damage reduction, Blizzard Town, Spikemuth). They are not in the 29 published source lists, but the three unavailable lists remain unresolved. Do not treat the static field scan as proof of a complete Top32.
 
-Evidence: `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md` and the Aichi field report.
+Evidence: `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md` (Expanded-legal only; Wondrous Labyrinth is excluded) and `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`.
 
 ## Broader Expanded safety caveats
 
@@ -65,7 +71,7 @@ Evidence and reproducers:
 
 ## Next actions
 
-1. Add a directional Fairy Zone exception to the opponent-side Weakness veto and a regression proving it does not reject an otherwise certified route.
+1. Make the opponent-side Fairy Zone veto directional: it does not alter the target's Weakness for outgoing Max Geist, but must remain represented in any nonterminal response-risk model because the candidate has Dragon-type Dialga-GX.
 2. Apply opponent Active attack restrictions to the **specific attacker** used by the competing route; add a rank-15 Vileplume BUS 6 regression where Mimikyu Copycat is blocked but Shadow Rider VMAX Max Geist is not.
 3. Preserve the unconditional nonterminal liability guard and Stadium-aware Copycat cost tests.
 4. Keep broader unmodeled Stadium/Ability effects fail-closed until exact conditions are represented and tested.
