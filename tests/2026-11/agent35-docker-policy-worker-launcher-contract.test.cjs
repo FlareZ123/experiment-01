@@ -14,8 +14,10 @@ const {
 const EXPECTED_IMAGE_REF=
   'node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54';
 const HOST_SECRET_ENV=[
-  'GITHUB_TOKEN','AGENT36_PHYSICAL_SEED_HEX','RUNNER_TEMP','RUNNER_TOOL_CACHE'
+  'GITHUB_TOKEN','AGENT36_PHYSICAL_SEED_HEX','RUNNER_TEMP','RUNNER_TOOL_CACHE',
+  'DOCKER_CONFIG','DOCKER_CERT_PATH','DOCKER_TLS_VERIFY'
 ];
+const REMOTE_DOCKER_ENV=['DOCKER_HOST','DOCKER_CONTEXT'];
 
 function readCaptures(file){
   if(!fs.existsSync(file))return [];
@@ -34,6 +36,8 @@ async function withFakeDocker(run){
     "fs.appendFileSync("+JSON.stringify(capture)+",JSON.stringify({args,envKeys:Object.keys(process.env).sort()})+'\\n');",
     "if(args[0]==='version'){process.stdout.write(args[2]==='{{.Client.Version}}'?'27.0.0\\n':'27.0.0\\n');process.exit(0);}",
     "if(args[0]==='info'){process.stdout.write('linux/x86_64\\n');process.exit(0);}",
+    "if(args[0]==='context'&&args[1]==='show'){process.stdout.write('default\\n');process.exit(0);}",
+    "if(args[0]==='context'&&args[1]==='inspect'){process.stdout.write('unix:///var/run/docker.sock\\n');process.exit(0);}",
     "if(args[0]==='image'&&args[1]==='inspect'){if(args[4]==='{{.Id}}')process.stdout.write('sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n');else process.stdout.write(JSON.stringify(['node@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54'])+'\\n');process.exit(0);}",
     "if(args[0]==='run'){process.stdout.write('v24.22.3\\n');process.exit(0);}",
     "process.exit(0);"
@@ -113,6 +117,8 @@ test('Docker preflight returns complete metadata and uses supported digest-pinne
       assert.equal(runtime.nodeVersion,'v24.22.3');
       assert.equal(runtime.dockerClientVersion,'27.0.0');
       assert.equal(runtime.dockerServerVersion,'27.0.0');
+      assert.equal(runtime.dockerContext,'default');
+      assert.equal(runtime.dockerEndpoint,'unix:///var/run/docker.sock');
       assert.ok(runtime.repoDigests.some(value=>value.includes(IMAGE_DIGEST)));
 
       const calls=readCaptures(capture);
@@ -127,6 +133,29 @@ test('Docker preflight returns complete metadata and uses supported digest-pinne
       assert.ok(run.args.includes(EXPECTED_IMAGE_REF));
       for(const key of HOST_SECRET_ENV)
         assert.equal(run.envKeys.includes(key),false,'host secret leaked to Docker CLI environment: '+key);
+    });
+  });
+
+
+test('preflight fails closed on remote Docker daemon or context overrides',
+  {skip:process.platform!=='linux'},async()=>{
+    await withFakeDocker(async capture=>{
+      const saved={};
+      for(const key of REMOTE_DOCKER_ENV)saved[key]=process.env[key];
+      try{
+        process.env.DOCKER_HOST='tcp://remote.example:2375';
+        assert.throws(()=>preflightDockerPolicySandbox({pull:false}),/local Docker|remote Docker|DOCKER_HOST/i);
+        assert.equal(readCaptures(capture).length,0,'remote Docker override must be rejected before any daemon call');
+        delete process.env.DOCKER_HOST;
+        process.env.DOCKER_CONTEXT='remote';
+        assert.throws(()=>preflightDockerPolicySandbox({pull:false}),/local Docker|remote Docker|DOCKER_CONTEXT/i);
+        assert.equal(readCaptures(capture).length,0,'remote Docker context must be rejected before any daemon call');
+      }finally{
+        for(const key of REMOTE_DOCKER_ENV){
+          if(saved[key]===undefined)delete process.env[key];
+          else process.env[key]=saved[key];
+        }
+      }
     });
   });
 
