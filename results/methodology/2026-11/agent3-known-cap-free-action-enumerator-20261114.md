@@ -25,18 +25,19 @@ The adapter is hard-pinned to the exact Twinleaf commit above and verifies the e
 - Tool, discard Ability, Item, Supporter and in-play Ability candidates retain the source predicates and traversal order;
 - uncapped methods are left on the original instance.
 
-The adapter records a non-writable pin/schema marker on the instance. It also adds two source-confirmed omissions that the pinned enumerator misses: attached Tool powers and active Tool/Bench-usable attacks. It intentionally does not claim that the entire paper Expanded action space is complete; it only removes the eight identified caps and adds these explicit action sources for this pinned enumerator. Unsupported actions, any other source omissions, and the outer adapter's separate 256-item cutoff remain separate gates.
+The adapter records a non-writable pin/schema marker on the instance. It also adds source-confirmed omissions that the pinned enumerator misses: attached Tool powers, active Tool/Bench-usable attacks, and useFromHand/Trainer/Energy discard ability actions. It intentionally does not claim that the entire paper Expanded action space is complete; it only removes the eight identified caps and adds these explicit action sources for this pinned enumerator. Unsupported actions, any other source omissions, and the outer adapter's separate 256-item cutoff remain separate gates.
 
 ## Validation and limits
 
-Six Node v22.16.0 tests pass locally:
+Seven Node v22.16.0 tests pass locally:
 
 1. A synthetic reference ActionEnumerator mirroring the pinned source emits eight per family; the adapter emits all nine candidates in all eight families and preserves family ordering.
 2. Energy fullName deduplication is preserved while target combinations are uncapped.
 3. An unreviewed engine pin or missing native exports fails closed.
 4. When no known cap is hit, adapter output is deeply equal to the synthetic reference enumerator output;
 5. attached Tool powers, active Tool attacks and Bench-usable attacks are enumerated;
-6. the original Paralysis and Sleep attack gate is preserved.
+6. the original Paralysis and Sleep attack gate is preserved;
+7. Expanded-legal hand Pokémon abilities and Trainer/Energy hand/discard ability action types are emitted.
 
 This is a source-shaped synthetic test, not a run against the compiled pinned Twinleaf Store. No V3 game, matchup, CI run, or competitive result is claimed.
 
@@ -56,3 +57,12 @@ The pinned ActionEnumerator's abilityActions method loops only each in-play Pok�
 The pinned ActionEnumerator's attackActions method returns only the active Pokémon's printed attacks. The pinned playerTurnReducer also accepts attacks from Bench Pokémon whose attack has useOnBench, and CheckPokemonAttacksEffect contributes attacks from player.active.tools[0].attacks. The supplied card pool contains 22 Expanded-legal Trainer cards with attacks, including G Booster (bw10-92), G Scope (bw10-93), Technical Machine: Evolution (sv4-178), and multiple Technical Machines/Scrolls. The adapter now adds active Tool attacks and Bench attacks marked useOnBench while retaining the original active-condition gate.
 
 The loader must additionally expose SpecialCondition (already imported locally) to the adapter. This remains a source-shaped synthetic prototype, not compiled-engine validation. The attached-tool and attack additions cover these explicit sources; they do not prove that all card-specific CheckPokemonPowersEffect/CheckPokemonAttacksEffect mutations or all possible action types have been enumerated.
+
+
+## Hand-ability coverage
+
+The pinned ActionEnumerator's abilityActions method only visits Pokémon returned by forEachPokemon, while discardAbilityActions only visits PokemonCard instances in the discard pile. It never scans the actor's hand for useFromHand powers. This misses real Expanded-legal cards in the supplied card pool: Audino (bw7-126, Busybody), Trumbeak (sm8-165, Mountain Pass), and Minior (sm7-83, Falling Star). The pinned player-turn reducer accepts UseAbilityAction with a HAND target.
+
+The adapter now emits UseAbilityAction for Pokémon useFromHand powers in hand, and UseTrainerAbilityAction for TrainerCard useFromHand powers. Its discardAbilityActions also emits UseTrainerAbilityAction and UseEnergyAbilityAction for TrainerCard/EnergyCard powers marked useFromDiscard, matching the corresponding reducer action branches. The generic Trainer/Energy paths are implemented because the engine supports them; this is not a claim that every such category has a currently legal Expanded card example.
+
+The native dependency bundle must expose SlotType.HAND (the full SlotType enum is already returned), plus the card classes/enums and SpecialCondition described above. gameActions already contains the additional ability action constructors.
