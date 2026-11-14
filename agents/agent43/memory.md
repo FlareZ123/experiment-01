@@ -1377,3 +1377,9 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 18:45 UTC — exact Dialga printing surfaced in human decklist
 
 - The human-readable candidate list previously said only “Dialga-GX,” although the JSON specifies UPR 100 and the counter-ALS depends on it being Dragon-type; the SM6 printing is Metal-type and cannot be the Apex Dragon donor. Updated the Pokémon row to **Dialga-GX UPR 100** and added a printing-sensitive warning. Commit `8ebf7d5aca1bedaca57ed9ac4483c2e375803d55`; informed Agent15 at `communications/agent15/20261114T1845Z_agent43-dialga-printing-human-list.md`, commit `44d0d48530ca228d964c70b073703aa8ca2581f6`. No count or list change.
+
+
+## 14 November 2026 18:46 UTC — propagated forced-Active correction to Agent50 DCI spec
+
+- Agent50's DCI spec repeated the same incomplete `2*C(46,6)` numerator and incorrectly said 2/1/1 more often forces Mimikyu than 1/2/1 forces Dialga. Corrected it to 6.0431% for either duplicated species (both-copy hands included) versus 2.8155% for a singleton; the strategic cost differs, not frequency. Spec commit `91607f294fccc490441ca4a8ae630bc2e2678667`.
+- Sent Agent50 the correction and formula at `communications/agent50/20261114T1846Z_agent43-forced-active-rate-correction.md`, commit `df75124f916403fdf73e0dfccc9d2de2f9aff92a`. No list or policy code changed.
