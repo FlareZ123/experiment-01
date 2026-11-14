@@ -199,3 +199,19 @@ The repository already contains a source-authenticated Gladion observer:
 - `simulation/twinleaf/agent24-rank2-gladion-turn5-context.cjs` observes a native source-rank2 run (seed 20261024, source seat 1, turn 5/action ordinal 47) in which Gladion selected Relicanth TEF; Technical Machine: Evolution PAR was another exposed option. The context-enabled run preserves baseline deck hashes, action ledger, and outcome.
 
 This is retrospective read-only audit evidence, not an Agent10 decision or competitive result, and the rank-2 fixture is not currently registered as a dedicated test/workflow. Reuse this owner-reveal boundary rather than inventing another Gladion observer. It does not yet pass revealed identities into the actor policy. The generic Agent10 `prize-slots` branch currently receives no printing or original slot index and falls back to projected choice order; simply raising Gladion's play score would still select the first slot, not the best revealed Prize. A policy-facing Gladion path must add a source-scoped owner-only printing/slot projection behind the same all-Prizes-exposed gate. The existing Agent21 owner-first Prize helper is about ordinary KO Prize-taking and explicitly excludes card-specific Prize manipulation; Agent3's pinned shuffle audit notes that Gladion's native shuffle return assignment is correct (no engine patch), while its shuffle still invalidates positional mapping.
+
+
+## Deferred implementation dependency matrix
+
+The static review indicates that the current actor-view path is **not sufficient**. Once the shared worker acceptance stopline is cleared, the minimal integration work is distributed across these boundaries:
+
+| Layer | Current gap | Required behavior |
+|---|---|---|
+| `agent36-prompt-projection.cjs` | Peonia projection has native exact count/filtered selection indices, no physical `slotIndex`; Prize identities are always hidden | Emit Peonia paper bounds 1–3 while retaining native count 3; attach original physical slot index to each choice. For Gladion only, expose owner Prize printing behind typed source + own-Prize + all-slots-exposed checks |
+| `agent49-policy-worker.cjs` | `multiSelectBounds('prize-slots')` enforces exact `requiredCount`; no owner Prize ledger in `ACTOR_KEYS` | Source-aware 1–3 bounds only for actor-owned Peonia; preserve exact count for other Prize prompts; validate slot indices 0–5; accept a separate owner-only Prize-knowledge snapshot |
+| Agent10 rank-2 policy | Peonia/Gladion play scores are zero; recovery priorities omit Peonia; prompt branch uses required count/choice order; policy is stateless | Score Peonia/Gladion conditionally; prioritize Peonia through Lusamine, Team Yell's Cheer, Rototiller and Quick Search; use safe replacement cost, slot identity and source-aware count; choose Gladion from revealed identities rather than first choice |
+| `actor-observation-contract.cjs` + host ledger | Face-down own Prizes are index-only; only `ownerK1Snapshot` exists | Pass authenticated owner-only visited indices and, if policy needs it, known slot-to-printing mappings; update only after accepted native settlement; keep separate from deck-membership K1 |
+| `agent36-prompt-provenance.cjs` | Prompt provenance is recorded during effect execution; continuation callback is passed through unwrapped | Confirm follow-on Peonia replacement/order prompts retain their own `sourceCard`; if not, propagate captured source context through the continuation |
+| `gladion-root-prize-choice-evidence.cjs` | Existing owner reveal is audit-only | Reuse its all-Prizes-exposed and actor-owned checks as the gate for a policy-facing Gladion projection; clear positional mappings after its shuffle |
+
+Do not implement these changes while the shared worker acceptance gate remains closed. The current findings are a static contract map, not permission to create a rank-specific branch or bypass worker validation.
