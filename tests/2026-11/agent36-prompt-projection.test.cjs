@@ -177,13 +177,17 @@ test('owner deck-search prompt exposes only actor-owned card choices and maps op
     provenanceHook: provenance(prompt.sourceCard, 'Quick Ball')
   });
   assert.equal(projection.promptProjection.schema, protocol.PROMPT_SCHEMA);
+  assert.equal(projection.promptProjection.actingSeat, 0);
+  assert.equal(protocol.validatePrompt(projection.promptProjection, 0), projection.promptProjection);
   assert.equal(projection.promptProjection.source.sourceKind, 'card-effect');
   assert.equal(projection.promptProjection.source.sourcePrinting, 'Quick Ball');
   assert.equal(projection.promptProjection.choices.length, 3);
   assert.deepEqual(projection.promptProjection.choices.slice(0, 2).map(x => x.printing),
     ['Deck Search A', 'Deck Search B']);
   assert.equal(JSON.stringify(projection.promptProjection).includes('HIDDEN_PRIZE_'), false);
-  assert.deepEqual(projection.choiceByToken.get('prompt-0'), [0]);
+  assert.equal(projection.choiceByToken.get('prompt-0'), 0);
+  assert.equal(projection.promptProjection.choices[0].kind, 'card');
+  assert.equal(projection.promptProjection.publicMetadata.selectionType, 'card-combination');
 
   let dispatched = null;
   const store = {
@@ -191,7 +195,8 @@ test('owner deck-search prompt exposes only actor-owned card choices and maps op
     dispatch(action) { dispatched = action; return { ok: true }; }
   };
   const result = dispatchPromptChoice({
-    store, prompt, state, actorSeat: 0, projection, token: 'prompt-0', native
+    store, prompt, state, actorSeat: 0, projection,
+    decision: { kind: 'select-choices', tokens: ['prompt-0'] }, native
   });
   assert.deepEqual(result.rawResult, [0]);
   assert.equal(result.decoded[0].fullName, 'Deck Search A');
@@ -257,6 +262,17 @@ test('energy and attack prompts are projected only from visible card objects', (
   });
   assert.ok(energyProjection.promptProjection.choices.length > 0);
   assert.ok(JSON.stringify(energyProjection.promptProjection).includes('Psychic Energy A'));
+  assert.equal(energyProjection.promptProjection.choices.length, 3);
+  assert.equal(energyProjection.promptProjection.publicMetadata.selectionType, 'energy-payment');
+  const energyStore = { state, dispatch(action) { return action; } };
+  const paid = dispatchPromptChoice({
+    store: energyStore, prompt: energyPrompt, state, actorSeat: 0,
+    projection: energyProjection,
+    decision: { kind: 'select-choices', tokens: ['prompt-2', 'prompt-0'] },
+    native
+  });
+  assert.deepEqual(paid.rawResult, [2, 0]);
+  assert.equal(paid.decoded.length, 2);
 
   const opponentPokemon = state.players[1].active.getPokemonCard();
   const attackPrompt = basePrompt(ChooseAttackPrompt, state, {
@@ -270,6 +286,55 @@ test('energy and attack prompts are projected only from visible card objects', (
     provenanceHook: provenance(attackPrompt.sourceCard, 'Copycat attack')
   });
   assert.ok(attackProjection.promptProjection.choices.some(choice => choice.label.includes('Opponent Active')));
+});
+
+test('multi-select prompt projection emits per-item tokens and preserves card order', () => {
+  const state = makeState();
+  const cards = state.players[0].deck;
+  const prompt = basePrompt(OrderCardsPrompt, state, {
+    cards,
+    options: { allowCancel: false },
+    decode(result) { return result; },
+    validate(result) {
+      return Array.isArray(result) && result.length === cards.cards.length &&
+        new Set(result).size === result.length;
+    }
+  });
+  const projection = projectPrompt({
+    prompt, state, actorSeat: 0, native,
+    provenanceHook: provenance(prompt.sourceCard, 'Order cards')
+  });
+  assert.equal(projection.promptProjection.publicMetadata.selectionType, 'card-order');
+  assert.equal(projection.promptProjection.choices.length, cards.cards.length);
+  assert.ok(projection.promptProjection.choices.every(choice => choice.kind === 'card-order-item'));
+  const store = { state, dispatch(action) { return action; } };
+  const result = dispatchPromptChoice({
+    store, prompt, state, actorSeat: 0, projection,
+    decision: { kind: 'select-choices', tokens: ['prompt-2', 'prompt-0', 'prompt-1'] },
+    native
+  });
+  assert.deepEqual(result.rawResult, [2, 0, 1]);
+});
+
+test('zero-minimum multi-select prompts expose one explicit empty-selection token', () => {
+  const state = makeState();
+  const prompt = basePrompt(ChooseCardsPrompt, state, {
+    cards: state.players[0].deck,
+    options: { min: 0, max: 2, blocked: [], allowCancel: false }
+  });
+  const projection = projectPrompt({
+    prompt, state, actorSeat: 0, native,
+    provenanceHook: provenance(prompt.sourceCard, 'Optional card selection')
+  });
+  const empty = projection.promptProjection.choices.filter(choice => choice.kind === 'empty-selection');
+  assert.equal(empty.length, 1);
+  assert.equal(protocol.validatePrompt(projection.promptProjection, 0), projection.promptProjection);
+  const store = { state, dispatch(action) { return action; } };
+  const result = dispatchPromptChoice({
+    store, prompt, state, actorSeat: 0, projection,
+    decision: { kind: 'select-choice', token: empty[0].token }, native
+  });
+  assert.deepEqual(result.rawResult, []);
 });
 
 test('host-only Night Watch and Copycat prompts fail closed rather than leaking unsupported choices', () => {
