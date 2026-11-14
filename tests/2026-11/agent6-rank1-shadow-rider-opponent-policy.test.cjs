@@ -1365,3 +1365,57 @@ test('Mysterious Treasure completes the second Shadow Rider V before optional Co
     tokens: ['v']
   });
 });
+
+
+test('Tapu Lele-GX is played to access a Supporter when none is held', () => {
+  const request = rootRequest({
+    ownHand: ['Tapu Lele-GX GRI 60'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    items: [
+      { token: 'lele', kind: 'play-card', actorPrinting: 'Tapu Lele-GX GRI 60',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'lele'
+  });
+});
+
+test('Mysterious Treasure searches Tapu Lele-GX when setup is complete and no Supporter is held', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'clefairy', kind: 'card', printing: "Lillie's Clefairy ex JTG 56",
+        label: "Lillie's Clefairy ex", publicMetadata: { sourceZone: 'deck' } },
+      { token: 'lele', kind: 'card', printing: 'Tapu Lele-GX GRI 60',
+        label: 'Tapu Lele-GX', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' }),
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' })
+        ]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['lele']
+  });
+});
