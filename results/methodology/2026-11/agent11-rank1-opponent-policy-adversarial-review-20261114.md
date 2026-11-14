@@ -92,15 +92,15 @@ However, my source report identifies a conditional original-rank1 response hypot
 
 **Required handling:** retain the worker rejection; record this as a host-owned integration/coverage gate. Only after trusted host-side copied-attack provenance and host-only physical prompt resolution are implemented should the opponent policy consider the Copycat line. Keep it explicitly untested until then.
 
-### 7. Unfair Stamp is scored as playable without its printed Knock Out condition
+### 7. Unfair Stamp heuristic and test do not establish a production legality bug
 
-The repository card entry `resources/cards/en/sv6.json` (Unfair Stamp TWM 165) says it can be used only if one of the actor's Pokémon was Knocked Out during the opponent's last turn. The policy's `scoreAction()` instead gives Unfair Stamp a high score if **any** of these hold: `priorOpponentTurnKO`, opponent hand count is at least three greater than the actor's, or the opponent's remaining Prize count is below six.
+The repository card entry `resources/cards/en/sv6.json` (Unfair Stamp TWM 165) says the Item can be used only if one of the actor's Pokémon was Knocked Out during the opponent's last turn. The policy's `scoreAction()` gives it a high score if `priorOpponentTurnKO`, opponent hand count is at least three greater than the actor's, **or** opponent remaining Prize count is below six.
 
-The latter two are strategic observations, not the card's legality condition. A large opposing hand or a Prize taken earlier in the game does not establish a Knock Out during the immediately preceding opponent turn. If an overinclusive frontier includes the Item, this can select an unplayable action and stall/reject the policy turn. The frontier/Simulator boundary is not a reason to encode a false card-text condition in the policy.
+Those latter conditions are strategic heuristics, not the printed condition. However, the production action-frontier builder at `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs` enumerates candidates and dispatches each through a cloned native `Simulator`; it adds only candidates whose dispatch succeeds. If the shared runner uses that exact builder, an illegal Unfair Stamp should not reach the worker. I therefore do **not** claim that this score alone proves an illegal production dispatch.
 
-The current test named “Unfair Stamp is not fired merely because the opponent took a Prize on an earlier turn” at test line 471 does not cover that case: it sets `opponentPublic.prizeCount: 6`, not a prior taken Prize, and the hand-count gap is only one.
+There is still a test/contract mismatch. The current test named “Unfair Stamp is not fired merely because the opponent took a Prize on an earlier turn” at test line 471 injects a Stamp token directly into a synthetic frontier, sets `opponentPublic.prizeCount: 6`, and uses only a one-card hand gap. It neither represents a previous Prize nor exercises either heuristic false-positive branch.
 
-**Required correction:** require `priorOpponentTurnKO(request) === true` before scoring Unfair Stamp as a playable action. Keep hand-size/prize context for evaluating whether to use a legally available Stamp, not for inventing the printed condition. Add regressions with (a) opponent Prize count below six but no prior-turn KO, and (b) a large opposing hand but no prior-turn KO; both must pass/choose another legal action. Add the positive prior-turn-KO case separately.
+**Required correction:** make the boundary explicit. If the policy is meant to trust the native-validated frontier, test that contract and do not describe an injected invalid action as a real legal choice. If it is also meant to fail closed against overinclusive frontiers, require `priorOpponentTurnKO(request)` before scoring Stamp as playable and add separate false-positive tests for opponent Prize count below six and a large opposing hand. Do not claim a production legality defect unless the actual integrated frontier is shown to admit the invalid token.
 
 ## Evidence boundary
 
