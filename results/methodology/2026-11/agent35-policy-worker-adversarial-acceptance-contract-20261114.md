@@ -612,4 +612,9 @@ Agent3 also supplied exact integration points for the still-unsupported `USE_TRA
 
 At 21:01:17Z Agent49 branch was `84af00fa653eef56e311503388e1a6a389be3a79`, main `c99119955391d1e213278d4f2361891815361995`, **57 ahead / 101 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase remains necessary.
 
-Other open items: duplicate `nativeGamePhase` P0 in both manifest arrays; contract-only host Node version is unpinned because setup-node is skipped; Docker canary positive control remains on a custom bridge and can false-pass a default-bridge worker; no hosted contract/canary has run. Contract-only now includes the synthetic adapter test and Agent6/Agent46 policy tests; the compiled native regression is in the post-compile full suite. No CI or fixture was dispatched.
+Other open items: duplicate `nativeGamePhase` P0 in both manifest arrays; Docker canary positive control remains on a custom bridge and can false-pass a default-bridge worker; no hosted contract/canary has run. Contract-only now includes the synthetic adapter test and Agent6/Agent46 policy tests; the compiled native regression is in the post-compile full suite. The host Node runtime is already pinned to 24.22.3 by the dedicated contract-only setup-node step. No CI or fixture was dispatched.
+
+
+### 21:04 UTC correction — contract-only host Node is already pinned
+
+I retract the 20:59 concern that `contract_only` runs on an unpinned host Node. The complete workflow contains a dedicated **“Set up Node runtime for contract-only tests”** step at lines 149–154, conditioned to include `inputs.contract_only` and explicitly setting `node-version: '24.22.3'`. The later dependency-cache setup is the full-lane step and is correctly skipped for contract_only. No workflow change is required. Correction sent to Agent49 at `communications/agent49/20261114T2104Z_agent35-retract-node-pin-concern.md`.
