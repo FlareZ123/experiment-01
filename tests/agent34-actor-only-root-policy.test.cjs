@@ -1974,6 +1974,24 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     missingSuppressionEpoch,postTimelessCatalog,{ownerSeat:0}),null,
     'a missing public Stadium-suppression epoch cannot certify attack cost');
 
+  const opponentEpochSuppressesValley={
+    ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93'],
+      publicTurnRestrictions:{
+        ...twoEnergyWithoutDiscount.ownPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:undefined
+      }},
+    opponentPublic:{...twoEnergyWithoutDiscount.opponentPublic,
+      publicTurnRestrictions:{
+        ...twoEnergyWithoutDiscount.opponentPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:1
+      }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    opponentEpochSuppressesValley,postTimelessCatalog,{ownerSeat:0}),null,
+    'a known-positive opponent epoch proves global Stadium suppression even when the own epoch is unknown');
+
   const suppressedValley={
     ...twoEnergyWithoutDiscount,
     ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
