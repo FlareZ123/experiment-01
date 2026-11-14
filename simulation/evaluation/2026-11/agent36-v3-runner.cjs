@@ -1120,6 +1120,8 @@ function createV3WorkerExecutionAudit({
     decisionCount:0,rootDecisionCount:0,promptDecisionCount:0,
     hostOnlyPromptCount:0,abstentionCount:0,failureCount:0,
     timeoutCount:0,lastFailureCode:null,
+    workerProcessClosed:false,containerRemoved:false,policyBundleRemoved:false,
+    containerIdSha256:null,policyStreamProtocol:null,policyDrawCount:null,
   });
   return {
     schema:'agent49-v3-worker-execution-audit-v1',
@@ -1131,6 +1133,7 @@ function createV3WorkerExecutionAudit({
       opponent:role('opponent',opponentSeat,opponentPolicyVersion),
     },
     totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    cleanupVerified:false,cleanupFailureCount:0,cleanupReceipts:[],promptProvenanceHook:null,
   };
 }
 
@@ -1445,11 +1448,11 @@ async function runV3FixtureGame({
           const candidateBundle=buildRoleWorkerBundle({
             repositoryRoot,policyModulePath:V3_FIXTURE.candidateWorkerPolicyPath
           });
-          bundles.push(candidateBundle.bundle);
+          bundles.push({role:'candidate',bundle:candidateBundle.bundle});
           const opponentBundle=buildRoleWorkerBundle({
             repositoryRoot,policyModulePath:V3_FIXTURE.opponentWorkerPolicyPath
           });
-          bundles.push(opponentBundle.bundle);
+          bundles.push({role:'opponent',bundle:opponentBundle.bundle});
           workerAudit.roles.candidate.bundleSha256=candidateBundle.bundle.bundleSha256;
           workerAudit.roles.candidate.policySha256=candidateBundle.policySha256;
           workerAudit.roles.opponent.bundleSha256=opponentBundle.bundle.bundleSha256;
@@ -1534,16 +1537,50 @@ async function runV3FixtureGame({
             workerAudit,
           };
         } finally {
+          let cleanupVerified=sessions.length===2&&bundles.length===2;
           for(const session of sessions.reverse()){
-            try{await session.close();}catch(error){
-              workerAudit.cleanupFailureCount=(workerAudit.cleanupFailureCount??0)+1;
+            const role=session.role;
+            const roleAudit=workerAudit.roles[role];
+            try{
+              const receipt=await session.close();
+              assert.equal(receipt?.closed,true,'worker session did not close orderly');
+              assert.equal(receipt?.processClosed,true,'worker process closure was not verified');
+              assert.equal(receipt?.containerRemoved,true,'Docker daemon container removal was not verified');
+              roleAudit.workerProcessClosed=true;
+              roleAudit.containerRemoved=true;
+              roleAudit.containerIdSha256=receipt.containerId?
+                createHash('sha256').update(receipt.containerId).digest('hex'):null;
+              workerAudit.cleanupReceipts.push({role,processClosed:true,containerRemoved:true});
+            }catch(error){
+              cleanupVerified=false;
+              workerAudit.cleanupFailureCount++;
+              workerAudit.totalFailures++;
+              if(roleAudit){
+                roleAudit.failureCount++;
+                roleAudit.lastFailureCode='WORKER_CLEANUP_UNVERIFIED';
+              }
+              workerAudit.cleanupReceipts.push({role,processClosed:false,containerRemoved:false});
             }
           }
-          for(const bundle of bundles.reverse()){
-            try{workerLauncher.cleanupPolicyBundle(bundle);}catch(error){
-              workerAudit.cleanupFailureCount=(workerAudit.cleanupFailureCount??0)+1;
+          for(const entry of bundles.reverse()){
+            const roleAudit=workerAudit.roles[entry.role];
+            try{
+              const removed=workerLauncher.cleanupPolicyBundle(entry.bundle);
+              assert.equal(removed,true,'policy bundle cleanup did not return a verified removal receipt');
+              assert.equal(fs.existsSync(entry.bundle.root),false,'policy bundle directory still exists');
+              if(roleAudit)roleAudit.policyBundleRemoved=true;
+            }catch(error){
+              cleanupVerified=false;
+              workerAudit.cleanupFailureCount++;
+              workerAudit.totalFailures++;
+              if(roleAudit){
+                roleAudit.failureCount++;
+                roleAudit.lastFailureCode='POLICY_BUNDLE_CLEANUP_UNVERIFIED';
+              }
             }
           }
+          workerAudit.cleanupVerified=cleanupVerified&&workerAudit.cleanupFailureCount===0;
+          workerAudit.completed=workerAudit.completed===true&&workerAudit.cleanupVerified===true;
         }
       },
     });
@@ -1559,6 +1596,16 @@ async function runV3FixtureGame({
   const normalizedResult = normalizeV3FixtureRoleResult(pinned.result);
   const { roleResult, gameResult, workerExecutionAudit } = normalizedResult;
   let failureEnvelope = normalizedResult.failureEnvelope;
+  if(!failureEnvelope&&workerExecutionAudit?.cleanupVerified!==true) {
+    failureEnvelope={
+      fixtureFailure:{name:'WorkerCleanupUnverified',code:'WORKER_CLEANUP_UNVERIFIED',
+        stage:'worker-cleanup',messageSha256:createHash('sha256').update(JSON.stringify({
+          cleanupFailureCount:workerExecutionAudit?.cleanupFailureCount??null,
+          cleanupReceipts:workerExecutionAudit?.cleanupReceipts??null
+        })).digest('hex'),nativeFixtureFailure:null},
+      fixtureGamePartial:gameResult
+    };
+  }
   if (!failureEnvelope && (!gameResult || gameResult.finished !== true || gameResult.endReason !== 'engine-game-end')) {
     const terminalState = {
       finished: gameResult?.finished ?? false,
