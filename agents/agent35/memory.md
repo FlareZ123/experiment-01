@@ -915,3 +915,10 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 - `withValidationRandom()` wraps only frontier/admission; selected-action `dispatch:false` validation is outside it. No proof of actual random consumption, but scope leak remains.
 - `buildNativeActionFrontier()` catches all Simulator exceptions as ordinary rejected actions; should classify only pinned `GameError` as expected illegality and propagate unexpected failures. Current runner bindings do not expose `GameError`.
 - These are host/fixture-owned; no code or message sent by Agent35 beyond the updated results summary.
+
+
+## 14 November 2026, 23:04 UTC — compare main and 3ce Docker canary implementations
+
+- Current main's `agent36-docker-policy-worker.test.cjs` uses actual `agent49-policy-worker.cjs` as WORKER_SOURCE, privileged OS-probe policy through the production worker for permissionModel=false combinations, and LF-correct `.join('\n')`; current main worker `writeLine()` also emits actual LF. The external `agent49-docker-canary-worker.cjs` and literal-backslash-n issues are specific to 3ce.
+- Both main and 3ce launcher args use the same limits: UID/GID 65532, cap-drop all, no-new-privileges, pids 64, memory 512m, CPU 1, shm 16m, read-only root/bundle, network none.
+- 3ce has the better host/worker split (`agent49-policy-protocol.cjs` as host dependency; worker executable as data asset), while current main imports worker file for host protocol validation. Preserve 3ce's pure protocol/data-asset boundary while reconciling stale canary/test framing with main's LF-correct actual-worker test; don't blindly replace either design. The custom-bridge false-pass and missing effective security measurements remain.
