@@ -11,14 +11,16 @@ function requireNative(native) {
   assert.ok(native.cardActions && typeof native.cardActions.PlayCardAction === 'function',
     'pinned PlayCardAction constructor is required');
   assert.ok(native.gameActions && typeof native.gameActions.UseAbilityAction === 'function' &&
+    typeof native.gameActions.UseTrainerAbilityAction === 'function' &&
+    typeof native.gameActions.UseEnergyAbilityAction === 'function' &&
     typeof native.gameActions.AttackAction === 'function',
-    'pinned UseAbilityAction and AttackAction constructors are required');
+    'pinned Ability, Trainer Ability, Energy Ability and Attack constructors are required');
   assert.ok(typeof native.PokemonCard === 'function' &&
     typeof native.TrainerCard === 'function' && typeof native.EnergyCard === 'function',
   'pinned card constructors are required');
   assert.ok(native.PlayerType && native.PlayerType.BOTTOM_PLAYER !== undefined &&
     native.PlayerType.ANY !== undefined && native.SlotType &&
-    native.SlotType.BOARD !== undefined && native.SlotType.DISCARD !== undefined &&
+    native.SlotType.BOARD !== undefined && native.SlotType.HAND !== undefined && native.SlotType.DISCARD !== undefined &&
     native.Stage && native.Stage.BASIC !== undefined && native.TrainerType &&
     native.TrainerType.ITEM !== undefined && native.TrainerType.TOOL !== undefined &&
     native.TrainerType.SUPPORTER !== undefined && native.SpecialCondition &&
@@ -45,6 +47,8 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
 
   const PlayCardAction = native.cardActions.PlayCardAction;
   const UseAbilityAction = native.gameActions.UseAbilityAction;
+  const UseTrainerAbilityAction = native.gameActions.UseTrainerAbilityAction;
+  const UseEnergyAbilityAction = native.gameActions.UseEnergyAbilityAction;
   const AttackAction = native.gameActions.AttackAction;
   const { PokemonCard, TrainerCard, EnergyCard, PlayerType, SlotType, Stage, TrainerType, SpecialCondition } = native;
   const originalBasicActions = enumerator.playBasicActions.bind(enumerator);
@@ -118,10 +122,19 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
   enumerator.discardAbilityActions = (state, player) => {
     const actions = [];
     player.discard.cards.forEach((card, index) => {
-      if (!(card instanceof PokemonCard)) return;
       const target = { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.DISCARD, index };
-      for (const power of card.powers) {
-        if (power.useFromDiscard) actions.push(new UseAbilityAction(player.id, power.name, target));
+      if (card instanceof PokemonCard) {
+        for (const power of card.powers) {
+          if (power.useFromDiscard) actions.push(new UseAbilityAction(player.id, power.name, target));
+        }
+      } else if (card instanceof TrainerCard) {
+        for (const power of card.powers) {
+          if (power.useFromDiscard) actions.push(new UseTrainerAbilityAction(player.id, power.name, target));
+        }
+      } else if (card instanceof EnergyCard) {
+        for (const power of card.powers) {
+          if (power.useFromDiscard) actions.push(new UseEnergyAbilityAction(player.id, power.name, target));
+        }
       }
     });
     return actions;
@@ -154,6 +167,18 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
 
   enumerator.abilityActions = (state, player) => {
     const actions = [];
+    player.hand.cards.forEach((card, index) => {
+      const target = { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.HAND, index };
+      if (card instanceof PokemonCard) {
+        for (const power of card.powers) {
+          if (power.useFromHand) actions.push(new UseAbilityAction(player.id, power.name, target));
+        }
+      } else if (card instanceof TrainerCard) {
+        for (const power of card.powers) {
+          if (power.useFromHand) actions.push(new UseTrainerAbilityAction(player.id, power.name, target));
+        }
+      }
+    });
     player.forEachPokemon(PlayerType.BOTTOM_PLAYER, (cardList, card, target) => {
       for (const power of card.powers) {
         if (power.useWhenInPlay) actions.push(new UseAbilityAction(player.id, power.name, target));
@@ -191,7 +216,7 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
   };
 
   Object.defineProperty(enumerator, '__agent3UncappedAdapter', {
-    value: Object.freeze({ schema: SCHEMA, enginePin, removedPerFamilyCap: 8, includesAttachedToolPowers: true, includesToolAndBenchAttacks: true }),
+    value: Object.freeze({ schema: SCHEMA, enginePin, removedPerFamilyCap: 8, includesAttachedToolPowers: true, includesToolAndBenchAttacks: true, includesHandAbilities: true, includesTrainerEnergyDiscardAbilities: true }),
     writable: false,
     configurable: false,
     enumerable: false
