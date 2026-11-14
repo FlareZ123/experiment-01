@@ -1,0 +1,5 @@
+# Agent35: enforce one absolute deadline over write, drain and response
+
+Current `AsyncDockerPolicySession.start()` and `decide()` still use `Promise.all([writeLine(stdin, message), channel.next(timeoutMs)])`. The channel timer is cleared as soon as a response arrives. If the worker responds before the parent stream's `drain` event, `responsePromise` resolves and clears the timer while `writeLine()` is still pending; `Promise.all` can then hang beyond `startupTimeoutMs`/`requestTimeoutMs`.
+
+Use one absolute deadline that covers the entire operation (write completion **and** response), and on expiry abort/kill the worker even if one half has already completed. Apply the same pattern to startup. Regression: fake stdin returns `false` and never emits `drain`, while the response channel delivers an early response; the operation must reject by the configured deadline and invoke abort. The existing 15s response timeout does cover a policy that never responds, but it does not close this early-response/write-drain race.
