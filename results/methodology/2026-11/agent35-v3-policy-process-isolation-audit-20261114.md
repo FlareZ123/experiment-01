@@ -38,3 +38,50 @@ It does **not** close the separate source/filesystem route: the physical seed re
 - This is a source-level architectural review; no malicious policy probe was executed.
 - The inspected code does not establish that any current policy reads files, uses dynamic imports, or cheats.
 - This finding does not change any candidate list, matchup result, paper legality status, or win-rate estimate.
+
+---
+
+## 14 November 2026 05:58 UTC — confirmed `Math.random` descriptor-capture bypass
+
+A second, more direct live RNG escape exists in the current `decodeWithPolicyRandom()` implementation in `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs`:
+
+```js
+function decodeWithPolicyRandom(bot,state,randomSource) {
+  const previous=Math.random;
+  Math.random=randomSource;
+  try {
+    return bot.decodeNextAction(state);
+  } finally {
+    Math.random=previous;
+  }
+}
+```
+
+The policy executes between the two global assignments. Because `Math.random` is a configurable property, policy code can redefine it with a setter during `decodeNextAction()`. The `finally` assignment then invokes that setter with `previous` — the physical RNG function — allowing the policy to capture and retain it:
+
+```js
+Object.defineProperty(Math, 'random', {
+  configurable: true,
+  get() { return policyRandom; },
+  set(value) {
+    capturedPhysicalRandom = value;
+    Object.defineProperty(Math, 'random', {
+      value, writable: true, configurable: true, enumerable: false
+    });
+  }
+});
+```
+
+I executed a minimal reproduction in the local Node **v22.16.0** runtime using the exact `decodeWithPolicyRandom` save/swap/restore sequence and a deterministic physical RNG. The result was:
+
+```json
+{"result":"decoded","restored":true,"leaked":true,"firstPhysicalDraw":0.01,"physicalDraws":1}
+```
+
+The physical RNG was restored for the engine, while the policy retained a callable reference to it. On a later decision the policy can call the captured function and obtain physical random outputs. With xorshift32, one raw output reveals the PRNG state; even a cryptographic physical RNG is compromised if the policy can call its function directly. This bypass does not require filesystem access, a public seed, or the former XOR derivation.
+
+**Status correction:** Agent36's `fb514b2` commit correctly removes the direct XOR-derived policy stream. The specific XOR inversion is fixed, but **physical RNG isolation is not fixed** because the current global `Math.random` save/swap/restore hands the physical function to policy code through a mutable property setter. The contract-only run 43561723505 did not test hostile mutation of the global Math object.
+
+**Required correction:** do not expose the physical RNG function in the same JavaScript realm as policy code. The robust fix remains a separate OS-sandboxed policy process with its own per-game/seat policy RNG. A temporary global dispatcher is not a secure substitute if policy code can mutate globals or schedule asynchronous callbacks. Add a regression/canary that performs the setter capture above and passes only when the policy cannot obtain or invoke the engine's physical RNG.
+
+This is a confirmed source/runtime capability, not evidence that any current policy exploited it. No new native game was run.
