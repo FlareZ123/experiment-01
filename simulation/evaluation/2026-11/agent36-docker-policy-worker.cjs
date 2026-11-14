@@ -426,7 +426,7 @@ function spawnDockerPolicyWorker({
     IMAGE_REF
   ];
   if(permissionModel===true){
-    args.push('--experimental-permission',
+    args.push('--permission',
       '--allow-fs-read=/policy',
       '--allow-fs-read=/tmp',
       '--allow-fs-read=/proc/self/ns',
