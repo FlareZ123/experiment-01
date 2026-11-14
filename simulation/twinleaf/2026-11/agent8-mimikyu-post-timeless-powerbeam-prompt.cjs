@@ -17,9 +17,10 @@ function isPreviousApex(tracker,opponent,state){
 }
 
 function knownDamage(attack){
-  if(Number.isSafeInteger(attack?.damage))return attack.damage;
+  if(!attack||attack.damageCalculation)return null;
+  if(Number.isSafeInteger(attack.damage))return attack.damage;
   if(typeof attack?.damage==='string'){
-    const match=attack.damage.trim().match(/^(\d+)(?:\+)?$/);
+    const match=attack.damage.trim().match(/^(\d+)$/);
     if(match)return Number(match[1]);
   }
   if(attack?.damage==null&&!attack?.damageCalculation&&
