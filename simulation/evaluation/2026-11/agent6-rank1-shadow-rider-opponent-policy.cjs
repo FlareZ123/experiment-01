@@ -499,7 +499,7 @@ function cardSearchScore(printing, request, effectName) {
     if (includes(printing, 'Acerola') && priorPaleMoon(request) &&
         damagedLatias(own) && matches(own.active?.printing ?? '', PRINT.latias)) return 180;
     if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
-        !hasPrinting(hand, /Tulip PAR\\b/i)) return 170;
+        !hasPrinting(hand, /Tulip PAR\b/i)) return 170;
     if (includes(printing, 'Raihan') && priorOpponentTurnKO(request)) return 160;
     if (includes(printing, 'Unfair Stamp') &&
         (priorOpponentTurnKO(request) ||
@@ -526,7 +526,7 @@ function cardSearchScore(printing, request, effectName) {
     if (includes(printing, 'Unfair Stamp') &&
         (priorOpponentTurnKO(request) || (opponent.handCount ?? 0) >= hand.length + 3)) return 170;
     if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
-        !hasPrinting(hand, /Tulip PAR\\b/i)) return 160;
+        !hasPrinting(hand, /Tulip PAR\b/i)) return 160;
     if (includes(printing, 'Mysterious Treasure') && knownV < 2) return 150;
     if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 140;
   }
