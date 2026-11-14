@@ -8,6 +8,7 @@ const path = require('node:path');
 const readline = require('node:readline');
 const { spawn } = require('node:child_process');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
@@ -289,6 +290,35 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentCopycatChoices: [{ ...eventRow, attackName: 'Different Attack' }]
   }, copycatView), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
+});
+
+test('actual Agent7/Agent8 public event receipt passes the worker schema', () => {
+  const view = observation(0);
+  view.ownPublic.active = mimikyuPokemon();
+  const nativeMimikyu = { fullName: 'Mimikyu GRI', name: 'Mimikyu', abilities: [] };
+  const activeSlot = { getPokemonCard: () => nativeMimikyu };
+  const emptySlot = { getPokemonCard: () => null };
+  const owner = {
+    id: 0, active: activeSlot, bench: [emptySlot, emptySlot, emptySlot, emptySlot, emptySlot],
+    movedToActiveThisTurn: [], marker: { hasMarker: () => false },
+    pokemonKnockedOutDuringOpponentsLastTurn: false,
+    pokemonKnockedOutByAttackDuringOpponentsLastTurn: false,
+    usedSquawkAndSeizeThisTurn: false, usedTableTurner: false
+  };
+  const opponent = { id: 1 };
+  const state = { activePlayer: 0, turn: 1, players: [owner, opponent] };
+  const previousAttack = {
+    turn: 0, playerId: 1, sourceCardFullName: 'Trevenant & Dusknoir-GX',
+    attackName: 'Night Watch', gxAttack: false, copycatAttack: false
+  };
+  const tracker = {
+    getPreviousTurnSnapshot: () => ({ turn: 0, attacks: [previousAttack] }),
+    getCopycatChoices: () => [previousAttack]
+  };
+  const augmented = attachPreviousOpponentTurnReceipt(view, state, 0, tracker);
+  protocol.validatePublicEventReceipt(augmented.publicEventReceipt, augmented);
+  assert.equal(augmented.publicEventReceipt.mimikyuCopycatCompatible, true);
+  assert.equal(augmented.publicEventReceipt.opponentCopycatChoices[0].attackName, 'Night Watch');
 });
 
 test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
