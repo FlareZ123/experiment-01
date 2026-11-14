@@ -10,7 +10,7 @@ const {PassThrough}=require('node:stream');
 const {
   IMAGE_REF,IMAGE_DIGEST,PLATFORM,NODE_VERSION,DEFAULT_WORKER_TIMEOUT_MS,
   sha256,createPolicyBundle,verifyPolicyBundle,spawnDockerPolicyWorker,
-  cleanupPolicyBundle,preflightDockerPolicySandbox
+  cleanupPolicyBundle,preflightDockerPolicySandbox,verifyDockerPolicyWorkerClosed
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 const {AsyncJsonLineChannel}=require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
 const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
@@ -43,6 +43,7 @@ async function withFakeDocker(run){
     "if(args[0]==='context'&&args[1]==='show'){process.stdout.write('default\\n');process.exit(0);}",
     "if(args[0]==='context'&&args[1]==='inspect'){process.stdout.write('unix:///var/run/docker.sock\\n');process.exit(0);}",
     "if(args[0]==='image'&&args[1]==='inspect'){if(args[4]==='{{.Id}}')process.stdout.write('sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n');else process.stdout.write(JSON.stringify(['node@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54'])+'\\n');process.exit(0);}",
+    "if(args[0]==='inspect'){process.stderr.write('Error: No such object: '+args[1]+'\\n');process.exit(1);}",
     "if(args[0]==='run'){process.stdout.write('v24.22.3\\n');process.exit(0);}",
     "process.exit(0);"
   ].join('\n')+'\n';
@@ -328,3 +329,21 @@ test('worker launcher uses only the constrained policy bundle and seed-free envi
       fs.rmSync(sourceRoot,{recursive:true,force:true});
     }
   });
+
+
+test('worker closure verification requires process exit and confirms daemon container absence',async()=>{
+  await withFakeDocker(async()=>{
+    const child={
+      exitCode:0,signalCode:null,
+      __agent36PolicyWorkerMetadata:{
+        containerId:'agent35-already-removed-container',
+        cidfile:null
+      }
+    };
+    const receipt=await verifyDockerPolicyWorkerClosed(child,{timeoutMs:100});
+    assert.equal(receipt.processClosed,true);
+    assert.equal(receipt.containerRemoved,true);
+    assert.equal(receipt.containerId,'agent35-already-removed-container');
+    assert.equal(receipt.exitCode,0);
+  });
+});
