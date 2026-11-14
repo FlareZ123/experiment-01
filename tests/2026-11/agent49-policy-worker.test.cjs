@@ -240,29 +240,35 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
   } finally { await dispose(worker); }
 });
 
-test('both roles and both physical seats receive isolated role-bound workers', async () => {
+test('both roles and both physical seats receive concurrent isolated role-bound workers', async () => {
   const combos = [
     ['candidate', 0, 'a'], ['opponent', 1, 'b'],
     ['candidate', 1, 'c'], ['opponent', 0, 'd']
   ];
-  const pids = new Set();
-  for (const [role, seat, digest] of combos) {
+  const workers = combos.map(([role, seat, digest]) => {
     const version = 'agent49-' + role + '-seat' + seat + '-test-v2';
     const init = initFor(role, seat, digest, version);
-    const worker = startWorker(init);
-    try {
-      pids.add(worker.child.pid);
-      writeLine(worker.child.stdin, init); await waitForCount(worker, 1);
-      writeLine(worker.child.stdin, request(1, role, seat)); await waitForCount(worker, 2);
-      assert.equal(worker.lines[0].role, role);
-      assert.equal(worker.lines[0].seat, seat);
-      assert.equal(worker.lines[1].role, role);
-      assert.equal(worker.lines[1].seat, seat);
-      assert.equal(worker.lines[0].bundleSha256, init.bundleSha256);
-      assert.equal(worker.lines[0].policyVersion, version);
-    } finally { await dispose(worker); }
+    return { role, seat, version, init, worker: startWorker(init) };
+  });
+  try {
+    for (const row of workers) writeLine(row.worker.child.stdin, row.init);
+    for (const row of workers) await waitForCount(row.worker, 1);
+    for (const row of workers) {
+      assert.equal(row.worker.lines[0].role, row.role);
+      assert.equal(row.worker.lines[0].seat, row.seat);
+      assert.equal(row.worker.lines[0].policyVersion, row.version);
+      assert.equal(row.worker.lines[0].bundleSha256, row.init.bundleSha256);
+    }
+    for (const row of workers) writeLine(row.worker.child.stdin, request(1, row.role, row.seat));
+    for (const row of workers) await waitForCount(row.worker, 2);
+    for (const row of workers) {
+      assert.equal(row.worker.lines[1].role, row.role);
+      assert.equal(row.worker.lines[1].seat, row.seat);
+    }
+    assert.equal(new Set(workers.map(row => row.worker.child.pid)).size, 4);
+  } finally {
+    await Promise.all(workers.map(row => dispose(row.worker)));
   }
-  assert.equal(pids.size, 4);
 });
 
 test('strict actor, prompt, event and metadata schemas reject nested aliases', async () => {
