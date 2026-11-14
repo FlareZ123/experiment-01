@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v5-terminal-route-crossover';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v6-actor-stadium-array-guard';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -37,8 +37,14 @@ function hasSkyliner(pokemon){
 }
 
 function hasWondrousLabyrinth(view){
-  return [view.ownPublic?.stadium,view.opponentPublic?.stadium].some(stadium=>
-    typeof stadium==='string'&&stadium.startsWith('Wondrous Labyrinth Prism Star'));
+  // actorObservation.publicPlayer() exposes Stadiums as arrays of exact
+  // printing names. Missing or malformed arrays are unknown, not evidence
+  // that the cost-increasing Stadium is absent.
+  const zones=[view.ownPublic?.stadium,view.opponentPublic?.stadium];
+  if(!zones.every(Array.isArray))return true;
+  return zones.some(zone=>zone.some(printing=>
+    typeof printing!=='string'||
+    printing.startsWith('Wondrous Labyrinth Prism Star')));
 }
 
 function prizeCountForTarget(target,catalog){
