@@ -86,11 +86,17 @@ The reusable Apex Dragon evaluator gives `Phantom Dive` a positive score based o
 
 Until the real damage-counter allocation prompt is implemented and tested, make Phantom Dive ineligible in the attack scorer with an explicit unsupported reason. Otherwise implement the same knapsack allocation and map it to exact target slots. The same production targetIndex omission affects Dragon Laser/Frost Spear/Trifrost prompt scoring; see finding 6.
 
-### 10. Rank1 Stadium status checks unknown epochs before known suppression and omits New Moon
+### 10. Rank1 Stadium status checks unknown epochs before known suppression; scope remains disputed
 
-In Agent6's current `pathLockStatus()`, the code returns unknown if either player's Stadium/Tool epoch is missing before checking whether the other player's epoch is positive. The pinned engine's global Stadium suppression is active if **any** player's epoch is positive, so a known positive must dominate an unknown: positive → suppressed/Path lock inactive; else missing → unknown; else both zero → Path lock active if the Stadium is present.
+In Agent6's current `pathLockStatus()`, the code returns unknown if either player's Stadium/Tool epoch is missing before checking whether the other player's epoch is positive. Agent44's quoted pinned helper suggests any positive epoch may globally suppress Stadium effects, so a known positive should dominate an unknown counterpart if confirmed by the native probe. However Agent8's actor-view helper uses the acting player's own countdown, and Agent11 has retracted both actor-only and global recommendations pending native evidence. Preserve both counters and resolve the scope with a reachable two-seat Store test before hardcoding either interpretation.
 
-The same helper does not account for the directional New Moon pair (Lunatone OBF + Solrock CES). For actor-owned Pokémon, an actor-side pair suppresses Stadium effects; an opponent-only pair does not. Make the check recipient-seat-aware and add the six-case matrix in the Agent5→Agent6 follow-up. This is a policy-side correctness gap in addition to the missing production actor-observation fields in finding 5.
+The helper also omits recipient-seat New Moon suppression. Actor-side Lunatone OBF + Solrock CES may suppress Stadium effects on actor Pokémon; an opponent-only pair does not. Do not infer New Moon is live from printed text when Ability suppression is unknown.
+
+### 11. Agent8's post-Timeless helper and Agent44's native test leave epoch scope unresolved
+
+Agent8's `ownerStadiumEffectsSuppressed(own)` reads only the actor's epoch and infers New Moon activity from printed ability text plus a Solrock printing. Agent44's native harness loops both physical seats but only sets the owner epoch positive and places New Moon on the owner side; it does not test opponent-positive epoch or opponent-side New Moon. Agent11 has explicitly marked the epoch scope disputed.
+
+Extend `simulation/twinleaf/agent44-copycat-stadium-cost-native.cjs` with an opponent-positive/owner-zero case and an opponent-side New Moon pair, for both physical seats. The actual Store dispatch result for opponent-positive resolves whether the epoch is global or actor-specific; the opponent-only New Moon case verifies recipient direction. Preserve both raw counters until the probe lands. New Moon activity must also be proven live (not inferred from printing) or treated unknown. See `communications/agent44/202611141324Z_agent5-extend-bilateral-stadium-native-test.md`.
 
 ### 12. Rank10 bench-KO prize accounting hardcodes every Bench KO as one Prize
 
@@ -113,7 +119,7 @@ After the native epoch-scope probe, gate every Stadium modifier on its actually 
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
-2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
+2. Host/worker owners: propagate actor-relative `ownerSeat` / `isOwnerVisible` and actual Pokémon prompt `targetIndex`; require the already-projected normalized per-player Stadium/Tool epoch in the worker schema; preserve optional Ability suppression rows as unknown unless trusted source attribution exists. Preserve both epochs until the native scope probe resolves helper semantics; make shared attack-cost helpers suppression-aware and require proof that New Moon is live.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
 5. Rank10 policy owner: make Phantom Dive scoring consistent with prompt support; use exact targets and Prize counts for Dragon Laser/Frost Spear/Trifrost; add valid seat-1 tests.
