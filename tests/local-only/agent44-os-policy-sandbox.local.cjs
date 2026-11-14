@@ -123,7 +123,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
           hostPort:server.address().port,
           repoPath,
           seat,
-          policySeed:'policy-seat-'+seat+'-only'
+          policyMarker:'marker-seat-'+seat+'-only'
         };
         const child=spawnSandboxedPolicyWorker({
           sandbox,
@@ -146,7 +146,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
         for(const osReport of osReports){
           assert.equal(osReport.seat,seat);
           assert.ok([0,1].includes(osReport.sequence));
-          assert.equal(osReport.policySeed,'policy-seat-'+seat+'-only');
+          assert.equal(osReport.policyMarker,'policy-seat-'+seat+'-only');
           assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
           assert.equal(osReport.cwd,'/');
           assert.ok(!osReport.procVisible.ok||osReport.procVisible.value===false);
@@ -178,7 +178,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
         for(const permissionReport of permissionReports){
           assert.equal(permissionReport.seat,seat);
           assert.ok([0,1].includes(permissionReport.sequence));
-          assert.equal(permissionReport.policySeed,'policy-seat-'+seat+'-only');
+          assert.equal(permissionReport.policyMarker,'policy-seat-'+seat+'-only');
           assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
           assert.ok(!permissionReport.procVisible.ok||permissionReport.procVisible.value===false);
           assert.ok(!permissionReport.repoVisible.ok||permissionReport.repoVisible.value===false);
