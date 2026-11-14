@@ -1496,8 +1496,13 @@ async function runV3FixtureGame({
   // Docker VM loads candidate/opponent policy source; ordinary host dependencies are
   // preloaded and pinned through the existing CommonJS guard.
   const workerOnlyPolicyPaths=[candidatePolicy.sourcePath,opponentPolicy.sourcePath];
+  const workerOnlyPolicyHashes={
+    [candidatePolicy.sourcePath]:candidatePolicy.policySha256,
+    [opponentPolicy.sourcePath]:opponentPolicy.policySha256
+  };
   const hostPreload=preloadRoleHostModules({
-    repositoryRoot,expectedByPath:combined.expectedByPath,workerOnlyPaths:workerOnlyPolicyPaths
+    repositoryRoot,expectedByPath:combined.expectedByPath,
+    workerOnlyPaths:workerOnlyPolicyPaths,workerOnlyHashes:workerOnlyPolicyHashes
   });
   const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(
     repositoryRoot,hostPreload.hostExpectedByPath
@@ -1510,6 +1515,7 @@ async function runV3FixtureGame({
     identityHelper: roleIdentity,
     cacheEntries,
     workerOnlyPaths:workerOnlyPolicyPaths,
+    workerOnlyHashes:workerOnlyPolicyHashes,
     hostExpectedByPath:hostPreload.hostExpectedByPath
   });
   const runtimePinEvidence = fixtureRuntimePin.createFixtureRuntimePinEvidence(preparedRuntime);
