@@ -11,104 +11,133 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-wor
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
-const POLICY_SOURCE = String.raw`'use strict';
-const POLICY_VERSION = 'agent49-test-policy-v1';
-async function createPolicy({ config }) {
+const POLICY_VERSION = 'agent49-test-policy-v2';
+function policySource(mode = 'normal') {
+  const selectedMode = JSON.stringify(mode);
+  return [
+    "'use strict';",
+    "const POLICY_VERSION='" + POLICY_VERSION + "';",
+    'async function createPolicy(){return {async decide(request){',
+    'if(' + selectedMode + "==='math') Math.random();",
+    'if(' + selectedMode + "==='crypto') require('node:crypto').randomBytes(1);",
+    'if(' + selectedMode + "==='pseudo') require('node:crypto').pseudoRandomBytes(1);",
+    'if(' + selectedMode + "==='webcrypto') require('node:crypto').webcrypto.getRandomValues(new Uint8Array(1));",
+    'if(' + selectedMode + "==='unknown') return {kind:'select-action',token:'not-in-frontier'};",
+    'if(' + selectedMode + "==='action-on-prompt') return {kind:'select-action',token:'action-1'};",
+    'if(' + selectedMode + "==='choice-on-root') return {kind:'select-choice',token:'choice-1'};",
+    "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
+    "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
+    '}};}',
+    'module.exports={POLICY_VERSION,createPolicy};'
+  ].join('\n');
+}
+
+function publicRestrictions() {
   return {
-    async decide(request) {
-      if (config.mode === 'math') Math.random();
-      if (config.mode === 'crypto') require('node:crypto').randomBytes(1);
-      if (config.mode === 'pseudo') require('node:crypto').pseudoRandomBytes(1);
-      if (config.mode === 'webcrypto') require('node:crypto').webcrypto.getRandomValues(new Uint8Array(1));
-      if (config.forceUnknownAction === true) {
-        return { kind: 'select-action', token: 'not-in-frontier' };
-      }
-      if (request.prompt) {
-        const choice = request.prompt.choices[0];
-        return choice ? { kind: 'select-choice', token: choice.token } :
-          { kind: 'abstain', reasonCode: 'NO_VISIBLE_CHOICE' };
-      }
-      const action = request.actionFrontier.items[0];
-      return action ? { kind: 'select-action', token: action.token } :
-        { kind: 'abstain', reasonCode: 'NO_LEGAL_ACTION' };
-    }
+    gxUsed: false, vstarUsed: false, attackLockTurnsRemaining: 0,
+    attackMaxEnergy: null, attackMaxEnergyTurnsRemaining: 0,
+    ignoreAttackCostCardTypes: [], ignoreAttackCostTurnsRemaining: 0,
+    cannotUseGXAttacks: false, pokemonPlayLocked: false,
+    abilityPokemonPlayLocked: false, evolutionPlayLocked: false,
+    itemPlayLocked: false, supporterPlayLocked: false,
+    stadiumPlayLocked: false, toolPlayLocked: false,
+    energyPlayLocked: false, specialEnergyPlayLocked: false
   };
 }
-module.exports = { POLICY_VERSION, createPolicy };
-`;
-
-const INIT = {
-  schema: protocol.INIT_SCHEMA,
-  type: 'init',
-  role: 'candidate',
-  seat: 0,
-  policyVersion: 'agent49-test-policy-v1',
-  bundleSha256: 'a'.repeat(64),
-  config: { mode: 'test' }
-};
-
-function request(sequence, overrides = {}) {
+function publicPlayer() {
   return {
-    schema: protocol.REQUEST_SCHEMA,
-    type: 'decision',
-    requestId: 'req-' + sequence,
-    sequence,
-    role: 'candidate',
-    seat: 0,
-    observationSchema: protocol.OBSERVATION_SCHEMA,
-    observation: {
-      actorSeat: 0,
-      decisionKind: 'owner-root',
-      pendingPromptType: null,
-      ownHand: ['Shadow Rider Calyrex V CRE'],
-      ownPublic: { active: null, bench: [], deckCount: 8 },
-      opponentPublic: { active: null, bench: [], deckCount: 12 }
+    active: null, bench: [null, null, null, null, null], stadium: [], discard: [],
+    lostZone: [], resolvingSupporter: [], publicHand: null, prizeSlots: [],
+    publicTurnRestrictions: publicRestrictions(), handCount: 0, deckCount: 10, prizeCount: 6
+  };
+}
+function pokemonRestrictions() {
+  return {
+    cannotAttackNextTurn: false, cannotUseAttacksNextTurn: [],
+    blockedAttackNameNextTurn: null, blockedAttackNameUntilLeavesActive: null,
+    onlyAllowedAttackNameNextTurn: null, attackCostIncreaseNextTurn: 0,
+    attackCostIncreaseWhileActive: 0, cannotRetreat: false,
+    cannotRetreatNextTurn: false, cannotRetreatWhileActive: false,
+    cannotEvolveNextTurn: false
+  };
+}
+function visiblePokemon() {
+  return {
+    printing: 'Shadow Rider Calyrex VMAX CRE', name: 'Shadow Rider Calyrex VMAX',
+    hp: 320, damage: 0, lastPlayedOrEvolvedTurn: 1,
+    printed: { stage: 'VMAX', subtypes: [], types: ['Psychic'], retreatCost: [],
+      weakness: [{ type: 'Fighting', value: '×2' }], resistance: [] },
+    specialConditions: [], publicRestrictions: pokemonRestrictions(),
+    evolutionPrintings: ['Shadow Rider Calyrex V CRE'],
+    energies: ['Psychic Energy SVE'], tools: [],
+    attacks: [{ name: 'Max Geist', cost: [1, 1, 1], damage: '10+30',
+      damageCalculation: null, text: null, gxAttack: false, barrage: false }],
+    abilities: ['Underworld Door'],
+    abilityDetails: [{ name: 'Underworld Door', powerType: 'ABILITY', text: 'Once during your turn.' }]
+  };
+}
+function observation(seat, decisionKind = 'owner-root', promptType = null) {
+  return {
+    actorSeat: seat, globalTurn: 1, phase: 2, decisionKind,
+    pendingPromptType: promptType, pendingOwnerDeckSearch: false,
+    ownHand: ['Shadow Rider Calyrex V CRE'], ownPublic: publicPlayer(),
+    opponentPublic: publicPlayer(),
+    ownTurnResources: {
+      supporterPlayedTurn: 0, retreatedTurn: 0, extraTurnActive: false,
+      energyPlayedTurn: false, stadiumPlayedTurn: false, stadiumUsedTurn: false,
+      vstarUsed: false, pokemonPlayLocked: false, abilityPokemonPlayLocked: false,
+      evolutionPlayLocked: false, itemPlayLocked: false, supporterPlayLocked: false,
+      stadiumPlayLocked: false, toolPlayLocked: false, energyPlayLocked: false,
+      specialEnergyPlayLocked: false
     },
-    prompt: null,
-    publicEventReceipt: null,
+    ownerK1: null
+  };
+}
+function initFor(role = 'candidate', seat = 0, digest = 'a') {
+  return {
+    schema: protocol.INIT_SCHEMA, type: 'init', role, seat,
+    policyVersion: POLICY_VERSION, bundleSha256: digest.repeat(64), config: {}
+  };
+}
+function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
+  return {
+    schema: protocol.REQUEST_SCHEMA, type: 'decision',
+    requestId: 'req-' + sequence, sequence, role, seat,
+    observationSchema: protocol.OBSERVATION_SCHEMA,
+    observation: observation(seat), prompt: null, publicEventReceipt: null,
     actionFrontier: {
       schema: protocol.FRONTIER_SCHEMA,
-      items: [{ token: 'action-' + sequence, kind: 'attack', attackName: 'Max Geist' }]
+      items: [{ token: 'action-' + sequence, kind: 'attack', attackName: 'Max Geist',
+        publicMetadata: { damage: 250, stadiumEffectLive: true } }]
     },
     ...overrides
   };
 }
+function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); }
 
-function writeLine(stream, value) {
-  stream.write(JSON.stringify(value) + '\n');
-}
-
-function startWorker(config = INIT.config) {
+function startWorker(init = initFor(), mode = 'normal') {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), POLICY_SOURCE);
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(mode));
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: { PATH: process.env.PATH || '/usr/bin:/bin' }
+    stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
   const lines = [];
   let stderr = '';
   const rl = readline.createInterface({ input: child.stdout });
-  rl.on('line', line => {
-    try { lines.push(JSON.parse(line)); }
-    catch { lines.push({ invalidJson: line }); }
-  });
+  rl.on('line', line => { try { lines.push(JSON.parse(line)); } catch { lines.push({ invalidJson: line }); } });
   child.stderr.setEncoding('utf8');
   child.stderr.on('data', chunk => { stderr += chunk; });
-  return { child, dir, lines, get stderr() { return stderr; }, rl, init: { ...INIT, config } };
+  return { child, dir, lines, get stderr() { return stderr; }, rl, init };
 }
-
 async function waitForCount(worker, count, timeoutMs = 3000) {
   const started = Date.now();
   while (worker.lines.length < count) {
-    if (worker.child.exitCode !== null) {
-      throw new Error('worker exited early (' + worker.child.exitCode + '): ' + worker.stderr);
-    }
+    if (worker.child.exitCode !== null) throw new Error('worker exited early (' + worker.child.exitCode + '): ' + worker.stderr);
     if (Date.now() - started > timeoutMs) throw new Error('worker response timeout');
     await new Promise(resolve => setTimeout(resolve, 5));
   }
 }
-
 async function waitForClose(worker) {
   if (worker.child.exitCode !== null) return;
   await new Promise((resolve, reject) => {
@@ -117,143 +146,143 @@ async function waitForClose(worker) {
     worker.child.once('error', error => { clearTimeout(timer); reject(error); });
   });
 }
-
 async function dispose(worker) {
-  if (worker.child.exitCode === null) {
-    worker.child.stdin.end();
-    await waitForClose(worker);
-  }
+  if (worker.child.exitCode === null) { worker.child.stdin.end(); await waitForClose(worker); }
   worker.rl.close();
   fs.rmSync(worker.dir, { recursive: true, force: true });
 }
-
-async function expectWorkerFailure(message, expectedCode, config = INIT.config) {
-  const worker = startWorker(config);
+async function expectFailure(message, code, mode = 'normal', init = initFor()) {
+  const worker = startWorker(init, mode);
   try {
-    writeLine(worker.child.stdin, worker.init);
+    writeLine(worker.child.stdin, init);
     await waitForCount(worker, 1);
     writeLine(worker.child.stdin, message);
     worker.child.stdin.end();
     await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
-    assert.match(worker.stderr, new RegExp(expectedCode));
+    assert.match(worker.stderr, new RegExp(code));
   } finally {
     worker.rl.close();
     fs.rmSync(worker.dir, { recursive: true, force: true });
   }
 }
 
-test('persistent seed-free worker accepts init and two ordered decisions in one process', async () => {
+test('persistent seed-free worker accepts two ordered decisions in one process', async () => {
   const worker = startWorker();
   try {
     writeLine(worker.child.stdin, worker.init);
     await waitForCount(worker, 1);
     assert.deepEqual(worker.lines[0], {
-      schema: protocol.READY_SCHEMA,
-      type: 'ready',
-      role: 'candidate',
-      seat: 0,
-      policyVersion: INIT.policyVersion,
-      bundleSha256: INIT.bundleSha256
+      schema: protocol.READY_SCHEMA, type: 'ready', role: 'candidate', seat: 0,
+      policyVersion: POLICY_VERSION, bundleSha256: worker.init.bundleSha256
     });
-    writeLine(worker.child.stdin, request(1));
-    await waitForCount(worker, 2);
-    writeLine(worker.child.stdin, request(2));
-    await waitForCount(worker, 3);
-    assert.deepEqual(worker.lines[1].decision,
-      { kind: 'select-action', token: 'action-1' });
-    assert.deepEqual(worker.lines[2].decision,
-      { kind: 'select-action', token: 'action-2' });
+    writeLine(worker.child.stdin, request(1)); await waitForCount(worker, 2);
+    writeLine(worker.child.stdin, request(2)); await waitForCount(worker, 3);
+    assert.deepEqual(worker.lines[1].decision, { kind: 'select-action', token: 'action-1' });
+    assert.deepEqual(worker.lines[2].decision, { kind: 'select-action', token: 'action-2' });
     assert.equal(worker.lines[1].requestId, 'req-1');
     assert.equal(worker.lines[2].sequence, 2);
-    assert.equal(worker.lines[1].role, 'candidate');
-    assert.equal(worker.lines[2].seat, 0);
     assert.doesNotMatch(JSON.stringify(worker.lines), /policySeed|physicalSeed|rngState/i);
-  } finally {
-    await dispose(worker);
+  } finally { await dispose(worker); }
+});
+
+test('both roles and both physical seats receive isolated role-bound workers', async () => {
+  const combos = [
+    ['candidate', 0, 'a'], ['opponent', 1, 'b'],
+    ['candidate', 1, 'c'], ['opponent', 0, 'd']
+  ];
+  const pids = new Set();
+  for (const [role, seat, digest] of combos) {
+    const init = initFor(role, seat, digest);
+    const worker = startWorker(init);
+    try {
+      pids.add(worker.child.pid);
+      writeLine(worker.child.stdin, init); await waitForCount(worker, 1);
+      writeLine(worker.child.stdin, request(1, role, seat)); await waitForCount(worker, 2);
+      assert.equal(worker.lines[0].role, role);
+      assert.equal(worker.lines[0].seat, seat);
+      assert.equal(worker.lines[1].role, role);
+      assert.equal(worker.lines[1].seat, seat);
+      assert.equal(worker.lines[0].bundleSha256, init.bundleSha256);
+    } finally { await dispose(worker); }
+  }
+  assert.equal(pids.size, 4);
+});
+
+test('strict actor, prompt, event and metadata schemas reject nested aliases', async () => {
+  const view = observation(0);
+  assert.throws(() => protocol.validateActorObservation({ ...view, opponentPrivate: { hand: ['hidden'] } }, 0), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateActorObservation({ ...view, opponentPublic: { ...view.opponentPublic, hand: ['hidden'] } }, 0), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateFlatMetadata({ opponentHand: ['hidden'] }, ['damage'], 'BAD_META'), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
+
+  const visibleView = observation(0);
+  visibleView.ownPublic.active = visiblePokemon();
+  protocol.validateActorObservation(visibleView, 0);
+  const eventRow = { turn: 0, sourcePrinting: 'Trevenant & Dusknoir-GX',
+    attackName: 'Night Watch', gxAttack: false, copycatAttack: false };
+  const receipt = {
+    version: 'agent8-public-event-receipt-v3-turn-stamped', actorSeat: 0, turn: 1,
+    ownerActive: null, ownerBench: [null, null, null, null, null],
+    priorOpponentTurnKO: { any: null, byAttack: null },
+    opponentLastTurnAttack: null, opponentLastTurnTurn: 0,
+    opponentLastTurnAttacks: [eventRow], opponentCopycatChoices: [eventRow],
+    mimikyuCopycatCompatible: true
+  };
+  protocol.validatePublicEventReceipt(receipt, view);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, opponentLastTurnAttacks: [{ ...eventRow, opponentHand: ['hidden'] }]
+  }, view), /UNKNOWN_FIELD/);
+});
+
+test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
+  const promptView = observation(0, 'owner-prompt', 'ChooseCardsPrompt');
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
+    description: 'Select an owner-visible card',
+    choices: [{ token: 'choice-1', kind: 'payment', printing: 'Psychic Energy SVE',
+      publicMetadata: { sourceZone: 'hand', isOwnerVisible: true } }]
+  };
+  const promptReq = request(1, 'candidate', 0, {
+    observation: promptView, prompt,
+    actionFrontier: { schema: protocol.FRONTIER_SCHEMA, items: [] }
+  });
+  const worker = startWorker();
+  try {
+    writeLine(worker.child.stdin, worker.init); await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, promptReq); await waitForCount(worker, 2);
+    assert.deepEqual(worker.lines[1].decision, { kind: 'select-choice', token: 'choice-1' });
+  } finally { await dispose(worker); }
+
+  const rootWithPending = { ...observation(0), pendingPromptType: 'ChooseCardsPrompt' };
+  assert.throws(() => protocol.validateActorObservation(rootWithPending, 0), /ROOT_HAS_PENDING_PROMPT/);
+  await expectFailure(promptReq, 'ACTION_DURING_PROMPT', 'action-on-prompt');
+  await expectFailure(request(1), 'CHOICE_DURING_ROOT', 'choice-on-root');
+  await expectFailure(request(1), 'POLICY_SELECTED_UNKNOWN_ACTION', 'unknown');
+  for (const mode of ['math', 'crypto', 'pseudo', 'webcrypto']) {
+    await expectFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', mode);
   }
 });
 
-test('worker accepts actor-seat prompt projections and rejects seed or hidden/native fields', async () => {
+test('sequence, duplicate ID, role drift and oversized NDJSON fail closed', async () => {
+  await expectFailure(request(1, 'opponent', 0), 'ROLE_SEAT_CHANGED');
+  await expectFailure(request(2), 'BAD_SEQUENCE');
   const worker = startWorker();
   try {
-    writeLine(worker.child.stdin, worker.init);
-    await waitForCount(worker, 1);
-    const promptRequest = request(1, {
-      observation: {
-        actorSeat: 0,
-        decisionKind: 'owner-prompt',
-        pendingPromptType: 'ChooseCardsPrompt',
-        ownHand: ['Quick Ball FST']
-      },
-      prompt: {
-        schema: protocol.PROMPT_SCHEMA,
-        actingSeat: 0,
-        promptType: 'ChooseCardsPrompt',
-        description: 'Choose one visible owner-hand payment',
-        choices: [{ token: 'choice-1', kind: 'payment', printing: 'Psychic Energy SVE' }]
-      },
-      actionFrontier: { schema: protocol.FRONTIER_SCHEMA, items: [] }
-    });
-    writeLine(worker.child.stdin, promptRequest);
-    await waitForCount(worker, 2);
-    assert.deepEqual(worker.lines[1].decision,
-      { kind: 'select-choice', token: 'choice-1' });
-  } finally {
-    await dispose(worker);
-  }
-
-  assert.throws(() => protocol.validateInit({
-    ...INIT, config: { policySeed: 123 }
-  }), /FORBIDDEN_RANDOM_FIELD/);
-  assert.throws(() => protocol.validateRequest(
-    request(1, { observation: {
-      actorSeat: 0, decisionKind: 'owner-root', opponentHand: ['hidden']
-    }}), INIT, 1, new Set()
-  ), /FORBIDDEN_NATIVE_OR_HIDDEN_FIELD/);
-  assert.throws(() => protocol.validateDecision(
-    { kind: 'select-action', token: 'unknown' }, null, new Set(['known'])
-  ), /POLICY_SELECTED_UNKNOWN_ACTION/);
-});
-
-test('worker fails closed on role/seat drift, sequence errors, duplicate IDs and invalid policy output', async () => {
-  await expectWorkerFailure(request(1, { role: 'opponent' }), 'ROLE_SEAT_CHANGED');
-  await expectWorkerFailure(request(2), 'BAD_SEQUENCE');
-  await expectWorkerFailure(request(1, {
-    observation: { actorSeat: 0, decisionKind: 'owner-root', opponentHand: ['hidden'] }
-  }), 'FORBIDDEN_NATIVE_OR_HIDDEN_FIELD');
-  await expectWorkerFailure(request(1), 'POLICY_SELECTED_UNKNOWN_ACTION',
-    { forceUnknownAction: true });
-  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'math' });
-  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'crypto' });
-  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'pseudo' });
-  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'webcrypto' });
-
-  const worker = startWorker();
-  try {
-    writeLine(worker.child.stdin, worker.init);
-    await waitForCount(worker, 1);
-    writeLine(worker.child.stdin, request(1));
-    await waitForCount(worker, 2);
-    writeLine(worker.child.stdin, request(2, { requestId: 'req-1' }));
-    worker.child.stdin.end();
-    await waitForClose(worker);
+    writeLine(worker.child.stdin, worker.init); await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, request(1)); await waitForCount(worker, 2);
+    writeLine(worker.child.stdin, request(2, 'candidate', 0, { requestId: 'req-1' }));
+    worker.child.stdin.end(); await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
     assert.match(worker.stderr, /DUPLICATE_REQUEST_ID/);
-  } finally {
-    worker.rl.close();
-    fs.rmSync(worker.dir, { recursive: true, force: true });
-  }
+  } finally { worker.rl.close(); fs.rmSync(worker.dir, { recursive: true, force: true }); }
 
   const oversized = startWorker();
   try {
     oversized.child.stdin.write('x'.repeat(protocol.LIMITS.maxLineBytes + 1));
-    oversized.child.stdin.end();
-    await waitForClose(oversized);
+    oversized.child.stdin.end(); await waitForClose(oversized);
     assert.notEqual(oversized.child.exitCode, 0);
     assert.match(oversized.stderr, /LINE_TOO_LARGE/);
-  } finally {
-    oversized.rl.close();
-    fs.rmSync(oversized.dir, { recursive: true, force: true });
-  }
+  } finally { oversized.rl.close(); fs.rmSync(oversized.dir, { recursive: true, force: true }); }
 });
