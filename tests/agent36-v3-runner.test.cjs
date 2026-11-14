@@ -602,25 +602,31 @@ test('real worker role manifests pin policy source and keep executable in data a
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN
   };
   const candidate=buildFixtureRoleEntryManifest({
-    ...common,entrypoint:V3_FIXTURE.candidateWorkerPolicyPath
+    ...common,entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
+    additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath]
   });
   const opponent=buildFixtureRoleEntryManifest({
-    ...common,entrypoint:V3_FIXTURE.opponentWorkerPolicyPath
+    ...common,entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
+    additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath]
   });
   for(const [result,policyPath] of [
     [candidate,V3_FIXTURE.candidateWorkerPolicyPath],
     [opponent,V3_FIXTURE.opponentWorkerPolicyPath]
   ]){
     assert.equal(result.manifest.complete,true);
-    assert.equal(result.manifest.entrypoint,policyPath);
-    assert.ok(result.manifest.files.some(file=>file.path===policyPath));
+    assert.equal(result.manifest.entrypoint,V3_FIXTURE.hostRoleEntrypointPath);
+    assert.ok(result.manifest.files.some(file=>file.path===V3_FIXTURE.hostRoleEntrypointPath));
+    assert.equal(result.manifest.files.some(file=>file.path===policyPath),false,
+      'role-specific policy source must not be host executable code');
     assert.ok(result.manifest.files.some(file=>file.path===V3_FIXTURE.protocolPath));
     assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.workerPath),false);
     assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.dockerCanaryWorkerPath),false);
+    assert.ok(result.manifest.dataAssets.some(asset=>asset.path===policyPath));
     assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.workerPath));
     assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.dockerCanaryWorkerPath));
     assert.deepEqual(result.manifest.sourceAuditLimitations.missingRelativeImports,[]);
     assert.ok(Object.hasOwn(result.expectedByPath,V3_FIXTURE.protocolPath));
+    assert.equal(Object.hasOwn(result.expectedByPath,policyPath),false);
     assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.workerPath),false);
     assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.dockerCanaryWorkerPath),false);
   }
