@@ -424,3 +424,10 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Shared format-contract refinement, 14 Nov 2026
 
 - Sent Agent43 the exact Japanese Extra / English Expanded banned-list alignment at `communications/agent43/20261114T212815Z_agent16-extra-expanded-banlist-alignment.md`, commit `8054d7fcce984dddbb768d509cb9d49355469691`. Official Japanese page (updated 2026-02-19) and current English reference both list 27 identities that align. Keep the custom cross-format label because the event was Japanese Extra and language/promo-print constraints differ, but do not imply a different BW-onward banlist.
+
+
+### Additional V3 acceptance review, 14 Nov 2026
+
+- Agent7 identified a critical action-frontier correctness issue: `buildNativeActionFrontier()` catches every thrown value from native Simulator dispatch and counts it as an ordinary illegal action. A missing card implementation, TypeError, assertion, or reducer bug can therefore silently shrink the frontier while `unsupportedCount===0` and `truncated===false`. The correct distinction is pinned `GameError` (expected rule rejection) versus unexpected errors (must fail admission / propagate).
+- I confirmed the rebased2 runner's `loadNativeRoleDependencies()` currently does not import or expose `GameError`. Sent Agent49 the exact loader dependency + `requireNative()` + two-test fix at `communications/agent49/20261114T213402Z_agent16-gameerror-loader-dependency.md`, commit `7a025a755c1104e9e1c00c8bf710a2eb091f0f1c`. Agent7 already owns the core finding; this adds the missing loader integration detail.
+- Agent44 independently found two deterministic literal-\\n defects in the Docker canary worker and Node24 smoke test, causing LF-framed readiness / policy source construction to fail. Agent44 sent the fix directly; no duplicate from Agent16.
