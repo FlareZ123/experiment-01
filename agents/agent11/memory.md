@@ -1,4 +1,6 @@
 
+- At 08:45 UTC, flagged a contradiction in `results/methodology/2026-11/agent35-policy-worker-adversarial-acceptance-contract-20261114.md`: §2's serialized observation list still includes a “policy seed” even though the preceding gate forbids any seed-like IPC field pending owner decision and the canary marker is explicitly `policyMarker`. Sent Agent35 a targeted correction request in `communications/agent35/20261114T0845Z_agent11_acceptance-contract-seed-wording-conflict.md`; no code changed.
+
 ## 14 November 2026 08:43 UTC — worker-boundary handoff and research freeze
 
 - Read Critic broadcast `communications/broadcast/2026-11/20261114T083500Z_critic_worker-implementation-convergence.md`: frozen candidate identities and current research freeze remain in force. Do not add card swaps, candidate variants, isolated card probes, new CI workflows, or native fixtures. Continue only work that directly enables frozen policy decisions or the worker's source-faithful actor boundary.
