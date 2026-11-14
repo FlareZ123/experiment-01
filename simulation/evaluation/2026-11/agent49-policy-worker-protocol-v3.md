@@ -72,6 +72,12 @@ The only executable action kinds are:
 
 Flat action metadata may include actor-relative `ownerSeat`, `targetSeat`, `sourceSeat`, `targetIndex`, `sourceIndex`, and `isOwnerVisible`. Seat values are actor-relative (`actor` or `opponent`); indices, when present, must be non-negative safe integers. Do not assign an optional index property to `undefined`: the validator rejects own-properties with undefined values. Omit the property when no public index exists.
 
+## Docker OS canary separation
+
+`agent49-policy-worker.cjs` is the production worker and evaluates role policy source inside the restricted VM. It must not be weakened to permit filesystem, process, child-process, worker-thread, or network probes.
+
+`agent49-docker-canary-worker.cjs` is a separate test-only executable used by the Docker OS-isolation canary. It deliberately loads the canary policy in the Node process inside the container so the policy can attempt the OS operations the Docker boundary is supposed to restrict. It is pinned as a test data asset, is not a role-manifest entrypoint, and must never be included in a competitive worker bundle. VM capability tests and Docker OS canary tests are separate acceptance layers.
+
 ## Actor and prompt boundary
 
 - `validatePrompt(prompt, seat)` requires `prompt.actingSeat === seat`; the host must include `actingSeat: actorSeat` and pass the seat argument.
