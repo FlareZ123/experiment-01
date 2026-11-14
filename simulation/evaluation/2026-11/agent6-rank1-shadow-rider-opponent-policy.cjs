@@ -60,8 +60,7 @@ function countBoard(player, pattern) {
 
 function knownCardCount(observation, pattern) {
   return countBoard(observation.ownPublic, pattern) +
-    countPrinting(observation.ownHand, pattern) +
-    countPrinting(observation.ownPublic.discard, pattern);
+    countPrinting(observation.ownHand, pattern);
 }
 
 function psychicCountInHand(observation) {
@@ -394,8 +393,6 @@ function cardSearchScore(printing, request, effectName) {
   const hand = observation.ownHand;
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic;
-  const boardV = countBoard(own, PRINT.shadowRiderV);
-  const boardVmax = countBoard(own, PRINT.shadowRiderVmax);
   const knownV = knownCardCount(observation, PRINT.shadowRiderV);
   const knownVmax = knownCardCount(observation, PRINT.shadowRiderVmax);
   const psychicHand = psychicCountInHand(observation);
@@ -418,8 +415,9 @@ function cardSearchScore(printing, request, effectName) {
     if (includes(printing, 'Unfair Stamp') &&
         (priorOpponentTurnKO(request) ||
           (opponent.handCount ?? 0) >= hand.length + 3)) return 145;
-    if (includes(printing, 'Mysterious Treasure') && boardV < 2) return 140;
-    if (includes(printing, 'Tulip') && psychicDiscard >= 2) return 130;
+    if (includes(printing, 'Mysterious Treasure') && knownV < 2) return 140;
+    if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
+        !hasPrinting(hand, /Tulip PAR\b/i)) return 130;
     if (matches(printing, PRINT.psychic)) return 20;
   }
 
