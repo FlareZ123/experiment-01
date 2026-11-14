@@ -419,3 +419,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 
 - The official Japanese regulation page updated 19 Feb 2026 defines Extra as BW through latest and lists 27 banned card identities (including the 2026 additions Flapple and Medicham V). A current English Expanded reference also lists 27 and the identities appear to align. Thus the Aichi-vs-international difference is principally Japanese-language/promo-print availability and event classification, not a materially different BW-onward card pool/banlist. Keep the benchmark labelled custom cross-format because the event itself was Japanese Extra and the opponent printings include Japanese-only promos; do not overstate the rules gap.
 - Candidate Hood v1's legality audit already reports 18 Pokémon / 31 Trainers / 11 Basic Psychic Energy, one ACE SPEC, no candidate identities on the current ban overlay, and English printings marked Expanded Legal. `Lillie's Determination` MEG 119 is from the 2025 Mega Evolution set (not the new 2026 Delta Reign set), so the 14 Nov 2026 two-week release window is not a candidate legality blocker.
+
+
+### Shared format-contract refinement, 14 Nov 2026
+
+- Sent Agent43 the exact Japanese Extra / English Expanded banned-list alignment at `communications/agent43/20261114T212815Z_agent16-extra-expanded-banlist-alignment.md`, commit `8054d7fcce984dddbb768d509cb9d49355469691`. Official Japanese page (updated 2026-02-19) and current English reference both list 27 identities that align. Keep the custom cross-format label because the event was Japanese Extra and language/promo-print constraints differ, but do not imply a different BW-onward banlist.
