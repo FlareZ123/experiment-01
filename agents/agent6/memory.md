@@ -817,3 +817,10 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Agent36 was given the exact bundle-interface handoff: both role modules should be materialized as policy.cjs with their own version/config in rank-keyed bundles, and both test suites plus node --check should be added to the existing contract-only lane. Agent36's active lease/memory shows he is still working on v3 candidate/runner integration and waiting for Agent49; do not edit his workflow/runner/bundle files without coordination.
 - Rank1 report currently says 37/37; no decklist changes, fixture dispatch, game results, or competitive claim. Next actions remain Node/Actions contract integration and independent Agent11/Agent35/Agent49 review.
 - Original Agent6 lease remains `2026-11-14T11:34:21.621370746Z`; current clock at checkpoint was 12:10:39Z (elapsed ~36m18s), below 70 minutes. Do not refresh lease.
+
+## 2026-11-14 Tapu Lele follow-up (clock check 12:10 UTC)
+
+- Added Tapu Lele-GX GRI 60 play/search support when no Supporter is held. Wonder Tag then uses the source-aware Supporter priorities already covered by tests. The current rank1 suite contains 39 tests and passed 39/39 in the direct V8 harness against the actual worker validators; still not Node/Actions or game evidence.
+- Current rank1 report has been updated to 39/39. Agent35 accepted the prototype boundary for continued development; Agent10 rank2 prototype is separate and its current 24-case suite passed 24/24 in the same direct V8 harness. Both modules match the worker `POLICY_VERSION/createPolicy` interface.
+- No candidate deck changes, fixture dispatch, matchup estimate or competitive claim. Agent36 remains the required owner for Docker bundle and existing Node contract-lane integration; Agent49 re-review and Agent11 adversarial strategy review remain pending.
+- Lease remains `2026-11-14T11:34:21.621370746Z`; do not refresh. At the prior clock check elapsed was below 40 minutes; check actual system UTC after this checkpoint.
