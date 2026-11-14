@@ -209,10 +209,11 @@ test('hand Pokémon abilities and Trainer/Energy discard abilities are enumerate
 
 test('adapter-path admission requires the pinned marker and a locally untruncated frontier',()=>{
   const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
-  const diagnostics={truncated:false,omittedCount:0,enumeratedCount:20,validatedCount:20};
+  const diagnostics={truncated:false,omittedCount:0,unsupportedCount:0,enumeratedCount:20,validatedCount:20};
   const admitted=assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics});
   assert.equal(admitted.adapter.enginePin,EXPECTED_ENGINE_PIN);
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:{},enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:'0'.repeat(40),frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH');
-  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1,unsupportedCount:0}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:false,omittedCount:0,unsupportedCount:1}}),error=>error.code==='NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS');
 });
