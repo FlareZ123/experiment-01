@@ -8,7 +8,7 @@ const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v2';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v2';
-const EVENT_SCHEMA = 'aichi-public-event-receipt-v1';
+const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
 
 const LIMITS = Object.freeze({
@@ -321,7 +321,7 @@ function validatePublicEventReceipt(receipt, view) {
     'version', 'actorSeat', 'turn', 'ownerActive', 'ownerBench', 'priorOpponentTurnKO',
     'opponentLastTurnAttack', 'opponentLastTurnTurn', 'opponentLastTurnAttacks'
   ], ['opponentCopycatChoices', 'mimikyuCopycatCompatible']);
-  if (receipt.version !== 'agent8-public-event-receipt-v3-turn-stamped' ||
+  if (receipt.version !== EVENT_RECEIPT_VERSION ||
       receipt.actorSeat !== view.actorSeat || receipt.turn !== view.globalTurn) fail('BAD_PUBLIC_EVENT_RECEIPT');
   validateEventPokemon(receipt.ownerActive, view.ownPublic.active);
   const viewActivePrinting = view.ownPublic.active === null ? null : view.ownPublic.active.printing;
@@ -636,7 +636,7 @@ if (require.main === module) {
 
 module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
-  OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_SCHEMA, FRONTIER_SCHEMA,
+  OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_RECEIPT_VERSION, FRONTIER_SCHEMA,
   LIMITS, validateInit, validateRequest, validateDecision, validateActorObservation,
   validatePublicEventReceipt, validateFlatMetadata
 };
