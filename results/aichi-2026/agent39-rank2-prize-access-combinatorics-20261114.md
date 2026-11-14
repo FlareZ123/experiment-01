@@ -1,0 +1,145 @@
+# Rank-2 Vileplume Control: Prize-access chain combinatorics
+
+**Date:** 2026-11-14  
+**Author:** Agent39  
+**Evidence class:** exact hypergeometric derivation from the authenticated source 60; card-text/rules interpretation; no simulation or matchup claim.
+
+## Question
+
+How exposed is the rank-2 source list's Peonia / Lusamine / Gladion / Team Yell's Cheer access package to its initial six Prizes, and what does that imply for an actor policy that must choose how many Prizes Peonia takes?
+
+## Source inventory
+
+The authenticated rank-2 entry (Takahiro Ando) in [full-decklists.json](full-decklists.json) is exactly 60 cards and contains:
+
+| Card | Copies | Relevant printed function |
+|---|---:|---|
+| Peonia CRE 149 | 1 | Take up to 3 Prize cards into hand; replace each taken Prize with a card from hand |
+| Lusamine CIN 96 | 1 | Recover two Supporter/Stadium cards from discard to hand |
+| Gladion CIN 95 | 1 | Reveal own face-down Prizes, take one, then shuffle Gladion into remaining Prizes |
+| Team Yell's Cheer BRS 149 | 1 | Shuffle up to 3 Pokémon/Supporter cards (except itself) from discard into deck |
+| Pidgeot ex OBF 164 | 2 | Quick Search: search deck for any card into hand |
+| Bunnelby PRC 121 | 2 | Rototiller: shuffle one card from discard into deck |
+
+**Important inventory correction:** this rank-2 list has **one Lusamine**, not two. The two-Lusamine configuration belongs to rank 29. Rank 2 has one direct Lusamine-mediated Peonia recovery, but additional possible recycling routes exist through Team Yell's Cheer or Bunnelby's Rototiller followed by Pidgeot ex Quick Search. Those routes have turn, energy, board, and Supporter constraints and are not assumed to be automatically available.
+
+The card texts above are read from the supplied Expanded card pool archive. The supplied advanced-player rulebook, D-05, says a Trainer effect worded “up to N” permits a choice from 1 through N; only an attack may choose none. Thus Peonia's paper-valid Prize count is **1–3**, and its replacement count must equal the number of Prizes taken.
+
+## Exact initial Prize probabilities
+
+Assume a uniformly shuffled 60-card physical deck and six initial Prizes sampled without replacement. For a set of (m) distinct named physical copies, the probability that exactly (k) are Prized is:
+
+[
+P(X=k)=\frac{\binom{m}{k}\binom{60-m}{6-k}}{\binom{60}{6}}.
+]
+
+For the four singleton access Supporters (Peonia, Lusamine, Gladion, Team Yell's Cheer), the exact distribution is:
+
+| Number of these four in Prizes | Probability |
+|---:|---:|
+| 0 | 64.8540% |
+| 1 | 30.5195% |
+| 2 | 4.4019% |
+| 3 | 0.2215% |
+| 4 | 0.0031% |
+| **At least 1** | **35.1460%** |
+| **At least 2** | **4.6264%** |
+
+This means one or more of the four singleton access pieces is Prized in about 35.15% of initial configurations, but all four being Prized is only about 0.0031%. The former is not a failure rate: the pieces can recover or find one another, and the table says nothing about later draw/search or game outcomes.
+
+For any two specified one-ofs, the probability both are in the six Prizes is:
+
+[
+\frac{\binom{58}{4}}{\binom{60}{6}}=0.84746\%.
+]
+
+Therefore:
+- Peonia **and** Gladion Prized: 0.84746%.
+- Peonia **and** Lusamine Prized: 0.84746%.
+- Lusamine **and** Gladion Prized: 0.84746%.
+- Peonia, Lusamine, **and** Gladion all Prized: 0.05845%.
+- All four singleton access Supporters Prized: 0.00308%.
+
+For either two-copy Pokémon line (Pidgeot ex or Bunnelby):
+- At least one copy Prized: 19.1525%.
+- Both copies Prized: 0.84746%.
+
+The two-copy lines therefore have meaningful individual Prize exposure, but their complete loss to Prizes is much less common than one copy being Prized.
+
+## Peonia–Gladion cross-access
+
+For the two direct Prize-access cards Peonia and Gladion:
+
+| Initial configuration | Probability | Consequence |
+|---|---:|---|
+| Neither Prized | 80.8475% | Both are available outside Prizes |
+| Exactly one Prized | 18.3051% | The other access card may recover it |
+| Both Prized | 0.8475% | Direct Peonia/Gladion cross-access is unavailable |
+
+If Peonia is Prized and Gladion is not, Gladion can reveal the remaining own Prizes and select Peonia if it is still there.
+
+If Gladion is Prized and Peonia is not, Peonia can select face-down Prize slots. If the player knows Gladion is among (n) remaining unknown positions but does not know which position contains it, selecting (k) distinct positions hits it with probability:
+
+[
+P(\text{hit}mid\text{target among }n)=\frac{k}{n}.
+]
+
+With six remaining unknown Prizes, selecting 1, 2, or 3 gives 16.667%, 33.333%, or 50%. Before the first physical deck search (K0), if the player does not know whether a singleton target is Prized at all, the blind hit probability is instead (k/60): 1.667%, 3.333%, or 5%.
+
+This is why safe hand-replacement capacity matters. The policy should not simply select three every time: it should choose the largest (k\leq3) for which it can safely replace (k) cards, while recognizing that fewer replacements reduce the chance of hitting a known Prized singleton.
+
+## Repeated Peonia and slot coverage
+
+If Peonia takes (k_1) Prize slots and replaces those slots, then a later Peonia can sample (k_2) **fresh** positions if no intervening event changes the slot mapping. The number of distinct original Prize positions observed is:
+
+[
+\min(6,k_1+k_2).
+]
+
+For example, two three-card Peonia resolutions can expose all six original Prize positions, provided all six are still present and no intervening shuffle/reindexing occurs. The owner-visited-slot helper is a reasonable mechanism for preferring unvisited physical indices; its ledger must be updated only after the entire native replacement/order chain settles.
+
+Gladion is different: after taking one revealed Prize, it shuffles itself into the remaining Prizes and puts them back face down. This destroys the old slot-to-card mapping. Clear/rebuild the Peonia positional ledger after Gladion. The owner may retain knowledge of the **multiset** of remaining Prizes from the authenticated reveal, but not their new positions; do not conflate owner deck-membership knowledge with positional knowledge.
+
+Other untracked Prize movement, shuffle, reorder, slot compaction/reindexing, reset, or uncertain/aborted resolution must also invalidate or rebuild the positional ledger. Lusamine itself does not move Prizes.
+
+## Current policy implications
+
+The current Agent10 rank-2 policy does not prioritize Peonia as a play or as a recovery target:
+- Peonia and Gladion have zero card-play score.
+- Lusamine's play/target scoring does not prioritize Peonia.
+- Team Yell's Cheer scoring/target priority does not prioritize Peonia.
+- Bunnelby's Rototiller recovery scoring/target priority does not prioritize Peonia.
+- Pidgeot ex Quick Search / Pidgeotto Air Mail priority does not prioritize Peonia.
+- The current prize-slot prompt policy uses native `requiredCount` rather than a Peonia-specific paper 1–3 range, and it lacks original physical slot indices and persistent accepted-visit history.
+
+This is a coverage gap, not evidence that Peonia should always be played or recycled. The choice should depend on current lock/setup state, Supporter contention, energy and attack access, Prize knowledge (K0/K1), available recovery/search lines, and the marginal value of each hand card placed face down as a Prize.
+
+The human-concepts document's UDP/DCI/AMR ideas are useful heuristics here: replacement safety is state-dependent, and should protect cards needed for the current line while preferring genuinely redundant or low-value cards. A raw hand-size threshold is not enough.
+
+## Reproduction
+
+The calculations use only combinations of physical card copies:
+
+```python
+from math import comb
+
+den = comb(60, 6)
+
+def exactly_k_prized(m, k):
+    return comb(m, k) * comb(60 - m, 6 - k) / den
+
+for k in range(5):
+    print(k, exactly_k_prized(4, k))
+
+both_specific_singletons = comb(58, 4) / den
+three_specific_singletons = comb(57, 3) / den
+four_specific_singletons = comb(56, 2) / den
+at_least_one_of_four = 1 - exactly_k_prized(4, 0)
+```
+
+## Limitations
+
+- Exact initial Prize distribution only; no draw sequencing, mulligans, deck searches, Prize-taking, or opponent actions are modeled.
+- No simulation, human game, matchup result, policy improvement, or win-rate claim is made.
+- The recovery routes are card-text possibilities; their practical availability depends on board, Energy, Supporter timing, and the opponent's lock/disruption.
+- The 99.5% Aichi Top 32 objective remains wholly unproven.
