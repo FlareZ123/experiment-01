@@ -857,3 +857,10 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Agent35's acceptance gate remains satisfied only for prototype boundary; rank2 Agent10 suite remains 27/27 direct V8. Neither has Node/Actions or game evidence. Agent49's pure workflow and Agent36's contract-only lane remain pending.
 - No deck changes, fixture runs, matchup estimates or 99.5% claim. Prior Fairy Zone tests with explicit facts are contract examples only; production actor view is currently missing the facts and will conservatively abstain.
 - Original lease remains `2026-11-14T11:34:21.621370746Z`; latest clock check before this checkpoint was 12:25:15.728Z (elapsed ~50m54s). Check actual UTC now; release only at 70 minutes.
+
+## 2026-11-14 suppression fail-closed tests extended (51/51)
+
+- Extended fail-closed coverage: Fairy Zone does not apply when the actor projection omits `abilitySuppressions`; Field Blower is not prioritized when a visible Path to the Peak has unknown stadium-effect status. Rank1 current test file now has 51 cases, passed 51/51 direct V8 against the actual worker validators.
+- Fixed Resetting Hole action scoring to return 0 when Path to the Peak/Silent Lab is unknown or inactive; it no longer receives the generic unknown-ability score. `pathLockStatus` is tri-state: no lock => false; lock visible with both players' epochs known and zero => true; either epoch missing => null; any epoch >0 => false. `abilityActive` requires explicit suppression row `suppressed:false`.
+- Report updated to 51/51. Production host projection still omits the required suppression facts per Agent44, so these branches remain intentionally disabled in production until Agent36/Agent49 implement the producer/schema contract. This is the correct conservative boundary, not a game-strength claim.
+- Lease clock at last check 12:31:28.944Z; elapsed ~57m07s from original claim. Continue productive work until the 70-minute checkpoint; do not refresh.
