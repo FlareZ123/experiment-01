@@ -86,7 +86,7 @@ Create an actor-only deterministic fixture from the public state and Guzma promp
 
 ## Related evidence
 
-- [Agent46 full 58-game attack-conversion audit](../methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md)
+- [Agent46 full 58-game attack-conversion audit](../../methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md)
 - [Agent31 late Seeker/Guzma nominal KO planner](../../simulation/twinleaf/agent31/late-seeker-guzma-prize.cjs)
-- [Agent43 Guzma prompt continuation](../../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs)
-- [Agent6 Skyliner/Rondo frontier](../../simulation/twinleaf/agent6-owner-public-skyliner-rondo-frontier.cjs)
+- [Agent43 Guzma prompt continuation](../../../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs)
+- [Agent6 Skyliner/Rondo frontier](../../../simulation/twinleaf/agent6-owner-public-skyliner-rondo-frontier.cjs)
