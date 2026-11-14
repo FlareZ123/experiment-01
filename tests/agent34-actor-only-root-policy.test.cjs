@@ -1500,6 +1500,48 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     onePsychicWithValley,postTimelessCatalog,{ownerSeat:0}),null,
     'Dimension Valley makes one Psychic sufficient for the current Power Beam Copycat competitor');
 
+  const hqTwoEnergyMimikyu={...active,energies:[psychic,psychic]};
+  const hqTwoEnergyView={
+    ...view,
+    ownPublic:{...view.ownPublic,active:hqTwoEnergyMimikyu,
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ'],
+      stadium:['Pokémon League Headquarters SV3 192']}
+  };
+  const hqTwoEnergyIntent=choosePostTimelessMaxGeistRetreat(
+    hqTwoEnergyView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(hqTwoEnergyIntent,
+    'Headquarters makes the Basic Mimikyu Copycat competitor require three Energy');
+  assert.equal(hqTwoEnergyIntent.competingPowerBeamAvailable,false,
+    'two Psychic Energy cannot pay Copycat under Pokémon League Headquarters');
+  const hqThreeEnergyView={
+    ...hqTwoEnergyView,
+    ownPublic:{...hqTwoEnergyView.ownPublic,
+      active:{...active,energies:[psychic,psychic,psychic]}}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    hqThreeEnergyView,postTimelessCatalog,{ownerSeat:0}),null,
+    'three Psychic Energy pay Copycat under Headquarters, so its terminal Power Beam KO vetoes Max Geist');
+
+  const hqUnderfundedVmax={...vmax,energies:[psychic,psychic]};
+  const headquartersDoesNotDiscountVmax={
+    ...view,
+    ownPublic:{...view.ownPublic,active:{...active,energies:[]},
+      bench:[latias,clefairy,hqUnderfundedVmax],
+      stadium:['Pokémon League Headquarters SV3 192']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    headquartersDoesNotDiscountVmax,postTimelessCatalog,{ownerSeat:0}),null,
+    'Pokémon League Headquarters applies to Basic Mimikyu, not Shadow Rider VMAX Max Geist');
+  const conflictingCostStadiums={
+    ...view,
+    ownPublic:{...view.ownPublic,stadium:['Dimension Valley PHF 93']},
+    opponentPublic:{...view.opponentPublic,
+      stadium:['Pokémon League Headquarters SV3 192']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    conflictingCostStadiums,postTimelessCatalog,{ownerSeat:0}),null,
+    'mutually exclusive cost-modifying Stadiums in the public view fail closed');
+
   const opponentLatias={
     ...target,printing:'Latias ex SSP',hp:210,damage:0,
     printed:{stage:'Basic',types:[5],subtypes:['Basic','ex'],
