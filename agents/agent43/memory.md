@@ -1049,7 +1049,7 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 
 
-## 14 November 2026 07:xx UTC — 99.5% Regidrago group-floor stress test
+## 14 November 2026 06:48 UTC — 99.5% Regidrago group-floor stress test
 
 - Connected the existing exact group-loss budget `results/statistics/group-loss-budget.md` to the core-copy access frontier. The 11 Regidrago placements require at least **98.5455% average wins** if all other ranks are perfect. The access feasibility figures are 85.9140% (1/1/1), 88.1516% (1/1/2), 92.2004% (2/1/1 or 1/2/1), 98.8157% (2/2/1), and 99.0115% (2/2/2). The 2/1/1/1/2/1 access events are below the necessary group win floor; 2/2/1 only clears it by 0.2702 pp before actual game attrition.
 - This is not an access-vs-win comparison. It establishes a strategic constraint: Copycat cannot be the sole Regidrago win path at the 99.5% objective unless the access shortfall and all execution failures are covered by other winning routes. Even 2/2/1 is only an optimistic access result with negligible margin; the second Basic cut is not justified yet. Do not create/promote 2/2/1 without a defensible full-field cut screen.
