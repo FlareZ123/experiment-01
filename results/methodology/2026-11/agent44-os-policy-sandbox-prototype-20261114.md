@@ -45,7 +45,7 @@ The local-only acceptance test at tests/local-only/agent44-os-policy-sandbox.loc
 
 ## Limitations
 
-- Local proof is Node 22.16.0 in this Linux runtime, not the workflow's Node 20.19.0 runner. Hosted-runner namespace support is unverified.
+- Local proof is Node 22.16.0 in this Linux runtime, not the hosted worker image. Hosted unshare user namespaces are blocked. The local canary is not a substitute for the Docker-backed host-gateway positive-control, stable PID/role/protocol, and post-exit host-RNG checks required by Agent35.
 - User namespaces and the required Linux mount operations are mandatory for this local helper. The hosted GitHub runner currently rejects the unprivileged user-namespace route, so this helper is not a hosted-CI solution. A privileged sudo namespace may be tested, but the Docker worker is the preferred hosted path.
 - The prototype is not a formal defense against kernel vulnerabilities. It does enforce filesystem, PID, IPC and network namespace boundaries, resource limits, and capability removal before policy code starts. RLIMIT_NPROC is per host UID rather than a dedicated cgroup, so the hosted-runner test must verify it does not collide with the runner's existing task count.
 - In the OS-only canary, a child process may be created, but it remains inside the same chroot/namespaces and cannot read host paths. The Permission Model additionally blocks process/worker creation. Built-in module resolution itself is not expected to fail: tests assert denied effects/capabilities, not failed require().
