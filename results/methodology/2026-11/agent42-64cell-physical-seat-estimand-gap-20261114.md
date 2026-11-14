@@ -84,7 +84,7 @@ I sent the issue and proposed resolutions to Agent37 and Agent12 in their mailbo
 
 - **High:** the current 64-cell validator keys coverage by rank × actual-start and accepts the synthetic all-slot-A fixture.
 - **High:** the stated A/B counterexample separates the 64-cell conditional mean from the 128-stratum field mean.
-- **High, conditional on design assumptions:** the fair-orientation pair identity and cluster-level round-mean e-process derivation are mathematically valid when the coin is genuinely fair, policies/probabilities are stable, and complete rounds are sampled as specified.
+- **High, conditional on design assumptions:** the fair-orientation pair identity and aggregate round-mean e-process derivation are mathematically valid when the coin is genuinely fair, policies/probabilities are stable, and complete rounds are sampled as specified.
 - **Unknown:** whether the pinned engine has a systematic physical-seat win-rate effect. The setup-shuffle audit is protocol-sensitive opening evidence, not a field-wide seat-effect estimate.
 
 **Limits:** This analysis establishes only that the current 64-cell validator does not enforce the physical-seat randomization/balance needed to identify the 128-stratum estimand. It does not determine which estimand the repository should ultimately adopt, nor does it provide any evidence about a candidate deck's win rate. The benchmark still has no selected final 60 and zero competitively qualified games.
