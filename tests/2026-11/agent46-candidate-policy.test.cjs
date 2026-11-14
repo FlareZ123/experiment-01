@@ -668,7 +668,8 @@ test('phase-one setup policy rejects wrong phases, source identities, labels, an
     const wrongSource = engineSetupRequest(seat, {
       promptType: 'ConfirmPrompt', description: 'GO_FIRST',
       choices: goFirstChoices, publicMetadata: { selectionType: 'confirm' },
-      sourceKind: 'card-effect'
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Unknown Trainer XYZ'
     });
     assert.equal(evaluate(wrongSource).kind, 'abstain');
 
