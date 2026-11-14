@@ -1572,6 +1572,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(terminalCrossover.projectedPrintedDamage,220);
   assert.equal(terminalCrossover.projectedDamage,220);
   assert.equal(terminalCrossover.competingPowerBeamAvailable,true);
+  assert.equal(terminalCrossover.stadiumEffectsSuppressedForOwnPokemon,false);
   assert.equal(terminalCrossover.competingPowerBeamDamage,200);
   assert.equal(terminalCrossover.competingPowerBeamWouldKo,false);
   assert.equal(terminalCrossover.projectedPrizeCount,2);
@@ -1990,7 +1991,26 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
     opponentEpochSuppressesValley,postTimelessCatalog,{ownerSeat:0}),null,
-    'a known-positive opponent epoch proves global Stadium suppression even when the own epoch is unknown');
+    'an opponent-only positive epoch remains unresolved until the two-seat native Store probe');
+
+  const ownerEpochPositiveOpponentUnknown={
+    ...hqTwoEnergyView,
+    opponentPublic:{...hqTwoEnergyView.opponentPublic,
+      publicTurnRestrictions:{
+        ...hqTwoEnergyView.opponentPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:undefined
+      }},
+    ownPublic:{...hqTwoEnergyView.ownPublic,
+      publicTurnRestrictions:{
+        ...hqTwoEnergyView.ownPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:1
+      }}
+  };
+  const ownerEpochIntent=choosePostTimelessMaxGeistRetreat(
+    ownerEpochPositiveOpponentUnknown,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(ownerEpochIntent);
+  assert.equal(ownerEpochIntent.stadiumEffectsSuppressedForOwnPokemon,true,
+    'the directly reproduced own-positive epoch dominates an unknown opponent epoch');
 
   const suppressedValley={
     ...twoEnergyWithoutDiscount,
@@ -2037,16 +2057,65 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
     newMoonValley,postTimelessCatalog,{ownerSeat:0}),null,
-    'Lunatone New Moon plus Solrock suppresses Dimension Valley for the candidate VMAX');
+    'a printed New Moon pair without an explicit live-Ability row is unknown and must abstain');
 
-  const newMoonHeadquarters={
-    ...hqTwoEnergyView,
-    ownPublic:{...hqTwoEnergyView.ownPublic,
-      bench:[latias,clefairy,vmax,newMoonLunatone,newMoonSolrock]}
+  const liveNewMoonLunatone={
+    ...newMoonLunatone,
+    abilitySuppressions:[{abilityName:'New Moon',suppressed:false,
+      reasonCode:null,sourcePrinting:null}]
+  };
+  const liveNewMoonValley={
+    ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93'],
+      bench:[latias,clefairy,twoEnergyVmax,liveNewMoonLunatone,newMoonSolrock]}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
-    newMoonHeadquarters,postTimelessCatalog,{ownerSeat:0}),null,
-    'New Moon suppresses Headquarters surcharge on Mimikyu and reveals the terminal Power Beam route');
+    liveNewMoonValley,postTimelessCatalog,{ownerSeat:0}),null,
+    'an explicitly live New Moon ability suppresses Dimension Valley for the actor');
+
+  const suppressedNewMoonLunatone={
+    ...newMoonLunatone,
+    abilitySuppressions:[{abilityName:'New Moon',suppressed:true,
+      reasonCode:'EXPLICIT_TEST_SUPPRESSION',sourcePrinting:'Test Suppressor'}]
+  };
+  const suppressedNewMoonValley={
+    ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93'],
+      bench:[latias,clefairy,twoEnergyVmax,suppressedNewMoonLunatone,newMoonSolrock]}
+  };
+  const suppressedNewMoonIntent=choosePostTimelessMaxGeistRetreat(
+    suppressedNewMoonValley,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(suppressedNewMoonIntent);
+  assert.equal(suppressedNewMoonIntent.stadiumEffectsSuppressedForOwnPokemon,false,
+    'an explicitly suppressed New Moon ability does not block the Stadium discount');
+
+  const targetHighHp={...target,hp:250};
+  const liveNewMoonHeadquarters={
+    ...hqTwoEnergyView,
+    ownPublic:{...hqTwoEnergyView.ownPublic,
+      bench:[latias,clefairy,vmax,liveNewMoonLunatone,newMoonSolrock]},
+    opponentPublic:{...hqTwoEnergyView.opponentPublic,active:targetHighHp}
+  };
+  const liveNewMoonHqIntent=choosePostTimelessMaxGeistRetreat(
+    liveNewMoonHeadquarters,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(liveNewMoonHqIntent);
+  assert.equal(liveNewMoonHqIntent.stadiumEffectsSuppressedForOwnPokemon,true);
+  assert.equal(liveNewMoonHqIntent.competingPowerBeamAvailable,true,
+    'live New Moon suppresses Headquarters surcharge, making Copycat payable');
+  assert.equal(liveNewMoonHqIntent.competingPowerBeamWouldKo,false,
+    'the 200-damage Power Beam is not terminal against the 250-HP target');
+
+  const opponentNewMoonView={
+    ...twoEnergyWithoutDiscount,
+    opponentPublic:{...twoEnergyWithoutDiscount.opponentPublic,
+      bench:[liveNewMoonLunatone,newMoonSolrock]}
+  };
+  const opponentNewMoonIntent=choosePostTimelessMaxGeistRetreat(
+    opponentNewMoonView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(opponentNewMoonIntent,
+    'opponent-side New Moon does not suppress Stadium effects on the acting player');
 });
 
 
