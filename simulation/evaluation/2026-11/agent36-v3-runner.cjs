@@ -655,6 +655,8 @@ const V3_FIXTURE_TEST_PATHS = [
   'tests/2026-11/agent36-prompt-projection.test.cjs',
   'tests/2026-11/agent36-prompt-provenance.test.cjs',
   'tests/2026-11/agent49-policy-worker.test.cjs',
+  'tests/2026-11/agent36-docker-policy-worker.test.cjs',
+  'tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs',
   'tests/agent36-runtime-module-pin.test.cjs',
 ];
 
