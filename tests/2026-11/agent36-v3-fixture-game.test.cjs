@@ -498,8 +498,8 @@ test('V3 fixture uses encrypted diagnostics with an owner key and safe summaries
 
   const keyGuard = workflow.slice(keyGuardAt, compileAt);
   assert.ok(keyGuard.includes('id: diagnostic_recipient'));
-  assert.ok(keyGuard.includes('if: \${{ inputs.agent36_v3_fixture_game }}'));
-  assert.ok(keyGuard.includes('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: \${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}'));
+  assert.ok(keyGuard.includes('if: ${{ inputs.agent36_v3_fixture_game }}'));
+  assert.ok(keyGuard.includes('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}'));
   assert.ok(keyGuard.includes('crypto.createPublicKey(pem)'));
   assert.ok(keyGuard.includes('mode=sanitized-only'));
   assert.ok(keyGuard.includes('mode=encrypted-full'));
@@ -541,7 +541,7 @@ test('V3 fixture uses encrypted diagnostics with an owner key and safe summaries
   assert.ok(encryptionStep.includes("steps.diagnostic_recipient.outputs.mode == 'encrypted-full'"),
     'full private diagnostics must be encrypted even when the game step fails');
   const gameStep = workflow.slice(gameAt, workflow.indexOf('Execute registered rank11/New Moon', gameAt));
-  assert.ok(gameStep.includes('AGENT36_V3_DIAGNOSTIC_MODE: \${{ steps.diagnostic_recipient.outputs.mode }}'));
+  assert.ok(gameStep.includes('AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}'));
   const uploadStep = workflow.slice(uploadAt);
   assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.sanitized.json'));
   assert.ok(uploadStep.includes('artifacts/agent36-v3-fixture/fixture-game.sanitized.txt'));
