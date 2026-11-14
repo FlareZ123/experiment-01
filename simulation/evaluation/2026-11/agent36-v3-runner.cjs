@@ -1166,7 +1166,7 @@ function createV3WorkerDecisionResolver({
   const roleForSeat=seat=>seat===roleSeatMap.candidate?'candidate':
     seat===roleSeatMap.opponent?'opponent':null;
   const emptyFrontier={schema:workerProtocol.FRONTIER_SCHEMA,items:[]};
-  const recordFailure=(roleAudit,error)=>{
+  const recordFailure=(roleAudit,error,session)=>{
     const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
       error.code:'WORKER_DECISION_FAILURE';
     if(code==='POLICY_ABSTAINED'){
@@ -1177,7 +1177,7 @@ function createV3WorkerDecisionResolver({
       workerAudit.totalFailures++;
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
-    if(String(session?.stderr??'').includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE'))
+    if(String(session?.channel?.stderr??'').includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE'))
       roleAudit.policyDrawCount=null;
     roleAudit.lastFailureCode=code;
   };
@@ -1275,7 +1275,7 @@ function createV3WorkerDecisionResolver({
         state:request.state,actorSeat,native,dispatch:false
       });
     }catch(error){
-      recordFailure(roleAudit,error);
+      recordFailure(roleAudit,error,session);
       throw error;
     }
   };
