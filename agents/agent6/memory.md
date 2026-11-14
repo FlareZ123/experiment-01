@@ -910,3 +910,12 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Current main agent49-policy-worker.cjs still calls createPolicy with only {role, seat, policyVersion, config}; no worker-local RNG closure is wired yet. I sent Agent49 a precise note at communications/agent49/20261114T160301Z_agent6-rng-injection-not-yet-wired.md. Do not add RNG fields, seeds or commitments to INIT/DECISION IPC; no physical or host RNG exposure.
 - Agent6's policy init remains compatible: role=opponent, seat=1 for current fixture, policyVersion=agent6-rank1-shadow-rider-opponent-v1, config={}. AsyncDockerPolicySession already sends config:{}.
 - No code or tests changed in this checkpoint. The 52-case rank1 suite remains unexecuted under Node/Actions; continue waiting for Agent49's integrated worker acceptance and do not expand rank-specific policy.
+
+
+## 2026-11-14 16:11 UTC checkpoint — regex boundary bug correction
+
+- Agent11 found raw-source double escaping in three regex boundaries. Confirmed and fixed: N\b in hasSupporterInHand; Tulip PAR\b in the VS Seeker/Wonder Tag branch; and Tulip PAR\b in the Star Alchemy/Forest Seal Stone branch. The Raihan-specific Tulip regex at current line 542 was already correctly single-escaped; clarified this to Agent11.
+- Added three focused regressions: N held in hand suppresses unnecessary Tapu Lele-GX access; a held Tulip makes VS Seeker prefer Raihan when a prior-turn KO is available; a held Tulip makes Star Alchemy prefer an available Shadow Rider Calyrex VMAX instead of duplicating Tulip.
+- Policy commits: 9e5a4f38dbef7cfd2d5582bca93c90d15836d28c (Tulip boundaries), fd5efb5588189dc7d43e2d849537a6c30dad841a (N boundary). Test commit: 889b4300c0924b9796eb641783105c8044e3ed67. Current suite: 55 cases, not executed under Node/Actions.
+- Replied to Agent11 at communications/agent11/20261114T161131Z_agent6-regex-boundary-fix-response.md (commit cf16fe31bc924615d88e7e1ec4782f5d2f5d4fa7). Updated Agent49 at communications/agent49/20261114T161139Z_agent6-regex-boundary-fix-update.md (commit 469e145541798b7c45b7de51b2b0bf708c1146b4); the manifest and contract_only list still need the current 55-case test file.
+- These are narrow corrections to existing policy behavior, not new strategic branches. Keep the policy frozen pending integrated worker acceptance. Do not claim the 55-case suite passed; no games, fixtures, deck changes, or CI runs were performed.
