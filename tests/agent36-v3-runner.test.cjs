@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
@@ -13,9 +14,12 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,
+  V3_FIXTURE,V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
+  buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
+const {cleanupPolicyBundle}=require('../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 const {
   preparePreDealPolicyRegistration,
   revalidatePreDealPolicyRegistration
@@ -584,17 +588,84 @@ test('host validates worker policy as inert data and never executes its module b
   }
 });
 
-test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
-  const source=fs.readFileSync(require.resolve(
-    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
-  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
-  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
-  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
+test('real worker role manifests pin policy source and keep executable in data assets',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const common={
+    repositoryRoot,enginePin:'a'.repeat(40),runnerRevision:'b'.repeat(40),
+    commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
+    orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN
+  };
+  const candidate=buildFixtureRoleEntryManifest({
+    ...common,entrypoint:V3_FIXTURE.candidateWorkerPolicyPath
+  });
+  const opponent=buildFixtureRoleEntryManifest({
+    ...common,entrypoint:V3_FIXTURE.opponentWorkerPolicyPath
+  });
+  for(const [result,policyPath] of [
+    [candidate,V3_FIXTURE.candidateWorkerPolicyPath],
+    [opponent,V3_FIXTURE.opponentWorkerPolicyPath]
+  ]){
+    assert.equal(result.manifest.complete,true);
+    assert.equal(result.manifest.entrypoint,policyPath);
+    assert.ok(result.manifest.files.some(file=>file.path===policyPath));
+    assert.ok(result.manifest.files.some(file=>file.path===V3_FIXTURE.protocolPath));
+    assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.workerPath),false);
+    assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.workerPath));
+    assert.deepEqual(result.manifest.sourceAuditLimitations.missingRelativeImports,[]);
+    assert.ok(Object.hasOwn(result.expectedByPath,V3_FIXTURE.protocolPath));
+    assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.workerPath),false);
+  }
 });
+
+test('role worker bundle packages protocol and policy and cleanup removes its root',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const built=buildRoleWorkerBundle({
+    repositoryRoot,policyModulePath:V3_FIXTURE.candidateWorkerPolicyPath
+  });
+  const bundleRoot=built.bundle.root;
+  try{
+    assert.deepEqual(built.bundle.manifest.files.map(file=>file.path),[
+      'agent49-policy-protocol.cjs','policy.cjs','worker.cjs'
+    ]);
+    assert.ok(built.bundle.manifest.files.every(file=>/^[a-f0-9]{64}$/.test(file.sha256)));
+  }finally{
+    cleanupPolicyBundle(built.bundle);
+  }
+  assert.equal(fs.existsSync(bundleRoot),false);
+});
+
+test('host policy preload hashes worker-only entrypoints without executing them',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const relativePath='simulation/evaluation/2026-11/.agent49-host-preload-probe.cjs';
+  const sourcePath=path.join(repositoryRoot,relativePath);
+  const sentinelPath=path.join(os.tmpdir(),'agent49-host-preload-sentinel-'+process.pid+'.txt');
+  const source=[
+    "'use strict';",
+    "const POLICY_VERSION='agent49-host-preload-probe-v1';",
+    "module.constructor._load('node:fs').writeFileSync("+JSON.stringify(sentinelPath)+",'executed');",
+    "async function createPolicy(){return {async decide(){return {kind:'abstain',reasonCode:'NOOP'};}};}",
+    'module.exports={POLICY_VERSION,createPolicy};'
+  ].join('\\n');
+  try{
+    fs.writeFileSync(sourcePath,source);
+    const loaded=loadWorkerPolicyModule({
+      repositoryRoot,sourcePath:relativePath,expectedPolicyVersion:'agent49-host-preload-probe-v1'
+    });
+    const sha256=createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex');
+    const preload=preloadRoleHostModules({
+      repositoryRoot,expectedByPath:{[relativePath]:sha256},workerOnlyPaths:[relativePath]
+    });
+    assert.equal(loaded.policyVersion,'agent49-host-preload-probe-v1');
+    assert.deepEqual(preload.hostExpectedByPath,{});
+    assert.deepEqual(preload.loadedPaths,[]);
+    assert.equal(fs.existsSync(sentinelPath),false,
+      'static policy inspection and host preloading must not execute worker-only policy source');
+  }finally{
+    fs.rmSync(sourcePath,{force:true});
+    fs.rmSync(sentinelPath,{force:true});
+  }
+});
+
 
 
 test('native Stadium actions fail closed without explicit liveness evidence',()=>{
@@ -608,17 +679,6 @@ test('native Stadium actions fail closed without explicit liveness evidence',()=
   assert.throws(()=>assertTrustedActionSelection(proven,'not-in-frontier'));
 });
 
-test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
-  const source=fs.readFileSync(require.resolve(
-    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
-  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
-  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
-  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
-});
 
 
 test('V3 fixture cannot run or publish the physical seed without explicit public authorization',async()=>{
