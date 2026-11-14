@@ -151,6 +151,23 @@ The fixed rule rejects when the 1,280-game total contains at most two nonwins. I
 
 This table is computed by the same binomial-tail helper and is useful for planning: at a homogeneous 99.9% win rate, the design has about 86.2% power. It is **not a uniform power guarantee over heterogeneous alternatives**. The pairwise-smoothing proof above establishes the least-favourable configuration for Type I error on the 99.5% null boundary; it does not establish the least-favourable configuration throughout the alternative space. The table must not be presented as a confidence bound or as expected deck performance.
 
+## Executable ledger integration
+
+The 10-per-stratum, at-most-two-nonwin field-mean test is now available through the existing shared ledger evaluator, `scripts/agent12-balanced-kl-field-bound.cjs`, via `assessBalancedFieldKl()`. It uses the same `validateFieldLedger()` gate as the heterogeneous field-mean KL method, so it requires all 32 source identities, all 128 balanced cells, a complete registered attempt ledger, fixed candidate/policy/engine/opponent/adjudication fingerprints, unique trial/deal/receipt IDs, and only paper-qualified wins/losses/ties.
+
+The exact branch activates only when all of the following hold:
+
+- `stratumSamplingModel: 'iid-bernoulli-v1'` is supplied;
+- the target and confidence are exactly 0.995 and 0.95;
+- every one of the 128 cells has exactly 10 games;
+- there are at most two total nonwins (losses and ties).
+
+It reports `boundMethod: 'exact-field-mean-two-nonwins-iid'`, the conservative rejection-region worst-case null p-value, and `conditionalStatisticalThresholdMet`. It intentionally returns `conditionalLowerBound: null`: this is a fixed-hypothesis test at the 99.5% boundary, not an inverted confidence-bound implementation. If the declaration is absent, the sample count differs, or there are more than two nonwins, the evaluator falls back to the heterogeneous independent-Bernoulli KL bound. Invalid ledgers never receive an exact result.
+
+The sampling-model declaration remains a **caller assertion**, not a cryptographic field bound into the opaque registration digest. It must be included in the preregistration and independently audited; this branch must not be used for paired/common-deal clusters, post-hoc model selection, optional stopping, changing policies, or non-i.i.d. outcomes within a stratum.
+
+Regression coverage was added to `tests/agent12-balanced-kl-field-bound.test.cjs` for the exact 1,280-game acceptance boundary, missing declaration, three nonwins, nine games per cell, and invalid-ledger fail-closed behavior. Existing manual workflow [43576181297](https://github.com/FlareZ123/experiment-01/actions/runs/43576181297) passed on head `f896ea701e6fa4a0dec444eaa77769fa0786a5ca`: the field-mean and simultaneous-matchup test suites, exact-rational proof certificate, and 32-rank policy-bundle validator all succeeded. This is statistical software validation only; no Twinleaf game or competitive evidence was produced.
+
 ## Scope limits and status
 
 This is a fixed-sample prospective method, not an anytime-valid or optional-stopping procedure. Do not inspect interim results and then choose among the 5-, 8-, or 10-games-per-cell designs without a separately preregistered alpha-spending or anytime-valid procedure. It is an aggregate field-mean test only; it does not guarantee that each of the 32 opponent matchups exceeds 99.5%. Use the separate simultaneous per-opponent methodology if that stronger claim is required.
