@@ -55,7 +55,7 @@ Eight Node v22.16.0 synthetic tests pass. They validate source-shaped enumeratio
 3. Update projectNativeAction() to project USE_TRAINER_ABILITY_ACTION and USE_ENERGY_ABILITY_ACTION through targetProjection; copy action.__agent3AttackSource into public metadata for AttackAction rows. Same-name attacks are already collapsed to the first source the native reducer resolves; do not claim they are independently selectable.
 4. Use assertKnownCapFreeAdapterAdmissionClear() on every root. It requires the adapter marker/pin and rejects the outer frontier's truncated flag, nonzero omittedCount, or nonzero unsupportedCount. Do not admit roots with unprojected action types.
 4. Persist the adapter marker, engine pin and frontier diagnostics per root.
-5. Add the test file to the existing bounded contract-only lane; do not create another workflow.
+5. The synthetic adapter test is now in the existing bounded contract_only lane; the separate cap-audit fallback test remains outside it. Do not create another workflow. The compiled native ActionEnumerator/Simulator regression currently covers nine Basic hand actions only and does not validate the adapter's hand/Tool/Bench families.
 6. Run against the compiled pinned Store and verify that Simulator accepts/rejects the added actions as expected before any game is qualified.
 
 This matrix is not a claim that every paper Expanded action is represented. It records the source families reviewed and the explicit omissions repaired by the prototype. No fixture, game, matchup or competitive result is claimed.
