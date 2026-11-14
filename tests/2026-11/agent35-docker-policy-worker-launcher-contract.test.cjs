@@ -13,7 +13,7 @@ const {
   cleanupPolicyBundle,preflightDockerPolicySandbox,verifyDockerPolicyWorkerClosed
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 const {AsyncJsonLineChannel}=require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
-const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
 const EXPECTED_IMAGE_REF=
   'node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54';
