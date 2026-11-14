@@ -233,6 +233,9 @@ function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPa
   const loadedPaths=[];
   for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
     const filename=path.resolve(root,relative);
+    const relativeCheck=path.relative(root,filename);
+    assert.ok(relativeCheck&&relativeCheck!=='..'&&!relativeCheck.startsWith('..'+path.sep)&&
+      !path.isAbsolute(relativeCheck),'host runtime path must remain inside the repository: '+relative);
     const bytes=fs.readFileSync(filename);
     const actualSha256=createHash('sha256').update(bytes).digest('hex');
     assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
