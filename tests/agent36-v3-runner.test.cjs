@@ -628,6 +628,7 @@ test('role worker bundle contains the executable, pure protocol module, and role
   const built=buildRoleWorkerBundle({
     repositoryRoot,policyModulePath:V3_FIXTURE.candidateWorkerPolicyPath
   });
+  const bundleRoot=built.bundle.root;
   try {
     const paths=built.bundle.manifest.files.map(file=>file.path);
     assert.deepEqual(paths,[
@@ -637,6 +638,7 @@ test('role worker bundle contains the executable, pure protocol module, and role
   } finally {
     cleanupPolicyBundle(built.bundle);
   }
+  assert.equal(fs.existsSync(bundleRoot),false,'worker bundle cleanup must remove the temporary root');
 });
 
 test('native Stadium actions fail closed without explicit liveness evidence',()=>{
