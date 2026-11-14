@@ -72,16 +72,17 @@ This is not a Node test-runner result, GitHub Actions pass, Docker isolation res
 - The prompt projection currently exposes visible Pokémon printing and zone, but not a stable board-slot index for ChoosePokemonPrompt choices. The prototype maps by exact printing within the visible zone. When two identical printings occupy that zone with different attached Energy/damage, the policy cannot distinguish them reliably; this is an interface limitation, not a reason to infer hidden identity.
 - Several source branches remain unmodeled or deliberately unqualified, including the strategic comparison of Tulip versus Acerola when Latias is Benched, the best two-card Get Lost discard beyond the tested recovery-card heuristic, the untested Mimikyu/Sky Field/Copycat game line, and the continuation after Unfair Stamp. The Mimikyu search/attack-choice policy has prompt tests but no full-game validation.
 - Search and target heuristics are deliberately conservative. They have not been independently reviewed for every rank 1 prompt type or every matchup state.
-- Only rank 1 is covered. Ranks 23, 25 and 28 still lack full source lists; the 32-rank opponent-policy bundle is incomplete.
+- Rank1 and rank2 now have separate opponent-policy prototypes, but ranks 3–32 are not covered by these modules. Ranks 23, 25 and 28 still lack full source lists; the 32-rank opponent-policy bundle is incomplete.
 - The worker's persistent Node process, async fixture loop, launcher capability/seed gates, full field coverage and opponent-policy qualification remain outstanding.
 
 ## Next actions
 
 1. Agent36: add the committed test file to the existing contract-only workflow and run it under Node once the async host integration is stable.
 2. Agent11: adversarially review the rank 1 policy against the native source-response report, especially Active promotion, Tulip/Acerola contention, and prompt completion.
-3. Agent35: accept or challenge the policy boundary and test coverage; no opponent matchup fixture should run on the strength of this prototype alone.
-4. Extend the same role-only policy interface to additional authenticated Aichi ranks only after the rank 1 slice is accepted and the full worker/launcher gates are open.
+3. Agent49: re-review the latest exact-kind, zero-selection, target-identity, and source-specific prompt changes.
+4. Agent10: continue the separate rank2 policy under the same role-only worker contract; do not claim matchup performance.
+5. Agent36: wire both rank1/rank2 policy modules and tests through the Docker worker bundle and run the existing Node/Actions contract lane before any fixture.
 
 ## Conclusion
 
-The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 37/37 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 37/37 V8 result establishes only that the current rank1 prototype makes the tested typed decisions under the current protocol schema. Agent35 has accepted the prototype boundary for continued development, not competitive qualification. Agent10's separate rank2 prototype has 24/24 direct V8 contract exercises, also not Node/Actions or game evidence. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
