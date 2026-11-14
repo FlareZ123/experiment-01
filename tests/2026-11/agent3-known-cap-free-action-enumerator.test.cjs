@@ -8,16 +8,18 @@ class TrainerCard { constructor(trainerType){this.trainerType=trainerType;} }
 class EnergyCard { constructor(fullName){this.fullName=fullName;} }
 class PlayCardAction { constructor(clientId,handIndex,target){this.type='PLAY_CARD_ACTION';this.clientId=clientId;this.handIndex=handIndex;this.target=target;} }
 class UseAbilityAction { constructor(clientId,name,target){this.type='USE_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
+class AttackAction { constructor(clientId,name){this.type='ATTACK_ACTION';this.clientId=clientId;this.name=name;} }
 const native={
   PokemonCard,TrainerCard,EnergyCard,
-  cardActions:{PlayCardAction},gameActions:{UseAbilityAction},
+  cardActions:{PlayCardAction},gameActions:{UseAbilityAction,AttackAction},
   PlayerType:{BOTTOM_PLAYER:1,ANY:3},SlotType:{BENCH:2,DISCARD:5,BOARD:9},
-  Stage:{BASIC:'BASIC'},TrainerType:{ITEM:'ITEM',TOOL:'TOOL',SUPPORTER:'SUPPORTER'}
+  Stage:{BASIC:'BASIC'},TrainerType:{ITEM:'ITEM',TOOL:'TOOL',SUPPORTER:'SUPPORTER'},
+  SpecialCondition:{PARALYZED:'PARALYZED',ASLEEP:'ASLEEP'}
 };
 function makeState(){
   const board=[0,1,2].map(i=>({
     cardList:{pokemonPlayedTurn:0,tools:[]},
-    card:new PokemonCard({name:'Base'+i,powers:[{name:'P'+i+'a',useWhenInPlay:true},{name:'P'+i+'b',useWhenInPlay:true},{name:'P'+i+'c',useWhenInPlay:true}]}),
+    card:new PokemonCard({name:'Base'+i,powers:[{name:'P'+i+'a',useWhenInPlay:true},{name:'P'+i+'b',useWhenInPlay:true},{name:'P'+i+'c',useWhenInPlay:true}],attacks:i===0?[{name:'ActiveAttack'}]:[]}),
     target:{player:1,slot:2,index:i}
   }));
   const hand=[
@@ -30,7 +32,8 @@ function makeState(){
   ];
   const discard=Array.from({length:9},(_,i)=>new PokemonCard({name:'D'+i,powers:[{name:'DPA'+i,useFromDiscard:true}]}));
   const player={
-    id:'p0',hand:{cards:hand},bench:[{cards:[]}],discard:{cards:discard},
+    id:'p0',hand:{cards:hand},bench:[{cards:[],getPokemonCard(){return undefined;}},{cards:[{}],getPokemonCard(){return board[1].card;}},{cards:[{}],getPokemonCard(){return board[2].card;}}],discard:{cards:discard},
+    active:{specialConditions:[],tools:board[0].cardList.tools,getPokemonCard(){return board[0].card;}},
     supporter:{cards:[]},supporterTurn:0,energyPlayedTurn:0,
     forEachPokemon(_which,fn){for(const p of board)fn(p.cardList,p.card,p.target);}
   };
@@ -86,7 +89,13 @@ class ActionEnumerator {
   }
   useStadiumActions(){return [{type:'STADIUM_USE_MARKER'}];}
   retreatActions(){return [{type:'RETREAT_MARKER'}];}
-  attackActions(){return [{type:'ATTACK_MARKER'}];}
+  attackActions(state,player){
+    const sp=player.active.specialConditions;
+    if(sp.includes('PARALYZED')||sp.includes('ASLEEP'))return [];
+    const active=player.active.getPokemonCard();
+    if(!active)return [];
+    return active.attacks.map(a=>new AttackAction(player.id,a.name));
+  }
 }
 native.ActionEnumerator=ActionEnumerator;
 
@@ -102,7 +111,7 @@ test('pinned adapter removes all eight known per-family caps and preserves upstr
   assert.equal(count('USE_ABILITY_ACTION'),9*2);
   assert.equal(actions[54].type,'STADIUM_MARKER');
   assert.deepEqual(actions.slice(-4).map(x=>x.type),[
-    'STADIUM_USE_MARKER','RETREAT_MARKER','ATTACK_MARKER','PASS_TURN'
+    'STADIUM_USE_MARKER','RETREAT_MARKER','ATTACK_ACTION','PASS_TURN'
   ]);
   assert.equal(actions.at(-1).type,'PASS_TURN');
   assert.equal(enumerator.__agent3UncappedAdapter.enginePin,EXPECTED_ENGINE_PIN);
@@ -137,10 +146,40 @@ test('adapter is behavior-identical to the pinned enumerator when no known cap i
     bench:[{cards:[]}],
     discard:{cards:[new PokemonCard({name:'Discard',powers:[{name:'DiscardPower',useFromDiscard:true}]})]},
     supporter:{cards:[]},supporterTurn:0,energyPlayedTurn:0,
+    active:{specialConditions:[],tools:[],getPokemonCard(){return base;}},
     forEachPokemon(_which,fn){fn(cardList,base,target);}
   };
+  player.bench=[{cards:[],getPokemonCard(){return undefined;}}];
   const state={activePlayer:0,turn:7,players:[player,{id:'p1'}]};
   const original=new ActionEnumerator().enumerate(state,player,'p0');
   const patched=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN}).enumerate(state,player,'p0');
   assert.deepEqual(patched,original);
+});
+
+
+test('tool abilities, active Tool attacks and Bench-usable attacks are enumerated',()=>{
+  const state=makeState();
+  const player=state.players[0];
+  const tool=new TrainerCard('TOOL');
+  tool.powers=[{name:'Star Alchemy',useWhenInPlay:true}];
+  tool.attacks=[{name:'G Booster'}];
+  player.active.tools.push(tool);
+  player.active.getPokemonCard().attacks=[{name:'Active Attack'}];
+  player.bench[1].getPokemonCard().attacks=[{name:'Bench Attack',useOnBench:true}];
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const abilities=enumerator.abilityActions(state,player);
+  const attacks=enumerator.attackActions(state,player);
+  assert.ok(abilities.some(a=>a.type==='USE_ABILITY_ACTION'&&a.name==='Star Alchemy'));
+  assert.deepEqual(attacks.map(a=>a.name),['Active Attack','Bench Attack','G Booster']);
+});
+
+test('attack action expansion preserves the pinned Paralysis and Sleep gate',()=>{
+  const state=makeState();
+  const player=state.players[0];
+  player.active.getPokemonCard().attacks=[{name:'Active Attack'}];
+  player.active.specialConditions.push('PARALYZED');
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  assert.deepEqual(enumerator.attackActions(state,player),[]);
+  player.active.specialConditions.splice(0,1,'ASLEEP');
+  assert.deepEqual(enumerator.attackActions(state,player),[]);
 });
