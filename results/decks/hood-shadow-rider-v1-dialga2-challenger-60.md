@@ -1,6 +1,6 @@
 # Hood Shield Shadow Rider v1 — Mimikyu-1 / Dialga-2 / Heavy Ball-1 challenger
 
-**Status:** paired structural challenger; unselected and not a gameplay or matchup result.
+**Status:** parked paired structural arm; not the next active experiment and not a gameplay or matchup result.
 
 This is the matched 1/2/1 counterpart to the [Mimikyu-2 / Dialga-1 challenger](hood-shadow-rider-v1-mimikyu2-challenger-60.md). Both use the same one-slot cut from the baseline: remove Trevenant & Dusknoir-GX SMP SM217, then add one copy of the chosen counterline Basic. This version adds a second Dialga-GX UPR 100. All other identities/counts are unchanged. Basic Psychic Energy is normalized to CRE 232.
 
