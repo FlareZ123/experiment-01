@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v8-terminal-weakness-guard';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v9-headquarters-copycat-cost';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -66,7 +66,7 @@ function prizeCountForTarget(target,catalog){
   return 1;
 }
 
-function copycatPowerBeamAvailable(active,restrictions,catalog,dimensionValleyActive){
+function copycatPowerBeamAvailable(active,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
   if(!Array.isArray(active?.attacks)||!Array.isArray(active?.energies))
     return null;
   const copycat=active.attacks.find(attack=>
@@ -80,7 +80,7 @@ function copycatPowerBeamAvailable(active,restrictions,catalog,dimensionValleyAc
      copycat.cost.filter(type=>type===psychicType).length!==1||
      copycat.cost.filter(type=>type===colorlessType).length!==1)
     return null;
-  const requiredPsychic=dimensionValleyActive?1:2;
+  const requiredPsychic=dimensionValleyActive?1:(pokemonLeagueHeadquartersActive?3:2);
   if(active.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<requiredPsychic)
     return false;
   const blocked=attackBlocked(active,copycat,restrictions);
@@ -108,9 +108,9 @@ function opponentHasUnmodelledWeaknessText(view){
   if(!opponent||!Array.isArray(opponent.bench))return true;
   const board=[opponent.active,...opponent.bench].filter(Boolean);
   return board.some(pokemon=>{
-    const names=Array.isArray(pokemon.abilities)?pokemon.abilities:[];
+    const names=Array.isArray(pokemon.abilities)?pokemon.abilities:null;
     const details=Array.isArray(pokemon.abilityDetails)?pokemon.abilityDetails:null;
-    if(details===null||details.length!==names.length)return names.length>0;
+    if(names===null||details===null||details.length!==names.length)return true;
     return details.some(ability=>/weakness/i.test(String(ability?.text??'')));
   });
 }
@@ -192,6 +192,9 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     return null;
   const dimensionValleyActive=stadiums.some(printing=>
     printing.startsWith('Dimension Valley '));
+  const pokemonLeagueHeadquartersActive=stadiums.some(printing=>
+    printing.startsWith('Pokémon League Headquarters '));
+  if(dimensionValleyActive&&pokemonLeagueHeadquartersActive)return null;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
@@ -257,7 +260,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   let competingPowerBeamAvailable=false;
   if(radiantInDiscard){
     const copycatAvailable=copycatPowerBeamAvailable(
-      active,restrictions,catalog,dimensionValleyActive);
+      active,restrictions,catalog,dimensionValleyActive,
+      pokemonLeagueHeadquartersActive);
     if(copycatAvailable===null)return null;
     competingPowerBeamAvailable=copycatAvailable;
   }
