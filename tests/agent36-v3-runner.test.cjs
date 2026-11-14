@@ -636,7 +636,7 @@ test('role worker bundle packages protocol and policy and cleanup removes its ro
 
 test('host policy preload hashes worker-only entrypoints without executing them',()=>{
   const repositoryRoot=path.resolve(__dirname,'..');
-  const relativePath='simulation/evaluation/2026-11/.agent49-host-preload-probe.cjs';
+  const relativePath='simulation/evaluation/2026-11/.agent49-host-preload-probe-'+process.pid+'.cjs';
   const sourcePath=path.join(repositoryRoot,relativePath);
   const sentinelPath=path.join(os.tmpdir(),'agent49-host-preload-sentinel-'+process.pid+'.txt');
   const source=[
