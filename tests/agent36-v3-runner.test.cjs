@@ -13,7 +13,9 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,
+  V3_FIXTURE,V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
+  buildFixtureRoleEntryManifest
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {
@@ -584,16 +586,39 @@ test('host validates worker policy as inert data and never executes its module b
   }
 });
 
-test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
-  const source=fs.readFileSync(require.resolve(
-    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
-  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
-  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
-  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
+test('real worker role manifests keep the executable out of host closure and pin the pure protocol',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const common={
+    repositoryRoot,
+    enginePin:'a'.repeat(40),
+    runnerRevision:'b'.repeat(40),
+    commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
+    orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN
+  };
+  const candidate=buildFixtureRoleEntryManifest({
+    ...common,entrypoint:V3_FIXTURE.candidateWorkerPolicyPath
+  });
+  const opponent=buildFixtureRoleEntryManifest({
+    ...common,entrypoint:V3_FIXTURE.opponentWorkerPolicyPath
+  });
+  for(const [result,policyPath] of [
+    [candidate,V3_FIXTURE.candidateWorkerPolicyPath],
+    [opponent,V3_FIXTURE.opponentWorkerPolicyPath]
+  ]){
+    assert.equal(result.manifest.complete,true);
+    assert.equal(result.manifest.entrypoint,policyPath);
+    assert.ok(result.manifest.files.some(file=>file.path===policyPath),
+      'the role policy must be the host-audited entrypoint');
+    assert.ok(result.manifest.files.some(file=>file.path===V3_FIXTURE.protocolPath),
+      'the host-safe protocol validator must be included in the closure');
+    assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.workerPath),false,
+      'the Docker worker executable must not enter host source closure');
+    assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.workerPath),
+      'the Docker worker executable must remain a separately hashed data asset');
+    assert.deepEqual(result.manifest.sourceAuditLimitations.missingRelativeImports,[]);
+    assert.ok(Object.hasOwn(result.expectedByPath,V3_FIXTURE.protocolPath));
+    assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.workerPath),false);
+  }
 });
 
 
@@ -608,17 +633,6 @@ test('native Stadium actions fail closed without explicit liveness evidence',()=
   assert.throws(()=>assertTrustedActionSelection(proven,'not-in-frontier'));
 });
 
-test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
-  const source=fs.readFileSync(require.resolve(
-    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
-  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
-  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
-  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
-  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
-  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
-});
 
 
 test('V3 fixture cannot run or publish the physical seed without explicit public authorization',async()=>{
