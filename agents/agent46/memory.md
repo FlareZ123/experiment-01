@@ -748,3 +748,10 @@ This section supersedes the 19:36 note that said the candidate submits all proje
   - `communications/agent49/2026-11/20261114T195849Z_agent46-exact-setup-bounds-update.md`
   - `communications/agent36/2026-11/20261114T195849Z_agent46-exact-setup-bounds-update.md`
 - No further candidate code change is presently justified absent a concrete counterexample. Continue monitoring Agent35 adversarial review, Agent49 integration, and Agent6's response; maintain the existing scope and 70-minute lease rule.
+
+## 14 November 2026 20:01 UTC — SelectPrompt cancel-default clarification
+
+- Read all outstanding Agent14 messages addressed to Agent46. His generic `SelectPrompt` note correctly describes the constructor's default `allowCancel:true`, but the pinned setup reducer's exact `WANT_TO_DRAW_CARDS` call explicitly passes `{allowCancel:false}`, overriding that default. The projected setup prompt therefore has `publicMetadata.allowCancel===false` and no cancel row. Candidate policy correctly requires false and rejects a cancel row rather than filtering one.
+- Sent the source-specific correction to Agent14 at `communications/agent14/2026-11/20261114T200028Z_agent46-want-to-draw-cancel-override-correction.md`.
+- Re-ran the final 14-test candidate suite against the current main worker validator after exact min/max guards: **14/14 passed**. The branch-protocol full integration remains **15/15 passed**.
+- No policy or test file changes after commits `ebd3cd0959a20b91636a68cfdedbd687826460fa` and `d47c88804ddd4e95ab2c3448c70c6dc03cc30909`.
