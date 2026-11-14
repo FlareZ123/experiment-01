@@ -1396,7 +1396,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ownTurnResources:{extraTurnActive:true,retreatedTurn:7,
       energyPlayedTurn:7,energyPlayLocked:false,pokemonPlayLocked:false},
     ownPublic:{
-      prizeCount:6,active,bench:[latias,clefairy,vmax],discard:['Dialga-GX UPR'],
+      prizeCount:1,active,bench:[latias,clefairy,vmax],discard:['Dialga-GX UPR'],
       stadium:[],
       publicTurnRestrictions:{gxUsed:true,attackLockTurnsRemaining:0,
         attackMaxEnergyTurnsRemaining:0,attackMaxEnergy:null,
@@ -1420,6 +1420,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(intent.fairyZoneMultiplier,2);
   assert.equal(intent.targetRemainingHp,70);
   assert.equal(intent.projectedPrizeCount,1);
+  assert.equal(intent.projectedTerminalWin,true);
 
   const integrated=chooseActorRootIntent(view,postTimelessCatalog,{
     mimikyuApexFundedPromotion:true,
@@ -1462,6 +1463,43 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(withRadiant,postTimelessCatalog,{ownerSeat:0}),null,
     'when Power Beam also KOs, retain the safer one-Prize Mimikyu Active');
 
+  const nonterminalView={
+    ...view,ownPublic:{...view.ownPublic,prizeCount:6}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    nonterminalView,postTimelessCatalog,{ownerSeat:0}),null,
+    'never expose a three-Prize VMAX for a nonterminal Max Geist KO without a response model');
+  const nonterminalWithRadiantUnavailable={
+    ...nonterminalView,
+    ownPublic:{...nonterminalView.ownPublic,
+      active:{...active,energies:[]},
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    nonterminalWithRadiantUnavailable,postTimelessCatalog,{ownerSeat:0}),null,
+    'the nonterminal liability guard applies even when the Power Beam competitor is unavailable');
+
+  const onePsychicMimikyu={...active,energies:[psychic]};
+  const onePsychicNoValley={
+    ...view,
+    ownPublic:{...view.ownPublic,active:onePsychicMimikyu,
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']}
+  };
+  const noValleyCopycat=choosePostTimelessMaxGeistRetreat(
+    onePsychicNoValley,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(noValleyCopycat,
+    'the already-completed prior Copycat does not require a current two-Energy recheck');
+  assert.equal(noValleyCopycat.competingPowerBeamAvailable,false,
+    'one Psychic cannot pay the current Copycat cost without Dimension Valley');
+  const onePsychicWithValley={
+    ...onePsychicNoValley,
+    ownPublic:{...onePsychicNoValley.ownPublic,
+      stadium:['Dimension Valley PHF 93']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    onePsychicWithValley,postTimelessCatalog,{ownerSeat:0}),null,
+    'Dimension Valley makes one Psychic sufficient for the current Power Beam Copycat competitor');
+
   const opponentLatias={
     ...target,printing:'Latias ex SSP',hp:210,damage:0,
     printed:{stage:'Basic',types:[5],subtypes:['Basic','ex'],
@@ -1471,7 +1509,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     energies:[psychic,psychic,psychic,psychic,psychic]};
   const withRadiantLatias={
     ...view,
-    ownPublic:{...view.ownPublic,
+    ownPublic:{...view.ownPublic,prizeCount:6,
       bench:[latias,clefairy,sevenPsychicVmax],
       discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
     opponentPublic:{...view.opponentPublic,active:opponentLatias}
@@ -1554,7 +1592,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const adpTarget={...target,printing:'Arceus & Dialga & Palkia GX CEC',hp:280,
     printed:{stage:'Basic',types:[11],subtypes:[],weakness:[],resistance:[]}};
   const adpIntent=choosePostTimelessMaxGeistRetreat({
-    ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
+    ...view,ownPublic:{...view.ownPublic,prizeCount:3},
+    opponentPublic:{...view.opponentPublic,active:adpTarget}
   },postTimelessCatalog,{ownerSeat:0});
   assert.equal(adpIntent.projectedDamage,320);
   assert.equal(adpIntent.projectedPrizeCount,3,
@@ -1615,7 +1654,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     };
     const onePrizeView={
       ...view,
-      ownPublic:{...view.ownPublic,prizeCount:2,
+      ownPublic:{...view.ownPublic,prizeCount:1,
         bench:[latias,vmax],discard:['Dialga-GX UPR']},
       opponentPublic:{...view.opponentPublic,active:onePrizeTarget}
     };
@@ -1624,7 +1663,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     assert.ok(onePrizeIntent);
     assert.equal(onePrizeIntent.projectedPrizeCount,1,
       printing+' yields one Prize despite having a Rule Box');
-    assert.equal(onePrizeIntent.projectedTerminalWin,false);
+    assert.equal(onePrizeIntent.projectedTerminalWin,true);
   }
 
   const radiantCrossoverTarget={
@@ -1701,6 +1740,32 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
     psychicResistanceView,postTimelessCatalog,{ownerSeat:0}),null);
+
+  const unmodelledWeaknessAbilities=[
+    {printing:'Aegislash XY5 100',name:'Miracle Guard',
+      text:'Each of your Pokémon has no Weakness.'},
+    {printing:'Leavanny BW11 12',name:'Leaf Tailor',
+      text:'Each of your Pokémon that has any Energy attached to it has no Weakness.'},
+    {printing:'Vileplume BW7 3',name:'Allergy Panic',
+      text:"Apply Weakness for each Pokémon (both yours and your opponent's) as ×4 instead."}
+  ];
+  for(const entry of unmodelledWeaknessAbilities){
+    const abilityBearer={
+      ...target,printing:entry.printing,abilities:[entry.name],
+      abilityDetails:[{name:entry.name,text:entry.text}]
+    };
+    const weaknessModifierView={
+      ...view,
+      opponentPublic:{
+        ...view.opponentPublic,
+        active:entry.name==='Leaf Tailor'?{...target,energies:[psychic]}:target,
+        bench:[abilityBearer]
+      }
+    };
+    assert.equal(choosePostTimelessMaxGeistRetreat(
+      weaknessModifierView,postTimelessCatalog,{ownerSeat:0}),null,
+      entry.name+' is an unmodelled public Weakness modifier and must fail closed');
+  }
 });
 
 
