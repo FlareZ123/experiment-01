@@ -1660,6 +1660,32 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     unknownStadiumView,postTimelessCatalog,{ownerSeat:0}),null,
     'a missing public Stadium array cannot certify that Max Geist cost is payable');
 
+  const twoEnergyVmax={...vmax,energies:[psychic,psychic]};
+  const threeEnergyMimikyu={...active,energies:[psychic,psychic,psychic]};
+  const twoEnergyWithoutDiscount={
+    ...view,
+    ownPublic:{...view.ownPublic,active:threeEnergyMimikyu,
+      bench:[latias,clefairy,twoEnergyVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    twoEnergyWithoutDiscount,postTimelessCatalog,{ownerSeat:0}),null,
+    'two attached Energy cannot pay printed Max Geist without Dimension Valley');
+  for(const side of ['ownPublic','opponentPublic']){
+    const dimensionValleyView={
+      ...twoEnergyWithoutDiscount,
+      [side]:{...twoEnergyWithoutDiscount[side],
+        stadium:['Dimension Valley PHF 93']}
+    };
+    const discounted=choosePostTimelessMaxGeistRetreat(
+      dimensionValleyView,postTimelessCatalog,{ownerSeat:0});
+    assert.ok(discounted,
+      'Dimension Valley discounts Max Geist whether stored in either public Stadium zone');
+    assert.equal(discounted.projectedPrintedDamage,160,
+      'the retreat preserves all five Basic Psychic Energy on the board');
+    assert.equal(discounted.projectedDamage,320,
+      'Fairy Zone doubles the discounted Max Geist route against a Dragon');
+  }
+
   const psychicResistantTarget={
     ...target,printing:'Synthetic Psychic-resistant target',hp:100,damage:0,
     printed:{stage:'Basic',types:[6],weakness:[],
