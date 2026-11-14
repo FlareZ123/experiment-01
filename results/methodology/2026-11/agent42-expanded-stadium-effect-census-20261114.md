@@ -38,9 +38,10 @@ The scan found **68 distinct Stadium rules texts across 83 Expanded-legal printi
 | Black Market ◇ SM9 134 | A Darkness Pokémon with Darkness Energy gives one fewer Prize when Knocked Out by an opponent's attack | Terminal-win check may overcount prizes |
 | Blizzard Town SM11 187 | Pokémon with 40 HP or less remaining cannot attack | Promoted Shadow Rider VMAX may be unable to attack if critically damaged |
 | Pokémon League Headquarters SV3 192 | Basic Pokémon attacks cost Colorless more | Mimikyu's Copycat competitor cost may be understated |
+| Wondrous Labyrinth ◇ SM9 158 | Non-Fairy Pokémon's attacks cost Colorless more | The v9 helper explicitly abstains; verify the actual actor-view printing string matches its `Wondrous Labyrinth Prism Star` prefix |
 | Spikemuth SWSH3 170 | An Active Pokémon moving to the Bench during its controller's turn takes 20 damage counters | The Mimikyu retreat step may Knock it Out and interrupt the route |
 
-The helper's current Stadium logic does not inspect these effects. The strongest false-positive risks are Neutralization Zone (damage prevention), Weakness-removing Stadiums, damage reduction, and Black Market's Prize reduction.
+Beyond its current Dimension Valley discount, Pokémon League Headquarters Copycat surcharge and Wondrous Labyrinth abstention, the helper does not inspect the other listed effects. The strongest false-positive risks are Neutralization Zone (damage prevention), Weakness-removing Stadiums, damage reduction, and Black Market's Prize reduction.
 
 ### Retreat-cost interaction qualification
 
@@ -65,7 +66,7 @@ Evidence: `simulation/twinleaf/agent44-copycat-stadium-cost-native.cjs` and `res
 Do not treat an unrecognized active Stadium as harmless. The safe interim choices are:
 
 1. fail closed whenever a Stadium effect relevant to attack cost, Weakness, damage, Prizes, attack legality or retreat is not explicitly modeled; or
-2. maintain an exact-printing allowlist for the currently modeled Stadiums (Dimension Valley) and explicit abstention rules for all other relevant effects.
+2. maintain an exact-printing allowlist for the currently modeled Stadiums (Dimension Valley and Pokémon League Headquarters) and explicit abstention rules for all other relevant effects, including Wondrous Labyrinth.
 
 The next implementation should use the exact actor-view Stadium printing, not a scalar name or inferred hidden information. A generic text scan is useful for discovery, but should not replace reviewed card-specific conditions and a pinned-Store test where the interaction is material.
 
