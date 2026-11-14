@@ -256,9 +256,15 @@ function opponentHasSpecialEnergy(player) {
       !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(energy)));
 }
 
+function abilitySuppressed(pokemon, abilityName) {
+  return list(pokemon?.abilitySuppressions).some(row =>
+    row?.abilityName === abilityName && row?.suppressed === true);
+}
+
 function opponentHasGarbotoxin(player) {
   return boardSlots(player).some(({ pokemon }) =>
-    list(pokemon.abilities).includes('Garbotoxin'));
+    list(pokemon.abilities).includes('Garbotoxin') &&
+    !abilitySuppressed(pokemon, 'Garbotoxin'));
 }
 
 function opponentHasAnyEnergy(player) {
