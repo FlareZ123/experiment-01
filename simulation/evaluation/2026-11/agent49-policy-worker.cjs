@@ -1,9 +1,10 @@
 'use strict';
 
 const { once } = require('node:events');
+const { randomBytes } = require('node:crypto');
 
 const INIT_SCHEMA = 'aichi-policy-worker-init-v2';
-const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
+const READY_SCHEMA = 'aichi-policy-worker-ready-v3';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v3';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v3';
@@ -713,9 +714,20 @@ async function writeLine(value) {
   if (!process.stdout.write(bytes)) await once(process.stdout, 'drain');
 }
 
-/* No physical-game RNG or seed is accepted by this IPC schema. This worker is
- * not a sandbox for the policy's own ambient Node RNG; policy bundles must be
- * deterministic and audited until the owner approves a separate policy RNG. */
+/* Physical-game RNG and seed never cross IPC. Each role process owns an
+ * independent CSPRNG-backed policy stream. Draws are counted and rejected until
+ * a separately approved replay protocol permits stochastic policies. */
+function createWorkerLocalPolicyStream() {
+  let drawCount=0;
+  return {
+    protocol:'worker-local-independent-crypto-stream-v1',
+    next(){
+      drawCount++;
+      return randomBytes(4).readUInt32BE(0)/0x100000000;
+    },
+    get drawCount(){return drawCount;}
+  };
+}
 
 async function run() {
   const policyModule = require('./policy.cjs');
@@ -726,6 +738,7 @@ async function run() {
   let messageCount = 0;
   let totalInputBytes = 0;
   const seenRequestIds = new Set();
+  const policyStream=createWorkerLocalPolicyStream();
   let pending = Buffer.alloc(0);
 
   async function handleLine(line) {
@@ -746,9 +759,11 @@ async function run() {
         role: init.role,
         seat: init.seat,
         policyVersion: init.policyVersion,
-        config: init.config
+        config: init.config,
+        rng:policyStream.next
       }));
       if (!policy || typeof policy.decide !== 'function') fail('POLICY_FACTORY_INVALID');
+      if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
       initialized = true;
       await writeLine({
         schema: READY_SCHEMA,
@@ -756,7 +771,9 @@ async function run() {
         role: init.role,
         seat: init.seat,
         policyVersion: init.policyVersion,
-        bundleSha256: init.bundleSha256
+        bundleSha256: init.bundleSha256,
+        policyStreamProtocol:policyStream.protocol,
+        policyDrawCount:policyStream.drawCount
       });
       return;
     }
@@ -764,6 +781,7 @@ async function run() {
     const validated = validateRequest(message, init, expectedSequence, seenRequestIds);
     const frozenRequest = deepFreeze(message);
     const rawDecision = await policy.decide(frozenRequest);
+    if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     const decision = validateDecision(rawDecision, validated.prompt, validated.actionTokens);
     const response = {
       schema: RESPONSE_SCHEMA,
@@ -823,5 +841,6 @@ module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_RECEIPT_VERSION, FRONTIER_SCHEMA,
   LIMITS, validateInit, validateRequest, validateDecision, validateActorObservation,
-  validatePrompt, validateFrontier, validatePublicEventReceipt, validateFlatMetadata
+  validatePrompt, validateFrontier, validatePublicEventReceipt, validateFlatMetadata,
+  createWorkerLocalPolicyStream
 };
