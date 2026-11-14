@@ -165,6 +165,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
     "  const shmWrite=writeProbe('/dev/shm/agent36-shm-write-probe-'+process.pid);",
     "  let hostProcessMarkerVisible=false;try{hostProcessMarkerVisible=fs.readFileSync('/proc/'+HOST_PID+'/environ').includes(HOST_PROCESS_MARKER);}catch{}",
+    "  const originalWorkerMathRandom=Math.random;Math.random=()=>0.125;const workerMathRandomMutation=Math.random!==originalWorkerMathRandom&&Math.random()===0.125;Math.random=originalWorkerMathRandom;",
     "  const envKeys=Object.keys(process.env).sort();",
     "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG|HOST_PROCESS/i.test(key));",
     "  const argv=process.argv.slice();",
@@ -362,6 +363,8 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       assert.equal(report.tmpWrite.ok, true);
       assert.equal(report.shmWrite.ok, true);
       assert.deepEqual(report.forbiddenEnvKeys, []);
+      assert.equal(report.workerMathRandomMutation, true,
+        'worker could not mutate and restore its own Math.random function');
       assert.ok(!report.argv.some(value => Object.values(markerPaths).includes(value)));
       assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
       const serialized = JSON.stringify({ response, report });
