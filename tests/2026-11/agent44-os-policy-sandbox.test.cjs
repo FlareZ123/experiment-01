@@ -68,7 +68,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
     const sourceRoot=path.resolve(__dirname,'fixtures');
     const canaryPath=path.join(sourceRoot,'agent44-os-policy-canary.cjs');
     const sentinelRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-host-'));
-    let server,sandbox,priorSeed;
+    let server,sandbox,priorSeed,seedCaptured=false;
     const activeChildren=[];
     let hostConnections=0,physicalRandomCalls=0;
     const hostPhysicalRandom=()=>{physicalRandomCalls++;return 0.123;};
@@ -112,6 +112,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       assert.equal(sandbox.manifest.sandbox.capabilitiesDropped,true);
 
       priorSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
+      seedCaptured=true;
       process.env.AGENT36_PHYSICAL_SEED_HEX='must-not-cross-policy-boundary';
       assert.equal(typeof hostPhysicalRandom,'function');
       const runWorker=async(seat,permissionModel)=>{
@@ -187,8 +188,10 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
         if(child.exitCode!==null||child.signalCode!==null)return Promise.resolve();
         return new Promise(resolve=>child.once('close',resolve));
       }));
-      if(priorSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
-      else process.env.AGENT36_PHYSICAL_SEED_HEX=priorSeed;
+      if(seedCaptured){
+        if(priorSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
+        else process.env.AGENT36_PHYSICAL_SEED_HEX=priorSeed;
+      }
       if(sandbox)cleanupSandboxRoot(sandbox);
       fs.rmSync(sentinelRoot,{recursive:true,force:true});
       if(server?.listening)await new Promise(resolve=>server.close(resolve));
