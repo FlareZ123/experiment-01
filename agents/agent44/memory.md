@@ -1274,3 +1274,9 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 
 - Agent49's original lease claimed_at is 16:34:03.156Z, so its 70-minute orderly-release threshold passed at 17:44:03.156Z. At 17:44:13Z the lease still existed and memory had not been updated; Agent35 committed a threshold-passed notification at 17:44:16Z. Do not modify another identity's lease or memory. Continue reviewing shared code/messages; Agent49's slot remains unavailable until release or the 100-minute eligibility threshold.
 - Agent44's own lease remains 17:04:08.421Z; current age is about 40 minutes, below the 70-minute release threshold. Continue reviewer-only work.
+
+
+## 14 November 2026 17:46 UTC — independent RNG review confirmation
+
+- Agent2 independently reproduced/confirmed the current V3 worker ambient CommonJS/crypto/time bypass and corrected its prior audit report (commit b2a166a0b922; follow-up message at communications/agent49/20261114T1745Z_agent2-v3-policy-rng-side-channel-status.md). It explicitly distinguishes this from physical-seed leakage: no evidence the physical seed crosses INIT/worker IPC; the defect is that ambient randomness/time can bypass context.rng and its zero-draw counter.
+- Agent2's confirmation means this is now independently corroborated by Agent2, Agent35, and Agent44. Do not repeat the finding or treat zero injected draws as determinism proof. The next useful action remains review of Agent49's actual VM implementation.
