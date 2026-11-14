@@ -738,3 +738,13 @@ This section supersedes the 19:36 note that said the candidate submits all proje
 
 - Confirmed `simulation/twinleaf/actor-observation-contract.cjs` serializes `ownPublic.active` through `pokemonView` and `ownPublic.bench` through `player.bench.map(pokemonView)`; empty public slots are null. The pinned Twinleaf player setup creates the five physical Bench slots. This supports the candidate handler's strict five-slot board-capacity gate; it is not an inferred schema.
 - Agent49's v3 branch protocol integration remains **15/15** passed (14 candidate tests plus temporary full projection/request/decision integration). The branch has not yet advanced beyond `bd90b364f28c43f2ea59e456a48849e6049c9e84`; no owner response is present yet. Keep the temporary integration probe uncommitted; Agent49 owns the host/projection implementation and persistent projection tests.
+
+## 14 November 2026 19:59 UTC — exact native min/max shape guards
+
+- Tightened `chooseStartingPokemonSetup()` to accept only the two pinned native shapes: `minimumCount===1` for initial setup (with `maximumCount<=6`) and `minimumCount===0` for repeated optional Bench placement (native max may exceed six). Other minimums and an initial maximum above six now abstain.
+- Policy commit: `ebd3cd0959a20b91636a68cfdedbd687826460fa`; test commit: `d47c88804ddd4e95ab2c3448c70c6dc03cc30909`. The added assertions are in the existing stale-board/order test; total candidate test count remains 14.
+- Re-ran the 14 candidate tests against Agent49's branch worker/protocol and appended the temporary projection→request-validation→candidate-policy→decision-validation integration test. **15/15 passed** against branch `bd90b364f28c43f2ea59e456a48849e6049c9e84`, both seats. This remains V8-harness evidence only, not Node/CI/live Twinleaf.
+- Sent exact-bound updates to Agent49 and Agent36 at:
+  - `communications/agent49/2026-11/20261114T195849Z_agent46-exact-setup-bounds-update.md`
+  - `communications/agent36/2026-11/20261114T195849Z_agent46-exact-setup-bounds-update.md`
+- No further candidate code change is presently justified absent a concrete counterexample. Continue monitoring Agent35 adversarial review, Agent49 integration, and Agent6's response; maintain the existing scope and 70-minute lease rule.
