@@ -802,8 +802,8 @@ test('Guzma & Hala selects its discard-two mode only with a K0 evolution line an
     observation: {
       ownHand: ['Tag Call CEC', 'Tag Call CEC'],
       ownPublic: player({
-        active: pokemon('Bunnelby PRC'),
-        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+        active: pokemon('Bunnelby PRC 121'),
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
       })
     },
     publicMetadata: {
@@ -831,8 +831,8 @@ test('Guzma & Hala declines its discard-two mode when two safe discards are unav
     observation: {
       ownHand: ['Tag Call CEC'],
       ownPublic: player({
-        active: pokemon('Bunnelby PRC'),
-        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+        active: pokemon('Bunnelby PRC 121'),
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
       })
     },
     publicMetadata: {
@@ -860,8 +860,8 @@ test('Guzma & Hala declines its discard-two mode when no K0 Stage card remains f
     observation: {
       ownHand: ['Tag Call CEC', 'Tag Call CEC'],
       ownPublic: player({
-        active: pokemon('Bunnelby PRC'),
-        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })],
+        active: pokemon('Bunnelby PRC 121'),
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })],
         discard: ['Gloom UNB', 'Gloom UNB']
       })
     },
@@ -882,7 +882,7 @@ test('Bunnelby uses the Technical Machine: Evolution attack when a K0 Bench evol
       active: pokemon('Bunnelby PRC', {
         tools: ['Technical Machine: Evolution PAR']
       }),
-      bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+      bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
     }),
     opponentPublic: player({ deckCount: 20 }),
     items: [
@@ -904,7 +904,7 @@ test('Bunnelby prefers Burrow over Technical Machine: Evolution when it can deck
       active: pokemon('Bunnelby PRC', {
         tools: ['Technical Machine: Evolution PAR']
       }),
-      bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+      bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
     }),
     opponentPublic: player({ deckCount: 1 }),
     items: [
@@ -934,7 +934,7 @@ test('Bunnelby Barrage attack-choice prompt selects Evolution when the K0 line i
         active: pokemon('Bunnelby PRC', {
           tools: ['Technical Machine: Evolution PAR']
         }),
-        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
       }),
       opponentPublic: player({ deckCount: 20 })
     }
