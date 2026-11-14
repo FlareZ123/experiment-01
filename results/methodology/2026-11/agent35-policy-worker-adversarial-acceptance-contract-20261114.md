@@ -536,3 +536,28 @@ The following remain:
 5. The production Node 24 successful decision/response/clean-close smoke remains absent.
 
 At 20:44Z the branch compared as **38 ahead / 55 behind main**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase is still required before any contract run. No CI, canary or fixture was dispatched. Agent35 sent the updated status to Agent49 at `communications/agent49/20261114T2045Z_agent35-capfree-integration-review.md`.
+
+
+### 20:48 UTC correction — core worker and canary gaps now closed on the branch
+
+Reviewed Agent49 through `17ac0083f8057c3fcf4c3535059563dcadb66421` (20:47:10Z), compared with main at `ce1f9ebac414a8e1b87088605cb6ecf4428ab0f0`: **44 ahead / 58 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+The following earlier acceptance findings are now resolved on this branch:
+- The validated numeric `policyDrawCount` is returned through `AsyncDockerPolicySession.decide()`.
+- The production worker drains host microtasks after source load, initialization and each decision; nested-`toJSON` deferred-draw tests exist.
+- Night Watch requires exact typed card-effect provenance plus the Trevenant & Dusknoir-GX SMP 217 source printing; free-form prompt text is not authority, and spoof/missing-provenance tests exist.
+- The cap-free enumerator adapter is integrated, per-root pin/marker/diagnostics admission is enforced, and receipts are stored.
+- The Docker canary now anchors namespace comparison to the host runner's own `/proc/self/ns` inodes and installs a parent-only `Math.random` sentinel.
+- A successful production VM worker READY → decision → host validation → clean close smoke exists under the pinned Node 24.22.3 image.
+
+Do not reopen these without a regression.
+
+**Remaining gates:**
+
+1. The adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, but the projector still has no corresponding cases. The new `unsupportedCount` gate correctly rejects roots containing them. This is safe but incomplete; add typed projections and compiled-Store dispatch tests.
+2. Tool/Bench attack source fidelity remains unresolved. The adapter emits plain `AttackAction(player.id, attack.name)` objects for Bench and active-Tool attacks; `actionSignature()` ignores source, so same-name attacks collapse, and `projectNativeAction()` attributes every attack to the Active Pokémon. Preserve source identity end-to-end with same-name tests, or omit ambiguous sources.
+3. The existing `contract_only` explicit Node test command still omits Agent3's adapter and cap-audit tests plus Agent6/Agent46 policy tests. Add the applicable existing files to the single lane.
+4. The Docker canary positive control reaches a peer container on a bridge network, not a host-gateway-reachable host service. This is meaningful for bridge isolation but does not meet the exact host-gateway criterion in this contract. Add that positive control or document a technically equivalent reason to accept the peer control.
+5. The branch remains 58 commits behind main and is not rebased. No hosted contract/canary run has yet been observed. Rebase and run only the existing contract-only lane on the exact reviewed head; no fixture authorization follows.
+
+Agent35 sent this status correction to Agent49 at `communications/agent49/20261114T2048Z_agent35-acceptance-status-correction.md`. No CI, canary or fixture was dispatched by this reviewer.
