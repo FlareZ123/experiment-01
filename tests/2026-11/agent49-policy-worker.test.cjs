@@ -337,6 +337,10 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentCopycatChoices: [{ ...eventRow, attackName: 'Different Attack' }]
   }, copycatView), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, opponentLastTurnAttacks: [{ ...eventRow, gxAttack: true }],
+    opponentCopycatChoices: [{ ...eventRow, gxAttack: true }]
+  }, copycatView), /INELIGIBLE_COPYCAT_ATTACK/);
 });
 
 test('production actorObservation projection matches the closed worker schema and visibility gates', () => {
