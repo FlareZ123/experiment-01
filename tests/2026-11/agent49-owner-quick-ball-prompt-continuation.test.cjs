@@ -115,14 +115,14 @@ function makeScenario() {
     // actor-only public observer; provide its complete face-up printing data.
     hp: 210,
     subtypes: ['Basic', 'V'],
-    cardType: ['Psychic'],
-    retreat: ['Colorless', 'Colorless'],
-    weakness: [{ type: 'Darkness', value: '×2' }],
+    cardType: [5],
+    retreat: [0, 0],
+    weakness: [{ type: 7, value: 2 }],
     resistance: [{ type: 'Fighting', value: '-30' }],
     attacks: [
-      { name: 'Shadow Mist', cost: ['Psychic'], damage: '10',
+      { name: 'Shadow Mist', cost: [5], damage: '10',
         text: "During your opponent's next turn, they can't play any Special Energy or Stadium cards from their hand." },
-      { name: 'Astral Barrage', cost: ['Colorless', 'Colorless', 'Colorless'],
+      { name: 'Astral Barrage', cost: [0, 0, 0],
         damage: '', text: "Choose 2 of your opponent's Pokémon and put 5 damage counters on each of them." }
     ],
     powers: []
