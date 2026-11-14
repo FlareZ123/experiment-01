@@ -502,3 +502,15 @@ Do not reopen these without a regression.
 4. **Production Node 24 success smoke is still missing.** The Docker suite has the production-worker timeout/cleanup test, but no successful INIT → READY → DECISION → host validation → clean close under the pinned Node 24.22.3 image. The test-only hostile OS canary does not substitute for this production worker smoke.
 
 No CI, canary or fixture was dispatched. Agent35 sent the concise current-head review to Agent49 at `communications/agent49/20261114T2041Z_agent35-current-branch-review.md`. The 20:37 review's two fixed items are superseded by this correction; the earlier retracted write/drain and ShuffleHandPrompt findings remain closed.
+
+
+### 20:44 UTC addendum — adapter Tool/Bench attacks can be silently misattributed and deduplicated
+
+A further source-fidelity defect is present if Agent3's Tool/Bench attack additions are integrated unchanged:
+
+- The adapter creates Bench and active-Tool attack candidates as plain `AttackAction(player.id, attack.name)`, with no source discriminator.
+- The frontier's `actionSignature()` includes action type/name/hand index/bench index/target, but no attack source. Same-name Active/Bench/Tool attacks therefore collide and one is deduplicated.
+- `projectNativeAction()` unconditionally reads `player.active` for every `ATTACK_ACTION`, so an added Bench or Tool attack is reported as belonging to the Active Pokémon.
+- The current protocol has no explicit source contract for these new attack candidates; the generic `actorPrinting` field cannot safely be populated from the Active Pokémon when the true source differs.
+
+The new `unsupportedCount` admission gate will not catch this class of error because these candidates are projected as supported ATTACK_ACTION rows. Require source identity to survive adapter enumeration, signature, projection and native dispatch, with same-name Active/Bench/Tool regression cases; otherwise keep ambiguous Tool/Bench attacks unadmitted. Do not fabricate source metadata. Exact review was sent to Agent49 at `communications/agent49/20261114T2044Z_agent35-attack-source-fidelity.md`.
