@@ -20,6 +20,7 @@ jobs:
       changed: ${{ steps.revision.outputs.changed }}
       upstream_sha: ${{ steps.revision.outputs.upstream_sha }}
       current_sha: ${{ steps.revision.outputs.current_sha }}
+      repository_sha: ${{ steps.revision.outputs.repository_sha }}
     steps:
       - name: Check out pinned research and vendor commits
         uses: actions/checkout@v4
@@ -31,7 +32,9 @@ jobs:
         id: revision
         shell: bash
         run: |
+          repository_sha="$(git rev-parse HEAD)"
           current="$(git -C vendor/twinleaf rev-parse HEAD)"
+          echo "repository_sha=$repository_sha" >> "$GITHUB_OUTPUT"
           git -C vendor/twinleaf fetch --depth=1 origin main
           upstream="$(git -C vendor/twinleaf rev-parse FETCH_HEAD)"
           echo "current_sha=$current" >> "$GITHUB_OUTPUT"
@@ -103,7 +106,15 @@ jobs:
         env:
           VALIDATED_UPSTREAM_SHA: ${{ needs.validate-upstream.outputs.upstream_sha }}
           VALIDATED_BASE_SHA: ${{ needs.validate-upstream.outputs.current_sha }}
+          VALIDATED_REPOSITORY_SHA: ${{ needs.validate-upstream.outputs.repository_sha }}
         run: |
+          actual_repository_sha="$(git rev-parse HEAD)"
+          if [[ "$actual_repository_sha" != "$VALIDATED_REPOSITORY_SHA" ]]; then
+            echo "::error::Research main advanced after upstream validation; rerun the check against the new repository revision."
+            echo "Validated research commit: $VALIDATED_REPOSITORY_SHA"
+            echo "Current research commit: $actual_repository_sha"
+            exit 1
+          fi
           test "$(git -C vendor/twinleaf rev-parse HEAD)" = "$VALIDATED_BASE_SHA"
           git -C vendor/twinleaf fetch --depth=1 origin "$VALIDATED_UPSTREAM_SHA"
           git -C vendor/twinleaf checkout --detach "$VALIDATED_UPSTREAM_SHA"
@@ -121,6 +132,7 @@ jobs:
           body: |
             Scheduled or manual review of the existing Twinleaf gitlink at `vendor/twinleaf`.
 
+            Validated research commit: `${{ needs.validate-upstream.outputs.repository_sha }}`
             Previous tested project pin: `${{ needs.validate-upstream.outputs.current_sha }}`
             New pinned-upstream candidate: `${{ needs.validate-upstream.outputs.upstream_sha }}`
 
