@@ -490,6 +490,8 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   protocol.validateRequest(engineSetupPrompt, initFor(), 1, new Set());
   const misattributedEnginePrompt = { ...promptReq, requestId: 'bad-engine-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: 'Quick Ball FST', effectName: 'ChooseStartingPokemonPrompt' } } };
   assert.throws(() => protocol.validateRequest(misattributedEnginePrompt, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
+  const engineWithCopiedSource = { ...promptReq, requestId: 'engine-copy-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: null, effectName: 'ChooseStartingPokemonPrompt', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Pale Moon-GX' } } };
+  assert.throws(() => protocol.validateRequest(engineWithCopiedSource, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
   const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
   const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Pale Moon-GX' } } };
