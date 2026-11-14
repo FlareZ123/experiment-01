@@ -63,8 +63,9 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
     const sentinelRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-host-'));
     let server,sandbox,priorSeed,seedCaptured=false;
     const activeChildren=[];
-    let hostConnections=0,physicalRandomCalls=0;
+    let hostConnections=0,physicalRandomCalls=0,hostMathRandomSetterCalls=0;
     const hostPhysicalRandom=()=>{physicalRandomCalls++;return 0.123;};
+    const originalMathRandomDescriptor=Object.getOwnPropertyDescriptor(Math,'random');
     try{
       const sentinelNames=[
         'runner-source.cjs',
@@ -110,6 +111,11 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       seedCaptured=true;
       process.env.AGENT36_PHYSICAL_SEED_HEX='must-not-cross-policy-boundary';
       assert.equal(typeof hostPhysicalRandom,'function');
+      Object.defineProperty(Math,'random',{
+        configurable:true,
+        get(){return hostPhysicalRandom;},
+        set(){hostMathRandomSetterCalls++;}
+      });
       const runWorker=async(seat,permissionModel)=>{
         const baseRequest={
           forbiddenPaths,
@@ -162,6 +168,8 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
           assert.equal(osReport.network.ok,false);
           assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
           assert.equal(hostConnections,0);
+          assert.equal(Math.random,hostPhysicalRandom);
+          assert.equal(hostMathRandomSetterCalls,0);
           assert.equal(physicalRandomCalls,0);
         }
 
@@ -192,7 +200,8 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
         return new Promise(resolve=>child.once('close',resolve));
       }));
       if(seedCaptured){
-        if(priorSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
+        Object.defineProperty(Math,'random',originalMathRandomDescriptor);
+      if(priorSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
         else process.env.AGENT36_PHYSICAL_SEED_HEX=priorSeed;
       }
       if(sandbox)cleanupSandboxRoot(sandbox);
