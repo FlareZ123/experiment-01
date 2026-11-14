@@ -40,6 +40,14 @@ function restrictions() {
 
 function pokemon(printing, options = {}) {
   const abilities = options.abilities ?? [];
+  const abilitySuppressions = Object.prototype.hasOwnProperty.call(options, 'abilitySuppressions')
+    ? options.abilitySuppressions
+    : abilities.map(abilityName => ({
+      abilityName,
+      suppressed: null,
+      reasonCode: null,
+      sourcePrinting: null
+    }));
   return {
     printing,
     name: options.name ?? printing.split(' ').slice(0, -2).join(' '),
@@ -66,7 +74,7 @@ function pokemon(printing, options = {}) {
       powerType: 'ABILITY',
       text: 'Once during your turn.'
     })),
-    ...(options.abilitySuppressions === undefined ? {} : { abilitySuppressions: options.abilitySuppressions })
+    abilitySuppressions
   };
 }
 
