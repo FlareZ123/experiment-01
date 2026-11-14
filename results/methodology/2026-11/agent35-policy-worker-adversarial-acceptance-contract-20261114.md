@@ -479,3 +479,26 @@ The following remain open on that exact branch:
 The host adapter / worker-only asset split, protocol-only import, and globalThis bootstrap correction are resolved on this branch; do not reopen them absent regression. The earlier write/drain deadline and ShuffleHandPrompt findings remain retracted.
 
 The required next step is still a rebase onto current main, including Agent46's phase-1 setup patch already committed there, followed by only the existing `contract_only` lane on the exact reviewed head. The hosted two-seat canary remains downstream of the contract pass and the owner seed-disclosure decision. No fixture or competitive evidence is authorized by this review.
+
+
+### 20:41 UTC update — latest branch fixes attestation and microtask gaps; action projector is now the critical blocker
+
+Re-reviewed Agent49's branch after its new commits: head `25e946a29865d1d3fbb19007d3dbbe6bc97dadf3` (2026-11-14 20:41:03Z), compared with main `df64f32295138f6aa7ac9bfa3757ecee393dd40d`: **32 ahead / 47 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+**Two prior findings are resolved on this branch:**
+- `AsyncDockerPolicySession.decide()` now returns the validated `policyDrawCount` field, so the runner can record numeric zero.
+- The worker runtime now runs a host-side macrotask barrier after policy-source load, initialization and each decision. New tests cover deferred bootstrap/export-getter draws, deferred initialization and nested-`toJSON` decision serialization. The EOF settle/check remains.
+
+Do not reopen these without a regression.
+
+**Remaining gates on the latest reviewed head:**
+
+1. **Typed Night Watch provenance remains unresolved.** `hostOnlyPrompt()` still uses `provenance?.effectName ?? prompt?.message ?? prompt?.type`. The free-form fallback can classify an untrusted prompt description as a physical-random host-only effect. Require trusted typed provenance and test spoofed message/type values with absent or unrelated provenance.
+
+2. **Action-frontier admission is still incomplete, with newly confirmed projector gaps.** The runner still binds the pinned upstream `ActionEnumerator`; it does not construct Agent3's cap-free adapter or call either adapter/cap admission gate. The frontier builder returns local diagnostics, but the resolver sends only `frontier.actionFrontier` to the worker and discards those diagnostics. Agent3's new adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, while `projectNativeAction()` only handles `USE_ABILITY_ACTION`; those new actions are dropped as unsupported. In addition, all `ATTACK_ACTION` rows are currently projected as attacks by the Active Pokémon, which misattributes active Tool attacks and Bench-usable attacks. The projector needs source-aware metadata (or must fail closed and keep these actions unadmitted). The exact integration contract is in `results/methodology/2026-11/agent3-action-enumerator-coverage-matrix-20261114.md`. The adapter is still source-shaped and synthetic-tested only; it has not been validated against the compiled pinned Store.
+
+3. **Contract-only coverage is incomplete.** The branch workflow's explicit test command omits `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs`, `tests/2026-11/agent46-candidate-policy.test.cjs`, `tests/2026-11/agent3-action-enumerator-cap-audit.test.cjs`, and `tests/2026-11/agent3-known-cap-free-action-enumerator.test.cjs`. Add the applicable tests to the existing bounded lane; do not create a new workflow or dispatch PR #55.
+
+4. **Production Node 24 success smoke is still missing.** The Docker suite has the production-worker timeout/cleanup test, but no successful INIT → READY → DECISION → host validation → clean close under the pinned Node 24.22.3 image. The test-only hostile OS canary does not substitute for this production worker smoke.
+
+No CI, canary or fixture was dispatched. Agent35 sent the concise current-head review to Agent49 at `communications/agent49/20261114T2041Z_agent35-current-branch-review.md`. The 20:37 review's two fixed items are superseded by this correction; the earlier retracted write/drain and ShuffleHandPrompt findings remain closed.
