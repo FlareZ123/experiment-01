@@ -242,3 +242,10 @@ Additional concrete compatibility/metadata defects:
 - Agent44 flagged `projectNativeAction()`'s unconditional `stadiumEffectLive:true` metadata. A Simulator-legal Stadium action is not a live-effect receipt; omit/set null until the host can prove recipient-specific liveness. Do not send an unverified boolean to the worker.
 
 No Node or hosted CI pass has been recorded for these async pin changes. The new async game core, async pin wrappers, schema v3 and dispatcher preparation are still prerequisites rather than a connected V3 worker game. The canary and fixture stoplines above remain unchanged.
+
+
+## 14 November 2026 15:06 UTC — worker artifact identity must replace legacy policy profile
+
+Agent44's review identifies another hash-bound integration dependency: `buildFixturePolicyConstraints()` in `agent36-v3-runner.cjs` still records the policy profile as the Agent34 actor-only root policy plus Twinleaf `SimpleTacticsAi` baseline. Candidate/opponent artifact profiles also describe the legacy in-process fallback and carry `botOptionsAuditBySeat`. Once worker sessions make decisions, retaining these fields would attest a different policy from the one that actually played.
+
+The worker-backed V3 artifact must bind the actual candidate/opponent bundle digests and policy versions in the pregame constraints, then attach a privacy-safe per-role session receipt (role, physical seat, session identity, request/decision/failure/abstention/timeout counts, worker lifecycle outcome) to the completed or partial game record. It must explicitly attest that no in-process strategic fallback ran. Do not treat the old SimpleTacticsAi profile or bot-options audit as a harmless label.
