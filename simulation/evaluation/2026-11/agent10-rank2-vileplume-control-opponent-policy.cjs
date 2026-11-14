@@ -13,44 +13,44 @@
 const POLICY_VERSION = 'agent10-rank2-vileplume-control-opponent-v1';
 
 const PRINT = Object.freeze({
-  oddish: /^Oddish UNB(?: \\d+)?\\b/i,
-  gloom: /^Gloom UNB(?: \\d+)?\\b/i,
-  vileplume: /^Vileplume AOR(?: \\d+)?\\b/i,
-  vileplumeGx: /^Vileplume-GX CEC(?: \\d+)?\\b/i,
-  lillipup: /^Lillipup CEC(?: \\d+)?\\b/i,
-  herdier: /^Herdier SUM(?: \\d+)?\\b/i,
-  stoutland: /^Stoutland BCR(?: \\d+)?\\b/i,
-  pidgey: /^Pidgey MEW(?: \\d+)?\\b/i,
-  pidgeotto: /^Pidgeotto TEU(?: \\d+)?\\b/i,
-  pidgeot: /^Pidgeot ex OBF(?: \\d+)?\\b/i,
-  bunnelby: /^Bunnelby PRC(?: \\d+)?\\b/i,
-  fanRotom: /^Fan Rotom SCR(?: \\d+)?\\b/i,
-  relicanth: /^Relicanth TEF(?: \\d+)?\\b/i,
-  mrMime: /^Mr\. Mime PLF(?: \\d+)?\\b/i,
-  girafarig: /^Girafarig LOT(?: \\d+)?\\b/i,
-  budew: /^Budew ASC(?: \\d+)?\\b/i,
-  jirachi: /^Jirachi XYP(?: \\d+)?\\b/i,
-  tagCall: /^Tag Call CEC(?: \\d+)?\\b/i,
-  guzmaHala: /^Guzma & Hala CEC(?: \\d+)?\\b/i,
-  tmEvolution: /^Technical Machine: Evolution PAR(?: \\d+)?\\b/i,
-  grandTree: /^Grand Tree SCR(?: \\d+)?\\b/i,
-  artazon: /^Artazon PAL(?: \\d+)?\\b/i,
-  jetEnergy: /^Jet Energy PAL(?: \\d+)?\\b/i,
-  captureEnergy: /^Capture Energy RCL(?: \\d+)?\\b/i,
-  memoryEnergy: /^Memory Energy LOT(?: \\d+)?\\b/i,
-  stealthyHood: /^Stealthy Hood UNB(?: \\d+)?\\b/i,
-  grassEnergy: /^Grass Energy MEE(?: \\d+)?\\b/i,
-  guzma: /^Guzma BUS(?: \\d+)?\\b/i,
-  cassius: /^Cassius XY(?: \\d+)?\\b/i,
-  karen: /^Karen XYP(?: \\d+)?\\b/i,
-  plumeria: /^Plumeria BUS(?: \\d+)?\\b/i,
-  gladion: /^Gladion CIN(?: \\d+)?\\b/i,
-  faba: /^Faba LOT(?: \\d+)?\\b/i,
-  lusamine: /^Lusamine CIN(?: \\d+)?\\b/i,
-  bellelba: /^Bellelba & Brycen-Man CEC(?: \\d+)?\\b/i,
-  peonia: /^Peonia CRE(?: \\d+)?\\b/i,
-  teamYell: /^Team Yell's Cheer BRS(?: \\d+)?\\b/i,
-  counterGain: /^Counter Gain SSP(?: \\d+)?\\b/i
+  oddish: /^Oddish UNB(?: \d+)?\b/i,
+  gloom: /^Gloom UNB(?: \d+)?\b/i,
+  vileplume: /^Vileplume AOR(?: \d+)?\b/i,
+  vileplumeGx: /^Vileplume-GX CEC(?: \d+)?\b/i,
+  lillipup: /^Lillipup CEC(?: \d+)?\b/i,
+  herdier: /^Herdier SUM(?: \d+)?\b/i,
+  stoutland: /^Stoutland BCR(?: \d+)?\b/i,
+  pidgey: /^Pidgey MEW(?: \d+)?\b/i,
+  pidgeotto: /^Pidgeotto TEU(?: \d+)?\b/i,
+  pidgeot: /^Pidgeot ex OBF(?: \d+)?\b/i,
+  bunnelby: /^Bunnelby PRC(?: \d+)?\b/i,
+  fanRotom: /^Fan Rotom SCR(?: \d+)?\b/i,
+  relicanth: /^Relicanth TEF(?: \d+)?\b/i,
+  mrMime: /^Mr\. Mime PLF(?: \d+)?\b/i,
+  girafarig: /^Girafarig LOT(?: \d+)?\b/i,
+  budew: /^Budew ASC(?: \d+)?\b/i,
+  jirachi: /^Jirachi XYP(?: \d+)?\b/i,
+  tagCall: /^Tag Call CEC(?: \d+)?\b/i,
+  guzmaHala: /^Guzma & Hala CEC(?: \d+)?\b/i,
+  tmEvolution: /^Technical Machine: Evolution PAR(?: \d+)?\b/i,
+  grandTree: /^Grand Tree SCR(?: \d+)?\b/i,
+  artazon: /^Artazon PAL(?: \d+)?\b/i,
+  jetEnergy: /^Jet Energy PAL(?: \d+)?\b/i,
+  captureEnergy: /^Capture Energy RCL(?: \d+)?\b/i,
+  memoryEnergy: /^Memory Energy LOT(?: \d+)?\b/i,
+  stealthyHood: /^Stealthy Hood UNB(?: \d+)?\b/i,
+  grassEnergy: /^Grass Energy MEE(?: \d+)?\b/i,
+  guzma: /^Guzma BUS(?: \d+)?\b/i,
+  cassius: /^Cassius XY(?: \d+)?\b/i,
+  karen: /^Karen XYP(?: \d+)?\b/i,
+  plumeria: /^Plumeria BUS(?: \d+)?\b/i,
+  gladion: /^Gladion CIN(?: \d+)?\b/i,
+  faba: /^Faba LOT(?: \d+)?\b/i,
+  lusamine: /^Lusamine CIN(?: \d+)?\b/i,
+  bellelba: /^Bellelba & Brycen-Man CEC(?: \d+)?\b/i,
+  peonia: /^Peonia CRE(?: \d+)?\b/i,
+  teamYell: /^Team Yell's Cheer BRS(?: \d+)?\b/i,
+  counterGain: /^Counter Gain SSP(?: \d+)?\b/i
 });
 
 const EXECUTABLE = new Set([
@@ -62,7 +62,7 @@ function list(value) {
 }
 
 function canonicalPrinting(value) {
-  return typeof value === 'string' ? value.replace(/ \\d+$/, '') : '';
+  return typeof value === 'string' ? value.replace(/ \d+$/, '') : '';
 }
 
 function samePrinting(left, right) {
