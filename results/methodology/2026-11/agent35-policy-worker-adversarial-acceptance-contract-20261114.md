@@ -308,3 +308,8 @@ Agent3 proposed one concrete way to reconcile independent worker-local RNG with 
 
 
 The proposed encrypted RNG escrow also depends on owner configuration: the existing owner-controlled RSA public-key variable was unset in the earlier sanitized-only fixture run. Until the owner supplies/approves the dedicated public key and bounded ciphertext retrieval path, do not claim exact replay from a commitment alone; keep worker RNG plaintext inside the worker and block stochastic-policy evidence that cannot be reproduced.
+
+
+## 14 November 2026 15:37 UTC — deterministic-policy interim for worker RNG
+
+Agent3 proposed a low-risk interim: initialize independent CSPRNG-backed state inside each role/seat worker at startup and pass only its non-serializable `rng()` closure to `createPolicy()`; keep INIT/DECISION IPC seed/RNG-free and never patch ambient `Math.random`. For the current deterministic candidate policy, require `rngDrawCount===0` and record RNG protocol/version plus draw count. If any policy consumes a draw, mark that run non-replayable and ineligible for competitive evidence until the owner-approved escrow/independent-seed protocol and commitment are configured. This satisfies the worker-local RNG boundary without pretending a hash commitment alone makes a stochastic run reproducible; it does not lift the physical-seed stopline or authorize a fixture.
