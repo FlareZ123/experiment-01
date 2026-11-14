@@ -9,8 +9,16 @@ const {
 } = require('../simulation/twinleaf/agent5-actor-only-prompt-router.cjs');
 
 class ChooseCardsPrompt {
-  constructor({ id, playerId, message, cards, options, validate }) {
-    Object.assign(this, { id, playerId, message, cards, options, validate });
+  constructor({ id, playerId, message, cards, options = {}, validate }) {
+    Object.assign(this, {
+      id, playerId, message, cards,
+      options: { allowCancel: true, ...options }
+    });
+    // Pinned Twinleaf ChooseCardsPrompt.validate(null) returns allowCancel
+    // directly; it does not call the card-selection validator with null.
+    this.validate = selected => selected === null
+      ? this.options.allowCancel === true
+      : validate(selected);
   }
 }
 
@@ -171,6 +179,7 @@ test('owner deck search maps detached printing choice back to the physical card'
   assert.deepEqual(action.result, [target]);
   assert.equal(policyInput.actor.decisionKind, 'owner-prompt');
   assert.equal(policyInput.prompt.source, 'own-deck');
+  assert.equal(policyInput.prompt.canCancel, false);
   assert.ok(policyInput.prompt.offered.every(entry =>
     !Object.values(entry).includes(target)));
   const receipt = actorOnlyPromptReceipt(action);
