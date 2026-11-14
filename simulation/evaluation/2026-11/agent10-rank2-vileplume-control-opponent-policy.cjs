@@ -13,44 +13,44 @@
 const POLICY_VERSION = 'agent10-rank2-vileplume-control-opponent-v1';
 
 const PRINT = Object.freeze({
-  oddish: /^Oddish UNB 5\b/i,
-  gloom: /^Gloom UNB 7\b/i,
-  vileplume: /^Vileplume AOR 3\b/i,
-  vileplumeGx: /^Vileplume-GX CEC 4\b/i,
-  lillipup: /^Lillipup CEC 174\b/i,
-  herdier: /^Herdier SUM 104\b/i,
-  stoutland: /^Stoutland BCR 122\b/i,
-  pidgey: /^Pidgey MEW 16\b/i,
-  pidgeotto: /^Pidgeotto TEU 123\b/i,
-  pidgeot: /^Pidgeot ex OBF 164\b/i,
-  bunnelby: /^Bunnelby PRC 121\b/i,
-  fanRotom: /^Fan Rotom SCR 118\b/i,
-  relicanth: /^Relicanth TEF 84\b/i,
-  mrMime: /^Mr\. Mime PLF 47\b/i,
-  girafarig: /^Girafarig LOT 94\b/i,
-  budew: /^Budew ASC 16\b/i,
-  jirachi: /^Jirachi XYP 67\b/i,
-  tagCall: /^Tag Call CEC 206\b/i,
-  guzmaHala: /^Guzma & Hala CEC 193\b/i,
-  tmEvolution: /^Technical Machine: Evolution PAR 178\b/i,
-  grandTree: /^Grand Tree SCR 136\b/i,
-  artazon: /^Artazon PAL 171\b/i,
-  jetEnergy: /^Jet Energy PAL 190\b/i,
-  captureEnergy: /^Capture Energy RCL 171\b/i,
-  memoryEnergy: /^Memory Energy LOT 194\b/i,
-  stealthyHood: /^Stealthy Hood UNB 186\b/i,
-  grassEnergy: /^Grass Energy MEE 9\b/i,
-  guzma: /^Guzma BUS 115\b/i,
-  cassius: /^Cassius XY 115\b/i,
-  karen: /^Karen XYP 177\b/i,
-  plumeria: /^Plumeria BUS 120\b/i,
-  gladion: /^Gladion CIN 95\b/i,
-  faba: /^Faba LOT 173\b/i,
-  lusamine: /^Lusamine CIN 96\b/i,
-  bellelba: /^Bellelba & Brycen-Man CEC 186\b/i,
-  peonia: /^Peonia CRE 149\b/i,
-  teamYell: /^Team Yell's Cheer BRS 149\b/i,
-  counterGain: /^Counter Gain SSP 169\b/i
+  oddish: /^Oddish UNB(?: \\d+)?\\b/i,
+  gloom: /^Gloom UNB(?: \\d+)?\\b/i,
+  vileplume: /^Vileplume AOR(?: \\d+)?\\b/i,
+  vileplumeGx: /^Vileplume-GX CEC(?: \\d+)?\\b/i,
+  lillipup: /^Lillipup CEC(?: \\d+)?\\b/i,
+  herdier: /^Herdier SUM(?: \\d+)?\\b/i,
+  stoutland: /^Stoutland BCR(?: \\d+)?\\b/i,
+  pidgey: /^Pidgey MEW(?: \\d+)?\\b/i,
+  pidgeotto: /^Pidgeotto TEU(?: \\d+)?\\b/i,
+  pidgeot: /^Pidgeot ex OBF(?: \\d+)?\\b/i,
+  bunnelby: /^Bunnelby PRC(?: \\d+)?\\b/i,
+  fanRotom: /^Fan Rotom SCR(?: \\d+)?\\b/i,
+  relicanth: /^Relicanth TEF(?: \\d+)?\\b/i,
+  mrMime: /^Mr\. Mime PLF(?: \\d+)?\\b/i,
+  girafarig: /^Girafarig LOT(?: \\d+)?\\b/i,
+  budew: /^Budew ASC(?: \\d+)?\\b/i,
+  jirachi: /^Jirachi XYP(?: \\d+)?\\b/i,
+  tagCall: /^Tag Call CEC(?: \\d+)?\\b/i,
+  guzmaHala: /^Guzma & Hala CEC(?: \\d+)?\\b/i,
+  tmEvolution: /^Technical Machine: Evolution PAR(?: \\d+)?\\b/i,
+  grandTree: /^Grand Tree SCR(?: \\d+)?\\b/i,
+  artazon: /^Artazon PAL(?: \\d+)?\\b/i,
+  jetEnergy: /^Jet Energy PAL(?: \\d+)?\\b/i,
+  captureEnergy: /^Capture Energy RCL(?: \\d+)?\\b/i,
+  memoryEnergy: /^Memory Energy LOT(?: \\d+)?\\b/i,
+  stealthyHood: /^Stealthy Hood UNB(?: \\d+)?\\b/i,
+  grassEnergy: /^Grass Energy MEE(?: \\d+)?\\b/i,
+  guzma: /^Guzma BUS(?: \\d+)?\\b/i,
+  cassius: /^Cassius XY(?: \\d+)?\\b/i,
+  karen: /^Karen XYP(?: \\d+)?\\b/i,
+  plumeria: /^Plumeria BUS(?: \\d+)?\\b/i,
+  gladion: /^Gladion CIN(?: \\d+)?\\b/i,
+  faba: /^Faba LOT(?: \\d+)?\\b/i,
+  lusamine: /^Lusamine CIN(?: \\d+)?\\b/i,
+  bellelba: /^Bellelba & Brycen-Man CEC(?: \\d+)?\\b/i,
+  peonia: /^Peonia CRE(?: \\d+)?\\b/i,
+  teamYell: /^Team Yell's Cheer BRS(?: \\d+)?\\b/i,
+  counterGain: /^Counter Gain SSP(?: \\d+)?\\b/i
 });
 
 const EXECUTABLE = new Set([
@@ -59,6 +59,14 @@ const EXECUTABLE = new Set([
 
 function list(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function canonicalPrinting(value) {
+  return typeof value === 'string' ? value.replace(/ \\d+$/, '') : '';
+}
+
+function samePrinting(left, right) {
+  return canonicalPrinting(left) === canonicalPrinting(right);
 }
 
 function matches(value, pattern) {
@@ -386,7 +394,7 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.counterGain)) {
     return ownBehindOnPrizes(observation) &&
-      target === own.active?.printing ? 190 : 0;
+      samePrinting(target, own.active?.printing) ? 190 : 0;
   }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
@@ -530,7 +538,7 @@ function cardPriority(printing, observation, context) {
 function discardPriority(choice, observation) {
   const printing = choicePrinting(choice);
   const hand = list(observation.ownHand);
-  const copies = hand.filter(card => card === printing).length;
+  const copies = hand.filter(card => samePrinting(card, printing)).length;
   if (copies > 1) return 150 + copies;
   if (matches(printing, PRINT.tagCall) && handCount(hand, PRINT.guzmaHala) > 0) return 120;
   if (matches(printing, PRINT.oddish) && boardHas(observation.ownPublic, PRINT.oddish)) return 90;
@@ -555,7 +563,7 @@ function scorePokemonChoice(choice, observation, context) {
       !context.includes('cassius')) return -100;
   if (context.includes('guzma')) {
     const target = list(observation.opponentPublic?.bench).find(slot =>
-      slot && slot.printing === printing);
+      slot && samePrinting(slot.printing, printing));
     if (!target) return -100;
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
@@ -563,7 +571,7 @@ function scorePokemonChoice(choice, observation, context) {
   }
   if (context.includes('cassius')) {
     const target = boardSlots(observation.ownPublic).find(row =>
-      row.pokemon.printing === printing);
+      samePrinting(row.pokemon.printing, printing));
     if (!target) return -100;
     return remainingHp(target.pokemon) > 0 &&
       remainingHp(target.pokemon) <= 50 ? 160 : 15;
