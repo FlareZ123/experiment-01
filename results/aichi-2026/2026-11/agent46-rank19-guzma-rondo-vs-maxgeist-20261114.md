@@ -9,7 +9,7 @@ In the Hood Shield v1 rank19 diagnostic game, did the turn27 Guzma own-recipient
 ## Reproduction and evidence
 
 - Native cohort: workflow run [42578010606](https://github.com/FlareZ123/experiment-01/actions/runs/42578010606), artifact `agent3-hood-vs-shadow-all29-native` (artifact ID 13656062292).
-- Row: candidate `hood-shield-v1`, source rank19, repeat7002, candidate seat1, 29 turns.
+- Row: candidate `hood-shield-v1`, source rank19, player **Mark Takahashi**, Raging Bolt archetype, repeat7002, candidate seat1, 29 turns. The source registry has a complete 60-card list for this rank.
 - The candidate's last attack is Max Geist at action ordinal150 / turn27.
 - The root-action ledger shows Guzma at ordinal147, followed by the two `ChoosePokemonPrompt` resolutions at ordinals148 and149, then the attack.
 - The row's `guzmaPromptAudit` records `seekerGuzmaNominalKoOptIn:true`, `maxPrintedDamage:250`, and selected own recipient `Shadow Rider Calyrex VMAX CRE`.
@@ -95,6 +95,7 @@ Create an actor-only deterministic fixture from the public state and Guzma promp
 ## Limitations
 
 - This is one diagnostic native game from an unqualified cohort. The actor-only boundary, paper-rule fidelity, opponent competence, and tournament timing were not all admitted; do not count it as a competitively qualified matchup.
+- The event is the **Japanese CL Aichi Open League / Extra** field, not a uniformly paper-Expanded-legal tournament. Existing scope audit identifies ranks 3, 6, 7, 24 and 29 as containing Extra-only incompatibilities; rank19 is not among those five and has a complete 60-card list, but this single opponent list still lacks a standalone Expanded legality certificate. The full 32-field is not format-uniform and ranks 23, 25 and 28 still lack complete lists.
 - The public snapshot supports the damage arithmetic but does not independently certify every prompt option or Ability-liveness rule. A deterministic replay through the pinned Store is required.
 - The game later ended with `engine-game-end`; this comparison does not establish that choosing Clefairy would have prevented the loss or changed the terminal result.
 - The result does not justify changing the fixed Hood 60 or claiming any aggregate win rate.
