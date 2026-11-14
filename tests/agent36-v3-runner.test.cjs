@@ -648,14 +648,14 @@ test('host policy preload hashes worker-only entrypoints without executing them'
   ].join('\n');
   try{
     fs.writeFileSync(sourcePath,source);
-    const loaded=loadWorkerPolicyModule({
-      repositoryRoot,sourcePath:relativePath,expectedPolicyVersion:'agent49-host-preload-probe-v1'
-    });
+    const loaded=loadWorkerPolicyModule(
+      repositoryRoot,relativePath,'host-preload-probe'
+    );
     const sha256=createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex');
     const preload=preloadRoleHostModules({
       repositoryRoot,expectedByPath:{[relativePath]:sha256},workerOnlyPaths:[relativePath]
     });
-    assert.equal(loaded.policyVersion,'agent49-host-preload-probe-v1');
+    assert.equal(loaded.POLICY_VERSION,'agent49-host-preload-probe-v1');
     assert.deepEqual(preload.hostExpectedByPath,{});
     assert.deepEqual(preload.loadedPaths,[]);
     assert.equal(fs.existsSync(sentinelPath),false,
