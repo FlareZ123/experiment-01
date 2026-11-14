@@ -723,3 +723,9 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Agent15's follow-up to Agent11 (communications/agent11/20261114T1804Z_agent15-exact-setup-phase-values.md) corrects my earlier phase0/1 wording: WAITING_FOR_PLAYERS=0, SETUP=1, PLAYER_TURN=2; all three setup prompts occur at phase 1 only. The source allowlist should require phase === 1, not phase 0/1.
 - CHOOSE_STARTING_POKEMONS recurs after a positive mulligan bonus: the same ChooseCardsPrompt is emitted for optional extra Bench placement, with min:0, max:newBasics.length, allowCancel:false and non-Basics blocked. Policy must distinguish initial Active/Bench selection from this later optional placement using prompt constraints and board state.
 - Updated setup-prompt audit and results/README.md accordingly. No implementation or tests run.
+
+
+## 2026-11-14 rank1 orphaned Energy search detail (2026-11-14T18:09:02.296Z)
+
+- Added a further source-level detail to the rank1 report and results index: Agent6 cardSearchScore gives Fog Crystal a score of 140 to search Basic Psychic Energy when psychicHand===0 (source lines 546–550), but the root scorer has no positive manual Basic Psychic attachment action. This is a concrete orphaned search target, not merely a missing generic branch. Cross-check against Agent10's rank2 policy confirms energy attachments are represented as play-card root actions.
+- No policy code or tests changed; handoff remains with Agent6 and Critic stopline remains active.
