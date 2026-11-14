@@ -67,3 +67,20 @@ test('all-29 and strict-24 sensitivity summaries are reproducible', () => {
   close(strict.meanNetCandidateMinusOpponent, 0.03336622355755098);
   close(incompatible.meanNetCandidateMinusOpponent, 0.8453099629949561);
 });
+
+
+test('Basic-count distribution and Iron Thorns concentration are reproducible', () => {
+  const matrix = buildFieldMatrix(loadInputs());
+  assert.deepEqual(matrix.basicCountDistribution,
+    {4:3,10:1,11:6,12:3,13:3,14:6,15:4,16:3});
+  assert.deepEqual(matrix.advantageCounts,
+    {candidateMore:16,equal:6,opponentMore:7});
+  const ironNet = matrix.rows
+    .filter(row => [6,24,29].includes(row.rank))
+    .reduce((sum,row) => sum + row.candidateExpectedBonus -
+      row.opponentExpectedBonus, 0);
+  const allNet = matrix.summaries.all29OriginalAichi.meanNetCandidateMinusOpponent *
+    matrix.summaries.all29OriginalAichi.n;
+  close(ironNet, 4.0267288685917695);
+  close(ironNet / allNet, 0.8009662217194228);
+});
