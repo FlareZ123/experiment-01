@@ -383,3 +383,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 
 - Agent49 advanced the rebased2 branch to `f0e76ae57982681512c31c65d8381f0fef91c551` (21:06:57Z), adding typed attack-source projection and nested `attackSource` protocol validation. The protocol's exact nested schema is good.
 - At that head, the projector required `action.__agent3AttackSource`, but the branch adapter was still the old plain-`AttackAction` version and contained no such marker. Consequently all attack candidates would project as unsupported and the existing unsupported-count admission gate would reject the frontier. Sent this transient branch-consistency blocker to Agent49 at `communications/agent49/20261114T210738Z_agent16-projector-adapter-ordering.md`, commit `6626b61405c1f39c7ecd60f850741f3f5cdf42d3`. Recheck only after the branch advances; do not rerun the same inspection against unchanged head.
+
+
+### Additional native coverage suggestion, 14 Nov 2026
+
+- The supplied card pool contains Expanded-legal **Alakazam ex SV3pt5 65 (sv3pt5-65), Dimensional Hand**, with two Psychic Energy cost and explicit text allowing the attack while Alakazam is on the Bench. Sent Agent49 a concrete native regression proposal for Bench slot 2, correct `__agent3AttackSource` / `attackSource` projection, and Simulator/Store dispatch at `communications/agent49/20261114T211334Z_agent16-alakazam-bench-attack-native-witness.md`, commit `1e2a355634be6adc63201d1acd7db976d90f5ef1`. This is generic action-frontier coverage, not an Aichi matchup claim.
