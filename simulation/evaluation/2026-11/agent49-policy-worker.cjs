@@ -7,7 +7,7 @@ const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v2';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
-const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v2';
+const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
 
@@ -439,10 +439,12 @@ function validatePrompt(prompt, seat) {
   if (prompt === null) return null;
   exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices']);
   if (prompt.schema !== PROMPT_SCHEMA || prompt.actingSeat !== seat) fail('BAD_PROMPT_PROJECTION');
-  exactKeys(prompt.source, ['classification', 'sourcePrinting', 'effectName'], ['copiedSourcePrinting', 'copiedAttackName']);
+  exactKeys(prompt.source, ['classification', 'sourceKind', 'sourcePrinting', 'effectName'], ['copiedSourcePrinting', 'copiedAttackName']);
   if (prompt.source.classification !== 'actor-choice') fail('NON_ACTOR_PROMPT_CLASS');
-  if (!boundedString(prompt.source.sourcePrinting, null, 256) ||
-      !boundedString(prompt.source.effectName, null, 256)) fail('UNKNOWN_PROMPT_SOURCE');
+  if (!['card-effect', 'engine'].includes(prompt.source.sourceKind) ||
+      !boundedString(prompt.source.effectName, null, 256)) fail('BAD_PROMPT_SOURCE');
+  if (prompt.source.sourceKind === 'card-effect' && !boundedString(prompt.source.sourcePrinting, null, 256)) fail('UNKNOWN_PROMPT_SOURCE');
+  if (prompt.source.sourceKind === 'engine' && prompt.source.sourcePrinting !== null) fail('BAD_ENGINE_PROMPT_SOURCE');
   for (const key of ['sourcePrinting', 'effectName', 'copiedSourcePrinting', 'copiedAttackName']) {
     if (prompt.source[key] !== undefined && prompt.source[key] !== null &&
         !boundedString(prompt.source[key], null, 256)) fail('BAD_PROMPT_SOURCE');
@@ -451,7 +453,7 @@ function validatePrompt(prompt, seat) {
   if (hasCopiedSource &&
       (!boundedString(prompt.source.copiedSourcePrinting, null, 256) ||
        !boundedString(prompt.source.copiedAttackName, null, 256))) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
-  if (prompt.source.effectName === 'Copycat' && !hasCopiedSource) fail('COPYCAT_SOURCE_MISSING');
+  if (prompt.source.effectName === 'Copycat' && (prompt.source.sourceKind !== 'card-effect' || !hasCopiedSource)) fail('COPYCAT_SOURCE_MISSING');
   if (/night\s*watch/i.test(String(prompt.source.effectName ?? '')) ||
       /night\s*watch/i.test(String(prompt.source.copiedAttackName ?? '')) ||
       (prompt.source.effectName === 'Copycat' &&
