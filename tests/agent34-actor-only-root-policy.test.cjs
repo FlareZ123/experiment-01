@@ -1552,7 +1552,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const psychicWeakTarget={
     ...target,printing:'Synthetic Psychic-weak non-Dragon target',hp:300,damage:0,
     printed:{stage:'Basic',types:[6],
-      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:2}],resistance:[]}
+      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:null}],resistance:[]}
   };
   const printedPsychicWeakView={
     ...view,
