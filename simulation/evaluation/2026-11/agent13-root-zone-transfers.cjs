@@ -22,11 +22,13 @@ const isEnergy=printing=>typeof printing==='string'&&
  * Reordering cards within a shuffled deck or a Pokémon stack is explicitly
  * excluded from transfers, but remains reproducible as a reorder count.
  * This does not certify the legality or strategic value of any move.
- * @param {object} packet Agent36 original-Store full physical receipt packet.
+ * @param {object} packet Agent36 original-Store full physical receipt packet (v1 or v2).
  * @returns {object} Original-root-aligned physical transfer timeline.
  */
 function summarizePhysicalZoneTransfers(packet){
-  assert.equal(packet?.schema,'agent36-live-paper-root-receipts-v1');
+  assert.ok(['agent36-live-paper-root-receipts-v1',
+    'agent36-live-paper-root-receipts-v2-attached-energy-custody']
+    .includes(packet?.schema), 'Unsupported Agent36 physical receipt schema');
   assert.ok(Array.isArray(packet.originalPhysicalCards));
   const ids=new Map(packet.originalPhysicalCards.map(card=>[card.id,card]));
   assert.equal(ids.size,packet.originalPhysicalCards.length,
@@ -79,7 +81,7 @@ function summarizePhysicalZoneTransfers(packet){
       x.toZone===x.fromZone.slice(0,2)+'.hand');
     const energyDeckAttachments=transfers.filter(x=>
       isEnergy(x.printing)&&/\.deck$/.test(x.fromZone)&&
-      /^(s[01])\.(?:active|bench[0-9]+)$/.test(x.toZone));
+      /^(s[01])\.(?:active|bench[0-9]+)(?:\.energies)?$/.test(x.toZone));
     const crossSeatMoves=transfers.filter(x=>
       x.fromZone.slice(0,2)!==x.toZone.slice(0,2));
     timeline.push({
