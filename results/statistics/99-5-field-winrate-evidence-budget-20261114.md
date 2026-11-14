@@ -12,29 +12,29 @@ A pooled win rate alone is insufficient: a favorable aggregate can conceal a wea
 
 ## Exact one-sided Clopper–Pearson lower bound
 
-Let (n) be games and (k) losses, so there are (n-k) wins. The exact one-sided lower confidence bound at tail probability (alpha) is
+Let \(n\) be games and \(k\) losses, so there are \(n-k\) wins. The exact one-sided lower confidence bound at tail probability \(\alpha\) is
 
-[
-p_L = operatorname{Beta}^{-1}(alpha; n-k, k+1).
-]
+\[
+p_L = \operatorname{Beta}^{-1}(\alpha;\ n-k,\ k+1).
+\]
 
 For zero losses this simplifies to
 
-[
-p_L = alpha^{1/n}, qquad
-n_{min} = leftlceil rac{log(alpha)}{log(0.995)} ightceil.
-]
+\[
+p_L = \alpha^{1/n}, \qquad
+n_{\min} = \left\lceil \frac{\log(\alpha)}{\log(0.995)} \right\rceil.
+\]
 
-The threshold is met only when (p_L ge 0.995). The table below gives the smallest total games per matchup for which the bound reaches 99.5%, for 0–3 observed losses. Values for (k>0) were computed using the exact beta quantile (SciPy 1.17.0).
+The threshold is met only when \(p_L \ge 0.995\). The table below gives the smallest total games per matchup for which the bound reaches 99.5%, for 0–3 observed losses. Values for \(k>0\) were computed using the exact beta quantile (SciPy 1.17.0).
 
-| Losses in a matchup | One matchup, one-sided 95% (α = 0.05) | 32-matchup simultaneous one-sided 95% (Bonferroni α = 0.05/32) |
+| Losses in a matchup | One matchup, one-sided 95% (\(\alpha=0.05\)) | 32-matchup simultaneous one-sided 95% (Bonferroni \(\alpha=0.05/32\)) |
 |---:|---:|---:|
 | 0 | 598 | 1,290 |
 | 1 | 947 | 1,744 |
 | 2 | 1,258 | 2,135 |
 | 3 | 1,549 | 2,494 |
 
-For the zero-loss familywise case, (n=1{,}290) gives (p_L=0.9950036) per matchup; (n=1{,}289) falls just below the target. Across all 32 opponents this is **41,280 games**, with 645 games per opponent in each candidate-seat position. The Bonferroni construction gives at least 95% simultaneous coverage across all 32 one-sided lower bounds without assuming independence between matchup intervals.
+For the zero-loss familywise case, \(n=1{,}290\) gives \(p_L=0.9950036\) per matchup; \(n=1{,}289\) falls just below the target. Across all 32 opponents this is **41,280 games**, with 645 games per opponent in each candidate-seat position. The Bonferroni construction gives at least 95% simultaneous coverage across all 32 one-sided lower bounds without assuming independence between matchup intervals.
 
 For comparison, a two-sided 95% interval for one matchup with zero losses needs 736 games before its lower endpoint reaches 99.5%. The one-sided bound is the relevant test when the claim is specifically “at least 99.5%.”
 
@@ -51,7 +51,7 @@ For comparison, a two-sided 95% interval for one matchup with zero losses needs 
 
 For zero losses, the sample-size calculation uses only the Python standard library:
 
-```python
+~~~python
 import math
 
 def games_for_zero_losses(target=0.995, alpha=0.05):
@@ -59,15 +59,15 @@ def games_for_zero_losses(target=0.995, alpha=0.05):
 
 print(games_for_zero_losses(alpha=0.05))       # 598
 print(games_for_zero_losses(alpha=0.05 / 32))  # 1290
-```
+~~~
 
-For (k>0), reproduce the table with:
+For \(k>0\), reproduce the table with:
 
-```python
+~~~python
 from scipy.stats import beta
 
 def cp_lower_bound(n, losses, alpha):
     return beta.ppf(alpha, n - losses, losses + 1)
-```
+~~~
 
 This is a conservative evidence budget, not a prediction that the 99.5% target is attainable and not a claim that any current candidate meets it.
