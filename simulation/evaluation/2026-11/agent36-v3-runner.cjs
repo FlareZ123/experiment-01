@@ -1200,12 +1200,14 @@ function createV3WorkerDecisionResolver({
   };
 }
 
-function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FIXTURE.outputDir) } = {}) {
+async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FIXTURE.outputDir) } = {}) {
   const repositoryRoot = ROOT;
   const enginePin = env.AGENT36_TWINLEAF_COMMIT_SHA;
   const runnerRevision = env.GITHUB_SHA;
   assert.equal(enginePin, V3_FIXTURE.engineCommit, 'fixture must use the reviewed pinned Twinleaf commit');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture requires the exact research revision');
+  const candidatePolicy=loadWorkerPolicyModule(repositoryRoot,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
+  const opponentPolicy=loadWorkerPolicyModule(repositoryRoot,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
 
   const candidateBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.candidatePath));
   const fieldBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.fieldPath));
@@ -1251,15 +1253,29 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const constraints = buildFixturePolicyConstraints({
     patchDescriptor,
     botOptionsProfile: botOptionsAuditBySeat[0].profile,
+    workerPolicyVersions:{
+      candidate:candidatePolicy.POLICY_VERSION,
+      opponent:opponentPolicy.POLICY_VERSION
+    },
   });
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
-  const manifestResult = buildFixtureRoleEntryManifest({
-    repositoryRoot,
-    enginePin,
-    runnerRevision,
+  const candidateManifestResult = buildFixtureRoleEntryManifest({
+    repositoryRoot,enginePin,runnerRevision,
+    entrypoint:V3_FIXTURE.candidateWorkerPolicyPath,
+    commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
+    orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
   });
+  const opponentManifestResult = buildFixtureRoleEntryManifest({
+    repositoryRoot,enginePin,runnerRevision,
+    entrypoint:V3_FIXTURE.opponentWorkerPolicyPath,
+    commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
+    orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+  });
+  const manifestResult=roleIdentity.combineRolePolicyEntryManifests(
+    candidateManifestResult,opponentManifestResult
+  );
   const challengeSuiteSha256 = fixtureChallengeSuiteSha256(manifestResult.manifest);
-  const combined = roleIdentity.combineRolePolicyEntryManifests(manifestResult, manifestResult);
+  const combined = manifestResult;
 
   // Preload only the manifest-owned research closure. The fixture pin helper scopes the
   // cache for the native callback, while the V1 evidence builder remains unchanged.
@@ -1273,8 +1289,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(repositoryRoot, combined.expectedByPath);
   const preparedRuntime = prepareV3RoleRuntimeEvidence({
     repositoryRoot,
-    candidateManifest: manifestResult,
-    opponentManifest: manifestResult,
+    candidateManifest: candidateManifestResult,
+    opponentManifest: opponentManifestResult,
     cardPoolInitialization: native.cardPoolInitialization,
     identityHelper: roleIdentity,
     cacheEntries,
@@ -1282,6 +1298,14 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   const runtimePinEvidence = fixtureRuntimePin.createFixtureRuntimePinEvidence(preparedRuntime);
   const identities = buildFixtureRoleIdentities({
     manifestResult,
+    candidateManifestResult,
+    opponentManifestResult,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
+    candidateProducerId:'agent46-candidate-worker-policy',
+    opponentProducerId:'agent6-rank1-shadow-rider-opponent-worker',
+    candidatePolicyOptions:{},
+    opponentPolicyOptions:{},
     challengeSuiteSha256,
     policyConstraintsSha256,
     preparedRuntime,
@@ -1306,8 +1330,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     expandedLegalityAsOf: null,
     eventDate: null,
     formatReviewStatus: 'unverified-fixture-only',
-    candidateSeat: 0,
-    originalSourceSeat: 1,
+    candidateSeat: V3_FIXTURE.candidateSeat,
+    originalSourceSeat: V3_FIXTURE.opponentSeat,
     vendorCommitSha: enginePin,
     researchRevisionSha: runnerRevision,
   };
@@ -1316,62 +1340,115 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   assert.equal(restoreHook.isInstalled, true, 'Underworld compatibility hook must install before role wrappers');
   let pinned;
   try {
-    pinned = runPinnedV3RoleRuntime({
+    pinned = await runPinnedV3RoleRuntime({
       repositoryRoot,
       preparedRuntime,
       pin: fixtureRuntimePin.withFixtureScopedRolePin,
-      run: () => {
+      run: async () => {
+        const workerAudit=createV3WorkerExecutionAudit({
+          candidateSeat:V3_FIXTURE.candidateSeat,
+          opponentSeat:V3_FIXTURE.opponentSeat,
+          candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+          opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
+        });
+        const bundles=[];
+        const sessions=[];
+        const lifecycleFailure=(role,error)=>{
+          const row=workerAudit.roles[role];
+          const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
+            error.code:'WORKER_START_FAILURE';
+          row.failureCount++;
+          row.lastFailureCode=code;
+          if(code.includes('TIMEOUT'))row.timeoutCount++;
+          workerAudit.totalFailures++;
+        };
         try {
-          let quickBallAudit = null;
-          const roleResult = runCandidateOpponentPolicyRoles(
-            // Agent34 installs separate candidate/opponent root policies.
-            // The Quick Ball continuation is installed inside their run
-            // callback and is eligible only for candidate seat 0.
-            () => {
-              const quickBall = withOwnerQuickBallPromptContinuation(
-                () => runNativeFixtureGame({
-                  deckA: candidateResolved.fullNames,
-                  deckB: opponentResolved.fullNames,
-                  candidateSeat: 0,
-                  originalSourceSeat: 1,
-                  seed: V3_FIXTURE.seed,
-                  policySeedBySeat: V3_FIXTURE.policySeedBySeat,
-                  native,
-                  botOptionsBySeat: native.botOptionsBySeat,
-                  maxActions: V3_FIXTURE.maxActions,
-                  diagnosticSnapshot: diagnostic.snapshotFullGameState,
-                  requireFullStateDiagnostics: true,
-                }),
-                { eligibleSeats: [0] },
-              );
-              quickBallAudit = quickBall.audit;
-              return quickBall.result;
-            },
-            {
-              candidateSeat: 0,
-              opponentSeat: 1,
-              trial: preGameTrial,
-              candidateIdentity: identities.candidateIdentity,
-              opponentIdentity: identities.opponentIdentity,
-              candidatePolicyOptions: V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
-              opponentPolicyOptions: V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
-              commonDeps: native,
-              composer: withCandidateOpponentPolicyRoles,
-            },
-          );
-          return { ...roleResult, quickBallAudit };
-        } catch (error) {
-          // Catch ordinary game/policy failures inside the pin so its audit can be
-          // returned and persisted before the workflow is failed below.
-          return {
-            fixtureFailure: {
-              name: error?.name ?? 'Error',
-              code: error?.code ?? null,
-              messageSha256: createHash('sha256').update(String(error?.message ?? error)).digest('hex'),
-              nativeFixtureFailure: error?.nativeFixtureFailure ?? null,
-            },
-            fixtureGamePartial: error?.fixtureGamePartial ?? null,
+          const candidateBundle=buildRoleWorkerBundle({
+            repositoryRoot,policyModulePath:V3_FIXTURE.candidateWorkerPolicyPath
+          });
+          bundles.push(candidateBundle.bundle);
+          const opponentBundle=buildRoleWorkerBundle({
+            repositoryRoot,policyModulePath:V3_FIXTURE.opponentWorkerPolicyPath
+          });
+          bundles.push(opponentBundle.bundle);
+          workerAudit.roles.candidate.bundleSha256=candidateBundle.bundle.bundleSha256;
+          workerAudit.roles.candidate.policySha256=candidateBundle.policySha256;
+          workerAudit.roles.opponent.bundleSha256=opponentBundle.bundle.bundleSha256;
+          workerAudit.roles.opponent.policySha256=opponentBundle.policySha256;
+          let candidateSession;
+          try {
+            candidateSession=await createDockerPolicySession({
+              bundle:candidateBundle.bundle,role:'candidate',
+              seat:V3_FIXTURE.candidateSeat,
+              policyVersion:candidatePolicy.POLICY_VERSION,
+            });
+            sessions.push(candidateSession);
+          } catch(error) {
+            lifecycleFailure('candidate',error);
+            throw error;
+          }
+          let opponentSession;
+          try {
+            opponentSession=await createDockerPolicySession({
+              bundle:opponentBundle.bundle,role:'opponent',
+              seat:V3_FIXTURE.opponentSeat,
+              policyVersion:opponentPolicy.POLICY_VERSION,
+            });
+            sessions.push(opponentSession);
+          } catch(error) {
+            lifecycleFailure('opponent',error);
+            throw error;
+          }
+          const sessionsBySeat={
+            [V3_FIXTURE.candidateSeat]:candidateSession,
+            [V3_FIXTURE.opponentSeat]:opponentSession,
           };
+          const gameResult=await runNativeFixtureGameAsync({
+            deckA:candidateResolved.fullNames,
+            deckB:opponentResolved.fullNames,
+            candidateSeat:V3_FIXTURE.candidateSeat,
+            originalSourceSeat:V3_FIXTURE.opponentSeat,
+            seed:V3_FIXTURE.seed,
+            native,
+            botOptionsBySeat:native.botOptionsBySeat,
+            maxActions:V3_FIXTURE.maxActions,
+            diagnosticSnapshot:diagnostic.snapshotFullGameState,
+            requireFullStateDiagnostics:true,
+          },createV3WorkerDecisionResolver({
+            sessionsBySeat,
+            candidateSeat:V3_FIXTURE.candidateSeat,
+            opponentSeat:V3_FIXTURE.opponentSeat,
+            native,
+            workerAudit,
+          }));
+          workerAudit.completed=gameResult.finished===true&&
+            gameResult.endReason==='engine-game-end';
+          workerAudit.actionCount=gameResult.actions??gameResult.acceptedActions??0;
+          return {result:gameResult,workerAudit};
+        } catch(error) {
+          const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
+            error.code:'WORKER_FIXTURE_FAILURE';
+          return {
+            fixtureFailure:{
+              name:error?.name??'Error',
+              code,
+              messageSha256:createHash('sha256').update(String(error?.message??error)).digest('hex'),
+              nativeFixtureFailure:error?.nativeFixtureFailure??null,
+            },
+            fixtureGamePartial:error?.fixtureGamePartial??null,
+            workerAudit,
+          };
+        } finally {
+          for(const session of sessions.reverse()){
+            try{await session.close();}catch(error){
+              workerAudit.cleanupFailureCount=(workerAudit.cleanupFailureCount??0)+1;
+            }
+          }
+          for(const bundle of bundles.reverse()){
+            try{workerLauncher.cleanupPolicyBundle(bundle);}catch(error){
+              workerAudit.cleanupFailureCount=(workerAudit.cleanupFailureCount??0)+1;
+            }
+          }
         }
       },
     });
@@ -1381,7 +1458,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   assert.ok(restoreHook.isRestored, 'Underworld compatibility hook must restore in outer finally');
   assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
   const normalizedResult = normalizeV3FixtureRoleResult(pinned.result);
-  const { roleResult, gameResult } = normalizedResult;
+  const { roleResult, gameResult, workerExecutionAudit } = normalizedResult;
   let failureEnvelope = normalizedResult.failureEnvelope;
   if (!failureEnvelope && (!gameResult || gameResult.finished !== true || gameResult.endReason !== 'engine-game-end')) {
     const terminalState = {
@@ -1414,8 +1491,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     eventDate: null,
     formatReviewStatus: 'unverified-fixture-only',
     opponentRank: 1,
-    candidateSeat: 0,
-    originalSourceSeat: 1,
+    candidateSeat: V3_FIXTURE.candidateSeat,
+    originalSourceSeat: V3_FIXTURE.opponentSeat,
     actualFirstPlayerSeat: gameResult?.actualFirstPlayerSeat ?? null,
     candidatePrinted60Ref: V3_FIXTURE.candidatePath,
     originalPrinted60Ref: V3_FIXTURE.fieldPath + '#rank=1',
@@ -1428,7 +1505,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     runtimePatchReceipts: [patchReceipt],
     seed: V3_FIXTURE.seed,
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
-    actorOnlyExecutionBoundary: roleResult?.actorOnlyBoundary ?? null,
+    actorOnlyExecutionBoundary: null,
+    workerExecutionAuditSha256:workerExecutionAudit?evidenceBundleSha256(workerExecutionAudit):null,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
   };
   for (const key of ['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat',
     'expandedLegalityAsOf', 'eventDate', 'formatReviewStatus']) {
@@ -1443,7 +1523,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
   if (gameResult?.seed32 !== undefined) assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
-  const applicationBase = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt({
+  const applicationBase = gameCompleted && workerExecutionAudit?.totalWorkerDecisions>0 ? roleIdentity.createPolicyApplicationReceipt({
     preDeal: policyPlan.preDeal,
     candidateIdentity: identities.candidateIdentity,
     opponentIdentity: identities.opponentIdentity,
@@ -1508,10 +1588,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       cardPoolInitializationReceipt: native.cardPoolInitialization,
     },
     policy: {
-      candidateProfile: 'Agent34 actor-only root policy with candidate-only Quick Ball root plus Agent49 exact physical payment/search continuation; native SimpleTacticsAi fallback',
-      opponentProfile: 'Agent34 actor-only root policy and Twinleaf SimpleTacticsAi fallback; no Quick Ball root opt-in',
-      candidatePolicyOptions: V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,
-      opponentPolicyOptions: V3_FIXTURE_OPPONENT_POLICY_OPTIONS,
+      candidateProfile: 'Agent46 frozen candidate policy in a persistent actor-only Docker worker; no in-process strategic fallback',
+      opponentProfile: 'Agent6 rank-1 Shadow Rider opponent policy in a separate persistent actor-only Docker worker; no in-process strategic fallback',
+      candidatePolicyOptions: {},
+      opponentPolicyOptions: {},
       candidateHoodOptionsApplied: false,
       candidateRecoveryAutonomyApplied: false,
       deferredCompetitivePolicyWork: 'PR #38: candidate-specific Hood recovery and per-seat Hood options; not required for this baseline native fixture',
@@ -1537,11 +1617,8 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     roleApplicationReceipt: application?.receipt ?? null,
     roleSeatMap: application?.roleSeatMap ?? null,
     policySha256BySeat: application?.policySha256BySeat ?? null,
-    roleComposerAudit: {
-      candidate: roleResult?.candidateAudit ?? null,
-      opponent: roleResult?.opponentAudit ?? null,
-      quickBall: roleResult?.quickBallAudit ?? null,
-    },
+    workerExecutionAudit,
+    workerExecutionAuditSha256:trial.workerExecutionAuditSha256,
     actorOnlyExecutionBoundary: trial.actorOnlyExecutionBoundary,
     runtimePinEvidence,
     runtimePinAudit: pinned.audit,
@@ -1564,14 +1641,13 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
       actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
-      quickBallRootsAccepted: roleResult?.quickBallAudit?.quickBallRootsAccepted ?? 0,
-      quickBallPaymentPhysicalAcceptances: roleResult?.quickBallAudit?.paymentPhysicalAcceptances ?? 0,
-      quickBallTargetPhysicalRetrievals: roleResult?.quickBallAudit?.targetPhysicalRetrievals ?? 0,
-      quickBallTargetPhysicalBenchPlacements: roleResult?.quickBallAudit?.targetPhysicalBenchPlacements ?? null,
-      quickBallCompletedSearchChains: roleResult?.quickBallAudit?.completedPhysicalChains ?? 0,
-      quickBallCompletedSetupChains: roleResult?.quickBallAudit?.completedSetupChains ?? null,
-      quickBallPendingBenchPlacementsAtEnd: roleResult?.quickBallAudit?.pendingBenchPlacementsAtEnd ?? null,
-      quickBallRejectedNativeReplies: roleResult?.quickBallAudit?.rejectedNativeReplies ?? 0,
+      workerDecisionCount:workerExecutionAudit?.totalWorkerDecisions??0,
+      workerHostOnlyPromptCount:workerExecutionAudit?.totalHostOnlyPrompts??0,
+      workerAbstentionCount:workerExecutionAudit?.totalAbstentions??0,
+      workerFailureCount:workerExecutionAudit?.totalFailures??0,
+      candidateWorkerDecisionCount:workerExecutionAudit?.roles?.candidate?.decisionCount??0,
+      opponentWorkerDecisionCount:workerExecutionAudit?.roles?.opponent?.decisionCount??0,
+      workerCleanupFailureCount:workerExecutionAudit?.cleanupFailureCount??0,
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
@@ -1592,7 +1668,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     `eventDate=${trial.eventDate ?? 'not-applicable'}`,
     `formatReviewStatus=${trial.formatReviewStatus}`,
     `actorOnlyExecutionBoundaryValid=${trial.actorOnlyExecutionBoundary?.valid === true}`,
-    `actorOnlyExecutionBoundarySha256=${application?.receipt?.actorOnlyExecutionBoundarySha256 ?? 'unavailable'}`,
+    `workerExecutionAuditSha256=${trial.workerExecutionAuditSha256 ?? 'unavailable'}`,
     diagnostic.formatFixtureGameTraceText({
     fixtureOnly: true,
     admissionEligible: false,
@@ -1631,6 +1707,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     finalDiagnosticFailure: gameResult?.finalDiagnosticFailure ?? partial?.finalDiagnosticFailure ?? null,
     fixtureGamePartial: partial,
     failure: failureEnvelope?.fixtureFailure ?? null,
+    workerExecutionAudit,
   }),
   ].join('\n');
   const outputPath = path.join(outputDir, 'fixture-game.json');
@@ -1653,7 +1730,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     endReason: gameResult.endReason,
     actionCount: gameResult.actions,
     decisionTraceSha256: gameResult.decisionTraceSha256,
-    roleApplicationReceiptSha256: application.receipt.receiptSha256,
+    roleApplicationReceiptSha256: application?.receipt?.receiptSha256??null,
     fixtureOnly: true,
     competitiveGameQualified: false,
   };
@@ -1663,7 +1740,7 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
 async function main(argv=process.argv.slice(2),env=process.env){
   const [command,...args]=argv;
   if(command==='fixture-game'){
-    const result=runV3FixtureGame({env});
+    const result=await runV3FixtureGame({env});
     process.stdout.write(JSON.stringify(result,null,2)+'\n');
     return result;
   }
