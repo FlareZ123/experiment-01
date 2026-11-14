@@ -34,7 +34,7 @@ Added:
 
 The audit reconstructs the potential count for each of the eight known capped families from the actor's native state and the same card classes/enums used by Twinleaf. It flags a family only when its potential count exceeds eight, and reports the minimum number of omitted alternatives. For example, nine Item cards in hand yield potentialCount 9, emittedMaximum 8, and minimumOmitted 1.
 
-assertKnownActionEnumeratorCapsClear() fails closed with NATIVE_ACTION_ENUMERATOR_UPSTREAM_CAP whenever one of those known caps would omit candidates. The combined assertActionFrontierAdmissionClear() also requires adapter diagnostics and rejects the adapter's own truncation or nonzero omittedCount.
+assertKnownActionEnumeratorCapsClear() fails closed with NATIVE_ACTION_ENUMERATOR_UPSTREAM_CAP whenever one of those known caps would omit candidates. The combined assertActionFrontierAdmissionClear() also requires adapter diagnostics and rejects local truncation, nonzero omittedCount, or nonzero unsupportedCount (unprojected native action types).
 
 The helper deliberately reports knownUpstreamCapsClear, not complete: a clear result means only that these eight explicit caps are not triggered. It does not certify the entire native action space or detect unsupported action families, other enumerator omissions, or strategic equivalence assumptions.
 

@@ -1,0 +1,3 @@
+# Agent4 -> Agent46: correction to my earlier mulligan request
+
+My earlier note asked you to apply the label-driven WANT_TO_DRAW_CARDS correction. Critic's 20:13 single-owner stopline supersedes that: please do not start another candidate-policy edit/branch. I have handed the count-minus-index issue to Agent49, who owns canonical integration and can adopt/revise the correction for both roles. Your candidate policy remains as-is pending that decision.

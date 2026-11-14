@@ -200,17 +200,46 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
     }
     const active = player.active.getPokemonCard();
     if (!active) return [];
-    const actions = active.attacks.map(attack => new AttackAction(player.id, attack.name));
-    player.bench.forEach(benchSlot => {
+    const actions = [];
+    const seenNames = new Set();
+    const appendAttack = (attack, sourceKind, sourceSlot, sourceIndex, sourceCard) => {
+      // The pinned reducer resolves AttackAction by the first matching attack name.
+      // Preserve that exact active -> Bench -> active-Tool priority and expose the
+      // resolved source to the policy without changing the native action payload.
+      if (seenNames.has(attack.name)) return;
+      seenNames.add(attack.name);
+      const action = new AttackAction(player.id, attack.name);
+      Object.defineProperty(action, '__agent3AttackSource', {
+        value: Object.freeze({
+          sourceKind,
+          sourceSlot,
+          sourceIndex,
+          sourceCardName: sourceCard && sourceCard.name || null,
+          sourceCardFullName: sourceCard && sourceCard.fullName || null,
+          attackName: attack.name
+        }),
+        writable: false,
+        configurable: false,
+        enumerable: false
+      });
+      actions.push(action);
+    };
+    for (const attack of active.attacks) {
+      appendAttack(attack, 'active-pokemon', 'ACTIVE', 0, active);
+    }
+    player.bench.forEach((benchSlot, benchIndex) => {
       const benchPokemon = benchSlot.getPokemonCard();
       if (benchPokemon && benchPokemon.attacks.some(attack => attack.useOnBench)) {
-        const benchAttacks = benchPokemon.attacks.filter(attack => attack.useOnBench);
-        actions.push(...benchAttacks.map(attack => new AttackAction(player.id, attack.name)));
+        for (const attack of benchPokemon.attacks) {
+          if (attack.useOnBench) appendAttack(attack, 'bench-pokemon', 'BENCH', benchIndex, benchPokemon);
+        }
       }
     });
     const activeTool = player.active.tools[0];
     if (activeTool && activeTool.attacks.length > 0) {
-      actions.push(...activeTool.attacks.map(attack => new AttackAction(player.id, attack.name)));
+      for (const attack of activeTool.attacks) {
+        appendAttack(attack, 'active-tool', 'ACTIVE_TOOL', 0, activeTool);
+      }
     }
     return actions;
   };
@@ -227,17 +256,29 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
 
 function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, frontierDiagnostics } = {}) {
   const marker = enumerator && enumerator.__agent3UncappedAdapter;
-  const markerDescriptor = enumerator &&
-    Object.getOwnPropertyDescriptor(enumerator, '__agent3UncappedAdapter');
   if (!marker || marker.schema !== SCHEMA) {
     const error = new Error('Known-cap-free ActionEnumerator adapter marker is missing');
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING';
     throw error;
   }
+  const markerDescriptor = enumerator &&
+    Object.getOwnPropertyDescriptor(enumerator, '__agent3UncappedAdapter');
   if (!markerDescriptor || markerDescriptor.writable !== false ||
       markerDescriptor.configurable !== false || markerDescriptor.enumerable !== false) {
     const error = new Error('Known-cap-free ActionEnumerator adapter marker must be immutable and non-enumerable');
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MARKER_MUTABLE';
+    throw error;
+  }
+  const requiredCoverage = [
+    'includesAttachedToolPowers',
+    'includesToolAndBenchAttacks',
+    'includesHandAbilities',
+    'includesTrainerEnergyDiscardAbilities'
+  ];
+  if (marker.removedPerFamilyCap !== 8 || requiredCoverage.some(key => marker[key] !== true)) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter is missing required action-family coverage');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_INCOMPLETE';
+    error.marker = marker;
     throw error;
   }
   if (enginePin !== EXPECTED_ENGINE_PIN || marker.enginePin !== enginePin) {
@@ -252,16 +293,16 @@ function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, fronti
     frontierDiagnostics.omittedCount >= 0 &&
     Number.isSafeInteger(frontierDiagnostics.unsupportedCount) &&
     frontierDiagnostics.unsupportedCount >= 0,
-  'adapter frontier diagnostics must include truncation and unsupported-action counts');
-  if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
-    const error = new Error('Research adapter truncated the native action frontier');
-    error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';
+  'adapter frontier diagnostics are required for admission');
+  if (frontierDiagnostics.unsupportedCount > 0) {
+    const error = new Error('Native action frontier contains unprojected action types');
+    error.code = 'NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS';
     error.frontierDiagnostics = frontierDiagnostics;
     throw error;
   }
-  if (frontierDiagnostics.unsupportedCount > 0) {
-    const error = new Error('Simulator-legal native actions remain unsupported by the frontier projection');
-    error.code = 'NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS';
+  if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
+    const error = new Error('Research adapter truncated the native action frontier');
+    error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';
     error.frontierDiagnostics = frontierDiagnostics;
     throw error;
   }

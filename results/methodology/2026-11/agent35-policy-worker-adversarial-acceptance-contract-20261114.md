@@ -462,3 +462,180 @@ Two P1 findings from the current review remain:
 2. **Attestation lost at session boundary:** `AsyncDockerPolicySession.decide()` validates `response.policyDrawCount === 0` but drops the field from its returned value; the runner records `undefined`/null. Preserve the validated count in the session return shape and per-role/per-decision audit, with a final-run-record test asserting numeric zero.
 
 Agent49 and Agent36 have been notified. At 19:45 UTC Agent43's comparison reported the worker branch 79 ahead / 239 behind main (merge base `8d0f6f423fee1cd0e7815efa6f59624d8369d141`); it remains unmerged and requires rebase. The latest main decision board is now the authoritative status: current main still uses physical-RNG frontier construction; the branch's validation-only RNG fix is not integrated. Remaining gates are typed Night Watch provenance, Docker canary parent-RNG sentinel and host-namespace comparison, successful production-worker Node24 decision/response smoke, mixed Basic/non-Basic blocked-index projection-to-policy test, and opponent setup strategy separation. The production Node24 timeout/cleanup smoke exists but has not run. No CI or fixture dispatched.
+
+
+### 20:37 UTC update — rebased2 branch review confirms the remaining acceptance gaps
+
+Reviewed `agent49/v3-worker-acceptance-20261114-rebased2` at `0561dbd175129ddc1316fa65899c3e9f63806d9b`, compared with main `73594287c37a92c7efea1b2d7214060f4597e3bb`: **27 ahead / 40 behind** (merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`). This is source review only; no CI, canary or fixture was dispatched. Agent35 sent the exact delta to Agent49 in `communications/agent49/20261114T203720Z_agent35-rebased2-acceptance-delta.md`.
+
+The following remain open on that exact branch:
+
+1. **Attestation propagation:** `AsyncDockerPolicySession.decide()` validates `policyDrawCount === 0` but omits the field from its returned object. The V3 resolver reads `response.policyDrawCount`, so per-decision role audit records undefined/null rather than numeric zero. Require a final-run-record regression.
+2. **Deferred Promise microtasks:** the production VM worker checks the draw count immediately after awaited initialization/decision and after response write, but no host-side macrotask barrier runs before accepting the receipt. Existing ambient-capability tests do not include the nested-`toJSON` deferred draw. Add the barrier after bootstrap, initialization, each decision and before EOF, then recheck.
+3. **Night Watch source classification:** `hostOnlyPrompt()` still falls back from typed provenance to free-form `prompt.message` / `prompt.type`. Only trusted `provenance.effectName` may classify Night Watch; add a spoofed-message/type test with missing or unrelated provenance.
+4. **Action-frontier completeness:** the V3 runner still binds the upstream pinned `ActionEnumerator` and does not integrate Agent3's known-cap-free adapter or `assertKnownCapFreeAdapterAdmissionClear()`. The resolver sends only `actionFrontier` to the worker and discards the builder diagnostics. The current adapter gate and tests are synthetic-only and omitted from the existing `contract_only` list. This is a competitive-admission veto: until fixed, label the frontier incomplete/non-admitting and do not infer field strength. A passing known-cap gate would not prove every action family complete.
+5. **Production Node 24 successful path:** the current Docker test suite has the production worker timeout/cleanup smoke, but no successful INIT/READY/DECISION/host-validation/clean-close smoke under the pinned Node 24.22.3 image. The test-only OS canary is not a substitute.
+
+The host adapter / worker-only asset split, protocol-only import, and globalThis bootstrap correction are resolved on this branch; do not reopen them absent regression. The earlier write/drain deadline and ShuffleHandPrompt findings remain retracted.
+
+The required next step is still a rebase onto current main, including Agent46's phase-1 setup patch already committed there, followed by only the existing `contract_only` lane on the exact reviewed head. The hosted two-seat canary remains downstream of the contract pass and the owner seed-disclosure decision. No fixture or competitive evidence is authorized by this review.
+
+
+### 20:41 UTC update — latest branch fixes attestation and microtask gaps; action projector is now the critical blocker
+
+Re-reviewed Agent49's branch after its new commits: head `25e946a29865d1d3fbb19007d3dbbe6bc97dadf3` (2026-11-14 20:41:03Z), compared with main `df64f32295138f6aa7ac9bfa3757ecee393dd40d`: **32 ahead / 47 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+**Two prior findings are resolved on this branch:**
+- `AsyncDockerPolicySession.decide()` now returns the validated `policyDrawCount` field, so the runner can record numeric zero.
+- The worker runtime now runs a host-side macrotask barrier after policy-source load, initialization and each decision. New tests cover deferred bootstrap/export-getter draws, deferred initialization and nested-`toJSON` decision serialization. The EOF settle/check remains.
+
+Do not reopen these without a regression.
+
+**Remaining gates on the latest reviewed head:**
+
+1. **Typed Night Watch provenance remains unresolved.** `hostOnlyPrompt()` still uses `provenance?.effectName ?? prompt?.message ?? prompt?.type`. The free-form fallback can classify an untrusted prompt description as a physical-random host-only effect. Require trusted typed provenance and test spoofed message/type values with absent or unrelated provenance.
+
+2. **Action-frontier admission is still incomplete, with newly confirmed projector gaps.** The runner still binds the pinned upstream `ActionEnumerator`; it does not construct Agent3's cap-free adapter or call either adapter/cap admission gate. The frontier builder returns local diagnostics, but the resolver sends only `frontier.actionFrontier` to the worker and discards those diagnostics. Agent3's new adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, while `projectNativeAction()` only handles `USE_ABILITY_ACTION`; those new actions are dropped as unsupported. In addition, all `ATTACK_ACTION` rows are currently projected as attacks by the Active Pokémon, which misattributes active Tool attacks and Bench-usable attacks. The projector needs source-aware metadata (or must fail closed and keep these actions unadmitted). The exact integration contract is in `results/methodology/2026-11/agent3-action-enumerator-coverage-matrix-20261114.md`. The adapter is still source-shaped and synthetic-tested only; it has not been validated against the compiled pinned Store.
+
+3. **Contract-only coverage is incomplete.** The branch workflow's explicit test command omits `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs`, `tests/2026-11/agent46-candidate-policy.test.cjs`, `tests/2026-11/agent3-action-enumerator-cap-audit.test.cjs`, and `tests/2026-11/agent3-known-cap-free-action-enumerator.test.cjs`. Add the applicable tests to the existing bounded lane; do not create a new workflow or dispatch PR #55.
+
+4. **Production Node 24 success smoke is still missing.** The Docker suite has the production-worker timeout/cleanup test, but no successful INIT → READY → DECISION → host validation → clean close under the pinned Node 24.22.3 image. The test-only hostile OS canary does not substitute for this production worker smoke.
+
+No CI, canary or fixture was dispatched. Agent35 sent the concise current-head review to Agent49 at `communications/agent49/20261114T2041Z_agent35-current-branch-review.md`. The 20:37 review's two fixed items are superseded by this correction; the earlier retracted write/drain and ShuffleHandPrompt findings remain closed.
+
+
+### 20:44 UTC addendum — adapter Tool/Bench attacks can be silently misattributed and deduplicated
+
+A further source-fidelity defect is present if Agent3's Tool/Bench attack additions are integrated unchanged:
+
+- The adapter creates Bench and active-Tool attack candidates as plain `AttackAction(player.id, attack.name)`, with no source discriminator.
+- The frontier's `actionSignature()` includes action type/name/hand index/bench index/target, but no attack source. Same-name Active/Bench/Tool attacks therefore collide and one is deduplicated.
+- `projectNativeAction()` unconditionally reads `player.active` for every `ATTACK_ACTION`, so an added Bench or Tool attack is reported as belonging to the Active Pokémon.
+- The current protocol has no explicit source contract for these new attack candidates; the generic `actorPrinting` field cannot safely be populated from the Active Pokémon when the true source differs.
+
+The new `unsupportedCount` admission gate will not catch this class of error because these candidates are projected as supported ATTACK_ACTION rows. Require source identity to survive adapter enumeration, signature, projection and native dispatch, with same-name Active/Bench/Tool regression cases; otherwise keep ambiguous Tool/Bench attacks unadmitted. Do not fabricate source metadata. Exact review was sent to Agent49 at `communications/agent49/20261114T2044Z_agent35-attack-source-fidelity.md`.
+
+
+### 20:45 UTC correction — cap-free adapter is now integrated; source fidelity remains unresolved
+
+Reviewed Agent49 commit `08da0a84ac903a76be65d5a6da16cd47c756a208` (20:43:48Z). The V3 runner now:
+- exposes the required card classes/enums from `loadNativeRoleDependencies`;
+- constructs Agent3's pinned cap-free adapter for each root;
+- calls `assertKnownCapFreeAdapterAdmissionClear()` with the actual frontier diagnostics;
+- rejects local truncation and nonzero unsupported-action counts;
+- preserves the per-root admission receipt in the role audit.
+
+This resolves the previous finding that the adapter/gate was not integrated. The gate's nonzero `unsupportedCount` rejection is correct and fail-closed.
+
+The following remain:
+
+1. The adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, but `projectNativeAction()` still has no cases. The gate therefore rejects any root containing these legal candidates. This is safe, but incomplete; add typed projection and compiled-Store dispatch tests before claiming coverage.
+2. Tool/Bench attack source ambiguity remains. The adapter constructs plain `AttackAction(player.id, attack.name)` for Bench and active-Tool attacks. `actionSignature()` does not include source identity, so same-name attacks collapse; the projector then attributes every `ATTACK_ACTION` to `player.active`. The unsupported-count gate cannot detect this because these actions are projected as supported. Preserve source identity end-to-end with same-name tests, or omit ambiguous sources.
+3. Typed Night Watch provenance remains open: free-form `prompt.message` / `prompt.type` fallback is still present.
+4. The explicit `contract_only` test command still omits the Agent3 adapter/cap-audit tests and the Agent6/Agent46 policy tests.
+5. The production Node 24 successful decision/response/clean-close smoke remains absent.
+
+At 20:44Z the branch compared as **38 ahead / 55 behind main**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase is still required before any contract run. No CI, canary or fixture was dispatched. Agent35 sent the updated status to Agent49 at `communications/agent49/20261114T2045Z_agent35-capfree-integration-review.md`.
+
+
+### 20:48 UTC correction — core worker and canary gaps now closed on the branch
+
+Reviewed Agent49 through `17ac0083f8057c3fcf4c3535059563dcadb66421` (20:47:10Z), compared with main at `ce1f9ebac414a8e1b87088605cb6ecf4428ab0f0`: **44 ahead / 58 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+The following earlier acceptance findings are now resolved on this branch:
+- The validated numeric `policyDrawCount` is returned through `AsyncDockerPolicySession.decide()`.
+- The production worker drains host microtasks after source load, initialization and each decision; nested-`toJSON` deferred-draw tests exist.
+- Night Watch requires exact typed card-effect provenance plus the Trevenant & Dusknoir-GX SMP 217 source printing; free-form prompt text is not authority, and spoof/missing-provenance tests exist.
+- The cap-free enumerator adapter is integrated, per-root pin/marker/diagnostics admission is enforced, and receipts are stored.
+- The Docker canary now anchors namespace comparison to the host runner's own `/proc/self/ns` inodes and installs a parent-only `Math.random` sentinel.
+- A successful production VM worker READY → decision → host validation → clean close smoke exists under the pinned Node 24.22.3 image.
+
+Do not reopen these without a regression.
+
+**Remaining gates:**
+
+1. The adapter emits `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION`, but the projector still has no corresponding cases. The new `unsupportedCount` gate correctly rejects roots containing them. This is safe but incomplete; add typed projections and compiled-Store dispatch tests.
+2. Tool/Bench attack source fidelity remains unresolved. The adapter emits plain `AttackAction(player.id, attack.name)` objects for Bench and active-Tool attacks; `actionSignature()` ignores source, so same-name attacks collapse, and `projectNativeAction()` attributes every attack to the Active Pokémon. Preserve source identity end-to-end with same-name tests, or omit ambiguous sources.
+3. The existing `contract_only` explicit Node test command still omits Agent3's adapter and cap-audit tests plus Agent6/Agent46 policy tests. Add the applicable existing files to the single lane.
+4. The Docker canary positive control reaches a peer container on a bridge network, not a host-gateway-reachable host service. This is meaningful for bridge isolation but does not meet the exact host-gateway criterion in this contract. Add that positive control or document a technically equivalent reason to accept the peer control.
+5. The branch remains 58 commits behind main and is not rebased. No hosted contract/canary run has yet been observed. Rebase and run only the existing contract-only lane on the exact reviewed head; no fixture authorization follows.
+
+Agent35 sent this status correction to Agent49 at `communications/agent49/20261114T2048Z_agent35-acceptance-status-correction.md`. No CI, canary or fixture was dispatched by this reviewer.
+
+
+### 20:52 UTC addendum — latest branch fixes more host/worker gates; remaining action and CI gaps are explicit
+
+Reviewed Agent49's latest observed branch through `9ad7258a843c57e9b7877c3836b01b5a5a43c748` (20:49:57Z), compared with main at `194c68977c8bfa21f48fb2ad23dd7ad08172be8d`: **47 ahead / 64 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+The branch now also has the parent-RNG sentinel scoped with an exception-safe `try/finally`. The existing `contract_only` workflow does run the Docker preflight, four-combination OS canary, and the production Node 24 success/timeout tests after preflight. The Night Watch spoof tests and production-worker positive smoke are present. These are branch-level tests; no hosted run has been observed.
+
+Remaining:
+
+1. **Trainer/Energy ability actions:** `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION` are emitted by the adapter but have no projector cases. The root admission gate correctly rejects roots containing them. Add source-aware typed projections and compiled-Store dispatch coverage before claiming completeness.
+2. **Tool/Bench attack source identity:** adapter-generated Tool/Bench attacks are plain `AttackAction(player.id, attack.name)`; the frontier signature has no source component, so same-name source variants deduplicate, and the projector attributes every attack to `player.active`. This is not caught by the unsupported-action gate. Preserve source identity through signature/projection/native dispatch with same-name regressions, or exclude ambiguous variants.
+3. **Canonical contract test list:** the explicit `contract_only` node-test command still omits Agent3's cap-free adapter and cap-audit tests plus Agent6/Agent46 policy tests. Add these existing files to the single lane.
+4. **Native adapter validation:** the adapter's current tests are synthetic. The hosted contract lane compiles the pinned submodule, but it does not run a real compiled-Store fixture through the cap-free enumerator. The gate and source-shaped adapter therefore remain unvalidated against actual compiled Store behavior; no field-rate inference.
+5. **Network canary positive control:** the probe server is on a custom bridge and the positive control joins that same custom bridge. A worker that accidentally falls back to Docker's default bridge would still fail to reach that peer and could falsely pass. Put the probe on the default bridge or use a host-gateway-reachable host service, then show a normal networked positive control can reach it while the worker cannot. Agent35 sent the specific false-pass analysis to Agent49 at `communications/agent49/20261114T2052Z_agent35-network-positive-control.md`.
+
+The branch remains 64 commits behind main and has not been rebased. Rebase before running the existing contract-only lane on an exact reviewed head. No CI, canary or fixture was dispatched by this reviewer.
+
+
+### 20:54 UTC P0 — latest compiled-state binding commit duplicates `nativeGamePhase`
+
+Reviewed Agent49 commit `ab0061615239d62652b32dead858740c69234bdb`. It adds native State/Player/CardList types to the role manifests, but now both default binding arrays contain duplicate `nativeGamePhase` names:
+- `V3_FIXTURE_COMMON_BINDINGS`: duplicate occurrences at runner lines 749 and 757.
+- `V3_FIXTURE_WORKER_COMMON_BINDINGS`: duplicate occurrences at runner lines 812 and 820.
+
+This is a deterministic manifest-construction failure. `buildFixtureRoleEntryManifest()` passes these arrays to `roleIdentity.createPolicyEntryManifest()`, which rejects duplicate binding names at `agent42-role-policy-identity.cjs:206-211` with `duplicate common runtime binding: nativeGamePhase`. Candidate/opponent manifest construction will abort before predeal/fixture execution. Remove one occurrence per array and add a uniqueness assertion for both defaults. Exact P0 sent to Agent49 at `communications/agent49/20261114T2054Z_agent35-duplicate-binding-p0.md`.
+
+This does not invalidate the State/Player/CardList imports themselves; retain the new type bindings once each.
+
+
+### 20:57 UTC correction — contract-only policy/adapter tests added; manifest P0 persists
+
+Reviewed branch through `965d3ff87be88d0665640034f25924b16a0d4e06` (20:57:19Z), compared with main `dd689a0c2b529ca73571ff9f7523e08158318fa9`: **53 ahead / 84 behind**, merge base unchanged at `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+Agent49's `0da5867` workflow change adds the synthetic Agent3 cap-free adapter test and the Agent6 / Agent46 policy tests to the `contract_only` command. This closes the earlier omission for those three tests. The compiled ActionEnumerator/Simulator regression is placed in the full suite after submodule compilation (not in `contract_only`, which skips compilation); that is a reasonable separation. The new compiled regression covers the Basic-action family only and does not dispatch through Store or cover the remaining seven action families.
+
+The duplicate-`nativeGamePhase` P0 remains unfixed on the latest `965d3ff` runner: both `V3_FIXTURE_COMMON_BINDINGS` and `V3_FIXTURE_WORKER_COMMON_BINDINGS` still contain the name twice. The existing manifest test in `tests/agent36-v3-runner.test.cjs` calls `buildFixtureRoleEntryManifest()` with the worker bindings, so the `contract_only` lane will still fail deterministically until the duplicate is removed.
+
+Other remaining items are unchanged: Trainer/Energy ability actions fail closed as unsupported; Tool/Bench attack source identity and same-name deduplication are unresolved; the custom-bridge network positive control can false-pass a default-bridge worker; no hosted contract/canary run has occurred; branch remains 84 commits behind main. Agent49 received a coverage clarification at `communications/agent49/20261114T2057Z_agent35-native-regression-review.md`.
+
+
+### 21:02 UTC update — Agent3 has resolved adapter-side attack-source ambiguity on main, but Agent49 branch is stale
+
+Agent3's updated main-branch adapter (message `communications/agent49/20261114T2055Z_agent3-attack-source-metadata-fix.md`) now emits only the first same-name attack source in the pinned reducer's priority order (Active Pokémon → Bench useOnBench → active Tool) and attaches a non-writable, non-enumerable `action.__agent3AttackSource` record. The adapter's synthetic tests include same-name Active/Bench/Tool cases. Because native `AttackAction` carries only attack name and the reducer resolves the first match, these sources are not separate selectable actions; the name-based signature is therefore appropriate after adapter deduplication.
+
+This resolves the adapter-side ambiguity on main, but **not on Agent49's branch**: its adapter still creates plain `AttackAction(player.id, attack.name)` and its projector attributes every attack to `player.active`. On incorporation, the projector must copy `action.__agent3AttackSource` into `publicMetadata.attackSource`; it must not infer the source from the active Pokémon. Agent49 was notified at `communications/agent49/20261114T2102Z_agent35-adapter-source-update.md`.
+
+Agent3 also supplied exact integration points for the still-unsupported `USE_TRAINER_ABILITY_ACTION` / `USE_ENERGY_ABILITY_ACTION` cases and updated the adapter marker to require all four coverage flags plus `removedPerFamilyCap===8`. The current Agent49 branch does not yet contain those updates. The compiled native regression added by Agent49 covers only nine Basic hand actions; it does not yet validate the hand/Tool/Bench/Trainer/Energy families from Agent3's concrete probes.
+
+At 21:01:17Z Agent49 branch was `84af00fa653eef56e311503388e1a6a389be3a79`, main `c99119955391d1e213278d4f2361891815361995`, **57 ahead / 101 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase remains necessary.
+
+Other open items: duplicate `nativeGamePhase` P0 in both manifest arrays; Docker canary positive control remains on a custom bridge and can false-pass a default-bridge worker; no hosted contract/canary has run. Contract-only now includes the synthetic adapter test and Agent6/Agent46 policy tests; the compiled native regression is in the post-compile full suite. The host Node runtime is already pinned to 24.22.3 by the dedicated contract-only setup-node step. No CI or fixture was dispatched.
+
+
+### 21:04 UTC correction — contract-only host Node is already pinned
+
+I retract the 20:59 concern that `contract_only` runs on an unpinned host Node. The complete workflow contains a dedicated **“Set up Node runtime for contract-only tests”** step at lines 149–154, conditioned to include `inputs.contract_only` and explicitly setting `node-version: '24.22.3'`. The later dependency-cache setup is the full-lane step and is correctly skipped for contract_only. No workflow change is required. Correction sent to Agent49 at `communications/agent49/20261114T2104Z_agent35-retract-node-pin-concern.md`.
+
+
+### 21:10 UTC update — projector now supports typed attacks and Trainer/Energy actions, but branch adapter is incompatible
+
+Reviewed Agent49 commits `f0e76ae`, `3ec9091`, `c00eb69`, `a521e9e`, and `a18b1a4`. The branch now:
+- projects `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION` as `use-ability` with hand/discard source metadata;
+- requires typed `__agent3AttackSource` metadata for `ATTACK_ACTION`, projects the actual source printing and a structured `publicMetadata.attackSource`;
+- validates exact bounded attack-source metadata in the worker protocol;
+- tests synthetic active/Bench/Tool source projections and Trainer/Energy ability projections;
+- dispatches all nine compiled Basic-action frontier tokens through `Simulator.store` and asserts the Bench state transition.
+
+**New P0 adapter/projector mismatch:** the adapter file still on this branch is `5099a4cd9b57be50f38e4637a5270baeeffc6ca5`, which emits plain `AttackAction(player.id, attack.name)` and does not attach `__agent3AttackSource`. The new projector returns `null` for every attack without that marker; the admission gate then rejects roots with any legal attack. Thus the new synthetic projector test passes only because it manually attaches fake markers, and the compiled Store regression covers Basic plays only. Incorporate Agent3's updated marker-bearing adapter from main and add an adapter → compiled enumerator → projector integration test. Exact P0 sent at `communications/agent49/20261114T2108Z_agent35-adapter-projector-p0.md`.
+
+The duplicate `nativeGamePhase` P0 remains in both manifest binding arrays. The custom-bridge Docker network positive control can still false-pass a default-bridge worker; exact `--network`-flag uniqueness is not asserted. Contract-only host Node is correctly pinned to 24.22.3 (the earlier concern is retracted). Contract-only includes synthetic adapter, Agent6 and Agent46 tests; the compiled Basic Store regression runs in the post-compile full suite. No hosted tests have run.
+
+At 21:09:52Z the branch head was `a18b1a4efea100fd8283fcc706f735edfd354557`, main `894eeca37465ef4cf1556b81976b35959e1ca86c`: **64 ahead / 136 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase is still required before any acceptance run.
+
+
+### 21:11 UTC addendum — branch admission gate does not enforce adapter completeness marker
+
+The current branch's `assertKnownCapFreeAdapterAdmissionClear()` checks marker presence/schema/immutability and engine pin, but does not assert `removedPerFamilyCap===8` or that all four advertised coverage flags are true (`includesAttachedToolPowers`, `includesToolAndBenchAttacks`, `includesHandAbilities`, `includesTrainerEnergyDiscardAbilities`). The marker happens to contain true values, but the gate does not enforce them. Agent3's updated main-branch gate checks these exact fields; incorporate it with the marker-bearing adapter. Sent to Agent49 at `communications/agent49/20261114T2111Z_agent35-adapter-marker-gate.md`.

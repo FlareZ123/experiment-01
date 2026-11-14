@@ -25,46 +25,51 @@ The authenticated rank-2 entry (Takahiro Ando) in [full-decklists.json](full-dec
 
 The card texts above are read from the supplied Expanded card pool archive. The supplied advanced-player rulebook, D-05, says a Trainer effect worded “up to N” permits a choice from 1 through N; only an attack may choose none. Thus Peonia's paper-valid Prize count is **1–3**, and its replacement count must equal the number of Prizes taken.
 
-## Exact initial Prize probabilities
+## Setup-adjusted initial Prize probabilities
 
-Assume a uniformly shuffled 60-card physical deck and six initial Prizes sampled without replacement. For a set of (m) distinct named physical copies, the probability that exactly (k) are Prized is:
+The supplied rulebook's setup sequence draws seven starting cards, resolves mulligans until the player has at least one Basic Pokémon, and only then sets six Prize cards from the top of the remaining deck. The rank-2 list contains **14 Basic Pokémon** (Pidgey ×2, Oddish ×2, Lillipup ×2, Bunnelby ×2, Fan Rotom, Relicanth, Mr. Mime, Girafarig, Budew, Jirachi). Therefore the actual initial Prize set is **not** an unconditional six-card sample from all 60; it is a six-card sample from the 53 cards left after a valid seven-card opening hand.
+
+For the four singleton access Supporters (Peonia, Lusamine, Gladion, Team Yell's Cheer), all non-Basic, let (m=4), (N=60), (B=14), (h=7), (p=6). The number of valid opening hands is:
 
 [
-P(X=k)=\frac{\binom{m}{k}\binom{60-m}{6-k}}{\binom{60}{6}}.
+D=\binom{60}{7}-\binom{46}{7}.
 ]
 
-For the four singleton access Supporters (Peonia, Lusamine, Gladion, Team Yell's Cheer), the exact distribution is:
+If (j) of the (m) named non-Basic cards are in the opening hand, the number of valid hands with that value of (j) is:
 
-| Number of these four in Prizes | Probability |
+[
+H_j=\binom{m}{j}\left[\binom{60-m}{7-j}-\binom{46-m}{7-j}\right].
+]
+
+After that hand, 53 cards remain, including (m-j) of the named cards. Thus the exact setup-adjusted probability that (k) of the four are Prized is:
+
+[
+P(X=k\mid\text{valid hand})=
+\frac{\sum_{j=0}^{m}H_j\binom{m-j}{k}\binom{53-m+j}{6-k}}
+{D\binom{53}{6}}.
+]
+
+The resulting distribution is:
+
+| Number of these four in Prizes | Setup-adjusted probability |
 |---:|---:|
-| 0 | 64.8540% |
-| 1 | 30.5195% |
-| 2 | 4.4019% |
-| 3 | 0.2215% |
-| 4 | 0.0031% |
-| **At least 1** | **35.1460%** |
-| **At least 2** | **4.6264%** |
+| 0 | 64.6567% |
+| 1 | 30.6600% |
+| 2 | 4.4545% |
+| 3 | 0.2257% |
+| 4 | 0.00316% |
+| **At least 1** | **35.3433%** |
+| **At least 2** | **4.6833%** |
 
-This means one or more of the four singleton access pieces is Prized in about 35.15% of initial configurations, but all four being Prized is only about 0.0031%. The former is not a failure rate: the pieces can recover or find one another, and the table says nothing about later draw/search or game outcomes.
+For any two specified non-Basic singletons (Peonia + Gladion, Peonia + Lusamine, or Lusamine + Gladion), both are Prized with probability **0.85842%**. Three specified non-Basic singletons (Peonia + Lusamine + Gladion) are all Prized with probability **0.05958%**; all four access Supporters are Prized with probability **0.00316%**.
 
-For any two specified one-ofs, the probability both are in the six Prizes is:
+For the two-copy Pokémon lines:
+- Pidgeot ex (two non-Basic Stage 2 cards): at least one Prized **19.2709%**; both Prized **0.85842%**.
+- Bunnelby (two Basic Pokémon): at least one Prized **18.7663%**; both Prized **0.80867%**. The Basic-card result uses a different opening-hand condition: if (j\geq1) Bunnelby are in the opening hand, the hand is already valid; if (j=0), the other 58 cards must contain at least one of the remaining 12 Basics.
 
-[
-\frac{\binom{58}{4}}{\binom{60}{6}}=0.84746\%.
-]
+For reference, a specific non-Basic singleton is in the valid opening hand with probability **11.0954%** and in the initial Prizes with probability **10.0647%**. A specific Basic singleton is in the valid opening hand with probability **13.5437%** and in the initial Prizes with probability **9.7875%**. The valid-opening-hand probability for this 14-Basic list is **86.1409%**.
 
-Therefore:
-- Peonia **and** Gladion Prized: 0.84746%.
-- Peonia **and** Lusamine Prized: 0.84746%.
-- Lusamine **and** Gladion Prized: 0.84746%.
-- Peonia, Lusamine, **and** Gladion all Prized: 0.05845%.
-- All four singleton access Supporters Prized: 0.00308%.
-
-For either two-copy Pokémon line (Pidgeot ex or Bunnelby):
-- At least one copy Prized: 19.1525%.
-- Both copies Prized: 0.84746%.
-
-The two-copy lines therefore have meaningful individual Prize exposure, but their complete loss to Prizes is much less common than one copy being Prized.
+These values replace the earlier unconditioned six-of-60 baseline as the actual setup-adjusted estimates. The unconditioned baseline was close, but it did not model the mandatory Basic-in-opening-hand mulligan condition.
 
 ## Peonia–Gladion cross-access
 
@@ -72,9 +77,9 @@ For the two direct Prize-access cards Peonia and Gladion:
 
 | Initial configuration | Probability | Consequence |
 |---|---:|---|
-| Neither Prized | 80.8475% | Both are available outside Prizes |
-| Exactly one Prized | 18.3051% | The other access card may recover it |
-| Both Prized | 0.8475% | Direct Peonia/Gladion cross-access is unavailable |
+| Neither Prized | 80.7291% | Both are available outside Prizes |
+| Exactly one Prized | 18.4125% | The other access card may recover it (9.2063% in either direction) |
+| Both Prized | 0.8584% | Direct Peonia/Gladion cross-access is unavailable |
 
 If Peonia is Prized and Gladion is not, Gladion can reveal the remaining own Prizes and select Peonia if it is still there.
 
@@ -84,7 +89,7 @@ If Gladion is Prized and Peonia is not, Peonia can select face-down Prize slots.
 P(\text{hit}mid\text{target among }n)=\frac{k}{n}.
 ]
 
-With six remaining unknown Prizes, selecting 1, 2, or 3 gives 16.667%, 33.333%, or 50%. Before the first physical deck search (K0), if the player does not know whether a singleton target is Prized at all, the blind hit probability is instead (k/60): 1.667%, 3.333%, or 5%.
+With six remaining unknown Prizes, selecting 1, 2, or 3 gives 16.667%, 33.333%, or 50%. Under K0 immediately after a valid opening hand, the unresolved pool is 53 cards, not 60; conditional on a specific target not being in the known hand, a blind selection of `k` Prize slots hits it with probability `k/53`. Averaged over valid opening hands, a specific non-Basic singleton is in hand 11.0954%, so the initial probability that Peonia finds it is `(1 - 0.110954) × k/53`: 1.6774%, 3.3549%, or 5.0323% for `k=1,2,3`.
 
 This is why safe hand-replacement capacity matters. The policy should not simply select three every time: it should choose the largest (k\leq3) for which it can safely replace (k) cards, while recognizing that fewer replacements reduce the chance of hitting a known Prized singleton.
 
@@ -118,23 +123,53 @@ The human-concepts document's UDP/DCI/AMR ideas are useful heuristics here: repl
 
 ## Reproduction
 
-The calculations use only combinations of physical card copies:
+The exact setup-adjusted probabilities integrate over valid seven-card opening hands, then draw six Prizes from the remaining 53:
 
 ```python
 from math import comb
 
-den = comb(60, 6)
+N, B, H, P = 60, 14, 7, 6
+valid_hands = comb(N, H) - comb(N - B, H)
+den = valid_hands * comb(N - H, P)
 
-def exactly_k_prized(m, k):
-    return comb(m, k) * comb(60 - m, 6 - k) / den
+def prize_dist_nonbasic(m):
+    out = {}
+    for k in range(m + 1):
+        numerator = 0
+        for j in range(m + 1):
+            hands = comb(m, j) * (
+                comb(N - m, H - j) - comb(N - m - B, H - j)
+            )
+            remaining_named = m - j
+            if k <= remaining_named:
+                prizes = comb(remaining_named, k) * comb(
+                    N - H - remaining_named, P - k
+                )
+                numerator += hands * prizes
+        out[k] = numerator / den
+    return out
 
-for k in range(5):
-    print(k, exactly_k_prized(4, k))
+def prize_dist_basic(m):
+    out = {}
+    for k in range(m + 1):
+        numerator = 0
+        for j in range(m + 1):
+            if j == 0:
+                hands = comb(N - m, H) - comb(N - B, H)
+            else:
+                hands = comb(m, j) * comb(N - m, H - j)
+            remaining_named = m - j
+            if k <= remaining_named:
+                prizes = comb(remaining_named, k) * comb(
+                    N - H - remaining_named, P - k
+                )
+                numerator += hands * prizes
+        out[k] = numerator / den
+    return out
 
-both_specific_singletons = comb(58, 4) / den
-three_specific_singletons = comb(57, 3) / den
-four_specific_singletons = comb(56, 2) / den
-at_least_one_of_four = 1 - exactly_k_prized(4, 0)
+print(prize_dist_nonbasic(4))  # Peonia/Lusamine/Gladion/Team Yell's Cheer
+print(prize_dist_nonbasic(2))  # Peonia + Gladion; also two Pidgeot ex
+print(prize_dist_basic(2))     # two Bunnelby
 ```
 
 ## Limitations
@@ -173,7 +208,7 @@ U_P(k\mid s)=E[\text{value of the }k\text{ selected Prizes}\mid K0/K1,s]
 
 where (R_k(s)) is the (k) lowest-cost safe replacement cards and (C_{\mathrm{Supporter}}) is the opportunity cost of spending the turn's Supporter play. Choose only (1\leq k\leq\mathrm{safeReplacementCount}(s)), and only when the marginal value is positive. The helper's fresh-slot-first rule maximizes distinct original Prize coverage when positions are exchangeable.
 
-For a specific known target among `n` unknown Prize positions, the hit probability is `k/n`. Under K0, if the target is one card in a current pool of `M` unresolved cards and there is no other location information, the blind hit probability is `k/M`; for the initial 60-card deal, `M=60`, giving `k/60`. Later K0 states must condition on cards already observed in hand, discard, play, or other zones rather than reusing 60. These are different information states and should not be conflated.
+For a specific known target among `n` unknown Prize positions, the hit probability is `k/n`. Under K0, if the target is one card in a current pool of `M` unresolved cards and there is no other location information, the blind hit probability is `k/M`; immediately after a valid opening hand, `M=53`, so conditional on the target not being in hand the hit probability is `k/53`. Later K0 states must condition on cards already observed in hand, discard, play, or other zones rather than reusing 53. These are different information states and should not be conflated.
 
 A corresponding Gladion utility is the value of the best card among the authenticated owner-visible Prize reveal, less Supporter opportunity cost and the cost of destroying the old positional mapping. Gladion does not require a hand replacement, but it does require a source-scoped owner-only reveal and resets the Peonia slot ledger after its shuffle. When both Supporters are available, compare (U_P) and (U_G) rather than hardcoding one as always preferred.
 

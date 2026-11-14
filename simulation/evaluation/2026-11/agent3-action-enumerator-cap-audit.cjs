@@ -115,8 +115,16 @@ function assertActionFrontierAdmissionClear({
   assert.ok(frontierDiagnostics && typeof frontierDiagnostics === 'object' &&
     typeof frontierDiagnostics.truncated === 'boolean' &&
     Number.isSafeInteger(frontierDiagnostics.omittedCount) &&
-    frontierDiagnostics.omittedCount >= 0,
+    frontierDiagnostics.omittedCount >= 0 &&
+    Number.isSafeInteger(frontierDiagnostics.unsupportedCount) &&
+    frontierDiagnostics.unsupportedCount >= 0,
   'adapter frontier diagnostics are required for admission');
+  if (frontierDiagnostics.unsupportedCount > 0) {
+    const error = new Error('Native action frontier contains unprojected action types');
+    error.code = 'NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS';
+    error.frontierDiagnostics = frontierDiagnostics;
+    throw error;
+  }
   if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
     const error = new Error('Research adapter truncated the native action frontier');
     error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';

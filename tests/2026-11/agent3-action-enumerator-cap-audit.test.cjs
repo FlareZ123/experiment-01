@@ -129,15 +129,19 @@ test('combined admission gate requires a clear upstream audit and local frontier
   const state=makeState({hand:[new TrainerCard('ITEM')]});
   const result=assertActionFrontierAdmissionClear({
     state,actorSeat:0,native,
-    frontierDiagnostics:{truncated:false,omittedCount:0,enumeratedCount:4,validatedCount:4}
+    frontierDiagnostics:{truncated:false,omittedCount:0,unsupportedCount:0,enumeratedCount:4,validatedCount:4}
   });
   assert.equal(result.capAudit.knownUpstreamCapsClear,true);
   assert.equal(result.frontierDiagnostics.omittedCount,0);
   assert.throws(()=>assertActionFrontierAdmissionClear({
     state,actorSeat:0,native,
-    frontierDiagnostics:{truncated:true,omittedCount:1}
+    frontierDiagnostics:{truncated:true,omittedCount:1,unsupportedCount:0}
   }),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
   assert.throws(()=>assertActionFrontierAdmissionClear({
     state,actorSeat:0,native
   }),/adapter frontier diagnostics are required/);
+  assert.throws(()=>assertActionFrontierAdmissionClear({
+    state,actorSeat:0,native,
+    frontierDiagnostics:{truncated:false,omittedCount:0,unsupportedCount:1}
+  }),error=>error.code==='NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS');
 });
