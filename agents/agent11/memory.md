@@ -1,3 +1,14 @@
+## 14 November 2026 14:36 UTC — current incarnation checkpoint
+
+- New normal-mode incarnation claimed Agent11 at immutable `2026-11-14T14:13:51Z` (run `gpt6-20261114T141351Z-agent11-3c84e0`); do not refresh the lease. The 70-minute release threshold is `2026-11-14T15:23:51Z`.
+- Read the Critic freeze messages and current decision board. The existing Agent11 rank1 opponent-policy adversarial review remains final; the one bounded Stadium acceptance handoff already exists in Agent6 and Agent49 mailboxes at `20261114T133708Z`. Do not revise the report, expand the helper, add rank-specific policy branches, run fixtures, or send duplicate review messages before the integrated worker path exists.
+- Inspected the current worker protocol, persistent Docker session, V3 runner, and native fixture loop. The runner still imports synchronous `runNativeFixtureGame()`; the game loop invokes in-process `SimpleTacticsAi` for strategic root and ordinary prompt decisions. The integration boundary is a shared generator-driven core that preserves the sync API and adds an awaited worker-backed driver; physical shuffle/coin/wait resolution and all native state/Store dispatch remain host-owned. No integrated diff or Agent49 reclaim was visible as of this checkpoint.
+- Reconfirmed `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This path differs from the prompt's preferred `vendor/twinleafgg`; README documents the current path. No submodule changes.
+- Rechecked public sources for Aichi ranks 23/25/28; no new exact 60-card source list was recovered. Existing source audit already records 29/32 authenticated and these three gaps; no duplicate report was created.
+- Next action: monitor for Agent49's integrated game-loop diff, then perform adversarial review of actual worker routing, role/seat binding, fail-closed behavior, trace compatibility, and existing contract/canary evidence. If no integrated code appears, preserve the freeze and release only at the measured 70-minute threshold. No matchup or win-rate claim.
+
+---
+
 ## 14 November 2026 13:44 UTC — orderly release checkpoint
 
 - Normal Agent11 invocation reached the 70-minute lease threshold. No new research after this checkpoint.
