@@ -9,7 +9,7 @@ const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-compe
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
   buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
-const {withCandidateOpponentPolicyRoles}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
+const {withCandidateOpponentPolicyRoles,candidateOpponentRoleSeats}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
 const {withOwnerQuickBallPromptContinuation}=require('../../twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
@@ -88,6 +88,8 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {GamePhase}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
   const cardActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const gameActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
+  const {ActionEnumerator}=require('../../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator');
+  const {Simulator}=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/simulator');
   const promptActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const {CardManager}=require('../../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
   const sets=require('../../../vendor/twinleaf/ptcg-server/output/sets');
@@ -128,8 +130,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   assert.notEqual(botOptionsBySeat[0], botOptionsBySeat[1]);
   assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
   return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
-    ActionEnumerator:gameActions.ActionEnumerator??SimpleTacticsAi.ActionEnumerator??null,
-    Simulator:gameActions.Simulator??SimpleTacticsAi.Simulator??null,
+    ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
     ResolvePromptAction:promptActions.ResolvePromptAction,
@@ -640,11 +641,17 @@ const V3_FIXTURE_PROMPT_CHAIN = [
 
 const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'observe', path: 'simulation/twinleaf/actor-observation-contract.cjs', exportName: 'actorObservation' },
+  { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
+  { name: 'roleSeatMap', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'candidateOpponentRoleSeats' },
   { name: 'publicEventReceipt', path: 'simulation/twinleaf/agent8-public-event-receipt.cjs', exportName: 'publicEventReceipt' },
   { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs', exportName: 'validateRequest' },
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
+  { name: 'nativeActionEnumerator', path: 'vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js', exportName: 'ActionEnumerator' },
+  { name: 'nativeSimulator', path: 'vendor/twinleaf/ptcg-server/output/game/bots/simulator.js', exportName: 'Simulator' },
+  { name: 'nativePlayerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'PlayerType' },
+  { name: 'nativeSlotType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'SlotType' },
   { name: 'nativePromptProjection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs', exportName: 'projectPrompt' },
   { name: 'asyncFixtureGameDriver', path: 'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs', exportName: 'runNativeFixtureGameAsync' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
@@ -778,6 +785,7 @@ function buildFixtureRoleEntryManifest({
   entrypoint = V3_FIXTURE.entrypoint,
   commonRuntimeBindings = V3_FIXTURE_COMMON_BINDINGS,
   orderedPromptChain = V3_FIXTURE_PROMPT_CHAIN,
+  additionalDataAssetPaths = [],
 } = {}) {
   assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
@@ -795,6 +803,7 @@ function buildFixtureRoleEntryManifest({
     'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
     'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs',
     ...V3_FIXTURE_TEST_PATHS,
+    ...additionalDataAssetPaths,
   ];
   const dependencyLockPaths = ['vendor/twinleaf/ptcg-server/package-lock.json'];
   const researchEntries = [
@@ -1019,21 +1028,40 @@ function createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256 } = {})
 
 
 function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
-  const filename=path.resolve(repositoryRoot,relativePath);
-  assert.ok(filename.startsWith(repositoryRoot+path.sep),
+  const root=fs.realpathSync(repositoryRoot);
+  const filename=path.resolve(root,relativePath);
+  const relative=path.relative(root,filename);
+  assert.ok(relative&&relative!=='..'&&!relative.startsWith('..'+path.sep)&&
+    !path.isAbsolute(relative),
     'worker policy module must remain inside the repository');
-  if(!fs.existsSync(filename)){
-    const error=new Error(role+' worker policy module is missing: '+relativePath);
-    error.code='ROLE_WORKER_POLICY_MISSING';
-    throw error;
-  }
-  const policy=require(filename);
-  assert.equal(typeof policy.createPolicy,'function',
-    role+' worker policy must export createPolicy');
-  assert.match(policy.POLICY_VERSION??'',
-    /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/,
-    role+' worker policy must export a stable POLICY_VERSION');
-  return policy;
+  const stat=fs.lstatSync(filename);
+  assert.ok(stat.isFile()&&!stat.isSymbolicLink(),
+    role+' worker policy must be a regular non-symlink file');
+  const source=fs.readFileSync(filename,'utf8');
+  const versionMatch=source.match(/\bconst\s+POLICY_VERSION\s*=\s*(['"])([^'"]+)\1\s*;/);
+  assert.ok(versionMatch,role+' worker policy must declare a static POLICY_VERSION');
+  const policyVersion=versionMatch[2];
+  assert.match(policyVersion,/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/,
+    role+' worker policy must declare a stable POLICY_VERSION');
+  assert.match(source,/module\.exports\s*=|exports\.POLICY_VERSION/,
+    role+' worker policy must expose its version and factory to the worker');
+  assert.doesNotMatch(source,/\b(?:require|import|process|globalThis|fetch|setTimeout|setInterval)\b|Math\.random/,
+    role+' worker policy must remain pure, deterministic, and free of host/runtime APIs');
+  const sourceClosure=auditSourceClosure(root,[relativePath],{vendorPrefixes:[]});
+  assert.equal(sourceClosure.files.length,1,
+    role+' worker policy must have no transitive source dependencies');
+  assert.equal(sourceClosure.files[0].path,relativePath,
+    role+' worker policy source closure must contain only its inert entry asset');
+  assert.deepEqual(sourceClosure.limitations?.externalRequires??[],[],
+    role+' worker policy must not import external runtime modules');
+  assert.deepEqual(sourceClosure.keys??[],[],
+    role+' worker policy must not read environment variables');
+  return {
+    POLICY_VERSION:policyVersion,
+    sourcePath:relativePath,
+    policySha256:createHash('sha256').update(source,'utf8').digest('hex'),
+    sourceClosureSummary:sourceClosure
+  };
 }
 
 function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
@@ -1051,6 +1079,19 @@ function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
     ],
   });
   return {bundle,workerSha256,policySha256};
+}
+
+function resolveFixtureSeatAssignment({candidateSeat,opponentSeat,candidateDeck,opponentDeck}={}) {
+  const roleSeatMap=candidateOpponentRoleSeats({candidateSeat,opponentSeat});
+  assert.ok(Array.isArray(candidateDeck)&&Array.isArray(opponentDeck),
+    'candidate and opponent decks must be arrays before assigning physical seats');
+  return {
+    roleSeatMap,
+    deckA:roleSeatMap.candidate===0?candidateDeck:opponentDeck,
+    deckB:roleSeatMap.candidate===1?candidateDeck:opponentDeck,
+    playerNames:roleSeatMap.candidate===0?
+      ['candidate','opponent']:['opponent','candidate']
+  };
 }
 
 function createV3WorkerExecutionAudit({
@@ -1089,8 +1130,9 @@ function createV3WorkerDecisionResolver({
   assert.ok(sessionsBySeat&&typeof sessionsBySeat==='object');
   assert.ok(native&&typeof native.observe==='function');
   assert.ok(workerAudit&&workerAudit.roles);
-  const roleForSeat=seat=>seat===candidateSeat?'candidate':
-    seat===opponentSeat?'opponent':null;
+  const roleSeatMap=candidateOpponentRoleSeats({candidateSeat,opponentSeat});
+  const roleForSeat=seat=>seat===roleSeatMap.candidate?'candidate':
+    seat===roleSeatMap.opponent?'opponent':null;
   const emptyFrontier={schema:workerProtocol.FRONTIER_SCHEMA,items:[]};
   const recordFailure=(roleAudit,error)=>{
     const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
@@ -1200,7 +1242,13 @@ function createV3WorkerDecisionResolver({
   };
 }
 
-async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FIXTURE.outputDir) } = {}) {
+async function runV3FixtureGame({
+  env=process.env,outputDir=null,
+  candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat
+}={}) {
+  candidateOpponentRoleSeats({candidateSeat,opponentSeat});
+  const trialId=V3_FIXTURE.trialId+'-candidate-seat-'+candidateSeat;
+  const runOutputDir=outputDir??path.join(ROOT,V3_FIXTURE.outputDir,'candidate-seat-'+candidateSeat);
   const repositoryRoot = ROOT;
   const enginePin = env.AGENT36_TWINLEAF_COMMIT_SHA;
   const runnerRevision = env.GITHUB_SHA;
@@ -1232,6 +1280,10 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
   const allCards = native.CardManager.getInstance().getAllCards();
   const candidateResolved = resolvePrintedDeck(candidateDeck, allCards, { label: 'Hood Shadow Rider candidate' });
   const opponentResolved = resolvePrintedDeck(opponentDeck, allCards, { label: 'Aichi rank-1 Shadow Rider opponent' });
+  const seatAssignment=resolveFixtureSeatAssignment({
+    candidateSeat,opponentSeat,candidateDeck:candidateResolved.fullNames,
+    opponentDeck:opponentResolved.fullNames
+  });
   const botOptionsAuditBySeat = native.botOptionsBySeat.map((options, seat) => ({
     seat,
     profile: fixtureBotOptionsProfile(options),
@@ -1261,20 +1313,22 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.candidateWorkerPolicyPath,
+    entrypoint:V3_FIXTURE.workerPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+    additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath],
   });
   const opponentManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.opponentWorkerPolicyPath,
+    entrypoint:V3_FIXTURE.workerPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+    additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath],
   });
   const manifestResult=roleIdentity.combineRolePolicyEntryManifests(
     candidateManifestResult,opponentManifestResult
   );
-  const challengeSuiteSha256 = fixtureChallengeSuiteSha256(manifestResult.manifest);
+  const challengeSuiteSha256 = fixtureChallengeSuiteSha256(candidateManifestResult.manifest);
   const combined = manifestResult;
 
   // Preload only the manifest-owned research closure. The fixture pin helper scopes the
@@ -1322,7 +1376,7 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
   const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
 
   const preGameTrial = {
-    trialId: V3_FIXTURE.trialId,
+    trialId: trialId,
     fixtureOnly: true,
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
@@ -1330,8 +1384,8 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
     expandedLegalityAsOf: null,
     eventDate: null,
     formatReviewStatus: 'unverified-fixture-only',
-    candidateSeat: V3_FIXTURE.candidateSeat,
-    originalSourceSeat: V3_FIXTURE.opponentSeat,
+    candidateSeat: candidateSeat,
+    originalSourceSeat: opponentSeat,
     vendorCommitSha: enginePin,
     researchRevisionSha: runnerRevision,
   };
@@ -1346,8 +1400,8 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
       pin: fixtureRuntimePin.withFixtureScopedRolePin,
       run: async () => {
         const workerAudit=createV3WorkerExecutionAudit({
-          candidateSeat:V3_FIXTURE.candidateSeat,
-          opponentSeat:V3_FIXTURE.opponentSeat,
+          candidateSeat:candidateSeat,
+          opponentSeat:opponentSeat,
           candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
           opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
         });
@@ -1379,7 +1433,7 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
           try {
             candidateSession=await createDockerPolicySession({
               bundle:candidateBundle.bundle,role:'candidate',
-              seat:V3_FIXTURE.candidateSeat,
+              seat:candidateSeat,
               policyVersion:candidatePolicy.POLICY_VERSION,
             });
             sessions.push(candidateSession);
@@ -1391,7 +1445,7 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
           try {
             opponentSession=await createDockerPolicySession({
               bundle:opponentBundle.bundle,role:'opponent',
-              seat:V3_FIXTURE.opponentSeat,
+              seat:opponentSeat,
               policyVersion:opponentPolicy.POLICY_VERSION,
             });
             sessions.push(opponentSession);
@@ -1400,14 +1454,15 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
             throw error;
           }
           const sessionsBySeat={
-            [V3_FIXTURE.candidateSeat]:candidateSession,
-            [V3_FIXTURE.opponentSeat]:opponentSession,
+            [candidateSeat]:candidateSession,
+            [opponentSeat]:opponentSession,
           };
           const gameResult=await runNativeFixtureGameAsync({
-            deckA:candidateResolved.fullNames,
-            deckB:opponentResolved.fullNames,
-            candidateSeat:V3_FIXTURE.candidateSeat,
-            originalSourceSeat:V3_FIXTURE.opponentSeat,
+            deckA:seatAssignment.deckA,
+            deckB:seatAssignment.deckB,
+            playerNames:seatAssignment.playerNames,
+            candidateSeat:candidateSeat,
+            originalSourceSeat:opponentSeat,
             seed:V3_FIXTURE.seed,
             native,
             botOptionsBySeat:native.botOptionsBySeat,
@@ -1416,8 +1471,8 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
             requireFullStateDiagnostics:true,
           },createV3WorkerDecisionResolver({
             sessionsBySeat,
-            candidateSeat:V3_FIXTURE.candidateSeat,
-            opponentSeat:V3_FIXTURE.opponentSeat,
+            candidateSeat:candidateSeat,
+            opponentSeat:opponentSeat,
             native,
             workerAudit,
           }));
@@ -1482,7 +1537,7 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
 
   const patchReceipt = createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256: hookModuleSha256 });
   const trial = {
-    trialId: V3_FIXTURE.trialId,
+    trialId: trialId,
     fixtureOnly: true,
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
@@ -1491,8 +1546,8 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
     eventDate: null,
     formatReviewStatus: 'unverified-fixture-only',
     opponentRank: 1,
-    candidateSeat: V3_FIXTURE.candidateSeat,
-    originalSourceSeat: V3_FIXTURE.opponentSeat,
+    candidateSeat: candidateSeat,
+    originalSourceSeat: opponentSeat,
     actualFirstPlayerSeat: gameResult?.actualFirstPlayerSeat ?? null,
     candidatePrinted60Ref: V3_FIXTURE.candidatePath,
     originalPrinted60Ref: V3_FIXTURE.fieldPath + '#rank=1',
@@ -1710,9 +1765,10 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
     workerExecutionAudit,
   }),
   ].join('\n');
-  const outputPath = path.join(outputDir, 'fixture-game.json');
+  fs.mkdirSync(runOutputDir,{recursive:true});
+  const outputPath = path.join(runOutputDir, 'fixture-game.json');
   writeJsonAtomic(outputPath, artifact);
-  const traceTextPath = path.join(outputDir, 'fixture-game.txt');
+  const traceTextPath = path.join(runOutputDir, 'fixture-game.txt');
   fs.writeFileSync(traceTextPath, traceText, 'utf8');
   process.stdout.write((failureEnvelope ? 'Native V3 fixture game failed; partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath + '\n');
   if (failureEnvelope) {
@@ -1737,10 +1793,36 @@ async function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT,
 }
 
 
+async function runV3FixtureGameBothSeats({env=process.env,outputDirRoot=path.join(ROOT,V3_FIXTURE.outputDir)}={}) {
+  const results=[];
+  for(const candidateSeat of [0,1]) {
+    try {
+      results.push(await runV3FixtureGame({
+        env,candidateSeat,opponentSeat:1-candidateSeat,
+        outputDir:path.join(outputDirRoot,'candidate-seat-'+candidateSeat)
+      }));
+    } catch(error) {
+      results.push({
+        candidateSeat,opponentSeat:1-candidateSeat,failed:true,
+        code:error?.fixtureFailure?.code??error?.code??'FIXTURE_FAILED',
+        messageSha256:createHash('sha256').update(String(error?.message??error)).digest('hex')
+      });
+    }
+  }
+  const failures=results.filter(result=>result.failed);
+  if(failures.length) {
+    const error=new Error('One or both V3 physical-seat assignments failed; both attempts were preserved.');
+    error.code='V3_SEAT_PAIR_FAILED';
+    error.failures=failures;
+    throw error;
+  }
+  return {schema:'agent36-v3-seat-swap-pair-v1',fixtureOnly:true,results};
+}
+
 async function main(argv=process.argv.slice(2),env=process.env){
   const [command,...args]=argv;
   if(command==='fixture-game'){
-    const result=await runV3FixtureGame({env});
+    const result=await runV3FixtureGameBothSeats({env});
     process.stdout.write(JSON.stringify(result,null,2)+'\n');
     return result;
   }
@@ -1880,7 +1962,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,
@@ -1890,5 +1972,5 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   buildFixturePolicyPlan,
   createUnderworldRuntimePatchReceipt,
   normalizeV3FixtureRoleResult,
-  runV3FixtureGame
+  runV3FixtureGame,runV3FixtureGameBothSeats
 };
