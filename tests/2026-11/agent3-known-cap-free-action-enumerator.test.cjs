@@ -233,4 +233,12 @@ test('same-name attack candidates follow native first-match source priority',()=
   assert.equal(actions.length,1);
   assert.equal(actions[0].name,'Shared Attack');
   assert.equal(actions[0].__agent3AttackSource.sourceKind,'active-pokemon');
+  player.active.getPokemonCard().attacks=[];
+  const benchPriority=enumerator.attackActions(state,player);
+  assert.equal(benchPriority.length,1);
+  assert.equal(benchPriority[0].__agent3AttackSource.sourceKind,'bench-pokemon');
+  player.bench[1].getPokemonCard().attacks=[];
+  const toolPriority=enumerator.attackActions(state,player);
+  assert.equal(toolPriority.length,1);
+  assert.equal(toolPriority[0].__agent3AttackSource.sourceKind,'active-tool');
 });
