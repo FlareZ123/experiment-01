@@ -210,6 +210,8 @@ test('10 games in each of 128 strata and at most two nonwins use the exact field
   assert.equal(result.totalAttempts, 1280);
   assert.equal(result.winCount, 1278);
   assert.equal(result.nonwinCount, 2);
+  assert.equal(result.target, 0.995);
+  assert.equal(result.confidence, 0.95);
   assert.equal(result.attemptsPerRankSeatAndFirstPlayer, 10);
   assert.equal(result.boundMethod, 'exact-field-mean-two-nonwins-iid');
   assert.equal(result.conditionalLowerBound, null);
@@ -263,4 +265,26 @@ test('an invalid field ledger cannot use the exact aggregate field-mean branch',
   assert.equal(result.conditionalLowerBound, null);
   assert.equal(result.conditionalStatisticalThresholdMet, false);
   assert.ok(result.rejectionReasons.includes('noncompleted-or-unqualified-attempt'));
+});
+
+test('the exact aggregate field-mean rule does not transfer to another target or confidence', () => {
+  const targetRequest = fixture(10);
+  targetRequest.stratumSamplingModel = 'iid-bernoulli-v1';
+  targetRequest.target = 0.994;
+  targetRequest.attempts[0].status = 'paper-qualified-loss';
+  targetRequest.attempts[1].status = 'paper-qualified-tie';
+  const targetResult = assessBalancedFieldKl(targetRequest);
+  assert.equal(targetResult.boundMethod, 'heterogeneous-kl');
+  assert.equal(targetResult.target, 0.994);
+  assert.equal(targetResult.worstCaseNullPValue, null);
+
+  const confidenceRequest = fixture(10);
+  confidenceRequest.stratumSamplingModel = 'iid-bernoulli-v1';
+  confidenceRequest.confidence = 0.9;
+  confidenceRequest.attempts[0].status = 'paper-qualified-loss';
+  confidenceRequest.attempts[1].status = 'paper-qualified-tie';
+  const confidenceResult = assessBalancedFieldKl(confidenceRequest);
+  assert.equal(confidenceResult.boundMethod, 'heterogeneous-kl');
+  assert.equal(confidenceResult.confidence, 0.9);
+  assert.equal(confidenceResult.worstCaseNullPValue, null);
 });
