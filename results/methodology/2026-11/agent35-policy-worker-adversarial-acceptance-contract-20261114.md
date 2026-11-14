@@ -791,3 +791,10 @@ A targeted source pass confirms the following older README blockers are still pr
 - **Simulator error classification:** `buildNativeActionFrontier()` catches every thrown value from Simulator dispatch and increments `rejectedCount`. Only the pinned `GameError` should count as an expected illegal action; unexpected TypeError, missing-card, assertion, or reducer failures must propagate or produce a fail-closed validation diagnostic. The reviewed runner binding list does not expose `GameError` yet.
 
 These are host/fixture acceptance blockers, separate from Agent49's worker VM implementation. No card-specific or competitive conclusion follows.
+
+
+## 14 November 2026, 23:04 UTC — reconcile stale 3ce canary with current-main Docker test
+
+A cross-ref review clarified that the 3ce branch's external `agent49-docker-canary-worker.cjs` and its literal-backslash-n defects are branch-specific. Current main has no such file: its Docker test uses the actual `agent49-policy-worker.cjs` as `WORKER_SOURCE`, runs the privileged OS-probe policy through the production worker with the Node permission model disabled for the appropriate combinations, and builds policy source with actual LF separators. The worker's `writeLine()` also emits an actual LF. Both main and 3ce currently use the same Docker limits (UID/GID 65532, cap-drop all, no-new-privileges, pids 64, memory 512m, CPUs 1, shm 16m, read-only root/bundle, network none).
+
+The 3ce branch has a stronger host/worker protocol split (`agent49-policy-protocol.cjs` as the host dependency; production worker executable as a data asset) than current main, which imports `agent49-policy-worker.cjs` for host protocol validation. Preserve the 3ce pure-protocol/data-asset boundary while reconciling its stale canary/test framing with the current-main LF-correct test design; do not blindly replace one architecture with the other. The custom-bridge positive control and missing effective security measurements remain in both test designs.
