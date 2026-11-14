@@ -76,6 +76,14 @@ function visiblePokemon() {
       reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: 'Path to the Peak CES' }]
   };
 }
+function mimikyuPokemon() {
+  return {
+    ...visiblePokemon(), printing: 'Mimikyu GRI', name: 'Mimikyu', hp: 70,
+    attacks: [{ name: 'Copycat', cost: [], damage: null, damageCalculation: null,
+      text: 'Use a previous opponent attack', gxAttack: false, barrage: false }],
+    abilities: [], abilityDetails: [], abilitySuppressions: []
+  };
+}
 function observation(seat, decisionKind = 'owner-root', promptType = null) {
   return {
     actorSeat: seat, globalTurn: 1, phase: 2, decisionKind,
@@ -248,27 +256,29 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     attackName: 'Night Watch', gxAttack: false, copycatAttack: false };
   const reorderedCopycatRow = { copycatAttack: false, attackName: 'Night Watch', turn: 0,
     sourcePrinting: 'Trevenant & Dusknoir-GX', gxAttack: false };
+  const copycatView = observation(0);
+  copycatView.ownPublic.active = mimikyuPokemon();
   const receipt = {
     version: 'agent8-public-event-receipt-v3-turn-stamped', actorSeat: 0, turn: 1,
-    ownerActive: null, ownerBench: [null, null, null, null, null],
+    ownerActive: { printing: 'Mimikyu GRI', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }, ownerBench: [null, null, null, null, null],
     priorOpponentTurnKO: { any: null, byAttack: null },
     opponentLastTurnAttack: null, opponentLastTurnTurn: 0,
     opponentLastTurnAttacks: [eventRow], opponentCopycatChoices: [reorderedCopycatRow],
     mimikyuCopycatCompatible: true
   };
-  protocol.validatePublicEventReceipt(receipt, view);
+  protocol.validatePublicEventReceipt(receipt, copycatView);
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentLastTurnAttacks: [{ ...eventRow, opponentHand: ['hidden'] }]
-  }, view), /UNKNOWN_FIELD/);
+  }, copycatView), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validatePublicEventReceipt({
-    ...receipt, ownerActive: { printing: 'Mimikyu GRI', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }
-  }, view), /EVENT_OWNER_ACTIVE_MISMATCH/);
+    ...receipt, ownerActive: { printing: 'Pikachu VMAX VIV', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }
+  }, copycatView), /EVENT_OWNER_ACTIVE_MISMATCH/);
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentLastTurnAttacks: [{ ...eventRow, turn: 1 }]
-  }, view), /EVENT_ATTACK_TURN_MISMATCH/);
+  }, copycatView), /EVENT_ATTACK_TURN_MISMATCH/);
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentCopycatChoices: [{ ...eventRow, attackName: 'Different Attack' }]
-  }, view), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
+  }, copycatView), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
 });
 
 test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
