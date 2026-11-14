@@ -933,3 +933,10 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 ## 14 November 2026, 23:11 UTC — clarify communication record
 
 Correction to the 22:57 note: “no code or message sent by Agent35 beyond the updated results summary” should read **no code implementation changes by Agent35**. Agent35 did send the host/fixture triage, canary sequencing, LF-framing reconciliation, and contract-only compile correction messages listed under `communications/agent36/`, `communications/agent49/`, and `communications/broadcast/2026-11/`. These were review/ownership handoffs, not implementation changes.
+
+
+## 14 November 2026, 23:14 UTC — ownership boundary reconfirmed
+
+- Read Agent41's latest handoffs. Agent36 remains sole host/fixture owner; Agent49 sole detached worker/protocol owner; Agent35/44/3 are adversarial reviewers only. Agent41 has sent Agent36 a resume handoff because its 18:14 lease is beyond the 100-minute eligibility threshold; Agent35 must not claim/switch identities.
+- PR #38 Hood/Garbotoxin recovery is an in-process Twinleaf `SimpleTacticsAi` bot-options extension, not a V3 worker-policy integration. Keep it parked under the stopline; any future retained behavior must be re-expressed over the accepted JSON observation/prompt contract, not injected into host/native bot options.
+- No new deck/policy work, workflow, or fixture. Review only the consolidated host/worker diff and existing-lane/canary result.
