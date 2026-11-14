@@ -114,14 +114,23 @@ There is existing constructed Store evidence for Max Geist scaling and a Knock O
 
 **Implication:** the 98.5455% Regidrago group floor does not force a 2/2/1 Copycat package by itself. It forces the *combined* set of successful routes to cover the group. Measure the direct Max Geist route, the Copycat extra-turn route, and their overlap under one fixed competent policy before deciding whether the extra Mimikyu/Dialga copies or a different Basic slot are worth the cost.
 
+
+## Priority correction: policy conversion precedes copy-count deck edits
+
+The existing [full-cohort 58-game attack-conversion audit](../methodology/2026-11/agent46-hood-full58-attack-conversion-audit-20261112.md) is more decision-relevant than this copy-count arithmetic. It evaluated the same common policy for Champion and Hood (candidate identity was not used for decisions), and the later candidate-only Hood/Arven policy was not installed. Across Hood's 44 completed development games, Max Geist appeared in **16/31 wins but only 1/13 losses**; losses produced 36 Filch and 20 Red Knuckles attacks, 56/63 (88.9%) of all settled attacks. The audit's rank19 loss showed twelve Filch attacks while a Benched VMAX accumulated three to four Energy, followed by a late Max Geist and a zero-card deck-source prompt. It explicitly concludes this is a root-level attack-conversion / mobility / deck-out-aware policy problem, **not a reason to cut or add a card**. All 58 rows remain development-only, with zero competitively paper-qualified games.
+
+That evidence changes the priority of the pair registered here:
+
+- Keep the 1/1/1 baseline as the only current deck baseline.
+- **Park** the 2/1/1 and 1/2/1 60s as future controlled comparison arms; do not treat them as the next active experiment or spend native/CI budget on them before the candidate policy can convert to Max Geist, manage retreat/energy, account for Fairy Zone damage, and avoid low-value repeated draw attacks.
+- First resolve the policy-information-set boundary and owner seed choice, then integrate the owner-view attack-conversion policy. Only after a competent policy is frozen should the copy-count arms be reconsidered; the exact 92.20% access result does not fix the observed conversion failure.
+
+The Max Geist route analysis above is useful for defining that policy, but the existing native evidence is still not a full-health 280-HP Regidrago VSTAR / Fairy Zone five-Energy test. No new candidate-card probe, replacement workflow, or fixture is warranted under the current Critic stopline.
+
 ## Recommended experiment
 
-Once the owner-selected seed-disclosure model and OS-enforced policy-process isolation are in place:
+Do **not** schedule a copy-count A/B as the next experiment. First complete the OS-enforced policy-process boundary and owner seed-disclosure decision; then integrate a candidate-aware, owner-view attack-conversion policy that compares direct Max Geist, Copycat/Timeless, Clefairy attacks and lower-value Filch/Red Knuckles while tracking retreat/energy, Fairy Zone, target HP, deck size and Prize progress. The full-cohort audit indicates this policy gap is more consequential than the current copy-count hypothesis.
 
-1. Freeze the baseline, 2/1/1 and 1/2/1 60-card fingerprints.
-2. Use one fixed candidate policy with explicit Mimikyu/Dialga zone tracking and a legal Arven→Heavy Ball branch; hash the policy and engine revision.
-3. Compare the three lists against the same competent fixed opponent policy on the nine published Regidrago lists, both seats and first-player assignments, with independent seeds and failure-inclusive records.
-4. Record forced starts, actual Dialga discard route, Mimikyu access/Active status, Energy attachments, Fairy Zone, Apex Dragon opportunity, GX allowance, accepted Copycat/Timeless actions and actual Prize progress.
-5. Evaluate both challenger arms across the wider source field before nomination. Do not use the nine-list Regidrago subset as a substitute for the full 32.
+Only after that policy is frozen and has demonstrated competent attack conversion should the baseline and parked 2/1/1 / 1/2/1 arms be compared under identical policies, both seats and first-player assignments, failure-inclusive records, and the complete source field. Record forced starts, Dialga discard route, Mimikyu access/Active status, Energy attachments, Fairy Zone, Apex Dragon opportunity, GX allowance, accepted Copycat/Timeless actions, Max Geist damage and actual Prize progress. Do not use the nine published Regidrago lists as a substitute for all 32.
 
-**Conclusion:** 2/1/1 and 1/2/1 have identical optimistic Prize/hand/draw access arithmetic. The choice is a whole-game DCI/AMR question. Preserve both as matched challenger arms, keep 1/1/1 as baseline, and make no strength claim.
+**Conclusion:** 2/1/1 and 1/2/1 have identical optimistic Prize/hand/draw access arithmetic; their DCI/AMR asymmetry remains unresolved. Both are parked structural arms, not active recommendations. Keep 1/1/1 as baseline and make no strength claim.
