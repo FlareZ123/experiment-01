@@ -2,12 +2,14 @@
 const assert=require('node:assert/strict');
 const {TYPES,energyUnits,canPaySymbols}=
   require('./actor-energy-payability.cjs');
+const {publicStadiumPrintings,stadiumEffectsSuppressedForOwnPokemon}=
+  require('./public-stadium-effect-status.cjs');
 
 const SYMBOLS=Object.freeze({
   Grass:'G',Fire:'R',Water:'W',Lightning:'L',Psychic:'P',
   Fighting:'F',Darkness:'D',Metal:'M',Fairy:'Y'
 });
-const VERSION='agent17-public-context-special-energy-intent-v2-stadium-cost';
+const VERSION='agent17-public-context-special-energy-intent-v3-suppression-aware-stadium-cost';
 
 /**
  * Translate the public attack's native cost into the independently tested
@@ -42,29 +44,67 @@ function publicCostSymbols(cost,catalog){
 function effectiveNativeAttackCost(view,catalog,pokemon,attack){
   if(!Array.isArray(attack?.cost))return null;
   const cost=attack.cost.slice();
-  const stadium=[...(view.ownPublic?.stadium??[]),
-    ...(view.opponentPublic?.stadium??[])];
-  if(stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
-      pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)){
-    const i=cost.indexOf(catalog.basicEnergyTypes.Lightning);
+  const stadiums=publicStadiumPrintings(view);
+  if(stadiums===null)return null;
+  const unique=[...new Set(stadiums)];
+  // The paper rules permit one Stadium in play. Conflicting visible Stadium
+  // identities indicate an incomplete/invalid observation, not cumulative
+  // modifiers.
+  if(unique.length>1)return null;
+  const stadium=unique[0]??'';
+  const hasThunderMountain=stadium.startsWith('Thunder Mountain Prism Star ');
+  const hasDimensionValley=stadium.startsWith('Dimension Valley ');
+  const hasWondrousLabyrinth=stadium.startsWith('Wondrous Labyrinth ');
+  const hasLeagueHeadquarters=stadium.startsWith('Pokémon League Headquarters ');
+  if(!hasThunderMountain&&!hasDimensionValley&&
+     !hasWondrousLabyrinth&&!hasLeagueHeadquarters)return cost;
+
+  const types=pokemon?.printed?.types;
+  const lightning=catalog.basicEnergyTypes?.Lightning;
+  const psychic=catalog.basicEnergyTypes?.Psychic;
+  const fairy=catalog.basicEnergyTypes?.Fairy;
+  const colorless=catalog.colorlessEnergyType;
+  let thunderApplies=false;
+  let valleyApplies=false;
+  let wondrousApplies=false;
+  let headquartersApplies=false;
+
+  if(hasThunderMountain&&cost.includes(lightning)){
+    if(!Number.isSafeInteger(lightning)||!Array.isArray(types))return null;
+    thunderApplies=types.includes(lightning);
+  }
+  if(hasDimensionValley&&cost.includes(colorless)){
+    if(!Number.isSafeInteger(psychic)||!Number.isSafeInteger(colorless)||
+       !Array.isArray(types))return null;
+    valleyApplies=types.includes(psychic);
+  }
+  if(hasWondrousLabyrinth){
+    if(!Number.isSafeInteger(fairy)||!Number.isSafeInteger(colorless)||
+       !Array.isArray(types))return null;
+    wondrousApplies=!types.includes(fairy);
+  }
+  if(hasLeagueHeadquarters){
+    if(!Number.isSafeInteger(colorless)||
+       !Number.isSafeInteger(pokemon?.printed?.stage)||
+       !Number.isSafeInteger(catalog.stages?.BASIC))return null;
+    headquartersApplies=pokemon.printed.stage===catalog.stages.BASIC;
+  }
+
+  if(!thunderApplies&&!valleyApplies&&
+     !wondrousApplies&&!headquartersApplies)return cost;
+  const suppressed=stadiumEffectsSuppressedForOwnPokemon(view);
+  if(suppressed===null)return null;
+  if(suppressed)return cost;
+
+  if(thunderApplies){
+    const i=cost.indexOf(lightning);
     if(i>=0)cost.splice(i,1);
   }
-  if(stadium.some(p=>p.startsWith('Dimension Valley '))&&
-      pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Psychic)){
-    const i=cost.indexOf(catalog.colorlessEnergyType);
+  if(valleyApplies){
+    const i=cost.indexOf(colorless);
     if(i>=0)cost.splice(i,1);
   }
-  // Wondrous Labyrinth Prism Star raises every non-Fairy attack cost by
-  // one Colorless. A printed Fairy type is needed for the exemption;
-  // missing public type metadata must not certify a false payable attack.
-  if(stadium.some(p=>p.startsWith('Wondrous Labyrinth '))){
-    const types=pokemon?.printed?.types;
-    if(!Array.isArray(types)||
-       !Number.isSafeInteger(catalog.basicEnergyTypes?.Fairy))
-      return null;
-    if(!types.includes(catalog.basicEnergyTypes.Fairy))
-      cost.push(catalog.colorlessEnergyType);
-  }
+  if(wondrousApplies||headquartersApplies)cost.push(colorless);
   return cost;
 }
 
