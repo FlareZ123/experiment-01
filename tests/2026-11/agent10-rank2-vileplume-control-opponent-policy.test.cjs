@@ -786,6 +786,165 @@ test('Guzma & Hala searches Counter Gain when behind and Technical Machine: Evol
   });
 });
 
+
+
+test('Guzma & Hala selects its discard-two mode only with a K0 evolution line and two discardable cards', () => {
+  const request = promptRequest({
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC', 'Guzma & Hala'),
+    choices: [
+      { token: 'mode-zero', kind: 'option', label: 'Do not discard 2 cards',
+        publicMetadata: { choiceIndex: 0, selectionType: 'option' } },
+      { token: 'mode-one', kind: 'option',
+        label: 'Discard 2 cards from your hand to search for a Stadium, Pokémon Tool, and Special Energy',
+        publicMetadata: { choiceIndex: 1, selectionType: 'option' } }
+    ],
+    observation: {
+      ownHand: ['Tag Call CEC', 'Tag Call CEC'],
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC'),
+        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+      })
+    },
+    publicMetadata: {
+      count: 2, minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false, selectionType: 'option'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'mode-one'
+  });
+});
+
+test('Guzma & Hala declines its discard-two mode when two safe discards are unavailable', () => {
+  const request = promptRequest({
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC', 'Guzma & Hala'),
+    choices: [
+      { token: 'mode-zero', kind: 'option', label: 'Do not discard 2 cards',
+        publicMetadata: { choiceIndex: 0, selectionType: 'option' } },
+      { token: 'mode-one', kind: 'option',
+        label: 'Discard 2 cards from your hand to search for a Stadium, Pokémon Tool, and Special Energy',
+        publicMetadata: { choiceIndex: 1, selectionType: 'option' } }
+    ],
+    observation: {
+      ownHand: ['Tag Call CEC'],
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC'),
+        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+      })
+    },
+    publicMetadata: {
+      count: 2, minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false, selectionType: 'option'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'mode-zero'
+  });
+});
+
+test('Guzma & Hala declines its discard-two mode when no K0 Stage card remains for the Bench Basic', () => {
+  const request = promptRequest({
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC', 'Guzma & Hala'),
+    choices: [
+      { token: 'mode-zero', kind: 'option', label: 'Do not discard 2 cards',
+        publicMetadata: { choiceIndex: 0, selectionType: 'option' } },
+      { token: 'mode-one', kind: 'option',
+        label: 'Discard 2 cards from your hand to search for a Stadium, Pokémon Tool, and Special Energy',
+        publicMetadata: { choiceIndex: 1, selectionType: 'option' } }
+    ],
+    observation: {
+      ownHand: ['Tag Call CEC', 'Tag Call CEC'],
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC'),
+        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })],
+        discard: ['Gloom UNB', 'Gloom UNB']
+      })
+    },
+    publicMetadata: {
+      count: 2, minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false, selectionType: 'option'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'mode-zero'
+  });
+});
+
+test('Bunnelby uses the Technical Machine: Evolution attack when a K0 Bench evolution target is available', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC', {
+        tools: ['Technical Machine: Evolution PAR']
+      }),
+      bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+    }),
+    opponentPublic: player({ deckCount: 20 }),
+    items: [
+      { token: 'burrow', kind: 'attack', attackName: 'Burrow' },
+      { token: 'evolution', kind: 'attack', attackName: 'Evolution' },
+      { token: 'rototiller', kind: 'attack', attackName: 'Rototiller' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'evolution'
+  });
+});
+
+test('Bunnelby prefers Burrow over Technical Machine: Evolution when it can deck out the opponent immediately', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC', {
+        tools: ['Technical Machine: Evolution PAR']
+      }),
+      bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+    }),
+    opponentPublic: player({ deckCount: 1 }),
+    items: [
+      { token: 'evolution', kind: 'attack', attackName: 'Evolution' },
+      { token: 'burrow', kind: 'attack', attackName: 'Burrow' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'burrow'
+  });
+});
+
+test('Bunnelby Barrage attack-choice prompt selects Evolution when the K0 line is live', () => {
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: actorChoiceSource('Bunnelby PRC', 'Barrage'),
+    choices: [
+      { token: 'burrow', kind: 'attack', label: 'Burrow',
+        publicMetadata: { sourceAttack: 'Burrow' } },
+      { token: 'evolution', kind: 'attack', label: 'Evolution',
+        publicMetadata: { sourceAttack: 'Evolution' } }
+    ],
+    observation: {
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC', {
+          tools: ['Technical Machine: Evolution PAR']
+        }),
+        bench: [pokemon('Oddish UNB', { lastPlayedOrEvolvedTurn: 1 })]
+      }),
+      opponentPublic: player({ deckCount: 20 })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'evolution'
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
