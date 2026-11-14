@@ -159,8 +159,32 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
   };
 }
 
+/**
+ * Convert the canonical candidate-slot orientation bit to this module's
+ * original-source-seat orientation bit.
+ *
+ * Canonical candidateSlotCoin: 0 => candidate slot A starts first; 1 =>
+ * candidate slot A starts second. Agent37 orientationCoin: 0 => original
+ * source seat 0 faces candidate-first; 1 => original source seat 0 faces
+ * candidate-second. sourceSeatAtCandidateSlotA is the original source's
+ * physical seat when the candidate occupies slot A. Under the common A=0
+ * mapping (source occupies the opposite slot), this value is 1.
+ *
+ * @param {0|1} candidateSlotCoin
+ * @param {0|1} sourceSeatAtCandidateSlotA
+ * @returns {0|1}
+ */
+function toAgent37SourceSeatOrientationCoin(candidateSlotCoin, sourceSeatAtCandidateSlotA) {
+  assert.ok(candidateSlotCoin === 0 || candidateSlotCoin === 1,
+    "Candidate-slot orientation must be a bit.");
+  assert.ok(sourceSeatAtCandidateSlotA === 0 || sourceSeatAtCandidateSlotA === 1,
+    "Original-source seat at candidate slot A must be a bit.");
+  return candidateSlotCoin ^ sourceSeatAtCandidateSlotA;
+}
+
 module.exports = {
   VERSION, FIELD_RANKS, FIELD_TARGET, BENCHMARK_ESTIMAND, REQUIRED_RANK_WIN_RATE,
   PAIR_NONWIN_BUDGET, FAMILYWISE_ALPHA, E_THRESHOLD, BETS,
-  mixtureLogEvidence, assessPairedSeatRejection
+  mixtureLogEvidence, assessPairedSeatRejection,
+  toAgent37SourceSeatOrientationCoin
 };
