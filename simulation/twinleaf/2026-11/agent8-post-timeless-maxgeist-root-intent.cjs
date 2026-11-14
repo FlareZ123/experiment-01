@@ -198,7 +198,10 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     weaknessMultiplier=2;
   }else if(psychicWeakness){
     const value=psychicWeakness.value;
-    if(value===2||value==='2'||value==='x2'||value==='×2')
+    // Twinleaf's actor observation normalizes an omitted Weakness value to
+    // null; the pinned Weakness interface defines that omission as ×2.
+    if(value===null||value===undefined||value===2||
+       value==='2'||value==='x2'||value==='×2')
       weaknessMultiplier=2;
     else return null;
   }
