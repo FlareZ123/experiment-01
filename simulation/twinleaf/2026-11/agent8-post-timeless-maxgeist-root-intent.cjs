@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v7-dimension-valley-cost';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v8-terminal-weakness-guard';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -66,7 +66,7 @@ function prizeCountForTarget(target,catalog){
   return 1;
 }
 
-function copycatPowerBeamAvailable(active,restrictions,catalog){
+function copycatPowerBeamAvailable(active,restrictions,catalog,dimensionValleyActive){
   if(!Array.isArray(active?.attacks)||!Array.isArray(active?.energies))
     return null;
   const copycat=active.attacks.find(attack=>
@@ -80,7 +80,8 @@ function copycatPowerBeamAvailable(active,restrictions,catalog){
      copycat.cost.filter(type=>type===psychicType).length!==1||
      copycat.cost.filter(type=>type===colorlessType).length!==1)
     return null;
-  if(active.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<2)
+  const requiredPsychic=dimensionValleyActive?1:2;
+  if(active.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<requiredPsychic)
     return false;
   const blocked=attackBlocked(active,copycat,restrictions);
   if(blocked===null)return null;
@@ -100,6 +101,18 @@ function isOpponentApexDragonReceipt(view){
     last.sourcePrinting===REGIDRAGO_VSTAR&&
     last.attackName==='Apex Dragon'&&
     last.gxAttack===false&&last.copycatAttack===false;
+}
+
+function opponentHasUnmodelledWeaknessText(view){
+  const opponent=view?.opponentPublic;
+  if(!opponent||!Array.isArray(opponent.bench))return true;
+  const board=[opponent.active,...opponent.bench].filter(Boolean);
+  return board.some(pokemon=>{
+    const names=Array.isArray(pokemon.abilities)?pokemon.abilities:[];
+    const details=Array.isArray(pokemon.abilityDetails)?pokemon.abilityDetails:null;
+    if(details===null||details.length!==names.length)return names.length>0;
+    return details.some(ability=>/weakness/i.test(String(ability?.text??'')));
+  });
 }
 
 function opponentActiveHasUnmodelledDamageModifier(active,catalog={}){
@@ -147,9 +160,10 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(!own||!opponent||!active||!target||!resources||!restrictions)return null;
 
   if(resources.extraTurnActive!==true||restrictions.gxUsed!==true)return null;
-  if(active.printing!==MIMIKYU||!Array.isArray(active.energies)||
-     active.energies.filter(energy=>isPsychicBasic(energy,catalog)).length<2)
-    return null;
+  // The prior Copycat→Timeless attack has already resolved. Do not
+  // re-infer its historical Energy cost from the current Stadium/board.
+  // Current Mimikyu Energy matters only for the optional Power Beam route.
+  if(active.printing!==MIMIKYU||!Array.isArray(active.energies))return null;
   if(!Array.isArray(own.discard)||!own.discard.includes(DIALGA))return null;
   if(!isOpponentApexDragonReceipt(view))return null;
 
@@ -173,7 +187,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(opponentActiveBlocksRetreat(view)||
      publicSkylinerSuppressionReason(view)!==null||
      stadiums===null||
-     stadiums.some(printing=>printing.startsWith('Wondrous Labyrinth Prism Star')))
+     stadiums.some(printing=>printing.startsWith('Wondrous Labyrinth Prism Star'))||
+     opponentHasUnmodelledWeaknessText(view))
     return null;
   const dimensionValleyActive=stadiums.some(printing=>
     printing.startsWith('Dimension Valley '));
@@ -241,7 +256,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const radiantInDiscard=own.discard.includes(RADIANT_ETERNATUS);
   let competingPowerBeamAvailable=false;
   if(radiantInDiscard){
-    const copycatAvailable=copycatPowerBeamAvailable(active,restrictions,catalog);
+    const copycatAvailable=copycatPowerBeamAvailable(
+      active,restrictions,catalog,dimensionValleyActive);
     if(copycatAvailable===null)return null;
     competingPowerBeamAvailable=copycatAvailable;
   }
@@ -249,12 +265,11 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     200*weaknessMultiplier:null;
   const competingPowerBeamWouldKo=competingPowerBeamAvailable&&
     competingPowerBeamDamage>=targetRemainingHp;
-  // If the one-Prize Mimikyu can also take the KO with Power Beam, retain it
-  // Active instead of exposing the three-Prize VMAX. If Max Geist is the
-  // only KO, still abstain unless that KO ends the game: the VMAX liability
-  // cannot be priced without a trustworthy opponent-response model.
-  if(competingPowerBeamAvailable&&
-     (competingPowerBeamWouldKo||!projectedTerminalWin))return null;
+  // No trustworthy opponent-response valuation exists for an exposed
+  // three-Prize VMAX. Never take a nonterminal KO with this route. Even for a
+  // terminal KO, retain the one-Prize Mimikyu line if Power Beam also KOs.
+  if(!projectedTerminalWin||
+     (competingPowerBeamAvailable&&competingPowerBeamWouldKo))return null;
   const retainedBasicPsychicEnergyCount=ownBoard.reduce((sum,pokemon)=>
     sum+pokemon.energies.filter(energy=>isPsychicBasic(energy,catalog)).length,0);
   return {
@@ -273,9 +288,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     competingPowerBeamDamage,
     competingPowerBeamWouldKo,
     retainedBasicPsychicEnergyCount,
-    activeLiability:competingPowerBeamAvailable?
-      'Max Geist exposes three-Prize VMAX; Power Beam retains one-Prize Mimikyu':
-      'no public Power Beam route established',
+    activeLiability:'three-Prize VMAX exposure is allowed only for a terminal KO; a payable terminal Power Beam route vetoes it',
     routeComparison:competingPowerBeamAvailable?
       'max-geist-unique-terminal-ko':'max-geist-only-known-route',
     source:VERSION,
