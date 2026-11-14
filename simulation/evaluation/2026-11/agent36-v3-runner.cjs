@@ -854,8 +854,11 @@ function buildFixtureRoleEntryManifest({
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
   assert.notEqual(entrypoint,V3_FIXTURE.workerPath,
     'Docker worker executable is a data asset, never a host role-policy entrypoint');
-  assert.equal(commonRuntimeBindings.some(binding=>binding.path===V3_FIXTURE.workerPath),false,
-    'Docker worker executable must not be a host common-runtime binding');
+  assert.notEqual(entrypoint,V3_FIXTURE.dockerCanaryWorkerPath,
+    'Docker canary executable is a test data asset, never a host role-policy entrypoint');
+  assert.equal(commonRuntimeBindings.some(binding=>binding.path===V3_FIXTURE.workerPath||
+    binding.path===V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker worker executables must not be host common-runtime bindings');
   commonRuntimeBindings = commonRuntimeBindings.map((binding) => ({ ...binding }));
   orderedPromptChain = orderedPromptChain.map((item) => ({ ...item }));
   const sharedEnginePatches = [{ name: V3_FIXTURE.hookId, path: V3_FIXTURE.hookPath }];
