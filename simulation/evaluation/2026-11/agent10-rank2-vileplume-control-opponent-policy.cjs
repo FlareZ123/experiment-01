@@ -108,15 +108,6 @@ function supporterAvailable(observation) {
     observation?.ownPublic?.publicTurnRestrictions?.supporterPlayLocked !== true;
 }
 
-function abilitySuppressed(pokemon, abilityName) {
-  return list(pokemon?.abilitySuppressions).some(row =>
-    row?.abilityName === abilityName && row?.suppressed === true);
-}
-
-function openBenchCount(player) {
-  return list(player?.bench).filter(slot => slot === null).length;
-}
-
 function hasUnevolvedBasicFromPriorTurn(player, globalTurn) {
   return boardSlots(player).some(({ pokemon }) =>
     pokemon.printed?.stage === 'BASIC' &&
@@ -154,11 +145,6 @@ function opponentHasFabaTarget(player) {
   return opponentHasSpecialEnergy(player) ||
     boardSlots(player).some(({ pokemon }) => list(pokemon.tools).length > 0) ||
     list(player?.stadium).length > 0;
-}
-
-function opponentHasWeakBenchTarget(player) {
-  return list(player?.bench).some(slot =>
-    slot && remainingHp(slot) > 0 && remainingHp(slot) <= 90);
 }
 
 function sourceText(prompt) {
