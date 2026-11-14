@@ -1332,10 +1332,13 @@ test('pinned Twinleaf StateUtils resolves own Active/Bench targets for either ac
 test('candidate-only post-Timeless Max Geist root uses public extra-turn and Apex receipts',()=>{
   const {
     VERSION:postTimelessVersion,
+    opponentActiveHasUnmodelledDamageModifier,
     choosePostTimelessMaxGeistRetreat
   }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
   const psychic='Psychic Energy SVE';
-  const postTimelessCatalog={...catalog,ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC','Latias ex SSP'])};
+  const postTimelessCatalog={...catalog,
+    ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC','Latias ex SSP']),
+    dragonPokemonPrintings:new Set(['Dratini SIT','Arceus & Dialga & Palkia-GX CEC'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
     blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
@@ -1375,7 +1378,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const target={
     printing:'Dratini SIT',hp:70,damage:0,energies:[],attacks:[],
     abilities:[],abilityDetails:[],tools:[],publicRestrictions:{},
-    specialConditions:[],printed:{stage:'Basic',types:['Dragon'],weakness:[],resistance:[]}
+    specialConditions:[],printed:{stage:'Basic',types:[11],weakness:[],resistance:[]}
   };
   const view={
     decisionKind:'owner-root',actorSeat:0,globalTurn:8,ownHand:[],
@@ -1450,8 +1453,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const opponentLatias={
     ...target,printing:'Latias ex SSP',hp:210,damage:0,
-    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic','ex'],
-      weakness:[{type:'Darkness',value:2}],resistance:[]}
+    printed:{stage:'Basic',types:[5],subtypes:['Basic','ex'],
+      weakness:[{type:catalog.basicEnergyTypes.Darkness,value:2}],resistance:[]}
   };
   const sevenPsychicVmax={...vmax,
     energies:[psychic,psychic,psychic,psychic,psychic]};
@@ -1538,7 +1541,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
 
   const adpTarget={...target,printing:'Arceus & Dialga & Palkia-GX CEC',hp:280,
-    printed:{stage:'Basic',types:['Dragon'],subtypes:['Basic','TAG TEAM','GX'],weakness:[],resistance:[]}};
+    printed:{stage:'Basic',types:[11],subtypes:['Basic','TAG TEAM','GX'],weakness:[],resistance:[]}};
   const adpIntent=choosePostTimelessMaxGeistRetreat({
     ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
   },postTimelessCatalog,{ownerSeat:0});
@@ -1548,8 +1551,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const psychicWeakTarget={
     ...target,printing:'Synthetic Psychic-weak non-Dragon target',hp:300,damage:0,
-    printed:{stage:'Basic',types:['Fighting'],weakness:[{type:'Psychic',value:2}],
-      resistance:[]}
+    printed:{stage:'Basic',types:[6],
+      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:2}],resistance:[]}
   };
   const printedPsychicWeakView={
     ...view,
@@ -1567,8 +1570,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const psychicWeakVmaxTarget={
     ...psychicWeakTarget,printing:'Synthetic Psychic-weak VMAX',hp:410,
-    printed:{stage:'VMAX',types:['Fighting'],subtypes:['VMAX'],
-      weakness:[{type:'Psychic',value:2}],resistance:[]}
+    printed:{stage:'VMAX',types:[6],subtypes:['VMAX'],
+      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:2}],resistance:[]}
   };
   const printedPsychicWeakCrossoverView={
     ...view,
@@ -1590,6 +1593,22 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(printedPsychicWeakCrossover.projectedTerminalWin,true);
   assert.equal(printedPsychicWeakCrossover.routeComparison,
     'max-geist-unique-terminal-ko');
+
+  const psychicResistantTarget={
+    ...target,printing:'Synthetic Psychic-resistant target',hp:100,damage:0,
+    printed:{stage:'Basic',types:[6],weakness:[],
+      resistance:[{type:catalog.basicEnergyTypes.Psychic,value:20}]}
+  };
+  assert.equal(opponentActiveHasUnmodelledDamageModifier(
+    psychicResistantTarget,postTimelessCatalog),true,
+    'numeric Twinleaf Psychic resistance must be recognized as an unmodelled damage modifier');
+  const psychicResistanceView={
+    ...view,
+    ownPublic:{...view.ownPublic,bench:[latias,vmax]},
+    opponentPublic:{...view.opponentPublic,active:psychicResistantTarget}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    psychicResistanceView,postTimelessCatalog,{ownerSeat:0}),null);
 });
 
 
