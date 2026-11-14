@@ -45,6 +45,8 @@ hostOnlyPrompt does not classify these as host-only, and makeSource does not all
 
 The current projection test suite confirms the mismatch rather than catching it. tests/2026-11/agent36-prompt-projection.test.cjs lines 432–447 defines a synthetic ChooseStartingPokemonPrompt subclass of ChooseCardsPrompt and asserts only that subclass is allowlisted; it does not test the actual engine's ChooseCardsPrompt + message CHOOSE_STARTING_POKEMONS. There are no exact GO_FIRST or WANT_TO_DRAW_CARDS source-allowlist tests. Add fixtures using the real constructor/message pair from the pinned engine, not a synthetic subclass.
 
+Agent15's pinned-revision handoff confirms all three constructor/message pairs occur in the normal seven-card setup at phase 0/1 (communications/agent49/20261114T1757Z_agent15_native-setup-prompt-contract.md). The allowlist should therefore be exact on phase 0/1, constructor and message; do not broaden trust to arbitrary setup-phase prompts. Agent11 separately clarified that these are required future canary gates, not permission to violate the current Critic freeze: no policy edits, tests, fixtures or CI dispatch until explicit reopening (communications/agent6/20261114T1758Z_agent11-setup-prompt-stopline-clarification.md).
+
 ## Impact and acceptance recommendation
 
 This is a startup/game-path blocker. A worker may be schema-valid and still abstain or choose the wrong branch before the first meaningful turn. Any fixture that bypasses these prompts cannot establish complete game-play coverage.
