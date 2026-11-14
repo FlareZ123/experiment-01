@@ -15,7 +15,7 @@ Two separate execution domains:
 - **Engine/adapter process (trusted):** Twinleaf store and state, physical RNG/seed, deck permutations, both deck files, all hidden zones, native action objects, and the authoritative legality/phase/owner checks.
 - **Policy process (untrusted with respect to hidden information):** one role's policy bundle, its own decklist/configuration, public card metadata, independent policy RNG, and serialized actor observations/public prompt choices. It has no mount or permission for the engine source, opponent deck file, physical seed, engine process memory, network, or child processes.
 
-Use an OS-level sandbox/container or an equivalently enforceable permission boundary. A Node `vm` context, CommonJS module hash pin, or static source scan alone is not sufficient.
+Use an OS-level sandbox/container or an equivalently enforceable permission boundary. A Node `vm` context, CommonJS module hash pin, or static source scan alone is not sufficient. Node's built-in Permission Model can be useful defense-in-depth, but Node explicitly describes it as a "seat belt" that does **not** provide security guarantees against malicious code; do not treat `--permission` as the sole isolation boundary ([Node 22 permissions documentation](https://nodejs.org/download/release/latest-v22.x/docs/api/permissions.html)).
 
 ## Request protocol
 
