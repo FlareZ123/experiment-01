@@ -80,6 +80,9 @@ function visiblePokemon(slot){
 function publicPlayer(player,hidePokemon=false){
   const pokemonView=slot=>hidePokemon ?
     (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot);
+  // The pinned Store treats an absent countdown as inactive (zero), just as
+  // it does for the other public turns-remaining counters.
+  const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining??0;
   return {
     active:pokemonView(player.active),
     bench:player.bench.map(pokemonView),
@@ -120,9 +123,8 @@ function publicPlayer(player,hidePokemon=false){
       // Public per-player epoch from Shiftry's Stadium/Tool suppression effect.
       // Null means the pinned Store field was absent or malformed.
       stadiumAndToolHaveNoEffectTurnsRemaining:
-        Number.isSafeInteger(player.stadiumAndToolHaveNoEffectTurnsRemaining)&&
-        player.stadiumAndToolHaveNoEffectTurnsRemaining>=0?
-          player.stadiumAndToolHaveNoEffectTurnsRemaining:null,
+        Number.isSafeInteger(stadiumToolSuppression)&&stadiumToolSuppression>=0?
+          stadiumToolSuppression:null,
       toolPlayLocked:player.cannotPlayToolCards===true,
       energyPlayLocked:player.cannotPlayEnergyCards===true,
       specialEnergyPlayLocked:player.cannotPlaySpecialEnergyCards===true
