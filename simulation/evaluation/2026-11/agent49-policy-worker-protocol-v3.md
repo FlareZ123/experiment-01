@@ -85,7 +85,7 @@ Flat action metadata may include actor-relative `ownerSeat`, `targetSeat`, `sour
 
 1. [x] Include `actingSeat: actorSeat` in the frozen prompt projection and call `protocol.validatePrompt(frozen, actorSeat)`.
 2. [x] For the five multi-select prompt types, emit individual item tokens plus the required special choices; remove combination/permutation enumeration.
-3. [x] Pass the complete validated decision object to the prompt dispatcher. Remove the remaining legacy token-only fallback before declaring the boundary closed.
+3. [x] Pass the complete validated decision object to the prompt dispatcher. [ ] Remove the remaining legacy token-only fallback and re-run `protocol.validateDecision(decision, promptProjection, new Set())` at the dispatcher boundary before mapping raw results.
 4. [x] Map ordered token arrays to native raw selections and run native decode/validation before Store dispatch.
 5. [x] Omit undefined source/target indices (Agent36 has added the source-index guard and regression test).
 6. [ ] Emit actor-relative `ownerSeat` and `isOwnerVisible` metadata where the target projection makes them unambiguous.
