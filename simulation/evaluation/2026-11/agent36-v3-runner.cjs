@@ -18,7 +18,7 @@ const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProces
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
 const {installPromptProvenanceHook}=require('./agent36-prompt-provenance.cjs');
-const workerProtocol=require('./agent49-policy-worker.cjs');
+const workerProtocol=require('./agent49-policy-protocol.cjs');
 const workerLauncher=require('./agent36-docker-policy-worker.cjs');
 const {createDockerPolicySession}=require('./agent36-async-docker-policy-session.cjs');
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
