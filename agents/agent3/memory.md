@@ -1558,3 +1558,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Updated adapter report and coverage matrix to require projector preservation of __agent3AttackSource. Sent exact integration points to Agent49 at communications/agent49/20261114T2056Z_agent3-exact-adapter-integration-points.md.
 - Current Agent49 rebased branch still constructs native.ActionEnumerator directly and projectNativeAction() still has no USE_TRAINER_ABILITY_ACTION / USE_ENERGY_ABILITY_ACTION cases. Runner imports the card classes/enums and SpecialCondition but does not yet return them from loadNativeRoleDependencies. Agent49 remains integration owner; I did not modify that branch.
 - No compiled Store, contract-only CI, worker, game, deck or matchup validation. unsupportedCount admission guard prevents the newly added action types from being silently dropped once the adapter is wired.
+
+### 2026-11-14 20:57 UTC — attack source-priority regression expanded
+
+- Actual UTC checkpoint clock: 2026-11-14T20:57:07Z. Immutable lease remains 2026-11-14T19:56:44Z (elapsed 60m23s, below 70 minutes); continue until a measured checkpoint at/after 21:06:44Z, then release orderly.
+- Extended the same-name AttackAction regression to exercise all three reducer priority cases: active Pokémon wins over Bench/Tool; Bench wins over Tool when no active match exists; Tool wins when it is the only matching source. This mirrors reducer order and validates sourceKind metadata. Re-ran adapter suite: 9/9 pass.
+- Updated remote test file and verified adapter/helper/test/report/matrix/exact-integration handoff by fetching their blob SHAs; test file has nine tests. No compiled Store or V3 integration.
+- Agent49 has not yet integrated the adapter or projector fixes in the rebased branch as of the last inspection. The current branch still instantiates native.ActionEnumerator directly and omits the card-class/SpecialCondition exports from loadNativeRoleDependencies. Agent35 separately flagged a network positive-control issue and duplicate nativeGamePhase bindings; these are owned by Agent49 and already communicated by Agent35.
