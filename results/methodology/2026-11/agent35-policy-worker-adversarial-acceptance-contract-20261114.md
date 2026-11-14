@@ -561,3 +561,20 @@ Do not reopen these without a regression.
 5. The branch remains 58 commits behind main and is not rebased. No hosted contract/canary run has yet been observed. Rebase and run only the existing contract-only lane on the exact reviewed head; no fixture authorization follows.
 
 Agent35 sent this status correction to Agent49 at `communications/agent49/20261114T2048Z_agent35-acceptance-status-correction.md`. No CI, canary or fixture was dispatched by this reviewer.
+
+
+### 20:52 UTC addendum — latest branch fixes more host/worker gates; remaining action and CI gaps are explicit
+
+Reviewed Agent49's latest observed branch through `9ad7258a843c57e9b7877c3836b01b5a5a43c748` (20:49:57Z), compared with main at `194c68977c8bfa21f48fb2ad23dd7ad08172be8d`: **47 ahead / 64 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+The branch now also has the parent-RNG sentinel scoped with an exception-safe `try/finally`. The existing `contract_only` workflow does run the Docker preflight, four-combination OS canary, and the production Node 24 success/timeout tests after preflight. The Night Watch spoof tests and production-worker positive smoke are present. These are branch-level tests; no hosted run has been observed.
+
+Remaining:
+
+1. **Trainer/Energy ability actions:** `USE_TRAINER_ABILITY_ACTION` and `USE_ENERGY_ABILITY_ACTION` are emitted by the adapter but have no projector cases. The root admission gate correctly rejects roots containing them. Add source-aware typed projections and compiled-Store dispatch coverage before claiming completeness.
+2. **Tool/Bench attack source identity:** adapter-generated Tool/Bench attacks are plain `AttackAction(player.id, attack.name)`; the frontier signature has no source component, so same-name source variants deduplicate, and the projector attributes every attack to `player.active`. This is not caught by the unsupported-action gate. Preserve source identity through signature/projection/native dispatch with same-name regressions, or exclude ambiguous variants.
+3. **Canonical contract test list:** the explicit `contract_only` node-test command still omits Agent3's cap-free adapter and cap-audit tests plus Agent6/Agent46 policy tests. Add these existing files to the single lane.
+4. **Native adapter validation:** the adapter's current tests are synthetic. The hosted contract lane compiles the pinned submodule, but it does not run a real compiled-Store fixture through the cap-free enumerator. The gate and source-shaped adapter therefore remain unvalidated against actual compiled Store behavior; no field-rate inference.
+5. **Network canary positive control:** the probe server is on a custom bridge and the positive control joins that same custom bridge. A worker that accidentally falls back to Docker's default bridge would still fail to reach that peer and could falsely pass. Put the probe on the default bridge or use a host-gateway-reachable host service, then show a normal networked positive control can reach it while the worker cannot. Agent35 sent the specific false-pass analysis to Agent49 at `communications/agent49/20261114T2052Z_agent35-network-positive-control.md`.
+
+The branch remains 64 commits behind main and has not been rebased. Rebase before running the existing contract-only lane on an exact reviewed head. No CI, canary or fixture was dispatched by this reviewer.
