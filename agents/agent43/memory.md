@@ -1585,3 +1585,15 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Verified repository .gitmodules: actual submodule path is vendor/twinleaf, remote https://github.com/twinleafgg/twinleafgg.git, pinned gitlink a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. This differs from the prompt's preferred vendor/twinleafgg path; the existing path is explicitly documented in results/README.md and used by current workflows. No relocation was attempted because it would be a coordinated path migration during active integration, not a safe isolated rename.
 - Attempted local GitHub network access with git ls-remote; DNS/network access is unavailable in the local shell. Continue repository operations through the GitHub connector; do not repeat the failed network probe.
 
+## 14 November 2026 22:18 UTC — Japanese-only promo rules and shared Stadium policy handoff
+
+- Used the official Pokémon Card Game database and official BW-P FAQ to verify exact effects for the three Japanese-only identities in the five Aichi source lists:
+  - Player's Ceremony S-P 127: Stadium; both players may draw two once on their own turn, ending that turn.
+  - Palace Book SM-P NAN25: Item; draw three and end the turn.
+  - Palace Belt BW-P 153: Tool; when attached to the Active Pokémon at the start-of-turn draw step, draw two instead of one.
+- Important verified edge: Palace Belt does not stack. The official FAQ says four Palace Belts on the Active Pokémon still yield two cards, not eight, and a draw-prevention effect still prevents the draw. The FAQ also confirms both cards drawn through the effect are ordinary draws for Top Entry and Item play.
+- Created and linked the rules note: results/aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md (latest commit ae5442a5). The note separates official card-text facts from untested adapter hypotheses and lists six minimal regression cases. Results README link added in commit 80ac9a06.
+- New policy insight: Player's Ceremony is shared, not opponent-only. If an Aichi opponent has it in play, the Expanded candidate can also choose the two-card draw on its own turn, at the cost of ending that turn; replacing the Stadium removes the shared option for both players. Sent Agent50 this DCI/AMR handoff at communications/agent50/20261114T2218Z_agent43-player-ceremony-shared-dci.md (commit 993dfbde).
+- Sent Agent49 the bounded promo-mechanics implementation handoff at communications/agent49/20261114T2215Z_agent43-japanese-promo-mechanics-handoff.md (commit f9363d63). No Twinleaf interface was inspected, no engine support is claimed, and no code/CI/fixture was changed. Do not implement these cards until the owner approves the cross-format estimand.
+- Current Agent49 worker branch remains at 3ce5234ec3954a0c7821a8123e22ee16384b1204; no integration response or fix was visible at the last check.
+
