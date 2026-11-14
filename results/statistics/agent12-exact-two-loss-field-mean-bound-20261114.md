@@ -158,15 +158,17 @@ The 10-per-stratum, at-most-two-nonwin field-mean test is now available through 
 The exact branch activates only when all of the following hold:
 
 - `stratumSamplingModel: 'iid-bernoulli-v1'` is supplied;
-- the target and confidence are exactly 0.995 and 0.95;
-- every one of the 128 cells has exactly 10 games;
-- there are at most two total nonwins (losses and ties).
+- `fieldSamplingRegistration` is supplied with schema `aichi-field-sampling-registration-v1`;
+- `registrationSha` equals the SHA-256 of the canonical JSON serialization of that manifest;
+- the manifest binds the target/confidence (0.995 / 0.95), registration timestamp, per-stratum quota, randomization-protocol description, all 32 source-rank/source-60 fingerprints, the fixed candidate/policy/engine/opponent/adjudication fingerprints, and the exact planned attempt roster;
+- each actual attempt matches one preregistered row by `trialId`, rank, candidate seat, first-player seat, and unique `physicalDealId`;
+- every one of the 128 cells has exactly 10 games, and there are at most two total nonwins (losses and ties).
 
-It reports `boundMethod: 'exact-field-mean-two-nonwins-iid'`, the conservative rejection-region worst-case null p-value, and `conditionalStatisticalThresholdMet`. It intentionally returns `conditionalLowerBound: null`: this is a fixed-hypothesis test at the 99.5% boundary, not an inverted confidence-bound implementation. If the declaration is absent, the sample count differs, or there are more than two nonwins, the evaluator falls back to the heterogeneous independent-Bernoulli KL bound. Invalid ledgers never receive an exact result.
+The field manifest commits to the complete planned sample rather than only a model label. An unbound caller assertion or a changed manifest/attempt roster is rejected; it cannot select the exact branch. With no iid declaration/manifest, the heterogeneous independent-Bernoulli KL bound remains the default. A valid digest-bound iid registration with a different quota, target, confidence, or more than two nonwins also uses the heterogeneous KL method.
 
-The sampling-model declaration remains a **caller assertion**, not a cryptographic field bound into the opaque registration digest. It must be included in the preregistration and independently audited; this branch must not be used for paired/common-deal clusters, post-hoc model selection, optional stopping, changing policies, or non-i.i.d. outcomes within a stratum.
+The exact branch reports `boundMethod: 'exact-field-mean-two-nonwins-iid'`, the conservative rejection-region worst-case null p-value, and `conditionalStatisticalThresholdMet`. It intentionally returns `conditionalLowerBound: null`: this is a fixed-hypothesis test at the 99.5% boundary, not an inverted confidence-bound implementation. Digest consistency is not proof that a registration was genuinely created before play, that its randomization description was followed, or that physical games were independent. An independent auditor must still authenticate the timestamp, physical shuffles, no-common-deal condition, policy/version freeze, and paper qualification. Do not use this branch for paired/common-deal clusters, post-hoc model selection, optional stopping, changing policies, or non-i.i.d. outcomes within a stratum.
 
-Regression coverage was added to `tests/agent12-balanced-kl-field-bound.test.cjs` for the exact 1,280-game acceptance boundary, missing declaration, three nonwins, nine games per cell, and invalid-ledger fail-closed behavior. Existing manual workflow [43576181297](https://github.com/FlareZ123/experiment-01/actions/runs/43576181297) passed on head `f896ea701e6fa4a0dec444eaa77769fa0786a5ca`: the field-mean and simultaneous-matchup test suites, exact-rational proof certificate, and 32-rank policy-bundle validator all succeeded. This is statistical software validation only; no Twinleaf game or competitive evidence was produced.
+Regression coverage in `tests/agent12-balanced-kl-field-bound.test.cjs` now covers the bound 1,280-game roster, an unbound caller assertion, manifest-digest tampering, trial-roster tampering, three nonwins, nine games per cell, and invalid-ledger fail-closed behavior. The prior manual workflow [43576181297](https://github.com/FlareZ123/experiment-01/actions/runs/43576181297) passed the pre-change implementation; a fresh run is required for this digest-binding change. No Twinleaf game or competitive evidence was produced.
 
 ## Scope limits and status
 
