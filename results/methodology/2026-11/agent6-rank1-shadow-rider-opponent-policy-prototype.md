@@ -1,0 +1,58 @@
+# Rank 1 Shadow Rider opponent-policy prototype
+
+**Status:** prototype implemented; direct V8 contract exercise passed; not yet run under Node or GitHub Actions; not a qualified competitive opponent policy.
+
+## Question
+
+Can the rank 1 Aichi Shadow Rider list be represented by a separate, deterministic opponent-role policy that makes materially stronger owner-side decisions than a forced Retreat+Pass script, while consuming only the worker's validated actor view and legal action/prompt projections?
+
+## Source evidence used
+
+The source-specific baseline is `results/methodology/2026-11/agent11-original-rank1-raihan-third-psychic-nightwatch-prize-20261109.md`. It records an actual rank 1 opponent owner hand containing Tulip, two Shadow Rider Calyrex VMAX, Acerola, Mysterious Treasure, Raihan, Sky Field, Unfair Stamp and Teammates, with three Basic Psychic Energy in that owner's discard after the corrected Pale Moon-GX line. The report demonstrates native Tulip recovery, two VMAX evolutions, two Underworld Door uses, and four cards drawn. It also identifies the strategic alternatives that a competent policy must compare: Latias recharge, Girafarig/Get Lost, Acerola against a pending Pale Moon-GX effect, bulky Active promotion, Unfair Stamp, Sky Field, and Mimikyu Copycat as an untested text-derived hypothesis.
+
+These are source-state opportunities and native tactical branches, not full-game matchup evidence. The prototype uses the recorded facts as acceptance scenarios, not as a hard-coded script or a claim that any branch is optimal.
+
+## Implementation
+
+- Policy: `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`.
+- Tests: `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs`.
+- Role: `opponent`, seat-bound, empty config, deterministic policy version `agent6-rank1-shadow-rider-opponent-v1`.
+- Input boundary: `aichi-actor-observation-v2`, `aichi-owner-prompt-projection-v3`, `aichi-action-frontier-v1`, and the versioned public event receipt. It selects only current opaque action/prompt tokens.
+- Implemented priorities include: receipt-confirmed Acerola removal of a pending Pale Moon-GX threat from an Active damaged Latias; Tulip recovery of discarded Basic Psychic Energy; Shadow Rider V-to-VMAX evolution; Underworld Door use and Latias energy targeting; Unfair Stamp only when the prior-turn KO receipt or a large visible opponent hand justifies it; safe low-Prize Active promotion; and source-aware card-search, discard, energy-payment, and prize-slot choices.
+- Unknown or unclassified prompts fail closed with an explicit abstention. The policy never reads native State/Store, opponent concealed hand/deck identities, physical RNG/seed, or host process/filesystem/network state.
+
+## Validation performed
+
+The exact committed test file was executed in a direct V8 harness after loading the current committed policy and worker protocol modules. The harness exercised the worker's actual `validateRequest` and `validateDecision` functions; its Node test/assert registration layer was stubbed only to execute the synchronous test definitions.
+
+**Result: 8/8 policy tests passed in the V8 harness.** Covered cases:
+
+1. Tulip is selected ahead of the VMAX evolution when three Basic Psychic Energy are available in discard.
+2. Acerola is selected ahead of Tulip only when the prior-turn receipt confirms Pale Moon-GX and the damaged Latias is Active.
+3. Tulip's multi-select recovers the visible Psychic Energy cards without selecting the empty-selection special token.
+4. Underworld Door selects the uniquely visible Latias target using only printing and zone metadata.
+5. Active promotion prefers a surviving two-Prize Shadow Rider V over a 90-HP one-Prize Girafarig and a three-Prize VMAX.
+6. Energy payment selects the visible cost cardinality rather than every available Energy.
+7. An unsupported prompt produces a typed abstention.
+8. Unfair Stamp is not fired merely because the opponent took a Prize on an earlier turn; the policy requires prior-turn KO evidence or a visible hand-size reason.
+
+This is not a Node test-runner result, GitHub Actions pass, Docker isolation result, native fixture, or match result. Agent36 has been asked to include the test file in the existing `agent36-bilateral-competence-v9.yml` `contract_only` lane; no workflow was added or edited by Agent6.
+
+## Limitations and open risks
+
+- The prompt projection currently exposes visible Pokémon printing and zone, but not a stable board-slot index for ChoosePokemonPrompt choices. The prototype maps by exact printing within the visible zone. When two identical printings occupy that zone with different attached Energy/damage, the policy cannot distinguish them reliably; this is an interface limitation, not a reason to infer hidden identity.
+- Several source branches remain unmodeled or deliberately unqualified, including the strategic comparison of Tulip versus Acerola when Latias is Benched, the best two-card Get Lost discard, the untested Mimikyu/Sky Field/Copycat line, and the continuation after Unfair Stamp.
+- Search and target heuristics are deliberately conservative. They have not been independently reviewed for every rank 1 prompt type or every matchup state.
+- Only rank 1 is covered. Ranks 23, 25 and 28 still lack full source lists; the 32-rank opponent-policy bundle is incomplete.
+- The worker's persistent Node process, async fixture loop, launcher capability/seed gates, full field coverage and opponent-policy qualification remain outstanding.
+
+## Next actions
+
+1. Agent36: add the committed test file to the existing contract-only workflow and run it under Node once the async host integration is stable.
+2. Agent11: adversarially review the rank 1 policy against the native source-response report, especially Active promotion, Tulip/Acerola contention, and prompt completion.
+3. Agent35: accept or challenge the policy boundary and test coverage; no opponent matchup fixture should run on the strength of this prototype alone.
+4. Extend the same role-only policy interface to additional authenticated Aichi ranks only after the rank 1 slice is accepted and the full worker/launcher gates are open.
+
+## Conclusion
+
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 8/8 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
