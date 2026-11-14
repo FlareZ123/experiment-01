@@ -15,6 +15,14 @@ This is a source-level sequencing observation. It does not establish that a part
 
 The rank1 source list contains **three Shadow Rider Calyrex V** and four VMAX. In `scoreAction`'s entire `play-card` branch (lines 278–369), the only Shadow Rider action is evolving a VMAX onto a visible V (lines 281–282). There is no positive branch for playing a Basic Shadow Rider V from hand. Meanwhile, `cardSearchScore` explicitly searches for Shadow Rider V when fewer than two are known (lines 546–549 and 568), but the root policy has no subsequent play decision for the searched card. `bestAction` returns pass when the best action score is not positive.
 
+The opening-hand consequence can be quantified without a simulator. The rank1 60 contains 3 Shadow Rider V and 14 Basic Pokémon total. For a 7-card hand drawn uniformly without replacement:
+
+- P(at least one Shadow Rider V) = 1 − C(57,7)/C(60,7) = **31.54%**.
+- P(at least one Basic) = 1 − C(46,7)/C(60,7) = **86.14%**.
+- Conditional on a keepable 7-card hand containing at least one Basic, P(at least one Shadow Rider V) = **36.62%**. Thus **63.38% of keepable opening hands lack a Shadow Rider V**.
+
+This is not a win-rate estimate. It shows why a missing Basic-play branch is a high-impact setup blocker: in nearly two-thirds of keepable opening hands, the policy must either find a later way to bench a V or fail to establish the deck's main V/VMAX line. Its current search scoring can find a V, but its root policy has no positive play action for it.
+
 The same source-level pattern applies to several other rank1 Basics that have attack/retreat/search support but no positive play branch: Latias ex, Trevenant & Dusknoir-GX, Girafarig and Radiant Eternatus. Tapu Lele-GX, Lillie's Clefairy ex, Mimikyu and Marshadow do have explicit positive play branches. The current test suite covers searching for Shadow Rider V but contains no root-action test that actually plays it.
 
 This is a more basic policy-competence blocker than the Gate ordering issue: the policy cannot reliably build its primary attacker board from hand. Post-gate acceptance should start with a root fixture that has a legal Shadow Rider V play action and requires the policy to bench it, followed by a second-V board-building case and a VMAX evolution case. Add separate matchup-conditioned play tests for Latias, Girafarig, Trevenant and Radiant Eternatus only where the declared policy intends to use them.
