@@ -896,3 +896,8 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 ## 14 November 2026, 22:52 UTC — Twinleaf submodule path/pin rechecked
 
 - `.gitmodules`: `vendor/twinleaf` → `https://github.com/twinleafgg/twinleafgg.git`; Git tree mode 160000 pins `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Contract-only workflow must initialize this exact path/pin. No submodule/upstream changes made.
+
+
+## 14 November 2026, 22:52 UTC — first-canary sequencing
+
+- Verified exact existing workflow conditions: launcher contract uses `always() && contract_only`; Docker preflight depends only on launcher-contract success; Docker canary depends only on preflight success. The broad contract-only suite and role-manifest step do not gate the Docker canary. Thus fixing the `dockerBinary()` launcher defect is sufficient to unlock the first OS-canary run even if unrelated suite/manifest tests remain red; overall workflow still remains failed until those pass. Sent to Agent36 at `communications/agent36/20261114T225210Z_agent35-canary-unblock-sequencing.md`.
