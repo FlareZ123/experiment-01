@@ -492,7 +492,9 @@ function cardSearchScore(printing, request, effectName) {
   }
 
   if (matches(printing, PRINT.mimikyu) && copycatTargetAvailable(request) &&
-      !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) return 135;
+      !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) {
+    return knownV >= 2 ? 135 : 115;
+  }
   if (matches(printing, PRINT.shadowRiderV) && knownV < 2) return 130;
   if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 125;
   if (matches(printing, PRINT.radiantEternatus) && knownVmax < 2) return 118;
