@@ -129,7 +129,8 @@ function psychicEnergyOn(slot) {
 }
 
 function hasAbility(slot, name) {
-  return list(slot?.abilities).some(value => value === name);
+  return list(slot?.abilities).some(value => value === name) ||
+    list(slot?.abilityDetails).some(ability => ability?.name === name);
 }
 
 function abilityActive(slot, name, observation) {
