@@ -108,6 +108,9 @@ function sanitizePublicPlayer(player,hideSetupPokemon=false) {
 
 function sanitizeActorObservation(observation) {
   if(!observation||typeof observation!=='object')return null;
+  // Public artifacts must hide both sides' face-down setup Pokémon, including the actor's own.
+  const hideSetupPokemon=!Number.isSafeInteger(observation.phase)||
+    observation.phase===0||observation.phase===1;
   const ownerK1=observation.ownerK1&&typeof observation.ownerK1==='object'?
     {
       epoch:Number.isSafeInteger(observation.ownerK1.epoch)?observation.ownerK1.epoch:null,
@@ -132,10 +135,8 @@ function sanitizeActorObservation(observation) {
       observation.ownHand.length:
       (Number.isSafeInteger(observation.ownPublic?.handCount)?
         observation.ownPublic.handCount:null),
-    ownPublic:sanitizePublicPlayer(observation.ownPublic,
-      observation.phase===0||observation.phase===1),
-    opponentPublic:sanitizePublicPlayer(observation.opponentPublic,
-      observation.phase===0||observation.phase===1),
+    ownPublic:sanitizePublicPlayer(observation.ownPublic,hideSetupPokemon),
+    opponentPublic:sanitizePublicPlayer(observation.opponentPublic,hideSetupPokemon),
     ownTurnResources:resources,
     ownerK1
   };
@@ -143,7 +144,9 @@ function sanitizeActorObservation(observation) {
 
 function sanitizePublicState(state) {
   if(!state||typeof state!=='object')return null;
-  const hideSetupPokemon=state.phase===0||state.phase===1;
+  // Global snapshots expose both seats; unknown phases fail closed as hidden setup.
+  const hideSetupPokemon=!Number.isSafeInteger(state.phase)||
+    state.phase===0||state.phase===1;
   return {
     ...pick(state,['phase','turn','activePlayer']),
     pendingPrompts:strings(state.pendingPrompts),
