@@ -52,7 +52,7 @@ async function main(request){
     nodeVersion:process.version,
     seat:request.seat,
     sequence:request.sequence,
-    policySeed:request.policySeed,
+    policyMarker:request.policyMarker,
     cwd:process.cwd(),
     envKeys:Object.keys(process.env).sort(),
     uid:process.getuid?.()??null,
