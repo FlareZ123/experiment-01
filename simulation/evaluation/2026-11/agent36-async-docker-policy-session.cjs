@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const dockerWorker = require('./agent36-docker-policy-worker.cjs');
 
 class AsyncJsonLineChannel {
@@ -152,9 +152,11 @@ class AsyncJsonLineChannel {
 function validateResponse(response, expected) {
   assert.ok(response && typeof response === 'object' && !Array.isArray(response));
   assert.deepStrictEqual(Object.keys(response).sort(), [
-    'decision', 'policyVersion', 'requestId', 'role',
+    'decision', 'policyDrawCount', 'policyVersion', 'requestId', 'role',
     'schema', 'seat', 'sequence', 'type'
   ].sort(), 'Worker response contains missing or unknown fields');
+  assert.ok(Number.isSafeInteger(response.policyDrawCount)&&response.policyDrawCount===0,
+    'every successful worker decision must attest zero policy RNG draws');
   assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
   assert.equal(response.type, 'response');
   assert.equal(response.requestId, expected.requestId);
@@ -284,8 +286,12 @@ class AsyncDockerPolicySession {
       this.ready = ready;
       return this;
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     }
   }
@@ -346,8 +352,12 @@ class AsyncDockerPolicySession {
         bundleSha256: this.bundle.bundleSha256
       };
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     } finally {
       this.pending = false;
