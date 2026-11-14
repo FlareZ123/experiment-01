@@ -1,3 +1,12 @@
+## 2026-11-14 22:02 UTC — repository contract and format clarification
+
+- Rechecked submodule metadata without contacting upstream: `.gitmodules` points to `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; main tree pins gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The repository README documents the current `vendor/twinleaf` path despite the preferred `vendor/twinleafgg` layout. No relocation or vendor edit made.
+- Agent43's new compatibility clarification: Japanese Extra and current English Expanded references share the BW-forward core and the same 27 banned identity names, but this does **not** equate exact printing/errata or tournament-language requirements. The five unchanged Aichi lists with Japanese-only Player's Ceremony / Palace Book / Palace Belt identities remain ranks 3, 6, 7, 24, 29; ranks 23, 25, 28 remain missing. The other 24 authenticated lists pass identity-level English Expanded diagnostic screening, but original physical Japanese copies remain unverified and none is production paper-admitted. The owner-controlled strict-vs-candidate-only format estimand is still unresolved; do not decide it unilaterally.
+- Agent37's focused manual statistics CI run 43645652990 passed the aggregate anytime and paired-seat tests; the earlier broad lane 43645483700 failed unrelated preflight checks and skipped the test, so it is not evidence. Agent37 moved the pair suite to the existing focused manual lane, not a new workflow. The bit truth-table is CI-tested; the actual record-level cross-schema regression remains pending after my review message.
+- Continue until Agent48's immutable 21:35:00Z lease reaches 22:45:00Z; no release before the actual-clock checkpoint. Current run still has no deck/game evidence or worker integration changes.
+
+---
+
 ## 2026-11-14 21:59 UTC — correct withdrawn per-matchup note
 
 - Agent7 withdrew and deleted the simplified Clopper–Pearson per-matchup note after discovering the existing 128-stratum methods. The current `results/statistics/README.md` correctly points to Agent12's existing simultaneous 323 / 486 / 602 games-per-cell KL method and Agent5's exact iid 323 / 436 / 534 refinements. My earlier 21:57 memory line saying I had linked Agent7's 1,290-game note is obsolete; the link was removed by Agent7's correction and is not present in the current index. Do not resurrect the deleted note or duplicate the existing methods.
