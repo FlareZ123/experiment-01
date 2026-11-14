@@ -65,41 +65,71 @@ const CANARY_SOURCE=[
   "  catch(error){proc1={ok:false,code:error.code||error.name};}",
   "  const network=await networkProbe(request.hostPort);",
   "  const envKeys=Object.keys(process.env).sort();",
-  "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONFIG/i.test(key));",
-  "  const response={type:'canary-result',requestId:request.requestId,role:request.role,seat:request.seat,policySeed:request.policySeed,actorSeat:request.observation&&request.observation.actorSeat,nodeVersion:process.version,uid:process.getuid(),pid:process.pid,proc1,hostPathReads,childProcess,workerThreads,network,rootWrite,tmpWrite,mathRandomSetterCapturedOwnFunction:captured===original,forbiddenEnvKeys};",
+  "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONFIG|DOCKER_CONTEXT|DOCKER_CERT_PATH|DOCKER_TLS_VERIFY/i.test(key));",
+  "  const response={type:'canary-result',requestId:request.requestId,gameId:request.gameId,decisionSequence:request.decisionSequence,role:request.role,seat:request.seat,policySeed:request.policySeed,actorSeat:request.observation&&request.observation.actorSeat,nodeVersion:process.version,uid:process.getuid(),pid:process.pid,proc1,hostPathReads,childProcess,workerThreads,network,rootWrite,tmpWrite,mathRandomSetterCapturedOwnFunction:captured===original,forbiddenEnvKeys};",
   "  process.stdout.write(JSON.stringify(response)+'\\n');",
   "}",
   "const rl=readline.createInterface({input:process.stdin,crlfDelay:Infinity});",
-  "rl.once('line',line=>{let request;try{request=JSON.parse(line);}catch(error){process.stderr.write(String(error));process.exit(2);}main(request).catch(error=>{process.stderr.write(String(error&&error.stack||error));process.exit(3);});});"
+  "let queue=Promise.resolve();",
+  "rl.on('line',line=>{queue=queue.then(()=>main(JSON.parse(line))).catch(error=>{process.stderr.write(String(error&&error.stack||error));process.exitCode=3;});});"
 ].join('\n');
 
-function waitForResponse(child,timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    let stdout='',stderr='',settled=false;
-    const timer=setTimeout(()=>finish(new Error('Docker worker response timeout; stderr='+stderr)),timeoutMs);
-    function finish(error,value){
-      if(settled)return;
-      settled=true;
-      clearTimeout(timer);
-      if(error)reject(error);else resolve(value);
+function createResponseReader(child){
+  let buffer='',stderr='',closed=false,failure=null;
+  const queued=[],waiters=[];
+  function rejectWaiters(error){
+    while(waiters.length)waiters.shift().reject(error);
+  }
+  function deliver(line){
+    const waiter=waiters.shift();
+    if(!waiter){queued.push(line);return;}
+    try{waiter.resolve(JSON.parse(line));}
+    catch(error){waiter.reject(new Error('invalid worker JSON: '+line+'; stderr='+stderr));}
+  }
+  child.stdout.setEncoding('utf8');
+  child.stderr.setEncoding('utf8');
+  child.stdout.on('data',chunk=>{
+    buffer+=chunk;
+    if(buffer.length>1024*1024){
+      failure=new Error('worker exceeded 1 MiB response-frame buffer');
+      rejectWaiters(failure);
+      return;
     }
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data',chunk=>{
-      stdout+=chunk;
-      const index=stdout.indexOf('\n');
-      if(index>=0){
-        const line=stdout.slice(0,index);
-        try{finish(null,JSON.parse(line));}
-        catch(error){finish(new Error('invalid worker JSON: '+line+'; stderr='+stderr));}
-      }
-    });
-    child.stderr.on('data',chunk=>{stderr+=chunk;});
-    child.once('error',error=>finish(error));
-    child.once('close',(code,signal)=>{
-      if(!settled)finish(new Error('Docker worker exited before response: code='+code+' signal='+signal+' stderr='+stderr+' stdout='+stdout));
-    });
+    let index;
+    while((index=buffer.indexOf('\\n'))>=0){
+      const line=buffer.slice(0,index);
+      buffer=buffer.slice(index+1);
+      deliver(line);
+    }
   });
+  child.stderr.on('data',chunk=>{stderr=(stderr+chunk).slice(-8192);});
+  child.once('error',error=>{failure=error;rejectWaiters(error);});
+  child.once('close',(code,signal)=>{
+    closed=true;
+    rejectWaiters(failure||new Error(
+      'Docker worker closed before response: code='+code+' signal='+signal+' stderr='+stderr
+    ));
+  });
+  return {
+    next(timeoutMs=15000){
+      if(queued.length)return Promise.resolve(JSON.parse(queued.shift()));
+      if(failure)return Promise.reject(failure);
+      if(closed)return Promise.reject(new Error('Docker worker is closed; stderr='+stderr));
+      return new Promise((resolve,reject)=>{
+        let timer;
+        const waiter={
+          resolve:value=>{clearTimeout(timer);resolve(value);},
+          reject:error=>{clearTimeout(timer);reject(error);}
+        };
+        timer=setTimeout(()=>{
+          const index=waiters.indexOf(waiter);
+          if(index>=0)waiters.splice(index,1);
+          reject(new Error('Docker worker response timeout; stderr='+stderr));
+        },timeoutMs);
+        waiters.push(waiter);
+      });
+    }
+  };
 }
 
 function waitForClose(child,timeoutMs=5000){
@@ -122,15 +152,16 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
   const runtime=preflightDockerPolicySandbox({pull:false});
   assert.equal(runtime.imageRef,IMAGE_REF);
   assert.equal(runtime.imageDigest,IMAGE_DIGEST);
-  assert.equal(runtime.nodeVersion,'v20.19.0');
+  assert.equal(runtime.nodeVersion,'v24.22.3');
 
   const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-policy-canary-source-'));
   const hostSecretPath=path.join(os.tmpdir(),'agent36-host-secret-'+crypto.randomUUID());
   const physicalSeedPath=path.join(os.tmpdir(),'agent36-physical-seed-'+crypto.randomUUID());
+  const hiddenOpponentPath=path.join(os.tmpdir(),'agent36-hidden-opponent-'+crypto.randomUUID());
   const hostSecret='HOST-ONLY-'+crypto.randomUUID();
   const physicalSeed='PHYSICAL-SEED-ONLY-'+crypto.randomUUID();
-  fs.writeFileSync(hostSecretPath,hostSecret,{mode:0o600});
-  fs.writeFileSync(physicalSeedPath,physicalSeed,{mode:0o600});
+  fs.writeFileSync(hostSecretPath,hostSecret,{mode:0o444});
+  fs.writeFileSync(physicalSeedPath,physicalSeed,{mode:0o444});
   const workerSourcePath=path.join(sourceRoot,'worker.cjs');
   fs.writeFileSync(workerSourcePath,CANARY_SOURCE,{mode:0o600});
   const bundle=createPolicyBundle({
@@ -149,6 +180,7 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
   const originalPhysicalSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
   const results=[];
   const hiddenOpponentSentinel='OPPONENT-HIDDEN-'+crypto.randomUUID();
+  fs.writeFileSync(hiddenOpponentPath,hiddenOpponentSentinel,{mode:0o444});
   try{
     process.env.AGENT36_PHYSICAL_SEED_HEX=physicalSeed;
     Math.random=hostPhysicalRandom;
@@ -161,73 +193,95 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
       hostSecret:hostSecretPath,
       physicalSeed:physicalSeedPath,
       repositoryReadme:path.join(process.cwd(),'README.md'),
-      hostProc:'/proc/'+process.pid+'/environ',
-      dockerSocket:'/var/run/docker.sock'
+      hostProc:'/proc/'+process.pid+'/cmdline',
+      dockerSocket:'/var/run/docker.sock',
+      hiddenOpponent:hiddenOpponentPath
     };
-    for(const seat of [0,1]){
-      for(const permissionModel of [false,true]){
-        const request={
-          requestId:'seat-'+seat+'-permission-'+String(permissionModel),
-          role:seat===0?'candidate':'opponent',
-          seat,
-          policySeed:'policy-seed-only-seat-'+seat,
-          observation:{
-            actorSeat:seat,
-            ownHand:['OWN-HAND-CARD'],
-            opponentPublic:{handCount:2,active:'PUBLIC-ACTIVE'}
-          },
-          hostPaths,
-          hostPort
-        };
-        const child=spawnDockerPolicyWorker({
-          bundle,
-          entrypoint:'/policy/worker.cjs',
-          permissionModel,
-          timeoutMs:20000
-        });
-        t.after(()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');});
-        child.stdin.end(JSON.stringify(request)+'\n');
-        const response=await waitForResponse(child,20000);
-        await waitForClose(child,5000);
-        assert.equal(response.type,'canary-result');
-        assert.equal(response.requestId,request.requestId);
-        assert.equal(response.role,request.role);
-        assert.equal(response.seat,seat);
-        assert.equal(response.actorSeat,seat);
-        assert.equal(response.policySeed,request.policySeed);
-        assert.equal(response.nodeVersion,'v20.19.0');
-        assert.equal(response.uid,65532);
-        assert.equal(response.pid,1);
-        assert.equal(response.mathRandomSetterCapturedOwnFunction,true);
-        assert.deepEqual(response.forbiddenEnvKeys,[]);
-        assert.ok(Object.values(response.hostPathReads).every(value=>value.ok===false));
-        if(permissionModel){
-          assert.equal(response.childProcess.blocked,true);
-          assert.equal(response.workerThreads.blocked,true);
-        }else{
-          assert.equal(allReadsDenied(response.childProcess),true);
-          assert.equal(allReadsDenied(response.workerThreads),true);
+    for(const candidateSeat of [0,1]){
+      const assignments=[
+        {role:'candidate',seat:candidateSeat},
+        {role:'opponent',seat:1-candidateSeat}
+      ];
+      for(const assignment of assignments){
+        for(const permissionModel of [false,true]){
+          const child=spawnDockerPolicyWorker({
+            bundle,
+            entrypoint:'/policy/worker.cjs',
+            permissionModel,
+            timeoutMs:30000
+          });
+          const reader=createResponseReader(child);
+          let childClosed=false;
+          child.once('close',()=>{childClosed=true;});
+          t.after(()=>{if(!childClosed)child.killSandbox();});
+          const policySeed='policy-seed-only-'+assignment.role+'-seat-'+assignment.seat;
+          for(const decisionSequence of [0,1]){
+            const request={
+              requestId:'orientation-'+candidateSeat+'-'+assignment.role+
+                '-seat-'+assignment.seat+'-permission-'+String(permissionModel)+
+                '-decision-'+decisionSequence,
+              gameId:'canary-orientation-'+candidateSeat,
+              decisionSequence,
+              role:assignment.role,
+              seat:assignment.seat,
+              policySeed,
+              observation:{
+                actorSeat:assignment.seat,
+                ownHand:['OWN-HAND-CARD'],
+                opponentPublic:{handCount:2,active:'PUBLIC-ACTIVE'}
+              },
+              hostPaths,
+              hostPort
+            };
+            child.stdin.write(JSON.stringify(request)+'\\n');
+            const response=await reader.next(20000);
+            assert.equal(response.type,'canary-result');
+            assert.equal(response.requestId,request.requestId);
+            assert.equal(response.gameId,request.gameId);
+            assert.equal(response.decisionSequence,decisionSequence);
+            assert.equal(response.role,request.role);
+            assert.equal(response.seat,assignment.seat);
+            assert.equal(response.actorSeat,assignment.seat);
+            assert.equal(response.policySeed,policySeed);
+            assert.equal(response.nodeVersion,'v24.22.3');
+            assert.equal(response.uid,65532);
+            assert.equal(response.pid,1);
+            assert.equal(response.mathRandomSetterCapturedOwnFunction,true);
+            assert.deepEqual(response.forbiddenEnvKeys,[]);
+            assert.ok(Object.values(response.hostPathReads).every(value=>value.ok===false));
+            if(permissionModel){
+              assert.equal(response.childProcess.blocked,true);
+              assert.equal(response.workerThreads.blocked,true);
+            }else{
+              assert.equal(allReadsDenied(response.childProcess),true);
+              assert.equal(allReadsDenied(response.workerThreads),true);
+            }
+            assert.equal(response.network.connected,false);
+            assert.equal(response.rootWrite.ok,false);
+            assert.equal(response.tmpWrite.ok,true);
+            if(permissionModel){
+              assert.equal(response.proc1.ok,false);
+            }else{
+              assert.equal(response.proc1.ok,true);
+              assert.match(response.proc1.text,/node/i);
+            }
+            const serialized=JSON.stringify(response);
+            assert.equal(serialized.includes(hostSecret),false);
+            assert.equal(serialized.includes(physicalSeed),false);
+            assert.equal(serialized.includes(hiddenOpponentSentinel),false);
+            assert.equal(Math.random,hostPhysicalRandom);
+            results.push({
+              candidateSeat,
+              role:response.role,
+              seat:response.seat,
+              permissionModel,
+              decisionSequence,
+              response
+            });
+          }
+          child.stdin.end();
+          await waitForClose(child,5000);
         }
-        assert.equal(response.network.connected,false);
-        assert.equal(response.rootWrite.ok,false);
-        assert.equal(response.tmpWrite.ok,true);
-        if(permissionModel){
-          assert.equal(response.proc1.ok,false);
-        }else{
-          assert.equal(response.proc1.ok,true);
-          assert.match(response.proc1.text,/node/i);
-        }
-        const serialized=JSON.stringify(response);
-        assert.equal(serialized.includes(hostSecret),false);
-        assert.equal(serialized.includes(physicalSeed),false);
-        assert.equal(serialized.includes(hiddenOpponentSentinel),false);
-        assert.equal(Math.random,hostPhysicalRandom);
-        results.push({
-          role:response.role,
-          seat:response.seat,
-          permissionModel,
-          response
-        });
       }
     }
     assert.equal(hostConnections,0,'worker reached the host loopback service');
@@ -240,9 +294,9 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
         imageDigest:IMAGE_DIGEST,
         platform:'linux/amd64',
         network:'none',
-        pid:'private',
-        ipc:'private',
-        uts:'private',
+        pid:'private-default',
+        ipc:'none',
+        uts:'private-default',
         rootFilesystem:'read-only',
         policyMount:'read-only',
         writableMounts:['/tmp'],
@@ -251,6 +305,7 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
         noNewPrivileges:true,
         pidsLimit:64,
         memory:'512m',
+        memorySwap:'512m',
         cpus:1
       },
       hostConnections,
@@ -262,7 +317,7 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
       fs.mkdirSync(reportDir,{recursive:true});
       fs.writeFileSync(path.join(reportDir,'canary-report.json'),JSON.stringify(report,null,2)+'\n');
     }
-    assert.equal(results.length,4);
+    assert.equal(results.length,16);
   }finally{
     Math.random=originalMathRandom;
     if(originalPhysicalSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
@@ -272,5 +327,6 @@ test('digest-pinned Docker policy workers cannot reach host capabilities from ei
     fs.rmSync(sourceRoot,{recursive:true,force:true});
     fs.rmSync(hostSecretPath,{force:true});
     fs.rmSync(physicalSeedPath,{force:true});
+    fs.rmSync(hiddenOpponentPath,{force:true});
   }
 });
