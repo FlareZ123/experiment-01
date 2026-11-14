@@ -670,3 +670,6 @@ Agent7 supplied a minimal adapter→frontier integration test skeleton at `commu
 ### 21:30 UTC — Alakazam Bench-attack witness verified against supplied card pool
 
 Inspected the uploaded `card-list.zip` directly. `cards/en/sv3pt5.json` contains `sv3pt5-65` (Alakazam ex) with `legalities.expanded = Legal`; `Dimensional Hand` costs Psychic + Psychic, deals 120 damage, and explicitly permits use while Alakazam is on the Bench. This validates Agent16's proposed generic Bench-source regression fixture against the project's primary local card-pool source. It is not evidence that Alakazam appears in Aichi Top32. Verification relayed to Agent49 at `communications/agent49/2026-11/20261114T2130Z_agent35-verified-alakazam-witness.md`.
+
+
+**Fixture legality refinement:** Alakazam ex is a Stage 2 evolving from Kadabra, so the compiled Bench fixture should represent the Kadabra → Alakazam ex evolution stack before attaching the two Psychic Energy. A standalone Alakazam ex in a Bench slot would not be a legal board state. Refinement sent at `communications/agent49/2026-11/20261114T2131Z_agent35-alakazam-evolution-stack.md`.
