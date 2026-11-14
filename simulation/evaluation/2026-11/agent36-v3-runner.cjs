@@ -18,7 +18,7 @@ const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProces
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
 const {installPromptProvenanceHook}=require('./agent36-prompt-provenance.cjs');
-const workerProtocol=require('./agent49-policy-worker.cjs');
+const workerProtocol=require('./agent49-policy-protocol.cjs');
 const workerLauncher=require('./agent36-docker-policy-worker.cjs');
 const {createDockerPolicySession}=require('./agent36-async-docker-policy-session.cjs');
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
@@ -566,6 +566,7 @@ const V3_FIXTURE = Object.freeze({
   candidateWorkerPolicyPath: 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs',
   opponentWorkerPolicyPath: 'simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs',
   workerPath: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs',
+  protocolPath: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs',
   candidateSeat: 0,
   opponentSeat: 1,
   policyVersion: 'agent34-actor-only-root-slice-v17-agent49-quick-ball-source-bound-v1',
@@ -646,7 +647,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
   { name: 'roleSeatMap', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'candidateOpponentRoleSeats' },
   { name: 'publicEventReceipt', path: 'simulation/twinleaf/agent8-public-event-receipt.cjs', exportName: 'publicEventReceipt' },
-  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs', exportName: 'validateRequest' },
+  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs', exportName: 'validateRequest' },
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
@@ -1081,15 +1082,18 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
 
 function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
   const workerFilename=path.resolve(repositoryRoot,V3_FIXTURE.workerPath);
+  const protocolFilename=path.resolve(repositoryRoot,V3_FIXTURE.protocolPath);
   const policyFilename=path.resolve(repositoryRoot,policyModulePath);
-  assert.ok(workerFilename.startsWith(repositoryRoot+path.sep));
-  assert.ok(policyFilename.startsWith(repositoryRoot+path.sep));
+  for(const filename of [workerFilename,protocolFilename,policyFilename])
+    assert.ok(filename.startsWith(repositoryRoot+path.sep));
   const workerSha256=createHash('sha256').update(fs.readFileSync(workerFilename)).digest('hex');
+  const protocolSha256=createHash('sha256').update(fs.readFileSync(protocolFilename)).digest('hex');
   const policySha256=createHash('sha256').update(fs.readFileSync(policyFilename)).digest('hex');
   const bundle=workerLauncher.createPolicyBundle({
     sourceRoot:repositoryRoot,
     policyFiles:[
       {sourcePath:workerFilename,relativePath:'worker.cjs',sha256:workerSha256},
+      {sourcePath:protocolFilename,relativePath:'agent49-policy-protocol.cjs',sha256:protocolSha256},
       {sourcePath:policyFilename,relativePath:'policy.cjs',sha256:policySha256},
     ],
   });
@@ -1356,17 +1360,15 @@ async function runV3FixtureGame({
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.candidateWorkerPolicyPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
-    additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath],
   });
   const opponentManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.opponentWorkerPolicyPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
-    additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath],
   });
   const manifestResult=roleIdentity.combineRolePolicyEntryManifests(
     candidateManifestResult,opponentManifestResult
