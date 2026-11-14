@@ -43,6 +43,8 @@ However, projectPrompt calls makeSource before it reaches projectChooseCards/pro
 
 hostOnlyPrompt does not classify these as host-only, and makeSource does not allowlist these constructor/message pairs. Therefore all three exact engine prompts currently fail at the shared projection boundary with PROMPT_SOURCE_PROVENANCE_MISSING before the policy receives them. The existing count/choiceIndex representation is reusable once a narrow, phase-validated engine source allowlist is added. This is a shared prompt-projection change, but it requires no new schema fields. Both physical-seat mappings must be covered.
 
+The current projection test suite confirms the mismatch rather than catching it. tests/2026-11/agent36-prompt-projection.test.cjs lines 432–447 defines a synthetic ChooseStartingPokemonPrompt subclass of ChooseCardsPrompt and asserts only that subclass is allowlisted; it does not test the actual engine's ChooseCardsPrompt + message CHOOSE_STARTING_POKEMONS. There are no exact GO_FIRST or WANT_TO_DRAW_CARDS source-allowlist tests. Add fixtures using the real constructor/message pair from the pinned engine, not a synthetic subclass.
+
 ## Impact and acceptance recommendation
 
 This is a startup/game-path blocker. A worker may be schema-valid and still abstain or choose the wrong branch before the first meaningful turn. Any fixture that bypasses these prompts cannot establish complete game-play coverage.
