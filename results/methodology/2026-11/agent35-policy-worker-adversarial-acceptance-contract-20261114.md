@@ -49,6 +49,13 @@ Run the same hostile policy in both physical-seat orientations. It may load Node
 - A green canary establishes only the OS boundary. It does not establish policy competence, a complete native game, a matchup, paper legality, or competitive win rate.
 - Keep the V3 fixture stopline in force until the canary, actor-safe IPC/native-validation integration, all-decision worker coverage, and the owner's separate physical-seed disclosure choice are complete.
 
+
+## Added launcher regression
+
+Agent35 added `tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs` and wired it into the existing manual `contract_only` lane before Docker preflight. It uses a fake Docker executable to check image/version metadata, supported namespace-default arguments, the constrained one-bundle mount, minimal container environment, and host secret/seed environment exclusion. It deliberately does not claim real container isolation.
+
+The two test cases passed locally under Node v22.16.0 against a compliant fake worker-launcher stub. This validates the test harness itself only; the repository's current Agent36 launcher was not executed by that stub, and no Docker daemon was available locally. The test is expected to fail against the current repository launcher until Agent36 updates the Node image, namespace arguments, and preflight metadata return.
+
 ## Current concrete blockers
 
 1. Hosted run [43570845995](https://github.com/FlareZ123/experiment-01/actions/runs/43570845995) completed with 385/386 Node tests passing (one skipped), then failed in Docker preflight before the hostile canary. Docker rejected `--pid=private` with `invalid PID mode`. This is **not** a canary pass.
