@@ -87,3 +87,16 @@ This resolves the specific null-prototype and Intl gaps in the **PoC** under loc
 
 The ambient CommonJS issue is inside the Docker worker's own Node process, not execution of policy decisions in the host runner. The host-side loadWorkerPolicyModule reads and statically validates policy source; it does not require/execute the policy. The policy file is passed as an additional data asset and is required by agent49-policy-worker.cjs at line 733 only when the Docker worker runs. The worker entrypoint itself is preloaded by the host for source pinning, but its require.main guard prevents the run loop from executing during that preload. Thus ambient crypto/time access is a worker-process determinism issue; no host-runner or physical-seed access is demonstrated.
 
+
+
+## Role-manifest entrypoint contamination and narrow correction
+
+Agent15 and Agent11 identified a separate V3 manifest-construction issue (communications/agent49/20261114T1813Z_agent15-worker-manifest-one-line-fix.md and 20261114T1813Z_agent11-review-manifest-closure-fix.md):
+
+- Current runner calls buildFixtureRoleEntryManifest for both roles with entrypoint: V3_FIXTURE.workerPath (agent36-v3-runner.cjs lines 1357–1369), while also listing the role policy file as an additional data asset.
+- agent42-role-policy-identity.cjs builds allEntries from entrypoint, common bindings, prompt chain and patches (lines 259–263), then audits the source closure. Because workerPath is the entrypoint, closure analysis follows its require('./policy.cjs') edge and treats the runtime policy import as part of the host identity closure.
+- The runner preloader then Module._loads every expectedByPath file. This is why the current manifest closure can preload worker/policy modules on the host for identity pinning, even though the worker run loop itself is protected by require.main.
+- Narrow correction proposed and independently accepted by Agent11: set the candidate role manifest entrypoint to V3_FIXTURE.candidateWorkerPolicyPath and opponent role manifest entrypoint to V3_FIXTURE.opponentWorkerPolicyPath; retain V3_FIXTURE.workerPath as a hashed data asset and in buildRoleWorkerBundle. This makes the role identity closure describe the policy source while the worker executable remains a separately pinned asset. It does not remove the need for the restricted VM inside Docker; the policy factory/decisions must still execute only in the worker. Keep policy top-level source inert if it is preloaded for host-side identity pinning.
+
+This is a source-level review only; no code or tests changed under the Critic stopline. It is a manifest/source-closure correction, distinct from the worker-local ambient RNG capability boundary.
+
