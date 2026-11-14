@@ -8,7 +8,6 @@ const http = require('node:http');
 const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
-const readline = require('node:readline');
 const { spawnSync } = require('node:child_process');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const {
@@ -19,10 +18,9 @@ const {
   preflightDockerPolicySandbox,
   sha256,
   createPolicyBundle,
-  spawnDockerPolicyWorker,
-  stopDockerPolicyWorker,
   cleanupPolicyBundle
 } = require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+const { createDockerPolicySession } = require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
@@ -197,156 +195,35 @@ function makeBundle(markerPaths, hostPort, hostNamespaceInodes, hostPid, hostPro
   return { sourceRoot, bundle };
 }
 
-function createLineReader(child) {
-  const rl = readline.createInterface({ input: child.stdout, crlfDelay: Infinity });
-  const queue = [];
-  const waiters = [];
-  let failure = null;
-  let closed = false;
-  let stderr = '';
-  child.stderr.setEncoding('utf8');
-  child.stderr.on('data', chunk => { stderr = (stderr + String(chunk)).slice(-32768); });
-  rl.on('line', line => {
-    let value;
-    try { value = JSON.parse(line); }
-    catch (error) { failure = new Error('invalid worker JSON: ' + line); }
-    const waiter = waiters.shift();
-    if (waiter) {
-      clearTimeout(waiter.timer);
-      if (failure) waiter.reject(failure);
-      else waiter.resolve(value);
-    } else if (!failure) queue.push(value);
-  });
-  child.once('error', error => {
-    failure = error;
-    while (waiters.length) {
-      const waiter = waiters.shift();
-      clearTimeout(waiter.timer);
-      waiter.reject(error);
-    }
-  });
-  child.once('close', (code, signal) => {
-    closed = true;
-    if (code !== 0 && !failure) failure = new Error(
-      'Docker policy worker exited code=' + code + ' signal=' + signal + ' stderr=' + stderr
-    );
-    while (waiters.length) {
-      const waiter = waiters.shift();
-      clearTimeout(waiter.timer);
-      waiter.reject(failure || new Error('Docker policy worker closed before response'));
-    }
-  });
-  return {
-    next(timeoutMs = 15000) {
-      if (queue.length) return Promise.resolve(queue.shift());
-      if (failure) return Promise.reject(failure);
-      if (closed) return Promise.reject(new Error('Docker policy worker is closed'));
-      return new Promise((resolve, reject) => {
-        const waiter = { resolve, reject, timer: null };
-        waiter.timer = setTimeout(() => {
-          const index = waiters.indexOf(waiter);
-          if (index >= 0) waiters.splice(index, 1);
-          reject(new Error('Docker policy worker response timeout; stderr=' + stderr));
-        }, timeoutMs);
-        waiters.push(waiter);
-      });
-    },
-    get stderr() { return stderr; },
-    close() { rl.close(); }
-  };
-}
-
-function writeLine(stream, value) {
-  return new Promise((resolve, reject) => {
-    const bytes = JSON.stringify(value) + '\n';
-    if (stream.write(bytes)) resolve();
-    else {
-      stream.once('drain', resolve);
-      stream.once('error', reject);
-    }
-  });
-}
-
-async function waitForClose(child, timeoutMs = 5000) {
-  if (child.exitCode !== null || child.signalCode !== null) return;
-  await Promise.race([
-    new Promise((resolve, reject) => {
-      child.once('close', resolve);
-      child.once('error', reject);
-    }),
-    new Promise((_, reject) => setTimeout(() => reject(
-      new Error('Docker policy worker did not exit after stdin EOF')
-    ), timeoutMs))
-  ]);
-}
-
 async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
-  const child = spawnDockerPolicyWorker({
+  const session = await createDockerPolicySession({
     bundle,
-    entrypoint: '/policy/worker.cjs',
-    permissionModel,
-    timeoutMs: 30000
-  });
-  const reader = createLineReader(child);
-  const init = {
-    schema: protocol.INIT_SCHEMA,
-    type: 'init',
     role,
     seat,
     policyVersion: POLICY_VERSION,
-    bundleSha256: bundle.bundleSha256,
-    config: {}
-  };
-  const request = {
-    schema: protocol.REQUEST_SCHEMA,
-    type: 'decision',
-    requestId: 'canary-' + role + '-seat' + seat,
-    sequence: 1,
-    role,
-    seat,
-    observationSchema: protocol.OBSERVATION_SCHEMA,
-    observation: actorObservation(seat),
-    prompt: null,
-    publicEventReceipt: null,
-    actionFrontier: {
-      schema: protocol.FRONTIER_SCHEMA,
-      items: [{ token: 'canary-pass', kind: 'pass' }]
-    }
-  };
-  assert.doesNotMatch(JSON.stringify(request), /seed|rng|random/i);
+    permissionModel,
+    workerTimeoutMs: 30000,
+    requestTimeoutMs: 15000
+  });
   try {
-    await writeLine(child.stdin, init);
-    const ready = await reader.next(15000);
-    assert.deepEqual(ready, {
-      schema: protocol.READY_SCHEMA,
-      type: 'ready',
-      role,
-      seat,
-      policyVersion: POLICY_VERSION,
-      bundleSha256: bundle.bundleSha256
-    });
-    await writeLine(child.stdin, request);
-    const response = await reader.next(15000);
-    assert.deepEqual(Object.keys(response).sort(), [
-      'schema', 'type', 'requestId', 'sequence', 'role', 'seat', 'policyVersion', 'decision'
-    ].sort());
-    assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
-    assert.equal(response.type, 'response');
-    assert.equal(response.requestId, request.requestId);
-    assert.equal(response.sequence, 1);
-    assert.equal(response.role, role);
-    assert.equal(response.seat, seat);
-    assert.equal(response.policyVersion, POLICY_VERSION);
-    assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
-    assert.doesNotMatch(JSON.stringify(response), /seed|rng|random/i);
-    child.stdin.end();
-    await waitForClose(child, 7000);
-    return { response, stderr: reader.stderr };
+    const input = {
+      observation: actorObservation(seat),
+      actionFrontier: {
+        schema: protocol.FRONTIER_SCHEMA,
+        items: [{ token: 'canary-pass', kind: 'pass' }]
+      }
+    };
+    assert.doesNotMatch(JSON.stringify(input), /seed|rng|random/i);
+    const result = await session.decide(input);
+    assert.equal(result.role, role);
+    assert.equal(result.seat, seat);
+    assert.equal(result.sequence, 1);
+    assert.deepEqual(result.decision, { kind: 'select-action', token: 'canary-pass' });
+    await session.close();
+    return { response: result, stderr: session.stderr };
   } catch (error) {
-    await stopDockerPolicyWorker(child, { signal: 'SIGTERM' }).catch(() => {});
+    await session.abort().catch(() => {});
     throw error;
-  } finally {
-    reader.close();
   }
 }
 
