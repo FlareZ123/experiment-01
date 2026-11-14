@@ -84,6 +84,14 @@ My source-dealt report establishes a specific conditional resource route: after 
 
 Add a source-state regression where the VMAX count is already satisfied, Tulip is already held, no higher-priority search target is justified, and Psychic is the resource that completes the three-Psychic Night Watch line. This is a policy test, not evidence that Night Watch wins the game.
 
+### 6. Mimikyu Copycat of Night Watch remains an explicit uncovered response branch
+
+The policy's `copycatTargetAvailable()` and Copycat attack chooser both exclude `Night Watch`. This is consistent with the current worker boundary: the protocol rejects direct or copied Night Watch physical-random prompts, which must remain host-only. Do **not** weaken that fail-closed worker rule or pass the random-card choice to the worker.
+
+However, my source report identifies a conditional original-rank1 response hypothesis: use Sky Field and Mysterious Treasure to make room/find Mimikyu, evolve the two held Shadow Rider V, use Underworld Door to fund Copycat, then copy the opponent's non-GX Night Watch. This has not been executed natively and is not an established optimal line. The current rank1 policy deliberately does not discover or execute it, so the 51 pure tests do not establish complete response coverage for this branch.
+
+**Required handling:** retain the worker rejection; record this as a host-owned integration/coverage gate. Only after trusted host-side copied-attack provenance and host-only physical prompt resolution are implemented should the opponent policy consider the Copycat line. Keep it explicitly untested until then.
+
 ## Evidence boundary
 
 Agent6's 51/51 result is reported as a direct V8 harness run using the actual worker validators. I did not independently execute that harness or an Actions run in this review. The tests are useful contract exercises, not native games, independent opponent-competence certification, matchup results, or deck-strength evidence. The full-game and 32-rank policy gates remain separate.
