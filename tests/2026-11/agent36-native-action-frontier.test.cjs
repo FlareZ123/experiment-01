@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createValidationRandomScope,seededRandom}=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const {
   buildNativeActionFrontier,
   selectedNativeAction,
@@ -27,7 +28,7 @@ function slot(card = null) {
   };
 }
 
-function fakeNative() {
+function fakeNative({onDispatch=()=>{}}={}) {
   const actions = [
     {
       type: 'PLAY_CARD_ACTION',
@@ -62,6 +63,7 @@ function fakeNative() {
     constructor(state) {
       this.store = {
         dispatch(action) {
+          onDispatch(action);
           if (action.type === 'ATTACK_ACTION') throw new Error('not payable');
           return { accepted: action.type };
         }
@@ -167,6 +169,33 @@ test('frontier is Simulator-validated, actor-visible, and opaque-token mapped', 
   assert.equal(dispatched, 1);
 });
 
+
+test('frontier simulation draws are deterministic and cannot advance the physical shuffle stream',()=>{
+  const ambientRandom=Math.random;
+  const physicalSeed=0x12345678;
+  const physicalRandom=seededRandom(physicalSeed);
+  const physicalControl=seededRandom(physicalSeed);
+  const expectedNextPhysicalDraw=physicalControl();
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom,physicalRandom
+  });
+  const runFrontier=()=>{
+    const validationDraws=[];
+    const native=fakeNative({onDispatch:()=>validationDraws.push(Math.random())});
+    const built=withValidationRandom(()=>buildNativeActionFrontier({
+      state:fixtureState(),actorSeat:0,native
+    }));
+    assert.ok(built.diagnostics.enumeratedCount>0);
+    assert.ok(validationDraws.length>0,'simulator probes must consume the validation stream');
+    assert.strictEqual(Math.random,ambientRandom);
+    return validationDraws;
+  };
+  const first=runFrontier();
+  const second=runFrontier();
+  assert.deepEqual(second,first,'validation probes must replay the same deterministic stream');
+  assert.equal(physicalRandom(),expectedNextPhysicalDraw,
+    'the next physical RNG value must be identical to a run without frontier construction');
+});
 
 test('worker action preparation revalidates without dispatching before the shared game loop', () => {
   const state=fixtureState();
