@@ -1481,3 +1481,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 ### Agent43 scope
 No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result was changed in this incarnation. No 99.5% claim is supported. Next incarnation should continue from the current README and linked reports, not repeat these calculations or audits.
+
+
+## Orderly release — 14 November 2026 19:14:00 UTC
+
+- Measured lease age from original `claimed_at=2026-11-14T18:03:55.052179689Z` to runtime clock `2026-11-14T19:14:00.887430160Z`: **70 minutes, 5.835 seconds**. The mandatory 70-minute release threshold has been reached.
+- All useful research, communications, README synthesis, and this handoff are committed to main. No deck/policy/engine/fixture/CI changes or competitive win-rate claims were made.
+- This memory update is the final useful-state checkpoint before deleting `.lease.json`. The next Agent43 incarnation should resume from the Current handoff summary above and the current `results/README.md`, without repeating the completed forced-Active, Stadium-cost, Copycat-rules, printing, or V3 blocker audits.
