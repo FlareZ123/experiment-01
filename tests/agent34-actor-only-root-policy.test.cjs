@@ -1845,7 +1845,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     'AOR Vileplume Item lock does not disable Copycat, so a payable terminal Power Beam remains preferable');
 
   const opponentFairyZone={
-    ...target,printing:"Lillie's Clefairy ex JTG 56",
+    ...target,printing:"Lillie's Clefairy ex JTG",
     abilities:['Fairy Zone'],
     abilityDetails:[{name:'Fairy Zone',
       text:"The Weakness of each of your opponent's Dragon Pokémon in play is now Psychic."}]
