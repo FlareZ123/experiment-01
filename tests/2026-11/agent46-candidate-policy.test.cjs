@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const candidate = require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
+const { projectPrompt, dispatchPromptChoice } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 
 const POLICY_VERSION = candidate.POLICY_VERSION;
 const POLICY_SOURCE = fs.readFileSync(path.resolve(__dirname,
@@ -829,5 +830,104 @@ test('starting-Pokémon setup rejects non-native bounds and malformed choices', 
       publicMetadata: startingPokemonMetadata(1, 1)
     });
     assert.equal(evaluate(wrongOwner).kind, 'abstain');
+  }
+});
+
+
+test('mixed Basic and non-Basic setup projection preserves original native indices through policy dispatch for both seats', () => {
+  class ChooseCardsPrompt {
+    decode(result) {
+      if (result === null) return null;
+      return result.map(index => this.cards.cards[index]);
+    }
+    validate(decoded) {
+      if (decoded === null) return this.options.allowCancel === true;
+      const blocked = new Set(this.options.blocked ?? []);
+      const indices = decoded.map(card => this.cards.cards.indexOf(card));
+      return decoded.length >= this.options.min &&
+        decoded.length <= this.options.max &&
+        indices.every(index => index >= 0 && !blocked.has(index));
+    }
+  }
+  const promptNative = {
+    PlayerType: { BOTTOM_PLAYER: 1, TOP_PLAYER: 2, ANY: 3 },
+    SlotType: { ACTIVE: 1, BENCH: 2, HAND: 3, DECK: 4, DISCARD: 5, BOARD: 6 },
+    ResolvePromptAction: class ResolvePromptAction {
+      constructor(promptId, result) { this.promptId = promptId; this.result = result; }
+    }
+  };
+  const enginePlayer = (id, handCards) => ({
+    id,
+    hand: { isPublic: false, cards: handCards },
+    deck: { cards: [] },
+    discard: { cards: [] },
+    lostzone: { cards: [] },
+    stadium: { cards: [] },
+    supporter: { cards: [] },
+    active: { cards: [], energies: { cards: [] }, tools: [], getPokemonCard() { return null; } },
+    bench: Array.from({ length: 5 }, () => ({
+      cards: [], energies: { cards: [] }, tools: [], getPokemonCard() { return null; }
+    })),
+    prizes: Array.from({ length: 6 }, (_, index) => ({
+      cards: [{ fullName: 'Prize ' + id + ' ' + index }], faceUpPrize: false
+    }))
+  });
+
+  for (const seat of [0, 1]) {
+    const basicA = { fullName: 'Basic A ' + seat, name: 'Basic A', stage: 'BASIC' };
+    const nonBasic = { fullName: 'Ultra Ball ' + seat, name: 'Ultra Ball' };
+    const basicB = { fullName: 'Basic B ' + seat, name: 'Basic B', stage: 'BASIC' };
+    const actor = enginePlayer('p' + seat, [basicA, nonBasic, basicB]);
+    const opponent = enginePlayer('p' + (1 - seat), []);
+    const players = seat === 0 ? [actor, opponent] : [opponent, actor];
+    const state = { players, activePlayer: seat, phase: 1, turn: 0, prompts: [] };
+    const prompt = new ChooseCardsPrompt();
+    Object.assign(prompt, {
+      id: 70 + seat,
+      playerId: actor.id,
+      result: undefined,
+      message: 'CHOOSE_STARTING_POKEMONS',
+      cards: actor.hand,
+      options: { min: 1, max: 6, blocked: [1], allowCancel: false, isSecret: false },
+      getPerspectivePlayerId() { return this.playerId; }
+    });
+    state.prompts = [prompt];
+
+    const projection = projectPrompt({ prompt, state, actorSeat: seat, native: promptNative });
+    assert.equal(projection.promptProjection.source.sourceKind, 'engine');
+    assert.equal(projection.promptProjection.source.effectName, 'CHOOSE_STARTING_POKEMONS');
+    assert.deepEqual(
+      projection.promptProjection.choices.map(choice => choice.publicMetadata.selectionIndex),
+      [0, 2]
+    );
+    assert.equal(projection.promptProjection.publicMetadata.maximumCount, 2);
+
+    const view = observation(seat, {
+      decisionKind: 'owner-prompt',
+      promptType: 'ChooseCardsPrompt'
+    });
+    view.phase = 1;
+    const req = request(seat, view, {
+      prompt: projection.promptProjection,
+      actions: [],
+      requestId: 'mixed-basic-setup-seat-' + seat
+    });
+    const decision = evaluate(req);
+    assert.equal(decision.kind, 'select-choice');
+    assert.deepEqual(decision.tokens, projection.promptProjection.choices.map(choice => choice.token));
+
+    const resolved = dispatchPromptChoice({
+      store: { state, dispatch(action) { return action; } },
+      prompt,
+      state,
+      actorSeat: seat,
+      projection,
+      decision,
+      native: promptNative,
+      dispatch: false
+    });
+    assert.deepEqual(resolved.rawResult, [0, 2]);
+    assert.deepEqual(resolved.decoded, [basicA, basicB]);
+    assert.equal(resolved.action.promptId, prompt.id);
   }
 });
