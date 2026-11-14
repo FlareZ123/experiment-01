@@ -241,6 +241,7 @@ class AsyncDockerPolicySession {
     this.closed = false;
     this.failed = false;
     this.pending = false;
+    this.cleanupReceipt = null;
     this.init = {
       schema: protocol.INIT_SCHEMA,
       type: 'init',
@@ -352,39 +353,54 @@ class AsyncDockerPolicySession {
   }
 
   async close() {
-    if (this.closed) return { closed: true };
-    if (!this.child) {
-      this.closed = true;
-      return { closed: true };
+    if(this.closed) {
+      return this.cleanupReceipt?.containerRemoved===true?
+        {closed:true,...this.cleanupReceipt}:{closed:false,aborted:true,...(this.cleanupReceipt??{})};
     }
-    if (this.failed) return this.abort();
+    if(!this.child) {
+      this.closed=true;
+      this.cleanupReceipt={processClosed:true,containerRemoved:true,containerId:null};
+      return {closed:true,...this.cleanupReceipt};
+    }
+    if(this.failed)return this.abort();
     try {
       this.child.stdin.end();
-      const result = await waitForChildClose(this.child, this.options.closeTimeoutMs);
-      assert.equal(result.code, 0,
-        'Policy worker exited nonzero during orderly close: ' + JSON.stringify(result));
+      const result=await waitForChildClose(this.child,this.options.closeTimeoutMs);
+      assert.equal(result.code,0,
+        'Policy worker exited nonzero during orderly close: '+JSON.stringify(result));
       this.channel.assertDrained();
-      this.closed = true;
+      this.cleanupReceipt=await dockerWorker.verifyDockerPolicyWorkerClosed(this.child);
+      assert.equal(this.cleanupReceipt.processClosed,true);
+      assert.equal(this.cleanupReceipt.containerRemoved,true,
+        'Docker daemon removal must be verified before a trial can complete');
+      this.closed=true;
       this.channel.close();
-      return { closed: true };
-    } catch (error) {
-      this.failed = true;
-      await this.abort().catch(() => {});
+      return {closed:true,...this.cleanupReceipt};
+    } catch(error) {
+      this.failed=true;
+      await this.abort().catch(()=>{});
       throw error;
     }
   }
 
   async abort() {
-    if (this.closed) return { aborted: true };
-    this.closed = true;
-    if (this.channel) this.channel.close();
-    if (this.child) {
-      await dockerWorker.stopDockerPolicyWorker(this.child, {
-        signal: 'SIGTERM',
-        timeoutMs: 1500
-      });
+    if(this.closed) {
+      return {aborted:true,...(this.cleanupReceipt??{})};
     }
-    return { aborted: true };
+    this.closed=true;
+    if(this.channel)this.channel.close();
+    if(this.child) {
+      this.cleanupReceipt=await dockerWorker.stopDockerPolicyWorker(this.child,{
+        signal:'SIGTERM',timeoutMs:1500
+      });
+      assert.equal(this.cleanupReceipt.stopped,true,
+        'aborted Docker worker process must be confirmed stopped');
+      assert.equal(this.cleanupReceipt.containerRemoved,true,
+        'aborted Docker worker container removal must be verified');
+    } else {
+      this.cleanupReceipt={stopped:true,processClosed:true,containerRemoved:true,containerId:null};
+    }
+    return {aborted:true,...this.cleanupReceipt};
   }
 
   get stderr() {
