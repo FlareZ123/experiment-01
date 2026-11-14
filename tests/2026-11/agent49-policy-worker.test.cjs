@@ -493,6 +493,8 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   assert.throws(() => protocol.validateRequest(misattributedEnginePrompt, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
   const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
+  const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Pale Moon-GX' } } };
+  protocol.validateRequest(copiedPaleMoon, initFor(), 1, new Set());
   const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
   assert.throws(() => protocol.validateRequest(incompleteCopycat, initFor(), 1, new Set()), /COPYCAT_SOURCE_MISSING/);
   const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: null } } };
