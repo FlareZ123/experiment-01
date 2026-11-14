@@ -313,12 +313,26 @@ function missingLinePriority(observation) {
 function scoreEvolution(card, target, observation) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
-  const preLockSetupStillNeeded = !ownItemLocked(observation) && hand.some(value =>
-    matches(value, PRINT.tagCall) || matches(value, PRINT.tmEvolution) ||
-    (matches(value, PRINT.stealthyHood) &&
-      opponentHasGarbotoxin(observation.opponentPublic)) ||
-    (matches(value, PRINT.counterGain) && ownBehindOnPrizes(observation)) ||
-    (matches(value, PRINT.guzmaHala) && supporterAvailable(observation)));
+  const canFetchGuzmaHala = hand.some(value => matches(value, PRINT.tagCall)) &&
+    sourceCopyPossible(observation, PRINT.guzmaHala) &&
+    canUseGuzmaHalaMode1(observation, {
+      excludePatterns: [PRINT.tagCall], guzmaInHand: true
+    });
+  const canPlayGuzmaHala = hand.some(value => matches(value, PRINT.guzmaHala)) &&
+    supporterAvailable(observation) &&
+    canUseGuzmaHalaMode1(observation, {
+      excludePatterns: [PRINT.guzmaHala], guzmaInHand: true
+    });
+  const canUseEvolutionTool = hand.some(value => matches(value, PRINT.tmEvolution)) &&
+    !bunnelbyHasTool(observation, PRINT.tmEvolution) &&
+    bunnelbyInPlay(observation) && hasK0PossibleBenchEvolutionTarget(observation);
+  const canUseHood = hand.some(value => matches(value, PRINT.stealthyHood)) &&
+    opponentHasGarbotoxin(observation.opponentPublic);
+  const canUseCounterGain = hand.some(value => matches(value, PRINT.counterGain)) &&
+    ownBehindOnPrizes(observation);
+  const preLockSetupStillNeeded = !ownItemLocked(observation) &&
+    (canFetchGuzmaHala || canPlayGuzmaHala || canUseEvolutionTool ||
+      canUseHood || canUseCounterGain);
   if (matches(card, PRINT.vileplume) && matches(target, PRINT.gloom) &&
       !boardHas(own, PRINT.vileplume)) return preLockSetupStillNeeded ? 175 : 245;
   if (matches(card, PRINT.stoutland) && matches(target, PRINT.herdier) &&
@@ -364,6 +378,12 @@ function scoreAttack(item, observation) {
   const ownDeck = own.deckCount ?? 0;
   const opponentDiscard = list(opponent.discard);
 
+  if (name === 'Evolution') {
+    const ready = bunnelbyActive(observation) &&
+      bunnelbyHasTool(observation, PRINT.tmEvolution) &&
+      hasK0PossibleBenchEvolutionTarget(observation) && opponentDeck > 1;
+    return ready ? (ownDeck <= 4 ? 140 : 155) : 20;
+  }
   if (name === 'Burrow') {
     return 92 + (opponentDeck <= 8 ? 32 : 0) +
       (opponentDeck < ownDeck ? 8 : 0);
@@ -441,8 +461,7 @@ function scoreAction(item, request) {
   if (item.kind === 'use-stadium') {
     const stadium = item.actorPrinting ?? metadata.stadiumPrinting ?? '';
     if (matches(stadium, PRINT.grandTree)) {
-      return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
-        missingLinePriority(observation) > 0 ? 190 : 25;
+      return hasK0PossibleGrandTreeTarget(observation) ? 190 : 0;
     }
     if (matches(stadium, PRINT.artazon)) {
       return list(own.bench).some(slot => slot === null) &&
@@ -470,28 +489,23 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.tagCall)) {
-    return ownItemLocked(observation) ? 0 :
-      (handCount(hand, PRINT.guzmaHala) === 0 ? 205 : 128);
+    const canFetch = sourceCopyPossible(observation, PRINT.guzmaHala) &&
+      canUseGuzmaHalaMode1(observation, {
+        excludePatterns: [PRINT.tagCall], guzmaInHand: true
+      });
+    return ownItemLocked(observation) ? 0 : (canFetch ? 205 : 0);
   }
   if (matches(card, PRINT.guzmaHala)) {
     if (!supporterAvailable(observation)) return 0;
-    const needToolOrEnergy = handCount(hand, PRINT.tmEvolution) === 0 ||
-      handCount(hand, PRINT.jetEnergy) === 0;
-    const needStage2 = !boardHas(own, PRINT.vileplume) ||
-      !boardHas(own, PRINT.stoutland) || !boardHas(own, PRINT.pidgeot);
-    return needToolOrEnergy || needStage2 ? 215 : 145;
+    return canUseGuzmaHalaMode1(observation, {
+      excludePatterns: [PRINT.guzmaHala], guzmaInHand: true
+    }) ? 215 : 0;
   }
   if (matches(card, PRINT.tmEvolution)) {
     const bunnelby = boardSlots(own).some(row => matches(row.pokemon.printing, PRINT.bunnelby));
     const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
     const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
-    const targetReady = boardSlots(own).some(row =>
-      matches(row.pokemon.printing, PRINT.oddish) ||
-      matches(row.pokemon.printing, PRINT.lillipup) ||
-      matches(row.pokemon.printing, PRINT.pidgey) ||
-      matches(row.pokemon.printing, PRINT.gloom) ||
-      matches(row.pokemon.printing, PRINT.herdier) ||
-      matches(row.pokemon.printing, PRINT.pidgeotto));
+    const targetReady = hasK0PossibleBenchEvolutionTarget(observation);
     return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
   }
   if (matches(card, PRINT.jetEnergy)) {
@@ -578,17 +592,35 @@ function cardPriority(printing, observation, context) {
     return 0;
   }
   if (context.includes('guzma & hala')) {
-    if (matches(printing, PRINT.grandTree)) return 160;
-    if (matches(printing, PRINT.tmEvolution)) return handCount(hand, PRINT.tmEvolution) === 0 ? 150 : 75;
-    if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 135;
-    if (matches(printing, PRINT.jetEnergy)) return 155;
-    if (matches(printing, PRINT.stealthyHood)) {
-      return opponentHasGarbotoxin(observation.opponentPublic) ? 145 :
-        (boardHas(own, PRINT.vileplume) ? 80 : 35);
+    if (matches(printing, PRINT.grandTree)) return hasK0PossibleGrandTreeTarget(observation) ? 180 : 65;
+    if (matches(printing, PRINT.artazon)) {
+      return list(own.bench).some(slot => slot === null) && missingLinePriority(observation) > 0 ? 165 : 65;
     }
-    if (matches(printing, PRINT.artazon)) return 90;
-    if (matches(printing, PRINT.captureEnergy)) return 85;
-    if (matches(printing, PRINT.memoryEnergy)) return boardHas(own, PRINT.stoutland) ? 80 : 45;
+    if (matches(printing, PRINT.tmEvolution)) {
+      return handCount(hand, PRINT.tmEvolution) === 0 &&
+        !bunnelbyHasTool(observation, PRINT.tmEvolution) ? 175 : 70;
+    }
+    if (matches(printing, PRINT.stealthyHood)) {
+      const hoodHeld = handCount(hand, PRINT.stealthyHood) > 0 ||
+        boardSlots(own).some(row => list(row.pokemon.tools).some(tool => matches(tool, PRINT.stealthyHood)));
+      return opponentHasGarbotoxin(observation.opponentPublic) && !hoodHeld ? 160 : 35;
+    }
+    if (matches(printing, PRINT.counterGain)) {
+      return ownBehindOnPrizes(observation) && handCount(hand, PRINT.counterGain) === 0 ? 135 : 50;
+    }
+    if (matches(printing, PRINT.jetEnergy)) {
+      const jetInPlay = boardSlots(own).some(row =>
+        list(row.pokemon.energies).some(energy => matches(energy, PRINT.jetEnergy)));
+      return handCount(hand, PRINT.jetEnergy) === 0 && !jetInPlay ? 160 : 80;
+    }
+    if (matches(printing, PRINT.captureEnergy)) {
+      return list(own.bench).some(slot => slot === null) && missingLinePriority(observation) > 0 ? 125 : 60;
+    }
+    if (matches(printing, PRINT.memoryEnergy)) {
+      const memoryInPlay = boardSlots(own).some(row =>
+        list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy)));
+      return boardHas(own, PRINT.stoutland) && !memoryInPlay ? 100 : 40;
+    }
     return 0;
   }
   if (context.includes('artazon')) {
@@ -604,7 +636,7 @@ function cardPriority(printing, observation, context) {
     if (matches(printing, PRINT.guzmaHala)) return 150;
     if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 135;
     if (matches(printing, PRINT.jetEnergy) || matches(printing, PRINT.memoryEnergy)) return 115;
-    if (matches(printing, PRINT.grandTree)) return 110;
+    if (matches(printing, PRINT.grandTree)) return hasK0PossibleGrandTreeTarget(observation) ? 110 : 35;
     return 40;
   }
   if (context.includes('get lost')) {
@@ -715,18 +747,21 @@ function scorePokemonChoice(choice, observation, context) {
       remainingHp(target.pokemon) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
+    const target = list(observation.ownPublic?.bench).find(slot =>
+      slot && samePrinting(slot.printing, printing));
+    if (!target || !grandTreeTargetPossible(observation, target)) return -100;
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
     if (matches(printing, PRINT.pidgey)) return 125;
-    return 0;
+    return -100;
   }
   if (context.includes('evolution') || context.includes('technical machine')) {
-    if (matches(printing, PRINT.gloom)) return 180;
-    if (matches(printing, PRINT.herdier)) return 172;
-    if (matches(printing, PRINT.pidgeotto)) return 160;
-    if (matches(printing, PRINT.oddish)) return 145;
-    if (matches(printing, PRINT.lillipup)) return 138;
-    if (matches(printing, PRINT.pidgey)) return 128;
+    if (matches(printing, PRINT.gloom)) return hasK0PossibleStageFor(observation, printing) ? 180 : -100;
+    if (matches(printing, PRINT.herdier)) return hasK0PossibleStageFor(observation, printing) ? 172 : -100;
+    if (matches(printing, PRINT.pidgeotto)) return hasK0PossibleStageFor(observation, printing) ? 160 : -100;
+    if (matches(printing, PRINT.oddish)) return hasK0PossibleStageFor(observation, printing) ? 145 : -100;
+    if (matches(printing, PRINT.lillipup)) return hasK0PossibleStageFor(observation, printing) ? 138 : -100;
+    if (matches(printing, PRINT.pidgey)) return hasK0PossibleStageFor(observation, printing) ? 128 : -100;
     return 0;
   }
   if (context.includes('irresistible aroma')) {
@@ -834,7 +869,17 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
-    if (!context.includes('memory dive') && !context.includes('relicanth')) {
+    const activeBunnelbyEvolution = bunnelbyActive(request.observation) &&
+      bunnelbyHasTool(request.observation, PRINT.tmEvolution) &&
+      hasK0PossibleBenchEvolutionTarget(request.observation) &&
+      (request.observation.opponentPublic?.deckCount ?? 0) > 1;
+    if (activeBunnelbyEvolution) {
+      const evolution = choices.find(choice =>
+        (choice.publicMetadata?.sourceAttack ?? choice.label ?? '') === 'Evolution');
+      if (evolution) return { kind: 'select-choice', token: evolution.token };
+    }
+    if (!context.includes('memory dive') && !context.includes('relicanth') &&
+        !bunnelbyActive(request.observation)) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
     }
     const choice = choices.slice().sort((a, b) => {
