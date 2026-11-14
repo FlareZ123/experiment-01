@@ -1040,3 +1040,121 @@ test('Get Lost removes the opponent recovery cards before Basic Psychic Energy',
     tokens: ['seeker', 'charge']
   });
 });
+
+
+test('Wonder Tag searches Tulip for the visible recoverable Psychic package', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Tapu Lele-GX GRI 60', 'Wonder Tag'),
+    choices: [
+      { token: 'carmine', kind: 'card', printing: 'Carmine TWM 145',
+        label: 'Carmine', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'tulip', kind: 'card', printing: 'Tulip PAR 181',
+        label: 'Tulip', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'raihan', kind: 'card', printing: 'Raihan EVS 152',
+        label: 'Raihan', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Tapu Lele-GX GRI 60'],
+      ownPublic: player({
+        discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['tulip']
+  });
+});
+
+test('Star Alchemy searches Field Blower to remove the opponent Path to the Peak', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Forest Seal Stone SIT 156', 'Star Alchemy'),
+    choices: [
+      { token: 'field-blower', kind: 'card', printing: 'Field Blower GRI 125',
+        label: 'Field Blower', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'stamp', kind: 'card', printing: 'Unfair Stamp TWM 165',
+        label: 'Unfair Stamp', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Forest Seal Stone SIT 156'],
+      ownPublic: player({ discard: ['Psychic Energy MEE 13'] }),
+      opponentPublic: player({
+        stadium: ['Path to the Peak CRE 148'],
+        handCount: 2
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['field-blower']
+  });
+});
+
+test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a non-GX attack to Copycat', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'mimikyu', kind: 'card', printing: 'Mimikyu GRI 58',
+        label: 'Mimikyu', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
+        ]
+      }),
+      opponentPublic: player({ active: opponentActive })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['mimikyu']
+  });
+});
