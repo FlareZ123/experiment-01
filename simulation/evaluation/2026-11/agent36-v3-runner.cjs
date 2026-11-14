@@ -323,15 +323,18 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
   if(providedHostExpectedByPath!==undefined)
     assert.deepEqual(providedHostExpectedByPath,hostExpectedByPath,
       'host preload map must equal the complete host role source closure');
-  const manifestDataAssetPaths=new Set([
-    ...(candidateManifest.manifest.dataAssets??[]).map(asset=>asset.path),
-    ...(opponentManifest.manifest.dataAssets??[]).map(asset=>asset.path)
-  ]);
+  const manifestDataAssets=[
+    ...(candidateManifest.manifest.dataAssets??[]),
+    ...(opponentManifest.manifest.dataAssets??[])
+  ];
   for(const relative of workerOnlyPaths){
-    assert.ok(manifestDataAssetPaths.has(relative),
-      'worker-only policy source must be recorded as a hashed role-manifest data asset: '+relative);
+    const assets=manifestDataAssets.filter(asset=>asset.path===relative);
+    assert.equal(assets.length,1,
+      'worker-only policy source must appear exactly once as a role-manifest data asset: '+relative);
     assert.match(workerOnlyHashes[relative]??'',SHA256,
       'worker-only policy source hash is invalid: '+relative);
+    assert.equal(assets[0].sha256,workerOnlyHashes[relative],
+      'role-manifest data-asset hash differs from the statically audited policy source: '+relative);
   }
   assert.equal(Object.hasOwn(hostExpectedByPath,V3_FIXTURE.workerPath),false,
     'Docker worker executable must not appear in host source closure');
