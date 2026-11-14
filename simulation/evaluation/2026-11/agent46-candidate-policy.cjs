@@ -702,10 +702,159 @@ function chooseCardOrder(view, prompt) {
   return { kind: 'select-choices', tokens: ranked.map(row => row.choice.token) };
 }
 
+function chooseStartingPokemonSetup(prompt) {
+  const metadata = prompt.publicMetadata;
+  if (!metadata || metadata.selectionType !== 'card-combination' ||
+      metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
+      metadata.isOwnerVisible !== true || metadata.isSecret !== false ||
+      metadata.allowCancel !== false ||
+      !Number.isSafeInteger(metadata.minimumCount) ||
+      !Number.isSafeInteger(metadata.maximumCount) ||
+      metadata.minimumCount < 0 || metadata.maximumCount < metadata.minimumCount ||
+      metadata.maximumCount > 6 || !Array.isArray(prompt.choices)) {
+    return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
+  }
+
+  const cardChoices = [];
+  const emptyChoices = [];
+  for (const choice of prompt.choices) {
+    if (choice.kind === 'empty-selection') {
+      emptyChoices.push(choice);
+      continue;
+    }
+    if (choice.kind !== 'card') {
+      return abstain('UNEXPECTED_STARTING_POKEMON_CHOICE');
+    }
+    const item = choice.publicMetadata;
+    if (!isText(choice.token) || !isText(choice.printing) ||
+        choice.label !== choice.printing || !item ||
+        !Number.isSafeInteger(item.selectionIndex) ||
+        item.selectionIndex < 0 ||
+        item.sourceZone !== 'hand' || item.ownerSeat !== 'actor' ||
+        item.isOwnerVisible !== true || item.selectedCount !== 1) {
+      return abstain('UNTRUSTED_STARTING_POKEMON_CHOICE');
+    }
+    cardChoices.push(choice);
+  }
+
+  if (emptyChoices.length !== (metadata.minimumCount === 0 ? 1 : 0) ||
+      emptyChoices.some(choice => !isText(choice.token) ||
+        choice.label !== 'Choose no items')) {
+    return abstain('BAD_STARTING_POKEMON_EMPTY_CHOICE');
+  }
+
+  let previousIndex = -1;
+  for (const choice of cardChoices) {
+    const index = choice.publicMetadata.selectionIndex;
+    if (index <= previousIndex) {
+      return abstain('UNORDERED_STARTING_POKEMON_CHOICES');
+    }
+    previousIndex = index;
+  }
+
+  const selected = cardChoices.slice(0, metadata.maximumCount);
+  if (selected.length < metadata.minimumCount) {
+    return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
+  }
+  if (selected.length === 0) {
+    const empty = emptyChoices[0];
+    return empty
+      ? { kind: 'select-choice', token: empty.token }
+      : abstain('NO_STARTING_POKEMON_CHOICE');
+  }
+
+  // The pinned engine has already excluded non-Basics through the native
+  // CHOOSE_STARTING_POKEMONS prompt's blocked indices. Preserve that legal
+  // prompt order and fill as many Active/Bench slots as the prompt permits.
+  return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+}
+
+function chooseGoFirstSetup(prompt) {
+  if (prompt.publicMetadata?.selectionType !== 'confirm' ||
+      !Array.isArray(prompt.choices) || prompt.choices.length !== 2) {
+    return abstain('BAD_GO_FIRST_SETUP_PROMPT');
+  }
+  const yes = prompt.choices.filter(choice =>
+    choice.kind === 'confirm' && choice.label === 'Yes');
+  const no = prompt.choices.filter(choice =>
+    choice.kind === 'confirm' && choice.label === 'No');
+  if (yes.length !== 1 || no.length !== 1 ||
+      !isText(yes[0].token) || !isText(no[0].token) ||
+      yes[0].token === no[0].token) {
+    return abstain('BAD_GO_FIRST_CONFIRM_CHOICES');
+  }
+  // The first integration policy uses the deterministic affirmative choice.
+  return { kind: 'select-choice', token: yes[0].token };
+}
+
+function chooseMulliganDrawSetup(prompt) {
+  const metadata = prompt.publicMetadata;
+  if (!metadata || metadata.selectionType !== 'option' ||
+      metadata.allowCancel !== false ||
+      !Number.isSafeInteger(metadata.count) || metadata.count < 1 ||
+      !Array.isArray(prompt.choices) || prompt.choices.length === 0) {
+    return abstain('BAD_MULLIGAN_DRAW_SETUP_PROMPT');
+  }
+
+  const seenIndices = new Set();
+  let best = null;
+  for (const choice of prompt.choices) {
+    if (choice.kind !== 'option' || !isText(choice.token)) {
+      return abstain('UNEXPECTED_MULLIGAN_DRAW_CHOICE');
+    }
+    const index = choice.publicMetadata?.choiceIndex;
+    if (!Number.isSafeInteger(index) || index < 0 ||
+        index >= metadata.count || seenIndices.has(index)) {
+      return abstain('BAD_MULLIGAN_DRAW_CHOICE_INDEX');
+    }
+    seenIndices.add(index);
+    const drawCount = metadata.count - 1 - index;
+    if (choice.label !== `Draw ${drawCount} card(s)`) {
+      return abstain('MULLIGAN_DRAW_LABEL_INDEX_MISMATCH');
+    }
+    if (!best || drawCount > best.drawCount) {
+      best = { choice, drawCount };
+    }
+  }
+
+  return best
+    ? { kind: 'select-choice', token: best.choice.token }
+    : abstain('NO_MULLIGAN_DRAW_OPTION');
+}
+
+function chooseEngineSetupPrompt(view, prompt) {
+  if (view.phase !== 1) return abstain('UNSUPPORTED_ENGINE_SETUP_PHASE');
+  if (prompt.source?.sourceKind !== 'engine' ||
+      prompt.source.sourcePrinting !== null ||
+      prompt.source.effectName !== prompt.description) {
+    return abstain('UNTRUSTED_ENGINE_SETUP_PROMPT');
+  }
+
+  if (prompt.promptType === 'ChooseCardsPrompt' &&
+      prompt.description === 'CHOOSE_STARTING_POKEMONS') {
+    return chooseStartingPokemonSetup(prompt);
+  }
+  if (prompt.promptType === 'ConfirmPrompt' &&
+      prompt.description === 'GO_FIRST') {
+    return chooseGoFirstSetup(prompt);
+  }
+  if (prompt.promptType === 'SelectPrompt' &&
+      prompt.description === 'WANT_TO_DRAW_CARDS') {
+    return chooseMulliganDrawSetup(prompt);
+  }
+  return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
     return abstain('UNTRUSTED_PROMPT');
+  }
+  if (prompt.source.sourceKind === 'engine') {
+    return chooseEngineSetupPrompt(view, prompt);
+  }
+  if (prompt.source.sourceKind !== 'card-effect') {
+    return abstain('UNTRUSTED_PROMPT_SOURCE');
   }
   switch (prompt.promptType) {
     case 'ChooseCardsPrompt':
