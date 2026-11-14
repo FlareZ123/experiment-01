@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const dockerWorker = require('./agent36-docker-policy-worker.cjs');
 
 class AsyncJsonLineChannel {
