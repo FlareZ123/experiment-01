@@ -45,6 +45,13 @@ Rank 15 includes one Vileplume BUS 6 (`sm3-6`) with Disgusting Pollen: while Vil
 
 Lillie's Clefairy ex's Fairy Zone is directional: when controlled by the opponent, it changes the Weakness of that opponent's *opponent's* Dragon Pokémon (the candidate's Dragons), not the opponent's own Active target. The candidate's Shadow Rider VMAX is Psychic, not Dragon. Therefore an indiscriminate opponent-board `/weakness/i` veto would unnecessarily reject a known field ability that does not modify the target's Weakness or the candidate attacker's damage. A safer guard should classify known direction/scope or use an allowlist for the specific Weakness effects it has reviewed.
 
+
+### Other source-field attack / retreat restrictions
+
+- **Snorlax PGO 55 — Block** appears at source ranks 3 (×3) and 7 (×2). While Active, it prevents the opponent's Active Pokémon from retreating. The post-Timeless helper's explicit Snorlax Block retreat guard covers this named restriction.
+- **Wobbuffet PHF 36 — Bide Barricade** appears at ranks 7 (×3), 10 (×1) and 21 (×1). It suppresses Abilities of non-Psychic Pokémon while Active, but the candidate's Latias ex, Lillie's Clefairy ex and Shadow Rider VMAX are Psychic. It therefore does not suppress the candidate's Skyliner, Fairy Zone or Max Geist pieces; a generic Wobbuffet veto would be an unnecessary false negative.
+- **Vileplume BUS 6 — Disgusting Pollen** at rank 15 is the distinct Basic-attack lock described above. It blocks the Basic Mimikyu Copycat competitor, not the evolved Shadow Rider VMAX attack.
+
 ## Interpretation
 
 For the 29 published source lists, the known Stadium interactions most relevant to the post-Timeless helper are already represented by two distinct branches: Dimension Valley cost reduction and Silent Lab ability suppression. The rank-15 Vileplume BUS 6 attack lock is a separate competitor-legality gap. The general Expanded Stadium census still matters as a fail-closed warning for other legal environments and for the three unavailable Aichi lists; it should not be confused with evidence that those other Stadiums are present in this event.
