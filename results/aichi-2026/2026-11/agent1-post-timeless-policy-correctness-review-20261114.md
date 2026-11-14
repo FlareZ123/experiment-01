@@ -31,7 +31,7 @@ Commits: helper `879349cac614dbdb964f95e6f6ae001759a79814`; tests `3f24ab8337016
 
 ### 3. The staged native Power Beam comparison did not prove Fairy Zone's modifier
 
-The existing staged native runner asserted only positive Power Beam damage and a Knock Out of a 60-HP Dratini. That would pass even if Fairy Zone failed to double the attack.
+The existing staged native runner asserted only positive Power Beam damage and a Knock Out of a 70-HP Dratini. That would pass even if Fairy Zone failed to double the attack.
 
 The runner now requires exactly **400** damage (200 printed × 2 against the Dragon target under Fairy Zone) in both physical seats. The Max Geist branch already asserts 320 from 160 printed damage.
 
