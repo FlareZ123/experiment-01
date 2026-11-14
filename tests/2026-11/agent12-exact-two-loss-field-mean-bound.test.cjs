@@ -61,3 +61,11 @@ test('the fixed null is the stated 0.5% failure rate', () => {
   assert.equal(FAILURE_RATE, 0.005);
   assert.equal(evaluateFixedTwoNonwinFieldMeanDesign().nullMeanFailureRate, 0.005);
 });
+
+test('homogeneous operating characteristics are reproducible and explicitly separate from heterogeneous guarantees', () => {
+  close(probabilityAtMostTwoNonwins(1280, 0.0005), 0.972785791, 1e-9);
+  close(probabilityAtMostTwoNonwins(1280, 0.001), 0.861775285, 1e-9);
+  close(probabilityAtMostTwoNonwins(1280, 0.002), 0.528375061, 1e-9);
+  close(probabilityAtMostTwoNonwins(1280, 0.003), 0.262059101, 1e-9);
+  close(probabilityAtMostTwoNonwins(1280, 0.005), 0.045950044, 1e-9);
+});
