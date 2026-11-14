@@ -444,10 +444,11 @@ function validatePrompt(prompt, seat) {
     if (prompt.source[key] !== undefined && prompt.source[key] !== null &&
         !boundedString(prompt.source[key], null, 256)) fail('BAD_PROMPT_SOURCE');
   }
-  if ((prompt.source.copiedSourcePrinting === undefined) !== (prompt.source.copiedAttackName === undefined)) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
-  if (prompt.source.effectName === 'Copycat' &&
+  const hasCopiedSource = prompt.source.copiedSourcePrinting !== undefined || prompt.source.copiedAttackName !== undefined;
+  if (hasCopiedSource &&
       (!boundedString(prompt.source.copiedSourcePrinting, null, 256) ||
-       !boundedString(prompt.source.copiedAttackName, null, 256))) fail('COPYCAT_SOURCE_MISSING');
+       !boundedString(prompt.source.copiedAttackName, null, 256))) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
+  if (prompt.source.effectName === 'Copycat' && !hasCopiedSource) fail('COPYCAT_SOURCE_MISSING');
   if (/night\s*watch/i.test(String(prompt.source.effectName ?? '')) ||
       /night\s*watch/i.test(String(prompt.source.copiedAttackName ?? '')) ||
       (prompt.source.effectName === 'Copycat' &&
