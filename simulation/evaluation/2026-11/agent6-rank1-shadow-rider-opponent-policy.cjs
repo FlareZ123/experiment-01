@@ -673,7 +673,9 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
       if (active === null) {
         return { kind: 'abstain', reasonCode: 'MISSING_ACTIVE_FOR_EXTRA_BENCH' };
       }
-      const tokens = cardChoices.slice(0, Math.min(max, emptyBenchSlots))
+      // Twinleaf's starting-Pokemon callback applies actual Bench capacity
+      // after prompt resolution; preserve all offered choices up to native max.
+      const tokens = cardChoices.slice(0, max)
         .map(choice => choice.token);
       if (tokens.length > 0) return { kind: 'select-choices', tokens };
       const empty = choices.find(choice => choice.kind === 'empty-selection');
