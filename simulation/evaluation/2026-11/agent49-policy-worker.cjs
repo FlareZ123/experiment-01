@@ -231,7 +231,7 @@ function validatePokemonSlot(slot, allowConcealed) {
           !(suppression.sourcePrinting === null || boundedString(suppression.sourcePrinting, null, 256)) ||
           seen.has(suppression.abilityName)) fail('BAD_ABILITY_SUPPRESSION');
       if (suppression.suppressed !== true && (suppression.reasonCode !== null || suppression.sourcePrinting !== null)) fail('INCONSISTENT_ABILITY_SUPPRESSION');
-      if (suppression.suppressed === true && suppression.reasonCode === null) fail('MISSING_ABILITY_SUPPRESSION_REASON');
+      if (suppression.suppressed === true && (suppression.reasonCode === null || suppression.sourcePrinting === null)) fail('MISSING_ABILITY_SUPPRESSION_SOURCE');
       seen.add(suppression.abilityName);
     }
     if (seen.size !== knownAbilityNames.size) fail('INCOMPLETE_ABILITY_SUPPRESSION_VIEW');
