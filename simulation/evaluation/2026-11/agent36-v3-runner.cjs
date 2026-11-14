@@ -1324,10 +1324,11 @@ function createV3WorkerDecisionResolver({
       workerAudit.totalFailures++;
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
-    const stderr=String(session?.stderr??session?.channel?.stderr??'');
+    const stderr=String(session?.stderr??session?.channel?.stderr??error?.stderrTail??'');
     const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\d+)/.exec(stderr);
     if(drawMatch){
       roleAudit.policyDrawCount=Number(drawMatch[1]);
+      roleAudit.policyDrawCounts.push(Number(drawMatch[1]));
       roleAudit.policyDrawViolationCount++;
       roleAudit.policyRngReplayable=false;
       workerAudit.policyRngViolations++;
@@ -1638,6 +1639,22 @@ async function runV3FixtureGame({
           row.failureCount++;
           row.lastFailureCode=code;
           if(code.includes('TIMEOUT'))row.timeoutCount++;
+          const stderr=String(error?.stderrTail??'');
+          const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\\d+)/.exec(stderr);
+          if(drawMatch){
+            row.policyDrawCount=Number(drawMatch[1]);
+            row.policyDrawCounts.push(Number(drawMatch[1]));
+            row.policyDrawViolationCount++;
+            row.policyRngReplayable=false;
+            workerAudit.policyRngViolations++;
+            workerAudit.replayableEvidence=false;
+          }else if(stderr.includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE')){
+            row.policyDrawCount=null;
+            row.policyDrawViolationCount++;
+            row.policyRngReplayable=false;
+            workerAudit.policyRngViolations++;
+            workerAudit.replayableEvidence=false;
+          }
           workerAudit.totalFailures++;
         };
         try {
