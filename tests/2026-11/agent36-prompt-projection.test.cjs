@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
   projectPrompt,
   dispatchPromptChoice,
@@ -142,6 +142,8 @@ class ChooseAttackPrompt {
 }
 
 class ConfirmPrompt {}
+class SelectPrompt {}
+class SelectOptionPrompt {}
 class OrderCardsPrompt {
   validate(result) {
     return result === null ? this.options.allowCancel === true :
@@ -429,20 +431,83 @@ test('prompt.sourceCard is not trusted as typed provenance when the active effec
     error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
 });
 
-test('only the explicit ChooseStartingPokemonPrompt type is classified as an engine setup prompt',()=>{
-  const state=makeState({phase:0});
-  const prompt=basePrompt(ChooseStartingPokemonPrompt,state,{
+test('only exact phase-one native setup constructor/message pairs are allowlisted',()=>{
+  const state=makeState({phase:1});
+  const starting=basePrompt(ChooseCardsPrompt,state,{
+    message:'CHOOSE_STARTING_POKEMONS',
     cards:state.players[0].deck,
-    options:{min:1,max:1,allowCancel:false}
+    options:{min:1,max:2,allowCancel:false}
   });
-  const projection=projectPrompt({prompt,state,actorSeat:0,native});
-  assert.equal(projection.promptProjection.source.sourceKind,'engine');
-  assert.equal(projection.promptProjection.source.effectName,'ChooseStartingPokemonPrompt');
+  const startingProjection=projectPrompt({prompt:starting,state,actorSeat:0,native});
+  assert.equal(startingProjection.promptProjection.source.sourceKind,'engine');
+  assert.equal(startingProjection.promptProjection.source.effectName,'CHOOSE_STARTING_POKEMONS');
+  assert.equal(startingProjection.promptProjection.promptType,'ChooseCardsPrompt');
+  assert.equal(startingProjection.promptProjection.publicMetadata.minimumCount,1);
+  assert.equal(startingProjection.promptProjection.publicMetadata.maximumCount,2);
 
-  const unlisted=basePrompt(ChoosePokemonPrompt,state,{
+  const optionalBench=basePrompt(ChooseCardsPrompt,state,{
+    message:'CHOOSE_STARTING_POKEMONS',
+    cards:state.players[0].deck,
+    options:{min:0,max:3,allowCancel:false}
+  });
+  const optionalProjection=projectPrompt({prompt:optionalBench,state,actorSeat:0,native});
+  assert.equal(optionalProjection.promptProjection.publicMetadata.minimumCount,0);
+  assert.equal(optionalProjection.promptProjection.publicMetadata.maximumCount,3);
+  assert.ok(optionalProjection.promptProjection.choices.some(choice=>choice.kind==='empty-selection'));
+
+  const goFirst=basePrompt(ConfirmPrompt,state,{message:'GO_FIRST'});
+  const goFirstProjection=projectPrompt({prompt:goFirst,state,actorSeat:0,native});
+  assert.equal(goFirstProjection.promptProjection.source.effectName,'GO_FIRST');
+  assert.deepEqual(goFirstProjection.promptProjection.choices.map(choice=>choice.label),['Yes','No']);
+
+  const wantToDraw=basePrompt(SelectPrompt,state,{
+    message:'WANT_TO_DRAW_CARDS',
+    values:[6,5,4,3,2,1,0]
+  });
+  const drawProjection=projectPrompt({prompt:wantToDraw,state,actorSeat:0,native});
+  assert.equal(drawProjection.promptProjection.source.effectName,'WANT_TO_DRAW_CARDS');
+  assert.equal(drawProjection.promptProjection.publicMetadata.count,7);
+  assert.deepEqual(drawProjection.promptProjection.choices.map(choice=>choice.publicMetadata.choiceIndex),
+    [0,1,2,3,4,5,6]);
+  assert.deepEqual(drawProjection.promptProjection.choices.map(choice=>choice.label),
+    ['Draw 6 card(s)','Draw 5 card(s)','Draw 4 card(s)','Draw 3 card(s)',
+      'Draw 2 card(s)','Draw 1 card(s)','Draw 0 card(s)']);
+
+  const phaseZero=makeState({phase:0});
+  const phaseZeroPrompt=basePrompt(ChooseCardsPrompt,phaseZero,{
+    message:'CHOOSE_STARTING_POKEMONS',
+    cards:phaseZero.players[0].deck,
+    options:{min:1,max:1,allowCancel:false}
+  });
+  assert.throws(()=>projectPrompt({prompt:phaseZeroPrompt,state:phaseZero,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+
+  const wrongMessage=basePrompt(ChooseCardsPrompt,state,{
+    message:'NOT_A_SETUP_PROMPT',
     cards:state.players[0].deck,
     options:{min:1,max:1,allowCancel:false}
   });
-  assert.throws(()=>projectPrompt({prompt:unlisted,state,actorSeat:0,native}),
+  assert.throws(()=>projectPrompt({prompt:wrongMessage,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+
+  const wrongConstructor=basePrompt(ChoosePokemonPrompt,state,{
+    message:'CHOOSE_STARTING_POKEMONS',
+    slots:[SlotType.ACTIVE,SlotType.BENCH]
+  });
+  assert.throws(()=>projectPrompt({prompt:wrongConstructor,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+
+  const synthetic=basePrompt(ChooseStartingPokemonPrompt,state,{
+    message:'CHOOSE_STARTING_POKEMONS',
+    cards:state.players[0].deck,
+    options:{min:1,max:1,allowCancel:false}
+  });
+  assert.throws(()=>projectPrompt({prompt:synthetic,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+
+  const wrongSelectConstructor=basePrompt(SelectOptionPrompt,state,{
+    message:'WANT_TO_DRAW_CARDS',values:[6,5,4,3,2,1,0]
+  });
+  assert.throws(()=>projectPrompt({prompt:wrongSelectConstructor,state,actorSeat:0,native}),
     error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
 });
