@@ -1384,7 +1384,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
       onlyAllowedAttackNameNextTurn:null,attackCostIncreaseNextTurn:0,
       attackCostIncreaseWhileActive:0,cannotRetreatNextTurn:false,
       cannotRetreatWhileActive:false},
-    specialConditions:[],printed:{stage:'Basic',types:['Psychic'],weakness:[],resistance:[]}
+    specialConditions:[],printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],weakness:[],resistance:[]}
   };
   const target={
     printing:'Dratini SIT 129',hp:70,damage:0,energies:[],attacks:[],
@@ -1400,7 +1400,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
       stadium:[],
       publicTurnRestrictions:{gxUsed:true,attackLockTurnsRemaining:0,
         attackMaxEnergyTurnsRemaining:0,attackMaxEnergy:null,
-        attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0}
+        attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0,
+        stadiumAndToolHaveNoEffectTurnsRemaining:0}
     },
     opponentPublic:{prizeCount:6,active:target,bench:[],stadium:[]},
     publicEventReceipt:{
@@ -1570,6 +1571,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     'Max Geist may replace Power Beam when its unique KO immediately wins the game');
   assert.equal(terminalCrossover.projectedPrintedDamage,220);
   assert.equal(terminalCrossover.projectedDamage,220);
+  assert.equal(terminalCrossover.competingPowerBeamAvailable,true);
   assert.equal(terminalCrossover.competingPowerBeamDamage,200);
   assert.equal(terminalCrossover.competingPowerBeamWouldKo,false);
   assert.equal(terminalCrossover.projectedPrizeCount,2);
@@ -1808,6 +1810,123 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
       weaknessModifierView,postTimelessCatalog,{ownerSeat:0}),null,
       entry.name+' is an unmodelled public Weakness modifier and must fail closed');
   }
+
+  const vileplumeBus={
+    ...target,printing:'Vileplume BUS 6',hp:140,
+    abilities:['Disgusting Pollen'],
+    abilityDetails:[{name:'Disgusting Pollen',
+      text:"As long as this Pokémon is your Active Pokémon, your opponent's Basic Pokémon can't attack."}]
+  };
+  const busPowerBeamView={
+    ...view,
+    ownPublic:{...view.ownPublic,
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
+    opponentPublic:{...view.opponentPublic,active:vileplumeBus}
+  };
+  const busIntent=choosePostTimelessMaxGeistRetreat(
+    busPowerBeamView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(busIntent,
+    'Active Vileplume BUS Disgusting Pollen blocks Basic Mimikyu Copycat, not the promoted VMAX');
+  assert.equal(busIntent.competingPowerBeamAvailable,false);
+  assert.equal(busIntent.routeComparison,'max-geist-only-known-route');
+
+  const vileplumeAor={
+    ...target,printing:'Vileplume AOR 3',
+    abilities:['Irritating Pollen'],
+    abilityDetails:[{name:'Irritating Pollen',
+      text:"Each player can't play any Item cards from his or her hand."}]
+  };
+  const aorPowerBeamView={
+    ...busPowerBeamView,
+    opponentPublic:{...busPowerBeamView.opponentPublic,active:vileplumeAor}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    aorPowerBeamView,postTimelessCatalog,{ownerSeat:0}),null,
+    'AOR Vileplume Item lock does not disable Copycat, so a payable terminal Power Beam remains preferable');
+
+  const unknownOpponentAbility={
+    ...vileplumeBus,abilityDetails:undefined
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat({
+    ...busPowerBeamView,
+    opponentPublic:{...busPowerBeamView.opponentPublic,active:unknownOpponentAbility}
+  },postTimelessCatalog,{ownerSeat:0}),null,
+  'unknown opponent Ability text cannot certify a Basic attacker lock or Copycat legality');
+
+  const unsupportedStadiumView={
+    ...view,
+    ownPublic:{...view.ownPublic,stadium:['Parallel City BKT 145']}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    unsupportedStadiumView,postTimelessCatalog,{ownerSeat:0}),null,
+    'an unmodeled Stadium must not be treated as inert');
+
+  const missingSuppressionEpoch={
+    ...view,
+    ownPublic:{...view.ownPublic,publicTurnRestrictions:{
+      ...view.ownPublic.publicTurnRestrictions,
+      stadiumAndToolHaveNoEffectTurnsRemaining:undefined
+    }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    missingSuppressionEpoch,postTimelessCatalog,{ownerSeat:0}),null,
+    'a missing public Stadium-suppression epoch cannot certify attack cost');
+
+  const suppressedValley={
+    ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93'],
+      publicTurnRestrictions:{
+        ...twoEnergyWithoutDiscount.ownPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:1
+      }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    suppressedValley,postTimelessCatalog,{ownerSeat:0}),null,
+    'Shiftry-style suppression disables Dimension Valley discount for the acting player');
+
+  const suppressedHeadquarters={
+    ...hqTwoEnergyView,
+    ownPublic:{...hqTwoEnergyView.ownPublic,
+      publicTurnRestrictions:{
+        ...hqTwoEnergyView.ownPublic.publicTurnRestrictions,
+        stadiumAndToolHaveNoEffectTurnsRemaining:1
+      }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    suppressedHeadquarters,postTimelessCatalog,{ownerSeat:0}),null,
+    'suppression also disables Headquarters surcharge, exposing the payable Power Beam competitor');
+
+  const newMoonLunatone={
+    printing:'Lunatone OBF 92',abilities:['New Moon'],
+    abilityDetails:[{name:'New Moon',
+      text:'If you have Solrock in play, prevent all effects of any Stadium done to your Pokémon in play.'}],
+    tools:[],energies:[],attacks:[],publicRestrictions:{},specialConditions:[],
+    printed:{stage:'Basic',types:['Psychic'],subtypes:['Basic'],weakness:[],resistance:[]}
+  };
+  const newMoonSolrock={
+    printing:'Solrock CES 62',abilities:[],abilityDetails:[],
+    tools:[],energies:[],attacks:[],publicRestrictions:{},specialConditions:[],
+    printed:{stage:'Basic',types:['Fighting'],subtypes:['Basic'],weakness:[],resistance:[]}
+  };
+  const newMoonValley={
+    ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93'],
+      bench:[latias,clefairy,twoEnergyVmax,newMoonLunatone,newMoonSolrock]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    newMoonValley,postTimelessCatalog,{ownerSeat:0}),null,
+    'Lunatone New Moon plus Solrock suppresses Dimension Valley for the candidate VMAX');
+
+  const newMoonHeadquarters={
+    ...hqTwoEnergyView,
+    ownPublic:{...hqTwoEnergyView.ownPublic,
+      bench:[latias,clefairy,vmax,newMoonLunatone,newMoonSolrock]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    newMoonHeadquarters,postTimelessCatalog,{ownerSeat:0}),null,
+    'New Moon suppresses Headquarters surcharge on Mimikyu and reveals the terminal Power Beam route');
 });
 
 
