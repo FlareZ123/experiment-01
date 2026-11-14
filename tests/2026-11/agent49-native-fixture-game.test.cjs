@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
-  runNativeFixtureGame,normalizeSeed32
+  publicStateSnapshot,runNativeFixtureGame,normalizeSeed32
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
@@ -48,6 +48,7 @@ let failNextDecode=false;
 let failNextPromptDecode=false;
 let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
+let policyRandomDraws=[];
 class Store {
   constructor(options){
     this.options=options;
@@ -128,6 +129,8 @@ class SimpleTacticsAi {
     this.deck=deck;
   }
   decodeNextAction(){
+    if(this.options?.capturePolicyRandom===true)
+      policyRandomDraws.push({id:this.id,draw:Math.random()});
     if(failNextPromptDecode&&this.id===101){
       failNextPromptDecode=false;
       throw new Error('simulated owner-prompt decode failure');
@@ -168,6 +171,7 @@ function input(overrides={}){
     deckB:deck('B'),
     botOptionsBySeat:[{},{}],
     seed:0x12345678,
+    policySeedBySeat:[0x243f6a88,0x85a308d3],
     candidateSeat:0,
     originalSourceSeat:1,
     ...overrides
@@ -202,6 +206,7 @@ test('engine WaitPrompt is acknowledged without consulting either policy', () =>
       candidateSeat:0,
       originalSourceSeat:1,
       seed:77,
+      policySeedBySeat:[0x243f6a88,0x85a308d3],
       native:native(),
       botOptionsBySeat:[{},{}],
     });
@@ -261,6 +266,52 @@ test('fixture PRNG and deck permutation are deterministic and complete',()=>{
   assert.deepEqual([...p].sort((x,y)=>x-y),Array.from({length:60},(_,i)=>i));
 });
 
+test('public state snapshot counts Prize cards across slots rather than counting Prize slots',()=>{
+  const sparse=Array.from({length:6},()=>({cards:[]}));
+  sparse[1].cards.push({fullName:'private prize A'});
+  sparse[4].cards.push({fullName:'private prize B'});
+  const state={players:[{
+    id:101,hand:{cards:[]},deck:{cards:[]},prizes:sparse,discard:[],
+    active:{getPokemonCard:()=>null},bench:[]
+  }]};
+  assert.equal(publicStateSnapshot(state).players[0].prizeCount,2);
+  const full=Array.from({length:6},()=>({cards:[{}]}));
+  state.players[0].prizes=full;
+  assert.equal(publicStateSnapshot(state).players[0].prizeCount,6);
+  state.players[0].prizes=[{cards:[]},{notACardList:true}];
+  assert.equal(publicStateSnapshot(state).players[0].prizeCount,null);
+});
+
+test('policy RNG streams are independent of the physical shuffle seed',()=>{
+  const policySeeds=[0x243f6a88,0x85a308d3];
+  const botOptionsBySeat=[{capturePolicyRandom:true},{capturePolicyRandom:true}];
+  policyRandomDraws=[];
+  const first=runNativeFixtureGame(input({
+    seed:0x11111111,policySeedBySeat:policySeeds,botOptionsBySeat
+  }));
+  const firstDraws=policyRandomDraws.map(row=>({...row}));
+  policyRandomDraws=[];
+  const second=runNativeFixtureGame(input({
+    seed:0x22222222,policySeedBySeat:policySeeds,botOptionsBySeat
+  }));
+  const secondDraws=policyRandomDraws.map(row=>({...row}));
+  assert.notEqual(first.seed32,second.seed32);
+  assert.deepEqual(first.policySeedBySeat,second.policySeedBySeat);
+  assert.deepEqual(firstDraws,secondDraws);
+  assert.deepEqual(firstDraws.map(row=>row.id),[101,202]);
+});
+
+test('policy RNG requires distinct explicit seeds that do not reuse the physical seed',()=>{
+  assert.throws(()=>runNativeFixtureGame(input({policySeedBySeat:undefined})),
+    /two explicit per-seat policy RNG seeds/);
+  assert.throws(()=>runNativeFixtureGame(input({
+    policySeedBySeat:[0x12345678,0x12345678]
+  })),/distinct policy RNG seed/);
+  assert.throws(()=>runNativeFixtureGame(input({
+    seed:77,policySeedBySeat:[77,88]
+  })),/must not reuse the physical shuffle seed/);
+});
+
 test('native fixture loop resolves setup prompts, records exact owner views and offline full state',()=>{
   const originalRandom=Math.random;
   let agentsCreated=0;
@@ -293,11 +344,9 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
   assert.equal(agentsCreated,2);
   assert.equal(result.schema,'aichi-native-fixture-game-v1');
   assert.equal(result.seed,0x12345678);
-  assert.equal(result.randomizationProtocol,'xorshift32-physical-and-seat-policy-streams-v1');
-  assert.deepEqual(result.policySeedBySeat,[
-    (0x12345678^0x6a09e667)>>>0,
-    (0x12345678^0xbb67ae85)>>>0
-  ]);
+  assert.equal(result.randomizationProtocol,'xorshift32-physical-plus-independent-policy-streams-v2');
+  assert.equal(result.policySeedProtocol,'explicit-per-seat-seeds-independent-of-physical-seed-v1');
+  assert.deepEqual(result.policySeedBySeat,[0x243f6a88,0x85a308d3]);
   assert.equal(result.fixtureOnly,true);
   assert.equal(result.admissionEligible,false);
   assert.equal(result.competitiveGameQualified,false);

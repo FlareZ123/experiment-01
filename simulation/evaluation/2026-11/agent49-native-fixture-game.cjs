@@ -5,7 +5,6 @@ const {createHash}=require('node:crypto');
 const {evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 
 const PLAYER_IDS=Object.freeze([101,202]);
-const POLICY_SEED_XORS=Object.freeze([0x6a09e667,0xbb67ae85]);
 const SCHEMA='aichi-native-fixture-game-v1';
 
 function normalizeSeed32(seed) {
@@ -14,6 +13,24 @@ function normalizeSeed32(seed) {
     'fixture seed must be an unsigned 32-bit integer or a non-empty stable string');
   const digest = createHash('sha256').update(seed, 'utf8').digest();
   return digest.readUInt32LE(0);
+}
+
+/**
+ * Policy RNG seeds are explicit per-seat inputs. Never derive them from the
+ * physical shuffle seed: actor-visible random output must reveal nothing
+ * about physical randomization.
+ */
+function normalizePolicySeedBySeat(policySeedBySeat,physicalSeed32) {
+  assert.ok(Array.isArray(policySeedBySeat)&&policySeedBySeat.length===PLAYER_IDS.length,
+    'two explicit per-seat policy RNG seeds are required');
+  const normalized=policySeedBySeat.map(seed=>normalizeSeed32(seed));
+  assert.notEqual(normalized[0],normalized[1],
+    'each physical seat must have a distinct policy RNG seed');
+  for(let seat=0;seat<normalized.length;seat++) {
+    assert.notEqual(normalized[seat],physicalSeed32,
+      'policy RNG seed for seat '+seat+' must not reuse the physical shuffle seed');
+  }
+  return normalized;
 }
 
 function seededRandom(seed) {
@@ -54,6 +71,16 @@ function zoneCount(zone) {
   return null;
 }
 
+function prizeCount(zone) {
+  if(!Array.isArray(zone)) return null;
+  let total=0;
+  for(const slot of zone) {
+    if(!Array.isArray(slot?.cards)) return null;
+    total+=slot.cards.length;
+  }
+  return total;
+}
+
 function publicStateSnapshot(state) {
   return {
     phase:state?.phase??null,
@@ -66,7 +93,7 @@ function publicStateSnapshot(state) {
       seat,id:player?.id??null,
       handCount:zoneCount(player?.hand),
       deckCount:zoneCount(player?.deck),
-      prizeCount:zoneCount(player?.prizes),
+      prizeCount:prizeCount(player?.prizes),
       discardCount:zoneCount(player?.discard),
       active:player?.active?.getPokemonCard?.()?.fullName??null,
       bench:(Array.isArray(player?.bench)?player.bench:[])
@@ -218,7 +245,8 @@ function validateInputs(input) {
     assert.equal(typeof native.observe,'function',
       'the exact actor-observation function is required for this fixture');
   }
-  normalizeSeed32(input.seed);
+  const seed32=normalizeSeed32(input.seed);
+  const policySeedBySeat=normalizePolicySeedBySeat(input.policySeedBySeat,seed32);
   assert.ok(input.candidateSeat===0||input.candidateSeat===1,
     'candidateSeat must be physical seat 0 or 1');
   assert.equal(input.originalSourceSeat,1-input.candidateSeat,
@@ -226,7 +254,7 @@ function validateInputs(input) {
   const maxActions=input.maxActions===undefined?3000:input.maxActions;
   assert.ok(Number.isInteger(maxActions)&&maxActions>0,
     'maxActions must be a positive integer');
-  return {native,maxActions};
+  return {native,maxActions,seed32,policySeedBySeat};
 }
 
 /**
@@ -240,16 +268,14 @@ function validateInputs(input) {
  * closure.
  */
 function runNativeFixtureGame(input) {
-  const {native,maxActions}=validateInputs(input);
-  const seed32=normalizeSeed32(input.seed);
+  const {native,maxActions,seed32,policySeedBySeat}=validateInputs(input);
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format
   }=native;
   const previousRandom=Math.random;
   const physicalRandom=seededRandom(seed32);
-  const policyRandom=POLICY_SEED_XORS.map(xor=>
-    seededRandom((seed32^xor)>>>0));
+  const policyRandom=policySeedBySeat.map(seed=>seededRandom(seed));
   const decisionTrace=[];
   const rootActionLedger=[];
   const actionCountsBySeat=[0,0];
@@ -424,8 +450,9 @@ function runNativeFixtureGame(input) {
       seed:input.seed,
       seed32,
       seedDerivation:typeof input.seed==='string'?'sha256-first-u32le':'identity-uint32',
-      randomizationProtocol:'xorshift32-physical-and-seat-policy-streams-v1',
-      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(seed32^xor)>>>0),
+      randomizationProtocol:'xorshift32-physical-plus-independent-policy-streams-v2',
+      policySeedProtocol:'explicit-per-seat-seeds-independent-of-physical-seed-v1',
+      policySeedBySeat,
       candidateSeat:input.candidateSeat,
       originalSourceSeat:input.originalSourceSeat,
       actualFirstPlayerSeat,
@@ -770,8 +797,9 @@ function runNativeFixtureGame(input) {
       seed:input.seed,
       seed32,
       seedDerivation:typeof input.seed==='string'?'sha256-first-u32le':'identity-uint32',
-      randomizationProtocol:'xorshift32-physical-and-seat-policy-streams-v1',
-      policySeedBySeat:POLICY_SEED_XORS.map(xor=>(seed32^xor)>>>0),
+      randomizationProtocol:'xorshift32-physical-plus-independent-policy-streams-v2',
+      policySeedProtocol:'explicit-per-seat-seeds-independent-of-physical-seed-v1',
+      policySeedBySeat,
       candidateSeat:input.candidateSeat,
       originalSourceSeat:input.originalSourceSeat,
       actualFirstPlayerSeat,
@@ -809,5 +837,6 @@ module.exports={
   projectActionPayload,
   selectedCardIdentity,
   runNativeFixtureGame,
-  normalizeSeed32
+  normalizeSeed32,
+  normalizePolicySeedBySeat
 };
