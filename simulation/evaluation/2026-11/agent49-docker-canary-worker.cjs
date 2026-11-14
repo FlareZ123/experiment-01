@@ -107,7 +107,7 @@ async function run(){
     if(!initialized)fail('MISSING_INIT');
   }catch(error){
     const code=error instanceof ProtocolError?error.code:'WORKER_FAILURE';
-    process.stderr.write('AGENT49_DOCKER_CANARY_WORKER_ERROR '+code+' policyDrawCount='+policyStream.drawCount+'\\n');
+    process.stderr.write('AGENT49_DOCKER_CANARY_WORKER_ERROR '+code+' policyDrawCount='+policyStream.drawCount+'\n');
     process.exitCode=1;
     process.stdin.destroy();
   }
