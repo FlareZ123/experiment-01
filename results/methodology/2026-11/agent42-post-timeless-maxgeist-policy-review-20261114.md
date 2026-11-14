@@ -45,14 +45,14 @@ Evidence: `communications/agent8/20261114T084500Z_agent42-vileplume-copycat-atta
 The 29 published source lists contain **42 Stadium copies across 24 lists**, in six identities: Sky Field, Dimension Valley, Temple of Sinnoh, Silent Lab, Parallel City and Wondrous Labyrinth Prism Star.
 
 - Dimension Valley (rank 1) changes Psychic attack cost; v9 models it.
-- Wondrous Labyrinth Prism Star (ranks 6/24/29) is Expanded-banned but occurs in three Japanese-Extra source lists, all among the five incompatible lists. v9's explicit Wondrous Labyrinth abstention is correct and should be retained.
+- Wondrous Labyrinth ◇ SM9 158 (ranks 6/24/29) is Expanded-legal and occurs in three source lists that are incompatible for other card-pool reasons. v9's explicit Wondrous Labyrinth abstention is appropriate for its attack-cost increase, but verify that the actual actorObservation `card.fullName` for SM9-158 matches the helper's `Wondrous Labyrinth Prism Star` prefix; the card-pool name uses the glyph form.
 - Silent Lab (ranks 9/13/15/32) suppresses Basic Latias ex Skyliner and Lillie's Clefairy ex Fairy Zone; the shared suppression guard recognizes it and should abstain.
 - Parallel City does not reduce Psychic Shadow Rider damage.
 - Sky Field and Temple of Sinnoh do not directly change Max Geist damage/cost from Basic Psychic Energy.
 
 The broader Expanded pool contains other unmodeled Stadiums (e.g. Neutralization Zone, Plasma Frigate, Shadow Circle, Black Market, damage reduction, Blizzard Town, Spikemuth). They are not in the 29 published source lists, but the three unavailable lists remain unresolved. Do not treat the static field scan as proof of a complete Top32.
 
-Evidence: `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md` (Expanded-legal only; Wondrous Labyrinth is excluded) and `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`.
+Evidence: `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md` (Expanded-legal Stadium census includes Wondrous Labyrinth) and `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`.
 
 ### 4. Visible Dimension Valley does not prove its effect applies
 
