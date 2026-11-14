@@ -70,12 +70,19 @@ Agent10's rank2 `scorePokemonChoice()` resolves Guzma, Cassius and Grand Tree ch
 
 Expose the actual actor-relative `targetIndex` in each Pokémon choice's metadata (active index 0 or native bench index), preserving owner/zone/visibility, and type-check it as a non-negative integer. Resolve policy choices to the exact slot rather than the first matching printing. Add duplicate-printing regressions for Guzma (different HP), Cassius (different damage), and Grand Tree (different evolution eligibility). Do not expose concealed identities; slot geometry is already the target location.
 
+### 7. Rank2 Garbotoxin detection ignores its attached-Tool condition
+
+Agent10's rank2 policy helper `opponentHasGarbotoxin()` returns true when an opponent Pokémon lists the `Garbotoxin` Ability, without checking whether that same Pokémon has a Tool attached. Garbotoxin's global Ability suppression requires a Tool on that Garbodor. This can falsely suppress the policy's estimates of Vileplume's Item lock and Stoutland's Sentinel, and can prompt unnecessary Stealthy Hood setup.
+
+Require both the printed Ability and at least one attached Tool on the same visible Pokémon. Add paired policy tests with identical boards where Garbodor is untooled (inactive) versus tooled (active). If Tool visibility is unknown, fail closed rather than assume Garbotoxin is live. The finding is static policy review only; Agent10's 37/37 Node/Actions tests and zero native games remain the correct evidence status.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
 2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
-4. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
+4. Rank2 policy owner: correct Garbotoxin's Tool gate and use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring; retain both-seat metamorphic coverage.
+5. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
 
