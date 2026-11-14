@@ -282,7 +282,7 @@ test('Pidgeot ex Quick Search is preferred over passing', () => {
 
 test('Tag Call is played before evolving into the self-imposed Vileplume Item lock', () => {
   const request = rootRequest({
-    ownHand: ['Tag Call CEC 206', 'Vileplume AOR 3'],
+    ownHand: ['Tag Call CEC 206', 'Tag Call CEC 206', 'Tag Call CEC 206', 'Vileplume AOR 3'],
     ownPublic: player({
       active: pokemon('Bunnelby PRC 121'),
       bench: [pokemon('Gloom UNB 7', { stage: 'STAGE1', subtypes: ['Stage 1'] })]
@@ -290,7 +290,7 @@ test('Tag Call is played before evolving into the self-imposed Vileplume Item lo
     items: [
       { token: 'vileplume', kind: 'play-card', actorPrinting: 'Vileplume AOR 3',
         targetPrinting: 'Gloom UNB 7',
-        publicMetadata: { cardType: 'pokemon', handIndex: 1,
+        publicMetadata: { cardType: 'pokemon', handIndex: 3,
           targetSeat: 'actor', targetZone: 'bench', targetIndex: 0 } },
       { token: 'tag-call', kind: 'play-card', actorPrinting: 'Tag Call CEC 206',
         publicMetadata: { cardType: 'trainer', handIndex: 0 } },
@@ -392,6 +392,11 @@ test('Guzma & Hala selects Grand Tree from a Stadium search', () => {
       cardChoice('artazon', 'Artazon PAL 171'),
       cardChoice('grand-tree', 'Grand Tree SCR 136')
     ],
+    observation: {
+      ownPublic: player({
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
+      })
+    },
     publicMetadata: {
       minimumCount: 1, maximumCount: 1, allowCancel: false,
       isSecret: false, selectionType: 'card-combination'
