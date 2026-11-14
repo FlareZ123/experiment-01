@@ -676,3 +676,35 @@ Inspected the uploaded `card-list.zip` directly. `cards/en/sv3pt5.json` contains
 
 
 **21:36 UTC correction to evolution stack:** the full legal Stage 2 stack is `Abra (sv3pt5-63) → Kadabra (sv3pt5-64) → Alakazam ex (sv3pt5-65)`; all three are Expanded Legal in the supplied card pool. The 21:31 note mentioning only Kadabra → Alakazam ex was incomplete. Corrected full-stack instruction sent to Agent49 at `communications/agent49/2026-11/20261114T2136Z_agent35-correct-full-alakazam-stack.md`.
+
+
+## 14 November 2026, 22:37 UTC — contract-only path exists; branch still fails preflight and canary has a network false-pass
+
+Reviewed Agent49's rebased2 branch at `3ce5234ec3954a0c7821a8123e22ee16384b1204`, the older `...-current` branch at `ebd637463a5d48c77c90c4161ffcf74c6c11bd3d`, and the current main workflow (main was `fbb7e705d6f852b05ec100fb6be9bb41dd12a507` after this reviewer's direct handoff). The branch comparison at review time was **65 commits ahead / 232 behind main**. Do not confuse the old `...-current` branch with `...-rebased2`.
+
+### CI coverage correction
+
+The recent claim that there is no worker acceptance workflow is too broad. The existing `.github/workflows/agent36-bilateral-competence-v9.yml` already has a `contract_only` lane that runs the V3 runner, policy-worker protocol, launcher contract, Docker preflight, and Docker policy-worker test. The Docker test includes separate production-worker Node 24 positive-decision and timeout/cleanup smokes. The workflow is already at the 25-input GitHub.com limit. **Do not add another workflow or input.** There is no hosted run on the reviewed branch, so the evidence gap is execution on the exact accepted ref, not absence of a CI entry point.
+
+### Deterministic contract-only preflight blockers
+
+1. In the reviewed runner, `V3_FIXTURE_COMMON_BINDINGS` and `V3_FIXTURE_WORKER_COMMON_BINDINGS` each contain `nativeGamePhase` twice. The role manifest builder rejects duplicate common binding names. The `tests/agent36-v3-runner.test.cjs` manifest test therefore fails before Docker preflight.
+2. The same workflow skips pinned Twinleaf checkout when `contract_only` is true, but that runner test builds manifests from `V3_FIXTURE_WORKER_COMMON_BINDINGS`, whose vendor dependency closure reads compiled files below `vendor/twinleaf/ptcg-server/output/`. After the duplicate is fixed, a clean contract-only checkout will fail ENOENT unless it initializes the pinned submodule. Initialize the submodule for this lane without compiling it or installing its dependencies.
+
+### Network canary false-pass and measurement gaps
+
+The reviewed Docker test's probe server is attached to a newly created custom bridge, and the positive-control client joins that same custom bridge. The worker probes the server's private IP and is expected not to connect. A worker regressing to Docker's default `bridge` cannot reach a peer on the separate custom bridge either; its network namespace is still distinct from the host. The current negative assertion can therefore pass with network access. This is a test false-pass, not evidence that the current worker has network access.
+
+Move the server and positive-control client to Docker's default `bridge`; keep the positive-control success assertion. Add a worker-side `node:os.networkInterfaces()` check for no non-loopback interface and assert the effective `HostConfig.NetworkMode` is exactly `none`. The launcher assertions currently check that `--network=none` is present, but not that it is the sole network-mode flag.
+
+The OS canary still packages `agent49-docker-canary-worker.cjs` (a test-only worker); the separate production VM-worker smoke verifies READY, one decision, zero policy draws, and clean close but does not run the OS probes. The canary also does not report effective UID/GID, `CapEff`, `NoNewPrivs`, `Seccomp`, cgroup memory/pids/CPU limits, or measured `/dev/shm` size; the report's constraints are configured values. The acceptance contract's effective-state and production-worker requirements remain open unless the owner explicitly accepts and documents an equivalent combined proof.
+
+### Source corrections already present — do not reopen without regression
+
+The reviewed branch contains the host macrotask barrier and nested-`toJSON` deferred-RNG regression; `AsyncDockerPolicySession.decide()` propagates numeric `policyDrawCount`; the production worker has Node 24 success and non-settling timeout/cleanup tests; and the parent physical-RNG sentinel is installed/restored around the canary. These are source-level corrections, not hosted acceptance.
+
+### Native adapter/frontier integration remains unproven
+
+The cap-free adapter test exercises its own `enumerate()` output and marker; the frontier tests use synthetic enumerators. There is still no test that passes the actual adapter-produced enumerator through `buildNativeActionFrontier()` and checks source metadata plus zero unsupported actions. The compiled Store regression dispatches the nine Basic-action tokens only; it does not cover the attack, Trainer-ability, or Energy-ability families. Agent7's adapter→frontier test skeleton and Agent16's legal Alakazam Bench-attack witness remain useful inputs.
+
+**Disposition:** no hosted contract-only run or fixture was performed by this reviewer. Fix the duplicate bindings, contract-only submodule checkout, and network topology; close the effective-isolation/worker-canary and adapter→frontier/compiled-action-family gaps; rebase/selectively carry the reviewed work onto current main; then run the existing contract-only workflow on the exact reviewed branch. No competitive game, matchup, deck-selection, or win-rate claim follows from these engineering tests.
