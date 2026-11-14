@@ -135,9 +135,10 @@ function hasAbility(slot, name) {
 
 function abilityActive(slot, name, observation) {
   if (!hasAbility(slot, name)) return false;
-  if (list(slot?.abilitySuppressions).some(item =>
-    item.abilityName === name && item.suppressed === true)) return false;
-  if (name === 'Fairy Zone' && pathLockActive(observation)) return false;
+  const suppression = list(slot?.abilitySuppressions).find(item =>
+    item.abilityName === name);
+  if (!suppression || suppression.suppressed !== false) return false;
+  if (name === 'Fairy Zone' && pathLockStatus(observation) !== false) return false;
   return true;
 }
 
@@ -167,9 +168,20 @@ function activeStadiums(observation) {
   ];
 }
 
-function pathLockActive(observation) {
-  return activeStadiums(observation).some(stadium =>
+function pathLockStatus(observation) {
+  const present = activeStadiums(observation).some(stadium =>
     /Path to the Peak|Silent Lab/i.test(stadium));
+  if (!present) return false;
+  const epochs = [
+    observation?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining,
+    observation?.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining
+  ];
+  if (epochs.some(value => !Number.isSafeInteger(value) || value < 0)) return null;
+  return epochs.some(value => value > 0) ? false : true;
+}
+
+function pathLockActive(observation) {
+  return pathLockStatus(observation) === true;
 }
 
 function copycatTargetAvailable(request) {
@@ -299,15 +311,15 @@ function scoreAction(item, request) {
           !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) ||
           (pathLockActive(observation) && !boardHas(own, PRINT.marshadow) &&
             !hasPrinting(hand, PRINT.marshadow)) ||
-          (hasDragonActive(observation) && !fairyZoneActive(observation) &&
-            !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy))) &&
+          (hasDragonActive(observation) && pathLockStatus(observation) === false &&
+            !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy))) &&
         hand.length > 1) return 132;
 
     if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
     if (matches(card, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
         observation.ownTurnResources.supporterPlayedTurn === 0) return 110;
     if (matches(card, PRINT.clefairy) && hasDragonActive(observation) &&
-        !fairyZoneActive(observation) && !pathLockActive(observation)) return 130;
+        pathLockStatus(observation) === false && !fairyZoneActive(observation)) return 130;
     if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
         !boardHas(own, PRINT.mimikyu)) return 118;
 
@@ -317,7 +329,7 @@ function scoreAction(item, request) {
             !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)))) return 108;
 
     if (includes(card, 'Quick Ball') &&
-        (boardV < 2 || (hasDragonActive(observation) &&
+        (boardV < 2 || (hasDragonActive(observation) && pathLockStatus(observation) === false &&
           !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) &&
           !hasPrinting(hand, PRINT.clefairy))) && hand.length > 1) return 102;
 
@@ -504,7 +516,7 @@ function cardSearchScore(printing, request, effectName) {
   if (matches(printing, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
       !boardHas(own, PRINT.tapuLele) && !hasPrinting(hand, PRINT.tapuLele)) return 115;
   if (matches(printing, PRINT.clefairy) && hasDragonActive(observation) &&
-      !fairyZoneActive(observation) && !pathLockActive(observation) &&
+      pathLockStatus(observation) === false && !fairyZoneActive(observation) &&
       !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)) return 160;
 
   if (includes(effectName, 'Star Alchemy') || includes(effectName, 'Forest Seal Stone')) {
