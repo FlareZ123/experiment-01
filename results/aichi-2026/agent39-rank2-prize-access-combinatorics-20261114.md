@@ -217,4 +217,6 @@ The static review indicates that the current actor-view path is **not sufficient
 | `agent36-prompt-provenance.cjs` | Prompt provenance is recorded during effect execution; continuation callback is passed through unwrapped | Confirm follow-on Peonia replacement/order prompts retain their own `sourceCard`; if not, propagate captured source context through the continuation |
 | `gladion-root-prize-choice-evidence.cjs` | Existing owner reveal is audit-only | Reuse its all-Prizes-exposed and actor-owned checks as the gate for a policy-facing Gladion projection; clear positional mappings after its shuffle |
 
+The worker does instantiate the policy once on INIT and reuse `workerState.policy` across decision requests, so closure-local state is technically possible; the current Agent10 policy simply does not use it. The worker protocol has no host acknowledgement that the native Store accepted the entire Prize/replacement/order chain, so closure state would otherwise record proposals rather than confirmed settlements. Prefer a host-supplied authenticated owner snapshot (or an explicit acceptance receipt) over trusting the worker's last proposed indices.
+
 Do not implement these changes while the shared worker acceptance gate remains closed. The current findings are a static contract map, not permission to create a rank-specific branch or bypass worker validation.
