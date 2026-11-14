@@ -131,7 +131,7 @@ function opponentHasSpecialEnergy(player) {
   return boardSlots(player).some(({ pokemon }) =>
     list(pokemon.energies).some(energy =>
       /Energy/i.test(energy) &&
-      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\\b/i.test(energy)));
+      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(energy)));
 }
 
 function opponentHasGarbotoxin(player) {
@@ -634,7 +634,7 @@ function promptDecision(request) {
       ranked = rankedChoices(choices, choice => {
         const printing = choicePrinting(choice);
         if (context.includes('plumeria')) {
-          return /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\\b/i.test(printing) ? 5 : 100;
+          return /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(printing) ? 5 : 100;
         }
         if (matches(printing, PRINT.captureEnergy)) return 100;
         if (matches(printing, PRINT.grassEnergy)) return 80;
