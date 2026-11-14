@@ -61,8 +61,9 @@ async function withFakeDocker(run){
 }
 
 function assertNoInvalidPrivateFlags(args){
-  for(const flag of ['--pid=private','--ipc=private','--uts=private'])
-    assert.equal(args.includes(flag),false,'Docker must use supported private namespace defaults, not '+flag);
+  for(const flag of ['--pid','--ipc','--uts'])
+    assert.equal(args.some(arg=>arg===flag||arg.startsWith(flag+'=')),false,
+      'Docker must use the reviewed isolated namespace defaults, not explicit '+flag+' mode');
 }
 
 function assertConstrainedWorkerArgs(args,bundleRoot){
