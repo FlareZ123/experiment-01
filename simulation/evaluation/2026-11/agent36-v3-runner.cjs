@@ -199,8 +199,52 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
+function hostRoleRuntimeExpectedByPath(expectedByPath,workerOnlyPaths=[]) {
+  assert.ok(expectedByPath&&typeof expectedByPath==='object'&&!Array.isArray(expectedByPath),
+    'role manifest expectedByPath must be an object');
+  assert.ok(Array.isArray(workerOnlyPaths),'workerOnlyPaths must be an array');
+  const workerOnly=[...new Set(workerOnlyPaths)].sort();
+  for(const relative of workerOnly){
+    assert.equal(typeof relative,'string');
+    assert.ok(Object.hasOwn(expectedByPath,relative),
+      'worker-only policy entrypoint must remain in the role manifest: '+relative);
+  }
+  return Object.fromEntries(Object.entries(expectedByPath)
+    .filter(([relative])=>!workerOnly.includes(relative))
+    .sort(([a],[b])=>a.localeCompare(b)));
+}
+
+function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPaths=[]}={}) {
+  const root=fs.realpathSync(repositoryRoot);
+  const hostExpectedByPath=hostRoleRuntimeExpectedByPath(expectedByPath,workerOnlyPaths);
+  const workerOnly=[...new Set(workerOnlyPaths)].sort();
+  for(const relative of workerOnly){
+    const filename=path.resolve(root,relative);
+    const relativeCheck=path.relative(root,filename);
+    assert.ok(relativeCheck&&relativeCheck!=='..'&&!relativeCheck.startsWith('..'+path.sep)&&
+      !path.isAbsolute(relativeCheck),'worker-only policy path must remain inside the repository');
+    const bytes=fs.readFileSync(filename);
+    const actualSha256=createHash('sha256').update(bytes).digest('hex');
+    assert.equal(actualSha256,expectedByPath[relative],
+      'worker-only policy source changed before Docker bundle creation: '+relative);
+    assert.equal(require.cache[filename],undefined,
+      'worker-only policy entrypoint must not be evaluated in the host process: '+relative);
+  }
+  const loadedPaths=[];
+  for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
+    const filename=path.resolve(root,relative);
+    const bytes=fs.readFileSync(filename);
+    const actualSha256=createHash('sha256').update(bytes).digest('hex');
+    assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
+    Module._load(filename,module,false);
+    loadedPaths.push(relative);
+  }
+  return {hostExpectedByPath,workerOnlyPaths:workerOnly,loadedPaths};
+}
+
 function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
-  opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries}){
+  opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries,
+  workerOnlyPaths=[],hostExpectedByPath:providedHostExpectedByPath}){
   assert.equal(cardPoolInitialization?.schema,
     'agent36-twinleaf-card-pool-initialization-v1',
     'pinned native card-pool initialization receipt is required');
@@ -223,18 +267,27 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
     'opponent entry manifest engine pin differs from card-pool initialization');
   const combined=identityHelper.combineRolePolicyEntryManifests(
     candidateManifest,opponentManifest);
+  const manifestEntrypoints=[candidateManifest.manifest.entrypoint,opponentManifest.manifest.entrypoint];
+  const expectedWorkerOnlyPaths=[...new Set(manifestEntrypoints)].sort();
+  assert.deepEqual([...new Set(workerOnlyPaths)].sort(),expectedWorkerOnlyPaths,
+    'only the two role-policy entrypoints may be excluded from host execution');
+  const hostExpectedByPath=hostRoleRuntimeExpectedByPath(combined.expectedByPath,expectedWorkerOnlyPaths);
+  if(providedHostExpectedByPath!==undefined)
+    assert.deepEqual(providedHostExpectedByPath,hostExpectedByPath,
+      'host preload map must be the exact role-manifest map minus worker-only policy entrypoints');
   const loaded=identityHelper.assertLoadedResearchModulesCovered(
-    repositoryRoot,combined.expectedByPath,cacheEntries);
-  const expectedPaths=Object.keys(combined.expectedByPath).sort();
+    repositoryRoot,hostExpectedByPath,cacheEntries);
+  const expectedPaths=Object.keys(hostExpectedByPath).sort();
   const loadedPaths=loaded.files.map(file=>file.path).sort();
   assert.deepEqual(loadedPaths,expectedPaths,
-    'every role-closure module must be preloaded before the runtime pin is installed');
+    'every host runtime dependency must be preloaded; worker-only policies must remain unevaluated');
   const cardPoolInitializationSha256=evidenceBundleSha256(cardPoolInitialization);
   const runtimePinEvidence={schema:'aichi-runtime-pin-evidence-v1',
     unionSha256:combined.unionSha256,
     loadedProcessClosureSha256:loaded.sha256,
     cardPoolInitializationSha256};
-  return {expectedByPath:combined.expectedByPath,runtimePinEvidence,
+  return {expectedByPath:hostExpectedByPath,roleExpectedByPath:combined.expectedByPath,
+    workerOnlyPolicyPaths:expectedWorkerOnlyPaths,runtimePinEvidence,
     runtimePinUnionSha256:combined.unionSha256,
     loadedProcessClosureSha256:loaded.sha256,cardPoolInitializationSha256,
     loadedProcessClosure:loaded};
@@ -1380,16 +1433,16 @@ async function runV3FixtureGame({
   const challengeSuiteSha256 = fixtureChallengeSuiteSha256(candidateManifestResult.manifest);
   const combined = manifestResult;
 
-  // Preload only the manifest-owned research closure. The fixture pin helper scopes the
-  // cache for the native callback, while the V1 evidence builder remains unchanged.
-  for (const [relative, expectedSha256] of Object.entries(combined.expectedByPath).sort((a, b) => a[0].localeCompare(b[0]))) {
-    const filename = path.resolve(repositoryRoot, relative);
-    const bytes = fs.readFileSync(filename);
-    const actualSha256 = createHash('sha256').update(bytes).digest('hex');
-    assert.equal(actualSha256, expectedSha256, 'role source changed before preload: ' + relative);
-    Module._load(filename, module, false);
-  }
-  const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(repositoryRoot, combined.expectedByPath);
+  // Hash-check role policy entrypoints but never evaluate them in the host. Only the
+  // Docker VM loads candidate/opponent policy source; ordinary host dependencies are
+  // preloaded and pinned through the existing CommonJS guard.
+  const workerOnlyPolicyPaths=[candidatePolicy.sourcePath,opponentPolicy.sourcePath];
+  const hostPreload=preloadRoleHostModules({
+    repositoryRoot,expectedByPath:combined.expectedByPath,workerOnlyPaths:workerOnlyPolicyPaths
+  });
+  const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(
+    repositoryRoot,hostPreload.hostExpectedByPath
+  );
   const preparedRuntime = prepareV3RoleRuntimeEvidence({
     repositoryRoot,
     candidateManifest: candidateManifestResult,
@@ -1397,6 +1450,8 @@ async function runV3FixtureGame({
     cardPoolInitialization: native.cardPoolInitialization,
     identityHelper: roleIdentity,
     cacheEntries,
+    workerOnlyPaths:workerOnlyPolicyPaths,
+    hostExpectedByPath:hostPreload.hostExpectedByPath
   });
   const runtimePinEvidence = fixtureRuntimePin.createFixtureRuntimePinEvidence(preparedRuntime);
   const identities = buildFixtureRoleIdentities({
