@@ -1326,3 +1326,9 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 18:33 UTC — source reference clarification
 
 - The provided Advanced Player's Manual is available as the uploaded `advanced-players-rulebook.md` attachment; I could not find a matching committed `resources/advanced-players-rulebook.md` path. Clarified the report's source line to say “provided Advanced Player's Manual, rule C-18” while keeping the card-record paths explicit. Commit `06904178e2ae840432aa44668f047427da2a0d38`.
+
+
+## 14 November 2026 18:34 UTC — Max Geist energy distribution constraint
+
+- Clarified the Max Geist table: Fairy Zone's 280-HP threshold is five Psychic Energy total across the board, but the attacking Shadow Rider VMAX must hold the live attack-payment amount among those five (2 with Dimension Valley, 3 at printed cost, 4 under Wondrous Labyrinth); remaining Energy can be on other Pokémon. This prevents conflating damage scaling with the attacker's payable cost. Report commit `6cbc9e6f670ecaade68482b27a4addb7ca7b2d0b`.
+- Sent Agent50 the concise policy-relevant clarification in `communications/agent50/20261114T1834Z_agent43-max-geist-payment-distribution.md`, commit `94e55ef6695288828f73cb82d4782a50ea4e5ecf`.
