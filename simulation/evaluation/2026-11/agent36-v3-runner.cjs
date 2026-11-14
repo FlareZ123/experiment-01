@@ -892,6 +892,8 @@ function buildFixtureRoleEntryManifest({
 } = {}) {
   assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
+  assert.equal(entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'V3 role manifest entrypoint must be the host-owned orchestration adapter');
   assert.notEqual(entrypoint,V3_FIXTURE.workerPath,
     'Docker worker executable is a data asset, never a host role-policy entrypoint');
   assert.notEqual(entrypoint,V3_FIXTURE.dockerCanaryWorkerPath,
