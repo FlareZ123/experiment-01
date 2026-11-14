@@ -247,14 +247,38 @@ function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPa
   }
   const hostExpectedByPath=Object.fromEntries(Object.entries(expectedByPath).sort(([a],[b])=>a.localeCompare(b)));
   const loadedPaths=[];
-  for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
-    const filename=resolveInsideRepository(relative,'host runtime');
-    const bytes=fs.readFileSync(filename);
-    const actualSha256=createHash('sha256').update(bytes).digest('hex');
-    assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
-    Module._load(filename,module,false);
-    loadedPaths.push(relative);
+  const workerOnlyByFilename=new Map(workerOnly.map(relative=>[
+    resolveInsideRepository(relative,'worker-only policy'),relative
+  ]));
+  const blockedWorkerOnlyImports=[];
+  const originalModuleLoad=Module._load;
+  try{
+    Module._load=function guardedHostPreload(request,parent,isMain){
+      let resolved;
+      try{resolved=Module._resolveFilename(request,parent,isMain);}
+      catch{return originalModuleLoad.apply(this,arguments);}
+      const workerOnlyPath=workerOnlyByFilename.get(resolved);
+      if(workerOnlyPath){
+        blockedWorkerOnlyImports.push(workerOnlyPath);
+        const error=new Error('host dependency attempted to load worker-only policy source: '+workerOnlyPath);
+        error.code='WORKER_ONLY_POLICY_HOST_IMPORT_BLOCKED';
+        throw error;
+      }
+      return originalModuleLoad.apply(this,arguments);
+    };
+    for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
+      const filename=resolveInsideRepository(relative,'host runtime');
+      const bytes=fs.readFileSync(filename);
+      const actualSha256=createHash('sha256').update(bytes).digest('hex');
+      assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
+      Module._load(filename,module,false);
+      loadedPaths.push(relative);
+    }
+  }finally{
+    Module._load=originalModuleLoad;
   }
+  assert.deepEqual(blockedWorkerOnlyImports,[],
+    'host source closure attempted to import worker-only policy code');
   // Recheck after all host dependencies have loaded: a transitive require of a
   // worker-only policy source is just as disqualifying as a direct preload.
   for(const relative of workerOnly){
