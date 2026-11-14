@@ -348,3 +348,43 @@ Agent3 proposed a low-risk interim: initialize independent CSPRNG-backed state i
 - Keep fixture admission blocked until the hosted OS canary, complete worker decision routing, host-native validation, fail-closed cleanup, and the owner's separate physical-seed disclosure decision are satisfied.
 
 No deck identity, opponent-field admission, matchup result, competitive game count, or win-rate claim changes from this branch review.
+
+
+## 14 November 2026, 19:22 UTC — current-main worker branch review
+
+**Reviewed branch:** `agent49/v3-worker-acceptance-20261114-current`, head `c6fb40d32c41d69cd206cda3443fd10bda4dba25`. At 19:21 UTC it compared **38 commits ahead / 123 behind** current main (then `99ba2b01a7914b77e2f9652677745dac3df3e4a2`). It is not merge-ready; rebase before any contract lane or fixture. No CI or fixture was dispatched during this review.
+
+The newer branch resolves several earlier P0s:
+- Host session now imports the pure `agent49-policy-protocol.cjs`, not the worker executable.
+- Worker executable is a hashed data asset / Docker bundle member, no longer a host prompt-chain module; the latest commit adds a builder assertion rejecting worker executables in `orderedPromptChain`.
+- Role policy entrypoints remain in the combined role manifest as hash-only source identity, but `preloadRoleHostModules()` excludes them from `hostExpectedByPath` and refuses to preload a policy already in `require.cache`. This is an acceptable identity model **only if** the entrypoints remain unevaluated in the host after all host dependencies are loaded; see the remaining cache gap below.
+- Worker runtime now locks the global `Math` and `Object` bindings and their objects; local Node v22.16.0 VM harness confirms Math replacement fails, `Math.random()` reaches the draw trap, and string-based Function construction is blocked.
+- The pinned worker image is Node `v24.22.3`, `linux/amd64`, digest `sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54`. The Docker canary now uses mode-0444 host markers (including hidden opponent zone), four role/seat combinations, two sequential requests per persistent worker, child-process/worker-thread probes, and a networked peer positive control.
+
+### Remaining acceptance blockers on this branch
+
+1. **P0 — `globalThis` binding remains replaceable.** The worker bootstrap locks `Math`, `JSON`, `Object`, `Array`, `Promise`, and `Reflect`, but not the `globalThis` property itself. A Node v22.16.0 VM reproduction using the current freeze loop shows `Object.getOwnPropertyDescriptor(globalThis,'globalThis')` remains writable/configurable; `globalThis.globalThis = {__agent49SafeRng:()=>0.5}` succeeds and redirects subsequent worker lookups for `__agent49SafeRng`, `__agent49PolicyModule`, and wrapper functions. Capture the real realm global and make its `globalThis` property non-writable/non-configurable before evaluating policy source. Add an ambient descriptor check and an adversarial replacement test. The earlier Math/Object rebinding findings are fixed; this remaining binding is not.
+
+2. **P1 — worker-only require-cache check is pre-load only.** `preloadRoleHostModules()` verifies each policy entrypoint is absent from `require.cache` before loading host dependencies, then `Module._load()`s host modules and returns without rechecking. A host dependency could require a worker-only entrypoint during that loop. `fixtureRolePolicyCacheEntries()` filters to `hostExpectedByPath`, so `assertLoadedResearchModulesCovered()` would not see the extra worker-only cache entry. Recheck all worker-only paths after host preload and fail closed; add a regression where a host binding transitively requires the malicious policy probe. The source-only `loadWorkerPolicyModule()` audit is fine and should remain.
+
+3. **P1 — deferred finalizers can evade zero-draw accounting.** `WeakRef` and `FinalizationRegistry` remain available in the VM context. A finalizer can call `Math.random()`/`__agent49SafeRng` after the immediate post-decision draw-count check, including after the final accepted response; worker EOF currently has no final draw-count check. Deny both globals in the sandbox (and test absence); retain the existing checks after initialization and each decision.
+
+4. **P1 — request deadline still has a write/drain race.** `AsyncDockerPolicySession.decide()` has a 15-second response timer and aborts on timeout, so an async policy that never responds should be killed; this is stronger than the 30-minute worker lifetime ceiling. However, `Promise.all([writeLine(request), responsePromise])` lets an early response clear the response timer while `writeLine()` is still awaiting stream drain. Use one absolute deadline across write, drain, and response; abort the container if any stage exceeds it. Add a test where the response arrives before a deliberately blocked write drain.
+
+5. **P1 — Night Watch host-only classification still falls back to free-form `prompt.message`/`prompt.type`.** Require typed effect/copy-attack provenance; missing or incomplete provenance must abort before host RNG and worker IPC. The direct message already sent on the earlier branch applies to this current branch too.
+
+6. **P1 — Docker canary evidence has two remaining vacuities.** (a) `hostPhysicalRandom` is defined but never installed as parent `Math.random` or made reachable; `hostPhysicalRandomCalls===0` is therefore guaranteed. Install a parent-only sentinel during the worker runs, assert identity is unchanged and call count zero, and restore in `finally`. (b) `referenceNamespaceInodes` comes from the network-probe **peer container**, not the host process. The current namespace assertion proves difference from that peer, not from host namespaces. Collect `/proc/self/ns/{pid,ipc,uts,net,mnt}` in the test process and compare the worker directly to the host. Keep the peer network positive control; it serves a separate purpose.
+
+7. **P0 setup completeness — candidate multi-choice setup remains unhandled.** The candidate policy's generic `ChooseCardsPrompt` path may cover initial starting-Pokémon min:1 and repeated post-mulligan min:0 if the native choice list is restricted to legal Basics, but no real setup regression proves it. Its `ConfirmPrompt`/`SelectPrompt` path still only acts when exactly one choice exists, so `GO_FIRST` and `WANT_TO_DRAW_CARDS` multi-choice prompts abstain. Add exact setup handlers and tests. Agent46 has been notified. The opponent policy still prefers Shadow Rider V for Active during the setup prompt; keep card-specific strategy outside the protocol-only setup slice. Agent6 has been notified.
+
+8. **P1 source provenance — Night Watch and setup tests need end-to-end evidence.** The projection now labels native draw options as `Draw N card(s)` and uses an exact phase-1 setup allowlist; this is a useful improvement. But the worker policy tests still need to prove the candidate/opponent decisions against real projected prompts, both physical seats, initial min:1 and repeated min:0, plus all draw-count options and cancel/disabled behavior.
+
+**Execution evidence:** local Node v22.16.0 harness verified the Math/Object freeze behavior and reproduced the writable `globalThis` bypass; it also confirms `WeakRef` and `FinalizationRegistry` are available in a bare VM context. This environment has no Docker executable, so no Node 24.22.3 container test was run. Do not claim the pinned Docker canary passed until the existing hosted `contract_only` lane runs on Linux/amd64 with the exact image digest and its artifact is reviewed.
+
+### Next sequence
+
+1. Rebase the branch on current main and retain the worker-executable prompt-chain guard.
+2. Lock `globalThis`, deny deferred finalizer globals, add post-load worker-only cache assertion and transitive-import regression.
+3. Close the absolute request deadline race and typed Night Watch provenance.
+4. Finish candidate GO_FIRST/WANT_TO_DRAW_CARDS setup handlers and prove both roles' starting-Pokémon min:1/min:0 behavior; remove card-specific setup preference from the protocol-only path.
+5. Repair the two Docker canary evidence gaps, then run the existing Node 24.22.3 Linux/amd64 `contract_only` lane. Only after all gates pass consider the two-seat hosted canary. No competitive fixture or deck claim before that.
