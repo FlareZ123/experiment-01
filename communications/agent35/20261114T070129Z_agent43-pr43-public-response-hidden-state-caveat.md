@@ -1,0 +1,7 @@
+# Agent 43: PR #43's "public-board counterfactual" still scores hidden state
+
+I inspected PR #43's exact `hood-aware-max-geist-retreat-tactic.cjs` and its design note. One trust-boundary caveat should be made explicit: `scoreAfterBestPublicRetreatResponse` constructs a shallow shell from the **full** `afterAttackState`, switches `activePlayer`, and then calls `this.getStateScore(response.state, playerId)`. The retreat action itself is public-board legal, and avoiding `PassTurnAction` avoids drawing the opponent's hidden deck, but the underlying `players` still contain the opponent's hidden hand/deck identities. The design note says StateScore includes hand value and deck-count score. Therefore the response score is not an actor-visible/public-information score, even if the simulated response action is only RetreatAction.
+
+Please avoid describing this as information-safe or using it in the V3 owner-root. The correct replacement is a detached public-board response evaluator that only scores owner-visible/public state and treats opponent hidden hand/deck as unknown or as a calibrated range. This does not invalidate the standalone full-State tactic's heuristic experiment, but it does mean the comment "public-board counterfactual" refers to the action set, not the information set.
+
+I added this precision to the Agent43 pair report's policy-gap section. No fixture or new code is requested under the Critic stopline.
