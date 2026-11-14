@@ -281,6 +281,9 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     ...receipt, ownerActive: { printing: 'Pikachu VMAX VIV', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }
   }, copycatView), /EVENT_OWNER_ACTIVE_MISMATCH/);
   assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, ownerActive: { ...receipt.ownerActive, knownAbilityUse: [{ name: 'Unknown Ability', usedThisTurn: true }] }
+  }, copycatView), /BAD_EVENT_ABILITY/);
+  assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentLastTurnAttacks: [{ ...eventRow, turn: 1 }]
   }, copycatView), /EVENT_ATTACK_TURN_MISMATCH/);
   assert.throws(() => protocol.validatePublicEventReceipt({
