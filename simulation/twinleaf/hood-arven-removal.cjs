@@ -15,7 +15,7 @@ const mod = p => require(path.join(output, p));
  * Arven searches a Tool and Item, Hood attaches, V evolves to VMAX,
  * Initialization is bypassed, then opponent Tool removal shuts Door off.
  *
- * @param {'Faba'|'Megaton Blower'} removal
+ * @param {'Faba'|'Field Blower'|'Megaton Blower'} removal
  * @returns {object}
  */
 function runResponse(removal) {
@@ -41,6 +41,7 @@ function runResponse(removal) {
   const { ShowCardsPrompt } = mod('game/store/prompts/show-cards-prompt');
   const { ShuffleDeckPrompt } = mod('game/store/prompts/shuffle-prompt');
   const { SelectPrompt } = mod('game/store/prompts/select-prompt');
+  const { SelectOptionPrompt } = mod('game/store/prompts/select-option-prompt');
   const { ChoosePokemonPrompt } = mod('game/store/prompts/choose-pokemon-prompt');
   const { ResolvePromptAction } = mod('game/store/actions/resolve-prompt-action');
   const {
@@ -195,6 +196,20 @@ function runResponse(removal) {
     answer(SelectPrompt, 0);
     answer(ChoosePokemonPrompt, [target]);
     assert.ok(player.lostzone.cards.includes(hood), 'Faba sends the attached Hood to Lost Zone');
+  } else if (removal === 'Field Blower') {
+    // Exercise the legal Tools-only subset; mixed Tool/Stadium selection parity is not asserted here.
+    const fieldBlower = card('Field Blower GRI');
+    const stadium = card('Sky Field ROS');
+    opponent.stadium.cards.push(stadium);
+    opponent.hand.cards.push(fieldBlower);
+    store.reduceEffect(state, new PlayItemEffect(opponent, fieldBlower));
+    const mode = pending(SelectOptionPrompt);
+    const toolIndex = mode.values.findIndex(value => /tool/i.test(String(value)));
+    assert.ok(toolIndex >= 0, 'Field Blower must expose its native Tool mode');
+    answer(SelectOptionPrompt, toolIndex);
+    answer(ChoosePokemonPrompt, [target]);
+    assert.ok(player.discard.cards.includes(hood), 'Field Blower discards the attached Hood');
+    assert.ok(opponent.stadium.cards.includes(stadium), 'Choosing Tool mode must retain the Stadium');
   } else {
     const megaton = card('Megaton Blower SSP');
     opponent.hand.cards.push(megaton);
@@ -227,7 +242,7 @@ function runTest() {
       kind: 'Hood Shield Arven through evolution and adversarial Tool removal',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
       scope: 'injected legal-effect midgame sequence; not a full game or win rate',
-      cases: [runResponse('Faba'), runResponse('Megaton Blower')]
+      cases: [runResponse('Faba'), runResponse('Field Blower'), runResponse('Megaton Blower')]
     };
   } finally {
     restore();
