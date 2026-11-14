@@ -88,3 +88,21 @@ test('Basic-count distribution and Iron Thorns concentration are reproducible', 
   close(ironNet, 4.0267288685917695);
   close(ironNet / allNet, 0.8009662217194228);
 });
+
+
+test('field-wide bonus eligibility tails distinguish one through five optional cards', () => {
+  const tails = buildFieldMatrix(loadInputs()).bonusEligibilityTails;
+  assert.deepEqual(tails.map(x => x.minimumCards), [1,2,3,4,5]);
+  close(tails[0].all29Candidate, 0.18787519648139356);
+  close(tails[0].all29Opponent, 0.11255292947209822);
+  close(tails[0].strict24Candidate, 0.141221104236653);
+  close(tails[0].strict24Opponent, 0.11901875188172832);
+  close(tails[1].all29Candidate, 0.05800040880029248);
+  close(tails[1].all29Opponent, 0.015598787129595261);
+  close(tails[1].strict24Candidate, 0.024558923214866427);
+  close(tails[1].strict24Opponent, 0.016494889859738678);
+  close(tails[2].all29Candidate, 0.025400172135539956);
+  close(tails[3].all29Candidate, 0.013511027005142012);
+  close(tails[4].all29Candidate, 0.007772005240715429);
+  close(tails[4].strict24Candidate, 0.00019060324643877687);
+});
