@@ -15,9 +15,10 @@ const {
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
   assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,
   V3_FIXTURE,V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
-  buildFixtureRoleEntryManifest
+  buildFixtureRoleEntryManifest,buildRoleWorkerBundle
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
+const {cleanupPolicyBundle}=require('../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 const {
   preparePreDealPolicyRegistration,
   revalidatePreDealPolicyRegistration
@@ -621,6 +622,22 @@ test('real worker role manifests keep the executable out of host closure and pin
   }
 });
 
+
+test('role worker bundle contains the executable, pure protocol module, and role policy',()=>{
+  const repositoryRoot=path.resolve(__dirname,'..');
+  const built=buildRoleWorkerBundle({
+    repositoryRoot,policyModulePath:V3_FIXTURE.candidateWorkerPolicyPath
+  });
+  try {
+    const paths=built.bundle.manifest.files.map(file=>file.path);
+    assert.deepEqual(paths,[
+      'agent49-policy-protocol.cjs','policy.cjs','worker.cjs'
+    ]);
+    assert.ok(built.bundle.manifest.files.every(file=>/^[a-f0-9]{64}$/.test(file.sha256)));
+  } finally {
+    cleanupPolicyBundle(built.bundle);
+  }
+});
 
 test('native Stadium actions fail closed without explicit liveness evidence',()=>{
   const unknown={actionFrontier:{items:[{token:'stadium-1',kind:'use-stadium'}]}};
