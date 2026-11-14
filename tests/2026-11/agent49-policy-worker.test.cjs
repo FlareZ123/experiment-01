@@ -319,6 +319,12 @@ test('actual Agent7/Agent8 public event receipt passes the worker schema', () =>
   protocol.validatePublicEventReceipt(augmented.publicEventReceipt, augmented);
   assert.equal(augmented.publicEventReceipt.mimikyuCopycatCompatible, true);
   assert.equal(augmented.publicEventReceipt.opponentCopycatChoices[0].attackName, 'Night Watch');
+  const baseAugmented = attachPreviousOpponentTurnReceipt(view, state, 0, {
+    getPreviousTurnSnapshot: () => ({ turn: 0, attacks: [previousAttack] })
+  });
+  protocol.validatePublicEventReceipt(baseAugmented.publicEventReceipt, baseAugmented);
+  assert.equal(baseAugmented.publicEventReceipt.opponentCopycatChoices, null);
+  assert.equal(baseAugmented.publicEventReceipt.mimikyuCopycatCompatible, null);
 });
 
 test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
