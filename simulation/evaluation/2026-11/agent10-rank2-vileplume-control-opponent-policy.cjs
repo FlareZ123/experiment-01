@@ -139,6 +139,16 @@ function opponentHasGarbotoxin(player) {
     list(pokemon.abilities).includes('Garbotoxin'));
 }
 
+function opponentHasAnyEnergy(player) {
+  return boardSlots(player).some(({ pokemon }) => list(pokemon.energies).length > 0);
+}
+
+function opponentHasFabaTarget(player) {
+  return opponentHasSpecialEnergy(player) ||
+    boardSlots(player).some(({ pokemon }) => list(pokemon.tools).length > 0) ||
+    list(player?.stadium).length > 0;
+}
+
 function opponentHasWeakBenchTarget(player) {
   return list(player?.bench).some(slot =>
     slot && remainingHp(slot) > 0 && remainingHp(slot) <= 90);
@@ -328,7 +338,7 @@ function scoreAction(item, request) {
     if (matches(target, PRINT.stoutland)) {
       const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true ||
         opponentHasGarbotoxin(opponent);
-      return supporterLocked ? 30 : 185;
+      return supporterLocked ? 0 : 185;
     }
     if (matches(own.active?.printing ?? '', PRINT.stoutland) &&
         opponent.publicTurnRestrictions?.supporterPlayLocked === true) return 0;
@@ -376,7 +386,10 @@ function scoreAction(item, request) {
     if (targetIsStoutland && !matches(own.active?.printing ?? '', PRINT.stoutland)) return 198;
     return 80;
   }
-  if (matches(card, PRINT.captureEnergy)) return 102;
+  if (matches(card, PRINT.captureEnergy)) {
+    return list(own.bench).some(slot => slot === null) &&
+      missingLinePriority(observation) > 0 ? 102 : 18;
+  }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
       list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
@@ -400,10 +413,11 @@ function scoreAction(item, request) {
     const targetPokemon = metadata.targetSeat === 'opponent' &&
       metadata.targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
       opponent.bench?.[targetIndex] : null;
-    return targetPokemon && remainingHp(targetPokemon) <= 90 ? 88 : 42;
+    return targetPokemon ?
+      (remainingHp(targetPokemon) > 0 && remainingHp(targetPokemon) <= 90 ? 88 : 42) : 0;
   }
-  if (matches(card, PRINT.faba)) return opponentHasSpecialEnergy(opponent) ? 94 : 40;
-  if (matches(card, PRINT.plumeria)) return opponentHasSpecialEnergy(opponent) ? 78 : 30;
+  if (matches(card, PRINT.faba)) return opponentHasFabaTarget(opponent) ? 94 : 0;
+  if (matches(card, PRINT.plumeria)) return opponentHasAnyEnergy(opponent) ? 78 : 0;
   if (matches(card, PRINT.cassius)) {
     return boardSlots(own).some(row =>
       remainingHp(row.pokemon) > 0 && remainingHp(row.pokemon) <= 40) ? 108 : 12;
@@ -422,7 +436,7 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.bellelba)) {
     return opponent.deckCount <= (own.deckCount ?? 99) - 5 ? 82 : 5;
   }
-  if (matches(card, PRINT.gladion) || matches(card, PRINT.peonia)) return 55;
+  if (matches(card, PRINT.gladion) || matches(card, PRINT.peonia)) return 0;
   return 0;
 }
 
