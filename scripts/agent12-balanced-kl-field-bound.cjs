@@ -2,6 +2,13 @@
 
 const {validateFieldLedger} =
   require('./agent12-balanced-field-ledger-validator.cjs');
+const {probabilityAtMostTwoNonwins} =
+  require('./agent12-exact-two-loss-field-mean-bound.cjs');
+
+const EXACT_FIELD_MEAN_GAMES_PER_STRATUM = 10;
+const EXACT_FIELD_MEAN_MAX_NONWINS = 2;
+const EXACT_FIELD_MEAN_FAILURE_RATE = 0.005;
+const EXACT_FIELD_MEAN_ALPHA = 0.05;
 
 /**
  * Binary KL divergence D(q || p), for q in (0,1], p in (0,q).
@@ -61,34 +68,62 @@ function lowerKlBound(wins, total, confidence) {
  * objective of maximizing GAME WIN PROBABILITY. Assumes independently sampled
  * deals and truly externally audited outcomes: labels are caller assertions.
  *
- * Returns no lower bound unless all 32 unique original source rosters are
+ * Returns no inference unless all 32 unique original source rosters are
  * attested, all expected 128 rank/seat/first-player strata are equally
  * exposed, all preregistered attempts are present, source and candidate
  * fingerprints match, engine + hooks/opponent policy/adjudication bundle are
  * immutable, deal and receipt IDs do not repeat, and no native-only errors,
- * censoring, or unqualified rows are present.
+ * censoring, or unqualified rows are present. A fixed 10-per-stratum,
+ * at-most-two-nonwin aggregate test is available only with an explicit
+ * caller-declared i.i.d.-Bernoulli sampling model; otherwise the heterogeneous
+ * independent-Bernoulli KL bound remains the default.
  *
  * @param {object} request The shared qualified field ledger contract.
  * @returns {{conditionalLowerBound:number|null,
  *  conditionalStatisticalThresholdMet:boolean,
  *  observedWinRate:number|null,winCount:number|null,totalAttempts:number,
  *  attemptsPerRankSeatAndFirstPlayer:number|null,rejectionReasons:string[],
- *  externalPaperAndIndependenceAuditRequired:true}}
+ *  externalPaperAndIndependenceAuditRequired:true,
+ *  boundMethod:string,worstCaseNullPValue:number|null,
+ *  nonwinCount:number|null,samplingModelDeclaration:string}}
  */
 function assessBalancedFieldKl(request) {
   const v = validateFieldLedger(request,
     ['paper-qualified-win','paper-qualified-loss','paper-qualified-tie'],
     'noncompleted-or-unqualified-attempt');
   const valid = v.rejectionReasons.length === 0;
-  const lower = valid ?
-    lowerKlBound(v.winCount, v.totalAttempts, v.confidence) : null;
+  const exactIidMode = request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const samplingModelDeclaration = exactIidMode
+    ? 'iid-bernoulli-v1 (caller assertion; external audit required)'
+    : 'heterogeneous-independent-Bernoulli default';
+  const nonwinCount = valid ? v.totalAttempts - v.winCount : null;
+  const exactFieldMeanApplicable = valid && exactIidMode &&
+    v.target === 0.995 && v.confidence === 0.95 &&
+    v.attemptsPerRankSeatAndFirstPlayer === EXACT_FIELD_MEAN_GAMES_PER_STRATUM &&
+    nonwinCount <= EXACT_FIELD_MEAN_MAX_NONWINS;
+  const worstCaseNullPValue = exactFieldMeanApplicable
+    ? probabilityAtMostTwoNonwins(v.totalAttempts, EXACT_FIELD_MEAN_FAILURE_RATE)
+    : null;
+  const lower = valid && !exactFieldMeanApplicable
+    ? lowerKlBound(v.winCount, v.totalAttempts, v.confidence)
+    : null;
+  const boundMethod = !valid ? 'not-admissible'
+    : exactFieldMeanApplicable ? 'exact-field-mean-two-nonwins-iid'
+    : 'heterogeneous-kl';
+  const conditionalStatisticalThresholdMet = exactFieldMeanApplicable
+    ? worstCaseNullPValue <= EXACT_FIELD_MEAN_ALPHA
+    : valid && lower >= v.target;
   return {
     conditionalLowerBound: lower,
-    conditionalStatisticalThresholdMet: valid && lower >= v.target,
+    conditionalStatisticalThresholdMet,
     observedWinRate: valid ? v.winCount / v.totalAttempts : null,
     winCount: valid ? v.winCount : null,
+    nonwinCount,
     totalAttempts: v.totalAttempts,
     attemptsPerRankSeatAndFirstPlayer: v.attemptsPerRankSeatAndFirstPlayer,
+    boundMethod,
+    worstCaseNullPValue,
+    samplingModelDeclaration,
     rejectionReasons: v.rejectionReasons,
     externalPaperAndIndependenceAuditRequired: true
   };
