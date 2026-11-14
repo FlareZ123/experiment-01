@@ -16,6 +16,7 @@ const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
 const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProcessLock,releaseNativeFixtureProcessLock}=require('./agent49-native-fixture-game.cjs');
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
+const knownCapFreeActionEnumerator=require('./agent3-known-cap-free-action-enumerator.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
 const {installPromptProvenanceHook}=require('./agent36-prompt-provenance.cjs');
 const workerProtocol=require('./agent49-policy-protocol.cjs');
@@ -132,6 +133,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
   return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
     ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
+    PokemonCard,EnergyCard,TrainerCard,Stage,TrainerType,SpecialCondition,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
     ResolvePromptAction:promptActions.ResolvePromptAction,
@@ -756,7 +758,10 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'nativeEnergyCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/energy-card.js', exportName: 'EnergyCard' },
   { name: 'nativeTrainerCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card.js', exportName: 'TrainerCard' },
   { name: 'nativeCardTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Format' },
+  { name: 'nativeStage', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Stage' },
+  { name: 'nativeTrainerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'TrainerType' },
   { name: 'nativePokemonTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types.js', exportName: 'PowerType' },
+  { name: 'nativeSpecialCondition', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'SpecialCondition' },
 ];
 
 const V3_FIXTURE_PROMPT_CHAIN = [
@@ -779,6 +784,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
+  { name: 'knownCapFreeActionEnumerator', path: 'simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs', exportName: 'createKnownCapFreeActionEnumerator' },
   { name: 'promptProvenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs', exportName: 'installPromptProvenanceHook' },
   { name: 'nativeActionEnumerator', path: 'vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js', exportName: 'ActionEnumerator' },
   { name: 'nativeSimulator', path: 'vendor/twinleaf/ptcg-server/output/game/bots/simulator.js', exportName: 'Simulator' },
@@ -810,7 +816,10 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'nativeEnergyCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/energy-card.js', exportName: 'EnergyCard' },
   { name: 'nativeTrainerCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card.js', exportName: 'TrainerCard' },
   { name: 'nativeCardTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Format' },
+  { name: 'nativeStage', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Stage' },
+  { name: 'nativeTrainerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'TrainerType' },
   { name: 'nativePokemonTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types.js', exportName: 'PowerType' },
+  { name: 'nativeSpecialCondition', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'SpecialCondition' },
 ];
 
 const V3_FIXTURE_WORKER_PROMPT_CHAIN = [
@@ -1275,6 +1284,8 @@ function createV3WorkerExecutionAudit({
   const role=(name,seat,policyVersion)=>({
     role:name,seat,policyVersion,bundleSha256:null,policySha256:null,
     decisionCount:0,rootDecisionCount:0,promptDecisionCount:0,
+    rootActionFrontierAdmissionCount:0,rootActionFrontierAdmissionReceipts:[],
+    actionFrontierAdmissionFailureCount:0,
     hostOnlyPromptCount:0,abstentionCount:0,failureCount:0,
     timeoutCount:0,lastFailureCode:null,
     workerProcessClosed:false,containerRemoved:false,policyBundleRemoved:false,
@@ -1293,6 +1304,8 @@ function createV3WorkerExecutionAudit({
     },
     totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
     policyRngViolations:0,replayableEvidence:true,
+    actionFrontierAdapterSchema:knownCapFreeActionEnumerator.SCHEMA,
+    actionFrontierAdapterEnginePin:V3_FIXTURE.engineCommit,
     cleanupVerified:false,cleanupFailureCount:0,cleanupReceipts:[],promptProvenanceHook:null,
   };
 }
@@ -1316,6 +1329,10 @@ function createV3WorkerDecisionResolver({
   const recordFailure=(roleAudit,error,session)=>{
     const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
       error.code:'WORKER_DECISION_FAILURE';
+    if(code.startsWith('NATIVE_ACTION_FRONTIER_')||
+        code.startsWith('NATIVE_ACTION_ENUMERATOR_ADAPTER_')){
+      roleAudit.actionFrontierAdmissionFailureCount++;
+    }
     if(code==='POLICY_ABSTAINED'){
       roleAudit.abstentionCount++;
       workerAudit.totalAbstentions++;
@@ -1418,9 +1435,21 @@ function createV3WorkerDecisionResolver({
         error.code='VALIDATION_RANDOM_SCOPE_MISSING';
         throw error;
       }
-      const frontier=request.withValidationRandom(()=>actionFrontier.buildNativeActionFrontier({
-        state:request.state,actorSeat,native
-      }));
+      const {frontier,admission}=request.withValidationRandom(()=>{
+        const enumerator=knownCapFreeActionEnumerator.createKnownCapFreeActionEnumerator({
+          native,enginePin:V3_FIXTURE.engineCommit
+        });
+        const frontier=actionFrontier.buildNativeActionFrontier({
+          state:request.state,actorSeat,native,enumerator
+        });
+        const admission=knownCapFreeActionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+          enumerator,enginePin:V3_FIXTURE.engineCommit,
+          frontierDiagnostics:frontier.diagnostics
+        });
+        return {frontier,admission};
+      });
+      roleAudit.rootActionFrontierAdmissionCount++;
+      roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
@@ -2278,7 +2307,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
-  loadWorkerPolicyModule,buildRoleWorkerBundle,
+  loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   buildFixturePolicyConstraints,
