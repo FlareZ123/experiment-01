@@ -2244,7 +2244,7 @@ test('GO_FIRST rejects cancel rows and cancel-enabled confirmation metadata for 
   }
 });
 
-test('WANT_TO_DRAW_CARDS maps every native choice index to its exact descending Draw N label for both seats', () => {
+test('WANT_TO_DRAW_CARDS chooses the highest visible Draw N value from the complete option list for both seats', () => {
   for (const actorSeat of [0, 1]) {
     const choices = [4, 3, 2, 1, 0].map((drawCount, choiceIndex) => ({
       token: 'draw-' + choiceIndex,
@@ -2272,7 +2272,7 @@ test('WANT_TO_DRAW_CARDS maps every native choice index to its exact descending 
   }
 });
 
-test('WANT_TO_DRAW_CARDS accepts sparse enabled values using original native indices for both seats', () => {
+test('WANT_TO_DRAW_CARDS ranks sparse options by visible labels, not count-minus-index, for both seats', () => {
   for (const actorSeat of [0, 1]) {
     const request = promptRequest({
       actorSeat,
@@ -2280,8 +2280,8 @@ test('WANT_TO_DRAW_CARDS accepts sparse enabled values using original native ind
       description: 'WANT_TO_DRAW_CARDS',
       source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
       choices: [
-        { token: 'draw-5', kind: 'option', label: 'Draw 5 card(s)', publicMetadata: { choiceIndex: 1 } },
-        { token: 'draw-3', kind: 'option', label: 'Draw 3 card(s)', publicMetadata: { choiceIndex: 3 } },
+        { token: 'draw-2', kind: 'option', label: 'Draw 2 card(s)', publicMetadata: { choiceIndex: 1 } },
+        { token: 'draw-6', kind: 'option', label: 'Draw 6 card(s)', publicMetadata: { choiceIndex: 3 } },
         { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 6 } }
       ],
       publicMetadata: {
@@ -2293,7 +2293,7 @@ test('WANT_TO_DRAW_CARDS accepts sparse enabled values using original native ind
     });
     assert.deepEqual(checkedDecision(request), {
       kind: 'select-choice',
-      token: 'draw-5'
+      token: 'draw-6'
     });
   }
 });
@@ -2314,17 +2314,30 @@ test('WANT_TO_DRAW_CARDS rejects unexpected cancel rows', () => {
   assert.equal(checkedDecision(request).kind, 'abstain');
 });
 
-test('WANT_TO_DRAW_CARDS rejects a choice-index and Draw N label mismatch', () => {
-  const request = promptRequest({
+test('WANT_TO_DRAW_CARDS rejects malformed labels and duplicate native indices', () => {
+  const malformedLabel = promptRequest({
     promptType: 'SelectPrompt',
     description: 'WANT_TO_DRAW_CARDS',
     source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
     choices: [
-      { token: 'draw-0', kind: 'option', label: 'Draw 3 card(s)', publicMetadata: { choiceIndex: 0 } },
-      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 1 } }
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-invalid', kind: 'option', label: 'Draw many card(s)', publicMetadata: { choiceIndex: 1 } }
     ],
     publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
     observation: { phase: 1, ownPublic: player() }
   });
-  assert.equal(checkedDecision(request).kind, 'abstain');
+  assert.equal(checkedDecision(malformedLabel).kind, 'abstain');
+
+  const duplicateIndex = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 0 } }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(duplicateIndex).kind, 'abstain');
 });
