@@ -18,6 +18,8 @@ async function createPolicy({ config }) {
     async decide(request) {
       if (config.mode === 'math') Math.random();
       if (config.mode === 'crypto') require('node:crypto').randomBytes(1);
+      if (config.mode === 'pseudo') require('node:crypto').pseudoRandomBytes(1);
+      if (config.mode === 'webcrypto') require('node:crypto').webcrypto.getRandomValues(new Uint8Array(1));
       if (config.forceUnknownAction === true) {
         return { kind: 'select-action', token: 'not-in-frontier' };
       }
@@ -224,6 +226,8 @@ test('worker fails closed on role/seat drift, sequence errors, duplicate IDs and
     { forceUnknownAction: true });
   await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'math' });
   await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'crypto' });
+  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'pseudo' });
+  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'webcrypto' });
 
   const worker = startWorker();
   try {
