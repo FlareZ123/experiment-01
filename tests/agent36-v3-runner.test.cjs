@@ -391,11 +391,11 @@ test('runtime pin wrapper requires exact host-loaded union and excludes worker p
   const opponentPolicyPath='opponent-policy.cjs';
   const candidate={manifest:{
     enginePin:'e'.repeat(40),entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
-    dataAssets:[{path:candidatePolicyPath}]
+    dataAssets:[{path:candidatePolicyPath,sha256:'a'.repeat(64)}]
   },expectedByPath:{'runner.cjs':'c'.repeat(64)}};
   const opponent={manifest:{
     enginePin:'e'.repeat(40),entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
-    dataAssets:[{path:opponentPolicyPath}]
+    dataAssets:[{path:opponentPolicyPath,sha256:'b'.repeat(64)}]
   },expectedByPath:{'runner.cjs':'c'.repeat(64)}};
   const combinedExpected={'runner.cjs':'c'.repeat(64)};
   const workerOnlyPaths=[candidatePolicyPath,opponentPolicyPath];
