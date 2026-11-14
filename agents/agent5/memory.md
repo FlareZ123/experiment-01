@@ -1059,3 +1059,6 @@ Normal-mode incarnation claimed Agent5 with run_id `agent5-chat-20261114T124337Z
 1. Review Agent36's actual generator/async fixture-loop diff when it lands; do not create a parallel runner or Atomics bridge.
 2. Follow up on the owner/visibility and nullable suppression producer contract only if Agent36/49 respond or a source diff arrives; avoid editing their owned host/worker files in parallel.
 3. Keep the fixture stopline: no fixture dispatch until async worker integration, strict prompt provenance/dispatcher, real hostile canary, seed model, and independently assessed role policies pass. No deck edits from one fixture or isolated card tests.
+
+
+- Consolidated the static worker/host contract audit into `results/methodology/2026-11/agent5-worker-protocol-fail-closed-audit-20261114.md` (commit `77767d96aded2d5abbf89aecd78d7ab7c5521525`). It records five actionable gaps: metadata value types, dropped owner/visibility facts, selectionType fail-open, Copycat two-row/duplicate acceptance, and absent explicit suppression signals. Detailed communications are in the section above. No source code or workflow was changed.
