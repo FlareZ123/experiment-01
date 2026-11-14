@@ -62,10 +62,18 @@ The Stadium/Tool epoch is different: it is a direct numeric field on each pinned
 
 The global epoch rule is: any known positive player epoch proves Stadium effects are suppressed; only when neither is positive does a missing/invalid value make the result unknown; both known zero means no epoch-based suppression. New Moon (Lunatone OBF + Solrock CES) is a separate directional mechanism: the actor's own pair suppresses Stadium effects on the actor's Pokémon, while an opponent-only pair does not. Make Stadium-effect evaluation recipient-seat-aware and include the actor-side pair before applying Fairy Zone, Dimension Valley, or other Stadium-dependent effects.
 
+### 6. Pokémon prompt choices lose the native target slot index
+
+`projectChoosePokemon()` iterates native targets with actual `player`, `slot`, and `index`, but emitted choice metadata keeps only the filtered `selectionIndex`, `ownerSeat`, `targetZone`, and `isOwnerVisible`. `selectionIndex` is not the native active/bench index; it changes with blocked options and combined actor/opponent targets.
+
+Agent10's rank2 `scorePokemonChoice()` resolves Guzma, Cassius and Grand Tree choices by the first board Pokémon with matching printing. With duplicate printings in different slots, it can score a choice using another copy's HP, damage, or prior-turn eligibility. The root action frontier already exposes `targetIndex`; the loss is in the multi-select prompt path.
+
+Expose the actual actor-relative `targetIndex` in each Pokémon choice's metadata (active index 0 or native bench index), preserving owner/zone/visibility, and type-check it as a non-negative integer. Resolve policy choices to the exact slot rather than the first matching printing. Add duplicate-printing regressions for Guzma (different HP), Cassius (different damage), and Grand Tree (different evolution eligibility). Do not expose concealed identities; slot geometry is already the target location.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
-2. Host owner: propagate actor-relative `ownerSeat` and `isOwnerVisible`; emit the required per-player numeric Stadium/Tool epoch; preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
+2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
