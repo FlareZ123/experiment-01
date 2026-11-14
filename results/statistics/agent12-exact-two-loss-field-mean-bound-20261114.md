@@ -137,6 +137,20 @@ At nine games per cell, the equal null point is already a valid null configurati
 - Exact-rational proof certificate: scripts/agent12-exact-two-loss-field-mean-proof.py; passed on Python 3.13.5. It checks the Bernstein coefficients, the three-region lower-bound certificates, and exact rational binomial-tail comparisons at 1,280 and 1,152 games.
 - The existing manual-only Agent12 statistical workflow now includes the Node regression and Python proof certificate. No new workflow or game simulation was added.
 
+## Homogeneous operating characteristics (planning only)
+
+The fixed rule rejects when the 1,280-game total contains at most two nonwins. Its operating characteristic under a **homogeneous** alternative (all 128 strata have the same fixed win probability) is:
+
+| Common true win rate | Probability the rule passes |
+|---:|---:|
+| 99.95% | 97.2785791% |
+| 99.90% | 86.1775285% |
+| 99.80% | 52.8375061% |
+| 99.70% | 26.2059101% |
+| 99.50% (null boundary) | 4.5950044% |
+
+This table is computed by the same binomial-tail helper and is useful for planning: at a homogeneous 99.9% win rate, the design has about 86.2% power. It is **not a uniform power guarantee over heterogeneous alternatives**. The pairwise-smoothing proof above establishes the least-favourable configuration for Type I error on the 99.5% null boundary; it does not establish the least-favourable configuration throughout the alternative space. The table must not be presented as a confidence bound or as expected deck performance.
+
 ## Scope limits and status
 
 This is a fixed-sample prospective method, not an anytime-valid or optional-stopping procedure. Do not inspect interim results and then choose among the 5-, 8-, or 10-games-per-cell designs without a separately preregistered alpha-spending or anytime-valid procedure. It is an aggregate field-mean test only; it does not guarantee that each of the 32 opponent matchups exceeds 99.5%. Use the separate simultaneous per-opponent methodology if that stronger claim is required.
