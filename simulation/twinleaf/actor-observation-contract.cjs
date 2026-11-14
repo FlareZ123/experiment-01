@@ -17,6 +17,13 @@ const printing=card=>{
 function visiblePokemon(slot){
   const pokemon=slot.getPokemonCard();
   if(!pokemon)return null;
+  const powers=Array.isArray(pokemon.powers)?pokemon.powers:[];
+  const abilitySuppressions=powers.every(power=>
+    typeof power?.name==='string'&&power.name.length>0)?
+      powers.map(power=>({
+        abilityName:power.name,suppressed:null,
+        reasonCode:null,sourcePrinting:null
+      })):undefined;
   return {
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
@@ -68,11 +75,15 @@ function visiblePokemon(slot){
       ...(attack.canUseOnFirstTurn===true?{canUseOnFirstTurn:true}:{}),
       barrage:attack.barrage===true
     })),
-    abilities:pokemon.powers.map(power=>power.name),
-    abilityDetails:pokemon.powers.map(power=>({
+    abilities:powers.map(power=>power.name),
+    abilityDetails:powers.map(power=>({
       name:power.name,powerType:power.powerType??null,
       text:power.text??null
-    }))
+    })),
+    // Explicit unknown is safer than inferring a live Ability from the absence
+    // of a recognized suppressor; the host/Store adapter may replace null with
+    // a source-attributed true/false fact when it can prove one.
+    ...(abilitySuppressions===undefined?{}:{abilitySuppressions})
   };
 }
 
