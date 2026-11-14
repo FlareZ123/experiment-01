@@ -49,3 +49,11 @@ The local probe returned a live time string. Therefore, even the proposed restri
 
 Add Intl: undefined (or a carefully restricted context-native Intl surface) and regression tests proving Intl.DateTimeFormat cannot obtain the current time. This was a local Node 22.16.0 probe, not a hosted Node 24 canary.
 
+
+
+## Current-policy source scan and physical-seed boundary
+
+I also checked the current candidate policy blob 55ef8f99717b9c8fe0c10960aa6ab7ae338e1323 and rank1 policy blob 23f5b174e962f017f4b100e74d13456013d85bd8 for direct references to Math.random (including bracket notation), crypto, Date.now/new Date, Intl, performance.now, process.env, module.constructor, and require calls. No direct textual matches were found in either policy module. This is useful current-source evidence, but it is not an enforcement boundary: the worker gives CommonJS policy code ambient capabilities, and future code can use computed properties or module-loader access.
+
+The Docker launcher also uses an allowlisted environment: host PATH/HOME only, and container HOME/LANG/TZ/PATH. The physical game seed is not in that environment, not in INIT, and the worker receives only the read-only policy bundle mount plus versioned IPC. No physical-seed disclosure is demonstrated by this audit. The remaining blocker is deterministic/replayable policy execution, not a proven hidden-seed leak.
+
