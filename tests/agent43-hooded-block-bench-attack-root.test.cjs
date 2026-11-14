@@ -94,7 +94,8 @@ function makeView(options = {}) {
       name: 'Full Moon Rondo',
       cost: [PSY, C],
       damage: 20,
-      damageCalculation: null,
+      damageCalculation: '+',
+      text: "This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's).",
       gxAttack: false
     }]
   });
@@ -224,6 +225,21 @@ test('an already attached Active Hood permits only a funded public-KO paid-retre
   assert.equal(plan.projectedTerminalWin, false);
   assert.deepEqual(plan.discardEnergyIndices, [0, 1]);
   assert.equal(plan.nativeStorePaymentVerified, false);
+});
+
+test('Full Moon Rondo additive damage is derived only from public occupied Bench slots', () => {
+  const view = makeView({ hoodOnActive: true, hoodInHand: false });
+  const fullBench = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(fullBench.projectedPrintedDamage, 220);
+
+  view.ownPublic.bench[4] = null;
+  view.opponentPublic.bench[4] = null;
+  const reducedBench = chooseHoodedBlockBenchAttackRoot(view, catalog);
+  assert.equal(reducedBench.projectedPrintedDamage, 180);
+
+  const unsupportedFormula = makeView({ hoodOnActive: true, hoodInHand: false });
+  unsupportedFormula.ownPublic.bench[0].attacks[0].text = 'Unrecognized damage formula';
+  assert.equal(chooseHoodedBlockBenchAttackRoot(unsupportedFormula, catalog), null);
 });
 
 test('surplus basic Psychic Energy can pay the two-unit retreat while the Active cannot attack', () => {
@@ -461,7 +477,10 @@ test('native root maps Hood attachment and paid retreat for either physical seat
       getCatalog: () => catalog,
       cardActions: {
         PlayCardAction,
-        PlayerType: { BOTTOM_PLAYER: 0, TOP_PLAYER: 1, ANY: 2 },
+        // Match Twinleaf's pinned PlayerType enum: ANY=0, TOP_PLAYER=1,
+        // BOTTOM_PLAYER=2. BOTTOM_PLAYER means the acting player, not
+        // physical state.players[0], for either candidate seat.
+        PlayerType: { ANY: 0, TOP_PLAYER: 1, BOTTOM_PLAYER: 2 },
         SlotType: { BOARD: 0, ACTIVE: 1, BENCH: 2 }
       },
       gameActions: { AttackAction, PassTurnAction, RetreatAction, UseAbilityAction }
@@ -471,7 +490,9 @@ test('native root maps Hood attachment and paid retreat for either physical seat
   for (const seat of [0, 1]) {
     const attach = run(seat, false);
     assert.ok(attach.result instanceof PlayCardAction);
-    assert.deepEqual(attach.result.target, { player: seat, slot: 1, index: 0 });
+    assert.deepEqual(attach.result.target, {
+      player: 2, slot: 1, index: 0
+    }, 'PlayCardAction targets the acting player for either physical seat');
     assert.equal(attach.audit.hoodedBlockBenchAttackRootOptIn, true);
     assert.equal(attach.audit.hoodedBlockBenchAttackRootHoodAttachmentsSelected, 1);
     assert.equal(attach.audit.hoodedBlockBenchAttackRootRetreatsSelected, 0);
