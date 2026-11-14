@@ -10,6 +10,10 @@ const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
+const EXECUTABLE_ACTION_KINDS = new Set([
+  'play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'
+]);
+const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
 
 const LIMITS = Object.freeze({
   maxLineBytes: 1024 * 1024,
@@ -513,16 +517,21 @@ function validateFrontier(frontier) {
   exactKeys(frontier, ['schema', 'items']);
   if (frontier.schema !== FRONTIER_SCHEMA) fail('BAD_ACTION_FRONTIER_SCHEMA');
   if (!Array.isArray(frontier.items) || frontier.items.length > 512) fail('BAD_ACTION_FRONTIER');
-  const tokens = uniqueTokens(frontier.items, 'token');
+  uniqueTokens(frontier.items, 'token');
+  const selectableTokens = new Set();
   for (const item of frontier.items) {
     exactKeys(item, ['token', 'kind'], ['label', 'actorPrinting', 'targetPrinting', 'attackName', 'publicMetadata']);
-    if (!boundedString(item.kind, /^[A-Za-z][A-Za-z0-9._-]{0,63}$/)) fail('BAD_ACTION_KIND');
+    if (!boundedString(item.kind, /^[A-Za-z][A-Za-z0-9._-]{0,63}$/) ||
+        (!EXECUTABLE_ACTION_KINDS.has(item.kind) && !ANALYSIS_ONLY_ACTION_KINDS.has(item.kind))) {
+      fail('BAD_ACTION_KIND');
+    }
+    if (EXECUTABLE_ACTION_KINDS.has(item.kind)) selectableTokens.add(item.token);
     for (const key of ['label', 'actorPrinting', 'targetPrinting', 'attackName']) {
       if (item[key] !== undefined && !boundedString(item[key], null, 256)) fail('BAD_ACTION_METADATA');
     }
     if (item.publicMetadata !== undefined) validateActionMetadata(item.publicMetadata);
   }
-  return tokens;
+  return selectableTokens;
 }
 
 function validateRequest(message, init, expectedSequence, seenRequestIds) {

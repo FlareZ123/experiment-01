@@ -623,3 +623,23 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
   }), /BAD_ACTION_INDEX_METADATA/);
 });
 
+test('analysis-only projected attack rows cannot be selected as native actions', () => {
+  const frontier = {
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [
+      { token: 'native-0', kind: 'attack', attackName: 'Max Geist' },
+      { token: 'projection-0', kind: 'projected-attack', attackName: 'Projected Max Geist' }
+    ]
+  };
+  const actionTokens = protocol.validateFrontier(frontier);
+  assert.equal(actionTokens.has('native-0'), true);
+  assert.equal(actionTokens.has('projection-0'), false);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-action', token: 'projection-0'
+  }, null, actionTokens), /POLICY_SELECTED_UNKNOWN_ACTION/);
+  assert.throws(() => protocol.validateFrontier({
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [{ token: 'unknown-0', kind: 'made-up-action' }]
+  }), /BAD_ACTION_KIND/);
+});
+
