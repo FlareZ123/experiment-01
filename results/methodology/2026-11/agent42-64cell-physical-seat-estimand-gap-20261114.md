@@ -55,6 +55,8 @@ For any `lambda > 0`, convexity gives `exp(lambda*y) <= 1-y+y*exp(lambda)` for `
 
 is a nonnegative supermartingale. The all-perfect-round component `1{Y(1)=...=Y(t)=1}/q^t` is also a supermartingale because `Pr(Y(t)=1 | past) <= E[Y(t)|past] <= q`. A fixed convex mixture therefore supplies an anytime-valid aggregate test. This is the existing correlation-robust e-process's proof, with the new round-level fair orientation supplying the missing 128-stratum conditional-mean identity. It is not the independent-game 64-cell anytime formula, and it does not inherit Agent37's per-rank threshold.
 
+**Scope of the resulting certificate:** this would certify only the aggregate equal-weight 128-stratum field mean. It would not prove that every individual matchup exceeds 99.5%, nor even that every rank exceeds the necessary 84% floor. Continue reporting all 32 matchup-level estimates and uncertainty; any per-rank hard-veto remains a separate test with its own assumptions and multiplicity control.
+
 **Required admission tests for this design:**
 
 - Every round contains exactly 64 games: exactly two per rank, with one candidate physical slot A and one B, and one candidate-actual-first and one candidate-actual-second.
