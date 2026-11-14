@@ -54,6 +54,20 @@ Both attacks take the same two Prize cards. The attacker exposure differs: Shado
 
 The alternative own recipient was available in principle because Clefairy was on the Bench when the Guzma prompt was resolved. The live Store's prompt validator must confirm the exact choice and all current Ability/attack conditions in a replay.
 
+## Deterministic policy-test matrix
+
+Use the same owner board and 240-HP Dragon target, varying only the public conditions. These are arithmetic test expectations, not simulated win-rate claims.
+
+| Public condition | Max Geist (E=8) | Full Moon Rondo | Expected evaluator behavior |
+|---|---:|---:|---|
+| Fairy Zone live, B=8 | 500 (KO) | 360 (KO) | Compare both equal-Prize KOs; include 3-Prize vs 2-Prize exposure and opponent reply |
+| Fairy Zone suppressed, B=8 | 250 (KO) | 180 (no KO) | Do not apply Psychic Weakness; Max Geist is the only immediate KO |
+| Fairy Zone live, B=4 | 500 (KO) | 200 (no KO) | Rondo is not a KO; prefer Max Geist if other value is equal |
+| Fairy Zone live, B=5 | 500 (KO) | 240 (KO) | Both are nominal KOs; compare prize liability and response risk |
+| Fairy Zone live, B=8, target already has 180 damage | 500 (KO) | 360 (KO) | Both remain lethal; compare attacker exposure and overkill only after legality |
+
+For a 240-HP target with no other modifiers, Fairy Zone makes Rondo lethal at B≥5; without Fairy Zone it needs B≥11. This gives a useful boundary test for the combined-Bench formula and live-Ability gate. A target's existing damage, Eviolite, prevention, Resistance, and other effects must be applied in the host's supported public-damage model; unknown modifiers force abstention.
+
 ## Why the existing planner chose Max Geist
 
 The relevant source is `simulation/twinleaf/agent31/late-seeker-guzma-prize.cjs`, called from `agent43-guzma-prompt-continuation.cjs`.
