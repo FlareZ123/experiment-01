@@ -1254,11 +1254,14 @@ function createV3WorkerDecisionResolver({
         error.code='NATIVE_ACTION_FRONTIER_BINDINGS_MISSING';
         throw error;
       }
-      const frontier=request.withPhysicalRandom?
-        request.withPhysicalRandom(()=>actionFrontier.buildNativeActionFrontier({
-          state:request.state,actorSeat,native
-        })):
-        actionFrontier.buildNativeActionFrontier({state:request.state,actorSeat,native});
+      if(typeof request.withValidationRandom!=='function'){
+        const error=new Error('native action frontier requires an isolated deterministic validation RNG scope');
+        error.code='VALIDATION_RANDOM_SCOPE_MISSING';
+        throw error;
+      }
+      const frontier=request.withValidationRandom(()=>actionFrontier.buildNativeActionFrontier({
+        state:request.state,actorSeat,native
+      }));
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
