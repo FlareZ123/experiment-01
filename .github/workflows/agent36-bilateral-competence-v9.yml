@@ -205,16 +205,24 @@ jobs:
           }
           NODE
 
-      - name: Validate owner-controlled V3 diagnostic recipient key before native fixture
+      - name: Select encrypted or sanitized-only V3 diagnostic mode
+        id: diagnostic_recipient
         if: ${{ inputs.agent36_v3_fixture_game }}
         env:
           AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
         run: |
           node - <<'NODE'
           const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const output = process.env.GITHUB_OUTPUT;
+          if (typeof output !== 'string' || output.length === 0) {
+            throw new Error('GitHub Actions output path is unavailable.');
+          }
           const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
           if (typeof pem !== 'string' || pem.trim().length === 0) {
-            throw new Error('Set repository variable AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM before running the private-state fixture.');
+            fs.appendFileSync(output, 'mode=sanitized-only\\n');
+            console.log('No owner recipient key is configured; fixture will emit only an allowlisted actor-observation summary and will not capture full state.');
+            process.exit(0);
           }
           const key = crypto.createPublicKey(pem);
           const bits = key.asymmetricKeyDetails?.modulusLength;
@@ -224,6 +232,7 @@ jobs:
           const fingerprint = crypto.createHash('sha256')
             .update(key.export({ type: 'spki', format: 'der' }))
             .digest('hex');
+          fs.appendFileSync(output, 'mode=encrypted-full\\n');
           console.log('V3 diagnostic recipient key validated; SHA-256 fingerprint: ' + fingerprint);
           NODE
 
@@ -308,6 +317,7 @@ jobs:
           node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
           node --check tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
           node --check simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs
           node --check simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs
           node --check simulation/evaluation/2026-11/agent36-flittle-store-decklist-binding.cjs
@@ -403,7 +413,8 @@ jobs:
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
             tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
-            tests/2026-11/agent36-v3-fixture-game.test.cjs
+            tests/2026-11/agent36-v3-fixture-game.test.cjs \\
+            tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
         if: ${{ inputs.agent36_v3_predeal_preflight }}
         env:
@@ -425,6 +436,8 @@ jobs:
 
       - name: Execute one native V3 fixture game
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        env:
+          AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
@@ -532,7 +545,7 @@ jobs:
           node simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
 
       - name: Encrypt private V3 fixture diagnostics before artifact upload
-        if: ${{ always() && inputs.agent36_v3_fixture_game }}
+        if: ${{ always() && inputs.agent36_v3_fixture_game && steps.diagnostic_recipient.outputs.mode == 'encrypted-full' }}
         env:
           AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
         run: node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture
@@ -546,6 +559,8 @@ jobs:
             artifacts/agent36-v3/
             artifacts/agent36-v3-fixture/fixture-game.private.enc.json
             artifacts/agent36-v3-fixture/fixture-game.public-manifest.json
+            artifacts/agent36-v3-fixture/fixture-game.sanitized.json
+            artifacts/agent36-v3-fixture/fixture-game.sanitized.txt
             !artifacts/agent36-v3-fixture/fixture-game.json
             !artifacts/agent36-v3-fixture/fixture-game.txt
             artifacts/agent36-bilateral-competence-v9/
