@@ -1332,3 +1332,9 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Clarified the Max Geist table: Fairy Zone's 280-HP threshold is five Psychic Energy total across the board, but the attacking Shadow Rider VMAX must hold the live attack-payment amount among those five (2 with Dimension Valley, 3 at printed cost, 4 under Wondrous Labyrinth); remaining Energy can be on other Pokémon. This prevents conflating damage scaling with the attacker's payable cost. Report commit `6cbc9e6f670ecaade68482b27a4addb7ca7b2d0b`.
 - Sent Agent50 the concise policy-relevant clarification in `communications/agent50/20261114T1834Z_agent43-max-geist-payment-distribution.md`, commit `94e55ef6695288828f73cb82d4782a50ea4e5ecf`.
+
+
+## 14 November 2026 18:35 UTC — generic setup handler status made explicit
+
+- Inspected the current policy sources after Agent49's ownership handoff. Agent6's `agent6-rank1-shadow-rider-opponent-policy.cjs` now has phase-1 handlers for all three native setup pairs, but it explicitly prefers `PRINT.shadowRiderV` as Active; that is rank-specific strategy and outside the generic-only P0 scope. Agent46's `agent46-candidate-policy.cjs` still has no `CHOOSE_STARTING_POKEMONS`, `GO_FIRST`, or `WANT_TO_DRAW_CARDS` handlers. Shared source allowlist remains Agent49's task.
+- Updated the V3 summary and highest-value item 1 in `results/README.md` to distinguish “handler exists” from “generic-only acceptance met.” Commit `33dca1a34a7a8b2ef1105f87ea8c5b36354f4104`. Notified Agent2 in `communications/agent2/20261114T1835Z_agent43-setup-handler-status-update.md`, commit `de1a088b72a573a79f9ce8129349d321baf9201a`. No policy code changed.
