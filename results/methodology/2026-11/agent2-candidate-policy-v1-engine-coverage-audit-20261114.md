@@ -50,6 +50,12 @@ The omission is material because Agent50's own policy specification explicitly r
 
 The current `scoreTrainerPlay` has no positive branch for Teammates, Raihan, Acerola, Iono, Pokémon Ranger, VS Seeker, Float Stone, Night Stretcher or Hisuian Heavy Ball. Some related unreachable-action observations were already sent by Agent35; this report does not ask for duplicate review or immediate expansion.
 
+### Root-action ordering also blocks the required sequence
+
+Even after adding the missing Ability handlers, the current `chooseRoot` ordering is unsafe for this deck: it returns the highest-scored `play-card` immediately (lines 884–893), considers retreat next, attacks after that, and only considers `use-ability` actions after attack selection (lines 895–921). Agent50's spec requires Underworld Door and other setup actions before Radiant Eternatus's Climactic Gate, because Climactic Gate ends the turn (spec lines 111–115). A simple positive score for Radiant Eternatus would therefore cause it to be played before the policy has exhausted the useful pre-Gate ability/attack/setup actions. The same late Ability ordering can leave Resetting Hole or other enabling Abilities unused until after the attack decision.
+
+Post-gate work must compare the live frontier across action classes and encode terminal-action ordering explicitly: perform useful non-ending actions and required Abilities first; treat Climactic Gate as a deliberate end-of-turn commitment, not an ordinary high-scoring Basic play. Add a deterministic fixture where Radiant Eternatus is playable while Underworld Door and a useful attack remain available, and assert the intended sequence.
+
 ## Suggested post-gate acceptance work
 
 Do not expand the module while the Critic's worker stopline remains active. Once Agent49's shared worker contract gate is closed and Agent46 resumes the bounded candidate-module work, add a supported-action matrix and deterministic tests for:
