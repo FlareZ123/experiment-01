@@ -449,7 +449,7 @@ function cardSearchScore(printing, request, effectName) {
       !hasPrinting(hand, PRINT.girafarig)) return 92;
   if (matches(printing, PRINT.dialga) && !boardHas(own, PRINT.dialga) &&
       !hasPrinting(hand, PRINT.dialga)) return 80;
-  return 10;
+  return -1;
 }
 
 function discardChoiceScore(choice, observation) {
@@ -541,6 +541,14 @@ function promptDecision(request) {
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
     if (selectionType === 'card-combination') {
+      const knownSearchEffect = [
+        'Tulip', 'Mysterious Treasure', 'Raihan', 'Fog Crystal',
+        'Night Stretcher', 'Battle Compressor', 'Teammates', 'VS Seeker',
+        'Quick Ball', 'Forest Seal Stone', 'Hisuian Heavy Ball', 'Climactic Gate'
+      ].some(name => includes(effect, name));
+      if (!knownSearchEffect) {
+        return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
+      }
       const cardChoices = choices.filter(choice => choice.kind === 'card');
       let scored;
       if (includes(effect, 'Mysterious Treasure') &&
@@ -627,6 +635,9 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
+    if (!includes(effect, 'Copycat')) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
+    }
     const choice = choices.slice().sort((a, b) => {
       const aName = a.publicMetadata?.sourceAttack ?? a.label ?? '';
       const bName = b.publicMetadata?.sourceAttack ?? b.label ?? '';
@@ -643,6 +654,13 @@ function promptDecision(request) {
   if (prompt.promptType === 'ConfirmPrompt' ||
       prompt.promptType === 'SelectPrompt' ||
       prompt.promptType === 'SelectOptionPrompt') {
+    const confirmable = [
+      'Climactic Gate', 'Underworld Door', 'Star Alchemy', 'Forest Seal Stone',
+      'Wonder Tag', 'Skyliner', 'Pale Moon-GX'
+    ].some(name => includes(effect, name));
+    if (!confirmable) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' };
+    }
     const yes = choices.find(choice =>
       /^(yes|true|confirm)$/i.test(choice.label ?? ''));
     if (yes) return { kind: 'select-choice', token: yes.token };
