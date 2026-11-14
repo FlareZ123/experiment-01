@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v10-basic-lock-stadium-suppression';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v11-directional-weakness-conditional-locks';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -119,10 +119,67 @@ function opponentActiveBlocksBasicAttacks(opponentActive){
     /your opponent's Basic Pokémon can't attack/i.test(text));
 }
 
-function copycatPowerBeamAvailable(active,opponentActive,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
+function opponentBoardHasAbility(view,name,expectedText){
+  const opponent=view?.opponentPublic;
+  if(!opponent?.active||!Array.isArray(opponent.bench))return null;
+  const board=[opponent.active,...opponent.bench].filter(Boolean);
+  let found=false;
+  for(const pokemon of board){
+    if(!Array.isArray(pokemon.abilities)||
+       !Array.isArray(pokemon.abilityDetails)||
+       pokemon.abilities.length!==pokemon.abilityDetails.length)return null;
+    for(const ability of pokemon.abilityDetails){
+      if(ability?.name!==name)continue;
+      if(typeof ability.text!=='string'||!expectedText.test(ability.text))
+        return null;
+      found=true;
+    }
+  }
+  return found;
+}
+
+function opponentBoardBlocksRetreat(view,active){
+  if(opponentActiveBlocksRetreat(view))return true;
+  const opponentActive=view?.opponentPublic?.active;
+  if(!opponentActive||!Array.isArray(opponentActive.abilityDetails))return null;
+  const suction=opponentActive.abilityDetails.find(row=>
+    row?.name==='Super Suction Cups');
+  if(suction){
+    if(typeof suction.text!=='string')return null;
+    if(/your opponent's Pokémon can't retreat/i.test(suction.text))return true;
+  }
+  if(!Array.isArray(active?.specialConditions))return null;
+  if(active.specialConditions.length===0)return false;
+  const swaying=opponentBoardHasAbility(view,'Swaying Strangle',
+    /your opponent's Pokémon that are affected by Special Conditions can't retreat/i);
+  if(swaying===null)return null;
+  if(swaying)return true;
+  // Poison Barrier is narrower; fail closed for any visible Special Condition
+  // rather than guessing which native enum corresponds to Poisoned.
+  const poison=opponentBoardHasAbility(view,'Poison Barrier',
+    /your opponent's Poisoned Pokémon can't retreat/i);
+  if(poison===null)return null;
+  return poison;
+}
+
+function opponentBoardBlocksAttack(view,attacker){
+  const frigid=opponentBoardHasAbility(view,'Frigid Room',
+    /your opponent's Pokémon that have 40 HP or less remaining can't attack/i);
+  if(frigid===null)return null;
+  if(!frigid)return false;
+  const hp=Number(attacker?.hp),damage=Number(attacker?.damage??0);
+  if(!Number.isSafeInteger(hp)||!Number.isSafeInteger(damage)||hp<=damage)
+    return null;
+  return hp-damage<=40;
+}
+
+function copycatPowerBeamAvailable(view,active,opponentActive,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
   if(!Array.isArray(active?.attacks)||!Array.isArray(active?.energies)||
      !Array.isArray(active?.printed?.subtypes)||
      !active.printed.subtypes.includes('Basic'))return null;
+  const hpBlocked=opponentBoardBlocksAttack(view,active);
+  if(hpBlocked===null)return null;
+  if(hpBlocked)return false;
   const basicAttackBlocked=opponentActiveBlocksBasicAttacks(opponentActive);
   if(basicAttackBlocked===null)return null;
   if(basicAttackBlocked)return false;
@@ -168,7 +225,15 @@ function opponentHasUnmodelledWeaknessText(view){
     const names=Array.isArray(pokemon.abilities)?pokemon.abilities:null;
     const details=Array.isArray(pokemon.abilityDetails)?pokemon.abilityDetails:null;
     if(names===null||details===null||details.length!==names.length)return true;
-    return details.some(ability=>/weakness/i.test(String(ability?.text??'')));
+    return details.some(ability=>{
+      const text=String(ability?.text??'');
+      // Opponent Fairy Zone changes the candidate's Dragon Pokémon, not the
+      // opponent Active target's Weakness used by this outgoing attack.
+      if(pokemon.printing===CLEFAIRY_EX&&ability?.name==='Fairy Zone'&&
+         /weakness of each of your opponent's dragon pokémon in play is now psychic/i
+           .test(text))return false;
+      return /weakness/i.test(text);
+    });
   });
 }
 
@@ -235,15 +300,16 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      active.publicRestrictions?.cannotRetreatWhileActive===true)return null;
   const asleep=catalog.specialConditions?.ASLEEP;
   const paralyzed=catalog.specialConditions?.PARALYZED;
-  if(Array.isArray(active.specialConditions)&&
-     ((asleep&&active.specialConditions.includes(asleep))||
-      (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
+  if(!Array.isArray(active.specialConditions))return null;
+  if((asleep&&active.specialConditions.includes(asleep))||
+     (paralyzed&&active.specialConditions.includes(paralyzed)))return null;
+  const retreatBlocked=opponentBoardBlocksRetreat(view,active);
+  if(retreatBlocked!==false)return null;
   // Stadium identity is insufficient: only the two cost modifiers below are
   // modeled, and their effects may be suppressed for the acting player.
   const stadiums=publicStadiumPrintings(view);
   const stadiumSuppressed=ownerStadiumEffectsSuppressed(own);
-  if(opponentActiveBlocksRetreat(view)||
-     publicSkylinerSuppressionReason(view)!==null||
+  if(publicSkylinerSuppressionReason(view)!==null||
      stadiums===null||stadiumSuppressed===null||
      hasUnmodelledStadium(stadiums)||
      opponentHasUnmodelledWeaknessText(view))
@@ -265,6 +331,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     pokemon?.printing===SHADOW_RIDER_VMAX);
   if(benchIndex<0)return null;
   const vmax=bench[benchIndex];
+  const maxGeistOpponentBlocked=opponentBoardBlocksAttack(view,vmax);
+  if(maxGeistOpponentBlocked!==false)return null;
   const maxGeist=Array.isArray(vmax.attacks)?
     vmax.attacks.find(attack=>attack?.name==='Max Geist'):null;
   const colorlessType=catalog.colorlessEnergyType;
@@ -321,7 +389,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   let competingPowerBeamAvailable=false;
   if(radiantInDiscard){
     const copycatAvailable=copycatPowerBeamAvailable(
-      active,target,restrictions,catalog,dimensionValleyActive,
+      view,active,target,restrictions,catalog,dimensionValleyActive,
       pokemonLeagueHeadquartersActive);
     if(copycatAvailable===null)return null;
     competingPowerBeamAvailable=copycatAvailable;
