@@ -252,6 +252,7 @@ async function run() {
       role: init.role,
       seat: init.seat,
       policyVersion: init.policyVersion,
+      policyDrawCount:policyStream.drawCount,
       decision
     };
     assertNoForbiddenFields(response);
