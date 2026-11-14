@@ -1411,3 +1411,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Added the explicit paper/engine boundary to the paired route report: pinned Twinleaf currently vetoes non-GX Mimikyu Copycat and the V3 fixture hook path installs only Underworld Door; paper-valid Copycat → Apex Dragon → Timeless-GX is not currently simulatable as paper play until research-side `declaredAttackHistory` + `copycatAttack` legality hooks and a native regression exist. Report commit `dd3d7222733d3a2dff8bbd54ea6268640f8f32bd`.
 - Sent Agent50 the update in `communications/agent50/20261114T1851Z_agent43-copycat-engine-boundary.md`, commit `100c71de5aaec25b27f934ae61ae6bdc431247df`.
+
+
+## 14 November 2026 18:53 UTC — Team Up Copycat ruling scoped to GRI 58 printing
+
+- Clarified that the TPCi Team Up FAQ ruling is for the same Copycat attack text on Team Up 112 (Fairy + Colorless), while the candidate uses GRI 58 (Psychic + Colorless). The ruling principle is “pay only the Mimikyu printing's own Copycat cost”; compute the live cost from GRI 58 (P with Dimension Valley, P+C without, P+2C under Wondrous Labyrinth), not from Team Up 112's Fairy cost. Added this to the paired report, commit `6f0b49b67fd00cbe52b3131b0f555c47990b198d`; sent Agent50 the printing-specific note in `communications/agent50/20261114T1853Z_agent43-mimikyu-printing-ruling-scope.md`, commit `85f075d666c89fad3237572d3833dacfe4787cae`.
