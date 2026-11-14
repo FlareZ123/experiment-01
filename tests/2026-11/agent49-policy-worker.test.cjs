@@ -27,7 +27,8 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
     "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
-    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','WeakRef','FinalizationRegistry','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;const globalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const globalLocked=globalDescriptor?.writable===false&&globalDescriptor?.configurable===false;const objectDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Object');const objectLocked=objectDescriptor?.writable===false&&objectDescriptor?.configurable===false;const dateDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Date');const weakRefDescriptor=Object.getOwnPropertyDescriptor(globalThis,'WeakRef');const disabledLocked=dateDescriptor?.value===undefined&&dateDescriptor?.writable===false&&dateDescriptor?.configurable===false&&weakRefDescriptor?.value===undefined&&weakRefDescriptor?.writable===false&&weakRefDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked&&globalLocked&&objectLocked&&disabledLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
+    "if(request.requestId==='force-deferred-toJSON-rng'){return {kind:'abstain',reasonCode:'DEFERRED',toJSON(){Promise.resolve().then(()=>Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng())));return {kind:'abstain',reasonCode:'DEFERRED'};}};}",
+    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','WeakRef','FinalizationRegistry','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;const globalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const globalLocked=globalDescriptor?.writable===false&&globalDescriptor?.configurable===false&&globalDescriptor?.enumerable===false;const objectDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Object');const objectLocked=objectDescriptor?.writable===false&&objectDescriptor?.configurable===false;const dateDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Date');const weakRefDescriptor=Object.getOwnPropertyDescriptor(globalThis,'WeakRef');const disabledLocked=dateDescriptor?.value===undefined&&dateDescriptor?.writable===false&&dateDescriptor?.configurable===false&&weakRefDescriptor?.value===undefined&&weakRefDescriptor?.writable===false&&weakRefDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked&&globalLocked&&objectLocked&&disabledLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
     "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
@@ -187,11 +188,11 @@ function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
 }
 function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); }
 
-function startWorker(init = initFor()) {
+function startWorker(init = initFor(), sourceText = policySource(init.policyVersion)) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
   fs.copyFileSync(PROTOCOL_SOURCE, path.join(dir, 'agent49-policy-protocol.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(init.policyVersion));
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), sourceText);
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
@@ -224,8 +225,8 @@ async function dispose(worker) {
   worker.rl.close();
   fs.rmSync(worker.dir, { recursive: true, force: true });
 }
-async function expectFailure(message, code, init = initFor()) {
-  const worker = startWorker(init);
+async function expectFailure(message, code, init = initFor(), sourceText = policySource(init.policyVersion)) {
+  const worker = startWorker(init, sourceText);
   try {
     writeLine(worker.child.stdin, init);
     await waitForCount(worker, 1);
@@ -240,6 +241,86 @@ async function expectFailure(message, code, init = initFor()) {
     fs.rmSync(worker.dir, { recursive: true, force: true });
   }
 }
+
+async function expectStartupFailure(sourceText) {
+  const worker = startWorker(initFor(), sourceText);
+  try {
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred bootstrap draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+async function expectInitFailure(sourceText) {
+  const init = initFor();
+  const worker = startWorker(init, sourceText);
+  try {
+    writeLine(worker.child.stdin, init);
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred initialization draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+test('sandbox drains deferred policy bootstrap and export-getter microtasks before READY', async () => {
+  const topLevel = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-bootstrap-v1';",
+    "Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));",
+    "async function createPolicy(){return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectStartupFailure(topLevel);
+
+  const getter = [
+    "'use strict';",
+    "const VERSION='agent49-deferred-export-getter-v1';",
+    "Object.defineProperty(module.exports,'POLICY_VERSION',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return VERSION;}});",
+    "Object.defineProperty(module.exports,'createPolicy',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return async function(){return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};};}});"
+  ].join('\n');
+  await expectStartupFailure(getter);
+});
+
+test('sandbox drains deferred policy initialization microtasks before READY', async () => {
+  const source = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-init-v1';",
+    "async function createPolicy(context){",
+    "  Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng()));",
+    "  return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};",
+    "}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectInitFailure(source);
+});
+
+test('sandbox drains deferred decision serialization microtasks before emitting a response', async () => {
+  const worker = startWorker();
+  try {
+    writeLine(worker.child.stdin, worker.init);
+    await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, request(1, 'candidate', 0, {
+      requestId: 'force-deferred-toJSON-rng'
+    }));
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 1, 'only READY may be emitted before the deferred draw is rejected');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+});
 
 test('persistent worker accepts ordered decisions without RNG seed IPC', async () => {
   const worker = startWorker();
