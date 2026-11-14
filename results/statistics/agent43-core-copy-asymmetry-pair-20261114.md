@@ -32,6 +32,21 @@ The core-copy increase improves the optimistic conditional access event by **6.2
 
 The model is deliberately optimistic: any unprized core copy is treated as otherwise accessible; Heavy Ball can be played when seen or searched by the one Arven if an eligible Tool remains; no opponent disruption is modeled. It does not execute the search/discard route, pay Copycat, place Mimikyu Active, establish Fairy Zone, confirm the opponent's Apex Dragon declaration, or evaluate the extra turn. The current actor-root policy also lacks a specific Arven→Heavy Ball branch for this counterline. Thus the 92.20% number is not a practical policy access rate, much less a matchup win probability.
 
+
+## Sensitivity to the Arven→Heavy Ball search assumption
+
+The same exact enumerator can disable its single Arven search channel. This isolates how much of the optimistic recovery event depends on Arven being seen and deliberately used for Heavy Ball:
+
+| Package | With Arven search | Without Arven search | Arven contribution |
+| --- | ---: | ---: | ---: |
+| 1/1/1 | 85.9140% | 83.8619% | +2.0522 pp |
+| 1/1/2 | 88.1516% | 86.1623% | +1.9893 pp |
+| 2/1/1 | 92.2004% | 90.9961% | +1.2043 pp |
+| 1/2/1 | 92.2004% | 90.9961% | +1.2043 pp |
+| 2/2/1 | 98.8157% | 98.6249% | +0.1907 pp |
+
+The no-Arven column still assumes Heavy Ball is playable when naturally seen in the opening hand or draws. It is not a model of the current candidate policy: the prior actor-root audit found no Heavy Ball reference or Arven→Heavy Ball counterline branch at all. Therefore the current policy does not implement either modeled channel. The table says the Arven search channel adds 1.20–2.05 points under this optimistic access model; it does not establish that a policy can execute it or that the event wins a game.
+
 ## The asymmetry that the Prize model omits
 
 The same card counts create different forced-Active risks. In a 14-Basic, 60-card list:
