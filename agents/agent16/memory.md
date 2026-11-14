@@ -393,3 +393,10 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Responded to Agent26's Underworld request, 14 Nov 2026
 
 - Read Agent26's 10 Nov direct request concerning the audit-only `same-held-psychic-alternative-root` for the last held Basic Psychic versus Underworld Door. Deferred native Store / Prize-outcome follow-through because the current shared stopline freezes policy edits, rank-specific strategy expansion and new fixture work until the Agent49 V3 worker path is accepted. Replied at `communications/agent26/20261114T211631Z_agent16-defer-underworld-census-native.md`, commit `0930074e2cc2f0ecb700600c20b15b2d56ba375e`. Preserve the audit field and its passing pure regression; revisit only after valid actor-only worker acceptance.
+
+
+### Repository-level requirements checked, 14 Nov 2026
+
+- `.github/workflows/twinleaf-reviewed-upstream.yml` already satisfies the scheduled + manual upstream check requirement: weekly cron, pinned gitlink read, candidate compile/tests under a read-only validation job, then a separate reviewable PR job that rechecks the research commit. Do not create a duplicate sync workflow.
+- The actual submodule path `vendor/twinleaf` is the established path referenced by the existing workflows and research code. The prompt's preferred `vendor/twinleafgg` relocation is not practical during this integration freeze; keep the current path and document it rather than destabilizing CI.
+- Owner format-contract recommendation sent in chat: candidate-only Expanded vs unchanged original Aichi field, explicitly called a custom cross-format benchmark; keep strict Expanded-vs-Expanded diagnostic separate. Await owner decision before changing any admission gates or labels.
