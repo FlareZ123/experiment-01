@@ -16,6 +16,9 @@ PERMISSION_MODEL="$AGENT44_PERMISSION_MODEL"
 unset AGENT44_POLICY_ROOT AGENT44_POLICY_ENTRY AGENT44_PERMISSION_MODEL PWD OLDPWD SHLVL _
 ulimit -c 0
 ulimit -n 64
+ulimit -u 256
+ulimit -t 120
+ulimit -v 2097152
 mount --make-rprivate /
 mount --bind "$ROOT" "$ROOT"
 mount -t tmpfs -o size=16m,nosuid,nodev,noexec,mode=1777 tmpfs "$ROOT/tmp"
@@ -147,6 +150,7 @@ function createSandboxRoot({
         tmpfsTmp:true,
         capabilitiesDropped:true,
         noNewPrivileges:true,
+        resourceLimits:{nofile:64,nproc:256,cpuSeconds:120,addressSpaceKiB:2097152},
         nodePermissionModel:'defense-in-depth'
       }
     };
@@ -168,10 +172,12 @@ function spawnSandboxedPolicyWorker({
   sandbox,
   entrypoint,
   permissionModel=true,
-  timeoutMs=0
+  timeoutMs
 }={}){
   assert.ok(sandbox?.root&&fs.statSync(sandbox.root).isDirectory(),
     'valid sandbox root is required');
+  assert.ok(Number.isSafeInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=300000,
+    'a finite worker wall-clock timeout between 1 ms and 5 minutes is required');
   assert.equal(typeof entrypoint,'string');
   assert.ok(entrypoint.startsWith('/policy/'),'entrypoint must be inside /policy');
   assert.equal(path.posix.normalize(entrypoint),entrypoint,'entrypoint path must be canonical');
