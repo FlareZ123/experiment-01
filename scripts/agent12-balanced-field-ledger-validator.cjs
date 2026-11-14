@@ -9,6 +9,7 @@ const SHA256 = /^[a-f0-9]{64}$/i;
 const GIT_SHA = /^[a-f0-9]{40}$/i;
 const {sha256: canonicalSha256} =
   require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
+const FIELD_SAMPLING_REGISTRATION_SCHEMA = 'aichi-field-sampling-registration-v1';
 const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
 const OPPONENT_BUNDLE_SCHEMA = 'aichi-opponent-policy-bundle-v1';
 const POLICY_IDENTITY_FIELDS = Object.freeze([
@@ -377,6 +378,141 @@ function validateV3PolicyPanelJoin(request, attempts, problems,
 }
 
 /**
+ * Verify that an iid sampling-model declaration is part of the immutable
+ * field registration, rather than an unbound evaluator argument. The manifest
+ * commits to the full fixed trial roster, source identities, fixed deck/policy/
+ * engine/opponent/adjudication fingerprints, inference target, quota and the
+ * declared randomization protocol. This is digest consistency only: an
+ * independent auditor must still authenticate the registration timestamp,
+ * physical shuffles and actual independence of game outcomes.
+ */
+function validateFieldSamplingRegistration(request, originalSources, attempts,
+    problems) {
+  const hasModel = Object.hasOwn(request, 'stratumSamplingModel');
+  const hasManifest = Object.hasOwn(request, 'fieldSamplingRegistration');
+  if (!hasModel && !hasManifest) return false;
+
+  const local = new Set();
+  const manifest = request.fieldSamplingRegistration;
+  if (request.stratumSamplingModel !== 'iid-bernoulli-v1')
+    local.add('field-sampling-model-invalid');
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    local.add('field-sampling-registration-missing');
+  } else {
+    if (manifest.schema !== FIELD_SAMPLING_REGISTRATION_SCHEMA)
+      local.add('field-sampling-registration-schema-invalid');
+    if (manifest.stratumSamplingModel !== request.stratumSamplingModel)
+      local.add('field-sampling-model-mismatch');
+    if (manifest.target !== (request.target ?? 0.995) ||
+        manifest.confidence !== (request.confidence ?? 0.95)) {
+      local.add('field-sampling-inference-contract-mismatch');
+    }
+    if (!Number.isSafeInteger(manifest.registeredAttemptCount) ||
+        manifest.registeredAttemptCount !== request.registeredAttemptCount ||
+        manifest.registeredAttemptCount !== attempts.length) {
+      local.add('field-sampling-attempt-count-mismatch');
+    }
+    if (!Number.isSafeInteger(manifest.gamesPerStratum) ||
+        manifest.gamesPerStratum < 1) {
+      local.add('field-sampling-stratum-quota-invalid');
+    }
+    if (typeof manifest.registeredAt !== 'string' ||
+        !/(?:Z|[+-][0-9]{2}:[0-9]{2})$/.test(manifest.registeredAt) ||
+        !Number.isFinite(Date.parse(manifest.registeredAt))) {
+      local.add('field-sampling-registration-time-invalid');
+    }
+    if (typeof manifest.randomizationProtocol !== 'string' ||
+        manifest.randomizationProtocol.trim().length === 0) {
+      local.add('field-sampling-randomization-protocol-missing');
+    }
+    try {
+      if (!SHA256.test(request.registrationSha) ||
+          canonicalSha256(manifest) !== request.registrationSha) {
+        local.add('field-sampling-registration-digest-mismatch');
+      }
+    } catch {
+      local.add('field-sampling-registration-noncanonical');
+    }
+
+    const first = attempts[0];
+    for (const field of [
+      'candidate60Sha','candidatePolicySha','engineAndHooksSha',
+      'opponentPolicyBundleSha','adjudicationProtocolSha'
+    ]) {
+      if (!SHA256.test(manifest[field]) || !first ||
+          manifest[field] !== first[field]) {
+        local.add('field-sampling-fixed-experiment-identity-mismatch');
+      }
+    }
+
+    if (!Array.isArray(manifest.originalSources) ||
+        manifest.originalSources.length !== FIELD_SIZE) {
+      local.add('field-sampling-source-roster-invalid');
+    } else {
+      const plannedSources = new Map();
+      for (const source of manifest.originalSources) {
+        if (!source || !Number.isInteger(source.rank) ||
+            source.rank < 1 || source.rank > FIELD_SIZE ||
+            plannedSources.has(source.rank) ||
+            !SHA256.test(source.source60Sha)) {
+          local.add('field-sampling-source-roster-invalid');
+          continue;
+        }
+        plannedSources.set(source.rank, source.source60Sha);
+      }
+      for (const source of originalSources) {
+        if (plannedSources.get(source.rank) !== source.source60Sha)
+          local.add('field-sampling-source-roster-mismatch');
+      }
+      if (plannedSources.size !== FIELD_SIZE)
+        local.add('field-sampling-source-roster-invalid');
+    }
+
+    if (!Array.isArray(manifest.attempts) ||
+        manifest.attempts.length !== attempts.length) {
+      local.add('field-sampling-attempt-roster-invalid');
+    } else {
+      const plannedByTrial = new Map();
+      const plannedDealIds = new Set();
+      const counts = Array.from({length:FIELD_SIZE}, () => [[0,0],[0,0]]);
+      for (const planned of manifest.attempts) {
+        if (!planned || typeof planned !== 'object' ||
+            typeof planned.trialId !== 'string' || planned.trialId.length === 0 ||
+            !Number.isInteger(planned.rank) || planned.rank < 1 ||
+            planned.rank > FIELD_SIZE || !SEATS.includes(planned.seat) ||
+            !FIRST_PLAYER_SEATS.includes(planned.firstPlayerSeat) ||
+            typeof planned.physicalDealId !== 'string' ||
+            planned.physicalDealId.length === 0 ||
+            plannedByTrial.has(planned.trialId) ||
+            plannedDealIds.has(planned.physicalDealId)) {
+          local.add('field-sampling-attempt-roster-invalid');
+          continue;
+        }
+        plannedByTrial.set(planned.trialId, planned);
+        plannedDealIds.add(planned.physicalDealId);
+        counts[planned.rank - 1][planned.seat][planned.firstPlayerSeat]++;
+      }
+      for (const attempt of attempts) {
+        const planned = plannedByTrial.get(attempt.trialId);
+        if (!planned || planned.rank !== attempt.rank ||
+            planned.seat !== attempt.seat ||
+            planned.firstPlayerSeat !== attempt.firstPlayerSeat ||
+            planned.physicalDealId !== attempt.physicalDealId) {
+          local.add('field-sampling-attempt-roster-mismatch');
+        }
+      }
+      if (!Number.isSafeInteger(manifest.gamesPerStratum) ||
+          counts.flat(2).some(count => count !== manifest.gamesPerStratum)) {
+        local.add('field-sampling-stratum-quota-mismatch');
+      }
+    }
+  }
+
+  for (const reason of local) problems.add(reason);
+  return local.size === 0;
+}
+
+/**
  * Verify structure of a COMPLETE equally weighted 32-rank, two-seat,
  * two-first-player 128-stratum registration ledger. For statistical validity,
  * every row must also be externally verified to be a genuinely independent,
@@ -393,7 +529,8 @@ function validateV3PolicyPanelJoin(request, attempts, problems,
  * @param {string} unqualifiedLabel Rejection label when status is not allowed.
  * @returns {{target:number,confidence:number,rejectionReasons:string[],
  *   totalAttempts:number,winCount:number,
- *   attemptsPerRankSeatAndFirstPlayer:number|null}}
+ *   attemptsPerRankSeatAndFirstPlayer:number|null,
+ *   samplingModelRegistrationValid:boolean}}
  */
 function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
   if (!request || !Array.isArray(request.originalSources) ||
@@ -505,6 +642,8 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
   }
   validateV3PolicyPanelJoin(request, attempts, problems,
     opponentPolicyBundleSha);
+  const samplingModelRegistrationValid =
+    validateFieldSamplingRegistration(request, originalSources, attempts, problems);
   const strata = counts.flat(2);
   const n = strata[0];
   if (n === 0 || strata.some(value => value !== n)) {
@@ -515,7 +654,8 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
     target, confidence, rejectionReasons, totalAttempts: attempts.length,
     winCount,
     attemptsPerRankSeatAndFirstPlayer:
-      rejectionReasons.length === 0 ? n : null
+      rejectionReasons.length === 0 ? n : null,
+    samplingModelRegistrationValid
   };
 }
 
