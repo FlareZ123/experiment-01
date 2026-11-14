@@ -2054,16 +2054,45 @@ test('phase-1 optional Bench setup uses the empty-selection token when no Basic 
   });
 });
 
-test('engine setup prompts fail closed outside phase 1', () => {
-  const request = promptRequest({
-    promptType: 'ChooseCardsPrompt',
-    description: 'CHOOSE_STARTING_POKEMONS',
-    source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
-    choices: [setupCardChoice('basic', 'Mew V CEL 6')],
-    publicMetadata: setupMetadata(1, 6),
-    observation: { phase: 0, ownPublic: player() }
-  });
-  assert.equal(checkedDecision(request).kind, 'abstain');
+test('all three engine setup prompts fail closed outside phase 1 for both seats', () => {
+  const fixtures = [
+    {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupCardChoice('basic', 'Mew V CEL 6')],
+      publicMetadata: setupMetadata(1, 6)
+    },
+    {
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' }
+    },
+    {
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        { token: 'draw-0', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+        { token: 'draw-1', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } }
+      ],
+      publicMetadata: { selectionType: 'option', count: 2, allowCancel: false }
+    }
+  ];
+  for (const actorSeat of [0, 1]) {
+    for (const fixture of fixtures) {
+      const request = promptRequest({
+        ...fixture,
+        actorSeat,
+        source: actorChoiceSource(null, fixture.description),
+        observation: { phase: 0, ownPublic: player() }
+      });
+      assert.equal(checkedDecision(request).kind, 'abstain',
+        fixture.description + ' must not be handled outside phase 1 at seat ' + actorSeat);
+    }
+  }
 });
 
 test('GO_FIRST setup chooses the explicit Yes token for both physical seats', () => {
