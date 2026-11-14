@@ -436,8 +436,13 @@ function promptDecision(request) {
   const effect = effectName + ' ' + sourcePrinting;
   const metadata = prompt.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? '';
-  const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
-  const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : 1;
+  const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount :
+    selectionType === 'prize-slots' ? (metadata.requiredCount ?? 1) :
+      selectionType === 'card-order' ? (metadata.count ?? 1) : 1;
+  const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount :
+    selectionType === 'energy-payment' ? (metadata.energyCount ?? metadata.count ?? 1) :
+      selectionType === 'prize-slots' ? (metadata.requiredCount ?? 1) :
+        selectionType === 'card-order' ? (metadata.count ?? 1) : 1;
 
   if (prompt.promptType === 'ChoosePokemonPrompt' || selectionType === 'pokemon') {
     let mode = '';
@@ -459,7 +464,14 @@ function promptDecision(request) {
       if (scored.length > 0) return { kind: 'select-choices', tokens: [scored[0].choice.token] };
     }
 
-    if (mode) {
+    if (mode === 'evolution') {
+      const tokens = choices.filter(choice => matches(choice.printing, PRINT.shadowRiderVmax))
+        .slice(0, Math.min(max, choices.length)).map(choice => choice.token);
+      if (tokens.length >= min && tokens.length > 0) {
+        return { kind: 'select-choices', tokens };
+      }
+    }
+    if (mode && mode !== 'evolution') {
       const tokens = sortedChoiceTokens(choices,
         choice => scorePokemonChoice(choice, observation, mode)).slice(0, Math.max(1, max));
       if (tokens.length >= min && tokens.length > 0) {
@@ -497,13 +509,7 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'pokemon') {
-      const tokens = sortedChoiceTokens(choices,
-        choice => scorePokemonChoice(choice, observation, 'underworld'))
-        .slice(0, Math.min(max, choices.length));
-      if (tokens.length >= min && tokens.length > 0) {
-        return { kind: 'select-choices', tokens };
-      }
-      return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_SELECTION' };
+      return { kind: 'abstain', reasonCode: 'UNCLASSIFIED_POKEMON_PROMPT' };
     }
 
     if (selectionType === 'energy-payment') {
