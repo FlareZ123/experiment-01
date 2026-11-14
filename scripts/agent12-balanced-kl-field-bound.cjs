@@ -85,7 +85,8 @@ function lowerKlBound(wins, total, confidence) {
  *  attemptsPerRankSeatAndFirstPlayer:number|null,rejectionReasons:string[],
  *  externalPaperAndIndependenceAuditRequired:true,
  *  boundMethod:string,worstCaseNullPValue:number|null,
- *  nonwinCount:number|null,samplingModelDeclaration:string}}
+ *  nonwinCount:number|null,samplingModelDeclaration:string,
+ *  target:number,confidence:number}}
  */
 function assessBalancedFieldKl(request) {
   const v = validateFieldLedger(request,
@@ -120,6 +121,8 @@ function assessBalancedFieldKl(request) {
     winCount: valid ? v.winCount : null,
     nonwinCount,
     totalAttempts: v.totalAttempts,
+    target: v.target,
+    confidence: v.confidence,
     attemptsPerRankSeatAndFirstPlayer: v.attemptsPerRankSeatAndFirstPlayer,
     boundMethod,
     worstCaseNullPValue,
