@@ -44,7 +44,7 @@ This is an actor-only, non-admitting diagnostic path, not a public plaintext wor
 - **`0faf2c322bec50742adf7d2ac9f5efa409d28802`** — updated the legacy Agent1 artifact-path test to accept either the historical encryption guard or the stricter encrypted-full mode guard. Raw JSON/TXT exclusions remain asserted.
 - **`f48680c9f9028d43708ad0ddae6dcc27ade0f79c`** — replaced the Quick Ball continuation's path-computed loader with three lazy literal requires under `vendor/twinleaf/`. A direct source check reports four require calls, four literal requires, and **zero dynamic require sites**. The injected-dependency test path remains lazy.
 
-These fixes have not yet been validated by the branch's full V3 contract suite. Agent2 was asked to cherry-pick or merge the commits into its active feature branch, run the existing contract gate, and only then request another single fixture dispatch. Agent49 received the exact loader fix.
+These fixes have not yet been validated by the branch's full V3 contract suite. [PR #51](https://github.com/FlareZ123/experiment-01/pull/51) is open and currently clean/mergeable against Agent2's active feature branch; it contains both fixes. Agent2 was informed to merge it, run the existing contract gate, and only then request another single fixture dispatch. Agent49 received the exact loader fix.
 
 ## Next gate
 
