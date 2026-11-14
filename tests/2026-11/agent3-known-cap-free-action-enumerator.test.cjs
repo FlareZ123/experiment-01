@@ -8,11 +8,13 @@ class TrainerCard { constructor(trainerType){this.trainerType=trainerType;} }
 class EnergyCard { constructor(fullName){this.fullName=fullName;} }
 class PlayCardAction { constructor(clientId,handIndex,target){this.type='PLAY_CARD_ACTION';this.clientId=clientId;this.handIndex=handIndex;this.target=target;} }
 class UseAbilityAction { constructor(clientId,name,target){this.type='USE_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
+class UseTrainerAbilityAction { constructor(clientId,name,target){this.type='USE_TRAINER_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
+class UseEnergyAbilityAction { constructor(clientId,name,target){this.type='USE_ENERGY_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
 class AttackAction { constructor(clientId,name){this.type='ATTACK_ACTION';this.clientId=clientId;this.name=name;} }
 const native={
   PokemonCard,TrainerCard,EnergyCard,
-  cardActions:{PlayCardAction},gameActions:{UseAbilityAction,AttackAction},
-  PlayerType:{BOTTOM_PLAYER:1,ANY:3},SlotType:{BENCH:2,DISCARD:5,BOARD:9},
+  cardActions:{PlayCardAction},gameActions:{UseAbilityAction,UseTrainerAbilityAction,UseEnergyAbilityAction,AttackAction},
+  PlayerType:{BOTTOM_PLAYER:1,ANY:3},SlotType:{HAND:1,BENCH:2,DISCARD:5,BOARD:9},
   Stage:{BASIC:'BASIC'},TrainerType:{ITEM:'ITEM',TOOL:'TOOL',SUPPORTER:'SUPPORTER'},
   SpecialCondition:{PARALYZED:'PARALYZED',ASLEEP:'ASLEEP'}
 };
@@ -182,4 +184,24 @@ test('attack action expansion preserves the pinned Paralysis and Sleep gate',()=
   assert.deepEqual(enumerator.attackActions(state,player),[]);
   player.active.specialConditions.splice(0,1,'ASLEEP');
   assert.deepEqual(enumerator.attackActions(state,player),[]);
+});
+
+
+test('hand Pokémon abilities and Trainer/Energy discard abilities are enumerated',()=>{
+  const state=makeState();
+  const player=state.players[0];
+  const audino=new PokemonCard({name:'Audino',powers:[{name:'Busybody',useFromHand:true}]});
+  const trumbeak=new PokemonCard({name:'Trumbeak',powers:[{name:'Mountain Pass',useFromHand:true}]});
+  const minior=new PokemonCard({name:'Minior',powers:[{name:'Falling Star',useFromHand:true}]});
+  const trainerInHand=new TrainerCard('ITEM');trainerInHand.powers=[{name:'Hand Trainer Power',useFromHand:true}];
+  player.hand.cards=[audino,trumbeak,minior,trainerInHand];
+  const trainer=new TrainerCard('ITEM');trainer.powers=[{name:'Discard Trainer Power',useFromDiscard:true}];
+  const energy=new EnergyCard('Special Energy');energy.powers=[{name:'Discard Energy Power',useFromDiscard:true}];
+  player.discard.cards=[trainer,energy];
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const actions=enumerator.abilityActions(state,player).concat(enumerator.discardAbilityActions(state,player));
+  assert.deepEqual(actions.filter(a=>a.type==='USE_ABILITY_ACTION'&&a.target.slot===1).map(a=>a.name),['Busybody','Mountain Pass','Falling Star']);
+  assert.ok(actions.some(a=>a.type==='USE_TRAINER_ABILITY_ACTION'&&a.name==='Hand Trainer Power'&&a.target.slot===1));
+  assert.ok(actions.some(a=>a.type==='USE_TRAINER_ABILITY_ACTION'&&a.name==='Discard Trainer Power'&&a.target.slot===5));
+  assert.ok(actions.some(a=>a.type==='USE_ENERGY_ABILITY_ACTION'&&a.name==='Discard Energy Power'&&a.target.slot===5));
 });
