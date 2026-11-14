@@ -306,6 +306,7 @@ function validateEventAttack(row) {
       typeof row.copycatAttack !== 'boolean') fail('BAD_EVENT_ATTACK');
   if (row.barragePairIndex !== undefined && (!Number.isSafeInteger(row.barragePairIndex) || row.barragePairIndex < 0)) fail('BAD_BARRAGE_INDEX');
   if (row.barragePairRole !== undefined && !['first', 'second'].includes(row.barragePairRole)) fail('BAD_BARRAGE_ROLE');
+  if ((row.barragePairIndex === undefined) !== (row.barragePairRole === undefined)) fail('INCOMPLETE_BARRAGE_PAIR');
 }
 function validatePublicEventReceipt(receipt, view) {
   if (receipt === null) return;
@@ -316,8 +317,18 @@ function validatePublicEventReceipt(receipt, view) {
   if (receipt.version !== 'agent8-public-event-receipt-v3-turn-stamped' ||
       receipt.actorSeat !== view.actorSeat || receipt.turn !== view.globalTurn) fail('BAD_PUBLIC_EVENT_RECEIPT');
   validateEventPokemon(receipt.ownerActive);
-  if (!Array.isArray(receipt.ownerBench) || receipt.ownerBench.length > 10) fail('BAD_EVENT_BENCH');
-  for (const slot of receipt.ownerBench) validateEventPokemon(slot);
+  const viewActivePrinting = view.ownPublic.active === null ? null : view.ownPublic.active.printing;
+  const receiptActivePrinting = receipt.ownerActive === null ? null : receipt.ownerActive.printing;
+  if (viewActivePrinting !== receiptActivePrinting) fail('EVENT_OWNER_ACTIVE_MISMATCH');
+  if (!Array.isArray(receipt.ownerBench) || receipt.ownerBench.length > 10 ||
+      receipt.ownerBench.length !== view.ownPublic.bench.length) fail('BAD_EVENT_BENCH');
+  for (let i = 0; i < receipt.ownerBench.length; i++) {
+    const slot = receipt.ownerBench[i];
+    validateEventPokemon(slot);
+    const viewPrinting = view.ownPublic.bench[i] === null ? null : view.ownPublic.bench[i].printing;
+    const receiptPrinting = slot === null ? null : slot.printing;
+    if (viewPrinting !== receiptPrinting) fail('EVENT_OWNER_BENCH_MISMATCH');
+  }
   exactKeys(receipt.priorOpponentTurnKO, ['any', 'byAttack']);
   for (const key of ['any', 'byAttack']) {
     if (!(receipt.priorOpponentTurnKO[key] === null || typeof receipt.priorOpponentTurnKO[key] === 'boolean')) fail('BAD_PRIOR_KO');
@@ -325,12 +336,19 @@ function validatePublicEventReceipt(receipt, view) {
   if (receipt.opponentLastTurnAttack !== null) fail('LEGACY_ATTACK_RECEIPT_FORBIDDEN');
   if (receipt.opponentLastTurnTurn !== null && (!Number.isSafeInteger(receipt.opponentLastTurnTurn) || receipt.opponentLastTurnTurn >= view.globalTurn)) fail('BAD_PREVIOUS_TURN');
   if (receipt.opponentLastTurnAttacks !== null) {
-    if (!Array.isArray(receipt.opponentLastTurnAttacks) || receipt.opponentLastTurnAttacks.length > 32) fail('BAD_EVENT_ATTACKS');
-    for (const row of receipt.opponentLastTurnAttacks) validateEventAttack(row);
-  }
+    if (!Array.isArray(receipt.opponentLastTurnAttacks) || receipt.opponentLastTurnAttacks.length > 32 || receipt.opponentLastTurnTurn === null) fail('BAD_EVENT_ATTACKS');
+    for (const row of receipt.opponentLastTurnAttacks) {
+      validateEventAttack(row);
+      if (row.turn !== receipt.opponentLastTurnTurn) fail('EVENT_ATTACK_TURN_MISMATCH');
+    }
+  } else if (receipt.opponentLastTurnTurn !== null) fail('EVENT_TURN_WITHOUT_ATTACK_HISTORY');
   if (receipt.opponentCopycatChoices !== undefined && receipt.opponentCopycatChoices !== null) {
     if (!Array.isArray(receipt.opponentCopycatChoices) || receipt.opponentCopycatChoices.length > 2) fail('BAD_COPYCAT_CHOICES');
-    for (const row of receipt.opponentCopycatChoices) validateEventAttack(row);
+    for (const row of receipt.opponentCopycatChoices) {
+      validateEventAttack(row);
+      if (!receipt.opponentLastTurnAttacks ||
+          !receipt.opponentLastTurnAttacks.some(attack => JSON.stringify(attack) === JSON.stringify(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
+    }
   }
   if (receipt.mimikyuCopycatCompatible !== undefined &&
       !(receipt.mimikyuCopycatCompatible === null || typeof receipt.mimikyuCopycatCompatible === 'boolean')) fail('BAD_COPYCAT_COMPATIBILITY');
