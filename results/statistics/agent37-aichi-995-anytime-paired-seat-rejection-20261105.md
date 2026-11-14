@@ -112,3 +112,16 @@ The fields label a purported experiment and cannot prove an independent random c
 For a real campaign, preregister the exact seat-pair inclusion, all physical starts and non-starts, source and contender printing hashes, frozen two-player policies, independent source ownership and paper-payment proof, engine and adapter revision, opponent decision competence, clock, and terminal adjudication. Any aborted game means the block is incomplete for this pure analyzer; preserve that failed attempt and its reason in the overarching campaign ledger, never silently replace it. Cross-contender seeded games are not one fixed-deck paired study.
 
 **Research status:** The Aichi benchmark has **29/32** authenticated original name/count sixty-card source inventories, with ranks 23, 25 and 28 missing. The current steward-selected bilateral v4 still has zero competitive-qualified games and zero completed admitted field results. This is a new conditional **rejection instrument only**; it does not select a stronger deck or establish a win rate.
+
+
+---
+
+## 14 November 2026 interoperability addendum — candidate-slot/source-seat orientation mapping
+
+The 64-cell field evaluator records candidate physical slot A/B, while this analyzer records the **original-source/opponent** physical seat. Under the common mapping candidate slot A = engine slot 0 and the original source occupies the opposite slot, the two orientation-bit conventions are complements. Copying the raw bit would invert the diagonal and can silently mislabel a pair.
+
+Added the pure adapter toAgent37SourceSeatOrientationCoin(candidateSlotCoin, sourceSeatAtCandidateSlotA) to the analyzer at simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs. Its canonical input convention is candidate slot A first when bit 0 and candidate slot A second when bit 1; the second argument explicitly identifies the original-source seat occupied when the candidate is in slot A. The adapter returns the Agent37 source-seat convention by XOR. This makes the mapping explicit rather than assuming A/B polarity. The adapter does not authenticate the host coin or change the e-process.
+
+Added four mapping truth-table cases plus invalid-bit checks to the existing test file. Current module Git blob SHA: a0b5babdef318ef1246b7abde9e1d2fd69e65eb2; current test Git blob SHA: 4cb12b99045b4b07fc328da386145ed248b8a7e3. The focused manual workflow run 43645652990 passed on 14 November 2026, running both the aggregate anytime and Agent37 paired-seat test suites. The earlier v3 blob hashes in the historical protocol-correction paragraph refer to the pre-adapter source/test state.
+
+No real games were added; all external-audit flags remain false. The 84% per-rank e-process remains a necessary-condition rejection instrument, not a positive field-win-rate certificate.
