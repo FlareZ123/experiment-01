@@ -36,7 +36,7 @@ The policy therefore overstates Energy Drive whenever either player has Benched 
 
 The high-priority Acerola branch checks `priorPaleMoon(request)`, checks that the current Active is Latias, but obtains `latias` through `damagedLatias(own)`, which searches the whole board. It does not require the current Active Latias itself to have damage counters. A damaged Benched Latias can therefore trigger the high-priority branch while the Active Latias is undamaged.
 
-The later Acerola prompt scorer ranks every damaged Pokémon by damage, with a Latias bonus. If another Pokémon is sufficiently more damaged, it can select that other Pokémon and leave the Pale Moon-threatened Active Latias in play.
+The later Acerola prompt scorer ranks every damaged Pokémon by damage, with a Latias bonus. If another Pokémon is sufficiently more damaged, it can select that other Pokémon and leave the Pale Moon-threatened Active Latias in play. This is a synthetic code-level defensive-branch issue, not a conclusion established by the original rank1 source line: that source's Skyliner retreat and Acerola discussion concern the **opponent's** response to rank1's Pale Moon. A separate native state where rank1 itself is targeted by Pale Moon is required before treating this as a demonstrated strategic failure.
 
 The current single-Latias test at line 297 does not cover either case.
 
