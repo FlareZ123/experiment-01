@@ -215,7 +215,7 @@ function selectedCardIdentity(action,state,actingSeat,cardActions) {
   return identity;
 }
 
-function validateInputs(input) {
+function validateInputs(input,{requirePolicySeeds=true}={}) {
   assert.ok(input&&typeof input==='object','fixture match input is required');
   const native=input.native;
   for(const name of ['Store','GameSettings','SimpleTacticsAi','AddPlayerAction',
@@ -246,7 +246,8 @@ function validateInputs(input) {
       'the exact actor-observation function is required for this fixture');
   }
   const seed32=normalizeSeed32(input.seed);
-  const policySeedBySeat=normalizePolicySeedBySeat(input.policySeedBySeat,seed32);
+  const policySeedBySeat=input.policySeedBySeat===undefined&&!requirePolicySeeds?
+    null:normalizePolicySeedBySeat(input.policySeedBySeat,seed32);
   assert.ok(input.candidateSeat===0||input.candidateSeat===1,
     'candidateSeat must be physical seat 0 or 1');
   assert.equal(input.originalSourceSeat,1-input.candidateSeat,
@@ -267,15 +268,15 @@ function validateInputs(input) {
  * It does not prove paper legality, competitive strength or full process
  * closure.
  */
-function runNativeFixtureGame(input) {
-  const {native,maxActions,seed32,policySeedBySeat}=validateInputs(input);
+function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
+  const {native,maxActions,seed32,policySeedBySeat}=validateInputs(input,{requirePolicySeeds});
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format
   }=native;
   const previousRandom=Math.random;
   const physicalRandom=seededRandom(seed32);
-  const policyRandom=policySeedBySeat.map(seed=>seededRandom(seed));
+  const policyRandom=policySeedBySeat?.map(seed=>seededRandom(seed))??null;
   const decisionTrace=[];
   const rootActionLedger=[];
   const actionCountsBySeat=[0,0];
@@ -638,7 +639,16 @@ function runNativeFixtureGame(input) {
         failureContext.stage='prompt-resolver-decode';
         policyInputKind='native-owner-prompt';
         attemptRecord.policyInputKind=policyInputKind;
-        action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
+        const resolution=yield {
+          kind:'native-fixture-decision',decisionKind:'owner-prompt',
+          state,store,prompt:pending,actorSeat:actingSeat,native,
+          legacyBot:seats[actingSeat],
+          legacyRandomSource:policyRandom?.[actingSeat]??null
+        };
+        action=resolution?.__nativeFixtureDecisionResolution===true?
+          resolution.action:resolution;
+        if(resolution?.__nativeFixtureDecisionResolution===true&&
+            resolution.promptResolution) promptResolution=resolution.promptResolution;
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
           throw new Error('Unhandled Twinleaf game phase: '+state.phase);
@@ -658,7 +668,16 @@ function runNativeFixtureGame(input) {
         failureContext.stage='policy-decode';
         policyInputKind='actor-observation';
         attemptRecord.policyInputKind=policyInputKind;
-        action=decodeWithPolicyRandom(seats[actingSeat],state,policyRandom[actingSeat]);
+        const resolution=yield {
+          kind:'native-fixture-decision',decisionKind:'owner-root',
+          state,store,prompt:null,actorSeat:actingSeat,native,
+          legacyBot:seats[actingSeat],
+          legacyRandomSource:policyRandom?.[actingSeat]??null
+        };
+        action=resolution?.__nativeFixtureDecisionResolution===true?
+          resolution.action:resolution;
+        if(resolution?.__nativeFixtureDecisionResolution===true&&
+            resolution.promptResolution) promptResolution=resolution.promptResolution;
         policyInputKind='actor-observation';
       }
       if(!action)
@@ -829,6 +848,61 @@ function runNativeFixtureGame(input) {
   }
 }
 
+
+function driveNativeFixtureGameSync(iterator,resolveDecision) {
+  assert.ok(iterator&&typeof iterator.next==='function'&&
+    typeof iterator.throw==='function');
+  assert.equal(typeof resolveDecision,'function');
+  let step=iterator.next();
+  while(!step.done) {
+    try {
+      step=iterator.next(resolveDecision(step.value));
+    } catch(error) {
+      step=iterator.throw(error);
+    }
+  }
+  return step.value;
+}
+
+async function driveNativeFixtureGameAsync(iterator,resolveDecision) {
+  assert.ok(iterator&&typeof iterator.next==='function'&&
+    typeof iterator.throw==='function');
+  assert.equal(typeof resolveDecision,'function');
+  let step=iterator.next();
+  while(!step.done) {
+    try {
+      step=iterator.next(await resolveDecision(step.value));
+    } catch(error) {
+      step=iterator.throw(error);
+    }
+  }
+  return step.value;
+}
+
+/** Historical synchronous compatibility API for explicit legacy callers. */
+function runNativeFixtureGame(input) {
+  return driveNativeFixtureGameSync(
+    runNativeFixtureGameSteps(input,{requirePolicySeeds:true}),
+    request=>decodeWithPolicyRandom(
+      request.legacyBot,request.state,request.legacyRandomSource
+    )
+  );
+}
+
+/**
+ * V3 async API. Strategic root and owner-prompt decisions are delegated to an
+ * awaited resolver. Physical randomization remains host-side. No policy RNG
+ * seed or SimpleTacticsAi strategic fallback is available on this path.
+ */
+async function runNativeFixtureGameAsync(input,resolveDecision) {
+  assert.equal(typeof resolveDecision,'function',
+    'an explicit awaited worker decision resolver is required');
+  return driveNativeFixtureGameAsync(
+    runNativeFixtureGameSteps(input,{requirePolicySeeds:false}),
+    resolveDecision
+  );
+}
+
 module.exports={
   SCHEMA,
   seededRandom,
@@ -837,6 +911,7 @@ module.exports={
   projectActionPayload,
   selectedCardIdentity,
   runNativeFixtureGame,
+  runNativeFixtureGameAsync,
   normalizeSeed32,
   normalizePolicySeedBySeat
 };

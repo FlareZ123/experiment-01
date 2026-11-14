@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
-  publicStateSnapshot,runNativeFixtureGame,normalizeSeed32
+  publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
@@ -49,6 +49,7 @@ let failNextPromptDecode=false;
 let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
 let policyRandomDraws=[];
+let decodeCalls=0;
 class Store {
   constructor(options){
     this.options=options;
@@ -129,6 +130,7 @@ class SimpleTacticsAi {
     this.deck=deck;
   }
   decodeNextAction(){
+    decodeCalls++;
     if(this.options?.capturePolicyRandom===true)
       policyRandomDraws.push({id:this.id,draw:Math.random()});
     if(failNextPromptDecode&&this.id===101){
@@ -196,6 +198,41 @@ function fixtureDiagnosticSnapshot(state,context){
     }))
   };
 }
+
+
+test('async fixture generator delegates strategic prompts and roots without policy seeds or SimpleTacticsAi fallback', async () => {
+  failNextPromptDecode=true;
+  decodeCalls=0;
+  const args=input();
+  delete args.policySeedBySeat;
+  const requests=[];
+  try {
+    const result=await runNativeFixtureGameAsync(args,async request=>{
+      requests.push({
+        decisionKind:request.decisionKind,
+        actorSeat:request.actorSeat,
+        hasPrompt:Boolean(request.prompt),
+        hasLegacyRandomSource:request.legacyRandomSource!==null
+      });
+      if(request.decisionKind==='owner-prompt')
+        return new ResolvePromptAction(request.prompt.id,'A card 0');
+      return request.actorSeat===0?
+        new PlayCardAction(101,0,{slot:'worker'}):
+        new RootAction(1);
+    });
+    assert.equal(result.finished,true);
+    assert.equal(result.endReason,'engine-game-end');
+    assert.equal(decodeCalls,0,'async worker path must never call SimpleTacticsAi.decodeNextAction');
+    assert.deepEqual(requests.map(row=>row.decisionKind),
+      ['owner-prompt','owner-root','owner-root']);
+    assert.equal(requests.every(row=>!row.hasLegacyRandomSource),true,
+      'async worker requests must not receive policy RNG sources');
+    assert.equal(result.decisionTrace.length,3);
+  } finally {
+    failNextPromptDecode=false;
+    decodeCalls=0;
+  }
+});
 
 test('engine WaitPrompt is acknowledged without consulting either policy', () => {
   insertWaitPrompt=true;
