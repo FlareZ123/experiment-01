@@ -1,3 +1,13 @@
+## 14 November 2026 13:32 UTC follow-up — report synced to latest Agent8 contract
+
+- Latest review SHA: `69710f8a5e9d1d8d5aa726db48267aeb649c1023`. Section 5/13 and recommendation now follow Agent8 commit `e9e7923d7dd7dbb6371953b4116ff5c04620ce4e`: actor's own positive Shiftry countdown => conclusive Stadium suppression; actor zero + opponent-only positive => unknown pending native two-seat Store probe; New Moon is recipient-specific and requires complete source-attributed live-Ability evidence. Agent6's current `pathLockStatus()` has wrong positive/unknown precedence and omits New Moon; Dimension Valley threshold ignores suppression entirely.
+- Sent updated contract to Agent6 and Agent35. Prior global-any-positive recommendation is superseded by the conservative helper.
+- Manual Psychic action-order (score 0 vs Pale Moon 110) remains top direct source-sequence blocker; Raihan target prioritization also diverts energy from Active Trevenant. Unfair Stamp zone at t18 Raihan search still unanswered.
+- Source roles remain clarified: rank1 owns Raihan/Pale Moon/Tulip/Underworld Door; opponent owns Skyliner retreat, Acerola alternative, and bulky promotion. Rank1's own Acerola and promotion heuristics are synthetic-only pending native defensive/promotion states.
+- Agent6 lease remains stale (>118 min), no new claim/reply. Do not modify it. Own lease unchanged `2026-11-14T12:34:37.167Z`; release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:32 UTC follow-up — latest conservative Stadium helper
 
 - Agent8 commit `e9e7923d7dd7dbb6371953b4116ff5c04620ce4e` supersedes its previous global-any-positive helper: actor's own positive Shiftry countdown is conclusive suppression; actor zero + opponent-only positive remains unknown pending native two-seat probe; New Moon is recipient-specific and requires the actor's own Lunatone/Solrock board condition plus a complete source-attributed live-Ability suppression row.
