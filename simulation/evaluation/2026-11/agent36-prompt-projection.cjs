@@ -277,6 +277,25 @@ function addChoice(choices, choiceByToken, rawResult, fields, prompt, state) {
   choiceByToken.set(token, rawResult);
 }
 
+function addSelectableItem(choices, choiceByToken, rawItem, fields) {
+  if (choices.length >= MAX_PROMPT_CHOICES) {
+    throw Object.assign(new Error('Prompt choice frontier exceeds the bounded choice limit'), {
+      code: 'PROMPT_FRONTIER_TOO_LARGE'
+    });
+  }
+  const token = 'prompt-' + choices.length.toString(36);
+  const choice = { token, ...fields };
+  choices.push(Object.freeze(choice));
+  choiceByToken.set(token, rawItem);
+}
+
+function addEmptySelectionChoice(choices, choiceByToken, prompt, state) {
+  addChoice(choices, choiceByToken, [], {
+    kind: 'empty-selection',
+    label: 'Choose no items'
+  }, prompt, state);
+}
+
 function addCancelChoice(choices, choiceByToken, prompt, state) {
   if (prompt.options?.allowCancel !== true) return;
   addChoice(choices, choiceByToken, null, {
@@ -291,25 +310,24 @@ function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
   const max = Math.min(cards.length,
     Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length);
-  const indices = cards.map((_, index) => index)
-    .filter(index => !(prompt.options?.blocked ?? []).includes(index));
-  const combinations = enumerateCombinations(indices, min, max);
-  for (const selected of combinations) {
-    const names = selected.map(index => printing(cards[index]) ?? ('Card ' + (index + 1)));
-    addChoice(choices, choiceByToken, selected, {
-      kind: selected.length > 1 ? 'card-set' : 'card',
-      label: selected.length ? names.join(' + ') : 'Choose no cards',
-      ...(selected.length === 1 && printing(cards[selected[0]])
-        ? { printing: printing(cards[selected[0]]) } : {}),
+  const blocked = new Set(prompt.options?.blocked ?? []);
+  const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  for (const index of indices) {
+    const name = printing(cards[index]) ?? ('Card ' + (index + 1));
+    addSelectableItem(choices, choiceByToken, index, {
+      kind: 'card',
+      label: name,
+      ...(printing(cards[index]) ? { printing: printing(cards[index]) } : {}),
       publicMetadata: {
-        selectionIndex: choices.length,
-        selectedCount: selected.length,
+        selectionIndex: index,
+        selectedCount: 1,
         sourceZone: visibility.sourceZone,
         ownerSeat: visibility.ownerSeat,
         isOwnerVisible: visibility.isOwnerVisible
       }
-    }, prompt, state);
+    });
   }
+  if (min === 0) addEmptySelectionChoice(choices, choiceByToken, prompt, state);
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
     sourceZone: visibility.sourceZone,
@@ -358,25 +376,23 @@ function projectChoosePokemon(prompt, state, actorSeat, native, choices, choiceB
     !blocked.has([entry.target.player, entry.target.slot, entry.target.index].join('|')));
   const min = Math.max(0, prompt.options?.min ?? 0);
   const max = Math.min(available.length, prompt.options?.max ?? available.length);
-  const combinations = enumerateCombinations(available.map((_, index) => index), min, max);
-  for (const selected of combinations) {
-    const raw = selected.map(index => available[index].target);
-    const labels = selected.map(index => available[index].label);
-    const printings = selected.map(index => available[index].printing).filter(Boolean);
-    addChoice(choices, choiceByToken, raw, {
-      kind: selected.length > 1 ? 'pokemon-set' : 'pokemon',
-      label: labels.length ? labels.join(' + ') : 'Choose no Pokémon',
-      ...(printings.length === 1 && selected.length === 1 ? { printing: printings[0] } : {}),
+  for (let index = 0; index < available.length; index += 1) {
+    const entry = available[index];
+    addSelectableItem(choices, choiceByToken, entry.target, {
+      kind: 'pokemon',
+      label: entry.label,
+      ...(entry.printing ? { printing: entry.printing } : {}),
       publicMetadata: {
-        selectionIndex: choices.length,
-        selectedCount: selected.length,
+        selectionIndex: index,
+        selectedCount: 1,
         selectionType: 'pokemon',
-        ownerSeat: [...new Set(selected.map(index => available[index].ownerSeat))].join(',') || 'mixed',
-        targetZone: [...new Set(selected.map(index => available[index].zone))].join(',') || 'board',
-        isOwnerVisible: selected.every(index => available[index].visible)
+        ownerSeat: entry.ownerSeat,
+        targetZone: entry.zone,
+        isOwnerVisible: entry.visible
       }
-    }, prompt, state);
+    });
   }
+  if (min === 0) addEmptySelectionChoice(choices, choiceByToken, prompt, state);
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
     minimumCount: min,
@@ -392,29 +408,24 @@ function projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken) {
   const energy = Array.isArray(prompt.energy) ? prompt.energy : [];
   const cards = energy.map(item => item.card);
   const visibility = cardCollectionVisibility(state, actorSeat, cards);
-  const indices = energy.map((_, index) => index);
-  const combinations = enumerateCombinations(indices, 1, indices.length);
-  for (const selected of combinations) {
-    const names = selected.map(index => {
-      const item = energy[index];
-      const types = Array.isArray(item.provides) ? item.provides.join('/') : '';
-      return (printing(item.card) ?? ('Energy ' + (index + 1))) +
-        (types ? ' (' + types + ')' : '');
-    });
-    addChoice(choices, choiceByToken, selected, {
-      kind: selected.length > 1 ? 'energy-set' : 'energy',
-      label: names.join(' + '),
-      ...(selected.length === 1 && printing(energy[selected[0]].card)
-        ? { printing: printing(energy[selected[0]].card) } : {}),
+  for (let index = 0; index < energy.length; index += 1) {
+    const item = energy[index];
+    const types = Array.isArray(item.provides) ? item.provides.join('/') : '';
+    const label = (printing(item.card) ?? ('Energy ' + (index + 1))) +
+      (types ? ' (' + types + ')' : '');
+    addSelectableItem(choices, choiceByToken, index, {
+      kind: 'energy',
+      label,
+      ...(printing(item.card) ? { printing: printing(item.card) } : {}),
       publicMetadata: {
-        selectionIndex: choices.length,
-        selectedCount: selected.length,
+        selectionIndex: index,
+        selectedCount: 1,
         sourceZone: visibility.sourceZone,
         ownerSeat: visibility.ownerSeat,
         isOwnerVisible: visibility.isOwnerVisible,
-        energyType: selected.map(index => energy[index].provides.join('/')).join(',')
+        energyType: types
       }
-    }, prompt, state);
+    });
   }
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
@@ -471,28 +482,22 @@ function projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken) {
   const available = nonEmpty.map((item, filteredIndex) => ({ ...item, filteredIndex }))
     .filter(item => !blocked.has(item.filteredIndex));
   const required = Math.min(prompt.options?.count ?? 1, nonEmpty.length);
-  const combinations = enumerateCombinations(
-    available.map(item => item.filteredIndex), required, required
-  );
-  for (const selected of combinations) {
-    const labels = selected.map(index => {
-      const item = nonEmpty[index];
-      return (targetSeat === actorSeat ? 'Your' : 'Opponent') +
-        ' Prize slot ' + (item.originalIndex + 1);
-    });
-    addChoice(choices, choiceByToken, selected, {
-      kind: selected.length > 1 ? 'prize-set' : 'prize',
-      label: labels.join(' + '),
+  for (const item of available) {
+    addSelectableItem(choices, choiceByToken, item.filteredIndex, {
+      kind: 'prize',
+      label: (targetSeat === actorSeat ? 'Your' : 'Opponent') +
+        ' Prize slot ' + (item.originalIndex + 1),
       publicMetadata: {
-        selectionIndex: choices.length,
-        selectedCount: selected.length,
+        selectionIndex: item.filteredIndex,
+        selectedCount: 1,
         sourceZone: 'prizes',
         ownerSeat: targetSeat === actorSeat ? 'actor' : 'opponent',
         isOwnerVisible: false,
         requiredCount: required
       }
-    }, prompt, state);
+    });
   }
+  if (required === 0) addEmptySelectionChoice(choices, choiceByToken, prompt, state);
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
     count: nonEmpty.length,
@@ -532,21 +537,21 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
     const cards = cardListCards(prompt.cards);
     const visibility = cardCollectionVisibility(state, state.players.findIndex(p =>
       p.id === prompt.playerId), cards);
-    const permutations = enumeratePermutations(cards.map((_, index) => index));
-    for (const order of permutations) {
-      const label = order.map(index => printing(cards[index]) ?? ('Card ' + (index + 1))).join(' → ');
-      addChoice(choices, choiceByToken, order, {
-        kind: 'card-order',
-        label,
+    for (let index = 0; index < cards.length; index += 1) {
+      addSelectableItem(choices, choiceByToken, index, {
+        kind: 'card-order-item',
+        label: printing(cards[index]) ?? ('Card ' + (index + 1)),
+        ...(printing(cards[index]) ? { printing: printing(cards[index]) } : {}),
         publicMetadata: {
-          selectionIndex: choices.length,
-          selectedCount: order.length,
+          selectionIndex: index,
+          selectedCount: 1,
           sourceZone: visibility.sourceZone,
           ownerSeat: visibility.ownerSeat,
           isOwnerVisible: visibility.isOwnerVisible
         }
-      }, prompt, state);
+      });
     }
+    if (cards.length === 0) addEmptySelectionChoice(choices, choiceByToken, prompt, state);
     addCancelChoice(choices, choiceByToken, prompt, state);
     return { count: cards.length, allowCancel: prompt.options?.allowCancel === true,
       selectionType: 'card-order' };
@@ -730,16 +735,47 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
   };
 }
 
-function dispatchPromptChoice({ store, prompt, state, actorSeat, projection, token, native } = {}) {
+function dispatchPromptChoice({
+  store, prompt, state, actorSeat, projection, decision, token, native
+} = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(projection?.choiceByToken instanceof Map);
   assert.equal(store.state, state, 'native Store state changed while the prompt decision was pending');
   assert.equal(state.prompts.includes(prompt), true, 'native prompt is stale');
   assert.equal(prompt.result, undefined, 'native prompt has already been resolved');
   assert.equal(prompt.playerId, state.players[actorSeat].id);
-  assert.ok(projection.choiceByToken.has(token),
-    'worker selected an unknown or stale native prompt choice token');
-  const rawResult = projection.choiceByToken.get(token);
+
+  const selected = decision ?? { kind: 'select-choice', token };
+  assert.ok(selected && typeof selected === 'object', 'worker prompt decision must be typed');
+  let rawResult;
+  if (selected.kind === 'select-choice') {
+    assert.equal(typeof selected.token, 'string');
+    assert.ok(projection.choiceByToken.has(selected.token),
+      'worker selected an unknown or stale native prompt choice token');
+    rawResult = projection.choiceByToken.get(selected.token);
+  } else if (selected.kind === 'select-choices') {
+    assert.ok(Array.isArray(selected.tokens) && selected.tokens.length > 0,
+      'multi-select decision requires a nonempty token array');
+    const unique = new Set(selected.tokens);
+    assert.equal(unique.size, selected.tokens.length, 'multi-select decision contains duplicate tokens');
+    const selectionType = projection.promptProjection?.publicMetadata?.selectionType;
+    assert.ok(['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(selectionType),
+      'multi-select decision is unsupported for this prompt type');
+    rawResult = selected.tokens.map(selectedToken => {
+      assert.equal(typeof selectedToken, 'string');
+      assert.ok(projection.choiceByToken.has(selectedToken),
+        'worker selected an unknown or stale native prompt choice token');
+      const value = projection.choiceByToken.get(selectedToken);
+      assert.notEqual(value, null, 'multi-select cannot include cancellation');
+      assert.ok(!Array.isArray(value), 'multi-select item token must map to one native item');
+      return value;
+    });
+  } else {
+    throw Object.assign(new Error('Unsupported typed worker prompt decision'), {
+      code: 'UNSUPPORTED_WORKER_PROMPT_DECISION'
+    });
+  }
+
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'worker-selected prompt choice failed native decode/validation');
   const action = new native.ResolvePromptAction(prompt.id, rawResult);
