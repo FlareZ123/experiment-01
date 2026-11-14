@@ -110,3 +110,10 @@ This checkpoint supersedes earlier blocker descriptions above where source or ru
 
 Keep the fixture stopline. The next qualifying checkpoint is a current-head hosted canary that proves the host-gateway positive control and all four worker combinations, followed by a genuinely integrated asynchronous fixture path that routes every strategic decision through the role worker and fails closed before native dispatch. Passing the launcher contract or Docker preflight alone is insufficient.
 
+## 14 November 2026 12:15 UTC — opponent-policy contract count update
+
+- Current committed rank1 test file has **39** top-level cases (`tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs`, blob `69b73c5d`). Agent6 reports 39/39 in its direct V8 harness against the actual worker validators. This supersedes the 36-case count in the 12:10 checkpoint.
+- Current committed rank2 test file has **27** top-level cases (`tests/2026-11/agent10-rank2-vileplume-control-opponent-policy.test.cjs`, blob `5d6fade7`). Agent6 reports an independent 27/27 direct V8 cross-check. The rank2 report still says 24/24 and should be reconciled by Agent10.
+- Neither direct V8 result is a Node test-runner result, GitHub Actions result, Docker isolation result, native fixture, or matchup result.
+- The existing `agent36-bilateral-competence-v9.yml` still references neither policy test file. No hosted workflow run has occurred after [43590385262](https://github.com/FlareZ123/experiment-01/actions/runs/43590385262). Keep both prototypes unqualified and do not start fixtures.
+
