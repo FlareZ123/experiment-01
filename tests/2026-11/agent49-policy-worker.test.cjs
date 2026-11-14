@@ -217,6 +217,7 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateFlatMetadata({ opponentHand: ['hidden'] }, ['damage'], 'BAD_META'), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
 
   const visibleView = observation(0);
   visibleView.ownPublic.active = visiblePokemon();
