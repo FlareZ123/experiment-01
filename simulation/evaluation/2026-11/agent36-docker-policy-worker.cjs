@@ -292,7 +292,7 @@ function cleanupWorkerMetadata(metadata){
 const activeWorkers=new Set();
 
 function inspectContainerExists(containerId){
-  const result=spawnSync('docker',['inspect',containerId],{
+  const result=spawnSync(dockerBinary(),['inspect',containerId],{
     encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
   });
   if(result.error)throw result.error;
@@ -304,7 +304,7 @@ function inspectContainerExists(containerId){
 
 function removeContainerById(containerId){
   if(!containerId)return false;
-  const result=spawnSync('docker',['rm','-f',containerId],{
+  const result=spawnSync(dockerBinary(),['rm','-f',containerId],{
     encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
   });
   if(result.error)throw result.error;
