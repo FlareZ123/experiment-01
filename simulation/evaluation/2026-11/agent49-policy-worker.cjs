@@ -89,7 +89,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '  const globals=[["globalThis",realmGlobal],["Math",Math],["JSON",JSON],["Object",Object],["Array",Array],["Promise",Promise],["Reflect",Reflect]];',
     '  for(const [name,value] of globals){',
     '    if(value&&value.prototype&&typeof value.prototype==="object")objectFreeze(value.prototype);',
-    '    objectFreeze(value);',
+    '    if(name!==\"globalThis\")objectFreeze(value);',
     '    objectDefineProperty(realmGlobal,name,{value,writable:false,configurable:false,enumerable:true});',
     '  }',
     '})();'
