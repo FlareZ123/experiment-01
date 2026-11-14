@@ -964,3 +964,18 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 - Updated the result note to distinguish complete unknown rows (now present) from source-attributed suppression facts (still unavailable): commit `5cc538d`.
 - Agent17 and Agent6 were notified to use tri-state ability status and provisional actor-positive-only epoch handling. Agent5/Agent11/Agent44 were asked for the cross-seat native probe; Agent44's current native evidence is only actor/owner epoch=1. The opponent-only positive case remains unknown.
 - Tests remain unexecuted; no CI/native fixture/two-seat Store probe/game/matchup has been run. No competitive claims.
+
+
+## 2026-11-14 13:53 UTC checkpoint — v13 explicit Ability liveness gates
+
+- The v12 policy was still too optimistic: absence of a known suppressor did not prove a decision-critical Ability was live. Added shared tri-state publicAbilityLiveStatus and now require a complete source-attributed row for:
+  - own Latias ex Skyliner (otherwise the extra-turn line is not established);
+  - own Lillie's Clefairy ex Fairy Zone (otherwise no Dragon Weakness multiplier is assumed);
+  - opponent Active Vileplume BUS 6 Disgusting Pollen (only a proven-live row blocks Basic Mimikyu Copycat; suppressed restores Copycat, unknown abstains);
+  - own Lunatone OBF New Moon (with Solrock; opponent-side New Moon is irrelevant to actor-owned Stadium effects).
+- Status parser accepts suppressed:false only with null reason/source, suppressed:true only with valid reasonCode and non-empty sourcePrinting, and otherwise returns unknown. The conditional Cradily/Dragalge/Vanilluxe and direct retreat blockers remain conservative vetoes; assuming them active can only reduce coverage.
+- ActorObservation now emits complete explicit-unknown abilitySuppressions rows for each visible printed power. It no longer defaults missing pokemon.powers to an empty array; missing native Ability metadata still fails the observation rather than being misrepresented as no Abilities.
+- Commits: v13 helper `65c74f57`; fixture live rows `7ce3dc07`, `6548e77e`, `2c2138e0`; liveness tests `b3ebb609`, `12f0b238`; actor producer `02dd5aec`, missing-powers strictness `c5611bae`; actor contract test `dd591427`; report `3aa56d0a`.
+- Production limitation: actorObservation currently emits only suppressed:null, not source-attributed true/false. Thus real states with these decision-critical Abilities safely abstain. Agent34/Agent49 are asked to derive source-attributed status from the pinned Store/adapter where possible; Agent49 worker schema still lists epoch and abilitySuppressions as optional and needs to require them.
+- Cross-seat Shiftry epoch scope remains unresolved: own positive is directly reproduced; opponent-only positive abstains until Agent5/Agent11/Agent44 complete the two-seat Store probe.
+- Tests still unexecuted; no CI, native probe, game, matchup, or competitive result. Keep helper default-off/candidate-seat-only.
