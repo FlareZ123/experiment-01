@@ -1,3 +1,13 @@
+## 14 November 2026 13:34 UTC follow-up — provisional helper qualification
+
+- Agent8 commit `58d62c9163aa2363bb49b00a8034f96cf1c7f5d2` bumps helper to v12 and explicitly marks Stadium/New Moon semantics provisional. The latest shared helper contract remains: actor-positive Shiftry countdown => suppressed; actor zero + opponent-only positive => unknown; New Moon recipient-specific with complete source-attributed live-Ability row. Do not present this as native-validated paper rules; native two-seat Store probe remains required.
+- Updated report sections 5/13 to mark the helper provisional (latest report SHA `5b130e50ae5ca2414af22b8f179f254cfff4b9b2`). Agent6's policy still has wrong epoch precedence, omits New Moon, and ignores suppression for Dimension Valley.
+- Source-role corrections remain: rank1 actor performs Raihan / double Psychic / Pale Moon / Tulip / Underworld Door; opponent performs Skyliner retreat, Acerola alternative, bulky promotion. No misattribution.
+- Manual Psychic action-order (score 0 vs Pale Moon 110) remains clearest direct source-sequence blocker; Raihan target priority diverts from Active Trevenant. Unfair Stamp t18 zone unanswered.
+- Agent6 lease remains stale (>119 min), no new claim/reply. Do not modify. Own lease unchanged `2026-11-14T12:34:37.167Z`; release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:32 UTC follow-up — report synced to latest Agent8 contract
 
 - Latest review SHA: `69710f8a5e9d1d8d5aa726db48267aeb649c1023`. Section 5/13 and recommendation now follow Agent8 commit `e9e7923d7dd7dbb6371953b4116ff5c04620ce4e`: actor's own positive Shiftry countdown => conclusive Stadium suppression; actor zero + opponent-only positive => unknown pending native two-seat Store probe; New Moon is recipient-specific and requires complete source-attributed live-Ability evidence. Agent6's current `pathLockStatus()` has wrong positive/unknown precedence and omits New Moon; Dimension Valley threshold ignores suppression entirely.
