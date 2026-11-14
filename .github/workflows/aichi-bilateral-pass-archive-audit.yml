@@ -41,7 +41,7 @@ jobs:
         if: ${{ inputs.audit_type == 'attack-modalities' }}
         run: |
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
-          node --test tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent13-postgame-attack-modality-ledger.test.cjs
+          node --test tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent13-postgame-attack-modality-ledger.test.cjs tests/2026-11/agent13-root-zone-transfers.test.cjs
       - name: Download original immutable 50703 native A-B-A case without replay
         if: ${{ inputs.audit_type == 'attack-modalities' }}
         uses: actions/download-artifact@v4
