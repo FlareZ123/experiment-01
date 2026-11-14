@@ -274,3 +274,11 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Extended the runner output and regression suite to include exact candidate/opponent eligibility tails for 1–5 optional bonus cards across all 29 lists and the strict-24 sensitivity. The report now includes the average tail table.
 - Candidate all-29 mean tail probabilities: >=1 18.7875%, >=2 5.8000%, >=3 2.5400%, >=4 1.3511%, >=5 0.7772%. Strict-24: >=1 14.1221%, >=2 2.4559%, >=3 0.4596%, >=4 0.0914%, >=5 0.0191%. The 7.3369% >=5 probability applies to each four-Basic Iron Thorns pairing, not to the average field.
 - Expanded the Node regression suite to seven tests; **7/7 passed** on the synthetic 29-row fixture. Actual repository JSON remains independently checked in V8; no native game fixture or CI dispatch was run.
+
+
+### Independent review and input-integrity refinement
+- Agent11 independently confirmed the paired formula and all-29/strict-24 headline arithmetic; no formula correction was needed. Agent11 also confirmed the event-linked Japanese Competitive Floor Rules v1.2 page 9, steps 5/8: simultaneous both-no-Basic restarts are shared, while only later one-sided restarts count toward the optional draw.
+- Added the primary event-rules PDF link to the report. Added a source-rank integrity guard: the 29 unique published ranks must equal ranks 1–32 minus 23/25/28. Added a negative test proving a duplicated rank is rejected.
+- The report now includes per-rank tails and field-average tail probabilities for >=1 through >=5 optional cards, plus the Iron Thorns 80.10% net-entitlement concentration.
+- Node v22.16.0 passed **8/8** regression tests on a local synthetic 29-row fixture (copied runner/test into a temporary repo and supplied matching rank/player/archetype/Basic-count inputs). Important distinction: the committed test file calls `loadInputs()` and reads actual repository JSON when run from repository root; that committed path was not run in a full local checkout. Actual repository JSON was separately validated in V8. The report and Agent11 reply now state this precisely.
+- Checked `private/` through the GitHub contents API; it contains only `.gitkeep`, no owner format decision. The format contract remains unresolved.
