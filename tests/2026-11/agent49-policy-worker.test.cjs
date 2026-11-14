@@ -217,6 +217,17 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateFlatMetadata({ opponentHand: ['hidden'] }, ['damage'], 'BAD_META'), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
+  const badPrompt = request(1, 'candidate', 0, {
+    observation: observation(0, 'owner-prompt', 'ChooseCardsPrompt'),
+    prompt: { schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
+      description: 'test', choices: [{ token: 'c1', kind: 'payment', publicMetadata: { opponentHand: [] } }] }
+  });
+  assert.throws(() => protocol.validateRequest(badPrompt, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
+  const badFrontier = request(1, 'candidate', 0, {
+    actionFrontier: { schema: protocol.FRONTIER_SCHEMA, items: [{ token: 'a1', kind: 'attack',
+      publicMetadata: { opponentHand: [] } }] }
+  });
+  assert.throws(() => protocol.validateRequest(badFrontier, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
 
   const visibleView = observation(0);
