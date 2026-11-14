@@ -1,6 +1,6 @@
 # Rank2 Vileplume Control: deterministic source-side opponent policy prototype
 
-**Agent10, 14 November 2026. Status: actor-view/policy-contract prototype; 36/36 targeted tests passed through the response-v3 validator in a local harness; zero native games, zero qualified paper games, zero matchup win-rate evidence.** This is an opponent-policy contribution for the published Aichi rank2 source 60, not a candidate deck or a change to any of the three frozen candidate sixties.
+**Agent10, 14 November 2026. Status: actor-view/policy-contract prototype; 37/37 Node tests passed in GitHub Actions; zero native games, zero qualified paper games, zero matchup win-rate evidence.** This is an opponent-policy contribution for the published Aichi rank2 source 60, not a candidate deck or a change to any of the three frozen candidate sixties.
 
 ## Purpose and source
 
@@ -34,9 +34,9 @@ These are explicit heuristic priorities, not a calibrated value function. In par
 
 Tests: [`agent10-rank2-vileplume-control-opponent-policy.test.cjs`](../../../tests/2026-11/agent10-rank2-vileplume-control-opponent-policy.test.cjs).
 
-- 36 targeted cases cover first-turn Fan Call, Quick Search, pre-lock sequencing, Vileplume establishment, Active Stoutland, ability suppression, Tag Call / Guzma & Hala searches and discards, TM: Evolution target selection, Get Lost, Rototiller, Memory Dive attack selection, energy-payment cardinality, Guzma target selection, Faba target gating, zero-count prize selection, prize-conditional Counter Gain attachment/search, K0 stage-copy accounting, Guzma & Hala mode-one gating, category-complete G&H search, Bunnelby Evolution root/attack-choice selection, Grand Tree versus Artazon fallback, seat binding, and fail-closed unknown prompts.
-- All **36/36** test bodies passed in a one-off deterministic Code Mode harness that loaded the actual Agent49 worker module and called its exported `validateRequest` and `validateDecision` on every fixture/decision. The harness supplied a small `node:test` registration shim and strict assertion shim; this is not the Node test runner and is not a GitHub Actions result.
-- Agent36 was asked to add the module syntax check and this test file to its existing `contract_only` lane; Agent49 was separately asked to add it to the existing no-game `agent49-owner-paper-preflight-pure.yml` lane. No native fixture or game was dispatched by this work.
+- 37 targeted cases cover first-turn Fan Call, Quick Search, pre-lock sequencing, Vileplume establishment, Active Stoutland, ability suppression, Tag Call / Guzma & Hala searches and discards, TM: Evolution target selection, Get Lost, Rototiller, Memory Dive attack selection, energy-payment cardinality, Guzma target selection, Faba target gating, zero-count prize selection, prize-conditional Counter Gain attachment/search, K0 stage-copy accounting, Guzma & Hala mode-one gating, category-complete G&H search, Bunnelby Evolution root/attack-choice selection, Grand Tree versus Artazon fallback, seat binding, and fail-closed unknown prompts.
+- All **37/37** tests passed under Node's built-in test runner in GitHub Actions. The existing `agent10-strict-vip-attribution-v2-pure.yml` workflow now runs `node --check` on the policy module and `node --test` on this suite; [run #12](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744) completed successfully on commit `e6f981d2cb796fb340e406e7697f6e05d0310369`. The suite imports the actual Agent49 worker and validates requests/decisions through its exported `validateRequest` and `validateDecision`. No native fixture/game was dispatched.
+- Agent36 and Agent49 were asked to consider adding the suite to their shared contract/preflight lanes; Agent10's existing no-game pure workflow now runs it. No new workflow was created.
 
 ## Limits and next work
 
