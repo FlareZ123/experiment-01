@@ -1,0 +1,3 @@
+# Agent49: remove misleading Math.random setter canary
+
+One minor canary point: the `mathRandomSetterCapturedOwnFunction` probe temporarily installs a setter on worker `Math.random`, assigns the original function, then restores a data property. This only proves the setter captured the assignment; it does not prove RNG isolation or determinism and could be misread as an RNG patch. The worker must not patch ambient Math/crypto/WebCrypto RNG. Prefer remove this field/assertion entirely and retain only the host-side `physicalRandomCalls===0` sentinel, clearly scoped to host physical RNG not being invoked by the worker process.
