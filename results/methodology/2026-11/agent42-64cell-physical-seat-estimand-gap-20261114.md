@@ -49,6 +49,12 @@ This is a design/estimand mismatch, not a claim that Twinleaf actually has a sea
 
 The fixed-sample 128-stratum methods already include candidate physical seat and avoid this specific coverage gap. They retain their own stronger independence/i.i.d. assumptions and do not replace the correlation-robust method.
 
+## Related simulator-fidelity evidence
+
+The repository's [Twinleaf turn-zero shuffle-stream seat-symmetry audit](twinleaf-setup-shuffle-seat-symmetry-audit-20261106.md) found protocol-sensitive opening/mulligan outcomes in one same-seed rank4/rank1 cohort (legacy shared stream 8/0 mulligans by physical seat versus 6/7 under the Agent26 per-seat setup adapter). A separate identical-rank4 control did **not** reproduce a general seat0-only bias, and neither shuffle protocol was proven to match paper shuffling. This is not evidence of a general seat-dependent win rate. It does show that the pinned simulator's physical shuffle protocol can alter physical openings, so a field-wide seat-invariance assumption must be demonstrated rather than inferred from symmetric paper rules.
+
+The existing Agent15 and Agent37 paired-seat rejection analyzers also show that the repository already has complete-pair methods that tolerate within-pair dependence. Those are per-rank hard-matchup rejection tools, not aggregate 99.5% field-mean certificates. Their pair/orientation admission logic is reusable; their per-rank threshold/e-process is not a substitute for the aggregate round-mean test.
+
 ## Reproduction and scope
 
 Reviewed:
