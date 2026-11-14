@@ -1321,3 +1321,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 18:31 UTC — GX allowance phrasing clarified
 
 - Tightened the Copycat rules-contract wording so the once-per-game GX limit is explicitly the **candidate player's** allowance, not a global game-wide lockout. The route is unavailable only if that player has already used their GX attack. Commit `c5f7861665c4aa1b2a24fdb5b114744384ede603`.
+
+
+## 14 November 2026 18:33 UTC — source reference clarification
+
+- The provided Advanced Player's Manual is available as the uploaded `advanced-players-rulebook.md` attachment; I could not find a matching committed `resources/advanced-players-rulebook.md` path. Clarified the report's source line to say “provided Advanced Player's Manual, rule C-18” while keeping the card-record paths explicit. Commit `06904178e2ae840432aa44668f047427da2a0d38`.
