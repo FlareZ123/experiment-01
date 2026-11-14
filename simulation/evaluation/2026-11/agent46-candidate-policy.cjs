@@ -407,7 +407,7 @@ function searchNeedScore(view, printing, effectName = '') {
 function discardValue(view, printing) {
   if (!isText(printing)) return 1000;
   const duplicates = view.ownHand.filter(item => item === printing).length;
-  if (hasName(printing, 'Battle VIP Pass') && view.observation?.globalTurn > 1) return 1;
+  if (hasName(printing, 'Battle VIP Pass') && view.globalTurn > 1) return 1;
   if (hasName(printing, 'Psychic Energy')) {
     return psychicEnergyCount(view) >= 5 ? 2 : 80;
   }
@@ -510,7 +510,7 @@ function chooseCardCombination(view, prompt) {
     const item = selected.find(choice => isItem(choice.printing));
     const tool = selected.find(choice => isTool(choice.printing));
     if (item && tool && item.token !== tool.token) {
-      selected = [item, tool].slice(0, minimum);
+      selected = [item, tool].slice(0, Math.min(maximum, Math.max(minimum, 2)));
     } else if (minimum >= 2) {
       return abstain('ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE');
     }
@@ -601,8 +601,7 @@ function choosePokemonRecipient(view, prompt) {
 
 function chooseEnergyPayment(view, prompt) {
   const metadata = prompt.publicMetadata;
-  if (!metadata || metadata.selectionType !== 'energy-payment' ||
-      metadata.ownerSeat !== 'actor' || metadata.isOwnerVisible !== true) {
+  if (!metadata || metadata.selectionType !== 'energy-payment') {
     return abstain('UNTRUSTED_ENERGY_SELECTION');
   }
   const minimum = 1;
@@ -618,7 +617,7 @@ function chooseEnergyPayment(view, prompt) {
     score: discardValue(view, choice.printing)
   })).sort((a, b) => a.score - b.score ||
     String(a.choice.printing).localeCompare(String(b.choice.printing)));
-  const selected = ranked.slice(0, Math.min(minimum, maximum));
+  const selected = ranked.slice(0, Math.min(1, maximum));
   if (selected.length < minimum) return abstain('NO_VISIBLE_ENERGY_CHOICE');
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
 }
@@ -673,8 +672,12 @@ function choosePrizeSlots(prompt) {
     choice.kind === 'prize' && Number.isSafeInteger(choice.publicMetadata?.selectionIndex));
   const selected = choices.sort((a, b) =>
     a.publicMetadata.selectionIndex - b.publicMetadata.selectionIndex).slice(0, required);
-  if (selected.length !== required || required < 1) {
+  if (selected.length !== required || required < 0) {
     return abstain('NO_LEGAL_PRIZE_SELECTION');
+  }
+  if (required === 0) {
+    const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+    return empty ? { kind: 'select-choice', token: empty.token } : abstain('NO_EMPTY_PRIZE_CHOICE');
   }
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
@@ -735,6 +738,7 @@ function scoreBasicPlay(item, view) {
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (hasName(printing, 'Shadow Rider Calyrex V') &&
+      !hasName(printing, 'VMAX') &&
       !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
@@ -745,6 +749,12 @@ function scoreBasicPlay(item, view) {
       !boardHas(view, 'Girafarig')) return 450;
   if (hasName(printing, 'Marshadow') &&
       view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
+  return -Infinity;
+}
+
+function scoreEvolutionPlay(item) {
+  if (hasName(item.actorPrinting, 'Shadow Rider Calyrex VMAX') &&
+      hasName(item.targetPrinting, 'Shadow Rider Calyrex V')) return 970;
   return -Infinity;
 }
 
@@ -780,7 +790,7 @@ function hasAbilityLockThreat(view) {
 }
 
 function hasStadiumRemovalTarget(view) {
-  return view.opponentPublic.stadium.some(name =>
+  return [...view.ownPublic.stadium, ...view.opponentPublic.stadium].some(name =>
     hasName(name, 'Path to the Peak') ||
     hasName(name, 'Jamming Tower') ||
     hasName(name, 'Wondrous Labyrinth'));
@@ -802,7 +812,8 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
-      !discardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
+      !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
+      !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
       (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
@@ -873,9 +884,10 @@ function chooseRoot(view, request) {
   const plays = items.filter(item => item.kind === 'play-card');
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
+    const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
-    return { item, score: Math.max(basic, energy, trainer) };
+    return { item, score: Math.max(basic, evolution, energy, trainer) };
   }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
   if (scoredPlays.length > 0) return { kind: 'select-action', token: scoredPlays[0].item.token };
