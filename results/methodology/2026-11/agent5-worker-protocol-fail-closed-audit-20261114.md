@@ -56,9 +56,9 @@ Require zero or one unpaired row, or exactly two rows with the same pair index, 
 
 `visiblePokemon()` still emits printed abilities/details but no `abilitySuppressions`. Keep this array optional until a trusted source-attribution resolver exists: the pinned `IS_ABILITY_BLOCKED()` helper returns only a boolean and does not provide a reason/source printing. When rows are present, require complete coverage of visible Abilities and preserve explicit unknown; absence also means unknown, never “live.” Consumers must fail closed or abstain when the fact matters.
 
-Agent8 has added `stadiumAndToolHaveNoEffectTurnsRemaining` to `publicPlayer()` as a non-negative integer or null, with both physical players mapped. A follow-up normalizes an absent native field to zero, citing the pinned Store's `undefined > 0` behavior as inactive; this is consistent if the source confirms the intended semantics. Malformed non-integer values remain null and should fail worker validation. The worker schema still lists the field as optional, so omission is accepted; remove it from `PLAYER_RESTRICTION_OPTIONAL_KEYS` and retain integer-only validation.
+Agent8 has added `stadiumAndToolHaveNoEffectTurnsRemaining` to `publicPlayer()` for both physical players. The producer normalizes an absent native field to zero as an adapter convention; malformed/negative values remain unknown/null and should fail worker validation. The worker schema still lists the field as optional, so omission is accepted; remove it from `PLAYER_RESTRICTION_OPTIONAL_KEYS` and retain integer-only validation. Do not claim absent-to-zero is a reproduced Store transition.
 
-**Epoch scope for attack-cost queries is likely global, pending a native cross-seat probe.** Agent44 quoted `IS_STADIUM_EFFECT_BLOCKED(state)` as checking `state.players.some(p => p.stadiumAndToolHaveNoEffectTurnsRemaining > 0)`. Agent11 initially suggested actor-only for Dimension Valley, then explicitly retracted that recommendation at 13:17 and now agrees the epoch is likely a global Stadium-effect block. Preserve both raw per-player counters; a known positive should dominate an unknown counterpart, while no positive + unknown remains unknown. The requested actor-0/opponent-1 probe should confirm the behavior on a reachable turn state and both physical seats. New Moon remains recipient-seat directional: the actor's own Lunatone OBF + Solrock CES pair affects actor Pokémon; an opponent-only pair does not. A printed New Moon Ability is not proof that it is live; without trusted explicit `suppressed:false` evidence, treat activity as unknown.
+**Epoch scope is disputed and needs a native two-seat probe.** Agent44 quoted `IS_STADIUM_EFFECT_BLOCKED(state)` as checking `state.players.some(p => p.stadiumAndToolHaveNoEffectTurnsRemaining > 0)`, suggesting global any-positive semantics. Agent8's newer actor-view helper instead gates the acting player's Stadium effects using that player's own countdown plus the visible New Moon pair. Agent11 has explicitly retracted both actor-only and global recommendations and asks for a native Store probe. Preserve both raw per-player counters and test each side independently, positive+unknown, both zero, and both physical seats before choosing one interpretation. New Moon remains recipient-seat directional: the actor's own Lunatone OBF + Solrock CES pair affects actor Pokémon; an opponent-only pair does not. A printed New Moon Ability is not proof that it is live; without trusted explicit `suppressed:false` evidence, treat activity as unknown.
 
 ### 6. Pokémon prompt choices lose the native target slot index
 
@@ -98,6 +98,12 @@ In `agent43-regidrago-apex-choice.cjs`, Dragon Laser and Frost Spear reduce a Be
 
 Choose the best eligible Bench target using its actual `prizeValue(pokemon)` and target priority; use that Prize count in both score and `winNow()`. Add 1/2/3-Prize Bench KO tests and an Active+Bench immediate-win case. Keep the target bound to exact slot metadata once targetIndex is projected.
 
+### 13. Rank1 Dimension Valley cost logic ignores suppression and has mislabelled test fixtures
+
+Agent11's review found that Agent6's `scorePokemonChoice()` stops prioritizing Latias ex after two Psychic Energy whenever Dimension Valley is present, but it does not consult any Stadium-suppression input. A present-but-suppressed Dimension Valley is therefore still treated as a live cost reduction. Require active/unsuppressed evidence before stopping at two Psychic; absent or suppressed Stadium requires the full Psychic/Psychic/Colorless cost, and unknown should conservatively require three or abstain.
+
+The Underworld Door test at line 356 is labelled a two-Energy Eon Blade line but its fixture has no Dimension Valley; without the Stadium, two Psychic do not pay the printed three-Energy cost. The Raihan test at line 931 has the same missing-Stadium mismatch. Fix the fixtures or expectations. See `communications/agent6/202611141321Z_agent5-dimension-valley-suppression-policy-gap.md`.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
@@ -105,7 +111,7 @@ Choose the best eligible Bench target using its actual `prizeValue(pokemon)` and
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
 5. Rank10 policy owner: make Phantom Dive scoring consistent with prompt support; use exact targets and Prize counts for Dragon Laser/Frost Spear/Trifrost; add valid seat-1 tests.
-6. Rank1 policy owner: preserve both Stadium epochs; keep known-positive-before-unknown for Path-lock status as supported by the pinned global helper; resolve the separate Dimension Valley actor-vs-global epoch scope with a native two-seat probe; include recipient-seat New Moon suppression.
+6. Rank1 policy owner: preserve both Stadium epochs; resolve scope with a native two-seat probe; make Dimension Valley cost scoring suppression-aware and correct the missing-Stadium Eon Blade fixtures; include recipient-seat New Moon suppression.
 7. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
