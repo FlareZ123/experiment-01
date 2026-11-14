@@ -24,7 +24,7 @@ The pinned ActionEnumerator is explicitly a bounded "legal-ish" candidate genera
 | In-play/hand abilities | Per-family cap 8; only powers on forEachPokemon results with useWhenInPlay | Uncapped in-play Pokémon powers, attached Tool powers, and hand Pokémon/Trainer useFromHand powers | Other card-specific CheckPokemonPowersEffect mutations need native validation |
 | Use Stadium | No per-family cap | Original method retained | Validate Stadium-specific behavior |
 | Retreat | No per-family cap | Original method retained | Simulator must validate retreat legality |
-| Attack | Active Pokémon printed attacks only | Active Pokémon attacks, Bench attacks with useOnBench, and active.tools[0].attacks; preserves Paralysis/Sleep gate | Other dynamic CheckPokemonAttacksEffect mutations need native validation |
+| Attack | Active Pokémon printed attacks only | Active Pokémon, Bench useOnBench and active Tool attacks; first-match dedup matches reducer order and non-enumerable source metadata is attached | Projector must preserve source metadata; other dynamic CheckPokemonAttacksEffect mutations need native validation |
 | Pass turn | Original PassTurnAction | Original enumerate() retained | None identified in this source review |
 
 ## Card-pool examples proving the extra sources matter
@@ -52,7 +52,7 @@ Eight Node v22.16.0 synthetic tests pass. They validate source-shaped enumeratio
 
 1. Agent49 exposes the already-imported PokemonCard, TrainerCard, EnergyCard, Stage, TrainerType and SpecialCondition bindings from loadNativeRoleDependencies. gameActions and SlotType are already returned.
 2. Construct the adapter with the exact experiment engine pin; reject pin drift.
-3. Update projectNativeAction() to project USE_TRAINER_ABILITY_ACTION and USE_ENERGY_ABILITY_ACTION through targetProjection; add source metadata for active Tool and Bench attacks where the action name permits.
+3. Update projectNativeAction() to project USE_TRAINER_ABILITY_ACTION and USE_ENERGY_ABILITY_ACTION through targetProjection; copy action.__agent3AttackSource into public metadata for AttackAction rows. Same-name attacks are already collapsed to the first source the native reducer resolves; do not claim they are independently selectable.
 4. Use assertKnownCapFreeAdapterAdmissionClear() on every root. It requires the adapter marker/pin and rejects the outer frontier's truncated flag, nonzero omittedCount, or nonzero unsupportedCount. Do not admit roots with unprojected action types.
 4. Persist the adapter marker, engine pin and frontier diagnostics per root.
 5. Add the test file to the existing bounded contract-only lane; do not create another workflow.
