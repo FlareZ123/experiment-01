@@ -287,15 +287,16 @@ function validateActorObservation(view, seat) {
   }
   assertBoundedJson(view);
 }
-function validateEventPokemon(slot) {
+function validateEventPokemon(slot, viewPokemon) {
   if (slot === null) return;
   exactKeys(slot, ['printing', 'movedFromBenchToActiveThisTurn', 'knownAbilityUse']);
   if (!boundedString(slot.printing, null, 256) ||
       !(slot.movedFromBenchToActiveThisTurn === null || typeof slot.movedFromBenchToActiveThisTurn === 'boolean') ||
       !Array.isArray(slot.knownAbilityUse)) fail('BAD_EVENT_POKEMON');
+  const knownAbilityNames = new Set([...(viewPokemon?.abilities ?? []), ...(viewPokemon?.abilityDetails ?? []).map(x => x.name)]);
   for (const ability of slot.knownAbilityUse) {
     exactKeys(ability, ['name', 'usedThisTurn']);
-    if (!boundedString(ability.name, null, 128) ||
+    if (!boundedString(ability.name, null, 128) || !knownAbilityNames.has(ability.name) ||
         !(ability.usedThisTurn === null || typeof ability.usedThisTurn === 'boolean')) fail('BAD_EVENT_ABILITY');
   }
 }
@@ -321,7 +322,7 @@ function validatePublicEventReceipt(receipt, view) {
   ], ['opponentCopycatChoices', 'mimikyuCopycatCompatible']);
   if (receipt.version !== 'agent8-public-event-receipt-v3-turn-stamped' ||
       receipt.actorSeat !== view.actorSeat || receipt.turn !== view.globalTurn) fail('BAD_PUBLIC_EVENT_RECEIPT');
-  validateEventPokemon(receipt.ownerActive);
+  validateEventPokemon(receipt.ownerActive, view.ownPublic.active);
   const viewActivePrinting = view.ownPublic.active === null ? null : view.ownPublic.active.printing;
   const receiptActivePrinting = receipt.ownerActive === null ? null : receipt.ownerActive.printing;
   if (viewActivePrinting !== receiptActivePrinting) fail('EVENT_OWNER_ACTIVE_MISMATCH');
@@ -329,7 +330,7 @@ function validatePublicEventReceipt(receipt, view) {
       receipt.ownerBench.length !== view.ownPublic.bench.length) fail('BAD_EVENT_BENCH');
   for (let i = 0; i < receipt.ownerBench.length; i++) {
     const slot = receipt.ownerBench[i];
-    validateEventPokemon(slot);
+    validateEventPokemon(slot, view.ownPublic.bench[i]);
     const viewPrinting = view.ownPublic.bench[i] === null ? null : view.ownPublic.bench[i].printing;
     const receiptPrinting = slot === null ? null : slot.printing;
     if (viewPrinting !== receiptPrinting) fail('EVENT_OWNER_BENCH_MISMATCH');
