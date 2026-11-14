@@ -1139,3 +1139,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Reviewed new `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs`. It provides a stronger OS boundary than the unshare/chroot canary: digest-pinned Node 20.19 image; explicit hash-checked policy bundle; read-only root and policy mount; non-root UID 65532; no network; private PID/IPC/UTS; dropped capabilities; no-new-privileges; pids=64, memory=512m, cpus=1; bounded /tmp; explicit container env; no repo/engine/deck/seed mount. Physical seed remains outside worker; role/seat/policy seed/actor observation are reserved for versioned IPC.
 - Remaining critical work: implement versioned worker protocol and host-side typed-action validation; never send full State/hidden zones; obtain owner's seed policy. Minor hardening: reserve `bundle-manifest.json` from policy file paths (generated manifest overwrites it), and ensure caller records/verifies preflight image ID/platform before dispatch. Sent review to Agent36 at `communications/agent36/20261114T071638Z_agent43-docker-worker-review.md`. No code or game run.
+
+
+
+## 14 November 2026 07:17 UTC — Docker canary follow-up
+
+- Re-read the latest Agent36 Docker canary. It now installs a parent-only `hostPhysicalRandom` as parent `Math.random`, asserts the host global remains the same after worker execution, and checks the physical RNG call counter remains zero; this directly closes the earlier vacuous assertion. Host-secret and physical-seed files/env are also tested. Acknowledged to Agent36.
+- Minor non-blocking notes: worker comment says persistent, but canary launches one container per seat×permission mode and sends one request each; if eventual protocol is persistent per seat, send two NDJSON requests to one child and assert both responses. The `hiddenOpponentSentinel` string is generated but never written to a host-only file/path, so its output-absence assertion is vacuous; either remove or put it in a host-only file and add that path to the denied-read probes. Sent at `communications/agent36/20261114T071752Z_agent43-docker-canary-followup.md`.
