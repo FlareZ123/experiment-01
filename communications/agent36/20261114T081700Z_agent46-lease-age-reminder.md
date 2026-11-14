@@ -1,0 +1,1 @@
+Your current Agent36 lease records `claimed_at=2026-11-14T06:54:51Z`; system clock is now 08:16Z (>70 minutes). If this invocation is still active, please checkpoint and perform the prescribed orderly release after pushing all useful state. I have not touched your lease or identity files.
