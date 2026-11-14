@@ -53,6 +53,8 @@ async function main(request){
   const report={
     schema:'agent44-policy-sandbox-canary-v1',
     nodeVersion:process.version,
+    seat:request.seat,
+    policySeed:request.policySeed,
     cwd:process.cwd(),
     envKeys:Object.keys(process.env).sort(),
     uid:process.getuid?.()??null,
@@ -176,58 +178,64 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       priorSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
       process.env.AGENT36_PHYSICAL_SEED_HEX='must-not-cross-policy-boundary';
       assert.equal(typeof hostPhysicalRandom,'function');
-      const request={
-        forbiddenPaths,
-        hostProcPath,
-        hostPort:server.address().port,
-        repoPath:path.resolve(process.cwd(),'README.md')
+      const repoPath=path.resolve(process.cwd(),'README.md');
+      const runWorker=async(seat,permissionModel)=>{
+        const request={
+          forbiddenPaths:[...forbiddenPaths,repoPath],
+          hostProcPath,
+          hostPort:server.address().port,
+          repoPath,
+          seat,
+          policySeed:'policy-seat-'+seat+'-only'
+        };
+        const child=spawnSandboxedPolicyWorker({
+          sandbox,entrypoint:'/policy/canary.cjs',permissionModel,timeoutMs:12000
+        });
+        activeChildren.push(child);
+        child.stdin.end(JSON.stringify(request)+'\\n');
+        return readWorkerResponse(child);
       };
+      for(const seat of [0,1]){
+        const osReport=await runWorker(seat,false);
+        assert.equal(osReport.seat,seat);
+        assert.equal(osReport.policySeed,'policy-seat-'+seat+'-only');
+        assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
+        assert.equal(osReport.cwd,'/');
+        assert.equal(osReport.procVisible,false);
+        assert.equal(osReport.repoVisible,false);
+        assertDeniedReads(osReport.hostFiles);
+        assert.equal(osReport.hostProc.ok,false);
+        assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
+        assert.equal(osReport.rootWrite.ok,false);
+        assert.ok(['EROFS','EACCES','EPERM'].includes(osReport.rootWrite.code));
+        assert.equal(osReport.tmpWrite.ok,true);
+        if(osReport.childProcess.ok){
+          assert.equal(osReport.childProcess.value.status,0);
+          assertDeniedReads(JSON.parse(osReport.childProcess.value.stdout));
+        }else{
+          assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.childProcess.code));
+        }
+        if(osReport.workerThread.ok)assertDeniedReads(osReport.workerThread.value);
+        else assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.workerThread.code));
+        assert.equal(osReport.network.ok,false);
+        assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
+        assert.equal(hostConnections,0);
+        assert.equal(physicalRandomCalls,0);
 
-      const osOnly=spawnSandboxedPolicyWorker({
-        sandbox,entrypoint:'/policy/canary.cjs',permissionModel:false,timeoutMs:12000
-      });
-      activeChildren.push(osOnly);
-      osOnly.stdin.end(JSON.stringify(request)+'\n');
-      const osReport=await readWorkerResponse(osOnly);
-      assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
-      assert.equal(osReport.cwd,'/');
-      assert.equal(osReport.procVisible,false);
-      assert.equal(osReport.repoVisible,false);
-      assertDeniedReads(osReport.hostFiles);
-      assert.equal(osReport.hostProc.ok,false);
-      assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
-      assert.equal(osReport.rootWrite.ok,false);
-      assert.ok(['EROFS','EACCES','EPERM'].includes(osReport.rootWrite.code));
-      assert.equal(osReport.tmpWrite.ok,true);
-      if(osReport.childProcess.ok){
-        assert.equal(osReport.childProcess.value.status,0);
-        assertDeniedReads(JSON.parse(osReport.childProcess.value.stdout));
-      }else{
-        assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.childProcess.code));
+        const permissionReport=await runWorker(seat,true);
+        assert.equal(permissionReport.seat,seat);
+        assert.equal(permissionReport.policySeed,'policy-seat-'+seat+'-only');
+        assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
+        assertDeniedReads(permissionReport.hostFiles);
+        assert.equal(permissionReport.childProcess.ok,false);
+        assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
+        assert.equal(permissionReport.workerThread.ok,false);
+        assert.equal(permissionReport.workerThread.code,'ERR_ACCESS_DENIED');
+        assert.equal(permissionReport.network.ok,false);
+        assert.equal(permissionReport.tmpWrite.ok,true);
+        assert.equal(hostConnections,0);
+        assert.equal(physicalRandomCalls,0);
       }
-      if(osReport.workerThread.ok)assertDeniedReads(osReport.workerThread.value);
-      else assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.workerThread.code));
-      assert.equal(osReport.network.ok,false);
-      assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
-      assert.equal(hostConnections,0);
-      assert.equal(physicalRandomCalls,0);
-
-      const permissionWorker=spawnSandboxedPolicyWorker({
-        sandbox,entrypoint:'/policy/canary.cjs',permissionModel:true,timeoutMs:12000
-      });
-      activeChildren.push(permissionWorker);
-      permissionWorker.stdin.end(JSON.stringify(request)+'\n');
-      const permissionReport=await readWorkerResponse(permissionWorker);
-      assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
-      assertDeniedReads(permissionReport.hostFiles);
-      assert.equal(permissionReport.childProcess.ok,false);
-      assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
-      assert.equal(permissionReport.workerThread.ok,false);
-      assert.equal(permissionReport.workerThread.code,'ERR_ACCESS_DENIED');
-      assert.equal(permissionReport.network.ok,false);
-      assert.equal(permissionReport.tmpWrite.ok,true);
-      assert.equal(hostConnections,0);
-      assert.equal(physicalRandomCalls,0);
     }finally{
       for(const child of activeChildren){
         if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');
