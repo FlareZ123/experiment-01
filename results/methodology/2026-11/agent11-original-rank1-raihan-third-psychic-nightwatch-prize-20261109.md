@@ -107,6 +107,14 @@ The source's t20 Night Watch is a **non-GX attack**. If the opponent's Mimikyu i
 
 The current Tulip test does not inspect Mimikyu's zone, play Sky Field or Mysterious Treasure, bench/power Mimikyu, or execute Copycat. This is a **text-derived opponent-policy hypothesis**, not an observed native branch or proven optimal response. It may be more disruptive than either tested Latias branch and should be considered in future opponent-policy acceptance after the OS-sandbox stopline is cleared.
 
+### Active promotion is a policy choice, not a forced Girafarig KO
+
+The 16/16 Night Watch Prize result is conditional on the opponent selecting **Girafarig** as its Active after Latias's free Retreat. The t19 owner-visible Bench also contains Dialga-GX UPR (**180 HP**), Lillie's Clefairy ex JTG (**190 HP**), and two Shadow Rider Calyrex V CRE (**210 HP** before evolution; the Tulip line evolves them to VMAX). None has Psychic Weakness in the recorded printings, so a 150-damage Night Watch does not Knock Out Dialga-GX or Lillie's Clefairy ex from an undamaged state. The opponent can promote one of these bulkier Basics instead, leave Latias on the Bench until the Pale Moon-GX end-of-turn check passes, then use Latias's Skyliner free-retreat effect on a later turn to bring Latias Active. In that branch Night Watch still resolves and disrupts two random hand cards, but does **not** take the tested Prize and does not enable Unfair Stamp.
+
+There is also an untested Supporter alternative in the actual t19 hand: **Acerola**. Latias has damage counters from the earlier Energy Drive. The supplied manual's C-02 says that when a Pokémon in play is put into its owner's hand, its damage counters and effects are removed. Acerola can therefore pick up the damaged Latias and clear the delayed Pale Moon-GX effect, then Latias can be re-benched after the required Active promotion. This competes with Tulip for the one Supporter allowed on t19; it is not automatically stronger, but a competent opponent policy must compare it rather than assume Retreat-to-Girafarig is forced.
+
+The current paired panel and connected test intentionally select Girafarig and do not compare bulky Active promotion or Acerola. The reported 16/16 is therefore a conditional tactical conversion under a fixed opponent reply, not a robust prize-conversion rate against an opponent choosing its best legal response.
+
 These results form a useful **rank1 opponent-response test case**, not a competitive matchup:
 - A source policy must evaluate the Raihan search against the physical next-turn attack cost and available normal attachment, rather than blindly selecting the first deck card.
 - An opponent policy must not be represented by Retreat+Pass when its actual hand supports Tulip recovery, two VMAX evolutions, Underworld Door attachments/draws, a Get Lost line or a powered Latias line, and a prize-triggered Unfair Stamp response.
