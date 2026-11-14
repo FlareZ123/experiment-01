@@ -60,36 +60,54 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '  const hostDraw=globalThis.__agent49HostDraw;',
     '  delete globalThis.__agent49HostDraw;',
     "  if(typeof hostDraw!=='function')throw new Error('POLICY_SANDBOX_BOOTSTRAP_FAILURE');",
+    "  const randomDrawError=new Error('POLICY_RANDOM_DRAWS_UNREPLAYABLE');",
+    '  Object.freeze(randomDrawError);',
     '  const safeRng=(()=>{',
     '    const draw=hostDraw;',
-    '    return function safeRng(){',
-    '      draw();',
-    "      throw new Error('POLICY_RANDOM_DRAWS_UNREPLAYABLE');",
-    '    };',
+    '    const error=randomDrawError;',
+    '    return function safeRng(){draw();throw error;};',
     '  })();',
     '  Object.freeze(safeRng);',
+    "  Object.defineProperty(globalThis,'__agent49RandomDrawError',{value:randomDrawError,writable:false,configurable:false,enumerable:false});",
     "  Object.defineProperty(globalThis,'__agent49SafeRng',{value:safeRng,writable:false,configurable:false,enumerable:false});",
     "  Object.defineProperty(Math,'random',{value:function forbiddenMathRandom(){return globalThis.__agent49SafeRng();},writable:false,configurable:false,enumerable:false});",
     '  Object.freeze(Math);',
+    '  Object.freeze(JSON);',
+    '  Object.freeze(Object.prototype);',
+    '  Object.freeze(Object);',
+    '  Object.freeze(Array.prototype);',
+    '  Object.freeze(Array);',
+    '  Object.freeze(Promise.prototype);',
+    '  Object.freeze(Promise);',
+    '  Object.freeze(Reflect);',
     '})();'
-  ].join('\n');
+  ].join('\\n');
   vm.runInContext(setup,context,{timeout:1000,filename:'agent49-policy-sandbox-setup.cjs'});
   const loadPolicy=[
     "(() => { 'use strict';",
     '  const module=Object.create(null);',
     "  Object.defineProperty(module,'exports',{value:Object.create(null),writable:true,configurable:false,enumerable:true});",
     '  let exports=module.exports;',
+    '  try {',
+    '    (() => {',
     policySource,
+    '    })();',
+    '  } catch (_) { return false; }',
+    "  if(Object.hasOwn(globalThis,'__agent49PolicyModule')||Object.hasOwn(globalThis,'__agent49Initialize')||Object.hasOwn(globalThis,'__agent49Decide'))return false;",
     "  Object.defineProperty(globalThis,'__agent49PolicyModule',{value:module.exports,writable:false,configurable:false,enumerable:false});",
+    '  return true;',
     '})();'
-  ].join('\n');
-  vm.runInContext(loadPolicy,context,{timeout:5000,filename:'policy.cjs'});
+  ].join('\\n');
+  const loadOk=vm.runInContext(loadPolicy,context,{timeout:5000,filename:'policy.cjs'});
+  if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  if(loadOk!==true)fail('POLICY_MODULE_LOAD_FAILED');
   const policyVersion=vm.runInContext('globalThis.__agent49PolicyModule.POLICY_VERSION',context,{timeout:1000});
   const hasFactory=vm.runInContext("typeof globalThis.__agent49PolicyModule.createPolicy==='function'",context,{timeout:1000});
   const installWrappers=[
     '(() => {',
     '  const policyModule=globalThis.__agent49PolicyModule;',
     '  const safeRng=globalThis.__agent49SafeRng;',
+    '  const randomDrawError=globalThis.__agent49RandomDrawError;',
     '  let policyInstance=null;',
     '  function deepFreeze(value){',
     "    if(value&&typeof value==='object'&&!Object.isFrozen(value)){",
@@ -99,46 +117,67 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '    return value;',
     '  }',
     "  Object.defineProperty(globalThis,'__agent49Initialize',{value:async function initializePolicy(initJson){",
-    "    if(policyInstance!==null)throw new Error('POLICY_ALREADY_INITIALIZED');",
-    '    const init=deepFreeze(JSON.parse(initJson));',
-    '    const policyContext=deepFreeze({role:init.role,seat:init.seat,policyVersion:init.policyVersion,config:init.config,rng:safeRng});',
-    '    const instance=await policyModule.createPolicy(policyContext);',
-    "    if(!instance||typeof instance.decide!=='function')throw new Error('POLICY_FACTORY_INVALID');",
-    '    policyInstance=instance;',
-    "    return 'READY';",
-    "  },writable:false,configurable:false,enumerable:false});",
+    "    if(policyInstance!==null)return JSON.stringify({ok:false,code:'POLICY_ALREADY_INITIALIZED'});",
+    '    try {',
+    '      const init=deepFreeze(JSON.parse(initJson));',
+    '      const policyContext=deepFreeze({role:init.role,seat:init.seat,policyVersion:init.policyVersion,config:init.config,rng:safeRng});',
+    '      const instance=await policyModule.createPolicy(policyContext);',
+    "      if(!instance||typeof instance.decide!=='function')return JSON.stringify({ok:false,code:'POLICY_FACTORY_INVALID'});",
+    '      policyInstance=instance;',
+    '      return JSON.stringify({ok:true});',
+    '    } catch(error) {',
+    "      return JSON.stringify({ok:false,code:error===randomDrawError?'POLICY_RANDOM_DRAWS_UNREPLAYABLE':'POLICY_FACTORY_FAILURE'});",
+    '    }',
+    '  },writable:false,configurable:false,enumerable:false});',
     "  Object.defineProperty(globalThis,'__agent49Decide',{value:async function decidePolicy(requestJson){",
-    "    if(policyInstance===null)throw new Error('POLICY_NOT_INITIALIZED');",
-    '    const request=deepFreeze(JSON.parse(requestJson));',
-    '    const decision=await policyInstance.decide(request);',
-    '    return JSON.stringify(decision);',
+    "    if(policyInstance===null)return JSON.stringify({ok:false,code:'POLICY_NOT_INITIALIZED'});",
+    '    try {',
+    '      const request=deepFreeze(JSON.parse(requestJson));',
+    '      const decision=await policyInstance.decide(request);',
+    '      const decisionJson=JSON.stringify(decision);',
+    "      if(typeof decisionJson!=='string')return JSON.stringify({ok:false,code:'POLICY_RETURNED_NON_JSON'});",
+    '      return JSON.stringify({ok:true,decisionJson});',
+    '    } catch(error) {',
+    "      return JSON.stringify({ok:false,code:error===randomDrawError?'POLICY_RANDOM_DRAWS_UNREPLAYABLE':'POLICY_EXECUTION_FAILURE'});",
+    '    }',
     '  },writable:false,configurable:false,enumerable:false});',
     '})();'
-  ].join('\n');
+  ].join('\\n');
   vm.runInContext(installWrappers,context,{timeout:1000,filename:'agent49-policy-sandbox-runtime.cjs'});
-  function normalizeVmError(error){
-    if(error&&typeof error.message==='string'&&error.message==='POLICY_RANDOM_DRAWS_UNREPLAYABLE')
-      fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
-    throw error;
-  }
   async function invoke(expression,filename){
     let pending;
     try{pending=vm.runInContext(expression,context,{timeout:5000,filename});}
-    catch(error){normalizeVmError(error);}
-    try{return await pending;}catch(error){normalizeVmError(error);}
+    catch(error){throw error;}
+    return await pending;
+  }
+  function parseEnvelope(value){
+    if(typeof value!=='string')fail('POLICY_SANDBOX_PROTOCOL_FAILURE');
+    let envelope;
+    try{envelope=JSON.parse(value);}catch{fail('POLICY_SANDBOX_PROTOCOL_FAILURE');}
+    if(!envelope||typeof envelope!=='object'||Array.isArray(envelope)||
+      typeof envelope.ok!=='boolean')fail('POLICY_SANDBOX_PROTOCOL_FAILURE');
+    return envelope;
   }
   return {
     policyVersion,
     hasFactory,
     async initialize(init){
       const initJson=JSON.stringify(init);
-      await invoke('globalThis.__agent49Initialize('+JSON.stringify(initJson)+')','agent49-policy-init.cjs');
+      const envelope=parseEnvelope(await invoke(
+        'globalThis.__agent49Initialize('+JSON.stringify(initJson)+')',
+        'agent49-policy-init.cjs'
+      ));
+      if(!envelope.ok)fail(envelope.code??'POLICY_FACTORY_FAILURE');
     },
     async decide(request){
       const requestJson=JSON.stringify(request);
-      const decisionJson=await invoke('globalThis.__agent49Decide('+JSON.stringify(requestJson)+')','agent49-policy-decision.cjs');
-      if(typeof decisionJson!=='string')fail('POLICY_RETURNED_NON_JSON');
-      try{return JSON.parse(decisionJson);}catch{fail('POLICY_RETURNED_NON_JSON');}
+      const envelope=parseEnvelope(await invoke(
+        'globalThis.__agent49Decide('+JSON.stringify(requestJson)+')',
+        'agent49-policy-decision.cjs'
+      ));
+      if(!envelope.ok)fail(envelope.code??'POLICY_EXECUTION_FAILURE');
+      if(typeof envelope.decisionJson!=='string')fail('POLICY_RETURNED_NON_JSON');
+      try{return JSON.parse(envelope.decisionJson);}catch{fail('POLICY_RETURNED_NON_JSON');}
     }
   };
 }
