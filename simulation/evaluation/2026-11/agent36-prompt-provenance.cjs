@@ -10,14 +10,15 @@ function firstString(values) {
 }
 
 function describeEffect(card, effect) {
-  const sourceCard = effect?.trainerCard ?? effect?.sourceCard ??
-    effect?.card ?? card ?? null;
+  const sourceCard = effect?.trainerCard ?? card ?? effect?.sourceCard ??
+    effect?.card ?? null;
   const effectName = firstString([
     effect?.attack?.name,
     effect?.power?.name,
     effect?.trainerCard?.name,
-    effect?.card?.name,
     card?.name,
+    effect?.sourceCard?.name,
+    effect?.card?.name,
     effect?.constructor?.name
   ]);
   return {
