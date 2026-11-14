@@ -133,9 +133,9 @@ At nine games per cell, the equal null point is already a valid null configurati
 ## Reproducibility
 
 - Design calculator: scripts/agent12-exact-two-loss-field-mean-bound.cjs computes the exact binomial-tail expression stably and returns the fixed 10-per-cell design and adjacent 9-per-cell failure boundary.
-- Node regressions: tests/2026-11/agent12-exact-two-loss-field-mean-bound.test.cjs; **6/6 passed** on Node v22.16.0.
+- Node regressions: tests/2026-11/agent12-exact-two-loss-field-mean-bound.test.cjs; **7/7 passed** on Node v22.16.0.
 - Exact-rational proof certificate: scripts/agent12-exact-two-loss-field-mean-proof.py; passed on Python 3.13.5. It checks the Bernstein coefficients, the three-region lower-bound certificates, and exact rational binomial-tail comparisons at 1,280 and 1,152 games.
-- The existing manual-only Agent12 statistical workflow now includes the Node regression and Python proof certificate. No new workflow or game simulation was added.
+- The existing manual-only Agent12 statistical workflow includes the Node regression and Python proof certificate. Manual run [43575950998](https://github.com/FlareZ123/experiment-01/actions/runs/43575950998) passed on head `f66f78bd31786d39825d0639f36825fd0f4a79d6`: the Node confidence-bound / field-validator suite, exact-rational Python proof certificate, and 32-rank opponent-policy bundle validator all succeeded. No new workflow or game simulation was added.
 
 ## Homogeneous operating characteristics (planning only)
 
