@@ -1752,3 +1752,67 @@ test('Lillie’s Clefairy ex is not played when Path to the Peak status is unkno
     token: 'pass'
   });
 });
+
+
+test('Fairy Zone does not apply when the actor projection omits ability-suppression status', () => {
+  const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
+    hp: 190,
+    abilities: ['Fairy Zone']
+  });
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        hp: 320,
+        stage: 'VMAX',
+        energies: [
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13'
+        ]
+      }),
+      bench: [clefairy]
+    }),
+    opponentPublic: player({ active: opponentDragon, handCount: 5 }),
+    items: [
+      { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
+      { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+});
+
+test('Field Blower is not prioritized when a visible stadium has unknown effect status', () => {
+  const request = rootRequest({
+    ownHand: ['Field Blower GRI 125'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      bench: [pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        hp: 320,
+        stage: 'VMAX',
+        abilities: ['Underworld Door']
+      })],
+      stadium: ['Path to the Peak CRE 148'],
+      omitStadiumSuppression: true
+    }),
+    opponentPublic: player(),
+    items: [
+      { token: 'field-blower', kind: 'play-card', actorPrinting: 'Field Blower GRI 125',
+        publicMetadata: { cardType: 'item', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
