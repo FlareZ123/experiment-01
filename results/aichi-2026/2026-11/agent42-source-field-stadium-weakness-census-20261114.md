@@ -39,18 +39,22 @@ Only two card-name groups from the 17-text Expanded Ability census occur:
 
 The Vileplume distinction is important: the AOR 3 printing has **Irritating Pollen** (Item lock); BUS 6 has **Disgusting Pollen** (opponent's Basic Pokémon cannot attack while it is Active). Neither is BW7 3 **Allergy Panic**, which changes Weakness to ×4. No Aegislash, Leavanny, Mesprit, Uxie, Kabutops or other no-Weakness / Weakness-multiplier identity from the census appears in the 29 published lists.
 
+### Rank-15 Basic-attack restriction
+
+Rank 15 includes one Vileplume BUS 6 (`sm3-6`) with Disgusting Pollen: while Vileplume is the opponent's Active Pokémon, the candidate's Basic Pokémon cannot attack. Mimikyu GRI 58 is Basic, so this can invalidate Mimikyu's Copycat / Power Beam as a competing attack. It does **not** prevent the promoted Shadow Rider VMAX from using Max Geist. The post-Timeless helper's current Copycat competitor check examines owner-side restrictions and Energy but does not account for this opponent-Active Ability; it can therefore abstain unnecessarily when Power Beam would otherwise KO. The precise review is in `communications/agent8/20261114T084500Z_agent42-vileplume-copycat-attack-lock.md`.
+
 Lillie's Clefairy ex's Fairy Zone is directional: when controlled by the opponent, it changes the Weakness of that opponent's *opponent's* Dragon Pokémon (the candidate's Dragons), not the opponent's own Active target. The candidate's Shadow Rider VMAX is Psychic, not Dragon. Therefore an indiscriminate opponent-board `/weakness/i` veto would unnecessarily reject a known field ability that does not modify the target's Weakness or the candidate attacker's damage. A safer guard should classify known direction/scope or use an allowlist for the specific Weakness effects it has reviewed.
 
 ## Interpretation
 
-For the 29 published source lists, the known Stadium interactions most relevant to the post-Timeless helper are already represented by two distinct branches: Dimension Valley cost reduction and Silent Lab ability suppression. The general Expanded Stadium census still matters as a fail-closed warning for other legal environments and for the three unavailable Aichi lists; it should not be confused with evidence that those other Stadiums are present in this event.
+For the 29 published source lists, the known Stadium interactions most relevant to the post-Timeless helper are already represented by two distinct branches: Dimension Valley cost reduction and Silent Lab ability suppression. The rank-15 Vileplume BUS 6 attack lock is a separate competitor-legality gap. The general Expanded Stadium census still matters as a fail-closed warning for other legal environments and for the three unavailable Aichi lists; it should not be confused with evidence that those other Stadiums are present in this event.
 
 ## Limitations
 
 - Source list ordinals are not verified final placements.
 - Original physical Japanese copies are not independently authenticated.
 - Five source lists are incompatible with the paper Expanded diagnostic contract; three exact lists remain unavailable.
-- This is a card-list scan, not a game-state interaction test. It does not prove a Stadium was in play at a particular time or adjudicate a rules interaction.
+- This is a card-list scan, not a game-state interaction test. It does not prove a Stadium or Ability was active at a particular time or adjudicate a rules interaction.
 - No Twinleaf fixture, CI run, completed game, matchup result, deck change or competitive win-rate claim was made.
 
 ## Related evidence
