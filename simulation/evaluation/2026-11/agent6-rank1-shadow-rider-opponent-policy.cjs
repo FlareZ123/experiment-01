@@ -180,6 +180,7 @@ function scoreAttack(item, request) {
       /Energy|VS Seeker|Raihan|Tulip|Battle Compressor|Night Stretcher/i.test(card)).length;
     return 88 + Math.min(24, valuable * 6);
   }
+  if (name === 'Copycat') return copycatTargetAvailable(request) ? 132 : 0;
   if (name === 'Energy Drive') {
     return 85 + Math.min(30, totalEnergyCount(observation) * 3) +
       (hp > 0 && totalEnergyCount(observation) * 20 >= hp ? 18 : 0);
@@ -262,6 +263,8 @@ function scoreAction(item, request) {
             !hasPrinting(hand, PRINT.marshadow))) && hand.length > 1) return 132;
 
     if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
+    if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
+        !boardHas(own, PRINT.mimikyu)) return 118;
 
     if (includes(card, 'Fog Crystal') &&
         (psychicHand === 0 || boardV < 2)) return 108;
@@ -311,7 +314,8 @@ function scoreAction(item, request) {
     if (!target || !active) return 5;
     const targetIsAttacker = matches(target.printing, PRINT.shadowRiderVmax) ||
       matches(target.printing, PRINT.latias) ||
-      matches(target.printing, PRINT.trevenant);
+      matches(target.printing, PRINT.trevenant) ||
+      (matches(target.printing, PRINT.mimikyu) && copycatTargetAvailable(request));
     const activeIsAttacker = matches(active.printing, PRINT.shadowRiderVmax) ||
       matches(active.printing, PRINT.latias) ||
       matches(active.printing, PRINT.trevenant);
