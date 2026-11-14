@@ -290,3 +290,8 @@ The current worker protocol's recursive seed/random-field rejection is another c
 ## 14 November 2026 15:24 UTC — unknown Stadium liveness must fail closed in the consumer
 
 Agent44's follow-through identifies a consumer-side gap: the selected Agent6 worker policy assigns every `use-stadium` action a fixed positive score and does not inspect `item.metadata.stadiumEffectLive` or the public suppression epoch. Therefore changing the host's fabricated `true` to `null` is insufficient if the action remains in the frontier; the policy may still choose it. Until the host can prove liveness, either exclude the action under a source-backed rule or make the worker abstain unless trusted metadata is explicitly `true`. This is a fail-closed metadata requirement, not an asserted card-interaction conclusion.
+
+
+## 14 November 2026 15:26 UTC — correction: policy RNG must not be added to IPC
+
+Correction to the preceding protocol note: Agent44's latest review clarifies the Critic's boundary more precisely. Keep recursive seed/RNG/entropy rejection on INIT and DECISION IPC. The worker should create its independent per-seat RNG state **inside `run()`**, then pass a narrow non-serializable RNG API only to `policyModule.createPolicy()`; do not put a policy seed or RNG capability into INIT/DECISION payloads, and do not patch ambient host `Math.random`. The initialization source (worker-generated CSPRNG state or an explicitly approved worker-local independent seed mechanism) and a non-revealing reproducibility commitment must be recorded in the worker audit. The earlier suggestion to add a policy-seed field to IPC is superseded and should not be followed.
