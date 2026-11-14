@@ -317,6 +317,8 @@ function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
     isOwnerVisible: visibility.isOwnerVisible,
     minimumCount: min,
     maximumCount: max,
+    allowCancel: prompt.options?.allowCancel === true,
+    isSecret: prompt.options?.isSecret === true,
     selectionType: 'card-combination'
   };
 }
@@ -379,6 +381,8 @@ function projectChoosePokemon(prompt, state, actorSeat, native, choices, choiceB
   return {
     minimumCount: min,
     maximumCount: max,
+    allowCancel: prompt.options?.allowCancel === true,
+    isSecret: prompt.options?.isSecret === true,
     selectionType: 'pokemon',
     targetZone: prompt.slots.map(slot => enumName(native.SlotType, slot).toLowerCase()).join(',')
   };
@@ -415,7 +419,9 @@ function projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken) {
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
     count: energy.length,
-    energyType: prompt.cost.join(','),
+    energyCount: energy.length,
+    energyType: (prompt.cost ?? []).join(','),
+    allowCancel: prompt.options?.allowCancel === true,
     selectionType: 'energy-payment'
   };
 }
@@ -445,6 +451,7 @@ function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken) {
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
     count: choices.length,
+    allowCancel: prompt.options?.allowCancel === true,
     selectionType: 'attack'
   };
 }
@@ -490,6 +497,8 @@ function projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken) {
   return {
     count: nonEmpty.length,
     requiredCount: required,
+    allowCancel: prompt.options?.allowCancel === true,
+    isSecret: prompt.options?.isSecret === true,
     sourceZone: 'prizes',
     ownerSeat: targetSeat === actorSeat ? 'actor' : 'opponent',
     isOwnerVisible: false,
@@ -516,7 +525,8 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
       }, prompt, state);
     });
     addCancelChoice(choices, choiceByToken, prompt, state);
-    return { count: values.length, selectionType: 'option' };
+    return { count: values.length, allowCancel: prompt.options?.allowCancel === true,
+      selectionType: 'option' };
   }
   if (prompt.constructor?.name === 'OrderCardsPrompt') {
     const cards = cardListCards(prompt.cards);
@@ -538,7 +548,8 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
       }, prompt, state);
     }
     addCancelChoice(choices, choiceByToken, prompt, state);
-    return { count: cards.length, selectionType: 'card-order' };
+    return { count: cards.length, allowCancel: prompt.options?.allowCancel === true,
+      selectionType: 'card-order' };
   }
   return null;
 }
