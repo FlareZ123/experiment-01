@@ -616,6 +616,137 @@ function discardChoiceScore(choice, observation) {
   return 50;
 }
 
+function engineSetupPromptDecision(prompt, observation, choices, metadata) {
+  // These three native setup prompts are the only engine-origin prompts this
+  // policy accepts. Keep the phase guard exact: Twinleaf emits them in SETUP=1.
+  if (observation.phase !== 1 || prompt.source.sourceKind !== 'engine' ||
+      prompt.source.sourcePrinting !== null) {
+    return null;
+  }
+
+  if (prompt.promptType === 'ChooseCardsPrompt' &&
+      prompt.description === 'CHOOSE_STARTING_POKEMONS') {
+    const min = metadata.minimumCount;
+    const max = metadata.maximumCount;
+    const validPrompt = metadata.selectionType === 'card-combination' &&
+      metadata.sourceZone === 'hand' &&
+      metadata.ownerSeat === 'actor' &&
+      metadata.isOwnerVisible === true &&
+      metadata.allowCancel === false &&
+      metadata.isSecret === false &&
+      Number.isSafeInteger(min) && min >= 0 &&
+      Number.isSafeInteger(max) && max >= min;
+    if (!validPrompt) {
+      return { kind: 'abstain', reasonCode: 'INVALID_STARTING_POKEMON_PROMPT' };
+    }
+
+    const own = observation.ownPublic;
+    const bench = Array.isArray(own?.bench) ? own.bench : null;
+    if (!bench) {
+      return { kind: 'abstain', reasonCode: 'MISSING_PUBLIC_BENCH_FOR_SETUP' };
+    }
+    const active = own.active ?? null;
+    const emptyBenchSlots = bench.filter(slot => slot === null).length;
+    const cardChoices = choices.filter(choice =>
+      choice.kind === 'card' &&
+      typeof choice.token === 'string' &&
+      typeof choice.printing === 'string' &&
+      choice.publicMetadata?.sourceZone === 'hand' &&
+      choice.publicMetadata?.ownerSeat === 'actor' &&
+      choice.publicMetadata?.isOwnerVisible === true);
+
+    if (min === 1) {
+      if (active !== null || cardChoices.length === 0) {
+        return { kind: 'abstain', reasonCode: 'NO_VISIBLE_STARTING_POKEMON' };
+      }
+      // The first selected card becomes Active. Prefer the deck's primary
+      // Shadow Rider V; preserve native hand order for all remaining Basics.
+      const ordered = cardChoices.slice();
+      const primaryIndex = ordered.findIndex(choice =>
+        matches(choice.printing, PRINT.shadowRiderV));
+      if (primaryIndex > 0) {
+        ordered.unshift(ordered.splice(primaryIndex, 1)[0]);
+      }
+      const capacity = 1 + emptyBenchSlots;
+      const tokens = ordered.slice(0, Math.min(max, capacity))
+        .map(choice => choice.token);
+      return tokens.length >= min
+        ? { kind: 'select-choices', tokens }
+        : { kind: 'abstain', reasonCode: 'NO_VISIBLE_STARTING_POKEMON' };
+    }
+
+    if (min === 0) {
+      if (active === null) {
+        return { kind: 'abstain', reasonCode: 'MISSING_ACTIVE_FOR_EXTRA_BENCH' };
+      }
+      const tokens = cardChoices.slice(0, Math.min(max, emptyBenchSlots))
+        .map(choice => choice.token);
+      if (tokens.length > 0) return { kind: 'select-choices', tokens };
+      const empty = choices.find(choice => choice.kind === 'empty-selection');
+      return empty
+        ? { kind: 'select-choice', token: empty.token }
+        : { kind: 'abstain', reasonCode: 'NO_EMPTY_BENCH_SELECTION' };
+    }
+
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_STARTING_POKEMON_CARDINALITY' };
+  }
+
+  if (prompt.promptType === 'ConfirmPrompt' &&
+      prompt.description === 'GO_FIRST') {
+    if (metadata.selectionType !== 'confirm') {
+      return { kind: 'abstain', reasonCode: 'INVALID_GO_FIRST_CONFIRMATION' };
+    }
+    const yes = choices.find(choice =>
+      choice.kind === 'confirm' && /^yes$/i.test(choice.label ?? ''));
+    const no = choices.find(choice =>
+      choice.kind === 'confirm' && /^no$/i.test(choice.label ?? ''));
+    if (!yes || !no) {
+      return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_GO_FIRST_CHOICES' };
+    }
+    // This prompt is offered to the coin-flip winner. Yes deterministically
+    // elects the first turn; this is a policy default, not a win-rate claim.
+    return { kind: 'select-choice', token: yes.token };
+  }
+
+  if (prompt.promptType === 'SelectPrompt' &&
+      prompt.description === 'WANT_TO_DRAW_CARDS') {
+    const count = metadata.count;
+    if (metadata.selectionType !== 'option' ||
+        !Number.isSafeInteger(count) || count < 1) {
+      return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_OPTIONS' };
+    }
+    const options = choices.filter(choice => choice.kind === 'option');
+    if (options.length !== count) {
+      return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_OPTIONS' };
+    }
+
+    const seen = new Set();
+    const ranked = [];
+    for (const choice of options) {
+      const choiceIndex = choice.publicMetadata?.choiceIndex;
+      if (!Number.isSafeInteger(choiceIndex) ||
+          choiceIndex < 0 || choiceIndex >= count || seen.has(choiceIndex)) {
+        return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_INDEX' };
+      }
+      seen.add(choiceIndex);
+      const expectedDrawCount = count - 1 - choiceIndex;
+      const labelMatch = String(choice.label ?? '').match(/^Draw (\d+) card\(s\)$/i);
+      if (!labelMatch || Number(labelMatch[1]) !== expectedDrawCount) {
+        return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
+      }
+      ranked.push({ choice, drawCount: expectedDrawCount, choiceIndex });
+    }
+    if (seen.size !== count) {
+      return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_INDEXES' };
+    }
+    ranked.sort((a, b) =>
+      b.drawCount - a.drawCount || a.choiceIndex - b.choiceIndex);
+    return { kind: 'select-choice', token: ranked[0].choice.token };
+  }
+
+  return null;
+}
+
 function promptDecision(request) {
   const prompt = request.prompt;
   const observation = request.observation;
@@ -625,6 +756,8 @@ function promptDecision(request) {
   const effect = effectName + ' ' + sourcePrinting;
   const metadata = prompt.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? '';
+  const engineSetupDecision = engineSetupPromptDecision(prompt, observation, choices, metadata);
+  if (engineSetupDecision) return engineSetupDecision;
   const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount :
     selectionType === 'prize-slots' ? (metadata.requiredCount ?? 1) :
       selectionType === 'card-order' ? (metadata.count ?? 1) : 1;
