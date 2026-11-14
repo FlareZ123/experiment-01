@@ -149,8 +149,8 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
           assert.equal(osReport.policySeed,'policy-seat-'+seat+'-only');
           assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
           assert.equal(osReport.cwd,'/');
-          assert.equal(osReport.procVisible,false);
-          assert.equal(osReport.repoVisible,false);
+          assert.ok(!osReport.procVisible.ok||osReport.procVisible.value===false);
+          assert.ok(!osReport.repoVisible.ok||osReport.repoVisible.value===false);
           assertDeniedReads(osReport.hostFiles);
           assert.equal(osReport.hostProc.ok,false);
           assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
@@ -180,6 +180,8 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
           assert.ok([0,1].includes(permissionReport.sequence));
           assert.equal(permissionReport.policySeed,'policy-seat-'+seat+'-only');
           assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
+          assert.ok(!permissionReport.procVisible.ok||permissionReport.procVisible.value===false);
+          assert.ok(!permissionReport.repoVisible.ok||permissionReport.repoVisible.value===false);
           assertDeniedReads(permissionReport.hostFiles);
           assert.equal(permissionReport.childProcess.ok,false);
           assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
