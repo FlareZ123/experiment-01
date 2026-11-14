@@ -147,9 +147,9 @@ function turnResources() {
 
 function observation(options = {}) {
   return {
-    actorSeat: 0,
+    actorSeat: options.actorSeat ?? 0,
     globalTurn: options.globalTurn ?? 3,
-    phase: 2,
+    phase: options.phase ?? 2,
     decisionKind: options.prompt ? 'owner-prompt' : 'owner-root',
     pendingPromptType: options.prompt?.promptType ?? null,
     pendingOwnerDeckSearch: false,
@@ -191,9 +191,10 @@ function actorChoiceSource(sourcePrinting, effectName) {
 }
 
 function promptRequest(options = {}) {
+  const actorSeat = options.actorSeat ?? options.observation?.actorSeat ?? 0;
   const prompt = {
     schema: protocol.PROMPT_SCHEMA,
-    actingSeat: 0,
+    actingSeat: actorSeat,
     promptType: options.promptType,
     description: options.description ?? 'Choose a legal option',
     source: options.source,
@@ -202,6 +203,7 @@ function promptRequest(options = {}) {
   };
   const obs = observation({
     ...(options.observation ?? {}),
+    actorSeat,
     prompt
   });
   return {
@@ -210,7 +212,7 @@ function promptRequest(options = {}) {
     requestId: options.requestId ?? 'agent6-prompt-1',
     sequence: options.sequence ?? 1,
     role: 'opponent',
-    seat: 0,
+    seat: actorSeat,
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: obs,
     prompt,
@@ -223,8 +225,16 @@ function promptRequest(options = {}) {
 }
 
 function checkedDecision(request) {
-  const validated = protocol.validateRequest(request, init, request.sequence, new Set());
-  const decision = policy.decide(request);
+  const seat = request.seat;
+  const activeInit = { ...init, seat };
+  const activePolicy = seat === 0 ? policy : createPolicy({
+    role: 'opponent',
+    seat,
+    policyVersion: POLICY_VERSION,
+    config: {}
+  });
+  const validated = protocol.validateRequest(request, activeInit, request.sequence, new Set());
+  const decision = activePolicy.decide(request);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
   return decision;
 }
@@ -1941,4 +1951,181 @@ test('Field Blower is not prioritized when a visible stadium has unknown effect 
     kind: 'select-action',
     token: 'pass'
   });
+});
+
+
+function setupCardChoice(token, printing) {
+  return {
+    token,
+    kind: 'card',
+    printing,
+    label: printing,
+    publicMetadata: {
+      sourceZone: 'hand',
+      ownerSeat: 'actor',
+      isOwnerVisible: true
+    }
+  };
+}
+
+function setupMetadata(minimumCount, maximumCount) {
+  return {
+    sourceZone: 'hand',
+    minimumCount,
+    maximumCount,
+    ownerSeat: 'actor',
+    isOwnerVisible: true,
+    allowCancel: false,
+    isSecret: false,
+    selectionType: 'card-combination'
+  };
+}
+
+test('phase-1 starting Pokémon setup preserves native hand order for both physical seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('basic-first', 'Mewtwo VSTAR PGO 31'),
+        setupCardChoice('rider-second', 'Shadow Rider Calyrex V CRE 74'),
+        setupCardChoice('basic-third', 'Lugia V SIT 138')
+      ],
+      publicMetadata: setupMetadata(1, 6),
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choices',
+      tokens: ['basic-first', 'rider-second', 'basic-third']
+    });
+  }
+});
+
+test('phase-1 repeated optional Bench setup fills only available slots in native order for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('first', 'Mewtwo VSTAR PGO 31'),
+        setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74'),
+        setupCardChoice('third', 'Lugia V SIT 138'),
+        setupCardChoice('fourth', 'Mew V CEL 6')
+      ],
+      publicMetadata: setupMetadata(0, 5),
+      observation: {
+        phase: 1,
+        ownPublic: player({
+          active: pokemon('Girafarig LOT 94'),
+          bench: [
+            pokemon('Mewtwo VSTAR PGO 31'),
+            pokemon('Lugia V SIT 138'),
+            pokemon('Mew V CEL 6')
+          ]
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choices',
+      tokens: ['first', 'second']
+    });
+  }
+});
+
+test('phase-1 optional Bench setup uses the empty-selection token when no Basic is offered', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_STARTING_POKEMONS',
+    source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+    choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
+    publicMetadata: setupMetadata(0, 5),
+    observation: {
+      phase: 1,
+      ownPublic: player({ active: pokemon('Girafarig LOT 94') })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'empty'
+  });
+});
+
+test('engine setup prompts fail closed outside phase 1', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_STARTING_POKEMONS',
+    source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+    choices: [setupCardChoice('basic', 'Mewtwo VSTAR PGO 31')],
+    publicMetadata: setupMetadata(1, 6),
+    observation: { phase: 0, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(request).kind, 'abstain');
+});
+
+test('GO_FIRST setup chooses the explicit Yes token for both physical seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'yes'
+    });
+  }
+});
+
+test('WANT_TO_DRAW_CARDS maps every native choice index to its exact descending Draw N label for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const choices = [4, 3, 2, 1, 0].map((drawCount, choiceIndex) => ({
+      token: 'draw-' + choiceIndex,
+      kind: 'option',
+      label: 'Draw ' + drawCount + ' card(s)',
+      publicMetadata: { choiceIndex }
+    }));
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+      choices,
+      publicMetadata: {
+        selectionType: 'option',
+        count: choices.length,
+        allowCancel: false
+      },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'draw-0'
+    });
+  }
+});
+
+test('WANT_TO_DRAW_CARDS rejects a choice-index and Draw N label mismatch', () => {
+  const request = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-0', kind: 'option', label: 'Draw 3 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 1 } }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(request).kind, 'abstain');
 });
