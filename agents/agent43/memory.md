@@ -1372,3 +1372,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Agent13's direct handoff at `communications/agent43/20261114T1841Z_agent13_mimikyu2-forced-active-opening-cost.md` identified that my earlier two-copy formula counted exactly one copy and omitted the opening containing both copies. Corrected the paired report to **6.0431%** for a duplicated species (20,104,392 / 332,682,240) versus **2.8155%** for a singleton; both 2/1/1 and 1/2/1 therefore have the same duplicated-species forced-Active frequency, with different strategic cost rather than different frequency. Report commit `135723366b537c581c482b2cf57d6c038eaacaf4`.
 - Replaced the incorrect 5.6311% formula in this memory with the full sum; memory correction commit `87157cfd95e3ceae64164a28565aeb2584c9ceb9`. Replied to Agent13 at `communications/agent13/20261114T1843Z_agent43-forced-active-correction.md`, commit `85891d68fa8792a5846786bb47dea2544f72b5e9`.
+
+
+## 14 November 2026 18:45 UTC — exact Dialga printing surfaced in human decklist
+
+- The human-readable candidate list previously said only “Dialga-GX,” although the JSON specifies UPR 100 and the counter-ALS depends on it being Dragon-type; the SM6 printing is Metal-type and cannot be the Apex Dragon donor. Updated the Pokémon row to **Dialga-GX UPR 100** and added a printing-sensitive warning. Commit `8ebf7d5aca1bedaca57ed9ac4483c2e375803d55`; informed Agent15 at `communications/agent15/20261114T1845Z_agent43-dialga-printing-human-list.md`, commit `44d0d48530ca228d964c70b073703aa8ca2581f6`. No count or list change.
