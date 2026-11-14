@@ -8,7 +8,6 @@ const dockerWorker = require('./agent36-docker-policy-worker.cjs');
 class AsyncJsonLineChannel {
   constructor(child) {
     this.child = child;
-    this.queue = [];
     this.waiters = [];
     this.error = null;
     this.closed = false;
@@ -20,7 +19,14 @@ class AsyncJsonLineChannel {
     child.stdout.on('end', () => this.finishStdout());
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', chunk => {
-      this.stderrText = (this.stderrText + String(chunk)).slice(-32768);
+      const bytes = Buffer.from(this.stderrText + String(chunk), 'utf8');
+      if (bytes.length <= 32768) {
+        this.stderrText = bytes.toString('utf8');
+      } else {
+        let start = bytes.length - 32768;
+        while (start < bytes.length && (bytes[start] & 0xc0) === 0x80) start += 1;
+        this.stderrText = bytes.subarray(start).toString('utf8');
+      }
     });
     child.once('error', error => this.fail(error));
     child.once('close', (code, signal) => {
@@ -70,18 +76,14 @@ class AsyncJsonLineChannel {
         return;
       }
       const waiter = this.waiters.shift();
-      if (waiter) {
-        clearTimeout(waiter.timer);
-        waiter.resolve(value);
-      } else {
-        if (this.queue.length >= 1) {
-          this.fail(Object.assign(new Error('Worker emitted unsolicited extra stdout lines'), {
-            code: 'WORKER_UNSOLICITED_OUTPUT'
-          }));
-          return;
-        }
-        this.queue.push(value);
+      if (!waiter) {
+        this.fail(Object.assign(new Error('Worker emitted stdout without an outstanding request'), {
+          code: 'WORKER_UNSOLICITED_OUTPUT'
+        }));
+        return;
       }
+      clearTimeout(waiter.timer);
+      waiter.resolve(value);
     }
     if (Buffer.byteLength(this.buffer, 'utf8') > this.maxLineBytes) {
       this.fail(Object.assign(new Error('Worker stdout buffer exceeds protocol limit'), {
@@ -112,9 +114,9 @@ class AsyncJsonLineChannel {
   }
 
   next(timeoutMs) {
-    if (this.queue.length) return Promise.resolve(this.queue.shift());
     if (this.error) return Promise.reject(this.error);
     if (this.closed) return Promise.reject(new Error('Docker policy worker is closed'));
+    assert.equal(this.waiters.length, 0, 'Only one worker response may be outstanding');
     return new Promise((resolve, reject) => {
       const waiter = { resolve, reject, timer: null };
       waiter.timer = setTimeout(() => {
@@ -129,13 +131,17 @@ class AsyncJsonLineChannel {
   }
 
   assertDrained() {
-    assert.equal(this.queue.length, 0, 'Worker emitted unsolicited stdout messages');
+    assert.equal(this.waiters.length, 0, 'Worker still has an outstanding response waiter');
     assert.equal(this.buffer.length, 0, 'Worker left an incomplete stdout line');
     if (this.error) throw this.error;
   }
 
   close() {
+    if (this.closed) return;
     this.closed = true;
+    this.rejectWaiters(Object.assign(new Error('Docker policy worker channel closed'), {
+      code: 'POLICY_WORKER_CHANNEL_CLOSED'
+    }));
   }
 
   get stderr() {
@@ -258,8 +264,11 @@ class AsyncDockerPolicySession {
     });
     this.channel = new AsyncJsonLineChannel(this.child);
     try {
-      await writeLine(this.child.stdin, this.init);
-      const ready = await this.channel.next(this.options.startupTimeoutMs);
+      const readyPromise = this.channel.next(this.options.startupTimeoutMs);
+      const [, ready] = await Promise.all([
+        writeLine(this.child.stdin, this.init),
+        readyPromise
+      ]);
       assert.deepStrictEqual(ready, {
         schema: protocol.READY_SCHEMA,
         type: 'ready',
@@ -307,8 +316,11 @@ class AsyncDockerPolicySession {
     assert.equal(this.pending, false, 'Only one policy decision may be in flight');
     this.pending = true;
     try {
-      await writeLine(this.child.stdin, request);
-      const response = await this.channel.next(this.options.requestTimeoutMs);
+      const responsePromise = this.channel.next(this.options.requestTimeoutMs);
+      const [, response] = await Promise.all([
+        writeLine(this.child.stdin, request),
+        responsePromise
+      ]);
       validateResponse(response, {
         requestId,
         sequence,
