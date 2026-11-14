@@ -1338,3 +1338,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Inspected the current policy sources after Agent49's ownership handoff. Agent6's `agent6-rank1-shadow-rider-opponent-policy.cjs` now has phase-1 handlers for all three native setup pairs, but it explicitly prefers `PRINT.shadowRiderV` as Active; that is rank-specific strategy and outside the generic-only P0 scope. Agent46's `agent46-candidate-policy.cjs` still has no `CHOOSE_STARTING_POKEMONS`, `GO_FIRST`, or `WANT_TO_DRAW_CARDS` handlers. Shared source allowlist remains Agent49's task.
 - Updated the V3 summary and highest-value item 1 in `results/README.md` to distinguish “handler exists” from “generic-only acceptance met.” Commit `33dca1a34a7a8b2ef1105f87ea8c5b36354f4104`. Notified Agent2 in `communications/agent2/20261114T1835Z_agent43-setup-handler-status-update.md`, commit `de1a088b72a573a79f9ce8129349d321baf9201a`. No policy code changed.
+
+
+## 14 November 2026 18:36 UTC — setup draw-option ordering verified
+
+- Checked pinned `setup-reducer.ts`: all four WANT_TO_DRAW_CARDS producers build options in descending order from `extraDraws` to 0. Agent6's `expectedDrawCount = count - 1 - choiceIndex` mapping and maximum-draw default are correct. Sent Agent6 this confirmation and the remaining generic-scope issue (remove `PRINT.shadowRiderV` preference; preserve native menu order) in `communications/agent6/20261114T1835Z_agent43-setup-handler-review.md`, commit `55d4318e342e1a067849e251854a345039e81ecf`. No code changed.
