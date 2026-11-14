@@ -1640,7 +1640,7 @@ async function runV3FixtureGame({
           row.lastFailureCode=code;
           if(code.includes('TIMEOUT'))row.timeoutCount++;
           const stderr=String(error?.stderrTail??'');
-          const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\\d+)/.exec(stderr);
+          const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\d+)/.exec(stderr);
           if(drawMatch){
             row.policyDrawCount=Number(drawMatch[1]);
             row.policyDrawCounts.push(Number(drawMatch[1]));
