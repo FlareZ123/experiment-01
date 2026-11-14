@@ -91,6 +91,14 @@ P(\text{Stamp survives}\mid n=12)
 
 The original Retreat+Pass branch has 11 cards before Night Watch, so its corresponding conditional survival probability is \(\binom{10}{2}/\binom{11}{2}=9/11\approx81.82\%\). These are exact conditional probabilities from the recorded hand-size transitions and the printed random-selection effect, not measured matchup frequencies. They assume Stamp is still physically held immediately before Night Watch and that the listed actions are the only hand changes. The native test correctly attempts the t21 ACE SPEC only when the physical Stamp survived its uniform two-card selection.
 
+### Unplayed Stadium: a material response-policy branch
+
+The original t19 opponent hand also contains **Sky Field**, but the Tulip fork leaves it unplayed. The source t18 state has **Dimension Valley** in play. Latias ex SSP 76's Eon Blade costs Psychic ×2 + Colorless; Dimension Valley reduces that to Psychic ×2. Consequently, after the source's t20 Night Watch Knock Out:
+- In the **Get Lost** arm, Latias retains two Psychic Energy. It can pay Eon Blade if Dimension Valley remains, but cannot pay it if the opponent replaces Dimension Valley with Sky Field before the attack.
+- In the **Latias-recharge** arm, Latias has three Psychic Energy and can pay Eon Blade whether Dimension Valley remains or Sky Field replaces it.
+
+This creates an untested opponent-policy choice. Playing Sky Field on t19 guarantees the Stadium change and reduces the pre-Night-Watch hand from 12 to 11; the source still has its third Psychic attached and can pay Night Watch's full three-Energy cost without Dimension Valley. If Sky Field is held instead, both it and Unfair Stamp are exposed to the same uniform two-card selection: conditional on both being held in a 12-card hand, the probability both survive is \(\binom{10}{2}/\binom{12}{2}=15/22\approx68.18\%\). The current fork neither plays Sky Field nor executes Eon Blade, so it does not decide whether Get Lost or Latias-recharge is strategically superior. Treat this as a future policy acceptance scenario, not an established best line.
+
 These results form a useful **rank1 opponent-response test case**, not a competitive matchup:
 - A source policy must evaluate the Raihan search against the physical next-turn attack cost and available normal attachment, rather than blindly selecting the first deck card.
 - An opponent policy must not be represented by Retreat+Pass when its actual hand supports Tulip recovery, two VMAX evolutions, Underworld Door attachments/draws, a Get Lost line or a powered Latias line, and a prize-triggered Unfair Stamp response.
