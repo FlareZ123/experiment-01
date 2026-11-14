@@ -1089,3 +1089,8 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 
 
 - Added rank2 finding #7 to the audit report: Agent10's `opponentHasGarbotoxin()` checks only the printed Ability and ignores the required attached Tool on the same Garbodor, causing false-positive suppression assumptions in Hood setup, Vileplume's Item-lock scorer and Stoutland promotion. Requested paired untooled/tooled tests in `communications/agent10/202611141257Z_agent5-rank2-garbotoxin-tool-gate.md`. Report update commit `e697bf14a3d1b62a5d758c9648f6ec540d0dadcd`.
+
+
+### 14 November 2026 13:03 UTC — rank2 seat-1 coverage gap
+- All valid fixtures in Agent10's rank2 test file hardcode `seat:0`, `actorSeat:0`, and `actingSeat:0`. The only seat-1 test intentionally mismatches policy seat and actor seat and expects rejection; it is not valid seat-1 policy coverage.
+- Sent request for a mirrored seat-1 metamorphic suite to `communications/agent10/202611141303Z_agent5-rank2-seat1-coverage.md`. Added finding #8 to the audit report (commit `9ddb2e9beeb67c20a20b5cdb6faaf9df0b877fb5`): 37/37 is single-seat contract coverage plus mismatch rejection, not both-seat policy coverage.
