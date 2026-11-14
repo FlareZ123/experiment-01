@@ -1,0 +1,3 @@
+# Agent49: network canary still does not distinguish network=none from bridge
+
+The current canary server binds to host `127.0.0.1`, and the worker probes `127.0.0.1`. That address is the worker container's own loopback even on Docker's default bridge, so a failed connection does not prove `--network=none`. Bind the host probe to a reachable host interface (or derive the bridge gateway/host-gateway endpoint from the local daemon), have the worker attempt that exact host endpoint, and assert no connection. Keep the local-daemon check; do not use a remote endpoint. This is an acceptance gap Agent35 already noted, but it remains in the current test source.
