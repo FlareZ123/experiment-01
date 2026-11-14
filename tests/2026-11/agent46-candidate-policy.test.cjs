@@ -558,6 +558,28 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
       tokens: ['new-basic-1', 'new-basic-3']
     });
 
+    // The engine sets the repeated prompt's maximum to newBasics.length, not
+    // to the five empty Bench slots. Its callback places only those that fit.
+    const wideOptionalBench = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('wide-0', 0, 'Basic 0'),
+        setupBasicChoice('wide-1', 1, 'Basic 1'),
+        setupBasicChoice('wide-2', 2, 'Basic 2'),
+        setupBasicChoice('wide-3', 3, 'Basic 3'),
+        setupBasicChoice('wide-4', 4, 'Basic 4'),
+        setupBasicChoice('wide-5', 5, 'Basic 5'),
+        setupBasicChoice('wide-6', 6, 'Basic 6'),
+        { token: 'wide-empty', kind: 'empty-selection', label: 'Choose no items' }
+      ],
+      publicMetadata: startingPokemonMetadata(0, 12)
+    });
+    assert.deepEqual(evaluate(wideOptionalBench), {
+      kind: 'select-choices',
+      tokens: ['wide-0', 'wide-1', 'wide-2', 'wide-3', 'wide-4', 'wide-5', 'wide-6']
+    });
+
     const noOptionalBasics = engineSetupRequest(seat, {
       promptType: 'ChooseCardsPrompt',
       description: 'CHOOSE_STARTING_POKEMONS',
