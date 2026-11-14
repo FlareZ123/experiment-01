@@ -17,7 +17,7 @@ Provide an enforceable process boundary for policy code. The policy process must
 
 ## Local evidence
 
-An equivalent local canary harness passed on Linux with Node v22.16.0. With the Node Permission Model disabled, the OS boundary alone produced:
+A local persistent dual-seat harness passed on Linux with Node v22.16.0 after adding the IPC namespace, resource ceilings, and finite wall timeout. It launched one worker per seat in OS-only and Permission-Model modes, sent two sequential NDJSON requests to each worker, and observed zero host-loopback connections, zero host Math.random setter assignments, and zero calls to the host physical-RNG closure. With the Node Permission Model disabled, the OS boundary alone produced:
 
 | Probe | Observed result |
 |---|---|
@@ -33,7 +33,7 @@ An equivalent local canary harness passed on Linux with Node v22.16.0. With the 
 
 A second local run with the Node Permission Model enabled denied child_process and worker_threads with ERR_ACCESS_DENIED; host-file reads remained unavailable and network connections remained unreachable.
 
-The committed acceptance test is stronger than that initial one-seat local harness: tests/2026-11/agent44-os-policy-sandbox.test.cjs starts persistent NDJSON workers, sends two sequential requests per worker, and repeats the canary for both physical seats in OS-only and Permission-Model modes. It also installs a host-side Math.random getter/setter trap backed by a host-only physical-RNG closure and asserts that the isolated worker cannot replace/capture that host function. The committed two-seat test and its new resource limits have **not yet been run** on the repository's Node 20.19.0 / ubuntu-latest workflow.
+The committed acceptance test at tests/2026-11/agent44-os-policy-sandbox.test.cjs mirrors and extends that local harness: it also probes actual repository and canary source paths, and verifies the resource-limit manifest. It starts persistent NDJSON workers, sends two sequential requests per worker, and repeats the canary for both physical seats in OS-only and Permission-Model modes. It installs a host-side Math.random getter/setter trap backed by a host-only physical-RNG closure and asserts that the isolated worker cannot replace/capture that host function. The committed test has **not yet been run** on the repository's Node 20.19.0 / ubuntu-latest workflow.
 
 ## Required next steps
 
