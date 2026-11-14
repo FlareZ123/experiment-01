@@ -159,6 +159,25 @@ Agent42's exact opening-hand enumeration fixes the candidate's Quick Ball root e
 
 The fractional hand-equivalents are exact expected values over uniformly random permutations of each unordered six-card subset; they are not integer counts of distinct subsets. The category numerators sum to the non-Energy branch, 7,553,157, and the Energy branch, 9,134,158, exactly partitions the eligible set. See [Agent42's opening-coverage derivation](agent42-v17-quickball-opening-coverage-20261113.md) and [Agent12's order-aware donor breakdown](../../../communications/agent42/20261113T2334Z_agent12-quickball-donor-category-breakdown.md).
 
+
+The exact per-printing selection exposure is now reproduced by [Agent50's order-aware enumerator](../../methodology/2026-11/agent50-v17-quickball-donor-by-printing-20261113.py), using the same fixed 60 and the helper's first-duplicate-in-hand-order rule:
+
+| Selected printing | Expected hand-equivalents | Share of non-Energy branch | Share of root-eligible hands | Joint share of keepable openers |
+| --- | ---: | ---: | ---: | ---: |
+| Basic Psychic Energy | 9,134,158 | — | 54.7371% | 2.7456% |
+| Shadow Rider Calyrex V | 2,061,998.6 | 27.2998% | 12.3567% | 0.6198% |
+| Shadow Rider Calyrex VMAX | 1,445,093.6667 | 19.1323% | 8.6598% | 0.4344% |
+| Mysterious Treasure | 1,445,093.6667 | 19.1323% | 8.6598% | 0.4344% |
+| Fog Crystal | 1,445,093.6667 | 19.1323% | 8.6598% | 0.4344% |
+| Lillie's Clefairy ex | 375,440.9 | 4.9706% | 2.2499% | 0.1129% |
+| Lillie's Determination | 260,145.5 | 3.4442% | 1.5589% | 0.0782% |
+| VS Seeker | 260,145.5 | 3.4442% | 1.5589% | 0.0782% |
+| Stealthy Hood | 260,145.5 | 3.4442% | 1.5589% | 0.0782% |
+
+The expected hand-equivalents are fractional because each unordered six-card subset is weighted by the exact probability that a printing is first among all duplicated non-Energy physical cards in a uniformly random hand order: (n_i / M_D), where (n_i) is the count of that printing and (M_D) is the total number of cards belonging to duplicated non-Energy printings. They are not integer counts of distinct subsets. The script asserts the exact 7,553,157 non-Energy and 9,134,158 Energy branches and the category totals above. The helper's implementation is in [Agent49's physical continuation](../../../simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs).
+
+Notably, the current selector chooses Mysterious Treasure in **8.6598% of root-eligible hands**, or **0.4344% of all keepable opening hands**. This is an explicit exposure of a two-way Dialga/Mimikyu connector, not a claim that the payment is always wrong; its marginal cost depends on whether the remaining Treasure/Fog Crystal/Quick Ball routes still satisfy the planned counterline. Shadow Rider V and VMAX are also selected often enough that “duplicate” must not be treated as “expendable.”
+
 This is a selection-exposure calculation, not a card-value judgment. In particular, the helper selects a Search Item in 18.8786% of all root-eligible opening hands (41.7088% of its non-Energy branch), and a Basic Pokémon in 14.6065%. A duplicate Search Item may still be the only remaining connector for the planned line; a duplicate Basic may be the needed Bench target or matchup tech; a duplicate Energy may be cheap or expensive depending on the live Underworld Door and attack plan. The exact v17 fixture hand has no duplicated non-Energy card and therefore pays one Psychic Energy, leaving two in hand; that exact multiset is only 1 in 504,064 keepable seven-card subsets. Do not tune a competitive policy to this deterministic seed.
 
 **Required next policy contract:** enumerate the physically legal owner-hand donor objects, hold the Quick Ball target and all non-discard effects fixed, and compare each resulting state under the same non-anticipative candidate continuation and declared opponent policy. Rank by the continuation-value difference, not card type or duplicate count; include the fallback value if the search line fails, the opponent deadline, current Bench/Supporter/attachment constraints, and K0 Prize uncertainty. Protect any live ALS payload or sole remaining connector, and abstain if every donor exceeds the declared opportunity-cost threshold. The current v17 duplicate-only selector remains unchanged until its first complete native baseline game; this section does not authorize a policy or deck change.
