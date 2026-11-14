@@ -18,13 +18,9 @@ function policySource(mode = 'normal') {
     "'use strict';",
     "const POLICY_VERSION='" + POLICY_VERSION + "';",
     'async function createPolicy(){return {async decide(request){',
-    'if(' + selectedMode + "==='math') Math.random();",
-    'if(' + selectedMode + "==='crypto') require('node:crypto').randomBytes(1);",
-    'if(' + selectedMode + "==='pseudo') require('node:crypto').pseudoRandomBytes(1);",
-    'if(' + selectedMode + "==='webcrypto') require('node:crypto').webcrypto.getRandomValues(new Uint8Array(1));",
-    'if(' + selectedMode + "==='unknown') return {kind:'select-action',token:'not-in-frontier'};",
-    'if(' + selectedMode + "==='action-on-prompt') return {kind:'select-action',token:'action-1'};",
-    'if(' + selectedMode + "==='choice-on-root') return {kind:'select-choice',token:'choice-1'};",
+    "if(request.requestId==='force-unknown') return {kind:'select-action',token:'not-in-frontier'};",
+    "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
+    "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
     '}};}',
@@ -217,10 +213,12 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateFlatMetadata({ opponentHand: ['hidden'] }, ['damage'], 'BAD_META'), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
   const badPrompt = request(1, 'candidate', 0, {
     observation: observation(0, 'owner-prompt', 'ChooseCardsPrompt'),
     prompt: { schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
-      description: 'test', choices: [{ token: 'c1', kind: 'payment', publicMetadata: { opponentHand: [] } }] }
+      description: 'test', source: { classification: 'actor-choice', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
+      choices: [{ token: 'c1', kind: 'payment', publicMetadata: { opponentHand: [] } }] }
   });
   assert.throws(() => protocol.validateRequest(badPrompt, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
   const badFrontier = request(1, 'candidate', 0, {
@@ -228,7 +226,6 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
       publicMetadata: { opponentHand: [] } }] }
   });
   assert.throws(() => protocol.validateRequest(badFrontier, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
-  assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
 
   const visibleView = observation(0);
   visibleView.ownPublic.active = visiblePokemon();
@@ -254,6 +251,7 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   const prompt = {
     schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
     description: 'Select an owner-visible card',
+    source: { classification: 'actor-choice', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
     choices: [{ token: 'choice-1', kind: 'payment', printing: 'Psychic Energy SVE',
       publicMetadata: { sourceZone: 'hand', isOwnerVisible: true } }]
   };
@@ -270,12 +268,14 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
 
   const rootWithPending = { ...observation(0), pendingPromptType: 'ChooseCardsPrompt' };
   assert.throws(() => protocol.validateActorObservation(rootWithPending, 0), /ROOT_HAS_PENDING_PROMPT/);
-  await expectFailure(promptReq, 'ACTION_DURING_PROMPT', 'action-on-prompt');
-  await expectFailure(request(1), 'CHOICE_DURING_ROOT', 'choice-on-root');
-  await expectFailure(request(1), 'POLICY_SELECTED_UNKNOWN_ACTION', 'unknown');
-  for (const mode of ['math', 'crypto', 'pseudo', 'webcrypto']) {
-    await expectFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', mode);
-  }
+  await expectFailure({ ...promptReq, requestId: 'force-action-on-prompt' }, 'ACTION_DURING_PROMPT');
+  await expectFailure({ ...request(1), requestId: 'force-choice-on-root' }, 'CHOICE_DURING_ROOT');
+  await expectFailure({ ...request(1), requestId: 'force-unknown' }, 'POLICY_SELECTED_UNKNOWN_ACTION');
+  const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
+  assert.throws(() => protocol.validateRequest(physicalRandomPrompt, initFor(), 1, new Set()), /NON_ACTOR_PROMPT_CLASS/);
+  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
+  assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
+  assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
 });
 
 test('sequence, duplicate ID, role drift and oversized NDJSON fail closed', async () => {
