@@ -173,7 +173,7 @@ U_P(k\mid s)=E[\text{value of the }k\text{ selected Prizes}\mid K0/K1,s]
 
 where (R_k(s)) is the (k) lowest-cost safe replacement cards and (C_{\mathrm{Supporter}}) is the opportunity cost of spending the turn's Supporter play. Choose only (1\leq k\leq\mathrm{safeReplacementCount}(s)), and only when the marginal value is positive. The helper's fresh-slot-first rule maximizes distinct original Prize coverage when positions are exchangeable.
 
-For a specific known target among (n) unknown Prize positions, the hit probability is (k/n). Before K1 establishes that a singleton is Prized, the blind hit probability is (k/60). These are different information states and should not be conflated.
+For a specific known target among (n) unknown Prize positions, the hit probability is (k/n). Under K0, if the target is one card in a current pool of (M) unresolved cards and there is no other location information, the blind hit probability is (k/M); for the initial 60-card deal, (M=60), giving (k/60). Later K0 states must condition on cards already observed in hand, discard, play, or other zones rather than reusing 60. These are different information states and should not be conflated.
 
 A corresponding Gladion utility is the value of the best card among the authenticated owner-visible Prize reveal, less Supporter opportunity cost and the cost of destroying the old positional mapping. Gladion does not require a hand replacement, but it does require a source-scoped owner-only reveal and resets the Peonia slot ledger after its shuffle. When both Supporters are available, compare (U_P) and (U_G) rather than hardcoding one as always preferred.
 
