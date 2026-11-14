@@ -17,7 +17,7 @@
 | 4 | Shadow Rider Calyrex V (CRE 74) |
 | 4 | Shadow Rider Calyrex VMAX (CRE 75) |
 | 2 | Lillie's Clefairy ex |
-| 1 each | Tapu Lele-GX; Trevenant & Dusknoir-GX; Latias ex; Dialga-GX; Mimikyu GRI 58; Girafarig; Marshadow UNB 81; Radiant Eternatus |
+| 1 each | Tapu Lele-GX; Trevenant & Dusknoir-GX; Latias ex; **Dialga-GX UPR 100**; Mimikyu GRI 58; Girafarig; Marshadow UNB 81; Radiant Eternatus |
 
 ### Trainers (31)
 
@@ -33,7 +33,7 @@
 
 11 Basic Psychic Energy.
 
-The complete machine-readable inventory contains the specific source display sets and collector numbers for every card. Count checks give Pokémon 18, Trainers 31, Energy 11. There are fourteen starting-eligible Basics.
+The complete machine-readable inventory contains the specific source display sets and collector numbers for every card. **Printing-sensitive:** Dialga-GX must be UPR 100 (Dragon type) for the Apex Dragon counterline; the SM6 printing is Metal-type and is not a valid Dragon discard donor. Do not substitute it. Count checks give Pokémon 18, Trainers 31, Energy 11. There are fourteen starting-eligible Basics.
 
 ## Difference from champion and from Temple v1
 
