@@ -805,18 +805,20 @@ function chooseMulliganDrawSetup(prompt) {
     if (choice.kind !== 'option' || !isText(choice.token)) {
       return abstain('UNEXPECTED_MULLIGAN_DRAW_CHOICE');
     }
-    const index = choice.publicMetadata?.choiceIndex;
-    if (!Number.isSafeInteger(index) || index < 0 ||
-        index >= metadata.count || seenIndices.has(index)) {
+    const choiceIndex = choice.publicMetadata?.choiceIndex;
+    if (!Number.isSafeInteger(choiceIndex) || choiceIndex < 0 ||
+        choiceIndex >= metadata.count || seenIndices.has(choiceIndex)) {
       return abstain('BAD_MULLIGAN_DRAW_CHOICE_INDEX');
     }
-    seenIndices.add(index);
-    const drawCount = metadata.count - 1 - index;
-    if (choice.label !== `Draw ${drawCount} card(s)`) {
-      return abstain('MULLIGAN_DRAW_LABEL_INDEX_MISMATCH');
+    seenIndices.add(choiceIndex);
+    const labelMatch = String(choice.label ?? '').match(/^Draw (\\d+) card\\(s\\)$/i);
+    const drawCount = labelMatch ? Number(labelMatch[1]) : NaN;
+    if (!Number.isSafeInteger(drawCount) || drawCount < 0) {
+      return abstain('BAD_MULLIGAN_DRAW_LABEL');
     }
-    if (!best || drawCount > best.drawCount) {
-      best = { choice, drawCount };
+    if (!best || drawCount > best.drawCount ||
+        (drawCount === best.drawCount && choiceIndex < best.choiceIndex)) {
+      best = { choice, drawCount, choiceIndex };
     }
   }
 
