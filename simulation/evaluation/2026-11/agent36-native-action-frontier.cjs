@@ -130,7 +130,8 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       if (!card) return null;
       item.kind = 'play-card';
       item.label = 'Play ' + (card.name || card.fullName);
-      item.actorPrinting = cardPrinting(card);
+      const printing = cardPrinting(card);
+      if (printing) item.actorPrinting = printing;
       metadata.cardType = cardType(card, native);
       metadata.handIndex = action.handIndex;
       target = targetProjection(action.target, state, actorSeat, native);
@@ -141,7 +142,8 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       if (!actorCard || typeof action.name !== 'string') return null;
       item.kind = 'attack';
       item.label = 'Attack ' + action.name;
-      item.actorPrinting = cardPrinting(actorCard);
+      const printing = cardPrinting(actorCard);
+      if (printing) item.actorPrinting = printing;
       item.attackName = action.name;
       metadata.attackCostPayable = true;
       break;
@@ -152,8 +154,10 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       if (!actorCard || !bench) return null;
       item.kind = 'retreat';
       item.label = 'Retreat to bench ' + (action.benchIndex + 1);
-      item.actorPrinting = cardPrinting(actorCard);
-      item.targetPrinting = cardPrinting(slotPokemon(bench));
+      const actorName = cardPrinting(actorCard);
+      const targetName = cardPrinting(slotPokemon(bench));
+      if (actorName) item.actorPrinting = actorName;
+      if (targetName) item.targetPrinting = targetName;
       metadata.benchIndex = action.benchIndex;
       metadata.targetSeat = 'actor';
       metadata.targetZone = 'bench';
@@ -165,7 +169,7 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       if (!target || typeof action.name !== 'string') return null;
       item.kind = 'use-ability';
       item.label = 'Use ability ' + action.name;
-      item.actorPrinting = target.targetPrinting ?? null;
+      if (target.targetPrinting) item.actorPrinting = target.targetPrinting;
       metadata.abilityName = action.name;
       metadata.sourceZone = target.targetZone;
       metadata.sourceSeat = target.targetSeat;
@@ -196,7 +200,6 @@ function projectNativeAction(action, state, actorSeat, native, token) {
     if (target.targetZone !== undefined) metadata.targetZone = target.targetZone;
     if (target.targetIndex !== undefined) metadata.targetIndex = target.targetIndex;
     if (target.targetPrinting) item.targetPrinting = target.targetPrinting;
-    if (target.ownerVisible === false) metadata.isOwnerVisible = false;
   }
   if (Object.keys(metadata).length) item.publicMetadata = metadata;
   return item;
@@ -241,11 +244,13 @@ function buildNativeActionFrontier({
   const seen = new Set();
   let rejectedCount = 0;
   let unsupportedCount = 0;
+  let processedCount = 0;
   for (const action of candidates) {
+    if (items.length >= maxItems) break;
+    processedCount += 1;
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    if (items.length >= maxItems) break;
     let legal = false;
     try {
       // Simulator deep-clones the native State. Dispatching to its Store is a
@@ -289,7 +294,8 @@ function buildNativeActionFrontier({
       validatedCount: items.length,
       rejectedCount,
       unsupportedCount,
-      truncated: seen.size > maxItems
+      truncated: processedCount < candidates.length,
+      omittedCount: Math.max(0, candidates.length - processedCount)
     })
   };
 }
@@ -305,7 +311,10 @@ function selectedNativeAction(frontier, token) {
 
 function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native } = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
+  assert.ok(actorSeat === 0 || actorSeat === 1);
   const action = selectedNativeAction(frontier, token);
+  assert.equal(action.clientId, state.players[actorSeat].id,
+    'worker-selected action belongs to a different physical seat');
   assert.equal(store.state, state,
     'native Store state changed while the worker decision was pending');
   // Revalidate the chosen token on a fresh clone immediately before dispatch.
