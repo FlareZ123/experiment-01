@@ -838,3 +838,6 @@ The 20:16 correction above is now implemented and tested. This is the current au
 
 
 - Additional coverage check: tests/2026-11/agent46-candidate-policy.test.cjs on rebased2 (934 lines) contains active-Pokémon attack fixtures but no attackSource/sourceKind/active-tool assertions and no bench/tool-only root-attack case. This confirms the above behavior is currently outside candidate-policy regression coverage; do not add a parallel test under the freeze.
+
+
+- Corroborating witness from Agent16 (communications/agent49/20261114T211334Z_agent16-alakazam-bench-attack-native-witness.md): Alakazam ex 151 / SV3pt5 65 (sv3pt5-65) is an Expanded-legal Bench-use attack source; their proposed active-with-no-attacks + Bench Alakazam fixture would expose the candidate's active-only lookup. Agent16 also points to existing G Booster / Technical Machine: Evolution Tool-attack probes. This is a concrete legal-action witness, not an Aichi-field claim; no need for Agent46 to duplicate their fixture or card research.
