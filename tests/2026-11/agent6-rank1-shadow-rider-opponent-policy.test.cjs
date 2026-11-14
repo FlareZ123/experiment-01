@@ -770,6 +770,40 @@ test('VS Seeker retrieves Tulip when the discard contains a recoverable Psychic 
 });
 
 
+test('VS Seeker does not prioritize a second Tulip already held in hand', () => {
+  const receipt = paleMoonReceipt();
+  receipt.priorOpponentTurnKO = { ...receipt.priorOpponentTurnKO, any: true, byAttack: true };
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('VS Seeker PHF 109', 'VS Seeker'),
+    choices: [
+      { token: 'tulip', kind: 'card', printing: 'Tulip PAR 181',
+        label: 'Tulip', publicMetadata: { sourceZone: 'discard' } },
+      { token: 'raihan', kind: 'card', printing: 'Raihan EVS 152',
+        label: 'Raihan', publicMetadata: { sourceZone: 'discard' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'discard',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['VS Seeker PHF 109', 'Tulip PAR 181'],
+      ownPublic: player({
+        discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+      })
+    },
+    receipt
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['raihan']
+  });
+});
+
 test('unknown card-combination source abstains instead of selecting a plausible-looking card', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
@@ -1160,6 +1194,38 @@ test('Star Alchemy searches Field Blower to remove the opponent Path to the Peak
   });
 });
 
+test('Star Alchemy does not prioritize a second Tulip already held in hand', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Forest Seal Stone SIT 156', 'Star Alchemy'),
+    choices: [
+      { token: 'tulip', kind: 'card', printing: 'Tulip PAR 181',
+        label: 'Tulip', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Forest Seal Stone SIT 156', 'Tulip PAR 181'],
+      ownPublic: player({
+        discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13'],
+        bench: [pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['vmax']
+  });
+});
+
 test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a non-GX attack to Copycat', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
@@ -1430,6 +1496,22 @@ test('Tapu Lele-GX is played to access a Supporter when none is held', () => {
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action',
     token: 'lele'
+  });
+});
+
+test('N in hand counts as a Supporter and prevents Tapu Lele-GX from being played', () => {
+  const request = rootRequest({
+    ownHand: ['Tapu Lele-GX GRI 60', 'N FCO 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    items: [
+      { token: 'pass', kind: 'pass' },
+      { token: 'lele', kind: 'play-card', actorPrinting: 'Tapu Lele-GX GRI 60',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
   });
 });
 
