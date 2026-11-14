@@ -2,6 +2,7 @@
 
 const assert = require("node:assert/strict");
 const {test} = require("node:test");
+const {assessCorrelatedFieldEvidence} = require("../scripts/aichi-correlated-round-evidence.cjs");
 const {
   FIELD_RANKS, FIELD_TARGET, REQUIRED_RANK_WIN_RATE,
   PAIR_NONWIN_BUDGET, E_THRESHOLD, BETS,
@@ -227,4 +228,88 @@ test("candidate-slot orientation converts explicitly to original-source-seat bit
   assert.equal(toAgent37SourceSeatOrientationCoin(1, 0), 1);
   assert.throws(() => toAgent37SourceSeatOrientationCoin(2, 1), /bit/);
   assert.throws(() => toAgent37SourceSeatOrientationCoin(0, -1), /bit/);
+});
+
+
+test("candidate-slot records map into both aggregate and original-source paired schemas", () => {
+  for (const candidateSlotCoin of [0, 1]) {
+    const round = Array.from({length: 64}, (_, i) => {
+      const rank = Math.floor(i / 2) + 1;
+      const candidateSlot = i % 2;
+      const candidateEngineSlot = candidateSlot === 0 ? "A" : "B";
+      const candidateStartsFirst = candidateSlotCoin === 0 ?
+        candidateSlot === 0 : candidateSlot === 1;
+      const startingSeat = candidateStartsFirst ? "first" : "second";
+      const firstTurnSlot = candidateStartsFirst ? candidateSlot : 1 - candidateSlot;
+      const sourceSeat = 1 - candidateSlot;
+      return {
+        rank, startingSeat, outcome: "win", finished: true,
+        winnerIndex: candidateSlot,
+        status: "qualified-completed-game",
+        gameId: "synthetic-cross-schema:" + candidateSlotCoin + ":" + rank + ":" + candidateSlot,
+        seed: 400000 + candidateSlotCoin * 64 + i,
+        candidateDeckSha256: "a".repeat(64),
+        opponentDeckSha256: rank.toString(16).padStart(64, "0"),
+        candidatePolicyRevision: "frozen-synthetic-v1",
+        opponentPolicyRevision: "frozen-opponent-synthetic-v1",
+        engineRevision: "synthetic-engine-v1",
+        rulesetRevision: "synthetic-rules-v1",
+        candidateEngineSlot,
+        sourceSeat,
+        candidateActualStart: startingSeat,
+        turnEvidence: {
+          firstTurnSlot,
+          firstTurnPlayerId: firstTurnSlot === 0 ? 101 : 202,
+          firstTurnPlayerName: firstTurnSlot === 0 ? "research-A" : "research-B",
+          firstDrawLogName: firstTurnSlot === 0 ? "research-A" : "research-B",
+          verifiedByDrawLog: true
+        }
+      };
+    });
+
+    // The same 64 records must satisfy the aggregate rank × actual-start schema.
+    const aggregate = assessCorrelatedFieldEvidence([round]);
+    assert.equal(aggregate.rounds, 1);
+    assert.equal(aggregate.games, 64);
+
+    // Check the complete candidate-slot/source-seat/actual-start mapping for all ranks.
+    for (let rank = 1; rank <= 32; rank++) {
+      const pair = round.filter(game => game.rank === rank);
+      assert.deepEqual(pair.map(game => game.candidateEngineSlot).sort(), ["A", "B"]);
+      assert.deepEqual(pair.map(game => game.startingSeat).sort(), ["first", "second"]);
+      for (const game of pair) {
+        const candidateSlot = game.candidateEngineSlot === "A" ? 0 : 1;
+        assert.equal(game.sourceSeat, 1 - candidateSlot);
+        assert.equal(game.candidateActualStart, game.startingSeat);
+      }
+    }
+
+    // Feed one complete rank pair through Agent37's original-source-seat schema.
+    const rankOne = round.filter(game => game.rank === 1);
+    const agent37Coin = toAgent37SourceSeatOrientationCoin(candidateSlotCoin, 1);
+    const block = {
+      pairId: "synthetic-cross-schema-pair:" + candidateSlotCoin,
+      candidateId,
+      originalRank: 1,
+      pairingDesign: "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
+      orientationAssignment: "INDEPENDENT_FAIR_COIN_PER_COMPLETE_PAIR",
+      orientationCoin: agent37Coin,
+      games: rankOne.map(game => ({
+        id: game.gameId,
+        sourceSeat: game.sourceSeat,
+        candidateActualStart: game.candidateActualStart,
+        qualification: "QUALIFIED",
+        outcome: game.outcome
+      }))
+    };
+    const accepted = assessPairedSeatRejection([block], candidateId);
+    assert.equal(accepted.observedCompletePairClaims, 1);
+    assert.equal(accepted.ranks[0].completedPairs, 1);
+
+    // Passing the canonical candidate-slot bit through unchanged must be rejected.
+    assert.notEqual(agent37Coin, candidateSlotCoin);
+    assert.throws(() => assessPairedSeatRejection([{
+      ...block, orientationCoin: candidateSlotCoin
+    }], candidateId), /orientation coin does not match/);
+  }
 });
