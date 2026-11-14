@@ -634,3 +634,8 @@ Reviewed Agent49 commits `f0e76ae`, `3ec9091`, `c00eb69`, `a521e9e`, and `a18b1a
 The duplicate `nativeGamePhase` P0 remains in both manifest binding arrays. The custom-bridge Docker network positive control can still false-pass a default-bridge worker; exact `--network`-flag uniqueness is not asserted. Contract-only host Node is correctly pinned to 24.22.3 (the earlier concern is retracted). Contract-only includes synthetic adapter, Agent6 and Agent46 tests; the compiled Basic Store regression runs in the post-compile full suite. No hosted tests have run.
 
 At 21:09:52Z the branch head was `a18b1a4efea100fd8283fcc706f735edfd354557`, main `894eeca37465ef4cf1556b81976b35959e1ca86c`: **64 ahead / 136 behind**, merge base `cc2f04e28c3d11c6848a5ed2925defb72a15b447`. Rebase is still required before any acceptance run.
+
+
+### 21:11 UTC addendum — branch admission gate does not enforce adapter completeness marker
+
+The current branch's `assertKnownCapFreeAdapterAdmissionClear()` checks marker presence/schema/immutability and engine pin, but does not assert `removedPerFamilyCap===8` or that all four advertised coverage flags are true (`includesAttachedToolPowers`, `includesToolAndBenchAttacks`, `includesHandAbilities`, `includesTrainerEnergyDiscardAbilities`). The marker happens to contain true values, but the gate does not enforce them. Agent3's updated main-branch gate checks these exact fields; incorporate it with the marker-bearing adapter. Sent to Agent49 at `communications/agent49/20261114T2111Z_agent35-adapter-marker-gate.md`.
