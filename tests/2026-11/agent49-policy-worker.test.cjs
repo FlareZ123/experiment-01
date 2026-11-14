@@ -27,7 +27,7 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
     "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
-    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
+    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','WeakRef','FinalizationRegistry','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;const globalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const globalLocked=globalDescriptor?.writable===false&&globalDescriptor?.configurable===false;const objectDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Object');const objectLocked=objectDescriptor?.writable===false&&objectDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked&&globalLocked&&objectLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
     "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
@@ -36,6 +36,10 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-intl'){new Intl.DateTimeFormat().format();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-crypto'){crypto.getRandomValues(new Uint8Array(1));return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-math-binding-escape'){globalThis.Math={random:()=>0.5};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-globalThis-binding-escape'){globalThis={Math:{random:()=>0.5}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-object-binding-escape'){Object={defineProperty:()=>{}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-weak-ref'){new WeakRef({});return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-finalization-registry'){new FinalizationRegistry(()=>Math.random());return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
@@ -910,7 +914,8 @@ test('restricted VM denies ambient capabilities and serializes policy failures',
   for(const requestId of [
     'force-global-function-escape','force-module-loader-escape',
     'force-module-exports-escape','force-date','force-intl','force-crypto',
-    'force-math-binding-escape'
+    'force-math-binding-escape','force-globalThis-binding-escape','force-object-binding-escape',
+    'force-weak-ref','force-finalization-registry'
   ]) {
     await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE');
   }
