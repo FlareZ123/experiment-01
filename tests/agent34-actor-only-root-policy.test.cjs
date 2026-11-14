@@ -1638,6 +1638,16 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     radiantCrossoverView,onePrizeRuleboxCatalog,{ownerSeat:0}),null,
     'a unique one-Prize Radiant KO is not terminal with two Prizes remaining');
 
+  for(const side of ['ownPublic','opponentPublic']){
+    const wondrousLabyrinthView={
+      ...view,
+      [side]:{...view[side],stadium:'Wondrous Labyrinth Prism Star TEU'}
+    };
+    assert.equal(choosePostTimelessMaxGeistRetreat(
+      wondrousLabyrinthView,postTimelessCatalog,{ownerSeat:0}),null,
+      'Wondrous Labyrinth increases non-Fairy Max Geist cost and must fail closed');
+  }
+
   const psychicResistantTarget={
     ...target,printing:'Synthetic Psychic-resistant target',hp:100,damage:0,
     printed:{stage:'Basic',types:[6],weakness:[],
