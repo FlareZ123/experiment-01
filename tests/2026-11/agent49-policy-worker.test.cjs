@@ -243,12 +243,14 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation(badSuppressionView, 0), /UNKNOWN_FIELD/);
   const eventRow = { turn: 0, sourcePrinting: 'Trevenant & Dusknoir-GX',
     attackName: 'Night Watch', gxAttack: false, copycatAttack: false };
+  const reorderedCopycatRow = { copycatAttack: false, attackName: 'Night Watch', turn: 0,
+    sourcePrinting: 'Trevenant & Dusknoir-GX', gxAttack: false };
   const receipt = {
     version: 'agent8-public-event-receipt-v3-turn-stamped', actorSeat: 0, turn: 1,
     ownerActive: null, ownerBench: [null, null, null, null, null],
     priorOpponentTurnKO: { any: null, byAttack: null },
     opponentLastTurnAttack: null, opponentLastTurnTurn: 0,
-    opponentLastTurnAttacks: [eventRow], opponentCopycatChoices: [eventRow],
+    opponentLastTurnAttacks: [eventRow], opponentCopycatChoices: [reorderedCopycatRow],
     mimikyuCopycatCompatible: true
   };
   protocol.validatePublicEventReceipt(receipt, view);
