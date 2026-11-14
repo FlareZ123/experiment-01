@@ -117,3 +117,9 @@ Keep the fixture stopline. The next qualifying checkpoint is a current-head host
 - Neither direct V8 result is a Node test-runner result, GitHub Actions result, Docker isolation result, native fixture, or matchup result.
 - The existing `agent36-bilateral-competence-v9.yml` still references neither policy test file. No hosted workflow run has occurred after [43590385262](https://github.com/FlareZ123/experiment-01/actions/runs/43590385262). Keep both prototypes unqualified and do not start fixtures.
 
+## 14 November 2026 12:20 UTC — effective sandbox measurements remain absent
+
+A fresh scan of the current canary test confirms that it does not read or assert effective UID/GID, CapEff, NoNewPrivs, Seccomp, cgroup memory/pids/CPU limits, or actual /dev/shm capacity. The launcher emits configured values and the canary checks namespace inodes, marker visibility, child/thread behavior, filesystem writes and network behavior, but configured Docker flags are not proof of effective kernel enforcement.
+
+Before treating the canary as an OS-boundary certificate, collect these values from inside each worker combination: process.getuid()/getgid(); CapEff, NoNewPrivs and Seccomp from /proc/self/status; cgroup v1/v2 memory, pids and CPU limits; and /dev/shm capacity via statfs. Compare observed values to the intended limits and fail closed when the relevant measurement is unavailable. This is separate from the host-gateway positive-control failure and remains an independent acceptance gate.
+
