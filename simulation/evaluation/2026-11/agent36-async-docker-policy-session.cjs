@@ -378,6 +378,10 @@ class AsyncDockerPolicySession {
   get stderr() {
     return this.channel ? this.channel.stderr : '';
   }
+
+  get workerPid() {
+    return this.child ? this.child.pid : null;
+  }
 }
 
 async function createDockerPolicySession(options) {
