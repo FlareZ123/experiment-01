@@ -35,6 +35,7 @@ For each candidate/opponent deck-policy pair, maintain a small, explicit matrix:
 | Dimension | Required evidence |
 |---|---|
 | Deck-to-action coverage | Every core Pokémon/Trainer/Ability the declared plan intends to use has a positive, state-conditioned action path; search targets are not orphaned in hand |
+| Policy determinism | The worker denies ambient CommonJS/crypto/time/Intl capabilities; any permitted RNG is deterministic, independently seeded and fully replayable. A zero injected-RNG counter alone is insufficient. |
 | Source binding | Ability actions are accepted only when the actor-visible board has the exact source Pokémon/Tool in the projected zone/index |
 | Prompt completion | Every supported prompt family has legal min/max, owner-visibility and multi-selection tests; unsupported prompts remain fail-closed |
 | Turn sequencing | Turn-ending effects (e.g. Climactic Gate) are explicit terminal commitments and occur after useful pre-ending setup |
