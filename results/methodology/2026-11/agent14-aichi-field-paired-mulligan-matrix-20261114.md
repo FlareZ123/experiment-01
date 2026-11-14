@@ -57,6 +57,18 @@ The expectations are maximum *optional eligibility*, not cards necessarily drawn
 
 Across all 29 lists, the candidate is eligible for at least one bonus card in an average **18.79%** of paired setups; the opponent is eligible in **11.26%**. On the strict-24 sensitivity, those rates are **14.12%** for the candidate and **11.90%** for the opponent. Candidate expected allowance is larger against 16 lists, equal against six, and smaller against seven. The all-29 mean is strongly influenced by the three four-Basic Iron Thorns lists, all of which are in the five format-incompatible ranks. Their combined candidate-minus-opponent entitlement is **4.02673** optional cards across the three rank pairings, or **80.10%** of the all-29 net total (**5.02734**); the other 26 lists contribute only **1.00061** in total (mean **+0.03849**). Within the five format-incompatible lists, those three Iron Thorns lists account for about **95.3%** of the net entitlement. Under the strict-24 sensitivity, the asymmetry is much smaller. This is a setup-entitlement observation, not evidence that the candidate is favored in those matchups.
 
+**Mean tail probability by minimum optional allowance** (each published rank weighted equally):
+
+| Minimum cards | Candidate all 29 | Opponent all 29 | Candidate strict 24 | Opponent strict 24 |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 18.79% | 11.26% | 14.12% | 11.90% |
+| 2 | 5.80% | 1.56% | 2.46% | 1.65% |
+| 3 | 2.54% | 0.216% | 0.460% | 0.229% |
+| 4 | 1.351% | 0.0300% | 0.0914% | 0.0317% |
+| 5 | 0.7772% | 0.00415% | 0.0191% | 0.00439% |
+
+These are averages of per-opponent tail probabilities, not tournament-weighted rates. The 7.3369% five-card tail against each four-Basic Iron Thorns list is therefore much larger than the all-field mean of 0.7772%.
+
 Basic-count distribution among the 29 published source lists: 4 Basics (3 lists), 10 (1), 11 (6), 12 (3), 13 (3), 14 (6), 15 (4), and 16 (3). The missing ranks 23, 25 and 28 are not imputed.
 
 ## Per-rank results
@@ -114,7 +126,7 @@ node --test tests/2026-11/agent14-aichi-field-paired-mulligan-matrix.test.cjs
 
 The script reads the three exact JSON inputs, reuses Agent12's paired-protocol helper, checks candidate Basic composition, verifies each source list against its opening audit, rejects unresolved Pokémon and missing-rank imputation, and emits machine-readable JSON. The regression suite checks the 29/32 coverage boundary, the three exact four-Basic cross-checks, symmetry, probability normalization, and both field summaries. No native Twinleaf run or GitHub Actions dispatch is required for this pure combinatorial result.
 
-**Validation performed 14 November:** Node 22.16.0 ran the six regression tests successfully (6/6) against a synthetic 29-row fixture preserving the published ranks, player/archetype identities, Basic counts, candidate inventory, and missing-rank boundary. Separately, the actual repository JSON inputs passed live V8 checks: all 29 source/audit identities match; all 29 source lists sum to 60; candidate inventory sums to 60 with 14 Basics; no opponent Pokémon is unresolved; all 29 opening-mulligan probabilities match the exact helper; and missing ranks remain 23/25/28. The synthetic test fixture is not a substitute for those actual source inputs. No GitHub Actions run was dispatched.
+**Validation performed 14 November:** Node 22.16.0 ran the seven regression tests successfully (7/7) against a synthetic 29-row fixture preserving the published ranks, player/archetype identities, Basic counts, candidate inventory, and missing-rank boundary. Separately, the actual repository JSON inputs passed live V8 checks: all 29 source/audit identities match; all 29 source lists sum to 60; candidate inventory sums to 60 with 14 Basics; no opponent Pokémon is unresolved; all 29 opening-mulligan probabilities match the exact helper; and missing ranks remain 23/25/28. The synthetic test fixture is not a substitute for those actual source inputs. No GitHub Actions run was dispatched.
 
 
 ## Limitations and use
