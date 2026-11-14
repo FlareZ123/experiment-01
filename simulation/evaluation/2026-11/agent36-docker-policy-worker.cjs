@@ -34,8 +34,6 @@ const POLICY_LIMITS=Object.freeze({
   coreDumps:false
 });
 
-});
-
 function sha256(bytes){
   return createHash('sha256').update(bytes).digest('hex');
 }
@@ -79,16 +77,6 @@ function inspectLocalDockerContext(){
   assert.ok(dockerEndpoint.startsWith('unix://'),
     'remote Docker endpoints are forbidden; expected a local unix socket');
   return {dockerContext,dockerEndpoint};
-}
-
-function runDocker(args,{timeout=120000}={}){
-  const result=spawnSync('docker',args,{
-    encoding:'utf8',timeout,env:dockerEnvironment(),maxBuffer:8*1024*1024
-  });
-  if(result.error)throw result.error;
-  assert.equal(result.status,0,
-    'docker '+args.join(' ')+' failed: '+String(result.stderr||result.stdout).slice(-4000));
-  return String(result.stdout||'').trim();
 }
 
 /**
@@ -281,8 +269,8 @@ function verifyPolicyBundle(bundle){
 }
 
 /**
- * Start one persistent, non-root Node worker. Role, seat, policy seed and
- * actor observation must be sent later through versioned IPC, never argv/env.
+ * Start one persistent, non-root Node worker. Role, seat and actor observation
+ * travel later through versioned IPC, never argv or environment variables.
  */
 function readContainerId(cidfile){
   try{
@@ -351,6 +339,12 @@ async function stopDockerPolicyWorker(child,{
  * Start one persistent, non-root Node worker. The only mounted host content is
  * the hash-verified read-only policy bundle. All decisions travel over stdin/stdout.
  */
+async function stopAllDockerPolicyWorkers(){
+  const pending=[...activeWorkers].map(metadata=>
+    stopDockerPolicyWorker(metadata.child,{signal:'SIGTERM'}));
+  return Promise.all(pending);
+}
+
 function spawnDockerPolicyWorker({
   bundle,
   entrypoint='/policy/worker.cjs',
@@ -438,8 +432,10 @@ function spawnDockerPolicyWorker({
     void stopDockerPolicyWorker(child,{signal:'SIGTERM'});
   },timeoutMs);
   metadata.timer.unref?.();
-  child.once('close',()=>cleanupWorkerMetadata(metadata));
-  child.once('error',()=>cleanupWorkerMetadata(metadata));
+  child.once('close',()=>{
+    if(!metadata.cleanupRequested)cleanupWorkerMetadata(metadata);
+  });
+  child.once('error',()=>{void stopDockerPolicyWorker(child,{signal:'SIGTERM'});});
   child.stdin.once('error',()=>{void stopDockerPolicyWorker(child,{signal:'SIGTERM'});});
   return child;
 }
@@ -475,5 +471,6 @@ module.exports={
   IMAGE_DIGEST,IMAGE_REF,PLATFORM,NODE_VERSION,POLICY_LIMITS,
   DEFAULT_WORKER_TIMEOUT_MS,MAX_WORKER_TIMEOUT_MS,
   sha256,preflightDockerPolicySandbox,createPolicyBundle,
-  verifyPolicyBundle,spawnDockerPolicyWorker,stopDockerPolicyWorker,cleanupPolicyBundle
+  verifyPolicyBundle,spawnDockerPolicyWorker,stopDockerPolicyWorker,
+  stopAllDockerPolicyWorkers,cleanupPolicyBundle
 };
