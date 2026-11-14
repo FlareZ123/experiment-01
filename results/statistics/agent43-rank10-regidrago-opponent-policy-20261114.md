@@ -32,7 +32,7 @@ The policy reads only the acting player's observation, legal action frontier, pr
 
 ## Validation
 
-The focused policy suite has **21/21 passing tests**. Together with the Apex evaluator's **17/17 tests**, the two local Node suites pass **38/38**.
+The focused policy suite has **22/22 passing tests**. Together with the Apex evaluator's **17/17 tests**, the two local Node suites pass **39/39**.
 
 The tests cover role/seat binding, opening setup priorities, Budew/Latias sequencing, Apex prompt delegation, attack payload setup, Mimikyu/Clefairy gust priority, target-seat-aware switching, Quick Ball discard/search, Wonder Tag, Super Rod card-type restrictions, and fail-closed handling of unsupported prompts.
 
