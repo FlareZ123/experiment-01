@@ -294,10 +294,6 @@ function validateInputs(input,{requirePolicySeeds=true}={}) {
  */
 function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   const {native,maxActions,seed32,policySeedBySeat}=validateInputs(input,{requirePolicySeeds});
-  const ownsProcessLock=input.processLockToken===undefined;
-  const processLockToken=ownsProcessLock?
-    acquireNativeFixtureProcessLock('native-fixture-game'):input.processLockToken;
-  assertNativeFixtureProcessLock(processLockToken);
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format
@@ -531,6 +527,11 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     wrapped.nativeFixtureFailure=partial.failure;
     return wrapped;
   };
+
+  const ownsProcessLock=input.processLockToken===undefined;
+  const processLockToken=ownsProcessLock?
+    acquireNativeFixtureProcessLock('native-fixture-game'):input.processLockToken;
+  assertNativeFixtureProcessLock(processLockToken);
 
   try {
     const settings=withPhysicalRandom(()=>new GameSettings());
