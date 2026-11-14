@@ -595,7 +595,7 @@ function cardPriority(printing, observation, context) {
   if (context.includes('guzma & hala')) {
     if (matches(printing, PRINT.grandTree)) return hasK0PossibleGrandTreeTarget(observation) ? 180 : 65;
     if (matches(printing, PRINT.artazon)) {
-      return list(own.bench).some(slot => slot === null) && missingLinePriority(observation) > 0 ? 165 : 65;
+      return list(own.bench).some(slot => slot === null) ? 165 : 65;
     }
     if (matches(printing, PRINT.tmEvolution)) {
       return handCount(hand, PRINT.tmEvolution) === 0 &&
