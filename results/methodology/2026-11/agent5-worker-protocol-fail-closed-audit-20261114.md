@@ -52,13 +52,13 @@ The producer `agent7-copycat-history-root.cjs` returns only zero choices, one un
 
 Require zero or one unpaired row, or exactly two rows with the same pair index, first/second roles, same source printing and distinct attack names. Reject duplicate signatures and independent two-row choices. Retain history-membership, turn-stamp, eligibility and compatibility checks.
 
-### 5. Suppression information is partially projected, but the worker schema still permits omission
+### 5. Suppression information is partially projected; Ability provenance and epoch scope need precise handling
 
 `visiblePokemon()` still emits printed abilities/details but no `abilitySuppressions`. Keep this array optional until a trusted source-attribution resolver exists: the pinned `IS_ABILITY_BLOCKED()` helper returns only a boolean and does not provide a reason/source printing. When rows are present, require complete coverage of visible Abilities and preserve explicit unknown; absence also means unknown, never “live.” Consumers must fail closed or abstain when the fact matters.
 
-Agent8 has now added `stadiumAndToolHaveNoEffectTurnsRemaining` to `publicPlayer()` as an actual non-negative integer or null, with actor-view tests proving both physical players' values are mapped correctly (commits `9eee07eaccb77525388f08ab4097f47da64901bd` and `1b39faf9b46e9b52cd2708d34d7587eb2dadb7bd`). The worker schema still lists this field in `PLAYER_RESTRICTION_OPTIONAL_KEYS`, so omission remains accepted. Remove it from the optional list; retain the existing non-negative safe-integer validation. A producer null for malformed source state should fail validation, not be accepted as a normal observation.
+Agent8 has added `stadiumAndToolHaveNoEffectTurnsRemaining` to `publicPlayer()` as a non-negative integer or null, with both physical players mapped. A follow-up normalizes an absent native field to zero, citing the pinned Store's `undefined > 0` behavior as inactive; this is consistent if the source confirms the intended semantics. Malformed non-integer values remain null and should fail worker validation. The worker schema still lists the field as optional, so omission is accepted; remove it from `PLAYER_RESTRICTION_OPTIONAL_KEYS` and retain integer-only validation.
 
-The pinned engine's global epoch rule is: any known positive player epoch proves Stadium effects are suppressed; only if neither is positive does a missing/invalid epoch make the result unknown; both known zero means no epoch-based suppression. New Moon (Lunatone OBF + Solrock CES) is separate and directional: the actor's own pair suppresses Stadium effects on actor Pokémon, while an opponent-only pair does not. A printed New Moon Ability is not proof that it is active; without a trusted explicit `suppressed:false` fact, treat its activity as unknown.
+**Epoch scope for attack-cost queries is unresolved.** Agent44 quoted `IS_STADIUM_EFFECT_BLOCKED(state)` as checking `state.players.some(p => p.stadiumAndToolHaveNoEffectTurnsRemaining > 0)`, suggesting any positive epoch globally blocks Stadium effects. Agent11's later policy correction says Dimension Valley's discount for the actor's Pokémon should use only the acting player's epoch. These differ when actor epoch is zero and opponent epoch is positive. Preserve both raw per-player counters and settle the scope with a native two-seat Store probe before choosing one interpretation. New Moon remains recipient-seat directional: the actor's own Lunatone OBF + Solrock CES pair affects actor Pokémon; an opponent-only pair does not. A printed New Moon Ability is not proof that it is live; without trusted explicit `suppressed:false` evidence, treat activity as unknown.
 
 ### 6. Pokémon prompt choices lose the native target slot index
 
@@ -105,7 +105,7 @@ Choose the best eligible Bench target using its actual `prizeValue(pokemon)` and
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
 5. Rank10 policy owner: make Phantom Dive scoring consistent with prompt support; use exact targets and Prize counts for Dragon Laser/Frost Spear/Trifrost; add valid seat-1 tests.
-6. Rank1 policy owner: reorder Stadium epoch tri-state evaluation so any known positive dominates missing data, and include recipient-seat New Moon suppression.
+6. Rank1 policy owner: preserve both Stadium epochs; keep known-positive-before-unknown for Path-lock status as supported by the pinned global helper; resolve the separate Dimension Valley actor-vs-global epoch scope with a native two-seat probe; include recipient-seat New Moon suppression.
 7. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
