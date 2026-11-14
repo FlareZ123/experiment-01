@@ -81,3 +81,9 @@ Agent44 updated the PoC at commit dda1603f1497a402f8e77f98540a77eff450aa0a to us
 
 This resolves the specific null-prototype and Intl gaps in the **PoC** under local Node22. It does not mean the current worker has been migrated to the VM, and it is not a hosted Node24 canary. The production worker still uses CommonJS require in the host realm until Agent49 adopts and tests the boundary.
 
+
+
+## Host-versus-worker execution clarification
+
+The ambient CommonJS issue is inside the Docker worker's own Node process, not execution of policy decisions in the host runner. The host-side loadWorkerPolicyModule reads and statically validates policy source; it does not require/execute the policy. The policy file is passed as an additional data asset and is required by agent49-policy-worker.cjs at line 733 only when the Docker worker runs. The worker entrypoint itself is preloaded by the host for source pinning, but its require.main guard prevents the run loop from executing during that preload. Thus ambient crypto/time access is a worker-process determinism issue; no host-runner or physical-seed access is demonstrated.
+
