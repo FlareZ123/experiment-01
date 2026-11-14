@@ -78,14 +78,14 @@ async function main(request){
   });
   Math.random=original;
   report.mathRandomSetterCapturedOwnFunction=captured===original;
-  process.stdout.write(JSON.stringify(report)+'\\n');
+  process.stdout.write(JSON.stringify(report)+'\n');
 }
 const rl=readline.createInterface({input:process.stdin,crlfDelay:Infinity});
 rl.once('line',line=>{
   rl.close();
   process.stdin.destroy();
   main(JSON.parse(line)).catch(error=>{
-    process.stderr.write(String(error)+'\\n');
+    process.stderr.write(String(error)+'\n');
     process.exitCode=1;
   });
 });
@@ -184,7 +184,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       const osOnly=spawnSandboxedPolicyWorker({
         sandbox,entrypoint:'/policy/canary.cjs',permissionModel:false,timeoutMs:12000
       });
-      osOnly.stdin.end(JSON.stringify(request)+'\\n');
+      osOnly.stdin.end(JSON.stringify(request)+'\n');
       const osReport=await readWorkerResponse(osOnly);
       assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
       assert.equal(osReport.cwd,'/');
@@ -212,7 +212,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       const permissionWorker=spawnSandboxedPolicyWorker({
         sandbox,entrypoint:'/policy/canary.cjs',permissionModel:true,timeoutMs:12000
       });
-      permissionWorker.stdin.end(JSON.stringify(request)+'\\n');
+      permissionWorker.stdin.end(JSON.stringify(request)+'\n');
       const permissionReport=await readWorkerResponse(permissionWorker);
       assertDeniedReads(permissionReport.hostFiles);
       assert.equal(permissionReport.childProcess.ok,false);
