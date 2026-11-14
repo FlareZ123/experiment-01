@@ -77,9 +77,9 @@ The fake-launcher suite now has 9 top-level groups and passed in hosted run [435
 6. The current launcher and Docker canary are not yet connected to the V3 host decision loop. The async fixture loop, actor-safe `aichi-owner-prompt-projection-v3` projection, typed prompt/effect provenance, host token-to-native mapping, native Store validation/dispatch and abort-without-fallback path remain unimplemented.
 7. Agent46 has accepted pure candidate-policy ownership. Opponent-policy ownership remains unresolved; name and confirm a separate owner before any fixture. The candidate and opponent policies must be versioned, audited and bundled separately.
 8. The historical run [43570845995](https://github.com/FlareZ123/experiment-01/actions/runs/43570845995) failed earlier on unsupported `--pid=private`; the current launcher has removed those explicit namespace flags and the latest preflight passed. Do not carry that old failure forward as the current state.
-## Ownership boundary
+## Ownership boundary (current)
 
-Agent36 owns the Docker runtime, V3 async fixture-loop integration, host actorObservation projection, pending-prompt routing, and native action validation/dispatch. Agent44 is review-only for role/seat composition, actor-view and prompt-schema correctness, and physical-random prompt provenance. Agent49 owns the standalone worker protocol/schema and its tests, but not the host integration. Agent35 owns this adversarial acceptance contract and reviews the converged path rather than forking the runtime, projection or role composer.
+Agent49 is the sole owner of the converged host/worker integration, role manifest, runner, protocol, worker runtime and shared launcher path. Agent46 owns the candidate worker policy and its existing tests; Agent6 owns the rank-1 opponent worker policy and its existing tests. Agent35 owns this adversarial acceptance contract and independent acceptance review. Agent36 and Agent44 review integration, actor-view/prompt projection, role/seat composition and provenance. Do not create a parallel launcher, runner, role composer or worker implementation.
 
 **Disposition:** retain the current fixture stopline. No native game should be dispatched on the basis of the current Docker preflight or canary source alone.
 
@@ -313,3 +313,34 @@ The proposed encrypted RNG escrow also depends on owner configuration: the exist
 ## 14 November 2026 15:37 UTC — deterministic-policy interim for worker RNG
 
 Agent3 proposed a low-risk interim: initialize independent CSPRNG-backed state inside each role/seat worker at startup and pass only its non-serializable `rng()` closure to `createPolicy()`; keep INIT/DECISION IPC seed/RNG-free and never patch ambient `Math.random`. For the current deterministic candidate policy, require `rngDrawCount===0` and record RNG protocol/version plus draw count. If any policy consumes a draw, mark that run non-replayable and ineligible for competitive evidence until the owner-approved escrow/independent-seed protocol and commitment are configured. This satisfies the worker-local RNG boundary without pretending a hash commitment alone makes a stochastic run reproducible; it does not lift the physical-seed stopline or authorize a fixture.
+
+
+## 14 November 2026 18:46 UTC — Agent49 detached-worker branch review
+
+**Reviewed refs:** main `eda8e9e3c787d9d2e8a45b4329465f4fc880256a`; branch `agent49/v3-worker-acceptance-20261114` at `e59c7c4f4523c3c1023bc5b8565cb5f5529eee46`. GitHub compare reports the branch as diverged: **21 commits ahead and 51 behind main**. This is a branch review, not current-main evidence. Rebase/merge the live main changes before treating any branch tests as acceptance evidence or dispatching the existing contract lane.
+
+### Improvements confirmed in the reviewed branch (do not reopen as current blockers)
+
+- The host-safe protocol has been split from the worker executable. Role manifests use each role's policy source as the entrypoint and list the worker executable as a data asset. The manifest boundary is still defeated by the host session import below.
+- The worker policy is evaluated in a restricted VM context. The branch denies ambient process/module, crypto, time, timer, networking and dynamic-code globals, routes `Math.random` and the explicit policy RNG through a worker-local CSPRNG-backed draw counter, and has hostile tests for `Math['random']`, module-loader access, Date, Intl, crypto and the denied-global surface. This is defense-in-depth inside the Docker worker, not a replacement for the OS boundary or hosted canary.
+- The host allowlist is exact to the three pinned-engine `GamePhase.SETUP=1` constructor/message pairs: `ChooseCardsPrompt + CHOOSE_STARTING_POKEMONS` (including the repeated post-mulligan optional Bench form), `ConfirmPrompt + GO_FIRST`, and `SelectPrompt + WANT_TO_DRAW_CARDS`. Phase 0 is not an allowed setup phase.
+- Frontier construction now runs inside a separate deterministic validation-RNG scope. The branch adds a regression that proves validation probes consume their own repeatable stream and leave the next physical shuffle RNG value unchanged.
+- Worker close/abort paths now assert process termination and daemon-side container removal before reporting cleanup success.
+
+### Current blockers confirmed in the reviewed branch
+
+1. **P0 — host session still imports the worker executable.** `agent36-async-docker-policy-session.cjs` imports `./agent49-policy-worker.cjs` for protocol constants and validators. Because the session is a host runtime binding in the role closure, source-closure analysis follows that import into the worker executable and its `node:vm`/crypto/filesystem dependencies. Change the host session to import `agent49-policy-protocol.cjs`; search all host runtime modules for remaining worker-executable imports. The real `buildFixtureRoleEntryManifest()` regression must prove the worker executable is absent from host `manifest.files`, remains a worker-only bundle asset, and leaves no unresolved relative imports.
+2. **P0 — the setup projection does not match the existing opponent policy contract.** `projectSimplePrompt()` currently labels each `WANT_TO_DRAW_CARDS` option with `String(value)` while the rank-1 policy requires `Draw N card(s)` and checks `expectedDrawCount = count - 1 - choiceIndex`. It therefore abstains on every such prompt. Project the exact label from the native option value, preserve the original `choiceIndex`, and ensure `count` excludes any synthetic cancel choice. Test the exact projection through both role policies under both physical-seat mappings.
+3. **P0 — candidate setup decisions remain incomplete.** The candidate worker policy still routes generic Confirm/Select prompts only when there is exactly one choice and has no explicit deterministic handler for starting-Pokémon selection, `GO_FIRST`, or `WANT_TO_DRAW_CARDS`. The rank-1 opponent policy has handlers, but its starting-Pokémon branch hardcodes a Shadow Rider V preference. The narrow acceptance exception is only generic SETUP=1 protocol completeness: both role policies must return deterministic, legal decisions for initial `min:1` and repeated `min:0` starting-Pokémon prompts, `GO_FIRST`, and mulligan draw selection. Keep setup tests in the existing policy test files; do not add rank-specific strategy or change either 60-card list as part of this fix.
+4. **P1 — ShuffleHandPrompt uses the wrong collection length.** `resolveHostOnlyPrompt()` currently computes the `ShuffleHandPrompt` permutation length from `owner.prizes.length`. Verify the exact pinned prompt payload/affected hand, then derive the count from the hand collection actually being shuffled. Add an unequal hand-size/Prize-count regression and pass the generated result through native prompt validation. Keep this physical-random operation entirely host-side.
+5. **P1 — request timeout does not cover the complete write/response operation.** `AsyncDockerPolicySession.decide()` starts `channel.next(requestTimeoutMs)` and awaits it with `writeLine()` in `Promise.all`. A response can clear the channel timer while the write promise is still waiting for stream `drain`, leaving the combined operation without a deadline. Use one absolute deadline for request write/drain plus response wait; on expiry abort the session and verify daemon cleanup.
+
+### Required next sequence
+
+- Rebase the reviewed branch on current main and resolve the host-session import first.
+- Fix the exact setup projection/policy cases and ShuffleHandPrompt count, with focused existing-file regressions.
+- Fix the absolute request deadline. Preserve the now-present validation-RNG regression and worker ambient-capability tests.
+- Run only the existing `contract_only` lane and hosted two-seat canary on the exact rebased, reviewed head. No new workflow, alternate harness, or fixture dispatch.
+- Keep fixture admission blocked until the hosted OS canary, complete worker decision routing, host-native validation, fail-closed cleanup, and the owner's separate physical-seed disclosure decision are satisfied.
+
+No deck identity, opponent-field admission, matchup result, competitive game count, or win-rate claim changes from this branch review.
