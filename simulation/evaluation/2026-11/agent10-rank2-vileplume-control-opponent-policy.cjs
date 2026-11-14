@@ -473,8 +473,24 @@ function cardPriority(printing, observation, context) {
     if (/Forest Seal Stone|Rare Candy|Battle Compressor/i.test(printing)) return 110;
     return 20;
   }
+  if (context.includes('treasure hunt')) {
+    if (matches(printing, PRINT.tmEvolution) || matches(printing, PRINT.tagCall)) return 150;
+    if (matches(printing, PRINT.stealthyHood) || matches(printing, PRINT.teamYell)) return 100;
+    return 20;
+  }
+  if (context.includes('team yell') || context.includes('lusamine')) {
+    if (/Guzma & Hala|Guzma|Faba|Plumeria|Karen|Team Yell|Lusamine|Bellelba/i.test(printing)) return 150;
+    if (/Grand Tree|Artazon/i.test(printing)) return 120;
+    return 10;
+  }
+  if (context.includes('faba') || context.includes('plumeria')) {
+    if (/Special Energy|Jet Energy|Capture Energy|Double Dragon Energy|Double Colorless Energy/i.test(printing)) return 160;
+    if (/Tool|Pokémon Tool|Stadium|Grand Tree|Artazon/i.test(printing)) return 110;
+    return 10;
+  }
 
-  // Pidgeot ex Quick Search and other unrestricted deck searches.
+  // Pidgeot ex Quick Search and Pidgeotto Air Mail are unrestricted searches.
+  if (context.includes('quick search') || context.includes('air mail')) {
   if (matches(printing, PRINT.vileplume) && !boardHas(own, PRINT.vileplume)) return 160;
   if (matches(printing, PRINT.stoutland) && !boardHas(own, PRINT.stoutland)) return 155;
   if (matches(printing, PRINT.pidgeot) && !boardHas(own, PRINT.pidgeot)) return 140;
@@ -489,7 +505,7 @@ function cardPriority(printing, observation, context) {
   if (matches(printing, PRINT.grandTree)) return 75;
   if (matches(printing, PRINT.guzmaHala)) return 70;
   if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 60;
-  return 10;
+  return 0;
 }
 
 function discardPriority(choice, observation) {
@@ -513,8 +529,24 @@ function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
-  if (owner && owner !== 'actor') return -100;
-  if (zone && zone !== 'bench' && !context.includes('irresistible aroma')) return -100;
+  const opponentChoice = context.includes('guzma') || context.includes('irresistible aroma');
+  if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
+  if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
+      !context.includes('cassius')) return -100;
+  if (context.includes('guzma')) {
+    const target = list(observation.opponentPublic?.bench).find(slot =>
+      slot && slot.printing === printing);
+    if (!target) return 30;
+    const hp = remainingHp(target);
+    const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
+    return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
+  }
+  if (context.includes('cassius')) {
+    const target = boardSlots(observation.ownPublic).find(row =>
+      row.pokemon.printing === printing);
+    return target && remainingHp(target.pokemon) > 0 &&
+      remainingHp(target.pokemon) <= 50 ? 160 : 15;
+  }
   if (context.includes('grand tree')) {
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
@@ -547,8 +579,11 @@ function rankedChoices(choices, scorer, limit) {
 }
 
 function emptyOrAbstain(prompt, choices, reasonCode) {
+  const metadata = prompt.publicMetadata ?? {};
   const empty = list(choices).find(choice => choice.kind === 'empty-selection');
-  if ((prompt.publicMetadata?.minimumCount ?? 1) === 0 && empty) {
+  const zeroAllowed = metadata.minimumCount === 0 ||
+    metadata.requiredCount === 0 || metadata.count === 0;
+  if (zeroAllowed && empty) {
     return { kind: 'select-choice', token: empty.token };
   }
   return { kind: 'abstain', reasonCode };
@@ -567,13 +602,25 @@ function promptDecision(request) {
   if (selectionType === 'card-combination' || selectionType === 'pokemon' ||
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
+    const recognizedCardSource = context.includes('tag call') ||
+      context.includes('fan call') || context.includes('guzma & hala') ||
+      context.includes('artazon') || context.includes('rototiller') ||
+      context.includes('get lost') || context.includes('quick search') ||
+      context.includes('air mail') || context.includes('treasure hunt') ||
+      context.includes('team yell') || context.includes('lusamine') ||
+      context.includes('faba') || context.includes('plumeria');
+    if ((selectionType === 'card-combination' || selectionType === 'card-order') &&
+        !recognizedCardSource) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE' };
+    }
     let ranked;
     if (selectionType === 'pokemon') {
       ranked = rankedChoices(choices,
         choice => scorePokemonChoice(choice, request.observation, context), max)
         .filter(row => row.score > 0);
     } else if (selectionType === 'card-combination') {
-      const discardPrompt = context.includes('guzma & hala') &&
+      const discardPrompt = (context.includes('guzma & hala') ||
+        context.includes('plumeria')) &&
         choices.some(choice => choiceZone(choice) === 'hand');
       ranked = rankedChoices(choices, choice => {
         if (discardPrompt) return discardPriority(choice, request.observation);
@@ -613,6 +660,9 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
+    if (!context.includes('memory dive') && !context.includes('relicanth')) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
+    }
     const choice = choices.slice().sort((a, b) => {
       const name = row => row.publicMetadata?.sourceAttack ?? row.label ?? '';
       const score = value => {
