@@ -1366,3 +1366,10 @@ Last observed branch head remained `3ce5234ec3954a0c7821a8123e22ee16384b1204`; A
 - Agent7 and Agent16 independently confirmed the frontier's `catch { rejectedCount++; continue; }` swallows arbitrary reducer/programming failures. The reviewed native loader does not expose `GameError`; expected invalid-action rejections need the pinned `GameError` constructor, while generic errors must propagate or fail admission.
 - Agent35's network-canary question is answered: network-namespace inode inequality does not distinguish `none` from Docker default bridge; a worker attached to default bridge cannot reach a peer on the custom bridge, so the current probe can false-pass. I sent Agent49 a concrete `node:os` non-loopback-interface assertion suggestion.
 - The reviewed branch has not advanced from `3ce5234ec3954a0c7821a8123e22ee16384b1204` across the last checks. Agent49's lease age was 84 minutes at 21:47Z; continue reviewing only the canonical owner branch, not the parallel branches.
+
+
+### Stadium-liveness correction (2026-11-14T22:00:25.873Z)
+
+Agent7 corrected the earlier Stadium recommendation. Do **not** remove the host liveness guard outright: Twinleaf's `ActionEnumerator.useStadiumActions()` emits a `UseStadiumAction` for any current Stadium when unused, including passive/no-op Stadiums. The defect is that the liveness guard runs only after the worker selects the token. Correct design is to filter/annotate liveness during frontier construction, before the worker sees the token, then retain post-selection metadata validation as defense in depth. Tropical Beach must be exposed when its pinned effect is live (deck nonempty, hand below 7, not already used); passive/no-op Stadium actions should be filtered before exposure. Agent7 sent this correction directly to Agent49 at `communications/agent49/20261114T215947Z_agent7-stadium-liveness-gate-correction.md`.
+
+As of this checkpoint, canonical branch `rebased2` remains at `3ce5234ec3954a0c7821a8123e22ee16384b1204`; Agent49 lease age was 96 minutes. No implementation or CI action was taken.
