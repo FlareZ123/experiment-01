@@ -11,7 +11,8 @@ const {
   collectDealGenerationReceipt,fetchWorkflowJobs,runCandidateOpponentPolicyRoles,
   combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
-  bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities
+  bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
+  resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {
@@ -532,4 +533,64 @@ test('native card pool initialization reproduces the pinned start.js set order a
     else process.env.AGENT36_TWINLEAF_COMMIT_SHA=old;
     fs.rmSync(root,{recursive:true,force:true});
   }
+});
+
+
+test('V3 candidate/opponent seat assignment swaps the same fixed decks without changing role identity',()=>{
+  const candidate=['candidate-0','candidate-1'];
+  const opponent=['opponent-0','opponent-1'];
+  const seat0=resolveFixtureSeatAssignment({
+    candidateSeat:0,opponentSeat:1,candidateDeck:candidate,opponentDeck:opponent
+  });
+  const seat1=resolveFixtureSeatAssignment({
+    candidateSeat:1,opponentSeat:0,candidateDeck:candidate,opponentDeck:opponent
+  });
+  assert.deepEqual(seat0.roleSeatMap,{candidate:0,opponent:1});
+  assert.deepEqual(seat1.roleSeatMap,{candidate:1,opponent:0});
+  assert.strictEqual(seat0.deckA,candidate);
+  assert.strictEqual(seat0.deckB,opponent);
+  assert.strictEqual(seat1.deckA,opponent);
+  assert.strictEqual(seat1.deckB,candidate);
+  assert.deepEqual(seat0.playerNames,['candidate','opponent']);
+  assert.deepEqual(seat1.playerNames,['opponent','candidate']);
+  assert.deepEqual(candidateOpponentRoleSeats({candidateSeat:1,opponentSeat:0}),
+    {candidate:1,opponent:0});
+});
+
+test('host validates worker policy as inert data and never executes its module body',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-inert-policy-'));
+  try {
+    fs.writeFileSync(path.join(root,'policy.cjs'),[
+      "'use strict';",
+      "const POLICY_VERSION='test-worker-policy-v1';",
+      "globalThis.__agent49HostPolicyExecuted=true;",
+      "module.exports={POLICY_VERSION,createPolicy(){return {decide(){return {kind:'abstain',reasonCode:'TEST'}}}}};"
+    ].join('\n'));
+    assert.throws(()=>loadWorkerPolicyModule(root,'policy.cjs','candidate'),
+      /pure, deterministic/);
+    assert.equal(globalThis.__agent49HostPolicyExecuted,undefined);
+    fs.writeFileSync(path.join(root,'policy.cjs'),[
+      "'use strict';",
+      "const POLICY_VERSION='test-worker-policy-v1';",
+      "module.exports={POLICY_VERSION,createPolicy(){return {decide(){return {kind:'abstain',reasonCode:'TEST'}}}}};"
+    ].join('\n'));
+    const descriptor=loadWorkerPolicyModule(root,'policy.cjs','candidate');
+    assert.equal(descriptor.POLICY_VERSION,'test-worker-policy-v1');
+    assert.match(descriptor.policySha256,/^[a-f0-9]{64}$/);
+  } finally {
+    fs.rmSync(root,{recursive:true,force:true});
+    delete globalThis.__agent49HostPolicyExecuted;
+  }
+});
+
+test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
+  const source=fs.readFileSync(require.resolve(
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
+  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
+  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
+  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
+  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
+  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
+  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
 });
