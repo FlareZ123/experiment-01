@@ -34,7 +34,7 @@ The three known Fairy Zone lists mean that a blanket “any opponent Ability tex
 
 ## Dragon-target coverage in the 29 lists
 
-A second exact-printing scan of the same 29 lists finds Dragon-type Pokémon in **12 ranks**:
+A second exact-printing scan of the same 29 lists finds Dragon-type Pokémon in **13 ranks**:
 - Rank1 Shadow Rider Calyrex: Radiant Eternatus CRZ105 and Dialga-GX UPR100.
 - Ranks10, 12, 13, 14, 18, 20, 21, 27 and 32: Regidrago variants with Regidrago V/VSTAR and supporting Dragon attackers (including Dragapult ex, Noivern ex, Hisuian Goodra VSTAR, Kyurem, Koraidon ex, Mega Dragonite ex, Salamence ex, or Dialga-GX depending on list).
 - Rank15 Lopunny Vileplume: Tatsugiri TWM131.
