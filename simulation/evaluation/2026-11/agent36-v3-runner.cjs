@@ -1164,6 +1164,8 @@ function createV3WorkerDecisionResolver({
       workerAudit.totalFailures++;
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
+    if(String(session?.stderr??'').includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE'))
+      roleAudit.policyDrawCount=null;
     roleAudit.lastFailureCode=code;
   };
   return async request=>{
@@ -1465,6 +1467,8 @@ async function runV3FixtureGame({
               policyVersion:candidatePolicy.POLICY_VERSION,
             });
             sessions.push(candidateSession);
+            workerAudit.roles.candidate.policyStreamProtocol=candidateSession.ready?.policyStreamProtocol??null;
+            workerAudit.roles.candidate.policyDrawCount=candidateSession.ready?.policyDrawCount??null;
           } catch(error) {
             lifecycleFailure('candidate',error);
             throw error;
@@ -1477,6 +1481,8 @@ async function runV3FixtureGame({
               policyVersion:opponentPolicy.POLICY_VERSION,
             });
             sessions.push(opponentSession);
+            workerAudit.roles.opponent.policyStreamProtocol=opponentSession.ready?.policyStreamProtocol??null;
+            workerAudit.roles.opponent.policyDrawCount=opponentSession.ready?.policyDrawCount??null;
           } catch(error) {
             lifecycleFailure('opponent',error);
             throw error;
@@ -2053,7 +2059,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,
