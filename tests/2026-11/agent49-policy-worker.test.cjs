@@ -41,7 +41,8 @@ function publicRestrictions() {
     abilityPokemonPlayLocked: false, evolutionPlayLocked: false,
     itemPlayLocked: false, supporterPlayLocked: false,
     stadiumPlayLocked: false, toolPlayLocked: false,
-    energyPlayLocked: false, specialEnergyPlayLocked: false
+    energyPlayLocked: false, specialEnergyPlayLocked: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0
   };
 }
 function publicPlayer() {
