@@ -331,6 +331,8 @@ jobs:
         run: node --test tests/agent21-secret-box-dci-payment.test.cjs
       - name: Regress Agent21 Copycat Prize-access multiplicity sensitivity
         run: node --test tests/agent21-copycat-prize-access-multiplicity.test.cjs
+      - name: Regress Agent43 early-turn Copycat Heavy Ball access bound
+        run: node --test tests/agent43-copycat-early-access.test.cjs
       - name: Verify exact hypergeometric Regidrago Treasure opening coexistence
         run: node --test tests/agent49-regidrago-treasure-openers.test.cjs
       - name: Verify externally pinned effective development profile identity
