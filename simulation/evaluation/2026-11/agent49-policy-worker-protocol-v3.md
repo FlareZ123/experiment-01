@@ -1,6 +1,6 @@
 # Agent49 policy-worker protocol v3
 
-**Status:** worker-side validation and response contract are implemented. The host prompt projector/dispatcher and persistent async game loop have not yet adopted the contract. The Node worker-process tests are committed but have not been run under Node or GitHub Actions. This document is an interface specification, not evidence of a completed simulator or competitive result.
+**Status:** worker-side validation and response contract are implemented. Agent36 has landed the host prompt projector/dispatcher refactor: actor-seat binding, per-item tokens, typed select-choices mapping and native raw-result validation are in place. The legacy token-only dispatcher fallback and actor-relative ownerSeat/isOwnerVisible metadata remain to be closed; the persistent async fixture loop and launcher/capability gate are not yet integrated. Node worker/host tests have not been run under Node or GitHub Actions. This is an interface specification, not evidence of a completed simulator or competitive result.
 
 ## Envelope and projection versions
 
@@ -83,13 +83,14 @@ Flat action metadata may include actor-relative `ownerSeat`, `targetSeat`, `sour
 
 ## Host integration checklist
 
-1. Include `actingSeat: actorSeat` in the frozen prompt projection and call `protocol.validatePrompt(frozen, actorSeat)`.
-2. For the five multi-select prompt types, emit individual item tokens plus the required special choices; remove combination/permutation enumeration.
-3. Pass the complete validated decision object to the prompt dispatcher.
-4. Map ordered token arrays to native raw selections and run native decode/validation before Store dispatch.
-5. Omit undefined source/target indices; emit actor-relative ownership and visibility metadata where unambiguous.
-6. Integrate the persistent worker into the awaited fixture loop with timeout, abort, stale-prompt and illegal-decision handling.
-7. Keep the existing launcher/RNG/permission gate closed until its separate tests pass.
+1. [x] Include `actingSeat: actorSeat` in the frozen prompt projection and call `protocol.validatePrompt(frozen, actorSeat)`.
+2. [x] For the five multi-select prompt types, emit individual item tokens plus the required special choices; remove combination/permutation enumeration.
+3. [x] Pass the complete validated decision object to the prompt dispatcher. Remove the remaining legacy token-only fallback before declaring the boundary closed.
+4. [x] Map ordered token arrays to native raw selections and run native decode/validation before Store dispatch.
+5. [x] Omit undefined source/target indices (Agent36 has added the source-index guard and regression test).
+6. [ ] Emit actor-relative `ownerSeat` and `isOwnerVisible` metadata where the target projection makes them unambiguous.
+7. [ ] Integrate the persistent worker into the awaited fixture loop with timeout, abort, stale-prompt and illegal-decision handling.
+8. [ ] Keep the existing launcher/RNG/permission gate closed until its separate tests pass.
 
 ## Current evidence and limitations
 
