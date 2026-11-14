@@ -74,7 +74,7 @@ function remainingHp(pokemon) {
   return pokemon.hp - pokemon.damage;
 }
 function metadata(item) { return item?.publicMetadata ?? {}; }
-function actionPrinting(item) { return metadata(item).cardPrinting ?? metadata(item).sourcePrinting ?? item?.label ?? ''; }
+function actionPrinting(item) { return item?.actorPrinting ?? item?.targetPrinting ?? metadata(item).sourcePrinting ?? item?.label ?? ''; }
 function sourceText(prompt) {
   return [prompt?.source?.effectName, prompt?.source?.sourceEffect, prompt?.source?.sourceAttack,
     prompt?.source?.printing, prompt?.source?.sourcePrinting, prompt?.source?.cardPrinting,
@@ -164,7 +164,7 @@ function discardCostPriority(choice, observation) {
 }
 
 function scoreAttack(item, observation) {
-  const name = metadata(item).attackName ?? metadata(item).sourceAttack ?? item?.label ?? '';
+  const name = item?.attackName ?? metadata(item).sourceAttack ?? item?.label ?? '';
   const own = observation?.ownPublic ?? {};
   if (name === 'Apex Dragon') return payloadCount(own) > 0 ? 210 : 75;
   if (name === 'Itchy Pollen') return 205;
@@ -249,7 +249,7 @@ function ownSwitchPriority(choice, observation) {
 }
 
 function gustChoicePriority(choice, observation) {
-  if (choice?.publicMetadata?.targetSeat === observation?.actorSeat) {
+  if (choice?.publicMetadata?.ownerSeat === 'actor') {
     return ownSwitchPriority(choice, observation);
   }
   return candidateTargetPriority(choice, observation);
@@ -258,17 +258,18 @@ function gustChoicePriority(choice, observation) {
 function targetPokemonFromChoice(choice, observation) {
   const meta = choice?.publicMetadata ?? {};
   if (meta.targetPokemon) return meta.targetPokemon;
-  const seat = meta.targetSeat;
-  const zone = meta.targetZone;
-  const index = meta.targetIndex;
-  const player = seat === observation?.actorSeat ? observation?.ownPublic : observation?.opponentPublic;
-  if (zone === 'active') return player?.active ?? null;
-  if (zone === 'bench' && Number.isSafeInteger(index)) return list(player?.bench)[index] ?? null;
+  const owner = meta.ownerSeat;
+  const zone = meta.zone;
+  const index = Number.isSafeInteger(meta.benchIndex) ? meta.benchIndex : meta.slotIndex;
+  const player = owner === 'actor' ? observation?.ownPublic :
+    (owner === 'opponent' ? observation?.opponentPublic : null);
+  if (player && zone === 'active') return player.active ?? null;
+  if (player && zone === 'bench' && Number.isSafeInteger(index)) return list(player.bench)[index] ?? null;
   return {
-    printing: meta.targetPrinting ?? meta.printing ?? choice?.label ?? '',
-    hp: meta.targetHp ?? choice?.hp,
-    damage: meta.targetDamage ?? choice?.damage,
-    printed: meta.targetPrinted ?? choice?.printed
+    printing: choice?.printing ?? choice?.label ?? '',
+    hp: choice?.hp,
+    damage: choice?.damage,
+    printed: choice?.printed
   };
 }
 
