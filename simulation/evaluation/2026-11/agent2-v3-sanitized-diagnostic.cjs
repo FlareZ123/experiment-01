@@ -243,13 +243,17 @@ function sanitizeQuickBallAudit(audit) {
 
 function sanitizeIdentity(identity) {
   if(!identity||typeof identity!=='object')return null;
+  const projection=pick(identity,[
+    'policyProducerId','deckSha256','policySha256',
+    'entryManifestSha256','challengeSuiteSha256'
+  ]);
   return {
-    identitySha256:sha256Json(identity),
-    policyProducerId:identity.policyProducerId??null,
-    deckSha256:identity.deckSha256??null,
-    policySha256:identity.policySha256??null,
-    entryManifestSha256:identity.entryManifestSha256??null,
-    challengeSuiteSha256:identity.challengeSuiteSha256??null
+    identitySha256:sha256Json(projection),
+    policyProducerId:projection.policyProducerId??null,
+    deckSha256:projection.deckSha256??null,
+    policySha256:projection.policySha256??null,
+    entryManifestSha256:projection.entryManifestSha256??null,
+    challengeSuiteSha256:projection.challengeSuiteSha256??null
   };
 }
 
@@ -272,10 +276,10 @@ function sanitizeFixtureArtifact(artifact) {
     finished:rawGame.finished===true,
     endReason:rawGame.endReason??artifact.summary?.endReason??'unknown',
     winner:rawGame.winner??artifact.summary?.winner??null,
-    winnerSeat:Number.isInteger(rawGame.winnerSeat)?rawGame.winnerSeat:null,
-    actualFirstPlayerSeat:Number.isInteger(rawGame.actualFirstPlayerSeat)?
+    winnerSeat:rawGame.winnerSeat===0||rawGame.winnerSeat===1?rawGame.winnerSeat:null,
+    actualFirstPlayerSeat:rawGame.actualFirstPlayerSeat===0||rawGame.actualFirstPlayerSeat===1?
       rawGame.actualFirstPlayerSeat:
-      (Number.isInteger(artifact.trial?.actualFirstPlayerSeat)?
+      (artifact.trial?.actualFirstPlayerSeat===0||artifact.trial?.actualFirstPlayerSeat===1?
         artifact.trial.actualFirstPlayerSeat:null),
     actions:Number.isSafeInteger(rawGame.actions)?rawGame.actions:
       (Number.isSafeInteger(rawGame.acceptedActions)?rawGame.acceptedActions:0),
