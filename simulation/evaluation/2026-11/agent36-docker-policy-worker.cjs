@@ -368,7 +368,7 @@ function spawnDockerPolicyWorker({
   assert.ok(entrypoint.startsWith('/policy/'),'worker entrypoint must be inside /policy');
   assert.equal(path.posix.normalize(entrypoint),entrypoint,
     'worker entrypoint must be canonical');
-  assert.ok(!entrypoint.includes('..')&&!entrypoint.includes('\\\\'),
+  assert.ok(!entrypoint.includes('..')&&!entrypoint.includes('\\'),
     'invalid worker entrypoint');
   const relativeEntrypoint=entrypoint.slice('/policy/'.length);
   assert.ok(bundle.manifest.files.some(file=>file.path===relativeEntrypoint),
