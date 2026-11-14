@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v9-headquarters-copycat-cost';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v10-basic-lock-stadium-suppression';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -46,6 +46,50 @@ function publicStadiumPrintings(view){
   return zones.flat();
 }
 
+/**
+ * Resolve Stadium effects on the acting player's Pokémon only. The epoch is
+ * a public per-player Store field; New Moon additionally suppresses Stadium
+ * effects done to its controller's Pokémon while Solrock is in play.
+ * Missing metadata is unknown, never evidence that a Stadium is effective.
+ * @param {object} own actor-visible ownPublic
+ * @returns {boolean|null}
+ */
+function ownerStadiumEffectsSuppressed(own){
+  const turns=own?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if(!Number.isSafeInteger(turns)||turns<0||!Array.isArray(own?.bench))
+    return null;
+  const board=[own.active,...own.bench].filter(Boolean);
+  for(const pokemon of board){
+    if(!Array.isArray(pokemon.abilities)||
+       !Array.isArray(pokemon.abilityDetails))return null;
+  }
+  const lunatone=board.find(pokemon=>pokemon.abilities.includes('New Moon'));
+  let newMoonActive=false;
+  if(lunatone){
+    const ability=lunatone.abilityDetails.find(row=>row?.name==='New Moon');
+    if(typeof ability?.text!=='string'||
+       !/prevent all effects of any Stadium done to your Pokémon in play/i
+         .test(ability.text))return null;
+    newMoonActive=board.some(pokemon=>
+      typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
+  }
+  return turns>0||newMoonActive;
+}
+
+/**
+ * This narrow attack route models only two Stadium effects: Dimension Valley
+ * and Pokémon League Headquarters attack-cost changes. Other Stadiums can
+ * alter damage, Weakness, Prize value, retreat or attack legality, so they
+ * are rejected rather than silently treated as inert.
+ * @param {string[]} stadiums exact public Stadium printings
+ * @returns {boolean}
+ */
+function hasUnmodelledStadium(stadiums){
+  return stadiums.some(printing=>
+    !printing.startsWith('Dimension Valley ')&&
+    !printing.startsWith('Pokémon League Headquarters '));
+}
+
 function prizeCountForTarget(target,catalog){
   if(Number.isSafeInteger(target?.prizeCount))return target.prizeCount;
   const subtypes=Array.isArray(target?.printed?.subtypes)?
@@ -66,9 +110,20 @@ function prizeCountForTarget(target,catalog){
   return 1;
 }
 
-function copycatPowerBeamAvailable(active,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
-  if(!Array.isArray(active?.attacks)||!Array.isArray(active?.energies))
-    return null;
+function opponentActiveBlocksBasicAttacks(opponentActive){
+  if(!opponentActive||!Array.isArray(opponentActive.abilityDetails))return null;
+  return opponentActive.abilityDetails.some(ability=>
+    typeof ability?.text==='string'&&
+    /your opponent's Basic Pokémon can't attack/i.test(ability.text));
+}
+
+function copycatPowerBeamAvailable(active,opponentActive,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
+  if(!Array.isArray(active?.attacks)||!Array.isArray(active?.energies)||
+     !Array.isArray(active?.printed?.subtypes)||
+     !active.printed.subtypes.includes('Basic'))return null;
+  const basicAttackBlocked=opponentActiveBlocksBasicAttacks(opponentActive);
+  if(basicAttackBlocked===null)return null;
+  if(basicAttackBlocked)return false;
   const copycat=active.attacks.find(attack=>
     attack?.name==='Copycat'&&attack.gxAttack!==true);
   if(!copycat)return false;
@@ -181,20 +236,24 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(Array.isArray(active.specialConditions)&&
      ((asleep&&active.specialConditions.includes(asleep))||
       (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
-  // Wondrous Labyrinth adds [C] to Max Geist; Dimension Valley removes
-  // [C] from Psychic attacks. Read the actual actor-observation Stadium arrays.
+  // Stadium identity is insufficient: only the two cost modifiers below are
+  // modeled, and their effects may be suppressed for the acting player.
   const stadiums=publicStadiumPrintings(view);
+  const stadiumSuppressed=ownerStadiumEffectsSuppressed(own);
   if(opponentActiveBlocksRetreat(view)||
      publicSkylinerSuppressionReason(view)!==null||
-     stadiums===null||
-     stadiums.some(printing=>printing.startsWith('Wondrous Labyrinth Prism Star'))||
+     stadiums===null||stadiumSuppressed===null||
+     hasUnmodelledStadium(stadiums)||
      opponentHasUnmodelledWeaknessText(view))
     return null;
-  const dimensionValleyActive=stadiums.some(printing=>
+  const hasDimensionValley=stadiums.some(printing=>
     printing.startsWith('Dimension Valley '));
-  const pokemonLeagueHeadquartersActive=stadiums.some(printing=>
+  const hasPokemonLeagueHeadquarters=stadiums.some(printing=>
     printing.startsWith('Pokémon League Headquarters '));
-  if(dimensionValleyActive&&pokemonLeagueHeadquartersActive)return null;
+  if(hasDimensionValley&&hasPokemonLeagueHeadquarters)return null;
+  const dimensionValleyActive=!stadiumSuppressed&&hasDimensionValley;
+  const pokemonLeagueHeadquartersActive=
+    !stadiumSuppressed&&hasPokemonLeagueHeadquarters;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
@@ -260,7 +319,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   let competingPowerBeamAvailable=false;
   if(radiantInDiscard){
     const copycatAvailable=copycatPowerBeamAvailable(
-      active,restrictions,catalog,dimensionValleyActive,
+      active,target,restrictions,catalog,dimensionValleyActive,
       pokemonLeagueHeadquartersActive);
     if(copycatAvailable===null)return null;
     competingPowerBeamAvailable=copycatAvailable;
@@ -289,8 +348,12 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     targetRemainingHp,
     projectedPrizeCount,
     projectedTerminalWin,
+    competingPowerBeamAvailable,
     competingPowerBeamDamage,
     competingPowerBeamWouldKo,
+    ownerStadiumEffectsSuppressed:stadiumSuppressed,
+    dimensionValleyActive,
+    pokemonLeagueHeadquartersActive,
     retainedBasicPsychicEnergyCount,
     activeLiability:'three-Prize VMAX exposure is allowed only for a terminal KO; a payable terminal Power Beam route vetoes it',
     routeComparison:competingPowerBeamAvailable?
