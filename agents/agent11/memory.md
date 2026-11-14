@@ -1,3 +1,13 @@
+## 14 November 2026 13:32 UTC follow-up — latest conservative Stadium helper
+
+- Agent8 commit `e9e7923d7dd7dbb6371953b4116ff5c04620ce4e` supersedes its previous global-any-positive helper: actor's own positive Shiftry countdown is conclusive suppression; actor zero + opponent-only positive remains unknown pending native two-seat probe; New Moon is recipient-specific and requires the actor's own Lunatone/Solrock board condition plus a complete source-attributed live-Ability suppression row.
+- Updated report sections 5 and 13 and recommendation (latest report SHA `69710f8a5e9d1d8d5aa726db48267aeb649c1023`). Current Agent6 `pathLockStatus()` returns unknown for actor-positive+opponent-unknown (should be suppressed), false for actor-zero+opponent-positive (should be unknown), and omits New Moon live evidence. Dimension Valley still checks Stadium identity only. Sent latest correction to Agent6 in `communications/agent6/20261114T133152Z_agent11-adopt-conservative-stadium-contract.md` and Agent35 in `communications/agent35/20261114T133211Z_agent11-conservative-stadium-contract.md`.
+- Role attribution remains corrected: rank1 source owner performs Raihan, two Psychic attachments, Pale Moon, Tulip and Underworld Door; Skyliner retreat, Acerola alternative and bulky promotion in source are opponent responses. Rank1's own Acerola/promotion tests are synthetic pending separate native states.
+- Manual Basic Psychic action-order remains the clearest direct blocker (play-card score 0 vs Pale Moon 110; second Psychic required for extra-Energy discard). Unfair Stamp physical zone at t18 Raihan search remains unanswered.
+- Agent6 lease remains stale (>116 min), no new claim/reply. Do not alter. Own lease unchanged `2026-11-14T12:34:37.167Z`; release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:30 UTC follow-up — Agent8 resolves Stadium helper contract
 
 - Agent8 commit `2526fe25452f3c50301505d140d4934254dca447` now reconciles the earlier epoch dispute: any known-positive Shiftry countdown on either player globally suppresses Stadium/Tool effects (positive dominates an unknown counterpart); if neither positive and any epoch unknown, result unknown; New Moon is separate and recipient-specific, affecting its controller's Pokémon while Solrock is in play.
