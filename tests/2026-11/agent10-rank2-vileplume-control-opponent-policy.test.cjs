@@ -879,7 +879,7 @@ test('Guzma & Hala declines its discard-two mode when no K0 Stage card remains f
 test('Bunnelby uses the Technical Machine: Evolution attack when a K0 Bench evolution target is available', () => {
   const request = rootRequest({
     ownPublic: player({
-      active: pokemon('Bunnelby PRC', {
+      active: pokemon('Bunnelby PRC 121', {
         tools: ['Technical Machine: Evolution PAR']
       }),
       bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
@@ -901,7 +901,7 @@ test('Bunnelby uses the Technical Machine: Evolution attack when a K0 Bench evol
 test('Bunnelby prefers Burrow over Technical Machine: Evolution when it can deck out the opponent immediately', () => {
   const request = rootRequest({
     ownPublic: player({
-      active: pokemon('Bunnelby PRC', {
+      active: pokemon('Bunnelby PRC 121', {
         tools: ['Technical Machine: Evolution PAR']
       }),
       bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
@@ -931,7 +931,7 @@ test('Bunnelby Barrage attack-choice prompt selects Evolution when the K0 line i
     ],
     observation: {
       ownPublic: player({
-        active: pokemon('Bunnelby PRC', {
+        active: pokemon('Bunnelby PRC 121', {
           tools: ['Technical Machine: Evolution PAR']
         }),
         bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
