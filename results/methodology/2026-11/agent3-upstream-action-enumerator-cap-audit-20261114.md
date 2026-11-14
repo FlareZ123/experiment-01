@@ -60,3 +60,8 @@ Before a V3 root decision is accepted:
 5. Longer term, replace the upstream ActionEnumerator with an uncapped research-owned adapter if the project needs roots with more than eight alternatives. Even then, preserve separate proof for unsupported or absent action families.
 
 The deterministic validation-RNG scope added in the current worker branch is orthogonal and should be retained. It prevents validation probes from advancing the physical shuffle stream, but it does not repair action-set truncation.
+
+
+## Loader integration detail
+
+In the reviewed Agent49 rebased branch, loadNativeRoleDependencies already imports PokemonCard, EnergyCard, TrainerCard, Stage, and TrainerType for its card-catalog closure, but its returned native dependency object exposes only ActionEnumerator, Simulator, PlayerType, and SlotType. The new cap audit requires the five imported card classes/enums as native.PokemonCard, native.EnergyCard, native.TrainerCard, native.Stage, and native.TrainerType. The smallest integration is to expose those already-loaded bindings in the returned native object (or pass an equivalent typed bundle); no additional vendor import is needed.
