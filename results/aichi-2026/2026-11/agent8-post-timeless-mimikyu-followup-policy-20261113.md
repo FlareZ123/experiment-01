@@ -175,7 +175,7 @@ Agent44's native reproduction establishes the acting-player-positive case: with 
 
 The helper therefore uses the directly reproduced own-positive case, returns unknown for an opponent-only positive epoch, and returns unknown when a required epoch is missing/malformed unless the actor's own positive value already proves suppression. Regression opponentEpochSuppressesValley explicitly tests the opponent-only unknown case; commit 2526fe2 (global assumption, superseded) and current correction e9e7923; test 7bbf8ca.
 
-New Moon is separately recipient-specific. The visible Lunatone + Solrock pair is not treated as proof that the Ability is live: the actor observation currently lacks source-attributed abilitySuppressions rows, so the helper abstains unless a complete row explicitly says suppressed:false (or suppressed:true proves it inactive). The synthetic tests cover live, suppressed, and missing-status cases. Actor-observation/worker integration remains open.
+New Moon is separately recipient-specific. The visible Lunatone + Solrock pair is not treated as proof that the Ability is live: actorObservation now emits complete per-Ability rows, but currently marks them suppressed:null with no source attribution. The helper abstains unless a complete row explicitly says suppressed:false (or suppressed:true with reason/source proves it inactive). The synthetic tests cover live, suppressed, and missing-status cases. Source-attributed true/false projection remains open.
 
 
 ## 14 November follow-up: provisional suppression contract (helper v12)
@@ -184,11 +184,14 @@ Agent5's review and the Agent11 correction supersede the earlier global-epoch as
 
 - Acting-player epoch >0: Stadium effects on the acting player's Pokémon are treated as suppressed, matching the existing native owner-side reproduction. This remains the only cross-turn epoch case with direct Store evidence.
 - Opponent-only epoch >0: return unknown and abstain. Agent44's quoted pinned helper suggests a global state.players.some(epoch > 0) rule, while the actor-only interpretation has also been proposed; the decisive actor=0/opponent=1 Store probe from both physical seats has not run.
-- New Moon + Solrock on the acting player's board: require a complete source-attributed abilitySuppressions row for New Moon. suppressed:false proves it live and suppresses Stadium effects on the acting player's Pokémon; suppressed:true with reason/source proves it inactive; missing/null status is unknown. The current actorObservation producer does not yet emit these rows, so real New Moon states currently fail closed rather than being guessed from printed text.
+- New Moon + Solrock on the acting player's board: require a complete source-attributed abilitySuppressions row for New Moon. suppressed:false proves it live and suppresses Stadium effects on the acting player's Pokémon; suppressed:true with reason/source proves it inactive; missing/null status is unknown. The current actorObservation producer emits explicit unknown rows (suppressed:null) but cannot yet prove source-attributed true/false status, so real New Moon states still fail closed rather than being guessed from printed text.
 - Opponent-side New Moon is ignored for the acting player's Stadium effects, preserving the ability's recipient direction.
 
-The actor observation now preserves both raw player epochs, but the worker schema still treats the epoch as optional; Agent49 needs to make it required and keep malformed/null producer values rejected. The actor producer's source-attributed Ability suppression projection is also an outstanding Agent34/Agent49 integration task.
+The actor observation now preserves both raw player epochs, but the worker schema still treats the epoch as optional; Agent49 needs to make it required and keep malformed/null producer values rejected. The actor producer now carries complete unknown Ability rows; source-attributed true/false resolution remains an outstanding Agent34/Agent49 integration task.
 
 Current implementation commits: provisional helper e9e7923, version label 58d62c9, New Moon/epoch regressions c541412 + target adjustment aa00286. The earlier global helper commit 2526fe2 is superseded and must not be used as the current semantics.
 
 **Validation boundary:** all new tests remain unexecuted. No two-seat native probe, CI, V3 worker, game, matchup, or competitive result has been produced.
+
+
+Actor-view unknown-row commits: producer `02dd5ae`, contract assertion `dd59142`. Direct integration requests to Agent34/Agent49 ask for complete source-attributed true/false facts and required worker schema keys; until then New Moon remains unknown.
