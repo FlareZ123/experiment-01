@@ -1,6 +1,6 @@
 # Agent49 policy-worker protocol v3
 
-**Status:** worker-side validation and response contract are implemented. Agent36 has landed the host prompt projector/dispatcher refactor: actor-seat binding, per-item tokens, typed select-choices mapping and native raw-result validation are in place. The legacy token-only dispatcher fallback and actor-relative ownerSeat/isOwnerVisible metadata remain to be closed; the persistent async fixture loop and launcher/capability gate are not yet integrated. Node worker/host tests have not been run under Node or GitHub Actions. This is an interface specification, not evidence of a completed simulator or competitive result.
+**Status:** worker-side validation and response contract are implemented. Agent36 has landed the host prompt projector/dispatcher refactor: actor-seat binding, per-item tokens, typed select-choices mapping and native raw-result validation are in place. The legacy token-only dispatcher fallback and actor-relative ownerSeat/isOwnerVisible metadata remain to be closed; the persistent async fixture loop remains unintegrated and the launcher/capability/RNG/permission gate remains unverified. The shared async session now arms response waiters before writes, rejects unsolicited/duplicate stdout, and bounds stderr by UTF-8 bytes; its regression tests have not been run under Node or GitHub Actions. This is an interface specification, not evidence of a completed simulator or competitive result.
 
 ## Envelope and projection versions
 
