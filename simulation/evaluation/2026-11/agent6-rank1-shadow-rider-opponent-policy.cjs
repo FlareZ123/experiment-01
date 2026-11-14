@@ -353,14 +353,18 @@ function scorePokemonChoice(choice, observation, mode) {
   const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing);
   if (!slot) return -1;
 
-  if (mode === 'underworld') {
+  if (mode === 'underworld' || mode === 'raihan') {
     const energy = psychicEnergyOn(slot);
-    if (matches(slot.printing, PRINT.latias) && energy < 2) return 120 - energy * 5;
-    if (matches(slot.printing, PRINT.trevenant) && energy < 3) return 110 - energy * 5;
-    if (matches(slot.printing, PRINT.mimikyu) && energy < 2) return 95 - energy * 5;
-    if (matches(slot.printing, PRINT.shadowRiderVmax)) return 85 - energy;
-    if (matches(slot.printing, PRINT.shadowRiderV)) return 70 - energy;
-    return 20 - energy;
+    const active = meta.targetZone === 'active';
+    const stadiums = activeStadiums(observation);
+    if (matches(slot.printing, PRINT.latias) && energy < 2) return 135 - energy * 5;
+    if (matches(slot.printing, PRINT.trevenant) && energy < 3) return 125 - energy * 5;
+    if (matches(slot.printing, PRINT.girafarig) && energy < 1 &&
+        !stadiums.some(stadium => /Dimension Valley/i.test(stadium))) return 115;
+    if (matches(slot.printing, PRINT.mimikyu) && energy < 2) return 100 - energy * 5;
+    if (matches(slot.printing, PRINT.shadowRiderVmax)) return 95 - energy;
+    if (matches(slot.printing, PRINT.shadowRiderV)) return 80 - energy;
+    return mode === 'raihan' ? 25 - energy : 20 - energy;
   }
 
   if (mode === 'promotion') {
@@ -452,6 +456,27 @@ function cardSearchScore(printing, request, effectName) {
   return -1;
 }
 
+function getLostChoiceScore(choice) {
+  if (choiceOwner(choice) !== 'opponent' ||
+      !/discard/i.test(choiceZone(choice))) return -1;
+  const printing = choicePrinting(choice);
+  if (/Special Charge|Energy Retrieval|Superior Energy Retrieval|Night Stretcher|Ordinary Rod|Super Rod|VS Seeker|Battle Compressor/i.test(printing)) return 150;
+  if (/Double Colorless Energy|Double Dragon Energy|Rainbow Energy|Prism Energy|Special Energy/i.test(printing)) return 140;
+  if (/Guzma|Raihan|Tulip|Teammates|N|Professor|Iono/i.test(printing)) return 120;
+  if (/VMAX|\b-GX\b|\bex\b/i.test(printing)) return 90;
+  if (matches(printing, PRINT.psychic)) return 65;
+  return 30;
+}
+
+function fieldBlowerChoiceScore(choice) {
+  if (choiceOwner(choice) !== 'opponent') return -1;
+  const printing = choicePrinting(choice);
+  if (/Path to the Peak|Silent Lab|Garbotoxin|Garbotoxin Tool/i.test(printing)) return 180;
+  if (choiceZone(choice) === 'tool') return 110;
+  if (choiceZone(choice) === 'stadium') return 100;
+  return -1;
+}
+
 function discardChoiceScore(choice, observation) {
   const printing = choicePrinting(choice);
   const hand = observation.ownHand;
@@ -489,6 +514,7 @@ function promptDecision(request) {
   if (prompt.promptType === 'ChoosePokemonPrompt' || selectionType === 'pokemon') {
     let mode = '';
     if (includes(effect, 'Underworld Door')) mode = 'underworld';
+    else if (includes(effect, 'Raihan')) mode = 'raihan';
     else if (includes(effect, 'Acerola')) mode = 'acerola';
     else if (includes(effect, 'Climactic Gate')) mode = 'evolution';
     else if (observation.ownPublic.active === null) mode = 'promotion';
@@ -544,7 +570,8 @@ function promptDecision(request) {
       const knownSearchEffect = [
         'Tulip', 'Mysterious Treasure', 'Raihan', 'Fog Crystal',
         'Night Stretcher', 'Battle Compressor', 'Teammates', 'VS Seeker',
-        'Quick Ball', 'Forest Seal Stone', 'Hisuian Heavy Ball', 'Climactic Gate'
+        'Quick Ball', 'Forest Seal Stone', 'Hisuian Heavy Ball', 'Climactic Gate',
+        'Field Blower', 'Get Lost'
       ].some(name => includes(effect, name));
       if (!knownSearchEffect) {
         return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
@@ -555,6 +582,10 @@ function promptDecision(request) {
           cardChoices.some(choice => choiceZone(choice) === 'hand')) {
         scored = sortedChoiceTokens(cardChoices,
           choice => discardChoiceScore(choice, observation));
+      } else if (includes(effect, 'Field Blower')) {
+        scored = sortedChoiceTokens(cardChoices, fieldBlowerChoiceScore);
+      } else if (includes(effect, 'Get Lost')) {
+        scored = sortedChoiceTokens(cardChoices, getLostChoiceScore);
       } else {
         scored = sortedChoiceTokens(cardChoices, choice =>
           cardSearchScore(choicePrinting(choice), request, effect));
