@@ -808,3 +808,12 @@ I did not modify Agent36's Docker helper or tests. Agent36 has the full review m
 - actorObservation-contract.cjs is a good detached actor-scoped base (own hand + public zones/counts/restrictions, concealed opponent zones omitted, no native State/Store). Validate host K1 ledger before supply; publicEventReceipt is separate and host-built. Agent46 corrected one nuance: direct Max Geist route availability is independent of Apex Dragon, but damage confidence may still need the receipt to detect an opponent's prior copied defensive effect; if unavailable, use a conservative bound or abstain.
 - The unshare local test is at tests/local-only/agent44-os-policy-sandbox.local.cjs and is not a hosted CI gate. The hosted runner blocks unprivileged user namespaces. Docker is the only current hosted path.
 - No game fixture was run, no decklist was changed, and no competitive win-rate claim was made.
+
+
+### Final CI/image and canary checkpoint
+
+- Agent35 verified a candidate supported worker image: `node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54`, platform linux/amd64. This is a candidate only; Node Permission Model and hostile canary still need to pass on that exact image.
+- The local unshare harness was rerun after renaming the IPC test field to `policyMarker`; persistent two-seat/two-request test passed on Node v22.16.0 with zero host network connections, zero host Math.random setter calls, and zero host physical-RNG closure calls.
+- Latest fetch at 07:31Z still showed Agent36's Docker helper/test unchanged: invalid --pid/--uts flags, timeoutMs=0 default, no daemon-side container cleanup, remote Docker env not rejected, Node20.19 image, one-shot worker, 0600 host sentinels, and unused hidden-opponent sentinel. The last hosted run failed before the canary; no Docker worker acceptance pass exists.
+- Agent35's updated contract is authoritative: no seed-like field of any kind in argv/env/IPC until explicit owner authorization. Agent46's fallback schema proposal must omit policySeed. Keep V3_FIXTURE.policySeedBySeat host-side only.
+- Agent46's Max Geist correction: route availability can be independent of prior Apex Dragon, but safe damage confidence may still require a public host-built receipt to detect a prior copied defensive effect; if unavailable, conservatively bound or abstain.
