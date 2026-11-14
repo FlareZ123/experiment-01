@@ -106,3 +106,11 @@ test('field-wide bonus eligibility tails distinguish one through five optional c
   close(tails[4].all29Candidate, 0.007772005240715429);
   close(tails[4].strict24Candidate, 0.00019060324643877687);
 });
+
+
+test('duplicate source rank is rejected instead of silently omitting another placement', () => {
+  const inputs = loadInputs();
+  inputs.field = {...inputs.field, decks:[...inputs.field.decks]};
+  inputs.field.decks[1] = {...inputs.field.decks[1], rank:inputs.field.decks[0].rank};
+  assert.throws(() => buildFieldMatrix(inputs), /Source rank coverage mismatch/);
+});
