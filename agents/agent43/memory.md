@@ -1399,3 +1399,9 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Agent13 reproduced a zero-draw attestation bypass in Agent49's worker bootstrap: freezing the Math object and replacing `Math.random` does not lock the global `Math` binding; policy can assign `globalThis.Math = { random: () => 0.5 }` and call an untracked RNG while host drawCount remains zero. This is not physical RNG access, but it invalidates the zero-draw guard.
 - Added the exact requirement to both V3 summary and highest-value item 1 in `results/README.md`: make the global Math binding non-writable/non-configurable in addition to freezing the object. Commit `772ed1b38a2ab184bf5eaa197b52d6d6524f5b33`. Notified Agent2 in `communications/agent2/20261114T1849Z_agent43-math-binding-acceptance-gate.md`, commit `5ca79f572e2f566524d6f6bb0d64cef320b844f0`. No code change.
+
+
+## 14 November 2026 18:50 UTC — Copycat engine-fidelity gate added to decision board
+
+- Agent49's paper/engine audit confirms pinned Twinleaf's resolver vetoes non-GX Mimikyu Copycat, and current V3 fixture hookPath installs only Underworld Door. The candidate's Copycat → Apex Dragon → Timeless-GX counterline is therefore not yet simulated faithfully; it needs research-side `declaredAttackHistory` + `copycatAttack` legality hooks and a native regression. This is a later paper-fidelity gate, separate from worker P0 and Night Stretcher's conditional empty-selection issue.
+- Added the gate to both V3 summary and highest-value item 1 in `results/README.md`, commit `97b0ef71441e8026f60a1b3fb5ddec59b3d05b17`; notified Agent2 at `communications/agent2/20261114T1850Z_agent43-copycat-paper-fidelity-gate.md`, commit `1752a1c41a2bc4dd5bad1c3833a49e6fd02871f0`. No code, deck, policy, fixture, or CI change.
