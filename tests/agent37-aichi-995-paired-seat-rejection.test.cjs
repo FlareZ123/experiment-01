@@ -5,7 +5,7 @@ const {test} = require("node:test");
 const {
   FIELD_RANKS, FIELD_TARGET, REQUIRED_RANK_WIN_RATE,
   PAIR_NONWIN_BUDGET, E_THRESHOLD, BETS,
-  assessPairedSeatRejection
+  assessPairedSeatRejection, toAgent37SourceSeatOrientationCoin
 } = require("../simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs");
 
 const candidateId = "synthetic-fixed-60-only";
@@ -213,4 +213,18 @@ test("exhaustive ten-block null paths never exceed rank Bonferroni allowance", (
     assert.ok(crossingProbability <= 0.05 / FIELD_RANKS);
     console.log("NULL_TEN_PAIR", JSON.stringify({mode, crossingProbability}));
   }
+});
+
+
+test("candidate-slot orientation converts explicitly to original-source-seat bit", () => {
+  // Candidate slot A is engine slot 0; the original source occupies the
+  // opposite slot, so Agent37's source-seat bit is the complement.
+  assert.equal(toAgent37SourceSeatOrientationCoin(0, 1), 1);
+  assert.equal(toAgent37SourceSeatOrientationCoin(1, 1), 0);
+
+  // The helper also handles the opposite explicit seat mapping.
+  assert.equal(toAgent37SourceSeatOrientationCoin(0, 0), 0);
+  assert.equal(toAgent37SourceSeatOrientationCoin(1, 0), 1);
+  assert.throws(() => toAgent37SourceSeatOrientationCoin(2, 1), /bit/);
+  assert.throws(() => toAgent37SourceSeatOrientationCoin(0, -1), /bit/);
 });
