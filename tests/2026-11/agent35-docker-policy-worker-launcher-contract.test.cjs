@@ -34,7 +34,7 @@ async function withFakeDocker(run){
     "fs.appendFileSync("+JSON.stringify(capture)+",JSON.stringify({args,envKeys:Object.keys(process.env).sort()})+'\\n');",
     "if(args[0]==='version'){process.stdout.write(args[2]==='{{.Client.Version}}'?'27.0.0\\n':'27.0.0\\n');process.exit(0);}",
     "if(args[0]==='info'){process.stdout.write('linux/x86_64\\n');process.exit(0);}",
-    "if(args[0]==='image'&&args[1]==='inspect'){if(args[3]==='{{.Id}}')process.stdout.write('sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n');else process.stdout.write(JSON.stringify(['node@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54'])+'\\n');process.exit(0);}",
+    "if(args[0]==='image'&&args[1]==='inspect'){if(args[4]==='{{.Id}}')process.stdout.write('sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n');else process.stdout.write(JSON.stringify(['node@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54'])+'\\n');process.exit(0);}",
     "if(args[0]==='run'){process.stdout.write('v24.22.3\\n');process.exit(0);}",
     "process.exit(0);"
   ].join('\n')+'\n';
@@ -133,7 +133,7 @@ test('worker launcher uses only the constrained policy bundle and seed-free envi
   {skip:process.platform!=='linux'},async()=>{
     const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent35-policy-source-'));
     const workerPath=path.join(sourceRoot,'worker.cjs');
-    fs.writeFileSync(workerPath,"'use strict';\\nprocess.exit(0);\\n",{mode:0o600});
+    fs.writeFileSync(workerPath,"'use strict';\nprocess.exit(0);\n",{mode:0o600});
     const bundle=createPolicyBundle({
       sourceRoot,
       policyFiles:[{
