@@ -83,7 +83,7 @@ function isOpponentApexDragonReceipt(view){
     last.gxAttack===false&&last.copycatAttack===false;
 }
 
-function opponentActiveHasUnmodelledDamageModifier(active){
+function opponentActiveHasUnmodelledDamageModifier(active,catalog={}){
   if(!active||!Array.isArray(active.tools)||active.tools.length>0)return true;
   const abilities=Array.isArray(active.abilityDetails)?active.abilityDetails:[];
   if(abilities.some(ability=>
@@ -95,7 +95,9 @@ function opponentActiveHasUnmodelledDamageModifier(active){
      restrictions.cannotBeDamaged===true)return true;
   const resistance=Array.isArray(active.printed?.resistance)?
     active.printed.resistance:[];
-  return resistance.some(entry=>entry?.type==='Psychic');
+  const psychicType=catalog.basicEnergyTypes?.Psychic;
+  return resistance.some(entry=>entry?.type==='Psychic'||
+    (Number.isSafeInteger(psychicType)&&entry?.type===psychicType));
 }
 
 /**
@@ -135,7 +137,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   // Do not infer that the same Regidrago which used Apex Dragon has no
   // lingering copied attack effect (e.g. a defensive payload).
   if(target.printing===REGIDRAGO_VSTAR||
-     opponentActiveHasUnmodelledDamageModifier(target))return null;
+     opponentActiveHasUnmodelledDamageModifier(target,catalog))return null;
 
   if(resources.retreatedTurn===view.globalTurn||
      active.publicRestrictions?.cannotRetreat===true||
@@ -182,11 +184,14 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   const fairyZoneActive=ownBoard.some(pokemon=>
     pokemon?.printing===CLEFAIRY_EX&&
     Array.isArray(pokemon.abilities)&&pokemon.abilities.includes('Fairy Zone'));
-  const targetIsDragon=Array.isArray(target.printed?.types)&&
-    target.printed.types.includes('Dragon');
+  const targetIsDragon=catalog.dragonPokemonPrintings instanceof Set?
+    catalog.dragonPokemonPrintings.has(target.printing):
+    Array.isArray(target.printed?.types)&&target.printed.types.includes('Dragon');
   if(!Array.isArray(target.printed?.weakness))return null;
+  const psychicType=catalog.basicEnergyTypes?.Psychic;
   const psychicWeakness=target.printed.weakness.find(entry=>
-    entry?.type==='Psychic');
+    entry?.type==='Psychic'||
+    (Number.isSafeInteger(psychicType)&&entry?.type===psychicType));
   const fairyZoneMultiplier=fairyZoneActive&&targetIsDragon?2:1;
   let weaknessMultiplier=1;
   if(fairyZoneMultiplier===2){
