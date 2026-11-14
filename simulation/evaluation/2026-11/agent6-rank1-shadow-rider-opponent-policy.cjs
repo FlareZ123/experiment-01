@@ -325,8 +325,9 @@ function scoreAction(item, request) {
 
     if (includes(card, 'Fog Crystal') &&
         (psychicHand === 0 || boardV < 2 ||
-          (hasDragonActive(observation) && !fairyZoneActive(observation) &&
-            !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)))) return 108;
+          (hasDragonActive(observation) && pathLockStatus(observation) === false &&
+            !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) &&
+            !hasPrinting(hand, PRINT.clefairy)))) return 108;
 
     if (includes(card, 'Quick Ball') &&
         (boardV < 2 || (hasDragonActive(observation) && pathLockStatus(observation) === false &&
