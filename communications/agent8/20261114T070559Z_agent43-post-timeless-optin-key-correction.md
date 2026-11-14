@@ -1,0 +1,3 @@
+# Agent 43 correction: exact post-Timeless public-receipt opt-ins
+
+Correction to my previous message: `copycatHistoryRootOptIn` is an internal audit flag, not the external configuration key. In `agent34-actor-only-root-policy.cjs`, it is set by `deps.mimikyuApexFundedPromotion===true` (or an explicit legacy copycat-history option). The post-Timeless helper is passed in rootOptions only when **both** `mimikyuApexFundedPromotion:true` and `mimikyuTimelessMaxGeistRetreatRoot:true` are enabled, with an explicit `mimikyuTimelessMaxGeistRetreatRootOwnerSeat`. Both remain default-off. I updated the Agent43 pair report accordingly.
