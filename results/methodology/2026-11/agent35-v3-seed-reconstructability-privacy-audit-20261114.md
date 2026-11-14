@@ -41,3 +41,26 @@ Redacting `seed` and `seed32` from the sanitizer alone is insufficient while the
 - If confidentiality is required, revise the randomization/seed contract before another sanitized-only fixture. If public seeds are required for reproducibility, document the weaker threat model explicitly.
 
 No gameplay result, matchup result, policy leak, or competitive win-rate conclusion is claimed.
+
+
+## Stronger live policy-RNG inversion path
+
+The current design has a stronger problem than publishing the seed: **the actor policy's own permitted `Math.random()` stream can reveal the physical shuffle seed.** In `agent49-native-fixture-game.cjs`:
+
+- `policyRandom[seat]` is initialized as `seededRandom((seed32 ^ POLICY_SEED_XORS[seat]) >>> 0)`.
+- `decodeWithPolicyRandom(bot,state,randomSource)` temporarily assigns `Math.random = randomSource` while `bot.decodeNextAction(state)` executes.
+- `seededRandom()` is xorshift32 and returns the post-step 32-bit state divided by (2^{32}). A JavaScript `Number` exactly represents this binary fraction, so policy code can recover the post-step uint32 as `Math.floor(Math.random() * 2**32)`.
+- Xorshift32 is invertible. One output lets policy code reverse the xorshift step to recover its initial `policySeed`; XOR with the public `POLICY_SEED_XORS[seat]` constant then recovers the physical `seed32`.
+
+This is not hypothetical algebra. For the published fixture's seat-0 stream, the public `seed32` is 4065045654; the seat-0 policy seed is 2554481393; the first policy `Math.random()` output is exactly 0.94769749767147. Reversing the xorshift step recovers 2554481393, and XOR with 0x6a09e667 recovers 4065045654. The inverse was independently checked with a local runtime calculation.
+
+Therefore, even if a future fixture moves the physical seed into an owner-held secret and removes it from public source/artifacts, a policy that calls `Math.random()` during `decodeNextAction()` can derive the secret physical seed through the linked policy stream. This is a potential **live information-set side channel**, not merely offline artifact reconstructability. The current actor-only boundary audits state inputs but does not audit the provenance/independence of random values exposed to policy code.
+
+### Required correction
+
+1. **Never derive policy RNG seeds from the physical shuffle seed** (XOR or otherwise). Use independent per-seat policy RNG seeds/streams that have no relation to physical randomness.
+2. If policy randomness must be deterministic, its seed may be public or committed independently; it must not encode the physical seed. A policy recovering its own RNG state must reveal nothing about physical shuffling.
+3. If hidden-zone confidentiality is required, use a high-entropy owner-held physical seed and a cryptographically secure deterministic stream (e.g. ChaCha20/HMAC-DRBG with a 256-bit key), kept in a runner-only closure and absent from public registration/source/artifacts. Do not rely on xorshift32 for secrecy.
+4. Add a regression demonstrating that the old linked streams are invertible, then assert the replacement policy RNG cannot recover or predict the physical stream. Keep policy RNG access separate from physical RNG at the call boundary.
+
+This does not prove any current policy intentionally called `Math.random()` to exploit the channel. It does mean the current implementation permits it; do not treat actor-only observation filtering alone as a complete non-anticipativity guarantee until the RNG streams are decoupled.
