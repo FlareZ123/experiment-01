@@ -1369,6 +1369,7 @@ async function runV3FixtureGame({
     opponentIdentity: identities.opponentIdentity,
     constraints,
     runtimePinEvidence,
+    trialId,
   });
   // The serializer is a hashed data asset, not part of either role-policy closure.
   // Capture its function reference before the fixture pin and pass only that callback
