@@ -30,18 +30,23 @@ function signed(attestation,privateKey) {
   return attestation;
 }
 
-function makePolicyFixture({fullProcessClosureCovered=false}={}) {
-  const unavailable=[23,25,28];
+function makePolicyFixture({fullProcessClosureCovered=false,unverifiedFormat=false,
+  partialField=false,fixtureOnly=true,unavailable:unavailableInput=[23,25,28]}={}) {
+  const unavailable=partialField?[]:unavailableInput;
+  const formatReviewStatus=unverifiedFormat?'unverified-fixture-only':'independently-reviewed';
   const now=Date.now();
   const candidate={
     deckSha256:policyHash(7),policySha256:policyHash(100),
     entryManifestSha256:policyHash(101),challengeSuiteSha256:policyHash(102),
-    policyProducerId:'candidate-policy-author'
+    policyProducerId:'candidate-policy-author',
+    formatStatus:unverifiedFormat?'unverified':'legal',
+    formatStatusEvidenceRef:unverifiedFormat?null:'format/candidate-expanded'
   };
-  const ranks=Array.from({length:32},(_,index)=>{
+  const ranks=Array.from({length:partialField?1:32},(_,index)=>{
     const rank=index+1;
     if(unavailable.includes(rank)) return {
-      rank,sourceStatus:'source-unavailable',deckSha256:null,policySha256:null,
+      rank,sourceStatus:'source-unavailable',formatStatus:null,formatStatusEvidenceRef:null,
+      deckSha256:null,policySha256:null,
       entryManifestSha256:null,challengeSuiteSha256:null,policyProducerId:null
     };
     return {
@@ -50,7 +55,9 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
       policySha256:policyHash(2000+rank),
       entryManifestSha256:policyHash(3000+rank),
       challengeSuiteSha256:policyHash(4000+rank),
-      policyProducerId:'opponent-policy-author'
+      policyProducerId:'opponent-policy-author',
+      formatStatus:unverifiedFormat?'unverified':'legal',
+      formatStatusEvidenceRef:unverifiedFormat?null:'format/opponent-rank-'+rank
     };
   });
   const cardPoolInitializationReceipt={
@@ -86,6 +93,10 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
     fullProcessClosureCovered
   };
   const constraints={
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:unverifiedFormat?null:'2026-11-13',eventDate:null,
+    formatReviewStatus,
     observationSurface:{ownerVisible:true,publicState:true},
     hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},
     decisionBudget:{maxNodes:128,deadlineMs:250},
@@ -102,6 +113,9 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
   };
   const policyPlanCore={
     schema:'aichi-policy-plan-core-v1',comparisonMode:'candidate-vs-field',
+    fixtureOnly,candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    formatReviewStatus,
     candidate,opponentPolicyBundle:{
       schema:'aichi-opponent-policy-bundle-v1',ranks
     },constraints,runtimePinEvidence
@@ -162,11 +176,12 @@ function makePolicyFixture({fullProcessClosureCovered=false}={}) {
     candidate,ranks,policyPlanCore,policyAttestationBundle,reviewerRegistry,
     cardPoolInitializationReceipt,runtimePatchReceipts,runtimePinEvidence,
     paperKeys,strategyKeys,
-    policyPlanSha256,policyConstraintsSha256,opponentPolicyBundleSha256
+    policyPlanSha256,policyConstraintsSha256,opponentPolicyBundleSha256,
+    unverifiedFormat,partialField
   };
 }
 
-function makeGameRegistration(trialId,{pastDeal=false}={}) {
+function makeGameRegistration(trialId,{pastDeal=false,unverifiedFormat=false}={}) {
   const now=Date.now();
   const registeredAt=new Date(now-(pastDeal?90_000:30_000)).toISOString();
   const dealGeneratedAt=new Date(now+(pastDeal?-60_000:300_000)).toISOString();
@@ -181,20 +196,27 @@ function makeGameRegistration(trialId,{pastDeal=false}={}) {
     registrationRef:'results/aichi-2026/registrations/'+trialId+'.json',
     trialId,mode:UNTIMED,registeredBeforeDealGeneration:true,
     registeredAt,dealGeneratedAt,timingProtocol,
-    timingProtocolSha256:evidenceBundleSha256(timingProtocol)
+    timingProtocolSha256:evidenceBundleSha256(timingProtocol),
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:unverifiedFormat?null:'2026-11-13',eventDate:null,
+    formatReviewStatus:unverifiedFormat?'unverified-fixture-only':'independently-reviewed'
   };
 }
 
-function makePreDeal(fixture,{pastDeal=false}={}) {
+function makePreDeal(fixture,{pastDeal=false,fixtureOnly=true}={}) {
   const trialId='agent44-v3-builder-fixture';
-  const gameRegistration=makeGameRegistration(trialId,{pastDeal});
+  const gameRegistration=makeGameRegistration(trialId,{pastDeal,unverifiedFormat:fixture.unverifiedFormat===true});
   const input={
     producerId:'agent44-v3-builder-test-producer',trialId,gameRegistration,
     preDealArtifactRef:gameRegistration.registrationRef+'.policy-predeal.json',
     policyPlanCore:fixture.policyPlanCore,
     policyAttestationBundle:fixture.policyAttestationBundle
   };
-  return {input,result:preparePreDealPolicyRegistrationFixture(input,fixture.reviewerRegistry)};
+  const result=fixtureOnly
+    ? preparePreDealPolicyRegistrationFixture(input,fixture.reviewerRegistry)
+    : preparePreDealPolicyRegistration(input);
+  return {input,result};
 }
 
 function makeTrial(preDeal,fixture,{fixtureOnly=true}={}) {
@@ -211,6 +233,10 @@ function makeTrial(preDeal,fixture,{fixtureOnly=true}={}) {
     preregistrationEvidenceRef:preDeal.gameRegistration.registrationRef,
     preregistrationSha256:evidenceBundleSha256(preDeal.gameRegistration),
     preregistration:preDeal.gameRegistration,timingMode:UNTIMED,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:fixture.unverifiedFormat?null:'2026-11-13',eventDate:null,
+    formatReviewStatus:fixture.unverifiedFormat?'unverified-fixture-only':'independently-reviewed',
     dealGeneratedAt,dealGenerationStepStartedAt,initialSourceDealFingerprint,
     originalSourceSeat:0,candidateSeat:1,actualFirstPlayerSeat:0,
     sourcePhysicalDealSha256:policyHash(1),fullPhysicalDealSha256:policyHash(2),
@@ -239,6 +265,10 @@ function makeReceipt(preDeal,trial,fixture) {
   return {
     schema:'aichi-policy-application-receipt-v2',
     trialId:preDeal.trialId,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:fixture.unverifiedFormat?null:'2026-11-13',eventDate:null,
+    formatReviewStatus:fixture.unverifiedFormat?'unverified-fixture-only':'independently-reviewed',
     policyPlanSha256:preDeal.policyPlanSha256,
     policyRegistrationSha256:preDeal.policyRegistrationSha256,
     policyAttestationBundleSha256:preDeal.policyAttestationBundleSha256,
@@ -310,6 +340,13 @@ function makeGameReview(bundle,trial,fixture,role) {
   };
   if(role==='paper') Object.assign(review,{
     timingMode:UNTIMED,
+    candidateFormat:'Expanded',gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    expandedLegalityAsOf:trial.expandedLegalityAsOf,
+    eventDate:null,
+    formatReviewStatus:'independently-reviewed',
+    candidatePrinted60Sha256:trial.candidatePrinted60Sha256,
+    opponentPrinted60Sha256:trial.originalPrinted60Sha256,
     untimedProtocolVerified:true,
     untimedProtocolPreDealVerified:true,
     untimedProtocolEvidenceRef:trial.registrationRef,
@@ -321,8 +358,15 @@ function makeGameReview(bundle,trial,fixture,role) {
     naturalTerminalVerified:true,
     naturalTerminalEvidenceRef:'review-evidence/natural-terminal',
     timerBoundaryEvidenceRef:'review-evidence/timer-boundary',
-    exactJapanesePrinted60sVerified:true,
-    eventDateLegalityVerified:true,
+    exactExpandedCandidatePrinted60Verified:true,
+    exactExpandedOpponentPrinted60Verified:true,
+    candidateExpandedLegalityVerified:true,
+    opponentExpandedLegalityVerified:true,
+    candidateExpandedPrinted60EvidenceRef:'review-evidence/candidate-expanded-60',
+    opponentExpandedPrinted60EvidenceRef:'review-evidence/opponent-expanded-60',
+    candidateExpandedLegalityEvidenceRef:'review-evidence/candidate-expanded-legality',
+    opponentExpandedLegalityEvidenceRef:'review-evidence/opponent-expanded-legality',
+    expandedRulesetEvidenceRef:'review-evidence/expanded-ruleset',
     initial120CardCustodyVerified:true,
     actualSeatsAndFirstPlayerVerified:true,
     printed60EvidenceRef:'review-evidence/printed-60',
@@ -372,6 +416,11 @@ test('V3 builder freezes signed policy registration before deal and assembles th
 
   assert.equal(built.fixtureOnly,true);
   assert.equal(built.bundle.trial.trialId,preDeal.trialId);
+  assert.equal(built.bundle.trial.gameRuleset,'Expanded');
+  assert.equal(built.bundle.trial.preregistrationSha256,
+    evidenceBundleSha256(preDeal.gameRegistration));
+  assert.equal(built.bundle.policyRegistration.formatReviewStatus,'independently-reviewed');
+  assert.equal(built.bundle.policyApplicationReceipt.gameRuleset,'Expanded');
   assert.deepEqual(built.bundle.evidenceManifest.map(x=>x.kind),MANIFEST);
   assert.equal(built.bundle.evidenceManifest.length,9);
   assert.equal(built.bundle.policyPanelReceipts.length,1);
@@ -473,21 +522,25 @@ test('valid signed postgame reviews remain external to the finalized bundle dige
 });
 
 test('production pre-deal registration requires full process closure while fixture registration permits partial closure',()=>{
-  const partial=makePolicyFixture({fullProcessClosureCovered:false});
-  const {input:partialInput,result:fixturePartial}=makePreDeal(partial);
+  const partialFixture=makePolicyFixture({fullProcessClosureCovered:false});
+  const {result:fixturePartial}=makePreDeal(partialFixture);
   assert.equal(fixturePartial.ready,true,fixturePartial.failures.join(','));
 
   const original=productionReviewerRegistry.reviewers;
   try {
-    productionReviewerRegistry.reviewers=partial.reviewerRegistry.reviewers;
-    const blocked=preparePreDealPolicyRegistration(partialInput);
+    const partialProduction=makePolicyFixture({
+      fullProcessClosureCovered:false,fixtureOnly:false,unavailable:[23,25,28]
+    });
+    productionReviewerRegistry.reviewers=partialProduction.reviewerRegistry.reviewers;
+    const {result:blocked}=makePreDeal(partialProduction,{fixtureOnly:false});
     assert.equal(blocked.ready,false);
     assert.ok(blocked.failures.includes('production-runtime-process-closure-incomplete'));
 
-    const complete=makePolicyFixture({fullProcessClosureCovered:true});
-    const {input:completeInput}=makePreDeal(complete);
+    const complete=makePolicyFixture({
+      fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[23,25,28]
+    });
     productionReviewerRegistry.reviewers=complete.reviewerRegistry.reviewers;
-    const accepted=preparePreDealPolicyRegistration(completeInput);
+    const {result:accepted}=makePreDeal(complete,{fixtureOnly:false});
     assert.equal(accepted.ready,true,accepted.failures.join(','));
     assert.equal(accepted.policyPlanCore.runtimePinEvidence.fullProcessClosureCovered,true);
   } finally {
@@ -495,17 +548,53 @@ test('production pre-deal registration requires full process closure while fixtu
   }
 });
 
+test('production pre-deal registration permits a nonempty incomplete 29-rank field for per-game use',()=>{
+  const fixture=makePolicyFixture({
+    fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[23,25,28]
+  });
+  const original=productionReviewerRegistry.reviewers;
+  try {
+    productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
+    const {result}=makePreDeal(fixture,{fixtureOnly:false});
+    assert.equal(result.ready,true,result.failures.join(','));
+    assert.equal(result.fieldStatus,'INCOMPLETE_FIELD');
+    assert.equal(result.availableRanks.length,29);
+    assert.deepEqual(result.unavailableRanks,[23,25,28]);
+  } finally {
+    productionReviewerRegistry.reviewers=original;
+  }
+});
+
+test('production pre-deal registration rejects a fixture-marked core even with 32 legal ranks',()=>{
+  const fixture=makePolicyFixture({
+    fullProcessClosureCovered:true,fixtureOnly:true,unavailable:[]
+  });
+  const original=productionReviewerRegistry.reviewers;
+  try {
+    productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
+    const {result}=makePreDeal(fixture,{fixtureOnly:false});
+    assert.equal(result.ready,false);
+    assert.equal(result.policyRegistration,null);
+    assert.ok(result.failures.includes('policy-plan-core-fixture-marker-mismatch'));
+  } finally {
+    productionReviewerRegistry.reviewers=original;
+  }
+});
+
 test('production pre-deal gate rejects fixture reviewers and backdated deal registration',()=>{
   // Isolate reviewer authorization/chronology from the separate runtime-closure gate.
-  const fixture=makePolicyFixture({fullProcessClosureCovered:true});
-  const {input}=makePreDeal(fixture);
-  const production=preparePreDealPolicyRegistration(input);
+  const fixture=makePolicyFixture({
+    fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[]
+  });
+  const {input,result:production}=makePreDeal(fixture,{fixtureOnly:false});
   assert.equal(production.ready,false);
   assert.equal(production.policyRegistration,null);
 
+  const fixtureOnly=makePolicyFixture();
+  const {input:fixtureInput}=makePreDeal(fixtureOnly);
   const unsafeArtifactRef=preparePreDealPolicyRegistrationFixture({
-    ...input,preDealArtifactRef:'../../outside-repository.json'
-  },fixture.reviewerRegistry);
+    ...fixtureInput,preDealArtifactRef:'../../outside-repository.json'
+  },fixtureOnly.reviewerRegistry);
   assert.equal(unsafeArtifactRef.ready,false);
   assert.ok(unsafeArtifactRef.failures.includes('predeal-artifact-reference-invalid'));
   assert.ok(production.failures.some(x=>x.includes('predeal')||
@@ -609,7 +698,7 @@ test('fixture postgame builder rejects rank, seat, trial-mode, and local chronol
 });
 
 test('production builder retains server chronology and rejects partial runtime closure',()=>{
-  const fixture=makePolicyFixture({fullProcessClosureCovered:true});
+  const fixture=makePolicyFixture({fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[]});
   const originalReviewers=productionReviewerRegistry.reviewers;
   productionReviewerRegistry.reviewers=fixture.reviewerRegistry.reviewers;
   try {
@@ -659,6 +748,24 @@ test('production builder retains server chronology and rejects partial runtime c
     assert.equal(built.bundle.trial.fixtureOnly,false);
     assert.equal(built.admissionEligible,false);
     assert.equal(built.competitiveAdmission,false);
+
+    const panelReceipt={...common.policyApplicationReceipt,
+      trialId:trialId+'-panel',decisionTraceSha256:policyHash(9901),
+      fixtureOnly:true};
+    delete panelReceipt.receiptSha256;
+    panelReceipt.receiptSha256=evidenceBundleSha256(panelReceipt);
+    assert.throws(()=>buildV3GameBundle({
+      ...common,policyPanelReceipts:[panelReceipt]
+    }),/policy application receipt fixture marker does not match bundle mode/);
+
+    const malformedPanelReceipt={...common.policyApplicationReceipt,
+      trialId:trialId+'-malformed-panel',decisionTraceSha256:policyHash(9902),
+      fixtureOnly:'true'};
+    delete malformedPanelReceipt.receiptSha256;
+    malformedPanelReceipt.receiptSha256=evidenceBundleSha256(malformedPanelReceipt);
+    assert.throws(()=>buildV3GameBundle({
+      ...common,policyPanelReceipts:[malformedPanelReceipt]
+    }),/policy application receipt fixture marker must be boolean/);
 
     const partialPreDeal={
       ...common.preDeal,
@@ -769,7 +876,7 @@ test('production builder can assemble post-deal chronology without a durable pre
     // Prepare a valid in-memory registration as though it were created ten
     // minutes earlier. Restore the real clock before postgame assembly.
     Date.now=()=>simulatedPreparationNow;
-    fixture=makePolicyFixture({fullProcessClosureCovered:true});
+    fixture=makePolicyFixture({fullProcessClosureCovered:true,fixtureOnly:false,unavailable:[]});
     const trialId='agent49-v3-postdeal-unpersisted-20261113';
     const gameRegistration=makeGameRegistration(trialId);
     input={
@@ -857,4 +964,48 @@ test('builder distinguishes structurally valid policy panel from actor-only comp
   assert.equal(built.assessment.acceptanceReady,false);
   assert.equal(built.admissionEligible,false);
   assert.equal(built.competitiveAdmission,false);
+});
+
+
+
+
+test('fixture builder assembles a one-rank unverified format bundle without admitting it',()=>{
+  const fixture=makePolicyFixture({unverifiedFormat:true,partialField:true});
+  const {input,result:preDeal}=makePreDeal(fixture);
+  assert.equal(preDeal.ready,true,preDeal.failures.join(','));
+  assert.equal(preDeal.fieldStatus,'INCOMPLETE_FIELD');
+  assert.deepEqual(preDeal.availableRanks,[]);
+  assert.equal(preDeal.policyCompetence.valid,false);
+  const trial=makeTrial(preDeal,fixture);
+  const preDealPersistenceReceipt=makePreDealPersistenceReceipt(preDeal);
+  const dealGenerationReceipt=makeDealGenerationReceipt(preDeal,trial,preDealPersistenceReceipt);
+  const built=buildV3GameBundleFixture({
+    preDeal:{...input,...preDeal},trial,evidence:makeEvidence(),
+    policyApplicationReceipt:makeReceipt(preDeal,trial,fixture),
+    preDealPersistenceReceipt,dealGenerationReceipt,
+    policyPanelReceipts:[],reviews:[]
+  },fixture.reviewerRegistry);
+  assert.equal(built.policyPanelConsistency.valid,true,
+    built.policyPanelConsistency.failures.join(','));
+  assert.equal(built.fieldStatus,'INCOMPLETE_FIELD');
+  assert.deepEqual(built.policyPanelConsistency.availableRanks,[]);
+  assert.deepEqual(built.policyPanelConsistency.formatUnverifiedRanks,[1]);
+  assert.equal(built.bundle.trial.formatReviewStatus,'unverified-fixture-only');
+  assert.equal(built.bundle.policyPlanCore.candidate.formatStatus,'unverified');
+  assert.equal(built.assessment.acceptanceReady,false);
+  assert.equal(built.assessment.competitivePolicyCompetenceReady,false);
+  assert.equal(built.admissionEligible,false);
+  assert.equal(built.competitiveAdmission,false);
+});
+
+test('format-aware pre-deal registration rejects an Expanded/Japanese Extra mismatch',()=>{
+  const fixture=makePolicyFixture();
+  const {input,result:preDeal}=makePreDeal(fixture);
+  assert.equal(preDeal.ready,true,preDeal.failures.join(','));
+  const wrongRegistration={...input.gameRegistration,candidateFormat:'Japanese Extra'};
+  const rejected=preparePreDealPolicyRegistrationFixture({
+    ...input,gameRegistration:wrongRegistration
+  },fixture.reviewerRegistry);
+  assert.equal(rejected.ready,false);
+  assert.ok(rejected.failures.includes('game-ruleset-format-review-status-not-frozen-before-deal'));
 });

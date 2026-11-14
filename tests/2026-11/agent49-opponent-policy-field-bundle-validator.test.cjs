@@ -75,13 +75,15 @@ function makeReceipt(core,rank=1) {
   };
 }
 
-function makeV3Ledger(perStratum=1) {
-  const policyPlanCore=makeCore();
+function makeV3Ledger(perStratum=1,unavailableRanks=[]) {
+  const policyPlanCore=makeCore(unavailableRanks);
   const candidate=policyPlanCore.candidate;
   const policyPlanSha256=sha256(policyPlanCore);
   const opponentPolicyBundleSha256=sha256(policyPlanCore.opponentPolicyBundle);
   const originalSources=policyPlanCore.opponentPolicyBundle.ranks.map(entry=>({
-    rank:entry.rank,source60Sha:entry.deckSha256,authenticatedSource60:true
+    rank:entry.rank,
+    source60Sha:entry.deckSha256 ?? hash(5000+entry.rank),
+    authenticatedSource60:entry.sourceStatus==='authenticated'
   }));
   const attempts=[];
   const policyPanelReceipts=[];
@@ -89,6 +91,7 @@ function makeV3Ledger(perStratum=1) {
   let sequence=0;
 
   for(const opponent of policyPlanCore.opponentPolicyBundle.ranks) {
+    if(opponent.sourceStatus!=='authenticated') continue;
     for(const seat of [0,1]) {
       for(const firstPlayerSeat of [0,1]) {
         for(let sample=0; sample<perStratum; sample++) {
@@ -168,6 +171,39 @@ test('the 128-stratum outcome ledger joins each trial to its exact V3 rank polic
   receipt.receiptSha256=sha256(receipt);
   const policyMismatch=validateFieldLedger(wrongPolicy,['paper-qualified-win'],'unqualified');
   assert.ok(policyMismatch.rejectionReasons.includes('v3-policy-panel-invalid'));
+});
+
+test('29/32 V3 field admits available-rank receipts but rejects full-field aggregation',()=>{
+  const request=makeV3Ledger(1,[23,25,28]);
+  assert.equal(request.attempts.length,116);
+  assert.equal(request.policyPanelReceipts.length,116);
+
+  const availableRankReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore:request.policyPlanCore,
+    expectedPolicyPlanSha256:request.policyPlanSha256,
+    gameReceipts:[makeReceipt(request.policyPlanCore,7)]
+  });
+  assert.equal(availableRankReceipt.status,'INCOMPLETE_FIELD');
+  assert.equal(availableRankReceipt.availableRanks.length,29);
+  assert.equal(availableRankReceipt.receiptCount,1);
+  assert.deepEqual(availableRankReceipt.rejectionReasons,['field-incomplete']);
+
+  const unavailableRankReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore:request.policyPlanCore,
+    gameReceipts:[makeReceipt(request.policyPlanCore,23)]
+  });
+  assert.equal(unavailableRankReceipt.status,'INVALID');
+  assert.ok(unavailableRankReceipt.rejectionReasons.includes(
+    'game-against-source-unavailable-rank'));
+
+  const aggregate=validateFieldLedger(
+    request,['paper-qualified-win'],'unqualified');
+  assert.equal(aggregate.totalAttempts,116);
+  assert.ok(aggregate.rejectionReasons.includes('v3-policy-panel-invalid'));
+  assert.ok(aggregate.rejectionReasons.includes('source-unverified'));
+  assert.ok(aggregate.rejectionReasons.includes(
+    'rank-seat-first-player-exposure-unbalanced'));
+  assert.equal(aggregate.attemptsPerRankSeatAndFirstPlayer,null);
 });
 
 test('synthetic 640-win V3 ledger clears the conditional 99.5% all-win bound',()=>{
@@ -399,4 +435,118 @@ test('policy plan core cannot include its own digest or post-deal attestation fi
   attested.candidatePolicyAttestation={signature:'not-in-core'};
   assert.ok(validateOpponentPolicyFieldBundle({policyPlanCore:attested})
     .rejectionReasons.includes('policy-plan-core-mixes-attestation-or-outcome-data'));
+});
+
+
+function makeCurrentExpandedFieldMatrixCore() {
+  const core=makeCore([23,25,28]);
+  const incompatibleRanks=[3,6,7,24,29];
+  core.candidateFormat='Expanded';
+  core.gameRuleset='Expanded';
+  core.opponentSourceEventFormat='Japanese Extra';
+  core.formatReviewStatus='independently-reviewed';
+  core.candidate.formatStatus='legal';
+  core.candidate.formatStatusEvidenceRef=
+    'reviews/candidate-expanded-legality-2026-11-13.json';
+  Object.assign(core.constraints,{
+    candidateFormat:'Expanded',
+    gameRuleset:'Expanded',
+    opponentSourceEventFormat:'Japanese Extra',
+    formatReviewStatus:'independently-reviewed',
+    expandedLegalityAsOf:'2026-11-13',
+    eventDate:null
+  });
+  for(const rank of core.opponentPolicyBundle.ranks) {
+    if(rank.sourceStatus==='source-unavailable') continue;
+    rank.formatStatus=incompatibleRanks.includes(rank.rank) ?
+      'incompatible' : 'unverified';
+    rank.policySha256=null;
+    rank.entryManifestSha256=null;
+    rank.challengeSuiteSha256=null;
+    rank.policyProducerId=null;
+    rank.formatStatusEvidenceRef=rank.formatStatus==='incompatible' ?
+      'results/aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md' :
+      null;
+  }
+  return core;
+}
+
+test('the current Aichi Expanded field matrix has zero legal available ranks',()=>{
+  const policyPlanCore=makeCurrentExpandedFieldMatrixCore();
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore)
+  });
+  const expectedUnverified=Array.from({length:32},(_,index)=>index+1)
+    .filter(rank=>![3,6,7,23,24,25,28,29].includes(rank));
+  assert.equal(expectedUnverified.length,24);
+  assert.equal(result.status,'INCOMPLETE_FIELD');
+  assert.deepEqual(result.availableRanks,[]);
+  assert.deepEqual(result.formatIncompatibleRanks,[3,6,7,24,29]);
+  assert.deepEqual(result.formatUnverifiedRanks,expectedUnverified);
+  assert.deepEqual(result.unavailableRanks,[23,25,28]);
+  assert.deepEqual(result.rejectionReasons.sort(),[
+    'field-format-incompatible','field-format-unverified','field-incomplete'
+  ].sort());
+
+  const incompatibleReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[makeReceipt(policyPlanCore,3)]
+  });
+  assert.equal(incompatibleReceipt.status,'INVALID');
+  assert.ok(incompatibleReceipt.rejectionReasons.includes(
+    'game-against-format-incompatible-rank'));
+
+  const unverifiedReceipt=validateOpponentPolicyFieldBundle({
+    policyPlanCore,gameReceipts:[makeReceipt(policyPlanCore,1)]
+  });
+  assert.equal(unverifiedReceipt.status,'INVALID');
+  assert.ok(unverifiedReceipt.rejectionReasons.includes(
+    'game-against-format-unverified-rank'));
+});
+
+test('a format-legal rank with an invalid deck identity is never counted as available',()=>{
+  const policyPlanCore=makeCurrentExpandedFieldMatrixCore();
+  const rank=policyPlanCore.opponentPolicyBundle.ranks[0];
+  rank.formatStatus='legal';
+  rank.policySha256=hash(2001);
+  rank.entryManifestSha256=hash(3001);
+  rank.challengeSuiteSha256=hash(4001);
+  rank.policyProducerId='opponent-policy-author-1';
+  rank.formatStatusEvidenceRef='reviews/rank-1-expanded-eligibility.json';
+  rank.deckSha256=null;
+  const result=validateOpponentPolicyFieldBundle({
+    policyPlanCore,
+    expectedPolicyPlanSha256:sha256(policyPlanCore)
+  });
+  assert.equal(result.status,'INVALID');
+  assert.equal(result.availableRanks.includes(1),false);
+  assert.ok(result.rejectionReasons.includes('opponent-rank-identity-unverified'));
+});
+
+test('per-game fixture markers must be boolean and match the field validation mode',()=>{
+  const policyPlanCore=makeCore();
+  const expectedPolicyPlanSha256=sha256(policyPlanCore);
+
+  const fixtureReceipt=makeReceipt(policyPlanCore,7);
+  fixtureReceipt.fixtureOnly=true;
+  const fixtureMismatch=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[fixtureReceipt]
+  });
+  assert.equal(fixtureMismatch.status,'INVALID');
+  assert.ok(fixtureMismatch.rejectionReasons.includes('game-fixture-marker-mismatch'));
+
+  const malformedReceipt=makeReceipt(policyPlanCore,7);
+  malformedReceipt.fixtureOnly='true';
+  const malformed=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[malformedReceipt]
+  });
+  assert.equal(malformed.status,'INVALID');
+  assert.ok(malformed.rejectionReasons.includes('game-fixture-marker-type-invalid'));
+
+  const explicitFalseReceipt=makeReceipt(policyPlanCore,7);
+  explicitFalseReceipt.fixtureOnly=false;
+  const explicitFalse=validateOpponentPolicyFieldBundle({
+    policyPlanCore,expectedPolicyPlanSha256,gameReceipts:[explicitFalseReceipt]
+  });
+  assert.equal(explicitFalse.status,'VALID');
 });
