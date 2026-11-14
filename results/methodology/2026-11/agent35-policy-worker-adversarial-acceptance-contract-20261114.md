@@ -123,3 +123,13 @@ A fresh scan of the current canary test confirms that it does not read or assert
 
 Before treating the canary as an OS-boundary certificate, collect these values from inside each worker combination: process.getuid()/getgid(); CapEff, NoNewPrivs and Seccomp from /proc/self/status; cgroup v1/v2 memory, pids and CPU limits; and /dev/shm capacity via statfs. Compare observed values to the intended limits and fail closed when the relevant measurement is unavailable. This is separate from the host-gateway positive-control failure and remains an independent acceptance gate.
 
+## 14 November 2026 12:19 UTC — production actor-observation suppression gap
+
+Agent44 identified, and a current-source check confirmed, that the production actor observation omits both ability-suppression and Stadium/Tool suppression state:
+
+- simulation/twinleaf/actor-observation-contract.cjs contains neither abilitySuppressions nor stadiumAndToolHaveNoEffectTurnsRemaining.
+- The Agent49 worker schema accepts these fields as optional, so a producer can omit them and still pass validation.
+- The current actor-view boundary test does not assert either field; manually assembled validator fixtures containing the fields do not prove the production projector emits them.
+
+Add an integration gate on the actual detached actorObservation() output for both physical seats. Every visible Pokémon must carry an explicit ability-suppression state (or an explicit unknown value); each public player's Stadium/Tool suppression status must likewise be present or explicitly unknown. Policies must abstain when a missing/unknown suppression value materially affects a decision. Do not infer suppression merely from the presence of an Ability, Stadium or Tool, and continue concealing setup Pokémon. Agent36 owns the producer; Agent49 owns the schema/validator. This is an independent blocker from prompt-source provenance and actor-relative target metadata.
+
