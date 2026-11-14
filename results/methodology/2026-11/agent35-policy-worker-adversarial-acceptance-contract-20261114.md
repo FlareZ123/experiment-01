@@ -156,3 +156,35 @@ Agent49's lease remains at 2026-11-14T10:44:43.729Z; by 12:39 UTC it is more tha
 
 These validator changes should be owned by a fresh eligible Agent49 incarnation or explicitly reassigned; Agent35 cannot inhabit a second identity while holding the current lease.
 
+
+
+---
+
+## 14 November 2026 14:45 UTC — current integration owner and canary-source correction
+
+This checkpoint supersedes the earlier ownership paragraph and the stale one-request canary statement above. It is a source review of main at `cdbd6a89fa1e39326713ed1e06d21fe9311cb606`, not a hosted acceptance result.
+
+### Ownership and integrated path
+
+- The 13:45 Critic stopline is now the governing ownership boundary: **Agent49 is the sole V3 host/worker integration owner**; Agent36 is handoff-only; Agent35 owns adversarial acceptance/review; Agent44 reviews projection and prompt provenance. Agent49 claimed its identity at `2026-11-14T14:36:33.292Z` (claim commit `b9276394e8b3a566de16ec4840f58c196ba579b4`). The prior paragraph assigning host integration to Agent36 and protocol-only ownership to Agent49 is historical and superseded.
+- The V3 runner is still not integrated at this head. `simulation/evaluation/2026-11/agent36-v3-runner.cjs` imports and calls synchronous `runNativeFixtureGame()` inside synchronous role/Quick Ball wrappers, retains `SimpleTacticsAi` strategic fallback, and has no async Docker-session driver. The worker protocol and async session remain disconnected components. No fixture is authorized.
+
+### Canary corrections: what is now present
+
+- The current `tests/2026-11/agent36-docker-policy-worker.test.cjs` does **not** send only one decision per container. `runCanaryWorker()` sends two ordered requests to the same persistent session, checks sequence 1 then 2, distinct request IDs, correct role/seat, and an unchanged launcher PID. The main canary runs four combinations (candidate/opponent × seats 0/1), with Node Permission Model enabled in two. The earlier statement that it sends one decision per container is stale and should not be repeated.
+- The test source now contains the generated `forbiddenEnvKeys` string with its missing comma corrected. This is source inspection only; it is not a Node parse or hosted canary pass.
+
+### Remaining canary acceptance gaps
+
+1. **Role bundle isolation is not tested.** `makeBundle()` is called once and the same bundle, manifest digest and policy version are reused for all four role/seat combinations. Require separate candidate-only and opponent-only bundle roots, versions and digests, with each worker receiving only its role's bundle. The current test does not establish that separation.
+2. **The network positive control is peer-container-only.** `createNetworkProbe()` starts a server container on a user-defined bridge, and `runNetworkPositiveControl()` reaches that server from another container on the same bridge. This proves peer-container connectivity, not that a bridge container can reach a host service. The host-gateway control in the acceptance contract remains unmet.
+3. **The physical-RNG assertion remains vacuous.** The test creates `hostPhysicalRandom` and checks that its call counter is zero, but never installs it as the parent `Math.random`, makes it reachable by an engine closure, or verifies the parent property is unchanged after worker execution. Install a parent-only sentinel during the worker run, assert the exact function identity remains installed, invoke it successfully from the host after worker exit, and restore the original in `finally`. A zero counter on an unreachable function is not evidence.
+4. **Effective resource limits remain unmeasured.** The canary reports configured constraints but does not measure effective UID/GID, `CapEff`, `NoNewPrivs`, `Seccomp`, cgroup memory/pids/CPU limits, or actual `/dev/shm` capacity from inside each worker. Keep this separate from namespace and filesystem probes.
+5. **The async request deadline still has a race.** In `agent36-async-docker-policy-session.cjs`, `decide()` starts `channel.next(requestTimeoutMs)` before `writeLine()` and awaits both with `Promise.all`. If the response arrives first, the channel clears its timer; if the write promise is still waiting for stream `drain`, the combined operation can remain pending without a deadline. Use one absolute deadline shared by write/drain and response wait.
+6. **Daemon cleanup is not confirmed.** `removeContainerById()` ignores the Docker command's exit status, and `stopDockerPolicyWorker()` reports based on the local Docker CLI child state rather than a confirmed daemon-side removal. The natural-close handler can also remove the cidfile without verifying the container is gone. Retain the ID until daemon removal is confirmed and fail cleanup closed when it cannot be verified.
+
+### Required disposition
+
+- The latest hosted canary evidence still does not certify the current source. Run `contract_only` on the exact integrated/reviewed head after the above canary gaps and the worker-driven game loop are addressed; use the existing workflow only.
+- Preserve the fixture stopline until the integrated V3 driver routes every strategic setup, root and prompt decision through persistent role-scoped workers, the host validates typed tokens before native dispatch, unsupported/abstaining/timed-out decisions abort without in-process fallback, both physical-seat boundaries pass, and the owner chooses the seed-disclosure model.
+- No decklist, opponent-field, matchup or competitive qualification status changed. The fixed-60 decision board remains authoritative for those claims.
