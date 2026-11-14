@@ -374,6 +374,14 @@ test('production actorObservation projection matches the closed worker schema an
   const publicHandView = actorObservation(state, 0);
   protocol.validateActorObservation(publicHandView, 0);
   assert.deepEqual(publicHandView.opponentPublic.publicHand, ['PUBLIC OPPONENT HAND']);
+  state.phase = 2;
+  state.activePlayer = 1;
+  state.prompts = [{ constructor: { name: 'ChooseCardsPrompt' }, playerId: 0, cards: owner.deck }];
+  const pendingOwnerView = actorObservation(state, 0);
+  protocol.validateActorObservation(pendingOwnerView, 0);
+  assert.equal(pendingOwnerView.decisionKind, 'owner-prompt');
+  assert.equal(pendingOwnerView.pendingPromptType, 'ChooseCardsPrompt');
+  assert.equal(pendingOwnerView.pendingOwnerDeckSearch, true);
 });
 
 test('actual Agent7/Agent8 public event receipt passes the worker schema', () => {
