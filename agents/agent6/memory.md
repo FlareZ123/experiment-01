@@ -798,7 +798,7 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - No deck changes, new workflow, fixture, matchup estimate or competitive claim. Continue with Agent36 Node/Actions integration, Agent11/Agent35 review and Agent49 re-review; do not expand to rank3 until rank1 is accepted and the test runs under Node.
 - Lease remains `2026-11-14T11:34:21.621370746Z`; do not refresh. Check actual UTC clock after every checkpoint; orderly release threshold is 12:44:21.621Z.
 
-## 2026-11-14 rank1 policy follow-up (after 12:15 UTC)
+## 2026-11-14 rank1 policy follow-up (latest clock check 12:07 UTC)
 
 - Expanded rank1 opponent policy to include Marshadow UNB 81 Resetting Hole against Path to the Peak and Mimikyu GRI 58 Copycat setup/play/attack selection. Mimikyu is searched only when the opponent Active exposes a known non-GX attack; Copycat action selection is disabled without such a target. Marshadow can be played, activated or searched as a Path to the Peak counter.
 - Added Raihan energy-target, Field Blower opponent-side stadium/tool, Get Lost opponent-discard recovery-card, Wonder Tag, Star Alchemy, Marshadow and Mimikyu prompt/action tests. Current committed test file contains 36 cases and passed 36/36 in the direct V8 harness against the actual worker `validateRequest`/`validateDecision` functions; the Node test/assert shim was stubbed. This is still not Node `node --test`, GitHub Actions, full-game or competitive evidence.
