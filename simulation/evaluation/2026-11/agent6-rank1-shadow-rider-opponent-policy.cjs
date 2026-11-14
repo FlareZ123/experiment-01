@@ -58,6 +58,12 @@ function countBoard(player, pattern) {
   return boardSlots(player).filter(slot => matches(slot.printing, pattern)).length;
 }
 
+function knownCardCount(observation, pattern) {
+  return countBoard(observation.ownPublic, pattern) +
+    countPrinting(observation.ownHand, pattern) +
+    countPrinting(observation.ownPublic.discard, pattern);
+}
+
 function psychicCountInHand(observation) {
   return countPrinting(observation?.ownHand, PRINT.psychic);
 }
@@ -390,6 +396,8 @@ function cardSearchScore(printing, request, effectName) {
   const opponent = observation.opponentPublic;
   const boardV = countBoard(own, PRINT.shadowRiderV);
   const boardVmax = countBoard(own, PRINT.shadowRiderVmax);
+  const knownV = knownCardCount(observation, PRINT.shadowRiderV);
+  const knownVmax = knownCardCount(observation, PRINT.shadowRiderVmax);
   const psychicHand = psychicCountInHand(observation);
   const psychicDiscard = psychicCountInDiscard(observation);
   const psychicBoard = psychicCountOnBoard(observation);
@@ -405,8 +413,8 @@ function cardSearchScore(printing, request, effectName) {
   }
 
   if (includes(effectName, 'Raihan')) {
-    if (matches(printing, PRINT.shadowRiderVmax) && boardVmax < 2) return 160;
-    if (matches(printing, PRINT.shadowRiderV) && boardV < 2) return 150;
+    if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 160;
+    if (matches(printing, PRINT.shadowRiderV) && knownV < 2) return 150;
     if (includes(printing, 'Unfair Stamp') &&
         (priorOpponentTurnKO(request) ||
           (opponent.handCount ?? 0) >= hand.length + 3)) return 145;
@@ -417,7 +425,7 @@ function cardSearchScore(printing, request, effectName) {
 
   if (includes(effectName, 'Fog Crystal')) {
     const vInHand = hasPrinting(hand, PRINT.shadowRiderV);
-    if (matches(printing, PRINT.shadowRiderV) && boardV < 2 && !vInHand) return 160;
+    if (matches(printing, PRINT.shadowRiderV) && knownV < 2 && !vInHand) return 160;
     if (matches(printing, PRINT.psychic) && psychicHand === 0) return 140;
   }
 
@@ -433,13 +441,16 @@ function cardSearchScore(printing, request, effectName) {
     return 80;
   }
 
-  if (matches(printing, PRINT.shadowRiderV) && boardV < 2) return 130;
-  if (matches(printing, PRINT.shadowRiderVmax) && boardVmax < 2) return 125;
-  if (matches(printing, PRINT.radiantEternatus) && boardVmax === 0) return 118;
+  if (matches(printing, PRINT.shadowRiderV) && knownV < 2) return 130;
+  if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 125;
+  if (matches(printing, PRINT.radiantEternatus) && knownVmax < 2) return 118;
   if (matches(printing, PRINT.trevenant) && psychicBoard < 3) return 110;
-  if (matches(printing, PRINT.latias) && !boardHas(own, PRINT.latias)) return 105;
-  if (matches(printing, PRINT.girafarig) && !boardHas(own, PRINT.girafarig)) return 92;
-  if (matches(printing, PRINT.dialga) && !boardHas(own, PRINT.dialga)) return 80;
+  if (matches(printing, PRINT.latias) && !boardHas(own, PRINT.latias) &&
+      !hasPrinting(hand, PRINT.latias)) return 105;
+  if (matches(printing, PRINT.girafarig) && !boardHas(own, PRINT.girafarig) &&
+      !hasPrinting(hand, PRINT.girafarig)) return 92;
+  if (matches(printing, PRINT.dialga) && !boardHas(own, PRINT.dialga) &&
+      !hasPrinting(hand, PRINT.dialga)) return 80;
   return 10;
 }
 
