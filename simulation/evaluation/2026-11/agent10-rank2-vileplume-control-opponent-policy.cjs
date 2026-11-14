@@ -131,7 +131,12 @@ function opponentHasSpecialEnergy(player) {
   return boardSlots(player).some(({ pokemon }) =>
     list(pokemon.energies).some(energy =>
       /Energy/i.test(energy) &&
-      !/Basic (?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy/i.test(energy)));
+      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\\b/i.test(energy)));
+}
+
+function opponentHasGarbotoxin(player) {
+  return boardSlots(player).some(({ pokemon }) =>
+    list(pokemon.abilities).includes('Garbotoxin'));
 }
 
 function opponentHasWeakBenchTarget(player) {
@@ -181,8 +186,13 @@ function missingLinePriority(observation) {
 
 function scoreEvolution(card, target, observation) {
   const own = observation.ownPublic;
+  const hand = list(observation.ownHand);
+  const preLockSetupStillNeeded = hand.some(value =>
+    matches(value, PRINT.tagCall) || matches(value, PRINT.tmEvolution) ||
+    matches(value, PRINT.stealthyHood) ||
+    (matches(value, PRINT.guzmaHala) && supporterAvailable(observation)));
   if (matches(card, PRINT.vileplume) && matches(target, PRINT.gloom) &&
-      !boardHas(own, PRINT.vileplume)) return 245;
+      !boardHas(own, PRINT.vileplume)) return preLockSetupStillNeeded ? 175 : 245;
   if (matches(card, PRINT.stoutland) && matches(target, PRINT.herdier) &&
       !boardHas(own, PRINT.stoutland)) return 235;
   if (matches(card, PRINT.pidgeot) && matches(target, PRINT.pidgeotto) &&
@@ -244,7 +254,7 @@ function scoreAttack(item, observation) {
   }
   if (name === 'Itchy Pollen') {
     const itemLockLive = boardHas(own, PRINT.vileplume) &&
-      !boardSlots(own).some(row => abilitySuppressed(row.pokemon, 'Irritating Pollen'));
+      !opponentHasGarbotoxin(observation.opponentPublic);
     const supporterLockLive = matches(own.active?.printing ?? '', PRINT.stoutland);
     return !itemLockLive && !supporterLockLive ? 128 : 15;
   }
@@ -317,6 +327,8 @@ function scoreAction(item, request) {
       const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true;
       return supporterLocked ? 30 : 185;
     }
+    if (matches(own.active?.printing ?? '', PRINT.stoutland) &&
+        opponent.publicTurnRestrictions?.supporterPlayLocked === true) return 0;
     return 10;
   }
 
@@ -368,8 +380,7 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.stealthyHood)) {
     const targetSlot = boardSlots(own).find(row =>
       target ? row.pokemon.printing === target : matches(row.pokemon.printing, PRINT.vileplume));
-    const threatened = boardSlots(own).some(row =>
-      abilitySuppressed(row.pokemon, 'Irritating Pollen'));
+    const threatened = opponentHasGarbotoxin(opponent);
     return targetSlot && threatened && !ownItemLocked(observation) ? 205 : 65;
   }
   if (matches(card, PRINT.grandTree)) {
@@ -431,7 +442,10 @@ function cardPriority(printing, observation, context) {
     if (matches(printing, PRINT.grandTree)) return 160;
     if (matches(printing, PRINT.tmEvolution)) return handCount(hand, PRINT.tmEvolution) === 0 ? 150 : 75;
     if (matches(printing, PRINT.jetEnergy)) return 155;
-    if (matches(printing, PRINT.stealthyHood)) return boardHas(own, PRINT.vileplume) ? 125 : 65;
+    if (matches(printing, PRINT.stealthyHood)) {
+      return opponentHasGarbotoxin(observation.opponentPublic) ? 145 :
+        (boardHas(own, PRINT.vileplume) ? 80 : 35);
+    }
     if (matches(printing, PRINT.artazon)) return 90;
     if (matches(printing, PRINT.captureEnergy)) return 85;
     if (matches(printing, PRINT.memoryEnergy)) return boardHas(own, PRINT.stoutland) ? 80 : 45;
@@ -567,13 +581,15 @@ function promptDecision(request) {
       }, max);
       if (!discardPrompt) ranked = ranked.filter(row => row.score > 0);
     } else if (selectionType === 'energy-payment') {
-      const required = Math.max(min, Number.isSafeInteger(metadata.energyCount) ?
-        metadata.energyCount : min);
+      const required = typeof metadata.energyType === 'string' ?
+        Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
       ranked = rankedChoices(choices, choice => {
         const printing = choicePrinting(choice);
-        if (matches(printing, PRINT.grassEnergy)) return 5;
-        if (matches(printing, PRINT.jetEnergy) || matches(printing, PRINT.captureEnergy)) return 30;
-        return 20;
+        if (matches(printing, PRINT.captureEnergy)) return 100;
+        if (matches(printing, PRINT.grassEnergy)) return 80;
+        if (matches(printing, PRINT.jetEnergy)) return 30;
+        if (matches(printing, PRINT.memoryEnergy)) return 10;
+        return 50;
       }, required);
     } else if (selectionType === 'prize-slots') {
       const required = Number.isSafeInteger(metadata.requiredCount) ?
