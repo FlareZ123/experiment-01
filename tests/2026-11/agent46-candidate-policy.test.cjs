@@ -765,3 +765,48 @@ test('phase-one setup policy rejects wrong phases, source identities, labels, an
     assert.equal(evaluate(badStartingCancel).kind, 'abstain');
   }
 });
+
+test('starting-Pokémon setup refuses stale board states and reordered native choices', () => {
+  for (const seat of [0, 1]) {
+    const initialWithActive = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupBasicChoice('basic', 0, 'Mimikyu GRI')],
+      publicMetadata: startingPokemonMetadata(1, 1),
+      active: pokemon({ printing: 'Already Active', name: 'Already Active' })
+    });
+    assert.equal(evaluate(initialWithActive).kind, 'abstain');
+
+    const optionalWithoutActive = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('new-basic', 0, 'Mimikyu GRI'),
+        { token: 'empty', kind: 'empty-selection', label: 'Choose no items' }
+      ],
+      publicMetadata: startingPokemonMetadata(0, 1)
+    });
+    assert.equal(evaluate(optionalWithoutActive).kind, 'abstain');
+
+    const reordered = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('later', 2, 'Latias ex SSP'),
+        setupBasicChoice('earlier', 0, 'Mimikyu GRI')
+      ],
+      publicMetadata: startingPokemonMetadata(1, 2)
+    });
+    assert.equal(evaluate(reordered).kind, 'abstain');
+
+    const wrongOwnerChoice = setupBasicChoice('opponent-card', 0, 'Mimikyu GRI');
+    wrongOwnerChoice.publicMetadata.ownerSeat = 'opponent';
+    const wrongOwner = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [wrongOwnerChoice],
+      publicMetadata: startingPokemonMetadata(1, 1)
+    });
+    assert.equal(evaluate(wrongOwner).kind, 'abstain');
+  }
+});
