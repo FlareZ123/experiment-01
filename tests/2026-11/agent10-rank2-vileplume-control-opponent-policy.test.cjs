@@ -472,7 +472,8 @@ test('TM Evolution prioritizes Gloom and Herdier over a fresh Basic', () => {
     choices: [
       pokemonChoice('pidgey', 'Pidgey MEW 16', 'actor', 'bench', 0),
       pokemonChoice('gloom', 'Gloom UNB 7', 'actor', 'bench', 1),
-      pokemonChoice('herdier', 'Herdier SUM 104', 'actor', 'bench', 2)
+      pokemonChoice('herdier', 'Herdier SUM 104', 'actor', 'bench', 2),
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
     ],
     publicMetadata: {
       minimumCount: 0, maximumCount: 2, allowCancel: false,
