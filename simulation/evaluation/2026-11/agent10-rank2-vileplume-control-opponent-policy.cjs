@@ -62,7 +62,7 @@ function list(value) {
 }
 
 function canonicalPrinting(value) {
-  return typeof value === 'string' ? value.replace(/ \d+$/, '') : '';
+  return typeof printingValue(value) === 'string' ? printingValue(value).replace(/ \d+$/, '') : '';
 }
 
 function samePrinting(left, right) {
@@ -70,7 +70,122 @@ function samePrinting(left, right) {
 }
 
 function matches(value, pattern) {
-  return typeof value === 'string' && pattern.test(value);
+  return typeof printingValue(value) === 'string' && pattern.test(printingValue(value));
+}
+
+function printingValue(value) {
+  if (typeof value === 'string') return value;
+  if (typeof value?.printing === 'string') return value.printing;
+  if (typeof value?.fullName === 'string') return value.fullName;
+  return '';
+}
+
+const SOURCE_COPIES = Object.freeze([
+  [PRINT.gloom, 2],
+  [PRINT.vileplume, 2],
+  [PRINT.vileplumeGx, 1],
+  [PRINT.herdier, 2],
+  [PRINT.stoutland, 1],
+  [PRINT.pidgeotto, 2],
+  [PRINT.pidgeot, 2],
+  [PRINT.tmEvolution, 2],
+  [PRINT.jetEnergy, 2],
+  [PRINT.grandTree, 1],
+  [PRINT.artazon, 2],
+  [PRINT.counterGain, 1],
+  [PRINT.stealthyHood, 3]
+]);
+
+function countMatching(values, pattern) {
+  return list(values).filter(value => matches(printingValue(value), pattern)).length;
+}
+
+function pokemonStackPrintings(pokemon) {
+  const stack = list(pokemon?.evolutionPrintings).map(printingValue).filter(Boolean);
+  if (pokemon?.printing && !stack.some(value => samePrinting(value, pokemon.printing))) {
+    stack.push(pokemon.printing);
+  }
+  return stack;
+}
+
+function visibleSourceCopies(observation, pattern) {
+  const own = observation?.ownPublic ?? {};
+  let count = countMatching(observation?.ownHand, pattern);
+  for (const zone of ['discard', 'lostZone', 'resolvingSupporter', 'stadium', 'publicHand']) {
+    count += countMatching(own[zone], pattern);
+  }
+  for (const row of boardSlots(own)) {
+    count += countMatching(pokemonStackPrintings(row.pokemon), pattern);
+    count += countMatching(row.pokemon.tools, pattern);
+    count += countMatching(row.pokemon.energies, pattern);
+  }
+  return count;
+}
+
+function sourceCopyPossible(observation, pattern) {
+  const source = SOURCE_COPIES.find(([candidate]) => candidate === pattern);
+  return Boolean(source && source[1] - visibleSourceCopies(observation, pattern) > 0);
+}
+
+function hasK0PossibleStageFor(observation, printing) {
+  if (matches(printing, PRINT.oddish)) return sourceCopyPossible(observation, PRINT.gloom);
+  if (matches(printing, PRINT.lillipup)) return sourceCopyPossible(observation, PRINT.herdier);
+  if (matches(printing, PRINT.pidgey)) return sourceCopyPossible(observation, PRINT.pidgeotto);
+  if (matches(printing, PRINT.gloom)) {
+    return sourceCopyPossible(observation, PRINT.vileplume) ||
+      sourceCopyPossible(observation, PRINT.vileplumeGx);
+  }
+  if (matches(printing, PRINT.herdier)) return sourceCopyPossible(observation, PRINT.stoutland);
+  if (matches(printing, PRINT.pidgeotto)) return sourceCopyPossible(observation, PRINT.pidgeot);
+  return false;
+}
+
+function hasK0PossibleBenchEvolutionTarget(observation) {
+  return list(observation?.ownPublic?.bench).some(pokemon =>
+    pokemon && hasK0PossibleStageFor(observation, pokemon.printing));
+}
+
+function grandTreeTargetPossible(observation, pokemon) {
+  if (!pokemon || !Number.isFinite(pokemon.lastPlayedOrEvolvedTurn) ||
+      pokemon.lastPlayedOrEvolvedTurn >= observation.globalTurn) return false;
+  if (matches(pokemon.printing, PRINT.oddish)) {
+    return sourceCopyPossible(observation, PRINT.gloom) &&
+      (sourceCopyPossible(observation, PRINT.vileplume) ||
+        sourceCopyPossible(observation, PRINT.vileplumeGx));
+  }
+  if (matches(pokemon.printing, PRINT.lillipup)) {
+    return sourceCopyPossible(observation, PRINT.herdier) &&
+      sourceCopyPossible(observation, PRINT.stoutland);
+  }
+  if (matches(pokemon.printing, PRINT.pidgey)) {
+    return sourceCopyPossible(observation, PRINT.pidgeotto) &&
+      sourceCopyPossible(observation, PRINT.pidgeot);
+  }
+  return false;
+}
+
+function hasK0PossibleGrandTreeTarget(observation) {
+  return list(observation?.ownPublic?.bench).some(pokemon =>
+    grandTreeTargetPossible(observation, pokemon));
+}
+
+function bunnelbyActive(observation) {
+  return matches(observation?.ownPublic?.active?.printing ?? '', PRINT.bunnelby);
+}
+
+function bunnelbyOnBench(observation) {
+  return list(observation?.ownPublic?.bench).some(pokemon =>
+    pokemon && matches(pokemon.printing, PRINT.bunnelby));
+}
+
+function bunnelbyHasTool(observation, pattern) {
+  const slots = boardSlots(observation?.ownPublic);
+  const slot = slots.find(row => matches(row.pokemon.printing, PRINT.bunnelby));
+  return Boolean(slot && list(slot.pokemon.tools).some(tool => matches(printingValue(tool), pattern)));
+}
+
+function bunnelbyInPlay(observation) {
+  return bunnelbyActive(observation) || bunnelbyOnBench(observation);
 }
 
 function boardSlots(player) {
