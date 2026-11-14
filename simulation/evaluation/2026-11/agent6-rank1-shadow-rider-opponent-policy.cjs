@@ -266,7 +266,7 @@ function scoreAction(item, request) {
     const ability = item.publicMetadata?.abilityName ?? '';
     if (ability === 'Underworld Door' && psychicHand > 0) return 150;
     if (ability === 'Climactic Gate' && boardV > 0) return 145;
-    if (ability === 'Resetting Hole' && pathLockActive(observation)) return 138;
+    if (ability === 'Resetting Hole') return pathLockActive(observation) ? 138 : 0;
     if (ability === 'Star Alchemy' &&
         observation.ownTurnResources.vstarUsed === false) return 132;
     if (ability === 'Wonder Tag') {
