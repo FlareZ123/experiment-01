@@ -566,6 +566,7 @@ const V3_FIXTURE = Object.freeze({
   candidateWorkerPolicyPath: 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs',
   opponentWorkerPolicyPath: 'simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs',
   workerPath: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs',
+  protocolPath: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs',
   candidateSeat: 0,
   opponentSeat: 1,
   policyVersion: 'agent34-actor-only-root-slice-v17-agent49-quick-ball-source-bound-v1',
@@ -646,7 +647,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
   { name: 'roleSeatMap', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'candidateOpponentRoleSeats' },
   { name: 'publicEventReceipt', path: 'simulation/twinleaf/agent8-public-event-receipt.cjs', exportName: 'publicEventReceipt' },
-  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs', exportName: 'validateRequest' },
+  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs', exportName: 'validateRequest' },
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
@@ -793,6 +794,10 @@ function buildFixtureRoleEntryManifest({
 } = {}) {
   assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
+  assert.notEqual(entrypoint,V3_FIXTURE.workerPath,
+    'Docker worker executable is a data asset, never a host role-policy entrypoint');
+  assert.equal(commonRuntimeBindings.some(binding=>binding.path===V3_FIXTURE.workerPath),false,
+    'Docker worker executable must not be a host common-runtime binding');
   commonRuntimeBindings = commonRuntimeBindings.map((binding) => ({ ...binding }));
   orderedPromptChain = orderedPromptChain.map((item) => ({ ...item }));
   const sharedEnginePatches = [{ name: V3_FIXTURE.hookId, path: V3_FIXTURE.hookPath }];
@@ -1081,19 +1086,22 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
 
 function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
   const workerFilename=path.resolve(repositoryRoot,V3_FIXTURE.workerPath);
+  const protocolFilename=path.resolve(repositoryRoot,V3_FIXTURE.protocolPath);
   const policyFilename=path.resolve(repositoryRoot,policyModulePath);
-  assert.ok(workerFilename.startsWith(repositoryRoot+path.sep));
-  assert.ok(policyFilename.startsWith(repositoryRoot+path.sep));
+  for(const filename of [workerFilename,protocolFilename,policyFilename])
+    assert.ok(filename.startsWith(repositoryRoot+path.sep));
   const workerSha256=createHash('sha256').update(fs.readFileSync(workerFilename)).digest('hex');
   const policySha256=createHash('sha256').update(fs.readFileSync(policyFilename)).digest('hex');
+  const protocolSha256=createHash('sha256').update(fs.readFileSync(protocolFilename)).digest('hex');
   const bundle=workerLauncher.createPolicyBundle({
     sourceRoot:repositoryRoot,
     policyFiles:[
       {sourcePath:workerFilename,relativePath:'worker.cjs',sha256:workerSha256},
+      {sourcePath:protocolFilename,relativePath:'agent49-policy-protocol.cjs',sha256:protocolSha256},
       {sourcePath:policyFilename,relativePath:'policy.cjs',sha256:policySha256},
     ],
   });
-  return {bundle,workerSha256,policySha256};
+  return {bundle,workerSha256,policySha256,protocolSha256};
 }
 
 function assertTrustedActionSelection(frontier,token) {
@@ -1356,17 +1364,15 @@ async function runV3FixtureGame({
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.candidateWorkerPolicyPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
-    additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath],
   });
   const opponentManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.opponentWorkerPolicyPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
-    additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath],
   });
   const manifestResult=roleIdentity.combineRolePolicyEntryManifests(
     candidateManifestResult,opponentManifestResult
