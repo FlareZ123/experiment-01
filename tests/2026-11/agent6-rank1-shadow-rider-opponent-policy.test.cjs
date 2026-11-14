@@ -2145,6 +2145,48 @@ test('WANT_TO_DRAW_CARDS maps every native choice index to its exact descending 
   }
 });
 
+test('WANT_TO_DRAW_CARDS accepts sparse enabled values using original native indices for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+      choices: [
+        { token: 'draw-5', kind: 'option', label: 'Draw 5 card(s)', publicMetadata: { choiceIndex: 1 } },
+        { token: 'draw-3', kind: 'option', label: 'Draw 3 card(s)', publicMetadata: { choiceIndex: 3 } },
+        { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 6 } }
+      ],
+      publicMetadata: {
+        selectionType: 'option',
+        count: 7,
+        allowCancel: false
+      },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'draw-5'
+    });
+  }
+});
+
+test('WANT_TO_DRAW_CARDS rejects unexpected cancel rows', () => {
+  const request = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(request).kind, 'abstain');
+});
+
 test('WANT_TO_DRAW_CARDS rejects a choice-index and Draw N label mismatch', () => {
   const request = promptRequest({
     promptType: 'SelectPrompt',
