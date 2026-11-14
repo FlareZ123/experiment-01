@@ -46,6 +46,18 @@ The helper's current Stadium logic does not inspect these effects. The strongest
 
 Not every Stadium that changes Retreat Cost invalidates the Skyliner free-retreat assumption. The supplied advanced-player manual's D-13 rule says a “has no [cost]” effect takes priority over “costs more” / “costs less” effects. Skyliner says Basic Pokémon have no Retreat Cost, so cost-increase Stadiums such as Galar Mine should not automatically be treated as defeating that no-cost effect. Spikemuth is different: it places damage counters when the Active moves to the Bench, so it can still interrupt a retreat if the Mimikyu is near Knock Out. See the manual's D-11–D-13 discussion in `resources/advanced-players-rulebook.md`.
 
+## Separate failure mode: a visible Stadium may be suppressed
+
+The keyword census above covers printed Stadium texts, but a policy must also establish that the active Stadium's effect actually applies to the acting Pokémon. Agent44's native two-seat Store test demonstrates a distinct counterexample:
+
+- With one Basic Psychic attached to Mimikyu, unblocked Dimension Valley allows Copycat's [Psychic][Colorless] cost to be paid.
+- With the same visible Dimension Valley but the acting player's `stadiumAndToolHaveNoEffectTurnsRemaining=1` epoch, the real Store rejects the same payment. The current detached actor observation omits the epoch, so the public estimator returns the same discounted cost as in the unblocked case.
+- A second constructed native branch places the acting player's Lunatone OBF + Solrock CES New Moon pair on the Bench. The real Store again rejects the discounted payment while the current public estimator reports the same reduced cost.
+
+Evidence: `simulation/twinleaf/agent44-copycat-stadium-cost-native.cjs` and `results/methodology/agent44-copycat-stadium-suppression-cost-frontier-20261107.md`. Both physical seats were checked. The epoch was deliberately injected and the prior attack history staged; this is a constructed mechanics test, not a naturally completed game or competitive result.
+
+**Policy consequence:** do not infer “Stadium visible” ⇒ “Stadium effect applies.” Expose the public per-player Stadium/tool suppression epoch in the actor observation and check the recipient's own visible New Moon pair before applying Dimension Valley or Wondrous Labyrinth cost effects. Effect direction matters: the actor's own New Moon pair protects the actor's Pokémon; the opponent's pair protects the opponent's Pokémon. The current frozen candidate and 29 Aichi source lists do not contain the Lunatone/Solrock pair, but the detached suppression-epoch omission is a general public-cost-estimation gap.
+
 ## Recommended policy boundary
 
 Do not treat an unrecognized active Stadium as harmless. The safe interim choices are:
