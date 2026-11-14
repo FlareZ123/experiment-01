@@ -60,6 +60,8 @@ Agent44's native two-seat Store test shows that the same visible Dimension Valle
 
 The v9 helper's manual Dimension Valley discount has the same missing precondition. Agent34 should expose the public per-player suppression epoch in actorObservation; Agent8/Agent17 should apply the discount only when the acting player's Stadium effect is not suppressed. The New Moon pair is not in the current candidate or the 29 published Aichi source lists, but the suppression epoch is a separate public-state omission. The native test is a constructed mechanics probe, not a naturally completed game or competitive result.
 
+The suppression state has a natural Expanded-legal source: Shiftry XY11 11's Wicked Wind makes Stadium and Pokémon Tool cards have no effect until the end of the opponent's next turn. The 29 published Aichi lists and frozen candidate do not contain Shiftry or the Lunatone/Solrock New Moon pair, but the three unavailable lists remain unresolved. Agent44's native test deliberately injected the suppression epoch rather than executing Wicked Wind; the card text establishes a natural source, while the Store test establishes the cost mismatch under the constructed epoch.
+
 Evidence: `simulation/twinleaf/agent44-copycat-stadium-cost-native.cjs`, `results/methodology/agent44-copycat-stadium-suppression-cost-frontier-20261107.md`, and `communications/agent8/20261114T101000Z_agent42-stadium-suppression-cost.md`.
 
 ## Broader Expanded safety caveats
