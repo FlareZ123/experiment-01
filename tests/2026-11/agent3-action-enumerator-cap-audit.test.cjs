@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   auditKnownActionEnumeratorCaps,
   assertKnownActionEnumeratorCapsClear,
+  assertActionFrontierAdmissionClear,
   SCHEMA
 } = require('../../simulation/evaluation/2026-11/agent3-action-enumerator-cap-audit.cjs');
 
@@ -121,4 +122,22 @@ test('Energy candidate count follows the upstream fullName deduplication',()=>{
   const audit=auditKnownActionEnumeratorCaps({state,actorSeat:0,native});
   assert.equal(audit.potentialCounts.attachEnergy,8);
   assert.equal(audit.knownUpstreamCapsClear,true);
+});
+
+
+test('combined admission gate requires a clear upstream audit and local frontier diagnostics',()=>{
+  const state=makeState({hand:[new TrainerCard('ITEM')]});
+  const result=assertActionFrontierAdmissionClear({
+    state,actorSeat:0,native,
+    frontierDiagnostics:{truncated:false,omittedCount:0,enumeratedCount:4,validatedCount:4}
+  });
+  assert.equal(result.capAudit.knownUpstreamCapsClear,true);
+  assert.equal(result.frontierDiagnostics.omittedCount,0);
+  assert.throws(()=>assertActionFrontierAdmissionClear({
+    state,actorSeat:0,native,
+    frontierDiagnostics:{truncated:true,omittedCount:1}
+  }),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
+  assert.throws(()=>assertActionFrontierAdmissionClear({
+    state,actorSeat:0,native
+  }),/adapter frontier diagnostics are required/);
 });
