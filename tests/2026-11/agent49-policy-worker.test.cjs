@@ -653,6 +653,7 @@ test('analysis-only projected attack rows cannot be selected as native actions',
 });
 
 test('typed multi-select decisions enforce unique item tokens, bounds, cancel and order semantics', () => {
+  assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v3');
   const source = {
     classification: 'actor-choice',
     sourceKind: 'card-effect',
@@ -701,6 +702,12 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choice', token: 'cancel-0'
   }, cardPrompt, new Set()), { kind: 'select-choice', token: 'cancel-0' });
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: ['card-0', 'cancel-0']
+  }, cardPrompt, new Set()), /SPECIAL_CHOICE_IN_MULTI_SELECT/);
+  assert.throws(() => protocol.validatePrompt({
+    ...cardPrompt, choices: cardPrompt.choices.filter(choice => choice.kind !== 'cancel')
+  }, 0), /BAD_MULTI_SELECT_CANCEL_CHOICE/);
 
   const emptyPrompt = makePrompt('card-combination', {
     minimumCount: 0, maximumCount: 2, allowCancel: false
@@ -713,6 +720,9 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choice', token: 'empty-0'
   }, emptyPrompt, new Set()), { kind: 'select-choice', token: 'empty-0' });
+  assert.throws(() => protocol.validatePrompt({
+    ...emptyPrompt, choices: emptyPrompt.choices.filter(choice => choice.kind !== 'empty-selection')
+  }, 0), /BAD_MULTI_SELECT_EMPTY_CHOICE/);
 
   const orderPrompt = makePrompt('card-order', {
     count: 3, allowCancel: false
