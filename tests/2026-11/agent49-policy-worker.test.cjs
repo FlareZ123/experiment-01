@@ -233,6 +233,7 @@ async function expectFailure(message, code, init = initFor()) {
     await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
     assert.match(worker.stderr, new RegExp(code));
+    return worker.stderr;
   } finally {
     worker.rl.close();
     fs.rmSync(worker.dir, { recursive: true, force: true });
@@ -253,6 +254,8 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
     writeLine(worker.child.stdin, request(2)); await waitForCount(worker, 3);
     assert.deepEqual(worker.lines[1].decision, { kind: 'select-action', token: 'action-1' });
     assert.deepEqual(worker.lines[2].decision, { kind: 'select-action', token: 'action-2' });
+    assert.equal(worker.lines[1].policyDrawCount,0);
+    assert.equal(worker.lines[2].policyDrawCount,0);
     assert.equal(worker.lines[1].requestId, 'req-1');
     assert.equal(worker.lines[2].sequence, 2);
     assert.doesNotMatch(JSON.stringify(worker.lines), /policySeed|physicalSeed|rngState/i);
@@ -907,10 +910,12 @@ test('restricted VM denies ambient capabilities and serializes policy failures',
     await waitForCount(worker,2);
     assert.deepEqual(worker.lines[1].decision,{kind:'abstain',reasonCode:'SANDBOX_OK'});
     assert.equal(worker.lines[0].policyDrawCount,0);
+    assert.equal(worker.lines[1].policyDrawCount,0);
   } finally { await dispose(worker); }
 
-  await expectFailure(request(1,'candidate',0,{requestId:'force-math-random'}),
+  const rngFailure=await expectFailure(request(1,'candidate',0,{requestId:'force-math-random'}),
     'POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  assert.match(rngFailure,/policyDrawCount=1/);
   for(const requestId of [
     'force-global-function-escape','force-module-loader-escape',
     'force-module-exports-escape','force-date','force-intl','force-crypto',
