@@ -34,6 +34,11 @@ function probe(seat,options){
   x.owner.active.energies.cards.length=0;
   x.owner.active.cards.push(mimikyu,alreadyAttached);
   x.owner.active.energies.cards.push(alreadyAttached);
+  if(options.fireSupport){
+    const fire=card('Fire Energy SVE');
+    x.owner.active.cards.push(fire);
+    x.owner.active.energies.cards.push(fire);
+  }
   x.opponent.active.cards.length=0;
   x.opponent.active.cards.push(venonat);
   const gnaw=venonat.attacks.find(a=>a.name==='Gnaw');
@@ -42,6 +47,8 @@ function probe(seat,options){
     attack:gnaw,sourceCard:venonat}};
   x.state.lastAttack=gnaw;
   if(options.valley)x.owner.stadium.cards.push(card('Dimension Valley PHF'));
+  if(options.headquarters)
+    x.owner.stadium.cards.push(card('Pokémon League Headquarters OBF'));
   if(options.suppress)x.owner.stadiumAndToolHaveNoEffectTurnsRemaining=1;
   if(options.newMoon){
     // Owner's own Lunatone OBF + Solrock CES prevents Stadium effects on
@@ -78,6 +85,7 @@ function probe(seat,options){
     accepted=true;
   }catch(e){error=String(e?.message??e);}
   return {seat,...options,proxyCost,printedCost:printed.cost,
+    colorlessEnergyType:catalog.colorlessEnergyType,
     publicStadium:view.ownPublic.stadium,
     exposedSuppressionFlag:'stadiumAndToolHaveNoEffectTurnsRemaining' in
       (view.ownPublic.publicTurnRestrictions??{}),
@@ -96,7 +104,13 @@ function run(){
     const valley=probe(seat,{valley:true,suppress:false});
     const suppressed=probe(seat,{valley:true,suppress:true});
     const newMoon=probe(seat,{valley:true,suppress:false,newMoon:true});
-    rows.push({seat,baseline,valley,suppressed,newMoon});
+    const headquartersControl=probe(seat,{fireSupport:true});
+    const headquarters=probe(seat,{headquarters:true,fireSupport:true});
+    const headquartersSuppressed=probe(seat,{
+      headquarters:true,suppress:true,fireSupport:true
+    });
+    rows.push({seat,baseline,valley,suppressed,newMoon,
+      headquartersControl,headquarters,headquartersSuppressed});
     assert.equal(baseline.accepted,false,
       'One Psychic without cost reduction cannot fund Copycat');
     assert.equal(valley.accepted,true,
@@ -105,18 +119,32 @@ function run(){
       'With native cost reduction the copied ordinary Gnaw must deal damage');
     assert.equal(suppressed.accepted,false,
       'Publicly suppressed Stadium must not waive Copycat cost');
-    assert.deepEqual(suppressed.proxyCost,valley.proxyCost,
-      'Agent17 generic cost estimator still ignores the newly exposed suppression epoch');
+    assert.deepEqual(suppressed.proxyCost,suppressed.printedCost,
+      'Suppressed Dimension Valley must not discount the public cost');
     assert.equal(suppressed.exposedSuppressionFlag,true,
       'Detached actor observation now exposes the public suppression epoch');
     assert.equal(suppressed.exposedSuppressionValue,1,
       'The exact per-player suppression countdown is preserved');
     assert.equal(newMoon.accepted,false,
       'Lunatone with Solrock prevents Dimension Valley reducing Copycat');
-    assert.deepEqual(newMoon.proxyCost,valley.proxyCost,
-      'Agent17 generic cost estimator still misses the visible New Moon pair');
+    assert.equal(newMoon.proxyCost,null,
+      'Unknown New Moon liveness must fail closed instead of discounting');
+
+    assert.equal(headquartersControl.accepted,true,
+      'Two Energy units pay Copycat without League Headquarters');
+    assert.ok(headquartersControl.damage>0);
+    assert.equal(headquarters.accepted,false,
+      'League Headquarters adds a Colorless to a Basic Pokémon attack');
+    assert.deepEqual(headquarters.proxyCost,
+      [...headquarters.printedCost,headquarters.colorlessEnergyType],
+      'Basic Copycat must include the Headquarters Colorless surcharge');
+    assert.equal(headquartersSuppressed.accepted,true,
+      'A suppressed Headquarters must not add the Colorless surcharge');
+    assert.deepEqual(headquartersSuppressed.proxyCost,
+      headquartersSuppressed.printedCost,
+      'Suppressed Headquarters must leave the printed cost unchanged');
   }
-  const result={schema:'agent44-copycat-stadium-cost-bilateral-native-v1',
+  const result={schema:'agent44-copycat-stadium-cost-bilateral-native-v2',
     pin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     priorGnawInjected:true,constructedState:true,
     competitiveQualifiedGames:0,rows};
