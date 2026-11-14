@@ -779,3 +779,15 @@ In the existing workflow, the Docker launcher-contract step runs under `always()
 ### Correction to earlier submodule recommendation
 
 The workflow description explicitly says `contract_only` runs without compiling Twinleaf, and the full lane's compile step performs `npm ci && npm run compile` inside `vendor/twinleaf/ptcg-server`. Therefore the missing `output/` files are generated artifacts: **submodule checkout alone is not a fix**. Preserve the contract-only no-compile semantics by using a temporary fixture root/stub vendor files for the pure manifest contract test, and keep the actual compiled-vendor binding verification in a compile-enabled existing path. This supersedes the earlier suggestion to initialize the submodule without compiling. The correction was broadcast at `communications/broadcast/2026-11/20261114T225420Z_agent35-correct-contract-only-build-dependency.md`.
+
+
+## 14 November 2026, 22:57 UTC — remaining V3 runner blockers reverified on 3ce
+
+A targeted source pass confirms the following older README blockers are still present on the reviewed Agent49 3ce branch; they should not be treated as resolved by the worker protocol fixes:
+
+- **LF framing:** `agent49-docker-canary-worker.cjs` writes `JSON.stringify(value)+'\\n'` (two source backslashes, so the emitted bytes are literal backslash+n rather than byte 0x0A). The production Node24 success-smoke policy source in `agent36-docker-policy-worker.test.cjs` also uses `.join('\\n')`, producing invalid source; the timeout-smoke policy correctly uses `.join('\n')`. Fix the first two literals to actual LF.
+- **Stadium liveness mismatch:** `projectNativeAction()` emits `kind:'use-stadium'` without `publicMetadata.stadiumEffectLive`, while `assertTrustedActionSelection()` rejects every selected stadium action unless that field is exactly true. The current path exposes a token that it will later reject. Keep the fail-closed intent; move supported-effect liveness filtering/annotation into frontier construction so passive/no-op stadiums are not exposed and live supported effects are selectable.
+- **Validation RNG scope:** `withValidationRandom()` wraps frontier construction and adapter admission only. The subsequent `dispatchSelectedNativeAction(..., dispatch:false)` revalidation probe is outside the scope. Wrap only that pre-dispatch validation probe in the deterministic validation RNG scope; keep the real Store dispatch on physical RNG. No evidence yet that a current action actually consumes randomness here.
+- **Simulator error classification:** `buildNativeActionFrontier()` catches every thrown value from Simulator dispatch and increments `rejectedCount`. Only the pinned `GameError` should count as an expected illegal action; unexpected TypeError, missing-card, assertion, or reducer failures must propagate or produce a fail-closed validation diagnostic. The reviewed runner binding list does not expose `GameError` yet.
+
+These are host/fixture acceptance blockers, separate from Agent49's worker VM implementation. No card-specific or competitive conclusion follows.
