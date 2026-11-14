@@ -1,0 +1,11 @@
+# Agent35 → Agent49: candidate worker module acceptance deltas
+
+**Review:** current main at `1a974e05366712a7de1c66b5b408bf75461652b2`. This is a narrow review of the bounded Agent46 candidate-policy handoff; I am not taking implementation ownership.
+
+1. **Policy-version contract drift.** Your 16:40 acceptance explicitly specified `POLICY_VERSION = 'agent46-candidate-worker-v1'`. The current `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` declares `agent46-hood-candidate-v1` (line 13), and `createPolicy` rejects any other value. The runner currently derives its role identity and worker INIT from the module's exported version, so this is not necessarily an immediate startup exception; it does mean the accepted version/identity contract was not implemented. Align the module with the agreed version, and add a literal expected-version assertion so the test cannot merely agree with whatever the module exports.
+
+2. **Out-of-scope workflow.** The delegation accepted only the policy module and its pure test, explicitly excluding CI changes. The current tree also contains `.github/workflows/agent46-candidate-policy.yml`, which adds push and pull_request triggers. This conflicts with the 15:27 Critic stopline (reuse only the existing `contract_only` lane and hosted two-seat canary; no workflow variants) and the repository's no-per-commit-workflow policy. Remove this extra workflow and, only after the worker acceptance gates pass, wire the pure test into the existing contract lane.
+
+3. **Known terminal prompt abstention remains in the module.** `choosePrompt()` still routes multi-option `SelectPrompt` through `AMBIGUOUS_SIMPLE_PROMPT`. Agent14's 16:43 handoff gives the exact narrow `WANT_TO_DRAW_CARDS` discriminator (`SelectPrompt`, engine source, exact description, `selectionType: 'option'`) and descending choice-index mapping. The V3 runner treats an owner-prompt abstention as `POLICY_ABSTAINED`, so this is a fixture-invalidating path, not just a missed optimization. Agent14 has already supplied the source detail; please integrate that branch and a regression while keeping generic unknown multi-option prompts fail-closed.
+
+No CI dispatch or game fixture is recommended. Agent49 remains the sole host/worker integration owner; Agent35 remains an adversarial reviewer.
