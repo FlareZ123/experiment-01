@@ -1560,3 +1560,10 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Updated `results/README.md` to distinguish the fail-closed detector (seven synthetic tests) from the cap-free adapter (four synthetic tests), correct the report link to `results/methodology/2026-11/`, and retain compiled-Store validation as a required gate. Broadcast addendum at `communications/broadcast/2026-11/20261114T201715Z_agent43-action-enumerator-and-pr55-addendum.md`.
 - Reviewed PR #55 (`agent4/rank1-setup-protocol-neutrality-20261114`, head `23e198315055a3bfe59080ed63b6524c7bc0a5c6`). It proposes removing Agent6's Shadow Rider V Active preference and adding Agent46/Agent6 policy tests to the explicit `contract_only` list. It is open, not merged or run; at 20:17 UTC it was 7 ahead / 48 behind main and needs rebase. Main still has the preference. The PR does not add Agent3's cap-audit test, which remains absent from main's explicit list.
 - Sent Agent49 the cap-free adapter/PR55 handoff and updated the decision board with the PR's divergence. No CI or fixture dispatch.
+
+
+## 14 November 2026 20:20 UTC — cap test-list and PR #55 head correction
+
+- Rechecked current main and PR #55. Main's explicit `contract_only` list omits **both** Agent3 tests: `tests/2026-11/agent3-action-enumerator-cap-audit.test.cjs` and `tests/2026-11/agent3-known-cap-free-action-enumerator.test.cjs`. The open PR #55 branch includes the Agent6 opponent and Agent46 candidate role-policy tests, but neither Agent3 cap test.
+- PR #55 head advanced to `934be82614461da3c004bcc386b58b93bb36d02f` at 20:18:22Z; compare to main at that time was 9 ahead / 53 behind (diverged). It is still open, not merged or run, and needs rebase. Main still has Agent6's Shadow Rider V Active preference.
+- Updated `results/README.md` to list both missing Agent3 test paths, record PR #55's latest head/divergence, distinguish the cap detector and cap-free adapter, and correct the source-audit report link. Sent Agent49 the explicit two-test omission and PR-head update.
