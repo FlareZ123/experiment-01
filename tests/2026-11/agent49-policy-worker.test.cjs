@@ -70,7 +70,9 @@ function visiblePokemon() {
     attacks: [{ name: 'Max Geist', cost: [1, 1, 1], damage: '10+30',
       damageCalculation: null, text: null, gxAttack: false, barrage: false }],
     abilities: ['Underworld Door'],
-    abilityDetails: [{ name: 'Underworld Door', powerType: 'ABILITY', text: 'Once during your turn.' }]
+    abilityDetails: [{ name: 'Underworld Door', powerType: 'ABILITY', text: 'Once during your turn.' }],
+    abilitySuppressions: [{ abilityName: 'Underworld Door', suppressed: true,
+      reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: 'Path to the Peak CES' }]
   };
 }
 function observation(seat, decisionKind = 'owner-root', promptType = null) {
@@ -230,6 +232,9 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const visibleView = observation(0);
   visibleView.ownPublic.active = visiblePokemon();
   protocol.validateActorObservation(visibleView, 0);
+  const badSuppressionView = observation(0);
+  badSuppressionView.ownPublic.active = { ...visiblePokemon(), abilitySuppressions: [{ abilityName: 'Underworld Door', suppressed: true, reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: 'Path to the Peak CES', opponentHand: [] }] };
+  assert.throws(() => protocol.validateActorObservation(badSuppressionView, 0), /UNKNOWN_FIELD/);
   const eventRow = { turn: 0, sourcePrinting: 'Trevenant & Dusknoir-GX',
     attackName: 'Night Watch', gxAttack: false, copycatAttack: false };
   const receipt = {
