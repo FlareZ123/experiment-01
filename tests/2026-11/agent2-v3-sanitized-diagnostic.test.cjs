@@ -317,3 +317,86 @@ test('partial fixture failure is converted to a safe non-admitting diagnostic',(
   assert.equal(sanitized.game.endReason,'fixture-execution-failed');
   assert.doesNotMatch(JSON.stringify(sanitized),/PRIVATE_FAILURE_HAND|PRIVATE_FAILURE_FULL_STATE/);
 });
+
+test('actor-only boundary projection preserves allowlisted role diagnostics without inventing safety fields',()=>{
+  const sanitized=sanitizeFixtureArtifact({
+    fixtureOnly:true,
+    actorOnlyExecutionBoundary:{
+      schema:'aichi-actor-only-execution-boundary-v2',
+      valid:false,
+      failures:[
+        'candidate-unsupportedPromptFallbacks-nonzero',
+        'opponent-peer-role-dispatch-enabled',
+        'PRIVATE_BOUNDARY_FAILURE_SENTINEL'
+      ],
+      candidate:{
+        role:'candidate',policyOwnerSeat:0,
+        version:'agent34-actor-only-root-policy-v17',
+        origin:'detached-actor-observation',
+        observationSchema:'agent2-public-native-dispatch-diff-v1',
+        nativeOwnerTrainerFallbackEnabled:false,
+        ownerFallbackDiagnosticViewEnabled:false,
+        nativePolicyMayUseHiddenInformation:false,
+        unsupportedPromptFallbacks:2,
+        nonLiveSpeculativeFallbacks:0,
+        nonOwnerNativeDelegations:0,
+        nonTurnPhaseFallbacks:0,
+        nonOwnerSeatBypassCalls:0,
+        peerRoleDispatchEnabled:true,
+        ownerDecisionCalls:8,peerRoleDelegations:8,
+        setupStartingBasicPromptsHandled:1,
+        setupStartingBasicPromptsBySeat:[1,0],
+        setupGoFirstPromptsHandled:1,
+        setupGoFirstPromptsBySeat:[0,1],
+        setupPromptActionsSubmitted:2,setupPromptActionsRejected:0,
+        nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,
+        nativeOwnerTrainerFallback:{firstUnsupportedOwnerRoot:{
+          printing:'PRIVATE_FIRST_UNSUPPORTED_ROOT_SENTINEL'
+        }},
+        privateField:'PRIVATE_ROLE_SUMMARY_SENTINEL'
+      },
+      opponent:{
+        role:'opponent',policyOwnerSeat:1,
+        version:'agent34-actor-only-root-policy-v17',
+        origin:'detached-actor-observation',
+        observationSchema:'agent2-public-native-dispatch-diff-v1',
+        nativeOwnerTrainerFallbackEnabled:false,
+        ownerFallbackDiagnosticViewEnabled:false,
+        nativePolicyMayUseHiddenInformation:false,
+        unsupportedPromptFallbacks:0,
+        nonLiveSpeculativeFallbacks:0,
+        nonOwnerNativeDelegations:0,
+        nonTurnPhaseFallbacks:0,
+        nonOwnerSeatBypassCalls:0,
+        peerRoleDispatchEnabled:false,
+        ownerDecisionCalls:8,peerRoleDelegations:0,
+        setupStartingBasicPromptsHandled:1,
+        setupStartingBasicPromptsBySeat:[0,1],
+        setupGoFirstPromptsHandled:1,
+        setupGoFirstPromptsBySeat:[1,0],
+        setupPromptActionsSubmitted:2,setupPromptActionsRejected:0,
+        nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,
+        privateField:'PRIVATE_OPPONENT_SUMMARY_SENTINEL'
+      },
+      privateField:'PRIVATE_BOUNDARY_SENTINEL'
+    }
+  });
+  const boundary=sanitized.actorOnlyExecutionBoundary;
+  assert.equal(boundary.valid,false);
+  assert.equal(boundary.schema,'aichi-actor-only-execution-boundary-v2');
+  assert.deepEqual(boundary.failures,[
+    'candidate-unsupportedPromptFallbacks-nonzero',
+    'opponent-peer-role-dispatch-enabled'
+  ]);
+  assert.equal(boundary.unrecognizedFailureCount,1);
+  assert.equal(boundary.candidate.role,'candidate');
+  assert.equal(boundary.candidate.policyOwnerSeat,0);
+  assert.equal(boundary.candidate.unsupportedPromptFallbacks,2);
+  assert.deepEqual(boundary.candidate.setupStartingBasicPromptsBySeat,[1,0]);
+  assert.equal(boundary.opponent.role,'opponent');
+  assert.equal(boundary.opponent.peerRoleDispatchEnabled,false);
+  assert.deepEqual(boundary.opponent.setupGoFirstPromptsBySeat,[1,0]);
+  assert.equal(Object.hasOwn(boundary,'hiddenInformationSafe'),false);
+  assert.doesNotMatch(JSON.stringify(boundary),/PRIVATE_|FIRST_UNSUPPORTED/);
+});
+
