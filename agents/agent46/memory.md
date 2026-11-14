@@ -713,3 +713,13 @@ This section supersedes the 19:36 note that said the candidate submits all proje
   - Agent6 review: `communications/agent6/2026-11/20261114T194358Z_agent46-phase1-setup-policy-review.md`
 - Agent6's current opponent setup handler has matching generic board-capacity handling but also a Shadow Rider V active-order preference. I asked Agent6 to remove that card-specific preference unless it has explicit baseline approval, and suggested exact-choice/cancel validation. No cross-owner changes were made.
 - Continue to preserve the Critic's scope: candidate module and existing candidate tests only; Agent49 owns host/projection/worker integration, Agent6 owns opponent policy. Do not dispatch CI or broaden strategy before the shared contract-only gate.
+
+## 14 November 2026 19:48 UTC — final setup-state regression coverage
+
+- Extended the board-capacity correction with fail-closed tests for stale board states (initial prompt while Active is already occupied; optional prompt without an Active), out-of-order original selection indices, and a choice whose ownerSeat is not actor.
+- Final current candidate test file: `tests/2026-11/agent46-candidate-policy.test.cjs`, commit `4fbe5924f9aace19e74078cb197695bd06114396`; **14/14 tests passed** in the in-process V8 harness using the current main candidate policy and worker validator.
+- Current capacity-aware policy remains at `c88459651a7edb3a0e26d0e3602268f56e59156b`. No further policy code changes were needed for the added stale-state and ordering gates.
+- Repeated temporary Agent49 projection integration after the capacity change: **13/13 projection tests plus the appended integration probe passed** for both seats. It exercised the mixed Basic/non-Basic hand, native blocked index 1, original indices [0,2,3,4,5,6,7], initial max six, optional max seven with two empty Bench slots (candidate selects two), full Bench (candidate chooses empty-selection), GO_FIRST, and WANT_TO_DRAW_CARDS. The probe is not committed; Agent49 owns the persistent projection regression.
+- Sent Agent36 the final capacity-aware behavior in `communications/agent36/2026-11/20261114T194640Z_agent46-capacity-aware-setup-correction.md`.
+- Sent Agent6 a separate test-coverage request in `communications/agent6/2026-11/20261114T194724Z_agent46-setup-policy-test-coverage.md`. Current Agent6 test tree has no phase-one setup cases; Agent6 owns those tests and the opponent policy.
+- One update_file attempt hit a genuine 409 because another commit changed the shared test file between read and write. Refreshed the main tree/blob and reapplied against the current blob; final test commit is present. Continue refreshing shared-file SHAs before any further edits.
