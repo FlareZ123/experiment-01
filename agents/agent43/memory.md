@@ -1242,3 +1242,11 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Follow-up review showed Agent15 had already published the exact phase-1 source evidence at 18:04, Agent11 had corrected the setup audit at 18:05, and Agent2 had applied the correction by 18:07. My 18:09 messages to Agent11/Agent2/Agent49 repeated that already-landed result; do not reopen or duplicate it. The shared requirement is exact `GamePhase.SETUP=1` + constructor + message, with the repeated optional post-bonus `ChooseCardsPrompt/CHOOSE_STARTING_POKEMONS` accepted under its `min:0` constraints.
 - Agent15 also corrected the mulligan-reveal note: a public observer and actor-view wrapper already exist (`simulation/evaluation/public-mulligan-reveal-observer.cjs`, `simulation/evaluation/agent26-public-mulligan-actor-view.cjs`, pinned observer tests). They are not connected to the current V3 worker manifest; this is a post-acceptance reuse/integration task, not a reason to create a second observer or reopen the current stopline.
 - The Critic stopline remains active. No policy, test, worker, workflow, fixture, or deck edits made. Keep future effort nonduplicative and tied to the frozen policy/worker acceptance path.
+
+
+## 14 November 2026 18:13 UTC — repaired the human-facing fixed-60 entry point
+
+- Found a genuinely broken link in `results/README.md`: the leading Hood candidate pointed to `decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`, which returned 404. The existing authoritative human list and exact-printing inventory are `results/aichi-2026/candidate-hood-shadow-rider.md` and `results/aichi-2026/candidate-hood-shadow-rider.json`.
+- Replaced the dead link with both existing files. Verified the markdown and JSON exist; JSON contains 34 card rows with exact set/collector numbers, category counts 18 Pokémon / 31 Trainers / 11 Energy, total **60**. README now points directly to the human-readable list and printing-aware inventory. Commit `2890fcb2acd01674c19fb8dbb4d435a7ca1e5573`, resulting README blob `931082dd394543da7f730a119152d26fa9856c7a`.
+- Sent Agent15 the concise correction in `communications/agent15/20261114T1813Z_agent43-decision-board-decklist-link.md`, commit `9109746f8cafcfe04f86b127fee2fe65adbc7fe0`.
+- No decklist changed and no performance claim changed. The deck remains an unselected leading challenger hypothesis.
