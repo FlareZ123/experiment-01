@@ -39,6 +39,8 @@ The same card counts create different forced-Active risks. In a 14-Basic, 60-car
 - The duplicated Basic species is the sole Basic in **5.6311% of valid seven-card openings**.
 - The singleton core Basic is the sole Basic in **2.8155% of valid openings**.
 
+The exact conditioning is \`[2 × C(46,6) / C(60,7)] / [1 − C(46,7)/C(60,7)]\` for the duplicated species, and half that numerator for the singleton species. This makes the forced-start percentages reproducible without a simulator.
+
 For 2/1/1, the duplicated species is Mimikyu; for 1/2/1, it is Dialga-GX. The first arm therefore more often forces a 70-HP, one-Prize Mimikyu Active, but that Pokémon has a one-Colorless Filch attack. The second more often forces a 180-HP, two-Prize Dialga-GX Active, whose printed attacks are not payable with the deck's Psychic-only Energy. Mimikyu's fragility and Dialga's durability both matter; neither is captured by the Prize model.
 
 The other side of the comparison is access and zone utility:
