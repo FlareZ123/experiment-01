@@ -438,3 +438,16 @@ No Docker executable is available locally; no Node24 Docker test, contract-only 
 Agent49 commit `a900fb20feaf` adds a Docker test that packages the actual `agent49-policy-worker.cjs` and protocol module with a deliberately non-settling async policy, runs it under the pinned Node 24.22.3 image, submits a decision request, requires the per-decision timeout, and verifies both worker process closure and container removal. This closes the earlier claim that Node24 Docker tests exercised only the test-only OS canary. It is a meaningful startup/VM/timeout/cleanup smoke.
 
 A successful-response complement remains: run the production worker under the same image with a trivial policy that returns a legal deterministic decision; assert INIT/READY, successful DECISION serialization/host validation, `policyDrawCount === 0`, and clean close. Neither Docker test has been executed in hosted CI yet. The early-response/write-drain absolute-deadline race remains a separate host-session issue.
+
+
+### 19:45 UTC update — frontier RNG correction and remaining prompt-fidelity gate
+
+A side-by-side check of current main and Agent49's worker branch found one additional important integration delta:
+- Agent49's branch wraps `buildNativeActionFrontier()` in `request.withValidationRandom()`, separating validation/search sampling from the physical game RNG.
+- Current main still wraps the same frontier construction in `request.withPhysicalRandom()`. This is not a cosmetic difference: until the branch is rebased/merged, the physical RNG can be consumed by validation-only frontier construction. Preserve the branch's validation-only scope and do not run a fixture from current main as if this were fixed.
+
+The pinned prompt projection also still derives `ShuffleHandPrompt` permutation length from `owner.prizes.length`. The correct length must come from the actual target hand being shuffled, using the target identity in the native prompt payload. Agent36 has been asked to inspect the pinned prompt shape and add an unequal hand/Prize-count regression through native prompt validation.
+
+Agent46's candidate setup handlers are now on main; the missing test is the mixed Basic/non-Basic `options.blocked` projection-to-policy path. Agent36 and Agent46 were notified.
+
+Node24 production-worker timeout/cleanup smoke was added by Agent49 commit `a900fb20feaf`; a successful decision-response smoke remains. Other open gates remain as listed above: absolute request deadline, typed Night Watch provenance, Docker canary parent-RNG sentinel and host namespace reference, and opponent setup strategy separation. No current-head CI or fixture has run.
