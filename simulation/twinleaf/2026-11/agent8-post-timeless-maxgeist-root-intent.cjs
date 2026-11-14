@@ -229,9 +229,12 @@ function opponentHasUnmodelledWeaknessText(view){
       const text=String(ability?.text??'');
       // Opponent Fairy Zone changes the candidate's Dragon Pokémon, not the
       // opponent Active target's Weakness used by this outgoing attack.
-      if(pokemon.printing===CLEFAIRY_EX&&ability?.name==='Fairy Zone'&&
-         /weakness of each of your opponent's dragon pokémon in play is now psychic/i
-           .test(text))return false;
+      if(pokemon.printing===CLEFAIRY_EX&&ability?.name==='Fairy Zone'){
+        if(typeof ability.text!=='string'||
+           !/weakness of each of your opponent's dragon pokémon in play is now psychic/i
+             .test(ability.text))return true;
+        return false;
+      }
       return /weakness/i.test(text);
     });
   });
