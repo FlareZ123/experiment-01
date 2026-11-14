@@ -7,7 +7,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {
   IMAGE_REF,IMAGE_DIGEST,PLATFORM,NODE_VERSION,DEFAULT_WORKER_TIMEOUT_MS,
-  sha256,createPolicyBundle,spawnDockerPolicyWorker,
+  sha256,createPolicyBundle,verifyPolicyBundle,spawnDockerPolicyWorker,
   cleanupPolicyBundle,preflightDockerPolicySandbox
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 
@@ -64,6 +64,17 @@ async function withFakeDocker(run){
   }
 }
 
+function makeTamperBundle(){
+  const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent35-bundle-tamper-source-'));
+  const workerPath=path.join(sourceRoot,'worker.cjs');
+  fs.writeFileSync(workerPath,"'use strict';\\nmodule.exports={};\\n",{mode:0o600});
+  const bundle=createPolicyBundle({
+    sourceRoot,
+    policyFiles:[{sourcePath:workerPath,relativePath:'worker.cjs',sha256:sha256(fs.readFileSync(workerPath))}]
+  });
+  return {sourceRoot,bundle,dispose(){cleanupPolicyBundle(bundle);fs.rmSync(sourceRoot,{recursive:true,force:true});}};
+}
+
 test('launcher exports and uses a finite nonzero default worker deadline',()=>{
   assert.ok(Number.isSafeInteger(DEFAULT_WORKER_TIMEOUT_MS));
   assert.ok(DEFAULT_WORKER_TIMEOUT_MS>0&&DEFAULT_WORKER_TIMEOUT_MS<=60*60*1000,
@@ -71,6 +82,60 @@ test('launcher exports and uses a finite nonzero default worker deadline',()=>{
   assert.match(spawnDockerPolicyWorker.toString(),
     /timeoutMs\s*=\s*DEFAULT_WORKER_TIMEOUT_MS/,
     'spawnDockerPolicyWorker must use the exported finite default');
+});
+
+test('bundle verifier accepts an unchanged materialized bundle',()=>{
+  const item=makeTamperBundle();
+  try{assert.equal(verifyPolicyBundle(item.bundle),item.bundle.bundleSha256);}
+  finally{item.dispose();}
+});
+
+test('bundle verifier rejects on-disk manifest byte tampering',()=>{
+  const item=makeTamperBundle();
+  try{
+    const file=path.join(item.bundle.root,'bundle-manifest.json');
+    fs.chmodSync(file,0o644);
+    fs.appendFileSync(file,' ');
+    assert.throws(()=>verifyPolicyBundle(item.bundle),/manifest digest/i);
+  }finally{item.dispose();}
+});
+
+test('bundle verifier rejects bundled-file digest tampering',()=>{
+  const item=makeTamperBundle();
+  try{
+    const file=path.join(item.bundle.root,'worker.cjs');
+    fs.chmodSync(file,0o644);
+    fs.appendFileSync(file,'\\n// tampered');
+    assert.throws(()=>verifyPolicyBundle(item.bundle),/differs from its allowlisted manifest/i);
+  }finally{item.dispose();}
+});
+
+test('bundle verifier rejects unmanifested files',()=>{
+  const item=makeTamperBundle();
+  try{
+    fs.chmodSync(item.bundle.root,0o755);
+    fs.writeFileSync(path.join(item.bundle.root,'unlisted.txt'),'not in manifest');
+    assert.throws(()=>verifyPolicyBundle(item.bundle),/allowlisted manifest/i);
+  }finally{item.dispose();}
+});
+
+test('bundle verifier rejects symlinks and in-memory manifest/digest mutation',()=>{
+  const linked=makeTamperBundle();
+  try{
+    fs.chmodSync(linked.bundle.root,0o755);
+    fs.symlinkSync(linked.sourceRoot,path.join(linked.bundle.root,'unexpected-link'));
+    assert.throws(()=>verifyPolicyBundle(linked.bundle),/rejects symlinks/i);
+  }finally{linked.dispose();}
+  const manifest=makeTamperBundle();
+  try{
+    manifest.bundle.manifest.files[0].sha256='0'.repeat(64);
+    assert.throws(()=>verifyPolicyBundle(manifest.bundle),/manifest differs/i);
+  }finally{manifest.dispose();}
+  const digest=makeTamperBundle();
+  try{
+    digest.bundle.bundleSha256='0'.repeat(64);
+    assert.throws(()=>verifyPolicyBundle(digest.bundle),/bundle digest differs/i);
+  }finally{digest.dispose();}
 });
 
 function assertNoInvalidPrivateFlags(args){
