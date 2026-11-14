@@ -668,6 +668,29 @@ function discardPriority(choice, observation) {
   return 60;
 }
 
+function canUseGuzmaHalaMode1(observation, options = {}) {
+  const excluded = list(options.excludePatterns);
+  const hand = list(observation.ownHand).filter(printing =>
+    !excluded.some(pattern => matches(printing, pattern)));
+  if (hand.length < 2) return false;
+  const discardable = hand.filter(printing =>
+    discardPriority({ printing }, observation) >= 48);
+  if (discardable.length < 2) return false;
+  if (!bunnelbyInPlay(observation) ||
+      !hasK0PossibleBenchEvolutionTarget(observation)) return false;
+
+  const hasTool = hand.some(printing => matches(printing, PRINT.tmEvolution)) ||
+    bunnelbyHasTool(observation, PRINT.tmEvolution);
+  const wantTool = !hasTool && sourceCopyPossible(observation, PRINT.tmEvolution);
+  const hasJet = hand.some(printing => matches(printing, PRINT.jetEnergy)) ||
+    bunnelbyHasTool(observation, PRINT.jetEnergy);
+  const wantJet = bunnelbyOnBench(observation) && !bunnelbyActive(observation) &&
+    !hasJet && sourceCopyPossible(observation, PRINT.jetEnergy);
+  const guzmaAvailable = options.guzmaInHand === true ||
+    sourceCopyPossible(observation, PRINT.guzmaHala);
+  return guzmaAvailable && (wantTool || wantJet);
+}
+
 function scorePokemonChoice(choice, observation, context) {
   const printing = choicePrinting(choice);
   const owner = choiceOwner(choice);
