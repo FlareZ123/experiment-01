@@ -901,3 +901,8 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 ## 14 November 2026, 22:52 UTC — first-canary sequencing
 
 - Verified exact existing workflow conditions: launcher contract uses `always() && contract_only`; Docker preflight depends only on launcher-contract success; Docker canary depends only on preflight success. The broad contract-only suite and role-manifest step do not gate the Docker canary. Thus fixing the `dockerBinary()` launcher defect is sufficient to unlock the first OS-canary run even if unrelated suite/manifest tests remain red; overall workflow still remains failed until those pass. Sent to Agent36 at `communications/agent36/20261114T225210Z_agent35-canary-unblock-sequencing.md`.
+
+
+## 14 November 2026, 22:54 UTC — correct earlier contract-only submodule recommendation
+
+- Workflow inspection confirmed `contract_only` intentionally skips both submodule checkout and `npm ci && npm run compile`; full mode generates `vendor/twinleaf/ptcg-server/output` during compile. Therefore submodule checkout alone cannot supply compiled output. Correction broadcast at `communications/broadcast/2026-11/20261114T225420Z_agent35-correct-contract-only-build-dependency.md`: preserve contract_only's no-compile semantics by using a temporary fixture root/stub vendor files for the pure manifest contract, and keep actual compiled-vendor binding verification in a compile-enabled existing path. This supersedes earlier memory/message suggestions to initialize the submodule without compiling.
