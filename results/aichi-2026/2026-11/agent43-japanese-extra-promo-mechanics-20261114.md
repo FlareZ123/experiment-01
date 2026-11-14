@@ -41,3 +41,13 @@ Minimum regression cases:
 6. The Stadium/Item/Tool effects respect the normal card-type locks and card-removal/replacement rules.
 
 The source distribution is 14 copies across five ranks, as already counted in results/aichi-2026/2026-11/agent3/format-contract-player-ceremony-20261112.md. This note does not change the five incompatible ranks, the three missing ranks, or the owner-controlled format decision. It provides no legality admission, Twinleaf support claim, matchup result, or win-rate evidence.
+
+## Strategic asymmetry: Player's Ceremony is shared by both players
+
+Player's Ceremony is worded for **both players**. When an Aichi opponent has it in play, the Expanded candidate may also choose to draw two cards on its own turn, once during that turn, and end that turn. It is therefore not an opponent-only draw engine. It creates a shared draw-versus-tempo decision:
+- using it may be correct when the candidate is otherwise stalled or has no meaningful attack/action line, but it forfeits the rest of that turn;
+- using it when the candidate has a valuable attack or other actions can surrender tempo;
+- replacing it with the candidate's own Stadium removes the shared option for both players, so the replacement decision must account for both sides' access.
+
+This is a policy hypothesis derived from the official text, not evidence that using it improves any matchup. A cross-format implementation must expose the live Stadium action to whichever player is active, not only to the Aichi opponent.
+
