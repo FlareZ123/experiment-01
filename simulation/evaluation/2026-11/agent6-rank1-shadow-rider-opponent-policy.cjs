@@ -208,7 +208,7 @@ function scoreAction(item, request) {
         matches(item.targetPrinting ?? '', PRINT.shadowRiderV)) return 148;
 
     if (includes(card, 'Acerola') && supporterAvailable && paleMoon &&
-        latias && matches(own.active?.printing ?? '', PRINT.latias)) return 165;
+        latias && matches(own.active?.printing ?? '', PRINT.latias)) return 175;
 
     if (includes(card, 'Tulip') && supporterAvailable && psychicDiscard >= 2) {
       return 160 + Math.min(9, psychicDiscard * 3);
@@ -359,7 +359,7 @@ function scorePokemonChoice(choice, observation, mode) {
   }
 
   if (mode === 'promotion') {
-    return remainingHp(slot) > 150 ? 1000 - prizeLiability(slot) * 100 + remainingHp(slot) :
+    return remainingHp(slot) > 150 ? 1000 - prizeLiability(slot) * 250 + remainingHp(slot) :
       100 - prizeLiability(slot) * 20 + remainingHp(slot);
   }
 
@@ -497,7 +497,12 @@ function promptDecision(request) {
         scored = sortedChoiceTokens(choices, choice =>
           cardSearchScore(choicePrinting(choice), observation, effect));
       }
-      const tokens = scored.slice(0, Math.min(max, scored.length));
+      let tokens = scored.slice(0, Math.min(max, scored.length));
+      if (tokens.length < min && includes(effect, 'Mysterious Treasure') &&
+          choices.some(choice => choiceZone(choice) === 'hand')) {
+        tokens = choices.filter(choice => choice.kind !== 'cancel' &&
+          choice.kind !== 'empty-selection').slice(0, min).map(choice => choice.token);
+      }
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
@@ -515,10 +520,11 @@ function promptDecision(request) {
     if (selectionType === 'energy-payment') {
       const required = typeof metadata.energyType === 'string' ?
         Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
+      if (required > max) return { kind: 'abstain', reasonCode: 'ENERGY_COST_EXCEEDS_VISIBLE_CHOICES' };
       const tokens = choices.filter(choice =>
         choice.kind !== 'cancel' && choice.kind !== 'empty-selection')
         .slice(0, Math.min(required, max, choices.length)).map(choice => choice.token);
-      if (tokens.length >= min && tokens.length > 0) {
+      if (tokens.length === required && tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
       return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
