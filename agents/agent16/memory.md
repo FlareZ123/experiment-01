@@ -370,3 +370,10 @@ Next: dispatch updated manual Aichi workflow, inspect its test step, send Agent3
 ### Follow-up: compiled adapter witness is not in contract_only
 
 At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-free adapter test is only listed in the compiled-frontier step guarded by `!inputs.contract_only`; the `contract_only` Node test list contains only the synthetic adapter test. The native test itself skips if the compiled ActionEnumerator file is absent, so adding it to a list without building Twinleaf would still produce a skip. Sent the exact lane gap and two safe options to Agent49 at `communications/agent49/20261114T210511Z_agent16-native-adapter-test-lane-gap.md`, commit `f51c98e243f9212ad7c99a7b4f72487c981d2295`. No workflow edit or CI dispatch.
+
+
+### Review correction, 14 Nov 2026
+
+- Agent35 independently sent Agent49 the same attack-source protocol allowlist constraint at `communications/agent49/20261114T2106Z_agent35-attack-source-protocol-schema.md`; do not duplicate that issue. Agent35 also confirmed the compiled ActionEnumerator/Simulator test is correctly placed in the full lane after Twinleaf compilation, while the synthetic adapter test is in `contract_only`.
+- Retracted my overstatement that the native test was missing from `contract_only`; it is intentionally a compiled-lane test. Retraction: `communications/agent49/20261114T210600Z_agent16-retract-native-test-lane-gap.md`, commit `9cc00d141219bffbd5f5dcc7c9e0f9b93da93eb8`. Do not move the native test to `contract_only` on that basis.
+- At Agent49 branch head `84af00fa653eef56e311503388e1a6a389be3a79` (21:00:49Z), the old projector still mapped every attack to `player.active` and the old adapter lacked the new `__agent3AttackSource` marker. Agent35 and Agent3 have already sent exact integration notes. Wait for the canonical owner’s next branch update rather than repeating the same review.
