@@ -76,7 +76,7 @@ function makeState({ phase = 2, prompt = null, opponentActive = null, opponentBe
 }
 
 function provenance(sourceCard, effectName = 'Quick Ball') {
-  return { getPromptProvenance: () => ({ sourceCard, effectName }) };
+  return { getPromptProvenance: () => ({ sourceKind:'card-effect',sourceCard,effectName }) };
 }
 
 function basePrompt(Class, state, overrides = {}) {
@@ -95,6 +95,8 @@ function basePrompt(Class, state, overrides = {}) {
   state.prompts = [prompt];
   return prompt;
 }
+
+class ChooseStartingPokemonPrompt extends ChooseCardsPrompt {}
 
 class ChooseCardsPrompt {
   decode(result) {
@@ -413,4 +415,34 @@ test('unknown prompt types and non-actor perspectives fail closed', () => {
     prompt: wrongPerspective, state, actorSeat: 0, native,
     provenanceHook: provenance(wrongPerspective.sourceCard)
   }), /prompt perspective must match/);
+});
+
+
+test('prompt.sourceCard is not trusted as typed provenance when the active effect hook is absent',()=>{
+  const state=makeState({phase:2});
+  const prompt=basePrompt(ChooseCardsPrompt,state,{
+    cards:state.players[0].deck,
+    options:{min:1,max:1,allowCancel:false}
+  });
+  assert.ok(prompt.sourceCard,'fixture prompt deliberately carries an untrusted sourceCard field');
+  assert.throws(()=>projectPrompt({prompt,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+});
+
+test('only the explicit ChooseStartingPokemonPrompt type is classified as an engine setup prompt',()=>{
+  const state=makeState({phase:0});
+  const prompt=basePrompt(ChooseStartingPokemonPrompt,state,{
+    cards:state.players[0].deck,
+    options:{min:1,max:1,allowCancel:false}
+  });
+  const projection=projectPrompt({prompt,state,actorSeat:0,native});
+  assert.equal(projection.promptProjection.source.sourceKind,'engine');
+  assert.equal(projection.promptProjection.source.effectName,'ChooseStartingPokemonPrompt');
+
+  const unlisted=basePrompt(ChoosePokemonPrompt,state,{
+    cards:state.players[0].deck,
+    options:{min:1,max:1,allowCancel:false}
+  });
+  assert.throws(()=>projectPrompt({prompt:unlisted,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
 });
