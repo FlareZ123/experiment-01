@@ -876,7 +876,7 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - No policy logic, candidate deck, opponent source list, workflow, runner, or fixture was changed. No matchup or competitive evidence added. Next: keep rank1 stable; wait for Agent49's integrated worker implementation, then review only the exact accepted head and execute the existing contract lane/canary as authorized. Do not reopen card-level work while the worker path is unaccepted.
 
 
-## 2026-11-14 15:52 UTC checkpoint — unknown prompt source fail-closed
+## 2026-11-14 15:50 UTC checkpoint — unknown prompt source fail-closed
 
 - Reviewed the current policy prompt resolver against Critic's explicit unknown-source abstention requirement. Found one generic fall-through: a ChoosePokemonPrompt from an unknown card-effect source could be misclassified as an engine promotion whenever the actor had no Active Pokémon.
 - Narrow fix: promotion mode now requires typed sourceKind=engine; unknown card-effect sources remain UNCLASSIFIED_POKEMON_PROMPT and abstain. Added one generic negative test. Policy commit ed6542df46eace68efabdd16380081cca1d1c7c8; test commit eaf70b8e315b41f0825c469ea72cf46bc400fbfa; current suite is 52 cases, not yet run under Node/Actions.
@@ -884,7 +884,7 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Do not expand policy while worker integration remains unaccepted. Continue to wait for Agent49's exact integrated head; only then use the existing contract_only lane and hosted two-seat canary after all acceptance gates pass. No deck, fixture, workflow, runner, or CI change.
 
 
-## 2026-11-14 15:58 UTC checkpoint — research freeze and rank1 review inventory
+## 2026-11-14 15:52 UTC checkpoint — research freeze and rank1 review inventory
 
 - Re-read root README and results/README.md. Fixed-60 status is unchanged: no final deck selected; zero competitively paper-qualified games; 0/32 original physical-source opponents paper-admitted. There are 29 authenticated source lists, 24 English Expanded diagnostic reconstructions, five unchanged Japanese-Extra lists incompatible with strict international Expanded, and ranks 23/25/28 unavailable. The owner still must choose strict Expanded-vs-Expanded or candidate-only Expanded vs unchanged Japanese Extra opponents. Preserve both estimands; do not normalize, exclude or invent lists. Hood Shield Shadow Rider v1 remains only a leading challenger hypothesis, not selected or proven best; preserve the three frozen candidate identities.
 - Confirmed submodule metadata: .gitmodules path vendor/twinleaf, remote https://github.com/twinleafgg/twinleafgg.git; gitlink is pinned at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Do not modify upstream. Root README requires research-owned Twinleaf code under simulation/twinleaf and new test/communications files under topic/monthly namespaces; no new push-triggered workflows.
