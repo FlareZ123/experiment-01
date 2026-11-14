@@ -6,7 +6,7 @@ const INIT_SCHEMA = 'aichi-policy-worker-init-v2';
 const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v2';
-const OBSERVATION_SCHEMA = 'aichi-actor-observation-v1';
+const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v2';
 const EVENT_SCHEMA = 'aichi-public-event-receipt-v1';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
@@ -109,6 +109,7 @@ const POKEMON_KEYS = [
   'specialConditions', 'publicRestrictions', 'evolutionPrintings', 'energies',
   'tools', 'attacks', 'abilities', 'abilityDetails'
 ];
+const POKEMON_OPTIONAL_KEYS = ['abilitySuppressions'];
 const PRINTED_KEYS = ['stage', 'subtypes', 'types', 'retreatCost', 'weakness', 'resistance'];
 const PUBLIC_RESTRICTION_KEYS = [
   'cannotAttackNextTurn', 'cannotUseAttacksNextTurn', 'blockedAttackNameNextTurn',
@@ -180,7 +181,7 @@ function validatePokemonSlot(slot, allowConcealed) {
     exactKeys(slot, ['concealed']);
     return;
   }
-  exactKeys(slot, POKEMON_KEYS);
+  exactKeys(slot, POKEMON_KEYS, POKEMON_OPTIONAL_KEYS);
   if (!boundedString(slot.printing, null, 256) || !boundedString(slot.name, null, 128)) fail('BAD_POKEMON_IDENTITY');
   if (!Number.isFinite(slot.hp) || !Number.isFinite(slot.damage)) fail('BAD_POKEMON_VITALS');
   if (slot.lastPlayedOrEvolvedTurn !== null && !Number.isSafeInteger(slot.lastPlayedOrEvolvedTurn)) fail('BAD_POKEMON_TURN');
@@ -217,6 +218,22 @@ function validatePokemonSlot(slot, allowConcealed) {
     exactKeys(ability, ['name', 'powerType', 'text']);
     if (!boundedString(ability.name, null, 128) || !scalarOrNull(ability.powerType) ||
         !(ability.text === null || typeof ability.text === 'string')) fail('BAD_ABILITY_RECORD');
+  }
+  if (slot.abilitySuppressions !== undefined) {
+    if (!Array.isArray(slot.abilitySuppressions) || slot.abilitySuppressions.length > 8) fail('BAD_ABILITY_SUPPRESSIONS');
+    const knownAbilityNames = new Set([...slot.abilities, ...slot.abilityDetails.map(x => x.name)]);
+    const seen = new Set();
+    for (const suppression of slot.abilitySuppressions) {
+      exactKeys(suppression, ['abilityName', 'suppressed', 'reasonCode', 'sourcePrinting']);
+      if (!boundedString(suppression.abilityName, null, 128) || !knownAbilityNames.has(suppression.abilityName) ||
+          typeof suppression.suppressed !== 'boolean' ||
+          !(suppression.reasonCode === null || boundedString(suppression.reasonCode, /^[A-Z][A-Z0-9_]{0,63}$/)) ||
+          !(suppression.sourcePrinting === null || boundedString(suppression.sourcePrinting, null, 256)) ||
+          seen.has(suppression.abilityName)) fail('BAD_ABILITY_SUPPRESSION');
+      if (!suppression.suppressed && (suppression.reasonCode !== null || suppression.sourcePrinting !== null)) fail('INCONSISTENT_ABILITY_SUPPRESSION');
+      if (suppression.suppressed && suppression.reasonCode === null) fail('MISSING_ABILITY_SUPPRESSION_REASON');
+      seen.add(suppression.abilityName);
+    }
   }
 }
 function validatePublicPlayer(player, allowConcealed) {
