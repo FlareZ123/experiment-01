@@ -172,7 +172,7 @@ jobs:
             tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs \
             tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs
       - name: Generic owner-hand Trainer category and shared-action opportunity tests
-        run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs tests/agent50-native-trainer-owner-hand-payment-posthoc.test.cjs tests/agent7-stadium-enumerator-custody-audit.test.cjs tests/agent5-archived-paper-pass-opportunities.test.cjs
+        run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs tests/agent50-native-trainer-owner-hand-payment-posthoc.test.cjs tests/agent7-stadium-enumerator-custody-audit.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs tests/agent5-archived-paper-pass-opportunities.test.cjs
       - name: Precompile immutable registration and seed-identity contract for generic native Trainer A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node --test tests/agent50-generic-native-trainer-registration.test.cjs
@@ -194,6 +194,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify suppression-aware public Stadium attack costs against native Store
+        run: node --test tests/agent44-copycat-stadium-cost-native.test.cjs
       - name: Verify exact Night Watch printed randomness vs pinned vendor selection
         run: node --test tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs
       - name: Verify native generic Trainer fallback inherits concealed-order decision reversal
