@@ -124,7 +124,7 @@ on:
         required: false
         default: false
       contract_only:
-        description: 'Run pure Agent34/Agent41 policy and Agent36 Snap Trap prompt-gate/observer contracts without compiling Twinleaf or executing a game'
+        description: 'Run Agent34/Agent41, Agent49 policy protocol, and Agent36 Docker policy-worker contracts without compiling Twinleaf or executing a game'
         required: false
         type: boolean
         default: false
