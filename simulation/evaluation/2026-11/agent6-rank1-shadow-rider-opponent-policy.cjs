@@ -71,7 +71,7 @@ function psychicCountInHand(observation) {
 
 function hasSupporterInHand(hand) {
   return list(hand).some(card =>
-    /Tulip|Raihan|Acerola|Guzma|Teammates|Carmine|Iono|Lillie|N\\b|Professor/i.test(card));
+    /Tulip|Raihan|Acerola|Guzma|Teammates|Carmine|Iono|Lillie|N\b|Professor/i.test(card));
 }
 
 function psychicCountInDiscard(observation) {
