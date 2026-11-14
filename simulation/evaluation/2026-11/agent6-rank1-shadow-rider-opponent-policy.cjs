@@ -317,7 +317,8 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
         observation.ownTurnResources.supporterPlayedTurn === 0) return 110;
     if (matches(card, PRINT.clefairy) && hasDragonActive(observation) &&
-        pathLockStatus(observation) === false && !fairyZoneActive(observation)) return 130;
+        pathLockStatus(observation) === false && !fairyZoneActive(observation) &&
+        !boardHas(own, PRINT.clefairy)) return 130;
     if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
         !boardHas(own, PRINT.mimikyu)) return 118;
 
@@ -383,7 +384,8 @@ function scoreAction(item, request) {
     const activeLocked = active.publicRestrictions?.cannotAttackNextTurn === true ||
       active.publicRestrictions?.cannotRetreat === true;
     if (matches(target.printing, PRINT.shadowRiderVmax) &&
-        maxGeistDamage(request) >= remainingHp(activeTarget(opponent))) return 128;
+        maxGeistDamage(request) >= remainingHp(activeTarget(opponent)) &&
+        (!activeIsAttacker || activeLocked)) return 128;
     return targetIsAttacker && (!activeIsAttacker || activeLocked) ? 84 : 8;
   }
 
