@@ -65,6 +65,7 @@ The relevant source is `simulation/twinleaf/agent31/late-seeker-guzma-prize.cjs`
 It computes nominal KOs, then sorts by smallest nominal excess damage, followed by target index, own Bench index and attack name. It does not enumerate Full Moon Rondo's `20+` combined-Bench formula, and its nominal KO calculation does not apply Fairy Zone / Dragon Weakness. Thus Max Geist is the only recognized nominal KO candidate in this state. The `maxPrintedDamage:250` audit field is the selected Max Geist line's nominal damage; it does not mean the planner compared every available attack and preferred the largest number.
 
 The existing specialized Rondo helper, `agent6-owner-public-skyliner-rondo-frontier.cjs`, is a narrow default-off proposal. It requires a specific Latias/Mimikyu/Telepathic-Energy setup, checks nominal damage without Fairy Zone/Weakness, and leaves damage prevention to Store. It does not cover this Guzma own-recipient choice.
+The rank19 trace's Mimikyu has `Psychic Energy MEE` (Basic), whereas this specialized Rondo helper requires its sole Active Mimikyu Energy to be the exact `Telepath [P] Energy M3` printing. It would therefore abstain on this observed state even if enabled.
 
 ## Required worker-policy test
 
