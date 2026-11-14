@@ -79,9 +79,12 @@ function summarizePhysicalZoneTransfers(packet){
     const prizeClaims=transfers.filter(x=>
       isPrizeZone(x.fromZone) &&
       x.toZone===x.fromZone.slice(0,2)+'.hand');
-    const energyDeckAttachments=transfers.filter(x=>
-      isEnergy(x.printing)&&/\.deck$/.test(x.fromZone)&&
-      /^(s[01])\.(?:active|bench[0-9]+)(?:\.energies)?$/.test(x.toZone));
+    const attachedEnergyZone=/^(s[01])\.(?:active|bench[0-9]+)(?:\.energies)?$/;
+    const energyAttachments=transfers.filter(x=>
+      isEnergy(x.printing)&&attachedEnergyZone.test(x.toZone)&&
+      !attachedEnergyZone.test(x.fromZone));
+    const energyDeckAttachments=energyAttachments.filter(x=>
+      /\.deck$/.test(x.fromZone));
     const crossSeatMoves=transfers.filter(x=>
       x.fromZone.slice(0,2)!==x.toZone.slice(0,2));
     timeline.push({
@@ -91,7 +94,7 @@ function summarizePhysicalZoneTransfers(packet){
       withinZoneReorders:reorderedWithinZone,
       zoneTransferCount:transfers.length,
       temporaryUnaccountedCount:temporaryUnaccounted.length,
-      prizeClaims,energyDeckAttachments,crossSeatMoves,
+      prizeClaims,energyAttachments,energyDeckAttachments,crossSeatMoves,
       transfers,temporaryUnaccounted
     });
     totalDeckReorders+=reorderedWithinZone;
