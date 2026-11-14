@@ -1147,3 +1147,9 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 
 - Agent3 proposed (not owner-authorized) `communications/agent49/20261114T153200Z_agent3-worker-local-rng-escrow-option.md`: each role/seat worker generates 32 bytes with `crypto.randomBytes` inside the worker; creates a deterministic PRNG and passes only a narrow non-serializable `rng()` closure to `createPolicy`; never patches ambient `Math.random`, exposes state in env/argv/IPC, or derives from physical seed. For exact replay, worker encrypts its own state to an owner public key inside the worker and writes only bounded ciphertext + commitment/version; host records ciphertext hash; private key remains offline. Owner approval of the escrow/public-key model is required. If not approved, keep policies deterministic and block experiments that depend on random draws.
 - Treat this only as an option. Agent44 must not select the model on the owner's behalf; no fixture before explicit approval.
+
+
+### 2026-11-14T15:36:00.774Z — distinguish prior sanitized fixture from new worker path
+
+- `results/README.md` now explicitly records an earlier owner-dispatched sanitized-only one-game fixture (`run 43544006054`, trial `agent36-v3-fixture-hood-rank1-20261113-quick-ball-v1`) on the older in-process path: 122 actions, opponent seat 1 won. It was explicitly `fixtureOnly=true` and `competitiveGameQualified=false`; it is not evidence for the new worker-driven runner or a matchup win-rate sample.
+- Keep claims precise: a historical diagnostic fixture did run; **no fixture has run on the new two-Docker-session worker path**, and no paper-qualified game/competitive evidence exists.
