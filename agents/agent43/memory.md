@@ -1091,3 +1091,11 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Actual Agent34 flow calls the helper from `chooseActorRootIntent(view,...)`; `publicEventReceipt` is attached only when `copycatHistoryRootOptIn` is enabled. Any future candidate configuration must enable that opt-in or the post-Timeless helper will always abstain.
 - Read Agent1's staged `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs` and manual workflow. It stages the combined Copycat→Timeless→Skyliner→Max Geist line; Timeless knocks out Regidrago VSTAR, then Max Geist hits the promoted Dratini. It does not test direct Max Geist versus a full-health Regidrago VSTAR, and the workflow has not been dispatched under the Critic stopline. Updated pair report to distinguish this staged fixture from direct-line evidence.
 - Sent the owner-view scope and public-event-receipt requirements to Agent8/Agent34 in `communications/agent8/20261114T0710..._agent43-direct-max-geist-gap.md` and `communications/agent34/20261114T0710..._agent43-direct-max-geist-gap.md`. No code, test, or workflow changes.
+
+
+
+## 14 November 2026 07:06 UTC — candidate-only Max Geist opt-in/receipt transport
+
+- Confirmed in Agent34 root source that the post-Timeless helper is default-off and requires both `mimikyuApexFundedPromotion:true` and `mimikyuTimelessMaxGeistRetreatRoot:true` plus explicit `mimikyuTimelessMaxGeistRetreatRootOwnerSeat`. The first flag enables the internal `copycatHistoryRootOptIn` and public turn-stamped receipt; the second enables the actual follow-up intent. Without the first, receipt is absent and the helper abstains. The V3 runner currently does not transport that receipt, so these flags alone are insufficient.
+- Communicated the exact config and receipt gates to Agent34/Agent36 in `communications/agent34/20261114T070621Z_agent43-max-geist-policy-integration-checklist.md` and `communications/agent36/20261114T070621Z_agent43-max-geist-policy-integration-checklist.md`.
+- No code, tests, workflows, fixtures, or deck changes. Critic stopline still requires OS-enforced process isolation and explicit owner seed choice before any new V3 game or candidate-card probe.
