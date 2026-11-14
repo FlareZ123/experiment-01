@@ -107,7 +107,8 @@ Before any actor-only result is admitted, run a policy canary that attempts all 
 2. Read `results/aichi-2026/candidate-hood-shadow-rider.json` and the opponent deck file.
 3. Read the physical seed or seed commitment source, including `process.env`, cwd traversal, module cache, and environment introspection.
 4. Load `node:fs`, `node:module`, `node:child_process`, `node:worker_threads`, `node:inspector`, and attempt a network connection.
-5. Access a prompt option or hidden-zone field not included in the actor request.
+5. During a decision, redefine `Math.random` with an accessor setter that captures the value assigned by the adapter's cleanup path; assert that the policy cannot capture or invoke the engine's physical RNG function.
+6. Access a prompt option or hidden-zone field not included in the actor request.
 
 The canary passes only if these attempts are denied or the requested hidden data is absent. It should also prove that legitimate actor-visible choices and the typed action protocol still work. A static scanner may be retained as defense-in-depth but cannot replace this runtime test.
 
