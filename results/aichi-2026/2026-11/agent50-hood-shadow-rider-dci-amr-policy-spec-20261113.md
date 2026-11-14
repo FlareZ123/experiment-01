@@ -1,6 +1,6 @@
 # Hood Shadow Rider v1 — matchup-conditioned DCI/AMR policy notes
 
-**Agent 50 · 13 November 2026 · heuristic policy specification, not a validated bot**
+**Agent 50 · 13–14 November 2026 · heuristic policy specification, not a validated bot**
 
 This note applies to the nominated Hood Shield Shadow Rider v1 list, which retains Dialga-GX and Mimikyu. It translates the repository's human concepts—UDP, DCI, AMR, K0/K1, Supporter contention and ALS—into concrete policy state and sequencing requirements. It is not a static card-value ranking.
 
@@ -24,6 +24,8 @@ At minimum, a deck-aware policy needs:
 - Whether each one-of tech's matchup-specific target/effect is currently relevant.
 
 A scalar DCI alone is insufficient. Use conditional states or a vector keyed by matchup, turn, prize map, zone state and intended ALS.
+
+For attack-route decisions, also track the live target's remaining HP, printed type, weakness and resistance; the attacker's Prize liability; exact payable attack cost after active Stadium/Tool/Ability effects; all Psychic Energy on the owner's board; Clefairy's attached Energy and the combined occupied Bench count; the current Stadium-effect suppression state; the opponent's last-turn attack receipt; and the current public retreat/Ability status. Do not infer an active Stadium or Ability from its card merely being visible.
 
 ## Critical Regidrago ALS
 
@@ -211,3 +213,78 @@ Report action legality, policy decisions, failures and full-game outcomes by opp
 ## Related formalization
 
 For a general state-conditioned treatment of DCI, AMR, connector domination, resource constraints, and hidden information, see [Agent5's state-conditioned action-realism model](../../methodology/2026-11/agent5-state-conditioned-action-realism-model-20261113.md). This document is one concrete post-Timeless line comparison; it does not compute general AMR/DCI values or establish a validated playing policy or matchup result.
+
+
+---
+
+## 14 November 2026 addendum — Regidrago route portfolio and structural challenger triage
+
+This addendum integrates Agent43's exact core-access and attack-threshold work, Agent11's Stadium/counter-response corrections, and Agent2's candidate-policy coverage audit. It is a policy-design synthesis, not a game result. Keep the 1/1/1 fixed 60 as the sole baseline; do not change the deck or promote a challenger from access arithmetic.
+
+### The Regidrago plan is a portfolio of routes
+
+The 98.5455% Regidrago-group win floor is a necessary condition for the 99.5% equal-weight field target if all other 21 ranks are perfect. It is not a forecast. The 92.20% Copycat core-access event is not a ceiling on total matchup strength because the deck has independent direct attacks; conversely, access to any one route is not proof that it executes or wins.
+
+| Route | Owner-visible prerequisites | Full-health 280-HP Dragon threshold with active Fairy Zone | Attacker Prize liability |
+| --- | --- | ---: | ---: |
+| Direct Max Geist | Ready Shadow Rider VMAX; at least 5 Psychic Energy attached across the owner's board; Fairy Zone active | 320 damage | 3 |
+| Direct Full Moon Rondo | Clefairy ex able to attack; at least 6 combined occupied Bench spaces; Fairy Zone active | 280 damage | 2 |
+| Copycat → Apex Dragon → Timeless-GX | Active Mimikyu; public receipt that the opponent used non-GX Apex Dragon last turn; Dialga-GX in the owner's discard; unused GX allowance; Fairy Zone active for the 280-HP KO | 300 damage | 1 |
+| Post-Timeless second Copycat → Power Beam | The Apex Dragon copy choice remains available; Radiant Eternatus is in the owner's discard; Mimikyu can attack again | 400 damage | 1 |
+| Post-Timeless Skyliner → Max Geist | Latias ex's Skyliner or an effective Float Stone gives Mimikyu free retreat; a ready VMAX; at least 5 Psychic Energy remain attached across the owner's board after the pivot | 320 damage | 3 |
+
+The table separates damage from attack cost. Dimension Valley reduces one Colorless symbol from attacks of Psychic Pokémon when its effect is actually active: Mimikyu's Psychic + Colorless Copycat and Clefairy ex's Psychic + Colorless Full Moon Rondo each cost only one Psychic Energy under Dimension Valley, but two Energy without it. Shadow Rider VMAX's three-Colorless Max Geist costs two Energy under Dimension Valley and three without it. Trevenant & Dusknoir-GX's Night Watch costs three Psychic Energy and receives no Dimension Valley discount. The nested Timeless-GX chosen through the Copycat/Apex Dragon effect does not separately pay Dialga's printed Metal cost under the manual's C-18 “use it as this attack” rule; Mimikyu still has to pay its own Copycat cost. These are card-text/rules derivations, not execution-frequency claims.
+
+The Full Moon Rondo threshold deserves one correction to the unmodified two-Energy shorthand in the core-copy report: two Energy are required only when Dimension Valley is absent or suppressed. With active Dimension Valley, one Psychic Energy pays its Psychic + Colorless cost. Its damage formula remains 20 + 20 × (own occupied Bench + opponent occupied Bench), before Weakness/Resistance. With Fairy Zone against a Dragon, six combined Benched Pokémon reach 280; at eight combined Benched Pokémon it deals 360. Without Fairy Zone, 13 combined Benched Pokémon are needed to reach 280, which is impossible under the ordinary five-per-player Bench cap but can become possible under Sky Field. If Sky Field leaves play, both players must resolve the resulting Bench reduction; do not keep using the pre-removal Rondo count.
+
+Max Geist is 10 + 30 × E, where E is the number of Psychic Energy attached to all of the owner's Pokémon. With Fairy Zone against a Dragon, E=4 deals 260 (needs at least 20 prior damage for a 280-HP KO), E=5 deals 320, and E=6 deals 380. Without Fairy Zone, nine Psychic Energy are needed to reach 280. The attack's payable cost is separate from this damage threshold. If Mimikyu retreats by paying one Energy, that Energy leaves the board and the pre-retreat total must be at least six to leave E=5; if Skyliner or an effective Float Stone makes the retreat free, Mimikyu's attached Psychic Energy stays on the board and still counts toward Max Geist.
+
+For the post-Timeless comparison, Max Geist at E=5/6/7 is 160/190/220 base damage, while Power Beam is 200. Under Fairy Zone those become 320/380/440 versus 400; the raw-damage crossover is E=7. Against a full-health 280-HP Dragon, however, both Max Geist and Power Beam already Knock Out at E=5 under Fairy Zone. At that point the meaningful comparison is not 320 versus 400: it is the value of retaining one-Prize Mimikyu Active versus exposing three-Prize Shadow Rider VMAX, the next-turn response, retained Energy, and the value of any additional attack. Do not select the larger damage number without valuing the Prize map and fallback.
+
+The rank19 Raging Bolt trace is a useful example, not a policy verdict: eight combined Bench Pokémon gave Full Moon Rondo 360 under Fairy Zone; eight Psychic Energy across the board gave Max Geist 500. Both attacks could Knock Out the 240-HP Dragon for two Prizes, while Clefairy ex exposes two Prizes and Shadow Rider VMAX exposes three. The trace does not establish that the Rondo line was available earlier, survives the opponent's response, or is generally superior. See the [rank19 Guzma/Rondo versus Max Geist audit](agent46-rank19-guzma-rondo-vs-maxgeist-20261114.md) and [Agent43's exact threshold comparison](../../statistics/agent43-core-copy-asymmetry-pair-20261114.md).
+
+### Stadium, Ability, and direction gates
+
+- Dimension Valley is a cost modifier, not a damage modifier. The policy must confirm its effect is active, not merely visible: check public Stadium/Tool suppression, the relevant New Moon state, and any opponent replacement. Treat unknown status as an abstention, not a discount.
+- Fairy Zone is directional. The candidate's Clefairy changes opposing Dragon Weakness to Psychic; an opponent's Fairy Zone can instead change the candidate's Dragon-type Dialga-GX while Dialga is in play. Evaluate the actual attacker and target, not an archetype-wide “Dragon matchup” flag.
+- Fairy Zone and Skyliner must be live at the decision point. Path to the Peak, Silent Lab, Garbotoxin, Stadium replacement, Tool removal, and other public suppression can remove one or both effects. A visible Clefairy or Latias is not proof its Ability is active.
+- Sky Field changes the Rondo Bench threshold but also creates a Bench-capacity commitment. A later Stadium replacement can force Bench discards and remove the very Pokémon or Ability holder the attack plan needs.
+- Copycat's one-Energy shortcut and Rondo's one-Energy shortcut share the same Dimension Valley condition. Max Geist's cost shortcut is also conditional. Do not hard-code two Energy for Mimikyu/Clefairy or three for VMAX without reading the live attack and Stadium state.
+
+### Route AMR and DCI comparison contract
+
+For each route, preserve Agent5's AMR tuple rather than collapsing access into a binary “line exists” flag:
+
+(P(execute before deadline), E[ΔU | execute], E[ΔU | not execute], game-resource-cost vector, failure modes).
+
+The deadline is the opponent's next consequential action, lock, attack, or other event that changes route availability. The successful branch's ΔU is relative to the best competing route, not to doing nothing. The failed/interrupted branch uses the declared fallback policy; it is not automatically zero. Keep Supporter use, manual attachment, Energy, Bench/Active occupancy, GX allowance, Stadium exposure, retreat, and attacker Prize liability as a vector until scalarization is justified. Do not double-count resource costs inside ΔU and again as a separate penalty.
+
+For DCI, compare legal discard sets under the same search action's non-discard effects, the same non-anticipative continuation policy, and the same declared opponent policy. Dialga's value changes by zone and matchup: it is a protected Timeless-GX payload while the Apex Dragon counterline is live; it can be a high-value discard target when the line is secured or irrelevant; returning it with Night Stretcher can destroy a live discard-pile line. Mysterious Treasure is both a Dragon/Psychic search connector and a discard action; Battle Compressor has a different direct-to-discard route. Duplicate count is not DCI.
+
+Do not add the Copycat, Max Geist, and Full Moon Rondo access percentages as if they were independent. The routes overlap in board, Energy, Fairy Zone, and Bench states; some are mutually exclusive at a given attack decision, and a Copycat extra turn can create a later Max Geist or second-Copycat option. Measure the joint state and actual accepted action sequence under one fixed policy. Keep K0/K1 Prize knowledge player-specific and never use concealed opponent zones.
+
+### Copycat core packages: arithmetic is not the deck decision
+
+The current exact access screen uses one Arven, two natural draws after the opening, six Prizes, and a valid opening with at least one Basic. It assumes every unprized core copy is otherwise accessible, Heavy Ball is playable when seen or found by Arven, and the opponent does not disrupt. It does not execute the search/discard sequence, fund Copycat, establish Fairy Zone, or model attack conversion.
+
+| Package (Mimikyu / Dialga / Heavy Ball) | Core recovery feasible by second-turn horizon | Hard Prize-only obstruction | Disposition |
+| --- | ---: | ---: | --- |
+| 1 / 1 / 1 | 85.9140% | 2.3669% | Current fixed-60 baseline |
+| 1 / 1 / 2 | 88.1516% | 0.2195% | Parked future challenger; requires an implemented Arven/Heavy Ball route |
+| 2 / 1 / 1 | 92.2004% | 0.9399% | Parked structural challenger; second Mimikyu |
+| 1 / 2 / 1 | 92.2004% | 0.9399% | Parked structural challenger; second Dialga |
+| 2 / 2 / 1 | 98.8157% | 0.1150% | Not registered; requires two defensible Basic-slot cuts |
+
+The 1/1/2 package reduces the isolated Prize-only obstruction by 10.78× but adds only 2.2375 points to the optimistic second-turn recovery event. The 2/1/1 and 1/2/1 packages add 6.2863 points over baseline at that access layer, but are not symmetric in play: a duplicated Basic is the sole Basic in 5.6311% of valid seven-card openings, versus 2.8155% for the singleton core Basic. The 2/1/1 arm more often forces a 70-HP, one-Prize Mimikyu Active (which can Filch for cards but has no damage); the 1/2/1 arm more often forces a 180-HP, two-Prize Dialga-GX Active whose printed attacks are not payable with the Psychic-only Energy suite. Mimikyu has four Fog Crystal, four Mysterious Treasure, and one Quick Ball routes; Dialga has Mysterious Treasure, Quick Ball, and Battle Compressor routes, with only one Dialga required in the discard. These differences are priors for a controlled comparison, not evidence that either arm is better.
+
+The 2/2/1 access event clears the 98.5455% Regidrago-group floor by only 0.2702 points before opponent denial, Energy, Fairy Zone, Bench, GX, and attack-conversion attrition. It does not establish a 98.8% matchup win rate. The 2/1/1 and 1/2/1 access events are below that floor, but the direct Max Geist and Full Moon Rondo routes mean Copycat need not be the only Regidrago win path. Their actual joint contribution is unknown.
+
+The common cut in the registered 2/1/1 and 1/2/1 arms is Trevenant & Dusknoir-GX. This is not a free cut: Night Watch is a non-GX 150-damage attack that shuffles two random cards from the opponent's hand into their deck and costs three Psychic Energy; Dimension Valley does not reduce it. Pale Moon-GX separately competes with Timeless-GX for the once-per-game GX allowance. Agent11's 16/16 Night Watch Prize result was conditional on one selected rank1 opponent promotion-to-Girafarig plus Pass branch, using the opponent's Shadow Rider list, not the Hood candidate. Later owner-visible response branches showed Tulip recovery, two VMAX evolutions, Underworld Door, Get Lost or Latias recharge, Unfair Stamp, and other choices; promoting a bulky Dialga-GX or Clefairy ex can also deny the 150-damage Prize from the recorded undamaged state, and Acerola can clear damage/effects. A proposed Mimikyu Copycat-of-Night-Watch reply is still untested. Treat these as opponent-policy acceptance cases and opportunity-cost evidence, not a matchup estimate or a guaranteed Night Watch Prize. See [Agent11's native branch and response audit](../../methodology/2026-11/agent11-original-rank1-raihan-third-psychic-nightwatch-prize-20261109.md).
+
+### Policy readiness and next decision
+
+The current Agent46 candidate module has useful owner-view projections for Max Geist, Full Moon Rondo, Copycat, Weakness, and retreat, but it is not yet a competent full-deck pilot. The [Agent2 source-coverage audit](../../methodology/2026-11/agent2-candidate-policy-v1-engine-coverage-audit-20261114.md) records missing principal engine actions (Underworld Door, Climactic Gate, Wonder Tag, Star Alchemy), K0/K1 and Heavy Ball/Night Stretcher handling, multi-Energy prompt selection, and unsafe root-action ordering. The policy must implement the actual ordered engine actions and resource constraints before a terminal fixture can be treated as evidence of candidate competence.
+
+The next deck decision is therefore not a copy-count A/B. First complete the OS-enforced worker/process boundary, physical-RNG isolation, owner seed-disclosure decision, and actor-safe prompt/action protocol. Then freeze a candidate-aware attack-conversion policy and an independently competent fixed opponent policy. The first valid full game is a pipeline acceptance test; after that, evaluate the unchanged baseline prospectively across the available diagnostic panel and then the full authenticated field, preserving failures, no-opportunities, both seats, and first-player strata. Only after the policy is competent should the parked 1/1/2, 2/1/1, and 1/2/1 arms be compared. Do not create another workflow or dispatch another fixture under the current Critic stopline.
+
+Detailed supporting work: [Agent43's paired core-copy comparison](../../statistics/agent43-core-copy-asymmetry-pair-20261114.md), [Agent43's early-access model](../../statistics/agent43-copycat-early-access-bound-20261114.md), [Agent11's rank1 response branches](../../methodology/2026-11/agent11-original-rank1-raihan-third-psychic-nightwatch-prize-20261109.md), and [Agent2's policy coverage audit](../../methodology/2026-11/agent2-candidate-policy-v1-engine-coverage-audit-20261114.md).
