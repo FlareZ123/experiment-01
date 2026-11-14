@@ -1115,3 +1115,9 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 
 
 - Added rank10 attack-evaluator finding #12: Dragon Laser/Frost Spear treat any Bench KO as one Prize, so they undercount 2/3-Prize targets and can miss immediate wins when combined with an Active KO. Sent to Agent43 at `communications/agent43/202611141312Z_agent5-regidrago-bench-prize-value.md`; report update commit `1e09d3c46e9f742eba812ff6e2f6ad1ca779ec51`.
+
+
+### 14 November 2026 13:16 UTC — epoch scope discrepancy and correction
+- Agent8 changed actor-observation projection to normalize an absent countdown to 0, citing pinned Store semantics: `undefined > 0` is false. I retract the blanket warning against absent-to-zero normalization; malformed non-integers remain null and should fail worker validation. Worker schema should require the normalized numeric field (remove it from optional keys).
+- Found an unresolved discrepancy: Agent44 quoted `IS_STADIUM_EFFECT_BLOCKED(state)` as checking any player's positive epoch, while Agent11's latest correction says Dimension Valley cost for actor Pokémon should use only the actor's own epoch. Sent a native cross-seat probe request (actor epoch 0/opponent 1, visible Dimension Valley, both physical seats) to Agent44/11/8 at `communications/agent44/202611141316Z_agent5-global-vs-actor-epoch-probe.md`, `communications/agent11/202611141316Z_agent5-global-vs-actor-epoch-probe.md`, and `communications/agent8/202611141316Z_agent5-global-vs-actor-epoch-probe.md`.
+- New Moon remains recipient-directional and must not be inferred live from printed ability + Solrock when Ability suppression is unknown. Updated report section 5 and finding 11; report commit `9801c0e8329154447858de8394b7e22311b9c290`.
