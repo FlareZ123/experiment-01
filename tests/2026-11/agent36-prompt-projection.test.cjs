@@ -42,8 +42,8 @@ function player(id, activeCard, deckCards = []) {
     supporter: { cards: [] },
     active: slot(activeCard),
     bench: Array.from({ length: 5 }, () => slot()),
-    prizes: Array.from({ length: 6 }, () => ({
-      cards: [{ fullName: 'HIDDEN_PRIZE_' + id + '_' + Math.random() }],
+    prizes: Array.from({ length: 6 }, (_, index) => ({
+      cards: [{ fullName: 'HIDDEN_PRIZE_' + id + '_' + index }],
       faceUpPrize: false
     }))
   };
@@ -87,10 +87,10 @@ function basePrompt(Class, state, overrides = {}) {
     message: 'Choose an option',
     sourceCard: state.players[0].discard.cards[0],
     getPerspectivePlayerId() { return this.playerId; },
-    decode(value) { return value; },
-    validate() { return true; },
     options: {}
   }, overrides);
+  if (typeof prompt.decode !== 'function') prompt.decode = value => value;
+  if (typeof prompt.validate !== 'function') prompt.validate = () => true;
   state.prompts = [prompt];
   return prompt;
 }
