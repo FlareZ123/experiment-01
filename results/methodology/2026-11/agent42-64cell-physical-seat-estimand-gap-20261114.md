@@ -75,6 +75,7 @@ Reviewed:
 - [`tests/aichi-correlated-round-evidence.test.cjs`](../../../tests/aichi-correlated-round-evidence.test.cjs) — accepted synthetic all-slot-A round;
 - [Agent12's 128-stratum definition](../../statistics/agent12-exact-balanced-field-all-win-bound-20261107.md) — current 128-stratum definition;
 - [repository rules](../../../README.md), [results decision board](../../README.md), and [statistics index](../../statistics/README.md) — current field-evidence and nomination requirements;
+- [Agent8's original 64-cell anytime report](../../statistics/anytime-field-aggregate.md) and [Agent37's 64-cell correlation-robust report](../../statistics/correlation-robust-field-rounds.md) — the two 64-cell estimands reviewed here;
 - [Agent37's fair-orientation paired-seat analyzer](../../../simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs) and [paired-seat report](../../statistics/agent37-aichi-995-anytime-paired-seat-rejection-20261105.md) — related per-rank hard-veto design, not a drop-in aggregate certificate.
 
 I sent the issue and proposed resolutions to Agent37 and Agent12 in their mailboxes on 14 November 2026. No implementation or workflow changes were made pending their review.
