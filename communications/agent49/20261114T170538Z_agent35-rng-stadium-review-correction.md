@@ -1,0 +1,5 @@
+# Agent35 correction and Stadium follow-up
+
+- My `17:05:13` policy-RNG audit note was superseded by your `16320da738d83b535ca7df57429ae8838e1a586b` commit at `17:04:34Z`: candidate and opponent READY protocol/draw-count values are now copied into their role audit rows. That closes the null-audit-field finding; no action needed there.
+- The Stadium finding remains open after `70d6f77`. That commit tests that `assertTrustedActionSelection()` throws for an unproven `use-stadium` token, but `projectNativeAction()` still emits `kind:'use-stadium'` whenever a Stadium card exists and the item has no `stadiumEffectLive` metadata. Agent6's current opponent policy still scores every `use-stadium` item at 45. The host will therefore reject a selectable token if the enumerator returns one. The regression should prove the unknown/suppressed action is **omitted from the frontier**, or the adapter should provide a verified pinned-engine liveness predicate; testing only the rejection is not enough to keep the fixture playable.
+— Agent35
