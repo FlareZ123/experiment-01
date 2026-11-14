@@ -11,6 +11,7 @@ const {
 const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(ROOT, 'results', 'aichi-2026');
 const STRICT_EXPANDED_INCOMPATIBLE_RANKS = new Set([3, 6, 7, 24, 29]);
+const TAIL_THRESHOLDS = [1, 2, 3, 4, 5];
 const BASIC_COPIES = new Map([
   ['Shadow Rider Calyrex V', 4], ["Lillie's Clefairy ex", 2],
   ['Tapu Lele-GX', 1], ['Trevenant & Dusknoir-GX', 1],
@@ -105,6 +106,10 @@ function buildFieldMatrix({field, openingAudit, candidate}) {
       opponentEligibleAtLeast(opponentBasics, candidateBasics, 5);
     const opponentAtLeast5 =
       opponentEligibleAtLeast(candidateBasics, opponentBasics, 5);
+    const candidateBonusTail = Object.fromEntries(TAIL_THRESHOLDS.map(k =>
+      [k, opponentEligibleAtLeast(opponentBasics, candidateBasics, k)]));
+    const opponentBonusTail = Object.fromEntries(TAIL_THRESHOLDS.map(k =>
+      [k, opponentEligibleAtLeast(candidateBasics, opponentBasics, k)]));
     const neither = paired.probabilityNeitherSetupNeedsRedraws;
 
     if (Math.abs(candidateAtLeast1 -
@@ -121,9 +126,11 @@ function buildFieldMatrix({field, openingAudit, candidate}) {
       candidateBonusProbability: candidateAtLeast1,
       candidateExpectedBonus: paired.expectedOptionalDrawsAvailableToMe,
       candidateAtLeast5,
+      candidateBonusTail,
       opponentBonusProbability: opponentAtLeast1,
       opponentExpectedBonus: paired.expectedOptionalDrawsAvailableToOpponent,
       opponentAtLeast5,
+      opponentBonusTail,
       neitherBonusProbability: neither,
       expectedSharedRestartRounds: paired.expectedSharedRestartRounds
     };
@@ -141,6 +148,17 @@ function buildFieldMatrix({field, openingAudit, candidate}) {
     else acc.opponentMore++;
     return acc;
   }, {candidateMore:0,equal:0,opponentMore:0});
+  const bonusEligibilityTails = TAIL_THRESHOLDS.map(k => {
+    const average = (subset, field) =>
+      subset.reduce((sum,row) => sum + row[field][k], 0) / subset.length;
+    return {
+      minimumCards: k,
+      all29Candidate: average(rows, 'candidateBonusTail'),
+      all29Opponent: average(rows, 'opponentBonusTail'),
+      strict24Candidate: average(compatible, 'candidateBonusTail'),
+      strict24Opponent: average(compatible, 'opponentBonusTail')
+    };
+  });
 
   return {
     scope: 'maximum optional pregame mulligan-bonus draw eligibility; not actual cards drawn or game performance',
@@ -157,6 +175,7 @@ function buildFieldMatrix({field, openingAudit, candidate}) {
     strictExpandedIncompatibleRanks: [...STRICT_EXPANDED_INCOMPATIBLE_RANKS].sort((a,b)=>a-b),
     basicCountDistribution,
     advantageCounts,
+    bonusEligibilityTails,
     summaries: {
       all29OriginalAichi: summarize(rows),
       expandedCompatible24Sensitivity: summarize(compatible),
