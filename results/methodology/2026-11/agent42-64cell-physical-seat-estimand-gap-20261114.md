@@ -33,7 +33,7 @@ P = (1.00 + 0.98)/2 = 0.99,
 
 which is below the 0.995 null boundary.
 
-But a complete 64-cell stream that always assigns the candidate to slot A has 64/64 wins in every round. The correlation-robust process can eventually cross its threshold because its actual conditional round mean is 1.00. The process's mathematical guarantee is not broken: the conditional-round-mean premise is satisfied for the A-only stream. What fails is the inference that this premise follows from the 128-stratum null when candidate physical seat is not sampled.
+But a complete 64-cell stream that always assigns the candidate to slot A has 64/64 wins in every round. Under the current correlation-robust mixture weights and lambda grid, the first all-perfect crossing occurs at round 603 (38,592 A-only wins); the existing 610-round test is a sufficient demonstration, not the minimum. The process's mathematical guarantee is not broken: the conditional-round-mean premise is satisfied for the A-only stream. What fails is the inference that this premise follows from the 128-stratum null when candidate physical seat is not sampled.
 
 This is a design/estimand mismatch, not a claim that Twinleaf actually has a seat asymmetry. The 64-cell process remains valid for its narrower rank × actual-start estimand when that is the intended target.
 
