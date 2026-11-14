@@ -127,6 +127,12 @@ function ownDeckLow(observation) {
   return (observation?.ownPublic?.deckCount ?? 99) <= 5;
 }
 
+function ownBehindOnPrizes(observation) {
+  return Number.isFinite(observation?.ownPublic?.prizeCount) &&
+    Number.isFinite(observation?.opponentPublic?.prizeCount) &&
+    observation.ownPublic.prizeCount > observation.opponentPublic.prizeCount;
+}
+
 function opponentHasSpecialEnergy(player) {
   return boardSlots(player).some(({ pokemon }) =>
     list(pokemon.energies).some(energy =>
@@ -197,10 +203,11 @@ function missingLinePriority(observation) {
 function scoreEvolution(card, target, observation) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
-  const preLockSetupStillNeeded = hand.some(value =>
+  const preLockSetupStillNeeded = !ownItemLocked(observation) && hand.some(value =>
     matches(value, PRINT.tagCall) || matches(value, PRINT.tmEvolution) ||
     (matches(value, PRINT.stealthyHood) &&
       opponentHasGarbotoxin(observation.opponentPublic)) ||
+    (matches(value, PRINT.counterGain) && ownBehindOnPrizes(observation)) ||
     (matches(value, PRINT.guzmaHala) && supporterAvailable(observation)));
   if (matches(card, PRINT.vileplume) && matches(target, PRINT.gloom) &&
       !boardHas(own, PRINT.vileplume)) return preLockSetupStillNeeded ? 175 : 245;
@@ -390,6 +397,10 @@ function scoreAction(item, request) {
     return list(own.bench).some(slot => slot === null) &&
       missingLinePriority(observation) > 0 ? 102 : 18;
   }
+  if (matches(card, PRINT.counterGain)) {
+    return ownBehindOnPrizes(observation) &&
+      target === own.active?.printing ? 118 : 0;
+  }
   if (matches(card, PRINT.memoryEnergy)) {
     return boardHas(own, PRINT.stoutland) && !boardSlots(own).some(row =>
       list(row.pokemon.energies).some(energy => matches(energy, PRINT.memoryEnergy))) ? 116 : 50;
@@ -459,6 +470,7 @@ function cardPriority(printing, observation, context) {
   if (context.includes('guzma & hala')) {
     if (matches(printing, PRINT.grandTree)) return 160;
     if (matches(printing, PRINT.tmEvolution)) return handCount(hand, PRINT.tmEvolution) === 0 ? 150 : 75;
+    if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 135;
     if (matches(printing, PRINT.jetEnergy)) return 155;
     if (matches(printing, PRINT.stealthyHood)) {
       return opponentHasGarbotoxin(observation.opponentPublic) ? 145 :
@@ -520,6 +532,7 @@ function cardPriority(printing, observation, context) {
   if (matches(printing, PRINT.pidgey) && !boardHas(own, PRINT.pidgey)) return 90;
   if (matches(printing, PRINT.jetEnergy) && handCount(hand, PRINT.jetEnergy) === 0) return 85;
   if (matches(printing, PRINT.tmEvolution) && handCount(hand, PRINT.tmEvolution) === 0) return 80;
+  if (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation)) return 95;
   if (matches(printing, PRINT.grandTree)) return 75;
   if (matches(printing, PRINT.guzmaHala)) return 70;
   if (matches(printing, PRINT.teamYell) || matches(printing, PRINT.lusamine)) return 60;
@@ -538,7 +551,8 @@ function discardPriority(choice, observation) {
   if (matches(printing, PRINT.pidgey) && boardHas(observation.ownPublic, PRINT.pidgey)) return 84;
   if (matches(printing, PRINT.grassEnergy) &&
       boardHas(observation.ownPublic, PRINT.vileplumeGx)) return 5;
-  if (/Supporter|ACE SPEC|Grand Tree|Jet Energy|Technical Machine: Evolution|Stealthy Hood/i.test(printing)) return 0;
+  if (/Supporter|ACE SPEC|Grand Tree|Jet Energy|Technical Machine: Evolution|Stealthy Hood/i.test(printing) ||
+      (matches(printing, PRINT.counterGain) && ownBehindOnPrizes(observation))) return 0;
   if (/Energy/i.test(printing)) return 48;
   if (/Pokémon/i.test(printing)) return 38;
   return 60;
