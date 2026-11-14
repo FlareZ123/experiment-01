@@ -223,43 +223,49 @@ function targetChoice(target, state, actorSeat, native) {
 }
 
 function makeSource(prompt, state, actorSeat, provenance) {
-  const sourceCard = provenance?.sourceCard ?? prompt.sourceCard ?? null;
-  if (sourceCard) {
-    const location = locateCard(state, actorSeat, sourceCard);
-    if (!location?.visible) {
+  if(provenance?.sourceKind==='card-effect') {
+    const sourceCard=provenance.sourceCard??null;
+    const effectName=provenance.effectName;
+    if(!sourceCard||typeof effectName!=='string'||!effectName) {
+      throw Object.assign(new Error('Card-effect prompt lacks active typed source provenance'), {
+        code:'PROMPT_SOURCE_PROVENANCE_INCOMPLETE'
+      });
+    }
+    const location=locateCard(state,actorSeat,sourceCard);
+    if(!location?.visible) {
       throw Object.assign(new Error('Prompt source card is not actor-visible'), {
-        code: 'PROMPT_SOURCE_NOT_ACTOR_VISIBLE'
+        code:'PROMPT_SOURCE_NOT_ACTOR_VISIBLE'
       });
     }
-    const sourcePrinting = printing(sourceCard);
-    const effectName = provenance?.effectName ?? sourceCard.name ?? sourceCard.fullName;
-    if (!sourcePrinting || typeof effectName !== 'string' || !effectName) {
-      throw Object.assign(new Error('Card-effect prompt lacks typed source provenance'), {
-        code: 'PROMPT_SOURCE_PROVENANCE_INCOMPLETE'
+    const sourcePrinting=printing(sourceCard);
+    if(!sourcePrinting) {
+      throw Object.assign(new Error('Card-effect prompt source has no printable identity'), {
+        code:'PROMPT_SOURCE_PROVENANCE_INCOMPLETE'
       });
     }
-    if (effectName === 'Copycat') {
+    if(effectName==='Copycat') {
       throw Object.assign(new Error('Copycat prompt requires copied-source and copied-attack provenance'), {
-        code: 'UNSUPPORTED_COPYCAT_PROMPT'
+        code:'UNSUPPORTED_COPYCAT_PROMPT'
       });
     }
     return {
-      classification: 'actor-choice',
-      sourceKind: 'card-effect',
+      classification:'actor-choice',
+      sourceKind:'card-effect',
       sourcePrinting,
       effectName
     };
   }
-  if (state.phase === 0 || state.phase === 1) {
+  const promptType=prompt?.constructor?.name??'';
+  if((state.phase===0||state.phase===1)&&promptType==='ChooseStartingPokemonPrompt') {
     return {
-      classification: 'actor-choice',
-      sourceKind: 'engine',
-      sourcePrinting: null,
-      effectName: prompt.constructor?.name ?? 'EngineSetupPrompt'
+      classification:'actor-choice',
+      sourceKind:'engine',
+      sourcePrinting:null,
+      effectName:promptType
     };
   }
-  throw Object.assign(new Error('Prompt has no trusted card-effect or engine source'), {
-    code: 'PROMPT_SOURCE_PROVENANCE_MISSING'
+  throw Object.assign(new Error('Prompt has no trusted card-effect or allowlisted engine source'), {
+    code:'PROMPT_SOURCE_PROVENANCE_MISSING'
   });
 }
 
