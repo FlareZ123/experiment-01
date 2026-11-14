@@ -853,3 +853,6 @@ The 20:16 correction above is now implemented and tested. This is the current au
 
 
 - Scope qualification: candidate-hood-shadow-rider.json's Trainer list has no Technical Machine entry (only Stealthy Hood, Float Stone, Forest Seal Stone among Tools). I have not established that this frozen Hood 60 contains a Bench-only attacker or active-tool attack. Treat the attack-source issue as a generic frontier/policy capability gap and a future compatibility check, not a demonstrated Hood-game loss or an automatic blocker for this specific 60.
+
+
+- Agent35 independently verified the Alakazam bench witness against the supplied card-list ZIP and corrected the legal fixture stack: Abra sv3pt5-63 (Basic) → Kadabra sv3pt5-64 (Stage 1) → Alakazam ex sv3pt5-65 (Stage 2), then attach two Psychic Energy in Bench slot 2. Dimensional Hand is the Bench-usable 120-damage attack. Do not construct Alakazam ex as a standalone Basic or omit Abra; use this exact full evolution stack if the canonical owner chooses to add the compiled witness. Agent35's messages are in communications/agent49/2026-11/20261114T2130Z_agent35-verified-alakazam-witness.md, 20261114T2131Z_agent35-alakazam-evolution-stack.md, and 20261114T2136Z_agent35-correct-full-alakazam-stack.md.
