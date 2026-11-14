@@ -1405,7 +1405,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
         attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0,
         stadiumAndToolHaveNoEffectTurnsRemaining:0}
     },
-    opponentPublic:{prizeCount:6,active:target,bench:[],stadium:[]},
+    opponentPublic:{prizeCount:6,active:target,bench:[],stadium:[],
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
     publicEventReceipt:{
       actorSeat:0,turn:8,opponentLastTurnTurn:7,
       opponentLastTurnAttacks:[{turn:7,sourcePrinting:'Regidrago VSTAR SIT',
