@@ -811,3 +811,112 @@ test('non-Copycat attack-choice source abstains', () => {
     reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE'
   });
 });
+
+
+test('Mysterious Treasure discards a low-value card token, never a cancel or empty token', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'energy', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'hand' } },
+      { token: 'stamp', kind: 'card', printing: 'Unfair Stamp TWM 165',
+        label: 'Unfair Stamp', publicMetadata: { sourceZone: 'hand' } },
+      { token: 'carmine', kind: 'card', printing: 'Carmine TWM 145',
+        label: 'Carmine', publicMetadata: { sourceZone: 'hand' } },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: true,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Mysterious Treasure FLI 113',
+        'Psychic Energy MEE 13',
+        'Unfair Stamp TWM 165',
+        'Carmine TWM 145'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['carmine']
+  });
+});
+
+test('Mysterious Treasure search chooses a missing Shadow Rider V from the deck', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['v']
+  });
+});
+
+test('Guzma abstains rather than returning fewer targets than a multi-target prompt requires', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [
+      { token: 'bench-a', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: {
+          selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'opponent', targetZone: 'bench', isOwnerVisible: true
+        } },
+      { token: 'bench-b', kind: 'pokemon', printing: 'Dialga-GX UPR 100',
+        label: 'Dialga-GX', publicMetadata: {
+          selectionIndex: 1, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'opponent', targetZone: 'bench', isOwnerVisible: true
+        } }
+    ],
+    publicMetadata: {
+      minimumCount: 2,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    },
+    observation: {
+      ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+      opponentPublic: player({
+        active: pokemon('Mimikyu GRI 58', { hp: 70 }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Dialga-GX UPR 100', { hp: 180 })
+        ]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'UNCLASSIFIED_POKEMON_PROMPT'
+  });
+});
