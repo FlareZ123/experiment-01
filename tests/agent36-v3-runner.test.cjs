@@ -616,10 +616,13 @@ test('real worker role manifests pin policy source and keep executable in data a
     assert.ok(result.manifest.files.some(file=>file.path===policyPath));
     assert.ok(result.manifest.files.some(file=>file.path===V3_FIXTURE.protocolPath));
     assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.workerPath),false);
+    assert.equal(result.manifest.files.some(file=>file.path===V3_FIXTURE.dockerCanaryWorkerPath),false);
     assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.workerPath));
+    assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.dockerCanaryWorkerPath));
     assert.deepEqual(result.manifest.sourceAuditLimitations.missingRelativeImports,[]);
     assert.ok(Object.hasOwn(result.expectedByPath,V3_FIXTURE.protocolPath));
     assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.workerPath),false);
+    assert.equal(Object.hasOwn(result.expectedByPath,V3_FIXTURE.dockerCanaryWorkerPath),false);
   }
 });
 
