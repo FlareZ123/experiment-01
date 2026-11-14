@@ -307,7 +307,7 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const copycatView = observation(0);
   copycatView.ownPublic.active = mimikyuPokemon();
   const receipt = {
-    version: 'agent8-public-event-receipt-v3-turn-stamped', actorSeat: 0, turn: 1,
+    version: protocol.EVENT_RECEIPT_VERSION, actorSeat: 0, turn: 1,
     ownerActive: { printing: 'Mimikyu GRI', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }, ownerBench: [null, null, null, null, null],
     priorOpponentTurnKO: { any: null, byAttack: null },
     opponentLastTurnAttack: null, opponentLastTurnTurn: 0,
