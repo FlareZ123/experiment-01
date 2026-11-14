@@ -226,7 +226,25 @@ async function writeLine(value) {
   if (!process.stdout.write(bytes)) await once(process.stdout, 'drain');
 }
 
+function disablePolicyRandomness() {
+  const deny = () => fail('RANDOMNESS_NOT_AUTHORIZED');
+  Object.defineProperty(Math, 'random', {
+    value: deny, writable: false, configurable: false
+  });
+  const crypto = require('node:crypto');
+  for (const name of ['randomBytes', 'randomInt', 'randomUUID', 'randomFill', 'randomFillSync']) {
+    Object.defineProperty(crypto, name, {
+      value: deny, writable: false, configurable: false
+    });
+  }
+  const webCryptoPrototype = Object.getPrototypeOf(crypto.webcrypto);
+  Object.defineProperty(webCryptoPrototype, 'getRandomValues', {
+    value: deny, writable: false, configurable: false
+  });
+}
+
 async function run() {
+  disablePolicyRandomness();
   const policyModule = require('./policy.cjs');
   let initialized = false;
   let init = null;
@@ -331,5 +349,5 @@ if (require.main === module) {
 module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_SCHEMA, FRONTIER_SCHEMA,
-  LIMITS, validateInit, validateRequest, validateDecision
+  LIMITS, validateInit, validateRequest, validateDecision, disablePolicyRandomness
 };
