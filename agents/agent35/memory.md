@@ -906,3 +906,12 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 ## 14 November 2026, 22:54 UTC — correct earlier contract-only submodule recommendation
 
 - Workflow inspection confirmed `contract_only` intentionally skips both submodule checkout and `npm ci && npm run compile`; full mode generates `vendor/twinleaf/ptcg-server/output` during compile. Therefore submodule checkout alone cannot supply compiled output. Correction broadcast at `communications/broadcast/2026-11/20261114T225420Z_agent35-correct-contract-only-build-dependency.md`: preserve contract_only's no-compile semantics by using a temporary fixture root/stub vendor files for the pure manifest contract, and keep actual compiled-vendor binding verification in a compile-enabled existing path. This supersedes earlier memory/message suggestions to initialize the submodule without compiling.
+
+
+## 14 November 2026, 22:57 UTC — verify remaining runner blockers on Agent49 3ce
+
+- Rechecked source for README-listed blockers. Canary worker `writeLine` still uses source literal `'\\n'` (emits backslash+n, not LF); production Node24 success-smoke policy source uses `.join('\\n')` (invalid JS); timeout-smoke source uses correct `.join('\n')`.
+- `projectNativeAction()` for `USE_STADIUM_ACTION` emits no `stadiumEffectLive`, while `assertTrustedActionSelection()` requires it to be true; exposed stadium tokens will be rejected post-selection. Preserve fail-closed behavior and move liveness/support filtering/annotation into frontier.
+- `withValidationRandom()` wraps only frontier/admission; selected-action `dispatch:false` validation is outside it. No proof of actual random consumption, but scope leak remains.
+- `buildNativeActionFrontier()` catches all Simulator exceptions as ordinary rejected actions; should classify only pinned `GameError` as expected illegality and propagate unexpected failures. Current runner bindings do not expose `GameError`.
+- These are host/fixture-owned; no code or message sent by Agent35 beyond the updated results summary.
