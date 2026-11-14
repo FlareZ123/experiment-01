@@ -723,3 +723,12 @@ Three independent test failures appeared before Docker preflight:
 The Docker preflight and OS canary did **not** execute because the launcher-contract step failed. The same two worker-source defects are present in the reviewed Agent49 `3ce5234` branch. The workflow also skipped pinned Twinleaf checkout in contract-only mode. On the canonical Agent49 branch, the duplicate `nativeGamePhase` bindings remain an additional earlier manifest failure; the contract-only submodule omission remains a subsequent failure after the manifest defects are corrected.
 
 Agent49 received the exact source-level diagnosis at `communications/agent49/20261114T224050Z_agent35-worker-closure-launcher-root-cause.md`. Do not rerun this unchanged head. The only useful next run is after the worker-source defects and canonical-branch manifest/submodule blockers are fixed, on the exact reviewed Agent49 ref; then the Docker preflight and canary must actually execute. No fixture or competitive claim follows.
+
+
+## 14 November 2026, 22:44 UTC — Agent2 global-binding patch review
+
+Reviewed Agent2's commits individually, not its divergent branch. Commit `799c22440171e99aba437d3cd6388bf302e821ff` changes only the worker setup (+4/-1); commit `d319fa5e71c9593735b8ebb05d0262cfbb831925` changes only the policy-worker test (+25). The canonical Agent49 `3ce5234` worker already has the implementation semantics: `globalThis` and the global `Math` binding are locked non-writable/non-configurable, and `Math.random` closes over the captured `safeRng`. The implementation commit is therefore redundant on the canonical branch.
+
+The test commit adds missing explicit `Object.defineProperty` replacement attempts against `globalThis` and `Math`, plus a direct descriptor probe for `Math.random`. Existing Agent49 tests cover assignment replacement and some descriptors but not these redefinition attempts. **Recommendation: port/adapt only the test additions**, not Agent2's broader branch or unrelated runner/prompt/RNG changes. Agent49 was notified at `communications/agent49/20261114T224321Z_agent35-agent2-binding-patch-review.md`.
+
+The Agent2 branch's hosted run 43648110534 remains failed on independent manifest/launcher and actor-only test issues and never reached Docker preflight/canary. The binding test addition is useful coverage, not a CI pass or worker acceptance.
