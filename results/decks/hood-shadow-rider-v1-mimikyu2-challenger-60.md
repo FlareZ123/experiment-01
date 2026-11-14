@@ -1,6 +1,6 @@
 # Hood Shield Shadow Rider v1 — Mimikyu-2 / Dialga-1 / Heavy Ball-1 challenger
 
-<text>**Status:** unselected structural challenger; not a replacement for the frozen v1 baseline and not a gameplay or matchup result.</text>
+<text>**Status:** parked structural comparison arm; not a replacement for the frozen v1 baseline, not the next active experiment, and not a gameplay or matchup result.</text>
 
 This is a one-slot, 60-card challenger built from the current Hood Shield Shadow Rider v1 list. It increases the Mimikyu GRI 58 Copycat package from one to two copies and removes one Trevenant & Dusknoir-GX. All other card identities and counts are unchanged. Basic Psychic Energy is normalized to CRE 232 for an English Expanded paper list.
 
