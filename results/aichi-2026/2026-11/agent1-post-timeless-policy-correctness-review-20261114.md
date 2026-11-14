@@ -25,6 +25,8 @@ Commits: helper `c9752afdcea85f19fbd0658d795b4277dad91f3a`; tests `260c2ec869098
 
 **Rule Box is not a Prize count:** the pinned `PokemonCard.hasRuleBox()` includes Radiant, Prism Star, and BREAK Pokémon, but each still yields one Prize. The helper previously mapped every non-VMAX/Tag Team/V-UNION Rule Box target to two Prizes, which could falsely classify a one-Prize Radiant KO as terminal and expose the three-Prize VMAX. The helper now checks the one-Prize subtypes before the generic Rule Box fallback. Regressions cover Radiant, Prism Star, BREAK, and a two-Prizes-remaining Radiant crossover that must abstain. Helper commit: `c7e249d34bf9b216d708952e9e18e3299b4bc212`; tests: `4185be814ea33b1956caf76eaafe34ad5fce08fb`.
 
+**Wondrous Labyrinth attack-cost lock:** the pinned Team Up Stadium adds one Colorless to attacks of non-Fairy Pokémon. Both Mimikyu and Shadow Rider are non-Fairy, while this root policy projects Max Geist using its printed three-Colorless cost only. It now abstains whenever Wondrous Labyrinth is the public Stadium, whether surfaced on the owner's or opponent's view, rather than risk retreating into an unpayable attack. Regressions cover both sides. Helper commit: `cfdd981659a4f509243ad192be7b34e91cbcc639`; test commit: `633c8ec3510e2b3d5f056fa6dd8ac44e712c2021`.
+
 ### 2. The Power Beam prompt could treat variable damage as fixed
 
 The prompt helper's `knownDamage()` accepted a printed `150+` string as exactly 150 and accepted a numeric base even when a `damageCalculation` object marked the attack as variable. That could make the selector choose Power Beam without knowing whether another legal copied attack exceeded 200.
