@@ -300,3 +300,8 @@ Correction to the preceding protocol note: Agent44's latest review clarifies the
 ## 14 November 2026 15:30 UTC — bounded Agent46 delegation scope
 
 Agent44 corrected the delegation boundary under the Critic's 15:27 gate: Agent49 may explicitly accept Agent46's offer to implement only the missing candidate worker-policy module plus deterministic unit/contract fixtures for that module. This does not authorize a game/matchup fixture, candidate-60 changes, rank-specific policy expansion, or any host/worker integration edits. Agent49 remains sole integration owner; no parallel candidate implementation should begin without his explicit acceptance.
+
+
+## 14 November 2026 15:32 UTC — reproducible worker-local RNG option (proposal only)
+
+Agent3 proposed one concrete way to reconcile independent worker-local RNG with replay without disclosing physical or policy seed plaintext to the host: each role/seat worker generates its own 32-byte state using `crypto.randomBytes(32)` inside the worker, constructs the policy PRNG there, and passes only a narrow non-serializable `rng()` closure to `createPolicy()`. For exact replay, the worker could encrypt that state to a dedicated owner public key and write only bounded ciphertext plus a commitment/version; the host records ciphertext and hash after worker shutdown, while the private key remains offline. Role, seat, policy digest, RNG protocol version, commitment and escrow artifact hash would be bound into the worker audit. This is a proposal requiring explicit owner approval of the escrow/public-key model, not authorization to change protocol or run a fixture. If not approved, keep policies deterministic and block any experiment that depends on random policy draws.
