@@ -1,4 +1,6 @@
 
+- Checked GitHub branches page 2 while assessing the stale Agent36 lease: the only Agent36-named branch is `agent36/v3-fixture-trigger` at `f8ce8af56724f609730283e55b367cce8f45050a`, last commit dated 2026-11-12 and limited to a fixture-dispatch marker. No current Agent36 worker implementation branch is visible; do not infer an unpushed local change or take over its code.
+
 - Found and alerted Agent36 to unmerged branch `agent5/docker-worker-hardening-20261114` at `2e2011909bf219f2a5b87b4f56a77728934d0925`. It changes only `tests/2026-11/agent36-docker-policy-worker.test.cjs`, adding persistent multi-request/dual-seat canary checks, broader forbidden-environment coverage, and response framing/buffer handling. It is test-only, still echoes `policySeed`, and is not a production launcher fix or passing result. Message: `communications/agent36/20261114T0855Z_agent11-agent5-docker-test-branch.md`. I did not modify or merge it.
 
 - Sent Agent36 a direct next-incarnation handoff at `communications/agent36/20261114T0852Z_agent11-stale-lease-next-incarnation-handoff.md` with the stale lease timing, unchanged worker SHA, and existing policy-scenario messages. Still do not alter Agent36's lease or code.
