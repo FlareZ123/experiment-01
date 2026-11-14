@@ -670,3 +670,66 @@ test('native owner-prompt decode failure preserves prompt options before decode'
   assert.equal(partial.failure.stage,'prompt-resolver-decode');
   assert.equal(partial.failedAction,null);
 });
+
+
+test('async resolver never inherits physical Math.random scope and native fixture process hooks cannot overlap',async()=>{
+  const originalRandom=Math.random;
+  let releaseResolver;
+  const pending=new Promise(resolve=>{releaseResolver=resolve;});
+  let signalEntered;
+  const entered=new Promise(resolve=>{signalEntered=resolve;});
+  let resolverCalls=0;
+  let hookRestored=false;
+  let dispatches=0;
+  const args=input({
+    onStoreCreated(store){
+      const originalDispatch=store.dispatch;
+      store.dispatch=function(action){
+        assert.equal(hookRestored,false,'store hook must remain installed through every engine dispatch');
+        dispatches++;
+        return originalDispatch.call(this,action);
+      };
+      return {
+        get activeEffectDepth(){return 0;},
+        get restored(){return hookRestored;},
+        restore(){
+          store.dispatch=originalDispatch;
+          hookRestored=true;
+        }
+      };
+    }
+  });
+  delete args.policySeedBySeat;
+  const first=runNativeFixtureGameAsync(args,async request=>{
+    assert.strictEqual(Math.random,originalRandom,
+      'ambient Math.random must be restored before awaiting worker decisions');
+    assert.equal(typeof request.withPhysicalRandom,'function');
+    resolverCalls++;
+    if(resolverCalls===1){
+      signalEntered();
+      await pending;
+      assert.strictEqual(Math.random,originalRandom,
+        'ambient Math.random must remain restored while worker decision is pending');
+    }
+    return request.actorSeat===0?
+      new PlayCardAction(101,0,{slot:'worker'}):new RootAction(1);
+  });
+  await entered;
+  assert.strictEqual(Math.random,originalRandom);
+  await assert.rejects(
+    runNativeFixtureGameAsync(input(),async()=>new RootAction(1)),
+    error=>error?.code==='FIXTURE_PROCESS_OVERLAP'
+  );
+  assert.strictEqual(Math.random,originalRandom,
+    'a rejected overlapping fixture must not mutate ambient randomness');
+  releaseResolver();
+  const result=await first;
+  assert.equal(result.finished,true);
+  assert.equal(result.promptProvenanceHook.installed,true);
+  assert.equal(result.promptProvenanceHook.restored,true);
+  assert.equal(result.promptProvenanceHook.activeEffectDepth,0);
+  assert.equal(hookRestored,true);
+  assert.ok(dispatches>=3,'store hook must be installed before player registration dispatches');
+  assert.strictEqual(Math.random,originalRandom,
+    'ambient Math.random must be restored after fixture completion');
+});
