@@ -123,3 +123,12 @@ The new regression uses the concrete rank-10 diagnostic state: two Psychic on Mi
 Implementation: `simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs`, version `agent8-post-timeless-maxgeist-root-intent-v5-terminal-route-crossover`. Regression: the expanded `candidate-only post-Timeless Max Geist root` test in `tests/agent34-actor-only-root-policy.test.cjs`.
 
 **Evidence boundary:** this is a source-level policy improvement plus unexecuted pure regressions. It has not yet run in Node 22 CI, the pinned Twinleaf Store, the V3 fixture, or a complete rank-10 game. It does not resolve the missing turn-stamped `publicEventReceipt` transport and does not authorize starting the deferred rank-10 pairing. The existing PR47 and Agent5 gates remain prerequisites.
+
+
+## 2026-11-14 production-shape correction: Wondrous Labyrinth guard
+
+A source audit found a mismatch between the helper and its real input contract. `actorObservation.publicPlayer()` exposes `stadium` as an array of exact printing names, but the previous `hasWondrousLabyrinth()` implementation treated each Stadium field as a single string. The existing regression had also supplied a synthetic string, so it did not exercise the production observation shape. In a real actor view, Wondrous Labyrinth could therefore go undetected and the selector could incorrectly certify Max Geist's printed attack cost.
+
+The selector is now version `agent8-post-timeless-maxgeist-root-intent-v6-actor-stadium-array-guard`. It scans both players' Stadium arrays for the exact Wondrous Labyrinth printing and fails closed if either public Stadium field is missing or malformed. The regression now supplies array-shaped Stadiums on each side and verifies that an unknown/missing public Stadium array is rejected.
+
+Validation: the new Node 22 contract workflow, [run 43572227213](https://github.com/FlareZ123/experiment-01/actions/runs/43572227213), passed syntax checking and `tests/agent34-actor-only-root-policy.test.cjs`. This was a pure actor-observation contract test only: no native fixture, game, matchup, or competitive result was run. The change repairs a false-positive safety certificate; it does not establish a better policy or deck win rate.
