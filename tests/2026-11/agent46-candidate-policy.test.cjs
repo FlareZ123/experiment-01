@@ -462,10 +462,11 @@ test('the same actor-relative policy is deterministic for physical seat 1', () =
 
 function engineSetupRequest(seat, {
   promptType, description, choices, publicMetadata, phase = 1,
-  sourceKind = 'engine', sourcePrinting = null, effectName = description
+  sourceKind = 'engine', sourcePrinting = null, effectName = description,
+  active = null, bench = []
 }) {
   const view = {
-    ...observation(seat),
+    ...observation(seat, { active, bench }),
     phase,
     decisionKind: 'owner-prompt',
     pendingPromptType: promptType
@@ -551,7 +552,8 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
         setupBasicChoice('new-basic-5', 5, 'Latias ex SSP'),
         { token: 'empty', kind: 'empty-selection', label: 'Choose no items' }
       ],
-      publicMetadata: startingPokemonMetadata(0, 2)
+      publicMetadata: startingPokemonMetadata(0, 2),
+      active: pokemon({ printing: 'Active Basic', name: 'Active Basic' })
     });
     assert.deepEqual(evaluate(optionalBench), {
       kind: 'select-choices',
@@ -573,11 +575,17 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
         setupBasicChoice('wide-6', 6, 'Basic 6'),
         { token: 'wide-empty', kind: 'empty-selection', label: 'Choose no items' }
       ],
-      publicMetadata: startingPokemonMetadata(0, 12)
+      publicMetadata: startingPokemonMetadata(0, 12),
+      active: pokemon({ printing: 'Active Basic', name: 'Active Basic' }),
+      bench: [
+        pokemon({ printing: 'Bench 1', name: 'Bench 1' }),
+        pokemon({ printing: 'Bench 2', name: 'Bench 2' }),
+        pokemon({ printing: 'Bench 3', name: 'Bench 3' })
+      ]
     });
     assert.deepEqual(evaluate(wideOptionalBench), {
       kind: 'select-choices',
-      tokens: ['wide-0', 'wide-1', 'wide-2', 'wide-3', 'wide-4', 'wide-5', 'wide-6']
+      tokens: ['wide-0', 'wide-1']
     });
 
     const noOptionalBasics = engineSetupRequest(seat, {
@@ -586,11 +594,35 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
       choices: [
         { token: 'empty-only', kind: 'empty-selection', label: 'Choose no items' }
       ],
-      publicMetadata: startingPokemonMetadata(0, 0)
+      publicMetadata: startingPokemonMetadata(0, 0),
+      active: pokemon({ printing: 'Active Basic', name: 'Active Basic' })
     });
     assert.deepEqual(evaluate(noOptionalBasics), {
       kind: 'select-choice',
       token: 'empty-only'
+    });
+
+    const fullBench = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('unplaceable-0', 0, 'New Basic A'),
+        setupBasicChoice('unplaceable-1', 1, 'New Basic B'),
+        { token: 'full-bench-empty', kind: 'empty-selection', label: 'Choose no items' }
+      ],
+      publicMetadata: startingPokemonMetadata(0, 2),
+      active: pokemon({ printing: 'Active Basic', name: 'Active Basic' }),
+      bench: [
+        pokemon({ printing: 'Bench 1', name: 'Bench 1' }),
+        pokemon({ printing: 'Bench 2', name: 'Bench 2' }),
+        pokemon({ printing: 'Bench 3', name: 'Bench 3' }),
+        pokemon({ printing: 'Bench 4', name: 'Bench 4' }),
+        pokemon({ printing: 'Bench 5', name: 'Bench 5' })
+      ]
+    });
+    assert.deepEqual(evaluate(fullBench), {
+      kind: 'select-choice',
+      token: 'full-bench-empty'
     });
   }
 });
