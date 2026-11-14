@@ -6,7 +6,7 @@ const INIT_SCHEMA = 'aichi-policy-worker-init-v2';
 const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v3';
-const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
+const OBSERVATION_SCHEMA = 'aichi-actor-observation-v3';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
@@ -121,9 +121,9 @@ const PLAYER_KEYS = [
 const POKEMON_KEYS = [
   'printing', 'name', 'hp', 'damage', 'lastPlayedOrEvolvedTurn', 'printed',
   'specialConditions', 'publicRestrictions', 'evolutionPrintings', 'energies',
-  'tools', 'attacks', 'abilities', 'abilityDetails'
+  'tools', 'attacks', 'abilities', 'abilityDetails', 'abilitySuppressions'
 ];
-const POKEMON_OPTIONAL_KEYS = ['abilitySuppressions'];
+const POKEMON_OPTIONAL_KEYS = [];
 const PRINTED_KEYS = ['stage', 'subtypes', 'types', 'retreatCost', 'weakness', 'resistance'];
 const PUBLIC_RESTRICTION_KEYS = [
   'cannotAttackNextTurn', 'cannotUseAttacksNextTurn', 'blockedAttackNameNextTurn',
@@ -137,9 +137,10 @@ const PLAYER_RESTRICTION_KEYS = [
   'ignoreAttackCostTurnsRemaining', 'cannotUseGXAttacks', 'pokemonPlayLocked',
   'abilityPokemonPlayLocked', 'evolutionPlayLocked', 'itemPlayLocked',
   'supporterPlayLocked', 'stadiumPlayLocked', 'toolPlayLocked',
-  'energyPlayLocked', 'specialEnergyPlayLocked'
+  'energyPlayLocked', 'specialEnergyPlayLocked',
+  'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
-const PLAYER_RESTRICTION_OPTIONAL_KEYS = ['stadiumAndToolHaveNoEffectTurnsRemaining'];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = [];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
@@ -283,7 +284,7 @@ function validatePokemonSlot(slot, allowConcealed) {
     if (!boundedString(ability.name, null, 128) || !scalarOrNull(ability.powerType) ||
         !(ability.text === null || typeof ability.text === 'string')) fail('BAD_ABILITY_RECORD');
   }
-  if (slot.abilitySuppressions !== undefined) {
+  if (slot.abilitySuppressions !== null) {
     if (!Array.isArray(slot.abilitySuppressions) || slot.abilitySuppressions.length > 8) fail('BAD_ABILITY_SUPPRESSIONS');
     const knownAbilityNames = new Set([...slot.abilities, ...slot.abilityDetails.map(x => x.name)]);
     const seen = new Set();
@@ -326,9 +327,10 @@ function validatePublicPlayer(player, allowConcealed) {
   if (!(player.publicTurnRestrictions.attackMaxEnergy === null ||
       (Number.isSafeInteger(player.publicTurnRestrictions.attackMaxEnergy) && player.publicTurnRestrictions.attackMaxEnergy >= 0))) fail('BAD_PLAYER_RESTRICTION');
   stringArray(player.publicTurnRestrictions.ignoreAttackCostCardTypes);
-  if (player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining !== undefined &&
-      (!Number.isSafeInteger(player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining) ||
-       player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining < 0)) fail('BAD_STADIUM_SUPPRESSION_EPOCH');
+  const stadiumSuppression=player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if (!(stadiumSuppression===null ||
+      (Number.isSafeInteger(stadiumSuppression)&&stadiumSuppression>=0)))
+    fail('BAD_STADIUM_SUPPRESSION_EPOCH');
   for (const key of ['handCount', 'deckCount', 'prizeCount']) {
     if (!Number.isSafeInteger(player[key]) || player[key] < 0) fail('BAD_PUBLIC_COUNT');
   }

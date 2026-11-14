@@ -642,8 +642,10 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
           state,store,prompt:pending,actorSeat:actingSeat,native,
-          legacyBot:seats[actingSeat],
-          legacyRandomSource:policyRandom?.[actingSeat]??null
+          ...(policyRandom?{
+            legacyBot:seats[actingSeat],
+            legacyRandomSource:policyRandom[actingSeat]
+          }:{})
         };
         action=resolution?.__nativeFixtureDecisionResolution===true?
           resolution.action:resolution;
@@ -671,8 +673,10 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
           state,store,prompt:null,actorSeat:actingSeat,native,
-          legacyBot:seats[actingSeat],
-          legacyRandomSource:policyRandom?.[actingSeat]??null
+          ...(policyRandom?{
+            legacyBot:seats[actingSeat],
+            legacyRandomSource:policyRandom[actingSeat]
+          }:{})
         };
         action=resolution?.__nativeFixtureDecisionResolution===true?
           resolution.action:resolution;

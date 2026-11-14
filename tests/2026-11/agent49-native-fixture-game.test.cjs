@@ -212,7 +212,8 @@ test('async fixture generator delegates strategic prompts and roots without poli
         decisionKind:request.decisionKind,
         actorSeat:request.actorSeat,
         hasPrompt:Boolean(request.prompt),
-        hasLegacyRandomSource:request.legacyRandomSource!==null
+        hasLegacyRandomSource:Object.hasOwn(request,'legacyRandomSource'),
+        hasLegacyBot:Object.hasOwn(request,'legacyBot')
       });
       if(request.decisionKind==='owner-prompt')
         return new ResolvePromptAction(request.prompt.id,'A card 0');
@@ -225,8 +226,8 @@ test('async fixture generator delegates strategic prompts and roots without poli
     assert.equal(decodeCalls,0,'async worker path must never call SimpleTacticsAi.decodeNextAction');
     assert.deepEqual(requests.map(row=>row.decisionKind),
       ['owner-prompt','owner-root','owner-root']);
-    assert.equal(requests.every(row=>!row.hasLegacyRandomSource),true,
-      'async worker requests must not receive policy RNG sources');
+    assert.equal(requests.every(row=>!row.hasLegacyRandomSource&&!row.hasLegacyBot),true,
+      'async worker requests must not receive legacy bots or policy RNG sources');
     assert.equal(result.decisionTrace.length,3);
   } finally {
     failNextPromptDecode=false;

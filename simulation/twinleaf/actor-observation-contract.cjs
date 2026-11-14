@@ -23,7 +23,7 @@ function visiblePokemon(slot){
       powers.map(power=>({
         abilityName:power.name,suppressed:null,
         reasonCode:null,sourcePrinting:null
-      })):undefined;
+      })):null;
   return {
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
@@ -83,7 +83,7 @@ function visiblePokemon(slot){
     // Explicit unknown is safer than inferring a live Ability from the absence
     // of a recognized suppressor; the host/Store adapter may replace null with
     // a source-attributed true/false fact when it can prove one.
-    ...(abilitySuppressions===undefined?{}:{abilitySuppressions})
+    abilitySuppressions
   };
 }
 
@@ -91,9 +91,8 @@ function visiblePokemon(slot){
 function publicPlayer(player,hidePokemon=false){
   const pokemonView=slot=>hidePokemon ?
     (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot);
-  // Match the actor adapter's existing turns-remaining convention: an absent
-  // countdown is inactive zero; malformed values remain unknown below.
-  const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining??0;
+  // Missing or malformed public countdowns remain explicitly unknown.
+  const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining;
   return {
     active:pokemonView(player.active),
     bench:player.bench.map(pokemonView),

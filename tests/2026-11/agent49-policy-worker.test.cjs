@@ -41,7 +41,7 @@ function publicRestrictions() {
     itemPlayLocked: false, supporterPlayLocked: false,
     stadiumPlayLocked: false, toolPlayLocked: false,
     energyPlayLocked: false, specialEnergyPlayLocked: false,
-    stadiumAndToolHaveNoEffectTurnsRemaining: 0
+    stadiumAndToolHaveNoEffectTurnsRemaining: null
   };
 }
 function publicPlayer() {
@@ -281,6 +281,19 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const badPlayerRestriction = observation(0);
   badPlayerRestriction.ownPublic.publicTurnRestrictions.gxUsed = 'false';
   assert.throws(() => protocol.validateActorObservation(badPlayerRestriction, 0), /BAD_PLAYER_RESTRICTION/);
+  const missingAbilitySuppressions=observation(0);
+  missingAbilitySuppressions.ownPublic.active=visiblePokemon();
+  delete missingAbilitySuppressions.ownPublic.active.abilitySuppressions;
+  assert.throws(()=>protocol.validateActorObservation(missingAbilitySuppressions,0),/MISSING_FIELD/);
+  const unknownAbilitySuppressions=observation(0);
+  unknownAbilitySuppressions.ownPublic.active={...visiblePokemon(),abilitySuppressions:null};
+  assert.doesNotThrow(()=>protocol.validateActorObservation(unknownAbilitySuppressions,0));
+  const missingStadiumEpoch=observation(0);
+  delete missingStadiumEpoch.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
+  assert.throws(()=>protocol.validateActorObservation(missingStadiumEpoch,0),/MISSING_FIELD/);
+  const unknownStadiumEpoch=observation(0);
+  unknownStadiumEpoch.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=null;
+  assert.doesNotThrow(()=>protocol.validateActorObservation(unknownStadiumEpoch,0));
   const badPokemonRestriction = observation(0);
   badPokemonRestriction.ownPublic.active = visiblePokemon();
   badPokemonRestriction.ownPublic.active.publicRestrictions.cannotAttackNextTurn = 'false';
@@ -386,6 +399,8 @@ test('production actorObservation projection matches the closed worker schema an
     invalidationReason: null
   } });
   protocol.validateActorObservation(view, 0);
+  assert.equal(view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining,null);
+  assert.deepEqual(view.ownPublic.active.abilitySuppressions,[]);
   assert.equal(view.ownPublic.active.printing, 'Mimikyu GRI');
   assert.equal(view.ownerK1.knownPrintings[0].copies, 4);
 
