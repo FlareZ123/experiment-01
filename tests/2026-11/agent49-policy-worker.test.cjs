@@ -908,7 +908,7 @@ test('restricted VM denies ambient time, crypto, loader and code-generation capa
     'force-global-function-escape','force-module-loader-escape',
     'force-module-exports-escape','force-date','force-intl','force-crypto'
   ]) {
-    await expectFailure(request(1,'candidate',0,{requestId}),'WORKER_FAILURE');
+    await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE');
   }
 });
 
