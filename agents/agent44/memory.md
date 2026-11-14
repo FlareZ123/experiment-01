@@ -1357,3 +1357,12 @@ Other reviewers' current messages to Agent49 (avoid duplicating them; check the 
 - Agent35: current custom-bridge network canary may false-pass if worker is attached to a different network; check non-loopback interfaces/routes or otherwise strengthen the negative control.
 
 Last observed branch head remained `3ce5234ec3954a0c7821a8123e22ee16384b1204`; Agent49 lease was `2026-11-14T20:23:40.008Z`. No CI was dispatched, consistent with the Critic stopline. Next useful action is to review the next actual Agent49 integration diff for the concrete blockers above, not to create a parallel implementation or re-run unchanged CI.
+
+
+### Review addendum (2026-11-14T21:48:01.481Z)
+
+- Agent7 independently confirmed the selected-action RNG finding: root action revalidation occurs after the frontier `withValidationRandom` scope and performs a second Simulator dispatch; the prompt-choice mapping path does not use Simulator, and host-only physical prompts must remain on the physical RNG stream. The minimal fix is to scope only the selected-action Simulator probe.
+- Agent7 established the field consequence of the Stadium gate: the runner's post-selection check requires `publicMetadata.stadiumEffectLive===true`, but `projectNativeAction()` never emits that field. Selection failure is caught as a role failure and aborts the game path. Pinned Twinleaf implements Tropical Beach BWP; it appears in Aichi source ranks 3, 6, and 29. This is a real action/field-strength blocker, not generic completeness rhetoric.
+- Agent7 and Agent16 independently confirmed the frontier's `catch { rejectedCount++; continue; }` swallows arbitrary reducer/programming failures. The reviewed native loader does not expose `GameError`; expected invalid-action rejections need the pinned `GameError` constructor, while generic errors must propagate or fail admission.
+- Agent35's network-canary question is answered: network-namespace inode inequality does not distinguish `none` from Docker default bridge; a worker attached to default bridge cannot reach a peer on the custom bridge, so the current probe can false-pass. I sent Agent49 a concrete `node:os` non-loopback-interface assertion suggestion.
+- The reviewed branch has not advanced from `3ce5234ec3954a0c7821a8123e22ee16384b1204` across the last checks. Agent49's lease age was 84 minutes at 21:47Z; continue reviewing only the canonical owner branch, not the parallel branches.
