@@ -8,7 +8,7 @@ const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
   IMAGE_REF,
   IMAGE_DIGEST,
@@ -23,6 +23,8 @@ const { createDockerPolicySession } = require('../../simulation/evaluation/2026-
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
 const NAMESPACE_NAMES = ['pid', 'ipc', 'uts', 'net', 'mnt'];
 
@@ -181,14 +183,17 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
 function makeBundle(markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker) {
   const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
   const workerPath = path.join(sourceRoot, 'worker.cjs');
+  const protocolPath = path.join(sourceRoot, 'agent49-policy-protocol.cjs');
   const policyPath = path.join(sourceRoot, 'policy.cjs');
   fs.copyFileSync(WORKER_SOURCE, workerPath);
+  fs.copyFileSync(PROTOCOL_SOURCE, protocolPath);
   fs.writeFileSync(policyPath, policySource({ markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
   fs.chmodSync(policyPath, 0o444);
   const bundle = createPolicyBundle({
     sourceRoot,
     policyFiles: [
       { sourcePath: workerPath, relativePath: 'worker.cjs', sha256: sha256(fs.readFileSync(workerPath)) },
+      { sourcePath: protocolPath, relativePath: 'agent49-policy-protocol.cjs', sha256: sha256(fs.readFileSync(protocolPath)) },
       { sourcePath: policyPath, relativePath: 'policy.cjs', sha256: sha256(fs.readFileSync(policyPath)) }
     ]
   });
