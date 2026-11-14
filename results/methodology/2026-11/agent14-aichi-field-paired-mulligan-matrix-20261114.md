@@ -127,3 +127,15 @@ The script reads the three exact JSON inputs, reuses Agent12's paired-protocol h
 - The field means weight each published rank equally; they are not tournament frequencies or matchup-weighted aggregate performance.
 
 This extension identifies a real, exact starting-condition asymmetry for the original Aichi field and shows how much of it disappears under the strict-24 sensitivity. It supplies a reproducible setup input for later full-game evaluation; it does not support a deck change or a 99.5% claim.
+
+
+## Pinned Twinleaf setup implementation check
+
+Static source inspection at the repository's recorded Twinleaf gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` (`vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`) confirms that the normal seven-card `setupGame` path in `ptcg-server/src/game/store/reducers/setup-reducer.ts` follows the same paired protocol:
+
+1. Both players draw seven.
+2. If both lack a Basic, both mulligan counters increment, both hands return, and both redraw. Shared failures therefore add equally and do not create a bonus for either player.
+3. Once only one player has a Basic, that player completes setup while the other continues to redraw; only the continuing player's counter increases.
+4. The first player receives a `WANT_TO_DRAW_CARDS` `SelectPrompt` with choices from zero through the difference in mulligan counters. The chosen number is moved from deck to hand, and the engine then offers extra Bench placement for newly drawn Basics. The mirrored branch does the same for the other seat.
+
+This matches the mathematical model's one-sided failure count after shared resets and preserves the optional nature of the bonus draw. No Twinleaf hook or patch is indicated for this specific setup rule at the pinned revision. This is static source inspection, not a runtime integration test; it does not validate every setup-tagged card or any competitive game outcome. The separate alternative-setup path is not the normal seven-card path modeled here.
