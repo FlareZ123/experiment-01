@@ -683,6 +683,28 @@ test('phase-one mulligan draw prompt maps descending labels through original cho
       kind: 'select-choice',
       token: 'draw-5'
     });
+
+    // The native value list is not guaranteed to be a descending index map.
+    // Labels are the actual draw counts; choiceIndex is only the opaque
+    // original-result mapping and must never be used to infer the value.
+    const nonMonotonic = engineSetupRequest(seat, {
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        drawOption('draw-1', 0, 1),
+        drawOption('draw-6', 5, 6),
+        drawOption('draw-3', 2, 3)
+      ],
+      publicMetadata: {
+        count: 7,
+        allowCancel: false,
+        selectionType: 'option'
+      }
+    });
+    assert.deepEqual(evaluate(nonMonotonic), {
+      kind: 'select-choice',
+      token: 'draw-6'
+    });
   }
 });
 
