@@ -183,7 +183,6 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       item.kind = 'use-stadium';
       item.label = 'Use stadium effect';
       item.actorPrinting = cardPrinting(stadium);
-      metadata.stadiumEffectLive = true;
       break;
     }
     case 'PASS_TURN': {
