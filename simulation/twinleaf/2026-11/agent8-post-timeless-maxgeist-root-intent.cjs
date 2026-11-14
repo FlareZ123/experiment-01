@@ -112,9 +112,12 @@ function prizeCountForTarget(target,catalog){
 
 function opponentActiveBlocksBasicAttacks(opponentActive){
   if(!opponentActive||!Array.isArray(opponentActive.abilityDetails))return null;
-  return opponentActive.abilityDetails.some(ability=>
-    typeof ability?.text==='string'&&
-    /your opponent's Basic Pokémon can't attack/i.test(ability.text));
+  for(const ability of opponentActive.abilityDetails){
+    if(typeof ability?.text!=='string')return null;
+    if(/your opponent's Basic Pokémon can't attack/i.test(ability.text))
+      return true;
+  }
+  return false;
 }
 
 function copycatPowerBeamAvailable(active,opponentActive,restrictions,catalog,dimensionValleyActive,pokemonLeagueHeadquartersActive){
