@@ -16,6 +16,7 @@ const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
 const {runNativeFixtureGame}=require('./agent49-native-fixture-game.cjs');
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
+const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
@@ -931,6 +932,9 @@ function createUnderworldRuntimePatchReceipt({ restoreHook, moduleSha256 } = {})
 
 function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FIXTURE.outputDir) } = {}) {
   const repositoryRoot = ROOT;
+  const diagnosticMode=env.AGENT36_V3_DIAGNOSTIC_MODE??'encrypted-full';
+  assert.ok(['encrypted-full','sanitized-only'].includes(diagnosticMode),
+    'V3 fixture diagnostic mode must be encrypted-full or sanitized-only');
   const enginePin = env.AGENT36_TWINLEAF_COMMIT_SHA;
   const runnerRevision = env.GITHUB_SHA;
   assert.equal(enginePin, V3_FIXTURE.engineCommit, 'fixture must use the reviewed pinned Twinleaf commit');
@@ -1067,8 +1071,9 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
                   native,
                   botOptionsBySeat: native.botOptionsBySeat,
                   maxActions: V3_FIXTURE.maxActions,
-                  diagnosticSnapshot: diagnostic.snapshotFullGameState,
-                  requireFullStateDiagnostics: true,
+                  diagnosticSnapshot: diagnosticMode==='encrypted-full'?
+                    diagnostic.snapshotFullGameState:undefined,
+                  requireFullStateDiagnostics: diagnosticMode==='encrypted-full',
                 }),
                 { eligibleSeats: [0] },
               );
@@ -1361,10 +1366,17 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     failure: failureEnvelope?.fixtureFailure ?? null,
   }),
   ].join('\n');
-  const outputPath = path.join(outputDir, 'fixture-game.json');
-  writeJsonAtomic(outputPath, artifact);
-  const traceTextPath = path.join(outputDir, 'fixture-game.txt');
-  fs.writeFileSync(traceTextPath, traceText, 'utf8');
+  const sanitizedOnly=diagnosticMode==='sanitized-only';
+  const persistedArtifact=sanitizedOnly?
+    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact):artifact;
+  const outputPath = path.join(outputDir, sanitizedOnly?
+    'fixture-game.sanitized.json':'fixture-game.json');
+  writeJsonAtomic(outputPath, persistedArtifact);
+  const persistedTraceText=sanitizedOnly?
+    sanitizedDiagnostic.formatSanitizedTraceText(persistedArtifact):traceText;
+  const traceTextPath = path.join(outputDir, sanitizedOnly?
+    'fixture-game.sanitized.txt':'fixture-game.txt');
+  fs.writeFileSync(traceTextPath, persistedTraceText, 'utf8');
   process.stdout.write((failureEnvelope ? 'Native V3 fixture game failed; partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath + '\n');
   if (failureEnvelope) {
     const error = new Error('Native V3 fixture game failed after preserving its partial JSON and text artifacts.');
@@ -1380,8 +1392,10 @@ function runV3FixtureGame({ env = process.env, outputDir = path.join(ROOT, V3_FI
     winnerSeat: gameResult.winnerSeat,
     endReason: gameResult.endReason,
     actionCount: gameResult.actions,
-    decisionTraceSha256: gameResult.decisionTraceSha256,
-    roleApplicationReceiptSha256: application.receipt.receiptSha256,
+    diagnosticMode,
+    decisionTraceSha256: sanitizedOnly?
+      persistedArtifact.game.actorDecisionsSha256:gameResult.decisionTraceSha256,
+    roleApplicationReceiptSha256: sanitizedOnly?null:application.receipt.receiptSha256,
     fixtureOnly: true,
     competitiveGameQualified: false,
   };
