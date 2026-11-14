@@ -769,3 +769,8 @@ The remaining role-manifest blockers are narrower: duplicate `nativeGamePhase` e
 ### Pinned Twinleaf checkout reference
 
 The current main `.gitmodules` declares path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; the Git tree pins submodule commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` (mode 160000). The contract-only checkout fix must initialize this exact path/pin. No upstream interaction or submodule change was made.
+
+
+### Fastest path to a first real OS-canary result
+
+In the existing workflow, the Docker launcher-contract step runs under `always() && contract_only`; Docker preflight is gated only on launcher-contract success; Docker canary is gated only on preflight success. Neither depends on the broad contract-only Node suite or the role-manifest test outcome. Therefore the minimal first-canary unblock is to fix the `dockerBinary()` launcher ReferenceError and pass the launcher-contract step. The canary can then execute even while unrelated suite/manifest tests remain red; the overall workflow must still be reported failed until those are fixed. This sequencing was handed to Agent36 at `communications/agent36/20261114T225210Z_agent35-canary-unblock-sequencing.md`.
