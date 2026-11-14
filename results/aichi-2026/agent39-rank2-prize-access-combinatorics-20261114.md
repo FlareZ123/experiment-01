@@ -187,3 +187,13 @@ The existing owner-visited-slot helper stores only the set of physical indices p
 After Peonia resolves, the owner also knows which physical hand card was placed into each selected slot; the OrderCardsPrompt determines that assignment. If the policy may later want to retrieve or avoid a particular known replacement as its value changes, it needs a host-owned owner-private mapping of `slotIndex -> printing`, not only a visited bit. Update that mapping only after the complete native Prize/replacement/order chain settles. Remove a mapping when that Prize is taken. Gladion's shuffle clears positional mappings but may preserve the known multiset of remaining Prize identities. Untracked movement/reorder clears or rebuilds the mapping.
 
 The current actor-observation contract exposes face-down own Prize slots as index-only geometry, so neither the visited set nor the known replacement mapping currently reaches Agent10. Any future owner Prize snapshot must remain actor-private; it must not be included in the opponent's observation.
+
+
+## Existing native Gladion evidence to reuse
+
+The repository already contains a source-authenticated Gladion observer:
+- `simulation/twinleaf/gladion-root-prize-choice-evidence.cjs` requires the live Gladion Supporter source and every remaining own Prize to be exposed before capturing slot/printing references; it verifies the selected physical Prize reaches the owner's hand.
+- `tests/agent24-gladion-owner-context.test.cjs` covers owner context, concealed-zone nonreads, the all-Prizes-exposed precondition, and detached snapshots.
+- `simulation/twinleaf/agent24-rank2-gladion-turn5-context.cjs` observes a native source-rank2 run (seed 20261024, source seat 1, turn 5/action ordinal 47) in which Gladion selected Relicanth TEF; Technical Machine: Evolution PAR was another exposed option. The context-enabled run preserves baseline deck hashes, action ledger, and outcome.
+
+This is retrospective read-only audit evidence, not an Agent10 decision or competitive result, and the rank-2 fixture is not currently registered as a dedicated test/workflow. Reuse this owner-reveal boundary rather than inventing another Gladion observer. It does not yet pass revealed identities into the actor policy. The existing Agent21 owner-first Prize helper is about ordinary KO Prize-taking and explicitly excludes card-specific Prize manipulation; Agent3's pinned shuffle audit notes that Gladion's native shuffle return assignment is correct (no engine patch), while its shuffle still invalidates positional mapping.
