@@ -189,10 +189,16 @@ function validatePromptMetadata(value) {
   for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible']) {
     if (value[key] !== undefined && typeof value[key] !== 'boolean') fail('BAD_PROMPT_METADATA');
   }
-  for (const key of ['selectionIndex', 'choiceIndex', 'amount', 'count', 'energyCount',
-    'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount']) {
+  for (const key of ['selectionIndex', 'choiceIndex']) {
     if (value[key] !== undefined &&
         (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] >= LIMITS.maxArrayItems)) {
+      fail('BAD_PROMPT_METADATA');
+    }
+  }
+  for (const key of ['amount', 'count', 'energyCount', 'selectedCount', 'minimumCount',
+    'maximumCount', 'requiredCount']) {
+    if (value[key] !== undefined &&
+        (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] > LIMITS.maxArrayItems)) {
       fail('BAD_PROMPT_METADATA');
     }
   }

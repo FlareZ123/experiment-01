@@ -589,6 +589,15 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     ...prompt,
     choices: [{ ...prompt.choices[0], publicMetadata: { ownerSeat: 'seat-1' } }]
   }, 0), /BAD_PROMPT_METADATA/);
+  assert.doesNotThrow(() => protocol.validatePrompt({
+    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems }
+  }, 0));
+  assert.throws(() => protocol.validatePrompt({
+    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems + 1 }
+  }, 0), /BAD_PROMPT_METADATA/);
+  assert.throws(() => protocol.validatePrompt({
+    ...prompt, publicMetadata: { selectionIndex: protocol.LIMITS.maxArrayItems }
+  }, 0), /BAD_PROMPT_METADATA/);
 
   const frontier = {
     schema: protocol.FRONTIER_SCHEMA,
