@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const {sha256} = require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 const {assessBalancedFieldKl, lowerKlBound, binaryKl} =
   require('../scripts/agent12-balanced-kl-field-bound.cjs');
 const {assessPerfectField} =
@@ -50,6 +51,34 @@ function fixture(trialsPerStratum) {
     registeredAttemptCount: attempts.length,
     registrationSha: F
   };
+}
+
+function bindIidSamplingModel(request) {
+  request.stratumSamplingModel = 'iid-bernoulli-v1';
+  request.fieldSamplingRegistration = {
+    schema: 'aichi-field-sampling-registration-v1',
+    stratumSamplingModel: 'iid-bernoulli-v1',
+    registeredAt: '2026-11-14T00:00:00Z',
+    target: request.target ?? 0.995,
+    confidence: request.confidence ?? 0.95,
+    registeredAttemptCount: request.registeredAttemptCount,
+    gamesPerStratum: request.attempts.length / 128,
+    randomizationProtocol:
+      'One independently shuffled physical game per unique trial and deal ID; no paired/common-deal clusters; fixed policies and versions within each stratum.',
+    originalSources: request.originalSources.map(({rank,source60Sha}) =>
+      ({rank,source60Sha})),
+    candidate60Sha: request.attempts[0].candidate60Sha,
+    candidatePolicySha: request.attempts[0].candidatePolicySha,
+    engineAndHooksSha: request.attempts[0].engineAndHooksSha,
+    opponentPolicyBundleSha: request.attempts[0].opponentPolicyBundleSha,
+    adjudicationProtocolSha: request.attempts[0].adjudicationProtocolSha,
+    attempts: request.attempts.map(({trialId,rank,seat,firstPlayerSeat,
+      physicalDealId}) => ({trialId,rank,seat,firstPlayerSeat,physicalDealId}))
+  };
+  request.registrationSha = sha256(request.fieldSamplingRegistration);
+  for (const attempt of request.attempts)
+    attempt.registrationSha = request.registrationSha;
+  return request;
 }
 
 test('640 perfect wins reproduce the exact all-win confidence bound', () => {
@@ -201,11 +230,11 @@ test('conservative upper-tail KL bound dominates exact heterogeneous Bernoulli t
   }
 });
 
-test('10 games in each of 128 strata and at most two nonwins use the exact field-mean test only under declared iid sampling', () => {
+test('10 games in each of 128 strata and at most two nonwins use the exact field-mean test only under digest-bound iid registration', () => {
   const f = fixture(10);
-  f.stratumSamplingModel = 'iid-bernoulli-v1';
   f.attempts[0].status = 'paper-qualified-loss';
   f.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(f);
   const result = assessBalancedFieldKl(f);
   assert.equal(result.totalAttempts, 1280);
   assert.equal(result.winCount, 1278);
@@ -219,8 +248,35 @@ test('10 games in each of 128 strata and at most two nonwins use the exact field
   assert.ok(Math.abs(result.worstCaseNullPValue -
     0.04595004378565184) < 1e-14);
   assert.equal(result.samplingModelDeclaration,
-    'iid-bernoulli-v1 (caller assertion; external audit required)');
+    'iid-bernoulli-v1 (bound to canonical field registration; external audit required)');
+  assert.equal(result.samplingModelRegistrationValid, true);
   assert.equal(result.externalPaperAndIndependenceAuditRequired, true);
+});
+
+
+test('an unbound iid caller assertion is rejected rather than entering the exact branch', () => {
+  const f = fixture(10);
+  f.stratumSamplingModel = 'iid-bernoulli-v1';
+  const result = assessBalancedFieldKl(f);
+  assert.equal(result.boundMethod, 'not-admissible');
+  assert.equal(result.samplingModelRegistrationValid, false);
+  assert.ok(result.rejectionReasons.includes('field-sampling-registration-missing'));
+});
+
+test('sampling registration digest and exact trial roster are enforced', () => {
+  const digestTamper = bindIidSamplingModel(fixture(10));
+  digestTamper.fieldSamplingRegistration.randomizationProtocol += ' altered';
+  const digestResult = assessBalancedFieldKl(digestTamper);
+  assert.equal(digestResult.boundMethod, 'not-admissible');
+  assert.ok(digestResult.rejectionReasons.includes(
+    'field-sampling-registration-digest-mismatch'));
+
+  const rosterTamper = bindIidSamplingModel(fixture(10));
+  rosterTamper.attempts[0].rank = 2;
+  const rosterResult = assessBalancedFieldKl(rosterTamper);
+  assert.equal(rosterResult.boundMethod, 'not-admissible');
+  assert.ok(rosterResult.rejectionReasons.includes(
+    'field-sampling-attempt-roster-mismatch'));
 });
 
 test('the aggregate exact field-mean branch fails closed to heterogeneous KL without iid declaration', () => {
@@ -236,19 +292,19 @@ test('the aggregate exact field-mean branch fails closed to heterogeneous KL wit
 
 test('the aggregate exact field-mean branch is limited to 10 per cell and at most two nonwins', () => {
   const threeNonwins = fixture(10);
-  threeNonwins.stratumSamplingModel = 'iid-bernoulli-v1';
   threeNonwins.attempts[0].status = 'paper-qualified-loss';
   threeNonwins.attempts[1].status = 'paper-qualified-tie';
   threeNonwins.attempts[2].status = 'paper-qualified-loss';
+  bindIidSamplingModel(threeNonwins);
   const three = assessBalancedFieldKl(threeNonwins);
   assert.equal(three.boundMethod, 'heterogeneous-kl');
   assert.equal(three.worstCaseNullPValue, null);
   assert.equal(three.conditionalStatisticalThresholdMet, false);
 
   const ninePerCell = fixture(9);
-  ninePerCell.stratumSamplingModel = 'iid-bernoulli-v1';
   ninePerCell.attempts[0].status = 'paper-qualified-loss';
   ninePerCell.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(ninePerCell);
   const nine = assessBalancedFieldKl(ninePerCell);
   assert.equal(nine.boundMethod, 'heterogeneous-kl');
   assert.equal(nine.worstCaseNullPValue, null);
@@ -257,8 +313,8 @@ test('the aggregate exact field-mean branch is limited to 10 per cell and at mos
 
 test('an invalid field ledger cannot use the exact aggregate field-mean branch', () => {
   const f = fixture(10);
-  f.stratumSamplingModel = 'iid-bernoulli-v1';
   f.attempts[0].status = 'native-win';
+  bindIidSamplingModel(f);
   const result = assessBalancedFieldKl(f);
   assert.equal(result.boundMethod, 'not-admissible');
   assert.equal(result.worstCaseNullPValue, null);
@@ -269,20 +325,20 @@ test('an invalid field ledger cannot use the exact aggregate field-mean branch',
 
 test('the exact aggregate field-mean rule does not transfer to another target or confidence', () => {
   const targetRequest = fixture(10);
-  targetRequest.stratumSamplingModel = 'iid-bernoulli-v1';
   targetRequest.target = 0.994;
   targetRequest.attempts[0].status = 'paper-qualified-loss';
   targetRequest.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(targetRequest);
   const targetResult = assessBalancedFieldKl(targetRequest);
   assert.equal(targetResult.boundMethod, 'heterogeneous-kl');
   assert.equal(targetResult.target, 0.994);
   assert.equal(targetResult.worstCaseNullPValue, null);
 
   const confidenceRequest = fixture(10);
-  confidenceRequest.stratumSamplingModel = 'iid-bernoulli-v1';
   confidenceRequest.confidence = 0.9;
   confidenceRequest.attempts[0].status = 'paper-qualified-loss';
   confidenceRequest.attempts[1].status = 'paper-qualified-tie';
+  bindIidSamplingModel(confidenceRequest);
   const confidenceResult = assessBalancedFieldKl(confidenceRequest);
   assert.equal(confidenceResult.boundMethod, 'heterogeneous-kl');
   assert.equal(confidenceResult.confidence, 0.9);
