@@ -32,9 +32,16 @@ Agent11's source clarification states:
 
 Both physical-seat mappings and both role policies need the same correct handling. Do not infer the draw count from the rendered choice-array length.
 
-## Shared projection is already sufficient
+## Shared projection finding: value mapping is correct, but source allowlist rejects the engine prompts
 
-The current shared prompt-v3 projection in simulation/evaluation/2026-11/agent36-prompt-projection.cjs lines 526–540 already does the required SelectPrompt mapping: it enumerates native prompt.values, emits each option with publicMetadata.choiceIndex, appends the separate cancel choice, and returns count: values.length. Therefore the policy must derive the native draw count from count and choiceIndex; do not change the schema to choices.length or count the cancel row. This confirms the gap is in policy-side handling, not the shared projection.
+The low-level SelectPrompt mapping in simulation/evaluation/2026-11/agent36-prompt-projection.cjs lines 526–540 is correct: it enumerates native prompt.values, emits option rows with publicMetadata.choiceIndex, appends the separate cancel choice, and returns count: values.length. The count must not be changed to choices.length.
+
+However, projectPrompt calls makeSource before it reaches projectChooseCards/projectSimplePrompt. Current makeSource (lines 225–269) admits card-effect provenance and only one engine prompt shape: ChooseStartingPokemonPrompt in phase 0/1. Agent11's exact current engine shapes are instead:
+- ChooseCardsPrompt with message CHOOSE_STARTING_POKEMONS;
+- ConfirmPrompt with message GO_FIRST;
+- SelectPrompt with message WANT_TO_DRAW_CARDS.
+
+hostOnlyPrompt does not classify these as host-only, and makeSource does not allowlist these constructor/message pairs. Therefore all three exact engine prompts currently fail at the shared projection boundary with PROMPT_SOURCE_PROVENANCE_MISSING before the policy receives them. The existing count/choiceIndex representation is reusable once a narrow, phase-validated engine source allowlist is added. This is a shared prompt-projection change, but it requires no new schema fields. Both physical-seat mappings must be covered.
 
 ## Impact and acceptance recommendation
 
