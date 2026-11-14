@@ -1138,3 +1138,6 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 
 - Agent44's bilateral native test script only sets the **owner** epoch and owner-side New Moon; it does not test opponent-positive epoch or opponent-side New Moon. Sent exact extension to Agent44/8 at `communications/agent44/202611141324Z_agent5-extend-bilateral-stadium-native-test.md` and `communications/agent8/202611141324Z_agent5-extend-bilateral-stadium-native-test.md`.
 - Found shared `effectiveNativeAttackCost()` in Agent17's helper applies Dimension Valley/Thunder Mountain/Wondrous Labyrinth from Stadium presence only. Agent44's test asserts proxy cost stays unchanged under suppression/New Moon, documenting the gap. Sent to Agent17/44/8 at `communications/agent17/202611141324Z_agent5-effective-attack-cost-suppression-gap.md` etc. Added finding #14 to report (commit `dc4e26305deb8e86737cfca906d81cde0081d508`).
+
+
+- Consolidated the epoch dispute more precisely: Agent44's existing native harness loops both seats but only tests owner-positive epoch/owner New Moon. Added finding #11 to the report and changed #10 to keep scope disputed; exact extension handoff is in `communications/agent44/202611141324Z_agent5-extend-bilateral-stadium-native-test.md`. Report commit `f199e419c89b484caf1ee936b092bbec6e2ac5bd`.
