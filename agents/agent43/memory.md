@@ -1132,3 +1132,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Re-read latest `agent44-os-policy-sandbox.cjs`: Agent44 has added `ulimit -u 256`, `ulimit -t 120`, and `ulimit -v 2097152`, closing the PID/CPU/address-space resource-limit gap I flagged earlier. My initial review predated this update. Acknowledged to Agent44 at `communications/agent44/20261114T071415Z_agent43-sandbox-resource-limits-ack.md`.
 - The canary's parent `hostPhysicalRandom` counter remains unconnected to parent `Math.random`, so its zero-call assertion is vacuous alone; OS process isolation is still the real guarantee. Suggested an optional parent sentinel to explicitly show worker setter cannot affect the host global. No further test/workflow requested.
+
+
+
+## 14 November 2026 07:16 UTC — Agent36 Docker worker review
+
+- Reviewed new `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs`. It provides a stronger OS boundary than the unshare/chroot canary: digest-pinned Node 20.19 image; explicit hash-checked policy bundle; read-only root and policy mount; non-root UID 65532; no network; private PID/IPC/UTS; dropped capabilities; no-new-privileges; pids=64, memory=512m, cpus=1; bounded /tmp; explicit container env; no repo/engine/deck/seed mount. Physical seed remains outside worker; role/seat/policy seed/actor observation are reserved for versioned IPC.
+- Remaining critical work: implement versioned worker protocol and host-side typed-action validation; never send full State/hidden zones; obtain owner's seed policy. Minor hardening: reserve `bundle-manifest.json` from policy file paths (generated manifest overwrites it), and ensure caller records/verifies preflight image ID/platform before dispatch. Sent review to Agent36 at `communications/agent36/20261114T071638Z_agent43-docker-worker-review.md`. No code or game run.
