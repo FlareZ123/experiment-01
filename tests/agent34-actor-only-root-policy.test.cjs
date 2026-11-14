@@ -1818,7 +1818,9 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ...target,printing:'Vileplume BUS 6',hp:140,
     abilities:['Disgusting Pollen'],
     abilityDetails:[{name:'Disgusting Pollen',
-      text:"As long as this Pokémon is your Active Pokémon, your opponent's Basic Pokémon can't attack."}]
+      text:"As long as this Pokémon is your Active Pokémon, your opponent's Basic Pokémon can't attack."}],
+    abilitySuppressions:[{abilityName:'Disgusting Pollen',suppressed:false,
+      reasonCode:null,sourcePrinting:null}]
   };
   const busPowerBeamView={
     ...view,
@@ -1832,6 +1834,28 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     'Active Vileplume BUS Disgusting Pollen blocks Basic Mimikyu Copycat, not the promoted VMAX');
   assert.equal(busIntent.competingPowerBeamAvailable,false);
   assert.equal(busIntent.routeComparison,'max-geist-only-known-route');
+
+  const unknownBusAbilityView={
+    ...busPowerBeamView,
+    opponentPublic:{...busPowerBeamView.opponentPublic,active:{
+      ...vileplumeBus,abilitySuppressions:[{abilityName:'Disgusting Pollen',
+        suppressed:null,reasonCode:null,sourcePrinting:null}]
+    }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    unknownBusAbilityView,postTimelessCatalog,{ownerSeat:0}),null,
+    'printed Disgusting Pollen without a live-Ability fact cannot disable the Copycat competitor');
+
+  const suppressedBusAbilityView={
+    ...busPowerBeamView,
+    opponentPublic:{...busPowerBeamView.opponentPublic,active:{
+      ...vileplumeBus,abilitySuppressions:[{abilityName:'Disgusting Pollen',
+        suppressed:true,reasonCode:'TEST_SUPPRESSION',sourcePrinting:'Test Suppressor'}]
+    }}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    suppressedBusAbilityView,postTimelessCatalog,{ownerSeat:0}),null,
+    'a proven-suppressed Disgusting Pollen restores terminal Copycat Power Beam');
 
   const vileplumeAor={
     ...target,printing:'Vileplume AOR 3',
