@@ -7,7 +7,10 @@ const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
 const { spawn } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createWorkerLocalPolicyStream}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 
@@ -24,6 +27,15 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
     "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
+    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
+    "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-module-exports-escape'){module.exports.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-date'){Date.now();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-intl'){new Intl.DateTimeFormat().format();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-crypto'){crypto.getRandomValues(new Uint8Array(1));return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-math-binding-escape'){globalThis.Math={random:()=>0.5};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
@@ -173,6 +185,7 @@ function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); 
 function startWorker(init = initFor()) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
+  fs.copyFileSync(PROTOCOL_SOURCE, path.join(dir, 'agent49-policy-protocol.cjs'));
   fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(init.policyVersion));
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
@@ -881,9 +894,31 @@ test('persistent worker emits response-v3 ordered multi-select decisions', async
 
 
 
+test('restricted VM denies ambient capabilities and serializes policy failures',async()=>{
+  const worker=startWorker();
+  try {
+    writeLine(worker.child.stdin,worker.init);
+    await waitForCount(worker,1);
+    writeLine(worker.child.stdin,request(1,'candidate',0,{requestId:'probe-ambient'}));
+    await waitForCount(worker,2);
+    assert.deepEqual(worker.lines[1].decision,{kind:'abstain',reasonCode:'SANDBOX_OK'});
+    assert.equal(worker.lines[0].policyDrawCount,0);
+  } finally { await dispose(worker); }
+
+  await expectFailure(request(1,'candidate',0,{requestId:'force-math-random'}),
+    'POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  for(const requestId of [
+    'force-global-function-escape','force-module-loader-escape',
+    'force-module-exports-escape','force-date','force-intl','force-crypto',
+    'force-math-binding-escape'
+  ]) {
+    await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE');
+  }
+});
+
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
-  const first=protocol.createWorkerLocalPolicyStream();
-  const second=protocol.createWorkerLocalPolicyStream();
+  const first=createWorkerLocalPolicyStream();
+  const second=createWorkerLocalPolicyStream();
   assert.equal(first.protocol,'worker-local-independent-crypto-stream-v1');
   assert.equal(first.drawCount,0);
   assert.equal(second.drawCount,0);
