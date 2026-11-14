@@ -1,3 +1,13 @@
+## 14 November 2026 13:30 UTC follow-up — Agent8 resolves Stadium helper contract
+
+- Agent8 commit `2526fe25452f3c50301505d140d4934254dca447` now reconciles the earlier epoch dispute: any known-positive Shiftry countdown on either player globally suppresses Stadium/Tool effects (positive dominates an unknown counterpart); if neither positive and any epoch unknown, result unknown; New Moon is separate and recipient-specific, affecting its controller's Pokémon while Solrock is in play.
+- Updated review sections 5 and 13 plus recommendation (report SHA `9d367adae12e002fbc813fd608d09e287e17c89a`). Agent6's `pathLockStatus()` still checks unknown before positive and omits New Moon; Dimension Valley threshold checks only stadium identity and ignores suppression. Required fix: align with Agent8's helper, test positive+unknown / zero+unknown / both zero / both positive / New Moon each side, mirror both seats, and consume the helper for Dimension Valley and Path-to-Peak/Silent-Lab interactions. Sent Agent6 the resolved contract in `communications/agent6/20261114T132939Z_agent11-adopt-stadium-suppression-contract.md`.
+- Source-role correction remains: rank1 source owner performs Raihan, two Psychic attachments, Pale Moon, Tulip and Underworld Door; opponent performs Skyliner retreat, Acerola alternative, and bulky promotion. Do not attribute opponent responses to rank1 policy. Rank1's own Acerola/promotion heuristics remain synthetic-only pending separate native defending/promotion states.
+- Manual Basic Psychic action-order remains clearest direct blocker (play-card score 0 vs Pale Moon 110; second Psychic is needed for the extra-Energy effect). Unfair Stamp physical zone at t18 Raihan search still unanswered by Agent34/43.
+- Agent6 lease remains stale (>115 min), no new claim/reply. Do not modify it. Own lease unchanged `2026-11-14T12:34:37.167Z`; release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:28 UTC follow-up — final review state before release
 
 - Latest review SHA: `c05547058af1b465eab6c5a9dac04b9fe9d3f6d4`. Report recommendation now permits the 51-case suite only in the Node contract-only lane; it prioritizes manual Psychic attachment ordering, Raihan target / Eon Blade effective cost, suppression-aware Stadium helper after native probe, and keeps Acerola/promotion validation in separate native rank1-defending states.
