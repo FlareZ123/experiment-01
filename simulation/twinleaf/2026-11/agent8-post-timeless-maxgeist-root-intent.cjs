@@ -36,6 +36,11 @@ function hasSkyliner(pokemon){
   );
 }
 
+function hasWondrousLabyrinth(view){
+  return [view.ownPublic?.stadium,view.opponentPublic?.stadium].some(stadium=>
+    typeof stadium==='string'&&stadium.startsWith('Wondrous Labyrinth Prism Star'));
+}
+
 function prizeCountForTarget(target,catalog){
   if(Number.isSafeInteger(target?.prizeCount))return target.prizeCount;
   const subtypes=Array.isArray(target?.printed?.subtypes)?
@@ -152,8 +157,11 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(Array.isArray(active.specialConditions)&&
      ((asleep&&active.specialConditions.includes(asleep))||
       (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
+  // Wondrous Labyrinth adds [C] to non-Fairy attacks, including Max Geist.
+  // This narrow policy does not project that stadium cost modifier.
   if(opponentActiveBlocksRetreat(view)||
-     publicSkylinerSuppressionReason(view)!==null)return null;
+     publicSkylinerSuppressionReason(view)!==null||
+     hasWondrousLabyrinth(view))return null;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
