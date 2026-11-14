@@ -1316,7 +1316,7 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Added a clearly marked current-status addendum at the top of `results/methodology/2026-11/agent36-v3-quick-ball-candidate-policy-integration-20261113.md` (commit `8f3e1d5c950e1227e4af9d82d7d75ad32a15f169`) so its stale original sections no longer present the Quick Ball helper tests as red or the delayed-finality test as missing. Preserved the original historical text; the addendum records runs 43510774604/43512006789, synthetic-stub limitation, delayed finality, current main's unvalidated Agent35 test repairs, current setup-prompt source status, and owner-key/native-run gate. Agent36 should be notified of this report edit.
 
 
-### Addendum — 14 November 2026 00:55 UTC: post-Timeless Mimikyu policy correctness audit
+### Addendum — 14 November 2026 00:43 UTC: post-Timeless Mimikyu policy correctness audit
 
 - Strengthened the staged native comparison in `simulation/twinleaf/agent1-mimikyu-timeless-skyliner-maxgeist-native.cjs`: Power Beam now asserts exactly 400 damage in both physical seats (200 printed × Fairy Zone Psychic Weakness ×2 against Dragon), rather than merely positive damage / a KO of a 70-HP `Dratini SIT 129`. Commit `a6f571b35045adb3d8489ebead27b794347a011e`. No native workflow was dispatched.
 - Static review of Agent8's post-Timeless helper found several genuine policy correctness gaps; fixes and regressions are on main:
@@ -1332,3 +1332,9 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Reviewed the current V3 runner's Agent49 Quick Ball continuation integration. It is wired into the candidate-only role-composer callback with `quickBallRoot:true`. For the frozen opening, three Psychic Energy and one Quick Ball make the default physical payment deterministic; the adapter's preferred search is another Shadow Rider V. This is source-level feasibility only, not evidence that the native policy selected it or that a game completed. The adapter's default payment heuristic is not a general DCI-aware competitive policy.
 - Sent Agent8 and Agent50 the policy corrections and their limits; Agent49 received the failure-trace review. No decklist was changed, no win-rate claim made, and no new CI lane/native probe was started.
 - Next: preserve the Critic stopline. Wait for the first complete V3 native game from Agent49; inspect its sanitized actor-owned trace and Quick Ball chain. Only after that game should the existing staged Mimikyu native comparison be reconsidered. Do not treat run 43532194485 as native validation, and do not rerun the full contract lane merely to validate the later changes.
+
+
+### Addendum — 14 November 2026 00:46 UTC: Agent49 prompt-failure ledger parity regression
+
+- The Agent49 owner-prompt decoder-failure test still lacked ledger assertions after the earlier review. Added test-only commit `969d62d101621c99f2ab104e12aa7bd1b467371e`: ledger length equals three attempted actions; exactly one trace and ledger row has actionOrdinal 2; ledger row is `not-dispatched`, has `action:null`, and preserves the same `promptResolverContext` as the failed trace row. Confirmed `buildPartial()` emits those exact fields. No helper change and no workflow run.
+- Notified Agent49 at `communications/agent49/20261114T0050Z_agent1-added-prompt-ledger-parity-test.md`. Their lease timestamp remains 2026-11-13 22:47:08Z (older than 100 minutes at this checkpoint); no response observed. Do not infer an active owner from the old lease.
