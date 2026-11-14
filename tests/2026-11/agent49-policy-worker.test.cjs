@@ -729,6 +729,21 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     ...emptyPrompt, choices: emptyPrompt.choices.filter(choice => choice.kind !== 'empty-selection')
   }, 0), /BAD_MULTI_SELECT_EMPTY_CHOICE/);
 
+  const zeroCancelablePrompt = makePrompt('card-combination', {
+    minimumCount: 0, maximumCount: 1, allowCancel: true
+  }, [
+    { token: 'card-0', kind: 'card' },
+    { token: 'empty-0', kind: 'empty-selection' },
+    { token: 'cancel-0', kind: 'cancel' }
+  ]);
+  protocol.validatePrompt(zeroCancelablePrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choice', token: 'empty-0'
+  }, zeroCancelablePrompt, new Set()), { kind: 'select-choice', token: 'empty-0' });
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choice', token: 'cancel-0'
+  }, zeroCancelablePrompt, new Set()), { kind: 'select-choice', token: 'cancel-0' });
+
   const clampedPrompt = makePrompt('card-combination', {
     minimumCount: 1, maximumCount: 3, allowCancel: false
   }, [
