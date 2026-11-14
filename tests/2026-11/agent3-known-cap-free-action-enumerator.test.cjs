@@ -215,6 +215,8 @@ test('adapter-path admission requires the pinned marker and a locally untruncate
   const admitted=assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics});
   assert.equal(admitted.adapter.enginePin,EXPECTED_ENGINE_PIN);
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:{},enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING');
+  const incomplete={__agent3UncappedAdapter:{...enumerator.__agent3UncappedAdapter,includesHandAbilities:false}};
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:incomplete,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_INCOMPLETE');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:'0'.repeat(40),frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1,unsupportedCount:0}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:false,omittedCount:0,unsupportedCount:1}}),error=>error.code==='NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS');
