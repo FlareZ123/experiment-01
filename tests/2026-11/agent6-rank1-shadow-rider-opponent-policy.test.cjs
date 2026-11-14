@@ -70,8 +70,8 @@ function pokemon(printing, options = {}) {
   };
 }
 
-function publicRestrictions() {
-  return {
+function publicRestrictions(options = {}) {
+  const result = {
     gxUsed: false,
     vstarUsed: false,
     attackLockTurnsRemaining: 0,
@@ -90,6 +90,11 @@ function publicRestrictions() {
     energyPlayLocked: false,
     specialEnergyPlayLocked: false
   };
+  if (!options.omitStadiumSuppression) {
+    result.stadiumAndToolHaveNoEffectTurnsRemaining =
+      options.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0;
+  }
+  return result;
 }
 
 function player(options = {}) {
@@ -104,7 +109,7 @@ function player(options = {}) {
     resolvingSupporter: [],
     publicHand: null,
     prizeSlots: [],
-    publicTurnRestrictions: publicRestrictions(),
+    publicTurnRestrictions: publicRestrictions(options),
     handCount: options.handCount ?? 0,
     deckCount: options.deckCount ?? 30,
     prizeCount: options.prizeCount ?? 6
