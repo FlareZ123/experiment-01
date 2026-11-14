@@ -16,6 +16,8 @@ const POLICY_VERSION = 'agent49-test-policy-v1';
 async function createPolicy({ config }) {
   return {
     async decide(request) {
+      if (config.mode === 'math') Math.random();
+      if (config.mode === 'crypto') require('node:crypto').randomBytes(1);
       if (config.forceUnknownAction === true) {
         return { kind: 'select-action', token: 'not-in-frontier' };
       }
@@ -220,6 +222,8 @@ test('worker fails closed on role/seat drift, sequence errors, duplicate IDs and
   }), 'FORBIDDEN_NATIVE_OR_HIDDEN_FIELD');
   await expectWorkerFailure(request(1), 'POLICY_SELECTED_UNKNOWN_ACTION',
     { forceUnknownAction: true });
+  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'math' });
+  await expectWorkerFailure(request(1), 'RANDOMNESS_NOT_AUTHORIZED', { mode: 'crypto' });
 
   const worker = startWorker();
   try {
