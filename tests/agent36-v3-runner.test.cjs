@@ -12,7 +12,8 @@ const {
   combineAndPinV3RoleRuntime,initializeNativeCardPool,buildV3BundleFromArtifacts,
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
-  resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule
+  resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
+  assertTrustedActionSelection
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {
@@ -581,6 +582,30 @@ test('host validates worker policy as inert data and never executes its module b
     fs.rmSync(root,{recursive:true,force:true});
     delete globalThis.__agent49HostPolicyExecuted;
   }
+});
+
+test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
+  const source=fs.readFileSync(require.resolve(
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  assert.match(source,/entrypoint:V3_FIXTURE\.workerPath/);
+  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.candidateWorkerPolicyPath\]/);
+  assert.match(source,/additionalDataAssetPaths:\[V3_FIXTURE\.opponentWorkerPolicyPath\]/);
+  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.candidateWorkerPolicyPath/);
+  assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
+  assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
+  assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
+});
+
+
+test('native Stadium actions fail closed without explicit liveness evidence',()=>{
+  const unknown={actionFrontier:{items:[{token:'stadium-1',kind:'use-stadium'}]}};
+  assert.throws(()=>assertTrustedActionSelection(unknown,'stadium-1'),
+    error=>error?.code==='UNKNOWN_STADIUM_LIVENESS');
+  const proven={actionFrontier:{items:[{
+    token:'stadium-2',kind:'use-stadium',publicMetadata:{stadiumEffectLive:true}
+  }]}};
+  assert.strictEqual(assertTrustedActionSelection(proven,'stadium-2'),proven.actionFrontier.items[0]);
+  assert.throws(()=>assertTrustedActionSelection(proven,'not-in-frontier'));
 });
 
 test('V3 role manifest hashes policy source as a data asset and uses the trusted worker runtime entrypoint',()=>{
