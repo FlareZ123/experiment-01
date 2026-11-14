@@ -71,19 +71,24 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     "  Object.defineProperty(globalThis,'__agent49SafeRng',{value:safeRng,writable:false,configurable:false,enumerable:false});",
     "  Object.defineProperty(Math,'random',{value:function forbiddenMathRandom(){return globalThis.__agent49SafeRng();},writable:false,configurable:false,enumerable:false});",
     '  Object.freeze(Math);',
-    '  const policyModule=Object.create(null);',
-    "  Object.defineProperty(policyModule,'exports',{value:Object.create(null),writable:true,configurable:false,enumerable:true});",
-    "  Object.defineProperty(globalThis,'module',{value:policyModule,writable:false,configurable:false,enumerable:false});",
-    "  Object.defineProperty(globalThis,'exports',{value:policyModule.exports,writable:false,configurable:false,enumerable:false});",
     '})();'
   ].join('\n');
   vm.runInContext(setup,context,{timeout:1000,filename:'agent49-policy-sandbox-setup.cjs'});
-  vm.runInContext(policySource,context,{timeout:5000,filename:'policy.cjs'});
-  const policyVersion=vm.runInContext('module.exports.POLICY_VERSION',context,{timeout:1000});
-  const hasFactory=vm.runInContext("typeof module.exports.createPolicy==='function'",context,{timeout:1000});
+  const loadPolicy=[
+    "(() => { 'use strict';",
+    '  const module=Object.create(null);',
+    "  Object.defineProperty(module,'exports',{value:Object.create(null),writable:true,configurable:false,enumerable:true});",
+    '  const exports=module.exports;',
+    policySource,
+    "  Object.defineProperty(globalThis,'__agent49PolicyModule',{value:module.exports,writable:false,configurable:false,enumerable:false});",
+    '})();'
+  ].join('\n');
+  vm.runInContext(loadPolicy,context,{timeout:5000,filename:'policy.cjs'});
+  const policyVersion=vm.runInContext('globalThis.__agent49PolicyModule.POLICY_VERSION',context,{timeout:1000});
+  const hasFactory=vm.runInContext("typeof globalThis.__agent49PolicyModule.createPolicy==='function'",context,{timeout:1000});
   const installWrappers=[
     '(() => {',
-    '  const policyModule=module.exports;',
+    '  const policyModule=globalThis.__agent49PolicyModule;',
     '  const safeRng=globalThis.__agent49SafeRng;',
     '  let policyInstance=null;',
     '  function deepFreeze(value){',
