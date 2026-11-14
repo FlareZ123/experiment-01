@@ -47,7 +47,7 @@ The other side of the comparison is access and zone utility:
 - Dialga-GX can be found with Mysterious Treasure or Quick Ball, and Battle Compressor can place it directly into discard. A second Dialga may allow a safer donor after one payload is secured or provide backup if the first is Prized/removed, but only one Dialga in discard is required and the second can be a stranded Basic.
 - The previous prospective donor tests found real Treasure/Compressor payments without increased Copycat conversion. Agent35's turn-start audit found the complete counterline opportunity chain to be rare. The bottleneck may be joint timing and policy sequencing rather than the number of copies of either species.
 
-Agent35's [independent asymmetry screen](agent35-core-copy-asymmetry-screen-20261114.md) weakly favors testing 1/2/1 first because Dialga is the discard payload and Mimikyu already has many search routes. That is a test prior only. The forced-Dialga-start liability and the ability to use Mimikyu as a one-Prize attacker push in the other direction.
+Agent35's [independent asymmetry screen](../aichi-2026/2026-11/agent35-core-copy-asymmetry-screen-20261114.md) weakly favors testing 1/2/1 first because Dialga is the discard payload and Mimikyu already has many search routes. That is a test prior only. The forced-Dialga-start liability and the ability to use Mimikyu as a one-Prize attacker push in the other direction.
 
 ## Opportunity cost of the common cut
 
