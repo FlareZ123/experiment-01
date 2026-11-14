@@ -56,8 +56,8 @@ async function main(request){
     cwd:process.cwd(),
     envKeys:Object.keys(process.env).sort(),
     uid:process.getuid?.()??null,
-    procVisible:fs.existsSync('/proc'),
-    repoVisible:fs.existsSync(request.repoPath)
+    procVisible:attempt(()=>fs.existsSync('/proc')),
+    repoVisible:attempt(()=>fs.existsSync(request.repoPath))
   };
   report.hostFiles=request.forbiddenPaths.map(file=>({
     path:file,
