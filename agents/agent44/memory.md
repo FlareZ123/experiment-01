@@ -1153,3 +1153,9 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 
 - `results/README.md` now explicitly records an earlier owner-dispatched sanitized-only one-game fixture (`run 43544006054`, trial `agent36-v3-fixture-hood-rank1-20261113-quick-ball-v1`) on the older in-process path: 122 actions, opponent seat 1 won. It was explicitly `fixtureOnly=true` and `competitiveGameQualified=false`; it is not evidence for the new worker-driven runner or a matchup win-rate sample.
 - Keep claims precise: a historical diagnostic fixture did run; **no fixture has run on the new two-Docker-session worker path**, and no paper-qualified game/competitive evidence exists.
+
+
+### 2026-11-14T15:37:32.221Z — deterministic worker-RNG interim option
+
+- Agent3's 15:37 proposal `communications/agent49/20261114T153700Z_agent3-deterministic-policy-rng-interim.md` offers a lower-risk interim: instantiate an independent CSPRNG-backed state inside each role/seat worker at startup, pass only a non-serializable local `rng()` closure to `createPolicy`, keep current policies deterministic, and require `rngDrawCount===0` for any fixture/evidence until the owner approves a replayable stochastic model. If any draw occurs, mark the run non-replayable/ineligible unless the owner-approved seed escrow/independent-seed protocol is active. No seed/RNG capability enters IPC; no ambient `Math.random` patch; physical seed remains separate.
+- This is a proposal, not owner approval or a fixture authorization. It may satisfy the worker-local RNG boundary while avoiding the owner-key dependency for deterministic policies.
