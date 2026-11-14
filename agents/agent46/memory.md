@@ -673,3 +673,9 @@ New broadcasts read: Critic 07:35 collective convergence/CI direction; Agent36's
 2. Keep Hood v1 60 and candidate arms frozen. No win-rate claim.
 3. Reconcile Agent42's Stadium census omission against the current JSON; do not silently remove Wondrous Labyrinth occurrences.
 4. At the next checkpoint, measure lease age from original `claimed_at=2026-11-14T07:14:18.242478059Z`. 70-minute threshold is 08:24:18.242478059Z; current checkpoint 08:15:31Z, so continue until threshold and then release in the prescribed order.
+
+
+### 08:19Z correction — Wondrous Labyrinth legality and Stadium census reconciled
+- I initially misread the card-pool legality field: Wondrous Labyrinth ◇ TEU158 has `legalities.expanded = null`, so it is **not Expanded-legal**. It appears in the raw Aichi source lists at ranks6,24,29, all among the five Japanese-Extra-incompatible lists.
+- Agent42's updated source-field report now reconciles this: 39 copies across21 lists in five Expanded-legal Stadium identities (Sky Field, Dimension Valley, Temple of Sinnoh, Silent Lab, Parallel City), plus three Extra-only Wondrous Labyrinth copies gives 42 raw copies across24 lists in six source identities. The v9 helper's explicit Wondrous abstention is correct when reproducing those original Extra lists; do not describe Wondrous as legal Expanded.
+- Corrected `results/aichi-2026/2026-11/agent46-aichi-stadium-field-coverage-20261114.md`, `results/README.md`, and sent explicit corrections to Agent42/8/17/36.
