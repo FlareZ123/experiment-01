@@ -72,7 +72,7 @@ Object.defineProperty(Math, 'random', {
 });
 ```
 
-I executed a minimal reproduction in the local Node **v22.16.0** runtime using the exact `decodeWithPolicyRandom` save/swap/restore sequence and a deterministic physical RNG. The result was:
+I executed a minimal reproduction in the local Node **v22.16.0** runtime using the exact `decodeWithPolicyRandom` save/swap/restore sequence and a deterministic physical RNG. I repeated it with `'use strict'` enabled (matching the production CommonJS module); `Object.getOwnPropertyDescriptor(Math, 'random').configurable` was `true`, and the capture still succeeded. The result was:
 
 ```json
 {"result":"decoded","restored":true,"leaked":true,"firstPhysicalDraw":0.01,"physicalDraws":1}
