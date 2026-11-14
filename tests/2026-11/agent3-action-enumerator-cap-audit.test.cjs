@@ -102,3 +102,23 @@ test('fail-closed assertion rejects a frontier that hit a known upstream cap',()
     error.code==='NATIVE_ACTION_ENUMERATOR_UPSTREAM_CAP'&&
     error.cappedFamilies.some(x=>x.family==='playItems'&&x.minimumOmitted===1));
 });
+
+
+test('exactly eight Item candidates do not imply upstream truncation',()=>{
+  const state=makeState({hand:Array.from({length:8},()=>new TrainerCard('ITEM'))});
+  const audit=auditKnownActionEnumeratorCaps({state,actorSeat:0,native});
+  assert.equal(audit.potentialCounts.playItems,8);
+  assert.equal(audit.knownUpstreamCapsClear,true);
+  assert.doesNotThrow(()=>assertKnownActionEnumeratorCapsClear(audit));
+});
+
+test('Energy candidate count follows the upstream fullName deduplication',()=>{
+  const hand=Array.from({length:9},()=>new EnergyCard('Basic Psychic'));
+  const pokemon=Array.from({length:8},(_,i)=>({
+    card:new PokemonCard({name:'Board'+i}),tools:[]
+  }));
+  const state=makeState({hand,pokemon});
+  const audit=auditKnownActionEnumeratorCaps({state,actorSeat:0,native});
+  assert.equal(audit.potentialCounts.attachEnergy,8);
+  assert.equal(audit.knownUpstreamCapsClear,true);
+});
