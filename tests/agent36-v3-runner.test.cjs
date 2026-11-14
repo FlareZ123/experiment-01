@@ -386,21 +386,29 @@ test('role composer receives shared dependencies and policy options bound to rol
   }),/candidate role seat must be fixed/);
 });
 
-test('runtime pin wrapper requires exact loaded union before executing',()=>{
-  const candidate={manifest:{enginePin:'e'.repeat(40)},expectedByPath:{'runner.cjs':'a'.repeat(64)}};
-  const opponent={manifest:{enginePin:'e'.repeat(40)},expectedByPath:{'policy.cjs':'b'.repeat(64)}};
+test('runtime pin wrapper requires exact host-loaded union and excludes worker policies',()=>{
+  const candidate={manifest:{enginePin:'e'.repeat(40),entrypoint:'candidate-policy.cjs'},
+    expectedByPath:{'candidate-policy.cjs':'a'.repeat(64)}};
+  const opponent={manifest:{enginePin:'e'.repeat(40),entrypoint:'opponent-policy.cjs'},
+    expectedByPath:{'opponent-policy.cjs':'b'.repeat(64)}};
+  const combinedExpected={
+    'candidate-policy.cjs':'a'.repeat(64),
+    'opponent-policy.cjs':'b'.repeat(64),
+    'runner.cjs':'c'.repeat(64)
+  };
   const identityHelper={
     combineRolePolicyEntryManifests:()=>({
-      expectedByPath:{'runner.cjs':'a'.repeat(64),'policy.cjs':'b'.repeat(64)},
-      unionSha256:'c'.repeat(64)
+      expectedByPath:combinedExpected,unionSha256:'d'.repeat(64)
     }),
-    assertLoadedResearchModulesCovered:()=>({
-      files:[{path:'policy.cjs'},{path:'runner.cjs'}],sha256:'d'.repeat(64)
-    })
+    assertLoadedResearchModulesCovered:(root,expected,cacheEntries)=>{
+      assert.deepEqual(expected,{'runner.cjs':'c'.repeat(64)});
+      return {files:[{path:'runner.cjs'}],sha256:'e'.repeat(64)};
+    }
   };
   let called=false;
   const pin=(root,expected,run)=>{
     called=true;
+    assert.deepEqual(expected,{'runner.cjs':'c'.repeat(64)});
     return {result:run(),audit:{guardRestored:true}};
   };
   const cardPoolInitialization={
@@ -414,25 +422,23 @@ test('runtime pin wrapper requires exact loaded union before executing',()=>{
   });
   assert.equal(called,true);
   assert.equal(result.result,17);
-  assert.equal(result.runtimePinUnionSha256,'c'.repeat(64));
-  assert.equal(result.loadedProcessClosureSha256,'d'.repeat(64));
-  assert.equal(result.runtimePinEvidence.unionSha256,'c'.repeat(64));
-  assert.equal(result.runtimePinEvidence.loadedProcessClosureSha256,'d'.repeat(64));
+  assert.equal(result.runtimePinUnionSha256,'d'.repeat(64));
+  assert.equal(result.loadedProcessClosureSha256,'e'.repeat(64));
+  assert.equal(result.runtimePinEvidence.unionSha256,'d'.repeat(64));
+  assert.equal(result.runtimePinEvidence.loadedProcessClosureSha256,'e'.repeat(64));
   assert.equal(result.runtimePinEvidence.cardPoolInitializationSha256,
     require('../simulation/evaluation/agent45-independent-competitive-admission.cjs').evidenceBundleSha256(cardPoolInitialization));
   const incomplete={
     ...identityHelper,
-    assertLoadedResearchModulesCovered:()=>({
-      files:[{path:'runner.cjs'}],sha256:'d'.repeat(64)
-    })
+    assertLoadedResearchModulesCovered:()=>({files:[],sha256:'e'.repeat(64)})
   };
   assert.throws(()=>combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
     cardPoolInitialization,run:()=>17,identityHelper:incomplete,pin
-  }),/every role-closure module must be preloaded/);
+  }),/every host runtime dependency must be preloaded/);
   assert.throws(()=>combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,
-    opponentManifest:{...opponent,manifest:{enginePin:'f'.repeat(40)}},
+    opponentManifest:{...opponent,manifest:{enginePin:'f'.repeat(40),entrypoint:'opponent-policy.cjs'}},
     cardPoolInitialization,run:()=>17,identityHelper,pin
   }),/opponent entry manifest engine pin differs/);
 });
