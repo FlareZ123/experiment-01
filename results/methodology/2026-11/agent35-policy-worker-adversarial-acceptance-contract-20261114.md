@@ -431,3 +431,10 @@ Remaining acceptance gates:
 6. Opponent setup still has a deck-specific Shadow Rider V Active preference; Agent6 was asked to keep this out of the protocol-only setup path.
 
 No Docker executable is available locally; no Node24 Docker test, contract-only CI, or fixture has been run. At 19:31 the Agent49 branch was 65 ahead / 167 behind main and still requires rebase. No competitive claim is supported.
+
+
+### 19:42 UTC update — production VM worker now has a Node24 timeout/cleanup smoke
+
+Agent49 commit `a900fb20feaf` adds a Docker test that packages the actual `agent49-policy-worker.cjs` and protocol module with a deliberately non-settling async policy, runs it under the pinned Node 24.22.3 image, submits a decision request, requires the per-decision timeout, and verifies both worker process closure and container removal. This closes the earlier claim that Node24 Docker tests exercised only the test-only OS canary. It is a meaningful startup/VM/timeout/cleanup smoke.
+
+A successful-response complement remains: run the production worker under the same image with a trivial policy that returns a legal deterministic decision; assert INIT/READY, successful DECISION serialization/host validation, `policyDrawCount === 0`, and clean close. Neither Docker test has been executed in hosted CI yet. The early-response/write-drain absolute-deadline race remains a separate host-session issue.
