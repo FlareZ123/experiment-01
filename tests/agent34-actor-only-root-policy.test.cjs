@@ -1337,7 +1337,11 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
   const psychic='Psychic Energy SVE';
   const postTimelessCatalog={...catalog,
-    ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia GX CEC','Latias ex SSP']),
+    ruleboxPokemonPrintings:new Set([
+      'Arceus & Dialga & Palkia GX CEC','Latias ex SSP',
+      'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK',
+      'Synthetic Radiant Crossover'
+    ]),
     dragonPokemonPrintings:new Set(['Dratini SIT 129','Arceus & Dialga & Palkia GX CEC'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
@@ -1593,6 +1597,46 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(printedPsychicWeakCrossover.projectedTerminalWin,true);
   assert.equal(printedPsychicWeakCrossover.routeComparison,
     'max-geist-unique-terminal-ko');
+
+  const onePrizeRuleboxCatalog={...postTimelessCatalog};
+  for(const [printing,subtypes] of [
+    ['Synthetic Radiant',['Basic','Radiant']],
+    ['Synthetic Prism Star',['Basic','Prism Star']],
+    ['Synthetic BREAK',['Break']]
+  ]){
+    const onePrizeTarget={
+      ...target,printing,hp:100,damage:0,
+      printed:{stage:'Basic',types:[6],subtypes,weakness:[],resistance:[]}
+    };
+    const onePrizeView={
+      ...view,
+      ownPublic:{...view.ownPublic,prizeCount:2,
+        bench:[latias,vmax],discard:['Dialga-GX UPR']},
+      opponentPublic:{...view.opponentPublic,active:onePrizeTarget}
+    };
+    const onePrizeIntent=choosePostTimelessMaxGeistRetreat(
+      onePrizeView,onePrizeRuleboxCatalog,{ownerSeat:0});
+    assert.ok(onePrizeIntent);
+    assert.equal(onePrizeIntent.projectedPrizeCount,1,
+      printing+' yields one Prize despite having a Rule Box');
+    assert.equal(onePrizeIntent.projectedTerminalWin,false);
+  }
+
+  const radiantCrossoverTarget={
+    ...target,printing:'Synthetic Radiant Crossover',hp:210,damage:0,
+    printed:{stage:'Basic',types:[6],subtypes:['Basic','Radiant'],
+      weakness:[],resistance:[]}
+  };
+  const radiantCrossoverView={
+    ...view,
+    ownPublic:{...view.ownPublic,prizeCount:2,
+      bench:[latias,sevenPsychicVmax],
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
+    opponentPublic:{...view.opponentPublic,active:radiantCrossoverTarget}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    radiantCrossoverView,onePrizeRuleboxCatalog,{ownerSeat:0}),null,
+    'a unique one-Prize Radiant KO is not terminal with two Prizes remaining');
 
   const psychicResistantTarget={
     ...target,printing:'Synthetic Psychic-resistant target',hp:100,damage:0,
