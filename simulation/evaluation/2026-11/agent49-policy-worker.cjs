@@ -92,6 +92,8 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '    if(name!==\"globalThis\")objectFreeze(value);',
     '    objectDefineProperty(realmGlobal,name,{value,writable:false,configurable:false,enumerable:true});',
     '  }',
+    '  const disabledGlobals=["Date","Intl","Temporal","performance","crypto","process","require","fetch","setTimeout","clearTimeout","setInterval","clearInterval","setImmediate","clearImmediate","queueMicrotask","Buffer","console","SharedArrayBuffer","Atomics","WebAssembly","WebSocket","EventSource","XMLHttpRequest","URL","URLSearchParams","navigator","atob","btoa","structuredClone","WeakRef","FinalizationRegistry","eval","Function"];',
+    '  for(const name of disabledGlobals)objectDefineProperty(realmGlobal,name,{value:undefined,writable:false,configurable:false,enumerable:true});',
     '})();'
   ].join('\n');
   vm.runInContext(setup,context,{timeout:1000,filename:'agent49-policy-sandbox-setup.cjs'});
