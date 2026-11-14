@@ -23,6 +23,7 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-unknown') return {kind:'select-action',token:'not-in-frontier'};",
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
+    "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
     '}};}',
@@ -775,5 +776,48 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
   assert.throws(() => protocol.validateDecision({
     kind: 'select-choices', tokens: ['prize-0']
   }, prizePrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
+});
+
+test('persistent worker emits response-v3 ordered multi-select decisions', async () => {
+  const worker = startWorker();
+  try {
+    writeLine(worker.child.stdin, worker.init);
+    await waitForCount(worker, 1);
+    const prompt = {
+      schema: protocol.PROMPT_SCHEMA,
+      actingSeat: 0,
+      promptType: 'ChooseCardsPrompt',
+      description: 'Choose one or two visible cards',
+      source: {
+        classification: 'actor-choice',
+        sourceKind: 'card-effect',
+        sourcePrinting: 'Quick Ball FST',
+        effectName: 'Quick Ball'
+      },
+      choices: [
+        { token: 'multi-0', kind: 'card', printing: 'Card A' },
+        { token: 'multi-1', kind: 'card', printing: 'Card B' },
+        { token: 'cancel-0', kind: 'cancel', label: 'Cancel selection' }
+      ],
+      publicMetadata: {
+        selectionType: 'card-combination',
+        minimumCount: 1,
+        maximumCount: 2,
+        allowCancel: true
+      }
+    };
+    const message = request(1, 'candidate', 0, {
+      requestId: 'multi-select',
+      observation: observation(0, 'owner-prompt', 'ChooseCardsPrompt'),
+      prompt
+    });
+    writeLine(worker.child.stdin, message);
+    await waitForCount(worker, 2);
+    assert.equal(worker.lines[1].schema, 'aichi-policy-response-v3');
+    assert.equal(worker.lines[1].type, 'response');
+    assert.deepEqual(worker.lines[1].decision, {
+      kind: 'select-choices', tokens: ['multi-1', 'multi-0']
+    });
+  } finally { await dispose(worker); }
 });
 
