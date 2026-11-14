@@ -23,6 +23,7 @@ const PRINT = Object.freeze({
   clefairy: /^Lillie's Clefairy ex JTG\b/i,
   mimikyu: /^Mimikyu GRI\b/i,
   radiantEternatus: /^Radiant Eternatus CRZ\b/i,
+  tapuLele: /^Tapu Lele-GX GRI\b/i,
   marshadow: /^Marshadow UNB 81\b/i
 });
 
@@ -263,6 +264,8 @@ function scoreAction(item, request) {
             !hasPrinting(hand, PRINT.marshadow))) && hand.length > 1) return 132;
 
     if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
+    if (matches(card, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
+        observation.ownTurnResources.supporterPlayedTurn === 0) return 110;
     if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
         !boardHas(own, PRINT.mimikyu)) return 118;
 
@@ -449,6 +452,8 @@ function cardSearchScore(printing, request, effectName) {
 
   if (matches(printing, PRINT.marshadow) && pathLockActive(observation) &&
       !boardHas(own, PRINT.marshadow) && !hasPrinting(hand, PRINT.marshadow)) return 170;
+  if (matches(printing, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
+      !boardHas(own, PRINT.tapuLele) && !hasPrinting(hand, PRINT.tapuLele)) return 115;
 
   if (includes(effectName, 'Star Alchemy') || includes(effectName, 'Forest Seal Stone')) {
     if (includes(printing, 'Field Blower') && pathLockActive(observation)) return 180;
