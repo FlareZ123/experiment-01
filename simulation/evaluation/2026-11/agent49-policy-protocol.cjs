@@ -242,6 +242,7 @@ function validateAttackSourceMetadata(value) {
 
 function validateActionMetadata(value) {
   if (value === undefined) return;
+  if (!isRecord(value)) fail('BAD_ACTION_METADATA');
   const attackSource = value.attackSource;
   const flatMetadata = { ...value };
   delete flatMetadata.attackSource;
