@@ -33,7 +33,9 @@ function createWorkerLocalPolicyStream() {
   };
 }
 
-function createRestrictedPolicyRuntime(policySource,policyStream) {
+function hostMacrotaskBarrier(){return new Promise(resolve=>setImmediate(resolve));}
+
+async function createRestrictedPolicyRuntime(policySource,policyStream) {
   if(typeof policySource!=='string'||!policyStream||typeof policyStream.next!=='function')
     fail('POLICY_SANDBOX_INPUT_INVALID');
   const sandbox=Object.assign(Object.create(null),{
@@ -86,7 +88,8 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '  for(const fn of objectValues(intrinsics))objectFreeze(fn);',
     '  objectFreeze(intrinsics);',
     "  objectDefineProperty(realmGlobal,'__agent49Intrinsics',{value:intrinsics,writable:false,configurable:false,enumerable:false});",
-    '  const globals=[["globalThis",realmGlobal],["Math",Math],["JSON",JSON],["Object",Object],["Array",Array],["Promise",Promise],["Reflect",Reflect]];',
+    '  objectDefineProperty(realmGlobal,"globalThis",{value:realmGlobal,writable:false,configurable:false,enumerable:false});',
+    '  const globals=[["Math",Math],["JSON",JSON],["Object",Object],["Array",Array],["Promise",Promise],["Reflect",Reflect]];',
     '  for(const [name,value] of globals){',
     '    if(value&&value.prototype&&typeof value.prototype==="object")objectFreeze(value.prototype);',
     '    if(name!==\"globalThis\")objectFreeze(value);',
@@ -114,10 +117,11 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '})();'
   ].join('\n');
   const loadOk=vm.runInContext(loadPolicy,context,{timeout:5000,filename:'policy.cjs'});
-  if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
   if(loadOk!==true)fail('POLICY_MODULE_LOAD_FAILED');
   const policyVersion=vm.runInContext('globalThis.__agent49PolicyModule.POLICY_VERSION',context,{timeout:1000});
   const hasFactory=vm.runInContext("typeof globalThis.__agent49PolicyModule.createPolicy==='function'",context,{timeout:1000});
+  await hostMacrotaskBarrier();
+  if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
   const installWrappers=[
     '(() => {',
     '  const I=globalThis.__agent49Intrinsics;',
@@ -174,20 +178,30 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
   return {
     policyVersion,
     hasFactory,
+    async settle(){
+      await hostMacrotaskBarrier();
+      if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+    },
     async initialize(init){
       const initJson=JSON.stringify(init);
-      const envelope=parseEnvelope(await invoke(
+      const rawEnvelope=await invoke(
         'globalThis.__agent49Initialize('+JSON.stringify(initJson)+')',
         'agent49-policy-init.cjs'
-      ));
+      );
+      await hostMacrotaskBarrier();
+      if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+      const envelope=parseEnvelope(rawEnvelope);
       if(!envelope.ok)fail(envelope.code??'POLICY_FACTORY_FAILURE');
     },
     async decide(request){
       const requestJson=JSON.stringify(request);
-      const envelope=parseEnvelope(await invoke(
+      const rawEnvelope=await invoke(
         'globalThis.__agent49Decide('+JSON.stringify(requestJson)+')',
         'agent49-policy-decision.cjs'
-      ));
+      );
+      await hostMacrotaskBarrier();
+      if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+      const envelope=parseEnvelope(rawEnvelope);
       if(!envelope.ok)fail(envelope.code??'POLICY_EXECUTION_FAILURE');
       if(typeof envelope.decisionJson!=='string')fail('POLICY_RETURNED_NON_JSON');
       try{return JSON.parse(envelope.decisionJson);}catch{fail('POLICY_RETURNED_NON_JSON');}
@@ -204,7 +218,8 @@ async function run() {
   let totalInputBytes = 0;
   const seenRequestIds = new Set();
   const policyStream=createWorkerLocalPolicyStream();
-  const policyRuntime=createRestrictedPolicyRuntime(policySource,policyStream);
+  const policyRuntime=await createRestrictedPolicyRuntime(policySource,policyStream);
+  await policyRuntime.settle();
   let pending = Buffer.alloc(0);
 
   async function handleLine(line) {
@@ -227,6 +242,7 @@ async function run() {
         policyVersion: init.policyVersion,
         config: init.config
       });
+      await policyRuntime.settle();
       if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
       initialized = true;
       await writeLine({
@@ -285,6 +301,7 @@ async function run() {
       }
     }
     if (pending.length > 0) fail('UNTERMINATED_LINE');
+    await policyRuntime.settle();
     if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     if (!initialized) fail('MISSING_INIT');
   } catch (error) {
