@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const { enumName } = require('./agent36-native-action-frontier.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
