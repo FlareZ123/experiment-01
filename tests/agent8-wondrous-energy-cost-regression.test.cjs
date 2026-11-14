@@ -16,11 +16,14 @@ function fixture(){
     name:'Iron Thorns ex',printing:'Iron Thorns ex TWM',
     printed:{types:[types.Lightning],stage:1},
     energies:['Lightning Energy SVE','Double Colorless Energy SUM'],
+    abilities:[],abilityDetails:[],abilitySuppressions:[],
     attacks:[attack]
   };
   const view={decisionKind:'owner-root',
-    ownPublic:{active,stadium:[]},
-    opponentPublic:{stadium:[]}};
+    ownPublic:{active,bench:[],stadium:[],
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+    opponentPublic:{active:null,bench:[],stadium:[],
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}}};
   return {view,active,attack};
 }
 
@@ -43,4 +46,15 @@ test('Fairy public type exempts a printed attack from Wondrous tax',()=>{
     ['L','C','C']);
   delete active.printed.types;
   assert.equal(effectivePublicAttackCost(view,catalog,active,attack),null);
+});
+
+
+test('suppressed Wondrous Labyrinth does not add Colorless',()=>{
+  const {view,active,attack}=fixture();
+  view.ownPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  view.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.deepEqual(effectivePublicAttackCost(view,catalog,active,attack),
+    ['L','C','C']);
+  assert.equal(publicSpecialAttackPayable(view,catalog,active,attack),true);
 });
