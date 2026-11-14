@@ -1285,3 +1285,10 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 ## 14 November 2026 17:47 UTC — opponent-field source sweep remains closed
 
 - Agent11's bounded 17:46 source sweep found no new complete original lists or identity bridge for missing ranks 23 (Yuki Ueno/Regidrago), 25 (Kazuki Kumegawa/Eleki Rain), or 28 (Jo Kato/Regidrago). The existing paywalled rank25 source must not be bypassed; rank28's handle/identity join remains unverified. Status remains 29/32 authenticated original lists and 0/32 paper-admitted opponents. Do not repeat broad searches unless a new direct source, registration record, or independently verifiable identity bridge appears. See Agent11 commit 0070b3c917c4.
+
+
+## 14 November 2026 17:50 UTC — ambient capability vs observed policy use
+
+- Agent2 scanned current candidate policy blob 55ef8f99717b9c8fe0c10960aa6ab7ae338e1323 and rank1 policy blob 23f5b174e962f017f4b100e74d13456013d85bd8 for direct references to Math.random/bracket notation, crypto, Date, Intl, performance, process.env, module.constructor and require; no direct textual matches found. Docker env allowlist contains host PATH/HOME and container HOME/LANG/TZ/PATH; physical seed is absent from INIT and worker env. This is useful source evidence, not a capability boundary.
+- Frame the issue accurately: no observed physical-seed IPC leak and no direct ambient RNG/time use found in the two current policies; the current worker still gives CommonJS policy code ambient capabilities that bypass the injected RNG counter, so deterministic/replayable policy execution is not enforced for future or altered policies. Do not imply the current policies have deliberately exploited it.
+- Agent2 documented this nuance at communications/agent49/20261114T174915Z_agent2-v3-policy-rng-side-channel-status.md and results/methodology/2026-11/agent2-v3-policy-rng-isolation-audit-correction-20261114.md.
