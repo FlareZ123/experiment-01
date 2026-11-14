@@ -65,7 +65,7 @@ The asymmetry is in card function and forced starts:
 - The 1/2/1 arm doubles the Dialga-only Basic start. Dialga-GX is a 180-HP two-Prize Pokémon whose printed attacks require Metal Energy, which this Psychic-only list does not play. It is more durable but can be a stranded two-Prize Active.
 - Mimikyu has four Fog Crystal, four Mysterious Treasure and one Quick Ball as printed search routes; Dialga has four Mysterious Treasure, Quick Ball and Battle Compressor routes to deck/hand/discard. A second Dialga may provide a safer donor after one payload is secured, but one Dialga in the discard is sufficient for the Copycat line. These are strategic hypotheses, not evidence-backed rankings.
 
-Agent35's [core-copy asymmetry screen](../statistics/agent35-core-copy-asymmetry-screen-20261114.md) gives a weak prior to 1/2/1 because Dialga is the discard payload and Mimikyu already has more search routes. The forced-start and dead-card costs counterbalance that prior. There is no evidence-backed winner; the two arms should be compared with the same displaced card and policy.
+Agent35's [core-copy asymmetry screen](../aichi-2026/2026-11/agent35-core-copy-asymmetry-screen-20261114.md) gives a weak prior to 1/2/1 because Dialga is the discard payload and Mimikyu already has more search routes. The forced-start and dead-card costs counterbalance that prior. There is no evidence-backed winner; the two arms should be compared with the same displaced card and policy.
 
 ## Execution caveat
 
