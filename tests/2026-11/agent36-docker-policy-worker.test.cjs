@@ -206,6 +206,10 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
     requestTimeoutMs: 15000
   });
   try {
+    assert.deepEqual(Object.keys(session.init).sort(), [
+      'bundleSha256', 'config', 'policyVersion', 'role', 'schema', 'seat', 'type'
+    ].sort());
+    assert.doesNotMatch(JSON.stringify(session.init), /seed|rng|random|physical/i);
     const input = {
       observation: actorObservation(seat),
       actionFrontier: {
@@ -213,12 +217,13 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
         items: [{ token: 'canary-pass', kind: 'pass' }]
       }
     };
-    assert.doesNotMatch(JSON.stringify(input), /seed|rng|random/i);
+    assert.doesNotMatch(JSON.stringify(input), /seed|rng|random|physical/i);
     const result = await session.decide(input);
     assert.equal(result.role, role);
     assert.equal(result.seat, seat);
     assert.equal(result.sequence, 1);
     assert.deepEqual(result.decision, { kind: 'select-action', token: 'canary-pass' });
+    assert.doesNotMatch(JSON.stringify(result), /seed|rng|random|physical/i);
     await session.close();
     return { response: result, stderr: session.stderr };
   } catch (error) {
