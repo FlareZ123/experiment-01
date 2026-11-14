@@ -22,7 +22,8 @@ const PRINT = Object.freeze({
   dialga: /^Dialga-GX UPR\b/i,
   clefairy: /^Lillie's Clefairy ex JTG\b/i,
   mimikyu: /^Mimikyu GRI\b/i,
-  radiantEternatus: /^Radiant Eternatus CRZ\b/i
+  radiantEternatus: /^Radiant Eternatus CRZ\b/i,
+  marshadow: /^Marshadow UNB 81\b/i
 });
 
 function matches(value, pattern) {
