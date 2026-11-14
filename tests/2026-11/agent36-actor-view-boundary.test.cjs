@@ -78,20 +78,35 @@ function player(id, seat, sentinels) {
   };
 }
 
-function makeState() {
+function makeState(actorSeat = 0) {
   const sentinels = {};
   for (const key of [
     'p0-hand', 'p0-deck', 'p0-prize-0', 'p0-prize-1', 'p0-prize-2',
     'p0-prize-3', 'p0-prize-4', 'p0-prize-5',
     'p1-hand', 'p1-deck', 'p1-prize-0', 'p1-prize-1', 'p1-prize-2',
-    'p1-prize-3', 'p1-prize-4', 'p1-prize-5'
+    'p1-prize-3', 'p1-prize-4', 'p1-prize-5',
+    'opponent-active', 'opponent-bench'
   ]) sentinels[key] = 'HIDDEN_ZONE_SENTINEL_' + key + '_' + crypto.randomUUID();
   const players = [player('p0', 0, sentinels), player('p1', 1, sentinels)];
   players[0].hand.cards = [{ fullName: 'VISIBLE_ACTOR_ZERO_HAND_CARD' }];
   players[1].hand.cards = [{ fullName: 'VISIBLE_ACTOR_ONE_HAND_CARD' }];
+  const opponent = players[1 - actorSeat];
+  const activeMarker = sentinels['opponent-active'];
+  const benchMarker = sentinels['opponent-bench'];
+  const pokemon = fullName => ({
+    fullName, name: fullName, hp: 60, stage: 'BASIC', subtypes: [],
+    cardType: ['PSYCHIC'], retreat: [], weakness: [], resistance: [],
+    attacks: [], powers: []
+  });
+  const activeCard = pokemon(activeMarker);
+  opponent.active = emptySlot([activeCard]);
+  opponent.active.getPokemonCard = () => activeCard;
+  const benchCard = pokemon(benchMarker);
+  opponent.bench[0] = emptySlot([benchCard]);
+  opponent.bench[0].getPokemonCard = () => benchCard;
   return {
     players,
-    activePlayer: 0,
+    activePlayer: actorSeat,
     turn: 1,
     phase: 0,
     prompts: [],
@@ -137,11 +152,12 @@ function requestFor(seat, observation) {
 }
 
 test('actor observation excludes concealed hand, deck, face-down Prize and setup Pokémon identities for both seats', () => {
-  const state = makeState();
   for (const seat of [0, 1]) {
+    const state = makeState(seat);
     const view = actorObservation(state, seat);
     assert.equal(view.actorSeat, seat);
-    assert.equal(view.opponentPublic.active, null);
+    assert.deepEqual(view.opponentPublic.active, { concealed: true });
+    assert.deepEqual(view.opponentPublic.bench[0], { concealed: true });
     assert.equal(view.opponentPublic.publicHand, null);
     assert.equal(view.ownerK1, null);
     assert.ok(Object.isFrozen(view));
@@ -178,8 +194,8 @@ test('actor observation excludes concealed hand, deck, face-down Prize and setup
 });
 
 test('owner deck-search prompt authenticates the actor but does not smuggle deck identities into the observation', () => {
-  const state = makeState();
   for (const seat of [0, 1]) {
+    const state = makeState(seat);
     const owner = state.players[seat];
     const prompt = new ChooseCardsPrompt(owner.id, owner.deck);
     state.prompts = [prompt];
