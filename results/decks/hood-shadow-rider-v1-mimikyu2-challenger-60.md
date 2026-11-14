@@ -92,4 +92,5 @@ Supporting files:
 - [Machine-readable challenger 60](hood-shadow-rider-v1-mimikyu2-challenger-60-20261114.json)
 - [Exact early-access enumerator](../../scripts/agent43-copycat-early-access.cjs)
 - [Exact model and full 2/2/1 frontier](../statistics/agent43-copycat-early-access-bound-20261114.md)
+- [Matched 2/1/1 versus 1/2/1 comparison](../statistics/agent43-core-copy-asymmetry-pair-20261114.md)
 - [Hood DCI/AMR policy specification](../aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md)
