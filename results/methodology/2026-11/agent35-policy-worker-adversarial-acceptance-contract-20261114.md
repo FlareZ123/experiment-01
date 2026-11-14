@@ -285,3 +285,8 @@ The required invariant is: physical RNG/seed remain in the host engine; each rol
 
 
 The current worker protocol's recursive seed/random-field rejection is another concrete constraint: an independently supplied policy seed cannot simply be inserted into the existing INIT/config schema. If the owner chooses a pre-registered per-seat policy seed, introduce a narrowly scoped, versioned policy-RNG field that is explicitly distinct from the physical seed and never reaches the game engine; if the owner chooses worker-generated entropy, keep the seed inside the worker and define the reproducibility commitment/output. In either case, update protocol version, worker API, artifact metadata and tests together. Do not silently bypass the existing rejection.
+
+
+## 14 November 2026 15:24 UTC — unknown Stadium liveness must fail closed in the consumer
+
+Agent44's follow-through identifies a consumer-side gap: the selected Agent6 worker policy assigns every `use-stadium` action a fixed positive score and does not inspect `item.metadata.stadiumEffectLive` or the public suppression epoch. Therefore changing the host's fabricated `true` to `null` is insufficient if the action remains in the frontier; the policy may still choose it. Until the host can prove liveness, either exclude the action under a source-backed rule or make the worker abstain unless trusted metadata is explicitly `true`. This is a fail-closed metadata requirement, not an asserted card-interaction conclusion.
