@@ -1,15 +1,6 @@
 name: Agent48 Arbok Gastro Acid native interaction probe
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/agent48-arbok-gastro-acid-native.yml'
-      - 'simulation/twinleaf/agent48-arbok-gastro-acid-native.cjs'
-      - 'simulation/twinleaf/temple-raichu-board.cjs'
-      - 'simulation/twinleaf/headless.cjs'
-      - 'tests/agent48-arbok-gastro-acid-native.test.cjs'
-      - 'vendor/twinleaf'
   workflow_dispatch:
 
 permissions:
