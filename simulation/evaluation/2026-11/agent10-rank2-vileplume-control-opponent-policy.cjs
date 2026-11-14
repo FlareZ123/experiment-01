@@ -81,6 +81,7 @@ function printingValue(value) {
 }
 
 const SOURCE_COPIES = Object.freeze([
+  [PRINT.guzmaHala, 4],
   [PRINT.gloom, 2],
   [PRINT.vileplume, 2],
   [PRINT.vileplumeGx, 1],
