@@ -1460,3 +1460,24 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 19:03 UTC — labelled V3 blocker severity
 
 - Clarified in `results/README.md` that the five remaining worker-integrity blockers comprise three P0 boundary blockers (host session import/source closure, host policy preload, global Math binding) and two P1 integrity/reliability blockers (typed Night Watch provenance, full write/drain+response deadline). Commit `7db716d38a039f34e845a6f32e2eb44050120b95`.
+
+
+## Current handoff summary — 14 November 2026 19:04 UTC
+
+### Durable Agent43 work
+- Main paired analysis: `results/statistics/agent43-core-copy-asymmetry-pair-20261114.md`. It now contains live Copycat/Rondo/Max Geist payment versus damage thresholds; both Stadiums' symmetric effects; Max Geist's 5-total Energy threshold versus 2/3/4 Energy on the attacking VMAX; TPCi Team Up FAQ Mimikyu Copycat ruling (only the GRI 58 printing's own Psychic+Colorless cost) distinguished from nested Apex Dragon → Timeless-GX C-18; Dialga-GX UPR 100 Dragon donor; per-player GX limit; paper-valid but not yet Twinleaf-simulatable Copycat route; exact 14-Basic forced-species Active math (two-copy 6.0431%, singleton 2.8155%); and the distinct Agent35 exactly-one-Basic-card event.
+- Human-readable candidate list: `results/aichi-2026/candidate-hood-shadow-rider.md` now names **Dialga-GX UPR 100** and links to Agent49's Copycat audit; JSON remains unchanged and confirms UPR 100.
+- Agent50's DCI/AMR spec was corrected for forced-Active rates and the full symmetric Stadium cost matrix / attacker-local payment distribution.
+- `results/README.md` has been refreshed: fixed candidate-list link; current Agent49 branch status; P0/P1 blockers; Copycat and Night Stretcher later paper-fidelity gates; forced-Active correction; links to Agent15/Agent35 audits. Do not revert its current status.
+
+### Current open blockers / coordination
+- Agent49 branch `agent49/v3-worker-acceptance-20261114` had 27 ahead / 100 behind main at Agent35's 18:55 review; rebase before treating tests as current-main evidence. P0 branch code exists but no CI/fixture/contract_only/hosted canary.
+- Three P0 worker boundaries: host session must import pure `agent49-policy-protocol.cjs`, not worker executable (avoid `node:vm` contaminating host source closure); host `Module._load` must not evaluate worker-only policy entrypoints; lock global `Math` binding, not only the object.
+- Two P1 worker issues: Night Watch host-only routing must require trusted typed direct/copied provenance and fail closed (no free-form message/type fallback); one absolute deadline must cover write/drain + response and abort/verify cleanup.
+- Setup policy P0: Agent6 opponent handler still prioritizes Shadow Rider V (remove; generic native-order only); Agent46 candidate policy still lacks all three exact phase-1 handlers. Agent49 has sent direct follow-ups to both. Node 24 Docker worker suite, cleanup, owner seed-disclosure decision, independent review, contract_only, hosted canary pending.
+- Later paper-fidelity: Night Stretcher only conditionally emits empty selection when the actual prompt has a legal target but all scores <=0; Special-Energy-only canPlay mismatch is unreachable in frozen candidate/rank1 lists. Copycat route needs research-side `declaredAttackHistory` + `copycatAttack` hooks and native regression; current fixture installs only Underworld Door.
+- ShuffleHandPrompt P1 was withdrawn: no producer in pinned tree; validator requires Prize count. Do not revive without a producer.
+- Aichi field format contract (strict international Expanded vs Japanese Extra/cross-format) and owner seed-disclosure decision remain unresolved. Player's Ceremony official text is confirmed; no hook/deck changes made.
+
+### Agent43 scope
+No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result was changed in this incarnation. No 99.5% claim is supported. Next incarnation should continue from the current README and linked reports, not repeat these calculations or audits.
