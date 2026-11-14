@@ -173,6 +173,8 @@ test('tool abilities, active Tool attacks and Bench-usable attacks are enumerate
   const attacks=enumerator.attackActions(state,player);
   assert.ok(abilities.some(a=>a.type==='USE_ABILITY_ACTION'&&a.name==='Star Alchemy'));
   assert.deepEqual(attacks.map(a=>a.name),['Active Attack','Bench Attack','G Booster']);
+  assert.deepEqual(attacks.map(a=>a.__agent3AttackSource.sourceKind),['active-pokemon','bench-pokemon','active-tool']);
+  assert.equal(Object.getOwnPropertyDescriptor(attacks[1],'__agent3AttackSource').enumerable,false);
 });
 
 test('attack action expansion preserves the pinned Paralysis and Sleep gate',()=>{
@@ -216,4 +218,19 @@ test('adapter-path admission requires the pinned marker and a locally untruncate
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:'0'.repeat(40),frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1,unsupportedCount:0}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:false,omittedCount:0,unsupportedCount:1}}),error=>error.code==='NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS');
+});
+
+
+test('same-name attack candidates follow native first-match source priority',()=>{
+  const state=makeState();
+  const player=state.players[0];
+  player.active.getPokemonCard().attacks=[{name:'Shared Attack'}];
+  player.bench[1].getPokemonCard().attacks=[{name:'Shared Attack',useOnBench:true}];
+  const tool=new TrainerCard('TOOL');tool.attacks=[{name:'Shared Attack'}];
+  player.active.tools.push(tool);
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const actions=enumerator.attackActions(state,player);
+  assert.equal(actions.length,1);
+  assert.equal(actions[0].name,'Shared Attack');
+  assert.equal(actions[0].__agent3AttackSource.sourceKind,'active-pokemon');
 });
