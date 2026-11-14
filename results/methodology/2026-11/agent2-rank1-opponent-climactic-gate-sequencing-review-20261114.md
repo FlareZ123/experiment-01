@@ -11,6 +11,14 @@ Reviewed the current rank1 opponent policy and its deterministic test suite:
 
 This is a source-level sequencing observation. It does not establish that a particular native game reached these simultaneous actions or that a different sequence wins more games.
 
+## More fundamental reachability gap: the policy cannot play Shadow Rider V
+
+The rank1 source list contains **three Shadow Rider Calyrex V** and four VMAX. In `scoreAction`'s entire `play-card` branch (lines 278–369), the only Shadow Rider action is evolving a VMAX onto a visible V (lines 281–282). There is no positive branch for playing a Basic Shadow Rider V from hand. Meanwhile, `cardSearchScore` explicitly searches for Shadow Rider V when fewer than two are known (lines 546–549 and 568), but the root policy has no subsequent play decision for the searched card. `bestAction` returns pass when the best action score is not positive.
+
+The same source-level pattern applies to several other rank1 Basics that have attack/retreat/search support but no positive play branch: Latias ex, Trevenant & Dusknoir-GX, Girafarig and Radiant Eternatus. Tapu Lele-GX, Lillie's Clefairy ex, Mimikyu and Marshadow do have explicit positive play branches. The current test suite covers searching for Shadow Rider V but contains no root-action test that actually plays it.
+
+This is a more basic policy-competence blocker than the Gate ordering issue: the policy cannot reliably build its primary attacker board from hand. Post-gate acceptance should start with a root fixture that has a legal Shadow Rider V play action and requires the policy to bench it, followed by a second-V board-building case and a VMAX evolution case. Add separate matchup-conditioned play tests for Latias, Girafarig, Trevenant and Radiant Eternatus only where the declared policy intends to use them.
+
 ## Finding: Climactic Gate is scored above several useful pre-Gate actions
 
 The policy uses a single global maximum-score selector:
