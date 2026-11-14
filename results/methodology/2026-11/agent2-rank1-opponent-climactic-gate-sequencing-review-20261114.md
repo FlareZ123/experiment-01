@@ -33,6 +33,8 @@ The rank1 source list contains **11 Psychic Energy**. The root scorer's full pla
 
 A cross-check against Agent10's rank2 policy confirms the root action shape: its scoreAction play-card branch explicitly handles Jet Energy, Capture Energy, Counter Gain and Memory Energy (simulation/evaluation/2026-11/agent10-rank2-vileplume-control-opponent-policy.cjs lines 512–531). This is not an assumption about a hypothetical attach-energy kind; the same play-card contract is already used for energy attachments elsewhere in the repository.
 
+This omission is especially concrete because cardSearchScore actively searches for Basic Psychic Energy: the Fog Crystal branch returns 140 for PRINT.psychic when psychicHand === 0 (lines 546–550). The policy can therefore search Energy into hand and then has no positive root action to attach it manually.
+
 The 55-test rank1 suite includes an Energy-payment prompt test but no root test for attaching a Basic Psychic Energy to a chosen Pokémon. This compounds the missing Shadow Rider V play branch: even when the policy starts with a V or has a VMAX available, it cannot use the normal manual attachment to develop its board. Add a root fixture with Psychic Energy in hand and legal active/bench targets; require the policy to attach to the target that advances the declared attack plan, with negative cases for protected resources or an already-used attachment.
 
 ## Finding: Climactic Gate is scored above several useful pre-Gate actions
