@@ -77,6 +77,8 @@ function assertConstrainedWorkerArgs(args,bundleRoot){
   assert.ok(args.includes('--security-opt=no-new-privileges'));
   assert.ok(args.includes('--pids-limit=64'));
   assert.ok(args.includes('--memory=512m'));
+  assert.ok(args.includes('--shm-size=16m'),
+    'shared memory must have an explicit small bound');
   assert.ok(args.includes('--cpus=1'));
   assert.ok(args.includes('--user=65532:65532'));
   assert.ok(args.includes('--ulimit'));
@@ -130,6 +132,8 @@ test('Docker preflight returns complete metadata and uses supported digest-pinne
       assert.ok(run.args.includes('--cap-drop=ALL'));
       assert.ok(run.args.includes('--security-opt=no-new-privileges'));
       assert.ok(run.args.includes('--user=65532:65532'));
+      assert.ok(run.args.includes('--shm-size=16m'),
+        'preflight shared memory must be explicitly bounded');
       assert.ok(run.args.includes(EXPECTED_IMAGE_REF));
       for(const key of HOST_SECRET_ENV)
         assert.equal(run.envKeys.includes(key),false,'host secret leaked to Docker CLI environment: '+key);
