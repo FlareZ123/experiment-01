@@ -167,6 +167,20 @@ test('frontier is Simulator-validated, actor-visible, and opaque-token mapped', 
   assert.equal(dispatched, 1);
 });
 
+
+test('worker action preparation revalidates without dispatching before the shared game loop', () => {
+  const state=fixtureState();
+  const native=fakeNative();
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  let dispatched=0;
+  const store={state,dispatch(){dispatched++;return {dispatched:true};}};
+  const action=dispatchSelectedNativeAction({
+    store,frontier:built,token:'act-0',state,actorSeat:0,native,dispatch:false
+  });
+  assert.equal(action.type,'PLAY_CARD_ACTION');
+  assert.equal(dispatched,0);
+});
+
 test('dispatch rejects a stale Store state and a token owned by another seat', () => {
   const state = fixtureState();
   const native = fakeNative();

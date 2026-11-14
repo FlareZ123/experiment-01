@@ -587,7 +587,7 @@ function randomPermutation(length, physicalRandom) {
 }
 
 function resolveHostOnlyPrompt({
-  prompt, state, store, native, physicalRandom, provenanceHook
+  prompt, state, store, native, physicalRandom, provenanceHook, dispatch=true
 } = {}) {
   assert.ok(prompt && state && store && native);
   assert.equal(store.state, state, 'native Store state changed before host prompt resolution');
@@ -654,9 +654,9 @@ function resolveHostOnlyPrompt({
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'host-selected prompt result failed native validation');
   const action = new native.ResolvePromptAction(prompt.id, rawResult);
-  const result = store.dispatch(action);
+  const result = dispatch?store.dispatch(action):undefined;
   return {
-    result,
+    result,action,
     summary: Object.freeze(summary),
     rawResult
   };
@@ -736,7 +736,7 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
 }
 
 function dispatchPromptChoice({
-  store, prompt, state, actorSeat, projection, decision, token, native
+  store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true
 } = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(projection?.choiceByToken instanceof Map);
@@ -779,8 +779,8 @@ function dispatchPromptChoice({
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'worker-selected prompt choice failed native decode/validation');
   const action = new native.ResolvePromptAction(prompt.id, rawResult);
-  const result = store.dispatch(action);
-  return { result, rawResult, decoded: validation.decoded };
+  const result = dispatch?store.dispatch(action):undefined;
+  return { result, action, rawResult, decoded: validation.decoded };
 }
 
 module.exports = {

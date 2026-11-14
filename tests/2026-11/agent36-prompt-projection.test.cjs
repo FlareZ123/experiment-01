@@ -6,6 +6,7 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-wor
 const {
   projectPrompt,
   dispatchPromptChoice,
+  resolveHostOnlyPrompt,
   enumerateCombinations,
   enumeratePermutations
 } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
@@ -202,6 +203,17 @@ test('owner deck-search prompt exposes only actor-owned card choices and maps op
   assert.equal(result.decoded[0].fullName, 'Deck Search A');
   assert.equal(dispatched.promptId, 7);
   assert.deepEqual(dispatched.result, [0]);
+  assert.equal(result.action.promptId,7);
+
+  let deferredDispatches=0;
+  const deferredStore={state,dispatch(){deferredDispatches++;return {ok:true};}};
+  const prepared=dispatchPromptChoice({
+    store:deferredStore,prompt,state,actorSeat:0,projection,
+    decision:{kind:'select-choices',tokens:['prompt-0']},native,dispatch:false
+  });
+  assert.equal(prepared.action.promptId,7);
+  assert.equal(prepared.result,undefined);
+  assert.equal(deferredDispatches,0);
 });
 
 test('ChoosePokemonPrompt keeps concealed opponent setup Pokémon identities out of choices', () => {
@@ -360,6 +372,29 @@ test('host-only Night Watch and Copycat prompts fail closed rather than leaking 
     prompt: copycat, state, actorSeat: 0, native,
     provenanceHook: provenance(copycat.sourceCard, 'Copycat')
   }), error => error.code === 'UNSUPPORTED_COPYCAT_PROMPT');
+});
+
+
+test('host-only prompt preparation returns a native action without dispatching it', () => {
+  const state=makeState();
+  state.players[1].hand.cards.push(
+    {fullName:'Opponent Public Card A'},
+    {fullName:'Opponent Public Card B'}
+  );
+  const prompt=basePrompt(NightWatchPrompt,state,{
+    cards:state.players[1].hand,
+    options:{min:1,max:1,blocked:[],allowCancel:false}
+  });
+  let dispatches=0;
+  const store={state,dispatch(){dispatches++;return {ok:true};}};
+  const prepared=resolveHostOnlyPrompt({
+    prompt,state,store,native,physicalRandom:()=>0.25,
+    provenanceHook:provenance(prompt.sourceCard,'Night Watch'),dispatch:false
+  });
+  assert.equal(prepared.action.promptId,7);
+  assert.equal(prepared.summary.kind,'NightWatchPhysicalRandom');
+  assert.equal(prepared.result,undefined);
+  assert.equal(dispatches,0);
 });
 
 test('unknown prompt types and non-actor perspectives fail closed', () => {

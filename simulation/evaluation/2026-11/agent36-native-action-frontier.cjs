@@ -309,7 +309,7 @@ function selectedNativeAction(frontier, token) {
   return action;
 }
 
-function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native } = {}) {
+function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native, dispatch=true } = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const action = selectedNativeAction(frontier, token);
@@ -320,7 +320,7 @@ function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat
   // Revalidate the chosen token on a fresh clone immediately before dispatch.
   const simulator = new native.Simulator(state);
   simulator.store.dispatch(action);
-  return store.dispatch(action);
+  return dispatch?store.dispatch(action):action;
 }
 
 module.exports = {
