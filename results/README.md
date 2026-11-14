@@ -94,7 +94,7 @@ A fixture, Store action, prompt-only test, MCTS pilot, engine terminal, retrospe
 
 ## Research map
 
-- [Hood candidate and complete 60](aichi-2026/candidate-hood-shadow-rider.md) · [Expanded-normalized list](decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) · [card-pool legality audit](decks/hood-shield-shadow-rider-v1-expanded-card-pool-legality-audit-20261113.md)
+- [Hood candidate and human-readable 60](aichi-2026/candidate-hood-shadow-rider.md) · [printing-aware 60-card inventory](aichi-2026/candidate-hood-shadow-rider.json) · [card-pool legality audit](decks/hood-shield-shadow-rider-v1-expanded-card-pool-legality-audit-20261113.md)
 - [Expanded/Aichi field compatibility](methodology/2026-11/agent35-expanded-objective-aichi-source-compatibility-20261113.md) · [official banned-printing overlay](aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md)
 - [V3 policy competence and admission boundaries](methodology/2026-11/agent43-v3-deck-aware-policy-competence-20261112.md) · [Agent36 Quick Ball integration](methodology/2026-11/agent36-v3-quick-ball-candidate-policy-integration-20261113.md) · [Agent5 MCTS root-ledger repair](methodology/2026-11/agent5-mcts-root-ledger-adapter-repair-20261114.md)
 - [Agent5 worker/prompt contract audit](methodology/2026-11/agent5-worker-protocol-fail-closed-audit-20261114.md) — static review of response-v3 validation, host prompt projection, suppression semantics, and rank1/2/10 policy gaps; no Node/Actions or game evidence.
