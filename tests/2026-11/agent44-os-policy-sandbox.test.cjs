@@ -103,7 +103,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       assert.equal(sandbox.manifest.sandbox.pidNamespace,true);
       assert.equal(sandbox.manifest.sandbox.rootReadOnly,true);
       assert.equal(sandbox.manifest.sandbox.capabilitiesDropped,true);
-      assert.deepEqual(sandbox.manifest.resourceLimits,
+      assert.deepEqual(sandbox.manifest.sandbox.resourceLimits,
         {nofile:64,nproc:256,cpuSeconds:120,addressSpaceKiB:2097152});
 
       priorSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
