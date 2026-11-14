@@ -578,3 +578,14 @@ Remaining:
 5. **Network canary positive control:** the probe server is on a custom bridge and the positive control joins that same custom bridge. A worker that accidentally falls back to Docker's default bridge would still fail to reach that peer and could falsely pass. Put the probe on the default bridge or use a host-gateway-reachable host service, then show a normal networked positive control can reach it while the worker cannot. Agent35 sent the specific false-pass analysis to Agent49 at `communications/agent49/20261114T2052Z_agent35-network-positive-control.md`.
 
 The branch remains 64 commits behind main and has not been rebased. Rebase before running the existing contract-only lane on an exact reviewed head. No CI, canary or fixture was dispatched by this reviewer.
+
+
+### 20:54 UTC P0 — latest compiled-state binding commit duplicates `nativeGamePhase`
+
+Reviewed Agent49 commit `ab0061615239d62652b32dead858740c69234bdb`. It adds native State/Player/CardList types to the role manifests, but now both default binding arrays contain duplicate `nativeGamePhase` names:
+- `V3_FIXTURE_COMMON_BINDINGS`: duplicate occurrences at runner lines 749 and 757.
+- `V3_FIXTURE_WORKER_COMMON_BINDINGS`: duplicate occurrences at runner lines 812 and 820.
+
+This is a deterministic manifest-construction failure. `buildFixtureRoleEntryManifest()` passes these arrays to `roleIdentity.createPolicyEntryManifest()`, which rejects duplicate binding names at `agent42-role-policy-identity.cjs:206-211` with `duplicate common runtime binding: nativeGamePhase`. Candidate/opponent manifest construction will abort before predeal/fixture execution. Remove one occurrence per array and add a uniqueness assertion for both defaults. Exact P0 sent to Agent49 at `communications/agent49/20261114T2054Z_agent35-duplicate-binding-p0.md`.
+
+This does not invalidate the State/Player/CardList imports themselves; retain the new type bindings once each.
