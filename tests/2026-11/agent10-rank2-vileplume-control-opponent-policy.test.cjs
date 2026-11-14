@@ -1049,6 +1049,49 @@ test('Grand Tree can target an eligible Active Basic as well as a Bench Basic', 
   });
 });
 
+
+
+test('Stealthy Hood is not spent on a Garbotoxin whose ability is suppressed', () => {
+  const request = rootRequest({
+    ownHand: ['Stealthy Hood UNB 186'],
+    ownPublic: player({ active: pokemon('Bunnelby PRC 121') }),
+    opponentPublic: player({
+      active: pokemon('Garbodor DRX 54', {
+        abilities: ['Garbotoxin'],
+        abilitySuppressions: [{ abilityName: 'Garbotoxin', suppressed: true }]
+      })
+    }),
+    items: [
+      { token: 'pass', kind: 'pass' },
+      { token: 'hood', kind: 'play-card', actorPrinting: 'Stealthy Hood UNB 186',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Stealthy Hood is prioritized against an active unsuppressed Garbotoxin', () => {
+  const request = rootRequest({
+    ownHand: ['Stealthy Hood UNB 186'],
+    ownPublic: player({ active: pokemon('Bunnelby PRC 121') }),
+    opponentPublic: player({
+      active: pokemon('Garbodor DRX 54', { abilities: ['Garbotoxin'] })
+    }),
+    items: [
+      { token: 'pass', kind: 'pass' },
+      { token: 'hood', kind: 'play-card', actorPrinting: 'Stealthy Hood UNB 186',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'hood'
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
