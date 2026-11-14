@@ -40,12 +40,14 @@ The helper deliberately reports knownUpstreamCapsClear, not complete: a clear re
 
 ## Validation and limits
 
-The four pure tests passed locally under Node v22.16.0:
+The six pure tests passed locally under Node v22.16.0:
 
 1. no known cap hit;
 2. overflow detection for all eight capped families;
 3. native turn/Bench gate handling;
-4. fail-closed assertion on a known cap hit.
+4. fail-closed assertion on a known cap hit;
+5. exact-eight boundary does not produce a false positive;
+6. duplicate Energy prints follow the upstream fullName deduplication.
 
 These are synthetic native-shaped tests. The helper has not yet been run against a compiled pinned Twinleaf Store, added to the existing contract-only CI lane, or wired into the V3 runner. No GitHub Actions run, game, matchup, deck comparison, or competitive result is claimed.
 
