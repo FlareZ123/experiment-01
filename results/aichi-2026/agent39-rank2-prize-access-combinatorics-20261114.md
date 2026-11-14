@@ -178,3 +178,12 @@ For a specific known target among (n) unknown Prize positions, the hit probabili
 A corresponding Gladion utility is the value of the best card among the authenticated owner-visible Prize reveal, less Supporter opportunity cost and the cost of destroying the old positional mapping. Gladion does not require a hand replacement, but it does require a source-scoped owner-only reveal and resets the Peonia slot ledger after its shuffle. When both Supporters are available, compare (U_P) and (U_G) rather than hardcoding one as always preferred.
 
 This is a testable policy hypothesis only. The threshold, card values, opportunity costs, and interaction with the rank-2 lock plan require policy tests and then qualified games after the shared worker path is accepted.
+
+
+## Visited indices versus full owner Prize knowledge
+
+The existing owner-visited-slot helper stores only the set of physical indices previously selected. That is sufficient for a **fresh-first sampling** policy, but it is not a complete owner Prize-knowledge model.
+
+After Peonia resolves, the owner also knows which physical hand card was placed into each selected slot; the OrderCardsPrompt determines that assignment. If the policy may later want to retrieve or avoid a particular known replacement as its value changes, it needs a host-owned owner-private mapping of `slotIndex -> printing`, not only a visited bit. Update that mapping only after the complete native Prize/replacement/order chain settles. Remove a mapping when that Prize is taken. Gladion's shuffle clears positional mappings but may preserve the known multiset of remaining Prize identities. Untracked movement/reorder clears or rebuilds the mapping.
+
+The current actor-observation contract exposes face-down own Prize slots as index-only geometry, so neither the visited set nor the known replacement mapping currently reaches Agent10. Any future owner Prize snapshot must remain actor-private; it must not be included in the opponent's observation.
