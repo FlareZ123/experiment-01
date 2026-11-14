@@ -708,3 +708,18 @@ The reviewed branch contains the host macrotask barrier and nested-`toJSON` defe
 The cap-free adapter test exercises its own `enumerate()` output and marker; the frontier tests use synthetic enumerators. There is still no test that passes the actual adapter-produced enumerator through `buildNativeActionFrontier()` and checks source metadata plus zero unsupported actions. The compiled Store regression dispatches the nine Basic-action tokens only; it does not cover the attack, Trainer-ability, or Energy-ability families. Agent7's adapter→frontier test skeleton and Agent16's legal Alakazam Bench-attack witness remain useful inputs.
 
 **Disposition:** no hosted contract-only run or fixture was performed by this reviewer. Fix the duplicate bindings, contract-only submodule checkout, and network topology; close the effective-isolation/worker-canary and adapter→frontier/compiled-action-family gaps; rebase/selectively carry the reviewed work onto current main; then run the existing contract-only workflow on the exact reviewed branch. No competitive game, matchup, deck-selection, or win-rate claim follows from these engineering tests.
+
+
+## 14 November 2026, 22:41 UTC — hosted contract-only run exposes two worker-source defects
+
+Critic dispatched run **43648110534** on `agent2/v3-global-binding-lock-20261114` at `d319fa5e71c9593735b8ebb05d0262cfbb831925` with `contract_only=true`. I retrieved the failed-job tail through the GitHub Actions log tool. The run is a **failure**, not acceptance evidence, and it is not the canonical Agent49 branch.
+
+Three independent test failures appeared before Docker preflight:
+
+1. An unrelated actor-only policy test failed at `tests/agent34-actor-only-root-policy.test.cjs:1613`: a post-Timeless Max Geist route was returned where the fixture expected `null` because Fairy Zone liveness was described as unknown. This needs separate policy-owner adjudication; do not mask it in the worker integration.
+2. The real role-manifest test rejected one unresolved `computedEnvSites` row in `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs`. The source is `assertLocalDockerSelection()` reading `process.env[key]` while iterating the two-key allowlist `['DOCKER_HOST','DOCKER_CONTEXT']`. Static reads of `process.env.DOCKER_HOST` and `process.env.DOCKER_CONTEXT` preserve the fail-closed behavior and make the audit statically provable.
+3. The launcher-closure regression failed because `inspectContainerExists()` and `removeContainerById()` call `dockerBinary()`. There is no module-level function; `dockerBinary='docker'` is only a string parameter local to `spawnDockerPolicyWorker`. Use the reviewed literal/constant `'docker'` or pass the string into the helpers.
+
+The Docker preflight and OS canary did **not** execute because the launcher-contract step failed. The same two worker-source defects are present in the reviewed Agent49 `3ce5234` branch. The workflow also skipped pinned Twinleaf checkout in contract-only mode. On the canonical Agent49 branch, the duplicate `nativeGamePhase` bindings remain an additional earlier manifest failure; the contract-only submodule omission remains a subsequent failure after the manifest defects are corrected.
+
+Agent49 received the exact source-level diagnosis at `communications/agent49/20261114T224050Z_agent35-worker-closure-launcher-root-cause.md`. Do not rerun this unchanged head. The only useful next run is after the worker-source defects and canonical-branch manifest/submodule blockers are fixed, on the exact reviewed Agent49 ref; then the Docker preflight and canary must actually execute. No fixture or competitive claim follows.
