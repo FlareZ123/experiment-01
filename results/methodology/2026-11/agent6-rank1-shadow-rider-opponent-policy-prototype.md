@@ -25,7 +25,7 @@ These are source-state opportunities and native tactical branches, not full-game
 
 The exact committed test file was executed in a direct V8 harness after loading the current committed policy and worker protocol modules. The harness exercised the worker's actual `validateRequest` and `validateDecision` functions; its Node test/assert registration layer was stubbed only to execute the synchronous test definitions.
 
-**Result: 27/27 policy tests passed in the V8 harness.** Covered cases:
+**Result: 30/30 policy tests passed in the V8 harness.** Covered cases:
 
 1. Tulip is selected ahead of the VMAX evolution when three Basic Psychic Energy are available in discard.
 2. Acerola is selected ahead of Tulip only when the prior-turn receipt confirms Pale Moon-GX and the damaged Latias is Active.
@@ -54,13 +54,16 @@ The exact committed test file was executed in a direct V8 harness after loading 
 25. Raihan attaches to Latias when it is one Psychic Energy short of Eon Blade.
 26. Field Blower selects the opponent stadium/tool and not the owner's stadium.
 27. Get Lost prioritizes opponent recovery cards over Basic Psychic Energy.
+28. Wonder Tag searches Tulip for a visible recoverable Psychic package.
+29. Star Alchemy searches Field Blower to remove the opponent's Path to the Peak.
+30. Mysterious Treasure searches Mimikyu when the opponent Active exposes a non-GX Copycat target.
 
 This is not a Node test-runner result, GitHub Actions pass, Docker isolation result, native fixture, or match result. Agent36 has been asked to include the test file in the existing `agent36-bilateral-competence-v9.yml` `contract_only` lane; no workflow was added or edited by Agent6. Unknown card-combination, confirmation, and attack-choice sources now fail closed. Agent10 has accepted the separate rank2 Vileplume opponent-policy slice; Agent6 retains rank1.
 
 ## Limitations and open risks
 
 - The prompt projection currently exposes visible Pokémon printing and zone, but not a stable board-slot index for ChoosePokemonPrompt choices. The prototype maps by exact printing within the visible zone. When two identical printings occupy that zone with different attached Energy/damage, the policy cannot distinguish them reliably; this is an interface limitation, not a reason to infer hidden identity.
-- Several source branches remain unmodeled or deliberately unqualified, including the strategic comparison of Tulip versus Acerola when Latias is Benched, the best two-card Get Lost discard beyond the tested recovery-card heuristic, the untested Mimikyu/Sky Field/Copycat game line, and the continuation after Unfair Stamp.
+- Several source branches remain unmodeled or deliberately unqualified, including the strategic comparison of Tulip versus Acerola when Latias is Benched, the best two-card Get Lost discard beyond the tested recovery-card heuristic, the untested Mimikyu/Sky Field/Copycat game line, and the continuation after Unfair Stamp. The Mimikyu search/attack-choice policy has prompt tests but no full-game validation.
 - Search and target heuristics are deliberately conservative. They have not been independently reviewed for every rank 1 prompt type or every matchup state.
 - Only rank 1 is covered. Ranks 23, 25 and 28 still lack full source lists; the 32-rank opponent-policy bundle is incomplete.
 - The worker's persistent Node process, async fixture loop, launcher capability/seed gates, full field coverage and opponent-policy qualification remain outstanding.
@@ -74,4 +77,4 @@ This is not a Node test-runner result, GitHub Actions pass, Docker isolation res
 
 ## Conclusion
 
-The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 27/27 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 30/30 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
