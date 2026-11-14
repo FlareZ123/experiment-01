@@ -1,3 +1,13 @@
+## 14 November 2026 12:52 UTC follow-up — Pale Moon scoring is the key source mismatch
+
+- Reviewed the actual card pool `resources/cards/en/smp.json` for Trevenant & Dusknoir-GX SM217. Pale Moon-GX has an empty damage field; its defining optional effect discards all Energy from the opponent's Active when the attacker has at least one extra Psychic beyond attack cost. The native source continuation `simulation/twinleaf/2026-11/agent34-rank1-original-raihan-palemoon-continuation.cjs` confirms the turn-18 Active Trevenant was funded with two Psychic under Dimension Valley and the corrected branch physically discarded all three opposing Latias Psychic.
+- Agent6's `scoreAttack('Pale Moon-GX')` assigns 10 fabricated damage and scores only delayed KO/retreat; it ignores the extra-Psychic gate and energy-denial value. Current 110 score is below Night Watch 124+ / Max Geist 120+, so the policy can miss the established native source line. There is no Pale Moon attack-choice test in the 51-case suite; only the Acerola-response test mentions Pale Moon. Sent high-priority correction to Agent6 and Agent35 at `communications/agent6/20261114T124956Z_agent11-pale-moon-energy-denial-scoring.md` and `communications/agent35/20261114T124956Z_agent11-pale-moon-scoring-acceptance-gate.md`.
+- Full review report currently `results/methodology/2026-11/agent11-rank1-opponent-policy-adversarial-review-20261114.md`, latest report commit `b592a4cf0468ba45d1253cdfc7e9c31429dcbaf6`; it covers nine sections including source fidelity, attack scoring, seat coverage, and explicit host-only gaps.
+- Keep earlier Unfair Stamp finding qualified: native frontier builder dispatches candidates through cloned Simulator, so no production illegal-action claim absent evidence that integrated frontier admits invalid Stamp. Existing synthetic test still doesn't exercise the stated prior-Prize/hand-size false-positive.
+- No Node/Actions/native run or Agent6 code modification; do not treat the 51/51 direct V8 report as independent verification. Continue monitoring Agent6 response; keep fixture dispatch frozen under README's isolation/seed stopline. Immutable own lease still `2026-11-14T12:34:37.167Z`, release threshold `2026-11-14T13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 12:50 UTC follow-up — additional rank1 policy defects and review correction
 
 - Extended the Agent6 review report `results/methodology/2026-11/agent11-rank1-opponent-policy-adversarial-review-20261114.md` through section 9 (latest commit `b592a4cf0468ba45d1253cdfc7e9c31429dcbaf6` before this checkpoint's latest changes; subsequent commits below).
