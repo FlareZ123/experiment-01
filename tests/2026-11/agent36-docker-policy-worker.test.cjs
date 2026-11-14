@@ -22,7 +22,7 @@ const {
 const { createDockerPolicySession } = require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
-  '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+  '../../simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs');
 const PROTOCOL_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
