@@ -1592,6 +1592,17 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     unknownSkylinerView,postTimelessCatalog,{ownerSeat:0}),null,
     'printed Skyliner without a live-Ability fact cannot establish the extra-turn line');
 
+  const suppressedSkylinerView={
+    ...terminalWithRadiantLatias,
+    ownPublic:{...terminalWithRadiantLatias.ownPublic,
+      bench:[{...latias,abilitySuppressions:[{abilityName:'Skyliner',
+        suppressed:true,reasonCode:'TEST_SUPPRESSION',sourcePrinting:'Test Suppressor'}]},
+        clefairy,sevenPsychicVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    suppressedSkylinerView,postTimelessCatalog,{ownerSeat:0}),null,
+    'a proven-suppressed Skyliner cannot establish the extra-turn line');
+
   const unknownFairyZoneView={
     ...terminalWithRadiantLatias,
     ownPublic:{...terminalWithRadiantLatias.ownPublic,
