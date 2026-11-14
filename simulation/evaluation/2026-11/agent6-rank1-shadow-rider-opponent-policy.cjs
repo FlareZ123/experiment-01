@@ -422,7 +422,7 @@ function cardSearchScore(printing, request, effectName) {
   }
 
   if (includes(effectName, 'Battle Compressor') &&
-      (hasPrinting(hand, /Tulip PAR\\b/i) || hasPrinting(hand, /VS Seeker PHF\\b/i))) {
+      (hasPrinting(hand, /Tulip PAR\b/i) || hasPrinting(hand, /VS Seeker PHF\b/i))) {
     if (matches(printing, PRINT.psychic)) return 165;
     if (includes(printing, 'VS Seeker') || includes(printing, 'Tulip')) return 120;
   }
@@ -596,7 +596,7 @@ function promptDecision(request) {
     if (selectionType === 'card-order') {
       const orderChoices = choices.filter(choice => choice.kind === 'card-order-item');
       const tokens = sortedChoiceTokens(orderChoices, choice =>
-        cardSearchScore(choicePrinting(choice), observation, effect))
+        cardSearchScore(choicePrinting(choice), request, effect))
         .slice(0, Math.min(max, orderChoices.length));
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
