@@ -117,6 +117,12 @@ function publicPlayer(player,hidePokemon=false){
       itemPlayLocked:player.cannotPlayItemCards===true,
       supporterPlayLocked:player.cannotPlaySupporterCards===true,
       stadiumPlayLocked:player.cannotPlayStadiumCards===true,
+      // Public per-player epoch from Shiftry's Stadium/Tool suppression effect.
+      // Null means the pinned Store field was absent or malformed.
+      stadiumAndToolHaveNoEffectTurnsRemaining:
+        Number.isSafeInteger(player.stadiumAndToolHaveNoEffectTurnsRemaining)&&
+        player.stadiumAndToolHaveNoEffectTurnsRemaining>=0?
+          player.stadiumAndToolHaveNoEffectTurnsRemaining:null,
       toolPlayLocked:player.cannotPlayToolCards===true,
       energyPlayLocked:player.cannotPlayEnergyCards===true,
       specialEnergyPlayLocked:player.cannotPlaySpecialEnergyCards===true
