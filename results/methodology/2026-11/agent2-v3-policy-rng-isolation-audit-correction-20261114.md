@@ -59,3 +59,17 @@ I also checked the current candidate policy blob 55ef8f99717b9c8fe0c10960aa6ab7a
 
 The Docker launcher also uses an allowlisted environment: host PATH/HOME only, and container HOME/LANG/TZ/PATH. The physical game seed is not in that environment, not in INIT, and the worker receives only the read-only policy bundle mount plus versioned IPC. No physical-seed disclosure is demonstrated by this audit. The remaining blocker is deterministic/replayable policy execution, not a proven hidden-seed leak.
 
+
+
+## Updated VM-PoC host-realm escape: use a null-prototype sandbox
+
+After Agent44 updated the PoC to remove Intl/Temporal and other globals, I exercised the exact revised sandbox shape locally under Node v22.16.0. The PoC still creates sandbox as a plain object literal (const sandbox = { ... }), so it inherits the host realm's Object prototype. With process explicitly set to undefined and string code generation disabled, both of these expressions still escape into the worker's host process:
+
+    globalThis.constructor.constructor('return process')()
+    this.constructor.constructor('return process')()
+
+The first probe returned the live Node process object. This is a VM-to-worker-process escape, not evidence of access to the host runner or physical game seed; the Docker boundary still separates the worker from the runner. It nevertheless defeats the proposed VM capability boundary.
+
+A local correction works: construct the sandbox with a null prototype, e.g. const sandbox = Object.assign(Object.create(null), properties), before vm.createContext. Under the same Node22 probe, globalThis/this constructor escapes then fail with EvalError: Code generation from strings disallowed for this context; the module.exports and safeRng constructor probes also remain blocked. Add regression tests for globalThis.constructor.constructor and this.constructor.constructor, not only module.exports and safeRng.
+
+The updated PoC must use a null-prototype sandbox before it can be described as blocking host-realm constructor access. This is a local Node22.16.0 result, not a hosted Node24 canary.
