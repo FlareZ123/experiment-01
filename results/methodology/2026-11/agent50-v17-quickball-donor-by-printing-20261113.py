@@ -136,6 +136,20 @@ def main():
     assert energy == 9_134_158
     assert nonenergy == 7_553_157
     assert total == ROOT_ELIGIBLE_HANDS
+    assert comb(60, 7) == RAW_SEVEN_HANDS
+    assert comb(60, 7) - comb(46, 7) == KEEPABLE_SEVEN_HANDS
+
+    expected_by_printing = {
+        "Shadow Rider Calyrex V": Fraction(10_309_993, 5),
+        "Shadow Rider Calyrex VMAX": Fraction(4_335_281, 3),
+        "Mysterious Treasure": Fraction(4_335_281, 3),
+        "Fog Crystal": Fraction(4_335_281, 3),
+        "Lillie's Clefairy ex": Fraction(3_754_409, 10),
+        "Lillie's Determination": Fraction(520_291, 2),
+        "VS Seeker": Fraction(520_291, 2),
+        "Stealthy Hood": Fraction(520_291, 2),
+    }
+    assert {name: item["exact"] for name, item in by_printing.items()} == expected_by_printing
 
     category_totals = defaultdict(Fraction)
     rows = []
