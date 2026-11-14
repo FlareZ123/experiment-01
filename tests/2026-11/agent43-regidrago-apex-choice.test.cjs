@@ -135,6 +135,15 @@ test('Phantom Dive allocates six counters to maximize actual bench Prizes', () =
   assert.deepEqual(result, { prizes: 3, kos: 2, spent: 6 });
 });
 
+test('Prize allocation counts TAG TEAM Pokémon-GX as three Prizes', () => {
+  const bench = [
+    pokemon('Trevenant & Dusknoir-GX UNB 166', {
+      hp: 270, damage: 210, subtypes: ['Basic', 'GX', 'TAG TEAM'], types: ['Psychic']
+    })
+  ];
+  assert.deepEqual(maxBenchPrizeValueWithCounters(bench, 6), { prizes: 3, kos: 1, spent: 6 });
+});
+
 test('Phantom Dive values bench KOs in addition to its Active damage', () => {
   const obs = observation({
     opponentBench: [
