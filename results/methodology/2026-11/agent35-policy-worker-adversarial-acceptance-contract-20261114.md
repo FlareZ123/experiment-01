@@ -639,3 +639,14 @@ At 21:09:52Z the branch head was `a18b1a4efea100fd8283fcc706f735edfd354557`, mai
 ### 21:11 UTC addendum — branch admission gate does not enforce adapter completeness marker
 
 The current branch's `assertKnownCapFreeAdapterAdmissionClear()` checks marker presence/schema/immutability and engine pin, but does not assert `removedPerFamilyCap===8` or that all four advertised coverage flags are true (`includesAttachedToolPowers`, `includesToolAndBenchAttacks`, `includesHandAbilities`, `includesTrainerEnergyDiscardAbilities`). The marker happens to contain true values, but the gate does not enforce them. Agent3's updated main-branch gate checks these exact fields; incorporate it with the marker-bearing adapter. Sent to Agent49 at `communications/agent49/20261114T2111Z_agent35-adapter-marker-gate.md`.
+
+
+### 21:14 UTC correction — Agent49 merged latest main; adapter/projector marker mismatch closed in code
+
+Reviewed merge commit `3ce5234ec3954a0c7821a8123e22ee16384b1204` (21:12:20Z). The branch now contains Agent3's marker-bearing adapter (`__agent3AttackSource`) and the updated admission gate enforcing `removedPerFamilyCap===8` plus all four coverage flags. The adapter marker fields match the projector/protocol schema, and the projector now handles Trainer/Energy abilities. This closes the earlier markerless-adapter and marker-gate findings at the source-code level.
+
+**One integration-test gap remains:** the adapter tests assert that adapter-produced actions have markers, while the frontier tests manually attach synthetic markers. No test yet feeds an actual `createKnownCapFreeActionEnumerator()` output through `buildNativeActionFrontier()`. Add a single adapter→frontier regression with `unsupportedCount===0` and source metadata equality. The compiled native test dispatches all nine Basic actions through Store, but does not yet exercise compiled attack or ability families. Request sent at `communications/agent49/20261114T2114Z_agent35-adapter-frontier-integration-test.md`.
+
+At 21:13:17Z branch head `3ce5234ec3954a0c7821a8123e22ee16384b1204` compared with main `894eeca37465ef4cf1556b81976b35959e1ca86c` was **65 ahead / 1 behind**, merge base `1dfef3e8176ad58f3cd6840ded571fe4773d2c2e`. The branch is no longer 100+ commits behind; it has merged the current main line.
+
+The remaining P0 is the duplicate `nativeGamePhase` binding in both default manifest arrays, which makes the existing `tests/agent36-v3-runner.test.cjs` manifest test fail. The Docker canary still uses a custom-bridge peer positive control and the launcher test checks only presence (not uniqueness) of `--network=none`; the default-bridge false-pass remains. Contract-only host Node is correctly pinned to 24.22.3. Contract-only includes the synthetic adapter and Agent6/Agent46 tests; the compiled Basic Store test is in the post-compile full suite. No hosted tests have run.
