@@ -51,6 +51,7 @@ async function main(request){
     schema:'agent44-policy-sandbox-canary-v1',
     nodeVersion:process.version,
     seat:request.seat,
+    sequence:request.sequence,
     policySeed:request.policySeed,
     cwd:process.cwd(),
     envKeys:Object.keys(process.env).sort(),
@@ -85,10 +86,9 @@ async function main(request){
 }
 
 const rl=readline.createInterface({input:process.stdin,crlfDelay:Infinity});
-rl.once('line',line=>{
-  rl.close();
-  process.stdin.destroy();
-  main(JSON.parse(line)).catch(error=>{
+let queue=Promise.resolve();
+rl.on('line',line=>{
+  queue=queue.then(()=>main(JSON.parse(line))).catch(error=>{
     process.stderr.write(String(error)+'\n');
     process.exitCode=1;
   });
