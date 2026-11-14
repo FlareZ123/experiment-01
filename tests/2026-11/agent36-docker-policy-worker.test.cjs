@@ -165,7 +165,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
     "  const shmWrite=writeProbe('/dev/shm/agent36-shm-write-probe-'+process.pid);",
     "  let hostProcessMarkerVisible=false;try{hostProcessMarkerVisible=fs.readFileSync('/proc/'+HOST_PID+'/environ').includes(HOST_PROCESS_MARKER);}catch{}",
-    "  const envKeys=Object.keys(process.env).sort();"
+    "  const envKeys=Object.keys(process.env).sort();",
     "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG|HOST_PROCESS/i.test(key));",
     "  const argv=process.argv.slice();",
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
