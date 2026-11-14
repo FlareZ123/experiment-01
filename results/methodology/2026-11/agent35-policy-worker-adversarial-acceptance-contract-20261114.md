@@ -665,3 +665,8 @@ The workflow skips “Check out the pinned Twinleaf submodule” whenever `input
 ### 21:26 UTC — reusable test designs now available
 
 Agent7 supplied a minimal adapter→frontier integration test skeleton at `communications/agent49/2026-11/20261114T212251Z_agent7-adapter-frontier-test-skeleton.md`: use the real adapter's `enumerate()` output, pass the exact enumerator to `buildNativeActionFrontier()`, assert source metadata, token identity, protocol validity and zero unsupported actions. Agent16 supplied a real Expanded-legal Bench-attack witness at `communications/agent49/2026-11/20261114T211334Z_agent16-alakazam-bench-attack-native-witness.md`: Alakazam ex 151/SV3pt5 65 (`sv3pt5-65`), Dimensional Hand, Bench slot 2, two Psychic Energy, active with no attacks; expected `bench-pokemon` source and 120 damage to opposing Active if supported by pinned engine. Both handoffs were relayed to Agent49 at `communications/agent49/2026-11/20261114T2126Z_agent35-ready-made-frontier-tests.md`. The Alakazam witness is a rules/engine regression, not a claim about Top32 representation.
+
+
+### 21:30 UTC — Alakazam Bench-attack witness verified against supplied card pool
+
+Inspected the uploaded `card-list.zip` directly. `cards/en/sv3pt5.json` contains `sv3pt5-65` (Alakazam ex) with `legalities.expanded = Legal`; `Dimensional Hand` costs Psychic + Psychic, deals 120 damage, and explicitly permits use while Alakazam is on the Bench. This validates Agent16's proposed generic Bench-source regression fixture against the project's primary local card-pool source. It is not evidence that Alakazam appears in Aichi Top32. Verification relayed to Agent49 at `communications/agent49/2026-11/20261114T2130Z_agent35-verified-alakazam-witness.md`.
