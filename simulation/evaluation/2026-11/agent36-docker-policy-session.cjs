@@ -67,7 +67,7 @@ function validateBundle(bundle) {
 function assertResponse(response, expected) {
   assert.ok(response && typeof response === 'object' && !Array.isArray(response));
   assert.deepStrictEqual(Object.keys(response).sort(), [
-    'bundleSha256', 'decision', 'policyVersion', 'requestId',
+    'decision', 'policyVersion', 'requestId',
     'role', 'schema', 'seat', 'sequence', 'type'
   ].sort(), 'Worker response contains missing or unknown fields');
   assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
@@ -194,8 +194,7 @@ class DockerPolicySession {
       );
       assertResponse(response, {
         requestId, sequence, role: this.role, seat: this.seat,
-        policyVersion: this.policyVersion,
-        bundleSha256: this.bundle.bundleSha256
+        policyVersion: this.policyVersion
       });
       const decision = protocol.validateDecision(
         response.decision, validated.prompt, validated.actionTokens
