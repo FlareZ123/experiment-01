@@ -30,11 +30,11 @@ Two Vileplume lists are worth distinguishing because the Pokémon name alone is 
 - Rank15 Ryotaro Nozawa's Lopunny Vileplume uses Vileplume AOR 3 and Vileplume BUS 6; BUS 6 has Disgusting Pollen (Basic-Pokémon attack restriction), not Allergy Panic.
 Neither is a Weakness modifier from the census.
 
-The three known Fairy Zone lists mean that a blanket “any opponent Ability text containing Weakness → abstain” guard will lose explicit coverage against at least these three known field entries. The candidate's own list also contains Lillie's Clefairy ex, so the policy needs a **symmetric, owner-relative Fairy Zone model**, not a one-sided hard-coded multiplier.
+The three known Fairy Zone lists mean that a blanket “any opponent Ability text containing Weakness → abstain” guard will lose explicit coverage against at least these three known field entries. The candidate's own list also contains Lillie's Clefairy ex, so the policy must model the candidate's Fairy Zone against opponent Dragon Pokémon. The opponent-side Fairy Zone is directional: Hood v1's Latias ex SSP 76 is **Psychic type**, not Dragon, and the candidate's other Pokémon are Psychic/Metal. Therefore an opponent Fairy Zone does not change the Weakness of any Pokémon in the current Hood list; it should not trigger a blanket veto for Max Geist merely because the opponent has Clefairy. This conclusion is specific to the current candidate's types.
 
 ## Policy implications
 
-1. Evaluate Fairy Zone independently on both sides. Candidate Fairy Zone changes Weakness on the opponent's Dragon Pokémon; opponent Fairy Zone changes Weakness on the candidate's Dragon Pokémon (notably Latias ex).
+1. Evaluate Fairy Zone directionally. Candidate Fairy Zone changes Weakness on the opponent's Dragon Pokémon. The current Hood list contains no Dragon Pokémon: Latias ex SSP 76 is Psychic type. Thus opponent Fairy Zone has no target on the candidate's current Pokémon, though a future candidate containing Dragon Pokémon would need the symmetric check.
 2. Require the exact Lillie's Clefairy ex printing and an explicit live-Ability certificate. Apply known public suppression effects and abstain on unmodeled Ability locks.
 3. Do not assume the presence of Clefairy alone proves Fairy Zone is active. Printed Ability names remain in actorObservation while suppressed.
 4. For target damage, first resolve the target's printed type and existing Weakness/Resistance; then apply any modeled public Weakness modifiers, damage prevention/reduction, and target HP. If an unmodeled modifier can change the result, abstain.
