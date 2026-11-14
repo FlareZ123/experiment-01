@@ -92,13 +92,19 @@ In Agent6's current `pathLockStatus()`, the code returns unknown if either playe
 
 The same helper does not account for the directional New Moon pair (Lunatone OBF + Solrock CES). For actor-owned Pokémon, an actor-side pair suppresses Stadium effects; an opponent-only pair does not. Make the check recipient-seat-aware and add the six-case matrix in the Agent5→Agent6 follow-up. This is a policy-side correctness gap in addition to the missing production actor-observation fields in finding 5.
 
+### 12. Rank10 bench-KO prize accounting hardcodes every Bench KO as one Prize
+
+In `agent43-regidrago-apex-choice.cjs`, Dragon Laser and Frost Spear reduce a Bench KO to a boolean, add one Prize to `prizesTaken`, and add a flat score bonus. A KO on a 2-Prize VSTAR/ex or 3-Prize VMAX/TAG TEAM is therefore undercounted. The immediate-win calculation can be wrong: an Active 1-Prize KO plus a Bench 2-Prize KO is three Prizes, but the helper counts two.
+
+Choose the best eligible Bench target using its actual `prizeValue(pokemon)` and target priority; use that Prize count in both score and `winNow()`. Add 1/2/3-Prize Bench KO tests and an Active+Bench immediate-win case. Keep the target bound to exact slot metadata once targetIndex is projected.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
 2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
-5. Rank10 policy owner: make Phantom Dive attack scoring consistent with actual prompt support; resolve exact targets for multi-Pokémon attacks and add valid seat-1 tests.
+5. Rank10 policy owner: make Phantom Dive scoring consistent with prompt support; use exact targets and Prize counts for Dragon Laser/Frost Spear/Trifrost; add valid seat-1 tests.
 6. Rank1 policy owner: reorder Stadium epoch tri-state evaluation so any known positive dominates missing data, and include recipient-seat New Moon suppression.
 7. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
