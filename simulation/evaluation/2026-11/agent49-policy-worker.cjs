@@ -354,8 +354,18 @@ function validateInit(message) {
 
 function validatePrompt(prompt, seat) {
   if (prompt === null) return null;
-  exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'choices']);
+  exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices']);
   if (prompt.schema !== PROMPT_SCHEMA || prompt.actingSeat !== seat) fail('BAD_PROMPT_PROJECTION');
+  exactKeys(prompt.source, ['classification', 'sourcePrinting', 'effectName'], ['copiedSourcePrinting', 'copiedAttackName']);
+  if (prompt.source.classification !== 'actor-choice') fail('NON_ACTOR_PROMPT_CLASS');
+  for (const key of ['sourcePrinting', 'effectName', 'copiedSourcePrinting', 'copiedAttackName']) {
+    if (prompt.source[key] !== undefined && prompt.source[key] !== null &&
+        !boundedString(prompt.source[key], null, 256)) fail('BAD_PROMPT_SOURCE');
+  }
+  if (/night\s*watch/i.test(String(prompt.source.effectName ?? '')) ||
+      /night\s*watch/i.test(String(prompt.source.copiedAttackName ?? '')) ||
+      (prompt.source.effectName === 'Copycat' &&
+       prompt.source.copiedSourcePrinting === 'Trevenant & Dusknoir-GX')) fail('HOST_ONLY_PHYSICAL_PROMPT');
   if (!boundedString(prompt.promptType, /^[A-Za-z][A-Za-z0-9._-]{0,95}$/)) fail('BAD_PROMPT_TYPE');
   if (prompt.description !== null && !boundedString(prompt.description, null, 2048)) fail('BAD_PROMPT_DESCRIPTION');
   if (!Array.isArray(prompt.choices) || prompt.choices.length > 512) fail('BAD_PROMPT_CHOICES');
@@ -450,25 +460,11 @@ async function writeLine(value) {
   if (!process.stdout.write(bytes)) await once(process.stdout, 'drain');
 }
 
-function disablePolicyRandomness() {
-  const deny = () => fail('RANDOMNESS_NOT_AUTHORIZED');
-  Object.defineProperty(Math, 'random', {
-    value: deny, writable: false, configurable: false
-  });
-  const crypto = require('node:crypto');
-  for (const name of ['randomBytes', 'pseudoRandomBytes', 'randomInt', 'randomUUID', 'randomFill', 'randomFillSync']) {
-    Object.defineProperty(crypto, name, {
-      value: deny, writable: false, configurable: false
-    });
-  }
-  const webCryptoPrototype = Object.getPrototypeOf(crypto.webcrypto);
-  Object.defineProperty(webCryptoPrototype, 'getRandomValues', {
-    value: deny, writable: false, configurable: false
-  });
-}
+/* No physical-game RNG or seed is accepted by this IPC schema. This worker is
+ * not a sandbox for the policy's own ambient Node RNG; policy bundles must be
+ * deterministic and audited until the owner approves a separate policy RNG. */
 
 async function run() {
-  disablePolicyRandomness();
   const policyModule = require('./policy.cjs');
   let initialized = false;
   let init = null;
@@ -574,5 +570,5 @@ module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_SCHEMA, FRONTIER_SCHEMA,
   LIMITS, validateInit, validateRequest, validateDecision, validateActorObservation,
-  validatePublicEventReceipt, validateFlatMetadata, disablePolicyRandomness
+  validatePublicEventReceipt, validateFlatMetadata
 };
