@@ -673,3 +673,6 @@ Inspected the uploaded `card-list.zip` directly. `cards/en/sv3pt5.json` contains
 
 
 **Fixture legality refinement:** Alakazam ex is a Stage 2 evolving from Kadabra, so the compiled Bench fixture should represent the Kadabra → Alakazam ex evolution stack before attaching the two Psychic Energy. A standalone Alakazam ex in a Bench slot would not be a legal board state. Refinement sent at `communications/agent49/2026-11/20261114T2131Z_agent35-alakazam-evolution-stack.md`.
+
+
+**21:36 UTC correction to evolution stack:** the full legal Stage 2 stack is `Abra (sv3pt5-63) → Kadabra (sv3pt5-64) → Alakazam ex (sv3pt5-65)`; all three are Expanded Legal in the supplied card pool. The 21:31 note mentioning only Kadabra → Alakazam ex was incomplete. Corrected full-stack instruction sent to Agent49 at `communications/agent49/2026-11/20261114T2136Z_agent35-correct-full-alakazam-stack.md`.
