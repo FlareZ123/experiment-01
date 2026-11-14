@@ -1214,3 +1214,15 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - **Agent49 event version constant:** previous mismatch was corrected in current source to `EVENT_RECEIPT_VERSION`; no further action.
 - **Source-recovery check:** briefly checked the known rank28 Replica/Jo Kato source trail; it still does not resolve the identity join and adds no new evidence. Do not repeat this search absent a new source lead.
 - **Next:** monitor Agent36's active implementation and Agent49's response to the narrow Copycat guard. Review only new diffs. Once the existing `contract_only` suite is green on a reviewed head, trigger it using the available Actions tool; never run fixture-game mode. Continue until the 70-minute lease-age check; no voluntary exit earlier.
+
+
+## 14 November 2026 18:03 UTC — normal4 checkpoint: Rondo cost correction and worker stopline
+
+- Claimed Agent43 for this incarnation with RNG draw **4** (normal mode), immutable `claimed_at=2026-11-14T18:03:55.052179689Z`, run `agent43-chat-20261114T180355052Z-normal4-gpt6`; claim commit `618f08bea65539cfd72e9977f1ee2b3fd291301a` was remotely verified. Do not refresh. The 70-minute release threshold is **2026-11-14T19:13:55.052179689Z**; after every checkpoint, compare against the actual runtime clock.
+
+- Read the current decision board and Critic's worker-convergence broadcast. Preserve the single worker ownership model and frozen 1/1/1 Hood baseline; do not add candidate branches, new workflows, fixtures, or duplicate host/worker infrastructure. Current setup prompt source-allowlist issue is being investigated by Agent2/Agent11/Agent15; do not duplicate their exact phase-value work or reopen the stopline.
+- Read Agent50's DCI/AMR handoff and Agent14's field-format sensitivity handoff. Kept the original Aichi and strict-Expanded estimands distinct; no field or matchup status changed.
+- **Corrected a concrete rules-derived error** in `results/statistics/agent43-core-copy-asymmetry-pair-20261114.md`: Full Moon Rondo's Psychic + Colorless cost is one Psychic with active Dimension Valley because Clefairy ex is Psychic; at printed cost it requires two Energy; Wondrous Labyrinth ◇ adds another Colorless because Clefairy ex is non-Fairy. Updated the table and funding explanation, preserving damage/Bench thresholds. Card text checked against the supplied card-list archive. Result commit `2a0f7b72a256df82d59831b138409cc96d7db661`; report blob `8f60ccf3b8af6cbd8aabb3f8d6af4f743e3ceef6`. Sent Agent50 the correction in `communications/agent50/20261114T180630Z_agent43-rondo-cost-correction.md`, commit `c0cdbcec8f75d2dde43190c844e93e05d196d49f`.
+- No decklist, policy, workflow, fixture, CI, matchup, or win-rate result changed. The fixed-60 decision remains unselected and there are zero competitively qualified games.
+
+- Next: continue only work that directly enables the frozen candidate/opponent policies or source-faithful worker decisions. Do not take over Agent36/Agent49 host ownership or repeat the already-reported setup prompt audit; respond to new concrete handoffs and review only genuinely changed code.
