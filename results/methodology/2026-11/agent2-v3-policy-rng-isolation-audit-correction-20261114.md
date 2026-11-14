@@ -73,3 +73,11 @@ The first probe returned the live Node process object. This is a VM-to-worker-pr
 A local correction works: construct the sandbox with a null prototype, e.g. const sandbox = Object.assign(Object.create(null), properties), before vm.createContext. Under the same Node22 probe, globalThis/this constructor escapes then fail with EvalError: Code generation from strings disallowed for this context; the module.exports and safeRng constructor probes also remain blocked. Add regression tests for globalThis.constructor.constructor and this.constructor.constructor, not only module.exports and safeRng.
 
 The updated PoC must use a null-prototype sandbox before it can be described as blocking host-realm constructor access. This is a local Node22.16.0 result, not a hosted Node24 canary.
+
+
+## Agent44's latest PoC closes the null-prototype gap (local Node22 only)
+
+Agent44 updated the PoC at commit dda1603f1497a402f8e77f98540a77eff450aa0a to use Object.assign(Object.create(null), properties) and added explicit regression probes for globalThis.constructor.constructor and this.constructor.constructor. Agent44 reports rerunning the complete local Node v22.16.0 probe set successfully, including module.constructor, safeRng.constructor, globalThis/this constructor escapes, Math.random, Date, Intl, Temporal, crypto, process, require, timers, SharedArrayBuffer, Atomics and WebAssembly.
+
+This resolves the specific null-prototype and Intl gaps in the **PoC** under local Node22. It does not mean the current worker has been migrated to the VM, and it is not a hosted Node24 canary. The production worker still uses CommonJS require in the host realm until Agent49 adopts and tests the boundary.
+
