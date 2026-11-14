@@ -69,3 +69,32 @@ This does not prove any current policy intentionally called `Math.random()` to e
 ### Call-path confirmation
 
 The policy callback path is inside the protected decode call, not outside it: `runNativeFixtureGame()` invokes `decodeWithPolicyRandom(seats[actingSeat], state, policyRandom[actingSeat])`; that helper assigns global `Math.random` before calling `bot.decodeNextAction(state)`. Within `withActorOnlyRootPolicy()`, a configured `rootIntentProvider` is invoked synchronously from that wrapped decode path via `invokeActorRootIntentProvider()`. The provider receives actor seat, public view, catalog, bounded root options and a one-shot search callback rather than raw state, but it still executes while the policy RNG stream is installed and can call global `Math.random`. The RNG side channel therefore survives actor-view projection; it is not dependent on the provider receiving the full engine state.
+
+
+### Minimal xorshift32 inverse for a regression
+
+The inverse can be written without brute force:
+
+```js
+function undoXorShiftLeft(y, shift) {
+  let x = y >>> 0;
+  for (let s = shift; s < 32; s += shift) x ^= (y << s) >>> 0;
+  return x >>> 0;
+}
+function undoXorShiftRight(y, shift) {
+  let x = y >>> 0;
+  for (let s = shift; s < 32; s += shift) x ^= y >>> s;
+  return x >>> 0;
+}
+function undoXorShift32(outputState) {
+  let x = undoXorShiftLeft(outputState, 5);
+  x = undoXorShiftRight(x, 17);
+  x = undoXorShiftLeft(x, 13);
+  return x >>> 0;
+}
+const outputState = Math.floor(Math.random() * 0x100000000) >>> 0;
+const policySeed = undoXorShift32(outputState);
+const physicalSeed32 = (policySeed ^ POLICY_SEED_XORS[seat]) >>> 0;
+```
+
+This assumes the policy stream's first draw is being sampled; if earlier calls occurred, reverse the known number of xorshift steps. The root policy callback can deliberately sample at entry, before its own random calls. The snippet is for a regression demonstrating the old vulnerability; it must not be retained as a production policy helper.
