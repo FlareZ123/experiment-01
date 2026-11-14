@@ -755,6 +755,32 @@ test('Counter Gain is not spent when the source player is not behind on Prizes',
   });
 });
 
+
+
+test('Guzma & Hala searches Counter Gain when behind and Technical Machine: Evolution is already held', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC 193', 'Guzma & Hala'),
+    choices: [
+      cardChoice('tm-evolution', 'Technical Machine: Evolution PAR 178'),
+      cardChoice('counter-gain', 'Counter Gain SSP 169')
+    ],
+    observation: {
+      ownHand: ['Technical Machine: Evolution PAR 178'],
+      ownPublic: player({ prizeCount: 6 }),
+      opponentPublic: player({ prizeCount: 5 })
+    },
+    publicMetadata: {
+      minimumCount: 1, maximumCount: 1, allowCancel: false,
+      isSecret: false, selectionType: 'card-combination'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['counter-gain']
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
