@@ -696,7 +696,7 @@ test('phase-one setup policy rejects wrong phases, source identities, labels, an
         ...drawChoices,
         { token: 'cancel', kind: 'cancel', label: 'Cancel selection' }
       ],
-      publicMetadata: { count: 2, allowCancel: false, selectionType: 'option' }
+      publicMetadata: { count: 2, allowCancel: true, selectionType: 'option' }
     });
     assert.equal(evaluate(unexpectedCancel).kind, 'abstain');
 
@@ -706,7 +706,7 @@ test('phase-one setup policy rejects wrong phases, source identities, labels, an
         ...startingChoices,
         { token: 'cancel', kind: 'cancel', label: 'Cancel selection' }
       ],
-      publicMetadata: startingMeta
+      publicMetadata: { ...startingMeta, allowCancel: true }
     });
     assert.equal(evaluate(badStartingCancel).kind, 'abstain');
   }
