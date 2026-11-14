@@ -704,6 +704,7 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
   assert.ok(choices.length > 0, 'native prompt produced no legal choices');
   const promptProjection = {
     schema: protocol.PROMPT_SCHEMA,
+    actingSeat: actorSeat,
     promptType: type,
     description: typeof prompt.message === 'string'
       ? prompt.message : String(prompt.type ?? type),
@@ -714,7 +715,7 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
     promptProjection.publicMetadata = Object.freeze(publicMetadata);
   }
   const frozen = Object.freeze(promptProjection);
-  protocol.validatePrompt(frozen);
+  protocol.validatePrompt(frozen, actorSeat);
   return {
     hostOnly: false,
     promptProjection: frozen,
