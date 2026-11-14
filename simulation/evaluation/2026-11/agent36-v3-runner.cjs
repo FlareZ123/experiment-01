@@ -1322,7 +1322,7 @@ function createV3WorkerDecisionResolver({
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
     const stderr=String(session?.stderr??session?.channel?.stderr??'');
-    const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\\d+)/.exec(stderr);
+    const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\d+)/.exec(stderr);
     if(drawMatch){
       roleAudit.policyDrawCount=Number(drawMatch[1]);
       roleAudit.policyDrawViolationCount++;
