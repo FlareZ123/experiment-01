@@ -59,13 +59,8 @@ function installPromptProvenanceHook(store) {
     const current = stack.length ? stack[stack.length - 1] : null;
     for (const prompt of promptList) {
       if (!prompt || typeof prompt !== 'object') continue;
-      const sourceCard = prompt.sourceCard ?? current?.sourceCard ?? null;
-      const effectName = firstString([
-        current?.effectName,
-        sourceCard?.name,
-        sourceCard?.fullName,
-        prompt?.constructor?.name
-      ]);
+      const sourceCard = current?.sourceCard ?? null;
+      const effectName = current?.effectName ?? null;
       if (sourceCard && effectName) {
         provenance.set(prompt, Object.freeze({
           sourceKind: 'card-effect',
@@ -97,6 +92,9 @@ function installPromptProvenanceHook(store) {
     },
     get activeEffectDepth() {
       return stack.length;
+    },
+    get restored() {
+      return restored;
     }
   };
 }
