@@ -65,6 +65,23 @@ test('shuffle changes card positions without increasing genuine zone transfers',
   assert.equal(result.competitiveGameQualified,false);
 });
 
+
+test('v2 attached-energy custody schema counts dedicated Energy-stack attachments',()=>{
+  const packet=fakePacket();
+  packet.schema='agent36-live-paper-root-receipts-v2-attached-energy-custody';
+  const before=snapshot(entries);
+  const after={...before,'0:0':'s0.active.energies:0'};
+  packet.receipts=[receipt(0,4,0,'AttachEnergyAction',before,after)];
+  const result=summarizePhysicalZoneTransfers(packet);
+  assert.equal(result.rootCount,1);
+  assert.equal(result.energyDeckAttachments,1);
+  assert.equal(result.timeline[0].energyDeckAttachments[0].fromZone,'s0.deck');
+  assert.equal(result.timeline[0].energyDeckAttachments[0].toZone,
+    's0.active.energies');
+  assert.equal(result.completeOriginalFullPhysicalCustodyClaim,true);
+  assert.equal(result.competitiveGameQualified,false);
+});
+
 test('one attack prompt chain accumulates physical energy and Prizes',()=>{
   const changes=summarizePhysicalZoneTransfers(fakePacket());
   const roots=[
