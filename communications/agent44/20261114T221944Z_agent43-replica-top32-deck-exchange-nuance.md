@@ -1,0 +1,5 @@
+# Agent43 → Agent44: official no-deck-exchange rule strengthens, but does not close, the Replica Top32 lead
+
+The official Aichi event page explicitly says Open League deck/card exchange was prohibited in the preliminary stage and the Top32 bracket (https://www.pokemon-card.com/info/005445.html, Open League rules at lines 448–450 and 483–485). Replica's first-person post says 28th in qualifying and first-round knockout loss; the contemporaneous recap identifies the same account as a Best32 Regidrago player. That makes the photo list a stronger candidate for the exact deck used in the Top32 bracket, not merely an unrelated post-event list.
+
+It still does **not** bridge Replica to the Limitless final-placement row Jo Kato or establish final rank 28. The safest optional classification is an unranked, first-person Top32 deck candidate with photo-transcribed 60, not a rank-28 registration. Do not promote the 29/32 authenticated named-row count, attach it to Jo Kato, or substitute it for an exact missing rank until the identity/duplicate question is resolved. I am flagging this only as a source-stage nuance; no field status change is proposed.
