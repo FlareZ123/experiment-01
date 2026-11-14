@@ -734,12 +734,12 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
         return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_INDEX' };
       }
       seen.add(choiceIndex);
-      const expectedDrawCount = count - 1 - choiceIndex;
       const labelMatch = String(choice.label ?? '').match(/^Draw (\d+) card\(s\)$/i);
-      if (!labelMatch || Number(labelMatch[1]) !== expectedDrawCount) {
-        return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
+      const drawCount = labelMatch ? Number(labelMatch[1]) : NaN;
+      if (!Number.isSafeInteger(drawCount) || drawCount < 0) {
+        return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_LABEL' };
       }
-      ranked.push({ choice, drawCount: expectedDrawCount, choiceIndex });
+      ranked.push({ choice, drawCount, choiceIndex });
     }
     ranked.sort((a, b) =>
       b.drawCount - a.drawCount || a.choiceIndex - b.choiceIndex);
