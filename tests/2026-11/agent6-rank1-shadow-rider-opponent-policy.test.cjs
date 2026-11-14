@@ -2085,6 +2085,68 @@ test('phase-1 optional Bench setup uses the empty-selection token when no Basic 
   });
 });
 
+test('engine setup handling requires exact message, native prompt type, and engine source for both seats', () => {
+  const fixtures = [
+    {
+      promptType: 'ChooseCardsPrompt',
+      wrongPromptType: 'ChoosePokemonPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupCardChoice('basic', 'Mew V CEL 6')],
+      publicMetadata: setupMetadata(1, 6)
+    },
+    {
+      promptType: 'ConfirmPrompt',
+      wrongPromptType: 'SelectPrompt',
+      description: 'GO_FIRST',
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' }
+    },
+    {
+      promptType: 'SelectPrompt',
+      wrongPromptType: 'ConfirmPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+        { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } }
+      ],
+      publicMetadata: { selectionType: 'option', count: 2, allowCancel: false }
+    }
+  ];
+  for (const actorSeat of [0, 1]) {
+    for (const fixture of fixtures) {
+      const base = {
+        ...fixture,
+        actorSeat,
+        observation: { phase: 1, ownPublic: player() }
+      };
+      const wrongMessage = promptRequest({
+        ...base,
+        source: actorChoiceSource(null, 'NOT_' + fixture.description)
+      });
+      assert.equal(checkedDecision(wrongMessage).kind, 'abstain',
+        fixture.description + ' must reject a mismatched source effect');
+
+      const wrongPromptType = promptRequest({
+        ...base,
+        promptType: fixture.wrongPromptType,
+        source: actorChoiceSource(null, fixture.description)
+      });
+      assert.equal(checkedDecision(wrongPromptType).kind, 'abstain',
+        fixture.description + ' must reject a mismatched native prompt type');
+
+      const wrongSourceKind = promptRequest({
+        ...base,
+        source: actorChoiceSource('Unknown Trainer XYZ', fixture.description)
+      });
+      assert.equal(checkedDecision(wrongSourceKind).kind, 'abstain',
+        fixture.description + ' must reject a card-effect source');
+    }
+  }
+});
+
 test('all three engine setup prompts fail closed outside phase 1 for both seats', () => {
   const fixtures = [
     {
