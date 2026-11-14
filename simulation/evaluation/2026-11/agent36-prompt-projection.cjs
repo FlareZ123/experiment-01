@@ -256,12 +256,18 @@ function makeSource(prompt, state, actorSeat, provenance) {
     };
   }
   const promptType=prompt?.constructor?.name??'';
-  if((state.phase===0||state.phase===1)&&promptType==='ChooseStartingPokemonPrompt') {
+  const message=typeof prompt?.message==='string'?prompt.message:null;
+  const engineSetupPrompt=state.phase===1&&(
+    (promptType==='ChooseCardsPrompt'&&message==='CHOOSE_STARTING_POKEMONS')||
+    (promptType==='ConfirmPrompt'&&message==='GO_FIRST')||
+    (promptType==='SelectPrompt'&&message==='WANT_TO_DRAW_CARDS')
+  );
+  if(engineSetupPrompt) {
     return {
       classification:'actor-choice',
       sourceKind:'engine',
       sourcePrinting:null,
-      effectName:promptType
+      effectName:message
     };
   }
   throw Object.assign(new Error('Prompt has no trusted card-effect or allowlisted engine source'), {
