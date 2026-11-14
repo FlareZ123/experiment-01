@@ -317,7 +317,6 @@ jobs:
           node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
           node --check tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
-          node --check simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
           node --check simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs
           node --check simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs
           node --check simulation/evaluation/2026-11/agent36-flittle-store-decklist-binding.cjs
