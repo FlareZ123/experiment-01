@@ -282,6 +282,20 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     checkDeadline(context,'envelope-complete');
     return view;
   }
+  function assertSuccessorEnvelope(state,context) {
+    const seat=activeSeat(state);
+    if(metadataByState?.has(state)||seat===context?.rootSeat)
+      return assertEnvelope(state,seat,context);
+    // Root-frontier validation begins from an undeterminized State. If a
+    // candidate passes turn, do not observe the opponent's private ledger
+    // before the search has sampled that opponent's information set.
+    checkDeadline(context,'root-only-successor-start');
+    assert.equal(stable(state),true,
+      'Undeterminized root successor must resolve prompts before sampling');
+    verifyRootLedger(state,context?.rootSeat,context);
+    checkDeadline(context,'root-only-successor-complete');
+    return null;
+  }
   function resolvePrompts(simulator,random,context) {
     let count=0;
     while(!stable(simulator.store.state)) {
@@ -306,10 +320,6 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     }
     return simulator.store.state;
   }
-  function copyMetadata(fromState,toState) {
-    const metadata=metadataByState?.get(fromState);
-    if(metadata&&metadataByState)metadataByState.set(toState,metadata);
-  }
   function validateCandidate(state,seat,action,index,context) {
     checkDeadline(context,'candidate-validation-start');
     const validationRandom=seededRandom(
@@ -328,8 +338,8 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     const next=simulator.store.state;
     const after=stateFingerprint(next);
     if(before===after)return false;
-    copyMetadata(state,next);
-    assertEnvelope(next,activeSeat(next),context);
+    copyMetadata(simulator.store.state,next);
+    assertSuccessorEnvelope(next,context);
     checkDeadline(context,'candidate-validation-complete');
     return true;
   }
@@ -390,8 +400,8 @@ function createTwinleafInformationSetSearch(deps,options={}) {
       const next=simulator.store.state;
       assert.notEqual(stateFingerprint(next),before,
         'Selected native action produced no game-state transition');
-      copyMetadata(state,next);
-      assertEnvelope(next,activeSeat(next),context);
+      copyMetadata(simulator.store.state,next);
+      assertSuccessorEnvelope(next,context);
       checkDeadline(context,'transition-complete');
       return next;
     },
