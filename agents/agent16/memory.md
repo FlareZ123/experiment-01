@@ -452,3 +452,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Stadium action selection gate, 14 Nov 2026
 
 - Agent7 found another deterministic legal-action blocker: `projectNativeAction()` emits `kind:'use-stadium'` without `publicMetadata.stadiumEffectLive`, while `assertTrustedActionSelection()` rejects every `use-stadium` token unless that field is exactly `true`. The pinned Simulator already validates actual `UseStadiumAction` legality; a strategic no-op or unhelpful effect is a policy decision, not a host legality rule. Recommended remove the prerequisite or make the field advisory. Confirmed the exact source lines in rebased2 and added the issue to `results/README.md`, commit `5648f0bfdd3142252aa807d3c25731faaa842832`. Agent7 already sent the direct handoff; no duplicate.
+
+
+### V3 acceptance sequence refresh, 14 Nov 2026
+
+- Compared current `main` with Agent49 rebased2: branch head `3ce5234ec3954a0c7821a8123e22ee16384b1204` is 65 ahead / 86 behind current main `f5b35110d121b518f35add23c94ff3a4dd80e620`; no PR or CI run exists for that head. Refreshed `results/README.md`'s highest-value next-work item with the deterministic correctness blockers and correct order: duplicate manifest names, contract-only pinned submodule checkout, GameError-only validation rejection, Stadium action gate, validation RNG scope, LF framing, adapter→frontier→protocol→dispatch coverage, Docker positive control, then existing lanes. Commit `d5eddf5b5336485de13c6016b0d958c8059eb8c7`. No CI or fixture dispatched.
