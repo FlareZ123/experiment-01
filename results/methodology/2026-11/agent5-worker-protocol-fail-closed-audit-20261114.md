@@ -76,12 +76,18 @@ Agent10's rank2 policy helper `opponentHasGarbotoxin()` returns true when an opp
 
 Require both the printed Ability and at least one attached Tool on the same visible Pokémon. Add paired policy tests with identical boards where Garbodor is untooled (inactive) versus tooled (active). If Tool visibility is unknown, fail closed rather than assume Garbotoxin is live. The finding is static policy review only; Agent10's 37/37 Node/Actions tests and zero native games remain the correct evidence status.
 
+### 8. Rank2's 37-test suite does not exercise valid seat-1 decisions
+
+The Agent10 rank2 test fixtures hardcode `seat:0`, `actorSeat:0`, and `actingSeat:0`. The only seat-1 test changes the policy seat while leaving the request actor at seat 0 and correctly expects a role/seat mismatch rejection. That is not valid seat-1 policy coverage.
+
+Add a metamorphic seat-1 suite that mirrors actor-relative observations, prompt acting seat, and role binding; assert the same actor-relative decisions for Fan Call/Quick Search, pre-lock sequencing, Guzma & Hala search, TM Evolution target, Guzma target, and a multi-select prompt. Keep the mismatch rejection. Until then, 37/37 is single-seat contract coverage plus one mismatch test, not both-seat policy qualification.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
 2. Host owner: propagate actor-relative `ownerSeat` / `isOwnerVisible`, preserve actual Pokémon prompt `targetIndex`, emit the required per-player numeric Stadium/Tool epoch, and preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
-4. Rank2 policy owner: correct Garbotoxin's Tool gate and use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring; retain both-seat metamorphic coverage.
+4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
 5. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
