@@ -347,16 +347,34 @@ function validatePublicEventReceipt(receipt, view) {
       if (row.turn !== receipt.opponentLastTurnTurn) fail('EVENT_ATTACK_TURN_MISMATCH');
     }
   } else if (receipt.opponentLastTurnTurn !== null) fail('EVENT_TURN_WITHOUT_ATTACK_HISTORY');
-  if (receipt.opponentCopycatChoices !== undefined && receipt.opponentCopycatChoices !== null) {
-    if (!Array.isArray(receipt.opponentCopycatChoices) || receipt.opponentCopycatChoices.length > 2) fail('BAD_COPYCAT_CHOICES');
-    for (const row of receipt.opponentCopycatChoices) {
-      validateEventAttack(row);
-      if (!receipt.opponentLastTurnAttacks ||
-          !receipt.opponentLastTurnAttacks.some(attack => eventAttackSignature(attack) === eventAttackSignature(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
+  const hasCopycatChoices = Object.prototype.hasOwnProperty.call(receipt, 'opponentCopycatChoices');
+  const hasCopycatCompatibility = Object.prototype.hasOwnProperty.call(receipt, 'mimikyuCopycatCompatible');
+  if (hasCopycatChoices !== hasCopycatCompatibility) fail('INCOMPLETE_COPYCAT_RECEIPT');
+  if (hasCopycatChoices) {
+    if (receipt.opponentCopycatChoices === null) {
+      if (receipt.mimikyuCopycatCompatible !== null) fail('BAD_COPYCAT_COMPATIBILITY');
+    } else {
+      const choices = receipt.opponentCopycatChoices;
+      if (!Array.isArray(choices) || choices.length > 2 || !Array.isArray(receipt.opponentLastTurnAttacks)) fail('BAD_COPYCAT_CHOICES');
+      for (const row of choices) {
+        validateEventAttack(row);
+        if (!receipt.opponentLastTurnAttacks.some(attack => eventAttackSignature(attack) === eventAttackSignature(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
+      }
+      if (choices.length === 1 && (choices[0].barragePairIndex !== undefined || choices[0].barragePairRole !== undefined)) fail('BAD_SINGLE_COPYCAT_CHOICE');
+      if (choices.length === 2) {
+        const [first, second] = choices;
+        if (first.barragePairIndex === undefined || first.barragePairIndex !== second.barragePairIndex ||
+            first.barragePairRole !== 'first' || second.barragePairRole !== 'second' ||
+            first.sourcePrinting !== second.sourcePrinting || first.attackName === second.attackName) fail('BAD_COPYCAT_BARRAGE_PAIR');
+      }
+      const active = view.ownPublic.active;
+      const activeHasCopycat = active !== null && active.name === 'Mimikyu' &&
+        active.attacks.some(attack => attack.name === 'Copycat');
+      const expectedCompatibility = activeHasCopycat && choices.length > 0;
+      if (typeof receipt.mimikyuCopycatCompatible !== 'boolean' ||
+          receipt.mimikyuCopycatCompatible !== expectedCompatibility) fail('BAD_COPYCAT_COMPATIBILITY');
     }
   }
-  if (receipt.mimikyuCopycatCompatible !== undefined &&
-      !(receipt.mimikyuCopycatCompatible === null || typeof receipt.mimikyuCopycatCompatible === 'boolean')) fail('BAD_COPYCAT_COMPATIBILITY');
   assertBoundedJson(receipt);
 }
 
