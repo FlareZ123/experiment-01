@@ -868,33 +868,41 @@ function promptDecision(request) {
     return emptyOrAbstain(prompt, choices, 'NO_SUPPORTED_MULTI_SELECT');
   }
 
-  if (prompt.promptType === 'ChooseAttackPrompt') {
-    const activeBunnelbyEvolution = bunnelbyActive(request.observation) &&
-      bunnelbyHasTool(request.observation, PRINT.tmEvolution) &&
-      hasK0PossibleBenchEvolutionTarget(request.observation) &&
-      (request.observation.opponentPublic?.deckCount ?? 0) > 1;
-    if (activeBunnelbyEvolution) {
-      const evolution = choices.find(choice =>
-        (choice.publicMetadata?.sourceAttack ?? choice.label ?? '') === 'Evolution');
-      if (evolution) return { kind: 'select-choice', token: evolution.token };
+  if (prompt.promptType === 'SelectOptionPrompt' && context.includes('guzma & hala')) {
+    const modeOne = choices.find(choice =>
+      choice.publicMetadata?.choiceIndex === 1 &&
+      /Discard 2 cards/i.test(choice.label ?? ''));
+    const modeZero = choices.find(choice => choice.publicMetadata?.choiceIndex === 0);
+    if (modeOne && canUseGuzmaHalaMode1(request.observation, { guzmaInHand: true })) {
+      return { kind: 'select-choice', token: modeOne.token };
     }
-    if (!context.includes('memory dive') && !context.includes('relicanth') &&
-        !bunnelbyActive(request.observation)) {
+    if (modeZero) return { kind: 'select-choice', token: modeZero.token };
+    return { kind: 'abstain', reasonCode: 'NO_SAFE_GUZMA_HALA_MODE' };
+  }
+
+  if (prompt.promptType === 'ChooseAttackPrompt') {
+    const relicanthChoice = context.includes('memory dive') || context.includes('relicanth');
+    const bunnelbyChoice = bunnelbyActive(request.observation);
+    if (!relicanthChoice && !bunnelbyChoice) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
     }
-    const choice = choices.slice().sort((a, b) => {
-      const name = row => row.publicMetadata?.sourceAttack ?? row.label ?? '';
-      const score = value => {
-        if (value === 'Baby-Doll Eyes') return 125;
-        if (value === 'Burrow') return 110;
-        if (value === 'Rototiller') return ownDeckLow(request.observation) ? 150 : 35;
-        if (value === 'Itchy Pollen') return 115;
-        return 20;
+    const known = new Set([
+      'Evolution', 'Burrow', 'Rototiller', 'Get Lost', 'Itchy Pollen',
+      'Baby-Doll Eyes', 'Wild Tackle', 'Blustery Wind', 'Solar Beam',
+      'Allergic Explosion-GX', 'Massive Bloom', 'Stardust', 'Dream Dance', 'Gust'
+    ]);
+    const ranked = choices.map((choice, index) => {
+      const attackName = choice.publicMetadata?.sourceAttack ?? choice.label ?? '';
+      return {
+        choice, index, attackName,
+        score: known.has(attackName) ?
+          scoreAttack({ attackName }, request.observation) : -100
       };
-      return score(name(b)) - score(name(a));
-    })[0];
-    return choice ? { kind: 'select-choice', token: choice.token } :
-      { kind: 'abstain', reasonCode: 'NO_VISIBLE_ATTACK_CHOICE' };
+    }).filter(row => row.score > 20)
+      .sort((a, b) => b.score - a.score || a.index - b.index);
+    return ranked[0] ?
+      { kind: 'select-choice', token: ranked[0].choice.token } :
+      { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE' };
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
