@@ -1340,7 +1340,14 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ruleboxPokemonPrintings:new Set([
       'Arceus & Dialga & Palkia GX CEC','Latias ex SSP',
       'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK',
+      'Synthetic Radiant Crossover','Synthetic Psychic-weak VMAX'
+    ]),
+    onePrizeRuleboxPokemonPrintings:new Set([
+      'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK',
       'Synthetic Radiant Crossover'
+    ]),
+    threePrizePokemonPrintings:new Set([
+      'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX'
     ]),
     dragonPokemonPrintings:new Set(['Dratini SIT 129','Arceus & Dialga & Palkia GX CEC'])};
   const restrictions={
@@ -1545,7 +1552,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
 
   const adpTarget={...target,printing:'Arceus & Dialga & Palkia GX CEC',hp:280,
-    printed:{stage:'Basic',types:[11],subtypes:['Basic','TAG TEAM','GX'],weakness:[],resistance:[]}};
+    printed:{stage:'Basic',types:[11],subtypes:[],weakness:[],resistance:[]}};
   const adpIntent=choosePostTimelessMaxGeistRetreat({
     ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
   },postTimelessCatalog,{ownerSeat:0});
@@ -1599,14 +1606,12 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     'max-geist-unique-terminal-ko');
 
   const onePrizeRuleboxCatalog={...postTimelessCatalog};
-  for(const [printing,subtypes] of [
-    ['Synthetic Radiant',['Basic','Radiant']],
-    ['Synthetic Prism Star',['Basic','Prism Star']],
-    ['Synthetic BREAK',['Break']]
+  for(const printing of [
+    'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK'
   ]){
     const onePrizeTarget={
       ...target,printing,hp:100,damage:0,
-      printed:{stage:'Basic',types:[6],subtypes,weakness:[],resistance:[]}
+      printed:{stage:'Basic',types:[6],subtypes:[],weakness:[],resistance:[]}
     };
     const onePrizeView={
       ...view,
@@ -1624,7 +1629,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const radiantCrossoverTarget={
     ...target,printing:'Synthetic Radiant Crossover',hp:210,damage:0,
-    printed:{stage:'Basic',types:[6],subtypes:['Basic','Radiant'],
+    printed:{stage:'Basic',types:[6],subtypes:[],
       weakness:[],resistance:[]}
   };
   const radiantCrossoverView={
