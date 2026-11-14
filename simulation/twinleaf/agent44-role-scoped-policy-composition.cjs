@@ -96,6 +96,13 @@ function inspectActorOnlyExecutionBoundary({candidateAudit,opponentAudit,
  * boundary is returned with the game result; it must not erase factual outcome
  * evidence, but it cannot establish comparative policy competence.
  */
+function candidateOpponentRoleSeats({candidateSeat,opponentSeat}={}) {
+  assert.ok((candidateSeat===0||candidateSeat===1)&&
+    (opponentSeat===0||opponentSeat===1)&&candidateSeat!==opponentSeat,
+  'candidate and opponent must occupy distinct physical seats 0 and 1');
+  return Object.freeze({candidate:candidateSeat,opponent:opponentSeat});
+}
+
 function withCandidateOpponentPolicyRoles(run,options) {
   assert.equal(typeof run,'function','run must be a synchronous match callback');
   assert.ok(plainObject(options),'role policy options must be a plain object');
@@ -103,9 +110,7 @@ function withCandidateOpponentPolicyRoles(run,options) {
     candidateSeat,opponentSeat,commonDeps,
     candidatePolicyOptions={},opponentPolicyOptions={}
   }=options;
-  assert.ok((candidateSeat===0||candidateSeat===1)&&
-    (opponentSeat===0||opponentSeat===1)&&candidateSeat!==opponentSeat,
-  'candidate and opponent must occupy distinct physical seats 0 and 1');
+  const roleSeatMap=candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   assert.ok(plainObject(commonDeps),'commonDeps must be a plain object');
   assertNoDiagnosticFallbackFlags(commonDeps,'commonDeps');
   assert.ok(plainObject(candidatePolicyOptions)&&plainObject(opponentPolicyOptions),
@@ -157,10 +162,10 @@ function withCandidateOpponentPolicyRoles(run,options) {
   }
 
   const candidateDeps={
-    ...commonDeps,...candidatePolicyOptions,policyOwnerSeat:candidateSeat,peerRoleDispatch:true
+    ...commonDeps,...candidatePolicyOptions,policyOwnerSeat:roleSeatMap.candidate,peerRoleDispatch:true
   };
   const opponentDeps={
-    ...commonDeps,...opponentPolicyOptions,policyOwnerSeat:opponentSeat,peerRoleDispatch:false
+    ...commonDeps,...opponentPolicyOptions,policyOwnerSeat:roleSeatMap.opponent,peerRoleDispatch:false
   };
   const opponentWrapped=withActorOnlyRootPolicy(()=>{
     return withActorOnlyRootPolicy(()=>{
@@ -177,7 +182,7 @@ function withCandidateOpponentPolicyRoles(run,options) {
   // throw away a completed native result merely because the policy audit fails.
   const actorOnlyBoundary=inspectActorOnlyExecutionBoundary({
     candidateAudit:candidateWrapped.audit,opponentAudit:opponentWrapped.audit,
-    candidateSeat,opponentSeat
+    candidateSeat:roleSeatMap.candidate,opponentSeat:roleSeatMap.opponent
   });
   // Preserve the native match result even when the policy audit is not
   // competence-eligible. The receipt/evaluator bind this failed boundary and
@@ -187,8 +192,8 @@ function withCandidateOpponentPolicyRoles(run,options) {
     result:candidateWrapped.result,
     candidateAudit:candidateWrapped.audit,
     opponentAudit:opponentWrapped.audit,
-    roleSeatMap:{candidate:candidateSeat,opponent:opponentSeat}
+    roleSeatMap
   };
 }
 
-module.exports={withCandidateOpponentPolicyRoles,assertNoDiagnosticFallbackFlags,inspectActorOnlyExecutionBoundary};
+module.exports={candidateOpponentRoleSeats,withCandidateOpponentPolicyRoles,assertNoDiagnosticFallbackFlags,inspectActorOnlyExecutionBoundary};
