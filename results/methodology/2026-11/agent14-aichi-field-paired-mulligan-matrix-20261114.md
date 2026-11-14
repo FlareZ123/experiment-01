@@ -139,3 +139,14 @@ Static source inspection at the repository's recorded Twinleaf gitlink `a9905a76
 4. The first player receives a `WANT_TO_DRAW_CARDS` `SelectPrompt` with choices from zero through the difference in mulligan counters. The chosen number is moved from deck to hand, and the engine then offers extra Bench placement for newly drawn Basics. The mirrored branch does the same for the other seat.
 
 This matches the mathematical model's one-sided failure count after shared resets and preserves the optional nature of the bonus draw. No Twinleaf hook or patch is indicated for this specific setup rule at the pinned revision. This is static source inspection, not a runtime integration test; it does not validate every setup-tagged card or any competitive game outcome. The separate alternative-setup path is not the normal seven-card path modeled here.
+
+
+## Prompt-v3 projection and candidate-policy handoff
+
+Read-only inspection of `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` confirms that the existing host projection is sufficient for this native prompt; no new choice-value schema field is needed:
+
+- `projectSimplePrompt` projects a native `SelectPrompt` into choice tokens, labels and `publicMetadata.choiceIndex`; prompt-level metadata includes the number of choices. The opaque token maps to the native option index.
+- `dispatchPromptSelection` passes that index to the native `SelectPrompt` callback.
+- In the pinned setup reducer, `WANT_TO_DRAW_CARDS` options are built in **descending** order: `extraDraws, extraDraws-1, ..., 0`, with labels `Draw i card(s)` and native values `i`. Therefore, for this specific prompt, `drawCount = choiceCount - 1 - choiceIndex`; the visible label is a cross-check. Do not equate `choiceIndex` directly with draw count.
+
+A separate, concrete policy gap remains: Agent46's current candidate policy `choosePrompt` accepts `SelectPrompt` only when there is one choice and otherwise abstains with `AMBIGUOUS_SIMPLE_PROMPT`. It therefore does not yet make the multi-choice `WANT_TO_DRAW_CARDS` decision. A narrow candidate-policy branch can recognize the engine setup prompt and select the token corresponding to a deliberate draw count using the existing `choiceIndex`, choice count and descending labels. This requires no host-schema change or new fixture. The policy choice itself may depend on hand-disruption considerations; this report does not prescribe taking the maximum.
