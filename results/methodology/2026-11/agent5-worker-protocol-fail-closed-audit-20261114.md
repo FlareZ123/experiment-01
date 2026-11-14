@@ -52,15 +52,13 @@ The producer `agent7-copycat-history-root.cjs` returns only zero choices, one un
 
 Require zero or one unpaired row, or exactly two rows with the same pair index, first/second roles, same source printing and distinct attack names. Reject duplicate signatures and independent two-row choices. Retain history-membership, turn-stamp, eligibility and compatibility checks.
 
-### 5. Suppression information is incomplete in the production actor observation
+### 5. Suppression information is partially projected, but the worker schema still permits omission
 
-`visiblePokemon()` emits printed abilities and ability details but no `abilitySuppressions`. `publicPlayer()` omits `stadiumAndToolHaveNoEffectTurnsRemaining`. The worker currently allows both to be absent.
+`visiblePokemon()` still emits printed abilities/details but no `abilitySuppressions`. Keep this array optional until a trusted source-attribution resolver exists: the pinned `IS_ABILITY_BLOCKED()` helper returns only a boolean and does not provide a reason/source printing. When rows are present, require complete coverage of visible Abilities and preserve explicit unknown; absence also means unknown, never “live.” Consumers must fail closed or abstain when the fact matters.
 
-Keep `abilitySuppressions` optional until a trusted source-attribution resolver exists: the pinned `IS_ABILITY_BLOCKED()` helper returns only a boolean and does not provide a reason/source printing. When suppression rows are present, the validator already requires complete coverage of every visible Ability and accepts an explicit unknown row (`suppressed:null`, null reason/source). Absence must also mean unknown, never “live”; a policy that depends on the missing fact must abstain. Do not fabricate suppression sources merely to populate the array.
+Agent8 has now added `stadiumAndToolHaveNoEffectTurnsRemaining` to `publicPlayer()` as an actual non-negative integer or null, with actor-view tests proving both physical players' values are mapped correctly (commits `9eee07eaccb77525388f08ab4097f47da64901bd` and `1b39faf9b46e9b52cd2708d34d7587eb2dadb7bd`). The worker schema still lists this field in `PLAYER_RESTRICTION_OPTIONAL_KEYS`, so omission remains accepted. Remove it from the optional list; retain the existing non-negative safe-integer validation. A producer null for malformed source state should fail validation, not be accepted as a normal observation.
 
-The Stadium/Tool epoch is different: it is a direct numeric field on each pinned Twinleaf Player. Emit the actual non-negative integer for both public players and make it required in the worker schema. Do not default a missing value to zero. If the adapter genuinely cannot read it, fail closed.
-
-The global epoch rule is: any known positive player epoch proves Stadium effects are suppressed; only when neither is positive does a missing/invalid value make the result unknown; both known zero means no epoch-based suppression. New Moon (Lunatone OBF + Solrock CES) is a separate directional mechanism: the actor's own pair suppresses Stadium effects on the actor's Pokémon, while an opponent-only pair does not. Make Stadium-effect evaluation recipient-seat-aware and include the actor-side pair before applying Fairy Zone, Dimension Valley, or other Stadium-dependent effects.
+The pinned engine's global epoch rule is: any known positive player epoch proves Stadium effects are suppressed; only if neither is positive does a missing/invalid epoch make the result unknown; both known zero means no epoch-based suppression. New Moon (Lunatone OBF + Solrock CES) is separate and directional: the actor's own pair suppresses Stadium effects on actor Pokémon, while an opponent-only pair does not. A printed New Moon Ability is not proof that it is active; without a trusted explicit `suppressed:false` fact, treat its activity as unknown.
 
 ### 6. Pokémon prompt choices lose the native target slot index
 
