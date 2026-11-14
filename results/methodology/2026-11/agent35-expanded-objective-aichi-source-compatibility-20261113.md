@@ -47,3 +47,19 @@ Recommended correction for Agent43/44/12:
 The current Agent36/Agent49 fixture is an international Expanded engineering diagnostic. It is not a physical paper match, does not establish rank-1 paper legality, and contributes zero competitive matchup observations. It cannot repair the five source-field incompatibilities or qualify the missing ranks.
 
 Current decision remains: **no final fixed 60 selected, zero competitively paper-qualified games, and no demonstrated 99.5% field win rate**. Preserve all original source evidence and all Japanese Extra research; do not promote a cross-format result as Expanded performance.
+
+## 14 November clarification: core ruleset alignment and diagnostic field closure
+
+The format distinction should not be overstated as a broad card-pool or banned-list mismatch.
+
+- The official Japanese Extra page (updated 19 February 2026) defines Extra as the BW series through the latest series and lists 27 banned card entries: https://www.pokemon-card.com/rules/regulation/
+- The Play! Pokémon TCG Tournament Handbook (revision 1 September 2026) defines Expanded using BW series expansions plus later regulation marks, and permits older printings when the name is identical and the card text is functionally identical (§4.1.3): https://assets.pokemon.com/assets/cms2/pdf/play-pokemon/rules/play-pokemon-tcg-tournament-handbook-en.pdf
+- The Japanese Extra and current English Expanded banned-card identity-name sets align at 27 entries in the current references. Keep the independently sourced English Expanded exact-printing overlay authoritative for international Expanded; do not infer that the Japanese and English printing/errata scopes are identical merely from matching names. The English overlay and its eight stale bundled-card flags are documented in `results/aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md`.
+- The official Aichi event source still controls its local conditions: Open League used Japanese Extra and required Japanese-language cards, 60 cards and six Prizes. See `results/aichi-2026/2026-11/agent12-official-format-rules-and-mulligan-20261107.md`.
+
+The remaining substantive unchanged-list incompatibility is therefore not a general Extra-vs-Expanded banlist divergence: ranks **3, 6, 7, 24 and 29** contain Player's Ceremony, Palace Book and/or Palace Belt, Japanese-only identities without international Expanded printings. Ranks **23, 25 and 28** remain missing. The event's Japanese-language/physical-print contract also remains distinct from an international Expanded paper reconstruction.
+
+The 24 other authenticated lists have since passed an **identity-level English Expanded diagnostic screen**: card identity, deck construction and the current banlist overlay pass, with 24 normalized 60-card diagnostic lists emitted by Agent39's generator. See `results/aichi-2026/2026-11/agent48-reprint-rule-identity-vs-print-diagnostic-proposal-20261113.md`. This supersedes the earlier statement above that those 24 still require the complete identity/banlist review. Their exact original physical Japanese copies remain unverified, so these lists remain `identity_normalized_expanded_diagnostic_only`, not original-source paper-admitted opponents.
+
+This clarification does not decide the owner-controlled estimand choice between strict Expanded-vs-Expanded and candidate-only Expanded versus unchanged Japanese Extra opponents. It changes neither the 5 incompatible ranks nor the 3 missing ranks, and it supplies no matchup or win-rate evidence.
+
