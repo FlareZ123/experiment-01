@@ -145,7 +145,7 @@ This matches the mathematical model's one-sided failure count after shared reset
 
 Read-only inspection of `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` confirms that the existing host projection is sufficient for this native prompt; no new choice-value schema field is needed:
 
-- `projectSimplePrompt` projects a native `SelectPrompt` into choice tokens, labels and `publicMetadata.choiceIndex`; prompt-level metadata includes the number of choices. The opaque token maps to the native option index.
+- `projectSimplePrompt` projects a native `SelectPrompt` into choice tokens, labels and `publicMetadata.choiceIndex`; prompt-level metadata includes the number of choices. The opaque token maps to the native option index. `makeSource` marks it as `sourceKind: 'engine'`, and the projected description is the native message. At the pinned `ptcg-server/src/game/game-message.ts`, `GameMessage.WANT_TO_DRAW_CARDS` is the exact string `WANT_TO_DRAW_CARDS`.
 - `dispatchPromptSelection` passes that index to the native `SelectPrompt` callback.
 - In the pinned setup reducer, `WANT_TO_DRAW_CARDS` options are built in **descending** order: `extraDraws, extraDraws-1, ..., 0`, with labels `Draw i card(s)` and native values `i`. Therefore, for this specific prompt, `drawCount = choiceCount - 1 - choiceIndex`; the visible label is a cross-check. Do not equate `choiceIndex` directly with draw count.
 
