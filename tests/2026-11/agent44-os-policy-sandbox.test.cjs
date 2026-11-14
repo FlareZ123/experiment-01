@@ -13,43 +13,36 @@ const {
   sha256
 }=require('../../simulation/evaluation/2026-11/agent44-os-policy-sandbox.cjs');
 
-function readWorkerResponse(child,timeoutMs=15000){
-  let stderr='';
+function readWorkerResponses(child,expectedCount=2,timeoutMs=15000){
+  let stdout='',stderr='';
+  child.stdout.setEncoding('utf8');
   child.stderr.setEncoding('utf8');
+  child.stdout.on('data',chunk=>{stdout+=chunk;});
   child.stderr.on('data',chunk=>{stderr+=chunk;});
-  const closePromise=new Promise(resolve=>{
-    child.once('close',(code,signal)=>resolve({code,signal}));
-  });
-  const linePromise=new Promise((resolve,reject)=>{
-    let stdout='';
+  return new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>{
       child.kill('SIGKILL');
       reject(new Error('policy sandbox canary timed out; stderr='+stderr));
     },timeoutMs);
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data',chunk=>{
-      stdout+=chunk;
-      const index=stdout.indexOf('\n');
-      if(index>=0){
-        clearTimeout(timer);
-        resolve(stdout.slice(0,index));
-      }
-    });
     child.once('error',error=>{
       clearTimeout(timer);
       reject(error);
     });
     child.once('close',(code,signal)=>{
-      if(!stdout.includes('\n')){
-        clearTimeout(timer);
-        reject(new Error('sandbox closed without JSON response code='+code+
-          ' signal='+signal+' stderr='+stderr));
+      clearTimeout(timer);
+      if(code!==0){
+        reject(new Error('sandbox exit code='+code+' signal='+signal+' stderr='+stderr));
+        return;
       }
+      const lines=stdout.trimEnd().split('\n');
+      if(lines.length!==expectedCount){
+        reject(new Error('expected '+expectedCount+' NDJSON responses, got '+lines.length+
+          '; stdout='+stdout+' stderr='+stderr));
+        return;
+      }
+      try{resolve(lines.map(line=>JSON.parse(line)));}
+      catch(error){reject(error);}
     });
-  });
-  return Promise.all([linePromise,closePromise]).then(([line,close])=>{
-    assert.equal(close.code,0,'sandbox exit '+JSON.stringify(close)+' stderr='+stderr);
-    return JSON.parse(line);
   });
 }
 
@@ -116,7 +109,7 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
       process.env.AGENT36_PHYSICAL_SEED_HEX='must-not-cross-policy-boundary';
       assert.equal(typeof hostPhysicalRandom,'function');
       const runWorker=async(seat,permissionModel)=>{
-        const request={
+        const baseRequest={
           forbiddenPaths,
           hostProcPath,
           hostPort:server.address().port,
@@ -131,54 +124,62 @@ test('policy worker is isolated by Linux namespaces/chroot; Node permissions are
           timeoutMs:20000
         });
         activeChildren.push(child);
-        child.stdin.end(JSON.stringify(request)+'\n');
-        return readWorkerResponse(child);
+        child.stdin.end([0,1].map(sequence=>
+          JSON.stringify({...baseRequest,sequence})
+        ).join('\n')+'\n');
+        return readWorkerResponses(child,2);
       };
 
-      // Both physical seats must pass the OS-only canary independently.
-      // Child processes/threads may exist in this mode, but they remain in
-      // the same isolated namespaces and cannot read host files or network.
+      // One persistent NDJSON worker per physical seat and permission mode.
+      // The two requests prove the same process handles sequential decisions.
       for(const seat of [0,1]){
-        const osReport=await runWorker(seat,false);
-        assert.equal(osReport.seat,seat);
-        assert.equal(osReport.policySeed,'policy-seat-'+seat+'-only');
-        assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
-        assert.equal(osReport.cwd,'/');
-        assert.equal(osReport.procVisible,false);
-        assert.equal(osReport.repoVisible,false);
-        assertDeniedReads(osReport.hostFiles);
-        assert.equal(osReport.hostProc.ok,false);
-        assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
-        assert.equal(osReport.rootWrite.ok,false);
-        assert.ok(['EROFS','EACCES','EPERM'].includes(osReport.rootWrite.code));
-        assert.equal(osReport.tmpWrite.ok,true);
-        if(osReport.childProcess.ok){
-          assert.equal(osReport.childProcess.value.status,0);
-          assertDeniedReads(JSON.parse(osReport.childProcess.value.stdout));
-        }else{
-          assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.childProcess.code));
+        const osReports=await runWorker(seat,false);
+        assert.equal(osReports.length,2);
+        for(const osReport of osReports){
+          assert.equal(osReport.seat,seat);
+          assert.ok([0,1].includes(osReport.sequence));
+          assert.equal(osReport.policySeed,'policy-seat-'+seat+'-only');
+          assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
+          assert.equal(osReport.cwd,'/');
+          assert.equal(osReport.procVisible,false);
+          assert.equal(osReport.repoVisible,false);
+          assertDeniedReads(osReport.hostFiles);
+          assert.equal(osReport.hostProc.ok,false);
+          assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
+          assert.equal(osReport.rootWrite.ok,false);
+          assert.ok(['EROFS','EACCES','EPERM'].includes(osReport.rootWrite.code));
+          assert.equal(osReport.tmpWrite.ok,true);
+          if(osReport.childProcess.ok){
+            assert.equal(osReport.childProcess.value.status,0);
+            assertDeniedReads(JSON.parse(osReport.childProcess.value.stdout));
+          }else{
+            assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.childProcess.code));
+          }
+          if(osReport.workerThread.ok)assertDeniedReads(osReport.workerThread.value);
+          else assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.workerThread.code));
+          assert.equal(osReport.network.ok,false);
+          assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
+          assert.equal(hostConnections,0);
+          assert.equal(physicalRandomCalls,0);
         }
-        if(osReport.workerThread.ok)assertDeniedReads(osReport.workerThread.value);
-        else assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.workerThread.code));
-        assert.equal(osReport.network.ok,false);
-        assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
-        assert.equal(hostConnections,0);
-        assert.equal(physicalRandomCalls,0);
 
-        // Node Permission Model is an extra seatbelt, not the security claim.
-        const permissionReport=await runWorker(seat,true);
-        assert.equal(permissionReport.seat,seat);
-        assert.equal(permissionReport.policySeed,'policy-seat-'+seat+'-only');
-        assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
-        assertDeniedReads(permissionReport.hostFiles);
-        assert.equal(permissionReport.childProcess.ok,false);
-        assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
-        assert.equal(permissionReport.workerThread.ok,false);
-        assert.equal(permissionReport.workerThread.code,'ERR_ACCESS_DENIED');
-        assert.equal(permissionReport.network.ok,false);
-        assert.equal(permissionReport.tmpWrite.ok,true);
-        assert.equal(hostConnections,0);
-        assert.equal(physicalRandomCalls,0);
+        const permissionReports=await runWorker(seat,true);
+        assert.equal(permissionReports.length,2);
+        for(const permissionReport of permissionReports){
+          assert.equal(permissionReport.seat,seat);
+          assert.ok([0,1].includes(permissionReport.sequence));
+          assert.equal(permissionReport.policySeed,'policy-seat-'+seat+'-only');
+          assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
+          assertDeniedReads(permissionReport.hostFiles);
+          assert.equal(permissionReport.childProcess.ok,false);
+          assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
+          assert.equal(permissionReport.workerThread.ok,false);
+          assert.equal(permissionReport.workerThread.code,'ERR_ACCESS_DENIED');
+          assert.equal(permissionReport.network.ok,false);
+          assert.equal(permissionReport.tmpWrite.ok,true);
+          assert.equal(hostConnections,0);
+          assert.equal(physicalRandomCalls,0);
+        }
       }
     }finally{
       for(const child of activeChildren){
