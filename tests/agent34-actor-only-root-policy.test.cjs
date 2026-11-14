@@ -35,8 +35,12 @@ const base=()=>({
   ownPublic:{
     active:{energies:[],attacks:[{name:'Shadow Mist',cost:[5],gxAttack:false}],
       specialConditions:[],publicRestrictions:{}},
-    bench:[null,null,null,null,null],publicTurnRestrictions:{attackLockTurnsRemaining:0}
+    bench:[null,null,null,null,null],stadium:[],
+    publicTurnRestrictions:{attackLockTurnsRemaining:0,
+      stadiumAndToolHaveNoEffectTurnsRemaining:0}
   },
+  opponentPublic:{active:null,bench:[],stadium:[],
+    publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
   ownTurnResources:{
     energyPlayedTurn:0,energyPlayLocked:false,pokemonPlayLocked:false
   }
@@ -1349,7 +1353,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     threePrizePokemonPrintings:new Set([
       'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX'
     ]),
-    dragonPokemonPrintings:new Set(['Dratini SIT 129','Arceus & Dialga & Palkia GX CEC'])};
+    dragonPokemonPrintings:new Set(['Dratini SIT 129',
+      'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
     blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
@@ -1604,11 +1609,19 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     suppressedSkylinerView,postTimelessCatalog,{ownerSeat:0}),null,
     'a proven-suppressed Skyliner cannot establish the extra-turn line');
 
+  const fairyZoneTarget={
+    printing:'Synthetic Psychic-weak VMAX',hp:221,damage:0,
+    energies:[],attacks:[],abilities:[],abilityDetails:[],tools:[],
+    publicRestrictions:{},specialConditions:[],
+    printed:{stage:'VMAX',types:[11],weakness:[],resistance:[]}
+  };
   const unknownFairyZoneView={
     ...terminalWithRadiantLatias,
     ownPublic:{...terminalWithRadiantLatias.ownPublic,
       bench:[latias,{...clefairy,abilitySuppressions:[{abilityName:'Fairy Zone',
-        suppressed:null,reasonCode:null,sourcePrinting:null}]},sevenPsychicVmax]}
+        suppressed:null,reasonCode:null,sourcePrinting:null}]},sevenPsychicVmax]},
+    opponentPublic:{...terminalWithRadiantLatias.opponentPublic,
+      active:fairyZoneTarget}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
     unknownFairyZoneView,postTimelessCatalog,{ownerSeat:0}),null,
@@ -1619,11 +1632,28 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ownPublic:{...terminalWithRadiantLatias.ownPublic,
       bench:[latias,{...clefairy,abilitySuppressions:[{abilityName:'Fairy Zone',
         suppressed:true,reasonCode:'TEST_SUPPRESSION',sourcePrinting:'Test Suppressor'}]},
-        sevenPsychicVmax]}
+        sevenPsychicVmax]},
+    opponentPublic:{...terminalWithRadiantLatias.opponentPublic,
+      active:fairyZoneTarget}
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(
     suppressedFairyZoneView,postTimelessCatalog,{ownerSeat:0}),null,
     'a proven-suppressed candidate Fairy Zone cannot supply the Dragon Weakness multiplier');
+
+  const liveFairyZoneView={
+    ...terminalWithRadiantLatias,
+    ownPublic:{...terminalWithRadiantLatias.ownPublic,
+      bench:[latias,{...clefairy,abilitySuppressions:[{abilityName:'Fairy Zone',
+        suppressed:false,reasonCode:null,sourcePrinting:null}]},sevenPsychicVmax]},
+    opponentPublic:{...terminalWithRadiantLatias.opponentPublic,
+      active:fairyZoneTarget}
+  };
+  const liveFairyZoneIntent=choosePostTimelessMaxGeistRetreat(
+    liveFairyZoneView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(liveFairyZoneIntent,
+    'a source-consistent live Fairy Zone can supply the Dragon Weakness multiplier');
+  assert.equal(liveFairyZoneIntent.fairyZoneMultiplier,2);
+  assert.equal(liveFairyZoneIntent.projectedDamage,440);
 
   const sixPsychicVmax={...vmax,energies:[psychic,psychic,psychic,psychic]};
   const sixEnergyNoCrossover={
