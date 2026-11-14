@@ -261,12 +261,13 @@ function validatePublicPlayer(player, allowConcealed) {
 }
 function validateActorObservation(view, seat) {
   exactKeys(view, ACTOR_KEYS);
-  if (view.actorSeat !== seat || !Number.isSafeInteger(view.globalTurn) ||
-      !Number.isSafeInteger(view.phase) || !['owner-root', 'owner-prompt'].includes(view.decisionKind) ||
+  if (view.actorSeat !== seat || !Number.isSafeInteger(view.globalTurn) || view.globalTurn < 0 ||
+      !Number.isSafeInteger(view.phase) || view.phase < 0 || !['owner-root', 'owner-prompt'].includes(view.decisionKind) ||
       typeof view.pendingOwnerDeckSearch !== 'boolean') fail('BAD_ACTOR_OBSERVATION');
   if (view.pendingPromptType !== null && !boundedString(view.pendingPromptType, /^[A-Za-z][A-Za-z0-9._-]{0,95}$/)) fail('BAD_PENDING_PROMPT_TYPE');
   if (view.decisionKind === 'owner-root' && (view.pendingPromptType !== null || view.pendingOwnerDeckSearch)) fail('ROOT_HAS_PENDING_PROMPT');
   if (view.decisionKind === 'owner-prompt' && view.pendingPromptType === null) fail('PROMPT_TYPE_MISSING');
+  if (view.pendingOwnerDeckSearch && (view.decisionKind !== 'owner-prompt' || view.pendingPromptType !== 'ChooseCardsPrompt')) fail('BAD_OWNER_DECK_SEARCH_FLAG');
   stringArray(view.ownHand);
   validatePublicPlayer(view.ownPublic, false);
   validatePublicPlayer(view.opponentPublic, view.phase === 0 || view.phase === 1);
