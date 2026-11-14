@@ -425,15 +425,15 @@ test('Docker OS canary worker is isolated from host capabilities in both seats',
       { role: 'opponent', seat: 1, permissionModel: true }
     ];
     for (const combination of combinations) {
-      const previousMathRandom=Math.random;
-    let workerResult;
-    try {
-      Math.random=hostPhysicalRandom;
-      workerResult=await runCanaryWorker({ bundle, ...combination });
-    } finally {
-      Math.random=previousMathRandom;
-    }
-    const { responses, launcherPid, stderr } = workerResult;
+      const previousMathRandom = Math.random;
+      let workerResult;
+      try {
+        Math.random = hostPhysicalRandom;
+        workerResult = await runCanaryWorker({ bundle, ...combination });
+      } finally {
+        Math.random = previousMathRandom;
+      }
+      const { responses, launcherPid, stderr } = workerResult;
       const report = parseCanaryReport(stderr);
       assert.ok(Number.isSafeInteger(report.workerPid) && report.workerPid > 0);
       assert.ok(Number.isSafeInteger(launcherPid) && launcherPid > 0);
