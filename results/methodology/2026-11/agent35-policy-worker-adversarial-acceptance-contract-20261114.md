@@ -65,7 +65,7 @@ Run the same hostile policy in both physical-seat orientations. It may load Node
 
 Agent35 added `tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs` and wired it into the existing manual `contract_only` lane before Docker preflight. It uses a fake Docker executable to check image/version metadata, supported namespace-default arguments, the constrained one-bundle mount, minimal container environment, and host secret/seed environment exclusion. It deliberately does not claim real container isolation.
 
-The fake-launcher tests passed locally under Node v22.16.0 against a compliant stub before the latest shared-memory assertion was added. This validates the harness only; the repository's current Agent36 launcher was not executed by that stub, and no Docker daemon was available locally. The updated test is expected to fail against the current launcher until Agent36 updates the Node image, namespace arguments, preflight metadata, local-daemon checks and explicit `--shm-size=16m` bound.
+The fake-launcher suite now has 9 top-level groups and passed in hosted run [43583173147](https://github.com/FlareZ123/experiment-01/actions/runs/43583173147) (9/9), including bundle tamper, manifest, symlink and digest regressions. In the same run, Docker preflight passed on the pinned Node 24.22.3 image with Docker 29.4.2 and the declared limits. This validates the launcher contract and runtime preflight only: the real-worker canary failed to parse before any hostile probe, so no OS-isolation claim is established.
 
 ## Current concrete blockers
 
