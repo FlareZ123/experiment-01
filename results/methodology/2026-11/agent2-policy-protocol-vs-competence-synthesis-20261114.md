@@ -15,6 +15,8 @@ Two independent source-level audits found high-impact gaps:
 
 These are static source/test observations. No games or CI were run for this synthesis, and neither audit claims the decks are weak or strong.
 
+The rank1 primary-V omission is not a rare corner case: with 3 Shadow Rider V among 60 and 14 Basics total, exact hypergeometric calculation gives 36.62% of keepable opening 7-card hands containing a V; **63.38% of keepable hands lack one**. This is not a game win-rate estimate, but it quantifies the setup exposure created by a missing Basic-play action.
+
 ## Systemic conclusion
 
 A policy can be:
