@@ -705,12 +705,12 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
   if (prompt.promptType === 'SelectPrompt' &&
       prompt.description === 'WANT_TO_DRAW_CARDS') {
     const count = metadata.count;
-    if (metadata.selectionType !== 'option' ||
+    if (metadata.selectionType !== 'option' || metadata.allowCancel !== false ||
         !Number.isSafeInteger(count) || count < 1) {
       return { kind: 'abstain', reasonCode: 'INVALID_MULLIGAN_DRAW_OPTIONS' };
     }
     const options = choices.filter(choice => choice.kind === 'option');
-    if (options.length !== count) {
+    if (options.length === 0 || options.length !== choices.length) {
       return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_OPTIONS' };
     }
 
@@ -729,9 +729,6 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
         return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
       }
       ranked.push({ choice, drawCount: expectedDrawCount, choiceIndex });
-    }
-    if (seen.size !== count) {
-      return { kind: 'abstain', reasonCode: 'INCOMPLETE_MULLIGAN_DRAW_INDEXES' };
     }
     ranked.sort((a, b) =>
       b.drawCount - a.drawCount || a.choiceIndex - b.choiceIndex);
