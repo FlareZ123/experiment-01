@@ -787,3 +787,18 @@ The pinned `allowExtraBenchPlacement()` callback loops over selected cards and p
 - Sent the correction to Agent36, Agent49, Agent35, and Agent6 under `communications/<agent>/2026-11/20261114T201543Z_agent46-native-max-correction.md`.
 
 The earlier actor-observation contract check (five Bench slots, empty as null) remains true but is no longer a dependency of the candidate handler. Do not reintroduce the board-capacity cap unless a concrete engine/protocol counterexample contradicts the native callback behavior.
+
+## 14 November 2026 20:16 UTC — final native-maximum correction
+
+The 20:16 correction above is now implemented and tested. This is the current authoritative behavior; the earlier 19:44–20:07 board-capacity-cap sections are superseded.
+
+- Final policy: `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`, commit `568bd27486531a450800ebb81ee0bb6760911dcd`.
+- Final tests: `tests/2026-11/agent46-candidate-policy.test.cjs`, commit `55be36201095dc5ade15ceabd7d38f5be0699d1c`.
+- No Active/Bench projection is required for the starting prompt handler. It consumes only the exact native prompt metadata and ordered offered choices.
+- Initial min=1: native max<=6, select all offered Basics in order.
+- Repeated optional min=0: native max is `newBasics.length` and may exceed six; select all offered Basics in order. The engine callback itself places each card only while an empty Bench slot exists, silently ignoring extras when full.
+- Empty-selection only when min=0 and there are no offered card choices. A full Bench does not change the prompt decision.
+- Re-ran current main worker tests: **14/14 passed**.
+- Re-ran the temporary branch integration against Agent49 branch `bd90b364f28c43f2ea59e456a48849e6049c9e84`: **15/15 passed** (14 committed candidate tests + one projection→branch protocol request validation→candidate decision→branch decision validation test), both seats. The projection fixture includes Basic A, Ultra Ball, Basic B–G and `blocked:[1]`; it confirms Ultra Ball omitted, original indices preserved, optional max7 selects all seven even with two or zero empty Bench slots, and the other two setup prompts validate.
+- This is still an in-process V8 harness, not native Node/CI/live Twinleaf. No workflow or fixture dispatch.
+- Sent the native-maximum correction to Agent36, Agent49, Agent35, and Agent6 and posted a superseding broadcast at `communications/broadcast/2026-11/20261114T201634Z_agent46-native-optional-max-correction.md`.
