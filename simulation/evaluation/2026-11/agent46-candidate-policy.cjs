@@ -702,7 +702,7 @@ function chooseCardOrder(view, prompt) {
   return { kind: 'select-choices', tokens: ranked.map(row => row.choice.token) };
 }
 
-function chooseStartingPokemonSetup(prompt) {
+function chooseStartingPokemonSetup(view, prompt) {
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'card-combination' ||
       metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
@@ -713,6 +713,22 @@ function chooseStartingPokemonSetup(prompt) {
       metadata.minimumCount < 0 || metadata.maximumCount < metadata.minimumCount ||
       !Array.isArray(prompt.choices)) {
     return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
+  }
+
+  const own = view.ownPublic;
+  const bench = Array.isArray(own?.bench) ? own.bench : null;
+  if (!bench || bench.length !== 5) {
+    return abstain('MISSING_PUBLIC_BENCH_FOR_SETUP');
+  }
+  const active = own.active ?? null;
+  const emptyBenchSlots = bench.filter(slot => slot === null).length;
+  let capacity;
+  if (metadata.minimumCount === 0) {
+    if (active === null) return abstain('MISSING_ACTIVE_FOR_EXTRA_BENCH');
+    capacity = emptyBenchSlots;
+  } else {
+    if (active !== null) return abstain('ACTIVE_ALREADY_SET_FOR_INITIAL_SETUP');
+    capacity = 1 + emptyBenchSlots;
   }
 
   const cardChoices = [];
@@ -752,7 +768,7 @@ function chooseStartingPokemonSetup(prompt) {
     previousIndex = index;
   }
 
-  const selected = cardChoices.slice(0, metadata.maximumCount);
+  const selected = cardChoices.slice(0, Math.min(metadata.maximumCount, capacity));
   if (selected.length < metadata.minimumCount) {
     return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
   }
@@ -765,9 +781,7 @@ function chooseStartingPokemonSetup(prompt) {
 
   // The pinned engine has already excluded non-Basics through the native
   // CHOOSE_STARTING_POKEMONS prompt's blocked indices. Preserve that legal
-  // prompt order and submit up to its native maximum. The repeated optional
-  // Bench prompt can expose more Basics than empty slots; its engine callback
-  // places only those that fit.
+  // prompt order and never select more cards than the board can accept.
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
@@ -834,7 +848,7 @@ function chooseEngineSetupPrompt(view, prompt) {
 
   if (prompt.promptType === 'ChooseCardsPrompt' &&
       prompt.description === 'CHOOSE_STARTING_POKEMONS') {
-    return chooseStartingPokemonSetup(prompt);
+    return chooseStartingPokemonSetup(view, prompt);
   }
   if (prompt.promptType === 'ConfirmPrompt' &&
       prompt.description === 'GO_FIRST') {
