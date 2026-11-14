@@ -147,9 +147,9 @@ function turnResources() {
 
 function observation(options = {}) {
   return {
-    actorSeat: 0,
+    actorSeat: options.actorSeat ?? 0,
     globalTurn: options.globalTurn ?? 3,
-    phase: 2,
+    phase: options.phase ?? 2,
     decisionKind: options.prompt ? 'owner-prompt' : 'owner-root',
     pendingPromptType: options.prompt?.promptType ?? null,
     pendingOwnerDeckSearch: false,
@@ -191,9 +191,10 @@ function actorChoiceSource(sourcePrinting, effectName) {
 }
 
 function promptRequest(options = {}) {
+  const actorSeat = options.actorSeat ?? options.observation?.actorSeat ?? 0;
   const prompt = {
     schema: protocol.PROMPT_SCHEMA,
-    actingSeat: 0,
+    actingSeat: actorSeat,
     promptType: options.promptType,
     description: options.description ?? 'Choose a legal option',
     source: options.source,
@@ -202,6 +203,7 @@ function promptRequest(options = {}) {
   };
   const obs = observation({
     ...(options.observation ?? {}),
+    actorSeat,
     prompt
   });
   return {
@@ -210,7 +212,7 @@ function promptRequest(options = {}) {
     requestId: options.requestId ?? 'agent6-prompt-1',
     sequence: options.sequence ?? 1,
     role: 'opponent',
-    seat: 0,
+    seat: actorSeat,
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: obs,
     prompt,
@@ -223,8 +225,16 @@ function promptRequest(options = {}) {
 }
 
 function checkedDecision(request) {
-  const validated = protocol.validateRequest(request, init, request.sequence, new Set());
-  const decision = policy.decide(request);
+  const seat = request.seat;
+  const activeInit = { ...init, seat };
+  const activePolicy = seat === 0 ? policy : createPolicy({
+    role: 'opponent',
+    seat,
+    policyVersion: POLICY_VERSION,
+    config: {}
+  });
+  const validated = protocol.validateRequest(request, activeInit, request.sequence, new Set());
+  const decision = activePolicy.decide(request);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
   return decision;
 }
@@ -1941,4 +1951,396 @@ test('Field Blower is not prioritized when a visible stadium has unknown effect 
     kind: 'select-action',
     token: 'pass'
   });
+});
+
+
+function setupCardChoice(token, printing, selectionIndex = 0) {
+  return {
+    token,
+    kind: 'card',
+    printing,
+    label: printing,
+    publicMetadata: {
+      selectionIndex,
+      selectedCount: 1,
+      sourceZone: 'hand',
+      ownerSeat: 'actor',
+      isOwnerVisible: true
+    }
+  };
+}
+
+function setupMetadata(minimumCount, maximumCount) {
+  return {
+    sourceZone: 'hand',
+    minimumCount,
+    maximumCount,
+    ownerSeat: 'actor',
+    isOwnerVisible: true,
+    allowCancel: false,
+    isSecret: false,
+    selectionType: 'card-combination'
+  };
+}
+
+test('phase-1 starting Pokémon setup preserves native hand order for both physical seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('basic-first', 'Mew V CEL 6', 0),
+        setupCardChoice('rider-second', 'Shadow Rider Calyrex V CRE 74', 2),
+        setupCardChoice('basic-third', 'Lugia V SIT 138', 4)
+      ],
+      publicMetadata: setupMetadata(1, 6),
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choices',
+      tokens: ['basic-first', 'rider-second', 'basic-third']
+    });
+  }
+});
+
+test('phase-1 repeated optional Bench setup preserves all offered choices up to native max for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('first', 'Mew V CEL 6', 1),
+        setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74', 3),
+        setupCardChoice('third', 'Lugia V SIT 138', 5),
+        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60', 6),
+        { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+      ],
+      publicMetadata: setupMetadata(0, 5),
+      observation: {
+        phase: 1,
+        ownPublic: player({
+          active: pokemon('Girafarig LOT 94'),
+          bench: [
+            pokemon('Latias ex SSP 76'),
+            pokemon("Lillie's Clefairy ex JTG 56"),
+            pokemon('Dialga-GX UPR 100')
+          ]
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choices',
+      tokens: ['first', 'second', 'third', 'fourth']
+    });
+
+    const fullBench = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('unplaceable-first', 'Mew V CEL 6', 0),
+        setupCardChoice('unplaceable-second', 'Shadow Rider Calyrex V CRE 74', 2),
+        { token: 'empty-full-bench', kind: 'empty-selection', label: 'Select none' }
+      ],
+      publicMetadata: setupMetadata(0, 2),
+      observation: {
+        phase: 1,
+        ownPublic: player({
+          active: pokemon('Girafarig LOT 94'),
+          bench: [
+            pokemon('Latias ex SSP 76'),
+            pokemon("Lillie's Clefairy ex JTG 56"),
+            pokemon('Dialga-GX UPR 100'),
+            pokemon('Lugia V SIT 138'),
+            pokemon('Tapu Lele-GX GRI 60')
+          ]
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(fullBench), {
+      kind: 'select-choices',
+      tokens: ['unplaceable-first', 'unplaceable-second']
+    });
+  }
+});
+
+test('phase-1 optional Bench setup uses the empty-selection token when no Basic is offered for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
+      publicMetadata: setupMetadata(0, 5),
+      observation: {
+        phase: 1,
+        ownPublic: player({ active: pokemon('Girafarig LOT 94') })
+      }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'empty'
+    });
+  }
+});
+
+test('engine setup handling requires exact message, native prompt type, and engine source for both seats', () => {
+  const fixtures = [
+    {
+      promptType: 'ChooseCardsPrompt',
+      wrongPromptType: 'ChoosePokemonPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupCardChoice('basic', 'Mew V CEL 6', 0)],
+      publicMetadata: setupMetadata(1, 6)
+    },
+    {
+      promptType: 'ConfirmPrompt',
+      wrongPromptType: 'SelectPrompt',
+      description: 'GO_FIRST',
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' }
+    },
+    {
+      promptType: 'SelectPrompt',
+      wrongPromptType: 'ConfirmPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+        { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } }
+      ],
+      publicMetadata: { selectionType: 'option', count: 2, allowCancel: false }
+    }
+  ];
+  for (const actorSeat of [0, 1]) {
+    for (const fixture of fixtures) {
+      const base = {
+        ...fixture,
+        actorSeat,
+        observation: { phase: 1, ownPublic: player() }
+      };
+      const wrongMessage = promptRequest({
+        ...base,
+        source: actorChoiceSource(null, 'NOT_' + fixture.description)
+      });
+      assert.equal(checkedDecision(wrongMessage).kind, 'abstain',
+        fixture.description + ' must reject a mismatched source effect');
+
+      const wrongPromptType = promptRequest({
+        ...base,
+        promptType: fixture.wrongPromptType,
+        source: actorChoiceSource(null, fixture.description)
+      });
+      assert.equal(checkedDecision(wrongPromptType).kind, 'abstain',
+        fixture.description + ' must reject a mismatched native prompt type');
+
+      const wrongSourceKind = promptRequest({
+        ...base,
+        source: actorChoiceSource('Unknown Trainer XYZ', fixture.description)
+      });
+      assert.equal(checkedDecision(wrongSourceKind).kind, 'abstain',
+        fixture.description + ' must reject a card-effect source');
+    }
+  }
+});
+
+test('all three engine setup prompts fail closed outside phase 1 for both seats', () => {
+  const fixtures = [
+    {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupCardChoice('basic', 'Mew V CEL 6', 0)],
+      publicMetadata: setupMetadata(1, 6)
+    },
+    {
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' }
+    },
+    {
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        { token: 'draw-0', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+        { token: 'draw-1', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } }
+      ],
+      publicMetadata: { selectionType: 'option', count: 2, allowCancel: false }
+    }
+  ];
+  for (const actorSeat of [0, 1]) {
+    for (const fixture of fixtures) {
+      const request = promptRequest({
+        ...fixture,
+        actorSeat,
+        source: actorChoiceSource(null, fixture.description),
+        observation: { phase: 0, ownPublic: player() }
+      });
+      assert.equal(checkedDecision(request).kind, 'abstain',
+        fixture.description + ' must not be handled outside phase 1 at seat ' + actorSeat);
+    }
+  }
+});
+
+test('GO_FIRST setup chooses the explicit Yes token for both physical seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'yes'
+    });
+  }
+});
+
+test('GO_FIRST rejects cancel rows and cancel-enabled confirmation metadata for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const cancelRow = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' },
+        { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+      ],
+      publicMetadata: { selectionType: 'confirm' },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.equal(checkedDecision(cancelRow).kind, 'abstain');
+
+    const cancelEnabled = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm', allowCancel: true },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.equal(checkedDecision(cancelEnabled).kind, 'abstain');
+  }
+});
+
+test('WANT_TO_DRAW_CARDS chooses the highest visible Draw N value from the complete option list for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const choices = [4, 3, 2, 1, 0].map((drawCount, choiceIndex) => ({
+      token: 'draw-' + choiceIndex,
+      kind: 'option',
+      label: 'Draw ' + drawCount + ' card(s)',
+      publicMetadata: { choiceIndex }
+    }));
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+      choices,
+      publicMetadata: {
+        selectionType: 'option',
+        count: choices.length,
+        allowCancel: false
+      },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'draw-0'
+    });
+  }
+});
+
+test('WANT_TO_DRAW_CARDS ranks sparse options by visible labels, not count-minus-index, for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+      choices: [
+        { token: 'draw-2', kind: 'option', label: 'Draw 2 card(s)', publicMetadata: { choiceIndex: 1 } },
+        { token: 'draw-6', kind: 'option', label: 'Draw 6 card(s)', publicMetadata: { choiceIndex: 3 } },
+        { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 6 } }
+      ],
+      publicMetadata: {
+        selectionType: 'option',
+        count: 7,
+        allowCancel: false
+      },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'draw-6'
+    });
+  }
+});
+
+test('WANT_TO_DRAW_CARDS rejects unexpected cancel rows', () => {
+  const request = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 1 } },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(request).kind, 'abstain');
+});
+
+test('WANT_TO_DRAW_CARDS rejects malformed labels and duplicate native indices', () => {
+  const malformedLabel = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-invalid', kind: 'option', label: 'Draw many card(s)', publicMetadata: { choiceIndex: 1 } }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(malformedLabel).kind, 'abstain');
+
+  const duplicateIndex = promptRequest({
+    promptType: 'SelectPrompt',
+    description: 'WANT_TO_DRAW_CARDS',
+    source: actorChoiceSource(null, 'WANT_TO_DRAW_CARDS'),
+    choices: [
+      { token: 'draw-1', kind: 'option', label: 'Draw 1 card(s)', publicMetadata: { choiceIndex: 0 } },
+      { token: 'draw-0', kind: 'option', label: 'Draw 0 card(s)', publicMetadata: { choiceIndex: 0 } }
+    ],
+    publicMetadata: { selectionType: 'option', count: 2, allowCancel: false },
+    observation: { phase: 1, ownPublic: player() }
+  });
+  assert.equal(checkedDecision(duplicateIndex).kind, 'abstain');
 });
