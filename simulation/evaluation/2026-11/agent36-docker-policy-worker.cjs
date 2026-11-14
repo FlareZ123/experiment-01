@@ -176,6 +176,7 @@ function createPolicyBundle({
     }
     return {root,manifest,manifestSha256:sha256(manifestBytes),bundleSha256};
   }catch(error){
+    makeBundleWritable(root);
     fs.rmSync(root,{recursive:true,force:true});
     throw error;
   }
@@ -274,8 +275,21 @@ function spawnDockerPolicyWorker({
   return child;
 }
 
+function makeBundleWritable(directory){
+  if(!directory||!fs.existsSync(directory))return;
+  const stat=fs.lstatSync(directory);
+  if(stat.isSymbolicLink())return;
+  if(stat.isDirectory()){
+    for(const name of fs.readdirSync(directory))makeBundleWritable(path.join(directory,name));
+    fs.chmodSync(directory,0o755);
+  }else if(stat.isFile())fs.chmodSync(directory,0o644);
+}
+
 function cleanupPolicyBundle(bundle){
-  if(bundle?.root)fs.rmSync(bundle.root,{recursive:true,force:true});
+  if(bundle?.root){
+    makeBundleWritable(bundle.root);
+    fs.rmSync(bundle.root,{recursive:true,force:true});
+  }
 }
 
 if(require.main===module&&process.argv[2]==='preflight'){
