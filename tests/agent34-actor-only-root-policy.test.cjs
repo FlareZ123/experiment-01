@@ -1366,6 +1366,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const clefairy={
     printing:"Lillie's Clefairy ex JTG",hp:190,damage:0,energies:[],attacks:[],
     abilities:['Fairy Zone'],abilityDetails:[{name:'Fairy Zone',text:'The Weakness of each of your opponent\'s Dragon Pokémon in play is now Psychic.'}],
+    abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:false,reasonCode:null,sourcePrinting:null}],
     tools:[],publicRestrictions:{},specialConditions:[],
     printed:{stage:'Basic',types:['Psychic'],resistance:[]}
   };
