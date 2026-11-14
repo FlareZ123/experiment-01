@@ -1681,3 +1681,74 @@ test('Lillie’s Clefairy ex is played to activate Fairy Zone against a Dragon A
     token: 'clefairy'
   });
 });
+
+
+test('Path to the Peak is not treated as active when the stadium suppression epoch is unknown', () => {
+  const request = rootRequest({
+    ownHand: ['Marshadow UNB 81'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      stadium: ['Path to the Peak CRE 148'],
+      omitStadiumSuppression: true
+    }),
+    opponentPublic: player(),
+    items: [
+      { token: 'marshadow', kind: 'play-card', actorPrinting: 'Marshadow UNB 81',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Path to the Peak is not treated as active while stadium effects are suppressed', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      bench: [pokemon('Marshadow UNB 81', { hp: 70 })],
+      stadium: ['Path to the Peak CRE 148'],
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1
+    }),
+    opponentPublic: player(),
+    items: [
+      { token: 'resetting-hole', kind: 'use-ability',
+        publicMetadata: { abilityName: 'Resetting Hole', sourceZone: 'bench',
+          sourceSeat: 'actor', sourceIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Lillie’s Clefairy ex is not played when Path to the Peak status is unknown', () => {
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownHand: ["Lillie's Clefairy ex JTG 56"],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      stadium: ['Path to the Peak CRE 148'],
+      omitStadiumSuppression: true
+    }),
+    opponentPublic: player({ active: opponentDragon }),
+    items: [
+      { token: 'clefairy', kind: 'play-card',
+        actorPrinting: "Lillie's Clefairy ex JTG 56",
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
