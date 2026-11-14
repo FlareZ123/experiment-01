@@ -1337,8 +1337,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   }=require('../simulation/twinleaf/2026-11/agent8-post-timeless-maxgeist-root-intent.cjs');
   const psychic='Psychic Energy SVE';
   const postTimelessCatalog={...catalog,
-    ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia-GX CEC','Latias ex SSP']),
-    dragonPokemonPrintings:new Set(['Dratini SIT','Arceus & Dialga & Palkia-GX CEC'])};
+    ruleboxPokemonPrintings:new Set(['Arceus & Dialga & Palkia GX CEC','Latias ex SSP']),
+    dragonPokemonPrintings:new Set(['Dratini SIT 129','Arceus & Dialga & Palkia GX CEC'])};
   const restrictions={
     cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
     blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
@@ -1376,7 +1376,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     specialConditions:[],printed:{stage:'Basic',types:['Psychic'],weakness:[],resistance:[]}
   };
   const target={
-    printing:'Dratini SIT',hp:70,damage:0,energies:[],attacks:[],
+    printing:'Dratini SIT 129',hp:70,damage:0,energies:[],attacks:[],
     abilities:[],abilityDetails:[],tools:[],publicRestrictions:{},
     specialConditions:[],printed:{stage:'Basic',types:[11],weakness:[],resistance:[]}
   };
@@ -1540,7 +1540,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   };
   assert.equal(choosePostTimelessMaxGeistRetreat(sameRegidrago,postTimelessCatalog,{ownerSeat:0}),null);
 
-  const adpTarget={...target,printing:'Arceus & Dialga & Palkia-GX CEC',hp:280,
+  const adpTarget={...target,printing:'Arceus & Dialga & Palkia GX CEC',hp:280,
     printed:{stage:'Basic',types:[11],subtypes:['Basic','TAG TEAM','GX'],weakness:[],resistance:[]}};
   const adpIntent=choosePostTimelessMaxGeistRetreat({
     ...view,opponentPublic:{...view.opponentPublic,active:adpTarget}
