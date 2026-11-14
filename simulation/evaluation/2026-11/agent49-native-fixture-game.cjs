@@ -7,6 +7,30 @@ const {evidenceBundleSha256}=require('../agent45-independent-competitive-admissi
 const PLAYER_IDS=Object.freeze([101,202]);
 const SCHEMA='aichi-native-fixture-game-v1';
 
+let activeNativeFixtureProcessLock=null;
+function acquireNativeFixtureProcessLock(owner='native-fixture') {
+  assert.ok(typeof owner==='string'&&owner.length>0);
+  if(activeNativeFixtureProcessLock!==null) {
+    const error=new Error('another native fixture already owns process-global engine hooks');
+    error.code='FIXTURE_PROCESS_OVERLAP';
+    throw error;
+  }
+  const token=Object.freeze({owner,nonce:Symbol(owner)});
+  activeNativeFixtureProcessLock=token;
+  return token;
+}
+function releaseNativeFixtureProcessLock(token) {
+  assert.ok(token&&activeNativeFixtureProcessLock===token,
+    'only the current native fixture lock owner may release the process lock');
+  activeNativeFixtureProcessLock=null;
+  return true;
+}
+function assertNativeFixtureProcessLock(token) {
+  assert.ok(token&&activeNativeFixtureProcessLock===token,
+    'native fixture process lock token is not active');
+  return true;
+}
+
 function normalizeSeed32(seed) {
   if (Number.isInteger(seed) && seed >= 0 && seed <= 0xffffffff) return seed >>> 0;
   assert.ok(typeof seed === 'string' && seed.trim().length > 0,
@@ -270,12 +294,29 @@ function validateInputs(input,{requirePolicySeeds=true}={}) {
  */
 function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   const {native,maxActions,seed32,policySeedBySeat}=validateInputs(input,{requirePolicySeeds});
+  const ownsProcessLock=input.processLockToken===undefined;
+  const processLockToken=ownsProcessLock?
+    acquireNativeFixtureProcessLock('native-fixture-game'):input.processLockToken;
+  assertNativeFixtureProcessLock(processLockToken);
   const {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format
   }=native;
   const previousRandom=Math.random;
   const physicalRandom=seededRandom(seed32);
+  const withPhysicalRandom=callback=>{
+    assert.strictEqual(Math.random,previousRandom,
+      'physical random scope must begin with ambient Math.random restored');
+    Math.random=physicalRandom;
+    try {
+      const value=callback();
+      assert.ok(!value||typeof value.then!=='function',
+        'physical random scope must contain synchronous engine operations only');
+      return value;
+    } finally {
+      Math.random=previousRandom;
+    }
+  };
   const policyRandom=policySeedBySeat?.map(seed=>seededRandom(seed))??null;
   const decisionTrace=[];
   const rootActionLedger=[];
@@ -284,6 +325,9 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   let actualFirstPlayerSeat=null;
   let store;
   let seats;
+  let storeHook=null;
+  let storeHookRestored=false;
+  let completedResult=null;
   let failureContext=null;
 
   const redactError=error=>{
@@ -489,8 +533,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   };
 
   try {
-    Math.random=physicalRandom;
-    const settings=new GameSettings();
+    const settings=withPhysicalRandom(()=>new GameSettings());
     settings.format=Format.EXPANDED;
     settings.recordingEnabled=false;
     assert.ok(settings.rules&&typeof settings.rules==='object',
@@ -499,22 +542,27 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     settings.rules.firstTurnUseSupporter=false;
     settings.rules.attackFirstTurn=false;
 
-    store=new Store({onStateChange:()=>{}});
+    store=withPhysicalRandom(()=>new Store({onStateChange:()=>{}}));
+    if(typeof input.onStoreCreated==='function') {
+      storeHook=input.onStoreCreated(store);
+      assert.ok(storeHook&&typeof storeHook.restore==='function',
+        'onStoreCreated must return a prompt-provenance hook with restore()');
+    }
     store.state.gameSettings=settings;
     store.state.rules=settings.rules;
 
-    seats=[
+    seats=withPhysicalRandom(()=>[
       new SimpleTacticsAi({id:PLAYER_IDS[0]},input.botOptionsBySeat[0],input.deckA),
       new SimpleTacticsAi({id:PLAYER_IDS[1]},input.botOptionsBySeat[1],input.deckB)
-    ];
+    ]);
     (input.onRootAgentsCreated??input.onAgentsCreated)?.(seats);
 
-    store.dispatch(new AddPlayerAction(PLAYER_IDS[0],
-      input.playerNames?.[0]??'fixture-seat-0',input.deckA));
+    withPhysicalRandom(()=>store.dispatch(new AddPlayerAction(PLAYER_IDS[0],
+      input.playerNames?.[0]??'fixture-seat-0',input.deckA)));
     if(store.state.phase===GamePhase.FINISHED)
       throw new Error('Twinleaf rejected fixture deck A during player registration');
-    store.dispatch(new AddPlayerAction(PLAYER_IDS[1],
-      input.playerNames?.[1]??'fixture-seat-1',input.deckB));
+    withPhysicalRandom(()=>store.dispatch(new AddPlayerAction(PLAYER_IDS[1],
+      input.playerNames?.[1]??'fixture-seat-1',input.deckB)));
     if(store.state.phase===GamePhase.FINISHED)
       throw new Error('Twinleaf rejected fixture deck B during player registration');
 
@@ -641,7 +689,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
-          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,
+          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -672,7 +720,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
-          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,
+          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -732,7 +780,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       failureContext=null;
 
       try {
-        store.dispatch(action);
+        withPhysicalRandom(()=>store.dispatch(action));
       } catch(error) {
         record.dispatchStatus='failed';
         record.failure=redactError(error);
@@ -843,12 +891,38 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       finalPublicState:finalState,
       finalPublicStateSha256:sha256Json(finalState)
     };
+    completedResult=result;
     return result;
   } catch(error) {
     if(error?.fixtureGamePartial) throw error;
     throw wrapFailure(error,failureContext??{stage:'game-loop',record:null});
   } finally {
-    Math.random=previousRandom;
+    let cleanupError=null;
+    try {
+      if(storeHook) {
+        assert.equal(typeof storeHook.activeEffectDepth,'number',
+          'prompt-provenance hook must expose activeEffectDepth');
+        assert.equal(storeHook.activeEffectDepth,0,
+          'prompt-provenance effect stack must be empty before restoration');
+        storeHook.restore();
+        assert.equal(storeHook.restored,true,
+          'prompt-provenance hook restoration was not verified');
+        storeHookRestored=true;
+      }
+    } catch(error) { cleanupError=error; }
+    try {
+      assert.strictEqual(Math.random,previousRandom,
+        'ambient Math.random must be restored after every native fixture step');
+    } catch(error) { cleanupError??=error; }
+    if(completedResult) completedResult.promptProvenanceHook={
+      installed:storeHook!==null,restored:storeHookRestored,
+      activeEffectDepth:typeof storeHook?.activeEffectDepth==='number'?storeHook.activeEffectDepth:null
+    };
+    if(ownsProcessLock) {
+      try { releaseNativeFixtureProcessLock(processLockToken); }
+      catch(error) { cleanupError??=error; }
+    }
+    if(cleanupError) throw cleanupError;
   }
 }
 
@@ -917,5 +991,8 @@ module.exports={
   runNativeFixtureGame,
   runNativeFixtureGameAsync,
   normalizeSeed32,
-  normalizePolicySeedBySeat
+  normalizePolicySeedBySeat,
+  acquireNativeFixtureProcessLock,
+  releaseNativeFixtureProcessLock,
+  assertNativeFixtureProcessLock
 };
