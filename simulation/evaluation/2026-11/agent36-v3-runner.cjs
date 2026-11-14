@@ -320,6 +320,9 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
   const hostExpectedByPath=assertWorkerOnlyPolicyPathsAbsentFromHostClosure(
     combined.expectedByPath,workerOnlyPaths
   );
+  assert.deepEqual(Object.keys(workerOnlyHashes).sort(),
+    [...new Set(workerOnlyPaths)].sort(),
+    'worker-only policy hash map must exactly match the two role policy data assets');
   if(providedHostExpectedByPath!==undefined)
     assert.deepEqual(providedHostExpectedByPath,hostExpectedByPath,
       'host preload map must equal the complete host role source closure');
