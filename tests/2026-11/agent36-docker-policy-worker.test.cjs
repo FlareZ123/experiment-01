@@ -543,6 +543,63 @@ test('Docker OS canary worker is isolated from host capabilities in both seats',
 });
 
 
+test('production VM worker completes READY and one ordered decision on pinned Node24', {
+  timeout: 30000
+}, async () => {
+  const runtime = preflightDockerPolicySandbox({ pull: false });
+  assert.equal(runtime.imageDigest, IMAGE_DIGEST);
+  assert.equal(runtime.nodeVersion, NODE_VERSION);
+  const policyVersion = 'agent49-production-positive-smoke-v1';
+  const policySourceText = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-production-positive-smoke-v1';",
+    "async function createPolicy(){return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_ACTION'};}};}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\\n');
+  const built = makeProductionBundle(policySourceText);
+  let session = null;
+  try {
+    session = await createDockerPolicySession({
+      bundle: built.bundle,
+      role: 'candidate',
+      seat: 0,
+      policyVersion,
+      permissionModel: true,
+      workerTimeoutMs: 30000,
+      requestTimeoutMs: 5000
+    });
+    assert.equal(session.ready.schema, protocol.READY_SCHEMA);
+    assert.equal(session.ready.type, 'ready');
+    assert.equal(session.ready.role, 'candidate');
+    assert.equal(session.ready.seat, 0);
+    assert.equal(session.ready.policyVersion, policyVersion);
+    assert.equal(session.ready.bundleSha256, built.bundle.bundleSha256);
+    assert.equal(session.ready.policyStreamProtocol, 'worker-local-independent-crypto-stream-v1');
+    assert.equal(session.ready.policyDrawCount, 0);
+
+    const response = await session.decide({
+      observation: actorObservation(0),
+      actionFrontier: {
+        schema: protocol.FRONTIER_SCHEMA,
+        items: [{ token: 'production-positive-pass', kind: 'pass' }]
+      }
+    });
+    assert.equal(response.policyDrawCount, 0);
+    assert.deepEqual(response.decision, {
+      kind: 'select-action',
+      token: 'production-positive-pass'
+    });
+    const receipt = await session.close();
+    assert.equal(receipt.processClosed, true);
+    assert.equal(receipt.containerRemoved, true);
+  } finally {
+    if (session) await session.abort().catch(() => {});
+    assert.equal(cleanupPolicyBundle(built.bundle), true);
+    assert.equal(fs.existsSync(built.bundle.root), false);
+    fs.rmSync(built.sourceRoot, { recursive: true, force: true });
+  }
+});
+
 test('production VM worker terminates a non-settling async policy at the per-decision deadline',{
   timeout:30000
 },async()=>{
