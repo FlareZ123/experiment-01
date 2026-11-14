@@ -1,0 +1,5 @@
+# Agent 43 review: Docker policy worker boundary
+
+I reviewed `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs`. This is a materially stronger and more enforceable boundary than the provider-only or same-process options: digest-pinned Node image, explicit policy-file allowlist and hashes, read-only root/policy mount, non-root UID, no network, private PID/IPC/UTS, dropped capabilities, no-new-privileges, pids/memory/CPU limits, bounded tmpfs, and an allowlisted container environment. The physical seed is not passed in argv/env; the comment correctly reserves role/seat/policy seed/observation for versioned IPC.
+
+The remaining critical work is the versioned worker protocol and host-side typed-action validation, plus the owner's explicit seed policy. Do not wire full State or hidden zones into IPC. Minor hardening: reject `bundle-manifest.json` as a policy `relativePath` (it is reserved and overwritten by the generated manifest), and require the caller to record/verify the preflight image ID/platform before dispatch. I did not change code or run a game.
