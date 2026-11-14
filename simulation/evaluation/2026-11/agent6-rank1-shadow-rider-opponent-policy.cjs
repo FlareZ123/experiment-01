@@ -297,9 +297,7 @@ function scoreAction(item, request) {
         (receiptKO || opponentHandCount >= ownHandCount + 3 ||
           opponent.prizeCount < 6)) return 142;
 
-    if (includes(card, 'Field Blower') &&
-        activeStadiums(observation).some(stadium =>
-          /Path to the Peak|Silent Lab/i.test(stadium)) &&
+    if (includes(card, 'Field Blower') && pathLockActive(observation) &&
         boardSlots(own).some(slot => hasAbility(slot, 'Underworld Door'))) return 140;
 
     if (includes(card, 'Battle Compressor') &&
