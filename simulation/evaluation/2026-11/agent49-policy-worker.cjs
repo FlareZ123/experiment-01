@@ -93,7 +93,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '    objectDefineProperty(realmGlobal,name,{value,writable:false,configurable:false,enumerable:true});',
     '  }',
     '})();'
-  ].join('\\n');
+  ].join('\n');
   vm.runInContext(setup,context,{timeout:1000,filename:'agent49-policy-sandbox-setup.cjs'});
   const loadPolicy=[
     "(() => { 'use strict';",
@@ -110,7 +110,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     "  I.defineProperty(globalThis,'__agent49PolicyModule',{value:module.exports,writable:false,configurable:false,enumerable:false});",
     '  return true;',
     '})();'
-  ].join('\\n');
+  ].join('\n');
   const loadOk=vm.runInContext(loadPolicy,context,{timeout:5000,filename:'policy.cjs'});
   if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
   if(loadOk!==true)fail('POLICY_MODULE_LOAD_FAILED');
@@ -155,7 +155,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '    }',
     '  },writable:false,configurable:false,enumerable:false});',
     '})();'
-  ].join('\\n');
+  ].join('\n');
   vm.runInContext(installWrappers,context,{timeout:1000,filename:'agent49-policy-sandbox-runtime.cjs'});
   async function invoke(expression,filename){
     const pending=vm.runInContext(expression,context,{timeout:5000,filename});
