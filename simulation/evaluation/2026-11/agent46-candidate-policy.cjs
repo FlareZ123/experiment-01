@@ -711,7 +711,7 @@ function chooseStartingPokemonSetup(prompt) {
       !Number.isSafeInteger(metadata.minimumCount) ||
       !Number.isSafeInteger(metadata.maximumCount) ||
       metadata.minimumCount < 0 || metadata.maximumCount < metadata.minimumCount ||
-      metadata.maximumCount > 6 || !Array.isArray(prompt.choices)) {
+      !Array.isArray(prompt.choices)) {
     return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
   }
 
@@ -765,7 +765,9 @@ function chooseStartingPokemonSetup(prompt) {
 
   // The pinned engine has already excluded non-Basics through the native
   // CHOOSE_STARTING_POKEMONS prompt's blocked indices. Preserve that legal
-  // prompt order and fill as many Active/Bench slots as the prompt permits.
+  // prompt order and submit up to its native maximum. The repeated optional
+  // Bench prompt can expose more Basics than empty slots; its engine callback
+  // places only those that fit.
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
