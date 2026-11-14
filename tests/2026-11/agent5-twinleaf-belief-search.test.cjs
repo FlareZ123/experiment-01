@@ -188,8 +188,18 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   assert.equal(capturedLedgers[0].mode,'K0');
   assert.equal(capturedLedgers[1].mode,'K1',
     'The opponent policy receives its own sampled-world private ledger');
+  const sampledOpponentPrizeCounts=new Map();
+  for(const slot of sampled.players[1].prizes) {
+    for(const prize of slot.cards) {
+      sampledOpponentPrizeCounts.set(prize.fullName,
+        (sampledOpponentPrizeCounts.get(prize.fullName)??0)+1);
+    }
+  }
   assert.deepEqual(capturedLedgers[1].knownPrizePrintings,
-    [{printing:'P1',copies:6}]);
+    [...sampledOpponentPrizeCounts].map(([printing,copies])=>({printing,copies}))
+      .sort((a,b)=>a.printing.localeCompare(b.printing)));
+  assert.equal(capturedLedgers[1].knownPrizePrintings.reduce(
+    (sum,row)=>sum+row.copies,0),6);
   assert.equal(rootKnowledgeCalls.length,1);
   assert.equal(beliefCalls.length,1);
   assert.deepEqual(seatLedgerCalls.sort(),[0,1]);
