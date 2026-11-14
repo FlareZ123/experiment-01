@@ -81,6 +81,8 @@ function probe(seat,options){
     publicStadium:view.ownPublic.stadium,
     exposedSuppressionFlag:'stadiumAndToolHaveNoEffectTurnsRemaining' in
       (view.ownPublic.publicTurnRestrictions??{}),
+    exposedSuppressionValue:view.ownPublic.publicTurnRestrictions
+      .stadiumAndToolHaveNoEffectTurnsRemaining,
     accepted,error,damage:x.opponent.active.damage-damageBefore,
     pending:x.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
@@ -104,13 +106,15 @@ function run(){
     assert.equal(suppressed.accepted,false,
       'Publicly suppressed Stadium must not waive Copycat cost');
     assert.deepEqual(suppressed.proxyCost,valley.proxyCost,
-      'Current actor-visible model cannot detect active suppression');
-    assert.equal(suppressed.exposedSuppressionFlag,false,
-      'Current detached observation omits the suppression epoch');
+      'Agent17 generic cost estimator still ignores the newly exposed suppression epoch');
+    assert.equal(suppressed.exposedSuppressionFlag,true,
+      'Detached actor observation now exposes the public suppression epoch');
+    assert.equal(suppressed.exposedSuppressionValue,1,
+      'The exact per-player suppression countdown is preserved');
     assert.equal(newMoon.accepted,false,
       'Lunatone with Solrock prevents Dimension Valley reducing Copycat');
     assert.deepEqual(newMoon.proxyCost,valley.proxyCost,
-      'Public cost model misses New Moon even with paired Pokémon visible');
+      'Agent17 generic cost estimator still misses the visible New Moon pair');
   }
   const result={schema:'agent44-copycat-stadium-cost-bilateral-native-v1',
     pin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
