@@ -1318,3 +1318,50 @@ test('Mimikyu is not played for Copycat when the opponent Active has no known no
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
+
+
+test('Mysterious Treasure completes the second Shadow Rider V before optional Copycat setup', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'mimikyu', kind: 'card', printing: 'Mimikyu GRI 58',
+        label: 'Mimikyu', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })]
+      }),
+      opponentPublic: player({ active: opponentActive })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['v']
+  });
+});
