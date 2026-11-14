@@ -138,3 +138,40 @@ Do **not** schedule a copy-count A/B as the next experiment. First complete the 
 Only after that policy is frozen and has demonstrated competent attack conversion should the baseline and parked 2/1/1 / 1/2/1 arms be compared under identical policies, both seats and first-player assignments, failure-inclusive records, and the complete source field. Record forced starts, Dialga discard route, Mimikyu access/Active status, Energy attachments, Fairy Zone, Apex Dragon opportunity, GX allowance, accepted Copycat/Timeless actions, Max Geist damage and actual Prize progress. Do not use the nine published Regidrago lists as a substitute for all 32.
 
 **Conclusion:** 2/1/1 and 1/2/1 have identical optimistic Prize/hand/draw access arithmetic; their DCI/AMR asymmetry remains unresolved. Both are parked structural arms, not active recommendations. Keep 1/1/1 as baseline and make no strength claim.
+
+
+## Exact Full Moon Rondo versus Max Geist thresholds
+
+The existing rank19 audit is a useful concrete trace, but the route comparison can be stated generally from the bundled card text. The frozen Hood 1/1/1 baseline contains **2 Lillie's Clefairy ex JTG 56**, **1 Latias ex SSP 76**, **1 Sky Field**, **1 Float Stone**, and **11 Basic Psychic Energy**. The card-pool entries confirm:
+
+- Clefairy ex is Psychic-type; Fairy Zone changes every opposing Dragon Pokémon's Weakness to Psychic (×2).
+- Full Moon Rondo costs Psychic + Colorless and does **20 + 20 per Benched Pokémon on both sides**.
+- Latias ex's Skyliner gives Basic Pokémon in play no Retreat Cost while its Ability is active.
+- Sky Field raises each Bench limit to eight; if it leaves play, each player discards to five.
+
+For a Dragon Active with live Fairy Zone, Full Moon Rondo's damage is:
+
+`2 × (20 + 20 × (own occupied Bench + opponent occupied Bench))`
+
+| Combined occupied Bench | Full Moon Rondo base | With Fairy Zone |
+|---:|---:|---:|
+| 4 | 100 | 200 |
+| 5 | 120 | 240 |
+| 6 | 140 | **280** |
+| 7 | 160 | **320** |
+| 8 | 180 | **360** |
+| 9 | 200 | **400** |
+| 10 | 220 | **440** |
+
+Thus a full-health 280-HP Regidrago VSTAR is in range at **six combined Benched Pokémon**. Five combined Benched Pokémon leave it at 240, so the sixth Bench slot is a real damage breakpoint, not a cosmetic board-size preference. Without live Fairy Zone, the attack does not reach 280 until 13 combined Benched Pokémon; under the normal five-per-player cap that is impossible, while Sky Field makes it mechanically possible but demands an unusually full combined board.
+
+For comparison, Max Geist is `10 + 30 × total Psychic Energy attached to your Pokémon`; with live Fairy Zone against Dragon, it deals `2 × (10 + 30k)`. Four Psychic Energy produce 260, while five produce 320. The two direct routes therefore have different bottlenecks:
+
+| Route | Energy requirement for 280 HP | Board requirement | Attacker's Prize liability |
+|---|---:|---|---:|
+| Full Moon Rondo | 2 Energy on Clefairy ex | 6 combined Benched Pokémon | 2 Prizes |
+| Max Geist | 5 Psychic Energy across your board | Shadow Rider VMAX ready to attack | 3 Prizes |
+
+The Rondo line can be funded by one manual attachment plus one Underworld Door attachment to a Benched Clefairy; Latias ex can then provide a free pivot because Clefairy is Basic. This is a *conditional line*, not a claim that those resources are always simultaneously available. The policy must separately verify: Fairy Zone is actually active; Skyliner or another retreat route is actually active; the two Energy are attached to Clefairy; the current combined Bench count crosses the target's remaining-HP threshold; and the native attack is legal. Path to the Peak, Silent Lab, Garbotoxin, Stadium replacement, Tool removal, Bench-space pressure, and the two-Prize Clefairy exposure can all change the line's AMR. If the Stadium/Ability status is unknown, do not assume the Weakness or free-retreat effect.
+
+This comparison is common to all three frozen copy-count lists: none changes Clefairy, Latias, Sky Field, Float Stone, or the Psychic Energy count. It is therefore a candidate-policy/attack-conversion requirement, not evidence favoring 2/1/1 over 1/2/1. Evaluate the live damage and Prize exchange at the decision point; do not rank attacks by nominal damage alone.
