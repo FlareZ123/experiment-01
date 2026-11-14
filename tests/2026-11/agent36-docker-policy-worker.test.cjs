@@ -531,3 +531,40 @@ test('Docker OS canary worker is isolated from host capabilities in both seats',
     fs.rmSync(hostRoot, { recursive: true, force: true });
   }
 });
+
+
+test('production VM worker terminates a non-settling async policy at the per-decision deadline',{
+  timeout:30000
+},async()=>{
+  const runtime=preflightDockerPolicySandbox({pull:false});
+  assert.equal(runtime.imageDigest,IMAGE_DIGEST);
+  const policySourceText=[
+    "'use strict';",
+    "const POLICY_VERSION='agent49-async-timeout-probe-v1';",
+    'async function createPolicy(){return {async decide(){await Promise.resolve();while(true){}}};}',
+    'module.exports={POLICY_VERSION,createPolicy};'
+  ].join('\\n');
+  const built=makeProductionBundle(policySourceText);
+  let session=null;
+  try{
+    session=await createDockerPolicySession({
+      bundle:built.bundle,role:'candidate',seat:0,
+      policyVersion:'agent49-async-timeout-probe-v1',
+      permissionModel:true,workerTimeoutMs:30000,requestTimeoutMs:1000
+    });
+    await assert.rejects(session.decide({
+      observation:actorObservation(0),
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[{token:'timeout-pass',kind:'pass'}]}
+    }),error=>String(error?.code??'').includes('TIMEOUT'));
+    const receipt=await session.abort();
+    assert.equal(receipt.containerRemoved,true,
+      'per-decision timeout must terminate and remove the stuck worker container');
+    assert.equal(receipt.processClosed,true,
+      'per-decision timeout must verify worker process closure');
+  }finally{
+    if(session)await session.abort().catch(()=>{});
+    assert.equal(cleanupPolicyBundle(built.bundle),true);
+    assert.equal(fs.existsSync(built.bundle.root),false);
+    fs.rmSync(built.sourceRoot,{recursive:true,force:true});
+  }
+});
