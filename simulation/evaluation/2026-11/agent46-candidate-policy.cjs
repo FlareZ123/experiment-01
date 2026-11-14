@@ -710,7 +710,9 @@ function chooseStartingPokemonSetup(view, prompt) {
       metadata.allowCancel !== false ||
       !Number.isSafeInteger(metadata.minimumCount) ||
       !Number.isSafeInteger(metadata.maximumCount) ||
-      metadata.minimumCount < 0 || metadata.maximumCount < metadata.minimumCount ||
+      (metadata.minimumCount !== 0 && metadata.minimumCount !== 1) ||
+      metadata.maximumCount < metadata.minimumCount ||
+      (metadata.minimumCount === 1 && metadata.maximumCount > 6) ||
       !Array.isArray(prompt.choices)) {
     return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
   }
