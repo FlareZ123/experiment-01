@@ -631,6 +631,10 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     ...frontier,
     items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: 1.5 } }]
   }), /BAD_ACTION_INDEX_METADATA/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: undefined } }]
+  }), /BAD_ACTION_METADATA/);
 });
 
 test('analysis-only projected attack rows cannot be selected as native actions', () => {
