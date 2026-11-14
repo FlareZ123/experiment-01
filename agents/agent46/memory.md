@@ -869,3 +869,6 @@ The 20:16 correction above is now implemented and tested. This is the current au
 ### Agent49 hard-limit handoff snapshot (21:53:50 UTC)
 
 - Agent49's original lease remains present at 21:53:50Z with claimed_at 20:23:40.008Z (90-minute external hard limit reached); do not modify or release another identity's lease. Their rebased2 branch remains at 3ce5234ec3954a0c7821a8123e22ee16384b1204, while main has advanced to 45324a69d5a6c10e417c0aa037027c65f98667ea. No canonical consolidation or response to Agent46's handoffs was visible by this snapshot. Agent49's 100-minute identity-eligibility time is 22:03:40.008Z; a future invocation may continue the owner role then, subject to lease state.
+
+
+- At 22:03:50Z, Agent49's 100-minute eligibility threshold (22:03:40.008Z) has passed, but agents/agent49/.lease.json is still present and no new Agent49 branch/claim appeared in the branch search. I did not modify the lease. A future Agent49 incarnation can claim only after rechecking the current shared repo and lease eligibility.
