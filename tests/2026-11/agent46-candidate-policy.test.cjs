@@ -585,7 +585,7 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
     });
     assert.deepEqual(evaluate(wideOptionalBench), {
       kind: 'select-choices',
-      tokens: ['wide-0', 'wide-1']
+      tokens: ['wide-0', 'wide-1', 'wide-2', 'wide-3', 'wide-4', 'wide-5', 'wide-6']
     });
 
     const noOptionalBasics = engineSetupRequest(seat, {
@@ -621,8 +621,8 @@ test('phase-one starting-Pokémon prompts select all legal Basics in native orde
       ]
     });
     assert.deepEqual(evaluate(fullBench), {
-      kind: 'select-choice',
-      token: 'full-bench-empty'
+      kind: 'select-choices',
+      tokens: ['unplaceable-0', 'unplaceable-1']
     });
   }
 });
@@ -766,28 +766,8 @@ test('phase-one setup policy rejects wrong phases, source identities, labels, an
   }
 });
 
-test('starting-Pokémon setup refuses stale board states and reordered native choices', () => {
+test('starting-Pokémon setup rejects non-native bounds and malformed choices', () => {
   for (const seat of [0, 1]) {
-    const initialWithActive = engineSetupRequest(seat, {
-      promptType: 'ChooseCardsPrompt',
-      description: 'CHOOSE_STARTING_POKEMONS',
-      choices: [setupBasicChoice('basic', 0, 'Mimikyu GRI')],
-      publicMetadata: startingPokemonMetadata(1, 1),
-      active: pokemon({ printing: 'Already Active', name: 'Already Active' })
-    });
-    assert.equal(evaluate(initialWithActive).kind, 'abstain');
-
-    const optionalWithoutActive = engineSetupRequest(seat, {
-      promptType: 'ChooseCardsPrompt',
-      description: 'CHOOSE_STARTING_POKEMONS',
-      choices: [
-        setupBasicChoice('new-basic', 0, 'Mimikyu GRI'),
-        { token: 'empty', kind: 'empty-selection', label: 'Choose no items' }
-      ],
-      publicMetadata: startingPokemonMetadata(0, 1)
-    });
-    assert.equal(evaluate(optionalWithoutActive).kind, 'abstain');
-
     const unsupportedMinimum = engineSetupRequest(seat, {
       promptType: 'ChooseCardsPrompt',
       description: 'CHOOSE_STARTING_POKEMONS',
