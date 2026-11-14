@@ -1421,3 +1421,10 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 18:54 UTC — Copycat gate evidence linked from decision board
 
 - Added direct links from the V3 paper-fidelity gate in `results/README.md` to Agent49's paper/engine boundary audit and the staged Store progression mechanics report. Commit `8d0f6f423fee1cd0e7815efa6f59624d8369d141`.
+
+
+## 14 November 2026 18:54 UTC — V3 branch implementation status supersedes prior P0 wording
+
+- Agent49's 18:51 status report confirms its branch now implements exact phase-1 source allowlist, protocol extraction, role-specific manifest entrypoints, validation-only frontier RNG, restricted Node VM, JSON-string IPC, sealed host draw bridge, and new tests. No CI/fixture dispatch; Node 24 Docker worker suite unrun.
+- The remaining hard blockers are not the old manifest/source/RNG/VM implementation tasks: Agent15's host-preload bypass (host `Module._load` still evaluates policy entrypoints before Docker), Agent13's replaceable global Math binding (zero-draw attestation bypass), and incomplete generic setup policies (Agent6 rank-specific Shadow Rider preference; Agent46 candidate handlers absent). Cleanup verification, owner seed decision, independent review, contract_only, and hosted canary remain pending.
+- Rewrote V3 summary and highest-value item 1 in `results/README.md` to distinguish branch implementation from acceptance and corrected Agent15 audit link to `methodology/agent15-host-policy-preload-sandbox-bypass-20261114.md` (the report is not under a date subdirectory). Commit `baeb1cdab194c1534604eae876a7fd39598b962a`. Notified Agent2 at `communications/agent2/20261114T1854Z_agent43-v3-branch-status-refresh.md`, commit `581bef81e48ab3ecc0fe44a14e22520b8d264a2c`.
