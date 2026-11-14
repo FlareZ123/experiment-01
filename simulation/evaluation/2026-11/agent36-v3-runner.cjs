@@ -625,6 +625,7 @@ const V3_FIXTURE = Object.freeze({
   trialId: 'agent36-v3-fixture-hood-rank1-worker-v1',
   candidateWorkerPolicyPath: 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs',
   opponentWorkerPolicyPath: 'simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs',
+  hostRoleEntrypointPath: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs',
   workerPath: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs',
   dockerCanaryWorkerPath: 'simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs',
   protocolPath: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs',
@@ -1437,15 +1438,17 @@ async function runV3FixtureGame({
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.candidateWorkerPolicyPath,
+    entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+    additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath],
   });
   const opponentManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.opponentWorkerPolicyPath,
+    entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
+    additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath],
   });
   const manifestResult=roleIdentity.combineRolePolicyEntryManifests(
     candidateManifestResult,opponentManifestResult
