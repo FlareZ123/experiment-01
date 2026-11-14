@@ -29,7 +29,7 @@ The adapter records a non-writable pin/schema marker on the instance. It also ad
 
 ## Validation and limits
 
-Eight Node v22.16.0 tests pass locally:
+Nine Node v22.16.0 tests pass locally:
 
 1. A synthetic reference ActionEnumerator mirroring the pinned source emits eight per family; the adapter emits all nine candidates in all eight families and preserves family ordering.
 2. Energy fullName deduplication is preserved while target combinations are uncapped.
@@ -38,7 +38,8 @@ Eight Node v22.16.0 tests pass locally:
 5. attached Tool powers, active Tool attacks and Bench-usable attacks are enumerated;
 6. the original Paralysis and Sleep attack gate is preserved;
 7. Expanded-legal hand Pokémon abilities and Trainer/Energy hand/discard ability action types are emitted;
-8. adapter-path admission rejects a missing/wrong-pin marker and any local frontier truncation.
+8. adapter-path admission rejects a missing/wrong-pin marker, local frontier truncation, and unprojected actions;
+9. same-name attacks follow native first-match priority and retain non-enumerable source metadata.
 
 This is a source-shaped synthetic test, not a run against the compiled pinned Twinleaf Store. No V3 game, matchup, CI run, or competitive result is claimed.
 
@@ -67,3 +68,10 @@ The pinned ActionEnumerator's abilityActions method only visits Pokémon returne
 The adapter now emits UseAbilityAction for Pokémon useFromHand powers in hand, and UseTrainerAbilityAction for TrainerCard useFromHand powers. Its discardAbilityActions also emits UseTrainerAbilityAction and UseEnergyAbilityAction for TrainerCard/EnergyCard powers marked useFromDiscard, matching the corresponding reducer action branches. The generic Trainer/Energy paths are implemented because the engine supports them; this is not a claim that every such category has a currently legal Expanded card example.
 
 The native dependency bundle must expose SlotType.HAND (the full SlotType enum is already returned), plus the card classes/enums and SpecialCondition described above. gameActions already contains the additional ability action constructors.
+
+
+## Attack source fidelity
+
+AttackAction in the pinned engine carries only an attack name. The reducer builds its candidate attack list in this order: active Pokémon attacks, Bench attacks with useOnBench, then CheckPokemonAttacksEffect attacks (including active.tools[0].attacks), and resolves by the first matching name. The adapter now mirrors that priority, emits only the first occurrence of each name, and attaches a non-writable/non-enumerable __agent3AttackSource object to the retained action. The metadata records sourceKind, sourceSlot, sourceIndex, sourceCardName, sourceCardFullName and attackName without changing the native action payload.
+
+This avoids falsely presenting same-name sources as separately selectable when the native reducer cannot distinguish them. The V3 projector should copy this metadata into the frontier row's public metadata; it must not infer a Bench/Tool source from the active Pokémon. The actionSignature may continue to use the native name because the adapter has already deduplicated according to reducer first-match semantics.
