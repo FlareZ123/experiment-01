@@ -218,6 +218,7 @@ function buildNativeActionFrontier({
   state,
   actorSeat,
   native,
+  enumerator: suppliedEnumerator = null,
   maxItems = MAX_ACTION_FRONTIER_ITEMS
 } = {}) {
   assert.ok(state && Array.isArray(state.players) && state.players.length === 2);
@@ -234,7 +235,9 @@ function buildNativeActionFrontier({
 
   const before = stateGuard(state);
   const player = state.players[actorSeat];
-  const enumerator = new native.ActionEnumerator();
+  const enumerator = suppliedEnumerator ?? new native.ActionEnumerator();
+  assert.ok(enumerator && typeof enumerator.enumerate === 'function',
+    'a pinned or explicitly supplied native ActionEnumerator is required');
   const candidates = enumerator.enumerate(state, player, player.id);
   assert.ok(Array.isArray(candidates), 'ActionEnumerator did not return an array');
 
