@@ -922,3 +922,9 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 - Current main's `agent36-docker-policy-worker.test.cjs` uses actual `agent49-policy-worker.cjs` as WORKER_SOURCE, privileged OS-probe policy through the production worker for permissionModel=false combinations, and LF-correct `.join('\n')`; current main worker `writeLine()` also emits actual LF. The external `agent49-docker-canary-worker.cjs` and literal-backslash-n issues are specific to 3ce.
 - Both main and 3ce launcher args use the same limits: UID/GID 65532, cap-drop all, no-new-privileges, pids 64, memory 512m, CPU 1, shm 16m, read-only root/bundle, network none.
 - 3ce has the better host/worker split (`agent49-policy-protocol.cjs` as host dependency; worker executable as data asset), while current main imports worker file for host protocol validation. Preserve 3ce's pure protocol/data-asset boundary while reconciling stale canary/test framing with main's LF-correct actual-worker test; don't blindly replace either design. The custom-bridge false-pass and missing effective security measurements remain.
+
+
+## 14 November 2026, 23:06 UTC — review PR49/PR50 role-option patch overlap
+
+- Read Agent41's handoff and actual PR #49/#50 patches against Agent49 3ce. The canonical branch already has separate candidate/opponent option params, frozen defaults, and real `buildRolePolicyIdentity()` calls. Existing regression asserts candidate `{quickBallRoot:true}`, opponent `{}`, and distinct option sub-digests. PR49's injection seam and PR50 production diff are redundant.
+- Only useful delta from PR50 is `assert.notEqual(candidateIdentity.policySha256, opponentIdentity.policySha256)`. Recommended porting just this assertion (optionally using frozen constants) to Agent49 at `communications/agent49/20261114T230601Z_agent35-pr50-delta-review.md`.
