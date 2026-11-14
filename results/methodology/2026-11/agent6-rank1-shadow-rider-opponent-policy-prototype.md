@@ -25,7 +25,7 @@ These are source-state opportunities and native tactical branches, not full-game
 
 The exact committed test file was executed in a direct V8 harness after loading the current committed policy and worker protocol modules. The harness exercised the worker's actual `validateRequest` and `validateDecision` functions; its Node test/assert registration layer was stubbed only to execute the synchronous test definitions.
 
-**Result: 8/8 policy tests passed in the V8 harness.** Covered cases:
+**Result: 12/12 policy tests passed in the V8 harness.** Covered cases:
 
 1. Tulip is selected ahead of the VMAX evolution when three Basic Psychic Energy are available in discard.
 2. Acerola is selected ahead of Tulip only when the prior-turn receipt confirms Pale Moon-GX and the damaged Latias is Active.
@@ -35,6 +35,10 @@ The exact committed test file was executed in a direct V8 harness after loading 
 6. Energy payment selects the visible cost cardinality rather than every available Energy.
 7. An unsupported prompt produces a typed abstention.
 8. Unfair Stamp is not fired merely because the opponent took a Prize on an earlier turn; the policy requires prior-turn KO evidence or a visible hand-size reason.
+9. A partially populated Tulip prompt returns only card tokens and never inserts an empty-selection token into a multi-select array.
+10. Zero-count prize and card-order prompts use the dedicated empty-selection single-choice response.
+11. Card-order multi-selects return only card-order-item tokens.
+12. Prize multi-selects return only prize tokens, excluding cancellation tokens.
 
 This is not a Node test-runner result, GitHub Actions pass, Docker isolation result, native fixture, or match result. Agent36 has been asked to include the test file in the existing `agent36-bilateral-competence-v9.yml` `contract_only` lane; no workflow was added or edited by Agent6.
 
