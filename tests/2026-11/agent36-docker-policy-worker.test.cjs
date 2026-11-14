@@ -1,276 +1,542 @@
 'use strict';
 
-const test=require('node:test');
-const assert=require('node:assert/strict');
-const crypto=require('node:crypto');
-const fs=require('node:fs');
-const net=require('node:net');
-const os=require('node:os');
-const path=require('node:path');
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const http = require('node:http');
+const net = require('node:net');
+const os = require('node:os');
+const path = require('node:path');
+const readline = require('node:readline');
+const { spawnSync } = require('node:child_process');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const {
-  IMAGE_REF,IMAGE_DIGEST,preflightDockerPolicySandbox,
-  sha256,createPolicyBundle,spawnDockerPolicyWorker,cleanupPolicyBundle
-}=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+  IMAGE_REF,
+  IMAGE_DIGEST,
+  PLATFORM,
+  NODE_VERSION,
+  preflightDockerPolicySandbox,
+  sha256,
+  createPolicyBundle,
+  spawnDockerPolicyWorker,
+  stopDockerPolicyWorker,
+  cleanupPolicyBundle
+} = require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
 
-const CANARY_SOURCE=[
-  "'use strict';",
-  "const fs=require('node:fs');",
-  "const net=require('node:net');",
-  "const readline=require('node:readline');",
-  "const {spawnSync}=require('node:child_process');",
-  "const {Worker}=require('node:worker_threads');",
-  "function readProbe(file){try{fs.readFileSync(file);return {ok:true};}catch(error){return {ok:false,code:error.code||error.name};}}",
-  "function readMany(paths){const result={};for(const [key,file] of Object.entries(paths))result[key]=readProbe(file);return result;}",
-  "async function workerProbe(paths){",
-  "  const code=[\"const {parentPort,workerData}=require('node:worker_threads');\",\"const fs=require('node:fs');\",\"const out={};for(const [key,file] of Object.entries(workerData)){try{fs.readFileSync(file);out[key]={ok:true};}catch(error){out[key]={ok:false,code:error.code||error.name};}}parentPort.postMessage(out);\"];",
-  "  const worker=new Worker(code.join('\\n'),{eval:true,workerData:paths});",
-  "  try{return await new Promise((resolve,reject)=>{worker.once('message',resolve);worker.once('error',reject);});}",
-  "  finally{await worker.terminate();}",
-  "}",
-  "async function networkProbe(port){",
-  "  return await new Promise(resolve=>{",
-  "    const socket=net.createConnection({host:'127.0.0.1',port});",
-  "    let settled=false;",
-  "    const finish=result=>{if(settled)return;settled=true;socket.destroy();resolve(result);};",
-  "    socket.setTimeout(700,()=>finish({connected:false,code:'TIMEOUT'}));",
-  "    socket.once('connect',()=>finish({connected:true}));",
-  "    socket.once('error',error=>finish({connected:false,code:error.code||error.name}));",
-  "  });",
-  "}",
-  "async function main(request){",
-  "  const original=Math.random;let captured=null;",
-  "  Object.defineProperty(Math,'random',{configurable:true,get(){return original;},set(value){captured=value;}});",
-  "  Math.random=original;",
-  "  Object.defineProperty(Math,'random',{configurable:true,writable:true,value:original});",
-  "  const hostPathReads=readMany(request.hostPaths);",
-  "  let childProcess;",
-  "  try{",
-  "    const child=spawnSync(process.execPath,['-e',\"const fs=require('node:fs');const paths=JSON.parse(process.argv[1]);const out={};for(const [key,file] of Object.entries(paths)){try{fs.readFileSync(file);out[key]={ok:true};}catch(error){out[key]={ok:false,code:error.code||error.name};}}process.stdout.write(JSON.stringify(out));\",JSON.stringify(request.hostPaths)],{encoding:'utf8',timeout:3000});",
-  "    if(child.error)childProcess={blocked:true,code:child.error.code||child.error.name};",
-  "    else if(child.status!==0)childProcess={blocked:true,code:'EXIT_'+child.status};",
-  "    else childProcess=JSON.parse(child.stdout);",
-  "  }catch(error){childProcess={blocked:true,code:error.code||error.name};}",
-  "  let workerThreads;",
-  "  try{workerThreads=await workerProbe(request.hostPaths);}",
-  "  catch(error){workerThreads={blocked:true,code:error.code||error.name};}",
-  "  let rootWrite;",
-  "  try{fs.writeFileSync('/policy/escape-attempt.txt','no');rootWrite={ok:true};}",
-  "  catch(error){rootWrite={ok:false,code:error.code||error.name};}",
-  "  let tmpWrite;",
-  "  const tmpPath='/tmp/worker-canary-'+process.pid;",
-  "  try{fs.writeFileSync(tmpPath,'ok');tmpWrite={ok:fs.readFileSync(tmpPath,'utf8')==='ok'};fs.unlinkSync(tmpPath);}",
-  "  catch(error){tmpWrite={ok:false,code:error.code||error.name};}",
-  "  let proc1;",
-  "  try{proc1={ok:true,text:fs.readFileSync('/proc/1/cmdline','utf8').replace(/\\0/g,' ')};}",
-  "  catch(error){proc1={ok:false,code:error.code||error.name};}",
-  "  const network=await networkProbe(request.hostPort);",
-  "  const envKeys=Object.keys(process.env).sort();",
-  "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONFIG/i.test(key));",
-  "  const response={type:'canary-result',requestId:request.requestId,role:request.role,seat:request.seat,policySeed:request.policySeed,actorSeat:request.observation&&request.observation.actorSeat,nodeVersion:process.version,uid:process.getuid(),pid:process.pid,proc1,hostPathReads,childProcess,workerThreads,network,rootWrite,tmpWrite,mathRandomSetterCapturedOwnFunction:captured===original,forbiddenEnvKeys};",
-  "  process.stdout.write(JSON.stringify(response)+'\\n');",
-  "}",
-  "const rl=readline.createInterface({input:process.stdin,crlfDelay:Infinity});",
-  "rl.once('line',line=>{let request;try{request=JSON.parse(line);}catch(error){process.stderr.write(String(error));process.exit(2);}main(request).catch(error=>{process.stderr.write(String(error&&error.stack||error));process.exit(3);});});"
-].join('\n');
+const WORKER_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
+const NAMESPACE_NAMES = ['pid', 'ipc', 'uts', 'net', 'mnt'];
 
-function waitForResponse(child,timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    let stdout='',stderr='',settled=false;
-    const timer=setTimeout(()=>finish(new Error('Docker worker response timeout; stderr='+stderr)),timeoutMs);
-    function finish(error,value){
-      if(settled)return;
-      settled=true;
-      clearTimeout(timer);
-      if(error)reject(error);else resolve(value);
-    }
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data',chunk=>{
-      stdout+=chunk;
-      const index=stdout.indexOf('\n');
-      if(index>=0){
-        const line=stdout.slice(0,index);
-        try{finish(null,JSON.parse(line));}
-        catch(error){finish(new Error('invalid worker JSON: '+line+'; stderr='+stderr));}
-      }
-    });
-    child.stderr.on('data',chunk=>{stderr+=chunk;});
-    child.once('error',error=>finish(error));
-    child.once('close',(code,signal)=>{
-      if(!settled)finish(new Error('Docker worker exited before response: code='+code+' signal='+signal+' stderr='+stderr+' stdout='+stdout));
-    });
-  });
+function publicRestrictions() {
+  return {
+    gxUsed: false,
+    vstarUsed: false,
+    attackLockTurnsRemaining: 0,
+    attackMaxEnergy: null,
+    attackMaxEnergyTurnsRemaining: 0,
+    ignoreAttackCostCardTypes: [],
+    ignoreAttackCostTurnsRemaining: 0,
+    cannotUseGXAttacks: false,
+    pokemonPlayLocked: false,
+    abilityPokemonPlayLocked: false,
+    evolutionPlayLocked: false,
+    itemPlayLocked: false,
+    supporterPlayLocked: false,
+    stadiumPlayLocked: false,
+    toolPlayLocked: false,
+    energyPlayLocked: false,
+    specialEnergyPlayLocked: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0
+  };
 }
 
-function waitForClose(child,timeoutMs=5000){
-  return new Promise((resolve,reject)=>{
-    if(child.exitCode!==null||child.signalCode!==null)return resolve();
-    const timer=setTimeout(()=>reject(new Error('Docker worker did not exit after stdin EOF')),timeoutMs);
-    child.once('close',()=>{clearTimeout(timer);resolve();});
-    child.once('error',error=>{clearTimeout(timer);reject(error);});
-  });
+function publicPlayer() {
+  return {
+    active: null,
+    bench: [null, null, null, null, null],
+    stadium: [],
+    discard: [],
+    lostZone: [],
+    resolvingSupporter: [],
+    publicHand: null,
+    prizeSlots: [],
+    publicTurnRestrictions: publicRestrictions(),
+    handCount: 0,
+    deckCount: 10,
+    prizeCount: 6
+  };
 }
 
-function allReadsDenied(result){
-  return result&&!result.blocked&&Object.values(result).length>0&&
-    Object.values(result).every(value=>value&&value.ok===false);
+function actorObservation(seat) {
+  return {
+    actorSeat: seat,
+    globalTurn: 1,
+    phase: 2,
+    decisionKind: 'owner-root',
+    pendingPromptType: null,
+    pendingOwnerDeckSearch: false,
+    ownHand: ['OWN-HAND-CARD'],
+    ownPublic: publicPlayer(),
+    opponentPublic: publicPlayer(),
+    ownTurnResources: {
+      supporterPlayedTurn: 0,
+      retreatedTurn: 0,
+      extraTurnActive: false,
+      energyPlayedTurn: false,
+      stadiumPlayedTurn: false,
+      stadiumUsedTurn: false,
+      vstarUsed: false,
+      pokemonPlayLocked: false,
+      abilityPokemonPlayLocked: false,
+      evolutionPlayLocked: false,
+      itemPlayLocked: false,
+      supporterPlayLocked: false,
+      stadiumPlayLocked: false,
+      toolPlayLocked: false,
+      energyPlayLocked: false,
+      specialEnergyPlayLocked: false
+    },
+    ownerK1: null
+  };
 }
 
-test('digest-pinned Docker policy workers cannot reach host capabilities from either seat', {
-  timeout:120000
-}, async t=>{
-  const runtime=preflightDockerPolicySandbox({pull:false});
-  assert.equal(runtime.imageRef,IMAGE_REF);
-  assert.equal(runtime.imageDigest,IMAGE_DIGEST);
-  assert.equal(runtime.nodeVersion,'v20.19.0');
+function namespaceScript() {
+  return [
+    "const fs=require('node:fs');",
+    "const names=['pid','ipc','uts','net','mnt'];",
+    "const paths=JSON.parse(process.argv[1]);",
+    "const namespaceInodes={};",
+    "for(const name of names){try{namespaceInodes[name]=fs.readlinkSync('/proc/self/ns/'+name);}catch(error){namespaceInodes[name]=null;}}",
+    "const markerReads={};",
+    "for(const [key,file] of Object.entries(paths)){try{fs.readFileSync(file);markerReads[key]={ok:true};}catch(error){markerReads[key]={ok:false,code:error.code||error.name};}}",
+    "process.stdout.write(JSON.stringify({namespaceInodes,markerReads}));"
+  ].join('\n');
+}
 
-  const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-policy-canary-source-'));
-  const hostSecretPath=path.join(os.tmpdir(),'agent36-host-secret-'+crypto.randomUUID());
-  const physicalSeedPath=path.join(os.tmpdir(),'agent36-physical-seed-'+crypto.randomUUID());
-  const hostSecret='HOST-ONLY-'+crypto.randomUUID();
-  const physicalSeed='PHYSICAL-SEED-ONLY-'+crypto.randomUUID();
-  fs.writeFileSync(hostSecretPath,hostSecret,{mode:0o600});
-  fs.writeFileSync(physicalSeedPath,physicalSeed,{mode:0o600});
-  const workerSourcePath=path.join(sourceRoot,'worker.cjs');
-  fs.writeFileSync(workerSourcePath,CANARY_SOURCE,{mode:0o600});
-  const bundle=createPolicyBundle({
+function workerThreadScript() {
+  return [
+    "const {parentPort,workerData}=require('node:worker_threads');",
+    "const fs=require('node:fs');",
+    "const names=['pid','ipc','uts','net','mnt'];",
+    "const namespaceInodes={};",
+    "for(const name of names){try{namespaceInodes[name]=fs.readlinkSync('/proc/self/ns/'+name);}catch(error){namespaceInodes[name]=null;}}",
+    "const markerReads={};",
+    "for(const [key,file] of Object.entries(workerData)){try{fs.readFileSync(file);markerReads[key]={ok:true};}catch(error){markerReads[key]={ok:false,code:error.code||error.name};}}",
+    "parentPort.postMessage({namespaceInodes,markerReads});"
+  ].join('\n');
+}
+
+function policySource({ markerPaths, hostPort, hostPid }) {
+  const childCode = JSON.stringify(namespaceScript());
+  const workerCode = JSON.stringify(workerThreadScript());
+  return [
+    "'use strict';",
+    "const fs=require('node:fs');",
+    "const net=require('node:net');",
+    "const {spawnSync}=require('node:child_process');",
+    "const {Worker}=require('node:worker_threads');",
+    "const POLICY_VERSION=" + JSON.stringify(POLICY_VERSION) + ";",
+    "const NAMESPACE_NAMES=" + JSON.stringify(NAMESPACE_NAMES) + ";",
+    "const MARKER_PATHS=" + JSON.stringify(markerPaths) + ";",
+    "const HOST_PORT=" + Number(hostPort) + ";",
+    "const HOST_PID=" + Number(hostPid) + ";",
+    "const CHILD_CODE=" + childCode + ";",
+    "const WORKER_CODE=" + workerCode + ";",
+    "function namespaceInodes(){const out={};for(const name of NAMESPACE_NAMES){try{out[name]=fs.readlinkSync('/proc/self/ns/'+name);}catch(error){out[name]=null;}}return out;}",
+    "function readMany(paths){const out={};for(const [key,file] of Object.entries(paths)){try{fs.readFileSync(file);out[key]={ok:true};}catch(error){out[key]={ok:false,code:error.code||error.name};}}return out;}",
+    "function writeProbe(file){try{fs.writeFileSync(file,'probe');fs.unlinkSync(file);return {ok:true};}catch(error){return {ok:false,code:error.code||error.name};}}",
+    "function sameNamespaces(left,right){return NAMESPACE_NAMES.every(name=>left&&right&&left[name]&&left[name]===right[name]);}",
+    "async function networkProbe(){return await new Promise(resolve=>{let settled=false;const socket=net.createConnection({host:'host.docker.internal',port:HOST_PORT});const finish=result=>{if(settled)return;settled=true;socket.destroy();resolve(result);};socket.setTimeout(800,()=>finish({connected:false,code:'TIMEOUT'}));socket.once('connect',()=>finish({connected:true}));socket.once('error',error=>finish({connected:false,code:error.code||error.name}));});}",
+    "async function childProcessProbe(){try{const child=spawnSync(process.execPath,['-e',CHILD_CODE,JSON.stringify(MARKER_PATHS)],{encoding:'utf8',timeout:3000});if(child.error)return {blocked:true,code:child.error.code||child.error.name};if(child.status!==0)return {blocked:true,code:'EXIT_'+child.status};return JSON.parse(child.stdout);}catch(error){return {blocked:true,code:error.code||error.name};}}",
+    "async function workerThreadProbe(){let worker;try{worker=new Worker(WORKER_CODE,{eval:true,workerData:MARKER_PATHS});const report=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Object.assign(new Error('thread probe timeout'),{code:'THREAD_TIMEOUT'})),3000);worker.once('message',value=>{clearTimeout(timer);resolve(value);});worker.once('error',error=>{clearTimeout(timer);reject(error);});});return report;}catch(error){return {blocked:true,code:error.code||error.name};}finally{if(worker)await worker.terminate().catch(()=>{});}}",
+    "async function createPolicy(context){",
+    "  const hostNamespaceInodes=namespaceInodes();",
+    "  const workerNamespaceInodes=namespaceInodes();",
+    "  const markerReads=readMany(MARKER_PATHS);",
+    "  const childProcess=await childProcessProbe();",
+    "  const workerThreads=await workerThreadProbe();",
+    "  const network=await networkProbe();",
+    "  let proc1;",
+    "  try{proc1={ok:true,text:fs.readFileSync('/proc/1/cmdline','utf8').replace(/\\\\0/g,' ')};}catch(error){proc1={ok:false,code:error.code||error.name};}",
+    "  const rootWrite=writeProbe('/root/agent36-root-write-probe');",
+    "  const policyWrite=writeProbe('/policy/agent36-policy-write-probe');",
+    "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
+    "  const shmWrite=writeProbe('/dev/shm/agent36-shm-write-probe-'+process.pid);",
+    "  const envKeys=Object.keys(process.env).sort();",
+    "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG/i.test(key));",
+    "  const argv=process.argv.slice();",
+    "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
+    "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
+    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,proc1:proc1,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv,hostPidPathProbe:readMany({hostProcess:'/proc/'+HOST_PID+'/environ'}).hostProcess};",
+    "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\\\n');",
+    "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
+    "}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+}
+
+function makeBundle(markerPaths, hostPort, hostPid) {
+  const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
+  const workerPath = path.join(sourceRoot, 'worker.cjs');
+  const policyPath = path.join(sourceRoot, 'policy.cjs');
+  fs.copyFileSync(WORKER_SOURCE, workerPath);
+  fs.writeFileSync(policyPath, policySource({ markerPaths, hostPort, hostPid }), { mode: 0o444 });
+  fs.chmodSync(policyPath, 0o444);
+  const bundle = createPolicyBundle({
     sourceRoot,
-    policyFiles:[{
-      sourcePath:workerSourcePath,
-      relativePath:'worker.cjs',
-      sha256:sha256(fs.readFileSync(workerSourcePath))
-    }]
+    policyFiles: [
+      { sourcePath: workerPath, relativePath: 'worker.cjs', sha256: sha256(fs.readFileSync(workerPath)) },
+      { sourcePath: policyPath, relativePath: 'policy.cjs', sha256: sha256(fs.readFileSync(policyPath)) }
+    ]
   });
-  const server=net.createServer(socket=>{hostConnections++;socket.destroy();});
-  let hostConnections=0;
-  let physicalRandomCalls=0;
-  const originalMathRandom=Math.random;
-  const hostPhysicalRandom=()=>{physicalRandomCalls++;return 0.125;};
-  const originalPhysicalSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
-  const results=[];
-  const hiddenOpponentSentinel='OPPONENT-HIDDEN-'+crypto.randomUUID();
-  try{
-    process.env.AGENT36_PHYSICAL_SEED_HEX=physicalSeed;
-    Math.random=hostPhysicalRandom;
-    await new Promise((resolve,reject)=>{
-      server.once('error',reject);
-      server.listen(0,'127.0.0.1',resolve);
-    });
-    const hostPort=server.address().port;
-    const hostPaths={
-      hostSecret:hostSecretPath,
-      physicalSeed:physicalSeedPath,
-      repositoryReadme:path.join(process.cwd(),'README.md'),
-      hostProc:'/proc/'+process.pid+'/environ',
-      dockerSocket:'/var/run/docker.sock'
-    };
-    for(const seat of [0,1]){
-      for(const permissionModel of [false,true]){
-        const request={
-          requestId:'seat-'+seat+'-permission-'+String(permissionModel),
-          role:seat===0?'candidate':'opponent',
-          seat,
-          policySeed:'policy-seed-only-seat-'+seat,
-          observation:{
-            actorSeat:seat,
-            ownHand:['OWN-HAND-CARD'],
-            opponentPublic:{handCount:2,active:'PUBLIC-ACTIVE'}
-          },
-          hostPaths,
-          hostPort
-        };
-        const child=spawnDockerPolicyWorker({
-          bundle,
-          entrypoint:'/policy/worker.cjs',
-          permissionModel,
-          timeoutMs:20000
-        });
-        t.after(()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');});
-        child.stdin.end(JSON.stringify(request)+'\n');
-        const response=await waitForResponse(child,20000);
-        await waitForClose(child,5000);
-        assert.equal(response.type,'canary-result');
-        assert.equal(response.requestId,request.requestId);
-        assert.equal(response.role,request.role);
-        assert.equal(response.seat,seat);
-        assert.equal(response.actorSeat,seat);
-        assert.equal(response.policySeed,request.policySeed);
-        assert.equal(response.nodeVersion,'v20.19.0');
-        assert.equal(response.uid,65532);
-        assert.equal(response.pid,1);
-        assert.equal(response.mathRandomSetterCapturedOwnFunction,true);
-        assert.deepEqual(response.forbiddenEnvKeys,[]);
-        assert.ok(Object.values(response.hostPathReads).every(value=>value.ok===false));
-        if(permissionModel){
-          assert.equal(response.childProcess.blocked,true);
-          assert.equal(response.workerThreads.blocked,true);
-        }else{
-          assert.equal(allReadsDenied(response.childProcess),true);
-          assert.equal(allReadsDenied(response.workerThreads),true);
-        }
-        assert.equal(response.network.connected,false);
-        assert.equal(response.rootWrite.ok,false);
-        assert.equal(response.tmpWrite.ok,true);
-        if(permissionModel){
-          assert.equal(response.proc1.ok,false);
-        }else{
-          assert.equal(response.proc1.ok,true);
-          assert.match(response.proc1.text,/node/i);
-        }
-        const serialized=JSON.stringify(response);
-        assert.equal(serialized.includes(hostSecret),false);
-        assert.equal(serialized.includes(physicalSeed),false);
-        assert.equal(serialized.includes(hiddenOpponentSentinel),false);
-        assert.equal(Math.random,hostPhysicalRandom);
-        results.push({
-          role:response.role,
-          seat:response.seat,
-          permissionModel,
-          response
-        });
-      }
+  return { sourceRoot, bundle };
+}
+
+function createLineReader(child) {
+  const rl = readline.createInterface({ input: child.stdout, crlfDelay: Infinity });
+  const queue = [];
+  const waiters = [];
+  let failure = null;
+  let closed = false;
+  let stderr = '';
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', chunk => { stderr = (stderr + String(chunk)).slice(-32768); });
+  rl.on('line', line => {
+    let value;
+    try { value = JSON.parse(line); }
+    catch (error) { failure = new Error('invalid worker JSON: ' + line); }
+    const waiter = waiters.shift();
+    if (waiter) {
+      clearTimeout(waiter.timer);
+      if (failure) waiter.reject(failure);
+      else waiter.resolve(value);
+    } else if (!failure) queue.push(value);
+  });
+  child.once('error', error => {
+    failure = error;
+    while (waiters.length) {
+      const waiter = waiters.shift();
+      clearTimeout(waiter.timer);
+      waiter.reject(error);
     }
-    assert.equal(hostConnections,0,'worker reached the host loopback service');
-    assert.equal(physicalRandomCalls,0,'worker invoked the host physical RNG');
-    const report={
-      schema:'agent36-docker-policy-canary-report-v1',
+  });
+  child.once('close', (code, signal) => {
+    closed = true;
+    if (code !== 0 && !failure) failure = new Error(
+      'Docker policy worker exited code=' + code + ' signal=' + signal + ' stderr=' + stderr
+    );
+    while (waiters.length) {
+      const waiter = waiters.shift();
+      clearTimeout(waiter.timer);
+      waiter.reject(failure || new Error('Docker policy worker closed before response'));
+    }
+  });
+  return {
+    next(timeoutMs = 15000) {
+      if (queue.length) return Promise.resolve(queue.shift());
+      if (failure) return Promise.reject(failure);
+      if (closed) return Promise.reject(new Error('Docker policy worker is closed'));
+      return new Promise((resolve, reject) => {
+        const waiter = { resolve, reject, timer: null };
+        waiter.timer = setTimeout(() => {
+          const index = waiters.indexOf(waiter);
+          if (index >= 0) waiters.splice(index, 1);
+          reject(new Error('Docker policy worker response timeout; stderr=' + stderr));
+        }, timeoutMs);
+        waiters.push(waiter);
+      });
+    },
+    get stderr() { return stderr; },
+    close() { rl.close(); }
+  };
+}
+
+function writeLine(stream, value) {
+  return new Promise((resolve, reject) => {
+    const bytes = JSON.stringify(value) + '\n';
+    if (stream.write(bytes)) resolve();
+    else {
+      stream.once('drain', resolve);
+      stream.once('error', reject);
+    }
+  });
+}
+
+async function waitForClose(child, timeoutMs = 5000) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  await Promise.race([
+    new Promise((resolve, reject) => {
+      child.once('close', resolve);
+      child.once('error', reject);
+    }),
+    new Promise((_, reject) => setTimeout(() => reject(
+      new Error('Docker policy worker did not exit after stdin EOF')
+    ), timeoutMs))
+  ]);
+}
+
+async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
+  const child = spawnDockerPolicyWorker({
+    bundle,
+    entrypoint: '/policy/worker.cjs',
+    permissionModel,
+    timeoutMs: 30000
+  });
+  const reader = createLineReader(child);
+  const init = {
+    schema: protocol.INIT_SCHEMA,
+    type: 'init',
+    role,
+    seat,
+    policyVersion: POLICY_VERSION,
+    bundleSha256: bundle.bundleSha256,
+    config: {}
+  };
+  const request = {
+    schema: protocol.REQUEST_SCHEMA,
+    type: 'decision',
+    requestId: 'canary-' + role + '-seat' + seat,
+    sequence: 1,
+    role,
+    seat,
+    observationSchema: protocol.OBSERVATION_SCHEMA,
+    observation: actorObservation(seat),
+    prompt: null,
+    publicEventReceipt: null,
+    actionFrontier: {
+      schema: protocol.FRONTIER_SCHEMA,
+      items: [{ token: 'canary-pass', kind: 'pass' }]
+    }
+  };
+  assert.doesNotMatch(JSON.stringify(request), /seed|rng|random/i);
+  try {
+    await writeLine(child.stdin, init);
+    const ready = await reader.next(15000);
+    assert.deepEqual(ready, {
+      schema: protocol.READY_SCHEMA,
+      type: 'ready',
+      role,
+      seat,
+      policyVersion: POLICY_VERSION,
+      bundleSha256: bundle.bundleSha256
+    });
+    await writeLine(child.stdin, request);
+    const response = await reader.next(15000);
+    assert.deepEqual(Object.keys(response).sort(), [
+      'schema', 'type', 'requestId', 'sequence', 'role', 'seat', 'policyVersion', 'decision'
+    ].sort());
+    assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
+    assert.equal(response.type, 'response');
+    assert.equal(response.requestId, request.requestId);
+    assert.equal(response.sequence, 1);
+    assert.equal(response.role, role);
+    assert.equal(response.seat, seat);
+    assert.equal(response.policyVersion, POLICY_VERSION);
+    assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
+    assert.doesNotMatch(JSON.stringify(response), /seed|rng|random/i);
+    child.stdin.end();
+    await waitForClose(child, 7000);
+    return { response, stderr: reader.stderr };
+  } catch (error) {
+    await stopDockerPolicyWorker(child, { signal: 'SIGTERM' }).catch(() => {});
+    throw error;
+  } finally {
+    reader.close();
+  }
+}
+
+function parseCanaryReport(stderr) {
+  const line = String(stderr).split('\n').find(value =>
+    value.startsWith('AGENT36_CANARY_RESULT '));
+  assert.ok(line, 'worker did not emit its bounded capability report');
+  return JSON.parse(line.slice('AGENT36_CANARY_RESULT '.length));
+}
+
+function hostNamespaceInodes() {
+  const out = {};
+  for (const name of NAMESPACE_NAMES) {
+    out[name] = fs.readlinkSync('/proc/self/ns/' + name);
+  }
+  return out;
+}
+
+function positiveControlDockerEnv() {
+  return {
+    PATH: process.env.PATH || '/usr/bin:/bin',
+    HOME: process.env.HOME || os.tmpdir()
+  };
+}
+
+function runBridgePositiveControl(port) {
+  const script = "fetch('http://host.docker.internal:" + port +
+    "/').then(response=>response.text()).then(text=>process.stdout.write(text)).catch(error=>{process.stderr.write(String(error));process.exit(2);});";
+  const result = spawnSync('docker', [
+    'run', '--rm', '--pull=never', '--platform=' + PLATFORM,
+    '--network=bridge', '--add-host=host.docker.internal:host-gateway',
+    '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', script
+  ], {
+    encoding: 'utf8',
+    timeout: 15000,
+    env: positiveControlDockerEnv(),
+    maxBuffer: 1024 * 1024
+  });
+  if (result.error) throw result.error;
+  assert.equal(result.status, 0,
+    'positive-control bridge container could not reach host service: ' +
+    String(result.stderr || result.stdout).slice(-2000));
+  assert.equal(result.stdout, 'HOST_GATEWAY_POSITIVE_CONTROL');
+  return { connected: true, response: result.stdout };
+}
+
+test('actual Agent49 policy worker is isolated from host capabilities in both seats', {
+  timeout: 180000
+}, async () => {
+  const runtime = preflightDockerPolicySandbox({ pull: false });
+  assert.equal(runtime.imageRef, IMAGE_REF);
+  assert.equal(runtime.imageDigest, IMAGE_DIGEST);
+  assert.equal(runtime.platform, PLATFORM);
+  assert.equal(runtime.nodeVersion, NODE_VERSION);
+  assert.equal(runtime.dockerContext, 'default');
+  assert.ok(runtime.dockerEndpoint.startsWith('unix://'));
+
+  const hostMathRandomBefore = Math.random;
+  assert.ok(Number.isFinite(Math.random()));
+  const hostRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-host-markers-'));
+  const markerValues = {
+    repository: 'HOST_REPOSITORY_SENTINEL_' + crypto.randomUUID(),
+    candidateDeck: 'CANDIDATE_DECK_SENTINEL_' + crypto.randomUUID(),
+    opponentDeck: 'OPPONENT_DECK_SENTINEL_' + crypto.randomUUID(),
+    privateInput: 'PHYSICAL_INPUT_SENTINEL_' + crypto.randomUUID(),
+    opponentHiddenZone: 'OPPONENT_HIDDEN_ZONE_SENTINEL_' + crypto.randomUUID()
+  };
+  const markerPaths = {};
+  for (const [key, value] of Object.entries(markerValues)) {
+    const file = path.join(hostRoot, key + '.txt');
+    fs.writeFileSync(file, value, { mode: 0o444 });
+    fs.chmodSync(file, 0o444);
+    markerPaths[key] = file;
+  }
+  markerPaths.hostProcess = '/proc/' + process.pid + '/environ';
+  markerPaths.dockerSocket = '/var/run/docker.sock';
+
+  let hostConnections = 0;
+  const server = http.createServer((request, response) => {
+    response.end('HOST_GATEWAY_POSITIVE_CONTROL');
+  });
+  server.on('connection', () => { hostConnections += 1; });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '0.0.0.0', resolve);
+  });
+  const hostPort = server.address().port;
+
+  let sourceRoot;
+  let bundle;
+  const results = [];
+  try {
+    const bridgeControl = runBridgePositiveControl(hostPort);
+    assert.equal(hostConnections, 1,
+      'positive-control bridge container did not reach the host service');
+
+    ({ sourceRoot, bundle } = makeBundle(markerPaths, hostPort, process.pid));
+    const combinations = [
+      { role: 'candidate', seat: 0, permissionModel: true },
+      { role: 'candidate', seat: 1, permissionModel: false },
+      { role: 'opponent', seat: 0, permissionModel: false },
+      { role: 'opponent', seat: 1, permissionModel: true }
+    ];
+    for (const combination of combinations) {
+      const { response, stderr } = await runCanaryWorker({ bundle, ...combination });
+      const report = parseCanaryReport(stderr);
+      assert.equal(report.role, combination.role);
+      assert.equal(report.seat, combination.seat);
+      assert.equal(report.namespaceIsolation, true,
+        'worker must have distinct pid/ipc/uts/net/mount namespace inodes');
+      assert.ok(NAMESPACE_NAMES.every(name =>
+        report.hostNamespaceInodes[name] !== report.workerNamespaceInodes[name]));
+      assert.ok(Object.values(report.markerReads).length >= 7);
+      assert.ok(Object.values(report.markerReads).every(value => value.ok === false),
+        'worker read a host repository/deck/input/hidden-zone marker');
+      assert.equal(report.hostProcessPathProbe?.ok, undefined);
+      assert.equal(report.childProcess.blocked, combination.permissionModel);
+      assert.equal(report.workerThreads.blocked, combination.permissionModel);
+      if (!combination.permissionModel) {
+        assert.equal(report.childNamespaceIsolation, true,
+          'child process escaped the worker namespaces');
+        assert.equal(report.threadNamespaceIsolation, true,
+          'worker thread escaped the worker namespaces');
+        assert.ok(Object.values(report.childProcess.markerReads).every(value => value.ok === false));
+        assert.ok(Object.values(report.workerThreads.markerReads).every(value => value.ok === false));
+      }
+      assert.equal(report.network.connected, false,
+        'network=none worker reached the host-gateway service');
+      assert.equal(report.proc1.ok, !combination.permissionModel);
+      assert.equal(report.rootWrite.ok, false);
+      assert.equal(report.policyWrite.ok, false);
+      assert.equal(report.tmpWrite.ok, true);
+      assert.equal(report.shmWrite.ok, true);
+      assert.deepEqual(report.forbiddenEnvKeys, []);
+      assert.ok(!report.argv.some(value => Object.values(markerPaths).includes(value)));
+      assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
+      const serialized = JSON.stringify({ response, report });
+      for (const marker of Object.values(markerValues))
+        assert.equal(serialized.includes(marker), false, 'host marker content crossed the policy boundary');
+      results.push({
+        role: combination.role,
+        seat: combination.seat,
+        permissionModel: combination.permissionModel,
+        response,
+        report
+      });
+    }
+    assert.equal(hostConnections, 1,
+      'a policy worker reached the host gateway after the positive control');
+    assert.equal(Math.random, hostMathRandomBefore,
+      'host Math.random property changed during isolated worker execution');
+    assert.ok(Number.isFinite(Math.random()),
+      'host Math.random is no longer callable after worker execution');
+
+    const report = {
+      schema: 'agent36-agent49-docker-policy-canary-report-v2',
       runtime,
-      bundle:bundle.manifest,
-      constraints:{
-        imageDigest:IMAGE_DIGEST,
-        platform:'linux/amd64',
-        network:'none',
-        pid:'private',
-        ipc:'private',
-        uts:'private',
-        rootFilesystem:'read-only',
-        policyMount:'read-only',
-        writableMounts:['/tmp'],
-        user:'65532:65532',
-        capabilities:'drop-all',
-        noNewPrivileges:true,
-        pidsLimit:64,
-        memory:'512m',
-        cpus:1
+      bundle: bundle.manifest,
+      bridgePositiveControl: bridgeControl,
+      constraints: {
+        imageDigest: IMAGE_DIGEST,
+        platform: PLATFORM,
+        network: 'none',
+        pid: 'private-default',
+        ipc: 'private-default',
+        uts: 'private-default',
+        mount: 'private-default',
+        shm: '16m',
+        rootFilesystem: 'read-only',
+        policyMount: 'read-only',
+        writableMounts: ['/tmp', '/dev/shm'],
+        user: '65532:65532',
+        capabilities: 'drop-all',
+        noNewPrivileges: true,
+        pidsLimit: 64,
+        memory: '512m',
+        cpus: 1
       },
       hostConnections,
-      physicalRandomCalls,
+      hostMathRandomFunctionPreserved: Math.random === hostMathRandomBefore,
       results
     };
-    const reportDir=process.env.AGENT36_POLICY_SANDBOX_REPORT_DIR;
-    if(reportDir){
-      fs.mkdirSync(reportDir,{recursive:true});
-      fs.writeFileSync(path.join(reportDir,'canary-report.json'),JSON.stringify(report,null,2)+'\n');
+    const reportDir = process.env.AGENT36_POLICY_SANDBOX_REPORT_DIR;
+    if (reportDir) {
+      fs.mkdirSync(reportDir, { recursive: true });
+      fs.writeFileSync(path.join(reportDir, 'canary-report.json'),
+        JSON.stringify(report, null, 2) + '\n');
     }
-    assert.equal(results.length,4);
-  }finally{
-    Math.random=originalMathRandom;
-    if(originalPhysicalSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
-    else process.env.AGENT36_PHYSICAL_SEED_HEX=originalPhysicalSeed;
-    await new Promise(resolve=>server.close(resolve));
-    cleanupPolicyBundle(bundle);
-    fs.rmSync(sourceRoot,{recursive:true,force:true});
-    fs.rmSync(hostSecretPath,{force:true});
-    fs.rmSync(physicalSeedPath,{force:true});
+    assert.equal(results.length, 4);
+  } finally {
+    if (bundle) cleanupPolicyBundle(bundle);
+    if (sourceRoot) fs.rmSync(sourceRoot, { recursive: true, force: true });
+    await new Promise(resolve => server.close(resolve));
+    fs.rmSync(hostRoot, { recursive: true, force: true });
   }
 });
