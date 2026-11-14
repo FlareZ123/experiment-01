@@ -19,11 +19,13 @@ Which high-impact Expanded Stadiums identified by the Agent42 census occur in th
 | Sky Field ROS 89 | #1 ×2; #4 ×3; #5 ×2; #14 ×1; #18 ×3; #19 ×3; #30 ×3 | Bench capacity changes. Full Moon Rondo uses the **actual combined Bench count**, not the maximum capacity. |
 | Dimension Valley PHF 93 | #1 ×1 | Reduces Psychic Pokémon attack costs by one Colorless. Relevant to Max Geist, Copycat and Full Moon Rondo. |
 | Temple of Sinnoh ASR 155 | #3 ×1; #8 ×2; #11 ×2; #16 ×2; #22 ×2 | Special Energy provides only Colorless while active. It can remove Psychic units from Telepathic or other Special Psychic Energy for Max Geist scaling and can change attack payability. |
+| Silent Lab PRC 140 | #9 ×2; #13 ×1; #15 ×1; #32 ×1 | Suppresses Abilities of Basic Pokémon. It can turn off the candidate's Basic Latias ex Skyliner and Lillie's Clefairy ex Fairy Zone; require live-Ability checks, not merely printing presence. |
+| Parallel City BKT 145 | #10 ×1; #12 ×1; #13 ×1; #20 ×1; #21 ×1; #27 ×1; #32 ×1 | Orientation-dependent Bench limit / damage reduction. Use the actual Bench arrays for Rondo; account for the relevant side when evaluating damage and opponent replies. |
 | Wondrous Labyrinth ◇ TEU 158 | #6 ×1; #24 ×1; #29 ×1 | Adds one Colorless to attacks of non-Fairy Pokémon. Candidate Psychic attackers are non-Fairy; this can make Max Geist, Copycat and Rondo more expensive. |
 
-No Pokémon League Headquarters printing appears in the 29 complete lists. Agent42's wider Expanded Stadium census identifies it as a +Colorless cost modifier for Basic Pokémon; it remains relevant to Mimikyu Copycat / Clefairy Rondo in the broader Expanded pool and must not be treated as absent from all possible field variants.
+The current JSON therefore contains **42 Stadium copies across 24 lists in six distinct identities**. Agent42's source-field Stadium report counted 39 copies across 21 lists but omitted the three Wondrous Labyrinth ◇ TEU 158 entries at ranks 6, 24 and 29; this discrepancy has been sent for reconciliation. No Pokémon League Headquarters printing appears in the 29 complete lists. The wider Expanded Stadium census identifies it as a +Colorless cost modifier for Basic Pokémon; it remains relevant to Mimikyu Copycat / Clefairy Rondo in the broader Expanded pool and must not be treated as absent from all possible field variants.
 
-The other high-impact Stadiums in the Agent42 census do not appear in these 29 lists. The three missing ranks 23, 25 and 28 may add further Stadiums.
+The other high-impact Stadiums in the Agent42 census (including Neutralization Zone, Plasma Frigate, Shadow Circle, Altar of the Sunne, Circhester Bath, Lake Acuity, Full Metal Lab, Aether Paradise Conservation Area, Granite Cave, Reverse Valley, Black Market ◇, Blizzard Town and Spikemuth) do not appear in these 29 lists. The three missing ranks 23, 25 and 28 may add further Stadiums.
 
 ## Candidate-policy implications
 
