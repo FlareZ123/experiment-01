@@ -417,11 +417,13 @@ jobs:
         run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs tests/agent36-v3-runner.test.cjs tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs tests/2026-11/agent49-native-fixture-game.test.cjs tests/2026-11/agent49-policy-worker.test.cjs
 
       - name: Verify Docker launcher contract without a daemon
-        if: ${{ inputs.contract_only }}
+        id: docker_launcher_contract
+        if: ${{ always() && inputs.contract_only }}
         run: node --test tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs
 
       - name: Preflight digest-pinned Docker policy-worker runtime
-        if: ${{ inputs.contract_only }}
+        id: docker_preflight
+        if: ${{ always() && inputs.contract_only && steps.docker_launcher_contract.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -429,7 +431,8 @@ jobs:
           node simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs preflight | tee artifacts/agent36-policy-sandbox/runtime.json
 
       - name: Verify Docker policy-worker isolation on both physical seats
-        if: ${{ inputs.contract_only }}
+        id: docker_canary
+        if: ${{ always() && inputs.contract_only && steps.docker_preflight.outcome == 'success' }}
         env:
           AGENT36_POLICY_SANDBOX_REPORT_DIR: artifacts/agent36-policy-sandbox
         run: node --test tests/2026-11/agent36-docker-policy-worker.test.cjs
