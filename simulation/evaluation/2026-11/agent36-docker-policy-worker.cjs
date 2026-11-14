@@ -281,6 +281,7 @@ function readContainerId(cidfile){
 
 function cleanupWorkerMetadata(metadata){
   if(!metadata||metadata.cleaned)return;
+  metadata.containerId=readContainerId(metadata.cidfile)??metadata.containerId??null;
   metadata.cleaned=true;
   if(metadata.timer)clearTimeout(metadata.timer);
   if(metadata.removeAbort)metadata.removeAbort();
@@ -290,13 +291,43 @@ function cleanupWorkerMetadata(metadata){
 
 const activeWorkers=new Set();
 
+function inspectContainerExists(containerId){
+  const result=spawnSync('docker',['inspect',containerId],{
+    encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
+  });
+  if(result.error)throw result.error;
+  if(result.status===0)return true;
+  const output=String(result.stderr??'')+' '+String(result.stdout??'');
+  if(/no such (?:object|container)/i.test(output))return false;
+  throw new Error('Docker container inspection failed; removal cannot be verified: '+output.slice(0,1000));
+}
+
 function removeContainerById(containerId){
-  if(!containerId)return;
-  try{
-    spawnSync('docker',['rm','-f',containerId],{
-      encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
-    });
-  }catch{}
+  if(!containerId)return false;
+  const result=spawnSync('docker',['rm','-f',containerId],{
+    encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
+  });
+  if(result.error)throw result.error;
+  return !inspectContainerExists(containerId);
+}
+
+async function verifyDockerPolicyWorkerClosed(child,{timeoutMs=5000}={}){
+  if(!child)return {processClosed:true,containerRemoved:true,containerId:null,exitCode:null,signalCode:null};
+  const processClosed=child.exitCode!==null||child.signalCode!==null;
+  assert.ok(processClosed,'Docker worker process has not closed');
+  const metadata=child.__agent36PolicyWorkerMetadata;
+  const containerId=metadata?.containerId??readContainerId(metadata?.cidfile);
+  assert.ok(containerId,'Docker container ID was not captured; container removal cannot be verified');
+  const deadline=Date.now()+timeoutMs;
+  let exists=true;
+  do{
+    exists=inspectContainerExists(containerId);
+    if(!exists)break;
+    await delay(50);
+  }while(Date.now()<deadline);
+  assert.equal(exists,false,'Docker daemon still reports the policy container after worker exit');
+  return {processClosed:true,containerRemoved:true,containerId,
+    exitCode:child.exitCode,signalCode:child.signalCode};
 }
 
 function delay(ms){
@@ -320,16 +351,16 @@ async function stopDockerPolicyWorker(child,{
       try{child.kill(signal);}catch{}
       await Promise.race([once(child,'close').catch(()=>{}),delay(timeoutMs)]);
     }
-    let containerId=metadata?readContainerId(metadata.cidfile):null;
-    if(containerId)removeContainerById(containerId);
+    let containerId=metadata?(readContainerId(metadata.cidfile)??metadata.containerId):null;
+    let containerRemoved=containerId?removeContainerById(containerId):false;
     if(stillRunning()){
       try{child.kill('SIGKILL');}catch{}
       await Promise.race([once(child,'close').catch(()=>{}),delay(2500)]);
     }
-    containerId=metadata?readContainerId(metadata.cidfile):containerId;
-    if(containerId)removeContainerById(containerId);
-    if(metadata)cleanupWorkerMetadata(metadata);
-    return {stopped:!stillRunning(),containerId};
+    containerId=metadata?(readContainerId(metadata.cidfile)??metadata.containerId):containerId;
+    if(containerId)containerRemoved=removeContainerById(containerId);
+    if(metadata){metadata.containerId=containerId;cleanupWorkerMetadata(metadata);}
+    return {stopped:!stillRunning(),containerId,containerRemoved};
   };
   if(metadata)metadata.stoppingPromise=stop();
   return metadata?metadata.stoppingPromise:stop();
@@ -433,6 +464,7 @@ function spawnDockerPolicyWorker({
   },timeoutMs);
   metadata.timer.unref?.();
   child.once('close',()=>{
+    metadata.containerId=readContainerId(metadata.cidfile)??metadata.containerId??null;
     if(!metadata.cleanupRequested)cleanupWorkerMetadata(metadata);
   });
   child.once('error',()=>{void stopDockerPolicyWorker(child,{signal:'SIGTERM'});});
@@ -451,10 +483,12 @@ function makeBundleWritable(directory){
 }
 
 function cleanupPolicyBundle(bundle){
-  if(bundle?.root){
-    makeBundleWritable(bundle.root);
-    fs.rmSync(bundle.root,{recursive:true,force:true});
-  }
+  if(!bundle?.root)return true;
+  makeBundleWritable(bundle.root);
+  fs.rmSync(bundle.root,{recursive:true,force:true});
+  assert.equal(fs.existsSync(bundle.root),false,
+    'policy bundle cleanup did not remove the worker bundle directory');
+  return true;
 }
 
 if(require.main===module&&process.argv[2]==='preflight'){
@@ -472,5 +506,5 @@ module.exports={
   DEFAULT_WORKER_TIMEOUT_MS,MAX_WORKER_TIMEOUT_MS,
   sha256,preflightDockerPolicySandbox,createPolicyBundle,
   verifyPolicyBundle,spawnDockerPolicyWorker,stopDockerPolicyWorker,
-  stopAllDockerPolicyWorkers,cleanupPolicyBundle
+  stopAllDockerPolicyWorkers,cleanupPolicyBundle,verifyDockerPolicyWorkerClosed
 };
