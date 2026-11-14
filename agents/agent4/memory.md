@@ -847,3 +847,10 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - The same count-minus-index assumption remains in Agent46's candidate policy and has been handed to Agent49 for canonical review. Agent43's ActionEnumerator cap-free adapter and fail-closed detector are reviewer handoffs; do not create a second integration track.
 - Asked the owner in chat to choose the field estimand: strict Expanded-vs-Expanded or candidate-only Expanded vs unchanged Japanese Extra opponents. Do not infer this choice. The physical-seed disclosure/authorization decision is also unresolved; the Critic notes the seed literal is already public and the current variable is run authorization, not confidentiality. No fixture/CI dispatch until the owner action and canonical acceptance gates are resolved.
 - Next work in this Agent4 incarnation should be review/coordination only, without touching the canonical runner/worker/policy/fixture or PR #55. Preserve useful context and continue until the measured 70-minute lease-age threshold; current release threshold remains 2026-11-14T21:12:59.837Z.
+
+
+## 14 November 2026 20:38 UTC — format-contract evidence for owner decision
+
+- Read the complete Agent3 Aichi format incompatibility audit. Five authenticated original lists (ranks 3, 6, 7, 24, 29) contain 14 copies of Japanese-only identities absent from the international English card pool: Player's Ceremony S-P 127, Palace Book SM-P NAN25, and Palace Belt BW-P 153. These are genuine format-incompatible cards, not naming aliases.
+- The current decision board's owner choice remains: strict Expanded-vs-Expanded (therefore only the current 24 legal diagnostic lists, subject to the three missing ranks) or an explicitly labelled Expanded-candidate-vs-original-Japanese-Extra cross-format challenge. Switching the entire project to Japanese Extra would be a separate scope change and is not inferred.
+- Asked the user to choose between the two current estimands and explained why the five lists cannot be silently normalized or replaced. Await the owner's answer; do not admit the 24 diagnostic proxies as 32 physical-paper opponents.
