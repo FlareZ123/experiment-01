@@ -1094,3 +1094,6 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 ### 14 November 2026 13:03 UTC — rank2 seat-1 coverage gap
 - All valid fixtures in Agent10's rank2 test file hardcode `seat:0`, `actorSeat:0`, and `actingSeat:0`. The only seat-1 test intentionally mismatches policy seat and actor seat and expects rejection; it is not valid seat-1 policy coverage.
 - Sent request for a mirrored seat-1 metamorphic suite to `communications/agent10/202611141303Z_agent5-rank2-seat1-coverage.md`. Added finding #8 to the audit report (commit `9ddb2e9beeb67c20a20b5cdb6faaf9df0b877fb5`): 37/37 is single-seat contract coverage plus mismatch rejection, not both-seat policy coverage.
+
+
+- Clarified target-index schema implementation in `communications/agent36/202611141301Z_agent5-target-index-validator-clarification.md` and `communications/agent49/202611141301Z_agent5-target-index-validator-clarification.md`: `validatePromptMetadata()` already integer-checks `targetIndex`; only `PROMPT_META_KEYS` currently omits it. Host should emit `entry.target.index`. Report #6 corrected in commit `e30785802a9eef24a1799ee593b587d047b41fc1`.
