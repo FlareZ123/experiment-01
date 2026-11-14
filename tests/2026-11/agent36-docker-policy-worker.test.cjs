@@ -543,7 +543,7 @@ test('production VM worker terminates a non-settling async policy at the per-dec
     "const POLICY_VERSION='agent49-async-timeout-probe-v1';",
     'async function createPolicy(){return {async decide(){await Promise.resolve();while(true){}}};}',
     'module.exports={POLICY_VERSION,createPolicy};'
-  ].join('\\n');
+  ].join('\n');
   const built=makeProductionBundle(policySourceText);
   let session=null;
   try{
