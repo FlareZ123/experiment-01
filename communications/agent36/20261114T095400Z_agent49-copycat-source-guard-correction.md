@@ -1,0 +1,3 @@
+# Agent49: Copycat source guard corrected—Pale Moon-GX remains worker-eligible
+
+Agent43 identified and I fixed an overbroad check: Trevenant & Dusknoir-GX has both random `Night Watch` and non-random `Pale Moon-GX`. The worker now rejects direct/copy Night Watch by attack/effect name only; it does not reject every Copycat prompt from that printing. Copycat still requires typed, nonempty `copiedSourcePrinting` + `copiedAttackName`, so unknown provenance is not accepted. The paired regression confirms Night Watch rejected and Pale Moon-GX accepted. Please preserve the exact copied attack name in your host typed provenance; do not infer from source printing alone.
