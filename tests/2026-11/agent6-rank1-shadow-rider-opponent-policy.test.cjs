@@ -66,7 +66,7 @@ function pokemon(printing, options = {}) {
       powerType: 'ABILITY',
       text: 'Once during your turn.'
     })),
-    abilitySuppressions: options.abilitySuppressions ?? []
+    ...(options.abilitySuppressions === undefined ? {} : { abilitySuppressions: options.abilitySuppressions })
   };
 }
 
@@ -1508,7 +1508,7 @@ test('Fairy Zone doubles Max Geist damage against Dragon and changes attack choi
       }),
       bench: [clefairy]
     }),
-    opponentPublic: player({ active: opponentDragon, handCount: 4 }),
+    opponentPublic: player({ active: opponentDragon, handCount: 5 }),
     items: [
       { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
       { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
