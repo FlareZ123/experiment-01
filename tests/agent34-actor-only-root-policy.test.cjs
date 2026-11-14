@@ -1844,6 +1844,89 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     aorPowerBeamView,postTimelessCatalog,{ownerSeat:0}),null,
     'AOR Vileplume Item lock does not disable Copycat, so a payable terminal Power Beam remains preferable');
 
+  const opponentFairyZone={
+    ...target,printing:"Lillie's Clefairy ex JTG 56",
+    abilities:['Fairy Zone'],
+    abilityDetails:[{name:'Fairy Zone',
+      text:"The Weakness of each of your opponent's Dragon Pokémon in play is now Psychic."}]
+  };
+  const opponentFairyZoneView={
+    ...view,
+    opponentPublic:{...view.opponentPublic,bench:[opponentFairyZone]}
+  };
+  assert.ok(choosePostTimelessMaxGeistRetreat(
+    opponentFairyZoneView,postTimelessCatalog,{ownerSeat:0}),
+    'opponent Fairy Zone changes the candidate Dragon board, not the opponent Active target used for outgoing damage');
+
+  const swayingCradily={
+    ...target,printing:'Cradily SM12 11',
+    abilities:['Swaying Strangle'],
+    abilityDetails:[{name:'Swaying Strangle',
+      text:"Your opponent's Pokémon that are affected by Special Conditions can't retreat."}]
+  };
+  const statusMimikyu={...active,specialConditions:['BURNED']};
+  const swayingRetreatView={
+    ...view,
+    ownPublic:{...view.ownPublic,active:statusMimikyu},
+    opponentPublic:{...view.opponentPublic,bench:[swayingCradily]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    swayingRetreatView,postTimelessCatalog,{ownerSeat:0}),null,
+    'Cradily SM12 blocks retreat of a status-affected Mimikyu even when it is Benched');
+
+  const suctionCradily={
+    ...target,printing:'Cradily EX2 3',
+    abilities:['Super Suction Cups'],
+    abilityDetails:[{name:'Super Suction Cups',
+      text:"As long as Cradily is your Active Pokémon, your opponent's Pokémon can't retreat."}]
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat({
+    ...view,opponentPublic:{...view.opponentPublic,active:suctionCradily}
+  },postTimelessCatalog,{ownerSeat:0}),null,
+  'Cradily EX2 active retreat lock is distinct from the conditional SM12 ability');
+
+  const poisonBarrierDragalge={
+    ...target,printing:'Dragalge XY2 71',
+    abilities:['Poison Barrier'],
+    abilityDetails:[{name:'Poison Barrier',
+      text:"Your opponent's Poisoned Pokémon can't retreat."}]
+  };
+  const poisonedMimikyu={...active,specialConditions:['POISONED']};
+  assert.equal(choosePostTimelessMaxGeistRetreat({
+    ...view,
+    ownPublic:{...view.ownPublic,active:poisonedMimikyu},
+    opponentPublic:{...view.opponentPublic,bench:[poisonBarrierDragalge]}
+  },postTimelessCatalog,{ownerSeat:0}),null,
+  'Dragalge Poison Barrier blocks a Poisoned Mimikyu retreat');
+
+  const frigidRoomVanilluxe={
+    ...target,printing:'Vanilluxe SV4 45',
+    abilities:['Frigid Room'],
+    abilityDetails:[{name:'Frigid Room',
+      text:"Your opponent's Pokémon that have 40 HP or less remaining can't attack."}]
+  };
+  const fragileVmax={...vmax,damage:280};
+  assert.equal(choosePostTimelessMaxGeistRetreat({
+    ...view,
+    ownPublic:{...view.ownPublic,bench:[latias,clefairy,fragileVmax]},
+    opponentPublic:{...view.opponentPublic,bench:[frigidRoomVanilluxe]}
+  },postTimelessCatalog,{ownerSeat:0}),null,
+  'Vanilluxe Frigid Room blocks Max Geist when the promoted VMAX has 40 HP remaining');
+
+  const fragileMimikyu={...active,damage:30,energies:[psychic,psychic]};
+  const frigidCopycatView={
+    ...view,
+    ownPublic:{...view.ownPublic,active:fragileMimikyu,
+      bench:[latias,clefairy,vmax],
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
+    opponentPublic:{...view.opponentPublic,bench:[frigidRoomVanilluxe]}
+  };
+  const frigidIntent=choosePostTimelessMaxGeistRetreat(
+    frigidCopycatView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(frigidIntent);
+  assert.equal(frigidIntent.competingPowerBeamAvailable,false,
+    'Frigid Room blocks the 40-HP Mimikyu Copycat but not the healthy VMAX Max Geist');
+
   const unknownOpponentAbility={
     ...vileplumeBus,abilityDetails:undefined
   };
