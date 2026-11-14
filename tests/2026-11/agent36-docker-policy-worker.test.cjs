@@ -4,7 +4,6 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
-const http = require('node:http');
 const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
@@ -126,7 +125,7 @@ function workerThreadScript() {
   ].join('\n');
 }
 
-function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker }) {
+function policySource({ markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker }) {
   const childCode = JSON.stringify(namespaceScript());
   const workerCode = JSON.stringify(workerThreadScript());
   return [
@@ -138,7 +137,8 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "const POLICY_VERSION=" + JSON.stringify(POLICY_VERSION) + ";",
     "const NAMESPACE_NAMES=" + JSON.stringify(NAMESPACE_NAMES) + ";",
     "const MARKER_PATHS=" + JSON.stringify(markerPaths) + ";",
-    "const HOST_PORT=" + Number(hostPort) + ";",
+    "const NETWORK_PROBE_HOST=" + JSON.stringify(networkProbeHost) + ";",
+    "const NETWORK_PROBE_PORT=" + Number(networkProbePort) + ";",
     "const HOST_PID=" + Number(hostPid) + ";",
     "const HOST_PROCESS_MARKER=" + JSON.stringify(hostProcessMarker) + ";",
     "const HOST_NAMESPACE_INODES=" + JSON.stringify(hostNamespaceInodes) + ";",
@@ -148,7 +148,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "function readMany(paths){const out={};for(const [key,file] of Object.entries(paths)){try{fs.readFileSync(file);out[key]={ok:true};}catch(error){out[key]={ok:false,code:error.code||error.name};}}return out;}",
     "function writeProbe(file){try{fs.writeFileSync(file,'probe');fs.unlinkSync(file);return {ok:true};}catch(error){return {ok:false,code:error.code||error.name};}}",
     "function sameNamespaces(left,right){return NAMESPACE_NAMES.every(name=>left&&right&&left[name]&&left[name]===right[name]);}",
-    "async function networkProbe(){return await new Promise(resolve=>{let settled=false;const socket=net.createConnection({host:'host.docker.internal',port:HOST_PORT});const finish=result=>{if(settled)return;settled=true;socket.destroy();resolve(result);};socket.setTimeout(800,()=>finish({connected:false,code:'TIMEOUT'}));socket.once('connect',()=>finish({connected:true}));socket.once('error',error=>finish({connected:false,code:error.code||error.name}));});}",
+    "async function networkProbe(){return await new Promise(resolve=>{let settled=false;const socket=net.createConnection({host:NETWORK_PROBE_HOST,port:NETWORK_PROBE_PORT});const finish=result=>{if(settled)return;settled=true;socket.destroy();resolve(result);};socket.setTimeout(800,()=>finish({connected:false,code:'TIMEOUT'}));socket.once('connect',()=>finish({connected:true}));socket.once('error',error=>finish({connected:false,code:error.code||error.name}));});}",
     "async function childProcessProbe(){try{const child=spawnSync(process.execPath,['-e',CHILD_CODE,JSON.stringify(MARKER_PATHS)],{encoding:'utf8',timeout:3000});if(child.error)return {blocked:true,code:child.error.code||child.error.name};if(child.status!==0)return {blocked:true,code:'EXIT_'+child.status};return JSON.parse(child.stdout);}catch(error){return {blocked:true,code:error.code||error.name};}}",
     "async function workerThreadProbe(){let worker;try{worker=new Worker(WORKER_CODE,{eval:true,workerData:MARKER_PATHS});const report=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Object.assign(new Error('thread probe timeout'),{code:'THREAD_TIMEOUT'})),3000);worker.once('message',value=>{clearTimeout(timer);resolve(value);});worker.once('error',error=>{clearTimeout(timer);reject(error);});});return report;}catch(error){return {blocked:true,code:error.code||error.name};}finally{if(worker)await worker.terminate().catch(()=>{});}}",
     "async function createPolicy(context){",
@@ -178,12 +178,12 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
   ].join('\n');
 }
 
-function makeBundle(markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker) {
+function makeBundle(markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker) {
   const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
   const workerPath = path.join(sourceRoot, 'worker.cjs');
   const policyPath = path.join(sourceRoot, 'policy.cjs');
   fs.copyFileSync(WORKER_SOURCE, workerPath);
-  fs.writeFileSync(policyPath, policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
+  fs.writeFileSync(policyPath, policySource({ markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
   fs.chmodSync(policyPath, 0o444);
   const bundle = createPolicyBundle({
     sourceRoot,
@@ -286,33 +286,65 @@ function dockerCli(args, timeoutMs = 10000) {
   return String(result.stdout || '').trim();
 }
 
-function runHostNetworkPositiveControl(port) {
-  const name = 'agent36-host-network-control-' + crypto.randomUUID().replace(/-/g, '');
-  const script = "fetch('http://127.0.0.1:" + port +
-    "/',{signal:AbortSignal.timeout(2500)}).then(response=>response.text()).then(text=>process.stdout.write(text)).catch(error=>{process.stderr.write(String(error));process.exitCode=2;});";
-  let containerId = null;
+function createNetworkProbe() {
+  const networkName = 'agent36-policy-network-' + crypto.randomUUID().replace(/-/g, '');
+  const serverName = 'agent36-policy-network-server-' + crypto.randomUUID().replace(/-/g, '');
+  let networkCreated = false;
+  let serverCreated = false;
   try {
-    containerId = dockerCli([
+    dockerCli(['network', 'create', networkName], 10000);
+    networkCreated = true;
+    const serverScript = "require('node:http').createServer((request,response)=>response.end('POLICY_NETWORK_POSITIVE_CONTROL')).listen(8080,'0.0.0.0');";
+    dockerCli([
       'run', '-d', '--pull=never', '--platform=' + PLATFORM,
-      '--name=' + name,
-      '--network=host',
-      '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', script
+      '--name=' + serverName, '--network=' + networkName,
+      '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', serverScript
     ], 10000);
-    assert.match(containerId, /^[a-f0-9]{64}$/i,
-      'positive-control container ID was not returned');
-    const exitCode = dockerCli(['wait', containerId], 10000);
-    const output = dockerCli(['logs', containerId], 5000);
-    assert.equal(exitCode, '0',
-      'host-network positive-control process did not exit successfully: ' + output);
-    assert.equal(output, 'HOST_GATEWAY_POSITIVE_CONTROL');
-    return { connected: true, response: output, network: 'host' };
-  } finally {
-    if (containerId) {
-      try { dockerCli(['rm', '-f', containerId], 5000); } catch {}
-    } else {
-      try { dockerCli(['rm', '-f', name], 5000); } catch {}
+    serverCreated = true;
+    const host = dockerCli([
+      'inspect', '-f', '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}', serverName
+    ], 5000);
+    assert.match(host, /^(?:\d{1,3}\.){3}\d{1,3}$/,
+      'network probe server did not receive a private IPv4 address');
+    return {
+      networkName, serverName, host, port: 8080,
+      cleanup() {
+        if (serverCreated) {
+          try { dockerCli(['rm', '-f', serverName], 5000); } catch {}
+        }
+        if (networkCreated) {
+          try { dockerCli(['network', 'rm', networkName], 5000); } catch {}
+        }
+      }
+    };
+  } catch (error) {
+    if (serverCreated) {
+      try { dockerCli(['rm', '-f', serverName], 5000); } catch {}
     }
+    if (networkCreated) {
+      try { dockerCli(['network', 'rm', networkName], 5000); } catch {}
+    }
+    throw error;
   }
+}
+
+function runNetworkPositiveControl(networkProbe) {
+  const script = "let attempts=0;const run=()=>fetch('http://" + networkProbe.host + ":" +
+    networkProbe.port + "/',{signal:AbortSignal.timeout(1000)}).then(response=>response.text()).then(text=>process.stdout.write(text)).catch(error=>{if(++attempts<10)setTimeout(run,100);else{process.stderr.write(String(error));process.exitCode=2;}});run();";
+  const output = dockerCli([
+    'run', '--rm', '--pull=never', '--platform=' + PLATFORM,
+    '--network=' + networkProbe.networkName,
+    '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', script
+  ], 15000);
+  assert.equal(output, 'POLICY_NETWORK_POSITIVE_CONTROL',
+    'networked positive-control container did not reach the network probe server');
+  return {
+    connected: true,
+    response: output,
+    network: networkProbe.networkName,
+    host: networkProbe.host,
+    port: networkProbe.port
+  };
 }
 
 test('actual Agent49 policy worker is isolated from host capabilities in both seats', {
@@ -349,27 +381,19 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
   const originalHostProcessMarker = process.env.AGENT36_HOST_PROCESS_MARKER;
   process.env.AGENT36_HOST_PROCESS_MARKER = hostProcessMarker;
 
-  let hostConnections = 0;
-  const server = http.createServer((request, response) => {
-    response.end('HOST_GATEWAY_POSITIVE_CONTROL');
-  });
-  server.on('connection', () => { hostConnections += 1; });
-  await new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(0, '0.0.0.0', resolve);
-  });
-  const hostPort = server.address().port;
-
+  let networkProbe = null;
   let sourceRoot;
   let bundle;
   const results = [];
   try {
-    const hostNetworkControl = runHostNetworkPositiveControl(hostPort);
-    assert.equal(hostConnections, 1,
-      'host-network positive control did not reach the host service');
+    networkProbe = createNetworkProbe();
+    const networkPositiveControl = runNetworkPositiveControl(networkProbe);
 
     const hostNamespaces = hostNamespaceInodes();
-    ({ sourceRoot, bundle } = makeBundle(markerPaths, hostPort, hostNamespaces, process.pid, hostProcessMarker));
+    ({ sourceRoot, bundle } = makeBundle(
+      markerPaths, networkProbe.host, networkProbe.port,
+      hostNamespaces, process.pid, hostProcessMarker
+    ));
     const combinations = [
       { role: 'candidate', seat: 0, permissionModel: true },
       { role: 'candidate', seat: 1, permissionModel: false },
@@ -403,7 +427,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         assert.ok(Object.values(report.workerThreads.markerReads).every(value => value.ok === false));
       }
       assert.equal(report.network.connected, false,
-        'network=none worker reached the host-gateway service');
+        'network=none worker reached the networked positive-control peer');
       assert.equal(report.workerPid1Probe.ok, !combination.permissionModel,
         'worker-local /proc/1 probe must reflect the Node permission-model gate');
       assert.equal(report.rootWrite.ok, false);
@@ -431,8 +455,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         report
       });
     }
-    assert.equal(hostConnections, 1,
-      'a network-isolated policy worker reached the host service after the positive control');
+    assert.equal(networkPositiveControl.connected, true);
     assert.equal(hostPhysicalRandomCalls, 0,
       'worker boundary unexpectedly invoked the host-only physical random source');
 
@@ -440,7 +463,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       schema: 'agent36-agent49-docker-policy-canary-report-v3',
       runtime,
       bundle: bundle.manifest,
-      hostNetworkPositiveControl: hostNetworkControl,
+      networkPositiveControl,
       constraints: {
         imageDigest: IMAGE_DIGEST,
         platform: PLATFORM,
@@ -460,7 +483,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         memory: '512m',
         cpus: 1
       },
-      hostConnections,
+      networkProbe: { host: networkProbe.host, port: networkProbe.port },
       hostPhysicalRandomCalls,
       results
     };
@@ -474,7 +497,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
   } finally {
     if (bundle) cleanupPolicyBundle(bundle);
     if (sourceRoot) fs.rmSync(sourceRoot, { recursive: true, force: true });
-    await new Promise(resolve => server.close(resolve));
+    if (networkProbe) networkProbe.cleanup();
     if (originalHostProcessMarker === undefined) delete process.env.AGENT36_HOST_PROCESS_MARKER;
     else process.env.AGENT36_HOST_PROCESS_MARKER = originalHostProcessMarker;
     fs.rmSync(hostRoot, { recursive: true, force: true });
