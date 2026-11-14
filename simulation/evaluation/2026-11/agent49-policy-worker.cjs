@@ -198,10 +198,18 @@ function validatePokemonSlot(slot, allowConcealed) {
       if (!scalarOrNull(row.type) || !scalarOrNull(row.value)) fail('BAD_PRINTED_MODIFIER');
     }
   }
-  if (!Array.isArray(slot.specialConditions)) fail('BAD_SPECIAL_CONDITIONS');
-  assertBoundedJson(slot.specialConditions);
+  stringArray(slot.specialConditions);
   exactKeys(slot.publicRestrictions, PUBLIC_RESTRICTION_KEYS);
-  assertBoundedJson(slot.publicRestrictions);
+  for (const key of ['cannotAttackNextTurn', 'cannotRetreat', 'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn']) {
+    if (typeof slot.publicRestrictions[key] !== 'boolean') fail('BAD_POKEMON_RESTRICTION');
+  }
+  stringArray(slot.publicRestrictions.cannotUseAttacksNextTurn);
+  for (const key of ['blockedAttackNameNextTurn', 'blockedAttackNameUntilLeavesActive', 'onlyAllowedAttackNameNextTurn']) {
+    if (!(slot.publicRestrictions[key] === null || boundedString(slot.publicRestrictions[key], null, 128))) fail('BAD_POKEMON_RESTRICTION');
+  }
+  for (const key of ['attackCostIncreaseNextTurn', 'attackCostIncreaseWhileActive']) {
+    if (!Number.isSafeInteger(slot.publicRestrictions[key]) || slot.publicRestrictions[key] < 0) fail('BAD_POKEMON_RESTRICTION');
+  }
   for (const key of ['evolutionPrintings', 'energies', 'tools', 'abilities']) stringArray(slot[key]);
   if (!Array.isArray(slot.attacks)) fail('BAD_ATTACKS');
   for (const attack of slot.attacks) {
@@ -247,14 +255,24 @@ function validatePublicPlayer(player, allowConcealed) {
   if (!Array.isArray(player.prizeSlots)) fail('BAD_PRIZE_SLOTS');
   for (const slot of player.prizeSlots) {
     exactKeys(slot, ['index'], ['printing']);
-    if (!Number.isSafeInteger(slot.index) || slot.index < 0 ||
+    if (!Number.isSafeInteger(slot.index) || slot.index < 0 || slot.index > 5 ||
         (slot.printing !== undefined && !boundedString(slot.printing, null, 256))) fail('BAD_PRIZE_SLOT');
   }
   exactKeys(player.publicTurnRestrictions, PLAYER_RESTRICTION_KEYS, PLAYER_RESTRICTION_OPTIONAL_KEYS);
+  for (const key of ['gxUsed', 'vstarUsed', 'cannotUseGXAttacks', 'pokemonPlayLocked',
+    'abilityPokemonPlayLocked', 'evolutionPlayLocked', 'itemPlayLocked', 'supporterPlayLocked',
+    'stadiumPlayLocked', 'toolPlayLocked', 'energyPlayLocked', 'specialEnergyPlayLocked']) {
+    if (typeof player.publicTurnRestrictions[key] !== 'boolean') fail('BAD_PLAYER_RESTRICTION');
+  }
+  for (const key of ['attackLockTurnsRemaining', 'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostTurnsRemaining']) {
+    if (!Number.isSafeInteger(player.publicTurnRestrictions[key]) || player.publicTurnRestrictions[key] < 0) fail('BAD_PLAYER_RESTRICTION');
+  }
+  if (!(player.publicTurnRestrictions.attackMaxEnergy === null ||
+      (Number.isSafeInteger(player.publicTurnRestrictions.attackMaxEnergy) && player.publicTurnRestrictions.attackMaxEnergy >= 0))) fail('BAD_PLAYER_RESTRICTION');
+  stringArray(player.publicTurnRestrictions.ignoreAttackCostCardTypes);
   if (player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining !== undefined &&
       (!Number.isSafeInteger(player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining) ||
        player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining < 0)) fail('BAD_STADIUM_SUPPRESSION_EPOCH');
-  assertBoundedJson(player.publicTurnRestrictions);
   for (const key of ['handCount', 'deckCount', 'prizeCount']) {
     if (!Number.isSafeInteger(player[key]) || player[key] < 0) fail('BAD_PUBLIC_COUNT');
   }
