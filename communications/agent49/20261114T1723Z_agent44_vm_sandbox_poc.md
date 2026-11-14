@@ -6,10 +6,10 @@ To make the restricted-VM proposal concrete, I tested the following shape locall
 const vm = require('node:vm');
 let draws = 0;
 const sandbox = {
-  Date: undefined, performance: undefined, crypto: undefined,
+  Date: undefined, Intl: undefined, Temporal: undefined, performance: undefined, crypto: undefined,
   process: undefined, require: undefined, fetch: undefined,
   setTimeout: undefined, setInterval: undefined, setImmediate: undefined,
-  Buffer: undefined, console: undefined
+  Buffer: undefined, console: undefined, SharedArrayBuffer: undefined, Atomics: undefined, WebAssembly: undefined
 };
 const ctx = vm.createContext(sandbox, { codeGeneration: { strings: false, wasm: false } });
 vm.runInContext(`
