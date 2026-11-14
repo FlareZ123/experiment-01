@@ -843,7 +843,16 @@ function fixtureChallengeSuiteSha256(entryManifest) {
   return evidenceBundleSha256(testAssets);
 }
 
-function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, workerPolicyVersions = null }) {
+function validatePhysicalSeedDisclosureDecision(decision) {
+  if(decision!=='public-reproducible') {
+    const error=new Error('V3 fixture is blocked until the owner explicitly authorizes public physical-seed disclosure; private-host-only mode is not implemented');
+    error.code='SEED_DISCLOSURE_NOT_AUTHORIZED';
+    throw error;
+  }
+  return decision;
+}
+
+function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, workerPolicyVersions = null, seedDisclosureDecision }) {
   const workerProfile=workerPolicyVersions!==null;
   return {
     fixtureOnly: true,
@@ -867,6 +876,8 @@ function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, wor
     randomizationProtocol: {
       algorithm: workerProfile ? 'xorshift32-physical-host-only-v1' : 'xorshift32-physical-and-seat-policy-streams-v1',
       seed: V3_FIXTURE.seed,
+      seedDisclosureDecision,
+      seedDisclosure:'public-reproducible-owner-authorized',
       seedDerivation: 'sha256-first-u32le for string seed; identity for uint32 seed',
       ...(workerProfile?{policySeedDisclosure:'none; workers receive no policy RNG seed'}:{policySeedXors:[0x6a09e667,0xbb67ae85]}),
     },
@@ -1114,6 +1125,7 @@ function createV3WorkerExecutionAudit({
   opponentSeat=V3_FIXTURE.opponentSeat,
   candidatePolicyVersion=null,
   opponentPolicyVersion=null,
+  seedDisclosureDecision=null,
 }={}) {
   const role=(name,seat,policyVersion)=>({
     role:name,seat,policyVersion,bundleSha256:null,policySha256:null,
@@ -1126,6 +1138,7 @@ function createV3WorkerExecutionAudit({
   return {
     schema:'agent49-v3-worker-execution-audit-v1',
     workerProcessPerRole:true,
+    physicalSeedDisclosureDecision:seedDisclosureDecision,
     physicalSeedDisclosedToWorker:false,
     policySeedDisclosedToWorker:false,
     roles:{
@@ -1272,6 +1285,9 @@ async function runV3FixtureGame({
   env=process.env,outputDir=null,
   candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat
 }={}) {
+  const seedDisclosureDecision=validatePhysicalSeedDisclosureDecision(
+    env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION
+  );
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   const trialId=V3_FIXTURE.trialId+'-candidate-seat-'+candidateSeat;
   const runOutputDir=outputDir??path.join(ROOT,V3_FIXTURE.outputDir,'candidate-seat-'+candidateSeat);
@@ -1335,6 +1351,7 @@ async function runV3FixtureGame({
       candidate:candidatePolicy.POLICY_VERSION,
       opponent:opponentPolicy.POLICY_VERSION
     },
+    seedDisclosureDecision,
   });
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
@@ -1405,6 +1422,7 @@ async function runV3FixtureGame({
   const preGameTrial = {
     trialId: trialId,
     fixtureOnly: true,
+    physicalSeedDisclosureDecision:seedDisclosureDecision,
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
     opponentSourceEventFormat: 'Japanese Extra',
@@ -1434,6 +1452,7 @@ async function runV3FixtureGame({
           opponentSeat:opponentSeat,
           candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
           opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
+          seedDisclosureDecision,
         });
         const bundles=[];
         const sessions=[];
@@ -1636,6 +1655,7 @@ async function runV3FixtureGame({
   const trial = {
     trialId: trialId,
     fixtureOnly: true,
+    physicalSeedDisclosureDecision:seedDisclosureDecision,
     candidateFormat: 'Expanded',
     gameRuleset: 'Expanded',
     opponentSourceEventFormat: 'Japanese Extra',
@@ -2059,7 +2079,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,
