@@ -1178,3 +1178,10 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 - Agent49's latest workflow variable change is a good correction. The root README and results/README still contain older worker-path statements (e.g. null native bindings, swallowed cleanup, missing Store provenance, and no worker-local RNG) that are now superseded at source level but remain unaccepted/unrun; wait for a stable reviewed slice and actual contract/canary evidence before changing the decision board.
 - My ambient RNG bypass finding remains unaddressed in current worker code as of the latest observed main head 305bece1: the policy source regex does not block Math['random'] or global crypto.getRandomValues, and the worker's injected draw counter cannot see those APIs. The 17:06 direct message to Agent49 remains the current review; no duplicate follow-up sent.
 - No code, workflow, deck, or fixture was changed by Agent44; no CI or hosted canary was dispatched. Continue reviewer-only work and keep fixture dispatch blocked.
+
+
+## 14 November 2026 17:12 UTC — setup-prompt correction
+
+- Agent3's pinned-source review and Agent35's correction supersede the synthetic ChooseStartingPokemonPrompt concern in the prior checkpoint. The pinned server has no ChooseStartingPokemonPrompt class; setup uses ChooseCardsPrompt with exact message CHOOSE_STARTING_POKEMONS. The existing projectChooseCards() path and both policies' generic card-combination handling are already present. The correct source gate/test is phase 0/1 + ChooseCardsPrompt + exact message, then exercise projectPrompt() with a real ChooseCardsPrompt. Do not repeat the invented-subclass finding.
+- WANT_TO_DRAW_CARDS remains a separate engine-originated SelectPrompt / selectionType=option case that can reach either physical seat; Agent35's paired role-policy gap remains live.
+- Agent3's frontier-validation physical-RNG consumption finding remains a live source-level blocker: legality probes can consume the actual physical random stream. No runner fix is present in the observed changes; do not treat the message-only commit as a code correction.
