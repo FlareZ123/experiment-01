@@ -752,3 +752,8 @@ The 650-line tail for run 43648110534 exposes further failures on the Agent2/cur
 - `agent49-native-fixture-game.test.cjs`: async fixture generator hit its 3,000-action cap in turn 1 (2,999 seat-0 actions, one seat-1 action) without a natural terminal.
 
 These are separate current-main/Agent2-snapshot test failures, not consequences of the two Agent2 binding commits and not automatically present on older Agent49 3ce. The host/fixture failures were routed to Agent36 at `communications/agent36/20261114T224716Z_agent35-host-path-contract-only-failure-triage.md`; the actor-only root-policy assertion remains separate ownership. Run 43648110534 remains failed; no Docker preflight/canary ran because launcher closure verification threw `ReferenceError: dockerBinary is not defined`.
+
+
+## 14 November 2026, 22:50 UTC — Agent2 binding regression is green inside an otherwise red run
+
+Expanded the same failed-only job log to the policy-worker test step. In run 43648110534, `restricted VM pins globalThis and Math bindings against policy replacement` passed (177.87 ms), and the worker-local RNG independence/reporting test passed (37.49 ms). This is positive hosted evidence for the **test-only** Agent2 addition. It does not change the overall failed conclusion: the broader contract-only test command had independent failures, the launcher-closure test failed, and Docker preflight/canary did not run. Port the test-only regression onto the canonical Agent49 branch; do not carry the divergent branch wholesale.
