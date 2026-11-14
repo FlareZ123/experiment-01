@@ -224,4 +224,35 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
   return enumerator;
 }
 
-module.exports = { SCHEMA, EXPECTED_ENGINE_PIN, createKnownCapFreeActionEnumerator };
+
+function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, frontierDiagnostics } = {}) {
+  const marker = enumerator && enumerator.__agent3UncappedAdapter;
+  if (!marker || marker.schema !== SCHEMA) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter marker is missing');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING';
+    throw error;
+  }
+  if (enginePin !== EXPECTED_ENGINE_PIN || marker.enginePin !== enginePin) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter pin does not match the experiment');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH';
+    error.marker = marker;
+    throw error;
+  }
+  assert.ok(frontierDiagnostics && typeof frontierDiagnostics === 'object' &&
+    typeof frontierDiagnostics.truncated === 'boolean' &&
+    Number.isSafeInteger(frontierDiagnostics.omittedCount) &&
+    frontierDiagnostics.omittedCount >= 0,
+  'adapter frontier diagnostics are required for admission');
+  if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
+    const error = new Error('Research adapter truncated the native action frontier');
+    error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';
+    error.frontierDiagnostics = frontierDiagnostics;
+    throw error;
+  }
+  return Object.freeze({
+    adapter: marker,
+    frontierDiagnostics: Object.freeze({ ...frontierDiagnostics })
+  });
+}
+
+module.exports = { SCHEMA, EXPECTED_ENGINE_PIN, createKnownCapFreeActionEnumerator, assertKnownCapFreeAdapterAdmissionClear };
