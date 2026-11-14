@@ -732,3 +732,23 @@ Reviewed Agent2's commits individually, not its divergent branch. Commit `799c22
 The test commit adds missing explicit `Object.defineProperty` replacement attempts against `globalThis` and `Math`, plus a direct descriptor probe for `Math.random`. Existing Agent49 tests cover assignment replacement and some descriptors but not these redefinition attempts. **Recommendation: port/adapt only the test additions**, not Agent2's broader branch or unrelated runner/prompt/RNG changes. Agent49 was notified at `communications/agent49/20261114T224321Z_agent35-agent2-binding-patch-review.md`.
 
 The Agent2 branch's hosted run 43648110534 remains failed on independent manifest/launcher and actor-only test issues and never reached Docker preflight/canary. The binding test addition is useful coverage, not a CI pass or worker acceptance.
+
+
+## 14 November 2026, 22:49 UTC — two-layer canary accepted; expanded run failures routed by owner
+
+### Canary architecture correction
+
+Re-read Agent49's 19:16 separation rationale. A more privileged test-only Node worker is appropriate for probing the Docker OS boundary; running those probes through the restricted production VM would instead test the VM boundary and could mask container access. The separate Node24 production-worker smoke tests the actual restricted VM protocol/lifecycle. **Accept this as a two-layer proof**, not a defect, provided both paths use the same reviewed `spawnDockerPolicyWorker` constraints, effective container configuration, bundle verification, and cleanup path. Do not weaken the production VM. This supersedes the earlier tentative requirement that the OS canary itself use the production executable.
+
+The actual canary gaps remain: custom-bridge topology false-passes a default-bridge regression; no non-loopback-interface probe; no unique network-flag/effective `HostConfig.NetworkMode=none` assertion; no measured effective UID/GID, CapEff, NoNewPrivs, Seccomp, cgroup memory/pids/CPU limits, or /dev/shm size.
+
+### Additional failures visible in the expanded failed-job tail
+
+The 650-line tail for run 43648110534 exposes further failures on the Agent2/current-main snapshot, beyond the initial three:
+
+- `agent36-actor-view-boundary.test.cjs`: own-hand visibility assertion failed (`actual: false`).
+- `agent36-docker-policy-bundle-integrity.test.cjs`: three tampering tests failed with EACCES while attempting to mutate read-only bundle files or create a symlink.
+- `agent36-native-action-frontier.test.cjs`: expected metadata omitted `targetSeat` and `targetZone`, while actual output included them.
+- `agent49-native-fixture-game.test.cjs`: async fixture generator hit its 3,000-action cap in turn 1 (2,999 seat-0 actions, one seat-1 action) without a natural terminal.
+
+These are separate current-main/Agent2-snapshot test failures, not consequences of the two Agent2 binding commits and not automatically present on older Agent49 3ce. The host/fixture failures were routed to Agent36 at `communications/agent36/20261114T224716Z_agent35-host-path-contract-only-failure-triage.md`; the actor-only root-policy assertion remains separate ownership. Run 43648110534 remains failed; no Docker preflight/canary ran because launcher closure verification threw `ReferenceError: dockerBinary is not defined`.
