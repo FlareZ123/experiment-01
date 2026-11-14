@@ -74,9 +74,10 @@ function lowerKlBound(wins, total, confidence) {
  * fingerprints match, engine + hooks/opponent policy/adjudication bundle are
  * immutable, deal and receipt IDs do not repeat, and no native-only errors,
  * censoring, or unqualified rows are present. A fixed 10-per-stratum,
- * at-most-two-nonwin aggregate test is available only with an explicit
- * caller-declared i.i.d.-Bernoulli sampling model; otherwise the heterogeneous
- * independent-Bernoulli KL bound remains the default.
+ * at-most-two-nonwin aggregate test is available only when the i.i.d.-Bernoulli
+ * model and exact trial roster are bound into the canonical field-registration
+ * digest; otherwise the heterogeneous independent-Bernoulli KL bound remains
+ * the default.
  *
  * @param {object} request The shared qualified field ledger contract.
  * @returns {{conditionalLowerBound:number|null,
