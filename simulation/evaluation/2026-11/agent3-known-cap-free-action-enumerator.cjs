@@ -227,9 +227,17 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
 
 function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, frontierDiagnostics } = {}) {
   const marker = enumerator && enumerator.__agent3UncappedAdapter;
+  const markerDescriptor = enumerator &&
+    Object.getOwnPropertyDescriptor(enumerator, '__agent3UncappedAdapter');
   if (!marker || marker.schema !== SCHEMA) {
     const error = new Error('Known-cap-free ActionEnumerator adapter marker is missing');
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING';
+    throw error;
+  }
+  if (!markerDescriptor || markerDescriptor.writable !== false ||
+      markerDescriptor.configurable !== false || markerDescriptor.enumerable !== false) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter marker must be immutable and non-enumerable');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MARKER_MUTABLE';
     throw error;
   }
   if (enginePin !== EXPECTED_ENGINE_PIN || marker.enginePin !== enginePin) {
@@ -241,11 +249,19 @@ function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, fronti
   assert.ok(frontierDiagnostics && typeof frontierDiagnostics === 'object' &&
     typeof frontierDiagnostics.truncated === 'boolean' &&
     Number.isSafeInteger(frontierDiagnostics.omittedCount) &&
-    frontierDiagnostics.omittedCount >= 0,
-  'adapter frontier diagnostics are required for admission');
+    frontierDiagnostics.omittedCount >= 0 &&
+    Number.isSafeInteger(frontierDiagnostics.unsupportedCount) &&
+    frontierDiagnostics.unsupportedCount >= 0,
+  'adapter frontier diagnostics must include truncation and unsupported-action counts');
   if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
     const error = new Error('Research adapter truncated the native action frontier');
     error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';
+    error.frontierDiagnostics = frontierDiagnostics;
+    throw error;
+  }
+  if (frontierDiagnostics.unsupportedCount > 0) {
+    const error = new Error('Simulator-legal native actions remain unsupported by the frontier projection');
+    error.code = 'NATIVE_ACTION_FRONTIER_UNSUPPORTED_ACTIONS';
     error.frontierDiagnostics = frontierDiagnostics;
     throw error;
   }
