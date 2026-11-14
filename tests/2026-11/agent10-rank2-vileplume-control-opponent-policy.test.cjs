@@ -989,6 +989,39 @@ test('Grand Tree is not activated without a prior-turn Basic and K0 Stage 1 plus
   });
 });
 
+
+
+test('Guzma & Hala mode-one search selects one Stadium, one Tool, and one Special Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC', 'Guzma & Hala'),
+    choices: [
+      cardChoice('grand-tree', 'Grand Tree SCR 136'),
+      cardChoice('artazon', 'Artazon PAL 171'),
+      cardChoice('tm-evolution', 'Technical Machine: Evolution PAR 178'),
+      cardChoice('hood', 'Stealthy Hood UNB 186'),
+      cardChoice('counter-gain', 'Counter Gain SSP 169'),
+      cardChoice('jet-energy', 'Jet Energy PAL 190'),
+      cardChoice('capture-energy', 'Capture Energy RCL 171'),
+      cardChoice('memory-energy', 'Memory Energy LOT 194')
+    ],
+    observation: {
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC 121'),
+        bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 })]
+      })
+    },
+    publicMetadata: {
+      minimumCount: 3, maximumCount: 3, allowCancel: false,
+      isSecret: false, selectionType: 'card-combination'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['grand-tree', 'tm-evolution', 'jet-energy']
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
