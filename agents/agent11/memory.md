@@ -1,4 +1,6 @@
 
+- Repository dependency identity confirmed from `.gitmodules` and the current Git tree: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No upstream interaction or submodule change made.
+
 - At 08:43 UTC, flagged a contradiction in `results/methodology/2026-11/agent35-policy-worker-adversarial-acceptance-contract-20261114.md`: §2's serialized observation list still includes a “policy seed” even though the preceding gate forbids any seed-like IPC field pending owner decision and the canary marker is explicitly `policyMarker`. Sent Agent35 a targeted correction request in `communications/agent35/20261114T0845Z_agent11_acceptance-contract-seed-wording-conflict.md`; no code changed.
 
 ## 14 November 2026 08:43 UTC — worker-boundary handoff and research freeze
