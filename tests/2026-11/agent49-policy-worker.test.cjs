@@ -19,10 +19,11 @@ function policySource(version = POLICY_VERSION) {
   return [
     "'use strict';",
     'const POLICY_VERSION=' + versionLiteral + ';',
-    'async function createPolicy(){return {async decide(request){',
+    'async function createPolicy(context){return {async decide(request){',
     "if(request.requestId==='force-unknown') return {kind:'select-action',token:'not-in-frontier'};",
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
+    "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
     "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
@@ -228,7 +229,8 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
     await waitForCount(worker, 1);
     assert.deepEqual(worker.lines[0], {
       schema: protocol.READY_SCHEMA, type: 'ready', role: 'candidate', seat: 0,
-      policyVersion: POLICY_VERSION, bundleSha256: worker.init.bundleSha256
+      policyVersion: POLICY_VERSION, bundleSha256: worker.init.bundleSha256,
+      policyStreamProtocol:'worker-local-independent-crypto-stream-v1',policyDrawCount:0
     });
     writeLine(worker.child.stdin, request(1)); await waitForCount(worker, 2);
     writeLine(worker.child.stdin, request(2)); await waitForCount(worker, 3);
@@ -877,3 +879,33 @@ test('persistent worker emits response-v3 ordered multi-select decisions', async
   } finally { await dispose(worker); }
 });
 
+
+
+test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
+  const first=protocol.createWorkerLocalPolicyStream();
+  const second=protocol.createWorkerLocalPolicyStream();
+  assert.equal(first.protocol,'worker-local-independent-crypto-stream-v1');
+  assert.equal(first.drawCount,0);
+  assert.equal(second.drawCount,0);
+  const firstValue=first.next();
+  assert.ok(firstValue>=0&&firstValue<1);
+  assert.equal(first.drawCount,1);
+  assert.equal(second.drawCount,0,'one role worker must not advance another role worker stream');
+
+  const worker=startWorker();
+  try {
+    writeLine(worker.child.stdin,worker.init);
+    await waitForCount(worker,1);
+    assert.equal(worker.lines[0].policyDrawCount,0);
+    assert.equal(worker.lines[0].policyStreamProtocol,first.protocol);
+    writeLine(worker.child.stdin,request(1,'candidate',0,{requestId:'force-rng'}));
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode,0);
+    assert.match(worker.stderr,/POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length,1,'a stochastic policy decision must never reach the host');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir,{recursive:true,force:true});
+  }
+});
