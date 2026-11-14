@@ -317,7 +317,7 @@ test('worker launcher uses only the constrained policy bundle and seed-free envi
         const launch=calls[0];
         assert.equal(launch.args[0],'run');
         assertConstrainedWorkerArgs(launch.args,bundle.root);
-        assert.ok(launch.args.includes('--experimental-permission'));
+        assert.ok(launch.args.includes('--permission'));
         assert.ok(launch.args.includes('--allow-fs-read=/policy'));
         assert.ok(launch.args.includes('--allow-fs-read=/tmp'));
         assert.ok(launch.args.includes('--allow-fs-write=/tmp'));
