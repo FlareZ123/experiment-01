@@ -14,6 +14,8 @@ ROOT="$AGENT44_POLICY_ROOT"
 ENTRY="$AGENT44_POLICY_ENTRY"
 PERMISSION_MODEL="$AGENT44_PERMISSION_MODEL"
 unset AGENT44_POLICY_ROOT AGENT44_POLICY_ENTRY AGENT44_PERMISSION_MODEL PWD OLDPWD SHLVL _
+ulimit -c 0
+ulimit -n 64
 mount --make-rprivate /
 mount --bind "$ROOT" "$ROOT"
 mount -t tmpfs -o size=16m,nosuid,nodev,noexec,mode=1777 tmpfs "$ROOT/tmp"
@@ -135,6 +137,7 @@ function createSandboxRoot({
         userNamespace:true,
         mountNamespace:true,
         networkNamespace:true,
+        ipcNamespace:true,
         pidNamespace:true,
         chroot:true,
         procMounted:false,
@@ -173,6 +176,9 @@ function spawnSandboxedPolicyWorker({
   assert.ok(entrypoint.startsWith('/policy/'),'entrypoint must be inside /policy');
   assert.equal(path.posix.normalize(entrypoint),entrypoint,'entrypoint path must be canonical');
   assert.ok(!entrypoint.includes('..')&&!entrypoint.includes('\\'),'invalid sandbox entrypoint');
+  const relativeEntrypoint=entrypoint.slice('/policy/'.length);
+  assert.ok(sandbox.manifest.files.some(file=>file.path===relativeEntrypoint),
+    'entrypoint must be an explicitly allowlisted policy file');
   assert.ok(fs.statSync(path.join(sandbox.root,entrypoint.slice(1))).isFile(),
     'entrypoint must be a copied regular file inside the sandbox root');
 
@@ -189,7 +195,7 @@ function spawnSandboxedPolicyWorker({
   };
   const unshareArgs=[
     '--user','--map-root-user',
-    '--mount','--net','--pid','--fork','--kill-child',
+    '--mount','--net','--ipc','--pid','--fork','--kill-child',
     '/bin/sh','-c',SHELL_SETUP
   ];
   let command='/usr/bin/unshare',args=unshareArgs;
