@@ -29,7 +29,7 @@ For direct Active damage, the helper applies the target's printed Dragon Weaknes
 
 ## Validation
 
-The focused Node test file is `tests/2026-11/agent43-regidrago-apex-choice.test.cjs`. **16/16 tests passed locally** with Node's built-in test runner. Coverage includes GX fail-closed behavior, immediate-win priority, weakness and Muscle Band ordering, Kaiser self-KO risk, Phantom Dive Prize allocation, Trifrost multi-KOs, and deterministic choice selection.
+The focused Node test file is `tests/2026-11/agent43-regidrago-apex-choice.test.cjs`. **17/17 tests passed locally** with Node's built-in test runner. Coverage includes GX fail-closed behavior, immediate-win priority, weakness and Muscle Band ordering, Kaiser self-KO risk, Phantom Dive Prize allocation, Trifrost multi-KOs, and deterministic choice selection.
 
 ## Limitations
 
