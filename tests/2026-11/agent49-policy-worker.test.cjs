@@ -758,6 +758,36 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     ...frontier,
     items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: undefined } }]
   }), /BAD_ACTION_METADATA/);
+
+  const attackSource = {
+    sourceKind: 'bench-pokemon',
+    sourceSlot: 'BENCH',
+    sourceIndex: 2,
+    sourceCardName: 'Noivern',
+    sourceCardFullName: 'Noivern BREAKthrough',
+    attackName: 'Boomburst'
+  };
+  const attackFrontier = {
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [{
+      token: 'attack-source-0',
+      kind: 'attack',
+      actorPrinting: attackSource.sourceCardFullName,
+      attackName: attackSource.attackName,
+      publicMetadata: { attackCostPayable: true, attackSource }
+    }]
+  };
+  assert.equal(protocol.validateFrontier(attackFrontier).has('attack-source-0'), true);
+  assert.throws(() => protocol.validateFrontier({
+    ...attackFrontier,
+    items: [{
+      ...attackFrontier.items[0],
+      publicMetadata: {
+        attackCostPayable: true,
+        attackSource: { ...attackSource, sourceSlot: 'ACTIVE' }
+      }
+    }]
+  }), /BAD_ATTACK_SOURCE_METADATA/);
 });
 
 test('analysis-only projected attack rows cannot be selected as native actions', () => {
