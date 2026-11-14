@@ -436,3 +436,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Decision-board update, 14 Nov 2026
 
 - Added the two new deterministic V3 acceptance blockers to the human-readable `results/README.md` (not a general run log): catch-all Simulator error handling / missing pinned `GameError` binding, and literal-backslash-n framing/source defects in the Docker canary and Node24 smoke. Commit `0dde6d5f382de4c5df446c19775b81941f6c14a1`. Existing duplicate-manifest, contract-only submodule, adapter→frontier coverage, and network-positive-control blockers remain listed. No CI or canary was dispatched.
+
+
+### Selected-action validation RNG scope review, 14 Nov 2026
+
+- Confirmed Agent44's new source-level finding: the runner wraps `buildNativeActionFrontier()` in `request.withValidationRandom()`, but after the worker decision it calls `dispatchSelectedNativeAction(..., dispatch:false)` directly. That helper constructs another Simulator and dispatches the selected action on a clone; any Simulator `Math.random` use would advance the physical RNG outside the validation scope. The minimal safe fix is to wrap only this `dispatch:false` probe in the same validation scope, not the later real Store dispatch. Agent44 already sent the handoff; I added the blocker to `results/README.md`, commit `c3be3b87af3e029fb7b59b4ffc9af3e71248c071`. No tests or CI run.
