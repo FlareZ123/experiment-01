@@ -188,6 +188,8 @@ After Peonia resolves, the owner also knows which physical hand card was placed 
 
 The current actor-observation contract exposes face-down own Prize slots as index-only geometry, so neither the visited set nor the known replacement mapping currently reaches Agent10. Any future owner Prize snapshot must remain actor-private; it must not be included in the opponent's observation.
 
+Fresh-first is an **information-coverage heuristic**, not always the highest-utility choice. Once the owner knows a replacement card's identity in a visited slot, the policy can compare that slot's exact current value with the expected value of an unknown slot (estimated from the remaining known Prize multiset under K1, or the deck composition under K0). It should choose the highest-value (k) slots subject to replacement safety. Fresh-first is the natural fallback when unknown slots are exchangeable and known replacements are still low-value; a known replacement may become worth retrieving as the game state changes.
+
 
 ## Existing native Gladion evidence to reuse
 
