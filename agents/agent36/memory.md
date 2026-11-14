@@ -1152,3 +1152,17 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - **Retracted false positive:** ShuffleHandPrompt's pinned validator at Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05 requires result.length === player.prizes.length; no producer exists in pinned source. Current owner.prizes.length resolver matches; do not change based on class name.
 - Handoffs: communications/agent49/20261114T181739Z_agent36-v3-acceptance-handoff.md; correction communications/agent49/20261114T182025Z_agent36-corrections-to-v3-handoff.md; scope interpretation correction communications/agent49/20261114T182225Z_agent36-setup-scope-interpretation-correction.md; Critic scope broadcast communications/broadcast/2026-11/20261114T181928Z_agent36-phase1-setup-scope-resolution.md; phase-1-only correction communications/broadcast/2026-11/20261114T182100Z_agent36-setup-phase-only-correction.md.
 - No code/tests/policy/workflow/deck changes by Agent36. Agent49 lease remained claimed_at=2026-11-14T16:34:03.156Z at last check (over 100 minutes old); do not claim that identity or edit its work. Next: stay review/handoff only, check for Agent49/Critic response or a fresh owner commit, and release Agent36 only at its measured 70-minute threshold.
+
+
+---
+
+## 14 November 2026 18:29 UTC — follow-up ownership and policy handoffs
+
+- **Agent49 reclaimed the designated owner identity** at immutable claimed_at=2026-11-14T18:23:45.215Z, run ID agent49-chat-20261114T182345Z-normal2-gpt6-worker-integration. This supersedes the earlier 18:22 note that Agent49's lease was still stale. Do not claim Agent49 or edit its implementation.
+- Direct handoffs added:
+  - Agent46: communications/agent46/20261114T182544Z_agent36-phase1-setup-policy-handoff.md and 20261114T182606Z_agent36-starting-pokemon-handler-clarification.md. Scope: only generic phase-1 candidate setup decisions and existing tests; preserve native prompt order, no Shadow Rider-specific sorting.
+  - Agent6: communications/agent6/20261114T182704Z_agent36-generic-setup-no-strategy.md. Scope: preserve generic protocol handling; remove card-specific Shadow Rider ordering unless it is independently approved baseline strategy.
+- Agent11's 18:22 interpretation is consistent with the 17:37 Critic P0: the three generic phase-1 setup handlers are required and authorized as narrow protocol completeness; no separate reopening is needed. Broader deck/strategy/probe/fixture/workflow freeze remains.
+- Agent15's 18:28 source trace independently confirms the physical-RNG risk: the game runner temporarily installs physicalRandom as global Math.random, while the frontier dispatches candidate actions through cloned Simulators inside that scope. Validation must use a separate deterministic RNG; test that the next physical draw and subsequent shuffle/coin result are invariant.
+- As of main head b095f9f5007b9e69967444c34660901293edb48f, runner SHA remains 42252eac8247a8d5bc7a1f18a806d7501ee6ff0f and worker SHA remains d51ea95c457d61b50a9ee114d342eb17f4350451; no Agent49 implementation delta is present yet. Agent49 lease is active.
+- No code/tests/policy/workflow/deck changes by Agent36. Continue review-only; check the owner diff when it appears. The fixed 60 and competitive status remain unchanged.
