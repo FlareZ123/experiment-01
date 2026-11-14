@@ -387,14 +387,21 @@ test('role composer receives shared dependencies and policy options bound to rol
 });
 
 test('runtime pin wrapper requires exact host-loaded union and excludes worker policies',()=>{
-  const candidate={manifest:{enginePin:'e'.repeat(40),entrypoint:'candidate-policy.cjs'},
-    expectedByPath:{'candidate-policy.cjs':'a'.repeat(64)}};
-  const opponent={manifest:{enginePin:'e'.repeat(40),entrypoint:'opponent-policy.cjs'},
-    expectedByPath:{'opponent-policy.cjs':'b'.repeat(64)}};
-  const combinedExpected={
-    'candidate-policy.cjs':'a'.repeat(64),
-    'opponent-policy.cjs':'b'.repeat(64),
-    'runner.cjs':'c'.repeat(64)
+  const candidatePolicyPath='candidate-policy.cjs';
+  const opponentPolicyPath='opponent-policy.cjs';
+  const candidate={manifest:{
+    enginePin:'e'.repeat(40),entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
+    dataAssets:[{path:candidatePolicyPath}]
+  },expectedByPath:{'runner.cjs':'c'.repeat(64)}};
+  const opponent={manifest:{
+    enginePin:'e'.repeat(40),entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
+    dataAssets:[{path:opponentPolicyPath}]
+  },expectedByPath:{'runner.cjs':'c'.repeat(64)}};
+  const combinedExpected={'runner.cjs':'c'.repeat(64)};
+  const workerOnlyPaths=[candidatePolicyPath,opponentPolicyPath];
+  const workerOnlyHashes={
+    [candidatePolicyPath]:'a'.repeat(64),
+    [opponentPolicyPath]:'b'.repeat(64)
   };
   const identityHelper={
     combineRolePolicyEntryManifests:()=>({
@@ -418,7 +425,7 @@ test('runtime pin wrapper requires exact host-loaded union and excludes worker p
   };
   const result=combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
-    cardPoolInitialization,run:()=>17,identityHelper,pin
+    cardPoolInitialization,run:()=>17,identityHelper,pin,workerOnlyPaths,workerOnlyHashes
   });
   assert.equal(called,true);
   assert.equal(result.result,17);
@@ -434,12 +441,12 @@ test('runtime pin wrapper requires exact host-loaded union and excludes worker p
   };
   assert.throws(()=>combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,opponentManifest:opponent,
-    cardPoolInitialization,run:()=>17,identityHelper:incomplete,pin
+    cardPoolInitialization,run:()=>17,identityHelper:incomplete,pin,workerOnlyPaths,workerOnlyHashes
   }),/every host runtime dependency must be preloaded/);
   assert.throws(()=>combineAndPinV3RoleRuntime({
     repositoryRoot:'/tmp',candidateManifest:candidate,
-    opponentManifest:{...opponent,manifest:{enginePin:'f'.repeat(40),entrypoint:'opponent-policy.cjs'}},
-    cardPoolInitialization,run:()=>17,identityHelper,pin
+    opponentManifest:{...opponent,manifest:{...opponent.manifest,enginePin:'f'.repeat(40)}},
+    cardPoolInitialization,run:()=>17,identityHelper,pin,workerOnlyPaths,workerOnlyHashes
   }),/opponent entry manifest engine pin differs/);
 });
 
