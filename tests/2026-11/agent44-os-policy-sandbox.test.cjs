@@ -143,14 +143,107 @@ function assertDeniedReads(reads){
 test('policy worker is isolated by Linux namespaces/chroot; Node permissions are defense in depth',
   {timeout:45000},async()=>{
     assert.equal(process.platform,'linux','this acceptance test requires Linux namespaces');
-    const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-source-'));
-    const sentinelRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-host-'));
-    const sentinelNames=['runner-source.cjs','candidate-deck.json','opponent-deck.json','physical-seed.txt'];
-    const forbiddenPaths=sentinelNames.map(name=>{
-      const file=path.join(sentinelRoot,name);
-      fs.writeFileSync(file,'host-only-'+name,{mode:0o444});
-      return file;
-    });
+    let sourceRoot,sentinelRoot,server,sandbox,priorSeed;
+    let hostConnections=0,physicalRandomCalls=0;
+    const activeChildren=[];
+    const hostPhysicalRandom=()=>{physicalRandomCalls++;return 0.123;};
+    try{
+      sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-source-'));
+      sentinelRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent44-policy-host-'));
+      const sentinelNames=['runner-source.cjs','candidate-deck.json','opponent-deck.json','physical-seed.txt'];
+      const forbiddenPaths=sentinelNames.map(name=>{
+        const file=path.join(sentinelRoot,name);
+        fs.writeFileSync(file,'host-only-'+name,{mode:0o444});
+        return file;
+      });
+      const canaryPath=path.join(sourceRoot,'canary.cjs');
+      fs.writeFileSync(canaryPath,CANARY_SOURCE,{mode:0o444});
+      const canaryBytes=fs.readFileSync(canaryPath);
+      const hostProcPath='/proc/'+process.pid+'/environ';
+      server=net.createServer();
+      server.on('connection',socket=>{hostConnections++;socket.destroy();});
+      await new Promise((resolve,reject)=>{
+        server.listen(0,'127.0.0.1',error=>error?reject(error):resolve());
+      });
+      sandbox=createSandboxRoot({
+        sourceRoot,
+        policyFiles:[{
+          sourcePath:canaryPath,
+          relativePath:'canary.cjs',
+          sha256:sha256(canaryBytes)
+        }]
+      });
+      priorSeed=process.env.AGENT36_PHYSICAL_SEED_HEX;
+      process.env.AGENT36_PHYSICAL_SEED_HEX='must-not-cross-policy-boundary';
+      assert.equal(typeof hostPhysicalRandom,'function');
+      const request={
+        forbiddenPaths,
+        hostProcPath,
+        hostPort:server.address().port,
+        repoPath:path.resolve(process.cwd(),'README.md')
+      };
+
+      const osOnly=spawnSandboxedPolicyWorker({
+        sandbox,entrypoint:'/policy/canary.cjs',permissionModel:false,timeoutMs:12000
+      });
+      activeChildren.push(osOnly);
+      osOnly.stdin.end(JSON.stringify(request)+'\n');
+      const osReport=await readWorkerResponse(osOnly);
+      assert.deepEqual(osReport.envKeys,['HOME','LANG','PATH','TZ']);
+      assert.equal(osReport.cwd,'/');
+      assert.equal(osReport.procVisible,false);
+      assert.equal(osReport.repoVisible,false);
+      assertDeniedReads(osReport.hostFiles);
+      assert.equal(osReport.hostProc.ok,false);
+      assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.hostProc.code));
+      assert.equal(osReport.rootWrite.ok,false);
+      assert.ok(['EROFS','EACCES','EPERM'].includes(osReport.rootWrite.code));
+      assert.equal(osReport.tmpWrite.ok,true);
+      if(osReport.childProcess.ok){
+        assert.equal(osReport.childProcess.value.status,0);
+        assertDeniedReads(JSON.parse(osReport.childProcess.value.stdout));
+      }else{
+        assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.childProcess.code));
+      }
+      if(osReport.workerThread.ok)assertDeniedReads(osReport.workerThread.value);
+      else assert.ok(['ENOENT','EACCES','EPERM'].includes(osReport.workerThread.code));
+      assert.equal(osReport.network.ok,false);
+      assert.equal(osReport.mathRandomSetterCapturedOwnFunction,true);
+      assert.equal(hostConnections,0);
+      assert.equal(physicalRandomCalls,0);
+
+      const permissionWorker=spawnSandboxedPolicyWorker({
+        sandbox,entrypoint:'/policy/canary.cjs',permissionModel:true,timeoutMs:12000
+      });
+      activeChildren.push(permissionWorker);
+      permissionWorker.stdin.end(JSON.stringify(request)+'\n');
+      const permissionReport=await readWorkerResponse(permissionWorker);
+      assert.deepEqual(permissionReport.envKeys,['HOME','LANG','PATH','TZ']);
+      assertDeniedReads(permissionReport.hostFiles);
+      assert.equal(permissionReport.childProcess.ok,false);
+      assert.equal(permissionReport.childProcess.code,'ERR_ACCESS_DENIED');
+      assert.equal(permissionReport.workerThread.ok,false);
+      assert.equal(permissionReport.workerThread.code,'ERR_ACCESS_DENIED');
+      assert.equal(permissionReport.network.ok,false);
+      assert.equal(permissionReport.tmpWrite.ok,true);
+      assert.equal(hostConnections,0);
+      assert.equal(physicalRandomCalls,0);
+    }finally{
+      for(const child of activeChildren){
+        if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');
+      }
+      await Promise.all(activeChildren.map(child=>{
+        if(child.exitCode!==null||child.signalCode!==null)return Promise.resolve();
+        return new Promise(resolve=>child.once('close',resolve));
+      }));
+      if(priorSeed===undefined)delete process.env.AGENT36_PHYSICAL_SEED_HEX;
+      else process.env.AGENT36_PHYSICAL_SEED_HEX=priorSeed;
+      if(sandbox)cleanupSandboxRoot(sandbox);
+      if(sourceRoot)fs.rmSync(sourceRoot,{recursive:true,force:true});
+      if(sentinelRoot)fs.rmSync(sentinelRoot,{recursive:true,force:true});
+      if(server?.listening)await new Promise(resolve=>server.close(resolve));
+    }
+  });
     const canaryPath=path.join(sourceRoot,'canary.cjs');
     fs.writeFileSync(canaryPath,CANARY_SOURCE,{mode:0o444});
     const canaryBytes=fs.readFileSync(canaryPath);
