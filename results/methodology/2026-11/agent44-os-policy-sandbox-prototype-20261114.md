@@ -10,10 +10,10 @@ Provide an enforceable process boundary for policy code. The policy process must
 
 - simulation/evaluation/2026-11/agent44-os-policy-sandbox.cjs builds a minimal root from the current Node executable, its ldd-resolved libraries, setpriv, and an explicit list of hash-checked regular policy files. The entrypoint must be one of those allowlisted files. The repository is a source root for copying, not a mounted worker filesystem.
 - The launcher uses unshare user, mount, network, IPC and PID namespaces, a private mount namespace, a bind-mounted read-only root, a noexec tmpfs at /tmp, and chroot.
-- Inside the chroot, setpriv sets no_new_privs and drops the capability bounding, inheritable and ambient sets. No /proc, /dev, /sys, home directory, repository, Docker socket, or engine files are mounted.
+- Inside the chroot, setpriv sets no_new_privs and drops the capability bounding, inheritable and ambient sets. RLIMITs cap open files at 64, per-UID process/thread count at 256, CPU time at 120 seconds, address space at 2 GiB, and core dumps at zero. No /proc, /dev, /sys, home directory, repository, Docker socket, or engine files are mounted.
 - The worker receives only PATH, HOME, LANG, and TZ in its environment. Deck/config/seat/policy-seed data must travel through a versioned, actor-safe IPC contract, never argv or environment.
 - The Node Permission Model is enabled by default as defense-in-depth (experimental-permission, read access only to /policy and /tmp, write access only to /tmp). The OS namespace/chroot boundary remains the security claim; the runtime permission model is not treated as a sandbox.
-- The helper exposes createSandboxRoot(), spawnSandboxedPolicyWorker(), and cleanupSandboxRoot(). A caller can reuse one immutable root for persistent role/game workers and communicate over stdin/stdout NDJSON. The helper does not implement policy semantics, prompt projection, action validation, or the async Twinleaf loop.
+- The helper exposes createSandboxRoot(), spawnSandboxedPolicyWorker(), and cleanupSandboxRoot(). Every worker launch now requires a finite wall-clock timeout (1 ms to 5 minutes); a caller can reuse one immutable root for persistent role/game workers and communicate over stdin/stdout NDJSON. The helper does not implement policy semantics, prompt projection, action validation, frame-size limits, or the async Twinleaf loop.
 
 ## Local evidence
 
@@ -46,7 +46,7 @@ The committed acceptance test is stronger than that initial one-seat local harne
 
 - Local proof is Node 22.16.0 in this Linux runtime, not the workflow's Node 20.19.0 runner. Hosted-runner namespace support is unverified.
 - User namespaces and the required Linux mount operations are mandatory. The helper fails when launch fails; CI must not silently skip this test.
-- The prototype is not a formal defense against kernel vulnerabilities. It does enforce filesystem, PID, IPC and network namespace boundaries and removes capabilities before policy code starts.
+- The prototype is not a formal defense against kernel vulnerabilities. It does enforce filesystem, PID, IPC and network namespace boundaries, resource limits, and capability removal before policy code starts. RLIMIT_NPROC is per host UID rather than a dedicated cgroup, so the hosted-runner test must verify it does not collide with the runner's existing task count.
 - In the OS-only canary, a child process may be created, but it remains inside the same chroot/namespaces and cannot read host paths. The Permission Model additionally blocks process/worker creation. Built-in module resolution itself is not expected to fail: tests assert denied effects/capabilities, not failed require().
 - The helper does not itself prove that a future worker's JSON observation or prompt projection is information-safe. The worker request must still exclude native objects, full state, hidden prompt choices, opponent private zones, physical seed, and physical RNG references; the host must validate every returned typed intent against live Twinleaf state.
 
