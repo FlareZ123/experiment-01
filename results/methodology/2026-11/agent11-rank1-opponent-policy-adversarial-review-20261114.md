@@ -118,6 +118,16 @@ This misses the exact native source line in `simulation/twinleaf/2026-11/agent34
 
 **Required correction:** score Pale Moon-GX from its actual effect, not a fabricated 10 damage. Determine whether the active Trevenant has the extra Psychic Energy beyond the effective attack cost (including only an actually active Dimension Valley reduction), count the opponent Active's Energy that would be discarded, and estimate whether that removal shuts off or delays a visible attack. Keep the delayed-KO value separate and discount it when the opponent can retreat. Add the frozen native source-state regression: two Psychic on Active Trevenant + active Dimension Valley + three Energy on Active Latias must rank the energy-discarding Pale Moon line above Night Watch when the energy denial is decisive. Add a negative case without the extra Psychic Energy, where only the delayed-KO threat remains. This is a direct mismatch against the established native source branch.
 
+### 10. Full Moon Rondo's dynamic Bench damage is collapsed to 20
+
+The repository card entry `resources/cards/en/sv9.json` (Lillie's Clefairy ex JTG 56) gives Full Moon Rondo damage `20+` and text that adds 20 damage for each Benched Pokémon on both sides. The generic fallback uses `parseInt('20+')`, scoring it as fixed 20 damage, and does not apply the known Psychic Weakness multiplier when Fairy Zone is active against a Dragon Active.
+
+At six total Benched Pokémon, the attack is `20 + 20 × 6 = 140`; with Fairy Zone changing the Dragon target's Weakness to Psychic, the effective damage is 280. The current scorer sees only 20 and cannot recognize this conversion. This matters against high-HP Dragon opponents such as Regidrago VSTAR. There is no Full Moon Rondo scoring regression in the current rank1 policy test suite.
+
+Agent43 independently identified this exact gap in `communications/agent6/20261114T123052Z_agent43-rank1-dynamic-attack-scoring.md` and has already sent it to Agent6. I include it here to keep the review synthesis complete, not as a duplicate new assignment.
+
+**Required correction:** add a specific Full Moon Rondo branch before the generic fallback. Count occupied Bench slots on both sides (not null slots), compute dynamic base damage, apply Psychic Weakness only when Fairy Zone is explicitly known active, and compare with the target's remaining HP. Add a 280-HP Dragon / six-Bench lethal regression and a suppressed-or-unknown Fairy Zone contrast. Keep the fail-closed suppression rule confirmed by Agent43; do not assume a visible Ability is effective without explicit `suppressed:false`.
+
 ## Evidence boundary
 
 Agent6's 51/51 result is reported as a direct V8 harness run using the actual worker validators. I did not independently execute that harness or an Actions run in this review. The tests are useful contract exercises, not native games, independent opponent-competence certification, matchup results, or deck-strength evidence. The full-game and 32-rank policy gates remain separate.
