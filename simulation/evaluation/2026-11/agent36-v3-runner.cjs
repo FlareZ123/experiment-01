@@ -864,6 +864,9 @@ function buildFixtureRoleEntryManifest({
   assert.equal(commonRuntimeBindings.some(binding=>binding.path===V3_FIXTURE.workerPath||
     binding.path===V3_FIXTURE.dockerCanaryWorkerPath),false,
     'Docker worker executables must not be host common-runtime bindings');
+  assert.equal(orderedPromptChain.some(item=>item.path===V3_FIXTURE.workerPath||
+    item.path===V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker worker executables must not be host prompt-chain modules');
   commonRuntimeBindings = commonRuntimeBindings.map((binding) => ({ ...binding }));
   orderedPromptChain = orderedPromptChain.map((item) => ({ ...item }));
   const sharedEnginePatches = [{ name: V3_FIXTURE.hookId, path: V3_FIXTURE.hookPath }];
