@@ -306,6 +306,7 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
 
 test('sequence, duplicate ID, role drift and oversized NDJSON fail closed', async () => {
   await expectFailure(request(1, 'opponent', 0), 'ROLE_SEAT_CHANGED');
+  await expectFailure(request(1, 'candidate', 1), 'ROLE_SEAT_CHANGED');
   await expectFailure(request(2), 'BAD_SEQUENCE');
   const worker = startWorker();
   try {
