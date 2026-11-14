@@ -598,7 +598,7 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
   assert.throws(() => protocol.validatePrompt({
     ...prompt,
     publicMetadata: { ...prompt.publicMetadata, privateState: true }
-  }, 0), /BAD_PROMPT_METADATA/);
+  }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validatePrompt({
     ...prompt,
     publicMetadata: { ...prompt.publicMetadata, ownerSeat: 'seat-1' }
