@@ -159,7 +159,7 @@ const ACTION_META_KEYS = [
   'targetIndex', 'sourceIndex', 'paymentCount', 'paymentEnergyCount', 'cardType',
   'energyType', 'choiceIndex', 'prizeLiability', 'turnsRemaining', 'abilityLive',
   'abilitySuppressed', 'publicReceiptVersion', 'priorAttackName', 'priorSourcePrinting',
-  'priorAttackTurn', 'gxAttack', 'copycatAttack', 'movedFromBenchToActiveThisTurn',
+  'priorAttackTurn', 'gxAttack', 'copycatAttack', 'movedFromBenchToActiveThisTurn', 'attackSource',
   'attackCost', 'abilityName', 'stadiumName', 'retreatPayment', 'targetHasWeakness',
   'targetHasResistance', 'hasPrevention', 'toolPresent', 'restrictionCode',
   'damageCalculation', 'damageText', 'ownerPsychicEnergyCount', 'retreatEnergyCount',
@@ -213,9 +213,41 @@ function validatePromptMetadata(value) {
   }
   return value;
 }
+const ATTACK_SOURCE_META_KEYS = [
+  'sourceKind', 'sourceSlot', 'sourceIndex', 'sourceCardName',
+  'sourceCardFullName', 'attackName'
+];
+
+function validateAttackSourceMetadata(value) {
+  if (!isRecord(value)) fail('BAD_ATTACK_SOURCE_METADATA');
+  exactKeys(value, [], ATTACK_SOURCE_META_KEYS);
+  const expectedSlot = {
+    'active-pokemon': 'ACTIVE',
+    'bench-pokemon': 'BENCH',
+    'active-tool': 'ACTIVE_TOOL'
+  }[value.sourceKind];
+  if (!expectedSlot || value.sourceSlot !== expectedSlot ||
+      !Number.isSafeInteger(value.sourceIndex) || value.sourceIndex < 0 ||
+      value.sourceIndex >= (value.sourceKind === 'bench-pokemon' ? 5 : 1) ||
+      typeof value.sourceCardName !== 'string' || value.sourceCardName.length === 0 ||
+      value.sourceCardName.length > 512 ||
+      typeof value.sourceCardFullName !== 'string' || value.sourceCardFullName.length === 0 ||
+      value.sourceCardFullName.length > 512 ||
+      typeof value.attackName !== 'string' || value.attackName.length === 0 ||
+      value.attackName.length > 512) {
+    fail('BAD_ATTACK_SOURCE_METADATA');
+  }
+  return value;
+}
+
 function validateActionMetadata(value) {
   if (value === undefined) return;
-  validateFlatMetadata(value, ACTION_META_KEYS, 'BAD_ACTION_METADATA');
+  const attackSource = value.attackSource;
+  const flatMetadata = { ...value };
+  delete flatMetadata.attackSource;
+  validateFlatMetadata(flatMetadata,
+    ACTION_META_KEYS.filter(key => key !== 'attackSource'), 'BAD_ACTION_METADATA');
+  if (attackSource !== undefined) validateAttackSourceMetadata(attackSource);
   for (const key of ['ownerSeat', 'targetSeat', 'sourceSeat']) {
     if (value[key] !== undefined && !['actor', 'opponent'].includes(value[key])) {
       fail('BAD_ACTION_SEAT_METADATA');
