@@ -124,7 +124,7 @@ on:
         required: false
         default: false
       contract_only:
-        description: 'Run Agent34/Agent41, Agent49 policy protocol, and Agent36 Docker policy-worker contracts without compiling Twinleaf or executing a game'
+        description: 'Run policy, prompt, action-frontier, and Node24 Docker worker contracts without compiling Twinleaf or executing a game'
         required: false
         type: boolean
         default: false
