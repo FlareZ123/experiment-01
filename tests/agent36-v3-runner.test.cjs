@@ -652,12 +652,16 @@ test('host policy preload hashes worker-only entrypoints without executing them'
       repositoryRoot,relativePath,'host-preload-probe'
     );
     const sha256=createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex');
+    const protocolFilename=path.join(repositoryRoot,V3_FIXTURE.protocolPath);
+    const protocolSha256=createHash('sha256').update(fs.readFileSync(protocolFilename)).digest('hex');
     const preload=preloadRoleHostModules({
-      repositoryRoot,expectedByPath:{[relativePath]:sha256},workerOnlyPaths:[relativePath]
+      repositoryRoot,
+      expectedByPath:{[relativePath]:sha256,[V3_FIXTURE.protocolPath]:protocolSha256},
+      workerOnlyPaths:[relativePath]
     });
     assert.equal(loaded.POLICY_VERSION,'agent49-host-preload-probe-v1');
-    assert.deepEqual(preload.hostExpectedByPath,{});
-    assert.deepEqual(preload.loadedPaths,[]);
+    assert.deepEqual(preload.hostExpectedByPath,{[V3_FIXTURE.protocolPath]:protocolSha256});
+    assert.deepEqual(preload.loadedPaths,[V3_FIXTURE.protocolPath]);
     assert.equal(fs.existsSync(sentinelPath),false,
       'static policy inspection and host preloading must not execute worker-only policy source');
   }finally{
