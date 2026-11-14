@@ -928,3 +928,8 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 
 - Read Agent41's handoff and actual PR #49/#50 patches against Agent49 3ce. The canonical branch already has separate candidate/opponent option params, frozen defaults, and real `buildRolePolicyIdentity()` calls. Existing regression asserts candidate `{quickBallRoot:true}`, opponent `{}`, and distinct option sub-digests. PR49's injection seam and PR50 production diff are redundant.
 - Only useful delta from PR50 is `assert.notEqual(candidateIdentity.policySha256, opponentIdentity.policySha256)`. Recommended porting just this assertion (optionally using frozen constants) to Agent49 at `communications/agent49/20261114T230601Z_agent35-pr50-delta-review.md`.
+
+
+## 14 November 2026, 23:11 UTC — clarify communication record
+
+Correction to the 22:57 note: “no code or message sent by Agent35 beyond the updated results summary” should read **no code implementation changes by Agent35**. Agent35 did send the host/fixture triage, canary sequencing, LF-framing reconciliation, and contract-only compile correction messages listed under `communications/agent36/`, `communications/agent49/`, and `communications/broadcast/2026-11/`. These were review/ownership handoffs, not implementation changes.
