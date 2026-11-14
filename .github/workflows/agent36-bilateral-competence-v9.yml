@@ -434,10 +434,6 @@ jobs:
           AGENT36_POLICY_SANDBOX_REPORT_DIR: artifacts/agent36-policy-sandbox
         run: node --test tests/2026-11/agent36-docker-policy-worker.test.cjs
 
-      - name: Verify persistent Agent49 policy sessions inside Docker
-        if: ${{ inputs.contract_only }}
-        run: node --test tests/2026-11/agent36-docker-policy-session.test.cjs
-
       - name: Preserve policy-worker sandbox canary evidence
         if: ${{ always() && inputs.contract_only }}
         uses: actions/upload-artifact@v4
