@@ -52,6 +52,14 @@ The current Raihan target test at test line 931 asserts Latias for an Eon Blade 
 
 **Required correction:** separate Raihan and Underworld Door target scoring. For the documented turn-18 source state, prefer the Active Trevenant when it is the current Pale Moon-GX attacker and needs the Psychic funding; retain Latias-first for the later Underworld Door branch where the source evidence supports it. Add both tests so the policies cannot regress into one another. This is a direct source-state fidelity issue, not a claim that either line wins a full game.
 
+### 5. Latias's Eon Blade target count ignores Dimension Valley
+
+The same shared target block always stops prioritizing Latias at two Psychic Energy. The repository card entry `resources/cards/en/sv8.json` gives Latias ex SSP 76 Eon Blade a printed cost of Psychic, Psychic, Colorless. Two Psychic pay it only while Dimension Valley is actually active for the Psychic Pokémon; without that Stadium (or while its effects are suppressed), the Colorless requirement remains and a third Energy is needed.
+
+The current Underworld Door test at line 356 is named as a “two-Energy Eon Blade line”, but its fixture calls `player()` without `stadium: ['Dimension Valley PHF']`. The helper's default stadium is an empty array. It therefore tests a state in which two Psychic do **not** fund Eon Blade, and it does not exercise the second attachment after Latias reaches two.
+
+**Required correction:** compute Latias's Eon Blade funding threshold from the observed, actually active Dimension Valley state. Treat unknown stadium-effect suppression conservatively; do not assume the one-Colorless reduction when the public restriction fields are absent. Add a sequence regression for (a) active, unsuppressed Dimension Valley: stop at two; (b) absent or suppressed Dimension Valley: continue to three; and (c) unknown suppression: fail closed or conservatively require three. Fix the existing test fixture or rename it so its claimed cost condition matches its actual board.
+
 ## Source-faithful parts worth preserving
 
 The current policy's first-order choices are consistent with my native rank-1 source-response report:
