@@ -61,7 +61,7 @@ test('bundle verification rejects on-disk manifest and in-memory receipt mutatio
 
     const originalFileSha = bundle.manifest.files[0].sha256;
     bundle.manifest.files[0].sha256 = '0'.repeat(64);
-    assert.throws(() => verifyPolicyBundle(bundle), /in-memory manifest/);
+    assert.throws(() => verifyPolicyBundle(bundle), /supplied manifest/);
     bundle.manifest.files[0].sha256 = originalFileSha;
     verifyPolicyBundle(bundle);
   } finally {
