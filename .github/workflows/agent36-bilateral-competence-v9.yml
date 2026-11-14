@@ -220,7 +220,7 @@ jobs:
           }
           const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
           if (typeof pem !== 'string' || pem.trim().length === 0) {
-            fs.appendFileSync(output, 'mode=sanitized-only\\n');
+            fs.appendFileSync(output, 'mode=sanitized-only\n');
             console.log('No owner recipient key is configured; fixture will emit only an allowlisted actor-observation summary and will not capture full state.');
             process.exit(0);
           }
@@ -232,7 +232,7 @@ jobs:
           const fingerprint = crypto.createHash('sha256')
             .update(key.export({ type: 'spki', format: 'der' }))
             .digest('hex');
-          fs.appendFileSync(output, 'mode=encrypted-full\\n');
+          fs.appendFileSync(output, 'mode=encrypted-full\n');
           console.log('V3 diagnostic recipient key validated; SHA-256 fingerprint: ' + fingerprint);
           NODE
 
