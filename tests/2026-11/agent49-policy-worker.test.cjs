@@ -9,6 +9,7 @@ const readline = require('node:readline');
 const { spawn } = require('node:child_process');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
+const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
@@ -102,6 +103,50 @@ function observation(seat, decisionKind = 'owner-root', promptType = null) {
     ownerK1: null
   };
 }
+function fixtureCard(fullName, extra = {}) { return { fullName, ...extra }; }
+function emptyEngineSlot() {
+  return { cards: [], getPokemonCard: () => null, energies: { cards: [] }, tools: [],
+    damage: 0, pokemonPlayedTurn: null, specialConditions: [] };
+}
+function enginePokemonSlot(pokemon) {
+  return { cards: [pokemon], getPokemonCard: () => pokemon, energies: { cards: [] }, tools: [],
+    damage: 0, pokemonPlayedTurn: 0, specialConditions: [],
+    cannotAttackNextTurn: false, cannotUseAttacksNextTurn: [],
+    blockedAttackNameNextTurn: null, blockedAttackNameUntilLeavesActive: null,
+    onlyAllowedAttackNameNextTurn: null, attackCostIncreaseNextTurn: 0,
+    attackCostIncreaseWhileActive: 0, cannotRetreat: false,
+    cannotRetreatNextTurn: false, cannotRetreatWhileActive: false,
+    cannotEvolveNextTurn: false };
+}
+function enginePlayer(id) {
+  return {
+    id, active: emptyEngineSlot(), bench: Array.from({ length: 5 }, emptyEngineSlot),
+    stadium: { cards: [] }, discard: { cards: [] }, lostzone: { cards: [] },
+    supporter: { cards: [] }, hand: { cards: [], isPublic: false },
+    prizes: Array.from({ length: 6 }, () => ({ cards: [], faceUpPrize: false })),
+    deck: { cards: Array.from({ length: 60 }, () => fixtureCard('Basic Energy SVE')) },
+    usedGX: false, usedVSTAR: false, cannotAttackTurnsRemaining: 0,
+    cannotAttackMaxEnergy: null, cannotAttackMaxEnergyTurnsRemaining: 0,
+    ignoreAttackCostCardTypes: [], ignoreAttackCostTurnsRemaining: 0,
+    cannotUseGXAttacks: false, cannotPlayPokemonCards: false,
+    cannotPlayPokemonWithAbilities: false, cannotEvolvePokemonCards: false,
+    cannotPlayItemCards: false, cannotPlaySupporterCards: false,
+    cannotPlayStadiumCards: false, cannotPlayToolCards: false,
+    cannotPlayEnergyCards: false, cannotPlaySpecialEnergyCards: false,
+    supporterTurn: 0, retreatedTurn: 0, usedTurnSkip: false,
+    energyPlayedTurn: false, stadiumPlayedTurn: false, stadiumUsedTurn: false
+  };
+}
+function engineMimikyu() {
+  return {
+    ...fixtureCard('Mimikyu GRI'), name: 'Mimikyu', hp: 70, stage: 'Basic',
+    subtypes: ['Basic'], cardType: ['Psychic'], retreat: [], weakness: [], resistance: [],
+    attacks: [{ name: 'Copycat', cost: [], damage: null, damageCalculation: null,
+      text: 'Copy a previous opponent attack', gxAttack: false, barrage: false }],
+    powers: []
+  };
+}
+
 function initFor(role = 'candidate', seat = 0, digest = 'a', version = POLICY_VERSION) {
   return {
     schema: protocol.INIT_SCHEMA, type: 'init', role, seat,
@@ -290,6 +335,40 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentCopycatChoices: [{ ...eventRow, attackName: 'Different Attack' }]
   }, copycatView), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
+});
+
+test('production actorObservation projection matches the closed worker schema and visibility gates', () => {
+  const owner = enginePlayer(0);
+  const opponent = enginePlayer(1);
+  const mimikyu = engineMimikyu();
+  owner.active = enginePokemonSlot(mimikyu);
+  const state = { players: [owner, opponent], activePlayer: 0, turn: 1, phase: 2, prompts: [] };
+  const view = actorObservation(state, 0, { ownerK1Snapshot: {
+    epoch: 1, exactMembershipKnown: true,
+    knownPrintings: [{ printing: 'Shadow Rider Calyrex V CRE', copies: 4 }],
+    invalidationReason: null
+  } });
+  protocol.validateActorObservation(view, 0);
+  assert.equal(view.ownPublic.active.printing, 'Mimikyu GRI');
+  assert.equal(view.ownerK1.knownPrintings[0].copies, 4);
+
+  const secretInHand = fixtureCard('SECRET OPPONENT HAND');
+  const faceDownPrize = fixtureCard('SECRET FACE-DOWN PRIZE');
+  const faceUpPrize = fixtureCard('PUBLIC FACE-UP PRIZE');
+  opponent.hand.cards = [secretInHand];
+  opponent.hand.isPublic = false;
+  opponent.prizes[0] = { cards: [faceDownPrize], faceUpPrize: false };
+  opponent.prizes[1] = { cards: [faceUpPrize], faceUpPrize: true };
+  opponent.bench[0] = enginePokemonSlot(engineMimikyu());
+  state.phase = 0;
+  const setupView = actorObservation(state, 0);
+  protocol.validateActorObservation(setupView, 0);
+  assert.equal(setupView.opponentPublic.publicHand, null);
+  assert.deepEqual(setupView.opponentPublic.prizeSlots, [
+    { index: 0 }, { index: 1, printing: 'PUBLIC FACE-UP PRIZE' }
+  ]);
+  assert.deepEqual(setupView.opponentPublic.bench[0], { concealed: true });
+  assert.doesNotMatch(JSON.stringify(setupView.opponentPublic), /SECRET OPPONENT HAND|SECRET FACE-DOWN PRIZE/);
 });
 
 test('actual Agent7/Agent8 public event receipt passes the worker schema', () => {
