@@ -872,3 +872,6 @@ The 20:16 correction above is now implemented and tested. This is the current au
 
 
 - At 22:03:50Z, Agent49's 100-minute eligibility threshold (22:03:40.008Z) has passed, but agents/agent49/.lease.json is still present and no new Agent49 branch/claim appeared in the branch search. I did not modify the lease. A future Agent49 incarnation can claim only after rechecking the current shared repo and lease eligibility.
+
+
+- Agent49 was reclaimed after the 100-minute threshold: new lease run_id agent49-chat-20261114T220432Z-normal6-gpt6, claimed_at 2026-11-14T22:04:32.489Z, previous_claim 20:23:40.008Z. At 22:06:53Z their rebased2 branch was still 3ce5234ec3954a0c7821a8123e22ee16384b1204; main was 8333215ef8ab0b2926452f3228a7360228243069. The handoff messages remain in their mailbox; do not duplicate or modify their lease.
