@@ -74,11 +74,18 @@ function sanitizePublicPokemon(pokemon) {
   };
 }
 
-function sanitizePublicPlayer(player) {
+function sanitizePublicPlayer(player,hideSetupPokemon=false) {
   if(!player||typeof player!=='object')return null;
+  const bench=Array.isArray(player.bench)?player.bench:[];
   return {
-    active:sanitizePublicPokemon(player.active),
-    bench:Array.isArray(player.bench)?player.bench.map(sanitizePublicPokemon):[],
+    active:hideSetupPokemon?null:sanitizePublicPokemon(player.active),
+    ...(hideSetupPokemon?{
+      activeOccupied:player.active!==null&&player.active!==undefined
+    }:{}),
+    bench:bench.map(slot=>hideSetupPokemon?null:sanitizePublicPokemon(slot)),
+    ...(hideSetupPokemon?{
+      benchOccupied:bench.map(slot=>slot!==null&&slot!==undefined)
+    }:{}),
     stadium:strings(player.stadium),
     discard:strings(player.discard),
     lostZone:strings(player.lostZone),
@@ -101,6 +108,9 @@ function sanitizePublicPlayer(player) {
 
 function sanitizeActorObservation(observation) {
   if(!observation||typeof observation!=='object')return null;
+  // Public artifacts must hide both sides' face-down setup Pokémon, including the actor's own.
+  const hideSetupPokemon=!Number.isSafeInteger(observation.phase)||
+    observation.phase===0||observation.phase===1;
   const ownerK1=observation.ownerK1&&typeof observation.ownerK1==='object'?
     {
       epoch:Number.isSafeInteger(observation.ownerK1.epoch)?observation.ownerK1.epoch:null,
@@ -125,8 +135,8 @@ function sanitizeActorObservation(observation) {
       observation.ownHand.length:
       (Number.isSafeInteger(observation.ownPublic?.handCount)?
         observation.ownPublic.handCount:null),
-    ownPublic:sanitizePublicPlayer(observation.ownPublic),
-    opponentPublic:sanitizePublicPlayer(observation.opponentPublic),
+    ownPublic:sanitizePublicPlayer(observation.ownPublic,hideSetupPokemon),
+    opponentPublic:sanitizePublicPlayer(observation.opponentPublic,hideSetupPokemon),
     ownTurnResources:resources,
     ownerK1
   };
@@ -134,15 +144,28 @@ function sanitizeActorObservation(observation) {
 
 function sanitizePublicState(state) {
   if(!state||typeof state!=='object')return null;
+  // Global snapshots expose both seats; unknown phases fail closed as hidden setup.
+  const hideSetupPokemon=!Number.isSafeInteger(state.phase)||
+    state.phase===0||state.phase===1;
   return {
     ...pick(state,['phase','turn','activePlayer']),
     pendingPrompts:strings(state.pendingPrompts),
-    players:Array.isArray(state.players)?state.players.map(player=>({
-      ...pick(player,['seat','handCount','deckCount','prizeCount','discardCount']),
-      active:typeof player.active==='string'?player.active:null,
-      bench:Array.isArray(player.bench)?player.bench.map(value=>
-        typeof value==='string'?value:null):[]
-    })):[]
+    players:Array.isArray(state.players)?state.players.map(player=>{
+      const bench=Array.isArray(player.bench)?player.bench:[];
+      return {
+        ...pick(player,['seat','handCount','deckCount','prizeCount','discardCount']),
+        active:hideSetupPokemon?null:
+          (typeof player.active==='string'?player.active:null),
+        ...(hideSetupPokemon?{
+          activeOccupied:typeof player.active==='string'
+        }:{}),
+        bench:bench.map(value=>hideSetupPokemon?null:
+          (typeof value==='string'?value:null)),
+        ...(hideSetupPokemon?{
+          benchOccupied:bench.map(value=>typeof value==='string')
+        }:{})
+      };
+    }):[]
   };
 }
 
@@ -214,18 +237,93 @@ function sanitizeDecisionRecord(record) {
   };
 }
 
-function sanitizeBoundary(boundary) {
-  if(!boundary||typeof boundary!=='object')return null;
+const ROLE_BOUNDARY_COUNTER_FIELDS=Object.freeze([
+  'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
+  'nonOwnerNativeDelegations','nonTurnPhaseFallbacks',
+  'nonOwnerSeatBypassCalls','ownerDecisionCalls','peerRoleDelegations',
+  'setupStartingBasicPromptsHandled','setupGoFirstPromptsHandled',
+  'setupPromptActionsSubmitted','setupPromptActionsRejected',
+  'nativeOwnerTrainerFallbackAttemptedUnsupportedPasses'
+]);
+const ROLE_BOUNDARY_BOOLEAN_FIELDS=Object.freeze([
+  'nativeOwnerTrainerFallbackEnabled','ownerFallbackDiagnosticViewEnabled',
+  'nativePolicyMayUseHiddenInformation','peerRoleDispatchEnabled'
+]);
+const ROLE_BOUNDARY_TEXT_FIELDS=Object.freeze([
+  'version','origin','observationSchema'
+]);
+const ROLE_BOUNDARY_ARRAY_FIELDS=Object.freeze([
+  'setupStartingBasicPromptsBySeat','setupGoFirstPromptsBySeat'
+]);
+const ROLE_BOUNDARY_FAILURE_SUFFIXES=Object.freeze([
+  'audit-missing-or-invalid','policy-owner-seat-mismatch',
+  'wrapper-version-missing','observation-origin-invalid',
+  'observation-schema-invalid','native-owner-trainer-fallback-enabled',
+  'owner-fallback-diagnostic-view-enabled','native-policy-may-use-hidden-information',
+  ...ROLE_BOUNDARY_COUNTER_FIELDS.filter(key=>![
+    'ownerDecisionCalls','peerRoleDelegations',
+    'setupStartingBasicPromptsHandled','setupGoFirstPromptsHandled',
+    'setupPromptActionsSubmitted','setupPromptActionsRejected'
+  ].includes(key)).flatMap(key=>[key+'-missing-or-invalid',key+'-nonzero']),
+  'peerRoleDispatchEnabled-missing-or-invalid',
+  'ownerDecisionCalls-missing-or-invalid',
+  'peerRoleDelegations-missing-or-invalid'
+]);
+const ROLE_BOUNDARY_FAILURE_CODES=new Set([
+  ...['candidate','opponent'].flatMap(role=>
+    ROLE_BOUNDARY_FAILURE_SUFFIXES.map(suffix=>role+'-'+suffix)),
+  'candidate-peer-role-dispatch-disabled',
+  'opponent-peer-role-dispatch-enabled',
+  'candidate-peer-role-delegation-count-mismatch',
+  'opponent-peer-role-delegation-count-nonzero'
+]);
+
+function sanitizeRoleBoundarySummary(source,expectedRole) {
+  if(!source||typeof source!=='object'||Array.isArray(source))return null;
   const result={
-    valid:boundary.valid===true,
-    hiddenInformationSafe:boundary.hiddenInformationSafe===true
+    role:source.role===expectedRole?expectedRole:null,
+    roleMatches:source.role===expectedRole
   };
-  for(const key of [
-    'unsupportedPromptFallbacks','nonLiveSpeculativeFallbacks',
-    'nonTurnPhaseFallbacks','rawStateDecoderCalls'
-  ]) {
-    if(Number.isSafeInteger(boundary[key]))result[key]=boundary[key];
+  if(source.policyOwnerSeat===0||source.policyOwnerSeat===1||
+      source.policyOwnerSeat===null)result.policyOwnerSeat=source.policyOwnerSeat;
+  for(const key of ROLE_BOUNDARY_TEXT_FIELDS) {
+    const value=source[key];
+    if(typeof value==='string'&&value.length<=128)result[key]=value;
   }
+  for(const key of ROLE_BOUNDARY_BOOLEAN_FIELDS) {
+    if(typeof source[key]==='boolean')result[key]=source[key];
+  }
+  for(const key of ROLE_BOUNDARY_COUNTER_FIELDS) {
+    if(Number.isSafeInteger(source[key])&&source[key]>=0)result[key]=source[key];
+  }
+  for(const key of ROLE_BOUNDARY_ARRAY_FIELDS) {
+    const value=source[key];
+    if(Array.isArray(value)&&value.length===2&&
+        value.every(item=>Number.isSafeInteger(item)&&item>=0))
+      result[key]=value.slice();
+  }
+  return result;
+}
+
+function sanitizeBoundary(boundary) {
+  if(!boundary||typeof boundary!=='object'||Array.isArray(boundary))return null;
+  const result={
+    valid:typeof boundary.valid==='boolean'?boundary.valid:null
+  };
+  if(boundary.schema==='aichi-actor-only-execution-boundary-v2')
+    result.schema=boundary.schema;
+  // This field is not emitted by the current role composer. Preserve it only
+  // when an upstream source explicitly provides a boolean; never invent false.
+  if(typeof boundary.hiddenInformationSafe==='boolean')
+    result.hiddenInformationSafe=boundary.hiddenInformationSafe;
+  if(Array.isArray(boundary.failures)) {
+    const allowed=boundary.failures.filter(code=>
+      typeof code==='string'&&ROLE_BOUNDARY_FAILURE_CODES.has(code));
+    result.failures=allowed.slice(0,64);
+    result.unrecognizedFailureCount=boundary.failures.length-allowed.length;
+  }
+  result.candidate=sanitizeRoleBoundarySummary(boundary.candidate,'candidate');
+  result.opponent=sanitizeRoleBoundarySummary(boundary.opponent,'opponent');
   if(typeof boundary.nativePolicyMayUseHiddenInformation==='boolean')
     result.nativePolicyMayUseHiddenInformation=boundary.nativePolicyMayUseHiddenInformation;
   return result;
@@ -406,6 +504,7 @@ function sanitizeFixtureArtifact(artifact) {
       ownerPrizeIdentitiesEmitted:false,
       promptOptionIdentitiesEmitted:false,
       opponentConcealedZonesEmitted:false,
+      setupPokemonIdentitiesEmitted:false,
       policyApplicationReceiptEmitted:false,
       note:'This is a sanitized fixture diagnostic, not a policy-competence or competitive-game admission artifact.'
     }

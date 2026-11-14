@@ -41,6 +41,36 @@ test('actor observation projection preserves public context but removes private 
   assert.doesNotMatch(JSON.stringify(view),/PRIVATE_HAND_SENTINEL|PRIVATE_PRIZE_SENTINEL/);
 });
 
+test('actor observation projection hides face-down setup Pokemon identities for both players',()=>{
+  for(const phase of [0,1,undefined]){
+    const view=sanitizeActorObservation({
+      actorSeat:0,globalTurn:1,phase,decisionKind:'owner-root',
+      pendingPromptType:null,pendingOwnerDeckSearch:false,ownHand:[],
+      ownPublic:{
+        handCount:0,deckCount:40,prizeCount:6,
+        active:{printing:'PRIVATE_SETUP_OWN_ACTIVE_'+phase},
+        bench:[{printing:'PRIVATE_SETUP_OWN_BENCH_'+phase},null],
+        stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+        publicHand:null,prizeSlots:[{index:0}],publicTurnRestrictions:{}
+      },
+      opponentPublic:{
+        handCount:0,deckCount:40,prizeCount:6,
+        active:{concealed:true},bench:[{concealed:true},null],
+        stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+        publicHand:null,prizeSlots:[{index:0}],publicTurnRestrictions:{}
+      },
+      ownTurnResources:{},ownerK1:null
+    });
+    for(const player of [view.ownPublic,view.opponentPublic]){
+      assert.equal(player.active,null);
+      assert.equal(player.activeOccupied,true);
+      assert.deepEqual(player.bench,[null,null]);
+      assert.deepEqual(player.benchOccupied,[true,false]);
+    }
+    assert.doesNotMatch(JSON.stringify(view),/PRIVATE_SETUP_/);
+  }
+});
+
 test('prompt projection retains option counts and bounds without exposing offered card identities',()=>{
   const view=sanitizePromptContext({
     promptId:17,promptType:'ChooseCardsPrompt',playerId:101,
@@ -159,6 +189,50 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
           promptType:'ChooseCardsPrompt',
           availableOptions:{cards:['PRIVATE_PROMPT_CARD']}
         }
+      },{
+        actionOrdinal:0,actingSeat:0,turnBefore:1,phaseBefore:0,
+        isRootDecision:false,policyInputKind:'setup',
+        actionName:'AddPlayerAction',actionType:0,dispatchStatus:'succeeded',
+        actorObservationBefore:{
+          actorSeat:0,globalTurn:1,phase:0,decisionKind:'owner-root',
+          ownHand:[],
+          ownPublic:{handCount:0,deckCount:40,prizeCount:6,
+            active:{printing:'PRIVATE_SETUP_OWN_ACTIVE_ARTIFACT'},
+            bench:[{printing:'PRIVATE_SETUP_OWN_BENCH_ARTIFACT'},null],
+            stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+            publicHand:null,prizeSlots:[{index:0}],publicTurnRestrictions:{}},
+          opponentPublic:{handCount:0,deckCount:40,prizeCount:6,
+            active:{concealed:true},bench:[{concealed:true},null],
+            stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+            publicHand:null,prizeSlots:[{index:0}],publicTurnRestrictions:{}},
+          ownTurnResources:{},ownerK1:null
+        },
+        publicStateBefore:{phase:0,turn:1,activePlayer:0,pendingPrompts:[],
+          players:[
+            {seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+              active:'PRIVATE_SETUP_STATE_ACTIVE_0',
+              bench:['PRIVATE_SETUP_STATE_BENCH_0',null]},
+            {seat:1,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+              active:'PRIVATE_SETUP_STATE_ACTIVE_1',
+              bench:['PRIVATE_SETUP_STATE_BENCH_1',null]}
+          ]},
+        publicStateAfter:{phase:1,turn:1,activePlayer:0,pendingPrompts:[],
+          players:[
+            {seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+              active:'PRIVATE_SETUP_AFTER_ACTIVE_0',
+              bench:['PRIVATE_SETUP_AFTER_BENCH_0',null]},
+            {seat:1,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+              active:'PRIVATE_SETUP_AFTER_ACTIVE_1',
+              bench:['PRIVATE_SETUP_AFTER_BENCH_1',null]}
+          ]}
+      },{
+        actionOrdinal:1,actingSeat:0,turnBefore:1,phaseBefore:null,
+        isRootDecision:false,policyInputKind:'unknown-phase',
+        actionName:'UnknownPhaseSnapshot',actionType:0,dispatchStatus:'succeeded',
+        publicStateBefore:{turn:1,activePlayer:0,pendingPrompts:[],
+          players:[{seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+            active:'PRIVATE_UNKNOWN_PHASE_ACTIVE',
+            bench:['PRIVATE_UNKNOWN_PHASE_BENCH',null]}]}
       }],
       finalPublicState:{phase:3,turn:3,activePlayer:0,pendingPrompts:[],
         players:[{seat:0,handCount:2,deckCount:35,prizeCount:5,discardCount:1,
@@ -175,7 +249,13 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
     'PRIVATE_BOUNDARY_SENTINEL','PRIVATE_AUDIT_SENTINEL',
     'PRIVATE_SUMMARY_SENTINEL','FULL_STATE_SENTINEL',
-    'PARTIAL_FULL_STATE_SENTINEL'
+    'PARTIAL_FULL_STATE_SENTINEL','PRIVATE_SETUP_OWN_ACTIVE_0',
+    'PRIVATE_SETUP_OWN_BENCH_0','PRIVATE_SETUP_OWN_ACTIVE_ARTIFACT',
+    'PRIVATE_SETUP_OWN_BENCH_ARTIFACT','PRIVATE_SETUP_STATE_ACTIVE_0',
+    'PRIVATE_SETUP_STATE_ACTIVE_1','PRIVATE_SETUP_STATE_BENCH_0',
+    'PRIVATE_SETUP_STATE_BENCH_1','PRIVATE_SETUP_AFTER_ACTIVE_0',
+    'PRIVATE_SETUP_AFTER_ACTIVE_1','PRIVATE_SETUP_AFTER_BENCH_0',
+    'PRIVATE_SETUP_AFTER_BENCH_1','PRIVATE_UNKNOWN_PHASE_ACTIVE','PRIVATE_UNKNOWN_PHASE_BENCH'
   ])assert.equal(json.includes(secret),false,'sanitized output leaked '+secret);
   assert.equal(sanitized.fixtureOnly,true);
   assert.equal(sanitized.competitiveGameQualified,false);
@@ -183,6 +263,31 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.game.actorDecisions[0].actorObservation.ownHandCount,1);
   assert.equal(sanitized.game.actorDecisions[0].selectedCardPublicPrinting,'PubliclyPlayedCard');
   assert.equal(sanitized.game.finalPublicState.players[0].active,'Public Active');
+  assert.equal(sanitized.privacyBoundary.setupPokemonIdentitiesEmitted,false);
+  const setupRecord=sanitized.game.actorDecisions[1];
+  assert.equal(setupRecord.actorObservation.ownPublic.active,null);
+  assert.equal(setupRecord.actorObservation.ownPublic.activeOccupied,true);
+  assert.deepEqual(setupRecord.actorObservation.ownPublic.bench,[null,null]);
+  assert.deepEqual(setupRecord.actorObservation.ownPublic.benchOccupied,[true,false]);
+  assert.equal(setupRecord.actorObservation.opponentPublic.active,null);
+  assert.equal(setupRecord.actorObservation.opponentPublic.activeOccupied,true);
+  assert.deepEqual(setupRecord.actorObservation.opponentPublic.bench,[null,null]);
+  assert.deepEqual(setupRecord.actorObservation.opponentPublic.benchOccupied,[true,false]);
+  for(const snapshot of [setupRecord.publicStateBefore,setupRecord.publicStateAfter]){
+    for(const player of snapshot.players){
+      assert.equal(player.active,null);
+      assert.equal(player.activeOccupied,true);
+      assert.deepEqual(player.bench,[null,null]);
+      assert.deepEqual(player.benchOccupied,[true,false]);
+    }
+  }
+  const unknownPhaseRecord=sanitized.game.actorDecisions[2];
+  assert.equal(unknownPhaseRecord.publicStateBefore.phase,undefined);
+  assert.equal(unknownPhaseRecord.publicStateBefore.players[0].active,null);
+  assert.equal(unknownPhaseRecord.publicStateBefore.players[0].activeOccupied,true);
+  assert.deepEqual(unknownPhaseRecord.publicStateBefore.players[0].bench,[null,null]);
+  assert.deepEqual(unknownPhaseRecord.publicStateBefore.players[0].benchOccupied,[true,false]);
+  assert.doesNotMatch(formatSanitizedTraceText(sanitized),/PRIVATE_SETUP_|PRIVATE_UNKNOWN_PHASE_/);
   assert.equal(sanitized.quickBallAudit.quickBallCompletedSearchChains,undefined);
   assert.equal(sanitized.quickBallAudit.completedPhysicalChains,1);
   assert.equal(Object.prototype.hasOwnProperty.call(sanitized,'nativeGame'),false);
@@ -212,3 +317,86 @@ test('partial fixture failure is converted to a safe non-admitting diagnostic',(
   assert.equal(sanitized.game.endReason,'fixture-execution-failed');
   assert.doesNotMatch(JSON.stringify(sanitized),/PRIVATE_FAILURE_HAND|PRIVATE_FAILURE_FULL_STATE/);
 });
+
+test('actor-only boundary projection preserves allowlisted role diagnostics without inventing safety fields',()=>{
+  const sanitized=sanitizeFixtureArtifact({
+    fixtureOnly:true,
+    actorOnlyExecutionBoundary:{
+      schema:'aichi-actor-only-execution-boundary-v2',
+      valid:false,
+      failures:[
+        'candidate-unsupportedPromptFallbacks-nonzero',
+        'opponent-peer-role-dispatch-enabled',
+        'PRIVATE_BOUNDARY_FAILURE_SENTINEL'
+      ],
+      candidate:{
+        role:'candidate',policyOwnerSeat:0,
+        version:'agent34-actor-only-root-policy-v17',
+        origin:'detached-actor-observation',
+        observationSchema:'agent2-public-native-dispatch-diff-v1',
+        nativeOwnerTrainerFallbackEnabled:false,
+        ownerFallbackDiagnosticViewEnabled:false,
+        nativePolicyMayUseHiddenInformation:false,
+        unsupportedPromptFallbacks:2,
+        nonLiveSpeculativeFallbacks:0,
+        nonOwnerNativeDelegations:0,
+        nonTurnPhaseFallbacks:0,
+        nonOwnerSeatBypassCalls:0,
+        peerRoleDispatchEnabled:true,
+        ownerDecisionCalls:8,peerRoleDelegations:8,
+        setupStartingBasicPromptsHandled:1,
+        setupStartingBasicPromptsBySeat:[1,0],
+        setupGoFirstPromptsHandled:1,
+        setupGoFirstPromptsBySeat:[0,1],
+        setupPromptActionsSubmitted:2,setupPromptActionsRejected:0,
+        nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,
+        nativeOwnerTrainerFallback:{firstUnsupportedOwnerRoot:{
+          printing:'PRIVATE_FIRST_UNSUPPORTED_ROOT_SENTINEL'
+        }},
+        privateField:'PRIVATE_ROLE_SUMMARY_SENTINEL'
+      },
+      opponent:{
+        role:'opponent',policyOwnerSeat:1,
+        version:'agent34-actor-only-root-policy-v17',
+        origin:'detached-actor-observation',
+        observationSchema:'agent2-public-native-dispatch-diff-v1',
+        nativeOwnerTrainerFallbackEnabled:false,
+        ownerFallbackDiagnosticViewEnabled:false,
+        nativePolicyMayUseHiddenInformation:false,
+        unsupportedPromptFallbacks:0,
+        nonLiveSpeculativeFallbacks:0,
+        nonOwnerNativeDelegations:0,
+        nonTurnPhaseFallbacks:0,
+        nonOwnerSeatBypassCalls:0,
+        peerRoleDispatchEnabled:false,
+        ownerDecisionCalls:8,peerRoleDelegations:0,
+        setupStartingBasicPromptsHandled:1,
+        setupStartingBasicPromptsBySeat:[0,1],
+        setupGoFirstPromptsHandled:1,
+        setupGoFirstPromptsBySeat:[1,0],
+        setupPromptActionsSubmitted:2,setupPromptActionsRejected:0,
+        nativeOwnerTrainerFallbackAttemptedUnsupportedPasses:0,
+        privateField:'PRIVATE_OPPONENT_SUMMARY_SENTINEL'
+      },
+      privateField:'PRIVATE_BOUNDARY_SENTINEL'
+    }
+  });
+  const boundary=sanitized.actorOnlyExecutionBoundary;
+  assert.equal(boundary.valid,false);
+  assert.equal(boundary.schema,'aichi-actor-only-execution-boundary-v2');
+  assert.deepEqual(boundary.failures,[
+    'candidate-unsupportedPromptFallbacks-nonzero',
+    'opponent-peer-role-dispatch-enabled'
+  ]);
+  assert.equal(boundary.unrecognizedFailureCount,1);
+  assert.equal(boundary.candidate.role,'candidate');
+  assert.equal(boundary.candidate.policyOwnerSeat,0);
+  assert.equal(boundary.candidate.unsupportedPromptFallbacks,2);
+  assert.deepEqual(boundary.candidate.setupStartingBasicPromptsBySeat,[1,0]);
+  assert.equal(boundary.opponent.role,'opponent');
+  assert.equal(boundary.opponent.peerRoleDispatchEnabled,false);
+  assert.deepEqual(boundary.opponent.setupGoFirstPromptsBySeat,[1,0]);
+  assert.equal(Object.hasOwn(boundary,'hiddenInformationSafe'),false);
+  assert.doesNotMatch(JSON.stringify(boundary),/PRIVATE_|FIRST_UNSUPPORTED/);
+});
+

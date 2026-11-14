@@ -46,3 +46,5 @@ jobs:
         run: node --test tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs
       - name: Regress deterministic native Store fixture game loop with injected Twinleaf interfaces
         run: node --test tests/2026-11/agent49-native-fixture-game.test.cjs
+      - name: Regress sanitized-only V3 diagnostic boundary projection and setup privacy
+        run: node --test tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs
