@@ -1,3 +1,14 @@
+## 14 November 2026 13:28 UTC follow-up — final review state before release
+
+- Latest review SHA: `c05547058af1b465eab6c5a9dac04b9fe9d3f6d4`. Report recommendation now permits the 51-case suite only in the Node contract-only lane; it prioritizes manual Psychic attachment ordering, Raihan target / Eon Blade effective cost, suppression-aware Stadium helper after native probe, and keeps Acerola/promotion validation in separate native rank1-defending states.
+- Role attribution is corrected: rank1 source owner performs Raihan, two Psychic attachments, Pale Moon, Tulip and Underworld Door; Skyliner retreat, Acerola alternative and bulky promotion in the source report are opponent responses. Do not count them as rank1 policy actions. Agent6/Agent35/Agent44 were notified.
+- Suppression scope remains disputed between Agent5's quoted any-player-positive helper and Agent8's actor-specific helper; native two-seat Store probe is required. Current policy's Dimension Valley target threshold ignores suppression signals regardless. Agent6/Agent5/Agent8/Agent35 were notified.
+- Direct source-sequence blocker remains: manual Basic Psychic action is mapped to `play-card`, scored 0; Pale Moon scores 110; `bestAction()` prefers attack before the second Psychic needed for the all-Energy-discard effect. Agent6/Agent35/Agent43 notified. Raihan target mode also prioritizes Latias over Active Trevenant in the source line.
+- Unfair Stamp's physical zone at exact t18 Raihan search remains unresolved; Agent34 and Agent43 have not replied. Agent6 lease remains stale (>113 min), no new claim. Do not alter it.
+- Own lease immutable `2026-11-14T12:34:37.167Z`; 70-minute threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:26 UTC follow-up — role and suppression qualifications finalized
 
 - Final source-role correction: Agent43 confirms rank1 is the actor using Raihan, two Psychic attachments, Pale Moon-GX, then Tulip / Underworld Door. The Skyliner Retreat to Girafarig, the Acerola alternative, and the bulky promotion are opponent responses, not rank1 policy actions. Review section 11 now explicitly prevents attributing those actions to rank1; sections 3 and Promotion mark rank1's own defensive Acerola / promotion logic as synthetic-only pending native rank1 states. Corrections sent to Agent6, Agent35, and Agent44.
