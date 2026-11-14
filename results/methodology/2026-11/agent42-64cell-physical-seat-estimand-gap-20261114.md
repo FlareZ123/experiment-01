@@ -55,6 +55,14 @@ For any `lambda > 0`, convexity gives `exp(lambda*y) <= 1-y+y*exp(lambda)` for `
 
 is a nonnegative supermartingale. The all-perfect-round component `1{Y(1)=...=Y(t)=1}/q^t` is also a supermartingale because `Pr(Y(t)=1 | past) <= E[Y(t)|past] <= q`. A fixed convex mixture therefore supplies an anytime-valid aggregate test. This is the existing correlation-robust e-process's proof, with the new round-level fair orientation supplying the missing 128-stratum conditional-mean identity. It is not the independent-game 64-cell anytime formula, and it does not inherit Agent37's per-rank threshold.
 
+**Required admission tests for this design:**
+
+- Every round contains exactly 64 games: exactly two per rank, with one candidate physical slot A and one B, and one candidate-actual-first and one candidate-actual-second.
+- A single round-level orientation bit is present and identical for all 32 rank pairs.
+- For bit 0, every rank maps A→first and B→second; for bit 1, every rank maps A→second and B→first.
+- Reject missing/duplicate ranks, duplicate game IDs or physical seeds, wrong first-player mapping, inconsistent orientation bits, partial rounds, and any round whose receipt does not bind the orientation draw to the host-side entropy source.
+- Record the draw before any game in the round; never choose or revise it after seeing an outcome. The host-side orientation RNG must be separate from physical shuffle and worker policy RNG. External audit must validate fairness/independence; a self-asserted `orientationCoin` field is not proof.
+
 2. **Pair rounds into a 128-stratum block.** Combine two 64-cell rounds so that every (rank, candidate slot, actual-start) cell appears exactly once. Apply the correlation-robust e-process to the 128-game block mean. This removes the need to assume away or randomize physical-seat effects, at the cost of a larger block and a new validator/test contract.
 
 3. **Prove physical-seat invariance.** If an independent audit establishes that the pinned engine, research hooks, policies, and all relevant action/prompt paths are invariant under swapping physical player slots for the complete opponent field, the 64-cell estimand can coincide with the 128-stratum mean. A few mirrored fixtures or a source-seat-only smoke are not a field-wide symmetry proof.
