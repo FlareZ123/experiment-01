@@ -8,7 +8,7 @@ Can the existing 64-cell equal-rank/equal-start anytime or correlation-robust ev
 
 ## Finding
 
-**Not without an additional physical-seat sampling assumption or a different block definition.**
+**Not without an additional physical-seat sampling assumption, a different block definition, or an independently validated proof that physical-seat effects are absent for the full tested environment.**
 
 The current 128-stratum estimand is
 
@@ -42,6 +42,8 @@ This is a design/estimand mismatch, not a claim that Twinleaf actually has a sea
 1. **Reuse a fair-orientation physical-seat pair per rank.** There is already a related design in `simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs` and `results/statistics/agent37-aichi-995-anytime-paired-seat-rejection-20261105.md`: for each rank, a complete two-game pair contains one game in each original-source physical seat (equivalently, each candidate physical seat, because the two players occupy opposite slots) and one game with the candidate actually first and second; an independent fair orientation coin selects which of the two diagonals is sampled. That module is a **rank-specific hard-matchup rejection test**, not a drop-in field-mean test. However, its pair construction and orientation gate are directly reusable for the aggregate process. One such pair per rank yields 64 games per field block. If each rank's orientation coin is fair and independent of prior outcomes, then the expected pair win average is the equal mean over that rank's four physical-seat × actual-start cells, even with arbitrary within-pair outcome dependence. Averaging the 32 rank-pair means gives `E[Y_t | F_(t-1)] = P`. The 64-cell aggregate validator must therefore require the full per-rank pair shape and verify each recorded orientation receipt; the existing `rank:startingSeat` uniqueness check alone is insufficient. The coin's fairness/freshness remains an external audit requirement.
 
 2. **Pair rounds into a 128-stratum block.** Combine two 64-cell rounds so that every (rank, candidate slot, actual-start) cell appears exactly once. Apply the correlation-robust e-process to the 128-game block mean. This removes the need to assume away or randomize physical-seat effects, at the cost of a larger block and a new validator/test contract.
+
+4. **Prove physical-seat invariance.** If an independent audit establishes that the pinned engine, research hooks, policies, and all relevant action/prompt paths are invariant under swapping physical player slots for the complete opponent field, the 64-cell estimand can coincide with the 128-stratum mean. A few mirrored fixtures or a source-seat-only smoke are not a field-wide symmetry proof.
 
 3. **Retain a separate 64-cell estimand.** Keep the existing code unchanged but explicitly state that it estimates the equal-weight rank × actual-start mean under its own conditional-round-mean assumption. Do not use it as a certificate for the current 128-stratum seat-balanced nomination gate.
 
