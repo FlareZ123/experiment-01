@@ -818,3 +818,10 @@ Primary report: `results/methodology/2026-11/agent35-policy-worker-adversarial-a
 
 
 - Field-definition caveat for final status: current `results/README.md` says the Aichi event used Japanese Extra, only Japanese-language cards, with five authenticated unchanged lists incompatible with international Expanded and three exact lists still missing. Agent7's 21:21 official-source review (`communications/agent3/20261114T212123Z_agent7-official-open-league-results-surface.md`) found the official Players Club result page and public mirror expose only 16 entries; ranks 23, 25 and 28 remain unrecoverable there. Preserve the strict-Expanded vs candidate-only-Expanded/unchanged-Japanese-Extra estimands until owner decision; do not silently substitute or exclude lists.
+
+
+## 14 November 2026, 21:31 UTC: fixed-60 decision-board context for final handoff
+
+- Current `results/README.md` decision board: no final fixed 60 selected; zero competitively paper-qualified games; no demonstrated 99.5%. Hood Shield Shadow Rider v1 is the leading active challenger hypothesis, not selected/proven best. No candidate has certified ranking or full-field win-rate estimate.
+- Field status: 29/32 original lists authenticated; 24/32 Expanded-legal English diagnostic reconstructions; five unchanged Japanese-Extra lists incompatible with international Expanded (ranks 3, 6, 7, 24, 29); exact lists unavailable for 23, 25, 28; 0/32 original physical-source opponents paper-admitted. Existing 24-rank matched comparisons remain inconclusive (27–27 wins, sharp difference bounds [-7,+11]; censored source-deal difference [-9,+13]). Do not treat these as competitive qualification.
+- The official event used Japanese Extra and only Japanese-language cards; strict Expanded-vs-Expanded versus candidate-only Expanded against unchanged Japanese Extra remains an owner decision. Preserve both estimands and missing-list status.
