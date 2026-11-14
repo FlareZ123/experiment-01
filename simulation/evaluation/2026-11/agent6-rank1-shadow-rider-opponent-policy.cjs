@@ -10,7 +10,7 @@
  * certificate or a matchup result.
  */
 
-const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v1';
+const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v2';
 
 const PRINT = Object.freeze({
   psychic: /^Psychic Energy\b/i,
