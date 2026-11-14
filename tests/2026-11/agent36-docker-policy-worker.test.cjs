@@ -8,7 +8,7 @@ const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
   IMAGE_REF,
   IMAGE_DIGEST,
@@ -22,7 +22,11 @@ const {
 const { createDockerPolicySession } = require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs');
+const PRODUCTION_WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
 const NAMESPACE_NAMES = ['pid', 'ipc', 'uts', 'net', 'mnt'];
 
@@ -181,18 +185,41 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
 function makeBundle(markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker) {
   const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
   const workerPath = path.join(sourceRoot, 'worker.cjs');
+  const protocolPath = path.join(sourceRoot, 'agent49-policy-protocol.cjs');
   const policyPath = path.join(sourceRoot, 'policy.cjs');
   fs.copyFileSync(WORKER_SOURCE, workerPath);
+  fs.copyFileSync(PROTOCOL_SOURCE, protocolPath);
   fs.writeFileSync(policyPath, policySource({ markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
   fs.chmodSync(policyPath, 0o444);
   const bundle = createPolicyBundle({
     sourceRoot,
     policyFiles: [
       { sourcePath: workerPath, relativePath: 'worker.cjs', sha256: sha256(fs.readFileSync(workerPath)) },
+      { sourcePath: protocolPath, relativePath: 'agent49-policy-protocol.cjs', sha256: sha256(fs.readFileSync(protocolPath)) },
       { sourcePath: policyPath, relativePath: 'policy.cjs', sha256: sha256(fs.readFileSync(policyPath)) }
     ]
   });
   return { sourceRoot, bundle };
+}
+
+function makeProductionBundle(policySourceText) {
+  const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-production-worker-timeout-'));
+  const workerPath=path.join(sourceRoot,'worker.cjs');
+  const protocolPath=path.join(sourceRoot,'agent49-policy-protocol.cjs');
+  const policyPath=path.join(sourceRoot,'policy.cjs');
+  fs.copyFileSync(PRODUCTION_WORKER_SOURCE,workerPath);
+  fs.copyFileSync(PROTOCOL_SOURCE,protocolPath);
+  fs.writeFileSync(policyPath,policySourceText,{mode:0o444});
+  fs.chmodSync(policyPath,0o444);
+  const bundle=createPolicyBundle({
+    sourceRoot,
+    policyFiles:[
+      {sourcePath:workerPath,relativePath:'worker.cjs',sha256:sha256(fs.readFileSync(workerPath))},
+      {sourcePath:protocolPath,relativePath:'agent49-policy-protocol.cjs',sha256:sha256(fs.readFileSync(protocolPath))},
+      {sourcePath:policyPath,relativePath:'policy.cjs',sha256:sha256(fs.readFileSync(policyPath))}
+    ]
+  });
+  return {sourceRoot,bundle};
 }
 
 async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
@@ -344,7 +371,7 @@ function runNetworkPositiveControl(networkProbe) {
   };
 }
 
-test('actual Agent49 policy worker is isolated from host capabilities in both seats', {
+test('Docker OS canary worker is isolated from host capabilities in both seats', {
   timeout: 180000
 }, async () => {
   const runtime = preflightDockerPolicySandbox({ pull: false });
@@ -502,5 +529,42 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
     if (originalHostProcessMarker === undefined) delete process.env.AGENT36_HOST_PROCESS_MARKER;
     else process.env.AGENT36_HOST_PROCESS_MARKER = originalHostProcessMarker;
     fs.rmSync(hostRoot, { recursive: true, force: true });
+  }
+});
+
+
+test('production VM worker terminates a non-settling async policy at the per-decision deadline',{
+  timeout:30000
+},async()=>{
+  const runtime=preflightDockerPolicySandbox({pull:false});
+  assert.equal(runtime.imageDigest,IMAGE_DIGEST);
+  const policySourceText=[
+    "'use strict';",
+    "const POLICY_VERSION='agent49-async-timeout-probe-v1';",
+    'async function createPolicy(){return {async decide(){await Promise.resolve();while(true){}}};}',
+    'module.exports={POLICY_VERSION,createPolicy};'
+  ].join('\n');
+  const built=makeProductionBundle(policySourceText);
+  let session=null;
+  try{
+    session=await createDockerPolicySession({
+      bundle:built.bundle,role:'candidate',seat:0,
+      policyVersion:'agent49-async-timeout-probe-v1',
+      permissionModel:true,workerTimeoutMs:30000,requestTimeoutMs:1000
+    });
+    await assert.rejects(session.decide({
+      observation:actorObservation(0),
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[{token:'timeout-pass',kind:'pass'}]}
+    }),error=>String(error?.code??'').includes('TIMEOUT'));
+    const receipt=await session.abort();
+    assert.equal(receipt.containerRemoved,true,
+      'per-decision timeout must terminate and remove the stuck worker container');
+    assert.equal(receipt.processClosed,true,
+      'per-decision timeout must verify worker process closure');
+  }finally{
+    if(session)await session.abort().catch(()=>{});
+    assert.equal(cleanupPolicyBundle(built.bundle),true);
+    assert.equal(fs.existsSync(built.bundle.root),false);
+    fs.rmSync(built.sourceRoot,{recursive:true,force:true});
   }
 });
