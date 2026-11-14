@@ -5,11 +5,15 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
+const {EventEmitter}=require('node:events');
+const {PassThrough}=require('node:stream');
 const {
   IMAGE_REF,IMAGE_DIGEST,PLATFORM,NODE_VERSION,DEFAULT_WORKER_TIMEOUT_MS,
   sha256,createPolicyBundle,verifyPolicyBundle,spawnDockerPolicyWorker,
   cleanupPolicyBundle,preflightDockerPolicySandbox
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+const {AsyncJsonLineChannel}=require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
+const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 
 const EXPECTED_IMAGE_REF=
   'node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54';
@@ -64,6 +68,13 @@ async function withFakeDocker(run){
   }
 }
 
+function makeFakeWorkerChild(){
+  const child=new EventEmitter();
+  child.stdout=new PassThrough();
+  child.stderr=new PassThrough();
+  return child;
+}
+
 function makeTamperBundle(){
   const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent35-bundle-tamper-source-'));
   const workerPath=path.join(sourceRoot,'worker.cjs');
@@ -82,6 +93,44 @@ test('launcher exports and uses a finite nonzero default worker deadline',()=>{
   assert.match(spawnDockerPolicyWorker.toString(),
     /timeoutMs\s*=\s*DEFAULT_WORKER_TIMEOUT_MS/,
     'spawnDockerPolicyWorker must use the exported finite default');
+});
+
+test('async worker channel rejects an oversized unterminated stdout line before buffering',async()=>{
+  const child=makeFakeWorkerChild();
+  const channel=new AsyncJsonLineChannel(child);
+  try{
+    child.stdout.write('x'.repeat(LIMITS.maxResponseBytes+1));
+    await assert.rejects(channel.next(50),error=>error.code==='WORKER_RESPONSE_TOO_LARGE');
+  }finally{channel.close();child.stdout.destroy();child.stderr.destroy();}
+});
+
+test('async worker channel rejects unsolicited stdout instead of queueing it',async()=>{
+  const child=makeFakeWorkerChild();
+  const channel=new AsyncJsonLineChannel(child);
+  try{
+    child.stdout.write(JSON.stringify({type:'unsolicited'})+'\n');
+    await assert.rejects(channel.next(50),error=>error.code==='WORKER_UNSOLICITED_OUTPUT');
+  }finally{channel.close();child.stdout.destroy();child.stderr.destroy();}
+});
+
+test('async worker channel rejects duplicate response lines',async()=>{
+  const child=makeFakeWorkerChild();
+  const channel=new AsyncJsonLineChannel(child);
+  try{
+    const first=channel.next(500);
+    child.stdout.write(JSON.stringify({type:'first'})+'\n'+JSON.stringify({type:'duplicate'})+'\n');
+    assert.deepEqual(await first,{type:'first'});
+    await assert.rejects(channel.next(50),error=>error.code==='WORKER_UNSOLICITED_OUTPUT');
+  }finally{channel.close();child.stdout.destroy();child.stderr.destroy();}
+});
+
+test('async worker channel caps stderr by UTF-8 bytes rather than characters',()=>{
+  const child=makeFakeWorkerChild();
+  const channel=new AsyncJsonLineChannel(child);
+  try{
+    child.stderr.write('€'.repeat(12000));
+    assert.ok(Buffer.byteLength(channel.stderr,'utf8')<=32768);
+  }finally{channel.close();child.stdout.destroy();child.stderr.destroy();}
 });
 
 test('bundle verifier accepts an unchanged materialized bundle',()=>{
