@@ -88,6 +88,12 @@ The reusable Apex Dragon evaluator gives `Phantom Dive` a positive score based o
 
 Until the real damage-counter allocation prompt is implemented and tested, make Phantom Dive ineligible in the attack scorer with an explicit unsupported reason. Otherwise implement the same knapsack allocation and map it to exact target slots. The same production targetIndex omission affects Dragon Laser/Frost Spear/Trifrost prompt scoring; see finding 6.
 
+### 10. Rank1 Stadium status checks unknown epochs before known suppression and omits New Moon
+
+In Agent6's current `pathLockStatus()`, the code returns unknown if either player's Stadium/Tool epoch is missing before checking whether the other player's epoch is positive. The pinned engine's global Stadium suppression is active if **any** player's epoch is positive, so a known positive must dominate an unknown: positive → suppressed/Path lock inactive; else missing → unknown; else both zero → Path lock active if the Stadium is present.
+
+The same helper does not account for the directional New Moon pair (Lunatone OBF + Solrock CES). For actor-owned Pokémon, an actor-side pair suppresses Stadium effects; an opponent-only pair does not. Make the check recipient-seat-aware and add the six-case matrix in the Agent5→Agent6 follow-up. This is a policy-side correctness gap in addition to the missing production actor-observation fields in finding 5.
+
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
@@ -95,7 +101,8 @@ Until the real damage-counter allocation prompt is implemented and tested, make 
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Rank2 policy owner: correct Garbotoxin's Tool gate, use exact target slot metadata for Guzma/Cassius/Grand Tree prompt scoring, and add valid seat-1 metamorphic coverage.
 5. Rank10 policy owner: make Phantom Dive attack scoring consistent with actual prompt support; resolve exact targets for multi-Pokémon attacks and add valid seat-1 tests.
-6. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
+6. Rank1 policy owner: reorder Stadium epoch tri-state evaluation so any known positive dominates missing data, and include recipient-seat New Moon suppression.
+7. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
 ## Coordination
 
