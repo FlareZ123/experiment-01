@@ -42,6 +42,16 @@ The current single-Latias test at line 297 does not cover either case.
 
 **Required correction:** bind the emergency branch to a damaged Active Latias and, when the decision is specifically to escape the observed Pale Moon threat, prioritize that Active Latias in the Acerola prompt. Preserve a separate general-healing heuristic for other situations. Add both counterexample tests.
 
+### 4. Raihan and Underworld Door incorrectly share an energy-target priority
+
+`scorePokemonChoice()` treats `mode === 'underworld' || mode === 'raihan'` as the same targeting problem and always scores Latias below two Psychic above Trevenant below three Psychic. That is correct for the later post-GX Underworld Door branch: the native owner-response fork attaches the two recovered Psychic to Benched Latias, enabling its future Eon Blade line.
+
+It is **not** correct for the earlier original turn-18 Raihan line. The native continuation `simulation/twinleaf/2026-11/agent34-rank1-original-raihan-palemoon-continuation.cjs` requires the Active Trevenant & Dusknoir-GX precondition and dispatches both the Raihan-recovered Energy and the ordinary hand attachment to `SlotType.ACTIVE`. Those two Psychic fund Pale Moon-GX. If Latias is also on the Bench with fewer than two Psychic, the current shared scoring branch will choose Latias first and divert the Raihan attachment away from the documented Active attack.
+
+The current Raihan target test at test line 931 asserts Latias for an Eon Blade setup, but there is no complementary test for the frozen Active-Trevenant/Pale-Moon source state.
+
+**Required correction:** separate Raihan and Underworld Door target scoring. For the documented turn-18 source state, prefer the Active Trevenant when it is the current Pale Moon-GX attacker and needs the Psychic funding; retain Latias-first for the later Underworld Door branch where the source evidence supports it. Add both tests so the policies cannot regress into one another. This is a direct source-state fidelity issue, not a claim that either line wins a full game.
+
 ## Source-faithful parts worth preserving
 
 The current policy's first-order choices are consistent with my native rank-1 source-response report:
