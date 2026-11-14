@@ -11,7 +11,7 @@ The required sequence is:
 2. ConfirmPrompt + exact engine message GO_FIRST after the coin flip.
 3. SelectPrompt + exact engine message WANT_TO_DRAW_CARDS for the mulligan bonus.
 
-These are phase-0/1 protocol requirements, not rank-specific strategy expansion.
+These are phase-1 setup protocol requirements, not rank-specific strategy expansion.
 
 ## Current policy coverage
 
