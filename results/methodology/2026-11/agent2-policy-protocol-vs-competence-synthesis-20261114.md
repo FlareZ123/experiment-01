@@ -37,7 +37,7 @@ For each candidate/opponent deck-policy pair, maintain a small, explicit matrix:
 | Deck-to-action coverage | Every core Pokémon/Trainer/Ability the declared plan intends to use has a positive, state-conditioned action path; search targets are not orphaned in hand |
 | Policy determinism | The worker denies ambient CommonJS/crypto/time/Intl capabilities; any permitted RNG is deterministic, independently seeded and fully replayable. A zero injected-RNG counter alone is insufficient. |
 | Source binding | Ability actions are accepted only when the actor-visible board has the exact source Pokémon/Tool in the projected zone/index |
-| Engine setup prompts | Shared makeSource allowlist admits exact native constructor/message pairs, then both role policies handle CHOOSE_STARTING_POKEMONS, GO_FIRST and WANT_TO_DRAW_CARDS in both physical seats; use native count/choiceIndex and ignore the cancel row. |
+| Engine setup prompts | Shared makeSource allowlist admits exact phase-1 native constructor/message pairs; both role policies handle CHOOSE_STARTING_POKEMONS (initial and post-mulligan extra Bench selection), GO_FIRST and WANT_TO_DRAW_CARDS in both physical seats; use native count/choiceIndex and ignore the cancel row. |
 | Prompt completion | Every supported prompt family has legal min/max, owner-visibility and multi-selection tests; unsupported prompts remain fail-closed |
 | Turn sequencing | Turn-ending effects (e.g. Climactic Gate) are explicit terminal commitments and occur after useful pre-ending setup |
 | Resource and Prize logic | K0/K1 uncertainty is distinct from known Prize information; recovery and discard choices preserve the live plan |
