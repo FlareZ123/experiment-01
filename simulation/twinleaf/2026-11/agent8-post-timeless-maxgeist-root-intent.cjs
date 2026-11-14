@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v6-actor-stadium-array-guard';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v7-dimension-valley-cost';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -36,15 +36,14 @@ function hasSkyliner(pokemon){
   );
 }
 
-function hasWondrousLabyrinth(view){
+function publicStadiumPrintings(view){
   // actorObservation.publicPlayer() exposes Stadiums as arrays of exact
-  // printing names. Missing or malformed arrays are unknown, not evidence
-  // that the cost-increasing Stadium is absent.
+  // printing names. Missing or malformed arrays cannot certify attack cost.
   const zones=[view.ownPublic?.stadium,view.opponentPublic?.stadium];
-  if(!zones.every(Array.isArray))return true;
-  return zones.some(zone=>zone.some(printing=>
-    typeof printing!=='string'||
-    printing.startsWith('Wondrous Labyrinth Prism Star')));
+  if(!zones.every(Array.isArray)||
+     !zones.every(zone=>zone.every(printing=>typeof printing==='string')))
+    return null;
+  return zones.flat();
 }
 
 function prizeCountForTarget(target,catalog){
@@ -168,11 +167,16 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(Array.isArray(active.specialConditions)&&
      ((asleep&&active.specialConditions.includes(asleep))||
       (paralyzed&&active.specialConditions.includes(paralyzed))))return null;
-  // Wondrous Labyrinth adds [C] to non-Fairy attacks, including Max Geist.
-  // This narrow policy does not project that stadium cost modifier.
+  // Wondrous Labyrinth adds [C] to Max Geist; Dimension Valley removes
+  // [C] from Psychic attacks. Read the actual actor-observation Stadium arrays.
+  const stadiums=publicStadiumPrintings(view);
   if(opponentActiveBlocksRetreat(view)||
      publicSkylinerSuppressionReason(view)!==null||
-     hasWondrousLabyrinth(view))return null;
+     stadiums===null||
+     stadiums.some(printing=>printing.startsWith('Wondrous Labyrinth Prism Star')))
+    return null;
+  const dimensionValleyActive=stadiums.some(printing=>
+    printing.startsWith('Dimension Valley '));
 
   const bench=Array.isArray(own.bench)?own.bench:[];
   if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
@@ -188,7 +192,8 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   if(!maxGeist||!Array.isArray(maxGeist.cost)||
      !Number.isSafeInteger(colorlessType)||maxGeist.cost.length!==3||
      maxGeist.cost.some(cost=>cost!==colorlessType)||
-     !Array.isArray(vmax.energies)||vmax.energies.length<3||
+     !Array.isArray(vmax.energies)||
+     vmax.energies.length<(dimensionValleyActive?2:3)||
      vmax.energies.some(energy=>!catalog.basicEnergies.has(energy)))
     return null;
   const blocked=attackBlocked(vmax,maxGeist,restrictions);
