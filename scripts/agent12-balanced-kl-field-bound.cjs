@@ -86,6 +86,7 @@ function lowerKlBound(wins, total, confidence) {
  *  externalPaperAndIndependenceAuditRequired:true,
  *  boundMethod:string,worstCaseNullPValue:number|null,
  *  nonwinCount:number|null,samplingModelDeclaration:string,
+ *  samplingModelRegistrationValid:boolean,
  *  target:number,confidence:number}}
  */
 function assessBalancedFieldKl(request) {
@@ -93,10 +94,13 @@ function assessBalancedFieldKl(request) {
     ['paper-qualified-win','paper-qualified-loss','paper-qualified-tie'],
     'noncompleted-or-unqualified-attempt');
   const valid = v.rejectionReasons.length === 0;
-  const exactIidMode = request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const exactIidRequested = request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const exactIidMode = exactIidRequested && v.samplingModelRegistrationValid;
   const samplingModelDeclaration = exactIidMode
-    ? 'iid-bernoulli-v1 (caller assertion; external audit required)'
-    : 'heterogeneous-independent-Bernoulli default';
+    ? 'iid-bernoulli-v1 (bound to canonical field registration; external audit required)'
+    : exactIidRequested
+      ? 'iid-bernoulli-v1 rejected: no valid digest-bound field sampling registration'
+      : 'heterogeneous-independent-Bernoulli default';
   const nonwinCount = valid ? v.totalAttempts - v.winCount : null;
   const exactFieldMeanApplicable = valid && exactIidMode &&
     v.target === 0.995 && v.confidence === 0.95 &&
@@ -127,6 +131,7 @@ function assessBalancedFieldKl(request) {
     boundMethod,
     worstCaseNullPValue,
     samplingModelDeclaration,
+    samplingModelRegistrationValid: v.samplingModelRegistrationValid,
     rejectionReasons: v.rejectionReasons,
     externalPaperAndIndependenceAuditRequired: true
   };
