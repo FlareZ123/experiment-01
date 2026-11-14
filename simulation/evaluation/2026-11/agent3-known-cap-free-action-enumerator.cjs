@@ -200,17 +200,46 @@ function createKnownCapFreeActionEnumerator({ native, enginePin } = {}) {
     }
     const active = player.active.getPokemonCard();
     if (!active) return [];
-    const actions = active.attacks.map(attack => new AttackAction(player.id, attack.name));
-    player.bench.forEach(benchSlot => {
+    const actions = [];
+    const seenNames = new Set();
+    const appendAttack = (attack, sourceKind, sourceSlot, sourceIndex, sourceCard) => {
+      // The pinned reducer resolves AttackAction by the first matching attack name.
+      // Preserve that exact active -> Bench -> active-Tool priority and expose the
+      // resolved source to the policy without changing the native action payload.
+      if (seenNames.has(attack.name)) return;
+      seenNames.add(attack.name);
+      const action = new AttackAction(player.id, attack.name);
+      Object.defineProperty(action, '__agent3AttackSource', {
+        value: Object.freeze({
+          sourceKind,
+          sourceSlot,
+          sourceIndex,
+          sourceCardName: sourceCard && sourceCard.name || null,
+          sourceCardFullName: sourceCard && sourceCard.fullName || null,
+          attackName: attack.name
+        }),
+        writable: false,
+        configurable: false,
+        enumerable: false
+      });
+      actions.push(action);
+    };
+    for (const attack of active.attacks) {
+      appendAttack(attack, 'active-pokemon', 'ACTIVE', 0, active);
+    }
+    player.bench.forEach((benchSlot, benchIndex) => {
       const benchPokemon = benchSlot.getPokemonCard();
       if (benchPokemon && benchPokemon.attacks.some(attack => attack.useOnBench)) {
-        const benchAttacks = benchPokemon.attacks.filter(attack => attack.useOnBench);
-        actions.push(...benchAttacks.map(attack => new AttackAction(player.id, attack.name)));
+        for (const attack of benchPokemon.attacks) {
+          if (attack.useOnBench) appendAttack(attack, 'bench-pokemon', 'BENCH', benchIndex, benchPokemon);
+        }
       }
     });
     const activeTool = player.active.tools[0];
     if (activeTool && activeTool.attacks.length > 0) {
-      actions.push(...activeTool.attacks.map(attack => new AttackAction(player.id, attack.name)));
+      for (const attack of activeTool.attacks) {
+        appendAttack(attack, 'active-tool', 'ACTIVE_TOOL', 0, activeTool);
+      }
     }
     return actions;
   };
