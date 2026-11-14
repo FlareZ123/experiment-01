@@ -107,7 +107,7 @@ Probabilities are the chance that the named player becomes eligible for at least
 | 31 | Yuhi Yokoyama | 15 | 10.29% | 0.117 | 12.43% | 0.144 |
 | 32 | Kaito Higuchi | 13 | 14.35% | 0.171 | 11.87% | 0.138 |
 
-The three four-Basic Iron Thorns lists (ranks 6, 24 and 29) each reproduce Agent12's 4-vs-14 result:
+For context, the candidate's raw seven-card no-Basic probability is **13.8591%** at 14 Basics; a four-Basic opponent's is **60.0500%**. The paired values below account for shared simultaneous restarts before the first one-sided mulligan event.\n\nThe three four-Basic Iron Thorns lists (ranks 6, 24 and 29) each reproduce Agent12's 4-vs-14 result:
 - Candidate is eligible for at least one optional bonus card in **56.4234%** of paired setups.
 - Candidate's mean maximum optional allowance is **1.41235 cards**.
 - Candidate has **7.3369%** probability of an allowance of at least five cards.
