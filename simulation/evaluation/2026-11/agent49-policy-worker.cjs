@@ -384,9 +384,12 @@ function validatePublicEventReceipt(receipt, view) {
       if (choices.length === 1 && (choices[0].barragePairIndex !== undefined || choices[0].barragePairRole !== undefined)) fail('BAD_SINGLE_COPYCAT_CHOICE');
       if (choices.length === 2) {
         const [first, second] = choices;
-        if (first.barragePairIndex === undefined || first.barragePairIndex !== second.barragePairIndex ||
+        const firstHasPair = first.barragePairIndex !== undefined || first.barragePairRole !== undefined;
+        const secondHasPair = second.barragePairIndex !== undefined || second.barragePairRole !== undefined;
+        if (firstHasPair !== secondHasPair) fail('BAD_COPYCAT_BARRAGE_PAIR');
+        if (firstHasPair && (first.barragePairIndex === undefined || first.barragePairIndex !== second.barragePairIndex ||
             first.barragePairRole !== 'first' || second.barragePairRole !== 'second' ||
-            first.sourcePrinting !== second.sourcePrinting || first.attackName === second.attackName) fail('BAD_COPYCAT_BARRAGE_PAIR');
+            first.sourcePrinting !== second.sourcePrinting || first.attackName === second.attackName)) fail('BAD_COPYCAT_BARRAGE_PAIR');
       }
       const active = view.ownPublic.active;
       const activeHasCopycat = active !== null && active.name === 'Mimikyu' &&
