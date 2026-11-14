@@ -142,7 +142,8 @@ const ACTION_META_KEYS = [
   'weaknessValue', 'weaknessMultiplier', 'resistanceType', 'resistanceValue',
   'damagePrevented', 'damageReduced', 'hasUnmodeledModifier', 'stadiumAndToolHaveNoEffectTurnsRemaining', 'deckCount',
   'ownDeckCount', 'opponentDeckCount', 'sourceZone', 'targetZone', 'handIndex',
-  'benchIndex', 'slotIndex', 'paymentCount', 'paymentEnergyCount', 'cardType',
+  'benchIndex', 'slotIndex', 'ownerSeat', 'targetSeat', 'sourceSeat',
+  'targetIndex', 'sourceIndex', 'paymentCount', 'paymentEnergyCount', 'cardType',
   'energyType', 'choiceIndex', 'prizeLiability', 'turnsRemaining', 'abilityLive',
   'abilitySuppressed', 'publicReceiptVersion', 'priorAttackName', 'priorSourcePrinting',
   'priorAttackTurn', 'gxAttack', 'copycatAttack', 'movedFromBenchToActiveThisTurn',
@@ -158,7 +159,7 @@ const PROMPT_META_KEYS = [
   'energyType', 'amount', 'count', 'selectionIndex', 'isPublic', 'isOwnerVisible',
   'sourcePrinting', 'sourceAttack', 'sourceEffect', 'eligible', 'energyCount',
   'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
-  'sourceCardType', 'selectionType', 'zone', 'ownerSeat'
+  'sourceCardType', 'selectionType', 'zone', 'ownerSeat', 'allowCancel', 'isSecret'
 ];
 
 function scalarOrNull(value) {
@@ -173,6 +174,41 @@ function validateFlatMetadata(value, allowedKeys, code) {
   if (!isRecord(value)) fail(code);
   exactKeys(value, [], allowedKeys);
   for (const child of Object.values(value)) if (!scalarOrNull(child)) fail(code);
+}
+function validatePromptMetadata(value) {
+  if (value === undefined) return;
+  validateFlatMetadata(value, PROMPT_META_KEYS, 'BAD_PROMPT_METADATA');
+  if (value.ownerSeat !== undefined &&
+      !['actor', 'opponent', 'mixed', 'actor,opponent'].includes(value.ownerSeat)) {
+    fail('BAD_PROMPT_METADATA');
+  }
+  for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible']) {
+    if (value[key] !== undefined && typeof value[key] !== 'boolean') fail('BAD_PROMPT_METADATA');
+  }
+  for (const key of ['selectionIndex', 'choiceIndex', 'amount', 'count', 'energyCount',
+    'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount']) {
+    if (value[key] !== undefined &&
+        (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] >= LIMITS.maxArrayItems)) {
+      fail('BAD_PROMPT_METADATA');
+    }
+  }
+  return value;
+}
+function validateActionMetadata(value) {
+  if (value === undefined) return;
+  validateFlatMetadata(value, ACTION_META_KEYS, 'BAD_ACTION_METADATA');
+  for (const key of ['ownerSeat', 'targetSeat', 'sourceSeat']) {
+    if (value[key] !== undefined && !['actor', 'opponent'].includes(value[key])) {
+      fail('BAD_ACTION_SEAT_METADATA');
+    }
+  }
+  for (const key of ['handIndex', 'benchIndex', 'slotIndex', 'targetIndex', 'sourceIndex']) {
+    if (value[key] !== undefined &&
+        (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] >= LIMITS.maxArrayItems)) {
+      fail('BAD_ACTION_INDEX_METADATA');
+    }
+  }
+  return value;
 }
 function validatePokemonSlot(slot, allowConcealed) {
   if (slot === null) return;
@@ -437,7 +473,8 @@ function validateInit(message) {
 
 function validatePrompt(prompt, seat) {
   if (prompt === null) return null;
-  exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices']);
+  exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices'], ['publicMetadata']);
+  if (seat !== 0 && seat !== 1) fail('BAD_SEAT');
   if (prompt.schema !== PROMPT_SCHEMA || prompt.actingSeat !== seat) fail('BAD_PROMPT_PROJECTION');
   exactKeys(prompt.source, ['classification', 'sourceKind', 'sourcePrinting', 'effectName'], ['copiedSourcePrinting', 'copiedAttackName']);
   if (prompt.source.classification !== 'actor-choice') fail('NON_ACTOR_PROMPT_CLASS');
@@ -466,8 +503,9 @@ function validatePrompt(prompt, seat) {
     if (!boundedString(choice.kind, /^[A-Za-z][A-Za-z0-9._-]{0,63}$/)) fail('BAD_CHOICE_KIND');
     if (choice.printing !== undefined && !boundedString(choice.printing, null, 256)) fail('BAD_CHOICE_PRINTING');
     if (choice.label !== undefined && !boundedString(choice.label, null, 256)) fail('BAD_CHOICE_LABEL');
-    if (choice.publicMetadata !== undefined) validateFlatMetadata(choice.publicMetadata, PROMPT_META_KEYS, 'BAD_PROMPT_METADATA');
+    if (choice.publicMetadata !== undefined) validatePromptMetadata(choice.publicMetadata);
   }
+  if (prompt.publicMetadata !== undefined) validatePromptMetadata(prompt.publicMetadata);
   return prompt;
 }
 
@@ -482,7 +520,7 @@ function validateFrontier(frontier) {
     for (const key of ['label', 'actorPrinting', 'targetPrinting', 'attackName']) {
       if (item[key] !== undefined && !boundedString(item[key], null, 256)) fail('BAD_ACTION_METADATA');
     }
-    if (item.publicMetadata !== undefined) validateFlatMetadata(item.publicMetadata, ACTION_META_KEYS, 'BAD_ACTION_METADATA');
+    if (item.publicMetadata !== undefined) validateActionMetadata(item.publicMetadata);
   }
   return tokens;
 }
@@ -661,5 +699,5 @@ module.exports = {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   OBSERVATION_SCHEMA, PROMPT_SCHEMA, EVENT_RECEIPT_VERSION, FRONTIER_SCHEMA,
   LIMITS, validateInit, validateRequest, validateDecision, validateActorObservation,
-  validatePublicEventReceipt, validateFlatMetadata
+  validatePrompt, validateFrontier, validatePublicEventReceipt, validateFlatMetadata
 };

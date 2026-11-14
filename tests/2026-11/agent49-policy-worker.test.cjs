@@ -544,3 +544,82 @@ test('sequence, duplicate ID, role drift and oversized NDJSON fail closed', asyn
     assert.match(oversized.stderr, /LINE_TOO_LARGE/);
   } finally { oversized.rl.close(); fs.rmSync(oversized.dir, { recursive: true, force: true }); }
 });
+
+test('public prompt and frontier validators enforce actor-relative metadata contracts', () => {
+  assert.equal(typeof protocol.validatePrompt, 'function');
+  assert.equal(typeof protocol.validateFrontier, 'function');
+
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: 0,
+    promptType: 'ChooseCardsPrompt',
+    description: 'Select an owner-visible card',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Quick Ball FST',
+      effectName: 'Quick Ball'
+    },
+    choices: [{
+      token: 'prompt-0',
+      kind: 'card',
+      publicMetadata: { ownerSeat: 'actor', selectionIndex: 0, isOwnerVisible: true }
+    }],
+    publicMetadata: {
+      ownerSeat: 'mixed',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: true,
+      isSecret: false,
+      selectionType: 'card-combination'
+    }
+  };
+  assert.equal(protocol.validatePrompt(prompt, 0), prompt);
+  assert.throws(() => protocol.validatePrompt(prompt), /BAD_SEAT/);
+  assert.throws(() => protocol.validatePrompt(prompt, 1), /BAD_PROMPT_PROJECTION/);
+  assert.throws(() => protocol.validatePrompt({
+    ...prompt,
+    publicMetadata: { ...prompt.publicMetadata, privateState: true }
+  }, 0), /BAD_PROMPT_METADATA/);
+  assert.throws(() => protocol.validatePrompt({
+    ...prompt,
+    publicMetadata: { ...prompt.publicMetadata, ownerSeat: 'seat-1' }
+  }, 0), /BAD_PROMPT_METADATA/);
+  assert.throws(() => protocol.validatePrompt({
+    ...prompt,
+    choices: [{ ...prompt.choices[0], publicMetadata: { ownerSeat: 'seat-1' } }]
+  }, 0), /BAD_PROMPT_METADATA/);
+
+  const frontier = {
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [{
+      token: 'act-0',
+      kind: 'use-ability',
+      publicMetadata: {
+        ownerSeat: 'actor',
+        targetSeat: 'opponent',
+        sourceSeat: 'actor',
+        targetIndex: 1,
+        sourceIndex: 0
+      }
+    }]
+  };
+  assert.equal(protocol.validateFrontier(frontier).has('act-0'), true);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, targetSeat: 'bottom' } }]
+  }), /BAD_ACTION_SEAT_METADATA/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceSeat: 'mixed' } }]
+  }), /BAD_ACTION_SEAT_METADATA/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, targetIndex: -1 } }]
+  }), /BAD_ACTION_INDEX_METADATA/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: 1.5 } }]
+  }), /BAD_ACTION_INDEX_METADATA/);
+});
+
