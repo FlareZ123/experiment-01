@@ -16,6 +16,7 @@ The existing detached `actorObservation(state, seat)` is the base request view. 
 - The host records its `/proc/self/ns/{pid,ipc,uts,net,mnt}` namespace inode links. The worker reports its own links. Assert every required namespace differs from the host. Do not treat command-line flag presence as proof; the hosted Docker CLI rejected `--pid=private` in run 43570845995.
 - The policy root and bundle are read-only; only a bounded tmpfs scratch directory is writable. Run as an unprivileged UID/GID, drop all capabilities, set no-new-privileges, and enforce PID, memory, CPU, file-descriptor and core-dump limits. Verify effective configuration, not only the intended argument list.
 - The worker receives an allowlisted environment. No repository, Twinleaf, runner source, deck files, physical-seed files, private artifacts, Docker socket, host `/proc`, or host process filesystem is mounted.
+- The Docker daemon must be local to the hosted runner. Reject nonempty `DOCKER_HOST` / `DOCKER_CONTEXT` overrides and verify the active Docker context endpoint is the local Unix socket. Do not forward user Docker context/TLS settings into the launcher: bind-mount sources are resolved on the daemon host, so a remote context changes the trust boundary.
 
 ### 2. Non-vacuous hostile capability canary
 
@@ -31,6 +32,7 @@ Run the same hostile policy in both physical-seat orientations. It may load Node
 
 - Start one persistent worker per role per game. Send at least two sequential NDJSON requests to the same container and receive both responses before exit. Assert stable worker PID, role, seat, protocol version and request order; do not respawn once per decision.
 - The host request includes a unique request ID and monotonically increasing decision ordinal. The worker returns a matching ID and exactly one typed response. Reject stale, duplicate, malformed, unknown-token and out-of-order responses.
+- Require a finite default worker deadline; `timeoutMs=0` (currently the default) is not an acceptable production setting. A timeout or abnormal close must trigger explicit daemon-side container stop/removal, not only kill the local Docker CLI.
 - Timeout, crash, malformed output, or container exit fails the game closed. It must not delegate to the in-process native AI or a full-State fallback.
 - Killing the host Docker CLI is not sufficient cleanup: track each container by unique name/label and explicitly stop/remove it on timeout/error. Confirm no orphan remains.
 
@@ -40,7 +42,7 @@ Run the same hostile policy in both physical-seat orientations. It may load Node
 - Serialize only detached actor observation, actor-visible prompt choices, public prompt description, public event receipt when independently validated, public catalog/config, policy seed and bounded action frontier.
 - Use stable opaque choice/action tokens. Keep native card objects, prompt validators and token-to-object mappings in the host. The worker returns only typed intent/opaque token; the host resolves it and runs the original native validator and Store legality checks before dispatch.
 - Test both candidate-seat orientations and both roles. A policy must not see the opponent's concealed hand, deck order, face-down Prize identities, or an unchosen hidden prompt-choice set.
-- Exercise root, setup, prompt continuation, fallback and all other strategic decisions through the worker. Physical shuffle/coin randomness and engine acknowledgements remain host-owned. A root-provider-only worker is insufficient.
+- Exercise root, setup, prompt continuation, fallback and all other strategic decisions through the worker. Physical shuffle/coin randomness and engine acknowledgements remain host-owned. A root-provider-only worker is insufficient. The existing synchronous role wrapper cannot await a worker Promise: the async fixture loop must own the await → native-neutral intent validation → host action construction → Store dispatch boundary. Keep the role composer as the single source of role/seat assignment, but version the worker audit separately; no in-process SimpleTacticsAi fallback.
 
 ### 5. CI and release evidence
 
@@ -62,8 +64,8 @@ The two test cases passed locally under Node v22.16.0 against a compliant fake w
 2. The current launcher also declares `clientVersion` / `serverVersion` but returns `dockerClientVersion` / `dockerServerVersion`, which are undefined after the namespace-argument failure is fixed.
 3. The current host network probe targets host `127.0.0.1`, so it does not distinguish `network=none` from the default bridge. Host secret/seed marker files are mode 0600, making an accidental mount unreadable to UID 65532; the hidden-opponent sentinel is never written or probed. The current Agent36 canary source still names its request field `policySeed` and echoes it in the response, despite the seed-free direction. Rename this non-RNG routing marker to `policyMarker` and remove the production launcher comment that says a policy seed must be sent over IPC.
 4. The current canary creates a fresh container for each seat × permission mode and sends one request, so it does not test persistent workers. The current timeout kills the Docker CLI child but does not guarantee daemon-side container termination/removal.
-5. The current canary does not compare effective host/worker namespace inode values. Its current pinned Node 20.19.0 image is not a supported LTS security baseline.
-6. The current canary still sends a `policySeed`-named field even though the owner decision is pending and the seed-free direction is explicit. The production worker request/response protocol and complete asynchronous fixture-loop integration are still pending. The current canary does not exercise actor prompt projection, typed intent, or host-side native prompt validation.
+5. The current canary does not compare effective host/worker namespace inode values. Its current pinned Node 20.19.0 image is not a supported LTS security baseline. Agent44's local unshare canary now passes two sequential requests for each seat and permission mode, but it is local-only and does not prove the hosted Docker boundary.
+6. The current canary still sends a `policySeed`-named field even though the owner decision is pending and the seed-free direction is explicit. `dockerEnvironment()` forwards DOCKER_HOST, DOCKER_CONTEXT, DOCKER_CONFIG, DOCKER_CERT_PATH and DOCKER_TLS_VERIFY without proving a local daemon. `spawnDockerPolicyWorker()` defaults to `timeoutMs=0` (unbounded) and only kills the CLI child on timeout. The production worker request/response protocol and complete asynchronous fixture-loop integration are still pending; the current canary does not exercise actor prompt projection, typed intent, or host-side native prompt validation.
 
 ## Ownership boundary
 
