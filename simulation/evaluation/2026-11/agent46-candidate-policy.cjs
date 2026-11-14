@@ -702,7 +702,7 @@ function chooseCardOrder(view, prompt) {
   return { kind: 'select-choices', tokens: ranked.map(row => row.choice.token) };
 }
 
-function chooseStartingPokemonSetup(view, prompt) {
+function chooseStartingPokemonSetup(prompt) {
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'card-combination' ||
       metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
@@ -715,22 +715,6 @@ function chooseStartingPokemonSetup(view, prompt) {
       (metadata.minimumCount === 1 && metadata.maximumCount > 6) ||
       !Array.isArray(prompt.choices)) {
     return abstain('BAD_STARTING_POKEMON_SETUP_PROMPT');
-  }
-
-  const own = view.ownPublic;
-  const bench = Array.isArray(own?.bench) ? own.bench : null;
-  if (!bench || bench.length !== 5) {
-    return abstain('MISSING_PUBLIC_BENCH_FOR_SETUP');
-  }
-  const active = own.active ?? null;
-  const emptyBenchSlots = bench.filter(slot => slot === null).length;
-  let capacity;
-  if (metadata.minimumCount === 0) {
-    if (active === null) return abstain('MISSING_ACTIVE_FOR_EXTRA_BENCH');
-    capacity = emptyBenchSlots;
-  } else {
-    if (active !== null) return abstain('ACTIVE_ALREADY_SET_FOR_INITIAL_SETUP');
-    capacity = 1 + emptyBenchSlots;
   }
 
   const cardChoices = [];
@@ -770,20 +754,21 @@ function chooseStartingPokemonSetup(view, prompt) {
     previousIndex = index;
   }
 
-  const selected = cardChoices.slice(0, Math.min(metadata.maximumCount, capacity));
-  if (selected.length < metadata.minimumCount) {
+  const selected = cardChoices.slice(0, metadata.maximumCount);
+  if (selected.length < metadata.minimumCount ||
+      (metadata.minimumCount === 0 && cardChoices.length > 0 && selected.length === 0)) {
     return abstain('INSUFFICIENT_STARTING_POKEMON_CHOICES');
   }
-  if (selected.length === 0) {
+  if (metadata.minimumCount === 0 && cardChoices.length === 0) {
     const empty = emptyChoices[0];
     return empty
       ? { kind: 'select-choice', token: empty.token }
       : abstain('NO_STARTING_POKEMON_CHOICE');
   }
 
-  // The pinned engine has already excluded non-Basics through the native
-  // CHOOSE_STARTING_POKEMONS prompt's blocked indices. Preserve that legal
-  // prompt order and never select more cards than the board can accept.
+  // The native prompt has already filtered non-Basics through blocked indices.
+  // Preserve its order and let the pinned reducer's callback place cards only
+  // while Bench slots remain; do not impose a second capacity cap here.
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
@@ -850,7 +835,7 @@ function chooseEngineSetupPrompt(view, prompt) {
 
   if (prompt.promptType === 'ChooseCardsPrompt' &&
       prompt.description === 'CHOOSE_STARTING_POKEMONS') {
-    return chooseStartingPokemonSetup(view, prompt);
+    return chooseStartingPokemonSetup(prompt);
   }
   if (prompt.promptType === 'ConfirmPrompt' &&
       prompt.description === 'GO_FIRST') {
