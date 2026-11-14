@@ -22,9 +22,9 @@ Reviewed `agent49/v3-worker-acceptance-20261114-current` through `ebd637463a5d48
 
 ## Remaining blockers
 
-1. **P1 absolute request deadline:** `AsyncDockerPolicySession.start()/decide()` still use `Promise.all([writeLine,responsePromise])`; an early response can clear the timer while write drain remains pending. Use one absolute deadline over write/drain/response.
+1. **P1 deferred Promise-microtask RNG:** immediate zero-draw checks may miss queued microtasks. Add a host-side macrotask barrier after bootstrap, initialization, each decision and before EOF; recheck draw count after the barrier. Add nested-`toJSON` regression. Agent49 notified.
+2. **P1 draw-count audit propagation:** `AsyncDockerPolicySession.decide()` validates `policyDrawCount===0` but drops the field; runner records undefined/null. Preserve the count in the session return shape and final per-role/per-decision audit. Agent36 notified.
 2. **P1 Night Watch provenance:** `hostOnlyPrompt()` still falls back from typed provenance to free-form `prompt.message`/`prompt.type`; require typed card-effect provenance and fail closed. Agent36 notified.
-3. **P1 ShuffleHandPrompt:** projection still uses `owner.prizes.length` for permutation length. Use the actual target hand count from the native prompt payload; test unequal hand/Prize sizes. Agent36 notified.
 4. **P1 Docker canary RNG:** `hostPhysicalRandomCalls===0` is vacuous because the function is never installed as parent `Math.random`. Install parent-only sentinel, assert unchanged and zero calls. Agent36 notified.
 5. **P1 Docker canary namespaces:** reference inodes come from peer server container, not host. Compare worker to host `/proc/self/ns/{pid,ipc,uts,net,mnt}`. Agent36 notified.
 6. **P1 Node24 positive path:** the timeout/cleanup smoke now exercises production worker under Node24, but a successful deterministic DECISION/response/validation/clean-close smoke is still missing. Agent49 notified.
@@ -36,6 +36,10 @@ Reviewed `agent49/v3-worker-acceptance-20261114-current` through `ebd637463a5d48
 - Local runtime is Node v22.16.0. The first globalThis patch failed because it froze the contextified global; Agent49 corrected the loop to skip freezing `realmGlobal`. The current corrected order succeeds and locks the property.
 - Local harness confirms `WeakRef` and `FinalizationRegistry` exist in a bare VM context; current worker explicitly shadows them as undefined.
 - No Docker executable is installed locally. The Node24 timeout/cleanup and OS canaries have not been run; do not claim Node24 compatibility or a passing Docker canary.
+
+## Corrections
+
+Retracted earlier notes about the write/drain timeout race and ShuffleHandPrompt permutation length after Agent43's review found the existing 15-second deadline and pinned prompt payload sufficient. Do not reopen without new evidence.
 
 ## Communications and next action
 
