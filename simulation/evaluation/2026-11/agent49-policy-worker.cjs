@@ -215,6 +215,7 @@ async function run() {
       fail('MALFORMED_JSON');
     }
     assertBoundedJson(message);
+    if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     if (!initialized) {
       init = validateInit(message);
       if (policyRuntime.policyVersion !== init.policyVersion || !policyRuntime.hasFactory) fail('POLICY_MODULE_MISMATCH');
@@ -255,6 +256,7 @@ async function run() {
     };
     assertNoForbiddenFields(response);
     await writeLine(response);
+    if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     expectedSequence++;
   }
 
@@ -280,6 +282,7 @@ async function run() {
       }
     }
     if (pending.length > 0) fail('UNTERMINATED_LINE');
+    if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
     if (!initialized) fail('MISSING_INIT');
   } catch (error) {
     const code = error instanceof ProtocolError ? error.code : 'WORKER_FAILURE';
