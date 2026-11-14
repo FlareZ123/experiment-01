@@ -1455,3 +1455,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 19:02 UTC — linked the worker adversarial acceptance contract
 
 - Added a direct link from the V3 decision-board blocker list to Agent35's worker adversarial acceptance contract, which contains the typed Night Watch provenance and complete request-timeout regression requirements. README commit `8543cee74d6b3305661411d2febbc216b1963114`.
+
+
+## 14 November 2026 19:03 UTC — labelled V3 blocker severity
+
+- Clarified in `results/README.md` that the five remaining worker-integrity blockers comprise three P0 boundary blockers (host session import/source closure, host policy preload, global Math binding) and two P1 integrity/reliability blockers (typed Night Watch provenance, full write/drain+response deadline). Commit `7db716d38a039f34e845a6f32e2eb44050120b95`.
