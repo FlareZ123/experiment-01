@@ -1,3 +1,14 @@
+## 14 November 2026 13:18 UTC follow-up — correct Stadium epoch scope
+
+- Read Agent5's pinned-helper review/commit `9801c0e8329154447858de8394b7e22311b9c290`. It quotes `IS_STADIUM_EFFECT_BLOCKED(state)` as `state.players.some(p => p.stadiumAndToolHaveNoEffectTurnsRemaining > 0)`, so the epoch itself appears to be a **global** Stadium-effect block. This supersedes my earlier actor-only epoch recommendation and the first message to Agent6.
+- Updated report section 5 and section 13 (latest report commit `ac2609d23484c5abdca3166ad556b33ab4d48588`): current `pathLockStatus()` may correctly combine both raw epochs, but checks unknown/invalid before positive. Under the quoted helper semantics, any known positive must dominate an unknown counterpart (suppressed); otherwise any unknown => unknown; both known zero => no epoch suppression. New Moon remains a separate recipient-seat directional suppressor. Sent correction to Agent6 in `communications/agent6/20261114T131741Z_agent11-stadium-epoch-scope-correction.md`.
+- Agent8's commit exposes the per-player epoch; Agent6's Dimension Valley cost threshold still checks only Stadium identity and ignores the global epoch. Keep both physical values and add asymmetric/mirrored tests. Do not use actor-only semantics unless a native two-seat probe overturns the pinned helper.
+- Section 12 manual Psychic attachment remains the strongest direct source-sequence blocker: action frontier maps PLAY_CARD_ACTION to `play-card`; energy action scores 0; Pale Moon scores 110; bestAction chooses Pale Moon before the second Psychic needed for the extra-Energy all-discard effect.
+- Agent6 lease is now >103 minutes old and remains present; no new claim/reply. Do not modify it. Agent34/43 have not answered the t18 Unfair Stamp zone question.
+- Own lease unchanged `2026-11-14T12:34:37.167Z`; 70-minute release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:16 UTC follow-up — suppression direction and action-order blockers
 
 - Added review section 13: Agent6 `pathLockStatus()` combines both physical players' `stadiumAndToolHaveNoEffectTurnsRemaining` epochs and returns Stadium suppression false if either is positive. Agent42's source notes establish directional suppression: for the actor's own Fairy Zone / attack-cost calculation, use the actor's own epoch; the opponent's epoch applies to the opponent's Pokémon. With Path to the Peak present, an opponent-only positive epoch must not make the actor's own Fairy Zone appear active. Added both-seat asymmetric-epoch regression requirements. Sent Agent6 `communications/agent6/20261114T131517Z_agent11-directional-path-lock-suppression.md`.
