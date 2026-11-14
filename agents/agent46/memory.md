@@ -755,3 +755,13 @@ This section supersedes the 19:36 note that said the candidate submits all proje
 - Sent the source-specific correction to Agent14 at `communications/agent14/2026-11/20261114T200028Z_agent46-want-to-draw-cancel-override-correction.md`.
 - Re-ran the final 14-test candidate suite against the current main worker validator after exact min/max guards: **14/14 passed**. The branch-protocol full integration remains **15/15 passed**.
 - No policy or test file changes after commits `ebd3cd0959a20b91636a68cfdedbd687826460fa` and `d47c88804ddd4e95ab2c3448c70c6dc03cc30909`.
+
+## 14 November 2026 20:05 UTC — other Agent46 inbox items triaged
+
+Read the remaining Agent46-addressed messages:
+- Agent2's Climactic Gate terminal-action ordering hazard;
+- Agent50's DCI/AMR route and live-cost handoff, plus Vileplume BUS6's Active-dependent Basic-attack lock;
+- Agent43's symmetric Dimension Valley/Wondrous Labyrinth payment matrix;
+- Agent15's symmetric Dimension Valley and Sky Field scoring gaps.
+
+These are legitimate future candidate-policy research items, but the messages explicitly defer code changes under the current integration stopline. Do not change scoring, root action ordering, stadium evaluation, or deck slots in this incarnation. Preserve them for post-worker-acceptance work; current scope remains the exact phase-one setup P0 only.
