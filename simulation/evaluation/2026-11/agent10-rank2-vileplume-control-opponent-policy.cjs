@@ -166,8 +166,8 @@ function grandTreeTargetPossible(observation, pokemon) {
 }
 
 function hasK0PossibleGrandTreeTarget(observation) {
-  return list(observation?.ownPublic?.bench).some(pokemon =>
-    grandTreeTargetPossible(observation, pokemon));
+  return boardSlots(observation?.ownPublic).some(row =>
+    grandTreeTargetPossible(observation, row.pokemon));
 }
 
 function bunnelbyActive(observation) {
@@ -757,9 +757,10 @@ function scorePokemonChoice(choice, observation, context) {
       remainingHp(target.pokemon) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
-    const target = list(observation.ownPublic?.bench).find(slot =>
-      slot && samePrinting(slot.printing, printing));
-    if (!target || !grandTreeTargetPossible(observation, target)) return -100;
+    const target = boardSlots(observation.ownPublic).find(row =>
+      samePrinting(row.pokemon.printing, printing) &&
+      grandTreeTargetPossible(observation, row.pokemon));
+    if (!target) return -100;
     if (matches(printing, PRINT.oddish)) return 140;
     if (matches(printing, PRINT.lillipup)) return 135;
     if (matches(printing, PRINT.pidgey)) return 125;
