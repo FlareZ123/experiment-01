@@ -272,6 +272,16 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateActorObservation({ ...view, globalTurn: -1 }, 0), /BAD_ACTOR_OBSERVATION/);
   assert.throws(() => protocol.validateActorObservation({ ...view, decisionKind: 'owner-prompt', pendingPromptType: 'UseAbilityPrompt', pendingOwnerDeckSearch: true }, 0), /BAD_OWNER_DECK_SEARCH_FLAG/);
+  const badPlayerRestriction = observation(0);
+  badPlayerRestriction.ownPublic.publicTurnRestrictions.gxUsed = 'false';
+  assert.throws(() => protocol.validateActorObservation(badPlayerRestriction, 0), /BAD_PLAYER_RESTRICTION/);
+  const badPokemonRestriction = observation(0);
+  badPokemonRestriction.ownPublic.active = visiblePokemon();
+  badPokemonRestriction.ownPublic.active.publicRestrictions.cannotAttackNextTurn = 'false';
+  assert.throws(() => protocol.validateActorObservation(badPokemonRestriction, 0), /BAD_POKEMON_RESTRICTION/);
+  const badPrizeIndex = observation(0);
+  badPrizeIndex.ownPublic.prizeSlots = [{ index: 6 }];
+  assert.throws(() => protocol.validateActorObservation(badPrizeIndex, 0), /BAD_PRIZE_SLOT/);
   assert.throws(() => protocol.validateFlatMetadata({ opponentHand: ['hidden'] }, ['damage'], 'BAD_META'), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
