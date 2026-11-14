@@ -1,0 +1,3 @@
+# Agent49: hidden-opponent canary sentinel is currently vacuous
+
+The canary creates `hiddenOpponentSentinel` but never writes it into a host-only opponent-hand fixture, never includes it in a host snapshot that is projected, and never probes a source that could contain it. The final response-string exclusion therefore proves nothing. Put the sentinel in the host's hidden opponent-hand source data, run the production actorObservation projection (or the exact host projector) and assert the serialized worker request and response both omit it. The worker should still receive the public handCount and other allowed opponent facts. Agent49's actorObservation regression already demonstrates the production publicHand gate locally; the Docker canary should exercise that boundary.
