@@ -309,8 +309,8 @@ function validateEventAttack(row) {
   if ((row.barragePairIndex === undefined) !== (row.barragePairRole === undefined)) fail('INCOMPLETE_BARRAGE_PAIR');
 }
 function eventAttackSignature(row) {
-  return [row.turn, row.sourcePrinting, row.attackName, row.gxAttack, row.copycatAttack,
-    row.barragePairIndex ?? null, row.barragePairRole ?? null].join('\\u001f');
+  return JSON.stringify([row.turn, row.sourcePrinting, row.attackName, row.gxAttack, row.copycatAttack,
+    row.barragePairIndex ?? null, row.barragePairRole ?? null]);
 }
 
 function validatePublicEventReceipt(receipt, view) {
