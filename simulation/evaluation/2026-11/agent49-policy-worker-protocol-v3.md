@@ -1,16 +1,16 @@
-# Agent49 policy-worker protocol v3
+# Agent49 policy-worker protocol v4
 
-**Status (2026-11-14):** the async Docker-worker fixture path, actor-bound prompt projection, per-item action frontier, typed multi-select mapping, and native raw-result validation are implemented in the current integration branch. Host code now imports the pure protocol module separately; candidate/opponent policy source is hash-pinned in role manifests but must not be evaluated by the host preloader. The worker bundle contains the worker executable, protocol module, and one role policy. The worker evaluates policy source in a restricted VM context with code generation disabled, no ambient process/module/clock/network/timer/crypto globals, and a sealed VM Math binding. A worker-local CSPRNG stream is created inside each worker and exposed only through a non-serializable `rng` closure; the VM Math.random wrapper uses the same counted stream. Any policy draw fails closed for the current evidence protocol, so competitive policies must remain zero-draw until the owner approves a reproducible entropy model. These changes and their regression tests are not yet accepted: pinned Node 24 Docker execution, host-preload sentinel test, manifest closure tests, cleanup assertions, CI contract lane, and owner seed-disclosure decision remain pending. This is an interface and acceptance specification, not evidence of a completed simulator or competitive result.
+**Status (2026-11-14):** the async Docker-worker fixture path, actor-bound prompt projection, per-item action frontier, typed multi-select mapping, and native raw-result validation are implemented in the current integration branch. Host code now imports the pure protocol module separately; candidate/opponent policy source is hash-pinned as role-manifest data assets, never as host entrypoints, and must not be evaluated by the host preloader. The worker bundle contains the worker executable, protocol module, and one role policy. The worker evaluates policy source in a restricted VM context with code generation disabled, no ambient process/module/clock/network/timer/crypto/weak-reference/finalizer globals, and locked `globalThis`, `Object`, and `Math` bindings. A worker-local CSPRNG stream is created inside each worker and exposed only through a non-serializable `rng` closure; the VM Math.random wrapper uses the same counted stream. Every successful response reports its cumulative `policyDrawCount` (required to be zero); any draw fails closed and the worker reports the observed count on stderr for the runner audit. Competitive policies must remain zero-draw until the owner approves a reproducible entropy model. The host session applies a 15-second per-decision deadline and terminates the worker/container if an asynchronous policy does not settle. These changes and their regression tests are not yet accepted: pinned Node 24 Docker execution, host-preload sentinel test, manifest closure tests, cleanup assertions, CI contract lane, and owner seed-disclosure decision remain pending. This is an interface and acceptance specification, not evidence of a completed simulator or competitive result.
 
 ## Envelope and projection versions
 
 | Layer | Schema/version |
 |---|---|
 | Worker init | `aichi-policy-worker-init-v2` |
-| Worker ready | `aichi-policy-worker-ready-v2` |
+| Worker ready | `aichi-policy-worker-ready-v3` |
 | Decision request | `aichi-policy-request-v2` |
-| Decision response | `aichi-policy-response-v3` |
-| Actor observation | `aichi-actor-observation-v2` |
+| Decision response | `aichi-policy-response-v4` (includes `policyDrawCount`) |
+| Actor observation | `aichi-actor-observation-v3` |
 | Owner prompt projection | `aichi-owner-prompt-projection-v3` |
 | Action frontier | `aichi-action-frontier-v1` |
 | Public event receipt | `agent8-public-event-receipt-v3-turn-stamped` |
