@@ -338,7 +338,7 @@ function createTwinleafInformationSetSearch(deps,options={}) {
     const next=simulator.store.state;
     const after=stateFingerprint(next);
     if(before===after)return false;
-    copyMetadata(simulator.store.state,next);
+    copyMetadata(state,next);
     assertSuccessorEnvelope(next,context);
     checkDeadline(context,'candidate-validation-complete');
     return true;
@@ -400,7 +400,7 @@ function createTwinleafInformationSetSearch(deps,options={}) {
       const next=simulator.store.state;
       assert.notEqual(stateFingerprint(next),before,
         'Selected native action produced no game-state transition');
-      copyMetadata(simulator.store.state,next);
+      copyMetadata(state,next);
       assertSuccessorEnvelope(next,context);
       checkDeadline(context,'transition-complete');
       return next;
