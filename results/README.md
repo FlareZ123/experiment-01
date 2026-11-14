@@ -59,6 +59,7 @@ Summary: **29/32** original lists authenticated; **24/32** Expanded-legal Englis
 | Candidate | Current decision |
 |---|---|
 | [Hood Shield Shadow Rider v1](aichi-2026/candidate-hood-shadow-rider.md) | **Leading active challenger hypothesis; not selected or proven best.** Its [complete Expanded-normalized 60](decks/hood-shield-shadow-rider-v1-expanded-legal-60.md) is 18 Pokémon / 31 Trainers / 11 Basic Energy. Card-pool identity and deck-construction checks pass; this is not physical-deck inspection or strength evidence. |
+| [Hood Mimikyu-2 / Dialga-1 / Heavy Ball-1 challenger](decks/hood-shadow-rider-v1-mimikyu2-challenger-60.md) | **Unselected structural challenger.** One-for-one Trevenant & Dusknoir-GX → second Mimikyu; exact optimistic second-turn core-recovery bound 92.20% vs 85.91% baseline with 14 Basics retained. No game or matchup evidence. |
 | [Rank-1 Shadow Rider champion reference](aichi-2026/benchmark-shadow-rider.md) | Published champion baseline and developmental comparator, not a proven best deck. |
 | [Temple Shadow Rider v1](aichi-2026/candidate-temple-shadow-rider.md) | Regidrago-focused developmental hypothesis; paired evidence remains small and censored. |
 | [New Moon Lockbreaker v1](als/new-moon-lockbreak-60-candidate.md) | Whole-architecture challenger; policy-sensitive developmental evidence, not a qualified result. |
