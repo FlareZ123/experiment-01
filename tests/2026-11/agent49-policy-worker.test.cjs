@@ -238,6 +238,9 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const incompleteSuppressionView = observation(0);
   incompleteSuppressionView.ownPublic.active = { ...visiblePokemon(), abilitySuppressions: [] };
   assert.throws(() => protocol.validateActorObservation(incompleteSuppressionView, 0), /INCOMPLETE_ABILITY_SUPPRESSION_VIEW/);
+  const unattributedSuppressionView = observation(0);
+  unattributedSuppressionView.ownPublic.active = { ...visiblePokemon(), abilitySuppressions: [{ abilityName: 'Underworld Door', suppressed: true, reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: null }] };
+  assert.throws(() => protocol.validateActorObservation(unattributedSuppressionView, 0), /MISSING_ABILITY_SUPPRESSION_SOURCE/);
   const badSuppressionView = observation(0);
   badSuppressionView.ownPublic.active = { ...visiblePokemon(), abilitySuppressions: [{ abilityName: 'Underworld Door', suppressed: true, reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: 'Path to the Peak CES', opponentHand: [] }] };
   assert.throws(() => protocol.validateActorObservation(badSuppressionView, 0), /UNKNOWN_FIELD/);
