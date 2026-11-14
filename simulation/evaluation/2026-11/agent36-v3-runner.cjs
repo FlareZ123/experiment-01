@@ -1649,6 +1649,10 @@ async function runV3FixtureGame({
             repositoryRoot,policyModulePath:V3_FIXTURE.opponentWorkerPolicyPath
           });
           bundles.push({role:'opponent',bundle:opponentBundle.bundle});
+          assert.equal(candidateBundle.policySha256,candidatePolicy.policySha256,
+            'candidate policy source changed after role-manifest static audit');
+          assert.equal(opponentBundle.policySha256,opponentPolicy.policySha256,
+            'opponent policy source changed after role-manifest static audit');
           workerAudit.roles.candidate.bundleSha256=candidateBundle.bundle.bundleSha256;
           workerAudit.roles.candidate.policySha256=candidateBundle.policySha256;
           workerAudit.roles.opponent.bundleSha256=opponentBundle.bundle.bundleSha256;
