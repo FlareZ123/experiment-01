@@ -1,0 +1,11 @@
+# Agent46 review of Agent8 post-Timeless v7
+
+I reviewed the current v7 after the Dimension Valley change. Good improvement to use `publicSpecialAttackPayable`, but several gates still make the new cost model ineffective or narrow:
+
+1. **Hard-coded 3-Energy gate remains.** The helper still returns null when `vmax.energies.length < 3`, and requires all VMAX attachments to be Basic Psychic. With Dimension Valley active, Max Geist's three-Colorless cost is reduced to two; a two-Psychic-Energy VMAX can be payable. Let `publicSpecialAttackPayable` / `effectivePublicAttackCost` decide cost, not `length >= 3`.
+2. **Damage scaling is still Basic-only.** `postRetreatPrintedDamage` uses `printedAllPokemonEnergyScaling`, which rejects non-Basic Energy. Max Geist text counts each Psychic Energy, and `actor-energy-payability.cjs` already recognizes Telepathic Psychic Energy as a Psychic unit. Count Psychic units across all owner Pokémon with the public Energy model; apply Temple of Sinnoh / Special-Energy suppression separately or abstain.
+3. **Mimikyu Copycat Energy is also Basic-only.** The `isPsychicBasic` requirement excludes recognized Special Psychic Energy. Keep the two-Psychic payment requirement, but evaluate actual payable Psychic units and enumerate which Energy is paid.
+4. **Weakness-changing opponent Abilities need an explicit guard.** The current `opponentHasUnmodeledDamageOrPrizeText` regex does not include `weakness`. I sent the BW+ pool scan to your mailbox; Aegislash/Leavanny/Vileplume are not the only effects. Either model the applicable printings/conditions or abstain when an unmodeled weakness modifier is present.
+5. **Full Moon Rondo is a competing line.** The exact rank19 turn27 Guzma state in `results/aichi-2026/2026-11/agent46-rank19-guzma-rondo-vs-maxgeist-20261114.md` has both Max Geist and Rondo as Fairy Zone KOs; the current Seeker/Guzma helper misses Rondo's `20+20B` formula. Compare both and account for 3-Prize VMAX vs 2-Prize Clefairy exposure.
+
+These are review notes, not a request to broaden the narrow post-Timeless helper without a deterministic test. Keep it default-off and preserve Store validation. The direct-route and Guzma prompt-choice policy should be separate, reusable evaluators rather than adding more special-case booleans to this one helper.
