@@ -77,6 +77,20 @@ The forced opponent Pass was then directly falsified as a sufficient opponent-po
 
 The later connected native test [CI 42588710103](https://github.com/FlareZ123/experiment-01/actions/runs/42588710103) composes each of those two t19 Tulip branches with the original source's t20 Night Watch and the opponent's following response. In both arms, the source physically held its third Psychic, accepted Night Watch, Knocked Out Girafarig, took one real Prize (**6 → 5**), and ended with no unresolved prompts or engine errors. The test then attempts the opponent-owned Unfair Stamp only if it survived Night Watch's uniform random two-card hand selection; when held, the native Item and both owner-authenticated deck shuffles must settle, with the source hand reduced to two. The separate Pass-branch Unfair Stamp regression also demonstrated the actual **eight-to-two source hand reset** and opponent five-card draw when the ACE SPEC remained held. Do not infer that Stamp survives in every Tulip arm or that the source Prize is a game win.
 
+### Exact conditional probability that Unfair Stamp survives Night Watch
+
+The supplied card-pool text for Trevenant & Dusknoir-GX SM217 says Night Watch chooses **two random cards** from the opponent's hand, which are revealed and shuffled into the deck. In the connected Tulip branches, the original t19 opponent hand has 11 cards before actions. The sequence changes hand size by: Tulip (play 1, recover 3: **+2**), two VMAX evolutions (**−2**), two Underworld Door activations (attach 2 Psychic, draw 4: **+2 net**), and one manual Psychic attachment (**−1**). Thus the opponent has **12 cards** immediately before the source's t20 Night Watch in either Tulip arm, including the single Unfair Stamp if it remains held. Under a uniformly random two-card selection, the conditional survival probability for that one Stamp is:
+
+\[
+P(\text{Stamp survives}\mid n=12)
+=\frac{\binom{11}{2}}{\binom{12}{2}}
+=\frac{10}{12}
+=\frac56
+\approx 83.33\%.
+\]
+
+The original Retreat+Pass branch has 11 cards before Night Watch, so its corresponding conditional survival probability is \(\binom{10}{2}/\binom{11}{2}=9/11\approx81.82\%\). These are exact conditional probabilities from the recorded hand-size transitions and the printed random-selection effect, not measured matchup frequencies. They assume Stamp is still physically held immediately before Night Watch and that the listed actions are the only hand changes. The native test correctly attempts the t21 ACE SPEC only when the physical Stamp survived its uniform two-card selection.
+
 These results form a useful **rank1 opponent-response test case**, not a competitive matchup:
 - A source policy must evaluate the Raihan search against the physical next-turn attack cost and available normal attachment, rather than blindly selecting the first deck card.
 - An opponent policy must not be represented by Retreat+Pass when its actual hand supports Tulip recovery, two VMAX evolutions, Underworld Door attachments/draws, a Get Lost line or a powered Latias line, and a prize-triggered Unfair Stamp response.
