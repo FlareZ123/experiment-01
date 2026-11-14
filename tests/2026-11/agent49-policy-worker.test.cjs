@@ -294,7 +294,7 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const badPrompt = request(1, 'candidate', 0, {
     observation: observation(0, 'owner-prompt', 'ChooseCardsPrompt'),
     prompt: { schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
-      description: 'test', source: { classification: 'actor-choice', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
+      description: 'test', source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
       choices: [{ token: 'c1', kind: 'payment', publicMetadata: { opponentHand: [] } }] }
   });
   assert.throws(() => protocol.validateRequest(badPrompt, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
@@ -481,17 +481,21 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   await expectFailure({ ...promptReq, requestId: 'force-action-on-prompt' }, 'ACTION_DURING_PROMPT');
   await expectFailure({ ...request(1), requestId: 'force-choice-on-root' }, 'CHOICE_DURING_ROOT');
   await expectFailure({ ...request(1), requestId: 'force-unknown' }, 'POLICY_SELECTED_UNKNOWN_ACTION');
-  const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
+  const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(physicalRandomPrompt, initFor(), 1, new Set()), /NON_ACTOR_PROMPT_CLASS/);
-  const misclassifiedNightWatch = { ...promptReq, requestId: 'misclassified-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
+  const misclassifiedNightWatch = { ...promptReq, requestId: 'misclassified-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(misclassifiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
-  const unknownSourcePrompt = { ...promptReq, prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: null, effectName: null } } };
+  const unknownSourcePrompt = { ...promptReq, prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: null, effectName: 'Quick Ball' } } };
   assert.throws(() => protocol.validateRequest(unknownSourcePrompt, initFor(), 1, new Set()), /UNKNOWN_PROMPT_SOURCE/);
-  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
+  const engineSetupPrompt = { ...promptReq, requestId: 'engine-setup', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: null, effectName: 'ChooseStartingPokemonPrompt' } } };
+  protocol.validateRequest(engineSetupPrompt, initFor(), 1, new Set());
+  const misattributedEnginePrompt = { ...promptReq, requestId: 'bad-engine-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: 'Quick Ball FST', effectName: 'ChooseStartingPokemonPrompt' } } };
+  assert.throws(() => protocol.validateRequest(misattributedEnginePrompt, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
+  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
-  const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
+  const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
   assert.throws(() => protocol.validateRequest(incompleteCopycat, initFor(), 1, new Set()), /COPYCAT_SOURCE_MISSING/);
-  const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: null } } };
+  const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: null } } };
   assert.throws(() => protocol.validateRequest(partialCopiedSource, initFor(), 1, new Set()), /INCOMPLETE_COPIED_PROMPT_SOURCE/);
   assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
 });
