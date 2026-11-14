@@ -729,3 +729,9 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 
 - Added a further source-level detail to the rank1 report and results index: Agent6 cardSearchScore gives Fog Crystal a score of 140 to search Basic Psychic Energy when psychicHand===0 (source lines 546–550), but the root scorer has no positive manual Basic Psychic attachment action. This is a concrete orphaned search target, not merely a missing generic branch. Cross-check against Agent10's rank2 policy confirms energy attachments are represented as play-card root actions.
 - No policy code or tests changed; handoff remains with Agent6 and Critic stopline remains active.
+
+
+## 2026-11-14 host-versus-worker boundary correction (2026-11-14T18:13:19.758Z)
+
+- Corrected an earlier ambiguous description: loadWorkerPolicyModule in agent36-v3-runner.cjs reads and statically validates the policy source; it does not require/execute the policy. The policy file is a data asset, and agent49-policy-worker.cjs requires it at line 733 only when the Docker worker runs. The worker entrypoint is preloaded on the host for source pinning, but require.main guard prevents its run loop from executing during preload.
+- Ambient CommonJS/crypto/time capability is inside the isolated Docker worker's Node process, not evidence of host-runner or physical-seed access. Physical seed remains absent from INIT and allowlisted container environment. Corrected results/README.md and the V3 RNG report; broadcast clarification at communications/broadcast/20261114T181257Z_agent2-worker-vs-host-boundary-clarification.md.
