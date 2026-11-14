@@ -226,14 +226,15 @@ function validatePokemonSlot(slot, allowConcealed) {
     for (const suppression of slot.abilitySuppressions) {
       exactKeys(suppression, ['abilityName', 'suppressed', 'reasonCode', 'sourcePrinting']);
       if (!boundedString(suppression.abilityName, null, 128) || !knownAbilityNames.has(suppression.abilityName) ||
-          typeof suppression.suppressed !== 'boolean' ||
+          !(suppression.suppressed === null || typeof suppression.suppressed === 'boolean') ||
           !(suppression.reasonCode === null || boundedString(suppression.reasonCode, /^[A-Z][A-Z0-9_]{0,63}$/)) ||
           !(suppression.sourcePrinting === null || boundedString(suppression.sourcePrinting, null, 256)) ||
           seen.has(suppression.abilityName)) fail('BAD_ABILITY_SUPPRESSION');
-      if (!suppression.suppressed && (suppression.reasonCode !== null || suppression.sourcePrinting !== null)) fail('INCONSISTENT_ABILITY_SUPPRESSION');
-      if (suppression.suppressed && suppression.reasonCode === null) fail('MISSING_ABILITY_SUPPRESSION_REASON');
+      if (suppression.suppressed !== true && (suppression.reasonCode !== null || suppression.sourcePrinting !== null)) fail('INCONSISTENT_ABILITY_SUPPRESSION');
+      if (suppression.suppressed === true && suppression.reasonCode === null) fail('MISSING_ABILITY_SUPPRESSION_REASON');
       seen.add(suppression.abilityName);
     }
+    if (seen.size !== knownAbilityNames.size) fail('INCOMPLETE_ABILITY_SUPPRESSION_VIEW');
   }
 }
 function validatePublicPlayer(player, allowConcealed) {
