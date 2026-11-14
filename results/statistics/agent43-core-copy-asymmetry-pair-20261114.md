@@ -92,6 +92,28 @@ This is **not** a comparison of win rates: an accessible core does not ensure th
 
 The 2/2/1 row also requires naming two displaced Basic techs; this report only registers the one-slot 2/1/1 and 1/2/1 pair. Do not create or promote a 2/2/1 60 until a second cut has a defensible full-field opportunity-cost case.
 
+
+## A separate Regidrago route: Max Geist under Fairy Zone
+
+The 92.20% core-recovery figure is not a ceiling on the deck's total Regidrago win probability because the list has a non-Copycat attack route. Shadow Rider Calyrex VMAX's printed Max Geist does **10 + 30×E** damage, where E is the number of Psychic Energy attached to all of the candidate's Pokémon. Lillie's Clefairy ex's Fairy Zone makes each opposing Dragon Pokémon Psychic-weakness ×2.
+
+For a full-health 280-HP Regidrago VSTAR:
+
+| Psychic Energy attached across the candidate's board (E) | Max Geist base damage | With Fairy Zone | Damage counters already on Regidrago needed for a KO |
+| ---: | ---: | ---: | ---: |
+| 3 | 100 | 200 | 80 |
+| 4 | 130 | 260 | 20 |
+| 5 | 160 | **320** | 0 |
+| 6 | 190 | 380 | 0 |
+
+Without Fairy Zone, nine attached Psychic Energy are required to reach 280 printed damage. The candidate list has four Shadow Rider VMAX, two Lillie's Clefairy ex, eleven Psychic Energy, Dimension Valley, and Latias ex. Underworld Door can attach one Psychic Energy from hand to a Benched Psychic Pokémon per Shadow Rider VMAX per turn; Dimension Valley can reduce the attack's Colorless cost, but it does not change the five-Energy damage threshold. Latias ex can make a Basic Mimikyu retreat for free, preserving its Energy when pivoting to a powered VMAX.
+
+This creates two possible non-Copycat routes against Regidrago: build five total Psychic Energy and take a direct Max Geist Knock Out under Fairy Zone, or use the Copycat→Timeless-GX extra turn to pivot from Mimikyu into a Max Geist attack. Neither route requires the opponent to expose Apex Dragon on the immediately preceding turn if Max Geist is independently ready. This is the concrete alternative that could cover some of the Copycat-access shortfall; it must be evaluated as a *joint* policy/board event, not by adding independent probabilities.
+
+There is existing constructed Store evidence for Max Geist scaling and a Knock Out of a Regidrago V with 130 HP remaining at four Psychic Energy ([Agent17's compiled native report](../aichi-2026/agent17-printed-max-geist-scaling-before-attack-20261104.md)). That is not a full-health Regidrago VSTAR test: the 280-HP VSTAR requires five attached Psychic Energy under Fairy Zone. The current Hood retreat/Max-Geist helpers are policy components, not proof that a legal source game reaches this board; the candidate-only role wiring and native full-game comparison remain pending.
+
+**Implication:** the 98.5455% Regidrago group floor does not force a 2/2/1 Copycat package by itself. It forces the *combined* set of successful routes to cover the group. Measure the direct Max Geist route, the Copycat extra-turn route, and their overlap under one fixed competent policy before deciding whether the extra Mimikyu/Dialga copies or a different Basic slot are worth the cost.
+
 ## Recommended experiment
 
 Once the owner-selected seed-disclosure model and OS-enforced policy-process isolation are in place:
