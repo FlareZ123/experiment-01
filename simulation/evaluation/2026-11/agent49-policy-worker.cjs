@@ -78,7 +78,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     "(() => { 'use strict';",
     '  const module=Object.create(null);',
     "  Object.defineProperty(module,'exports',{value:Object.create(null),writable:true,configurable:false,enumerable:true});",
-    '  const exports=module.exports;',
+    '  let exports=module.exports;',
     policySource,
     "  Object.defineProperty(globalThis,'__agent49PolicyModule',{value:module.exports,writable:false,configurable:false,enumerable:false});",
     '})();'
