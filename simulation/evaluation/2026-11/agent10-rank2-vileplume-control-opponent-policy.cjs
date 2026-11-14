@@ -49,7 +49,8 @@ const PRINT = Object.freeze({
   lusamine: /^Lusamine CIN 96\b/i,
   bellelba: /^Bellelba & Brycen-Man CEC 186\b/i,
   peonia: /^Peonia CRE 149\b/i,
-  teamYell: /^Team Yell's Cheer BRS 149\b/i
+  teamYell: /^Team Yell's Cheer BRS 149\b/i,
+  counterGain: /^Counter Gain SSP 169\b/i
 });
 
 const EXECUTABLE = new Set([
