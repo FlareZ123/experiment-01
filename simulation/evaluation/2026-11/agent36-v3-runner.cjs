@@ -87,7 +87,10 @@ function loadNativeRoleDependencies({enginePin}={}){
   // Literal vendor imports are tied to the submodule gitlink, not research code.
   const {SimpleTacticsAi}=require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai');
   const {Store}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/store');
-  const {GamePhase}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+  const {State,GamePhase}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+  const {Player}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/player');
+  const {PokemonCardList}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list');
+  const {CardList}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/card-list');
   const cardActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const gameActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
   const {ActionEnumerator}=require('../../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator');
@@ -131,7 +134,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   const botOptionsBySeat = [makeBotOptions(), makeBotOptions()];
   assert.notEqual(botOptionsBySeat[0], botOptionsBySeat[1]);
   assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
-  return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
+  return {SimpleTacticsAi,Store,State,Player,PokemonCardList,CardList,GamePhase,cardActions,gameActions,
     ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
     PokemonCard,EnergyCard,TrainerCard,Stage,TrainerType,SpecialCondition,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
@@ -742,6 +745,11 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeState', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'State' },
+  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
+  { name: 'nativePlayer', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/player.js', exportName: 'Player' },
+  { name: 'nativePokemonCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list.js', exportName: 'PokemonCardList' },
+  { name: 'nativeCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/card-list.js', exportName: 'CardList' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
@@ -800,6 +808,11 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeState', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'State' },
+  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
+  { name: 'nativePlayer', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/player.js', exportName: 'Player' },
+  { name: 'nativePokemonCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list.js', exportName: 'PokemonCardList' },
+  { name: 'nativeCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/card-list.js', exportName: 'CardList' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
