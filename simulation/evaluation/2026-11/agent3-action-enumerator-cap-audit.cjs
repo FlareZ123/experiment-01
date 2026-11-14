@@ -106,9 +106,33 @@ function assertKnownActionEnumeratorCapsClear(audit) {
   return audit;
 }
 
+
+function assertActionFrontierAdmissionClear({
+  state, actorSeat, native, frontierDiagnostics
+} = {}) {
+  const capAudit = auditKnownActionEnumeratorCaps({ state, actorSeat, native });
+  assertKnownActionEnumeratorCapsClear(capAudit);
+  assert.ok(frontierDiagnostics && typeof frontierDiagnostics === 'object' &&
+    typeof frontierDiagnostics.truncated === 'boolean' &&
+    Number.isSafeInteger(frontierDiagnostics.omittedCount) &&
+    frontierDiagnostics.omittedCount >= 0,
+  'adapter frontier diagnostics are required for admission');
+  if (frontierDiagnostics.truncated || frontierDiagnostics.omittedCount > 0) {
+    const error = new Error('Research adapter truncated the native action frontier');
+    error.code = 'NATIVE_ACTION_FRONTIER_LOCAL_CAP';
+    error.frontierDiagnostics = frontierDiagnostics;
+    throw error;
+  }
+  return Object.freeze({
+    capAudit,
+    frontierDiagnostics: Object.freeze({ ...frontierDiagnostics })
+  });
+}
+
 module.exports = {
   SCHEMA,
   MAX_CANDIDATES_PER_TYPE,
   auditKnownActionEnumeratorCaps,
-  assertKnownActionEnumeratorCapsClear
+  assertKnownActionEnumeratorCapsClear,
+  assertActionFrontierAdmissionClear
 };
