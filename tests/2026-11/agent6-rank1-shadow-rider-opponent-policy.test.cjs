@@ -1954,13 +1954,15 @@ test('Field Blower is not prioritized when a visible stadium has unknown effect 
 });
 
 
-function setupCardChoice(token, printing) {
+function setupCardChoice(token, printing, selectionIndex = 0) {
   return {
     token,
     kind: 'card',
     printing,
     label: printing,
     publicMetadata: {
+      selectionIndex,
+      selectedCount: 1,
       sourceZone: 'hand',
       ownerSeat: 'actor',
       isOwnerVisible: true
@@ -1989,9 +1991,9 @@ test('phase-1 starting Pokémon setup preserves native hand order for both physi
       description: 'CHOOSE_STARTING_POKEMONS',
       source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
       choices: [
-        setupCardChoice('basic-first', 'Mew V CEL 6'),
-        setupCardChoice('rider-second', 'Shadow Rider Calyrex V CRE 74'),
-        setupCardChoice('basic-third', 'Lugia V SIT 138')
+        setupCardChoice('basic-first', 'Mew V CEL 6', 0),
+        setupCardChoice('rider-second', 'Shadow Rider Calyrex V CRE 74', 2),
+        setupCardChoice('basic-third', 'Lugia V SIT 138', 4)
       ],
       publicMetadata: setupMetadata(1, 6),
       observation: { phase: 1, ownPublic: player() }
@@ -2011,10 +2013,10 @@ test('phase-1 repeated optional Bench setup preserves all offered choices up to 
       description: 'CHOOSE_STARTING_POKEMONS',
       source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
       choices: [
-        setupCardChoice('first', 'Mew V CEL 6'),
-        setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74'),
-        setupCardChoice('third', 'Lugia V SIT 138'),
-        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60'),
+        setupCardChoice('first', 'Mew V CEL 6', 1),
+        setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74', 3),
+        setupCardChoice('third', 'Lugia V SIT 138', 5),
+        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60', 6),
         { token: 'empty', kind: 'empty-selection', label: 'Select none' }
       ],
       publicMetadata: setupMetadata(0, 5),
@@ -2041,8 +2043,8 @@ test('phase-1 repeated optional Bench setup preserves all offered choices up to 
       description: 'CHOOSE_STARTING_POKEMONS',
       source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
       choices: [
-        setupCardChoice('unplaceable-first', 'Mew V CEL 6'),
-        setupCardChoice('unplaceable-second', 'Shadow Rider Calyrex V CRE 74'),
+        setupCardChoice('unplaceable-first', 'Mew V CEL 6', 0),
+        setupCardChoice('unplaceable-second', 'Shadow Rider Calyrex V CRE 74', 2),
         { token: 'empty-full-bench', kind: 'empty-selection', label: 'Select none' }
       ],
       publicMetadata: setupMetadata(0, 2),
@@ -2091,7 +2093,7 @@ test('engine setup handling requires exact message, native prompt type, and engi
       promptType: 'ChooseCardsPrompt',
       wrongPromptType: 'ChoosePokemonPrompt',
       description: 'CHOOSE_STARTING_POKEMONS',
-      choices: [setupCardChoice('basic', 'Mew V CEL 6')],
+      choices: [setupCardChoice('basic', 'Mew V CEL 6', 0)],
       publicMetadata: setupMetadata(1, 6)
     },
     {
@@ -2152,7 +2154,7 @@ test('all three engine setup prompts fail closed outside phase 1 for both seats'
     {
       promptType: 'ChooseCardsPrompt',
       description: 'CHOOSE_STARTING_POKEMONS',
-      choices: [setupCardChoice('basic', 'Mew V CEL 6')],
+      choices: [setupCardChoice('basic', 'Mew V CEL 6', 0)],
       publicMetadata: setupMetadata(1, 6)
     },
     {
