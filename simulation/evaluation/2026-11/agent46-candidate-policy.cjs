@@ -811,7 +811,7 @@ function chooseMulliganDrawSetup(prompt) {
       return abstain('BAD_MULLIGAN_DRAW_CHOICE_INDEX');
     }
     seenIndices.add(choiceIndex);
-    const labelMatch = String(choice.label ?? '').match(/^Draw (\\d+) card\\(s\\)$/i);
+    const labelMatch = String(choice.label ?? '').match(/^Draw (\d+) card\(s\)$/i);
     const drawCount = labelMatch ? Number(labelMatch[1]) : NaN;
     if (!Number.isSafeInteger(drawCount) || drawCount < 0) {
       return abstain('BAD_MULLIGAN_DRAW_LABEL');
