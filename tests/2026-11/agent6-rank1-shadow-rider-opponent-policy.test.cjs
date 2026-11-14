@@ -2209,6 +2209,39 @@ test('GO_FIRST setup chooses the explicit Yes token for both physical seats', ()
   }
 });
 
+test('GO_FIRST rejects cancel rows and cancel-enabled confirmation metadata for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const cancelRow = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' },
+        { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+      ],
+      publicMetadata: { selectionType: 'confirm' },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.equal(checkedDecision(cancelRow).kind, 'abstain');
+
+    const cancelEnabled = promptRequest({
+      actorSeat,
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      source: actorChoiceSource(null, 'GO_FIRST'),
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm', allowCancel: true },
+      observation: { phase: 1, ownPublic: player() }
+    });
+    assert.equal(checkedDecision(cancelEnabled).kind, 'abstain');
+  }
+});
+
 test('WANT_TO_DRAW_CARDS maps every native choice index to its exact descending Draw N label for both seats', () => {
   for (const actorSeat of [0, 1]) {
     const choices = [4, 3, 2, 1, 0].map((drawCount, choiceIndex) => ({
