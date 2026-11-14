@@ -124,6 +124,7 @@ const PLAYER_RESTRICTION_KEYS = [
   'supporterPlayLocked', 'stadiumPlayLocked', 'toolPlayLocked',
   'energyPlayLocked', 'specialEnergyPlayLocked'
 ];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = ['stadiumAndToolHaveNoEffectTurnsRemaining'];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
@@ -138,7 +139,7 @@ const ACTION_META_KEYS = [
   'freeRetreat', 'attackCostPayable', 'stadiumPrinting', 'stadiumEffectLive',
   'stadiumEffectSuppressed', 'stadiumSuppressionTurnsRemaining', 'weaknessType',
   'weaknessValue', 'weaknessMultiplier', 'resistanceType', 'resistanceValue',
-  'damagePrevented', 'damageReduced', 'hasUnmodeledModifier', 'deckCount',
+  'damagePrevented', 'damageReduced', 'hasUnmodeledModifier', 'stadiumAndToolHaveNoEffectTurnsRemaining', 'deckCount',
   'ownDeckCount', 'opponentDeckCount', 'sourceZone', 'targetZone', 'handIndex',
   'benchIndex', 'slotIndex', 'paymentCount', 'paymentEnergyCount', 'cardType',
   'energyType', 'choiceIndex', 'prizeLiability', 'turnsRemaining', 'abilityLive',
@@ -231,7 +232,10 @@ function validatePublicPlayer(player, allowConcealed) {
     if (!Number.isSafeInteger(slot.index) || slot.index < 0 ||
         (slot.printing !== undefined && !boundedString(slot.printing, null, 256))) fail('BAD_PRIZE_SLOT');
   }
-  exactKeys(player.publicTurnRestrictions, PLAYER_RESTRICTION_KEYS);
+  exactKeys(player.publicTurnRestrictions, PLAYER_RESTRICTION_KEYS, PLAYER_RESTRICTION_OPTIONAL_KEYS);
+  if (player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining !== undefined &&
+      (!Number.isSafeInteger(player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining) ||
+       player.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining < 0)) fail('BAD_STADIUM_SUPPRESSION_EPOCH');
   assertBoundedJson(player.publicTurnRestrictions);
   for (const key of ['handCount', 'deckCount', 'prizeCount']) {
     if (!Number.isSafeInteger(player[key]) || player[key] < 0) fail('BAD_PUBLIC_COUNT');
