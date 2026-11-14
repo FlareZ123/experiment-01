@@ -45,10 +45,15 @@ function prizeCountForTarget(target,catalog){
   if(Number.isSafeInteger(target?.prizeCount))return target.prizeCount;
   const subtypes=Array.isArray(target?.printed?.subtypes)?
     target.printed.subtypes.map(value=>String(value).toUpperCase().replace(/[^A-Z]/g,'')):[];
+  // The actor observation's current `printed.subtypes` is empty for
+  // Twinleaf PokemonCard objects; use catalog sets built from pinned CardTags.
+  if(catalog.threePrizePokemonPrintings instanceof Set&&
+     catalog.threePrizePokemonPrintings.has(target.printing))return 3;
+  if(catalog.onePrizeRuleboxPokemonPrintings instanceof Set&&
+     catalog.onePrizeRuleboxPokemonPrintings.has(target.printing))return 1;
+  // Keep tag-shaped fallback support for detached synthetic callers.
   if(subtypes.includes('VMAX')||subtypes.includes('TAGTEAM')||
      subtypes.includes('VUNION'))return 3;
-  // Radiant, Prism Star, and BREAK Pokémon can have Rule Boxes but still
-  // yield only one Prize. Rule Box membership alone is not a prize count.
   if(subtypes.includes('RADIANT')||subtypes.includes('PRISMSTAR')||
      subtypes.includes('BREAK'))return 1;
   if(catalog.ruleboxPokemonPrintings instanceof Set&&
