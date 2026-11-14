@@ -1581,8 +1581,8 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 
   const psychicWeakVmaxTarget={
     ...psychicWeakTarget,printing:'Synthetic Psychic-weak VMAX',hp:410,
-    printed:{stage:'VMAX',types:[6],subtypes:['VMAX'],
-      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:2}],resistance:[]}
+    printed:{stage:'VMAX',types:[6],subtypes:[],
+      weakness:[{type:catalog.basicEnergyTypes.Psychic,value:null}],resistance:[]}
   };
   const printedPsychicWeakCrossoverView={
     ...view,
