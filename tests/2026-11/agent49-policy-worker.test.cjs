@@ -290,6 +290,8 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   await expectFailure({ ...request(1), requestId: 'force-unknown' }, 'POLICY_SELECTED_UNKNOWN_ACTION');
   const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(physicalRandomPrompt, initFor(), 1, new Set()), /NON_ACTOR_PROMPT_CLASS/);
+  const unknownSourcePrompt = { ...promptReq, prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: null, effectName: null } } };
+  assert.throws(() => protocol.validateRequest(unknownSourcePrompt, initFor(), 1, new Set()), /UNKNOWN_PROMPT_SOURCE/);
   const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
   assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
