@@ -645,7 +645,7 @@ test('host policy preload hashes worker-only entrypoints without executing them'
     "module.constructor._load('node:fs').writeFileSync("+JSON.stringify(sentinelPath)+",'executed');",
     "async function createPolicy(){return {async decide(){return {kind:'abstain',reasonCode:'NOOP'};}};}",
     'module.exports={POLICY_VERSION,createPolicy};'
-  ].join('\\n');
+  ].join('\n');
   try{
     fs.writeFileSync(sourcePath,source);
     const loaded=loadWorkerPolicyModule({
