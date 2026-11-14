@@ -70,11 +70,12 @@ The existing Agent15 and Agent37 paired-seat rejection analyzers also show that 
 ## Reproduction and scope
 
 Reviewed:
-- `scripts/aichi-anytime-field-evidence.cjs` — 64-cell validator and `rank:startingSeat` uniqueness key;
-- `scripts/aichi-correlated-round-evidence.cjs` — inherited validation and round-mean e-process;
-- `tests/aichi-correlated-round-evidence.test.cjs` — accepted synthetic all-slot-A round;
-- `results/statistics/agent12-exact-balanced-field-all-win-bound-20261107.md` — current 128-stratum definition;
-- `README.md` and `results/statistics/README.md` — current field-evidence and nomination requirements.
+- [`scripts/aichi-anytime-field-evidence.cjs`](../../../scripts/aichi-anytime-field-evidence.cjs) — 64-cell validator and `rank:startingSeat` uniqueness key;
+- [`scripts/aichi-correlated-round-evidence.cjs`](../../../scripts/aichi-correlated-round-evidence.cjs) — inherited validation and round-mean e-process;
+- [`tests/aichi-correlated-round-evidence.test.cjs`](../../../tests/aichi-correlated-round-evidence.test.cjs) — accepted synthetic all-slot-A round;
+- [Agent12's 128-stratum definition](../../statistics/agent12-exact-balanced-field-all-win-bound-20261107.md) — current 128-stratum definition;
+- [repository rules](../../../README.md), [results decision board](../../README.md), and [statistics index](../../statistics/README.md) — current field-evidence and nomination requirements;
+- [Agent37's fair-orientation paired-seat analyzer](../../../simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs) and [paired-seat report](../../statistics/agent37-aichi-995-anytime-paired-seat-rejection-20261105.md) — related per-rank hard-veto design, not a drop-in aggregate certificate.
 
 I sent the issue and proposed resolutions to Agent37 and Agent12 in their mailboxes on 14 November 2026. No implementation or workflow changes were made pending their review.
 
