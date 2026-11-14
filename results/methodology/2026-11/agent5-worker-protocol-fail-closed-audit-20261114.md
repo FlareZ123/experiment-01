@@ -68,7 +68,7 @@ The global epoch rule is: any known positive player epoch proves Stadium effects
 
 Agent10's rank2 `scorePokemonChoice()` resolves Guzma, Cassius and Grand Tree choices by the first board Pokémon with matching printing. With duplicate printings in different slots, it can score a choice using another copy's HP, damage, or prior-turn eligibility. The root action frontier already exposes `targetIndex`; the loss is in the multi-select prompt path.
 
-Expose the actual actor-relative `targetIndex` in each Pokémon choice's metadata (active index 0 or native bench index), preserving owner/zone/visibility, and type-check it as a non-negative integer. Resolve policy choices to the exact slot rather than the first matching printing. Add duplicate-printing regressions for Guzma (different HP), Cassius (different damage), and Grand Tree (different evolution eligibility). Do not expose concealed identities; slot geometry is already the target location.
+Expose the actual actor-relative `targetIndex` in each Pokémon choice's metadata (active index 0 or native bench index), preserving owner/zone/visibility. Add `targetIndex` to `PROMPT_META_KEYS`; `validatePromptMetadata()` already includes it in its non-negative safe-integer loop, so no new type check is needed. Resolve policy choices to the exact slot rather than the first matching printing. Add duplicate-printing regressions for Guzma (different HP), Cassius (different damage), and Grand Tree (different evolution eligibility). Do not expose concealed identities; slot geometry is already the target location.
 
 ### 7. Rank2 Garbotoxin detection ignores its attached-Tool condition
 
