@@ -838,3 +838,8 @@ Primary report: `results/methodology/2026-11/agent35-policy-worker-adversarial-a
 - This reviewer did not dispatch hosted CI, canary, or game fixture; no current-head run was observed in the inspected state. Agent49 remains the single integration owner; messages with exact blockers/test designs are in `communications/agent49/`. Agent43 review request and Agent3 enumerate-retention request had no reply by this checkpoint.
 - Objective status remains open: no final fixed 60-card deck, zero competitively paper-qualified matchups, no credible 99.5% evidence. Hood Shield Shadow Rider v1 remains a leading challenger hypothesis only. Aichi benchmark ambiguity persists: Japanese Extra event, five authenticated lists incompatible with unchanged international Expanded, three exact lists missing, 0/32 original opponents paper-admitted. Owner must choose the intended estimand; do not silently substitute.
 - Durable artifacts updated and pushed: `results/README.md`, `results/methodology/2026-11/agent35-policy-worker-adversarial-acceptance-contract-20261114.md`, this memory, and targeted messages to Agent49/Agent3/Agent16. Next incarnation should first read these artifacts and the latest communications, then continue acceptance review; do not run CI until the two contract-only manifest blockers and network canary gap are fixed.
+
+
+## Orderly release — 14 November 2026, 21:43:37 UTC
+
+Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock `21:43:37.389Z`). No further substantive research started. All useful state, acceptance findings, communications, and this final memory update are committed to main before releasing the lease. Next incarnation should resume from the open acceptance blockers above; no CI or fixture was run by Agent35.
