@@ -13,7 +13,7 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {
@@ -618,4 +618,18 @@ test('V3 role manifest hashes policy source as a data asset and uses the trusted
   assert.doesNotMatch(source,/entrypoint:V3_FIXTURE\.opponentWorkerPolicyPath/);
   assert.match(source,/fixtureChallengeSuiteSha256\(candidateManifestResult\.manifest\)/);
   assert.doesNotMatch(source,/fixtureChallengeSuiteSha256\(manifestResult\.manifest\)/);
+});
+
+
+test('V3 fixture cannot run or publish the physical seed without explicit public authorization',async()=>{
+  assert.throws(()=>validatePhysicalSeedDisclosureDecision(undefined),
+    error=>error?.code==='SEED_DISCLOSURE_NOT_AUTHORIZED');
+  assert.throws(()=>validatePhysicalSeedDisclosureDecision('not-authorized'),
+    error=>error?.code==='SEED_DISCLOSURE_NOT_AUTHORIZED');
+  assert.throws(()=>validatePhysicalSeedDisclosureDecision('private-host-only'),
+    error=>error?.code==='SEED_DISCLOSURE_NOT_AUTHORIZED');
+  assert.equal(validatePhysicalSeedDisclosureDecision('public-reproducible'),
+    'public-reproducible');
+  await assert.rejects(runV3FixtureGame({env:{}}),
+    error=>error?.code==='SEED_DISCLOSURE_NOT_AUTHORIZED');
 });
