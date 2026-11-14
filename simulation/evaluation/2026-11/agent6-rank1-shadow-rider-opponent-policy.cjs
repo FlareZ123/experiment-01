@@ -132,6 +132,12 @@ function activeStadiums(observation) {
   ];
 }
 
+function copycatTargetAvailable(request) {
+  const attacks = list(request?.observation?.opponentPublic?.active?.attacks);
+  return attacks.some(attack => attack && attack.name &&
+    attack.gxAttack !== true && attack.name !== 'Night Watch');
+}
+
 function opponentHasWeakBenchTarget(observation) {
   return list(observation?.opponentPublic?.bench).some(slot =>
     slot && remainingHp(slot) > 0 && remainingHp(slot) <= 150);
@@ -203,6 +209,11 @@ function scoreAction(item, request) {
     if (ability === 'Underworld Door' && psychicHand > 0) return 150;
     if (ability === 'Climactic Gate' &&
         countPrinting(hand, PRINT.shadowRiderVmax) > 0 && boardV > 0) return 145;
+    if (ability === 'Star Alchemy' &&
+        observation.ownTurnResources.vstarUsed === false) return 132;
+    if (ability === 'Wonder Tag') {
+      return observation.ownTurnResources.supporterPlayedTurn === 0 ? 122 : 65;
+    }
     return 20;
   }
 
@@ -237,7 +248,9 @@ function scoreAction(item, request) {
         (hasPrinting(hand, /Tulip PAR\b/i) || hasPrinting(hand, /VS Seeker PHF\b/i)) &&
         psychicDiscard < 3) return 118;
 
-    if (includes(card, 'Mysterious Treasure') && boardV < 2 &&
+    if (includes(card, 'Mysterious Treasure') &&
+        (boardV < 2 || (copycatTargetAvailable(request) &&
+          !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu))) &&
         hand.length > 1) return 112;
 
     if (includes(card, 'Fog Crystal') &&
@@ -403,14 +416,32 @@ function cardSearchScore(printing, request, effectName) {
   const psychicDiscard = psychicCountInDiscard(observation);
   const psychicBoard = psychicCountOnBoard(observation);
 
-  if (includes(effectName, 'VS Seeker')) {
+  if (includes(effectName, 'VS Seeker') || includes(effectName, 'Wonder Tag')) {
     if (includes(printing, 'Acerola') && priorPaleMoon(request) &&
         damagedLatias(own) && matches(own.active?.printing ?? '', PRINT.latias)) return 180;
-    if (includes(printing, 'Tulip') && psychicDiscard >= 2) return 170;
+    if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
+        !hasPrinting(hand, /Tulip PAR\\b/i)) return 170;
     if (includes(printing, 'Raihan') && priorOpponentTurnKO(request)) return 160;
+    if (includes(printing, 'Unfair Stamp') &&
+        (priorOpponentTurnKO(request) ||
+          (opponent.handCount ?? 0) >= hand.length + 3)) return 155;
     if (includes(printing, 'Teammates') && priorOpponentTurnKO(request)) return 150;
     if (includes(printing, 'Guzma') && opponentHasWeakBenchTarget(observation)) return 140;
+    if ((includes(printing, 'Lillie') || includes(printing, 'Carmine')) &&
+        hand.length <= 4) return 125;
+    if (includes(printing, 'Iono') && (opponent.handCount ?? 0) >= hand.length + 3) return 130;
     return 20;
+  }
+
+  if (includes(effectName, 'Star Alchemy') || includes(effectName, 'Forest Seal Stone')) {
+    if (includes(printing, 'Field Blower') &&
+        activeStadiums(observation).some(stadium => /Path to the Peak|Silent Lab/i.test(stadium))) return 180;
+    if (includes(printing, 'Unfair Stamp') &&
+        (priorOpponentTurnKO(request) || (opponent.handCount ?? 0) >= hand.length + 3)) return 170;
+    if (includes(printing, 'Tulip') && psychicDiscard >= 2 &&
+        !hasPrinting(hand, /Tulip PAR\\b/i)) return 160;
+    if (includes(printing, 'Mysterious Treasure') && knownV < 2) return 150;
+    if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 140;
   }
 
   if (includes(effectName, 'Raihan')) {
@@ -443,6 +474,8 @@ function cardSearchScore(printing, request, effectName) {
     return 80;
   }
 
+  if (matches(printing, PRINT.mimikyu) && copycatTargetAvailable(request) &&
+      !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) return 135;
   if (matches(printing, PRINT.shadowRiderV) && knownV < 2) return 130;
   if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 125;
   if (matches(printing, PRINT.radiantEternatus) && knownVmax < 2) return 118;
@@ -571,7 +604,7 @@ function promptDecision(request) {
         'Tulip', 'Mysterious Treasure', 'Raihan', 'Fog Crystal',
         'Night Stretcher', 'Battle Compressor', 'Teammates', 'VS Seeker',
         'Quick Ball', 'Forest Seal Stone', 'Hisuian Heavy Ball', 'Climactic Gate',
-        'Field Blower', 'Get Lost'
+        'Field Blower', 'Get Lost', 'Wonder Tag', 'Star Alchemy'
       ].some(name => includes(effect, name));
       if (!knownSearchEffect) {
         return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
