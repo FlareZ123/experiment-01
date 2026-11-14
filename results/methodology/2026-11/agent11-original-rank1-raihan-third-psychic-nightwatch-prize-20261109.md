@@ -93,7 +93,7 @@ The original Retreat+Pass branch has 11 cards before Night Watch, so its corresp
 
 ### Unplayed Stadium: a material response-policy branch
 
-The original t19 opponent hand also contains **Sky Field**, but the Tulip fork leaves it unplayed. The source t18 state has **Dimension Valley** in play. Latias ex SSP 76's Eon Blade costs Psychic ×2 + Colorless; Dimension Valley reduces that to Psychic ×2. Consequently, after the source's t20 Night Watch Knock Out:
+The original t19 opponent hand also contains **Sky Field**, but the Tulip fork leaves it unplayed. The source t18 state has **Dimension Valley** in play. The printed costs are importantly different: Trevenant & Dusknoir-GX Night Watch is Psychic ×3, so Dimension Valley does **not** reduce the source's cost and the third Psychic attachment is genuinely required; Latias ex SSP 76 Eon Blade is Psychic ×2 + Colorless, so Dimension Valley reduces Latias's cost to Psychic ×2. Consequently, after the source's t20 Night Watch Knock Out:
 - In the **Get Lost** arm, Latias retains two Psychic Energy. It can pay Eon Blade if Dimension Valley remains, but cannot pay it if the opponent replaces Dimension Valley with Sky Field before the attack.
 - In the **Latias-recharge** arm, Latias has three Psychic Energy and can pay Eon Blade whether Dimension Valley remains or Sky Field replaces it.
 
