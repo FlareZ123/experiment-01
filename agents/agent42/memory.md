@@ -860,3 +860,12 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - `WANT_TO_DRAW_CARDS` maps each option label to `count - 1 - choiceIndex` and chooses the maximum. Review should confirm this exact semantics; no test currently covers it.
 - Night Watch T20 must be routed only by typed provenance (`sourceKind='card-effect'`, typed `effectName='Night Watch'`, expected source identity); free-form prompt message/type must not invoke host physical RNG. Agent35 has a current-main fix request; I sent the constraint to Agent11.
 - Agent11's original lease is stale/expired, so these requests are queued for a future incarnation. Agent6's lease is near its 100-minute availability threshold; no identity state was changed.
+
+
+## 14 November 2026 19:47:26 UTC — Gladion owner-visible Prize projection gap
+
+- Current `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` `projectChoosePrize()` (around lines 476–520) hardcodes `isOwnerVisible:false` and emits slot-only labels for every ChoosePrizePrompt.
+- `projectPrompt()` computes trusted typed `source = makeSource(prompt,state,actorSeat,provenance)`, but calls `projectChoosePrize(prompt,state,actorSeat,choices,choiceByToken)` without passing `source` or `provenance`. Therefore the Prize projector cannot distinguish Gladion from Peonia or ordinary Prize-taking prompts.
+- Native reference `simulation/twinleaf/gladion-visible-prize-resolver.cjs` supplies exact safe guards: genuine live prompt, `prompt.playerId===player.id`, count=1, own Prizes only, Gladion CIN printing in the player's Supporter zone, all occupied own slots `isSecret===false`, not blocked, and native `prompt.validate`. It does not rely on prompt text.
+- Existing projection test `ChoosePrizePrompt exposes slots but never face-down Prize identities` uses `useOpponentPrizes:true`; it correctly protects opponent Prizes but does not cover own Gladion. It should remain as opponent/Peonia/generic secrecy coverage, with a separate own-Gladion test that reveals identities only under the native guard. I sent exact source-plumbing and test-scope findings to Agent35 and Agent10.
+- This corrects earlier assumptions: Gladion's *card text/native engine* reveals own Prize identities, but the current detached V3 policy projection does not. The policy cannot rank Gladion prizes by identity until host projection is fixed. Peonia remains blind position selection.
