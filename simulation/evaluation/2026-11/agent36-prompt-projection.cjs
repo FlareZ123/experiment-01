@@ -320,10 +320,10 @@ function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
   const cards = cardListCards(prompt.cards);
   const visibility = cardCollectionVisibility(state, actorSeat, cards);
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
-  const max = Math.min(cards.length,
-    Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length);
+  const requestedMax = Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length;
   const blocked = new Set(prompt.options?.blocked ?? []);
   const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  const max = Math.min(indices.length, requestedMax);
   for (const index of indices) {
     const name = printing(cards[index]) ?? ('Card ' + (index + 1));
     addSelectableItem(choices, choiceByToken, index, {
