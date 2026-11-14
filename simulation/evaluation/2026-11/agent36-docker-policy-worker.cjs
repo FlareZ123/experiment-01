@@ -1,21 +1,21 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {createHash}=require('node:crypto');
+const {createHash,randomUUID}=require('node:crypto');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
 
-const IMAGE_DIGEST='sha256:5cfa999422613d3b34f766cbb814d964cbfcb76aaf3607e805da21cccb352bac';
-const IMAGE_REF='node:20.19.0-bookworm-slim@'+IMAGE_DIGEST;
+const IMAGE_DIGEST='sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54';
+const IMAGE_REF='node:24.22.3-bookworm-slim@'+IMAGE_DIGEST;
 const PLATFORM='linux/amd64';
-const NODE_VERSION='v20.19.0';
+const NODE_VERSION='v24.22.3';
 const POLICY_LIMITS=Object.freeze({
   network:'none',
-  pid:'private',
-  ipc:'private',
-  uts:'private',
+  pid:'private-default',
+  ipc:'none',
+  uts:'private-default',
   rootFilesystem:'read-only',
   policyMount:'read-only',
   writableMounts:['/tmp'],
@@ -24,6 +24,7 @@ const POLICY_LIMITS=Object.freeze({
   noNewPrivileges:true,
   pidsLimit:64,
   memory:'512m',
+  memorySwap:'512m',
   cpus:1,
   nofile:64,
   coreDumps:false
@@ -38,11 +39,31 @@ function dockerEnvironment(){
     PATH:process.env.PATH||'/usr/bin:/bin',
     HOME:process.env.HOME||os.tmpdir()
   };
-  for(const key of ['DOCKER_HOST','DOCKER_CONTEXT','DOCKER_CONFIG',
-    'DOCKER_CERT_PATH','DOCKER_TLS_VERIFY']){
-    if(typeof process.env[key]==='string')env[key]=process.env[key];
-  }
+  if(typeof process.env.DOCKER_HOST==='string')env.DOCKER_HOST=process.env.DOCKER_HOST;
+  if(typeof process.env.DOCKER_CONTEXT==='string')env.DOCKER_CONTEXT=process.env.DOCKER_CONTEXT;
+  if(typeof process.env.DOCKER_CONFIG==='string')env.DOCKER_CONFIG=process.env.DOCKER_CONFIG;
   return env;
+}
+
+function assertLocalDockerEnvironment(){
+  const host=process.env.DOCKER_HOST;
+  assert.ok(!host||host==='unix:///var/run/docker.sock',
+    'remote DOCKER_HOST is not permitted for policy workers');
+  const context=process.env.DOCKER_CONTEXT;
+  assert.ok(!context||context==='default',
+    'remote DOCKER_CONTEXT is not permitted for policy workers');
+  assert.ok(!process.env.DOCKER_CERT_PATH&&!process.env.DOCKER_TLS_VERIFY,
+    'TLS/remote Docker configuration is not permitted for policy workers');
+}
+
+function assertLocalDockerContext(){
+  assertLocalDockerEnvironment();
+  const active=runDocker(['context','show']);
+  assert.equal(active,'default','policy workers require the local default Docker context');
+  const inspected=JSON.parse(runDocker(['context','inspect','default']));
+  const endpoint=inspected[0]?.Endpoints?.docker?.Host;
+  assert.equal(endpoint,'unix:///var/run/docker.sock',
+    'policy workers require the local Unix-socket Docker daemon');
 }
 
 function runDocker(args,{timeout=120000}={}){
@@ -62,6 +83,7 @@ function runDocker(args,{timeout=120000}={}){
  */
 function preflightDockerPolicySandbox({pull=true}={}){
   assert.equal(process.platform,'linux','Docker policy sandbox requires Linux');
+  assertLocalDockerContext();
   const clientVersion=runDocker(['version','--format','{{.Client.Version}}']);
   const serverVersion=runDocker(['version','--format','{{.Server.Version}}']);
   const serverPlatform=runDocker(['info','--format','{{.OSType}}/{{.Architecture}}']);
@@ -73,11 +95,13 @@ function preflightDockerPolicySandbox({pull=true}={}){
   let repoDigests=[];
   try{repoDigests=JSON.parse(repoDigestsText);}catch{}
   assert.ok(imageId.startsWith('sha256:'),'pinned worker image ID is missing');
+  assert.ok(repoDigests.some(value=>String(value).includes(IMAGE_DIGEST)),
+    'Docker daemon did not report the exact pinned image digest');
   const nodeVersion=runDocker([
     'run','--rm','--pull=never','--platform='+PLATFORM,
-    '--network=none','--pid=private','--ipc=private','--uts=private',
+    '--network=none','--ipc=none',
     '--read-only','--cap-drop=ALL','--security-opt=no-new-privileges',
-    '--pids-limit=64','--memory=128m','--cpus=1',
+    '--pids-limit=64','--memory=128m','--memory-swap=128m','--cpus=1',
     '--ulimit','nofile=64:64','--ulimit','core=0:0',
     '--user=65532:65532',
     '--tmpfs','/tmp:rw,nosuid,nodev,noexec,size=16m,mode=1777',
@@ -95,8 +119,8 @@ function preflightDockerPolicySandbox({pull=true}={}){
     repoDigests,
     platform:PLATFORM,
     nodeVersion,
-    dockerClientVersion,
-    dockerServerVersion,
+    dockerClientVersion:clientVersion,
+    dockerServerVersion:serverVersion,
     dockerServerPlatform:serverPlatform,
     limits:POLICY_LIMITS
   };
@@ -109,6 +133,8 @@ function validatePolicyFile(row,sourceRoot){
   assert.match(row.sha256??'',/^[a-f0-9]{64}$/);
   assert.equal(path.posix.normalize(row.relativePath),row.relativePath,
     'policy bundle path must be canonical');
+  assert.ok(row.relativePath!=='bundle-manifest.json',
+    'bundle-manifest.json is reserved for the generated manifest');
   assert.ok(!row.relativePath.startsWith('/')&&!row.relativePath.includes('\\')&&
     row.relativePath.split('/').every(part=>part&&part!=='.'&&part!=='..'),
     'policy bundle path must remain inside /policy');
@@ -186,6 +212,12 @@ function verifyPolicyBundle(bundle){
   assert.ok(bundle?.root&&fs.statSync(bundle.root).isDirectory(),
     'a materialized policy bundle is required');
   assert.equal(bundle.manifest?.schema,'agent36-policy-bundle-v1');
+  const manifestPath=path.join(bundle.root,'bundle-manifest.json');
+  const manifestBytes=fs.readFileSync(manifestPath);
+  assert.equal(sha256(manifestBytes),bundle.manifestSha256,
+    'materialized policy manifest digest changed');
+  assert.deepEqual(JSON.parse(manifestBytes.toString('utf8')),bundle.manifest,
+    'materialized policy manifest differs from the frozen manifest');
   const expected=new Map(bundle.manifest.files.map(file=>[file.path,file]));
   const actual=[];
   function visit(directory,relative=''){
@@ -220,14 +252,37 @@ function verifyPolicyBundle(bundle){
  * Start one persistent, non-root Node worker. Role, seat, policy seed and
  * actor observation must be sent later through versioned IPC, never argv/env.
  */
+function cleanupDockerContainer(dockerBinary,containerName,cidFile,cidDirectory){
+  const targets=new Set([containerName]);
+  try{
+    const id=fs.readFileSync(cidFile,'utf8').trim();
+    if(/^[a-f0-9]{64}$/i.test(id))targets.add(id);
+  }catch{}
+  for(const target of targets){
+    try{
+      spawnSync(dockerBinary,['rm','-f',target],{
+        encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
+      });
+    }catch{}
+  }
+  try{fs.rmSync(cidDirectory,{recursive:true,force:true});}catch{}
+}
+
+/**
+ * Start one persistent, non-root Node worker. Role, seat, policy seed and
+ * actor observation must be sent later through versioned IPC, never argv/env.
+ */
 function spawnDockerPolicyWorker({
   bundle,
   entrypoint='/policy/worker.cjs',
   permissionModel=true,
-  timeoutMs=0,
+  timeoutMs,
   dockerBinary='docker'
 }={}){
   assert.equal(dockerBinary,'docker','only the reviewed Docker CLI is accepted');
+  assert.ok(Number.isSafeInteger(timeoutMs)&&timeoutMs>0,
+    'a finite positive worker timeoutMs is required');
+  assertLocalDockerEnvironment();
   verifyPolicyBundle(bundle);
   assert.equal(typeof entrypoint,'string');
   assert.ok(entrypoint.startsWith('/policy/'),'worker entrypoint must be inside /policy');
@@ -240,11 +295,17 @@ function spawnDockerPolicyWorker({
     'worker entrypoint must be explicitly allowlisted');
   assert.ok(!bundle.root.includes(','),'Docker mount source cannot contain a comma');
 
+  const cidDirectory=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-policy-cid-'));
+  fs.chmodSync(cidDirectory,0o700);
+  const cidFile=path.join(cidDirectory,'container.cid');
+  const containerName='agent36-policy-'+process.pid+'-'+randomUUID();
   const args=[
     'run','--rm','-i','--pull=never','--platform='+PLATFORM,
-    '--network=none','--pid=private','--ipc=private','--uts=private',
+    '--name='+containerName,
+    '--cidfile='+cidFile,
+    '--network=none','--ipc=none',
     '--read-only','--cap-drop=ALL','--security-opt=no-new-privileges',
-    '--pids-limit=64','--memory=512m','--cpus=1',
+    '--pids-limit=64','--memory=512m','--memory-swap=512m','--cpus=1',
     '--ulimit','nofile=64:64','--ulimit','core=0:0',
     '--user=65532:65532',
     '--tmpfs','/tmp:rw,nosuid,nodev,noexec,size=16m,mode=1777',
@@ -267,11 +328,26 @@ function spawnDockerPolicyWorker({
     stdio:['pipe','pipe','pipe'],
     windowsHide:true
   });
-  if(timeoutMs>0){
-    const timer=setTimeout(()=>child.kill('SIGKILL'),timeoutMs);
-    child.once('close',()=>clearTimeout(timer));
-    child.once('error',()=>clearTimeout(timer));
-  }
+  let closed=false;
+  const cleanup=()=>cleanupDockerContainer(dockerBinary,containerName,cidFile,cidDirectory);
+  const killSandbox=()=>{
+    if(closed)return false;
+    cleanup();
+    child.kill('SIGKILL');
+    return true;
+  };
+  const timer=setTimeout(killSandbox,timeoutMs);
+  child.once('close',()=>{
+    closed=true;
+    clearTimeout(timer);
+    cleanup();
+  });
+  child.once('error',()=>{
+    clearTimeout(timer);
+    cleanup();
+  });
+  child.killSandbox=killSandbox;
+  child.containerName=containerName;
   return child;
 }
 
