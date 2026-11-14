@@ -76,7 +76,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     "  Object.defineProperty(globalThis,'module',{value:policyModule,writable:false,configurable:false,enumerable:false});",
     "  Object.defineProperty(globalThis,'exports',{value:policyModule.exports,writable:false,configurable:false,enumerable:false});",
     '})();'
-  ].join('\\n');
+  ].join('\n');
   vm.runInContext(setup,context,{timeout:1000,filename:'agent49-policy-sandbox-setup.cjs'});
   vm.runInContext(policySource,context,{timeout:5000,filename:'policy.cjs'});
   const policyVersion=vm.runInContext('module.exports.POLICY_VERSION',context,{timeout:1000});
@@ -109,7 +109,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '    return JSON.stringify(decision);',
     '  },writable:false,configurable:false,enumerable:false});',
     '})();'
-  ].join('\\n');
+  ].join('\n');
   vm.runInContext(installWrappers,context,{timeout:1000,filename:'agent49-policy-sandbox-runtime.cjs'});
   function normalizeVmError(error){
     if(error&&typeof error.message==='string'&&error.message==='POLICY_RANDOM_DRAWS_UNREPLAYABLE')
