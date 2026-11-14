@@ -308,6 +308,11 @@ function validateEventAttack(row) {
   if (row.barragePairRole !== undefined && !['first', 'second'].includes(row.barragePairRole)) fail('BAD_BARRAGE_ROLE');
   if ((row.barragePairIndex === undefined) !== (row.barragePairRole === undefined)) fail('INCOMPLETE_BARRAGE_PAIR');
 }
+function eventAttackSignature(row) {
+  return [row.turn, row.sourcePrinting, row.attackName, row.gxAttack, row.copycatAttack,
+    row.barragePairIndex ?? null, row.barragePairRole ?? null].join('\\u001f');
+}
+
 function validatePublicEventReceipt(receipt, view) {
   if (receipt === null) return;
   exactKeys(receipt, [
@@ -347,7 +352,7 @@ function validatePublicEventReceipt(receipt, view) {
     for (const row of receipt.opponentCopycatChoices) {
       validateEventAttack(row);
       if (!receipt.opponentLastTurnAttacks ||
-          !receipt.opponentLastTurnAttacks.some(attack => JSON.stringify(attack) === JSON.stringify(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
+          !receipt.opponentLastTurnAttacks.some(attack => eventAttackSignature(attack) === eventAttackSignature(row))) fail('COPYCAT_CHOICE_NOT_IN_HISTORY');
     }
   }
   if (receipt.mimikyuCopycatCompatible !== undefined &&
