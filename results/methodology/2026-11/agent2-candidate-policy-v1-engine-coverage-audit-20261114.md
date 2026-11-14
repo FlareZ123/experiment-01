@@ -33,6 +33,10 @@ There is no handling for:
 
 The omission is material because Agent50's own policy specification explicitly requires Underworld Door sequencing and recipient choice (spec lines 107–115), Tapu Lele's conditional Supporter access, Radiant Eternatus's turn-ending VMAX search, and Forest Seal Stone's once-per-game search. A policy can satisfy the worker protocol and still be far from a competent pilot if it cannot invoke these actions.
 
+### Wonder Tag's search target is also unscored
+
+Even if a Tapu Lele-GX play branch were added, the current card-search scorer has no `effectName === 'Wonder Tag'` route or general state-conditioned Supporter priority. `searchNeedScore` only gives VS Seeker a narrow score when a desired Supporter is already in the discard; other Supporter choices receive the default score of zero. When no positive choice exists, `chooseCardCombination` falls back to the first required choices after lexical sorting. That is protocol-deterministic but not a state-aware Wonder Tag plan. Add tests where the correct Supporter changes among Arven, Guzma, Raihan, Teammates, Pokémon Ranger and draw Supporters as the board/Supporter quota/KO condition changes.
+
 ## Additional concrete coverage gaps
 
 ### Prize-aware Dialga/Mimikyu access is not implemented
