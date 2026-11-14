@@ -18,12 +18,15 @@ const catalog={
 };
 function slot(name,printing,cost,stage=1){
   return {name,printing,printed:{stage},energies:[],
+    abilities:[],abilityDetails:[],abilitySuppressions:[],
     attacks:[{name:'Payable eventually',cost,gxAttack:false}]};
 }
 function view(pokemon,hand,bench=[]){
   return {decisionKind:'owner-root',ownHand:hand,
-    ownPublic:{active:pokemon,bench,stadium:[],prizeCount:6},
-    opponentPublic:{stadium:[],prizeCount:6}};
+    ownPublic:{active:pokemon,bench,stadium:[],prizeCount:6,
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+    opponentPublic:{active:null,bench:[],stadium:[],prizeCount:6,
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}}};
 }
 
 test('exact flexible matching preserves one physical unit for two colors',()=>{
@@ -255,3 +258,109 @@ test('Temple suppresses Jet Bench switch and makes pure Colorless attachment via
   // Follows the official Japanese Temple FAQ: the on-attach switch
   // does not happen while this Stadium suppresses Jet's effect.
 });
+
+test('public Stadium suppression gates discounts and surcharges',()=>{
+  const lightning=slot('Pikachu','Pikachu UPR',[4,4,10]);
+  lightning.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const thunder=view(lightning,[]);
+  thunder.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.deepEqual(effectivePublicAttackCost(thunder,catalog,lightning,
+    lightning.attacks[0]),['L','C']);
+  thunder.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.deepEqual(effectivePublicAttackCost(thunder,catalog,lightning,
+    lightning.attacks[0]),['L','L','C']);
+
+  const psychic=slot('Mimikyu','Mimikyu GRI',[5,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const valley=view(psychic,[]);
+  valley.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.deepEqual(effectivePublicAttackCost(valley,catalog,psychic,
+    psychic.attacks[0]),['P']);
+  valley.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.deepEqual(effectivePublicAttackCost(valley,catalog,psychic,
+    psychic.attacks[0]),['P','C']);
+
+  const nonFairy=slot('Pikachu','Pikachu UPR',[4,10]);
+  nonFairy.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const wondrous=view(nonFairy,[]);
+  wondrous.ownPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  assert.deepEqual(effectivePublicAttackCost(wondrous,catalog,nonFairy,
+    nonFairy.attacks[0]),['L','C','C']);
+  wondrous.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.deepEqual(effectivePublicAttackCost(wondrous,catalog,nonFairy,
+    nonFairy.attacks[0]),['L','C']);
+});
+
+test('Pokémon League Headquarters taxes only Basic attacks and suppression removes the tax',()=>{
+  const basic=slot('Mimikyu','Mimikyu GRI',[5,10],catalog.stages.BASIC);
+  basic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const x=view(basic,[]);
+  x.ownPublic.stadium=['Pokémon League Headquarters OBF'];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,basic,
+    basic.attacks[0]),['P','C','C']);
+
+  const evolution=slot('Shadow Rider Calyrex VMAX',
+    'Shadow Rider Calyrex VMAX CRE',[5,10],catalog.stages.STAGE_1);
+  evolution.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const y=view(evolution,[]);
+  y.ownPublic.stadium=['Pokémon League Headquarters OBF'];
+  assert.deepEqual(effectivePublicAttackCost(y,catalog,evolution,
+    evolution.attacks[0]),['P','C']);
+
+  x.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,basic,
+    basic.attacks[0]),['P','C']);
+});
+
+test('opponent-only or missing Stadium suppression epochs fail closed',()=>{
+  const psychic=slot('Mimikyu','Mimikyu GRI',[5,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const x=view(psychic,[]);
+  x.ownPublic.stadium=['Dimension Valley PHF'];
+  x.opponentPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  assert.equal(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),null);
+  x.opponentPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  x.ownPublic.publicTurnRestrictions
+    .stadiumAndToolHaveNoEffectTurnsRemaining=null;
+  assert.equal(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),null);
+});
+
+test('New Moon suppresses recipient Stadium effects only with a live ability receipt and Solrock',()=>{
+  const psychic=slot('Mimikyu','Mimikyu GRI',[5,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const lunatone=slot('Lunatone','Lunatone OBF',[10]);
+  lunatone.abilities=['New Moon'];
+  lunatone.abilityDetails=[{name:'New Moon'}];
+  lunatone.abilitySuppressions=[{abilityName:'New Moon',
+    suppressed:false,reasonCode:null,sourcePrinting:null}];
+  const solrock=slot('Solrock','Solrock CES',[10]);
+  const x=view(psychic,[],[lunatone,solrock]);
+  x.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),['P','C']);
+
+  lunatone.abilitySuppressions=[{abilityName:'New Moon',
+    suppressed:true,reasonCode:'SILENT_LAB',sourcePrinting:'Silent Lab PRC'}];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),['P']);
+
+  lunatone.abilitySuppressions=[{abilityName:'New Moon',
+    suppressed:null,reasonCode:null,sourcePrinting:null}];
+  assert.equal(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),null);
+
+  x.ownPublic.bench=[lunatone];
+  lunatone.abilitySuppressions=[{abilityName:'New Moon',
+    suppressed:false,reasonCode:null,sourcePrinting:null}];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),['P']);
+});
+
