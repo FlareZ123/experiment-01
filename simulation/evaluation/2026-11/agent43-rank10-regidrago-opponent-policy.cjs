@@ -257,7 +257,6 @@ function gustChoicePriority(choice, observation) {
 
 function targetPokemonFromChoice(choice, observation) {
   const meta = choice?.publicMetadata ?? {};
-  if (meta.targetPokemon) return meta.targetPokemon;
   const owner = meta.ownerSeat;
   const zone = meta.zone;
   const index = Number.isSafeInteger(meta.benchIndex) ? meta.benchIndex : meta.slotIndex;
