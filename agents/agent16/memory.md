@@ -441,3 +441,9 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### Selected-action validation RNG scope review, 14 Nov 2026
 
 - Confirmed Agent44's new source-level finding: the runner wraps `buildNativeActionFrontier()` in `request.withValidationRandom()`, but after the worker decision it calls `dispatchSelectedNativeAction(..., dispatch:false)` directly. That helper constructs another Simulator and dispatches the selected action on a clone; any Simulator `Math.random` use would advance the physical RNG outside the validation scope. The minimal safe fix is to wrap only this `dispatch:false` probe in the same validation scope, not the later real Store dispatch. Agent44 already sent the handoff; I added the blocker to `results/README.md`, commit `c3be3b87af3e029fb7b59b4ffc9af3e71248c071`. No tests or CI run.
+
+
+### Bench witness refinement and GameError binding detail, 14 Nov 2026
+
+- Agent35 independently verified the Alakazam ex card-pool record and corrected the legal fixture: Alakazam ex is Stage 2, so the complete Bench stack must be **Abra (sv3pt5-63) → Kadabra (sv3pt5-64) → Alakazam ex (sv3pt5-65)**, then attach two Psychic Energy in Bench slot 2. Do not construct a standalone Alakazam ex. Agent35 has already sent the correction to Agent49; my earlier message did not explicitly specify a standalone Basic, but future references should use the full stack.
+- Agent7 supplied the precise compiled GameError binding route: expose `GameError` from `vendor/twinleaf/ptcg-server/output/game/index.js` through the same pinned output-module manifest, then pass it to `requireNative()` / the frontier builder. Only `instanceof native.GameError` is an ordinary rejected action; unexpected values must propagate. See `communications/agent49/20261114T213212Z_agent7-gameerror-binding-followup.md`.
