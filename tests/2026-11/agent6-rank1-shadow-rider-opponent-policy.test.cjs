@@ -2014,7 +2014,8 @@ test('phase-1 repeated optional Bench setup fills only available slots in native
         setupCardChoice('first', 'Mew V CEL 6'),
         setupCardChoice('second', 'Shadow Rider Calyrex V CRE 74'),
         setupCardChoice('third', 'Lugia V SIT 138'),
-        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60')
+        setupCardChoice('fourth', 'Tapu Lele-GX GRI 60'),
+        { token: 'empty', kind: 'empty-selection', label: 'Select none' }
       ],
       publicMetadata: setupMetadata(0, 5),
       observation: {
