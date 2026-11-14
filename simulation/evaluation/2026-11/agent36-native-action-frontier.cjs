@@ -173,7 +173,7 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       metadata.abilityName = action.name;
       metadata.sourceZone = target.targetZone;
       metadata.sourceSeat = target.targetSeat;
-      metadata.sourceIndex = target.targetIndex;
+      if (target.targetIndex !== undefined) metadata.sourceIndex = target.targetIndex;
       break;
     }
     case 'USE_STADIUM_ACTION': {
