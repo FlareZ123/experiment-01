@@ -169,9 +169,11 @@ function makeHarness(options={}) {
     return sampled;
   };
   sampleDeterminization.knowledgeBySeat=knowledgeBySeat;
+  let metadataRefreshes=0;
   sampleDeterminization.refreshMetadata=(fromState,toState)=>{
     const metadata=metadataByState.get(fromState);
     if(!metadata)return false;
+    metadataRefreshes++;
     metadataByState.set(toState,{...metadata,knowledgeBySeat:[ledger,ledger]});
     return true;
   };
@@ -240,7 +242,10 @@ function makeHarness(options={}) {
   if(options.expectedActionKeys)deps.expectedActionKeys=options.expectedActionKeys;
   if(options.assertApplicabilityEnvelope)
     deps.assertApplicabilityEnvelope=options.assertApplicabilityEnvelope;
-  return {deps,state,knowledgeBySeat,setLedger:value=>{ledger=value;},metadataByState};
+  return {
+    deps,state,knowledgeBySeat,setLedger:value=>{ledger=value;},metadataByState,
+    get metadataRefreshes(){return metadataRefreshes;}
+  };
 }
 
 test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompts and audits its budget',()=>{
@@ -271,6 +276,8 @@ test('bounded native MCTS filters the frontier, resolves only neutral WaitPrompt
     path.actions.some(action=>action.seat===1)),
     'four-ply rollouts must actually traverse the opponent seat');
   assert.ok(result.audit.waitPromptResolutions>0);
+  assert.ok(h.metadataRefreshes>0,
+    'Sampled-state transitions must refresh per-seat private ledgers');
 });
 
 test('native Simulator filter rejects unpaid turn-one Ram and no-op candidates',()=>{
@@ -315,7 +322,7 @@ test('full owner ledger changes produce distinct actor information-set hashes',(
   const adapter=createTwinleafInformationSetSearch(h.deps);
   const first=observationSha256(adapter.observe(h.state,0,{rootSeat:0}));
   const nextLedger={
-    ...h.deps.knowledgeBySeat(h.state,0),
+    ...h.deps.knowledgeBySeat(h.state,0,{rootSeat:0}),
     ownerK1Snapshot:{
       epoch:1,exactMembershipKnown:true,
       knownPrintings:[{printing:'Psychic Energy SVE',copies:6}]
