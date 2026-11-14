@@ -14,8 +14,7 @@ const { actorObservation } = require('../../simulation/twinleaf/actor-observatio
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const POLICY_VERSION = 'agent49-test-policy-v2';
-function policySource(mode = 'normal', version = POLICY_VERSION) {
-  const selectedMode = JSON.stringify(mode);
+function policySource(version = POLICY_VERSION) {
   const versionLiteral = JSON.stringify(version);
   return [
     "'use strict';",
@@ -169,10 +168,10 @@ function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
 }
 function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); }
 
-function startWorker(init = initFor(), mode = 'normal') {
+function startWorker(init = initFor()) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(mode, init.policyVersion));
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(init.policyVersion));
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
@@ -205,8 +204,8 @@ async function dispose(worker) {
   worker.rl.close();
   fs.rmSync(worker.dir, { recursive: true, force: true });
 }
-async function expectFailure(message, code, mode = 'normal', init = initFor()) {
-  const worker = startWorker(init, mode);
+async function expectFailure(message, code, init = initFor()) {
+  const worker = startWorker(init);
   try {
     writeLine(worker.child.stdin, init);
     await waitForCount(worker, 1);
@@ -509,7 +508,7 @@ test('init binds the exact policy module version and bundle digest shape', async
   const init = initFor('candidate', 0, 'a', 'expected-policy-v2');
   const worker = startWorker(init);
   try {
-    fs.writeFileSync(path.join(worker.dir, 'policy.cjs'), policySource('normal', 'wrong-policy-v2'));
+    fs.writeFileSync(path.join(worker.dir, 'policy.cjs'), policySource('wrong-policy-v2'));
     writeLine(worker.child.stdin, init);
     worker.child.stdin.end();
     await waitForClose(worker);
