@@ -17,6 +17,13 @@ const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
 const MULTI_SELECT_PROMPT_TYPES = new Set([
   'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
 ]);
+const MULTI_SELECT_ITEM_KINDS = Object.freeze({
+  'card-combination': 'card',
+  pokemon: 'pokemon',
+  'energy-payment': 'energy',
+  'prize-slots': 'prize',
+  'card-order': 'card-order-item'
+});
 
 const LIMITS = Object.freeze({
   maxLineBytes: 1024 * 1024,
@@ -524,6 +531,10 @@ function multiSelectBounds(prompt) {
   const emptyChoices = prompt.choices.filter(choice => choice.kind === 'empty-selection');
   const selectableChoices = prompt.choices.filter(choice =>
     choice.kind !== 'cancel' && choice.kind !== 'empty-selection');
+  const expectedItemKind = MULTI_SELECT_ITEM_KINDS[metadata.selectionType];
+  if (selectableChoices.some(choice => choice.kind !== expectedItemKind)) {
+    fail('BAD_MULTI_SELECT_ITEM_KIND');
+  }
   if ((metadata.allowCancel && cancelChoices.length !== 1) ||
       (!metadata.allowCancel && cancelChoices.length !== 0)) {
     fail('BAD_MULTI_SELECT_CANCEL_CHOICE');

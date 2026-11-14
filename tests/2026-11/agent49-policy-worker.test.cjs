@@ -684,6 +684,9 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     { token: 'cancel-0', kind: 'cancel', label: 'Cancel selection' }
   ]);
   protocol.validatePrompt(cardPrompt, 0);
+  assert.throws(() => protocol.validatePrompt(makePrompt('card-combination', {
+    minimumCount: 1, maximumCount: 2, allowCancel: false
+  }, [{ token: 'combo-0', kind: 'card-set' }]), 0), /BAD_MULTI_SELECT_ITEM_KIND/);
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choices', tokens: ['card-2', 'card-0']
   }, cardPrompt, new Set()), {
