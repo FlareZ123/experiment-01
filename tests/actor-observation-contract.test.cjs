@@ -367,6 +367,9 @@ test('face-up attack metadata and vulnerabilities stay detached',()=>{
   assert.equal(p.attacks[0].damage,130);
   assert.equal(p.attacks[0].gxAttack,true);
   assert.equal(p.abilityDetails[0].text,'Printed power description');
+  assert.deepEqual(p.abilitySuppressions,[{abilityName:'Printed Ability',
+    suppressed:null,reasonCode:null,sourcePrinting:null}]);
+  assert.ok(Object.isFrozen(p.abilitySuppressions[0]));
   assert.ok(Object.isFrozen(p.printed.subtypes));
   assert.ok(Object.isFrozen(p.printed.weakness[0]));
   assert.ok(Object.isFrozen(p.abilityDetails[0]));
