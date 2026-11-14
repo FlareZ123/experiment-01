@@ -32,8 +32,8 @@ function withinRoot(value) {
  * @template T
  * @param {string} repositoryRoot
  * @param {Record<string,string>} expectedByPath Frozen repo-relative SHA-256.
- * @param {()=>T} execute Synchronous game or regression.
- * @returns {{result:T,audit:object}}
+ * @param {()=>T|Promise<T>} execute Synchronous or awaited game/regression.
+ * @returns {{result:T,audit:object}|Promise<{result:T,audit:object}>}
  */
 function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) {
   assert.equal(typeof execute, 'function');
@@ -61,7 +61,7 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
   const audit = {version: VERSION, preloadedChecks: 0, requireChecks: 0,
     endChecks: 0, files: [], preloadedFiles: [], guardRestored: false,
     competitiveGameQualified: false,
-    limitation: 'Synchronous CommonJS research modules only; external frozen manifest and paper/vendor/runtime-state verification remain necessary.'};
+    limitation: 'CommonJS loads are guarded across synchronous or awaited callbacks; ESM/dynamic-fs and paper/vendor/runtime-state verification remain separate.'};
 
   /**
    * @param {string} filename
@@ -136,24 +136,39 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
   }
 
   Object.defineProperty(Module, '_load', {...previous, value: pinnedLoad});
-  try {
-    const result = execute();
-    assert.ok(!result || typeof result.then !== 'function',
-      'The module-load guard requires a synchronous run');
-    for (const filename of observed.values()) check(filename, 'end');
-    audit.files = [...observed.keys()].sort();
-    return {result, audit};
-  } catch (error) {
-    if (error && typeof error === 'object') {
-      audit.files = [...observed.keys()].sort();
-      error.agent36ModulePinAudit = audit;
-    }
-    throw error;
-  } finally {
+  let asyncExecution=false;
+  let restored=false;
+  const restore=()=>{
+    if(restored)return;
     assert.equal(Module._load, pinnedLoad,
       'CommonJS module loader was modified during pinned evaluation');
     Object.defineProperty(Module, '_load', previous);
-    audit.guardRestored = true;
+    audit.guardRestored=true;
+    restored=true;
+  };
+  const finish=result=>{
+    for (const filename of observed.values()) check(filename, 'end');
+    audit.files=[...observed.keys()].sort();
+    return {result,audit};
+  };
+  const fail=error=>{
+    if(error&&typeof error==='object'){
+      audit.files=[...observed.keys()].sort();
+      error.agent36ModulePinAudit=audit;
+    }
+    throw error;
+  };
+  try {
+    const result=execute();
+    if(result&&typeof result.then==='function'){
+      asyncExecution=true;
+      return result.then(finish).catch(fail).finally(restore);
+    }
+    return finish(result);
+  } catch(error) {
+    return fail(error);
+  } finally {
+    if(!asyncExecution) restore();
   }
 }
 

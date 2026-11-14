@@ -14,12 +14,19 @@ const {sha256, withPinnedResearchModuleLoads} =
 function fixture(run) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-loadpin-'));
   const localRequire = createRequire(path.join(root, 'test-caller.cjs'));
-  try {
-    run(root, localRequire);
-  } finally {
+  const cleanup=()=>{
     for (const id of Object.keys(require.cache))
       if (id.startsWith(root + path.sep)) delete require.cache[id];
     fs.rmSync(root, {recursive: true, force: true});
+  };
+  try {
+    const result=run(root,localRequire);
+    if(result&&typeof result.then==='function') return result.finally(cleanup);
+    cleanup();
+    return result;
+  } catch(error) {
+    cleanup();
+    throw error;
   }
 }
 
@@ -116,6 +123,26 @@ test('unexpected game exception restores global native loader exactly', () =>
     assert.throws(() => withPinnedResearchModuleLoads(root, {},
       () => {throw Error('game abort');}), /game abort/);
     assert.deepEqual(Object.getOwnPropertyDescriptor(Module, '_load'), prior);
+  }));
+
+
+test('async callback remains under the module-load guard until it settles', async () =>
+  fixture(async (root, localRequire) => {
+    const entryHash=create(root,'entry.cjs','module.exports=1;\\n');
+    create(root,'late.cjs','module.exports=2;\\n');
+    localRequire('./entry.cjs');
+    const prior=Module._load;
+    const pinned=await withPinnedResearchModuleLoads(root,
+      {'entry.cjs':entryHash},async()=>{
+        await Promise.resolve();
+        assert.notStrictEqual(Module._load,prior);
+        assert.throws(()=>localRequire('./late.cjs'),
+          /Unregistered research module before execution: late.cjs/);
+        return 'async-ok';
+      });
+    assert.equal(pinned.result,'async-ok');
+    assert.equal(pinned.audit.guardRestored,true);
+    assert.strictEqual(Module._load,prior);
   }));
 
 test('noncanonical manifest aliases are rejected before games', () =>

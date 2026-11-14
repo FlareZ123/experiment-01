@@ -234,10 +234,13 @@ function runPinnedV3RoleRuntime({repositoryRoot=ROOT,preparedRuntime,run,
   assert.ok(preparedRuntime?.expectedByPath&&preparedRuntime?.runtimePinEvidence,
     'prepared V3 runtime evidence is required before installing the module pin');
   assert.equal(typeof run,'function','pinned V3 game callback is required');
+  const complete=pinned=>{
+    assert.equal(pinned.audit?.guardRestored,true,
+      'Agent36 runtime module pin did not restore the original CommonJS loader');
+    return {...preparedRuntime,result:pinned.result,audit:pinned.audit};
+  };
   const pinned=pin(repositoryRoot,preparedRuntime.expectedByPath,run);
-  assert.equal(pinned.audit?.guardRestored,true,
-    'Agent36 runtime module pin did not restore the original CommonJS loader');
-  return {...preparedRuntime,result:pinned.result,audit:pinned.audit};
+  return pinned&&typeof pinned.then==='function'?pinned.then(complete):complete(pinned);
 }
 
 function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,

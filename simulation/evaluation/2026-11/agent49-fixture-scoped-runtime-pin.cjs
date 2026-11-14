@@ -123,27 +123,27 @@ function createFixtureRuntimePinEvidence(preparedRuntime) {
  *
  * @param {string} repositoryRoot
  * @param {Record<string,string>} expectedByPath Frozen role-closure SHA map.
- * @param {()=>any} execute Synchronous native-game callback.
- * @returns {{result:any,audit:object}}
+ * @param {()=>any|Promise<any>} execute Synchronous or awaited native-game callback.
+ * @returns {{result:any,audit:object}|Promise<{result:any,audit:object}>}
  */
 function withFixtureScopedRolePin(repositoryRoot,expectedByPath,execute) {
-  assert.equal(typeof execute,'function','fixture game callback must be synchronous');
+  assert.equal(typeof execute,'function','fixture game callback is required');
   const {root,expected}=expectedRolePaths(repositoryRoot,expectedByPath);
   const excluded=[];
   let callbackError=null;
-  try {
-    for(const filename of Object.keys(require.cache).sort()) {
-      const relative=researchRelativePath(root,filename);
-      if(relative===null || expected.has(relative)) continue;
-      const cached=require.cache[filename];
-      if(!cached) continue;
-      excluded.push({filename,relative,module:cached});
-      delete require.cache[filename];
+  let asyncExecution=false;
+  const restoreExcluded=()=>{
+    let restoreError=null;
+    for(const row of excluded) {
+      const current=require.cache[row.filename];
+      if(current && current!==row.module)
+        restoreError ??= new Error(
+          'fixture pin loaded a replacement for excluded orchestration module: '+row.relative);
+      require.cache[row.filename]=row.module;
     }
-
-    // Fail before the game if any role dependency was not already loaded.
-    fixtureRolePolicyCacheEntries(root,expectedByPath,Object.keys(require.cache));
-    const pinned=withPinnedResearchModuleLoads(root,Object.fromEntries(expected),execute);
+    if(restoreError && !callbackError) throw restoreError;
+  };
+  const complete=pinned=>{
     assert.equal(pinned.audit?.guardRestored,true,
       'fixture role pin did not restore the original CommonJS loader');
     const audit={
@@ -157,19 +157,33 @@ function withFixtureScopedRolePin(repositoryRoot,expectedByPath,execute) {
       competitiveGameQualified:false
     };
     return {...pinned,audit};
+  };
+  try {
+    for(const filename of Object.keys(require.cache).sort()) {
+      const relative=researchRelativePath(root,filename);
+      if(relative===null || expected.has(relative)) continue;
+      const cached=require.cache[filename];
+      if(!cached) continue;
+      excluded.push({filename,relative,module:cached});
+      delete require.cache[filename];
+    }
+
+    // Fail before the game if any role dependency was not already loaded.
+    fixtureRolePolicyCacheEntries(root,expectedByPath,Object.keys(require.cache));
+    const pinned=withPinnedResearchModuleLoads(root,Object.fromEntries(expected),execute);
+    if(pinned&&typeof pinned.then==='function'){
+      asyncExecution=true;
+      return pinned.then(complete).catch(error=>{
+        callbackError=error;
+        throw error;
+      }).finally(restoreExcluded);
+    }
+    return complete(pinned);
   } catch(error) {
     callbackError=error;
     throw error;
   } finally {
-    let restoreError=null;
-    for(const row of excluded) {
-      const current=require.cache[row.filename];
-      if(current && current!==row.module)
-        restoreError ??= new Error(
-          'fixture pin loaded a replacement for excluded orchestration module: '+row.relative);
-      require.cache[row.filename]=row.module;
-    }
-    if(restoreError && !callbackError) throw restoreError;
+    if(!asyncExecution) restoreExcluded();
   }
 }
 
