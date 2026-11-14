@@ -267,6 +267,13 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     mimikyuCopycatCompatible: true
   };
   protocol.validatePublicEventReceipt(receipt, copycatView);
+  const baseReceipt = { ...receipt };
+  delete baseReceipt.opponentCopycatChoices;
+  delete baseReceipt.mimikyuCopycatCompatible;
+  protocol.validatePublicEventReceipt(baseReceipt, copycatView);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...baseReceipt, opponentCopycatChoices: null
+  }, copycatView), /INCOMPLETE_COPYCAT_RECEIPT/);
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentLastTurnAttacks: [{ ...eventRow, opponentHand: ['hidden'] }]
   }, copycatView), /UNKNOWN_FIELD/);
