@@ -531,11 +531,11 @@ test('Relicanth Memory Dive selects Baby-Doll Eyes as the lock attack', () => {
     promptType: 'ChooseAttackPrompt',
     source: actorChoiceSource('Relicanth TEF 84', 'Memory Dive'),
     choices: [
-      { token: 'wild-tackle', kind: 'option', label: 'Wild Tackle',
+      { token: 'wild-tackle', kind: 'attack', label: 'Wild Tackle',
         publicMetadata: { sourceAttack: 'Wild Tackle' } },
-      { token: 'baby-doll-eyes', kind: 'option', label: 'Baby-Doll Eyes',
+      { token: 'baby-doll-eyes', kind: 'attack', label: 'Baby-Doll Eyes',
         publicMetadata: { sourceAttack: 'Baby-Doll Eyes' } },
-      { token: 'burrow', kind: 'option', label: 'Burrow',
+      { token: 'burrow', kind: 'attack', label: 'Burrow',
         publicMetadata: { sourceAttack: 'Burrow' } }
     ]
   });
@@ -598,6 +598,108 @@ test('unknown prompt types fail closed', () => {
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
     reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
+  });
+});
+
+
+
+test('energy payment honors the typed Energy requirement rather than selecting every offered Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseEnergyPrompt',
+    source: actorChoiceSource(null, 'Attack cost payment'),
+    choices: [0, 1, 2].map(index => ({
+      token: 'energy-' + index,
+      kind: 'energy',
+      printing: 'Grass Energy MEE 9',
+      label: 'Grass Energy',
+      publicMetadata: { energyType: 'Grass' }
+    })),
+    publicMetadata: {
+      count: 3,
+      energyCount: 3,
+      energyType: 'Grass,Colorless',
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'energy-payment'
+    }
+  });
+  const decision = checkedDecision(request);
+  assert.equal(decision.kind, 'select-choices');
+  assert.equal(decision.tokens.length, 2);
+});
+
+test('Guzma selects a visible low-HP multi-Prize opponent Bench target', () => {
+  const target = pokemon('Pidgeot ex OBF 164', {
+    hp: 280, damage: 220, stage: 'STAGE2', subtypes: ['Stage 2', 'ex']
+  });
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Guzma BUS 115', 'Guzma'),
+    choices: [
+      pokemonChoice('safe', 'Basic Water Pokémon SVE 1', 'opponent', 'bench', 0),
+      pokemonChoice('weak-pidgeot', 'Pidgeot ex OBF 164', 'opponent', 'bench', 1)
+    ],
+    observation: {
+      opponentPublic: player({ bench: [
+        pokemon('Basic Water Pokémon SVE 1', { hp: 100 }),
+        target
+      ] })
+    },
+    publicMetadata: {
+      minimumCount: 1, maximumCount: 1, allowCancel: false,
+      isSecret: false, selectionType: 'pokemon'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['weak-pidgeot']
+  });
+});
+
+test('Stoutland is not promoted through a visible Garbotoxin ability suppression', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC 121'),
+      bench: [pokemon('Stoutland BCR 122', {
+        stage: 'STAGE2', subtypes: ['Stage 2'], abilities: ['Sentinel']
+      })]
+    }),
+    opponentPublic: player({
+      active: pokemon('Garbodor GRI 51', {
+        stage: 'STAGE1', subtypes: ['Stage 1'], abilities: ['Garbotoxin']
+      })
+    }),
+    items: [
+      { token: 'retreat-stoutland', kind: 'retreat',
+        actorPrinting: 'Bunnelby PRC 121', targetPrinting: 'Stoutland BCR 122',
+        publicMetadata: { benchIndex: 0, targetSeat: 'actor',
+          targetZone: 'bench', targetIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Faba is not spent when the public opponent board has only Basic Energy and no Tool or Stadium', () => {
+  const request = rootRequest({
+    ownHand: ['Faba LOT 173'],
+    opponentPublic: player({
+      active: pokemon('Basic Water Pokémon SVE 1', {
+        energies: ['Grass Energy MEE 9']
+      })
+    }),
+    items: [
+      { token: 'faba', kind: 'play-card', actorPrinting: 'Faba LOT 173',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
   });
 });
 
