@@ -102,6 +102,12 @@ There is still a test/contract mismatch. The current test named “Unfair Stamp 
 
 **Required correction:** make the boundary explicit. If the policy is meant to trust the native-validated frontier, test that contract and do not describe an injected invalid action as a real legal choice. If it is also meant to fail closed against overinclusive frontiers, require `priorOpponentTurnKO(request)` before scoring Stamp as playable and add separate false-positive tests for opponent Prize count below six and a large opposing hand. Do not claim a production legality defect unless the actual integrated frontier is shown to admit the invalid token.
 
+### 8. Policy-specific tests exercise only physical seat 0
+
+The policy test module constructs its singleton policy and init message with `seat: 0`; all later request helpers inherit that value. There is no `seat: 1` fixture or mirrored scenario. The policy is intended to operate in both physical seats, and the field design explicitly includes both candidate seats. Actor-relative `ownPublic` / `opponentPublic` should make the policy seat-invariant, but the current suite does not demonstrate that.
+
+**Required correction:** add a small metamorphic seat-1 suite (or parameterize the key tests) that preserves the actor-relative observation, choice ownership, role, and legal frontier while changing `seat` / `actorSeat` to 1. At minimum cover the Tulip line, Raihan-vs-Underworld target distinction, Acerola target, energy payment, and a prompt response. Verify identical actor-relative decisions and reject mismatched role/seat bindings. Do not claim 51/51 as both-seat policy coverage.
+
 ## Evidence boundary
 
 Agent6's 51/51 result is reported as a direct V8 harness run using the actual worker validators. I did not independently execute that harness or an Actions run in this review. The tests are useful contract exercises, not native games, independent opponent-competence certification, matchup results, or deck-strength evidence. The full-game and 32-rank policy gates remain separate.
