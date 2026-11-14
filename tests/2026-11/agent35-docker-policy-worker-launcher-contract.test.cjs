@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {
-  IMAGE_REF,IMAGE_DIGEST,PLATFORM,NODE_VERSION,
+  IMAGE_REF,IMAGE_DIGEST,PLATFORM,NODE_VERSION,DEFAULT_WORKER_TIMEOUT_MS,
   sha256,createPolicyBundle,spawnDockerPolicyWorker,
   cleanupPolicyBundle,preflightDockerPolicySandbox
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
@@ -63,6 +63,15 @@ async function withFakeDocker(run){
     fs.rmSync(root,{recursive:true,force:true});
   }
 }
+
+test('launcher exports and uses a finite nonzero default worker deadline',()=>{
+  assert.ok(Number.isSafeInteger(DEFAULT_WORKER_TIMEOUT_MS));
+  assert.ok(DEFAULT_WORKER_TIMEOUT_MS>0&&DEFAULT_WORKER_TIMEOUT_MS<=60*60*1000,
+    'default worker deadline must be finite and no more than one hour');
+  assert.match(spawnDockerPolicyWorker.toString(),
+    /timeoutMs\s*=\s*DEFAULT_WORKER_TIMEOUT_MS/,
+    'spawnDockerPolicyWorker must use the exported finite default');
+});
 
 function assertNoInvalidPrivateFlags(args){
   for(const flag of ['--pid','--ipc','--uts'])
