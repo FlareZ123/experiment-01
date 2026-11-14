@@ -2069,22 +2069,25 @@ test('phase-1 repeated optional Bench setup preserves all offered choices up to 
   }
 });
 
-test('phase-1 optional Bench setup uses the empty-selection token when no Basic is offered', () => {
-  const request = promptRequest({
-    promptType: 'ChooseCardsPrompt',
-    description: 'CHOOSE_STARTING_POKEMONS',
-    source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
-    choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
-    publicMetadata: setupMetadata(0, 5),
-    observation: {
-      phase: 1,
-      ownPublic: player({ active: pokemon('Girafarig LOT 94') })
-    }
-  });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice',
-    token: 'empty'
-  });
+test('phase-1 optional Bench setup uses the empty-selection token when no Basic is offered for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const request = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
+      publicMetadata: setupMetadata(0, 5),
+      observation: {
+        phase: 1,
+        ownPublic: player({ active: pokemon('Girafarig LOT 94') })
+      }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice',
+      token: 'empty'
+    });
+  }
 });
 
 test('engine setup handling requires exact message, native prompt type, and engine source for both seats', () => {
