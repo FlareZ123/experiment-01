@@ -1022,6 +1022,33 @@ test('Guzma & Hala mode-one search selects one Stadium, one Tool, and one Specia
   });
 });
 
+
+
+test('Grand Tree can target an eligible Active Basic as well as a Bench Basic', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Grand Tree SCR 136', 'Grand Tree'),
+    choices: [
+      pokemonChoice('active-oddish', 'Oddish UNB 5', 'actor', 'active', 0),
+      pokemonChoice('bench-pidgey', 'Pidgey MEW 16', 'actor', 'bench', 1)
+    ],
+    observation: {
+      ownPublic: player({
+        active: pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 1 }),
+        bench: [pokemon('Pidgey MEW 16', { lastPlayedOrEvolvedTurn: 1 })]
+      })
+    },
+    publicMetadata: {
+      minimumCount: 1, maximumCount: 1, allowCancel: false,
+      isSecret: false, selectionType: 'pokemon'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['active-oddish']
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
