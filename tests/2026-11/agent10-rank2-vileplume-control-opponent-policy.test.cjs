@@ -704,6 +704,57 @@ test('Faba is not spent when the public opponent board has only Basic Energy and
   });
 });
 
+
+
+test('Counter Gain is attached to the Active attacker when behind on Prizes and before Vileplume locks Items', () => {
+  const request = rootRequest({
+    ownHand: ['Counter Gain SSP 169', 'Vileplume AOR 3'],
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC 121'),
+      bench: [pokemon('Gloom UNB 7', { stage: 'STAGE1', subtypes: ['Stage 1'] })],
+      prizeCount: 6
+    }),
+    opponentPublic: player({ prizeCount: 5 }),
+    items: [
+      { token: 'vileplume', kind: 'play-card', actorPrinting: 'Vileplume AOR 3',
+        targetPrinting: 'Gloom UNB 7',
+        publicMetadata: { cardType: 'pokemon', handIndex: 1,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0 } },
+      { token: 'counter-gain', kind: 'play-card', actorPrinting: 'Counter Gain SSP 169',
+        targetPrinting: 'Bunnelby PRC 121',
+        publicMetadata: { cardType: 'trainer', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'active', targetIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'counter-gain'
+  });
+});
+
+test('Counter Gain is not spent when the source player is not behind on Prizes', () => {
+  const request = rootRequest({
+    ownHand: ['Counter Gain SSP 169'],
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC 121'),
+      prizeCount: 5
+    }),
+    opponentPublic: player({ prizeCount: 5 }),
+    items: [
+      { token: 'counter-gain', kind: 'play-card', actorPrinting: 'Counter Gain SSP 169',
+        targetPrinting: 'Bunnelby PRC 121',
+        publicMetadata: { cardType: 'trainer', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'active', targetIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
