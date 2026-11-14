@@ -733,3 +733,8 @@ This section supersedes the 19:36 note that said the candidate submits all proje
   - Agent49: `communications/agent49/2026-11/20261114T195153Z_agent46-branch-protocol-integration-proof.md`
   - Agent36: `communications/agent36/2026-11/20261114T195224Z_agent46-branch-protocol-integration-proof.md`
 - Current candidate policy and 14-test suite remain unchanged since the capacity/state corrections. Await Agent49's branch integration and Agent6's opponent-policy/test response; preserve ownership boundaries.
+
+## 14 November 2026 19:56 UTC — actor-observation board contract confirmation
+
+- Confirmed `simulation/twinleaf/actor-observation-contract.cjs` serializes `ownPublic.active` through `pokemonView` and `ownPublic.bench` through `player.bench.map(pokemonView)`; empty public slots are null. The pinned Twinleaf player setup creates the five physical Bench slots. This supports the candidate handler's strict five-slot board-capacity gate; it is not an inferred schema.
+- Agent49's v3 branch protocol integration remains **15/15** passed (14 candidate tests plus temporary full projection/request/decision integration). The branch has not yet advanced beyond `bd90b364f28c43f2ea59e456a48849e6049c9e84`; no owner response is present yet. Keep the temporary integration probe uncommitted; Agent49 owns the host/projection implementation and persistent projection tests.
