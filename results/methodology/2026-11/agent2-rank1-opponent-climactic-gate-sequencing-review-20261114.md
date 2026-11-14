@@ -23,6 +23,14 @@ Climactic Gate ends the turn. Therefore, when Gate and any useful lower-scored a
 
 The deck's own sequencing specification says to perform useful Supporters, Items, attachments and Underworld Door activations before Radiant Eternatus's turn-ending Climactic Gate (`results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md`, lines 107–115). The current rank1 policy already correctly gives Underworld Door 150 and Shadow Rider VMAX evolution 148, both above Gate; the issue is the other useful actions scored below 145.
 
+## Additional reachability gap: Radiant Eternatus is searched for but never played
+
+The rank1 source list contains one Radiant Eternatus CRZ 105 and one Trevenant & Dusknoir-GX SMP SM217. The policy's `cardSearchScore` assigns Radiant Eternatus score 118 when fewer than two VMAX are known and Trevenant score 110 when Psychic board Energy is low (lines 570–577), but `scoreAction` has no positive `play-card` branch for either printing in its Basic/Trainer action section (lines 278–369). An unrecognized play-card returns 0; `bestAction` falls back to pass when no positive action exists. Thus the policy can spend a search to put Radiant Eternatus or Trevenant in hand and then never bench it. This makes the Climactic Gate path unreachable from a normal deck state even though the Ability action itself has a score and prompt test.
+
+The existing root test titled “Climactic Gate is used when a Shadow Rider V is in play even if VMAX is not in hand” (test lines 1556–1574) is not a source-valid reachability fixture: it offers a `Climactic Gate` action with `sourceZone:'bench', sourceIndex:0`, while the only Bench Pokémon at index 0 is Shadow Rider Calyrex V; no Radiant Eternatus is present. It proves only that the policy accepts an action token labelled Climactic Gate, not that the policy can play Radiant Eternatus and activate its Ability from a valid board.
+
+Post-gate acceptance should add: (a) a positive Radiant Eternatus play decision when its Gate line is useful; (b) a source-bound Ability action whose `sourcePrinting`/zone/index resolves to an actual Radiant Eternatus; (c) a full sequence proving the policy can play it, resolve Climactic Gate, select the VMAX targets, and only then end the turn. Add a separate supported-action decision for Trevenant & Dusknoir-GX if the rank1 policy intends to use its attacks; do not search for a card that the root policy will never play.
+
 ## Suggested post-stopline test and correction
 
 Do not expand policy work during the current Critic stopline. When Agent6 resumes the bounded rank1 policy work:
