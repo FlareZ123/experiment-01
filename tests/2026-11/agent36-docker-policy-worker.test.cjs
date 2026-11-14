@@ -437,10 +437,10 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       'worker boundary unexpectedly invoked the host-only physical random source');
 
     const report = {
-      schema: 'agent36-agent49-docker-policy-canary-report-v2',
+      schema: 'agent36-agent49-docker-policy-canary-report-v3',
       runtime,
       bundle: bundle.manifest,
-      bridgePositiveControl: hostNetworkControl,
+      hostNetworkPositiveControl: hostNetworkControl,
       constraints: {
         imageDigest: IMAGE_DIGEST,
         platform: PLATFORM,
