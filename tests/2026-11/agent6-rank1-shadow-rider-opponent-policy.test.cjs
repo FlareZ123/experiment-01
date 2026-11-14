@@ -585,3 +585,136 @@ test('card-order and prize multi-selects return only their exact item kinds', ()
     tokens: ['prize-0', 'prize-1']
   });
 });
+
+
+test('Raihan search chooses a setup card rather than a second Basic Psychic Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Raihan EVS 152', 'Raihan'),
+    choices: [
+      { token: 'energy', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Raihan EVS 152'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['vmax']
+  });
+});
+
+test('Fog Crystal searches Shadow Rider V before Energy when no V is visible or in hand', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Fog Crystal CRE 140', 'Fog Crystal'),
+    choices: [
+      { token: 'energy', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Fog Crystal CRE 140'],
+      ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['v']
+  });
+});
+
+test('Battle Compressor selects Basic Psychic Energy for a held Tulip recovery line', () => {
+  const choices = [
+    'Psychic Energy MEE 13',
+    'Psychic Energy MEE 13',
+    'Psychic Energy MEE 13',
+    'Shadow Rider Calyrex VMAX CRE 75'
+  ].map((printing, index) => ({
+    token: 'deck-' + index,
+    kind: 'card',
+    printing,
+    label: printing,
+    publicMetadata: { sourceZone: 'deck' }
+  }));
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Battle Compressor PHF 92', 'Battle Compressor'),
+    choices,
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 3,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Battle Compressor PHF 92', 'Tulip PAR 181'],
+      ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['deck-0', 'deck-1', 'deck-2']
+  });
+});
+
+test('VS Seeker retrieves Tulip when the discard contains a recoverable Psychic package', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('VS Seeker PHF 109', 'VS Seeker'),
+    choices: [
+      { token: 'acerola', kind: 'card', printing: 'Acerola BUS 112',
+        label: 'Acerola', publicMetadata: { sourceZone: 'discard' } },
+      { token: 'tulip', kind: 'card', printing: 'Tulip PAR 181',
+        label: 'Tulip', publicMetadata: { sourceZone: 'discard' } },
+      { token: 'raihan', kind: 'card', printing: 'Raihan EVS 152',
+        label: 'Raihan', publicMetadata: { sourceZone: 'discard' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'discard',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['VS Seeker PHF 109'],
+      ownPublic: player({
+        discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['tulip']
+  });
+});
