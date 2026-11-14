@@ -34,6 +34,7 @@ The sanitized-only branch path is distinct from full-state diagnostics:
 - In `agent49-native-fixture-game.cjs`, `captureDiagnostic` returns `null` when no callback is supplied. Thus the full-state before/after snapshots and final full-state snapshot are not captured in this mode.
 - The runner sanitizes the in-memory fixture artifact before writing `fixture-game.sanitized.json` and `fixture-game.sanitized.txt`.
 - The sanitizer drops actor-hand identities, hidden Prize membership identities, prompt-option identities, raw full-state objects, and policy-application receipts. It emits only allowlisted actor-observation/public-state summaries, prompt option counts, and a selected card printing after successful dispatch.
+- The underlying `actor-observation-contract.cjs` emits a Prize `printing` only when `faceUpPrize === true`; face-down slots contain only their index. It emits `publicHand` only when `hand.isPublic === true`. The sanitizer drops `ownerK1.knownPrintings`, so preserved Prize/hand fields are already public rather than concealed identities.
 - The output is explicitly marked `fixtureOnly`, `admissionEligible:false`, `competitiveGameQualified:false`, and `fullStateCaptured:false`. The workflow artifact paths include sanitized outputs and explicitly exclude raw `fixture-game.json` and `fixture-game.txt`.
 
 This is an actor-only, non-admitting diagnostic path, not a public plaintext workaround. Full-state diagnostic mode still requires the owner-controlled RSA public key. Keep raw full-state traces out of public artifacts.
