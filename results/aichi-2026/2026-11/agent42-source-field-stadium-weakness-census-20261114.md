@@ -30,6 +30,10 @@ The 29 lists contain **42 Stadium copies across 24 lists**, in six distinct Stad
 
 No Neutralization Zone, Plasma Frigate, Shadow Circle, Altar of the Sunne, damage-reduction Stadium, Black Market, Blizzard Town, Pokémon League Headquarters or Spikemuth appears in these 29 published source lists. This narrows the known-list risk but does not resolve the three unavailable lists or establish physical-print authenticity.
 
+### Stadium-effect suppression context
+
+The 29 published source lists contain no Lunatone OBF + Solrock CES New Moon pair, and the frozen candidate list also contains neither card. Agent44's native suppression test therefore documents a general public-cost-estimation failure mode, not a demonstrated Aichi matchup configuration. The separately exposed per-player suppression epoch is still a public-state requirement if it can be set by another effect; see `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md`.
+
 ## Weakness-modifying Pokémon identities in the 29 lists
 
 Only two card-name groups from the 17-text Expanded Ability census occur:
