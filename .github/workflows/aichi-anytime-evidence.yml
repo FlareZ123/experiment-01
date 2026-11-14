@@ -15,5 +15,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test anytime full-field e-process
-        run: node --test tests/aichi-anytime-field-evidence.test.cjs
+      - name: Test aggregate and paired-seat anytime statistical evidence
+        run: node --test tests/aichi-anytime-field-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs
