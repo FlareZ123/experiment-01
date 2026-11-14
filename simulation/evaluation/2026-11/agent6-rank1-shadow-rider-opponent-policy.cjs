@@ -69,6 +69,11 @@ function psychicCountInHand(observation) {
   return countPrinting(observation?.ownHand, PRINT.psychic);
 }
 
+function hasSupporterInHand(hand) {
+  return list(hand).some(card =>
+    /Tulip|Raihan|Acerola|Guzma|Teammates|Carmine|Iono|Lillie|N\\b|Professor/i.test(card));
+}
+
 function psychicCountInDiscard(observation) {
   return countPrinting(observation?.ownPublic?.discard, PRINT.psychic);
 }
