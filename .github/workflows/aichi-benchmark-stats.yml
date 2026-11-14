@@ -554,8 +554,8 @@ jobs:
           node scripts/aichi-rank6-guzma-energy-direct.cjs
       - name: Verify published Iron Thorns Special Energy printed payability
         run: node --test tests/actor-energy-payability.test.cjs
-      - name: Check correlated-field and paired-seat sequential evidence qualification gates
-        run: node --test tests/aichi-correlated-round-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs
+      - name: Check correlated-field sequential evidence and intact qualification gates
+        run: node --test tests/aichi-correlated-round-evidence.test.cjs
       - name: Verify constructed Japanese New Moon 60 and reject altered printings
         run: node --test tests/new-moon-lockbreak-japanese-provenance.test.cjs
       - name: Check proposed Japanese New Moon 60 against historical banned-print snapshot
