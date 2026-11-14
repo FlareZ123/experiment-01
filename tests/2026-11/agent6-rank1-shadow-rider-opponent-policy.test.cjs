@@ -1158,3 +1158,77 @@ test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a no
     tokens: ['mimikyu']
   });
 });
+
+
+test('Marshadow is played to trigger Resetting Hole against Path to the Peak', () => {
+  const request = rootRequest({
+    ownHand: ['Marshadow UNB 81'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    opponentPublic: player({ stadium: ['Path to the Peak CRE 148'] }),
+    items: [
+      { token: 'marshadow', kind: 'play-card', actorPrinting: 'Marshadow UNB 81',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'marshadow'
+  });
+});
+
+test('Resetting Hole ability is prioritized only while a disabling stadium is active', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      bench: [pokemon('Marshadow UNB 81', { hp: 70 })]
+    }),
+    opponentPublic: player({ stadium: ['Path to the Peak CRE 148'] }),
+    items: [
+      { token: 'resetting-hole', kind: 'use-ability',
+        publicMetadata: { abilityName: 'Resetting Hole', sourceZone: 'bench',
+          sourceSeat: 'actor', sourceIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'resetting-hole'
+  });
+});
+
+test('Mysterious Treasure searches Marshadow to remove Path to the Peak when the board lacks it', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'marshadow', kind: 'card', printing: 'Marshadow UNB 81',
+        label: 'Marshadow', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
+        ]
+      }),
+      opponentPublic: player({ stadium: ['Path to the Peak CRE 148'] })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['marshadow']
+  });
+});
