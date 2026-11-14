@@ -47,11 +47,11 @@ function publicStadiumPrintings(view){
 }
 
 /**
- * Resolve Stadium effects on the acting player's Pokémon. A positive
- * Shiftry suppression countdown on either player is conclusive: Wicked Wind
- * removes the effects of all Stadium/Tool cards in play. New Moon is
- * recipient-specific and suppresses Stadium effects only on its controller's
- * Pokémon while Solrock is in play. Missing/malformed epochs are unknown.
+ * Resolve Stadium effects on the acting player's Pokémon conservatively.
+ * The native owner-positive Shiftry case is reproduced; whether an opponent-
+ * only positive epoch is globally effective is still disputed pending a
+ * two-seat Store probe, so it returns unknown. New Moon is recipient-specific
+ * and is accepted only with an explicit source-attributed live-Ability row.
  * @param {object} view detached actor observation
  * @returns {boolean|null}
  */
@@ -62,28 +62,38 @@ function stadiumEffectsSuppressedForOwnPokemon(view){
   const opponentTurns=view?.opponentPublic?.publicTurnRestrictions
     ?.stadiumAndToolHaveNoEffectTurnsRemaining;
   if(!own||!Array.isArray(own.bench))return null;
-  // Either known-positive per-player epoch proves the global Stadium/Tool
-  // suppression, even if the other player's epoch is unknown or malformed.
+  // A positive countdown on the acting player is directly reproduced and is
+  // sufficient even if the opponent's parallel field is malformed/unknown.
   if(Number.isSafeInteger(ownTurns)&&ownTurns>0)return true;
-  if(Number.isSafeInteger(opponentTurns)&&opponentTurns>0)return true;
   if(!Number.isSafeInteger(ownTurns)||ownTurns<0||
      !Number.isSafeInteger(opponentTurns)||opponentTurns<0)return null;
+  // Opponent-only positive is deliberately unresolved until a native probe
+  // tests actor=0/opponent=1 from both physical seats.
+  if(opponentTurns>0)return null;
   const board=[own.active,...own.bench].filter(Boolean);
   for(const pokemon of board){
     if(!Array.isArray(pokemon.abilities)||
        !Array.isArray(pokemon.abilityDetails))return null;
   }
   const lunatone=board.find(pokemon=>pokemon.abilities.includes('New Moon'));
-  let newMoonActive=false;
-  if(lunatone){
-    const ability=lunatone.abilityDetails.find(row=>row?.name==='New Moon');
-    if(typeof ability?.text!=='string'||
-       !/prevent all effects of any Stadium done to your Pokémon in play/i
-         .test(ability.text))return null;
-    newMoonActive=board.some(pokemon=>
-      typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
+  if(!lunatone)return false;
+  const solrockPresent=board.some(pokemon=>
+    typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
+  if(!solrockPresent)return false;
+  // A printed Ability is not proof it is live. The actor projection must
+  // provide a complete source-attributed suppression row for New Moon.
+  if(!Array.isArray(lunatone.abilitySuppressions))return null;
+  const suppression=lunatone.abilitySuppressions.find(row=>
+    row?.abilityName==='New Moon');
+  if(!suppression||typeof suppression.suppressed!=='boolean')return null;
+  if(suppression.suppressed===false){
+    if(suppression.reasonCode!==null||suppression.sourcePrinting!==null)
+      return null;
+    return true;
   }
-  return newMoonActive;
+  if(typeof suppression.reasonCode!=='string'||
+     typeof suppression.sourcePrinting!=='string')return null;
+  return false;
 }
 
 /**
