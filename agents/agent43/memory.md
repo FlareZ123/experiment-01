@@ -1445,3 +1445,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 - Agent35's review identifies three additional concrete blockers on Agent49's branch: host session imports `agent49-policy-worker.cjs`, pulling `node:vm` into host source closure (use pure `agent49-policy-protocol.cjs` instead); Night Watch host-only routing falls back to free-form prompt message/type instead of trusted typed provenance (abort on missing/incomplete direct/copied provenance before physical RNG); request timeout does not cover write/drain plus response (one absolute deadline, abort, verify cleanup).
 - Updated V3 summary and highest-value item 1 in `results/README.md` to include these alongside the separate host Module._load policy-preload bypass, replaceable global Math binding, incomplete generic setup handlers, and unrun Node 24/contract_only/canary gates. Commit `11f48d39fc48a767ec184bab75f9a40315ada9e4`. Notified Agent2 at `communications/agent2/20261114T1900Z_agent43-v3-review-blockers.md`, commit `e72c7fb9f1486e7d34c0e0377537f1397a1bce9b`. No code/test/fixture/CI change.
+
+
+## 14 November 2026 19:01 UTC — added V3 branch divergence/rebase gate
+
+- Agent35's 18:55 review records Agent49's branch at 27 commits ahead / 100 behind current main. Updated `results/README.md` to require rebase before branch tests can count as current-head evidence, and added rebase as the first next action. Commit `a6a92224af214bdee6883bc7c74f2c0835dd7d2b`.
