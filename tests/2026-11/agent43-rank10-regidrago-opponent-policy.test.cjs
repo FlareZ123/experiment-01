@@ -48,15 +48,40 @@ function observation(options = {}) {
 }
 
 function item(token, kind, printing, extra = {}) {
-  return { token, kind, label: printing, publicMetadata: { cardPrinting: printing, ...extra } };
+  const { attackName, ...publicMetadata } = extra;
+  return { token, kind, label: printing, actorPrinting: printing,
+    ...(attackName ? { attackName } : {}), publicMetadata };
 }
-function choice(token, printing, extra = {}) {
-  return { token, kind: 'card', label: printing, publicMetadata: { printing, ...extra } };
+function choice(token, printing, extra = {}, kind = 'card') {
+  return { token, kind, printing, label: printing, publicMetadata: extra };
 }
 function request(obs, items, prompt = null, extra = {}) {
+  if (prompt) {
+    const effectName = prompt.source?.effectName ?? 'Unknown effect';
+    const sourcePrinting = prompt.source?.sourcePrinting ??
+      (/battle compressor/i.test(effectName) ? 'Battle Compressor PHF 92' :
+       /prime catcher/i.test(effectName) ? 'Prime Catcher TEF 157' :
+       /quick ball/i.test(effectName) ? 'Quick Ball SSH 179' :
+       /parallel city/i.test(effectName) ? 'Parallel City BKT 145' :
+       /wonder tag/i.test(effectName) ? 'Tapu Lele-GX GRI 60' :
+       /super rod/i.test(effectName) ? 'Super Rod PAL 188' :
+       /dragon laser/i.test(effectName) ? 'Regidrago V SIT 135' :
+       /phantom dive/i.test(effectName) ? 'Dragapult ex TWM 130' : 'Regidrago VSTAR SIT 136');
+    prompt.schema = 'aichi-owner-prompt-projection-v3';
+    prompt.actingSeat = 0;
+    prompt.description = null;
+    prompt.source = { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting, effectName };
+    prompt.publicMetadata = prompt.publicMetadata ?? {};
+    if (prompt.publicMetadata.selectionType) prompt.publicMetadata.allowCancel = false;
+    obs.decisionKind = 'owner-prompt';
+    obs.pendingPromptType = prompt.promptType;
+  } else {
+    obs.decisionKind = 'root-actions';
+    obs.pendingPromptType = null;
+  }
   return {
     role: 'opponent', seat: 0, observation: obs,
-    actionFrontier: { items }, prompt,
+    actionFrontier: { schema: 'aichi-action-frontier-v1', items }, prompt,
     publicEventReceipt: extra.publicEventReceipt ?? {}
   };
 }
@@ -127,8 +152,8 @@ test('Apex Dragon attack prompt delegates to the tested choice evaluator', () =>
     source: { effectName: 'Apex Dragon' },
     publicMetadata: {},
     choices: [
-      { token: 'k', label: 'Kaiser Tackle', publicMetadata: { sourceAttack: 'Kaiser Tackle' } },
-      { token: 't', label: 'Timeless-GX', publicMetadata: { sourceAttack: 'Timeless-GX' } }
+      { token: 'k', kind: 'attack', label: 'Kaiser Tackle', publicMetadata: { sourceAttack: 'Kaiser Tackle' } },
+      { token: 't', kind: 'attack', label: 'Timeless-GX', publicMetadata: { sourceAttack: 'Timeless-GX' } }
     ]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), { kind: 'select-choice', token: 't' });
@@ -160,8 +185,8 @@ test('Prime Catcher selects Mimikyu over Clefairy when both are visible', () => 
     promptType: 'ChoosePokemonPrompt', source: { effectName: 'Prime Catcher' },
     publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1 },
     choices: [
-      choice('clefairy', "Lillie's Clefairy ex JTG 56"),
-      choice('mimikyu', 'Mimikyu GRI 58')
+      choice('clefairy', "Lillie's Clefairy ex JTG 56", { ownerSeat: 'opponent', zone: 'bench', benchIndex: 0 }, 'pokemon'),
+      choice('mimikyu', 'Mimikyu GRI 58', { ownerSeat: 'opponent', zone: 'bench', benchIndex: 1 }, 'pokemon')
     ]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), { kind: 'select-choices', tokens: ['mimikyu'] });
@@ -176,8 +201,8 @@ test('Prime Catcher own-switch prompt selects a ready Regidrago VSTAR', () => {
     promptType: 'ChoosePokemonPrompt', source: { effectName: 'Prime Catcher' },
     publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1 },
     choices: [
-      choice('latias', 'Latias ex SSP 76', { targetSeat: 0, targetZone: 'bench', targetIndex: 1 }),
-      choice('regidrago', 'Regidrago VSTAR SIT 136', { targetSeat: 0, targetZone: 'bench', targetIndex: 0 })
+      choice('latias', 'Latias ex SSP 76', { ownerSeat: 'actor', zone: 'bench', benchIndex: 1 }, 'pokemon'),
+      choice('regidrago', 'Regidrago VSTAR SIT 136', { ownerSeat: 'actor', zone: 'bench', benchIndex: 0 }, 'pokemon')
     ]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), { kind: 'select-choices', tokens: ['regidrago'] });
@@ -188,7 +213,7 @@ test('Dragon Laser Bench prompt prefers a visible Mimikyu target', () => {
   const prompt = {
     promptType: 'ChoosePokemonPrompt', source: { effectName: 'Dragon Laser' },
     publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1 },
-    choices: [choice('mimikyu', 'Mimikyu GRI 58', { targetSeat: 1, targetZone: 'bench', targetIndex: 0 })]
+    choices: [choice('mimikyu', 'Mimikyu GRI 58', { ownerSeat: 'opponent', zone: 'bench', benchIndex: 0 }, 'pokemon')]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), { kind: 'select-choices', tokens: ['mimikyu'] });
 });
@@ -198,7 +223,7 @@ test('Phantom Dive damage-counter distribution fails closed until native allocat
   const prompt = {
     promptType: 'ChoosePokemonPrompt', source: { effectName: 'Phantom Dive' },
     publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 6 },
-    choices: [choice('one', 'Mimikyu GRI 58')]
+    choices: [choice('one', 'Mimikyu GRI 58', { ownerSeat: 'opponent', zone: 'bench', benchIndex: 0 }, 'pokemon')]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), {
     kind: 'abstain', reasonCode: 'PHANTOM_DIVE_COUNTER_ALLOCATION_UNSUPPORTED'
@@ -231,8 +256,8 @@ test('Parallel City option chooses the opponent Bench cap', () => {
     promptType: 'SelectOptionPrompt', source: { effectName: 'Parallel City' },
     publicMetadata: {},
     choices: [
-      { token: 'bench', label: "Your opponent's Bench can't have more than 3 Pokémon" },
-      { token: 'damage', label: 'Damage from Grass, Fire, and Water Pokémon is reduced by 20' }
+      { token: 'bench', kind: 'option', label: "Your opponent's Bench can't have more than 3 Pokémon" },
+      { token: 'damage', kind: 'option', label: 'Damage from Grass, Fire, and Water Pokémon is reduced by 20' }
     ]
   };
   assert.deepEqual(promptDecision(request(obs, [], prompt)), { kind: 'select-choice', token: 'bench' });
