@@ -439,6 +439,42 @@ test('active promotion avoids a 150-damage-exposed one-Prize Girafarig and prefe
   assert.equal(decision.tokens[0], 'bench-3');
 });
 
+test('unknown card-effect Pokemon prompts do not fall through to engine promotion', () => {
+  const candidate = pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 });
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Unknown Supporter XYZ 1', 'Unknown Pokémon selection'),
+    choices: [{
+      token: 'candidate',
+      kind: 'pokemon',
+      printing: candidate.printing,
+      label: candidate.name,
+      publicMetadata: {
+        selectionIndex: 0,
+        selectedCount: 1,
+        selectionType: 'pokemon',
+        ownerSeat: 'actor',
+        targetZone: 'bench',
+        isOwnerVisible: true
+      }
+    }],
+    publicMetadata: {
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    },
+    observation: {
+      ownPublic: player({ active: null, bench: [candidate] })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'UNCLASSIFIED_POKEMON_PROMPT'
+  });
+});
+
 test('energy-payment selection pays the visible cost count, not every attached Energy', () => {
   const choices = [0, 1, 2].map(index => ({
     token: 'energy-' + index,
