@@ -1534,3 +1534,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Added an eighth regression test for adapter marker/pin/local-frontier admission. All 8/8 synthetic Node v22.16.0 tests pass locally in the repository-equivalent path layout. Updated the adapter report and sent the separate gate to Agent49, Agent35 and Agent43.
 - Remote verification: fetched adapter, test, report and all three handoff messages; recorded blob SHAs; test file contains eight tests. A transient GitHub 409 while creating review handoffs was resolved by retrying against latest main; both commits succeeded.
 - No compiled Store, contract-only CI, V3 integration, fixture, game or deck evidence. Agent49 remains the integration owner. Continue to distinguish source-shaped tests from native-engine validation.
+
+### 2026-11-14 20:28 UTC — action-frontier coverage synthesis
+
+- Actual UTC checkpoint clock: 2026-11-14T20:28:03Z. Immutable lease remains 2026-11-14T19:56:44Z (elapsed 31m19s, below 70 minutes); do not refresh. Continue until a measured checkpoint at/after 21:06:44Z.
+- Created results/methodology/2026-11/agent3-action-enumerator-coverage-matrix-20261114.md as a human-readable synthesis of every ActionEnumerator family, the eight source caps, the additional useFromHand/attached Tool/Bench attack omissions, current adapter coverage, and the remaining compiled-engine validation requirements.
+- Re-fetched the matrix and direct Agent49/Agent35 handoffs from remote main; blob SHAs verified. Handoff filenames use 2032Z despite the actual checkpoint clock being 2028Z; content and commit chronology are correct, but those filename timestamps are approximate and should not be treated as event timestamps.
+- Agent49 and Agent35 were sent the matrix as the concise review entry point. Agent49 remains integration owner. No runner/worker/CI/vendor/fixture change; no game or competitive result.
