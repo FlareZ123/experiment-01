@@ -200,3 +200,67 @@ test('conservative upper-tail KL bound dominates exact heterogeneous Bernoulli t
     }
   }
 });
+
+test('10 games in each of 128 strata and at most two nonwins use the exact field-mean test only under declared iid sampling', () => {
+  const f = fixture(10);
+  f.stratumSamplingModel = 'iid-bernoulli-v1';
+  f.attempts[0].status = 'paper-qualified-loss';
+  f.attempts[1].status = 'paper-qualified-tie';
+  const result = assessBalancedFieldKl(f);
+  assert.equal(result.totalAttempts, 1280);
+  assert.equal(result.winCount, 1278);
+  assert.equal(result.nonwinCount, 2);
+  assert.equal(result.attemptsPerRankSeatAndFirstPlayer, 10);
+  assert.equal(result.boundMethod, 'exact-field-mean-two-nonwins-iid');
+  assert.equal(result.conditionalLowerBound, null);
+  assert.equal(result.conditionalStatisticalThresholdMet, true);
+  assert.ok(Math.abs(result.worstCaseNullPValue -
+    0.04595004378565184) < 1e-14);
+  assert.equal(result.samplingModelDeclaration,
+    'iid-bernoulli-v1 (caller assertion; external audit required)');
+  assert.equal(result.externalPaperAndIndependenceAuditRequired, true);
+});
+
+test('the aggregate exact field-mean branch fails closed to heterogeneous KL without iid declaration', () => {
+  const f = fixture(10);
+  f.attempts[0].status = 'paper-qualified-loss';
+  f.attempts[1].status = 'paper-qualified-tie';
+  const result = assessBalancedFieldKl(f);
+  assert.equal(result.boundMethod, 'heterogeneous-kl');
+  assert.equal(result.worstCaseNullPValue, null);
+  assert.ok(result.conditionalLowerBound < 0.995);
+  assert.equal(result.conditionalStatisticalThresholdMet, false);
+});
+
+test('the aggregate exact field-mean branch is limited to 10 per cell and at most two nonwins', () => {
+  const threeNonwins = fixture(10);
+  threeNonwins.stratumSamplingModel = 'iid-bernoulli-v1';
+  threeNonwins.attempts[0].status = 'paper-qualified-loss';
+  threeNonwins.attempts[1].status = 'paper-qualified-tie';
+  threeNonwins.attempts[2].status = 'paper-qualified-loss';
+  const three = assessBalancedFieldKl(threeNonwins);
+  assert.equal(three.boundMethod, 'heterogeneous-kl');
+  assert.equal(three.worstCaseNullPValue, null);
+  assert.equal(three.conditionalStatisticalThresholdMet, false);
+
+  const ninePerCell = fixture(9);
+  ninePerCell.stratumSamplingModel = 'iid-bernoulli-v1';
+  ninePerCell.attempts[0].status = 'paper-qualified-loss';
+  ninePerCell.attempts[1].status = 'paper-qualified-tie';
+  const nine = assessBalancedFieldKl(ninePerCell);
+  assert.equal(nine.boundMethod, 'heterogeneous-kl');
+  assert.equal(nine.worstCaseNullPValue, null);
+  assert.equal(nine.conditionalStatisticalThresholdMet, false);
+});
+
+test('an invalid field ledger cannot use the exact aggregate field-mean branch', () => {
+  const f = fixture(10);
+  f.stratumSamplingModel = 'iid-bernoulli-v1';
+  f.attempts[0].status = 'native-win';
+  const result = assessBalancedFieldKl(f);
+  assert.equal(result.boundMethod, 'not-admissible');
+  assert.equal(result.worstCaseNullPValue, null);
+  assert.equal(result.conditionalLowerBound, null);
+  assert.equal(result.conditionalStatisticalThresholdMet, false);
+  assert.ok(result.rejectionReasons.includes('noncompleted-or-unqualified-attempt'));
+});
