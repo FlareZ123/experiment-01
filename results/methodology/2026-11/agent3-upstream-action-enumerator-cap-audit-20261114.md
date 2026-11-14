@@ -34,20 +34,21 @@ Added:
 
 The audit reconstructs the potential count for each of the eight known capped families from the actor's native state and the same card classes/enums used by Twinleaf. It flags a family only when its potential count exceeds eight, and reports the minimum number of omitted alternatives. For example, nine Item cards in hand yield potentialCount 9, emittedMaximum 8, and minimumOmitted 1.
 
-assertKnownActionEnumeratorCapsClear() fails closed with NATIVE_ACTION_ENUMERATOR_UPSTREAM_CAP whenever one of those known caps would omit candidates.
+assertKnownActionEnumeratorCapsClear() fails closed with NATIVE_ACTION_ENUMERATOR_UPSTREAM_CAP whenever one of those known caps would omit candidates. The combined assertActionFrontierAdmissionClear() also requires adapter diagnostics and rejects the adapter's own truncation or nonzero omittedCount.
 
 The helper deliberately reports knownUpstreamCapsClear, not complete: a clear result means only that these eight explicit caps are not triggered. It does not certify the entire native action space or detect unsupported action families, other enumerator omissions, or strategic equivalence assumptions.
 
 ## Validation and limits
 
-The six pure tests passed locally under Node v22.16.0:
+The seven pure tests passed locally under Node v22.16.0:
 
 1. no known cap hit;
 2. overflow detection for all eight capped families;
 3. native turn/Bench gate handling;
 4. fail-closed assertion on a known cap hit;
 5. exact-eight boundary does not produce a false positive;
-6. duplicate Energy prints follow the upstream fullName deduplication.
+6. duplicate Energy prints follow the upstream fullName deduplication;
+7. the combined admission guard rejects missing or locally truncated frontier diagnostics.
 
 These are synthetic native-shaped tests. The helper has not yet been run against a compiled pinned Twinleaf Store, added to the existing contract-only CI lane, or wired into the V3 runner. No GitHub Actions run, game, matchup, deck comparison, or competitive result is claimed.
 
