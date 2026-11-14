@@ -128,7 +128,7 @@ function workerThreadScript() {
   ].join('\n');
 }
 
-function policySource({ markerPaths, hostPort, hostNamespaceInodes }) {
+function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker }) {
   const childCode = JSON.stringify(namespaceScript());
   const workerCode = JSON.stringify(workerThreadScript());
   return [
@@ -141,6 +141,8 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes }) {
     "const NAMESPACE_NAMES=" + JSON.stringify(NAMESPACE_NAMES) + ";",
     "const MARKER_PATHS=" + JSON.stringify(markerPaths) + ";",
     "const HOST_PORT=" + Number(hostPort) + ";",
+    "const HOST_PID=" + Number(hostPid) + ";",
+    "const HOST_PROCESS_MARKER=" + JSON.stringify(hostProcessMarker) + ";",
     "const HOST_NAMESPACE_INODES=" + JSON.stringify(hostNamespaceInodes) + ";",
     "const CHILD_CODE=" + childCode + ";",
     "const WORKER_CODE=" + workerCode + ";",
@@ -164,12 +166,13 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes }) {
     "  const policyWrite=writeProbe('/policy/agent36-policy-write-probe');",
     "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
     "  const shmWrite=writeProbe('/dev/shm/agent36-shm-write-probe-'+process.pid);",
-    "  const envKeys=Object.keys(process.env).sort();",
-    "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG/i.test(key));",
+    "  let hostProcessMarkerVisible=false;try{hostProcessMarkerVisible=fs.readFileSync('/proc/'+HOST_PID+'/environ').includes(HOST_PROCESS_MARKER);}catch{}",
+    "  const envKeys=Object.keys(process.env).sort();"
+    "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG|HOST_PROCESS/i.test(key));",
     "  const argv=process.argv.slice();",
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
     "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
-    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,proc1:proc1,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
+    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,proc1:proc1,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
     "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\\\n');",
     "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
     "}",
@@ -177,12 +180,12 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes }) {
   ].join('\n');
 }
 
-function makeBundle(markerPaths, hostPort, hostNamespaceInodes) {
+function makeBundle(markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker) {
   const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
   const workerPath = path.join(sourceRoot, 'worker.cjs');
   const policyPath = path.join(sourceRoot, 'policy.cjs');
   fs.copyFileSync(WORKER_SOURCE, workerPath);
-  fs.writeFileSync(policyPath, policySource({ markerPaths, hostPort, hostNamespaceInodes }), { mode: 0o444 });
+  fs.writeFileSync(policyPath, policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
   fs.chmodSync(policyPath, 0o444);
   const bundle = createPolicyBundle({
     sourceRoot,
@@ -418,8 +421,10 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
     fs.chmodSync(file, 0o444);
     markerPaths[key] = file;
   }
-  markerPaths.hostProcess = '/proc/2147483647/environ';
   markerPaths.dockerSocket = '/var/run/docker.sock';
+  const hostProcessMarker = 'HOST_PROCESS_ENV_SENTINEL_' + crypto.randomUUID();
+  const originalHostProcessMarker = process.env.AGENT36_HOST_PROCESS_MARKER;
+  process.env.AGENT36_HOST_PROCESS_MARKER = hostProcessMarker;
 
   let hostConnections = 0;
   const server = http.createServer((request, response) => {
@@ -441,7 +446,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       'positive-control bridge container did not reach the host service');
 
     const hostNamespaces = hostNamespaceInodes();
-    ({ sourceRoot, bundle } = makeBundle(markerPaths, hostPort, hostNamespaces));
+    ({ sourceRoot, bundle } = makeBundle(markerPaths, hostPort, hostNamespaces, process.pid, hostProcessMarker));
     const combinations = [
       { role: 'candidate', seat: 0, permissionModel: true },
       { role: 'candidate', seat: 1, permissionModel: false },
@@ -457,10 +462,11 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         'worker must have distinct pid/ipc/uts/net/mount namespace inodes');
       assert.ok(NAMESPACE_NAMES.every(name =>
         report.hostNamespaceInodes[name] !== report.workerNamespaceInodes[name]));
-      assert.ok(Object.values(report.markerReads).length >= 7);
+      assert.ok(Object.values(report.markerReads).length >= 6);
       assert.ok(Object.values(report.markerReads).every(value => value.ok === false),
         'worker read a host repository/deck/input/hidden-zone marker');
-      assert.equal(report.markerReads.hostProcess?.ok, false);
+      assert.equal(report.hostProcessMarkerVisible, false,
+        'worker read the host process environment through /proc');
       assert.equal(Boolean(report.childProcess.blocked), combination.permissionModel);
       assert.equal(Boolean(report.workerThreads.blocked), combination.permissionModel);
       if (!combination.permissionModel) {
@@ -482,7 +488,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       assert.ok(!report.argv.some(value => Object.values(markerPaths).includes(value)));
       assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
       const serialized = JSON.stringify({ response, report });
-      for (const marker of Object.values(markerValues))
+      for (const marker of [...Object.values(markerValues), hostProcessMarker])
         assert.equal(serialized.includes(marker), false, 'host marker content crossed the policy boundary');
       results.push({
         role: combination.role,
@@ -538,6 +544,8 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
     if (bundle) cleanupPolicyBundle(bundle);
     if (sourceRoot) fs.rmSync(sourceRoot, { recursive: true, force: true });
     await new Promise(resolve => server.close(resolve));
+    if (originalHostProcessMarker === undefined) delete process.env.AGENT36_HOST_PROCESS_MARKER;
+    else process.env.AGENT36_HOST_PROCESS_MARKER = originalHostProcessMarker;
     fs.rmSync(hostRoot, { recursive: true, force: true });
   }
 });
