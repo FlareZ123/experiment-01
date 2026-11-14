@@ -709,9 +709,11 @@ function discardPriority(choice, observation) {
 }
 
 function canUseGuzmaHalaMode1(observation, options = {}) {
-  const excluded = list(options.excludePatterns);
-  const hand = list(observation.ownHand).filter(printing =>
-    !excluded.some(pattern => matches(printing, pattern)));
+  const hand = list(observation.ownHand).slice();
+  for (const pattern of list(options.excludePatterns)) {
+    const index = hand.findIndex(printing => matches(printing, pattern));
+    if (index >= 0) hand.splice(index, 1);
+  }
   if (hand.length < 2) return false;
   const discardable = hand.filter(printing =>
     discardPriority({ printing }, observation) >= 48);
