@@ -475,3 +475,113 @@ test('Unfair Stamp is not fired merely because the opponent took a Prize on an e
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
+
+
+test('Tulip with fewer than the maximum recoverable cards never includes the empty token in an array', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Tulip PAR 181', 'Tulip'),
+    choices: [
+      { token: 'psychic-only', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'discard' } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      sourceZone: 'discard',
+      minimumCount: 0,
+      maximumCount: 3,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: { ownPublic: player({ discard: ['Psychic Energy MEE 13'] }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['psychic-only']
+  });
+});
+
+test('zero-count prize prompt uses the special empty-selection token', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePrizePrompt',
+    source: actorChoiceSource(null, 'Prize selection'),
+    choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
+    publicMetadata: {
+      count: 0,
+      requiredCount: 0,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'prize-slots'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'empty'
+  });
+});
+
+test('zero-count card-order prompt uses the special empty-selection token', () => {
+  const request = promptRequest({
+    promptType: 'OrderCardsPrompt',
+    source: actorChoiceSource(null, 'Order cards'),
+    choices: [{ token: 'empty', kind: 'empty-selection', label: 'Select none' }],
+    publicMetadata: {
+      count: 0,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-order'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'empty'
+  });
+});
+
+test('card-order and prize multi-selects return only their exact item kinds', () => {
+  const orderRequest = promptRequest({
+    promptType: 'OrderCardsPrompt',
+    source: actorChoiceSource(null, 'Order cards'),
+    choices: [
+      { token: 'order-energy', kind: 'card-order-item', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { selectionIndex: 0 } },
+      { token: 'order-v', kind: 'card-order-item', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { selectionIndex: 1 } },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: {
+      count: 2,
+      allowCancel: true,
+      isSecret: false,
+      selectionType: 'card-order'
+    }
+  });
+  assert.deepEqual(checkedDecision(orderRequest), {
+    kind: 'select-choices',
+    tokens: ['order-v', 'order-energy']
+  });
+
+  const prizeRequest = promptRequest({
+    promptType: 'ChoosePrizePrompt',
+    source: actorChoiceSource(null, 'Prize selection'),
+    choices: [
+      { token: 'prize-0', kind: 'prize', label: 'Prize 1',
+        publicMetadata: { choiceIndex: 0 } },
+      { token: 'prize-1', kind: 'prize', label: 'Prize 2',
+        publicMetadata: { choiceIndex: 1 } },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: {
+      count: 2,
+      requiredCount: 2,
+      allowCancel: true,
+      isSecret: false,
+      selectionType: 'prize-slots'
+    }
+  });
+  assert.deepEqual(checkedDecision(prizeRequest), {
+    kind: 'select-choices',
+    tokens: ['prize-0', 'prize-1']
+  });
+});
