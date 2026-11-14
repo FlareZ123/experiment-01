@@ -118,7 +118,7 @@ For a real campaign, preregister the exact seat-pair inclusion, all physical sta
 
 ## 14 November 2026 interoperability addendum — candidate-slot/source-seat orientation mapping
 
-The 64-cell field evaluator records candidate physical slot A/B, while this analyzer records the **original-source/opponent** physical seat. Under the common mapping candidate slot A = engine slot 0 and the original source occupies the opposite slot, the two orientation-bit conventions are complements. Copying the raw bit would invert the diagonal and can silently mislabel a pair.
+The 64-cell field evaluator records candidate physical slot A/B, while this analyzer records the **original-source/opponent** physical seat. The current V3 role-seat helper maps candidate and opponent to distinct physical seats 0/1, and the fixture maps candidate slot A to engine slot 0. Since the original source is the opponent, sourceSeat = 1 - candidateEngineSlot under this mapping. The two orientation-bit conventions are therefore complements. Copying the raw bit would invert the diagonal and can silently mislabel a pair.
 
 Added the pure adapter toAgent37SourceSeatOrientationCoin(candidateSlotCoin, sourceSeatAtCandidateSlotA) to the analyzer at simulation/evaluation/agent37-aichi-995-paired-seat-rejection.cjs. Its canonical input convention is candidate slot A first when bit 0 and candidate slot A second when bit 1; the second argument explicitly identifies the original-source seat occupied when the candidate is in slot A. The adapter returns the Agent37 source-seat convention by XOR. This makes the mapping explicit rather than assuming A/B polarity. The adapter does not authenticate the host coin or change the e-process.
 
