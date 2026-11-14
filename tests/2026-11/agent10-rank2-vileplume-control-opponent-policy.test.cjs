@@ -945,6 +945,50 @@ test('Bunnelby Barrage attack-choice prompt selects Evolution when the K0 line i
   });
 });
 
+
+
+test('Guzma & Hala prefers Artazon when no prior-turn Basic can use Grand Tree', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Guzma & Hala CEC', 'Guzma & Hala'),
+    choices: [
+      cardChoice('grand-tree', 'Grand Tree SCR 136'),
+      cardChoice('artazon', 'Artazon PAL 171')
+    ],
+    observation: {
+      ownPublic: player({
+        active: pokemon('Bunnelby PRC 121')
+      })
+    },
+    publicMetadata: {
+      minimumCount: 1, maximumCount: 1, allowCancel: false,
+      isSecret: false, selectionType: 'card-combination'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['artazon']
+  });
+});
+
+test('Grand Tree is not activated without a prior-turn Basic and K0 Stage 1 plus Stage 2 copies', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Bunnelby PRC 121'),
+      bench: [pokemon('Oddish UNB 5', { lastPlayedOrEvolvedTurn: 3 })]
+    }),
+    items: [
+      { token: 'grand-tree', kind: 'use-stadium',
+        actorPrinting: 'Grand Tree SCR 136' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
 test('role and seat binding mismatch abstains', () => {
   const request = rootRequest();
   request.seat = 1;
