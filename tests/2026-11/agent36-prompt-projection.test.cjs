@@ -84,7 +84,7 @@ function nightWatchSource(state,prompt) {
     fullName:'Trevenant & Dusknoir-GX SMP',
     name:'Trevenant & Dusknoir-GX',
     set:'SMP',
-    setNumber:'217'
+    setNumber:'SM217'
   };
   state.players[0].discard.cards.push(card);
   prompt.sourceCard=card;
