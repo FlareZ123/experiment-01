@@ -1596,6 +1596,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
 test('post-Timeless Mimikyu prompt selects the strongest public non-GX Dragon payload',()=>{
   const {
     VERSION:powerBeamVersion,
+    knownDamage,
     chooseNativeMimikyuPostTimelessPowerBeamPrompt
   }=require('../simulation/twinleaf/2026-11/agent8-mimikyu-post-timeless-powerbeam-prompt.cjs');
   const powerBeam={name:'Power Beam',damage:200,gxAttack:false};
@@ -1663,6 +1664,32 @@ test('post-Timeless Mimikyu prompt selects the strongest public non-GX Dragon pa
     {...state,players:[{...owner,discard:{cards:[unknownPrompt.cards[0],radiant]}},opponent]},
     0,unknownPrompt,tracker),null,
     'unknown variable damage must fail closed');
+
+  assert.equal(knownDamage({damage:'150+'}),null,
+    'a printed plus suffix is not an exact damage total');
+  assert.equal(knownDamage({damage:150,damageCalculation:{kind:'variable'}}),null,
+    'a dynamic damage calculation overrides a numeric base field');
+
+  const plusAttack={name:'Variable Dragon Attack',damage:'150+',gxAttack:false};
+  const plusPrompt=new ChooseAttackPrompt();
+  const plusDonor={...dialga,attacks:[plusAttack]};
+  plusPrompt.cards=[plusDonor,radiant];
+  plusPrompt.validate=()=>true;
+  const plusOwner={...owner,discard:{cards:[plusDonor,radiant]}};
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[plusOwner,opponent]},0,plusPrompt,tracker),null,
+    'a 150+ attack may exceed Power Beam and must force abstention');
+
+  const calculatedAttack={name:'Variable Dragon Attack',damage:150,
+    damageCalculation:{kind:'variable'},gxAttack:false};
+  const calculatedPrompt=new ChooseAttackPrompt();
+  const calculatedDonor={...dialga,attacks:[calculatedAttack]};
+  calculatedPrompt.cards=[calculatedDonor,radiant];
+  calculatedPrompt.validate=()=>true;
+  const calculatedOwner={...owner,discard:{cards:[calculatedDonor,radiant]}};
+  assert.equal(chooseNativeMimikyuPostTimelessPowerBeamPrompt(
+    {...state,players:[calculatedOwner,opponent]},0,calculatedPrompt,tracker),null,
+    'a numeric base with a dynamic calculation must force abstention');
 });
 
 test('bilateral setup prompts stay inside the owner-scoped actor-only role boundary',()=>{
