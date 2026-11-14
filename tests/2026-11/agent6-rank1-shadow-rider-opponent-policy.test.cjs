@@ -2003,7 +2003,7 @@ test('phase-1 starting Pokémon setup preserves native hand order for both physi
   }
 });
 
-test('phase-1 repeated optional Bench setup fills only available slots in native order for both seats', () => {
+test('phase-1 repeated optional Bench setup preserves all offered choices up to native max for both seats', () => {
   for (const actorSeat of [0, 1]) {
     const request = promptRequest({
       actorSeat,
@@ -2032,7 +2032,37 @@ test('phase-1 repeated optional Bench setup fills only available slots in native
     });
     assert.deepEqual(checkedDecision(request), {
       kind: 'select-choices',
-      tokens: ['first', 'second']
+      tokens: ['first', 'second', 'third', 'fourth']
+    });
+
+    const fullBench = promptRequest({
+      actorSeat,
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      source: actorChoiceSource(null, 'CHOOSE_STARTING_POKEMONS'),
+      choices: [
+        setupCardChoice('unplaceable-first', 'Mew V CEL 6'),
+        setupCardChoice('unplaceable-second', 'Shadow Rider Calyrex V CRE 74'),
+        { token: 'empty-full-bench', kind: 'empty-selection', label: 'Select none' }
+      ],
+      publicMetadata: setupMetadata(0, 2),
+      observation: {
+        phase: 1,
+        ownPublic: player({
+          active: pokemon('Girafarig LOT 94'),
+          bench: [
+            pokemon('Latias ex SSP 76'),
+            pokemon("Lillie's Clefairy ex JTG 56"),
+            pokemon('Dialga-GX UPR 100'),
+            pokemon('Lugia V SIT 138'),
+            pokemon('Tapu Lele-GX GRI 60')
+          ]
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(fullBench), {
+      kind: 'select-choices',
+      tokens: ['unplaceable-first', 'unplaceable-second']
     });
   }
 });
