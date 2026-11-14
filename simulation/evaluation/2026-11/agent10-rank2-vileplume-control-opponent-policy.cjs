@@ -740,7 +740,7 @@ function scorePokemonChoice(choice, observation, context) {
   const opponentChoice = context.includes('guzma') || context.includes('irresistible aroma');
   if (owner && owner !== (opponentChoice ? 'opponent' : 'actor')) return -100;
   if (zone && zone !== 'bench' && !context.includes('irresistible aroma') &&
-      !context.includes('cassius')) return -100;
+      !context.includes('cassius') && !context.includes('grand tree')) return -100;
   if (context.includes('guzma')) {
     const target = list(observation.opponentPublic?.bench).find(slot =>
       slot && samePrinting(slot.printing, printing));
