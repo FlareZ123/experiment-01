@@ -1646,12 +1646,19 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   for(const side of ['ownPublic','opponentPublic']){
     const wondrousLabyrinthView={
       ...view,
-      [side]:{...view[side],stadium:'Wondrous Labyrinth Prism Star TEU'}
+      [side]:{...view[side],stadium:['Wondrous Labyrinth Prism Star TEU']}
     };
     assert.equal(choosePostTimelessMaxGeistRetreat(
       wondrousLabyrinthView,postTimelessCatalog,{ownerSeat:0}),null,
-      'Wondrous Labyrinth increases non-Fairy Max Geist cost and must fail closed');
+      'actor-observation Stadium arrays must expose Wondrous Labyrinth on either side');
   }
+  const unknownStadiumView={
+    ...view,
+    opponentPublic:{...view.opponentPublic,stadium:null}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    unknownStadiumView,postTimelessCatalog,{ownerSeat:0}),null,
+    'a missing public Stadium array cannot certify that Max Geist cost is payable');
 
   const psychicResistantTarget={
     ...target,printing:'Synthetic Psychic-resistant target',hp:100,damage:0,
