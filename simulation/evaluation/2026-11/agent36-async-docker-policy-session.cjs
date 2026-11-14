@@ -349,6 +349,7 @@ class AsyncDockerPolicySession {
         role: this.role,
         seat: this.seat,
         policyVersion: this.policyVersion,
+        policyDrawCount: response.policyDrawCount,
         bundleSha256: this.bundle.bundleSha256
       };
     } catch (error) {
