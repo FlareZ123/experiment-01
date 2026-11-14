@@ -80,8 +80,8 @@ function visiblePokemon(slot){
 function publicPlayer(player,hidePokemon=false){
   const pokemonView=slot=>hidePokemon ?
     (slot.cards.length>0?{concealed:true}:null):visiblePokemon(slot);
-  // The pinned Store treats an absent countdown as inactive (zero), just as
-  // it does for the other public turns-remaining counters.
+  // Match the actor adapter's existing turns-remaining convention: an absent
+  // countdown is inactive zero; malformed values remain unknown below.
   const stadiumToolSuppression=player.stadiumAndToolHaveNoEffectTurnsRemaining??0;
   return {
     active:pokemonView(player.active),
