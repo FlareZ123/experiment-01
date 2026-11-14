@@ -67,7 +67,7 @@ Across all 29 lists, the candidate is eligible for at least one bonus card in an
 | 4 | 1.351% | 0.0300% | 0.0914% | 0.0317% |
 | 5 | 0.7772% | 0.00415% | 0.0191% | 0.00439% |
 
-These are averages of per-opponent tail probabilities, not tournament-weighted rates. The 7.3369% five-card tail against each four-Basic Iron Thorns list is therefore much larger than the all-field mean of 0.7772%.
+These are averages of per-opponent tail probabilities, not tournament-weighted rates. The 7.3369% five-card tail against each four-Basic Iron Thorns list is therefore much larger than the all-field mean of 0.7772%. Pooled over equally weighted ranks and conditional on any bonus event, the candidate's mean maximum allowance is 1.618 cards across all 29 and 1.215 across strict 24; the opponent's is 1.161 in both. These remain optional entitlements.
 
 Basic-count distribution among the 29 published source lists: 4 Basics (3 lists), 10 (1), 11 (6), 12 (3), 13 (3), 14 (6), 15 (4), and 16 (3). The missing ranks 23, 25 and 28 are not imputed.
 
