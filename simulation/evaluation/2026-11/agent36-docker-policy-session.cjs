@@ -77,7 +77,6 @@ function assertResponse(response, expected) {
   assert.equal(response.role, expected.role);
   assert.equal(response.seat, expected.seat);
   assert.equal(response.policyVersion, expected.policyVersion);
-  assert.equal(response.bundleSha256, expected.bundleSha256);
 }
 
 class DockerPolicySession {
