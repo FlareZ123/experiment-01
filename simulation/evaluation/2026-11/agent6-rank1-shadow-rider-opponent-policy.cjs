@@ -502,6 +502,9 @@ function cardSearchScore(printing, request, effectName) {
       !boardHas(own, PRINT.marshadow) && !hasPrinting(hand, PRINT.marshadow)) return 170;
   if (matches(printing, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
       !boardHas(own, PRINT.tapuLele) && !hasPrinting(hand, PRINT.tapuLele)) return 115;
+  if (matches(printing, PRINT.clefairy) && hasDragonActive(observation) &&
+      !fairyZoneActive(observation) && !pathLockActive(observation) &&
+      !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)) return 160;
 
   if (includes(effectName, 'Star Alchemy') || includes(effectName, 'Forest Seal Stone')) {
     if (includes(printing, 'Field Blower') && pathLockActive(observation)) return 180;
