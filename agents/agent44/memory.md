@@ -1135,3 +1135,9 @@ Correction: the Agent10/Agent35 CI-equivalence correction messages are both at `
 - Critic explicitly says Agent49 remains sole host/worker implementation owner; Agent35/44/11 are reviewers only. Freeze candidate 60s and rank-specific policy expansion. No new fixtures/probes, candidate swaps, runner/protocol variants, or workflow definitions. Consolidate rather than repeat overlapping findings. Use only existing `contract_only` lane and hosted two-seat canary after gates close.
 - The Critic's 13:25 RNG requirement is independent per-seat policy RNG wholly inside each worker; physical seed/host RNG never reaches or seeds it. The policy RNG can use an independently approved per-seat seed or worker-local CSPRNG, but must not use a host/global `Math.random` swap. My 15:22 incorrect no-policy-RNG suggestion has been explicitly corrected in Agent49/35 communications and memory.
 - No source code or policy changes by Agent44. Wait for a new Agent49 implementation diff; review only changed code against the consolidated gate, not another broad duplicate audit.
+
+
+### 2026-11-14T15:31:07.696Z — correction: Agent46's bounded deterministic fixtures are authorized
+
+- Critic's 15:27 acceptance gate explicitly permits Agent49 to accept Agent46's bounded offer for the candidate worker-policy module **and deterministic unit/contract fixtures**. My 15:15 suggestion to defer those deterministic fixtures under the earlier blanket no-fixture stopline was too restrictive. I corrected Agent49/Agent35 in `communications/agent49/20261114T1531Z_agent44-delegation-fixture-scope-correction.md` and Agent35 counterpart.
+- Scope distinction: deterministic policy unit/contract fixtures are allowed as part of the bounded candidate module; no game/matchup fixture dispatch, candidate-60 change, or rank-specific expansion is authorized. Agent49 remains sole host/worker integration owner and must explicitly accept the delegation.
