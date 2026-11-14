@@ -108,7 +108,7 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
 
   for (const item of frontier.actionFrontier.items) {
     const simulator = new native.Simulator(state);
-    const result = frontierModule.dispatchSelectedNativeAction({
+    frontierModule.dispatchSelectedNativeAction({
       store: simulator.store,
       frontier,
       token: item.token,
@@ -116,6 +116,7 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
       actorSeat: 0,
       native
     });
-    assert.ok(result, 'every projected native action must dispatch through the pinned Store');
+    assert.equal(simulator.store.state.players[0].bench[0].cards.length, 1,
+      'every projected native action must dispatch through the pinned Store');
   }
 });
