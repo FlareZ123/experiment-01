@@ -25,23 +25,34 @@ The adapter is hard-pinned to the exact Twinleaf commit above and verifies the e
 - Tool, discard Ability, Item, Supporter and in-play Ability candidates retain the source predicates and traversal order;
 - uncapped methods are left on the original instance.
 
-The adapter records a non-writable pin/schema marker on the instance. It intentionally does not claim that the entire paper Expanded action space is complete; it only removes the eight identified caps from this pinned enumerator. Unsupported actions, any other source omissions, and the outer adapter's separate 256-item cutoff remain separate gates.
+The adapter records a non-writable pin/schema marker on the instance. It also adds two source-confirmed omissions that the pinned enumerator misses: attached Tool powers and active Tool/Bench-usable attacks. It intentionally does not claim that the entire paper Expanded action space is complete; it only removes the eight identified caps and adds these explicit action sources for this pinned enumerator. Unsupported actions, any other source omissions, and the outer adapter's separate 256-item cutoff remain separate gates.
 
 ## Validation and limits
 
-Four Node v22.16.0 tests pass locally:
+Six Node v22.16.0 tests pass locally:
 
 1. A synthetic reference ActionEnumerator mirroring the pinned source emits eight per family; the adapter emits all nine candidates in all eight families and preserves family ordering.
 2. Energy fullName deduplication is preserved while target combinations are uncapped.
 3. An unreviewed engine pin or missing native exports fails closed.
-4. When no known cap is hit, adapter output is deeply equal to the synthetic reference enumerator output.
+4. When no known cap is hit, adapter output is deeply equal to the synthetic reference enumerator output;
+5. attached Tool powers, active Tool attacks and Bench-usable attacks are enumerated;
+6. the original Paralysis and Sleep attack gate is preserved.
 
 This is a source-shaped synthetic test, not a run against the compiled pinned Twinleaf Store. No V3 game, matchup, CI run, or competitive result is claimed.
 
 ## Integration requirements
 
-The current Agent49 loader already imports cardActions and gameActions and also imports PokemonCard, EnergyCard, TrainerCard, Stage and TrainerType. Its returned native dependency object currently omits those five classes/enums; expose them (or pass an equivalent typed bundle) before constructing this adapter.
+The current Agent49 loader already imports cardActions and gameActions and also imports PokemonCard, EnergyCard, TrainerCard, Stage, TrainerType and SpecialCondition. Its returned native dependency object currently omits those six classes/enums; expose them (or pass an equivalent typed bundle) before constructing this adapter. gameActions already carries AttackAction and UseAbilityAction.
 
 The V3 frontier builder can instantiate the adapter with the actual frozen engine pin, then call its ordinary enumerate() method. Preserve the adapter marker in per-root diagnostics. Independently reject the outer frontier's truncated flag or nonzero omittedCount; the 256-item cap is not removed by this adapter. Add the tests to the existing bounded contract-only lane, not a new workflow.
 
 Agent49 remains the V3 integration owner. This standalone prototype is a reviewable option, not a change to the runner, vendor submodule, CI or fixture policy.
+
+
+## Additional source-confirmed action omissions now covered by the prototype
+
+The pinned ActionEnumerator's abilityActions method loops only each in-play Pokémon card's own powers. It does not inspect PokemonCardList.tools. This omits attached Tool abilities. Forest Seal Stone (swsh12-156) and Sky Seal Stone (swsh12pt5-143) are Expanded-legal Pokémon Tools in the supplied card pool. Their pinned Twinleaf implementations set useWhenInPlay and add their power to CheckPokemonPowersEffect when attached to a qualifying Pokémon V; the normal UseAbilityAction reducer resolves that checked power. The adapter now adds useWhenInPlay powers from each attached TrainerCard tool, using the owning Pokémon's target.
+
+The pinned ActionEnumerator's attackActions method returns only the active Pokémon's printed attacks. The pinned playerTurnReducer also accepts attacks from Bench Pokémon whose attack has useOnBench, and CheckPokemonAttacksEffect contributes attacks from player.active.tools[0].attacks. The supplied card pool contains 22 Expanded-legal Trainer cards with attacks, including G Booster (bw10-92), G Scope (bw10-93), Technical Machine: Evolution (sv4-178), and multiple Technical Machines/Scrolls. The adapter now adds active Tool attacks and Bench attacks marked useOnBench while retaining the original active-condition gate.
+
+The loader must additionally expose SpecialCondition (already imported locally) to the adapter. This remains a source-shaped synthetic prototype, not compiled-engine validation. The attached-tool and attack additions cover these explicit sources; they do not prove that all card-specific CheckPokemonPowersEffect/CheckPokemonAttacksEffect mutations or all possible action types have been enumerated.
