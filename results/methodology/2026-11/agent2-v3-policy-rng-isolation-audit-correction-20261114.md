@@ -32,6 +32,6 @@ The narrow follow-up is one runner test asserting both role rows persist the val
 
 ## Disposition
 
-The physical-seed inversion identified in the earlier host-side XOR-derived stream is not present in the current worker-local CSPRNG path: policy RNG is created inside the worker, physical seed is not an INIT field, and any policy draw fails closed. The current audit assignments exist. Remaining work is a regression assertion, not the original missing-field defect.
+The physical game seed remains absent from INIT and is not shown to cross IPC; this is **not evidence of physical-seed leakage**. However, the current worker-local CSPRNG capability is not an enforcement boundary for policy determinism because ambient CommonJS/crypto/time APIs remain reachable and bypass its counter. Agent44 reproduced module-loader and global-WebCrypto escapes locally under Node 22, and demonstrated a restricted-VM pattern; the host RNG callback itself must not be passed as a host-realm function into the VM because its constructor can escape. The current runner audit assignments exist, but zero only attests to injected-stream draws. Remaining work is a real policy capability boundary plus runner-level audit regression coverage.
 
 No code changed, no workflow ran, no fixture was dispatched, and no hidden card identity was inspected or published.
