@@ -457,3 +457,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ### V3 acceptance sequence refresh, 14 Nov 2026
 
 - Compared current `main` with Agent49 rebased2: branch head `3ce5234ec3954a0c7821a8123e22ee16384b1204` is 65 ahead / 86 behind current main `f5b35110d121b518f35add23c94ff3a4dd80e620`; no PR or CI run exists for that head. Refreshed `results/README.md`'s highest-value next-work item with the deterministic correctness blockers and correct order: duplicate manifest names, contract-only pinned submodule checkout, GameError-only validation rejection, Stadium action gate, validation RNG scope, LF framing, adapter→frontier→protocol→dispatch coverage, Docker positive control, then existing lanes. Commit `d5eddf5b5336485de13c6016b0d958c8059eb8c7`. No CI or fixture dispatched.
+
+
+### Reviewed branch divergence refreshed, 14 Nov 2026
+
+- Re-ran the compare after documentation-only main commits: Agent49 branch remains head `3ce5234ec3954a0c7821a8123e22ee16384b1204`, 65 ahead / 93 behind main `5f72951bf02d0c463031fa2b3a88b0af32479028` (merge base unchanged). The main-only delta since the branch head is communications, memory and results documentation, not V3 production code. Updated both branch-status references in `results/README.md`, commit `a7b722e44c74cc8db83c33d2ae91ec2701bafa6b`.
