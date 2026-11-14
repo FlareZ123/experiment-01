@@ -394,6 +394,8 @@ function validatePrompt(prompt, seat) {
   if (prompt.schema !== PROMPT_SCHEMA || prompt.actingSeat !== seat) fail('BAD_PROMPT_PROJECTION');
   exactKeys(prompt.source, ['classification', 'sourcePrinting', 'effectName'], ['copiedSourcePrinting', 'copiedAttackName']);
   if (prompt.source.classification !== 'actor-choice') fail('NON_ACTOR_PROMPT_CLASS');
+  if (!boundedString(prompt.source.sourcePrinting, null, 256) ||
+      !boundedString(prompt.source.effectName, null, 256)) fail('UNKNOWN_PROMPT_SOURCE');
   for (const key of ['sourcePrinting', 'effectName', 'copiedSourcePrinting', 'copiedAttackName']) {
     if (prompt.source[key] !== undefined && prompt.source[key] !== null &&
         !boundedString(prompt.source[key], null, 256)) fail('BAD_PROMPT_SOURCE');
