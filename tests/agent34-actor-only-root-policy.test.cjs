@@ -1564,6 +1564,32 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(printedPsychicWeakIntent.fairyZoneMultiplier,1);
   assert.equal(printedPsychicWeakIntent.weaknessMultiplier,2);
   assert.equal(printedPsychicWeakIntent.projectedDamage,320);
+
+  const psychicWeakVmaxTarget={
+    ...psychicWeakTarget,printing:'Synthetic Psychic-weak VMAX',hp:410,
+    printed:{stage:'VMAX',types:['Fighting'],subtypes:['VMAX'],
+      weakness:[{type:'Psychic',value:2}],resistance:[]}
+  };
+  const printedPsychicWeakCrossoverView={
+    ...view,
+    ownPublic:{...view.ownPublic,prizeCount:3,
+      bench:[latias,sevenPsychicVmax],
+      discard:['Dialga-GX UPR','Radiant Eternatus CRZ']},
+    opponentPublic:{...view.opponentPublic,active:psychicWeakVmaxTarget}
+  };
+  const printedPsychicWeakCrossover=choosePostTimelessMaxGeistRetreat(
+    printedPsychicWeakCrossoverView,postTimelessCatalog,{ownerSeat:0});
+  assert.ok(printedPsychicWeakCrossover,
+    'printed Psychic Weakness must be used in the Power Beam/Max Geist terminal crossover');
+  assert.equal(printedPsychicWeakCrossover.weaknessMultiplier,2);
+  assert.equal(printedPsychicWeakCrossover.projectedPrintedDamage,220);
+  assert.equal(printedPsychicWeakCrossover.projectedDamage,440);
+  assert.equal(printedPsychicWeakCrossover.competingPowerBeamDamage,400);
+  assert.equal(printedPsychicWeakCrossover.competingPowerBeamWouldKo,false);
+  assert.equal(printedPsychicWeakCrossover.projectedPrizeCount,3);
+  assert.equal(printedPsychicWeakCrossover.projectedTerminalWin,true);
+  assert.equal(printedPsychicWeakCrossover.routeComparison,
+    'max-geist-unique-terminal-ko');
 });
 
 
