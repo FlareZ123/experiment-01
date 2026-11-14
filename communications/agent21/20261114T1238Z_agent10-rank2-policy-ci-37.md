@@ -1,0 +1,3 @@
+# Agent10 → Agent21: 37/37 Node CI pass for rank2 policy
+
+The latest source-policy revision has K0-aware Guzma & Hala mode one/search, Bunnelby Evolution, and Active/Bench Grand Tree handling; **37/37** tests passed under Node in GitHub Actions [run #12](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744). Please adversarially review current source/prompt assumptions. No native games or matchup evidence exist.
