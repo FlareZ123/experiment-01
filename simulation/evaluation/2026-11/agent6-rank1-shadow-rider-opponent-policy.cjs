@@ -333,12 +333,19 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? '';
 }
 
+function findVisibleSlot(player, zone, printing) {
+  if (!player || typeof printing !== 'string') return null;
+  if (zone === 'active' && player.active?.printing === printing) return player.active;
+  if (zone === 'bench') {
+    return list(player.bench).find(slot => slot?.printing === printing) ?? null;
+  }
+  return null;
+}
+
 function scorePokemonChoice(choice, observation, mode) {
   const meta = choice.publicMetadata ?? {};
-  if (meta.ownerSeat !== 'actor' || !Number.isSafeInteger(meta.targetIndex)) return -1;
-  const player = observation.ownPublic;
-  const slot = meta.targetZone === 'active' ? player.active :
-    meta.targetZone === 'bench' ? player.bench[meta.targetIndex] : null;
+  if (meta.ownerSeat !== 'actor') return -1;
+  const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing);
   if (!slot) return -1;
 
   if (mode === 'underworld') {
@@ -397,17 +404,11 @@ function cardSearchScore(printing, observation, effectName) {
   if (matches(printing, PRINT.shadowRiderV) && boardV < 2) return 130;
   if (matches(printing, PRINT.shadowRiderVmax) && boardVmax < 2) return 125;
   if (matches(printing, PRINT.radiantEternatus) && boardVmax === 0) return 118;
-  if (matches(printing, PRINT.mimikyu) &&
-      requestCopycatCompatible(observation)) return 115;
   if (matches(printing, PRINT.trevenant) && psychicBoard < 3) return 110;
   if (matches(printing, PRINT.latias) && !boardHas(own, PRINT.latias)) return 105;
   if (matches(printing, PRINT.girafarig) && !boardHas(own, PRINT.girafarig)) return 92;
   if (matches(printing, PRINT.dialga) && !boardHas(own, PRINT.dialga)) return 80;
   return 10;
-}
-
-function requestCopycatCompatible(observation) {
-  return observation?.ownPublic?.active?.name === 'Mimikyu';
 }
 
 function discardChoiceScore(choice, observation) {
@@ -453,9 +454,8 @@ function promptDecision(request) {
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice => choiceOwner(choice) === 'opponent');
       const scored = candidates.map((choice, index) => {
-        const slot = choiceZone(choice) === 'bench' ?
-          observation.opponentPublic.bench[choice.publicMetadata?.targetIndex] :
-          observation.opponentPublic.active;
+        const slot = findVisibleSlot(observation.opponentPublic,
+          choiceZone(choice), choice.printing);
         const score = slot ? (500 - Math.max(0, remainingHp(slot)) +
           prizeLiability(slot) * 40) : -1;
         return { choice, index, score };
@@ -495,7 +495,7 @@ function promptDecision(request) {
           choice => discardChoiceScore(choice, observation));
       } else {
         scored = sortedChoiceTokens(choices, choice =>
-          cardSearchScore(choicePrinting(choice), observation, effectName));
+          cardSearchScore(choicePrinting(choice), observation, effect));
       }
       const tokens = scored.slice(0, Math.min(max, scored.length));
       if (tokens.length >= min && tokens.length > 0) {
@@ -513,9 +513,11 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'energy-payment') {
+      const required = typeof metadata.energyType === 'string' ?
+        Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
       const tokens = choices.filter(choice =>
         choice.kind !== 'cancel' && choice.kind !== 'empty-selection')
-        .slice(0, Math.min(max, choices.length)).map(choice => choice.token);
+        .slice(0, Math.min(required, max, choices.length)).map(choice => choice.token);
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
@@ -535,7 +537,7 @@ function promptDecision(request) {
 
     if (selectionType === 'card-order') {
       const tokens = sortedChoiceTokens(choices, choice =>
-        cardSearchScore(choicePrinting(choice), observation, effectName))
+        cardSearchScore(choicePrinting(choice), observation, effect))
         .slice(0, Math.min(max, choices.length));
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
