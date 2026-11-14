@@ -638,7 +638,7 @@ test('analysis-only projected attack rows cannot be selected as native actions',
     schema: protocol.FRONTIER_SCHEMA,
     items: [
       { token: 'native-0', kind: 'attack', attackName: 'Max Geist' },
-      { token: 'projection-0', kind: 'projected-attack', attackName: 'Projected Max Geist' }
+      { token: 'projection-0', kind: 'projected-attack', attackName: 'Projected Max Geist', publicMetadata: { ownerSeat: 'opponent', targetSeat: 'opponent', sourceSeat: 'actor', targetIndex: 0, sourceIndex: 0, isOwnerVisible: true } }
     ]
   };
   const actionTokens = protocol.validateFrontier(frontier);
