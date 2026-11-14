@@ -473,6 +473,25 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
 });
 
+test('init binds the exact policy module version and bundle digest shape', async () => {
+  assert.throws(() => protocol.validateInit({ ...initFor(), bundleSha256: 'not-a-sha256' }), /BAD_BUNDLE_DIGEST/);
+  assert.throws(() => protocol.validateInit({ ...initFor(), role: 'spectator' }), /BAD_ROLE/);
+  assert.throws(() => protocol.validateInit({ ...initFor(), seat: 2 }), /BAD_SEAT/);
+  const init = initFor('candidate', 0, 'a', 'expected-policy-v2');
+  const worker = startWorker(init);
+  try {
+    fs.writeFileSync(path.join(worker.dir, 'policy.cjs'), policySource('normal', 'wrong-policy-v2'));
+    writeLine(worker.child.stdin, init);
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_MODULE_MISMATCH/);
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+});
+
 test('sequence, duplicate ID, role drift and oversized NDJSON fail closed', async () => {
   await expectFailure(request(1, 'opponent', 0), 'ROLE_SEAT_CHANGED');
   await expectFailure(request(1, 'candidate', 1), 'ROLE_SEAT_CHANGED');
