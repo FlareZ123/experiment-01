@@ -563,7 +563,14 @@ test('native owner-prompt decode failure preserves prompt options before decode'
   assert.equal(partial.acceptedActions,2);
   assert.equal(partial.attemptedActions,3);
   assert.equal(partial.decisionTrace.length,3);
+  assert.equal(partial.rootActionLedger.length,3);
   const failed=partial.decisionTrace[2];
+  assert.equal(partial.decisionTrace.filter(row=>row.actionOrdinal===2).length,1);
+  const ledgerRows=partial.rootActionLedger.filter(row=>row.actionOrdinal===2);
+  assert.equal(ledgerRows.length,1);
+  assert.equal(ledgerRows[0].dispatchStatus,'not-dispatched');
+  assert.equal(ledgerRows[0].action,null);
+  assert.deepEqual(ledgerRows[0].promptResolverContext,failed.promptResolverContext);
   assert.equal(failed.dispatchStatus,'not-dispatched');
   assert.equal(failed.actionName,null);
   assert.equal(failed.policyInputKind,'native-owner-prompt');
