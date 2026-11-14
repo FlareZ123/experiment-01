@@ -788,6 +788,25 @@ test('starting-Pokémon setup refuses stale board states and reordered native ch
     });
     assert.equal(evaluate(optionalWithoutActive).kind, 'abstain');
 
+    const unsupportedMinimum = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('basic-a', 0, 'Mimikyu GRI'),
+        setupBasicChoice('basic-b', 1, 'Latias ex SSP')
+      ],
+      publicMetadata: startingPokemonMetadata(2, 2)
+    });
+    assert.equal(evaluate(unsupportedMinimum).kind, 'abstain');
+
+    const unsupportedInitialMaximum = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [setupBasicChoice('basic', 0, 'Mimikyu GRI')],
+      publicMetadata: startingPokemonMetadata(1, 7)
+    });
+    assert.equal(evaluate(unsupportedInitialMaximum).kind, 'abstain');
+
     const reordered = engineSetupRequest(seat, {
       promptType: 'ChooseCardsPrompt',
       description: 'CHOOSE_STARTING_POKEMONS',
