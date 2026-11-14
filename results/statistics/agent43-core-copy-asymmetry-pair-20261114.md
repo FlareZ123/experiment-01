@@ -72,6 +72,26 @@ Trevenant & Dusknoir-GX's Pale Moon-GX competes with Dialga Timeless-GX for the 
 
 The field screen supporting retention of other Basic techs found all nine published Regidrago lists contain Super Rod and all 29 published Aichi lists contain at least one Stadium. This supports keeping Girafarig and Marshadow as live hypotheses; it does not prove their use or game value.
 
+
+## Pressure from the 99.5% Regidrago group floor
+
+The [archetype loss-budget derivation](group-loss-budget.md) proves that the 11 Regidrago placements must average at least **98.5455% wins** if every other one of the 32 ranks is perfect. This is a necessary whole-field constraint, not an empirical estimate.
+
+Compare that floor with the optimistic early core-recovery event:
+
+| Package | Core recovery feasible by horizon | Difference from 98.5455% group floor |
+| --- | ---: | ---: |
+| 1/1/1 | 85.9140% | −12.6314 pp |
+| 1/1/2 | 88.1516% | −10.3939 pp |
+| 2/1/1 | 92.2004% | −6.3451 pp |
+| 1/2/1 | 92.2004% | −6.3451 pp |
+| 2/2/1 | 98.8157% | +0.2702 pp |
+| 2/2/2 | 99.0115% | +0.4660 pp |
+
+This is **not** a comparison of win rates: an accessible core does not ensure that the opponent used Apex Dragon, that the policy can assemble the line, or that the line wins. The 2/1/1 and 1/2/1 arms cannot support a strategy in which this counterline is the *only* way to win Regidrago games at the required group floor; alternative winning lines would have to cover at least the modeled access shortfall, and then some for execution failures. Even 2/2/1 clears the group floor by only 0.27 points at the access-feasibility layer, before any real-game attrition. Therefore, **no core-copy package is sufficient evidence for the 99.5% target**. The research must quantify other win routes and actual line conversion, not simply maximize this one access event.
+
+The 2/2/1 row also requires naming two displaced Basic techs; this report only registers the one-slot 2/1/1 and 1/2/1 pair. Do not create or promote a 2/2/1 60 until a second cut has a defensible full-field opportunity-cost case.
+
 ## Recommended experiment
 
 Once the owner-selected seed-disclosure model and OS-enforced policy-process isolation are in place:
