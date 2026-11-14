@@ -17,7 +17,7 @@ const printing=card=>{
 function visiblePokemon(slot){
   const pokemon=slot.getPokemonCard();
   if(!pokemon)return null;
-  const powers=Array.isArray(pokemon.powers)?pokemon.powers:[];
+  const powers=pokemon.powers;
   const abilitySuppressions=powers.every(power=>
     typeof power?.name==='string'&&power.name.length>0)?
       powers.map(power=>({
