@@ -286,8 +286,12 @@ class AsyncDockerPolicySession {
       this.ready = ready;
       return this;
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     }
   }
@@ -348,8 +352,12 @@ class AsyncDockerPolicySession {
         bundleSha256: this.bundle.bundleSha256
       };
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     } finally {
       this.pending = false;
