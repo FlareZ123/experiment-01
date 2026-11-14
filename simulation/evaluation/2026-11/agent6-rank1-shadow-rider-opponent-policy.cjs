@@ -452,7 +452,8 @@ function promptDecision(request) {
     else if (includes(effect, 'Climactic Gate')) mode = 'evolution';
     else if (observation.ownPublic.active === null) mode = 'promotion';
     else if (includes(effect, 'Guzma')) {
-      const candidates = choices.filter(choice => choiceOwner(choice) === 'opponent');
+      const candidates = choices.filter(choice =>
+        choice.kind === 'pokemon' && choiceOwner(choice) === 'opponent');
       const scored = candidates.map((choice, index) => {
         const slot = findVisibleSlot(observation.opponentPublic,
           choiceZone(choice), choice.printing);
@@ -461,18 +462,25 @@ function promptDecision(request) {
         return { choice, index, score };
       }).filter(row => row.score >= 0)
         .sort((a, b) => b.score - a.score || a.index - b.index);
-      if (scored.length > 0) return { kind: 'select-choices', tokens: [scored[0].choice.token] };
+      if (scored.length > 0 && min <= 1 && max >= 1) {
+        return { kind: 'select-choices', tokens: [scored[0].choice.token] };
+      }
     }
 
     if (mode === 'evolution') {
-      const tokens = choices.filter(choice => matches(choice.printing, PRINT.shadowRiderVmax))
+      const tokens = choices.filter(choice =>
+        choice.kind === 'pokemon' && matches(choice.printing, PRINT.shadowRiderVmax))
         .slice(0, Math.min(max, choices.length)).map(choice => choice.token);
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
+      if (min === 0) {
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (empty) return { kind: 'select-choice', token: empty.token };
+      }
     }
     if (mode && mode !== 'evolution') {
-      const tokens = sortedChoiceTokens(choices,
+      const tokens = sortedChoiceTokens(choices.filter(choice => choice.kind === 'pokemon'),
         choice => scorePokemonChoice(choice, observation, mode)).slice(0, Math.max(1, max));
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
@@ -488,13 +496,14 @@ function promptDecision(request) {
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
     if (selectionType === 'card-combination') {
+      const cardChoices = choices.filter(choice => choice.kind === 'card');
       let scored;
       if (includes(effect, 'Mysterious Treasure') &&
-          choices.some(choice => choiceZone(choice) === 'hand')) {
-        scored = sortedChoiceTokens(choices,
+          cardChoices.some(choice => choiceZone(choice) === 'hand')) {
+        scored = sortedChoiceTokens(cardChoices,
           choice => discardChoiceScore(choice, observation));
       } else {
-        scored = sortedChoiceTokens(choices, choice =>
+        scored = sortedChoiceTokens(cardChoices, choice =>
           cardSearchScore(choicePrinting(choice), observation, effect));
       }
       let tokens = scored.slice(0, Math.min(max, scored.length));
@@ -521,9 +530,9 @@ function promptDecision(request) {
       const required = typeof metadata.energyType === 'string' ?
         Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
       if (required > max) return { kind: 'abstain', reasonCode: 'ENERGY_COST_EXCEEDS_VISIBLE_CHOICES' };
-      const tokens = choices.filter(choice =>
-        choice.kind !== 'cancel' && choice.kind !== 'empty-selection')
-        .slice(0, Math.min(required, max, choices.length)).map(choice => choice.token);
+      const energyChoices = choices.filter(choice => choice.kind === 'energy');
+      const tokens = energyChoices
+        .slice(0, Math.min(required, max, energyChoices.length)).map(choice => choice.token);
       if (tokens.length === required && tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
@@ -531,8 +540,8 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'prize-slots') {
-      const tokens = choices.filter(choice =>
-        choice.kind !== 'cancel' && choice.kind !== 'empty-selection')
+      const prizeChoices = choices.filter(choice => choice.kind === 'prize');
+      const tokens = prizeChoices
         .slice(0, Math.max(min, metadata.requiredCount ?? min))
         .map(choice => choice.token);
       if (tokens.length >= min && tokens.length > 0) {
@@ -542,9 +551,10 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'card-order') {
-      const tokens = sortedChoiceTokens(choices, choice =>
+      const orderChoices = choices.filter(choice => choice.kind === 'card-order-item');
+      const tokens = sortedChoiceTokens(orderChoices, choice =>
         cardSearchScore(choicePrinting(choice), observation, effect))
-        .slice(0, Math.min(max, choices.length));
+        .slice(0, Math.min(max, orderChoices.length));
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
