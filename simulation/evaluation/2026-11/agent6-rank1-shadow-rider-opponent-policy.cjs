@@ -639,7 +639,7 @@ function promptDecision(request) {
     else if (includes(effect, 'Raihan')) mode = 'raihan';
     else if (includes(effect, 'Acerola')) mode = 'acerola';
     else if (includes(effect, 'Climactic Gate')) mode = 'evolution';
-    else if (observation.ownPublic.active === null) mode = 'promotion';
+    else if (prompt.source.sourceKind === 'engine' && observation.ownPublic.active === null) mode = 'promotion';
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice =>
         choice.kind === 'pokemon' && choiceOwner(choice) === 'opponent');
