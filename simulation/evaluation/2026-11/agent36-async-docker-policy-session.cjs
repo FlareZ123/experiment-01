@@ -379,7 +379,7 @@ class AsyncDockerPolicySession {
     return this.channel ? this.channel.stderr : '';
   }
 
-  get workerPid() {
+  get launcherPid() {
     return this.child ? this.child.pid : null;
   }
 }
