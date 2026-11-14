@@ -29,6 +29,11 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
     "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const noGlobalModule=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined';return {kind:'abstain',reasonCode:absent&&noGlobalModule&&module.constructor===undefined?'SANDBOX_OK':'SANDBOX_FAIL'};}",
     "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='probe-global-bindings'){const g=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const m=Object.getOwnPropertyDescriptor(globalThis,'Math');const r=Object.getOwnPropertyDescriptor(Math,'random');const locked=!!g&&g.value===globalThis&&!g.writable&&!g.configurable&&!!m&&m.value===Math&&!m.writable&&!m.configurable&&!!r&&!r.writable&&!r.configurable;return {kind:'abstain',reasonCode:locked?'BINDINGS_LOCKED':'BINDINGS_UNLOCKED'};}",
+    "if(request.requestId==='force-globalthis-binding'){globalThis={__agent49SafeRng:()=>0.5};Math.random();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-globalthis-redefine'){Object.defineProperty(globalThis,'globalThis',{value:{__agent49SafeRng:()=>0.5}});Math.random();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-math-binding'){Math={random:()=>0.5};Math.random();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-math-redefine'){Object.defineProperty(globalThis,'Math',{value:{random:()=>0.5}});Math.random();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-module-exports-escape'){module.exports.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
@@ -913,6 +918,26 @@ test('restricted VM denies ambient time, crypto, loader and code-generation capa
   }
 });
 
+
+
+test('restricted VM pins globalThis and Math bindings against policy replacement',async()=>{
+  const worker=startWorker();
+  try {
+    writeLine(worker.child.stdin,worker.init);
+    await waitForCount(worker,1);
+    writeLine(worker.child.stdin,request(1,'candidate',0,{requestId:'probe-global-bindings'}));
+    await waitForCount(worker,2);
+    assert.deepEqual(worker.lines[1].decision,{kind:'abstain',reasonCode:'BINDINGS_LOCKED'});
+    assert.equal(worker.lines[0].policyDrawCount,0);
+  } finally { await dispose(worker); }
+
+  for(const requestId of [
+    'force-globalthis-binding','force-globalthis-redefine',
+    'force-math-binding','force-math-redefine'
+  ]) {
+    await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE');
+  }
+});
 
 
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
