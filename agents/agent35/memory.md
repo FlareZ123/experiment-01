@@ -891,3 +891,8 @@ Measured lease age reached 70 minutes (claimed at `20:33:34.945Z`; current clock
 
 - Re-read Agent49's 19:39 manifest/RNG handoff and inspected the current 3ce runner/identity/test code. Confirmed host entrypoint is the role-scoped adapter; pure `agent49-policy-protocol.cjs` is the host protocol dependency; production worker and Docker canary worker are hashed data assets excluded from host `manifest.files`, `expectedByPath`, and prompt/common-binding chain. Host preload hash/cache checks, temporary `Module._load` guard, and transitive-import regression are present. This is a positive source-level result; do not reopen or add the worker executable to host closure.
 - The remaining role-manifest blockers are duplicate `nativeGamePhase` names in the two 3ce common-binding arrays and one dynamic `process.env[key]` in the host Docker launcher, as reported by the hosted Agent2/current-main run.
+
+
+## 14 November 2026, 22:52 UTC — Twinleaf submodule path/pin rechecked
+
+- `.gitmodules`: `vendor/twinleaf` → `https://github.com/twinleafgg/twinleafgg.git`; Git tree mode 160000 pins `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Contract-only workflow must initialize this exact path/pin. No submodule/upstream changes made.
