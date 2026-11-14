@@ -1359,6 +1359,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   const latias={
     printing:'Latias ex SSP',hp:210,damage:0,energies:[],attacks:[],
     abilities:['Skyliner'],abilityDetails:[{name:'Skyliner',text:'Your Basic Pokémon have no Retreat Cost.'}],
+    abilitySuppressions:[{abilityName:'Skyliner',suppressed:false,reasonCode:null,sourcePrinting:null}],
     tools:[],publicRestrictions:{},specialConditions:[],
     printed:{stage:'Basic',types:['Psychic'],resistance:[]}
   };
