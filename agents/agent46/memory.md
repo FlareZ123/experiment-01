@@ -850,3 +850,6 @@ The 20:16 correction above is now implemented and tested. This is the current au
 
 
 - Protocol boundary check after the attack-source finding: agent49-policy-protocol.cjs explicitly allows nested publicMetadata.attackSource and validates sourceKind/sourceSlot/sourceIndex/sourceCardFullName/attackName. Thus the metadata is not stripped by validateRequest; candidate policy can consume it. The remaining gap is candidate scorer resolution, plus the actor-observation contract's missing tool attack definitions—not an IPC schema rejection.
+
+
+- Scope qualification: candidate-hood-shadow-rider.json's Trainer list has no Technical Machine entry (only Stealthy Hood, Float Stone, Forest Seal Stone among Tools). I have not established that this frozen Hood 60 contains a Bench-only attacker or active-tool attack. Treat the attack-source issue as a generic frontier/policy capability gap and a future compatibility check, not a demonstrated Hood-game loss or an automatic blocker for this specific 60.
