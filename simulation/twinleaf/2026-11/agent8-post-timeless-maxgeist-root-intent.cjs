@@ -47,17 +47,27 @@ function publicStadiumPrintings(view){
 }
 
 /**
- * Resolve Stadium effects on the acting player's Pokémon only. The epoch is
- * a public per-player Store field; New Moon additionally suppresses Stadium
- * effects done to its controller's Pokémon while Solrock is in play.
- * Missing metadata is unknown, never evidence that a Stadium is effective.
- * @param {object} own actor-visible ownPublic
+ * Resolve Stadium effects on the acting player's Pokémon. A positive
+ * Shiftry suppression countdown on either player is conclusive: Wicked Wind
+ * removes the effects of all Stadium/Tool cards in play. New Moon is
+ * recipient-specific and suppresses Stadium effects only on its controller's
+ * Pokémon while Solrock is in play. Missing/malformed epochs are unknown.
+ * @param {object} view detached actor observation
  * @returns {boolean|null}
  */
-function ownerStadiumEffectsSuppressed(own){
-  const turns=own?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
-  if(!Number.isSafeInteger(turns)||turns<0||!Array.isArray(own?.bench))
-    return null;
+function stadiumEffectsSuppressedForOwnPokemon(view){
+  const own=view?.ownPublic;
+  const ownTurns=own?.publicTurnRestrictions
+    ?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const opponentTurns=view?.opponentPublic?.publicTurnRestrictions
+    ?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if(!own||!Array.isArray(own.bench))return null;
+  // Either known-positive per-player epoch proves the global Stadium/Tool
+  // suppression, even if the other player's epoch is unknown or malformed.
+  if(Number.isSafeInteger(ownTurns)&&ownTurns>0)return true;
+  if(Number.isSafeInteger(opponentTurns)&&opponentTurns>0)return true;
+  if(!Number.isSafeInteger(ownTurns)||ownTurns<0||
+     !Number.isSafeInteger(opponentTurns)||opponentTurns<0)return null;
   const board=[own.active,...own.bench].filter(Boolean);
   for(const pokemon of board){
     if(!Array.isArray(pokemon.abilities)||
@@ -73,7 +83,7 @@ function ownerStadiumEffectsSuppressed(own){
     newMoonActive=board.some(pokemon=>
       typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
   }
-  return turns>0||newMoonActive;
+  return newMoonActive;
 }
 
 /**
@@ -311,7 +321,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
   // Stadium identity is insufficient: only the two cost modifiers below are
   // modeled, and their effects may be suppressed for the acting player.
   const stadiums=publicStadiumPrintings(view);
-  const stadiumSuppressed=ownerStadiumEffectsSuppressed(own);
+  const stadiumSuppressed=stadiumEffectsSuppressedForOwnPokemon(view);
   if(publicSkylinerSuppressionReason(view)!==null||
      stadiums===null||stadiumSuppressed===null||
      hasUnmodelledStadium(stadiums)||
@@ -424,7 +434,7 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     competingPowerBeamAvailable,
     competingPowerBeamDamage,
     competingPowerBeamWouldKo,
-    ownerStadiumEffectsSuppressed:stadiumSuppressed,
+    stadiumEffectsSuppressedForOwnPokemon:stadiumSuppressed,
     dimensionValleyActive,
     pokemonLeagueHeadquartersActive,
     retainedBasicPsychicEnergyCount,
