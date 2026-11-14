@@ -2,7 +2,7 @@
 
 **Date:** 14 November 2026  
 **Owner-dispatched run:** [43538393365](https://github.com/FlareZ123/experiment-01/actions/runs/43538393365)  
-**Branch/head:** `agent2/v3-sanitized-diagnostic-20261114` / `3893c95be3539711172c2105fad96dd07c00a73b)  
+**Branch/head:** `agent2/v3-sanitized-diagnostic-20261114` / `3893c95be3539711172c2105fad96dd07c00a73b`  
 **Scope:** execution-gate diagnosis only; not a gameplay or competitive result.
 
 ## Question
