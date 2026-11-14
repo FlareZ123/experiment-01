@@ -116,7 +116,7 @@ function openBenchCount(player) {
   return list(player?.bench).filter(slot => slot === null).length;
 }
 
-function hasUn-evolvedBasicFromPriorTurn(player, globalTurn) {
+function hasUnevolvedBasicFromPriorTurn(player, globalTurn) {
   return boardSlots(player).some(({ pokemon }) =>
     pokemon.printed?.stage === 'BASIC' &&
     Number.isSafeInteger(pokemon.lastPlayedOrEvolvedTurn) &&
@@ -302,7 +302,7 @@ function scoreAction(item, request) {
   if (item.kind === 'use-stadium') {
     const stadium = item.actorPrinting ?? metadata.stadiumPrinting ?? '';
     if (matches(stadium, PRINT.grandTree)) {
-      return hasUn-evolvedBasicFromPriorTurn(own, observation.globalTurn) &&
+      return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
         missingLinePriority(observation) > 0 ? 190 : 25;
     }
     if (matches(stadium, PRINT.artazon)) {
@@ -373,7 +373,7 @@ function scoreAction(item, request) {
     return targetSlot && threatened && !ownItemLocked(observation) ? 205 : 65;
   }
   if (matches(card, PRINT.grandTree)) {
-    return hasUn-evolvedBasicFromPriorTurn(own, observation.globalTurn) &&
+    return hasUnevolvedBasicFromPriorTurn(own, observation.globalTurn) &&
       missingLinePriority(observation) > 0 ? 180 : 95;
   }
   if (matches(card, PRINT.artazon)) {
