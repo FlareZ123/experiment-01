@@ -152,9 +152,11 @@ class AsyncJsonLineChannel {
 function validateResponse(response, expected) {
   assert.ok(response && typeof response === 'object' && !Array.isArray(response));
   assert.deepStrictEqual(Object.keys(response).sort(), [
-    'decision', 'policyVersion', 'requestId', 'role',
+    'decision', 'policyDrawCount', 'policyVersion', 'requestId', 'role',
     'schema', 'seat', 'sequence', 'type'
   ].sort(), 'Worker response contains missing or unknown fields');
+  assert.ok(Number.isSafeInteger(response.policyDrawCount)&&response.policyDrawCount===0,
+    'every successful worker decision must attest zero policy RNG draws');
   assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
   assert.equal(response.type, 'response');
   assert.equal(response.requestId, expected.requestId);
