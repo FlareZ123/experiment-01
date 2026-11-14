@@ -69,14 +69,20 @@ function effectiveNativeAttackCost(view,catalog,pokemon,attack){
   let wondrousApplies=false;
   let headquartersApplies=false;
 
-  if(hasThunderMountain&&cost.includes(lightning)){
-    if(!Number.isSafeInteger(lightning)||!Array.isArray(types))return null;
-    thunderApplies=types.includes(lightning);
+  if(hasThunderMountain){
+    if(!Number.isSafeInteger(lightning))return null;
+    if(cost.includes(lightning)){
+      if(!Array.isArray(types))return null;
+      thunderApplies=types.includes(lightning);
+    }
   }
-  if(hasDimensionValley&&cost.includes(colorless)){
-    if(!Number.isSafeInteger(psychic)||!Number.isSafeInteger(colorless)||
-       !Array.isArray(types))return null;
-    valleyApplies=types.includes(psychic);
+  if(hasDimensionValley){
+    if(!Number.isSafeInteger(psychic)||!Number.isSafeInteger(colorless))
+      return null;
+    if(cost.includes(colorless)){
+      if(!Array.isArray(types))return null;
+      valleyApplies=types.includes(psychic);
+    }
   }
   if(hasWondrousLabyrinth){
     if(!Number.isSafeInteger(fairy)||!Number.isSafeInteger(colorless)||
@@ -84,10 +90,10 @@ function effectiveNativeAttackCost(view,catalog,pokemon,attack){
     wondrousApplies=!types.includes(fairy);
   }
   if(hasLeagueHeadquarters){
-    if(!Number.isSafeInteger(colorless)||
-       !Number.isSafeInteger(pokemon?.printed?.stage)||
+    if(!Number.isSafeInteger(pokemon?.printed?.stage)||
        !Number.isSafeInteger(catalog.stages?.BASIC))return null;
     headquartersApplies=pokemon.printed.stage===catalog.stages.BASIC;
+    if(headquartersApplies&&!Number.isSafeInteger(colorless))return null;
   }
 
   if(!thunderApplies&&!valleyApplies&&
