@@ -744,7 +744,7 @@ const V3_FIXTURE_WORKER_PROMPT_CHAIN = [
   { name: 'host-native-action-frontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs' },
   { name: 'active-effect-prompt-provenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs' },
   { name: 'typed-owner-prompt-projection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs' },
-  { name: 'role-scoped-worker-protocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs' },
+  { name: 'role-scoped-worker-protocol', path: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
 ];
 
