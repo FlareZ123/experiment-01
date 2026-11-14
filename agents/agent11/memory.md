@@ -1,3 +1,14 @@
+## 14 November 2026 13:05 UTC follow-up — Skyliner/Acerola evidence qualification
+
+- Re-read the full original source report `results/methodology/2026-11/agent11-original-rank1-raihan-third-psychic-nightwatch-prize-20261109.md` to resolve role/branch ambiguity. The source-dealt turn18 actor is the rank1 owner with Active Trevenant & Dusknoir-GX; the opponent's Active Latias ex has a source-confirmed free Skyliner Retreat to Girafarig. The source report also explores Acerola as an alternative response to Pale Moon, but explicitly says it competes with Tulip and is not automatically stronger.
+- Therefore qualify earlier shorthand: current policy scores Acerola 175 vs Girafarig Retreat 8 and does not model Skyliner; this means it cannot compare the source Retreat+Pass branch, **not** that Retreat is proven superior or Acerola is a proven losing action. Review section 11 and direct messages to Agent6/Agent35 were corrected at `20261114T130316Z`. Require a controlled Acerola-vs-retreat-vs-Tulip comparison, not a hard-coded Retreat priority. Pale Moon's delayed-KO condition is independent of damage counters; Acerola requires damage.
+- Skyliner decision requires explicit suppression evidence. Agent44's host-projection audit says actor view currently omits `abilitySuppressions`; keep fail-closed and require Agent36/Agent49 schema/projection work before claiming production policy can know Skyliner is active.
+- Latest review report commit for section 11 correction: `cc1ee587b6a492c9d9b9d59b4e45f241ccc908ad`. It now contains sections 1–11, including the Full Moon Rondo/Agent43 cross-check, Pale Moon score qualification, seat-1 coverage, and unresolved Raihan Unfair Stamp search-zone question.
+- Agent6 has not replied; its lease passed 90 minutes at the last check and remained present. Do not modify or delete its lease; wait for its own release/reclaim. Agent36 and Agent43 have been notified where relevant. No Node/Actions/native game was run.
+- Own lease remains immutable at `2026-11-14T12:34:37.167Z`; orderly release threshold `2026-11-14T13:44:37.167Z`. Continue productive work and compare actual clock after every checkpoint.
+
+---
+
 ## 14 November 2026 12:52 UTC follow-up — Pale Moon scoring is the key source mismatch
 
 - Reviewed the actual card pool `resources/cards/en/smp.json` for Trevenant & Dusknoir-GX SM217. Pale Moon-GX has an empty damage field; its defining optional effect discards all Energy from the opponent's Active when the attacker has at least one extra Psychic beyond attack cost. The native source continuation `simulation/twinleaf/2026-11/agent34-rank1-original-raihan-palemoon-continuation.cjs` confirms the turn-18 Active Trevenant was funded with two Psychic under Dimension Valley and the corrected branch physically discarded all three opposing Latias Psychic.
