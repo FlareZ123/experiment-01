@@ -12,7 +12,7 @@ const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
 
-const VERSION='agent8-post-timeless-maxgeist-root-intent-v12-provisional-stadium-and-live-newmoon';
+const VERSION='agent8-post-timeless-maxgeist-root-intent-v13-explicit-ability-liveness';
 const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const RADIANT_ETERNATUS='Radiant Eternatus CRZ';
@@ -34,6 +34,22 @@ function hasSkyliner(pokemon){
     (Array.isArray(pokemon.abilityDetails)&&
       pokemon.abilityDetails.some(ability=>ability?.name==='Skyliner'))
   );
+}
+
+function publicAbilityLiveStatus(pokemon,abilityName){
+  if(!Array.isArray(pokemon?.abilitySuppressions))return null;
+  const rows=pokemon.abilitySuppressions.filter(row=>
+    row?.abilityName===abilityName);
+  if(rows.length!==1)return null;
+  const row=rows[0];
+  if(row.suppressed===false)
+    return row.reasonCode===null&&row.sourcePrinting===null?true:null;
+  if(row.suppressed===true)
+    return typeof row.reasonCode==='string'&&
+      /^[A-Z][A-Z0-9_]{0,63}$/.test(row.reasonCode)&&
+      typeof row.sourcePrinting==='string'&&row.sourcePrinting.length>0?
+        false:null;
+  return null;
 }
 
 function publicStadiumPrintings(view){
@@ -81,21 +97,8 @@ function stadiumEffectsSuppressedForOwnPokemon(view){
     typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
   if(!solrockPresent)return false;
   // The actor projection must prove New Moon is live, not merely printed.
-  if(!Array.isArray(lunatone.abilitySuppressions))return null;
-  const suppression=lunatone.abilitySuppressions.find(row=>
-    row?.abilityName==='New Moon');
-  if(!suppression)return null;
-  if(suppression.suppressed===false){
-    if(suppression.reasonCode!==null||suppression.sourcePrinting!==null)
-      return null;
-    return true;
-  }
-  if(suppression.suppressed===true){
-    if(typeof suppression.reasonCode!=='string'||
-       typeof suppression.sourcePrinting!=='string')return null;
-    return false;
-  }
-  return null;
+  const live=publicAbilityLiveStatus(lunatone,'New Moon');
+  return live===null?null:live;
 }
 
 /**
@@ -137,8 +140,16 @@ function opponentActiveBlocksBasicAttacks(opponentActive){
   const texts=opponentActive.abilityDetails.map(ability=>
     typeof ability?.text==='string'?ability.text:null);
   if(texts.some(text=>text===null))return null;
-  return texts.some(text=>
-    /your opponent's Basic Pokémon can't attack/i.test(text));
+  const lockAbilities=opponentActive.abilityDetails.filter(ability=>
+    /your opponent's Basic Pokémon can't attack/i.test(ability.text));
+  if(lockAbilities.length===0)return false;
+  let unknown=false;
+  for(const ability of lockAbilities){
+    const live=publicAbilityLiveStatus(opponentActive,ability.name);
+    if(live===true)return true;
+    if(live===null)unknown=true;
+  }
+  return unknown?null:false;
 }
 
 function opponentBoardHasAbility(view,name,expectedText){
@@ -349,8 +360,10 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
     !stadiumSuppressed&&hasPokemonLeagueHeadquarters;
 
   const bench=Array.isArray(own.bench)?own.bench:[];
-  if(!bench.some(pokemon=>pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)))
-    return null;
+  const liveLatias=bench.find(pokemon=>
+    pokemon?.printing===LATIAS_EX&&hasSkyliner(pokemon)&&
+    publicAbilityLiveStatus(pokemon,'Skyliner')===true);
+  if(!liveLatias)return null;
 
   const benchIndex=bench.findIndex(pokemon=>
     pokemon?.printing===SHADOW_RIDER_VMAX);
@@ -381,12 +394,22 @@ function choosePostTimelessMaxGeistRetreat(view,catalog,{ownerSeat}={}){
      hp<=damage||opponentHasUnmodeledDamageOrPrizeText(view))return null;
   const targetRemainingHp=hp-damage;
   const ownBoard=[own.active,...bench].filter(Boolean);
-  const fairyZoneActive=ownBoard.some(pokemon=>
-    pokemon?.printing===CLEFAIRY_EX&&
-    Array.isArray(pokemon.abilities)&&pokemon.abilities.includes('Fairy Zone'));
   const targetIsDragon=catalog.dragonPokemonPrintings instanceof Set?
     catalog.dragonPokemonPrintings.has(target.printing):
     Array.isArray(target.printed?.types)&&target.printed.types.includes('Dragon');
+  let fairyZoneActive=false;
+  if(targetIsDragon){
+    const clefairy=ownBoard.find(pokemon=>
+      pokemon?.printing===CLEFAIRY_EX&&
+      ((Array.isArray(pokemon.abilities)&&pokemon.abilities.includes('Fairy Zone'))||
+       (Array.isArray(pokemon.abilityDetails)&&
+        pokemon.abilityDetails.some(ability=>ability?.name==='Fairy Zone'))));
+    if(clefairy){
+      const live=publicAbilityLiveStatus(clefairy,'Fairy Zone');
+      if(live===null)return null;
+      fairyZoneActive=live;
+    }
+  }
   if(!Array.isArray(target.printed?.weakness))return null;
   const psychicType=catalog.basicEnergyTypes?.Psychic;
   const psychicWeakness=target.printed.weakness.find(entry=>
