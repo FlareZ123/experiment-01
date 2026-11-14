@@ -218,14 +218,31 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
       }
     };
     assert.doesNotMatch(JSON.stringify(input), /seed|rng|random|physical/i);
-    const result = await session.decide(input);
-    assert.equal(result.role, role);
-    assert.equal(result.seat, seat);
-    assert.equal(result.sequence, 1);
-    assert.deepEqual(result.decision, { kind: 'select-action', token: 'canary-pass' });
-    assert.doesNotMatch(JSON.stringify(result), /seed|rng|random|physical/i);
+    const workerPid = session.workerPid;
+    assert.ok(Number.isSafeInteger(workerPid) && workerPid > 0);
+    const first = await session.decide(input);
+    const secondInput = {
+      ...input,
+      actionFrontier: {
+        schema: protocol.FRONTIER_SCHEMA,
+        items: [{ token: 'canary-pass-2', kind: 'pass' }]
+      }
+    };
+    const second = await session.decide(secondInput);
+    for (const result of [first, second]) {
+      assert.equal(result.role, role);
+      assert.equal(result.seat, seat);
+      assert.deepEqual(result.decision, { kind: 'select-action',
+        token: result.sequence === 1 ? 'canary-pass' : 'canary-pass-2' });
+      assert.doesNotMatch(JSON.stringify(result), /seed|rng|random|physical/i);
+    }
+    assert.equal(first.sequence, 1);
+    assert.equal(second.sequence, 2);
+    assert.notEqual(first.requestId, second.requestId);
+    assert.equal(session.workerPid, workerPid,
+      'two sequential requests must be served by one persistent worker process');
     await session.close();
-    return { response: result, stderr: session.stderr };
+    return { responses: [first, second], workerPid, stderr: session.stderr };
   } catch (error) {
     await session.abort().catch(() => {});
     throw error;
