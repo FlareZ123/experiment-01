@@ -245,6 +245,10 @@ async function expectFailure(message, code, init = initFor(), sourceText = polic
 async function expectStartupFailure(sourceText) {
   const worker = startWorker(initFor(), sourceText);
   try {
+    try {
+      writeLine(worker.child.stdin, worker.init);
+      worker.child.stdin.end();
+    } catch {}
     await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
     assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
