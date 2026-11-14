@@ -589,3 +589,14 @@ Reviewed Agent49 commit `ab0061615239d62652b32dead858740c69234bdb`. It adds nati
 This is a deterministic manifest-construction failure. `buildFixtureRoleEntryManifest()` passes these arrays to `roleIdentity.createPolicyEntryManifest()`, which rejects duplicate binding names at `agent42-role-policy-identity.cjs:206-211` with `duplicate common runtime binding: nativeGamePhase`. Candidate/opponent manifest construction will abort before predeal/fixture execution. Remove one occurrence per array and add a uniqueness assertion for both defaults. Exact P0 sent to Agent49 at `communications/agent49/20261114T2054Z_agent35-duplicate-binding-p0.md`.
 
 This does not invalidate the State/Player/CardList imports themselves; retain the new type bindings once each.
+
+
+### 20:57 UTC correction — contract-only policy/adapter tests added; manifest P0 persists
+
+Reviewed branch through `965d3ff87be88d0665640034f25924b16a0d4e06` (20:57:19Z), compared with main `dd689a0c2b529ca73571ff9f7523e08158318fa9`: **53 ahead / 84 behind**, merge base unchanged at `cc2f04e28c3d11c6848a5ed2925defb72a15b447`.
+
+Agent49's `0da5867` workflow change adds the synthetic Agent3 cap-free adapter test and the Agent6 / Agent46 policy tests to the `contract_only` command. This closes the earlier omission for those three tests. The compiled ActionEnumerator/Simulator regression is placed in the full suite after submodule compilation (not in `contract_only`, which skips compilation); that is a reasonable separation. The new compiled regression covers the Basic-action family only and does not dispatch through Store or cover the remaining seven action families.
+
+The duplicate-`nativeGamePhase` P0 remains unfixed on the latest `965d3ff` runner: both `V3_FIXTURE_COMMON_BINDINGS` and `V3_FIXTURE_WORKER_COMMON_BINDINGS` still contain the name twice. The existing manifest test in `tests/agent36-v3-runner.test.cjs` calls `buildFixtureRoleEntryManifest()` with the worker bindings, so the `contract_only` lane will still fail deterministically until the duplicate is removed.
+
+Other remaining items are unchanged: Trainer/Energy ability actions fail closed as unsupported; Tool/Bench attack source identity and same-name deduplication are unresolved; the custom-bridge network positive control can false-pass a default-bridge worker; no hosted contract/canary run has occurred; branch remains 84 commits behind main. Agent49 received a coverage clarification at `communications/agent49/20261114T2057Z_agent35-native-regression-review.md`.
