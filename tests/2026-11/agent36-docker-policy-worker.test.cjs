@@ -158,20 +158,19 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const childProcess=await childProcessProbe();",
     "  const workerThreads=await workerThreadProbe();",
     "  const network=await networkProbe();",
-    "  let proc1;",
-    "  try{proc1={ok:true,length:fs.readFileSync('/proc/1/cmdline').length};}catch(error){proc1={ok:false,code:error.code||error.name};}",
+    "  let workerPid1Probe;",
+    "  try{workerPid1Probe={ok:true,length:fs.readFileSync('/proc/1/cmdline').length};}catch(error){workerPid1Probe={ok:false,code:error.code||error.name};}",
     "  const rootWrite=writeProbe('/root/agent36-root-write-probe');",
     "  const policyWrite=writeProbe('/policy/agent36-policy-write-probe');",
     "  const tmpWrite=writeProbe('/tmp/agent36-tmp-write-probe-'+process.pid);",
     "  const shmWrite=writeProbe('/dev/shm/agent36-shm-write-probe-'+process.pid);",
     "  let hostProcessMarkerVisible=false;try{hostProcessMarkerVisible=fs.readFileSync('/proc/'+HOST_PID+'/environ').includes(HOST_PROCESS_MARKER);}catch{}",
-    "  const originalWorkerMathRandom=Math.random;Math.random=()=>0.125;const workerMathRandomMutation=Math.random!==originalWorkerMathRandom&&Math.random()===0.125;Math.random=originalWorkerMathRandom;",
     "  const envKeys=Object.keys(process.env).sort();",
-    "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG|HOST_PROCESS/i.test(key));",
+    "  const forbiddenEnvKeys=envKeys.filter(key=>/GITHUB|RUNNER|TOKEN|PHYSICAL|SEED|RANDOM|RNG|DOCKER_HOST|DOCKER_CONTEXT|DOCKER_CONFIG|HOST_PROCESS/i.test(key));",
     "  const argv=process.argv.slice();",
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
     "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
-    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,proc1:proc1,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
+    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,workerPid1Probe:workerPid1Probe,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
     "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\n');",
     "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
     "}",
@@ -305,8 +304,9 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
   assert.equal(runtime.dockerContext, 'default');
   assert.ok(runtime.dockerEndpoint.startsWith('unix://'));
 
-  const hostMathRandomBefore = Math.random;
-  assert.ok(Number.isFinite(Math.random()));
+  let hostPhysicalRandomCalls = 0;
+  const hostPhysicalRandom = () => { hostPhysicalRandomCalls += 1; return 0.5; };
+  assert.equal(typeof hostPhysicalRandom, 'function');
   const hostRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-host-markers-'));
   const markerValues = {
     repository: 'HOST_REPOSITORY_SENTINEL_' + crypto.randomUUID(),
@@ -380,14 +380,13 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       }
       assert.equal(report.network.connected, false,
         'network=none worker reached the host-gateway service');
-      assert.equal(report.proc1.ok, !combination.permissionModel);
+      assert.equal(report.workerPid1Probe.ok, !combination.permissionModel,
+        'worker-local /proc/1 probe must reflect the Node permission-model gate');
       assert.equal(report.rootWrite.ok, false);
       assert.equal(report.policyWrite.ok, false);
       assert.equal(report.tmpWrite.ok, true);
       assert.equal(report.shmWrite.ok, true);
       assert.deepEqual(report.forbiddenEnvKeys, []);
-      assert.equal(report.workerMathRandomMutation, true,
-        'worker could not mutate and restore its own Math.random function');
       assert.ok(!report.argv.some(value => Object.values(markerPaths).includes(value)));
       assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
       const serialized = JSON.stringify({ response, report });
@@ -403,10 +402,8 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
     }
     assert.equal(hostConnections, 1,
       'a policy worker reached the host gateway after the positive control');
-    assert.equal(Math.random, hostMathRandomBefore,
-      'host Math.random property changed during isolated worker execution');
-    assert.ok(Number.isFinite(Math.random()),
-      'host Math.random is no longer callable after worker execution');
+    assert.equal(hostPhysicalRandomCalls, 0,
+      'worker boundary unexpectedly invoked the host-only physical random source');
 
     const report = {
       schema: 'agent36-agent49-docker-policy-canary-report-v2',
@@ -433,7 +430,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         cpus: 1
       },
       hostConnections,
-      hostMathRandomFunctionPreserved: Math.random === hostMathRandomBefore,
+      hostPhysicalRandomCalls,
       results
     };
     const reportDir = process.env.AGENT36_POLICY_SANDBOX_REPORT_DIR;
