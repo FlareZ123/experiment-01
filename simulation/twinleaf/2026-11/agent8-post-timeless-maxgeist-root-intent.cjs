@@ -11,6 +11,10 @@ const {
 const {
   publicSkylinerSuppressionReason
 }=require('../agent6-skyliner-ability-suppression-guard.cjs');
+const {
+  publicAbilityLiveStatus,publicStadiumPrintings,
+  stadiumEffectsSuppressedForOwnPokemon
+}=require('../public-stadium-effect-status.cjs');
 
 const VERSION='agent8-post-timeless-maxgeist-root-intent-v13-explicit-ability-liveness';
 const MIMIKYU='Mimikyu GRI';
@@ -34,71 +38,6 @@ function hasSkyliner(pokemon){
     (Array.isArray(pokemon.abilityDetails)&&
       pokemon.abilityDetails.some(ability=>ability?.name==='Skyliner'))
   );
-}
-
-function publicAbilityLiveStatus(pokemon,abilityName){
-  if(!Array.isArray(pokemon?.abilitySuppressions))return null;
-  const rows=pokemon.abilitySuppressions.filter(row=>
-    row?.abilityName===abilityName);
-  if(rows.length!==1)return null;
-  const row=rows[0];
-  if(row.suppressed===false)
-    return row.reasonCode===null&&row.sourcePrinting===null?true:null;
-  if(row.suppressed===true)
-    return typeof row.reasonCode==='string'&&
-      /^[A-Z][A-Z0-9_]{0,63}$/.test(row.reasonCode)&&
-      typeof row.sourcePrinting==='string'&&row.sourcePrinting.length>0?
-        false:null;
-  return null;
-}
-
-function publicStadiumPrintings(view){
-  // actorObservation.publicPlayer() exposes Stadiums as arrays of exact
-  // printing names. Missing or malformed arrays cannot certify attack cost.
-  const zones=[view.ownPublic?.stadium,view.opponentPublic?.stadium];
-  if(!zones.every(Array.isArray)||
-     !zones.every(zone=>zone.every(printing=>typeof printing==='string')))
-    return null;
-  return zones.flat();
-}
-
-/**
- * Resolve Stadium effects on the acting player's Pokémon conservatively.
- * A positive countdown on the acting player is reproduced. Whether an
- * opponent-only positive epoch is global or recipient-specific is unresolved
- * pending a two-seat Store probe. New Moon is recipient-specific and requires
- * an explicit source-attributed live-Ability row; printed text alone is not
- * proof that the Ability is active.
- * @param {object} view detached actor observation
- * @returns {boolean|null}
- */
-function stadiumEffectsSuppressedForOwnPokemon(view){
-  const own=view?.ownPublic;
-  const ownTurns=own?.publicTurnRestrictions
-    ?.stadiumAndToolHaveNoEffectTurnsRemaining;
-  const opponentTurns=view?.opponentPublic?.publicTurnRestrictions
-    ?.stadiumAndToolHaveNoEffectTurnsRemaining;
-  if(!own||!Array.isArray(own.bench))return null;
-  // This owner-positive case is covered by the existing native Store probe.
-  if(Number.isSafeInteger(ownTurns)&&ownTurns>0)return true;
-  if(!Number.isSafeInteger(ownTurns)||ownTurns<0||
-     !Number.isSafeInteger(opponentTurns)||opponentTurns<0)return null;
-  // The cross-seat case is intentionally unknown until actor=0/opponent=1
-  // and the mirrored physical-seat case are run against the pinned Store.
-  if(opponentTurns>0)return null;
-  const board=[own.active,...own.bench].filter(Boolean);
-  for(const pokemon of board){
-    if(!Array.isArray(pokemon.abilities)||
-       !Array.isArray(pokemon.abilityDetails))return null;
-  }
-  const lunatone=board.find(pokemon=>pokemon.abilities.includes('New Moon'));
-  if(!lunatone)return false;
-  const solrockPresent=board.some(pokemon=>
-    typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
-  if(!solrockPresent)return false;
-  // The actor projection must prove New Moon is live, not merely printed.
-  const live=publicAbilityLiveStatus(lunatone,'New Moon');
-  return live===null?null:live;
 }
 
 /**
