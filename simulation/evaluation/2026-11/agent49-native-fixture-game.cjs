@@ -68,6 +68,31 @@ function seededRandom(seed) {
   };
 }
 
+function createValidationRandomScope({ambientRandom,physicalRandom,seed=0x6d2b79f5}={}) {
+  assert.equal(typeof ambientRandom,'function',
+    'validation random scope requires the original ambient Math.random');
+  assert.equal(typeof physicalRandom,'function',
+    'validation random scope requires the independent physical RNG closure');
+  const validationSeed=normalizeSeed32(seed);
+  return function withValidationRandom(callback) {
+    assert.equal(typeof callback,'function');
+    assert.strictEqual(Math.random,ambientRandom,
+      'validation random scope must begin with ambient Math.random restored');
+    const validationRandom=seededRandom(validationSeed);
+    assert.notStrictEqual(validationRandom,physicalRandom,
+      'validation random stream must be independent of physical shuffle RNG');
+    Math.random=validationRandom;
+    try {
+      const value=callback();
+      assert.ok(!value||typeof value.then!=='function',
+        'validation random scope must contain synchronous simulator probes only');
+      return value;
+    } finally {
+      Math.random=ambientRandom;
+    }
+  };
+}
+
 function deckPermutation(length,random) {
   const order=Array.from({length},(_,index)=>index);
   for(let i=length-1;i>0;i--) {
@@ -313,6 +338,9 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       Math.random=previousRandom;
     }
   };
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom:previousRandom,physicalRandom
+  });
   const policyRandom=policySeedBySeat?.map(seed=>seededRandom(seed))??null;
   const decisionTrace=[];
   const rootActionLedger=[];
@@ -690,7 +718,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
-          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
+          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -721,7 +749,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
-          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
+          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -985,6 +1013,7 @@ async function runNativeFixtureGameAsync(input,resolveDecision) {
 module.exports={
   SCHEMA,
   seededRandom,
+  createValidationRandomScope,
   deckPermutation,
   publicStateSnapshot,
   projectActionPayload,
