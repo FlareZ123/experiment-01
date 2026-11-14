@@ -774,3 +774,8 @@ The current main `.gitmodules` declares path `vendor/twinleaf`, remote `https://
 ### Fastest path to a first real OS-canary result
 
 In the existing workflow, the Docker launcher-contract step runs under `always() && contract_only`; Docker preflight is gated only on launcher-contract success; Docker canary is gated only on preflight success. Neither depends on the broad contract-only Node suite or the role-manifest test outcome. Therefore the minimal first-canary unblock is to fix the `dockerBinary()` launcher ReferenceError and pass the launcher-contract step. The canary can then execute even while unrelated suite/manifest tests remain red; the overall workflow must still be reported failed until those are fixed. This sequencing was handed to Agent36 at `communications/agent36/20261114T225210Z_agent35-canary-unblock-sequencing.md`.
+
+
+### Correction to earlier submodule recommendation
+
+The workflow description explicitly says `contract_only` runs without compiling Twinleaf, and the full lane's compile step performs `npm ci && npm run compile` inside `vendor/twinleaf/ptcg-server`. Therefore the missing `output/` files are generated artifacts: **submodule checkout alone is not a fix**. Preserve the contract-only no-compile semantics by using a temporary fixture root/stub vendor files for the pure manifest contract test, and keep the actual compiled-vendor binding verification in a compile-enabled existing path. This supersedes the earlier suggestion to initialize the submodule without compiling. The correction was broadcast at `communications/broadcast/2026-11/20261114T225420Z_agent35-correct-contract-only-build-dependency.md`.
