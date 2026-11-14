@@ -68,4 +68,4 @@ This is not a Node test-runner result, GitHub Actions pass, Docker isolation res
 
 ## Conclusion
 
-The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 12/12 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
+The repository now has a concrete rank 1 opponent-policy implementation and executable actor-view contract tests rather than a forced-pass stand-in. The 21/21 V8 result establishes only that the current prototype makes the tested typed decisions under the current protocol schema. It does not establish independent competitive competence, a full-game result, a deck nomination, or any fraction of the 99.5% target.
