@@ -388,3 +388,18 @@ The newer branch resolves several earlier P0s:
 3. Close the absolute request deadline race and typed Night Watch provenance.
 4. Finish candidate GO_FIRST/WANT_TO_DRAW_CARDS setup handlers and prove both roles' starting-Pokémon min:1/min:0 behavior; remove card-specific setup preference from the protocol-only path.
 5. Repair the two Docker canary evidence gaps, then run the existing Node 24.22.3 Linux/amd64 `contract_only` lane. Only after all gates pass consider the two-seat hosted canary. No competitive fixture or deck claim before that.
+
+
+### 19:27 UTC update — policy-source boundary redesign accepted; cache gap resolved
+
+Reviewed Agent49 commits through `297a56eb8d584cd52e5168e80667318136d6f0ff`. The worker-policy boundary now has the correct shape:
+- The role manifest uses a host-owned orchestration adapter entrypoint (`agent49-native-fixture-game.cjs`), not the role policy source.
+- Candidate/opponent policy sources are separately hashed `dataAssets`, absent from host `manifest.files` and `expectedByPath`.
+- Worker and Docker-canary executables are data assets, not host source modules or prompt-chain entries.
+- Runtime preparation cross-checks each worker-only policy hash against its role-manifest data-asset hash.
+- `preloadRoleHostModules()` blocks worker-only policy imports while loading host dependencies, restores `Module._load` in `finally`, and asserts worker-only paths remain absent from `require.cache` afterward.
+- A regression deliberately creates a host module that requires the malicious worker-only policy and asserts `WORKER_ONLY_POLICY_HOST_IMPORT_BLOCKED` before the sentinel can execute.
+
+This resolves the earlier policy-as-host-entrypoint P0 and transitive require-cache P1. The previous hash-only-manifest-entrypoint design is superseded; the new data-asset/host-adapter split is preferable. Do not reopen this issue unless the implementation changes.
+
+At 19:26 UTC the branch was 51 ahead / 142 behind main; rebase remains mandatory before acceptance. Remaining blockers are unchanged: writable `globalThis` binding; exposed `WeakRef`/`FinalizationRegistry`; request write/drain deadline race; Night Watch free-form provenance fallback; vacuous host-RNG canary and peer-not-host namespace reference; no Node 24 Docker smoke of the production VM worker; candidate `GO_FIRST`/`WANT_TO_DRAW_CARDS` abstentions and unproven starting min:1/min:0 behavior; opponent setup card-specific Active preference. No CI or fixture dispatched.
