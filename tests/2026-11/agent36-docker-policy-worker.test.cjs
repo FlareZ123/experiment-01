@@ -170,7 +170,7 @@ function policySource({ markerPaths, hostPort, hostNamespaceInodes, hostPid, hos
     "  const argv=process.argv.slice();",
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
     "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
-    "  const report={role:context.role,seat:context.seat,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,workerPid1Probe:workerPid1Probe,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
+    "  const report={role:context.role,seat:context.seat,workerPid:process.pid,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,workerPid1Probe:workerPid1Probe,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
     "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\n');",
     "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
     "}",
@@ -218,8 +218,8 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
       }
     };
     assert.doesNotMatch(JSON.stringify(input), /seed|rng|random|physical/i);
-    const workerPid = session.workerPid;
-    assert.ok(Number.isSafeInteger(workerPid) && workerPid > 0);
+    const launcherPid = session.launcherPid;
+    assert.ok(Number.isSafeInteger(launcherPid) && launcherPid > 0);
     const first = await session.decide(input);
     const secondInput = {
       ...input,
@@ -239,10 +239,10 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
     assert.equal(first.sequence, 1);
     assert.equal(second.sequence, 2);
     assert.notEqual(first.requestId, second.requestId);
-    assert.equal(session.workerPid, workerPid,
-      'two sequential requests must be served by one persistent worker process');
+    assert.equal(session.launcherPid, launcherPid,
+      'two sequential requests must use one persistent Docker worker session');
     await session.close();
-    return { responses: [first, second], workerPid, stderr: session.stderr };
+    return { responses: [first, second], launcherPid, stderr: session.stderr };
   } catch (error) {
     await session.abort().catch(() => {});
     throw error;
@@ -377,8 +377,10 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       { role: 'opponent', seat: 1, permissionModel: true }
     ];
     for (const combination of combinations) {
-      const { response, stderr } = await runCanaryWorker({ bundle, ...combination });
+      const { responses, launcherPid, stderr } = await runCanaryWorker({ bundle, ...combination });
       const report = parseCanaryReport(stderr);
+      assert.ok(Number.isSafeInteger(report.workerPid) && report.workerPid > 0);
+      assert.ok(Number.isSafeInteger(launcherPid) && launcherPid > 0);
       assert.equal(report.role, combination.role);
       assert.equal(report.seat, combination.seat);
       assert.equal(report.namespaceIsolation, true,
@@ -410,15 +412,22 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       assert.equal(report.shmWrite.ok, true);
       assert.deepEqual(report.forbiddenEnvKeys, []);
       assert.ok(!report.argv.some(value => Object.values(markerPaths).includes(value)));
-      assert.deepEqual(response.decision, { kind: 'select-action', token: 'canary-pass' });
-      const serialized = JSON.stringify({ response, report });
+      assert.equal(responses.length, 2);
+      assert.deepEqual(responses.map(x => x.sequence), [1, 2]);
+      assert.deepEqual(responses.map(x => x.decision), [
+        { kind: 'select-action', token: 'canary-pass' },
+        { kind: 'select-action', token: 'canary-pass-2' }
+      ]);
+      const serialized = JSON.stringify({ responses, report });
       for (const marker of [...Object.values(markerValues), hostProcessMarker])
         assert.equal(serialized.includes(marker), false, 'host marker content crossed the policy boundary');
       results.push({
         role: combination.role,
         seat: combination.seat,
         permissionModel: combination.permissionModel,
-        response,
+        responses,
+        launcherPid,
+        workerPid: report.workerPid,
         report
       });
     }
