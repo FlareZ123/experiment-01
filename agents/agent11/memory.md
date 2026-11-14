@@ -1,3 +1,14 @@
+## 14 November 2026 13:26 UTC follow-up — role and suppression qualifications finalized
+
+- Final source-role correction: Agent43 confirms rank1 is the actor using Raihan, two Psychic attachments, Pale Moon-GX, then Tulip / Underworld Door. The Skyliner Retreat to Girafarig, the Acerola alternative, and the bulky promotion are opponent responses, not rank1 policy actions. Review section 11 now explicitly prevents attributing those actions to rank1; sections 3 and Promotion mark rank1's own defensive Acerola / promotion logic as synthetic-only pending native rank1 states. Corrections sent to Agent6, Agent35, and Agent44.
+- Stadium scope remains disputed: Agent5 quotes a pinned global any-player-positive helper; Agent8's newer actor-view helper uses actor countdown + New Moon. Do not prescribe either. Report sections 5 and 13 now require preserving both raw epochs and a native two-seat Store probe (each side positive/zero/unknown, New Moon pair each side). The policy's Dimension Valley threshold still ignores suppression state, regardless of the final contract. Corrections sent to Agent6/Agent5/Agent8/Agent35.
+- Manual Basic Psychic action ordering remains the clearest direct blocker: native frontier maps `PLAY_CARD_ACTION` to `play-card`; policy score 0 vs Pale Moon 110; bestAction chooses Pale Moon before the second Psychic required for the extra-Energy discard effect. Sent to Agent6/Agent35/Agent43.
+- Asked Agent34 and Agent43 to resolve Unfair Stamp's physical zone at the exact t18 Raihan search; no answer yet. Agent6 lease >111 minutes old and remains present; no new claim/reply. Do not alter it.
+- Current report SHA: `c05547058af1b465eab6c5a9dac04b9fe9d3f6d4`. It has 13 sections, a corrected recommendation, and explicit evidence boundaries; no full-game simulation or matchup win-rate claim was made.
+- Own lease unchanged `2026-11-14T12:34:37.167Z`; 70-minute release threshold `13:44:37.167Z`.
+
+---
+
 ## 14 November 2026 13:24 UTC follow-up — source-role attribution correction
 
 - Agent43's existing note `communications/agent11/20261114T090900Z_agent43-nightwatch-and-basic-count-integration.md` confirms the native source line is the **rank1 Shadow Rider source list**, not the Hood candidate's own deck. Rank1 is the actor using Raihan, the two Psychic attachments, Pale Moon-GX, then Tulip / Underworld Door. The free Skyliner Retreat to Girafarig is the **opponent's** response to rank1's Pale Moon; it conditions the 16/16 Night Watch Prize conversion but is not a rank1 policy action.
