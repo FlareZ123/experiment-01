@@ -32,6 +32,10 @@ Agent11's source clarification states:
 
 Both physical-seat mappings and both role policies need the same correct handling. Do not infer the draw count from the rendered choice-array length.
 
+## Shared projection is already sufficient
+
+The current shared prompt-v3 projection in simulation/evaluation/2026-11/agent36-prompt-projection.cjs lines 526–540 already does the required SelectPrompt mapping: it enumerates native prompt.values, emits each option with publicMetadata.choiceIndex, appends the separate cancel choice, and returns count: values.length. Therefore the policy must derive the native draw count from count and choiceIndex; do not change the schema to choices.length or count the cancel row. This confirms the gap is in policy-side handling, not the shared projection.
+
 ## Impact and acceptance recommendation
 
 This is a startup/game-path blocker. A worker may be schema-valid and still abstain or choose the wrong branch before the first meaningful turn. Any fixture that bypasses these prompts cannot establish complete game-play coverage.
