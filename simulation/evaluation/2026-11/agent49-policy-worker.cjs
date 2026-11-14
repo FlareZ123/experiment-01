@@ -5,7 +5,7 @@ const { once } = require('node:events');
 const INIT_SCHEMA = 'aichi-policy-worker-init-v2';
 const READY_SCHEMA = 'aichi-policy-worker-ready-v2';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
-const RESPONSE_SCHEMA = 'aichi-policy-response-v2';
+const RESPONSE_SCHEMA = 'aichi-policy-response-v3';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v2';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
@@ -14,6 +14,9 @@ const EXECUTABLE_ACTION_KINDS = new Set([
   'play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'
 ]);
 const ANALYSIS_ONLY_ACTION_KINDS = new Set(['projected-attack']);
+const MULTI_SELECT_PROMPT_TYPES = new Set([
+  'card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'
+]);
 
 const LIMITS = Object.freeze({
   maxLineBytes: 1024 * 1024,
@@ -481,6 +484,64 @@ function validateInit(message) {
   return message;
 }
 
+function multiSelectBounds(prompt) {
+  const metadata = prompt?.publicMetadata;
+  if (!metadata || !MULTI_SELECT_PROMPT_TYPES.has(metadata.selectionType)) return null;
+  if (!Array.isArray(prompt.choices) || typeof metadata.allowCancel !== 'boolean') {
+    fail('BAD_MULTI_SELECT_METADATA');
+  }
+
+  let minimumCount;
+  let maximumCount;
+  switch (metadata.selectionType) {
+    case 'card-combination':
+    case 'pokemon':
+      minimumCount = metadata.minimumCount;
+      maximumCount = metadata.maximumCount;
+      break;
+    case 'energy-payment':
+      minimumCount = 1;
+      maximumCount = metadata.energyCount ?? metadata.count;
+      break;
+    case 'prize-slots':
+      minimumCount = metadata.requiredCount;
+      maximumCount = metadata.requiredCount;
+      break;
+    case 'card-order':
+      minimumCount = metadata.count;
+      maximumCount = metadata.count;
+      break;
+    default:
+      fail('BAD_MULTI_SELECT_METADATA');
+  }
+
+  if (!Number.isSafeInteger(minimumCount) || !Number.isSafeInteger(maximumCount) ||
+      minimumCount < 0 || maximumCount < minimumCount ||
+      maximumCount > LIMITS.maxArrayItems) {
+    fail('BAD_MULTI_SELECT_BOUNDS');
+  }
+  const cancelChoices = prompt.choices.filter(choice => choice.kind === 'cancel');
+  const emptyChoices = prompt.choices.filter(choice => choice.kind === 'empty-selection');
+  const selectableChoices = prompt.choices.filter(choice =>
+    choice.kind !== 'cancel' && choice.kind !== 'empty-selection');
+  if ((metadata.allowCancel && cancelChoices.length !== 1) ||
+      (!metadata.allowCancel && cancelChoices.length !== 0)) {
+    fail('BAD_MULTI_SELECT_CANCEL_CHOICE');
+  }
+  if ((minimumCount === 0 && emptyChoices.length !== 1) ||
+      (minimumCount !== 0 && emptyChoices.length !== 0)) {
+    fail('BAD_MULTI_SELECT_EMPTY_CHOICE');
+  }
+  const effectiveMaximum = Math.min(maximumCount, selectableChoices.length);
+  if (minimumCount > effectiveMaximum) fail('BAD_MULTI_SELECT_BOUNDS');
+  return {
+    selectionType: metadata.selectionType,
+    minimumCount,
+    maximumCount: effectiveMaximum,
+    allowCancel: metadata.allowCancel
+  };
+}
+
 function validatePrompt(prompt, seat) {
   if (prompt === null) return null;
   exactKeys(prompt, ['schema', 'actingSeat', 'promptType', 'description', 'source', 'choices'], ['publicMetadata']);
@@ -516,6 +577,7 @@ function validatePrompt(prompt, seat) {
     if (choice.publicMetadata !== undefined) validatePromptMetadata(choice.publicMetadata);
   }
   if (prompt.publicMetadata !== undefined) validatePromptMetadata(prompt.publicMetadata);
+  multiSelectBounds(prompt);
   return prompt;
 }
 
@@ -577,10 +639,44 @@ function validateDecision(decision, prompt, actionTokens) {
     if (prompt === null) fail('CHOICE_DURING_ROOT');
     exactKeys(decision, ['kind', 'token']);
     assertToken(decision.token);
-    if (!prompt || !prompt.choices.some(choice => choice.token === decision.token)) {
-      fail('POLICY_SELECTED_UNKNOWN_CHOICE');
+    const choice = prompt?.choices?.find(item => item.token === decision.token);
+    if (!choice) fail('POLICY_SELECTED_UNKNOWN_CHOICE');
+    const bounds = multiSelectBounds(prompt);
+    if (bounds) {
+      if (choice.kind === 'cancel') {
+        if (!bounds.allowCancel) fail('CANCEL_NOT_ALLOWED');
+      } else if (choice.kind === 'empty-selection') {
+        if (bounds.minimumCount !== 0) fail('EMPTY_SELECTION_NOT_ALLOWED');
+      } else {
+        fail('MULTI_SELECT_REQUIRES_SELECT_CHOICES');
+      }
     }
     return { kind: 'select-choice', token: decision.token };
+  }
+  if (decision.kind === 'select-choices') {
+    if (prompt === null) fail('CHOICE_DURING_ROOT');
+    exactKeys(decision, ['kind', 'tokens']);
+    const bounds = multiSelectBounds(prompt);
+    if (!bounds) fail('MULTI_SELECT_NOT_SUPPORTED');
+    if (!Array.isArray(decision.tokens) || decision.tokens.length === 0 ||
+        decision.tokens.length > 512) fail('BAD_MULTI_SELECT_TOKENS');
+    const choiceByToken = new Map(prompt.choices.map(choice => [choice.token, choice]));
+    const seen = new Set();
+    for (const token of decision.tokens) {
+      assertToken(token);
+      if (seen.has(token)) fail('DUPLICATE_MULTI_SELECT_TOKEN');
+      seen.add(token);
+      const choice = choiceByToken.get(token);
+      if (!choice) fail('POLICY_SELECTED_UNKNOWN_CHOICE');
+      if (choice.kind === 'cancel' || choice.kind === 'empty-selection') {
+        fail('SPECIAL_CHOICE_IN_MULTI_SELECT');
+      }
+    }
+    if (decision.tokens.length < bounds.minimumCount ||
+        decision.tokens.length > bounds.maximumCount) {
+      fail('BAD_MULTI_SELECT_COUNT');
+    }
+    return { kind: 'select-choices', tokens: decision.tokens.slice() };
   }
   if (decision.kind === 'abstain') {
     exactKeys(decision, ['kind', 'reasonCode']);

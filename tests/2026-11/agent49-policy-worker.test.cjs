@@ -460,7 +460,7 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   const prompt = {
     schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
     description: 'Select an owner-visible card',
-    source: { classification: 'actor-choice', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
+    source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
     choices: [{ token: 'choice-1', kind: 'payment', printing: 'Psychic Energy SVE',
       publicMetadata: { sourceZone: 'hand', isOwnerVisible: true } }]
   };
@@ -564,7 +564,7 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
       token: 'prompt-0',
       kind: 'card',
       publicMetadata: { ownerSeat: 'actor', selectionIndex: 0, isOwnerVisible: true }
-    }],
+    }, { token: 'cancel-0', kind: 'cancel', label: 'Cancel selection' }],
     publicMetadata: {
       ownerSeat: 'mixed',
       minimumCount: 1,
@@ -650,5 +650,106 @@ test('analysis-only projected attack rows cannot be selected as native actions',
     schema: protocol.FRONTIER_SCHEMA,
     items: [{ token: 'unknown-0', kind: 'made-up-action' }]
   }), /BAD_ACTION_KIND/);
+});
+
+test('typed multi-select decisions enforce unique item tokens, bounds, cancel and order semantics', () => {
+  const source = {
+    classification: 'actor-choice',
+    sourceKind: 'card-effect',
+    sourcePrinting: 'Quick Ball FST',
+    effectName: 'Quick Ball'
+  };
+  const makePrompt = (selectionType, publicMetadata, choices) => ({
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: 0,
+    promptType: 'ChooseCardsPrompt',
+    description: 'Choose visible items',
+    source,
+    choices,
+    publicMetadata: { selectionType, ...publicMetadata }
+  });
+
+  const cardPrompt = makePrompt('card-combination', {
+    minimumCount: 1, maximumCount: 2, allowCancel: true
+  }, [
+    { token: 'card-0', kind: 'card', printing: 'Card A' },
+    { token: 'card-1', kind: 'card', printing: 'Card B' },
+    { token: 'card-2', kind: 'card', printing: 'Card C' },
+    { token: 'cancel-0', kind: 'cancel', label: 'Cancel selection' }
+  ]);
+  protocol.validatePrompt(cardPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choices', tokens: ['card-2', 'card-0']
+  }, cardPrompt, new Set()), {
+    kind: 'select-choices', tokens: ['card-2', 'card-0']
+  });
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: ['card-0', 'card-0']
+  }, cardPrompt, new Set()), /DUPLICATE_MULTI_SELECT_TOKEN/);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: ['card-0', 'missing']
+  }, cardPrompt, new Set()), /POLICY_SELECTED_UNKNOWN_CHOICE/);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: ['card-0', 'card-1', 'card-2']
+  }, cardPrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: []
+  }, cardPrompt, new Set()), /BAD_MULTI_SELECT_TOKENS/);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choice', token: 'card-0'
+  }, cardPrompt, new Set()), /MULTI_SELECT_REQUIRES_SELECT_CHOICES/);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choice', token: 'cancel-0'
+  }, cardPrompt, new Set()), { kind: 'select-choice', token: 'cancel-0' });
+
+  const emptyPrompt = makePrompt('card-combination', {
+    minimumCount: 0, maximumCount: 2, allowCancel: false
+  }, [
+    { token: 'card-0', kind: 'card' },
+    { token: 'card-1', kind: 'card' },
+    { token: 'empty-0', kind: 'empty-selection', label: 'Choose no cards' }
+  ]);
+  protocol.validatePrompt(emptyPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choice', token: 'empty-0'
+  }, emptyPrompt, new Set()), { kind: 'select-choice', token: 'empty-0' });
+
+  const orderPrompt = makePrompt('card-order', {
+    count: 3, allowCancel: false
+  }, [
+    { token: 'order-0', kind: 'card-order-item' },
+    { token: 'order-1', kind: 'card-order-item' },
+    { token: 'order-2', kind: 'card-order-item' }
+  ]);
+  protocol.validatePrompt(orderPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choices', tokens: ['order-2', 'order-0', 'order-1']
+  }, orderPrompt, new Set()), {
+    kind: 'select-choices', tokens: ['order-2', 'order-0', 'order-1']
+  });
+
+  const energyPrompt = makePrompt('energy-payment', {
+    count: 3, energyCount: 3, allowCancel: false
+  }, [
+    { token: 'energy-0', kind: 'energy' },
+    { token: 'energy-1', kind: 'energy' },
+    { token: 'energy-2', kind: 'energy' }
+  ]);
+  protocol.validatePrompt(energyPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choices', tokens: ['energy-1']
+  }, energyPrompt, new Set()), { kind: 'select-choices', tokens: ['energy-1'] });
+
+  const prizePrompt = makePrompt('prize-slots', {
+    requiredCount: 2, allowCancel: false
+  }, [
+    { token: 'prize-0', kind: 'prize' },
+    { token: 'prize-1', kind: 'prize' },
+    { token: 'prize-2', kind: 'prize' }
+  ]);
+  protocol.validatePrompt(prizePrompt, 0);
+  assert.throws(() => protocol.validateDecision({
+    kind: 'select-choices', tokens: ['prize-0']
+  }, prizePrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
 });
 
