@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: '22'
       - name: Validate field-mean, simultaneous matchup, and heterogeneous-win confidence bounds
-        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs tests/agent12-simultaneous-matchup-kl-bound.test.cjs tests/agent12-expanded-mulligan-pairing.test.cjs tests/agent12-aichi-basic-opening-census.test.cjs
+        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs tests/agent12-simultaneous-matchup-kl-bound.test.cjs tests/agent12-expanded-mulligan-pairing.test.cjs tests/agent12-aichi-basic-opening-census.test.cjs tests/2026-11/agent12-exact-two-loss-field-mean-bound.test.cjs
+      - name: Verify exact-rational 128-stratum two-nonwin proof certificate
+        run: python3 scripts/agent12-exact-two-loss-field-mean-proof.py
       - name: Validate 32-rank opponent policy bundle and per-game rank mapping
         run: node --test tests/2026-11/agent49-opponent-policy-field-bundle-validator.test.cjs
