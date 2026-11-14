@@ -65,7 +65,8 @@ function pokemon(printing, options = {}) {
       name,
       powerType: 'ABILITY',
       text: 'Once during your turn.'
-    }))
+    })),
+    abilitySuppressions: options.abilitySuppressions ?? []
   };
 }
 
@@ -1473,5 +1474,205 @@ test('Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choic
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices',
     tokens: ['vmax-a', 'vmax-b']
+  });
+});
+
+
+test('Fairy Zone doubles Max Geist damage against Dragon and changes attack choice', () => {
+  const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
+    hp: 190,
+    abilities: ['Fairy Zone'],
+    abilitySuppressions: [{
+      abilityName: 'Fairy Zone',
+      suppressed: false,
+      reasonCode: null,
+      sourcePrinting: null
+    }]
+  });
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        hp: 320,
+        stage: 'VMAX',
+        energies: [
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13'
+        ]
+      }),
+      bench: [clefairy]
+    }),
+    opponentPublic: player({ active: opponentDragon, handCount: 4 }),
+    items: [
+      { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
+      { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'max-geist'
+  });
+});
+
+test('Fairy Zone is not applied when publicly suppressed by Path to the Peak', () => {
+  const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
+    hp: 190,
+    abilities: ['Fairy Zone'],
+    abilitySuppressions: [{
+      abilityName: 'Fairy Zone',
+      suppressed: true,
+      reasonCode: 'PATH_TO_THE_PEAK',
+      sourcePrinting: 'Path to the Peak CRE 148'
+    }]
+  });
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        hp: 320,
+        stage: 'VMAX',
+        energies: [
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13',
+          'Psychic Energy MEE 13'
+        ]
+      }),
+      bench: [clefairy],
+      stadium: ['Path to the Peak CRE 148']
+    }),
+    opponentPublic: player({ active: opponentDragon, handCount: 4 }),
+    items: [
+      { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
+      { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+});
+
+test('retreat pivots into Shadow Rider VMAX when active Fairy Zone makes Max Geist lethal', () => {
+  const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
+    hp: 190,
+    abilities: ['Fairy Zone'],
+    abilitySuppressions: [{
+      abilityName: 'Fairy Zone',
+      suppressed: false,
+      reasonCode: null,
+      sourcePrinting: null
+    }]
+  });
+  const rider = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    energies: [
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13'
+    ]
+  });
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94', { hp: 90 }),
+      bench: [rider, pokemon('Latias ex SSP 76', { hp: 210 }), clefairy]
+    }),
+    opponentPublic: player({ active: opponentDragon }),
+    items: [
+      { token: 'retreat-rider', kind: 'retreat',
+        publicMetadata: { benchIndex: 0, targetZone: 'bench' } },
+      { token: 'retreat-latias', kind: 'retreat',
+        publicMetadata: { benchIndex: 1, targetZone: 'bench' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'retreat-rider'
+  });
+});
+
+test('Mysterious Treasure searches Lillie’s Clefairy ex against an opposing Dragon Active', () => {
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'clefairy', kind: 'card', printing: "Lillie's Clefairy ex JTG 56",
+        label: "Lillie's Clefairy ex", publicMetadata: { sourceZone: 'deck' } },
+      { token: 'dialga', kind: 'card', printing: 'Dialga-GX UPR 100',
+        label: 'Dialga-GX', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' }),
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' })
+        ]
+      }),
+      opponentPublic: player({ active: opponentDragon })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['clefairy']
+  });
+});
+
+test('Lillie’s Clefairy ex is played to activate Fairy Zone against a Dragon Active', () => {
+  const opponentDragon = pokemon('Regidrago VSTAR SIT 136', {
+    hp: 240,
+    stage: 'VSTAR',
+    types: ['Dragon']
+  });
+  const request = rootRequest({
+    ownHand: ["Lillie's Clefairy ex JTG 56"],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    opponentPublic: player({ active: opponentDragon }),
+    items: [
+      { token: 'clefairy', kind: 'play-card',
+        actorPrinting: "Lillie's Clefairy ex JTG 56",
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'clefairy'
   });
 });
