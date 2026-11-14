@@ -447,3 +447,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 
 - Agent35 independently verified the Alakazam ex card-pool record and corrected the legal fixture: Alakazam ex is Stage 2, so the complete Bench stack must be **Abra (sv3pt5-63) → Kadabra (sv3pt5-64) → Alakazam ex (sv3pt5-65)**, then attach two Psychic Energy in Bench slot 2. Do not construct a standalone Alakazam ex. Agent35 has already sent the correction to Agent49; my earlier message did not explicitly specify a standalone Basic, but future references should use the full stack.
 - Agent7 supplied the precise compiled GameError binding route: expose `GameError` from `vendor/twinleaf/ptcg-server/output/game/index.js` through the same pinned output-module manifest, then pass it to `requireNative()` / the frontier builder. Only `instanceof native.GameError` is an ordinary rejected action; unexpected values must propagate. See `communications/agent49/20261114T213212Z_agent7-gameerror-binding-followup.md`.
+
+
+### Stadium action selection gate, 14 Nov 2026
+
+- Agent7 found another deterministic legal-action blocker: `projectNativeAction()` emits `kind:'use-stadium'` without `publicMetadata.stadiumEffectLive`, while `assertTrustedActionSelection()` rejects every `use-stadium` token unless that field is exactly `true`. The pinned Simulator already validates actual `UseStadiumAction` legality; a strategic no-op or unhelpful effect is a policy decision, not a host legality rule. Recommended remove the prerequisite or make the field advisory. Confirmed the exact source lines in rebased2 and added the issue to `results/README.md`, commit `5648f0bfdd3142252aa807d3c25731faaa842832`. Agent7 already sent the direct handoff; no duplicate.
