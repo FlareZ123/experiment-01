@@ -189,7 +189,8 @@ function scoreEvolution(card, target, observation) {
   const hand = list(observation.ownHand);
   const preLockSetupStillNeeded = hand.some(value =>
     matches(value, PRINT.tagCall) || matches(value, PRINT.tmEvolution) ||
-    matches(value, PRINT.stealthyHood) ||
+    (matches(value, PRINT.stealthyHood) &&
+      opponentHasGarbotoxin(observation.opponentPublic)) ||
     (matches(value, PRINT.guzmaHala) && supporterAvailable(observation)));
   if (matches(card, PRINT.vileplume) && matches(target, PRINT.gloom) &&
       !boardHas(own, PRINT.vileplume)) return preLockSetupStillNeeded ? 175 : 245;
@@ -250,7 +251,8 @@ function scoreAttack(item, observation) {
   if (name === 'Get Lost') {
     const targets = opponentDiscard.filter(card =>
       /VS Seeker|Lusamine|Team Yell|Karen|Guzma|Guzma & Hala|Special Charge|Double Dragon Energy|Double Colorless Energy|Rare Candy|Forest Seal Stone|Battle Compressor/i.test(card));
-    return 105 + Math.min(40, targets.length * 8);
+    return targets.length >= 2 ? 125 + Math.min(40, targets.length * 8) :
+      (targets.length === 1 ? 95 : 22);
   }
   if (name === 'Itchy Pollen') {
     const itemLockLive = boardHas(own, PRINT.vileplume) &&
@@ -324,7 +326,8 @@ function scoreAction(item, request) {
 
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.stoutland)) {
-      const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true;
+      const supporterLocked = opponent.publicTurnRestrictions?.supporterPlayLocked === true ||
+        opponentHasGarbotoxin(opponent);
       return supporterLocked ? 30 : 185;
     }
     if (matches(own.active?.printing ?? '', PRINT.stoutland) &&
@@ -353,6 +356,7 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.tmEvolution)) {
     const bunnelby = boardSlots(own).some(row => matches(row.pokemon.printing, PRINT.bunnelby));
+    const bunnelbyActive = matches(own.active?.printing ?? '', PRINT.bunnelby);
     const hasJet = handCount(hand, PRINT.jetEnergy) > 0;
     const targetReady = boardSlots(own).some(row =>
       matches(row.pokemon.printing, PRINT.oddish) ||
@@ -361,7 +365,7 @@ function scoreAction(item, request) {
       matches(row.pokemon.printing, PRINT.gloom) ||
       matches(row.pokemon.printing, PRINT.herdier) ||
       matches(row.pokemon.printing, PRINT.pidgeotto));
-    return bunnelby && hasJet && targetReady ? 178 : 88;
+    return bunnelby && (hasJet || bunnelbyActive) && targetReady ? 178 : 88;
   }
   if (matches(card, PRINT.jetEnergy)) {
     const targetIsBunnelby = matches(target, PRINT.bunnelby);
@@ -481,12 +485,12 @@ function cardPriority(printing, observation, context) {
   if (context.includes('team yell') || context.includes('lusamine')) {
     if (/Guzma & Hala|Guzma|Faba|Plumeria|Karen|Team Yell|Lusamine|Bellelba/i.test(printing)) return 150;
     if (/Grand Tree|Artazon/i.test(printing)) return 120;
-    return 10;
+    return 0;
   }
   if (context.includes('faba') || context.includes('plumeria')) {
     if (/Special Energy|Jet Energy|Capture Energy|Double Dragon Energy|Double Colorless Energy/i.test(printing)) return 160;
     if (/Tool|Pokémon Tool|Stadium|Grand Tree|Artazon/i.test(printing)) return 110;
-    return 10;
+    return 0;
   }
 
   // Pidgeot ex Quick Search and Pidgeotto Air Mail are unrestricted searches.
@@ -537,7 +541,7 @@ function scorePokemonChoice(choice, observation, context) {
   if (context.includes('guzma')) {
     const target = list(observation.opponentPublic?.bench).find(slot =>
       slot && slot.printing === printing);
-    if (!target) return 30;
+    if (!target) return -100;
     const hp = remainingHp(target);
     const multiPrize = /(?:-GX|\b(?:V|VMAX|VSTAR|ex)\b)/i.test(printing) ? 2 : 1;
     return 100 + (hp > 0 && hp <= 90 ? 50 : 0) + multiPrize * 8;
@@ -545,7 +549,8 @@ function scorePokemonChoice(choice, observation, context) {
   if (context.includes('cassius')) {
     const target = boardSlots(observation.ownPublic).find(row =>
       row.pokemon.printing === printing);
-    return target && remainingHp(target.pokemon) > 0 &&
+    if (!target) return -100;
+    return remainingHp(target.pokemon) > 0 &&
       remainingHp(target.pokemon) <= 50 ? 160 : 15;
   }
   if (context.includes('grand tree')) {
@@ -565,8 +570,12 @@ function scorePokemonChoice(choice, observation, context) {
   }
   if (context.includes('irresistible aroma')) {
     // The root policy declines this optional effect. If already in a forced
-    // prompt, prefer the least consequential visible Basic.
-    return /Basic/i.test(printing) ? 20 : -100;
+    // prompt, prefer a low-impact, low-setup-value Basic from the revealed hand.
+    if (matches(printing, PRINT.budew)) return 30;
+    if (matches(printing, PRINT.jirachi)) return 25;
+    if (matches(printing, PRINT.mrMime)) return 20;
+    if (matches(printing, PRINT.bunnelby)) return 10;
+    return -100;
   }
   return 0;
 }
