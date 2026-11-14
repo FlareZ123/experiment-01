@@ -143,6 +143,7 @@ class ChooseAttackPrompt {
 
 class ConfirmPrompt {}
 class SelectPrompt {}
+class SelectOptionPrompt {}
 class OrderCardsPrompt {
   validate(result) {
     return result === null ? this.options.allowCancel === true :
@@ -502,5 +503,11 @@ test('only exact phase-one native setup constructor/message pairs are allowliste
     options:{min:1,max:1,allowCancel:false}
   });
   assert.throws(()=>projectPrompt({prompt:synthetic,state,actorSeat:0,native}),
+    error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
+
+  const wrongSelectConstructor=basePrompt(SelectOptionPrompt,state,{
+    message:'WANT_TO_DRAW_CARDS',values:[6,5,4,3,2,1,0]
+  });
+  assert.throws(()=>projectPrompt({prompt:wrongSelectConstructor,state,actorSeat:0,native}),
     error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
 });
