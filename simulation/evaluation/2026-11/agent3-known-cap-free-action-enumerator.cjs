@@ -261,6 +261,18 @@ function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, fronti
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING';
     throw error;
   }
+  const requiredCoverage = [
+    'includesAttachedToolPowers',
+    'includesToolAndBenchAttacks',
+    'includesHandAbilities',
+    'includesTrainerEnergyDiscardAbilities'
+  ];
+  if (marker.removedPerFamilyCap !== 8 || requiredCoverage.some(key => marker[key] !== true)) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter is missing required action-family coverage');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_INCOMPLETE';
+    error.marker = marker;
+    throw error;
+  }
   if (enginePin !== EXPECTED_ENGINE_PIN || marker.enginePin !== enginePin) {
     const error = new Error('Known-cap-free ActionEnumerator adapter pin does not match the experiment');
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH';
