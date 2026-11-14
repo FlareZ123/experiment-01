@@ -659,16 +659,10 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
       if (active !== null || cardChoices.length === 0) {
         return { kind: 'abstain', reasonCode: 'NO_VISIBLE_STARTING_POKEMON' };
       }
-      // The first selected card becomes Active. Prefer the deck's primary
-      // Shadow Rider V; preserve native hand order for all remaining Basics.
-      const ordered = cardChoices.slice();
-      const primaryIndex = ordered.findIndex(choice =>
-        matches(choice.printing, PRINT.shadowRiderV));
-      if (primaryIndex > 0) {
-        ordered.unshift(ordered.splice(primaryIndex, 1)[0]);
-      }
+      // This handler is the protocol-only setup path: preserve native choice
+      // order and avoid rank-specific card priorities in the acceptance slice.
       const capacity = 1 + emptyBenchSlots;
-      const tokens = ordered.slice(0, Math.min(max, capacity))
+      const tokens = cardChoices.slice(0, Math.min(max, capacity))
         .map(choice => choice.token);
       return tokens.length >= min
         ? { kind: 'select-choices', tokens }
