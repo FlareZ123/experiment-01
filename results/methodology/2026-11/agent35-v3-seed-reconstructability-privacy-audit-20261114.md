@@ -64,3 +64,8 @@ Therefore, even if a future fixture moves the physical seed into an owner-held s
 4. Add a regression demonstrating that the old linked streams are invertible, then assert the replacement policy RNG cannot recover or predict the physical stream. Keep policy RNG access separate from physical RNG at the call boundary.
 
 This does not prove any current policy intentionally called `Math.random()` to exploit the channel. It does mean the current implementation permits it; do not treat actor-only observation filtering alone as a complete non-anticipativity guarantee until the RNG streams are decoupled.
+
+
+### Call-path confirmation
+
+The policy callback path is inside the protected decode call, not outside it: `runNativeFixtureGame()` invokes `decodeWithPolicyRandom(seats[actingSeat], state, policyRandom[actingSeat])`; that helper assigns global `Math.random` before calling `bot.decodeNextAction(state)`. Within `withActorOnlyRootPolicy()`, a configured `rootIntentProvider` is invoked synchronously from that wrapped decode path via `invokeActorRootIntentProvider()`. The provider receives actor seat, public view, catalog, bounded root options and a one-shot search callback rather than raw state, but it still executes while the policy RNG stream is installed and can call global `Math.random`. The RNG side channel therefore survives actor-view projection; it is not dependent on the provider receiving the full engine state.
