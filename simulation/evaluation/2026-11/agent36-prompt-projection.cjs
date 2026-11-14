@@ -577,8 +577,16 @@ function hostOnlyPrompt(prompt, provenance) {
     'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt', 'InvitePlayerPrompt'].includes(name)) {
     return { hostOnly: true, reason: name };
   }
-  const sourceName = provenance?.effectName ?? prompt?.message ?? prompt?.type ?? '';
-  if (/night\s*watch/i.test(String(sourceName))) {
+  // Night Watch's physical random selection is host-owned only for the exact
+  // pinned Trevenant & Dusknoir-GX SMP printing and a typed card-effect source.
+  // Prompt messages, prompt types, and free-form effect names are not authority.
+  const sourceCard = provenance?.sourceCard;
+  if (provenance?.sourceKind === 'card-effect' &&
+      provenance.effectName === 'Night Watch' &&
+      sourceCard?.name === 'Trevenant & Dusknoir-GX' &&
+      sourceCard?.set === 'SMP' &&
+      String(sourceCard?.setNumber) === '217' &&
+      printing(sourceCard) === 'Trevenant & Dusknoir-GX SMP') {
     return { hostOnly: true, reason: 'NightWatchPhysicalRandom' };
   }
   return null;
