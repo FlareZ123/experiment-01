@@ -132,16 +132,18 @@ function exactTwoLossIidLowerBound(gamesPerStratum, alpha, target) {
  * validator requires the same number of independent attempts in all 128
  * rank/seat/first-player strata. By default, the heterogeneous Bernoulli
  * Chernoff-KL bound is applied to each rank's 4k games. If the preregistration
- * explicitly declares stratumSamplingModel='iid-bernoulli-v1', a rank with
- * exactly one or two nonwins may use their sharper exact bounds, but only when
+ * supplies a digest-bound fieldSamplingRegistration declaring
+ * stratumSamplingModel='iid-bernoulli-v1', a rank with exactly one or two
+ * nonwins may use their sharper exact bounds, but only when
  * the relevant concavity proof applies. Three or more nonwins and all other
  * cases retain the heterogeneous KL method. Bonferroni across 32 ranks provides familywise
  * confidence of at least the requested level.
  *
  * The exact one- and two-loss modes assume identically distributed outcomes
  * within each rank/seat/first-player stratum, not merely independent outcomes. The
- * sampling-model declaration must be frozen in the registration and audited
- * externally. Without it, the evaluator never selects the exact branch.
+ * sampling model and exact trial roster must be bound to registrationSha by
+ * canonical JSON hashing and audited externally. Without a valid manifest,
+ * the evaluator never selects the exact branch.
  *
  * This is stronger than a single field-mean bound. It requires every one of
  * the 32 opponent means to clear the target simultaneously. All labels and
@@ -154,6 +156,7 @@ function exactTwoLossIidLowerBound(gamesPerStratum, alpha, target) {
  *   requiredPerStratumForAllWinTarget:number,
  *   requiredPerOpponentForAllWinTarget:number,
  *   requiredTotalForAllWinTarget:number,rejectionReasons:string[],
+ *   samplingModelDeclaration:string,samplingModelRegistrationValid:boolean,
  *   externalPaperAndIndependenceAuditRequired:true}}
  */
 function assessSimultaneousMatchups(request) {
@@ -172,11 +175,13 @@ function assessSimultaneousMatchups(request) {
     STRATA_PER_OPPONENT * requiredPerStratumForAllWinTarget;
   const requiredTotalForAllWinTarget =
     FIELD_SIZE * requiredPerOpponentForAllWinTarget;
-  const exactIidMode =
-    request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const exactIidRequested = request.stratumSamplingModel === 'iid-bernoulli-v1';
+  const exactIidMode = exactIidRequested && v.samplingModelRegistrationValid;
   const samplingModelDeclaration = exactIidMode
-    ? 'iid-bernoulli-v1 (caller assertion; external audit required)'
-    : 'heterogeneous-independent-Bernoulli default';
+    ? 'iid-bernoulli-v1 (bound to canonical field registration; external audit required)'
+    : exactIidRequested
+      ? 'iid-bernoulli-v1 rejected: no valid digest-bound field sampling registration'
+      : 'heterogeneous-independent-Bernoulli default';
 
   if (!admissible) {
     return {
@@ -191,6 +196,7 @@ function assessSimultaneousMatchups(request) {
       requiredPerOpponentForAllWinTarget,
       requiredTotalForAllWinTarget,
       samplingModelDeclaration,
+      samplingModelRegistrationValid: v.samplingModelRegistrationValid,
       rejectionReasons: v.rejectionReasons,
       externalPaperAndIndependenceAuditRequired: true
     };
@@ -262,6 +268,7 @@ function assessSimultaneousMatchups(request) {
     requiredPerOpponentForAllWinTarget,
     requiredTotalForAllWinTarget,
     samplingModelDeclaration,
+    samplingModelRegistrationValid: v.samplingModelRegistrationValid,
     rejectionReasons: v.rejectionReasons,
     externalPaperAndIndependenceAuditRequired: true
   };
