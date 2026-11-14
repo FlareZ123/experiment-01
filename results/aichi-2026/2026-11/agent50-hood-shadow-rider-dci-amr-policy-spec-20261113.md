@@ -251,6 +251,34 @@ The rank19 Raging Bolt trace is a useful example, not a policy verdict: eight co
 - Sky Field changes the Rondo Bench threshold but also creates a Bench-capacity commitment. A later Stadium replacement can force Bench discards and remove the very Pokémon or Ability holder the attack plan needs.
 - Copycat's one-Energy shortcut and Rondo's one-Energy shortcut share the same Dimension Valley condition. Max Geist's cost shortcut is also conditional. Do not hard-code two Energy for Mimikyu/Clefairy or three for VMAX without reading the live attack and Stadium state.
 
+- Rank15 Vileplume BUS 6 Disgusting Pollen is a separate Active-dependent attack lock: while that Vileplume is Active and its Ability is live, **all of the candidate's Basic Pokémon are barred from attacking**, including Mimikyu Copycat, Lillie's Clefairy ex Full Moon Rondo, and Trevenant & Dusknoir-GX Night Watch. Shadow Rider Calyrex VMAX Max Geist remains eligible because the attacker is a VMAX, not Basic. This is not a global lock: if BUS6 Vileplume is benched, removed, or suppressed, re-evaluate the Basic attacks. Do not conflate BUS6 Disgusting Pollen with Vileplume AOR3's Item lock.
+
+### Field-wide Dragon target thresholds in the 29 published lists
+
+The source-list scan identifies Dragon Pokémon in ranks 1, 10, 12, 13, 14, 15, 18, 19, 20, 21, 27, 30 and 32. The table below uses exact printings and HP from the repository card pool. It is a static target inventory, not evidence that a Pokémon was played, Active, undamaged, or that Fairy Zone was active. Ranks 23, 25 and 28 remain missing.
+
+With active Fairy Zone and no other damage modifiers, Max Geist deals 20 + 60E, where E is the total Psychic Energy attached to all of the candidate's Pokémon; Full Moon Rondo deals 40 + 40B, where B is the combined occupied Bench count. E and B below are the minimum integer thresholds to Knock Out a full-health target. They do not replace the separate attack-payment check: with active Dimension Valley, VMAX needs two Energy for Max Geist and Clefairy needs one Psychic for Rondo; without it, those costs are three and two respectively.
+
+| Dragon target | Rank(s) in source lists | HP | Min E for Max Geist | Min B for Full Moon Rondo |
+| --- | --- | ---: | ---: | ---: |
+| Tatsugiri TWM 131 | 15 | 70 | 1 | 1 |
+| Kyurem SFA 47 | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 130 | 2 | 3 |
+| Radiant Eternatus CRZ 105 | 1 | 170 | 3 | 4 |
+| Dialga-GX UPR 100 | 1, 10, 12, 13, 14, 18, 20, 21, 27, 30, 32 | 180 | 3 | 4 |
+| Regidrago V SIT 135 | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 220 | 4 | 5 |
+| Koraidon ex TEF 120 | 10, 12, 18, 21, 27 | 230 | 4 | 5 |
+| Raging Bolt ex TEF 123 | 19 | 240 | 4 | 5 |
+| Noivern ex PAL 153 | 12, 13, 14, 20, 21, 27, 32 | 260 | 4 | 6 |
+| Hisuian Goodra VSTAR LOR 136 | 10, 14, 18, 21, 32 | 270 | 5 | 6 |
+| Regidrago VSTAR SIT 136 | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 280 | 5 | 6 |
+| Arceus & Dialga & Palkia-GX CEC 156 | 19 | 280 | 5 | 6 |
+| Dragapult ex TWM 130 | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 320 | 5 | 7 |
+| Salamence ex JTG 114 | 13 | 320 | 5 | 7 |
+| Mega Dragonite ex ASC 152 | 14, 20, 32 | 370 | 6 | 9 |
+
+This matrix shows where a live Fairy Zone turns the attack routes into breakpoints: Max Geist at E=4 covers targets through 260 HP, E=5 through 320 HP, and E=6 through 370 HP; Full Moon Rondo at B=6 covers through 280 HP, B=7 through 320 HP, and B=9 through 370 HP. Without Fairy Zone, use the unmodified formulas (Max Geist 10 + 30E; Rondo 20 + 20B), not this table. The rank15 BUS6 lock is especially important: Tatsugiri is a one-Energy/one-Bench damage threshold under Fairy Zone, but Rondo is unavailable while the opponent's Active Vileplume BUS6 Ability is live; Max Geist remains the Basic-lock escape route.
+
+
 ### Route AMR and DCI comparison contract
 
 For each route, preserve Agent5's AMR tuple rather than collapsing access into a binary “line exists” flag:
