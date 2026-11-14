@@ -7,7 +7,8 @@ const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
 const { spawn } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createWorkerLocalPolicyStream}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 
@@ -915,8 +916,8 @@ test('restricted VM denies ambient time, crypto, loader and code-generation capa
 
 
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
-  const first=protocol.createWorkerLocalPolicyStream();
-  const second=protocol.createWorkerLocalPolicyStream();
+  const first=createWorkerLocalPolicyStream();
+  const second=createWorkerLocalPolicyStream();
   assert.equal(first.protocol,'worker-local-independent-crypto-stream-v1');
   assert.equal(first.drawCount,0);
   assert.equal(second.drawCount,0);
