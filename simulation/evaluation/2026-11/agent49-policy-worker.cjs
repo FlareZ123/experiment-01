@@ -455,9 +455,7 @@ function validatePrompt(prompt, seat) {
        !boundedString(prompt.source.copiedAttackName, null, 256))) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
   if (prompt.source.effectName === 'Copycat' && (prompt.source.sourceKind !== 'card-effect' || !hasCopiedSource)) fail('COPYCAT_SOURCE_MISSING');
   if (/night\s*watch/i.test(String(prompt.source.effectName ?? '')) ||
-      /night\s*watch/i.test(String(prompt.source.copiedAttackName ?? '')) ||
-      (prompt.source.effectName === 'Copycat' &&
-       prompt.source.copiedSourcePrinting === 'Trevenant & Dusknoir-GX')) fail('HOST_ONLY_PHYSICAL_PROMPT');
+      /night\s*watch/i.test(String(prompt.source.copiedAttackName ?? ''))) fail('HOST_ONLY_PHYSICAL_PROMPT');
   if (!boundedString(prompt.promptType, /^[A-Za-z][A-Za-z0-9._-]{0,95}$/)) fail('BAD_PROMPT_TYPE');
   if (prompt.description !== null && !boundedString(prompt.description, null, 2048)) fail('BAD_PROMPT_DESCRIPTION');
   if (!Array.isArray(prompt.choices) || prompt.choices.length > 512) fail('BAD_PROMPT_CHOICES');
