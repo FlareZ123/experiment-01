@@ -286,26 +286,26 @@ function dockerCli(args, timeoutMs = 10000) {
   return String(result.stdout || '').trim();
 }
 
-function runBridgePositiveControl(port) {
-  const name = 'agent36-bridge-control-' + crypto.randomUUID().replace(/-/g, '');
-  const script = "fetch('http://host.docker.internal:" + port +
+function runHostNetworkPositiveControl(port) {
+  const name = 'agent36-host-network-control-' + crypto.randomUUID().replace(/-/g, '');
+  const script = "fetch('http://127.0.0.1:" + port +
     "/',{signal:AbortSignal.timeout(2500)}).then(response=>response.text()).then(text=>process.stdout.write(text)).catch(error=>{process.stderr.write(String(error));process.exitCode=2;});";
   let containerId = null;
   try {
     containerId = dockerCli([
       'run', '-d', '--pull=never', '--platform=' + PLATFORM,
       '--name=' + name,
-      '--network=bridge', '--add-host=host.docker.internal:host-gateway',
+      '--network=host',
       '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', script
     ], 10000);
     assert.match(containerId, /^[a-f0-9]{64}$/i,
       'positive-control container ID was not returned');
     const exitCode = dockerCli(['wait', containerId], 10000);
-    assert.equal(exitCode, '0',
-      'bridge positive-control process did not exit successfully');
     const output = dockerCli(['logs', containerId], 5000);
+    assert.equal(exitCode, '0',
+      'host-network positive-control process did not exit successfully: ' + output);
     assert.equal(output, 'HOST_GATEWAY_POSITIVE_CONTROL');
-    return { connected: true, response: output };
+    return { connected: true, response: output, network: 'host' };
   } finally {
     if (containerId) {
       try { dockerCli(['rm', '-f', containerId], 5000); } catch {}
@@ -364,9 +364,9 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
   let bundle;
   const results = [];
   try {
-    const bridgeControl = runBridgePositiveControl(hostPort);
+    const hostNetworkControl = runHostNetworkPositiveControl(hostPort);
     assert.equal(hostConnections, 1,
-      'positive-control bridge container did not reach the host service');
+      'host-network positive control did not reach the host service');
 
     const hostNamespaces = hostNamespaceInodes();
     ({ sourceRoot, bundle } = makeBundle(markerPaths, hostPort, hostNamespaces, process.pid, hostProcessMarker));
@@ -440,7 +440,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       schema: 'agent36-agent49-docker-policy-canary-report-v2',
       runtime,
       bundle: bundle.manifest,
-      bridgePositiveControl: bridgeControl,
+      bridgePositiveControl: hostNetworkControl,
       constraints: {
         imageDigest: IMAGE_DIGEST,
         platform: PLATFORM,
