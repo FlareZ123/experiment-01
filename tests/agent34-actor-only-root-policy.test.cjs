@@ -1582,6 +1582,37 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(terminalCrossover.retainedBasicPsychicEnergyCount,7);
   assert.equal(terminalCrossover.routeComparison,'max-geist-unique-terminal-ko');
 
+  const unknownSkylinerView={
+    ...terminalWithRadiantLatias,
+    ownPublic:{...terminalWithRadiantLatias.ownPublic,
+      bench:[{...latias,abilitySuppressions:[{abilityName:'Skyliner',
+        suppressed:null,reasonCode:null,sourcePrinting:null}]},clefairy,sevenPsychicVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    unknownSkylinerView,postTimelessCatalog,{ownerSeat:0}),null,
+    'printed Skyliner without a live-Ability fact cannot establish the extra-turn line');
+
+  const unknownFairyZoneView={
+    ...terminalWithRadiantLatias,
+    ownPublic:{...terminalWithRadiantLatias.ownPublic,
+      bench:[latias,{...clefairy,abilitySuppressions:[{abilityName:'Fairy Zone',
+        suppressed:null,reasonCode:null,sourcePrinting:null}]},sevenPsychicVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    unknownFairyZoneView,postTimelessCatalog,{ownerSeat:0}),null,
+    'unknown candidate Fairy Zone liveness cannot certify the Dragon Weakness multiplier');
+
+  const suppressedFairyZoneView={
+    ...terminalWithRadiantLatias,
+    ownPublic:{...terminalWithRadiantLatias.ownPublic,
+      bench:[latias,{...clefairy,abilitySuppressions:[{abilityName:'Fairy Zone',
+        suppressed:true,reasonCode:'TEST_SUPPRESSION',sourcePrinting:'Test Suppressor'}]},
+        sevenPsychicVmax]}
+  };
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    suppressedFairyZoneView,postTimelessCatalog,{ownerSeat:0}),null,
+    'a proven-suppressed candidate Fairy Zone cannot supply the Dragon Weakness multiplier');
+
   const sixPsychicVmax={...vmax,energies:[psychic,psychic,psychic,psychic]};
   const sixEnergyNoCrossover={
     ...withRadiantLatias,
