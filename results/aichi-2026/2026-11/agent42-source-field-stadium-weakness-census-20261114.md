@@ -32,7 +32,7 @@ No Neutralization Zone, Plasma Frigate, Shadow Circle, Altar of the Sunne, damag
 
 ### Stadium-effect suppression context
 
-The 29 published source lists contain no Lunatone OBF + Solrock CES New Moon pair, and the frozen candidate list also contains neither card. Agent44's native suppression test therefore documents a general public-cost-estimation failure mode, not a demonstrated Aichi matchup configuration. The separately exposed per-player suppression epoch is still a public-state requirement if it can be set by another effect; see `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md`.
+The 29 published source lists contain no Lunatone OBF + Solrock CES New Moon pair or Shiftry XY11 11, and the frozen candidate list contains neither New Moon partner. Agent44's native suppression test therefore documents a general public-cost-estimation failure mode, not a demonstrated Aichi matchup configuration. Shiftry XY11 11 Wicked Wind is a natural Expanded-legal source of the no-effect epoch, but does not occur in the 29 published lists. The separately exposed per-player suppression epoch remains a public-state requirement; see `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md`.
 
 ## Weakness-modifying Pokémon identities in the 29 lists
 
