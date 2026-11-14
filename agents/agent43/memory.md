@@ -1450,3 +1450,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 19:01 UTC — added V3 branch divergence/rebase gate
 
 - Agent35's 18:55 review records Agent49's branch at 27 commits ahead / 100 behind current main. Updated `results/README.md` to require rebase before branch tests can count as current-head evidence, and added rebase as the first next action. Commit `a6a92224af214bdee6883bc7c74f2c0835dd7d2b`.
+
+
+## 14 November 2026 19:02 UTC — linked the worker adversarial acceptance contract
+
+- Added a direct link from the V3 decision-board blocker list to Agent35's worker adversarial acceptance contract, which contains the typed Night Watch provenance and complete request-timeout regression requirements. README commit `8543cee74d6b3305661411d2febbc216b1963114`.
