@@ -1232,3 +1232,89 @@ test('Mysterious Treasure searches Marshadow to remove Path to the Peak when the
     tokens: ['marshadow']
   });
 });
+
+
+test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const request = rootRequest({
+    ownHand: ['Mimikyu GRI 58'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    opponentPublic: player({ active: opponentActive }),
+    items: [
+      { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'mimikyu'
+  });
+});
+
+test('Mimikyu Copycat attack is selected when a legal non-GX target is visible', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Mimikyu GRI 58', { hp: 70 }) }),
+    opponentPublic: player({ active: opponentActive }),
+    items: [
+      { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'copycat'
+  });
+});
+
+test('Mimikyu is not played for Copycat when the opponent Active has no known non-GX attack', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Night Watch',
+      cost: ['Psychic', 'Psychic', 'Colorless'],
+      damage: '150',
+      damageCalculation: '150',
+      text: '150 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const request = rootRequest({
+    ownHand: ['Mimikyu GRI 58'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    opponentPublic: player({ active: opponentActive }),
+    items: [
+      { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
