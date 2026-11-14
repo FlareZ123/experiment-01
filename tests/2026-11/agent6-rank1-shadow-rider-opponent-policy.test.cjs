@@ -718,3 +718,96 @@ test('VS Seeker retrieves Tulip when the discard contains a recoverable Psychic 
     tokens: ['tulip']
   });
 });
+
+
+test('unknown card-combination source abstains instead of selecting a plausible-looking card', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(null, 'Unknown search effect'),
+    choices: [
+      { token: 'v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE'
+  });
+});
+
+test('unknown confirmation source abstains rather than selecting Yes', () => {
+  const request = promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource(null, 'Unknown confirmation'),
+    choices: [
+      { token: 'yes', kind: 'option', label: 'Yes' },
+      { token: 'no', kind: 'option', label: 'No' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE'
+  });
+});
+
+test('known Star Alchemy confirmation selects Yes', () => {
+  const request = promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Forest Seal Stone SIT 156', 'Star Alchemy'),
+    choices: [
+      { token: 'yes', kind: 'option', label: 'Yes' },
+      { token: 'no', kind: 'option', label: 'No' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'yes'
+  });
+});
+
+test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night Watch', () => {
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      copiedAttackName: 'Max Geist'
+    },
+    choices: [
+      { token: 'eon', kind: 'attack', label: 'Eon Blade',
+        publicMetadata: { sourceAttack: 'Eon Blade' } },
+      { token: 'max', kind: 'attack', label: 'Max Geist',
+        publicMetadata: { sourceAttack: 'Max Geist' } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice',
+    token: 'max'
+  });
+});
+
+test('non-Copycat attack-choice source abstains', () => {
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: actorChoiceSource('Tapu Lele-GX GRI 60', 'Choose an attack'),
+    choices: [
+      { token: 'energy-drive', kind: 'attack', label: 'Energy Drive',
+        publicMetadata: { sourceAttack: 'Energy Drive' } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE'
+  });
+});
