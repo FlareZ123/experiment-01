@@ -252,6 +252,15 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validatePublicEventReceipt({
     ...receipt, opponentLastTurnAttacks: [{ ...eventRow, opponentHand: ['hidden'] }]
   }, view), /UNKNOWN_FIELD/);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, ownerActive: { printing: 'Mimikyu GRI', movedFromBenchToActiveThisTurn: false, knownAbilityUse: [] }
+  }, view), /EVENT_OWNER_ACTIVE_MISMATCH/);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, opponentLastTurnAttacks: [{ ...eventRow, turn: 1 }]
+  }, view), /EVENT_ATTACK_TURN_MISMATCH/);
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt, opponentCopycatChoices: [{ ...eventRow, attackName: 'Different Attack' }]
+  }, view), /COPYCAT_CHOICE_NOT_IN_HISTORY/);
 });
 
 test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
