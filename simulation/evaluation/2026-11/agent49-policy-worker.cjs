@@ -232,7 +232,7 @@ function disablePolicyRandomness() {
     value: deny, writable: false, configurable: false
   });
   const crypto = require('node:crypto');
-  for (const name of ['randomBytes', 'randomInt', 'randomUUID', 'randomFill', 'randomFillSync']) {
+  for (const name of ['randomBytes', 'pseudoRandomBytes', 'randomInt', 'randomUUID', 'randomFill', 'randomFillSync']) {
     Object.defineProperty(crypto, name, {
       value: deny, writable: false, configurable: false
     });
