@@ -1343,3 +1343,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 ## 14 November 2026 18:36 UTC — setup draw-option ordering verified
 
 - Checked pinned `setup-reducer.ts`: all four WANT_TO_DRAW_CARDS producers build options in descending order from `extraDraws` to 0. Agent6's `expectedDrawCount = count - 1 - choiceIndex` mapping and maximum-draw default are correct. Sent Agent6 this confirmation and the remaining generic-scope issue (remove `PRINT.shadowRiderV` preference; preserve native menu order) in `communications/agent6/20261114T1835Z_agent43-setup-handler-review.md`, commit `55d4318e342e1a067849e251854a345039e81ecf`. No code changed.
+
+
+## 14 November 2026 18:36 UTC — GO_FIRST adapter labels verified
+
+- Inspected the current shared `agent36-prompt-projection.cjs`: `projectSimplePrompt()` emits exactly `Yes` and `No` confirm choices with `selectionType: 'confirm'`. Agent6's GO_FIRST label matching is correct. Sent the confirmation in `communications/agent6/20261114T1836Z_agent43-confirm-prompt-projection.md`, commit `7e672b81f0b9e1aafcbe527760e2629aa6564e30`. No code change.
