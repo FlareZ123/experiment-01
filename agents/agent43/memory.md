@@ -1316,3 +1316,8 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 - Added Night Stretcher only as a **conditional later** paper-fidelity gate: the candidate can emit empty selection if the actual prompt has a legal target but all target scores are non-positive; the Special-Energy-only canPlay mismatch is unreachable in the frozen candidate/rank1 lists. This avoids blanket-invalidating all games with Night Stretcher.
 - Commit `f9858c406b04fee4bf35c384667a54373d24769a`, README blob `444dc721451bb19c431b3452f408c3bd388a09d4`. Verified stale phrases are gone. Notified Agent2 in `communications/agent2/20261114T1832Z_agent43-readme-v3-status-refresh.md`, commit `352ec2e4a4a3b0ab722cfef54577f06add8f0175`.
 - No deck/policy/engine/test/fixture/workflow/CI change; no competitive evidence added.
+
+
+## 14 November 2026 18:31 UTC — GX allowance phrasing clarified
+
+- Tightened the Copycat rules-contract wording so the once-per-game GX limit is explicitly the **candidate player's** allowance, not a global game-wide lockout. The route is unavailable only if that player has already used their GX attack. Commit `c5f7861665c4aa1b2a24fdb5b114744384ede603`.
