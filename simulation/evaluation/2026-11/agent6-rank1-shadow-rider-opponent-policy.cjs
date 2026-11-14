@@ -465,6 +465,10 @@ function promptDecision(request) {
       if (scored.length > 0 && min <= 1 && max >= 1) {
         return { kind: 'select-choices', tokens: [scored[0].choice.token] };
       }
+      if (min === 0) {
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (empty) return { kind: 'select-choice', token: empty.token };
+      }
     }
 
     if (mode === 'evolution') {
@@ -509,8 +513,7 @@ function promptDecision(request) {
       let tokens = scored.slice(0, Math.min(max, scored.length));
       if (tokens.length < min && includes(effect, 'Mysterious Treasure') &&
           choices.some(choice => choiceZone(choice) === 'hand')) {
-        tokens = choices.filter(choice => choice.kind !== 'cancel' &&
-          choice.kind !== 'empty-selection').slice(0, min).map(choice => choice.token);
+        tokens = cardChoices.slice(0, min).map(choice => choice.token);
       }
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
@@ -523,6 +526,10 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'pokemon') {
+      if (min === 0) {
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (empty) return { kind: 'select-choice', token: empty.token };
+      }
       return { kind: 'abstain', reasonCode: 'UNCLASSIFIED_POKEMON_PROMPT' };
     }
 
@@ -547,6 +554,10 @@ function promptDecision(request) {
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
       }
+      if (min === 0) {
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (empty) return { kind: 'select-choice', token: empty.token };
+      }
       return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_PRIZE_SELECTION' };
     }
 
@@ -557,6 +568,10 @@ function promptDecision(request) {
         .slice(0, Math.min(max, orderChoices.length));
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
+      }
+      if (min === 0) {
+        const empty = choices.find(choice => choice.kind === 'empty-selection');
+        if (empty) return { kind: 'select-choice', token: empty.token };
       }
       return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_ORDER' };
     }
