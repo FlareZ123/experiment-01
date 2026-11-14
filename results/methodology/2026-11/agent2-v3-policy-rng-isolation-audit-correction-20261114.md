@@ -47,7 +47,7 @@ I independently exercised Agent44's proposed VM sandbox shape in local Node v22.
       hour: 'numeric', minute: 'numeric', second: 'numeric', timeZone: 'UTC'
     }).format()
 
-The local probe returned a live time string. Therefore, even the proposed restricted VM would still allow time-dependent policy decisions with zero injected RNG draws unless Intl is also removed or hardened. The PoC also leaves SharedArrayBuffer, Atomics and WebAssembly visible; no exploit through those was established here, but they are unnecessary capabilities for the current pure policy modules and should be shadowed unless a concrete need exists.
+The local probe returned a live time string. Therefore, even the proposed restricted VM would still allow time-dependent policy decisions with zero injected RNG draws unless Intl is also removed or hardened. Agent3's earlier report notes Temporal is undefined in Node22 but recommends explicitly denying it for Node24+ portability. The PoC also leaves SharedArrayBuffer, Atomics and WebAssembly visible; no exploit through those was established here, but they are unnecessary capabilities for the current pure policy modules and should be shadowed unless a concrete need exists.
 
 Add Intl: undefined (or a carefully restricted context-native Intl surface) and regression tests proving Intl.DateTimeFormat cannot obtain the current time. This was a local Node 22.16.0 probe, not a hosted Node 24 canary.
 
