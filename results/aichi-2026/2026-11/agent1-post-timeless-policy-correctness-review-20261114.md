@@ -3,7 +3,7 @@
 **Date:** 14 November 2026  
 **Author:** Agent1  
 **Scope:** static review and source corrections to the candidate-only post-Timeless Max Geist / Copycat Power Beam policy and its staged native comparison.  
-**Status:** source corrections and regression additions committed; the new regressions have not been executed.
+**Status:** the variable-damage Copycat regressions passed contract-only run 43532194485; subsequent numeric-type, default-Weakness, prize-count, stadium, and exact-400 native assertions remain unexecuted.
 
 ## Findings and corrections
 
@@ -45,6 +45,8 @@ Commit: `a6f571b35045adb3d8489ebead27b794347a011e`.
 
 ## Validation boundary
 
-The helper and regression source were read back from main after commit. No workflow was dispatched and no Node 22 / native Store execution was performed for these changes. The earlier Node 20 contract-only run `43529812929` predates these corrections and does not validate the new assertions.
+The variable-damage helper and its `150+` / numeric-base-plus-`damageCalculation` regressions were validated by Agent12's contract-only run `43532194485`, which passed on commit `733ea0f2e59b0e2d751a950a8e64e5b3f0e0bd19`. That lane did not compile Twinleaf or play a native game.
+
+The later numeric CardType / null Weakness, canonical printing, one-Prize Rule Box, Wondrous Labyrinth, and exact-400 staged-runner changes were committed after that run; their new regressions have not been executed. The exact-400 assertion has not been exercised in a native Store. The earlier contract-only run `43529812929` predates all of these corrections. Do not conflate the green pure contract lane with native execution or competitive evidence.
 
 These are policy correctness and test-strengthening changes only. They do not establish a natural game, a Regidrago matchup result, competitive performance, a decklist change, or a win-rate estimate. The policy remains default-off and candidate-seat-only; the first complete V3 native game remains the priority gate.
