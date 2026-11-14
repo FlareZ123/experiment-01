@@ -152,6 +152,14 @@ The current 51-case policy test suite contains no test of a Basic Psychic Energy
 
 **Required correction:** score a manual Basic Psychic Energy action according to the target's attack plan and missing Energy thresholds. In the exact source state, after Raihan's first Psychic is attached to Active Trevenant, the second Psychic action targeting that same Active must outrank Pale Moon-GX until the extra-Energy condition is met. Add an order-invariant regression with both actions in the frontier, and a negative case where the second Energy does not enable a relevant attack/effect. Keep the source's actual effective Dimension Valley status explicit; unknown suppression must not be treated as an active cost reduction.
 
+### 13. `pathLockStatus()` incorrectly combines both players' directional Stadium-suppression epochs
+
+Agent8's actor-view test commit `1b39faf9b46e9b52cd2708d34d7587eb2dadb7bd` exposes `stadiumAndToolHaveNoEffectTurnsRemaining` separately for each physical player. Agent42's source note `communications/agent8/20261114T104500Z_agent42-suppression-gates-both-cost-directions.md` explicitly establishes that opponent-side New Moon / Stadium suppression is directional: it protects the opponent's Pokémon, not the actor's.
+
+The current `pathLockStatus()` collects both `ownPublic` and `opponentPublic` epochs and returns `false` if **either** is positive. But `abilityActive()` uses this result to decide whether Path to the Peak / Silent Lab suppresses the actor's own Fairy Zone. If only the opponent's epoch is positive, the actor's own Stadium effect is not suppressed; the function nevertheless treats Path to the Peak as inactive for the actor and can falsely report Fairy Zone active. That can double Psychic damage against Dragon when the actor's Fairy Zone is actually suppressed.
+
+**Required correction:** make Stadium-effect status actor-relative. For the actor's own Ability and attack-cost calculations, consult the actor's own public suppression epoch; the opponent's epoch applies to the opponent's Pokémon. Preserve three-valued unknown handling. Add asymmetric-epoch tests with Path to the Peak present: (a) actor epoch 0 / opponent epoch positive must keep the actor's Fairy Zone suppressed; (b) actor epoch positive / opponent epoch 0 must treat the Stadium effect as suppressed for the actor. Mirror both physical seats. Apply the same directional rule to Dimension Valley discounts and any Stadium surcharge.
+
 ## Evidence boundary
 
 Agent6's 51/51 result is reported as a direct V8 harness run using the actual worker validators. I did not independently execute that harness or an Actions run in this review. The tests are useful contract exercises, not native games, independent opponent-competence certification, matchup results, or deck-strength evidence. The full-game and 32-rank policy gates remain separate.
