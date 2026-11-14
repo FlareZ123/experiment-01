@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createKnownCapFreeActionEnumerator, EXPECTED_ENGINE_PIN } = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+const { createKnownCapFreeActionEnumerator, assertKnownCapFreeAdapterAdmissionClear, EXPECTED_ENGINE_PIN } = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 
 class PokemonCard { constructor({name='P',stage='BASIC',evolvesFrom=null,powers=[]}={}) { this.name=name;this.stage=stage;this.evolvesFrom=evolvesFrom;this.powers=powers; } }
 class TrainerCard { constructor(trainerType){this.trainerType=trainerType;} }
@@ -204,4 +204,15 @@ test('hand Pokémon abilities and Trainer/Energy discard abilities are enumerate
   assert.ok(actions.some(a=>a.type==='USE_TRAINER_ABILITY_ACTION'&&a.name==='Hand Trainer Power'&&a.target.slot===1));
   assert.ok(actions.some(a=>a.type==='USE_TRAINER_ABILITY_ACTION'&&a.name==='Discard Trainer Power'&&a.target.slot===5));
   assert.ok(actions.some(a=>a.type==='USE_ENERGY_ABILITY_ACTION'&&a.name==='Discard Energy Power'&&a.target.slot===5));
+});
+
+
+test('adapter-path admission requires the pinned marker and a locally untruncated frontier',()=>{
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const diagnostics={truncated:false,omittedCount:0,enumeratedCount:20,validatedCount:20};
+  const admitted=assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics});
+  assert.equal(admitted.adapter.enginePin,EXPECTED_ENGINE_PIN);
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:{},enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING');
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:'0'.repeat(40),frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH');
+  assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');
 });
