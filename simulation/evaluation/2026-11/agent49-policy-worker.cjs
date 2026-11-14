@@ -59,6 +59,7 @@ function createRestrictedPolicyRuntime(policySource,policyStream) {
     '(() => {',
     '  const hostDraw=globalThis.__agent49HostDraw;',
     '  delete globalThis.__agent49HostDraw;',
+    "  Object.defineProperty(globalThis,'__agent49HostDraw',{value:undefined,writable:false,configurable:false,enumerable:false});",
     "  if(typeof hostDraw!=='function')throw new Error('POLICY_SANDBOX_BOOTSTRAP_FAILURE');",
     "  const randomDrawError=new Error('POLICY_RANDOM_DRAWS_UNREPLAYABLE');",
     '  Object.freeze(randomDrawError);',
