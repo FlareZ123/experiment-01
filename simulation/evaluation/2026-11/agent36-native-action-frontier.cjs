@@ -138,14 +138,31 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       break;
     }
     case 'ATTACK_ACTION': {
-      actorCard = slotPokemon(player.active);
-      if (!actorCard || typeof action.name !== 'string') return null;
+      const source = action.__agent3AttackSource;
+      const expectedSlot = {
+        'active-pokemon': 'ACTIVE',
+        'bench-pokemon': 'BENCH',
+        'active-tool': 'ACTIVE_TOOL'
+      }[source?.sourceKind];
+      if (!source || !expectedSlot || source.sourceSlot !== expectedSlot ||
+          !Number.isSafeInteger(source.sourceIndex) || source.sourceIndex < 0 ||
+          typeof source.sourceCardName !== 'string' || source.sourceCardName.length === 0 ||
+          typeof source.sourceCardFullName !== 'string' || source.sourceCardFullName.length === 0 ||
+          typeof source.attackName !== 'string' || source.attackName.length === 0 ||
+          action.name !== source.attackName) return null;
       item.kind = 'attack';
-      item.label = 'Attack ' + action.name;
-      const printing = cardPrinting(actorCard);
-      if (printing) item.actorPrinting = printing;
-      item.attackName = action.name;
+      item.label = 'Attack ' + source.attackName;
+      item.actorPrinting = source.sourceCardFullName;
+      item.attackName = source.attackName;
       metadata.attackCostPayable = true;
+      metadata.attackSource = {
+        sourceKind: source.sourceKind,
+        sourceSlot: source.sourceSlot,
+        sourceIndex: source.sourceIndex,
+        sourceCardName: source.sourceCardName,
+        sourceCardFullName: source.sourceCardFullName,
+        attackName: source.attackName
+      };
       break;
     }
     case 'RETREAT_ACTION': {
@@ -164,7 +181,9 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       metadata.targetIndex = action.benchIndex;
       break;
     }
-    case 'USE_ABILITY_ACTION': {
+    case 'USE_ABILITY_ACTION':
+    case 'USE_TRAINER_ABILITY_ACTION':
+    case 'USE_ENERGY_ABILITY_ACTION': {
       target = targetProjection(action.target, state, actorSeat, native);
       if (!target || typeof action.name !== 'string') return null;
       item.kind = 'use-ability';
