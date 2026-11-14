@@ -276,7 +276,9 @@ class AsyncDockerPolicySession {
         role: this.role,
         seat: this.seat,
         policyVersion: this.policyVersion,
-        bundleSha256: this.bundle.bundleSha256
+        bundleSha256: this.bundle.bundleSha256,
+        policyStreamProtocol:'worker-local-independent-crypto-stream-v1',
+        policyDrawCount:0
       }, 'Policy worker startup handshake differs from the frozen role bundle');
       this.channel.assertDrained();
       this.ready = ready;
