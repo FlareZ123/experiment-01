@@ -42,7 +42,7 @@ test('actor observation projection preserves public context but removes private 
 });
 
 test('actor observation projection hides face-down setup Pokemon identities for both players',()=>{
-  for(const phase of [0,1]){
+  for(const phase of [0,1,undefined]){
     const view=sanitizeActorObservation({
       actorSeat:0,globalTurn:1,phase,decisionKind:'owner-root',
       pendingPromptType:null,pendingOwnerDeckSearch:false,ownHand:[],
@@ -225,6 +225,14 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
               active:'PRIVATE_SETUP_AFTER_ACTIVE_1',
               bench:['PRIVATE_SETUP_AFTER_BENCH_1',null]}
           ]}
+      },{
+        actionOrdinal:1,actingSeat:0,turnBefore:1,phaseBefore:null,
+        isRootDecision:false,policyInputKind:'unknown-phase',
+        actionName:'UnknownPhaseSnapshot',actionType:0,dispatchStatus:'succeeded',
+        publicStateBefore:{turn:1,activePlayer:0,pendingPrompts:[],
+          players:[{seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
+            active:'PRIVATE_UNKNOWN_PHASE_ACTIVE',
+            bench:['PRIVATE_UNKNOWN_PHASE_BENCH',null]}]}
       }],
       finalPublicState:{phase:3,turn:3,activePlayer:0,pendingPrompts:[],
         players:[{seat:0,handCount:2,deckCount:35,prizeCount:5,discardCount:1,
@@ -247,7 +255,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     'PRIVATE_SETUP_STATE_ACTIVE_1','PRIVATE_SETUP_STATE_BENCH_0',
     'PRIVATE_SETUP_STATE_BENCH_1','PRIVATE_SETUP_AFTER_ACTIVE_0',
     'PRIVATE_SETUP_AFTER_ACTIVE_1','PRIVATE_SETUP_AFTER_BENCH_0',
-    'PRIVATE_SETUP_AFTER_BENCH_1'
+    'PRIVATE_SETUP_AFTER_BENCH_1','PRIVATE_UNKNOWN_PHASE_ACTIVE','PRIVATE_UNKNOWN_PHASE_BENCH'
   ])assert.equal(json.includes(secret),false,'sanitized output leaked '+secret);
   assert.equal(sanitized.fixtureOnly,true);
   assert.equal(sanitized.competitiveGameQualified,false);
@@ -273,7 +281,13 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
       assert.deepEqual(player.benchOccupied,[true,false]);
     }
   }
-  assert.doesNotMatch(formatSanitizedTraceText(sanitized),/PRIVATE_SETUP_/);
+  const unknownPhaseRecord=sanitized.game.actorDecisions[2];
+  assert.equal(unknownPhaseRecord.publicStateBefore.phase,undefined);
+  assert.equal(unknownPhaseRecord.publicStateBefore.players[0].active,null);
+  assert.equal(unknownPhaseRecord.publicStateBefore.players[0].activeOccupied,true);
+  assert.deepEqual(unknownPhaseRecord.publicStateBefore.players[0].bench,[null,null]);
+  assert.deepEqual(unknownPhaseRecord.publicStateBefore.players[0].benchOccupied,[true,false]);
+  assert.doesNotMatch(formatSanitizedTraceText(sanitized),/PRIVATE_SETUP_|PRIVATE_UNKNOWN_PHASE_/);
   assert.equal(sanitized.quickBallAudit.quickBallCompletedSearchChains,undefined);
   assert.equal(sanitized.quickBallAudit.completedPhysicalChains,1);
   assert.equal(Object.prototype.hasOwnProperty.call(sanitized,'nativeGame'),false);
