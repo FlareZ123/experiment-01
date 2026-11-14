@@ -145,7 +145,7 @@ Only after that policy is frozen and has demonstrated competent attack conversio
 The existing rank19 audit is a useful concrete trace, but the route comparison can be stated generally from the bundled card text. The frozen Hood 1/1/1 baseline contains **2 Lillie's Clefairy ex JTG 56**, **1 Latias ex SSP 76**, **1 Sky Field**, **1 Float Stone**, and **11 Basic Psychic Energy**. The card-pool entries confirm:
 
 - Clefairy ex is Psychic-type; Fairy Zone changes every opposing Dragon Pokémon's Weakness to Psychic (×2).
-- Full Moon Rondo costs Psychic + Colorless and does **20 + 20 per Benched Pokémon on both sides**.
+- Full Moon Rondo costs Psychic + Colorless and does **20 + 20 per Benched Pokémon on both sides**. Because Clefairy ex is Psychic, active Dimension Valley removes the Colorless portion, leaving a one-Psychic attack cost; without Dimension Valley's discount, both printed Energy requirements must be paid.
 - Latias ex's Skyliner gives Basic Pokémon in play no Retreat Cost while its Ability is active.
 - Sky Field raises each Bench limit to eight; if it leaves play, each player discards to five.
 
@@ -169,9 +169,9 @@ For comparison, Max Geist is `10 + 30 × total Psychic Energy attached to your P
 
 | Route | Energy requirement for 280 HP | Board requirement | Attacker's Prize liability |
 |---|---:|---|---:|
-| Full Moon Rondo | 2 Energy on Clefairy ex | 6 combined Benched Pokémon | 2 Prizes |
+| Full Moon Rondo | **1 Psychic** with active Dimension Valley; **2 Energy** without its discount | 6 combined Benched Pokémon | 2 Prizes |
 | Max Geist | 5 Psychic Energy across your board | Shadow Rider VMAX ready to attack | 3 Prizes |
 
-The Rondo line can be funded by one manual attachment plus one Underworld Door attachment to a Benched Clefairy; Latias ex can then provide a free pivot because Clefairy is Basic. This is a *conditional line*, not a claim that those resources are always simultaneously available. The policy must separately verify: Fairy Zone is actually active; Skyliner or another retreat route is actually active; the two Energy are attached to Clefairy; the current combined Bench count crosses the target's remaining-HP threshold; and the native attack is legal. Path to the Peak, Silent Lab, Garbotoxin, Stadium replacement, Tool removal, Bench-space pressure, and the two-Prize Clefairy exposure can all change the line's AMR. If the Stadium/Ability status is unknown, do not assume the Weakness or free-retreat effect.
+With Dimension Valley active, one Psychic attachment is sufficient: attach manually if Clefairy is Active, or use Underworld Door on a Benched Clefairy and pivot it Active with Latias ex. Without the Stadium discount, the two-Energy line can be funded by one manual attachment plus one Underworld Door attachment to a Benched Clefairy, followed by the free Latias ex pivot. These are *conditional lines*, not claims that the resources are always simultaneously available. The policy must separately verify: Fairy Zone is actually active; Skyliner or another retreat route is actually active; the two Energy are attached to Clefairy; the current combined Bench count crosses the target's remaining-HP threshold; and the native attack is legal. Path to the Peak, Silent Lab, Garbotoxin, Stadium replacement, Tool removal, Bench-space pressure, and the two-Prize Clefairy exposure can all change the line's AMR. If the Stadium/Ability status is unknown, do not assume the Weakness or free-retreat effect.
 
 This comparison is common to all three frozen copy-count lists: none changes Clefairy, Latias, Sky Field, Float Stone, or the Psychic Energy count. It is therefore a candidate-policy/attack-conversion requirement, not evidence favoring 2/1/1 over 1/2/1. Evaluate the live damage and Prize exchange at the decision point; do not rank attacks by nominal damage alone.
