@@ -1,0 +1,146 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { createKnownCapFreeActionEnumerator, EXPECTED_ENGINE_PIN } = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+
+class PokemonCard { constructor({name='P',stage='BASIC',evolvesFrom=null,powers=[]}={}) { this.name=name;this.stage=stage;this.evolvesFrom=evolvesFrom;this.powers=powers; } }
+class TrainerCard { constructor(trainerType){this.trainerType=trainerType;} }
+class EnergyCard { constructor(fullName){this.fullName=fullName;} }
+class PlayCardAction { constructor(clientId,handIndex,target){this.type='PLAY_CARD_ACTION';this.clientId=clientId;this.handIndex=handIndex;this.target=target;} }
+class UseAbilityAction { constructor(clientId,name,target){this.type='USE_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
+const native={
+  PokemonCard,TrainerCard,EnergyCard,
+  cardActions:{PlayCardAction},gameActions:{UseAbilityAction},
+  PlayerType:{BOTTOM_PLAYER:1,ANY:3},SlotType:{BENCH:2,DISCARD:5,BOARD:9},
+  Stage:{BASIC:'BASIC'},TrainerType:{ITEM:'ITEM',TOOL:'TOOL',SUPPORTER:'SUPPORTER'}
+};
+function makeState(){
+  const board=[0,1,2].map(i=>({
+    cardList:{pokemonPlayedTurn:0,tools:[]},
+    card:new PokemonCard({name:'Base'+i,powers:[{name:'P'+i+'a',useWhenInPlay:true},{name:'P'+i+'b',useWhenInPlay:true},{name:'P'+i+'c',useWhenInPlay:true}]}),
+    target:{player:1,slot:2,index:i}
+  }));
+  const hand=[
+    ...Array.from({length:9},(_,i)=>new PokemonCard({name:'Evolution'+i,stage:'STAGE_1',evolvesFrom:'Base0'})),
+    ...Array.from({length:9},(_,i)=>new PokemonCard({name:'Basic'+i,stage:'BASIC'})),
+    ...['E1','E2','E3'].map(x=>new EnergyCard(x)),
+    ...Array.from({length:3},()=>new TrainerCard('TOOL')),
+    ...Array.from({length:9},()=>new TrainerCard('ITEM')),
+    ...Array.from({length:9},()=>new TrainerCard('SUPPORTER'))
+  ];
+  const discard=Array.from({length:9},(_,i)=>new PokemonCard({name:'D'+i,powers:[{name:'DPA'+i,useFromDiscard:true}]}));
+  const player={
+    id:'p0',hand:{cards:hand},bench:[{cards:[]}],discard:{cards:discard},
+    supporter:{cards:[]},supporterTurn:0,energyPlayedTurn:0,
+    forEachPokemon(_which,fn){for(const p of board)fn(p.cardList,p.card,p.target);}
+  };
+  return {activePlayer:0,turn:7,players:[player,{id:'p1'}]};
+}
+class ActionEnumerator {
+  enumerate(state,player,clientId){
+    return [
+      ...this.evolveActions(state,player),...this.playBasicActions(state,player),
+      ...this.attachEnergyActions(state,player),...this.attachToolActions(state,player),
+      ...this.discardAbilityActions(state,player),...this.playItemActions(state,player),
+      ...this.playStadiumActions(state,player),...this.playSupporterActions(state,player),
+      ...this.abilityActions(state,player),...this.useStadiumActions(state,player),
+      ...this.retreatActions(state,player),...this.attackActions(state,player),
+      {type:'PASS_TURN',clientId}
+    ];
+  }
+  capped(actions){return actions.slice(0,8);}
+  evolveActions(state,player){
+    const actions=[];const pokemons=[];
+    player.forEachPokemon(1,(cardList,card,target)=>{if(cardList.pokemonPlayedTurn!==state.turn)pokemons.push({card,target});});
+    for(const p of pokemons){for(let i=0;i<player.hand.cards.length;i++){const c=player.hand.cards[i];if(c instanceof PokemonCard&&c.evolvesFrom===p.card.name){actions.push(new PlayCardAction(player.id,i,p.target));if(actions.length>=8)return actions;}}}
+    return actions;
+  }
+  playBasicActions(state,player){
+    const empty=player.bench.filter(x=>x.cards.length===0);if(!empty.length)return [];
+    const target={player:1,slot:2,index:0};const actions=[];
+    for(let i=0;i<player.hand.cards.length;i++){const c=player.hand.cards[i];if(c instanceof PokemonCard&&c.stage==='BASIC'){actions.push(new PlayCardAction(player.id,i,target));if(actions.length>=8)break;}}
+    return actions;
+  }
+  attachEnergyActions(state,player){
+    if(player.energyPlayedTurn>=state.turn)return [];
+    const indexes=[],seen=new Set();player.hand.cards.forEach((c,i)=>{if(c instanceof EnergyCard&&!seen.has(c.fullName)){seen.add(c.fullName);indexes.push(i);}});
+    const actions=[];for(const index of indexes){player.forEachPokemon(1,(cardList,card,target)=>actions.push(new PlayCardAction(player.id,index,target)));if(actions.length>=8)break;}
+    return actions.slice(0,8);
+  }
+  attachToolActions(state,player){
+    const actions=[];for(let i=0;i<player.hand.cards.length;i++){const c=player.hand.cards[i];if(!(c instanceof TrainerCard)||c.trainerType!=='TOOL')continue;player.forEachPokemon(1,(cardList,card,target)=>{if(cardList.tools.length===0)actions.push(new PlayCardAction(player.id,i,target));});if(actions.length>=8)break;}return actions.slice(0,8);
+  }
+  discardAbilityActions(state,player){
+    const actions=[];player.discard.cards.forEach((card,index)=>{if(!(card instanceof PokemonCard))return;const target={player:1,slot:5,index};for(const power of card.powers){if(power.useFromDiscard)actions.push(new UseAbilityAction(player.id,power.name,target));}});return actions.slice(0,8);
+  }
+  playItemActions(state,player){
+    const actions=[],target={player:3,slot:9,index:0};for(let i=0;i<player.hand.cards.length;i++){const c=player.hand.cards[i];if(c instanceof TrainerCard&&c.trainerType==='ITEM'){actions.push(new PlayCardAction(player.id,i,target));if(actions.length>=8)break;}}return actions;
+  }
+  playStadiumActions(){return [{type:'STADIUM_MARKER'}];}
+  playSupporterActions(state,player){
+    if(player.supporter.cards.length>0||player.supporterTurn>=state.turn)return [];
+    const actions=[],target={player:3,slot:9,index:0};for(let i=0;i<player.hand.cards.length;i++){const c=player.hand.cards[i];if(c instanceof TrainerCard&&c.trainerType==='SUPPORTER'){actions.push(new PlayCardAction(player.id,i,target));if(actions.length>=8)break;}}return actions;
+  }
+  abilityActions(state,player){
+    const actions=[];player.forEachPokemon(1,(cardList,card,target)=>{for(const power of card.powers){if(power.useWhenInPlay)actions.push(new UseAbilityAction(player.id,power.name,target));}});return actions.slice(0,8);
+  }
+  useStadiumActions(){return [{type:'STADIUM_USE_MARKER'}];}
+  retreatActions(){return [{type:'RETREAT_MARKER'}];}
+  attackActions(){return [{type:'ATTACK_MARKER'}];}
+}
+native.ActionEnumerator=ActionEnumerator;
+
+test('pinned adapter removes all eight known per-family caps and preserves upstream ordering',()=>{
+  const state=makeState();
+  const original=new ActionEnumerator().enumerate(state,state.players[0],'p0');
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const actions=enumerator.enumerate(state,state.players[0],'p0');
+  const count=(type)=>actions.filter(x=>x.type===type).length;
+  assert.equal(original.filter(x=>x.type==='PLAY_CARD_ACTION').length,8*6);
+  assert.equal(original.filter(x=>x.type==='USE_ABILITY_ACTION').length,8*2);
+  assert.equal(count('PLAY_CARD_ACTION'),9*6);
+  assert.equal(count('USE_ABILITY_ACTION'),9*2);
+  assert.equal(actions[54].type,'STADIUM_MARKER');
+  assert.deepEqual(actions.slice(-4).map(x=>x.type),[
+    'STADIUM_USE_MARKER','RETREAT_MARKER','ATTACK_MARKER','PASS_TURN'
+  ]);
+  assert.equal(actions.at(-1).type,'PASS_TURN');
+  assert.equal(enumerator.__agent3UncappedAdapter.enginePin,EXPECTED_ENGINE_PIN);
+});
+
+test('Energy deduplication remains by fullName while target combinations are uncapped',()=>{
+  const state=makeState();
+  const player=state.players[0];
+  player.hand.cards=Array.from({length:9},()=>new EnergyCard('Basic Psychic'));
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const actions=enumerator.attachEnergyActions(state,player);
+  assert.equal(actions.length,3);
+});
+
+test('adapter rejects an unreviewed Twinleaf pin or missing native exports',()=>{
+  assert.throws(()=>createKnownCapFreeActionEnumerator({native,enginePin:'0'.repeat(40)}),/reviewed only for the pinned Twinleaf revision/);
+  assert.throws(()=>createKnownCapFreeActionEnumerator({native:{...native,cardActions:{}},enginePin:EXPECTED_ENGINE_PIN}),/PlayCardAction constructor is required/);
+});
+
+test('adapter is behavior-identical to the pinned enumerator when no known cap is hit',()=>{
+  const base=new PokemonCard({name:'Base',powers:[{name:'InPlay',useWhenInPlay:true}]});
+  const cardList={pokemonPlayedTurn:0,tools:[]};
+  const target={player:1,slot:2,index:0};
+  const player={
+    id:'p0',
+    hand:{cards:[
+      new PokemonCard({name:'Evolution',stage:'STAGE_1',evolvesFrom:'Base'}),
+      new PokemonCard({name:'Basic',stage:'BASIC'}),
+      new EnergyCard('E1'),new TrainerCard('TOOL'),
+      new TrainerCard('ITEM'),new TrainerCard('SUPPORTER')
+    ]},
+    bench:[{cards:[]}],
+    discard:{cards:[new PokemonCard({name:'Discard',powers:[{name:'DiscardPower',useFromDiscard:true}]})]},
+    supporter:{cards:[]},supporterTurn:0,energyPlayedTurn:0,
+    forEachPokemon(_which,fn){fn(cardList,base,target);}
+  };
+  const state={activePlayer:0,turn:7,players:[player,{id:'p1'}]};
+  const original=new ActionEnumerator().enumerate(state,player,'p0');
+  const patched=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN}).enumerate(state,player,'p0');
+  assert.deepEqual(patched,original);
+});
