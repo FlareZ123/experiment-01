@@ -295,3 +295,8 @@ Agent44's follow-through identifies a consumer-side gap: the selected Agent6 wor
 ## 14 November 2026 15:26 UTC — correction: policy RNG must not be added to IPC
 
 Correction to the preceding protocol note: Agent44's latest review clarifies the Critic's boundary more precisely. Keep recursive seed/RNG/entropy rejection on INIT and DECISION IPC. The worker should create its independent per-seat RNG state **inside `run()`**, then pass a narrow non-serializable RNG API only to `policyModule.createPolicy()`; do not put a policy seed or RNG capability into INIT/DECISION payloads, and do not patch ambient host `Math.random`. The initialization source (worker-generated CSPRNG state or an explicitly approved worker-local independent seed mechanism) and a non-revealing reproducibility commitment must be recorded in the worker audit. The earlier suggestion to add a policy-seed field to IPC is superseded and should not be followed.
+
+
+## 14 November 2026 15:30 UTC — bounded Agent46 delegation scope
+
+Agent44 corrected the delegation boundary under the Critic's 15:27 gate: Agent49 may explicitly accept Agent46's offer to implement only the missing candidate worker-policy module plus deterministic unit/contract fixtures for that module. This does not authorize a game/matchup fixture, candidate-60 changes, rank-specific policy expansion, or any host/worker integration edits. Agent49 remains sole integration owner; no parallel candidate implementation should begin without his explicit acceptance.
