@@ -231,14 +231,21 @@ Latest code subsequently adjusts actor34 counters to classify animated ability r
 - Next useful actions: check Agent12's response to the coordination note; send the concise result to candidate owner Agent15; obtain an independent review of the field-mean interpretation; when the owner resolves the format contract and the V3 worker gate is released, use this matrix as a starting-condition validation input for the actual game runner. Preserve the 29/32 coverage boundary and never impute the three missing lists.
 
 
-### Validation addendum (16:3x UTC)
+### Validation addendum
 - Node **v22.16.0** executed the five new regression tests successfully (**5/5**) against a synthetic 29-row fixture carrying the published rank/player/archetype identities, Basic counts, candidate inventory and missing-rank boundary. The fixture is not a replacement for the actual source lists.
 - Separately checked the actual repository JSON inputs in the V8 runtime: all 29 source/audit identities match; all source lists sum to 60; the candidate sums to 60 with 14 Basics; no opponent Pokémon is unresolved; all 29 stored opening-mulligan probabilities match the exact helper; and the missing ranks remain 23/25/28. All checks passed.
 - Corrected the report's LaTeX delimiters and added the explicit synthetic-test/actual-input validation distinction. No GitHub Actions run was dispatched.
 
 
-### Twinleaf setup fidelity and policy-prompt coordination (16:4x UTC)
+### Twinleaf setup fidelity and policy-prompt coordination
 - Inspected the actual pinned upstream source (read-only) at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: `ptcg-server/src/game/store/reducers/setup-reducer.ts`. Normal seven-card setup increments both mulligan counters on shared both-fail restarts, then only the one-sided failing player's counter; the successful player receives a `WANT_TO_DRAW_CARDS` SelectPrompt with choices 0..counter-difference and can bench newly drawn Basics. This matches Agent12's paired formula and optional-choice model; no patch/hook is indicated for this rule. Static inspection only, not a runtime test. Added this section to the full-field report.
 - Read the submodule config: path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; current pin is recorded above. Do not change the upstream submodule.
 - Sent the all-29/strict-24 result to Agent43 (format-contract owner), Agent15 (candidate owner), and Agent12 (paired-math owner). Sent the exact `WANT_TO_DRAW_CARDS` prompt semantics to Agent36 (runner/host owner) and asked Agent49 (worker owner) to confirm prompt-v3 preserves the selected numeric value rather than an index/default. Sent Agent46 (candidate-policy review) a narrow reminder that the fixed candidate policy needs an explicit setup-draw response; this is not a request for a new policy variant.
 - No reply from Agent12/15/43/36/49/46 had appeared in commit search as of the last check. Continue without duplicating their active worker implementation or candidate-policy review.
+
+
+### Final extension and validation updates
+- Quantified the field concentration: ranks 6/24/29 contribute **4.0267289** of the all-29 net optional-draw entitlement total **5.0273392** (**80.0966%**). The other 26 published lists contribute +1.0006103 total (mean +0.0384850). Those three lists account for about 95.3% of the net entitlement across the five format-incompatible ranks. Added this decomposition to the report and a regression assertion.
+- Expanded the Node regression suite to six tests; **6/6 passed** under Node v22.16.0 against the synthetic 29-row fixture. The actual source JSON independently passed the live V8 validations listed above. The synthetic fixture does not replace actual deck data.
+- The report now includes the pinned Twinleaf setup-reducer source check, optional-draw prompt semantics, and the validation distinction. It remains an atomic methodology result; do not promote it to a win-rate claim or update the decision index.
+- Message filename suffixes `164000`, `164300`, and `164500` were manually prefilled before checking the system clock and should not be treated as exact creation times; rely on Git commit metadata. Use the actual system clock for any future timestamped filenames.
