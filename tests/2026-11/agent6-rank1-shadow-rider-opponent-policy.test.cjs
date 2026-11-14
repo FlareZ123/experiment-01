@@ -920,3 +920,123 @@ test('Guzma abstains rather than returning fewer targets than a multi-target pro
     reasonCode: 'UNCLASSIFIED_POKEMON_PROMPT'
   });
 });
+
+
+test('Raihan attaches to Latias when it is one Psychic Energy short of Eon Blade', () => {
+  const latias = pokemon('Latias ex SSP 76', {
+    hp: 210,
+    energies: ['Psychic Energy MEE 13']
+  });
+  const rider = pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' });
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Raihan EVS 152', 'Raihan'),
+    choices: [
+      { token: 'active', kind: 'pokemon', printing: 'Girafarig LOT 94',
+        label: 'Girafarig', publicMetadata: { selectionIndex: 0, selectedCount: 1,
+          selectionType: 'pokemon', ownerSeat: 'actor', targetZone: 'active',
+          isOwnerVisible: true } },
+      { token: 'latias', kind: 'pokemon', printing: latias.printing,
+        label: 'Latias ex', publicMetadata: { selectionIndex: 1, selectedCount: 1,
+          selectionType: 'pokemon', ownerSeat: 'actor', targetZone: 'bench',
+          isOwnerVisible: true } },
+      { token: 'rider', kind: 'pokemon', printing: rider.printing,
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { selectionIndex: 2,
+          selectedCount: 1, selectionType: 'pokemon', ownerSeat: 'actor',
+          targetZone: 'bench', isOwnerVisible: true } }
+    ],
+    publicMetadata: {
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    },
+    observation: {
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94', { hp: 90 }),
+        bench: [latias, rider]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['latias']
+  });
+});
+
+test('Field Blower removes the opponent stadium and tool, not the owner stadium', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'path', kind: 'card', printing: 'Path to the Peak CRE 148',
+        label: 'Path to the Peak', publicMetadata: {
+          sourceZone: 'play', targetZone: 'stadium', ownerSeat: 'opponent',
+          isOwnerVisible: true
+        } },
+      { token: 'tool', kind: 'card', printing: 'Float Stone BKT 137',
+        label: 'Float Stone', publicMetadata: {
+          sourceZone: 'play', targetZone: 'tool', ownerSeat: 'opponent',
+          isOwnerVisible: true
+        } },
+      { token: 'own-stadium', kind: 'card', printing: 'Dimension Valley PHF 93',
+        label: 'Dimension Valley', publicMetadata: {
+          sourceZone: 'play', targetZone: 'stadium', ownerSeat: 'actor',
+          isOwnerVisible: true
+        } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      sourceZone: 'play',
+      minimumCount: 0,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['path', 'tool']
+  });
+});
+
+test('Get Lost removes the opponent recovery cards before Basic Psychic Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Girafarig LOT 94', 'Get Lost'),
+    choices: [
+      { token: 'energy', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: {
+          sourceZone: 'discard', ownerSeat: 'opponent', isOwnerVisible: true
+        } },
+      { token: 'seeker', kind: 'card', printing: 'VS Seeker PHF 109',
+        label: 'VS Seeker', publicMetadata: {
+          sourceZone: 'discard', ownerSeat: 'opponent', isOwnerVisible: true
+        } },
+      { token: 'charge', kind: 'card', printing: 'Special Charge STS 105',
+        label: 'Special Charge', publicMetadata: {
+          sourceZone: 'discard', ownerSeat: 'opponent', isOwnerVisible: true
+        } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      sourceZone: 'discard',
+      minimumCount: 0,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      opponentPublic: player({
+        discard: ['Psychic Energy MEE 13', 'VS Seeker PHF 109', 'Special Charge STS 105']
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['seeker', 'charge']
+  });
+});
