@@ -30,11 +30,22 @@ Two Vileplume lists are worth distinguishing because the Pokémon name alone is 
 - Rank15 Ryotaro Nozawa's Lopunny Vileplume uses Vileplume AOR 3 and Vileplume BUS 6; BUS 6 has Disgusting Pollen (Basic-Pokémon attack restriction), not Allergy Panic.
 Neither is a Weakness modifier from the census.
 
-The three known Fairy Zone lists mean that a blanket “any opponent Ability text containing Weakness → abstain” guard will lose explicit coverage against at least these three known field entries. The candidate's own list also contains Lillie's Clefairy ex, so the policy must model the candidate's Fairy Zone against opponent Dragon Pokémon. The opponent-side Fairy Zone is directional: Hood v1's Latias ex SSP 76 is **Psychic type**, not Dragon, and the candidate's other Pokémon are Psychic/Metal. Therefore an opponent Fairy Zone does not change the Weakness of any Pokémon in the current Hood list; it should not trigger a blanket veto for Max Geist merely because the opponent has Clefairy. This conclusion is specific to the current candidate's types.
+The three known Fairy Zone lists mean that a blanket “any opponent Ability text containing Weakness → abstain” guard will lose explicit coverage against at least these three known field entries. The candidate's own list also contains Lillie's Clefairy ex, so its Fairy Zone must be modeled against opponent Dragon Pokémon. The opponent-side Fairy Zone is directional too: Hood v1's Latias ex SSP 76 is **Psychic type**, not Dragon, but its Dialga-GX UPR 100 is **Dragon type**. An opponent Fairy Zone can therefore change the Weakness of that Dialga-GX when it is in play; it does not change Latias ex, Shadow Rider VMAX, Mimikyu or Clefairy. The policy needs a board-aware, owner-relative model rather than a blanket opponent-Ability veto.
+
+## Dragon-target coverage in the 29 lists
+
+A second exact-printing scan of the same 29 lists finds Dragon-type Pokémon in **12 ranks**:
+- Rank1 Shadow Rider Calyrex: Radiant Eternatus CRZ105 and Dialga-GX UPR100.
+- Ranks10, 12, 13, 14, 18, 20, 21, 27 and 32: Regidrago variants with Regidrago V/VSTAR and supporting Dragon attackers (including Dragapult ex, Noivern ex, Hisuian Goodra VSTAR, Kyurem, Koraidon ex, Mega Dragonite ex, Salamence ex, or Dialga-GX depending on list).
+- Rank15 Lopunny Vileplume: Tatsugiri TWM131.
+- Rank19 Raging Bolt: Raging Bolt ex TEF123 and Arceus & Dialga & Palkia-GX CEC156.
+- Rank30 Lillie's Clefairy: Dialga-GX UPR100.
+
+This is where the candidate's own Fairy Zone can matter: it can make those opponent Dragon Pokémon Psychic-weakness targets. The three opponent Fairy Zone lists are ranks1, 5 and 30; ranks1 and 30 also contain Dragon Pokémon, while rank5's Fairy Zone can still affect the candidate's Dialga-GX if that card is on the board. The candidate's Dialga-GX UPR100 is Dragon; Latias ex SSP76 is Psychic. The missing ranks23,25,28 may add more Dragon targets.
 
 ## Policy implications
 
-1. Evaluate Fairy Zone directionally. Candidate Fairy Zone changes Weakness on the opponent's Dragon Pokémon. The current Hood list contains no Dragon Pokémon: Latias ex SSP 76 is Psychic type. Thus opponent Fairy Zone has no target on the candidate's current Pokémon, though a future candidate containing Dragon Pokémon would need the symmetric check.
+1. Evaluate Fairy Zone directionally and per Pokémon. Candidate Fairy Zone changes Weakness on opponent Dragon Pokémon. Opponent Fairy Zone changes Weakness on Hood v1's Dialga-GX UPR 100 (Dragon) when it is in play, but not Latias ex SSP 76 (Psychic) or the Psychic attackers. Do not treat the opponent's Fairy Zone as modifying the opponent's own Dragon targets.
 2. Require the exact Lillie's Clefairy ex printing and an explicit live-Ability certificate. Apply known public suppression effects and abstain on unmodeled Ability locks.
 3. Do not assume the presence of Clefairy alone proves Fairy Zone is active. Printed Ability names remain in actorObservation while suppressed.
 4. For target damage, first resolve the target's printed type and existing Weakness/Resistance; then apply any modeled public Weakness modifiers, damage prevention/reduction, and target HP. If an unmodeled modifier can change the result, abstain.
