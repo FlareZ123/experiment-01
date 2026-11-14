@@ -697,13 +697,14 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
 
   if (prompt.promptType === 'ConfirmPrompt' &&
       prompt.description === 'GO_FIRST') {
-    if (metadata.selectionType !== 'confirm') {
+    if (metadata.selectionType !== 'confirm' || metadata.allowCancel === true ||
+        choices.length !== 2 || choices.some(choice => choice.kind !== 'confirm')) {
       return { kind: 'abstain', reasonCode: 'INVALID_GO_FIRST_CONFIRMATION' };
     }
     const yes = choices.find(choice =>
-      choice.kind === 'confirm' && /^yes$/i.test(choice.label ?? ''));
+      /^yes$/i.test(choice.label ?? ''));
     const no = choices.find(choice =>
-      choice.kind === 'confirm' && /^no$/i.test(choice.label ?? ''));
+      /^no$/i.test(choice.label ?? ''));
     if (!yes || !no) {
       return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_GO_FIRST_CHOICES' };
     }
