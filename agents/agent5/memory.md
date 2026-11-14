@@ -1,3 +1,25 @@
+## 14 November 2026 07:21 UTC — V3 worker isolation pivot review
+
+Normal-mode invocation selected by the required actual RNG draw **3**. Continued Agent5 after confirming the prior claim was older than 100 minutes. Current lease: `agents/agent5/.lease.json`, run_id `agent5-chat-20261114T0704Z-normal3-gpt6-be4ab76d-4330-4eec-b5e1-547c355b7d0d`, immutable `claimed_at=2026-11-14T07:04:08.713201Z`; 70-minute release threshold is `08:14:08.713201Z`. Do not refresh the lease. Check actual system time after every checkpoint.
+
+- Current project baseline from `results/README.md`: no fixed final 60-card deck is nominated, zero games qualify as competitive evidence, and 99.5% remains unproven. 29/32 original Aichi opponent lists are authenticated; ranks 23, 25, 28 remain missing. Do not claim competitive progress from isolated fixtures.
+- Read Critic stop-line and current Agent36/Agent49/Agent44/Agent35 coordination. Keep the three candidate deck identities frozen. Do not expand the one-Flittle MCTS pilot, add card probes, change the Max Geist policy, or run another V3 fixture while the worker isolation and owner seed-disclosure gates remain open.
+- Responded to Agent43's Max Geist notes in `communications/agent43/20261114T0709Z_agent5-max-geist-threshold-defer-until-worker.md`: 160 printed damage / five Psychic Energy remaining is the full-health Regidrago VSTAR threshold under Fairy Zone; paid Mimikyu retreat needs six before retreat, free retreat needs five. Explicitly deferred code/tests until worker boundary and owner seed decision.
+- Reviewed Agent44's Linux user-namespace/chroot canary. GitHub Actions run **43569687442** on head `d55db2d` passed 385/386 contract tests (one skipped), then failed the unprivileged user-namespace preflight with `write failed /proc/self/uid_map: Operation not permitted`. This is a hosted-runner capability restriction, not a game/policy failure. Sent Agent36 the root-owned namespace alternative; Agent36 pivoted to a Docker-based policy worker.
+- Reviewed `simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs` and sent targeted notes to Agent36:
+  - `preflightDockerPolicySandbox` declares `clientVersion` / `serverVersion` but returns undefined `dockerClientVersion` / `dockerServerVersion`.
+  - Docker PID and UTS private namespaces are defaults; the helper's explicit `--pid=private` / `--uts=private` may be rejected. Keep `--ipc=private` or use `--ipc=none` if /dev/shm must be absent.
+  - `timeoutMs` currently kills the Docker CLI, not necessarily the daemon-managed container; use cidfile/name-based container kill/rm and require a finite timeout.
+  - Docker default /dev/shm conflicts with a manifest claiming /tmp is the only writable mount; remote Docker contexts should be rejected unless explicitly supported.
+  - Worker image Node 20.19.0 is EOL. Recommended a separately versioned, digest-pinned maintained Node LTS worker runtime; candidate Node 24.22.3 index digest `sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54` (not CI-validated).
+- Agent36 has now integrated `tests/2026-11/agent36-docker-policy-worker.test.cjs` and Docker preflight into the existing `contract_only` lane. No Docker-based contract run has yet been dispatched. The current helper still appears to contain the undefined return identifiers and explicit PID/UTS flags at this checkpoint; do not dispatch until those are corrected. Do not dispatch a fixture game.
+- The Docker worker's canary now checks both seats, host secret/physical-seed/repository/proc/Docker-socket access, host loopback, read-only root, tmp scratch, child-process and worker-thread confinement, non-root UID, and parent Math.random sentinel. It remains a sandbox canary, not a real actor-observation/typed-intent integration test.
+- No code/deck changes were made by Agent5 this invocation; durable contributions are focused cross-agent reviews. Preserve the current ownership split: Agent36 owns runner/launcher/workflow, Agent49 worker-side protocol/modules, Agent44 sandbox review, Agent35 acceptance. Do not duplicate their files.
+
+**Next:** review the next Agent36 Docker helper revision and actual contract-only CI result; help Agent49 with the actor-observation/typed-intent boundary only after the runtime contract is stable. Keep physical seed separate from policy seed. Do not run any V3 fixture until the isolated worker passes its adversarial canary and the owner explicitly chooses the seed-disclosure model. No competitive win-rate claim is supported.
+ 
+---
+
 ## 14 November 2026 00:37 UTC — Agent5 Node 22 gate and MCTS root-ledger repair
 
 Normal-mode incarnation claimed Agent5 with run_id `agent5-chat-20261114T001648Z-normal6-gpt6-0af8508e-5f04-44bb-93c4-5f4aa0a354ba`, claimed_at `2026-11-14T00:16:48.463Z`, roll 6. Do not refresh the lease. Current task is to maintain the existing bounded Agent5 integration lane, not expand MCTS or claim competitive performance.
