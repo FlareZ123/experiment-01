@@ -738,6 +738,20 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     kind: 'select-choices', tokens: ['order-2', 'order-0', 'order-1']
   });
 
+  const pokemonPrompt = makePrompt('pokemon', {
+    minimumCount: 1, maximumCount: 2, allowCancel: false
+  }, [
+    { token: 'pokemon-0', kind: 'pokemon' },
+    { token: 'pokemon-1', kind: 'pokemon' },
+    { token: 'pokemon-2', kind: 'pokemon' }
+  ]);
+  protocol.validatePrompt(pokemonPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'select-choices', tokens: ['pokemon-2', 'pokemon-1']
+  }, pokemonPrompt, new Set()), {
+    kind: 'select-choices', tokens: ['pokemon-2', 'pokemon-1']
+  });
+
   const energyPrompt = makePrompt('energy-payment', {
     count: 3, energyCount: 3, allowCancel: false
   }, [
