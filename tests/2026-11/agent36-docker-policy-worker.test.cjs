@@ -23,6 +23,8 @@ const { createDockerPolicySession } = require('../../simulation/evaluation/2026-
 
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs');
+const PRODUCTION_WORKER_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const PROTOCOL_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
@@ -200,6 +202,26 @@ function makeBundle(markerPaths, networkProbeHost, networkProbePort, referenceNa
   return { sourceRoot, bundle };
 }
 
+function makeProductionBundle(policySourceText) {
+  const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-production-worker-timeout-'));
+  const workerPath=path.join(sourceRoot,'worker.cjs');
+  const protocolPath=path.join(sourceRoot,'agent49-policy-protocol.cjs');
+  const policyPath=path.join(sourceRoot,'policy.cjs');
+  fs.copyFileSync(PRODUCTION_WORKER_SOURCE,workerPath);
+  fs.copyFileSync(PROTOCOL_SOURCE,protocolPath);
+  fs.writeFileSync(policyPath,policySourceText,{mode:0o444});
+  fs.chmodSync(policyPath,0o444);
+  const bundle=createPolicyBundle({
+    sourceRoot,
+    policyFiles:[
+      {sourcePath:workerPath,relativePath:'worker.cjs',sha256:sha256(fs.readFileSync(workerPath))},
+      {sourcePath:protocolPath,relativePath:'agent49-policy-protocol.cjs',sha256:sha256(fs.readFileSync(protocolPath))},
+      {sourcePath:policyPath,relativePath:'policy.cjs',sha256:sha256(fs.readFileSync(policyPath))}
+    ]
+  });
+  return {sourceRoot,bundle};
+}
+
 async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
   const session = await createDockerPolicySession({
     bundle,
@@ -349,7 +371,7 @@ function runNetworkPositiveControl(networkProbe) {
   };
 }
 
-test('actual Agent49 policy worker is isolated from host capabilities in both seats', {
+test('Docker OS canary worker is isolated from host capabilities in both seats', {
   timeout: 180000
 }, async () => {
   const runtime = preflightDockerPolicySandbox({ pull: false });
