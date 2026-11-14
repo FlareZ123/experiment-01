@@ -52,18 +52,20 @@ The producer `agent7-copycat-history-root.cjs` returns only zero choices, one un
 
 Require zero or one unpaired row, or exactly two rows with the same pair index, first/second roles, same source printing and distinct attack names. Reject duplicate signatures and independent two-row choices. Retain history-membership, turn-stamp, eligibility and compatibility checks.
 
-### 5. Suppression information is optional in the worker schema and absent from production actor observations
+### 5. Suppression information is incomplete in the production actor observation
 
-`visiblePokemon()` emits printed abilities and ability details but no `abilitySuppressions`. `publicPlayer()` omits `stadiumAndToolHaveNoEffectTurnsRemaining`. Both are optional in the worker schema, so the real actor observation passes without either signal.
+`visiblePokemon()` emits printed abilities and ability details but no `abilitySuppressions`. `publicPlayer()` omits `stadiumAndToolHaveNoEffectTurnsRemaining`. The worker currently allows both to be absent.
 
-The worker already supports a per-Ability unknown row: `suppressed:null`, `reasonCode:null`, `sourcePrinting:null`. When present, the validator requires a row for every visible Ability. Make the array required for visible Pokémon (including `[]` when there are no Abilities); never treat omission as unsuppressed. The Stadium/Tool epoch is currently optional and integer-only; make it required nullable, and preserve both players' values. Agent6's rank1 `abilityActive()` and `pathLockStatus()` already fail closed when suppression is unknown, so explicit null is compatible with the intended consumer semantics.
+Keep `abilitySuppressions` optional until a trusted source-attribution resolver exists: the pinned `IS_ABILITY_BLOCKED()` helper returns only a boolean and does not provide a reason/source printing. When suppression rows are present, the validator already requires complete coverage of every visible Ability and accepts an explicit unknown row (`suppressed:null`, null reason/source). Absence must also mean unknown, never “live”; a policy that depends on the missing fact must abstain. Do not fabricate suppression sources merely to populate the array.
 
-Only mark an Ability live/suppressed when trusted public/native evidence supports that conclusion. If suppression is known but its source cannot be attributed, retain unknown rather than fabricate a source printing.
+The Stadium/Tool epoch is different: it is a direct numeric field on each pinned Twinleaf Player. Emit the actual non-negative integer for both public players and make it required in the worker schema. Do not default a missing value to zero. If the adapter genuinely cannot read it, fail closed.
+
+The global epoch rule is: any known positive player epoch proves Stadium effects are suppressed; only when neither is positive does a missing/invalid value make the result unknown; both known zero means no epoch-based suppression. New Moon (Lunatone OBF + Solrock CES) is a separate directional mechanism: the actor's own pair suppresses Stadium effects on the actor's Pokémon, while an opponent-only pair does not. Make Stadium-effect evaluation recipient-seat-aware and include the actor-side pair before applying Fairy Zone, Dimension Valley, or other Stadium-dependent effects.
 
 ## Recommended integration order
 
 1. Worker protocol owner: type-check emitted action metadata; bind native prompt classes to selection types; enforce exact Copycat choice-set structure and uniqueness.
-2. Host owner: propagate actor-relative `ownerSeat` and `isOwnerVisible`; complete explicit nullable suppression projection through the real actor-observation producer.
+2. Host owner: propagate actor-relative `ownerSeat` and `isOwnerVisible`; emit the required per-player numeric Stadium/Tool epoch; preserve optional Ability suppression rows as unknown unless trusted source attribution exists.
 3. Keep the existing strict contract tests and add producer-backed regressions. Do not add a per-commit workflow.
 4. Keep the fixture stopline until the awaited worker loop is actually integrated, host/worker decisions are revalidated before Store dispatch, the hostile canary passes on the reviewed head, and the seed/process trust model is accepted.
 
