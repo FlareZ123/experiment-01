@@ -76,6 +76,12 @@ function buildFieldMatrix({field, openingAudit, candidate}) {
   const missing = field.missing_full_lists.map(x => x.rank).sort((a,b)=>a-b);
   if (missing.join(',') !== '23,25,28')
     throw new Error('Missing-list set changed; do not impute ranks.');
+  const expectedRanks = Array.from({length:32}, (_,i) => i + 1)
+    .filter(rank => !missing.includes(rank));
+  const actualRanks = field.decks.map(deck => deck.rank).sort((a,b)=>a-b);
+  if (new Set(actualRanks).size !== 29 ||
+      actualRanks.join(',') !== expectedRanks.join(','))
+    throw new Error('Source rank coverage mismatch; duplicate or omitted rank.');
   const auditByRank = new Map(openingAudit.decks.map(x => [x.rank, x]));
   if (auditByRank.size !== 29) throw new Error('Duplicate opening-audit rank.');
 
