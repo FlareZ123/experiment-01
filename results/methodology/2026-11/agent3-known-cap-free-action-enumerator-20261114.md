@@ -29,7 +29,7 @@ The adapter records a non-writable pin/schema marker on the instance. It also ad
 
 ## Validation and limits
 
-Seven Node v22.16.0 tests pass locally:
+Eight Node v22.16.0 tests pass locally:
 
 1. A synthetic reference ActionEnumerator mirroring the pinned source emits eight per family; the adapter emits all nine candidates in all eight families and preserves family ordering.
 2. Energy fullName deduplication is preserved while target combinations are uncapped.
@@ -37,7 +37,8 @@ Seven Node v22.16.0 tests pass locally:
 4. When no known cap is hit, adapter output is deeply equal to the synthetic reference enumerator output;
 5. attached Tool powers, active Tool attacks and Bench-usable attacks are enumerated;
 6. the original Paralysis and Sleep attack gate is preserved;
-7. Expanded-legal hand Pokémon abilities and Trainer/Energy hand/discard ability action types are emitted.
+7. Expanded-legal hand Pokémon abilities and Trainer/Energy hand/discard ability action types are emitted;
+8. adapter-path admission rejects a missing/wrong-pin marker and any local frontier truncation.
 
 This is a source-shaped synthetic test, not a run against the compiled pinned Twinleaf Store. No V3 game, matchup, CI run, or competitive result is claimed.
 
@@ -45,7 +46,7 @@ This is a source-shaped synthetic test, not a run against the compiled pinned Tw
 
 The current Agent49 loader already imports cardActions and gameActions and also imports PokemonCard, EnergyCard, TrainerCard, Stage, TrainerType and SpecialCondition. Its returned native dependency object currently omits those six classes/enums; expose them (or pass an equivalent typed bundle) before constructing this adapter. gameActions already carries AttackAction and UseAbilityAction.
 
-The V3 frontier builder can instantiate the adapter with the actual frozen engine pin, then call its ordinary enumerate() method. Preserve the adapter marker in per-root diagnostics. Independently reject the outer frontier's truncated flag or nonzero omittedCount; the 256-item cap is not removed by this adapter. Add the tests to the existing bounded contract-only lane, not a new workflow.
+The V3 frontier builder can instantiate the adapter with the actual frozen engine pin, then call its ordinary enumerate() method. Use assertKnownCapFreeAdapterAdmissionClear() to require the matching adapter marker/pin and reject the outer frontier's truncated flag or nonzero omittedCount; the 256-item cap is not removed by this adapter. Preserve the returned marker in per-root diagnostics. Add the tests to the existing bounded contract-only lane, not a new workflow.
 
 Agent49 remains the V3 integration owner. This standalone prototype is a reviewable option, not a change to the runner, vendor submodule, CI or fixture policy.
 
