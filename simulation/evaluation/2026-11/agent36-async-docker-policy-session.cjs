@@ -1,7 +1,6 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const readline = require('node:readline');
 const { once } = require('node:events');
 const protocol = require('./agent49-policy-worker.cjs');
 const dockerWorker = require('./agent36-docker-policy-worker.cjs');
@@ -13,19 +12,20 @@ class AsyncJsonLineChannel {
     this.waiters = [];
     this.error = null;
     this.closed = false;
+    this.buffer = '';
     this.stderrText = '';
-    this.reader = readline.createInterface({
-      input: child.stdout,
-      crlfDelay: Infinity
-    });
+    this.maxLineBytes = protocol.LIMITS.maxResponseBytes;
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', chunk => this.acceptChunk(String(chunk)));
+    child.stdout.on('end', () => this.finishStdout());
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', chunk => {
       this.stderrText = (this.stderrText + String(chunk)).slice(-32768);
     });
-    this.reader.on('line', line => this.acceptLine(line));
     child.once('error', error => this.fail(error));
     child.once('close', (code, signal) => {
       this.closed = true;
+      this.finishStdout();
       if (code !== 0 && !this.error) {
         this.error = Object.assign(new Error(
           'Docker policy worker exited code=' + code + ' signal=' + signal +
@@ -39,28 +39,62 @@ class AsyncJsonLineChannel {
     });
   }
 
-  acceptLine(line) {
-    if (Buffer.byteLength(line, 'utf8') > protocol.LIMITS.maxResponseBytes) {
-      this.fail(Object.assign(new Error('Worker response line exceeds protocol limit'), {
+  acceptChunk(chunk) {
+    if (this.error) return;
+    this.buffer += chunk;
+    while (true) {
+      const newline = this.buffer.indexOf('\n');
+      if (newline < 0) break;
+      let line = this.buffer.slice(0, newline);
+      this.buffer = this.buffer.slice(newline + 1);
+      if (line.endsWith('\r')) line = line.slice(0, -1);
+      if (Buffer.byteLength(line, 'utf8') > this.maxLineBytes) {
+        this.fail(Object.assign(new Error('Worker response line exceeds protocol limit'), {
+          code: 'WORKER_RESPONSE_TOO_LARGE'
+        }));
+        return;
+      }
+      if (line.length === 0) {
+        this.fail(Object.assign(new Error('Worker emitted an empty stdout line'), {
+          code: 'WORKER_EMPTY_LINE'
+        }));
+        return;
+      }
+      let value;
+      try {
+        value = JSON.parse(line);
+      } catch {
+        this.fail(Object.assign(new Error('Worker emitted invalid JSON on stdout'), {
+          code: 'WORKER_INVALID_JSON'
+        }));
+        return;
+      }
+      const waiter = this.waiters.shift();
+      if (waiter) {
+        clearTimeout(waiter.timer);
+        waiter.resolve(value);
+      } else {
+        if (this.queue.length >= 1) {
+          this.fail(Object.assign(new Error('Worker emitted unsolicited extra stdout lines'), {
+            code: 'WORKER_UNSOLICITED_OUTPUT'
+          }));
+          return;
+        }
+        this.queue.push(value);
+      }
+    }
+    if (Buffer.byteLength(this.buffer, 'utf8') > this.maxLineBytes) {
+      this.fail(Object.assign(new Error('Worker stdout buffer exceeds protocol limit'), {
         code: 'WORKER_RESPONSE_TOO_LARGE'
       }));
-      return;
     }
-    let value;
-    try {
-      value = JSON.parse(line);
-    } catch {
-      this.fail(Object.assign(new Error('Worker emitted invalid JSON on stdout'), {
-        code: 'WORKER_INVALID_JSON'
+  }
+
+  finishStdout() {
+    if (this.buffer.length > 0 && !this.error) {
+      this.fail(Object.assign(new Error('Worker stdout ended with an incomplete JSON line'), {
+        code: 'WORKER_INCOMPLETE_LINE'
       }));
-      return;
-    }
-    const waiter = this.waiters.shift();
-    if (waiter) {
-      clearTimeout(waiter.timer);
-      waiter.resolve(value);
-    } else {
-      this.queue.push(value);
     }
   }
 
@@ -94,8 +128,14 @@ class AsyncJsonLineChannel {
     });
   }
 
+  assertDrained() {
+    assert.equal(this.queue.length, 0, 'Worker emitted unsolicited stdout messages');
+    assert.equal(this.buffer.length, 0, 'Worker left an incomplete stdout line');
+    if (this.error) throw this.error;
+  }
+
   close() {
-    this.reader.close();
+    this.closed = true;
   }
 
   get stderr() {
@@ -125,6 +165,7 @@ function validateOptions(options) {
   } = options;
   dockerWorker.verifyPolicyBundle(bundle);
   assert.ok(['candidate', 'opponent'].includes(role), 'Invalid policy role');
+  assert.equal(typeof options.permissionModel, 'boolean', 'permissionModel must be boolean');
   assert.ok(seat === 0 || seat === 1, 'Invalid physical seat');
   assert.match(policyVersion ?? '', /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/);
   for (const [name, value] of Object.entries({
@@ -193,6 +234,7 @@ class AsyncDockerPolicySession {
     this.ready = null;
     this.closed = false;
     this.failed = false;
+    this.pending = false;
     this.init = {
       schema: protocol.INIT_SCHEMA,
       type: 'init',
@@ -226,6 +268,7 @@ class AsyncDockerPolicySession {
         policyVersion: this.policyVersion,
         bundleSha256: this.bundle.bundleSha256
       }, 'Policy worker startup handshake differs from the frozen role bundle');
+      this.channel.assertDrained();
       this.ready = ready;
       return this;
     } catch (error) {
@@ -261,6 +304,8 @@ class AsyncDockerPolicySession {
     const validated = protocol.validateRequest(
       request, this.init, sequence, this.seenRequestIds
     );
+    assert.equal(this.pending, false, 'Only one policy decision may be in flight');
+    this.pending = true;
     try {
       await writeLine(this.child.stdin, request);
       const response = await this.channel.next(this.options.requestTimeoutMs);
@@ -274,6 +319,7 @@ class AsyncDockerPolicySession {
       const decision = protocol.validateDecision(
         response.decision, validated.prompt, validated.actionTokens
       );
+      this.channel.assertDrained();
       this.sequence = sequence;
       return {
         decision,
@@ -288,6 +334,8 @@ class AsyncDockerPolicySession {
       this.failed = true;
       await this.abort().catch(() => {});
       throw error;
+    } finally {
+      this.pending = false;
     }
   }
 
@@ -303,6 +351,7 @@ class AsyncDockerPolicySession {
       const result = await waitForChildClose(this.child, this.options.closeTimeoutMs);
       assert.equal(result.code, 0,
         'Policy worker exited nonzero during orderly close: ' + JSON.stringify(result));
+      this.channel.assertDrained();
       this.closed = true;
       this.channel.close();
       return { closed: true };
