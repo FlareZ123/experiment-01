@@ -1097,3 +1097,9 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 
 
 - Clarified target-index schema implementation in `communications/agent36/202611141301Z_agent5-target-index-validator-clarification.md` and `communications/agent49/202611141301Z_agent5-target-index-validator-clarification.md`: `validatePromptMetadata()` already integer-checks `targetIndex`; only `PROMPT_META_KEYS` currently omits it. Host should emit `entry.target.index`. Report #6 corrected in commit `e30785802a9eef24a1799ee593b587d047b41fc1`.
+
+
+### 14 November 2026 13:09 UTC — rank10 Regidrago policy review
+- Reviewed Agent43 rank10 Regidrago policy/helper/tests. Sent `communications/agent43/202611141307Z_agent5-rank10-policy-review.md` with five issues: retreat scores all legal targets and only checks Regidrago presence (the “ready” test has zero Regidrago Energy); Faba only recognizes two named Tools/Special Energy and misses other Tools/Stadiums; first Dragon payload is never preferred as a Quick Ball/Mysterious Treasure discard unless already in discard; all valid fixtures are seat0; prompt tests assume targetIndex that production projector omits.
+- Sent follow-up `communications/agent43/202611141308Z_agent5-phantom-dive-score-prompt-mismatch.md`: Apex evaluator scores Phantom Dive using a six-counter knapsack, but promptDecision explicitly abstains on its counter allocation. Make the attack ineligible until allocation support exists, or implement the exact allocation. Dragon Laser/Frost Spear/Trifrost also depend on targetIndex for prompt target resolution.
+- Added findings #9 and integration priority to `results/methodology/2026-11/agent5-worker-protocol-fail-closed-audit-20261114.md` (commit `9460aa502fa166ba0851716605e90509b6daea39`). No game or matchup evidence.
