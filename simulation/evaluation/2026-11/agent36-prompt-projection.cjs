@@ -567,6 +567,96 @@ function hostOnlyPrompt(prompt, provenance) {
   return null;
 }
 
+function randomPermutation(length, physicalRandom) {
+  assert.ok(Number.isSafeInteger(length) && length >= 0);
+  assert.equal(typeof physicalRandom, 'function');
+  const values = Array.from({ length }, (_, index) => index);
+  for (let i = values.length - 1; i > 0; i -= 1) {
+    const sample = physicalRandom();
+    assert.ok(Number.isFinite(sample) && sample >= 0 && sample < 1,
+      'physical RNG must return a finite value in [0,1)');
+    const j = Math.floor(sample * (i + 1));
+    [values[i], values[j]] = [values[j], values[i]];
+  }
+  return values;
+}
+
+function resolveHostOnlyPrompt({
+  prompt, state, store, native, physicalRandom, provenanceHook
+} = {}) {
+  assert.ok(prompt && state && store && native);
+  assert.equal(store.state, state, 'native Store state changed before host prompt resolution');
+  assert.equal(state.prompts.includes(prompt), true, 'host-only prompt is stale');
+  assert.equal(prompt.result, undefined, 'host-only prompt has already been resolved');
+  const provenance = provenanceHook?.getPromptProvenance?.(prompt) ?? null;
+  const classification = hostOnlyPrompt(prompt, provenance);
+  assert.ok(classification?.hostOnly, 'prompt is not classified as host-only');
+  const name = prompt.constructor?.name ?? '';
+  const ownerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+  const ownerSeat = state.players.findIndex(player => player.id === ownerId);
+  let rawResult;
+  let summary;
+
+  if (name === 'ShuffleDeckPrompt' || name === 'ShuffleHandPrompt') {
+    assert.ok(ownerSeat === 0 || ownerSeat === 1,
+      'physical shuffle prompt has no valid owner seat');
+    assert.equal(typeof physicalRandom, 'function',
+      'physical shuffle prompt requires the host-only physical RNG');
+    const owner = state.players[ownerSeat];
+    const length = name === 'ShuffleDeckPrompt'
+      ? owner.deck.cards.length : owner.prizes.length;
+    rawResult = randomPermutation(length, physicalRandom);
+    summary = { kind: name, ownerSeat, itemCount: length };
+  } else if (name === 'CoinFlipPrompt') {
+    assert.equal(typeof physicalRandom, 'function',
+      'coin flip prompt requires the host-only physical RNG');
+    const sample = physicalRandom();
+    assert.ok(Number.isFinite(sample) && sample >= 0 && sample < 1,
+      'physical RNG must return a finite value in [0,1)');
+    rawResult = sample < 0.5;
+    summary = { kind: name, result: rawResult };
+  } else if (name === 'WaitPrompt') {
+    rawResult = null;
+    summary = { kind: name, ownerSeat: ownerSeat === -1 ? null : ownerSeat };
+  } else if (name === 'AlertPrompt' || name === 'ShowCardsPrompt' ||
+      name === 'ShowMulliganPrompt') {
+    rawResult = true;
+    summary = { kind: name, acknowledged: true };
+  } else if (classification.reason === 'NightWatchPhysicalRandom') {
+    assert.equal(typeof physicalRandom, 'function',
+      'Night Watch random selection requires the host-only physical RNG');
+    const cards = cardListCards(prompt.cards);
+    const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 1);
+    const max = Math.min(cards.length,
+      Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : min);
+    const blocked = new Set(prompt.options?.blocked ?? []);
+    const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+    const combinations = enumerateCombinations(indices, min, max);
+    const legal = combinations.filter(result =>
+      validateRawPromptResult(prompt, result, state).valid);
+    assert.ok(legal.length > 0, 'Night Watch prompt has no legal random selection');
+    const sample = physicalRandom();
+    assert.ok(Number.isFinite(sample) && sample >= 0 && sample < 1,
+      'physical RNG must return a finite value in [0,1)');
+    rawResult = legal[Math.floor(sample * legal.length)];
+    summary = { kind: 'NightWatchPhysicalRandom', selectedCount: rawResult.length };
+  } else {
+    throw Object.assign(new Error('Unsupported host-only prompt: ' + name), {
+      code: 'UNSUPPORTED_HOST_ONLY_PROMPT'
+    });
+  }
+
+  const validation = validateRawPromptResult(prompt, rawResult, state);
+  assert.equal(validation.valid, true, 'host-selected prompt result failed native validation');
+  const action = new native.ResolvePromptAction(prompt.id, rawResult);
+  const result = store.dispatch(action);
+  return {
+    result,
+    summary: Object.freeze(summary),
+    rawResult
+  };
+}
+
 function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
@@ -666,6 +756,8 @@ module.exports = {
   validateRawPromptResult,
   makeSource,
   hostOnlyPrompt,
+  randomPermutation,
+  resolveHostOnlyPrompt,
   projectPrompt,
   dispatchPromptChoice
 };
