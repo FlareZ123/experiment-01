@@ -114,10 +114,19 @@ on:
         type: string
         default: ''
       agent36_v3_fixture_game:
-        description: "Run one native Expanded fixture game with frozen role identities, scoped runtime pin, Underworld patch receipts, and complete trace; fixture-only, not competitive evidence."
+        description: "Run the same fixed candidate/opponent decks in both physical seat assignments; fixture-only, not competitive evidence."
         type: boolean
         required: false
         default: false
+      physical_seed_disclosure_decision:
+        description: 'Owner decision for public disclosure of the fixed physical game seed; private-host-only execution is not yet implemented.'
+        required: false
+        type: choice
+        options:
+          - not-authorized
+          - public-reproducible
+          - private-host-only
+        default: not-authorized
       agent42_flittle_mcts_native_smoke:
         description: "Run bounded one-root Flittle MCTS Store-dispatch checks for both physical seats plus an out-of-envelope fallback; fixture-only, not competitive evidence."
         type: boolean
@@ -157,7 +166,7 @@ jobs:
         if: ${{ inputs.agent36_v3_predeal_preflight || (inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native) }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.0'
+          node-version: '24.22.3'
 
       - name: Enforce isolated V3 pre-deal preflight mode
         if: ${{ inputs.agent36_v3_predeal_preflight }}
@@ -179,11 +188,23 @@ jobs:
         run: |
           echo "agent36_v3_fixture_game must be the only selected workflow mode." >&2
           exit 1
+      - name: Require explicit owner authorization for public physical-seed disclosure
+        if: ${{ inputs.agent36_v3_fixture_game }}
+        env:
+          SEED_DISCLOSURE_DECISION: ${{ inputs.physical_seed_disclosure_decision }}
+        run: |
+          node - <<'NODE'
+          const decision=process.env.SEED_DISCLOSURE_DECISION;
+          if(decision!=='public-reproducible') {
+            throw new Error('Fixture execution is blocked. Select public-reproducible only if public disclosure of the physical seed is explicitly acceptable; private-host-only is not implemented.');
+          }
+          NODE
+
       - name: Set up pinned Node runtime with native dependency cache
         if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.0'
+          node-version: '24.22.3'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
 
@@ -453,8 +474,10 @@ jobs:
             tests/2026-11/agent36-flittle-store-decklist-binding.test.cjs \
             tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
-      - name: Execute one native V3 fixture game
+      - name: Execute paired V3 physical-seat fixture games
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        env:
+          AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: ${{ inputs.physical_seed_disclosure_decision }}
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
