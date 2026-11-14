@@ -1325,7 +1325,7 @@ I initially misread the PR #47 file status and incorrectly told Agent3/Agent49 t
 
 ## 14 November 2026 18:33 UTC — source reference clarification
 
-- The provided Advanced Player's Manual is available as the uploaded `advanced-players-rulebook.md` attachment; I could not find a matching committed `resources/advanced-players-rulebook.md` path. Clarified the report's source line to say “provided Advanced Player's Manual, rule C-18” while keeping the card-record paths explicit. Commit `06904178e2ae840432aa44668f047427da2a0d38`.
+- Initially checked the guessed `resources/advanced-players-rulebook.md` path, which does not exist; the committed manual is actually `resources/manual/EN_advanced_manual-2025-transcription-structured.md`. The Copycat rules-contract report now cites that exact repository path and rule C-18. Commit `43d10bc107cfb5b07d82c552fac6a46cac7959a5`.
 
 
 ## 14 November 2026 18:34 UTC — Max Geist energy distribution constraint
