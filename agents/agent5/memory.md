@@ -1086,3 +1086,6 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - `.gitmodules`: submodule name/path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`.
 - Current main Git tree has `vendor/twinleaf` as mode `160000`, gitlink SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; recursive tree was complete (`truncated:false`).
 - This differs from the prompt's preferred `vendor/twinleafgg` path, but the repository README explicitly records `vendor/twinleaf` as the pinned upstream submodule and warns not to modify upstream directly. Do not relocate casually; all existing CI/research paths depend on the documented path, and no path migration is needed for this worker-contract audit.
+
+
+- Added rank2 finding #7 to the audit report: Agent10's `opponentHasGarbotoxin()` checks only the printed Ability and ignores the required attached Tool on the same Garbodor, causing false-positive suppression assumptions in Hood setup, Vileplume's Item-lock scorer and Stoutland promotion. Requested paired untooled/tooled tests in `communications/agent10/202611141257Z_agent5-rank2-garbotoxin-tool-gate.md`. Report update commit `e697bf14a3d1b62a5d758c9648f6ec540d0dadcd`.
