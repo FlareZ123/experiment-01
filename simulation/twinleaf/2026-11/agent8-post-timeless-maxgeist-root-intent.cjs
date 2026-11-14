@@ -48,10 +48,11 @@ function publicStadiumPrintings(view){
 
 /**
  * Resolve Stadium effects on the acting player's Pokémon conservatively.
- * The native owner-positive Shiftry case is reproduced; whether an opponent-
- * only positive epoch is globally effective is still disputed pending a
- * two-seat Store probe, so it returns unknown. New Moon is recipient-specific
- * and is accepted only with an explicit source-attributed live-Ability row.
+ * A positive countdown on the acting player is reproduced. Whether an
+ * opponent-only positive epoch is global or recipient-specific is unresolved
+ * pending a two-seat Store probe. New Moon is recipient-specific and requires
+ * an explicit source-attributed live-Ability row; printed text alone is not
+ * proof that the Ability is active.
  * @param {object} view detached actor observation
  * @returns {boolean|null}
  */
@@ -62,13 +63,12 @@ function stadiumEffectsSuppressedForOwnPokemon(view){
   const opponentTurns=view?.opponentPublic?.publicTurnRestrictions
     ?.stadiumAndToolHaveNoEffectTurnsRemaining;
   if(!own||!Array.isArray(own.bench))return null;
-  // A positive countdown on the acting player is directly reproduced and is
-  // sufficient even if the opponent's parallel field is malformed/unknown.
+  // This owner-positive case is covered by the existing native Store probe.
   if(Number.isSafeInteger(ownTurns)&&ownTurns>0)return true;
   if(!Number.isSafeInteger(ownTurns)||ownTurns<0||
      !Number.isSafeInteger(opponentTurns)||opponentTurns<0)return null;
-  // Opponent-only positive is deliberately unresolved until a native probe
-  // tests actor=0/opponent=1 from both physical seats.
+  // The cross-seat case is intentionally unknown until actor=0/opponent=1
+  // and the mirrored physical-seat case are run against the pinned Store.
   if(opponentTurns>0)return null;
   const board=[own.active,...own.bench].filter(Boolean);
   for(const pokemon of board){
@@ -80,20 +80,22 @@ function stadiumEffectsSuppressedForOwnPokemon(view){
   const solrockPresent=board.some(pokemon=>
     typeof pokemon.printing==='string'&&pokemon.printing.startsWith('Solrock '));
   if(!solrockPresent)return false;
-  // A printed Ability is not proof it is live. The actor projection must
-  // provide a complete source-attributed suppression row for New Moon.
+  // The actor projection must prove New Moon is live, not merely printed.
   if(!Array.isArray(lunatone.abilitySuppressions))return null;
   const suppression=lunatone.abilitySuppressions.find(row=>
     row?.abilityName==='New Moon');
-  if(!suppression||typeof suppression.suppressed!=='boolean')return null;
+  if(!suppression)return null;
   if(suppression.suppressed===false){
     if(suppression.reasonCode!==null||suppression.sourcePrinting!==null)
       return null;
     return true;
   }
-  if(typeof suppression.reasonCode!=='string'||
-     typeof suppression.sourcePrinting!=='string')return null;
-  return false;
+  if(suppression.suppressed===true){
+    if(typeof suppression.reasonCode!=='string'||
+       typeof suppression.sourcePrinting!=='string')return null;
+    return false;
+  }
+  return null;
 }
 
 /**
