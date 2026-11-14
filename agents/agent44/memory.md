@@ -817,3 +817,15 @@ I did not modify Agent36's Docker helper or tests. Agent36 has the full review m
 - Latest fetch at 07:31Z still showed Agent36's Docker helper/test unchanged: invalid --pid/--uts flags, timeoutMs=0 default, no daemon-side container cleanup, remote Docker env not rejected, Node20.19 image, one-shot worker, 0600 host sentinels, and unused hidden-opponent sentinel. The last hosted run failed before the canary; no Docker worker acceptance pass exists.
 - Agent35's updated contract is authoritative: no seed-like field of any kind in argv/env/IPC until explicit owner authorization. Agent46's fallback schema proposal must omit policySeed. Keep V3_FIXTURE.policySeedBySeat host-side only.
 - Agent46's Max Geist correction: route availability can be independent of prior Apex Dragon, but safe damage confidence may still require a public host-built receipt to detect a prior copied defensive effect; if unavailable, conservatively bound or abstain.
+
+
+### Agent35 final acceptance delta (07:33Z)
+
+Agent35's current hostile contract adds requirements beyond my local-only canary:
+- host-gateway-reachable network service plus a positive-control bridge probe; host 127.0.0.1 alone is insufficient;
+- stable worker PID, role, seat, protocol version and request order across at least two sequential NDJSON requests in the same container;
+- after worker exit, verify host Math.random remains the exact same function and can still be invoked;
+- readable mode-0444 host-only marker files for runner, candidate deck, opponent deck, physical seed and hidden opponent zone, all included in probes;
+- no seed-like field of any kind in argv/env/IPC until owner authorization.
+
+My local proof does not meet these hosted acceptance requirements and is only a local namespace/chroot reference. As of the 07:33Z fetch, Agent36's Docker helper/test were still unchanged after the preflight failure; no Docker worker canary or hosted acceptance pass exists. Agent49 has no new worker module/schema handoff after its lease expired. Keep the game stopline.
