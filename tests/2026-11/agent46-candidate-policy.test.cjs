@@ -458,3 +458,255 @@ test('the same actor-relative policy is deterministic for physical seat 1', () =
   assert.deepEqual(first, second);
   assert.deepEqual(first, { kind: 'select-action', token: 'attack-max' });
 });
+
+
+function engineSetupRequest(seat, {
+  promptType, description, choices, publicMetadata, phase = 1,
+  sourceKind = 'engine', sourcePrinting = null, effectName = description
+}) {
+  const view = {
+    ...observation(seat),
+    phase,
+    decisionKind: 'owner-prompt',
+    pendingPromptType: promptType
+  };
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: seat,
+    promptType,
+    description,
+    source: {
+      classification: 'actor-choice',
+      sourceKind,
+      sourcePrinting,
+      effectName
+    },
+    choices,
+    publicMetadata
+  };
+  return request(seat, view, { prompt, actions: [] });
+}
+
+function setupBasicChoice(token, selectionIndex, printing) {
+  return {
+    token,
+    kind: 'card',
+    printing,
+    label: printing,
+    publicMetadata: {
+      selectionIndex,
+      selectedCount: 1,
+      sourceZone: 'hand',
+      ownerSeat: 'actor',
+      isOwnerVisible: true
+    }
+  };
+}
+
+function startingPokemonMetadata(minimumCount, maximumCount) {
+  return {
+    sourceZone: 'hand',
+    ownerSeat: 'actor',
+    isOwnerVisible: true,
+    minimumCount,
+    maximumCount,
+    allowCancel: false,
+    isSecret: false,
+    selectionType: 'card-combination'
+  };
+}
+
+function drawOption(token, choiceIndex, drawCount) {
+  return {
+    token,
+    kind: 'option',
+    label: `Draw ${drawCount} card(s)`,
+    publicMetadata: { choiceIndex }
+  };
+}
+
+test('phase-one starting-Pokémon prompts select all legal Basics in native order for both seats', () => {
+  for (const seat of [0, 1]) {
+    const initial = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('basic-0', 0, 'Shadow Rider Calyrex V CRE'),
+        setupBasicChoice('basic-2', 2, 'Mimikyu GRI'),
+        setupBasicChoice('basic-4', 4, 'Latias ex SSP')
+      ],
+      publicMetadata: startingPokemonMetadata(1, 6)
+    });
+    assert.deepEqual(evaluate(initial), {
+      kind: 'select-choices',
+      tokens: ['basic-0', 'basic-2', 'basic-4']
+    });
+
+    const optionalBench = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        setupBasicChoice('new-basic-1', 1, 'Lillie\'s Clefairy ex JTG'),
+        setupBasicChoice('new-basic-3', 3, 'Mimikyu GRI'),
+        setupBasicChoice('new-basic-5', 5, 'Latias ex SSP'),
+        { token: 'empty', kind: 'empty-selection', label: 'Choose no items' }
+      ],
+      publicMetadata: startingPokemonMetadata(0, 2)
+    });
+    assert.deepEqual(evaluate(optionalBench), {
+      kind: 'select-choices',
+      tokens: ['new-basic-1', 'new-basic-3']
+    });
+
+    const noOptionalBasics = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt',
+      description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        { token: 'empty-only', kind: 'empty-selection', label: 'Choose no items' }
+      ],
+      publicMetadata: startingPokemonMetadata(0, 0)
+    });
+    assert.deepEqual(evaluate(noOptionalBasics), {
+      kind: 'select-choice',
+      token: 'empty-only'
+    });
+  }
+});
+
+test('phase-one GO_FIRST prompt deterministically selects Yes for either physical seat', () => {
+  for (const seat of [0, 1]) {
+    const req = engineSetupRequest(seat, {
+      promptType: 'ConfirmPrompt',
+      description: 'GO_FIRST',
+      choices: [
+        { token: 'yes', kind: 'confirm', label: 'Yes' },
+        { token: 'no', kind: 'confirm', label: 'No' }
+      ],
+      publicMetadata: { selectionType: 'confirm' }
+    });
+    assert.deepEqual(evaluate(req), { kind: 'select-choice', token: 'yes' });
+  }
+});
+
+test('phase-one mulligan draw prompt maps descending labels through original choiceIndex for both seats', () => {
+  const allDraws = Array.from({ length: 7 }, (_, choiceIndex) =>
+    drawOption('draw-' + (6 - choiceIndex), choiceIndex, 6 - choiceIndex));
+
+  for (const seat of [0, 1]) {
+    const req = engineSetupRequest(seat, {
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [...allDraws],
+      publicMetadata: {
+        count: 7,
+        allowCancel: false,
+        selectionType: 'option'
+      }
+    });
+    assert.deepEqual(evaluate(req), {
+      kind: 'select-choice',
+      token: 'draw-6'
+    });
+
+    // Disabled native values are omitted from the projected frontier, but
+    // count and the surviving choiceIndex values remain tied to the original
+    // descending native values array.
+    const sparse = engineSetupRequest(seat, {
+      promptType: 'SelectPrompt',
+      description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        drawOption('draw-5', 1, 5),
+        drawOption('draw-3', 3, 3),
+        drawOption('draw-0', 6, 0)
+      ],
+      publicMetadata: {
+        count: 7,
+        allowCancel: false,
+        selectionType: 'option'
+      }
+    });
+    assert.deepEqual(evaluate(sparse), {
+      kind: 'select-choice',
+      token: 'draw-5'
+    });
+  }
+});
+
+test('phase-one setup policy rejects wrong phases, source identities, labels, and cancel rows', () => {
+  const startingChoices = [setupBasicChoice('basic', 0, 'Mimikyu GRI')];
+  const startingMeta = startingPokemonMetadata(1, 1);
+  const goFirstChoices = [
+    { token: 'yes', kind: 'confirm', label: 'Yes' },
+    { token: 'no', kind: 'confirm', label: 'No' }
+  ];
+  const drawChoices = [
+    drawOption('draw-1', 0, 1),
+    drawOption('draw-0', 1, 0)
+  ];
+
+  for (const seat of [0, 1]) {
+    const phaseZero = [
+      engineSetupRequest(seat, {
+        promptType: 'ChooseCardsPrompt', description: 'CHOOSE_STARTING_POKEMONS',
+        choices: startingChoices, publicMetadata: startingMeta, phase: 0
+      }),
+      engineSetupRequest(seat, {
+        promptType: 'ConfirmPrompt', description: 'GO_FIRST',
+        choices: goFirstChoices, publicMetadata: { selectionType: 'confirm' }, phase: 0
+      }),
+      engineSetupRequest(seat, {
+        promptType: 'SelectPrompt', description: 'WANT_TO_DRAW_CARDS',
+        choices: drawChoices,
+        publicMetadata: { count: 2, allowCancel: false, selectionType: 'option' },
+        phase: 0
+      })
+    ];
+    for (const req of phaseZero) {
+      assert.equal(evaluate(req).kind, 'abstain');
+    }
+
+    const wrongSource = engineSetupRequest(seat, {
+      promptType: 'ConfirmPrompt', description: 'GO_FIRST',
+      choices: goFirstChoices, publicMetadata: { selectionType: 'confirm' },
+      sourceKind: 'card-effect'
+    });
+    assert.equal(evaluate(wrongSource).kind, 'abstain');
+
+    const wrongMessage = engineSetupRequest(seat, {
+      promptType: 'ConfirmPrompt', description: 'GO_FIRST',
+      choices: goFirstChoices, publicMetadata: { selectionType: 'confirm' },
+      effectName: 'NOT_GO_FIRST'
+    });
+    assert.equal(evaluate(wrongMessage).kind, 'abstain');
+
+    const badDrawLabel = engineSetupRequest(seat, {
+      promptType: 'SelectPrompt', description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        drawOption('draw-1', 0, 0),
+        drawOption('draw-0', 1, 0)
+      ],
+      publicMetadata: { count: 2, allowCancel: false, selectionType: 'option' }
+    });
+    assert.equal(evaluate(badDrawLabel).kind, 'abstain');
+
+    const unexpectedCancel = engineSetupRequest(seat, {
+      promptType: 'SelectPrompt', description: 'WANT_TO_DRAW_CARDS',
+      choices: [
+        ...drawChoices,
+        { token: 'cancel', kind: 'cancel', label: 'Cancel selection' }
+      ],
+      publicMetadata: { count: 2, allowCancel: false, selectionType: 'option' }
+    });
+    assert.equal(evaluate(unexpectedCancel).kind, 'abstain');
+
+    const badStartingCancel = engineSetupRequest(seat, {
+      promptType: 'ChooseCardsPrompt', description: 'CHOOSE_STARTING_POKEMONS',
+      choices: [
+        ...startingChoices,
+        { token: 'cancel', kind: 'cancel', label: 'Cancel selection' }
+      ],
+      publicMetadata: startingMeta
+    });
+    assert.equal(evaluate(badStartingCancel).kind, 'abstain');
+  }
+});
