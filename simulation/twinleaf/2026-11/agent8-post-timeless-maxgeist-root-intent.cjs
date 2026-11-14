@@ -42,6 +42,10 @@ function prizeCountForTarget(target,catalog){
     target.printed.subtypes.map(value=>String(value).toUpperCase().replace(/[^A-Z]/g,'')):[];
   if(subtypes.includes('VMAX')||subtypes.includes('TAGTEAM')||
      subtypes.includes('VUNION'))return 3;
+  // Radiant, Prism Star, and BREAK Pokémon can have Rule Boxes but still
+  // yield only one Prize. Rule Box membership alone is not a prize count.
+  if(subtypes.includes('RADIANT')||subtypes.includes('PRISMSTAR')||
+     subtypes.includes('BREAK'))return 1;
   if(catalog.ruleboxPokemonPrintings instanceof Set&&
      catalog.ruleboxPokemonPrintings.has(target.printing))return 2;
   return 1;
