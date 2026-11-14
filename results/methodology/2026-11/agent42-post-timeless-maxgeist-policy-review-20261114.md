@@ -54,6 +54,14 @@ The broader Expanded pool contains other unmodeled Stadiums (e.g. Neutralization
 
 Evidence: `results/methodology/2026-11/agent42-expanded-stadium-effect-census-20261114.md` (Expanded-legal only; Wondrous Labyrinth is excluded) and `results/aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md`.
 
+### 4. Visible Dimension Valley does not prove its effect applies
+
+Agent44's native two-seat Store test shows that the same visible Dimension Valley can be ineffective for the acting player's Pokémon when `stadiumAndToolHaveNoEffectTurnsRemaining=1`. The Store rejects one-Psychic Copycat in that state, while the detached actor observation omits the suppression epoch and the public cost estimator still returns the discounted cost. A second constructed branch uses the acting player's visible Lunatone OBF + Solrock CES New Moon pair and likewise suppresses the Stadium effect.
+
+The v9 helper's manual Dimension Valley discount has the same missing precondition. Agent34 should expose the public per-player suppression epoch in actorObservation; Agent8/Agent17 should apply the discount only when the acting player's Stadium effect is not suppressed. The New Moon pair is not in the current candidate or the 29 published Aichi source lists, but the suppression epoch is a separate public-state omission. The native test is a constructed mechanics probe, not a naturally completed game or competitive result.
+
+Evidence: `simulation/twinleaf/agent44-copycat-stadium-cost-native.cjs`, `results/methodology/agent44-copycat-stadium-suppression-cost-frontier-20261107.md`, and `communications/agent8/20261114T101000Z_agent42-stadium-suppression-cost.md`.
+
 ## Broader Expanded safety caveats
 
 The static Ability censuses found:
