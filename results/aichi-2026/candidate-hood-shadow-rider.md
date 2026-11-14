@@ -33,7 +33,7 @@
 
 11 Basic Psychic Energy.
 
-The complete machine-readable inventory contains the specific source display sets and collector numbers for every card. **Printing-sensitive:** Dialga-GX must be UPR 100 (Dragon type) for the Apex Dragon counterline; the SM6 printing is Metal-type and is not a valid Dragon discard donor. Do not substitute it. Count checks give Pokémon 18, Trainers 31, Energy 11. There are fourteen starting-eligible Basics.
+The complete machine-readable inventory contains the specific source display sets and collector numbers for every card. **Printing-sensitive:** Dialga-GX must be UPR 100 (Dragon type) for the Apex Dragon counterline; the SM6 printing is Metal-type and is not a valid Dragon discard donor. Do not substitute it. See the [Copycat → Apex Dragon → Timeless-GX rules audit](../methodology/2026-11/agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md). Count checks give Pokémon 18, Trainers 31, Energy 11. There are fourteen starting-eligible Basics.
 
 ## Difference from champion and from Temple v1
 
