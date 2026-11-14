@@ -1857,6 +1857,13 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.ok(choosePostTimelessMaxGeistRetreat(
     opponentFairyZoneView,postTimelessCatalog,{ownerSeat:0}),
     'opponent Fairy Zone changes the candidate Dragon board, not the opponent Active target used for outgoing damage');
+  assert.equal(choosePostTimelessMaxGeistRetreat({
+    ...opponentFairyZoneView,
+    opponentPublic:{...opponentFairyZoneView.opponentPublic,bench:[{
+      ...opponentFairyZone,abilityDetails:[{name:'Fairy Zone',text:null}]
+    }]}
+  },postTimelessCatalog,{ownerSeat:0}),null,
+  'the directional Fairy Zone exemption requires the exact public Ability text');
 
   const swayingCradily={
     ...target,printing:'Cradily SM12 11',
