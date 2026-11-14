@@ -630,3 +630,46 @@ New broadcasts read: Critic 07:35 collective convergence/CI direction; Agent36's
 2. Use the rank19 Guzma recipient state as a deterministic owner-prompt test: compare Max Geist vs Full Moon Rondo with live Fairy Zone, attack cost, all-board Psychic Energy, combined Bench, and Prize liability; require native replay.
 3. Keep the Hood v1 60 and candidate deck arms frozen; no win-rate claim. Aichi field remains Japanese Extra / format-mismatched and three lists missing.
 4. Continue after this checkpoint until actual lease age reaches 70 minutes (08:24:18.242478059Z); use system clock after every checkpoint.
+
+
+## 2026-11-14 checkpoint: Aichi field-effect coverage corrections (08:15Z)
+
+### Field source scans
+- Parsed current `results/aichi-2026/full-decklists.json` (29 complete lists) against the supplied Expanded-legal card pool and Agent42 censuses. Results are source-list occurrences only; they do not prove cards/Abilities/Stadiums were active in games. Ranks23/25/28 remain missing and the event is Japanese Extra, not a uniform paper-Expanded field.
+- Weakness-modifier Ability census: the 17 unique Expanded-legal Ability texts / 27 printings intersect the 29 lists only at Lillie's Clefairy ex / Fairy Zone, ranks1 (2),5 (1),30 (3). Rank2 Vileplume AOR3 is Irritating Pollen (Item lock), not BW7 Allergy Panic; rank15 has AOR3 plus BUS6.
+- **Corrected Fairy Zone direction:** Hood v1 contains Dialga-GX UPR100, which is Dragon type (card-pool printing ID `sm5-100`); the rank19 trace shows it on Bench. Latias ex SSP76 is Psychic type, not Dragon. Opponent Fairy Zone can therefore affect candidate Dialga-GX when in play, but not Latias ex, Shadow Rider VMAX, Mimikyu or Clefairy. Candidate's own Fairy Zone affects opponent Dragon targets. Do not blanket-veto opponent Fairy Zone; evaluate direction and actual board.
+- Candidate-side Fairy Zone has Dragon targets in **13** of the 29 complete lists: ranks 1,10,12,13,14,15,18,19,20,21,27,30,32. Ranks10/12/13/14/18/20/21/27/32 are Regidrago variants; rank19 is Raging Bolt/ADP; rank15 has Tatsugiri; rank1 has Radiant Eternatus and Dialga-GX; rank30 has Dialga-GX.
+- Attack-lock field scan: only Vileplume BUS6 (`sm3-6`) Disgusting Pollen appears among the scanned explicit Expanded Ability attack restrictions, at rank15. It blocks opponent Basic Pokémon only while Vileplume is Active: Mimikyu Copycat is blocked; Shadow Rider VMAX Max Geist is not. Vileplume AOR3 (`xy7-3`) at ranks2/15 is Item lock, not attack lock. Agent42's broader census also identifies Snorlax PGO55 Block at ranks3/7 (retreat lock) and Wobbuffet PHF36 Bide Barricade at ranks7/10/21; Wobbuffet exempts Psychic Pokémon, so it does not suppress Hood's Psychic attackers/Latias/Clefairy. Broader Expanded conditional Cradily/Dragalge retreat locks and Vanilluxe Frigid Room remain.
+- Stadium scan of current `full-decklists.json`: **42 copies across 24 lists in six identities**, not Agent42's 39/21/five; Agent42 omitted Wondrous Labyrinth despite exact current JSON entries. Exact field occurrences:
+  - Sky Field: ranks1,4,5,14,18,19,30.
+  - Dimension Valley: rank1.
+  - Temple of Sinnoh: ranks3,8,11,16,22.
+  - Silent Lab: ranks9,13,15,32.
+  - Parallel City: ranks10,12,13,20,21,27,32.
+  - Wondrous Labyrinth ◇: ranks6,24,29.
+  Pokémon League Headquarters is absent from these 29 but Expanded-legal and affects Basic Copycat/Rondo cost.
+- Important actor-projection caveat from Agent44: actorObservation includes exact Stadium arrays but omits `player.stadiumAndToolHaveNoEffectTurnsRemaining`. A visible Dimension Valley can be suppressed by this public epoch or the visible Lunatone OBF / Solrock CES New Moon pair; native Store rejects Copycat while the detached estimator still discounts. Worker must receive the suppression epoch and known blockers or abstain; Stadium printing alone does not prove effect activity.
+
+### Preserved reports and messages
+- `results/aichi-2026/2026-11/agent46-rank19-guzma-rondo-vs-maxgeist-20261114.md`: rank19 turn27 Guzma choice. Correct numbers: E=8 (VMAX5 + Mimikyu1 + Clefairy2), Max Geist250 nominal/500 under Fairy Zone; B=8, Rondo180/360. Both KO 240-HP Dragon Raging Bolt ex for two Prizes; Rondo uses 2-Prize Clefairy vs 3-Prize VMAX. Existing Agent31 Guzma planner omits Rondo and Fairy Zone; it sorts recognized nominal KOs by least excess, not highest damage. Single unqualified diagnostic, not a win-rate result.
+- `results/aichi-2026/2026-11/agent46-aichi-weakness-modifier-field-coverage-20261114.md`: now corrected for Dialga-GX Dragon / Latias Psychic and 13 Dragon-target ranks.
+- `results/aichi-2026/2026-11/agent46-aichi-attack-lock-coverage-20261114.md`: rank15 Vileplume BUS6.
+- `results/aichi-2026/2026-11/agent46-aichi-stadium-field-coverage-20261114.md`: corrected to six Stadium identities, 42 copies / 24 lists; explicitly records discrepancy with Agent42 census.
+- All four reports are linked from `results/README.md`.
+- Messages/corrections sent to Agent8, Agent17, Agent31, Agent36, Agent42, Agent43, Agent49. Do not repeat earlier incorrect claims that Hood has no Dragon Pokémon or that opponent Fairy Zone is irrelevant; Dialga-GX UPR100 is Dragon.
+
+### Current Agent8 v9 review state
+- v9 adds unconditional nonterminal VMAX liability guard and models Dimension Valley / Pokémon League Headquarters Copycat costs. This fixes earlier v7 issues for Basic Energy.
+- Remaining known-field issues from Agent42/44 and my review: (1) opponent-side Fairy Zone is directional and should not veto attack-target projection merely by presence, but should affect candidate Dialga-GX if in play; (2) rank15 Vileplume BUS6 blocks Basic Mimikyu Copycat but not VMAX Max Geist; (3) Stadium-effect suppression epoch/New Moon pair must be included or fail closed; (4) Basic-only Energy scaling still excludes Special Psychic Energy and Temple of Sinnoh suppression; (5) Full Moon Rondo comparison is still missing; (6) Wondrous Labyrinth / Silent Lab / Parallel City effects need exact active-state handling. Agent8 has received all review notes.
+- Agent42's latest synthesis is `results/methodology/2026-11/agent42-post-timeless-maxgeist-policy-review-20261114.md`; its source-field Stadium count omits Wondrous Labyrinth, contradicted by current `full-decklists.json` ranks6/24/29 and card pool `sm9-158` Expanded-legal. I notified Agent42; retain source JSON result pending reconciliation.
+
+### Worker / CI
+- Agent35's launcher contract test is now in the hosted `contract_only` gate. Agent36 still has not committed Docker launcher fixes as of 08:15Z. Existing blockers remain: invalid `--pid=private` etc., undefined Docker version variables, Node20.19 EOL, marker mode0600, hidden sentinel unused, loopback probe not discriminating, no persistent two-request NDJSON test, cleanup/namespace proof.
+- Agent44's acceptance addendum requires Stadium suppression semantics in actorObservation; no new native fixture dispatch is needed because the existing bilateral native test already covers both seats.
+- Critic seed-disclosure stopline remains: no physical shuffle seed in argv/env/IPC. No new games or fixtures until isolation, actor-safe prompt IPC, seed authorization and worker acceptance pass.
+
+### Next actions
+1. Wait for Agent8/Agent36 response on Stadium suppression, directional Fairy Zone, Vileplume attacker-specific Copycat legality, and Rondo comparison.
+2. Keep Hood v1 60 and candidate arms frozen. No win-rate claim.
+3. Reconcile Agent42's Stadium census omission against the current JSON; do not silently remove Wondrous Labyrinth occurrences.
+4. At the next checkpoint, measure lease age from original `claimed_at=2026-11-14T07:14:18.242478059Z`. 70-minute threshold is 08:24:18.242478059Z; current checkpoint 08:15:31Z, so continue until threshold and then release in the prescribed order.
