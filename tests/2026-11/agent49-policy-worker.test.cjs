@@ -12,11 +12,12 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-wor
 const WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const POLICY_VERSION = 'agent49-test-policy-v2';
-function policySource(mode = 'normal') {
+function policySource(mode = 'normal', version = POLICY_VERSION) {
   const selectedMode = JSON.stringify(mode);
+  const versionLiteral = JSON.stringify(version);
   return [
     "'use strict';",
-    "const POLICY_VERSION='" + POLICY_VERSION + "';",
+    'const POLICY_VERSION=' + versionLiteral + ';',
     'async function createPolicy(){return {async decide(request){',
     "if(request.requestId==='force-unknown') return {kind:'select-action',token:'not-in-frontier'};",
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
@@ -92,10 +93,10 @@ function observation(seat, decisionKind = 'owner-root', promptType = null) {
     ownerK1: null
   };
 }
-function initFor(role = 'candidate', seat = 0, digest = 'a') {
+function initFor(role = 'candidate', seat = 0, digest = 'a', version = POLICY_VERSION) {
   return {
     schema: protocol.INIT_SCHEMA, type: 'init', role, seat,
-    policyVersion: POLICY_VERSION, bundleSha256: digest.repeat(64), config: {}
+    policyVersion: version, bundleSha256: digest.repeat(64), config: {}
   };
 }
 function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
@@ -117,7 +118,7 @@ function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); 
 function startWorker(init = initFor(), mode = 'normal') {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(mode));
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(mode, init.policyVersion));
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
@@ -192,7 +193,8 @@ test('both roles and both physical seats receive isolated role-bound workers', a
   ];
   const pids = new Set();
   for (const [role, seat, digest] of combos) {
-    const init = initFor(role, seat, digest);
+    const version = 'agent49-' + role + '-seat' + seat + '-test-v2';
+    const init = initFor(role, seat, digest, version);
     const worker = startWorker(init);
     try {
       pids.add(worker.child.pid);
@@ -203,6 +205,7 @@ test('both roles and both physical seats receive isolated role-bound workers', a
       assert.equal(worker.lines[1].role, role);
       assert.equal(worker.lines[1].seat, seat);
       assert.equal(worker.lines[0].bundleSha256, init.bundleSha256);
+      assert.equal(worker.lines[0].policyVersion, version);
     } finally { await dispose(worker); }
   }
   assert.equal(pids.size, 4);
