@@ -132,6 +132,33 @@ function hasAbility(slot, name) {
   return list(slot?.abilities).some(value => value === name);
 }
 
+function abilityActive(slot, name, observation) {
+  if (!hasAbility(slot, name)) return false;
+  if (list(slot?.abilitySuppressions).some(item =>
+    item.abilityName === name && item.suppressed === true)) return false;
+  if (name === 'Fairy Zone' && pathLockActive(observation)) return false;
+  return true;
+}
+
+function fairyZoneActive(observation) {
+  return boardSlots(observation.ownPublic).some(slot =>
+    abilityActive(slot, 'Fairy Zone', observation));
+}
+
+function hasDragonActive(observation) {
+  return list(observation?.opponentPublic?.active?.printed?.types).includes('Dragon');
+}
+
+function psychicWeaknessMultiplier(request) {
+  return hasDragonActive(request.observation) &&
+    fairyZoneActive(request.observation) ? 2 : 1;
+}
+
+function maxGeistDamage(request) {
+  return (10 + 30 * psychicCountOnBoard(request.observation)) *
+    psychicWeaknessMultiplier(request);
+}
+
 function activeStadiums(observation) {
   return [
     ...list(observation?.ownPublic?.stadium),
@@ -164,22 +191,26 @@ function scoreAttack(item, request) {
   const hand = observation.opponentPublic.handCount ?? 0;
   const opponentDiscard = list(observation.opponentPublic.discard);
 
+  const psychicMultiplier = psychicWeaknessMultiplier(request);
   if (name === 'Max Geist') {
-    const damage = 10 + 30 * energies;
-    return 120 + Math.min(30, energies * 3) + (hp > 0 && damage >= hp ? 18 : 0);
+    const damage = maxGeistDamage(request);
+    return 120 + Math.min(30, energies * 3) + (hp > 0 && damage >= hp ? 30 : 0);
   }
   if (name === 'Night Watch') {
-    return 124 + Math.min(24, hand * 2) + (hp > 0 && 150 >= hp ? 12 : 0);
+    const damage = 150 * psychicMultiplier;
+    return 124 + Math.min(24, hand * 2) + (hp > 0 && damage >= hp ? 20 : 0);
   }
   if (name === 'Pale Moon-GX') {
     const restrictions = opponent?.publicRestrictions ?? {};
     const trapped = restrictions.cannotRetreat === true ||
       restrictions.cannotRetreatNextTurn === true ||
       restrictions.cannotRetreatWhileActive === true;
-    return 110 + (trapped ? 35 : 0) + (hp > 0 && 150 >= hp ? 12 : 0);
+    const damage = 10 * psychicMultiplier;
+    return 110 + (trapped ? 35 : 0) + (hp > 0 && damage >= hp ? 12 : 0);
   }
   if (name === 'Eon Blade') {
-    return 105 + (hp > 0 && 200 >= hp ? 30 : 0);
+    const damage = 200 * psychicMultiplier;
+    return 105 + (hp > 0 && damage >= hp ? 30 : 0);
   }
   if (name === 'Get Lost') {
     const valuable = opponentDiscard.filter(card =>
@@ -188,8 +219,9 @@ function scoreAttack(item, request) {
   }
   if (name === 'Copycat') return copycatTargetAvailable(request) ? 132 : 0;
   if (name === 'Energy Drive') {
+    const damage = totalEnergyCount(observation) * 20 * psychicMultiplier;
     return 85 + Math.min(30, totalEnergyCount(observation) * 3) +
-      (hp > 0 && totalEnergyCount(observation) * 20 >= hp ? 18 : 0);
+      (hp > 0 && damage >= hp ? 18 : 0);
   }
   const printedDamage = Number.parseInt(String(
     list(observation.ownPublic.active?.attacks)
@@ -265,18 +297,28 @@ function scoreAction(item, request) {
         (boardV < 2 || (copycatTargetAvailable(request) &&
           !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) ||
           (pathLockActive(observation) && !boardHas(own, PRINT.marshadow) &&
-            !hasPrinting(hand, PRINT.marshadow))) && hand.length > 1) return 132;
+            !hasPrinting(hand, PRINT.marshadow)) ||
+          (hasDragonActive(observation) && !fairyZoneActive(observation) &&
+            !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy))) &&
+        hand.length > 1) return 132;
 
     if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
     if (matches(card, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
         observation.ownTurnResources.supporterPlayedTurn === 0) return 110;
+    if (matches(card, PRINT.clefairy) && hasDragonActive(observation) &&
+        !fairyZoneActive(observation) && !pathLockActive(observation)) return 130;
     if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
         !boardHas(own, PRINT.mimikyu)) return 118;
 
     if (includes(card, 'Fog Crystal') &&
-        (psychicHand === 0 || boardV < 2)) return 108;
+        (psychicHand === 0 || boardV < 2 ||
+          (hasDragonActive(observation) && !fairyZoneActive(observation) &&
+            !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)))) return 108;
 
-    if (includes(card, 'Quick Ball') && boardV < 2 && hand.length > 1) return 102;
+    if (includes(card, 'Quick Ball') &&
+        (boardV < 2 || (hasDragonActive(observation) &&
+          !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) &&
+          !hasPrinting(hand, PRINT.clefairy))) && hand.length > 1) return 102;
 
     if (includes(card, 'Forest Seal Stone') &&
         observation.ownTurnResources.vstarUsed === false && boardVmax > 0) return 105;
@@ -328,6 +370,8 @@ function scoreAction(item, request) {
       matches(active.printing, PRINT.trevenant);
     const activeLocked = active.publicRestrictions?.cannotAttackNextTurn === true ||
       active.publicRestrictions?.cannotRetreat === true;
+    if (matches(target.printing, PRINT.shadowRiderVmax) &&
+        maxGeistDamage(request) >= remainingHp(activeTarget(opponent))) return 128;
     return targetIsAttacker && (!activeIsAttacker || activeLocked) ? 84 : 8;
   }
 
