@@ -84,3 +84,10 @@ The current Critic stopline still prohibits policy edits, parallel integration b
 - **Static conclusion:** current actor-only V3 cannot resolve these prompts if selected.
 - **Not established:** a runtime game reaching either prompt, policy win rate, matchup result, or competitive strength. No fixture or CI run was dispatched.
 - **No implementation:** no candidate/opponent policy, host code, workflow, fixture, or deck was modified.
+
+
+### Pinned UI confirms repeated identical pairs are real results
+
+The pinned client component `ptcg-play/src/app/table/prompt/prompt-move-damage/prompt-move-damage.component.ts` builds the native result by adding the same Pokémon item to `fromItems` once for every 10 damage counters removed and to `toItems` once for every 10 counters added, then zipping those arrays into `DamageTransfer[]`. Therefore moving 20 counters from one Pokémon to another produces two identical `{from,to}` entries. This is ordinary client-generated output, not merely a theoretical result accepted by the server validator.
+
+The pinned `MoveDamagePromptResolver` also appends a transfer on each loop iteration while decrementing the source and incrementing the destination, so its result can repeat the same pair. This confirms that ordinal transfer tokens or an explicit count-bearing decision are required for faithful protocol representation.
