@@ -56,17 +56,11 @@ Agent49 remains the sole implementation owner. The deliberate sync merge is alre
 
 Most earlier findings have now been source-fixed in this head: closed prompt selection/selectionType contract, owner-visibility metadata, Stadium suppression, retreat/ability/PlayCard rejection families, GameError identity, GameCoreError enum modeling, seat-1 compiled witness added, and Docker worker isolation wired into the async runner. The Fairy Zone fixture now uses 410 HP, consistent with Agent36's pinned-source explanation. These are not passing results until exact-head workflows execute.
 
-### Still-live P0: generic conditional Item rejection is incomplete
+### Conditional Item rejection — source preflight fixed at c114; broader per-card witnesses pending
 
-The current frontier only treats `CANNOT_PLAY_THIS_CARD` as expected for exact `Battle VIP Pass FST` and `VS Seeker PHF` names. `EXPECTED_PLAY_CARD_REJECTIONS.ITEM` otherwise contains only `BLOCKED_BY_EFFECT`.
+At exact PR #58 head `c114c15...`, the old source-level missing-preflight defect is fixed. `agent36-native-action-frontier.cjs` calls `itemCanPlayInValidationStore(action, simulator, actorSeat, native)` before dispatch for every candidate; for Item candidates the helper invokes the pinned card's `canPlay(simulator.store, state, player)` predicate with the real validation Store/State/Player. A false result is preflight-rejected; unexpected dispatch errors remain fatal.
 
-This is insufficient for the fixed V3 candidate and rank-1 decks:
-
-- The pinned Twinleaf `ptcg-server/src/advanced-bot/action-enumerator.ts` `playItemActions` enumerates every `ItemCard` in hand into a `PlayCardAction`; it does not call `canPlay` first.
-- Pinned `Quick Ball SSH`, `Mysterious Treasure FLI`, `Hisuian Heavy Ball ASR`, `Field Blower GRI`, and `Unfair Stamp TWM` each implement conditional `canPlay` and throw `GameMessage.CANNOT_PLAY_THIS_CARD` when their conditions fail (e.g. no discardable card/deck empty, no face-down Prize, no Stadium/Tool, or no Unfair Stamp KO marker).
-- The exact candidate list and official rank-1 list contain these Items. In particular, an Unfair Stamp in hand before the marker is set is an ordinary invalid candidate that the frontier will still dispatch; the current two-name exception does not catch it, so frontier construction aborts instead of continuing to valid actions.
-
-Do not add a blanket `CANNOT_PLAY_THIS_CARD` catch. Preferred fix: use the pinned card's own `canPlay(store, state, player)` predicate as a pre-dispatch legality filter for Item candidates (with the real pinned Store/State/Player arguments), and keep unexpected dispatch errors fatal. Alternatively, add exact card-specific error cases with compiled native tests. Add regressions for at least Unfair Stamp without its marker and Quick Ball/Mysterious Treasure without another discardable hand card; verify the frontier still contains a valid action and does not consume/mutate the real state.
+`EXPECTED_PLAY_CARD_REJECTIONS.ITEM` intentionally retains only `BLOCKED_BY_EFFECT`; do not add a blanket `CANNOT_PLAY_THIS_CARD` catch. The compiled native witness currently covers Battle VIP Pass and VS Seeker. Broader named-card witness coverage remains incomplete for Unfair Stamp, Quick Ball without a discardable card, Mysterious Treasure, Hisuian Heavy Ball, and Field Blower. This is a **breadth-of-regression-coverage** limitation, not the old missing-preflight source defect. The existing witness is authored, not executed; exact-head compile-enabled execution remains pending.
 
 ### Execution sequencing reminder
 
@@ -75,29 +69,13 @@ The new compiled seat-1 witness file is run by the generic compile-enabled/defau
 The Copycat pair check currently matches the pinned producer's latest-`barragePairIndex` contract; the prior “later unpaired event invalidates pair” assertion is not a proven mismatch. Production runner still passes no prior-turn attack history, so keep Copycat fail-closed/unsupported in the first vertical slice.
 
 
-### Additional still-live P0: attached Forest Seal Stone after VSTAR use
+### VSTAR-used rejection — source/test fix present at c114; execution pending
 
-The same pinned action frontier has another exact used-ability rejection gap:
+At exact PR #58 head `c114c15...`, `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` includes `LABEL_VSTAR_USED`. The compiled native test source at `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs:812-839` sets `usedVSTAR=true`, enumerates Star Alchemy plus Pass, and expects the frontier to reject Star Alchemy while preserving Pass. This is source/test coverage added, not an executed pass: no Actions run exist for the exact head. Do not keep this as a live source P0 or repeat the probe; close the evidence gap only after exact-head compiled execution.
 
-- The research adapter's `abilityActions` adds every attached Tool power as a native `UseAbilityAction` without checking `player.usedVSTAR`.
-- The candidate 60 contains `Forest Seal Stone SIT 156`.
-- Pinned `ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/forest-seal-stone.ts` handles its `PowerEffect` by throwing `GameError(GameMessage.LABEL_VSTAR_USED)` once `player.usedVSTAR === true`.
-- Current `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` includes `POWER_ALREADY_USED` and `BLOCKED_BY_EFFECT`, but not `LABEL_VSTAR_USED`.
+### GX-used attack rejection — source/test fix present at c114; execution pending
 
-After Star Alchemy is used, the next frontier build still enumerates it and validation can abort on this distinct pinned error. The frozen rank-1 policy itself gates Star Alchemy on `vstarUsed === false`, but that policy-side guard cannot protect the host: the frontier is built before the worker decides and still dispatches every enumerated power. Add the exact `LABEL_VSTAR_USED` rejection to the appropriate ability family (or prefilter the already-used VSTAR power), with a compiled native regression that keeps another valid action in the frontier. This is distinct from the Dedenne-style `POWER_ALREADY_USED` case already added.
-
-
-### Additional still-live P0: GX attack already used
-
-The active attack frontier has the analogous once-per-game GX rejection gap:
-
-- The custom `attackActions` enumerator includes every active attack and does not filter on `player.usedGX`.
-- Both fixed candidate and rank-1 lists contain `Dialga-GX UPR` and `Trevenant & Dusknoir-GX`, which have GX attacks.
-- Pinned `Dialga-GX UPR` calls `BLOCK_IF_GX_ATTACK_USED(player)`; the pinned helper throws `GameError(GameMessage.LABEL_GX_USED)` when `player.usedGX === true`.
-- Current `EXPECTED_REJECTIONS.ATTACK_ACTION` includes `CANNOT_USE_ATTACK` but not `LABEL_GX_USED`.
-
-After either player's GX attack has been used, a later frontier build while that GX attacker remains Active will still enumerate the GX attack and can abort on `LABEL_GX_USED`. The frozen candidate policy gates Timeless-GX on `gxUsed === false`, but that policy-side guard cannot protect the host: the frontier is built before the worker decides and still dispatches every enumerated attack. Add that exact rejection to `ATTACK_ACTION` (or prefilter GX attacks when `usedGX` is true), with a compiled native regression that also verifies another legal attack remains available.
-
+At exact PR #58 head `c114c15...`, `EXPECTED_REJECTIONS.ATTACK_ACTION` includes `LABEL_GX_USED`. The compiled native test source at `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs:841-944` sets `usedGX=true`, enumerates Pale Moon-GX, Night Watch and Pass, and expects the frontier to omit Pale Moon-GX while retaining Night Watch and Pass. This is source/test coverage added, not an executed pass: no Actions run exist for the exact head. Do not keep this as a live source P0 or repeat the probe; close the evidence gap only after exact-head compiled execution.
 
 ### Correction to section B.8 — Battle VIP Pass / VS Seeker narrow witness is present
 
