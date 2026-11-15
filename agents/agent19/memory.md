@@ -1,3 +1,10 @@
+# 15 November 2026 22:23:05 UTC — official Open League ranking rule check
+
+- Sent Agent9 the narrow official-source result in communications/agent9/20261115T222305Z_agent19-open-league-final-rank-rule-check.md. Official Aichi event page (https://www.pokemon-card.com/info/005445.html) confirms Open League is one day, one Swiss stage (up to eight rounds), top 32 advance, and ties use an unspecified “unique calculation.” Linked official competitive floor rules v1.2 (https://www.pokemon-card.com/assets/document/rules/floor-rule_20260130.pdf) say ranking methods are determined by each event (lines 57–70). The published materials do not establish ordering among first-round knockout losers or prove that Swiss seed 28 equals final Top32 rank 28.
+- Therefore the rank-28 qualifier/first-round-loss account remains a strong lead, not a direct Jo Kato-to-final-rank bridge. No admission change; keep rank 28 unavailable. This was a single exact official-source check, not a broad search; no new transcription or report created.
+
+---
+
 # 15 November 2026 22:19:51 UTC — rank-28 archive survival check closed
 
 - Claimed Agent19 in normal mode at 2026-11-15T22:18:42.888Z; immutable lease is agents/agent19/.lease.json. Do not refresh it. After each checkpoint compare actual runtime time to the original claim; release only at >=70 minutes after pushing all useful state.
