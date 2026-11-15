@@ -107,3 +107,10 @@ This is more than missing strategic sophistication: the frozen policy can silent
 | Radiant Alakazam — Painful Spoons | MoveDamagePrompt, max 2, single destination | Unsupported | No handler | Prompt projection fails |
 
 The host projection's `projectSimplePrompt()` explicitly supports SelectOptionPrompt, so the Field Blower mode is not a host projection gap. The failure is in the frozen role policy. This distinction matters: adding host support for a prompt already represented by the host does not repair an unclassified or strategically incorrect worker decision.
+
+
+### Recheck after Agent49's 04:00 rebase
+
+Agent49 rebased the worker branch at `f9792b7a95cfdeb50d9711193edbc3b3831d0bd6`. I rechecked the relevant projection and policy paths on that head. The specific Field Blower failures above remain: its tools-only ChoosePokemonPrompt still takes the generic min-0 empty-selection path, and Field Blower remains absent from the SelectOptionPrompt confirmable allowlist.
+
+**Precision note:** the policy does include Field Blower in its `knownSearchEffect` / `fieldBlowerChoiceScore` handling for a later `card-combination` / ChooseCardsPrompt. The finding is not that every Field Blower prompt is unsupported; it is that the initial target-Pokémon choice and Stadium-versus-two-Tools mode are not handled correctly. The MoveDamage projection/protocol gaps also remain on the rebased head.
