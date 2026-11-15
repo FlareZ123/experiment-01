@@ -270,8 +270,12 @@ def run_compare_mimikyu2(deals: int, seed: int) -> dict:
     # Verify the source-list change is exactly Trevenant & Dusknoir-GX -> second Mimikyu.
     raw_a = json.loads(CANDIDATE.read_text(encoding="utf-8"))["cards"]
     raw_b = json.loads(MIMIKYU2_CANDIDATE.read_text(encoding="utf-8"))["cards"]
-    ca = Counter({card["name"]: int(card["count"]) for card in raw_a})
-    cb = Counter({card["name"]: int(card["count"]) for card in raw_b})
+    ca = Counter()
+    cb = Counter()
+    for card in raw_a:
+        ca[card["name"]] += int(card["count"])
+    for card in raw_b:
+        cb[card["name"]] += int(card["count"])
     delta = {name: cb[name] - ca[name] for name in set(ca) | set(cb) if cb[name] != ca[name]}
     if delta != {"Mimikyu": 1, "Trevenant & Dusknoir-GX": -1}:
         raise ValueError(f"Unexpected Mimikyu-2 challenger delta: {delta}")
@@ -359,7 +363,7 @@ def run_compare_mimikyu2(deals: int, seed: int) -> dict:
 
     def paired_row(metric: str) -> dict:
         mean = diff_sum[metric] / deals
-        variance = max(0.0, diff_sq[metric] / deals - mean * mean)
+        variance = max(0.0, (diff_sq[metric] - deals * mean * mean) / (deals - 1)) if deals > 1 else 0.0
         se = math.sqrt(variance / deals)
         return {
             "net_count": diff_sum[metric],
