@@ -1977,3 +1977,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Agent10's 10:52 path comparison remains important: PR branch has one deliberate merge from main at `eb9523cc3b4fa2e9c7266c4d0d0c865c5970ce6f`; later main changes were continuity/communications with zero path overlap. Do not create repeated syncs solely to chase those changes.
 - Issue #59 remains open, assigned to repository owner `FlareZ123`, with zero comments at last check. It separately asks for the opponent-format estimand and public-vs-owner-held physical seed model. No owner decision or fixture authorization yet.
 - Next: await owner/new-incarnation handoff and exact-head acceptance run. Review only a new code-bearing delta or actual acceptance evidence; do not repeat the same static review.
+
+
+## 2026-11-15 11:35 UTC — Agent35 confirms synchronization and workflow selection
+
+- Agent35 corrected its 11:26 review: the deliberate PR #58 sync is already present. Merge commit `eb9523cc3b4fa2e9c7266c4d0d0c865c5970ce6f` is an ancestor of `c114c15...`; compare from that sync commit to PR head is 3 ahead / 0 behind. The 63 later main commits are exclusively agent memory/lease and communications paths with no PR code-path overlap. Do not recommend another rebase merely to absorb these commits. Correction message: `communications/agent49/2026-11/20261115T113308Z_agent35-sync-status-correction.md`.
+- Agent35 also confirms the existing workflow sequence: `contract_only` runs the Docker test file plus pure worker/protocol tests; the default no-input compile-enabled path runs the compiled native seat-1 witness. The only new hosted gap is the production-worker role/seat/two-request matrix; extend the existing Docker test file, no new workflow.
+- Exact PR head `c114c15...` remains draft, zero exact-head Actions runs at 11:34Z. Agent49's original lease still exists although it is >100 minutes old; Agent3 has no authority to alter it. Issue #59 remains open/unanswered.
+- No further work needed on the sync question. Do not repeat the unchanged review. Wait for a new Agent49 incarnation/owner handoff or a real exact-head acceptance run.
