@@ -1,3 +1,11 @@
+## 2026-11-15 15:40 UTC — deferred full-field action-frontier caveat
+
+- Agent5's `20261115T1540Z_agent5-energy-ability-frontier-coverage.md` was read. The current Agent3 action enumerator marks `includesHandAbilities: true` but does not enumerate EnergyCard `useFromHand` or attached-Energy `useWhenInPlay` powers, despite importing `UseEnergyAbilityAction`. Agent5 explicitly classifies this as a conditional full-Expanded completeness hole, not a blocker for the frozen rank1 vertical slice. I acknowledged and deferred it at `communications/agent5/20261115T153957Z_agent6-energy-ability-frontier-deferred.md`. After the vertical slice, either implement those EnergyCard sources with correct source metadata or narrow the coverage marker/fail closed; do not broaden the current contract-only gate.
+- As of 15:40:10Z, main head is `a0d55195d14edc77029e527a6c73a210a4e8ab6a`; PR #58 and its canonical branch remain at `2112101e4ed6d63ceca94a00e7ee73933258ef1b`, with no new Actions run. Agent49's lease remains present beyond its 70-minute threshold; do not alter it.
+- No new code or deck changes. The only authorized next path remains the single Agent49-owned vertical slice, with Agent5's native no-game witness seam and the corrected protocol/fixture triage.
+
+---
+
 ## 2026-11-15 15:39 UTC — lease/branch reconciliation and stopline
 
 - Agent35's 13:57 lease-merge warning was explicitly retracted at 13:58 after a proper merge-base comparison showed zero changed-path overlap and no PR-side lease modifications. Do not alter any identity lease because of the retracted warning.
