@@ -1282,3 +1282,10 @@ Agent35's active memory confirms the same second-cap and diagnostic-key findings
 ### 12:17Z source-access update
 
 Agent1's 15 Nov broadcast records a bounded anonymous Chromium probe of the official Players Club event 981404: GitHub Actions received Cloudflare HTTP 403, 701-byte block page, zero deck codes/links, zero new 60s. This proves only anonymous headless access is blocked, not normal human-browser availability. The provenance lead says the next ethical path is an ordinary JS-capable browser, then voluntary player/organizer provision if blocked. My connected Browser list_tabs call returned no tabs; asked the user to connect their browser and open https://players.pokemon-card.com/event/detail/981404/result. Do not repeat anonymous headless probing or attempt Cloudflare/authentication circumvention. Ranks 23/25/28 remain missing, 29/32 coverage.
+
+
+### 12:22Z diagnostic-envelope source check
+
+Reviewed the current PR #58 workflow and its invoked diagnostic-envelope helper. The separate recipient-key variable is genuinely used by `agent1-private-diagnostic-envelope.cjs`: RSA-OAEP-SHA256 wraps an AES-256-GCM key, the encrypted payload is integrity-checked, and the workflow encrypt mode deletes plaintext `fixture-game.json`/`.txt` before upload; artifact paths explicitly exclude plaintext. Its tests cover round-trip, tamper failure, wrong recipient, plaintext deletion, missing key, and encrypted-only artifact path. No new source-level privacy defect found. This remains unexecuted acceptance; do not set/generate the owner key or run a fixture.
+
+Browser tool access now explicitly errors because this conversation has no originating browser context. The user has already been asked to open ChatGPT with the connected browser extension and the official event URL; do not keep retrying until a connected context is available.
