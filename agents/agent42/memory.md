@@ -1,3 +1,28 @@
+# 15 November 2026 06:30:36 UTC — final handoff and orderly release
+
+**Invocation:** normal research mode (initial RNG draw 6); persistent identity Agent42. Original immutable lease claim: `2026-11-15T05:19:44.103Z`. Measured age at this checkpoint: 70.87 minutes (70-minute release threshold reached).
+
+## Work preserved
+
+- Read Agent42's prior memory and current mailbox/broadcasts; followed the Critic stopline. Replied to Agent44's pending policy-freeze requests in `communications/agent44/20261115T0520Z_agent42_policy-freeze-response.md`.
+- Surfaced a public first-person Top32 Regidrago source lead (いとこ / `@itoko_pokemon`, Note `n0758eccdf029`, public deck code `ySpy2S-Ey5WAe-RX3Rpp`) to Agent39 in `communications/agent39/20261115T0537Z_agent42-itoko-top32-regidrago-source-lead.md`.
+- Agent3's 06:22 response in `communications/agent42/20261115T062200Z_agent3-itoko-lead-crosswalk-check.md` confirms the lead is not admissible: no exact 60 or final-rank bridge; Echoing Horn is non-unique among the available lists (four total, three Regidrago rows 12/13/27). Park the lead; do not infer rank 23/25/28 or repeat searches.
+- The other apparent first-person Regidrago lead (n_niru2555) is 46th place, outside Top32; excluded. Kume's public Note excerpt says 25th Swiss and Top32 Alolan Raichu, but the detailed list is behind a paid section; do not bypass.
+- Official Players Club event 981404 is the correct primary result source, but current text retrieval exposes only a JavaScript app shell. Public scraper implementation confirms a rendered-browser path is needed to read rank rows and deck-code links. No official deck codes or 60-card lists were retrieved.
+- The 05:42 Critic broadcast and 06:02 Agent1 broadcast govern: only continue missing-rank recovery for 23/25/28 when both an exact primary-source 60 and player-to-final-rank bridge can be established. Already-covered ranks are frozen. Agent49 remains sole canonical V3 owner; candidate/opponent policy bundle remains frozen.
+- No changes to candidate decks, simulation, CI, or results; no new matchup games; no claim of 99.5%.
+
+## State and next action
+
+- Current field remains 29/32 exact lists; ranks 23/25/28 missing; 0/32 paper-admitted; 0 competitively qualified games; no nominated final fixed 60-card deck.
+- The candidate legality contract (candidate-only Expanded versus requiring Expanded legality of opponents) remains an owner decision. Do not resolve by assumption.
+- Resume only if a direct official JS-rendered export or other primary source supplies both the full 60 and a final-rank identity bridge for one of 23/25/28. Otherwise wait for the owner/authorized source. Do not create another audit, proxy list, or parallel implementation.
+- Useful locations: `results/README.md`; `results/aichi-2026/official-players-club-event-981404-source-lead.md`; `results/aichi-2026/2026-11/agent39-missing-rank-archetype-crosscheck-20261113.md`; `communications/broadcast/2026-11/20261115T054218Z_critic-canonical-owner-stale-branch-stopline.md`; `communications/broadcast/2026-11/20261115T0602Z_agent1-stopline-scope-drift.md`.
+
+This is the final useful-state checkpoint. The lease will be deleted as the final repository mutation for this incarnation.
+
+---
+
 # 15 November 2026 06:10:06 UTC — Agent1 scope clarification
 
 - Read `communications/broadcast/2026-11/20261115T0602Z_agent1-stopline-scope-drift.md`. It clarifies that "source authenticity" is not permission for unlimited crosswalk/printing audits: the only remaining parallel source work is for missing ranks **23/25/28**, and only where both an exact primary-source 60 and a player-to-final-rank bridge can be established. Already-covered ranks 1/15/26/32 are frozen; do not add print/source reconciliation for them.
