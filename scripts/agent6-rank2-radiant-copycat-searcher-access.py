@@ -44,21 +44,26 @@ EXPECTED_COUNTS = {
     "Treasure": 4, "Fog": 4, "Quick": 1, "Stone": 1, "Heavy": 1,
     "Compressor": 1, "Stretcher": 1, "Dimension": 1, "Other": 25,
 }
+EXPECTED_MIMIKYU2_COUNTS = {**EXPECTED_COUNTS, "Mimikyu": 2, "Other": 24}
 
 
-def load_deck() -> list[str]:
-    data = json.loads(CANDIDATE.read_text(encoding="utf-8"))
+def load_deck_from(path: Path, expected_counts: dict[str, int]) -> list[str]:
+    data = json.loads(path.read_text(encoding="utf-8"))
     counts = Counter()
     for card in data["cards"]:
         category = CARD_TO_CATEGORY.get(card["name"], "Other")
         counts[category] += int(card["count"])
     observed = {category: counts[category] for category in CATEGORIES}
-    if observed != EXPECTED_COUNTS:
-        raise ValueError(f"Candidate list changed; expected {EXPECTED_COUNTS}, got {observed}")
+    if observed != expected_counts:
+        raise ValueError(f"Candidate list changed at {path}; expected {expected_counts}, got {observed}")
     deck = [category for category in CATEGORIES for _ in range(counts[category])]
     if len(deck) != 60:
         raise ValueError(f"Expected 60 cards, got {len(deck)}")
     return deck
+
+
+def load_deck() -> list[str]:
+    return load_deck_from(CANDIDATE, EXPECTED_COUNTS)
 
 
 @lru_cache(maxsize=None)
@@ -256,6 +261,137 @@ def run(deals: int, seed: int) -> dict:
     }
 
 
+
+def run_compare_mimikyu2(deals: int, seed: int) -> dict:
+    base = load_deck()
+    challenger_from_json = load_deck_from(MIMIKYU2_CANDIDATE, EXPECTED_MIMIKYU2_COUNTS)
+
+    # Verify the source-list change is exactly Trevenant & Dusknoir-GX -> second Mimikyu.
+    raw_a = json.loads(CANDIDATE.read_text(encoding="utf-8"))["cards"]
+    raw_b = json.loads(MIMIKYU2_CANDIDATE.read_text(encoding="utf-8"))["cards"]
+    ca = Counter({card["name"]: int(card["count"]) for card in raw_a})
+    cb = Counter({card["name"]: int(card["count"]) for card in raw_b})
+    delta = {name: cb[name] - ca[name] for name in set(ca) | set(cb) if cb[name] != ca[name]}
+    if delta != {"Mimikyu": 1, "Trevenant & Dusknoir-GX": -1}:
+        raise ValueError(f"Unexpected Mimikyu-2 challenger delta: {delta}")
+
+    # Other cards are exchangeable in this access model. Pair every deal by the
+    # same shuffle permutation, changing one Other slot to Mimikyu.
+    challenger = base.copy()
+    challenger[challenger.index("Other")] = "Mimikyu"
+    if Counter(challenger) != Counter(challenger_from_json):
+        raise ValueError("Paired challenger category counts do not match its exact 60-card JSON")
+
+    metrics = ("mimikyu_open", "e1_3plus", "e1_4", "e2_3plus", "e2_4",
+               "direct_draw_3plus", "direct_draw_4")
+    totals = {"current": Counter(), "mimikyu2": Counter()}
+    diff_sum = Counter()
+    diff_sq = Counter()
+    diff_positive = Counter()
+    diff_negative = Counter()
+    rng = random.Random(seed)
+
+    def evaluate(cards: list[str]) -> dict[str, bool]:
+        opening = cards[:7]
+        prizes = cards[7:13]
+        first_draw = cards[13]
+        hand = opening + [first_draw]
+        deck = cards[14:]
+        out = {metric: False for metric in metrics}
+        if "Mimikyu" not in opening:
+            return out
+        out["mimikyu_open"] = True
+
+        ok, meta = access_state(hand, opening, prizes, deck, v_target=1, energy_target=1)
+        if ok and meta["vmax_prized"] <= 1:
+            out["e1_3plus"] = True
+        ok, meta = access_state(hand, opening, prizes, deck, v_target=2, energy_target=1)
+        if ok and meta["vmax_prized"] == 0:
+            out["e1_4"] = True
+        ok, meta = access_state(hand, opening, prizes, deck, v_target=1, energy_target=2)
+        if ok and meta["vmax_prized"] <= 1:
+            out["e2_3plus"] = True
+        ok, meta = access_state(hand, opening, prizes, deck, v_target=2, energy_target=2)
+        if ok and meta["vmax_prized"] == 0:
+            out["e2_4"] = True
+
+        second_draw = cards[14]
+        first8 = opening + [first_draw]
+        first9 = first8 + [second_draw]
+        vmax_prized = prizes.count("VMAX")
+        vmax_deck = deck.count("VMAX")
+        direct_common = (
+            "Radiant" in first8
+            and first8.count("V") >= 1
+            and first8.count("Psychic") >= 1
+            and first9.count("Psychic") >= 2
+            and vmax_deck >= 2
+        )
+        if direct_common and vmax_prized <= 1:
+            out["direct_draw_3plus"] = True
+        if direct_common and first8.count("V") >= 2 and vmax_prized == 0:
+            out["direct_draw_4"] = True
+        return out
+
+    for _ in range(deals):
+        permutation = list(range(60))
+        rng.shuffle(permutation)
+        current_cards = [base[i] for i in permutation]
+        challenger_cards = [challenger[i] for i in permutation]
+        current_events = evaluate(current_cards)
+        challenger_events = evaluate(challenger_cards)
+        for metric in metrics:
+            a = current_events[metric]
+            b = challenger_events[metric]
+            totals["current"][metric] += int(a)
+            totals["mimikyu2"][metric] += int(b)
+            difference = int(b) - int(a)
+            diff_sum[metric] += difference
+            diff_sq[metric] += difference * difference
+            if difference > 0:
+                diff_positive[metric] += 1
+            elif difference < 0:
+                diff_negative[metric] += 1
+
+    current_mimikyu = totals["current"]["mimikyu_open"]
+    challenger_mimikyu = totals["mimikyu2"]["mimikyu_open"]
+
+    def paired_row(metric: str) -> dict:
+        mean = diff_sum[metric] / deals
+        variance = max(0.0, diff_sq[metric] / deals - mean * mean)
+        se = math.sqrt(variance / deals)
+        return {
+            "net_count": diff_sum[metric],
+            "rate_difference": mean,
+            "ci95": [mean - 1.959963984540054 * se, mean + 1.959963984540054 * se],
+            "challenger_only_deals": diff_positive[metric],
+            "current_only_deals": diff_negative[metric],
+        }
+
+    return {
+        "seed": seed,
+        "deals": deals,
+        "deck_change": "Mimikyu 1 -> 2; Trevenant & Dusknoir-GX 1 -> 0; all modeled searcher counts unchanged",
+        "mimikyu_open_exact": {
+            "current": 7 / 60,
+            "mimikyu2": 1 - math.comb(58, 7) / math.comb(60, 7),
+        },
+        "current": {
+            "mimikyu_open_count": current_mimikyu,
+            "results": {metric: result_row(totals["current"][metric], deals, current_mimikyu)
+                        for metric in metrics if metric != "mimikyu_open"},
+        },
+        "mimikyu2": {
+            "mimikyu_open_count": challenger_mimikyu,
+            "results": {metric: result_row(totals["mimikyu2"][metric], deals, challenger_mimikyu)
+                        for metric in metrics if metric != "mimikyu_open"},
+        },
+        "paired_differences": {metric: paired_row(metric) for metric in metrics},
+        "discard_model_caveat": "the extra Mimikyu is not allowed as discard fodder; the removed Trevenant & Dusknoir-GX is treated as Other in the current list",
+        "cache": can_finish.cache_info()._asdict(),
+    }
+
+
 def self_test() -> None:
     # Targets already in hand.
     direct = (1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -283,11 +419,16 @@ def main() -> None:
     parser.add_argument("--deals", type=int, default=DEALS_DEFAULT)
     parser.add_argument("--seed", type=int, default=SEED_DEFAULT)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--compare-mimikyu2", action="store_true")
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return
-    print(json.dumps(run(args.deals, args.seed), indent=2, sort_keys=True))
+    if args.compare_mimikyu2:
+        output = run_compare_mimikyu2(args.deals, args.seed)
+    else:
+        output = run(args.deals, args.seed)
+    print(json.dumps(output, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
