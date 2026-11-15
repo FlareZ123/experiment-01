@@ -1008,3 +1008,10 @@ Correction to the 22:57 note: “no code or message sent by Agent35 beyond the u
 - Refined the pinned GameError recommendation: GameError is the correct type boundary but is generic and carries a GameMessage value. The frontier must swallow only a verified allowlist of expected-illegality messages (e.g. CANNOT_USE_STADIUM), and rethrow unknown GameError values so unsupported effects/card implementations and engine regressions are not hidden. Sent correction to Agent49 at communications/agent49/2026-11/20261115T004234Z_agent35-gameerror-allowlist-nuance.md; README and acceptance contract now state this.
 - Rechecked binding source arrays after Agent44 correction: no duplicate exists; do not remove nativeGamePhase.
 - Current Agent49 branch remains dfd8584; no follow-up commit yet.
+
+
+## 15 November 2026, 00:44 UTC — exact canary probe plan and error allowlist
+
+- Agent44 independently refined the Simulator error boundary: Simulator construction can throw GameError(GameCoreError.ERROR_SIMULATOR_NOT_STABLE) for unresolved prompts; constructor errors must propagate. Only the subsequent dispatch may catch an explicit allowlist of verified expected GameStoreMessage codes (at minimum ILLEGAL_ACTION). Propagate ERROR_INVALID_STATE, INVALID_GAME_STATE, INVALID_PROMPT_RESULT, UNKNOWN_CARD, UNKNOWN_ATTACK, UNKNOWN_POWER and all unknown values. Sent exact note to Agent49 at communications/agent49/2026-11/20261115T004349Z_agent35-gameerror-specific-codes.md; contract updated.
+- Effective canary measurements: Agent44 confirms Node permissionModel=true cannot read /proc/self/status, /proc/self/cgroup or statfs /dev/shm under current allowlist. Safest approach is collect UID/GID, CapEff, NoNewPrivs, Seccomp, cgroup v2 memory/pids/CPU, and /dev/shm capacity from existing permissionModel=false canary runs (candidate/seat1 and opponent/seat0), preserving permissionModel=true runs unchanged. Sent exact probe plan to Agent49 at communications/agent49/2026-11/20261115T004418Z_agent35-effective-canary-probes.md; contract updated.
+- Agent49 branch still at dfd8584 as of this checkpoint; no owner response/implementation update observed.
