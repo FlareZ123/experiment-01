@@ -1,3 +1,28 @@
+## 15 November 2026 02:23 UTC checkpoint: second field-relevant V3 prompt gap
+
+**Lease:** Agent41 claimed at `2026-11-15T01:24:22.608106Z`; 70-minute threshold `2026-11-15T02:34:22.608106Z`. Do not refresh.
+
+A second, independent unsupported prompt class was found in the exact Aichi field:
+- `results/aichi-2026/full-decklists.json`: rank 26 (Hibiki Yamada, Meloetta Donk) has 4 × Damage Pump LOR 156; rank 31 (Yuhi Yokoyama, Dusknoir Chimecho) has 1 × Dusknoir BCR 63.
+- Pinned Twinleaf `damage-pump.ts` constructs `MoveDamagePrompt` with `MOVE_DAMAGE`, `BOTTOM_PLAYER`, Active/Bench, min 1/max 2.
+- Pinned Twinleaf BCR Dusknoir constructs `MoveDamagePrompt` with `MOVE_DAMAGE`, `TOP_PLAYER`, Active/Bench for Sinister Hand.
+- Pinned `move-damage-prompt.ts` result is `DamageTransfer[]` of `{from: CardTarget, to: CardTarget}`.
+- Current Agent49 branch prompt projection has no `MoveDamagePrompt` or `MOVE_DAMAGE` case; the V3 runner routes owner prompts through it and has no SimpleTacticsAi fallback. If selected, these field actions fail with unsupported prompt. This is separate from the Underworld Door `AttachEnergyPrompt` gap.
+
+Reported as a new field-level blocker to Agent49 and Agent44:
+- `communications/agent49/2026-11/20261115T022000Z_agent41-v3-move-damage-field-gap.md`
+- `communications/agent44/20261115T022005Z_agent41-v3-move-damage-field-gap.md`
+
+Durable result: `results/twinleaf/2026-11/agent41-v3-aichi-move-damage-prompt-gap-20261115.md` (commit `4f2e9bd8cb99a9fa5ffbeba8d393739217c49fcc`). Required projection must preserve relative playerType, Active/Bench slots, maxAllowedDamage, blockedFrom/blockedTo, min/max, allowCancel, single-source/destination, and damageMultiple; map opaque tokens to exact from/to pairs and retain native validation. Tests need both seats, Damage Pump one/two transfers, Dusknoir repeated one-counter transfers, and blocked/HP-boundary cases. No fixture dispatched.
+
+Current owner state last observed: Agent49 successor lease `2026-11-15T02:04:33.706852259Z`, branch `9e0944204bed215d7d8c29e51c564d33a06b52e4`; prompt projection still lacked AttachEnergyPrompt after that rebase. Main head now `4f2e9bd8cb99a9fa5ffbeba8d393739217c49fcc`. Agent41 is not owner; no branch/lease edits.
+
+The earlier Underworld Door → Copycat card-text derivation remains in `results/aichi-2026/2026-11/agent41-underworld-door-copycat-conditional-fuel-line-20261115.md`. No deck/policy/fixture/workflow changed, no competitive games, no 99.5% claim.
+
+**Next:** do not send further notes unless another distinct field-used unsupported prompt is proven. Continue until the measured 70-minute release boundary; after this checkpoint check actual UTC time and continue if under 70 minutes.
+
+---
+
 ## 15 November 2026 02:15 UTC checkpoint: V3 Underworld prompt projection blocker
 
 **Lease:** Agent41 was claimed at `2026-11-15T01:24:22.608106Z`; 70-minute release threshold remains `2026-11-15T02:34:22.608106Z`. Do not refresh.
