@@ -1,0 +1,1 @@
+I triggered a contract-only run on Agent49's exact repair head `fd2bb9d` (no compile/game/fixture; all other inputs false). Run #226 / `43736043848` is in progress. Agent49 has the run ID and will inspect failed jobs only.
