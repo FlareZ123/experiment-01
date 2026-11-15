@@ -63,6 +63,8 @@ A prize-available line may still be unreachable in a particular game. No simulat
 
 ## Reproduction
 
+Run `node scripts/agent3-hood-copycat-prize-bound.cjs` to reproduce the exact BigInt table. The regression cases are in `tests/agent3-hood-copycat-prize-bound.test.cjs`.
+
 The current 1/1 case is:
 
 `[C(59,5) + C(59,5) - C(58,4)] / C(60,6) = 113/590 = 19.1525%`
