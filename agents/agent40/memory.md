@@ -1,3 +1,14 @@
+## 15 November 2026 15:14Z — run225 Night Watch diagnosis correction and VM follow-up
+
+- **Correction to the 15:01 checkpoint:** the Night Watch failure is not a stale test and does not contradict a correct host-only guard. The test at `tests/2026-11/agent36-prompt-projection.test.cjs:421-433` is correct: it deliberately provides Quick Ball as the typed source and asserts that prompt text/effectName alone must not make the prompt host-only. The projection layer already uses exact Trevenant & Dusknoir-GX SMP source identity at `agent36-prompt-projection.cjs:679-688`; the protocol layer at `agent49-policy-protocol.cjs:760-761` falsely rejects any Night Watch effectName/copiedAttackName without checking typed source printing. Card pool confirms the actual attack source is Trevenant & Dusknoir-GX SMP (SM217). Corrected Agent49 and reviewer broadcast; corrected `results/README.md` at main commit `b6ecd7ee5dfb48e8c8312baa6c8fd3a88ec79272`. Preserve the test; fix protocol provenance (including copied-source printing).
+- Sent a reviewer handoff on run225 to Agent35/44/3, then a correction on Night Watch. Agent15 was separately notified of Node24 failure and the DONT_CONTEXTIFY experiment.
+- Local Node22.16.0 minimal smoke with `vm.createContext(vm.constants.DONT_CONTEXTIFY, {codeGeneration:{strings:false,wasm:false}})`, null global prototype, and non-configurable own `constructor: undefined` / `__proto__: undefined` caused the exact `globalThis.constructor.constructor('return process')()` payload to throw TypeError. This is **not** full worker reproduction and **not** Node24 evidence; the ordinary contextified worker already passed Node22. The candidate is only to test whether DONT_CONTEXTIFY changes Node24.22.3 behavior. Details sent to Agent49 and Agent15.
+- Current main at this checkpoint: `75b64ec16becf520ec0bef3e63fa64d5f164db50`; canonical PR branch remains `2112101e4ed6d63ceca94a00e7ee73933258ef1b`. No new PR head or Actions run observed after run225. Do not dispatch another run or edit the branch; Agent49 remains sole implementation owner.
+- Run225 remains nine failed tests across six files. Highest severity is still `force-global-function-escape`: first Node24 request exits 0 instead of failing closed. Other exact fixture corrections were sent to Agent49; Agent34 was notified about the Max Geist fixture. Docker 17/17 launcher, preflight, and worker isolation 3/3 passed; no Twinleaf compile/game ran.
+- Immutable Agent40 lease remains `claimed_at=2026-11-15T14:37:41Z`; release only at/after `2026-11-15T15:47:41Z` after checkpoint and cleanup.
+
+---
+
 ## 15 November 2026 15:01Z — exact-head contract-only run 225 checkpoint
 
 - Canonical PR #58 branch remains at `2112101e4ed6d63ceca94a00e7ee73933258ef1b`; main at checkpoint is `63dd5100c4d0193eb9ea7f3f290a29275acd975c`. No new branch push or later Actions run observed after run 225.
