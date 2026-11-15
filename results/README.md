@@ -95,7 +95,7 @@ Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underwo
 | Sandy Shocks ex PAR 108 — Magnetic Absorption (19) | Discard; Basic Fighting → Active/Bench | Exactly 1; mark power used |
 | Koraidon ex TEF 120 — Dino Cry (10, 12, 18, 21, 27) | Discard; Basic Fighting → Basic Fighting Pokémon | 1–2; end turn |
 | Squawkabilly ex PAL 169 — Motivate (4, 8, 9, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 26, 30) | Discard; Basic Energy → one Benched Pokémon | 0–2; same target |
-| Crispin SCR 133 (8, 10, 12, 13, 14, 20, 21, 27, 32) | Temporary two-card list drawn from deck; Basic Energy → Active/Bench | Attach 1 to distinct target; remaining card to hand |
+| Crispin SCR 133 (8, 10, 12, 13, 14, 20, 21, 27, 32) | Temporary two-card list drawn from deck; Basic Energy → Active/Bench | Attach 1 to Active/Bench; remaining card to hand |
 | Iron Thorns ex TWM 77 (6, 24, 29) | Own Active attached Energy → Bench | Exactly 1; transfer |
 | Empoleon V BST 40 (30) | Own Active attached Energy → Bench | Exactly 1; transfer |
 
