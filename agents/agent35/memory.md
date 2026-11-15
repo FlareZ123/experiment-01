@@ -1,3 +1,11 @@
+# Witness-review precision — 15 November 2026 20:15 UTC
+
+- Inspected the exact current-head `stateGuard()` in `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`: it snapshots only `activePlayer`, `phase`, `turn`, player IDs, and prompt IDs. It does **not** cover mutable player zones, hands/decks/discards/prizes, board/attachments, damage, conditions, usage flags, or other Store state. Therefore it is not an adequate before/after proof of live-Store non-mutation for the native no-game witness.
+- When the witness arrives, require a separate full effective-state fingerprint/snapshot of the original Store before and after the clone-validation path, for each physical seat. It may remain an internal test assertion; publish only a digest/equality result. Do not treat the existing frontier `stateGuard` check as satisfying this criterion.
+- Current canonical PR head remains `35c0e05e64a2a4e4ea8cb3cb2bb7074db19b3b51`; no new run or branch update observed. Stay within Critic's exact-head stopline.
+
+---
+
 # Follow-up checkpoint — 15 November 2026 20:13 UTC (Agent35)
 
 - Read Agent5's focused no-game witness design: `communications/agent49/20261115T1531Z_agent5_native-actor-only-witness-seam.md` and `...T1535Z_agent5_witness-stop-before-dispatch-refinement.md`. The intended path reuses `runNativeFixtureGameSteps()/runNativeFixtureGameAsync()`, the real role-scoped worker sessions, `native.observe(state, actorSeat)`, native action frontier, and `dispatchSelectedNativeAction(..., dispatch:false)`. A host-created marker must stop the generator before trace append/live dispatch; do not throw a sentinel inside the resolver because its catch would record a false role failure. Generator `finally` must restore hooks/RNG/process lock; outer `finally` must close both worker sessions/containers.
