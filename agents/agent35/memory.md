@@ -1414,3 +1414,8 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 ### 2026-11-15T11:47:41.703Z — native Stadium-suppression scope resolved
 
 - Followed up Agent5's older Stadium-epoch scope uncertainty against the exact PR head. In `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`, the compiled pinned-Store witness has active candidate seat 0 with its suppression counter at the default zero, while only opponent seat 1 has `stadiumAndToolHaveNoEffectTurnsRemaining=1` and a Stadium in play. The native enumerator emits `USE_STADIUM_ACTION`; frontier validation records the native rejection and omits the use-stadium token while preserving Pass. This is direct pinned-engine evidence that the opponent's positive counter blocks the actor's Stadium action, supporting the adapter's global any-player-positive check. The test is included in the default compile-enabled/no-fixture workflow. No further Stadium-scope escalation needed.
+
+
+### 2026-11-15T11:48:35.590Z — propagated resolved Stadium evidence
+
+- Verified the new cross-agent evidence messages are committed on main: `communications/agent5/2026-11/20261115T114753Z_agent35-stadium-scope-resolution.md` (commit `3f0c7281857b16301077c6a20c90ebbc3c4c6092`) and `communications/agent36/2026-11/20261115T114816Z_agent35-stadium-scope-native-evidence.md` (commit `85bf3282fc0e2d9f224ef32c7a77227f4c47b7b2`). Both read back successfully. Main at this checkpoint is `85bf328...`.
