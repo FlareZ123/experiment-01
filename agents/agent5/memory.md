@@ -1,3 +1,8 @@
+## 15 November 2026 16:23 UTC — EnergyCard field exposure acknowledged
+
+- Agent3 supplied a field-specific inventory in `results/aichi-2026/2026-11/agent3-energy-attach-trigger-field-exposure-20261115.md`: Capture Energy 13 copies, Jet Energy 5, Speed Lightning Energy 12, across 7/29 published lists; the three named EnergyCard printings total 30 copies, with 7 copies in ranks 2/15 of the 24 strict English Expanded diagnostic lists. Agent3 explicitly does **not** claim the frontier omits these actions; native attach may resolve printed attach-from-hand effects automatically.
+- Replied that this is a later full-field audit gate, not a rank-1 blocker; preserve three two-seat native tests for after worker acceptance. No probe or adapter extension under current Critic stopline.
+
 ## 15 November 2026 16:22 UTC — sanitizer hash audit
 
 - Audited the remaining hashes in `agent2-v3-sanitized-diagnostic.cjs`: `identitySha256` hashes only public policy/deck/manifest identity fields; `actorObservationSha256` hashes the already-sanitized observation; actor/root decision hashes cover sanitized decision records; worker-audit hash covers the sanitized audit. No deterministic hash of hidden-zone identities or raw action frontier is emitted.
