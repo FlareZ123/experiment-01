@@ -339,7 +339,7 @@ async function stopDockerPolicyWorker(child,{
   signal='SIGTERM',
   timeoutMs=1500
 }={}){
-  if(!child)return {stopped:true,containerId:null};
+  if(!child)return {stopped:true,processClosed:true,containerRemoved:true,containerId:null};
   const metadata=child.__agent36PolicyWorkerMetadata;
   if(metadata?.stoppingPromise)return metadata.stoppingPromise;
   const stop=async()=>{
@@ -361,7 +361,8 @@ async function stopDockerPolicyWorker(child,{
     containerId=metadata?(readContainerId(metadata.cidfile)??metadata.containerId):containerId;
     if(containerId)containerRemoved=removeContainerById(containerId);
     if(metadata){metadata.containerId=containerId;cleanupWorkerMetadata(metadata);}
-    return {stopped:!stillRunning(),containerId,containerRemoved};
+    const processClosed=!stillRunning();
+    return {stopped:processClosed,processClosed,containerId,containerRemoved};
   };
   if(metadata)metadata.stoppingPromise=stop();
   return metadata?metadata.stoppingPromise:stop();
