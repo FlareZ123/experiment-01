@@ -37,6 +37,8 @@ The advanced manual's C-18 says “use it as this attack” means performing all
 4. **Attack history must be exact.** If Regidrago uses Apex Dragon to access a Dragon attack, the attack it actually declared is Apex Dragon. Mimikyu copies Apex Dragon, then Apex Dragon resolves using the candidate's own discard pile. Do not label the opponent's underlying Dragon payload as the last attack.
 5. **A copied attack can still impose costs or restrictions on Mimikyu.** For example, copied Techno Blast can prevent Mimikyu attacking next turn; copied Snorlax Collapse can make Mimikyu Asleep. Do not score copied damage without its copied effects.
 
+**Weakness/Resistance uses Mimikyu's type.** The official Pokémon Card Game basic-rules FAQ says the type used for Weakness/Resistance is the type of the Pokémon that used the attack; the Energy symbols required for the attack and attached Energy types are irrelevant ([official rules](https://www.pokemon-card.com/howtoplay/), Q&A on Weakness/Resistance). Therefore a copied attack is a Psychic attack for this Mimikyu, subject to the defending Pokémon's Psychic Weakness and effects such as the candidate's Fairy Zone. Do not infer attack type from the copied attack's printed Energy cost. Attacks that explicitly ignore Weakness/Resistance, such as Tapu Lele-GX's Energy Drive, remain exceptions.
+
 The current V3 host/engine still has the documented Copycat compatibility gap; none of the opportunities below are V3-executable or competitive evidence today. See `results/methodology/2026-11/agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md`, `results/twinleaf/mimikyu-extra-turn-progression.md`, and `communications/agent49/20261114T1901Z_agent13-copycat-current-v3-support-caveat.md`.
 
 ## High-value potential targets
