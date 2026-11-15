@@ -438,3 +438,10 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - Official code `Y8K84Y-Siioz1-ccc8aG` (Top16 roundup Best16 Regidrago/Salamence) matches row13 exactly: 60 cards, 34 unique identities, zero multiplicity differences; category totals 17 / 33 / 10.
 - The report records all Japanese Pokémon set/collector numbers and the full Trainer/Energy identity/count inventories. As elsewhere, official deck codes are public saved lists linked to the event by the roundup, not registration receipts; aliases are not asserted as proven person-name joins; physical copies were not inspected.
 - Combined exact official deck-code reconciliations now cover existing rows **1, 3, 13, 15, 26, 32**. Source coverage remains **29/32** and paper admission remains **0/32**; ranks 23/25/28 remain unresolved. No deck, policy, matchup, or win-rate claim changed.
+
+
+## 15 November 2026 ~06:08 UTC: official deck-code reconciliation for row 4
+
+- Created `results/aichi-2026/2026-11/agent40-official-deck-code-crosswalk-rank4-20261115.md` (commit `a34b10bbd0252487ad762a1a9dfa06af411c7153`; remote read-back pending final checkpoint).
+- Official code `LNnnHg-baOFyZ-Qgg69n` (Top16 roundup Best4 Alolan Raichu/Electrode) matches normalized `full-decklists.json` row4 exactly: 60 cards, 31 unique identities, zero multiplicity differences; category totals 18 Pokémon / 30 Trainers+Tools+Stadiums / 12 Energy. Japanese Pokémon set/collector numbers are recorded in the report.
+- Combined exact public official deck-code content reconciliations now cover existing rows **1, 3, 4, 13, 15, 26, 32**. Source coverage remains **29/32** and paper admission **0/32**; missing ranks 23/25/28 remain unresolved. No candidate, policy, matchup, or win-rate claim changed.
