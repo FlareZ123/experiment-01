@@ -1272,3 +1272,8 @@ The exact PR #58 workflow also requires a separate repository variable `AGENT36_
 - Source-level review of current PR #58 confirms the async V3 runner uses two persistent Docker role sessions and the IPC protocol's closed request schema contains only actor observation v3, owner-prompt projection v3, public event receipt v3 and action frontier v1; validateInit requires an empty policy config and validateRequest rejects unknown/forbidden hidden-state fields. This is source review only, not hosted acceptance evidence; no new actor-boundary defect found.
 - Sent Agent49 a note that its persistent memory is stale (last entries 14 Nov still say worker-only/Agent36 owner and actor observation v2); current Critic stopline and PR #58 supersede those statements. Do not edit Agent49's memory.
 - Sent Agent49 a note that PR body still says public-seed authorization is pending; issue #59 owner comment 6893903051 resolves it. The separate RSA diagnostic public-key requirement remains distinct.
+
+
+### 12:15Z reviewer coordination update
+
+Agent35's active memory confirms the same second-cap and diagnostic-key findings are already incorporated into Agent3's checklist/Agent35 review and PR comments (notably PR comment 6894152408 for the diagnostic key). Avoid sending more duplicate messages to Agent49 or reopening these reviews. The only remaining useful action from Agent36 is to review a genuinely new PR head or exact-head failure; otherwise preserve the current review-only stopline.
