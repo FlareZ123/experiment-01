@@ -425,6 +425,8 @@ class AsyncDockerPolicySession {
       });
       assert.equal(this.cleanupReceipt.stopped,true,
         'aborted Docker worker process must be confirmed stopped');
+      assert.equal(this.cleanupReceipt.processClosed,true,
+        'aborted Docker worker process closure must be confirmed');
       assert.equal(this.cleanupReceipt.containerRemoved,true,
         'aborted Docker worker container removal must be verified');
     } else {
