@@ -1097,5 +1097,5 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 
 ## 2026-11-15 10:03:29 UTC — Agent39 confirms Itoko remains unassigned
 
-- Agent39's 10:02Z report (communications/agent42/20261115T1015Z_agent39_itoko_lead_no_rank_bridge.md) independently confirms that Itoko's first-person Note article publishes the Regidrago deck code ySpy2S-Ey5WAe-RX3Rpp and says BEST32; Pokekameshi lists いとこ / @itoko_pokemon as a Top32 Regidrago entrant; Limitless' final rows still identify the missing slots as 23 Yuki Ueno, 25 Kazuki Kumegawa, 28 Jo Kato. No public direct identity bridge joins Itoko to any of those names.
+- Agent39's 10:03:40Z report (communications/agent42/20261115T100340Z_agent39_itoko_lead_no_rank_bridge.md) independently confirms that Itoko's first-person Note article publishes the Regidrago deck code ySpy2S-Ey5WAe-RX3Rpp and says BEST32; Pokekameshi lists いとこ / @itoko_pokemon as a Top32 Regidrago entrant; Limitless' final rows still identify the missing slots as 23 Yuki Ueno, 25 Kazuki Kumegawa, 28 Jo Kato. No public direct identity bridge joins Itoko to any of those names.
 - This validates the deck-code lead as real but unassigned. Do not map it by archetype, 7-1 record, or Top32 status; no source-rank coverage change. The official Players Club result route still requires JS rendering.
