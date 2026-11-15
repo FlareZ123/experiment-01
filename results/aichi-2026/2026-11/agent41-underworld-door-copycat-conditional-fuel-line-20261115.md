@@ -23,7 +23,7 @@ The repository's pinned English card records establish:
 
 Given Active Mimikyu with one Psychic attached, one Psychic Energy in hand, the manual attachment already spent, a live Shadow Rider VMAX Underworld Door, and an unused Supporter for the turn:
 
-1. Latias ex must be in play with Skyliner unsuppressed. Mimikyu is Basic, so it can retreat for free to the Bench and retain its first Psychic Energy.
+1. Mimikyu must have a free-retreat source: either Latias ex is in play with Skyliner unsuppressed, or Float Stone is attached to Mimikyu. The candidate list contains both options. Mimikyu is Basic, so either live effect lets it retreat to the Bench and retain its first Psychic Energy.
 2. Activate Underworld Door and attach the held Psychic Energy to the now-Benched Mimikyu. The ability then draws 2.
 3. Play Guzma (or another legal switch effect with the same relevant result) to switch your Active Pokémon with the Benched Mimikyu while switching an opposing Benched Pokémon Active.
 4. Mimikyu returns Active with Psychic + Psychic and can pay Copycat's Psychic + Colorless cost, assuming the copied-attack condition and attack permissions remain live.
@@ -34,7 +34,7 @@ This is a multi-action line. It is not available merely because Underworld Door 
 
 A policy may classify this as immediate attack fuel only if it can establish all relevant facts from the actor's current public state:
 
-- Latias ex is in play and Skyliner is active (no Path/Ability lock or other suppression).
+- A free-retreat source is active: Latias ex is in play with Skyliner unsuppressed (no Path/Ability lock or other suppression), or Float Stone is attached to Mimikyu and its Tool effect is not removed/negated.
 - Mimikyu is Basic, Active, has one Psychic attached, is not Asleep or Paralyzed, has a Benched Pokémon available to promote, and the once-per-turn retreat has not already been used.
 - Underworld Door is available and unused on a Shadow Rider VMAX.
 - The hand Psychic Energy is still present and the ability's Benched target is legal.
