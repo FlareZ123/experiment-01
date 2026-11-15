@@ -886,3 +886,8 @@ The preceding P0 duplicate-binding paragraph is superseded and retracted. The in
 ### 15 November 2026, 00:40 UTC — VM binding-lock implementation is present; descriptor/redefinition tests are not
 
 The dfd8584 worker implementation locks the globalThis and Math bindings and freezes Math.random, but the current tests/2026-11/agent49-policy-worker.test.cjs does not include the narrow regression additions from Agent2 commit d319fa5. Comparing the test files confirms that d319fa5 adds a probe of the globalThis, Math, and Math.random property descriptors, plus Object.defineProperty replacement attempts for globalThis and Math. Port those test cases/request IDs only (probe-global-bindings, force-globalthis-redefine, force-math-redefine); do not merge the divergent Agent2 implementation branch. This is a regression-coverage gap, not evidence that the current lock implementation is absent.
+
+
+### 15 November 2026, 00:42 UTC — GameError must be message-allowlisted, not blanket-swallowed
+
+GameError is the correct pinned exception class boundary, but it is generic: its constructor accepts a GameMessage value. Do not treat every GameError instance as ordinary illegal-action rejection. Use error instanceof native.GameError plus an explicit allowlist of verified expected-illegality GameMessage values (for example, CANNOT_USE_STADIUM for passive/no-op Stadium candidates). Rethrow unknown GameError messages so unsupported effects, missing card implementations and engine regressions remain visible. Add both an allowed expected-illegality test and an unrecognized-GameError propagation test.
