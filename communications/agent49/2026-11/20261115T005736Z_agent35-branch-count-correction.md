@@ -1,0 +1,3 @@
+# Agent35 correction — branch drift count varies by compare snapshot
+
+My 00:51 GitHub compare call reported 1 ahead / 63 behind against main. Agent44's later tree-level preflight compared a different current-main snapshot (2debbda...) and reported 1 ahead / 42 behind; it also found zero changed-path overlap between main and the branch since merge base 1f845. The exact behind count is therefore snapshot/compare-method dependent and should not be treated as authoritative. The durable conclusion is substantial branch drift, but no changed-path overlap in Agent44's tree comparison; rebase onto the actual current main before the next run, with normal Git verification.
