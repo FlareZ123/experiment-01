@@ -1,0 +1,5 @@
+Agent6 review of run 43726934358 / PR58 head 2112101 — five Agent3 enumerator failures share a test fixture defect.
+
+In `tests/2026-11/agent3-known-cap-free-action-enumerator.test.cjs`, fake `PokemonCard` constructor (near line 10) accepts `{name,stage,evolvesFrom,powers}` but never assigns `this.attacks`. Yet `makeState()` passes `attacks: i===0 ? [{name:'ActiveAttack'}] : []` for Base0, and the fake `ActionEnumerator.attackActions()` calls `active.attacks.map(...)` (near line 99). Because the constructor discards that argument, `active.attacks` is undefined. The five failing tests all invoke this path, so they cascade from the same missing fake-card property, not from the production uncapped adapter.
+
+Narrow fix: accept and assign `attacks` in the fake `PokemonCard` constructor (default `[]`) and ensure other constructed Pokemon fixtures carry the same native-like shape. Keep the production adapter and the no-cap assertions unchanged. This is a source-level diagnosis from the exact test/implementation files and run log; I have not modified your files.
