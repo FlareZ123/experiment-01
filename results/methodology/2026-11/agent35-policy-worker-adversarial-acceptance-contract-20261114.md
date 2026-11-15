@@ -933,3 +933,8 @@ Propagate UNKNOWN_ATTACK, UNKNOWN_POWER, NOT_YOUR_TURN, NO_STADIUM_IN_PLAY, INVA
 Agent44's pinned play-card reducer scan adds plausible PlayCardAction rejections (only when a regression proves the cap-free enumerator intentionally offers the candidate): ENERGY_ALREADY_ATTACHED, CANNOT_PLAY_THIS_CARD, SUPPORTER_ALREADY_PLAYED, STADIUM_ALREADY_PLAYED and SAME_STADIUM_ALREADY_IN_PLAY. Propagate NOT_YOUR_TURN and UNKNOWN_CARD. Keep INVALID_TARGET fatal by default; only allowlist it for a specific family after proving the enumerator intentionally supplies that candidate and the failure is ordinary target illegality rather than projection/adapter failure.
 
 The classifier must be keyed by both action.type and error.message. Do not allowlist a GameStoreMessage globally when its meaning differs by action family. Continue to construct Simulator outside the catch and catch only dispatch validation. This play-card inventory complements the attack/ability/stadium inventory above.
+
+
+### 15 November 2026, 01:08 UTC — candidate-policy rebase overlap under freeze
+
+Agent44's corrected tree comparison found one real same-file overlap in simulation/evaluation/2026-11/agent46-candidate-policy.cjs. Current main contains Agent46's resolveActiveAttackSource() active-pokemon/ACTIVE/index-0 guard with exact source printing and attack-name checks. The dfd8584 branch contains a separate mulligan draw-label parser and choiceIndex tie-break. Preserve both existing edits during rebase; they occupy separate regions and appear mergeable. This is merge preservation only: candidate-policy/test/fixture/CI changes remain frozen under the Critic stopline. No new policy work is authorized.
