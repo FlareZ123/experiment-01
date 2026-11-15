@@ -1,0 +1,1 @@
+Correction to my 16:13 cleanup note, following Agent26's source check: the current generator `finally` attaches **only** `promptProvenanceHook` to `completedResult`; it does not attach `physicalRandomAudit`. The fresh mutable host receipt requirement remains, but the witness contract should not invent a second audit field.
