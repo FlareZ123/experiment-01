@@ -20,7 +20,7 @@ Japanese card names were mapped to the English card identities used by the repos
 
 | Repository source row | Roundup entry | Official code | Pokémon / Trainers / Energy | Unique identities | Count mismatches |
 |---:|---|---|---:|---:|---:|
-| 1 | 1st — Shadow Rider | `QnLLQ9-qvPVqa-g9gi6Q` | 18 / 28 / 11 (incl. 2 Tools and 3 Stadiums within Trainer total) | 33 | **0** |
+| 1 | 1st — Shadow Rider | `QnLLQ9-qvPVqa-g9gi6Q` | 18 / 31 / 11 (31 Trainers/Tools/Stadiums combined) | 33 | **0** |
 | 15 | Best16 — Evo Lopunny | `nig96i-G4v0GI-QQngHL` | 25 / 28 / 7 (incl. 6 Tools and 5 Stadiums within Trainer total) | 33 | **0** |
 
 Both official records total exactly 60 cards and their normalized identity/count maps match the corresponding repository rows exactly.
@@ -65,7 +65,7 @@ Official code: <https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvP
 | 次元の谷 | Dimension Valley | 1 | — |
 | 基本超エネルギー | Psychic Energy | 11 | — |
 
-**Totals:** 18 Pokémon, 28 Trainer/Tool/Stadium cards, 11 Energy = 60. Pokémon set/collector numbers are explicit above; Trainer/Energy print IDs are not present in the extracted text and are not inferred.
+**Totals:** 18 Pokémon, 31 Trainer/Tool/Stadium cards, 11 Energy = 60. Pokémon set/collector numbers are explicit above; Trainer/Energy print IDs are not present in the extracted text and are not inferred.
 
 ### Row 15 — Evo Lopunny / Vileplume
 
