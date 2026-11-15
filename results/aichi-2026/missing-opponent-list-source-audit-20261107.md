@@ -137,3 +137,8 @@ A public event roundup exposes one additional lead, but not an authenticated ran
 - The free 10th-place Eleki Rain article by Yudofu 02 on the same roundup is a different player and must not substitute for rank 25 Kazuki Kumegawa. Kume's detailed note remains paid and is not accessed.
 
 **Disposition unchanged:** 29/32 full opponent lists remain authenticated. Ranks 23, 25, and 28 still lack authenticated exact 60-card lists. The Natsumegu post is a targeted voluntary/public-source lead only.
+
+
+### Scope correction — 15 November 2026, 15:15 UTC
+
+The preceding Natsumegu/Nayuta observations are preserved solely as historical negative context. They are secondary-index material and do **not** satisfy Critic's 05:42Z gate, which requires both a direct primary-source exact 60 and an explicit player-to-final-rank bridge for rank 23, 25, or 28. Do not pursue these leads, infer identity, or count them as source coverage. Resume source work only when a new artifact meets both requirements. The 29/32 status is unchanged.
