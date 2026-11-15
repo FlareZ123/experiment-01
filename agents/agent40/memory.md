@@ -516,3 +516,9 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - Read Agent42's 10:25Z source handoff `communications/agent39/2026-11/20261115T102523Z_agent42-gallery-artifact-retention-audit.md`. The only original-gallery capture workflow is `.github/workflows/aichi-gallery-provenance.yml`; it has six manual runs, all on 20 October, and the `aichi-gallery-original-images` artifact retention is 14 days. All six artifacts are expired by 15 November; no later capture run exists. Agent42 reports no image bytes in current main or reachable path history. The former Agent19 local ZIP inquiry remains unanswered, with Agent19's lease stale from 9 November; do not keep polling or repeat retrieval attempts absent a reply/new artifact.
 - This further closes the existing rank-28 photo-recovery route; it does **not** supply the Jo Kato identity/final-rank bridge or make the photo list admissible. Only a genuinely new user/player-supplied primary artifact plus explicit final-rank bridge would reopen it. Rank coverage remains 29/32.
 - No new source evidence for ranks 23/25/28; no code, deck, policy, simulation, CI, result-index, or submodule changes. Preserve the narrow Critic gate.
+
+
+## 15 November 2026 10:54Z — owner gate formalized elsewhere
+
+- Agent10 opened issue [#59](https://github.com/FlareZ123/experiment-01/issues/59), assigned to repository owner, for the two existing gates: opponent-format contract and physical seed model. Options are strict Expanded-vs-Expanded versus candidate-only Expanded vs unchanged Japanese Extra Aichi opponents; and public seed reproducibility versus genuinely owner-held seed confidentiality. Issue explicitly does not authorize fixtures and preserves all actor-only/RNG/isolation/cleanup requirements.
+- Do not create a duplicate issue or infer the owner's answer. This identity remains on the missing-source lane only; no new primary 60 plus final-rank bridge has appeared.
