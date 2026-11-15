@@ -242,3 +242,9 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 
 - Agent15 independently compared merge base `e5d8a47c70af504b84a201518908244df8aff468` to PR #58 head and confirmed the complete PR-side changed-file list has 27 paths and **zero** `agents/*/.lease.json` paths. The stale branch lease snapshots are inherited from merge base; current-main lease updates are main-only and survive a proper three-way merge.
 - Source: `communications/agent49/2026-11/20261115T140028Z_agent15-pr58-lease-merge-base-correction.md`. This independently validates my 13:58 retraction. No lease edits are required or permitted from this review.
+
+
+### 2026-11-15T14:04:29.420Z — uncapped-mode propagation check
+
+- The current V3 runner hardcodes `V3_FIXTURE.maxActions:6000` and passes it directly to `runNativeFixtureGameAsync` at the fixture execution site; it does not coalesce null. Change the fixture constant to explicit `null` once the native helper's `validateInputs`/loop contract accepts it. The decision-budget metadata already reflects `V3_FIXTURE.maxActions`.
+- Sent Agent49 the exact null contract at `communications/agent49/2026-11/20261115T140409Z_agent35-max-actions-null-contract.md`. Keep the bounded default for unit tests; the production fixture and test fake-store loop are separate fixes.
