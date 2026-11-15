@@ -426,3 +426,15 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
   Both create-file commits succeeded and read-back confirmed the content.
 - The official event 981404 source page remains inaccessible in this session (JS app shell only; no connected browser context). The user has already been asked to open the page in a connected browser. No exact list/rank bridge was recovered.
 - The only permitted parallel research remains ranks23/25/28 with exact primary-source 60 plus player-to-final-rank bridge. No broad searches, paywall bypass, inferred rank, already-covered-rank crosswalk, deck/policy/CI changes or fixture dispatch.
+
+
+## 15 November 2026 12:00 UTC — rank-28 photo lead disposition
+
+- Read the existing Agent39/Agent42 source-recovery handoffs, not a new broad search. They establish:
+  - Rank28 candidate: a complete photographed 60 attributed to Replica / `@nnaacc5_uec`, but no authenticated bridge to final-rank Jo Kato.
+  - Original Note CDN image URL: `https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200`; SHA-256 recorded by Agent39: `3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9`.
+  - The old transcription artifact (run39424823375/artifact12265475896) expired with HTTP410. Agent39 reports the direct image URL and Note gallery were inaccessible in its web/local environment. The existing 38-cell / 60-card transcription is provisional, not admitted.
+  - I made one direct read attempt of the exact CDN image URL; the available page retriever returned inaccessible. Do not repeat it, infer Jo Kato identity, or treat the provisional transcription as a recovered final-rank list.
+  - Rank25 Kume remains paywalled; Itoko is an unassigned Top32 source with no bridge; rank23 still lacks an exact source and rank bridge.
+- Owner's cross-format/public-seed decision is now recorded and relayed to Agent39, Agent42 and Agent49. The only missing field rows remain 23/25/28. No new admissible list was recovered.
+
