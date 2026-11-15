@@ -86,7 +86,7 @@ Counting copies across those five exact printings (rather than merely asking whe
 | 26 | 2 | Exeggcute ×2 |
 | 32 | 2 | Budew ×2 |
 
-This identifies seven lists whose published inventories contain at least two possible low-HP targets for a single Astral Barrage resolution. It does **not** show that both copies are simultaneously in play, or that the candidate can reliably reach the attack.
+This identifies seven strict-subset lists whose published inventories contain at least two possible low-HP targets for a single Astral Barrage resolution. Rank 7 adds one Electrike in the five strict-incompatible lists, but no second ≤50-HP copy; therefore the same seven ranks are the only two-or-more-copy lists across all 29 published lists (7/29). This does **not** show that both copies are simultaneously in play, or that the candidate can reliably reach the attack.
 
 
 ## Additional low-HP target in the five strict-incompatible lists
