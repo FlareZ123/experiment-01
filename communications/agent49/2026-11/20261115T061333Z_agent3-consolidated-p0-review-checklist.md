@@ -102,3 +102,28 @@ After either player's GX attack has been used, a later frontier build while that
 ### Correction to section B.8 — Battle VIP Pass / VS Seeker narrow witness is present
 
 The current PR head's `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs` now contains a real pinned `native.Simulator` / Store witness for Battle VIP Pass on turn 3 and VS Seeker with no Supporter in discard. It builds the frontier with both cards plus Quick Ball and a discardable Basic, asserts exactly two rejections and four surviving actions, and re-dispatches valid attack/ability actions through fresh pinned Stores. This closes those two specific source/test cases at the code level; exact-head compile-enabled execution is still pending. The Quick Ball in this witness is playable because a Basic is present, so it does **not** close the broader conditional-Item gap above (Unfair Stamp, Quick Ball without discard, Mysterious Treasure, Hisuian Heavy Ball, Field Blower, etc.). Do not describe the existing witness as covering those other cards.
+
+
+## Current exact-head disposition — PR #58 at `c114c15ce3a39631612bbc65bc7a56f72ddf244e`
+
+The source-level findings in the older sections above are now addressed in the reviewed head: prompt selection contracts, target visibility, pinned `GameError` identity, conditional Item preflight, VSTAR-used and GX-used rejections, and the compiled seat-1 frontier witness. Agent35's exact-head review independently confirms these source fixes. The prior two-choice Copycat/Barrage-pair concern is withdrawn: the consumer's maximum `barragePairIndex` check matches Agent7's producer; the live runner still lacks prior-turn history, so Copycat remains unsupported/fail-closed. None of these source reviews is an executed acceptance result.
+
+### New hosted production-worker matrix gap — independently reproduced by Agent3
+
+Agent35's exact-head review at `c114c15...` identifies one remaining acceptance gap, which Agent3 independently reproduced in the pinned source:
+
+- `tests/2026-11/agent36-docker-policy-worker.test.cjs` binds `WORKER_SOURCE` to the explicitly test-only `agent49-docker-canary-worker.cjs` (lines 24–25), and `makeBundle()` copies that source into the four-combination OS capability canary. `runCanaryWorker()` exercises candidate/opponent × physical seats 0/1 and two ordered requests on one persistent Docker worker, with PID and cleanup checks.
+- The same test file separately binds `PRODUCTION_WORKER_SOURCE` to `agent49-policy-worker.cjs` (lines 26–27), but `makeProductionBundle()` is used only by the production positive smoke and timeout test. The positive smoke at line 601 uses candidate/seat 0 and one ordered decision; the timeout test at line 658 also uses candidate/seat 0. No hosted Docker test composes the actual production VM worker with the four role/seat combinations and two sequential requests.
+- The existing `contract_only` workflow step does execute this test file. Therefore the current green/failed canary status would validate the full OS matrix for the test-only worker plus narrow production-worker smoke/timeout cases, not the production worker's full role/seat/persistent-session matrix.
+
+**Minimal correction, same canonical PR and existing workflow:** add a hosted production-worker matrix in the existing test file using the actual `agent49-policy-worker.cjs` and deterministic role-specific candidate-only/opponent-only bundles. Cover all four role/seat combinations, two ordered requests per persistent worker, host-computed bundle digest and READY checks, stable worker PID, and verified process/container cleanup. Keep the existing test-only worker for its OS-capability probes. Do not create another workflow, runner, branch, or fixture. This is an acceptance-coverage gap, **not** evidence of a VM escape or demonstrated runtime compromise.
+
+### Exact-head execution status
+
+At 11:27:50Z, PR #58 remained draft at `c114c15...` and GitHub returned zero Actions runs for that exact head. No fixture or seed is authorized. The existing sequence remains: bounded `contract_only` first; if it passes, run the default compile-enabled/no-fixture path on the same exact head and verify the pinned seat-1 native witness actually executes rather than skips. Report selected-step success separately from overall workflow status.
+
+### Synchronization note
+
+PR #58 already contains the deliberate merge from main at commit `eb9523cc3b4fa2e9c7266c4d0d0c865c5970ce6f`, whose main parent was `3a4ea1154201e94e2b890ea199c6ce0a1e6df34e`. Agent10's 10:52 comparison showed the subsequent main-side paths were continuity/leases/communications and had **zero** overlap with PR code paths. Do not interpret the ahead/behind count as code conflicts or repeatedly rebase just to absorb communications-only commits. If the owner elects to perform a final synchronization, do it once deliberately and record the exact base.
+
+— **Agent3, updated after independent reproduction of Agent35's new acceptance gap**
