@@ -40,7 +40,12 @@ The copied Evolution attack searches the candidate's own deck for a card that ev
 
 The rank-2 list uses Vileplume AOR 3 (Irritating Pollen), which prevents players from playing Item cards from hand, and Stoutland BCR 122 (Sentinel), which prevents the opponent from playing Supporter cards from hand while Stoutland is Active. Neither effect prohibits attacks. Neither prohibits Stadium cards. The rank-2 list does not contain Vileplume BUS 6 (Disgusting Pollen), the distinct Ability that prevents the opponent's Basic Pokémon from attacking while that Vileplume is Active. Mimikyu is therefore not stopped by the rank-2 lock text itself.
 
-The timing is also favorable: the opponent's double Evolution attack produces Stage 1 Pokémon. Vileplume and Stoutland are Stage 2 and cannot be established merely by that Evolution attack. The candidate gets a response turn before those Stage 2 locks can be evolved on the opponent's following turn, assuming the game is following this opening line and no separate lock is already active.
+**Starting order changes the lock timing; the original unconditional wording is too broad.**
+
+- **Candidate goes first:** the opponent is on its first turn when it uses TM: Evolution. Grand Tree's printed first-turn restriction prevents the Basic-to-Stage-1 step; its Stage-2 chain depends on that step. Thus this sequence cannot establish Vileplume AOR or Stoutland before the candidate's Copycat response, absent a pre-existing lock.
+- **Candidate goes second:** the opponent is on its second turn. Grand Tree can evolve an eligible Basic already in play into Stage 1 and then Stage 2 before the candidate responds. If that establishes Vileplume AOR, Item lock is active on the Copycat response. Copycat and its attack effect still work; Item-dependent search and Bench setup must already be complete. For the Radiant-assisted branch in Agent41's report, perform all Item-dependent setup before playing Radiant Eternatus, since Climactic Gate ends the turn. Stoutland's Sentinel is not active while Bunnelby is the Active attacker.
+
+The no-Stage-2-lock response window is therefore specific to the candidate-going-first sequence, not a universal property of the counterline. The attack remains legal under Vileplume AOR; the practical difference is which Item-dependent setup actions are still available.
 
 After two VMAX are established, their Underworld Door Abilities can continue to attach Psychic Energy and draw cards even while the opponent's Item and Supporter restrictions are active, provided no separate Ability suppression applies.
 
@@ -115,7 +120,7 @@ After the sole V3 owner has passed canonical host/worker acceptance and the Crit
 3. Leave two Shadow Rider Calyrex V on the candidate Bench, Mimikyu GRI 58 available to become Active, one Psychic Energy payable, Dimension Valley in play, and at least two VMAX available in the candidate's own deck.
 4. Resolve Copycat using the public prior-turn attack record. The host must preserve the actual source card and attack identity for the Tool-granted Evolution attack; it must not inspect the opponent's hidden deck or Prizes.
 5. Resolve the native Evolution prompt and assert that two candidate-owned Shadow Rider VMAX evolve from the candidate's own deck.
-6. Advance the opponent's next turn and confirm the later AOR Vileplume / Stoutland restrictions do not retroactively invalidate the Copycat attack or suppress Underworld Door by themselves.
+6. Run both starting-seat branches. On candidate-first, confirm Grand Tree cannot establish a Stage 2 lock before the Copycat response. On candidate-second, allow Grand Tree to establish Vileplume AOR before the response; verify Item lock blocks Items but not Copycat or its effect, and that Stoutland Sentinel is inactive while Bunnelby is Active. Check that Underworld Door is not suppressed by either lock alone.
 
 The test should separately cover no Dimension Valley, insufficient Energy, one VMAX remaining, a Prized Mimikyu, BUS 6 Disgusting Pollen Active, and unknown copied-source provenance. Unknown provenance must abstain or fail closed.
 
@@ -131,6 +136,7 @@ The test should separately cover no Dimension Valley, insufficient Energy, one V
 - Candidate 60 and inventory: results/aichi-2026/candidate-hood-shadow-rider.md and candidate-hood-shadow-rider.json.
 - Agent40's native Bunnelby/TM/Jet result: results/aichi-2026/agent40-bunnelby-tm-jet-registered-owner-20261030.md.
 - Agent41's conditional two-Energy Copycat funding route: results/aichi-2026/2026-11/agent41-underworld-door-copycat-conditional-fuel-line-20261115.md.
+- Agent41's Radiant-assisted three-/four-VMAX extension and explicit play/draw timing analysis: results/aichi-2026/2026-11/agent41-rank2-radiant-copycat-four-vmax-line-20261115.md.
 - Existing Mimikyu Copycat / Regidrago policy work: results/methodology/2026-11/agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md.
 - Current DCI/AMR candidate policy specification: results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md.
 - Bunnelby PRC 121: https://limitlesstcg.com/cards/prc/121
