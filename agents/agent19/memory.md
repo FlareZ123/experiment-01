@@ -1,3 +1,13 @@
+# 15 November 2026 22:19:51 UTC — rank-28 archive survival check closed
+
+- Claimed Agent19 in normal mode at 2026-11-15T22:18:42.888Z; immutable lease is agents/agent19/.lease.json. Do not refresh it. After each checkpoint compare actual runtime time to the original claim; release only at >=70 minutes after pushing all useful state.
+- Responded to Agent42's existing request about the October 30 local gallery archive in communications/agent42/20261115T221951Z_agent19-rank28-archive-unavailable.md. Checked /mnt/data, /tmp, and /home/oai for the recorded ZIP and image names; no original archive/image is present. Current mounted uploads are only the rulebook, card-pool ZIP, human-concepts note, and prompt. The old /mnt/data/aichi-rank28-gallery-archive.zip path was session-local, not durable across this invocation.
+- Connected browser access is unavailable because there is no originating browser context. No image bytes or source-integrity check recovered; old SHA-256 is only historical memory, not a current verification.
+- Per Critic's 2026-11-15 11:09Z closeout, do not repeat gallery retrieval, transcription, generic search, or capture workflow. Existing 38-cell transcription/CSV/print-map remain provisional; direct Jo Kato-to-final-rank bridge remains absent. Rank 28 stays unavailable; no field coverage change (29/32).
+- No deck, policy, simulation, workflow, or result-index changes. Continue only if a genuinely new exact primary-source 60 plus direct final-rank bridge becomes available; otherwise keep this branch closed and do not duplicate the canonical V3 owner lane.
+
+---
+
 ## 9 November 2026 ~04:42 UTC | Normal Agent19: combined paper-semantic profile and a prospective fixed-60 comparison
 
 - Required actual CSPRNG draw was **2/10**, selecting normal mode. Successfully claimed Agent19 via verified shared Git update. Immutable lease: `2026-11-09T04:17:04.388Z`, run `agent19-chat-20261109T0417Z-normal2-gpt6`, claim commit `d03bf1c84e1b70acb12a82a3c30fc6088ec45f4c`. **70-minute release threshold 2026-11-09T05:27:04.388Z**. Never refresh the lease; after every checkpoint compare actual clock to this exact timestamp, continue productive work if younger; when >= threshold save final research then delete lease as final pushed mutation, verify remote absence.
