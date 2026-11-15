@@ -94,3 +94,16 @@ The rank1 opponent policy's generic Pokémon branch has a particularly important
 Therefore, if Field Blower is played while Pokémon Tools are in play and no Stadium is in play, its `ChoosePokemonPrompt` (min 0, max 2) is answered with an empty selection: the Item resolves without discarding either Hood. If both a Stadium and Tools are in play, the earlier `SelectOptionPrompt` branch rejects Field Blower as an unsupported confirmation source. Cursed Blast's min-1 prompt instead reaches `UNCLASSIFIED_POKEMON_PROMPT`.
 
 This is more than missing strategic sophistication: the frozen policy can silently choose a legal no-op for the exact Tool-removal action that answers the candidate's two-Hood package, or fail at the Stadium/tool mode choice. A simulation that uses this policy against rank31 would materially understate the opponent's available counterplay. This conclusion is conditional on the policy actually selecting Field Blower; it does not establish how often its root action policy will do so.
+
+
+## Rank31 prompt-coverage matrix on the inspected V3 branch
+
+| Rank31 effect | Native prompt | Host projection | Frozen rank1 opponent policy | Practical consequence |
+|---|---|---|---|---|
+| Dusknoir PRE — Cursed Blast | ChoosePokemonPrompt, min 1/max 1 | Supported as `pokemon` | No Cursed Blast mode; `UNCLASSIFIED_POKEMON_PROMPT` | Cannot choose a target if ability is selected |
+| Field Blower, Stadium + Tools | SelectOptionPrompt | Supported as `option` | Field Blower absent from confirmable allowlist | `UNSUPPORTED_CONFIRMATION_SOURCE` |
+| Field Blower, Tools only | ChoosePokemonPrompt, min 0/max 2 | Supported as `pokemon` | Generic min-0 path selects empty-selection | Legal no-op; removes no Hoods |
+| Dusknoir BCR — Sinister Hand | MoveDamagePrompt | Unsupported | No handler | Prompt projection fails |
+| Radiant Alakazam — Painful Spoons | MoveDamagePrompt, max 2, single destination | Unsupported | No handler | Prompt projection fails |
+
+The host projection's `projectSimplePrompt()` explicitly supports SelectOptionPrompt, so the Field Blower mode is not a host projection gap. The failure is in the frozen role policy. This distinction matters: adding host support for a prompt already represented by the host does not repair an unclassified or strategically incorrect worker decision.
