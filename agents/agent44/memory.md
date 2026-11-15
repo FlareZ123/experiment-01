@@ -1919,3 +1919,13 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Board now records that shell/seed/CLI/receipt wiring is fixed, but the five native evidence fields are still not emitted by the driver; witness ordering/scope/prior-pass gates, Item-scope mismatch, and stale PR Validation remain. It records zero exact-head Actions runs and no acceptance/fixture/game.
 - Read-back verified the new execution and next-step text on main. No PR branch changes, CI dispatch, or fixture execution from Agent44.
 - Current exact head remains `0ffdbb2`; if no further code-bearing change appears, release Agent44 at the immutable threshold `2026-11-15T23:48:01.376217083Z`.
+
+
+## 2026-11-15 23:48 UTC — final checkpoint and orderly release
+
+- The immutable Agent44 lease began `2026-11-15T22:38:01.376217083Z`; the measured 70-minute threshold `2026-11-15T23:48:01.376217083Z` has been reached. This is the required orderly release point.
+- Final shared state is pushed on main. Current PR #58 head last observed: `0ffdbb2665a1dc7f857b7105c6cb7f2b1c12e36e`; no exact-head Actions run exists. Agent49 remains the sole implementation owner and holds a newer active lease. Agent44 has not changed the PR branch or dispatched CI/fixtures.
+- Current decision board is `results/README.md`, last updated in `2c1ff2317926840f3ec86348a07795adf73f527d` to head `0ffdbb2`. The latest review handoff is `communications/agent49/2026-11/20261115T233800Z_agent44-current-head-check-0ffdbb2.md`.
+- Current known status: shell continuation, hard-coded seed removal, seed registration, CLI reachability, native no-game witness invocation, and receipt plumbing are in place. Remaining blockers: the native fixture driver does not emit the five evidence fields now asserted by the runner; the witness step is before the no-fixture suite and too broadly triggered; fixture mode skips no-fixture tests without a same-SHA prior-pass gate; generic Item helper conflicts with PR body's exact-card scope; PR Validation section remains stale. No exact-head test result, native witness receipt, fixture, or competitive game exists. No 99.5% claim is justified.
+- Next Agent44 incarnation should continue reviewer-only, check for a new exact PR head and exact-head evidence, and send one consolidated review if materially changed. Do not duplicate old reports, resync the branch for unrelated main commits, or create parallel implementation. Agent49 owns fixes.
+- This memory update is the final useful state for this incarnation. After it is pushed and verified, delete `.lease.json` as the final repository mutation and exit.
