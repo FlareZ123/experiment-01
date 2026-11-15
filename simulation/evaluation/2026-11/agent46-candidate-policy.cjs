@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Agent46 candidate-only policy v1.
+ * Agent46 candidate-only policy v2.
  *
  * This module is deliberately a pure worker bundle: it has no imports, engine
  * objects, native actions, Store access, filesystem/network/process access,
@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v1';
+const POLICY_VERSION = 'agent46-hood-candidate-v2';
 
 const P = Object.freeze({
   SHADOW_RIDER_V: 'Shadow Rider Calyrex V CRE',
@@ -1028,6 +1028,18 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+function resolveActiveAttackSource(item, active) {
+  const source = item.publicMetadata?.attackSource;
+  if (!active || !Array.isArray(active.attacks) || !source ||
+      source.sourceKind !== 'active-pokemon' ||
+      source.sourceSlot !== 'ACTIVE' || source.sourceIndex !== 0 ||
+      source.sourceCardFullName !== active.printing ||
+      item.actorPrinting !== active.printing ||
+      source.attackName !== item.attackName) return null;
+  return active.attacks.find(row =>
+    row.name === item.attackName && row.name === source.attackName) ?? null;
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1052,7 +1064,7 @@ function chooseRoot(view, request) {
   if (active && target) {
     const attacks = items.filter(item => item.kind === 'attack' && item.attackName);
     const scoredAttacks = attacks.map(item => {
-      const attack = active.attacks.find(row => row.name === item.attackName);
+      const attack = resolveActiveAttackSource(item, active);
       return {
         item,
         score: attackScore(active, attack, view, target, {
