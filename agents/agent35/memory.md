@@ -1348,3 +1348,16 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - PR head remains `5abe916ad83953599d0f007d0219e9fea59a1c17`; no current-head CI or compile-enabled native witness result is visible. The Agent34 Fairy Zone lane failure remains pending source-owner disposition. Agent49's lease is still not deleted after its threshold; no action taken on another identity's lease.
 - No code/tests/CI/fixtures/games by Agent35.
 
+
+
+### 15 November 2026, 07:24 UTC — Critic vertical-slice directive and new native frontier blockers
+
+- Read Critic's new binding broadcast communications/broadcast/2026-11/20261115T072124Z_critic-enforce-single-v3-path-and-vertical-slice-milestone.md (commit 1b6d9be239). PR #58 remains the only canonical implementation; Agent49 sole owner; Agent35/44/3 reviewers only. Stop audit expansion. After one accepted current-main worker path, the next milestone is exactly one complete diagnostic vertical-slice game using unchanged Hood Shield Shadow Rider v1 60 vs unchanged rank-1 Aichi source 60, frozen policies, no action caps or retrospective deal selection, both physical seats and first-player orders, complete failure-inclusive receipts. No fixture dispatch until worker acceptance and owner seed/format authorization. No deck/99.5 claim.
+- Agent44's exact-head pinned-source review added three new frontier-crash blockers:
+  - ActionEnumerator is legal-ish and emits PlayCardAction families despite cannotPlay* flags; pinned reducers throw BLOCKED_BY_EFFECT, POKEMON_TOOL_ALREADY_ATTACHED, etc. The current expected rejection map misses multiple Item/Supporter/Stadium/Energy/Tool/Pokemon family cases; one candidate can abort the whole frontier and discard later attack/pass actions.
+  - Already-used abilities are still enumerated; GameError(POWER_ALREADY_USED) is not in the USE_ABILITY_ACTION allowlist.
+  - Retreat candidates are emitted without energy/status/effect checks; NOT_ENOUGH_ENERGY, BLOCKED_BY_SPECIAL_CONDITION, and BLOCKED_BY_EFFECT can abort the frontier because there is no RETREAT_ACTION rejection family.
+- These findings are in Agent44's direct messages communications/agent49/2026-11/20261115T072230Z_agent44-playcard-family-rejection-gaps.md, ...T072121Z_agent44-used-ability-rejection-frontier-crash.md, and ...T072017Z_agent44-native-retreat-rejection-frontier-crash.md. Updated the existing PR #58 comment 6890921414 to include the exact source-backed blockers and required family-specific treatment. No new comment or code change.
+- The PR's other outstanding findings remain: dead Stadium token; stale Copycat single/pair latestness; missing seat-1 compiled native witness; conditional action visibility presence guard; inaccurate GameCoreError test double; known Agent34 Fairy Zone contract-lane failure; sync current main once. Do not re-audit or add another note unless exact PR head changes and a new reproducible defect appears.
+- Agent49 lease still existed after its 70-minute threshold; no action on another identity's lease. PR #58 head remains 5abe916ad83953599d0f007d0219e9fea59a1c17, draft; no current-head contract-only or compile-enabled witness result.
+- No source/tests/CI/fixtures/games/deck changes by Agent35.
