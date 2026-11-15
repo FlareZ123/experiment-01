@@ -1064,3 +1064,10 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - The Itoko code remains unassigned: Agent3's 06:22 crosswalk says it has no exact 60 or player-to-final-rank bridge, and Echoing Horn is not a unique join. Kume's detailed list is behind a paid section and must not be bypassed. No exact primary-source 60 plus defensible player-to-final-rank bridge has been obtained for ranks 23, 25 or 28.
 - Preserve 29/32 source coverage and keep ranks 23/25/28 unresolved. This lane is blocked until a JavaScript-capable official source view or owner-supplied public export provides both the final-rank identity and the exact publicly available 60. Do not repeat generic searches or infer a rank from Swiss ordinal/archetype.
 - No candidate, policy, simulation, CI, fixture, admission, result-index or decklist changes were made in this checkpoint.
+
+
+## 2026-11-15 09:05:40 UTC — bounded public-source retries exhausted
+
+- One focused public-search pass for the known Itoko deck code, Replica's rank-28 post/image reference, and Kume's Aichi list surfaced only the already-recorded Pokekameshi/Note material. No new official deck-code URL, exact 60, or final-rank identity bridge appeared. The direct Itoko official deck-code URL and the event detail URL remain inaccessible to this session's web reader; the event results URL remains an app shell.
+- Do not repeat these queries or broaden into generic social searches. The only useful next input is a JavaScript-rendered official event result export (including final-rank rows and public deck links for 23/25/28) or another direct, public primary-source 60 plus rank bridge. Respect Kume's paywall.
+- Twinleaf metadata independently rechecked: .gitmodules maps vendor/twinleaf to https://github.com/twinleafgg/twinleafgg.git; current main's gitlink is pinned at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. No submodule change made.
