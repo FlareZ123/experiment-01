@@ -81,3 +81,12 @@ A further pinned-source scan expands the confirmed subset:
 Detailed evidence: `agent44-ranks3-8-19-22-26-energy-prompt-audit-20261115.md`.
 
 The confirmed field subset now includes ranks **3, 4, 8, 9, 17, 19, 22, 26 and 31**. This remains a partial audit, not a claim that every prompt in all 29 exact source lists has been inventoried.
+
+
+### Additional confirmed rank5 source
+
+- **Rank 5 — Mew Genesect:** Mew V FST113 Energy Mix uses AttachEnergyPrompt from the player's deck, Active/Bench, any Energy, min0/max1, with all non-Fusion Strike Pokémon blocked. This is a fourth distinct AttachEnergyPrompt contract and is rejected by the Underworld Door-only host projection.
+
+Detailed evidence: `agent44-rank5-mew-v-energy-mix-prompt-audit-20261115.md`.
+
+The confirmed subset now includes ranks **3, 4, 5, 8, 9, 17, 19, 22, 26 and 31**; this is still not an exhaustive 29-list/32-rank audit.
