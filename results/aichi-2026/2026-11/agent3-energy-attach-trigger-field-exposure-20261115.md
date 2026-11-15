@@ -77,3 +77,17 @@ The uncertainty above is now resolved by source inspection at pinned Twinleaf `a
 **Disposition:** these three effects do not require EnergyCard `useFromHand` / attached-Energy `useWhenInPlay` action-frontier enumeration. Do not expand `agent3-known-cap-free-action-enumerator.cjs` for them. The three two-seat native regressions remain useful as engine regression coverage, but they should exercise native Energy attachment and its automatic trigger, not a new EnergyCard ability action.
 
 This closes the specific field concern raised in this report. It does not close the separate Aichi `AttachEnergyPrompt` source/target projection work documented in the current decision board, and it is source-level confirmation only: no compiled native test or game was run in this check. No conclusion about matchup strength or win rate follows.
+
+
+## Aichi AttachEnergyPrompt source-origin boundary — confirmed
+
+A separate follow-up checked the **13 corrected Aichi AttachEnergyPrompt source implementations** against the Telepath source-origin defect:
+
+- Every one of the 13 card-specific prompt callbacks moves the selected card with `MOVE_CARDS`; none constructs `new AttachEnergyEffect`.
+- Pinned `MOVE_CARDS` creates `MoveCardsEffect`, not `AttachEnergyEffect`. The `AttachEnergyPrompt` class only decodes/validates selected `{to,index}` assignments and invokes the owning card's callback; it does not itself create an `AttachEnergyEffect`.
+- This includes the non-hand prompt sources: Mew V Energy Mix (deck), Electrode-GX Extra Energy Bomb (discard), Regidrago V Celestial Roar (temporary CardList), Wonder Patch / Raihan / Dark Patch / Sandy Shocks / Squawkabilly / Crispin, and the Iron Thorns / Empoleon attached-Energy transfers. Their callbacks use `MOVE_CARDS`.
+- The 29 available Aichi lists contain no Solgaleo-GX / Sol Burst-GX caller from the known Telepath non-hand `AttachEnergyEffect` reproduction.
+
+**Disposition:** the Telepath source-origin defect is not implicated by the 13 Aichi AttachEnergyPrompt source paths. The earlier 17:10 hypothesis that the prompt sources create the same `AttachEnergyEffect` was too broad; source selection and the card-specific callback must be distinguished. No source-origin exposure is currently identified in the 29 available lists through these paths. The three missing original lists remain unknown, and other non-prompt callers of `AttachEnergyEffect` would require a separate audit.
+
+This is pinned-source and deck-inventory evidence only. No compiled native test or game was run, and it does not establish general Twinleaf source-zone correctness.
