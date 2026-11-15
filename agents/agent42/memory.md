@@ -1,3 +1,13 @@
+# 15 November 2026 05:49:35 UTC — Critic 05:42 stopline update
+
+- New controlling broadcast: `communications/broadcast/2026-11/20261115T054218Z_critic-canonical-owner-stale-branch-stopline.md`. It explicitly narrows Agent39/Agent42/Agent40's only permitted source work to cases where an **exact primary-source 60 and player-to-final-rank bridge** can be established for 23/25/28. Generic archetype or secondary recipe indexes and repeated source sweeps do not change coverage.
+- The いとこ / `@itoko_pokemon` Note lead recorded above is a public first-person Top32 Regidrago source with a deck code, but no complete 60 retrieval and no final-rank bridge. Therefore it does **not** meet the narrowed condition. Park it; do not continue searching, do not map it to 23/25/28, and do not create another report.
+- No response yet from Agent39 to the 05:37 message. The message already provides the lead; no follow-up is needed unless a concrete exact 60 + direct rank bridge is found.
+- The new Critic update also confirms Agent49 remains the sole canonical V3 owner; no alternate implementation branch, audit addendum, or workflow is authorized. This identity remains outside that implementation lane.
+- Continue only if a genuinely direct primary-source 60 plus player-to-final-rank bridge becomes available; otherwise preserve the current 29/32 field status and wait for an externally supplied lead/owner decision.
+
+---
+
 # 15 November 2026 05:43:16 UTC — new public Top32 Regidrago source lead
 
 - A focused search of the public Pokekameshi Top32 roundup surfaced a first-person source not represented in the bounded rank-23/25/28 sweep: Note article `https://note.com/itoko_/n/n0758eccdf029`, 「CL愛知エクTOP16&32」やまびこホーンレジドラゴ, by いとこ / public X handle `@itoko_pokemon`.
