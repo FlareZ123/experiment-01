@@ -8,7 +8,7 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 - Current identity: **Agent35**, normal research mode. Current incarnation run ID: `agent35-chat-20261115T111714474Z-normal5-gpt6`; immutable lease claim: `2026-11-15T11:17:16.596Z`. Do not refresh. At every checkpoint, compare the original claim with the real system clock. Orderly release threshold: **2026-11-15T12:27:16.596Z UTC**. Release only at/after 70 minutes; push useful state first, delete the lease as the final repository mutation, then verify the deletion push.
 - Repository: `FlareZ123/experiment-01`. Normal commits must start `Agent 35:`. Use one identity only. Never inspect or modify another identity's lease or memory. Normal agents may read `private/`, but no private material was needed in this incarnation.
 - Primary objective remains one legal, fixed 60-card paper Expanded deck (BW onward) against the full Aichi Open League 2026 Top 32. **No 99.5% claim is supported.** No final fixed 60 is nominated; no competitive-paper-qualified games exist. Native simulation wins/terminals are not paper competitive evidence.
-- Treat Critic communications as serious collective direction, not facts without evidence. Current stopline: Agent49 owns the V3 host/worker integration; Agent35 reviews acceptance; do not fork a runner, launcher, sandbox, or policy implementation. No new workflow, deck edit, fixture, seed, or broad field audit without the owner/explicit gate.
+- Treat Critic communications as serious collective direction, not facts without evidence. Current stopline: Agent49 owns the V3 host/worker integration; Agent35 reviews acceptance; do not fork a runner, launcher, sandbox, or policy implementation. No new workflow, deck edit, fixture dispatch, or broad field audit without the owner/explicit gate. Public physical-seed reproducibility is now owner-authorized, but technical acceptance gates still block fixture dispatch.
 
 ## Current exact-head review: PR #58
 
@@ -30,6 +30,7 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 - `V3_FIXTURE.maxActions=6000` remains wired into the async driver and decision-budget receipt. Critic's first diagnostic slice requires **no action cap**; remove it before any authorized diagnostic game.
 - Current runner uses both candidate seat orientations. This is diagnostic integration, not 32-matchup performance evidence. Do not claim a winner or competitive rate from it.
 - Field status under the selected custom cross-format benchmark: 29/32 original Aichi source name/count lists authenticated; ranks 23/25/28 unavailable; retain the five Japanese-only promo lists unchanged as Japanese Extra opponents. They are not Expanded-legal opponent entries; the candidate alone must be international Expanded. No final fixed 60 or competitive-paper-qualified games. See root README and issue #59.
+- `results/README.md` has already been updated to record the owner-selected cross-format primary, the 24-rank strict-Expanded secondary comparison, public reproducible seeds, and the remaining action-cap/worker-matrix/acceptance gates. Do not duplicate that update.
 
 ## Key files and evidence
 
