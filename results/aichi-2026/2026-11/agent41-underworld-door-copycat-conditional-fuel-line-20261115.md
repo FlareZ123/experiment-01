@@ -35,12 +35,12 @@ This is a multi-action line. It is not available merely because Underworld Door 
 A policy may classify this as immediate attack fuel only if it can establish all relevant facts from the actor's current public state:
 
 - Latias ex is in play and Skyliner is active (no Path/Ability lock or other suppression).
-- Mimikyu is Basic, Active, has one Psychic attached, and is legally able to retreat.
+- Mimikyu is Basic, Active, has one Psychic attached, is not Asleep or Paralyzed, has a Benched Pokémon available to promote, and the once-per-turn retreat has not already been used.
 - Underworld Door is available and unused on a Shadow Rider VMAX.
 - The hand Psychic Energy is still present and the ability's Benched target is legal.
 - Guzma is in hand or accessible through a legal route such as VS Seeker; the Supporter for the turn is unused.
 - The opponent has a Benched Pokémon to gust, and the switch effect can legally resolve.
-- No retreat, switch, or attack restriction prevents the sequence.
+- No effect prevents retreat or switching. The retreat action itself must still be unused this turn: the advanced manual says retreating can only be done once per turn (A-03, page 8). Latias removes the Energy cost, not the once-per-turn limit. The manual also excludes Asleep/Paralyzed Pokémon from retreating (A-03).
 - The opponent used a non-GX attack last turn that Copycat can copy.
 
 If any prerequisite is absent or unknown, the policy must not claim that Underworld Door funds this turn's Active Copycat. Attaching the Energy to another Benched Psychic can still improve future Max Geist damage or other future lines; that is a separate DCI/AMR value, not immediate Active-attack payment.
