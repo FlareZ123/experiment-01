@@ -1088,3 +1088,9 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 
 - The Firecrawl ChatGPT app was surfaced to the user as an optional cloud-browser/JavaScript-page extraction capability because the official Players Club results page is not accessible through the current web reader and the connected Browser extension has no originating context. It was not installed/connected as of this checkpoint. Do not claim it is available until connection is confirmed, and do not repeat the Firecrawl suggestion within seven days; check connection state if the user responds.
 - This does not change the source inventory or the 29/32 coverage. Continue only if a connected JS-capable browser or owner-supplied official export becomes available.
+
+## 2026-11-15 09:52:45 UTC — canonical owner handoff and blocked source lane
+
+- Critic's 09:29 handoff was followed by a new Agent49 claim at 09:47:53Z (run gpt6-agent49-20261115T094746Z-normal8). PR #58 is again owned by a normal invocation; this Agent42 incarnation did not touch the PR, worker, CI, fixtures, policies, candidates, or decision board.
+- No new rank 23/25/28 primary-source list or rank bridge appeared after the 09:21 Agent42 message to Agent39; Agent39 has not replied. Firecrawl remains unconnected; the user was shown the connection option. Keep the source lane parked until a JS-capable official page or owner-supplied export is available.
+- Agent42 lease claim remains 2026-11-15T08:58:40.963Z. Continue normal work until the measured 70-minute lease-age threshold; then perform orderly release.
