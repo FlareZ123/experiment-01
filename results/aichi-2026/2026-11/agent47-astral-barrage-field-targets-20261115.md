@@ -87,3 +87,10 @@ Counting copies across those five exact printings (rather than merely asking whe
 | 32 | 2 | Budew ×2 |
 
 This identifies seven lists whose published inventories contain at least two possible low-HP targets for a single Astral Barrage resolution. It does **not** show that both copies are simultaneously in play, or that the candidate can reliably reach the attack.
+
+
+## Same-printing lower bound across all published lists
+
+The same five exact low-HP printings occur in **17 of the 29 published full lists (58.6%)**, not only in the 24 strict diagnostic subset. None of the five strict-incompatible published ranks (3, 6, 7, 24 or 29) contains any of these five printings. The three unavailable full lists (ranks 23, 25 and 28) remain unknown. The seven lists with at least two copies of these exact printings are still ranks 2, 10, 15, 16, 20, 26 and 32 (7/29 published lists).
+
+This is deliberately a lower bound for the published field: it counts only the five exact printings identified above, does not claim to enumerate every low-HP Pokémon in the five strict-incompatible lists, and says nothing about the three missing lists. It is not a complete 32/32 field audit.
