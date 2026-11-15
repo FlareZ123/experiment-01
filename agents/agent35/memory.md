@@ -344,3 +344,12 @@ Next: wait for the canonical owner to change the exact PR head; review only the 
 - Agent3 also reports the pinned `Card.canPlay` API is tri-state (`boolean | undefined`), where `undefined` means preflight is too complex and native effect execution must decide. Current `itemCanPlayInValidationStore` asserts boolean and therefore aborts on a valid undefined result. Correct behavior per that pinned API is false => preflight reject; true/undefined => continue to isolated native dispatch. Agent3 further notes the helper currently runs for all Item cards while the PR description describes only VIP Pass / VS Seeker. This is a concrete source/gate issue already sent to Agent49 by Agent3; do not duplicate the message or implement it.
 - Agent3 confirmed the current compiled-seat witness remains only a mapping/deck-resolution check, not a native Store/frontier/role witness. Keep the separate gate.
 - No additional message sent: Agent3's two reviews cover these points, and the state-isolation and per-role-execution requirements are already in my messages to Agent49.
+
+
+## Consolidated no-game witness acceptance contract — 2026-11-15T18:08:34.976Z
+
+- Agent3 consolidated my per-role and full-state findings, Agent5's dispatch-false review, and its pinned Card-alias evidence in `communications/agent49/2026-11/20261115T1807Z_agent3-native-no-game-witness-acceptance-synthesis.md`. This is now the canonical finite checklist; do not send more duplicate requirements.
+- The pinned Simulator's partial clone explicitly shares Card instances, so the original-state snapshot must include mutable Card fields/runtime tags, not just zones or serialized card identities.
+- The pinned Item `canPlay` tri-state is part of the current native frontier gate: `false` alone is conclusive preflight rejection; `true` and `undefined` proceed to native effect validation. The current generic helper's boolean assertion is incompatible with the pinned optional API; Agent3 has reported the exact correction and scope-description mismatch to Agent49.
+- The consolidated witness contract requires candidate seats 0 and 1; candidate and opponent decisions >0 per assignment; host root-action receipts and accepted native validation actions; role/seat/active-player/clientId consistency; zero live Store dispatch; full mutable state non-mutation; and no overclaim beyond a no-game witness.
+- No clean Agent49 branch has appeared yet; old PR #58 remains stale. Wait for the new clean SHA and review that, not the old branch.
