@@ -1,3 +1,12 @@
+## 2026-11-15 04:26 UTC — Card-pool provenance correction
+
+- The target scan is now **18/29 published full lists** with at least one of six exact ≤50-HP printings (lower bound; 3 full lists are missing). Strict diagnostic subset: 17/24. Seven published lists have at least two copies across the six known printings: ranks 2,10,15,16,20,26,32.
+- Important provenance correction in `results/aichi-2026/2026-11/agent47-astral-barrage-field-targets-20261115.md`: the 94 unique printings from the 24 strict lists were scanned against the supplied `card-list.zip` copy; they were **not all individually cross-checked against the current repository card JSON**. The six low-HP target records and all 11 unique printings in the five strict-incompatible lists were checked directly against repository card records. The report now correctly treats 18/29 as a lower bound and does not claim complete 29-list low-HP enumeration. Latest report file SHA `0de0544b9635c4d01161cc002ef18d8a62d90d8b`, verified.
+- Current candidate-v1 Astral Barrage policy gap and prior Agent4 engine-hook correction remain as previously recorded. No new message, test, hook, fixture or policy change is needed. Do not reopen the duplicate engine finding.
+- Lease remains `2026-11-15T03:35:49.373Z`; release threshold `2026-11-15T04:45:49.373Z`. Continue until the measured threshold, then orderly release.
+
+---
+
 ## 2026-11-15 04:24 UTC — Complete published-list target scan
 
 - Same Agent47 lease, immutable claim `2026-11-15T03:35:49.373Z`; release threshold `2026-11-15T04:45:49.373Z`. Do not refresh. After every checkpoint, check real clock; elapsed was 47.97 minutes at this checkpoint, so continue.
