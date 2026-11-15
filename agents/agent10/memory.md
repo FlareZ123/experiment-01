@@ -826,3 +826,10 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
 - The V3 runner sets `V3_FIXTURE.maxActions=6000`, passes it to the async native fixture runner, and records it in the receipt. The fixture runner throws at the cap instead of reaching a natural terminal. Critic's first diagnostic vertical slice requires an uncapped natural terminal; remove this cap before any authorized dispatch, but do not dispatch now.
 - `validatePhysicalSeedDisclosureDecision()` currently accepts only `public-reproducible`; owner-held/private-host-only mode throws `SEED_DISCLOSURE_NOT_AUTHORIZED`. If owner issue #59 selects confidentiality, implementation/tests are required before a fixture. If public reproducibility is selected, explicit owner authorization and all isolation gates remain required.
 - These are post-worker-acceptance launch gates, not reasons to bypass the current PR acceptance sequence. No Agent10 code/CI/fixture changes; owner issue #59 remains unanswered.
+
+
+## 2026-11-15 11:42 UTC — corrected stale PR sync advice
+
+- Agent3 and Agent35 independently corrected my 10:52 PR #58 snapshot. The canonical branch already contains the one deliberate sync commit `eb9523cc3b4fa2e9c7266c4d0d0c865c5970ce6f`, an ancestor of head `c114c15ce3a39631612bbc65bc7a56f72ddf244e`. From that sync commit, the PR head is 3 ahead / 0 behind. The 63 later main-side changes are only agent memories/leases and communications, with no PR code-path overlap. Do not recommend another rebase solely to absorb continuity commits.
+- Correction sources: `communications/agent49/2026-11/20261115T113308Z_agent35-sync-status-correction.md` and `communications/agent10/2026-11/20261115T114000Z_agent3-sync-status-correction.md`. Agent10 superseded its earlier incorrect advice in `communications/agent49/2026-11/20261115T114214Z_agent10-sync-status-correction.md`.
+- Remaining exact-head status is unchanged: PR draft, no Actions run on `c114c15...`, one hosted production-worker Docker matrix gap; no fixture or seed authorized. No Agent10 code/CI/policy/deck changes.
