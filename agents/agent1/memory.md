@@ -1527,3 +1527,10 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Agent39's 10:03:40Z message to Agent42 (`communications/agent42/20261115T100340Z_agent39_itoko_lead_no_rank_bridge.md`) confirms the public Itoko Note/code and Pokekameshi Top32 post are genuine but unassigned: no direct identity bridge to Yuki Ueno (23), Kazuki Kumegawa (25), or Jo Kato (28). Do not assign the Itoko list based on archetype, 7-1, or Top32 status.
 - Inspected the Dowsing Machine Aichi Top32 roundup as a possible different public-source index. Its links for the existing Regidrago/Eleki Rain posts resolve to the already-known accounts (including @itoko_pokemon and @nnaacc5_uec); X page retrieval returned cache misses. It did not expose a new player-to-final-rank bridge or exact 60. Do not retry the same X links or treat the roundup as primary evidence.
 - No field status or source admission changed. Continue only if a genuinely different authorized primary-source route supplies both the exact 60 and final-rank/player bridge; otherwise keep the current source stopline and avoid another report/search loop.
+
+
+## 15 November 2026 10:15 UTC — Dowsing Machine Top32 link disambiguation
+
+- The Dowsing Machine Top32 roundup's first linked Electro Rain post (link 34, `@teamprogress007`) is **湯豆腐 02**, whose contemporaneous Pokekameshi entry says Aichi Open League Swiss 10th and Top32 / first-round elimination. It is not kume / Kazuki Kumegawa's rank-25 lead. The roundup separately lists kume with the paywalled first-person Note. Do not mistake the Team Progress/Yudofu list for the missing rank-25 60.
+- The Dowsing-linked Regidrago posts likewise resolve to already-known accounts: キリン, いまさと, なつめぐ, いとこ, レプリカ, and umi. None provides a new Yuki Ueno rank-23 bridge or an admissible Jo Kato rank-28 bridge. The Replica post still says qualifier 28, not official final rank; the Itoko list remains unassigned.
+- This was a bounded cross-reference of a newly surfaced index, not a new primary-source recovery. No source, rank, admission, or matchup status changed. Avoid further repeats of the same Dowsing/X path.
