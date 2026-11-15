@@ -80,7 +80,7 @@ No candidate has a certified winner ranking, a full-field win-rate estimate, or 
 
 #### Post-acceptance Aichi AttachEnergyPrompt field coverage
 
-Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underworld Door provenance and a hand source. Pinned Twinleaf source review finds at least **14 distinct native AttachEnergyPrompt source shapes** among the published Aichi lists. The host must project legal `(energy card, target)` pairs as opaque tokens and decode bounded selections to native `{to,index}` assignments; one-token/one-attachment with fixed `minimumCount=1, maximumCount=1` is insufficient.
+Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underworld Door provenance and a hand source. Pinned Twinleaf source review finds at least **14 distinct native AttachEnergyPrompt source shapes** among the published Aichi lists. The host must project legal `(energy card, target)` pairs as opaque tokens and decode bounded selections to native `{to,index}` assignments. The current protocol classifies `energy-attachment` as single-select; `multiSelectBounds()` and the decoder support only five other prompt types. Add `energy-attachment` to the multi-select contract with item kind `energy`, native min/max bounds, an empty-selection token iff min=0, and ordered opaque-token-array decoding; single-attachment prompts can use the same path with min=max=1.
 
 | Card / Aichi ranks | Source and target constraints | Selection / follow-up |
 |---|---|---|
