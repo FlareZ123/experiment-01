@@ -38,6 +38,7 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-crypto'){crypto.getRandomValues(new Uint8Array(1));return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-math-binding-escape'){globalThis.Math={random:()=>0.5};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-globalThis-binding-escape'){globalThis={Math:{random:()=>0.5}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-this-globalThis-binding-escape'){(function(){this.globalThis={Math:{random:()=>0.5}};}).call(globalThis);return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-delete-disabled-global'){delete globalThis.Date;return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-object-binding-escape'){Object={defineProperty:()=>{}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='force-weak-ref'){new WeakRef({});return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
@@ -1035,7 +1036,8 @@ test('restricted VM denies ambient capabilities and serializes policy failures',
   for(const requestId of [
     'force-global-function-escape','force-module-loader-escape',
     'force-module-exports-escape','force-date','force-intl','force-crypto',
-    'force-math-binding-escape','force-globalThis-binding-escape','force-object-binding-escape',
+    'force-math-binding-escape','force-globalThis-binding-escape',
+    'force-this-globalThis-binding-escape','force-object-binding-escape',
     'force-delete-disabled-global',
     'force-weak-ref','force-finalization-registry'
   ]) {
