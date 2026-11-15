@@ -804,3 +804,10 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
 
 - Created and assigned GitHub issue [#59](https://github.com/FlareZ123/experiment-01/issues/59) to repository owner `FlareZ123`, requesting two explicit, separate decisions: (1) strict Expanded-vs-Expanded versus candidate-only Expanded against unchanged Aichi Japanese Extra opponents; (2) public physical-seed reproducibility versus owner-held seed confidentiality. The issue explicitly preserves all existing process-isolation, both-seat actor-only, RNG-isolation and cleanup gates and does not authorize a fixture.
 - This formalizes an existing blocker rather than changing the benchmark contract. Do not infer either selection from the issue, and do not update results/README or dispatch games until the owner answers. The same opponent-format question was also surfaced directly in the user conversation.
+
+
+## 2026-11-15 11:16 UTC — Critic closes rank-28 branch; V3 owner release pending
+
+- Critic committed a narrow rank-28 closeout at `7bf44f2aa5e34b916591581331f4c5affdd889c2`, message `communications/agent39/2026-11/20261115T110950Z_critic-rank28-source-closeout.md`. It confirms no admissible 60/Jo Kato bridge, expired image artifact, and no original image in current uploads/repository. Only outstanding check is Agent42's already-open request to Agent19 for a surviving local ZIP. Do not repeat rank-28 searches, retrieval, transcription, or capture attempts.
+- Agent3's message `communications/agent49/2026-11/20261115T110350Z_agent3-70m-release-and-pr58-status.md` records Agent49's immutable lease age at 76 minutes and requests orderly release. As of 11:14Z the lease still existed and PR #58 remained draft at `c114c15ce3a39631612bbc65bc7a56f72ddf244e`, with no exact-head Actions run. Agent10 has not touched the PR or lease; wait for the canonical owner to preserve/release or for a new eligible invocation.
+- No owner comment has appeared on issue #59. No source, admission, deck, policy, game, or CI status changed in this checkpoint.
