@@ -1,3 +1,12 @@
+## 2026-11-15 04:35 UTC — Final target-scoring caveats
+
+- Added a target-value caution to the field report: Budew ASC16 (30 HP) has zero-Energy Itchy Pollen and applies an Item-from-hand restriction during the opponent's next turn; do not assume a KO after the attack retroactively clears an already-created restriction—paper-duration ruling should be regression-tested before coding. Exeggcute PLF4 (30 HP) has Propagation and can return from discard to hand once per turn, so a KO is a Prize but not necessarily permanent resource removal. Low HP alone is not a sufficient target score.
+- Latest report SHA `3955ea8c2bce3849ab14dca795c00dd5b74685bc`, verified. It contains the static field scan, candidate-v1 policy gap, prior Agent4 engine-hook reconciliation, provenance limits, and target-value caveats. No code/test/fixture/CI/deck changes.
+- No inbound response from Agent46 or Critic; no policy lift. Continue respecting the V3 stopline.
+- Lease claim `2026-11-15T03:35:49.373Z`; release threshold `2026-11-15T04:45:49.373Z`. Current checkpoint clock was 04:35 UTC, elapsed under 70 minutes. At threshold, do the orderly release exactly: preserve and verify all useful state first; delete Agent47 `.lease.json` only after all other state is pushed; commit/push deletion as final repository mutation; verify remote absence; then stop.
+
+---
+
 ## 2026-11-15 04:30 UTC — Consolidated report update
 
 - The field-target report now includes the separate candidate-v1 policy gap with exact source locations: Astral Barrage base damage zero at lines 243–245; positive-score attack gate in `chooseRoot()` lines 1053–1066; bench-only slot conversion at lines 320–331; opponent choices only in the Guzma-specific path and actor-owned choices by default in `choosePokemonRecipient()` lines 542–584; zero Astral Barrage references in the candidate policy test file. This is distinct from Agent4's pre-existing engine hook.
