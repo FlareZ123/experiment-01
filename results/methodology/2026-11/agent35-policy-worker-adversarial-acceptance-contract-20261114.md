@@ -808,3 +808,47 @@ Agent41's PR49/PR50 handoff is partly redundant on the canonical 3ce branch. `bu
 ## 14 November 2026, 23:17 UTC — Critic supersedes PR49/PR50 follow-up
 
 Critic closed PRs #49 and #50 as duplicate/superseded, not merged, and confirmed the role-option correction and real-builder regression already exist on main. The 3ce branch already contains the separate candidate/opponent option binding and option-digest checks. **Withdraw Agent35's earlier suggestion to add PR #50's separate `policySha256` inequality assertion**; do not reopen or recreate role-option work. This correction was sent to Agent49 at `communications/agent49/20261114T231734Z_agent35-withdraw-pr50-assertion-recommendation.md`. Resume the existing single-owner worker stopline and focus only on distinct acceptance blockers.
+
+
+---
+
+## 15 November 2026, 00:24 UTC — canonical mainline and first hosted Docker canary
+
+### Reviewed head
+
+Agent49 reclaimed the sole host/worker implementation role and created branch agent49/v3-worker-acceptance-20261115-mainline. Reviewed head: dfd8584caa118ac49e1e8db1042078b9a5165ef4, commit title “Agent49: rebase V3 worker integration and close isolation gates”. It is based on main at 1f845ac5990dc7beb6147804729655e50f1cfba7. Main has since advanced with Agent35 review and synthesis commits; rebase before the next canonical run.
+
+The new head materially closes several earlier blockers: host-owned role entrypoint and worker-only policy data assets; host preload exclusion; VM-restricted policy loading with locked globals and nested-microtask barrier; numeric zero policyDrawCount propagation; absolute startup/request deadlines covering stdin drain and response; static Docker environment reads and fixed CLI cleanup; LF-correct framing; default-bridge network positive control; effective NetworkMode=none and no non-loopback interface assertions; mixed Basic/non-Basic setup projection coverage; deterministic validation RNG around frontier construction.
+
+### Hosted contract-only run 43657711184
+
+Run 43657711184 (workflow run 218) was dispatched on the exact dfd8584 head with contract_only=true. It did not check out or compile Twinleaf and did not execute a game.
+
+- Docker launcher contract: 17/17 passed.
+- Docker preflight: passed on Node v24.22.3 and Docker 29.4.2 using the pinned Node image digest.
+- Docker OS canary: passed for both physical seats. The default-bridge positive-control peer was reachable from its control container; the policy worker's inspected NetworkMode was none; no non-loopback interfaces were present; host marker/process and child/thread isolation checks passed.
+- Production VM worker positive smoke: READY, one ordered decision, zero policy RNG draws, clean close — passed.
+- Production async-timeout smoke: failed at tests/2026-11/agent36-docker-policy-worker.test.cjs:635 because the timeout cleanup receipt exposes stopped but not processClosed. stopDockerPolicyWorker() computes stopped as !stillRunning() and verifies containerRemoved; add processClosed explicitly from the same observation and assert it in the abort receipt. This is currently a receipt-schema failure, not evidence that the process remained alive.
+- Broad pure-policy suite: failed on tests/agent49-actor-potential-knockout.test.cjs:129, where a public Weakness case expected the Finish attack but chooseActorRootIntent returned pass/no-supported-owner-visible-root. The failing test imports the actor-only root policy and public potential-knockout helper, not the Docker worker; keep it visible and route it to the relevant policy owner rather than masking it.
+
+The hosted canary artifact is 14138897621. The canary's hostNamespaceInodes are correctly read from the runner host's /proc/self/ns entries, not from the peer server container; retire the earlier stale claim. The custom-bridge network false-pass is fixed on this head by using the default bridge for the server and positive control, inspecting effective NetworkMode, and asserting loopback-only worker interfaces.
+
+### Remaining acceptance blockers on dfd8584
+
+**P0 — duplicate common binding.** nativeGamePhase is declared twice in each of V3_FIXTURE_COMMON_BINDINGS and V3_FIXTURE_WORKER_COMMON_BINDINGS (runner lines approximately 749/757 and 811/820). agent42-role-policy-identity.cjs rejects duplicate names in createPolicyEntryManifest(). The production fixture passes the real worker array to both role manifests and will fail before worker launch. The new contract-only manifest test uses synthetic bindings; the real compiled-vendor test is skipped when Twinleaf output is absent. Remove the duplicates and add a no-vendor test that asserts uniqueness of the actual production arrays.
+
+**P1 — selected-action validation RNG.** withValidationRandom() wraps frontier construction only. After the worker responds, dispatchSelectedNativeAction(..., dispatch:false) constructs a fresh Simulator and dispatches the chosen action on its clone outside that scope. Wrap only this pre-dispatch validation probe in withValidationRandom(); keep the later real Store dispatch on physical RNG. This is an unisolated boundary, not evidence that a current action consumes randomness.
+
+**P1 — Stadium liveness.** projectNativeAction() emits use-stadium without publicMetadata.stadiumEffectLive, while assertTrustedActionSelection() rejects every selected Stadium token unless that metadata is true. The frontier can therefore expose a token the consumer later refuses. Keep the fail-closed consumer; move exact live-effect/support classification into frontier construction so verified live effects are exposed and passive/no-op/unknown effects are filtered.
+
+**P1 — Simulator exception classification.** buildNativeActionFrontier() catches every exception from Simulator clone dispatch and increments rejectedCount. This can hide TypeErrors, missing bindings and engine regressions as ordinary illegal actions. Catch only the pinned engine's verified illegal-action error type(s); propagate unexpected errors and test that a TypeError escapes.
+
+**P1 — native action-family evidence.** The new compiled native integration test exercises nine Basic hand actions only. Active/Bench/Tool attacks and Trainer/Energy abilities are covered by synthetic fake-action tests, not by the pinned native engine through adapter → frontier → policy-visible token → selected-action revalidation → Store dispatch. Add real compiled witnesses (including the previously documented Alakazam ex evolution-stack Bench attack) and a real ability action where supported.
+
+**P1 — effective sandbox measurements.** The canary now proves network none, loopback-only interfaces, namespace isolation, host marker inaccessibility, and process/thread behavior. Its report still presents configured UID/GID, capabilities, no-new-privileges, cgroup, and /dev/shm limits without measuring all corresponding effective values. Add observed UID/GID, CapEff, NoNewPrivs, Seccomp, cgroup-v2 memory/pids/CPU values, and actual /dev/shm capacity; separate requested settings from measured effective state.
+
+### Acceptance decision
+
+The new head is a meaningful improvement and the first hosted Docker canary evidence exists, but the integration remains **not accepted**. The workflow is red, the production timeout cleanup receipt test fails, the real manifest contains duplicate binding names, and the native action path has unresolved RNG, Stadium, exception-classification and action-family gaps. The run is contract-only; it provides no Twinleaf compilation, game, matchup or win-rate evidence. No claim toward 99.5% is justified, and no fixture should run until canonical hosted acceptance passes and the owner explicitly resolves physical-seed disclosure.
+
+Agent49 remains the sole host/worker implementation owner. Agent35 remains an adversarial reviewer; no worker/host implementation was changed by Agent35.
