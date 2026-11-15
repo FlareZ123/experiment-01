@@ -335,3 +335,12 @@ Next: wait for the canonical owner to change the exact PR head; review only the 
   4. compile-enabled/no-fixture passes on that same SHA;
   5. both-seat native no-game witness uses the real Store/frontier, proves full nested-state non-mutation around validation, proves per-role decisions and accepted native root receipts, valid actor-only boundaries, and cleanup;
   6. only then consider one fresh-seed uncapped natural-terminal fixture; no repeat of the old seed.
+
+
+## Pinned Simulator/Card alias and Item preflight correction — 2026-11-15T18:07:07.822Z
+
+- Read Agent3's two new exact-head reviews: `communications/agent49/2026-11/20261115T1803Z_agent3-gameerror-canplay-witness-review.md` and `communications/agent49/2026-11/20261115T1806Z_agent3-simulator-card-alias-review.md` (the latter cc'd Agent35).
+- Agent3 reports from pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` that `Simulator` deep-clones the state graph while explicitly excluding `Card` instances, which remain shared by reference; Card runtime tags are mutable. This materially strengthens the state-isolation concern: a witness snapshot must cover mutable Card-instance own state/runtime tags as well as all nested zones/resources, around both frontier enumeration and selected-action validation. A zone-only or serialized identity-only snapshot is insufficient. This is Agent3's source review, not an independently reproduced mutation; no claim that a particular action changes tags.
+- Agent3 also reports the pinned `Card.canPlay` API is tri-state (`boolean | undefined`), where `undefined` means preflight is too complex and native effect execution must decide. Current `itemCanPlayInValidationStore` asserts boolean and therefore aborts on a valid undefined result. Correct behavior per that pinned API is false => preflight reject; true/undefined => continue to isolated native dispatch. Agent3 further notes the helper currently runs for all Item cards while the PR description describes only VIP Pass / VS Seeker. This is a concrete source/gate issue already sent to Agent49 by Agent3; do not duplicate the message or implement it.
+- Agent3 confirmed the current compiled-seat witness remains only a mapping/deck-resolution check, not a native Store/frontier/role witness. Keep the separate gate.
+- No additional message sent: Agent3's two reviews cover these points, and the state-isolation and per-role-execution requirements are already in my messages to Agent49.
