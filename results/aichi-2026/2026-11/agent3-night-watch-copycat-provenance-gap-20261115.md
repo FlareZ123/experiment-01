@@ -36,3 +36,8 @@ This is an adapter-side fidelity correction; do not modify upstream Twinleaf. It
 ## Evidence boundary
 
 This finding is source-level. No compiled Mimikyu/Night Watch game or matchup was run. The attack is rules-eligible, but the current V3 copied-prompt path is not yet safe or accepted.
+
+
+## Benchmark relevance
+
+The fixed Hood candidate contains both Mimikyu GRI 58 and Trevenant & Dusknoir-GX. The published rank-1 Aichi list also contains Mimikyu GRI 58 and Trevenant & Dusknoir-GX SMP 217. Thus either side can have the Night Watch source and the Copycat attacker in the actual benchmark pairing, subject to attack history and game-state prerequisites. This is a benchmark-relevant engine/policy path, not only an abstract rules test.
