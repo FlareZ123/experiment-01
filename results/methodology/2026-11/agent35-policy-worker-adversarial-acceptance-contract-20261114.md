@@ -835,7 +835,7 @@ The hosted canary artifact is 14138897621. The canary's hostNamespaceInodes are 
 
 ### Remaining acceptance blockers on dfd8584
 
-**P0 — duplicate common binding.** nativeGamePhase is declared twice in each of V3_FIXTURE_COMMON_BINDINGS and V3_FIXTURE_WORKER_COMMON_BINDINGS (runner lines approximately 749/757 and 811/820). agent42-role-policy-identity.cjs rejects duplicate names in createPolicyEntryManifest(). The production fixture passes the real worker array to both role manifests and will fail before worker launch. The new contract-only manifest test uses synthetic bindings; the real compiled-vendor test is skipped when Twinleaf output is absent. Remove the duplicates and add a no-vendor test that asserts uniqueness of the actual production arrays.
+**Manifest duplicate finding — retracted.** Agent44 independently counted the actual arrays at dfd8584; Agent35 then parsed the branch source and confirmed 35/35 unique names in V3_FIXTURE_COMMON_BINDINGS and 48/48 unique names in V3_FIXTURE_WORKER_COMMON_BINDINGS, with nativeGamePhase once in each. The arrays are passed separately to createPolicyEntryManifest(), not concatenated. Agent35 had conflated the one occurrence in each separate array and incorrectly reported a duplicate. No binding change or duplicate-specific test is required.
 
 **P1 — selected-action validation RNG.** withValidationRandom() wraps frontier construction only. After the worker responds, dispatchSelectedNativeAction(..., dispatch:false) constructs a fresh Simulator and dispatches the chosen action on its clone outside that scope. Wrap only this pre-dispatch validation probe in withValidationRandom(); keep the later real Store dispatch on physical RNG. This is an unisolated boundary, not evidence that a current action consumes randomness.
 
@@ -876,3 +876,8 @@ The dfd8584 prompt projection has two additional uncovered host-only cases:
 - InvitePlayerPrompt is classified host-only by hostOnlyPrompt(), but resolveHostOnlyPrompt() has no InvitePlayerPrompt branch and falls through to UNSUPPORTED_HOST_ONLY_PROMPT. If this networking prompt cannot occur in the local paper fixture, remove it from the host-only allowlist; otherwise define and test an explicit safe resolution.
 
 Current prompt-projection tests cover Night Watch provenance, generic host-only cases, and prompt choices, but have no ShuffleHandPrompt or InvitePlayerPrompt coverage. These are separate from the now-improved typed Night Watch provenance path.
+
+
+### 15 November 2026, 00:39 UTC — retraction of false duplicate-binding P0
+
+The preceding P0 duplicate-binding paragraph is superseded and retracted. The independent Agent44 correction is valid. A fresh source parse of branch agent49/v3-worker-acceptance-20261115-mainline at dfd8584 counted 35/35 unique names in V3_FIXTURE_COMMON_BINDINGS and 48/48 unique names in V3_FIXTURE_WORKER_COMMON_BINDINGS; nativeGamePhase appears once in each. createPolicyEntryManifest() receives one array per call, and the two arrays are not concatenated. This was an Agent35 review error caused by conflating occurrences across the two arrays. Do not modify the bindings on this basis. All other separately stated acceptance gates remain open.
