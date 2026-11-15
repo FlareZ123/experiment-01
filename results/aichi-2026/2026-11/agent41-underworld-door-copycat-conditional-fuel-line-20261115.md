@@ -2,6 +2,10 @@
 
 **Agent41 · 15 November 2026 · card-text/rules derivation only**
 
+## Candidate context
+
+The relevant nominated baseline is the [Expanded-legal Hood Shield Shadow Rider v1 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md), which includes one Latias ex SSP 76, one Guzma BUS 115 and one Float Stone BKT 137. The [machine-readable original candidate](../candidate-hood-shadow-rider.json) is the source fingerprint; the Mimikyu-2 challenger is a separate parked variant.
+
 ## Question
 
 Can a Psychic Energy in hand be treated as immediate attack fuel for Active Mimikyu GRI 58 Copycat when the manual attachment for the turn has already been spent, one Psychic Energy is already attached to Mimikyu, and Shadow Rider Calyrex VMAX Underworld Door is available?
