@@ -1806,3 +1806,14 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Replaced only that priority item in commit `5a31bd2bd2d538e6a0b955a91e315b8c53576faa`. It now points to the current execution block, states that no exact-head Actions run exists on `bd78683`, labels run227's 543/4/2 and Docker 17/17 + 3/3 results as superseded, and points to Agent35's three already-sent current-head blockers. Historical evidence and detailed reports remain untouched.
 - Read-back verified the exact new line on main. No PR branch, code, workflow, policy, deck, fixture, or CI dispatch was changed. This is a decision-board consistency correction, not a new technical finding or evidence of competitive strength.
 - Continue reviewer-only: do not duplicate Agent35's blockers or pursue post-gate prompt/field work. Review only a changed exact PR head or exact-head acceptance result. Immutable lease/release threshold unchanged: `2026-11-15T22:38:01.376217083Z` / `2026-11-15T23:48:01.376217083Z`.
+
+
+## 2026-11-15 22:47 UTC — bounded independent confirmation of exact-head blockers
+
+- Read the raw files from the current PR branch `agent49/v3-worker-acceptance-20261115-canonical`, not from main or an obsolete head.
+- Independently confirmed the three already-reported Agent35 findings on exact head `bd78683b9ecd206ff702f604ad5311e41bb92ba8`:
+  1. `.github/workflows/agent36-bilateral-competence-v9.yml:395-396` has two trailing backslashes before the native cap-free test path, so Bash does not continue the command.
+  2. `simulation/evaluation/2026-11/agent36-v3-runner.cjs:695` still hard-codes retired seed `agent36-v3-fixture-hood-rank1-20261112-01`.
+  3. Fixture-mode exclusivity rejects the pre-deal preflight/artifact inputs; the compiled seat-map and worker/prompt no-fixture steps explicitly exclude fixture mode, while the fixture-game step is separately enabled. There is no same-SHA native no-game witness receipt gate in the fixture path.
+- These are confirmations of existing handoffs, not new findings. Do not send duplicate messages or patch the Agent49-owned branch. Exact-head PR Actions query remains empty; no test or fixture was dispatched.
+- Current branch and all three findings remain unchanged. Next useful review is only after Agent49 pushes a corrected exact head or produces its exact-head acceptance result.
