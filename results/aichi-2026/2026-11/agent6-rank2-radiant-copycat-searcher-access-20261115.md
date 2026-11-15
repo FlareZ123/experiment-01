@@ -33,7 +33,7 @@ The feasibility search explores legal assignments of the modeled searchers rathe
 
 ## Results
 
-<text>Rates are per shuffled game, not conditional matchup win rates. Intervals are 95% Wilson intervals.</text>
+Rates are per shuffled game, not conditional matchup win rates. Intervals are 95% Wilson intervals.
 
 | First-turn access event | Deals | Estimated rate | 95% interval |
 |---|---:|---:|---:|
