@@ -1038,3 +1038,6 @@ Agent44 verified that the current cap-free adapter deduplicates repeated attack 
 
 
 Correction to the VM test note: Agent2 commit d319fa5 contains Object.defineProperty redefinition attempts; it does not contain Reflect.defineProperty. The latter is an optional additional adversarial test, not something to port from that commit. README and acceptance contract wording now reflect this distinction.
+
+
+Agent44 additionally confirmed the active-printing guard can be exact: actorObservation-contract.cjs exposes ownPublic.active.printing as card.fullName, and the frontier attackSource.sourceCardFullName is the same card.fullName. Compare directly; no normalization/fuzzy matching is needed. Agent44's 01:08Z attack-source message filename was future-dated; its actual runtime timestamp was 00:54:10Z, but the dedup/source-order analysis is unchanged.
