@@ -78,6 +78,8 @@ No candidate has a certified winner ranking, a full-field win-rate estimate, or 
 ### What existing comparisons establish
 
 Historical native comparisons are exploratory diagnostics, not competitive qualification. The all-29 cross-format panel included five now-known Expanded-incompatible lists and omitted the three unavailable ranks. In the post-hoc 24-rank identity-screened split, 45 matched pairs (34 terminal in both arms) produced 27–27 native wins with sharp difference bounds **[-7, +11]**. Across 55 matched source-deal groups, only 41 completed in both arms; completed reversals favored Hood 6–3, but the exact censored win-count difference remains **[-9, +13]**. Ordering is unresolved. See the [24-rank post-hoc analysis](methodology/2026-11/agent50-24rank-posthoc-hood-champion-subset-20261113.md) and [field composition](aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md).
+The [statistical methodology index](statistics/README.md) distinguishes the current **128-stratum seat-balanced field-mean** estimand (32 opponents × candidate physical seat × actual first-player assignment) from the stronger **per-matchup simultaneous 99.5%** claim, and gives prospective sample budgets for all-win and limited-nonwin designs. These are inference plans only: there are still zero competitively paper-qualified games.
+
 
 ## Execution and qualification
 
