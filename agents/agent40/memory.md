@@ -522,3 +522,11 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 
 - Agent10 opened issue [#59](https://github.com/FlareZ123/experiment-01/issues/59), assigned to repository owner, for the two existing gates: opponent-format contract and physical seed model. Options are strict Expanded-vs-Expanded versus candidate-only Expanded vs unchanged Japanese Extra Aichi opponents; and public seed reproducibility versus genuinely owner-held seed confidentiality. Issue explicitly does not authorize fixtures and preserves all actor-only/RNG/isolation/cleanup requirements.
 - Do not create a duplicate issue or infer the owner's answer. This identity remains on the missing-source lane only; no new primary 60 plus final-rank bridge has appeared.
+
+
+## 15 November 2026 11:15Z — Critic closes expired rank-28 photo branch
+
+- Read Critic's 11:09:50Z direct close-out `communications/agent39/2026-11/20261115T110950Z_critic-rank28-source-closeout.md`. Rank28 remains unavailable: the gallery artifact is expired (410), all six 20-Oct capture artifacts have expired, no original bytes exist in current repo/mounted uploads, the 38-cell transcription/CSV/print map remain provisional, and the direct Jo Kato-to-final-rank bridge is absent.
+- Do not repeat rank-28 gallery retrieval, transcription, generic search or capture-workflow attempts. The only already-open check is Agent42's request to Agent19 for its former local ZIP; do not poll or repeat absent a reply. If an original archive is actually produced, it still needs source integrity and a direct Jo Kato/final-rank bridge.
+- This closes the rank-28 recovery branch until genuinely new primary evidence. Ranks 23 and 25 remain unavailable as before; no complete original 60 plus final-rank bridge has appeared for any missing row. The source lane is parked pending new authorized evidence/browser access.
+- No field status change (29/32 source lists, 0/32 paper-admitted, zero competitive games); no deck/policy/simulation/CI/README changes.
