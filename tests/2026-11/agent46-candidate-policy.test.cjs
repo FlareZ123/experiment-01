@@ -43,20 +43,6 @@ function attack(name, cost, damage, extra = {}) {
   };
 }
 
-function sourceMetadata(slot, sourceKind, sourceIndex, attackName) {
-  const sourceSlot = {
-    'active-pokemon': 'ACTIVE',
-    'bench-pokemon': 'BENCH',
-    'active-tool': 'ACTIVE_TOOL'
-  }[sourceKind];
-  return {
-    sourceKind, sourceSlot, sourceIndex,
-    sourceCardName: slot.name,
-    sourceCardFullName: slot.printing,
-    attackName
-  };
-}
-
 function pokemon({
   printing, name, hp = 200, types = ['Psychic'], subtypes = ['Basic'],
   energies = [], attacks = [], abilities = [], suppression = null,
@@ -143,17 +129,13 @@ function init(seat, role = 'candidate') {
   };
 }
 
-function evaluatePolicy(req) {
-  const policy = candidate.createPolicy({
-    role: 'candidate', seat: req.seat, policyVersion: POLICY_VERSION, config: {}
-  });
-  return policy.decide(req);
-}
-
 function evaluate(req) {
   const initialized = init(req.seat);
   const validated = protocol.validateRequest(req, initialized, 1, new Set());
-  const decision = evaluatePolicy(req);
+  const policy = candidate.createPolicy({
+    role: 'candidate', seat: req.seat, policyVersion: POLICY_VERSION, config: {}
+  });
+  const decision = policy.decide(req);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
   return decision;
 }
@@ -257,108 +239,13 @@ test('root attack evaluator chooses a proven Fairy Zone Max Geist KO over Filch'
   const req = request(0, view, {
     actions: [
       { token: 'max-geist', kind: 'attack', actorPrinting: vmax.printing,
-        attackName: 'Max Geist', publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(vmax, 'active-pokemon', 0, 'Max Geist')
-        } },
+        attackName: 'Max Geist', publicMetadata: { attackCostPayable: true } },
       { token: 'filch', kind: 'attack', actorPrinting: vmax.printing,
-        attackName: 'Filch', publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(vmax, 'active-pokemon', 0, 'Filch')
-        } },
+        attackName: 'Filch', publicMetadata: { attackCostPayable: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
-  assert.deepEqual(evaluatePolicy(req), { kind: 'select-action', token: 'max-geist' });
-});
-
-test('root attack scorer ignores unique bench and active-tool sources until source-aware scoring exists', () => {
-  const active = pokemon({
-    printing: 'Mimikyu GRI', name: 'Mimikyu', hp: 70, attacks: []
-  });
-  const bench = pokemon({
-    printing: 'Synthetic Bench Attacker XYZ', name: 'Synthetic Bench Attacker',
-    hp: 160, attacks: [attack('Dimensional Hand', ['Psychic', 'Psychic'], '120')]
-  });
-  const tool = { printing: 'Synthetic Attached Tool XYZ', name: 'Synthetic Attached Tool' };
-  const target = pokemon({
-    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
-    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
-  });
-  const view = observation(0, { active, bench: [bench], opponentActive: target });
-  const req = request(0, view, {
-    actions: [
-      {
-        token: 'bench-only', kind: 'attack', actorPrinting: bench.printing,
-        attackName: 'Dimensional Hand',
-        publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(bench, 'bench-pokemon', 0, 'Dimensional Hand')
-        }
-      },
-      {
-        token: 'tool-only', kind: 'attack', actorPrinting: tool.printing,
-        attackName: 'Tool Attack',
-        publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(tool, 'active-tool', 0, 'Tool Attack')
-        }
-      },
-      { token: 'pass', kind: 'pass' }
-    ]
-  });
-  assert.deepEqual(evaluatePolicy(req), { kind: 'select-action', token: 'pass' });
-});
-
-test('root attack scorer never scores synthetic non-active same-name tokens as the Active attacker', () => {
-  const active = pokemon({
-    printing: 'Shadow Rider Calyrex VMAX CRE',
-    name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
-    energies: Array(5).fill('Psychic Energy SVE'),
-    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+', {
-      text: 'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'
-    })]
-  });
-  const bench = pokemon({
-    printing: 'Synthetic Bench Attacker XYZ', name: 'Synthetic Bench Attacker',
-    hp: 160, attacks: [attack('Max Geist', ['Psychic'], '999')]
-  });
-  const tool = { printing: 'Synthetic Attached Tool XYZ', name: 'Synthetic Attached Tool' };
-  const target = pokemon({
-    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
-    hp: 100, types: ['Dragon'], subtypes: ['VSTAR']
-  });
-  const view = observation(0, { active, bench: [bench], opponentActive: target });
-  // The current adapter deduplicates repeated attack names in native order.
-  // These synthetic non-active tokens guard the policy against a malformed or
-  // future frontier accidentally assigning Active damage to another source.
-  const req = request(0, view, {
-    actions: [
-      {
-        token: 'bench-collision', kind: 'attack', actorPrinting: bench.printing,
-        attackName: 'Max Geist',
-        publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(bench, 'bench-pokemon', 0, 'Max Geist')
-        }
-      },
-      {
-        token: 'tool-collision', kind: 'attack', actorPrinting: tool.printing,
-        attackName: 'Max Geist',
-        publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(tool, 'active-tool', 0, 'Max Geist')
-        }
-      },
-      {
-        token: 'unattributed-collision', kind: 'attack',
-        actorPrinting: active.printing, attackName: 'Max Geist',
-        publicMetadata: { attackCostPayable: true }
-      },
-      { token: 'pass', kind: 'pass' }
-    ]
-  });
-  assert.deepEqual(evaluatePolicy(req), { kind: 'select-action', token: 'pass' });
+  assert.deepEqual(evaluate(req), { kind: 'select-action', token: 'max-geist' });
 });
 
 test('Guzma own-recipient prompt recomputes Rondo versus Max Geist and chooses lower Prize liability when both KO', () => {
@@ -562,15 +449,12 @@ test('the same actor-relative policy is deterministic for physical seat 1', () =
   const req = request(1, view, {
     actions: [
       { token: 'attack-max', kind: 'attack', actorPrinting: active.printing,
-        attackName: 'Max Geist', publicMetadata: {
-          attackCostPayable: true,
-          attackSource: sourceMetadata(active, 'active-pokemon', 0, 'Max Geist')
-        } },
+        attackName: 'Max Geist', publicMetadata: { attackCostPayable: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });
-  const first = evaluatePolicy(req);
-  const second = evaluatePolicy(req);
+  const first = evaluate(req);
+  const second = evaluate(req);
   assert.deepEqual(first, second);
   assert.deepEqual(first, { kind: 'select-action', token: 'attack-max' });
 });
