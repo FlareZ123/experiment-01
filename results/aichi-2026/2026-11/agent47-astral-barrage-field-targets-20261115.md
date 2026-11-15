@@ -89,8 +89,12 @@ Counting copies across those five exact printings (rather than merely asking whe
 This identifies seven lists whose published inventories contain at least two possible low-HP targets for a single Astral Barrage resolution. It does **not** show that both copies are simultaneously in play, or that the candidate can reliably reach the attack.
 
 
-## Same-printing lower bound across all published lists
+## Additional low-HP target in the five strict-incompatible lists
 
-The same five exact low-HP printings occur in **17 of the 29 published full lists (58.6%)**, not only in the 24 strict diagnostic subset. None of the five strict-incompatible published ranks (3, 6, 7, 24 or 29) contains any of these five printings. The three unavailable full lists (ranks 23, 25 and 28) remain unknown. The seven lists with at least two copies of these exact printings are still ranks 2, 10, 15, 16, 20, 26 and 32 (7/29 published lists).
+PRC 60 Electrike (`resources/cards/en/xy5.json`, `xy5-60`) has 50 HP and appears once in rank 7. The other ten unique Pokémon printings across strict-incompatible ranks 3, 6, 7, 24 and 29 were matched to the repository card database and have more than 50 HP.
 
-This is deliberately a lower bound for the published field: it counts only the five exact printings identified above, does not claim to enumerate every low-HP Pokémon in the five strict-incompatible lists, and says nothing about the three missing lists. It is not a complete 32/32 field audit.
+## Exact lower-bound inventory across all published lists
+
+Combining the five exact printings in the 24 strict diagnostic lists with PRC 60 Electrike in rank 7 gives **six exact low-HP printings across 18 of the 29 published full lists (62.1%)**. The strict subset remains 17/24 (70.8%); rank 7 adds the eighteenth published list. The seven lists with at least two copies of these six exact printings remain ranks 2, 10, 15, 16, 20, 26 and 32 (7/29 published lists).
+
+All 94 unique Pokémon printings in the 24 strict lists and all 11 unique Pokémon printings in the five strict-incompatible lists were matched to repository card records. Among these 105 published-list printings, the six listed here are the only ones with printed HP at or below 50. The three unavailable full lists (ranks 23, 25 and 28) remain unknown, so this is not a complete 32/32 field audit.
