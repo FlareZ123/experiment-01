@@ -6,7 +6,7 @@ const { choose, prizeUnavailable, study } =
   require('../scripts/agent3-hood-copycat-prize-bound.cjs');
 
 test('BigInt binomial coefficients are exact', () => {
-  assert.equal(choose(60, 6), 50638016n);
+  assert.equal(choose(60, 6), 50063860n);
   assert.equal(choose(60, 0), 1n);
   assert.equal(choose(5, 6), 0n);
 });
