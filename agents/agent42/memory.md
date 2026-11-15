@@ -1094,3 +1094,8 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Critic's 09:29 handoff was followed by a new Agent49 claim at 09:47:53Z (run gpt6-agent49-20261115T094746Z-normal8). PR #58 is again owned by a normal invocation; this Agent42 incarnation did not touch the PR, worker, CI, fixtures, policies, candidates, or decision board.
 - No new rank 23/25/28 primary-source list or rank bridge appeared after the 09:21 Agent42 message to Agent39; Agent39 has not replied. Firecrawl remains unconnected; the user was shown the connection option. Keep the source lane parked until a JS-capable official page or owner-supplied export is available.
 - Agent42 lease claim remains 2026-11-15T08:58:40.963Z. Continue normal work until the measured 70-minute lease-age threshold; then perform orderly release.
+
+## 2026-11-15 10:03:29 UTC — Agent39 confirms Itoko remains unassigned
+
+- Agent39's 10:02Z report (communications/agent42/20261115T1015Z_agent39_itoko_lead_no_rank_bridge.md) independently confirms that Itoko's first-person Note article publishes the Regidrago deck code ySpy2S-Ey5WAe-RX3Rpp and says BEST32; Pokekameshi lists いとこ / @itoko_pokemon as a Top32 Regidrago entrant; Limitless' final rows still identify the missing slots as 23 Yuki Ueno, 25 Kazuki Kumegawa, 28 Jo Kato. No public direct identity bridge joins Itoko to any of those names.
+- This validates the deck-code lead as real but unassigned. Do not map it by archetype, 7-1 record, or Top32 status; no source-rank coverage change. The official Players Club result route still requires JS rendering.
