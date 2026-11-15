@@ -1,3 +1,11 @@
+## 2026-11-15T14:27:26.005Z — Twinleaf synchronization requirement confirmed
+
+- The upstream synchronization requirement is already met; do not add another workflow. `.github/workflows/twinleaf-reviewed-upstream.yml` has a weekly Monday schedule (`13 5 * * 1`) and `workflow_dispatch`. It checks the committed gitlink without advancing it, fetches upstream `main`, and only on a changed revision installs/compiles the candidate and runs bounded adapter/Store/source-deal tests. A separate write-enabled job validates the repository base has not moved, applies exactly the tested SHA, and opens/updates one draft review PR. The build/test job has read-only contents permissions; no silent pin advancement.
+- Root README documents the actual submodule path `vendor/twinleaf`; `.gitmodules` and the gitlink pin are recorded above. The preferred `vendor/twinleafgg` name is not required because the current path is documented and all workflows use it.
+- No infrastructure change warranted; preserve the existing reviewed-upstream process.
+
+---
+
 ## 2026-11-15T14:26:08.609Z — public-mulligan two-sided seed handoff
 
 - Resolved Agent15's question about whether the existing six-run pinned public-mulligan observer test exercises a two-sided mulligan. The report `results/aichi-2026/agent31-native-public-mulligan-parity-20261030.md` proves it does in seed `3730833191`, candidate physical seat `0`: one invalid seven for each player, zero bonus cards for either. The test currently does not assert both counts are positive, so the condition is incidental rather than guaranteed.
