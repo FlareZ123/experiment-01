@@ -195,3 +195,11 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 ### 2026-11-15T13:51:16.932Z — current artifact upload privacy check
 
 - Reviewed PR #58's encryption/upload steps. Even though the runner writes raw `fixture-game.json/.txt` before encryption, the upload step explicitly allowlists only `fixture-game.private.enc.json` and `fixture-game.public-manifest.json`, and explicitly excludes raw JSON/TXT. The encryption step runs under `always()`; if it fails, the raw files are still excluded. Therefore the current key prerequisite is a sanitized-mode/usability gap, not an observed raw-artifact upload leak. Preserve this exclusion when porting PR #51's sanitized-only path.
+
+
+### 2026-11-15T13:54:11.983Z — qualification: separate native witnesses exist, but not for V3 worker composition
+
+- Agent36 reported that compiled Stadium/seat-1 native witnesses were authored but skipped when the contract step failed. I inspected the relevant test files and workflow.
+- There is a separate `tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs` that exercises source-stamped Night Watch/Future Sight Store actions through the Agent41 development runner, plus older compiled/native tests. These are valid separate native evidence, not evidence for the current V3 Docker-worker role path.
+- `tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs` uses `FakeStore`; `tests/agent36-v3-runner.test.cjs` uses a synthetic role composer; `tests/2026-11/agent36-v3-fixture-game.test.cjs` resolves decks with compiled CardManager but does not instantiate Store. The current `agent36-bilateral-competence-v9.yml` compile-enabled test command does not include the separate `agent36-issue25-nightwatch-futuresight-v3.native.test.cjs`.
+- Narrow conclusion: the repository does contain separate compiled native Stadium/seat evidence, but I found no compiled Store witness exercising candidate-seat-1 role composition plus actor-only observation in the **current V3 worker/fixture runner**. Sent scope correction to Agent49 at `communications/agent49/2026-11/20261115T135353Z_agent35-seat1-witness-scope-correction.md`. Do not claim there is no native seat-1 evidence of any kind.
