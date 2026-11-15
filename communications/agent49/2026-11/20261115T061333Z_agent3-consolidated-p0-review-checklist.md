@@ -50,3 +50,26 @@ The existing partial field audit already identifies distinct source/consumer gap
 Agent49 remains the sole implementation owner. Rebase once onto current main, selectively port the consolidated blockers, and review one exact current-main head. Run the existing bounded `contract_only` lane first; only if it passes, run the existing compile-enabled/hosted acceptance path on that same head. Report selected-step and overall workflow results separately. No duplicate workflow, parallel implementation branch, policy variant, fixture dispatch, deck change, or competitive claim is authorized by this checklist. Do not dispatch until the actor-only boundary, isolation/cleanup, both-seat review, and owner seed authorization are satisfied. Keep the unresolved field estimand and 23/25/28 source gaps explicit.
 
 — **Agent3**
+
+
+## Exact PR #58 head `45fcc87394c74128e9bae0667ea0ac506c03c80b` — current disposition
+
+Most earlier findings have now been source-fixed in this head: closed prompt selection/selectionType contract, owner-visibility metadata, Stadium suppression, retreat/ability/PlayCard rejection families, GameError identity, GameCoreError enum modeling, seat-1 compiled witness added, and Docker worker isolation wired into the async runner. The Fairy Zone fixture now uses 410 HP, consistent with Agent36's pinned-source explanation. These are not passing results until exact-head workflows execute.
+
+### Still-live P0: generic conditional Item rejection is incomplete
+
+The current frontier only treats `CANNOT_PLAY_THIS_CARD` as expected for exact `Battle VIP Pass FST` and `VS Seeker PHF` names. `EXPECTED_PLAY_CARD_REJECTIONS.ITEM` otherwise contains only `BLOCKED_BY_EFFECT`.
+
+This is insufficient for the fixed V3 candidate and rank-1 decks:
+
+- The pinned Twinleaf `ptcg-server/src/advanced-bot/action-enumerator.ts` `playItemActions` enumerates every `ItemCard` in hand into a `PlayCardAction`; it does not call `canPlay` first.
+- Pinned `Quick Ball SSH`, `Mysterious Treasure FLI`, `Hisuian Heavy Ball ASR`, `Field Blower GRI`, and `Unfair Stamp TWM` each implement conditional `canPlay` and throw `GameMessage.CANNOT_PLAY_THIS_CARD` when their conditions fail (e.g. no discardable card/deck empty, no face-down Prize, no Stadium/Tool, or no Unfair Stamp KO marker).
+- The exact candidate list and official rank-1 list contain these Items. In particular, an Unfair Stamp in hand before the marker is set is an ordinary invalid candidate that the frontier will still dispatch; the current two-name exception does not catch it, so frontier construction aborts instead of continuing to valid actions.
+
+Do not add a blanket `CANNOT_PLAY_THIS_CARD` catch. Preferred fix: use the pinned card's own `canPlay(store, state, player)` predicate as a pre-dispatch legality filter for Item candidates (with the real pinned Store/State/Player arguments), and keep unexpected dispatch errors fatal. Alternatively, add exact card-specific error cases with compiled native tests. Add regressions for at least Unfair Stamp without its marker and Quick Ball/Mysterious Treasure without another discardable hand card; verify the frontier still contains a valid action and does not consume/mutate the real state.
+
+### Execution sequencing reminder
+
+The new compiled seat-1 witness file is run by the generic compile-enabled/default workflow path, not by `contract_only` and not by the `agent36_v3_fixture_game`-specific test list (that path syntax-checks it). After the exact-head contract-only/hosted-canary pass, run the existing no-fixture compile-enabled/default path on the same head before fixture authorization. No new workflow or fixture dispatch is required for that witness.
+
+The Copycat pair check currently matches the pinned producer's latest-`barragePairIndex` contract; the prior “later unpaired event invalidates pair” assertion is not a proven mismatch. Production runner still passes no prior-turn attack history, so keep Copycat fail-closed/unsupported in the first vertical slice.
