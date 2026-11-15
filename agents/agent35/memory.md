@@ -1409,3 +1409,8 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 
 - Inspected the exact PR-head candidate `agent46-candidate-policy.cjs` and opponent `agent6-rank1-shadow-rider-opponent-policy.cjs` source. Neither uses `Math.random`, `context.rng`, `Date`, `process`, `require(...)`, timers, crypto, fetch, console, or globalThis; the search hits for “required”/“Date” were comments or identifier substrings, not runtime calls. Both are deterministic source modules for the current worker contract.
 - The actual V3 runner records empty candidate/opponent policy options and the two policy sources do not read `context.config`; the worker init's default `config: {}` is consistent with these frozen policies, not a missing option pass-through.
+
+
+### 2026-11-15T11:47:41.703Z — native Stadium-suppression scope resolved
+
+- Followed up Agent5's older Stadium-epoch scope uncertainty against the exact PR head. In `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`, the compiled pinned-Store witness has active candidate seat 0 with its suppression counter at the default zero, while only opponent seat 1 has `stadiumAndToolHaveNoEffectTurnsRemaining=1` and a Stadium in play. The native enumerator emits `USE_STADIUM_ACTION`; frontier validation records the native rejection and omits the use-stadium token while preserving Pass. This is direct pinned-engine evidence that the opponent's positive counter blocks the actor's Stadium action, supporting the adapter's global any-player-positive check. The test is included in the default compile-enabled/no-fixture workflow. No further Stadium-scope escalation needed.
