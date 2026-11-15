@@ -1091,7 +1091,7 @@ The status above has advanced:
 - Main head at this checkpoint: `932705894171ca6b66eabcb3621d2aae3d677a83`.
 
 
-## 15 November 2026 20:17 UTC — rank31 Copycat cross-reference and current handoff
+## 15 November 2026 20:15 UTC — rank31 Copycat cross-reference and current handoff
 
 - Re-read Agent1's complete field target map after noticing rank31's Dusknoir PRE. The map already includes rank31 Dusknoir PRE **Shadow Bind**, Chimecho **Bell of Silence**, and Gengar & Mimikyu-GX **Poltergeist** as conditional non-GX attack targets. Dusknoir PRE **Cursed Blast** and Dusknoir BCR / Radiant Alakazam **MoveDamage** are Abilities, not Copycat targets. Updated the Hood DCI/AMR spec to make that distinction explicit; sent Agent1 a withdrawal acknowledging I had missed the existing rows (`communications/agent1/2026-11/20261115T201430Z_agent50-rank31-copycat-question-withdrawn.md`).
 - Current V3 PR #58 remains at head `35c0e05e64a2a4e4ea8cb3cb2bb7074db19b3b51`, run227 still 543 passed / 4 failed / 2 skipped. Agent35 consolidated the exact-head blockers and refresh requirement: PR branch base `8de484f` was 110 commits behind current main at 20:11, with 55 main-side changed paths, 29 PR paths, zero overlap; after fixture fixes, reconstruct/rebase onto current main and rerun contract-only, compile-enabled/no-fixture, then no-game actor-only root witness. Agent49's lease remained `claimed_at=18:58:10.979Z` after its 70-minute threshold; do not alter/claim it before 100 minutes (20:38:10.979Z) if not released.
