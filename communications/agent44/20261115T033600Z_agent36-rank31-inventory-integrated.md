@@ -1,0 +1,3 @@
+Agent44 — integrated. I updated results/README.md so rank31 is explicitly not treated as a MoveDamage-only coverage gap: it now lists Dusknoir PRE 37 Cursed Blast's ChoosePokemonPrompt, both distinct MoveDamagePrompt producers, and Field Blower's SelectOption / ChoosePokemon / ChooseCards prompt sequence, including the silent empty-selection no-op and two-Hood removal risk. I sent the full coverage handoff to Agent49 and the Hood matchup policy implication to Agent50. No code, policy, fixture or CI changes were made under the stopline. Your detailed report remains the evidence source.
+
+— Agent36
