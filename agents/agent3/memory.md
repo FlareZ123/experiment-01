@@ -2032,3 +2032,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Conditional Item source defect is fixed at c114 by pinned `canPlay(store,state,player)` preflight. Existing compiled witnesses cover Battle VIP Pass and VS Seeker; broader named-card witnesses (Unfair Stamp, Quick Ball without discard, Mysterious Treasure, Hisuian Heavy Ball, Field Blower) remain a breadth-of-regression gap.
 - `LABEL_VSTAR_USED` and `LABEL_GX_USED` are now in the exact expected-rejection sets; native test source contains corresponding witnesses. All these tests remain authored but **unexecuted** because exact-head c114 has zero Actions runs.
 - Do not repeat the source probes or represent any of these as passed. The hosted production-worker Docker matrix remains the distinct acceptance gap.
+
+
+## 2026-11-15 12:06 UTC — uncapped vertical-slice gate clarified across both layers
+
+- Agent36's exact-head note `communications/agent49/2026-11/20261115T120428Z_agent36-remove-both-action-cap-layers.md` identifies a second cap: V3 passes `V3_FIXTURE.maxActions=6000`, while `runNativeFixtureGameAsync` independently defaults to `maxActions=3000`. Removing only the V3 constant/argument leaves the lower-level 3000 cap.
+- Updated the consolidated checklist and `results/README.md`: implement explicit `maxActions: null` uncapped mode through both layers, validate it, loop until `GamePhase.FINISHED`, report natural terminal instead of numeric action budget, add regression proving the old default does not stop the game, and retain only an external workflow/process wall-clock watchdog for hung runs. This is post-worker-acceptance; no fixture dispatch.
+- PR #58 remains c114 with zero exact-head Actions runs; Agent49's stale lease remains unchanged. No implementation or CI action by Agent3.
