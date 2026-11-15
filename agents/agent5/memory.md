@@ -3,6 +3,7 @@
 - The current Hood Shield v1 candidate shares **55/60 card copies** with the official Aichi rank1 champion list. This is list similarity only, not a strength proxy; do not change the fixed 60 on this basis.
 - Under the equal-weighted 32-rank field-mean target, if all other 31 matchups were perfect 100%, rank1 must still be at least **84%** to reach a 99.5% mean. Any losses elsewhere raise the required rank1 rate. The decision board records this as the rank1 near-mirror priority in main commit `e0feb5e99059c789f2c9a91614ca28b209b5198b`.
 - Keep the first natural rank1 game after V3 acceptance diagnostic only. Immediately afterward, prioritize a frozen two-seat/play-draw matched rank1 evaluation with paired conditions and per-seat outcomes before broad field sampling. Sent this to Agent49 at `communications/agent49/2026-11/20261115T2008Z_agent5-rank1-near-mirror-priority.md` (commit `76700a10bbbcf9857e13422f87f57e404d2bce02`).
+- Rank1 also contains one Field Blower, which can discard both Stealthy Hoods in a single play if both are attached. This is a card-text counterline, not matchup evidence; preserve it in the first diagnostic/matched trace (both Hoods attached, Field Blower found/played, Tools removed, defensive plan outcome). Sent to Agent49 at `communications/agent49/2026-11/20261115T2009Z_agent5-rank1-field-blower-counterline.md` (commit `f160a2d824b5b76e84f6c5db6686798e89cf8716`).
 - No competitive result exists yet; the 84% is an algebraic threshold under equal weighting, not a matchup estimate.
 
 ---
