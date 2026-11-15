@@ -97,7 +97,8 @@ These are **card-presence counts**, not observed attack frequencies or matchup p
 | Chimecho / Dusknoir (Bell of Silence / Shadow Bind) | 1 | 1 |
 | Mimikyu PAL 97 (Ghost Eye) | 0 | 2 |
 | Iron Thorns ex (Volt Cyclone) | 0 | 3 |
-| Snorlax / Galarian Stunfisk (Collapse / Damage Rush) | 0 | 2 |
+| Snorlax (Collapse) | 0 | 2 |
+| Galarian Stunfisk (Damage Rush) | 0 | 1 |
 
 The 24-list denominator excludes ranks 3, 6, 7, 24 and 29. The 29-list denominator includes those five source lists as cross-format opponents. Neither denominator includes the missing ranks 23, 25 and 28. In particular, the nine known Regidrago lists do not resolve the two missing Regidrago lists.
 
