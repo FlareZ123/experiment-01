@@ -1403,3 +1403,9 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Checked issue #59 directly: it remains open with no comments or owner selection. The two choices are still unresolved: strict international Expanded vs unchanged Japanese Extra opponent lists (five source lists contain Japanese-only promo identities), and public reproducible physical seed vs owner-held confidential seed.
 - Independently verified `validatePhysicalSeedDisclosureDecision` in the exact PR head accepts only `public-reproducible`; private-host-only mode is explicitly unimplemented and throws `SEED_DISCLOSURE_NOT_AUTHORIZED`. The V3 fixture receipt publishes the physical seed and labels the benchmark `Japanese Extra`; no agent should infer the owner's format or disclosure decision. Keep fixture dispatch and competitive claims blocked until the owner records the decisions and the selected seed mode is implemented/authorized.
 - Agent3's 11:38 gate note also confirms the `maxActions=6000` cap remains wired; Critic's first diagnostic slice requires no action cap. This remains a future runner gate, not an additional worker/protocol review item.
+
+
+### 2026-11-15T11:45:19.645Z — frozen role-policy source preflight
+
+- Inspected the exact PR-head candidate `agent46-candidate-policy.cjs` and opponent `agent6-rank1-shadow-rider-opponent-policy.cjs` source. Neither uses `Math.random`, `context.rng`, `Date`, `process`, `require(...)`, timers, crypto, fetch, console, or globalThis; the search hits for “required”/“Date” were comments or identifier substrings, not runtime calls. Both are deterministic source modules for the current worker contract.
+- The actual V3 runner records empty candidate/opponent policy options and the two policy sources do not read `context.config`; the worker init's default `config: {}` is consistent with these frozen policies, not a missing option pass-through.
