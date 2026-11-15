@@ -83,7 +83,7 @@ No candidate has a certified winner ranking, a full-field win-rate estimate, or 
 
 #### Post-acceptance Aichi AttachEnergyPrompt field coverage
 
-Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underworld Door provenance and a hand source. Pinned Twinleaf source review finds at least **14 distinct native AttachEnergyPrompt source shapes** among the published Aichi lists. Their union covers **25/29 available lists (86.2%)**, including **22/24 strict Expanded lists (91.7%)**. The host must project legal `(energy card, target)` pairs as opaque tokens and decode bounded selections to native `{to,index}` assignments. The current protocol classifies `energy-attachment` as single-select; `multiSelectBounds()` and the decoder support only five other prompt types. Add `energy-attachment` to the multi-select contract with item kind `energy`, native min/max bounds, an empty-selection token iff min=0, and ordered opaque-token-array decoding; single-attachment prompts can use the same path with min=max=1.
+Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underworld Door provenance and a hand source. Pinned Twinleaf source review confirms **13 distinct native AttachEnergyPrompt source shapes** among the published Aichi lists. Their union covers **25/29 available lists (86.2%)**, including **22/24 strict Expanded lists (91.7%)**. The earlier Koraidon ex TEF 120 / Dino Cry row was incorrect: ranks 10, 12, 18, 21 and 27 contain TEF 120 (Retribution Strike/Kaiser Tackle), not SVI 125 (Dino Cry); those ranks remain covered by other prompt sources. See [Agent3's printing correction](aichi-2026/2026-11/agent3-koraidon-attach-prompt-source-correction-20261115.md). The host must project legal `(energy card, target)` pairs as opaque tokens and decode bounded selections to native `{to,index}` assignments. The current protocol classifies `energy-attachment` as single-select; `multiSelectBounds()` and the decoder support only five other prompt types. Add `energy-attachment` to the multi-select contract with item kind `energy`, native min/max bounds, an empty-selection token iff min=0, and ordered opaque-token-array decoding; single-attachment prompts can use the same path with min=max=1.
 
 | Card / Aichi ranks | Source and target constraints | Selection / follow-up |
 |---|---|---|
@@ -96,7 +96,6 @@ Current PR #58 `projectAttachEnergyPrompt` is deliberately restricted to Underwo
 | Raihan EVS 152 (1, 10, 12, 13, 14, 18, 19, 20, 21, 27, 30, 32) | Discard; Basic Energy → Active/Bench | Exactly 1; search deck |
 | Dark Patch ASR 139 (8, 11, 16, 22) | Discard; Basic Darkness → Benched Darkness | Exactly 1 |
 | Sandy Shocks ex PAR 108 — Magnetic Absorption (19) | Discard; Basic Fighting → Active/Bench | Exactly 1; mark power used |
-| Koraidon ex TEF 120 — Dino Cry (10, 12, 18, 21, 27) | Discard; Basic Fighting → Basic Fighting Pokémon | 1–2; end turn |
 | Squawkabilly ex PAL 169 — Motivate (4, 8, 9, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 26, 30) | Discard; Basic Energy → one Benched Pokémon | 0–2; same target |
 | Crispin SCR 133 (8, 10, 12, 13, 14, 20, 21, 27, 32) | Temporary two-card list drawn from deck; Basic Energy → Active/Bench | Attach 1 to Active/Bench; remaining card to hand |
 | Iron Thorns ex TWM 77 (6, 24, 29) | Own Active attached Energy → Bench | Exactly 1; transfer |
