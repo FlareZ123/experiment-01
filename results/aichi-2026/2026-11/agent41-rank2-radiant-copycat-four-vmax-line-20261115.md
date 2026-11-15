@@ -50,7 +50,7 @@ All four VMAX can then use Underworld Door once each. That is up to four Psychic
 
 ## Exact direct-draw screen
 
-The accompanying script exactly enumerates a deliberately narrow natural-draw subset. It assumes Mimikyu is in the opening seven and is selected Active; Radiant and the first Psychic Energy are in the opening seven plus the candidate's first-turn draw; the second Psychic Energy is in the candidate's second-turn draw pool; and the listed VMAX / V counts are directly seen rather than searched.
+The accompanying script exactly enumerates a deliberately narrow natural-draw subset. It assumes Mimikyu is in the opening seven and is selected Active; Radiant and at least one Psychic Energy are in the opening seven plus the candidate's first-turn draw; at least two Psychic Energy are among the first nine accessible cards; and the listed VMAX / V counts are directly seen rather than searched.
 
 | Direct-draw branch | Probability across all shuffled deals | Conditional on Mimikyu in opening seven |
 |---|---:|---:|
