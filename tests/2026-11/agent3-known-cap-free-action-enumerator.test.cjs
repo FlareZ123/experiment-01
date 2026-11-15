@@ -244,3 +244,56 @@ test('same-name attack candidates follow native first-match source priority',()=
   assert.equal(toolPriority.length,1);
   assert.equal(toolPriority[0].__agent3AttackSource.sourceKind,'active-tool');
 });
+
+test('full enumerate preserves non-enumerable attack-source metadata and first-match deduplication', () => {
+  const state = makeState();
+  const player = state.players[0];
+  const enumerator = createKnownCapFreeActionEnumerator({ native, enginePin: EXPECTED_ENGINE_PIN });
+  const tool = new TrainerCard('TOOL');
+  tool.attacks = [{ name: 'Shared Attack' }];
+
+  const cases = [
+    {
+      expected: 'active-pokemon',
+      setup() {
+        player.active.getPokemonCard().attacks = [{ name: 'Shared Attack' }];
+        player.bench[1].getPokemonCard().attacks = [{ name: 'Shared Attack', useOnBench: true }];
+        player.active.tools.push(tool);
+      }
+    },
+    {
+      expected: 'bench-pokemon',
+      setup() {
+        player.bench[1].getPokemonCard().attacks = [{ name: 'Shared Attack', useOnBench: true }];
+        player.active.tools.push(tool);
+      }
+    },
+    {
+      expected: 'active-tool',
+      setup() {
+        player.active.tools.push(tool);
+      }
+    }
+  ];
+
+  for (const scenario of cases) {
+    player.active.getPokemonCard().attacks = [];
+    player.bench[1].getPokemonCard().attacks = [];
+    player.active.tools.length = 0;
+    scenario.setup();
+
+    const actions = enumerator.enumerate(state, player, 'p0');
+    const attacks = actions.filter(action => action instanceof AttackAction);
+    assert.equal(attacks.length, 1, 'full enumerate must retain native first-match deduplication');
+
+    const action = attacks[0];
+    const descriptor = Object.getOwnPropertyDescriptor(action, '__agent3AttackSource');
+    assert.ok(descriptor, 'full enumerate must retain the source marker');
+    assert.equal(descriptor.enumerable, false);
+    assert.equal(descriptor.writable, false);
+    assert.equal(descriptor.configurable, false);
+    assert.equal(action.__agent3AttackSource.sourceKind, scenario.expected);
+    assert.equal(Object.keys(action).includes('__agent3AttackSource'), false,
+      'research metadata must remain outside the native enumerable action payload');
+  }
+});

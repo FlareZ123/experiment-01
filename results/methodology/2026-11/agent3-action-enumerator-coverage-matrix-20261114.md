@@ -46,7 +46,7 @@ It also contains 22 Expanded-legal Trainer cards with attacks, including G Boost
 - Main adapter report: results/methodology/2026-11/agent3-known-cap-free-action-enumerator-20261114.md
 - Source findings: results/methodology/2026-11/agent3-upstream-action-enumerator-cap-audit-20261114.md, results/methodology/2026-11/agent3-tool-and-bench-action-enumerator-gaps-20261114.md, results/methodology/2026-11/agent3-hand-ability-action-enumerator-gap-20261114.md
 
-Eight Node v22.16.0 synthetic tests pass. They validate source-shaped enumeration and fail-closed adapter marker/pin/local-truncation checks, not the compiled pinned Store.
+Nine existing Node v22.16.0 synthetic tests passed locally before the full-enumerate regression was added. They validate source-shaped enumeration and fail-closed adapter marker/pin/local-truncation checks, not the compiled pinned Store.
 
 ## Integration contract
 
@@ -59,3 +59,6 @@ Eight Node v22.16.0 synthetic tests pass. They validate source-shaped enumeratio
 6. Run against the compiled pinned Store and verify that Simulator accepts/rejects the added actions as expected before any game is qualified.
 
 This matrix is not a claim that every paper Expanded action is represented. It records the source families reviewed and the explicit omissions repaired by the prototype. No fixture, game, matchup or competitive result is claimed.
+
+
+The new tenth synthetic regression exercises the retained full `enumerate()` method, not only `attackActions()`: it checks that same-name Active → Bench → active-Tool priority yields exactly one action and that the non-enumerable immutable source marker survives into the complete frontier array. The pinned upstream method uses `actions.push(...this.attackActions(state, player))`, preserving action object references. The new regression is pending execution; it does not establish compiled Store attack acceptance.

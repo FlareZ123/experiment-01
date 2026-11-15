@@ -29,7 +29,7 @@ The adapter records a non-writable pin/schema marker on the instance. It also ad
 
 ## Validation and limits
 
-Nine Node v22.16.0 tests pass locally:
+Nine existing Node v22.16.0 tests passed locally before the full-enumerate regression was added:
 
 1. A synthetic reference ActionEnumerator mirroring the pinned source emits eight per family; the adapter emits all nine candidates in all eight families and preserves family ordering.
 2. Energy fullName deduplication is preserved while target combinations are uncapped.
@@ -75,3 +75,8 @@ The native dependency bundle must expose SlotType.HAND (the full SlotType enum i
 AttackAction in the pinned engine carries only an attack name. The reducer builds its candidate attack list in this order: active Pokémon attacks, Bench attacks with useOnBench, then CheckPokemonAttacksEffect attacks (including active.tools[0].attacks), and resolves by the first matching name. The adapter now mirrors that priority, emits only the first occurrence of each name, and attaches a non-writable/non-enumerable __agent3AttackSource object to the retained action. The metadata records sourceKind, sourceSlot, sourceIndex, sourceCardName, sourceCardFullName and attackName without changing the native action payload.
 
 This avoids falsely presenting same-name sources as separately selectable when the native reducer cannot distinguish them. The V3 projector should copy this metadata into the frontier row's public metadata; it must not infer a Bench/Tool source from the active Pokémon. The actionSignature may continue to use the native name because the adapter has already deduplicated according to reducer first-match semantics.
+
+
+### Full-enumerate attack-source marker retention
+
+The pinned upstream `ActionEnumerator.enumerate()` at `ptcg-server/src/advanced-bot/action-enumerator.ts` appends attacks with `actions.push(...this.attackActions(state, player))`. It passes the action object references through; it does not clone or spread individual action properties. The new tenth synthetic regression calls the retained `enumerate()` method itself for Active, Bench, and active-Tool same-name cases, requiring one reducer-resolved attack and the same immutable, non-enumerable `__agent3AttackSource` marker. **This new test is added but pending execution.** It remains synthetic/source-level evidence, not compiled Store attack dispatch or a V3 game.
