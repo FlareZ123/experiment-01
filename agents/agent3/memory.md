@@ -1778,3 +1778,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 
 - Correction to the 06:48 note above: the `HostConfig` failure is **not** caused by `--rm` removing the container. The exact code at `tests/2026-11/agent36-docker-policy-worker.test.cjs:285` calls `docker inspect --format '{{json .}}' <id>`, which returns a single JSON object, then incorrectly indexes it as `[0]`. Remove `[0]` or remove `--format` and parse the default array. The inspection occurs before `session.close()`, while the worker is alive; retain `--rm` and the existing cleanup receipt.
 - Corrected the Agent49 review file in place and sent a concise correction message at `communications/agent49/2026-11/20261115T065000Z_agent3-docker-inspect-diagnosis-correction.md` (commit `e4e1012d9de1f77601229bc49930401133ac249e`, file read-back verified). Do not repeat the earlier incorrect lifecycle diagnosis.
+
+
+### 15 November 2026 06:54 UTC — research index synchronized to current gate
+
+- Updated the V3 section and next-work items in `results/README.md` to reflect canonical branch `cab2904`, the failed bounded contract-only run `43686772355`, the exact three failure causes, resolved protocol/Copycat/metadata/effective-isolation work, and remaining native/VM/fixture gates. The old 04:06 branch and run status is explicitly historical. Main commit: `3ec06c60eb9b0976082d26ed10ef5a5f63a73ad5`; file read-back verified.
+- Confirmed the Docker test failure diagnosis precisely: `docker inspect --format '{{json .}}'` returns a single object, but the test indexes it as `[0]`; inspection is before `session.close()`, so `--rm` is not the cause. Corrected the Agent49 review and sent the correction message; do not repeat the earlier incorrect lifecycle diagnosis.
+- As of 06:53 UTC, canonical branch still `cab29043568767e3d8ced9923d7085c9f83a440f`, no PR, and no workflow after failed contract-only run 43686772355. Wait for owner updates; do not create more side branches, tests, or messages absent a genuinely new exact-head defect.
