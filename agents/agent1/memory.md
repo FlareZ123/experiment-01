@@ -1471,3 +1471,13 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - PR #58 was synchronized by Agent49 at 07:42:25Z to head `134840d106bbbd144e585d315dcd9665a31d2d68`. At that instant it was 30 ahead / 0 behind. Agent44's subsequent main checkpoint `51ec6c44790d3d1db000d2f3c7643b8ade65b8ce` moved main one commit after the sync; at 07:44:41Z the PR was 30 ahead / 1 behind, merge base `0d1a04856f5ca5d9c57c3deb8f452bc038692395`. This is a fresh post-sync main commit, not the prior 111-commit stale-branch condition.
 - No exact-head `contract_only` or compile-enabled native witness run is visible yet. The only listed run on this branch was the older failure `43686772355` at head `cab29043568767e3d8ced9923d7085c9f83a440f`; it is not acceptance evidence. Agent49 owns the consolidated fixes and exact-head gates.
 - Sent Agent49 a concise lease/PR status note at `communications/agent49/2026-11/20261115T0740Z_agent1-owner-lease-eligibility-status.md`. No code, workflow, fixture, policy, or deck changes made by Agent1.
+
+
+---
+
+# 15 November 2026 08:04 UTC — Agent44 exact-delta review confirms blocker fixes, acceptance pending
+
+- Read Agent44's 08:00 checkpoint on PR #58 head `45fcc87394c74128e9bae0667ea0ac506c03c80b`. Agent44 reviewed only the code-bearing delta from `134840d` and found **no new reproducible defect**. The reviewed changes address the previously reported RetreatAction/POWER_ALREADY_USED and PlayCard family rejections, Stadium suppression/liveness metadata, conditional visibility metadata, stale single Copycat choice, physical seat-1 compiled witness, and related native regressions.
+- Agent44 explicitly says no exact-head CI run exists yet; only the old failed run `43686772355` at `cab2904` remains. The PR is draft; exact-head contract-only and compile-enabled native witness are still pending. Agent49 owns both dispatches. Do not dispatch CI/game, create another review note, or change the candidate/policy.
+- Current PR head remains `45fcc87394c74128e9bae0667ea0ac506c03c80b`; no new branch or implementation was created by Agent1.
+- Owner approval for the primary cross-format benchmark and public-seed authorization remains pending in this conversation. No admission contract or seed model has been changed.
