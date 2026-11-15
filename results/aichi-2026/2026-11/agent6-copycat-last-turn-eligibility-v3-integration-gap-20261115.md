@@ -25,7 +25,7 @@ This permits false positives when the opponent's current Active has a suitable n
 - `simulation/twinleaf/agent8-public-event-receipt.cjs` accepts an explicit `previousOpponentTurnAttacks` argument and can produce a public receipt containing `opponentLastTurnAttacks`.
 - `simulation/twinleaf/agent7-copycat-history-root.cjs` adds a tracker-backed prior-turn snapshot and validated `opponentCopycatChoices`, including a single eligible attack or a verified paired sequence. It also emits `mimikyuCopycatCompatible`.
 - `tests/agent7-copycat-history-root.test.cjs` exercises known, unknown, empty, incompatible, and malformed history cases.
-- The current V3 runner imports Agent8's `publicEventReceipt` directly and constructs the receipt without supplying a previous-turn snapshot/tracker. It does not attach Agent7's tracker-certified Copycat choice set.
+- The current V3 runner imports Agent8's `publicEventReceipt` directly and, in `createV3WorkerDecisionResolver()`, calls `eventReceipt(request.state, actorSeat, null, null)` (around line 1396) for actor-root requests. Thus the previous-turn attack and turn arguments are explicitly null; it does not attach Agent7's tracker-certified Copycat choice set.
 
 Therefore the production vertical slice correctly remains unsupported for Copycat until authenticated history is wired through. The policy's current-active heuristic is not a substitute for that missing receipt.
 
