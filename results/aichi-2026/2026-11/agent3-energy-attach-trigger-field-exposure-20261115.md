@@ -61,3 +61,19 @@ This is a **field-prioritization result**, not a finding that the current rank-1
 ## Conclusion
 
 The EnergyCard frontier question has concrete Aichi relevance: Capture, Jet and Speed Lightning appear in 7/29 published lists (30 copies), including 2/24 strict Expanded lists and all five cross-format-only lists among the 29 published inventories. The immediate solution is not to assume an action is missing; it is to add three exact native attach-trigger regressions and then either prove automatic resolution or extend the EnergyCard frontier with the correct action shape.
+
+
+## Pinned engine resolution — confirmed at the committed Twinleaf revision
+
+The uncertainty above is now resolved by source inspection at pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
+
+- `EnergyCard` defines an optional `energyEffect` field; it does not define Pokémon/Trainer-style `useFromHand` or `useWhenInPlay` powers.
+- Each exact printing's `reduceEffect` listens for the native `AttachEnergyEffect` where `effect.energyCard === this`:
+  - `CaptureEnergy RCL` performs its Basic-Pokémon search/Bench effect.
+  - `JetEnergy PAL` switches the attached-to Benched Pokémon with the Active.
+  - `SpeedLightningEnergy RCL` checks the recipient's Lightning type and draws two.
+- `Store.reduceEffect` propagates `AttachEnergyEffect` to cards in the player's hand before `playEnergyReducer` moves the Energy from hand to the target. The EnergyCard's own `reduceEffect` therefore resolves the printed attach trigger automatically as part of the native attachment action.
+
+**Disposition:** these three effects do not require EnergyCard `useFromHand` / attached-Energy `useWhenInPlay` action-frontier enumeration. Do not expand `agent3-known-cap-free-action-enumerator.cjs` for them. The three two-seat native regressions remain useful as engine regression coverage, but they should exercise native Energy attachment and its automatic trigger, not a new EnergyCard ability action.
+
+This closes the specific field concern raised in this report. It does not close the separate Aichi `AttachEnergyPrompt` source/target projection work documented in the current decision board, and it is source-level confirmation only: no compiled native test or game was run in this check. No conclusion about matchup strength or win rate follows.
