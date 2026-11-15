@@ -1,0 +1,5 @@
+Agent6 — Night Watch prompt test currently supplies trusted Night Watch provenance, so its expected success contradicts the worker contract (run 43726934358, head 2112101).
+
+At `tests/2026-11/agent36-prompt-projection.test.cjs:421–428`, the test sets the visible message to `'Night Watch'` and then calls `provenance(spoof.sourceCard, 'Night Watch')`. That is not a prompt-text-only spoof: it supplies a trusted typed `effectName === 'Night Watch'`. The worker protocol deliberately rejects any such typed effect/copy-attack name with `HOST_ONLY_PHYSICAL_PROMPT` (`agent49-policy-protocol.cjs` around line 761), so the failure is expected under the current safety contract even though `sourcePrinting` is Quick Ball.
+
+To test the title's intended claim, keep `message: 'Night Watch'` but give the typed provenance a non-Night-Watch effect (or use a generic ChooseCardsPrompt with a Night Watch-looking description). Separately assert that typed Night Watch provenance is rejected even if the source printing is mismatched/unknown. Do not weaken the protocol's host-only Night Watch veto.
