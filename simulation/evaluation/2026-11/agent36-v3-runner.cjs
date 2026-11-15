@@ -108,8 +108,9 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {PokemonCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
   const {EnergyCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {TrainerCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
-  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format}=
+  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format,SuperType}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
+  const {CheckPokemonTypeEffect}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
   const {PowerType}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
   const cardPoolInitialization=initializeNativeCardPool({CardManager,sets,enginePin});
   const {buildActorCardCatalog}=require('../../twinleaf/agent34-actor-only-root-policy.cjs');
@@ -137,6 +138,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   return {SimpleTacticsAi,Store,State,Player,PokemonCardList,CardList,GamePhase,cardActions,gameActions,
     ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
     PokemonCard,EnergyCard,TrainerCard,Stage,TrainerType,SpecialCondition,
+    EnergyType,CardType,SuperType,CheckPokemonTypeEffect,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
     ResolvePromptAction:promptActions.ResolvePromptAction,
@@ -797,6 +799,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'nativeSimulator', path: 'vendor/twinleaf/ptcg-server/output/game/bots/simulator.js', exportName: 'Simulator' },
   { name: 'nativePlayerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'PlayerType' },
   { name: 'nativeSlotType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'SlotType' },
+  { name: 'nativeCheckPokemonTypeEffect', path: 'vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects.js', exportName: 'CheckPokemonTypeEffect' },
   { name: 'nativePromptProjection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs', exportName: 'projectPrompt' },
   { name: 'asyncFixtureGameDriver', path: 'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs', exportName: 'runNativeFixtureGameAsync' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
@@ -1387,7 +1390,7 @@ function createV3WorkerDecisionResolver({
       if(request.prompt){
         const activeProvenanceHook=provenanceContext?.current??provenanceHook;
         const projected=promptProjection.projectPrompt({
-          prompt:request.prompt,state:request.state,actorSeat,native,
+          prompt:request.prompt,state:request.state,actorSeat,native,store:request.store,
           provenanceHook:activeProvenanceHook
         });
         if(projected.hostOnly){
@@ -1480,7 +1483,8 @@ function createV3WorkerDecisionResolver({
       assertTrustedActionSelection(frontier,response.decision.token);
       return actionFrontier.dispatchSelectedNativeAction({
         store:request.store,frontier,token:response.decision.token,
-        state:request.state,actorSeat,native,dispatch:false
+        state:request.state,actorSeat,native,
+        withValidationRandom:request.withValidationRandom,dispatch:false
       });
     }catch(error){
       recordFailure(roleAudit,error,session);
