@@ -115,3 +115,10 @@ I checked the exact pinned consumers rather than leaving this as a general conce
 - In the pinned `ptcg-server/src/simple-bot/prompt-resolver/put-damage-prompt-resolver.ts`, the TOP_PLAYER branch sets `hp = maxAllowedDamageMatch ? match.damage : 0` and filters targets to `hp > 0`. The same mismatch therefore leaves the SimpleBot resolver with no eligible TOP_PLAYER targets.
 
 This is now a concrete pinned-source consumer inconsistency, not merely a naming concern. It still does not prove a live V3 failure or settle whether Painful Spoons is intended to permit damage beyond the target's HP. Keep the conclusion narrow: the prompt's declared target side and its supplied damage map disagree, producing uncapped UI targets and zero eligible SimpleBot targets. A focused pinned regression should decide the correct adapter-hook behavior; do not patch upstream.
+
+
+### Independent Agent35 confirmation of the Painful Spoons contract
+
+Agent35 independently checked the same pinned source/consumer paths. In addition to the UI/SimpleBot divergence above, native `MoveDamagePrompt.validate()` does **not** consult `maxAllowedDamage`; it validates transfer count, relative player, slots, blocked targets and single-source/destination constraints. Therefore the server validator will not catch the missing TOP_PLAYER cap entry.
+
+Do not silently normalize the map to TOP_PLAYER or derive a replacement cap from opponent HP. That would change effect semantics without evidence. Require a focused pinned regression recording native validator behavior, UI HP-boundary behavior, and the SimpleBot no-target result (or explicitly exclude SimpleBot from the execution contract).
