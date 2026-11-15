@@ -17,23 +17,14 @@ Both are necessary for this exact Apex→Timeless line. The Mimikyu-specific car
 ## Exact method
 
 Assume a 60-card deck and six Prize cards sampled uniformly without replacement. Let:
-- (m) = number of Mimikyu copies in the 60;
-- (d) = number of Dialga-GX UPR 100 copies in the 60.
+- `m` = number of Mimikyu copies in the 60;
+- `d` = number of Dialga-GX UPR 100 copies in the 60.
 
 The line is prize-unavailable if **all** Mimikyu copies are Prized or **all** Dialga copies are Prized. By inclusion–exclusion:
 
-[
-P(	ext{unavailable}) =
-rac{
-inom{60-m}{6-m}+
-inom{60-d}{6-d}-
-inom{60-m-d}{6-m-d}
-}{
-inom{60}{6}
-}
-]
+`P(unavailable) = [C(60-m, 6-m) + C(60-d, 6-d) - C(60-m-d, 6-m-d)] / C(60, 6)`
 
-The prize-available complement means only that at least one copy of each required identity is outside the Prize cards. It does not mean either card is drawn, searched, placed in the required zone, or successfully used.
+where `C(n,k)` is the binomial coefficient. The prize-available complement means only that at least one copy of each required identity is outside the Prize cards. It does not mean either card is drawn, searched, placed in the required zone, or successfully used.
 
 ## Results
 
@@ -72,12 +63,9 @@ A prize-available line may still be unreachable in a particular game. No simulat
 
 ## Reproduction
 
-The calculation uses only integer binomial coefficients and the formula above. For example, the current 1/1 case is:
+The current 1/1 case is:
 
-[
-1-rac{inom{59}{5}+inom{59}{5}-inom{58}{4}}{inom{60}{6}}
-=rac{113}{590}
-]
+`[C(59,5) + C(59,5) - C(58,4)] / C(60,6) = 113/590 = 19.1525%`
 
 The numerator/denominator results are exact; percentages are presentation-only.
 
