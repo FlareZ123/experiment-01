@@ -1,0 +1,300 @@
+{
+  "title": "Aichi Open League 2026 runner-up deck-code Pokémon print/effect crosswalk",
+  "source_deck_code": "FVkbFV-S0oL2k-VvFvkF",
+  "official_deck_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/FVkbFV-S0oL2k-VvFvkF",
+  "normalized_limitless_source_rank": 2,
+  "source_row_player": "Takahiro Ando",
+  "official_event_attribution": "Otaro",
+  "player_identity_join": "unresolved; do not merge or rename",
+  "category": "Pokemon",
+  "total_copies": 26,
+  "distinct_identities": 17,
+  "verification": "All 17 Japanese official print identities are matched to the corresponding English proxy by HP, Ability/Ancient Trait and attack effects. English proxy card IDs are from the supplied card-pool archive.",
+  "entries": [
+    {
+      "english_name": "Bunnelby",
+      "count": 2,
+      "japanese_print": {
+        "name": "ホルビー",
+        "set": "XY",
+        "collector_number": "107/171"
+      },
+      "english_proxy": {
+        "set": "PRC",
+        "collector_number": "121",
+        "card_id": "xy5-121"
+      },
+      "effect_fingerprint": "60 HP; Ω Barrage; Burrow; Rototiller",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33787"
+    },
+    {
+      "english_name": "Pidgey",
+      "count": 2,
+      "japanese_print": {
+        "name": "ポッポ",
+        "set": "SV2a",
+        "collector_number": "016/165"
+      },
+      "english_proxy": {
+        "set": "MEW",
+        "collector_number": "16",
+        "card_id": "sv3pt5-16"
+      },
+      "effect_fingerprint": "50 HP; Call for Family; Tackle 20",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/43337"
+    },
+    {
+      "english_name": "Pidgeotto",
+      "count": 2,
+      "japanese_print": {
+        "name": "ピジョン",
+        "set": "SM12a",
+        "collector_number": "104/173"
+      },
+      "english_proxy": {
+        "set": "TEU",
+        "collector_number": "123",
+        "card_id": "sm9-123"
+      },
+      "effect_fingerprint": "60 HP; Air Mail; Gust 30",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37308"
+    },
+    {
+      "english_name": "Pidgeot ex",
+      "count": 2,
+      "japanese_print": {
+        "name": "ピジョットex",
+        "set": "SV3",
+        "collector_number": "136/108"
+      },
+      "english_proxy": {
+        "set": "OBF",
+        "collector_number": "164",
+        "card_id": "sv3-164"
+      },
+      "effect_fingerprint": "280 HP; Quick Search; Blustery Wind 120",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/44162"
+    },
+    {
+      "english_name": "Fan Rotom",
+      "count": 1,
+      "japanese_print": {
+        "name": "スピンロトム",
+        "set": "SV8a",
+        "collector_number": "131/187"
+      },
+      "english_proxy": {
+        "set": "SCR",
+        "collector_number": "118",
+        "card_id": "sv7-118"
+      },
+      "effect_fingerprint": "70 HP; Fan Call; Assault Landing 70",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46946"
+    },
+    {
+      "english_name": "Oddish",
+      "count": 2,
+      "japanese_print": {
+        "name": "ナゾノクサ",
+        "set": "SM10",
+        "collector_number": "001/095"
+      },
+      "english_proxy": {
+        "set": "UNB",
+        "collector_number": "5",
+        "card_id": "sm10-5"
+      },
+      "effect_fingerprint": "50 HP; Stun Spore; Seed Bomb 20",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36320"
+    },
+    {
+      "english_name": "Gloom",
+      "count": 2,
+      "japanese_print": {
+        "name": "クサイハナ",
+        "set": "SM10",
+        "collector_number": "003/095"
+      },
+      "english_proxy": {
+        "set": "UNB",
+        "collector_number": "7",
+        "card_id": "sm10-7"
+      },
+      "effect_fingerprint": "80 HP; Irresistible Aroma; Drool 30",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36322"
+    },
+    {
+      "english_name": "Vileplume",
+      "count": 2,
+      "japanese_print": {
+        "name": "ラフレシア",
+        "set": "XY",
+        "collector_number": "003/171"
+      },
+      "english_proxy": {
+        "set": "AOR",
+        "collector_number": "3",
+        "card_id": "xy7-3"
+      },
+      "effect_fingerprint": "130 HP; Irritating Pollen; Solar Beam 70",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33726"
+    },
+    {
+      "english_name": "Vileplume-GX",
+      "count": 1,
+      "japanese_print": {
+        "name": "ラフレシアGX",
+        "set": "SM11b",
+        "collector_number": "062/049"
+      },
+      "english_proxy": {
+        "set": "CEC",
+        "collector_number": "4",
+        "card_id": "sm12-4"
+      },
+      "effect_fingerprint": "240 HP; Fragrant Flower Garden; Massive Bloom; Allergic Explosion-GX",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37172"
+    },
+    {
+      "english_name": "Lillipup",
+      "count": 2,
+      "japanese_print": {
+        "name": "ヨーテリー",
+        "set": "SM11b",
+        "collector_number": "037/049"
+      },
+      "english_proxy": {
+        "set": "CEC",
+        "collector_number": "174",
+        "card_id": "sm12-174"
+      },
+      "effect_fingerprint": "60 HP; Twirly Eyes / Baby-Doll Eyes; Tackle 40",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37034"
+    },
+    {
+      "english_name": "Herdier",
+      "count": 2,
+      "japanese_print": {
+        "name": "ハーデリア",
+        "set": "SMA",
+        "collector_number": "035/059"
+      },
+      "english_proxy": {
+        "set": "SUM",
+        "collector_number": "104",
+        "card_id": "sm1-104"
+      },
+      "effect_fingerprint": "90 HP; Treasure Search / Treasure Hunt; Bite 50",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33159"
+    },
+    {
+      "english_name": "Stoutland",
+      "count": 1,
+      "japanese_print": {
+        "name": "ムーランド",
+        "set": "BW6-Bc",
+        "collector_number": "053/059"
+      },
+      "english_proxy": {
+        "set": "BCR",
+        "collector_number": "122",
+        "card_id": "bw7-122"
+      },
+      "effect_fingerprint": "140 HP; Watchdog / Sentinel; Wild Tackle 90",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/28206"
+    },
+    {
+      "english_name": "Relicanth",
+      "count": 1,
+      "japanese_print": {
+        "name": "ジーランス",
+        "set": "SV5K",
+        "collector_number": "077/071"
+      },
+      "english_proxy": {
+        "set": "TEF",
+        "collector_number": "84",
+        "card_id": "sv5-84"
+      },
+      "effect_fingerprint": "100 HP; Memory Dive; Razor Fin 30",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45520"
+    },
+    {
+      "english_name": "Mr. Mime",
+      "count": 1,
+      "japanese_print": {
+        "name": "バリヤード",
+        "set": "BW8-Brf",
+        "collector_number": "023/051"
+      },
+      "english_proxy": {
+        "set": "PLF",
+        "collector_number": "47",
+        "card_id": "bw9-47"
+      },
+      "effect_fingerprint": "70 HP; Bench Barrier; Psy Bolt 20",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/28536"
+    },
+    {
+      "english_name": "Girafarig",
+      "count": 1,
+      "japanese_print": {
+        "name": "キリンリキ",
+        "set": "SM8",
+        "collector_number": "045/095"
+      },
+      "english_proxy": {
+        "set": "LOT",
+        "collector_number": "94",
+        "card_id": "sm8-94"
+      },
+      "effect_fingerprint": "90 HP; Lost Send / Get Lost; Mind Shock 70",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/35337"
+    },
+    {
+      "english_name": "Budew",
+      "count": 1,
+      "japanese_print": {
+        "name": "スボミー",
+        "set": "M2a",
+        "collector_number": "196/193"
+      },
+      "english_proxy": {
+        "set": "ASC",
+        "collector_number": "16",
+        "card_id": "me2pt5-16"
+      },
+      "effect_fingerprint": "30 HP; Itchy Pollen 10; prevents Item cards from hand on opponent's next turn",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/49956"
+    },
+    {
+      "english_name": "Jirachi",
+      "count": 1,
+      "japanese_print": {
+        "name": "ジラーチ",
+        "set": "XY",
+        "collector_number": "080/171"
+      },
+      "english_proxy": {
+        "set": "XYP",
+        "collector_number": "XY67",
+        "card_id": "xyp-XY67"
+      },
+      "effect_fingerprint": "60 HP; Stardust; Dream Dance 20",
+      "official_japanese_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33632"
+    }
+  ],
+  "limitations": [
+    "Only the 26 Pokémon copies are in this print/effect crosswalk.",
+    "The official deck-code text extract exposes names and counts but not print numbers for Trainer and Energy rows.",
+    "No physical event-day deck or individual cards were inspected.",
+    "This does not paper-admit the opponent or qualify any matchup.",
+    "Ranks 23, 25 and 28 remain without complete source lists."
+  ],
+  "supporting_repository_report": "results/aichi-2026/2026-11/agent10-rank2-official-runner-up-pokemon-print-crosswalk-20261115.md",
+  "inventory_reconciliation": "results/aichi-2026/2026-11/agent36-runner-up-rank2-inventory-reconciliation-20261115.md",
+  "event_sources": [
+    "https://pokekameshi.com/cl2026aichidec-extra/",
+    "https://note.com/quick_garlic8250/n/n3f1b573b253a"
+  ]
+}
