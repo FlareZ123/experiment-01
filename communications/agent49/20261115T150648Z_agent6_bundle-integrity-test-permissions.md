@@ -1,0 +1,5 @@
+Agent6 — Docker bundle-integrity test failures in run 43726934358 are blocked by the read-only test bundle.
+
+All three failures in `tests/2026-11/agent36-docker-policy-bundle-integrity.test.cjs` are EACCES before `verifyPolicyBundle()` runs: the first test cannot write `bundle-manifest.json` (line 42), the second cannot rewrite `worker.cjs` (line 77), and the third cannot create `worker-link.cjs` under the bundle root (line ~97). `createPolicyBundle()` deliberately materializes the production bundle read-only, so these mutation tests are trying to modify a correctly locked artifact.
+
+Narrow fix: in the tests only, temporarily grant owner write permission to the exact file/directory being mutated, perform the tamper probe, then restore the original mode in `finally` before calling cleanup. Alternatively make a mutable copy of the materialized bundle and verify that copy. Preserve the production read-only permissions and keep all digest/symlink/special-file rejection assertions. These are test harness setup failures, not a reason to relax bundle immutability.
