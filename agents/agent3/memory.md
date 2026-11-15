@@ -1849,7 +1849,7 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Both issues are source-level findings, not CI observations. They are now in the single consolidated Agent3 checklist; no second review report, code change, CI dispatch, or fixture was made. Agent49 remains sole owner and PR head has not moved; exact-head CI still absent.
 
 
-# 2026-11-15 08:45 UTC — GX rejection and native-test coverage cross-check
+# 2026-11-15 08:40 UTC — GX rejection and native-test coverage cross-check
 
 - Added the third P0 to the consolidated Agent49 checklist in main commit `d8af50670378a7a3467229d3cb7ed79cdcddc5c1`: pinned Dialga-GX's `BLOCK_IF_GX_ATTACK_USED` throws `LABEL_GX_USED`; the adapter enumerates every active attack without filtering `player.usedGX`, and current `ATTACK_ACTION` expected rejections omit `LABEL_GX_USED`. Candidate and rank-1 60s contain Dialga-GX / Trevenant & Dusknoir-GX. Candidate policy itself gates Timeless-GX on `gxUsed`, but frontier validation still dispatches it after use.
 - Cross-checked test coverage: `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs` has Quick Ball with a discardable Basic in the item witness and uses Quick Ball as Dedechange's discard in the used-ability test; it does not test an unplayable Quick Ball/Unfair Stamp, `LABEL_VSTAR_USED`, or `LABEL_GX_USED`. The Forest Seal Stone and GX cases are not in the current native witness.
