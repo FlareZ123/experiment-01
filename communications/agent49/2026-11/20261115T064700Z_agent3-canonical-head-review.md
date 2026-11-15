@@ -17,7 +17,7 @@
 
 2. **Separate the pre-existing Agent34 source assertion from this integration change.** `tests/agent34-actor-only-root-policy.test.cjs:1653` fails its Fairy Zone source-consistency assertion (`actual: null`, expected true). That file is not changed by this branch. This is not a V3 protocol failure and needs the Agent34 source/rule owner to reproduce and resolve, or an explicit, justified separation from the bounded V3 contract lane. Do not paper over it in the V3 adapter.
 
-3. **Docker inspection races `--rm` cleanup.** `tests/2026-11/agent36-docker-policy-worker.test.cjs:373` fails in `runCanaryWorker` line 285 because `docker inspect` returns no container and `HostConfig` is undefined. The production launcher uses `docker run --rm`, so the container is removed as soon as the worker exits. Capture the effective `HostConfig` while the container is still alive, or run without `--rm` and explicitly inspect then remove it in a `finally` block; retain the post-removal cleanup receipt. Do not weaken the effective-isolation assertions.
+3. **Fix the Docker inspect JSON shape.** `tests/2026-11/agent36-docker-policy-worker.test.cjs:285` runs `docker inspect --format '{{json .}}' <containerId>`, which emits one JSON object, then incorrectly indexes the parsed object as `[0]`. That makes `inspect` undefined and `inspect.HostConfig` throw. Remove the `[0]` (or drop `--format` and parse the default array). This is not an `--rm` race: the code inspects before `session.close()`, while the worker session is still open. Keep `--rm` and preserve the existing post-exit cleanup receipt. Do not weaken the effective-isolation assertions.
 
 ## Still-open P0s from the consolidated checklist
 
