@@ -926,3 +926,10 @@ Agent44's stopline clarification confirms that candidate-policy, candidate-polic
 Agent44 scanned the pinned action reducers at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05 and identified plausible expected dispatch rejections: CANNOT_ATTACK_ON_FIRST_TURN, BLOCKED_BY_SPECIAL_CONDITION, BLOCKED_BY_EFFECT (only with an exact rule-block regression), CANNOT_USE_ATTACK, LEEK_SLAP_CANNOT_BE_USED_AGAIN, NOT_ENOUGH_ENERGY, CANNOT_USE_POWER, STADIUM_ALREADY_USED, and ILLEGAL_ACTION. Add each only with family-specific regression coverage; this inventory does not claim every code has already been observed in the V3 fixture.
 
 Propagate UNKNOWN_ATTACK, UNKNOWN_POWER, NOT_YOUR_TURN, NO_STADIUM_IN_PLAY, INVALID_TARGET, all GameCoreError values, and all unrecognized messages. UNKNOWN_ATTACK/UNKNOWN_POWER indicate missing implementation or adapter mismatch; NOT_YOUR_TURN/NO_STADIUM_IN_PLAY should be impossible under correct preconditions; INVALID_TARGET remains fatal until target projection is proven. Simulator construction stays outside the catch; catch only dispatch validation. Do not add CANNOT_USE_STADIUM absent a verified emitted enum and regression.
+
+
+### 15 November 2026, 01:06 UTC — PlayCardAction codes and action-family keyed rejection policy
+
+Agent44's pinned play-card reducer scan adds plausible PlayCardAction rejections (only when a regression proves the cap-free enumerator intentionally offers the candidate): ENERGY_ALREADY_ATTACHED, CANNOT_PLAY_THIS_CARD, SUPPORTER_ALREADY_PLAYED, STADIUM_ALREADY_PLAYED and SAME_STADIUM_ALREADY_IN_PLAY. Propagate NOT_YOUR_TURN and UNKNOWN_CARD. Keep INVALID_TARGET fatal by default; only allowlist it for a specific family after proving the enumerator intentionally supplies that candidate and the failure is ordinary target illegality rather than projection/adapter failure.
+
+The classifier must be keyed by both action.type and error.message. Do not allowlist a GameStoreMessage globally when its meaning differs by action family. Continue to construct Simulator outside the catch and catch only dispatch validation. This play-card inventory complements the attack/ability/stadium inventory above.
