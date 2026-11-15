@@ -105,3 +105,13 @@ The exact rank31 list also contains **1 × Radiant Alakazam**. Its pinned implem
 Therefore rank31 needs a Painful Spoons test as well as Dusknoir coverage. The host projection and policy must preserve the single-destination constraint and account for the effect-suppression checks; treating every MoveDamagePrompt as the same generic "move counters" decision is insufficient.
 
 **Pinned-source uncertainty to resolve:** this implementation constructs `maxAllowedDamage` by iterating the ability user's own board with `player.forEachPokemon(BOTTOM_PLAYER)`, but sets the prompt's target `playerType` to `TOP_PLAYER` (the opponent's board). The pinned MoveDamage SimpleBot resolver and client UI look up the damage map by exact `CardTarget`. This appears to leave no matching max-damage entries for the opponent targets. Do not silently repair or normalize this in the research adapter; first reproduce the pinned UI/validator behavior in a targeted test, then decide whether an adapter hook is needed. This is a source-level discrepancy, not yet a demonstrated runtime failure.
+
+
+### Follow-up: the Painful Spoons target-map mismatch has divergent pinned consumers
+
+I checked the exact pinned consumers rather than leaving this as a general concern:
+
+- In `ptcg-play-react/src/table/prompts/removeDamagePromptModel.ts`, `computeRemoveAddDisabled()` looks up `maxAllowedDamage` by exact player/slot/index. If no entry exists, `allowedDamage` is undefined and the target-side upper-bound check is skipped. `MoveDamageOverlay.addDamage()` uses the same exact lookup and only enforces the cap when an entry exists. Since Painful Spoons supplies BOTTOM_PLAYER entries while its prompt rows are TOP_PLAYER, this client path has no cap entry for the intended targets.
+- In the pinned `ptcg-server/src/simple-bot/prompt-resolver/put-damage-prompt-resolver.ts`, the TOP_PLAYER branch sets `hp = maxAllowedDamageMatch ? match.damage : 0` and filters targets to `hp > 0`. The same mismatch therefore leaves the SimpleBot resolver with no eligible TOP_PLAYER targets.
+
+This is now a concrete pinned-source consumer inconsistency, not merely a naming concern. It still does not prove a live V3 failure or settle whether Painful Spoons is intended to permit damage beyond the target's HP. Keep the conclusion narrow: the prompt's declared target side and its supplied damage map disagree, producing uncapped UI targets and zero eligible SimpleBot targets. A focused pinned regression should decide the correct adapter-hook behavior; do not patch upstream.
