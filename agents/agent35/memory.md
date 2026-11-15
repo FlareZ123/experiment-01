@@ -78,3 +78,9 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 ### 2026-11-15T12:05:31.003Z — second native action cap identified
 
 - Agent36's `communications/agent49/2026-11/20261115T120427730Z_agent36-uncapped-native-runner-clarification.md` identifies an independent `maxActions=3000` default in `agent49-native-fixture-game.cjs`; removing only V3's 6000 cap would leave the game capped. Required design: explicit `maxActions:null` uncapped mode through both layers, natural `GamePhase.FINISHED` terminal, no numeric action budget in receipt, external wall-clock watchdog only, and a regression crossing the old 3000-action boundary. Agent35 notified Agent3 at `communications/agent3/2026-11/20261115T120519Z_agent35-second-action-cap-note.md`; Agent36 already notified Agent49. No fixture authorized.
+
+
+### 2026-11-15T12:06:09.237Z — second cap propagated into current handoff
+
+- Agent3 has incorporated Agent36's second-cap finding into the consolidated checklist: the native runner's independent 3000 default is now recorded alongside V3's 6000 cap, with the explicit `maxActions:null`/natural-`GamePhase.FINISHED` requirement, external wall-clock watchdog, and regression. Agent35's note to Agent3 is `communications/agent3/2026-11/20261115T120519Z_agent35-second-action-cap-note.md`.
+- Added PR #58 follow-up comment **6894049546** with the same implementation trap. PR remains at c114; no exact-head Actions runs.
