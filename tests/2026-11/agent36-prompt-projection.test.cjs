@@ -165,6 +165,14 @@ class OrderCardsPrompt {
 }
 
 class NightWatchPrompt extends ChooseCardsPrompt {}
+class AttachEnergyPrompt {
+  decode(result){return result;}
+  validate(result){
+    if(result===null)return this.options?.allowCancel===true;
+    return Array.isArray(result)&&result.length===1;
+  }
+}
+class InvitePlayerPrompt {}
 
 const native = {
   PlayerType,
@@ -548,3 +556,169 @@ test('only exact phase-one native setup constructor/message pairs are allowliste
   assert.throws(()=>projectPrompt({prompt:wrongSelectConstructor,state,actorSeat:0,native}),
     error=>error?.code==='PROMPT_SOURCE_PROVENANCE_MISSING');
 });
+test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energy to dynamically Psychic Bench targets for both seats',()=>{
+  const EnergyType={BASIC:1,SPECIAL:2};
+  const CardType={PSYCHIC:5,DARKNESS:6,FIGHTING:7};
+  const SuperType={ENERGY:9};
+  class EnergyCard {
+    constructor(name,energyType,provides){
+      this.name=name;this.fullName=name+' SVE';this.energyType=energyType;this.provides=provides;
+    }
+  }
+  class CheckPokemonTypeEffect {
+    constructor(slot){this.slot=slot;this.cardTypes=[];}
+  }
+  const nativeAttach={
+    ...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect
+  };
+  for(const actorSeat of [0,1]){
+    const state=makeState();
+    if(actorSeat===1)state.players.reverse();
+    state.activePlayer=actorSeat;
+    const actor=state.players[actorSeat];
+    const sourceCard={
+      name:'Shadow Rider Calyrex VMAX',
+      fullName:'Shadow Rider Calyrex VMAX CRE75',
+      set:'CRE'
+    };
+    actor.active=slot(sourceCard);
+    const psychicEnergy=new EnergyCard('Psychic Energy',EnergyType.BASIC,[CardType.PSYCHIC]);
+    const darknessEnergy=new EnergyCard('Darkness Energy',EnergyType.BASIC,[CardType.DARKNESS]);
+    const specialPsychicEnergy=new EnergyCard('Psychic Energy',EnergyType.SPECIAL,[CardType.PSYCHIC]);
+    actor.hand.cards=[psychicEnergy,darknessEnergy,specialPsychicEnergy];
+    const nonPsychic=pokemon('Non-Psychic base, non-Psychic dynamic');
+    nonPsychic.dynamicTypes=[CardType.FIGHTING];
+    const dynamicPsychic=pokemon('Dynamic Psychic target',false);
+    dynamicPsychic.dynamicTypes=[CardType.PSYCHIC];
+    const dynamicNonPsychic=pokemon('Dynamic non-Psychic target',true);
+    dynamicNonPsychic.dynamicTypes=[CardType.FIGHTING];
+    const printedPsychic=pokemon('Printed Psychic target',true);
+    printedPsychic.dynamicTypes=[CardType.PSYCHIC];
+    actor.bench=[
+      slot(nonPsychic),slot(dynamicPsychic),slot(dynamicNonPsychic),slot(printedPsychic),slot()
+    ];
+    const prompt=basePrompt(AttachEnergyPrompt,state,{
+      id:91,playerId:actor.id,message:'ATTACH_ENERGY_TO_BENCH',
+      cardList:actor.hand,
+      playerType:PlayerType.BOTTOM_PLAYER,
+      slots:[SlotType.BENCH],
+      filter:{superType:SuperType.ENERGY,energyType:EnergyType.BASIC,name:'Psychic Energy'},
+      options:{min:1,max:1,allowCancel:false}
+    });
+    let dispatched=null;
+    const store={
+      state,
+      reduceEffect(_state,effect){
+        effect.cardTypes=effect.slot.getPokemonCard().dynamicTypes;
+      },
+      dispatch(action){dispatched=action;return {ok:true};}
+    };
+    prompt.decode=result=>result;
+    prompt.validate=transfers=>{
+      if(!Array.isArray(transfers)||transfers.length!==1)return false;
+      const {to,card}=transfers[0]??{};
+      if(!actor.hand.cards.includes(card)||!(card instanceof EnergyCard)||
+          card.energyType!==EnergyType.BASIC||!card.provides.includes(CardType.PSYCHIC)||
+          to?.player!==PlayerType.BOTTOM_PLAYER||to.slot!==SlotType.BENCH||
+          !Number.isInteger(to.index))return false;
+      const target=actor.bench[to.index]?.getPokemonCard?.();
+      if(!target)return false;
+      const effect=new CheckPokemonTypeEffect(actor.bench[to.index]);
+      store.reduceEffect(state,effect);
+      return effect.cardTypes.includes(CardType.PSYCHIC);
+    };
+    const provenanceHook={
+      getPromptProvenance:()=>({
+        sourceKind:'card-effect',sourceCard,effectName:'Underworld Door'
+      })
+    };
+    const projection=projectPrompt({
+      prompt,state,actorSeat,native:nativeAttach,store,provenanceHook
+    });
+    assert.equal(projection.promptProjection.actingSeat,actorSeat);
+    assert.equal(projection.promptProjection.promptType,'AttachEnergyPrompt');
+    assert.equal(projection.promptProjection.source.sourcePrinting,sourceCard.fullName);
+    assert.equal(projection.promptProjection.source.effectName,'Underworld Door');
+    assert.equal(projection.promptProjection.publicMetadata.selectionType,'energy-attachment');
+    assert.equal(projection.promptProjection.choices.length,2);
+    assert.deepEqual(projection.promptProjection.choices.map(choice=>choice.label),[
+      'Attach Psychic Energy SVE to Bench 2: Dynamic Psychic target',
+      'Attach Psychic Energy SVE to Bench 4: Printed Psychic target'
+    ]);
+    assert.equal(projection.promptProjection.choices.some(choice=>
+      choice.printing==='Darkness Energy SVE'),false);
+    assert.equal(projection.promptProjection.choices.some(choice=>
+      choice.label.includes('Non-Psychic')),false);
+    const selectedToken=projection.promptProjection.choices[0].token;
+    const prepared=dispatchPromptChoice({
+      store,prompt,state,actorSeat,projection,
+      decision:{kind:'select-choice',token:selectedToken},native:nativeAttach,dispatch:false
+    });
+    assert.equal(prepared.rawResult.length,1);
+    assert.strictEqual(prepared.rawResult[0].card,psychicEnergy);
+    assert.deepEqual(prepared.rawResult[0].to,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
+    });
+    assert.equal(dispatched,null);
+    const dispatchedResult=dispatchPromptChoice({
+      store,prompt,state,actorSeat,projection,
+      decision:{kind:'select-choice',token:selectedToken},native:nativeAttach,dispatch:true
+    });
+    assert.equal(dispatchedResult.result.ok,true);
+    assert.strictEqual(dispatched.result,dispatchedResult.action.result);
+
+    const forged={...projection,choiceByToken:new Map(projection.choiceByToken)};
+    forged.choiceByToken.set('forged-non-psychic-target',[{
+      to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0},
+      card:psychicEnergy
+    }]);
+    assert.throws(()=>dispatchPromptChoice({
+      store,prompt,state,actorSeat,projection:forged,
+      decision:{kind:'select-choice',token:'forged-non-psychic-target'},
+      native:nativeAttach,dispatch:false
+    }),/failed native decode\/validation/);
+  }
+});
+
+test('Underworld Door AttachEnergyPrompt fails closed when no dynamically Psychic Bench target exists',()=>{
+  const EnergyType={BASIC:1,SPECIAL:2};
+  const CardType={PSYCHIC:5,FIGHTING:7};
+  const SuperType={ENERGY:9};
+  class EnergyCard {
+    constructor(){this.name='Psychic Energy';this.fullName='Psychic Energy SVE';
+      this.energyType=EnergyType.BASIC;this.provides=[CardType.PSYCHIC];}
+  }
+  class CheckPokemonTypeEffect {
+    constructor(slot){this.slot=slot;this.cardTypes=[];}
+  }
+  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect};
+  const state=makeState();
+  const actor=state.players[0];
+  const sourceCard={name:'Shadow Rider Calyrex VMAX',fullName:'Shadow Rider Calyrex VMAX CRE75',set:'CRE'};
+  actor.active=slot(sourceCard);
+  actor.hand.cards=[new EnergyCard()];
+  actor.bench=[slot(pokemon('Fighting Bench',false)),slot(),slot(),slot(),slot()];
+  const prompt=basePrompt(AttachEnergyPrompt,state,{
+    id:92,playerId:actor.id,message:'ATTACH_ENERGY_TO_BENCH',cardList:actor.hand,
+    playerType:PlayerType.BOTTOM_PLAYER,slots:[SlotType.BENCH],
+    filter:{superType:SuperType.ENERGY,energyType:EnergyType.BASIC,name:'Psychic Energy'},
+    options:{min:1,max:1,allowCancel:false}
+  });
+  const store={state,reduceEffect(_state,effect){effect.cardTypes=[CardType.FIGHTING];},dispatch(){}};
+  const provenanceHook={getPromptProvenance:()=>({
+    sourceKind:'card-effect',sourceCard,effectName:'Underworld Door'
+  })};
+  assert.throws(()=>projectPrompt({
+    prompt,state,actorSeat:0,native:nativeAttach,store,provenanceHook
+  }),error=>error.code==='NO_ELIGIBLE_ATTACH_ENERGY_CHOICES');
+});
+
+test('InvitePlayerPrompt is not misclassified as a host-only two-player game prompt',()=>{
+  const state=makeState();
+  const prompt=basePrompt(InvitePlayerPrompt,state);
+  assert.throws(()=>projectPrompt({
+    prompt,state,actorSeat:0,native,
+    provenanceHook:provenance(prompt.sourceCard,'Invite player')
+  }),error=>error.code==='UNSUPPORTED_NATIVE_PROMPT');
+});
+
