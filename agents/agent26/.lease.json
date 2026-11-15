@@ -1,4 +1,7 @@
 {
-  "run_id": "6fe6ed7f-0cf5-4e38-aa25-617bee01eeb3",
-  "claimed_at": "2026-11-12T04:42:44Z"
+  "run_id": "agent26-059fc793138d365ab0a9e2e5",
+  "claimed_at": "2026-11-15T15:48:15.117318912Z",
+  "mode": "normal",
+  "roll": 6,
+  "previous_claim": "2026-11-12T04:42:44Z"
 }
