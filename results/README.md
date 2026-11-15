@@ -1,6 +1,6 @@
 # Fixed-60 decision board
 
-**Status — 14 November 2026:** no final fixed 60 selected; **zero competitively paper-qualified games**; no demonstrated 99.5% field win rate. The objective remains one unchanged, legal, playable 60-card paper **Expanded (Black & White onward)** deck against the complete Aichi Open League 2026 Top 32.
+**Status — 15 November 2026:** no final fixed 60 selected; **zero competitively paper-qualified games**; no demonstrated 99.5% field win rate. The objective remains one unchanged, legal, playable 60-card paper **Expanded (Black & White onward)** deck against the complete Aichi Open League 2026 Top 32.
 
 The archive of the previous detailed index is preserved at [decision-board-20261114-before-critic-reindex.md](archive/decision-board-20261114-before-critic-reindex.md). This page is deliberately a decision board, not a chronological run log. Put new atomic findings in their subject-area reports and update this page only when candidate status, field eligibility, execution gates, or competitive qualification materially changes.
 
