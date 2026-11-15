@@ -68,3 +68,16 @@ Do not patch the upstream submodule. Validate these with targeted pinned regress
 - **Static conclusions:** confirmed prompt coverage failures and source-code discrepancies.
 - **Not established:** runtime matchup outcomes, frequency of the effects, candidate win rates, or any 99.5% performance.
 - **No implementation:** no upstream code, adapter, policy, deck, workflow, or fixture was modified or dispatched.
+
+
+### Additional confirmed ranks 3, 8, 19 and 22
+
+A further pinned-source scan expands the confirmed subset:
+
+- **Rank 3 — Articuno-GX CES 31:** Legendary Ascent uses MoveEnergyPrompt with source/destination Pokémon and source Energy indices; the host/protocol have no energy-movement handler.
+- **Ranks 8, 19, 22 and 26 — Tapu Koko Prism Star TEU 51:** Dance of the Ancients uses AttachEnergyPrompt from discard, min 1/max 2, Bench-only, with `differentTargets:true`. The Underworld Door-only host path rejects it; the protocol lacks multi-assignment energy-attachment.
+- **Rank 19 — Raging Bolt ex TEF 123:** Bellowing Thunder uses DiscardEnergyPrompt through the pinned `DISCARD_UP_TO_X_ENERGY_FROM_YOUR_POKEMON` prefab, filtered to Basic Energy. The host/protocol have no energy-discard handler.
+
+Detailed evidence: `agent44-ranks3-8-19-22-26-energy-prompt-audit-20261115.md`.
+
+The confirmed field subset now includes ranks **3, 4, 8, 9, 17, 19, 22, 26 and 31**. This remains a partial audit, not a claim that every prompt in all 29 exact source lists has been inventoried.
