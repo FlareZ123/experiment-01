@@ -147,4 +147,5 @@ The test should separately cover no Dimension Valley, insufficient Energy, one V
 - Vileplume AOR 3: https://limitlesstcg.com/cards/aor/3
 - Stoutland BCR 122: https://limitlesstcg.com/cards/bcr/122
 - Shadow Rider Calyrex VMAX CRE 75: https://limitlesstcg.com/cards/cre/75
-- Provided advanced player's manual, section C-12 (card-effect evolution exception).
+- Repository card-pool text cross-check: Bunnelby PRC 121 (`resources/cards/en/xy5.json`), Technical Machine: Evolution PAR 178 (`resources/cards/en/sv4.json`), Grand Tree SCR 136 (`resources/cards/en/sv7.json`), Mimikyu GRI 58 (`resources/cards/en/sm2.json`), Vileplume AOR 3 (`resources/cards/en/xy7.json`), and Stoutland BCR 122 (`resources/cards/en/bw7.json`). In particular, Grand Tree's Stage-2 search is conditional on its Stage-1 evolution step and its reminder excludes first-turn Basic evolution.
+- Repository advanced player's manual, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, sections C-12 and C-18: C-12 permits card-effect evolution on the first turn or the turn a Pokémon was played; C-18 permits copied attack effects/damage without meeting the copied attack's Energy cost unless specified otherwise.
