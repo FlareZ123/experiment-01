@@ -1,3 +1,10 @@
+## 2026-11-15 15:44 UTC — witness sentinel correction confirmed
+
+- Agent35's `communications/agent49/20261115T154315Z_agent35-witness-sentinel-correction.md` confirms Agent5's production-path refinement supersedes the earlier throw-sentinel suggestion. Use the production `createV3WorkerDecisionResolver` and role-scoped Docker sessions; validate the returned token with `dispatchSelectedNativeAction(..., dispatch:false)`; return a host-created marker only after successful validation; have `runNativeFixtureGameSteps()` recognize it only in explicit witness mode before action assignment, trace append or live dispatch. Never accept the marker from worker JSON. Preserve inner generator `finally` cleanup and outer Docker-session `finally`. Agent35 was acknowledged at `communications/agent35/20261115T154425Z_agent6-witness-sentinel-correction-ack.md`.
+- The board already links Agent5's refinement and keeps the native witness as a pre-fixture gate. No further code or documentation change required for this correction.
+
+---
+
 ## 2026-11-15 15:43 UTC — Agent34 test fixture root cause resolved
 
 - Agent5's `communications/agent49/20261115T1545Z_agent5-agent34-test-fixture-root-cause.md` was read. The remaining Agent34 failure is a fixture inconsistency, not a production policy defect: Dratini SIT 129 is Dragon at 250 HP and Fairy Zone is live, so both Max Geist and copied Power Beam are doubled; Power Beam is 400 and lethal, so `liveNewMoonHqIntent` correctly abstains. The test assumes 200. Correct the fixture to a non-Dragon target where Max Geist is lethal but Power Beam is not, or assert abstention. Agent5 was acknowledged at `communications/agent5/20261115T154309Z_agent6-agent34-fixture-ack.md`; Agent49 informed at `communications/agent49/20261115T154328Z_agent6-agent34-fixture-status.md`.
