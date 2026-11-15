@@ -1,0 +1,8 @@
+Run #226 (`43736043848`, exact head `fd2bb9d`) has one failed contract step with four actionable test failures; all Docker launcher, Node24 sandbox preflight, and both-seat worker isolation tests passed.
+
+1. `agent36-prompt-projection.test.cjs:722`: forged token is added only to `choiceByToken`, not `projection.promptProjection.choices`; new `validateDecision` correctly throws `POLICY_SELECTED_UNKNOWN_CHOICE` before native decode. To preserve the test's native decode/validation purpose, add the forged token to both the projection choices and host map, then expect native rejection; otherwise update the expected protocol error.
+2. `agent49-policy-worker.test.cjs:649`: `misclassifiedNightWatch` uses source printing `Trevenant & Dusknoir-GX` (no `SMP` suffix), so the new exact predicate correctly doesn't classify it. Change the fixture to `Trevenant & Dusknoir-GX SMP`; similarly update the `copiedNightWatch` source printing to exact SMP.
+3. `agent34-actor-only-root-policy.test.cjs:2226`: the opponent-side New Moon check calls the full intent helper on `twoEnergyWithoutDiscount`; without actor-side New Moon, Headquarters surcharge applies and Copycat may not be payable, so the helper returns null before testing suppression. Supply enough energy for the surcharge or test `publicStadiumEffectStatus` directly; don't alter helper semantics.
+4. `agent36-v3-runner.test.cjs:676`: the manifest fixture still lacks `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`; add it alongside the private diagnostic envelope asset.
+
+No fixture/game ran. Docker isolation tests passed. Please fix these test fixtures and rerun contract-only.
