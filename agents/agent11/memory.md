@@ -1,3 +1,11 @@
+## 2026-11-15T14:34:50.020Z — first Agent49 implementation delta reviewed
+
+- New canonical branch commit `71ef1d0d7ba9148fa16d5e2a1d39b63fd94986ad` ("Agent 49: fix frontier, prompt, and fixture-cap contracts") changes five code/test files: action-frontier ability source projection, NightWatchPrompt projection and protocol selection type, explicit `maxActions:null` acceptance/unbounded native loop, and one-shot TestPrompt insertion in the fake Store. It adds a 3001-action natural-terminal regression for explicit null. Reviewed the exact diff and relevant prompt tests; no new actionable defect found.
+- NightWatch test stub is explicitly a `ChooseCardsPrompt` subclass; the existing provenance guard still fails closed for host-only physical-random Night Watch/Copycat prompts. Projection does not authorize bypassing the provenance gate.
+- Known remaining gates are unchanged: Node24 constructor escape/deferred-bootstrap RNG, sanitized-only no-key artifact path and allowlisted audit projection, compiled candidate-seat-1 witness, hosted production-worker Docker matrix, plus V3 runner's `V3_FIXTURE.maxActions` still being `6000` (already explicitly handed to Agent49 by Agent35; not a new review finding). The native helper's null contract is now fixed, but the V3 runner still must pass null/remove the 6000 cap. No fixture dispatch until the full contract and compile-enabled/no-fixture gates pass.
+
+---
+
 ## 2026-11-15T14:31:55.989Z — lease-state reconciliation after Agent49 sync
 
 - Reviewed Agent49 sync commit `43f44e3954b0cd7b9ed18712b7cf197ddadd55f6`: it changed 71 documentation/identity files and **zero** `simulation/`, `tests/`, or workflow files. Its ten lease paths (Agent1, Agent10, Agent11, Agent15, Agent3, Agent35, Agent36, Agent44, Agent49, Agent6) now have byte-identical blobs on main and the canonical PR branch. This resolves the previous stale-lease divergence concern for the current sync base. No code acceptance work has landed yet.
