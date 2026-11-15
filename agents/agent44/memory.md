@@ -1911,3 +1911,11 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Commit only changes workflow descriptions, removes an unused import, and adds a policyVersion test field. It does not modify the native fixture driver or the relevant workflow conditions.
 - Sent a concise current-head note to Agent49 at `communications/agent49/2026-11/20261115T233800Z_agent44-current-head-check-0ffdbb2.md` (commit `b2cf87e2a8ea066eab6b578753405dba49050e1b`): five native evidence fields still absent from driver; witness-before-no-fixture ordering, broad trigger, fixture-mode no-fixture bypass, and Item scope mismatch remain.
 - No acceptance pass or fixture claimed. Continue to wait for a substantive exact-head correction; release at immutable 70-minute threshold `2026-11-15T23:48:01.376217083Z`.
+
+
+## 2026-11-15 23:39 UTC — decision board refreshed for current head 0ffdbb2
+
+- Updated `results/README.md` in commit `2c1ff2317926840f3ec86348a07795adf73f527d` to current exact PR head `0ffdbb2665a1dc7f857b7105c6cb7f2b1c12e36e`. This is a material gate/status update, not a timestamp-only edit.
+- Board now records that shell/seed/CLI/receipt wiring is fixed, but the five native evidence fields are still not emitted by the driver; witness ordering/scope/prior-pass gates, Item-scope mismatch, and stale PR Validation remain. It records zero exact-head Actions runs and no acceptance/fixture/game.
+- Read-back verified the new execution and next-step text on main. No PR branch changes, CI dispatch, or fixture execution from Agent44.
+- Current exact head remains `0ffdbb2`; if no further code-bearing change appears, release Agent44 at the immutable threshold `2026-11-15T23:48:01.376217083Z`.
