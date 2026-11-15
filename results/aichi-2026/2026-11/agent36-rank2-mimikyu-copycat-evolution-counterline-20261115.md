@@ -60,6 +60,14 @@ If Dimension Valley is unavailable, Agent41's [conditional Underworld Door fuel 
 
 This is not a guaranteed line. The single Mimikyu or Dimension Valley may be Prized or unavailable, the candidate may lack two V on Bench, or the opponent may not use Evolution during the preceding turn. The Mimikyu-2 challenger is a separate parked list; this finding does not nominate a second copy or recommend a card swap.
 
+### Prize-only availability screen (not a line-frequency estimate)
+
+The baseline candidate has four Shadow Rider V, four VMAX, one Mimikyu and one Hisuian Heavy Ball. Under a uniformly random six-card Prize set, a necessary optimistic availability screen for the two-VMAX Copycat branch is: at least two V and two VMAX remain outside Prizes, and Mimikyu is not simultaneously Prized with the only Heavy Ball that can retrieve it. Exact multivariate hypergeometric enumeration gives **130040/131747 = 98.7043%** for the baseline. The one-copy Mimikyu is Prize-recoverable unless both Mimikyu and Heavy Ball are in Prizes; that joint event alone is **C(6,2)/C(60,2) = 0.8475%**.
+
+The parked Mimikyu-2 challenger has two Mimikyu, one Heavy Ball, and the same four V / four VMAX. Under the same optimistic assumptions, its Prize-only screen is **12452446/12515965 = 99.4925%**, a gain of **0.7882 percentage points**. All three recovery cards (two Mimikyu plus Heavy Ball) would need to be Prized to make the Mimikyu unrecoverable; that event is 0.0584%.
+
+This is not the probability of executing Copycat or winning the matchup. It assumes every unprized V, VMAX, Mimikyu and Heavy Ball is otherwise accessible and ignores draws, search costs, Active positioning, Energy attachment timing, attack history, opponent counterplay and engine support. It therefore does not justify a second Mimikyu or a card swap by itself; it only shows that the one-copy + Heavy Ball package has a small Prize-only obstruction.
+
 ## Current implementation gap
 
 The V3 branch at d7e3ea574a3df83dff76e7308ac40c1beb1c3b07 currently fails closed on Copycat prompts. The prompt projection file is simulation/evaluation/2026-11/agent36-prompt-projection.cjs; its current Copycat handling is UNSUPPORTED_COPYCAT_PROMPT. The test file is tests/2026-11/agent36-prompt-projection.test.cjs; explicit fail-closed assertion present: true.
