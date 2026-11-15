@@ -73,3 +73,15 @@ Do not add a blanket `CANNOT_PLAY_THIS_CARD` catch. Preferred fix: use the pinne
 The new compiled seat-1 witness file is run by the generic compile-enabled/default workflow path, not by `contract_only` and not by the `agent36_v3_fixture_game`-specific test list (that path syntax-checks it). After the exact-head contract-only/hosted-canary pass, run the existing no-fixture compile-enabled/default path on the same head before fixture authorization. No new workflow or fixture dispatch is required for that witness.
 
 The Copycat pair check currently matches the pinned producer's latest-`barragePairIndex` contract; the prior “later unpaired event invalidates pair” assertion is not a proven mismatch. Production runner still passes no prior-turn attack history, so keep Copycat fail-closed/unsupported in the first vertical slice.
+
+
+### Additional still-live P0: attached Forest Seal Stone after VSTAR use
+
+The same pinned action frontier has another exact used-ability rejection gap:
+
+- The research adapter's `abilityActions` adds every attached Tool power as a native `UseAbilityAction` without checking `player.usedVSTAR`.
+- The candidate 60 contains `Forest Seal Stone SIT 156`.
+- Pinned `ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/forest-seal-stone.ts` handles its `PowerEffect` by throwing `GameError(GameMessage.LABEL_VSTAR_USED)` once `player.usedVSTAR === true`.
+- Current `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` includes `POWER_ALREADY_USED` and `BLOCKED_BY_EFFECT`, but not `LABEL_VSTAR_USED`.
+
+After Star Alchemy is used, the next frontier build still enumerates it and validation can abort on this distinct pinned error. Add the exact `LABEL_VSTAR_USED` rejection to the appropriate ability family (or prefilter the already-used VSTAR power), with a compiled native regression that keeps another valid action in the frontier. This is distinct from the Dedenne-style `POWER_ALREADY_USED` case already added.
