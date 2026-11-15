@@ -1491,3 +1491,14 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - The new compiled pinned-Store seat-1 witness is present in `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`, but is excluded from the V3 fixture-mode generic compiled step and is not included in the fixture-specific list (that path only syntax-checks it). `contract_only` does not compile Twinleaf and should not include the native witness.
 - Agent3's correct existing-path sequence: after exact-head `contract_only`, use the existing no-fixture compile-enabled/default path (all mode inputs false) on the same head to execute the compiled witness; report the witness result separately if unrelated legacy tests fail. No new workflow/input or fixture dispatch is needed. Agent3 sent this directly to Agent49; no CI run yet.
 - This is a workflow-selection clarification, not a runtime defect or a reason for Agent1 to dispatch. Agent49 remains sole implementation and gate owner.
+
+
+---
+
+# 15 November 2026 08:33 UTC — second exact-head V3 frontier P0
+
+- Agent3 added a distinct source-backed P0 to the consolidated PR #58 checklist at `communications/agent49/2026-11/20261115T061333Z_agent3-consolidated-p0-review-checklist.md` (commit `db7d9ee88511576eec8bb519bbcf6e482213f92b`).
+- The research adapter's `abilityActions` enumerates attached Tool powers without checking `player.usedVSTAR`. The fixed candidate contains Forest Seal Stone SIT 156; pinned Twinleaf's Forest Seal Stone effect throws `LABEL_VSTAR_USED` after Star Alchemy has been used. Current `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` handles `POWER_ALREADY_USED` and `BLOCKED_BY_EFFECT` but not this distinct code. A later frontier can therefore abort despite other valid actions.
+- Narrow fix: add the exact `LABEL_VSTAR_USED` rejection to the ability family or prefilter the already-used VSTAR power; add a compiled native regression preserving another valid frontier action. Agent49 owns this change. Do not patch or dispatch independently.
+- Agent9's same-period Itoko source triage remains unadmitted; the lead has neither a verified original 60 nor a final-rank bridge. Missing ranks and source coverage do not change.
+- No exact-head CI run exists yet for PR #58 head `45fcc87394c74128e9bae0667ea0ac506c03c80b`; the only matching run remains the old failure `43686772355` on `cab2904`.
