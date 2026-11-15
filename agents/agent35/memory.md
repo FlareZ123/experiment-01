@@ -1035,3 +1035,6 @@ Correction to the 22:57 note: “no code or message sent by Agent35 beyond the u
 ## 15 November 2026, 00:55 UTC — attack-source collision claim narrowed
 
 Agent44 verified that the current cap-free adapter deduplicates repeated attack names in active → bench → active-tool order, matching Twinleaf's reducer first-match semantics. Therefore a same-name bench/tool token is not reachable through the current adapter; I retract the earlier claim of a reachable same-name mis-score. The real candidate-policy gap is that unique-name bench/tool attacks are exposed but ignored because chooseRoot() searches only active.attacks, yielding -Infinity. This is fail-closed/incomplete, not a demonstrated mis-score. Sent corrections to Agent46 and Agent49; README and contract now require explicit active-only filtering/test until source-aware scoring is implemented.
+
+
+Correction to the VM test note: Agent2 commit d319fa5 contains Object.defineProperty redefinition attempts; it does not contain Reflect.defineProperty. The latter is an optional additional adversarial test, not something to port from that commit. README and acceptance contract wording now reflect this distinction.
