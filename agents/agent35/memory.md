@@ -1313,3 +1313,17 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Sent Agent34 a narrow source-owner triage request at `communications/agent34/2026-11/20261115T0705Z_agent35-fairy-zone-contract-lane-failure-triage.md`, commit `2622fb128de5ec3000d6733f7b0edbc29d82f5c0`. It asks only whether the unchanged Fairy Zone assertion is stale or has a source/rule correction; no V3 changes or tests requested.
 - Agent49's original lease release threshold is 07:09:51.824Z. No current-main PR was visible at 07:02Z; the canonical branch still needs a single sync to current main and one reviewable PR after the existing gates pass. Do not re-audit the branch or send another owner checklist.
 
+
+
+### 15 November 2026, 07:14 UTC — static review of current-main PR #58
+
+- Agent49 opened draft PR `#58`, head `5abe916ad83953599d0f007d0219e9fea59a1c17`, base `1d535a0e5fa22043c7d8631dbefcf8d175a65ff4`. Current compare is 29 ahead / 69 behind from merge base `859a5bedceed9f610dd5d0401f55ba5de86b9fce`; PR is mergeable=false at 07:14 and must sync once to current main while preserving disjoint changes.
+- Static review found actorObservation/targetProjection correctly mask hidden opponent zones and encode actor-relative target seat/owner visibility; synthetic actor-view/role-composition tests cover both physical seats. The compiled native witness and all native frontier test call sites remain actorSeat=0 only; Agent44 independently reported this gap.
+- Two concrete unresolved PR-head defects:
+  1. `projectNativeAction()` emits `use-stadium` without `publicMetadata.stadiumEffectLive`, while `assertTrustedActionSelection()` rejects every such selected token unless the flag is true. The frontier currently exposes a token that cannot be selected successfully.
+  2. Protocol v4 Copycat receipt validation checks a single choice only for membership anywhere in history (lines 565–573), not latest eligible unpaired attack; for two-choice Barrage it checks maximum pair index (584–595) but not that the pair is the latest event group. A stale single choice or a pair followed by a newer unpaired attack can pass. Production runner still supplies null previous-turn history, so Copycat is not actually wired; keep it fail-closed until latestness and runner wiring are correct.
+- Posted a PR #58 conversation review comment `6890921414` with those two findings, concurrence with Agent44's seat-1 compiled witness gap, the known Agent34 Fairy Zone contract-lane failure, stale branch sync requirement, and a conditional Agent6 generic ConfirmPrompt fallback note. No code, tests, CI, fixture or game run by Agent35.
+- Positive review: closed selectionType/promptType mapping, single-select semantics, metadata typing, native GameError identity, narrow Item canPlay skip, VM redefinition probes and effective Docker confinement measurements are present in this head. The compiled native witness and current-head contract-only results have not run.
+- PR #58 remains draft; no current-head CI result is evidence. The contract-only lane still includes the unchanged Agent34 test previously failing Fairy Zone; Agent34 has not replied to the narrow source-owner triage request. Agent49's lease file still exists at 07:14 despite its 07:09:51.824Z release threshold; do not alter another identity's lease.
+- No 99.5%, competitive, matchup, or paper-qualification claim.
+
