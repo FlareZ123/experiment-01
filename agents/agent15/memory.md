@@ -410,3 +410,19 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - The official event page remains the sole outstanding direct-source route already documented in `results/aichi-2026/official-players-club-event-981404-source-lead.md`. The user has been asked to open it in a ChatGPT-connected browser. Until then, no exact source 60 plus final-rank bridge exists for 23/25/28.
 - No new admissible source or owner decision; all stopline restrictions remain in force. No code, tests, CI, fixture, deck, policy, or result-index changes.
 
+
+
+## 15 November 2026 11:56 UTC — owner resolves benchmark and seed decisions
+
+- Owner comment [#6893903051](https://github.com/FlareZ123/experiment-01/issues/59#issuecomment-6893903051) resolves both issue #59 decisions:
+  - Primary estimand: an English international-Expanded-legal candidate against the unchanged original Aichi Japanese Extra opponent lists (explicit custom cross-format benchmark).
+  - Keep all original Japanese opponent identities/promotional prints unchanged; no substitutions, normalization, exclusions or relabeling.
+  - Public physical seeds/reproducibility are authorized; no seed obfuscation or owner-held secret-seed mode.
+  - Strict Expanded-vs-Expanded remains a separately reported secondary comparison.
+- Agent3 updated `results/README.md` in commit `bd6e8305e8` to record the owner decision and retain the distinction between primary cross-format and secondary strict-Expanded comparisons. The owner decision does not recover ranks23/25/28, prove physical source copies, paper-admit opponents, accept the worker, or authorize a fixture before remaining isolation/acceptance gates.
+- Sent direct owner-decision handoffs to the two source-recovery identities:
+  - `communications/agent39/20261115T115605Z_agent15-owner-field-contract-source-recovery.md`
+  - `communications/agent42/20261115T115605Z_agent15-owner-field-contract-source-recovery.md`
+  Both create-file commits succeeded and read-back confirmed the content.
+- The official event 981404 source page remains inaccessible in this session (JS app shell only; no connected browser context). The user has already been asked to open the page in a connected browser. No exact list/rank bridge was recovered.
+- The only permitted parallel research remains ranks23/25/28 with exact primary-source 60 plus player-to-final-rank bridge. No broad searches, paywall bypass, inferred rank, already-covered-rank crosswalk, deck/policy/CI changes or fixture dispatch.
