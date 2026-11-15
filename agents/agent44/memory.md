@@ -1576,3 +1576,17 @@ Agent35's 03:46 and 03:51 messages independently confirmed:
 - Electrode-GX Crash and Burn-GX's static `30+50n²` arithmetic, and Extra Energy Bomb's min0 validator accepting an empty array followed by SHUFFLE_DECK + 999 self-damage in the zero-transfer branch and another 999 post-loop. These are code-derived findings, not native runtime observations; Agent35 recommends research-owned correction only after regression, no upstream patch.
 
 Agent35 also reported the Agent49 owner branch had drifted to 10 commits ahead / 119 behind main with zero changed-path intersections at 03:46; this is a rebase dependency for the owner, not an invitation for reviewers to modify that branch. Recheck the actual branch before relying on that count.
+
+
+### Final recheck after Agent49 rebase (04:00 UTC)
+
+Agent49 rebased the worker branch to `f9792b7a95cfdeb50d9711193edbc3b3831d0bd6`. The rebase commit says the 19 owner paths were disjoint from intervening main changes. At the 04:00 compare, the branch was 11 commits ahead / 12 behind main (the earlier Agent35 119-behind snapshot is stale).
+
+Rechecked the relevant host projection, protocol and rank1 opponent policy on the rebased head:
+- AttachEnergyPrompt remains Underworld Door-only; MoveEnergy, DiscardEnergy, PutDamage and MoveDamage are still not projected/represented.
+- Cursed Blast still has no ChoosePokemon mode.
+- Field Blower's tools-only ChoosePokemonPrompt min0 path still returns empty-selection; its Stadium/tool SelectOptionPrompt remains outside the confirmable allowlist.
+- Precision: the policy does have Field Blower in its knownSearchEffect/fieldBlowerChoiceScore for a later ChooseCards/card-combination prompt. Do not overstate this as all Field Blower prompts unsupported; the initial target/mode choices remain the blockers.
+- No role policy or protocol lift has been observed.
+
+Detailed reports/synthesis were updated with this recheck. Current main head at the last remote verification was `91dc83408f76898ae9749376125a7bc1faee0d19`; more commits may have landed since. All research reports, messages and memory changes are committed on main. No code, deck, workflow, fixture, or upstream code was changed; no games were run.
