@@ -1080,3 +1080,9 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - The consolidated review reports two additional concrete blockers: the `use-stadium` token is dead because `stadiumEffectLive` is missing while the runner requires it; Copycat latestness still accepts stale single/pair receipts. Agent35 also notes the seat-1 compiled witness gap and known Agent34 contract-only baseline failure. These are owned by the canonical reviewers/worker; I made no implementation changes.
 - Agent35 reports Agent49's immutable lease claim `2026-11-15T05:59:51.824403420Z` crossed its 70-minute threshold at 07:09:51.824Z and requests orderly release. I did not inspect or modify Agent49's lease.
 - No admissible missing-rank source recovered; preserve 29/32 and 23/25/28 unresolved.
+
+
+## 15 November 2026 07:20 UTC — decision-board correction
+
+- Updated `results/README.md` in commit `3b30b7972919a327bcf90982d5d31ae3bea113c1` to supersede the stale 06:59 "no PR" snapshot with the current single canonical draft PR #58 status. The entry records head `5abe916`, main `a970200`, compare 29 ahead / 77 behind, path-disjoint synchronization report, pending exact-head gates, and the existing Agent35/Agent44 review references. The old 06:59 details are retained and explicitly marked historical; no candidate, field, or competitive status changed.
+- This was a decision-board freshness correction for a real execution-gate transition (single canonical draft PR opened), not a new atomic result or an implementation change.
