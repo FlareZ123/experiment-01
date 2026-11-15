@@ -571,10 +571,106 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectAttachEnergyPrompt({
+  prompt,state,actorSeat,native,store,source,choices,choiceByToken
+}={}){
+  const actor=state.players[actorSeat];
+  const supportedSource=source?.sourceKind==='card-effect'&&
+    source.effectName==='Underworld Door'&&
+    typeof source.sourcePrinting==='string'&&
+    source.sourcePrinting.startsWith('Shadow Rider Calyrex VMAX CRE');
+  if(!supportedSource){
+    throw Object.assign(new Error('AttachEnergyPrompt is not from the pinned Underworld Door source'),{
+      code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE'
+    });
+  }
+  assert.ok(store&&typeof store.reduceEffect==='function',
+    'AttachEnergyPrompt projection requires the native Store dynamic-type evaluator');
+  assert.ok(typeof native.CheckPokemonTypeEffect==='function'&&
+    native.EnergyCard&&native.EnergyType&&native.CardType&&native.SuperType&&
+    native.PlayerType&&native.SlotType,
+    'pinned AttachEnergyPrompt projection bindings are incomplete');
+  const exactPrompt=prompt.message==='ATTACH_ENERGY_TO_BENCH'&&
+    prompt.cardList===actor.hand&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    prompt.filter?.energyType===native.EnergyType.BASIC&&
+    prompt.filter?.name==='Psychic Energy'&&
+    prompt.options?.min===1&&prompt.options?.max===1;
+  if(!exactPrompt){
+    throw Object.assign(new Error('AttachEnergyPrompt does not match the pinned Underworld Door contract'),{
+      code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SHAPE'
+    });
+  }
+
+  const energies=cardListCards(prompt.cardList).filter(card=>
+    card instanceof native.EnergyCard&&
+    card.energyType===native.EnergyType.BASIC&&
+    card.name==='Psychic Energy'&&
+    Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC));
+  const psychicBench=[];
+  for(let index=0;index<actor.bench.length;index++){
+    const slot=actor.bench[index];
+    const pokemon=slot?.getPokemonCard?.();
+    if(!pokemon)continue;
+    const effect=new native.CheckPokemonTypeEffect(slot);
+    store.reduceEffect(state,effect);
+    if(Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(native.CardType.PSYCHIC)){
+      psychicBench.push({index,pokemon});
+    }
+  }
+  if(energies.length===0||psychicBench.length===0){
+    throw Object.assign(new Error('Underworld Door AttachEnergyPrompt has no eligible actor-owned Psychic Energy/Bench assignment'),{
+      code:'NO_ELIGIBLE_ATTACH_ENERGY_CHOICES'
+    });
+  }
+
+  for(const target of psychicBench){
+    for(const energy of energies){
+      const rawResult=[{
+        to:{player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:target.index},
+        card:energy
+      }];
+      addChoice(choices,choiceByToken,rawResult,{
+        kind:'energy',
+        printing:printing(energy)??energy.name,
+        label:'Attach '+(printing(energy)??energy.name)+' to Bench '+(target.index+1)+
+          ': '+(printing(target.pokemon)??target.pokemon.name??'Psychic Pokemon'),
+        publicMetadata:{
+          sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+          energyType:'BASIC',zone:'bench',choiceIndex:choices.length,selectedCount:1
+        }
+      },prompt,state);
+    }
+  }
+  if(prompt.options?.allowCancel===true){
+    addCancelChoice(choices,choiceByToken,prompt,state);
+  }
+  if(choices.length===0){
+    throw Object.assign(new Error('No Underworld Door assignment passed native prompt validation'),{
+      code:'NO_VALID_ATTACH_ENERGY_CHOICES'
+    });
+  }
+  return {
+    selectionType:'energy-attachment',
+    count:choices.length,
+    minimumCount:1,
+    maximumCount:1,
+    allowCancel:prompt.options?.allowCancel===true,
+    sourceZone:'hand',
+    ownerSeat:'actor',
+    isOwnerVisible:true,
+    energyType:'BASIC',
+    zone:'bench'
+  };
+}
+
 function hostOnlyPrompt(prompt, provenance) {
   const name = prompt?.constructor?.name ?? '';
   if (['CoinFlipPrompt', 'ShuffleDeckPrompt', 'ShuffleHandPrompt', 'WaitPrompt',
-    'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt', 'InvitePlayerPrompt'].includes(name)) {
+    'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt'].includes(name)) {
     return { hostOnly: true, reason: name };
   }
   // Night Watch's physical random selection is host-owned only for the exact
@@ -681,7 +777,7 @@ function resolveHostOnlyPrompt({
   };
 }
 
-function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}) {
+function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -715,6 +811,11 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
       break;
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
+      break;
+    case 'AttachEnergyPrompt':
+      publicMetadata=projectAttachEnergyPrompt({
+        prompt,state,actorSeat,native,store,source,choices,choiceByToken
+      });
       break;
     default:
       publicMetadata = projectSimplePrompt(prompt, state, choices, choiceByToken);
