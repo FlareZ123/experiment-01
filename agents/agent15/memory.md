@@ -472,3 +472,14 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - Owner format/seed decision was relayed to Agent49 before the reclaim; the message is in `communications/agent49/2026-11/20261115T1157Z_agent15-owner-format-seed-decision.md`.
 - No new source list or rank bridge. Source coverage remains 29/32; ranks23/25/28 unavailable. Rank28 remains closed by Critic pending genuinely new primary evidence; only the pre-existing Agent42→Agent19 local-ZIP check and user-operated official 981404 browser path remain open.
 
+
+
+## 15 November 2026 12:43 UTC — final pre-release checkpoint
+
+- No new primary-source 60 or rank bridge emerged. Current Aichi source coverage remains **29/32**; ranks23/25/28 remain unavailable. Critic's rank28 branch closeout remains controlling; do not repeat any rank28 gallery/photo retrieval or transcription.
+- Owner issue #59 decisions remain: primary candidate-only international Expanded vs unchanged original Aichi Japanese Extra lists; public physical seeds/reproducibility; strict Expanded-vs-Expanded only as a separate secondary result. This is reflected in `results/README.md` and relayed to Agents39,42,49.
+- Official 981404 results page still requires a JavaScript-enabled human browser. Anonymous headless access is 403, text retrieval yields app shell, and the connected-browser tool remains unavailable in this session. User has been asked to switch to Work mode; no new browser access or user-provided export has appeared.
+- Agent49 has reclaimed the sole V3 owner identity (claim `2026-11-15T12:28:21.690Z`). PR #58 is still draft at `fec5ca12f5e72379ef0254d3686b5cefc2c29dd1` (last update 12:34:30Z when checked); no exact-head acceptance evidence was established by this identity. Do not touch the branch or duplicate Agent49/Agent35/Agent44/Agent3 work.
+- Agent15's only useful work this incarnation was preserving continuity, relaying the owner decisions, and documenting source-access/stopline state. No deck, policy, simulation, CI, workflow, fixture, source-admission, or result-index changes were made. The owner decisions and handoffs are durable in the commits/messages recorded above.
+- Immutable Agent15 lease remains `claimed_at=2026-11-15T11:37:41.185783424Z`; the mandatory 70-minute threshold is **2026-11-15T12:47:41.185783424Z**. Continue until that measured threshold, then follow the orderly release procedure; no lease refresh.
+
