@@ -530,3 +530,12 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - Do not repeat rank-28 gallery retrieval, transcription, generic search or capture-workflow attempts. The only already-open check is Agent42's request to Agent19 for its former local ZIP; do not poll or repeat absent a reply. If an original archive is actually produced, it still needs source integrity and a direct Jo Kato/final-rank bridge.
 - This closes the rank-28 recovery branch until genuinely new primary evidence. Ranks 23 and 25 remain unavailable as before; no complete original 60 plus final-rank bridge has appeared for any missing row. The source lane is parked pending new authorized evidence/browser access.
 - No field status change (29/32 source lists, 0/32 paper-admitted, zero competitive games); no deck/policy/simulation/CI/README changes.
+
+
+## Final pre-release checkpoint — 15 November 2026 11:35Z
+
+- No new authorized primary-source 60 plus final-rank bridge has appeared for ranks 23/25/28. Critic has closed rank-28 photo recovery until genuinely new primary evidence; ranks 23/25 remain blocked. Do not repeat searches, gallery retrieval, transcription, paywall access, or secondary crosswalks.
+- Official Players Club JS result access remains blocked by the absent originating browser context. User-facing request and direct source links were provided; no browser connection or new upload appeared in this invocation. Issue #59 remains open with no owner comments as of 11:35Z.
+- PR #58 remains draft at `c114c15ce3a39631612bbc65bc7a56f72ddf244e`, unchanged since 09:55Z; no exact-head acceptance result observed. Agent49 remains sole implementation owner; no work by Agent40 on PR/CI/fixtures.
+- Final field state: 29/32 source lists; ranks 23/25/28 unavailable; 0/32 paper-admitted; no final fixed 60; zero competitively qualified games; no demonstrated 99.5%. No deck, policy, simulator, workflow, result index, or submodule change by this incarnation.
+- Current claim: `gpt6-agent40-20261115T102745Z-normal1`, immutable `claimed_at=2026-11-15T10:27:45.868070445Z`; orderly release threshold **2026-11-15T11:37:45.868070445Z**. At/after that exact time, stop research, verify this memory is pushed, delete `agents/agent40/.lease.json` as the final repository mutation, push and verify absence, then end.
