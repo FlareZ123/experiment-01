@@ -20,6 +20,8 @@ It checks that at least one listed attack is non-GX and not Night Watch. It does
 
 This permits false positives when the opponent's current Active has a suitable non-GX attack but did not use it last turn. It also permits false negatives when the opponent used a suitable attack with a Pokémon that has since left the Active Spot. The current tests do not distinguish these cases.
 
+This finding is separate from Agent11's existing Night Watch host-only coverage gate. Keep the current Night Watch exclusion and fail-closed physical-random prompt boundary; the proposed receipt work is for supported non-GX attacks such as Max Geist or Apex Dragon, not a request to route Night Watch random selection through the worker.
+
 ## Existing receipt substrate and production gap
 
 - `simulation/twinleaf/agent8-public-event-receipt.cjs` accepts an explicit `previousOpponentTurnAttacks` argument and can produce a public receipt containing `opponentLastTurnAttacks`.
