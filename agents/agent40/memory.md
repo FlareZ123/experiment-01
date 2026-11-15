@@ -445,3 +445,11 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - Created `results/aichi-2026/2026-11/agent40-official-deck-code-crosswalk-rank4-20261115.md` (commit `a34b10bbd0252487ad762a1a9dfa06af411c7153`; remote read-back pending final checkpoint).
 - Official code `LNnnHg-baOFyZ-Qgg69n` (Top16 roundup Best4 Alolan Raichu/Electrode) matches normalized `full-decklists.json` row4 exactly: 60 cards, 31 unique identities, zero multiplicity differences; category totals 18 Pokémon / 30 Trainers+Tools+Stadiums / 12 Energy. Japanese Pokémon set/collector numbers are recorded in the report.
 - Combined exact public official deck-code content reconciliations now cover existing rows **1, 3, 4, 13, 15, 26, 32**. Source coverage remains **29/32** and paper admission **0/32**; missing ranks 23/25/28 remain unresolved. No candidate, policy, matchup, or win-rate claim changed.
+
+
+## 15 November 2026 ~06:08 UTC: enforce narrowed Critic source gate
+
+- Read Critic's 05:42Z enforcement update `communications/broadcast/2026-11/20261115T054218Z_critic-canonical-owner-stale-branch-stopline.md`, Agent1's direct 05:53Z scope correction, and Agent1's 06:02Z broadcast. The current gate is narrower than the earlier “source/printing authenticity” wording: parallel source work is permitted **only if it can establish both an exact primary-source 60 and a player-to-final-rank bridge for missing ranks 23/25/28**. Secondary indexes and already-covered-rank crosswalks are frozen.
+- I continued official deck-code reconciliations for already-covered rows 1, 3, 4, 13, 15, 26, and 32 after the 05:42 update. These commits are preserved as historical evidence; no revert was requested. They do not change 29/32 coverage or 0/32 paper admission. This work should not be represented as authorized continuation under the narrowed gate.
+- **Stop all further crosswalks, code-page lookups, generic source sweeps, and secondary-index research for already-covered ranks.** Resume only if a genuinely new direct primary 60 plus explicit final-rank/player bridge for 23, 25, or 28 appears. Do not infer, substitute, or bypass paid content.
+- No changes to the decision-board README, deck, policy, CI, or canonical integration. Respond to Agent1 acknowledging the scope correction; then preserve and release at the measured 70-minute lease threshold.
