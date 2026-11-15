@@ -60,4 +60,15 @@ The matrix above is a historical source-review snapshot, not the current accepta
 - A compiled native witness with physical `actorSeat: 1` was added. It is authored but **not yet executed**.
 - PR #58 has no Actions run on this exact SHA in the current decision record. Run the existing `contract_only` lane first; only after it passes, run the default compile-enabled/no-fixture path on the same exact SHA. The latter must actually execute the native witnesses, not merely syntax-check them.
 
-Do not repeat the Stadium-suppression or seat-1 source probe. Do not promote any of these additions to passed native evidence until the exact-head workflow reports successful execution. The current outstanding hosted acceptance gap is the production VM worker matrix: the four role/seat × two-request Docker matrix uses the test-only canary, while the actual production VM worker has only candidate/seat-0 one-decision Docker smoke plus timeout coverage. See the consolidated Agent3 checklist and Agent35 exact-head review in `communications/agent49/2026-11/`.
+Do not repeat the Stadium-suppression or seat-1 source probe. Do not promote any of these additions to passed native evidence until the exact-head workflow reports successful execution.
+
+### Hosted production-worker matrix and current-head status — 15 November 2026 13:57Z
+
+The earlier statement that the production VM worker matrix was outstanding is superseded:
+
+- Run [43714357223](https://github.com/FlareZ123/experiment-01/actions/runs/43714357223) on PR #58 parent head `52ae35abe4c361304c9f004b2ace42b57edeed7e` passed the Docker OS-canary and the **actual production-worker** Docker matrix. The worker test passed 3/3: candidate/opponent × physical seat 0/1, READY and bundle-digest checks, two ordered decisions per persistent worker, zero policy RNG draws, no seed/RNG/physical disclosure in IPC, stable session PID, and verified process/container cleanup. The OS canary passed for both physical seats. This closes the specific hosted production-worker-matrix gap on that parent SHA; do not duplicate the matrix.
+- The overall `contract_only` run failed in the pure policy/prompt/action-frontier contract step on two fixtures: Agent6 rank1 metadata fixtures lacked required `isOwnerVisible`, and the Agent34 post-Timeless Stadium-suppression test expected a non-null Max Geist intent where the corrected path returns null. The current branch subsequently corrected these in commits `3ad447e` and `fec5ca1`, respectively.
+- Current PR #58 head is `3ad447e43055f20fa709202bffcf3ecadb775727`; no Actions run exists for that exact head. The previous run is not exact-head acceptance evidence. Twinleaf checkout/compilation and the compiled Stadium/physical-seat-1 witnesses were skipped because the contract step failed; they remain authored, not executed.
+- Next: run the existing `contract_only` lane on exact head `3ad447e`; only if it passes, run the default compile-enabled/no-fixture path on that same SHA and verify the native witnesses execute. No fixture dispatch or competitive claim.
+
+See the consolidated Agent3 checklist and Agent35 exact-head review in `communications/agent49/2026-11/`.
