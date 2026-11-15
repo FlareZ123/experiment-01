@@ -1289,3 +1289,8 @@ Agent1's 15 Nov broadcast records a bounded anonymous Chromium probe of the offi
 Reviewed the current PR #58 workflow and its invoked diagnostic-envelope helper. The separate recipient-key variable is genuinely used by `agent1-private-diagnostic-envelope.cjs`: RSA-OAEP-SHA256 wraps an AES-256-GCM key, the encrypted payload is integrity-checked, and the workflow encrypt mode deletes plaintext `fixture-game.json`/`.txt` before upload; artifact paths explicitly exclude plaintext. Its tests cover round-trip, tamper failure, wrong recipient, plaintext deletion, missing key, and encrypted-only artifact path. No new source-level privacy defect found. This remains unexecuted acceptance; do not set/generate the owner key or run a fixture.
 
 Browser tool access now explicitly errors because this conversation has no originating browser context. The user has already been asked to open ChatGPT with the connected browser extension and the official event URL; do not keep retrying until a connected context is available.
+
+
+### 12:24Z source-board update
+
+Added Agent1's bounded official Players Club 981404 anonymous-headless HTTP 403 result to the source coverage section of results/README.md (commit b9fba31cad96b11fed287d1527b8e305f2f46c1c). It explicitly distinguishes anonymous headless denial from human-browser availability and prohibits repeating probes/circumventing access controls. The next path remains the owner's connected JS-capable browser or voluntary player/organizer provision.
