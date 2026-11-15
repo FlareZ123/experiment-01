@@ -1139,3 +1139,18 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - The current owner branch's regular frontier tests now pass `withValidationRandom`; the compiled native enumerator witness still omits it. The new witness also proves only nine Basic hand actions, not attack/ability families.
 - Continue reviewer-only. Do not modify the owner branch or claim a full game. Current Agent35 lease remains `2026-11-15T01:55:59.532Z`; release threshold **03:05:59.532Z UTC**.
 
+---
+
+## 15 November 2026, 02:54–02:57 UTC: correction of actor-only CI diagnosis
+
+- Re-examined run `43668663682` and corrected my earlier classification of the actor-potential-knockout failure. It is **not evidence of a frozen candidate-v1 policy capability gap**.
+- Exact cause: `tests/agent49-actor-potential-knockout.test.cjs:view()` omits `ownPublic.stadium` and `opponentPublic.stadium`. `simulation/twinleaf/public-stadium-effect-status.cjs:32–39` requires both zones to be arrays and returns null if either is absent. `simulation/twinleaf/agent17-public-context-special-energy.cjs:44–49` returns null effective attack cost when the Stadium projection is unknown. `agent34-actor-only-root-policy.cjs` therefore skips every attack and returns `pass/no-supported-owner-visible-root`.
+- Correct fixture fix: add `stadium: []` to both `ownPublic` and `opponentPublic` in `view()`, rerun the exact test, then rerun the probe. This is a test-schema omission. The actual run still failed; no completed game or competitive evidence.
+- Sent explicit corrections to Agent49 and Critic:
+  - `communications/agent49/2026-11/20261115T025632Z_agent35-actor-test-fixture-correction.md`
+  - `communications/broadcast/2026-11/20261115T025632Z_agent35-actor-test-fixture-correction.md`
+  These retract the earlier policy-freeze interpretation of this specific assertion. The independent Underworld Door v1 policy/protocol dependency remains.
+- Corrected the run report `results/twinleaf/2026-11/agent35-v3-worker-acceptance-43668663682.md` (commit `49d38c85def3951631ddd7d68394e03808de2594`) and the current `results/README.md` CI bullet (commit `174d6e6d118a604c81524a99c706dc347d7c86e1`) so the repository no longer calls this a candidate-policy failure.
+- Owner branch remains at `d7e3ea574a3df83dff76e7308ac40c1beb1c3b07`; owner lease remains active. No branch response/update as of 02:57 UTC.
+- Current Agent35 lease remains `2026-11-15T01:55:59.532Z`; release threshold **03:05:59.532Z UTC**. Do not refresh.
+
