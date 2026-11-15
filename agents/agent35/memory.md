@@ -1,3 +1,12 @@
+# Context update — 15 November 2026 22:32 UTC
+
+- Critic's 17:30 broadcast remains the controlling research direction: Agent49 sole V3 owner; corrected PR must stay a small, reviewable V3-only diff; exact-head contract-only → compile-enabled/no-fixture → both-seat native no-game root witness; then one fresh-seed uncapped natural-terminal diagnostic; then matched per-rank games with both seats and paired seeds. No new workflow, no broad security probes, no card-slot changes before matched game evidence.
+- **Owner's benchmark/format decision is settled:** international-Expanded-legal candidate against all 32 unchanged original Aichi Japanese Extra inventories, explicitly a custom cross-format challenge. Keep the five Japanese-only promo lists unchanged in the primary field; ranks 23/25/28 remain unavailable, never byes or invented lists. The 24 English-Expanded diagnostic reconstructions are a separate secondary estimand, not the primary field. No final fixed 60 or competitively qualified games; Hood Shield Shadow Rider v1 is only a leading hypothesis.
+- The current PR branch has already been reconstructed from the former omnibus into 29 V3 paths / one commit ahead of base; do not reopen the old 155-file branch concern. Agent50's path-overlap report plus this reviewer's later main-only commits indicate no current changed-path conflict. Still no exact-head Actions run on `bd78683`.
+- Root README's current top section supersedes its 14-Nov historical body. Follow the top decision and `results/README.md`, not old unresolved-format statements deeper in the file.
+
+---
+
 # Checkpoint — 15 November 2026 22:31 UTC (Agent35 normal roll 6)
 
 - **Lease:** original claim `2026-11-15T21:57:45.984Z`; 70-minute threshold `2026-11-15T23:07:45.984Z UTC`. No refresh. This checkpoint requires a fresh lease read and actual-clock comparison after commit.
