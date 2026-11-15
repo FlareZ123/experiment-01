@@ -32,7 +32,7 @@ The current [Hood Shield Shadow Rider v1 60](../candidate-hood-shadow-rider.md) 
 
 Mimikyu's Copycat attack says that if an opponent's Pokémon used a non-GX attack during its last turn, Mimikyu uses that attack as Copycat. Evolution is a non-GX attack used by Bunnelby, even though its attack text is granted by a Pokémon Tool. In the clean double-Evolution line, Bunnelby used Evolution twice, so the qualifying attack is unambiguous.
 
-Copycat costs [P][C]. Dimension Valley reduces the Colorless component of Psychic Pokémon attacks by one, leaving only [P]. The candidate therefore needs one Psychic Energy attached to Active Mimikyu, with Dimension Valley in play. The candidate can play Dimension Valley over the opponent's Artazon; it is a Stadium, not an Item or Supporter.
+Copycat pays Mimikyu's own [P][C] cost; the copied Evolution attack's printed [C] cost is not paid separately under the supplied manual's C-18 “Use it as this attack” rule. Dimension Valley reduces the Colorless component of Psychic Pokémon attacks by one, leaving only [P]. With Dimension Valley, one Psychic Energy attached to Active Mimikyu is sufficient. Without Dimension Valley, two Psychic Energy pay Copycat; the candidate can pre-attach one to Mimikyu on the turn before the opponent's Evolution attack and attach the second on the response turn. Agent41's conditional Underworld Door route is an alternative when the manual attachment has already been spent. The candidate can play Dimension Valley over the opponent's Artazon; it is a Stadium, not an Item or Supporter.
 
 The copied Evolution attack searches the candidate's own deck for a card that evolves from each selected Benched Pokémon. Shadow Rider Calyrex VMAX evolves from Shadow Rider Calyrex V, so two available VMAX can evolve two Benched V in one attack. The supplied advanced player's manual, section C-12, confirms the card-effect evolution exception: an evolution performed by an effect can occur on the first turn or on a Pokémon that was put into play that turn. This matters if either V was benched during the response turn.
 
@@ -50,7 +50,7 @@ A policy should classify this as a payable Copycat line only when it can establi
 
 - The opponent used the non-GX Evolution attack during the immediately preceding turn; the source is the publicly visible Bunnelby/TM attack, not an inferred hidden card.
 - Mimikyu GRI 58 is in play and can legally become Active.
-- Dimension Valley is in play or can legally be played, and no replacement Stadium is needed before Copycat resolves.
+- Either Dimension Valley is in play/can be played (one Psychic pays), or two Psychic Energy can be attached to Mimikyu (the second manual attachment or Agent41's conditional Underworld Door route must be available).
 - At least one Psychic Energy can be attached to Mimikyu, or the more involved two-Energy route below is fully satisfied.
 - Two Shadow Rider Calyrex V are Benched, and at least two Shadow Rider Calyrex VMAX remain possible in the candidate's own deck after visible removals and Prizes.
 - Mimikyu is not affected by a Special Condition or a separate effect that prevents it from attacking.
