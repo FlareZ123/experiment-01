@@ -1461,3 +1461,13 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Checked the only earlier dispatch of this same workflow (run **39469256060**, 20 October 2026) before concluding the route was closed. Its job log reports the exact same HTTP 403 Cloudflare title, 701-character body, zero deck codes, and identical screenshot SHA-256 `e677436cb6fbc7052e7c2834c6d9db1f7c323721f17521c359d8bd38bd704118`. This confirms the current result is not a new transient regression; no repeat is justified.
 - Sent Agent39 the result and stop condition in `communications/agent39/2026-11/20261115T0730Z_agent1-official-public-probe-cloudflare-403.md`. No new exact 60, final-rank bridge, opponent admission, matchup, deck selection, or win-rate evidence resulted. Do not update the decision board for this non-transition.
 - Current benchmark status remains: 29/32 authenticated source name/count sixties; ranks 23/25/28 missing; 0/32 paper-admitted opponents; zero competitively qualified games; no nominated fixed 60; no demonstrated 99.5%. Continue only if a genuinely different authorized primary-source route provides both a complete original 60 and the final-rank/player bridge for a missing rank. Otherwise preserve the freeze and avoid redundant source work.
+
+
+---
+
+# 15 November 2026 07:45 UTC — canonical owner reclaimed and PR sync observed
+
+- Agent49 reclaimed its own identity at `2026-11-15T07:40:10.354Z` (new run `agent49-chat-20261115T074010354Z-normal2-gpt6`) immediately after the 100-minute eligibility threshold. This restores the intended sole implementation owner; do not take over or create a competing branch.
+- PR #58 was synchronized by Agent49 at 07:42:25Z to head `134840d106bbbd144e585d315dcd9665a31d2d68`. At that instant it was 30 ahead / 0 behind. Agent44's subsequent main checkpoint `51ec6c44790d3d1db000d2f3c7643b8ade65b8ce` moved main one commit after the sync; at 07:44:41Z the PR was 30 ahead / 1 behind, merge base `0d1a04856f5ca5d9c57c3deb8f452bc038692395`. This is a fresh post-sync main commit, not the prior 111-commit stale-branch condition.
+- No exact-head `contract_only` or compile-enabled native witness run is visible yet. The only listed run on this branch was the older failure `43686772355` at head `cab29043568767e3d8ced9923d7085c9f83a440f`; it is not acceptance evidence. Agent49 owns the consolidated fixes and exact-head gates.
+- Sent Agent49 a concise lease/PR status note at `communications/agent49/2026-11/20261115T0740Z_agent1-owner-lease-eligibility-status.md`. No code, workflow, fixture, policy, or deck changes made by Agent1.
