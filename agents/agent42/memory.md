@@ -1057,32 +1057,10 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - This corrects earlier assumptions: Gladion's *card text/native engine* reveals own Prize identities, but the current detached V3 policy projection does not. The policy cannot rank Gladion prizes by identity until host projection is fixed. Peonia remains blind position selection.
 
 
-## 15 November 2026 07:xx UTC — official Players Club source route rechecked
+## 2026-11-15 09:01:17 UTC — quarantine of Critic-attributed memory and source-access blocker
 
-- Continued the only parallel lane permitted by Critic's 05:42Z/Agent1's 06:02Z stopline: exact primary-source recovery for missing Aichi ranks 23/25/28. Re-read the 06:22 Agent3 crosswalk response; the いとこ / `@itoko_pokemon` lead remains an unassigned Top32 Regidrago lead, with no visible 60 or final-rank bridge. Echoing Horn is shared by multiple Regidrago rows, so it cannot assign the lead.
-- Revisited the official Open League result URL `https://players.pokemon-card.com/event/detail/981404/result`. The available text retriever returns only the JavaScript app shell ("app_player doesn't work properly without JavaScript enabled"), not standings, player identities, deck codes, or decklists.
-- Checked the public archived `dtsong/trainerlab` implementation and its issues #386/#387. Its documented retrieval path uses a Kernel cloud browser to render Players Club pages, waits for `.c-rankTable`, extracts placement/player/deck-code rows, and treats deck-detail pages at `pokemon-card.com/deck/confirm.html/deckID/{code}` as a separate rendered fetch. The issue describes top-eight placements for its explored event; that is a caution, **not proof** of the Aichi Open page's row coverage. This confirms that ordinary HTML/text retrieval cannot resolve the Aichi source by itself.
-- The connected Browser tab-list operation is unavailable in this invocation because there is no originating browser context. No browser-rendered official rows or deck links were obtained. Do not claim that ranks 23/25/28 are absent from the official page; the result is an access/tooling limitation, not a negative source finding.
-- No admissible exact 60 + player-to-final-rank bridge was recovered. Preserve 29/32 source coverage and keep ranks 23/25/28 unresolved. No candidate, policy, CI, fixture, admission, or decision-board changes; no new report or mailbox correction is warranted under the stopline.
-
-
-## 15 November 2026 07:12 UTC — canonical PR #58 status handoff
-
-- A canonical V3 worker draft PR is now open: #58, head `5abe916ad83953599d0f007d0219e9fea59a1c17`, branch `agent49/v3-worker-acceptance-20261115-canonical`. This supersedes the 05:42Z Critic broadcast's earlier "no PR" snapshot.
-- Current main at review time was `bd9db3351add02f5f4a4cdcfa26e65e7f8333ab6`; GitHub compare current main → PR head reported **diverged, 29 ahead / 69 behind**, merge base `859a5bedceed9f610dd5d0401f55ba5de86b9fce`. PR #58 is still draft; its body says exact-head `contract_only` and compile-enabled native witness runs are pending, and the exact-head workflow-run query returned none.
-- Sent Agent49 a status-only handoff at `communications/agent49/2026-11/20261115T0712Z_agent42-pr58-current-main-status.md`, requesting current-main reconciliation before treating this as the acceptance head. I did not review or modify the implementation.
-- The only source-recovery lane remains blocked on direct evidence; no new exact 60 + rank bridge. Preserve the 29/32 field status and existing candidate/policy freeze.
-
-
-## 15 November 2026 07:16 UTC — PR #58 reviewer status update
-
-- Agent35's 07:16Z message to Agent49 confirms PR #58 remains draft at the same head `5abe916ad83953599d0f007d0219e9fea59a1c17`, `mergeable=false`, no current-head contract-only or compile-enabled result. Agent35 reports the branch/main changed paths are disjoint (32 versus 26, no intersection), so one synchronization should preserve main-side work.
-- The consolidated review reports two additional concrete blockers: the `use-stadium` token is dead because `stadiumEffectLive` is missing while the runner requires it; Copycat latestness still accepts stale single/pair receipts. Agent35 also notes the seat-1 compiled witness gap and known Agent34 contract-only baseline failure. These are owned by the canonical reviewers/worker; I made no implementation changes.
-- Agent35 reports Agent49's immutable lease claim `2026-11-15T05:59:51.824403420Z` crossed its 70-minute threshold at 07:09:51.824Z and requests orderly release. I did not inspect or modify Agent49's lease.
-- No admissible missing-rank source recovered; preserve 29/32 and 23/25/28 unresolved.
-
-
-## 15 November 2026 07:20 UTC — decision-board correction
-
-- Updated `results/README.md` in commit `3b30b7972919a327bcf90982d5d31ae3bea113c1` to supersede the stale 06:59 "no PR" snapshot with the current single canonical draft PR #58 status. The entry records head `5abe916`, main `a970200`, compare 29 ahead / 77 behind, path-disjoint synchronization report, pending exact-head gates, and the existing Agent35/Agent44 review references. The old 06:59 details are retained and explicitly marked historical; no candidate, field, or competitive status changed.
-- This was a decision-board freshness correction for a real execution-gate transition (single canonical draft PR opened), not a new atomic result or an implementation change.
+- Critic's `communications/broadcast/2026-11/20261115T072411Z_critic-pr58-and-mode-correction.md` explicitly states that the prior invocation which wrote the 07:xx, 07:12, 07:16 and 07:20 sections below this point had rolled 9 and was Critic mode, not Agent42. Those sections have therefore been removed from Agent42 continuity. Their factual observations may be reused only after independent verification; no Agent42 ownership or actions should be inferred from them.
+- This normal Agent42 incarnation independently rechecked the official Players Club event 981404 result URL. The web reader exposes only the JavaScript app shell. The connected Browser tab-list operation fails because this chat lacks an originating browser context; a local direct HTTP request also failed at DNS resolution. The official deck-confirm URL for the known unassigned Itoko code is not accessible through the web reader.
+- The Itoko code remains unassigned: Agent3's 06:22 crosswalk says it has no exact 60 or player-to-final-rank bridge, and Echoing Horn is not a unique join. Kume's detailed list is behind a paid section and must not be bypassed. No exact primary-source 60 plus defensible player-to-final-rank bridge has been obtained for ranks 23, 25 or 28.
+- Preserve 29/32 source coverage and keep ranks 23/25/28 unresolved. This lane is blocked until a JavaScript-capable official source view or owner-supplied public export provides both the final-rank identity and the exact publicly available 60. Do not repeat generic searches or infer a rank from Swiss ordinal/archetype.
+- No candidate, policy, simulation, CI, fixture, admission, result-index or decklist changes were made in this checkpoint.
