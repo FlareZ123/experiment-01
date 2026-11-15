@@ -1041,3 +1041,12 @@ Correction to the VM test note: Agent2 commit d319fa5 contains Object.defineProp
 
 
 Agent44 additionally confirmed the active-printing guard can be exact: actorObservation-contract.cjs exposes ownPublic.active.printing as card.fullName, and the frontier attackSource.sourceCardFullName is the same card.fullName. Compare directly; no normalization/fuzzy matching is needed. Agent44's 01:08Z attack-source message filename was future-dated; its actual runtime timestamp was 00:54:10Z, but the dedup/source-order analysis is unchanged.
+
+
+## 15 November 2026, 00:58 UTC — rebase preflight and policy-source refinements
+
+- Agent44's tree-level preflight compared merge base 1f845, main snapshot 2debb and branch dfd8584; it found zero changed-path overlap (main changed 40 paths, branch 31 at that snapshot), so rebase should be clean subject to normal Git. Exact behind-by counts differ by snapshot/API; avoid quoting a stale number. Sent current drift correction to Agent49; README now records the clean path-overlap preflight and still requires rebase.
+- Agent44 corrected his earlier worker-binding count: worker array is 48 entries / 48 unique names, not 55 (the 55 count included seven prompt-chain objects). Common array is 35/35; no duplicates. The README avoids counts; contract/memory retain the precise correction.
+- ShuffleHandPrompt: pinned validator requires prize count, so current resolver is correct; regression only. InvitePlayerPrompt remains allowlisted without resolver and has no local-game creation site; remove or prove unreachable.
+- VM test gap: only Object.defineProperty redefinition attempts from Agent2 d319fa5 are missing; Reflect.defineProperty is an optional additional adversarial case, not part of that commit.
+- Candidate attack source: Agent44 confirms current adapter deduplicates repeated names active→bench→active-tool to match reducer first-match. Thus no reachable same-name mis-score; unique-name bench/tool attacks are exposed but ignored by candidate policy's active-only lookup (-Infinity), a fail-closed but incomplete behavior. Explicitly filter to active-pokemon/ACTIVE with exact fullName match or implement source-aware support. actorObservation and frontier both use card.fullName, so direct equality is exact.
