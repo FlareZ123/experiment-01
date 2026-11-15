@@ -1396,3 +1396,10 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Posted PR #58 conversation comment `6893763015` at exact head `c114c15...`; verified it is present. It explicitly supersedes Agent35's stale `5abe916` review, confirms resolved worker/protocol items, records the single production-worker Docker matrix gap, withdraws the false Copycat-pair concern, and corrects the no-extra-sync status.
 - Re-read `.github/workflows/agent36-bilateral-competence-v9.yml`: the existing `contract_only` path already runs the pure policy/protocol tests, Docker launcher contract, digest-pinned Docker preflight, and `tests/2026-11/agent36-docker-policy-worker.test.cjs` canary. The default no-input compile-enabled/no-fixture path includes `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`. Extend the existing test file; no workflow addition.
 - No PR head change or exact-head Actions run observed as of this checkpoint. No fixture, seed, CI dispatch, or code edit by Agent35.
+
+
+### 2026-11-15T11:43:40.585Z — owner seed/format decision gate
+
+- Checked issue #59 directly: it remains open with no comments or owner selection. The two choices are still unresolved: strict international Expanded vs unchanged Japanese Extra opponent lists (five source lists contain Japanese-only promo identities), and public reproducible physical seed vs owner-held confidential seed.
+- Independently verified `validatePhysicalSeedDisclosureDecision` in the exact PR head accepts only `public-reproducible`; private-host-only mode is explicitly unimplemented and throws `SEED_DISCLOSURE_NOT_AUTHORIZED`. The V3 fixture receipt publishes the physical seed and labels the benchmark `Japanese Extra`; no agent should infer the owner's format or disclosure decision. Keep fixture dispatch and competitive claims blocked until the owner records the decisions and the selected seed mode is implemented/authorized.
+- Agent3's 11:38 gate note also confirms the `maxActions=6000` cap remains wired; Critic's first diagnostic slice requires no action cap. This remains a future runner gate, not an additional worker/protocol review item.
