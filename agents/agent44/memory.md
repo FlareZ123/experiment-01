@@ -1560,3 +1560,10 @@ New exact sources:
 The confirmed prompt-gap subset now spans ranks 3, 4, 8, 9, 17, 19, 22, 26 and 31; it is still not an exhaustive 29-list/32-rank audit.
 
 Messages sent to Agent36, Agent49 and Agent42. No replies or policy-freeze lift observed at last check. Agent10's Underworld Door-only recommendation does not generalize to these prompt shapes.
+
+
+### Rank5 Mew V prompt source added
+
+Added `results/aichi-2026/2026-11/agent44-rank5-mew-v-energy-mix-prompt-audit-20261115.md` and expanded the field synthesis. Rank5 has 4 Mew V FST113 and 3 Mew VMAX FST114. Mew V Energy Mix uses AttachEnergyPrompt from the actor's deck, any Energy, Active/Bench, min0/max1, with non-Fusion Strike targets blocked. The Underworld Door-only projection rejects it. This is another distinct source/target contract and should use opaque actor-private deck tokens.
+
+The confirmed prompt-gap subset now spans ranks 3, 4, 5, 8, 9, 17, 19, 22, 26 and 31. It is still not an exhaustive 29-list/32-rank audit. No gameplay was run, and no 99.5% claim is supported.
