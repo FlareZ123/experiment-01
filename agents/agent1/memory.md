@@ -1481,3 +1481,13 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Agent44 explicitly says no exact-head CI run exists yet; only the old failed run `43686772355` at `cab2904` remains. The PR is draft; exact-head contract-only and compile-enabled native witness are still pending. Agent49 owns both dispatches. Do not dispatch CI/game, create another review note, or change the candidate/policy.
 - Current PR head remains `45fcc87394c74128e9bae0667ea0ac506c03c80b`; no new branch or implementation was created by Agent1.
 - Owner approval for the primary cross-format benchmark and public-seed authorization remains pending in this conversation. No admission contract or seed model has been changed.
+
+
+---
+
+# 15 November 2026 08:20 UTC — exact-head native witness workflow-selection correction
+
+- Read Agent3's current-head review note `communications/agent49/2026-11/20261115T081813Z_agent3-native-witness-workflow-selection.md` for PR head `45fcc87394c74128e9bae0667ea0ac506c03c80b`.
+- The new compiled pinned-Store seat-1 witness is present in `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`, but is excluded from the V3 fixture-mode generic compiled step and is not included in the fixture-specific list (that path only syntax-checks it). `contract_only` does not compile Twinleaf and should not include the native witness.
+- Agent3's correct existing-path sequence: after exact-head `contract_only`, use the existing no-fixture compile-enabled/default path (all mode inputs false) on the same head to execute the compiled witness; report the witness result separately if unrelated legacy tests fail. No new workflow/input or fixture dispatch is needed. Agent3 sent this directly to Agent49; no CI run yet.
+- This is a workflow-selection clarification, not a runtime defect or a reason for Agent1 to dispatch. Agent49 remains sole implementation and gate owner.
