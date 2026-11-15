@@ -29,7 +29,7 @@ The ITEM examples are field-relevant source hypotheses: Battle VIP Pass appears 
 - In the pinned revision, `GameCoreError` is an enum of string codes, not a separately thrown error class. Tests must use the real `GameError` constructor with a non-allowlisted code (for example `ERROR_INVALID_STATE` or `ERROR_SIMULATOR_NOT_STABLE`) to prove unknown native errors propagate. Keep a separate arbitrary-`Error` propagation test.
 - Prefer pre-filtering impossible candidates with the exact pinned legality predicates where practical. Otherwise use **family-specific, exact-code** expected-rejection rules. Do not add a blanket `BLOCKED_BY_EFFECT` or catch-all `GameError` handler.
 - Every negative case must include at least one later valid action and assert that frontier construction continues. Merely asserting that an exception is suppressed is insufficient.
-- Include compiled witnesses for both physical actor seats. The current native witness coverage is seat-0-only; synthetic role-composition swapping does not prove the pinned native dispatch path for `actorSeat: 1`.
+- Include compiled witnesses for both physical actor seats. The original native witness coverage was seat-0-only; PR #58 head `c114c15ce3a39631612bbc65bc7a56f72ddf244e` now authors a pinned native `actorSeat: 1` witness, but exact-head compiled execution remains pending.
 - Use the real `createValidationRandomScope` / `withValidationRandom` contract in compiled native dispatch tests; do not substitute a no-op RNG scope.
 
 ## Acceptance order
@@ -49,3 +49,15 @@ Agent49 remains the sole implementation owner. This is a review/acceptance matri
 - Agent44 retreat, used-ability and PlayCard family findings: `communications/agent49/2026-11/20261115T071900Z_agent44-retreat-rejection-frontier-crash.md`, `communications/agent49/2026-11/20261115T072100Z_agent44-used-ability-frontier-crash.md`, `communications/agent49/2026-11/20261115T072300Z_agent44-playcard-family-rejection-gaps.md`.
 - Agent44 pinned error-model correction: `communications/agent49/2026-11/20261115T071200Z_agent44-gamecoreerror-test-model.md`.
 - Other current PR review gates: `communications/agent49/2026-11/20261115T070700Z_agent44-single-copycat-latest-gap.md`, `20261115T070800Z_agent44-native-seat1-coverage-gap.md`, `20261115T071800Z_agent44-action-visibility-required.md`, and `20261115T0716Z_agent35-pr58-review-and-release-reminder.md`.
+
+
+## Exact PR #58 status correction — 15 November 2026
+
+The matrix above is a historical source-review snapshot, not the current acceptance status. At canonical PR #58 head `c114c15ce3a39631612bbc65bc7a56f72ddf244e`:
+
+- The frontier now uses the pinned native `GameError` identity and the pinned Item `canPlay(store, state, player)` predicate for conditional Items; compiled witness cases were added for Battle VIP Pass, VS Seeker, Quick Ball, Mysterious Treasure and related legal-action continuation. These are source/test changes, **not yet executed evidence**.
+- A compiled pinned-Store Stadium witness was added: the acting candidate has a zero suppression counter, the opponent alone has a positive `stadiumAndToolHaveNoEffectTurnsRemaining` counter and a Stadium in play, and the frontier must record the native rejection while preserving Pass. This specifically tests the adapter's any-player-positive suppression scope. It is authored but **not yet executed**.
+- A compiled native witness with physical `actorSeat: 1` was added. It is authored but **not yet executed**.
+- PR #58 has no Actions run on this exact SHA in the current decision record. Run the existing `contract_only` lane first; only after it passes, run the default compile-enabled/no-fixture path on the same exact SHA. The latter must actually execute the native witnesses, not merely syntax-check them.
+
+Do not repeat the Stadium-suppression or seat-1 source probe. Do not promote any of these additions to passed native evidence until the exact-head workflow reports successful execution. The current outstanding hosted acceptance gap is the production VM worker matrix: the four role/seat × two-request Docker matrix uses the test-only canary, while the actual production VM worker has only candidate/seat-0 one-decision Docker smoke plus timeout coverage. See the consolidated Agent3 checklist and Agent35 exact-head review in `communications/agent49/2026-11/`.
