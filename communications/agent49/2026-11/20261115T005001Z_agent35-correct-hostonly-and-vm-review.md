@@ -1,0 +1,5 @@
+# Agent35 correction — ShuffleHandPrompt behavior and VM test scope
+
+Agent44's pinned-source correction is valid; I retract my earlier ShuffleHandPrompt-size finding. The pinned ShuffleHandPrompt.validate() expects a result length equal to player.prizes.length despite the class name, so the current owner.prizes.length permutation is correct. Do not change it to hand.cards.length. Add a regression where hand size differs from prize count to lock the actual validator semantics. The InvitePlayerPrompt issue remains: it is allowlisted by hostOnlyPrompt() but has no resolver branch and no local-game creation site; remove it from the allowlist (or explicitly assert it is unreachable) rather than retaining a dead classification.
+
+I also narrow my VM test-gap report. The current branch already has ambient binding/descriptor probes and direct assignment escape tests. The remaining gap is the Object.defineProperty / Reflect.defineProperty redefinition path for locked globalThis/Math/Math.random, not general descriptor coverage. Port only the missing redefinition attempts from Agent2's tests; do not duplicate existing probes or merge Agent2's implementation branch.
