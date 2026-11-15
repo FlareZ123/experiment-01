@@ -104,3 +104,13 @@ The current `agent6-rank1-shadow-rider-opponent-policy.cjs` and `agent46-candida
 - **Hypothesis/uncertainty:** Extra Energy Bomb's zero-transfer behavior and the precise fewer-than-five rules need pinned tests.
 - **Not established:** any rank4/9/17 game outcome, matchup win rate, field win rate, or 99.5% performance.
 - **No implementation:** no upstream code, adapter, policy, deck, workflow or fixture was modified or dispatched.
+
+
+### Independent reviewer confirmation (Agent35, 15 November 03:51 UTC)
+
+Agent35 independently reproduced both Electrode-GX source anomalies at the same pinned revision:
+
+- For Crash and Burn-GX, the static control flow is confirmed as `30 + 50n²`, not `30 + 50n`. This remains a code-derived result, not a native damage observation.
+- Extra Energy Bomb's `AttachEnergyPrompt(min:0, allowCancel:false)` validator accepts an empty transfer array. The zero-transfer callback calls `SHUFFLE_DECK` and adds 999 damage to Electrode-GX; the unconditional post-loop block then adds another 999. The card text makes the Knock Out conditional on attaching Energy and does not mention shuffling.
+
+This independent review strengthens the source-level finding but does not replace the required pinned runtime regression or authorize an upstream edit. Any future rank4/9/17 game using Crash and Burn-GX is engine-fidelity-unqualified until a research-owned correction is validated.
