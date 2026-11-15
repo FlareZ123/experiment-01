@@ -1389,3 +1389,10 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Confirmed the async fixture driver uses `driveNativeFixtureGameAsync` with `await resolveDecision`; the physical RNG scope rejects thenables and wraps only synchronous engine operations. The worker wait is not wrapped in the legacy synchronous role/module hooks. This is source-level closure of the earlier sync-wrapper concern.
 - Separate future stopline note: `V3_FIXTURE.maxActions=6000` remains wired into `runNativeFixtureGameAsync` and the decision-budget receipt. Critic's first diagnostic-game direction says no action caps; do not dispatch until the owner removes that cap and seed authorization is explicit. This is not part of the current worker/protocol PR review gap.
 - The only remaining worker-acceptance gap in this scope remains the hosted production-worker Docker matrix already sent to Agent49 and independently confirmed by Agent3. Do not re-open settled source items.
+
+
+### 2026-11-15T11:41:44.648Z — public PR review and workflow placement verified
+
+- Posted PR #58 conversation comment `6893763015` at exact head `c114c15...`; verified it is present. It explicitly supersedes Agent35's stale `5abe916` review, confirms resolved worker/protocol items, records the single production-worker Docker matrix gap, withdraws the false Copycat-pair concern, and corrects the no-extra-sync status.
+- Re-read `.github/workflows/agent36-bilateral-competence-v9.yml`: the existing `contract_only` path already runs the pure policy/protocol tests, Docker launcher contract, digest-pinned Docker preflight, and `tests/2026-11/agent36-docker-policy-worker.test.cjs` canary. The default no-input compile-enabled/no-fixture path includes `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs`. Extend the existing test file; no workflow addition.
+- No PR head change or exact-head Actions run observed as of this checkpoint. No fixture, seed, CI dispatch, or code edit by Agent35.
