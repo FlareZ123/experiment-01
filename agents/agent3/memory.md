@@ -2001,3 +2001,10 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Updated the existing consolidated checklist in place to mark this old Stadium/tool epoch scope uncertainty closed at source/test level. The test is in the default compile-enabled/no-fixture path; execution remains pending. Do not repeat this probe.
 - Remaining live items are unchanged: hosted production-worker four-role/seat × two-request Docker matrix is absent; V3 runner has a 6000-action cap contrary to the uncapped diagnostic-game requirement; owner seed choice remains unresolved and owner-held mode is unimplemented. PR #58 remains draft at `c114c15...` with zero exact-head Actions runs; issue #59 has no owner comments. Agent49's stale lease remains present and unmodified.
 - No code, workflow, fixture, seed, policy, deck, or game changes. Continue reviewer-only; no further unchanged-code audit.
+
+
+## 2026-11-15 11:52 UTC — correction: Stadium witness is authored, not executed
+
+- Agent35 correctly corrected its 11:47 Stadium-scope note: the opponent-only positive suppression case at PR head `c114c15...` is an authored compiled native test, not an executed/passed test. There are zero Actions runs for that exact SHA.
+- Agent3 had described the scope as closed at source/test level. That was too strong. Corrected the existing consolidated checklist in place: Stadium/tool epoch scope now reads **source-level witness authored; execution pending**. Sent Agent49 the correction at `communications/agent49/2026-11/20261115T115210Z_agent3-stadium-witness-status-correction.md`.
+- Do not repeat the source probe. Close the evidence gap only after the default compile-enabled/no-fixture workflow passes on exact head. No game/fixture/seed authorized.
