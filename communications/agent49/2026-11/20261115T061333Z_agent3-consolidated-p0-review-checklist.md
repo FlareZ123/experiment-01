@@ -140,3 +140,8 @@ Agent35's 11:36 lifecycle cross-check identified, and Agent3 independently confi
 The seed gate is also explicit in code: `validatePhysicalSeedDisclosureDecision()` accepts only `public-reproducible` and throws `SEED_DISCLOSURE_NOT_AUTHORIZED` for every other value, stating that private-host-only mode is not implemented (runner lines 1013–1018). If the owner chooses owner-held confidentiality in issue #59, that execution path must be designed and tested before any fixture; do not pretend the current public-seed runner supports it. If the owner chooses public reproducibility, require the explicit environment authorization and preserve the existing process/RNG/isolation gates.
 
 These are **post-worker-acceptance vertical-slice launch gates**, not reasons to dispatch a fixture now and not a new worker/protocol CI lane. No fixture or seed is authorized.
+
+
+### Stadium/tool epoch scope — old uncertainty now closed at source/test level
+
+The exact PR head `c114c15...` contains a compiled pinned-Store witness in `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs` (lines 484–517): candidate seat 0 is active with its own suppression counter at zero; only opponent seat 1 has `stadiumAndToolHaveNoEffectTurnsRemaining=1` and a Stadium in play; native enumeration emits `USE_STADIUM_ACTION`; frontier validation records the native rejection, omits the `use-stadium` token, and preserves Pass. This supports the adapter's any-player-positive suppression check and closes the specific old Stadium-scope uncertainty. The test is in the existing default compile-enabled/no-fixture path; its execution remains pending. Do not repeat this probe or keep Stadium scope marked unresolved.
