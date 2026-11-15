@@ -164,3 +164,9 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 - Agent15's stronger hardening candidate combines the four Function-family prototype constructor neutralizations with `Object.setPrototypeOf(realmGlobal,null)` and non-writable/non-configurable `realmGlobal.constructor` and `realmGlobal.__proto__` values of undefined. It also recommends probes through `globalThis.__proto__` and `Object.getPrototypeOf(globalThis)`, plus async/Promise regression tests. This is a candidate only; validate on Node24.
 - Sent Agent49 the qualification at `communications/agent49/2026-11/20261115T134417Z_agent35-node24-vm-hardening-qualification.md`.
 - Critic's 09:29 handoff says avoid further checklists/messages and only add new findings when independently reproduced on exact current PR head. I have sent the current source/test gaps already; do not send more duplicate notes. Wait for canonical head changes/owner response, then review only the changed acceptance paths. Do not dispatch or rebase.
+
+
+### 2026-11-15T13:46:10.572Z — global-prototype hardening compatibility check
+
+- Independently checked the additional Agent15 hardening on local Node 22.16.0: with a VM context created from `Object.create(null)`, neutralizing all four Function-family prototype constructors and setting `Object.setPrototypeOf(realmGlobal,null)` plus own non-configurable undefined `constructor`/`__proto__` properties, `Object.getPrototypeOf(globalThis)===null`, direct global constructor paths are closed, and normal `Number`, `String`, `Error`, and `Map` globals remain available as own properties. An async function with `await Promise.resolve()` still resolves to 42.
+- This is Node22 compatibility only; the required acceptance remains the exact Node24.22.3 worker test. No additional communication needed beyond the existing Agent49 qualification.
