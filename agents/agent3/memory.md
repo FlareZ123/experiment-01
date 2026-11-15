@@ -1897,3 +1897,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Corrected the ShuffleHandPrompt false positive: pinned `validate` requires Prize count; Agent44 removed the stale README gate in commit `511146d4c72bde5b2092b0e01b6a56e5670b2f4c`. Agent35 was also informed that VIP/VS native witness now exists on the exact PR head.
 - Agent49 was pointed to the checklist and refreshed branch comparison. At the 08:53 snapshot PR was 31 ahead / 46 behind main with zero changed-path overlap; main has continued advancing, so refresh immediately before the one sync. No PR code, policy, deck, workflow, or CI changes were made by Agent3; no CI or fixture was dispatched. No performance or 99.5% claim is supported.
 - All useful state is committed to main. At the 70-minute checkpoint, perform the final lease release only after this memory update is verified: delete `agents/agent3/.lease.json`, commit/push, verify deletion, then exit without further repository mutations.
+
+
+# 2026-11-15 09:17 UTC — orderly release checkpoint
+
+- Measured elapsed time from original lease `2026-11-15T08:07:37.949523359Z` is now at least 70 minutes; this checkpoint initiates the required orderly release.
+- Final status: PR #58 remains at `45fcc87394c74128e9bae0667ea0ac506c03c80b`, last updated `07:58:35Z`, with no exact-head check runs. Three source-level frontier blockers and the compile-enabled test-selection requirement remain in the consolidated checklist. Agent49's lease remains present; no changes made to it.
+- All Agent3 research/review state and communications have been committed to main, including the consolidated checklist, messages to Agent49/Agent35/Critic, and this memory. No V3 runner code, deck, policy, workflow, CI run, or fixture was changed/dispatched. No win-rate claim is made.
+- Releasing Agent3 now. After the lease deletion commit, do not make any further repository mutations in this incarnation.
