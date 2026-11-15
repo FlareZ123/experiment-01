@@ -7,7 +7,10 @@ const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
 const { spawn } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createWorkerLocalPolicyStream}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 
@@ -24,6 +27,21 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
     "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
+    "if(request.requestId==='force-deferred-toJSON-rng'){return {kind:'abstain',reasonCode:'DEFERRED',toJSON(){Promise.resolve().then(()=>Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng())));return {kind:'abstain',reasonCode:'DEFERRED'};}};}",
+    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','WeakRef','FinalizationRegistry','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;const globalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const globalLocked=globalDescriptor?.writable===false&&globalDescriptor?.configurable===false&&globalDescriptor?.enumerable===false;const objectDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Object');const objectLocked=objectDescriptor?.writable===false&&objectDescriptor?.configurable===false;const dateDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Date');const weakRefDescriptor=Object.getOwnPropertyDescriptor(globalThis,'WeakRef');const disabledLocked=dateDescriptor?.value===undefined&&dateDescriptor?.writable===false&&dateDescriptor?.configurable===false&&weakRefDescriptor?.value===undefined&&weakRefDescriptor?.writable===false&&weakRefDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked&&globalLocked&&objectLocked&&disabledLocked?'SANDBOX_OK':'SANDBOX_FAIL'};}",
+    "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-module-exports-escape'){module.exports.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-date'){Date.now();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-intl'){new Intl.DateTimeFormat().format();return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-crypto'){crypto.getRandomValues(new Uint8Array(1));return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-math-binding-escape'){globalThis.Math={random:()=>0.5};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-globalThis-binding-escape'){globalThis={Math:{random:()=>0.5}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-delete-disabled-global'){delete globalThis.Date;return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-object-binding-escape'){Object={defineProperty:()=>{}};return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-weak-ref'){new WeakRef({});return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
+    "if(request.requestId==='force-finalization-registry'){new FinalizationRegistry(()=>Math.random());return {kind:'abstain',reasonCode:'UNREACHABLE'};}",
     "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
     "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
     "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
@@ -170,10 +188,11 @@ function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
 }
 function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); }
 
-function startWorker(init = initFor()) {
+function startWorker(init = initFor(), sourceText = policySource(init.policyVersion)) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(init.policyVersion));
+  fs.copyFileSync(PROTOCOL_SOURCE, path.join(dir, 'agent49-policy-protocol.cjs'));
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), sourceText);
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
@@ -206,8 +225,8 @@ async function dispose(worker) {
   worker.rl.close();
   fs.rmSync(worker.dir, { recursive: true, force: true });
 }
-async function expectFailure(message, code, init = initFor()) {
-  const worker = startWorker(init);
+async function expectFailure(message, code, init = initFor(), sourceText = policySource(init.policyVersion)) {
+  const worker = startWorker(init, sourceText);
   try {
     writeLine(worker.child.stdin, init);
     await waitForCount(worker, 1);
@@ -216,11 +235,96 @@ async function expectFailure(message, code, init = initFor()) {
     await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
     assert.match(worker.stderr, new RegExp(code));
+    return worker.stderr;
   } finally {
     worker.rl.close();
     fs.rmSync(worker.dir, { recursive: true, force: true });
   }
 }
+
+async function expectStartupFailure(sourceText) {
+  const worker = startWorker(initFor(), sourceText);
+  try {
+    try {
+      writeLine(worker.child.stdin, worker.init);
+      worker.child.stdin.end();
+    } catch {}
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred bootstrap draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+async function expectInitFailure(sourceText) {
+  const init = initFor();
+  const worker = startWorker(init, sourceText);
+  try {
+    writeLine(worker.child.stdin, init);
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred initialization draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+test('sandbox drains deferred policy bootstrap and export-getter microtasks before READY', async () => {
+  const topLevel = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-bootstrap-v1';",
+    "Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));",
+    "async function createPolicy(){return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectStartupFailure(topLevel);
+
+  const getter = [
+    "'use strict';",
+    "const VERSION='agent49-deferred-export-getter-v1';",
+    "Object.defineProperty(module.exports,'POLICY_VERSION',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return VERSION;}});",
+    "Object.defineProperty(module.exports,'createPolicy',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return async function(){return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};};}});"
+  ].join('\n');
+  await expectStartupFailure(getter);
+});
+
+test('sandbox drains deferred policy initialization microtasks before READY', async () => {
+  const source = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-init-v1';",
+    "async function createPolicy(context){",
+    "  Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng()));",
+    "  return {async decide(){return {kind:'abstain',reasonCode:'OK'};}};",
+    "}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectInitFailure(source);
+});
+
+test('sandbox drains deferred decision serialization microtasks before emitting a response', async () => {
+  const worker = startWorker();
+  try {
+    writeLine(worker.child.stdin, worker.init);
+    await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, request(1, 'candidate', 0, {
+      requestId: 'force-deferred-toJSON-rng'
+    }));
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 1, 'only READY may be emitted before the deferred draw is rejected');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+});
 
 test('persistent worker accepts ordered decisions without RNG seed IPC', async () => {
   const worker = startWorker();
@@ -236,6 +340,8 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
     writeLine(worker.child.stdin, request(2)); await waitForCount(worker, 3);
     assert.deepEqual(worker.lines[1].decision, { kind: 'select-action', token: 'action-1' });
     assert.deepEqual(worker.lines[2].decision, { kind: 'select-action', token: 'action-2' });
+    assert.equal(worker.lines[1].policyDrawCount,0);
+    assert.equal(worker.lines[2].policyDrawCount,0);
     assert.equal(worker.lines[1].requestId, 'req-1');
     assert.equal(worker.lines[2].sequence, 2);
     assert.doesNotMatch(JSON.stringify(worker.lines), /policySeed|physicalSeed|rngState/i);
@@ -652,6 +758,36 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     ...frontier,
     items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: undefined } }]
   }), /BAD_ACTION_METADATA/);
+
+  const attackSource = {
+    sourceKind: 'bench-pokemon',
+    sourceSlot: 'BENCH',
+    sourceIndex: 2,
+    sourceCardName: 'Noivern',
+    sourceCardFullName: 'Noivern BREAKthrough',
+    attackName: 'Boomburst'
+  };
+  const attackFrontier = {
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [{
+      token: 'attack-source-0',
+      kind: 'attack',
+      actorPrinting: attackSource.sourceCardFullName,
+      attackName: attackSource.attackName,
+      publicMetadata: { attackCostPayable: true, attackSource }
+    }]
+  };
+  assert.equal(protocol.validateFrontier(attackFrontier).has('attack-source-0'), true);
+  assert.throws(() => protocol.validateFrontier({
+    ...attackFrontier,
+    items: [{
+      ...attackFrontier.items[0],
+      publicMetadata: {
+        attackCostPayable: true,
+        attackSource: { ...attackSource, sourceSlot: 'ACTIVE' }
+      }
+    }]
+  }), /BAD_ATTACK_SOURCE_METADATA/);
 });
 
 test('analysis-only projected attack rows cannot be selected as native actions', () => {
@@ -881,9 +1017,45 @@ test('persistent worker emits response-v3 ordered multi-select decisions', async
 
 
 
+test('restricted VM denies ambient capabilities and serializes policy failures',async()=>{
+  const worker=startWorker();
+  try {
+    writeLine(worker.child.stdin,worker.init);
+    await waitForCount(worker,1);
+    writeLine(worker.child.stdin,request(1,'candidate',0,{requestId:'probe-ambient'}));
+    await waitForCount(worker,2);
+    assert.deepEqual(worker.lines[1].decision,{kind:'abstain',reasonCode:'SANDBOX_OK'});
+    assert.equal(worker.lines[0].policyDrawCount,0);
+    assert.equal(worker.lines[1].policyDrawCount,0);
+  } finally { await dispose(worker); }
+
+  const rngFailure=await expectFailure(request(1,'candidate',0,{requestId:'force-math-random'}),
+    'POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  assert.match(rngFailure,/policyDrawCount=1/);
+  for(const requestId of [
+    'force-global-function-escape','force-module-loader-escape',
+    'force-module-exports-escape','force-date','force-intl','force-crypto',
+    'force-math-binding-escape','force-globalThis-binding-escape','force-object-binding-escape',
+    'force-delete-disabled-global',
+    'force-weak-ref','force-finalization-registry'
+  ]) {
+    await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE');
+  }
+});
+
+test('production worker loads role policy source only inside its restricted VM',()=>{
+  const source=fs.readFileSync(WORKER_SOURCE,'utf8');
+  assert.match(source,/vm\.createContext/);
+  assert.match(source,/codeGeneration:\{strings:false,wasm:false\}/);
+  assert.match(source,/fs\.readFileSync\(path\.join\(__dirname, 'policy\.cjs'\), 'utf8'\)/);
+  assert.match(source,/require\('\.\/agent49-policy-protocol\.cjs'\)/);
+  assert.doesNotMatch(source,/require\('\.\/policy\.cjs'\)/);
+  assert.doesNotMatch(source,/Module\._load\([^)]*policy\.cjs/);
+});
+
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
-  const first=protocol.createWorkerLocalPolicyStream();
-  const second=protocol.createWorkerLocalPolicyStream();
+  const first=createWorkerLocalPolicyStream();
+  const second=createWorkerLocalPolicyStream();
   assert.equal(first.protocol,'worker-local-independent-crypto-stream-v1');
   assert.equal(first.drawCount,0);
   assert.equal(second.drawCount,0);

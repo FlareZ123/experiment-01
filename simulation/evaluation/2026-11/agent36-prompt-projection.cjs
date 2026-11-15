@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const { enumName } = require('./agent36-native-action-frontier.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
@@ -256,12 +256,18 @@ function makeSource(prompt, state, actorSeat, provenance) {
     };
   }
   const promptType=prompt?.constructor?.name??'';
-  if((state.phase===0||state.phase===1)&&promptType==='ChooseStartingPokemonPrompt') {
+  const message=typeof prompt?.message==='string'?prompt.message:null;
+  const engineSetupPrompt=state.phase===1&&(
+    (promptType==='ChooseCardsPrompt'&&message==='CHOOSE_STARTING_POKEMONS')||
+    (promptType==='ConfirmPrompt'&&message==='GO_FIRST')||
+    (promptType==='SelectPrompt'&&message==='WANT_TO_DRAW_CARDS')
+  );
+  if(engineSetupPrompt) {
     return {
       classification:'actor-choice',
       sourceKind:'engine',
       sourcePrinting:null,
-      effectName:promptType
+      effectName:message
     };
   }
   throw Object.assign(new Error('Prompt has no trusted card-effect or allowlisted engine source'), {
@@ -314,10 +320,10 @@ function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
   const cards = cardListCards(prompt.cards);
   const visibility = cardCollectionVisibility(state, actorSeat, cards);
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
-  const max = Math.min(cards.length,
-    Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length);
+  const requestedMax = Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length;
   const blocked = new Set(prompt.options?.blocked ?? []);
   const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  const max = Math.min(indices.length, requestedMax);
   for (const index of indices) {
     const name = printing(cards[index]) ?? ('Card ' + (index + 1));
     addSelectableItem(choices, choiceByToken, index, {
@@ -531,7 +537,7 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
       if (disabled[index] === true) return;
       addChoice(choices, choiceByToken, index, {
         kind: 'option',
-        label: String(value),
+        label: prompt.message==='WANT_TO_DRAW_CARDS' ? ('Draw '+String(value)+' card(s)') : String(value),
         publicMetadata: { choiceIndex: index }
       }, prompt, state);
     });
@@ -571,8 +577,15 @@ function hostOnlyPrompt(prompt, provenance) {
     'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt', 'InvitePlayerPrompt'].includes(name)) {
     return { hostOnly: true, reason: name };
   }
-  const sourceName = provenance?.effectName ?? prompt?.message ?? prompt?.type ?? '';
-  if (/night\s*watch/i.test(String(sourceName))) {
+  // Night Watch's physical random selection is host-owned only for the exact
+  // pinned Trevenant & Dusknoir-GX SMP printing and a typed card-effect source.
+  // Prompt messages, prompt types, and free-form effect names are not authority.
+  const sourceCard = provenance?.sourceCard;
+  if (provenance?.sourceKind === 'card-effect' &&
+      provenance.effectName === 'Night Watch' &&
+      sourceCard?.name === 'Trevenant & Dusknoir-GX' &&
+      sourceCard?.set === 'SMP' &&
+      printing(sourceCard) === 'Trevenant & Dusknoir-GX SMP') {
     return { hostOnly: true, reason: 'NightWatchPhysicalRandom' };
   }
   return null;

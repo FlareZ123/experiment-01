@@ -261,6 +261,14 @@ function assertKnownCapFreeAdapterAdmissionClear({ enumerator, enginePin, fronti
     error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING';
     throw error;
   }
+  const markerDescriptor = enumerator &&
+    Object.getOwnPropertyDescriptor(enumerator, '__agent3UncappedAdapter');
+  if (!markerDescriptor || markerDescriptor.writable !== false ||
+      markerDescriptor.configurable !== false || markerDescriptor.enumerable !== false) {
+    const error = new Error('Known-cap-free ActionEnumerator adapter marker must be immutable and non-enumerable');
+    error.code = 'NATIVE_ACTION_ENUMERATOR_ADAPTER_MARKER_MUTABLE';
+    throw error;
+  }
   const requiredCoverage = [
     'includesAttachedToolPowers',
     'includesToolAndBenchAttacks',
