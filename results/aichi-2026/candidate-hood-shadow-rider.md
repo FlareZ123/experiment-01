@@ -126,3 +126,8 @@ The Aichi field contains nine published Regidrago lists. Dialga is therefore a m
 The Agent50 v2 proposal replacing Dialga with a second Tapu Lele is **withdrawn**. Its raw Tapu Lele draw probabilities were correct, but it deletes the counter-ALS against nine published opponents. The [corrected Dialga/ALS audit](2026-11/agent50-hood-shadow-rider-dialga-slot-audit-20261113.md) documents the card text, C-18 basis, state-dependent DCI and required validation. The [withdrawn v2 list](candidate-hood-shadow-rider-v2.md) is preserved only as a rejected hypothesis.
 
 **Status:** Hood Shield Shadow Rider v1 remains the nominated leading modified-list hypothesis. Do not remove Dialga without a tested replacement counter-line; no matchup or aggregate win-rate improvement is claimed.
+
+
+## Regidrago counter-ALS Prize-capacity analysis (15 November 2026)
+
+The [Agent 2 Prize-capacity analysis](2026-11/agent2-regidrago-counter-als-prize-capacity-20261115.md) applies the multi-prized-collapse model to the retained Mimikyu GRI 58 / Dialga-GX UPR 100 / Hisuian Heavy Ball package. Conditional on a legal opening seven, idealized Prize-only access failure is 2.3669% for v1 and 0.2195% with a second Heavy Ball. This is a targeted slot hypothesis, not a matchup result or a reason to change the fixed v1 list without matched gameplay evidence.

@@ -743,3 +743,12 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Narrow correction accepted by Agent11: candidate manifest entrypoint = candidateWorkerPolicyPath; opponent manifest entrypoint = opponentWorkerPolicyPath; retain workerPath as hashed data asset and in Docker bundle. This makes role identity closure describe the policy source and avoids the worker executable's require edge contaminating it. Policy top-level must remain inert if preloaded for pinning; createPolicy/decisions must execute only inside Docker restricted VM. This is distinct from the worker-local ambient RNG/Intl boundary.
 - Updated V3 report and results/README.md; correction broadcast at communications/broadcast/20261114T181613Z_agent2-role-manifest-host-preload-correction.md. No code/tests/fixtures run.
 - Agent11's public mulligan actor-view handoff is a post-acceptance policy-competence item, not current P0; reuse existing public-mulligan-reveal-observer and actor-view wrapper after Critic reopens, do not create another observer or expose hidden zones.
+
+
+## 15 November 2026 — Regidrago counter-ALS Prize capacity
+
+- Applied the human-concepts multi-prized-collapse idea to Hood Shield Shadow Rider v1's Mimikyu GRI 58 / Dialga-GX UPR 100 / Hisuian Heavy Ball ASR 146 package.
+- Added `results/aichi-2026/2026-11/agent2-regidrago-counter-als-prize-capacity-20261115.md` and its exact standard-library enumerator.
+- Conditional on a legal seven-card opening hand, idealized Prize-only package failure is 2.366909% for 1 Mimikyu / 1 Dialga / 1 Heavy Ball; it falls to 0.219492% with a second Heavy Ball (90.7266% relative reduction). A second Mimikyu or Dialga, assuming a non-Basic cut, gives 0.943573% on this narrow metric.
+- The model assumes every unprized Mimikyu/Dialga is searchable and every unprized Heavy Ball is accessible; it is not a gameplay probability or win-rate estimate. It does not select a cut. Hood Shield v1 remains unchanged.
+- Sent the candidate owner a targeted note to consider a second-Heavy-Ball 60-card variant only after the current V3 execution gate is accepted. Do not duplicate this prize arithmetic; next useful step is an evidence-backed fixed-60 comparison that prices the lost card slot and uses the same field/policies.
