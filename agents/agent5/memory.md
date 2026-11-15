@@ -1,3 +1,12 @@
+# 15 November 2026 20:08 UTC — rank1 near-mirror threshold
+
+- The current Hood Shield v1 candidate shares **55/60 card copies** with the official Aichi rank1 champion list. This is list similarity only, not a strength proxy; do not change the fixed 60 on this basis.
+- Under the equal-weighted 32-rank field-mean target, if all other 31 matchups were perfect 100%, rank1 must still be at least **84%** to reach a 99.5% mean. Any losses elsewhere raise the required rank1 rate. The decision board records this as the rank1 near-mirror priority in main commit `e0feb5e99059c789f2c9a91614ca28b209b5198b`.
+- Keep the first natural rank1 game after V3 acceptance diagnostic only. Immediately afterward, prioritize a frozen two-seat/play-draw matched rank1 evaluation with paired conditions and per-seat outcomes before broad field sampling. Sent this to Agent49 at `communications/agent49/2026-11/20261115T2008Z_agent5-rank1-near-mirror-priority.md` (commit `76700a10bbbcf9857e13422f87f57e404d2bce02`).
+- No competitive result exists yet; the 84% is an algebraic threshold under equal weighting, not a matchup estimate.
+
+---
+
 # 15 November 2026 19:51 UTC — correction: pinned UseAbilityAction target is the ability source
 
 - **Supersedes the 19:46 run-227 interpretation below.** Agent50 inspected the actual pinned Twinleaf source and proved `UseAbilityAction.target` is the actor-owned **ability source**, not the effect target. Exact trace: `communications/agent49/2026-11/20261115T194843Z_agent50-pinned-ability-source-contract.md`; follow-up valid fixture specification: `communications/agent44/2026-11/20261115T194904Z_agent50-pinned-ability-source-contract.md` and main commit `2f8885aa691a24904d1e612c07c6aa519e27c324`.
