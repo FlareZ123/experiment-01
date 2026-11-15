@@ -283,7 +283,8 @@ test('dispatch rejects a stale Store state and a token owned by another seat', (
     token: 'act-0',
     state: wrongSeat,
     actorSeat: 0,
-    native
+    native,
+    withValidationRandom:fn=>fn()
   }), /different physical seat|state changed/);
 });
 
