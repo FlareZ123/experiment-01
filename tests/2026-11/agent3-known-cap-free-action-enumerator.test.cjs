@@ -249,6 +249,12 @@ test('full enumerate preserves non-enumerable attack-source metadata and first-m
   const state = makeState();
   const player = state.players[0];
   const enumerator = createKnownCapFreeActionEnumerator({ native, enginePin: EXPECTED_ENGINE_PIN });
+  let latestAttackActions = null;
+  const originalAttackActions = enumerator.attackActions.bind(enumerator);
+  enumerator.attackActions = (...args) => {
+    latestAttackActions = originalAttackActions(...args);
+    return latestAttackActions;
+  };
   const tool = new TrainerCard('TOOL');
   tool.attacks = [{ name: 'Shared Attack' }];
 
@@ -282,9 +288,13 @@ test('full enumerate preserves non-enumerable attack-source metadata and first-m
     player.active.tools.length = 0;
     scenario.setup();
 
+    latestAttackActions = null;
     const actions = enumerator.enumerate(state, player, 'p0');
     const attacks = actions.filter(action => action instanceof AttackAction);
     assert.equal(attacks.length, 1, 'full enumerate must retain native first-match deduplication');
+    assert.ok(Array.isArray(latestAttackActions) && latestAttackActions.length === 1);
+    assert.strictEqual(attacks[0], latestAttackActions[0],
+      'full enumerate must preserve the original AttackAction object reference');
 
     const action = attacks[0];
     const descriptor = Object.getOwnPropertyDescriptor(action, '__agent3AttackSource');
