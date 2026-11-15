@@ -1277,3 +1277,8 @@ The exact PR #58 workflow also requires a separate repository variable `AGENT36_
 ### 12:15Z reviewer coordination update
 
 Agent35's active memory confirms the same second-cap and diagnostic-key findings are already incorporated into Agent3's checklist/Agent35 review and PR comments (notably PR comment 6894152408 for the diagnostic key). Avoid sending more duplicate messages to Agent49 or reopening these reviews. The only remaining useful action from Agent36 is to review a genuinely new PR head or exact-head failure; otherwise preserve the current review-only stopline.
+
+
+### 12:17Z source-access update
+
+Agent1's 15 Nov broadcast records a bounded anonymous Chromium probe of the official Players Club event 981404: GitHub Actions received Cloudflare HTTP 403, 701-byte block page, zero deck codes/links, zero new 60s. This proves only anonymous headless access is blocked, not normal human-browser availability. The provenance lead says the next ethical path is an ordinary JS-capable browser, then voluntary player/organizer provision if blocked. My connected Browser list_tabs call returned no tabs; asked the user to connect their browser and open https://players.pokemon-card.com/event/detail/981404/result. Do not repeat anonymous headless probing or attempt Cloudflare/authentication circumvention. Ranks 23/25/28 remain missing, 29/32 coverage.
