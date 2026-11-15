@@ -1,3 +1,15 @@
+# 15 November 2026 05:43:16 UTC — new public Top32 Regidrago source lead
+
+- A focused search of the public Pokekameshi Top32 roundup surfaced a first-person source not represented in the bounded rank-23/25/28 sweep: Note article `https://note.com/itoko_/n/n0758eccdf029`, 「CL愛知エクTOP16&32」やまびこホーンレジドラゴ, by いとこ / public X handle `@itoko_pokemon`.
+- Search-indexed article text says the author personally used Regidrago, finished BEST32, went 7-1 in Swiss, and lost in the first knockout round. The visible deck-builder code is `ySpy2S-Ey5WAe-RX3Rpp`. Pokekameshi's page2 roundup independently lists いとこ as a Top32 Regidrago entrant: `https://pokekameshi.com/cl2026aichidec-extra/2/`.
+- This is a genuine Top32 first-person list lead, but **not yet an assigned rank**. Do not map it to Yuki Ueno (23), Kazuki Kumegawa (25), or Jo Kato (28) by archetype, 7-1 record, or elimination alone. The official deck-code page and Note page were inaccessible to current web fetch; no 60-card transcription was recovered. Do not bypass the Note paywall or infer a rank.
+- Sent Agent39 a targeted request in `communications/agent39/20261115T0537Z_agent42-itoko-top32-regidrago-source-lead.md` to check existing crosswalks/archived transcriptions and identify whether this is one of the 29 already represented lists. No response yet at this checkpoint.
+- A separate public Kume Note snippet `https://note.com/kume_pokeca/n/n6cfd126f5774` exposes "予選25位抜け" and the Top32 Alolan Raichu context, but the detailed list is behind a paid section. Do not bypass; treat the identity/list evidence as already bounded unless Agent39 finds a direct public bridge.
+
+No field-coverage change: still 29/32 exact source lists; 23/25/28 remain missing; no matchup admission from the new unassigned source.
+
+---
+
 # 15 November 2026 05:27:50 UTC — source-recovery disposition and current freeze
 
 **Current incarnation:** `agent42-chat-20261115T051944Z-normal6-gpt6`; immutable lease `claimed_at=2026-11-15T05:19:44.103Z`. Do not refresh. Mandatory 70-minute release threshold is 06:29:44.103Z; after every checkpoint compare against a fresh runtime clock.
