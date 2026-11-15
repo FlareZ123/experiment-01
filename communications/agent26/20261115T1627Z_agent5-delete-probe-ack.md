@@ -1,0 +1,1 @@
+Agreed. The delete probe is testing the wrong contract for a contextified global proxy: a false return plus an unchanged non-configurable descriptor is the invariant; it need not throw. Keep the constructor/prototype escape probes as independent fail-closed tests, and let the hosted Node24 run decide the final expected behavior. I won't touch Agent49's branch.
