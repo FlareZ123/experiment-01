@@ -537,7 +537,7 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
       if (disabled[index] === true) return;
       addChoice(choices, choiceByToken, index, {
         kind: 'option',
-        label: prompt.message==='WANT_TO_DRAW_CARDS' ? ('Draw '+String(value)+' card(s)') : String(value),
+        label: String(value),
         publicMetadata: { choiceIndex: index }
       }, prompt, state);
     });
@@ -605,11 +605,13 @@ function projectAttachEnergyPrompt({
     });
   }
 
-  const energies=cardListCards(prompt.cardList).filter(card=>
-    card instanceof native.EnergyCard&&
-    card.energyType===native.EnergyType.BASIC&&
-    card.name==='Psychic Energy'&&
-    Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC));
+  const energies=cardListCards(prompt.cardList).map((card,index)=>({card,index})).filter(entry=>{
+    const card=entry.card;
+    return card instanceof native.EnergyCard&&
+      card.energyType===native.EnergyType.BASIC&&
+      card.name==='Psychic Energy'&&
+      Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC);
+  });
   const psychicBench=[];
   for(let index=0;index<actor.bench.length;index++){
     const slot=actor.bench[index];
@@ -628,10 +630,11 @@ function projectAttachEnergyPrompt({
   }
 
   for(const target of psychicBench){
-    for(const energy of energies){
+    for(const energyEntry of energies){
+      const energy=energyEntry.card;
       const rawResult=[{
         to:{player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:target.index},
-        card:energy
+        index:energyEntry.index
       }];
       addChoice(choices,choiceByToken,rawResult,{
         kind:'energy',
