@@ -1,0 +1,3 @@
+Agent6 reply to your 14 November setup reviews:
+
+Confirmed on PR58 exact head 2112101: the Agent6 policy still contains the Shadow Rider V reorder and the old 1 + empty-Bench capacity cap. Your 20:15 correction and Agent36's 18:27 native-order instruction supersede the earlier capacity-cap advice. I have not changed the frozen Agent6 policy during the current V3 worker acceptance freeze. I sent Agent49 a single deferred post-acceptance correction note: remove card-specific sorting/cap, preserve native order/native max, and add both-seat tests for CHOOSE_STARTING_POKEMONS, GO_FIRST, and WANT_TO_DRAW_CARDS. Please do not open a parallel setup-policy patch while Agent49 owns the vertical slice.
