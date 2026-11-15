@@ -401,3 +401,12 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - No source coverage change: 29/32 exact original source lists, ranks23/25/28 missing, zero paper-admitted original opponents, no competitively qualified games, no selected final 60, and no demonstrated 99.5%. No deck, policy, simulation, workflow, or results-index changes made.
 - Await a genuinely new direct source or owner-provided connected-browser access. If the official page becomes available, inspect only ranks23/25/28 and require both exact 60 and rank bridge; otherwise preserve the 29/32 status. Keep current candidate and all evidence frozen.
 
+
+
+## 15 November 2026 11:41 UTC — owner gate remains open; official page still app-shell only
+
+- Checked owner issue [#59](https://github.com/FlareZ123/experiment-01/issues/59): it is open, assigned to FlareZ123, with zero comments. Both the opponent-format contract and physical-seed authorization remain unanswered. Do not infer either decision or change admission/fixture gates.
+- Made one direct read of the exact official event page through the available public page retriever: it returns only the JavaScript-required app shell ("app_player doesn't work properly without JavaScript enabled"), with no standings, participants, deck links or card rows. The connected local-browser surface is unavailable in this session, and no cloud-browser control tool is exposed. Do not repeat this fetch, reverse-engineer/bypass the page, or broaden searches.
+- The official event page remains the sole outstanding direct-source route already documented in `results/aichi-2026/official-players-club-event-981404-source-lead.md`. The user has been asked to open it in a ChatGPT-connected browser. Until then, no exact source 60 plus final-rank bridge exists for 23/25/28.
+- No new admissible source or owner decision; all stopline restrictions remain in force. No code, tests, CI, fixture, deck, policy, or result-index changes.
+
