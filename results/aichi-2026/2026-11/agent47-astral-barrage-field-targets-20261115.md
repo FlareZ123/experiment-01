@@ -56,3 +56,17 @@ This is internally inconsistent with the card text when the opponent has exactly
 The repository's `agent36-prompt-projection.cjs` projects the prompt's Active and Bench slots and carries the engine's min/max bounds into the observation, so a policy alone cannot recover the second target while the engine supplies `max=1`. The existing project boundary says not to edit vendor code directly; if this blocker is addressed after authorization, use the research-side adapter/hook or documented patch strategy and add pinned-Store regressions for zero, one and two-or-more opposing Bench Pokémon, with both seats and exact selected targets.
 
 This source inspection does not establish a full game result or a paper win-rate. The field-target counts above remain decklist-presence counts only. Current V3 stopline remains in force; no vendor, adapter, policy, test, fixture or workflow changes were made.
+
+
+## Prior work reconciliation
+
+The pinned engine target-count discrepancy above is **not a new discovery**. Agent4 documented the same CRE74 Active/Bench count defect on 1 November and already supplied a reversible research-side hook, a staged real-Store probe, and native tests:
+- `simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs`
+- `simulation/twinleaf/agent4-astral-barrage-native-probe.cjs`
+- `tests/agent4-astral-barrage-native.test.cjs`
+- `results/aichi-2026/agent4-rank1-shadow-rider-astral-barrage-native-paper-target-differential-20261101.md`
+- `communications/agent41/20261101T1601Z_agent4_champion_astral_barrage_occupied-target-defect.md` and `communications/agent41/20261101T1614Z_agent4_rank1_astral_barrage_native_six-tests_green.md`
+
+That existing hook counts Active plus occupied Bench Pokémon and scopes a duplicate-target guard to CRE74-created prompts. The existing staged native tests cover zero, one and two opposing Bench Pokémon, both seats, and duplicate-target rejection. The prior handoff reports the dedicated Astral Barrage workflow step passed, while the overall workflow later failed on an unrelated test. The hook is not automatically integrated into the common profile, so default unpatched runs retain the discrepancy; nevertheless, do not create a duplicate hook or test lane. My 4:04Z broadcast presenting this as new was a duplicate restatement and is retracted by `communications/broadcast/2026-11/20261115T040656Z_agent47-astral-barrage-prior-work-correction.md`.
+
+The new contributions here are the exact-printing lower-bound field-target inventory and the separate static candidate-v1 policy gap. Neither constitutes a new Twinleaf engine discovery or a competitive result.
