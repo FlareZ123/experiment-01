@@ -91,3 +91,17 @@ The current Critic stopline still prohibits policy edits, parallel integration b
 The pinned client component `ptcg-play/src/app/table/prompt/prompt-move-damage/prompt-move-damage.component.ts` builds the native result by adding the same Pokémon item to `fromItems` once for every 10 damage counters removed and to `toItems` once for every 10 counters added, then zipping those arrays into `DamageTransfer[]`. Therefore moving 20 counters from one Pokémon to another produces two identical `{from,to}` entries. This is ordinary client-generated output, not merely a theoretical result accepted by the server validator.
 
 The pinned `MoveDamagePromptResolver` also appends a transfer on each loop iteration while decrementing the source and incrementing the destination, so its result can repeat the same pair. This confirms that ordinal transfer tokens or an explicit count-bearing decision are required for faithful protocol representation.
+
+
+## Additional rank31 producer: Radiant Alakazam Painful Spoons
+
+The exact rank31 list also contains **1 × Radiant Alakazam**. Its pinned implementation, `ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam.ts`, creates a third field-relevant `MoveDamagePrompt` path in addition to Dusknoir Sinister Hand:
+
+- `playerType: TOP_PLAYER`, slots Active/Bench;
+- `min: 1`, `max: 2`, `allowCancel: false`;
+- `singleDestinationTarget: true`;
+- the callback checks `MoveDamageCountersEffect` and `PlaceDamageCountersEffect` before subtracting damage from the source, then marks Painful Spoons used.
+
+Therefore rank31 needs a Painful Spoons test as well as Dusknoir coverage. The host projection and policy must preserve the single-destination constraint and account for the effect-suppression checks; treating every MoveDamagePrompt as the same generic "move counters" decision is insufficient.
+
+**Pinned-source uncertainty to resolve:** this implementation constructs `maxAllowedDamage` by iterating the ability user's own board with `player.forEachPokemon(BOTTOM_PLAYER)`, but sets the prompt's target `playerType` to `TOP_PLAYER` (the opponent's board). The pinned MoveDamage SimpleBot resolver and client UI look up the damage map by exact `CardTarget`. This appears to leave no matching max-damage entries for the opponent targets. Do not silently repair or normalize this in the research adapter; first reproduce the pinned UI/validator behavior in a targeted test, then decide whether an adapter hook is needed. This is a source-level discrepancy, not yet a demonstrated runtime failure.
