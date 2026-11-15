@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: '22'
       - name: Test aggregate and paired-seat anytime statistical evidence
-        run: node --test tests/aichi-anytime-field-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs
+        run: node --test tests/aichi-anytime-field-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs tests/aichi-correlated-round-evidence.test.cjs
