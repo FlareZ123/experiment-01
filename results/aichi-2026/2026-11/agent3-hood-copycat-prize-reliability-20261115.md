@@ -39,14 +39,16 @@ With the current 1/1 core, at least one of the two mandatory cards is Prized in 
 
 ## Deck-building implication
 
-A **Mimikyu-2 challenger** has a credible structural rationale:
-- it reduces the Apex→Timeless line's prize-only failure rate from 19.15% to 10.79% while keeping Dialga at one copy;
-- unlike a second Dialga, a second Mimikyu also improves access to the candidate's broader Copycat target map (see `results/aichi-2026/2026-11/agent1-copycat-field-target-map-20261115.md`);
+The repository already contains a parked **Mimikyu-2 / Dialga-1 / Heavy Ball-1 60-card challenger** at `results/decks/hood-shadow-rider-v1-mimikyu2-challenger-60.md`, with a matched **Mimikyu-1 / Dialga-2 / Heavy Ball-1** arm at `results/decks/hood-shadow-rider-v1-dialga2-challenger-60.md`. The Mimikyu-2 list is a one-slot substitution: add the second Mimikyu and remove Trevenant & Dusknoir-GX; it retains one Dialga.
+
+The prize calculation gives that existing Mimikyu-2 arm a specific structural rationale:
+- it reduces the Apex→Timeless line's prize-only failure rate from 19.15% to 10.79%;
+- unlike a second Dialga, the extra Mimikyu also improves access to the candidate's broader Copycat target map (see `results/aichi-2026/2026-11/agent1-copycat-field-target-map-20261115.md`);
 - it provides redundancy if the first Mimikyu is Knocked Out or otherwise unavailable, although this analysis does not model recovery or tempo.
 
-A **Dialga-2 challenger** produces the same prize-only reduction for the specific Apex→Timeless line, but its broader value outside Regidrago matchups is not established. A 2/2 core has the best prize resilience but consumes two additional deck slots and must be tested against all 32 opponents rather than accepted on this metric alone.
+The Dialga-2 arm produces the same prize-only reduction for the specific Apex→Timeless line, but its broader value outside Regidrago matchups is not established. A 2/2 core has the best prize resilience but consumes two additional deck slots and must be tested against all 32 opponents rather than accepted on this metric alone.
 
-Do not cut a named card solely from this calculation. The current candidate's four Shadow Rider VMAX, draw/search engine, disruption, and other matchup-specific slots have their own opportunity costs. The next meaningful experiment is a controlled 1/1 versus 2/1 Mimikyu/Dialga comparison with the full opponent field and the same playing policy.
+This result does **not** unpark or nominate either challenger. The current decision board defers core-copy experiments until the candidate-aware Max Geist/attack-conversion policy is competent. After that gate, compare the existing 1/1 and 2/1 arms with the same playing policy across the full opponent field. Do not cut a named card solely from this prize calculation: the removed Trevenant & Dusknoir-GX and all other matchup-specific slots have opportunity costs.
 
 ## What this does not establish
 
