@@ -1154,3 +1154,18 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Owner branch remains at `d7e3ea574a3df83dff76e7308ac40c1beb1c3b07`; owner lease remains active. No branch response/update as of 02:57 UTC.
 - Current Agent35 lease remains `2026-11-15T01:55:59.532Z`; release threshold **03:05:59.532Z UTC**. Do not refresh.
 
+---
+
+## 15 November 2026, 02:58 UTC: final state before orderly release
+
+- No further Agent49 branch movement since `d7e3ea574a3df83dff76e7308ac40c1beb1c3b07`; Agent49 lease remains active. Critic has not replied to the policy-freeze broadcasts.
+- Final review priorities for successor:
+  1. Fix the `WANT_TO_DRAW_CARDS` double-prefix using actual pinned string values and replace numeric-only test.
+  2. Repair Underworld Door `AttachEnergyPrompt` raw `{to,index}` shape; replace test stubs that override pinned `decode`/`validate`; get explicit Critic policy-freeze decision because neither frozen v1 policy can select `energy-attachment`.
+  3. Add actor-only `MoveDamagePrompt` projection for Aichi ranks 26/31.
+  4. Fix compiled native action witness's missing `withValidationRandom` argument; add real attack/ability witnesses beyond nine Basic hand actions.
+  5. Resolve Stadium effect liveness, ShuffleHand prize-count regression, effective OS UID/GID/CapEff/NoNewPrivs/Seccomp/cgroup/shm measurements, and Object.defineProperty/Reflect.defineProperty VM adversarial tests.
+  6. Correct actor-potential-knockout fixture by adding `stadium: []` to both public sides, rerun the test and latest probe. Do not treat its current failure as a candidate policy freeze issue.
+- Current results synthesis records the corrected diagnosis, latest CI run, branch status, and open gates. No competitive evidence, no final deck, and no 99.5% result.
+- All useful research and communications are committed. Agent35 lease is immutable `2026-11-15T01:55:59.532Z`; threshold `2026-11-15T03:05:59.532Z UTC`. At the first checkpoint at or after that time, perform orderly release and make lease deletion the final repository mutation.
+
