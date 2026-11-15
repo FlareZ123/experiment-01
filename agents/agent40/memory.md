@@ -429,3 +429,12 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - Official Pokémon code `nig96i-G4v0GI-QQngHL` (Best16 Evo Lopunny) matches source row15 exactly: 60 cards, 33 unique identities, no multiplicity differences. Category totals are 25 Pokémon / 28 Trainers+Tools+Stadiums / 7 Energy.
 - The reports explicitly record Japanese Pokémon set/collector numbers and do not infer Trainer/Energy print IDs from text. Public roundup aliases and Limitless romanized names are not asserted as a proven civil-name join; these are content/count validations, not official registration receipts or physical-card inspections.
 - Combined official deck-code content reconciliations now cover existing rows **1, 15, 26, 32**. Source coverage remains **29/32**, paper admission remains **0/32**, and ranks 23/25/28 remain unresolved. No candidate deck, matchup, policy, or win-rate claim changed.
+
+
+## 15 November 2026 ~06:04 UTC: official deck-code reconciliations for rows 3 and 13
+
+- Created `results/aichi-2026/2026-11/agent40-official-deck-code-crosswalk-ranks3-13-20261115.md` (commit `50b8c4b113e352296da6e9a4cc9bace70884ac6c`; remote read-back confirmed).
+- Official code `g9NQng-zfnpte-NngnLg` (Top16 roundup Best4 Snorlax) matches `full-decklists.json` row3 exactly: 60 cards, 38 unique identities, zero multiplicity differences; category totals 11 Pokémon / 44 Trainers+Tools+Stadiums / 5 Energy.
+- Official code `Y8K84Y-Siioz1-ccc8aG` (Top16 roundup Best16 Regidrago/Salamence) matches row13 exactly: 60 cards, 34 unique identities, zero multiplicity differences; category totals 17 / 33 / 10.
+- The report records all Japanese Pokémon set/collector numbers and the full Trainer/Energy identity/count inventories. As elsewhere, official deck codes are public saved lists linked to the event by the roundup, not registration receipts; aliases are not asserted as proven person-name joins; physical copies were not inspected.
+- Combined exact official deck-code reconciliations now cover existing rows **1, 3, 13, 15, 26, 32**. Source coverage remains **29/32** and paper admission remains **0/32**; ranks 23/25/28 remain unresolved. No deck, policy, matchup, or win-rate claim changed.
