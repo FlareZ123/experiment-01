@@ -25,11 +25,11 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 
 ## Other hard gates before any diagnostic fixture
 
-- Issue #59 is still open with no comments or owner decision. It asks the owner to choose (a) strict international Expanded vs unchanged Japanese Extra opponent lists (five original lists contain Japanese-only promo identities), and (b) public reproducible physical seed vs owner-held confidential seed. Do not infer either choice.
-- Exact runner `validatePhysicalSeedDisclosureDecision` accepts only `public-reproducible`; private-host-only mode is unimplemented and throws `SEED_DISCLOSURE_NOT_AUTHORIZED`. No fixture/seed until the owner records the format and seed decisions and explicitly authorizes the selected mode.
+- Issue #59 owner decisions are explicit in comment `6893903051`: **candidate-only international Expanded vs the unchanged original Aichi Japanese Extra lists**, labelled a custom cross-format challenge (not Expanded-vs-Expanded or sanctioned Expanded); and **public reproducible physical seed**. Do not substitute/drop opponent cards or reopen seed confidentiality. The owner explicitly rejected obfuscation: the bots are code, and the necessary boundary is actor-visible game state.
+- The exact runner `validatePhysicalSeedDisclosureDecision` accepts `public-reproducible`, so no private-host-only implementation is needed. The public-seed choice is made; explicit environment authorization remains required at fixture dispatch.
 - `V3_FIXTURE.maxActions=6000` remains wired into the async driver and decision-budget receipt. Critic's first diagnostic slice requires **no action cap**; remove it before any authorized diagnostic game.
 - Current runner uses both candidate seat orientations. This is diagnostic integration, not 32-matchup performance evidence. Do not claim a winner or competitive rate from it.
-- The full field/format status remains unresolved: 29/32 original Aichi source lists authenticated; ranks 23/25/28 unavailable; five source lists have Japanese-only promos under strict international Expanded; 0/32 paper-admitted. See root README and issue #59.
+- Field status under the selected custom cross-format benchmark: 29/32 original Aichi source name/count lists authenticated; ranks 23/25/28 unavailable; retain the five Japanese-only promo lists unchanged as Japanese Extra opponents. They are not Expanded-legal opponent entries; the candidate alone must be international Expanded. No final fixed 60 or competitive-paper-qualified games. See root README and issue #59.
 
 ## Key files and evidence
 
@@ -43,5 +43,12 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 
 1. Continue until the measured 70-minute lease threshold. Do not exit early.
 2. Monitor PR #58/Agent49 communications only when useful. If c114c15 is unchanged, do not re-audit or send duplicate checklists.
-3. If a new head appears, review only the changed worker acceptance paths. Owner's intended sequence is existing `contract_only`, then default compile-enabled/no-fixture; no fixture until issue #59, no-action-cap, and seed authorization gates are resolved.
+3. If a new head appears, review only the changed worker acceptance paths. Owner's intended sequence is existing `contract_only`, then default compile-enabled/no-fixture. Issue #59's format and public-seed decisions are resolved; remaining fixture gates are removal of `maxActions=6000`, production-worker matrix closure, passing both exact-head acceptance paths, and explicit public-seed environment authorization. Only then may the owner dispatch the two-seat diagnostic game.
 4. Preserve useful state in this memory. At release: push all useful work, verify remote, delete `agents/agent35/.lease.json` as the final repository mutation, push and verify deletion, then stop.
+
+
+### 2026-11-15T11:56:39.526Z — owner resolved issue #59
+
+- Owner's decision comment `6893903051` selects candidate-only Expanded vs unchanged Aichi Japanese Extra opponents (custom cross-format challenge) and public reproducible physical seed. No seed obfuscation or private-host-only mode. This is an explicit owner decision; do not reopen or infer alternatives.
+- Broadcast and direct messages committed: `communications/broadcast/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`, `communications/agent49/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`, `communications/agent3/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`. PR #58 follow-up comment **6893937999** records the updated gate.
+- The format/seed gate is resolved; the runner already supports `public-reproducible`, but explicit environment authorization remains required. Fixture remains blocked by the 6000-action cap, production-worker matrix, and exact-head `contract_only` plus compile-enabled/no-fixture acceptance. No fixture or seed was dispatched by Agent35.
