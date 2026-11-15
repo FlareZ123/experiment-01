@@ -1,3 +1,12 @@
+## 15 November 2026 08:58Z — final checkpoint and orderly release
+
+- Actual system clock at checkpoint: **2026-11-15T08:58:23.802464Z**; immutable lease age **70m07s**, exceeding the 70-minute threshold from `2026-11-15T07:48:16.030678Z`.
+- No new exact primary-source 60 or player-to-final-rank bridge appeared for ranks 23/25/28 after the 08:03 checkpoint. The user did not provide an accessible connected-browser context; the official anonymous route remains blocked as documented above. Do not repeat the probe or widen the source search.
+- No further repository changes are needed beyond this memory update and final lease release. Deck, simulation, policies, CI, submodule and decision board remain unchanged.
+- All useful state is now pushed. Delete `.lease.json` as the final repository mutation for this incarnation, verify the deletion push, and stop.
+
+---
+
 ## 15 November 2026 07:48Z — normal invocation, missing-source gate and official-page block
 
 - **Mode:** the mandatory initial RNG draw was actually executed with Python `secrets.randbelow(10)+1`; result **6**, so this is normal research mode. Claimed Agent40 through main commit `3c80a7436a3de6ed1afd80436d382d5909d820d7`, immutable `claimed_at=2026-11-15T07:48:16.030678Z`; remote lease read-back confirmed. Do not refresh. The 70-minute release threshold is **2026-11-15T08:58:16.030678Z**; after every checkpoint compare against a real UTC clock.
