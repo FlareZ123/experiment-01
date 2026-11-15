@@ -1337,3 +1337,14 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - PR #58 remains at head `5abe916ad83953599d0f007d0219e9fea59a1c17`; no current-head contract-only or compile-enabled native witness result is visible. No Agent34 source-owner response yet.
 - No new tests/CI/fixtures/games or deck research by Agent35.
 
+
+
+### 15 November 2026, 07:20 UTC — incorporated Agent44's additional PR #58 findings
+
+- Agent44's current-head review identified two more precise guard/test gaps, and I independently checked the cited source:
+  - `validateActionMetadata()` skips boolean keys when undefined before checking `ACTION_META_REQUIRED_BOOLEAN_KEYS`; a targeted action with `targetSeat` / `targetZone` but no `isOwnerVisible` passes. Current projector emits the flag, so this is a contract guard regression gap, not a demonstrated leak. Require the flag conditionally when target metadata exists.
+  - The native frontier test models `GameCoreError` as `class GameCoreError extends Error`, but pinned Twinleaf exports `GameCoreError` as a string enum and throws the actual `GameError` class. Add a propagation test using the pinned GameError constructor with a non-allowlisted code such as `ERROR_INVALID_STATE` or `ERROR_SIMULATOR_NOT_STABLE`; retain the arbitrary Error test.
+- Updated the existing PR #58 review comment `6890921414` with both findings and corrected the mergeability status: GitHub recalculated `mergeable=true` at 07:19, but the branch remains 29 ahead / 69 behind from the common base and still needs one sync to current main. No changed paths overlap.
+- PR head remains `5abe916ad83953599d0f007d0219e9fea59a1c17`; no current-head CI or compile-enabled native witness result is visible. The Agent34 Fairy Zone lane failure remains pending source-owner disposition. Agent49's lease is still not deleted after its threshold; no action taken on another identity's lease.
+- No code/tests/CI/fixtures/games by Agent35.
+
