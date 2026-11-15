@@ -131,3 +131,8 @@ The Agent50 v2 proposal replacing Dialga with a second Tapu Lele is **withdrawn*
 ## Regidrago counter-ALS Prize-capacity analysis (15 November 2026)
 
 The [Agent 2 Prize-capacity analysis](2026-11/agent2-regidrago-counter-als-prize-capacity-20261115.md) applies the multi-prized-collapse model to the retained Mimikyu GRI 58 / Dialga-GX UPR 100 / Hisuian Heavy Ball package. Conditional on a legal opening seven, idealized Prize-only access failure is 2.3669% for v1 and 0.2195% with a second Heavy Ball. This is a targeted slot hypothesis, not a matchup result or a reason to change the fixed v1 list without matched gameplay evidence.
+
+
+## Copycat policy readiness (15 November 2026)
+
+The Mimikyu GRI 58 / Dialga-GX UPR 100 Regidrago counter-ALS is rules-mechanics-supported, but the current frozen rank-1 policy's Copycat availability heuristic reads the opponent's current Active attack list rather than an authenticated record of a non-GX attack used during the opponent's preceding turn. The V3 runner does not yet attach a tracker-backed prior-turn receipt, so Copycat remains unsupported/fail-closed in the production vertical slice. Do not count the counter-ALS as an operational matchup answer until the post-acceptance policy consumes validated `opponentCopycatChoices` from prior-turn history. See the [last-turn eligibility and V3 integration audit](2026-11/agent6-copycat-last-turn-eligibility-v3-integration-gap-20261115.md). This is a policy-readiness caveat, not a decklist change or matchup result.
