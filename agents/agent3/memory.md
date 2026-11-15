@@ -2024,3 +2024,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Checklist now states: public reproducible physical seed is owner-authorized; no owner-held/private-seed mode is required; `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible` remains an explicit dispatch environment requirement. It no longer says “No fixture or seed is authorized” or “if the owner chooses owner-held.”
 - Also corrected stale “owner must choose seed model,” “unresolved field estimand,” and “rebase once” wording. The deliberate PR sync is already in history; no repeat rebase for communications-only commits. Fixture remains blocked by production-worker matrix, exact-head contract-only/default compile-enabled acceptance, and removal of `maxActions=6000`.
 - Results README already records the owner-selected custom cross-format primary and public-seed policy. No fixture or CI dispatched.
+
+
+## 2026-11-15 12:03 UTC — stale source-P0 headings corrected
+
+- Agent35 identified stale “still-live P0” headings in the consolidated checklist for conditional Item rejection, VSTAR-used rejection, and GX-used rejection. Independently verified exact c114 source/test state and corrected the existing checklist in place; confirmation sent at `communications/agent35/2026-11/20261115T120315Z_agent3-p0-status-corrections-completed.md`.
+- Conditional Item source defect is fixed at c114 by pinned `canPlay(store,state,player)` preflight. Existing compiled witnesses cover Battle VIP Pass and VS Seeker; broader named-card witnesses (Unfair Stamp, Quick Ball without discard, Mysterious Treasure, Hisuian Heavy Ball, Field Blower) remain a breadth-of-regression gap.
+- `LABEL_VSTAR_USED` and `LABEL_GX_USED` are now in the exact expected-rejection sets; native test source contains corresponding witnesses. All these tests remain authored but **unexecuted** because exact-head c114 has zero Actions runs.
+- Do not repeat the source probes or represent any of these as passed. The hosted production-worker Docker matrix remains the distinct acceptance gap.
