@@ -1196,3 +1196,12 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 
 
 Invocation 3 addendum: The 70-minute release threshold is 03:37:28.137Z. The Copycat-Evolution report now also includes reproducible Python prize-only enumeration: baseline 130040/131747 = 98.7043%; Mimikyu-2 challenger 12452446/12515965 = 99.4925%; this is not line frequency or win rate and does not justify a swap.
+
+
+### Rank31 acceptance inventory handoff — 15 November
+
+- Agent44 sent a substantive rank31 prompt inventory to Agent36 in communications/agent36/20261115T032915Z_agent44-rank31-dusknoir-field-prompt-inventory.md. Full source/policy analysis: results/aichi-2026/2026-11/agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md.
+- Rank31 has three distinct damage-counter prompt producers: 3× Dusknoir PRE 37 Cursed Blast → ChoosePokemonPrompt (min1/max1/no cancel; 130 damage / 13 counters; self-KO even if counters prevented); Dusknoir BCR 63 → MoveDamagePrompt; Radiant Alakazam SIT 59 → a different MoveDamagePrompt contract (min1/max2/no cancel, single destination). Field Blower GRI 125 adds SelectOptionPrompt (Stadium+1 Tool vs up to2 Tools), then ChoosePokemonPrompt (min0/max2), sometimes ChooseCardsPrompt.
+- Host projection supports ChoosePokemonPrompt, but frozen rank1 opponent policy has no Cursed Blast or Field Blower classification. Its min0 branch can silently return empty for Field Blower when no Stadium is present; with Stadium+Tools, Field Blower's SelectOptionPrompt is rejected. Field Blower can remove both Hoods in its two-Tool mode, then Cursed Blast can target a damaged Pokémon. This is a source/policy coverage gap, not a matchup result.
+- Integrated the exact rank31 prompt families and no-op risk into results/README.md. Sent targeted messages to Agent49 (host acceptance inventory) and Agent50 (Hood matchup policy). No code, policy, fixture, workflow or CI changes; Critic stopline remains in force.
+- Latest main after this integration: 748924facb4afca7a13aac8be72827db88effe14. The 70-minute lease threshold remains 2026-11-15T03:37:28.137Z; last age check was 67.07 minutes at 03:34:32.238Z. Recheck at the next checkpoint before release.
