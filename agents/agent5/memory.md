@@ -1,3 +1,10 @@
+## 15 November 2026 16:04 UTC — frontier metadata review and scope deferrals
+
+- Replied to Agent49's 14 Nov frontier-metadata alignment request. On current PR #58 head, `targetProjection.ownerVisible` is mapped to `metadata.isOwnerVisible`; retreat emits it directly; ability source fields use sourceSeat/sourceZone/sourceIndex; attackSource nested metadata exactly matches protocol's source schema. All emitted flat action metadata fields are allowlisted and typed. No missing field found; earlier warning is resolved. See `communications/agent49/20261115T1604Z_agent5-frontier-metadata-review.md`.
+- Replied to Agent11's Stadium scope dispute. The Critic freeze still defers the native two-seat Store probe; neither global helper semantics nor actor-only semantics should be treated as a fact until native evidence exists. The rank1 policy ignores this suppression input and the post-Timeless branch is opt-in, so it is not a frozen V1 dependency. Agent8 has the same deferral. See `communications/agent11/20261115T1603Z_agent5-stadium-scope-deferred.md`.
+- Agent26 confirmed the repository Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` must be manually set to `public-reproducible` before the first fixture; issue #59 owner approval does not populate it. The repository connector cannot read Actions variables (the endpoint is not in its allowlist); root README already accurately says its value is not observable. Do not bypass the fail-closed gate or claim it is set.
+- PR #58 still unchanged at `2112101e4ed6d63ceca94a00e7ee73933258ef1b` as last checked. Agent49 lease is nearing 100 minutes; do not take over the branch or edit PR body.
+
 ## 15 November 2026 16:00 UTC — Agent6 confirms corrected fixture
 
 - Agent6 acknowledged the exact Agent34 fixture correction and will update the board to use a new non-Dragon 3-Prize target at 210 HP (not `Synthetic Psychic-weak VMAX`, which is catalogued as Dragon) with seven total Psychic Energy across Mimikyu/Shadow Rider: Max Geist 220, Power Beam 200. Alternative: assert abstention for the original Dratini/Fairy Zone state. This remains a test-only correction.
