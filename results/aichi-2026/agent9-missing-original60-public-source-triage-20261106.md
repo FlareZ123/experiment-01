@@ -29,12 +29,3 @@ The cross-reference matches **event, physical round, both decks, opposing archet
 ## Retained admission decision
 
 **0 newly admitted original printed 60s. Missing remains ranks 23, 25 and 28.** Potentially useful next queries are the first-person kume author/profile, the exact participant identity behind other Top32 nickname posts, and official registration images or deck codes. The original tournament field cannot be silently represented by near-copy or archetype-average approximations. Full 32-way competitive win-rate claims remain blocked.
-
-
-## 15 November 2026: first-person "いとこ" Regidrago lead (not admitted)
-
-A new exact retrieval lead is the first-person note [〖CL愛知エクTOP16&32〗やまびこホーンレジドラゴ](https://note.com/itoko_/n/n0758eccdf029), published 2026-05-13 by the author using the handle **いとこ**. The free/search-visible portion says the author used Regidrago and finished **BEST32**, while an adjustment-group member named ひな finished **BEST16**. It also exposes the string `ySpy2S-Ey5WAe-RX3Rpp` beside the author's deck image. The article is marked ¥200+; this review did not access paid content. The visible preview does not supply a verified card-by-card 60, and the code has not been resolved into one.
-
-The contemporaneous [Pokekameshi Aichi Extra Top32 roundup](https://pokekameshi.com/cl2026aichidec-extra/2/) independently lists **いとこ** as a Regidrago Top32 entrant and quotes the author's 10 May X post ([`@itoko_pokemon`](https://x.com/itoko_pokemon)) reporting Best32. The [Limitless final standings](https://limitlesstcg.com/tournaments/566) list the two still-missing Regidrago rows as **23 Yuki Ueno** and **28 Jo Kato**, but neither the note nor the roundup connects いとこ to either real-name row. The note's generic BEST32 claim is not a final-rank bridge; do not assign rank 23 or 28 from archetype, article order, or Swiss standing.
-
-**Disposition:** useful primary-source retrieval lead; **not an authenticated original 60 and not rank-attributed**. No opponent admission or 29/32 coverage change. Next admissible step would require a public, defensible いとこ-to-Yuki-Ueno/Jo-Kato identity bridge and an accessible original 60/deck-code resolution, without relying on paid material or a similar list.
