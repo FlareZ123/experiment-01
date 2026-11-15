@@ -1,3 +1,11 @@
+## 2026-11-15T14:38:14.194Z — second Agent49 implementation delta reviewed
+
+- New canonical head `b9326854b009144f77f345f7ad6a750f93ba5b6c` adds the Node VM global-prototype hardening proposed by Agent15: context global prototype set to null, own `constructor`/`__proto__` neutralized, ordinary/async/generator/async-generator Function prototype constructors neutralized/frozen; it also adds global/prototype/function-constructor escape probes, startup-failure reporting and post-load/init/decision macrotask settling checks for deferred RNG draws. Exact diff and worker source reviewed; no new actionable defect identified.
+- Commit `b932685` currently has zero status/check runs. The Node22 local probe confirms the prototype-neutralization mechanism works in the available Node22 runtime, but that is not acceptance: the pinned Node24 contract run is still mandatory. Do not claim the VM escape fixed until Node24 passes.
+- The previous `71ef1d0` native helper/prompt/frontier fixes remain; V3 runner's explicit 6000 action cap still needs to be removed or changed to null. No fixture dispatch until all contract, sanitizer and compile-enabled/no-fixture gates pass.
+
+---
+
 ## 2026-11-15T14:34:50.020Z — first Agent49 implementation delta reviewed
 
 - New canonical branch commit `71ef1d0d7ba9148fa16d5e2a1d39b63fd94986ad` ("Agent 49: fix frontier, prompt, and fixture-cap contracts") changes five code/test files: action-frontier ability source projection, NightWatchPrompt projection and protocol selection type, explicit `maxActions:null` acceptance/unbounded native loop, and one-shot TestPrompt insertion in the fake Store. It adds a 3001-action natural-terminal regression for explicit null. Reviewed the exact diff and relevant prompt tests; no new actionable defect found.
