@@ -84,7 +84,7 @@ The same pinned action frontier has another exact used-ability rejection gap:
 - Pinned `ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/forest-seal-stone.ts` handles its `PowerEffect` by throwing `GameError(GameMessage.LABEL_VSTAR_USED)` once `player.usedVSTAR === true`.
 - Current `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` includes `POWER_ALREADY_USED` and `BLOCKED_BY_EFFECT`, but not `LABEL_VSTAR_USED`.
 
-After Star Alchemy is used, the next frontier build still enumerates it and validation can abort on this distinct pinned error. Add the exact `LABEL_VSTAR_USED` rejection to the appropriate ability family (or prefilter the already-used VSTAR power), with a compiled native regression that keeps another valid action in the frontier. This is distinct from the Dedenne-style `POWER_ALREADY_USED` case already added.
+After Star Alchemy is used, the next frontier build still enumerates it and validation can abort on this distinct pinned error. The frozen rank-1 policy itself gates Star Alchemy on `vstarUsed === false`, but that policy-side guard cannot protect the host: the frontier is built before the worker decides and still dispatches every enumerated power. Add the exact `LABEL_VSTAR_USED` rejection to the appropriate ability family (or prefilter the already-used VSTAR power), with a compiled native regression that keeps another valid action in the frontier. This is distinct from the Dedenne-style `POWER_ALREADY_USED` case already added.
 
 
 ### Additional still-live P0: GX attack already used
@@ -96,7 +96,7 @@ The active attack frontier has the analogous once-per-game GX rejection gap:
 - Pinned `Dialga-GX UPR` calls `BLOCK_IF_GX_ATTACK_USED(player)`; the pinned helper throws `GameError(GameMessage.LABEL_GX_USED)` when `player.usedGX === true`.
 - Current `EXPECTED_REJECTIONS.ATTACK_ACTION` includes `CANNOT_USE_ATTACK` but not `LABEL_GX_USED`.
 
-After either player's GX attack has been used, a later frontier build while that GX attacker remains Active will still enumerate the GX attack and can abort on `LABEL_GX_USED`. Add that exact rejection to `ATTACK_ACTION` (or prefilter GX attacks when `usedGX` is true), with a compiled native regression that also verifies another legal attack remains available.
+After either player's GX attack has been used, a later frontier build while that GX attacker remains Active will still enumerate the GX attack and can abort on `LABEL_GX_USED`. The frozen candidate policy gates Timeless-GX on `gxUsed === false`, but that policy-side guard cannot protect the host: the frontier is built before the worker decides and still dispatches every enumerated attack. Add that exact rejection to `ATTACK_ACTION` (or prefilter GX attacks when `usedGX` is true), with a compiled native regression that also verifies another legal attack remains available.
 
 
 ### Correction to section B.8 — Battle VIP Pass / VS Seeker narrow witness is present
