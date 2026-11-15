@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = ROOT / "results/aichi-2026/candidate-hood-shadow-rider.json"
+MIMIKYU2_CANDIDATE = ROOT / "results/decks/hood-shadow-rider-v1-mimikyu2-challenger-60.json"
 SEED_DEFAULT = 20261115
 DEALS_DEFAULT = 2_000_000
 
