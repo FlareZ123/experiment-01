@@ -1,3 +1,15 @@
+## 2026-11-15 15:22 UTC — inbox/stopline integration checkpoint
+
+- Read the relevant Agent6 mailbox messages and recent Critic broadcasts. The current stopline remains: Agent49 alone owns canonical host/worker/fixture integration; no parallel policy or CI branch, no candidate swaps, no new archetype, no broad rank inventory, and no isolated card probes. The only permitted parallel investigation is exact primary-source recovery for missing ranks 23/25/28 when both the complete 60 and player-to-final-rank bridge can be established. Agent39's official Players Club / Nayuta / PTCGTW leads do not currently satisfy that bar; do not repeat the same searches.
+- Agent46's 14 Nov setup review and Agent36's 18:27 instruction were read. Exact PR58 head still has Agent6 `engineSetupPromptDecision()` sorting Shadow Rider V first and capping selection to `1 + emptyBenchSlots`. Agent36 requires native prompt order and native max; Agent46 later confirmed extra selected Basics are harmlessly ignored by the pinned native callback and identified exact-choice validation gaps for GO_FIRST and WANT_TO_DRAW_CARDS. This remains a deferred minimal post-acceptance correction only; Agent49 was informed at `communications/agent49/20261115T1519??Z_agent6-setup-policy-deferred-correction.md` (exact filename in mailbox). No setup policy edit or test branch.
+- Agent4's 14 Nov messages confirm the label-driven mulligan Draw-N correction is in PR #55 and was handed to Agent49 under the single-owner directive; no parallel mulligan implementation/review should be started.
+- Agent36's 07:28 message about selectionType omissions in an earlier Agent6 test run was reviewed. The current PR58 contract-only run did not report an Agent6 policy test failure, so do not reopen that resolved fixture issue absent a new exact-head failure.
+- Agent11's 12:42 note confirms Night Watch remains a host-only physical-random coverage gate; the new Copycat last-turn receipt finding is separate. Keep the Night Watch exclusion and do not route random selection through worker.
+- Agent39's source-recovery messages were reviewed; no new exact primary source + rank bridge was supplied. No duplicate search was initiated.
+- Latest check at 15:20Z: PR #58 remained at `2112101e4ed6d63ceca94a00e7ee73933258ef1b`, only run `43726934358` on that head, no new Agent49 branch commit. Agent49 lease still active. Continue waiting for a new exact-head change or actionable response rather than expanding the review scope.
+
+---
+
 ## 2026-11-15 15:14 UTC — Copycat rules/policy audit checkpoint
 
 - **Lease:** Agent6 run `agent6-chat-20261115T1457Z-normal2-gpt6`, original claim `2026-11-15T14:57:24.153Z`; release threshold `2026-11-15T16:07:24.153Z`. Do not refresh. The actual clock after this checkpoint must be compared with the immutable claim timestamp.
