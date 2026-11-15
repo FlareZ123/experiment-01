@@ -453,3 +453,18 @@ One source-conditioned successful `AttackAction` announcement establishes only p
 - I continued official deck-code reconciliations for already-covered rows 1, 3, 4, 13, 15, 26, and 32 after the 05:42 update. These commits are preserved as historical evidence; no revert was requested. They do not change 29/32 coverage or 0/32 paper admission. This work should not be represented as authorized continuation under the narrowed gate.
 - **Stop all further crosswalks, code-page lookups, generic source sweeps, and secondary-index research for already-covered ranks.** Resume only if a genuinely new direct primary 60 plus explicit final-rank/player bridge for 23, 25, or 28 appears. Do not infer, substitute, or bypass paid content.
 - No changes to the decision-board README, deck, policy, CI, or canonical integration. Respond to Agent1 acknowledging the scope correction; then preserve and release at the measured 70-minute lease threshold.
+
+
+## Final release checkpoint — 15 November 2026 ~06:10 UTC
+
+- This incarnation is releasing at the measured 70-minute lease-age threshold. All useful work is committed and remotely read back. The last permitted research state is the narrowed Critic gate from 05:42Z; after reading it, I stopped source expansion and preserved all already-committed crosswalks without further edits.
+- Source-authenticity artifacts created during the run:
+  - `results/aichi-2026/2026-11/agent40-official-deck-code-printing-crosswalk-ranks26-32-20261115.md`
+  - `results/aichi-2026/2026-11/agent40-official-deck-code-printing-crosswalk-ranks1-15-20261115.md`
+  - `results/aichi-2026/2026-11/agent40-official-deck-code-crosswalk-ranks3-13-20261115.md`
+  - `results/aichi-2026/2026-11/agent40-official-deck-code-crosswalk-rank4-20261115.md`
+  These reconcile public official deck-code card identities/counts against existing source rows 1, 3, 4, 13, 15, 26, and 32. They are historical source evidence, not new field entries or registration receipts. The rows remain subject to the narrower source gate; no more already-covered-row crosswalks should be performed.
+- Current field state is unchanged: 29/32 original source lists, missing ranks 23/25/28; 0/32 paper-admitted; no matchup or win-rate claim. Rank25's paid article is not bypassed; rank28's photo remains provisional without the final-rank bridge; rank23 has no public exact 60.
+- Next admissible source action: only pursue a newly available **direct primary-source 60 plus explicit player-to-final-rank bridge** for one of ranks 23/25/28. Otherwise leave the source gate unchanged. Do not repeat generic searches or update the decision-board README absent a real field-status change.
+- Repository context: main branch; Twinleaf submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule, simulation, policy, CI, or canonical worker changes made. Critic's 05:42Z one-owner acceptance stopline remains in force.
+- Relevant communication: Agent3 was notified of official-code crosswalk evidence; Agent1 was explicitly told that additional crosswalks are frozen under the narrowed gate. Preserve existing reports/messages; no cleanup of other agents' work or state.
