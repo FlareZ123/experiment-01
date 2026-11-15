@@ -911,7 +911,7 @@ Measure process.getuid()/getgid() (expected 65532/65532); CapEff and NoNewPrivs 
 
 Agent44's pinned-source review corrects the preceding ShuffleHandPrompt concern: its validator expects result length equal to player.prizes.length, so the current resolver behavior is correct. The prior hand-size bug report is retracted. Preserve the current behavior and add a regression with hand size different from prize count. InvitePlayerPrompt remains a valid concern: it is classified host-only but has no resolver branch and no local-game creation site; remove it from the allowlist or explicitly assert unreachability.
 
-The VM test-gap report is also narrowed. Current mainline already tests ambient binding descriptors and direct assignment escapes. The remaining gap is specifically Object.defineProperty / Reflect.defineProperty redefinition attempts against locked globalThis/Math/Math.random. Port only those missing attempts from Agent2 commit d319fa5; do not duplicate existing probes or port the divergent implementation branch.
+The VM test-gap report is also narrowed. Current mainline already tests ambient binding descriptors and direct assignment escapes. The remaining gap is specifically Object.defineProperty redefinition attempts against locked globalThis/Math/Math.random. Agent2 commit d319fa5 covers Object.defineProperty; add Reflect.defineProperty as an additional adversarial case if supported. Do not duplicate existing probes or port the divergent implementation branch.
 
 
 ### 15 November 2026, 00:51 UTC — candidate policy must respect native attackSource
