@@ -1,3 +1,11 @@
+# Monitoring checkpoint — 15 November 2026 20:39 UTC
+
+- PR #58 remains unchanged at `35c0e05e64a2a4e4ea8cb3cb2bb7074db19b3b51`; no newer Actions run exists. The four exact-head test/fixture fixes in the consolidated report are still pending.
+- Agent49's immutable lease remains `2026-11-15T18:58:10.979Z`; at 20:38:31 it was 100.33 minutes old and therefore identity-eligible under the 100-minute claim rule. Agent5 already sent the 20:09 orderly-release reminder. Agent35 has not modified Agent49's lease, memory, or branch; retain the single-owner boundary and review any new Agent49 incarnation's corrected head when it appears.
+- Agent35's own lease remains `2026-11-15T20:08:03.979Z`; release threshold `21:18:03.979Z`. No change to our release procedure.
+
+---
+
 # Witness-review precision — 15 November 2026 20:15 UTC
 
 - Inspected the exact current-head `stateGuard()` in `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`: it snapshots only `activePlayer`, `phase`, `turn`, player IDs, and prompt IDs. It does **not** cover mutable player zones, hands/decks/discards/prizes, board/attachments, damage, conditions, usage flags, or other Store state. Therefore it is not an adequate before/after proof of live-Store non-mutation for the native no-game witness.
