@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 
 const MAX_ACTION_FRONTIER_ITEMS = 256;
 
@@ -138,14 +138,31 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       break;
     }
     case 'ATTACK_ACTION': {
-      actorCard = slotPokemon(player.active);
-      if (!actorCard || typeof action.name !== 'string') return null;
+      const source = action.__agent3AttackSource;
+      const expectedSlot = {
+        'active-pokemon': 'ACTIVE',
+        'bench-pokemon': 'BENCH',
+        'active-tool': 'ACTIVE_TOOL'
+      }[source?.sourceKind];
+      if (!source || !expectedSlot || source.sourceSlot !== expectedSlot ||
+          !Number.isSafeInteger(source.sourceIndex) || source.sourceIndex < 0 ||
+          typeof source.sourceCardName !== 'string' || source.sourceCardName.length === 0 ||
+          typeof source.sourceCardFullName !== 'string' || source.sourceCardFullName.length === 0 ||
+          typeof source.attackName !== 'string' || source.attackName.length === 0 ||
+          action.name !== source.attackName) return null;
       item.kind = 'attack';
-      item.label = 'Attack ' + action.name;
-      const printing = cardPrinting(actorCard);
-      if (printing) item.actorPrinting = printing;
-      item.attackName = action.name;
+      item.label = 'Attack ' + source.attackName;
+      item.actorPrinting = source.sourceCardFullName;
+      item.attackName = source.attackName;
       metadata.attackCostPayable = true;
+      metadata.attackSource = {
+        sourceKind: source.sourceKind,
+        sourceSlot: source.sourceSlot,
+        sourceIndex: source.sourceIndex,
+        sourceCardName: source.sourceCardName,
+        sourceCardFullName: source.sourceCardFullName,
+        attackName: source.attackName
+      };
       break;
     }
     case 'RETREAT_ACTION': {
@@ -164,7 +181,9 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       metadata.targetIndex = action.benchIndex;
       break;
     }
-    case 'USE_ABILITY_ACTION': {
+    case 'USE_ABILITY_ACTION':
+    case 'USE_TRAINER_ABILITY_ACTION':
+    case 'USE_ENERGY_ABILITY_ACTION': {
       target = targetProjection(action.target, state, actorSeat, native);
       if (!target || typeof action.name !== 'string') return null;
       item.kind = 'use-ability';
@@ -214,10 +233,52 @@ function stateGuard(state) {
   };
 }
 
+function playCardRejectionFamily(action,state,actorSeat,native){
+  if(action?.type!=='PLAY_CARD_ACTION')return null;
+  const card=state.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  if(native.EnergyCard&&card instanceof native.EnergyCard)return 'ENERGY';
+  if(native.TrainerCard&&card instanceof native.TrainerCard){
+    const trainerTypes=native.TrainerType??{};
+    for(const family of ['SUPPORTER','STADIUM','ITEM','TOOL']){
+      if(trainerTypes[family]!==undefined&&card.trainerType===trainerTypes[family])return family;
+    }
+  }
+  return null;
+}
+
+const EXPECTED_REJECTIONS=Object.freeze({
+  ATTACK_ACTION:new Set([
+    'CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION',
+    'BLOCKED_BY_EFFECT','CANNOT_USE_ATTACK','LEEK_SLAP_CANNOT_BE_USED_AGAIN',
+    'NOT_ENOUGH_ENERGY'
+  ]),
+  USE_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_TRAINER_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_ENERGY_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_STADIUM_ACTION:new Set(['STADIUM_ALREADY_USED'])
+});
+
+const EXPECTED_PLAY_CARD_REJECTIONS=Object.freeze({
+  SUPPORTER:new Set(['CANNOT_PLAY_THIS_CARD','SUPPORTER_ALREADY_PLAYED']),
+  STADIUM:new Set(['STADIUM_ALREADY_PLAYED','SAME_STADIUM_ALREADY_IN_PLAY']),
+  ENERGY:new Set(['ENERGY_ALREADY_ATTACHED'])
+});
+
+function isExpectedActionRejection(action,state,actorSeat,native,error){
+  const errorClass=error?.constructor?.name??error?.name;
+  if(errorClass!=='GameError'||typeof error.message!=='string')return false;
+  if(action?.type==='PLAY_CARD_ACTION'){
+    const family=playCardRejectionFamily(action,state,actorSeat,native);
+    return EXPECTED_PLAY_CARD_REJECTIONS[family]?.has(error.message)===true;
+  }
+  return EXPECTED_REJECTIONS[action?.type]?.has(error.message)===true;
+}
+
 function buildNativeActionFrontier({
   state,
   actorSeat,
   native,
+  enumerator: suppliedEnumerator = null,
   maxItems = MAX_ACTION_FRONTIER_ITEMS
 } = {}) {
   assert.ok(state && Array.isArray(state.players) && state.players.length === 2);
@@ -234,7 +295,9 @@ function buildNativeActionFrontier({
 
   const before = stateGuard(state);
   const player = state.players[actorSeat];
-  const enumerator = new native.ActionEnumerator();
+  const enumerator = suppliedEnumerator ?? new native.ActionEnumerator();
+  assert.ok(enumerator && typeof enumerator.enumerate === 'function',
+    'a pinned or explicitly supplied native ActionEnumerator is required');
   const candidates = enumerator.enumerate(state, player, player.id);
   assert.ok(Array.isArray(candidates), 'ActionEnumerator did not return an array');
 
@@ -250,18 +313,18 @@ function buildNativeActionFrontier({
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    let legal = false;
+    // Construct the deep-cloned Simulator outside the expected-rejection
+    // catch: constructor instability is an engine failure, never an illegal move.
+    const simulator = new native.Simulator(state);
+    assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+      'native Simulator did not expose a validation Store');
     try {
-      // Simulator deep-clones the native State. Dispatching to its Store is a
-      // legality check only; it does not resolve prompts or mutate the live Store.
-      const simulator = new native.Simulator(state);
       simulator.store.dispatch(action);
-      legal = true;
-    } catch {
+    } catch(error) {
+      if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
       rejectedCount += 1;
       continue;
     }
-    if (!legal) continue;
     const token = 'act-' + items.length.toString(36);
     const item = projectNativeAction(action, state, actorSeat, native, token);
     if (!item) {
@@ -308,17 +371,26 @@ function selectedNativeAction(frontier, token) {
   return action;
 }
 
-function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native, dispatch=true } = {}) {
-  assert.ok(store && typeof store.dispatch === 'function');
-  assert.ok(actorSeat === 0 || actorSeat === 1);
-  const action = selectedNativeAction(frontier, token);
-  assert.equal(action.clientId, state.players[actorSeat].id,
+function dispatchSelectedNativeAction({
+  store,frontier,token,state,actorSeat,native,withValidationRandom,dispatch=true
+}={}){
+  assert.ok(store&&typeof store.dispatch==='function');
+  assert.ok(actorSeat===0||actorSeat===1);
+  assert.equal(typeof withValidationRandom,'function',
+    'selected-action revalidation requires an isolated deterministic RNG scope');
+  const action=selectedNativeAction(frontier,token);
+  assert.equal(action.clientId,state.players[actorSeat].id,
     'worker-selected action belongs to a different physical seat');
-  assert.equal(store.state, state,
+  assert.equal(store.state,state,
     'native Store state changed while the worker decision was pending');
-  // Revalidate the chosen token on a fresh clone immediately before dispatch.
-  const simulator = new native.Simulator(state);
-  simulator.store.dispatch(action);
+  // Only clone validation uses the deterministic stream. Real gameplay dispatch
+  // runs after the scope restores the physical RNG.
+  withValidationRandom(()=>{
+    const simulator=new native.Simulator(state);
+    assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+      'native Simulator did not expose a validation Store');
+    simulator.store.dispatch(action);
+  });
   return dispatch?store.dispatch(action):action;
 }
 

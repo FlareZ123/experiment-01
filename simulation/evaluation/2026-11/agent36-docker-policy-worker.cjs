@@ -39,11 +39,12 @@ function sha256(bytes){
 }
 
 function assertLocalDockerSelection(){
-  for(const key of ['DOCKER_HOST','DOCKER_CONTEXT']){
-    const value=process.env[key];
-    assert.ok(value===undefined||value==='',
-      'remote Docker daemon/context override is forbidden: '+key);
-  }
+  const dockerHost=process.env.DOCKER_HOST;
+  const dockerContext=process.env.DOCKER_CONTEXT;
+  assert.ok(dockerHost===undefined||dockerHost==='',
+    'remote Docker daemon/context override is forbidden: DOCKER_HOST');
+  assert.ok(dockerContext===undefined||dockerContext==='',
+    'remote Docker daemon/context override is forbidden: DOCKER_CONTEXT');
 }
 
 function dockerEnvironment(){
@@ -292,7 +293,7 @@ function cleanupWorkerMetadata(metadata){
 const activeWorkers=new Set();
 
 function inspectContainerExists(containerId){
-  const result=spawnSync(dockerBinary(),['inspect',containerId],{
+  const result=spawnSync('docker',['inspect',containerId],{
     encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
   });
   if(result.error)throw result.error;
@@ -304,7 +305,7 @@ function inspectContainerExists(containerId){
 
 function removeContainerById(containerId){
   if(!containerId)return false;
-  const result=spawnSync(dockerBinary(),['rm','-f',containerId],{
+  const result=spawnSync('docker',['rm','-f',containerId],{
     encoding:'utf8',timeout:5000,env:dockerEnvironment(),maxBuffer:1024*1024
   });
   if(result.error)throw result.error;
@@ -338,7 +339,7 @@ async function stopDockerPolicyWorker(child,{
   signal='SIGTERM',
   timeoutMs=1500
 }={}){
-  if(!child)return {stopped:true,containerId:null};
+  if(!child)return {stopped:true,processClosed:true,containerRemoved:true,containerId:null};
   const metadata=child.__agent36PolicyWorkerMetadata;
   if(metadata?.stoppingPromise)return metadata.stoppingPromise;
   const stop=async()=>{
@@ -360,7 +361,8 @@ async function stopDockerPolicyWorker(child,{
     containerId=metadata?(readContainerId(metadata.cidfile)??metadata.containerId):containerId;
     if(containerId)containerRemoved=removeContainerById(containerId);
     if(metadata){metadata.containerId=containerId;cleanupWorkerMetadata(metadata);}
-    return {stopped:!stillRunning(),containerId,containerRemoved};
+    const processClosed=!stillRunning();
+    return {stopped:processClosed,processClosed,containerId,containerRemoved};
   };
   if(metadata)metadata.stoppingPromise=stop();
   return metadata?metadata.stoppingPromise:stop();

@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const { enumName } = require('./agent36-native-action-frontier.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
@@ -256,12 +256,18 @@ function makeSource(prompt, state, actorSeat, provenance) {
     };
   }
   const promptType=prompt?.constructor?.name??'';
-  if((state.phase===0||state.phase===1)&&promptType==='ChooseStartingPokemonPrompt') {
+  const message=typeof prompt?.message==='string'?prompt.message:null;
+  const engineSetupPrompt=state.phase===1&&(
+    (promptType==='ChooseCardsPrompt'&&message==='CHOOSE_STARTING_POKEMONS')||
+    (promptType==='ConfirmPrompt'&&message==='GO_FIRST')||
+    (promptType==='SelectPrompt'&&message==='WANT_TO_DRAW_CARDS')
+  );
+  if(engineSetupPrompt) {
     return {
       classification:'actor-choice',
       sourceKind:'engine',
       sourcePrinting:null,
-      effectName:promptType
+      effectName:message
     };
   }
   throw Object.assign(new Error('Prompt has no trusted card-effect or allowlisted engine source'), {
@@ -314,10 +320,10 @@ function projectChooseCards(prompt, state, actorSeat, choices, choiceByToken) {
   const cards = cardListCards(prompt.cards);
   const visibility = cardCollectionVisibility(state, actorSeat, cards);
   const min = Math.max(0, Number.isSafeInteger(prompt.options?.min) ? prompt.options.min : 0);
-  const max = Math.min(cards.length,
-    Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length);
+  const requestedMax = Number.isSafeInteger(prompt.options?.max) ? prompt.options.max : cards.length;
   const blocked = new Set(prompt.options?.blocked ?? []);
   const indices = cards.map((_, index) => index).filter(index => !blocked.has(index));
+  const max = Math.min(indices.length, requestedMax);
   for (const index of indices) {
     const name = printing(cards[index]) ?? ('Card ' + (index + 1));
     addSelectableItem(choices, choiceByToken, index, {
@@ -531,7 +537,7 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
       if (disabled[index] === true) return;
       addChoice(choices, choiceByToken, index, {
         kind: 'option',
-        label: String(value),
+        label: prompt.message==='WANT_TO_DRAW_CARDS' ? ('Draw '+String(value)+' card(s)') : String(value),
         publicMetadata: { choiceIndex: index }
       }, prompt, state);
     });
@@ -565,14 +571,117 @@ function projectSimplePrompt(prompt, state, choices, choiceByToken) {
   return null;
 }
 
+function projectAttachEnergyPrompt({
+  prompt,state,actorSeat,native,store,source,choices,choiceByToken
+}={}){
+  const actor=state.players[actorSeat];
+  const supportedSource=source?.sourceKind==='card-effect'&&
+    source.effectName==='Underworld Door'&&
+    typeof source.sourcePrinting==='string'&&
+    source.sourcePrinting.startsWith('Shadow Rider Calyrex VMAX CRE');
+  if(!supportedSource){
+    throw Object.assign(new Error('AttachEnergyPrompt is not from the pinned Underworld Door source'),{
+      code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE'
+    });
+  }
+  assert.ok(store&&typeof store.reduceEffect==='function',
+    'AttachEnergyPrompt projection requires the native Store dynamic-type evaluator');
+  assert.ok(typeof native.CheckPokemonTypeEffect==='function'&&
+    native.EnergyCard&&native.EnergyType&&native.CardType&&native.SuperType&&
+    native.PlayerType&&native.SlotType,
+    'pinned AttachEnergyPrompt projection bindings are incomplete');
+  const exactPrompt=prompt.message==='ATTACH_ENERGY_TO_BENCH'&&
+    prompt.cardList===actor.hand&&
+    prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native.SlotType.BENCH&&
+    prompt.filter?.superType===native.SuperType.ENERGY&&
+    prompt.filter?.energyType===native.EnergyType.BASIC&&
+    prompt.filter?.name==='Psychic Energy'&&
+    prompt.options?.min===1&&prompt.options?.max===1;
+  if(!exactPrompt){
+    throw Object.assign(new Error('AttachEnergyPrompt does not match the pinned Underworld Door contract'),{
+      code:'UNSUPPORTED_ATTACH_ENERGY_PROMPT_SHAPE'
+    });
+  }
+
+  const energies=cardListCards(prompt.cardList).filter(card=>
+    card instanceof native.EnergyCard&&
+    card.energyType===native.EnergyType.BASIC&&
+    card.name==='Psychic Energy'&&
+    Array.isArray(card.provides)&&card.provides.includes(native.CardType.PSYCHIC));
+  const psychicBench=[];
+  for(let index=0;index<actor.bench.length;index++){
+    const slot=actor.bench[index];
+    const pokemon=slot?.getPokemonCard?.();
+    if(!pokemon)continue;
+    const effect=new native.CheckPokemonTypeEffect(slot);
+    store.reduceEffect(state,effect);
+    if(Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(native.CardType.PSYCHIC)){
+      psychicBench.push({index,pokemon});
+    }
+  }
+  if(energies.length===0||psychicBench.length===0){
+    throw Object.assign(new Error('Underworld Door AttachEnergyPrompt has no eligible actor-owned Psychic Energy/Bench assignment'),{
+      code:'NO_ELIGIBLE_ATTACH_ENERGY_CHOICES'
+    });
+  }
+
+  for(const target of psychicBench){
+    for(const energy of energies){
+      const rawResult=[{
+        to:{player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:target.index},
+        card:energy
+      }];
+      addChoice(choices,choiceByToken,rawResult,{
+        kind:'energy',
+        printing:printing(energy)??energy.name,
+        label:'Attach '+(printing(energy)??energy.name)+' to Bench '+(target.index+1)+
+          ': '+(printing(target.pokemon)??target.pokemon.name??'Psychic Pokemon'),
+        publicMetadata:{
+          sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+          energyType:'BASIC',zone:'bench',choiceIndex:choices.length,selectedCount:1
+        }
+      },prompt,state);
+    }
+  }
+  if(prompt.options?.allowCancel===true){
+    addCancelChoice(choices,choiceByToken,prompt,state);
+  }
+  if(choices.length===0){
+    throw Object.assign(new Error('No Underworld Door assignment passed native prompt validation'),{
+      code:'NO_VALID_ATTACH_ENERGY_CHOICES'
+    });
+  }
+  return {
+    selectionType:'energy-attachment',
+    count:choices.length,
+    minimumCount:1,
+    maximumCount:1,
+    allowCancel:prompt.options?.allowCancel===true,
+    sourceZone:'hand',
+    ownerSeat:'actor',
+    isOwnerVisible:true,
+    energyType:'BASIC',
+    zone:'bench'
+  };
+}
+
 function hostOnlyPrompt(prompt, provenance) {
   const name = prompt?.constructor?.name ?? '';
   if (['CoinFlipPrompt', 'ShuffleDeckPrompt', 'ShuffleHandPrompt', 'WaitPrompt',
-    'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt', 'InvitePlayerPrompt'].includes(name)) {
+    'AlertPrompt', 'ShowCardsPrompt', 'ShowMulliganPrompt'].includes(name)) {
     return { hostOnly: true, reason: name };
   }
-  const sourceName = provenance?.effectName ?? prompt?.message ?? prompt?.type ?? '';
-  if (/night\s*watch/i.test(String(sourceName))) {
+  // Night Watch's physical random selection is host-owned only for the exact
+  // pinned Trevenant & Dusknoir-GX SMP printing and a typed card-effect source.
+  // Prompt messages, prompt types, and free-form effect names are not authority.
+  const sourceCard = provenance?.sourceCard;
+  if (provenance?.sourceKind === 'card-effect' &&
+      provenance.effectName === 'Night Watch' &&
+      sourceCard?.name === 'Trevenant & Dusknoir-GX' &&
+      sourceCard?.set === 'SMP' &&
+      printing(sourceCard) === 'Trevenant & Dusknoir-GX SMP') {
     return { hostOnly: true, reason: 'NightWatchPhysicalRandom' };
   }
   return null;
@@ -668,7 +777,7 @@ function resolveHostOnlyPrompt({
   };
 }
 
-function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}) {
+function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -702,6 +811,11 @@ function projectPrompt({ prompt, state, actorSeat, native, provenanceHook } = {}
       break;
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
+      break;
+    case 'AttachEnergyPrompt':
+      publicMetadata=projectAttachEnergyPrompt({
+        prompt,state,actorSeat,native,store,source,choices,choiceByToken
+      });
       break;
     default:
       publicMetadata = projectSimplePrompt(prompt, state, choices, choiceByToken);

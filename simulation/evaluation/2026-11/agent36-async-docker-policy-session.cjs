@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
 const dockerWorker = require('./agent36-docker-policy-worker.cjs');
 
 class AsyncJsonLineChannel {
@@ -152,9 +152,11 @@ class AsyncJsonLineChannel {
 function validateResponse(response, expected) {
   assert.ok(response && typeof response === 'object' && !Array.isArray(response));
   assert.deepStrictEqual(Object.keys(response).sort(), [
-    'decision', 'policyVersion', 'requestId', 'role',
+    'decision', 'policyDrawCount', 'policyVersion', 'requestId', 'role',
     'schema', 'seat', 'sequence', 'type'
   ].sort(), 'Worker response contains missing or unknown fields');
+  assert.ok(Number.isSafeInteger(response.policyDrawCount)&&response.policyDrawCount===0,
+    'every successful worker decision must attest zero policy RNG draws');
   assert.equal(response.schema, protocol.RESPONSE_SCHEMA);
   assert.equal(response.type, 'response');
   assert.equal(response.requestId, expected.requestId);
@@ -202,6 +204,21 @@ async function waitForChildClose(child, timeoutMs) {
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+function withAbsoluteDeadline(promise,deadlineAt,code,label='Docker policy worker I/O'){
+  assert.ok(Number.isFinite(deadlineAt),'absolute deadline must be finite');
+  assert.ok(typeof code==='string'&&code.length>0,'deadline error code is required');
+  const timeoutError=()=>Object.assign(new Error(label+' timed out'),{code});
+  const remainingMs=Math.ceil(deadlineAt-Date.now());
+  if(remainingMs<=0)return Promise.reject(timeoutError());
+  let timer;
+  const timeout=new Promise((_,reject)=>{
+    timer=setTimeout(()=>reject(timeoutError()),remainingMs);
+  });
+  return Promise.race([Promise.resolve(promise),timeout]).finally(()=>{
+    if(timer)clearTimeout(timer);
+  });
 }
 
 async function writeLine(stream, value) {
@@ -265,11 +282,12 @@ class AsyncDockerPolicySession {
     });
     this.channel = new AsyncJsonLineChannel(this.child);
     try {
-      const readyPromise = this.channel.next(this.options.startupTimeoutMs);
-      const [, ready] = await Promise.all([
-        writeLine(this.child.stdin, this.init),
-        readyPromise
-      ]);
+      const deadlineAt=Date.now()+this.options.startupTimeoutMs;
+      const readyPromise=this.channel.next(Math.max(1,deadlineAt-Date.now()));
+      const [,ready]=await withAbsoluteDeadline(
+        Promise.all([writeLine(this.child.stdin,this.init),readyPromise]),
+        deadlineAt,'POLICY_WORKER_STARTUP_TIMEOUT','Docker policy worker startup'
+      );
       assert.deepStrictEqual(ready, {
         schema: protocol.READY_SCHEMA,
         type: 'ready',
@@ -284,8 +302,12 @@ class AsyncDockerPolicySession {
       this.ready = ready;
       return this;
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     }
   }
@@ -319,11 +341,12 @@ class AsyncDockerPolicySession {
     assert.equal(this.pending, false, 'Only one policy decision may be in flight');
     this.pending = true;
     try {
-      const responsePromise = this.channel.next(this.options.requestTimeoutMs);
-      const [, response] = await Promise.all([
-        writeLine(this.child.stdin, request),
-        responsePromise
-      ]);
+      const deadlineAt=Date.now()+this.options.requestTimeoutMs;
+      const responsePromise=this.channel.next(Math.max(1,deadlineAt-Date.now()));
+      const [,response]=await withAbsoluteDeadline(
+        Promise.all([writeLine(this.child.stdin,request),responsePromise]),
+        deadlineAt,'POLICY_WORKER_REQUEST_TIMEOUT','Docker policy worker request'
+      );
       validateResponse(response, {
         requestId,
         sequence,
@@ -343,11 +366,16 @@ class AsyncDockerPolicySession {
         role: this.role,
         seat: this.seat,
         policyVersion: this.policyVersion,
+        policyDrawCount: response.policyDrawCount,
         bundleSha256: this.bundle.bundleSha256
       };
     } catch (error) {
+      const stderrTail=this.channel?.stderr??'';
       this.failed = true;
       await this.abort().catch(() => {});
+      if(error&&typeof error==='object'){
+        try{error.stderrTail=stderrTail;}catch{}
+      }
       throw error;
     } finally {
       this.pending = false;
@@ -397,6 +425,8 @@ class AsyncDockerPolicySession {
       });
       assert.equal(this.cleanupReceipt.stopped,true,
         'aborted Docker worker process must be confirmed stopped');
+      assert.equal(this.cleanupReceipt.processClosed,true,
+        'aborted Docker worker process closure must be confirmed');
       assert.equal(this.cleanupReceipt.containerRemoved,true,
         'aborted Docker worker container removal must be verified');
     } else {
@@ -423,6 +453,7 @@ module.exports = {
   AsyncJsonLineChannel,
   AsyncDockerPolicySession,
   createDockerPolicySession,
+  withAbsoluteDeadline,
   validateResponse,
   validateOptions
 };

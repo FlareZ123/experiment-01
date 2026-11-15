@@ -2,12 +2,16 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createValidationRandomScope,seededRandom}=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const {
   buildNativeActionFrontier,
   selectedNativeAction,
   dispatchSelectedNativeAction
 } = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+
+class GameError extends Error { constructor(message){super(message);this.name='GameError';} }
+class GameCoreError extends Error { constructor(message){super(message);this.name='GameCoreError';} }
 
 class PokemonCard {
   constructor(fullName) { this.fullName = fullName; this.name = fullName; }
@@ -27,8 +31,8 @@ function slot(card = null) {
   };
 }
 
-function fakeNative() {
-  const actions = [
+function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectActionTypes=['ATTACK_ACTION']}={}) {
+  const actions = providedActions ?? [
     {
       type: 'PLAY_CARD_ACTION',
       clientId: 'p0',
@@ -62,7 +66,8 @@ function fakeNative() {
     constructor(state) {
       this.store = {
         dispatch(action) {
-          if (action.type === 'ATTACK_ACTION') throw new Error('not payable');
+          onDispatch(action);
+          if (rejectActionTypes.includes(action.type)) throw new GameError('NOT_ENOUGH_ENERGY');
           return { accepted: action.type };
         }
       };
@@ -75,7 +80,8 @@ function fakeNative() {
     TrainerCard,
     EnergyCard,
     PlayerType: { BOTTOM_PLAYER: 1, TOP_PLAYER: 2, ANY: 3 },
-    SlotType: { BENCH: 2, ACTIVE: 1, BOARD: 9, HAND: 3, DECK: 4, DISCARD: 5 }
+    SlotType: { BENCH: 2, ACTIVE: 1, BOARD: 9, HAND: 3, DECK: 4, DISCARD: 5 },
+    TrainerType: { ITEM: 1, SUPPORTER: 2, STADIUM: 3, TOOL: 4 }
   };
 }
 
@@ -161,12 +167,79 @@ test('frontier is Simulator-validated, actor-visible, and opaque-token mapped', 
     token: 'act-0',
     state,
     actorSeat: 0,
-    native
+    native,
+    withValidationRandom:fn=>fn()
   });
   assert.deepEqual(result, { dispatched: true });
   assert.equal(dispatched, 1);
 });
 
+
+test('frontier simulation draws are deterministic and cannot advance the physical shuffle stream',()=>{
+  const ambientRandom=Math.random;
+  const physicalSeed=0x12345678;
+  const physicalRandom=seededRandom(physicalSeed);
+  const physicalControl=seededRandom(physicalSeed);
+  const expectedNextPhysicalDraw=physicalControl();
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom,physicalRandom
+  });
+  const runFrontier=()=>{
+    const validationDraws=[];
+    const native=fakeNative({onDispatch:()=>validationDraws.push(Math.random())});
+    const built=withValidationRandom(()=>buildNativeActionFrontier({
+      state:fixtureState(),actorSeat:0,native
+    }));
+    assert.ok(built.diagnostics.enumeratedCount>0);
+    assert.ok(validationDraws.length>0,'simulator probes must consume the validation stream');
+    assert.strictEqual(Math.random,ambientRandom);
+    return validationDraws;
+  };
+  const first=runFrontier();
+  const second=runFrontier();
+  assert.deepEqual(second,first,'validation probes must replay the same deterministic stream');
+  assert.equal(physicalRandom(),expectedNextPhysicalDraw,
+    'the next physical RNG value must be identical to a run without frontier construction');
+});
+
+test('selected-action clone revalidation cannot advance the physical RNG before real dispatch',()=>{
+  const state=fixtureState();
+  const action={type:'PASS_TURN',clientId:'p0'};
+  const built=buildNativeActionFrontier({
+    state,actorSeat:0,native:fakeNative({actions:[action],rejectActionTypes:[]})
+  });
+  const native=fakeNative({
+    actions:[action],rejectActionTypes:[],onDispatch:()=>Math.random()
+  });
+  const ambientRandom=Math.random;
+  let physicalDraws=0,validationDraws=0;
+  Math.random=()=>{physicalDraws++;return 0.75;};
+  const withValidationRandom=fn=>{
+    const physical=Math.random;
+    Math.random=()=>{validationDraws++;return 0.25;};
+    try{return fn();}finally{Math.random=physical;}
+  };
+  const store={
+    state,
+    dispatch(){
+      assert.equal(physicalDraws,0,
+        'clone validation must not consume the physical stream before real dispatch');
+      Math.random();
+      return {dispatched:true};
+    }
+  };
+  try{
+    const result=dispatchSelectedNativeAction({
+      store,frontier:built,token:'act-0',state,actorSeat:0,native,
+      withValidationRandom
+    });
+    assert.deepEqual(result,{dispatched:true});
+    assert.equal(validationDraws,1);
+    assert.equal(physicalDraws,1);
+  }finally{
+    Math.random=ambientRandom;
+  }
+});
 
 test('worker action preparation revalidates without dispatching before the shared game loop', () => {
   const state=fixtureState();
@@ -175,7 +248,7 @@ test('worker action preparation revalidates without dispatching before the share
   let dispatched=0;
   const store={state,dispatch(){dispatched++;return {dispatched:true};}};
   const action=dispatchSelectedNativeAction({
-    store,frontier:built,token:'act-0',state,actorSeat:0,native,dispatch:false
+    store,frontier:built,token:'act-0',state,actorSeat:0,native,withValidationRandom:fn=>fn(),dispatch:false
   });
   assert.equal(action.type,'PLAY_CARD_ACTION');
   assert.equal(dispatched,0);
@@ -192,7 +265,8 @@ test('dispatch rejects a stale Store state and a token owned by another seat', (
     token: 'act-0',
     state,
     actorSeat: 0,
-    native
+    native,
+    withValidationRandom:fn=>fn()
   }), /state changed/);
 
   const wrongSeat = {
@@ -211,4 +285,161 @@ test('dispatch rejects a stale Store state and a token owned by another seat', (
     actorSeat: 0,
     native
   }), /different physical seat|state changed/);
+});
+
+
+test('frontier only suppresses explicitly allowlisted GameError action-family rejections',()=>{
+  const cases=[
+    ...['CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION','BLOCKED_BY_EFFECT',
+      'CANNOT_USE_ATTACK','LEEK_SLAP_CANNOT_BE_USED_AGAIN','NOT_ENOUGH_ENERGY']
+      .map(message=>({type:'ATTACK_ACTION',message})),
+    ...['USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION']
+      .map(type=>({type,message:'CANNOT_USE_POWER'})),
+    {type:'USE_ABILITY_ACTION',message:'BLOCKED_BY_EFFECT'},
+    {type:'USE_STADIUM_ACTION',message:'STADIUM_ALREADY_USED'},
+    {type:'PLAY_CARD_ACTION',family:'SUPPORTER',message:'CANNOT_PLAY_THIS_CARD'},
+    {type:'PLAY_CARD_ACTION',family:'SUPPORTER',message:'SUPPORTER_ALREADY_PLAYED'},
+    {type:'PLAY_CARD_ACTION',family:'STADIUM',message:'STADIUM_ALREADY_PLAYED'},
+    {type:'PLAY_CARD_ACTION',family:'STADIUM',message:'SAME_STADIUM_ALREADY_IN_PLAY'},
+    {type:'PLAY_CARD_ACTION',family:'ENERGY',message:'ENERGY_ALREADY_ATTACHED'}
+  ];
+  for(const entry of cases){
+    const state=fixtureState();
+    if(entry.family==='SUPPORTER'||entry.family==='STADIUM'){
+      state.players[0].hand.cards[0].trainerType=
+        entry.family==='SUPPORTER'?2:3;
+    }else if(entry.family==='ENERGY'){
+      state.players[0].hand.cards[0]=new EnergyCard('Psychic Energy');
+    }
+    const action={type:entry.type,clientId:'p0',handIndex:0,name:'Expected rejection'};
+    const pass={type:'PASS_TURN',clientId:'p0'};
+    const native=fakeNative({
+      actions:[action,pass],rejectActionTypes:[],
+      onDispatch(candidate){
+        if(candidate===action)throw new GameError(entry.message);
+      }
+    });
+    const built=buildNativeActionFrontier({state,actorSeat:0,native});
+    assert.equal(built.diagnostics.rejectedCount,1,entry.type+' '+(entry.family??'')+' '+entry.message);
+    assert.deepEqual(built.actionFrontier.items.map(item=>item.kind),['pass']);
+  }
+});
+
+test('frontier propagates unknown, impossible, invalid-target and GameCoreError failures',()=>{
+  const cases=[
+    {type:'ATTACK_ACTION',message:'UNKNOWN_ATTACK',ErrorType:GameError},
+    {type:'USE_ABILITY_ACTION',message:'UNKNOWN_POWER',ErrorType:GameError},
+    {type:'USE_STADIUM_ACTION',message:'NO_STADIUM_IN_PLAY',ErrorType:GameError},
+    {type:'PLAY_CARD_ACTION',message:'INVALID_TARGET',ErrorType:GameError,family:'SUPPORTER'},
+    {type:'PLAY_CARD_ACTION',message:'CANNOT_PLAY_THIS_CARD',ErrorType:GameError,family:'ITEM'},
+    {type:'ATTACK_ACTION',message:'NOT_YOUR_TURN',ErrorType:GameError},
+    {type:'ATTACK_ACTION',message:'NOT_ENOUGH_ENERGY',ErrorType:GameCoreError}
+  ];
+  for(const entry of cases){
+    const state=fixtureState();
+    if(entry.family){
+      state.players[0].hand.cards[0].trainerType=
+        entry.family==='SUPPORTER'?2:1;
+    }
+    const action={type:entry.type,clientId:'p0',handIndex:0,name:'Fatal candidate'};
+    const pass={type:'PASS_TURN',clientId:'p0'};
+    const native=fakeNative({
+      actions:[action,pass],rejectActionTypes:[],
+      onDispatch(candidate){
+        if(candidate===action)throw new entry.ErrorType(entry.message);
+      }
+    });
+    assert.throws(()=>buildNativeActionFrontier({state,actorSeat:0,native}),
+      error=>error.message===entry.message);
+  }
+});
+
+test('frontier preserves typed active, bench, and tool attack sources', () => {
+  const sources = [
+    {
+      sourceKind: 'active-pokemon', sourceSlot: 'ACTIVE', sourceIndex: 0,
+      sourceCardName: 'Own Active Pokemon', sourceCardFullName: 'Own Active Pokemon SMP',
+      attackName: 'Active Attack'
+    },
+    {
+      sourceKind: 'bench-pokemon', sourceSlot: 'BENCH', sourceIndex: 0,
+      sourceCardName: 'Own Bench Pokemon', sourceCardFullName: 'Own Bench Pokemon SMP',
+      attackName: 'Bench Attack'
+    },
+    {
+      sourceKind: 'active-tool', sourceSlot: 'ACTIVE_TOOL', sourceIndex: 0,
+      sourceCardName: 'Forest Seal Stone', sourceCardFullName: 'Forest Seal Stone SWSH12',
+      attackName: 'Tool Attack'
+    }
+  ];
+  const actions = sources.map(source => {
+    const action = {
+      type: 'ATTACK_ACTION',
+      clientId: 'p0',
+      name: source.attackName
+    };
+    Object.defineProperty(action, '__agent3AttackSource', {
+      value: Object.freeze({ ...source }),
+      writable: false,
+      configurable: false,
+      enumerable: false
+    });
+    return action;
+  });
+  const state = fixtureState();
+  const native = fakeNative({ actions, rejectActionTypes: [] });
+  const built = buildNativeActionFrontier({ state, actorSeat: 0, native });
+  assert.equal(built.diagnostics.enumeratedCount, 3);
+  assert.equal(built.diagnostics.validatedCount, 3);
+  assert.equal(built.diagnostics.unsupportedCount, 0);
+  assert.deepEqual(built.actionFrontier.items.map(item => item.actorPrinting),
+    sources.map(source => source.sourceCardFullName));
+  assert.deepEqual(built.actionFrontier.items.map(item => item.publicMetadata.attackSource),
+    sources);
+  protocol.validateFrontier(built.actionFrontier);
+
+  const invalid = structuredClone(built.actionFrontier);
+  invalid.items[0].publicMetadata.attackSource.sourceSlot = 'BENCH';
+  assert.throws(() => protocol.validateFrontier(invalid),
+    error => error.code === 'BAD_ATTACK_SOURCE_METADATA');
+});
+
+test('frontier projects Trainer and Energy ability actions from hand and discard', () => {
+  const state = fixtureState();
+  state.players[0].discard.cards = [new EnergyCard('Discard Energy')];
+  const actions = [
+    {
+      type: 'USE_TRAINER_ABILITY_ACTION',
+      clientId: 'p0',
+      name: 'Hand Trainer Ability',
+      target: { player: 1, slot: 3, index: 0 }
+    },
+    {
+      type: 'USE_ENERGY_ABILITY_ACTION',
+      clientId: 'p0',
+      name: 'Discard Energy Ability',
+      target: { player: 1, slot: 5, index: 0 }
+    }
+  ];
+  const native = fakeNative({ actions, rejectActionTypes: [] });
+  const built = buildNativeActionFrontier({ state, actorSeat: 0, native });
+  assert.equal(built.diagnostics.validatedCount, 2);
+  assert.equal(built.diagnostics.unsupportedCount, 0);
+  assert.deepEqual(built.actionFrontier.items.map(item => item.kind),
+    ['use-ability', 'use-ability']);
+  assert.deepEqual(built.actionFrontier.items.map(item => item.publicMetadata), [
+    {
+      abilityName: 'Hand Trainer Ability',
+      sourceZone: 'hand',
+      sourceSeat: 'actor',
+      sourceIndex: 0
+    },
+    {
+      abilityName: 'Discard Energy Ability',
+      sourceZone: 'discard',
+      sourceSeat: 'actor',
+      sourceIndex: 0
+    }
+  ]);
+  protocol.validateFrontier(built.actionFrontier);
 });
