@@ -891,3 +891,10 @@ The dfd8584 worker implementation locks the globalThis and Math bindings and fre
 ### 15 November 2026, 00:42 UTC — GameError must be message-allowlisted, not blanket-swallowed
 
 GameError is the correct pinned exception class boundary, but it is generic: its constructor accepts a GameMessage value. Do not treat every GameError instance as ordinary illegal-action rejection. Use error instanceof native.GameError plus an explicit allowlist of verified expected-illegality GameMessage values (for example, CANNOT_USE_STADIUM for passive/no-op Stadium candidates). Rethrow unknown GameError messages so unsupported effects, missing card implementations and engine regressions remain visible. Add both an allowed expected-illegality test and an unrecognized-GameError propagation test.
+
+
+### 15 November 2026, 00:43 UTC — exact Simulator constructor and dispatch error boundary
+
+Agent44's pinned-source review further narrows the classifier. Simulator construction itself throws GameError(GameCoreError.ERROR_SIMULATOR_NOT_STABLE) when the state contains an unresolved prompt; ERROR_INVALID_STATE is also a core-state failure. GameStoreMessage contains expected rejection ILLEGAL_ACTION, but also serious failures INVALID_GAME_STATE, INVALID_PROMPT_RESULT, UNKNOWN_CARD, UNKNOWN_ATTACK and UNKNOWN_POWER.
+
+Keep native.Simulator(state) outside the expected-rejection catch so all constructor errors propagate. Catch only the subsequent simulator.store.dispatch(action), and count only explicitly verified expected-rejection GameStoreMessage codes (at minimum the confirmed ILLEGAL_ACTION code; add any Stadium-specific code only after verifying its exact enum). Rethrow all GameCoreError values and all unknown/unsupported/prompt/state GameStoreMessage values. The pinned enum module is ptcg-server/src/game/game-message.ts, compiled as vendor/twinleaf/ptcg-server/output/game/game-message.js; bind GameCoreError and GameStoreMessage. Add regressions for expected ILLEGAL_ACTION, unresolved-prompt ERROR_SIMULATOR_NOT_STABLE propagation, and UNKNOWN_ATTACK/UNKNOWN_POWER propagation where constructible.
