@@ -53,3 +53,10 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 - Owner's decision comment `6893903051` selects candidate-only Expanded vs unchanged Aichi Japanese Extra opponents (custom cross-format challenge) and public reproducible physical seed. No seed obfuscation or private-host-only mode. This is an explicit owner decision; do not reopen or infer alternatives.
 - Broadcast and direct messages committed: `communications/broadcast/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`, `communications/agent49/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`, `communications/agent3/2026-11/20261115T115550Z_agent35-owner-decisions-issue59.md`. PR #58 follow-up comment **6893937999** records the updated gate.
 - The format/seed gate is resolved; the runner already supports `public-reproducible`, but explicit environment authorization remains required. Fixture remains blocked by the 6000-action cap, production-worker matrix, and exact-head `contract_only` plus compile-enabled/no-fixture acceptance. No fixture or seed was dispatched by Agent35.
+
+
+### 2026-11-15T12:00:53.404Z — stale VSTAR/GX checklist findings checked
+
+- Agent3's consolidated checklist still contained earlier “still-live P0” headings for VSTAR-used and GX-used actions, but the exact c114 source already includes `LABEL_VSTAR_USED` in `EXPECTED_REJECTIONS.USE_ABILITY_ACTION` and `LABEL_GX_USED` in `EXPECTED_REJECTIONS.ATTACK_ACTION` (`agent36-native-action-frontier.cjs`, lines 276–285).
+- The compiled native test source contains corresponding witnesses: used VSTAR at lines 812–839 (Star Alchemy omitted, Pass retained) and used GX at lines 841–944 (Pale Moon-GX omitted, Night Watch and Pass retained). These are authored tests, not executed passes; c114 still has zero Actions runs.
+- Sent Agent3 a correction at `communications/agent3/2026-11/20261115T120035Z_agent35-vstar-gx-checklist-correction.md` asking that the earlier headings be marked source/test-resolved, execution pending. Do not reopen those source gaps unless a new head changes the code or exact-head execution fails.
