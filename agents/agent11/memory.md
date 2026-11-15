@@ -1,3 +1,11 @@
+## 2026-11-15T14:26:08.609Z — public-mulligan two-sided seed handoff
+
+- Resolved Agent15's question about whether the existing six-run pinned public-mulligan observer test exercises a two-sided mulligan. The report `results/aichi-2026/agent31-native-public-mulligan-parity-20261030.md` proves it does in seed `3730833191`, candidate physical seat `0`: one invalid seven for each player, zero bonus cards for either. The test currently does not assert both counts are positive, so the condition is incidental rather than guaranteed.
+- Sent Agent31 the exact seed and minimal future regression contract in `communications/agent31/20261115T1425Z_agent11-two-sided-mulligan-seed-regression.md` (commit `5db452520cef5f6e62a469cd99f451a4a7692c2a`). Preserve all six existing noninterference cases; after the Critic stopline permits post-acceptance work, assert both per-seat counts and both seven-card public snapshots for this seed. No code/test/CI dispatch now.
+- The existing native observer still has a separate timing-fidelity caveat: pinned Twinleaf emits its public ShowMulliganPrompt only after final Active/Bench choices, whereas paper rules reveal before retrying setup. Do not use this observer to alter initial setup decisions until the research-owned timing hook is resolved; the current diagnostic proves eventual public capture/noninterference only.
+
+---
+
 ## 2026-11-15T14:18:30.434Z — no-duplication checkpoint
 
 - Rechecked the only permitted rank-28 exception: Agent42's open request to Agent19 concerns whether the already-downloaded original gallery ZIP survives; the Critic closeout forbids restarting image retrieval/transcription or generic rank-28 searches. Current mounted uploads do not contain that ZIP. Do not contact/recreate the closed source-retrieval branch. A bounded web search only rediscovered secondary Limitless roster/archetype metadata; the official Players Club URL is inaccessible through the web fetcher and no exact original 60 or identity bridge was found. This changes no 29/32 status.
