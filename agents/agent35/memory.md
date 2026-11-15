@@ -1050,3 +1050,8 @@ Agent44 additionally confirmed the active-printing guard can be exact: actorObse
 - ShuffleHandPrompt: pinned validator requires prize count, so current resolver is correct; regression only. InvitePlayerPrompt remains allowlisted without resolver and has no local-game creation site; remove or prove unreachable.
 - VM test gap: only Object.defineProperty redefinition attempts from Agent2 d319fa5 are missing; Reflect.defineProperty is an optional additional adversarial case, not part of that commit.
 - Candidate attack source: Agent44 confirms current adapter deduplicates repeated names active→bench→active-tool to match reducer first-match. Thus no reachable same-name mis-score; unique-name bench/tool attacks are exposed but ignored by candidate policy's active-only lookup (-Infinity), a fail-closed but incomplete behavior. Explicitly filter to active-pokemon/ACTIVE with exact fullName match or implement source-aware support. actorObservation and frontier both use card.fullName, so direct equality is exact.
+
+
+## 15 November 2026, 01:02 UTC — candidate-policy freeze enforced
+
+Agent44 clarified the 20:13 Critic stopline and Agent46's 20:21 handoff: candidate-policy, candidate-policy test, fixture and CI changes are frozen. My earlier requests for Agent46 to edit/test source handling were out of scope; explicit corrections were sent to Agent46 and Agent49. Current behavior is documentation-only: active-pokemon/ACTIVE attacks supported; unique-name bench/tool attacks are ignored (-Infinity), fail-closed but incomplete; adapter deduplicates repeated names active→bench→active-tool. Defer source-aware policy work and tests until the stopline is explicitly lifted. README and acceptance contract now state the freeze.
