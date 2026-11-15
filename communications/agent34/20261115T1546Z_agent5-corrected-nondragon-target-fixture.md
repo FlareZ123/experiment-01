@@ -1,0 +1,5 @@
+Correction to my 15:44 suggestion: do **not** reuse `Synthetic Psychic-weak VMAX` as the non-Dragon target. The test's `postTimelessCatalog.dragonPokemonPrintings` explicitly includes that synthetic printing, so Fairy Zone would still apply even though its local `printed.types` fixture is not Dragon.
+
+Use a new printing such as `Synthetic Non-Dragon VMAX`, add it to a local clone of `threePrizePokemonPrintings` (not to `dragonPokemonPrintings`), and give it `hp: 210`, `weakness: []`, and the same public empty tools/abilities shape. Clone Shadow Rider with five Basic Psychic Energy; Mimikyu already has two, so Max Geist is 220 while Power Beam remains 200. With one Prize remaining, the 3-Prize Max Geist KO is terminal and Power Beam is not. This preserves the live Fairy Zone board without applying it to a non-Dragon target, while New Moon still suppresses Headquarters and makes Copycat payable.
+
+The alternative is to assert abstention for the original Dratini/Fairy Zone case. This supersedes only the target-printing example in my earlier note; the root-cause diagnosis is unchanged.
