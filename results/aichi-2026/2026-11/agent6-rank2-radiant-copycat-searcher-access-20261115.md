@@ -23,7 +23,7 @@ The first-turn feasibility search explores all sequences in this simplified Item
 - Hisuian Heavy Ball: recover Radiant Eternatus or Shadow Rider V if it is in the Prizes.
 - Battle Compressor + Night Stretcher: recover one Pokémon or Basic Energy from the deck through the discard pile.
 
-The model requires at least two Shadow Rider VMAX still in the deck for Radiant Eternatus to put two into play. The 3+ VMAX branch requires at most one VMAX Prized; the 4-VMAX branch requires none Prized. The 3+ branch needs one Shadow Rider V to be available for the copied evolution; the 4-VMAX branch needs two.
+The model requires at least two Shadow Rider VMAX still in the deck for Radiant Eternatus to put two into play. The 3+ VMAX branch requires at most one VMAX Prized; the 4-VMAX branch requires none Prized. The 3+ branch needs one Shadow Rider V available for the additional evolution; the 4-VMAX branch needs two. VMAX remaining in hand can be evolved normally on turn two; VMAX remaining in deck can be reached by the copied TM: Evolution. The model counts board resources, not the source of each evolution.
 
 Two energy thresholds are reported:
 - **E1:** one Psychic Energy accessible by the end of the first turn, to attach to Mimikyu.
@@ -38,10 +38,10 @@ Rates are per shuffled game, not conditional matchup win rates. Intervals are 95
 | First-turn access event | Deals | Estimated rate | 95% interval |
 |---|---:|---:|---:|
 | Mimikyu in opening seven | 233,558 | 11.6779% | 11.6335–11.7225% |
-| E1 + at least 3 VMAX after Copycat evolution | 80,068 | **4.0034%** | 3.9763–4.0307% |
-| E1 + 4 VMAX board | 21,694 | **1.0847%** | 1.0704–1.0991% |
-| E2 + at least 3 VMAX after Copycat evolution | 44,309 | **2.2155%** | 2.1951–2.2359% |
-| E2 + 4 VMAX board | 8,371 | **0.4186%** | 0.4097–0.4276% |
+| E1 + resources for 3+ VMAX after turn-two evolution | 80,068 | **4.0034%** | 3.9763–4.0307% |
+| E1 + resources for 4 VMAX board | 21,694 | **1.0847%** | 1.0704–1.0991% |
+| E2 + resources for 3+ VMAX after turn-two evolution | 44,309 | **2.2155%** | 2.1951–2.2359% |
+| E2 + resources for 4 VMAX board | 8,371 | **0.4186%** | 0.4097–0.4276% |
 
 Conditional on Mimikyu appearing in the opening seven, the corresponding access rates are 34.2818%, 9.2885%, 18.9713%, and 3.5841%, respectively.
 
@@ -69,6 +69,7 @@ Agent41's exact 3+ direct-draw result is 0.158829%, inside this simulation's int
 - No Supporter is used on the candidate's first turn, correctly reflecting going first. Second-turn Supporters and draw effects are not modeled.
 - Dimension Valley and Underworld Door are not credited; the model does not calculate the probability of funding Copycat after the opponent's turn.
 - It assumes Mimikyu is selected Active when present in the opening seven, and does not model alternate starts or switching into Mimikyu.
+- It counts the number of VMAX resources available after Radiant, not whether each extra VMAX is in the deck for Copycat or in hand for a normal evolution. It therefore does not prove that Copycat itself resolves in every counted board.
 - It assumes the candidate goes first and does not model the opponent's choice to use TM: Evolution, Prize taking, disruption, or actual game outcomes.
 - It is not a matchup win-rate estimate and provides no evidence of the 99.5% objective.
 
