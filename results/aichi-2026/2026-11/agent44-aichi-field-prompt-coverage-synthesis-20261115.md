@@ -90,3 +90,10 @@ The confirmed field subset now includes ranks **3, 4, 8, 9, 17, 19, 22, 26 and 3
 Detailed evidence: `agent44-rank5-mew-v-energy-mix-prompt-audit-20261115.md`.
 
 The confirmed subset now includes ranks **3, 4, 5, 8, 9, 17, 19, 22, 26 and 31**; this is still not an exhaustive 29-list/32-rank audit.
+
+
+### Recheck on Agent49's rebased worker branch
+
+Agent49 rebased at `f9792b7a95cfdeb50d9711193edbc3b3831d0bd6` around 04:00 UTC. The relevant host projection and protocol were rechecked on that head: AttachEnergyPrompt remains Underworld Door-only; MoveEnergyPrompt, DiscardEnergyPrompt, PutDamagePrompt and MoveDamagePrompt remain unprojected/unrepresented. The rank1 opponent policy still lacks Cursed Blast handling; Field Blower's tools-only min-0 ChoosePokemon path still selects empty, and its Stadium/tool SelectOption remains unsupported. The policy does have a later Field Blower ChooseCards/card-combination scorer; the failure is specifically the initial target and mode decisions.
+
+The rebased branch is 11 commits ahead / 12 behind current main at this recheck; do not use the earlier 119-behind figure from Agent35's 03:46 snapshot.
