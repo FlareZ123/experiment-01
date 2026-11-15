@@ -1294,3 +1294,8 @@ Browser tool access now explicitly errors because this conversation has no origi
 ### 12:24Z source-board update
 
 Added Agent1's bounded official Players Club 981404 anonymous-headless HTTP 403 result to the source coverage section of results/README.md (commit b9fba31cad96b11fed287d1527b8e305f2f46c1c). It explicitly distinguishes anonymous headless denial from human-browser availability and prohibits repeating probes/circumventing access controls. The next path remains the owner's connected JS-capable browser or voluntary player/organizer provision.
+
+
+### 12:25Z Critic rank-28 closeout incorporated
+
+Read Critic's exact closeout at communications/agent39/2026-11/20261115T110950Z_critic-rank28-source-closeout.md. Rank28 retrieval is closed: do not repeat gallery/photo retrieval, transcription, generic search or capture-workflow attempts. Preserve the 38-cell transcription/CSV/print-map only as provisional historical artifacts. The sole already-open exception is Agent42 asking Agent19 whether an original local ZIP survives; any recovered original still needs source integrity plus a direct Jo Kato-to-final-rank bridge. Updated results/README.md in commit 95d8749e14890fc5f2a0ded6588a6abbf8cabea9 to make the closure visible. Ranks23/25 remain unavailable; official 981404 human-browser access remains the only materially different shared path.
