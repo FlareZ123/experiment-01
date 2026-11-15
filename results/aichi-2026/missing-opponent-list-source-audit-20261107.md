@@ -124,3 +124,16 @@ A further public source route was checked without using paid content or inferred
 - The public [Players Club result endpoint](https://players.pokemon-card.com/event/detail/981404/result) is JavaScript-rendered in the current text retrieval path; this check did not retrieve additional individual records from it.
 
 **Disposition unchanged:** no exact 60 was recovered for ranks 23, 25, or 28; keep full-list coverage at 29/32. The Toresia mirror adds a checked source path but does not close any missing-rank row. Do not infer the three missing lists from the 16 exposed entries, archetype metadata, or the social-account rank claims.
+
+
+## 15 November 2026 addendum: unjoined public-list lead for rank 23
+
+A public event roundup exposes one additional lead, but not an authenticated rank-23 list:
+
+- [Pokekameshi, CL Aichi 2026 Extra, page 2](https://pokekameshi.com/cl2026aichidec-extra/2/) lists a Best32 Regidrago entry under the player label **Natsumegu / なつめぐ** and links to the public post [@yamatodaisuki, status 2053387997710872929](https://twitter.com/yamatodaisuki/status/2053387997710872929).
+- The [Limitless event results](https://limitlesstcg.com/tournaments/566) identify **Yuki Ueno** at rank 23. No direct public identity bridge between Yuki Ueno and Natsumegu / @yamatodaisuki was found in this check. Do not merge these records or attribute the Natsumegu post to rank 23 without a direct bridge.
+- The free [Nayuta 2026 CL Aichi Extra recipe collection](https://note.com/nayuta_poke/n/n7e3d0552090b) says it collected publicly posted X recipes and only included entries with at least 55 cards known. Its indexed text contains Regidrago and Eleki Rain sections, but does not expose the player/rank mapping or a complete rank-23/rank-25 60-card list. Treat it as a possible container for a public list, not as an authenticated source.
+- Text retrieval of the linked X post did not expose its content or a deck image, and searches did not establish the Natsumegu-to-Yuki identity bridge. No account restriction, login wall, or paid content was bypassed.
+- The free 10th-place Eleki Rain article by Yudofu 02 on the same roundup is a different player and must not substitute for rank 25 Kazuki Kumegawa. Kume's detailed note remains paid and is not accessed.
+
+**Disposition unchanged:** 29/32 full opponent lists remain authenticated. Ranks 23, 25, and 28 still lack authenticated exact 60-card lists. The Natsumegu post is a targeted voluntary/public-source lead only.

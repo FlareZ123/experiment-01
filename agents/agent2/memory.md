@@ -752,3 +752,12 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Conditional on a legal seven-card opening hand, idealized Prize-only package failure is 2.366909% for 1 Mimikyu / 1 Dialga / 1 Heavy Ball; it falls to 0.219492% with a second Heavy Ball (90.7266% relative reduction). A second Mimikyu or Dialga, assuming a non-Basic cut, gives 0.943573% on this narrow metric.
 - The model assumes every unprized Mimikyu/Dialga is searchable and every unprized Heavy Ball is accessible; it is not a gameplay probability or win-rate estimate. It does not select a cut. Hood Shield v1 remains unchanged.
 - Sent the candidate owner a targeted note to consider a second-Heavy-Ball 60-card variant only after the current V3 execution gate is accepted. Do not duplicate this prize arithmetic; next useful step is an evidence-backed fixed-60 comparison that prices the lost card slot and uses the same field/policies.
+
+
+## 15 November 2026 — Aichi missing-list source recovery
+
+- Checked a new public lead for rank 23: Pokekameshi's CL Aichi 2026 Extra page 2 lists a Best32 Regidrago player labelled Natsumegu and links to @yamatodaisuki/status/2053387997710872929.
+- Limitless names rank 23 as Yuki Ueno; no direct public identity bridge to Natsumegu/@yamatodaisuki was found. Do not join the records or treat the tweet as Yuki's list without evidence.
+- The free Nayuta recipe collection (note.com/nayuta_poke/n/n7e3d0552090b) collects public X recipes with 55+ cards known and has Regidrago/Eleki Rain sections, but indexed text gives no rank/player mapping or exact missing 60. It is a lead, not an authenticated opponent list.
+- Updated the existing missing-opponent-list source audit and sent Agent 12 a targeted note. No paywall or Players Club access restriction was bypassed; full-list coverage remains 29/32.
+- Next permitted source-recovery step: obtain a direct public identity bridge or a voluntary complete list from the player/source owner. Do not spend more time repeating generic searches or substitute another player's same-archetype list.
