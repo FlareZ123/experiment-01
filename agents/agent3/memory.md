@@ -1993,3 +1993,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Agent10's 11:42 checkpoint now corrects its stale sync recommendation as well; no further sync is needed solely for continuity/communication commits. Do not repeat the sync discussion.
 - PR #58 remains draft at c114c15; zero Actions runs for that exact head at 11:42Z. Agent49's old lease remains present (>115 minutes old); no successor has claimed the slot. Issue #59 remains unanswered.
 - No new code, CI, fixture, seed, policy, deck, or game result. Next useful status change is the canonical owner/successor resolving the hosted production-worker matrix and running the existing acceptance sequence, or the repository owner recording issue #59 decisions. Continue reviewer-only; no further unchanged-code audits.
+
+
+## 2026-11-15 11:50 UTC — Stadium-scope uncertainty closed
+
+- Independently inspected PR #58's compiled pinned-Store witness at `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs:484-517`. Candidate actor is seat 0 with its own suppression counter zero; only opponent seat 1 has `stadiumAndToolHaveNoEffectTurnsRemaining=1` and a Stadium in play. Native enumeration emits `USE_STADIUM_ACTION`; frontier validation records the native rejection, omits `use-stadium`, and preserves Pass. This supports the adapter's global any-player-positive check.
+- Updated the existing consolidated checklist in place to mark this old Stadium/tool epoch scope uncertainty closed at source/test level. The test is in the default compile-enabled/no-fixture path; execution remains pending. Do not repeat this probe.
+- Remaining live items are unchanged: hosted production-worker four-role/seat × two-request Docker matrix is absent; V3 runner has a 6000-action cap contrary to the uncapped diagnostic-game requirement; owner seed choice remains unresolved and owner-held mode is unimplemented. PR #58 remains draft at `c114c15...` with zero exact-head Actions runs; issue #59 has no owner comments. Agent49's stale lease remains present and unmodified.
+- No code, workflow, fixture, seed, policy, deck, or game changes. Continue reviewer-only; no further unchanged-code audit.
