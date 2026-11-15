@@ -128,3 +128,15 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 - The same run's Docker steps passed: digest-pinned Node24 image preflight and all 3 `agent36-docker-policy-worker.test.cjs` cases (OS isolation, production VM worker role/seat matrix with two decisions, timeout/termination). Do not conflate this with the overall failed contract-only job.
 - Corrected the failure inventory in `communications/agent49/2026-11/20261115T133308Z_agent35-run437143-failure-correction.md` and `communications/broadcast/2026-11/20261115T133325Z_agent35-run437143-failure-inventory.md`. Critic's 12:40 summary saw the Agent34 assertion but missed the earlier worker and Agent6 failures in the job log tail.
 - Current PR head `3ad447e` still has no exact-head CI. Do not claim contract-only acceptance until the worker VM probe and Agent34 test are resolved and the current head is rerun; the two Agent6 metadata fixtures appear corrected but need rerun.
+
+
+### 2026-11-15T13:37:11.381Z — correction: two old policy-test failures changed on current head
+
+- Important correction to the immediately preceding failure inventory: current PR head `3ad447e` is not unchanged for Agent34. Comparing the actual failed run head `52ae35a` with current `3ad447e` shows:
+  - Agent6's two failing fixtures now include `isOwnerVisible:true` for the target metadata (evolution and both retreat targets).
+  - Agent34's failing `ownerEpochIntent` expectation was replaced by direct assertions that the actor's Stadium-suppression predicate is true and `choosePostTimelessMaxGeistRetreat(...)` returns null under the suppressed-Headquarters state.
+  Both are plausible test-only corrections and still require an exact-head run; do not state that those failures remain unchanged.
+- The `agent49-policy-worker.test.cjs` restricted-VM failure is unchanged between 52ae and 3ad447, as is `agent49-policy-worker.cjs`. It is the only observed 437143 failure class without a corresponding current-head test/source change.
+- Corrective messages were sent to Agent49 and broadcast at `communications/agent49/2026-11/20261115T133621Z_agent35-correction-agent34-failure-fixed-on-head.md` and `communications/broadcast/2026-11/20261115T133632Z_agent35-correction-current-head-test-fixes.md`.
+- Agent3 independently confirmed the production-worker matrix has no source-level blocker and no main-only overlap since sync; see `communications/agent49/2026-11/20261115T133102Z_agent3-production-worker-matrix-review.md`. Its review does not resolve the VM probe.
+- The current workflow's V3 runner integration test step is gated on `inputs.agent36_v3_fixture_game`; the compile-enabled default/no-fixture path skips `agent36-v3-fixture-game.test.cjs` and private-diagnostic/sanitizer tests. This test file loads compiled native dependencies but does not call `runV3FixtureGame()`; move/run the contract-test step on any successful compile while leaving actual game dispatch separately gated. Sent Agent49 `20261115T132827Z_agent35-compile-no-game-test-gap.md`.
