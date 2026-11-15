@@ -233,6 +233,47 @@ function stateGuard(state) {
   };
 }
 
+function playCardRejectionFamily(action,state,actorSeat,native){
+  if(action?.type!=='PLAY_CARD_ACTION')return null;
+  const card=state.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  if(native.EnergyCard&&card instanceof native.EnergyCard)return 'ENERGY';
+  if(native.TrainerCard&&card instanceof native.TrainerCard){
+    const trainerTypes=native.TrainerType??{};
+    for(const family of ['SUPPORTER','STADIUM','ITEM','TOOL']){
+      if(trainerTypes[family]!==undefined&&card.trainerType===trainerTypes[family])return family;
+    }
+  }
+  return null;
+}
+
+const EXPECTED_REJECTIONS=Object.freeze({
+  ATTACK_ACTION:new Set([
+    'CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION',
+    'BLOCKED_BY_EFFECT','CANNOT_USE_ATTACK','LEEK_SLAP_CANNOT_BE_USED_AGAIN',
+    'NOT_ENOUGH_ENERGY'
+  ]),
+  USE_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_TRAINER_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_ENERGY_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_STADIUM_ACTION:new Set(['STADIUM_ALREADY_USED'])
+});
+
+const EXPECTED_PLAY_CARD_REJECTIONS=Object.freeze({
+  SUPPORTER:new Set(['CANNOT_PLAY_THIS_CARD','SUPPORTER_ALREADY_PLAYED']),
+  STADIUM:new Set(['STADIUM_ALREADY_PLAYED','SAME_STADIUM_ALREADY_IN_PLAY']),
+  ENERGY:new Set(['ENERGY_ALREADY_ATTACHED'])
+});
+
+function isExpectedActionRejection(action,state,actorSeat,native,error){
+  const errorClass=error?.constructor?.name??error?.name;
+  if(errorClass!=='GameError'||typeof error.message!=='string')return false;
+  if(action?.type==='PLAY_CARD_ACTION'){
+    const family=playCardRejectionFamily(action,state,actorSeat,native);
+    return EXPECTED_PLAY_CARD_REJECTIONS[family]?.has(error.message)===true;
+  }
+  return EXPECTED_REJECTIONS[action?.type]?.has(error.message)===true;
+}
+
 function buildNativeActionFrontier({
   state,
   actorSeat,
@@ -272,18 +313,18 @@ function buildNativeActionFrontier({
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    let legal = false;
+    // Construct the deep-cloned Simulator outside the expected-rejection
+    // catch: constructor instability is an engine failure, never an illegal move.
+    const simulator = new native.Simulator(state);
+    assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+      'native Simulator did not expose a validation Store');
     try {
-      // Simulator deep-clones the native State. Dispatching to its Store is a
-      // legality check only; it does not resolve prompts or mutate the live Store.
-      const simulator = new native.Simulator(state);
       simulator.store.dispatch(action);
-      legal = true;
-    } catch {
+    } catch(error) {
+      if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
       rejectedCount += 1;
       continue;
     }
-    if (!legal) continue;
     const token = 'act-' + items.length.toString(36);
     const item = projectNativeAction(action, state, actorSeat, native, token);
     if (!item) {
@@ -330,17 +371,26 @@ function selectedNativeAction(frontier, token) {
   return action;
 }
 
-function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native, dispatch=true } = {}) {
-  assert.ok(store && typeof store.dispatch === 'function');
-  assert.ok(actorSeat === 0 || actorSeat === 1);
-  const action = selectedNativeAction(frontier, token);
-  assert.equal(action.clientId, state.players[actorSeat].id,
+function dispatchSelectedNativeAction({
+  store,frontier,token,state,actorSeat,native,withValidationRandom,dispatch=true
+}={}){
+  assert.ok(store&&typeof store.dispatch==='function');
+  assert.ok(actorSeat===0||actorSeat===1);
+  assert.equal(typeof withValidationRandom,'function',
+    'selected-action revalidation requires an isolated deterministic RNG scope');
+  const action=selectedNativeAction(frontier,token);
+  assert.equal(action.clientId,state.players[actorSeat].id,
     'worker-selected action belongs to a different physical seat');
-  assert.equal(store.state, state,
+  assert.equal(store.state,state,
     'native Store state changed while the worker decision was pending');
-  // Revalidate the chosen token on a fresh clone immediately before dispatch.
-  const simulator = new native.Simulator(state);
-  simulator.store.dispatch(action);
+  // Only clone validation uses the deterministic stream. Real gameplay dispatch
+  // runs after the scope restores the physical RNG.
+  withValidationRandom(()=>{
+    const simulator=new native.Simulator(state);
+    assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+      'native Simulator did not expose a validation Store');
+    simulator.store.dispatch(action);
+  });
   return dispatch?store.dispatch(action):action;
 }
 
