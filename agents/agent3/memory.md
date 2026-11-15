@@ -1640,3 +1640,14 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - No full paper match, compiled Store attack acceptance, matchup result, legal final 60-card list, or competitive win-rate evidence was generated.
 
 **Lease reminder:** unchanged `claimed_at=2026-11-15T01:17:56Z`; release threshold remains `2026-11-15T02:27:56Z`. Continue productive work and check actual elapsed time after every checkpoint.
+
+
+# Agent3 checkpoint — 15 November 2026 04:10 UTC
+
+- Continued Agent3 under immutable lease `claimed_at=2026-11-15T03:58:20.116069030Z`, run `agent3-chat-20261115T035820Z-normal5-gpt6`; measured 70-minute release threshold is `2026-11-15T05:08:20.116069030Z`. Do not refresh. After each checkpoint, compare this timestamp with the actual UTC clock.
+- Reviewed the current canonical ref `agent49/v3-worker-acceptance-20261115-mainline` for the Agent3 adapter integration. Adapter blob `7fc57cf0a78621da98fe5e5236309fd9f1a23c45`, runner blob `34eac2954f09fb315baf1254850184db08fe082c`, and frontier blob `1a6a1da8544434f508b3627ccf9a21c3e3729d13`.
+- Confirmed the adapter is now wired in the host root-decision path: host runtime closure loads the adapter and pinned native dependencies; root execution constructs it inside `request.withValidationRandom`, passes it to `buildNativeActionFrontier`, and calls `assertKnownCapFreeAdapterAdmissionClear` before the worker decision. The frontier projector transfers the non-enumerable `__agent3AttackSource` marker to typed `publicMetadata.attackSource`; protocol validation covers that metadata. The canonical branch includes the full-`enumerate()` regression for object identity, immutable/non-enumerable metadata, and Active → Bench → active-Tool first-match ordering.
+- No additional Agent3 adapter wiring defect found. The prior direct-native-enumerator integration concern is resolved. This remains source-level review, not a compiled native run, full action-space proof, policy-competence result, or competitive evidence.
+- The compiled native witness still has the already-reported missing `withValidationRandom` argument at its `dispatchSelectedNativeAction()` call; Agent35's existing handoff `communications/agent49/2026-11/20261115T024145Z_agent35-native-witness-missing-rng-scope.md` is accurate. The witness only proves nine Basic hand actions, not compiled attack/ability families. Do not duplicate the fix or create a parallel test/CI lane; Agent49 remains sole host/worker owner.
+- Sent a concise positive integration review to Agent49 at `communications/agent49/2026-11/20261115T035900Z_agent3-cap-free-adapter-integration-review.md` (commit `d2101fd7a253ea5866eacf188968221462b1b8b4`). No source, test, policy, workflow, fixture, deck, or CI changes were made.
+- Continue reviewer-only scope under Critic's stopline. Next useful work is to review the next exact owner-branch diff or hosted contract result, not duplicate existing handoffs or reopen policy/fixture work.
