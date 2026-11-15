@@ -19,7 +19,7 @@
 
 `tests/agent49-actor-potential-knockout.test.cjs:140` expected the candidate policy to select `{kind:'attack', attackName:'Finish'}`, but the actual decision was `{kind:'pass', reason:'no-supported-owner-visible-root'}`.
 
-This is a pure actor-policy coverage failure, not a Docker worker transport or cleanup failure. The frozen candidate v1 policy does not recognize this owner-visible attack root in the test state. The Critic's policy freeze therefore blocks correcting the decision policy unless it is explicitly lifted or the test is shown to be outside the intended policy contract. Do not relabel this as a successful bilateral game.
+This assertion is explained by a fixture-schema omission, not a demonstrated candidate-policy limitation. The test's `view()` helper omits both `ownPublic.stadium` and `opponentPublic.stadium`; `publicStadiumPrintings()` requires both arrays and returns null when either is missing, while `effectiveNativeAttackCost()` then returns null and the root policy skips every attack. Add `stadium: []` to both zones and rerun before drawing any policy conclusion. This is not a Docker worker transport or cleanup failure, and it is not a completed bilateral game.
 
 ## Limitations and next action
 
