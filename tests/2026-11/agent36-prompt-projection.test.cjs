@@ -166,10 +166,28 @@ class OrderCardsPrompt {
 
 class NightWatchPrompt extends ChooseCardsPrompt {}
 class AttachEnergyPrompt {
-  decode(result){return result;}
-  validate(result){
-    if(result===null)return this.options?.allowCancel===true;
-    return Array.isArray(result)&&result.length===1;
+  decode(result){
+    if(result===null)return null;
+    return result.map(({to,index})=>({to,card:this.cardList.cards[index]}));
+  }
+  validate(transfers){
+    if(transfers===null)return this.options?.allowCancel===true;
+    if(!Array.isArray(transfers)||transfers.length!==1)return false;
+    const {to,card}=transfers[0]??{};
+    if(!this.cardList.cards.includes(card)||
+        !(card instanceof this.nativeEnergyCard)||
+        card.energyType!==this.nativeEnergyType.BASIC||
+        card.name!=='Psychic Energy'||
+        !Array.isArray(card.provides)||
+        !card.provides.includes(this.nativeCardType.PSYCHIC)||
+        to?.player!==PlayerType.BOTTOM_PLAYER||
+        to.slot!==SlotType.BENCH||
+        !Number.isInteger(to.index))return false;
+    const target=this.nativeState.players[this.nativeActorSeat].bench[to.index];
+    if(!target?.getPokemonCard?.())return false;
+    const effect=new this.nativeCheckPokemonTypeEffect(target);
+    this.nativeStore.reduceEffect(this.nativeState,effect);
+    return Array.isArray(effect.cardTypes)&&effect.cardTypes.includes(this.nativeCardType.PSYCHIC);
   }
 }
 class InvitePlayerPrompt {}
@@ -507,7 +525,8 @@ test('only exact phase-one native setup constructor/message pairs are allowliste
 
   const wantToDraw=basePrompt(SelectPrompt,state,{
     message:'WANT_TO_DRAW_CARDS',
-    values:[6,5,4,3,2,1,0]
+    values:['Draw 6 card(s)','Draw 5 card(s)','Draw 4 card(s)','Draw 3 card(s)',
+      'Draw 2 card(s)','Draw 1 card(s)','Draw 0 card(s)']
   });
   const drawProjection=projectPrompt({prompt:wantToDraw,state,actorSeat:0,native});
   assert.equal(drawProjection.promptProjection.source.effectName,'WANT_TO_DRAW_CARDS');
@@ -585,7 +604,7 @@ test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energ
     const psychicEnergy=new EnergyCard('Psychic Energy',EnergyType.BASIC,[CardType.PSYCHIC]);
     const darknessEnergy=new EnergyCard('Darkness Energy',EnergyType.BASIC,[CardType.DARKNESS]);
     const specialPsychicEnergy=new EnergyCard('Psychic Energy',EnergyType.SPECIAL,[CardType.PSYCHIC]);
-    actor.hand.cards=[psychicEnergy,darknessEnergy,specialPsychicEnergy];
+    actor.hand.cards=[darknessEnergy,psychicEnergy,specialPsychicEnergy];
     const nonPsychic=pokemon('Non-Psychic base, non-Psychic dynamic');
     nonPsychic.dynamicTypes=[CardType.FIGHTING];
     const dynamicPsychic=pokemon('Dynamic Psychic target',false);
@@ -613,20 +632,11 @@ test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energ
       },
       dispatch(action){dispatched=action;return {ok:true};}
     };
-    prompt.decode=result=>result;
-    prompt.validate=transfers=>{
-      if(!Array.isArray(transfers)||transfers.length!==1)return false;
-      const {to,card}=transfers[0]??{};
-      if(!actor.hand.cards.includes(card)||!(card instanceof EnergyCard)||
-          card.energyType!==EnergyType.BASIC||!card.provides.includes(CardType.PSYCHIC)||
-          to?.player!==PlayerType.BOTTOM_PLAYER||to.slot!==SlotType.BENCH||
-          !Number.isInteger(to.index))return false;
-      const target=actor.bench[to.index]?.getPokemonCard?.();
-      if(!target)return false;
-      const effect=new CheckPokemonTypeEffect(actor.bench[to.index]);
-      store.reduceEffect(state,effect);
-      return effect.cardTypes.includes(CardType.PSYCHIC);
-    };
+    Object.assign(prompt,{
+      nativeState:state,nativeActorSeat:actorSeat,nativeEnergyCard:EnergyCard,
+      nativeEnergyType:EnergyType,nativeCardType:CardType,
+      nativeCheckPokemonTypeEffect:CheckPokemonTypeEffect,nativeStore:store
+    });
     const provenanceHook={
       getPromptProvenance:()=>({
         sourceKind:'card-effect',sourceCard,effectName:'Underworld Door'
@@ -655,9 +665,13 @@ test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energ
       decision:{kind:'select-choice',token:selectedToken},native:nativeAttach,dispatch:false
     });
     assert.equal(prepared.rawResult.length,1);
-    assert.strictEqual(prepared.rawResult[0].card,psychicEnergy);
-    assert.deepEqual(prepared.rawResult[0].to,{
-      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
+    assert.deepEqual(prepared.rawResult[0],{
+      to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1},
+      index:1
+    });
+    assert.deepEqual(prepared.decoded[0],{
+      to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1},
+      card:psychicEnergy
     });
     assert.equal(dispatched,null);
     const dispatchedResult=dispatchPromptChoice({
