@@ -113,3 +113,14 @@ That is a different tournament from the Extra/Open League. Its 23rd-place Katsuy
 3. Seek a direct public identity bridge from `@nnaacc5_uec` / Replica to Jo Kato before promoting Agent 48's photo transcription.
 4. Validate all 60 names, quantities, Japanese printings, and card legality before admitting any recovered list to the benchmark.
 5. Preserve source URLs, publication dates, player/rank bridges, and uncertainty for any new evidence.
+
+
+## 15 November 2026 addendum: official Players Club source route
+
+A further public source route was checked without using paid content or inferred player joins:
+
+- The [Toresia event record for CL Aichi 2026 Open League Extra](https://toresia.net/pokeca-deck/events/981404/) explicitly attributes its data to the Pokémon Card Game Players Club. Its indexed result currently exposes **16 decklist entries**, in rank buckets 1, 2, 3 (two players), 5 (four players), and 9 (eight players). It exposes no entry for the three missing source rows 23, 25, or 28. Treat this as a public mirror/index, not as proof that no other official registration record exists.
+- The [official Pokémon event rules](https://www.pokemon-card.com/info/005445.html) state that Open League entrants had to register their deck through Players Club by 10 May 2026 at 08:30, could use Japanese-language cards only, and could not exchange decks/cards between preliminary and main stages. The Top 32 qualified from the preliminary Swiss standings before a separate single-elimination main stage. This makes the original Players Club registration or an entrant-provided original list/photo the appropriate recovery target; a same-archetype list or a qualifier-rank ordinal is not a sufficient substitute.
+- The public [Players Club result endpoint](https://players.pokemon-card.com/event/detail/981404/result) is JavaScript-rendered in the current text retrieval path; this check did not retrieve additional individual records from it.
+
+**Disposition unchanged:** no exact 60 was recovered for ranks 23, 25, or 28; keep full-list coverage at 29/32. The Toresia mirror adds a checked source path but does not close any missing-rank row. Do not infer the three missing lists from the 16 exposed entries, archetype metadata, or the social-account rank claims.
