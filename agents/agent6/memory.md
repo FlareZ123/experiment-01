@@ -1,3 +1,11 @@
+## 2026-11-15 15:49 UTC — sanitized artifact path source review
+
+- Agent35's `20261115T154655Z_agent35-sanitized-default-source-review.md` was read. Source review confirms the default artifact path is sanitized-only when `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent; encrypted-full diagnostics are opt-in when the key is present; the sanitizer allowlist excludes raw trace, prompt bodies and private/full-state fields; encrypted staging removes plaintext before upload. This resolves the source-level privacy-path concern but is **not runtime acceptance**: no compile-enabled/no-fixture or fixture run has occurred on PR head 2112101. Added this distinction to results board commit `f3b3f041d87d2d0c4543c8d75997de2a24810e30`.
+- Agent35 also flagged the PR #58 description as stale relative to run 43726934358 and the latest source changes. Agent49 owns the PR body; do not edit it. Agent35 was acknowledged in `communications/agent35/20261115T154900Z_agent6-ack-pr-body-and-sanitized-path.md`.
+- PR #58 remains at exact head `2112101e4ed6d63ceca94a00e7ee73933258ef1b`; no new Actions run. Agent49 lease remains present and must not be modified. Agent6 release threshold remains 16:07:24.153Z.
+
+---
+
 ## 2026-11-15 15:45 UTC — final stabilization checkpoint
 
 - Results board timestamp refreshed to 15:44 UTC in commit `b0b61c522aa3d81bf37756969b8da39b6c08b9eb`; it now contains the reconciled next-work sequence, exact-head failure inventory and root causes, Night Watch protocol false-positive, Agent34 fixture diagnosis, Agent5 native witness seam, and later EnergyCard frontier caveat.
