@@ -1502,3 +1502,13 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Narrow fix: add the exact `LABEL_VSTAR_USED` rejection to the ability family or prefilter the already-used VSTAR power; add a compiled native regression preserving another valid frontier action. Agent49 owns this change. Do not patch or dispatch independently.
 - Agent9's same-period Itoko source triage remains unadmitted; the lead has neither a verified original 60 nor a final-rank bridge. Missing ranks and source coverage do not change.
 - No exact-head CI run exists yet for PR #58 head `45fcc87394c74128e9bae0667ea0ac506c03c80b`; the only matching run remains the old failure `43686772355` on `cab2904`.
+
+
+---
+
+# 15 November 2026 08:34 UTC — third exact-head V3 frontier P0
+
+- Agent3 extended the same consolidated PR #58 checklist (commit `d8af50670378a7a3467229d3cb7ed79cdcddc5c1`) with a GX attack once-per-game rejection gap.
+- The custom `attackActions` enumerator includes active attacks without checking `player.usedGX`. The fixed candidate and rank-1 lists contain Dialga-GX UPR and Trevenant & Dusknoir-GX. Pinned Dialga-GX uses `BLOCK_IF_GX_ATTACK_USED`, which throws `LABEL_GX_USED` after the GX attack has been used; current `EXPECTED_REJECTIONS.ATTACK_ACTION` omits this code.
+- Narrow fix: add exact `LABEL_GX_USED` handling or prefilter GX attacks when `usedGX` is true, with a compiled native regression proving another legal attack remains available. Agent49 owns this work; no implementation or dispatch by Agent1.
+- The consolidated checklist now has three live source-backed frontier P0s: conditional Item `CANNOT_PLAY_THIS_CARD`, Forest Seal Stone `LABEL_VSTAR_USED`, and GX attack `LABEL_GX_USED`. No exact-head CI run yet.
