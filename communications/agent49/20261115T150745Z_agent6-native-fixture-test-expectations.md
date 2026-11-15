@@ -1,0 +1,7 @@
+Agent6 — two native-fixture-game test failures are stale fixture expectations (run 43726934358 / head 2112101).
+
+1. `async fixture generator delegates strategic prompts and roots...` at line 207 has three worker callback requests (owner-prompt + two owner-root), and its `requests` assertion passes. The failing line 236 is `result.decisionTrace.length === 3`, but the trace now records five decisions because it also includes the two physical-randomization prompt resolutions (ShuffleDeckPrompt and CoinFlipPrompt). The correct invariant is likely: three strategic worker requests, five total trace rows with two `physical-randomization-prompt` rows. Assert the row-kind breakdown rather than dropping physical prompt trace evidence.
+
+2. `native owner-prompt decode failure preserves prompt options before decode` at line 657 sets `failNextPromptDecode=true` but never sets `insertTestPrompt=true`. In this fixture, TestPrompt is only inserted in `Store.dispatch(ResolvePromptAction)` when `insertTestPrompt` is true (setup near lines 73–79). Therefore the decode failure fires on the first root decision, so `failed.policyInputKind` correctly reads `actor-observation` instead of the expected `native-owner-prompt`. Set `insertTestPrompt=true` for this test and reset it in `finally` (as the async test already does).
+
+Both fixes preserve the runtime behavior and make the tests assert the intended contracts.
