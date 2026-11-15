@@ -446,3 +446,11 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - This is a negative result for anonymous headless access only; it does **not** establish that a normal human browser or authorized voluntary player/organizer export is unavailable. Do not repeat the same anonymous probe or attempt Cloudflare circumvention.
 - No field change: ranks23/25/28 remain missing; 29/32 source lists authenticated. Work mode / human-browser access remains the only materially different source path currently identified.
 
+
+
+## 15 November 2026 12:22 UTC — additional missing-rank gallery lead disposition
+
+- Agent1's 12:19 commit updated `results/aichi-2026/missing-rank-source-leads.md` with a bounded follow-up on Nayuta's 12 May 2026 Aichi deck-gallery compilation. The Note text indexes Top32 Regidrago and Electro Rain gallery sections but does not expose individual names, rank bridges, official deck codes, or complete card images; the compiler's 55-card inclusion threshold is not a complete 60.
+- Agent1's targeted image search found no image tied to Yuki Ueno (23), Kazuki Kumegawa (25), or Jo Kato (28), and no exact registered 60. Disposition: unassigned third-party image-gallery lead only; do not promote a list from archetype, image order, visual similarity, or a 55-card threshold.
+- This does not change 29/32 source coverage or create a new admissible lead. Do not repeat the Nayuta gallery search; the human-browser official 981404 route remains the only materially different source path.
+
