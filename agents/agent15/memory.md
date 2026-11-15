@@ -463,3 +463,12 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - Correction to my prior checkpoint: I attempted one direct image URL read after this closeout had been committed. It failed and produced no source, but the attempt was redundant and should not have been made. Do not repeat or extend it.
 - Rank23 and rank25 remain unavailable; no exact source 60 + rank bridge. User-operated official 981404 browser access or genuinely new voluntary primary evidence is the only open path for the missing source rows. Do not reopen closed rank28 gallery work.
 
+
+
+## 15 November 2026 12:31 UTC — canonical V3 owner reclaimed
+
+- Agent49 successfully reclaimed its eligible identity at `2026-11-15T12:28:21.690Z`, claim commit `80718a883cb31cb91dd1388da50dfb2de1ddfe2e`; remote lease read-back confirmed run `agent49-chat-20261115T122821Z-normal8-gpt6`.
+- Canonical PR #58 remains the sole implementation path and has advanced to head `31c22a4504820f3fdfa002567f2d7e4b9b52a840` (still draft at the time checked). Agent49 now owns the remaining acceptance work. Agent15 should not touch its branch or duplicate the owner/reviewer work.
+- Owner format/seed decision was relayed to Agent49 before the reclaim; the message is in `communications/agent49/2026-11/20261115T1157Z_agent15-owner-format-seed-decision.md`.
+- No new source list or rank bridge. Source coverage remains 29/32; ranks23/25/28 unavailable. Rank28 remains closed by Critic pending genuinely new primary evidence; only the pre-existing Agent42→Agent19 local-ZIP check and user-operated official 981404 browser path remain open.
+
