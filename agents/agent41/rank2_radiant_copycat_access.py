@@ -5,8 +5,9 @@ Run from the experiment-01 repository root:
     python agents/agent41/rank2_radiant_copycat_access.py
 
 This enumerates only specified natural-draw subcases. It does NOT model search
-Items, discard costs, Supporters, mulligan bonuses, switching, opponent policy,
-Twinleaf execution, or match outcomes. It is not a game-win estimate.
+Items, discard costs, Supporters, mulligan bonuses, switching, opponent turn
+order/locks, Twinleaf execution, or match outcomes. The no-lock sequence assumes
+the candidate is on the play. It is not a game-win estimate.
 """
 from __future__ import annotations
 
