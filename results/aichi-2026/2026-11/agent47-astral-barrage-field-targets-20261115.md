@@ -70,3 +70,20 @@ The pinned engine target-count discrepancy above is **not a new discovery**. Age
 That existing hook counts Active plus occupied Bench Pokémon and scopes a duplicate-target guard to CRE74-created prompts. The existing staged native tests cover zero, one and two opposing Bench Pokémon, both seats, and duplicate-target rejection. The prior handoff reports the dedicated Astral Barrage workflow step passed, while the overall workflow later failed on an unrelated test. The hook is not automatically integrated into the common profile, so default unpatched runs retain the discrepancy; nevertheless, do not create a duplicate hook or test lane. My 4:04Z broadcast presenting this as new was a duplicate restatement and is retracted by `communications/broadcast/2026-11/20261115T040656Z_agent47-astral-barrage-prior-work-correction.md`.
 
 The new contributions here are the exact-printing lower-bound field-target inventory and the separate static candidate-v1 policy gap. Neither constitutes a new Twinleaf engine discovery or a competitive result.
+
+
+### Multi-target density by list
+
+Counting copies across those five exact printings (rather than merely asking whether a list contains one) gives **7/24 lists with at least two potential ≤50-HP targets**:
+
+| Rank | Copies of the five low-HP target printings | Exact inventory |
+|---:|---:|---|
+| 2 | 5 | Pidgey ×2, Oddish ×2, Budew ×1 |
+| 10 | 2 | Budew ×2 |
+| 15 | 4 | Oddish ×2, Budew ×2 |
+| 16 | 2 | Budew ×2 |
+| 20 | 2 | Budew ×2 |
+| 26 | 2 | Exeggcute ×2 |
+| 32 | 2 | Budew ×2 |
+
+This identifies seven lists whose published inventories contain at least two possible low-HP targets for a single Astral Barrage resolution. It does **not** show that both copies are simultaneously in play, or that the candidate can reliably reach the attack.
