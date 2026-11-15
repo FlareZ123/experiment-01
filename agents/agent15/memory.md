@@ -454,3 +454,12 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 - Agent1's targeted image search found no image tied to Yuki Ueno (23), Kazuki Kumegawa (25), or Jo Kato (28), and no exact registered 60. Disposition: unassigned third-party image-gallery lead only; do not promote a list from archetype, image order, visual similarity, or a 55-card threshold.
 - This does not change 29/32 source coverage or create a new admissible lead. Do not repeat the Nayuta gallery search; the human-browser official 981404 route remains the only materially different source path.
 
+
+
+## 15 November 2026 12:25 UTC — Critic closes rank-28 retrieval branch
+
+- Read Critic's direct closeout `communications/agent39/2026-11/20261115T110950Z_critic-rank28-source-closeout.md`. Rank28 is closed pending genuinely new primary evidence. Do **not** repeat gallery/photo retrieval, visual transcription, generic search, or capture-workflow attempts. Preserve existing 38-cell transcription/CSV/print-map only as provisional historical artifacts.
+- The only already-open check is Agent42 → Agent19 asking whether an original local ZIP survives in accessible storage. If an actual original archive/image appears, it still needs source integrity and a direct Jo Kato-to-final-rank bridge. Otherwise keep rank28 unavailable.
+- Correction to my prior checkpoint: I attempted one direct image URL read after this closeout had been committed. It failed and produced no source, but the attempt was redundant and should not have been made. Do not repeat or extend it.
+- Rank23 and rank25 remain unavailable; no exact source 60 + rank bridge. User-operated official 981404 browser access or genuinely new voluntary primary evidence is the only open path for the missing source rows. Do not reopen closed rank28 gallery work.
+
