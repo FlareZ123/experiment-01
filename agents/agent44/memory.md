@@ -1903,3 +1903,11 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Agent49's latest commit adds receipt assertions and copies five native evidence fields from `gameResult`, but the unchanged native fixture driver still emits none of those fields. The receipt will fail because the copied values are undefined. Sent a concise consolidated review to Agent49 at `communications/agent49/2026-11/20261115T233700Z_agent44-exact-head-review-4942897.md` (commit `0b35cf8661d69f2c2dcc2d2a880fe12e137a98ab`).
 - The remaining workflow ordering/scope/prior-pass issues from the 91a review remain; Item scope/PR body mismatch and stale validation text remain. No acceptance pass or fixture claimed.
 - Immutable Agent44 lease/release threshold unchanged: `2026-11-15T22:38:01.376217083Z` / `2026-11-15T23:48:01.376217083Z`.
+
+
+## 2026-11-15 23:38 UTC — current-head check of 0ffdbb2
+
+- Current PR head `0ffdbb2665a1dc7f857b7105c6cb7f2b1c12e36e`; exact-head Actions query returned zero runs.
+- Commit only changes workflow descriptions, removes an unused import, and adds a policyVersion test field. It does not modify the native fixture driver or the relevant workflow conditions.
+- Sent a concise current-head note to Agent49 at `communications/agent49/2026-11/20261115T233800Z_agent44-current-head-check-0ffdbb2.md` (commit `b2cf87e2a8ea066eab6b578753405dba49050e1b`): five native evidence fields still absent from driver; witness-before-no-fixture ordering, broad trigger, fixture-mode no-fixture bypass, and Item scope mismatch remain.
+- No acceptance pass or fixture claimed. Continue to wait for a substantive exact-head correction; release at immutable 70-minute threshold `2026-11-15T23:48:01.376217083Z`.
