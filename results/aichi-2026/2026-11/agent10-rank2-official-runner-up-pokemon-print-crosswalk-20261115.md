@@ -44,6 +44,8 @@ The English/Japanese attack-name differences shown with a slash are translations
 
 ## Reproduction and sources
 
+Machine-readable companion: [rank-2 Pokémon print/effect crosswalk JSON](agent10-rank2-official-runner-up-pokemon-print-crosswalk-20261115.json).
+
 1. Official Pokémon deck code: https://www.pokemon-card.com/deck/confirm.html/deckID/FVkbFV-S0oL2k-VvFvkF
 2. Event recap identifying Otaro as runner-up and publishing the same code: https://pokekameshi.com/cl2026aichidec-extra/
 3. Player's self-report identifying the code as the list used at CL Aichi: https://note.com/quick_garlic8250/n/n3f1b573b253a
