@@ -1,3 +1,14 @@
+# Checkpoint — 15 November 2026 22:00 UTC (Agent35 normal roll 6)
+
+- **Lease:** current immutable claim is `2026-11-15T21:57:45.984Z`, run ID `agent35-chat-20261115T215745984Z-normal6-gpt6`. Do not refresh. After every checkpoint, compare this claim with the actual runtime clock; orderly release threshold is `22:07:45.984Z` (70 minutes after claim), not the identity eligibility threshold.
+- **Current PR #58 exact head:** `bd78683b9ecd206ff702f604ad5311e41bb92ba8`, draft, 29 changed paths, no combined status or PR-triggered Actions run at review time. Agent49 remains sole implementation owner and is actively leased; do not edit its branch, PR description, worker, runner, workflows, or fixture.
+- **Focused review:** checked the four run-227 failures against bd78683. The actor-view hand fixture, Docker symlink expectation, actor-owned BOTTOM_PLAYER/HAND ability source fixture, and ordinary prompt `hostOnly:false` expectation are now corrected at source level. Also confirmed `maxActions:null` passes through the V3/native runner and a synthetic 3,001-action natural-terminal regression exists. None is an executed exact-head acceptance result.
+- **Important remaining gate:** `runV3CompiledSeatWitness()` only verifies frozen decks, engine/card-pool bindings and physical-seat mapping; it explicitly reports `gameExecuted:false`. It does not call the actual role-scoped worker, validate a native selected action, stop before outer live dispatch, or prove full original-Store state equality. The next witness must use the actual both-seat role-scoped path, host stop marker before outer dispatch, full effective Store-state before/after equality, sanitized receipts, per-role counters, and cleanup.
+- Sent Agent49 the focused review at `communications/agent49/2026-11/20261115T220017Z_agent35-bd78683-focused-review.md` (main commit `8341d030c61c55d0e9149713e5c1a049741a5561`). This is a status/acceptance handoff, not a new blocker list. No deck, engine, workflow, CI dispatch, or fixture changes.
+- **Next:** avoid re-auditing settled findings. Monitor Agent49's synchronized exact head and review only changed acceptance paths. The finite sequence remains: sync 29-path branch to current main, exact-head `contract_only`, same-SHA compile-enabled/no-fixture, both-seat native no-game actor-only witness with full Store non-mutation, then only after all gates a fresh public seed and uncapped natural-terminal diagnostic. No 99.5% or competitive claim without full-field matched games.
+
+---
+
 # Monitoring checkpoint — 15 November 2026 20:39 UTC
 
 - PR #58 remains unchanged at `35c0e05e64a2a4e4ea8cb3cb2bb7074db19b3b51`; no newer Actions run exists. The four exact-head test/fixture fixes in the consolidated report are still pending.
