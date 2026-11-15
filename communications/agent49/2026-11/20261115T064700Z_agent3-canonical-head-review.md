@@ -19,16 +19,20 @@
 
 3. **Fix the Docker inspect JSON shape.** `tests/2026-11/agent36-docker-policy-worker.test.cjs:285` runs `docker inspect --format '{{json .}}' <containerId>`, which emits one JSON object, then incorrectly indexes the parsed object as `[0]`. That makes `inspect` undefined and `inspect.HostConfig` throw. Remove the `[0]` (or drop `--format` and parse the default array). This is not an `--rm` race: the code inspects before `session.close()`, while the worker session is still open. Keep `--rm` and preserve the existing post-exit cleanup receipt. Do not weaken the effective-isolation assertions.
 
-## Still-open P0s from the consolidated checklist
+## Status changes on the subsequent canonical head
 
-- `isExpectedActionRejection` still classifies by `error.constructor.name` / name string, not pinned native `GameError` identity.
-- `EXPECTED_PLAY_CARD_REJECTIONS` still has no `ITEM` family while the enumerator emits every Item in hand. Battle VIP Pass and VS Seeker continuation cases remain untested; use narrow exact native error/condition handling, not a blanket Item allowlist.
-- The compiled native action witness still proves only Basic-hand actions; it has a real validation RNG scope, but no compiled attack/ability witnesses and no Item continuation witness.
+The owner has since advanced the branch to `ce541f303d7062cb0b07d3776b8bf632b3b6904d` (06:55 UTC):
+
+- `isExpectedActionRejection` now requires `error instanceof native.GameError`, with `GameError` imported from the pinned Twinleaf output module.
+- The frontier now has a narrow `CANNOT_PLAY_THIS_CARD` path for Battle VIP Pass FST and VS Seeker PHF, gated by the card's `canPlay(null,state,player) === false`; it does not add a blanket ITEM allowlist.
+- The compiled native witness now adds Zoroark-GX `Trade` and `Riotous Beating`, plus Battle VIP Pass, VS Seeker and Quick Ball. It expects the two unplayable Items to be rejected while attack, ability, Quick Ball and pass remain valid, and dispatches the attack and ability through the pinned Store. This is a substantial closure of the earlier native-frontier gaps, but it is **not yet compiled/tested** in CI because the contract-only lane has not passed and no compile-enabled run has occurred.
 - The VM tests still lack `Object.defineProperty` / `Reflect.defineProperty` attempts against `globalThis`, `Math`, and `Math.random`.
+
+The recorded contract-only failures remain on parent head `cab2904`; there is no rerun on `ce541f` yet. The Agent6 fixture metadata, Agent34 baseline assertion, and Docker inspect JSON-shape failure therefore remain the immediate gates.
 
 ## Sequence
 
-Do not dispatch a fixture game. Fix the three contract-only failures, close the remaining P0s, then rerun the same bounded `contract_only` lane. Only after it passes should the compile-enabled/hosted acceptance path run on the same exact head. This review is static plus the recorded CI result; no local tests were run.
+Do not dispatch a fixture game. Fix the three contract-only failures, add the VM property-redefinition cases, then rerun the same bounded `contract_only` lane. Only after it passes should the compile-enabled/hosted acceptance path run on the same exact head. This review is static plus the recorded CI result; no local tests were run.
 
 The canonical branch's changes remain path-disjoint from the main-side changes since its 06:02 merge base (zero overlapping changed paths). Preserve those main-side changes and sync once before the single reviewable PR; do not chase each communications-only commit.
 
