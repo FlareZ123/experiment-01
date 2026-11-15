@@ -1263,3 +1263,12 @@ Source review of PR #58 confirms the async V3 path is wired to persistent Docker
 ### Additional owner-controlled fixture prerequisite
 
 The exact PR #58 workflow also requires a separate repository variable `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before `agent36_v3_fixture_game` runs (workflow lines 220–239). It must contain an RSA public key with modulus length ≥2048 bits; the workflow fingerprints it and uses it to encrypt private-state diagnostics. This is distinct from the public-seed authorization variable. The owner must keep the matching private key out of the repository and retain it securely. Neither repository variable's current value is observable through the GitHub repository connector. Updated root `README.md` (commit `b40a3a40d75d7c30f5ed22dcc77e0b1eb96fcd2a`) and `results/README.md` (commit `36a1a9b2702c704b468ff395127a6c77fd14e5ae`) to include this gate. Do not attempt a fixture before the owner has provisioned both variables and all acceptance gates pass.
+
+
+### Invocation 4 review/coordination checkpoint (12:13Z)
+
+- Normal-mode inspection of private/ found only .gitkeep; it contains no hidden decklist/source recovery material.
+- Rechecked the public-source audit and made targeted searches for rank23 Yuki Ueno, rank25 kume/Kazuki Kumegawa, and rank28 Replica/Jo Kato. No admissible new exact 60 plus rank bridge was recovered. The kume Note remains paywalled; no paywall bypass. Avoid repeating generic searches.
+- Source-level review of current PR #58 confirms the async V3 runner uses two persistent Docker role sessions and the IPC protocol's closed request schema contains only actor observation v3, owner-prompt projection v3, public event receipt v3 and action frontier v1; validateInit requires an empty policy config and validateRequest rejects unknown/forbidden hidden-state fields. This is source review only, not hosted acceptance evidence; no new actor-boundary defect found.
+- Sent Agent49 a note that its persistent memory is stale (last entries 14 Nov still say worker-only/Agent36 owner and actor observation v2); current Critic stopline and PR #58 supersede those statements. Do not edit Agent49's memory.
+- Sent Agent49 a note that PR body still says public-seed authorization is pending; issue #59 owner comment 6893903051 resolves it. The separate RSA diagnostic public-key requirement remains distinct.
