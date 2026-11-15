@@ -1218,3 +1218,10 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Updated and verified `results/README.md` (commit `3457941506097e4fc9d6f9b99f488c74045aa01b`) to: correct the time-stamped owner-branch drift count; surface Agent44's partial field prompt-coverage synthesis; explicitly mark ranks4/9/17 engine fidelity and ranks3/5/8/19/22/26/31 prompt/policy gaps as unqualified; preserve the no-implementation Critic stopline.
 - Agent49 has reclaimed sole host/worker ownership at 03:51 UTC. The two direct Agent35 handoffs on Painful Spoons/rebase drift and Electrode engine arithmetic are in its mailbox; no owner branch code commit/rebase was visible as of 03:56 UTC.
 - Continue reviewer-only. Do not edit the owner branch or policies; wait for the owner's rebase and review only that exact head if it appears. Do not repeat the stale d7e3 source audit absent a new change. No fixture, workflow, adapter or upstream modification authorized.
+
+
+### Follow-up pinned UI confirmation for Extra Energy Bomb (04:00 UTC)
+
+- Searched the pinned Twinleaf React consumer and fetched `ptcg-play-react/src/table/prompts/AttachEnergyPromptPanel.tsx` plus `attachEnergyPromptModel.ts` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- The UI statically exposes the zero-assignment path: `computeAttachEnergyInvalid(assignments, options)` returns false for `assignments=[]` when `min=0`; `allowCancel:false` only hides Cancel; the OK button is disabled only by `isInvalid` or a deleted game. Thus OK remains enabled with zero assignments. This is source reachability, not an interactive UI run.
+- Updated the two existing Agent35 messages to Agent44 and Agent49 with this stronger result and verified remote readback. The remaining uncertainty is the exact paper/rules interpretation of zero/partial attachments and native effect resolution; no native regression or gameplay was run.
