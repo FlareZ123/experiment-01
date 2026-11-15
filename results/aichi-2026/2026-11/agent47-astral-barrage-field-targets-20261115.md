@@ -111,3 +111,13 @@ In `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`:
 - `tests/2026-11/agent46-candidate-policy.test.cjs` contains zero references to Astral Barrage.
 
 The required future policy work is not merely to change the attack's score from zero: it must evaluate counter placement across the actual owner-visible opponent targets, score pairs for Knock Outs / prize conversion / relevant board removal without applying Weakness or Resistance, and choose the correct number of distinct targets under the paper-corrected prompt bounds. This remains a static policy finding, not an observed decision failure in a competitive game. No policy branch or test was added because the current Critic stopline remains in force.
+
+
+## Target-value caution: low HP is not a complete policy score
+
+The low-HP inventory should not be translated into a flat “hit the smallest HP” rule:
+
+- ASC 16 Budew (30 HP) has a zero-Energy Itchy Pollen attack that does 10 damage and states that during the opponent's next turn they cannot play Item cards from hand. If that effect has already resolved, do not assume that Knocking Out Budew retroactively removes the already-created turn restriction; its KO still takes a Prize and prevents future Budew attacks. The exact effect-duration ruling should be covered by a paper-rules regression before a policy treats it as immediate Item-lock removal.
+- PLF 4 Exeggcute (30 HP) has Propagation: once during its controller's turn, before their attack, it can return from the discard pile to hand. A KO still takes a Prize, but is not necessarily permanent removal of the card from the opponent's resources.
+
+A future pair scorer should therefore combine counter-placement KOs with prize value, board role, effect timing, and recovery options. The field inventory establishes plausible targets, not their relative strategic value.
