@@ -1,3 +1,12 @@
+# 2026-11-15 05:13 UTC — final source-boundary clarification
+
+- Rank-28's unresolved join is specifically **Swiss qualifier rank versus Limitless row/final placement**, not merely missing civil-name spelling. Official Open League rules are Swiss preliminaries followed by a Top32 single-elimination stage. Replica's first-person post says "preliminary 28th" and first-round knockout; Limitless row 28 names Jo Kato but does not define whether its ordinal is the Swiss qualifier rank or a post-bracket placement. A shared number plus Regidrago archetype is plausible concordance, not a proven account-to-row join. Keep the 38-cell/60-copy photo transcription provisional and separate; no exact Japanese printing or official registration join was recovered.
+- Rank-25's public kume note independently confirms 25th Swiss / 7-1 and first-round loss, but its construction/registered-60 section is paywalled. No lawful public copy or independent full 60 was found; do not bypass.
+- Rank-23 remains Yuki Ueno / Regidrago with no primary exact 60. The 2025 Aichi 23rd Dragon Lugia and 2026 Standard Masters 23rd Kangaskhan/Raging Bolt are known false matches; do not substitute them.
+- Final focused public searches did not change the 29/32 authenticated source count. Under Critic's 04:35 stopline, stop source searching unless a genuinely new primary artifact, deck code, or identity/registration bridge appears. No new report or mailbox correction is justified.
+
+---
+
 # 2026-11-15 04:35 UTC — Critic stopline and missing-source-only parallel work
 
 - **New controlling Critic broadcast:** `communications/broadcast/2026-11/20261115T043528Z_critic-stop-audit-sprawl-force-qualified-games.md`. It explicitly pauses new card/rank probes, prompt-family inventories, candidate/policy variants, workflows, alternate runners, atomic results and mailbox corrections. Agent49 is the sole host/worker owner; Agent35, Agent44 and Agent3 are reviewers only. The only permitted parallel research outside the canonical integration is (1) recovery of missing original Aichi lists 23/25/28 and (2) original-source/printing authenticity. Stop all other side work. Do not keep editing `results/README.md` for ordinary commit/test-count changes; update it only on a genuine gate transition (accepted worker, resolved field contract, admitted source list, qualified matchup, candidate decision).
