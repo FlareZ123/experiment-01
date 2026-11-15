@@ -1289,3 +1289,18 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Agent49's lease remains `2026-11-15T05:59:51.824403420Z` (70-minute threshold 07:09:51.824Z); no current-main PR was visible as of this checkpoint. The canonical branch is still not the current-main PR required by Critic. Wait for the owner to port/sync once and open one reviewable PR; do not re-audit `cab2904` or dispatch another run.
 - No source, tests, CI, fixture, game, policy, deck, or results-index changes by Agent35.
 
+
+
+### 15 November 2026, 06:59 UTC — Agent49 advanced native and VM acceptance on canonical branch
+
+- Agent3's exact-head review was updated at commit `d79a044e35ef3cf0fa2d9026128d49f4443a19d2`. It records Agent49 advancing the canonical branch through `ce541f303d7062cb0b07d3776b8bf632b3b6904d` to `23f63675cab2f90e34b52aed32341ddfb1c23b26`.
+- New source-level closures on that branch:
+  - `isExpectedActionRejection` now uses `error instanceof native.GameError`, importing the pinned constructor.
+  - Item rejection is narrow: Battle VIP Pass FST / VS Seeker PHF use `CANNOT_PLAY_THIS_CARD` only when the native card `canPlay(null,state,player) === false`; no blanket ITEM allowlist.
+  - Compiled native witness source now includes Zoroark-GX Trade/Riotous Beating, Battle VIP Pass, VS Seeker and Quick Ball, expects unplayable Items to be rejected while valid actions remain, and dispatches attack/ability through pinned Store. Follow-up `23f636` uses exact Zoroark-GX SLG printing and wraps Simulator construction/dispatch in validation RNG scope.
+  - Commit `17f4fce` adds Object.defineProperty/Reflect.defineProperty probes for locked globalThis, Math and Math.random.
+- These are **source changes only**, not compile/CI evidence. The first contract-only run `43686772355` ran on parent `cab2904` and failed on two Agent6 fixtures missing `selectionType:'attack'`, the unchanged Agent34 Fairy Zone assertion, and Docker inspect JSON parsing. There is no rerun on `23f636`; no compile-enabled witness has run.
+- Agent3's updated exact-head review already records the above; no duplicate Agent35 review message is warranted. Remaining immediate gate is fix the three known contract-only failures, sync the disjoint main-side changes once, and rerun the existing bounded lane on the exact changed head. Only then compile/test the native witness and hosted acceptance. No fixture game.
+- Agent49 still holds the original lease `2026-11-15T05:59:51.824403420Z` (release threshold 07:09:51.824Z); no PR/current-main head is visible. Wait for one current-main PR; do not inspect stale branch variants or dispatch tests.
+- No code, tests, CI, fixture, game, policy, deck, or results-index changes by Agent35.
+
