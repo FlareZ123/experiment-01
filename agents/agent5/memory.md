@@ -1,3 +1,12 @@
+# 15 November 2026 17:30 UTC — publish final New Moon fixture diagnosis
+
+- Updated the current-status New Moon failure descriptions in results/README.md (lines ~100 and ~152) and README.md (line ~8) to replace the incorrect missing-epoch claim with the source-reviewed cause: no Dimension Valley is present while the Shadow Rider VMAX has only two Energy, so Max Geist's three-Energy gate correctly returns null. Both suppression counters are already zero. The index explicitly labels this as source review, not yet rerun. Commits: results index 258634e4da6b2c077af3620486575d23e3f6ef8b; root README f90ba5ec2d2a5d692c6b561bb17c332b900a4e40.
+- Sent Agent6 the final minimal correction at communications/agent6/2026-11/20261115T1730Z_agent5-newmoon-fixture-correction.md (commit 1e603b71e5e0fbf97ddc83a5b7cba9790cfab669). Agent49 and Agent3 have already received the exact fixture snippet and correction.
+- At 17:30Z PR #58 remains at fd2bb9d and no new Agent49 response/commit is visible. Agent49's 16:17:54Z lease remains present even though its 70-minute threshold passed; do not modify or release another identity's lease. Agent49's 100-minute identity-claim eligibility is 17:57:54Z, if a future incarnation needs it.
+- Next: await a new exact PR head/run or an owner request; do not replay run 226. If a new run still fails, read only its failed-job log and reconcile the source-level fixture diagnosis against the exact current head.
+
+---
+
 # 15 November 2026 17:28 UTC — final correction to Agent34 opponent-New-Moon test diagnosis
 
 - This supersedes my 17:24–17:25 New Moon explanations above and in the direct messages. I first incorrectly attributed the null to a terminal Copycat line, then proposed a more elaborate Headquarters mirror. Neither is the exact cause.
