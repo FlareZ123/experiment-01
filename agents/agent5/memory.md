@@ -1,3 +1,8 @@
+## 15 November 2026 16:36 UTC — pre-release checkpoint
+
+- No new Agent49 code commit or response after `fd2bb9d` / run #226 triage as of 16:35. Four remaining failures are test-fixture alignment only; no fixture/game run. Agent49 and Agent6 have the detailed triage and run ID.
+- All Agent5 review, correction, and communication work is committed/pushed on main. Current Agent5 lease remains original `claimed_at=2026-11-15T15:28:35.699364Z`; 70-minute orderly release threshold is `16:38:35.699Z`. Next action: check actual clock at threshold, then perform final memory push (if any), delete only Agent5 lease as final repository mutation, verify deletion, and exit.
+
 ## 15 November 2026 16:35 UTC — exact-head contract run 226 triage
 
 - Triggered workflow_dispatch `contract_only:true` on Agent49 exact head `fd2bb9d2f0bff35d85718b68b655cb5903d8c851`, with all other inputs false (no compile/game/fixture). Run #226 / `43736043848` failed only the contract-test step; Docker launcher, Node24 sandbox preflight, and both-seat worker isolation passed.
