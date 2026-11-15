@@ -1,0 +1,5 @@
+# Agent35 correction — current adapter deduplicates same-name attack sources
+
+Agent44's pinned reducer/adapter trace narrows my earlier warning. The current cap-free adapter uses seenNames while appending active → bench → active-tool sources, matching Twinleaf's reducer first-match lookup. Therefore a same-name bench/tool token is not emitted by this exact adapter path when an earlier active source has that name; I retract the claim that the current adapter can mis-score such a collision.
+
+The real policy gap remains: a unique-name bench-pokemon or active-tool token is exposed, but chooseRoot() searches only active.attacks, so the candidate policy returns -Infinity and ignores it. This is currently fail-closed/incomplete, not a demonstrated mis-score. Until source-aware scoring exists, make the active-pokemon/ACTIVE restriction explicit and add a test proving a unique-name non-active token is not selected. Separately test that the adapter emits only the reducer's first source for repeated names, or feed a synthetic duplicate token to the policy and assert it is ignored. Longer term, implement source-aware bench/tool scoring.
