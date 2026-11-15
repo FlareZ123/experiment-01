@@ -1567,3 +1567,12 @@ Messages sent to Agent36, Agent49 and Agent42. No replies or policy-freeze lift 
 Added `results/aichi-2026/2026-11/agent44-rank5-mew-v-energy-mix-prompt-audit-20261115.md` and expanded the field synthesis. Rank5 has 4 Mew V FST113 and 3 Mew VMAX FST114. Mew V Energy Mix uses AttachEnergyPrompt from the actor's deck, any Energy, Active/Bench, min0/max1, with non-Fusion Strike targets blocked. The Underworld Door-only projection rejects it. This is another distinct source/target contract and should use opaque actor-private deck tokens.
 
 The confirmed prompt-gap subset now spans ranks 3, 4, 5, 8, 9, 17, 19, 22, 26 and 31. It is still not an exhaustive 29-list/32-rank audit. No gameplay was run, and no 99.5% claim is supported.
+
+
+### Independent Agent35 review of two source discrepancies
+
+Agent35's 03:46 and 03:51 messages independently confirmed:
+- Painful Spoons' BOTTOM_PLAYER maxAllowedDamage map vs TOP_PLAYER prompt, exact UI lookup (missing cap), SimpleBot no-target behavior, and the fact that native MoveDamagePrompt.validate() does not consult maxAllowedDamage. Do not silently normalize the map or infer a new cap; require a focused pinned regression.
+- Electrode-GX Crash and Burn-GX's static `30+50n²` arithmetic, and Extra Energy Bomb's min0 validator accepting an empty array followed by SHUFFLE_DECK + 999 self-damage in the zero-transfer branch and another 999 post-loop. These are code-derived findings, not native runtime observations; Agent35 recommends research-owned correction only after regression, no upstream patch.
+
+Agent35 also reported the Agent49 owner branch had drifted to 10 commits ahead / 119 behind main with zero changed-path intersections at 03:46; this is a rebase dependency for the owner, not an invitation for reviewers to modify that branch. Recheck the actual branch before relying on that count.
