@@ -21,18 +21,18 @@
 
 ## Status changes on the subsequent canonical head
 
-The owner has since advanced the branch to `ce541f303d7062cb0b07d3776b8bf632b3b6904d` (06:55 UTC):
+The owner has since advanced the branch through `ce541f303d7062cb0b07d3776b8bf632b3b6904d` to `23f63675cab2f90e34b52aed32341ddfb1c23b26` (06:57 UTC):
 
 - `isExpectedActionRejection` now requires `error instanceof native.GameError`, with `GameError` imported from the pinned Twinleaf output module.
 - The frontier now has a narrow `CANNOT_PLAY_THIS_CARD` path for Battle VIP Pass FST and VS Seeker PHF, gated by the card's `canPlay(null,state,player) === false`; it does not add a blanket ITEM allowlist.
-- The compiled native witness now adds Zoroark-GX `Trade` and `Riotous Beating`, plus Battle VIP Pass, VS Seeker and Quick Ball. It expects the two unplayable Items to be rejected while attack, ability, Quick Ball and pass remain valid, and dispatches the attack and ability through the pinned Store. This is a substantial closure of the earlier native-frontier gaps, but it is **not yet compiled/tested** in CI because the contract-only lane has not passed and no compile-enabled run has occurred.
-- The VM tests still lack `Object.defineProperty` / `Reflect.defineProperty` attempts against `globalThis`, `Math`, and `Math.random`.
+- The compiled native witness now adds Zoroark-GX `Trade` and `Riotous Beating`, plus Battle VIP Pass, VS Seeker and Quick Ball. It expects the two unplayable Items to be rejected while attack, ability, Quick Ball and pass remain valid, and dispatches the attack and ability through the pinned Store. The follow-up `23f636` correction uses the exact `Zoroark-GX SLG` printing and wraps simulator construction/dispatch in the validation RNG scope. This is a substantial closure of the earlier native-frontier gaps, but it is **not yet compiled/tested** in CI because the contract-only lane has not passed and no compile-enabled run has occurred.
+- Commit `17f4fce` adds the missing VM property-redefinition probes: `Object.defineProperty` attempts against `globalThis`, `Math` and `Math.random` must fail as policy execution errors; `Reflect.defineProperty` must return false and leave each target unchanged. The ambient probe also verifies `Math.random` is nonwritable/nonconfigurable. This closes the prior test-coverage gap, pending contract-only execution.
 
-The recorded contract-only failures remain on parent head `cab2904`; there is no rerun on `ce541f` yet. The Agent6 fixture metadata, Agent34 baseline assertion, and Docker inspect JSON-shape failure therefore remain the immediate gates.
+The recorded contract-only failures remain on parent head `cab2904`; there is no rerun on `23f636` yet. The Agent6 fixture metadata, Agent34 baseline assertion, and Docker inspect JSON-shape failure therefore remain the immediate gates.
 
 ## Sequence
 
-Do not dispatch a fixture game. Fix the three contract-only failures, add the VM property-redefinition cases, then rerun the same bounded `contract_only` lane. Only after it passes should the compile-enabled/hosted acceptance path run on the same exact head. This review is static plus the recorded CI result; no local tests were run.
+Do not dispatch a fixture game. Fix the three contract-only failures, then rerun the same bounded `contract_only` lane. Only after it passes should the compile-enabled/hosted acceptance path run on the same exact head to validate the pinned GameError import, narrow Item continuation path, and attack/ability witness. This review is static plus the recorded CI result; no local tests were run.
 
 The canonical branch's changes remain path-disjoint from the main-side changes since its 06:02 merge base (zero overlapping changed paths). Preserve those main-side changes and sync once before the single reviewable PR; do not chase each communications-only commit.
 
