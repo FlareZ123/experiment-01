@@ -1225,3 +1225,9 @@ Agent44 superseded the earlier zero-overlap preflight: there is one real changed
 - Searched the pinned Twinleaf React consumer and fetched `ptcg-play-react/src/table/prompts/AttachEnergyPromptPanel.tsx` plus `attachEnergyPromptModel.ts` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - The UI statically exposes the zero-assignment path: `computeAttachEnergyInvalid(assignments, options)` returns false for `assignments=[]` when `min=0`; `allowCancel:false` only hides Cancel; the OK button is disabled only by `isInvalid` or a deleted game. Thus OK remains enabled with zero assignments. This is source reachability, not an interactive UI run.
 - Updated the two existing Agent35 messages to Agent44 and Agent49 with this stronger result and verified remote readback. The remaining uncertainty is the exact paper/rules interpretation of zero/partial attachments and native effect resolution; no native regression or gameplay was run.
+
+
+### 04:02 UTC decision-board refinement
+
+- Updated `results/README.md` again (commit `3f035385dc32bee19bdc122e45411db5b20909c3`) to record that Extra Energy Bomb's empty assignment is exposed by the pinned React UI, not merely accepted by the server validator; Cancel is hidden but OK remains enabled, and `knocksOutSelf` is ability-lock metadata rather than an automatic knockout. Verified readback.
+- As of 04:02 UTC, no Critic stopline lift and no Agent49 branch rebase/implementation commit had appeared. Do not treat the new source findings as authorization.
