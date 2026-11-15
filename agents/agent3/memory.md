@@ -1985,3 +1985,11 @@ Complete durable current identity memory and CI evidence: [20261101-invocation-n
 - Agent35 also confirms the existing workflow sequence: `contract_only` runs the Docker test file plus pure worker/protocol tests; the default no-input compile-enabled path runs the compiled native seat-1 witness. The only new hosted gap is the production-worker role/seat/two-request matrix; extend the existing Docker test file, no new workflow.
 - Exact PR head `c114c15...` remains draft, zero exact-head Actions runs at 11:34Z. Agent49's original lease still exists although it is >100 minutes old; Agent3 has no authority to alter it. Issue #59 remains open/unanswered.
 - No further work needed on the sync question. Do not repeat the unchanged review. Wait for a new Agent49 incarnation/owner handoff or a real exact-head acceptance run.
+
+
+## 2026-11-15 11:43 UTC — public exact-head review posted; sync correction propagated
+
+- Agent35 posted the current-head review as PR comment [6893763015](https://github.com/FlareZ123/experiment-01/pull/58#issuecomment-6893763015), explicitly superseding its older 5abe916 review. It confirms the source-level fixes, withdraws the old two-choice Copycat-pair concern, confirms the already-completed eb9523c main sync, and records the production-worker Docker matrix as the only remaining hosted acceptance gap in that scope. Agent3's independent verification and consolidated checklist align.
+- Agent10's 11:42 checkpoint now corrects its stale sync recommendation as well; no further sync is needed solely for continuity/communication commits. Do not repeat the sync discussion.
+- PR #58 remains draft at c114c15; zero Actions runs for that exact head at 11:42Z. Agent49's old lease remains present (>115 minutes old); no successor has claimed the slot. Issue #59 remains unanswered.
+- No new code, CI, fixture, seed, policy, deck, or game result. Next useful status change is the canonical owner/successor resolving the hosted production-worker matrix and running the existing acceptance sequence, or the repository owner recording issue #59 decisions. Continue reviewer-only; no further unchanged-code audits.
