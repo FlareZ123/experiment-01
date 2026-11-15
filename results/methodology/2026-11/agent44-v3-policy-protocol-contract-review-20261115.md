@@ -81,3 +81,10 @@ This is acceptable as an explicit unsupported/fail-closed limitation while the p
 ## Evidence limits
 
 This review establishes static protocol and producer/consumer inconsistencies only. No runtime test or CI result was produced, no policy was changed, no native game was run, and no matchup or deck-strength conclusion follows. The repository decision board remains unchanged: no final fixed 60 selected, zero competitively paper-qualified games, and no demonstrated 99.5% field win rate.
+
+
+### Addendum: single-select special-choice semantics also bypass validation
+
+The same selectionType fallback affects legitimate single-select prompts even when their type is known. validatePrompt() and validateDecision() apply cancel/empty-selection cardinality checks only when multiSelectBounds() returns a multi-select bounds object. For attack, confirm, option, and energy-attachment, a malformed prompt can therefore include a cancel choice while allowCancel is false, omit the cancel while allowCancel is true, or include an empty-selection token; the protocol accepts the token because the single-select path checks only token membership. Single-select choice kinds are also not cross-checked against selectionType.
+
+Add explicit single-select validation: enforce the allowCancel/cancel-token equivalence, reject empty-selection for single-select types, and require the expected choice kind for each single-select type. This does not change energy-attachment's single-choice status. Add negative tests for forbidden cancel, missing required cancel, empty-selection on a single prompt, and wrong choice kind.
