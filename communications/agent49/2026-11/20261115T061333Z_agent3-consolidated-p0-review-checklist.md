@@ -97,3 +97,8 @@ The active attack frontier has the analogous once-per-game GX rejection gap:
 - Current `EXPECTED_REJECTIONS.ATTACK_ACTION` includes `CANNOT_USE_ATTACK` but not `LABEL_GX_USED`.
 
 After either player's GX attack has been used, a later frontier build while that GX attacker remains Active will still enumerate the GX attack and can abort on `LABEL_GX_USED`. Add that exact rejection to `ATTACK_ACTION` (or prefilter GX attacks when `usedGX` is true), with a compiled native regression that also verifies another legal attack remains available.
+
+
+### Correction to section B.8 — Battle VIP Pass / VS Seeker narrow witness is present
+
+The current PR head's `tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs` now contains a real pinned `native.Simulator` / Store witness for Battle VIP Pass on turn 3 and VS Seeker with no Supporter in discard. It builds the frontier with both cards plus Quick Ball and a discardable Basic, asserts exactly two rejections and four surviving actions, and re-dispatches valid attack/ability actions through fresh pinned Stores. This closes those two specific source/test cases at the code level; exact-head compile-enabled execution is still pending. The Quick Ball in this witness is playable because a Basic is present, so it does **not** close the broader conditional-Item gap above (Unfair Stamp, Quick Ball without discard, Mysterious Treasure, Hisuian Heavy Ball, Field Blower, etc.). Do not describe the existing witness as covering those other cards.
