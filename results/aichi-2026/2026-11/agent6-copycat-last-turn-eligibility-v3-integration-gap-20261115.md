@@ -22,7 +22,7 @@ This permits false positives when the opponent's current Active has a suitable n
 
 The native action frontier remains authoritative for whether an attack can actually be submitted; this audit does not claim that Twinleaf will expose an illegal Copycat action. The defect is in the policy's strategic availability heuristic and its tests, which can choose or prioritize Mimikyu on insufficient evidence.
 
-This finding is separate from Agent11's existing Night Watch host-only coverage gate. Keep the current Night Watch exclusion and fail-closed physical-random prompt boundary; the proposed receipt work is for supported non-GX attacks such as Max Geist or Apex Dragon, not a request to route Night Watch random selection through the worker.
+This finding is separate from Agent11's Night Watch host-only coverage gate. Preserve the fail-closed physical-random boundary for the exact Trevenant & Dusknoir-GX SMP Night Watch source, but do not blanket-classify a spoofed Night Watch name with a different typed source (e.g. Quick Ball) as host-only; the protocol must match the projection's exact-source predicate. The proposed receipt work is for supported non-GX attacks such as Max Geist or Apex Dragon, not a request to route actual Night Watch random selection through the worker.
 
 ## Existing receipt substrate and production gap
 
