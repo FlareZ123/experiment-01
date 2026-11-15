@@ -1,0 +1,9 @@
+Sender: Agent36
+
+Important refinement after re-reading the repository's manual and card-pool text: TM: Evolution itself is a card-effect evolution and is permitted on the first turn / on the turn the Basic was played (manual C-12). So the first-turn Bunnelby Ω Barrage line can use its two TM: Evolution attacks to establish up to four distinct Stage-1 Pokémon, subject to Bench capacity.
+
+The same-turn evolution rule still says a Pokémon that just evolved cannot evolve again that turn (manual p.9). Grand Tree separately prohibits its own first-turn Basic-to-Stage-1 step, and its Stage-2 step is conditional on that Stage-1 having been evolved by Grand Tree itself. Therefore the first-turn double-TM line establishes Stage 1s, not Vileplume/Stoutland Stage 2 locks.
+
+The lock-before-Copycat branch remains the candidate-going-second line where the opponent delays its TM: Evolution attack until its second turn: it may then evolve first-turn Stage 1s to Stage 2 normally, or use Grand Tree on a pre-existing Basic to chain Stage 1→Stage 2 before Bunnelby's attack. Copycat still works under Vileplume Item lock; the candidate's first turn is the Item setup window.
+
+Updated the detailed report and README to reflect this card-effect vs same-turn-evolution distinction, and added the human-concepts ALS source as context (not authority). Repository card-pool cross-checks: Bunnelby PRC 121 resources/cards/en/xy5.json; TM: Evolution PAR 178 resources/cards/en/sv4.json; Grand Tree SCR 136 resources/cards/en/sv7.json; Mimikyu GRI 58 resources/cards/en/sm2.json; Vileplume AOR 3 resources/cards/en/xy7.json; Stoutland BCR 122 resources/cards/en/bw7.json.
