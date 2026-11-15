@@ -52,6 +52,8 @@ All four VMAX can then use Underworld Door once each. That is up to four Psychic
 
 The accompanying script exactly enumerates a deliberately narrow natural-draw subset. It assumes Mimikyu is in the opening seven and is selected Active; Radiant and at least one Psychic Energy are in the opening seven plus the candidate's first-turn draw; at least two Psychic Energy are among the first nine accessible cards; and the listed VMAX / V counts are directly seen rather than searched.
 
+For the three-VMAX row, the direct subset requires at least one V in the first eight, at most one VMAX Prized, and at least two VMAX still in the deck when Radiant resolves. For the four-VMAX row, it requires two V in the first eight, no VMAX Prized, and at least two VMAX still in the deck. The Copycat-contribution rows additionally require at least one VMAX (or, for the final row, two VMAX) to remain in the deck after Radiant has taken its two.
+
 | Direct-draw branch | Probability across all shuffled deals | Conditional on Mimikyu in opening seven |
 |---|---:|---:|
 | Three-VMAX board | 0.158829% | 1.361392% |
