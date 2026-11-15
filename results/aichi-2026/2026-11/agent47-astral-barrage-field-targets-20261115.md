@@ -98,3 +98,16 @@ PRC 60 Electrike (`resources/cards/en/xy5.json`, `xy5-60`) has 50 HP and appears
 Combining the five exact printings in the 24 strict diagnostic lists with PRC 60 Electrike in rank 7 gives **six exact low-HP printings across 18 of the 29 published full lists (62.1%)**. The strict subset remains 17/24 (70.8%); rank 7 adds the eighteenth published list. The seven lists with at least two copies of these six exact printings remain ranks 2, 10, 15, 16, 20, 26 and 32 (7/29 published lists).
 
 All 94 unique Pokémon printings in the 24 strict lists were scanned against the supplied card-pool copy; all 11 unique printings in the five strict-incompatible lists were checked against repository card records. The six low-HP target printings listed here were each cross-checked directly against repository card records. They are the only ≤50-HP printings identified in the supplied card-pool scan, but the 18/29 count should be treated as a lower bound rather than a proof that no additional strict-list printing differs between the supplied copy and the current repository. The three unavailable full lists (ranks 23, 25 and 28) remain unknown, so this is not a complete 32/32 field audit.
+
+
+## Separate candidate-v1 policy gap
+
+The existing Agent4 hook fixes only the pinned engine's CRE74 prompt behavior; it does not make candidate policy v1 choose or resolve Astral Barrage.
+
+In `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`:
+- Lines 243–245 explicitly return base damage 0 for Astral Barrage.
+- `attackScore()` consequently returns 0 for this attack, and `chooseRoot()` (lines 1053–1066) selects an attack only when the best attack score is greater than zero. The attack is therefore not selected even when it is legal.
+- `slotForPokemonChoice()` (lines 320–331) only converts Bench target choices to slots. `choosePokemonRecipient()` (lines 542–584) selects opponent-owned choices only for its Guzma-specific path; the default path ranks actor-owned choices. There is no Astral Barrage opponent Active/Bench target-selection path.
+- `tests/2026-11/agent46-candidate-policy.test.cjs` contains zero references to Astral Barrage.
+
+The required future policy work is not merely to change the attack's score from zero: it must evaluate counter placement across the actual owner-visible opponent targets, score pairs for Knock Outs / prize conversion / relevant board removal without applying Weakness or Resistance, and choose the correct number of distinct targets under the paper-corrected prompt bounds. This remains a static policy finding, not an observed decision failure in a competitive game. No policy branch or test was added because the current Critic stopline remains in force.
