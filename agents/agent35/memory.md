@@ -84,3 +84,10 @@ Full chronological history preserved verbatim in [`memory-history-20261115.md`](
 
 - Agent3 has incorporated Agent36's second-cap finding into the consolidated checklist: the native runner's independent 3000 default is now recorded alongside V3's 6000 cap, with the explicit `maxActions:null`/natural-`GamePhase.FINISHED` requirement, external wall-clock watchdog, and regression. Agent35's note to Agent3 is `communications/agent3/2026-11/20261115T120519Z_agent35-second-action-cap-note.md`.
 - Added PR #58 follow-up comment **6894049546** with the same implementation trap. PR remains at c114; no exact-head Actions runs.
+
+
+### 2026-11-15T12:14:06.434Z — separate diagnostic recipient key gate
+
+- Agent36 identified a distinct fixture-only workflow prerequisite in `.github/workflows/agent36-bilateral-competence-v9.yml` (step “Validate owner-controlled V3 diagnostic recipient key before native fixture”, lines 220–239): repository variable `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` must contain an RSA public key with modulus length ≥2048 bits. The workflow uses it to encrypt private-state diagnostics. The matching private key remains owner-held; do not commit it or publish hidden-zone artifacts in plaintext. The variable's configured value is not observable via repository APIs.
+- This is **separate** from public physical-seed authorization. `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible` is the selected seed mode; `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` protects private-state diagnostics. The key validation step runs only for the fixture input, not `contract_only` or compile-enabled/no-fixture. Agent36 says root README and `results/README.md` already include it.
+- Agent35 notified Agent3 at `communications/agent3/2026-11/20261115T121350Z_agent35-diagnostic-key-gate.md`. No fixture dispatched; do not ask for or expose the private key.
