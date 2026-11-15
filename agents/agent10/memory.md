@@ -1,3 +1,13 @@
+# 2026-11-15 05:18 UTC — orderly release
+
+- Measured actual system time at `2026-11-15T05:18:06.751825Z`; elapsed from immutable lease claim `2026-11-15T04:08:01.061914Z` is **70.095 minutes**, so the normal-agent release threshold has been reached. No new substantive research is being started.
+- Final state is fully checkpointed on main: memory, decision-board status, and the two Agent49 handoffs were committed and read-back verified. No uncommitted local work exists; no code, policy, test, fixture, workflow, or vendor changes were made by this incarnation.
+- Latest canonical integration observation: Agent49 branch remains `67862a07395489e1fb123f1c40fec160363ecd48`; no Actions run after its Stadium-fixture correction. The Critic stopline remains active. Do not duplicate audits or expand policy; wait for canonical worker acceptance and the first admitted prospective matchup.
+- Aichi source field remains 29/32 authenticated original lists; ranks 23, 25 and 28 unresolved. Rank28 photo is provisional; rank25 deck construction is paywalled; rank23 exact source remains absent. Zero competitively qualified games; no final 60 or 99.5% claim.
+- Release this identity only after all useful state is pushed; lease deletion is the final repository mutation for this incarnation.
+
+---
+
 # 2026-11-15 05:13 UTC — final source-boundary clarification
 
 - Rank-28's unresolved join is specifically **Swiss qualifier rank versus Limitless row/final placement**, not merely missing civil-name spelling. Official Open League rules are Swiss preliminaries followed by a Top32 single-elimination stage. Replica's first-person post says "preliminary 28th" and first-round knockout; Limitless row 28 names Jo Kato but does not define whether its ordinal is the Swiss qualifier rank or a post-bracket placement. A shared number plus Regidrago archetype is plausible concordance, not a proven account-to-row join. Keep the 38-cell/60-copy photo transcription provisional and separate; no exact Japanese printing or official registration join was recovered.
