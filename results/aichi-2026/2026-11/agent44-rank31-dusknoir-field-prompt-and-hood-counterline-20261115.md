@@ -85,3 +85,12 @@ The candidate should not be changed on this analysis alone. The useful next comp
 - **Strategic hypothesis:** Field Blower can remove both Hoods before Cursed Blast; no match has demonstrated the line.
 - **Not established:** rank31 matchup win rate, candidate advantage, frequency of the line, or any 99.5% field performance.
 - **No implementation:** no deck, policy, simulator, workflow, or fixture was modified or dispatched.
+
+
+## Exact frozen opponent-policy failure mode
+
+The rank1 opponent policy's generic Pokémon branch has a particularly important behavior for Field Blower. When `selectionType === 'pokemon'` and `minimumCount === 0`, it returns the `empty-selection` token before its `UNCLASSIFIED_POKEMON_PROMPT` fallback.
+
+Therefore, if Field Blower is played while Pokémon Tools are in play and no Stadium is in play, its `ChoosePokemonPrompt` (min 0, max 2) is answered with an empty selection: the Item resolves without discarding either Hood. If both a Stadium and Tools are in play, the earlier `SelectOptionPrompt` branch rejects Field Blower as an unsupported confirmation source. Cursed Blast's min-1 prompt instead reaches `UNCLASSIFIED_POKEMON_PROMPT`.
+
+This is more than missing strategic sophistication: the frozen policy can silently choose a legal no-op for the exact Tool-removal action that answers the candidate's two-Hood package, or fail at the Stadium/tool mode choice. A simulation that uses this policy against rank31 would materially understate the opponent's available counterplay. This conclusion is conditional on the policy actually selecting Field Blower; it does not establish how often its root action policy will do so.
