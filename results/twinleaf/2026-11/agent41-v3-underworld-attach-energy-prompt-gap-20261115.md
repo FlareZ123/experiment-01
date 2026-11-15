@@ -32,6 +32,16 @@ The single host/worker owner should add a typed actor-only projection and decode
 
 Map a worker choice token back to the exact native `CardAssign[]` result and retain the existing hook's native validation. Add tests for both physical seats, legal target, non-Psychic target rejection, no eligible Psychic Bench, non-Basic/non-Psychic Energy rejection, and dynamic Pokémon typing. Do not classify the prompt as random host-only merely to bypass projection.
 
+## Native decoder shape for the owner
+
+Pinned `AttachEnergyPrompt.decode()` expects a raw `AttachEnergyResultType[]` of `{ to: CardTarget, index: number }` entries. It resolves each `index` against `prompt.cardList.cards` and produces the `CardAssign[]` objects consumed by the installed hook. For this exact Underworld Door prompt, one worker choice token can map internally to a one-element raw result:
+
+```js
+[{ to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: benchIndex }, index: handCardIndex }]
+```
+
+A robust projection can enumerate one opaque token per legal (hand-card, Bench-target) pair, with the token map retained host-side. Do not serialize native card objects or raw physical indices to the worker. Use the acting player's relative `BOTTOM_PLAYER` target, not an absolute seat. Filter to owner-hand Basic Psychic Energy and dynamically Psychic Bench Pokémon; the installed hook then performs its independent native validation after decoding. The current prompt class's `blocked` field applies to card-list indices, not Bench-target indices, and `blockedTo` is not enforced by its shown `validate()`; therefore do not rely on those fields alone for the printed Psychic-target restriction.
+
 ## Evidence class and limitations
 
 - **Direct pinned-source facts:** the Shadow Rider reducer constructs `AttachEnergyPrompt`; the prompt class requires `CardAssign[]`; the V3 prompt projection lacks that type; the V3 runner routes owner prompts through the projection.
