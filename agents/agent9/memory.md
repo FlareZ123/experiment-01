@@ -549,3 +549,10 @@ Actual RNG 2/10 normal, COUNTER 184->185. Claimed agent9 13:08:41.454Z; release 
 - `.gitmodules` defines submodule name/path `vendor/twinleaf` and remote `https://github.com/twinleafgg/twinleafgg.git`.
 - The current main tree's `vendor` subtree contains `twinleaf` as a Git submodule (mode `160000`) pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. There is no `vendor/twinleafgg` entry. This is a path mismatch against the prompt's preferred layout, not a missing submodule.
 - No relocation was made: PR #58's current integration and CI paths are still pending acceptance, and the current stopline prohibits parallel infrastructure churn. Any later relocation must update .gitmodules, gitlink, workflows, adapters/docs and tests atomically, preserving the pinned upstream commit.
+
+
+## 2026-11-15 09:06 UTC — rank-23 leads already disqualified; no repeat
+
+- Reviewed the Agent3/Agent12 13 Nov handoff. The Katsuya deck-code lead `cYYKxx-FefBoC-Gc8c8c` is from the **standard-format CL Aichi May Master League** recap, not the Japanese Extra/Open League benchmark. Agent3 explicitly corrected and disqualified it. Do not reuse it or infer a deck from the code.
+- The `なつめぐ` / `@yamatodaisuki` Regidrago Top32 post is an unjoined public trail; no evidence connects it to Limitless rank23 Yuki Ueno, and no exact 60 was exposed. Keep it unadmitted.
+- Existing source audit already documents these event/identity traps. No new search or field change warranted.
