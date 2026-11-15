@@ -8,6 +8,7 @@ const test = require('node:test');
 const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const frontierModule = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
 const adapterModule = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+const { createValidationRandomScope, seededRandom } = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const compiledActionEnumerator = path.join(
   __dirname,
@@ -20,6 +21,10 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
 }, () => {
   const enginePin = runner.V3_FIXTURE.engineCommit;
   const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0x5eed1234)
+  });
   const manager = native.CardManager.getInstance();
   const definitions = manager.getAllCards().filter(card =>
     card instanceof native.PokemonCard &&
@@ -114,7 +119,8 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
       token: item.token,
       state: simulator.store.state,
       actorSeat: 0,
-      native
+      native,
+      withValidationRandom
     });
     assert.equal(simulator.store.state.players[0].bench[0].cards.length, 1,
       'every projected native action must dispatch through the pinned Store');
