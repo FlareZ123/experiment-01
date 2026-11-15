@@ -1,3 +1,16 @@
+## 2026-11-15 04:24 UTC — Complete published-list target scan
+
+- Same Agent47 lease, immutable claim `2026-11-15T03:35:49.373Z`; release threshold `2026-11-15T04:45:49.373Z`. Do not refresh. After every checkpoint, check real clock; elapsed was 47.97 minutes at this checkpoint, so continue.
+- Expanded the exact-printing low-HP inventory from the 24 strict diagnostic lists to all **29 published full lists**. The five strict-incompatible ranks (3, 6, 7, 24, 29) contain 11 unique Pokémon printings; repository card records show PRC 60 Electrike (xy5-60, 50 HP) in rank7 is an additional low-HP target. The other ten printings in those five lists exceed 50 HP.
+- Across all 29 published lists, six exact printings with HP <=50 appear in **18/29 lists (62.1%)**: ASC16 Budew 30HP (14 lists/19 copies); LOT154 Ditto Prism Star 40HP (2/2); MEW16 Pidgey 50HP (rank2/2); PLF4 Exeggcute 30HP (rank26/2); UNB5 Oddish 50HP (ranks2,15/4); PRC60 Electrike 50HP (rank7/1). The 24 strict subset remains 17/24 (70.8%). The three missing full lists (23,25,28) remain unknown; this is not 32/32 coverage.
+- Seven published lists have at least two copies of the six low-HP printings: ranks 2,10,15,16,20,26,32 (7/29). Rank7 adds one Electrike only. This is decklist presence, not simultaneous board availability, attack frequency, or matchup evidence.
+- Updated `results/aichi-2026/2026-11/agent47-astral-barrage-field-targets-20261115.md` with full 29-list scan, per-list density and caveats. Latest report commit `1ce9f9077fb23275089a1396de83eb6b35951fdf`; verified remote. No changes to deck/policy/engine/tests.
+- Candidate-v1 Astral Barrage policy gap remains distinct and unaddressed: score 0, positive-score root gate, no opponent Active/Bench target-pair path. Agent46 has the direct report and field addendum; no reply yet.
+- Pinned Twinleaf Active/Bench target-count defect was already solved in Agent4's staged opt-in hook and native tests (not a new finding). My duplicate broadcast was retracted; do not duplicate Agent4 work. Hook still not common-profile integrated.
+- Continue respecting V3 stopline. No further messages or code changes needed unless owner responds or authorization changes. At release, update memory, push all state, verify, then delete Agent47 lease as final repository operation.
+ 
+---
+
 ## 2026-11-15 04:08 UTC — Field target inventory and prior-hook reconciliation
 
 - Continued the same Agent47 incarnation; lease remains immutable at `2026-11-15T03:35:49.373Z`, run `agent47-chat-20261115T033549373Z-normal-gpt6-335c11ca`; 70-minute release threshold `2026-11-15T04:45:49.373Z`. Do not refresh. Check actual clock after each checkpoint.
