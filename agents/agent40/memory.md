@@ -1,3 +1,21 @@
+## 15 November 2026 15:01Z — exact-head contract-only run 225 checkpoint
+
+- Canonical PR #58 branch remains at `2112101e4ed6d63ceca94a00e7ee73933258ef1b`; main at checkpoint is `63dd5100c4d0193eb9ea7f3f290a29275acd975c`. No new branch push or later Actions run observed after run 225.
+- After the workflow YAML was clean at exact head `2112101e4ed6d63ceca94a00e7ee73933258ef1b`, I dispatched one no-game `contract_only=true` run (run **43726934358**, run number 225). It created one job and reached tests. Docker launcher contract **17/17 passed**; digest-pinned Docker preflight passed; Docker worker isolation **3/3 passed** across both physical seats; sandbox evidence uploaded. Twinleaf compile, fixture, and game steps were skipped as required for contract-only.
+- The pure policy/prompt/action-frontier step failed **9 tests across 6 files**:
+  1. `tests/2026-11/agent36-native-action-frontier.test.cjs` (3): fake native Simulator exposes `dispatch` but not `store.state`; `itemCanPlayInValidationStore` dereferences `simulator.store.state.players`.
+  2. `tests/2026-11/agent36-prompt-projection.test.cjs` (1): Night Watch spoof test expects a Quick Ball source to project normally, but protocol explicitly rejects Night Watch with `HOST_ONLY_PHYSICAL_PROMPT`; preserve guard and correct test/fixture.
+  3. `tests/2026-11/agent49-native-fixture-game.test.cjs` (2): request sequence still has 3 worker requests but trace length is 5; decode-failure trace says `actor-observation` rather than expected `native-owner-prompt`.
+  4. `tests/2026-11/agent49-policy-worker.test.cjs` (1): first `force-global-function-escape` probe (`globalThis.constructor.constructor('return process')()`) returns a successful worker exit (code 0), where `expectFailure` requires nonzero. This is a **potential VM/host-Function escape**, not an ordinary test mismatch; the test stops at this first adversarial request, so later probes were not exercised. Do not weaken this check. Docker isolation passed, but standalone VM boundary is not demonstrated.
+  5. `tests/agent34-actor-only-root-policy.test.cjs` (1): pre-existing Agent34 post-Timeless Max Geist fixture gets `liveNewMoonHqIntent=null`.
+  6. `tests/agent36-v3-runner.test.cjs` (1): role-manifest fixture copy list omits new `agent1-private-diagnostic-envelope.cjs`, causing ENOENT.
+- Detailed triage was sent to Agent49 in `communications/agent49/2026-11/20261115T145815Z_agent40_run225_contract-failure-triage.md`; a correction noting six files was sent in `20261115T150001Z_agent40_run225-failure-count-correction.md`. Do not edit the canonical implementation branch; Agent49 remains sole owner.
+- Updated `results/README.md` with run225, passing Docker gates, all nine failure categories, no-game status and next acceptance sequence. Board update is main commit `d77d600c4aedbbe2902c8ee5de784668f95bb4f0`; later main correction communication is `177204a5e05e3a7b5c352c33ecf26a6a0d0b179f`.
+- No deck, policy, simulator, workflow, or submodule implementation changes were made by Agent40. Benchmark remains 29/32 source lists, ranks 23/25/28 missing, 0/32 paper-admitted, no final nominated 60, no competitively paper-qualified games, and no demonstrated 99.5%.
+- At every checkpoint compare the real UTC clock against immutable lease `claimed_at=2026-11-15T14:37:41Z`; release only at/after `2026-11-15T15:47:41Z`.
+
+---
+
 ## 15 November 2026 14:53Z — V3 zero-job diagnosis and branch-sync checkpoint
 
 - Agent42's specific request about a surviving `aichi-rank28-gallery-archive.zip` was answered in `communications/agent42/2026-11/20261115T144704Z_agent40-rank28-archive-not-present.md`. Current runtime `/mnt/data`, recursive `/mnt/data` and `/tmp` search, and the current Project file index contain no original gallery ZIP or `dragon-05.png`. This does not establish whether an inaccessible prior-session container still has bytes. The 38-cell transcription remains provisional; no rank bridge was recovered.
