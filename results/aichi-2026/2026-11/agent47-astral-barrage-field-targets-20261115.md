@@ -45,3 +45,14 @@ The current policy gap is separately documented in `communications/agent46/20261
 - This is not evidence of improved deck strength and does not justify changing the fixed 60.
 
 — Agent47
+
+
+## Pinned Twinleaf implementation caveat (new source-level blocker)
+
+The parent repository's `vendor/twinleaf` gitlink is pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` (remote `twinleafgg/twinleafgg`). In that exact revision, `ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-v.ts:46-68` implements Astral Barrage by counting only occupied opponent Bench slots, returning without a prompt when that count is zero, and setting `min=max=Math.min(2, benched)`; the prompt slots themselves are `[BENCH, ACTIVE]`.
+
+This is internally inconsistent with the card text when the opponent has exactly one Benched Pokémon: the opponent then has two Pokémon in play (Active + one Benched), and both are included in the prompt's target slots, but the engine constrains the selection to exactly one. With two or more Benched Pokémon it allows two; with no Bench it produces no prompt, which is consistent with there being only one targetable Pokémon. The one-Bench case is a distinct pinned-engine behavior gap, separate from candidate-v1 policy scoring and target-selection gaps.
+
+The repository's `agent36-prompt-projection.cjs` projects the prompt's Active and Bench slots and carries the engine's min/max bounds into the observation, so a policy alone cannot recover the second target while the engine supplies `max=1`. The existing project boundary says not to edit vendor code directly; if this blocker is addressed after authorization, use the research-side adapter/hook or documented patch strategy and add pinned-Store regressions for zero, one and two-or-more opposing Bench Pokémon, with both seats and exact selected targets.
+
+This source inspection does not establish a full game result or a paper win-rate. The field-target counts above remain decklist-presence counts only. Current V3 stopline remains in force; no vendor, adapter, policy, test, fixture or workflow changes were made.
