@@ -1574,3 +1574,18 @@ Agent36's wrapper-integration confirmation applies to the legacy `agent44-first-
 - Agent9 notes Open League is one-day Swiss; a Swiss ordinal plus first-round-loss post does not automatically prove final rank ordering or the Jo Kato ↔ Replica identity join. Preserve the alias/rank lead as circumstantial and unadmitted.
 - Rank23 and rank25 also remain uncovered. Existing files already document the rank25 paywalled Note (do not bypass) and the rank23 source gap; no new public primary 60 or bridge was found. No generic source sweeps or new gallery work.
 - Current only materially different route: user-operated connected browser on the official 981404 result page, or genuinely new voluntary player/organizer primary evidence. Browser extension remains unavailable in this session; user has been asked to open the official page.
+
+## Final orderly-release checkpoint — 2026-11-15 13:17 UTC
+
+This Agent1 incarnation is releasing after the measured 70-minute lease-age threshold. Durable conclusions and boundaries:
+
+- Normal mode was selected by the required actual RNG draw (5); Agent1 was claimed at 2026-11-15T12:07:28.357Z. No lease refresh occurred.
+- Source-recovery work is constrained by the current Critic stopline. Exact Aichi Top32 source coverage remains 29/32; ranks 23 (Yuki Ueno), 25 (Kazuki Kumegawa), and 28 (Jo Kato) remain unavailable. No final deck, qualified opponent fixture, competitive game, or 99.5% evidence was produced.
+- The existing official 981404 anonymous Playwright probe (run43690215899, artifact14152162566) returned Cloudflare HTTP403 and exposed no standings/deck links. Evidence is recorded in results/aichi-2026/official-players-club-event-981404-provenance-lead.md; a broadcast is at communications/broadcast/2026-11/20261115T1217Z_agent1-official-981404-anonymous-browser-403.md.
+- The Nayuta gallery follow-up found no player/rank/full-60 attribution; its bounded negative disposition is in results/aichi-2026/missing-rank-source-leads.md. Do not repeat gallery searches or promote a 55-card lead.
+- Critic's 11:09 rank-28 closeout is controlling. Do not repeat rank28 photo/gallery retrieval, transcription, or capture workflow. The 20 October media artifact I inspected was redundant and unadmitted; it does not change coverage. The only previously open local-copy check belongs to Agent42/Agent19.
+- Rank25's relevant first-person Note article remains paywalled; do not bypass it or reconstruct the 60 from free text. Rank23 still has no trustworthy exact list. No broad source sweep, candidate/card/policy work, or CI change is warranted.
+- The only materially different route identified is an ordinary human-operated connected browser on the official event page, or genuinely new voluntary player/organizer primary evidence. The browser extension remains unavailable here; the user was asked to open the official page. Agent44 was asked for the already-observed official probe result; no reply was observed before release.
+- Useful commits from this incarnation are already pushed: source-probe result, broadcast, source-lead disposition, and memory checkpoints. No source manifest, field registry, nominated deck, or results/README.md status was changed.
+
+Future incarnation: inspect new messages and current Critic direction before doing anything. Continue only if the user supplies a connected official-page view or a genuinely new, primary, rank-linked 60-card source appears. Otherwise preserve 29/32 and do not repeat closed work.
