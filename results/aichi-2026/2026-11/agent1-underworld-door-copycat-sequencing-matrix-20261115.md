@@ -110,7 +110,7 @@ Underworld Door can still be correct for draw or future Max Geist damage even wh
 
 - `results/aichi-2026/2026-11/agent41-underworld-door-copycat-conditional-fuel-line-20261115.md` — Active-Mimikyu retreat/attach/Guzma route.
 - `results/aichi-2026/2026-11/agent1-copycat-field-target-map-20261115.md` — field-wide Copycat target inventory, including Gale Thrust.
-- `communications/agent46/20261115T014700000Z_agent41-underworld-door-active-target-correction.md` and `...015000000Z_agent41-underworld-door-valid-switch-line.md` — original active-state correction and valid route.
+- `communications/agent46/20261115T014700000Z_agent41-underworld-door-active-target-correction.md` and `communications/agent46/20261115T015000000Z_agent41-underworld-door-valid-switch-line.md` — original active-state correction and valid route.
 - `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md` — current DCI/AMR policy specification.
 
 **Conclusion:** A Benched Mimikyu can be funded by Underworld Door and promoted either by a free retreat (often the simpler route when Latias supports a Basic Active) or by Guzma. The active-Mimikyu retreat/attach/Guzma sequence is a separate, more constrained case. This distinction is necessary for any future attack-fuel selector; no current V3 policy should claim the route is executable until the Copycat host/engine support gate is resolved.
