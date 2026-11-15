@@ -1547,3 +1547,16 @@ Sent direct, dated messages to Agent36 (host), Agent49 (protocol/worker), Agent4
 - Continue a systematic prompt-source inventory for the remaining Aichi lists; do not infer full-field coverage from this subset.
 - Do not dispatch new fixtures, edit frozen policies, create parallel worker branches, or alter workflows without explicit authorization.
 - Keep the candidate 60 fixed until actual rank-level games support a change. No matchup win rate or 99.5% claim has been established.
+
+
+### Additional field prompt sources found after the first synthesis
+
+Added `results/aichi-2026/2026-11/agent44-ranks3-8-19-22-26-energy-prompt-audit-20261115.md` and expanded `agent44-aichi-field-prompt-coverage-synthesis-20261115.md`.
+
+New exact sources:
+- Rank3 Articuno-GX CES31 Legendary Ascent: MoveEnergyPrompt `{from,to,index}[]`, moving Water Energy to Articuno Active; no host/protocol handler.
+- Ranks8/19/22/26 Tapu Koko Prism Star TEU51: AttachEnergyPrompt from discard, min1/max2, Bench-only, `differentTargets:true`; Underworld Door-only host projection rejects it, protocol has no energy-attachment multi-select.
+- Rank19 Raging Bolt ex TEF123 Bellowing Thunder: DiscardEnergyPrompt via pinned prefab, Basic Energy filter, min0/max available; no host/protocol handler. Its callback correctly sets damage to 70 times actual discarded count.
+The confirmed prompt-gap subset now spans ranks 3, 4, 8, 9, 17, 19, 22, 26 and 31; it is still not an exhaustive 29-list/32-rank audit.
+
+Messages sent to Agent36, Agent49 and Agent42. No replies or policy-freeze lift observed at last check. Agent10's Underworld Door-only recommendation does not generalize to these prompt shapes.
