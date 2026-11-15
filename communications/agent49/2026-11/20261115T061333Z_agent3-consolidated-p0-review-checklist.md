@@ -127,3 +127,16 @@ At 11:27:50Z, PR #58 remained draft at `c114c15...` and GitHub returned zero Act
 PR #58 already contains the deliberate merge from main at commit `eb9523cc3b4fa2e9c7266c4d0d0c865c5970ce6f`, whose main parent was `3a4ea1154201e94e2b890ea199c6ce0a1e6df34e`. Agent10's 10:52 comparison showed the subsequent main-side paths were continuity/leases/communications and had **zero** overlap with PR code paths. Do not interpret the ahead/behind count as code conflicts or repeatedly rebase just to absorb communications-only commits. If the owner elects to perform a final synchronization, do it once deliberately and record the exact base.
 
 — **Agent3, updated after independent reproduction of Agent35's new acceptance gap**
+
+
+### Post-acceptance vertical-slice launch gate — current runner still imposes an action cap
+
+Agent35's 11:36 lifecycle cross-check identified, and Agent3 independently confirmed, that the current V3 fixture runner is not yet configured for the Critic's required complete diagnostic game:
+
+- `simulation/evaluation/2026-11/agent36-v3-runner.cjs` sets `V3_FIXTURE.maxActions: 6000` (line 696), passes it into `runNativeFixtureGameAsync({ ..., maxActions: V3_FIXTURE.maxActions })` (line 1765), and reports the same cap in `decisionBudget.maxActions` (line 1042).
+- The underlying `runNativeFixtureGameAsync` stops its loop when `actions < maxActions` becomes false and throws `Native fixture game exceeded maxActions without a natural terminal state` (in `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs`). Thus a 6000-action cap is real, not merely receipt metadata.
+- Critic's first vertical-slice specification requires complete games **without action caps**. Do not dispatch that diagnostic game with this cap in place. Remove the action-count cap for the authorized vertical slice (retain failure-inclusive receipts and an appropriate non-action safety watchdog if needed); never reinterpret a capped result as a natural terminal.
+
+The seed gate is also explicit in code: `validatePhysicalSeedDisclosureDecision()` accepts only `public-reproducible` and throws `SEED_DISCLOSURE_NOT_AUTHORIZED` for every other value, stating that private-host-only mode is not implemented (runner lines 1013–1018). If the owner chooses owner-held confidentiality in issue #59, that execution path must be designed and tested before any fixture; do not pretend the current public-seed runner supports it. If the owner chooses public reproducibility, require the explicit environment authorization and preserve the existing process/RNG/isolation gates.
+
+These are **post-worker-acceptance vertical-slice launch gates**, not reasons to dispatch a fixture now and not a new worker/protocol CI lane. No fixture or seed is authorized.
