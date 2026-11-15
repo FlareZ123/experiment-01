@@ -344,9 +344,15 @@ test('partial or omitted game cannot be accepted as a complete round',()=>{
   })),/exactly 64 games/);
 });
 
-test('append-only ledger head detects an omitted terminal record',()=>{
+test('an omitted terminal leaves a registered round open and is rejected',()=>{
   const campaign=buildCampaign();
   campaign.records.pop();
+  assert.throws(()=>assessCorrelatedFieldCampaign(campaign),/no complete or abort terminal record/);
+});
+
+test('ledger receipt count and head must bind the complete append-only record stream',()=>{
+  const campaign=buildCampaign();
+  campaign.ledgerReceipt.recordCount--;
   assert.throws(()=>assessCorrelatedFieldCampaign(campaign),/ledger receipt/);
 });
 

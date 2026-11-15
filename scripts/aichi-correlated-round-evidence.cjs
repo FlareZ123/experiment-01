@@ -245,6 +245,7 @@ function assessCorrelatedFieldCampaign(request,options={}) {
   const gameIds=new Set(),seeds=new Set(),trialIds=new Set();
   const physicalDeals=new Set(),dealCommitments=new Set(),policyProcessIds=new Set();
   let abortedRound=null;
+  const roundIds=new Set();
 
   for(let index=0;index<records.length;) {
     if(abortedRound) throw new Error('Campaign ledger contains records after an aborted round.');
@@ -252,11 +253,14 @@ function assessCorrelatedFieldCampaign(request,options={}) {
     previousRecordSha256=validateChainedRecord(roundStart,expectedSequence++,previousRecordSha256);
     if(roundStart.recordType!=='round-start'||roundStart.ordinal!==nextOrdinal||
         typeof roundStart.roundId!=='string'||!roundStart.roundId||
+        roundIds.has(roundStart.roundId)||
         roundStart.registrationSha256!==registrationSha256) {
       throw new Error('Campaign round-start is missing, out of order or not bound to its registration.');
     }
+    roundIds.add(roundStart.roundId);
     const roundStartTime=requireTimestamp(roundStart.registeredAt,'Round registeredAt');
-    if(roundStartTime<signedAt||roundStartTime<requireTimestamp(registration.registeredAt,'Campaign registeredAt')) {
+    if(roundStartTime<latestTimestamp||roundStartTime<signedAt||
+        roundStartTime<requireTimestamp(registration.registeredAt,'Campaign registeredAt')) {
       throw new Error('Round was registered before the immutable campaign registration.');
     }
     for(const [field,expected] of [
@@ -318,14 +322,10 @@ function assessCorrelatedFieldCampaign(request,options={}) {
         throw new Error('Game attempt is missing from or differs from the immutable round roster.');
       }
       const game=record.game;
+      // Actual-start belongs to the receipt envelope; the engine game uses startingSeat.
       if(!isRecord(game)||game.rank!==record.rank||
-          game.candidateEngineSlot!==record.candidateEngineSlot||
-          game.candidateActualStart!==undefined) {
-        // Actual-start belongs to the receipt envelope; the engine game uses startingSeat.
-        if(!isRecord(game)||game.rank!==record.rank||
-            game.candidateEngineSlot!==record.candidateEngineSlot) {
-          throw new Error('Game payload does not match its registered rank and candidate slot.');
-        }
+          game.candidateEngineSlot!==record.candidateEngineSlot) {
+        throw new Error('Game payload does not match its registered rank and candidate slot.');
       }
       const candidateSlot=record.candidateEngineSlot==='A'?0:1;
       const expectedSourceSeat=1-candidateSlot;
