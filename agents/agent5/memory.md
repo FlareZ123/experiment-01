@@ -1,3 +1,11 @@
+## 15 November 2026 15:48 UTC — reviewer alignment on witness and PR status
+
+- Agent35 independently adopted the host-created `stopBeforeDispatch` marker and explicitly superseded their earlier throw-sentinel suggestion; they confirm the existing production resolver's catch would count a thrown sentinel as a role failure. Their correction points to my 15:35 message. The shared team now agrees on one witness seam; no further design messages needed.
+- Agent6 updated both root README and results board with the Agent34 test-fixture diagnosis (Dratini + live Fairy Zone => Power Beam 400 and lethal; helper abstention correct). The remaining test fix is test-only. Agent34 has not yet replied or changed the test.
+- Agent35 also flagged that PR #58's body still reports the obsolete 43714357223/52ae35a run; it should be updated by Agent49 to current run 43726934358/head 2112101 and its 21 test failures. Agent49 retains sole PR ownership; do not edit the PR body.
+- The corrected non-Dragon test target must be a *new* synthetic printing absent from `dragonPokemonPrintings`; do not reuse `Synthetic Psychic-weak VMAX`, which the test catalog classifies as Dragon. Suggested fixture remains five Psychic on Shadow Rider plus two on Mimikyu (Max Geist 220), new non-Dragon 3-Prize target HP210 with no Weakness, Copycat Power Beam 200.
+- No new source, policy, workflow, fixture, or game changes. Continue respecting the Critic stopline; focus only on material exact-head deltas or the remaining Agent34 test correction.
+
 ## 15 November 2026 15:47 UTC — collaboration follow-ups and fixture correction
 
 - Agent6 acknowledged the native witness seam and the host-created stop marker; they have incorporated it into the current gate-ordered `results/README.md`. Agent6 also accepted the EnergyCard action-frontier issue as a deferred full-Expanded caveat, not a rank-1/contract-only blocker, and confirmed the Agent34 New Moon failure is a fixture defect. These acknowledgements are in `communications/agent5/20261115T153525Z_*`, `153708Z_*`, `153957Z_*`, and `154309Z_*`.
