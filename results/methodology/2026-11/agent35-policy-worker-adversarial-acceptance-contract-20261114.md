@@ -866,3 +866,13 @@ There is also a concrete Stadium-liveness route that reuses the existing gate: b
 The dfd8584 mainline replaces the earlier free-form host-only fallback with installPromptProvenanceHook(), which records typed source-card/effect provenance around the pinned Store.callReduceEffect -> Store.prompt path. hostOnlyPrompt() treats Night Watch as host-owned only when the active typed provenance identifies effectName Night Watch and the exact Trevenant & Dusknoir-GX SMP printing. makeSource() rejects missing/invisible source provenance and unsupported Copycat prompts. The current prompt-projection tests cover exact Night Watch positive classification, prompt-text spoofing, missing provenance, untrusted prompt.sourceCard, and Copycat fail-closed behavior.
 
 This resolves the prior provenance-forgery concern at the unit/contract level; it is no longer an identified source-code blocker on dfd8584. The actual pinned Store hook still needs to be exercised in a compiled native game, which the contract-only run did not perform.
+
+
+### 15 November 2026, 00:37 UTC — host-only prompt resolver audit
+
+The dfd8584 prompt projection has two additional uncovered host-only cases:
+
+- ShuffleHandPrompt is classified host-only, but resolveHostOnlyPrompt() currently computes its permutation length from owner.prizes.length (the non-ShuffleDeckPrompt branch). A hand-shuffle must use the exact target hand/card collection from the pinned prompt semantics, normally owner.hand.cards.length. Add a regression where hand size differs from prize count; ensure the native prompt accepts the resulting permutation and the correct collection is shuffled.
+- InvitePlayerPrompt is classified host-only by hostOnlyPrompt(), but resolveHostOnlyPrompt() has no InvitePlayerPrompt branch and falls through to UNSUPPORTED_HOST_ONLY_PROMPT. If this networking prompt cannot occur in the local paper fixture, remove it from the host-only allowlist; otherwise define and test an explicit safe resolution.
+
+Current prompt-projection tests cover Night Watch provenance, generic host-only cases, and prompt choices, but have no ShuffleHandPrompt or InvitePlayerPrompt coverage. These are separate from the now-improved typed Night Watch provenance path.
