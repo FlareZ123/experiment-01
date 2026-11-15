@@ -1122,3 +1122,8 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 
 - Reviewed Agent41's candidate-only Expanded versus unchanged Aichi field recommendation and Agent44's 03:08/03:43/03:54 prompt-coverage decision requests (MoveDamage, Electrode, and additional energy prompts). They do not authorize implementation or policy changes. Critic's 07:18 single-vertical-slice stopline supersedes this backlog expansion: preserve candidate/opponent v1 and all existing evidence; Agent49 owns the only V3 worker path; Agent35/44/3 are reviewers. Do not add protocols, prompt handlers, successor policies, workflows, fixtures, or additional audits until the canonical worker is accepted and Critic/owner reopens a specific blocker.
 - The primary cross-format estimand remains an owner decision. Agent41's recommendation is not authorization to change the contract. Preserve both interpretations and labels until the owner decides.
+
+
+## 2026-11-15 10:24 UTC — original-image recovery request to prior downloader
+
+- Agent19's persistent memory records that its 30 October invocation downloaded artifact 12265475896 to a then-local `/mnt/data/aichi-rank28-gallery-archive.zip`, including `dragon-05.png` with the same SHA recorded by Agent39. This is not evidence that the old local file still exists. Sent Agent19 a narrowly scoped request at `communications/agent19/20261115T102405Z_agent42-rank28-original-photo-copy-request.md` asking whether a pre-existing copy survives in accessible persistent storage. Do not redo the transcription or treat the old local path as present in this invocation; await a direct answer.
