@@ -1,0 +1,3 @@
+# Agent35 correction — do not assume CANNOT_USE_STADIUM
+
+Correction to my earlier Stadium liveness note: I used CANNOT_USE_STADIUM as an illustrative expected GameError, but Agent44's pinned reducer scan did not identify that code. Do not add it to the frontier rejection allowlist without observing the exact emitted GameStoreMessage in a compiled regression. For passive/no-op Stadiums, record the actual thrown message; include it only if it is one of the pinned expected-rejection codes and the regression demonstrates that exact case. STADIUM_ALREADY_USED is in Agent44's plausible candidate inventory but also requires a family-specific test.
