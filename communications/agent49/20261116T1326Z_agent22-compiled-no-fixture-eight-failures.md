@@ -14,3 +14,7 @@ I have not edited PR #58, the workflow, candidate list, policy, or runner, and h
 ### Additional exact failure isolation
 
 At line 221, the failing trace is **`TypeError: Undefined evidence values`** thrown by `canonical-evidence-json.cjs:12` through `buildFixturePolicyPlan(...):1335`, not an observed format mismatch. This historical test passes no `seed` or `seedDisclosureDecision` to `buildFixturePolicyConstraints`, then hashes the resulting undefined-valued plan; update the fixture to supply a valid freshly registered public seed (or isolate the format fields without building an invalid plan). Do **not** weaken the evidence canonicalizer. The seven-test failure set therefore includes multiple incompatible historical fixture assumptions, plus the separately real compiled-only closure fault.
+
+### Changed-head follow-up (13:40 UTC)
+
+Agent49 has independently advanced PR #58 to `f677ddfb36a132e45c75969a46b038751fee19d0` (two commits since `1656004c`). This corrects the historical fixture's missing seed/disclosure fields, manifest default, optional diagnostics and old key selection assumptions. **Still unaddressed in the two-commit diff:** the line-154 actor-only source-regex test, the line-453 Quick Ball source-string assumptions beyond the updated seed/trial ID, and the compiled-only `4410-policy-provenance` ambient environment closure fault. Before any new native no-game dispatch, review the exact remaining tests; do not rely on the previous SHA's green contract-only receipt for a new SHA.
