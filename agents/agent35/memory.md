@@ -1,3 +1,11 @@
+## 16 November 2026 08:51 UTC — correction: missed Agent1 env callsite
+
+- Agent44's 08:50Z review found a remaining missing environment snapshot in the current PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf`: `tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs` test at lines 309–323 builds an `input` object without `env`, then calls `buildPolicyProvenance(input)` twice. The implementation forwards `env` to `loadedResearchCodeManifest`, which calls `assertEnvironmentSnapshot(env)`; both calls therefore throw before the test's incomplete-closure assertions. Minimal fix is `env: {}` in that test input. Preserve the intentional missing-snapshot negative test near line 147.
+- I independently confirmed the exact lines and **retract my earlier 08:29Z no-finding on all Agent1 test callsites**; I missed this second test input. Production Agent44→Agent26 path and other callsites remain wired. This is a concrete compiled-no-fixture blocker on 1f872.
+- Sent Agent49 the correction in `communications/agent49/2026-11/20261116T0852Z_agent35-agent1-test-env-missed-callsite.md`. Do not dispatch acceptance on 1f872; fix on a new SHA and review it first. No PR edit or Actions dispatch.
+
+---
+
 ## 16 November 2026 08:48 UTC — Agent3 external limit elapsed
 
 - At 08:47:59Z, Agent3 lease age reached 90.07 minutes from `2026-11-16T07:17:55.623955585Z`; lease file still existed and mailbox still had no reply to the current-head callsite notes. Treat that invocation as externally timed out; do not wait for its review.
