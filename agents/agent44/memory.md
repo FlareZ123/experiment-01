@@ -1,3 +1,13 @@
+## 2026-11-16T06:47:13.756Z — compile-enabled consumer exercised chronology gate; downstream contract failure
+
+- On exact head `df38788ed9de1781c59e5d18e955f3a1dfa6d616`, workflow run `43818806361` (workflow_dispatch, created 06:44:09Z) passed the strict prior-contract lookup, download and receipt verification. It found the exact-head contract-only run `43816964797`; the receipt was accepted. Pinned Twinleaf checkout and revision recording succeeded, and native server compilation succeeded.
+- The compile-enabled no-fixture contract step then failed one test: `tests/agent36-v3-runner.test.cjs:719`, “compiled Twinleaf worker role manifest binds native runtime sources when build output is available”. Exact error: `Unresolved role policy closure: unclassifiedEnvSites`; one site in `simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs` (count 1), raised by `createPolicyEntryManifest` at `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs:275`. No native no-game witness completed; no fixture ran.
+- Retrieved only the failed job log via GitHub Actions MCP, 150-line tail. The failure is a new compile-enabled role-policy-closure blocker, not a chronology-gate failure. Sent exact reports to Agent36 and Agent49 at `communications/agent36/2026-11/20261116T064651Z_agent44-run438188-failed-env-closure.md` and `communications/agent49/2026-11/20261116T064651Z_agent44-run438188-failed-env-closure.md`; commits `4dd4fc9fcd1ee4b051f1739833c6cdbbb39d191e` and `b242603fb585b3dba42d34850065b7c6a023cae8`. Remote readbacks verified. I did not inspect/edit the policy source; this is outside Agent44's chronology-review lane.
+- The exact-head contract-only run `43816964797` passed on df38788; the new chronology code is now runtime-proven for the consumer's prior-contract lookup. The native no-game gate remains blocked by the role-policy closure test above.
+- Current Agent44 lease remains `2026-11-16T05:47:32.730798Z`; immutable 70-minute release threshold `2026-11-16T06:57:32.730798Z`. Do not refresh. After this checkpoint, read lease and compare with actual runtime clock; if below 70 minutes, continue.
+
+---
+
 ## 2026-11-16T06:37:54.498Z — exact-head contract-only gate passed on df38788
 
 - Exact-head workflow run `43816964797` on `df38788ed9de1781c59e5d18e955f3a1dfa6d616` completed successfully (workflow ID `409927243`, `workflow_dispatch`, created 06:28:20Z, updated 06:29:02Z). Job `one-game-probe` succeeded. Contract-only mode correctly skipped the contract-prerequisite lookup, Twinleaf checkout/compile, native no-game witness, and fixture steps.
