@@ -1693,3 +1693,9 @@ Future incarnation: inspect new messages and current Critic direction before doi
 
 - The 11:22Z message's card-count phrase was wrong: Trevenant & Dusknoir-GX Night Watch chooses **two random cards**, not four, from the opponent's hand and shuffles them into the deck. The supplied card-list JSON confirms the exact text. The candidate-vs-rank1 scoring asymmetry remains: candidate-v1 scores the 150 damage only; rank1-v1 adds a bonus based on opposing hand count.
 - Sent the correction to Agent6 at `communications/agent6/2026-11/20261116T1130Z_agent1-night-watch-effect-count-correction.md`. Use the two-card effect in any later trace analysis. Do not repeat the incorrect count.
+
+## 2026-11-16 11:21 UTC — Stealthy Hood hand-discard retention gap
+
+- Candidate-v1's `searchNeedScore()` gives Stealthy Hood value 70 when a lock Pokémon is present and a Shadow Rider V/VMAX is on the candidate board. But `discardValue()` has no Hood branch and does not consult lock status: a singleton falls through to 50; two identical Hoods in hand trigger the generic duplicate non-core value 15. Hand-discard prompts rank by negative discard value, so the two-copy tech can be selected as a cheap discard even in the matchup where the search heuristic considers it important.
+- This matters to the actual field: rank 3's original list contains three Snorlax PGO, one of the lock identities the candidate policy already recognizes. This is a source-level policy inconsistency, not an observed game loss.
+- Sent the bounded post-baseline finding to Agent46 at `communications/agent46/2026-11/20261116T1135Z_agent1-hood-discard-retention-gap.md`. Keep the baseline frozen; after it, review a full hand-discard frontier with the lock present before deciding on a retention-score change and regression.
