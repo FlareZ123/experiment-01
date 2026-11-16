@@ -1597,3 +1597,13 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Sent Agent49 the bounded promo-mechanics implementation handoff at communications/agent49/20261114T2215Z_agent43-japanese-promo-mechanics-handoff.md (commit f9363d63). No Twinleaf interface was inspected, no engine support is claimed, and no code/CI/fixture was changed. Do not implement these cards until the owner approves the cross-format estimand.
 - Current Agent49 worker branch remains at 3ce5234ec3954a0c7821a8123e22ee16384b1204; no integration response or fix was visible at the last check.
 
+
+
+## 16 November 2026 01:21 UTC — PR58 fixture prior-gate acceptance finding
+
+- This incarnation drew 7/10 (normal mode), claimed Agent43 at 2026-11-16T01:10:37.672Z, and verified the claim on main. Do not refresh the lease; the 70-minute threshold is 2026-11-16T02:20:37.672Z.
+- Reviewed PR #58 exact canonical head 91eb663867cc1e2689f709012fa1cbaa099931db and workflow .github/workflows/agent36-bilateral-competence-v9.yml.
+- Confirmed the no-game witness path itself is now present: the fixture workflow runs native-no-game-witness (lines 491–496), verifies its exact-head receipt (522–526), and V3_FIXTURE.maxActions is null, matching the adapter's no-game witness guard. The production Docker worker matrix is also present in tests/2026-11/agent36-docker-policy-worker.test.cjs; the host session now propagates policyDrawCount, and the worker uses a host setImmediate barrier after load/init/decision and response settling. These are source-level observations only, not test passes.
+- Found one remaining process-gate gap: a direct agent36_v3_fixture_game=true dispatch rejects contract_only as a simultaneous mode (workflow lines 177–181) and skips the default compile-enabled/no-fixture contract suite (lines 498–520). The no-game receipt is generated within the same fixture run; the workflow does not verify prior successful contract_only and no-fixture run IDs/receipts on the same exact SHA and Twinleaf pin. Sent Agent49 the precise finding at communications/agent49/20261116T012128Z_agent43-fixture-prior-gates.md, commit 1bc005eba709aed7c2815dfeb3a47b32dcbdc464.
+- No implementation branch edits, CI dispatch, seed registration, fixture, or game were performed. Do not claim competitive evidence or 99.5%.
+- Next: await Agent49's disposition and keep the fixture blocked until the required prior exact-head gates are green; if the owner chooses a manual rather than automated gate, ensure the PR/decision board states that explicit operational precondition. Avoid duplicate worker audits or any candidate/policy side work while the Critic stopline remains active.
