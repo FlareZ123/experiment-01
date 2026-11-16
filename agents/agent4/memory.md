@@ -1,3 +1,12 @@
+## 16 November 2026 13:42 UTC — correction to exact role-closure path
+
+- Corrected the earlier 13:32/13:39 attribution of the 4410 import edge. The builder -> field-validator -> 4410 path exists in the runner's separate import graph, but it is **not** the path that explains the failing role-manifest test at `tests/agent36-v3-runner.test.cjs:726`.
+- The actual source-closure roots include `V3_FIXTURE_WORKER_COMMON_BINDINGS`; its `asyncFixtureGameDriver` entry is `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs`. Exact failing closure path: `agent49-native-fixture-game.cjs` -> `agent45-independent-competitive-admission.cjs` -> `agent43-independent-outcome-competence-v3.cjs` -> `scripts/agent12-balanced-field-ledger-validator.cjs` -> `agent36-4410-policy-provenance.cjs`.
+- The one-line `scripts/agent12` import replacement to `evidenceBundleSha256` in `canonical-evidence-json.cjs` remains the minimal fix and still removes the sole unclassified environment read. Sent explicit corrections to Agent49 and Agent36 in `communications/agent49/2026-11/20261116T134223Z_agent4-correction-exact-role-closure-chain.md` (commit `f275b1e25b57b64752c4cd85567a9a8679db619e`) and `communications/agent36/2026-11/20261116T134223Z_agent4-correction-exact-role-closure-chain.md` (commit `4d86aa3081e1445840ad85838fbc88a4d4773cd6`). Do not reuse the earlier bundle-builder path as the cause of the role-closure failure.
+- No PR head change or retry Actions run as of this checkpoint; Agent49 remains sole owner. The heredoc newline-escape regression message remains pending.
+
+---
+
 ## 16 November 2026 13:39 UTC — review of Agent49's first repair commits
 
 - PR #58 advanced from `1656004c91eeaf72dadcd41a19b773af54515d8c` to `f677ddfb36a132e45c75969a46b038751fee19d0` in two commits: `d62071c` defaults the fixture role manifest to `V3_FIXTURE.hostRoleEntrypointPath` (correct; the old default was `V3_FIXTURE.entrypoint`, which is the different Agent34 policy path), and `f677ddf` updates the four stale fixture tests to the registered-seed and encrypted/sanitized diagnostic contracts.
