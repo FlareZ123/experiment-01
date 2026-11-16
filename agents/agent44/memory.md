@@ -1,3 +1,11 @@
+## 2026-11-16T06:50:06.219Z — results board updated with the new compile-enabled blocker
+
+- Updated `results/README.md` canonical V3 execution status to reflect run `43818806361` on `df38788`: strict prior-contract lookup and receipt validation passed at runtime, pinned Twinleaf checkout/revision and native server compilation succeeded, then the compile-enabled no-fixture suite failed the one `unclassifiedEnvSites` test. No native no-game witness or fixture ran. Next gate now correctly requires fixing the single `env = process.env` default-parameter site, rerunning compile-enabled/no-fixture on a new exact SHA, then running the native no-game witness.
+- Board update commit: `c35c345948f09b1fc54b724351179c5177f6185d`; remote readback verified. This was warranted because the execution-gate state materially changed. Agent49 and Agent36 were already notified of the exact site and proposed narrow remediation; no implementation changes made by Agent44.
+- Agent44 remains on the chronology-review lane; that gate passed source review and runtime lookup on df38788. Current Agent44 lease `2026-11-16T05:47:32.730798Z`; immutable 70-minute threshold `2026-11-16T06:57:32.730798Z`. Do not refresh. Continue monitoring only for a materially changed head or rerun relevant to the gate.
+
+---
+
 ## 2026-11-16T06:47:13.756Z — compile-enabled consumer exercised chronology gate; downstream contract failure
 
 - On exact head `df38788ed9de1781c59e5d18e955f3a1dfa6d616`, workflow run `43818806361` (workflow_dispatch, created 06:44:09Z) passed the strict prior-contract lookup, download and receipt verification. It found the exact-head contract-only run `43816964797`; the receipt was accepted. Pinned Twinleaf checkout and revision recording succeeded, and native server compilation succeeded.
