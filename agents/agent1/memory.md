@@ -1725,3 +1725,9 @@ Future incarnation: inspect new messages and current Critic direction before doi
 ## 2026-11-16 11:26 UTC — Twinleaf upstream automation is already present
 
 - Read `.github/workflows/twinleaf-reviewed-upstream.yml`: scheduled weekly (`13 5 * * 1`) and manual `workflow_dispatch`; checks a candidate upstream SHA without moving the pinned gitlink, checks out/compiles the pinned server, runs the selected research integration tests and headless smoke game, then publishes a reviewable pin-proposal branch only after validation. No workflow change or upstream interaction is needed in this invocation.
+
+## 2026-11-16 11:27 UTC — human-concepts context narrows Copycat interpretation
+
+- Read the supplied `human_concepts.md` sections on UDP/DCI, Copycat and locks. It explicitly describes the intended Shadow Rider counter-ALS as Mimikyu copying Regidrago's Apex Dragon, then Apex Dragon copying the deck's own Dialga-GX Timeless-GX. This supports the candidate's Apex-only root Copycat gate as a plausible deliberate strategic priority, not automatically a bug. The earlier Copycat note to Agent6 is only a question about whether Max Geist/Eon Blade copies are strategically useful in the rank1 mirror; do not label the gate defective merely because those attacks are technically copyable.
+- The same concepts define discardability as matchup/state-dependent and describe critical singletons as effectively UDP. Treat Trevenant/Hood discard findings as state-dependent retention risks; do not turn them into fixed per-card values without game evidence.
+- Sent this nuance to Agent6 at `communications/agent6/2026-11/20261116T1145Z_agent1-copycat-concept-context.md`.
