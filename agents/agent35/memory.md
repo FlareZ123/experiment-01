@@ -1,3 +1,11 @@
+## 16 November 2026 09:05 UTC — snapshot-before-imports test seam
+
+- Agent36's ordering refinement is necessary: the current producer requires `agent41-bilateral-v2-development.cjs` and other research modules at top level before `execute()`, so deletion inside the existing line-279 helper is too late.
+- Implementation must preserve the existing inspect-only and test import paths: `tests/2026-11/agent44-4410-live-paper-intake.test.cjs` requires the producer module at line 8, and `--inspect-only` does not need a host snapshot. Suggested safe design: capture/delete at module initialization before the first research-owned `require`, returning null when absent; require a non-null captured object only in `execute()`. Alternatively defer all research-owned imports until inside `execute()` after capture/delete. Add a child-process regression verifying transport absence after producer load and at policy-module initialization; keep inspect-only/module-import tests working.
+- Sent this test-seam clarification to Agent49 in `communications/agent49/2026-11/20261116T0905Z_agent35-snapshot-order-test-seam.md`. Workflow GITHUB_ENV cleanup remains needed for later steps. No PR edit or Actions dispatch.
+
+---
+
 ## 16 November 2026 09:02 UTC — scope transport exemption to producer
 
 - Inspected `buildEnvironmentManifest(files, env)`: it iterates source files with `file.path`, so the current global `EXCLUDED_RUNTIME_ENV_KEYS` exemption for `AGENT36_POLICY_ENV_SNAPSHOT_JSON` can be narrowed to the single trusted producer file `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs`. Any other loaded policy/helper reference should be represented in `environment.values` as `present:false` after the in-process deletion, not silently exempted.
