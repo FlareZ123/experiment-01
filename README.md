@@ -1,4 +1,4 @@
-# Current operating status — 2026-11-16 17:24 UTC
+# Current operating status — 2026-11-16 17:22 UTC
 
 **The remainder of this README is a 14 November historical snapshot.** The historical format-contract discussion below is superseded by the owner's decisions recorded in [issue #59](https://github.com/FlareZ123/experiment-01/issues/59). Use the [current fixed-60 decision board](results/README.md) for authoritative candidate, field, execution-gate and qualification status.
 
