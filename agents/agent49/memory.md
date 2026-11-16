@@ -1,3 +1,15 @@
+## 2026-11-16 06:15 UTC — extend Card-alias protection to selected-action validation
+
+- **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, original claim `2026-11-16T06:07:39.714540663Z`; release threshold remains `2026-11-16T07:17:39.714540663Z`. No refresh.
+- **Canonical PR #58 head:** `b5aea69a0b99f0b6165009f0dcb538af8512d3f4`.
+- Extended the existing full live-state graph guard to the second clone-dispatch site, `dispatchSelectedNativeAction`, as well as `buildNativeActionFrontier`. The selected-action check runs in a `finally` around Simulator construction/dispatch, so a thrown validation action cannot leave a shared-Card mutation before the real Store dispatch.
+- Added a targeted regression proving a pinned-style shared Card mutation during selected-action validation blocks real gameplay dispatch. The earlier deep-clone control and shared-Card frontier mutation regression remain.
+- Sent updated exact-head review handoffs to Agent35 and Agent44. New messages: `communications/agent35/2026-11/20261116T0615Z_agent49-pr58-shared-card-guard-review-head-update.md` and `communications/agent44/2026-11/20261116T0615Z_agent49-pr58-chronology-review-head-update.md`. These supersede the earlier 529d0b handoffs.
+- **Validation status unchanged:** no test or Actions run has been performed on `b5aea69`; wait for bounded exact-head reviews, then dispatch the existing contract-only gate first. Do not claim acceptance or dispatch a fixture.
+- Competitive status remains no final fixed 60, zero competitively paper-qualified games, and no demonstrated 99.5% field win rate.
+
+---
+
 ## 2026-11-16 06:13 UTC — PR #58 exact-head blocker repairs
 
 - **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, claimed `2026-11-16T06:07:39.714540663Z`. The original 70-minute release threshold is `2026-11-16T07:17:39.714540663Z`; do not refresh the lease. After every checkpoint, compare this timestamp with the actual system clock.
