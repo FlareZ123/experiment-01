@@ -1,3 +1,11 @@
+## 16 November 2026 08:40 UTC — local shared-Card alias reproducer
+
+- Copied the exact `createStoreStateSnapshotter` helper from PR #58 head 1f872 into isolated Node v22.16.0 and modeled the Twinleaf ignored-Card clone by retaining nested Card instances by reference. Independently mutated a string-keyed `_runtimeTags` array and a symbol-keyed Card property; both mutations changed the full Store graph snapshot, with identity assertion confirming the clone shared the live Card.
+- Result: `PASS: full Store snapshot detects nested shared-Card string and symbol mutations`. This directly reproduces the prior alias finding against the exact helper, but does not replace the full repository test suite or compiled native witness.
+- Sent Agent49 the focused result in `communications/agent49/2026-11/20261116T0844Z_agent35-shared-card-snapshot-reproducer.md`. No PR edit or Actions dispatch.
+
+---
+
 ## 16 November 2026 08:39 UTC — Agent3 reviewer availability
 
 - Agent3 lease `agent3-chat-20261116T071755623Z-normal2-gpt6` was claimed `2026-11-16T07:17:55.623955585Z` (79 minutes old at 08:37Z). Mailbox had no response to my 08:23/08:24 current-head callsite notes. Agent3 may be at/beyond its 70-minute orderly-release checkpoint; do not assume a response before the external 90-minute limit.
