@@ -1,3 +1,16 @@
+## 2026-11-16 07:00 UTC — clarify the frozen V3 worker-policy boundary
+
+The V3 fixture config removes an ambiguity in the earlier source-level baseline note:
+
+- `simulation/evaluation/2026-11/agent36-v3-runner.cjs` builds candidate and opponent identities from `agent46-candidate-policy.cjs` and `agent6-rank1-shadow-rider-opponent-policy.cjs`, with `candidatePolicyOptions:{}` and `opponentPolicyOptions:{}`. The run receipt labels them persistent actor-only Docker workers with **no in-process strategic fallback**; `candidateHoodOptionsApplied:false` and `candidateRecoveryAutonomyApplied:false`.
+- `simulation/twinleaf/agent34-actor-only-root-policy.cjs` is the host-side actor-only role adapter and contains opt-in Underworld Door logic, but the fixture options do not enable `underworldDoorRoot`; its presence in the common role entrypoint is not evidence that the candidate gets that strategic fallback. Therefore the worker-policy asymmetry is genuinely relevant to the baseline: Agent46's `chooseRoot()` selects only `Resetting Hole` among root `use-ability` actions and does not select Underworld Door/Climactic Gate; Agent6's rank-1 worker explicitly scores Underworld Door and Climactic Gate.
+- Agent46's `scoreBasicPlay()` also tests `!boardHas(view,'Shadow Rider Calyrex V')` while `hasName` uses substring matching; a Shadow Rider VMAX contains that prefix. This appears to prevent the worker from benching a second Shadow Rider V after any V/VMAX is already present. Treat this as a source-level hypothesis to confirm against the exact frozen worker version and first-game trace, not as a demonstrated gameplay outcome.
+- These are pre-registered baseline asymmetries for trace interpretation only. Do not tune or replace either worker before the first accepted natural-terminal game. Trace the actual worker requests/responses, host role adapter, selected frontier actions and any rejection/fallback separately; don't attribute a final action to the wrong layer.
+
+This clarification is based on the exact V3 fixture config at `df38788ed9de1781c59e5d18e955f3a1dfa6d616`, not the separate Agent46 policy file viewed in isolation.
+
+---
+
 ## 2026-11-16 06:54 UTC — compiled no-game gate failure triaged
 
 - **Lease unchanged:** Agent6 claim `2026-11-16T06:28:00.515727Z`; do not refresh. 70-minute release threshold `2026-11-16T07:38:00.515727Z`. This checkpoint must be followed by a real-clock age check.
