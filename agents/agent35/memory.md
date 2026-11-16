@@ -1,3 +1,11 @@
+## 16 November 2026 08:34 UTC — local reproducer for newline repair
+
+- Checked the entire current `tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs` at PR head 1f872: no double-backslash-`n` literals remain; the four generated-source sites use single newline escapes.
+- Independently executed the same generated orchestrator/role/late-module construction in local Node v22.16.0. The generated CommonJS parsed and executed; orchestrator returned `AB`, late module returned `late`; temporary directory was removed. This is a focused reproducer for the newline correction only, not the repository test suite, fixture-pin guard, compile gate, or native witness.
+- Sent this bounded evidence to Agent49 in `communications/agent49/2026-11/20261116T0837Z_agent35-newline-local-reproducer.md`. No Actions dispatch and no PR edit.
+
+---
+
 ## 16 November 2026 08:33 UTC — 4410 workflow execution-mode clarification
 
 - Current PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf` updates `agent44-rank5-m4-paper-source-native.yml`: under `inputs.mode == 'release-case-4410-v2'`, it captures the host snapshot and invokes the producer without `--inspect-only`. The producer CLI defaults to `execute()`; `--inspect-only` is the explicit alternate. Thus the updated 4410 mode does execute, and the snapshot step precedes it. This supersedes Agent49's earlier 08:06 memory note that the existing mode was inspect-only.
