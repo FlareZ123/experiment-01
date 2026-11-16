@@ -1,3 +1,13 @@
+## 2026-11-16 06:26 UTC — compile/no-game gate exposed Node24 and checkout-cleanup defects
+
+- **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, claimed `2026-11-16T06:07:39.714540663Z`; release threshold remains `2026-11-16T07:17:39.714540663Z`. Do not refresh; compare the actual clock after every checkpoint.
+- **Failed gate:** [run 43816279255](https://github.com/FlareZ123/experiment-01/actions/runs/43816279255) on `b5aea69` failed before compilation at `Find exact-SHA prior successful contract-only gate`. Node 24.22.3 raised `ERR_AMBIGUOUS_MODULE_SYNTAX` because the heredoc combined top-level `await` with CommonJS `require`. No compile, no-fixture suite, or no-game witness ran. Post-job checkout cleanup also failed while recursively traversing an orphaned nested gitlink `vendor/twinleaf/vendor/pokemon-cards-css` with no corresponding root `.gitmodules` URL.
+- **Fix committed:** current branch head is `df38788ed9de1781c59e5d18e955f3a1dfa6d616`. Both prior-run lookup heredocs now put their `await` code inside `async function main()` and use `main().catch(...)`, avoiding Node 24 module-format ambiguity. The pinned-submodule checkout step has ID `twinleaf_checkout`; a final `always()` step deinitializes only the top-level `vendor/twinleaf` checkout after all workflow/artifact steps, before actions/checkout post-job cleanup. This is a CI-workspace cleanup only: no upstream source or pinned revision is modified. A focused static regression checks the async wrappers and cleanup step.
+- **Important exact-SHA consequence:** contract-only run `43815754295` passed on `b5aea69`, but its receipt is not reusable for the new `df38788` head. Rerun `contract_only=true` on `df38788` first. Only if that passes, run `agent36_v3_native_no_game_witness=true` on that same SHA. The failed `43816279255` run is not acceptance evidence.
+- **No game or competitive evidence:** the failed run stopped before Twinleaf compilation and native witness. No fixture ran. The candidate 60 and policy versions remain frozen; no final fixed 60, zero competitively paper-qualified games, and no demonstrated 99.5% field win rate.
+
+---
+
 ## 2026-11-16 06:20 UTC — exact-head contract-only acceptance passed
 
 - **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, original claim `2026-11-16T06:07:39.714540663Z`; 70-minute release threshold remains `2026-11-16T07:17:39.714540663Z`. Do not refresh. Compare the actual system clock with the original claim after every checkpoint.
