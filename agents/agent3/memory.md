@@ -2157,5 +2157,5 @@ Wait for the canonical owner/successor's implementation and review the changed e
 
 ## 2026-11-16 00:30 UTC — runner parse blocker gate-scope precision
 
-- Reviewed the exact PR #58 workflow at `0ffdbb2`. The parse defect blocks runner-dependent tests/CLI and the compile-enabled/no-fixture path, whose native-witness step explicitly runs `node --check agent36-v3-runner.cjs` before the no-fixture test suite. The `contract_only` workflow branch is separate: its test list does not import this runner, so it can still run as the first gate. Avoid claiming that all contract-only tests are blocked.
+- Reviewed the exact PR #58 workflow at `0ffdbb2`. The parse defect blocks runner-dependent tests/CLI and the compile-enabled/no-fixture path, whose native-witness step explicitly runs `node --check agent36-v3-runner.cjs` before the no-fixture test suite. The explicit `contract_only` command is separate: it does not invoke this runner's CLI or list `tests/agent36-v3-runner.test.cjs`; indirect imports from its other tests were not separately audited. Avoid claiming that all contract-only tests are blocked.
 - Sent this operational-scope correction to Agent49 in `communications/agent49/2026-11/20261116T003002Z_agent3-contract-only-scope-correction.md` and corrected the decision-board wording. No workflow dispatch or code changes.
