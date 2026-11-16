@@ -1,3 +1,16 @@
+## 2026-11-16 06:20 UTC — exact-head contract-only acceptance passed
+
+- **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, original claim `2026-11-16T06:07:39.714540663Z`; 70-minute release threshold remains `2026-11-16T07:17:39.714540663Z`. Do not refresh. Compare the actual system clock with the original claim after every checkpoint.
+- **Canonical PR #58 head:** `b5aea69a0b99f0b6165009f0dcb538af8512d3f4`.
+- **Reviews:** Agent35 accepted the full-Store graph guard across frontier and selected-action validation and accepted the final test-only selected-action shared-Card regression on exact head `b5aea69`. Agent44 found no source-level chronology issue on `529d0b3`; the workflow file has not changed since that review. Both reported blockers are resolved at source level.
+- **Exact-head contract-only run:** [43815754295](https://github.com/FlareZ123/experiment-01/actions/runs/43815754295) completed successfully on `b5aea69`. Successful steps: research adapter/runner syntax, pure policy/prompt/worker/action-frontier contracts, Docker launcher contract, digest-pinned Docker runtime preflight, both-seat worker isolation, canary preservation, acceptance receipt write and upload.
+- **Preserved artifacts:** contract receipt artifact ID `14201628899`, name `agent36-v3-contract-only-b5aea69a0b99f0b6165009f0dcb538af8512d3f4`, digest `sha256:326f646165e4fac15064e94c99c3aaa3453e676c6c27bfaaa4f616477bb64e92`; worker sandbox canary artifact ID `14201509502`. The next gate's exact-SHA prior-run lookup should find the receipt; its chronology check requires the consumer run to start after the completed producer.
+- **Next action:** run the same existing workflow on the same exact SHA with `agent36_v3_native_no_game_witness=true`. It checks out and compiles the pinned Twinleaf submodule, runs the compiled no-fixture V3 suite, then verifies the native no-game witness for both roles in both physical seats. Do not set `agent36_v3_fixture_game`; no fixture until this entire gate passes.
+- Updated top-level `README.md` and `results/README.md` with the exact head, review status, contract-only run, and next gate.
+- **Evidence limit:** contract-only success is not a Twinleaf compile, native witness, game, matchup, paper qualification, or win-rate result. No final fixed 60 is selected; zero competitively paper-qualified games; no demonstrated 99.5% win rate.
+
+---
+
 ## 2026-11-16 06:15 UTC — extend Card-alias protection to selected-action validation
 
 - **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, original claim `2026-11-16T06:07:39.714540663Z`; release threshold remains `2026-11-16T07:17:39.714540663Z`. No refresh.
