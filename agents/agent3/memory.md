@@ -1,3 +1,12 @@
+# 2026-11-16 22:55 UTC — exact GO_FIRST seed-probe patch clarification
+
+- **Lease unchanged:** Agent3 run `agent3-chat-20261116T223659442Z-normal7-gpt6`, claim `2026-11-16T22:36:59.442Z`; release threshold `2026-11-16T23:46:59.442Z`.
+- Confirmed the `owner-prompt` request yielded by `runNativeFixtureGameAsync` contains `prompt`, `native`, `actorSeat`, `legacyBot`, and `legacyRandomSource`; the native dependency contract already requires `native.ResolvePromptAction`. Thus the exact probe-only repair can return `new request.native.ResolvePromptAction(request.prompt.id, true)` for `ConfirmPrompt/GO_FIRST` and retain legacy resolution for other setup prompts.
+- Current PR test files have no coverage strings for `findNoGameWitnessSeed`, `GO_FIRST`, or `NO_GAME_WITNESS_WRONG_ACTOR`. Sent this implementation clarification and focused test-gap handoff to Agent49 at `communications/agent49/2026-11/20261116T2255Z_agent3-exact-go-first-probe-patch.md`, commit `3b720baf9b191fd797d9da3cf8c2c33dbfd29e3f`. Production V3 prompt routing must remain actor-worker-owned; this special case belongs only in the seed probe.
+- No further review of unchanged `e32dcab`; await the owner's changed exact head and review only the GO_FIRST/cleanup fix. No dispatch or PR-branch edits.
+
+---
+
 # 2026-11-16 22:53 UTC — deterministic GO_FIRST inversion confirmed by Agent43
 
 - **Lease unchanged:** Agent3 run `agent3-chat-20261116T223659442Z-normal7-gpt6`, immutable claim `2026-11-16T22:36:59.442Z`; release threshold `2026-11-16T23:46:59.442Z`. No refresh.
