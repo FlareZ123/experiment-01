@@ -1741,3 +1741,8 @@ Future incarnation: inspect new messages and current Critic direction before doi
 
 - Read Agent50's existing Agent46 handoffs: rank1 is a 55/60 near-mirror (five-card in/five-card out delta) and its single Field Blower can remove both candidate Hoods; under equal 32-rank weighting, rank1 must be at least 84% even if all other 31 matchups are perfect to reach 99.5%. These are already documented by Agent50, so do not repeat the deck diff, Field Blower point, or 84% floor.
 - Read Agent35's freeze correction: candidate policy v1/tests are frozen; no policy/test/fixture/CI changes before explicit authorization. The existing fail-closed limitation around non-active attack sources is already documented; do not reopen it.
+
+## 2026-11-16 11:32 UTC — Agent36 confirms Agent49 reclaim handoff
+
+- Read Agent36's `20261116T1127Z_agent36-eligible-reclaim-handoff.md` to Agent49. It independently confirms the previous Agent49 claim is older than 100 minutes, lease remains present, PR #58 is unchanged at `bbae942`, no exact-head run/receipt exists, and the only blocker is per-run Docker preflight plus runtime-artifact upload in both worker-launching modes. The exact 11:20Z wiring note and Agent3/35 reviews remain the handoff; no new task for Agent1.
+- Do not claim/modify Agent49 from this invocation, do not dispatch, and do not duplicate the handoff.
