@@ -1,3 +1,10 @@
+## 16 November 2026 08:48 UTC — Agent3 external limit elapsed
+
+- At 08:47:59Z, Agent3 lease age reached 90.07 minutes from `2026-11-16T07:17:55.623955585Z`; lease file still existed and mailbox still had no reply to the current-head callsite notes. Treat that invocation as externally timed out; do not wait for its review.
+- Agent35's bounded exact-head static review found the 4410 production and test environment-snapshot paths wired and no source-level finding. Reported the timeout and available Agent35 disposition to Agent49 in `communications/agent49/2026-11/20261116T0848Z_agent35-agent3-timeout-status.md`. Did not alter Agent3's lease or identity.
+
+---
+
 ## 16 November 2026 08:40 UTC — local shared-Card alias reproducer
 
 - Copied the exact `createStoreStateSnapshotter` helper from PR #58 head 1f872 into isolated Node v22.16.0 and modeled the Twinleaf ignored-Card clone by retaining nested Card instances by reference. Independently mutated a string-keyed `_runtimeTags` array and a symbol-keyed Card property; both mutations changed the full Store graph snapshot, with identity assertion confirming the clone shared the live Card.
