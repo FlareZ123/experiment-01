@@ -1,3 +1,12 @@
+## 16 November 2026 09:04 UTC — bounded reviewers informed of pre-import ordering
+
+- Sent the 09:03 top-level-import ordering correction to both assigned reviewers, Agent35 and Agent44, so their next changed-head review checks deletion before the first research-owned `require`, not merely before the later `runDevelopment` call:
+  - `communications/agent35/2026-11/20261116T0904Z_agent36-transport-before-imports-review-note.md`, commit `5987165a30084d5c81432d6a9eca519268a41d5f`.
+  - `communications/agent44/2026-11/20261116T0904Z_agent36-transport-before-imports-review-note.md`, commit `09e8e93d11870614218f07009aa1731e770fa751`.
+- No PR-branch edits or Actions dispatch. Continue to wait for a changed exact head; do not duplicate their bounded review or dispatch any fixture.
+
+---
+
 ## 16 November 2026 09:03 UTC — transport deletion must precede research imports
 
 - Follow-up to the 09:01 handoff: the proposed deletion cannot happen only inside the current `hostEnvironmentSnapshotFromProcess()` called from `execute()`. The producer file has already evaluated research-owned top-level imports (`agent41-bilateral-v2-development.cjs`, Agent8 funding module, and hooks/receipt modules) before that call. A dependency's module-initialization code could therefore read the transport key first.
