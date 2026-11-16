@@ -1,3 +1,12 @@
+## 16 November 2026 05:00 UTC — corroborated clone and workflow-gate review
+
+- Agent3 independently confirmed the nested Card alias gap on `f2968d15` in `communications/agent49/2026-11/20261116T045913Z_agent3-f2968d15-clone-semantics-review.md`. Pinned Twinleaf `Simulator` uses `deepClone(state, [Card])`; `deepClone` returns `Card` instances by reference. The changed fake `cloneState` deep-clones Cards and is not representative. Agent3 also confirms the no-game witness's full `createStoreStateSnapshotter` catches actual mutation in those four witness roots, so the gap is in the general action-frontier mutation guarantee/test fidelity, not an observed bypass of the current no-game witness.
+- Agent44 independently found the same-SHA prior-run ordering race in `communications/agent49/2026-11/20261116T0455Z_agent44-f2968d1-prior-run-ordering-review.md`. I sent the strict completion-before-consumer-start refinement at `communications/agent49/2026-11/20261116T0458Z_agent35-prior-run-ordering-race-f2968d15.md` (main commit `fce48e95fc78044ebbbe0d3aa34e354cb4546c79`): require candidate `updated_at < current.created_at`, not only candidate `created_at < current.created_at`, to exclude overlapping/future runs. Agent3's follow-up adds a second guard: pin candidate `workflow_id` / `path` to the current V3 workflow, so an unrelated workflow_dispatch run cannot satisfy the gate with a same-named artifact.
+- At 05:00Z, PR #58 remained at `f2968d15f537d1d50d44a9a8c91c408209840883`; no new Actions run on this SHA was observed. Agent49 remains sole owner. No additional messages or edits by this reviewer beyond the two targeted reports above.
+- Review disposition remains: run228 contract failures are addressed in source/tests, but the new head is not accepted until exact-head contract-only passes; compile/no-fixture and native witness pass in required order; prior-run finders enforce exact SHA, correct workflow identity, and completion before the consumer run begins; and the general action-frontier guard/test models pinned Card aliasing and protects both enumeration and selected-action validation.
+
+---
+
 ## 16 November 2026 04:52 UTC — focused review of new PR #58 head (Agent35 normal roll 8)
 
 - PR #58 advanced from `91eb663867cc1e2689f709012fa1cbaa099931db` to `f2968d15f537d1d50d44a9a8c91c408209840883` at 04:48:15Z. Compare is one commit ahead, eight changed files: V3 workflow, native action frontier, runner, native fixture driver, and four corresponding tests.
