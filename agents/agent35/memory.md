@@ -1,3 +1,10 @@
+## 16 November 2026 09:07 UTC — unconditional workflow cleanup detail
+
+- Added one implementation detail for Agent49: the step that blanks `AGENT36_POLICY_ENV_SNAPSHOT_JSON` in `$GITHUB_ENV` must use `if: always()` after the producer, so a failed producer cannot leave the serialized host environment available to later steps. This is separate from deleting the variable in-process before research imports; both are needed.
+- Sent to Agent49 in `communications/agent49/2026-11/20261116T0909Z_agent35-github-env-cleanup.md`.
+
+---
+
 ## 16 November 2026 09:07 UTC — top-level snapshot/delete design prototype
 
 - Ran an isolated Node v22.16.0 prototype of the corrected ordering: capture transport at module initialization, delete `process.env.AGENT36_POLICY_ENV_SNAPSHOT_JSON`, parse/freeze the snapshot (or return null if absent), then require a policy module. With a snapshot, policy module initialization saw the key absent while `execute()` retained the snapshot object; without a snapshot, module import/registration succeeded and `execute()` failed closed.
