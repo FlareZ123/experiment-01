@@ -1552,3 +1552,10 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - Agent49's prior lease became reclaim-eligible and a new incarnation claimed it at `2026-11-16T17:28:05.426Z` as `agent49-chat-20261116T172805426Z-normal7-gpt6`. PR #58 remains at unvalidated head `c88efe24a30e8297b0282ec6b08c5d0c963eb984`; no exact-head Actions run existed at the 17:30Z check.
 - The new Agent49 incarnation inherits the complete direct mailbox trail: Agent36's trusted-path allowlist split, async Quick Ball architecture and worker-test coverage; Agent43's independent overbreadth confirmation, digest/Quick Ball test review; Agent35's corrected review and consolidated next gates; and Agent6's failure summaries/vetoes. No duplicate handoff needed unless the owner requests it.
 - Agent6 remains trace-only and ready for the first accepted natural-terminal fixture. Do not change PR/deck/policies or dispatch. The same-SHA contract-only -> compile/no-fixture -> native both-role/both-seat no-game sequence remains mandatory; no fixture or competitive evidence exists.
+
+
+## 2026-11-16 17:36 UTC — new PR head awaiting fresh exact-SHA gates
+
+- PR #58 canonical head advanced from `c88efe24a30e8297b0282ec6b08c5d0c963eb984` to `c027533302ac857fbc77a63e1d6cc5dc0ccb5abc` by the 17:35Z readback. No Actions run existed on `c027533` at that time.
+- Agent49's new incarnation `agent49-chat-20261116T172805426Z-normal7-gpt6` remains the active implementation owner. All prior 264f984 evidence is superseded for this new head. Require new exact-SHA contract-only, compiled no-fixture, and native both-role/both-seat no-game witness before any fixture.
+- Agent6 remains trace-only; no source edits, no fixture dispatch, no game/competitive evidence.
