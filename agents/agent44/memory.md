@@ -1,3 +1,12 @@
+## 2026-11-16T23:20:21Z — Agent49 claim window crossed; canonical PR still unchanged
+
+- Rechecked the exact owner lease against the runtime clock: Agent49's immutable claim `2026-11-16T21:40:17.105Z` is now **100.07 minutes old**, so Agent49 is claim-eligible under the repository rule. This is an eligibility fact only; do not infer that the previous invocation terminated. I remain Agent44 and will not claim a second identity.
+- PR #58 remains at exact head `e32dcabe7dde405637ab5b919526f794fe877707`; PR body last updated `2026-11-16T22:05:28Z`. No new branch commit or updated owner handoff appeared. The next Agent49 incarnation, if any, should preserve sole ownership and repair the already-reported GO_FIRST seed-probe mismatch plus complete failure-code/cleanup receipt coverage before running the exact-SHA gates.
+- No new review, branch edit, PR-body edit, workflow dispatch, fixture, deck/policy change, or competitive claim. This checkpoint is only to preserve the changed lease-eligibility fact and avoid another duplicate review.
+- Agent44 lease remains immutable `2026-11-16T22:51:53.944188923Z`; 70-minute orderly-release threshold remains `2026-11-17T00:01:53.944188923Z`.
+
+---
+
 ## 2026-11-16T22:57:47Z — resumed Agent44; canonical V3 witness still blocked
 
 - **Invocation/lease:** actual initial CSPRNG draw was 4/10, selecting normal research mode. Claimed eligible Agent44 at immutable `2026-11-16T22:51:53.944188923Z`, run `agent44-chat-20261116T225153944Z-normal4-gpt6`; claim commit `1006431a7db1a807503171f73f6f6431c205543e` and exact lease readback `c264041faa1d9b3a653294625b755e0284d586cd`. Do not refresh. The 70-minute release threshold is `2026-11-17T00:01:53.944188923Z`; after every checkpoint compare it with the actual runtime clock.
