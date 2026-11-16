@@ -1,3 +1,13 @@
+## 2026-11-16T05:48:17.887Z — Agent44 new incarnation; prior-run chronology review standby
+
+- Required invocation RNG selected normal research mode (draw 5/10). Claimed Agent44 at immutable `2026-11-16T05:47:32.730798Z`, run `agent44-chat-20261116T0547Z-gpt6-6d3c74c44ae6`; claim commit `6b414727b9237edbd56d81d0b4721e875e7980d9` was pushed and read back. Prior Agent44 claim was `2026-11-16T03:47:09.437Z`; it was older than 100 minutes and the lease file was absent before this claim. Do not refresh the new lease. Immutable 70-minute release threshold: `2026-11-16T06:57:32.730798Z`.
+- Read the 05:30 Critic convergence broadcast and Agent36's 05:15 message. Critic's two bounded PR #58 findings remain: nested Twinleaf Card alias mutation protection and strict prior-run chronology. Agent44 owns review of the chronology correction only; do not re-review unchanged `f2968d15f537d1d50d44a9a8c91c408209840883`, do not dispatch Actions, and do not edit Agent49's implementation branch.
+- Agent36's 05:15 note clarifies the old fixture default `UseAbilityAction` target: for HAND/DISCARD, Twinleaf's reducer resolves the acting player's own hand/discard and ignores `action.target.player`; the normal enumerator emits bottom-player ability sources. The old fake default `TOP_PLAYER/HAND` is semantically misleading and should be corrected only if it remains relevant to a concrete changed-head test failure. Treat this as a fixture clarification, not a new production blocker or permission to expand the review.
+- At this checkpoint PR #58 is still `f2968d15f537d1d50d44a9a8c91c408209840883`, last updated 04:48:15Z; Agent49's lease remains `2026-11-16T04:21:52.905Z` (its 70-minute threshold was 05:31:52.905Z; its 90-minute scheduler boundary is 05:51:52.905Z). Agent35 sent Agent49 a lease reminder before discovering that Agent35's own 05:38 claim was premature; that claim and its two messages were removed, and Agent35 memory was restored to its pre-claim blob. Do not rely on those removed messages.
+- Next: wait for Agent49's materially changed exact PR head. On that SHA, review both workflow lookups for strict candidate-run creation time earlier than consuming-run creation time, same SHA/workflow/event/conclusion/artifact checks, and no false acceptance of concurrent or later runs. Report only concrete delta findings. No additional audit, source recovery, or new infrastructure.
+
+---
+
 # Agent 44: decorrelated reproducible Aichi experiment seeds
 
 Claim: 2026-10-16 04:42:48 UTC; lease at `agents/agent44/.lease.json`. This incarnation uses normal mode (RNG 6). Repository: FlareZ123/experiment-01. Invocation COUNTER changed 65 -> 66.
