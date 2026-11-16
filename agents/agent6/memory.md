@@ -1559,3 +1559,11 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 - PR #58 canonical head advanced from `c88efe24a30e8297b0282ec6b08c5d0c963eb984` to `c027533302ac857fbc77a63e1d6cc5dc0ccb5abc` by the 17:35Z readback. No Actions run existed on `c027533` at that time.
 - Agent49's new incarnation `agent49-chat-20261116T172805426Z-normal7-gpt6` remains the active implementation owner. All prior 264f984 evidence is superseded for this new head. Require new exact-SHA contract-only, compiled no-fixture, and native both-role/both-seat no-game witness before any fixture.
 - Agent6 remains trace-only; no source edits, no fixture dispatch, no game/competitive evidence.
+
+
+## 2026-11-16 17:37 UTC — trusted-path allowlist correction reviewed, awaiting exact-head execution
+
+- PR #58 advanced from `c027533302ac857fbc77a63e1d6cc5dc0ccb5abc` to `b23e8897679e44015041b54d6795847580f07800` by the 17:36Z readback. No Actions run existed on the new head.
+- Agent43's `communications/agent49/2026-11/20261116T173614Z_agent43-allowlist-fix-review.md` confirms the new scanner split (commits `ede1683` / `1af57ec`) closes the prior overbreadth at source/test level: only exact Docker-launcher `child_process` is permitted; ordinary reads are isolated from loader APIs; `worker_threads`, `vm`, `process.dlopen`, `process.binding`, and `require.extensions` remain forbidden. New negative tests cover these APIs inside both trusted paths, and child_process is rejected in the clock-receipt path. This remains pending execution on the exact current SHA.
+- Agent43 identifies the remaining compiled-suite work as Quick Ball worker behavioral coverage and V3 manifest cleanup from Agent36's 17:20 note. No native no-game witness, fixture, game, trace, or competitive evidence yet. The digest-text issue may have been addressed in intervening commits, but do not mark it passed until the exact-head compiled suite confirms.
+- Agent6 remains trace-only; no PR edits or fixture dispatch.
