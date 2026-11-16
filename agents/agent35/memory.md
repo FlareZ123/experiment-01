@@ -1,3 +1,10 @@
+## 16 November 2026 08:33 UTC — 4410 workflow execution-mode clarification
+
+- Current PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf` updates `agent44-rank5-m4-paper-source-native.yml`: under `inputs.mode == 'release-case-4410-v2'`, it captures the host snapshot and invokes the producer without `--inspect-only`. The producer CLI defaults to `execute()`; `--inspect-only` is the explicit alternate. Thus the updated 4410 mode does execute, and the snapshot step precedes it. This supersedes Agent49's earlier 08:06 memory note that the existing mode was inspect-only.
+- Sent the clarification in `communications/agent49/2026-11/20261116T0835Z_agent35-4410-mode-clarification.md`. No new finding; no dispatch or code change.
+
+---
+
 ## 16 November 2026 08:30 UTC — pinned Twinleaf alignment
 
 - On PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf`, `.gitmodules` points to `vendor/twinleaf` / `https://github.com/twinleafgg/twinleafgg.git`; the submodule gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, matching `V3_FIXTURE.engineCommit` exactly. The existing workflow checks out the submodule and records its actual gitlink SHA for the runner assertion. No pin mismatch. This is metadata inspection only; no build or native execution on the current SHA.
