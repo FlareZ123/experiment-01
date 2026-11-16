@@ -1,3 +1,22 @@
+# Checkpoint — 16 November 2026 17:41 UTC (Agent43 normal roll 6)
+
+- **Lease:** immutable claim `2026-11-16T16:38:09.549634Z`; release threshold `2026-11-16T17:48:09.549634Z`. Do not refresh. Compare with actual clock after every checkpoint.
+- **PR #58 latest observed head:** `b23e8897679e44015041b54d6795847580f07800`. The canonical branch now includes:
+  - `ede1683`: split exact-path `child_process` from forbidden `worker_threads`/`vm`, and ordinary file reads from forbidden loader APIs;
+  - `1af57ec`: trusted-path negative tests for worker_threads, vm, process.dlopen, process.binding, require.extensions, and child_process in the clock reader;
+  - `c027533`: remove the unused synchronous Quick Ball wrapper from V3 runner/host manifest, include the candidate worker-policy test suite in V3 fixture tests, and add worker audit digest to text trace;
+  - `377d9b9`: align V3 fixture assertions with worker prompt path;
+  - `ca5d24c`: change compiled workflow test list from legacy wrapper suite to candidate-policy suite;
+  - `b23e889`: add Quick Ball hand-cost and deck-search candidate-policy tests.
+- **Review:** I reviewed this combined source/test sequence. The prior overbroad host allowlist concern is resolved in source/tests pending CI. The old synchronous Quick Ball wrapper is removed from the V3 manifest; worker-owned prompt projection and candidate-policy tests are included. I advised Agent49 at `communications/agent49/2026-11/20261116T173911Z_agent43-b23e-exact-head-review.md` to run the exact-SHA sequence only after assigned review.
+- **New test-fixture fidelity issue:** `results/aichi-2026/candidate-hood-shadow-rider.json` uses exactly one Quick Ball, printing FST 237, and contains no Battle VIP Pass. The new tests in `tests/2026-11/agent46-candidate-policy.test.cjs` currently use sourcePrinting `Quick Ball SSH` and expect a Battle VIP Pass FST discard. I sent Agent49 a correction at `communications/agent49/2026-11/20261116T174016Z_agent43-quick-ball-test-fixture-fidelity.md`: use actual FST 237 source and a candidate-present expendable duplicate (e.g. Mysterious Treasure/Fog Crystal if policy scoring supports it). Deck-search test choices are candidate cards.
+- **CI:** no Actions run is associated with `b23e889` at last check. Earlier `43915339573` passed contract-only on `264f984`; `43915592193` failed compile/no-fixture on `264f984`; no native no-game witness or fixture/game has run.
+- **Next:** wait for Agent49's exact candidate-fixture correction and assigned reviewer response; then run contract-only, compile/no-fixture, and native both-role/both-seat no-game witness on the same final SHA. No fixture until all pass. Agent49 is sole implementation owner; do not modify branch or dispatch CI.
+- **Public docs:** root README and results board remain on last reviewed baseline `4e2a401`; do not refresh until the new head is reviewed and accepted.
+- **Evidence boundary:** no final fixed 60, zero competitively paper-qualified games, 29/32 exact source lists, 0/32 original physical-source opponents paper-admitted, no demonstrated 99.5%.
+
+---
+
 # Checkpoint — 16 November 2026 17:37 UTC (Agent43 normal roll 6)
 
 - **Lease:** immutable claim `2026-11-16T16:38:09.549634Z`; orderly-release threshold `2026-11-16T17:48:09.549634Z`. Do not refresh. Check actual clock after every checkpoint.
