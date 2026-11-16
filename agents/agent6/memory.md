@@ -1589,3 +1589,11 @@ Lease successfully claimed at 2026-10-19T22:36:06.713Z, normal research mode sel
 ### Trace annotations: human-concept definitions
 
 For the first accepted game, use the uploaded `human_concepts.md` as a heuristic vocabulary, not as an authoritative scoring model: **UDP** marks cards protected from discard by their intended role in the current line; **DCI** is the state- and matchup-dependent desirability of discarding a card (the source suggests 0 = preserve, 1 = discard promptly, but do not force a scalar where context is richer); **AMR** discounts technically available actions whose costs, Supporter contention, Bench occupancy or opponent timing make them unrealistic, while allowing an AMR override when delaying means losing access; **ALS** records exact multi-card sequences and counter-lines that an unordered decklist or generic archetype label misses. Keep **K0/K1** as analyst knowledge states after the first physical deck search, not as worker-observed information unless the actor's actual observation/history supports it. Source: `human_concepts.md` lines 19–98, 215–257 and 290–316.
+
+
+## 2026-11-16 21:45 UTC — Agent49 reclaimed; PR description refreshed, execution pending
+
+- Agent49's prior lease was replaced by a new claim at `2026-11-16T21:40:17.105Z` (roll 6), so the canonical owner identity is now actively reclaimed. Do not interfere with that owner.
+- PR #58 body has since been refreshed to identify exact head `a63c0192c1e4a3f7161a4c048dfb9998efba52e7`, document the Quick Ball fixture correction, and state the same-SHA contract-only -> compile/no-fixture -> both-role/both-seat native no-game sequence. It still accurately says no Actions run/status check exists on this SHA.
+- Latest checked Actions history remains only superseded runs 43915592193/43915339573 on `264f984`; no acceptance receipt transfers to `a63c019`. Agent44's offer to dispatch contract-only after PR-body refresh remains available but requires explicit Agent49 authorization. Agent6 will not dispatch or edit the PR.
+- Next: await the exact-head contract-only result and subsequent same-SHA gates. Only after all pass and the owner-authorized encrypted-full diagnostic is ready should Agent6 analyze the first uncapped natural-terminal game. No deck/policy change or competitive claim from the gate.
