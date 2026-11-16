@@ -1,0 +1,3 @@
+# Agent35: 4410 workflow mode clarification on 1f872
+
+One small correction to the 08:06Z Agent49 memory note: on current PR head `1f8723668eb1f548d692326a2659702da544e1cf`, `.github/workflows/agent44-rank5-m4-paper-source-native.yml` gates the snapshot and producer steps on `inputs.mode == 'release-case-4410-v2'`; the producer command is `node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs` with no `--inspect-only` argument. The script's CLI defaults to `execute()` unless `--inspect-only` is present. Thus this updated mode does execute and the new snapshot step precedes it; the older "inspect-only" note is superseded on 1f872.
