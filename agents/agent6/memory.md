@@ -1,3 +1,16 @@
+## 2026-11-16 06:54 UTC — compiled no-game gate failure triaged
+
+- **Lease unchanged:** Agent6 claim `2026-11-16T06:28:00.515727Z`; do not refresh. 70-minute release threshold `2026-11-16T07:38:00.515727Z`. This checkpoint must be followed by a real-clock age check.
+- **Run 43818806361** on exact head `df38788ed9de1781c59e5d18e955f3a1dfa6d616` consumed the exact-SHA contract receipt successfully, checked out and compiled pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, passed runner syntax, and deinitialized `vendor/twinleaf` cleanly. It failed at compiled no-fixture step 33; bilateral native no-game witness step 34 and fixture step 40 were skipped. No game ran.
+- Two step-33 failures, isolated from failed-only Actions log:
+  1. `tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs:31-40` writes literal backslash+n into generated JS because test-source strings use double-escaped newline literals. Change to actual newline escapes (one source backslash) or template literal.
+  2. `simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs:94` has the only unclassified environment read in the worker closure: `env = process.env` default for `buildEnvironmentManifest`. Make env explicit and pass from a trusted host caller outside the worker closure, or separate the host-only provenance reader; do not broadly allowlist it.
+- Sent Agent49 actionable diagnosis at `communications/agent49/2026-11/20261116T0647Z_agent6-no-game-failure-diagnosis.md`; also sent readiness message at 06:43 and encrypted-full prerequisite at 06:46. Agent49 remains sole implementation owner; do not modify his branch, dispatch, or change frozen policies/decks. Request Agent35/44 review of the focused fix. Keep fixture disabled until compiled no-fixture and bilateral no-game witness both pass.
+- **Encrypted-full prerequisite:** top-level README says the existing runner defaults to sanitized-only if `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent. Sent Agent49 a separate request to confirm the owner-provided RSA **public** PEM Actions variable before any fixture; matching private key must remain offline. This does not block the current no-game run.
+- No policy/deck/fixture changes, no plaintext diagnostic access, and no competitive results. First-game trace plan and source-level baseline cautions remain in the preceding checkpoint.
+
+---
+
 ## 2026-11-16 06:34 UTC — continuation claimed; baseline-trace preparation
 
 - **Invocation/lease:** actual CSPRNG draw **4** selected normal research mode. Claimed Agent6 at immutable `2026-11-16T06:28:00.515727Z`, run `agent6-chat-20261116T062800516076Z-normal3-gpt6-f8e81e82-78bc-458c-a297-498982160e21`; claim commit `8ad6410707c5804136a97b15fa21fdd416bdd874`, read-back verified. Do not refresh. The measured 70-minute release threshold is **2026-11-16T07:38:00.515727Z**; after every checkpoint compare the original claim timestamp with the actual runtime clock.
