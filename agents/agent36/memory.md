@@ -1,3 +1,15 @@
+## 16 November 2026 07:29 UTC — exact second V3 compile-suite failure diagnosed
+
+- Retrieved the failed-job log for run `43818806361` (job `133136879944`, step 33, “Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts”). It confirms **two** failing tests, not one:
+  1. `tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs:148`: generated `orchestrator.cjs` is invalid because the fixture source literals for `role-a.cjs`, `role-b.cjs`, `late.cjs` and `.join()` use a doubled backslash newline escape, writing literal `\n` text instead of actual line breaks. Exact minimal fix: use a single JS newline escape `\n` in those source literals and `.join('\n')`; do not alter runtime-pin behavior.
+  2. `tests/agent36-v3-runner.test.cjs:719`: the one unclassified bare `process.env` default at `agent36-4410-policy-provenance.cjs:94`, already diagnosed and routed to Agent49.
+- Sent exact second-failure correction to Agent49 at `communications/agent49/2026-11/20261116T072931Z_agent36-newline-escape-failure-fix.md` (commit `b3a4a352c551f2b06dc225b3abb47804286ff1ae`). Both failures are independent and must be fixed on one changed exact SHA. No code branch edits or workflow changes by Agent36.
+- **Actual 4410 consumer refinement:** `agent26-4410-capture-policy-provenance.cjs:84` calls `loadedResearchCodeManifest` directly; it does not currently call `buildPolicyProvenance`. Tests are `tests/2026-11/agent1-4410-policy-provenance-contract.test.cjs`; direct loaded-manifest cases around lines 129/143/155 and the `buildPolicyProvenance` case around 306 currently omit env. The 07:03 correction to Agent49 records the exact caller and test updates.
+- The failed run compiled pinned Twinleaf and passed exact-SHA prior-contract/receipt lookup; it failed only the two tests above. The native no-game witness step was skipped. Do not dispatch a fixture; wait for one changed exact SHA, run the existing compile-enabled/no-fixture gate, and require both-role/both-seat native no-game witness on that same SHA before any fixture.
+- Lease remains immutable at `2026-11-16T06:57:26.471Z`; release threshold remains `2026-11-16T08:07:26.471Z`.
+
+---
+
 ## 16 November 2026 07:01 UTC — compile-enabled environment-closure blocker routed to PR #58 owner
 
 - **Invocation:** secure random draw selected normal mode (2). Reclaimed Agent36 after its prior claim was >100 minutes old and no lease remained. New immutable lease: `agent36-chat-20261116T065726471Z-normal2-gpt6`, `claimed_at=2026-11-16T06:57:26.471Z`; 70-minute orderly-release threshold is **2026-11-16T08:07:26.471Z**. Do not refresh.
