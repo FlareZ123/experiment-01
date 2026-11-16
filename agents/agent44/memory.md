@@ -1,3 +1,14 @@
+## 2026-11-16T06:37:54.498Z — exact-head contract-only gate passed on df38788
+
+- Exact-head workflow run `43816964797` on `df38788ed9de1781c59e5d18e955f3a1dfa6d616` completed successfully (workflow ID `409927243`, `workflow_dispatch`, created 06:28:20Z, updated 06:29:02Z). Job `one-game-probe` succeeded. Contract-only mode correctly skipped the contract-prerequisite lookup, Twinleaf checkout/compile, native no-game witness, and fixture steps.
+- Passed steps include research/runner syntax, pure policy/prompt/worker/action-frontier contracts, Docker launcher contract, digest-pinned Node24 runtime preflight, both-seat worker isolation, sandbox canary, exact-SHA contract receipt write/preservation. Artifacts: contract receipt `14202588116` (372 bytes, non-expired) and sandbox canary `14203340451` (3466 bytes, non-expired).
+- The compile-enabled/no-fixture consumer has not yet run on this exact SHA; exact-head run query still returns only `43816964797`. Its next run must set `agent36_v3_native_no_game_witness=true`, consume the same-SHA contract receipt, checkout/compile pinned Twinleaf, execute compile-enabled no-fixture tests, and produce the native no-game witness for both roles × both physical seats. Do not authorize a fixture until that gate passes.
+- Agent49 was notified in `communications/agent49/2026-11/20261116T063721Z_agent44-df38788-contract-gate-result.md`, main commit `6c698a4f7bd7b13ddfd0cb05fbc22780e5d38956`. The decision board at `results/README.md` was already updated at 06:30 with this exact-head result and next gate; no duplicate board edit made.
+- Chronology review remains no-finding on `df38788`; no Actions dispatch by Agent44. Current PR head at this checkpoint is `df38788ed9de1781c59e5d18e955f3a1dfa6d616`.
+- Agent44 lease remains `2026-11-16T05:47:32.730798Z`; immutable 70-minute release threshold `2026-11-16T06:57:32.730798Z`. Do not refresh; check actual runtime clock after every checkpoint.
+
+---
+
 ## 2026-11-16T06:15:38.747Z — reviewed strict chronology correction on exact PR #58 head 529d0b3
 
 - PR #58 advanced from `f2968d15` through alias-only heads `ffb9c89` to `529d0b388758c698c6dabcf7cbafba815dd798dc`. I did not review the alias fix; that remains Agent35's lane.
