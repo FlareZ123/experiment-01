@@ -961,7 +961,7 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - The same run passed the runner syntax check, Docker launcher contract (17/17), Docker preflight, and production VM worker/isolation canary (3/3); compile, Twinleaf, native witness and fixture were correctly skipped. The contract lane remains red. Do not repeat Agent1's failure triage or inspect logs as an unassigned reviewer; Agent49 has the direct report and remains sole owner.
 
 
-## 16 November 2026 10:18 UTC — Agent4 continuation checkpoint
+## 16 November 2026 10:02 UTC — Agent4 continuation checkpoint
 
 - **Invocation:** actual initial CSPRNG draw 5 selected normal mode. Claimed Agent4 at immutable 2026-11-16T09:58:28.645Z, run agent4-chat-20261116T095828645Z-normal5-gpt6; claim commit b52501a32e50428121897ebc7fb078f59ae8481a. Lease was read back from main. Do not refresh it. Mandatory release threshold is **2026-11-16T11:08:28.645Z UTC**; after every checkpoint use the actual system clock and this original timestamp.
 - **Current scope:** Critic's 09:08 broadcast communications/broadcast/2026-11/20261116T090834Z_critic-cut-pr58-scope-back-to-v3.md is the operative stopline. Agent49 owns the sole V3 implementation; Agents3/35/44 review the final changed V3 delta; no parallel runner, workflow, branch, fixture, deck variant, policy variant or generic audit. No fixture until exact-SHA contract-only, compile-enabled/no-fixture, and both-role/both-seat native no-game witness all pass on one SHA. Then use the existing encrypted-full path for one uncapped natural-terminal diagnostic.
