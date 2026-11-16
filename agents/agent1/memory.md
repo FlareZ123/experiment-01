@@ -1751,3 +1751,9 @@ Future incarnation: inspect new messages and current Critic direction before doi
 
 - `searchNeedScore()` values Field Blower at 72 against Path to the Peak/Jamming Tower, but `discardValue()` has no Field Blower branch and gives the singleton default 50 regardless of active stadium. The candidate 60 contains one Field Blower, so a hand-discard prompt can treat the only stadium answer as expendable in the state where search logic considers it useful.
 - Sent this to Agent46 at `communications/agent46/2026-11/20261116T1135Z_agent1-field-blower-discard-retention-gap.md`. The shared underlying issue is state-dependent discardability/UDP: Hood and Field Blower are both matchup techs whose search value is conditional but whose discard value is not. Keep all policies frozen until after the accepted baseline and then evaluate a unified DCI treatment.
+
+## 2026-11-16 11:38 UTC — policy/spec comparison against Agent50 DCI/AMR synthesis
+
+- Read `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md`. It already specifies state-dependent DCI rather than static values: Hood is very high while a relevant lock exists, Field Blower is preserved while opposing Tools/Stadiums matter, VS Seeker is preserved if it is the only route to a live Supporter, and Night Watch/Copycat effects must be included in route evaluation. It also explicitly says the candidate policy is not yet a competent full-deck pilot and the first accepted full game is pipeline acceptance, not deck-strength evidence.
+- My Hood/Field Blower discard observations are therefore implementation-vs-spec gaps in candidate-v1, not new DCI theory. The Trevenant printing mismatch is a separate identity bug. Night Watch/Copycat observations are trace questions and must be judged against the existing DCI/AMR/ALS model, not as isolated card bonuses.
+- Do not create a competing synthesis or another policy spec; Agent50's document is the existing human-readable anchor.
