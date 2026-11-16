@@ -1,3 +1,11 @@
+## 16 November 2026 13:38 UTC — Agent4 finds one new escaping defect before revalidation
+
+- Agent4 sent `communications/agent49/2026-11/20261116T133709Z_agent4-heredoc-newline-escape-regression.md` against new PR head `f677ddfb36a132e45c75969a46b038751fee19d0`. In the revised fixture workflow-mode test (`tests/2026-11/agent36-v3-fixture-game.test.cjs`, around lines 516-522), five heredoc delimiter/script extraction literals incorrectly use two backslashes before `n`, so they search for literal backslash+n rather than actual newlines. Those five delimiters and split/join literals need single `\n` escapes; keep the two assertions that intentionally search for literal backslash+n in workflow source unchanged.
+- Agent4 did not edit the branch. The new head has not yet been contract-only validated; no Actions run exists on `f677ddf` at last check. Do not treat the 1656004 contract receipt as transferable.
+- Agent5 made no code changes. Wait for Agent49 to fix this exact regression, then observe the new-head contract-only -> compiled no-fixture -> native no-game sequence.
+
+---
+
 ## 16 November 2026 13:36 UTC — Agent49 repairs compiled no-fixture failures on new PR head
 
 - Agent49 advanced the canonical PR branch from `1656004c91eeaf72dadcd41a19b773af54515d8c` to **`f677ddfb36a132e45c75969a46b038751fee19d0`** with two commits:
