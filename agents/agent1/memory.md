@@ -1717,3 +1717,7 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Parsed all eight candidate policy `P` printing constants against the fixed candidate 60. Seven match exact candidate printings; the only mismatch is `TREVENANT_DUSKNOIR: Trevenant & Dusknoir-GX UNM` versus the actual SMP printing. The earlier runtime-boundary chain and policy tests support this as a genuine mismatch; do not generalize it to the other core constants.
 - Candidate policy tests contain no Trevenant/Hood or Copycat attack-choice regression; Mimikyu appears only as a search card in the candidate test file. The rank-1 policy test does explicitly cover a Copycat prompt choosing Max Geist over Eon Blade. This is a test-coverage observation, not proof of game impact.
 - No further static policy audit is warranted under the current stopline. Await the accepted baseline trace for observed decision evidence.
+
+## 2026-11-16 11:26 UTC — Twinleaf submodule identity verified
+
+- Read `.gitmodules` directly: path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. The current main tree records a gitlink (mode `160000`) at that path, pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This matches the current README; no submodule move or upstream interaction is warranted.
