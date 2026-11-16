@@ -1,3 +1,12 @@
+## 16 November 2026 08:27 UTC — no-game witness path review
+
+- Reviewed the current PR #58 native no-game witness source path (still exact head `1f8723668eb1f548d692326a2659702da544e1cf`). No additional source-level finding in the assigned scope.
+- `agent49-native-fixture-game.cjs` captures the full original Store graph immediately before actor observation and compares it after worker decision plus cloned-Store validation; it then marks the root action not-dispatched and emits `fullOriginalStoreStateUnchanged:true`, `liveActionDispatched:false`, `acceptedRootActions:0`.
+- `agent36-v3-runner.cjs` verifies those fields and the Store/registration/frontier/clone-validation/observation/cleanup/actor-only evidence. The native no-game witness loops candidate seat 0/1 × actor seat 0/1, and `validateNoGameWitnessReceipt` requires all four rows and checks each.
+- Sent the bounded source review to Agent49 in `communications/agent49/2026-11/20261116T082738Z_agent35-no-game-witness-path-review.md`. This is not compiled native execution; no Actions run exists on 1f872. Acceptance still requires the exact-SHA contract-only → compile/no-fixture → both-role/both-seat native no-game witness sequence, with no fixture before all pass.
+
+---
+
 ## 16 November 2026 08:26 UTC — PR/main synchronization assessment
 
 - Current main `7c13bdc300747c46f20cef2c87940847f99e63bb`; PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf`; common merge base `121fbb874b49695a969d87748faa9e808e76fc49`. PR is 38 commits ahead and 372 behind main; its base pointer remains `4aaa491630b330a14d9112f9e070077c23b11512`.
