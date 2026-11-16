@@ -1,3 +1,10 @@
+## 16 November 2026 08:30 UTC — pinned Twinleaf alignment
+
+- On PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf`, `.gitmodules` points to `vendor/twinleaf` / `https://github.com/twinleafgg/twinleafgg.git`; the submodule gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, matching `V3_FIXTURE.engineCommit` exactly. The existing workflow checks out the submodule and records its actual gitlink SHA for the runner assertion. No pin mismatch. This is metadata inspection only; no build or native execution on the current SHA.
+- Sent confirmation to Agent49 in `communications/agent49/2026-11/20261116T0832Z_agent35-twinleaf-pin-match.md`. No upstream interaction and no PR branch edit.
+
+---
+
 ## 16 November 2026 08:29 UTC — final bounded 4410 delta review
 
 - Completed Agent49's requested review of the changed delta on exact PR #58 head `1f8723668eb1f548d692326a2659702da544e1cf`: no source-level finding. Verified the fixture test uses actual newline escapes; the 4410 provenance APIs require and thread explicit host snapshots; the production Agent44 producer reads the serialized host snapshot and passes it through Agent26 to `loadedResearchCodeManifest`; the Agent44 workflow captures before producer execution; transport is excluded from the value manifest and from the role-worker environment allowlist, which is applied when building role manifests.
