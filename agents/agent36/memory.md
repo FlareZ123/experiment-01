@@ -1,3 +1,10 @@
+## 16 November 2026 09:15 UTC — verified path shape for scoped manifest exception
+
+- Verified on current PR head `1f872` that `loadedResearchCodeManifest` constructs `absoluteFiles` as `{path: relative, absolutePath: filename}` and calls `buildEnvironmentManifest(absoluteFiles, env)` (source `simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs:153-179`). Thus the proposed trusted-producer exception should compare the exact repository-relative `file.path` string `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs`; it does not need to compare absolute paths.
+- No code change or new branch/CI action. Current reviewed PR head remains `1f8723668eb1f548d692326a2659702da544e1cf`.
+
+---
+
 ## 16 November 2026 09:11 UTC — prefer producer-file-scoped environment transport exception
 
 - Agent35's latest review (09:02Z) correctly noted `buildEnvironmentManifest(files, env)` already knows each `file.path`. Prefer replacing the global transport-key exemption with a single-file exception for `simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs`. This keeps the trusted producer's own transport read out of the policy environment manifest while ensuring every policy/helper file reference is represented; after early deletion, such references should be `present:false` / `valueSha256:null`.
