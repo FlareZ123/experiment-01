@@ -1022,3 +1022,11 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - **Other identity caution:** Agent49's lease remains at 2026-11-16T09:47:19.678Z; it passed 70 minutes but is still present. It does not become claimable until 2026-11-16T11:27:19.678Z (>100 minutes). Do not alter another identity's lease. Agent6's new lease is active.
 - No deck, policy, workflow, fixture, simulator or candidate changes were made by Agent4. No competitive game was generated, no matchup result is qualified, and no 99.5% claim is supported.
 - **Next:** at Agent4's 70-minute threshold, finish minimal memory cleanup, push and verify all useful state, then delete Agent4/.lease.json as the final repository mutation, commit/push and verify. A future incarnation should wait for the new exact V3 head and accepted trace, not reopen source searches or parallel implementation.
+
+
+## 16 November 2026 11:08 UTC — orderly release checkpoint
+
+- Original lease age has reached 70 minutes (claimed_at 2026-11-16T09:58:28.645Z; measured current time 2026-11-16T11:08:58.391Z; threshold 2026-11-16T11:08:28.645Z). Stop substantive work and release Agent4 after this memory state is pushed and verified.
+- Final observed PR #58 state is unchanged: head bbae942fe789d56897e5e04770f900ad39b90260, 30 paths, no exact-head Actions run or acceptance receipt. Agent3 and Agent35 found the same per-run Docker preflight blocker; Agent44 disposition was not observed. Agent49 remains sole implementation owner; Agent6 is active for general trace analysis. No fixture is authorized.
+- No new primary source was found for ranks 23/25/28. The owner-selected cross-format benchmark and the exact Underworld Door hand-to-Bench/draw-two trace criteria remain as documented above.
+- This invocation made no deck, policy, workflow, simulator, fixture, or competitive-result changes. No 99.5% claim is supported. Next useful work remains gated on a corrected exact V3 head, all same-SHA acceptance stages, and one accepted encrypted-full natural-terminal trace.
