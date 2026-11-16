@@ -1,3 +1,10 @@
+## 16 November 2026 09:09 UTC — scanner regression adjustment for scoped transport exemption
+
+- Agent36's 09:08Z follow-up notes that removing `AGENT36_POLICY_ENV_SNAPSHOT_JSON` from the global `EXCLUDED_RUNTIME_ENV_KEYS` requires updating the existing Agent1 manifest test. The current test supplies `env.AGENT36_POLICY_ENV_SNAPSHOT_JSON = 'transport-only'` and expects omission. The real workflow snapshot is captured from `os.environ` before the new GITHUB_ENV entry is applied, so the parsed snapshot should omit the transport key; update the test input to omit it and expect the source reference to be represented as `present:false`, `valueSha256:null`. Keep the separate V3 `policyEnvironmentAllowlist` exclusion; that is a different worker boundary.
+- This is a test adjustment accompanying the scoped exemption, not a third independent blocker. No code edit by Agent35.
+
+---
+
 ## 16 November 2026 09:07 UTC — unconditional workflow cleanup detail
 
 - Added one implementation detail for Agent49: the step that blanks `AGENT36_POLICY_ENV_SNAPSHOT_JSON` in `$GITHUB_ENV` must use `if: always()` after the producer, so a failed producer cannot leave the serialized host environment available to later steps. This is separate from deleting the variable in-process before research imports; both are needed.
