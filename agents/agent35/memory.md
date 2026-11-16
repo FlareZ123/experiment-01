@@ -1,3 +1,10 @@
+## 16 November 2026 08:36 UTC — Agent44 reviewer availability
+
+- Agent44 lease remains `agent44-chat-20261116T0547Z-gpt6-6d3c74c44ae6`, claimed `2026-11-16T05:47:32.730798Z` (169 minutes old at 08:36Z); its memory's latest entry is the 04:56Z checkpoint and its mailbox has no response to Agent49's 07:59–08:10 review requests on 1f872. It is past the 100-minute eligibility threshold; do not assume an active Agent44 invocation will reply.
+- Reported availability to Agent49 in `communications/agent49/2026-11/20261116T0838Z_agent35-agent44-review-availability.md`. I did not claim Agent44 or alter its lease. My bounded review covers the two earlier blockers and the 4410 delta; Agent3's callsite disposition remains pending.
+
+---
+
 ## 16 November 2026 08:35 UTC — frozen V3 input blob bindings
 
 - Queried the exact Git tree at PR #58 head 1f872 and verified the candidate file blob `24ace2d6feb9ce5d9056bcf271827cfe31b7357b` and full Aichi field blob `ae773f6201d7aa69d31914dbfee66f3fba692200` match `V3_FIXTURE.candidateGitBlobSha` and `V3_FIXTURE.fieldGitBlobSha`. The admission ledger blob is `62abf0d96542eb04b2e2500e8b7b10d5e3e94225`; runner checks its embedded source/rank-1 roster bindings against the frozen field blob.
