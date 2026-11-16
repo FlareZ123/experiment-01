@@ -1,3 +1,23 @@
+# 16 November 2026 05:50 UTC — V3 acceptance stopline and post-trace role
+
+**Current incarnation:** normal research mode, actual CSPRNG draw **4**. Claimed Agent4 at immutable `2026-11-16T05:49:35.294838Z`, run `agent4-chat-20261116T054935294838Z-normal4-gpt6-24f59cde7304`; claim commit `576cf54d175dee8d193fe0e91b1c50d5742cbedc`. Do not refresh. Mandatory lease-age check after every checkpoint; 70-minute threshold is **2026-11-16T06:59:35.294838Z**.
+
+## Current state and operating boundary
+
+- Read the current README and fixed-60 decision board plus Critic broadcasts `20261116T050118Z` and `20261116T053022Z`. The owner-selected primary benchmark is an English-language, paper Expanded candidate against unchanged original Japanese Extra Aichi lists (custom cross-format challenge); source lists 23/25/28 remain unavailable; zero physical-source opponents are paper-admitted; no final 60, no competitively paper-qualified games, no demonstrated 99.5%.
+- PR #58 is the sole V3 worker-acceptance path. Current canonical branch `agent49/v3-worker-acceptance-20261115-canonical` remains at `f2968d15f537d1d50d44a9a8c91c408209840883` (54 commits, 52 changed files), draft, no exact-head acceptance run. Agent49 remains sole implementation owner; do not edit its branch, create another workflow/branch/harness, or dispatch a fixture.
+- The two concrete current-head blockers are already documented: Agent35's shallow native action-frontier guard misses nested Twinleaf Card objects shared by reference during clone validation (`communications/agent49/2026-11/20261116T0450Z_agent35-card-alias-frontier-isolation-gap-f2968d15.md`); Agent44's exact-SHA prior-run lookup does not require the evidence run to predate the consuming run (`communications/agent49/2026-11/20261116T0455Z_agent44-f2968d1-prior-run-ordering-review.md`). Agent35/44 are the designated reviewers for only these fixes on a changed exact head. Do not duplicate their reviews.
+- After the changed-head fixes, the existing ordered gates are contract-only, compile-enabled/no-fixture, and both-seat native no-game witness, all on the same SHA. No fixture before all pass. Preserve natural-terminal completion with an external watchdog.
+- The first accepted game should use the frozen Hood Shield Shadow Rider v1 60 against unchanged rank-1 source 60, frozen policy versions, and the owner's public-seed decision. Existing encrypted-full trace path and serializer are already implemented; use `AGENT36_V3_DIAGNOSTIC_MODE=encrypted-full` and owner-configured `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`. Never send hidden zones, native game state, or physical RNG/seed to policy workers; decrypt full-state artifact offline only.
+- Agent6 has already committed to the first full action-by-action trace analysis and resolved the alternatives/frontier completeness concern through deterministic replay (`communications/agent49/2026-11/20261116T0506Z_agent6-full-state-trace-analysis-commitment.md`, `20261116T0523Z_agent6-trace-frontier-replay-no-extension.md`). Do not create another serializer or duplicate the general trace pass.
+- My useful future role is a narrowly scoped independent strategic/rules review of Hood/Underworld paid-setup and attack-conversion decisions in the first accepted trace, only once that trace exists and without creating a disconnected policy profile. Until then, preserve the fixed candidate and policy versions; no card probes, cosmetic deck variants, extra workflows, generic audits, or repeated source retrieval. The only permitted parallel source lane is genuinely new primary evidence for a missing Aichi list; no new lead is currently known.
+
+## Immediate next action
+
+Wait for a changed, accepted PR #58 head and the first authorized encrypted-full natural-terminal trace. Then coordinate with Agent6/Agent49 before taking a distinct Hood/Underworld strategy slice; ground every recommendation in the actual actor-visible frontier, payment, state transition, opponent response, and opportunity cost. If no accepted trace exists, do not manufacture side work.
+
+---
+
 ## 9 November 2026 ~15:38 UTC, native paid Hood sequence and Arven phase
 
 - Claimed stale Agent4 at **2026-11-09T15:16:49.523522Z**, run `agent4-chat-aa26069c66034957b2df5a48c3ee1f2a` via remote CAS [664bd998](https://github.com/FlareZ123/experiment-01/commit/664bd99853381404b43513881f56d5c5b5880a09); do not refresh lease. The 70-minute check triggers at **16:26:49.523522Z UTC**. After each checkpoint compute real clock against this original timestamp.
