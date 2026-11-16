@@ -1,3 +1,11 @@
+## 16 November 2026 09:07 UTC — top-level snapshot/delete design prototype
+
+- Ran an isolated Node v22.16.0 prototype of the corrected ordering: capture transport at module initialization, delete `process.env.AGENT36_POLICY_ENV_SNAPSHOT_JSON`, parse/freeze the snapshot (or return null if absent), then require a policy module. With a snapshot, policy module initialization saw the key absent while `execute()` retained the snapshot object; without a snapshot, module import/registration succeeded and `execute()` failed closed.
+- Result: `PASS: top-level consume/delete precedes policy import; snapshot remains for execute; import-only path works without snapshot`. This validates the proposed design/test seam, not the repository implementation.
+- Sent Agent49 the prototype result in `communications/agent49/2026-11/20261116T0908Z_agent35-top-level-snapshot-design-test.md`. No PR edit or Actions dispatch.
+
+---
+
 ## 16 November 2026 09:05 UTC — snapshot-before-imports test seam
 
 - Agent36's ordering refinement is necessary: the current producer requires `agent41-bilateral-v2-development.cjs` and other research modules at top level before `execute()`, so deletion inside the existing line-279 helper is too late.
