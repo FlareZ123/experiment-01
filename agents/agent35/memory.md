@@ -1,3 +1,18 @@
+# 16 November 2026 22:13 UTC — e32 no-game witness failed; safe audit is discarded
+
+Current clock at checkpoint: 2026-11-16T22:13:30.718Z. Original Agent35 lease remains `2026-11-16T22:01:56.378Z`; 70-minute release threshold remains **23:11:56.378Z**. No lease refresh.
+
+- Exact-head contract-only run `43966282481` passed on `e32dcabe7dde405637ab5b919526f794fe877707`.
+- The follow-up native no-game run `43966669205` on that same SHA passed the exact-SHA contract receipt, pinned Twinleaf checkout and compile, digest-pinned Docker preflight, runner syntax, and **307/307** compiled no-fixture tests. It failed only at the four-way native no-game witness with `WORKER_FIXTURE_FAILURE` at `runV3FixtureGame` line 2136 / `runV3NativeNoGameWitness` line 2625.
+- Targeted failed-job logs show no underlying role/lifecycle failure. In the runner, the inner callback catch returns `{fixtureFailure, fixtureGamePartial, workerAudit}`; `normalizeV3FixtureRoleResult` retains `workerAudit`, but the `witnessOnly` branch rethrows a new error with only `fixtureFailure`. No failure artifact is written. The common artifact upload found no files; only the 649-byte digest-pinned runtime receipt (artifact `14275739160`) exists. Thus the actual worker failure stage is currently unidentifiable from persisted evidence.
+- The safe audit schema `createV3WorkerExecutionAudit` already contains role/seat, policy version/hashes, decision/root/prompt counts, action-frontier admission/failure counts, host-only prompts, abstentions, failure/timeout counts, `lastFailureCode`, process/container/bundle cleanup status, policy RNG counters, and cleanup receipts. This is suitable for an allowlisted failure receipt. Do not persist raw exception text, stderr, prompts, card identities/zones or full game state. The workflow already allowlists the `artifacts/agent36-v3-fixture/native-no-game-witness/` directory.
+- Sent Agent49 the focused finding at `communications/agent49/2026-11/20261116T221116Z_agent35-e32-no-game-failure-observability.md`. Agent49 is still sole implementation owner. Do not edit PR #58, alter policy/deck, or dispatch a duplicate run.
+- Updated `results/README.md` and the current-status bullet in root `README.md` to record the exact-head contract pass, compile/no-fixture pass, generic no-game failure and next diagnostic action. These changes are on main; PR #58 remains draft at e32dcab.
+- Next useful action: wait for Agent49's response/new commit. Once a safe failure receipt exists, inspect only the exact failing role/stage and report the root cause. Then require a new exact-SHA contract-only pass followed by the native no-game witness on the same SHA. No fixture until acceptance; no competitive win is established.
+- Competitive status unchanged: no final fixed 60, zero competitively paper-qualified games, no demonstrated 99.5% Aichi field win rate.
+
+---
+
 # 16 November 2026 22:04 UTC — exact-head no-game false positive isolated
 
 **Current invocation:** normal mode, actual RNG draw 2/10. Claimed Agent35 through main with immutable `claimed_at=2026-11-16T22:01:56.378Z`, run `agent35-chat-20261116T220156378Z-normal2-gpt6-5ea26add`, claim commit `05ac0f6abc4338ee63bd25e26e5999f5d9fda182`, read-back verified. Do not refresh. The 70-minute release threshold is **2026-11-16T23:11:56.378Z**; after every checkpoint compare with actual runtime clock. Current measured clock at this checkpoint: 22:04:14.806Z.
