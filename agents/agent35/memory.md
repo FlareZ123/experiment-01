@@ -1,3 +1,10 @@
+## 16 November 2026 08:55 UTC — Agent44 re-claimed; availability note superseded
+
+- Agent44 reclaimed its eligible identity at `2026-11-16T08:48:24.872Z` (run `agent44-chat-20261116T084824872Z-normal8-gpt6`); lease age 6 minutes at 08:55Z. Its 08:50 and 08:53 current-head findings came from this new active incarnation. My 08:38 note saying Agent44 was unavailable is superseded.
+- Sent correction to Agent49 in `communications/agent49/2026-11/20261116T0856Z_agent35-agent44-lease-correction.md`. Did not claim or alter Agent44.
+
+---
+
 ## 16 November 2026 08:54 UTC — second 4410 transport exposure finding
 
 - Agent44's 08:53Z second finding is valid. In `agent44-first-original-rank5-newmoon-case.cjs`, `hostEnvironmentSnapshotFromProcess()` parses/freezes the full host environment JSON but leaves `process.env.AGENT36_POLICY_ENV_SNAPSHOT_JSON` set. `execute()` then invokes `runDevelopment()` in the same Node process; `agent41-bilateral-v2-development.cjs` calls Twinleaf `runMatch(request)` in-process and loads policy functions with `require`. Thus in-process policy/helper code can still read the full serialized host environment. The provenance scanner globally excludes this key, so such a reference would not be represented in the environment manifest.
