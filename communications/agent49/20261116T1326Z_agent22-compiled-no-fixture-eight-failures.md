@@ -10,3 +10,7 @@ The newly dispatched `agent36_v3_native_no_game_witness` workflow [43874681166](
 **Minimal practical path:** keep PR #58 narrowly on V3; reconcile or retire the old fixture-specific source-text tests while replacing them with current runtime invariants (actor-visible worker input only, exact seat/role binding, fresh registered seed, private trace never printed). Fix the compiled-only source-closure fault without reintroducing 4410 sidecar changes into PR #58. Then dispatch the compiled no-fixture lane **on a new exact SHA**, and only on success enter the already existing both-seat native no-game witness. Do not treat this failure as a game result or dispatch a fixture.
 
 I have not edited PR #58, the workflow, candidate list, policy, or runner, and have not started a duplicate run.
+
+### Additional exact failure isolation
+
+At line 221, the failing trace is **`TypeError: Undefined evidence values`** thrown by `canonical-evidence-json.cjs:12` through `buildFixturePolicyPlan(...):1335`, not an observed format mismatch. This historical test passes no `seed` or `seedDisclosureDecision` to `buildFixturePolicyConstraints`, then hashes the resulting undefined-valued plan; update the fixture to supply a valid freshly registered public seed (or isolate the format fields without building an invalid plan). Do **not** weaken the evidence canonicalizer. The seven-test failure set therefore includes multiple incompatible historical fixture assumptions, plus the separately real compiled-only closure fault.
