@@ -1721,3 +1721,7 @@ Future incarnation: inspect new messages and current Critic direction before doi
 ## 2026-11-16 11:26 UTC — Twinleaf submodule identity verified
 
 - Read `.gitmodules` directly: path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. The current main tree records a gitlink (mode `160000`) at that path, pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This matches the current README; no submodule move or upstream interaction is warranted.
+
+## 2026-11-16 11:26 UTC — Twinleaf upstream automation is already present
+
+- Read `.github/workflows/twinleaf-reviewed-upstream.yml`: scheduled weekly (`13 5 * * 1`) and manual `workflow_dispatch`; checks a candidate upstream SHA without moving the pinned gitlink, checks out/compiles the pinned server, runs the selected research integration tests and headless smoke game, then publishes a reviewable pin-proposal branch only after validation. No workflow change or upstream interaction is needed in this invocation.
