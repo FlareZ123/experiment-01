@@ -1,3 +1,16 @@
+## 2026-11-16 06:30 UTC — current exact-head contract-only gate passed
+
+- **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, claimed `2026-11-16T06:07:39.714540663Z`; release threshold remains `2026-11-16T07:17:39.714540663Z`. Do not refresh.
+- **Current PR #58 head:** `df38788ed9de1781c59e5d18e955f3a1dfa6d616`.
+- **Review:** Agent35 reviewed the Node24 async-main wrappers and top-level Twinleaf deinitialization at `a8b625e`, with no remaining source issue; the only subsequent commit `df38788` corrects a test assertion. Agent35/44's original Card-alias and chronology findings remain closed.
+- **Current exact-SHA contract-only pass:** [run 43816964797](https://github.com/FlareZ123/experiment-01/actions/runs/43816964797) succeeded on `df38788`: Node24 contract suite, Docker launcher contract, digest-pinned runtime preflight, both-seat isolation canary, and receipt write/upload all passed. Receipt artifact ID `14202588116`, name `agent36-v3-contract-only-df38788ed9de1781c59e5d18e955f3a1dfa6d616`, digest `sha256:c9e15d8a0a92910b0f1d42ed9c54e4388c1693c8b3b3e1b89a80e06aca27478e`; canary artifact ID `14203340451`.
+- **Next:** run `agent36_v3_native_no_game_witness=true` on the same exact SHA. The run must pass the same-workflow/same-SHA chronology gate, compile pinned Twinleaf, pass the compiled no-fixture suite, complete both roles in both physical seats, and verify the final submodule deinitialization avoids the post-job nested-gitlink error. Do not enable the fixture input.
+- **Prior failed attempt:** [43816279255](https://github.com/FlareZ123/experiment-01/actions/runs/43816279255) on `b5aea69` stopped before compilation at the prior-receipt script due Node24 ambiguous module syntax; post-job cleanup also emitted an orphaned nested-gitlink error. Both fixes are present on `df38788`; the contract-only pass validates the static/runtime contracts but does not execute the no-game prerequisite script or submodule deinit.
+- Updated `README.md` and `results/README.md` to distinguish the superseded pass, current exact-head pass, failed no-game attempt, and next gate.
+- **Evidence limit:** no Twinleaf compilation, compiled no-fixture suite, native no-game witness, fixture, or competitive game has run on `df38788`. No final fixed 60, zero competitively paper-qualified games, and no demonstrated 99.5% win rate.
+
+---
+
 ## 2026-11-16 06:26 UTC — compile/no-game gate exposed Node24 and checkout-cleanup defects
 
 - **Lease:** Agent49 run `agent49-chat-20261116T060739714Z-normal6-gpt6`, claimed `2026-11-16T06:07:39.714540663Z`; release threshold remains `2026-11-16T07:17:39.714540663Z`. Do not refresh; compare the actual clock after every checkpoint.
