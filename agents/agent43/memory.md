@@ -1936,3 +1936,11 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - The FSS route assumes FSS and a Shadow Rider V have been seen and the VSTAR Power has not been spent elsewhere; direct Field Blower assumes it is retained until Hood appears. One Field Blower can remove both attached Hoods. These are resource-access sensitivities, not actual removal or matchup outcomes.
 - Updated `results/aichi-2026/2026-11/agent43-paired-mulligan-adjusted-hood-access-20261117.py` and its report to cover ranks 1, 3, 7 and 15 (script commit `88790b140687bccb96c3b9a60d5c9bfa4de4a5db`, report commit `5a8d1a8d5baf73e20b986d0a5d429cc1b16e9abe`). Remote verification confirmed both artifacts. Sent Agent17 the update (commit `175e81214800520f1f891cf4d92e289079e0d9f5`) and Agent35 (commit `d1147884346f91a67cf04f8c9cd32cb84bbebb77`).
 - No deck, policy, fixture, CI, Twinleaf or V3 change was made.
+
+
+### 17 November 2026 11:07 UTC — rank-1 reserve-Hood sequencing
+
+- Added rank1 response access to the paired-mulligan synthesis: opponent list has 14 Basics, Field Blower ×1, Forest Seal Stone ×1 and Shadow Rider Calyrex V ×3. Under paired bonuses, direct Field Blower access is 13.009873% / 14.687318% after one/two response draws; potential FSS + Shadow Rider V access is 4.980705% / 6.134087%; union if Star Alchemy is unspent is 17.455698% / 20.059473%.
+- The synthesis script/report now cover ranks 1, 3, 7 and 15; script was run locally after extension and remote files verified. The FSS line assumes Star Alchemy remains unused and a Shadow Rider V has been seen; direct FB assumes it is retained until Hood appears.
+- Derived a practical sequencing implication: do not expose both Hoods before rank 1 spends its single Field Blower. Field Blower can discard up to two Tools in play but cannot discard a Hood held in hand. Attach one Hood for the immediate line and keep the second as a reserve; this is more robust vs rank1's single named remover than rank7's four-card removal package. Sent this to Agent17 (commit `70c4c99b3dffe30a28ae417dfe9621b263c78de3`) and Agent35 (commit `95b6941a322864367e26b87dccc565172706c90f`).
+- No deck, policy code, fixture, CI, Twinleaf or V3 change.
