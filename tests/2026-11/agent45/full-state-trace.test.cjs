@@ -24,6 +24,63 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
   assert.ok(json.includes('"$type":"Accessor"'));
 });
 
+
+test('trace snapshot and summaries never invoke array, collection, RegExp or function accessors',()=>{
+  let getterCalls=0;
+  const poison=()=>{getterCalls++;throw new Error('trace must not invoke accessors');};
+  const cards=[{fullName:'Psychic Energy'}];
+  Object.defineProperty(cards,'map',{get:poison});
+  const accessorArray=[];
+  Object.defineProperty(accessorArray,'0',{get:poison,enumerable:true});
+  accessorArray.length=1;
+  const map=new Map([['key','value']]);
+  Object.defineProperty(map,'entries',{get:poison});
+  const set=new Set(['safe value']);
+  Object.defineProperty(set,'values',{get:poison});
+  const regexp=/safe/gi;
+  Object.defineProperty(regexp,'source',{get:poison});
+  Object.defineProperty(regexp,'flags',{get:poison});
+  function tactic() {}
+  Object.defineProperty(tactic,'name',{get:poison});
+  function customConstructor() {}
+  Object.defineProperty(customConstructor,'name',{get:poison});
+  const instance=Object.create({constructor:customConstructor});
+
+  const snapshot=snapshotFullState({cards,accessorArray,map,set,regexp,tactic,instance});
+  assert.equal(getterCalls,0);
+  const json=JSON.stringify(snapshot);
+  assert.match(json,/Psychic Energy/);
+  assert.match(json,/"source":"safe"/);
+  assert.match(json,/"flags":"gi"/);
+  assert.match(json,/"$type":"Accessor"/);
+
+  const hand=[{fullName:'Quick Ball'}];
+  Object.defineProperty(hand,'map',{get:poison});
+  const prizes=[{cards:[]}];
+  Object.defineProperty(prizes,'map',{get:poison});
+  const players=[{id:101,hand:{cards:hand},deck:{cards:[]},discard:{cards:[]},
+    lostzone:{cards:[]},prizes}];
+  Object.defineProperty(players,'map',{get:poison});
+  const choices=['Yes'];
+  Object.defineProperty(choices,'map',{get:poison});
+  const prompts=[{result:undefined,playerId:101,message:'Choose',cards:[],choices}];
+  Object.defineProperty(prompts,'filter',{get:poison});
+  Object.defineProperty(prompts,'map',{get:poison});
+  const summary=summarizeNativeStateForText({players,prompts});
+  assert.equal(getterCalls,0);
+  assert.equal(summary.players[0].hand[0],'Quick Ball');
+  assert.equal(summary.players[0].prizes.length,1);
+  assert.equal(summary.unresolvedPrompts[0].choices[0],'Yes');
+
+  const tactics=[tactic];
+  Object.defineProperty(tactics,'map',{get:poison});
+  const options=[{tactics,promptResolvers:[],scores:{}}];
+  Object.defineProperty(options,'map',{get:poison});
+  const policySummary=summarizePolicyConfiguration(options);
+  assert.equal(getterCalls,0);
+  assert.deepEqual(policySummary[0].tacticOrder,['anonymous']);
+});
+
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
   const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123,policyConfiguration:[{seat:0,tacticOrder:['AttackTactic','PlayBasicTactic'],promptResolverOrder:['ChooseCardsPromptResolver']}]});
   const initial={turn:1,phase:'PLAYER_TURN',activePlayer:0,players:[{id:101,deck:{cards:[{fullName:'Psychic Energy'}]},hand:{cards:[{fullName:'Quick Ball FST 237'}]},discard:{cards:[]},lostzone:{cards:[]},prizes:[{cards:[{fullName:"Boss's Orders PAL 172"}]}],stadium:{cards:[]},supporter:{cards:[]}}],prompts:[{playerId:101,message:'Choose a Pokémon',cards:[{fullName:'Shadow Rider Calyrex V'}],choices:['Active','Bench 1']}],logs:[]};
