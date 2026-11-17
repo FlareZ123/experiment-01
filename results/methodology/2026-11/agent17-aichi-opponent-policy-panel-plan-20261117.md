@@ -92,6 +92,8 @@ Use a shared decision core with **rank-specific, immutable configuration**:
 5. Explicit endgame and prize plan; avoid a policy that can set up but cannot convert its board into a terminal win.
 6. Actor-only observation discipline. A policy must not receive opponent hidden zones, native engine state, or physical RNG/seed as decision inputs.
 
+**Public-seed / information boundary (owner decision):** publish physical shuffle seeds and reproducibility receipts; do not add an owner-held secret-seed or obfuscation mode. Seeds are reproducibility metadata only, never policy inputs. Each worker receives only its own actor-visible observations and public receipts—not opponent hidden zones, native game state, or physical RNG/seed.
+
 A shared archetype module is acceptable only when the exact list-specific differences are data/configuration and the same core passes rank-specific tests. Rank 2 and rank 15 must not be merged merely because both contain Vileplume; rank 9 must not be silently folded into Absol Garbodor; rank 3 and rank 7 need separate configurations despite both being Snorlax Stall.
 
 **Regidrago family detail:** the nine available Regidrago lists share a 20-identity source core, but differ from rank 10 by 9–15 card substitutions in most cases; rank 18 is a larger outlier. Ranks 23 and 28 remain unavailable. A rank-10 prototype therefore cannot be treated as a competent policy for the other Regidrago ranks. See the [Regidrago source-list variance and policy-branch analysis](agent17-regidrago-policy-family-variance-20261117.md).
