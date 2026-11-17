@@ -294,6 +294,7 @@ Do not add the Copycat, Max Geist, and Full Moon Rondo access percentages as if 
 ### Copycat core packages: arithmetic is not the deck decision
 
 The current exact access screen uses one Arven, two natural draws after the opening, six Prizes, and a valid opening with at least one Basic. It assumes every unprized core copy is otherwise accessible, Heavy Ball is playable when seen or found by Arven, and the opponent does not disrupt. It does not execute the search/discard sequence, fund Copycat, establish Fairy Zone, or model attack conversion.
+Important lock condition: Hisuian Heavy Ball is an Item, so Vileplume AOR3/Budew Item-only restrictions prevent playing it from hand. The table's 2.3669% Heavy-Ball-aware capacity cut applies only while Heavy Ball is playable; under active Item lock, the 18.7663% conditional-valid-seven core-Prize exposure is the relevant no-recovery Prize-zone stress bound until the lock clears. By contrast, Stealthy Hood and Float Stone are Pokémon Tools and remain playable through Item-only locks under manual B-02. This is a state-dependent access caveat, not a change to the Prize combinatorics.
 
 | Package (Mimikyu / Dialga / Heavy Ball) | Core recovery feasible by second-turn horizon | Hard Prize-only obstruction | Disposition |
 | --- | ---: | ---: | --- |
