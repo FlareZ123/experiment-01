@@ -454,6 +454,14 @@ test('recomputes sanitization from raw replay and rejects a changed decision row
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
+test('recomputes the original sanitizer projection from the original raw artifact', () => {
+  const originalRaw = rawReplay();
+  originalRaw.nativeGame.decisionTrace[0].actionName = 'DifferentOriginalAction';
+  refreshTraceDigest(originalRaw);
+  assert.throws(() => run(safeArtifact(), rawReplay(), null, originalRaw),
+    { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+});
+
 test('rejects tampered raw action result when the native decision-trace digest is stale', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].actionPayload.fields.result = 0;
