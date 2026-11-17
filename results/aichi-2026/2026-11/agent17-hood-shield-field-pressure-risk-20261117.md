@@ -4,7 +4,7 @@
 
 ## Decision
 
-Hood Shield Shadow Rider v1 has a clear structural risk that should be tested after the existing V3 acceptance / first-trace sequence: its defensive package is Tool-dependent, while its main acceleration is Ability-dependent and its Energy is Basic Psychic. The exact 29 available Aichi lists contain broad Tool removal/suppression and several concentrated Energy-denial packages; 20/29 known lists contain a named Tool-removal/suppression card, establishing a confirmed lower bound of 20/32 full-field opponents (ranks 23/25/28 remain unknown).
+Hood Shield Shadow Rider v1 has a clear structural risk that should be tested after the existing V3 acceptance / first-trace sequence: its defensive package is Tool-dependent, while its main acceleration is Ability-dependent and its Energy is Basic Psychic. The exact 29 available Aichi lists contain broad Tool removal/suppression and several concentrated Energy-denial packages. 20/29 known lists contain a named Tool-removal/suppression card (at least 20/32 full-field opponents); more specifically, **17/29** have Field Blower or Megaton Blower and can remove both Hoods in one play if both are exposed (at least 17/32 full-field opponents). Ranks 23/25/28 remain unknown.
 
 This does **not** establish that Hood Shield loses these matchups. It identifies a coupled failure mode that the candidate's later field challenge suite must test. Do not change the fixed 60, worker policy, seed or current fixture from this source-list analysis.
 
@@ -16,6 +16,8 @@ Source: [printing-aware candidate inventory](../candidate-hood-shadow-rider.json
 - 4 Shadow Rider Calyrex V and 4 Shadow Rider Calyrex VMAX.
 - 2 Stealthy Hood, 1 Field Blower, 1 Arven, 2 VS Seeker.
 - The list's main energy acceleration is the Shadow Rider Underworld Door Ability; the two Hoods are the explicit Tool-protection package.
+
+**Direct two-Hood removal:** Field Blower appears in 9/29 lists and Megaton Blower in 10/29; their union is 17/29 (58.6%), ranks 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Field Blower can discard up to two Tools/Stadiums; Megaton Blower removes all candidate Tools and a Stadium. Faba appears in another 7/29 lists and can Lost Zone one eligible Tool. These are registered list counts, not draw/access probabilities.
 
 ## Field pressure
 
