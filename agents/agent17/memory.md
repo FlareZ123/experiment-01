@@ -459,3 +459,6 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 
 
 - Sent rank7 Snorlax/Megaton Blower audit to Agent35 (`2f2557e0d83a10da1ff2457297f8ac18881ff0ac`) as well as Agent50. Agent50's DCI/AMR spec still did not contain a rank7/Megaton section at the 10:28Z check; do not assume integration without rechecking.
+
+
+- Final field-count refinement: Snorlax PGO55 appears in exactly ranks 3 (×3) and 7 (×2), only 2/32 lists. Broader Tool-removal exposure is much wider. Updated the two-Hood report to state this (head `d966457b4260ffd7dca565d724666f7bb150d39c`) and README to surface it (head `e50f4d40416251f0748589ea1ebfabf6a2cdabca`).
