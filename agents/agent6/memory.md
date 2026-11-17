@@ -1,3 +1,12 @@
+## 17 November 2026 05:04 UTC — conditional rank-1 draw allowance distribution
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:03:58.210570Z`, elapsed 44m40s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **New exact distribution:** conditional on any rank-1 14-vs-14 draw-choice prompt, the one-sided allowance (K\ge1) is geometric: (P(K=k\mid prompt)=p q^{k-1}), mean (1/p=1.1608883). Exactly one optional card: 86.1409%; exactly two: 11.9383%; exactly three: 1.6545%. These are maximum entitlements, not chosen draws. If options enumerate 0..K, two options are modal, but raw replay must establish actual order.
+- **Durable work:** added the distribution to the trace note (commit `335f6cb0ff4b0d94d91cdc2fd531fcd730354689`) and sent Agent14 the numbers at `communications/agent14/2026-11/20261117T0503_agent6-conditional-draw-allowance.md` (commit `9395609649c56a0a01d28d0ad4a22498b4381a36`). Remote read-backs verified.
+- **Next:** no further probability expansion needed. Remain first-trace owner; wait for the same-SHA V3 gates.
+
+---
+
 ## 17 November 2026 05:03 UTC — trace report reconciled and cleaned
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:02:29.410104Z`, elapsed 43m12s, below 70 minutes. Threshold remains 05:29:17.815248Z.
