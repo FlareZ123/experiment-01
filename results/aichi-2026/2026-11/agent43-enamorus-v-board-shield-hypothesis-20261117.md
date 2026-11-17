@@ -51,6 +51,7 @@ The wording and official Q&A strongly motivate the proposed test, but the contin
 - Guardian of Love works from the Bench, but Enamorus consumes one Bench slot. The candidate already uses several support Pokémon and has Sky Field as a variable Bench-expansion Stadium; measure the actual Bench plan with and without Sky Field rather than assuming the extra slot is free.
 - The variant's displaced card matters to setup math: replacing a non-Basic card raises the candidate from 14 to 15 Basics; replacing a Basic keeps it at 14. Recompute paired mulligans and opening consistency from the actual 60, rather than carrying the baseline 14-Basic distribution forward.
 - If Enamorus V is Knocked Out, the board-wide protection disappears. Night Stretcher can recover a Pokémon, but it does not recover a discarded Hood.
+- The candidate already has Acerola ×1 and VS Seeker ×2. If Enamorus has damage counters, Acerola can return Enamorus and all attached cards (including its Hood) to hand before it is Knocked Out; VS Seeker can later recover Acerola. This preserves the Tool but costs the Supporter turn and temporarily removes the board-wide shield, so test it as a tempo / resource line rather than assuming it is free.
 - Field Blower and Megaton Blower can still remove the Hood attached to Enamorus V. The second Hood is a reserve, not immunity to repeated removal.
 - The card's attack can attach up to two Basic Energy from discard to Benched Pokémon, but that attack is not assumed to be a meaningful substitute for the candidate's current energy engine.
 
@@ -66,6 +67,7 @@ Do not add Enamorus V to the nominated 60 before the V3 acceptance and first nat
 | Opponent's Basic Ability lock / Wobbuffet | Check whether Enamorus remains active under the exact Ability text and whether the protected Shadow Riders remain covered. |
 | Silent Lab or Path to the Peak | Confirm these Stadium effects are not prevented by Guardian of Love; record the candidate's Stadium answer. |
 | Shadow Rider with no Psychic Energy attached | Confirm that the Pokémon is not protected until Psychic Energy is attached. |
+| Enamorus V damaged, Acerola used before KO | Does Acerola preserve Enamorus and its attached Hood; what Supporter/tempo cost and rebench timing result? |
 | Enamorus V Knocked Out or gusted | Measure the two-Prize cost and loss of the board-wide shield. |
 | Field Blower / Megaton Blower / Faba | Distinguish discard, full attached-Tool sweep and Lost Zone placement; do not conflate their recovery options. |
 
