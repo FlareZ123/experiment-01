@@ -279,7 +279,7 @@ function runMatchingReplay(replay, actionOrdinal = null) {
 
 test('reconstructs the draw count from the native choice index and accepted hand delta', () => {
   const result = run();
-  assert.equal(result.status, 'reconstructed');
+  assert.equal(result.status, 'trace-confirmed');
   assert.equal(result.replayIdentityVerified, true);
   assert.equal(result.sanitizerRevisionVerified, true);
   assert.equal(result.competitiveEvidence, false);
@@ -308,7 +308,7 @@ test('does not infer a choice index from promptAfter or promptResolution when na
 test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0', () => {
   const replay = rawReplay({ actingSeat: 1, handBefore: 6, choiceIndex: 1, handAfter: 8 });
   const result = runMatchingReplay(replay);
-  assert.equal(result.status, 'reconstructed');
+  assert.equal(result.status, 'trace-confirmed');
   assert.equal(result.targets[0].actingSeat, 1);
   assert.equal(result.targets[0].handCountBefore, 6);
   assert.equal(result.targets[0].handCountAfter, 8);
@@ -341,7 +341,7 @@ test('uses fields.text only when the canonical message field is absent', () => {
   prompt.fields.text = 'WANT_TO_DRAW_CARDS';
   refreshTraceDigest(replay);
   const result = runMatchingReplay(replay);
-  assert.equal(result.status, 'reconstructed');
+  assert.equal(result.status, 'trace-confirmed');
   assert.equal(result.targets[0].promptIdentityField, 'text');
 });
 
@@ -370,7 +370,7 @@ test('requires the resolved prompt to retain the exact target effect identity', 
 test('allows an absent resolved prompt only with native choice index and matching hand delta', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, includeAfter: false });
   const result = runMatchingReplay(replay);
-  assert.equal(result.status, 'reconstructed');
+  assert.equal(result.status, 'trace-confirmed');
   assert.equal(result.targets[0].promptAfterPresent, false);
   assert.equal(result.targets[0].selectedDrawCount, 2);
 });
@@ -384,7 +384,7 @@ test('maps maximum draw from choice index 0 across two, three and four native op
   for (const item of cases) {
     const replay = rawReplay({ choiceIndex: 0, handAfter: 7 + item.drawCount, values: item.values });
     const result = runMatchingReplay(replay);
-    assert.equal(result.status, 'reconstructed');
+    assert.equal(result.status, 'trace-confirmed');
     assert.equal(result.targets[0].choiceIndex, 0);
     assert.equal(result.targets[0].selectedDrawCount, item.drawCount);
     assert.equal(result.targets[0].optionCounts.nativeValues, item.values.length);
@@ -401,7 +401,7 @@ test('maps the zero-draw last index across two, three and four native options', 
     const choiceIndex = values.length - 1;
     const replay = rawReplay({ choiceIndex, handAfter: 7, values });
     const result = runMatchingReplay(replay);
-    assert.equal(result.status, 'reconstructed');
+    assert.equal(result.status, 'trace-confirmed');
     assert.equal(result.targets[0].choiceIndex, choiceIndex);
     assert.equal(result.targets[0].selectedDrawCount, 0);
     assert.equal(result.targets[0].handCountDelta, 0);
