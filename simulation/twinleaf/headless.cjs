@@ -59,7 +59,7 @@ const {installTerminalAttackKoBeforeEndTurnHook} =
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
-const {createFullStateTraceRecorder,formatFullStateTrace} = require('./2026-11/agent45/full-state-trace.cjs');
+const {createFullStateTraceRecorder,formatFullStateTrace,summarizePolicyConfiguration} = require('./2026-11/agent45/full-state-trace.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
@@ -1053,20 +1053,7 @@ function runMatch(request) {
         label:request.label || '',
         seed:request.seed,
         limits:request.fullStateTraceLimits || {},
-        policyConfiguration:optionsBySeat.map((options,seat)=>({
-          seat,
-          tacticOrder:(options.tactics || []).map(tactic =>
-            typeof tactic === 'function' ? (tactic.name || 'anonymous') :
-              (tactic && tactic.name) || (tactic && tactic.constructor && tactic.constructor.name) || typeof tactic),
-          promptResolverOrder:(options.promptResolvers || []).map(resolver =>
-            typeof resolver === 'function' ? (resolver.name || 'anonymous') :
-              (resolver && resolver.name) || (resolver && resolver.constructor && resolver.constructor.name) || typeof resolver),
-          scoreKeys:Object.keys(options.scores || {}).sort(),
-          arbiter:options.arbiter ? {
-            flipMode:options.arbiter.flipMode,
-            shuffleMode:options.arbiter.shuffleMode
-          } : null
-        }))
+        policyConfiguration:summarizePolicyConfiguration(optionsBySeat)
       }) : null;
     let fullStateTraceCaptureError=null;
     function recordFullStateStep(args) {
