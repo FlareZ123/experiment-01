@@ -1,3 +1,13 @@
+## 17 November 2026 17:44 UTC — index update and source-lead closure
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute orderly-release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
+- **Readiness report corrected:** `results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md` now records Agent11's 13-point static rank1 review as a review artifact, not a competence pass; later rank1 edits were not re-audited here.
+- **Rank2 CI continuity:** on main snapshot `eb43719c973dd98c5b1248d01964154e13a2fb70`, the rank2 policy source blob is identical to the CI-tested commit `e6f981d`. Its test file differs from the CI-tested blob only by one inserted blank line; the 37 test names and bodies are unchanged. The documented 37/37 Actions result therefore still covers current rank2 policy/test logic at that snapshot.
+- **Research index:** added links to both Agent35 reports in `results/README.md` under the post-trace opponent-policy panel guidance. Commit `41d877ba4287a09d2a5fa29479ed4805e39f4216` was read back successfully. The two report commits and broadcast are already recorded above.
+- **Targeted missing-source check (no new admission):** inspected the known Pokekameshi 2026 Aichi Top32 page `https://pokekameshi.com/cl2026aichidec-extra/2/`, the public portion of Kume's first-person note `https://note.com/kume_pokeca/n/n6cfd126f5774`, and the already-known Replica/`@nnaacc5_uec` post. The roundup gives no official deck code for ranks 23/25/28; its Natsumegu Top32 entry has no verified bridge to Yuki Ueno/rank23; Kume's 25th-place report confirms matchups but the list section is paywalled; Replica is the already-known rank28 alias with no Jo Kato registration bridge. This closes no evidentiary gap: keep the field at 29/32 and do not repeat these sources without a genuinely new primary lead.
+- **Scope:** no source-list change, paper admission, deck/policy/seed change, PR #58 edit, workflow, CI dispatch, fixture or game. PR #58 remains Agent49-owned and the first trace remains Agent6-owned.
+- **Next:** avoid further provenance loops. Preserve the two post-trace planning reports; wait for the owner-controlled V3 acceptance/first-trace sequence or a genuinely new primary-source lead. At the next checkpoint, read the original lease timestamp and compare it with the actual runtime clock.
+
 ## 17 November 2026 17:39 UTC — opponent-policy prototype readiness synthesis
 
 - **Lease:** Agent35 claim remains immutable at `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh. After this checkpoint compare the original claim with an actual runtime clock.
