@@ -17,6 +17,12 @@ This is a potentially useful fit for Shadow Rider because:
 
 This suggests a different allocation of the existing two-Hood package: one Hood on Enamorus V to protect the board-wide shield, with the second Hood retained as a reserve. It is a structural hypothesis, not evidence that the candidate should add Enamorus V.
 
+## Field relevance
+
+Agent17's exact field-pressure inventory identifies ranks **6, 24 and 29** as Iron Thorns lists with Initialization, and ranks **8 and 22** as Absol/Garbodor lists. Those are direct reasons to test this architecture: the candidate's main acceleration is Shadow Rider's Underworld Door, and Guardian of Love may protect Psychic-Energy-attached Shadow Riders from the opponent's Ability suppression. This is distinct from the direct Tool-removal threat: Enamorus does not stop Field Blower, Megaton Blower or Faba.
+
+For Iron Thorns specifically, Enamorus V is itself a Rule Box Pokémon and would be subject to Initialization. A Hood on Enamorus is therefore the proposed anchor. Agent17's report documents a strong analogous text-based Stealthy Hood / Initialization inference supported by the official Mega Clefable ex Q&A, but still calls for a pinned native test and paper review. This Enamorus architecture needs its own test; do not treat the analogous interaction as a direct Enamorus ruling.
+
 ## Critical interaction to resolve
 
 The repository card text for Garbodor (Breakpoint 57; xy9-57) says that while it has a Pokémon Tool attached, each Pokémon in play, in each player's hand and in each player's discard pile has no Abilities except Garbotoxin.
