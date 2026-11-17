@@ -1,0 +1,53 @@
+# Post-trace field-unblock priority queue
+
+**Agent39 · 17 November 2026 · sequencing supplement to the Agent17 panel plan and Agent2 suite contract**
+
+## Purpose and boundary
+
+The [Agent17 Aichi Top 32 panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md) defines rank coverage and policy-family boundaries. The [Agent2 challenge-suite contract](agent2-policy-challenge-suite-operational-contract-20261117.md) defines what competence evidence must contain. This note supplies the missing execution order: which known engine/policy dependencies unlock the most of the primary field, and which apparent gaps are already closed.
+
+This is a post-trace work queue, not a new worker, branch, fixture, workflow, candidate, policy bundle, seed, or game authorization. It does not widen PR #58. The controlling sequence remains: Agent49 runs the exact-head acceptance gates; after all pass, Agent6 runs and reviews the single unchanged rank-1 natural-terminal diagnostic; only then should the broader work below begin. Resolve a concrete blocker found in that trace first.
+
+## Ordered workstreams after trace review
+
+| Order | Workstream | Exact field reach | Why it is next | Required output |
+|---:|---|---|---|---|
+| 1 | Shared typed `AttachEnergyPrompt` projection/decoder | 13 source implementations across **25/29 available lists** | Broadest known prompt-family coverage gap. The current V3 path is limited to the exact Underworld Door / hand / Psychic / Bench / one-assignment shape. | One shared typed representation preserving source zone and cardList indices, actor/owner visibility, target filters, min/max, cancellation, blocked indices, same/different-target constraints and follow-up effects. Native source-bound cases for every source shape and both physical seats. |
+| 2 | Candidate-side prior-turn attack-history receipt for Copycat/Apex | Candidate line relevant to rank 1 and the Regidrago family; exact opponent coverage remains rank-specific | The current policy's current-Active attack heuristic is not sufficient. The V3 resolver currently passes null prior-turn attack/turn inputs, while an Agent7 tracker-backed helper already exists. | Integrate authenticated prior-turn history into the actor-only observation; use the tracker-certified eligible-choice set; fail closed when history is absent or malformed. Test a qualifying attack by a former Active, a current Active with no qualifying prior attack, GX attack, unknown history and malformed receipt. |
+| 3 | Original Japanese promo compatibility | Five unchanged primary-field lists: **ranks 3, 6, 7, 24 and 29** | The owner-selected primary benchmark retains these lists unchanged. Palace Book and Palace Belt already exist in the pinned engine; Player's Ceremony is the one identified missing class. | A research-owned Player's Ceremony hook with exact original print identity retained separately from any engine mapping; native tests for once-per-player-turn use, draw 2, and turn end. Do not normalize or remove these opponents. |
+| 4 | Electrode / Alolan Raichu prompt and source-fidelity suite | Exact lists **ranks 4, 9 and 17**; rank **25** remains missing | These lists require three materially different prompt families and the pinned source contains two serious Electrode-GX anomalies. | Multi-assignment Extra Energy Bomb (`{to,index}`), unique-source DiscardEnergyPrompt (`{from,index}`), and numeric PutDamagePrompt allocation with 30-damage increments and per-target caps. Native regressions must settle Extra Energy Bomb's zero-transfer branch and Crash and Burn-GX's apparent `30 + 50n²` callback before any matchup uses them. |
+| 5 | Rank-specific policy challenge suites | All available ranks, then the full 32 only after exact lists arrive | Shared code is useful only when bound to the exact source 60 and a rank-specific decision envelope. | Apply Agent2's frozen suite schema and Agent17's rank map. Preserve Regidrago variant branches, separate Snorlax ranks 3/7, keep Iron Thorns rank 24 distinct from 6/29, and retain exact Absol/Raichu list differences. No archetype label substitutes for a 60-card binding. |
+
+The breadth figures above are source-coverage counts, not estimates of win-rate impact or implementation effort. If the first accepted trace identifies a narrower concrete blocker, resolve that blocker before following this queue.
+
+## Explicitly closed or de-scoped work
+
+1. **Do not add EnergyCard `useFromHand` / attached-Energy `useWhenInPlay` enumeration for Capture Energy, Jet Energy or Speed Lightning Energy.** At the pinned Twinleaf revision, their printed effects resolve automatically from the native `AttachEnergyEffect` during hand attachment. The Aichi inventory is 7/29 lists (30 copies), but the action-frontier omission is not established for these cards. Native attachment regressions are appropriate; a new EnergyCard action family is not.
+2. **Do not generalize the Telepath source-origin defect to the Aichi AttachEnergyPrompt family.** The 13 inspected Aichi prompt callbacks use `MOVE_CARDS`; none constructs the specific `AttachEnergyEffect` involved in that reproduction. The available 29 lists contain no Solgaleo-GX / Sol Burst-GX caller. The three missing source lists remain unknown, but no generic Telepath patch is justified by the available Aichi paths.
+3. Do not call the five Japanese-Extra lists Expanded-legal. The primary estimand is an Expanded-legal candidate against unchanged original Japanese Extra opponents; strict Expanded-vs-Expanded remains a separate secondary estimand.
+4. Do not create another runner, validator, CI lane, or parallel acceptance branch. Do not start games, change the candidate 60, tune policies, or change seeds before the current exact-head gates and first-trace review.
+
+## Evidence and admission contract
+
+Each workstream should produce source-bound cases under the existing Agent2 suite contract:
+
+- bind the exact source rank, exact 60-card print identities, pinned Twinleaf revision, research-hook revision, policy/dependency hashes and actor-visible observation;
+- distinguish `source-natural`, `native-staged` and `synthetic` cases; synthetic cases are regression support, never sole evidence for a core plan;
+- record a decision envelope, full cost ledger, prompt shape, actual chosen action, native effect receipt and trace digest;
+- review reachability, legality/cost, strategic adequacy and execution integrity; use `pass`, `blocked` or `fail`, never an implicit pass for missing evidence;
+- cover both physical seats where relevant and preserve unsupported paths as blocked.
+
+The eventual primary field remains **32 ranks × 2 candidate physical seats × 2 actual first-player assignments = 128 strata**. The 29 currently available source lists imply at most 116 source-rank strata; the current 24-rank English Expanded diagnostic subset implies 96. Ranks 23/25/28 are absent, never byes. No full-field aggregate is permitted until all 32 exact lists and independently competent rank-specific policies are admitted. Reuse Agent12's existing statistical contract; do not invent another estimator or confuse the 640-game field-mean floor with the 41,344-game simultaneous per-opponent all-win design.
+
+## Source basis
+
+- [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
+- [Agent2 policy-challenge-suite operational contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
+- [Agent3 Energy attach-trigger and Aichi prompt-source audit](../../aichi-2026/2026-11/agent3-energy-attach-trigger-field-exposure-20261115.md)
+- [Agent6 Copycat prior-turn eligibility and V3 integration gap](../../aichi-2026/2026-11/agent6-copycat-last-turn-eligibility-v3-integration-gap-20261115.md)
+- [Agent43 Japanese-only promo engine feasibility](../../../communications/broadcast/2026-11/20261113T170000Z_agent43-japanese-promo-engine-feasibility.md)
+- [Agent44 Electrode / Alolan Raichu prompt and source audit](../../aichi-2026/2026-11/agent44-ranks4-9-17-electrode-prompt-and-damage-audit-20261115.md)
+- [Agent17 Regidrago policy-family variance](agent17-regidrago-policy-family-variance-20261117.md)
+- [Agent17 multi-list archetype policy-reuse boundaries](agent17-aichi-multilist-policy-variance-20261117.md)
+
+**Evidence classification:** rank coverage, prompt shapes and pinned source findings are repository evidence; the workstream ordering is a prioritization judgment; no implementation, native regression, matchup, win-rate, or 99.5% claim is made by this supplement.
