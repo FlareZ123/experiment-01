@@ -1,3 +1,22 @@
+## 17 November 2026 14:33 UTC — rank-1 BC/VS response route integrated into paired Hood-reserve model
+
+- **Invocation/lease:** actual CSPRNG draw was 6/10, selecting normal research mode. Claimed Agent43 at immutable `2026-11-17T14:27:05.578718270Z`, run `agent43-chat-20261117T142705578Z-normal6-gpt6`; claim commit `f084d0b0d57604d5f99a898fe318b5c3099de6d7`. Do not refresh. The 70-minute release threshold is `2026-11-17T15:37:05.578718270Z`; after every checkpoint, compare the original claim to the actual clock.
+- **New source result:** Agent35's `20261117T141106Z_agent35-rank1-bc-vsseeker-response-access.md` quantifies the omitted Battle Compressor → VS Seeker → Teammates route conditional on candidate going second and taking a first-turn KO. The marginal direct Field Blower / direct Teammates-Raihan baseline rises from 35.668392889% to 38.389926013% when the Teammates-only BC/VS route is added. The BC/VS event overlaps the baseline and is not additive. Agent35's separate energy-payable BC/VS → Raihan marginal union is 38.724342683%; it is not integrated into the joint reserve row.
+- **Integrated exact paired model:** updated `results/aichi-2026/2026-11/agent43-rank1-reserve-hood-recovery-20261117.py` with a full distinguished-card inventory for Field Blower ×1, BC ×1, VS Seeker ×3, Teammates ×1, Raihan ×1, 14 Basics and 39 other cards. The new family is guarded to candidate-goes-second / two opponent draws, matching the first-turn-KO scenario. The paired-mulligan integration uses exact Fraction arithmetic and the same K_MAX=10 residual-tail bound. Independent exact Python reproduction and regression assertions passed:
+  - rank-1 response access: 38.389926013–38.389926045%;
+  - candidate first Hood AND rank-1 response access: 13.273489523–13.273489587%;
+  - both access AND candidate reserve available by turn 2: 4.785654957–4.785655021%;
+  - both access AND no modeled candidate reserve: 8.487834503–8.487834630%;
+  - reserve conditional on both first-Hood and response access: 36.054233710–36.054234362%.
+  The baseline no-reserve joint state was 7.886177%; the expanded union is 8.487835%. This is resource exposure only, not a loss or matchup probability.
+- **Human report:** updated `results/aichi-2026/2026-11/agent43-rank1-reserve-hood-recovery-20261117.md` with the expanded paired-overlap row, event/zone assumptions, Agent35 cross-link, marginal and joint increments, and explicit limits. The report now follows Critic's 13:18 stopline: no new isolated card-access probes, deck/policy/fixture changes, or bypass of the frozen first-trace path. After V3 acceptance and Agent6's single uncapped natural-terminal trace is reviewed, carry this resource route into the frozen paired both-seat policy comparison with per-opponent outcomes and explicit censoring.
+- **Durable commits:** script integration `0540a2e3c16a7f26f612f779b242f3742f813448`; report integration `13d43f0006601f63752a11aa05193497e5cd4783`; conditional guard/regression `7a364696910db49ce4fc28639a68685e959bb19d`; stopline-aligned report update `0788289a00c16fa8b8b050f6f44a0b67c3a3fcca`; handoff to Agent35 `7f4b8ac62927329414e4a08c723c2ba98762f375`.
+- **Coordination:** sent Agent35 the exact paired results and links in `communications/agent35/2026-11/20261117T143313Z_agent43-rank1-bc-vs-teammates-joint-integration.md`. Agent17's earlier corrections to the rank-15 both-Hoods predicate and rank-1 prose are already applied by Agent17; do not reapply them.
+- **V3 ownership boundary:** PR #58 remains Agent49's sole implementation/dispatch responsibility; Agent6 owns the first natural-terminal trace. Follow Critic's `20261117T1318Z_critic-execute-a5c-and-reconcile-mainline.md` stopline. No V3 implementation, fixture dispatch, policy change, or competitive game was performed by Agent43.
+- **Objective status:** no final fixed 60 selected; zero competitively paper-qualified games; no demonstrated 99.5% field win rate. This contribution changes a conditional rank-1 access sensitivity only.
+
+---
+
 ## 17 November 2026 06:45 UTC — orderly release checkpoint
 
 - **Lease measurement:** immutable Agent43 claim `2026-11-17T05:35:20.208055Z`; 70-minute threshold `2026-11-17T06:45:20.208055Z`. Actual clock at checkpoint `2026-11-17T06:45:26.943086Z`, elapsed 70 minutes 6.7 seconds. No lease refresh occurred. This triggers orderly release.
