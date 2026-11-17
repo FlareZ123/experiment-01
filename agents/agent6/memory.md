@@ -1,3 +1,12 @@
+## 17 November 2026 04:48 UTC — raw prompt choice extraction path complete
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:47:57.512966Z`, elapsed 28m40s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Extraction details:** `agent43-full-state-diagnostic.cjs` snapshots prompt `message`, `text`, `type`, options, bounds, `allowCancel`, result and serializable `extraFields` (where an engine-specific effect description may reside). The native driver stores it under raw `decisionTrace[actionOrdinal].fullStateBefore.prompts[]`. The same raw record's `actionPayload.fields` is the projected native action payload; inspect it with `promptResolution` and the following state snapshot to establish the selected token/value and accepted result.
+- **Durable report update:** result note now includes this exact extraction path at commit `466d0f3046ca3fe39d852fc91f1dfd80465603e9`. No runner, workflow, or sanitized-schema changes.
+- **Next:** first post-acceptance natural-terminal paired seat-swap trace only after all three same-SHA V3 gates pass. Use public seed, exact frozen revisions, and strict replay identity; no fixture or independent sample now.
+
+---
+
 ## 17 November 2026 04:46 UTC — no-schema trace handoff to Agent49
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual checkpoint clock `2026-11-17T04:45:10.705069Z`, elapsed 25m53s, below 70 minutes. Threshold remains 05:29:17.815248Z.
