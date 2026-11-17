@@ -18,6 +18,19 @@ This is a resource-allocation heuristic, not a guarantee that the opponent will 
 | Rank 15 Lopunny Vileplume | Stealthy Hood ×2; no Field Blower or Faba |
 | Rank 31 Dusknoir Chimecho | Field Blower ×1 |
 
+## Wider Aichi field exposure
+
+The same tool-removal cards appear beyond the four matchups highlighted above. Exact counts from the published 32 lists:
+
+| Answer | Ranks containing it | Count |
+|---|---|---:|
+| Megaton Blower | 6, 7, 12, 13, 14, 20, 21, 24, 29, 32 | 10 lists |
+| Field Blower | 1, 5, 7, 8, 19, 22, 29, 30, 31 | 9 lists (rank30 has ×3) |
+| Faba | 2, 3, 6, 7, 10, 24, 29 | 7 lists |
+| Tool Jammer | 3, 6, 7, 24, 29 | 5 lists |
+
+Rank29 combines Field Blower + Megaton Blower + Faba + Tool Jammer; rank30 has Field Blower ×3. These are exact deck-list exposure counts, not draw probabilities or matchup win rates. The two-Hood plan therefore needs a field-wide removal policy rather than a one-off answer to rank1/rank31.
+
 Field Blower discards up to two Pokémon Tools and/or Stadiums in play. If both candidate Hoods are attached when the opponent plays it, the opponent can remove both at once. The rank31 report specifically identifies this as the opening for Dusknoir PRE Cursed Blast; the rank1 mirror report identifies the same one-card two-Hood answer.
 
 ## Rank7 multi-layer Tool-removal suite
