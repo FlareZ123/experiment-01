@@ -80,6 +80,19 @@ A shared archetype module is acceptable only when the exact list-specific differ
 
 **Other multi-list family boundaries:** exact source-list distances show that archetype labels alone do not imply one policy: Snorlax ranks 3/7 differ by 34 substitutions; Absol Garbodor distances range 11–28; Raichu ranks 4/17 differ by 21; Iron Thorns ranks 6/29 differ by 5 while rank24 is 14–18 substitutions from them. See the [Aichi multi-list archetype variance report](agent17-aichi-multilist-policy-variance-20261117.md). Reuse shared code only with rank-specific configurations and competence witnesses.
 
+## Strategic decision model for competent policies
+
+A rank policy should model *realistic lines*, not merely card connectivity or whether an action is syntactically legal. The supplied [human-developed concepts](../../../resources/human_concepts.md) are useful hypotheses for this layer, but remain non-authoritative and should be checked against the local rules manual, pinned source, and actual native traces.
+
+- **State-dependent discardability (DCI):** estimate whether each held card should be preserved, discarded, or actively sent to the discard pile under the current matchup, turn, Prize knowledge, and intended line. A card's value changes after a one-use ability is spent, an attack payload becomes accessible, or a key resource becomes Lost-Zone vulnerable. Do not hard-code a card as always disposable or always protected.
+- **Active Move Realism (AMR):** evaluate whether a theoretical line can actually be paid for now. Include Supporter-per-turn contention, discard costs, searcher consumption, Bench occupancy, retreat/attachment requirements, lock timing, and whether a card is in a playable zone. A high-connectivity path is not an available line if its discard or Supporter costs cannot be paid.
+- **State-dependent UDP:** treat important singleton/ACE SPEC/support Pokémon as protected only while the game plan still needs them; once their function is exhausted, their discard value may change.
+- **K0/K1 Prize knowledge:** distinguish decisions made before the first deck search from decisions after the player has searched and can infer the exact Prize composition. The policy must not use hidden Prize information before it has legitimately learned it.
+- **Archetype-Line-Specifics (ALS):** encode the source deck's actual multi-card sequence, not just its unordered card counts. For example, a Tag Call → Guzma & Hala → Special Energy/Tool/TM: Evolution line is a different policy problem from a generic "play Supporters and search" heuristic.
+- **Discrete tactical value:** preserve the value of conditional but decisive effects such as gust, disruption, lock, and prize denial. Do not let a setup-probability, draw-volume, or graph-connectivity proxy delete a card whose value is concentrated in winning states.
+
+These concepts suggest a concrete policy review question: for each important decision, can the policy explain the intended line, its realistic costs, the cards it is willing to spend, and the information it is allowed to use? A high legal-action rate without those properties is not independent opponent competence.
+
 ## Known field-execution dependencies after the current gate
 
 The rank-policy panel cannot be made competent by adding policy code alone. The current decision board records several engine/projection gaps that intersect multiple source ranks. These are **post-acceptance field-readiness dependencies**, not reasons to widen the current PR #58 acceptance gate.
