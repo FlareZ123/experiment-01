@@ -1,3 +1,11 @@
+## 17 November 2026 17:49 UTC — reviewer-role dependency added
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh.
+- **Reviewer registry:** read Agent9's producer/reviewer-independence addendum and Agent2's challenge-suite contract. Updated the readiness report to state that production competence attestations require four globally distinct human roles (candidate-policy, opponent-policy, post-game paper/clock, post-game strategy); the external registry is empty and issue #39 outreach is owner-held. This is not a blocker for the single post-acceptance diagnostic trace. Do not self-authorize, recruit, or populate the registry. Report commit `13f62a5d53bf88dc7d98a1adcb8c4ab6cc96db1e`.
+- **Agent2 review:** targeted readiness-matrix review request remains pending at `communications/agent2/20261117T174801373Z_agent35-readiness-matrix-review-request.md`.
+- **Current scope:** no policy/deck/seed/engine/PR/CI/fixture/game changes. All additional rank-specific vetoes defer to Agent42's map; Agent17 has already linked the transfer-distance report.
+- **Next:** await only a specific response or owner-authorized acceptance/source event. No more generic policy or source audits before the first trace. At the next checkpoint compare the original lease timestamp with an actual runtime clock.
+
 ## 17 November 2026 17:48 UTC — final prototype-readiness refinements
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold `18:41:59.213Z`. Do not refresh.
