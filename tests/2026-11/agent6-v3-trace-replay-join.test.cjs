@@ -213,23 +213,29 @@ function sanitizeFixtureArtifact(raw) {
 const sanitizerIdentity = {
   researchRevisionSha: '4'.repeat(40),
   sanitizerBlobSha: '8'.repeat(40),
-  twinleafCommitSha: '3'.repeat(40)
+  twinleafCommitSha: '3'.repeat(40),
+  canonicalJsonBlobSha: '9'.repeat(40)
 };
 
 const EXPECTED_SANITIZER_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
+const EXPECTED_CANONICAL_JSON_PATH = 'simulation/evaluation/canonical-evidence-json.cjs';
 
 function makeSanitizerRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent6-trace-sanitizer-'));
   const relativePath = EXPECTED_SANITIZER_PATH;
   const sanitizerPath = path.join(root, relativePath);
+  const canonicalJsonPath = path.join(root, EXPECTED_CANONICAL_JSON_PATH);
   fs.mkdirSync(path.dirname(sanitizerPath), { recursive: true });
-  fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\n');
+  fs.mkdirSync(path.dirname(canonicalJsonPath), { recursive: true });
+  fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\\n');
+  fs.writeFileSync(canonicalJsonPath,
+    'module.exports = { evidenceBundleSha256() { return \'0000000000000000000000000000000000000000000000000000000000000000\'; } };\\n');
   fs.writeFileSync(path.join(root, '.gitmodules'),
-    '[submodule "vendor/twinleaf"]\n\tpath = vendor/twinleaf\n\turl = https://github.com/twinleafgg/twinleafgg.git\n');
+    '[submodule "vendor/twinleaf"]\\n\\tpath = vendor/twinleaf\\n\\turl = https://github.com/twinleafgg/twinleafgg.git\\n');
   execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'agent6-test@example.invalid'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Agent6 test'], { cwd: root });
-  execFileSync('git', ['add', '--', '.gitmodules', relativePath], { cwd: root });
+  execFileSync('git', ['add', '--', '.gitmodules', relativePath, EXPECTED_CANONICAL_JSON_PATH], { cwd: root });
   execFileSync('git', ['commit', '-m', 'sanitizer base fixture'], { cwd: root, stdio: 'ignore' });
   const submoduleCommitSha = execFileSync('git', ['rev-parse', 'HEAD'],
     { cwd: root, encoding: 'utf8' }).trim();
@@ -239,8 +245,11 @@ function makeSanitizerRepo() {
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const blob = execFileSync('git', ['rev-parse', 'HEAD:' + relativePath],
     { cwd: root, encoding: 'utf8' }).trim();
+  const canonicalJsonBlobSha = execFileSync('git', ['rev-parse', 'HEAD:' + EXPECTED_CANONICAL_JSON_PATH],
+    { cwd: root, encoding: 'utf8' }).trim();
   return {
-    root, sanitizerPath, relativePath, head, blob, submoduleCommitSha,
+    root, sanitizerPath, canonicalJsonPath, relativePath, head, blob, canonicalJsonBlobSha,
+    submoduleCommitSha,
     cleanup: () => fs.rmSync(root, { recursive: true, force: true })
   };
 }
@@ -268,11 +277,11 @@ function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = nu
     originalRaw,
     replayRaw: replay,
     sanitizeFixtureArtifact,
+    evidenceBundleSha256,
     sanitizerIdentity,
     actionOrdinal
   });
 }
-
 function runMatchingReplay(replay, actionOrdinal = null) {
   return run(sanitizeFixtureArtifact(replay), replay, actionOrdinal, replay);
 }
@@ -590,7 +599,7 @@ test('requires the exact sanitizer function and its revision identity', () => {
     originalSanitized: safeArtifact(), originalRaw: replay, replayRaw: replay,
     sanitizeFixtureArtifact, sanitizerIdentity: {
       researchRevisionSha: 'a'.repeat(40), sanitizerBlobSha: '8'.repeat(40),
-      twinleafCommitSha: '3'.repeat(40)
+      twinleafCommitSha: '3'.repeat(40), canonicalJsonBlobSha: '9'.repeat(40)
     }
   }), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
@@ -603,7 +612,8 @@ test('verifies exact sanitizer path, clean Git blob, research revision and Twinl
     assert.deepEqual(identity, {
       researchRevisionSha: repo.head,
       sanitizerBlobSha: repo.blob,
-      twinleafCommitSha: repo.submoduleCommitSha
+      twinleafCommitSha: repo.submoduleCommitSha,
+      canonicalJsonBlobSha: repo.canonicalJsonBlobSha
     });
   } finally {
     repo.cleanup();
