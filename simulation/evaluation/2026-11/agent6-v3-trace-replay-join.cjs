@@ -95,7 +95,7 @@ function verifyReplayIdentity(original, replay) {
   validateArtifact(original, 'original sanitized artifact');
   validateArtifact(replay, 'replay sanitized artifact');
   const required = [
-    'trial.trialId', 'trial.seed', 'trial.seed32', 'trial.decisionTraceSha256', 'trial.candidateSeat',
+    'trial.trialId', 'trial.seed', 'trial.seed32', 'trial.candidateSeat',
     'trial.originalSourceSeat', 'trial.actualFirstPlayerSeat',
     'candidate.printed60Sha256', 'opponent.printed60Sha256',
     'engine.twinleafCommitSha', 'engine.researchRevisionSha', 'engine.nodeVersion',
@@ -231,6 +231,22 @@ function unresolvedTarget(safeRow, reason, extra = {}) {
     sourceClass: 'deterministic-reconstruction-not-original-run-observation',
     ...extra
   };
+}
+
+function verifyRawDecisionTrace(rawArtifact, label) {
+  const rawGame = rawArtifact?.nativeGame ?? rawArtifact?.fixtureGamePartial ?? {};
+  if (!Array.isArray(rawGame.decisionTrace)) {
+    const error = new Error(label + ' raw artifact has no native decision trace');
+    error.code = 'TRACE_REPLAY_RAW_TRACE_MISSING';
+    throw error;
+  }
+  const computedSha256 = createHash('sha256')
+    .update(stableJson(rawGame.decisionTrace), 'utf8').digest('hex');
+  requireEqual(rawGame.decisionTraceSha256, computedSha256,
+    label + ' native decision trace digest');
+  requireEqual(rawArtifact?.trial?.decisionTraceSha256, computedSha256,
+    label + ' raw trial decision trace digest');
+  return { rawGame, decisionTraceSha256: computedSha256 };
 }
 
 function verifySanitizerCheckout(modulePath, rawArtifact) {
@@ -460,11 +476,11 @@ function analyzeTargetRow(rawGame, safeRow) {
 }
 
 function analyzeTraceReplay({
-  originalSanitized, replayRaw, sanitizeFixtureArtifact, sanitizerIdentity,
-  actionOrdinal = null
+  originalSanitized, originalRaw, replayRaw, sanitizeFixtureArtifact,
+  sanitizerIdentity, actionOrdinal = null
 } = {}) {
-  if (!originalSanitized || !replayRaw) {
-    throw new TypeError('original sanitized artifact and offline raw replay are required');
+  if (!originalSanitized || !originalRaw || !replayRaw) {
+    throw new TypeError('original sanitized artifact, original raw artifact and replay raw artifact are required');
   }
   if (typeof sanitizeFixtureArtifact !== 'function') {
     const error = new Error('the exact-revision sanitizeFixtureArtifact function is required');
@@ -477,38 +493,38 @@ function analyzeTraceReplay({
     throw error;
   }
 
-  requireEqual(replayRaw?.engine?.researchRevisionSha, sanitizerIdentity.researchRevisionSha,
-    'raw research revision vs exact sanitizer checkout');
+  for (const [rawArtifact, label] of [[originalRaw, 'original raw'], [replayRaw, 'replay raw']]) {
+    requireEqual(rawArtifact?.engine?.researchRevisionSha, sanitizerIdentity.researchRevisionSha,
+      label + ' research revision vs exact sanitizer checkout');
+    requireEqual(rawArtifact?.trial?.researchRevisionSha, rawArtifact?.engine?.researchRevisionSha,
+      label + ' trial research revision');
+    requireEqual(rawArtifact?.trial?.vendorCommitSha, rawArtifact?.engine?.twinleafCommitSha,
+      label + ' trial vendor/Twinleaf pin');
+  }
+
+  const sanitizedOriginalFromRaw = sanitizeFixtureArtifact(originalRaw);
   const replaySanitized = sanitizeFixtureArtifact(replayRaw);
-  if (!replaySanitized || typeof replaySanitized !== 'object') {
-    const error = new Error('exact sanitizer did not return a sanitized artifact');
+  if (!sanitizedOriginalFromRaw || typeof sanitizedOriginalFromRaw !== 'object' ||
+      !replaySanitized || typeof replaySanitized !== 'object') {
+    const error = new Error('exact sanitizer did not return both sanitized artifacts');
     error.code = 'TRACE_REPLAY_SANITIZER_OUTPUT_INVALID';
     throw error;
   }
-
+  verifyReplayIdentity(originalSanitized, sanitizedOriginalFromRaw);
   verifyReplayIdentity(originalSanitized, replaySanitized);
-  const rawGame = replayRaw.nativeGame ?? replayRaw.fixtureGamePartial ?? {};
+
+  const originalTrace = verifyRawDecisionTrace(originalRaw, 'original');
+  const replayTrace = verifyRawDecisionTrace(replayRaw, 'replay');
+  requireEqual(originalTrace.decisionTraceSha256, replayTrace.decisionTraceSha256,
+    'original vs replay native decision trace digest');
+
+  const rawGame = replayTrace.rawGame;
   requireEqual(rawGame.seed, replaySanitized.trial.seed, 'native game physical seed');
   requireEqual(rawGame.seed32, replaySanitized.trial.seed32, 'native game seed32');
   requireEqual(rawGame.candidateSeat, replaySanitized.trial.candidateSeat, 'native game candidate seat');
   requireEqual(rawGame.originalSourceSeat, replaySanitized.trial.originalSourceSeat, 'native game source seat');
   requireEqual(rawGame.actualFirstPlayerSeat, replaySanitized.trial.actualFirstPlayerSeat,
     'native game actual first-player seat');
-  if (!Array.isArray(rawGame.decisionTrace)) {
-    const error = new Error('raw replay artifact has no native decision trace');
-    error.code = 'TRACE_REPLAY_RAW_TRACE_MISSING';
-    throw error;
-  }
-  const computedDecisionTraceSha256 = createHash('sha256')
-    .update(stableJson(rawGame.decisionTrace), 'utf8').digest('hex');
-  requireEqual(rawGame.decisionTraceSha256, computedDecisionTraceSha256,
-    'native raw decision trace digest');
-  requireEqual(replayRaw.trial?.decisionTraceSha256, computedDecisionTraceSha256,
-    'raw trial decision trace digest');
-  requireEqual(replaySanitized.trial?.decisionTraceSha256, computedDecisionTraceSha256,
-    'sanitized replay trial decision trace digest');
-  requireEqual(originalSanitized.trial?.decisionTraceSha256, computedDecisionTraceSha256,
-    'original sanitized trial decision trace digest');
 
   let candidates = originalSanitized.game.actorDecisions.filter(row =>
     row?.pendingPromptType === 'SelectPrompt' && row?.promptContext?.promptType === 'SelectPrompt');
@@ -519,10 +535,12 @@ function analyzeTraceReplay({
     if (target) targets.push(target);
   }
   return {
-    schema: 'agent6-v3-trace-replay-join-v2',
+    schema: 'agent6-v3-trace-replay-join-v3',
     status: targets.length === 0 ? 'not-exercised' :
       targets.every(target => target.selectedDrawCount !== null) ? 'reconstructed' : 'choice-unresolved',
     replayIdentityVerified: true,
+    rawTraceIdentityVerified: true,
+    rawDecisionTraceSha256: replayTrace.decisionTraceSha256,
     sanitizerRevisionVerified: true,
     sanitizerIdentity,
     deterministicReconstructionOnly: true,
@@ -538,23 +556,30 @@ function readJson(filename) {
 }
 
 function main(argv = process.argv.slice(2)) {
-  const [originalPath, replayPath, sanitizerModulePath, ordinalText] = argv;
-  if (!originalPath || !replayPath || !sanitizerModulePath || argv.length > 4 ||
-      (ordinalText !== undefined && !/^\d+$/.test(ordinalText))) {
-    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <offline-decrypted-replay.json> <exact-revision-sanitizer-module.cjs> [actionOrdinal]');
+  const [originalSanitizedPath, originalRawPath, replayRawPath, sanitizerModulePath, ordinalText] = argv;
+  if (!originalSanitizedPath || !originalRawPath || !replayRawPath || !sanitizerModulePath ||
+      argv.length > 5 || (ordinalText !== undefined && !/^\\d+$/.test(ordinalText))) {
+    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <original-decrypted-raw.json> <replay-decrypted-raw.json> <exact-revision-sanitizer-module.cjs> [actionOrdinal]');
   }
-  const originalSanitized = readJson(originalPath);
-  const replayRaw = readJson(replayPath);
-  const sanitizerIdentity = verifySanitizerCheckout(sanitizerModulePath, replayRaw);
+  const originalSanitized = readJson(originalSanitizedPath);
+  const originalRaw = readJson(originalRawPath);
+  const replayRaw = readJson(replayRawPath);
+  const originalSanitizerIdentity = verifySanitizerCheckout(sanitizerModulePath, originalRaw);
+  const replaySanitizerIdentity = verifySanitizerCheckout(sanitizerModulePath, replayRaw);
+  requireEqual(originalSanitizerIdentity.researchRevisionSha, replaySanitizerIdentity.researchRevisionSha,
+    'original/replay sanitizer research revision');
+  requireEqual(originalSanitizerIdentity.sanitizerBlobSha, replaySanitizerIdentity.sanitizerBlobSha,
+    'original/replay sanitizer blob');
   const sanitizerModule = require(fs.realpathSync(sanitizerModulePath));
   const result = analyzeTraceReplay({
     originalSanitized,
+    originalRaw,
     replayRaw,
     sanitizeFixtureArtifact: sanitizerModule.sanitizeFixtureArtifact,
-    sanitizerIdentity,
+    sanitizerIdentity: originalSanitizerIdentity,
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  process.stdout.write(JSON.stringify(result, null, 2) + '\\n');
   return result;
 }
 
@@ -566,4 +591,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { analyzeTraceReplay, verifyReplayIdentity, validateWorkerAudit, verifySanitizerCheckout, parseDescendingDrawValues, stableJson };
+module.exports = { analyzeTraceReplay, verifyReplayIdentity, validateWorkerAudit, verifySanitizerCheckout, verifyRawDecisionTrace, parseDescendingDrawValues, stableJson };
