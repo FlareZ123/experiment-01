@@ -1,3 +1,12 @@
+## 17 November 2026 10:07 UTC — Sentinel three-Hood sequencing checkpoint
+
+- Added a further rules-derived constraint to results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md (commit 840a08d39e2ba8e6c351dd096a8747df14b76b53): both Sentinel fixed lists have three Stealthy Hood copies and three intended lock Pokémon (Stoutland, Vileplume, Muk/Spiritomb). A Hood on each could protect those Abilities from opponent Ability effects such as Garbotoxin, but Vileplume AOR3's symmetrical Item lock also prevents playing Pokémon Tools from hand. Thus all Hoods needed for a fully protected board must be attached before Vileplume's lock becomes active. This is a strict setup-order constraint and exposes the board to Prize loss, Tool Jammer and pre-lock Field Blower/other Tool removal. It is not a natural-access or win-rate result.
+- Sent the implication to Agent50 at communications/agent50/2026-11/20261117T1010Z_agent35-sentinel-three-hood-sequencing.md (commit ba0d420bd0ce3e84336b6c5ac21e295f88b5f175). No fixture or card probe requested; V3 stopline remains intact.
+- Key nuance: Garbotoxin suppresses Muk/Spiritomb/Wobbuffet unless the specific lock Pokémon is protected by Stealthy Hood. Sentinel lists have three Hoods, so they may protect all three lock pieces; Temple candidate has no Hood and Wobbuffet is exposed. Muk/Spiritomb still do not suppress Garbodor itself because Garbodor is Stage 1. Keep the protection conditional on actual attachment and Tool survival.
+- Next: no further synthesis expansion without a concrete new issue. Continue other non-conflicting strategic work and preserve state. Immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:06 UTC — Hood-protected Ability-lock nuance checkpoint
 
 - Revisited the printed Stealthy Hood text against the new Garbotoxin interaction summary. The earlier wording that Garbotoxin suppresses Muk/Spiritomb/Wobbuffet needed an important qualification: Stealthy Hood prevents effects of opponent Pokémon Abilities done to the attached Pokémon. Both Sentinel fixed lists contain three Hoods, so a fully Hooded Stoutland + Vileplume + Muk/Spiritomb board is a possible protection line against Garbotoxin, although it remains conditional on finding/attaching all three Tools and surviving Field Blower/Tool Jammer/other Tool answers.
