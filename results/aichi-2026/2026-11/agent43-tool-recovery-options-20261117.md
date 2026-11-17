@@ -24,6 +24,8 @@ The exact candidate [60-card list](../candidate-hood-shadow-rider.json) contains
 
 The candidate therefore has four Pokémon Tools. Field Blower and Megaton Blower send removed Tools to the discard pile; Faba puts one eligible Tool into the Lost Zone. The recovery options below act on the **discard pile**, not the Lost Zone. None of them reverses Faba's Lost Zone placement.
 
+Current-list card-text checks in the repository card pool: Acerola (BUS 112 / sm3-112) returns a damaged Pokémon and all attached cards to hand; Arven (SVI 166 / sv1-166) searches one Item and one Pokémon Tool from the deck; Night Stretcher (ASC 196 / me2pt5-196) returns a Pokémon or Basic Energy from discard to hand; Unfair Stamp (TWM 165 / sv6-165) is the current ACE SPEC; VS Seeker (PHF 109 / xy4-109) returns a Supporter from discard to hand. These effects explain the current-list boundary above.
+
 ## Expanded-legal recovery options
 
 | Card | Set / number | Exact relevant effect | Constraint | Candidate-specific assessment |
