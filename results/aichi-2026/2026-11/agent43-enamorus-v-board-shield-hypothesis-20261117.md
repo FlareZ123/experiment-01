@@ -47,6 +47,7 @@ The wording and official Q&A strongly motivate the proposed test, but the contin
 - Enamorus V itself is excluded. It may need a Stealthy Hood to survive a global Ability lock such as Garbotoxin.
 - Stadium effects such as Silent Lab or Path to the Peak are not Pokémon Abilities and are not stopped by Guardian of Love or Stealthy Hood. Enamorus V itself is vulnerable to those Stadiums: it is both a Basic Pokémon and a Rule Box Pokémon V, so Silent Lab or Path to the Peak can shut off its Ability.
 - Enamorus V is a 210-HP, two-Prize Basic Pokémon V with a two-Energy retreat cost. It adds a gust/KO target and a deck slot; the candidate's existing 2-Prize map must be reassessed.
+- The variant's displaced card matters to setup math: replacing a non-Basic card raises the candidate from 14 to 15 Basics; replacing a Basic keeps it at 14. Recompute paired mulligans and opening consistency from the actual 60, rather than carrying the baseline 14-Basic distribution forward.
 - If Enamorus V is Knocked Out, the board-wide protection disappears. Night Stretcher can recover a Pokémon, but it does not recover a discarded Hood.
 - Field Blower and Megaton Blower can still remove the Hood attached to Enamorus V. The second Hood is a reserve, not immunity to repeated removal.
 - The card's attack can attach up to two Basic Energy from discard to Benched Pokémon, but that attack is not assumed to be a meaningful substitute for the candidate's current energy engine.
