@@ -125,9 +125,9 @@ test('policy configuration summary preserves both-seat tactic and resolver order
   assert.equal(getterCalls,0);
   assert.deepEqual(summary,[
     {seat:0,tacticOrder:['AttackTactic','PlayBasicTactic','EnergyAttachmentTactic','Object'],
-      promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z'],
+      promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z'],scoreValues:{A:2,Z:1},
       arbiter:{flipMode:'random',shuffleMode:'seeded'}},
-    {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],arbiter:null}
+    {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],scoreValues:{},arbiter:null}
   ]);
 });
 
