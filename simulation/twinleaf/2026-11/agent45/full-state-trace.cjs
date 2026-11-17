@@ -127,7 +127,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
     initialState = snapshotFullState(state,stateLimits);
   }
-  function captureStep({state,action,actionOrdinal,playerSlot,turnBefore,turnAfter,
+  function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
     phaseBefore=null,phaseAfter=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
     if (initialState === null) captureInitial(state);
     if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
@@ -138,6 +138,8 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     steps.push({
       actionOrdinal,
       playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
+      playerId:Number.isInteger(playerId)?playerId:null,
+      actionType:typeof actionType==='string'?actionType:null,
       turnBefore:Number.isFinite(turnBefore)?turnBefore:null,
       turnAfter:Number.isFinite(turnAfter)?turnAfter:null,
       phaseBefore:phaseBefore??null,
@@ -195,7 +197,7 @@ function formatFullStateTrace(trace) {
   ];
   for (const step of trace.steps || []) {
     lines.push('',
-      '=== ACTION '+step.actionOrdinal+' | turn '+(step.turnBefore ?? '?')+' -> '+(step.turnAfter ?? '?')+' | phase '+(step.phaseBefore ?? '?')+' -> '+(step.phaseAfter ?? '?')+' | seat '+(step.playerSlot ?? '?')+' ===',
+      '=== ACTION '+step.actionOrdinal+' | actor '+(step.playerId ?? '?')+' / seat '+(step.playerSlot ?? '?')+' | '+(step.actionType || 'unknown action')+' | turn '+(step.turnBefore ?? '?')+' -> '+(step.turnAfter ?? '?')+' | phase '+(step.phaseBefore ?? '?')+' -> '+(step.phaseAfter ?? '?')+' ===',
       'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
       'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
