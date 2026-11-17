@@ -25,9 +25,10 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
   const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123,policyConfiguration:[{seat:0,tacticOrder:['AttackTactic','PlayBasicTactic'],promptResolverOrder:['ChooseCardsPromptResolver']}]});
   const initial={turn:1,players:[{hand:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[]};
-  recorder.captureInitial(initial);
+  const board=[{active:{name:'Shadow Rider Calyrex',printedAttacks:[{name:'Max Geist',cost:['Psychic','Psychic']}]},bench:[],stadium:[]}];
+  recorder.captureInitial(initial,board);
   const after={turn:1,players:[{hand:{cards:[]},discard:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[{message:'Quick Ball played'}]};
-  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,playerId:101,actionType:'PlayCardAction',turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',pendingPrompt:{message:'Choose a Pokémon'}});
+  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,playerId:101,actionType:'PlayCardAction',turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',publicBoard:board,pendingPrompt:{message:'Choose a Pokémon'}});
   recorder.captureFinal(after);
   const trace=recorder.result();
   assert.equal(trace.complete,true);
@@ -36,10 +37,13 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.equal(trace.steps[0].beforeState.kind,'initial');
   assert.match(JSON.stringify(trace.steps[0].afterState),/Quick Ball FST 237/);
   assert.match(JSON.stringify(trace.nativeLogs),/Quick Ball played/);
+  assert.match(JSON.stringify(trace.initialPublicBoard),/Max Geist/);
+  assert.match(JSON.stringify(trace.steps[0].publicBoard),/Max Geist/);
   const text=recorder.text();
   assert.match(text,/TWINLEAF OFFLINE FULL-STATE TRACE/);
   assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
   assert.match(text,/SELECTED ACTION/);
+  assert.match(text,/PUBLIC BOARD AFTER ACTION/);
   assert.match(text,/phase PLAYER_TURN -> PLAYER_TURN/);
   assert.match(text,/actor 101 \/ seat 0 \| PlayCardAction/);
   assert.match(text,/Choose a Pokémon/);
