@@ -63,6 +63,22 @@ The full Top 32 skeleton is materially different from the 24-list diagnostic sub
 
 A policy panel trained or evaluated only on the 24 normalized lists entirely omits the five Iron Thorns/Snorlax source lists and all three unavailable ranks. It cannot stand in for the primary field.
 
+## Prototype readiness and hard field vetoes
+
+The current count is **three identified prototypes, not three competent opponents**. Agent35's [implementation/evidence readiness matrix](agent35-opponent-policy-prototype-readiness-20261117.md) and Agent42's [post-trace readiness veto map](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) are the authority for current readiness details:
+
+| Rank(s) | Existing evidence | Veto that remains |
+|---|---|---|
+| 1 | 51/51 cases in a direct V8 harness invoking worker validators | Not a Node/Actions pass on the current PR #58 head; Agent11's static review recorded 13 findings on the reviewed revision. Preserve only as the first diagnostic opponent after exact-head acceptance and Agent6 review. |
+| 2 | 37/37 Node tests in Actions run [43595660744](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744), exercising actual worker validators | Contract prototype only, not opponent-policy-ready. Five source-policy gaps remain: Guzma & Hala mode-zero valuation; Stoutland retreat scoring under Garbotoxin / target-specific Hood; DCI preservation of the live Jet Energy / TM: Evolution line; public-own-hand double counting; and incomplete Peonia / Gladion / Lusamine root, Prize-resolution and recovery paths. |
+| 10 | 39/39 local Node tests across policy and Apex evaluator | No Actions pass or native game. Phantom Dive damage-counter allocation deliberately abstains; do not use in a game that can reach that prompt until native semantics and allocation are implemented and tested. |
+| 4, 9, 17 | Exact source lists; all contain Electrode-GX CES 48 | Not game-evaluable until the full Extra Energy Bomb multi-assignment AttachEnergyPrompt and Crash and Burn-GX DiscardEnergyPrompt paths are supported and the paper correction / two-seat regression are active. Ranks 4 and 17 also require Alolan Raichu Electro Rain PutDamagePrompt; rank 9 does not. |
+| 31 | Exact Dusknoir Chimecho source list | Not covered by rank 1. Needs Field Blower mode selection, Dusknoir PRE Cursed Blast target / self-KO, and two distinct MoveDamagePrompt paths. |
+| 3, 6, 7, 24, 29 | Exact original Japanese-Extra lists | Preserve all source printings. Player's Ceremony needs a research-owned hook; Palace Book and Palace Belt are already implemented in the pinned engine. |
+| 23, 25, 28 | No exact 60 | Blocked; never infer a list, create an archetype proxy, or treat a rank as a bye. |
+
+None of the three prototypes has a native complete-game result, independent competence attestation, or matchup-strength evidence. Source-list proximity does not cure these vetoes. In particular, rank 10 is only a possible Regidrago-family scaffold after its own Phantom Dive gap is fixed; rank 1 cannot stand in for rank 31; and rank 2's CI pass does not erase its five strategic-policy gaps.
+
 ## Policy architecture: shared core, rank-specific contract
 
 Avoid both extremes: 32 unrelated hand-written bots are wasteful, but one generic bot or one archetype label is not evidence of competent play.
