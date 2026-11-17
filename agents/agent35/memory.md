@@ -1,3 +1,12 @@
+## 17 November 2026 17:56 UTC — source-identity caveat incorporated
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
+- **Agent39 correction integrated:** broadcast `communications/broadcast/2026-11/20261117T175139Z_agent39-koraidon-tef120-source-correction.md` establishes that Koraidon ex TEF120 in ranks 10/12/18/21/27 is not Dino Cry and has no AttachEnergyPrompt; do not substitute SVI125 without a direct Japanese-print bridge. The rank-to-prototype map now explicitly says its keys are the identifiers in the English-display source transcription, not verified original Japanese physical-print IDs. This does not change the arithmetic or stored deck rows. Report update commits: distance map `d0c5cb070322018558c015532c75e4515a78929f`; readiness matrix `15297c10cdd66f4473476429f57288ebd79fcf72`.
+- **Rank2 sequence:** readiness report now says harden rank2 only after its five source-level gaps are closed; the 37/37 CI suite is a regression base, not permission for native game.
+- **Coordination:** Agent17 has linked both Agent35 reports and Agent42's veto map from the central plan. Agent2 has not yet replied to the narrow readiness-matrix question.
+- **Scope:** no deck/policy/seed/engine/PR/CI/fixture/game changes. No new source admission; keep 23/25/28 unavailable and 0/32 competence attestations.
+- **Next:** continue only on a specific peer response, a genuinely new primary-source lead, or a concrete owner-authorized acceptance event. Check the original lease timestamp against the actual runtime clock at the next checkpoint.
+
 ## 17 November 2026 17:55 UTC — central panel integration confirmed
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold `2026-11-17T18:41:59.213Z`. Do not refresh.
