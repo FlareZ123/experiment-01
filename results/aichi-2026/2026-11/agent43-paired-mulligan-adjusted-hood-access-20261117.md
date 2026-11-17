@@ -11,8 +11,10 @@ The adjustment is real but modest. It does not change the resource conclusions.
 | Matchup / resource event | No-bonus baseline | Paired-mulligan-adjusted sensitivity |
 |---|---:|---:|
 | Rank 1: opponent direct Field Blower response, one/two draws | — | **13.009873% / 14.687318%** |
-| Rank 1: potential Forest Seal Stone + Shadow Rider V route, one/two draws | — | **4.980705% / 6.134087%** |
-| Rank 1: combined Field Blower access if Star Alchemy is unspent, one/two draws | — | **17.455698% / 20.059473%** |
+| Rank 1: potential Forest Seal Stone + Shadow Rider V route, one/two draws | — | **4.465937% / 5.499883%** |
+| Rank 1: combined Field Blower access if Star Alchemy is unspent, one/two draws | — | **16.940931% / 19.425268%** |
+| Rank 1: conditional KO — Teammates/Raihan searcher route, second turn | — | **24.630046%** |
+| Rank 1: conditional KO — direct Field Blower or Teammates/Raihan search | — | **35.668393%** |
 | Rank 3: candidate escape, first own turn going second | 13.819413% | **14.369686–14.369691%** |
 | Rank 3: candidate escape, second own turn, no Eri | 15.969682% | **16.532526–16.532532%** |
 | Rank 3: candidate escape, second own turn, Eri natural-access mixture | 15.416851% | **15.932902–15.932908%** |
@@ -54,7 +56,9 @@ By the first response window after Hood is attached:
 - Candidate goes first; rank 1 goes second and has one normal draw plus any bonus cards: direct Field Blower access is **13.009873%**. The potential Forest Seal Stone + Shadow Rider V line is **4.980705%**. Their union is **17.455698%** if Star Alchemy remains unused.
 - Candidate goes second; rank 1 goes first, then has its second turn after Hood is attached and two normal draws plus any bonus cards: direct Field Blower access is **14.687318%**. The potential Forest Seal Stone + Shadow Rider V line is **6.134087%**. Their union is **20.059473%** if Star Alchemy remains unused.
 
-The Forest Seal Stone line requires the Tool and a Shadow Rider V to have been seen, and assumes the opponent still has its VSTAR Power available to search for Field Blower. The model does not include the possibility that Star Alchemy was spent earlier on another card, nor other setup/search lines. Field Blower is assumed retained until Hood appears. A single Field Blower can remove both attached Hoods, but these are access probabilities, not a guarantee that the opponent will choose or successfully make that play.
+The Forest Seal Stone line requires the Tool and a Shadow Rider V to have been seen, Field Blower not to be Prized or already discarded, and the opponent still to have its VSTAR Power available to search for Field Blower. The model does not include the possibility that Star Alchemy was spent earlier on another card, nor other setup/search lines. Field Blower is assumed retained until Hood appears. A single Field Blower can remove both attached Hoods, but these are access probabilities, not a guarantee that the opponent will choose or successfully make that play.
+
+**Conditional first-turn-KO branch:** if the candidate goes second and Knocks Out one of rank 1's Pokémon on its first turn, rank 1's Teammates ×1 and Raihan ×1 become live on its second turn. Conditional on that KO, with the paired bonus draws included, the probability of either Supporter being in hand while Field Blower is not Prized is **24.630046%**; the union of direct Field Blower in hand or either Supporter search route is **35.668393%**. This excludes the Forest Seal Stone route. It assumes Field Blower remains in hand/deck (not discarded by Battle Compressor) and the Supporter can be chosen on the response turn. Thus a first-turn KO can accelerate the prize race but also unlock a second-turn Field Blower search; whether to take it is a board/policy decision, not a fixed rule.
 
 ### Rank 3 — Snorlax / Eri
 
@@ -84,7 +88,7 @@ The rules distinction is unchanged: AOR3's Item-only lock does not prevent attac
 - Bonus cards are drawn after the six Prizes. The beneficiary draws the maximum optional allowance; the script does not model choosing fewer cards for broader strategic reasons.
 - Each player's final valid opening composition is treated as independent of the number of one-sided mulligans. Deck shuffles are independent.
 - Candidate-side access events use only natural draws plus the named Arven/Tool package; they omit Forest Seal Stone, Tapu Lele-GX, search Items, draw Supporters and other access.
-- Rank-1 Field Blower access assumes the opponent retains it until Hood appears. The Forest Seal Stone route assumes Star Alchemy remains unused and a Shadow Rider V has been seen; earlier VSTAR use and other search lines are excluded.\n- Rank-3 Eri access is weighted by its first-turn availability after the opponent's paired-mulligan bonus draws; the candidate/opponent bonus branches are modeled jointly. Eri is assumed played whenever drawn; later recovery is excluded.
+- Rank-1 conditional Teammates/Raihan access requires a candidate first-turn KO and assumes Field Blower remains in hand/deck rather than being discarded by Battle Compressor. The Forest Seal Stone route assumes Star Alchemy remains unused and a Shadow Rider V has been seen.\n- Rank-1 Field Blower access assumes the opponent retains it until Hood appears. The Forest Seal Stone route assumes Star Alchemy remains unused and a Shadow Rider V has been seen; earlier VSTAR use and other search lines are excluded.\n- Rank-3 Eri access is weighted by its first-turn availability after the opponent's paired-mulligan bonus draws; the candidate/opponent bonus branches are modeled jointly. Eri is assumed played whenever drawn; later recovery is excluded.
 - Rank-7 response access assumes the opponent retains a named remover until Hood is attached; it does not model whether that remover is spent earlier or successfully prevents escape.
 - Rank-15 one-/two-Hood events do not model Vileplume's exact setup timing, Mimikyu access, or attack sequencing.
 - The script truncates the optional-draw count at 10 and returns a rigorous interval by assigning the entire residual probability mass to the upper endpoint. The largest omitted tail is below (5.86\times10^{-8}).
