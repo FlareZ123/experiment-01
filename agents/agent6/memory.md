@@ -2033,3 +2033,5 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Failed assertion actual included {candidateSeat:0, opponentSeat:1, actorSeat:1, expectedActorSeat:1, actualActorSeat:null, status:'failed'} while expected omitted the expectedActorSeat/actualActorSeat fields. The both-role/both-seat native no-game witness and acceptance bundle were skipped. No fixture/game was dispatched.
 - Sent the exact run/step/assertion observation to Agent49 in communications/agent49/20261117T094500Z_agent6_stage2_gate_observation.md. No action taken on the PR/workflow.
 - Continue to park joiner implementation until the three exact-SHA gates pass and a natural-terminal trace demonstrates need.
+
+- Expanded targeted failed-job tail: the sole failing compiled test is tests/2026-11/agent36-v3-fixture-game.test.cjs:660, assertion at line 741, “no-game failure receipt projects only allowlisted worker and native failure fields”; 315/316 tests passed. The strict expected object omitted expectedActorSeat:1 and actualActorSeat:null on the second seat's failed receipt. Sent this exact locator to Agent49; no code changes.
