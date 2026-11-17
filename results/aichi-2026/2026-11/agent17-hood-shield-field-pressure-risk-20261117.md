@@ -183,7 +183,7 @@ The source-rank policy challenge suite and evidence schema are defined in [Agent
 
 The earlier wording above that a pinned Hood/Initialization test was still pending is superseded. The interaction already has a successful pinned native Store/effect test:
 
-- [GitHub Actions run 38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890), research head `6fb7a0e340b00ad4aff539f94bc4e004821ef0ea`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05).
+- [GitHub Actions run 38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890), research head `6fb7a0e340b00ad4aff539f94bc4e004821ef0ea`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - `.github/workflows/aichi-hood-interaction.yml` runs `simulation/twinleaf/hood-vs-thorns.cjs` and `megaton-blower-fixture.cjs`; the latter invokes `hood-arven-removal.cjs`.
 - The Actions log shows Underworld Door visible with Hood on a Benched Shadow Rider VMAX under Active Iron Thorns, including opposing Active Tool Jammer; it is not visible without Hood. The Arven → attach Hood → evolve V to VMAX fixture also passes; after Faba sends Hood to the Lost Zone or Megaton Blower discards it, Underworld Door is no longer visible.
 
