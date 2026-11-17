@@ -77,6 +77,246 @@
       "29": 1,
       "30": 4,
       "32": 3
+    },
+    "source_ids_by_rank": {
+      "1": [
+        "underworld-door",
+        "raihan"
+      ],
+      "2": [
+        "underworld-door"
+      ],
+      "4": [
+        "electrode-extra-energy-bomb",
+        "squawkabilly-motivate"
+      ],
+      "5": [
+        "mew-v-energy-mix"
+      ],
+      "6": [
+        "iron-thorns-active-energy-transfer"
+      ],
+      "8": [
+        "dark-patch",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "9": [
+        "electrode-extra-energy-bomb",
+        "squawkabilly-motivate"
+      ],
+      "10": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "koraidon-dino-cry",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "11": [
+        "dark-patch",
+        "squawkabilly-motivate"
+      ],
+      "12": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "koraidon-dino-cry",
+        "crispin"
+      ],
+      "13": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "14": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "16": [
+        "dark-patch",
+        "squawkabilly-motivate"
+      ],
+      "17": [
+        "electrode-extra-energy-bomb",
+        "squawkabilly-motivate"
+      ],
+      "18": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "koraidon-dino-cry",
+        "squawkabilly-motivate"
+      ],
+      "19": [
+        "adp-ultimate-ray",
+        "raihan",
+        "sandy-shocks-magnetic-absorption",
+        "squawkabilly-motivate"
+      ],
+      "20": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "21": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "koraidon-dino-cry",
+        "squawkabilly-motivate",
+        "crispin"
+      ],
+      "22": [
+        "dark-patch",
+        "squawkabilly-motivate"
+      ],
+      "24": [
+        "iron-thorns-active-energy-transfer"
+      ],
+      "26": [
+        "squawkabilly-motivate"
+      ],
+      "27": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "koraidon-dino-cry",
+        "crispin"
+      ],
+      "29": [
+        "iron-thorns-active-energy-transfer"
+      ],
+      "30": [
+        "wondrous-patch",
+        "raihan",
+        "squawkabilly-motivate",
+        "empoleon-v-active-energy-transfer"
+      ],
+      "32": [
+        "regidrago-celestial-roar",
+        "raihan",
+        "crispin"
+      ]
+    },
+    "shape_ids_by_rank": {
+      "1": [
+        "hand-basic-psychic-to-benched-psychic-exactly-one",
+        "discard-basic-energy-to-active-or-bench-exactly-one"
+      ],
+      "2": [
+        "hand-basic-psychic-to-benched-psychic-exactly-one"
+      ],
+      "4": [
+        "discard-any-energy-to-active-or-bench-excluding-ex-gx-zero-to-five",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "5": [
+        "deck-any-energy-to-active-or-bench-fusion-strike-zero-to-one"
+      ],
+      "6": [
+        "active-attached-energy-to-bench-exactly-one"
+      ],
+      "8": [
+        "discard-basic-darkness-to-benched-darkness-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "9": [
+        "discard-any-energy-to-active-or-bench-excluding-ex-gx-zero-to-five",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "10": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "11": [
+        "discard-basic-darkness-to-benched-darkness-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "12": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "13": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "14": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "16": [
+        "discard-basic-darkness-to-benched-darkness-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "17": [
+        "discard-any-energy-to-active-or-bench-excluding-ex-gx-zero-to-five",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "18": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "19": [
+        "deck-basic-energy-to-active-or-bench-zero-to-three",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-active-or-bench-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "20": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "21": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "22": [
+        "discard-basic-darkness-to-benched-darkness-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "24": [
+        "active-attached-energy-to-bench-exactly-one"
+      ],
+      "26": [
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
+      ],
+      "27": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ],
+      "29": [
+        "active-attached-energy-to-bench-exactly-one"
+      ],
+      "30": [
+        "discard-basic-psychic-to-benched-psychic-exactly-one",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+        "active-attached-energy-to-bench-exactly-one"
+      ],
+      "32": [
+        "temporary-top-three-basic-energy-to-active-dynamic-count",
+        "discard-basic-energy-to-active-or-bench-exactly-one",
+        "temporary-two-card-list-basic-energy-one-attachment-different-targets"
+      ]
     }
   },
   "protocol_gap": {
