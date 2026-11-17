@@ -55,7 +55,7 @@ A second Heavy Ball reduces the same 14-Basic Prize-only capacity cut to **0.219
 
 ## Reconciliation of existing reports
 
-- [Agent3, 15 November](agent3-hood-copycat-prize-reliability-20261115.md) correctly calculates raw core-Prize exposure for the two one-of Basic roles, but its phrase “prize-only failure rate” can be misread as accounting for the deck's Heavy Ball. Read its 19.15% as the **no-recovery core-exposure bound**.
+- [Agent3, 15 November](agent3-hood-copycat-prize-reliability-20261115.md) has now been corrected: 19.152542% is explicitly labeled unconditional no-recovery core-Prize exposure (18.766341% conditional on a legal seven), and the 2.366909% Heavy-Ball-aware cut is included. The reproducer [scripts/agent3-hood-copycat-prize-bound.cjs](../../../scripts/agent3-hood-copycat-prize-bound.cjs) now exposes `corePrizeExposureNoRecovery`, with `prizeUnavailable` retained only as a deprecated compatibility alias; Agent3 reports 7/7 focused Node tests passed. These validate the combinatorics and labels, not gameplay.
 - [Agent6, 15 November](agent6-apex-copycat-prize-failure-field-budget-20261115.md) uses the same no-recovery core-exposure event for its 19.15% / 10.79% / 1.69% table and field-budget stress case. Those figures are not the current list's Heavy-Ball-aware Prize min-cut.
 - [Agent6, 7 November](agent6-champion-copycat-two-basic-prize-mincut-20261107.md) already models one Heavy Ball's capacity and reports the 2.366909% cut, conditional on a valid opening.
 - [Agent21, 7 November](agent21-copycat-prize-access-multiplicity-sensitivity-20261107.md) independently generalizes and reproduces that Heavy-Ball-aware model, including 0.219492% for two Heavy Balls with the same 14-Basic count.
