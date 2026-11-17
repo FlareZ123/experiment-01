@@ -1,0 +1,80 @@
+# Aichi field lock-architecture synthesis: coverage is conditional, asymmetric, and self-interfering
+
+**Agent 35 · 17 November 2026 · decision synthesis, not a new card probe, deck variant, fixture, or matchup result.**
+
+## Executive decision
+
+The Aichi field is not one generic “Ability-lock” or “control” matchup. Its published lists expose several distinct control axes—Ability suppression, Item denial, Supporter denial, Special-Energy/Stadium effects, and positional/Bench constraints. Existing candidate architectures answer different subsets, and their answers are conditional on the exact source, zone, Active position, Tool attachment, turn window, and whether the candidate has already established its own board.
+
+**No existing lock-oriented candidate is supported for promotion to the single fixed 60.** Keep the current decision-board status: Hood Shield Shadow Rider v1 is the leading active challenger hypothesis, not selected or proven best; Temple, New Moon, Iron Thorns and Sentinel branches remain distinct unqualified research positions. Do not merge their packages or make a slot change before the canonical V3 acceptance/first-trace stopline clears.
+
+The most important structural distinction is between the two rank-2-derived Sentinel branches:
+
+- **Alolan Muk** can suppress the Ability of every Basic Pokémon, including a Basic Pokémon ex such as Iron Thorns ex. That gives it a broader theoretical lock surface than Spiritomb, but it also suppresses the deck's own Basic support Abilities, including Relicanth's Memory Dive. The first native cohort showed poor practical access: Muk was on the Bench in only 2/6 candidate attempts; the original rank-2 list produced three native terminals, while the Muk list produced none (all six Muk attempts were capped). These are tiny, censored engineering observations, not win-rate estimates.
+- **Spiritomb PAL 89** suppresses only Basic Pokémon V Abilities. It preserves Relicanth and other non-V Basic Abilities, but it does **not** suppress Iron Thorns ex (a Basic Pokémon ex, not a Pokémon V). Its matched 12-attempt cohort produced two candidate native terminals versus three for the original list, with four candidate attempts capped; Spiritomb was on the Bench in 3/6. Again, no competitive ordering is established.
+
+These are not interchangeable one-card techs: they represent a real breadth-versus-self-interference trade-off. Preserve both as separate hypotheses; do not infer that the narrower Spiritomb lock solves the Iron Thorns field.
+
+## 1. What the full Aichi field asks a candidate to answer
+
+The primary contract is the owner's custom cross-format challenge: one international Expanded-legal candidate against the **unchanged original Japanese Extra lists**. The 29/32 source transcription is not a complete Top 32; ranks 23, 25 and 28 remain unavailable. Five unchanged lists (ranks 3, 6, 7, 24 and 29) are not international-Expanded-legal but remain in the primary field by owner decision. The strict Expanded-vs-Expanded 24-list diagnostic set is a separate estimand, not a replacement denominator.
+
+The full 32-rank archetype skeleton is:
+
+| Field family | Source ranks | Count |
+|---|---|---:|
+| Regidrago | 10, 12, 13, 14, 18, 20, 21, 23, 27, 28, 32 | 11 |
+| Absol Garbodor | 8, 11, 16, 22 | 4 |
+| Raichu Electrode | 4, 17, 25 | 3 |
+| Iron Thorns | 6, 24, 29 | 3 |
+| Snorlax Stall | 3, 7 | 2 |
+| Singleton strategies | Other authenticated ranks | 9 |
+
+This composition is important for control design: a candidate must not solve only the four Absol Garbodor lists or only the three Iron Thorns lists and then infer broad field strength. Regidrago is the largest group, but the five Iron Thorns/Snorlax lists are absent from the 24-rank international-Expanded diagnostic subset, and the three missing lists are not reconstructed by archetype inference. See [Agent39's field-composition synthesis](agent39-24-rank-diagnostic-field-composition-20261113.md).
+
+## 2. Distinct lock and modifier axes in the source field
+
+| Axis | Source-grounded examples | Why a single generic lock flag is wrong |
+|---|---|---|
+| Active Rule-Box Ability suppression | Iron Thorns ex Initialization in ranks 6, 24 and 29 | Requires Iron Thorns to be Active; the printed exception for Future Pokémon matters. It is not equivalent to global Ability removal. |
+| Tool-conditioned global Ability suppression | Garbodor Garbotoxin in ranks 8, 11, 16 and 22 | Requires the Garbodor Tool condition. Tool removal can turn it off; the exact target and attached Tool matter. |
+| Basic-Pokémon Ability suppression | Silent Lab in ranks 9, 13, 15 and 32 | Depends on a live Stadium and affects Basic Pokémon, not every Pokémon. |
+| Item denial | Budew's Itchy Pollen appears in 14 of the 24 identity-screened lists; Vileplume AOR 3 appears in the Vileplume-control lists | Budew is an attack-origin temporary restriction; Vileplume AOR 3 is a persistent Ability and prevents both players from playing Items. Different counterplay and timing. |
+| Supporter denial | Stoutland BCR 122 in the Vileplume-control source | Only applies while Stoutland is Active. A deck can lose its Supporter turn if it has to move Stoutland to attack. |
+| Basic attack restriction | Vileplume BUS 6 in rank 15 | Only applies while that Vileplume is Active and only to the opponent's Basic Pokémon. It blocks Mimikyu Copycat but does not generically block Shadow Rider VMAX Max Geist. |
+| Special-Energy and Stadium effects | Temple of Sinnoh in ranks 3, 8, 11, 16 and 22; Sky Field, Dimension Valley, Silent Lab and Parallel City elsewhere | Current Stadium, orientation, actual Bench arrays and Special-Energy effects matter. Wondrous Labyrinth in ranks 6, 24 and 29 is Japanese Extra-only and must remain in the unchanged cross-format opponent lists. |
+| Tool removal | At least one named hard Tool answer appears in 20/29 published source lists | Tool-based defensive packages are answerable; presence of a Tool-removal card in a list is not proof it was drawn or used. |
+
+The coverage facts above are static source-list audits, not observations that a lock was established in a game. See [Agent46's Ability attack-restriction audit](agent46-aichi-attack-lock-coverage-20261114.md), [Stadium coverage audit](agent46-aichi-stadium-field-coverage-20261114.md), and [Weakness-modifier audit](agent46-aichi-weakness-modifier-field-coverage-20261114.md), plus the [Hood Tool-removal response census](../candidate-hood-shadow-rider.md).
+
+## 3. Candidate architecture comparison
+
+| Fixed candidate / family | Intended answer package | Important residual or self-interference | Evidence boundary |
+|---|---|---|---|
+| **Hood Shield Shadow Rider v1** | Two Stealthy Hood plus Arven for Tool-based protection of Shadow Rider VMAX Abilities; Field Blower and Pokémon Ranger provide narrow removal/attack-effect responses. | Hood competes for Tool slots and can be removed; at least one hard Tool answer occurs in 20/29 published lists. Arven consumes the Supporter and must have both a useful Item and Tool target. Ranger can answer attack-origin effects such as Budew, not persistent Vileplume Ability lock. Rank 1's Field Blower is a direct two-Hood counterline. | Best current challenger hypothesis only. The restricted opening enumerator and staged interactions are not matchups or win rates. |
+| **Temple Shadow Rider v1** | Two Temple of Sinnoh contest Double Dragon Energy and other Special Energy; Active Wobbuffet suppresses non-Psychic Abilities, including the Active Iron Thorns lock while Wobbuffet's Ability is live. | Wobbuffet occupies the Active Spot and suppresses the candidate's own non-Psychic Radiant Eternatus Ability while Active. Its escape/retreat line is conditional. Cutting the fourth VMAX reduces the restricted two-VMAX-in-deck Radiant access result from 50.65944% to 46.38691%. | Rules-derived and exact-resource results only; no competent full-game matchup evidence. |
+| **New Moon Lockbreaker v1** | Two Field Blower answer Tool-conditioned Garbotoxin; two Canceling Cologne suppress an opposing Active Ability for the turn, including Active Iron Thorns. | Cologne does not remove a Benched Garbotoxin; Blower does not suppress Active Iron Thorns. Both are Items and can be stranded by Budew or Vileplume Item denial. Direct access to at least one of the four new counters by the eighth observed card is 43.4453%, before legality, target, timing or actual play. | Staged Store lock-removal interactions pass; direct-access mathematics is not practical use or game performance. |
+| **Sentinel Lopunny Vileplume v1** | Active Stoutland locks Supporters; Benched Vileplume locks Items; Mega Lopunny supplies a separate attack axis. Stealthy Hood protects the lock Pokémon against some Ability suppression. | Lock setup consumes multiple evolutions and Bench slots. Item lock is symmetrical. The attack pivot competes with Stoutland's Active-only Supporter lock. The singleton Herdier/Stoutland chain has a 19.15% raw Prize exposure event before recovery; the restricted opening and chain model is not a game rate. | Fixed-list hypothesis and printed-line analysis; no games with this candidate. |
+| **Sentinel–Alchemy / Alolan Muk** | Stoutland + Vileplume + Alolan Muk layers Supporter, Item and Basic-Pokémon Ability denial. Muk's broad Basic lock can suppress Iron Thorns ex Initialization. | Muk also suppresses the candidate's own Basic Abilities, including Relicanth Memory Dive; an additional Grimer/Muk evolution line worsens Bench and access pressure. | Native 12-attempt cohort: original rank-2 list 3 terminals/3 capped; Muk candidate 0 terminals/6 capped; Muk on Bench 2/6. All are censored development observations, not competitive outcomes. |
+| **Sentinel–Spiritomb** | Stoutland + Vileplume + Spiritomb suppresses Supporters, Items and Basic Pokémon V Abilities while preserving Relicanth Memory Dive. | Spiritomb does not suppress Iron Thorns ex because that is a Basic Pokémon ex, not a Pokémon V. It consumes a Bench slot and is a singleton. | Native 12-attempt cohort: original rank-2 list 3 terminals/3 capped; Spiritomb candidate 2 terminals/4 capped; Spiritomb on Bench 3/6. No supported candidate ordering. |
+| **Iron Thorns ex / Psychic Reserve v3** | Uses its own Active Initialization as a broad Rule-Box Ability suppression engine while attacking with Iron Thorns and retaining a Mimikyu line. | Initialization is Active-dependent and has a Future-Pokémon exception; the list's own Mimikyu and any non-Future Rule-Box engines must be evaluated under the same lock. It is not a universal answer to Item/Supporter locks or non-Ability attacks. | Developmental fixed 60; zero independently qualified paper games. |
+
+Candidate-specific source reports: [Hood Shield](candidate-hood-shadow-rider.md), [Temple Shadow Rider](candidate-temple-shadow-rider.md), [New Moon Lockbreaker](../als/new-moon-lockbreak-60-candidate.md), [Sentinel Lopunny Vileplume](candidate-sentinel-lopunny-vileplume-v1.md), [Sentinel–Alchemy](../methodology/2026-11/agent50-sentinel-alchemy-triplelock-candidate-20261110.md), [Sentinel–Spiritomb](../methodology/2026-11/agent50-sentinel-spiritomb-basicv-lock-candidate-20261110.md), and [Iron Thorns Psychic Reserve](candidate-iron-thorns-psychic-reserve-v3.md).
+
+## 4. What the evidence supports—and what it does not
+
+1. **Lock presence is not lock access.** A source list containing Garbodor, Iron Thorns or Vileplume does not show that the relevant card was drawn, evolved, placed Active, equipped, or kept in play.
+2. **A counter in the deck is not a counter in hand.** Field Blower, Cologne, Ranger and Hood each have different target, timing and lock restrictions. A decklist-level answer does not prove an executable line.
+3. **A locally valid lock can disable the candidate's own plan.** Wobbuffet, Alolan Muk, Stoutland, Vileplume and Stadium effects all have positional or symmetrical costs. A policy must score the entire continuation, not reward the lock board in isolation.
+4. **Tool protection is not durable by default.** The source-list Tool-removal census is broad enough that a two-Hood package cannot be treated as a permanent shield. Conversely, a source-list Tool answer is not an automatic counter unless it can be accessed and played through the current Item/Supporter/Ability constraints.
+5. **No native terminal here is a competitive win.** The Sentinel cohorts have tiny samples and many capped episodes. Hood/Temple/New Moon tests are staged or restricted. None can rank the fixed candidates or support the 99.5% claim.
+6. **Do not optimize the 24-list diagnostic subset as if it were the full field.** It omits the three missing ranks and the five unchanged Japanese Extra lists; the primary cross-format challenge retains those five lists unchanged.
+
+## 5. Decision and next discriminating work
+
+- Keep the canonical V3 acceptance and first-trace stopline intact. No new fixture, policy, workflow or deck change is authorized by this synthesis.
+- Preserve Hood v1 as the current leading challenger hypothesis, but do not call it the best deck. Preserve Temple, New Moon, Sentinel–Alchemy, Sentinel–Spiritomb and Iron Thorns as distinct, unqualified candidates.
+- After the accepted first trace, compare complete candidate architectures only with frozen 60s, frozen and independently competent opponent policies, both physical seats, both first-player assignments, and explicit source-dealt opponent replies. A useful first hard-family panel should include **Iron Thorns**, **Tool-Garbodor**, and **Item/Supporter-lock** exposure, plus a **Regidrago** line; then expand to all 32 ranks without substituting the 24-list diagnostic field.
+- For every claimed counterline, record: exact source printing; actual active/bench/Tool/Stadium state; legal hand action; payment/discard identities; effect resolution; candidate attack or setup continuation; opponent's next best reply; Prize and terminal consequences. Report no-opportunity, unavailable-source and capped cases separately.
+
+This synthesis adds no game-specific result and makes no card-strength or matchup claim. Its decision is methodological and strategic: **evaluate lock packages as conditional, bilateral resource systems—not as additive checkboxes—and do not promote a control architecture until it can establish its lock, preserve its own winning line, and survive the opponent's printed reply across the full field.**
