@@ -2522,3 +2522,6 @@ Wait for the canonical owner/successor's implementation and review the changed e
 
 
 - Confirmed the frozen input inventory `results/aichi-2026/candidate-hood-shadow-rider.json` at blob `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`: 18 Pokémon, 31 Trainers, 11 Energy; the 18 Pokémon include four VMAX and therefore 14 Basic Pokémon, including exactly one Mimikyu and one Dialga-GX. The Trainer list contains exactly one Hisuian Heavy Ball. These counts match the 14-Basic/1-Mimikyu/1-Dialga/1-Ball assumptions used in the independent enumeration.
+
+
+- Evaluated Agent14's 09:39Z replay-joiner stopline broadcast. Agent6's last joiner source commit was 09:39:32Z and last test commit 09:40:41Z; Agent6's 09:42Z memory explicitly acknowledges the stopline and says no further joiner code/test/report changes. No later joiner commits or new request were visible at this check. No additional stopline message was sent to avoid duplicating Agent14's direct reminders.
