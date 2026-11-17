@@ -2,6 +2,19 @@
 
 const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
 const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
+const MAP_ENTRIES = Map.prototype.entries;
+const SET_VALUES = Set.prototype.values;
+const REGEXP_SOURCE_GETTER = Object.getOwnPropertyDescriptor(RegExp.prototype,'source')?.get;
+const REGEXP_FLAG_GETTERS = [
+  {flag:'d',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'hasIndices')?.get},
+  {flag:'g',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'global')?.get},
+  {flag:'i',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'ignoreCase')?.get},
+  {flag:'m',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'multiline')?.get},
+  {flag:'s',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'dotAll')?.get},
+  {flag:'u',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'unicode')?.get},
+  {flag:'v',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'unicodeSets')?.get},
+  {flag:'y',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'sticky')?.get}
+];
 
 function safeDataProperty(value,key) {
   let current=value;
@@ -12,6 +25,43 @@ function safeDataProperty(value,key) {
     current=Object.getPrototypeOf(current);
   }
   return undefined;
+}
+
+function safeFunctionName(value) {
+  if(typeof value!=='function') return null;
+  const descriptor=Object.getOwnPropertyDescriptor(value,'name');
+  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') &&
+    typeof descriptor.value==='string' ? descriptor.value : null;
+}
+
+function safeArrayMap(value,mapper) {
+  if(!Array.isArray(value)) return [];
+  const lengthDescriptor=Object.getOwnPropertyDescriptor(value,'length');
+  const length=lengthDescriptor && Number.isSafeInteger(lengthDescriptor.value) &&
+    lengthDescriptor.value>=0 ? lengthDescriptor.value : 0;
+  const result=[];
+  for(let index=0;index<length;index++) {
+    const descriptor=Object.getOwnPropertyDescriptor(value,String(index));
+    const item=descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
+      descriptor.value : undefined;
+    result.push(mapper(item,index));
+  }
+  return result;
+}
+
+function safeArrayFilterMap(value,predicate,mapper) {
+  if(!Array.isArray(value)) return [];
+  const lengthDescriptor=Object.getOwnPropertyDescriptor(value,'length');
+  const length=lengthDescriptor && Number.isSafeInteger(lengthDescriptor.value) &&
+    lengthDescriptor.value>=0 ? lengthDescriptor.value : 0;
+  const result=[];
+  for(let index=0;index<length;index++) {
+    const descriptor=Object.getOwnPropertyDescriptor(value,String(index));
+    if(!descriptor || !Object.prototype.hasOwnProperty.call(descriptor,'value')) continue;
+    const item=descriptor.value;
+    if(predicate(item,index)) result.push(mapper(item,index));
+  }
+  return result;
 }
 
 function cardLabelForText(card) {
@@ -35,7 +85,7 @@ function cardLabelForText(card) {
 
 function zoneCardLabelsForText(zone) {
   const cards=safeDataProperty(zone,'cards');
-  return Array.isArray(cards)?cards.map(cardLabelForText):[];
+  return safeArrayMap(cards,cardLabelForText);
 }
 
 function scalarLabelForText(value) {
@@ -44,7 +94,8 @@ function scalarLabelForText(value) {
   if (typeof value==='bigint' || typeof value==='symbol') return String(value);
   if (typeof value==='object' || typeof value==='function') {
     const id=safeDataProperty(value,'id');
-    if (id!==undefined && id!==null) return String(id);
+    if (typeof id==='string' || typeof id==='number' || typeof id==='bigint' ||
+        typeof id==='boolean' || typeof id==='symbol') return String(id);
     const name=safeDataProperty(value,'name');
     if (typeof name==='string' && name) return name;
     return constructorNameOf(value);
@@ -53,7 +104,7 @@ function scalarLabelForText(value) {
 }
 
 function cardCollectionLabelsForText(value) {
-  return Array.isArray(value)?value.map(cardLabelForText):zoneCardLabelsForText(value);
+  return Array.isArray(value)?safeArrayMap(value,cardLabelForText):zoneCardLabelsForText(value);
 }
 
 function choiceLabelForText(choice) {
@@ -68,7 +119,7 @@ function choiceLabelForText(choice) {
  */
 function summarizeNativeStateForText(state,publicBoard=null) {
   const nativePlayers=safeDataProperty(state,'players');
-  const players=Array.isArray(nativePlayers)?nativePlayers.map((player,seat)=>{
+  const players=safeArrayMap(nativePlayers,(player,seat)=>{
     const prizes=safeDataProperty(player,'prizes');
     const board=Array.isArray(publicBoard)?publicBoard[seat]:null;
     return {
@@ -78,7 +129,7 @@ function summarizeNativeStateForText(state,publicBoard=null) {
       hand:zoneCardLabelsForText(safeDataProperty(player,'hand')),
       discard:zoneCardLabelsForText(safeDataProperty(player,'discard')),
       lostzone:zoneCardLabelsForText(safeDataProperty(player,'lostzone')),
-      prizes:Array.isArray(prizes)?prizes.map(zoneCardLabelsForText):[],
+      prizes:safeArrayMap(prizes,zoneCardLabelsForText),
       active:board?.active ?? null,
       bench:board?.bench ?? [],
       stadium:zoneCardLabelsForText(safeDataProperty(player,'stadium')),
@@ -86,9 +137,9 @@ function summarizeNativeStateForText(state,publicBoard=null) {
     };
   }):[];
   const nativePrompts=safeDataProperty(state,'prompts');
-  const unresolvedPrompts=Array.isArray(nativePrompts)?nativePrompts
-    .filter(prompt=>safeDataProperty(prompt,'result')===undefined)
-    .map(prompt=>{
+  const unresolvedPrompts=safeArrayFilterMap(nativePrompts,
+    prompt=>safeDataProperty(prompt,'result')===undefined,
+    prompt=>{
       const player=safeDataProperty(prompt,'player');
       const message=safeDataProperty(prompt,'message') ?? safeDataProperty(prompt,'text');
       const promptCards=safeDataProperty(prompt,'cards') ?? safeDataProperty(prompt,'cardList');
@@ -98,7 +149,7 @@ function summarizeNativeStateForText(state,publicBoard=null) {
         playerId:scalarLabelForText(safeDataProperty(prompt,'playerId') ?? safeDataProperty(player,'id')),
         message:typeof message==='string'?message:null,
         cards:cardCollectionLabelsForText(promptCards),
-        choices:Array.isArray(choices)?choices.map(choiceLabelForText):[]
+        choices:safeArrayMap(choices,choiceLabelForText)
       };
     }):[];
   return {
@@ -130,23 +181,25 @@ function describePolicyComponent(component) {
     const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
     const constructor=descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
       descriptor.value : null;
-    return typeof constructor==='function' && constructor.name ? constructor.name : 'object';
+    return typeof constructor==='function' && safeFunctionName(constructor) ?
+      safeFunctionName(constructor) : 'object';
   }
   return typeof component;
 }
 
 function summarizePolicyConfiguration(optionsBySeat) {
-  return (Array.isArray(optionsBySeat)?optionsBySeat:[]).map((options,seat)=>{
+  return safeArrayMap(optionsBySeat,(options,seat)=>{
     const tactics=readOwnDataProperty(options,'tactics');
     const promptResolvers=readOwnDataProperty(options,'promptResolvers');
     const scores=readOwnDataProperty(options,'scores') || {};
     const arbiter=readOwnDataProperty(options,'arbiter');
     return {
       seat,
-      tacticOrder:(Array.isArray(tactics)?tactics:[]).map(describePolicyComponent),
-      promptResolverOrder:(Array.isArray(promptResolvers)?promptResolvers:[]).map(describePolicyComponent),
+      tacticOrder:safeArrayMap(tactics,describePolicyComponent),
+      promptResolverOrder:safeArrayMap(promptResolvers,describePolicyComponent),
       scoreKeys:Object.keys(scores).sort(),
-      scoreValues:Object.fromEntries(Object.keys(scores).sort().map(key=>[key,readOwnDataProperty(scores,key)])),
+      scoreValues:Object.fromEntries(safeArrayMap(Object.keys(scores).sort(),
+        key=>[key,readOwnDataProperty(scores,key)])),
       arbiter:arbiter ? {
         flipMode:readOwnDataProperty(arbiter,'flipMode') ?? null,
         shuffleMode:readOwnDataProperty(arbiter,'shuffleMode') ?? null
@@ -160,7 +213,7 @@ function constructorNameOf(value) {
   const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
   return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') &&
     typeof descriptor.value==='function' && descriptor.value.name ?
-      descriptor.value.name : 'Object';
+      safeFunctionName(descriptor.value) || 'Object' : 'Object';
 }
 
 /**
@@ -193,7 +246,7 @@ function snapshotFullState(value, options = {}) {
     if (typeof input === 'undefined') return {$type:'Undefined'};
     if (typeof input === 'bigint') return {$type:'BigInt',value:String(input)};
     if (typeof input === 'symbol') return {$type:'Symbol',description:input.description ?? null};
-    if (typeof input === 'function') return {$type:'Function',name:input.name || null};
+    if (typeof input === 'function') return {$type:'Function',name:safeFunctionName(input)};
     if (typeof input !== 'object') return String(input);
 
     if (seen.has(input)) return {$ref:seen.get(input)};
@@ -213,12 +266,24 @@ function snapshotFullState(value, options = {}) {
       return {$id:id,$type:'Buffer',encoding:'base64',value:Buffer.prototype.toString.call(input,'base64')};
     if (input instanceof Date)
       return {$id:id,$type:'Date',value:Number.isNaN(input.getTime())?null:Date.prototype.toISOString.call(input)};
-    if (input instanceof RegExp)
-      return {$id:id,$type:'RegExp',source:input.source,flags:input.flags};
-    if (input instanceof Map)
-      return {$id:id,$type:'Map',entries:[...input.entries()].map(([k,v])=>[visit(k,depth+1),visit(v,depth+1)])};
-    if (input instanceof Set)
-      return {$id:id,$type:'Set',values:[...input.values()].map(v=>visit(v,depth+1))};
+    if (input instanceof RegExp) {
+      const source=REGEXP_SOURCE_GETTER ? REGEXP_SOURCE_GETTER.call(input) : '';
+      let flags='';
+      for(const entry of REGEXP_FLAG_GETTERS)
+        if(entry.get && entry.get.call(input)) flags+=entry.flag;
+      return {$id:id,$type:'RegExp',source,flags};
+    }
+    if (input instanceof Map) {
+      const entries=[];
+      for(const [key,item] of MAP_ENTRIES.call(input))
+        entries.push([visit(key,depth+1),visit(item,depth+1)]);
+      return {$id:id,$type:'Map',entries};
+    }
+    if (input instanceof Set) {
+      const values=[];
+      for(const item of SET_VALUES.call(input)) values.push(visit(item,depth+1));
+      return {$id:id,$type:'Set',values};
+    }
     if (input instanceof WeakMap || input instanceof WeakSet)
       return {$id:id,$type:constructorNameOf(input),opaque:true};
     if (input instanceof ArrayBuffer)
@@ -227,8 +292,21 @@ function snapshotFullState(value, options = {}) {
       const bytes = new Uint8Array(input.buffer,input.byteOffset,input.byteLength);
       return {$id:id,$type:constructorNameOf(input),bytes:[...bytes],length:input.length ?? null};
     }
-    if (Array.isArray(input))
-      return {$id:id,$type:'Array',items:input.map(item=>visit(item,depth+1))};
+    if (Array.isArray(input)) {
+      const lengthDescriptor=Object.getOwnPropertyDescriptor(input,'length');
+      const length=lengthDescriptor && Number.isSafeInteger(lengthDescriptor.value) ?
+        lengthDescriptor.value : 0;
+      const items=[];
+      for(let index=0;index<length;index++) {
+        const descriptor=Object.getOwnPropertyDescriptor(input,String(index));
+        if(!descriptor) items.push({$type:'ArrayHole'});
+        else if(Object.prototype.hasOwnProperty.call(descriptor,'value'))
+          items.push(visit(descriptor.value,depth+1));
+        else items.push({$type:'Accessor',get:safeFunctionName(descriptor.get),
+          set:safeFunctionName(descriptor.set)});
+      }
+      return {$id:id,$type:'Array',items};
+    }
 
     const properties = Object.create(null);
     const keys = Reflect.ownKeys(input).sort((a,b)=>String(a).localeCompare(String(b)));
