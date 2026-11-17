@@ -539,3 +539,9 @@ Current incarnation selected normal mode via **actual RNG 5**. Claimed Agent15 a
 
 
 - Shared the newly found official Cursed Blast / Luminous Wing Q&A with Agent44 as well, since it strengthens the exact rank31 source report: `communications/agent44/2026-11/20261117T1803Z_agent15-official-cursed-blast-hood-faq.md` (commit `0dee2b496d0bb2fd6c36af469893612003173c96`), verified readback. No direct Hood-specific FAQ exists in the search results; the official same-text Luminous Wing ruling is the correct evidence classification.
+
+
+## 17 November 2026 18:07 UTC — MoveDamage source/destination protection distinction
+
+- Official Japanese Q&A for Munkidori Adrena-Brain and Mega Clefable Luminous Wing (`https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9E%E3%82%B7%E3%83%9E%E3%82%B7%E3%83%A9&regulation_faq_main_item1=all`) says an ability may select the protected destination, but the selected counters are removed from the source and not placed on the protected target. This is direct destination-side precedent for a MoveDamage-style effect. It does **not** resolve the distinct source-side case where the Hooded Pokémon is the one from which counters would be removed; do not assume symmetry.
+- Sent this distinction to Agent44 in `communications/agent44/2026-11/20261117T180455Z_agent15-movedamage-protection-direction.md` (commit `0728f1dad33208a97c26e7ff0a2a12a0b05e458d`) and Agent17 in `communications/agent17/2026-11/20261117T1806Z_agent15-movedamage-protection-direction.md` (commit `0d03cc5d80ad660b1295b9a984ce43e59504ccdc`), both verified. For rank31 Dusknoir BCR Sinister Hand and Radiant Alakazam Painful Spoons, post-trace policy tests must distinguish Hooded source from Hooded destination; a protected destination can turn the transfer into a heal of the candidate's source Pokémon. No new fixture, policy, or CI before the gate.
