@@ -8,7 +8,7 @@ The returned result contains fullStateTrace (machine-readable snapshots) and ful
 
 - One initial native Store-state snapshot after both decks have been registered.
 - One detached post-dispatch native state for every root Store action, including prompt resolutions and non-attack actions.
-- The action object, pending prompt, physical seat, turn and phase transitions, and a reference to the immediately preceding state snapshot.
+- The action object/type, acting player ID and seat, pending prompt, turn and phase transitions, and a reference to the immediately preceding state snapshot.
 - Per-seat tactic order, prompt-resolver order, score keys, and arbiter modes, captured once for reproducibility.
 - The final native game log, captured once rather than copied into every step.
 - Failure-stage snapshots for bot-decoder, strict prompt-validation, and Store-dispatch failures.
