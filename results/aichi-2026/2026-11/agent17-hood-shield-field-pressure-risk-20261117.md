@@ -64,6 +64,12 @@ These cards are not interchangeable:
 
 Consequently, the candidate's Basic Psychic Energy is not protected from all named pressure merely because Enhanced Hammer cannot discard it. Plumeria, Team Flare Grunt, Team Yell Grunt and Handheld Fan create different ways to disrupt attached Energy, with different costs, targets and timing.
 
+## Possible bench-Hood sequencing line (hypothesis, not yet validated)
+
+Tool Jammer's text suppresses Pokémon Tools attached to the opponent's **Active** Pokémon while the Tool Jammer bearer is Active. Underworld Door is used by Shadow Rider Calyrex V from the Bench. Therefore a Hood attached to a benched Shadow Rider V is a plausible way to keep that Tool outside Tool Jammer's scope while still protecting the Pokémon that uses Underworld Door. If that Hooded Shadow Rider is promoted to the Active Spot, Tool Jammer can suppress the Hood; the candidate may need to remove Tool Jammer first or keep the engine Pokémon benched.
+
+This does **not** resolve Stealthy Hood versus Iron Thorns ex's global Ability-suppression effect. The paper interaction and pinned native behavior remain unverified; treat the bench-Hood line as a scenario to test, not a proven counter. The existing rank-7 analysis separately notes that Wobbuffet PHF 36 suppresses Abilities of non-Psychic Pokémon, while the candidate's Psychic Shadow Rider core is exempt; do not spend Hood on that Wobbuffet interaction without a distinct reason.
+
 ## Tool-recovery boundary in the candidate 60
 
 The candidate has **no direct Item/Tool recovery from the discard pile**:
