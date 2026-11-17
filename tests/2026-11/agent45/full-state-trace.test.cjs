@@ -23,7 +23,7 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
 });
 
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
-  const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123});
+  const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123,policyConfiguration:[{seat:0,tacticOrder:['AttackTactic','PlayBasicTactic'],promptResolverOrder:['ChooseCardsPromptResolver']}]});
   const initial={turn:1,players:[{hand:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[]};
   recorder.captureInitial(initial);
   const after={turn:1,players:[{hand:{cards:[]},discard:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[{message:'Quick Ball played'}]};
@@ -32,11 +32,13 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   const trace=recorder.result();
   assert.equal(trace.complete,true);
   assert.equal(trace.stepCount,1);
+  assert.match(JSON.stringify(trace.policyConfiguration),/AttackTactic/);
   assert.equal(trace.steps[0].beforeState.kind,'initial');
   assert.match(JSON.stringify(trace.steps[0].afterState),/Quick Ball FST 237/);
   assert.match(JSON.stringify(trace.nativeLogs),/Quick Ball played/);
   const text=recorder.text();
   assert.match(text,/TWINLEAF OFFLINE FULL-STATE TRACE/);
+  assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
   assert.match(text,/SELECTED ACTION/);
   assert.match(text,/phase PLAYER_TURN -> PLAYER_TURN/);
   assert.match(text,/Choose a Pokémon/);
