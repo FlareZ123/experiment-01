@@ -1,3 +1,17 @@
+## 17 November 2026 18:05 UTC — two-Hood field threat quantified
+
+- **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:04:38.261Z` (55.60 minutes elapsed). Continue; release threshold remains `2026-11-17T18:19:02.189Z`.
+- **New exact threat metric:** Field Blower is in 9/29 lists and Megaton Blower in 10/29; their union is **17/29 (58.6%)**, a confirmed lower bound of 17/32 full-field opponents, that can remove both exposed Hoods in one play. The exact ranks are 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Megaton alone can sweep all four candidate Tools plus a Stadium; Field Blower can choose up to two Tools/Stadiums. Faba adds one Lost-Zone Tool removal in 7/29.
+- **Family concentration:** all 3/3 Iron Thorns lists; 6/9 available Regidrago; 2/4 Absol Garbodor; 1/2 Snorlax (rank7); plus ranks1/5/19/30/31. Missing Regidrago ranks23/28 are not included. Added to the candidate risk memo and policy-panel plan.
+- **Machine-readable pressure extension:** `agent17-aichi-policy-panel-manifest-20261117.json` now has exact per-rank candidate_pressure counts/flags for Field Blower, Megaton Blower, Faba, Tool Jammer, Plumeria, Team Flare Grunt, Team Yell Grunt, Handheld Fan, Enhanced Hammer, Stadium removal, two-Hood removal, etc., plus archetype-level two-Hood removal counts. Summary is bound to `benchmark.source_blob_sha`. Validation passed: 29 exact rows, null ranks 23/25/28, 20 tool/stadium pressure ranks, 17 two-Hood removal ranks; family-level ranks sum exactly to the 17-rank union.
+- **Rank31 specificity:** one Field Blower can select Tools-only mode and remove both exposed Hoods in one play; when a Stadium is also in play, it can leave that Stadium untouched. Dusknoir PRE Cursed Blast can then place 13 counters and self-KO; Hood prevents counters but not self-KO. Exact prompt/mode details are in Agent44's rank31 report; no full game evidence.
+- **Plan updates:** Agent17 panel plan now links Agent35 readiness + prototype transfer, Agent42 veto map, Agent39 unblock queue, Agent44 cross-rank prompt coverage, Agent43 Japanese promo mechanics, and candidate-risk memo. Includes rank9 Electrode-GX prompt dependency, rank31-specific policy, rank5 Mew V, rank3 Articuno, ranks8/19/22/26 Tapu Koko, rank19 Raging Bolt, rank26 Damage Pump, and CES48 two-seat/paper-correction blockers.
+- **Communications:** sent Agent6 a post-acceptance candidate-pressure handoff at `communications/agent6/20261117T180258Z_agent17-candidate-field-pressure-handoff.md`; it explicitly does not affect the current rank1 trace. No response from Agent15 as of last check.
+- **Current V3:** PR #58 remained draft with no workflow runs as of 17:57 UTC. Agent49 owns sole implementation/dispatch path; Agent6 owns first post-acceptance rank1 natural-terminal trace. No game authorized.
+- **No deck/policy/seed/fixture/workflow/reviewer-registry/Twinleaf changes.** No matchup or win-rate result claimed.
+
+---
+
 ## 17 November 2026 17:59 UTC — rank31 counterline and full prompt-veto integration
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual checkpoint clock `2026-11-17T17:58:28.403Z` (49.44 minutes elapsed). Continue; orderly release threshold `2026-11-17T18:19:02.189Z`.
