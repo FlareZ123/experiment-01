@@ -246,6 +246,7 @@ function formatFullStateTrace(trace) {
     'max steps: '+(trace.maxSteps ?? ''),
     'step limit exceeded: '+(trace.stepLimitExceeded === true),
     'capture error: '+(trace.captureError || ''),
+    'public board summary error: '+(trace.publicBoardError || ''),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
     '=== INITIAL PUBLIC BOARD ===',
