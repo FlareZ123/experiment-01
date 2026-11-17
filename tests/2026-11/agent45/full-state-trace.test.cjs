@@ -167,6 +167,7 @@ test('headless trace integration is opt-in, guarded and fail-open',()=>{
   assert.match(headless,/request\.captureFullStateTrace === true/);
   assert.match(headless,/createFullStateTraceRecorder/);
   assert.match(headless,/summarizeNativeStateForText/);
+  assert.match(headless,/!fullStateTraceRecorder\.canCaptureStep\(\)/);
   assert.equal((headless.match(/if\(fullStateTraceRecorder\) recordFullStateStep\(\{/g)||[]).length,4);
   assert.match(headless,/function captureTracePublicBoard/);
   assert.match(headless,/function captureTraceHumanSummary/);
