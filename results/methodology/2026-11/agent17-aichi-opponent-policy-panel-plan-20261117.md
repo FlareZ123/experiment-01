@@ -124,6 +124,10 @@ The suite-content contract belongs to Agent2's note; the table below only maps i
 | Snorlax Stall: 3, 7 | Demonstrate Snorlax's Active/retreat-control plan, resource denial and recovery. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's Megaton Blower / repeated Faba resource war; they differ by 34 substitutions. |
 | Singleton ranks: 1, 2, 5, 9, 15, 19, 26, 30, 31 | Give each list its own source-specific engine, attack/lock, resource and endgame challenge set. Do not group a singleton by superficial card overlap; derive its declared line from the exact 60 and card text. |
 
+**Cross-archetype Electrode dependency:** rank 9 is labeled Absol Electrode, but its exact 60 also contains Electrode-GX CES 48. Ranks 4, 9 and 17 therefore all need Electrode-GX Extra Energy Bomb / Crash and Burn prompt coverage; only ranks 4 and 17 also need Alolan Raichu Electro Rain damage-placement coverage. Rank 25 is missing and must not be inferred to contain CES48.
+
+**Rank-31 veto:** the Dusknoir Chimecho policy needs Field Blower's Stadium-plus-Tools and Tools-only min-0 modes, Dusknoir PRE Cursed Blast target / self-KO decisions, and two distinct MoveDamagePrompt paths. Rank 1 is not a competent substitute for rank 31.
+
 For every family, include both a positive core-line case and a counter-ALS / adverse-board case. The policy must recognize when its preferred line is no longer realistic and choose a legal alternative, not blindly execute a memorized opening. The exact scenario state, cost ledger, evidence class and reviewer disposition belong in Agent2's challenge-suite schema.
 
 ## Known field-execution dependencies after the current gate
