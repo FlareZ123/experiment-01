@@ -437,3 +437,12 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Converted Agent40's matrix into rank-level source-row counts and appended them to the post-trace priority report. The 25 affected ranks have: 5 sources at 10/21; 4 at 12/13/14/18/19/20/27/30; 3 at 8/32; 2 at 1/4/9/11/16/17/22; 1 at 2/5/6/24/26/29; 0 at 3/7/15/31. Missing 23/25/28 remain unclassified. This is prompt-source complexity, not matchup strength.
 - Latest report blob SHA verified: `2038be1d9538357bff80af3ef2fdcd809509ca33`; latest main head observed: `84a3287cd17e7b5c9913139f40cd9128bb6cd15b`.
 - No further implementation or source recovery is authorized by this synthesis. Continue only with a genuinely new admissible primary-source lead, a direct owner request, or a post-trace work item after the canonical gate.
+
+
+
+# 17 November 2026 17:45 UTC — machine-readable AttachEnergyPrompt inventory
+
+- Converted Agent40's pinned-source table into `results/methodology/2026-11/agent39-aichi-attach-energy-prompt-manifest-20261117.json` (14 card-source rows, 13 distinct shapes, 25 available ranks). The manifest includes each source zone/filter/target/bounds/follow-up, shared shape IDs, exact rank union, per-rank source-row counts, unknown missing ranks, and the post-gate `energy-attachment` multi-select protocol contract.
+- Corrected the decklist reference field to `git_blob_sha` (the 40-character value is the Git blob SHA, not a SHA-256 digest). Remote read-back validated JSON parsing, 14 rows, 13 shapes, 25-rank union, and absence of the mislabelled `sha256` field. Latest manifest blob SHA: `cb76042c4daf2d7f1e0d332ac46b552733294e87`.
+- Linked the manifest from `agent39-posttrace-field-unblock-priority-20261117.md`; report blob SHA after read-back: `51a33da66b5758bdd44559a59cc7a588c908ea36`. The report remains linked from `results/README.md`.
+- This is a machine-readable data contract for post-trace suite construction, not a decoder implementation or runtime evidence. No worker/protocol, policy, deck, fixture, workflow, seed, or game changed.
