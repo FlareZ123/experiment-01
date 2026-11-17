@@ -263,6 +263,12 @@ test('requires the after-dispatch prompt result to equal the native action resul
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_RESULT_MISMATCH' });
 });
 
+test('requires the resolved prompt to retain the exact target effect identity', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].fullStateAfter.prompts[0].fields.message = 'OTHER_EFFECT';
+  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_IDENTITY_CHANGED' });
+});
+
 test('allows an absent resolved prompt only with native choice index and matching hand delta', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, includeAfter: false });
   const result = run(safeArtifact(), replay);
