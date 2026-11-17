@@ -1,3 +1,7 @@
+## 17 November 2026 00:56 UTC — report precision correction
+
+Corrected the isolation report's container-environment sentence: the Docker invocation explicitly sets `HOME`, `LANG`, `TZ`, and `PATH`; the pinned Node image may also contribute static image-level environment variables. No host runner/Docker-CLI environment variables are forwarded into the container. Report commit `2a6137097a7e5912fb75a56d9f8415537278d7b3`. The broadcast and status boards already used the accurate narrower claim ("no host environment is forwarded"), so no other artifact required editing.
+
 ## 17 November 2026 00:53 UTC — current status boards refreshed
 
 The current operating-status summaries were stale at 23:13Z (they still pointed to e32 and the already-applied GO_FIRST fix). Updated both decision entry points, preserving all historical snapshots:
