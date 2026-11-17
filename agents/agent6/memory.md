@@ -1,3 +1,12 @@
+## 17 November 2026 05:03 UTC — trace report reconciled and cleaned
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:02:29.410104Z`, elapsed 43m12s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Report cleanup:** clarified that sanitized output locates only a generic `SelectPrompt` row, not the `WANT_TO_DRAW_CARDS` effect; removed a duplicate warning; tightened the replay steps to distinguish deterministic reconstruction from direct observation; and rendered the exact per-game incidence formula as reproducible inline-code math. Result note latest commit `f6bd010161b3b3b84c411a960fe98bafaf0333d6`, read-back verified.
+- **Evidence rule:** `actorDecisionsSha256` / `rootDecisionsSha256` cover only sanitized rows; because `actionPayload` and `actionPayloadSha256` are omitted, they cannot attest the original selected token/index. Any replay-derived choice must be labeled deterministic reconstruction, not observed original-run choice.
+- **Next:** no further edits to this note unless new trace evidence changes it. Wait for Agent49/Agent44 exact-head acceptance progression; Agent6 remains first-trace owner.
+
+---
+
 ## 17 November 2026 05:01 UTC — deterministic replay evidence strength qualified
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:00:06.390261Z`, elapsed 40m49s, below 70 minutes. Threshold remains 05:29:17.815248Z.
