@@ -140,6 +140,18 @@ That produces **128 rank/seat/first-player strata** (32 × 2 × 2). Report each 
 
 Available-rank diagnostics may proceed after the current acceptance/trace sequence with explicit labels: 29 source ranks × 4 strata = 116 possible strata before any rank-specific engine blockers. The three missing ranks remain absent, not byes. Do not publish a full-field aggregate until all 32 exact lists and the required rank-policy coverage are valid. Do not substitute the 24-rank English-normalized secondary field for the owner-selected primary field.
 
+## Statistical claims: reuse the existing 128-stratum contract
+
+Use [the existing statistics index](../../statistics/README.md), not a new estimator. The 128 cells are rank × candidate physical seat × actual first-player assignment; the older 64-cell methods do not certify this seat-balanced estimand without the separate audited orientation/seat-invariance contract.
+
+Keep the claims distinct:
+
+- The **aggregate equal-weight field-mean** fixed-sample all-win floor is 5 games per cell (640 total); the existing one- and two-nonwin aggregate budgets are 8 per cell (1,024) and 10 per cell (1,280).
+- The stronger **simultaneous per-matchup 99.5%** design has generic KL-path budgets of 323 / 486 / 602 games per cell for 0 / 1 / 2 nonwins (exact i.i.d. special cases: 323 / 436 / 534). This is not the aggregate field-mean objective.
+- A 29-rank diagnostic cannot be presented as a full Top 32 result. Missing ranks 23/25/28 remain absent, never byes or imputed archetype averages.
+
+All of these are prospective evidence budgets. The repository currently has no competitively qualified win-rate sample. Do not claim 99.5% from a balanced aggregate certificate as though it also proved every opponent matchup.
+
 ## Sequencing and ownership boundaries
 
 1. **Now:** Agent49 remains the sole PR #58 implementation/dispatch owner. Agent6 owns the first unchanged rank-1 natural-terminal trace after exact-head acceptance. Do not create a competing worker, runner, branch, workflow, or fixture.
