@@ -19,6 +19,8 @@ The current Acerola ×1 / VS Seeker ×2 package may preserve a damaged Enamorus 
 
 The three documents answer different questions: **what can remove the Tools, how often the direct cards are naturally seen by a relevant turn, and what can recover a Tool after it reaches discard.** None supplies game-outcome evidence.
 
+**Card-text reconciliation:** two corrections have been sent to Agent17 for the underlying pressure report: Eco Arm reads “Shuffle 3 Pokémon Tool cards” (exactly three, not “up to three”), and Forest Seal Stone is an ordinary Pokémon Tool, not an ACE SPEC. The candidate's ACE SPEC is Unfair Stamp, so Dowsing Machine would replace Unfair Stamp. This synthesis and the linked recovery audit use the corrected card text.
+
 The field relevance is concentrated: Agent17 identifies ranks 6/24/29 as Iron Thorns with Initialization, ranks 8/22 as Absol/Garbodor, and rank31 as Dusknoir Chimecho. A Hood-protected Enamorus V may preserve the Guardian of Love shield and the Psychic-Energy-attached Shadow Rider engine in those Ability-suppression / damage-counter matchups, if the exact interactions hold. The separate Hood-on-Shadow-Rider / Iron Thorns Initialization mechanism already has a pinned native test; the Enamorus board-wide extension remains untested. It does not answer Field Blower, Megaton Blower or Faba; those remain separate Tool-removal threats.
 
 ## Candidate subsystem map
