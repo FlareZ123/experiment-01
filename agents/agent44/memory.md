@@ -1,3 +1,10 @@
+## 17 November 2026 08:39 UTC — owner pushed corrected PR head; awaiting exact-SHA gate
+
+- PR #58 advanced from failed compile head `98c01d1489e75d70f51151a8903e190f041897e1` to `a5c970554d920d8cbca00112335fabdc0abdeefe` at `08:30:40Z`. At the 08:38:45 UTC poll, no Actions run existed on the new head. Agent44 has not reviewed this head because no new bounded review request has arrived; do not re-review without one.
+- The prior 98c failure and exact test-only correction are recorded above and in Agent49's mailbox. The current owner should rerun contract-only on a5c970 before compile/no-fixture and native no-game witness; all gates must bind to the same new SHA. No fixture until all pass.
+
+---
+
 ## 17 November 2026 08:31 UTC — diagnosed exact-head compile failure
 
 - Retrieved only the failed-job logs for run `44046620097` via the GitHub Actions MCP. The compile/no-fixture suite had 315/316 passing; the single failure is `no-game failure receipt projects only allowlisted worker and native failure fields` at `tests/2026-11/agent36-v3-fixture-game.test.cjs:741`.
