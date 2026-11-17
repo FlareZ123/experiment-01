@@ -21,8 +21,13 @@ Record:
 - exact 60-card physical-print/deck fingerprint;
 - policy, entry/dependency-manifest, and common-constraints hashes;
 - engine/submodule and research-hook revisions used by native cases;
+- `candidatePolicyProducerId` bound to the candidate policy, dependency-manifest, and challenge-suite hashes;
+- `opponentPolicyProducerIdByRank` bound to each available rank's policy, dependency-manifest, and challenge-suite hashes;
+- bundle producer ID separately, plus the complete producer-ID set used by the panel;
 - suite author/producer, creation time, frozen time, and evidence references;
 - explicit split between development cases and held-out review cases.
+
+The policy-producer IDs belong in the signed/hash-bound policy-plan content, not only in a surrounding artifact. Missing IDs block production competence attestation; do not infer that the bundle producer authored every policy.
 
 For an unavailable source rank, keep the existing V3 `source-unavailable` entry with null deck, policy, entry-manifest, challenge-suite, and producer identities. Do not create a proxy suite from an archetype description.
 
@@ -86,8 +91,8 @@ A suite is ready for attestation only when every declared critical plan line has
 - Keep development cases separate from held-out review cases. Do not use the confirmatory games to add cases, tune heuristics, or change expected outcomes.
 - If a policy, deck, dependency closure, engine hook, or common constraint changes, produce a new suite/policy hash and new pre-deal attestation. Old games remain bound to the old identities.
 - Candidate and every opponent policy receive the same observation, information, compute, timeout, and randomization constraints. The candidate policy is invariant across ranks; each opponent policy is invariant across that rank's seat/first-player cells.
-- Candidate-policy and opponent-policy reviewers remain distinct, authorized, and independent of every policy producer and the bundle producer. Post-game paper/clock/strategy reviewers remain separate.
-- The current production trust registry `simulation/evaluation/agent45-authorized-reviewers.json` is empty. No identity should self-authorize or populate it by inference. The owner/trust authority must provision the required reviewer roles before production competence attestations can be signed.
+- Candidate-policy and opponent-policy reviewers remain distinct, authorized, and independent of every policy producer and the bundle producer. Post-game paper/clock and strategy reviewers remain separate. The study-wide rule is one human per role, with an external immutable assignment/conflict ledger; rotate people within a role, never across roles.
+- The current production trust registry `simulation/evaluation/agent45-authorized-reviewers.json` is empty. Issue #39 records the owner's explicit hold on external reviewer outreach and trust-registry provisioning (12 November 2026). Do not contact candidates, change recruitment status, or populate the registry until the owner resumes the process. This is a future production-attestation dependency, not a blocker for the one diagnostic rank-1 trace. No identity should self-authorize or populate it by inference.
 
 ## 6. Post-trace execution order
 
@@ -95,7 +100,7 @@ A suite is ready for attestation only when every declared critical plan line has
 2. **Run one diagnostic natural-terminal game** with the unchanged Hood Shield Shadow Rider v1 60 against the unchanged original rank-1 source 60, frozen policies, and registered public seed. Agent6 reviews the full trace. This is a diagnostic, not a paper-qualified matchup, policy attestation, or statistical sample.
 3. **Resolve only trace-supported blockers.** A concrete engine/prompt/policy mismatch may create a new versioned policy or hook. Re-run the affected challenge suite and freeze new hashes; do not multiply games or tune from an ambiguous trace.
 4. **Build the rank-specific challenge panel.** Use exact source decks and policies for available ranks, preserving ranks 23/25/28 as unavailable. The 29 available ranks may support explicitly labeled per-rank diagnostics, but they do not constitute the full primary field.
-5. **Obtain owner-authorized independent reviewers and sign pre-deal competence attestations.** The empty reviewer registry is a hard comparative-competence dependency. Do not fabricate attestations or use producer identities as reviewers.
+5. **After the owner lifts the reviewer-outreach hold, obtain owner-authorized independent reviewers and sign pre-deal competence attestations.** The empty reviewer registry is a hard comparative-competence dependency, but not a blocker for the one diagnostic trace. Do not contact candidates, update recruitment status, fabricate attestations, or use producer identities as reviewers while the hold remains in force.
 6. **Select one fixed candidate using a separate development cohort.** Compare genuinely different deck architectures under the same frozen, independently competent opponent policies and equal constraints. Keep all candidate tuning off the confirmatory sample; the current Hood v1 is a challenger hypothesis, not a selected final 60, and its 55/60 card-name overlap with the rank-1 reference is not evidence of superiority.
 7. **Freeze the one 60 and the full 32-rank panel**, then register the 128 rank × candidate-seat × first-player strata before generating deals. Missing ranks stay missing; no byes or inferred lists.
 8. **Use the existing Agent12 statistics, not a new estimator.** Report both the equal-weight field-mean claim and every opponent-specific interval. The 640-game all-win field-mean floor does not certify every matchup; the stronger simultaneous per-opponent all-win design is 323 games in each of 128 cells (41,344 total), with existing heterogeneous-KL extensions for nonwins. Apply the existing paper, source-binding, independence, and censoring vetoes.
@@ -112,6 +117,7 @@ This is an operational content proposal. It does not certify the current candida
 - [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
 - [Agent43 V3 deck-aware competence gate](agent43-v3-deck-aware-policy-competence-20261112.md)
 - [Agent50 V3 deck-aware competence/admission contract](agent50-v3-deck-aware-policy-competence-contract-20261112.md)
+- [Agent9 policy-producer / reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
 - [Agent12 simultaneous 128-stratum per-matchup confidence method](../../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md)
 - [Agent12 heterogeneous field KL confidence method](../../statistics/agent12-heterogeneous-kl-field-confidence-bound-20261107.md)
 - [Agent17 source-bound full-field claim gate](../../aichi-2026/agent17-full-field-claim-gate.md)
