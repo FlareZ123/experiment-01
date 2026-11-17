@@ -326,12 +326,12 @@ function formatFullStateTrace(trace) {
     'step limit exceeded: '+(trace.stepLimitExceeded === true),
     'capture error: '+(trace.captureError || ''),
     'public board summary error: '+(trace.publicBoardError || ''),
+    'human summary error: '+(trace.humanSummaryError || ''),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
-    '=== INITIAL PUBLIC BOARD ===',
-    JSON.stringify(trace.initialPublicBoard,null,2),
-    '=== INITIAL NATIVE STATE ===',
-    JSON.stringify(trace.initialState,null,2)
+    '=== INITIAL HUMAN-READABLE GAME STATE ===',
+    JSON.stringify(trace.initialHumanSummary,null,2),
+    'Full native snapshots remain available in fullStateTrace.initialState and fullStateTrace.steps[].afterState.'
   ];
   for (const step of trace.steps || []) {
     lines.push('',
@@ -339,8 +339,7 @@ function formatFullStateTrace(trace) {
       'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
       'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
-      'PUBLIC BOARD AFTER ACTION:',JSON.stringify(step.publicBoard,null,2),
-      'AFTER NATIVE STATE:',JSON.stringify(step.afterState,null,2));
+      'GAME STATE AFTER ACTION:',JSON.stringify(step.humanSummary,null,2));
     if (step.error) lines.push('DISPATCH ERROR:',JSON.stringify(step.error,null,2));
   }
   lines.push('','=== FINAL NATIVE LOGS ===',JSON.stringify(trace.nativeLogs,null,2));
