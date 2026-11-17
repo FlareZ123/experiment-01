@@ -229,24 +229,31 @@ function makeSanitizerRepo() {
   const sanitizerPath = path.join(root, relativePath);
   fs.mkdirSync(path.dirname(sanitizerPath), { recursive: true });
   fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\\n');
+  fs.writeFileSync(path.join(root, '.gitmodules'),
+    '[submodule "vendor/twinleaf"]\\n\\tpath = vendor/twinleaf\\n\\turl = https://github.com/twinleafgg/twinleafgg.git\\n');
   execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'agent6-test@example.invalid'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Agent6 test'], { cwd: root });
-  execFileSync('git', ['add', '--', relativePath], { cwd: root });
-  execFileSync('git', ['commit', '-m', 'sanitizer fixture'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['add', '--', '.gitmodules', relativePath], { cwd: root });
+  execFileSync('git', ['commit', '-m', 'sanitizer base fixture'], { cwd: root, stdio: 'ignore' });
+  const submoduleCommitSha = execFileSync('git', ['rev-parse', 'HEAD'],
+    { cwd: root, encoding: 'utf8' }).trim();
+  execFileSync('git', ['update-index', '--add', '--cacheinfo',
+    '160000,' + submoduleCommitSha + ',vendor/twinleaf'], { cwd: root });
+  execFileSync('git', ['commit', '-m', 'pin Twinleaf fixture'], { cwd: root, stdio: 'ignore' });
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const blob = execFileSync('git', ['rev-parse', 'HEAD:' + relativePath],
     { cwd: root, encoding: 'utf8' }).trim();
   return {
-    root, sanitizerPath, relativePath, head, blob,
+    root, sanitizerPath, relativePath, head, blob, submoduleCommitSha,
     cleanup: () => fs.rmSync(root, { recursive: true, force: true })
   };
 }
 
-function rawSanitizerMetadata(head, vendorCommitSha = '3'.repeat(40)) {
+function rawSanitizerMetadata(repo, vendorCommitSha = repo.submoduleCommitSha) {
   return {
-    engine: { researchRevisionSha: head, twinleafCommitSha: vendorCommitSha },
-    trial: { researchRevisionSha: head, vendorCommitSha }
+    engine: { researchRevisionSha: repo.head, twinleafCommitSha: vendorCommitSha },
+    trial: { researchRevisionSha: repo.head, vendorCommitSha }
   };
 }
 
@@ -573,11 +580,12 @@ test('requires the exact sanitizer function and its revision identity', () => {
 test('verifies exact sanitizer path, clean Git blob, research revision and Twinleaf pin', () => {
   const repo = makeSanitizerRepo();
   try {
-    const metadata = rawSanitizerMetadata(repo.head);
+    const metadata = rawSanitizerMetadata(repo);
     const identity = verifySanitizerCheckout(repo.sanitizerPath, metadata);
     assert.deepEqual(identity, {
       researchRevisionSha: repo.head,
-      sanitizerBlobSha: repo.blob
+      sanitizerBlobSha: repo.blob,
+      twinleafCommitSha: repo.submoduleCommitSha
     });
   } finally {
     repo.cleanup();
@@ -589,7 +597,7 @@ test('rejects a dirty sanitizer working-tree file', () => {
   try {
     fs.appendFileSync(repo.sanitizerPath, '// uncommitted change\\n');
     assert.throws(() => verifySanitizerCheckout(
-      repo.sanitizerPath, rawSanitizerMetadata(repo.head)
+      repo.sanitizerPath, rawSanitizerMetadata(repo)
     ), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
   } finally {
     repo.cleanup();
@@ -602,7 +610,7 @@ test('rejects a sanitizer module outside the exact expected repository path', ()
     const otherPath = path.join(repo.root, 'other-sanitizer.cjs');
     fs.writeFileSync(otherPath, 'module.exports = {};\\n');
     assert.throws(() => verifySanitizerCheckout(
-      otherPath, rawSanitizerMetadata(repo.head)
+      otherPath, rawSanitizerMetadata(repo)
     ), { code: 'TRACE_REPLAY_SANITIZER_PATH_INVALID' });
   } finally {
     repo.cleanup();
@@ -612,13 +620,24 @@ test('rejects a sanitizer module outside the exact expected repository path', ()
 test('rejects mismatched raw trial research and Twinleaf pins', () => {
   const repo = makeSanitizerRepo();
   try {
-    const wrongResearch = rawSanitizerMetadata(repo.head);
+    const wrongResearch = rawSanitizerMetadata(repo);
     wrongResearch.trial.researchRevisionSha = 'f'.repeat(40);
     assert.throws(() => verifySanitizerCheckout(repo.sanitizerPath, wrongResearch),
       { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
-    const wrongVendor = rawSanitizerMetadata(repo.head);
+    const wrongVendor = rawSanitizerMetadata(repo);
     wrongVendor.trial.vendorCommitSha = 'f'.repeat(40);
     assert.throws(() => verifySanitizerCheckout(repo.sanitizerPath, wrongVendor),
+      { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+  } finally {
+    repo.cleanup();
+  }
+});
+
+test('rejects an engine Twinleaf pin that differs from the checkout submodule gitlink', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    const wrongEnginePin = rawSanitizerMetadata(repo, 'f'.repeat(40));
+    assert.throws(() => verifySanitizerCheckout(repo.sanitizerPath, wrongEnginePin),
       { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
   } finally {
     repo.cleanup();
