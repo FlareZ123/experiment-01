@@ -263,8 +263,8 @@ def opponent_access_after_draws(draw_count, family):
                 direct = hand[0] >= 1
 
                 if family == "direct_fss":
-                    # FSS must be in hand with a Shadow Rider V; Field Blower
-                    # must not be Prized. This does not count a V already in play.
+                    # FSS and a Shadow Rider V must both be seen in opening/draws;
+                    # a V later benched still counts. Search-found V is omitted.
                     fss = prizes[0] == 0 and hand[1] >= 1 and hand[2] >= 1
                     event = direct or fss
                 elif family == "direct_teammates":
