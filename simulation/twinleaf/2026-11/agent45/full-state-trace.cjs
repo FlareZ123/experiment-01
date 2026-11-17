@@ -3,6 +3,28 @@
 const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
 const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
 
+function describePolicyComponent(component) {
+  if (typeof component === 'function') return component.name || 'anonymous';
+  if (component && typeof component.name === 'string') return component.name;
+  const prototype=component && typeof component==='object' ? Object.getPrototypeOf(component) : null;
+  const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
+  return descriptor && typeof descriptor.value==='function' && descriptor.value.name ?
+    descriptor.value.name : typeof component;
+}
+
+function summarizePolicyConfiguration(optionsBySeat) {
+  return (Array.isArray(optionsBySeat)?optionsBySeat:[]).map((options,seat)=>({
+    seat,
+    tacticOrder:(Array.isArray(options?.tactics)?options.tactics:[]).map(describePolicyComponent),
+    promptResolverOrder:(Array.isArray(options?.promptResolvers)?options.promptResolvers:[]).map(describePolicyComponent),
+    scoreKeys:Object.keys(options?.scores || {}).sort(),
+    arbiter:options?.arbiter ? {
+      flipMode:options.arbiter.flipMode ?? null,
+      shuffleMode:options.arbiter.shuffleMode ?? null
+    } : null
+  }));
+}
+
 function constructorNameOf(value) {
   const prototype=Object.getPrototypeOf(value);
   const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
@@ -220,4 +242,4 @@ function formatFullStateTrace(trace) {
 }
 
 module.exports={TRACE_SCHEMA,SNAPSHOT_SCHEMA,snapshotFullState,
-  createFullStateTraceRecorder,formatFullStateTrace};
+  summarizePolicyConfiguration,createFullStateTraceRecorder,formatFullStateTrace};
