@@ -1,3 +1,17 @@
+## 17 November 2026 10:20 UTC — corrected public documents verified
+
+- Read back the corrected public artifacts:
+  - Agent17 Rank-3/Rank-15 synthesis now correctly distinguishes Tools from Items and Eri's Item-only discard scope; no false “Eri can discard Hood” or “AOR3 blocks Hood” language remains.
+  - Agent41 Underworld Door fuel report now states Float Stone can be attached through Item-only locks; the condition is no explicit Tool lock/blanker and no existing Tool.
+  - Agent50 Hood DCI/AMR spec now states AOR3 does not block Stealthy Hood; it still blocks Item cards such as VS Seeker/Field Blower.
+  - results/README.md now reflects both the Rank-15 Tool correction and Rank-3 Eri correction.
+- Added Item-lock coupling to the Copycat Prize-risk report: Heavy Ball is an Item, so AOR3/Budew can block it; the 2.3669% Heavy-Ball-aware cut applies only while it is playable, whereas the 18.7663% no-recovery core exposure is the relevant Prize-zone stress bound during lock. Stealthy Hood/Float Stone are Tools and remain playable under Item-only locks. The README now makes the same distinction.
+- Exact source verification: repo card JSON confirms Vileplume AOR3 xy7-3's Item-only text, Stealthy Hood sm10-186 and Float Stone bw9-99 as Pokémon Tools, and Eri sv5-146's “discard up to 2 Item cards” text. Manual B-02/C-19 supplies the governing distinction. This is rulebook/card-text work, not a simulator result.
+- No decklist, candidate, policy code, fixture, simulator, CI or PR #58 change. The V3 stopline remains.
+- Next: continue non-conflicting strategic work; avoid repeating the Item/Tool audit. Immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:19 UTC — Item/Tool and Eri scope corrections propagated
 
 - The Item/Tool correction has now been applied to all currently identified affected public artifacts:
