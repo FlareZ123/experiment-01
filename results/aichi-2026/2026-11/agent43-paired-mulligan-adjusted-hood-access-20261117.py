@@ -250,13 +250,13 @@ def rank3_eri_probability():
 
 @lru_cache(None)
 def rank1_ko_search_access_after_draws(draw_count, event_name):
-    # Field Blower x1, Teammates/Raihan x2, Basics x14, Other x43.
-    total = (1, 2, 14, 43)
+    # Field Blower x1, Teammates x1, Raihan x1, Basics x14, Other x43.
+    total = (1, 1, 1, 14, 43)
     valid_openings = comb(60, 7) - comb(46, 7)
     denominator = valid_openings * comb(53, 6) * comb(47, draw_count)
     numerator = 0
     for opening in compositions(7, total):
-        if opening[2] == 0:
+        if opening[3] == 0:
             continue
         opening_weight = choose_weight(total, opening)
         after_opening = tuple(t - x for t, x in zip(total, opening))
@@ -265,25 +265,35 @@ def rank1_ko_search_access_after_draws(draw_count, event_name):
             after_prizes = tuple(r - p for r, p in zip(after_opening, prizes))
             for draws in compositions(draw_count, after_prizes):
                 draw_weight = choose_weight(after_prizes, draws)
-                hand = tuple(opening[i] + draws[i] for i in range(4))
+                hand = tuple(opening[i] + draws[i] for i in range(5))
                 direct = hand[0] >= 1
-                search = hand[1] >= 1 and prizes[0] == 0
+                teammates = hand[1] >= 1 and prizes[0] == 0
+                raihan = hand[2] >= 1 and prizes[0] == 0
                 if event_name == "direct":
                     event = direct
-                elif event_name == "search":
-                    event = search
-                elif event_name == "union":
-                    event = direct or search
+                elif event_name == "teammates":
+                    event = teammates
+                elif event_name == "raihan":
+                    event = raihan
+                elif event_name == "either_supporter":
+                    event = teammates or raihan
+                elif event_name == "union_teammates":
+                    event = direct or teammates
+                elif event_name == "union_both":
+                    event = direct or teammates or raihan
                 else:
                     raise ValueError(event_name)
                 if event:
                     numerator += opening_weight * prize_weight * draw_weight
     return Fraction(numerator, denominator)
 
-
 def integrate_rank1_ko_response(base_draws):
     probs, residual, mean, p_ge_one = paired_bonus_distribution(14, "opponent")
-    lower = {"direct": Fraction(0), "search": Fraction(0), "union": Fraction(0)}
+    lower = {
+        "direct": Fraction(0), "teammates": Fraction(0), "raihan": Fraction(0),
+        "either_supporter": Fraction(0), "union_teammates": Fraction(0),
+        "union_both": Fraction(0)
+    }
     for bonus_cards, probability in enumerate(probs):
         draws = bonus_cards + base_draws
         for event_name in lower:
@@ -424,8 +434,11 @@ def main():
     print(f"Second Hood not Prized, conditional on first Hood not Prized: {percent(Fraction(53, 59))}")
     print(f"Both Hoods Prized in six Prizes: {percent(Fraction(1, 118))}")
     print("Rank 1 if candidate KOs on its first turn going second (Teammates/Raihan become live)")
-    show("Opponent Teammates/Raihan in hand and Field Blower not Prized", r1_ko["search"])
-    show("Opponent direct Field Blower or Teammates/Raihan search", r1_ko["union"])
+    show("Teammates in hand and Field Blower not Prized", r1_ko["teammates"])
+    show("Raihan in hand and Field Blower not Prized (Basic Energy in discard required)", r1_ko["raihan"])
+    show("Either Teammates/Raihan in hand and Field Blower not Prized", r1_ko["either_supporter"])
+    show("Direct Field Blower or Teammates search", r1_ko["union_teammates"])
+    show("Direct Field Blower or either Supporter search (Raihan cost payable)", r1_ko["union_both"])
     print()
     print("Rank 3 (opponent 11 Basics; Eri x1)")
     show("Candidate escape, first own turn going second", r3_first)
