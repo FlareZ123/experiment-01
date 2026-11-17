@@ -305,7 +305,8 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     });
   }
   function captureFinal(state) {
-    nativeLogs=snapshotFullState(Array.isArray(state?.logs)?state.logs:[],limits);
+    const logs=safeDataProperty(state,'logs');
+    nativeLogs=snapshotFullState(Array.isArray(logs)?logs:[],limits);
   }
   function result() {
     return {
