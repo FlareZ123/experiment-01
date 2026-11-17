@@ -72,6 +72,7 @@ I also combined the candidate reserve model with rank 1's first-response Field B
 | Candidate second; direct Field Blower / FSS + Shadow Rider V | 19.425268% | 6.715909% | 2.421316% | 4.294593% | 36.053438% |
 | Candidate second; direct Field Blower / Teammates | 25.932671% | 8.966230% | 3.232693% | 5.733537% | 36.054096% |
 | Candidate second; direct Field Blower / Teammates / Raihan* | 35.668393% | 12.332624% | 4.446446% | 7.886177% | 36.054343% |
+| Candidate second; direct Field Blower / Teammates / Raihan* + BC/VS → Teammates | **38.389926%** | **13.273490%** | **4.785655%** | **8.487835%** | **36.054234%** |
 
 All joint columns are absolute probabilities among games where **both players have valid opening sevens**. “No reserve under modeled line” means the candidate secured its first Hood, rank 1 has one of the named access routes by its first response, and the candidate cannot access a second Hood by its second turn through the modeled direct Hood / Arven / VS Seeker line. It is a resource-exposure state, **not** a game loss or a claim that rank 1 actually plays Field Blower.
 
@@ -79,10 +80,10 @@ Seat and route assumptions:
 - When the candidate goes first, rank 1's first response is after one normal draw. Teammates/Raihan are not included because the candidate has not had a first-turn attack.
 - When the candidate goes second, rank 1's first response is its second turn, after two normal draws. The Teammates/Raihan rows are conditional on the candidate's first-turn KO making those Supporters live.
 - The direct/FSS route requires Field Blower not to be Prized, with Forest Seal Stone and a Shadow Rider V both seen in the opening/draw pool and Star Alchemy unspent. The aggregate opening-plus-draw count includes a V that was subsequently benched; it does not include V access through deck-search effects such as Fog Crystal or Mysterious Treasure.
-- The Teammates route requires Field Blower not to be Prized and Teammates in hand. The Raihan row additionally assumes Raihan's Basic-Energy discard cost is payable. The Teammates-only row is shown separately to expose that assumption. The model also excludes Battle Compressor → VS Seeker recovery of Teammates/Raihan from the deck/discard; this may increase Supporter access if Field Blower is preserved. Conversely, discarding Field Blower itself with Battle Compressor would remove the out. The reported Supporter rates are therefore natural-hand route sensitivities, not the opponent's full search envelope.
-- The route families are separate sensitivities, not a combined union. In particular, the direct/FSS and direct/Supporter events overlap through direct Field Blower; their probabilities must not be added.
+- The direct Teammates route requires Field Blower not to be Prized and Teammates in hand; the direct Raihan row assumes Raihan's Basic-Energy discard cost is payable. The expanded BC/VS → Teammates row adds the union where Field Blower and Teammates are not Prized and Battle Compressor plus at least one VS Seeker are seen by rank 1's response turn. BC can discard Teammates from the deck and VS Seeker can recover it; this event overlaps the direct baseline and must not be added to it. The row assumes BC/VS are available for this response and Field Blower is preserved. It does not add the separate BC/VS → Raihan extension, which depends on Energy feasibility and is reported separately in [Agent35's response-access extension](agent35-rank1-battle-compressor-vs-seeker-response-access-20261117.md). These are access sensitivities, not a full opponent policy.
+- The route families are separate sensitivities, not a combined union. In particular, the direct/FSS and direct/Supporter events overlap through direct Field Blower; their probabilities must not be added. The expanded BC/VS row is itself a union with the direct/Supporter baseline, not an independent event.
 
-The main result is that, even in games where rank 1 has a modeled first-response route and the candidate has established its first Hood, the narrow reserve line is available in about **18.8%** of those games when going first and **36.1%** when going second. The absolute joint exposure where both rank 1 access and first-Hood setup occur but the candidate has no modeled reserve is 3.37% in the going-first direct/FSS case, 4.29% in the going-second direct/FSS case, and 7.89% in the going-second direct/Teammates/Raihan sensitivity. These figures do not account for the omitted candidate FSS/Lele lines or actual opponent decisions.
+The main result is that, even in games where rank 1 has a modeled first-response route and the candidate has established its first Hood, the narrow reserve line is available in about **18.8%** of those games when going first and **36.1%** when going second. The expanded going-second BC/VS → Teammates union raises rank 1's marginal response-access estimate from **35.668393% to 38.389926%** (+**2.721533 percentage points**). In the paired overlap, the absolute joint no-reserve state rises from **7.886177% to 8.487835%**; the expanded row's reserve-conditional-on-both-access figure remains **36.054234%**. This is not a game-loss probability: it marks only states where the modeled resources are accessible and no second Hood is accessible through the modeled candidate line. These figures do not account for the omitted candidate FSS/Lele lines or actual opponent decisions.
 
 Arven's two-part search is essential here: when it fetches the first Hood, it can also fetch a VS Seeker. The candidate can then use VS Seeker on turn 2 to recover Arven and search the reserve Hood. The candidate list contains 14 other Item cards in addition to VS Seeker; the model assumes Arven can always choose an Item, with the negligible unavailability bound stated above.
 
@@ -95,13 +96,15 @@ Included:
 - Arven as the first/second-turn Tool + Item search;
 - Arven fetching VS Seeker as its Item so VS Seeker can recover Arven if Arven fetched the first Hood;
 - the exact paired-mulligan bonus distribution;
-- the first-player Supporter restriction.
+- the first-player Supporter restriction;
+- rank 1's Battle Compressor → VS Seeker → Teammates recovery in the expanded paired-overlap row.
 
 Excluded:
 - candidate-side Forest Seal Stone / Star Alchemy access;
 - Tapu Lele-GX access to Arven;
 - Fog Crystal / Mysterious Treasure lines that find Tapu Lele;
-- Battle Compressor and other discard/recovery lines;
+- candidate-side Battle Compressor and other discard/recovery lines;
+- the separate BC/VS → Raihan extension (Agent35 reports its optimistic Energy-payable marginal union at 38.724343%, but it is not integrated into the paired reserve-overlap row);
 - Supporter contention (the model assumes Arven can be prioritized when needed);
 - bench-space constraints, Ability suppression, the opponent's actual choice to use Field Blower, and whether a reserve Hood prevents a loss.
 
