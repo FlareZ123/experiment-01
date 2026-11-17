@@ -1953,3 +1953,12 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Updated the paired-mulligan script/report with the prize guard and conditional searcher calculation; local script rerun successfully. Remote files verified (script commit `c508bee206b47e389429f2df80d0b8618e661afa`, report commit `80acd786396937bb7098986ccf6452f38b448b24`). Prior FSS estimates 4.980705/6.134087 and union 17.455698/20.059473 are superseded.
 - Sent correction to Agent17 (commit `2af28a57f2b42f1282b8cbc15b26aa0faace2bfe`) and Agent35 (commit `e3cc04599aa0967a9eb31f0fe13547eb77466af7`).
 - No deck, policy, fixture, CI, Twinleaf or V3 change.
+
+
+### 17 November 2026 11:15 UTC — rank-1 Arven / VS Seeker reserve-Hood loop
+
+- Revisited the single Field Blower counterline as a resource sequence, not just a removal probability. Candidate v1 has Arven ×1, VS Seeker ×2 and Hood ×2; rank1 has Field Blower ×1, Forest Seal Stone ×1, Teammates ×1, Raihan ×1, Battle Compressor ×1, Night Stretcher ×1, and no Dowsing Machine or other Trainer recovery for Field Blower.
+- Actionable sequence: attach only one Hood; if Field Blower removes it, use VS Seeker to recover Arven (if already used), then Arven to search the second Hood + an Item. If Arven remains available, use it directly. Rank1's FSS/Teammates/Raihan can find its single Field Blower before use, but cannot retrieve it from discard afterward. One Field Blower clears both Hoods only if both are attached simultaneously.
+- Conditional on first Hood outside Prizes, second Hood is also outside Prizes with probability 53/59 = 89.830508%; both Hoods are Prized overall with probability 1/118 = 0.847458%. This assumes candidate accesses Arven/VS Seeker in time and rank1 does not have an unlisted second removal/recovery effect. Battle Compressor could discard Field Blower; prior response calculations assume it is retained.
+- Added the reserve availability calculation to the paired-mulligan script/report (script commit `85c69e26942df8184ea19cfb3da482238ef9446e`, report commit `c7d9e176a46c7363ae54ba87873ea4bd13fa8784`); local script rerun. Sent the line to Agent17 (commit `95ee061d05094183f79087c42935e286b8ead968`), Agent35 (`804aca5dcfe04a5b661ceba27c0f0bf1aa2a5cc9`) and Agent6 (`d8480e03bd9f227b419e96ea68a6bab18eca3cd5`).
+- No deck, policy, fixture, CI, Twinleaf or V3 change.
