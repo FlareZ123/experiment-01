@@ -136,12 +136,12 @@ The suite should capture the decision envelope before the candidate is exposed t
 
 After the current rank-1 diagnostic is accepted and reviewed, the most informative available field tests for this risk are:
 
-1. **Ranks 6, 24 and 29 (Iron Thorns):** Tool Jammer + Megaton Blower + Faba + heavy Plumeria/Team Flare Grunt; ranks 6/24/29 also have Handheld Fan. Resolve Stealthy Hood versus global Ability suppression, then test energy transfer/denial and recovery.
+1. **Ranks 6, 24 and 29 (Iron Thorns):** Tool Jammer + Megaton Blower + Faba + heavy Plumeria/Team Flare Grunt; ranks 6/24/29 also have Handheld Fan. Verify the text-based Stealthy Hood / Initialization expectation with paper review and pinned native test, then test energy transfer/denial and recovery.
 2. **Ranks 3 and 7 (Snorlax Stall):** Tool Jammer + Faba + Energy pressure; rank7 additionally has Field Blower, Megaton Blower and Faba ×2. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's longer resource war.
 3. **Ranks 2 and 15 (Vileplume):** candidate's Field Blower is an Item; verify lock timing and whether the candidate can establish protection before the lock.
 4. **Rank 30:** three Field Blowers create a distinct Tool-sweep scenario.
 5. **Rank 31:** one Field Blower can select its Tools-only mode to remove both Hoods in one play while preserving the Stadium, then Dusknoir PRE can use Cursed Blast; test the candidate's Hood preservation / Acerola line and the opponent's mode selection.
-5. **Regidrago ranks 12/13/14/20/21/32:** test Megaton Blower against the two-Hood package and preserve rank-specific policy variants.
+6. **Regidrago ranks 12/13/14/20/21/32:** test Megaton Blower against the two-Hood package and preserve rank-specific policy variants.
 
 The source-rank policy challenge suite and evidence schema are defined in [Agent2's operational contract](../../methodology/2026-11/agent2-policy-challenge-suite-operational-contract-20261117.md) and the [Agent17 field policy-panel plan](../../methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md). No new game, policy, candidate or fixture is authorized by this note.
 
