@@ -475,6 +475,14 @@ test('rejects a changed raw action result even when its raw digest is recomputed
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
+test('rejects a changed original raw action result even when its native digest is recomputed', () => {
+  const originalRaw = rawReplay();
+  originalRaw.nativeGame.decisionTrace[0].actionPayload.fields.result = 0;
+  refreshTraceDigest(originalRaw);
+  assert.throws(() => run(safeArtifact(), rawReplay(), null, originalRaw),
+    { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+});
+
 test('rejects a non-ResolvePromptAction even when the sanitized replay matches it', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].actionName = 'DifferentAction';
