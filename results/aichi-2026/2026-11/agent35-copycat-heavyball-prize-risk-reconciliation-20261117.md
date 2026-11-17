@@ -65,6 +65,8 @@ The 15 November raw-exposure results remain useful as a **no-recovery ceiling** 
 
 ## Practical conclusion
 
+**Item-lock coupling:** Hisuian Heavy Ball is an Item, so Vileplume AOR3 and Budew Item-only restrictions can prevent playing it from hand. The 2.366909% Heavy-Ball-aware cut therefore applies only while Heavy Ball is actually playable; during an active Item lock, the no-recovery core-Prize exposure (18.766341% conditional on a legal seven) is the relevant Prize-zone stress bound until the lock clears. By contrast, Stealthy Hood and Float Stone are Pokémon Tools and remain playable through Item-only locks under manual B-02. This asymmetry matters: the deck may still attach Hood to protect a Pokémon from an Ability effect while being unable to use Heavy Ball to recover a Prized Basic.
+
 For the Hood 60, a policy must distinguish:
 - core identity in Prizes;
 - Heavy Ball in Prizes versus outside Prizes;
