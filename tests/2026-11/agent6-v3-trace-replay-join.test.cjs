@@ -227,11 +227,11 @@ function makeSanitizerRepo() {
   const canonicalJsonPath = path.join(root, EXPECTED_CANONICAL_JSON_PATH);
   fs.mkdirSync(path.dirname(sanitizerPath), { recursive: true });
   fs.mkdirSync(path.dirname(canonicalJsonPath), { recursive: true });
-  fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\\n');
+  fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\n');
   fs.writeFileSync(canonicalJsonPath,
-    'module.exports = { evidenceBundleSha256() { return \'0000000000000000000000000000000000000000000000000000000000000000\'; } };\\n');
+    'module.exports = { evidenceBundleSha256() { return \'0000000000000000000000000000000000000000000000000000000000000000\'; } };\n');
   fs.writeFileSync(path.join(root, '.gitmodules'),
-    '[submodule "vendor/twinleaf"]\\n\\tpath = vendor/twinleaf\\n\\turl = https://github.com/twinleafgg/twinleafgg.git\\n');
+    '[submodule "vendor/twinleaf"]\n\tpath = vendor/twinleaf\n\turl = https://github.com/twinleafgg/twinleafgg.git\n');
   execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'agent6-test@example.invalid'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Agent6 test'], { cwd: root });
@@ -624,6 +624,18 @@ test('rejects a dirty sanitizer working-tree file', () => {
   const repo = makeSanitizerRepo();
   try {
     fs.appendFileSync(repo.sanitizerPath, '// uncommitted change\n');
+    assert.throws(() => verifySanitizerCheckout(
+      repo.sanitizerPath, rawSanitizerMetadata(repo)
+    ), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+  } finally {
+    repo.cleanup();
+  }
+});
+
+test('rejects a dirty canonical evidence JSON working-tree file', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    fs.appendFileSync(repo.canonicalJsonPath, '// uncommitted canonicalizer change\\n');
     assert.throws(() => verifySanitizerCheckout(
       repo.sanitizerPath, rawSanitizerMetadata(repo)
     ), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
