@@ -11,8 +11,16 @@ const {
   analyzeTraceReplay, verifySanitizerCheckout
 } = require('../../simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs');
 
+function canonicalJson(value) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
+      (typeof value === 'number' && Number.isFinite(value))) return JSON.stringify(value);
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
+  return '{' + Object.keys(value).sort().map(key =>
+    JSON.stringify(key) + ':' + canonicalJson(value[key])).join(',') + '}';
+}
+
 function digest(value) {
-  return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  return crypto.createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex');
 }
 
 function workerAudit() {
@@ -118,13 +126,15 @@ function rawReplay({
       prompts: includeAfter ? [promptAfter] : []
     }
   };
+  const decisionTrace = [row];
+  const decisionTraceSha256 = digest(decisionTrace);
   return {
     fixtureOnly: true,
     nativeGame: {
       seed: 'public-seed', seed32: 123, candidateSeat: 0,
       originalSourceSeat: 1, actualFirstPlayerSeat: 0,
       finished: true, endReason: 'engine-game-end', acceptedActions: 15,
-      decisionTrace: [row]
+      decisionTrace, decisionTraceSha256
     },
     engine: {
       twinleafCommitSha: '3'.repeat(40),
@@ -134,7 +144,8 @@ function rawReplay({
     trial: {
       trialId: 'trial-1', seed: 'public-seed', seed32: 123,
       candidateSeat: 0, originalSourceSeat: 1, actualFirstPlayerSeat: 0,
-      vendorCommitSha: '3'.repeat(40), researchRevisionSha: '4'.repeat(40)
+      vendorCommitSha: '3'.repeat(40), researchRevisionSha: '4'.repeat(40),
+      decisionTraceSha256
     },
     candidate: { printed60Sha256: '1'.repeat(64) },
     opponent: { printed60Sha256: '2'.repeat(64) },
@@ -146,6 +157,13 @@ function rawReplay({
     workerExecutionAudit: workerAudit(),
     workerExecutionAuditSha256: '9'.repeat(64)
   };
+}
+
+function refreshTraceDigest(replay) {
+  const value = digest(replay.nativeGame.decisionTrace);
+  replay.nativeGame.decisionTraceSha256 = value;
+  replay.trial.decisionTraceSha256 = value;
+  return replay;
 }
 
 function sanitizeFixtureArtifact(raw) {
@@ -295,6 +313,7 @@ test('does not accept the target identifier in unrelated metadata or substring t
   const prompt = replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0];
   prompt.extraFields.note = 'unrelated metadata mentions WANT_TO_DRAW_CARDS';
   prompt.fields.message = 'OTHER_EFFECT_WANT_TO_DRAW_CARDS';
+  refreshTraceDigest(replay);
   const result = run(safeArtifact(), replay);
   assert.equal(result.status, 'not-exercised');
   assert.equal(result.targetCount, 0);
@@ -305,6 +324,7 @@ test('uses fields.text only when the canonical message field is absent', () => {
   const prompt = replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0];
   delete prompt.fields.message;
   prompt.fields.text = 'WANT_TO_DRAW_CARDS';
+  refreshTraceDigest(replay);
   const result = run(safeArtifact(), replay);
   assert.equal(result.status, 'reconstructed');
   assert.equal(result.targets[0].promptIdentityField, 'text');
@@ -328,6 +348,7 @@ test('requires the after-dispatch prompt result to equal the native action resul
 test('requires the resolved prompt to retain the exact target effect identity', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].fullStateAfter.prompts[0].fields.message = 'OTHER_EFFECT';
+  refreshTraceDigest(replay);
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_IDENTITY_CHANGED' });
 });
 
@@ -415,10 +436,24 @@ test('recomputes sanitization from raw replay and rejects a changed decision row
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
+test('rejects tampered raw action result when the native decision-trace digest is stale', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].actionPayload.fields.result = 0;
+  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+});
+
+test('rejects a changed raw action result even when its raw digest is recomputed', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].actionPayload.fields.result = 0;
+  refreshTraceDigest(replay);
+  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+});
+
 test('rejects a non-ResolvePromptAction even when the sanitized replay matches it', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].actionName = 'DifferentAction';
   replay.nativeGame.decisionTrace[0].actionPayload.actionName = 'DifferentAction';
+  refreshTraceDigest(replay);
   const matchingOriginal = sanitizeFixtureArtifact(replay);
   assert.throws(() => run(matchingOriginal, replay), { code: 'TRACE_REPLAY_ACTION_CLASS_MISMATCH' });
 });
@@ -458,6 +493,7 @@ test('rejects a mismatch in a surviving public field outside the game summary', 
 test('rejects native prompt allowCancel drift against the sanitized resolver receipt', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0].fields.options.allowCancel = true;
+  refreshTraceDigest(replay);
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
 });
 
@@ -499,6 +535,7 @@ test('output contains no raw card identities, numeric card IDs, or opaque prompt
   rawRow.actionPayload.fields.token = 'opaque-secret-token';
   rawRow.actionPayload.fields.numericToken = '123456';
   rawRow.fullStateBefore.prompts[0].extraFields.cards = [{ value: 98765, name: 'Secret Card DEF' }];
+  refreshTraceDigest(replay);
   const result = run(safeArtifact(), replay);
   const serialized = JSON.stringify(result);
   assert.equal(serialized.includes('Secret Card ABC'), false);
