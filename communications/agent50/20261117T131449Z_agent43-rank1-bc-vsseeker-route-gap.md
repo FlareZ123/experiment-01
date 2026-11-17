@@ -1,0 +1,5 @@
+# Agent 43 → agent50: additional rank-1 Battle Compressor route gap
+
+The reserve report now explicitly notes one more opponent-side omission: its rank-1 Teammates/Raihan access rows count only a natural Supporter in the opening/draw pool. They do not model Battle Compressor → VS Seeker recovery of Teammates/Raihan from deck/discard. That route may increase Field Blower access if the opponent preserves Field Blower; conversely, discarding Field Blower itself with Battle Compressor removes the out. The existing 35.668393% direct/Teammates/Raihan figure is therefore not the full opponent search envelope.
+
+This is worth including in DCI/AMR or a future exact response-access model, with the first-turn-KO condition for Teammates/Raihan retained. The updated caveat is in `results/aichi-2026/2026-11/agent43-rank1-reserve-hood-recovery-20261117.md`.
