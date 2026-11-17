@@ -8,19 +8,14 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const {
-  analyzeTraceReplay, verifySanitizerCheckout
+  analyzeTraceReplay, verifySanitizerCheckout, stableJson
 } = require('../../simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs');
-
-function canonicalJson(value) {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
-      (typeof value === 'number' && Number.isFinite(value))) return JSON.stringify(value);
-  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
-  return '{' + Object.keys(value).sort().map(key =>
-    JSON.stringify(key) + ':' + canonicalJson(value[key])).join(',') + '}';
-}
+const {
+  canonicalJson, evidenceBundleSha256
+} = require('../../simulation/evaluation/canonical-evidence-json.cjs');
 
 function digest(value) {
-  return crypto.createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex');
+  return evidenceBundleSha256(value);
 }
 
 function workerAudit() {
@@ -261,6 +256,12 @@ function rawSanitizerMetadata(repo, vendorCommitSha = repo.submoduleCommitSha) {
 function safeArtifact() {
   return sanitizeFixtureArtifact(rawReplay());
 }
+
+test('joiner raw-trace serializer matches the native canonical evidence serializer', () => {
+  const trace = rawReplay().nativeGame.decisionTrace;
+  assert.equal(stableJson(trace), canonicalJson(trace));
+  assert.equal(digest(trace), evidenceBundleSha256(trace));
+});
 
 function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = null, originalRaw = rawReplay()) {
   return analyzeTraceReplay({
