@@ -218,7 +218,8 @@ function sanitizeFixtureArtifact(raw) {
 
 const sanitizerIdentity = {
   researchRevisionSha: '4'.repeat(40),
-  sanitizerBlobSha: '8'.repeat(40)
+  sanitizerBlobSha: '8'.repeat(40),
+  twinleafCommitSha: '3'.repeat(40)
 };
 
 const EXPECTED_SANITIZER_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
@@ -572,7 +573,8 @@ test('requires the exact sanitizer function and its revision identity', () => {
   assert.throws(() => analyzeTraceReplay({
     originalSanitized: safeArtifact(), originalRaw: replay, replayRaw: replay,
     sanitizeFixtureArtifact, sanitizerIdentity: {
-      researchRevisionSha: 'a'.repeat(40), sanitizerBlobSha: '8'.repeat(40)
+      researchRevisionSha: 'a'.repeat(40), sanitizerBlobSha: '8'.repeat(40),
+      twinleafCommitSha: '3'.repeat(40)
     }
   }), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
