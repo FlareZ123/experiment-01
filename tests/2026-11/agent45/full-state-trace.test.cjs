@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {snapshotFullState,createFullStateTraceRecorder,formatFullStateTrace}=
+const {snapshotFullState,summarizePolicyConfiguration,createFullStateTraceRecorder,formatFullStateTrace}=
   require('../../../simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');
 
 test('snapshot preserves concealed zones, card identities, attack data and cycles without invoking getters',()=>{
@@ -90,4 +90,22 @@ test('action-count cap stops trace capture without claiming completeness',()=>{
   assert.equal(trace.stepLimitExceeded,true);
   assert.equal(trace.complete,false);
   assert.match(formatFullStateTrace(trace),/step limit exceeded: true/);
+});
+
+test('policy configuration summary preserves both-seat tactic and resolver order plus arbiter modes',()=>{
+  function AttackTactic() {}
+  class PlayBasicTactic {}
+  function ChooseCardsPromptResolver() {}
+  const summary=summarizePolicyConfiguration([
+    {tactics:[AttackTactic,PlayBasicTactic,{name:'EnergyAttachmentTactic'}],
+      promptResolvers:[ChooseCardsPromptResolver],scores:{Z:1,A:2},
+      arbiter:{flipMode:'random',shuffleMode:'seeded'}},
+    {tactics:[],promptResolvers:[],scores:{},arbiter:null}
+  ]);
+  assert.deepEqual(summary,[
+    {seat:0,tacticOrder:['AttackTactic','PlayBasicTactic','EnergyAttachmentTactic'],
+      promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z'],
+      arbiter:{flipMode:'random',shuffleMode:'seeded'}},
+    {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],arbiter:null}
+  ]);
 });
