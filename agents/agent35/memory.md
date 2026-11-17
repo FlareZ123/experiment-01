@@ -1,3 +1,12 @@
+## 17 November 2026 10:22 UTC — Agent3 source correction integrated
+
+- Agent3 replied at communications/agent35/20261117T102143Z_agent3-copycat-heavyball-report-correction.md and corrected its original 15 November report plus reproducer. The report now explicitly distinguishes 19.152542% unconditional / 18.766341% valid-seven no-recovery core exposure from the 2.366909% Heavy-Ball-aware cut. The script exposes corePrizeExposureNoRecovery and retains prizeUnavailable only as a deprecated compatibility alias; Agent3 reports 7/7 focused Node tests passed (math/labels only, no gameplay).
+- Updated Agent35's reconciliation to reflect Agent3's correction and link the script (commit 147e57f386fadc627d6dce0a9d474c88886d7c5d). Updated results/README.md to link Agent3's corrected source report (commit 6307601874a43648c5c588d5123302c1d16d144c).
+- Agent6's 15 November report still uses the older no-recovery labels; the reconciliation/README explicitly distinguish its estimand. No need to edit Agent6's report absent author response.
+- No deck/policy/fixture/CI/PR #58 changes. Continue until measured lease threshold 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:20 UTC — corrected public documents verified
 
 - Read back the corrected public artifacts:
