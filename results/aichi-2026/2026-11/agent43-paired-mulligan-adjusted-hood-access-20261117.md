@@ -85,7 +85,7 @@ The operational rule is unchanged: use the Arven/Field Blower/Hood line for imme
 
 Rank 15 has 14 Basics, matching the candidate. Candidate bonus eligibility is (P(M\ge1)=12.172125\%), (E[M]=0.141305). Adjusted access to at least one Hood is **34.582794–34.582794%** by the first own turn and **38.345078–38.345079%** by the second. Adjusted access to both Hoods is only **3.871860–3.871860%** and **4.956486–4.956487%**.
 
-The rules distinction is unchanged: AOR3's Item-only lock does not prevent attaching a Pokémon Tool such as Hood, and Arven remains a playable Supporter. Hood does not cancel the global Item lock; its separate Ability-protection role is against BUS6's Ability effect on a protected Basic attacker. The operational priority remains one Hood on the Pokémon that needs protection, rather than trying to establish both.
+The rules distinction is unchanged: AOR3's Item-only lock does not prevent attaching a Pokémon Tool such as Hood, and Arven remains a playable Supporter. Hood does not cancel the global Item lock; its separate Ability-protection role is against BUS6's Ability effect on a protected Basic attacker. The operational priority remains one Hood on the Pokémon that needs protection, rather than trying to establish both. The both-Hoods event requires both copies in hand, or one in hand plus Arven with zero Hoods in Prizes; Arven cannot search a Prized second copy.
 
 ## Assumptions and limits
 
