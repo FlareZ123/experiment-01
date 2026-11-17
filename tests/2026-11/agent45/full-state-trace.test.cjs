@@ -2,6 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 const {snapshotFullState,summarizePolicyConfiguration,summarizeNativeStateForText,createFullStateTraceRecorder,formatFullStateTrace}=
   require('../../../simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');
 
@@ -148,4 +150,16 @@ test('per-action log delta marks a native log-array reset',()=>{
   assert.equal(delta.countBefore,3);
   assert.equal(delta.countAfter,1);
   assert.match(JSON.stringify(delta.entries),/new log epoch/);
+});
+
+test('headless trace integration is opt-in, guarded and fail-open',()=>{
+  const headless=fs.readFileSync(path.join(__dirname,'../../../simulation/twinleaf/headless.cjs'),'utf8');
+  assert.match(headless,/request\.captureFullStateTrace === true/);
+  assert.match(headless,/createFullStateTraceRecorder/);
+  assert.match(headless,/summarizeNativeStateForText/);
+  assert.equal((headless.match(/if\(fullStateTraceRecorder\) recordFullStateStep\(\{/g)||[]).length,4);
+  assert.match(headless,/function captureTracePublicBoard/);
+  assert.match(headless,/function captureTraceHumanSummary/);
+  assert.match(headless,/fullStateTraceCaptureError/);
+  assert.match(headless,/fullStateTraceText:formatFullStateTrace\(fullStateTraceResult\)/);
 });
