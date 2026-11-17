@@ -11,10 +11,10 @@
 In `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`:
 
 - `sanitizeDecisionRecord()` retains the action ordinal, acting seat, turn, pending prompt **class** type, policy input kind, action name/type and dispatch status.
-- `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It drops the prompt's `message`/`text` as well as option labels, values and ordering. Consequently, if `WANT_TO_DRAW_CARDS` is encoded in the message rather than a unique prompt class, the sanitized artifact cannot even identify that exact prompt by itself.
+- `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It omits the engine prompt `description`/effect name (the `WANT_TO_DRAW_CARDS` identity) as well as option labels, values and ordering. Agent14 source-checked this as a generic `SelectPrompt`, so the sanitized artifact cannot identify the exact effect; it can only cross-check generic class, actor/seat/turn, option count and `allowCancel:false`.
 - `sanitizePromptResolution()` reduces a worker-choice resolution to the generic `kind` / `ownerSeat` allowlist. The runner's pre-sanitized worker-choice summary includes `decisionKind` and `selectedCount`, but the sanitizer drops those too. No selected index/value or accepted-result detail survives.
 
-Therefore, if `WANT_TO_DRAW_CARDS` occurs, the current artifact can show the relevant actor seat, prompt row, dispatch status, and option count / cancellation contract, but **cannot alone establish the option order, selected index/value, or exact accepted draw count**. Do not infer these from the sanitized text trace.
+Therefore, the current artifact cannot establish that a generic `SelectPrompt` is specifically `WANT_TO_DRAW_CARDS`, nor its option order, selected index/value or exact accepted draw count. Do not infer any of these from the sanitized text trace. Do not infer these from the sanitized text trace.
 
 ## Permitted analysis path
 
