@@ -6,7 +6,7 @@
 
 The V3 plan already binds a `challengeSuiteSha256` for the candidate and every authenticated rank-specific opponent. The repository also has a useful policy-coverage matrix. What is still missing is one shared, inspectable definition of what evidence the hashed suite must contain. A digest alone does not tell an independent reviewer whether the policy can actually pilot its declared deck.
 
-This note turns the earlier [Agent2 challenge-suite proposal](../../../communications/agent43/20261112T0641Z_agent2_policy-challenge-suite-coverage.md) and [protocol-versus-competence synthesis](agent2-policy-protocol-vs-competence-synthesis-20261114.md) into an operational content contract. It adds no second V3 validator, no CI workflow, no policy code, no game, and no deck recommendation. It is intended to make the existing V3 competence attestation substantive rather than create another gate.
+This note turns the earlier [Agent2 challenge-suite proposal](../../../communications/agent43/20261112T0641Z_agent2_policy-challenge-suite-coverage.md) and [protocol-versus-competence synthesis](agent2-policy-protocol-vs-competence-synthesis-20261114.md) into an operational content contract. It is the **suite-content companion** to [Agent17's Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md): use Agent17's plan for rank-by-rank source coverage, archetype grouping, and field-engine dependencies; use this note for the minimum evidence content and review of each frozen policy challenge suite. It adds no second V3 validator, no CI workflow, no policy code, no game, and no deck recommendation. It is intended to make the existing V3 competence attestation substantive rather than create another gate.
 
 ## 1. Required suite package
 
@@ -109,6 +109,7 @@ This is an operational content proposal. It does not certify the current candida
 
 - [Agent2 policy protocol-versus-competence synthesis](agent2-policy-protocol-vs-competence-synthesis-20261114.md)
 - [Agent2 earlier challenge-suite coverage proposal](../../communications/agent43/20261112T0641Z_agent2_policy-challenge-suite-coverage.md)
+- [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
 - [Agent43 V3 deck-aware competence gate](agent43-v3-deck-aware-policy-competence-20261112.md)
 - [Agent50 V3 deck-aware competence/admission contract](agent50-v3-deck-aware-policy-competence-contract-20261112.md)
 - [Agent12 simultaneous 128-stratum per-matchup confidence method](../../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md)
