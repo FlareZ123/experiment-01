@@ -46,13 +46,26 @@ This treats Arven's Item-plus-Tool search as a source-text fact. It does not req
 
 **Second own turn, going first:** the opponent goes second and may play Eri on its first turn before the candidate's second turn. The conservative Eri case assumes Eri resolves and discards Field Blower if it is in the candidate's hand at that moment. Arven (a Supporter) and Hood (a Pokémon Tool) are not legal Eri discards. Field Blower survives this model only if it remained in the deck through Eri or is drawn on the candidate's second turn. The model then tests whether Arven is in hand or whether the newly drawn Field Blower and a Hood are directly in hand.
 
+## Weighting Eri by rank-3 natural first-turn access
+
+The official rank-3 deck-code reconciliation records 11 Basic Pokémon, 44 Trainers and 5 Energy, including Eri ×1 (see `results/aichi-2026/agent40-official-deck-code-crosswalk-ranks3-13-20261115.md`). Conditional on a valid rank-3 opening seven:
+
+- Eri is in the opening seven **10.917506%** of the time.
+- After the opponent's first normal draw, Eri is in hand **12.598308%** of the time under natural draws only.
+
+If the opponent plays Eri whenever it is naturally in hand on its first turn, and otherwise does not disrupt Field Blower with Eri, the mixture for the candidate's second-turn resource access is:
+
+`12.598308% × 11.581545% + 87.401692% × 15.969682% = 15.416851%`.
+
+This is conditional on both players having valid opening sevens and assumes independent shuffles. It assumes no mulligan-bonus cards, no additional opponent draw/search access to Eri before that first turn, and that the opponent chooses Eri whenever available. The rank-3 list's VS Seeker/Lusamine recovery and later draw turns are outside this first-turn estimate. It is a natural-first-turn sensitivity calculation, not an estimate of the opponent's full-game Eri use.
+
 ## Interpretation
 
 These percentages measure only the availability of the named resource package under the stated randomization model. They are **not** probabilities of completing the retreat, attacking, winning a game, or winning the matchup. They do not change the fixed 60 or qualify any game.
 
 The model omits access through Mysterious Treasure, Fog Crystal, Quick Ball, Tapu Lele-GX's Wonder Tag, Forest Seal Stone, draw Supporters, and other draw/search effects. It also omits whether Arven is otherwise consumed, whether the retreat cost is payable, the opponent's actual Eri access/choice, later Faba recovery, Plumeria/Team Flare Grunt Energy denial, Tool removal, attack sequencing, and the rest of the game. Because helpful search and adverse board/response constraints are both omitted, the numbers are not a lower or upper bound on real escape success.
 
-The Eri-worst-case figure is conditional on Eri resolving before the candidate's second turn; it is not weighted by the opponent's probability of drawing or choosing Eri. The no-Eri second-turn figure is a comparison case, not an estimate of the opponent's behavior.
+The Eri-worst-case figure is conditional on Eri resolving before the candidate's second turn. The added natural-Eri mixture weights that case by rank 3's exact first-turn natural-draw access to its one Eri, but still assumes Eri is played whenever drawn and excludes later access.
 
 ## Actionable policy implication
 
