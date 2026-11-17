@@ -22,7 +22,9 @@ This suggests a different allocation of the existing two-Hood package: one Hood 
 
 Agent17's exact field-pressure inventory identifies ranks **6, 24 and 29** as Iron Thorns lists with Initialization, and ranks **8 and 22** as Absol/Garbodor lists. Those are direct reasons to test this architecture: the candidate's main acceleration is Shadow Rider's Underworld Door, and Guardian of Love may protect Psychic-Energy-attached Shadow Riders from the opponent's Ability suppression. This is distinct from the direct Tool-removal threat: Enamorus does not stop Field Blower, Megaton Blower or Faba.
 
-For Iron Thorns specifically, Enamorus V is itself a Rule Box Pokémon and would be subject to Initialization. A Hood on Enamorus is therefore the proposed anchor. Agent17's report documents a strong analogous text-based Stealthy Hood / Initialization inference supported by the official Mega Clefable ex Q&A, but still calls for a pinned native test and paper review. This Enamorus architecture needs its own test; do not treat the analogous interaction as a direct Enamorus ruling.
+For Iron Thorns specifically, Enamorus V is itself a Rule Box Pokémon and would be subject to Initialization. A Hood on Enamorus is therefore the proposed anchor. Agent17's evidence reconciliation now records a successful pinned native Store/effect test of Stealthy Hood on Shadow Rider VMAX under Active Iron Thorns (workflow run 38829270890, pinned Twinleaf revision a9905a76a6c4103ba4b6cb9a49e86bad795c5c05), plus the official Mega Clefable ex Q&A for the identical prevention clause. That existing test validates the Hood/Initialization mechanism on Shadow Rider, not the Enamorus architecture. The new, untested extension is whether Guardian of Love prevents Initialization from suppressing the other Psychic-Energy-attached Pokémon while Enamorus itself is protected by Hood. Do not rerun or duplicate the existing Hood test; test the Enamorus layer separately.
+ 
+Rank 31 adds a second concrete target: its Dusknoir Chimecho list contains three Dusknoir and one Field Blower. The official Japanese [Dusknoir Cursed Blast Q&A](https://www.pokemon-card.com/rules/faq/search.php?sc_group_id=917) rules that Cursed Blast may select a Pokémon protected by Mega Clefable ex's Luminous Wing, but places no damage counters on that Pokémon; Dusknoir is still Knocked Out and processing ends. This is strong analogous support for Guardian of Love preventing Cursed Blast damage counters on a Shadow Rider with Psychic Energy attached, but no direct Enamorus/Cursed Blast ruling was found. The board-wide shield could therefore be relevant to rank31 as well as ranks 6/24/29 and 8/22.
 
 ## Critical interaction to resolve
 
@@ -67,6 +69,8 @@ Do not add Enamorus V to the nominated 60 before the V3 acceptance and first nat
 | Opponent's Basic Ability lock / Wobbuffet | Check whether Enamorus remains active under the exact Ability text and whether the protected Shadow Riders remain covered. |
 | Silent Lab or Path to the Peak | Confirm these Stadium effects are not prevented by Guardian of Love; record the candidate's Stadium answer. |
 | Shadow Rider with no Psychic Energy attached | Confirm that the Pokémon is not protected until Psychic Energy is attached. |
+| Rank31 Dusknoir Cursed Blast targets a Shadow Rider with Psychic Energy | Are damage counters prevented by Guardian of Love while Dusknoir still self-KOs, matching the official Luminous Wing Q&A? |
+| Dusknoir targets Enamorus V itself | Confirm that Enamorus is excluded from its own protection and that Hood is required to protect it. |
 | Enamorus V damaged, Acerola used before KO | Does Acerola preserve Enamorus and its attached Hood; what Supporter/tempo cost and rebench timing result? |
 | Enamorus V Knocked Out or gusted | Measure the two-Prize cost and loss of the board-wide shield. |
 | Field Blower / Megaton Blower / Faba | Distinguish discard, full attached-Tool sweep and Lost Zone placement; do not conflate their recovery options. |
@@ -75,7 +79,7 @@ Do not add Enamorus V to the nominated 60 before the V3 acceptance and first nat
 
 - **Card-text facts:** repository card database entries for Enamorus V (swsh11-82), Stealthy Hood (sm10-186), Garbodor (xy9-57), Fog Crystal (swsh6-140), Mysterious Treasure (sm6-113), and Shadow Rider Calyrex VMAX (swsh6-75).
 - **Candidate facts:** current fixed 60-card JSON; 11 Psychic Energy, 4 Fog Crystal, 4 Mysterious Treasure, 2 Stealthy Hoods.
-- **Hypothesis:** a Hood-protected Enamorus V may provide a board-wide ability shield to the candidate's Psychic-Energy-attached Pokémon.
+- **Hypothesis:** a Hood-protected Enamorus V may provide a board-wide ability shield to the candidate's Psychic-Energy-attached Pokémon. The separate Stealthy Hood / Iron Thorns mechanism on Shadow Rider already has a pinned native test; the Enamorus extension does not.
 - **Unresolved:** whether Guardian of Love prevents Garbotoxin's continuous suppression effect on the protected Pokémon while Stealthy Hood preserves Enamorus itself. Also unresolved are simulator support, field-wide value, slot cost and win-rate effect.
 
 This is a high-value interaction to test, not a deck change or a claim of competitive improvement.
