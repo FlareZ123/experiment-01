@@ -70,8 +70,8 @@ function rawReplay({ target = true, choice = 2, handAfter = 9 } = {}) {
 }
 
 function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = null) {
-  return analyzeTraceReplay({ originalSanitized: original, replayRaw: replay,
-    actionOrdinal, sanitizeFixtureArtifact: raw => raw.safe });
+  return analyzeTraceReplay({ originalSanitized: original, replaySanitized: replay.safe,
+    replayRaw: replay, actionOrdinal });
 }
 
 test('reconstructs the draw count only when action value and accepted hand delta agree', () => {
@@ -130,6 +130,18 @@ test('rejects a mismatch in a surviving public field outside the game summary', 
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
+test('rejects resolver allowCancel drift', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].promptResolverContext.availableOptions.allowCancel = true;
+  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
+});
+
+test('rejects resolver option-count drift', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].promptResolverContext.availableOptions.options.pop();
+  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
+});
+
 test('allows only ephemeral container identifiers to differ', () => {
   const original = safeArtifact();
   const replay = rawReplay();
@@ -139,6 +151,14 @@ test('allows only ephemeral container identifiers to differ', () => {
   replay.safe.workerExecutionAuditSha256 = 'd'.repeat(64);
   const result = run(original, replay);
   assert.equal(result.replayIdentityVerified, true);
+});
+
+test('does not ignore similarly named fields outside the worker audit', () => {
+  const original = safeArtifact();
+  const replay = rawReplay();
+  original.quickBallAudit = { containerIdSha256: 'a'.repeat(64) };
+  replay.safe.quickBallAudit = { containerIdSha256: 'b'.repeat(64) };
+  assert.throws(() => run(original, replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
 test('rejects an invalid actor-only boundary', () => {

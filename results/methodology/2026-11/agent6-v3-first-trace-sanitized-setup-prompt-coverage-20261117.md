@@ -68,18 +68,22 @@ A same-seed replay that matches all sanitized fields is a **deterministic recons
 Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) has geometric distribution (P(K=k\mid\text{prompt})=p q^{k-1}), with mean (1/p=1.1608883) cards. Thus, conditional on a prompt, exactly one optional card accounts for **86.1409%**, exactly two for **11.9383%**, and exactly three for **1.6545%**. These are allowance counts, not the worker's chosen draw count. (If the engine presents one choice per draw count from zero through the maximum, the most common prompt has two options, but the raw replay must establish the actual option order.)
 
 
+
 ## Deterministic offline replay joiner
 
-The source audit is now operationalized by simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs, with synthetic contract tests in tests/2026-11/agent6-v3-trace-replay-join.test.cjs.
+The post-acceptance replay joiner is simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs, with synthetic contract tests in tests/2026-11/agent6-v3-trace-replay-join.test.cjs.
 
-After the first natural-terminal fixture has passed its actor-only and worker gates, and only if a private offline replay is needed to identify this prompt, run:
+The helper is deliberately independent of the V3 sanitizer module, which currently exists on PR #58 rather than main. First create a second sanitized JSON artifact from the offline-decrypted replay using the exact same sanitizer revision that produced the original artifact. If PR #58 has not merged, run the exported sanitizeFixtureArtifact function from that exact PR checkout; do not use a newer sanitizer revision.
+
+Then run:
 
     node simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs \
       path/to/original-sanitized-artifact.json \
+      path/to/replay-sanitized-artifact.json \
       path/to/offline-decrypted-replay.json
 
-An optional third argument restricts analysis to one sanitized actionOrdinal. The tool re-sanitizes the replay and rejects it unless the trial/seed/seat bindings, printed-60 hashes, Twinleaf and research pins, policy identities, complete sanitized public artifact, game trace/summary, worker audits, zero policy-RNG counts, actor-only boundary, and natural terminal all match. Only ephemeral worker container identifiers and the derived worker-audit digest are excluded from exact public-artifact comparison.
+An optional fourth argument restricts analysis to one sanitized actionOrdinal. The tool compares the two sanitized artifacts and rejects unless the trial/seed/seat bindings, printed-60 hashes, Twinleaf and research pins, policy identities, all sanitized public fields, game trace/summary, worker audits, zero policy-RNG counts, actor-only boundary, and natural terminal all match. Only the two known ephemeral worker-audit fields (worker container identifiers and the derived audit digest) are excluded from exact public-artifact comparison.
 
-For each matching generic SelectPrompt, it searches the offline prompt snapshot for WANT_TO_DRAW_CARDS, compares resolver option counts and allowCancel, and reports only safe option labels/counts, numeric choice evidence, and the acting player's before/after hand counts. It reports a selected draw count only when the numeric choice evidence agrees with the accepted hand-count delta. It never emits raw prompt fields, card identities, opaque tokens, seed values, or full state. The result is explicitly marked as deterministic reconstruction, not direct observation and not competitive evidence.
+For each matching generic SelectPrompt, it searches the offline prompt snapshot for WANT_TO_DRAW_CARDS, checks resolver option counts and allowCancel, and reports only safe option labels/counts, numeric choice evidence, and the acting player's before/after hand counts. It reports a selected draw count only when numeric choice evidence agrees with the accepted hand-count delta. It never emits raw prompt fields, card identities, opaque tokens, seed values, or full state. The result is explicitly marked as deterministic reconstruction, not direct observation and not competitive evidence.
 
-Validation: node --test tests/2026-11/agent6-v3-trace-replay-join.test.cjs passed 11/11 synthetic contract tests before the repository commit. This is a tool-level test result only; the joiner has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched and no deck or policy was changed.
+Validation: node --test tests/2026-11/agent6-v3-trace-replay-join.test.cjs passed **14/14 synthetic contract tests** after the dependency-removal correction. This is a tool-level test result only; the joiner has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched and no deck or policy was changed.

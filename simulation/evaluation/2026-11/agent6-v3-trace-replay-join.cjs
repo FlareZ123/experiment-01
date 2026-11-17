@@ -2,9 +2,9 @@
 
 /**
  * Offline-only deterministic replay joiner for the first V3 natural-terminal trace.
- * Input 1 is the original sanitized artifact; input 2 is an offline-decrypted
- * full replay artifact. Never run this on a public/shared machine or emit raw
- * prompt, card, token, seed, hand, deck, Prize, or state data.
+ * Input 1 is the original sanitized artifact; input 2 is a replay sanitized with
+ * the exact same sanitizer revision; input 3 is the offline-decrypted full replay.
+ * Never run this on a public/shared machine or emit raw prompt/card/token/state data.
  */
 const fs = require('node:fs');
 
@@ -80,20 +80,21 @@ function validateArtifact(artifact, label) {
 }
 
 function publicArtifactProjection(value) {
-  if (Array.isArray(value)) return value.map(publicArtifactProjection);
-  if (!value || typeof value !== 'object') return value;
-  const result = {};
-  for (const [key, child] of Object.entries(value)) {
-    // Docker container IDs are intentionally ephemeral across otherwise identical replays.
-    if (key === 'containerIdSha256' || key === 'workerExecutionAuditSha256') continue;
-    result[key] = publicArtifactProjection(child);
+  // Exclude only the two known ephemeral worker-audit fields, never similarly
+  // named data in unrelated public parts of the artifact.
+  const result = JSON.parse(JSON.stringify(value));
+  delete result.workerExecutionAuditSha256;
+  for (const role of ['candidate', 'opponent']) {
+    if (result.workerExecutionAudit?.roles?.[role]) {
+      delete result.workerExecutionAudit.roles[role].containerIdSha256;
+    }
   }
   return result;
 }
 
 function verifyReplayIdentity(original, replay) {
   validateArtifact(original, 'original sanitized artifact');
-  validateArtifact(replay, 're-sanitized replay artifact');
+  validateArtifact(replay, 'replay sanitized artifact');
   const required = [
     'trial.trialId', 'trial.seed', 'trial.seed32', 'trial.candidateSeat',
     'trial.originalSourceSeat', 'trial.actualFirstPlayerSeat',
@@ -219,7 +220,7 @@ function findRawPromptAfter(row, promptId, promptType = 'SelectPrompt') {
   return resolved.length === 1 ? resolved[0] : null;
 }
 
-function analyzeTargetRow(original, rawGame, safeRow) {
+function analyzeTargetRow(rawGame, safeRow) {
   const rows = rawGame.decisionTrace.filter(row => row?.actionOrdinal === safeRow.actionOrdinal);
   if (rows.length !== 1) {
     const error = new Error('raw replay does not contain one unique action ordinal ' + safeRow.actionOrdinal);
@@ -309,12 +310,10 @@ function analyzeTargetRow(original, rawGame, safeRow) {
   };
 }
 
-function analyzeTraceReplay({ originalSanitized, replayRaw, actionOrdinal = null,
-  sanitizeFixtureArtifact = null } = {}) {
-  if (!originalSanitized || !replayRaw) throw new TypeError('original sanitized and raw replay artifacts are required');
-  const sanitize = sanitizeFixtureArtifact ??
-    require('./agent2-v3-sanitized-diagnostic.cjs').sanitizeFixtureArtifact;
-  const replaySanitized = sanitize(replayRaw);
+function analyzeTraceReplay({ originalSanitized, replaySanitized, replayRaw, actionOrdinal = null } = {}) {
+  if (!originalSanitized || !replaySanitized || !replayRaw) {
+    throw new TypeError('original sanitized, replay sanitized, and offline raw replay artifacts are required');
+  }
   verifyReplayIdentity(originalSanitized, replaySanitized);
   const rawGame = replayRaw.nativeGame ?? replayRaw.fixtureGamePartial ?? {};
   requireEqual(rawGame.seed, replaySanitized.trial.seed, 'native game physical seed');
@@ -333,7 +332,7 @@ function analyzeTraceReplay({ originalSanitized, replayRaw, actionOrdinal = null
   if (actionOrdinal !== null) candidates = candidates.filter(row => row.actionOrdinal === actionOrdinal);
   const targets = [];
   for (const row of candidates) {
-    const target = analyzeTargetRow(originalSanitized, rawGame, row);
+    const target = analyzeTargetRow(rawGame, row);
     if (target) targets.push(target);
   }
   return {
@@ -354,13 +353,14 @@ function readJson(filename) {
 }
 
 function main(argv = process.argv.slice(2)) {
-  const [originalPath, replayPath, ordinalText] = argv;
-  if (!originalPath || !replayPath || argv.length > 3 ||
+  const [originalPath, replaySanitizedPath, replayPath, ordinalText] = argv;
+  if (!originalPath || !replaySanitizedPath || !replayPath || argv.length > 4 ||
       (ordinalText !== undefined && !/^\d+$/.test(ordinalText))) {
-    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <offline-decrypted-replay.json> [actionOrdinal]');
+    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <replay-sanitized.json> <offline-decrypted-replay.json> [actionOrdinal]');
   }
   const result = analyzeTraceReplay({
     originalSanitized: readJson(originalPath),
+    replaySanitized: readJson(replaySanitizedPath),
     replayRaw: readJson(replayPath),
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
