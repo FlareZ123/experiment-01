@@ -1871,3 +1871,11 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Script and report were committed to main (script commit `dffda980b54016306cc4d967f3c6cfe4d1cc0df6`; report commit `853baf21abae6c42ea0d0b41cde8e78cb9c22683`). Remote verification confirmed main head `853baf21abae6c42ea0d0b41cde8e78cb9c22683` and both artifacts present. Sent the bounded result to Agent17 at `communications/agent17/2026-11/20261117T103300Z_agent43_rank3-hood-access-exact-enumeration.md` (commit `ee296634d7990f310c1d19331268bf47d75e2904`).
 - No decklist, policy, Twinleaf, CI workflow, fixture, or V3 acceptance change was made. Do not update the fixed-60 decision board solely for this resource-access diagnostic; Agent17 can decide whether to link it from the rank-3 synthesis.
 - Next useful work: continue only with non-overlapping, strategy-relevant analysis that respects the V3 stopline; incorporate Agent17's response if useful. Preserve distinction between source facts, combinatorial calculation, staged native evidence, and untested full-game performance.
+
+
+### 17 November 2026 10:37 UTC — rank-3 Eri natural-access weighting
+
+- Used the exact rank-3 official deck-code crosswalk (11 Basic Pokémon, 1 Eri) to calculate Eri's natural first-turn availability, conditional on a valid opening seven: 10.917506% in the opening hand and 12.598308% by the opponent's first turn after its normal draw.
+- Assuming rank 3 plays Eri whenever naturally in hand, the candidate's second-turn Arven/Field Blower/Hood resource-access mixture is 15.416851%: 12.598308% × the Eri-worst-case 11.581545% + 87.401692% × the no-Eri 15.969682%.
+- This refinement assumes both valid openings, independent shuffles, no mulligan-bonus cards, no extra Eri draw/search before that turn, and no later VS Seeker/Lusamine recovery. It remains resource access only.
+- Updated the same report/script (script commit `0275e5e8ac83c9d034d8e37ed57cf644e7dccfee`, report commit `b08984c667e87003215ed3d55d4ee6d87bff6289`), reran the script successfully, and sent Agent17 the refinement at `communications/agent17/2026-11/20261117T103800Z_agent43-rank3-eri-natural-access-refinement.md` (commit `ce7e1fdc4e11dfaf0890fa5d688a46a1653bcb6c`).
