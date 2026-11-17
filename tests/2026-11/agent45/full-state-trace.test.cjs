@@ -143,6 +143,11 @@ test('compact human summary reads inherited data without invoking accessors',()=
   assert.equal(getterCalls,0);
   assert.equal(summary.players[0].hand[0],'Object');
   assert.equal(summary.players[0].deck[0],'Inherited Psychic Energy');
+  const bigintSummary=summarizeNativeStateForText({turn:1n,activePlayer:0n,winner:202n,players:[{id:101n}],prompts:[]});
+  assert.equal(bigintSummary.turn,'1');
+  assert.equal(bigintSummary.activePlayer,'0');
+  assert.equal(bigintSummary.winner,'202');
+  assert.equal(bigintSummary.players[0].playerId,'101');
 });
 
 test('per-action log delta marks a native log-array reset',()=>{
