@@ -12,7 +12,7 @@ The exact 29 available original source lists show broad pressure against a Tool-
 - **Tool Jammer:** 5/29 lists, 5 total copies.
 - **Union:** 20/29 available lists (69.0%) contain at least one of those four direct Tool-removal / Tool-suppression cards.
 
-This is a source-list inventory, not a claim that any of these cards is drawn, playable, or used in a particular game. The three missing lists (23/25/28) are excluded from the denominator and may not be imputed. The primary cross-format field retains all five Japanese-Extra-incompatible lists among the 29 exact lists.
+This is a source-list inventory, not a claim that any of these cards is drawn, playable, or used in a particular game. The three missing lists (23/25/28) are excluded from the 29-list denominator; therefore 20/29 is 69.0% of known lists and establishes a **minimum 20/32 (62.5%) of the full Top 32**, with the three missing ranks still unknown. Do not impute them. The primary cross-format field retains all five Japanese-Extra-incompatible lists among the 29 exact lists.
 
 For Hood Shield v1, this means Stealthy Hood cannot be treated as a permanent, universally reliable lock. The existing rank-3 and rank-7 reports already show that the same two-Hood package can have an immediate escape function but very different long-term resource durability by opponent.
 
