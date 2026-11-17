@@ -3,26 +3,46 @@
 const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
 const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
 
+function readOwnDataProperty(value,key) {
+  const descriptor=value && Object.getOwnPropertyDescriptor(value,key);
+  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
+    descriptor.value : undefined;
+}
+
 function describePolicyComponent(component) {
-  if (typeof component === 'function') return component.name || 'anonymous';
-  if (component && typeof component.name === 'string') return component.name;
-  const prototype=component && typeof component==='object' ? Object.getPrototypeOf(component) : null;
-  const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
-  return descriptor && typeof descriptor.value==='function' && descriptor.value.name ?
-    descriptor.value.name : typeof component;
+  if (typeof component === 'function') {
+    const name=readOwnDataProperty(component,'name');
+    return typeof name==='string' && name ? name : 'anonymous';
+  }
+  if (component && typeof component === 'object') {
+    const name=readOwnDataProperty(component,'name');
+    if (typeof name==='string' && name) return name;
+    const prototype=Object.getPrototypeOf(component);
+    const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
+    const constructor=descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
+      descriptor.value : null;
+    return typeof constructor==='function' && constructor.name ? constructor.name : 'object';
+  }
+  return typeof component;
 }
 
 function summarizePolicyConfiguration(optionsBySeat) {
-  return (Array.isArray(optionsBySeat)?optionsBySeat:[]).map((options,seat)=>({
-    seat,
-    tacticOrder:(Array.isArray(options?.tactics)?options.tactics:[]).map(describePolicyComponent),
-    promptResolverOrder:(Array.isArray(options?.promptResolvers)?options.promptResolvers:[]).map(describePolicyComponent),
-    scoreKeys:Object.keys(options?.scores || {}).sort(),
-    arbiter:options?.arbiter ? {
-      flipMode:options.arbiter.flipMode ?? null,
-      shuffleMode:options.arbiter.shuffleMode ?? null
-    } : null
-  }));
+  return (Array.isArray(optionsBySeat)?optionsBySeat:[]).map((options,seat)=>{
+    const tactics=readOwnDataProperty(options,'tactics');
+    const promptResolvers=readOwnDataProperty(options,'promptResolvers');
+    const scores=readOwnDataProperty(options,'scores') || {};
+    const arbiter=readOwnDataProperty(options,'arbiter');
+    return {
+      seat,
+      tacticOrder:(Array.isArray(tactics)?tactics:[]).map(describePolicyComponent),
+      promptResolverOrder:(Array.isArray(promptResolvers)?promptResolvers:[]).map(describePolicyComponent),
+      scoreKeys:Object.keys(scores).sort(),
+      arbiter:arbiter ? {
+        flipMode:readOwnDataProperty(arbiter,'flipMode') ?? null,
+        shuffleMode:readOwnDataProperty(arbiter,'shuffleMode') ?? null
+      } : null
+    };
+  });
 }
 
 function constructorNameOf(value) {
