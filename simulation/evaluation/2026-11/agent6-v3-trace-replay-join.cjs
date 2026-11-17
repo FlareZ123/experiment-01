@@ -558,7 +558,7 @@ function readJson(filename) {
 function main(argv = process.argv.slice(2)) {
   const [originalSanitizedPath, originalRawPath, replayRawPath, sanitizerModulePath, ordinalText] = argv;
   if (!originalSanitizedPath || !originalRawPath || !replayRawPath || !sanitizerModulePath ||
-      argv.length > 5 || (ordinalText !== undefined && !/^\\d+$/.test(ordinalText))) {
+      argv.length > 5 || (ordinalText !== undefined && !/^\d+$/.test(ordinalText))) {
     throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <original-decrypted-raw.json> <replay-decrypted-raw.json> <exact-revision-sanitizer-module.cjs> [actionOrdinal]');
   }
   const originalSanitized = readJson(originalSanitizedPath);
@@ -579,7 +579,7 @@ function main(argv = process.argv.slice(2)) {
     sanitizerIdentity: originalSanitizerIdentity,
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + '\\n');
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   return result;
 }
 
