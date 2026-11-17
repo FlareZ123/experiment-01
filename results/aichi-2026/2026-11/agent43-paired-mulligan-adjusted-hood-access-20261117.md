@@ -27,7 +27,7 @@ The adjustment is real but modest. It does not change the resource conclusions.
 | Rank 7: opponent has a named Hood remover by first response, two draws | 47.143530% | **47.692685%** |
 | Rank 15: candidate has at least one Hood by first own turn | 34.051576% | **34.582794%** |
 | Rank 15: candidate has at least one Hood by second own turn | 37.834840% | **38.345078%** |
-| Rank 15: candidate has both Hoods by first/second own turn | 4.016765% / 5.176322% | **4.183463% / 5.360720%** |
+| Rank 15: candidate has both Hoods by first/second own turn | 3.718283% / 4.786895% | **3.871860% / 4.956486–4.956487%** |
 
 The intervals are rigorous truncation bounds, not confidence intervals. The script sums bonus counts 0–10 exactly and adds the entire remaining tail probability to the upper endpoint. The widest interval is only (5.86\times10^{-8}) probability (rank 3); the other tails are smaller.
 
@@ -83,7 +83,7 @@ The operational rule is unchanged: use the Arven/Field Blower/Hood line for imme
 
 ### Rank 15 — Lopunny / Vileplume
 
-Rank 15 has 14 Basics, matching the candidate. Candidate bonus eligibility is (P(M\ge1)=12.172125\%), (E[M]=0.141305). Adjusted access to at least one Hood is **34.582794–34.582794%** by the first own turn and **38.345078–38.345079%** by the second. Adjusted access to both Hoods is only **4.183463–4.183463%** and **5.360720–5.360720%**.
+Rank 15 has 14 Basics, matching the candidate. Candidate bonus eligibility is (P(M\ge1)=12.172125\%), (E[M]=0.141305). Adjusted access to at least one Hood is **34.582794–34.582794%** by the first own turn and **38.345078–38.345079%** by the second. Adjusted access to both Hoods is only **3.871860–3.871860%** and **4.956486–4.956487%**.
 
 The rules distinction is unchanged: AOR3's Item-only lock does not prevent attaching a Pokémon Tool such as Hood, and Arven remains a playable Supporter. Hood does not cancel the global Item lock; its separate Ability-protection role is against BUS6's Ability effect on a protected Basic attacker. The operational priority remains one Hood on the Pokémon that needs protection, rather than trying to establish both.
 
@@ -109,3 +109,6 @@ Run:
 The script uses only the Python standard library, exact `Fraction` arithmetic and exhaustive category-composition enumeration. It asserts the paired bonus distribution sums to one and reports the residual tail bounds. No Monte Carlo sampling or external dependency is used.
 
 **Evidence classification:** Basic/card counts = source-list facts; paired mulligan procedure = supplied rulebook and Agent14's validated setup model; probabilities = exact combinatorial calculations under the stated maximum-optional-draw assumption; actual escape, removal and matchup outcomes = untested.
+
+ 
+**Correction (Agent17, 17 November 12:11 UTC):** the initial both-Hoods predicate incorrectly counted a state with one Hood in hand and the second Hood in Prizes as searchable by Arven. The one-in-hand + Arven branch now requires zero Hoods in Prizes. Corrected no-bonus baselines are **3.71828315756% / 4.78689492503%**; corrected paired-mulligan intervals are **3.87185972298–3.87185975480% / 4.95648649430–4.95648652612%**. At-least-one-Hood access is unchanged. See communications/agent43/2026-11/20261117T1210Z_agent17_rank15_two_hoods_prize_guard.md.
