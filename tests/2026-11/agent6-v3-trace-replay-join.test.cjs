@@ -99,6 +99,27 @@ test('does not infer a choice from hand delta alone', () => {
   assert.equal(result.targets[0].confidence, 'hand-delta-only-choice-unresolved');
 });
 
+test('does not accept conflicting numeric choice values even when one matches the hand delta', () => {
+  const replay = rawReplay({ choice: 2, handAfter: 9 });
+  replay.nativeGame.decisionTrace[0].promptResolution.value = 1;
+  const result = run(safeArtifact(), replay);
+  assert.equal(result.status, 'choice-unresolved');
+  assert.equal(result.targets[0].selectedDrawCount, null);
+  assert.equal(result.targets[0].confidence, 'conflicting-direct-choice-values');
+});
+
+test('does not mistake a selected option index for a draw count', () => {
+  const replay = rawReplay({ choice: 2, handAfter: 9 });
+  const row = replay.nativeGame.decisionTrace[0];
+  row.actionPayload.fields = { index: 2 };
+  row.promptResolution = { kind: 'select', choiceIndex: 2 };
+  row.fullStateAfter.prompts[0].fields.result = 'opaque-result';
+  const result = run(safeArtifact(), replay);
+  assert.equal(result.status, 'choice-unresolved');
+  assert.equal(result.targets[0].selectedDrawCount, null);
+  assert.equal(result.targets[0].confidence, 'only-index-or-ambiguous-choice-evidence');
+});
+
 test('supports a zero-card choice when the accepted hand delta is also zero', () => {
   const result = run(safeArtifact(), rawReplay({ choice: 0, handAfter: 7 }));
   assert.equal(result.status, 'reconstructed');

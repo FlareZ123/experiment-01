@@ -14,6 +14,7 @@ const OPTION_ARRAY_KEYS = [
   'eligibleCards', 'selectedCards'
 ];
 const SAFE_CHOICE_KEY = /^(?:result|choice|choiceIndex|selectedIndex|index|count|amount|drawCount|cardsToDraw|numberOfCards|value|selectedValue)$/i;
+const DIRECT_DRAW_VALUE_KEY = /^(?:result|value|selectedValue|count|amount|drawCount|cardsToDraw|numberOfCards)$/i;
 const SAFE_LABEL = /^(?:\d+|(?:draw|take)\s+\d+\s+cards?)$/i;
 
 function stableJson(value) {
@@ -164,7 +165,7 @@ function safeOptionSummary(prompt) {
         const direct = safeScalar(option);
         if (direct !== undefined) labels.push(direct);
         else if (option && typeof option === 'object') {
-          for (const labelKey of ['label', 'text', 'value', 'count', 'amount']) {
+          for (const labelKey of ['label', 'text', 'count', 'amount']) {
             const candidate = safeScalar(option[labelKey]);
             if (candidate !== undefined) { labels.push(candidate); break; }
           }
@@ -284,10 +285,15 @@ function analyzeTargetRow(rawGame, safeRow) {
   const numericEvidence = [...new Set(evidence
     .filter(item => typeof item.value === 'number')
     .map(item => item.value))];
+  const directDrawValues = [...new Set(evidence
+    .filter(item => typeof item.value === 'number' && DIRECT_DRAW_VALUE_KEY.test(item.key))
+    .map(item => item.value))];
   const selectedDrawCount = handCountDelta !== null && handCountDelta >= 0 &&
-    numericEvidence.includes(handCountDelta) ? handCountDelta : null;
-  const confidence = selectedDrawCount !== null ? 'choice-value-and-hand-delta-agree' :
-    numericEvidence.length > 0 ? 'choice-evidence-present-but-not-confirmed-by-hand-delta' :
+    directDrawValues.length === 1 && directDrawValues[0] === handCountDelta ? handCountDelta : null;
+  const confidence = directDrawValues.length > 1 ? 'conflicting-direct-choice-values' :
+    selectedDrawCount !== null ? 'choice-value-and-hand-delta-agree' :
+    directDrawValues.length === 1 ? 'direct-choice-value-not-confirmed-by-hand-delta' :
+    numericEvidence.length > 0 ? 'only-index-or-ambiguous-choice-evidence' :
     handCountDelta !== null ? 'hand-delta-only-choice-unresolved' : 'choice-unresolved';
   return {
     actionOrdinal: safeRow.actionOrdinal,
