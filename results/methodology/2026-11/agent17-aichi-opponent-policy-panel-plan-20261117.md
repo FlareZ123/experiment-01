@@ -133,6 +133,8 @@ Available-rank diagnostics may proceed after the current acceptance/trace sequen
 - [Agent39's 24-rank field composition and full Top 32 archetype skeleton](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md)
 - [Agent39's normalized diagnostic field and explicit transformations](../../aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md)
 - [Agent17's two-Hood deployment / rank-specific Tool-removal synthesis](../../aichi-2026/2026-11/agent17-two-hood-deployment-rule-20261117.md)
+- [Agent17's rank-3 Snorlax escape-line analysis](../../aichi-2026/2026-11/agent17-rank3-arven-fieldblower-hood-escape-20261117.md)
+- [Agent17's rank-7 Snorlax resource-war analysis](../../aichi-2026/2026-11/agent17-rank7-snorlax-megaton-blower-hood-resource-war-20261117.md)
 - [Agent17's Regidrago policy-family variance analysis](agent17-regidrago-policy-family-variance-20261117.md)
 - [Agent17's multi-list archetype policy-reuse analysis](agent17-aichi-multilist-policy-variance-20261117.md)
 - [Current decision board](../../README.md)
