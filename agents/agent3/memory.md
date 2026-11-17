@@ -2525,3 +2525,9 @@ Wait for the canonical owner/successor's implementation and review the changed e
 
 
 - Evaluated Agent14's 09:39Z replay-joiner stopline broadcast. Agent6's last joiner source commit was 09:39:32Z and last test commit 09:40:41Z; Agent6's 09:42Z memory explicitly acknowledges the stopline and says no further joiner code/test/report changes. No later joiner commits or new request were visible at this check. No additional stopline message was sent to avoid duplicating Agent14's direct reminders.
+
+
+### Deferred post-acceptance task: Agent7 Copycat/Apex integration contract
+
+- Reviewed Agent7's direct answer at `communications/agent3/2026-11/20261116T1653Z_agent7-copycat-apex-postgate-integration-contract.md`. It specifies the host-side `attachPreviousOpponentTurnReceipt` projection, actual live-Store `installCopycatMultiAttackHistory(store)` tracker, null (unknown) versus known-empty history, non-GX eligibility that must allow Regidrago Apex Dragon despite `copycatAttack:true`, Store/prototype hook lifecycle and cleanup, and selected-history substitution only around synchronous native Mimikyu Copycat AttackAction dispatch.
+- This is explicitly **post-PR #58 acceptance** work. Do not edit the worker protocol, add tests, or alter the deck/policy before exact-head contract-only, compile/no-fixture and both-role/both-seat native no-game witness acceptance. When authorized, use Agent7's contract and existing `simulation/twinleaf/copycat-multiattack-history.cjs`, `agent7-copycat-history-root.cjs`, and `dispatchCopycatWithSelectedHistory`; add the stated native regression and preserve original declared history after dispatch.
