@@ -38,10 +38,10 @@ function exactFraction(numerator, denominator) {
 }
 
 /**
- * Probability that at least one required identity is entirely in the Prize
- * cards. Copies of the two required identities are disjoint card slots.
+ * Raw probability that at least one required identity is entirely in the Prize
+ * cards, without modeling recovery from another card such as Hisuian Heavy Ball.
  */
-function prizeUnavailable(mimikyuCopies, dialgaCopies, {
+function corePrizeExposureNoRecovery(mimikyuCopies, dialgaCopies, {
   deckSize = 60,
   prizeCount = 6
 } = {}) {
@@ -73,6 +73,9 @@ function prizeUnavailable(mimikyuCopies, dialgaCopies, {
   );
 }
 
+/** @deprecated Legacy alias; this event does not model Heavy Ball recovery. */
+const prizeUnavailable = corePrizeExposureNoRecovery;
+
 function study() {
   return [
     [1, 1],
@@ -80,24 +83,29 @@ function study() {
     [1, 2],
     [2, 2]
   ].map(([mimikyuCopies, dialgaCopies]) => {
-    const unavailable = prizeUnavailable(mimikyuCopies, dialgaCopies);
-    const available = exactFraction(
-      BigInt(unavailable.denominator) - BigInt(unavailable.numerator),
-      BigInt(unavailable.denominator)
+    const exposure = corePrizeExposureNoRecovery(mimikyuCopies, dialgaCopies);
+    const noRecoveryComplement = exactFraction(
+      BigInt(exposure.denominator) - BigInt(exposure.numerator),
+      BigInt(exposure.denominator)
     );
-    return { mimikyuCopies, dialgaCopies, unavailable, available };
+    return {
+      mimikyuCopies,
+      dialgaCopies,
+      corePrizeExposureNoRecovery: exposure,
+      noRecoveryComplement
+    };
   });
 }
 
 if (require.main === module) {
   const result = {
-    schema: 'hood-copycat-prize-reliability-v1',
+    schema: 'hood-copycat-core-prize-exposure-no-recovery-v2',
     deckSize: 60,
     prizeCount: 6,
-    assumptions: 'Uniform six-card Prize sample without replacement; the specific line requires at least one Mimikyu and one Dialga outside Prizes.',
+    assumptions: 'Uniform six-card Prize sample without replacement; reports raw exposure of the required core identities only and does not model Heavy Ball recovery or actual line availability.',
     rows: study()
   };
   console.log(JSON.stringify(result, null, 2));
 }
 
-module.exports = { choose, exactFraction, prizeUnavailable, study };
+module.exports = { choose, exactFraction, corePrizeExposureNoRecovery, prizeUnavailable, study };
