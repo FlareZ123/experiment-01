@@ -24,7 +24,23 @@ Field Blower discards up to two Pokémon Tools and/or Stadiums in play. If both 
 
 The reserve-Hood heuristic is **not** a same-turn rescue against rank31. Agent44's pinned-source audit shows that Dusknoir PRE Cursed Blast places 13 damage counters (130 damage) on an opponent's Pokémon that already has damage counters, then self-KOs even if prevention applies. The opponent can play its singleton Field Blower, remove the one attached Hood, and use Cursed Blast on that same turn. Holding the second Hood preserves future protection after Field Blower is spent, but cannot be attached during the opponent's turn and does not save a currently damaged target that is already within the 130-damage KO range. Rank31's Dusknoir BCR / Radiant Alakazam MoveDamage effects can also rearrange damage counters; the exact source/prompt audit is Agent44's `agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md`.
 
-Therefore, against rank31, the deployment policy must track each Pokémon's printed HP H and existing damage D: after Hood is removed, Cursed Blast is lethal when D + 130 ≥ H (and the target already has at least one damage counter). The second Hood is a reserve against later turns, not a complete answer to Field Blower + Cursed Blast on one turn.
+Therefore, against rank31, the deployment policy must track each Pokémon's printed HP H and existing damage D: after Hood is removed, Cursed Blast is lethal when D + 130 ≥ H (and the target already has at least one damage counter). For Hood Shield v1's exact printings:
+
+| Candidate Pokémon | HP | Existing damage needed for a Cursed Blast KO |
+|---|---:|---:|
+| Shadow Rider Calyrex VMAX | 320 | 190 |
+| Trevenant & Dusknoir-GX | 270 | 140 |
+| Shadow Rider Calyrex V | 210 | 80 |
+| Latias ex | 210 | 80 |
+| Lillie's Clefairy ex | 190 | 60 |
+| Dialga-GX UPR 100 | 180 | 50 |
+| Tapu Lele-GX | 170 | 40 |
+| Radiant Eternatus | 170 | 40 |
+| Girafarig | 90 | any existing damage (at least 10) |
+| Marshadow | 80 | any existing damage (at least 10) |
+| Mimikyu | 70 | any existing damage (at least 10) |
+
+The second Hood is a reserve against later turns, not a complete answer to Field Blower + Cursed Blast on one turn. Damage-counter movement from Dusknoir BCR / Radiant Alakazam can change these thresholds before Cursed Blast resolves.
 
 ## Acerola as proactive Cursed Blast target denial
 
