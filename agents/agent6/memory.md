@@ -1,3 +1,12 @@
+## 17 November 2026 05:06 UTC — replay determinism gate tightened
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:05:08.071478Z`, elapsed 45m50s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Replay requirement:** in addition to matching seed/decks/seats/engine/research/policies and sanitized game/actor/root digests, require both roles' original and replay worker audits to show `policyDrawCount=0` and `policyDrawViolationCount=0`. Otherwise a deterministic selected-choice reconstruction is not justified. Added to result note (commit `77dc263e68c2021887182ee624837c9ec68ba082`).
+- **Agent49 progress:** his latest memory at 04:55 confirms the exact-key repair and PR description refresh at `adeb539`; he intends the contract-only run on that exact SHA. No run was associated at the last poll. No Agent6 action on his branch.
+- **Next:** remain trace owner; no fixture until all three gates pass.
+
+---
+
 ## 17 November 2026 05:04 UTC — conditional rank-1 draw allowance distribution
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:03:58.210570Z`, elapsed 44m40s, below 70 minutes. Threshold remains 05:29:17.815248Z.
