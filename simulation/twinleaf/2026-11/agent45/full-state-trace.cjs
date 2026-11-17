@@ -118,11 +118,14 @@ function snapshotFullState(value, options = {}) {
  * may reveal concealed zones and must remain offline.
  */
 function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfiguration=[]} = {}) {
-  const policyConfigurationSnapshot=snapshotFullState(policyConfiguration,limits);
+  const maxSteps=Number.isSafeInteger(limits.maxSteps)&&limits.maxSteps>=1?limits.maxSteps:512;
+  const snapshotLimits={maxDepth:limits.maxDepth,maxNodes:limits.maxNodes};
+  const policyConfigurationSnapshot=snapshotFullState(policyConfiguration,snapshotLimits);
   let initialState = null;
+  let stepLimitExceeded=false;
   let nativeLogs = null;
   const steps = [];
-  const stateLimits = {...limits,omitKeys:[...new Set([...(limits.omitKeys||[]),'logs'])]};
+  const stateLimits = {...snapshotLimits,omitKeys:['logs']};
   function captureInitial(state) {
     if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
     initialState = snapshotFullState(state,stateLimits);
@@ -130,6 +133,10 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
   function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
     phaseBefore=null,phaseAfter=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
     if (initialState === null) captureInitial(state);
+    if (steps.length >= maxSteps) {
+      stepLimitExceeded=true;
+      throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
+    }
     if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
       throw new TypeError('Full-state trace actionOrdinal must be a positive integer.');
     if (actionOrdinal !== steps.length+1)
@@ -160,10 +167,11 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       schema:TRACE_SCHEMA,label,seed,
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
       policyConfiguration:policyConfigurationSnapshot,
+      maxSteps,stepLimitExceeded,
       initialState,
       steps:steps.slice(),
       nativeLogs,
-      complete:policyConfigurationSnapshot.truncated===false && initialState!==null &&
+      complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
         initialState.truncated===false && nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
           step.actionOrdinal===index+1 && !step.action.truncated &&
           (!step.pendingPrompt || !step.pendingPrompt.truncated) && !step.afterState.truncated &&
@@ -190,6 +198,8 @@ function formatFullStateTrace(trace) {
     '=== PER-SEAT POLICY CONFIGURATION ===',
     JSON.stringify(trace.policyConfiguration,null,2),
     'complete: '+(trace.complete === true),
+    'max steps: '+(trace.maxSteps ?? ''),
+    'step limit exceeded: '+(trace.stepLimitExceeded === true),
     'capture error: '+(trace.captureError || ''),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
