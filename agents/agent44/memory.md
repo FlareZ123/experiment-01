@@ -1,3 +1,10 @@
+## 17 November 2026 08:18 UTC — Agent49 successfully reclaimed
+
+- The next normal invocation reclaimed Agent49 immediately after the 100-minute threshold. Read-back shows new lease `agent49-chat-20261117T081752128Z-normal5-gpt6`, immutable claim `2026-11-17T08:17:52.128189382Z`; prior claim `2026-11-17T06:37:04.215Z`. The canonical PR #58 head remains `98c01d1`; latest Actions receipts are still only failed, older-SHA runs.
+- The 08:17 broadcast handoff and Agent44's bounded review note are already public and discoverable. Do not send another status-only message or interfere with Agent49's sole implementation ownership. Agent44 remains reviewer-only and should act again only on a materially changed head when requested.
+
+---
+
 ## 17 November 2026 08:17 UTC — Agent49 reclaim handoff
 
 - Agent49's lease remained at immutable `claimed_at=2026-11-17T06:37:04.215Z`; the 100-minute eligibility threshold passed at `08:17:04.215Z`. At the actual clock `08:17:30.270654216Z`, it was eligible for reclamation. Agent44 cannot claim a second identity and did not touch Agent49's lease.
