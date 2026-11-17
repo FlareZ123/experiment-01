@@ -121,6 +121,40 @@ def access_after_draws(total, basic_index, draw_count, event_name):
 
 
 @lru_cache(None)
+def rank1_removal_access_after_draws(draw_count, event_name):
+    # Field Blower x1, Forest Seal Stone x1, Shadow Rider V x3,
+    # other Basics x11, Other x44. The two Basic categories total 14.
+    total = (1, 1, 3, 11, 44)
+    valid_openings = comb(60, 7) - comb(46, 7)
+    denominator = valid_openings * comb(53, 6) * comb(47, draw_count)
+    numerator = 0
+    for opening in compositions(7, total):
+        if opening[2] + opening[3] == 0:
+            continue
+        opening_weight = choose_weight(total, opening)
+        after_opening = tuple(t - x for t, x in zip(total, opening))
+        for prizes in compositions(6, after_opening):
+            prize_weight = choose_weight(after_opening, prizes)
+            after_prizes = tuple(r - p for r, p in zip(after_opening, prizes))
+            for draws in compositions(draw_count, after_prizes):
+                draw_weight = choose_weight(after_prizes, draws)
+                hand = tuple(opening[i] + draws[i] for i in range(5))
+                direct = hand[0] >= 1
+                fss_line = hand[1] >= 1 and hand[2] >= 1
+                if event_name == "direct":
+                    event = direct
+                elif event_name == "fss":
+                    event = fss_line
+                elif event_name == "combined":
+                    event = direct or fss_line
+                else:
+                    raise ValueError(event_name)
+                if event:
+                    numerator += opening_weight * prize_weight * draw_weight
+    return Fraction(numerator, denominator)
+
+
+@lru_cache(None)
 def rank3_eri_after_pre_and_post(pre_draws):
     """Arven/Field Blower/Hood access after Eri; pre_draws precede Eri."""
     total = (1, 1, 2, 14, 42)  # Arven, Field Blower, Hoods, Basics, Other
@@ -214,6 +248,27 @@ def rank3_eri_probability():
     return p_open, p_by_first_turn
 
 
+def integrate_rank1_response(base_draws):
+    probs, residual, mean, p_ge_one = paired_bonus_distribution(14, "opponent")
+    lower = {"direct": Fraction(0), "fss": Fraction(0), "combined": Fraction(0)}
+    for bonus_cards, probability in enumerate(probs):
+        draws = bonus_cards + base_draws
+        for event_name in lower:
+            lower[event_name] += probability * rank1_removal_access_after_draws(
+                draws, event_name
+            )
+    return {
+        event: {
+            "lower": value,
+            "upper": value + residual,
+            "tail": residual,
+            "mean_bonus": mean,
+            "p_bonus": p_ge_one,
+        }
+        for event, value in lower.items()
+    }
+
+
 @lru_cache(None)
 def rank3_eri_in_hand_after_draws(draw_count):
     # Rank 3: Eri x1, 11 Basics, 48 other cards.
@@ -281,6 +336,9 @@ def show(label, result):
 
 
 def main():
+    r1_first = integrate_rank1_response(1)
+    r1_second = integrate_rank1_response(2)
+
     r3_first = integrate(11, "candidate", "rank3_candidate_escape", 1)
     r3_second = integrate(11, "candidate", "rank3_candidate_escape", 2)
     r3_eri = integrate(11, "candidate", "rank3_candidate_escape", 2, eri_prepost=True)
@@ -302,6 +360,12 @@ def main():
 
     print("Paired-mulligan-adjusted Hood resource-access sensitivity")
     print("Maximum optional bonus draws; probabilities conditional on valid opening sevens.")
+    print()
+    print("Rank 1 (opponent 14 Basics; Field Blower x1, Forest Seal Stone x1, Shadow Rider V x3)")
+    for window, result in (("Response after one draw", r1_first), ("Response after two draws", r1_second)):
+        show(f"{window}, direct Field Blower", result["direct"])
+        show(f"{window}, Forest Seal Stone + V potential", result["fss"])
+        show(f"{window}, combined if Star Alchemy unspent", result["combined"])
     print()
     print("Rank 3 (opponent 11 Basics; Eri x1)")
     show("Candidate escape, first own turn going second", r3_first)
