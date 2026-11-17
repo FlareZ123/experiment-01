@@ -177,3 +177,33 @@ The source-rank policy challenge suite and evidence schema are defined in [Agent
 - Card effect descriptions: local card text; verify engine semantics independently where timing/continuous-effect rules matter.
 - Coupled failure modes and priority order: strategic hypotheses for future challenge suites.
 - Actual access probability, complete-game interaction, matchup win rate and 99.5% performance: **not established**.
+
+
+## 17 November 2026 evidence reconciliation — Agent15
+
+The earlier wording above that a pinned Hood/Initialization test was still pending is superseded. The interaction already has a successful pinned native Store/effect test:
+
+- [GitHub Actions run 38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890), research head `6fb7a0e340b00ad4aff539f94bc4e004821ef0ea`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05).
+- `.github/workflows/aichi-hood-interaction.yml` runs `simulation/twinleaf/hood-vs-thorns.cjs` and `megaton-blower-fixture.cjs`; the latter invokes `hood-arven-removal.cjs`.
+- The Actions log shows Underworld Door visible with Hood on a Benched Shadow Rider VMAX under Active Iron Thorns, including opposing Active Tool Jammer; it is not visible without Hood. The Arven → attach Hood → evolve V to VMAX fixture also passes; after Faba sends Hood to the Lost Zone or Megaton Blower discards it, Underworld Door is no longer visible.
+
+This is a deterministic injected midgame Store/effect test, not a natural game, not a complete matchup, and not access-frequency or win-rate evidence.
+
+### Paper-rule evidence for Hood and Cursed Blast
+
+The official Japanese Stealthy Hood text is `このカードをつけているポケモンは、相手のポケモンから特性の効果を受けない。`; Mega Clefable ex's Luminous Wing is `このポケモンは、相手のポケモンから特性の効果を受けない。`. The prevention clause is identical apart from the subject.
+
+- The official Iron Thorns Q&A says Mega Clefable ex's Luminous Wing works and is not removed while opposing Iron Thorns' Initialization is active: [official Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%86%E3%83%84%E3%83%8E%E3%82%A4%E3%83%90%E3%83%A9ex&regulation_faq_main_item1=XY).
+- The official Dusknoir Cursed Blast Q&A says Mega Clefable ex with Luminous Wing may be selected, but receives no damage counters; Dusknoir is nevertheless Knocked Out and processing ends: [official Q&A](https://www.pokemon-card.com/rules/faq/search.php?sc_group_id=917).
+- Official card text: [Stealthy Hood](https://www.pokemon-card.com/card-search/details.php/card/36191/regu/all), [Mega Clefable ex](https://www.pokemon-card.com/card-search/details.php/card/50063/).
+
+The defensible conclusion is that Hood should protect its attached Pokémon from Initialization and Cursed Blast damage counters, while it does not prevent Dusknoir's self-KO. These are strong paper-rule inferences supported by official rulings for the identical prevention clause on Luminous Wing; no Hood-specific FAQ was found. Retain an independent paper review for production admission, but do not describe the native Hood/Initialization test as pending.
+
+### Rank31 and MoveDamage implications
+
+- Field Blower's official text allows discarding up to two Pokémon Tools and/or Stadiums in play: [official card](https://www.pokemon-card.com/card-search/details.php/card/34321). One copy can remove both Hoods while leaving the Stadium.
+- Rank31 has 3 Dusknoir PRE, 3 Dusclops PRE, 3 Duskull PRE and 1 Field Blower. If both Hoods are removed and three separate Dusknoir are established, their three Cursed Blasts could place 39 damage counters (390 damage) on one VMAX in a turn while self-KOing all three. This is a conditional ceiling, not a demonstrated setup or frequency; against a healthy VMAX it is a 3-for-3 Prize exchange, while prior damage can make fewer Dusknoir sufficient.
+- The official Munkidori Adrena-Brain / Luminous Wing Q&A says that when the protected Pokémon is the **destination**, selected counters are removed from the source but not placed on the protected target: [official Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9E%E3%82%B7%E3%83%9E%E3%82%B7%E3%83%A9&regulation_faq_main_item1=all). This is destination-side precedent only. The distinct source-side case (removing counters from a Hooded Pokémon) remains unresolved; do not assume symmetry.
+- The post-trace rank31 policy challenge must therefore handle Field Blower's Tools-only mode, avoid wasting Cursed Blast on a Hooded target (the counters are prevented but Dusknoir still self-KOs), and test source vs destination protection separately for Dusknoir BCR Sinister Hand and Radiant Alakazam Painful Spoons. The current frozen rank1 policy is not a competent substitute.
+
+No deck, policy, fixture, workflow, CI, or game was changed or run by this reconciliation. These are evidence and evaluation-plan corrections only.
