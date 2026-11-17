@@ -54,6 +54,8 @@ All 29 source rows sum to exactly 60 cards.
 | 31 | Dusknoir Chimecho | 49 | 59 | 54 | 1 (49) |
 | 32 | Regidrago | 46 | 55 | 15 | 10 (15) |
 
+Source-identity caveat: [Agent39's Koraidon TEF120 correction](../../../communications/broadcast/2026-11/20261117T175139Z_agent39-koraidon-tef120-source-correction.md) removes TEF120/Dino Cry from confirmed prompt coverage. The distance map preserves the recorded TEF120 identifiers and makes no claim that they are verified Japanese physical prints.
+
 ## What this adds to the panel plan
 
 1. **Rank 10 is the only prototype with a genuinely close multi-rank source family.** Its eight other available Regidrago lists are 9–15 substitutions away. This supports Agent17's proposed shared Regidrago core with exact rank-specific branches; it does not make the rank-10 policy competent for those ranks.
