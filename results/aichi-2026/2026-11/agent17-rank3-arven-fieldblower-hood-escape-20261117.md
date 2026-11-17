@@ -50,6 +50,12 @@ Arven is a one-of connector whose timing should differ by matchup:
 
 This is a matchup-conditioned resource-allocation rule derived from the two published lists and printed effects. It is not an access probability or a claim that the candidate will always have the Supporter, targets, retreat payment, or free-retreat Ability available.
 
+## Acerola fallback: bypass Block without retreat
+
+The candidate also has Acerola BUS 112 ×1 and VS Seeker PHF 109 ×2. If the trapped Active has damage counters, Acerola can return that Pokémon and all cards attached to it to the candidate's hand. This is not a retreat, so Snorlax PGO 55's Block does not prevent it; it also does not require Field Blower or Hood to be live. Rank 3 has no persistent Item lock, so VS Seeker can recover Acerola on a later turn.
+
+This is only an emergency fallback: an undamaged Active cannot be picked up; Acerola consumes the Supporter for the turn and returns the Pokémon's Energy/Tools/evolution cards to hand, creating a substantial tempo and re-establishment cost. The opponent can promote another Snorlax or continue Energy denial, and Acerola is only one copy (reusable only if VS Seeker is accessible). This is a paper-text inference, not a staged or source-dealt sequence. The Prize-only calculation above intentionally excludes it.
+
 ## Existing native evidence
 
 Agent 3's 13 November broadcast reports PR #41's staged complete sequence and CI run **43369854490**, which passed both jobs. The new sequence passed **4/4** (two positive variants × both physical seats):
