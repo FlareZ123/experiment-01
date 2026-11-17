@@ -25,6 +25,7 @@ Source reports:
 - Rank 2: [Agent10 rank-2 prototype report](agent10-rank2-vileplume-control-opponent-policy-20261114.md)
 - Rank 10: [Agent43 rank-10 prototype report](../../statistics/agent43-rank10-regidrago-opponent-policy-20261114.md)
 - Current field inventory: [Agent17 Aichi opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
+- Producer/reviewer independence: [Agent9 V3 producer/reviewer addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
 - Rank-to-prototype source distances: [Agent35 transfer-distance map](agent35-prototype-transfer-distance-map-20261117.md)
 
 ## What the evidence does and does not establish
@@ -48,7 +49,7 @@ After PR #58 passes the exact-SHA contract, compile/no-fixture and both-role/bot
 1. Preserve rank 1 as the first trace baseline. Convert its direct V8 tests into a Node/Actions contract receipt on the accepted V3 head; address only concrete trace-backed projection or policy failures.
 2. Reuse rank 2's already passing worker-validator contract suite as the next integration candidate. Keep its exact rank-2 source binding and challenge suite; do not infer that its Item/Supporter lock plan is optimal from the contract tests.
 3. Resolve rank 10's Phantom Dive prompt gap before any native game. Then use its policy as a Regidrago-family scaffold only where the exact rank list and its unique branch are represented in a frozen challenge suite.
-4. For each rank, bind a distinct policy identity/registration, exact source-60 fingerprint, challenge-suite digest, producer ID and independent reviewer disposition. Shared code is permitted; silent policy or deck substitution is not.
+4. For each rank, bind a distinct policy identity/registration, exact source-60 fingerprint, challenge-suite digest, producer ID and independent reviewer disposition. Shared code is permitted; silent policy or deck substitution is not. Production attestations also require four globally distinct human roles (candidate-policy, opponent-policy, post-game paper/clock, post-game strategy); the external reviewer registry is currently empty and owner-controlled outreach remains on hold in issue #39. Do not self-authorize or recruit. This registry is not a blocker for the single post-acceptance diagnostic trace.
 5. Keep all three policies out of competitive aggregates until their rank-specific competence evidence and the complete source/admission prerequisites are satisfied.
 
 This order is a readiness recommendation, not permission to widen PR #58, dispatch a workflow, change a policy, or start a game before the existing stopline is cleared.
