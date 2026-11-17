@@ -1048,14 +1048,20 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
-    const fullStateTraceRecorder = request.captureFullStateTrace === true ?
-      createFullStateTraceRecorder({
-        label:request.label || '',
-        seed:request.seed,
-        limits:request.fullStateTraceLimits || {},
-        policyConfiguration:summarizePolicyConfiguration(optionsBySeat)
-      }) : null;
+    let fullStateTraceRecorder=null;
     let fullStateTraceCaptureError=null;
+    if(request.captureFullStateTrace === true) {
+      try {
+        fullStateTraceRecorder=createFullStateTraceRecorder({
+          label:request.label || '',
+          seed:request.seed,
+          limits:request.fullStateTraceLimits || {},
+          policyConfiguration:summarizePolicyConfiguration(optionsBySeat)
+        });
+      } catch(error) {
+        fullStateTraceCaptureError=String(error?.message??error);
+      }
+    }
     let fullStateTracePublicBoardError=null;
     let fullStateTraceHumanSummaryError=null;
     function captureTracePublicBoard(state) {
@@ -1082,7 +1088,12 @@ function runMatch(request) {
       catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
     }
     function finalizeFullStateTrace(state,targetError=null) {
-      if(!fullStateTraceRecorder) return;
+      if(!fullStateTraceRecorder) {
+        if(targetError && typeof targetError==='object' && fullStateTraceCaptureError) {
+          try { targetError.fullStateTraceCaptureError=fullStateTraceCaptureError; } catch {}
+        }
+        return;
+      }
       try { fullStateTraceRecorder.captureFinal(state); }
       catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
       if(targetError && typeof targetError==='object') {
@@ -2066,6 +2077,8 @@ function runMatch(request) {
         fullStateTracePublicBoardError,
         fullStateTraceHumanSummaryError
       }:{}),
+      ...(request.captureFullStateTrace === true && !fullStateTraceResult ?
+        {fullStateTraceCaptureError}:{}),
       ...(firstLiveOwnerHandsObserver?{
         firstLiveOwnerHands:firstLiveOwnerHandsObserver.result()
       }:{}),
