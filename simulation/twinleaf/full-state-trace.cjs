@@ -143,16 +143,12 @@ function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
       action:snapshotFullState(action,limits),
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
       afterState:snapshotFullState(state,stateLimits),
-      ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code},limits)}:{}),
+      ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
       ...(failureStage?{failureStage}: {})
     });
   }
   function captureFinal(state) {
     nativeLogs=snapshotFullState(Array.isArray(state?.logs)?state.logs:[],limits);
-  }
-  function captureFailure(args={}) {
-    captureStep({...args,action:args.action??null});
-    captureFinal(args.state);
   }
   function result() {
     return {
@@ -173,7 +169,6 @@ function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
     captureInitial,
     captureStep,
     captureFinal,
-    captureFailure,
     result,
     text:()=>formatFullStateTrace(result())
   };
