@@ -17,7 +17,7 @@ Source: [printing-aware candidate inventory](../candidate-hood-shadow-rider.json
 - 2 Stealthy Hood, 1 Field Blower, 1 Arven, 2 VS Seeker.
 - The list's main energy acceleration is the Shadow Rider Underworld Door Ability; the two Hoods are the explicit Tool-protection package.
 
-**Direct two-Hood removal:** Field Blower appears in 9/29 lists and Megaton Blower in 10/29; their union is 17/29 (58.6%), ranks 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Field Blower can discard up to two Tools/Stadiums; Megaton Blower removes all candidate Tools and a Stadium. Faba appears in another 7/29 lists and can Lost Zone one eligible Tool. These are registered list counts, not draw/access probabilities.
+**Direct two-Hood removal:** Field Blower appears in 9/29 lists and Megaton Blower in 10/29; their union is 17/29 (58.6%), a confirmed lower bound of 17/32 in the full Top 32, ranks 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Field Blower can discard up to two Tools/Stadiums; Megaton Blower removes all candidate Tools and a Stadium. Faba appears in another 7/29 lists and can Lost Zone one eligible Tool. These are registered list counts, not draw/access probabilities.
 
 ## Field pressure
 
