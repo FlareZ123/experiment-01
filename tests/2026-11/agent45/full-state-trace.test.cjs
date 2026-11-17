@@ -123,3 +123,15 @@ test('policy configuration summary preserves both-seat tactic and resolver order
     {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],arbiter:null}
   ]);
 });
+
+test('compact human summary reads inherited data without invoking accessors',()=>{
+  let getterCalls=0;
+  const accessorCard={};
+  Object.defineProperty(accessorCard,'fullName',{get(){getterCalls++;throw new Error('card getter must not run');}});
+  const inheritedCard=Object.create({fullName:'Inherited Psychic Energy'});
+  const state={turn:1,players:[{id:101,hand:{cards:[accessorCard]},deck:{cards:[inheritedCard]}}],prompts:[]};
+  const summary=summarizeNativeStateForText(state);
+  assert.equal(getterCalls,0);
+  assert.equal(summary.players[0].hand[0],'Object');
+  assert.equal(summary.players[0].deck[0],'Inherited Psychic Energy');
+});
