@@ -9,7 +9,7 @@ const SYMBOLS=Object.freeze({
   Grass:'G',Fire:'R',Water:'W',Lightning:'L',Psychic:'P',
   Fighting:'F',Darkness:'D',Metal:'M',Fairy:'Y'
 });
-const VERSION='agent17-public-context-special-energy-intent-v3-suppression-aware-stadium-cost';
+const VERSION='agent17-public-context-special-energy-intent-v4-fail-closed-cost-constraints';
 
 /**
  * Translate the public attack's native cost into the independently tested
@@ -32,6 +32,35 @@ function publicCostSymbols(cost,catalog){
 
 
 /**
+ * The public cost projector does not yet model per-Pokémon attack-cost
+ * increases or the player's temporary max-Energy attack restriction.
+ * Missing metadata or an active unsupported constraint must abstain rather
+ * than certify a printed-cost-only attack or plan an attachment against it.
+ *
+ * @param {object} view Detached acting-player observation
+ * @param {object} pokemon Public active or Bench slot
+ * @returns {boolean}
+ */
+function hasSupportedPublicAttackCostState(view,pokemon){
+  const slotRestrictions=pokemon?.publicRestrictions;
+  const playerRestrictions=view?.ownPublic?.publicTurnRestrictions;
+  if(!slotRestrictions||!playerRestrictions)return false;
+
+  const next=slotRestrictions.attackCostIncreaseNextTurn;
+  const whileActive=slotRestrictions.attackCostIncreaseWhileActive;
+  const maxEnergy=playerRestrictions.attackMaxEnergy;
+  const maxTurns=playerRestrictions.attackMaxEnergyTurnsRemaining;
+  if(!Number.isSafeInteger(next)||next<0||
+     !Number.isSafeInteger(whileActive)||whileActive<0||
+     !Number.isSafeInteger(maxTurns)||maxTurns<0||
+     maxEnergy!==null&&(!Number.isSafeInteger(maxEnergy)||maxEnergy<0))
+    return false;
+
+  if(next>0||whileActive>0||maxTurns>0)return false;
+  return true;
+}
+
+/**
  * Return the numeric printed cost after only recognized public Stadium
  * reductions. The resulting array is independent of the card's stored
  * immutable printed cost. Unknown modifiers remain outside this model.
@@ -42,7 +71,8 @@ function publicCostSymbols(cost,catalog){
  * @returns {number[]|null}
  */
 function effectiveNativeAttackCost(view,catalog,pokemon,attack){
-  if(!Array.isArray(attack?.cost))return null;
+  if(!Array.isArray(attack?.cost)||
+     !hasSupportedPublicAttackCostState(view,pokemon))return null;
   const cost=attack.cost.slice();
   const stadiums=publicStadiumPrintings(view);
   if(stadiums===null)return null;
