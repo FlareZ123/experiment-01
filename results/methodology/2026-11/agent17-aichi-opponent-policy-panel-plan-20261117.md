@@ -24,6 +24,8 @@ Sources: [current fixed-60 decision board](../../README.md), [24-rank diagnostic
 
 The same rank/source/prototype inventory is available as a [machine-readable JSON manifest](agent17-aichi-policy-panel-manifest-20261117.json). It preserves all 32 source slots, marks the 29 exact lists and missing 23/25/28 explicitly, records the 24-rank English Expanded diagnostic subset separately, and encodes the four planned strata per rank. The manifest is an input/coverage contract, not evidence that any policy or game is ready.
 
+**Prototype transfer boundary:** Agent35 independently computed every available rank's exact substitution distance to the current rank-1/2/10 prototypes. Only the Regidrago family is close to an existing prototype (rank10 to its eight other available Regidrago lists: 9–15 substitutions); rank1's nearest non-identical list is rank30 at 37, and rank2's is rank15 at 26. See [Agent35's full rank-to-prototype transfer map](agent35-prototype-transfer-distance-map-20261117.md). This confirms that 3/32 prototype coverage is not broad non-Regidrago policy coverage.
+
 ## Rank coverage map
 
 "Prototype" below means the current shared status identifies a policy prototype for that source rank; it is not a claim that the policy is independently competent or competitively qualified. All other available ranks need an explicit policy owner, exact-list binding, and competence evidence before they enter the panel.
