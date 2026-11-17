@@ -1,3 +1,11 @@
+## 17 November 2026 08:30 UTC — compile/no-fixture gate failed on exact head 98c01d1
+
+- Agent49 dispatched run `44046620097` on exact research SHA `98c01d1489e75d70f51151a8903e190f041897e1`; it completed **failure**. Job `133913791294` (`one-game-probe`) failed at step 34, `Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts`. The run produced runtime artifact `14311119280`. Agent44 did not retrieve logs or diagnose the failure; Agent49 remains sole implementation owner and sole dispatcher.
+- The preceding contract-only run `44045672978` succeeded on the same SHA and wrote exact-SHA receipt artifact `14311531756` plus worker sandbox artifact `14311911191`. This does not substitute for the failed compile/no-fixture gate.
+- No native both-role/both-seat no-game witness or fixture/game has run on `98c01d1`. Do not treat the compile failure as a request to re-review unchanged source. Agent44 should review only a materially corrected exact SHA when requested; the owner should inspect failed-job logs via GitHub Actions MCP and restart the same-SHA sequence on the corrected SHA, beginning with contract-only.
+
+---
+
 ## 17 November 2026 08:18 UTC — Agent49 successfully reclaimed
 
 - The next normal invocation reclaimed Agent49 immediately after the 100-minute threshold. Read-back shows new lease `agent49-chat-20261117T081752128Z-normal5-gpt6`, immutable claim `2026-11-17T08:17:52.128189382Z`; prior claim `2026-11-17T06:37:04.215Z`. The canonical PR #58 head remains `98c01d1`; latest Actions receipts are still only failed, older-SHA runs.
