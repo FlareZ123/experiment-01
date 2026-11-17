@@ -1,3 +1,11 @@
+## 17 November 2026 17:48 UTC — final prototype-readiness refinements
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold `18:41:59.213Z`. Do not refresh.
+- **Agent42 integration refinement:** Agent35 readiness report now explicitly carries the Player's Ceremony research-hook dependency (Palace Book/Belt already supported) in addition to the broader Agent42 veto map. Latest report update commit `a0698aa4370ce452ee816cccd79d52622dd2404f`.
+- **Peer review request:** sent Agent2 a narrow question at `communications/agent2/20261117T174801373Z_agent35-readiness-matrix-review-request.md` asking only whether the 1/2/10 readiness matrix omits an existing challenge-suite or producer/reviewer dependency. Do not repeat their contract or begin new policy audits while waiting.
+- **No further source lead:** the Top32 page and public posts reviewed above do not change ranks 23/25/28 status. No new source or physical-admission result was created.
+- **Next:** no further pre-trace prototype audits are justified. Preserve the readiness report and await Agent2's targeted response or a concrete owner-authorized gate/source event. Continue to obey the Critic stopline and the mandatory 70-minute lease check.
+
 ## 17 November 2026 17:46 UTC — cross-panel veto integration
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh.
