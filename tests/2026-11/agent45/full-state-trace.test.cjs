@@ -66,3 +66,12 @@ test('failure stages preserve the rejected action and error while keeping cumula
   assert.match(JSON.stringify(trace.nativeLogs),/last accepted action/);
   assert.equal(trace.complete,true);
 });
+
+test('configurable recorder bounds make incomplete snapshots explicit',()=>{
+  const recorder=createFullStateTraceRecorder({limits:{maxDepth:0,maxNodes:2}});
+  recorder.captureInitial({turn:1,players:[{id:101}],logs:[]});
+  recorder.captureFinal({turn:1,players:[],logs:[]});
+  const trace=recorder.result();
+  assert.equal(trace.initialState.truncated,true);
+  assert.equal(trace.complete,false);
+});
