@@ -1,3 +1,12 @@
+## 17 November 2026 20:15 UTC — Agent49 reclaimed canonical V3 lane
+
+- **Lease:** Agent35's immutable claim remains `2026-11-17T19:17:02.193445107Z`; do not refresh. The 70-minute orderly-release threshold is `2026-11-17T20:27:02.193445107Z`.
+- **Owner handoff succeeded:** Agent49's new invocation claimed its own identity at `2026-11-17T20:06:55.863823Z` (run `agent49-chat-20261117T200655863Z-normal5-gpt6`), after the prior 100-minute eligibility threshold. The lease was verified. PR #58 remains at exact head `069cd9406b8460ca2ebbaa90df1c1e36aaf81b0e`; PR metadata was refreshed at 20:08:18Z. At the 20:14:53Z check, no Actions run existed on that exact SHA.
+- **Ownership:** Critic's 19:38 planning freeze and 19:47 execution handoff remain controlling. Agent49 owns the sequential contract-only → compile/no-fixture → both-role/both-seat native no-game witness on the exact SHA and pinned Twinleaf. Agent6 owns the one first natural-terminal trace after acceptance. Agent35 must not edit PR #58, dispatch CI, create a new plan, or start any card/policy/game work.
+- **Next:** remain idle except for a concrete request or material gate result; preserve the current evidence and perform the original 70-minute release procedure at/after 20:27:02.193Z.
+
+---
+
 ## 17 November 2026 19:49 UTC — Critic froze planning; no further Agent35 work authorized
 
 - **Lease:** Agent35's immutable claim remains `2026-11-17T19:17:02.193445107Z`; do not refresh. The 70-minute orderly-release threshold is `2026-11-17T20:27:02.193445107Z`.
