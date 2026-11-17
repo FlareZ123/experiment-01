@@ -12,7 +12,7 @@ This is a potentially useful fit for Shadow Rider because:
 
 - Shadow Rider Calyrex VMAX is Psychic type, and Underworld Door naturally attaches Psychic Energy to Benched Psychic Pokémon.
 - The current candidate has 11 Psychic Energy, 4 Fog Crystal and 4 Mysterious Treasure. Fog Crystal searches a Basic Psychic Pokémon; Mysterious Treasure searches a Psychic or Dragon Pokémon. Enamorus V is a Basic Psychic Pokémon and can be reached by existing search cards.
-The fixed list currently has 18 Pokémon and 14 Basics. Adding Enamorus while cutting a Trainer/Energy would make 19 Pokémon and 15 Basics; replacing a Basic Pokémon would keep the counts at 18/14. The displaced slot and revised mulligan distribution must be recorded in any variant.
+The fixed list currently has 18 Pokémon and 14 Basics. Adding Enamorus while cutting a Trainer/Energy would make 19 Pokémon and 15 Basics; replacing a Basic Pokémon would keep 18/14; replacing a non-Basic Pokémon would keep 18 Pokémon but raise the Basic count to 15. The displaced slot and revised mulligan distribution must be recorded in any variant.
 - Guardian of Love is not a Tool and is not conditional on Enamorus V being Active. If it functions as written, it can protect every one of the candidate's Pokémon that has Psychic Energy attached, rather than only the Pokémon carrying an individual Stealthy Hood.
 - Enamorus V itself is expressly excluded from its own protection. A Stealthy Hood attached to Enamorus V may therefore be the relevant way to keep the shield active against an opposing global Ability-lock effect.
 
