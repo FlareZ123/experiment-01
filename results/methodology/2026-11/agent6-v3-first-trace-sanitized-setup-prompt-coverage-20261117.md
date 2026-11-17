@@ -69,25 +69,30 @@ Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) h
 
 
 
-## Deterministic offline replay joiner
+## Deterministic offline replay joiner — corrected v2
 
-The post-acceptance replay joiner is simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs, with synthetic contract tests in tests/2026-11/agent6-v3-trace-replay-join.test.cjs.
+The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 27 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
 
-The helper is deliberately independent of the V3 sanitizer module, which currently exists on PR #58 rather than main. First create a second sanitized JSON artifact from the offline-decrypted replay using the exact same sanitizer revision that produced the original artifact. If PR #58 has not merged, run the exported sanitizeFixtureArtifact function from that exact PR checkout; do not use a newer sanitizer revision.
+The CLI now accepts the original sanitized artifact, the offline-decrypted raw replay, and the exact sanitizer module from the replay's research checkout:
 
-Then run:
+    node simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs \\
+      path/to/original-sanitized-artifact.json \\
+      path/to/offline-decrypted-replay.json \\
+      exact-replay-checkout/simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
 
-    node simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs \
-      path/to/original-sanitized-artifact.json \
-      path/to/replay-sanitized-artifact.json \
-      path/to/offline-decrypted-replay.json
+The helper no longer accepts an independently supplied replay-sanitized file. It loads the exact `sanitizeFixtureArtifact` export and recomputes the replay projection directly from the supplied raw replay before comparing the complete sanitized public artifact with the original. The CLI requires the sanitizer's exact repository-relative path, checks that checkout `HEAD` equals `raw.engine.researchRevisionSha`, checks the raw trial research revision and vendor/Twinleaf pin, and verifies that the sanitizer file's working-tree blob equals its committed blob. Thus a separately supplied sanitized artifact cannot be paired with an unrelated raw replay.
 
-An optional fourth argument restricts analysis to one sanitized actionOrdinal. The tool compares the two sanitized artifacts and rejects unless the trial/seed/seat bindings, printed-60 hashes, Twinleaf and research pins, policy identities, all sanitized public fields, game trace/summary, worker audits, zero policy-RNG counts, actor-only boundary, and natural terminal all match. Only the two known ephemeral worker-audit fields (worker container identifiers and the derived audit digest) are excluded from exact public-artifact comparison.
+For the setup-draw lens, the corrected joiner:
 
-For each matching generic SelectPrompt, it searches the offline prompt snapshot for WANT_TO_DRAW_CARDS, checks resolver option counts and allowCancel, and reports only safe option labels/counts, numeric choice evidence, and the acting player's before/after hand counts. It reports a selected draw count only when the unique direct numeric draw-value evidence agrees with the accepted hand-count delta; index-only or conflicting numeric evidence remains unresolved. It never emits raw prompt fields, card identities, opaque tokens, seed values, or full state. The result is explicitly marked as deterministic reconstruction, not direct observation and not competitive evidence.
+1. Uses exact equality on the native prompt's `fields.message`, with `fields.text` only as a nullish fallback. It does not search unrelated metadata or accept substring matches.
+2. Requires the native `SelectPrompt` to be pending before dispatch and the dispatch to succeed. If the same prompt remains in the after snapshot, it must be resolved, retain the exact target identity, and expose a result equal to the native action result.
+3. Reads the actual `SelectPrompt.values` list from the full-state snapshot's `extraFields.values`, validates the source's descending `Draw N card(s)` sequence, reads `options.disabled`, and requires `allowCancel:false`.
+4. Treats `actionPayload.fields.result` as the native **choice index**. The worker's `promptResolution.selectedCount` is only the number of selected options and is ignored. The selected draw count is derived from the exact native values at that index and must equal the same-seat before/after hand-count delta.
+5. Emits only the validated index, draw counts, safe counts and hand-count delta. It never emits raw prompt fields, card identities, opaque tokens or full state.
 
-Validation: node --test tests/2026-11/agent6-v3-trace-replay-join.test.cjs passed **16/16 synthetic contract tests** after the dependency-removal correction. This is a tool-level test result only; the joiner has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched and no deck or policy was changed.
+If the target values or choice index cannot be established, the row remains unresolved. If the target prompt does not occur, the lens remains not-exercised. Neither case authorizes changing the runner schema or forcing a prompt.
 
+**Validation status:** 27 synthetic contract tests are committed, but execution of this revised suite is still pending. The earlier 16/16 result applied to the superseded implementation and must not be carried forward. The helper has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched, and no deck or policy was changed. The real replay remains gated on the exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness passes.
 
 ### Trusted-local full-state capture (source-level path)
 
