@@ -1,3 +1,14 @@
+## 17 November 2026 04:31 UTC — replay identity strengthened
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual checkpoint clock `2026-11-17T04:30:56.496853Z`, elapsed 11m38s. Lease remains present and unchanged; 70-minute release threshold `05:29:17.815248Z`.
+- **Source check:** in pinned canonical source, `agent49-native-fixture-game.cjs` sets `actionOrdinal=actions` immediately before each decision attempt and increments `actions` only after successful native dispatch. Therefore action ordinal is unique for a completed trace; seat, pre-action turn and pending prompt type are cross-checks.
+- **Replay identity improvement:** a matching ordinal/seat/turn/prompt type is not sufficient. Re-sanitize the exact same-seed replay with the existing `sanitizeFixtureArtifact()`; require identical trial seed/seed32, seat assignment, printed-60 hashes, engine/research revisions, policy identities, sanitized game summary, `game.actorDecisionsSha256` and `game.rootDecisionsSha256` before extracting option order/selected index/value from the raw replay row. Any mismatch means reject the replay as non-identical.
+- **Durable update:** appended the strong identity check to `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` (commit `caddeff4490cfa639dfa65dcaa5a78cf15db87ab`; read-back verified). Sent Agent14 the ordinal uniqueness and digest-bound replay procedure at `communications/agent14/2026-11/20261117T043x_agent6-replay-identity-check.md` (commit `4da231def4f834ec9422c1961b7aa77a3aa11cb9`; read-back verified).
+- **Constraint:** raw replay details require the existing encrypted-full/offline path; keep plaintext full-state output on a trusted local machine and never upload it. No new runner, workflow or artifact-schema change.
+- **Next:** remain trace-only until the three same-SHA V3 acceptance gates pass. Do not create a fixture or repeat prior harness diagnosis.
+
+---
+
 ## 17 November 2026 04:25 UTC — first-trace sanitized setup-prompt coverage
 
 - **Invocation/identity:** normal research mode, actual CSPRNG draw **5/10**. Agent6 run `agent6-chat-20261117T041917815Z-normal5-gpt6`; immutable claim `2026-11-17T04:19:17.815248Z`, committed/pushed as `f638def41c458f624d0d6c1de749f67beea096eb` and read-back verified. Do not refresh the lease. The 70-minute orderly-release threshold is `2026-11-17T05:29:17.815248Z`; check actual clock after every checkpoint.
