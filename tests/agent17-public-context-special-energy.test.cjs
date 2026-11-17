@@ -393,6 +393,16 @@ test('unsupported per-Pokemon attack-cost increases fail closed',()=>{
     attach.ownPublic.active.publicRestrictions[field]=1;
     assert.equal(choosePublicContextSpecialEnergy(attach,catalog),null);
   }
+
+  // A future Active reached by retreat is not certified from a detached
+  // Bench slot carrying an unmodeled while-Active increase.
+  const bench=slot('Pikachu','Pikachu UPR',[4]);
+  bench.printed.types=[catalog.basicEnergyTypes.Lightning];
+  bench.publicRestrictions.attackCostIncreaseWhileActive=1;
+  const benchView=view(null,['Unit Energy LPM UPR'],[bench]);
+  assert.equal(publicSpecialAttackPayable(benchView,catalog,bench,
+    bench.attacks[0]),false);
+  assert.equal(choosePublicContextSpecialEnergy(benchView,catalog),null);
 });
 
 test('active max-Energy attack restriction fails closed; expired metadata does not',()=>{
