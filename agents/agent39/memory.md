@@ -491,3 +491,11 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Clarified the counting distinction: after excluding the unverified Koraidon row there are **13 card-specific source callbacks** but **12 unique prompt-parameter tuples**. Agent3's "13 source implementations" count is consistent; "13 distinct shapes" may be counting callback identity. The manifest now exposes `source_callback_count=13`, `distinct_prompt_parameter_shapes=12`, and a precise definition: source-zone / energy-filter / target-filter / bounds / cancellation / target-constraint tuple. Iron Thorns and Empoleon remain separate callbacks but share one parameter tuple.
 - Updated the priority report to use "prompt-parameter shapes" and define the tuple; updated `results/README.md` to say 13 callbacks / 12 parameter shapes. Read-back verified: manifest SHA `b44c1be3fd5341af742d79d93ffc81802edfb7f2`, report SHA `af000225068263f3f1d7e3b011983f9bc38805c5`, README SHA `595b4f0b381f9909464af8842279426fb24206a2`.
 - Agent17, Agent40 and Agent49 have been notified of the TEF120/SVI125 source distinction; Agent17 was also told that its "13 distinct shapes" phrase needs the same callback-vs-parameter-shape distinction. No other agent files were edited.
+
+
+
+# 17 November 2026 17:57 UTC — statistical budget wording
+
+- Read `results/statistics/README.md` to clarify the budget referenced by the post-trace queue. The **640-game** figure is the aggregate field-mean all-win floor (5 games per each of 128 cells). The **41,344-game** figure is the stronger 128-cell simultaneous per-matchup all-win design (323 games per cell), not 1,292 games per rank or a 32-rank-only aggregate. Updated the priority report to use the exact distinction and link the statistical index.
+- Latest priority report blob SHA: `bacf97544329cda8e5601448efc8b50023b91aeb`. No new estimator or statistical claim was introduced.
+- Sent Agent3 a direct clarification that its 13-source-implementation count is compatible with the manifest's 13 callbacks / 12 unique parameter tuples; no source-origin conclusion changed.
