@@ -59,6 +59,7 @@ const {installTerminalAttackKoBeforeEndTurnHook} =
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
+const {createFullStateTraceRecorder,formatFullStateTrace} = require('./full-state-trace.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
@@ -348,6 +349,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [captureHorrorHouseRootResolution] Observe only real-root Store Horror House declarations and adjacent zones.
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
+ * @property {boolean} [captureFullStateTrace] Opt-in offline-only full native state and move trace; may reveal concealed zones and is never a policy input.
  * @property {boolean} [captureNativeAbortEvidence] On failed live root, retain the original source-position SHA, accepted public root labels, and pre-dispatch public board; never expose the snapshot to bot decisions.
  * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
  * @property {boolean} [captureGladionRootChoiceContext] With Prize-choice capture, include own-hand/public-board context at the genuine selected response.
@@ -1045,6 +1047,32 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    const fullStateTraceRecorder = request.captureFullStateTrace === true ?
+      createFullStateTraceRecorder({label:request.label || '',seed:request.seed}) : null;
+    let fullStateTraceCaptureError=null;
+    function recordFullStateStep(args) {
+      if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
+      try { fullStateTraceRecorder.captureStep(args); }
+      catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
+    }
+    function finalizeFullStateTrace(state,targetError=null) {
+      if(!fullStateTraceRecorder) return;
+      try { fullStateTraceRecorder.captureFinal(state); }
+      catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
+      if(targetError && typeof targetError==='object') {
+        try {
+          const trace=fullStateTraceRecorder.result();
+          if(fullStateTraceCaptureError) trace.complete=false;
+          targetError.fullStateTrace=trace;
+          targetError.fullStateTraceText=formatFullStateTrace(trace);
+          if(fullStateTraceCaptureError)
+            targetError.fullStateTraceCaptureError=fullStateTraceCaptureError;
+        } catch(error) {
+          fullStateTraceCaptureError=String(error?.message??error);
+          targetError.fullStateTraceCaptureError=fullStateTraceCaptureError;
+        }
+      }
+    }
     const m4OwnerRootPaperAudits=request.specialRedCardPaperPreselection===true?[]:null;
     // Genuine first own live-turn hands, before either bot inspects or mutates state.
     const firstLiveOwnerHandsObserver=request.captureFirstLiveOwnerHands===true?
@@ -1120,6 +1148,10 @@ function runMatch(request) {
     let terminalTransition = null;
     let actionLineage = null;
     const knowledgeEvents = request.bunnelbyObservedK1 === true ? [] : null;
+    if(fullStateTraceRecorder) {
+      try { fullStateTraceRecorder.captureInitial(store.state); }
+      catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
+    }
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
@@ -1249,6 +1281,14 @@ function runMatch(request) {
                 .safeDecoderFrameAttribution(error);
           }
         }
+        const failedSeatForTrace=pending ?
+          state.players.findIndex(player=>player.id===pending.playerId) : state.activePlayer;
+        recordFullStateStep({
+          state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
+          turnBefore:state.turn,turnAfter:state.turn,pendingPrompt:pending,
+          error,failureStage:'bot-decoder'
+        });
+        finalizeFullStateTrace(state,error);
         throw error;
       }
       const guardedPlayLockSeat=visiblePlayLockGuardSeat(
@@ -1344,6 +1384,14 @@ function runMatch(request) {
                   preDispatchBoard:publicBoardSnapshot(state)
                 });
           }
+          const actingIdForTrace=pending?pending.playerId:(action.clientId??action.id);
+          const actingSeatForTrace=state.players.findIndex(player=>player.id===actingIdForTrace);
+          recordFullStateStep({
+            state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
+            turnBefore:state.turn,turnAfter:state.turn,pendingPrompt:pending,
+            error,failureStage:'prompt-validation'
+          });
+          finalizeFullStateTrace(state,error);
           throw error;
         }
       }
@@ -1574,10 +1622,20 @@ function runMatch(request) {
         if (setupCompensationObserver) {
           setupCompensationObserver.after(store.state);
         }
+        recordFullStateStep({
+          state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
+          turnBefore,turnAfter:store.state.turn,pendingPrompt:pending
+        });
       } catch (error) {
         const rejected = new Error('Twinleaf dispatch failed after ' +
           actions + ' actions (' + action.constructor.name + '): ' +
           error.message, { cause: error });
+        recordFullStateStep({
+          state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
+          turnBefore,turnAfter:store.state.turn,pendingPrompt:pending,
+          error,failureStage:'store-dispatch'
+        });
+        finalizeFullStateTrace(store.state,rejected);
         if (rejectionBefore) rejected.rejectedActionEvidence = {
           ...rejectionBefore, rejectionMessage: error.message
         };
@@ -1921,6 +1979,9 @@ function runMatch(request) {
     }
     const state = store.state;
     const finalTurnOrder=summarizeTurnOrder(actualFirstTurn,state.logs);
+    finalizeFullStateTrace(state);
+    const fullStateTraceResult=fullStateTraceRecorder?fullStateTraceRecorder.result():null;
+    if(fullStateTraceResult && fullStateTraceCaptureError) fullStateTraceResult.complete=false;
     return {
       label: request.label || '',
       seed: request.seed,
@@ -1950,6 +2011,11 @@ function runMatch(request) {
       ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
       decisionTrace,
+      ...(fullStateTraceResult?{
+        fullStateTrace:fullStateTraceResult,
+        fullStateTraceText:formatFullStateTrace(fullStateTraceResult),
+        fullStateTraceCaptureError
+      }:{}),
       ...(firstLiveOwnerHandsObserver?{
         firstLiveOwnerHands:firstLiveOwnerHandsObserver.result()
       }:{}),
