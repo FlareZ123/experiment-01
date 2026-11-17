@@ -96,14 +96,18 @@ test('policy configuration summary preserves both-seat tactic and resolver order
   function AttackTactic() {}
   class PlayBasicTactic {}
   function ChooseCardsPromptResolver() {}
+  let getterCalls=0;
+  const accessorNamedTactic={};
+  Object.defineProperty(accessorNamedTactic,'name',{get(){getterCalls++;throw new Error('name getter must not run');}});
   const summary=summarizePolicyConfiguration([
-    {tactics:[AttackTactic,PlayBasicTactic,{name:'EnergyAttachmentTactic'}],
+    {tactics:[AttackTactic,PlayBasicTactic,{name:'EnergyAttachmentTactic'},accessorNamedTactic],
       promptResolvers:[ChooseCardsPromptResolver],scores:{Z:1,A:2},
       arbiter:{flipMode:'random',shuffleMode:'seeded'}},
     {tactics:[],promptResolvers:[],scores:{},arbiter:null}
   ]);
+  assert.equal(getterCalls,0);
   assert.deepEqual(summary,[
-    {seat:0,tacticOrder:['AttackTactic','PlayBasicTactic','EnergyAttachmentTactic'],
+    {seat:0,tacticOrder:['AttackTactic','PlayBasicTactic','EnergyAttachmentTactic','Object'],
       promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z'],
       arbiter:{flipMode:'random',shuffleMode:'seeded'}},
     {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],arbiter:null}
