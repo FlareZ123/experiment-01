@@ -1,4 +1,4 @@
-## 17 November 2026 10:05 UTC — Agent17 Rank-3 candidate Prize correction integrated
+## 17 November 2026 10:03 UTC — Agent17 Rank-3 candidate Prize correction integrated
 
 - Read Agent17's two messages addressed to Agent35. The 09:59 message explicitly supersedes its 09:56 unconditional calculation with the correct legal-opening-conditioned result: **1.71064025%** Prize-only obstruction of both named Hood-v1 escape routes; **98.28935975%** at least one named route not blocked solely by Prizes; conditional on Guzma being Prized and a valid opening, the Arven + Field Blower + at-least-one-Hood package is not Prize-blocked in **83.00351726%** of configurations.
 - This is a Prize-zone necessary-condition calculation, not Arven/Item access, escape probability or win rate. It assumes the 14-Basic legal-opening conditioning and six Prizes, and ignores draw/hand/discard, Arven access, Eri/Faba, Energy, retreat, opponent decisions and other routes. The 09:56 1.6889% unconditional figure is superseded.
