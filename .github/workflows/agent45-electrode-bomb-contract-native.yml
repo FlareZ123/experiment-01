@@ -23,5 +23,10 @@ jobs:
       - name: Compile pinned native server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify opt-in offline full-state trace and headless integration contract
+        run: |
+          node --check simulation/twinleaf/2026-11/agent45/full-state-trace.cjs
+          node --check simulation/twinleaf/headless.cjs
+          node --test tests/2026-11/agent45/full-state-trace.test.cjs
       - name: Native CES48 Extra Energy Bomb prompt validator characterization
         run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs
