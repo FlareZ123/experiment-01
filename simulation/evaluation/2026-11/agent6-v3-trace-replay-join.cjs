@@ -13,6 +13,7 @@ const { execFileSync } = require('node:child_process');
 
 const TARGET_EFFECT = 'WANT_TO_DRAW_CARDS';
 const SANITIZER_RELATIVE_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
+const TWINLEAF_SUBMODULE_PATH = 'vendor/twinleaf';
 const DRAW_LABEL = /^Draw\s+(\d+)\s+card\(s\)$/i;
 
 function stableJson(value) {
@@ -287,6 +288,7 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
   let head;
   let committedBlob;
   let workingBlob;
+  let twinleafGitlinkSha;
   try {
     head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'],
       { encoding: 'utf8' }).trim();
@@ -294,6 +296,8 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
       'HEAD:' + relativePath], { encoding: 'utf8' }).trim();
     workingBlob = execFileSync('git', ['-C', repositoryRoot, 'hash-object', '--',
       relativePath], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
+    twinleafGitlinkSha = execFileSync('git', ['-C', repositoryRoot, 'rev-parse',
+      'HEAD:' + TWINLEAF_SUBMODULE_PATH], { encoding: 'utf8' }).trim();
   } catch {
     const error = new Error('could not verify sanitizer revision and committed blob');
     error.code = 'TRACE_REPLAY_SANITIZER_GIT_IDENTITY_FAILED';
@@ -308,10 +312,13 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
   requireEqual(rawArtifact?.trial?.vendorCommitSha, rawArtifact?.engine?.twinleafCommitSha,
     'raw trial vendor commit vs engine Twinleaf pin');
   requireEqual(workingBlob, committedBlob, 'sanitizer source is unmodified');
+  requireEqual(twinleafGitlinkSha, rawArtifact?.engine?.twinleafCommitSha,
+    'checkout Twinleaf gitlink vs raw engine pin');
 
   return {
     researchRevisionSha: head,
-    sanitizerBlobSha: committedBlob
+    sanitizerBlobSha: committedBlob,
+    twinleafCommitSha: twinleafGitlinkSha
   };
 }
 
@@ -496,6 +503,8 @@ function analyzeTraceReplay({
   for (const [rawArtifact, label] of [[originalRaw, 'original raw'], [replayRaw, 'replay raw']]) {
     requireEqual(rawArtifact?.engine?.researchRevisionSha, sanitizerIdentity.researchRevisionSha,
       label + ' research revision vs exact sanitizer checkout');
+    requireEqual(rawArtifact?.engine?.twinleafCommitSha, sanitizerIdentity.twinleafCommitSha,
+      label + ' Twinleaf pin vs exact checkout gitlink');
     requireEqual(rawArtifact?.trial?.researchRevisionSha, rawArtifact?.engine?.researchRevisionSha,
       label + ' trial research revision');
     requireEqual(rawArtifact?.trial?.vendorCommitSha, rawArtifact?.engine?.twinleafCommitSha,
@@ -570,6 +579,8 @@ function main(argv = process.argv.slice(2)) {
     'original/replay sanitizer research revision');
   requireEqual(originalSanitizerIdentity.sanitizerBlobSha, replaySanitizerIdentity.sanitizerBlobSha,
     'original/replay sanitizer blob');
+  requireEqual(originalSanitizerIdentity.twinleafCommitSha, replaySanitizerIdentity.twinleafCommitSha,
+    'original/replay Twinleaf gitlink');
   const sanitizerModule = require(fs.realpathSync(sanitizerModulePath));
   const result = analyzeTraceReplay({
     originalSanitized,
