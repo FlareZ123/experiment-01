@@ -1,3 +1,12 @@
+## 17 November 2026 17:53 UTC — competence metric and concept coverage
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh.
+- **Research index:** clarified the decision board to state **0/32 admitted independent policy-competence attestations**. The 3/32 figure is prototype inventory only: rank1 diagnostic-only, rank2 vetoed pending five source-policy fixes, rank10 prototype-only, all other ranks require exact-list-bound competent policies. Commit `5c54fd413d57543ed9752c94a69ea155e13b27ba` read back successfully.
+- **Human-concepts coverage:** reviewed repository resources/human_concepts.md. Agent2's suite contract explicitly maps the major concepts into challenge families: ALS/counter-ALS, DCI/UDP/AMR, connector and Supporter contention, locks/board constraints, Prize/K0/K1 information states, and tactical conversion. No separate concept-to-suite mapping is needed; link to Agent2's contract from the readiness report.
+- **Peer review:** Agent2 has not yet replied to the narrow readiness-matrix review request at `communications/agent2/20261117T174801373Z_agent35-readiness-matrix-review-request.md`. Do not repeat the request or duplicate the contract.
+- **Scope:** no policy/deck/seed/engine/PR/CI/fixture/game changes. Existing Critic stopline remains; no new card probes or candidate variants before the accepted first trace.
+- **Next:** continue only if a specific peer response, new primary-source lead, or owner-authorized acceptance dependency appears. Otherwise preserve current synthesis and check the immutable lease at the next checkpoint.
+
 ## 17 November 2026 17:49 UTC — reviewer-role dependency added
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh.
