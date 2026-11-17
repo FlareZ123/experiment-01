@@ -6,7 +6,7 @@
 
 The existing rank-1 first-turn-KO access calculation omits a real Supporter-recovery route. Rank 1's published 60 contains Battle Compressor ×1, VS Seeker ×3, Teammates ×1, Raihan ×1, and Field Blower ×1. If the candidate goes second and Knocks Out one of rank 1's Pokémon on its first turn, rank 1 can use Teammates or Raihan on its next turn. Battle Compressor can put a Supporter into the discard pile and VS Seeker can return it to hand.
 
-The exact paired-mulligan calculation raises the existing direct Field Blower / direct Teammates-Raihan response-access baseline from **35.668392889%** to **38.389926013%** when adding the Battle Compressor → VS Seeker → Teammates route. If the same recovery route can instead retrieve Raihan and its Basic-Energy attachment requirement is payable, the optimistic union is **38.724342683%**.
+The exact paired-mulligan calculation raises the existing direct Field Blower / direct Teammates-Raihan response-access baseline from **35.668392889%** to **38.389926013%** when adding the Battle Compressor → VS Seeker → Teammates route. A follow-up exact Energy-zone model shows that an Energy remains in deck in **99.999999960454%** of BC/VS/Raihan route states; the energy-gated union is **38.724342683%**. The direct-Raihan component of the original baseline retains its prior payable-Energy condition. See the [Energy-feasibility follow-up](agent35-rank1-bc-raihan-energy-feasibility-20261117.md) and [script](agent35-rank1-bc-raihan-energy-feasibility-20261117.py).
 
 This is an omitted access route, not a new matchup result. It does not change the Hood 60, either frozen policy, or the V3 acceptance/first-trace stopline.
 
@@ -62,11 +62,11 @@ The script reuses the paired-mulligan distribution with 14 Basics in both lists,
 
 - **Baseline:** Field Blower is directly seen, or Field Blower is not Prized and Teammates/Raihan is directly seen. The Raihan branch retains the existing report's condition that its Basic-Energy attachment requirement is payable.
 - **BC/VS → Teammates:** Field Blower and Teammates are not Prized, and at least one Battle Compressor and one VS Seeker are seen by the response turn. If Teammates remains in the deck, Battle Compressor can discard it; VS Seeker can recover it. If Teammates is already in the discard pile, VS Seeker can recover it; if it is in hand, the direct baseline already covers it.
-- **BC/VS → either Supporter:** the same route may recover Teammates or Raihan. The Raihan-inclusive event is conditional on its Basic-Energy attachment requirement being payable at resolution.
+- **BC/VS → either Supporter:** the same route may recover Teammates or Raihan. The BC/VS→Raihan route is gated on at least one Basic Energy remaining in deck for Battle Compressor to discard; the follow-up finds this in 99.999999960454% of BC/VS/Raihan route states. The direct-Raihan baseline retains the earlier payable-effect assumption.
 
 The opponent can hold Battle Compressor until the response turn, or use it earlier to place the relevant Supporter in the discard pile and recover it later. Battle Compressor can discard up to three cards, so the Teammates route requires one discard target; the Raihan route can require Raihan plus a Basic Energy. VS Seeker must be available by the time the Supporter is needed.
 
-The model assumes the opponent preserves Field Blower in hand/deck rather than spending or discarding it for another purpose, and can reserve BC/VS Seeker for this response. It does not model competing uses, a prior expenditure of all VS Seekers, or the exact Energy-zone sequence for Raihan.
+The model assumes the opponent preserves Field Blower in hand/deck rather than spending or discarding it for another purpose, and can reserve BC/VS Seeker for this response. The follow-up energy model enumerates whether an Energy remains in deck for the BC/VS→Raihan route, but does not model Mysterious Treasure discarding an Energy from hand, competing uses, or a prior expenditure of all VS Seekers.
 
 ## Results
 
@@ -98,7 +98,7 @@ The separate Forest Seal Stone + Shadow Rider V route in [Agent43's paired-mulli
 
 - The calculation is conditional on a candidate first-turn KO; it does not estimate how often that branch occurs.
 - It assumes Field Blower is retained, and Battle Compressor/VS Seeker are not spent on competing lines.
-- The Teammates-only extension does not require Raihan's Energy effect. The Raihan-inclusive extension is conditional on a payable Basic-Energy attachment from the discard pile; this script does not enumerate Energy zones.
+- The Teammates-only extension does not require Raihan's Energy effect. The follow-up energy-feasibility model exactly gates the BC/VS→Raihan route on an Energy remaining in deck; the direct-Raihan baseline still retains its existing payable-effect condition. The Mysterious Treasure hand-discard alternative is not modeled.
 - It does not establish that rank 1 will choose or successfully execute the line, remove a Hood, or win a game.
 - It does not model the opponent's actual policy, candidate policy, board state, Tool attachment timing, or any other response route.
 - It does not include the separate Forest Seal Stone route in the same union.
