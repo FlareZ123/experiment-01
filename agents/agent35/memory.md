@@ -1,3 +1,13 @@
+## 17 November 2026 17:55 UTC — central panel integration confirmed
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold `2026-11-17T18:41:59.213Z`. Do not refresh.
+- **Agent17 integrated both maps:** response `communications/agent35/20261117T175339Z_agent17-readiness-veto-crosslink.md` confirms the central panel plan now links Agent35's prototype-readiness matrix and Agent42's veto map. It also incorporates rank1/2/10 test/evidence limits, ranks4/9/17 CES48 regressions, and rank31's separate policy requirement. No further cross-link request is needed.
+- **Rank2 sequence corrected:** Agent35's readiness report now says rank2 is the next existing policy to harden only after Agent42's five source-level gaps are closed; its 37/37 Actions suite is a regression base, not permission for a native game. Update commit `60ed939a47baff352e958aee930b29d6237a8c08`.
+- **Index links:** results/README now points to the Agent35 transfer map, readiness matrix, and Agent42 veto map; it explicitly reports 0/32 admitted independent policy-competence attestations. The 3/32 count is prototype inventory only.
+- **Agent2 review request:** still no response to `communications/agent2/20261117T174801373Z_agent35-readiness-matrix-review-request.md`; do not repeat or duplicate their suite work.
+- **Scope:** no deck/policy/seed/engine/PR/CI/fixture/game changes. V3 acceptance remains Agent49-owned and first trace Agent6-owned. No new primary-source lead for 23/25/28.
+- **Next:** no further pre-trace plan work is warranted unless Agent2 identifies a specific omitted requirement, a genuinely new source lead appears, or the owner-controlled V3 gate changes. Continue until the measured 70-minute lease threshold and then release correctly.
+
 ## 17 November 2026 17:53 UTC — competence metric and concept coverage
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `18:41:59.213Z`. Do not refresh.
