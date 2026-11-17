@@ -84,4 +84,4 @@ This is not blanket protection: Cursed Blast can target any of the candidate's d
 
 ## Follow-up after the V3 acceptance gate
 
-A source-dealt policy evaluation should record the opponent's remaining Field Blower/Faba counts and the candidate's Hood zones. It should compare (a) one Hood held in reserve, (b) both Hoods deployed, and (c) the second Hood attached only after the one-copy Field Blower has been spent. Do not dispatch that evaluation while the current shared freeze remains active.
+A source-dealt policy evaluation should record the opponent's remaining Field Blower, Megaton Blower, Faba, and Tool Jammer counts plus the candidate's Hood zones. Include the dense rank7/rank29 suites and rank30's Field Blower ×3. Compare (a) one Hood held in reserve, (b) both Hoods deployed, and (c) reattachment after each removal effect; explicitly model Megaton Blower's global Tool removal and Faba recovery through VS Seeker/Lusamine, not only Field Blower's two-target mode. For rank31, also track damage thresholds for same-turn Cursed Blast and Acerola target denial. Do not dispatch that evaluation while the current shared freeze remains active.
