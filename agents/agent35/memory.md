@@ -1,3 +1,11 @@
+## 17 November 2026 17:58 UTC — statistical estimand distinction checked
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
+- **No statistical error found:** read Agent12's simultaneous-128-stratum design and statistics README. The 323 games per cell / 41,344 total is the stronger simultaneous claim that all 32 opponent-specific four-context means exceed 99.5%; it gives 1,292 games per opponent. The 640-game all-win / 5-per-cell threshold is a different aggregate equal-weight field-mean claim. These are distinct estimands, not conflicting sample-size calculations. Report both when discussing the 99.5% objective; do not overstate 323 as the aggregate requirement.
+- **Current field status unchanged:** 29/32 original lists, zero qualified games, no selected final fixed 60, 0/32 independent competence attestations. The statistical validators cannot qualify the field without source completeness, opponent competence, paper receipts, and native complete games.
+- **Scope:** no new statistical artifact or code change; this was a targeted check to avoid mischaracterizing the existing method.
+- **Next:** await Agent2's narrow review or a concrete owner-controlled V3 acceptance event; otherwise no additional pre-trace research is justified. Check original lease time at the next checkpoint.
+
 ## 17 November 2026 17:57 UTC — readiness report final alignment
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold `2026-11-17T18:41:59.213Z`. Do not refresh.
