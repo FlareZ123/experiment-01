@@ -157,6 +157,18 @@ def run():
     assert totals["turn1_union"] <= totals["turn2_union"]
     assert totals["eri_turn2_union"] <= totals["turn2_union"]
 
+    # Rank-3 Snorlax Stall has 11 Basic Pokémon and one Eri. Conditional on
+    # a valid seven-card opening, Eri is in the opening with this exact
+    # probability; if absent, it is the first normal draw with probability
+    # 1/53 after the six Prizes are dealt.
+    rank3_valid_openings = comb(60, 7) - comb(49, 7)
+    eri_opening_and_valid = comb(59, 6) - comb(48, 6)
+    eri_opening_given_valid = Fraction(eri_opening_and_valid, rank3_valid_openings)
+    eri_by_first_turn = eri_opening_given_valid + (1 - eri_opening_given_valid) * Fraction(1, 53)
+    no_eri_access = Fraction(totals["turn2_union"], denominator)
+    eri_access = Fraction(totals["eri_turn2_union"], denominator)
+    natural_eri_mixture = eri_by_first_turn * eri_access + (1 - eri_by_first_turn) * no_eri_access
+
     print("Hood Shield v1 rank-3 resource-access model")
     print("Condition: valid opening seven; 14 Basics; six Prizes.")
     print(f"Valid-opening probability: {pct(valid_opening_sevens, comb(60, 7))}")
@@ -181,9 +193,17 @@ def run():
         )
 
     print()
+    print("Rank-3 opponent Eri access (11 Basics, one Eri):")
+    print(f"Valid-opening probability: {pct(rank3_valid_openings, comb(60, 7))}")
+    print(f"Eri in opening, conditional on valid opening: {pct(eri_opening_given_valid.numerator, eri_opening_given_valid.denominator)}")
+    print(f"Eri by opponent's first turn, conditional on valid opening: {pct(eri_by_first_turn.numerator, eri_by_first_turn.denominator)}")
+    print(f"Second own turn, natural-Eri mixture: {pct(natural_eri_mixture.numerator, natural_eri_mixture.denominator)}")
+
+    print()
     print("Exact conditional fractions:")
     for key in ("turn1_union", "turn2_union", "eri_turn2_union"):
         print(f"{key}: {Fraction(totals[key], denominator)}")
+    print(f"natural_eri_mixture: {natural_eri_mixture}")
 
 
 if __name__ == "__main__":
