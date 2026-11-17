@@ -98,6 +98,19 @@ Neither card recovers a Faba'd Tool from the Lost Zone. Eco Arm also does not so
 4. **Energy stripped or moved:** Plumeria can discard from any opposing Pokémon after its two-card cost; Team Flare Grunt targets the Active; Team Yell Grunt returns an Energy to hand; Handheld Fan can move Energy from the attacker to the opponent's Bench after damage. Test whether the candidate can continue attacking and retreating after these effects, not just whether it can attach an Energy once.
 5. **Resource contention:** the candidate's one Arven, two VS Seeker, one Field Blower and two Hoods create competing access/recovery demands. Model realistic Supporter-per-turn, hand-discard, Bench, attachment and search costs (AMR/DCI); do not treat theoretical card connectivity as an available line.
 
+## Candidate decision envelope to validate
+
+The following is a concrete policy hypothesis for the current 60, not a claim that the line has already been validated:
+
+1. **Protect the engine from the Bench.** If the paper ruling confirms the Hood/Initialization inference, attach Stealthy Hood to a benched Shadow Rider V that will use Underworld Door. Tool Jammer only suppresses Tools on the candidate's Active, so a bench Hood should remain effective while the engine Pokémon stays benched.
+2. **Do not promote through Tool Jammer blindly.** Before moving the Hooded Shadow Rider into the Active Spot, check whether the opponent's Active still has Tool Jammer. If so, compare removing it with Field Blower (which can also remove a Handheld Fan) against using another attacker or delaying the promotion. Field Blower is one Item and is unavailable while an Item lock is active.
+3. **Preserve the second Hood.** Keep one Hood in hand while the first is protecting the engine when possible. If a Hooded Pokémon is damaged and removal is imminent, Acerola can pick up the Pokémon and its attached Hood; after the Tool is discarded or Lost Zoned, the current 60 has no direct recovery.
+4. **Respect Handheld Fan before attacking.** If the opponent's Active has Handheld Fan, evaluate the Energy that would be moved from the attacking Pokémon to the opponent's Bench on damage. Prefer removing Fan first, using a lower-investment attacker, or accepting the transfer only when the resulting Energy position is still favorable.
+5. **Budget Supporter and Energy denial.** Against Plumeria / Team Flare Grunt / Team Yell Grunt, model their different target and cost restrictions and preserve enough attached Energy for the next attack and retreat. Do not treat their registered copy counts as same-turn access.
+6. **Compare recovery alternatives only as complete architectures.** Forest Seal Stone, Dowsing Machine, Eco Arm and Acerola solve different resource problems; evaluate their full cost and access lines, including Item lock, rather than swapping an ACE SPEC from card text alone.
+
+The suite should capture the decision envelope before the candidate is exposed to each pressure case, then compare the chosen action with the available legal alternatives and full cost ledger. All six points remain hypotheses until source-natural/native-staged evidence exists.
+
 ## Post-trace challenge priority
 
 After the current rank-1 diagnostic is accepted and reviewed, the most informative available field tests for this risk are:
