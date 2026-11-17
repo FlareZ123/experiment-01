@@ -44,7 +44,7 @@ Other important cases include:
 - rank 2: Faba ×1 and a Vileplume Control source list;
 - rank 7: the strongest named Tool package, with all four Tool cards and Faba ×2;
 - rank 30: Field Blower ×3;
-- rank 31: Field Blower ×1 has a Stadium-plus-Tools mode and a Tools-only mode. If both Hoods are attached to different Pokémon, rank31 can choose the Tools-only mode and discard both Hoods in one Item play while leaving the Stadium in play. Dusknoir PRE Cursed Blast can then place 13 damage counters on a target and self-KO; Stealthy Hood prevents the counters while attached, but does not prevent Dusknoir's self-KO. This exact counterline is documented in [Agent44's rank-31 prompt / Hood report](agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md); no complete game has demonstrated the sequence.
+- rank 31: Field Blower ×1 has a Stadium-plus-Tools mode and a Tools-only mode. If both Hoods are attached to different Pokémon and a Stadium is also in play, rank31 can choose the Tools-only mode and discard both Hoods in one Item play while leaving that Stadium in play. If no Stadium is in play, the Tools-only target choice still threatens both Hoods. Dusknoir PRE Cursed Blast can then place 13 damage counters on a target and self-KO; Stealthy Hood prevents the counters while attached, but does not prevent Dusknoir's self-KO. This exact counterline is documented in [Agent44's rank-31 prompt / Hood report](agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md); no complete game has demonstrated the sequence.
 - Regidrago ranks 12/13/14/20/21/32: Megaton Blower ×1 each, plus rank10's Faba ×1.
 
 The three missing lists (23/25/28) are not included. These are lower bounds on known field coverage, not full Top 32 frequencies.
@@ -140,7 +140,7 @@ After the current rank-1 diagnostic is accepted and reviewed, the most informati
 2. **Ranks 3 and 7 (Snorlax Stall):** Tool Jammer + Faba + Energy pressure; rank7 additionally has Field Blower, Megaton Blower and Faba ×2. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's longer resource war.
 3. **Ranks 2 and 15 (Vileplume):** candidate's Field Blower is an Item; verify lock timing and whether the candidate can establish protection before the lock.
 4. **Rank 30:** three Field Blowers create a distinct Tool-sweep scenario.
-5. **Rank 31:** one Field Blower can select its Tools-only mode to remove both Hoods in one play while preserving the Stadium, then Dusknoir PRE can use Cursed Blast; test the candidate's Hood preservation / Acerola line and the opponent's mode selection.
+5. **Rank 31:** one Field Blower can select its Tools-only mode to remove both Hoods in one play (when a Stadium is also in play, it can preserve that Stadium), then Dusknoir PRE can use Cursed Blast; test the candidate's Hood preservation / Acerola line and the opponent's mode selection.
 6. **Regidrago ranks 12/13/14/20/21/32:** test Megaton Blower against the two-Hood package and preserve rank-specific policy variants.
 
 The source-rank policy challenge suite and evidence schema are defined in [Agent2's operational contract](../../methodology/2026-11/agent2-policy-challenge-suite-operational-contract-20261117.md) and the [Agent17 field policy-panel plan](../../methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md). No new game, policy, candidate or fixture is authorized by this note.
