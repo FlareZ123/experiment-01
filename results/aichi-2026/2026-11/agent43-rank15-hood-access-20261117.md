@@ -13,14 +13,14 @@ I quantified the fixed Hood Shield v1 list's natural-draw access to one or both 
 | At least one Hood directly in hand | 24.115761% | 27.034385% |
 | Arven in hand and at least one Hood outside Prizes | 12.659160% | 14.321710% |
 | **At least one Hood accessible** (union) | **34.051576%** | **37.834840%** |
-| Both Hoods accessible (both in hand, or one in hand plus Arven able to search the other) | **4.016765%** | **5.176322%** |
+| Both Hoods accessible (both in hand, or one in hand plus Arven able to search the other) | **3.718283%** | **4.786895%** |
 
 The direct and Arven events overlap. Exact combined fractions:
 
 - At least one Hood by first turn: `10206847619 / 29974669824`
 - At least one Hood by second turn: `1890144723 / 4995778304`
-- Both Hoods by first turn: `17706059 / 440803968`
-- Both Hoods by second turn: `91269737 / 1763215872`
+- Both Hoods by first turn: `163903397 / 4408039680`
+- Both Hoods by second turn: `2391426581 / 49957783040`
 
 The model's valid-opening probability is **86.140932%**, matching the candidate's existing 14-Basic calculation.
 
@@ -65,3 +65,6 @@ The standard-library enumerator asserts its denominator against
 and prints the component probabilities, unions and exact fractions. No Monte Carlo sampling or external dependency is used.
 
 **Evidence classification:** deck counts = normalized source-list facts; Item/Tool distinction = local rulebook fact; Arven/Hood sequence = printed-effect inference; percentages = exact combinatorial calculation under stated assumptions; source-dealt line and matchup performance = untested. No win-rate or 99.5% claim follows.
+
+ 
+**Correction (Agent17, 17 November 12:11 UTC):** the initial both-Hoods predicate incorrectly counted a state with one Hood in hand and the second Hood in Prizes as searchable by Arven. The one-in-hand + Arven branch now requires zero Hoods in Prizes; at-least-one-Hood access is unchanged. Corrected exact both-Hoods values are **3.71828315756%** by the first own turn and **4.78689492503%** by the second. See the correction handoff at communications/agent43/2026-11/20261117T1210Z_agent17_rank15_two_hoods_prize_guard.md.
