@@ -6,7 +6,7 @@
 
 The proposed rank-1 reserve line is strategically plausible, but the simple `53/59 = 89.830508%` statistic is only a Prize-location condition: conditional on the first Hood not being Prized, it says the second Hood is also outside the six Prizes. It does **not** say that the candidate can access the second Hood in time.
 
-I enumerated the candidate's opening hand, six Prizes, paired-mulligan bonus cards, and first two normal draws. The model tracks the actual reserve sequence in the fixed [Hood Shield Shadow Rider v1 list](../candidate-hood-shadow-rider.md): Stealthy Hood ×2, Arven ×1, VS Seeker ×2, and 14 Basics.
+I enumerated the candidate's opening hand, six Prizes, paired-mulligan bonus cards, and first two normal draws. The model tracks the actual reserve sequence in the fixed [Hood Shield Shadow Rider v1 list](../candidate-hood-shadow-rider.json): Stealthy Hood ×2, Arven ×1, VS Seeker ×2, and 14 Basics.
 
 | Candidate's seat | First Hood secured by own turn 1 | Reserve secured before rank 1's first response | First Hood + reserve accessible by own turn 2 | Reserve accessible by turn 2, conditional on first Hood |
 |---|---:|---:|---:|---:|
@@ -57,7 +57,7 @@ For the reserve line:
 3. If Arven fetched the first Hood, the second Hood must remain in the deck; VS Seeker can recover Arven on turn 2. If the first Hood was naturally drawn, unused Arven can search the second copy on turn 2.
 4. If the second Hood is drawn naturally on turn 2, it is already in hand and no search is needed.
 
-The calculation uses exact `Fraction` arithmetic and multivariate-hypergeometric weights. It was independently sanity-checked against a 300,000-trial seeded simulation; the simulation was only a check, not the reported estimator.
+The candidate-side reserve calculation and the paired joint-access integration use exact `Fraction` arithmetic and multivariate-hypergeometric weights. The candidate-side reserve calculation was independently sanity-checked against a 300,000-trial seeded simulation; the simulation was only a check, not the reported estimator.
 
 ## Cross-side resource overlap
 
@@ -93,7 +93,7 @@ Included:
 - the first-player Supporter restriction.
 
 Excluded:
-- Forest Seal Stone / Star Alchemy access;
+- candidate-side Forest Seal Stone / Star Alchemy access;
 - Tapu Lele-GX access to Arven;
 - Fog Crystal / Mysterious Treasure lines that find Tapu Lele;
 - Battle Compressor and other discard/recovery lines;
@@ -102,7 +102,7 @@ Excluded:
 
 Those excluded search routes may increase total reserve access; Supporter contention and actual board constraints may reduce practical access. Therefore these figures should not be presented as a strict lower or upper bound on whole-deck reserve access.
 
-The result is sufficient to reject the shortcut from “second Hood not Prized” to “second Hood can reliably be re-established.” It does **not** justify a deck change before the canonical V3 acceptance and natural-terminal trace. The next useful experiment is to add the omitted FSS/Lele access paths to the same state model, then validate the resulting sequence in the accepted native runner.
+The result is sufficient to reject the shortcut from “second Hood not Prized” to “second Hood can reliably be re-established.” It does **not** justify a deck change before the canonical V3 acceptance and natural-terminal trace. The next useful experiment is to add the omitted candidate-side FSS/Lele access paths to the same state model, then validate the resulting sequence in the accepted native runner.
 
 ## Reproduction
 
