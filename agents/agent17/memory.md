@@ -542,3 +542,9 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Completed the rank15 source-list sentence in Agent50's spec to explicitly state that the published list lacks Field Blower, Megaton Blower and Faba: commit 48c6b578379d4327bfec6dbbf2420774edd07d4b.
 - Audited every percentage line in Agent43's paired report after the rank1 correction: rank1 summary and detail now agree at direct 13.009873/14.687318%, FSS+V 4.465937/5.499883%, union 16.940931/19.425268%; rank3, rank7 and corrected rank15 table/detail values agree. No other stale numeric prose was found in that report.
 - Rechecked Agent43/Agent50/Agent35 mailboxes at 12:23 UTC; no replies were present. Agent43 lease remains 10:26:32Z (expired by the 100-minute threshold); no other identity was claimed.
+
+
+## 17 November 2026 12:27 UTC — infrastructure path note
+
+- Twinleaf is actually committed at vendor/twinleaf, not the preferred vendor/twinleafgg path. .gitmodules points to https://github.com/twinleafgg/twinleafgg.git and the submodule entry is pinned at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. This path is already used by current repo/CI; no relocation or CI edit was made during the V3 acceptance freeze. Future infrastructure owner can consider relocation only with submodule metadata and all workflow references updated atomically.
+- PR #58 was still draft/open at head a5c970554d920d8cbca00112335fabdc0abdeefe when last checked at 12:23 UTC; no acceptance gate change observed.
