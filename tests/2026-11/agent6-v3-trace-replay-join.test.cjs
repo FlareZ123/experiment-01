@@ -262,6 +262,10 @@ function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = nu
   });
 }
 
+function runMatchingReplay(replay, actionOrdinal = null) {
+  return run(sanitizeFixtureArtifact(replay), replay, actionOrdinal);
+}
+
 test('reconstructs the draw count from the native choice index and accepted hand delta', () => {
   const result = run();
   assert.equal(result.status, 'reconstructed');
@@ -303,7 +307,7 @@ test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0'
 
 test('marks a game with a different exact prompt message as not exercised', () => {
   const replay = rawReplay({ target: false });
-  const result = run(safeArtifact(), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'not-exercised');
   assert.equal(result.targetCount, 0);
 });
@@ -314,7 +318,7 @@ test('does not accept the target identifier in unrelated metadata or substring t
   prompt.extraFields.note = 'unrelated metadata mentions WANT_TO_DRAW_CARDS';
   prompt.fields.message = 'OTHER_EFFECT_WANT_TO_DRAW_CARDS';
   refreshTraceDigest(replay);
-  const result = run(safeArtifact(), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'not-exercised');
   assert.equal(result.targetCount, 0);
 });
@@ -325,36 +329,36 @@ test('uses fields.text only when the canonical message field is absent', () => {
   delete prompt.fields.message;
   prompt.fields.text = 'WANT_TO_DRAW_CARDS';
   refreshTraceDigest(replay);
-  const result = run(safeArtifact(), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'reconstructed');
   assert.equal(result.targets[0].promptIdentityField, 'text');
 });
 
 test('requires the exact target prompt to be pending before dispatch', () => {
   const replay = rawReplay({ beforePending: false });
-  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_NOT_PENDING' });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_PROMPT_NOT_PENDING' });
 });
 
 test('rejects a prompt that remains pending after dispatch, including a zero draw choice', () => {
   const replay = rawReplay({ choiceIndex: 3, handAfter: 7, afterPending: true });
-  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_NOT_RESOLVED' });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_PROMPT_NOT_RESOLVED' });
 });
 
 test('requires the after-dispatch prompt result to equal the native action result', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, afterResult: 2 });
-  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_RESULT_MISMATCH' });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_PROMPT_RESULT_MISMATCH' });
 });
 
 test('requires the resolved prompt to retain the exact target effect identity', () => {
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].fullStateAfter.prompts[0].fields.message = 'OTHER_EFFECT';
   refreshTraceDigest(replay);
-  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_IDENTITY_CHANGED' });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_PROMPT_IDENTITY_CHANGED' });
 });
 
 test('allows an absent resolved prompt only with native choice index and matching hand delta', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, includeAfter: false });
-  const result = run(safeArtifact(), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'reconstructed');
   assert.equal(result.targets[0].promptAfterPresent, false);
   assert.equal(result.targets[0].selectedDrawCount, 2);
@@ -394,15 +398,16 @@ test('maps the zero-draw last index across two, three and four native options', 
 });
 
 test('does not reconstruct when native choice and hand delta disagree', () => {
-  const result = run(safeArtifact(), rawReplay({ choiceIndex: 1, handAfter: 8 }));
+  const replay = rawReplay({ choiceIndex: 1, handAfter: 8 });
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'choice-unresolved');
   assert.equal(result.targets[0].selectedDrawCount, null);
   assert.equal(result.targets[0].confidence, 'native-choice-index-and-hand-delta-disagree');
 });
 
 test('rejects an out-of-range native choice index', () => {
-  assert.throws(() => run(safeArtifact(), rawReplay({ choiceIndex: 4, handAfter: 9, afterResult: 4 })),
-    { code: 'TRACE_REPLAY_CHOICE_INDEX_INVALID' });
+  const replay = rawReplay({ choiceIndex: 4, handAfter: 9, afterResult: 4 });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_CHOICE_INDEX_INVALID' });
 });
 
 test('leaves a disabled selected native choice unresolved', () => {
@@ -420,12 +425,14 @@ test('rejects any disabled option even when the chosen original index is enabled
 });
 
 test('leaves the target unresolved when the native values are missing or not the exact source labels', () => {
-  const missing = run(safeArtifact(), rawReplay({ values: null }));
+  const missingReplay = rawReplay({ values: null });
+  const missing = runMatchingReplay(missingReplay);
   assert.equal(missing.status, 'choice-unresolved');
   assert.equal(missing.targets[0].selectedDrawCount, null);
-  const wrongLabels = run(safeArtifact(), rawReplay({
+  const wrongLabelsReplay = rawReplay({
     values: ['Draw 3 cards', 'Draw 2 cards', 'Draw 1 card', 'Draw 0 cards']
-  }));
+  });
+  const wrongLabels = runMatchingReplay(wrongLabelsReplay);
   assert.equal(wrongLabels.status, 'choice-unresolved');
   assert.equal(wrongLabels.targets[0].selectedDrawCount, null);
 });
@@ -494,7 +501,7 @@ test('rejects native prompt allowCancel drift against the sanitized resolver rec
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0].fields.options.allowCancel = true;
   refreshTraceDigest(replay);
-  assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
+  assert.throws(() => runMatchingReplay(replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
 });
 
 test('rejects allowCancel=true even when the sanitized resolver receipt agrees', () => {
@@ -536,7 +543,7 @@ test('output contains no raw card identities, numeric card IDs, or opaque prompt
   rawRow.actionPayload.fields.numericToken = '123456';
   rawRow.fullStateBefore.prompts[0].extraFields.cards = [{ value: 98765, name: 'Secret Card DEF' }];
   refreshTraceDigest(replay);
-  const result = run(safeArtifact(), replay);
+  const result = runMatchingReplay(replay);
   const serialized = JSON.stringify(result);
   assert.equal(serialized.includes('Secret Card ABC'), false);
   assert.equal(serialized.includes('Secret Card DEF'), false);
