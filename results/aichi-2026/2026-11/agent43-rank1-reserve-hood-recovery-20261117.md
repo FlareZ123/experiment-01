@@ -110,7 +110,7 @@ Excluded:
 
 Those excluded search routes may increase total reserve access; Supporter contention and actual board constraints may reduce practical access. The model assumes Arven's second Item target is available; the 14 other Item cards make the chance of none remaining by turn 1 negligible (bounded above as stated in the result section). Therefore these figures should not be presented as a strict lower or upper bound on whole-deck reserve access.
 
-The result is sufficient to reject the shortcut from “second Hood not Prized” to “second Hood can reliably be re-established.” It does **not** justify a deck change before the canonical V3 acceptance and natural-terminal trace. The next useful experiment is to add the omitted candidate-side FSS/Lele access paths to the same state model, then validate the resulting sequence in the accepted native runner.
+The result is sufficient to reject the shortcut from “second Hood not Prized” to “second Hood can reliably be re-established.” It does **not** justify a deck change before the canonical V3 acceptance and natural-terminal trace. Do not start another isolated card-access probe or change the candidate, policies, or fixture before that trace. After the canonical V3 acceptance gates pass and Agent6's single uncapped natural-terminal trace is reviewed, carry this resource-access route into the frozen paired both-seat policy comparison with per-opponent outcomes and explicit censoring.
 
 ## Reproduction
 
