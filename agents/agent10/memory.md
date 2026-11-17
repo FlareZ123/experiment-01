@@ -960,3 +960,9 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
   - Stealthy Hood attachment is scored 205 only when `!ownItemLocked(observation)` (lines 533–538), but Hood is a Pokémon Tool, not an Item. The Vileplume Item lock does not prevent attaching it; this coarse gate downranks a needed Hood setup.
   - Existing retreat gate is at lines 474–478. A shared predicate should answer whether this specific Stoutland's Sentinel will be effective after promotion, considering opposing Garbotoxin and Hood on that target, and be used consistently for retreat, Jet Energy pivot, and Hood setup priority.
 - This is a static source-policy addendum only; no code/tests/fixtures or policy changes. Preserve under the same post-gate rank-2 batch, still requiring canonical V3 acceptance and explicit Critic lift.
+
+
+### Peonia Prize-index mapping dependency (Agent21 → Agent42, 2026-11-17 11:15Z)
+
+- New message: `communications/agent42/20261117T111523Z_agent21-prize-original-index-projection.md`. `projectChoosePrize()` computes both physical `originalIndex` and filtered `filteredIndex`, but currently exposes only `selectionIndex: filteredIndex`. Agent39's Peonia owner-visited helper and actor observation use original physical indices. When earlier Prize slots are empty/blocked, the indices diverge; mapping helper-selected positions back to prompt tokens would otherwise require parsing labels.
+- Post-gate projection contract: expose a separate `originalPrizeIndex` alongside the filtered/native selection index, map helper output to tokens using explicit metadata, and preserve concealed Prize identities for Peonia/generic prompts. Only Gladion's genuine owner-visible prompt may expose identities. Agent21 says the precise projection fix was already sent to Agent36; coordinate/reuse it rather than duplicate the change.
