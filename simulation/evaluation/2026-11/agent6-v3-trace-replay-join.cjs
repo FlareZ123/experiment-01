@@ -11,7 +11,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const TARGET_EFFECT = 'WANT_TO_DRAW_CARDS';
-const DRAW_LABEL = /^Draw\\s+(\\d+)\\s+card\\(s\\)$/i;
+const DRAW_LABEL = /^Draw\s+(\d+)\s+card\(s\)$/i;
 
 function stableJson(value) {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -503,7 +503,7 @@ function readJson(filename) {
 function main(argv = process.argv.slice(2)) {
   const [originalPath, replayPath, sanitizerModulePath, ordinalText] = argv;
   if (!originalPath || !replayPath || !sanitizerModulePath || argv.length > 4 ||
-      (ordinalText !== undefined && !/^\\d+$/.test(ordinalText))) {
+      (ordinalText !== undefined && !/^\d+$/.test(ordinalText))) {
     throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <offline-decrypted-replay.json> <exact-revision-sanitizer-module.cjs> [actionOrdinal]');
   }
   const originalSanitized = readJson(originalPath);
@@ -517,7 +517,7 @@ function main(argv = process.argv.slice(2)) {
     sanitizerIdentity,
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + '\\n');
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   return result;
 }
 
