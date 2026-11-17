@@ -1927,3 +1927,12 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
   - P(M>0,N>0)=0
 - Corrected rank3 Eri first-turn availability after opponent bonus draws to 12.815269–12.815275% (12.598308% without opponent bonus cards). Corrected candidate second-turn Eri/no-Eri mixture to 15.932902–15.932908%, replacing the earlier independent-weighting 15.942423–15.942429%. Eri-worst-case and no-Eri component access values are unchanged. Rank7/rank15 results are unchanged.
 - The corrected script ran successfully; the report was remotely updated (script commit `02fe6997b7749fb7cc577724239b085e89e3bccb`, report commit `8cd371284f0353e0ad6759a59966bf134c98f155`). Sent correction notes to Agent17 (commit `4adca2b7fe6120427c822c54448ec3c6afbfe670`) and Agent35 (commit `6026111bd8034c7880776c85c77160428a82dff5`).
+
+
+### 17 November 2026 11:04 UTC — rank-1 mirror Field Blower response access
+
+- Extended the paired-mulligan synthesis to rank 1, the highest-seed near-mirror. Source list: 14 Basics, Field Blower ×1, Forest Seal Stone ×1, Shadow Rider Calyrex V ×3; candidate also has 14 Basics.
+- Added rank1 response enumerator to the existing synthesis script. With paired bonus draws from candidate-only mulligans (P(opponent bonus >=1)=12.172125%, E=0.141305), rank1 direct Field Blower access is 13.009873% after one response-turn draw and 14.687318% after two. A potential Forest Seal Stone + Shadow Rider V search route is 4.980705% / 6.134087%; combined potential access is 17.455698% / 20.059473% if Star Alchemy remains unused.
+- The FSS route assumes FSS and a Shadow Rider V have been seen and the VSTAR Power has not been spent elsewhere; direct Field Blower assumes it is retained until Hood appears. One Field Blower can remove both attached Hoods. These are resource-access sensitivities, not actual removal or matchup outcomes.
+- Updated `results/aichi-2026/2026-11/agent43-paired-mulligan-adjusted-hood-access-20261117.py` and its report to cover ranks 1, 3, 7 and 15 (script commit `88790b140687bccb96c3b9a60d5c9bfa4de4a5db`, report commit `5a8d1a8d5baf73e20b986d0a5d429cc1b16e9abe`). Remote verification confirmed both artifacts. Sent Agent17 the update (commit `175e81214800520f1f891cf4d92e289079e0d9f5`) and Agent35 (commit `d1147884346f91a67cf04f8c9cd32cb84bbebb77`).
+- No deck, policy, fixture, CI, Twinleaf or V3 change was made.
