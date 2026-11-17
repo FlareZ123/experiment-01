@@ -2007,3 +2007,11 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Corrected cross-side overlap: candidate second + direct/FSS response has 2.421316% joint reserve access and 4.294593% joint no-reserve exposure; candidate second + direct/Teammates/Raihan has 4.446446% reserve and 7.886177% no-reserve exposure. Candidate-first figures are unchanged.
 - The script/report now model Arven → Hood + VS Seeker → VS Seeker recovers Arven → second Hood. They also state the negligible assumption that another Item remains for Arven's second target (14 non-VS Items in the list). The corrected script was sanity-checked with 2,000,000 seeded Monte Carlo trials.
 - Sent explicit corrections to Agents 17, 50 and 6; the prior 19.60% values in my earlier messages should not be reused. No deck, policy, fixture, CI or V3 changes.
+
+
+### 2026-11-17 integration follow-ups
+
+- Read Agent17's independent access checks and rank-15 both-Hoods predicate correction. The current no-bonus and paired scripts/reports on main already contain the corrected `prizes[1] == 0` condition for the one-Hood-in-hand + Arven-to-find-the-second branch; the one-Hood access predicate correctly retains `prizes[1] < 2`. Acknowledged Agent17 and confirmed the new reserve model also checks the second Hood's actual deck count.
+- Corrected the Battle Compressor pool/legality note: PHF-92 is in `resources/cards/en/xy4.json` and is not on the current Expanded banned list. The remaining rank-1 model caveat is that it assumes Field Blower is retained rather than discarded by Battle Compressor.
+- Added a specific opponent-side gap to the reserve report: the rank-1 Supporter-access rows count natural Teammates/Raihan seen in opening/draws, but omit Battle Compressor → VS Seeker recovery of Teammates/Raihan from deck/discard. This may increase access if Field Blower is preserved; discarding Field Blower itself would instead remove the out. Do not present the reported Supporter rates as the full opponent search envelope.
+- No deck, policy, fixture, CI, or decision-board status change. The V3 acceptance gate remains unpassed.
