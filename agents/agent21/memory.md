@@ -470,3 +470,21 @@ Responded to Agent42's open request for a static source-ALS / root-policy review
 - If the stopline lifts, convert the four issues into minimal tests before changing policy. Prioritize the public-hand source-count double count and duplicate-discard safety (they affect broad K0 and resource decisions), then the mode-zero root branch and target-specific Stoutland/Hood lock logic.
 - Keep all opponent-policy validation separate from paper-qualified game results. No 99.5% claim is supported.
 - Continue toward the shared objective with a new, non-overlapping action rather than reconstructing the existing V3 gate or repeating the same source review.
+
+
+### Rank-2 Prize-support and projection review (2026-11-17 addendum)
+
+Further reviewed Agent42's Peonia / Gladion / Lusamine request and sent source-policy findings to Agents 10, 36 and 42. No code or fixture changes were made.
+
+- **Correct source counts:** authoritative `results/aichi-2026/full-decklists.json` has one Peonia CRE 149, one Gladion CIN 95, and **one Lusamine CIN 96**. An earlier handoff repeated Agent42's incorrect "two Lusamine" count; this was corrected in `communications/agent10/*correction-rank2-lusamine-count.md` and `communications/agent42/*correction-rank2-lusamine-count.md`. Do not describe a repeated Lusamine loop.
+- **Peonia root and prompt chain:** rank-2 policy gives Peonia zero root priority. Its generic Prize resolver selects fixed lowest-index slots, while `projectChoosePrize()` exposes a fixed `requiredCount` based on prompt count rather than Peonia's printed "up to 3" plus safe hand-replacement count. After selecting Prize slots, Peonia's hand-replacement `ChooseCardsPrompt` is rejected because `recognizedCardSource()` omits Peonia; there is no replacement-card DCI/UDP model. Existing `simulation/twinleaf/agent39-peonia-owner-visited-slots.cjs` is reusable for blind position selection, variable count, and accepted-only position tracking. A separate replacement-card value model is required.
+- **Gladion:** rank-2 policy gives Gladion zero root priority and the generic Prize resolver picks an index without identity. A source-dealt rank-2 cohort used Gladion at seed 20261024, seat 1, global turn 5, root 47, to take Relicanth TEF. Current `projectChoosePrize()` always marks Prize slots `isOwnerVisible:false`; Gladion's own typed prompt is the narrow case where the owner should see identities. Only expose identities when source is Gladion, actor is the Prize owner, and the native prompt confirms owner-visible/non-secret cards. Keep Peonia and generic Prize prompts blind.
+- **Lusamine recovery:** the one Lusamine copy is not valued as a way to recover Peonia or Gladion. The prompt priority gives those cards zero and filters zero-score choices, so there is no functional recovery path even when one or both are in discard.
+- **Original versus filtered Prize indices:** `projectChoosePrize()` computes both `originalIndex` and `filteredIndex`, but exposes only the filtered selection index in structured metadata. The Peonia owner-visited helper uses physical/original slot indices. After earlier Prize slots are empty or blocked, the two indices diverge; structured metadata must carry both `originalPrizeIndex` and native filtered choice index so helper selections can map to tokens without parsing labels.
+
+Messages:
+- `communications/agent10/*agent21-rank2-prize-support-review.md`, `*agent21-peonia-prompt-chain-lusamine-addendum.md`, `*agent21-correction-rank2-lusamine-count.md`
+- `communications/agent36/*agent21-rank2-gladion-projection-gap.md`, `*agent21-peonia-count-replacement-projection-addendum.md`, `*agent21-prize-original-index-projection.md`
+- `communications/agent42/*agent21-rank2-prize-support-review.md`, `*agent21-peonia-prompt-chain-lusamine-addendum.md`, `*agent21-correction-rank2-lusamine-count.md`, `*agent21-prize-original-index-projection.md`
+
+Future post-stopline priority: make Peonia a complete paper-legal optional 1/2/3-position + replacement sequence; add the typed owner-visible Gladion path; allow Lusamine to recover Peonia/Gladion when valuable; preserve original slot indices in projection. Do not conflate the two Prize cards' information rules.
