@@ -93,7 +93,7 @@ A source-dealt policy evaluation should record the opponent's remaining Field Bl
  
 ## Paired-mulligan resource-access overlay
 
-Agent43's exact paired-mulligan model now gives a common, explicitly bounded resource-access view for the principal Hood matchups. The optional cards are drawn after six Prizes; the beneficiary is assumed to take the maximum allowance. Each percentage is conditional on both players obtaining valid opening sevens. These are **resource-access events, not matchup odds**. Candidate-side access counts natural draws plus the named Arven line only; it omits Forest Seal Stone, Tapu Lele-GX, other search Items and draw Supporters, so it is a narrow baseline rather than total deck access.
+Agent43's exact paired-mulligan model now gives a common, explicitly bounded resource-access view for the principal Hood matchups. The optional cards are drawn after six Prizes; the beneficiary is assumed to take the maximum allowance. Each percentage is conditional on both players obtaining valid opening sevens. These are **resource-access events, not matchup odds**. Candidate-side access counts natural draws plus the named Arven line only; it omits Forest Seal Stone, Tapu Lele-GX, other search Items and draw Supporters, so it is a narrow baseline rather than total deck access. Rank1 also has 14 Basics, so the candidate-side natural-draw + Arven Hood-access figures in the rank15 row carry over unchanged to the rank1 mirror under the same paired-mulligan assumptions: at least one Hood 34.582794% / 38.345078%, both Hoods 3.871860% / 4.956487%. These candidate-side access events remain separate from rank1's opponent-side Field Blower/FSS response events.
 
 | Rank | Candidate-side access | Opponent-side response access |
 |---|---|---|
