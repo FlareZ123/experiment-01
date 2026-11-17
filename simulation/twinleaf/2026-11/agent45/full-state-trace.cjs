@@ -3,31 +3,36 @@
 const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
 const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
 
-function safeOwnData(value,key) {
-  const descriptor=value && Object.getOwnPropertyDescriptor(value,key);
-  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
-    descriptor.value : undefined;
+function safeDataProperty(value,key) {
+  let current=value;
+  while(current && (typeof current==='object' || typeof current==='function')) {
+    const descriptor=Object.getOwnPropertyDescriptor(current,key);
+    if(descriptor) return Object.prototype.hasOwnProperty.call(descriptor,'value') ?
+      descriptor.value : undefined;
+    current=Object.getPrototypeOf(current);
+  }
+  return undefined;
 }
 
 function cardLabelForText(card) {
   if (card===null || card===undefined) return null;
   if (typeof card!=='object') return String(card);
-  const fullName=safeOwnData(card,'fullName');
+  const fullName=safeDataProperty(card,'fullName');
   if (typeof fullName==='string' && fullName) return fullName;
-  const name=safeOwnData(card,'name');
+  const name=safeDataProperty(card,'name');
   if (typeof name==='string' && name) {
-    const set=safeOwnData(card,'set');
-    const number=safeOwnData(card,'number');
+    const set=safeDataProperty(card,'set');
+    const number=safeDataProperty(card,'number');
     return typeof set==='string' && typeof number==='string' ?
       name+' ['+set+' '+number+']' : name;
   }
-  const id=safeOwnData(card,'id');
+  const id=safeDataProperty(card,'id');
   if (typeof id==='string' || typeof id==='number') return 'Card#'+String(id);
   return constructorNameOf(card);
 }
 
 function zoneCardLabelsForText(zone) {
-  const cards=safeOwnData(zone,'cards');
+  const cards=safeDataProperty(zone,'cards');
   return Array.isArray(cards)?cards.map(cardLabelForText):[];
 }
 
@@ -36,44 +41,44 @@ function zoneCardLabelsForText(zone) {
  * The full native state remains separately available in the machine trace.
  */
 function summarizeNativeStateForText(state,publicBoard=null) {
-  const nativePlayers=safeOwnData(state,'players');
+  const nativePlayers=safeDataProperty(state,'players');
   const players=Array.isArray(nativePlayers)?nativePlayers.map((player,seat)=>{
-    const prizes=safeOwnData(player,'prizes');
+    const prizes=safeDataProperty(player,'prizes');
     const board=Array.isArray(publicBoard)?publicBoard[seat]:null;
     return {
       seat,
-      playerId:safeOwnData(player,'id') ?? null,
-      deck:zoneCardLabelsForText(safeOwnData(player,'deck')),
-      hand:zoneCardLabelsForText(safeOwnData(player,'hand')),
-      discard:zoneCardLabelsForText(safeOwnData(player,'discard')),
-      lostzone:zoneCardLabelsForText(safeOwnData(player,'lostzone')),
+      playerId:safeDataProperty(player,'id') ?? null,
+      deck:zoneCardLabelsForText(safeDataProperty(player,'deck')),
+      hand:zoneCardLabelsForText(safeDataProperty(player,'hand')),
+      discard:zoneCardLabelsForText(safeDataProperty(player,'discard')),
+      lostzone:zoneCardLabelsForText(safeDataProperty(player,'lostzone')),
       prizes:Array.isArray(prizes)?prizes.map(zoneCardLabelsForText):[],
       active:board?.active ?? null,
       bench:board?.bench ?? [],
-      stadium:zoneCardLabelsForText(safeOwnData(player,'stadium')),
-      supporter:zoneCardLabelsForText(safeOwnData(player,'supporter'))
+      stadium:zoneCardLabelsForText(safeDataProperty(player,'stadium')),
+      supporter:zoneCardLabelsForText(safeDataProperty(player,'supporter'))
     };
   }):[];
-  const nativePrompts=safeOwnData(state,'prompts');
+  const nativePrompts=safeDataProperty(state,'prompts');
   const unresolvedPrompts=Array.isArray(nativePrompts)?nativePrompts
-    .filter(prompt=>safeOwnData(prompt,'result')===undefined)
+    .filter(prompt=>safeDataProperty(prompt,'result')===undefined)
     .map(prompt=>{
-      const player=safeOwnData(prompt,'player');
-      const message=safeOwnData(prompt,'message') ?? safeOwnData(prompt,'text');
-      const promptCards=safeOwnData(prompt,'cards') ?? safeOwnData(prompt,'cardList');
+      const player=safeDataProperty(prompt,'player');
+      const message=safeDataProperty(prompt,'message') ?? safeDataProperty(prompt,'text');
+      const promptCards=safeDataProperty(prompt,'cards') ?? safeDataProperty(prompt,'cardList');
       return {
         type:constructorNameOf(prompt),
-        playerId:safeOwnData(prompt,'playerId') ?? safeOwnData(player,'id') ?? null,
+        playerId:safeDataProperty(prompt,'playerId') ?? safeDataProperty(player,'id') ?? null,
         message:typeof message==='string'?message:null,
         cards:zoneCardLabelsForText(promptCards)
       };
     }):[];
   return {
-    turn:safeOwnData(state,'turn') ?? null,
-    phase:safeOwnData(state,'phase') ?? null,
-    activePlayer:safeOwnData(state,'activePlayer') ?? null,
-    winner:safeOwnData(state,'winner') ?? null,
-    isSuddenDeath:safeOwnData(state,'isSuddenDeath') ?? null,
+    turn:safeDataProperty(state,'turn') ?? null,
+    phase:safeDataProperty(state,'phase') ?? null,
+    activePlayer:safeDataProperty(state,'activePlayer') ?? null,
+    winner:safeDataProperty(state,'winner') ?? null,
+    isSuddenDeath:safeDataProperty(state,'isSuddenDeath') ?? null,
     players,
     unresolvedPrompts
   };
