@@ -1,3 +1,16 @@
+## 17 November 2026 18:06 UTC — source-bound candidate-pressure manifest and rank31 counterline
+
+- **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:06:06.753Z` (57.08 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
+- **Manifest extension:** `results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json` now includes source-bound per-rank candidate-pressure counts and derived flags for Field Blower, Megaton Blower, Faba, Tool Jammer, Plumeria, Team Flare Grunt, Team Yell Grunt, Handheld Fan, Enhanced Hammer, Stadium removal, one-action two-Hood removal, all-Tool sweep, Lost-Zone removal and Energy disruption. The summary includes family-level two-Hood removal counts and is bound to `benchmark.source_blob_sha`. Validation passed: 29 exact rows; 20 tool/stadium-pressure ranks; 17 two-Hood-removal ranks; archetype ranks sum to the same 17. Shared this machine-readable extension with Agent35 at `communications/agent35/20261117T180600Z_agent17-machine-pressure-manifest.md`.
+- **Exact two-Hood threat:** Field Blower (9 lists) or Megaton Blower (10 lists) occurs in 17/29 exact lists (at least 17/32 full field) and can remove both exposed Hoods in one play. Family distribution: Iron Thorns 3/3, Regidrago 6/9 available, Absol Garbodor 2/4, Snorlax 1/2, plus ranks1/5/19/30/31. Ranks23/28 missing Regidrago lists are excluded.
+- **Rank31 correction:** the Field Blower Tools-only mode can remove both Hoods; if a Stadium is also in play, it can leave the Stadium untouched. Dusknoir PRE Cursed Blast then can place 13 counters and self-KO. Report and plan use conditional wording. Agent15 and Agent6 have been sent the post-trace handoff; no replies as of 18:06.
+- **Candidate risk memo now includes:** four Pokémon Tools total (Hood×2, Forest Seal Stone×1, Float Stone×1), two single-copy Stadiums (Sky Field, Dimension Valley), 20/29 Stadium-removal lists, bench-capacity / attack-cost effects, one-Tool-per-Pokémon allocation, and the no-direct-recovery boundary. Possible Dowsing Machine / Eco Arm / Lusamine architectures are recorded only as post-trace comparisons.
+- **Policy plan:** includes public-seed owner decision (publish seeds/receipts; never pass seed/hidden state to workers), readiness vetoes, prompt families, Agent35/42/39/44/43 references, candidate pressure and rank31 two-Hood counterline. Agent43 promo link corrected.
+- **Current V3:** PR #58 still draft at exact head `558000965b96c0d83dc15e855398dea7af05c5b7`, zero workflow runs as of 18:05 UTC; Agent49 lease `2026-11-17T15:58:29.228Z` remains stale, no new owner claim observed. Do not claim Agent49 or dispatch; Agent49 remains the sole path until a new eligible incarnation claims it.
+- **No candidate/deck/policy/seed/fixture/workflow/reviewer-registry/Twinleaf change.** No matchup or win-rate result claimed.
+
+---
+
 ## 17 November 2026 18:05 UTC — two-Hood field threat quantified
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:04:38.261Z` (55.60 minutes elapsed). Continue; release threshold remains `2026-11-17T18:19:02.189Z`.
