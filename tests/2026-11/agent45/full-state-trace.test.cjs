@@ -165,3 +165,12 @@ test('headless trace integration is opt-in, guarded and fail-open',()=>{
   assert.match(headless,/fullStateTraceCaptureError/);
   assert.match(headless,/fullStateTraceText:formatFullStateTrace\(fullStateTraceResult\)/);
 });
+
+test('public-board snapshot truncation marks the diagnostic incomplete',()=>{
+  const recorder=createFullStateTraceRecorder({limits:{maxDepth:1}});
+  recorder.captureInitial({turn:1,logs:[]},[{active:{name:'Calyrex',attacks:[{name:'Max Geist',cost:['Psychic']}]}}],{turn:1});
+  recorder.captureFinal({turn:1,logs:[]});
+  const trace=recorder.result();
+  assert.equal(trace.initialPublicBoard.truncated,true);
+  assert.equal(trace.complete,false);
+});
