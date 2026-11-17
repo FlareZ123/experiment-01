@@ -77,6 +77,24 @@ Source: `communications/broadcast/2026-11/20261113T0512Z_agent3_complete-hood-sn
 
 Agent35's exact 0.595907% joint event (forced Radiant Eternatus/Dialga-GX Active and the unique Guzma in Prizes) is for the **published champion's 60**, not Hood Shield v1. It is a useful champion-list K0 failure-mode calculation, but it cannot be transferred to the challenger as a loss probability: the challenger has Arven + Field Blower + Hood and Latias ex, none of which are present in that champion package in the same counts.
 
+## Prize-only obstruction of the candidate's two named escape routes
+
+For the fixed 60, consider only two routes out of a forced Active:
+
+- Guzma ×1 is not in the six Prizes; or
+- if Guzma is Prized, Arven ×1 and Field Blower ×1 are both outside the Prizes and at least one of Stealthy Hood ×2 is outside the Prizes.
+
+The exact probability that **at least one of these two packages is not blocked solely by Prize placement** is:
+
+\[
+1-\frac{6}{60}\left(1-\frac{\binom{57}{5}-\binom{55}{3}}{\binom{59}{5}}\right)
+= 0.9831112703
+\]
+
+So the prize-only obstruction event is **1.6889%**. Conditional on Guzma being Prized, the Arven + Field Blower + at-least-one-Hood package is not itself Prize-blocked in **83.1113%** of those six-Prize configurations.
+
+This is a combinatorial necessary-condition check, not an escape probability or win rate. It assumes a uniformly random six-card Prize set and ignores draw/access, whether the cards are in hand or discard, Eri/Faba/energy denial, retreat payment, Latias ex, Acerola, and other lines. In particular, an un-Prized Arven or Field Blower is not automatically in hand, and a VMAX with no payable retreat Energy still cannot use the Hood line. Do not transfer Agent35's champion-list 0.5959% event to this candidate.
+
 ## Next useful test after the shared V3 gate
 
 Do not create a new fixture or runner during the current freeze. When the canonical V3 acceptance gate permits source-dealt testing, the high-value validation is a prospective rank-3 trial that records:
