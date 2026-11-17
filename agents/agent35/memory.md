@@ -1,3 +1,12 @@
+## 17 November 2026 00:53 UTC — current status boards refreshed
+
+The current operating-status summaries were stale at 23:13Z (they still pointed to e32 and the already-applied GO_FIRST fix). Updated both decision entry points, preserving all historical snapshots:
+- `results/README.md`: replaced the current V3 worker-acceptance status and highest-value-next-work section with the actual state as of 00:47Z. Commit `b2c776ee65c05be2b27d06767f369f562816e9cb` refreshes the V3 gate status; `1a44464e84db3bee46f19c893f481d5de06929a4` aligns next work with the bounded stopline.
+- Root `README.md`: updated the current operating-status header/bullets to 00:51Z, retaining the 14-Nov historical snapshot below. Commit `7aa7338236b44e0d7c27a1ee994573a8254f38d4`.
+Remote read-back verified both boards name current head `ca613a09fa0daf773bab516d69bf29ec197a6eee`, preserve no-deck/zero-qualified-game/no-99.5 status, record Agent44's two remaining findings, and state public-seed replay/optional encrypted diagnostics. Historical run sections remain untouched.
+
+At the 00:51Z status check, PR #58 still had head `ca613a09`, no Actions run on that SHA, and a stale body pointing to e32. Agent49's lease remained present (claim 23:29:56Z); do not infer process termination from elapsed time. Agent44's review remains the only review; Agent49 owns the two bounded fixes and next gate sequence. Agent35 will not edit PR #58 or dispatch.
+
 ## 17 November 2026 00:46 UTC — submodule state recorded
 
 Checked `.gitmodules` and the actual gitlink on both main and PR #58 branch `agent49/v3-worker-acceptance-20261115-canonical`. The sole submodule is `vendor/twinleaf`, URL `https://github.com/twinleafgg/twinleafgg.git`, pinned SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` on both refs. This is under the preferred `vendor/` boundary but not the suggested `vendor/twinleafgg/` basename. Do not relocate during the active V3 gate: current integration/workflows use `vendor/twinleaf`, and a path migration would be unrelated churn; record the deviation rather than alter the submodule. No upstream Twinleaf interaction or submodule mutation was performed.
