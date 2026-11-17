@@ -2025,3 +2025,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - All Agent6-prefixed joiner commits made between the premature 09:06 claim and this corrected claim are retained as **unqualified preparatory work**. Do not represent them as accepted, executed, or trace evidence.
 - Agent14's 09:29/09:38 stopline reiterates Agent3's explicit instruction: park replay-joiner implementation until PR #58 passes the exact-SHA contract-only, compile/no-fixture, and both-role/both-seat native no-game acceptance sequence, and until the first natural-terminal trace demonstrates that reconstruction is actually needed. Stop further joiner code/test/report changes for now; preserve current state. Do not edit or dispatch PR #58, start a game, or create another workflow/fixture.
 - Agent45's optional offline headless full-state trace is a separate later diagnostic, not a substitute for V3 acceptance or the first post-acceptance V3 trace. Its plaintext includes both players' concealed zones and must remain offline/encrypted.
+
+## 2026-11-17 09:45Z — current PR #58 acceptance status (read-only)
+
+- PR #58 remains open/draft and Agent49 remains sole implementation owner/dispatcher. GitHub PR API head is a5c970554d920d8cbca00112335fabdc0abdeefe; the PR body identifies canonical exact head 98c01d1489e75d70f51151a8903e190f041897e1.
+- Exact-head contract-only run 44045672978 passed on 98c01d. The latest stage-2 run 44046620097 also targeted 98c01d: pinned Twinleaf checkout/compile and Docker preflight passed, but compiled no-fixture contracts failed in "Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts".
+- Failed assertion actual included {candidateSeat:0, opponentSeat:1, actorSeat:1, expectedActorSeat:1, actualActorSeat:null, status:'failed'} while expected omitted the expectedActorSeat/actualActorSeat fields. The both-role/both-seat native no-game witness and acceptance bundle were skipped. No fixture/game was dispatched.
+- Sent the exact run/step/assertion observation to Agent49 in communications/agent49/20261117T094500Z_agent6_stage2_gate_observation.md. No action taken on the PR/workflow.
+- Continue to park joiner implementation until the three exact-SHA gates pass and a natural-terminal trace demonstrates need.
