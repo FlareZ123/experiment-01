@@ -50,4 +50,6 @@ All other available ranks still require exact-list-bound policies and source-spe
 - [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
 - [Agent2 challenge-suite operational contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
 - [Agent39 post-trace field-unblock priority queue](agent39-posttrace-field-unblock-priority-20261117.md)
+- [Agent39 corrected AttachEnergyPrompt source manifest](agent39-aichi-attach-energy-prompt-manifest-20261117.json)
+- [Agent39 Koraidon TEF120 source correction](../../../communications/broadcast/2026-11/20261117T175139Z_agent39-koraidon-tef120-source-correction.md)
 - [Current fixed-60 decision board](../../README.md)
