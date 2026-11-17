@@ -10,7 +10,7 @@ The returned result contains fullStateTrace (complete machine-readable native sn
 - One detached post-dispatch native state for every root Store action, including prompt resolutions and non-attack actions.
 - A concise public-board summary of Active/Bench Pokémon, damage, attached Energy/Tools, Stadium, and printed attack names/costs.
 - The action object/type, acting player ID and seat, pending prompt, turn and phase transitions, and a reference to the immediately preceding state snapshot.
-- Per-seat tactic order, prompt-resolver order, score keys, and arbiter modes, captured once for reproducibility.
+- Per-seat tactic order, prompt-resolver order, score keys and values, and arbiter modes, captured once for reproducibility.
 - Initial native logs and per-action log deltas in the readable text; each delta records before/after counts and detects log-array resets. The final cumulative native log is printed once at the end and retained in the machine trace. Failure-stage labels and error details are included for aborted actions.
 - Failure-stage snapshots for bot-decoder, strict prompt-validation, and Store-dispatch failures.
 
