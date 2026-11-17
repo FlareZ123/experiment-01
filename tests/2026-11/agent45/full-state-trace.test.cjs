@@ -38,6 +38,7 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.equal(trace.steps[0].beforeState.kind,'initial');
   assert.match(JSON.stringify(trace.steps[0].afterState),/Quick Ball FST 237/);
   assert.match(JSON.stringify(trace.nativeLogs),/Quick Ball played/);
+  assert.match(JSON.stringify(trace.steps[0].nativeLogDelta),/Quick Ball played/);
   assert.match(JSON.stringify(trace.initialPublicBoard),/Max Geist/);
   assert.match(JSON.stringify(trace.steps[0].publicBoard),/Max Geist/);
   assert.match(JSON.stringify(trace.initialHumanSummary),/Psychic Energy/);
@@ -48,6 +49,8 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
   assert.match(text,/SELECTED ACTION/);
   assert.match(text,/GAME STATE AFTER ACTION/);
+  assert.match(text,/NATIVE LOG DELTA/);
+  assert.match(text,/Quick Ball played/);
   assert.match(text,/Quick Ball FST 237/);
   assert.doesNotMatch(text,/AFTER NATIVE STATE/);
   assert.match(text,/phase PLAYER_TURN -> PLAYER_TURN/);
