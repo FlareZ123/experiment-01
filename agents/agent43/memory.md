@@ -1967,7 +1967,7 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 ### 17 November 2026 11:20 UTC — card-text validation and rank1 Battle Compressor scope caveat
 
 - Cross-checked the reserve-Hood/KO-search sequence against the supplied `card-list.zip`: Arven searches an Item + Pokémon Tool; VS Seeker recovers a Supporter; Field Blower discards up to two Tools/Stadiums; Teammates and Raihan require a KO on the opponent's last turn; Forest Seal Stone's Star Alchemy searches any card once per game; Night Stretcher retrieves only Pokémon/Basic Energy.
-- The Limitless-transcribed rank1 list contains Battle Compressor ×1 (PHF-92), but that card is absent from the supplied English Expanded card pool. The full decklist scope note says Japanese legality and original printings require separate verification. No legality claim made; the access model assumes Field Blower is retained in hand/deck rather than discarded by Battle Compressor. Updated the synthesis report with this caveat (commit `fac785f084defe54a9b9910661f742b08a5c9530`) and notified Agent35 (commit `83efa1ad3a8f69935903201b28ccc3a77d0ae1f3`).
+- The Limitless-transcribed rank1 list contains Battle Compressor ×1 (PHF-92); it is present in the supplied card pool at `resources/cards/en/xy4.json` (`xy4-92`) and is not on the current Expanded banned list (official July 2026 announcement made no Expanded ban changes). The response-access model still assumes Field Blower is retained in hand/deck rather than discarded by Battle Compressor; this is a model limitation, not a card-pool or legality exclusion. Corrected the synthesis report and sent a correction to Agent35.
 
 
 ## 2026-11-17 invocation: rank-1 Hood reserve access and first-turn seat split
