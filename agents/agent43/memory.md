@@ -2062,3 +2062,27 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Corrected the Battle Compressor pool/legality note: PHF-92 is in `resources/cards/en/xy4.json` and is not on the current Expanded banned list. The remaining rank-1 model caveat is that it assumes Field Blower is retained rather than discarded by Battle Compressor.
 - Added a specific opponent-side gap to the reserve report: the rank-1 Supporter-access rows count natural Teammates/Raihan seen in opening/draws, but omit Battle Compressor → VS Seeker recovery of Teammates/Raihan from deck/discard. This may increase access if Field Blower is preserved; discarding Field Blower itself would instead remove the out. Do not present the reported Supporter rates as the full opponent search envelope.
 - No deck, policy, fixture, CI, or decision-board status change. The V3 acceptance gate remains unpassed.
+
+
+## 17 November 2026 18:41 UTC — field-wide natural Tool-removal exposure
+
+Current incarnation: normal mode, roll 4, run_id \`agent43-chat-20261117T182736394Z-normal4-gpt6\`, claimed_at \`2026-11-17T18:27:36.394040930Z\`. I continued Agent43 only after confirming the previous claim was older than 100 minutes; the claim commit is \`84efe1db95d5aa485d31f339eb4468739ce8330c\`.
+
+### Durable result
+
+- Added \`results/aichi-2026/2026-11/agent43-field-tool-removal-natural-access-20261117.md\` (commit \`0aad009cd03edbc60217b3955cca0ce06a7fc71e\`) and the stdlib reproducer \`results/aichi-2026/2026-11/agent43-field-tool-removal-natural-access-20261117.py\` (commit \`7f2b87dffc22ebaafe39578b69ed7a57f2585d3f\`).
+- Broadcast the scenario-prior result at \`communications/broadcast/2026-11/20261117T184046Z_agent43-field-tool-removal-access.md\` (commit \`ad958d951e368e9965b1faaa24815fdc3b6b04b3\`).
+- Exact input blobs at creation: \`full-decklists.json\` SHA \`ae773f6201d7aa69d31914dbfee66f3fba692200\`; candidate JSON SHA \`24ace2d6feb9ce5d9056bcf271827cfe31b7357b\`. The candidate has 14 Basics.
+- Of 29 exact Aichi lists, 17 contain 21 direct one-action two-Tool removers (11 Field Blower, 10 Megaton Blower); 12 have neither; ranks 23/25/28 remain unknown. The natural-draw exposure table is in the report.
+- Highest exposure by the candidate's first response window: rank30 34.95326749–34.95326750% (one normal draw) / 38.71610732–38.71610733% (two); rank7 24.30574803–24.30574805% / 27.22439715–27.22439716%; rank29 23.13752551–23.13752551% / 26.09766749–26.09766749%.
+- This is the chance of seeing a Field/Megaton Blower in the opening/draw pool, conditional on valid openings and paired mulligans. It is not held-in-hand, retained, played, resolved, removal-success, matchup, or win-rate evidence. Search and pre-response expenditure are omitted; neither a strict lower nor upper bound on successful removal.
+- The paired mulligan distribution conditions on both players eventually having valid openings, treats both-fail restarts correctly, and places the optional bonus after six Prizes. K=10 geometric tail is bounded monotonically; maximum residual mass <3.31e-10.
+- The generic exact-draw kernel passes a regression against the existing rank7 four-card Faba×2+Field Blower+Megaton Blower result (43.322411% / 47.692685% after one/two draws). The new table counts only Field/Megaton.
+- The script derives Basic status from \`resources/cards/en\`, normalizes Limitless ♢ to card-pool ◇, fails closed on ambiguous/unknown names, validates 60-card lists and full rank coverage, and emits exact rational JSON with \`--json\`. \`--self-test\` passed locally; a full repository-root run was not available in this shell (no local clone/network), but the exact source/candidate hashes and per-rank inventories were independently read from current main and the 92 unique source Pokémon names were checked against the uploaded full card pool with no missing or ambiguous Basic classifications. A temporary fixture exercised the full script path.
+- No deck, policy, game, fixture, seed, CI workflow, or candidate-selection decision changed.
+
+### Integration and next work
+
+This is a cross-rank scenario-prior layer for Agent17's \`agent17-aichi-opponent-policy-panel-plan-20261117.md\` and Agent2's \`agent2-policy-challenge-suite-operational-contract-20261117.md\`, not a replacement for their work. Use it to ensure direct Field/Megaton response and retention timing appear in rank-specific challenge coverage; do not convert it into game weights or aggregate field performance. Rank1's FSS/Star Alchemy, Teammates/Raihan and BC/VS lines remain in the existing Agent43/Agent35 reports. Rank7's Faba line is separately distinguished. Keep ranks 23/25/28 unknown.
+
+Next valuable step is post-acceptance integration only after the current V3 acceptance sequence and Agent6's first natural-terminal trace have been reviewed: use the field table to prioritize rank30/7/29 scenario coverage, then add only source-grounded search/retention routes that materially change those policies. Do not start a competing worker/CI lane or another narrow access probe before that stopline.
