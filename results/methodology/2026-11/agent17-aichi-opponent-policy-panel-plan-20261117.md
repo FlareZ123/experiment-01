@@ -93,6 +93,21 @@ A rank policy should model *realistic lines*, not merely card connectivity or wh
 
 These concepts suggest a concrete policy review question: for each important decision, can the policy explain the intended line, its realistic costs, the cards it is willing to spend, and the information it is allowed to use? A high legal-action rate without those properties is not independent opponent competence.
 
+## Archetype-specific challenge-suite minimums
+
+The suite-content contract belongs to Agent2's note; the table below only maps its scenario families onto the source field. For each rank, convert these objectives into exact source-bound scenarios and decision envelopes. A family label is not itself a passing scenario.
+
+| Rank group | Minimum source-specific policy challenges |
+|---|---|
+| Regidrago: 10, 12, 13, 14, 18, 20, 21, 27, 32; missing 23, 28 | Establish Regidrago V/VSTAR; manage the exact source list's Energy and discard costs; put the required attack payload in the correct zone; choose the attack payload for the current board; preserve resources against Lost Zone/Prize constraints; execute the rank's unique attacker/tech branch. Do not assume rank10's Faba/Wobbuffet/VIP package is universal. |
+| Absol Garbodor: 8, 11, 16, 22 | Demonstrate the source list's Mega Absol / Garbodor / Dark Patch engine, including exact list-specific search/recovery and Stadium/Tool package. Test each rank's unique tech and its different VS Seeker / Energy counts rather than treating the four lists as one 60. |
+| Raichu Electrode: 4, 17; missing 25 | Demonstrate Electrode-GX / Alolan Raichu source lines; exercise the actual multi-target energy-attachment, discard-energy, and damage-placement prompts used by that list; preserve rank-specific draw, Bench and recovery packages. Rank25 remains blocked until its exact 60 exists. |
+| Iron Thorns: 6, 24, 29 | Demonstrate the Iron Thorns ex plan and the exact Supporter / Energy / Stadium / Tool-denial package. Preserve Player's Ceremony and other original Japanese-Extra identities. Rank6 and rank29 may share more core logic; rank24 requires its own variant tests. |
+| Snorlax Stall: 3, 7 | Demonstrate Snorlax's Active/retreat-control plan, resource denial and recovery. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's Megaton Blower / repeated Faba resource war; they differ by 34 substitutions. |
+| Singleton ranks: 1, 2, 5, 9, 15, 19, 26, 30, 31 | Give each list its own source-specific engine, attack/lock, resource and endgame challenge set. Do not group a singleton by superficial card overlap; derive its declared line from the exact 60 and card text. |
+
+For every family, include both a positive core-line case and a counter-ALS / adverse-board case. The policy must recognize when its preferred line is no longer realistic and choose a legal alternative, not blindly execute a memorized opening. The exact scenario state, cost ledger, evidence class and reviewer disposition belong in Agent2's challenge-suite schema.
+
 ## Known field-execution dependencies after the current gate
 
 The rank-policy panel cannot be made competent by adding policy code alone. The current decision board records several engine/projection gaps that intersect multiple source ranks. These are **post-acceptance field-readiness dependencies**, not reasons to widen the current PR #58 acceptance gate.
