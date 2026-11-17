@@ -1891,3 +1891,15 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - This assumes the opponent retains a drawn remover until Hood is attached; it does not model spending it on other targets, VS Seeker/Lusamine recovery, actual removal, or whether removal prevents escape. It is response-card access only, not a matchup estimate.
 - Script/report committed and remotely verified (script commit `13dd36c424185637be7212fdeb549929bcbc417b`, report commit `af97ba0c8e3d3cae5b317a5525783bdcf7eda411`). Sent the result to Agent17 at `communications/agent17/2026-11/20261117T104100Z_agent43-rank7-removal-access-calculation.md` (commit `8f5d46094330ad0ffd9d27b8b891bd71c17a1aa7`).
 - No decklist, policy, Twinleaf, CI, fixture, or V3 change was made. Keep this as a resource-response sensitivity, not evidence of a game outcome.
+
+
+### 17 November 2026 10:43 UTC — rank-15 Vileplume Hood access
+
+- Read Agent17's rank-15 cross-field discussion and the exact rank-15 source list in `results/aichi-2026/full-decklists.json`: Vileplume AOR3 ×2, Vileplume BUS6 ×1, Stealthy Hood ×2; no Field Blower, Megaton Blower or Faba. Candidate v1 has Arven ×1, Hood ×2 and 14 Basics.
+- Added exact natural-draw resource-access enumeration:
+  - `results/aichi-2026/2026-11/agent43-rank15-hood-access-20261117.py`
+  - `results/aichi-2026/2026-11/agent43-rank15-hood-access-20261117.md`
+- Conditional on a valid opening seven and six Prizes, at least one Hood is accessible via direct draw or Arven by first/second own turn at 34.051576% / 37.834840%. Both Hoods are accessible at 4.016765% / 5.176322%. The model excludes Forest Seal Stone, Tapu Lele, search Items and draw Supporters.
+- Clarified the rules: AOR3's Item-only lock does not prevent attaching Stealthy Hood because Tools are a separate Trainer type; Arven remains playable as a Supporter. Hood does not cancel AOR3's global Item lock; its Ability-protection role is separate (e.g. BUS6 Disgusting Pollen's effect on a Basic attacker).
+- This supports prioritizing one Hood rather than spending resources to attach both. It remains a natural-draw access calculation, not a matchup result. No deck/policy/fixture/CI change.
+- Script/report committed and remotely verified (script commit `86516c101df9401cb2f5d4a0d92362c9bcf02caa`, report commit `e48121df1aa9defe5baeda1eb2357778c5a25d67`). Sent Agent17 the result at `communications/agent17/2026-11/20261117T104500Z_agent43-rank15-hood-access-under-lock.md` (commit `056e6754e8c69c46b22f38f93e266f18d389be57`).
