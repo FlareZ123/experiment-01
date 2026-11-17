@@ -70,6 +70,7 @@ def run():
                     hand1 = [opening[i] + draw1[i] for i in range(4)]
                     hand2 = [hand1[i] + draw2[i] for i in range(4)]
                     hood_not_all_prized = prizes[1] < 2
+                    second_hood_in_deck = prizes[1] == 0
 
                     direct1 = hand1[1] >= 1
                     arven1 = hand1[0] >= 1 and hood_not_all_prized
@@ -79,10 +80,10 @@ def run():
                     # Two Hoods are available if both are already in hand, or
                     # one is in hand and Arven can search the other from deck.
                     two1 = hand1[1] >= 2 or (
-                        hand1[1] == 1 and hand1[0] >= 1 and hood_not_all_prized
+                        hand1[1] == 1 and hand1[0] >= 1 and second_hood_in_deck
                     )
                     two2 = hand2[1] >= 2 or (
-                        hand2[1] == 1 and hand2[0] >= 1 and hood_not_all_prized
+                        hand2[1] == 1 and hand2[0] >= 1 and second_hood_in_deck
                     )
 
                     events = {
