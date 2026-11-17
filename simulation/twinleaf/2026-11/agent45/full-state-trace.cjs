@@ -38,6 +38,16 @@ function zoneCardLabelsForText(zone) {
   return Array.isArray(cards)?cards.map(cardLabelForText):[];
 }
 
+function cardCollectionLabelsForText(value) {
+  return Array.isArray(value)?value.map(cardLabelForText):zoneCardLabelsForText(value);
+}
+
+function choiceLabelForText(choice) {
+  const label=safeDataProperty(choice,'label') ?? safeDataProperty(choice,'text') ??
+    safeDataProperty(choice,'name');
+  return typeof label==='string' && label ? label : cardLabelForText(choice);
+}
+
 /**
  * Compact, human-readable view of every card zone plus the public board.
  * The full native state remains separately available in the machine trace.
@@ -68,11 +78,13 @@ function summarizeNativeStateForText(state,publicBoard=null) {
       const player=safeDataProperty(prompt,'player');
       const message=safeDataProperty(prompt,'message') ?? safeDataProperty(prompt,'text');
       const promptCards=safeDataProperty(prompt,'cards') ?? safeDataProperty(prompt,'cardList');
+      const choices=safeDataProperty(prompt,'choices') ?? safeDataProperty(prompt,'options');
       return {
         type:constructorNameOf(prompt),
         playerId:safeDataProperty(prompt,'playerId') ?? safeDataProperty(player,'id') ?? null,
         message:typeof message==='string'?message:null,
-        cards:zoneCardLabelsForText(promptCards)
+        cards:cardCollectionLabelsForText(promptCards),
+        choices:Array.isArray(choices)?choices.map(choiceLabelForText):[]
       };
     }):[];
   return {
