@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Exact paired-mulligan reserve-Hood access for Hood Shield Shadow Rider v1.
+"""Exact paired-mulligan reserve-Hood and rank-1 removal-access overlap.
 
 This is a narrow resource-line model, not a match simulator. It conditions on
-valid opening sevens, integrates the exact paired-mulligan bonus distribution,
-and models only direct Hood draws plus Arven / VS Seeker. It distinguishes the
-first-turn Supporter restriction: the player going first cannot play Arven on
-their first turn; the player going second can.
+valid opening sevens and integrates the exact paired-mulligan bonus distribution.
+Candidate-side access is direct Hood / Arven / VS Seeker. Rank-1 access is
+reported as separate direct/FSS and direct/Supporter route families. It
+distinguishes the first-turn Supporter restriction: the player going first
+cannot play Arven on their first turn; the player going second can.
 
 Candidate inventory:
   Stealthy Hood x2, Arven x1, VS Seeker x2, Basic Pokemon x14, Other x41.
@@ -17,11 +18,16 @@ For the second-Hood line, assume:
   * the player draws one normal card at the start of each turn;
   * optional mulligan cards are drawn after the six Prizes are set.
 
-Excluded: Forest Seal Stone, Tapu Lele-GX, Fog Crystal / Mysterious Treasure
-access to Lele, Battle Compressor lines, competing Supporters, board/Bench
-constraints, opposing disruption, and whether the opponent actually removes
-the first Hood. Results are therefore line-specific access sensitivities, not
-total deck access or matchup probabilities.
+The rank-1 direct/FSS route requires Field Blower not Prized plus FSS and a
+Shadow Rider V in hand; it does not count a V already in play. The
+direct/Teammates/Raihan route assumes a first-turn KO made the Supporters live;
+the Raihan variant assumes its Energy-discard cost is payable.
+
+Excluded: candidate-side Forest Seal Stone / Star Alchemy, Tapu Lele-GX,
+Fog Crystal / Mysterious Treasure access to Lele, Battle Compressor and other
+discard lines, competing Supporters, board/Bench constraints, actual opponent
+choice to remove the first Hood, and game outcomes. Results are line-specific
+access sensitivities, not total deck access or matchup probabilities.
 """
 from fractions import Fraction
 from functools import lru_cache
@@ -38,7 +44,7 @@ def compositions(n, limits):
             yield (n,)
         return
     for x in range(min(limits[0], n) + 1):
-        yield from ((x,) + rest for rest in compositions(n - x, limits[1:]))
+        yield from ( (x,) + rest for rest in compositions(n - x, limits[1:]) )
 
 
 def choose_weight(population, sample):
@@ -71,10 +77,10 @@ def paired_candidate_bonus_distribution():
 def access_for_bonus(mulligan_bonus, candidate_goes_first):
     """Return P(first Hood), P(reserve secured before response), P(reserve by T2).
 
-    The optional cards are drawn after Prizes and before the candidate's first
-    turn. One normal draw is then made on turn one and one further normal draw
-    is made on turn two. The turn-two draw is integrated conditionally rather
-    than enumerated as a separate sample.
+    `mulligan_bonus` optional cards are drawn after Prizes and before the
+    candidate's first turn. One normal draw is then made on turn one and one
+    further normal draw is made on turn two. The turn-two draw is integrated
+    conditionally rather than enumerated as a separate sample.
     """
     pre_draws = mulligan_bonus + 1
     valid_openings = comb(60, 7) - comb(46, 7)
@@ -198,7 +204,7 @@ def show(label, bounds):
 def main():
     print("Paired-mulligan Hood reserve line — Hood Shield Shadow Rider v1")
     print("Conditioned on valid opening sevens; candidate and rank 1 each have 14 Basics.")
-    print("Only direct Hood / Arven / VS Seeker access is modeled.")
+    print("Candidate side: direct Hood / Arven / VS Seeker. Rank 1 side: explicitly named direct/FSS or Supporter routes.")
     print()
 
     for goes_first, label in (
@@ -220,5 +226,141 @@ def main():
     print("These Prize-only figures do not imply that Arven / VS Seeker is in hand in time.")
 
 
+
+
+@lru_cache(maxsize=None)
+def opponent_access_after_draws(draw_count, family):
+    """Rank-1 Field Blower access through one narrow route family."""
+    if family == "direct_fss":
+        # Field Blower x1, Forest Seal Stone x1, Shadow Rider V x3,
+        # other Basics x11, Other x44.
+        total = (1, 1, 3, 11, 44)
+        basic_indices = (2, 3)
+    elif family in ("direct_teammates", "direct_supporters"):
+        # Field Blower x1, Teammates x1, Raihan x1, Basics x14, Other x43.
+        total = (1, 1, 1, 14, 43)
+        basic_indices = (3,)
+    else:
+        raise ValueError(family)
+
+    valid_openings = comb(60, 7) - comb(46, 7)
+    denominator = valid_openings * comb(53, 6) * comb(47, draw_count)
+    numerator = 0
+
+    for opening in compositions(7, total):
+        if sum(opening[i] for i in basic_indices) == 0:
+            continue
+        opening_weight = choose_weight(total, opening)
+        after_opening = tuple(t - x for t, x in zip(total, opening))
+
+        for prizes in compositions(6, after_opening):
+            prize_weight = choose_weight(after_opening, prizes)
+            after_prizes = tuple(r - p for r, p in zip(after_opening, prizes))
+
+            for draws in compositions(draw_count, after_prizes):
+                draw_weight = choose_weight(after_prizes, draws)
+                hand = tuple(opening[i] + draws[i] for i in range(5))
+                direct = hand[0] >= 1
+
+                if family == "direct_fss":
+                    # FSS must be in hand with a Shadow Rider V; Field Blower
+                    # must not be Prized. This does not count a V already in play.
+                    fss = prizes[0] == 0 and hand[1] >= 1 and hand[2] >= 1
+                    event = direct or fss
+                elif family == "direct_teammates":
+                    teammates = hand[1] >= 1 and prizes[0] == 0
+                    event = direct or teammates
+                else:
+                    # Raihan is treated as payable; its Basic-Energy-in-discard
+                    # condition is not modeled in this access upper scenario.
+                    supporters = (hand[1] >= 1 or hand[2] >= 1) and prizes[0] == 0
+                    event = direct or supporters
+
+                if event:
+                    numerator += opening_weight * prize_weight * draw_weight
+
+    return Fraction(numerator, denominator)
+
+
+def paired_joint_access(candidate_goes_first, base_draws, family):
+    """Joint candidate-Hood / rank-1-removal access under paired mulligans.
+
+    M and N are mutually exclusive optional-draw counts: if candidate receives
+    bonus cards, rank 1 receives none, and vice versa. Conditional on M,N, the
+    two deck shuffles are independent.
+    """
+    q = Fraction(comb(46, 7), comb(60, 7))
+    p = 1 - q
+    denominator = 1 - q * q
+    p00 = p * p / denominator
+    probs, marginal_tail = paired_candidate_bonus_distribution()
+
+    first0, _, reserve0 = access_for_bonus(0, candidate_goes_first)
+    opponent0 = opponent_access_after_draws(base_draws, family)
+
+    joint_first = p00 * first0 * opponent0
+    joint_reserve = p00 * reserve0 * opponent0
+
+    opponent_access = probs[0] * opponent0
+
+    for bonus in range(1, K_MAX + 1):
+        one_sided_probability = p * p * q**bonus / denominator
+
+        first_m, _, reserve_m = access_for_bonus(bonus, candidate_goes_first)
+        joint_first += one_sided_probability * first_m * opponent0
+        joint_reserve += one_sided_probability * reserve_m * opponent0
+ 
+        opponent_n = opponent_access_after_draws(base_draws + bonus, family)
+        joint_first += one_sided_probability * first0 * opponent_n
+        joint_reserve += one_sided_probability * reserve0 * opponent_n
+        opponent_access += probs[bonus] * opponent_n
+
+    joint_tail = 2 * marginal_tail
+    represented_mass = p00 + 2 * sum(
+        p * p * q**bonus / denominator for bonus in range(1, K_MAX + 1)
+    ) + joint_tail
+    assert represented_mass == 1
+    first_bounds = (joint_first, joint_first + joint_tail)
+    reserve_bounds = (joint_reserve, joint_reserve + joint_tail)
+    no_reserve_bounds = (
+        max(Fraction(0), joint_first - joint_reserve - joint_tail),
+        min(Fraction(1), joint_first + joint_tail - joint_reserve),
+    )
+    conditional_bounds = (
+        joint_reserve / (joint_first + joint_tail),
+        min(Fraction(1), (joint_reserve + joint_tail) / joint_first),
+    )
+    return {
+        "opponent_access": (opponent_access, opponent_access + marginal_tail),
+        "joint_first": first_bounds,
+        "joint_reserve": reserve_bounds,
+        "joint_no_reserve": no_reserve_bounds,
+        "conditional_reserve": conditional_bounds,
+        "joint_tail": joint_tail,
+    }
+
+
+def main_overlap():
+    print("Paired resource-access overlap (both decks conditioned on valid openings)")
+    cases = [
+        (True, 1, "direct_fss", "Candidate goes first; rank-1 direct / FSS response"),
+        (False, 2, "direct_fss", "Candidate goes second; rank-1 direct / FSS response"),
+        (False, 2, "direct_teammates", "Candidate goes second; direct / Teammates response"),
+        (False, 2, "direct_supporters", "Candidate goes second; direct / Teammates / Raihan response"),
+    ]
+    for goes_first, base_draws, family, label in cases:
+        result = paired_joint_access(goes_first, base_draws, family)
+        print(label)
+        show("  Rank-1 removal access", result["opponent_access"])
+        show("  Candidate first Hood AND rank-1 removal access", result["joint_first"])
+        show("  Both access AND candidate reserve available by turn 2", result["joint_reserve"])
+        show("  Both access AND candidate has no modeled reserve by turn 2", result["joint_no_reserve"])
+        show("  Reserve conditional on both first-Hood and removal access", result["conditional_reserve"])
+        print(f"  Joint tail width: {float(result['joint_tail']):.3e}")
+        print()
+
+
 if __name__ == "__main__":
     main()
+    main_overlap()
+
