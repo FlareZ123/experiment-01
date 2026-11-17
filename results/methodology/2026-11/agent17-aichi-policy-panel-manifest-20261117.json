@@ -1487,6 +1487,161 @@
       25,
       28
     ],
-    "caveat": "Exact source-list counts only; no access, timing, playability, or matchup outcome is implied."
+    "caveat": "Exact source-list counts only; no access, timing, playability, or matchup outcome is implied.",
+    "two_hood_removal_by_archetype": {
+      "Shadow Rider Calyrex": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          1
+        ],
+        "removal_ranks": [
+          1
+        ]
+      },
+      "Vileplume Control": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 0,
+        "ranks": [
+          2
+        ],
+        "removal_ranks": []
+      },
+      "Snorlax Stall": {
+        "available_exact_lists": 2,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          3,
+          7
+        ],
+        "removal_ranks": [
+          7
+        ]
+      },
+      "Raichu Electrode Combo": {
+        "available_exact_lists": 2,
+        "with_field_or_megaton": 0,
+        "ranks": [
+          4,
+          17
+        ],
+        "removal_ranks": []
+      },
+      "Mew Genesect": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          5
+        ],
+        "removal_ranks": [
+          5
+        ]
+      },
+      "Iron Thorns": {
+        "available_exact_lists": 3,
+        "with_field_or_megaton": 3,
+        "ranks": [
+          6,
+          24,
+          29
+        ],
+        "removal_ranks": [
+          6,
+          24,
+          29
+        ]
+      },
+      "Absol Garbodor": {
+        "available_exact_lists": 4,
+        "with_field_or_megaton": 2,
+        "ranks": [
+          8,
+          11,
+          16,
+          22
+        ],
+        "removal_ranks": [
+          8,
+          22
+        ]
+      },
+      "Absol Electrode": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 0,
+        "ranks": [
+          9
+        ],
+        "removal_ranks": []
+      },
+      "Regidrago": {
+        "available_exact_lists": 9,
+        "with_field_or_megaton": 6,
+        "ranks": [
+          10,
+          12,
+          13,
+          14,
+          18,
+          20,
+          21,
+          27,
+          32
+        ],
+        "removal_ranks": [
+          12,
+          13,
+          14,
+          20,
+          21,
+          32
+        ]
+      },
+      "Lopunny Vileplume": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 0,
+        "ranks": [
+          15
+        ],
+        "removal_ranks": []
+      },
+      "Raging Bolt": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          19
+        ],
+        "removal_ranks": [
+          19
+        ]
+      },
+      "Meloetta Donk": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 0,
+        "ranks": [
+          26
+        ],
+        "removal_ranks": []
+      },
+      "Lillie's Clefairy": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          30
+        ],
+        "removal_ranks": [
+          30
+        ]
+      },
+      "Dusknoir Chimecho": {
+        "available_exact_lists": 1,
+        "with_field_or_megaton": 1,
+        "ranks": [
+          31
+        ],
+        "removal_ranks": [
+          31
+        ]
+      }
+    }
   }
 }
