@@ -19,6 +19,29 @@ Source: [printing-aware candidate inventory](../candidate-hood-shadow-rider.json
 
 **Direct two-Hood removal:** Field Blower appears in 9/29 lists and Megaton Blower in 10/29; their union is 17/29 (58.6%), a confirmed lower bound of 17/32 in the full Top 32, ranks 1/5/6/7/8/12/13/14/19/20/21/22/24/29/30/31/32. Field Blower can discard up to two Tools/Stadiums; Megaton Blower removes all candidate Tools and a Stadium. Faba appears in another 7/29 lists and can Lost Zone one eligible Tool. These are registered list counts, not draw/access probabilities.
 
+### Where one-action removal of both Hoods concentrates
+
+Among the 17 exact lists with Field Blower or Megaton Blower, the family distribution is:
+
+| Archetype | Available exact lists | Lists with Field Blower or Megaton Blower |
+|---|---|---:|
+| Iron Thorns | 3 | 3/3 (ranks 6, 24, 29) |
+| Regidrago | 9 | 6/9 (ranks 12, 13, 14, 20, 21, 32; ranks 10, 18, 27 do not) |
+| Absol Garbodor | 4 | 2/4 (ranks 8, 22) |
+| Snorlax Stall | 2 | 1/2 (rank 7) |
+| Shadow Rider Calyrex | 1 | 1/1 (rank 1) |
+| Mew Genesect | 1 | 1/1 (rank 5) |
+| Raging Bolt | 1 | 1/1 (rank 19) |
+| Lillie's Clefairy | 1 | 1/1 (rank 30) |
+| Dusknoir Chimecho | 1 | 1/1 (rank 31) |
+| Raichu Electrode Combo | 2 | 0/2 |
+| Absol Electrode | 1 | 0/1 |
+| Vileplume Control | 1 | 0/1 |
+| Lopunny Vileplume | 1 | 0/1 |
+| Meloetta Donk | 1 | 0/1 |
+
+The three missing lists are not included; ranks 23 and 28 are Regidrago, so the 6/9 observed Regidrago fraction is not a complete family rate. The candidate's two-Hood package is therefore especially exposed in the exact Iron Thorns and Regidrago source lists, but the family counts remain source-presence statistics, not game access or matchup performance.
+
 ## Field pressure
 
 The [rank-level Tool-pressure map](../../methodology/2026-11/agent17-aichi-tool-pressure-map-20261117.md) finds, among the 29 exact lists:
