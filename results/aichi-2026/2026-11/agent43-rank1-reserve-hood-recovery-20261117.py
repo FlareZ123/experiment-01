@@ -4,7 +4,8 @@
 This is a narrow resource-line model, not a match simulator. It conditions on
 valid opening sevens and integrates the exact paired-mulligan bonus distribution.
 Candidate-side access is direct Hood / Arven / VS Seeker. Rank-1 access is
-reported as separate direct/FSS and direct/Supporter route families. It
+reported as separate direct/FSS, direct/Supporter, and BC/VS -> Teammates
+route families. It
 distinguishes the first-turn Supporter restriction: the player going first
 cannot play Arven on their first turn; the player going second can.
 
@@ -25,10 +26,11 @@ direct/Teammates/Raihan route assumes a first-turn KO made the Supporters live;
 the Raihan variant assumes its Energy-discard cost is payable.
 
 Excluded: candidate-side Forest Seal Stone / Star Alchemy, Tapu Lele-GX,
-Fog Crystal / Mysterious Treasure access to Lele, Battle Compressor and other
-discard lines, competing Supporters, board/Bench constraints, actual opponent
-choice to remove the first Hood, and game outcomes. Results are line-specific
-access sensitivities, not total deck access or matchup probabilities.
+Fog Crystal / Mysterious Treasure access to Lele, candidate-side Battle
+Compressor and other discard lines, competing Supporters, board/Bench
+constraints, actual opponent choice to remove the first Hood, and game
+outcomes. Results are line-specific access sensitivities, not total deck
+access or matchup probabilities.
 """
 from fractions import Fraction
 from functools import lru_cache
@@ -262,6 +264,11 @@ def opponent_access_after_draws(draw_count, family):
         # Field Blower x1, Teammates x1, Raihan x1, Basics x14, Other x43.
         total = (1, 1, 1, 14, 43)
         basic_indices = (3,)
+    elif family == "direct_supporters_bc_teammates":
+        # Field Blower x1, BC x1, VS Seeker x3, Teammates x1, Raihan x1,
+        # Basics x14, Other x39. Union direct supporters with BC -> VS -> Teammates.
+        total = (1, 1, 3, 1, 1, 14, 39)
+        basic_indices = (5,)
     else:
         raise ValueError(family)
 
@@ -281,7 +288,7 @@ def opponent_access_after_draws(draw_count, family):
 
             for draws in compositions(draw_count, after_prizes):
                 draw_weight = choose_weight(after_prizes, draws)
-                hand = tuple(opening[i] + draws[i] for i in range(5))
+                hand = tuple(opening[i] + draws[i] for i in range(len(total)))
                 direct = hand[0] >= 1
 
                 if family == "direct_fss":
@@ -292,11 +299,22 @@ def opponent_access_after_draws(draw_count, family):
                 elif family == "direct_teammates":
                     teammates = hand[1] >= 1 and prizes[0] == 0
                     event = direct or teammates
-                else:
+                elif family == "direct_supporters":
                     # Raihan is treated as payable; its Basic-Energy-in-discard
                     # condition is not modeled in this access upper scenario.
                     supporters = (hand[1] >= 1 or hand[2] >= 1) and prizes[0] == 0
                     event = direct or supporters
+                else:
+                    # Existing direct Supporter baseline plus BC -> VS Seeker ->
+                    # Teammates. Field Blower and Teammates must not be Prized;
+                    # BC and >=1 VS Seeker must be seen by the response turn.
+                    fb_not_prized = prizes[0] == 0
+                    supporters = fb_not_prized and (hand[3] >= 1 or hand[4] >= 1)
+                    bc_teammates = (
+                        fb_not_prized and prizes[3] == 0
+                        and hand[1] >= 1 and hand[2] >= 1
+                    )
+                    event = direct or supporters or bc_teammates
 
                 if event:
                     numerator += opening_weight * prize_weight * draw_weight
@@ -369,6 +387,7 @@ def main_overlap():
         (False, 2, "direct_fss", "Candidate goes second; rank-1 direct / FSS response"),
         (False, 2, "direct_teammates", "Candidate goes second; direct / Teammates response"),
         (False, 2, "direct_supporters", "Candidate goes second; direct / Teammates / Raihan response"),
+        (False, 2, "direct_supporters_bc_teammates", "Candidate goes second; direct / Teammates / Raihan plus BC/VS -> Teammates"),
     ]
     for goes_first, base_draws, family, label in cases:
         result = paired_joint_access(goes_first, base_draws, family)
