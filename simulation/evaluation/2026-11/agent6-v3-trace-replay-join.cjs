@@ -7,6 +7,7 @@
  * Never run this on a public/shared machine or emit raw prompt/card/token/state data.
  */
 const fs = require('node:fs');
+const { createHash } = require('node:crypto');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
@@ -94,7 +95,7 @@ function verifyReplayIdentity(original, replay) {
   validateArtifact(original, 'original sanitized artifact');
   validateArtifact(replay, 'replay sanitized artifact');
   const required = [
-    'trial.trialId', 'trial.seed', 'trial.seed32', 'trial.candidateSeat',
+    'trial.trialId', 'trial.seed', 'trial.seed32', 'trial.decisionTraceSha256', 'trial.candidateSeat',
     'trial.originalSourceSeat', 'trial.actualFirstPlayerSeat',
     'candidate.printed60Sha256', 'opponent.printed60Sha256',
     'engine.twinleafCommitSha', 'engine.researchRevisionSha', 'engine.nodeVersion',
@@ -498,6 +499,16 @@ function analyzeTraceReplay({
     error.code = 'TRACE_REPLAY_RAW_TRACE_MISSING';
     throw error;
   }
+  const computedDecisionTraceSha256 = createHash('sha256')
+    .update(stableJson(rawGame.decisionTrace), 'utf8').digest('hex');
+  requireEqual(rawGame.decisionTraceSha256, computedDecisionTraceSha256,
+    'native raw decision trace digest');
+  requireEqual(replayRaw.trial?.decisionTraceSha256, computedDecisionTraceSha256,
+    'raw trial decision trace digest');
+  requireEqual(replaySanitized.trial?.decisionTraceSha256, computedDecisionTraceSha256,
+    'sanitized replay trial decision trace digest');
+  requireEqual(originalSanitized.trial?.decisionTraceSha256, computedDecisionTraceSha256,
+    'original sanitized trial decision trace digest');
 
   let candidates = originalSanitized.game.actorDecisions.filter(row =>
     row?.pendingPromptType === 'SelectPrompt' && row?.promptContext?.promptType === 'SelectPrompt');
