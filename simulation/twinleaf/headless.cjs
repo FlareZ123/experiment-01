@@ -1081,7 +1081,7 @@ function runMatch(request) {
       }
     }
     function recordFullStateStep(args) {
-      if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
+      if(!fullStateTraceRecorder || fullStateTraceCaptureError || !fullStateTraceRecorder.canCaptureStep()) return;
       const publicBoard=captureTracePublicBoard(args.state);
       const humanSummary=captureTraceHumanSummary(args.state,publicBoard);
       try { fullStateTraceRecorder.captureStep({...args,publicBoard,humanSummary}); }
