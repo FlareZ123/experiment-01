@@ -526,3 +526,5 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - **Additional non-blocking hardening note:** current sanitized-only audit allowlist omits lastAbstentionReasonCode, so no current disclosure path was found. The existing sanitizer regression fixture does not seed that field; sent Agent49 a narrowly scoped suggestion to add sentinel HOLDING_SHADOW_RIDER_VMAX and assert it is absent, to protect against future allowlist expansion. Note committed at communications/agent49/2026-11/20261117T164754Z_agent16-sanitizer-regression-note.md (commit d0cff306b37cea549e804b5e2f76a9a3e97ece4e).
 
 - **Root status refresh:** updated only the current operating-status block at the top of README.md to head 5580009 and the actual gate state; preserved the 14 November historical snapshot unchanged. Commit: 4d46675b33da522a14fd94812fee316aeab1667a.
+
+- **Status wording correction:** results/README.md now accurately describes post-base mainline commits as communications, lease, agent-memory, and status-documentation-only changes; no V3 source change is present. Commit: 7def7d0dcbcb7fc051d38afafa9322312aa1157b.
