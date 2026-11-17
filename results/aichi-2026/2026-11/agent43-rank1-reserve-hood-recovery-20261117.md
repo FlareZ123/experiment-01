@@ -2,6 +2,8 @@
 
 **Agent 43 · 17 November 2026**
 
+**Revision note:** The first pass omitted Arven's Item search and materially understated the going-second reserve line. This version models Arven fetching a Hood as its Tool and a VS Seeker as its Item; VS Seeker then recovers Arven on turn 2 so it can fetch the second Hood. The earlier 19.60% going-second estimate is superseded.
+
 ## Decision-relevant result
 
 The proposed rank-1 reserve line is strategically plausible, but the simple `53/59 = 89.830508%` statistic is only a Prize-location condition: conditional on the first Hood not being Prized, it says the second Hood is also outside the six Prizes. It does **not** say that the candidate can access the second Hood in time.
@@ -11,18 +13,18 @@ I enumerated the candidate's opening hand, six Prizes, paired-mulligan bonus car
 | Candidate's seat | First Hood secured by own turn 1 | Reserve secured before rank 1's first response | First Hood + reserve accessible by own turn 2 | Reserve accessible by turn 2, conditional on first Hood |
 |---|---:|---:|---:|---:|
 | Candidate goes first | **24.526875220–24.526875251%** | **1.492870761–1.492870793%** | **4.610382477–4.610382509%** | **18.797268017–18.797268171%** |
-| Candidate goes second | **34.582794326–34.582794358%** | **3.871859723–3.871859755%** | **6.778527383–6.778527415%** | **19.600866585–19.600866695%** |
+| Candidate goes second | **34.582794326–34.582794358%** | **3.871859723–3.871859755%** | **12.469406369–12.469406401%** | **36.056676739–36.056676864%** |
 
-The ranges are rigorous truncation bounds: the exact paired-mulligan distribution is summed for bonus counts 0–10, and the entire remaining tail is added only to the upper endpoint. The tail is `3.182047713 × 10⁻¹⁰` probability.
+The ranges are paired-mulligan truncation bounds: the exact distribution is summed for bonus counts 0–10, and the entire remaining tail is added only to the upper endpoint. The tail is `3.182047713 × 10⁻¹⁰`. The Arven second-Item search assumes another Item remains in the deck; the candidate has 14 Items other than VS Seeker, and the probability all 14 are among the first 24 cards seen is at most `1.131 × 10⁻⁷` unconditionally (`1.313 × 10⁻⁷` conditional on a valid opening). Because the only effect of this rare state is one additional card remaining in the deck for the natural-Hood draw branch, its maximum effect on the reserve probability is below `1.103 × 10⁻¹⁰` candidate-side and `1.280 × 10⁻¹⁰` in the paired overlap conditional on both valid openings.
 
-**The practical correction:** the reserve copy being outside Prizes about 89.83% of the time is not an 89.83% recovery rate. Under this narrow Arven/VS Seeker line, only about **18.8–19.6% of games in which the first Hood is secured** also have a second Hood accessible by the candidate's second turn.
+**The practical correction:** the reserve copy being outside Prizes about 89.83% of the time is not an 89.83% recovery rate. Under this narrow Arven/VS Seeker line, about **18.8% of first-Hood games when going first** and **36.1% when going second** also have a second Hood accessible by the candidate's second turn.
 
 ## Why turn order changes the first-turn number
 
 Both players draw at the beginning of every turn, including the first player's first turn. However, the player going first cannot play a Supporter on their first turn. Arven is therefore available on turn 1 only when the candidate goes second.
 
 - **Candidate goes first:** first-turn access in this model is a Hood already in hand. Arven can be used on the candidate's second turn, after rank 1 has had its first response.
-- **Candidate goes second:** first-turn access is either a Hood in hand or Arven in hand with at least one Hood still in the deck. If one Hood is in hand and Arven is available, Arven can fetch the reserve copy before rank 1 responds. If no Hood is in hand, Arven can fetch the first copy; a second copy then requires a later draw or VS Seeker recovery.
+- **Candidate goes second:** first-turn access is either a Hood in hand or Arven in hand with at least one Hood still in the deck. If one Hood is in hand and Arven is available, Arven can fetch the reserve copy before rank 1 responds. If no Hood is in hand, Arven fetches the first Hood as its Tool and can fetch a VS Seeker as its Item. On turn 2, VS Seeker recovers Arven, which then searches for the second Hood. If one Hood is already in hand, Arven can search the reserve copy immediately.
 
 This is why the paired first-turn figure of 34.582794% is specifically a **going-second** result. It should not be read as a seat-independent first-turn probability. The corresponding going-first direct-Hood baseline is 24.526875%.
 
@@ -30,7 +32,8 @@ Rules references:
 - [Official Pokémon TCG rulebook](https://assets.pokemon.com/assets/cms2/pdf/trading-card-game/rulebook/par_rulebook_en.pdf), Trainer-card rules: the player going first cannot play a Supporter on their first turn.
 - [Official Pokémon TCG rules Q&A](https://asia.pokemon-card.com/hk-en/rules/search/?pageNo=11), Basic Rule: the player going first does draw at the start of their first turn.
 - [2026 rulebook update note](https://professorprogram.pokemon.com/news/11473085): no major basic-rule change since the Scarlet & Violet rulebook.
-- The supplied [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), setup section G, sets Prizes before optional mulligan-bonus draws.
+- [Arven (SVI 166)](../../../resources/cards/en/sv1.json) searches for a Pokémon Tool and an Item; [VS Seeker (XY4 100)](../../../resources/cards/en/xy4.json) recovers a Supporter from the discard pile.
+- The supplied [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), setup section G, sets Prizes before optional mulligan-bonus draws and explains that a multi-card search may select fewer cards when necessary.
 
 ## Exact model
 
@@ -54,10 +57,10 @@ The exact enumerator conditions on a valid seven-card opening, then samples six 
 For the reserve line:
 1. Attach one Hood if it is in hand; otherwise, when going second, Arven can search the first Hood if one remains in the deck.
 2. If the candidate goes second and has one Hood in hand plus Arven and a second Hood in the deck, Arven can secure the reserve before the opponent responds.
-3. If Arven fetched the first Hood, the second Hood must remain in the deck; VS Seeker can recover Arven on turn 2. If the first Hood was naturally drawn, unused Arven can search the second copy on turn 2.
+3. If Arven fetched the first Hood, it also fetches a VS Seeker as its Item whenever at least one copy is not Prized. On turn 2, VS Seeker recovers Arven, and Arven searches the second Hood. If both VS Seekers are Prized, the narrow line can still find the second Hood by drawing it naturally.
 4. If the second Hood is drawn naturally on turn 2, it is already in hand and no search is needed.
 
-The candidate-side reserve calculation and the paired joint-access integration use exact `Fraction` arithmetic and multivariate-hypergeometric weights. The candidate-side reserve calculation was independently sanity-checked against a 300,000-trial seeded simulation; the simulation was only a check, not the reported estimator.
+The candidate-side reserve calculation and the paired joint-access integration use exact `Fraction` arithmetic and multivariate-hypergeometric weights. The corrected candidate-side reserve calculation was independently sanity-checked against a 2,000,000-trial seeded simulation; the simulation was only a check, not the reported estimator.
 
 ## Cross-side resource overlap
 
@@ -66,9 +69,9 @@ I also combined the candidate reserve model with rank 1's first-response Field B
 | Candidate seat and rank-1 route | Rank-1 access by response | Candidate first Hood **and** rank-1 access | Both access, candidate reserve available by turn 2 | Both access, no reserve under modeled line | Reserve given both first-Hood and rank-1 access |
 |---|---:|---:|---:|---:|---:|
 | Candidate first; direct Field Blower / FSS + Shadow Rider V | 16.940931% | 4.153637% | 0.780464% | 3.373173% | 18.789892% |
-| Candidate second; direct Field Blower / FSS + Shadow Rider V | 19.425268% | 6.715909% | 1.315944% | 5.399965% | 19.594433% |
-| Candidate second; direct Field Blower / Teammates | 25.932671% | 8.966230% | 1.756999% | 7.209231% | 19.595740% |
-| Candidate second; direct Field Blower / Teammates / Raihan* | 35.668393% | 12.332624% | 2.416729% | 9.915895% | 19.596229% |
+| Candidate second; direct Field Blower / FSS + Shadow Rider V | 19.425268% | 6.715909% | 2.421316% | 4.294593% | 36.053438% |
+| Candidate second; direct Field Blower / Teammates | 25.932671% | 8.966230% | 3.232693% | 5.733537% | 36.054096% |
+| Candidate second; direct Field Blower / Teammates / Raihan* | 35.668393% | 12.332624% | 4.446446% | 7.886177% | 36.054343% |
 
 All joint columns are absolute probabilities among games where **both players have valid opening sevens**. “No reserve under modeled line” means the candidate secured its first Hood, rank 1 has one of the named access routes by its first response, and the candidate cannot access a second Hood by its second turn through the modeled direct Hood / Arven / VS Seeker line. It is a resource-exposure state, **not** a game loss or a claim that rank 1 actually plays Field Blower.
 
@@ -79,7 +82,9 @@ Seat and route assumptions:
 - The Teammates route requires Field Blower not to be Prized and Teammates in hand. The Raihan row additionally assumes Raihan's Basic-Energy discard cost is payable. The Teammates-only row is shown separately to expose that assumption.
 - The route families are separate sensitivities, not a combined union. In particular, the direct/FSS and direct/Supporter events overlap through direct Field Blower; their probabilities must not be added.
 
-The main result is that, even in games where rank 1 has a modeled first-response route and the candidate has established its first Hood, the narrow reserve line is available in only about **18.8–19.6%** of those games. The absolute joint exposure where both rank 1 access and first-Hood setup occur but the candidate has no modeled reserve is 3.37% in the going-first direct/FSS case, 5.40% in the going-second direct/FSS case, and 9.92% in the going-second direct/Teammates/Raihan sensitivity. These figures do not account for the omitted candidate FSS/Lele lines or actual opponent decisions.
+The main result is that, even in games where rank 1 has a modeled first-response route and the candidate has established its first Hood, the narrow reserve line is available in about **18.8%** of those games when going first and **36.1%** when going second. The absolute joint exposure where both rank 1 access and first-Hood setup occur but the candidate has no modeled reserve is 3.37% in the going-first direct/FSS case, 4.29% in the going-second direct/FSS case, and 7.89% in the going-second direct/Teammates/Raihan sensitivity. These figures do not account for the omitted candidate FSS/Lele lines or actual opponent decisions.
+
+Arven's two-part search is essential here: when it fetches the first Hood, it can also fetch a VS Seeker. The candidate can then use VS Seeker on turn 2 to recover Arven and search the reserve Hood. The candidate list contains 14 other Item cards in addition to VS Seeker; the model assumes Arven can always choose an Item, with the negligible unavailability bound stated above.
 
 ## Interpretation and limits
 
@@ -87,8 +92,8 @@ This is a **narrow line-specific resource model**, not a total deck-access estim
 
 Included:
 - direct Hood draws;
-- Arven as the only first/second-turn Tool search;
-- VS Seeker recovery of Arven if Arven fetched the first Hood;
+- Arven as the first/second-turn Tool + Item search;
+- Arven fetching VS Seeker as its Item so VS Seeker can recover Arven if Arven fetched the first Hood;
 - the exact paired-mulligan bonus distribution;
 - the first-player Supporter restriction.
 
@@ -100,7 +105,7 @@ Excluded:
 - Supporter contention (the model assumes Arven can be prioritized when needed);
 - bench-space constraints, Ability suppression, the opponent's actual choice to use Field Blower, and whether a reserve Hood prevents a loss.
 
-Those excluded search routes may increase total reserve access; Supporter contention and actual board constraints may reduce practical access. Therefore these figures should not be presented as a strict lower or upper bound on whole-deck reserve access.
+Those excluded search routes may increase total reserve access; Supporter contention and actual board constraints may reduce practical access. The model assumes Arven's second Item target is available; the 14 other Item cards make the chance of none remaining by turn 1 negligible (bounded above as stated in the result section). Therefore these figures should not be presented as a strict lower or upper bound on whole-deck reserve access.
 
 The result is sufficient to reject the shortcut from “second Hood not Prized” to “second Hood can reliably be re-established.” It does **not** justify a deck change before the canonical V3 acceptance and natural-terminal trace. The next useful experiment is to add the omitted candidate-side FSS/Lele access paths to the same state model, then validate the resulting sequence in the accepted native runner.
 
