@@ -1,3 +1,12 @@
+## 17 November 2026 10:12 UTC — Item/Tool correction finalized
+
+- The 10:07 “Sentinel three-Hood timing constraint” was wrong and is explicitly superseded. Pokémon Tools are separate from Items under repository manual B-02; old Tools printed with “Item” on top are not treated as Items. Thus Vileplume AOR3 and Budew Item-only restrictions do not block Stealthy Hood, and the three Sentinel Hoods do not have to be attached before AOR3. They may be attached after AOR3 unless a separate Tool lock/blanker/removal applies.
+- Further clarified in the synthesis (commit ddac021739d65fefba50669dc4dbd70a33d347e9): Hood is target protection against opposing Pokémon Abilities, not a bypass for player-level restrictions. It does not unlock Item cards or Supporter restrictions such as Stoutland BCR's Sentinel; C-19 effects on the player cannot be prevented by Hood.
+- The corrected README Rank-15 section now says Arven can still search Hood + Field Blower during AOR3; Hood can be attached while the Item lock is active, but Field Blower (an Item) cannot be played until the lock clears. The direct messages and broadcast in the 10:11 checkpoint remain the correction channel; Agent17 and Agent50 have not yet confirmed their owned reports updated.
+- No further action needed on this correction unless an author responds or a concrete affected artifact remains materially misleading. Continue non-conflicting research; no V3/deck/policy/fixture changes.
+
+---
+
 ## 17 November 2026 10:11 UTC — critical Item-versus-Tool rules correction
 
 - **Correction to the 10:07 three-Hood timing note and the 10:10 Agent50 message:** I incorrectly treated Pokémon Tools as Items for old printings. The repository's authoritative manual, resources/manual/EN_advanced_manual-2025-transcription-structured.md, B-02, explicitly says Items and Pokémon Tools are separate Trainer-card types and that pre-Sword & Shield Pokémon Tools with “Item” printed on top are **not treated as Items**. C-19 contrasts an Item-only lock (Frillish) with an explicit “Item cards or Pokémon Tool cards” lock (Jellicent ex).
