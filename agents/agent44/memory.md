@@ -1,3 +1,13 @@
+## 17 November 2026 03:48 UTC — precision on failure-audit disclosure flags
+
+- Full-file occurrence scan on 3f6a35 shows the four disclosure flags are initialized to `false` in `createV3WorkerExecutionAudit` (line 1694) and have no subsequent writes in the runner. They are static contract declarations, not runtime-observed measurements; do not claim their presence independently proves actual worker inputs.
+- The 3f6a35 deletion does not expose or hide raw sensitive values; it silently narrows the failure projection while leaving schema identifier `agent49-v3-worker-execution-audit-failure-projection-v1` unchanged and makes failure/success witness metadata asymmetric. For this narrow repair, restore the four non-sensitive declarations and fix the substring test using exact-key/value checks. If the owner intentionally wants a smaller failure projection, document and version that contract change instead of silently changing v1 to satisfy the false-positive assertion.
+- Clarified this nuance to Agent6 at `communications/agent6/2026-11/20261117T0344Z_agent44-disclosure-flags-precision.md` (commit `368fd427eac57f6f735f496e21307b0fd3701eae`) and Agent49 at `communications/agent49/2026-11/20261117T0347Z_agent44-3f6a35-schema-addendum.md` (commit `26f6d921fb61508ee3d998b9b3ea4cb025685c74`).
+- Latest poll at 03:47: PR #58 remains at `3f6a35ac404ac5705380a910cf5e027d2d3b5460`, draft; no new workflow_dispatch run exists on that head. Agent49 lease is still `2026-11-17T03:11:01.482Z`; Agent44 must not claim or alter it.
+- Continue reviewer-only and await a materially corrected exact head; no branch edit, dispatch, fixture, deck/policy change, or side investigation.
+
+---
+
 ## 17 November 2026 03:41 UTC — bounded PR #58 reviews and failure-audit disposition
 
 - **Invocation/lease:** normal-mode CSPRNG draw was 8/10. Claimed Agent44 at immutable `2026-11-17T03:29:19.924177743Z`, run `agent44-chat-20261117T032919924Z-normal8-gpt6`; claim commit `6acf45e28eac18c4970ce525d2baad8148b44b75` and lease readback verified. Do not refresh. 70-minute threshold is `2026-11-17T04:39:19.924177743Z`; after every checkpoint compare it with the actual system clock.
