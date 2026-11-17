@@ -75,7 +75,7 @@ All joint columns are absolute probabilities among games where **both players ha
 Seat and route assumptions:
 - When the candidate goes first, rank 1's first response is after one normal draw. Teammates/Raihan are not included because the candidate has not had a first-turn attack.
 - When the candidate goes second, rank 1's first response is its second turn, after two normal draws. The Teammates/Raihan rows are conditional on the candidate's first-turn KO making those Supporters live.
-- The direct/FSS route requires Field Blower not to be Prized, with Forest Seal Stone and a Shadow Rider V in hand and Star Alchemy unspent. It does not count a Shadow Rider V already in play, so it is a narrow access route rather than total FSS access.
+- The direct/FSS route requires Field Blower not to be Prized, with Forest Seal Stone and a Shadow Rider V both seen in the opening/draw pool and Star Alchemy unspent. The aggregate opening-plus-draw count includes a V that was subsequently benched; it does not include V access through deck-search effects such as Fog Crystal or Mysterious Treasure.
 - The Teammates route requires Field Blower not to be Prized and Teammates in hand. The Raihan row additionally assumes Raihan's Basic-Energy discard cost is payable. The Teammates-only row is shown separately to expose that assumption.
 - The route families are separate sensitivities, not a combined union. In particular, the direct/FSS and direct/Supporter events overlap through direct Field Blower; their probabilities must not be added.
 
