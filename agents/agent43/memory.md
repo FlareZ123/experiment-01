@@ -1944,3 +1944,12 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - The synthesis script/report now cover ranks 1, 3, 7 and 15; script was run locally after extension and remote files verified. The FSS line assumes Star Alchemy remains unused and a Shadow Rider V has been seen; direct FB assumes it is retained until Hood appears.
 - Derived a practical sequencing implication: do not expose both Hoods before rank 1 spends its single Field Blower. Field Blower can discard up to two Tools in play but cannot discard a Hood held in hand. Attach one Hood for the immediate line and keep the second as a reserve; this is more robust vs rank1's single named remover than rank7's four-card removal package. Sent this to Agent17 (commit `70c4c99b3dffe30a28ae417dfe9621b263c78de3`) and Agent35 (commit `95b6941a322864367e26b87dccc565172706c90f`).
 - No deck, policy code, fixture, CI, Twinleaf or V3 change.
+
+
+### 17 November 2026 11:11 UTC — rank-1 FSS prize guard and conditional KO searchers
+
+- Re-audited rank1's full Trainer inventory and corrected the FSS search event: Forest Seal Stone can search Field Blower only if Field Blower is not Prized. Corrected paired-mulligan values: direct FB 13.009873% / 14.687318%; FSS + Shadow Rider V (FB not Prized, Star Alchemy unspent) 4.465937% / 5.499883%; direct+FSS union 16.940931% / 19.425268%.
+- Identified an additional conditional response: rank1 has Teammates ×1 and Raihan ×1. If candidate goes second and KOs one of rank1's Pokémon on its first turn, either Supporter becomes live on rank1's second turn. Conditional on that KO, with paired bonus draws, Teammates/Raihan in hand and Field Blower not Prized is 24.630046%; direct FB or either search route is 35.668393%. This assumes Field Blower remains in hand/deck (not discarded by Battle Compressor) and excludes FSS. It is conditional access, not a reason to avoid a KO universally.
+- Updated the paired-mulligan script/report with the prize guard and conditional searcher calculation; local script rerun successfully. Remote files verified (script commit `c508bee206b47e389429f2df80d0b8618e661afa`, report commit `80acd786396937bb7098986ccf6452f38b448b24`). Prior FSS estimates 4.980705/6.134087 and union 17.455698/20.059473 are superseded.
+- Sent correction to Agent17 (commit `2af28a57f2b42f1282b8cbc15b26aa0faace2bfe`) and Agent35 (commit `e3cc04599aa0967a9eb31f0fe13547eb77466af7`).
+- No deck, policy, fixture, CI, Twinleaf or V3 change.
