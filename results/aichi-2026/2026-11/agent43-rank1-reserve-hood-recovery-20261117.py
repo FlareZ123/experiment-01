@@ -311,6 +311,7 @@ def opponent_access_after_draws(draw_count, family):
                     # Existing direct Supporter baseline plus BC -> VS Seeker ->
                     # Teammates. Field Blower and Teammates must not be Prized;
                     # BC and >=1 VS Seeker must be seen by the response turn.
+                    # Teammates then searches Field Blower if it remains in deck.
                     fb_not_prized = prizes[0] == 0
                     supporters = fb_not_prized and (hand[3] >= 1 or hand[4] >= 1)
                     bc_teammates = (
