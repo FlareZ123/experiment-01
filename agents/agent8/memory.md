@@ -1,3 +1,33 @@
+# 2026-11-17 normal incarnation handoff (run agent8-chat-20261117T111713Z-normal1-gpt6)
+
+Claimed Agent8 after CSPRNG draw **1/10** selected normal research mode. Claim was committed and read back on main at `f379c3547a82506d99d985edcb40ef4a4072155b`; immutable lease is `2026-11-17T11:17:13Z`. The 70-minute orderly-release threshold is **2026-11-17T12:27:13Z**. Do not refresh the lease. After every checkpoint, compare this original timestamp with an actual system clock; continue while elapsed time is below 70 minutes.
+
+## Current shared research state and binding scope
+
+- Repository: `FlareZ123/experiment-01`; default branch `main`; Twinleaf submodule is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Owner-selected primary benchmark: one English-language international-Expanded-legal candidate versus the unchanged original Aichi Japanese Extra Top 32 lists. This is a custom cross-format challenge, not Expanded-vs-Expanded. Preserve original opponent inventories; do not normalize or exclude Japanese-only promo cards. Strict Expanded-vs-Expanded remains a separate 24-list secondary comparison. Public reproducibility is authorized, but policy workers must receive only their own actor-visible observations and public receipts, never engine state, opponent hidden zones, or physical RNG/seed.
+- `results/README.md` decision board: no final fixed 60 selected; zero competitively paper-qualified games; no demonstrated 99.5% field win rate; 29/32 source rows transcribed; ranks 23, 25 and 28 remain unavailable; zero original physical-source opponents paper-admitted. Hood Shield Shadow Rider v1 remains a challenger hypothesis, not a proven best deck.
+- At the 2026-11-17 11:17 UTC check, PR #58 was still open/draft at exact head `a5c970554d920d8cbca00112335fabdc0abdeefe`; `fetch_commit_workflow_runs` and combined status returned no runs/statuses for that SHA. Main was `81250818fc9365ad38e376912978233557209899` at 11:17:56Z. Treat these as timestamped observations, not current truth.
+- Agent49 is the sole implementation owner/dispatcher for the canonical V3 worker acceptance path. Its lease at last check was claimed `2026-11-17T09:58:11.121Z`; do not edit its branch, dispatch on its behalf, create a parallel worker/runner/workflow, or claim a second identity. Agent6 owns the first post-acceptance natural-terminal trace.
+- Current acceptance sequence: on one corrected exact research SHA, run the existing contract-only gate; only if it passes, run compile-enabled/no-fixture; only if that passes, run the actual both-role/both-physical-seat native no-game witness, including actor-only observation, cloned-Store validation, original-Store non-mutation, and worker cleanup receipts. All receipts bind the same research SHA and pinned Twinleaf revision. No fixture/game before all three gates pass. The post-acceptance first diagnostic uses the frozen Hood v1 60, unchanged rank-1 source 60, frozen policies, and registered public seed; it is diagnostic, not competitive evidence.
+- Critic's 2026-11-15/16/17 communications establish a temporary but still-current sidework stopline: no deck/policy/seed changes, card-specific probes, prompt/rank inventories, new candidate/optimizer branches, workflows, runners, fixtures, generic audits, redundant reviews, or status-only messages while V3 acceptance is blocked. Do not re-review an unchanged SHA. The only exceptions are a concrete new counterexample on a materially changed head when requested, a bounded action that directly removes an exact V3 blocker under Agent49's ownership, or genuinely new primary evidence containing both an exact 60 and direct player-to-final-rank bridge for a missing rank. Rank-28 retrieval is closed; do not repeat its archive/image/transcription work.
+- Agent5's 2026-11-15 reply explicitly deferred the two-seat Stadium Store probe until after V3 acceptance. Keep the existing post-Timeless helper/tests unchanged for now.
+
+## Agent8-specific deferred research
+
+- Existing post-Timeless Mimikyu/Max Geist helper remains default-off and candidate-seat-only; it is not a dependency of frozen V1 or PR #58. Do not ask Agent49 to integrate it.
+- Agent6's 2026-11-13 review identified a concrete target-aware attack crossover gap: rank-10 diagnostic reconstruction includes Latias ex SSP 76 (210 HP); Power Beam 200 leaves 10 HP, while Max Geist at seven Basic Psychic Energy across the board is 220 and can KO before free retreat. The right eventual policy is not always Max Geist: compare exact public target HP/damage modifiers, KO and Prize result, retained energy/resources, and three-Prize VMAX exposure. Rank 10's physical source is unverified; this is an analytical counterexample, not a matchup/game result.
+- Defer this work until the V3 stopline lifts and the first trace has been accepted/reviewed. If asked to help after that transition, first coordinate with Agent6/Agent49 and reuse the existing policy/spec; avoid another standalone branch or repeated mechanics matrix.
+- Previous Agent8 work on rank-5 Mew/Genesect and source Fairy Zone is preserved below. It is not evidence for the current Hood candidate or any field win rate.
+
+## Work in this incarnation
+
+- Inspected the public repository structure, `.gitmodules`, current decision board, Agent8 memory and inbox, and relevant recent broadcasts; did not inspect or touch `private/`.
+- Confirmed the pinned Twinleaf gitlink and current benchmark contract above.
+- No code, deck, policy, fixture, workflow, or Actions run was changed or dispatched. No new game-specific result is claimed.
+
+---
+
 # 2026-11-13 normal incarnation checkpoint (run agent8-chat-20261113T0834Z-normal4-gpt6)
 
 Claimed Agent8 at 2026-11-13T08:34:16.637Z (normal mode, random roll 4). This incarnation added a default-off, candidate-seat-only post-Timeless Mimikyu follow-up layer to the Agent34 actor-only root policy.
