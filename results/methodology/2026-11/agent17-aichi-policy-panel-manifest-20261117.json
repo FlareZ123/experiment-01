@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "benchmark": {
+    "name": "Aichi Open League 2026 Top 32",
+    "primary_estimand": "One fixed English-language international-Expanded-legal candidate against the unchanged original Japanese Extra opponent lists",
+    "source_file": "results/aichi-2026/full-decklists.json",
+    "source_blob_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "exact_source_lists": 29,
+    "missing_source_ranks": [
+      23,
+      25,
+      28
+    ],
+    "paper_admitted_opponents": 0,
+    "competitively_qualified_games": 0
+  },
+  "evaluation": {
+    "candidate_deck_fixed_across_all_ranks": true,
+    "candidate_physical_seats": [
+      0,
+      1
+    ],
+    "actual_first_player_assignments": [
+      "candidate",
+      "opponent"
+    ],
+    "strata_per_rank": 4,
+    "full_field_strata": 128,
+    "exact_list_available_strata": 116,
+    "current_english_expanded_diagnostic_ranks": [
+      1,
+      2,
+      4,
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      26,
+      27,
+      30,
+      31,
+      32
+    ],
+    "current_english_expanded_diagnostic_strata": 96,
+    "full_field_aggregate_allowed": false,
+    "aggregate_prerequisite": "All 32 exact source lists and independently competent rank-specific opponent policies; report every matchup and stratum"
+  },
+  "policy_panel": {
+    "currently_identified_prototypes": [
+      1,
+      2,
+      10
+    ],
+    "prototype_coverage_ranks": 3,
+    "prototype_coverage_fraction": 0.09375,
+    "rank_specific_competence_required": true,
+    "shared_archetype_core_allowed_only_with_exact_rank_configuration": true
+  },
+  "ranks": [
+    {
+      "rank": 1,
+      "archetype": "Shadow Rider Calyrex",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": true,
+      "policy_status": "prototype_not_competitively_qualified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 2,
+      "archetype": "Vileplume Control",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": true,
+      "policy_status": "prototype_not_competitively_qualified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 3,
+      "archetype": "Snorlax Stall",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 4,
+      "archetype": "Raichu Electrode Combo",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 5,
+      "archetype": "Mew Genesect",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 6,
+      "archetype": "Iron Thorns",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 7,
+      "archetype": "Snorlax Stall",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 8,
+      "archetype": "Absol Garbodor",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 9,
+      "archetype": "Absol Electrode",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 10,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": true,
+      "policy_status": "prototype_not_competitively_qualified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 11,
+      "archetype": "Absol Garbodor",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 12,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 13,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 14,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 15,
+      "archetype": "Lopunny Vileplume",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 16,
+      "archetype": "Absol Garbodor",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 17,
+      "archetype": "Raichu Electrode Combo",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 18,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 19,
+      "archetype": "Raging Bolt",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 20,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 21,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 22,
+      "archetype": "Absol Garbodor",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 23,
+      "archetype": "Regidrago",
+      "source_list_status": "missing_exact_60",
+      "source_card_count": null,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "unknown_until_exact_list",
+      "prototype_identified": false,
+      "policy_status": "blocked_missing_exact_list",
+      "strata_planned": 4
+    },
+    {
+      "rank": 24,
+      "archetype": "Iron Thorns",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 25,
+      "archetype": "Raichu Electrode Combo",
+      "source_list_status": "missing_exact_60",
+      "source_card_count": null,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "unknown_until_exact_list",
+      "prototype_identified": false,
+      "policy_status": "blocked_missing_exact_list",
+      "strata_planned": 4
+    },
+    {
+      "rank": 26,
+      "archetype": "Meloetta Donk",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 27,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 28,
+      "archetype": "Regidrago",
+      "source_list_status": "missing_exact_60",
+      "source_card_count": null,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "unknown_until_exact_list",
+      "prototype_identified": false,
+      "policy_status": "blocked_missing_exact_list",
+      "strata_planned": 4
+    },
+    {
+      "rank": 29,
+      "archetype": "Iron Thorns",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 30,
+      "archetype": "Lillie's Clefairy",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 31,
+      "archetype": "Dusknoir Chimecho",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    },
+    {
+      "rank": 32,
+      "archetype": "Regidrago",
+      "source_list_status": "exact_60_available",
+      "source_card_count": 60,
+      "primary_benchmark_role": "unchanged_original_aichi_opponent",
+      "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
+      "prototype_identified": false,
+      "policy_status": "no_current_panel_prototype_identified",
+      "strata_planned": 4
+    }
+  ]
+}
