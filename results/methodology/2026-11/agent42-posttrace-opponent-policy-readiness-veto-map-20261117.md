@@ -1,0 +1,50 @@
+# Post-trace opponent-policy readiness veto map
+
+**Agent42 · 17 November 2026 · static evidence synthesis, not a gameplay result**
+
+## Purpose and boundary
+
+This is a compact readiness overlay for the [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md) and [Agent2 challenge-suite content contract](agent2-policy-challenge-suite-operational-contract-20261117.md). It records source-grounded reasons why several nominal prototypes or apparently reusable policies must not be admitted as competent opponents.
+
+It does **not** authorize policy, deck, hook, runner, workflow, seed, fixture, or game changes before the canonical PR #58 acceptance sequence and Agent6's review of the single first natural-terminal trace. Agent49 remains the sole V3 acceptance owner/dispatcher; Agent6 remains the first-trace owner. This note is intended for the post-trace field-readiness phase, not as a parallel gate.
+
+## Readiness distinctions
+
+A prototype is an implementation starting point, not a competent policy. A native prompt path is not a strategically adequate decision. A source-level counterline is not a matchup result. Keep these categories separate in every manifest and report.
+
+| Rank(s) | Current prototype / family | Readiness veto to preserve | Evidence and post-trace requirement |
+|---|---|---|---|
+| 1 | Frozen Shadow Rider opponent policy; first diagnostic opponent | Diagnostic-only. A successful rank-1 trace does not validate any other rank or establish matchup strength. | Use the one unchanged Hood-v1 vs original rank-1 trace only after acceptance. Review the complete trace before policy or deck changes. |
+| 2 | Frozen Vileplume Control prototype | **Not opponent-policy-ready.** Five independent source-policy gaps remain: Guzma & Hala mode-zero (Stadium-only) has no normal root valuation; Stoutland retreat scoring ignores target-specific Stealthy Hood under Garbotoxin; duplicate-copy DCI can discard both Jet Energy or both TM: Evolution despite the live Bunnelby line; public own hand is double-counted through ownHand and ownPublic.publicHand; and Peonia/Gladion lack complete root, Prize-resolution, and Lusamine recovery paths. | Agent21's source review and Agent10's handoff are preserved in [the rank-2 mailbox findings](../../../communications/agent42/20261117T111324Z_agent21-rank2-prize-support-review.md), [the Lusamine count correction](../../../communications/agent42/20261117T111622Z_agent21-correction-rank2-lusamine-count.md), and [Agent10's readiness handoff](../../../communications/agent42/20261117T111754Z_agent10-rank2-policy-postgate-coverage.md). Correct inventory is one Peonia, one Gladion, and **one** Lusamine. Post-trace: integrate the gaps into one bounded rank-2 patch and exact-list challenge suite; Peonia/generic Prize prompts stay identity-blind, while only the genuine owner-Gladion prompt may expose Prize identities. |
+| 10 | Regidrago prototype | Prototype for rank 10 only; not evidence of competence for the other Regidrago lists. Nine available Regidrago lists have material list variance, and ranks 23/28 are unavailable. | Bind every rank to its exact 60 and rank-specific tech/configuration; use the [Agent17 Regidrago variance analysis](agent17-regidrago-policy-family-variance-20261117.md). Do not transfer a rank-10 pass by archetype label. |
+| 4, 9, 17 | Electrode-GX / Alolan Raichu variants | **Not game-evaluable until paper behavior is corrected and tested.** The frozen engine path lacks the full Extra Energy Bomb multi-assignment AttachEnergyPrompt, Crash and Burn-GX DiscardEnergyPrompt, and Electro Rain PutDamagePrompt contract. The pinned Crash and Burn callback also appears to scale damage as 30 + 50n² rather than the printed 30 + 50n; Extra Energy Bomb has zero-transfer/fewer-than-five source anomalies. | Exact source audit: [Agent44's ranks 4/9/17 prompt and damage report](../../aichi-2026/2026-11/agent44-ranks4-9-17-electrode-prompt-and-damage-audit-20261115.md). Agent50's [CES48 readiness handoff](../../../communications/agent42/2026-11/20261115T195702Z_agent50-ces48-field-policy-readiness.md) explicitly requires the research-owned paper correction and a two-seat regression before these ranks enter game evaluation. Do not silently treat a legal-looking engine action as paper-faithful. Rank 25's missing list must not be inferred to contain CES48. |
+| 31 | Dusknoir / Chimecho | **Not opponent-policy-ready under the rank-1 policy.** Rank 31 needs decisions for Field Blower's Stadium-plus-Tools mode, the Tools-only min-0 selection, Dusknoir PRE Cursed Blast target selection/self-KO, and two distinct MoveDamagePrompt effects. The rank-1 policy can choose an empty selection for the tools-only Field Blower prompt and does not classify the Cursed Blast prompt; MoveDamage remains unsupported. This would understate rank 31's counterplay. | Exact-list and pinned-source analysis: [Agent44's rank-31 Dusknoir report](../../aichi-2026/2026-11/agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md). Agent50's [rank-31 readiness veto](../../../communications/agent42/2026-11/20261115T193700Z_agent50-rank31-opponent-policy-readiness-handoff.md) says not to reuse rank 1 as a competent rank-31 policy. Post-trace: create a rank-31-specific challenge suite and policy, then validate the exact counterline under native evidence. |
+| 3, 6, 7, 24, 29 | Snorlax / Iron Thorns / Japanese-Extra source lists | Keep all original Japanese-Extra promo identities unchanged in the primary cross-format benchmark. The five lists are not international-Expanded opponents, but they remain in the owner-selected primary field. Player's Ceremony requires a research-owned hook; Palace Book and Palace Belt are already implemented in the pinned engine. | Follow the [Agent17 panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md) and [Agent43 promo-engine feasibility note](../../aichi-2026/2026-11/agent43-japanese-promo-engine-feasibility.md). Do not normalize, replace, or exclude these lists. |
+| 23, 25, 28 | Missing exact source lists | Blocked. Never create an archetype proxy, infer the 60, or treat a missing rank as a bye. | Only reopen on new primary evidence that establishes the exact original 60 and a direct player-to-final-rank bridge. Rank 28's archive-survival branch is closed; see [Agent35's closeout](../../../communications/agent42/2026-11/20261117T024201Z_agent35-close-rank28-archive-check.md). |
+
+All other available ranks still require exact-list-bound policies and source-specific competence evidence. The current count of three prototypes (ranks 1, 2, and 10) is not a 3/32 competent panel. The 24-list strict-Expanded diagnostic subset cannot stand in for the primary field; it omits all five Iron Thorns/Snorlax lists and all three unavailable ranks.
+
+## Post-trace sequencing
+
+1. Agent49 completes contract-only, compile/no-fixture, and both-role/both-physical-seat native no-game witness on the exact approved PR #58 head and pinned Twinleaf revision. Stop at the first concrete failure; no fixture before all three gates pass.
+2. Agent6 runs and reviews one unchanged Hood-v1 vs original rank-1 natural-terminal diagnostic. Treat it as an engineering diagnostic, not a competitive matchup or policy attestation.
+3. Resolve only concrete blockers demonstrated by that trace. Do not use it as permission for broad policy tuning.
+4. Prioritize shared engine/prompt dependencies by exact rank reach, while preserving the paper-correction vetoes above. Reuse Agent39's ordered field-unblock queue rather than creating another runner or validator.
+5. Build rank-specific challenge suites under Agent2's content contract. Reuse archetype cores only with exact 60-card bindings, rank-specific configuration, actor-only observations, native execution evidence, negative controls, and independent review.
+6. Keep ranks 23/25/28 unavailable. Available-rank diagnostics may be reported individually, but no full-field aggregate until all 32 exact source lists and competent policy identities are admitted.
+7. Preserve the existing 128-stratum design: 32 ranks × 2 candidate physical seats × 2 actual first-player assignments. Reuse Agent12's statistical contract; do not substitute a few favorable ranks or invent a new estimator.
+
+## Evidence classification
+
+- The rank-specific inventory and source/prompt findings above are existing repository evidence, primarily static list/source/policy reviews.
+- The ordering and readiness overlay are research-process judgments.
+- No new native regression, matchup, game, paper-admission, or win-rate result is claimed here.
+- No candidate 60, policy, pinned upstream code, workflow, or fixture was changed by this synthesis.
+- No 99.5% result is demonstrated.
+
+## Canonical references
+
+- [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
+- [Agent2 challenge-suite operational contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
+- [Agent39 post-trace field-unblock priority queue](agent39-posttrace-field-unblock-priority-20261117.md)
+- [Current fixed-60 decision board](../../README.md)
