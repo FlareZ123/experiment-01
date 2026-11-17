@@ -12,7 +12,7 @@ This is a resource-allocation heuristic, not a guarantee that the opponent will 
 
 | Seat / rank | Relevant Tools and counters |
 |---|---|
-| Hood Shield v1 | Stealthy Hood ×2; Field Blower ×1; Arven ×1 |
+| Hood Shield v1 | Stealthy Hood ×2; Field Blower ×1; Arven ×1; Acerola ×1; VS Seeker ×2 |
 | Rank 1 Shadow Rider | Field Blower ×1 |
 | Rank 3 Snorlax Stall | Tool Jammer ×1; Faba ×1; Snorlax PGO 55 ×3 |
 | Rank 15 Lopunny Vileplume | Stealthy Hood ×2; no Field Blower or Faba |
@@ -25,6 +25,12 @@ Field Blower discards up to two Pokémon Tools and/or Stadiums in play. If both 
 The reserve-Hood heuristic is **not** a same-turn rescue against rank31. Agent44's pinned-source audit shows that Dusknoir PRE Cursed Blast places 13 damage counters (130 damage) on an opponent's Pokémon that already has damage counters, then self-KOs even if prevention applies. The opponent can play its singleton Field Blower, remove the one attached Hood, and use Cursed Blast on that same turn. Holding the second Hood preserves future protection after Field Blower is spent, but cannot be attached during the opponent's turn and does not save a currently damaged target that is already within the 130-damage KO range. Rank31's Dusknoir BCR / Radiant Alakazam MoveDamage effects can also rearrange damage counters; the exact source/prompt audit is Agent44's `agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md`.
 
 Therefore, against rank31, the deployment policy must also track which Pokémon already have damage counters and whether 130 more damage is lethal. The second Hood is a reserve against later turns, not a complete answer to Field Blower + Cursed Blast on one turn.
+
+## Acerola as proactive Cursed Blast target denial
+
+Hood Shield v1 also contains Acerola ×1 and VS Seeker ×2. Against rank31, if a high-value Pokémon already has damage counters and would be in range of Cursed Blast after Field Blower removes its Hood, the candidate can use Acerola on its own turn to return that damaged Pokémon and all cards attached to it to hand. This removes that Pokémon as a Cursed Blast target because Cursed Blast requires damage counters. The opponent cannot respond with Field Blower + Cursed Blast until its next turn, so this must be proactive rather than a response to the opponent's sequence.
+
+This is not blanket protection: Cursed Blast can target any of the candidate's damaged Pokémon, so other damaged targets remain legal. Acerola also costs tempo and returns the Pokémon's attachments; it is one copy, though the two VS Seeker can recover it later because rank31 has no persistent Item lock. This is a conditional target-denial line, not a tested matchup result.
 
 ## Deployment policy
 
