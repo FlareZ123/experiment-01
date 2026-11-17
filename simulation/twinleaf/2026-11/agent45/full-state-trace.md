@@ -11,7 +11,7 @@ The returned result contains fullStateTrace (complete machine-readable native sn
 - A concise public-board summary of Active/Bench Pokémon, damage, attached Energy/Tools, Stadium, and printed attack names/costs.
 - The action object/type, acting player ID and seat, pending prompt, turn and phase transitions, and a reference to the immediately preceding state snapshot.
 - Per-seat tactic order, prompt-resolver order, score keys, and arbiter modes, captured once for reproducibility.
-- Initial native logs and per-action log deltas in the readable text; each delta records before/after counts and detects log-array resets. The final cumulative native log is retained once in the machine trace.
+- Initial native logs and per-action log deltas in the readable text; each delta records before/after counts and detects log-array resets. The final cumulative native log is printed once at the end and retained in the machine trace. Failure-stage labels and error details are included for aborted actions.
 - Failure-stage snapshots for bot-decoder, strict prompt-validation, and Store-dispatch failures.
 
 The serializer traverses own property descriptors without invoking user-defined getters, converts cycles and repeated references to $ref markers, and represents functions/accessors without executing them. Default per-snapshot bounds are 64 levels and 50,000 object nodes, with a 512-action trace cap. Callers can override these through fullStateTraceLimits.maxDepth, fullStateTraceLimits.maxNodes, and fullStateTraceLimits.maxSteps. Exceeding a bound stops trace capture (not the game) and makes fullStateTrace.complete false; the capture error is surfaced in the text/result. fullStateTraceCaptureError reports capture failures that did not stop the underlying game.
