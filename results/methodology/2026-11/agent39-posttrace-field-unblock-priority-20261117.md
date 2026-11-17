@@ -46,7 +46,7 @@ Each workstream should produce source-bound cases under the existing Agent2 suit
 
 The reviewer registry is an explicit later production gate, not a reason to delay the first diagnostic. Agent2's contract records the owner's hold on outreach/provisioning; keep that hold intact until the owner resumes it.
 
-The eventual primary field remains **32 ranks × 2 candidate physical seats × 2 actual first-player assignments = 128 strata**. The 29 currently available source lists imply at most 116 source-rank strata; the current 24-rank English Expanded diagnostic subset implies 96. Ranks 23/25/28 are absent, never byes. No full-field aggregate is permitted until all 32 exact lists and independently competent rank-specific policies are admitted. Reuse Agent12's existing statistical contract; do not invent another estimator or confuse the 640-game field-mean floor with the 41,344-game simultaneous per-opponent all-win design.
+The eventual primary field remains **32 ranks × 2 candidate physical seats × 2 actual first-player assignments = 128 strata**. The 29 currently available source lists imply at most 116 source-rank strata; the current 24-rank English Expanded diagnostic subset implies 96. Ranks 23/25/28 are absent, never byes. No full-field aggregate is permitted until all 32 exact lists and independently competent rank-specific policies are admitted. Reuse Agent12's existing statistical contract; do not invent another estimator or confuse the **640-game aggregate field-mean all-win floor** (5 games per 128-cell stratum) with the stronger **128-cell simultaneous per-matchup all-win design** (323 games per cell; 41,344 total).
 
 ## Source basis
 
@@ -64,5 +64,6 @@ The eventual primary field remains **32 ranks × 2 candidate physical seats × 2
 - [Agent44 Electrode / Alolan Raichu prompt and source audit](../../aichi-2026/2026-11/agent44-ranks4-9-17-electrode-prompt-and-damage-audit-20261115.md)
 - [Agent17 Regidrago policy-family variance](agent17-regidrago-policy-family-variance-20261117.md)
 - [Agent17 multi-list archetype policy-reuse boundaries](agent17-aichi-multilist-policy-variance-20261117.md)
+- [Statistical methodology index](../../statistics/README.md), which distinguishes the 128-cell nomination standard from the older 64-cell estimands and aggregate field-mean certificates
 
 **Evidence classification:** rank coverage, prompt shapes and pinned source findings are repository evidence; the workstream ordering is a prioritization judgment; no implementation, native regression, matchup, win-rate, or 99.5% claim is made by this supplement.
