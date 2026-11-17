@@ -320,9 +320,11 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       steps:steps.slice(),
       nativeLogs,
       complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
-        initialState.truncated===false && (initialNativeLogs===null || !initialNativeLogs.truncated) &&
+        initialState.truncated===false && (initialPublicBoard===null || !initialPublicBoard.truncated) &&
+        (initialNativeLogs===null || !initialNativeLogs.truncated) &&
         nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
           step.actionOrdinal===index+1 && !step.action.truncated &&
+          (!step.publicBoard || !step.publicBoard.truncated) &&
           (!step.pendingPrompt || !step.pendingPrompt.truncated) && !step.afterState.truncated &&
           (!step.error || !step.error.truncated) &&
           (!step.nativeLogDelta || !step.nativeLogDelta.entries.truncated)),
