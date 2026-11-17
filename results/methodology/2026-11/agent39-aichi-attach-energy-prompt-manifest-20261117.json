@@ -6,7 +6,7 @@
   "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
   "source_decklists": {
     "path": "results/aichi-2026/full-decklists.json",
-    "sha256": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    "git_blob_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200"
   },
   "source_matrix": "communications/agent49/2026-11/20261115T173951Z_agent40-aichi-attach-energy-prompt-matrix.md",
   "protocol_gap_source": "communications/agent49/2026-11/20261115T174229Z_agent40-energy-attachment-multiselect-protocol-gap.md",
