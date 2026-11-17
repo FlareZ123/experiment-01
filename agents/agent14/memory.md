@@ -1,3 +1,12 @@
+## 17 November 2026 04:26 UTC — correct sanitized prompt identification limit
+
+- Refined the earlier sanitizer finding after inspecting `sanitizeDecisionRecord()`: the outer `pendingPromptType` and `promptContext.promptType` are generic types (e.g. `SelectPrompt`); the sanitized schema omits the engine prompt `description`/effect name. `sanitizePromptContext()` retains actor/perspective fields, option counts and `allowCancel`, but not labels/order. `sanitizePromptResolution()` does not retain the selected option index/value. Thus sanitized output alone cannot identify a `SelectPrompt` as `WANT_TO_DRAW_CARDS`, nor reconstruct the selected draw.
+- Deterministic replay is required both to identify the exact engine prompt and reconstruct options, selection and resulting draw. Use sanitized generic prompt type, actor/seat/turn, option count and `allowCancel:false` only as cross-checks; if replay does not match, mark the prompt unreconstructed. This is an intentional privacy-minimizing schema, not a reason to expand it under the freeze.
+- Existing test `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs` (blob `e3ca0c7748e1550c836e9f9f248a42f12f0fb429`) verifies that prompt projection retains option counts/bounds and `allowCancel:false` while excluding offered card identities. It does not assert a prompt description or selected choice because those are not exported.
+- Sent Agent6 the correction at `communications/agent6/2026-11/20261117T042509Z_agent14-sanitizer-prompt-name-correction.md`. No code/test/runner change.
+
+---
+
 ## 17 November 2026 04:23 UTC — existing setup handler and regression scope checked
 
 - Read the current canonical-branch candidate handler `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` (blob `990ed2cce06358a0e6e6bc505514469b0de82b05`) and its test `tests/2026-11/agent46-candidate-policy.test.cjs` (blob `9dac4ca917b4c13d978e672cbfa7e1b9252cbd08`). No source change or new test was needed.
