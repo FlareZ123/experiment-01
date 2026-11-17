@@ -87,7 +87,30 @@
         "rank_10": 42
       },
       "nearest_prototype_rank": 1,
-      "nearest_prototype_substitutions": 0
+      "nearest_prototype_substitutions": 0,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 2,
@@ -105,7 +128,30 @@
         "rank_10": 55
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 0
+      "nearest_prototype_substitutions": 0,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 1,
+        "tool_jammer": 0,
+        "plumeria": 1,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 3,
@@ -123,7 +169,30 @@
         "rank_10": 52
       },
       "nearest_prototype_rank": 1,
-      "nearest_prototype_substitutions": 48
+      "nearest_prototype_substitutions": 48,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 1,
+        "tool_jammer": 1,
+        "plumeria": 4,
+        "team_flare_grunt": 2,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 2,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": true,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": true,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 4,
@@ -141,7 +210,30 @@
         "rank_10": 49
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 49
+      "nearest_prototype_substitutions": 49,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 5,
@@ -159,7 +251,30 @@
         "rank_10": 45
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 45
+      "nearest_prototype_substitutions": 45,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 1,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 6,
@@ -177,7 +292,30 @@
         "rank_10": 53
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 48
+      "nearest_prototype_substitutions": 48,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 1,
+        "tool_jammer": 1,
+        "plumeria": 4,
+        "team_flare_grunt": 2,
+        "team_yell_grunt": 0,
+        "handheld_fan": 1,
+        "enhanced_hammer": 2,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": true,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": true,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": true,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 7,
@@ -195,7 +333,30 @@
         "rank_10": 53
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 49
+      "nearest_prototype_substitutions": 49,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 1,
+        "faba": 2,
+        "tool_jammer": 1,
+        "plumeria": 1,
+        "team_flare_grunt": 1,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 1,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": true,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": true,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 8,
@@ -213,7 +374,30 @@
         "rank_10": 39
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 39
+      "nearest_prototype_substitutions": 39,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 9,
@@ -231,7 +415,30 @@
         "rank_10": 47
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 47
+      "nearest_prototype_substitutions": 47,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 1,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 10,
@@ -249,7 +456,30 @@
         "rank_10": 0
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 0
+      "nearest_prototype_substitutions": 0,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 1,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 11,
@@ -267,7 +497,30 @@
         "rank_10": 44
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 44
+      "nearest_prototype_substitutions": 44,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 12,
@@ -285,7 +538,30 @@
         "rank_10": 14
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 14
+      "nearest_prototype_substitutions": 14,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 13,
@@ -303,7 +579,30 @@
         "rank_10": 9
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 9
+      "nearest_prototype_substitutions": 9,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 14,
@@ -321,7 +620,30 @@
         "rank_10": 12
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 12
+      "nearest_prototype_substitutions": 12,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 15,
@@ -339,7 +661,30 @@
         "rank_10": 54
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 26
+      "nearest_prototype_substitutions": 26,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 16,
@@ -357,7 +702,30 @@
         "rank_10": 41
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 41
+      "nearest_prototype_substitutions": 41,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 1,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 17,
@@ -375,7 +743,30 @@
         "rank_10": 50
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 50
+      "nearest_prototype_substitutions": 50,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 18,
@@ -393,7 +784,30 @@
         "rank_10": 14
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 14
+      "nearest_prototype_substitutions": 14,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 19,
@@ -411,7 +825,30 @@
         "rank_10": 37
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 37
+      "nearest_prototype_substitutions": 37,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 20,
@@ -429,7 +866,30 @@
         "rank_10": 12
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 12
+      "nearest_prototype_substitutions": 12,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 1,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": true,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 21,
@@ -447,7 +907,30 @@
         "rank_10": 11
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 11
+      "nearest_prototype_substitutions": 11,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 22,
@@ -465,7 +948,30 @@
         "rank_10": 42
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 42
+      "nearest_prototype_substitutions": 42,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 1,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 23,
@@ -479,7 +985,8 @@
       "strata_planned": 4,
       "prototype_distances": null,
       "nearest_prototype_rank": null,
-      "nearest_prototype_substitutions": null
+      "nearest_prototype_substitutions": null,
+      "candidate_pressure": null
     },
     {
       "rank": 24,
@@ -497,7 +1004,30 @@
         "rank_10": 53
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 48
+      "nearest_prototype_substitutions": 48,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 1,
+        "tool_jammer": 1,
+        "plumeria": 4,
+        "team_flare_grunt": 2,
+        "team_yell_grunt": 0,
+        "handheld_fan": 2,
+        "enhanced_hammer": 2,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": true,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": true,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": true,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 25,
@@ -511,7 +1041,8 @@
       "strata_planned": 4,
       "prototype_distances": null,
       "nearest_prototype_rank": null,
-      "nearest_prototype_substitutions": null
+      "nearest_prototype_substitutions": null,
+      "candidate_pressure": null
     },
     {
       "rank": 26,
@@ -529,7 +1060,30 @@
         "rank_10": 48
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 48
+      "nearest_prototype_substitutions": 48,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 27,
@@ -547,7 +1101,30 @@
         "rank_10": 13
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 13
+      "nearest_prototype_substitutions": 13,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": false,
+        "has_stadium_removal": false,
+        "can_remove_two_tools_one_action": false,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 28,
@@ -561,7 +1138,8 @@
       "strata_planned": 4,
       "prototype_distances": null,
       "nearest_prototype_rank": null,
-      "nearest_prototype_substitutions": null
+      "nearest_prototype_substitutions": null,
+      "candidate_pressure": null
     },
     {
       "rank": 29,
@@ -579,7 +1157,30 @@
         "rank_10": 53
       },
       "nearest_prototype_rank": 2,
-      "nearest_prototype_substitutions": 48
+      "nearest_prototype_substitutions": 48,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 1,
+        "faba": 1,
+        "tool_jammer": 1,
+        "plumeria": 4,
+        "team_flare_grunt": 2,
+        "team_yell_grunt": 0,
+        "handheld_fan": 1,
+        "enhanced_hammer": 1,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": true,
+        "can_suppress_active_tools": true,
+        "can_discard_energy_any_opponent_pokemon": true,
+        "can_discard_energy_from_opponent_active": true,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": true,
+        "has_special_energy_removal": true
+      }
     },
     {
       "rank": 30,
@@ -597,7 +1198,30 @@
         "rank_10": 41
       },
       "nearest_prototype_rank": 1,
-      "nearest_prototype_substitutions": 37
+      "nearest_prototype_substitutions": 37,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 3,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 31,
@@ -615,7 +1239,30 @@
         "rank_10": 54
       },
       "nearest_prototype_rank": 1,
-      "nearest_prototype_substitutions": 49
+      "nearest_prototype_substitutions": 49,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 1,
+        "megaton_blower": 0,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": false,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": false
+      }
     },
     {
       "rank": 32,
@@ -633,7 +1280,213 @@
         "rank_10": 15
       },
       "nearest_prototype_rank": 10,
-      "nearest_prototype_substitutions": 15
+      "nearest_prototype_substitutions": 15,
+      "candidate_pressure": {
+        "source_exact": true,
+        "field_blower": 0,
+        "megaton_blower": 1,
+        "faba": 0,
+        "tool_jammer": 0,
+        "plumeria": 0,
+        "team_flare_grunt": 0,
+        "team_yell_grunt": 0,
+        "handheld_fan": 0,
+        "enhanced_hammer": 0,
+        "has_named_tool_pressure": true,
+        "has_stadium_removal": true,
+        "can_remove_two_tools_one_action": true,
+        "can_sweep_all_tools": true,
+        "can_lost_zone_one_tool": false,
+        "can_suppress_active_tools": false,
+        "can_discard_energy_any_opponent_pokemon": false,
+        "can_discard_energy_from_opponent_active": false,
+        "can_return_opponent_energy_to_hand": false,
+        "can_transfer_attacker_energy_on_damage": false,
+        "has_special_energy_removal": true
+      }
     }
-  ]
+  ],
+  "candidate_pressure_summary": {
+    "source_decklist_sha": "source SHA recorded in benchmark.source_decklist_sha",
+    "known_exact_lists": 29,
+    "tool_pressure_ranks": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12,
+      13,
+      14,
+      19,
+      20,
+      21,
+      22,
+      24,
+      29,
+      30,
+      31,
+      32
+    ],
+    "stadium_removal_ranks": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12,
+      13,
+      14,
+      19,
+      20,
+      21,
+      22,
+      24,
+      29,
+      30,
+      31,
+      32
+    ],
+    "one_action_two_tool_removal_ranks": [
+      1,
+      5,
+      6,
+      7,
+      8,
+      12,
+      13,
+      14,
+      19,
+      20,
+      21,
+      22,
+      24,
+      29,
+      30,
+      31,
+      32
+    ],
+    "megaton_all_tool_sweep_ranks": [
+      6,
+      7,
+      12,
+      13,
+      14,
+      20,
+      21,
+      24,
+      29,
+      32
+    ],
+    "lost_zone_tool_ranks": [
+      2,
+      3,
+      6,
+      7,
+      10,
+      24,
+      29
+    ],
+    "tool_jammer_ranks": [
+      3,
+      6,
+      7,
+      24,
+      29
+    ],
+    "energy_disruption_ranks": {
+      "plumeria": [
+        2,
+        3,
+        6,
+        7,
+        9,
+        16,
+        24,
+        29
+      ],
+      "team_flare_grunt": [
+        3,
+        6,
+        7,
+        24,
+        29
+      ],
+      "team_yell_grunt": [
+        20
+      ],
+      "handheld_fan": [
+        6,
+        24,
+        29
+      ],
+      "special_energy_removal": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        10,
+        12,
+        13,
+        14,
+        20,
+        21,
+        22,
+        24,
+        29,
+        32
+      ]
+    },
+    "card_totals": {
+      "field_blower": {
+        "rank_count": 9,
+        "total_copies": 11
+      },
+      "megaton_blower": {
+        "rank_count": 10,
+        "total_copies": 10
+      },
+      "faba": {
+        "rank_count": 7,
+        "total_copies": 8
+      },
+      "tool_jammer": {
+        "rank_count": 5,
+        "total_copies": 5
+      },
+      "plumeria": {
+        "rank_count": 8,
+        "total_copies": 20
+      },
+      "team_flare_grunt": {
+        "rank_count": 5,
+        "total_copies": 9
+      },
+      "team_yell_grunt": {
+        "rank_count": 1,
+        "total_copies": 1
+      },
+      "handheld_fan": {
+        "rank_count": 3,
+        "total_copies": 4
+      },
+      "enhanced_hammer": {
+        "rank_count": 7,
+        "total_copies": 10
+      }
+    },
+    "missing_ranks_unknown": [
+      23,
+      25,
+      28
+    ],
+    "caveat": "Exact source-list counts only; no access, timing, playability, or matchup outcome is implied."
+  }
 }
