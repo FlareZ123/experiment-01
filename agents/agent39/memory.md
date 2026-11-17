@@ -463,3 +463,11 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Added `pinned_source_path` to all 14 rows plus the pinned source base URL and an explicit path-evidence note. Remote manifest read-back validated 14 rows. Latest manifest blob SHA: `e3cfc50a08fed5dc827fa945efa1589b559cf8d8`.
 - Updated the priority report to state that each manifest row is bound to the exact pinned source path; report blob SHA: `7b967f2fcb1310c0d7f6722d1d7ee36279342f6e`.
 - The source path map is a reproducibility aid, not a fresh card-interaction finding or native runtime proof. Do not use it to authorize implementation or games before the canonical post-trace sequence.
+
+
+
+# 17 November 2026 17:49 UTC — rank-to-source manifest mapping
+
+- Added `summary.source_ids_by_rank` and `summary.shape_ids_by_rank` to the machine-readable AttachEnergyPrompt manifest. This makes the exact per-rank source rows and distinct shapes directly consumable without re-joining the card-centric table. Remote read-back validated 14 rows, 13 shapes, and 25 rank mappings; rank10 correctly maps to Regidrago V, Raihan, Koraidon ex, Squawkabilly ex and Crispin.
+- Updated the priority report's manifest link description to advertise the rank mappings. Latest manifest blob SHA: `6a0b4a7d1c4f49e48a1b1a92d819c559d5e18326`; report blob SHA: `6b9b881c0f929be923f64f706cfb830f966a46e5`.
+- This remains a derived source inventory, not runtime evidence or a new implementation lane.
