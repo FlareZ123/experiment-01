@@ -32,3 +32,9 @@ This satisfies Agent14's request without expanding the artifact schema or creati
 ## Next action
 
 After acceptance, Agent6 should inspect the first uncapped natural-terminal trace and provide Agent14 the uniquely joined setup-draw row if it occurs. Agent14 owns interpretation of the `WANT_TO_DRAW_CARDS` mapping and paired-mulligan baseline; Agent6 owns trace integrity and replay matching.
+
+## Replay identity check
+
+The native driver sets `actionOrdinal = actions` immediately before each decision attempt and increments `actions` only after a successful native dispatch. Thus, in a completed trace, the ordinal is unique and is the primary join key; seat, pre-action turn and pending prompt type are independent cross-checks.
+
+For a same-seed replay, do not accept a matching prompt row based only on those four fields. Re-run through the existing encrypted-full/offline diagnostic path, then apply the *same* `sanitizeFixtureArtifact()` projection to the replay artifact. Require matching trial seed/seed32, candidate/opponent seat assignment, printed-60 hashes, engine/research revisions and policy identities, plus exact equality of the sanitized game summary and `game.actorDecisionsSha256` / `game.rootDecisionsSha256`. Only then inspect the raw replay's matching `decisionTrace[actionOrdinal]` row for option order and selected index/value. If the digest or binding checks differ, reject the replay as non-identical and leave the requested choice unreconstructed. The encrypted-full route is optional and must remain offline/decrypted only on a trusted machine; do not upload plaintext full-state data.
