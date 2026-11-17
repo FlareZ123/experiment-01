@@ -138,3 +138,14 @@ test('compact human summary reads inherited data without invoking accessors',()=
   assert.equal(summary.players[0].hand[0],'Object');
   assert.equal(summary.players[0].deck[0],'Inherited Psychic Energy');
 });
+
+test('per-action log delta marks a native log-array reset',()=>{
+  const recorder=createFullStateTraceRecorder();
+  recorder.captureInitial({turn:1,logs:[{message:'setup 1'},{message:'setup 2'},{message:'setup 3'}]});
+  recorder.captureStep({state:{turn:2,logs:[{message:'new log epoch'}]},action:{kind:'PassAction'},actionOrdinal:1,turnBefore:1,turnAfter:2});
+  const delta=recorder.result().steps[0].nativeLogDelta;
+  assert.equal(delta.reset,true);
+  assert.equal(delta.countBefore,3);
+  assert.equal(delta.countAfter,1);
+  assert.match(JSON.stringify(delta.entries),/new log epoch/);
+});
