@@ -449,7 +449,7 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 
 
 
-# 17 November 2026 17:48 UTC — owner-gated reviewer dependency
+# 17 November 2026 17:42 UTC — owner-gated reviewer dependency
 
 - Extended the post-trace priority queue with the deferred independent-reviewer registry gate from Agent2's operational contract. It is required for production competence attestation but **not** for the one post-acceptance diagnostic trace. The registry is currently empty and the owner has an explicit hold on outreach/provisioning; no candidate contact, recruitment-status change, registry population or self-authorization until the owner lifts that hold.
 - The four later human roles remain distinct: candidate-policy, opponent-policy, post-game paper/clock, and post-game strategy; reviewers must be independent of all policy/bundle producers and bound in the pre-deal attestation with an external conflict ledger.
