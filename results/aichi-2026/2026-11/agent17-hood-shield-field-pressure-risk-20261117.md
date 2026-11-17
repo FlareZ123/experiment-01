@@ -64,6 +64,17 @@ These cards are not interchangeable:
 
 Consequently, the candidate's Basic Psychic Energy is not protected from all named pressure merely because Enhanced Hammer cannot discard it. Plumeria, Team Flare Grunt, Team Yell Grunt and Handheld Fan create different ways to disrupt attached Energy, with different costs, targets and timing.
 
+## Tool-recovery boundary in the candidate 60
+
+The candidate has **no direct Item/Tool recovery from the discard pile**:
+- `Acerola` ×1 can return a damaged Pokémon and all cards attached to it to hand. This is the only conditional route in the list that can preserve/recover a Stealthy Hood, and only if the Hood is still attached when Acerola is played.
+- `Night Stretcher` ×1 returns a Pokémon or Basic Energy from the discard pile, not a Pokémon Tool.
+- `VS Seeker` ×2 returns a Supporter, not a Tool.
+- `Arven` ×1 searches an Item and a Tool from the deck; it cannot recover a Hood that has already been discarded or put in the Lost Zone.
+- `Forest Seal Stone` can search the deck, but it does not recover a Tool from the discard pile.
+
+Therefore, if Field Blower or Megaton Blower discards both Hoods, or Faba sends one to the Lost Zone, the candidate has no direct way to retrieve that Tool from that zone. Acerola is a pre-removal bounce line, not post-removal recovery. This makes the two-Hood count a finite resource; quantify the opportunity cost of using Acerola for Hood preservation versus healing/picking up an attacker in the later policy challenge suite.
+
 ## Coupled failure hypotheses to test
 
 1. **Hood removed or suppressed:** two Hoods are a finite protection budget. A Field Blower can remove up to two Tools; Megaton Blower removes all Tools; Faba can send one to the Lost Zone; Tool Jammer suppresses the Tool on the candidate's Active. Test the exact sequence and recovery rather than assuming the second Hood makes the lock durable.
