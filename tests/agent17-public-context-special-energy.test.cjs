@@ -19,14 +19,18 @@ const catalog={
 function slot(name,printing,cost,stage=1){
   return {name,printing,printed:{stage},energies:[],
     abilities:[],abilityDetails:[],abilitySuppressions:[],
+    publicRestrictions:{attackCostIncreaseNextTurn:0,
+      attackCostIncreaseWhileActive:0},
     attacks:[{name:'Payable eventually',cost,gxAttack:false}]};
 }
 function view(pokemon,hand,bench=[]){
   return {decisionKind:'owner-root',ownHand:hand,
     ownPublic:{active:pokemon,bench,stadium:[],prizeCount:6,
-      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0,
+        attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0}},
     opponentPublic:{active:null,bench:[],stadium:[],prizeCount:6,
-      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}}};
+      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0,
+        attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0}}};
 }
 
 test('exact flexible matching preserves one physical unit for two colors',()=>{
@@ -364,3 +368,73 @@ test('New Moon suppresses recipient Stadium effects only with a live ability rec
     psychic.attacks[0]),['P']);
 });
 
+
+
+test('unsupported per-Pokemon attack-cost increases fail closed',()=>{
+  for(const field of ['attackCostIncreaseNextTurn',
+    'attackCostIncreaseWhileActive']){
+    const active=slot('Pikachu','Pikachu UPR',[4]);
+    active.printed.types=[catalog.basicEnergyTypes.Lightning];
+    active.energies=['Unit Energy LPM UPR'];
+    const payable=view(active,[]);
+    assert.equal(publicSpecialAttackPayable(payable,catalog,active,
+      active.attacks[0]),true);
+    payable.ownPublic.active.publicRestrictions[field]=1;
+    assert.equal(effectivePublicAttackCost(payable,catalog,active,
+      active.attacks[0]),null);
+    assert.equal(publicSpecialAttackPayable(payable,catalog,active,
+      active.attacks[0]),false);
+
+    const attach=view(slot('Pikachu','Pikachu UPR',[4]),
+      ['Unit Energy LPM UPR']);
+    attach.ownPublic.active.printed.types=[
+      catalog.basicEnergyTypes.Lightning
+    ];
+    attach.ownPublic.active.publicRestrictions[field]=1;
+    assert.equal(choosePublicContextSpecialEnergy(attach,catalog),null);
+  }
+});
+
+test('active max-Energy attack restriction fails closed; expired metadata does not',()=>{
+  const active=slot('Pikachu','Pikachu UPR',[4]);
+  active.printed.types=[catalog.basicEnergyTypes.Lightning];
+  active.energies=['Unit Energy LPM UPR'];
+  const x=view(active,[]);
+  assert.equal(publicSpecialAttackPayable(x,catalog,active,
+    active.attacks[0]),true);
+
+  x.ownPublic.publicTurnRestrictions.attackMaxEnergy=1;
+  x.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
+  assert.equal(effectivePublicAttackCost(x,catalog,active,
+    active.attacks[0]),null);
+  assert.equal(publicSpecialAttackPayable(x,catalog,active,
+    active.attacks[0]),false);
+
+  const attach=view(slot('Pikachu','Pikachu UPR',[4]),
+    ['Unit Energy LPM UPR']);
+  attach.ownPublic.active.printed.types=[
+    catalog.basicEnergyTypes.Lightning
+  ];
+  attach.ownPublic.publicTurnRestrictions.attackMaxEnergy=1;
+  attach.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
+  assert.equal(choosePublicContextSpecialEnergy(attach,catalog),null);
+
+  x.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=0;
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,active,
+    active.attacks[0]),['L']);
+  assert.equal(publicSpecialAttackPayable(x,catalog,active,
+    active.attacks[0]),true);
+});
+
+test('missing public attack-cost metadata fails closed',()=>{
+  const active=slot('Pikachu','Pikachu UPR',[4]);
+  active.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const x=view(active,['Unit Energy LPM UPR']);
+  delete x.ownPublic.active.publicRestrictions.attackCostIncreaseNextTurn;
+  assert.equal(effectivePublicAttackCost(x,catalog,active,
+    active.attacks[0]),null);
+  x.ownPublic.active.publicRestrictions.attackCostIncreaseNextTurn=0;
+  delete x.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining;
+  assert.equal(effectivePublicAttackCost(x,catalog,active,
+    active.attacks[0]),null);
+});
