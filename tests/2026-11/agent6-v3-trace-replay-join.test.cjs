@@ -296,11 +296,37 @@ test('allows an absent resolved prompt only with native choice index and matchin
   assert.equal(result.targets[0].selectedDrawCount, 2);
 });
 
-test('supports zero-card choice when index, native option and hand delta agree', () => {
-  const result = run(safeArtifact(), rawReplay({ choiceIndex: 3, handAfter: 7 }));
-  assert.equal(result.status, 'reconstructed');
-  assert.equal(result.targets[0].selectedDrawCount, 0);
-  assert.equal(result.targets[0].handCountDelta, 0);
+test('maps maximum draw from choice index 0 across two, three and four native options', () => {
+  const cases = [
+    { values: ['Draw 1 card(s)', 'Draw 0 card(s)'], drawCount: 1 },
+    { values: ['Draw 2 card(s)', 'Draw 1 card(s)', 'Draw 0 card(s)'], drawCount: 2 },
+    { values: ['Draw 3 card(s)', 'Draw 2 card(s)', 'Draw 1 card(s)', 'Draw 0 card(s)'], drawCount: 3 }
+  ];
+  for (const item of cases) {
+    const replay = rawReplay({ choiceIndex: 0, handAfter: 7 + item.drawCount, values: item.values });
+    const result = run(sanitizeFixtureArtifact(replay), replay);
+    assert.equal(result.status, 'reconstructed');
+    assert.equal(result.targets[0].choiceIndex, 0);
+    assert.equal(result.targets[0].selectedDrawCount, item.drawCount);
+    assert.equal(result.targets[0].optionCounts.nativeValues, item.values.length);
+  }
+});
+
+test('maps the zero-draw last index across two, three and four native options', () => {
+  const cases = [
+    ['Draw 1 card(s)', 'Draw 0 card(s)'],
+    ['Draw 2 card(s)', 'Draw 1 card(s)', 'Draw 0 card(s)'],
+    ['Draw 3 card(s)', 'Draw 2 card(s)', 'Draw 1 card(s)', 'Draw 0 card(s)']
+  ];
+  for (const values of cases) {
+    const choiceIndex = values.length - 1;
+    const replay = rawReplay({ choiceIndex, handAfter: 7, values });
+    const result = run(sanitizeFixtureArtifact(replay), replay);
+    assert.equal(result.status, 'reconstructed');
+    assert.equal(result.targets[0].choiceIndex, choiceIndex);
+    assert.equal(result.targets[0].selectedDrawCount, 0);
+    assert.equal(result.targets[0].handCountDelta, 0);
+  }
 });
 
 test('does not reconstruct when native choice and hand delta disagree', () => {
@@ -315,10 +341,18 @@ test('rejects an out-of-range native choice index', () => {
     { code: 'TRACE_REPLAY_CHOICE_INDEX_INVALID' });
 });
 
-test('rejects a disabled native choice index', () => {
-  assert.throws(() => run(safeArtifact(), rawReplay({
-    choiceIndex: 1, handAfter: 9, disabled: [false, true, false, false]
-  })), { code: 'TRACE_REPLAY_CHOICE_INDEX_INVALID' });
+test('leaves a disabled selected native choice unresolved', () => {
+  const replay = rawReplay({ choiceIndex: 1, handAfter: 9, disabled: [false, true, false, false] });
+  const result = run(sanitizeFixtureArtifact(replay), replay);
+  assert.equal(result.status, 'choice-unresolved');
+  assert.equal(result.targets[0].selectedDrawCount, null);
+});
+
+test('rejects any disabled option even when the chosen original index is enabled', () => {
+  const replay = rawReplay({ choiceIndex: 1, handAfter: 9, disabled: [true, false, false, false] });
+  const result = run(sanitizeFixtureArtifact(replay), replay);
+  assert.equal(result.status, 'choice-unresolved');
+  assert.equal(result.targets[0].selectedDrawCount, null);
 });
 
 test('leaves the target unresolved when the native values are missing or not the exact source labels', () => {
