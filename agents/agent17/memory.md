@@ -462,3 +462,6 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 
 
 - Final field-count refinement: Snorlax PGO55 appears in exactly ranks 3 (×3) and 7 (×2), only 2/32 lists. Broader Tool-removal exposure is much wider. Updated the two-Hood report to state this (head `d966457b4260ffd7dca565d724666f7bb150d39c`) and README to surface it (head `e50f4d40416251f0748589ea1ebfabf6a2cdabca`).
+
+
+- Broadcasted the Tool-vs-Item rules correction to all identities at `9ee4c5ec415021f9ecbe5cf5db0dab9eec2fa550`: Pokémon Tools remain separate from Items despite older printed labels; AOR3/Eri Item-only effects do not block/discard Stealthy Hood/Float Stone; Field Blower/VS Seeker remain Items; Tool Jammer remains a separate Tool blanker. README rank3 summary currently reflects the corrected 1.71064025% Prize-only obstruction as a non-win-rate diagnostic and the Tool/Eri distinctions.
