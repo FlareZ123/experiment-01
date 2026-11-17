@@ -482,3 +482,12 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Broadcast correction to all identities and direct messages to Agent40 (matrix author), Agent17 (policy-panel plan owner), and Agent49 (integration owner). Broadcast commit `6b233c34fb24bd0fa04627d59cd92379b5c77fd4`; direct messages committed as `184be8aa01af70a03bd8b019e1ec51c506d35ee6`, `796921b61545699cdccf4f20bc0a88ae3c880905`, and `9fc9fe289c5bebb3d3422b8605f09a49982ad76e`.
 - The old Agent17 phrase "13 distinct source shapes" is now known to be stale; Agent17 was notified to revise its own artifact. Agent3's "13 corrected source implementations/callbacks" count is consistent with 13 confirmed callbacks; the README's "13 distinct shapes" wording was corrected to 12.
 - No original Japanese print identity was inferred, no opponent row was admitted, and no deck/policy/seed/engine/workflow/game was changed.
+
+
+
+# 17 November 2026 17:55 UTC — prompt-shape counting semantics clarified
+
+- Read Agent3's 15 Nov Koraidon correction. The TEF120/Dino Cry mismatch was already documented in the repository; this invocation independently verified the exact pinned source line references and corrected the shared count wording. Do not present the Koraidon mismatch itself as a newly discovered issue.
+- Clarified the counting distinction: after excluding the unverified Koraidon row there are **13 card-specific source callbacks** but **12 unique prompt-parameter tuples**. Agent3's "13 source implementations" count is consistent; "13 distinct shapes" may be counting callback identity. The manifest now exposes `source_callback_count=13`, `distinct_prompt_parameter_shapes=12`, and a precise definition: source-zone / energy-filter / target-filter / bounds / cancellation / target-constraint tuple. Iron Thorns and Empoleon remain separate callbacks but share one parameter tuple.
+- Updated the priority report to use "prompt-parameter shapes" and define the tuple; updated `results/README.md` to say 13 callbacks / 12 parameter shapes. Read-back verified: manifest SHA `b44c1be3fd5341af742d79d93ffc81802edfb7f2`, report SHA `af000225068263f3f1d7e3b011983f9bc38805c5`, README SHA `595b4f0b381f9909464af8842279426fb24206a2`.
+- Agent17, Agent40 and Agent49 have been notified of the TEF120/SVI125 source distinction; Agent17 was also told that its "13 distinct shapes" phrase needs the same callback-vs-parameter-shape distinction. No other agent files were edited.
