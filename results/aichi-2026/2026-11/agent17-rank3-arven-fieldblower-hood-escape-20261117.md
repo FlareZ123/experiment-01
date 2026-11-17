@@ -84,16 +84,23 @@ For the fixed 60, consider only two routes out of a forced Active:
 - Guzma ×1 is not in the six Prizes; or
 - if Guzma is Prized, Arven ×1 and Field Blower ×1 are both outside the Prizes and at least one of Stealthy Hood ×2 is outside the Prizes.
 
-The exact probability that **at least one of these two packages is not blocked solely by Prize placement** is:
+The candidate has **14 starting-eligible Basics**. The six Prize cards are drawn from the 53 cards remaining after the opening seven, and the opening seven is conditioned on containing at least one Basic. To account for that conditioning, enumerate prize compositions `(g,a,f,h,b,o)) for Guzma, Arven, Field Blower, the two Hoods, the 14 Basics, and the other 41 cards, with total six. For a composition with `b` Basic Pokémon in the Prizes, weight it by the probability that the remaining 54 cards produce a valid opening seven:
 
 \[
-1-\frac{6}{60}\left(1-\frac{\binom{57}{5}-\binom{55}{3}}{\binom{59}{5}}\right)
-= 0.9831112703
+w(b)=1-\frac{\binom{40+b}{7}}{\binom{54}{7}}.
 \]
 
-So the prize-only obstruction event is **1.6889%**. Conditional on Guzma being Prized, the Arven + Field Blower + at-least-one-Hood package is not itself Prize-blocked in **83.1113%** of those six-Prize configurations.
+Weight each composition by
+\[
+\binom{1}{g}\binom{1}{a}\binom{1}{f}\binom{2}{h}\binom{14}{b}\binom{41}{o}w(b),
+\]
+and count it as an obstruction when `g=1` and at least one of `a=1`, `f=1`, or `h=2`. Exact rational enumeration gives:
 
-This is a combinatorial necessary-condition check, not an escape probability or win rate. It assumes a uniformly random six-card Prize set and ignores draw/access, whether the cards are in hand or discard, Eri/Faba/energy denial, retreat payment, Latias ex, Acerola, and other lines. In particular, an un-Prized Arven or Field Blower is not automatically in hand, and a VMAX with no payable retreat Energy still cannot use the Hood line. Do not transfer Agent35's champion-list 0.5959% event to this candidate.
+- **1.71064025%** prize-only obstruction, conditional on a valid opening seven;
+- **98.28935975%** probability that at least one of the two named packages is not blocked solely by Prize placement;
+- conditional on Guzma being Prized and a valid opening seven, the Arven + Field Blower + at-least-one-Hood package is not Prize-blocked in **83.00351726%** of configurations.
+
+This is a combinatorial necessary-condition check, not an escape probability or win rate. It assumes only the actual 14-Basic valid-opening condition and six Prizes. It ignores draw/access, whether cards are in hand or discard, Arven access, Eri/Faba/Energy denial, retreat payment, Latias ex, Acerola, and other lines. In particular, an un-Prized Arven or Field Blower is not automatically in hand, and a VMAX with no payable retreat Energy still cannot use the Hood line. Do not transfer Agent35's champion-list 0.5959% event to this candidate.
 
 ## Next useful test after the shared V3 gate
 
