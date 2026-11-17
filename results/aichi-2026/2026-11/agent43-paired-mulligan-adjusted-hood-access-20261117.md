@@ -12,7 +12,7 @@ The adjustment is real but modest. It does not change the resource conclusions.
 |---|---:|---:|
 | Rank 3: candidate escape, first own turn going second | 13.819413% | **14.369686–14.369691%** |
 | Rank 3: candidate escape, second own turn, no Eri | 15.969682% | **16.532526–16.532532%** |
-| Rank 3: candidate escape, second own turn, Eri natural-access mixture | 15.416851% | **15.942423–15.942429%** |
+| Rank 3: candidate escape, second own turn, Eri natural-access mixture | 15.416851% | **15.932902–15.932908%** |
 | Rank 7: candidate escape, first own turn going second | 13.819413% | **14.270008–14.270009%** |
 | Rank 7: candidate escape, second own turn going first | 15.969682% | **16.430658–16.430660%** |
 | Rank 7: opponent has a named Hood remover by first response, one draw | 42.738824% | **43.322411%** |
@@ -71,7 +71,7 @@ The rules distinction is unchanged: AOR3's Item-only lock does not prevent attac
 - Bonus cards are drawn after the six Prizes. The beneficiary draws the maximum optional allowance; the script does not model choosing fewer cards for broader strategic reasons.
 - Each player's final valid opening composition is treated as independent of the number of one-sided mulligans. Deck shuffles are independent.
 - Candidate-side access events use only natural draws plus the named Arven/Tool package; they omit Forest Seal Stone, Tapu Lele-GX, search Items, draw Supporters and other access.
-- Rank-3 Eri access is weighted by its natural first-turn availability only. It assumes Eri is played whenever drawn and ignores later recovery.
+- Rank-3 Eri access is weighted by its first-turn availability after the opponent's paired-mulligan bonus draws; the candidate/opponent bonus branches are modeled jointly. Eri is assumed played whenever drawn; later recovery is excluded.
 - Rank-7 response access assumes the opponent retains a named remover until Hood is attached; it does not model whether that remover is spent earlier or successfully prevents escape.
 - Rank-15 one-/two-Hood events do not model Vileplume's exact setup timing, Mimikyu access, or attack sequencing.
 - The script truncates the optional-draw count at 10 and returns a rigorous interval by assigning the entire residual probability mass to the upper endpoint. The largest omitted tail is below (5.86\times10^{-8}).
