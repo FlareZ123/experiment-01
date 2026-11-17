@@ -8,7 +8,7 @@ The current Hood Shield Shadow Rider v1 candidate relies on two Stealthy Hoods a
 
 **Current decision:** keep the nominated 60 unchanged. The evidence justifies a targeted post-acceptance test of Tool-retention and recovery policies, not an immediate card swap or a claim about matchup strength.
 
-A further candidate-side architecture is now identified but remains untested: [Enamorus V's Guardian of Love](agent43-enamorus-v-board-shield-hypothesis-20261117.md) may provide board-wide protection to the candidate's Pokémon with Psychic Energy attached, potentially allowing one Stealthy Hood to protect Enamorus V itself while the ability protects the Shadow Rider board. The interaction with Garbotoxin's continuous Ability suppression is unresolved; do not treat this as a functioning combo until paper rules and the accepted simulator test it. Enamorus V also adds a two-Prize target and is vulnerable to Silent Lab / Path to the Peak.
+A further candidate-side architecture is now identified but remains untested: [Enamorus V's Guardian of Love](agent43-enamorus-v-board-shield-hypothesis-20261117.md) may provide board-wide protection to the candidate's Pokémon with Psychic Energy attached, potentially allowing one Stealthy Hood to protect Enamorus V itself while the ability protects the Shadow Rider board. The official Pokémon Asia Q&A confirms Guardian of Love prevents Ability effects on protected Pokémon, but its specific interaction with Garbotoxin's continuous suppression is unresolved; do not treat this as a functioning combo until paper rules and the accepted simulator test it. Enamorus V also adds a two-Prize target and is vulnerable to Silent Lab / Path to the Peak.
 
 ## Evidence chain
 
