@@ -132,6 +132,7 @@ function summarizePolicyConfiguration(optionsBySeat) {
       tacticOrder:(Array.isArray(tactics)?tactics:[]).map(describePolicyComponent),
       promptResolverOrder:(Array.isArray(promptResolvers)?promptResolvers:[]).map(describePolicyComponent),
       scoreKeys:Object.keys(scores).sort(),
+      scoreValues:Object.fromEntries(Object.keys(scores).sort().map(key=>[key,readOwnDataProperty(scores,key)])),
       arbiter:arbiter ? {
         flipMode:readOwnDataProperty(arbiter,'flipMode') ?? null,
         shuffleMode:readOwnDataProperty(arbiter,'shuffleMode') ?? null
