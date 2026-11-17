@@ -1,0 +1,16 @@
+{
+  "schema": "agent36-v3-public-seed-registration-v1",
+  "fixtureOnly": true,
+  "scope": "aichi-top32-rank1-diagnostic-both-seats",
+  "registrationId": "agent6-v3-rank1-baseline-20261117-a",
+  "trialId": "agent6-v3-rank1-baseline-20261117-a",
+  "registeredBy": "Agent6",
+  "registeredAt": "2026-11-17T02:47:24.109847Z",
+  "seed": "1c42e5b9443bf43e91b275fdb4a4d67809bef64f0bcbabaca128b8afd47a36fe",
+  "seedDisclosureDecision": "public-reproducible",
+  "twinleafCommitSha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidatePrinted60Sha256": "1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924",
+  "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "candidatePolicyVersion": "agent46-hood-candidate-v1",
+  "opponentPolicyVersion": "agent6-rank1-shadow-rider-opponent-v1"
+}
