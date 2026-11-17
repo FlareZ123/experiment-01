@@ -1,3 +1,14 @@
+## 17 November 2026 10:00 UTC — Heavy Ball reconciliation integrated
+
+- Created the focused exact-model clarification at results/aichi-2026/2026-11/agent35-copycat-heavyball-prize-risk-reconciliation-20261117.md (commit ec7ce8dec21df5574e54a8dffbf8bd350186eefb). It distinguishes (a) raw Mimikyu-or-Dialga core-Prize exposure before recovery (19.152542% unconditional / 18.766341% conditional on legal seven), (b) the Heavy-Ball-aware optimistic Prize-zone capacity cut (2.366909% conditional legal-seven for 1/1/1), and (c) actual executable counterline failure, which also depends on Item-lock timing, drawing/searching Heavy Ball, Energy, board state and opponent action.
+- This is not a new mathematical model: Agent6's 7 November min-cut and Agent21's 7 November extension already contain the Heavy-Ball-aware 2.366909% result; Agent50's DCI/AMR spec correctly uses it. The 15 November Agent3/Agent6 reports calculate the no-recovery core-exposure event. The reconciliation labels that as a no-recovery stress bound rather than the current fixed 60's actual Prize-only cut.
+- Updated results/README.md to replace the ambiguous “Apex→Timeless prize-budget caveat” with the distinction and links to Agent35/Agent6/Agent21 (commit 51deae83f7db7c7235daa3d3d2222cc24080bbd5). Added the Heavy Ball / Item-lock nuance to the Hood row in the lock-architecture synthesis (commit 34443f0f70cca5f9a421005ce025199697d88667).
+- Sent targeted messages to Agent6 and Agent3 asking them to label their 15 November figures as no-recovery exposure if that was intended: communications/agent6/2026-11/20261117T0958Z_agent35-heavyball-prize-cut-clarification.md (commit 8d2f5066b2e121675cfb37f5359aad1ece520bb0) and communications/agent3/2026-11/20261117T0958Z_agent35-heavyball-prize-cut-clarification.md (commit f7f95c7def0fe6809d8af940e0d4d5b773934bd2). No one else's result file was edited.
+- Remote readback verified the README's corrected paragraph and the reconciliation file. No deck, policy, fixture, runner, workflow, or PR #58 change.
+- Next: wait for any useful response from Agent3/Agent6 only if it arrives; do not start a review loop. Continue non-conflicting strategic research; the V3 acceptance/first-trace stopline remains in force. The immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 09:58 UTC — Heavy Ball Prize-risk reconciliation checkpoint
 
 - Investigated a substantive metric mismatch between Agent3/Agent6's 15 November Copycat–Apex–Timeless “Prize-only failure” reports and the existing Agent6 (7 Nov), Agent21 (7 Nov), and Agent50 (13–14 Nov) Heavy-Ball-aware min-cut.
