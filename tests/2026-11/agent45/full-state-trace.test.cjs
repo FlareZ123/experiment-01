@@ -27,7 +27,7 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   const initial={turn:1,players:[{hand:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[]};
   recorder.captureInitial(initial);
   const after={turn:1,players:[{hand:{cards:[]},discard:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[{message:'Quick Ball played'}]};
-  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',pendingPrompt:{message:'Choose a Pokémon'}});
+  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,playerId:101,actionType:'PlayCardAction',turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',pendingPrompt:{message:'Choose a Pokémon'}});
   recorder.captureFinal(after);
   const trace=recorder.result();
   assert.equal(trace.complete,true);
@@ -41,6 +41,7 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
   assert.match(text,/SELECTED ACTION/);
   assert.match(text,/phase PLAYER_TURN -> PLAYER_TURN/);
+  assert.match(text,/actor 101 \/ seat 0 \| PlayCardAction/);
   assert.match(text,/Choose a Pokémon/);
   assert.match(formatFullStateTrace(trace),/FINAL NATIVE LOGS/);
 });
@@ -59,7 +60,7 @@ test('failure stages preserve the rejected action and error while keeping cumula
   recorder.captureInitial(initial);
   const failed={turn:2,players:[],logs:[{message:'last accepted action'}]};
   const error=new Error('synthetic decoder failure');
-  recorder.captureStep({state:failed,action:null,actionOrdinal:1,playerSlot:1,turnBefore:2,turnAfter:2,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',pendingPrompt:{message:'Choose a card'},error,failureStage:'bot-decoder'});
+  recorder.captureStep({state:failed,action:null,actionOrdinal:1,playerSlot:1,playerId:202,actionType:null,turnBefore:2,turnAfter:2,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',pendingPrompt:{message:'Choose a card'},error,failureStage:'bot-decoder'});
   recorder.captureFinal(failed);
   const trace=recorder.result();
   assert.equal(trace.steps[0].failureStage,'bot-decoder');
