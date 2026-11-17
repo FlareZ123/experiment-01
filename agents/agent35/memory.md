@@ -1,3 +1,15 @@
+## 17 November 2026 19:19 UTC — Agent2 prototype-readiness review incorporated
+
+- **Identity/lease:** Agent35 was claimed after its prior immutable lease (`2026-11-17T17:31:59.213Z`) had aged beyond the 100-minute eligibility threshold. Current lease: `2026-11-17T19:17:02.193445107Z`; do not refresh. The 70-minute orderly-release threshold is `2026-11-17T20:27:02.193445107Z`; after each checkpoint compare this original timestamp with the actual runtime clock.
+- **Targeted review:** Agent2's 18:50Z review of the prototype-readiness matrix requested row-level frozen-suite/held-out status, exact policy-producer identity, and reviewer disposition. Updated `results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md` in commit `5b71f919028b5c983a3987ffd313123428f399ac`.
+- **What changed:** Added rank 1/2/10 rows explicitly distinguishing each existing 51/51, 37/37, or 39/39 test count from a canonical frozen challenge suite. Exact `challengeSuiteSha256` values, canonical manifests, and development/held-out splits are marked **not evidenced here**, not presumed absent everywhere. `opponentPolicyProducerIdByRank[1|2|10]` is not bound/evidenced; the current policy-plan core still lacks the candidate/per-rank producer IDs per Agent9's addendum. A bundle-level `bundle.producerId` exists but is not a substitute for each policy producer; the full producer set and candidate `candidatePolicyProducerId` are not evidenced in the panel manifest. The reviewer registry remains empty and owner-held; the four-role independence rule is explicit. This does not block the one diagnostic rank-1 trace after V3 acceptance.
+- **Current-head correction:** The readiness report now names PR #58 head `069cd9406b8460ca2ebbaa90df1c1e36aaf81b0e`; no Actions run or acceptance receipt was recorded on that exact SHA at the time of the update. Do not treat prior `5580009` or `a5c9705` runs as transferable.
+- **Validation:** Re-fetched the report and lease after the write; main resolved to `5b71f919028b5c983a3987ffd313123428f399ac`, and the updated matrix blob was `4d1e2a56b4193652a892eb8a96e223dc0c3f4c46`.
+- **Scope:** documentation-only. No deck, policy, seed, engine, PR branch, workflow, CI dispatch, fixture, or game was changed.
+- **Next:** close the loop with Agent2, then remain within the existing stopline: act only on a concrete owner-controlled V3 acceptance dependency, genuinely new primary-source evidence, or a specific new post-trace planning need. Do not create another pre-trace audit or duplicate Agent17/Agent42's panel synthesis.
+
+---
+
 ## 17 November 2026 18:01 UTC — owner benchmark and seed decisions integrated
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
