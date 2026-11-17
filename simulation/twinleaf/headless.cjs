@@ -59,7 +59,7 @@ const {installTerminalAttackKoBeforeEndTurnHook} =
 const {installApexPrizeWindowPolicy} = require('./apex-prize-headless-policy.cjs');
 const {publicSnapshot, observeTerminalTransition, advanceActionLineage} = require('./terminal-transition.cjs');
 const {publicBoardSnapshot} = require('./public-board-telemetry.cjs');
-const {createFullStateTraceRecorder,formatFullStateTrace,summarizePolicyConfiguration} = require('./2026-11/agent45/full-state-trace.cjs');
+const {createFullStateTraceRecorder,formatFullStateTrace,summarizePolicyConfiguration,summarizeNativeStateForText} = require('./2026-11/agent45/full-state-trace.cjs');
 const {printedBasicEnergyAudit} = require('./printed-basic-energy-audit.cjs');
 const {inspectTmEvolutionPass} = require('./tm-evolution-pass-evidence.cjs');
 const {probeEvolutionAnnouncement} = require('./tm-evolution-announcement-probe.cjs');
@@ -1057,6 +1057,7 @@ function runMatch(request) {
       }) : null;
     let fullStateTraceCaptureError=null;
     let fullStateTracePublicBoardError=null;
+    let fullStateTraceHumanSummaryError=null;
     function captureTracePublicBoard(state) {
       if(!fullStateTraceRecorder || fullStateTracePublicBoardError) return null;
       try { return publicBoardSnapshot(state); }
@@ -1065,9 +1066,19 @@ function runMatch(request) {
         return null;
       }
     }
+    function captureTraceHumanSummary(state,publicBoard) {
+      if(!fullStateTraceRecorder || fullStateTraceHumanSummaryError) return null;
+      try { return summarizeNativeStateForText(state,publicBoard); }
+      catch(error) {
+        fullStateTraceHumanSummaryError=String(error?.message??error);
+        return null;
+      }
+    }
     function recordFullStateStep(args) {
       if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
-      try { fullStateTraceRecorder.captureStep(args); }
+      const publicBoard=captureTracePublicBoard(args.state);
+      const humanSummary=captureTraceHumanSummary(args.state,publicBoard);
+      try { fullStateTraceRecorder.captureStep({...args,publicBoard,humanSummary}); }
       catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
     }
     function finalizeFullStateTrace(state,targetError=null) {
@@ -1082,6 +1093,7 @@ function runMatch(request) {
             trace.captureError=fullStateTraceCaptureError;
           }
           if(fullStateTracePublicBoardError) trace.publicBoardError=fullStateTracePublicBoardError;
+          if(fullStateTraceHumanSummaryError) trace.humanSummaryError=fullStateTraceHumanSummaryError;
           targetError.fullStateTrace=trace;
           targetError.fullStateTraceText=formatFullStateTrace(trace);
           if(fullStateTraceCaptureError)
@@ -1168,8 +1180,11 @@ function runMatch(request) {
     let actionLineage = null;
     const knowledgeEvents = request.bunnelbyObservedK1 === true ? [] : null;
     if(fullStateTraceRecorder) {
-      try { fullStateTraceRecorder.captureInitial(store.state,captureTracePublicBoard(store.state)); }
-      catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
+      try {
+        const initialPublicBoard=captureTracePublicBoard(store.state);
+        const initialHumanSummary=captureTraceHumanSummary(store.state,initialPublicBoard);
+        fullStateTraceRecorder.captureInitial(store.state,initialPublicBoard,initialHumanSummary);
+      } catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
     }
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
       const state = store.state;
@@ -1305,7 +1320,7 @@ function runMatch(request) {
         if(fullStateTraceRecorder) recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
           playerId:state.players[failedSeatForTrace]?.id??null,actionType:null,
-          publicBoard:captureTracePublicBoard(state),turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+          turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
           phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'bot-decoder'
         });
         finalizeFullStateTrace(state,error);
@@ -1409,7 +1424,7 @@ function runMatch(request) {
           if(fullStateTraceRecorder) recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
             playerId:state.players[actingSeatForTrace]?.id??null,
-            actionType:action?.constructor?.name??null,publicBoard:captureTracePublicBoard(state),
+            actionType:action?.constructor?.name??null,
             turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
             phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'prompt-validation'
           });
@@ -1647,7 +1662,7 @@ function runMatch(request) {
         if(fullStateTraceRecorder) recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
+          turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending
         });
       } catch (error) {
@@ -1657,7 +1672,7 @@ function runMatch(request) {
         if(fullStateTraceRecorder) recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
+          turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending,error,
           failureStage:'store-dispatch'
         });
@@ -2013,6 +2028,8 @@ function runMatch(request) {
     }
     if(fullStateTraceResult && fullStateTracePublicBoardError)
       fullStateTraceResult.publicBoardError=fullStateTracePublicBoardError;
+    if(fullStateTraceResult && fullStateTraceHumanSummaryError)
+      fullStateTraceResult.humanSummaryError=fullStateTraceHumanSummaryError;
     return {
       label: request.label || '',
       seed: request.seed,
@@ -2046,7 +2063,8 @@ function runMatch(request) {
         fullStateTrace:fullStateTraceResult,
         fullStateTraceText:formatFullStateTrace(fullStateTraceResult),
         fullStateTraceCaptureError,
-        fullStateTracePublicBoardError
+        fullStateTracePublicBoardError,
+        fullStateTraceHumanSummaryError
       }:{}),
       ...(firstLiveOwnerHandsObserver?{
         firstLiveOwnerHands:firstLiveOwnerHandsObserver.result()
