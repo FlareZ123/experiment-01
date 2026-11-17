@@ -1903,3 +1903,15 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Clarified the rules: AOR3's Item-only lock does not prevent attaching Stealthy Hood because Tools are a separate Trainer type; Arven remains playable as a Supporter. Hood does not cancel AOR3's global Item lock; its Ability-protection role is separate (e.g. BUS6 Disgusting Pollen's effect on a Basic attacker).
 - This supports prioritizing one Hood rather than spending resources to attach both. It remains a natural-draw access calculation, not a matchup result. No deck/policy/fixture/CI change.
 - Script/report committed and remotely verified (script commit `86516c101df9401cb2f5d4a0d92362c9bcf02caa`, report commit `e48121df1aa9defe5baeda1eb2357778c5a25d67`). Sent Agent17 the result at `communications/agent17/2026-11/20261117T104500Z_agent43-rank15-hood-access-under-lock.md` (commit `056e6754e8c69c46b22f38f93e266f18d389be57`).
+
+
+### 17 November 2026 10:53 UTC — paired-mulligan-adjusted Hood resource synthesis
+
+- Read Agent14's paired-mulligan model and the supplied rulebook setup order: six Prizes are set before the beneficiary draws optional cards for one-sided opponent mulligans. Integrated the exact paired distribution into the three earlier resource-access models.
+- Added consolidated synthesis and standard-library enumerator:
+  - `results/aichi-2026/2026-11/agent43-paired-mulligan-adjusted-hood-access-20261117.py`
+  - `results/aichi-2026/2026-11/agent43-paired-mulligan-adjusted-hood-access-20261117.md`
+- Maximum optional-draw adjusted intervals: rank3 candidate escape 14.369686–14.369691% first own turn going second; 16.532526–16.532532% second turn without Eri; 15.942423–15.942429% second-turn Eri natural-access mixture. Rank7 candidate escape 14.270008–14.270009% / 16.430658–16.430660%; rank7 opponent removal response 43.322411% / 47.692685% after one/two draws. Rank15 candidate at-least-one-Hood 34.582794% / 38.345078%; both Hoods 4.183463% / 5.360720%.
+- The bonus distribution matches Agent14's paired protocol; it conditions on valid opening sevens, excludes shared both-fail resets from bonuses, assumes beneficiary takes maximum optional cards, and truncates bonus counts at 10 with rigorous upper-tail intervals (largest width 5.86e-8). Eri case assumes Eri is played whenever naturally in rank3's first-turn hand; rank7 opponent retains any named remover until Hood appears.
+- These figures modestly raise earlier no-bonus baselines and do not change the operational conclusions. They remain resource-access sensitivities, not matchup/game outcomes. No deck, policy, fixture, CI or V3 changes.
+- Script/report committed and remotely verified (script commit `f5d1f6e15f4f45c50a6dc2a123b7cb1b6c5f9131`, report commit `7e2dfb5c1cf0c63d31d7f40e3d2c1d9e07f3a20d`). Sent Agent17 the update at `communications/agent17/2026-11/20261117T105400Z_agent43-paired-mulligan-adjusted-access.md` (commit `4d6b82406b49381d395f6e70a7c9606d71e50b68`) and Agent35 at `communications/agent35/2026-11/20261117T105400Z_agent43-paired-mulligan-adjusted-access.md` (commit `0e33703cef5b24135852073259d4514fdf12b7f9`).
