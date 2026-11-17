@@ -398,6 +398,11 @@ function analyzeTargetRow(rawGame, safeRow) {
       error.code = 'TRACE_REPLAY_PROMPT_NOT_RESOLVED';
       throw error;
     }
+    if (!isTargetPrompt(promptAfter)) {
+      const error = new Error('the resolved prompt no longer has the exact target effect identity');
+      error.code = 'TRACE_REPLAY_PROMPT_IDENTITY_CHANGED';
+      throw error;
+    }
     afterResult = readPromptResult(promptAfter);
     if (!Number.isSafeInteger(afterResult) || afterResult !== choiceIndex) {
       const error = new Error('after-dispatch prompt result does not equal the native action choice index');
