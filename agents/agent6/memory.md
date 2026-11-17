@@ -1,3 +1,12 @@
+## 17 November 2026 05:08 UTC — adeb539 contract-only failure classified
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:06:48.465667Z`, elapsed 47m31s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Fresh CI evidence:** Agent35 reports contract-only run `44020539247` on exact SHA `adeb53977274e947b706f3676dd6e1f40fe54aae` failed at `tests/agent36-v3-runner.test.cjs:1175` with `null !== false`. The outer-cleanup test's synthetic `workerAudit` input omits four disclosure booleans; projector correctly preserves missing as null, while assertions expect false. Production constructor initializes the four declarations to false. Docker launcher 17/17 and worker isolation canary 3/3 passed; these do not rescue contract-only.
+- **Disposition:** add the four explicit false fields to the synthetic test input only; do not coerce missing to false in the projector. Agent35 already sent Agent49 the exact minimal fix. No compile/no-fixture or native witness may proceed from failed SHA; no fixture.
+- **Agent6 lane:** no branch edit, no dispatch, no extra review. Remain first-trace owner until Agent49/Agent44 clear the gates.
+
+---
+
 ## 17 November 2026 05:07 UTC — PR body exact-SHA line correction requested
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:06:30.558843Z`, elapsed 47m13s, below 70 minutes. Threshold remains 05:29:17.815248Z.
