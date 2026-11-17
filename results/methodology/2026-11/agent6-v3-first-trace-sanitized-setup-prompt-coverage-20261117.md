@@ -73,14 +73,17 @@ Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) h
 
 The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 39 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
 
-The CLI now accepts the original sanitized artifact, the offline-decrypted raw replay, and the exact sanitizer module from the replay's research checkout:
+The CLI now accepts the original sanitized artifact, the original run's offline-decrypted raw artifact, the replay run's offline-decrypted raw artifact, and the exact sanitizer module from their shared research checkout:
 
     node simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs \\
       path/to/original-sanitized-artifact.json \\
-      path/to/offline-decrypted-replay.json \\
-      exact-replay-checkout/simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
+      path/to/original-decrypted-raw-fixture-game.json \\
+      path/to/replay-decrypted-raw-fixture-game.json \\
+      exact-research-checkout/simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
 
-The helper no longer accepts an independently supplied replay-sanitized file. It loads the exact `sanitizeFixtureArtifact` export and recomputes the replay projection directly from the supplied raw replay before comparing the complete sanitized public artifact with the original. It also recomputes the canonical SHA-256 of the complete raw native `decisionTrace` (including unsanitized action payloads) and requires it to equal the native game digest, raw trial digest, replay-sanitized trial digest, and original sanitized trial digest. This prevents changing `actionPayload.fields.result` while leaving the lossy sanitized projection unchanged. The CLI requires the sanitizer's exact repository-relative path, checks that checkout `HEAD` equals `raw.engine.researchRevisionSha`, checks the raw trial research revision and vendor/Twinleaf pin, and verifies that the sanitizer file's working-tree blob equals its committed blob. Thus neither a separately supplied sanitized artifact nor a modified raw action payload can be silently paired with the trace.
+The workflow uploads the raw fixture only as `fixture-game.private.enc.json` (the plaintext `fixture-game.json` is excluded); decrypt both original and replay private artifacts offline using the established envelope procedure. Do not synthesize either raw input from the public manifest.
+
+The helper no longer accepts an independently supplied replay-sanitized file. It loads the exact `sanitizeFixtureArtifact` export and recomputes the sanitized projection from **both** original raw and replay raw artifacts. It requires the recomputed original projection to equal the supplied original sanitized artifact, and the recomputed replay projection to equal that same original artifact. Because the sanitizer intentionally omits raw action payloads and the public sanitized trial does not retain the native trace digest, the helper separately recomputes the canonical SHA-256 of each complete raw native `decisionTrace` and checks it against that raw artifact's `nativeGame.decisionTraceSha256` and `trial.decisionTraceSha256`; it then requires the original and replay raw trace digests to be identical. This binds `actionPayload.fields.result` and the complete prompt snapshots even though they are absent from the lossy sanitized projection. The CLI verifies the sanitizer's exact repository-relative path, checks checkout `HEAD` equals each raw artifact's `engine.researchRevisionSha`, checks each raw trial research revision and vendor/Twinleaf pin, and verifies the sanitizer file's working-tree blob equals its committed blob.
 
 For the setup-draw lens, the corrected joiner:
 
