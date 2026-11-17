@@ -337,6 +337,14 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     const logs=safeDataProperty(state,'logs');
     nativeLogs=snapshotFullState(Array.isArray(logs)?logs:[],limits);
   }
+  function canCaptureStep() {
+    if (stepLimitExceeded) return false;
+    if (steps.length >= maxSteps) {
+      stepLimitExceeded=true;
+      return false;
+    }
+    return true;
+  }
   function result() {
     return {
       schema:TRACE_SCHEMA,label,seed,
@@ -362,6 +370,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     captureInitial,
     captureStep,
     captureFinal,
+    canCaptureStep,
     result,
     text:()=>formatFullStateTrace(result())
   };
