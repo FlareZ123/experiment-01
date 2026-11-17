@@ -190,6 +190,7 @@ function formatFullStateTrace(trace) {
     '=== PER-SEAT POLICY CONFIGURATION ===',
     JSON.stringify(trace.policyConfiguration,null,2),
     'complete: '+(trace.complete === true),
+    'capture error: '+(trace.captureError || ''),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
     '=== INITIAL NATIVE STATE ===',
