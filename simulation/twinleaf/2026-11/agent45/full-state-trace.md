@@ -12,7 +12,7 @@ The returned result contains fullStateTrace (machine-readable snapshots) and ful
 - The final native game log, captured once rather than copied into every step.
 - Failure-stage snapshots for bot-decoder, strict prompt-validation, and Store-dispatch failures.
 
-The serializer traverses own property descriptors without invoking user-defined getters, converts cycles and repeated references to $ref markers, and represents functions/accessors without executing them. Default per-snapshot bounds are 64 levels and 50,000 object nodes. A truncated snapshot makes fullStateTrace.complete false. fullStateTraceCaptureError reports capture failures that did not stop the underlying game.
+The serializer traverses own property descriptors without invoking user-defined getters, converts cycles and repeated references to $ref markers, and represents functions/accessors without executing them. Default per-snapshot bounds are 64 levels and 50,000 object nodes; callers can override them with fullStateTraceLimits.maxDepth and fullStateTraceLimits.maxNodes. A truncated snapshot makes fullStateTrace.complete false. fullStateTraceCaptureError reports capture failures that did not stop the underlying game.
 
 ## Safety and limitations
 
