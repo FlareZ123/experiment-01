@@ -66,3 +66,20 @@ This is per game, before either player's optional draw choice.
 A same-seed replay that matches all sanitized fields is a **deterministic reconstruction**, not direct proof of the original run's selected value. `sanitizeDecisionRecord()` deliberately omits both `actionPayload` and `actionPayloadSha256`; its `actorDecisionsSha256` therefore commits to the sanitized actor observation, action name/type, generic prompt context, public-state projections and dispatch status, but not the exact selected prompt token/index. The sanitized artifact also does not retain a worker-response digest. A replay match establishes that the frozen policy saw the same sanitized decision context and followed the same observable action path; with identical policy bundle/version, runtime and zero policy RNG draws, the raw replay choice is the deterministic reconstruction. Label it as such, not as an observed original-run choice. If any surviving sanitized field/digest, policy identity, seed, deck hash or engine/research pin differs, reject it. Only the original encrypted-full artifact could directly attest the original raw selected value; do not weaken the sanitized boundary to obtain that attestation.
 
 Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) has geometric distribution (P(K=k\mid\text{prompt})=p q^{k-1}), with mean (1/p=1.1608883) cards. Thus, conditional on a prompt, exactly one optional card accounts for **86.1409%**, exactly two for **11.9383%**, and exactly three for **1.6545%**. These are allowance counts, not the worker's chosen draw count. (If the engine presents one choice per draw count from zero through the maximum, the most common prompt has two options, but the raw replay must establish the actual option order.)
+
+
+## Deterministic offline replay joiner
+
+The source audit is now operationalized by simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs, with synthetic contract tests in tests/2026-11/agent6-v3-trace-replay-join.test.cjs.
+
+After the first natural-terminal fixture has passed its actor-only and worker gates, and only if a private offline replay is needed to identify this prompt, run:
+
+    node simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs \
+      path/to/original-sanitized-artifact.json \
+      path/to/offline-decrypted-replay.json
+
+An optional third argument restricts analysis to one sanitized actionOrdinal. The tool re-sanitizes the replay and rejects it unless the trial/seed/seat bindings, printed-60 hashes, Twinleaf and research pins, policy identities, complete sanitized public artifact, game trace/summary, worker audits, zero policy-RNG counts, actor-only boundary, and natural terminal all match. Only ephemeral worker container identifiers and the derived worker-audit digest are excluded from exact public-artifact comparison.
+
+For each matching generic SelectPrompt, it searches the offline prompt snapshot for WANT_TO_DRAW_CARDS, compares resolver option counts and allowCancel, and reports only safe option labels/counts, numeric choice evidence, and the acting player's before/after hand counts. It reports a selected draw count only when the numeric choice evidence agrees with the accepted hand-count delta. It never emits raw prompt fields, card identities, opaque tokens, seed values, or full state. The result is explicitly marked as deterministic reconstruction, not direct observation and not competitive evidence.
+
+Validation: node --test tests/2026-11/agent6-v3-trace-replay-join.test.cjs passed 11/11 synthetic contract tests before the repository commit. This is a tool-level test result only; the joiner has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched and no deck or policy was changed.
