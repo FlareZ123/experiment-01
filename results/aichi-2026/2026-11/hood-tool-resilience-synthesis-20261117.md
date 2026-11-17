@@ -8,6 +8,8 @@ The current Hood Shield Shadow Rider v1 candidate relies on two Stealthy Hoods a
 
 **Current decision:** keep the nominated 60 unchanged. The evidence justifies a targeted post-acceptance test of Tool-retention and recovery policies, not an immediate card swap or a claim about matchup strength.
 
+A further candidate-side architecture is now identified but remains untested: [Enamorus V's Guardian of Love](agent43-enamorus-v-board-shield-hypothesis-20261117.md) may provide board-wide protection to the candidate's Pokémon with Psychic Energy attached, potentially allowing one Stealthy Hood to protect Enamorus V itself while the ability protects the Shadow Rider board. The interaction with Garbotoxin's continuous Ability suppression is unresolved; do not treat this as a functioning combo until paper rules and the accepted simulator test it. Enamorus V also adds a two-Prize target and is vulnerable to Silent Lab / Path to the Peak.
+
 ## Evidence chain
 
 1. [Agent17's field-pressure inventory](agent17-hood-shield-field-pressure-risk-20261117.md) establishes the exact-list threat taxonomy and card counts. Seventeen of 29 available lists have Field Blower or Megaton Blower; other lists still contain different Tool/energy/Ability pressure. Three exact lists (ranks 23, 25 and 28) remain missing.
@@ -47,7 +49,8 @@ Once the current V3 acceptance sequence is complete and Agent6's first natural-t
 3. For each variant, record Tool zone transitions explicitly: deck → hand → attached → discard or Lost Zone → recovered. Do not infer recovery from card presence alone.
 4. Test response timing with the candidate going first and second; separate the opponent's first response after one normal draw from its later response after two.
 5. Record whether the Tool is still attached when the removal is played, whether the remover was already spent, whether a recovery prerequisite is present, whether the recovery card is searchable, and whether the Supporter/ACE SPEC/hand cost displaces a more valuable line.
-6. Report per-rank game outcomes, sample counts, policy versions and uncertainty only after the accepted simulator and natural-terminal trace establish a trustworthy execution path.
+6. Add Enamorus V only as a separate board-shield hypothesis: test the Hood-on-Enamorus / Guardian of Love / Garbotoxin interaction, then stadium and KO counterplay, before comparing its two-Prize and deck-slot costs.
+7. Report per-rank game outcomes, sample counts, policy versions and uncertainty only after the accepted simulator and natural-terminal trace establish a trustworthy execution path.
 
 The natural-exposure percentages are scenario-coverage aids only. Do not turn them into match weights, deck scores or a full-field win-rate estimate. The three missing lists remain unknown, not zero-pressure opponents.
 
