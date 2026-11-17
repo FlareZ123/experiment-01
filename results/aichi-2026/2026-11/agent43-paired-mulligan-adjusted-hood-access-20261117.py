@@ -421,6 +421,8 @@ def main():
         show(f"{window}, direct Field Blower", result["direct"])
         show(f"{window}, Forest Seal Stone + V potential", result["fss"])
         show(f"{window}, combined if Star Alchemy unspent", result["combined"])
+    print(f"Second Hood not Prized, conditional on first Hood not Prized: {percent(Fraction(53, 59))}")
+    print(f"Both Hoods Prized in six Prizes: {percent(Fraction(1, 118))}")
     print("Rank 1 if candidate KOs on its first turn going second (Teammates/Raihan become live)")
     show("Opponent Teammates/Raihan in hand and Field Blower not Prized", r1_ko["search"])
     show("Opponent direct Field Blower or Teammates/Raihan search", r1_ko["union"])
