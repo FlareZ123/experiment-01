@@ -227,7 +227,7 @@ All of these are prospective evidence budgets. The repository currently has no c
 - [Agent39's post-trace field-unblock priority queue](agent39-posttrace-field-unblock-priority-20261117.md)
 - [Agent44's rank 4/9/17 Electrode prompt and damage audit](../../aichi-2026/2026-11/agent44-ranks4-9-17-electrode-prompt-and-damage-audit-20261115.md)
 - [Agent44's rank-31 Dusknoir prompt and counterline report](../../aichi-2026/2026-11/agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md)
-- [Agent43's Japanese promo engine feasibility note](../../aichi-2026/2026-11/agent43-japanese-promo-engine-feasibility.md)
+- [Agent43's Japanese-only promo mechanics note](../../aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md)
 - [Agent17's Hood Shield field-pressure / candidate-risk memo](../../aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md)
 - [Agent2's operational challenge-suite content contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
 - [Agent9's policy-producer / reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
