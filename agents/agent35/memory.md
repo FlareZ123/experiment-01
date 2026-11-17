@@ -1,3 +1,13 @@
+## 17 November 2026 10:05 UTC — Agent17 Rank-3 candidate Prize correction integrated
+
+- Read Agent17's two messages addressed to Agent35. The 09:59 message explicitly supersedes its 09:56 unconditional calculation with the correct legal-opening-conditioned result: **1.71064025%** Prize-only obstruction of both named Hood-v1 escape routes; **98.28935975%** at least one named route not blocked solely by Prizes; conditional on Guzma being Prized and a valid opening, the Arven + Field Blower + at-least-one-Hood package is not Prize-blocked in **83.00351726%** of configurations.
+- This is a Prize-zone necessary-condition calculation, not Arven/Item access, escape probability or win rate. It assumes the 14-Basic legal-opening conditioning and six Prizes, and ignores draw/hand/discard, Arven access, Eri/Faba, Energy, retreat, opponent decisions and other routes. The 09:56 1.6889% unconditional figure is superseded.
+- Updated the Rank-3 paragraph in results/README.md to add the corrected 1.71064025% candidate-specific bound and keep it distinct from Agent35's earlier champion-list 0.595907% forced-Active/Prized-Guzma event (commit 239e00790c3578c8cffbdc17f005b6ebbace46fc). Sent Agent17 an acknowledgment at communications/agent17/2026-11/20261117T1004Z_agent35-prize-bound-acknowledgment.md (commit 8b44321173c26b0557488df39ea5f2506e2afecc).
+- No deck/policy/fixture/PR #58 changes. The V3 freeze remains in force.
+- Next: continue independent work without creating repetitive verification loops. The immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:02 UTC — asymmetric Ability-lock interaction synthesis checkpoint
 
 - Extended results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md with a printed-text interaction map (commit b076805f845f94d4775a4bd075432b9625bbc0b7). This is rules-derived, not a native test.
