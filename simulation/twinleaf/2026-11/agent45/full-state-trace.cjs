@@ -247,6 +247,8 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
   let initialState = null;
   let initialPublicBoard = null;
   let initialHumanSummary = null;
+  let initialNativeLogs = null;
+  let lastLogCount = null;
   let stepLimitExceeded=false;
   let nativeLogs = null;
   const steps = [];
@@ -256,6 +258,9 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     initialState = snapshotFullState(state,stateLimits);
     initialPublicBoard = publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits);
     initialHumanSummary = humanSummary;
+    const logs=safeDataProperty(state,'logs');
+    initialNativeLogs=Array.isArray(logs)?snapshotFullState(logs,limits):null;
+    lastLogCount=Array.isArray(logs)?logs.length:null;
   }
   function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
     phaseBefore=null,phaseAfter=null,publicBoard=null,humanSummary=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
@@ -269,6 +274,16 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     if (actionOrdinal !== steps.length+1)
       throw new Error('Full-state trace action ordinals must be contiguous.');
     const previous = steps.length ? steps[steps.length-1].actionOrdinal : 0;
+    const currentLogs=safeDataProperty(state,'logs');
+    let nativeLogDelta=null;
+    if(Array.isArray(currentLogs)) {
+      const countBefore=lastLogCount;
+      const reset=Number.isInteger(countBefore) && currentLogs.length<countBefore;
+      const start=reset?0:(Number.isInteger(countBefore)?countBefore:0);
+      nativeLogDelta={countBefore,countAfter:currentLogs.length,reset,
+        entries:snapshotFullState(currentLogs.slice(start),limits)};
+      lastLogCount=currentLogs.length;
+    }
     steps.push({
       actionOrdinal,
       playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
@@ -282,6 +297,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       action:snapshotFullState(action,limits),
       publicBoard:publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits),
       humanSummary,
+      nativeLogDelta,
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
       afterState:snapshotFullState(state,stateLimits),
       ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
@@ -297,14 +313,16 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
       policyConfiguration:policyConfigurationSnapshot,
       maxSteps,stepLimitExceeded,
-      initialState,initialPublicBoard,initialHumanSummary,
+      initialState,initialPublicBoard,initialHumanSummary,initialNativeLogs,
       steps:steps.slice(),
       nativeLogs,
       complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
-        initialState.truncated===false && nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
+        initialState.truncated===false && (initialNativeLogs===null || !initialNativeLogs.truncated) &&
+        nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
           step.actionOrdinal===index+1 && !step.action.truncated &&
           (!step.pendingPrompt || !step.pendingPrompt.truncated) && !step.afterState.truncated &&
-          (!step.error || !step.error.truncated)),
+          (!step.error || !step.error.truncated) &&
+          (!step.nativeLogDelta || !step.nativeLogDelta.entries.truncated)),
       stepCount:steps.length
     };
   }
@@ -336,7 +354,9 @@ function formatFullStateTrace(trace) {
     '',
     '=== INITIAL HUMAN-READABLE GAME STATE ===',
     JSON.stringify(trace.initialHumanSummary,null,2),
-    'Full native snapshots remain available in fullStateTrace.initialState and fullStateTrace.steps[].afterState.'
+    '=== INITIAL NATIVE LOGS ===',
+    JSON.stringify(trace.initialNativeLogs,null,2),
+    'Full native snapshots/logs remain available in fullStateTrace.initialState, fullStateTrace.steps[].afterState, and fullStateTrace.nativeLogs.'
   ];
   for (const step of trace.steps || []) {
     lines.push('',
@@ -344,6 +364,7 @@ function formatFullStateTrace(trace) {
       'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
       'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
+      'NATIVE LOG DELTA:',JSON.stringify(step.nativeLogDelta,null,2),
       'GAME STATE AFTER ACTION:',JSON.stringify(step.humanSummary,null,2));
     if (step.error) lines.push('DISPATCH ERROR:',JSON.stringify(step.error,null,2));
   }
