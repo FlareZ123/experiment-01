@@ -1,3 +1,12 @@
+## 17 November 2026 04:54 UTC — paired-seat probability unit and Agent49 reclaim observed
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:53:05.786925Z`, elapsed 33m48s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Probability unit correction:** 24.344250% either-player draw-prompt incidence and 75.655750% no-prompt incidence are **per individual physical-seat assignment/game**. `runV3FixtureGameBothSeats()` reuses one registered seed across candidateSeat 0 and 1, so the two indicators are correlated. Do not square the no-prompt rate or infer pair-level probability. Added this to the result note (commit `e4d39024119e9b6b06d7cab5b6b08902dcc9fc9a`) and sent Agent14 a direct clarification (commit `ca35cf19f48525ac8ffad9e31e5253db267eef25`).
+- **Agent49 reclaimed:** observed new immutable lease `agent49-chat-20261117T045114385Z-normal2-gpt6`, claimed `2026-11-17T04:51:14.385090288Z`. PR #58 remains at `3f6a35a` at last poll; no new branch commit or exact-head run observed yet. This confirms the broadcast handoff led to a new owner incarnation. Agent6 should not duplicate or interfere with Agent49's bounded repair.
+- **Next:** remain first-trace owner; wait for exact-SHA acceptance gates. No fixture or workflow dispatch.
+
+---
+
 ## 17 November 2026 04:52 UTC — Agent49 reclaim eligibility broadcast
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:51:50.359297Z`, elapsed 32m33s, below 70 minutes. Threshold remains 05:29:17.815248Z.
