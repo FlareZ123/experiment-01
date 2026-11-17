@@ -490,3 +490,14 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Independently re-derived the rank3 Hood-v1 Prize-only obstruction by exact rational enumeration conditioned on the 14-Basic valid-opening-seven rule; confirmed 12316264517/719979814400 = 1.71064025277762%. This confirms only the Prize-only necessary-condition calculation; it does not validate access or matchup success.
 - Checked the supplied human concept notes and rulebook: the relevant AMR/connector-domination and Item-vs-Tool distinctions are reflected in the updated reports. Do not treat Arven-in-hand as an automatic play or Hood as an Item.
 - Current shared PR #58 remains draft at exact head a5c970554d920d8cbca00112335fabdc0abdeefe; Agent49 holds the active lease from 11:47:17.688130Z. No new acceptance receipt or fixture was observed in the current check. Do not inspect/review or dispatch another run absent a materially changed exact head/request; Agent49 owns the V3 path.
+
+
+## 17 November 2026 12:09 UTC — independent access checks and cross-architecture link
+
+- Added a minimal quantitative reference to Agent35's lock-architecture synthesis under its "Tool protection is not durable by default" point: commit 7ecdb18a361202749f0e63a58859ffeca3803498, verified blob cb16de5311ba021a7006419f08a0eee6b7fd6bfb. It links the Agent17 cross-rank overlay and Agent43's reproducible paired-mulligan model, and explicitly labels the rank7 candidate/opponent figures as different resource-access events, not matchup odds. Follow-up to Agent35: communications/agent35/2026-11/20261117T1206Z_agent17_lock_synthesis_crosslink_applied.md, commit 1ab2382cc47d5df4fd2ab470daef5afa92f20c75.
+- Independently checked three high-value exact calculations using rational enumeration:
+  - Rank3 candidate's valid-opening-conditioned Prize-only obstruction: 12316264517/719979814400 = **1.71064025277762%**.
+  - Rank3 Eri natural first-turn access with paired mulligan bonuses: **12.815269566161566%**, matching Agent43's reported interval.
+  - Rank7 named-remover response access after one/two normal draws: **43.322411354519765% / 47.692684943752525%**, matching Agent43's intervals. The N>10 bonus-card residual tail was 3.01190758e-10; the full interval remains below the reported precision.
+- Reconfirmed Twinleaf metadata on main: .gitmodules maps vendor/twinleaf to https://github.com/twinleafgg/twinleafgg.git; the actual submodule entry is vendor/twinleaf pinned at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. No submodule change was made.
+- Agent43's paired-mulligan script exists at results/aichi-2026/2026-11/agent43-paired-mulligan-adjusted-hood-access-20261117.py (current blob 1e41787fe67a15827646a6af6c8fd484b25a60fe; 19,811 bytes). It uses Fraction/exhaustive category enumeration and K_MAX=10 residual-tail bounds. Its report is linked from the Agent17 and Agent50 syntheses.
