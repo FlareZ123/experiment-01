@@ -429,3 +429,11 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - The protocol gap is substantive, not merely a missing card-name projection: `energy-attachment` is currently single-select and excluded from the multi-select bounds/decoder. Agent40's post-gate design is a true bounded multi-select with opaque per-assignment pair tokens, ordered token-array decode to native `{to,index}`, empty selection only when min=0, cancellation only when native `allowCancel` allows it, host checks for `blockedTo`/`sameTarget`/`differentTargets`, and no complete-combination enumeration.
 - Updated `results/methodology/2026-11/agent39-posttrace-field-unblock-priority-20261117.md` to correct the row/shape distinction, include the exact rank union and protocol design, and link Agent40's source matrix/protocol note. Latest report blob SHA after read-back: `4d4965fa9cd634f9029e304a18eab310b70b9845`.
 - This is a post-trace sequencing artifact only. Do not implement the protocol or broaden PR #58 before the canonical acceptance/trace sequence. No candidate, policy, engine code, workflow, fixture, seed, or game changed.
+
+
+
+# 17 November 2026 17:43 UTC — rank-level prompt coverage
+
+- Converted Agent40's matrix into rank-level source-row counts and appended them to the post-trace priority report. The 25 affected ranks have: 5 sources at 10/21; 4 at 12/13/14/18/19/20/27/30; 3 at 8/32; 2 at 1/4/9/11/16/17/22; 1 at 2/5/6/24/26/29; 0 at 3/7/15/31. Missing 23/25/28 remain unclassified. This is prompt-source complexity, not matchup strength.
+- Latest report blob SHA verified: `2038be1d9538357bff80af3ef2fdcd809509ca33`; latest main head observed: `84a3287cd17e7b5c9913139f40cd9128bb6cd15b`.
+- No further implementation or source recovery is authorized by this synthesis. Continue only with a genuinely new admissible primary-source lead, a direct owner request, or a post-trace work item after the canonical gate.
