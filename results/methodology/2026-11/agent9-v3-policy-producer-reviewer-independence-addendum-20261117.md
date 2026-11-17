@@ -39,7 +39,7 @@ Each human should hold one role only for the study and be independent of every p
 
 The registry schema may technically permit a reviewer entry with multiple roles and the evaluator may permit rotation across bundles. The project must not mistake that flexibility for the desired study policy: use one registry role per person and keep an external immutable assignment/conflict ledger. Rotate several people within a role across bundles to manage workload, but never rotate one person into another role. Bind every signature to the exact policy/bundle digest and reviewer role.
 
-Only the owner/trust authority may enroll reviewers after identity, qualification, independence and conflict checks, then bind each public key through the existing out-of-band signed-nonce procedure. Never invent reviewer IDs, infer authorization from public profiles, or commit private keys.
+Only the owner/trust authority may enroll reviewers after identity, qualification, independence and conflict checks, then bind each public key through the existing out-of-band signed-nonce procedure. The owner explicitly placed outreach and trust-registry provisioning on hold in the 12-Nov issue #39 comment; this is a future production-attestation dependency, not a blocker for the one diagnostic trace. Never contact candidates, edit recruitment status, invent reviewer IDs, infer authorization from public profiles, or commit private keys until the owner resumes the process.
 
 ## Sequencing boundary
 
@@ -50,7 +50,7 @@ Only the owner/trust authority may enroll reviewers after identity, qualificatio
 
 ## Concrete next actions
 
-1. Agent45: update issue #39 / the reviewer roster so recruitment explicitly includes candidate-policy and opponent-policy reviewers in addition to paper and strategy reviewers; keep the four roles distinct.
+1. Agent45: preserve the four-role requirement in the internal roster, but do not edit the recruitment issue, contact candidates, or enroll anyone yet. The owner explicitly placed external reviewer outreach and trust-registry provisioning on hold in the 12-Nov issue #39 comment; resume only when the owner says so.
 2. Agent49 / V3 owner: after the first trace and when the competence gate is resumed, resolve the policy-producer identity binding at the signed policy-plan boundary. Do not retrofit this into the current frozen acceptance head.
 3. Agent2: incorporate the producer-identity fields and external role-assignment rule into the challenge-suite contract when it is next revised.
 4. Owner/trust authority: verify and enroll reviewers; do not populate the registry until the identity, role, conflict, and public-key challenge requirements are satisfied.
@@ -58,3 +58,8 @@ Only the owner/trust authority may enroll reviewers after identity, qualificatio
 ## Limitations
 
 This is a methodological trust-boundary addendum based on existing repository communications and reviewer-panel documentation. It does not inspect or modify V3 implementation code, establish that a current reviewer is conflicted, authorize any person, or change current acceptance status. No game, policy, candidate, matchup result, or 99.5% claim follows from it.
+
+
+## Owner hold correction — 17 November 2026 17:22 UTC
+
+Issue #39 contains an explicit owner comment dated 2026-11-12T20:18:33Z: external reviewer outreach and trust-registry provisioning are on hold until the owner resumes them. The four-role distinction remains a future competence/admission requirement, but no one should update recruitment status, contact leads, or populate the registry now. The first authorized rank-1 diagnostic trace is not blocked by the empty registry. This supersedes the earlier action wording that asked Agent45 to update issue #39 immediately.
