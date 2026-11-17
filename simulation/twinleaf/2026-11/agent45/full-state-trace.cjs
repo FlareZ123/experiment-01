@@ -3,6 +3,82 @@
 const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
 const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
 
+function safeOwnData(value,key) {
+  const descriptor=value && Object.getOwnPropertyDescriptor(value,key);
+  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
+    descriptor.value : undefined;
+}
+
+function cardLabelForText(card) {
+  if (card===null || card===undefined) return null;
+  if (typeof card!=='object') return String(card);
+  const fullName=safeOwnData(card,'fullName');
+  if (typeof fullName==='string' && fullName) return fullName;
+  const name=safeOwnData(card,'name');
+  if (typeof name==='string' && name) {
+    const set=safeOwnData(card,'set');
+    const number=safeOwnData(card,'number');
+    return typeof set==='string' && typeof number==='string' ?
+      name+' ['+set+' '+number+']' : name;
+  }
+  const id=safeOwnData(card,'id');
+  if (typeof id==='string' || typeof id==='number') return 'Card#'+String(id);
+  return constructorNameOf(card);
+}
+
+function zoneCardLabelsForText(zone) {
+  const cards=safeOwnData(zone,'cards');
+  return Array.isArray(cards)?cards.map(cardLabelForText):[];
+}
+
+/**
+ * Compact, human-readable view of every card zone plus the public board.
+ * The full native state remains separately available in the machine trace.
+ */
+function summarizeNativeStateForText(state,publicBoard=null) {
+  const nativePlayers=safeOwnData(state,'players');
+  const players=Array.isArray(nativePlayers)?nativePlayers.map((player,seat)=>{
+    const prizes=safeOwnData(player,'prizes');
+    const board=Array.isArray(publicBoard)?publicBoard[seat]:null;
+    return {
+      seat,
+      playerId:safeOwnData(player,'id') ?? null,
+      deck:zoneCardLabelsForText(safeOwnData(player,'deck')),
+      hand:zoneCardLabelsForText(safeOwnData(player,'hand')),
+      discard:zoneCardLabelsForText(safeOwnData(player,'discard')),
+      lostzone:zoneCardLabelsForText(safeOwnData(player,'lostzone')),
+      prizes:Array.isArray(prizes)?prizes.map(zoneCardLabelsForText):[],
+      active:board?.active ?? null,
+      bench:board?.bench ?? [],
+      stadium:zoneCardLabelsForText(safeOwnData(player,'stadium')),
+      supporter:zoneCardLabelsForText(safeOwnData(player,'supporter'))
+    };
+  }):[];
+  const nativePrompts=safeOwnData(state,'prompts');
+  const unresolvedPrompts=Array.isArray(nativePrompts)?nativePrompts
+    .filter(prompt=>safeOwnData(prompt,'result')===undefined)
+    .map(prompt=>{
+      const player=safeOwnData(prompt,'player');
+      const message=safeOwnData(prompt,'message') ?? safeOwnData(prompt,'text');
+      const promptCards=safeOwnData(prompt,'cards') ?? safeOwnData(prompt,'cardList');
+      return {
+        type:constructorNameOf(prompt),
+        playerId:safeOwnData(prompt,'playerId') ?? safeOwnData(player,'id') ?? null,
+        message:typeof message==='string'?message:null,
+        cards:zoneCardLabelsForText(promptCards)
+      };
+    }):[];
+  return {
+    turn:safeOwnData(state,'turn') ?? null,
+    phase:safeOwnData(state,'phase') ?? null,
+    activePlayer:safeOwnData(state,'activePlayer') ?? null,
+    winner:safeOwnData(state,'winner') ?? null,
+    isSuddenDeath:safeOwnData(state,'isSuddenDeath') ?? null,
+    players,
+    unresolvedPrompts
+  };
+}
+
 function readOwnDataProperty(value,key) {
   const descriptor=value && Object.getOwnPropertyDescriptor(value,key);
   return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') ?
@@ -165,18 +241,20 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
   const policyConfigurationSnapshot=snapshotFullState(policyConfiguration,snapshotLimits);
   let initialState = null;
   let initialPublicBoard = null;
+  let initialHumanSummary = null;
   let stepLimitExceeded=false;
   let nativeLogs = null;
   const steps = [];
   const stateLimits = {...snapshotLimits,omitKeys:['logs']};
-  function captureInitial(state,publicBoard=null) {
+  function captureInitial(state,publicBoard=null,humanSummary=null) {
     if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
     initialState = snapshotFullState(state,stateLimits);
     initialPublicBoard = publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits);
+    initialHumanSummary = humanSummary;
   }
   function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
-    phaseBefore=null,phaseAfter=null,publicBoard=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
-    if (initialState === null) captureInitial(state,publicBoard);
+    phaseBefore=null,phaseAfter=null,publicBoard=null,humanSummary=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
+    if (initialState === null) captureInitial(state,publicBoard,humanSummary);
     if (steps.length >= maxSteps) {
       stepLimitExceeded=true;
       throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
@@ -198,6 +276,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
       action:snapshotFullState(action,limits),
       publicBoard:publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits),
+      humanSummary,
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
       afterState:snapshotFullState(state,stateLimits),
       ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
@@ -213,7 +292,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
       policyConfiguration:policyConfigurationSnapshot,
       maxSteps,stepLimitExceeded,
-      initialState,initialPublicBoard,
+      initialState,initialPublicBoard,initialHumanSummary,
       steps:steps.slice(),
       nativeLogs,
       complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
