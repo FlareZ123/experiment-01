@@ -105,6 +105,12 @@ function verifyReplayIdentity(original, replay) {
     requirePresent(at(replay, key), 'replay.' + key);
     requireEqual(at(original, key), at(replay, key), key);
   }
+  for (const [artifact, label] of [[original, 'original'], [replay, 'replay']]) {
+    requireEqual(at(artifact, 'trial.researchRevisionSha'),
+      at(artifact, 'engine.researchRevisionSha'), label + ' trial research revision');
+    requireEqual(at(artifact, 'trial.vendorCommitSha'),
+      at(artifact, 'engine.twinleafCommitSha'), label + ' trial vendor/Twinleaf pin');
+  }
   for (const key of [
     'policyPlanSha256', 'runtime.runtimePinUnionSha256',
     'runtime.loadedProcessClosureSha256'
