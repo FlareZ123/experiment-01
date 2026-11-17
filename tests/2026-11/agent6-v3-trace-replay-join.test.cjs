@@ -3,7 +3,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const { analyzeTraceReplay } = require('../../simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+const {
+  analyzeTraceReplay, verifySanitizerCheckout
+} = require('../../simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs');
 
 function digest(value) {
   return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -194,6 +200,35 @@ const sanitizerIdentity = {
   researchRevisionSha: '4'.repeat(40),
   sanitizerBlobSha: '8'.repeat(40)
 };
+
+const EXPECTED_SANITIZER_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
+
+function makeSanitizerRepo() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent6-trace-sanitizer-'));
+  const relativePath = EXPECTED_SANITIZER_PATH;
+  const sanitizerPath = path.join(root, relativePath);
+  fs.mkdirSync(path.dirname(sanitizerPath), { recursive: true });
+  fs.writeFileSync(sanitizerPath, 'module.exports = { sanitizeFixtureArtifact() { return {}; } };\\n');
+  execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'agent6-test@example.invalid'], { cwd: root });
+  execFileSync('git', ['config', 'user.name', 'Agent6 test'], { cwd: root });
+  execFileSync('git', ['add', '--', relativePath], { cwd: root });
+  execFileSync('git', ['commit', '-m', 'sanitizer fixture'], { cwd: root, stdio: 'ignore' });
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  const blob = execFileSync('git', ['rev-parse', 'HEAD:' + relativePath],
+    { cwd: root, encoding: 'utf8' }).trim();
+  return {
+    root, sanitizerPath, relativePath, head, blob,
+    cleanup: () => fs.rmSync(root, { recursive: true, force: true })
+  };
+}
+
+function rawSanitizerMetadata(head, vendorCommitSha = '3'.repeat(40)) {
+  return {
+    engine: { researchRevisionSha: head, twinleafCommitSha: vendorCommitSha },
+    trial: { researchRevisionSha: head, vendorCommitSha }
+  };
+}
 
 function safeArtifact() {
   return sanitizeFixtureArtifact(rawReplay());
@@ -472,4 +507,59 @@ test('requires the exact sanitizer function and its revision identity', () => {
       researchRevisionSha: 'a'.repeat(40), sanitizerBlobSha: '8'.repeat(40)
     }
   }), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+});
+
+test('verifies exact sanitizer path, clean Git blob, research revision and Twinleaf pin', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    const metadata = rawSanitizerMetadata(repo.head);
+    const identity = verifySanitizerCheckout(repo.sanitizerPath, metadata);
+    assert.deepEqual(identity, {
+      researchRevisionSha: repo.head,
+      sanitizerBlobSha: repo.blob
+    });
+  } finally {
+    repo.cleanup();
+  }
+});
+
+test('rejects a dirty sanitizer working-tree file', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    fs.appendFileSync(repo.sanitizerPath, '// uncommitted change\\n');
+    assert.throws(() => verifySanitizerCheckout(
+      repo.sanitizerPath, rawSanitizerMetadata(repo.head)
+    ), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+  } finally {
+    repo.cleanup();
+  }
+});
+
+test('rejects a sanitizer module outside the exact expected repository path', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    const otherPath = path.join(repo.root, 'other-sanitizer.cjs');
+    fs.writeFileSync(otherPath, 'module.exports = {};\\n');
+    assert.throws(() => verifySanitizerCheckout(
+      otherPath, rawSanitizerMetadata(repo.head)
+    ), { code: 'TRACE_REPLAY_SANITIZER_PATH_INVALID' });
+  } finally {
+    repo.cleanup();
+  }
+});
+
+test('rejects mismatched raw trial research and Twinleaf pins', () => {
+  const repo = makeSanitizerRepo();
+  try {
+    const wrongResearch = rawSanitizerMetadata(repo.head);
+    wrongResearch.trial.researchRevisionSha = 'f'.repeat(40);
+    assert.throws(() => verifySanitizerCheckout(repo.sanitizerPath, wrongResearch),
+      { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+    const wrongVendor = rawSanitizerMetadata(repo.head);
+    wrongVendor.trial.vendorCommitSha = 'f'.repeat(40);
+    assert.throws(() => verifySanitizerCheckout(repo.sanitizerPath, wrongVendor),
+      { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
+  } finally {
+    repo.cleanup();
+  }
 });
