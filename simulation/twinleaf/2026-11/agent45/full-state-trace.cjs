@@ -347,4 +347,4 @@ function formatFullStateTrace(trace) {
 }
 
 module.exports={TRACE_SCHEMA,SNAPSHOT_SCHEMA,snapshotFullState,
-  summarizePolicyConfiguration,createFullStateTraceRecorder,formatFullStateTrace};
+  summarizePolicyConfiguration,summarizeNativeStateForText,createFullStateTraceRecorder,formatFullStateTrace};
