@@ -85,6 +85,18 @@ The source list inventory also shows:
 
 Do not combine these into the Tool-removal count. Plumeria and Team Flare Grunt create attached-Energy pressure; Enhanced Hammer is relevant to Special Energy, not a Basic Psychic Energy attachment; Faba and Megaton Blower can affect Special Energy as well as Tools under their text. Candidate-specific relevance depends on the exact Energy type, attached Pokémon, current retreat/attack cost and timing. The source list counts do not prove that a disruption effect is available on the needed turn.
 
+### Rank-level Energy-disruption inventory
+
+| Card | Exact ranks | Total copies in 29 lists | Relevance boundary |
+|---|---|---:|---|
+| Plumeria | 2, 3, 6, 7, 9, 16, 24, 29 | 20 | Attached-Energy discard pressure; ranks 3/6/24/29 each have ×4 |
+| Team Flare Grunt | 3, 6, 7, 24, 29 | 9 | Attached-Energy discard pressure; ranks 3/6/24/29 each have ×2 |
+| Enhanced Hammer | 3, 5, 6, 7, 22, 24, 29 | 10 | Special Energy only; do not count it as removal of Basic Psychic Energy |
+| Handheld Fan | 6, 24, 29 | 4 | Special-Energy positioning interaction; not the same as discarding Basic Energy |
+| Team Yell Grunt | 20 | 1 | Returns Energy to hand rather than discarding it |
+
+The overlap is important: **ranks 3, 6, 7, 24 and 29 all combine Tool Jammer with at least one Plumeria and one Team Flare Grunt**. Ranks 3, 6, 24 and 29 each carry Plumeria ×4 plus Team Flare Grunt ×2; rank7 carries one of each. This is a registered-list resource-denial package, not an access estimate. The candidate's Basic Psychic Energy is not directly hit by Enhanced Hammer, Faba, or Megaton Blower's Special-Energy clauses; Plumeria/Team Flare Grunt and the rank20 Team Yell Grunt are the named Supporter routes that can pressure attached Basic Energy. Whether the opponent can afford or recover these Supporters on the relevant turn remains untested.
+
 ## Candidate and policy implications
 
 1. **Treat Hood as a timing tool, not a permanent shield.** The policy should decide when to attach the first Hood, when to keep the second in hand, and when the immediate escape line is more valuable than preserving a reserve.
