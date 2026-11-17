@@ -1643,5 +1643,28 @@
         ]
       }
     }
+  },
+  "candidate_package": {
+    "source_path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "source_blob_sha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "total_cards": 60,
+    "category_counts": {
+      "Pokémon": 18,
+      "Trainer": 31,
+      "Energy": 11
+    },
+    "pokemon_tools": {
+      "Stealthy Hood": 2,
+      "Forest Seal Stone": 1,
+      "Float Stone": 1
+    },
+    "stadiums": {
+      "Sky Field": 1,
+      "Dimension Valley": 1
+    },
+    "energy": {
+      "Basic Psychic Energy": 11
+    },
+    "caveat": "Exact current candidate list counts; no gameplay, legality or performance conclusion."
   }
 }
