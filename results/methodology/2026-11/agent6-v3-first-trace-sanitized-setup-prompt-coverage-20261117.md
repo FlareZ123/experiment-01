@@ -10,8 +10,8 @@
 
 In `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`:
 
-- `sanitizeDecisionRecord()` retains the action ordinal, acting seat, turn, pending prompt type, policy input kind, action name/type and dispatch status.
-- `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It does not retain option labels, values or ordering.
+- `sanitizeDecisionRecord()` retains the action ordinal, acting seat, turn, pending prompt **class** type, policy input kind, action name/type and dispatch status.
+- `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It drops the prompt's `message`/`text` as well as option labels, values and ordering. Consequently, if `WANT_TO_DRAW_CARDS` is encoded in the message rather than a unique prompt class, the sanitized artifact cannot even identify that exact prompt by itself.
 - `sanitizePromptResolution()` reduces a worker-choice resolution to the generic `kind` / `ownerSeat` allowlist. The runner's pre-sanitized worker-choice summary includes `decisionKind` and `selectedCount`, but the sanitizer drops those too. No selected index/value or accepted-result detail survives.
 
 Therefore, if `WANT_TO_DRAW_CARDS` occurs, the current artifact can show the relevant actor seat, prompt row, dispatch status, and option count / cancellation contract, but **cannot alone establish the option order, selected index/value, or exact accepted draw count**. Do not infer these from the sanitized text trace.
