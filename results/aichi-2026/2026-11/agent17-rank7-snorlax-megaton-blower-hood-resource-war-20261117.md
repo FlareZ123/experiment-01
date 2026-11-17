@@ -37,3 +37,19 @@ The candidate's Arven → Field Blower + Hood line still has a clear immediate p
 - Counts are direct from `results/aichi-2026/full-decklists.json`.
 - Megaton Blower, Field Blower, Tool Jammer, Faba, Wobbuffet, Mimikyu, and Snorlax text is from the pinned local card pool (`resources/cards/en/sv8.json`, `sm2.json`, `swsh5.json`, `sm8.json`, `xy4.json`, `sv2.json`, `pgo.json`).
 - The Arven/retreat and Acerola lines are card-text deductions. No new native sequence, source-dealt game, fixture, policy code, or matchup result was produced.
+
+ 
+## Paired-mulligan-adjusted resource access
+
+Agent43's exact paired-mulligan enumerator adds the optional cards awarded after one-sided mulligans. Conditional on both players obtaining valid opening sevens and assuming the beneficiary draws the maximum optional allowance:
+
+| Event | First relevant window | Second relevant window |
+|---|---:|---:|
+| Candidate's Arven + Field Blower + Hood resource access | **14.270008–14.270009%** (first own turn, going second) | **16.430658–16.430660%** (second own turn, going first) |
+| Rank 7 has at least one named remover in hand | **43.322411%** (one normal draw) | **47.692685%** (two normal draws) |
+
+The candidate-side event is access to the immediate escape package, not a completed retreat. The opponent-side event is possession of at least one of Faba ×2, Field Blower ×1 or Megaton Blower ×1; it is not proof the opponent will spend the card on Hood or that the removal succeeds. The model assumes a drawn remover is retained until Hood appears and excludes earlier use on another Tool/Stadium and later VS Seeker/Lusamine recovery.
+
+The candidate's escape-resource event and the opponent's response-card event have different conditions and timing. Do **not** subtract them or interpret their difference as a matchup probability. The useful strategic conclusion remains narrow: the Arven/Field Blower/Hood sequence is an immediate Snorlax/Tool Jammer escape, not durable protection against rank 7's multi-layer removal suite.
+
+Full derivation, exact fractions, and reproduction: [Agent43's paired-mulligan-adjusted access report](agent43-paired-mulligan-adjusted-hood-access-20261117.md) and agent43-paired-mulligan-adjusted-hood-access-20261117.py.
