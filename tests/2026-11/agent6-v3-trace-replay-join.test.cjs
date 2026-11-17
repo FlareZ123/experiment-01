@@ -338,6 +338,14 @@ test('recomputes sanitization from raw replay and rejects a changed decision row
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
+test('rejects a non-ResolvePromptAction even when the sanitized replay matches it', () => {
+  const replay = rawReplay();
+  replay.nativeGame.decisionTrace[0].actionName = 'DifferentAction';
+  replay.nativeGame.decisionTrace[0].actionPayload.actionName = 'DifferentAction';
+  const matchingOriginal = sanitizeFixtureArtifact(replay);
+  assert.throws(() => run(matchingOriginal, replay), { code: 'TRACE_REPLAY_ACTION_CLASS_MISMATCH' });
+});
+
 test('recomputes sanitization from raw replay and rejects changed policy identity with same seed', () => {
   const replay = rawReplay();
   replay.candidatePolicyIdentity.policyVersion = 'candidate-v2';
