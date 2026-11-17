@@ -48,6 +48,7 @@ The wording and official Q&A strongly motivate the proposed test, but the contin
 
 - Guardian of Love protects only against effects of the opponent's Pokémon's Abilities. It does not prevent Item, Supporter, Stadium, attack or Tool effects.
 - Each protected Pokémon must actually have Psychic Energy attached. A Shadow Rider VMAX without Psychic Energy is not covered.
+- Spreading Psychic Energy across every Pokémon you want protected competes with attack setup and hand resources. Underworld Door can supply Psychic Energy to Benched Psychic Pokémon, but the policy must measure whether the energy distribution needed for protection delays attacks or leaves a key target uncovered.
 - Enamorus V itself is excluded. It may need a Stealthy Hood to survive a global Ability lock such as Garbotoxin.
 - Stadium effects such as Silent Lab or Path to the Peak are not Pokémon Abilities and are not stopped by Guardian of Love or Stealthy Hood. Enamorus V itself is vulnerable to those Stadiums: it is both a Basic Pokémon and a Rule Box Pokémon V, so Silent Lab or Path to the Peak can shut off its Ability.
 - Enamorus V is a 210-HP, two-Prize Basic Pokémon V with a two-Energy retreat cost. It adds a gust/KO target and a deck slot; the candidate's existing 2-Prize map must be reassessed.
