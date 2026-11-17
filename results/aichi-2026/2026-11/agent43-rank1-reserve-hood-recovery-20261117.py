@@ -26,7 +26,9 @@ direct/Teammates/Raihan and BC/VS -> Teammates routes are only evaluated for
 the going-second first-turn-KO branch that makes Supporters live. The Raihan
 variant assumes its Energy-discard cost is payable; the BC/VS extension assumes
 Field Blower and Teammates are not Prized and BC plus a VS Seeker are reserved
-for the response.
+for the response. The KO is an external scenario condition: candidate-side
+access is not conditioned on the KO-enabling cards/actions, and no KO
+probability is estimated.
 
 Excluded: candidate-side Forest Seal Stone / Star Alchemy, Tapu Lele-GX,
 Fog Crystal / Mysterious Treasure access to Lele, candidate-side Battle
