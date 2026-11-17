@@ -8,6 +8,7 @@ The returned result contains fullStateTrace (machine-readable snapshots) and ful
 
 - One initial native Store-state snapshot after both decks have been registered.
 - One detached post-dispatch native state for every root Store action, including prompt resolutions and non-attack actions.
+- A concise public-board summary of Active/Bench Pokémon, damage, attached Energy/Tools, Stadium, and printed attack names/costs.
 - The action object/type, acting player ID and seat, pending prompt, turn and phase transitions, and a reference to the immediately preceding state snapshot.
 - Per-seat tactic order, prompt-resolver order, score keys, and arbiter modes, captured once for reproducibility.
 - The final native game log, captured once rather than copied into every step.
@@ -19,6 +20,6 @@ The serializer traverses own property descriptors without invoking user-defined 
 
 **This output can contain both players' concealed hands, decks, Prize identities, temporary prompt custody, and other private native state. It is sensitive diagnostic data. Keep it local/offline and encrypted at rest; never pass it to a policy, include it in actorObservation, commit it, or upload it as a public CI artifact.** The option is off by default and does not alter policy behavior.
 
-The trace records the selected action and complete native state, including printed attacks and prompt options present in the Store. It does not yet enumerate every alternative legal action considered internally by SimpleTacticsAi; that requires separate policy-frontier instrumentation. Use captureDecisionTrace alongside it for the existing concise decision and root-action ledgers.
+The trace records the selected action and complete native state, including printed attacks and prompt options present in the Store. The public-board summary lists printed attack costs and attached Energy but does not calculate payable attacks, lock effects, or legal actions. It does not yet enumerate every alternative legal action considered internally by SimpleTacticsAi; that requires separate policy-frontier instrumentation. If the optional public-board summary fails, the raw native state is still captured and publicBoardError records the summary failure. Use captureDecisionTrace alongside it for the existing concise decision and root-action ledgers.
 
 This is a diagnostic aid, not proof of paper rules fidelity, simulator correctness, or competitive win rate. It is part of the existing in-process headless adapter, not the V3 Docker worker runner or an admission/fixture path.
