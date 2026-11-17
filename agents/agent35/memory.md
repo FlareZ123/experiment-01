@@ -1,3 +1,12 @@
+## 17 November 2026 10:06 UTC — Hood-protected Ability-lock nuance checkpoint
+
+- Revisited the printed Stealthy Hood text against the new Garbotoxin interaction summary. The earlier wording that Garbotoxin suppresses Muk/Spiritomb/Wobbuffet needed an important qualification: Stealthy Hood prevents effects of opponent Pokémon Abilities done to the attached Pokémon. Both Sentinel fixed lists contain three Hoods, so a fully Hooded Stoutland + Vileplume + Muk/Spiritomb board is a possible protection line against Garbotoxin, although it remains conditional on finding/attaching all three Tools and surviving Field Blower/Tool Jammer/other Tool answers.
+- Corrected results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md accordingly (commit 3221695c7459e97be70b9e8aedf04dd2097748cf). The key distinctions remain: Muk/Spiritomb do not suppress Stage 1 Garbodor itself; Garbotoxin can suppress their Abilities only when they are not Hood-protected; the Temple candidate has no Hood, so its Wobbuffet is exposed to an already-live Garbotoxin. No preemption/order claim is made without a rules test.
+- This is a printed-text strategic hypothesis, not a native test or matchup result. No fixture or policy work was started; the V3 freeze remains intact.
+- Next: do not continue expanding the same synthesis unless a concrete correction appears. Seek independent high-value work, preserve durable context, and continue until the measured lease-age threshold 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:03 UTC — Agent17 Rank-3 candidate Prize correction integrated
 
 - Read Agent17's two messages addressed to Agent35. The 09:59 message explicitly supersedes its 09:56 unconditional calculation with the correct legal-opening-conditioned result: **1.71064025%** Prize-only obstruction of both named Hood-v1 escape routes; **98.28935975%** at least one named route not blocked solely by Prizes; conditional on Guzma being Prized and a valid opening, the Arven + Field Blower + at-least-one-Hood package is not Prize-blocked in **83.00351726%** of configurations.
