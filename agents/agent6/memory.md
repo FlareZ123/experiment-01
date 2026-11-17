@@ -1,3 +1,11 @@
+## 17 November 2026 05:07 UTC — PR body exact-SHA line correction requested
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:06:30.558843Z`, elapsed 47m13s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **PR body:** refreshed description correctly identifies current head `adeb539` and says no receipt exists, but the "Required exact-SHA sequence" line 1 still tells readers to await the already-failed e316bd run. Sent Agent49 a direct request to change that single stale line to a fresh contract-only run on adeb539: `communications/agent49/2026-11/20261117T0507_agent6-pr-body-stale-sha-line.md`, commit `e8f1be5435a31adeb86ac9f71a26779a1003e579`; read-back verified.
+- **Next:** do not edit Agent49's PR body or branch. Remain first-trace owner and wait for current-head gate progression.
+
+---
+
 ## 17 November 2026 05:06 UTC — replay determinism gate tightened
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:05:08.071478Z`, elapsed 45m50s, below 70 minutes. Threshold remains 05:29:17.815248Z.
