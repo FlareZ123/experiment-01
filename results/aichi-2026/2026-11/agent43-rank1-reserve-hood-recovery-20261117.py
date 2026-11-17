@@ -271,7 +271,8 @@ def opponent_access_after_draws(draw_count, family):
         basic_indices = (3,)
     elif family == "direct_supporters_bc_teammates":
         # Field Blower x1, BC x1, VS Seeker x3, Teammates x1, Raihan x1,
-        # Basics x14, Other x39. Union direct supporters with BC -> VS -> Teammates.
+        # Basics x14, Other x39 (including Unfair Stamp; its hand-shuffle
+        # effect is excluded). Union direct supporters with BC -> VS -> Teammates.
         total = (1, 1, 3, 1, 1, 14, 39)
         basic_indices = (5,)
     else:
