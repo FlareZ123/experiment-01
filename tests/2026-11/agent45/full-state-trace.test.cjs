@@ -117,7 +117,7 @@ test('policy configuration summary preserves both-seat tactic and resolver order
   const accessorNamedTactic={};
   Object.defineProperty(accessorNamedTactic,'name',{get(){getterCalls++;throw new Error('name getter must not run');}});
   const scores={Z:1,A:2};
-  Object.defineProperty(scores,'secret',{get(){getterCalls++;throw new Error('score getter must not run');}});
+  Object.defineProperty(scores,'secret',{enumerable:true,get(){getterCalls++;throw new Error('score getter must not run');}});
   const summary=summarizePolicyConfiguration([
     {tactics:[AttackTactic,PlayBasicTactic,{name:'EnergyAttachmentTactic'},accessorNamedTactic],
       promptResolvers:[ChooseCardsPromptResolver],scores,
