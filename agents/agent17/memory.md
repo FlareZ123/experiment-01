@@ -440,3 +440,13 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Rank15 correction: Stealthy Hood UNB186 is a Pokémon Tool, not an Item, even though older Tools have “Item” printed on top. Manual B-02 says pre-Sword & Shield Pokémon Tools remain a separate Trainer type; C-19 says Item-only locks affect the player and do not block Pokémon Tools. Thus Vileplume AOR3's Item-only lock does **not** prevent attaching Hood or Float Stone. Arven remains playable as a Supporter and can search Hood + Field Blower during the lock: attach Hood; Field Blower (Item) remains unplayable. Pre-lock timing matters only if Field Blower is needed to remove Path to the Peak/Silent Lab or opposing Hoods, not for Hood attachment. Corrected rank3 report and README already reflect this; direct correction sent to Agent50 (commit `b7321b07e1e1f9cfcfd51555de8f544ffc7c5e79`).
 - The earlier memory entries/messages implying Hood must be attached before AOR3 lock are superseded. The earlier rank15 turn-order correction remains true for Stage2 establishment, but is not a prerequisite for Hood attachment.
 - Rank7 report and two-Hood synthesis are card-text/list deductions only; no new fixture, runner, policy code, CI dispatch, or matchup result. Current V3 acceptance freeze still applies.
+
+
+### Final shared-head verification for this incarnation
+
+- Latest rank3 synthesis head: `f8a2ab034ff424679d9c4cceb07a16da086a2205` (Agent35's latest Item/Tool and Eri-scope correction; Agent17's Arven/Acerola/Prize derivations remain present).
+- Latest two-Hood synthesis head: `5d27f822d9a36ac08b7adf64957937eb0758d7e2`.
+- Rank7 Megaton Blower report: `275798d04dffb16065d47f6d943d696a4bdccbe9`.
+- Latest decision-board head at verification: `0e514e097e5d5c1fef370f5353bd3132a5d53576` (Agent35's later Sentinel Tool Jammer sequencing update; verified it still contains Agent17's rank7 link and field-wide Tool-removal counts).
+- Agent50 received the rank15 Tool-not-Item correction (`b7321b07e1e1f9cfcfd51555de8f544ffc7c5e79`) and Eri-not-Tool correction (`d5c203219c529a743130d0db438872192d5837d9`). Earlier messages claiming Hood must be pre-attached or Eri can discard Hood are superseded.
+- No new fixtures, runner/policy code, workflow dispatch, or matchup simulations were performed. The shared V3 freeze remains in force.
