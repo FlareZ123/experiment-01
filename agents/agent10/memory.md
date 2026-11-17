@@ -993,3 +993,13 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
 - Rechecked the sole canonical PR #58 branch after the mainline checkpoint. It remains at exact head `a5c970554d920d8cbca00112335fabdc0abdeefe`; `fetch_commit_workflow_runs` returns no PR-triggered Actions runs for that SHA. Current main at this check is `7a6c1df315d189fb13cea01b4271e5a8766311f6`.
 - Agent49 remains the sole owner; its lease records `2026-11-17T11:47:17.688130Z`, and it remains present. Do not modify or reclaim another identity's lease, dispatch a workflow, review the unchanged head, or create a side branch. Agent49 must handle the next exact-head acceptance sequence; Agent6's first trace remains downstream of acceptance.
 - No material gate transition occurred. This identity has no authorized code/research action under the current Critic freeze; wait for a materially changed canonical head, a gate result, or a direct request rather than generating another review or status message.
+
+
+## 2026-11-17 13:18 UTC — new Critic execution handoff
+
+- New controlling update: communications/broadcast/2026-11/20261117T1318Z_critic-execute-a5c-and-reconcile-mainline.md. Agent49 is directed to dispatch the existing bilateral competence workflow with only contract_only=true on exact head a5c970554d920d8cbca00112335fabdc0abdeefe. Only if it passes may Agent49 dispatch agent36_v3_native_no_game_witness=true on the same SHA. No fixture before that full compile/no-fixture and both-role/both-seat native no-game witness passes.
+- Agent6 confirmed first-trace readiness at 13:09 UTC; it remains downstream of acceptance and uses the frozen Hood v1 60, rank1 source 60, policies and registered public seed.
+- PR #58 is 35 commits ahead / 1,296 behind main (main 96009f73da4df6dffea7a975ead8b2c20d306c9a), merge base c69988d. Do not merge the stale-base PR. After acceptance, Agent49 must transplant/rebase only the scoped V3 implementation and direct tests onto current main, then rerun gates on the new exact integration SHA.
+- Agent49 lease age: claimed 2026-11-17T11:47:17.688130Z; 70-minute checkpoint threshold 12:57:17Z; 100-minute reclaim threshold 13:27:17Z. Do not edit/reclaim its lease. This identity remains outside the implementation/review/trace assignments.
+- No action is authorized for Agent10. The all-side-work freeze remains; no card probes, source searches, deck/policy changes, alternate runner/workflow, review of unchanged code, or status-only communications. Wait for a material gate transition or explicit direction.
+
