@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {snapshotFullState,summarizePolicyConfiguration,createFullStateTraceRecorder,formatFullStateTrace}=
+const {snapshotFullState,summarizePolicyConfiguration,summarizeNativeStateForText,createFullStateTraceRecorder,formatFullStateTrace}=
   require('../../../simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');
 
 test('snapshot preserves concealed zones, card identities, attack data and cycles without invoking getters',()=>{
@@ -24,11 +24,12 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
 
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
   const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123,policyConfiguration:[{seat:0,tacticOrder:['AttackTactic','PlayBasicTactic'],promptResolverOrder:['ChooseCardsPromptResolver']}]});
-  const initial={turn:1,players:[{hand:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[]};
+  const initial={turn:1,phase:'PLAYER_TURN',activePlayer:0,players:[{id:101,deck:{cards:[{fullName:'Psychic Energy'}]},hand:{cards:[{fullName:'Quick Ball FST 237'}]},discard:{cards:[]},lostzone:{cards:[]},prizes:[{cards:[{fullName:"Boss's Orders PAL 172"}]}],stadium:{cards:[]},supporter:{cards:[]}}],prompts:[{playerId:101,message:'Choose a Pokémon',cards:{cards:[{fullName:'Shadow Rider Calyrex V'}]}}],logs:[]};
   const board=[{active:{name:'Shadow Rider Calyrex',printedAttacks:[{name:'Max Geist',cost:['Psychic','Psychic']}]},bench:[],stadium:[]}];
-  recorder.captureInitial(initial,board);
+  const humanSummary=summarizeNativeStateForText(initial,board);
+  recorder.captureInitial(initial,board,humanSummary);
   const after={turn:1,players:[{hand:{cards:[]},discard:{cards:[{fullName:'Quick Ball FST 237'}]}}],logs:[{message:'Quick Ball played'}]};
-  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,playerId:101,actionType:'PlayCardAction',turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',publicBoard:board,pendingPrompt:{message:'Choose a Pokémon'}});
+  recorder.captureStep({state:after,action:{kind:'PlayCardAction',card:{fullName:'Quick Ball FST 237'}},actionOrdinal:1,playerSlot:0,playerId:101,actionType:'PlayCardAction',turnBefore:1,turnAfter:1,phaseBefore:'PLAYER_TURN',phaseAfter:'PLAYER_TURN',publicBoard:board,humanSummary,pendingPrompt:{message:'Choose a Pokémon'}});
   recorder.captureFinal(after);
   const trace=recorder.result();
   assert.equal(trace.complete,true);
@@ -39,11 +40,16 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.match(JSON.stringify(trace.nativeLogs),/Quick Ball played/);
   assert.match(JSON.stringify(trace.initialPublicBoard),/Max Geist/);
   assert.match(JSON.stringify(trace.steps[0].publicBoard),/Max Geist/);
+  assert.match(JSON.stringify(trace.initialHumanSummary),/Psychic Energy/);
+  assert.match(JSON.stringify(trace.initialHumanSummary),/Boss's Orders PAL 172/);
+  assert.match(JSON.stringify(trace.initialHumanSummary),/Max Geist/);
   const text=recorder.text();
   assert.match(text,/TWINLEAF OFFLINE FULL-STATE TRACE/);
   assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
   assert.match(text,/SELECTED ACTION/);
-  assert.match(text,/PUBLIC BOARD AFTER ACTION/);
+  assert.match(text,/GAME STATE AFTER ACTION/);
+  assert.match(text,/Quick Ball FST 237/);
+  assert.doesNotMatch(text,/AFTER NATIVE STATE/);
   assert.match(text,/phase PLAYER_TURN -> PLAYER_TURN/);
   assert.match(text,/actor 101 \/ seat 0 \| PlayCardAction/);
   assert.match(text,/Choose a Pokémon/);
