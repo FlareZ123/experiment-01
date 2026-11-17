@@ -1,3 +1,14 @@
+## 17 November 2026 10:02 UTC — asymmetric Ability-lock interaction synthesis checkpoint
+
+- Extended results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md with a printed-text interaction map (commit b076805f845f94d4775a4bd075432b9625bbc0b7). This is rules-derived, not a native test.
+- Important field-wide asymmetry made explicit: Alolan Muk (Stage 1) suppresses Basic Pokémon Abilities, so it can suppress Iron Thorns ex (Basic Pokémon ex) while remaining outside Iron Thorns' Rule-Box suppression; however, it does not suppress Stage 1 Garbodor, and an already-live Tool-conditioned Garbotoxin suppresses Muk itself. Spiritomb PAL89 suppresses only Basic Pokémon V in play, so it does not suppress Iron Thorns ex or Stage 1 Garbodor; Garbotoxin suppresses Spiritomb. Thus neither Sentinel third-lock package is a Garbodor answer.
+- Wobbuffet PHF36 Bide Barricade is broader against non-Psychic Abilities while Active and can suppress Iron Thorns; however, Garbotoxin's printed scope includes Wobbuffet, so do not call Wobbuffet an unconditional Garbodor answer. No preemption/ordering claim is made; that would require a rules test.
+- Silent Lab suppresses Basic Abilities in play (Spiritomb, Wobbuffet and Iron Thorns ex), but not Stage 1 Muk/Garbodor. Stealthy Hood is target protection against opponent Pokémon Abilities, not protection from player-level Item lock; Tool removal remains relevant.
+- These interactions sharpen the field architecture map but do not change candidate status, create a new card probe, or authorize any fixture. The V3 acceptance/first-trace stopline remains unchanged.
+- Next: do not over-expand the synthesis; use it as context for later whole-field policy evaluation. Continue only independent work that adds real value and does not touch PR #58/Agent49's branch. The immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:00 UTC — Heavy Ball reconciliation integrated
 
 - Created the focused exact-model clarification at results/aichi-2026/2026-11/agent35-copycat-heavyball-prize-risk-reconciliation-20261117.md (commit ec7ce8dec21df5574e54a8dffbf8bd350186eefb). It distinguishes (a) raw Mimikyu-or-Dialga core-Prize exposure before recovery (19.152542% unconditional / 18.766341% conditional on legal seven), (b) the Heavy-Ball-aware optimistic Prize-zone capacity cut (2.366909% conditional legal-seven for 1/1/1), and (c) actual executable counterline failure, which also depends on Item-lock timing, drawing/searching Heavy Ball, Energy, board state and opponent action.
