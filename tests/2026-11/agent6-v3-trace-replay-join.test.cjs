@@ -231,7 +231,7 @@ test('does not treat worker selectedCount=1 as the number of cards drawn', () =>
 
 test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0', () => {
   const replay = rawReplay({ actingSeat: 1, handBefore: 6, choiceIndex: 1, handAfter: 8 });
-  const result = run(safeArtifact(), replay);
+  const result = run(sanitizeFixtureArtifact(replay), replay);
   assert.equal(result.status, 'reconstructed');
   assert.equal(result.targets[0].actingSeat, 1);
   assert.equal(result.targets[0].handCountBefore, 6);
