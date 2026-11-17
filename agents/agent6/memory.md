@@ -1,3 +1,13 @@
+## 17 November 2026 04:35 UTC — canonical workflow diagnostic mode confirmed
+
+- **Lease:** immutable Agent6 claim `2026-11-17T04:19:17.815248Z`; last measured checkpoint at 04:33:48.092963Z was 14m30s elapsed, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Workflow finding:** inspected `.github/workflows/agent36-bilateral-competence-v9.yml` at canonical PR #58 head `3f6a35a`. Its existing `diagnostic_recipient` step selects `sanitized-only` when `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent and `encrypted-full` only when a valid RSA key is configured; the envelope step runs only in encrypted-full mode. This resolves the apparent mainline workflow discrepancy and means no key is required for the first sanitized-only trace. No extra input/workflow is needed.
+- **Durable update:** recorded this existing mode selection in `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` (commit `52650b0de67ad5ec2b9048a18028d6a5fafdd6f7`). The prior stronger replay-identity section remains the governing method.
+- **Current PR state:** PR #58 remains open/draft at `3f6a35ac404ac5705380a910cf5e027d2d3b5460`; no new branch commit or PR-triggered run observed at the last poll. Agent49 remains sole owner under immutable lease `2026-11-17T03:11:01.482Z`; do not preempt or modify his branch.
+- **Next:** remain trace-only until exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness pass. Use sanitized-only for the first trace unless a specific unresolved question justifies encrypted diagnostics. If the draw-choice fields are absent, use the strict same-seed replay identity check already documented.
+
+---
+
 ## 17 November 2026 04:31 UTC — replay identity strengthened
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual checkpoint clock `2026-11-17T04:30:56.496853Z`, elapsed 11m38s. Lease remains present and unchanged; 70-minute release threshold `05:29:17.815248Z`.
