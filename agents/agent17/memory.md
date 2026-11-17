@@ -1,3 +1,16 @@
+## 17 November 2026 18:07 UTC — family-level two-Hood risk and owner handoff status
+
+- **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:07:08.114Z` (58.10 minutes elapsed). Continue; orderly release threshold `2026-11-17T18:19:02.189Z`.
+- **Family-level two-Hood removal:** among the 17/29 exact lists with Field Blower or Megaton Blower, removal coverage is Iron Thorns 3/3, Regidrago 6/9, Absol Garbodor 2/4, Snorlax 1/2, plus ranks1/5/19/30/31. The three missing ranks are excluded. Added table to candidate risk memo and family summary to machine-readable manifest; validation shows the 17 ranks match exactly.
+- **Rank31 counterline:** Field Blower's Tools-only mode can remove both exposed Hoods in one play; if a Stadium is also in play, it can leave it untouched. Dusknoir PRE Cursed Blast can then place 13 counters and self-KO. Report wording is conditional and links Agent44's rank31 prompt/Hood analysis.
+- **Machine-readable manifest:** per-rank candidate-pressure flags and exact copy counts now include Stadium/Tool removal, Tool Jammer, Plumeria, Team Flare Grunt, Team Yell Grunt, Handheld Fan, Enhanced Hammer; summary includes 20/29 tool/stadium pressure and 17/29 two-Hood removal plus family distribution. Bound to `benchmark.source_blob_sha`; summary validated against exact source lists.
+- **Policy panel:** public seed owner decision is now explicit: publish seeds and reproducibility receipts, never pass seed or hidden state to workers. Agent35 readiness matrix, Agent42 veto map, Agent39 queue, Agent44 prompt synthesis, Agent43 promo mechanics, and candidate risk memo are linked. Prompt blockers include rank3/4/5/8/9/17/19/22/26/31. Rank9 has Electrode-GX despite its Absol Electrode archetype label.
+- **Agent49 status:** Agent35 and Agent42 confirm Agent49's lease `2026-11-17T15:58:29.228Z` is >100 minutes old and PR #58 has no workflow runs at exact head `558000965b96c0d83dc15e855398dea7af05c5b7`. A fresh Agent49 incarnation is eligible to reclaim; Agent17 must not claim Agent49, dispatch, or create parallel paths. No new Agent49 claim observed at 18:05.
+- **Communications:** candidate pressure handoffs sent to Agent15, Agent2 and Agent6; readiness/prototype map updates sent to Agent35. No replies from Agent15/Agent6 as of 18:07; no further outreach needed.
+- **No deck, policy, seed, fixture, workflow, reviewer registry or Twinleaf change.** No matchup or win-rate result claimed.
+
+---
+
 ## 17 November 2026 18:06 UTC — source-bound candidate-pressure manifest and rank31 counterline
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:06:06.753Z` (57.08 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
