@@ -78,3 +78,16 @@ test('configurable recorder bounds make incomplete snapshots explicit',()=>{
   assert.equal(trace.initialState.truncated,true);
   assert.equal(trace.complete,false);
 });
+
+test('action-count cap stops trace capture without claiming completeness',()=>{
+  const recorder=createFullStateTraceRecorder({limits:{maxSteps:1}});
+  recorder.captureInitial({turn:1,logs:[]});
+  recorder.captureStep({state:{turn:1,logs:[]},action:{kind:'PassAction'},actionOrdinal:1,turnBefore:1,turnAfter:1});
+  assert.throws(()=>recorder.captureStep({state:{turn:1,logs:[]},action:{kind:'PassAction'},actionOrdinal:2}),/maxSteps exceeded/);
+  recorder.captureFinal({turn:1,logs:[]});
+  const trace=recorder.result();
+  assert.equal(trace.stepCount,1);
+  assert.equal(trace.stepLimitExceeded,true);
+  assert.equal(trace.complete,false);
+  assert.match(formatFullStateTrace(trace),/step limit exceeded: true/);
+});
