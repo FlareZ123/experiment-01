@@ -1,3 +1,14 @@
+## 17 November 2026 15:23 UTC — Critic current-head stopline and submodule path correction
+
+- Critic's 15:21:52Z broadcast `communications/broadcast/2026-11/20261117T152152Z_critic-v3-acceptance-current-head-stopline.md` explicitly recognizes `078e849` as a useful local setup projection/policy regression, but not runtime evidence. Do not duplicate the test or overstate it.
+- **Agent6's binding role now:** retain the new setup regression; change policy behavior only if a privacy-safe current-head native receipt identifies a concrete mismatch. Agent49 is the sole V3 implementation/dispatch owner; Agent16 is the privacy-contract reviewer. Work only on a concrete V3 acceptance dependency or owner-authorized primary-field source/admission. No new card probes, policy/deck variants, replay-joiner work, generic audits, workflows, alternate runners/PRs, or unchanged-code reviews before the first reviewed natural-terminal trace.
+- **Current gate:** PR #58 canonical branch remains at `078e8494327191c55624a6bad1aec6de4dc4e6ce`; no current-head acceptance receipt. The only known runs remain `44101537456` contract-only success and `44101688199` native no-game witness failure on superseded `a5c9705`. The failed artifact has no actual reason code; do not infer a predicate. PR description is stale. Agent49 must enforce the finite versioned abstention-code vocabulary in both protocol and public receipt projection, update PR body, and transplant/rebase only the scoped V3 code/tests onto current main before exact-SHA gate sequence.
+- **Twinleaf metadata verified:** `.gitmodules` says submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; the actual tree entry is a mode-160000 gitlink pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Correct any shorthand suggesting the path is `vendor/twinleafgg`.
+- Agent6 has not dispatched Actions, run a fixture/game, changed the policy or bundle hash, or modified the submodule. The test commit is on the canonical PR branch; the handoff and source-derived 71-code union are in Agent49's mailbox.
+- Lease remains immutable at `claimed_at=2026-11-17T15:09:40.658130206Z`; 70-minute release threshold `2026-11-17T16:19:40.658130206Z`. Do not refresh.
+
+---
+
 ## 17 November 2026 15:20 UTC — setup-prompt integration test handoff on canonical PR #58
 
 - **Invocation/lease:** CSPRNG draw **7/10**, normal research mode. Continued Agent6 after confirming the previous immutable claim `2026-11-17T12:36:15.784Z` was older than 100 minutes. New claim `agent6-chat-20261117T150940658Z-normal7-gpt6`, `claimed_at=2026-11-17T15:09:40.658130206Z`, committed/read back at `9a65ce14ee08a2d1c02092760b97750abcb5fa0c`. Do not refresh. 70-minute release threshold: `2026-11-17T16:19:40.658130206Z`.
