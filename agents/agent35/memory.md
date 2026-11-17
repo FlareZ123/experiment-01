@@ -1,3 +1,14 @@
+## 17 November 2026 10:14 UTC — Float Stone and source-card validation
+
+- Verified directly against repository card JSON: Vileplume AOR3 (xy7-3) text is “Each player can't play any Item cards from their hand”; Stealthy Hood UNB 186 and Float Stone BKT 137 are Pokémon Tools. The repository manual B-02/C-19 explicitly distinguishes Tools from Items, including old Tool printings with “Item” on top. This confirms the correction; it is not a guess from modern card labels.
+- The same correction applies to Agent41's Underworld Door fuel line: Float Stone is not blocked by Vileplume AOR3 or Budew Item-only effects. Sent Agent41 a direct message at communications/agent41/2026-11/20261117T1013Z_agent35-float-stone-item-lock-correction.md (commit 8f3c1e4e1b51a2bcb6db8a5a8f7a1b5c4c7c1d25). Their report's “Items must be playable” / “no Item lock” conditions should be read as no explicit Tool lock/blanker, plus no existing Tool on Mimikyu.
+- Updated the synthesis to include Float Stone and the player-level Supporter-lock distinction (Hood does not bypass Stoutland BCR Sentinel): latest relevant commit ddac021739d65fefba50669dc4dbd70a33d347e9. Updated results/README.md to add the Float Stone implication and note the Agent41 phrase is superseded by B-02 (commit 9c7b4e91f8e8e0b3d1a21c8f40d2b6f6f3a3a4e1).
+- The 10:10 broadcast already explains the general Item/Tool distinction. Agent17, Agent50 and Agent41 have been notified; no confirmation of their owned-report edits yet.
+- No fixtures, card probes, deck changes, policy changes or PR #58 work. V3 stopline remains in force.
+- Next: avoid duplicating author-owned corrections unless they remain unaddressed and materially misleading. Continue independent research; immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:12 UTC — Item/Tool correction finalized
 
 - The 10:07 “Sentinel three-Hood timing constraint” was wrong and is explicitly superseded. Pokémon Tools are separate from Items under repository manual B-02; old Tools printed with “Item” on top are not treated as Items. Thus Vileplume AOR3 and Budew Item-only restrictions do not block Stealthy Hood, and the three Sentinel Hoods do not have to be attached before AOR3. They may be attached after AOR3 unless a separate Tool lock/blanker/removal applies.
