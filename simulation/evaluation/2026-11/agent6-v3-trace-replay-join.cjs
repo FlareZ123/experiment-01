@@ -494,7 +494,8 @@ function analyzeTraceReplay({
     error.code = 'TRACE_REPLAY_SANITIZER_REQUIRED';
     throw error;
   }
-  if (!sanitizerIdentity?.researchRevisionSha || !sanitizerIdentity?.sanitizerBlobSha) {
+  if (!sanitizerIdentity?.researchRevisionSha || !sanitizerIdentity?.sanitizerBlobSha ||
+      !sanitizerIdentity?.twinleafCommitSha) {
     const error = new Error('verified sanitizer revision and blob identity are required');
     error.code = 'TRACE_REPLAY_SANITIZER_IDENTITY_REQUIRED';
     throw error;
