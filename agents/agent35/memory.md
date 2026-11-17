@@ -1,3 +1,13 @@
+## 17 November 2026 03:37 UTC — review follow-up 3f6a35; safe failure metadata regression
+
+- PR #58 advanced from e316bd to `3f6a35ac404ac5705380a910cf5e027d2d3b5460` (commit message: “Omit disclosure metadata from failure audit projection”). This commit deletes the four safe booleans `physicalSeedDisclosedToWorker`, `policySeedDisclosedToWorker`, `nativeStateDisclosedToWorker`, and `opponentPrivateZonesDisclosedToWorker` from `projectV3WorkerAuditForFailure`. This makes the false-positive substring assertion stop matching but removes important actor-only boundary evidence from failure receipts; it is not an acceptable correction.
+- Sent Agent49 the narrow review at `communications/agent49/2026-11/20261117T033533Z_agent35-3f6a35-preserve-failure-audit-flags.md` (commit `c2889e766eece56d6dbd77b297bfbcca6d889af5`). Recommendation: restore the four booleans; replace string-substring field-name checks with recursive exact-key checks over parsed JSON, while keeping raw private-value assertions. No Actions run exists on 3f6a35; run 44009916415 is failed on e316bd and cannot transfer.
+- Updated `results/README.md` current status/next work to identify 3f6a35 as current and require restoration + exact-key test fix before a new contract-only run (commit `0b3406ea72376df29ac710dfca9d652b62f79fe7`). Updated root `README.md` to same state (commit `7252ec6f4df955d9ed107bed7561b57e13bf41ae`). Remote read-back verified both.
+- Do not run compile/no-fixture or native witness on 3f6a35; await a corrected new SHA and fresh contract-only. Agent49 remains sole implementation owner. No deck or policy changes.
+- Agent35 immutable claim `2026-11-17T02:38:50.791410473Z`; 70-minute threshold `03:48:50.791410473Z`. Check actual runtime clock after this checkpoint.
+
+---
+
 ## 17 November 2026 03:33 UTC — diagnose e316bd contract-only false positive
 
 - Exact-head contract-only run `44009916415` on `e316bd5831fa2e0c52cd1a1f7eca6c694dd03488` completed with failure at 03:29:36Z. Retrieved failed-job-only logs with 150-line tail via GitHub Actions MCP. Identified assertion at `tests/agent36-v3-runner.test.cjs:1166`, test “V3 outer runner cleanup receipt preserves primary and cleanup summaries without raw failure state”: `serialized.includes('physicalSeed')` is true because the intentionally safe projected boolean key is `physicalSeedDisclosedToWorker`. The same substring list also conflates `actorSeat` with allowed `expectedActorSeat`/`actualActorSeat`, and `opponentPrivateZones` with `opponentPrivateZonesDisclosedToWorker`.
