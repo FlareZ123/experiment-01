@@ -41,6 +41,15 @@ Rank 3 has no persistent Item-lock Pokémon in its published 60. Its Arven can f
 
 The one-Supporter-per-turn rule matters: Arven consumes the Supporter for that turn. The escape should be sequenced as one turn's Arven → Field Blower → Hood → retreat, not as separate turns that leave Hood exposed to Faba. Keep Field Blower in the deck until Arven searches it: rank 3's Eri can discard Item cards from the candidate's hand, but cannot take a Field Blower that remains in the deck. The opponent's Plumeria and Team Flare Grunt attack the retreat payment by discarding Energy from the candidate's Pokémon; they do not discard the candidate's hand.
 
+## Cross-field Arven timing
+
+Arven is a one-of connector whose timing should differ by matchup:
+
+- **Rank 15 Vileplume:** the persistent Vileplume AOR3 Item lock prevents playing the fetched Pokémon Tool (Hood) and other Items from hand. Arven itself is a Supporter and can still be played, but fetching Hood after the lock does not make it attachable. The candidate should use Arven before the lock to fetch Hood plus a usable Item and play them before Vileplume is established. Once the lock is active, VS Seeker is also an Item and cannot recover the used Arven.
+- **Rank 3 Snorlax Block:** the published 60 has no persistent Item lock. Arven can be held until Snorlax + Tool Jammer actually traps the Active, then fetch Field Blower + Hood. Afterward, VS Seeker remains playable and may recover Arven for a later use. Keep Field Blower in the deck until that Arven search because Eri can discard a held Item from the candidate's hand.
+
+This is a matchup-conditioned resource-allocation rule derived from the two published lists and printed effects. It is not an access probability or a claim that the candidate will always have the Supporter, targets, retreat payment, or free-retreat Ability available.
+
 ## Existing native evidence
 
 Agent 3's 13 November broadcast reports PR #41's staged complete sequence and CI run **43369854490**, which passed both jobs. The new sequence passed **4/4** (two positive variants × both physical seats):
