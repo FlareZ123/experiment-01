@@ -1,3 +1,24 @@
+## 17 November 2026 17:59 UTC — rank31 counterline and full prompt-veto integration
+
+- **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual checkpoint clock `2026-11-17T17:58:28.403Z` (49.44 minutes elapsed). Continue; orderly release threshold `2026-11-17T18:19:02.189Z`.
+- **Candidate risk memo updated:** `results/aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md` now includes:
+  - 20/29 lists with Tool removal/suppression and 20/29 with Stadium-removal cards;
+  - exact candidate tools (Hood ×2, Forest Seal Stone ×1, Float Stone ×1) and Stadiums (Sky Field ×1, Dimension Valley ×1);
+  - one-Tool-per-Pokémon allocation and real Bench/Stadium AMR;
+  - Acerola pre-removal Tool-preservation boundary; no direct Tool recovery from discard/Lost Zone;
+  - Dowsing Machine, Eco Arm and Lusamine as distinct post-trace recovery architectures;
+  - possible bench-Hood and bench-Forest-Seal-Stone sequencing around Tool Jammer's Active-only scope;
+  - strong text-based Stealthy Hood / Iron Thorns Initialization expectation, supported by official Stealthy Hood card text/FAQ and official Mega Clefable/Initialization Q&A, but not a direct official Hood-versus-Iron-Thorns ruling;
+  - rank31's Field Blower Tools-only mode can remove both Hoods in one play while leaving a Stadium, then Dusknoir PRE Cursed Blast can place 13 counters and self-KO. This exact counterline is from Agent44's source audit; no complete game demonstrated it.
+- **Policy plan updated:** `results/methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md` now integrates Agent35 readiness and prototype transfer maps, Agent42 veto map, Agent39 unblock queue, Agent44's cross-rank prompt synthesis, and Agent43's correct Japanese promo mechanics note. Specific field prompt blockers include ranks3/4/5/8/9/17/19/22/26/31; rank9 is Absol Electrode but contains Electrode-GX, rank31 needs its own Field Blower/Cursed Blast/MoveDamage policy, and rank25 remains missing. Rank1/2/10 are identified prototypes, not competent opponents.
+- **Agent44 prompt synthesis:** partial static audit confirms rank3 Articuno-GX MoveEnergyPrompt; ranks8/19/22/26 Tapu Koko Prism Star discard-sourced multi-assignment AttachEnergyPrompt; rank5 Mew V Energy Mix deck-sourced AttachEnergyPrompt; rank19 Raging Bolt ex DiscardEnergyPrompt; rank26 Damage Pump MoveDamagePrompt; ranks4/9/17 Electrode prompts; rank31 Dusknoir / Radiant Alakazam prompts. This is not an exhaustive 29-list audit.
+- **Rank31 counterline shared:** direct message to Agent15 at `communications/agent15/20261117T175659Z_agent17-rank31-two-hood-counterline.md`. Agent15 has not replied to prior candidate-risk messages as of the last mailbox check. No further outreach needed.
+- **Manifest validation:** `agent17-aichi-policy-panel-manifest-20261117.json` passed a final consistency check: 32 unique ordered ranks, 29 exact 60-card source lists, missing 23/25/28 only, 29 prototype-distance rows, null distances only for missing ranks, and all 29 source lists sum to 60.
+- **Current V3 gate:** PR #58 still draft on head `558000965b96c0d83dc15e855398dea7af05c5b7`, with zero workflow runs as of 17:57 UTC. Agent49 remains sole dispatch/implementation owner; Agent6 owns first post-acceptance rank-1 natural-terminal trace. Do not dispatch or create parallel infrastructure.
+- **No candidate/deck/policy/seed/fixture/workflow/reviewer-registry/Twinleaf change.** No matchup or win-rate result claimed.
+
+---
+
 ## 17 November 2026 17:55 UTC — candidate Tool/Stadium decision model and policy veto integration
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T17:54:55.498Z` (45.89 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`. Never refresh lease.
