@@ -14,7 +14,8 @@ Candidate inventory:
 For the second-Hood line, assume:
   * the first Hood is attached on the candidate's first turn;
   * Arven is prioritized for the reserve when it is available;
-  * if Arven fetched the first Hood, VS Seeker can recover it on turn two;
+  * if Arven fetched the first Hood, its Item search can fetch VS Seeker, which
+    recovers Arven on turn two;
   * the player draws one normal card at the start of each turn;
   * optional mulligan cards are drawn after the six Prizes are set.
 
@@ -36,6 +37,8 @@ from math import comb
 CANDIDATE_BASICS = 14
 K_MAX = 10
 TOTAL = (2, 1, 2, 14, 41)  # Hood, Arven, VS Seeker, Basic, Other
+OTHER_ITEM_COUNT = 14  # candidate's 14 Items other than the two VS Seekers
+MAX_CARDS_SEEN_BY_T1 = 24  # opening 7 + Prizes 6 + up to 10 bonus + normal draw 1
 
 
 def compositions(n, limits):
@@ -138,16 +141,17 @@ def access_for_bonus(mulligan_bonus, candidate_goes_first):
                     continue
 
                 if arven_used_for_first:
-                    # Arven fetched the first Hood. One Hood must remain in deck;
-                    # VS Seeker can recover Arven, or the next draw can be Hood
-                    # / VS Seeker. The Arven search removes one card from deck.
+                    # Arven fetches the first Hood (Tool) AND a VS Seeker (Item)
+                    # when at least one VS Seeker is not Prized. On turn 2, VS
+                    # Seeker recovers Arven, which searches the reserve Hood.
+                    # If both VS Seekers are Prized, the remaining Hood can still
+                    # be drawn naturally; Arven's Item search removes one other
+                    # Item, so the remaining deck has 45 - pre_draws cards.
                     hoods_left = hood_deck - 1
-                    if hoods_left >= 1:
-                        if vs_seeker >= 1:
-                            success = Fraction(1)
-                        else:
-                            vs_left = 2 - prizes[2] - vs_seeker
-                            success = Fraction(hoods_left + vs_left, 46 - pre_draws)
+                    if hoods_left >= 1 and prizes[2] < 2:
+                        success = Fraction(1)
+                    elif hoods_left >= 1:
+                        success = Fraction(hoods_left, 45 - pre_draws)
                     else:
                         success = Fraction(0)
                 else:
@@ -223,7 +227,25 @@ def main():
     print("Prize-only comparison:")
     print(f"  Second Hood not Prized, conditional on first Hood not Prized: {percent(Fraction(53, 59))}")
     print(f"  Both Hoods Prized in six Prizes: {percent(Fraction(1, 118))}")
-    print("These Prize-only figures do not imply that Arven / VS Seeker is in hand in time.")
+    print("These Prize-only figures do not imply that the full Arven -> VS Seeker -> Arven line is available.")
+    item_shortage_bound = Fraction(
+        comb(MAX_CARDS_SEEN_BY_T1, OTHER_ITEM_COUNT), comb(60, OTHER_ITEM_COUNT)
+    )
+    q = Fraction(comb(46, 7), comb(60, 7))
+    p = 1 - q
+    max_draw_probability_delta = Fraction(1, 34 * 35)  # max at 11 pre-turn draws
+    candidate_item_effect = item_shortage_bound / p * max_draw_probability_delta
+    joint_item_effect = item_shortage_bound / (p * p) * max_draw_probability_delta
+    print(
+        "Arven second-Item availability: P(all 14 non-VS Items among the first 24 cards) "
+        f"<= {float(item_shortage_bound):.3e} unconditional "
+        f"({float(item_shortage_bound / p):.3e} conditional on a valid candidate opening)."
+    )
+    print(
+        "  Maximum reserve-probability effect from that rare shortage: "
+        f"{float(candidate_item_effect):.3e} candidate-side; "
+        f"{float(joint_item_effect):.3e} in paired overlap conditional on both valid openings."
+    )
 
 
 
