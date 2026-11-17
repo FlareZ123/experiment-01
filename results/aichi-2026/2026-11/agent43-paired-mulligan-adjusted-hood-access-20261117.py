@@ -140,7 +140,7 @@ def rank1_removal_access_after_draws(draw_count, event_name):
                 draw_weight = choose_weight(after_prizes, draws)
                 hand = tuple(opening[i] + draws[i] for i in range(5))
                 direct = hand[0] >= 1
-                fss_line = hand[1] >= 1 and hand[2] >= 1
+                fss_line = prizes[0] == 0 and hand[1] >= 1 and hand[2] >= 1
                 if event_name == "direct":
                     event = direct
                 elif event_name == "fss":
@@ -248,6 +248,60 @@ def rank3_eri_probability():
     return p_open, p_by_first_turn
 
 
+@lru_cache(None)
+def rank1_ko_search_access_after_draws(draw_count, event_name):
+    # Field Blower x1, Teammates/Raihan x2, Basics x14, Other x43.
+    total = (1, 2, 14, 43)
+    valid_openings = comb(60, 7) - comb(46, 7)
+    denominator = valid_openings * comb(53, 6) * comb(47, draw_count)
+    numerator = 0
+    for opening in compositions(7, total):
+        if opening[2] == 0:
+            continue
+        opening_weight = choose_weight(total, opening)
+        after_opening = tuple(t - x for t, x in zip(total, opening))
+        for prizes in compositions(6, after_opening):
+            prize_weight = choose_weight(after_opening, prizes)
+            after_prizes = tuple(r - p for r, p in zip(after_opening, prizes))
+            for draws in compositions(draw_count, after_prizes):
+                draw_weight = choose_weight(after_prizes, draws)
+                hand = tuple(opening[i] + draws[i] for i in range(4))
+                direct = hand[0] >= 1
+                search = hand[1] >= 1 and prizes[0] == 0
+                if event_name == "direct":
+                    event = direct
+                elif event_name == "search":
+                    event = search
+                elif event_name == "union":
+                    event = direct or search
+                else:
+                    raise ValueError(event_name)
+                if event:
+                    numerator += opening_weight * prize_weight * draw_weight
+    return Fraction(numerator, denominator)
+
+
+def integrate_rank1_ko_response(base_draws):
+    probs, residual, mean, p_ge_one = paired_bonus_distribution(14, "opponent")
+    lower = {"direct": Fraction(0), "search": Fraction(0), "union": Fraction(0)}
+    for bonus_cards, probability in enumerate(probs):
+        draws = bonus_cards + base_draws
+        for event_name in lower:
+            lower[event_name] += probability * rank1_ko_search_access_after_draws(
+                draws, event_name
+            )
+    return {
+        event: {
+            "lower": value,
+            "upper": value + residual,
+            "tail": residual,
+            "mean_bonus": mean,
+            "p_bonus": p_ge_one,
+        }
+        for event, value in lower.items()
+    }
+
+
 def integrate_rank1_response(base_draws):
     probs, residual, mean, p_ge_one = paired_bonus_distribution(14, "opponent")
     lower = {"direct": Fraction(0), "fss": Fraction(0), "combined": Fraction(0)}
@@ -338,6 +392,7 @@ def show(label, result):
 def main():
     r1_first = integrate_rank1_response(1)
     r1_second = integrate_rank1_response(2)
+    r1_ko = integrate_rank1_ko_response(2)
 
     r3_first = integrate(11, "candidate", "rank3_candidate_escape", 1)
     r3_second = integrate(11, "candidate", "rank3_candidate_escape", 2)
@@ -366,6 +421,9 @@ def main():
         show(f"{window}, direct Field Blower", result["direct"])
         show(f"{window}, Forest Seal Stone + V potential", result["fss"])
         show(f"{window}, combined if Star Alchemy unspent", result["combined"])
+    print("Rank 1 if candidate KOs on its first turn going second (Teammates/Raihan become live)")
+    show("Opponent Teammates/Raihan in hand and Field Blower not Prized", r1_ko["search"])
+    show("Opponent direct Field Blower or Teammates/Raihan search", r1_ko["union"])
     print()
     print("Rank 3 (opponent 11 Basics; Eri x1)")
     show("Candidate escape, first own turn going second", r3_first)
