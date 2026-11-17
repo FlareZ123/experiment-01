@@ -71,7 +71,7 @@ The candidate has two additional Tool copies besides the two Hoods: **Forest Sea
 - **Float Stone** is a retreat resource. Tool Jammer can suppress it while the attached Pokémon is Active; Field Blower / Megaton Blower / Faba can remove it.
 - **Bench timing:** Forest Seal Stone's VSTAR Power does not require the attached Pokémon V to be Active. Attaching it to a Benched Pokémon V and using Star Alchemy before it can be removed is a plausible way to keep it outside Tool Jammer's Active-only scope. This still does not protect it from Field Blower, Megaton Blower or Faba.
 
-The later suite should track all four Tool copies as separate resources: Hood (Ability protection), Forest Seal Stone (one-use search), Float Stone (retreat), and any opponent Tool (Jammer / Fan) that must be removed. Do not collapse them into one generic "Tool count."
+The later suite should track all four Tool copies as separate resources: Hood (Ability protection), Forest Seal Stone (one-use search), Float Stone (retreat), and any opponent Tool (Jammer / Fan) that must be removed. Do not collapse them into one generic "Tool count." Only one Pokémon Tool can be attached to a Pokémon at a time, so the Hooded engine Shadow Rider and the Forest Seal Stone carrier must be different Pokémon; include actual Bench capacity and Stadium state in the AMR ledger.
 
 ## Possible bench-Hood sequencing line (hypothesis, not yet validated)
 
