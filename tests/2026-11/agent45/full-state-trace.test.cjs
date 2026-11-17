@@ -49,3 +49,19 @@ test('trace rejects skipped action ordinals and marks bounded snapshots as trunc
   const snap=snapshotFullState({a:{b:{c:1}}},{maxDepth:1});
   assert.equal(snap.truncated,true);
 });
+
+test('failure stages preserve the rejected action and error while keeping cumulative logs out of repeated snapshots',()=>{
+  const recorder=createFullStateTraceRecorder({label:'failed-decision'});
+  const initial={turn:2,players:[],logs:[]};
+  recorder.captureInitial(initial);
+  const failed={turn:2,players:[],logs:[{message:'last accepted action'}]};
+  const error=new Error('synthetic decoder failure');
+  recorder.captureStep({state:failed,action:null,actionOrdinal:1,playerSlot:1,turnBefore:2,turnAfter:2,pendingPrompt:{message:'Choose a card'},error,failureStage:'bot-decoder'});
+  recorder.captureFinal(failed);
+  const trace=recorder.result();
+  assert.equal(trace.steps[0].failureStage,'bot-decoder');
+  assert.match(JSON.stringify(trace.steps[0].error),/synthetic decoder failure/);
+  assert.ok(JSON.stringify(trace.steps[0].afterState).includes('"logs":{"$type":"OmittedForTrace","itemCount":1}'));
+  assert.match(JSON.stringify(trace.nativeLogs),/last accepted action/);
+  assert.equal(trace.complete,true);
+});
