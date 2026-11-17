@@ -107,9 +107,10 @@ def access_after_draws(total, basic_index, draw_count, event_name):
                     # Arven, Hoods, Basics, Other.
                     event = hand[1] >= 1 or (hand[0] >= 1 and prizes[1] < 2)
                 elif event_name == "rank15_two_hoods":
+                    # If one Hood is in hand, the second must be in deck, not Prizes.
                     event = (
                         hand[1] >= 2
-                        or (hand[1] == 1 and hand[0] >= 1 and prizes[1] < 2)
+                        or (hand[1] == 1 and hand[0] >= 1 and prizes[1] == 0)
                     )
                 else:
                     raise ValueError(event_name)
