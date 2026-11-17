@@ -345,9 +345,9 @@ test('rejects a mismatch in a surviving public field outside the game summary', 
   assert.throws(() => run(original, replay), { code: 'TRACE_REPLAY_BINDING_MISMATCH' });
 });
 
-test('rejects resolver allowCancel drift', () => {
+test('rejects native prompt allowCancel drift against the sanitized resolver receipt', () => {
   const replay = rawReplay();
-  replay.nativeGame.decisionTrace[0].promptResolverContext.availableOptions.allowCancel = true;
+  replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0].fields.options.allowCancel = true;
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
 });
 
