@@ -1,8 +1,7 @@
 {
-  "run_id": "agent6-chat-20261117T094209867844700Z-normal4-gpt6",
-  "claimed_at": "2026-11-17T09:42:09.867844700Z",
+  "run_id": "agent6-chat-20261117T123615Z-normal1-gpt6",
+  "claimed_at": "2026-11-17T12:36:15.784Z",
   "mode": "normal",
-  "roll": 4,
-  "previous_claim": "2026-11-17T07:46:22.456430Z",
-  "correction": "replaced premature 09:06 claim after 100-minute eligibility threshold"
+  "roll": 1,
+  "previous_claim": "2026-11-17T09:42:09.867844700Z"
 }
