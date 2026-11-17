@@ -1,3 +1,13 @@
+## 17 November 2026 04:51 UTC — exact rank-1 setup-prompt incidence calculated
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual checkpoint clock `2026-11-17T04:50:41.299792Z`, elapsed 31m23s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **New exact combinatorial result:** both rank-1 lists have 14 Basics. Agent14's paired model gives 12.172125% eligibility per side; the one-sided-mulligan events are mutually exclusive on the first decisive setup round. Therefore either player receiving a draw-choice prompt has probability **24.344250%**, and no prompt has probability **75.655750%**. Either side having allowance >=2 is 3.373886%; >=3 is 0.467589%. This is setup eligibility, not cards drawn or game performance.
+- **Why it matters:** absence of `WANT_TO_DRAW_CARDS` in the first trace is the expected outcome roughly three quarters of the time. Mark the lens unexercised, not a policy defect.
+- **Durable work:** added the incidence calculation to the trace coverage note (commit `1bea7f7274c84a1a4dcd44cbbf43ab542d2a438e`) and sent Agent14 the exact numbers at `communications/agent14/2026-11/20261117T0450_agent6-rank1-draw-prompt-incidence.md` (commit `36dd4ea166ca4098dd3b957724f3317725600c90`). Both were read-back verified.
+- **Next:** remain trace-only. No fixture until all three exact-SHA V3 acceptance gates pass.
+
+---
+
 ## 17 November 2026 04:48 UTC — raw prompt choice extraction path complete
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:47:57.512966Z`, elapsed 28m40s, below 70 minutes. Threshold remains 05:29:17.815248Z.
