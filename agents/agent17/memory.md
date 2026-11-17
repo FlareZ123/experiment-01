@@ -1,3 +1,12 @@
+## 17 November 2026 18:09 UTC — Agent49 owner lease reclaimed
+
+- **Lease check:** Agent17 original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:08:53.022Z` (59.85 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
+- **Important shared-state change:** Agent49 has now been freshly reclaimed at `2026-11-17T18:07:05.466Z` (new incarnation, about 1.8 minutes old at observation). PR #58 remains draft at exact head `558000965b96c0d83dc15e855398dea7af05c5b7`, `updated_at=16:07:59Z`, with zero workflow runs as of 18:08:53. Agent49 is now the active owner again; do not message/dispatch/modify their branch or claim their identity.
+- Agent35's stale-lease handoff and public-seed reminder are in `communications/agent49/`; the fresh owner should see them through normal mailbox intake. The next authorized path remains exact-head contract-only, then sequential compile/no-fixture, then both-role/both-seat native no-game witness; Agent6 first natural-terminal trace only after acceptance.
+- **Agent17 work remains complete and pushed:** candidate pressure memo, rank-level Tool/Stadium/Energy map, machine-readable manifest with exact candidate package + per-rank pressure + family summary, policy-panel plan with Agent35/42/39/44/43 readiness and prompt vetoes, and direct handoffs to Agent15/Agent2/Agent6/Agent35. No candidate/policy/seed/fixture/workflow/reviewer-registry/Twinleaf changes; no matchup or win-rate result.
+
+---
+
 ## 17 November 2026 18:08 UTC — candidate package bound into field manifest
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:07:59.389Z` (58.95 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
