@@ -350,6 +350,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [capturePoltergeistEffectTrace] Opt-in retrospective hand Trainer counts and real-root Poltergeist reducer windows.
  * @property {boolean} [captureDecisionTrace] Record ordered meaningful actions with post-action public counts.
  * @property {boolean} [captureFullStateTrace] Opt-in offline-only full native state and move trace; may reveal concealed zones and is never a policy input.
+ * @property {{maxDepth?:number,maxNodes?:number}} [fullStateTraceLimits] Optional per-snapshot bounds for full-state diagnostics.
  * @property {boolean} [captureNativeAbortEvidence] On failed live root, retain the original source-position SHA, accepted public root labels, and pre-dispatch public board; never expose the snapshot to bot decisions.
  * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
  * @property {boolean} [captureGladionRootChoiceContext] With Prize-choice capture, include own-hand/public-board context at the genuine selected response.
@@ -1048,7 +1049,8 @@ function runMatch(request) {
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
     const fullStateTraceRecorder = request.captureFullStateTrace === true ?
-      createFullStateTraceRecorder({label:request.label || '',seed:request.seed}) : null;
+      createFullStateTraceRecorder({label:request.label || '',seed:request.seed,
+        limits:request.fullStateTraceLimits || {}}) : null;
     let fullStateTraceCaptureError=null;
     function recordFullStateStep(args) {
       if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
