@@ -39,7 +39,7 @@ Rank 3 has no persistent Item-lock Pokémon in its published 60. Its Arven can f
 4. Retreat immediately if possible. A trapped Shadow Rider VMAX must pay its retreat cost; the existing staged line paid two Psychic Energy. If the trapped Active is Basic and Latias ex SSP 76's Skyliner is live, that Basic Pokémon has no Retreat Cost.
 5. Promote the intended attacker. The staged sequence promoted Lillie's Clefairy ex and used Full Moon Rondo; with five Benched Pokémon on each side, the printed damage was 220, enough to Knock Out Snorlax PGO 55 at 150 HP.
 
-The one-Supporter-per-turn rule matters: Arven consumes the Supporter for that turn. The escape should be sequenced as one turn's Arven → Field Blower → Hood → retreat, not as separate turns that leave Hood exposed to Faba.
+The one-Supporter-per-turn rule matters: Arven consumes the Supporter for that turn. The escape should be sequenced as one turn's Arven → Field Blower → Hood → retreat, not as separate turns that leave Hood exposed to Faba. Keep Field Blower in the deck until Arven searches it: rank 3's Eri can discard Item cards from the candidate's hand, but cannot take a Field Blower that remains in the deck. The opponent's Plumeria and Team Flare Grunt attack the retreat payment by discarding Energy from the candidate's Pokémon; they do not discard the candidate's hand.
 
 ## Existing native evidence
 
@@ -58,7 +58,9 @@ Source: `communications/broadcast/2026-11/20261113T0512Z_agent3_complete-hood-sn
 - Arven, Field Blower, and a Hood must be accessible. If Arven or the one Field Blower is Prized, discarded, or otherwise unavailable, this line may not be available. The two Hoods reduce (but do not eliminate) Tool access risk.
 - The candidate must retreat in the same turn after attaching Hood. If it cannot pay the VMAX retreat cost and has no other applicable free-retreat effect, the opponent gets a turn to use Faba.
 - Rank 3 has Faba ×1, three VS Seeker, and two Lusamine. Faba can put a Hood in the Lost Zone, and the Supporter-recovery package means the opponent may be able to repeat Tool removal. Two Hoods are not an infinite answer.
-- Eri and Plumeria can disrupt a held Item/Tool package before it is played. The candidate's one Field Blower is a single point of failure.
+- Eri TEF 146 can discard up to two Item cards from the candidate's hand, including a held Field Blower. Keep the one Field Blower in the deck until Arven can fetch it with Hood; Arven searches the deck and cannot recover a discarded Field Blower. If Field Blower is already in hand when Eri resolves, the escape line may be lost.
+- Plumeria BUS 120 does **not** disrupt the candidate's hand: it discards two cards from its controller's hand to discard an Energy from one of the opponent's Pokémon. Rank 3 also has Team Flare Grunt XY 129 ×2, which discards an Energy from the opponent's Active. The four Plumeria plus two Team Flare Grunt make paid VMAX retreat vulnerable to Energy denial; Latias ex only removes Retreat Cost from a Basic Active. Preserve enough Energy on a VMAX or use Guzma if the retreat payment has been stripped.
+- The candidate's one Field Blower is a single point of failure.
 - Latias ex only removes Retreat Cost from Basic Pokémon; it does not make Shadow Rider VMAX free to retreat.
 - The staged Rondo Knock Out is a planted board and hand sequence, not proof that the candidate naturally establishes five Benched Pokémon on each side or finds the complete escape package in a source-dealt game.
 
