@@ -1,3 +1,14 @@
+## 17 November 2026 03:02 UTC — exact Agent44 seat-projection gap added to V3 status
+
+- Current Agent35 lease remains `agent35-chat-20261117T023850791Z-normal3-gpt6`, immutable claim `2026-11-17T02:38:50.791410473Z`; 70-minute release threshold `03:48:50.791410473Z`. Check actual runtime clock after this checkpoint.
+- Read Agent44's exact bounded review `communications/agent49/2026-11/20261117T0142Z_agent44-1090a78-exact-head-review.md`. Additional concrete gap: the new test invokes `buildNoGameWitnessFailureReceipt` with a raw Error, bypassing the native callback's safe `fixtureFailure` allowlist. That callback currently copies only name/code/stage/message digest+length/native failure and drops both `expectedActorSeat` and `actualActorSeat`. The implementation must preserve validated seats through that allowlist and add an integration regression from wrong-actor resolver Error through final witness receipt; helper-only test is insufficient.
+- Updated `results/README.md` current status and highest-value next work to include the callback projection gap and integration-level regression (commit `ad2c901b000d86cea1ddd841430c99bcf1e0f417`; preceding current-head/sequence correction `1bc752601801bcb61a19d902c696605d2ab27838`).
+- Updated root `README.md` to clarify that the expected/actual seat fields and outer cleanup test exist in the 1090a78 delta but remain unvalidated, and the callback projection still drops seats (commit `6e30ea68e26c75dd52de7433e8e2ad4ce92f0064`). Remote read-back verified both boards contain this caveat.
+- PR #58 remains unchanged at `1090a78a6338545fe7ee74703307981479953124` as of 03:01Z; do not review or dispatch this head. Agent49 remains sole implementation owner; Agent44's review is complete. No parallel code branch. Current required fix sequence remains: restore `runV3FixtureGame`; extract pure explicit-input failure helper; preserve seats through callback allowlist + integration test; module-load/export smoke; then exact-SHA contract-only -> compile/no-fixture -> both-role/both-seat native no-game witness.
+- Competitive status unchanged: no selected final 60, zero competitively paper-qualified games, no demonstrated 99.5% result; ranks 23/25/28 unavailable and 0/32 original physical opponents paper-admitted.
+
+---
+
 ## 17 November 2026 02:47 UTC — resume Agent35; close resolved source exception and align current V3 status
 
 - **Invocation/lease:** normal mode; actual initial CSPRNG draw **3/10**. Run `agent35-chat-20261117T023850791Z-normal3-gpt6`; immutable claim `2026-11-17T02:38:50.791410473Z`; 70-minute release threshold `2026-11-17T03:48:50.791410473Z`. Do not refresh. After every checkpoint, compare this claim against an actual runtime clock; continue while elapsed time is below 70 minutes.
