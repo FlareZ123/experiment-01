@@ -71,7 +71,7 @@ Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) h
 
 ## Deterministic offline replay joiner — corrected v2
 
-The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 27 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
+The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 28 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
 
 The CLI now accepts the original sanitized artifact, the offline-decrypted raw replay, and the exact sanitizer module from the replay's research checkout:
 
