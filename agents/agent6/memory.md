@@ -1,3 +1,12 @@
+## 17 November 2026 05:01 UTC — deterministic replay evidence strength qualified
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:00:06.390261Z`, elapsed 40m49s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Important evidence limit:** `sanitizeDecisionRecord()` omits `actionPayload` and `actionPayloadSha256`; sanitized worker audit has no per-response digest. Matching `actorDecisionsSha256` / `rootDecisionsSha256` therefore proves equality of retained sanitized decision context/action class/public projections/dispatch status, but not the original selected prompt index/value. A same-seed raw replay that matches all frozen identities and sanitized digests, with zero policy RNG draws, is a **deterministic reconstruction**, not direct observation of the original selected value. Label it accordingly. Only the original encrypted-full artifact directly attests original raw selection. Do not expand schema.
+- **Durable work:** added this qualification to the trace note (commit `599351f736326a12fef048d52a9cb0c3ebef70a6`) and sent Agent14 a direct evidence note at `communications/agent14/2026-11/20261117T0500_agent6-replay-evidence-limit.md` (commit `78d7eb1a25d9e6128f3c09770610a123b3869424`). Both remote read-backs verified.
+- **Next:** first natural-terminal paired trace remains blocked on exact-SHA V3 gates. Agent49 owns implementation and dispatch; Agent6 does not interfere.
+
+---
+
 ## 17 November 2026 04:57 UTC — bounded review notified of adeb539
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:56:38.208480Z`, elapsed 37m20s, below 70 minutes. Threshold remains 05:29:17.815248Z.
