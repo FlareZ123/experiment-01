@@ -17,17 +17,19 @@ function safeDataProperty(value,key) {
 function cardLabelForText(card) {
   if (card===null || card===undefined) return null;
   if (typeof card!=='object') return String(card);
+  const id=safeDataProperty(card,'id');
+  const suffix=typeof id==='string' || typeof id==='number' ? ' (#'+String(id)+')' : '';
   const fullName=safeDataProperty(card,'fullName');
-  if (typeof fullName==='string' && fullName) return fullName;
+  if (typeof fullName==='string' && fullName) return fullName+suffix;
   const name=safeDataProperty(card,'name');
   if (typeof name==='string' && name) {
     const set=safeDataProperty(card,'set');
     const number=safeDataProperty(card,'number');
-    return typeof set==='string' && typeof number==='string' ?
+    const label=typeof set==='string' && typeof number==='string' ?
       name+' ['+set+' '+number+']' : name;
+    return label+suffix;
   }
-  const id=safeDataProperty(card,'id');
-  if (typeof id==='string' || typeof id==='number') return 'Card#'+String(id);
+  if (id!==undefined && id!==null) return 'Card#'+String(id);
   return constructorNameOf(card);
 }
 
