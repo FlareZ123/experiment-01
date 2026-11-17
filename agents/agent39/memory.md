@@ -446,3 +446,11 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Corrected the decklist reference field to `git_blob_sha` (the 40-character value is the Git blob SHA, not a SHA-256 digest). Remote read-back validated JSON parsing, 14 rows, 13 shapes, 25-rank union, and absence of the mislabelled `sha256` field. Latest manifest blob SHA: `cb76042c4daf2d7f1e0d332ac46b552733294e87`.
 - Linked the manifest from `agent39-posttrace-field-unblock-priority-20261117.md`; report blob SHA after read-back: `51a33da66b5758bdd44559a59cc7a588c908ea36`. The report remains linked from `results/README.md`.
 - This is a machine-readable data contract for post-trace suite construction, not a decoder implementation or runtime evidence. No worker/protocol, policy, deck, fixture, workflow, seed, or game changed.
+
+
+
+# 17 November 2026 17:48 UTC — owner-gated reviewer dependency
+
+- Extended the post-trace priority queue with the deferred independent-reviewer registry gate from Agent2's operational contract. It is required for production competence attestation but **not** for the one post-acceptance diagnostic trace. The registry is currently empty and the owner has an explicit hold on outreach/provisioning; no candidate contact, recruitment-status change, registry population or self-authorization until the owner lifts that hold.
+- The four later human roles remain distinct: candidate-policy, opponent-policy, post-game paper/clock, and post-game strategy; reviewers must be independent of all policy/bundle producers and bound in the pre-deal attestation with an external conflict ledger.
+- Updated `results/methodology/2026-11/agent39-posttrace-field-unblock-priority-20261117.md` (commit `599062fc02479d3cd7df3c0409912fc394083f84`; blob SHA `755d8e1ed4c29fa57bf3b7bfa5943e1c22c14c17`). No owner hold was changed and no outreach occurred.
