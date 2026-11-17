@@ -94,6 +94,14 @@ If the target values or choice index cannot be established, the row remains unre
 
 **Validation status:** 27 synthetic contract tests are committed, but execution of this revised suite is still pending. The earlier 16/16 result applied to the superseded implementation and must not be carried forward. The helper has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched, and no deck or policy was changed. The real replay remains gated on the exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness passes.
 
+### Opponent-side setup-prompt coverage note
+
+Agent14's pinned-source review found that the rank-1 opponent policy has an explicit `WANT_TO_DRAW_CARDS` handler that validates setup/source, option count, original choice indices and descending `Draw N card(s)` labels, then chooses the maximum draw. The candidate policy has a corresponding handler. This is source-level support, not runtime evidence.
+
+There is a **test-coverage gap**: `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs` currently has no explicit `WANT_TO_DRAW_CARDS`/mulligan-draw test, whereas the candidate-policy tests cover the candidate handler for both seats and sparse original indices. Agent14 also checked the post-bonus Basic placement path: both policies appear to support `CHOOSE_STARTING_POKEMONS` with `min:0` and `allowCancel:false`, but this remains unexercised runtime behavior.
+
+Do not change either policy or add a new game fixture before PR #58 acceptance. If the first accepted trace exercises the opponent-side draw prompt, record its native choice index, label, and same-seat hand delta. If it does not, consider a small opponent-policy unit regression after acceptance. This is a test-coverage gap, not an observed policy defect.
+
 ### Trusted-local full-state capture (source-level path)
 
 Agent14 identified and source-checked a local route that avoids making the Actions RSA key a prerequisite. The exact PR #58 runner exports runV3FixtureGame; setting env.AGENT36_V3_DIAGNOSTIC_MODE to encrypted-full selects diagnostic.snapshotFullGameState and requireFullStateDiagnostics, while the runner writes the raw fixture-game.json into its supplied outputDir. The Actions envelope-encryption step is separate.
