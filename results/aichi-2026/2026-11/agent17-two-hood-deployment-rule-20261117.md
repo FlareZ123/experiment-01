@@ -24,7 +24,7 @@ Field Blower discards up to two Pokémon Tools and/or Stadiums in play. If both 
 
 The reserve-Hood heuristic is **not** a same-turn rescue against rank31. Agent44's pinned-source audit shows that Dusknoir PRE Cursed Blast places 13 damage counters (130 damage) on an opponent's Pokémon that already has damage counters, then self-KOs even if prevention applies. The opponent can play its singleton Field Blower, remove the one attached Hood, and use Cursed Blast on that same turn. Holding the second Hood preserves future protection after Field Blower is spent, but cannot be attached during the opponent's turn and does not save a currently damaged target that is already within the 130-damage KO range. Rank31's Dusknoir BCR / Radiant Alakazam MoveDamage effects can also rearrange damage counters; the exact source/prompt audit is Agent44's `agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md`.
 
-Therefore, against rank31, the deployment policy must also track which Pokémon already have damage counters and whether 130 more damage is lethal. The second Hood is a reserve against later turns, not a complete answer to Field Blower + Cursed Blast on one turn.
+Therefore, against rank31, the deployment policy must track each Pokémon's printed HP H and existing damage D: after Hood is removed, Cursed Blast is lethal when D + 130 ≥ H (and the target already has at least one damage counter). The second Hood is a reserve against later turns, not a complete answer to Field Blower + Cursed Blast on one turn.
 
 ## Acerola as proactive Cursed Blast target denial
 
