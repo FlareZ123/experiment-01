@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "benchmark": "Aichi Open League 2026 Top 32",
+  "title": "AttachEnergyPrompt source-shape inventory",
+  "evidence_class": "Pinned-source inventory from Agent40; no compiled native regression or game result is implied.",
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "source_decklists": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "sha256": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  },
+  "source_matrix": "communications/agent49/2026-11/20261115T173951Z_agent40-aichi-attach-energy-prompt-matrix.md",
+  "protocol_gap_source": "communications/agent49/2026-11/20261115T174229Z_agent40-energy-attachment-multiselect-protocol-gap.md",
+  "summary": {
+    "source_rows": 14,
+    "distinct_prompt_shapes": 13,
+    "ranks_with_prompt": [
+      1,
+      2,
+      4,
+      5,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      24,
+      26,
+      27,
+      29,
+      30,
+      32
+    ],
+    "ranks_without_prompt_among_available": [
+      3,
+      7,
+      15,
+      31
+    ],
+    "missing_source_ranks_unknown": [
+      23,
+      25,
+      28
+    ],
+    "source_row_count_by_rank": {
+      "1": 2,
+      "2": 1,
+      "4": 2,
+      "5": 1,
+      "6": 1,
+      "8": 3,
+      "9": 2,
+      "10": 5,
+      "11": 2,
+      "12": 4,
+      "13": 4,
+      "14": 4,
+      "16": 2,
+      "17": 2,
+      "18": 4,
+      "19": 4,
+      "20": 4,
+      "21": 5,
+      "22": 2,
+      "24": 1,
+      "26": 1,
+      "27": 4,
+      "29": 1,
+      "30": 4,
+      "32": 3
+    }
+  },
+  "protocol_gap": {
+    "decision_type": "energy-attachment",
+    "current_contract": "single-select item kind energy; not included in multi-select bounds/decoder",
+    "required_contract": {
+      "multi_select": true,
+      "tokens": "one opaque token per legal energy-card/target pair",
+      "decode": "ordered token array to native {to,index} assignments",
+      "bounds": "native prompt min/max",
+      "empty_selection": "only when native min is zero",
+      "cancel": "only when native allowCancel is true",
+      "host_validation": [
+        "blockedTo",
+        "sameTarget",
+        "differentTargets"
+      ],
+      "enumerate_complete_combinations": false
+    }
+  },
+  "sources": [
+    {
+      "id": "underworld-door",
+      "card": "Shadow Rider Calyrex VMAX",
+      "effect": "Underworld Door",
+      "ranks": [
+        1,
+        2
+      ],
+      "shape": "hand-basic-psychic-to-benched-psychic-exactly-one",
+      "source_zone": "hand",
+      "energy_filter": "Basic Psychic Energy",
+      "target_filter": "Benched Psychic Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": [
+        "draw 2 cards"
+      ]
+    },
+    {
+      "id": "mew-v-energy-mix",
+      "card": "Mew V FST 113",
+      "effect": "Energy Mix",
+      "ranks": [
+        5
+      ],
+      "shape": "deck-any-energy-to-active-or-bench-fusion-strike-zero-to-one",
+      "source_zone": "deck",
+      "energy_filter": "Any Energy",
+      "target_filter": "Active or Benched Fusion Strike Pokémon",
+      "selection": {
+        "min": 0,
+        "max": 1,
+        "bounds": "range"
+      },
+      "follow_up": [
+        "shuffle deck"
+      ]
+    },
+    {
+      "id": "adp-ultimate-ray",
+      "card": "Arceus & Dialga & Palkia-GX CEC 156",
+      "effect": "Ultimate Ray",
+      "ranks": [
+        19
+      ],
+      "shape": "deck-basic-energy-to-active-or-bench-zero-to-three",
+      "source_zone": "deck",
+      "energy_filter": "Basic Energy",
+      "target_filter": "Active or Benched Pokémon",
+      "selection": {
+        "min": 0,
+        "max": 3,
+        "bounds": "range"
+      },
+      "follow_up": [
+        "shuffle deck"
+      ]
+    },
+    {
+      "id": "regidrago-celestial-roar",
+      "card": "Regidrago V SIT 135",
+      "effect": "Celestial Roar",
+      "ranks": [
+        10,
+        12,
+        13,
+        14,
+        18,
+        20,
+        21,
+        27,
+        32
+      ],
+      "shape": "temporary-top-three-basic-energy-to-active-dynamic-count",
+      "source_zone": "temporary CardList containing top 3 deck cards",
+      "energy_filter": "Basic Energy",
+      "target_filter": "Active Pokémon",
+      "selection": {
+        "min": 0,
+        "max": 3,
+        "bounds": "attach exactly the number of Basic Energy revealed"
+      },
+      "follow_up": [
+        "move unselected revealed cards to discard"
+      ]
+    },
+    {
+      "id": "electrode-extra-energy-bomb",
+      "card": "Electrode-GX CES 48",
+      "effect": "Extra Energy Bomb",
+      "ranks": [
+        4,
+        9,
+        17
+      ],
+      "shape": "discard-any-energy-to-active-or-bench-excluding-ex-gx-zero-to-five",
+      "source_zone": "discard",
+      "energy_filter": "Any Energy",
+      "target_filter": "Active or Benched Pokémon excluding Pokémon-EX/GX",
+      "selection": {
+        "min": 0,
+        "max": 5,
+        "bounds": "range",
+        "allow_cancel": false
+      },
+      "follow_up": [
+        "Knock Out Electrode-GX after the attachment effect"
+      ],
+      "source_anomaly": "Pinned callback has a zero-transfer branch with unexpected shuffle/self-KO behavior; Agent44/Agent35 require a native regression before this attack is used in matchup evidence."
+    },
+    {
+      "id": "wondrous-patch",
+      "card": "Wondrous Patch PFL 94",
+      "effect": "Wondrous Patch",
+      "ranks": [
+        30
+      ],
+      "shape": "discard-basic-psychic-to-benched-psychic-exactly-one",
+      "source_zone": "discard",
+      "energy_filter": "Basic Psychic Energy",
+      "target_filter": "Benched Psychic Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": []
+    },
+    {
+      "id": "raihan",
+      "card": "Raihan EVS 152",
+      "effect": "Raihan",
+      "ranks": [
+        1,
+        10,
+        12,
+        13,
+        14,
+        18,
+        19,
+        20,
+        21,
+        27,
+        30,
+        32
+      ],
+      "shape": "discard-basic-energy-to-active-or-bench-exactly-one",
+      "source_zone": "discard",
+      "energy_filter": "Basic Energy",
+      "target_filter": "Active or Benched Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": [
+        "search deck"
+      ]
+    },
+    {
+      "id": "dark-patch",
+      "card": "Dark Patch ASR 139",
+      "effect": "Dark Patch",
+      "ranks": [
+        8,
+        11,
+        16,
+        22
+      ],
+      "shape": "discard-basic-darkness-to-benched-darkness-exactly-one",
+      "source_zone": "discard",
+      "energy_filter": "Basic Darkness Energy",
+      "target_filter": "Benched Darkness Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": []
+    },
+    {
+      "id": "sandy-shocks-magnetic-absorption",
+      "card": "Sandy Shocks ex PAR 108",
+      "effect": "Magnetic Absorption",
+      "ranks": [
+        19
+      ],
+      "shape": "discard-basic-fighting-to-active-or-bench-exactly-one",
+      "source_zone": "discard",
+      "energy_filter": "Basic Fighting Energy",
+      "target_filter": "Active or Benched Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": [
+        "mark power used"
+      ]
+    },
+    {
+      "id": "koraidon-dino-cry",
+      "card": "Koraidon ex TEF 120",
+      "effect": "Dino Cry",
+      "ranks": [
+        10,
+        12,
+        18,
+        21,
+        27
+      ],
+      "shape": "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
+      "source_zone": "discard",
+      "energy_filter": "Basic Fighting Energy",
+      "target_filter": "Basic Fighting Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 2,
+        "bounds": "range"
+      },
+      "follow_up": [
+        "end turn"
+      ]
+    },
+    {
+      "id": "squawkabilly-motivate",
+      "card": "Squawkabilly ex PAL 169",
+      "effect": "Motivate",
+      "ranks": [
+        4,
+        8,
+        9,
+        10,
+        11,
+        13,
+        14,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        26,
+        30
+      ],
+      "shape": "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
+      "source_zone": "discard",
+      "energy_filter": "Basic Energy",
+      "target_filter": "one Benched Pokémon",
+      "selection": {
+        "min": 0,
+        "max": 2,
+        "bounds": "range",
+        "same_target": true
+      },
+      "follow_up": []
+    },
+    {
+      "id": "crispin",
+      "card": "Crispin SCR 133",
+      "effect": "Crispin",
+      "ranks": [
+        8,
+        10,
+        12,
+        13,
+        14,
+        20,
+        21,
+        27,
+        32
+      ],
+      "shape": "temporary-two-card-list-basic-energy-one-attachment-different-targets",
+      "source_zone": "temporary two-card list drawn from deck",
+      "energy_filter": "Basic Energy",
+      "target_filter": "Active or Benched Pokémon",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "attach one; use different-target constraint as defined by native prompt"
+      },
+      "follow_up": [
+        "move remaining card to hand"
+      ]
+    },
+    {
+      "id": "iron-thorns-active-energy-transfer",
+      "card": "Iron Thorns ex TWM 77",
+      "effect": "attached Energy transfer",
+      "ranks": [
+        6,
+        24,
+        29
+      ],
+      "shape": "active-attached-energy-to-bench-exactly-one",
+      "source_zone": "Energy attached to own Active Pokémon",
+      "energy_filter": "Any Energy",
+      "target_filter": "Bench",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": [
+        "transfer selected Energy"
+      ]
+    },
+    {
+      "id": "empoleon-v-active-energy-transfer",
+      "card": "Empoleon V BST 40",
+      "effect": "attached Energy transfer",
+      "ranks": [
+        30
+      ],
+      "shape": "active-attached-energy-to-bench-exactly-one",
+      "source_zone": "Energy attached to own Active Pokémon",
+      "energy_filter": "Any Energy",
+      "target_filter": "Bench",
+      "selection": {
+        "min": 1,
+        "max": 1,
+        "bounds": "exact"
+      },
+      "follow_up": [
+        "transfer selected Energy"
+      ]
+    }
+  ]
+}
