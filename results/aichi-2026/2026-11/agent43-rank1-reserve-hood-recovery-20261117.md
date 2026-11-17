@@ -74,7 +74,7 @@ I also combined the candidate reserve model with rank 1's first-response Field B
 | Candidate second; direct Field Blower / Teammates / Raihan* | 35.668393% | 12.332624% | 4.446446% | 7.886177% | 36.054343% |
 | Candidate second; direct Field Blower / Teammates / Raihan* + BC/VS → Teammates | **38.389926%** | **13.273490%** | **4.785655%** | **8.487835%** | **36.054234%** |
 
-All joint columns are absolute probabilities among games where **both players have valid opening sevens**. “No reserve under modeled line” means the candidate secured its first Hood, rank 1 has one of the named access routes by its first response, and the candidate cannot access a second Hood by its second turn through the modeled direct Hood / Arven / VS Seeker line. It is a resource-exposure state, **not** a game loss or a claim that rank 1 actually plays Field Blower.
+All joint columns are absolute probabilities among games where **both players have valid opening sevens**. For the Teammates/Raihan rows, they are additionally **conditional on the candidate going second and taking a first-turn Knock Out** (the Supporter-live branch); they are not multiplied by the probability of that Knock Out. “No reserve under modeled line” means the candidate secured its first Hood, rank 1 has one of the named access routes by its first response, and the candidate cannot access a second Hood by its second turn through the modeled direct Hood / Arven / VS Seeker line. It is a resource-exposure state, **not** a game loss or a claim that rank 1 actually plays Field Blower.
 
 Seat and route assumptions:
 - When the candidate goes first, rank 1's first response is after one normal draw. Teammates/Raihan are not included because the candidate has not had a first-turn attack.
