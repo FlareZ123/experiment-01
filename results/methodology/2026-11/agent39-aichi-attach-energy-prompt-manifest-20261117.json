@@ -117,7 +117,8 @@
       },
       "follow_up": [
         "draw 2 cards"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax.ts"
     },
     {
       "id": "mew-v-energy-mix",
@@ -137,7 +138,8 @@
       },
       "follow_up": [
         "shuffle deck"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-fusion-strike/mew-v.ts"
     },
     {
       "id": "adp-ultimate-ray",
@@ -157,7 +159,8 @@
       },
       "follow_up": [
         "shuffle deck"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/08-sun-and-moon/set-cosmic-eclipse/arceus-dialga-palkia-gx.ts"
     },
     {
       "id": "regidrago-celestial-roar",
@@ -185,7 +188,8 @@
       },
       "follow_up": [
         "move unselected revealed cards to discard"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/regidrago-v.ts"
     },
     {
       "id": "electrode-extra-energy-bomb",
@@ -209,7 +213,8 @@
       "follow_up": [
         "Knock Out Electrode-GX after the attachment effect"
       ],
-      "source_anomaly": "Pinned callback has a zero-transfer branch with unexpected shuffle/self-KO behavior; Agent44/Agent35 require a native regression before this attack is used in matchup evidence."
+      "source_anomaly": "Pinned callback has a zero-transfer branch with unexpected shuffle/self-KO behavior; Agent44/Agent35 require a native regression before this attack is used in matchup evidence.",
+      "pinned_source_path": "ptcg-server/src/sets/08-sun-and-moon/set-celestial-storm/electrode-gx.ts"
     },
     {
       "id": "wondrous-patch",
@@ -227,7 +232,8 @@
         "max": 1,
         "bounds": "exact"
       },
-      "follow_up": []
+      "follow_up": [],
+      "pinned_source_path": "ptcg-server/src/sets/11-mega-evolution/set-phantasmal-flames/wonder-patch.ts"
     },
     {
       "id": "raihan",
@@ -258,7 +264,8 @@
       },
       "follow_up": [
         "search deck"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-evolving-skies/raihan.ts"
     },
     {
       "id": "dark-patch",
@@ -279,7 +286,8 @@
         "max": 1,
         "bounds": "exact"
       },
-      "follow_up": []
+      "follow_up": [],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-astral-radiance/dark-patch.ts"
     },
     {
       "id": "sandy-shocks-magnetic-absorption",
@@ -299,7 +307,8 @@
       },
       "follow_up": [
         "mark power used"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-paradox-rift/sandy-shocks-ex.ts"
     },
     {
       "id": "koraidon-dino-cry",
@@ -323,7 +332,8 @@
       },
       "follow_up": [
         "end turn"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-temporal-forces/koraidon-ex.ts"
     },
     {
       "id": "squawkabilly-motivate",
@@ -357,7 +367,8 @@
         "bounds": "range",
         "same_target": true
       },
-      "follow_up": []
+      "follow_up": [],
+      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-paldea-evolved/squawkabilly-ex.ts"
     },
     {
       "id": "crispin",
@@ -385,7 +396,8 @@
       },
       "follow_up": [
         "move remaining card to hand"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-stellar-crown/crispin.ts"
     },
     {
       "id": "iron-thorns-active-energy-transfer",
@@ -407,7 +419,8 @@
       },
       "follow_up": [
         "transfer selected Energy"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex.ts"
     },
     {
       "id": "empoleon-v-active-energy-transfer",
@@ -427,7 +440,10 @@
       },
       "follow_up": [
         "transfer selected Energy"
-      ]
+      ],
+      "pinned_source_path": "ptcg-server/src/sets/09-sword-and-shield/set-battle-styles/empoleon-v.ts"
     }
-  ]
+  ],
+  "pinned_source_base_url": "https://github.com/twinleafgg/twinleafgg/tree/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "source_path_evidence": "Paths resolved against the recursive Git tree of the exact pinned Twinleaf commit; no upstream files modified."
 }
