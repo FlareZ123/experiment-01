@@ -66,7 +66,9 @@
     "prototype_coverage_ranks": 3,
     "prototype_coverage_fraction": 0.09375,
     "rank_specific_competence_required": true,
-    "shared_archetype_core_allowed_only_with_exact_rank_configuration": true
+    "shared_archetype_core_allowed_only_with_exact_rank_configuration": true,
+    "prototype_distance_method": "Exact half-L1 source multiset distance over name+printing.set+printing.number, from Agent35's independent 29-list calculation.",
+    "prototype_distance_source": "results/methodology/2026-11/agent35-prototype-transfer-distance-map-20261117.md"
   },
   "ranks": [
     {
@@ -78,7 +80,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": true,
       "policy_status": "prototype_not_competitively_qualified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 0,
+        "rank_2": 58,
+        "rank_10": 42
+      },
+      "nearest_prototype_rank": 1,
+      "nearest_prototype_substitutions": 0
     },
     {
       "rank": 2,
@@ -89,7 +98,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": true,
       "policy_status": "prototype_not_competitively_qualified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 58,
+        "rank_2": 0,
+        "rank_10": 55
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 0
     },
     {
       "rank": 3,
@@ -100,7 +116,14 @@
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 48,
+        "rank_2": 50,
+        "rank_10": 52
+      },
+      "nearest_prototype_rank": 1,
+      "nearest_prototype_substitutions": 48
     },
     {
       "rank": 4,
@@ -111,7 +134,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 51,
+        "rank_2": 59,
+        "rank_10": 49
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 49
     },
     {
       "rank": 5,
@@ -122,7 +152,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 49,
+        "rank_2": 57,
+        "rank_10": 45
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 45
     },
     {
       "rank": 6,
@@ -133,7 +170,14 @@
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 55,
+        "rank_2": 48,
+        "rank_10": 53
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 48
     },
     {
       "rank": 7,
@@ -144,7 +188,14 @@
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 51,
+        "rank_2": 49,
+        "rank_10": 53
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 49
     },
     {
       "rank": 8,
@@ -155,7 +206,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 45,
+        "rank_2": 57,
+        "rank_10": 39
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 39
     },
     {
       "rank": 9,
@@ -166,7 +224,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 52,
+        "rank_2": 57,
+        "rank_10": 47
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 47
     },
     {
       "rank": 10,
@@ -177,7 +242,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": true,
       "policy_status": "prototype_not_competitively_qualified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 42,
+        "rank_2": 55,
+        "rank_10": 0
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 0
     },
     {
       "rank": 11,
@@ -188,7 +260,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 52,
+        "rank_2": 58,
+        "rank_10": 44
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 44
     },
     {
       "rank": 12,
@@ -199,7 +278,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 44,
+        "rank_2": 56,
+        "rank_10": 14
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 14
     },
     {
       "rank": 13,
@@ -210,7 +296,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 43,
+        "rank_2": 56,
+        "rank_10": 9
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 9
     },
     {
       "rank": 14,
@@ -221,7 +314,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 41,
+        "rank_2": 56,
+        "rank_10": 12
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 12
     },
     {
       "rank": 15,
@@ -232,7 +332,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 58,
+        "rank_2": 26,
+        "rank_10": 54
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 26
     },
     {
       "rank": 16,
@@ -243,7 +350,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 49,
+        "rank_2": 56,
+        "rank_10": 41
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 41
     },
     {
       "rank": 17,
@@ -254,7 +368,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 56,
+        "rank_2": 60,
+        "rank_10": 50
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 50
     },
     {
       "rank": 18,
@@ -265,7 +386,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 42,
+        "rank_2": 56,
+        "rank_10": 14
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 14
     },
     {
       "rank": 19,
@@ -276,7 +404,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 42,
+        "rank_2": 58,
+        "rank_10": 37
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 37
     },
     {
       "rank": 20,
@@ -287,7 +422,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 44,
+        "rank_2": 56,
+        "rank_10": 12
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 12
     },
     {
       "rank": 21,
@@ -298,7 +440,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 43,
+        "rank_2": 56,
+        "rank_10": 11
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 11
     },
     {
       "rank": 22,
@@ -309,7 +458,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 46,
+        "rank_2": 57,
+        "rank_10": 42
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 42
     },
     {
       "rank": 23,
@@ -320,7 +476,10 @@
       "english_expanded_diagnostic_status": "unknown_until_exact_list",
       "prototype_identified": false,
       "policy_status": "blocked_missing_exact_list",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": null,
+      "nearest_prototype_rank": null,
+      "nearest_prototype_substitutions": null
     },
     {
       "rank": 24,
@@ -331,7 +490,14 @@
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 55,
+        "rank_2": 48,
+        "rank_10": 53
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 48
     },
     {
       "rank": 25,
@@ -342,7 +508,10 @@
       "english_expanded_diagnostic_status": "unknown_until_exact_list",
       "prototype_identified": false,
       "policy_status": "blocked_missing_exact_list",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": null,
+      "nearest_prototype_rank": null,
+      "nearest_prototype_substitutions": null
     },
     {
       "rank": 26,
@@ -353,7 +522,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 53,
+        "rank_2": 59,
+        "rank_10": 48
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 48
     },
     {
       "rank": 27,
@@ -364,7 +540,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 44,
+        "rank_2": 56,
+        "rank_10": 13
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 13
     },
     {
       "rank": 28,
@@ -375,7 +558,10 @@
       "english_expanded_diagnostic_status": "unknown_until_exact_list",
       "prototype_identified": false,
       "policy_status": "blocked_missing_exact_list",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": null,
+      "nearest_prototype_rank": null,
+      "nearest_prototype_substitutions": null
     },
     {
       "rank": 29,
@@ -386,7 +572,14 @@
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 54,
+        "rank_2": 48,
+        "rank_10": 53
+      },
+      "nearest_prototype_rank": 2,
+      "nearest_prototype_substitutions": 48
     },
     {
       "rank": 30,
@@ -397,7 +590,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 37,
+        "rank_2": 58,
+        "rank_10": 41
+      },
+      "nearest_prototype_rank": 1,
+      "nearest_prototype_substitutions": 37
     },
     {
       "rank": 31,
@@ -408,7 +608,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 49,
+        "rank_2": 59,
+        "rank_10": 54
+      },
+      "nearest_prototype_rank": 1,
+      "nearest_prototype_substitutions": 49
     },
     {
       "rank": 32,
@@ -419,7 +626,14 @@
       "english_expanded_diagnostic_status": "english_expanded_diagnostic_eligible",
       "prototype_identified": false,
       "policy_status": "no_current_panel_prototype_identified",
-      "strata_planned": 4
+      "strata_planned": 4,
+      "prototype_distances": {
+        "rank_1": 46,
+        "rank_2": 55,
+        "rank_10": 15
+      },
+      "nearest_prototype_rank": 10,
+      "nearest_prototype_substitutions": 15
     }
   ]
 }
