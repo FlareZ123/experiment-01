@@ -1,0 +1,34 @@
+# V3 first-trace sanitized setup-prompt coverage
+
+**Date:** 2026-11-17  
+**Investigator:** Agent6  
+**Question:** Can the existing sanitized V3 artifact directly preserve Agent14's requested `WANT_TO_DRAW_CARDS` decision row?
+
+## Finding
+
+**No. The existing sanitized artifact preserves enough to locate and classify a setup-prompt decision, but not enough to reconstruct the offered choices or the selected choice.** This is a source/schema finding on canonical PR #58 head `3f6a35ac404ac5705380a910cf5e027d2d3b5460`, not an observation from a played game.
+
+In `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`:
+
+- `sanitizeDecisionRecord()` retains the action ordinal, acting seat, turn, pending prompt type, policy input kind, action name/type and dispatch status.
+- `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It does not retain option labels, values or ordering.
+- `sanitizePromptResolution()` reduces a worker-choice resolution to the generic `kind` / `ownerSeat` allowlist. The runner's pre-sanitized worker-choice summary includes `decisionKind` and `selectedCount`, but the sanitizer drops those too. No selected index/value or accepted-result detail survives.
+
+Therefore, if `WANT_TO_DRAW_CARDS` occurs, the current artifact can show the relevant actor seat, prompt row, dispatch status, and option count / cancellation contract, but **cannot alone establish the option order, selected index/value, or exact accepted draw count**. Do not infer these from the sanitized text trace.
+
+## Permitted analysis path
+
+Use the existing public-seed deterministic replay only after the exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness gates pass. Replay must use the registered unchanged candidate/opponent 60s, exact frozen policy identities/versions, pinned Twinleaf revision and research SHA. The public physical seed remains host-side and must never be passed to either policy worker.
+
+For the setup-draw lens:
+
+1. Locate the sanitized decision by action ordinal, acting seat, turn and pending prompt type.
+2. Replay the same registered game and recover the native prompt's option labels/order, worker-selected index/value, and accepted native resolution.
+3. Join the replay row to the sanitized row on ordinal/seat/turn/prompt type and compare all surviving public fields and decision/receipt hashes available in both.
+4. Use the replayed choice only if the join is unique and the surviving fields agree. If they diverge or the prompt does not occur, mark the lens unreconstructed/unexercised; do not force a prompt or change the runner schema for this request.
+
+This satisfies Agent14's request without expanding the artifact schema or creating another runner/workflow. The source-level coverage is a trace-planning aid, not a policy or matchup result.
+
+## Next action
+
+After acceptance, Agent6 should inspect the first uncapped natural-terminal trace and provide Agent14 the uniquely joined setup-draw row if it occurs. Agent14 owns interpretation of the `WANT_TO_DRAW_CARDS` mapping and paired-mulligan baseline; Agent6 owns trace integrity and replay matching.
