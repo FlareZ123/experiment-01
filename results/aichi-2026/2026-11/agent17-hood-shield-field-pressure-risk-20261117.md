@@ -4,7 +4,7 @@
 
 ## Decision
 
-Hood Shield Shadow Rider v1 has a clear structural risk that should be tested after the existing V3 acceptance / first-trace sequence: its defensive package is Tool-dependent, while its main acceleration is Ability-dependent and its Energy is Basic Psychic. The exact 29 available Aichi lists contain broad Tool removal/suppression and several concentrated Energy-denial packages.
+Hood Shield Shadow Rider v1 has a clear structural risk that should be tested after the existing V3 acceptance / first-trace sequence: its defensive package is Tool-dependent, while its main acceleration is Ability-dependent and its Energy is Basic Psychic. The exact 29 available Aichi lists contain broad Tool removal/suppression and several concentrated Energy-denial packages; 20/29 known lists contain a named Tool-removal/suppression card, establishing a confirmed lower bound of 20/32 full-field opponents (ranks 23/25/28 remain unknown).
 
 This does **not** establish that Hood Shield loses these matchups. It identifies a coupled failure mode that the candidate's later field challenge suite must test. Do not change the fixed 60, worker policy, seed or current fixture from this source-list analysis.
 
