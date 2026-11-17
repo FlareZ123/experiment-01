@@ -383,7 +383,8 @@ function formatFullStateTrace(trace) {
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
       'NATIVE LOG DELTA:',JSON.stringify(step.nativeLogDelta,null,2),
       'GAME STATE AFTER ACTION:',JSON.stringify(step.humanSummary,null,2));
-    if (step.error) lines.push('DISPATCH ERROR:',JSON.stringify(step.error,null,2));
+    if (step.failureStage) lines.push('FAILURE STAGE: '+step.failureStage);
+    if (step.error) lines.push('STEP ERROR:',JSON.stringify(step.error,null,2));
   }
   lines.push('','=== FINAL NATIVE LOGS ===',JSON.stringify(trace.nativeLogs,null,2));
   return lines.join('\n');
