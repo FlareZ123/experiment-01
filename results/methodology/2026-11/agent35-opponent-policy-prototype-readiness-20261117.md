@@ -42,7 +42,7 @@ Source reports:
 
 ## Additional field vetoes outside the three-prototype slice
 
-This report is deliberately scoped to ranks 1, 2 and 10. Do not read it as a full-field readiness map. Agent42's [post-trace opponent-policy readiness veto map](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) records additional blockers that must remain visible: rank 31 cannot reuse rank 1 as a competent policy; ranks 4/9/17 are not game-evaluable until the CES48 paper correction and two-seat regression are active; the five Japanese-Extra source identities must remain unchanged; Player's Ceremony still needs a research-owned hook (Palace Book and Palace Belt are already implemented); and ranks 23/25/28 remain unavailable. These are static readiness vetoes, not matchup results.
+This report is deliberately scoped to ranks 1, 2 and 10. Do not read it as a full-field readiness map. Agent42's [post-trace opponent-policy readiness veto map](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) records additional blockers that must remain visible: rank 31 cannot reuse rank 1 as a competent policy; ranks 4/9/17 are not game-evaluable until the CES48 paper correction and two-seat regression are active; the five Japanese-Extra source identities must remain unchanged; Player's Ceremony still needs a research-owned hook (Palace Book and Palace Belt are already implemented); the Koraidon ex TEF120 rows in ranks 10/12/18/21/27 are not Dino Cry sources (no SVI125 substitution without a direct Japanese-print bridge); and ranks 23/25/28 remain unavailable. These are static readiness vetoes, not matchup results.
 
 ## Post-trace integration order
 
