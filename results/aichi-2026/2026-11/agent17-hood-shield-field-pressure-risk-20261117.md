@@ -162,14 +162,22 @@ The suite should capture the decision envelope before the candidate is exposed t
 
 ## Post-trace challenge priority
 
+Agent43's paired-mulligan model supplies a **natural-draw scenario-priority layer**, not a probability of successful removal. Its event is at least one Field Blower or Megaton Blower seen in the opponent's opening seven, optional paired-mulligan bonus cards, or normal draws by the response window, conditional on both players ultimately obtaining valid opening sevens. The highest observed direct-remover sighting rates are:
+
+- **Rank 30:** 34.95326749–34.95326750% after one opponent normal draw / 38.71610732–38.71610733% after two.
+- **Rank 7:** 24.30574803–24.30574805% / 27.22439715–27.22439716%.
+- **Rank 29:** 23.13752551% / 26.09766749%.
+
+Search, pre-response expenditure, retention, legal play, target availability, successful resolution and Tool removal are not modeled. These are not match weights, win probabilities or a substitute for the full 32-rank evaluation. Use them only to prioritize natural-response timing cases; keep all ranks in the eventual full-field panel.
+
 After the current rank-1 diagnostic is accepted and reviewed, the most informative available field tests for this risk are:
 
-1. **Ranks 6, 24 and 29 (Iron Thorns):** Tool Jammer + Megaton Blower + Faba + heavy Plumeria/Team Flare Grunt; ranks 6/24/29 also have Handheld Fan. Reuse the existing pinned native-staged Hood/Initialization witness (do not rerun it), keep independent paper review separate, then test Energy transfer/denial and recovery.
-2. **Ranks 3 and 7 (Snorlax Stall):** Tool Jammer + Faba + Energy pressure; rank7 additionally has Field Blower, Megaton Blower and Faba ×2. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's longer resource war.
-3. **Ranks 2 and 15 (Vileplume):** candidate's Field Blower is an Item; verify lock timing and whether the candidate can establish protection before the lock.
-4. **Rank 30:** three Field Blowers create a distinct Tool-sweep scenario.
-5. **Rank 31:** paper Field Blower chooses up to two Pokémon Tools and/or Stadiums; one play can remove both exposed Hoods if selected. Twinleaf's SelectOptionPrompt / ChoosePokemonPrompt branches represent that choice, not separate paper modes. Dusknoir PRE can then use Cursed Blast; test the candidate's Hood-preservation / Acerola line and the opponent's actual target selection.
-6. **Regidrago ranks 12/13/14/20/21/32:** test Megaton Blower against the two-Hood package and preserve rank-specific policy variants.
+1. **Natural direct-removal stress — ranks 30, 7 and 29:** test whether the opponent retains and chooses its direct remover, whether both Hoods are exposed, and how the candidate's decision changes between the first and second response windows. Preserve rank30's three Field Blowers, rank7's Field Blower + Megaton Blower + Faba ×2 resource war, and rank29's Iron Thorns / Field Blower / Megaton package as distinct cases.
+2. **Combined Iron Thorns pressure — ranks 6, 24 and 29:** Tool Jammer + Megaton Blower + Faba + heavy Plumeria/Team Flare Grunt; ranks 6/24/29 also have Handheld Fan. Reuse the existing pinned native-staged Hood/Initialization witness (do not rerun it), keep independent paper review separate, then test Energy transfer/denial and recovery.
+3. **Snorlax Stall — ranks 3 and 7:** Tool Jammer + Faba + Energy pressure; rank7 additionally has Field Blower, Megaton Blower and Faba ×2. Keep rank3's Arven → Field Blower + Hood escape branch distinct from rank7's longer resource war.
+4. **Vileplume — ranks 2 and 15:** rank2's Item-only lock prevents playing Field Blower and dual-subtype Forest Seal Stone from hand but not Tool-only Hood / Float Stone; rank15's Basic-attack lock is a separate problem. Test setup and lock timing without conflating the two effects.
+5. **Dusknoir Chimecho — rank 31:** paper Field Blower chooses up to two Pokémon Tools and/or Stadiums; one play can remove both exposed Hoods if selected. Twinleaf's SelectOptionPrompt / ChoosePokemonPrompt branches represent that choice, not separate paper modes. Dusknoir PRE can then use Cursed Blast; test the candidate's Hood-preservation / Acerola line and the opponent's actual target selection.
+6. **Regidrago — ranks 12/13/14/20/21/32:** test Megaton Blower against the two-Hood package and preserve rank-specific policy variants.
 
 The source-rank policy challenge suite and evidence schema are defined in [Agent2's operational contract](../../methodology/2026-11/agent2-policy-challenge-suite-operational-contract-20261117.md) and the [Agent17 field policy-panel plan](../../methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md). Agent43's [Hood Tool-resilience synthesis](hood-tool-resilience-synthesis-20261117.md) connects the exact-list inventory to paired-mulligan natural exposure and the complete recovery audit. Use ranks 30/7/29 as high natural-exposure Tool-removal scenarios, not game weights or matchup estimates; retain ranks 6/24/29 for the combined Iron Thorns Ability/Tool/Energy-pressure case. The separate [Enamorus V board-shield hypothesis](agent43-enamorus-v-board-shield-hypothesis-20261117.md) remains unresolved at the Garbotoxin/Initialization interaction and is a post-acceptance variant question, not a current deck change. No new game, policy, candidate or fixture is authorized by this note.
 
