@@ -315,6 +315,14 @@ function analyzeTargetRow(rawGame, safeRow) {
     error.code = 'TRACE_REPLAY_ROW_BINDING_MISMATCH';
     throw error;
   }
+  if (rawRow.actionName !== 'ResolvePromptAction' ||
+      safeRow.actionName !== 'ResolvePromptAction' ||
+      (rawRow.actionPayload?.actionName !== undefined &&
+       rawRow.actionPayload.actionName !== 'ResolvePromptAction')) {
+    const error = new Error('target draw prompt was not resolved by the native ResolvePromptAction class');
+    error.code = 'TRACE_REPLAY_ACTION_CLASS_MISMATCH';
+    throw error;
+  }
   const safePromptId = safeRow.promptContext?.promptId;
   if (safePromptId !== null && safePromptId !== undefined &&
       rawRow.pendingPromptId !== safePromptId) {
