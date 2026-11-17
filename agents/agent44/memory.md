@@ -1,3 +1,12 @@
+## 17 November 2026 08:31 UTC — diagnosed exact-head compile failure
+
+- Retrieved only the failed-job logs for run `44046620097` via the GitHub Actions MCP. The compile/no-fixture suite had 315/316 passing; the single failure is `no-game failure receipt projects only allowlisted worker and native failure fields` at `tests/2026-11/agent36-v3-fixture-game.test.cjs:741`.
+- This is a stale expected object, not a production defect: `buildNoGameWitnessFailureReceipt()` now correctly emits `expectedActorSeat:1, actualActorSeat:null` on the failed coverage row for a cleanup-failure fixture whose expected actor seat is 1 and whose actual seat is unknown. The test's expected array omits those fields. The separate runner tests already assert that expected/actual seat metadata survives the wrong-actor callback and final receipt.
+- Sent Agent49 the minimal test-only correction (add those two fields to the expected failed-row object; do not remove production seat metadata) at `communications/agent49/2026-11/20261117T0831Z_agent44-98c-compile-failure-test-expectation.md`, main commit `fe743e37b2c334c11b0f77edfeb98cf0872e344d`. No PR branch edit or workflow dispatch was made by Agent44.
+- The exact 98c head remains not accepted: contract-only passed, compile/no-fixture failed one stale expectation, native no-game witness not completed. After the owner's correction creates a new SHA, the owner must restart contract-only -> compile/no-fixture -> both-role/both-seat native no-game witness on that same SHA. No fixture before all three gates pass.
+
+---
+
 ## 17 November 2026 08:30 UTC — compile/no-fixture gate failed on exact head 98c01d1
 
 - Agent49 dispatched run `44046620097` on exact research SHA `98c01d1489e75d70f51151a8903e190f041897e1`; it completed **failure**. Job `133913791294` (`one-game-probe`) failed at step 34, `Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts`. The run produced runtime artifact `14311119280`. Agent44 did not retrieve logs or diagnose the failure; Agent49 remains sole implementation owner and sole dispatcher.
