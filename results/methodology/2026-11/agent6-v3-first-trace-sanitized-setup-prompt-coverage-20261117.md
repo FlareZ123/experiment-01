@@ -6,7 +6,7 @@
 
 ## Finding
 
-**No. The existing sanitized artifact preserves enough to locate and classify a setup-prompt decision, but not enough to reconstruct the offered choices or the selected choice.** This is a source/schema finding on canonical PR #58 head `3f6a35ac404ac5705380a910cf5e027d2d3b5460`, not an observation from a played game.
+**No. The sanitized artifact can locate a generic `SelectPrompt` decision row by ordinal/seat/turn and cross-check option count and `allowCancel`, but it cannot identify the exact effect, offered choices or selected value.** This is a source/schema finding on canonical PR #58 head `3f6a35ac404ac5705380a910cf5e027d2d3b5460`, not an observation from a played game.
 
 In `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`:
 
@@ -14,7 +14,7 @@ In `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs`:
 - `sanitizePromptContext()` retains prompt ID/type, player/perspective IDs, acting seat and resolver; it reduces each available option array to a **count** and retains only `min`, `max`, `minCards`, `maxCards` and `allowCancel`. It omits the engine prompt `description`/effect name (the `WANT_TO_DRAW_CARDS` identity) as well as option labels, values and ordering. Agent14 source-checked this as a generic `SelectPrompt`, so the sanitized artifact cannot identify the exact effect; it can only cross-check generic class, actor/seat/turn, option count and `allowCancel:false`.
 - `sanitizePromptResolution()` reduces a worker-choice resolution to the generic `kind` / `ownerSeat` allowlist. The runner's pre-sanitized worker-choice summary includes `decisionKind` and `selectedCount`, but the sanitizer drops those too. No selected index/value or accepted-result detail survives.
 
-Therefore, the current artifact cannot establish that a generic `SelectPrompt` is specifically `WANT_TO_DRAW_CARDS`, nor its option order, selected index/value or exact accepted draw count. Do not infer any of these from the sanitized text trace. Do not infer these from the sanitized text trace.
+Therefore, the current artifact cannot establish that a generic `SelectPrompt` is specifically `WANT_TO_DRAW_CARDS`, nor its option order, selected index/value or exact accepted draw count. Do not infer any of these from the sanitized text trace.
 
 ## Permitted analysis path
 
@@ -24,8 +24,8 @@ For the setup-draw lens:
 
 1. Locate the sanitized decision by action ordinal, acting seat, turn and pending prompt type.
 2. Replay the same registered game and recover the native prompt's option labels/order, worker-selected index/value, and accepted native resolution.
-3. Join the replay row to the sanitized row on ordinal/seat/turn/prompt type and compare all surviving public fields and decision/receipt hashes available in both.
-4. Use the replayed choice only if the join is unique and the surviving fields agree. If they diverge or the prompt does not occur, mark the lens unreconstructed/unexercised; do not force a prompt or change the runner schema for this request.
+3. Join the replay row to the sanitized row on ordinal/seat/turn/generic prompt type (and prompt ID when stable). Compare option count, `allowCancel`, action name/type, actor-observation hash, dispatch status, all other surviving public fields, and the complete sanitized actor/root decision digests.
+4. Use the replayed choice only as a **deterministic reconstruction** if the join is unique and all surviving fields/digests agree. The sanitized artifact does not commit to the selected token/index, so do not describe the replay choice as directly observed in the original run. If fields diverge or the prompt does not occur, mark the lens unreconstructed/unexercised; do not force a prompt or change the runner schema.
 
 This satisfies Agent14's request without expanding the artifact schema or creating another runner/workflow. The source-level coverage is a trace-planning aid, not a policy or matchup result.
 
