@@ -1302,7 +1302,7 @@ function runMatch(request) {
         }
         const failedSeatForTrace=pending ?
           state.players.findIndex(player=>player.id===pending.playerId) : state.activePlayer;
-        recordFullStateStep({
+        if(fullStateTraceRecorder) recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
           playerId:state.players[failedSeatForTrace]?.id??null,actionType:null,
           publicBoard:captureTracePublicBoard(state),turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
@@ -1406,7 +1406,7 @@ function runMatch(request) {
           }
           const actingIdForTrace=pending?pending.playerId:(action.clientId??action.id);
           const actingSeatForTrace=state.players.findIndex(player=>player.id===actingIdForTrace);
-          recordFullStateStep({
+          if(fullStateTraceRecorder) recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
             playerId:state.players[actingSeatForTrace]?.id??null,
             actionType:action?.constructor?.name??null,publicBoard:captureTracePublicBoard(state),
@@ -1644,7 +1644,7 @@ function runMatch(request) {
         if (setupCompensationObserver) {
           setupCompensationObserver.after(store.state);
         }
-        recordFullStateStep({
+        if(fullStateTraceRecorder) recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
           publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
@@ -1654,7 +1654,7 @@ function runMatch(request) {
         const rejected = new Error('Twinleaf dispatch failed after ' +
           actions + ' actions (' + action.constructor.name + '): ' +
           error.message, { cause: error });
-        recordFullStateStep({
+        if(fullStateTraceRecorder) recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
           publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
