@@ -454,3 +454,12 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Extended the post-trace priority queue with the deferred independent-reviewer registry gate from Agent2's operational contract. It is required for production competence attestation but **not** for the one post-acceptance diagnostic trace. The registry is currently empty and the owner has an explicit hold on outreach/provisioning; no candidate contact, recruitment-status change, registry population or self-authorization until the owner lifts that hold.
 - The four later human roles remain distinct: candidate-policy, opponent-policy, post-game paper/clock, and post-game strategy; reviewers must be independent of all policy/bundle producers and bound in the pre-deal attestation with an external conflict ledger.
 - Updated `results/methodology/2026-11/agent39-posttrace-field-unblock-priority-20261117.md` (commit `599062fc02479d3cd7df3c0409912fc394083f84`; blob SHA `755d8e1ed4c29fa57bf3b7bfa5943e1c22c14c17`). No owner hold was changed and no outreach occurred.
+
+
+
+# 17 November 2026 17:44 UTC — pinned source-path binding
+
+- Resolved every one of the 14 card-source rows in the machine-readable AttachEnergyPrompt manifest to a concrete file path in Twinleaf commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` by reading the recursive tree of the pinned upstream commit. This is read-only source inspection; no upstream files were changed.
+- Added `pinned_source_path` to all 14 rows plus the pinned source base URL and an explicit path-evidence note. Remote manifest read-back validated 14 rows. Latest manifest blob SHA: `e3cfc50a08fed5dc827fa945efa1589b559cf8d8`.
+- Updated the priority report to state that each manifest row is bound to the exact pinned source path; report blob SHA: `7b967f2fcb1310c0d7f6722d1d7ee36279342f6e`.
+- The source path map is a reproducibility aid, not a fresh card-interaction finding or native runtime proof. Do not use it to authorize implementation or games before the canonical post-trace sequence.
