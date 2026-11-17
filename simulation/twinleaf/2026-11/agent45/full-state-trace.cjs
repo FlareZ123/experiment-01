@@ -117,7 +117,8 @@ function snapshotFullState(value, options = {}) {
  * copies. The cumulative native log is captured once at the end. Full state
  * may reveal concealed zones and must remain offline.
  */
-function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
+function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfiguration=[]} = {}) {
+  const policyConfigurationSnapshot=snapshotFullState(policyConfiguration,limits);
   let initialState = null;
   let nativeLogs = null;
   const steps = [];
@@ -156,6 +157,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
     return {
       schema:TRACE_SCHEMA,label,seed,
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
+      policyConfiguration:policyConfigurationSnapshot,
       initialState,
       steps:steps.slice(),
       nativeLogs,
@@ -183,6 +185,8 @@ function formatFullStateTrace(trace) {
     'label: '+(trace.label || ''),
     'seed: '+(trace.seed ?? ''),
     'visibility: '+(trace.stateVisibility || 'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY'),
+    '=== PER-SEAT POLICY CONFIGURATION ===',
+    JSON.stringify(trace.policyConfiguration,null,2),
     'complete: '+(trace.complete === true),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
