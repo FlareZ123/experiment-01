@@ -84,6 +84,7 @@ test('failure stages preserve the rejected action and error while keeping cumula
   assert.ok(JSON.stringify(trace.steps[0].afterState).includes('"logs":{"$type":"OmittedForTrace","itemCount":1}'));
   assert.match(JSON.stringify(trace.nativeLogs),/last accepted action/);
   assert.equal(trace.complete,true);
+  assert.match(recorder.text(),/FAILURE STAGE: bot-decoder/);
 });
 
 test('configurable recorder bounds make incomplete snapshots explicit',()=>{
