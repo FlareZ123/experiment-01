@@ -164,17 +164,19 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
   const snapshotLimits={maxDepth:limits.maxDepth,maxNodes:limits.maxNodes};
   const policyConfigurationSnapshot=snapshotFullState(policyConfiguration,snapshotLimits);
   let initialState = null;
+  let initialPublicBoard = null;
   let stepLimitExceeded=false;
   let nativeLogs = null;
   const steps = [];
   const stateLimits = {...snapshotLimits,omitKeys:['logs']};
-  function captureInitial(state) {
+  function captureInitial(state,publicBoard=null) {
     if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
     initialState = snapshotFullState(state,stateLimits);
+    initialPublicBoard = publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits);
   }
   function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
-    phaseBefore=null,phaseAfter=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
-    if (initialState === null) captureInitial(state);
+    phaseBefore=null,phaseAfter=null,publicBoard=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
+    if (initialState === null) captureInitial(state,publicBoard);
     if (steps.length >= maxSteps) {
       stepLimitExceeded=true;
       throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
@@ -195,6 +197,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       phaseAfter:phaseAfter??null,
       beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
       action:snapshotFullState(action,limits),
+      publicBoard:publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits),
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
       afterState:snapshotFullState(state,stateLimits),
       ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
@@ -210,7 +213,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
       policyConfiguration:policyConfigurationSnapshot,
       maxSteps,stepLimitExceeded,
-      initialState,
+      initialState,initialPublicBoard,
       steps:steps.slice(),
       nativeLogs,
       complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
@@ -245,6 +248,8 @@ function formatFullStateTrace(trace) {
     'capture error: '+(trace.captureError || ''),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
+    '=== INITIAL PUBLIC BOARD ===',
+    JSON.stringify(trace.initialPublicBoard,null,2),
     '=== INITIAL NATIVE STATE ===',
     JSON.stringify(trace.initialState,null,2)
   ];
@@ -254,6 +259,7 @@ function formatFullStateTrace(trace) {
       'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
       'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
+      'PUBLIC BOARD AFTER ACTION:',JSON.stringify(step.publicBoard,null,2),
       'AFTER NATIVE STATE:',JSON.stringify(step.afterState,null,2));
     if (step.error) lines.push('DISPATCH ERROR:',JSON.stringify(step.error,null,2));
   }
