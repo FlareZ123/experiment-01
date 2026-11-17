@@ -45,6 +45,27 @@ Counts below are direct from `results/aichi-2026/full-decklists.json`; zero mean
 
 Ranks 4, 9, 11, 15, 16, 17, 18, 26 and 27 contain none of these four named cards. That is not a general "no Tool answer" certificate; other cards, attacks, or effects may matter, and the three missing ranks remain unknown.
 
+## Family distribution of named Tool pressure
+
+| Source archetype | Available exact ranks | Lists with at least one named Tool card | Coverage |
+|---|---|---:|---:|
+| Shadow Rider Calyrex | 1 | 1 | 1/1 |
+| Vileplume Control | 2 | 1 | 1/1 |
+| Snorlax Stall | 3, 7 | 2 | 2/2 |
+| Raichu Electrode | 4, 17 | 0 | 0/2 |
+| Mew Genesect | 5 | 1 | 1/1 |
+| Iron Thorns | 6, 24, 29 | 3 | 3/3 |
+| Absol Garbodor | 8, 11, 16, 22 | 2 | 2/4 |
+| Absol Electrode | 9 | 0 | 0/1 |
+| Regidrago | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 7 | 7/9 |
+| Lopunny Vileplume | 15 | 0 | 0/1 |
+| Raging Bolt | 19 | 1 | 1/1 |
+| Meloetta Donk | 26 | 0 | 0/1 |
+| Lillie's Clefairy | 30 | 1 | 1/1 |
+| Dusknoir Chimecho | 31 | 1 | 1/1 |
+
+The missing Regidrago ranks 23 and 28 and missing Raichu Electrode rank 25 are not included in these family denominators. The pattern is not that every archetype removes Tools; it is that **all available Iron Thorns and Snorlax lists, and most available Regidrago lists, carry at least one named Tool-removal/suppression card**. This should guide which source-specific counterlines are prioritized in the later candidate-policy challenge suites, not trigger a deck change from list counts alone.
+
 ## Highest-pressure overlaps
 
 - **Rank 7** is the strongest named Tool-removal package in the available field: Field Blower ×1, Megaton Blower ×1, Faba ×2, Tool Jammer ×1. Its source list also has VS Seeker ×3 and Lusamine ×2; the existing rank-7 report documents the Faba recovery/resource-war concern. Two Hoods do not make the lock durable against this package.
