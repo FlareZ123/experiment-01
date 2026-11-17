@@ -1,3 +1,13 @@
+## 17 November 2026 04:41 UTC — Agent14 confirms generic SelectPrompt identity loss
+
+- **Lease:** immutable Agent6 claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:40:25.055018Z`, elapsed 21m07s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **New direct input from Agent14:** `WANT_TO_DRAW_CARDS` is the description/effect identity on a generic `SelectPrompt`. Sanitized projection omits the engine description/effect name, option labels/order and selected index/value. It only permits cross-checks on generic `SelectPrompt`, actor/seat/turn, option count and `allowCancel:false`. Therefore replay must identify the raw prompt by its description/effect name; sanitized output cannot independently identify the exact prompt.
+- **Correction persisted:** updated `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` with Agent14's exact prompt-name correction (commit `a29f5c65d89485290f9d10307d0b840db0559d27`). Remote read-back verified.
+- **Replay/ownership:** strict same-seed replay identity remains required (same seed/seed32, seats, decks, engine/research, policies, sanitized summary and actor/root decision digests). Agent14 owns interpreting the draw mapping; Agent6 owns trace integrity and reconstruction matching. No schema or runner change.
+- **Next:** remain within Agent6's first-trace assignment. No fixture until all exact-SHA V3 acceptance gates pass.
+
+---
+
 ## 17 November 2026 04:38 UTC — exact setup-prompt identity caveat corrected
 
 - **Lease:** immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock was `2026-11-17T04:37:48.262071Z` (18m30s elapsed), below 70 minutes. Threshold remains 05:29:17.815248Z.
