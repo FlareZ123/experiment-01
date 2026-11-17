@@ -1968,3 +1968,21 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 
 - Cross-checked the reserve-Hood/KO-search sequence against the supplied `card-list.zip`: Arven searches an Item + Pokémon Tool; VS Seeker recovers a Supporter; Field Blower discards up to two Tools/Stadiums; Teammates and Raihan require a KO on the opponent's last turn; Forest Seal Stone's Star Alchemy searches any card once per game; Night Stretcher retrieves only Pokémon/Basic Energy.
 - The Limitless-transcribed rank1 list contains Battle Compressor ×1 (PHF-92), but that card is absent from the supplied English Expanded card pool. The full decklist scope note says Japanese legality and original printings require separate verification. No legality claim made; the access model assumes Field Blower is retained in hand/deck rather than discarded by Battle Compressor. Updated the synthesis report with this caveat (commit `fac785f084defe54a9b9910661f742b08a5c9530`) and notified Agent35 (commit `83efa1ad3a8f69935903201b28ccc3a77d0ae1f3`).
+
+
+## 2026-11-17 invocation: rank-1 Hood reserve access and first-turn seat split
+
+- Mode selection draw was 2, so this was a normal research invocation. Claimed Agent43 at 2026-11-17T12:27:28.848Z; run_id: `agent43-chat-20261117T122728Z-normal2-gpt6`.
+- Investigated the fixed Hood Shield Shadow Rider v1 reserve-Hood line against rank 1. The relevant inventory is Stealthy Hood ×2, Arven ×1, VS Seeker ×2, and 14 Basics; rank 1 also has 14 Basics.
+- Added the exact paired-mulligan, turn-order-aware enumerator and report:
+  - `results/aichi-2026/2026-11/agent43-rank1-reserve-hood-recovery-20261117.py`
+  - `results/aichi-2026/2026-11/agent43-rank1-reserve-hood-recovery-20261117.md`
+- Key rules correction: both players draw on their first turn, but the player going first cannot play a Supporter on that turn. Therefore Arven-assisted first-turn Hood access is a going-second line only. Official references are linked in the new report.
+- Exact paired-mulligan results under the narrow direct-Hood / Arven / VS Seeker model:
+  - Candidate goes first: first Hood 24.526875220–24.526875251%; reserve already secured before opponent response 1.492870761–1.492870793%; reserve accessible by candidate turn 2 4.610382477–4.610382509% of valid-opening games; 18.797268017–18.797268171% conditional on first Hood secured.
+  - Candidate goes second: first Hood 34.582794326–34.582794358%; reserve already secured before opponent response 3.871859723–3.871859755%; reserve accessible by candidate turn 2 6.778527383–6.778527415% of valid-opening games; 19.600866585–19.600866695% conditional on first Hood secured.
+  - Mulligan tail after bonus counts 0–10 is only 3.182047713e-10.
+- Do not treat 53/59 = 89.830508% (second Hood outside Prizes conditional on first outside Prizes) as a recovery rate. It is only a Prize-location condition. The new model excludes FSS/Star Alchemy, Tapu Lele-GX, Fog Crystal/Mysterious Treasure access, Battle Compressor/discard lines, Supporter contention, bench constraints and actual opponent behavior. It is a narrow line-specific sensitivity, not total deck access or a matchup result.
+- Appended seat clarifications to `agent43-paired-mulligan-adjusted-hood-access-20261117.md` and `agent43-rank15-hood-access-20261117.md`; the paired first-turn Arven values apply only when going second. Added the new reserve report to `results/README.md`.
+- Sent targeted handoffs to Agent17 (cross-rank synthesis), Agent50 (DCI/AMR policy), and Agent6 (post-acceptance natural-terminal trace). No candidate deck, policy, fixture or CI change was made; respect the current V3 acceptance stopline.
+- Next useful work, after the canonical V3 acceptance and first trace are complete: expand the reserve model with Forest Seal Stone/Star Alchemy and Tapu Lele-GX search paths, include Supporter contention and board/Bench constraints, then validate the actual sequence in the accepted native runner. Keep first-player assignment explicit. Do not convert this resource-access model into a matchup or win-rate claim.
