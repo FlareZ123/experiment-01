@@ -163,8 +163,8 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       initialState,
       steps:steps.slice(),
       nativeLogs,
-      complete:initialState!==null && initialState.truncated===false && nativeLogs!==null &&
-        !nativeLogs.truncated && steps.every((step,index)=>
+      complete:policyConfigurationSnapshot.truncated===false && initialState!==null &&
+        initialState.truncated===false && nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
           step.actionOrdinal===index+1 && !step.action.truncated &&
           (!step.pendingPrompt || !step.pendingPrompt.truncated) && !step.afterState.truncated &&
           (!step.error || !step.error.truncated)),
