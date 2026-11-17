@@ -7,15 +7,11 @@
  * Never run this on a public/shared machine or emit raw prompt/card/token/state data.
  */
 const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const TARGET_EFFECT = 'WANT_TO_DRAW_CARDS';
-const OPTION_ARRAY_KEYS = [
-  'options', 'choices', 'cards', 'targets', 'availableCards',
-  'eligibleCards', 'selectedCards'
-];
-const SAFE_CHOICE_KEY = /^(?:result|choice|choiceIndex|selectedIndex|index|count|amount|drawCount|cardsToDraw|numberOfCards|value|selectedValue)$/i;
-const DIRECT_DRAW_VALUE_KEY = /^(?:result|value|selectedValue|count|amount|drawCount|cardsToDraw|numberOfCards)$/i;
-const SAFE_LABEL = /^(?:\d+|(?:draw|take)\s+\d+\s+cards?)$/i;
+const DRAW_LABEL = /^Draw\\s+(\\d+)\\s+card\\(s\\)$/i;
 
 function stableJson(value) {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -127,72 +123,63 @@ function verifyReplayIdentity(original, replay) {
   }
 }
 
-function findExactStringPaths(value, target, basePath = '', output = [], depth = 0) {
-  if (depth > 8 || value === null || value === undefined) return output;
-  if (typeof value === 'string') {
-    if (value === target || value.includes(target)) output.push(basePath || '$');
-    return output;
-  }
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => findExactStringPaths(item, target,
-      basePath + '[' + index + ']', output, depth + 1));
-  } else if (typeof value === 'object') {
-    for (const key of Object.keys(value)) {
-      findExactStringPaths(value[key], target,
-        basePath ? basePath + '.' + key : key, output, depth + 1);
-    }
-  }
-  return output;
-}
-
-function safeScalar(value) {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value);
-  if (typeof value === 'string' && SAFE_LABEL.test(value)) return value;
-  return undefined;
-}
-
-function safeOptionSummary(prompt) {
-  const counts = {};
-  const labels = [];
-  for (const source of ['fields', 'extraFields']) {
-    const fields = prompt?.[source] ?? {};
-    for (const key of OPTION_ARRAY_KEYS) {
-      if (!Array.isArray(fields[key])) continue;
-      counts[source + '.' + key] = fields[key].length;
-      for (const option of fields[key]) {
-        const direct = safeScalar(option);
-        if (direct !== undefined) labels.push(direct);
-        else if (option && typeof option === 'object') {
-          for (const labelKey of ['label', 'text', 'count', 'amount']) {
-            const candidate = safeScalar(option[labelKey]);
-            if (candidate !== undefined) { labels.push(candidate); break; }
-          }
-        }
-      }
-    }
-  }
-  return { optionCounts: counts, safeOptionLabels: [...new Set(labels)] };
-}
-
-function collectChoiceEvidence(value, source, output = [], depth = 0) {
-  if (!value || typeof value !== 'object' || depth > 5) return output;
-  for (const [key, child] of Object.entries(value)) {
-    if (SAFE_CHOICE_KEY.test(key)) {
-      const safe = safeScalar(child);
-      if (safe !== undefined) output.push({ source, key, value: safe });
-    }
-    if (child && typeof child === 'object') collectChoiceEvidence(child, source, output, depth + 1);
-  }
-  return output;
-}
-
 function handCount(snapshot, seat) {
   const player = snapshot?.players?.find(value => value?.seat === seat);
   if (Number.isSafeInteger(player?.counts?.hand)) return player.counts.hand;
   if (Array.isArray(player?.zones?.hand)) return player.zones.hand.length;
   return null;
+}
+
+function promptMessage(prompt) {
+  const fields = prompt?.fields ?? {};
+  return fields.message ?? fields.text ?? null;
+}
+
+function isTargetPrompt(prompt) {
+  return promptMessage(prompt) === TARGET_EFFECT;
+}
+
+function readPromptValues(prompt) {
+  const values = prompt?.extraFields?.values ?? prompt?.fields?.values;
+  return Array.isArray(values) ? values : null;
+}
+
+function readPromptAllowCancel(prompt) {
+  const candidates = [
+    prompt?.fields?.options?.allowCancel,
+    prompt?.fields?.allowCancel,
+    prompt?.extraFields?.options?.allowCancel,
+    prompt?.extraFields?.allowCancel
+  ];
+  return candidates.find(value => typeof value === 'boolean') ?? null;
+}
+
+function readPromptResult(prompt) {
+  if (Object.prototype.hasOwnProperty.call(prompt?.fields ?? {}, 'result')) {
+    return prompt.fields.result;
+  }
+  if (Object.prototype.hasOwnProperty.call(prompt?.extraFields ?? {}, 'result')) {
+    return prompt.extraFields.result;
+  }
+  return undefined;
+}
+
+function parseDescendingDrawValues(values) {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  const drawCounts = [];
+  for (const value of values) {
+    if (typeof value !== 'string') return null;
+    const match = DRAW_LABEL.exec(value);
+    if (!match) return null;
+    const count = Number(match[1]);
+    if (!Number.isSafeInteger(count) || count < 0) return null;
+    drawCounts.push(count);
+  }
+  if (drawCounts[drawCounts.length - 1] !== 0) return null;
+  for (let index = 1; index < drawCounts.length; index++) {
+    if (drawCounts[index] !== drawCounts[0] - index) return null;
+  }
+  return drawCounts;
 }
 
 function findRawPrompt(row) {
@@ -201,24 +188,102 @@ function findRawPrompt(row) {
   const id = row.pendingPromptId;
   if (id !== null && id !== undefined) {
     const matches = prompts.filter(prompt => prompt?.id === id);
-    if (matches.length === 1) return matches[0];
+    return matches.length === 1 ? matches[0] : null;
   }
-  // Prompt IDs are a secondary join key; action ordinal/seat/turn/type are primary.
   const pending = prompts.filter(prompt =>
     prompt?.pending === true && prompt?.promptType === 'SelectPrompt');
   return pending.length === 1 ? pending[0] : null;
 }
 
-function findRawPromptAfter(row, promptId, promptType = 'SelectPrompt') {
+function findRawPromptAfter(row, promptId) {
   const prompts = row?.fullStateAfter?.prompts;
-  if (!Array.isArray(prompts)) return null;
-  if (promptId !== null && promptId !== undefined) {
-    const matches = prompts.filter(prompt => prompt?.id === promptId);
-    if (matches.length === 1) return matches[0];
+  if (!Array.isArray(prompts)) {
+    const error = new Error('raw replay has no after-dispatch prompt snapshot');
+    error.code = 'TRACE_REPLAY_PROMPT_AFTER_MISSING';
+    throw error;
   }
-  const resolved = prompts.filter(prompt =>
-    prompt?.promptType === promptType && prompt?.pending === false);
-  return resolved.length === 1 ? resolved[0] : null;
+  const matches = prompts.filter(prompt => prompt?.id === promptId);
+  if (matches.length > 1) {
+    const error = new Error('raw replay has duplicate after-dispatch prompt IDs');
+    error.code = 'TRACE_REPLAY_PROMPT_AFTER_AMBIGUOUS';
+    throw error;
+  }
+  return matches[0] ?? null;
+}
+
+function unresolvedTarget(safeRow, reason, extra = {}) {
+  return {
+    actionOrdinal: safeRow.actionOrdinal,
+    actingSeat: safeRow.actingSeat,
+    turnBefore: safeRow.turnBefore,
+    promptType: 'SelectPrompt',
+    promptEffect: TARGET_EFFECT,
+    selectedDrawCount: null,
+    confidence: reason,
+    sourceClass: 'deterministic-reconstruction-not-original-run-observation',
+    ...extra
+  };
+}
+
+function verifySanitizerCheckout(modulePath, rawArtifact) {
+  let absolutePath;
+  try {
+    absolutePath = fs.realpathSync(modulePath);
+  } catch {
+    const error = new Error('exact-revision sanitizer module does not exist');
+    error.code = 'TRACE_REPLAY_SANITIZER_MODULE_MISSING';
+    throw error;
+  }
+
+  let repositoryRoot;
+  try {
+    repositoryRoot = execFileSync('git', [
+      '-C', path.dirname(absolutePath), 'rev-parse', '--show-toplevel'
+    ], { encoding: 'utf8' }).trim();
+  } catch {
+    const error = new Error('sanitizer module must be inside an accessible Git checkout');
+    error.code = 'TRACE_REPLAY_SANITIZER_GIT_REQUIRED';
+    throw error;
+  }
+
+  const relativePath = path.relative(repositoryRoot, absolutePath)
+    .split(path.sep).join('/');
+  if (!relativePath || relativePath === '..' || relativePath.startsWith('../') ||
+      path.isAbsolute(relativePath)) {
+    const error = new Error('sanitizer module must be inside its Git checkout');
+    error.code = 'TRACE_REPLAY_SANITIZER_PATH_INVALID';
+    throw error;
+  }
+
+  let head;
+  let committedBlob;
+  let workingBlob;
+  try {
+    head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'],
+      { encoding: 'utf8' }).trim();
+    committedBlob = execFileSync('git', ['-C', repositoryRoot, 'rev-parse',
+      'HEAD:' + relativePath], { encoding: 'utf8' }).trim();
+    workingBlob = execFileSync('git', ['-C', repositoryRoot, 'hash-object', '--',
+      relativePath], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
+  } catch {
+    const error = new Error('could not verify sanitizer revision and committed blob');
+    error.code = 'TRACE_REPLAY_SANITIZER_GIT_IDENTITY_FAILED';
+    throw error;
+  }
+
+  requirePresent(rawArtifact?.engine?.researchRevisionSha, 'raw.engine.researchRevisionSha');
+  requireEqual(head, rawArtifact.engine.researchRevisionSha,
+    'sanitizer checkout vs raw research revision');
+  requireEqual(rawArtifact?.trial?.researchRevisionSha, head,
+    'raw trial research revision');
+  requireEqual(rawArtifact?.trial?.vendorCommitSha, rawArtifact?.engine?.twinleafCommitSha,
+    'raw trial vendor commit vs engine Twinleaf pin');
+  requireEqual(workingBlob, committedBlob, 'sanitizer source is unmodified');
+
+  return {
+    researchRevisionSha: head,
+    sanitizerBlobSha: committedBlob
+  };
 }
 
 function analyzeTargetRow(rawGame, safeRow) {
@@ -238,75 +303,126 @@ function analyzeTargetRow(rawGame, safeRow) {
     error.code = 'TRACE_REPLAY_ROW_BINDING_MISMATCH';
     throw error;
   }
-  const resolverOptions = rawRow.promptResolverContext?.availableOptions ?? {};
-  for (const [key, expectedCount] of Object.entries(safeRow.promptContext?.optionCounts ?? {})) {
-    if (!Array.isArray(resolverOptions[key]) || resolverOptions[key].length !== expectedCount) {
-      const error = new Error('raw replay resolver option count mismatch for ' + key);
-      error.code = 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH';
-      throw error;
-    }
-  }
-  const safeAllowCancel = safeRow.promptContext?.allowCancel;
-  if (typeof safeAllowCancel === 'boolean' &&
-      typeof resolverOptions.allowCancel === 'boolean' &&
-      safeAllowCancel !== resolverOptions.allowCancel) {
-    const error = new Error('raw replay resolver allowCancel mismatch');
-    error.code = 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH';
+  const safePromptId = safeRow.promptContext?.promptId;
+  if (safePromptId !== null && safePromptId !== undefined &&
+      rawRow.pendingPromptId !== safePromptId) {
+    const error = new Error('raw replay prompt ID differs from the sanitized decision row');
+    error.code = 'TRACE_REPLAY_ROW_BINDING_MISMATCH';
     throw error;
   }
+
   const promptBefore = findRawPrompt(rawRow);
   if (!promptBefore || promptBefore.promptType !== 'SelectPrompt') {
     const error = new Error('raw replay does not contain the matching native SelectPrompt snapshot');
     error.code = 'TRACE_REPLAY_PROMPT_NOT_FOUND';
     throw error;
   }
-  const effectPaths = [
-    ...findExactStringPaths(promptBefore.fields, TARGET_EFFECT, 'fields'),
-    ...findExactStringPaths(promptBefore.extraFields, TARGET_EFFECT, 'extraFields')
-  ];
-  if (effectPaths.length === 0) return null;
+  if (promptBefore.pending !== true) {
+    const error = new Error('target prompt was not pending immediately before dispatch');
+    error.code = 'TRACE_REPLAY_PROMPT_NOT_PENDING';
+    throw error;
+  }
+  if (!isTargetPrompt(promptBefore)) return null;
+  if (promptBefore.id === null || promptBefore.id === undefined) {
+    const error = new Error('target prompt snapshot has no stable native prompt ID');
+    error.code = 'TRACE_REPLAY_PROMPT_ID_MISSING';
+    throw error;
+  }
   if (rawRow.dispatchStatus !== 'succeeded' || !rawRow.fullStateAfter) {
     const error = new Error('target draw prompt did not have a successful dispatch and following snapshot');
     error.code = 'TRACE_REPLAY_PROMPT_NOT_ACCEPTED';
     throw error;
   }
+
+  const allowCancel = readPromptAllowCancel(promptBefore);
+  if (allowCancel !== false) {
+    const error = new Error('target draw prompt did not prove allowCancel=false');
+    error.code = 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH';
+    throw error;
+  }
+  const safeAllowCancel = safeRow.promptContext?.allowCancel;
+  if (typeof safeAllowCancel === 'boolean' && safeAllowCancel !== allowCancel) {
+    const error = new Error('sanitized and native prompt allowCancel values differ');
+    error.code = 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH';
+    throw error;
+  }
+  const resolverAllowCancel = rawRow.promptResolverContext?.availableOptions?.allowCancel;
+  if (typeof resolverAllowCancel === 'boolean' && resolverAllowCancel !== allowCancel) {
+    const error = new Error('native resolver and prompt allowCancel values differ');
+    error.code = 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH';
+    throw error;
+  }
+
+  const values = readPromptValues(promptBefore);
+  const drawCounts = parseDescendingDrawValues(values);
+  if (!drawCounts) {
+    return unresolvedTarget(safeRow, 'native-draw-option-values-unavailable-or-invalid', {
+      allowCancel,
+      nativeOptionCount: Array.isArray(values) ? values.length : null
+    });
+  }
+
+  const disabled = promptBefore.fields?.options?.disabled ??
+    promptBefore.extraFields?.options?.disabled ?? [];
+  if (!Array.isArray(disabled) || disabled.some(value => typeof value !== 'boolean')) {
+    return unresolvedTarget(safeRow, 'native-disabled-option-list-invalid', {
+      allowCancel,
+      nativeOptionCount: values.length
+    });
+  }
+
+  const choiceIndex = rawRow.actionPayload?.fields?.result;
+  if (!Number.isSafeInteger(choiceIndex) || choiceIndex < 0) {
+    return unresolvedTarget(safeRow, 'native-choice-index-unavailable', {
+      allowCancel,
+      nativeOptionCount: values.length
+    });
+  }
+  if (choiceIndex >= values.length || disabled[choiceIndex] === true) {
+    const error = new Error('native ResolvePromptAction result is not an enabled prompt.values index');
+    error.code = 'TRACE_REPLAY_CHOICE_INDEX_INVALID';
+    throw error;
+  }
+
   const promptAfter = findRawPromptAfter(rawRow, promptBefore.id);
-  const optionSummary = safeOptionSummary(promptBefore);
-  const evidence = [
-    ...collectChoiceEvidence(rawRow.actionPayload?.fields, 'actionPayload.fields'),
-    ...collectChoiceEvidence(rawRow.promptResolution, 'promptResolution'),
-    ...collectChoiceEvidence({ result: promptAfter?.fields?.result }, 'promptAfter.fields.result'),
-    ...collectChoiceEvidence({ result: promptAfter?.extraFields?.result }, 'promptAfter.extraFields.result')
-  ];
+  let afterResult;
+  if (promptAfter) {
+    if (promptAfter.promptType !== 'SelectPrompt' || promptAfter.pending !== false) {
+      const error = new Error('the same native prompt remained pending after dispatch');
+      error.code = 'TRACE_REPLAY_PROMPT_NOT_RESOLVED';
+      throw error;
+    }
+    afterResult = readPromptResult(promptAfter);
+    if (!Number.isSafeInteger(afterResult) || afterResult !== choiceIndex) {
+      const error = new Error('after-dispatch prompt result does not equal the native action choice index');
+      error.code = 'TRACE_REPLAY_PROMPT_RESULT_MISMATCH';
+      throw error;
+    }
+  }
+
   const beforeHandCount = handCount(rawRow.fullStateBefore, safeRow.actingSeat);
   const afterHandCount = handCount(rawRow.fullStateAfter, safeRow.actingSeat);
   const handCountDelta = beforeHandCount !== null && afterHandCount !== null ?
     afterHandCount - beforeHandCount : null;
-  const numericEvidence = [...new Set(evidence
-    .filter(item => typeof item.value === 'number')
-    .map(item => item.value))];
-  const directDrawValues = [...new Set(evidence
-    .filter(item => typeof item.value === 'number' && DIRECT_DRAW_VALUE_KEY.test(item.key))
-    .map(item => item.value))];
-  const selectedDrawCount = handCountDelta !== null && handCountDelta >= 0 &&
-    directDrawValues.length === 1 && directDrawValues[0] === handCountDelta ? handCountDelta : null;
-  const confidence = directDrawValues.length > 1 ? 'conflicting-direct-choice-values' :
-    selectedDrawCount !== null ? 'choice-value-and-hand-delta-agree' :
-    directDrawValues.length === 1 ? 'direct-choice-value-not-confirmed-by-hand-delta' :
-    numericEvidence.length > 0 ? 'only-index-or-ambiguous-choice-evidence' :
-    handCountDelta !== null ? 'hand-delta-only-choice-unresolved' : 'choice-unresolved';
+  const selectedDrawCount = handCountDelta !== null &&
+    handCountDelta === drawCounts[choiceIndex] ? drawCounts[choiceIndex] : null;
+  const confidence = handCountDelta === null ? 'hand-count-delta-unavailable' :
+    selectedDrawCount !== null ? 'native-choice-index-and-hand-delta-agree' :
+    'native-choice-index-and-hand-delta-disagree';
+
   return {
     actionOrdinal: safeRow.actionOrdinal,
     actingSeat: safeRow.actingSeat,
     turnBefore: safeRow.turnBefore,
     promptType: 'SelectPrompt',
     promptEffect: TARGET_EFFECT,
-    promptEffectFieldPaths: [...new Set(effectPaths)],
-    optionCounts: optionSummary.optionCounts,
-    safeOptionLabels: optionSummary.safeOptionLabels,
-    allowCancel: promptBefore.fields?.allowCancel === true ? true :
-      promptBefore.fields?.allowCancel === false ? false : null,
-    safeChoiceEvidence: evidence,
+    promptIdentityField: promptBefore.fields?.message === TARGET_EFFECT ? 'message' : 'text',
+    optionCounts: { nativeValues: values.length },
+    safeOptionLabels: drawCounts.map((drawCount, index) => ({ choiceIndex: index, drawCount })),
+    allowCancel,
+    choiceIndex,
+    promptAfterPresent: promptAfter !== null,
+    promptAfterResult: promptAfter ? afterResult : null,
     handCountBefore: beforeHandCount,
     handCountAfter: afterHandCount,
     handCountDelta,
@@ -316,10 +432,33 @@ function analyzeTargetRow(rawGame, safeRow) {
   };
 }
 
-function analyzeTraceReplay({ originalSanitized, replaySanitized, replayRaw, actionOrdinal = null } = {}) {
-  if (!originalSanitized || !replaySanitized || !replayRaw) {
-    throw new TypeError('original sanitized, replay sanitized, and offline raw replay artifacts are required');
+function analyzeTraceReplay({
+  originalSanitized, replayRaw, sanitizeFixtureArtifact, sanitizerIdentity,
+  actionOrdinal = null
+} = {}) {
+  if (!originalSanitized || !replayRaw) {
+    throw new TypeError('original sanitized artifact and offline raw replay are required');
   }
+  if (typeof sanitizeFixtureArtifact !== 'function') {
+    const error = new Error('the exact-revision sanitizeFixtureArtifact function is required');
+    error.code = 'TRACE_REPLAY_SANITIZER_REQUIRED';
+    throw error;
+  }
+  if (!sanitizerIdentity?.researchRevisionSha || !sanitizerIdentity?.sanitizerBlobSha) {
+    const error = new Error('verified sanitizer revision and blob identity are required');
+    error.code = 'TRACE_REPLAY_SANITIZER_IDENTITY_REQUIRED';
+    throw error;
+  }
+
+  requireEqual(replayRaw?.engine?.researchRevisionSha, sanitizerIdentity.researchRevisionSha,
+    'raw research revision vs exact sanitizer checkout');
+  const replaySanitized = sanitizeFixtureArtifact(replayRaw);
+  if (!replaySanitized || typeof replaySanitized !== 'object') {
+    const error = new Error('exact sanitizer did not return a sanitized artifact');
+    error.code = 'TRACE_REPLAY_SANITIZER_OUTPUT_INVALID';
+    throw error;
+  }
+
   verifyReplayIdentity(originalSanitized, replaySanitized);
   const rawGame = replayRaw.nativeGame ?? replayRaw.fixtureGamePartial ?? {};
   requireEqual(rawGame.seed, replaySanitized.trial.seed, 'native game physical seed');
@@ -333,6 +472,7 @@ function analyzeTraceReplay({ originalSanitized, replaySanitized, replayRaw, act
     error.code = 'TRACE_REPLAY_RAW_TRACE_MISSING';
     throw error;
   }
+
   let candidates = originalSanitized.game.actorDecisions.filter(row =>
     row?.pendingPromptType === 'SelectPrompt' && row?.promptContext?.promptType === 'SelectPrompt');
   if (actionOrdinal !== null) candidates = candidates.filter(row => row.actionOrdinal === actionOrdinal);
@@ -342,10 +482,12 @@ function analyzeTraceReplay({ originalSanitized, replaySanitized, replayRaw, act
     if (target) targets.push(target);
   }
   return {
-    schema: 'agent6-v3-trace-replay-join-v1',
+    schema: 'agent6-v3-trace-replay-join-v2',
     status: targets.length === 0 ? 'not-exercised' :
       targets.every(target => target.selectedDrawCount !== null) ? 'reconstructed' : 'choice-unresolved',
     replayIdentityVerified: true,
+    sanitizerRevisionVerified: true,
+    sanitizerIdentity,
     deterministicReconstructionOnly: true,
     competitiveEvidence: false,
     targetPrompt: TARGET_EFFECT,
@@ -359,18 +501,23 @@ function readJson(filename) {
 }
 
 function main(argv = process.argv.slice(2)) {
-  const [originalPath, replaySanitizedPath, replayPath, ordinalText] = argv;
-  if (!originalPath || !replaySanitizedPath || !replayPath || argv.length > 4 ||
-      (ordinalText !== undefined && !/^\d+$/.test(ordinalText))) {
-    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <replay-sanitized.json> <offline-decrypted-replay.json> [actionOrdinal]');
+  const [originalPath, replayPath, sanitizerModulePath, ordinalText] = argv;
+  if (!originalPath || !replayPath || !sanitizerModulePath || argv.length > 4 ||
+      (ordinalText !== undefined && !/^\\d+$/.test(ordinalText))) {
+    throw new Error('usage: node agent6-v3-trace-replay-join.cjs <original-sanitized.json> <offline-decrypted-replay.json> <exact-revision-sanitizer-module.cjs> [actionOrdinal]');
   }
+  const originalSanitized = readJson(originalPath);
+  const replayRaw = readJson(replayPath);
+  const sanitizerIdentity = verifySanitizerCheckout(sanitizerModulePath, replayRaw);
+  const sanitizerModule = require(fs.realpathSync(sanitizerModulePath));
   const result = analyzeTraceReplay({
-    originalSanitized: readJson(originalPath),
-    replaySanitized: readJson(replaySanitizedPath),
-    replayRaw: readJson(replayPath),
+    originalSanitized,
+    replayRaw,
+    sanitizeFixtureArtifact: sanitizerModule.sanitizeFixtureArtifact,
+    sanitizerIdentity,
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  process.stdout.write(JSON.stringify(result, null, 2) + '\\n');
   return result;
 }
 
@@ -382,4 +529,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { analyzeTraceReplay, verifyReplayIdentity, validateWorkerAudit, stableJson };
+module.exports = { analyzeTraceReplay, verifyReplayIdentity, validateWorkerAudit, verifySanitizerCheckout, parseDescendingDrawValues, stableJson };
