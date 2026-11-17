@@ -1307,7 +1307,7 @@
     }
   ],
   "candidate_pressure_summary": {
-    "source_decklist_sha": "source SHA recorded in benchmark.source_decklist_sha",
+    "source_decklist_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
     "known_exact_lists": 29,
     "tool_pressure_ranks": [
       1,
