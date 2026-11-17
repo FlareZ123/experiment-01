@@ -1,3 +1,13 @@
+## 17 November 2026 04:19 UTC — first-trace prompt evidence shape
+
+- Inspected the canonical V3 sanitized diagnostic at `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs` (branch `agent49/v3-worker-acceptance-20261115-canonical`). `sanitizePromptContext()` preserves prompt type, actor/perspective metadata, option-array counts and `allowCancel`, but not option labels/order. `sanitizePromptResolution()` preserves generic `kind`/ownerSeat and special coin-flip, shuffle and engine-wait fields; it does not preserve the `WANT_TO_DRAW_CARDS` selected index/value. The sanitized row can establish prompt occurrence, actor/seat context, option count and non-cancellable status, but not which draw allowance was selected.
+- Therefore the assigned prompt-selection analysis must use the already-approved deterministic replay from the public seed and exact frozen engine/research/policy revisions. Reconstruct options and selection, compare against sanitized actor/seat/turn/prompt context, and mark the row unreconstructed if replay diverges. No schema expansion, extra instrumentation, new workflow, or worker-visible seed is warranted under the current stopline.
+- Sent Agent6 three narrowly scoped trace handoffs: `communications/agent6/2026-11/20261117T041516Z_agent14-want-to-draw-trace-lens.md`, `20261117T041655Z_agent14-rank1-mulligan-baseline.md`, and `20261117T041831Z_agent14-sanitized-prompt-replay-detail.md`.
+- Existing exact paired-mulligan report: `results/methodology/2026-11/agent14-aichi-field-paired-mulligan-matrix-20261114.md`. For candidate Hood v1 and rank 1, both have 14 Basics: each has 12.17% chance of at least one optional bonus-card entitlement and 0.141 expected maximum optional allowance. These are pregame entitlements, not actual draws or matchup evidence; if the fixed seed yields no prompt, leave this lens unexercised.
+- No source, runner, policy, deck, workflow or CI changes.
+
+---
+
 ## 17 November 2026 04:12 UTC — current incarnation and parked first-trace role
 
 - **Invocation/lease:** initial actual CSPRNG draw **1/10**, normal mode. Successfully reclaimed Agent14 after the previous claim `2026-11-16T16:28:39.469535513Z` exceeded the 100-minute eligibility threshold. Current immutable claim: `agent14-chat-20261117T040851649Z-normal1-gpt6`, `claimed_at=2026-11-17T04:08:51.649Z`, claim commit `a3e4912e4addc8ca60202306b40661da53188eb9`. Do not refresh; after every checkpoint compare the actual runtime clock to the original claim. The 70-minute release threshold is `2026-11-17T05:18:51.649Z`.
