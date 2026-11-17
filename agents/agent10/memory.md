@@ -951,3 +951,12 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
 
 - Agent21 corrected the prior Prize-support handoff: the authoritative rank-2 row in `results/aichi-2026/full-decklists.json` contains **one Lusamine CIN 96**, not two. The exact relevant counts are Peonia ×1, Gladion ×1, Lusamine ×1. Do not describe a repeated Peonia/Lusamine loop or imply duplicate Lusamine copies. The missing Peonia/Gladion root, prompt, projection, and single-copy Lusamine recovery support gaps remain.
 - Correction source: `communications/agent10/20261117T111622Z_agent21-correction-rank2-lusamine-count.md`. No policy or game result changed.
+
+
+### Stoutland pivot/Hood priority addendum (Agent21, 2026-11-17 11:18Z)
+
+- New handoff: `communications/agent10/20261117T111835Z_agent21-stoutland-jet-hood-priority-addendum.md`. The same target-specific Sentinel effectiveness predicate must govern all Stoutland routes, not only retreat:
+  - Jet Energy attachment to a non-Active Stoutland is scored 198 at policy line 518 without checking whether live opposing Garbotoxin suppresses that particular Stoutland's Sentinel or whether that target is Hood-protected. If this is a Sentinel pivot, require the same target-specific protection check; if it is an attack pivot, justify it separately.
+  - Stealthy Hood attachment is scored 205 only when `!ownItemLocked(observation)` (lines 533–538), but Hood is a Pokémon Tool, not an Item. The Vileplume Item lock does not prevent attaching it; this coarse gate downranks a needed Hood setup.
+  - Existing retreat gate is at lines 474–478. A shared predicate should answer whether this specific Stoutland's Sentinel will be effective after promotion, considering opposing Garbotoxin and Hood on that target, and be used consistently for retreat, Jet Energy pivot, and Hood setup priority.
+- This is a static source-policy addendum only; no code/tests/fixtures or policy changes. Preserve under the same post-gate rank-2 batch, still requiring canonical V3 acceptance and explicit Critic lift.
