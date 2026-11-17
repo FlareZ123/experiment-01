@@ -38,6 +38,20 @@ function zoneCardLabelsForText(zone) {
   return Array.isArray(cards)?cards.map(cardLabelForText):[];
 }
 
+function scalarLabelForText(value) {
+  if (value===null || value===undefined) return null;
+  if (typeof value==='string' || typeof value==='number' || typeof value==='boolean') return value;
+  if (typeof value==='bigint' || typeof value==='symbol') return String(value);
+  if (typeof value==='object' || typeof value==='function') {
+    const id=safeDataProperty(value,'id');
+    if (id!==undefined && id!==null) return String(id);
+    const name=safeDataProperty(value,'name');
+    if (typeof name==='string' && name) return name;
+    return constructorNameOf(value);
+  }
+  return String(value);
+}
+
 function cardCollectionLabelsForText(value) {
   return Array.isArray(value)?value.map(cardLabelForText):zoneCardLabelsForText(value);
 }
@@ -59,7 +73,7 @@ function summarizeNativeStateForText(state,publicBoard=null) {
     const board=Array.isArray(publicBoard)?publicBoard[seat]:null;
     return {
       seat,
-      playerId:safeDataProperty(player,'id') ?? null,
+      playerId:scalarLabelForText(safeDataProperty(player,'id')),
       deck:zoneCardLabelsForText(safeDataProperty(player,'deck')),
       hand:zoneCardLabelsForText(safeDataProperty(player,'hand')),
       discard:zoneCardLabelsForText(safeDataProperty(player,'discard')),
@@ -81,18 +95,18 @@ function summarizeNativeStateForText(state,publicBoard=null) {
       const choices=safeDataProperty(prompt,'choices') ?? safeDataProperty(prompt,'options');
       return {
         type:constructorNameOf(prompt),
-        playerId:safeDataProperty(prompt,'playerId') ?? safeDataProperty(player,'id') ?? null,
+        playerId:scalarLabelForText(safeDataProperty(prompt,'playerId') ?? safeDataProperty(player,'id')),
         message:typeof message==='string'?message:null,
         cards:cardCollectionLabelsForText(promptCards),
         choices:Array.isArray(choices)?choices.map(choiceLabelForText):[]
       };
     }):[];
   return {
-    turn:safeDataProperty(state,'turn') ?? null,
-    phase:safeDataProperty(state,'phase') ?? null,
-    activePlayer:safeDataProperty(state,'activePlayer') ?? null,
-    winner:safeDataProperty(state,'winner') ?? null,
-    isSuddenDeath:safeDataProperty(state,'isSuddenDeath') ?? null,
+    turn:scalarLabelForText(safeDataProperty(state,'turn')),
+    phase:scalarLabelForText(safeDataProperty(state,'phase')),
+    activePlayer:scalarLabelForText(safeDataProperty(state,'activePlayer')),
+    winner:scalarLabelForText(safeDataProperty(state,'winner')),
+    isSuddenDeath:scalarLabelForText(safeDataProperty(state,'isSuddenDeath')),
     players,
     unresolvedPrompts
   };
