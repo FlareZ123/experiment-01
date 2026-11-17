@@ -8,13 +8,13 @@
  * revision; never run this on a public/shared machine or emit raw state.
  */
 const fs = require('node:fs');
-const { createHash } = require('node:crypto');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const TARGET_EFFECT = 'WANT_TO_DRAW_CARDS';
 const SANITIZER_RELATIVE_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
 const TWINLEAF_SUBMODULE_PATH = 'vendor/twinleaf';
+const CANONICAL_JSON_RELATIVE_PATH = 'simulation/evaluation/canonical-evidence-json.cjs';
 const DRAW_LABEL = /^Draw\s+(\d+)\s+card\(s\)$/i;
 
 function stableJson(value) {
@@ -235,15 +235,19 @@ function unresolvedTarget(safeRow, reason, extra = {}) {
   };
 }
 
-function verifyRawDecisionTrace(rawArtifact, label) {
+function verifyRawDecisionTrace(rawArtifact, label, evidenceBundleSha256) {
   const rawGame = rawArtifact?.nativeGame ?? rawArtifact?.fixtureGamePartial ?? {};
   if (!Array.isArray(rawGame.decisionTrace)) {
     const error = new Error(label + ' raw artifact has no native decision trace');
     error.code = 'TRACE_REPLAY_RAW_TRACE_MISSING';
     throw error;
   }
-  const computedSha256 = createHash('sha256')
-    .update(stableJson(rawGame.decisionTrace), 'utf8').digest('hex');
+  if (typeof evidenceBundleSha256 !== 'function') {
+    const error = new Error('the exact-revision native evidenceBundleSha256 function is required');
+    error.code = 'TRACE_REPLAY_CANONICALIZER_REQUIRED';
+    throw error;
+  }
+  const computedSha256 = evidenceBundleSha256(rawGame.decisionTrace);
   requireEqual(rawGame.decisionTraceSha256, computedSha256,
     label + ' native decision trace digest');
   requireEqual(rawArtifact?.trial?.decisionTraceSha256, computedSha256,
@@ -290,6 +294,8 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
   let committedBlob;
   let workingBlob;
   let twinleafGitlinkSha;
+  let canonicalJsonCommittedBlob;
+  let canonicalJsonWorkingBlob;
   try {
     head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'],
       { encoding: 'utf8' }).trim();
@@ -299,6 +305,10 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
       relativePath], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
     twinleafGitlinkSha = execFileSync('git', ['-C', repositoryRoot, 'rev-parse',
       'HEAD:' + TWINLEAF_SUBMODULE_PATH], { encoding: 'utf8' }).trim();
+    canonicalJsonCommittedBlob = execFileSync('git', ['-C', repositoryRoot, 'rev-parse',
+      'HEAD:' + CANONICAL_JSON_RELATIVE_PATH], { encoding: 'utf8' }).trim();
+    canonicalJsonWorkingBlob = execFileSync('git', ['-C', repositoryRoot, 'hash-object', '--',
+      CANONICAL_JSON_RELATIVE_PATH], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
   } catch {
     const error = new Error('could not verify sanitizer revision and committed blob');
     error.code = 'TRACE_REPLAY_SANITIZER_GIT_IDENTITY_FAILED';
@@ -315,11 +325,14 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
   requireEqual(workingBlob, committedBlob, 'sanitizer source is unmodified');
   requireEqual(twinleafGitlinkSha, rawArtifact?.engine?.twinleafCommitSha,
     'checkout Twinleaf gitlink vs raw engine pin');
+  requireEqual(canonicalJsonWorkingBlob, canonicalJsonCommittedBlob,
+    'native canonical JSON source is unmodified');
 
   return {
     researchRevisionSha: head,
     sanitizerBlobSha: committedBlob,
-    twinleafCommitSha: twinleafGitlinkSha
+    twinleafCommitSha: twinleafGitlinkSha,
+    canonicalJsonBlobSha: canonicalJsonCommittedBlob
   };
 }
 
@@ -485,7 +498,7 @@ function analyzeTargetRow(rawGame, safeRow) {
 
 function analyzeTraceReplay({
   originalSanitized, originalRaw, replayRaw, sanitizeFixtureArtifact,
-  sanitizerIdentity, actionOrdinal = null
+  evidenceBundleSha256, sanitizerIdentity, actionOrdinal = null
 } = {}) {
   if (!originalSanitized || !originalRaw || !replayRaw) {
     throw new TypeError('original sanitized artifact, original raw artifact and replay raw artifact are required');
@@ -496,7 +509,7 @@ function analyzeTraceReplay({
     throw error;
   }
   if (!sanitizerIdentity?.researchRevisionSha || !sanitizerIdentity?.sanitizerBlobSha ||
-      !sanitizerIdentity?.twinleafCommitSha) {
+      !sanitizerIdentity?.twinleafCommitSha || !sanitizerIdentity?.canonicalJsonBlobSha) {
     const error = new Error('verified sanitizer revision and blob identity are required');
     error.code = 'TRACE_REPLAY_SANITIZER_IDENTITY_REQUIRED';
     throw error;
@@ -524,8 +537,8 @@ function analyzeTraceReplay({
   verifyReplayIdentity(originalSanitized, sanitizedOriginalFromRaw);
   verifyReplayIdentity(originalSanitized, replaySanitized);
 
-  const originalTrace = verifyRawDecisionTrace(originalRaw, 'original');
-  const replayTrace = verifyRawDecisionTrace(replayRaw, 'replay');
+  const originalTrace = verifyRawDecisionTrace(originalRaw, 'original', evidenceBundleSha256);
+  const replayTrace = verifyRawDecisionTrace(replayRaw, 'replay', evidenceBundleSha256);
   requireEqual(originalTrace.decisionTraceSha256, replayTrace.decisionTraceSha256,
     'original vs replay native decision trace digest');
 
@@ -594,12 +607,18 @@ function main(argv = process.argv.slice(2)) {
     'original/replay sanitizer blob');
   requireEqual(originalSanitizerIdentity.twinleafCommitSha, replaySanitizerIdentity.twinleafCommitSha,
     'original/replay Twinleaf gitlink');
+  requireEqual(originalSanitizerIdentity.canonicalJsonBlobSha, replaySanitizerIdentity.canonicalJsonBlobSha,
+    'original/replay canonical JSON blob');
   const sanitizerModule = require(fs.realpathSync(sanitizerModulePath));
+  const canonicalJsonModulePath = path.join(path.dirname(fs.realpathSync(sanitizerModulePath)),
+    '..', 'canonical-evidence-json.cjs');
+  const canonicalJsonModule = require(fs.realpathSync(canonicalJsonModulePath));
   const result = analyzeTraceReplay({
     originalSanitized,
     originalRaw,
     replayRaw,
     sanitizeFixtureArtifact: sanitizerModule.sanitizeFixtureArtifact,
+    evidenceBundleSha256: canonicalJsonModule.evidenceBundleSha256,
     sanitizerIdentity: originalSanitizerIdentity,
     actionOrdinal: ordinalText === undefined ? null : Number(ordinalText)
   });
