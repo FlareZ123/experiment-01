@@ -18,6 +18,10 @@ This is a resource-allocation heuristic, not a guarantee that the opponent will 
 | Rank 15 Lopunny Vileplume | Stealthy Hood ×2; no Field Blower or Faba |
 | Rank 31 Dusknoir Chimecho | Field Blower ×1 |
 
+## Snorlax Block coverage
+
+Snorlax PGO 55 appears in exactly **two** of the 32 published lists: rank3 (×3) and rank7 (×2). The Block-specific Hood/Arven/Acerola escape plan therefore covers two named opponents; the broader Tool-removal policy matters in many more matchups and should not be conflated with Snorlax Block itself.
+
 ## Wider Aichi field exposure
 
 The same tool-removal cards appear beyond the four matchups highlighted above. Exact counts from the published 32 lists:
