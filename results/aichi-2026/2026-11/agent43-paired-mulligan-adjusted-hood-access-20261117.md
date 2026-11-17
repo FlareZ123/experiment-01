@@ -1,15 +1,18 @@
-# Paired-mulligan-adjusted Hood resource access across Aichi ranks 3, 7 and 15
+# Paired-mulligan-adjusted Hood resource access across Aichi ranks 1, 3, 7 and 15
 
 **Agent 43 · 17 November 2026**
 
 ## Decision summary
 
-The earlier Agent43 resource-access reports intentionally conditioned on valid opening sevens and omitted the optional cards awarded for the opponent's one-sided mulligans. This follow-up integrates the exact paired-mulligan distribution from [Agent14's full-field model](../../methodology/2026-11/agent14-aichi-field-paired-mulligan-matrix-20261114.md) and the setup order in the supplied Advanced Player's Rulebook I.G, steps 4–7 (page 15): six Prizes are set first, then the player may draw up to the number of one-sided opponent mulligans.
+The earlier Agent43 resource-access reports intentionally conditioned on valid opening sevens and omitted the optional cards awarded for the opponent's one-sided mulligans. This follow-up integrates the exact paired-mulligan distribution from [Agent14's full-field model](../../methodology/2026-11/agent14-aichi-field-paired-mulligan-matrix-20261114.md) and the setup order in the supplied Advanced Player's Rulebook I.G, steps 4–7 (page 15): six Prizes are set first, then the player may draw up to the number of one-sided opponent mulligans. It now also quantifies rank 1's Field Blower response and its conditional Forest Seal Stone search route.
 
 The adjustment is real but modest. It does not change the resource conclusions.
 
 | Matchup / resource event | No-bonus baseline | Paired-mulligan-adjusted sensitivity |
 |---|---:|---:|
+| Rank 1: opponent direct Field Blower response, one/two draws | — | **13.009873% / 14.687318%** |
+| Rank 1: potential Forest Seal Stone + Shadow Rider V route, one/two draws | — | **4.980705% / 6.134087%** |
+| Rank 1: combined Field Blower access if Star Alchemy is unspent, one/two draws | — | **17.455698% / 20.059473%** |
 | Rank 3: candidate escape, first own turn going second | 13.819413% | **14.369686–14.369691%** |
 | Rank 3: candidate escape, second own turn, no Eri | 15.969682% | **16.532526–16.532532%** |
 | Rank 3: candidate escape, second own turn, Eri natural-access mixture | 15.416851% | **15.932902–15.932908%** |
@@ -43,6 +46,16 @@ The implementation reproduces Agent14's per-rank bonus probability and expected 
 
 ## Rank-specific results
 
+### Rank 1 — Shadow Rider mirror / Field Blower
+
+Rank 1 has 14 Basics, Field Blower ×1, Forest Seal Stone ×1 and Shadow Rider Calyrex V ×3 (plus four VMAX). The candidate also has 14 Basics, so rank 1 receives optional cards when the candidate has one-sided mulligans: (P(N\ge1)=12.172125\%), (E[N]=0.141305).
+
+By the first response window after Hood is attached:
+- Candidate goes first; rank 1 goes second and has one normal draw plus any bonus cards: direct Field Blower access is **13.009873%**. The potential Forest Seal Stone + Shadow Rider V line is **4.980705%**. Their union is **17.455698%** if Star Alchemy remains unused.
+- Candidate goes second; rank 1 goes first, then has its second turn after Hood is attached and two normal draws plus any bonus cards: direct Field Blower access is **14.687318%**. The potential Forest Seal Stone + Shadow Rider V line is **6.134087%**. Their union is **20.059473%** if Star Alchemy remains unused.
+
+The Forest Seal Stone line requires the Tool and a Shadow Rider V to have been seen, and assumes the opponent still has its VSTAR Power available to search for Field Blower. The model does not include the possibility that Star Alchemy was spent earlier on another card, nor other setup/search lines. Field Blower is assumed retained until Hood appears. A single Field Blower can remove both attached Hoods, but these are access probabilities, not a guarantee that the opponent will choose or successfully make that play.
+
 ### Rank 3 — Snorlax / Eri
 
 Rank 3 has 11 Basics and Eri ×1. Candidate bonus eligibility is (P(M\ge1)=19.768952\%), with expected maximum allowance (E[M]=0.254237) cards. Integrating the bonus draws raises first-turn escape-resource access to **14.369686–14.369691%**.
@@ -71,7 +84,7 @@ The rules distinction is unchanged: AOR3's Item-only lock does not prevent attac
 - Bonus cards are drawn after the six Prizes. The beneficiary draws the maximum optional allowance; the script does not model choosing fewer cards for broader strategic reasons.
 - Each player's final valid opening composition is treated as independent of the number of one-sided mulligans. Deck shuffles are independent.
 - Candidate-side access events use only natural draws plus the named Arven/Tool package; they omit Forest Seal Stone, Tapu Lele-GX, search Items, draw Supporters and other access.
-- Rank-3 Eri access is weighted by its first-turn availability after the opponent's paired-mulligan bonus draws; the candidate/opponent bonus branches are modeled jointly. Eri is assumed played whenever drawn; later recovery is excluded.
+- Rank-1 Field Blower access assumes the opponent retains it until Hood appears. The Forest Seal Stone route assumes Star Alchemy remains unused and a Shadow Rider V has been seen; earlier VSTAR use and other search lines are excluded.\n- Rank-3 Eri access is weighted by its first-turn availability after the opponent's paired-mulligan bonus draws; the candidate/opponent bonus branches are modeled jointly. Eri is assumed played whenever drawn; later recovery is excluded.
 - Rank-7 response access assumes the opponent retains a named remover until Hood is attached; it does not model whether that remover is spent earlier or successfully prevents escape.
 - Rank-15 one-/two-Hood events do not model Vileplume's exact setup timing, Mimikyu access, or attack sequencing.
 - The script truncates the optional-draw count at 10 and returns a rigorous interval by assigning the entire residual probability mass to the upper endpoint. The largest omitted tail is below (5.86\times10^{-8}).
