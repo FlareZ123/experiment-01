@@ -127,7 +127,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
     initialState = snapshotFullState(state,stateLimits);
   }
   function captureStep({state,action,actionOrdinal,playerSlot,turnBefore,turnAfter,
-    pendingPrompt=null,error=null,failureStage=null} = {}) {
+    phaseBefore=null,phaseAfter=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
     if (initialState === null) captureInitial(state);
     if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
       throw new TypeError('Full-state trace actionOrdinal must be a positive integer.');
@@ -139,6 +139,8 @@ function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
       playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
       turnBefore:Number.isFinite(turnBefore)?turnBefore:null,
       turnAfter:Number.isFinite(turnAfter)?turnAfter:null,
+      phaseBefore:phaseBefore??null,
+      phaseAfter:phaseAfter??null,
       beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
       action:snapshotFullState(action,limits),
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
@@ -189,7 +191,7 @@ function formatFullStateTrace(trace) {
   ];
   for (const step of trace.steps || []) {
     lines.push('',
-      '=== ACTION '+step.actionOrdinal+' | turn '+(step.turnBefore ?? '?')+' -> '+(step.turnAfter ?? '?')+' | seat '+(step.playerSlot ?? '?')+' ===',
+      '=== ACTION '+step.actionOrdinal+' | turn '+(step.turnBefore ?? '?')+' -> '+(step.turnAfter ?? '?')+' | phase '+(step.phaseBefore ?? '?')+' -> '+(step.phaseAfter ?? '?')+' | seat '+(step.playerSlot ?? '?')+' ===',
       'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
       'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
       'SELECTED ACTION:',JSON.stringify(step.action,null,2),
