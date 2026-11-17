@@ -56,6 +56,8 @@ The coverage facts above are static source-list audits, not observations that a 
 
 These conclusions follow from the printed ability scopes and the source-list/card identities already audited; they are not native interaction results or matchup claims. In particular, no ordering claim is made for simultaneous or preemptive Wobbuffet/Garbotoxin states.
 
+**Sentinel three-Hood timing constraint:** both fixed Sentinel lists contain three Stealthy Hood copies and three intended lock Pokémon (Stoutland, Vileplume, and Muk or Spiritomb). In principle, one Hood on each lock piece can protect all three from opponent Ability effects such as Garbotoxin. But Vileplume AOR3's Item lock is symmetrical and prevents both players from playing Item cards from hand, including Pokémon Tools. Therefore all required Hoods must be attached **before** Vileplume's Item lock is established; the deck cannot wait to see Garbodor and then attach a missing Hood after its own lock is live. This creates a narrow setup order and exposes the package to Prizes, Tool Jammer and pre-lock Field Blower/other Tool removal. It is a rules-derived sequencing constraint, not evidence that the three-Hood board is naturally accessible or survives a match.
+
 ## 3. Candidate architecture comparison
 
 | Fixed candidate / family | Intended answer package | Important residual or self-interference | Evidence boundary |
