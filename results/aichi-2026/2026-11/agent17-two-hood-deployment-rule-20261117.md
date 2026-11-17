@@ -46,7 +46,7 @@ The second Hood is a reserve against later turns, not a complete answer to Field
 
 Hood Shield v1 also contains Acerola ×1 and VS Seeker ×2. Against rank31, if a high-value Pokémon already has damage counters and would be in range of Cursed Blast after Field Blower removes its Hood, the candidate can use Acerola on its own turn to return that damaged Pokémon and all cards attached to it to hand. This removes that Pokémon as a Cursed Blast target because Cursed Blast requires damage counters. The opponent cannot respond with Field Blower + Cursed Blast until its next turn, so this must be proactive rather than a response to the opponent's sequence.
 
-This is not blanket protection: Cursed Blast can target any of the candidate's damaged Pokémon, so other damaged targets remain legal. Acerola also costs tempo and returns the Pokémon's attachments; it is one copy, though the two VS Seeker can recover it later because rank31 has no persistent Item lock. This is a conditional target-denial line, not a tested matchup result.
+This is not blanket protection: Cursed Blast can target any of the candidate's damaged Pokémon, so other damaged targets remain legal. Acerola consumes the Supporter for the turn (competing with Arven, Guzma, and draw Supporters), costs tempo, and returns the Pokémon's attachments; the candidate must re-establish the Pokémon and its Energy/Tools. It is one copy, though the two VS Seeker can recover it later because rank31 has no persistent Item lock. This is a conditional target-denial line, not a tested matchup result.
 
 ## Deployment policy
 
