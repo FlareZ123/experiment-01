@@ -264,6 +264,14 @@ test('does not treat worker selectedCount=1 as the number of cards drawn', () =>
   assert.equal(result.targets[0].choiceIndex, 1);
 });
 
+test('does not infer a choice index from promptAfter or promptResolution when native action result is absent', () => {
+  const replay = rawReplay({ includeActionResult: false });
+  const result = run(sanitizeFixtureArtifact(replay), replay);
+  assert.equal(result.status, 'choice-unresolved');
+  assert.equal(result.targets[0].selectedDrawCount, null);
+  assert.equal(result.targets[0].confidence, 'native-choice-index-unavailable');
+});
+
 test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0', () => {
   const replay = rawReplay({ actingSeat: 1, handBefore: 6, choiceIndex: 1, handAfter: 8 });
   const result = run(sanitizeFixtureArtifact(replay), replay);
@@ -451,6 +459,12 @@ test('rejects native prompt allowCancel drift against the sanitized resolver rec
   const replay = rawReplay();
   replay.nativeGame.decisionTrace[0].fullStateBefore.prompts[0].fields.options.allowCancel = true;
   assert.throws(() => run(safeArtifact(), replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
+});
+
+test('rejects allowCancel=true even when the sanitized resolver receipt agrees', () => {
+  const replay = rawReplay({ allowCancel: true });
+  const matchingOriginal = sanitizeFixtureArtifact(replay);
+  assert.throws(() => run(matchingOriginal, replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
 });
 
 test('allows only ephemeral container identifiers to differ', () => {
