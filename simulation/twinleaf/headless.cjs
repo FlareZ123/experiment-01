@@ -1304,6 +1304,7 @@ function runMatch(request) {
           state.players.findIndex(player=>player.id===pending.playerId) : state.activePlayer;
         recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
+          playerId:state.players[failedSeatForTrace]?.id??null,actionType:null,
           turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
           phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'bot-decoder'
         });
@@ -1407,7 +1408,8 @@ function runMatch(request) {
           const actingSeatForTrace=state.players.findIndex(player=>player.id===actingIdForTrace);
           recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
-            turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+            playerId:state.players[actingSeatForTrace]?.id??null,
+            actionType:action?.constructor?.name??null,turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
             phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'prompt-validation'
           });
           finalizeFullStateTrace(state,error);
@@ -1643,6 +1645,7 @@ function runMatch(request) {
         }
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
+          playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
           turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending
         });
@@ -1652,6 +1655,7 @@ function runMatch(request) {
           error.message, { cause: error });
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
+          playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
           turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending,error,
           failureStage:'store-dispatch'
