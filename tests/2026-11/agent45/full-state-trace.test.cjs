@@ -26,7 +26,7 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
 
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
   const recorder=createFullStateTraceRecorder({label:'diagnostic',seed:123,policyConfiguration:[{seat:0,tacticOrder:['AttackTactic','PlayBasicTactic'],promptResolverOrder:['ChooseCardsPromptResolver']}]});
-  const initial={turn:1,phase:'PLAYER_TURN',activePlayer:0,players:[{id:101,deck:{cards:[{fullName:'Psychic Energy'}]},hand:{cards:[{fullName:'Quick Ball FST 237'}]},discard:{cards:[]},lostzone:{cards:[]},prizes:[{cards:[{fullName:"Boss's Orders PAL 172"}]}],stadium:{cards:[]},supporter:{cards:[]}}],prompts:[{playerId:101,message:'Choose a Pokémon',cards:{cards:[{fullName:'Shadow Rider Calyrex V'}]}}],logs:[]};
+  const initial={turn:1,phase:'PLAYER_TURN',activePlayer:0,players:[{id:101,deck:{cards:[{fullName:'Psychic Energy'}]},hand:{cards:[{fullName:'Quick Ball FST 237'}]},discard:{cards:[]},lostzone:{cards:[]},prizes:[{cards:[{fullName:"Boss's Orders PAL 172"}]}],stadium:{cards:[]},supporter:{cards:[]}}],prompts:[{playerId:101,message:'Choose a Pokémon',cards:[{fullName:'Shadow Rider Calyrex V'}],choices:['Active','Bench 1']}],logs:[]};
   const board=[{active:{name:'Shadow Rider Calyrex',printedAttacks:[{name:'Max Geist',cost:['Psychic','Psychic']}]},bench:[],stadium:[]}];
   const humanSummary=summarizeNativeStateForText(initial,board);
   recorder.captureInitial(initial,board,humanSummary);
@@ -46,6 +46,7 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   assert.match(JSON.stringify(trace.initialHumanSummary),/Psychic Energy/);
   assert.match(JSON.stringify(trace.initialHumanSummary),/Boss's Orders PAL 172/);
   assert.match(JSON.stringify(trace.initialHumanSummary),/Max Geist/);
+  assert.match(JSON.stringify(trace.initialHumanSummary),/Bench 1/);
   const text=recorder.text();
   assert.match(text,/TWINLEAF OFFLINE FULL-STATE TRACE/);
   assert.match(text,/PER-SEAT POLICY CONFIGURATION/);
