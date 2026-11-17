@@ -50,7 +50,7 @@ The eventual primary field remains **32 ranks × 2 candidate physical seats × 2
 
 ## Source basis
 
-- [Machine-readable Aichi AttachEnergyPrompt source manifest](agent39-aichi-attach-energy-prompt-manifest-20261117.json)
+- [Machine-readable Aichi AttachEnergyPrompt source manifest](agent39-aichi-attach-energy-prompt-manifest-20261117.json) (includes exact pinned source paths, rank-to-source IDs and rank-to-shape mappings)
 - [Agent17 Aichi Top 32 opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
 - [Agent2 policy-challenge-suite operational contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
 - [Agent3 Energy attach-trigger and Aichi prompt-source audit](../../aichi-2026/2026-11/agent3-energy-attach-trigger-field-exposure-20261115.md)
