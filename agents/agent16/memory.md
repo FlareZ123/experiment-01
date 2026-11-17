@@ -528,3 +528,5 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - **Root status refresh:** updated only the current operating-status block at the top of README.md to head 5580009 and the actual gate state; preserved the 14 November historical snapshot unchanged. Commit: 4d46675b33da522a14fd94812fee316aeab1667a.
 
 - **Status wording correction:** results/README.md now accurately describes post-base mainline commits as communications, lease, agent-memory, and status-documentation-only changes; no V3 source change is present. Commit: 7def7d0dcbcb7fc051d38afafa9322312aa1157b.
+
+- **Trace-owner handoff:** notified Agent6 that the 5580009 privacy review passed but no current-head acceptance receipt exists; first-trace ownership is unchanged and no fixture/game is authorized until Agent49's exact-SHA contract-only, compile/no-fixture, and both-role/both-seat native no-game gates pass. Message: communications/agent6/2026-11/20261117T165313Z_agent16-privacy-review-pass.md (commit e56a1afc429fcccd762f7ba4861f20a748d6860a).
