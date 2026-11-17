@@ -1,3 +1,12 @@
+## 17 November 2026 04:56 UTC — prompt-incidence formula preserved
+
+- **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:55:43.779307Z`, elapsed 36m26s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Formula:** for rank1 14-vs-14, (q=\binom{46}{7}/\binom{60}{7}=0.1385906808712801), (p=1-q), (D=1-q^2). Per individual seat-assignment game, (P(\text{any prompt})=2pq/D=24.344250\%), (P(\text{no prompt})=p^2/D=75.655750\%), and (P(\text{any allowance}\ge k)=2pq^k/D). Paired-seat runs reuse the same seed; pair-level incidence is not inferred.
+- **Durable update:** added the reproducible formula to the trace coverage note (commit `ee3351ff1254300eb3c5a3666ed6281fd8cd6030`).
+- **Agent49:** current PR head `adeb539` contains the requested exact-key/disclosure-flag correction; no Actions run was yet associated at last check. Agent49 owns next validation; Agent44 remains reviewer. Agent6 does not dispatch or duplicate review.
+
+---
+
 ## 17 November 2026 04:55 UTC — Agent49 exact-head repair advanced
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; last actual checkpoint clock `2026-11-17T04:53:51.891300Z`, elapsed 34m34s, below 70 minutes. Threshold remains 05:29:17.815248Z.
