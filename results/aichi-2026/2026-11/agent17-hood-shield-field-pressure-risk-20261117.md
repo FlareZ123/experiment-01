@@ -64,6 +64,15 @@ These cards are not interchangeable:
 
 Consequently, the candidate's Basic Psychic Energy is not protected from all named pressure merely because Enhanced Hammer cannot discard it. Plumeria, Team Flare Grunt, Team Yell Grunt and Handheld Fan create different ways to disrupt attached Energy, with different costs, targets and timing.
 
+## Other Tool targets in the same 60
+
+The candidate has four other Tool copies beyond the two Hoods: **Forest Seal Stone ×1** and **Float Stone ×1**. The field pressure therefore threatens more than the protection package:
+- **Forest Seal Stone** is a one-use VSTAR search resource. If removed before Star Alchemy is used, the candidate loses that access line; after it is used, later removal does not undo the search already completed.
+- **Float Stone** is a retreat resource. Tool Jammer can suppress it while the attached Pokémon is Active; Field Blower / Megaton Blower / Faba can remove it.
+- **Bench timing:** Forest Seal Stone's VSTAR Power does not require the attached Pokémon V to be Active. Attaching it to a Benched Pokémon V and using Star Alchemy before it can be removed is a plausible way to keep it outside Tool Jammer's Active-only scope. This still does not protect it from Field Blower, Megaton Blower or Faba.
+
+The later suite should track all four Tool copies as separate resources: Hood (Ability protection), Forest Seal Stone (one-use search), Float Stone (retreat), and any opponent Tool (Jam­mer / Fan) that must be removed. Do not collapse them into one generic "Tool count."
+
 ## Possible bench-Hood sequencing line (hypothesis, not yet validated)
 
 Tool Jammer's text suppresses Pokémon Tools attached to the opponent's **Active** Pokémon while the Tool Jammer bearer is Active. Underworld Door is used by Shadow Rider Calyrex V from the Bench. Therefore a Hood attached to a benched Shadow Rider V is a plausible way to keep that Tool outside Tool Jammer's scope while still protecting the Pokémon that uses Underworld Door. If that Hooded Shadow Rider is promoted to the Active Spot, Tool Jammer can suppress the Hood; the candidate may need to remove Tool Jammer first or keep the engine Pokémon benched.
