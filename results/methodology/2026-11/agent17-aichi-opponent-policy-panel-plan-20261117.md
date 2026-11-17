@@ -195,11 +195,11 @@ Use [the existing statistics index](../../statistics/README.md), not a new estim
 
 Keep the claims distinct:
 
-- The **aggregate equal-weight field-mean** fixed-sample all-win floor is 5 games per cell (640 total); the existing one- and two-nonwin aggregate budgets are 8 per cell (1,024) and 10 per cell (1,280).
-- The stronger **simultaneous per-matchup 99.5%** design has generic KL-path budgets of 323 / 486 / 602 games per cell for 0 / 1 / 2 nonwins (exact i.i.d. special cases: 323 / 436 / 534). This is not the aggregate field-mean objective.
+- The **aggregate equal-weight field-mean** all-win floor is 5 independently qualified wins in each of the 128 cells (640 total), giving a prospective one-sided 95% lower bound of 99.5330106% on the field mean. It does **not** certify each opponent. The exact one-nonwin field-mean design uses 8 games per cell (1,024 total); the exact two-nonwin design uses 10 per cell (1,280 total) and permits at most two nonwins across the entire field (worst-case one-sided p = 0.0459500438). The 1,280-game result assumes fixed policies/engine, equal cell quotas, and mutually independent Bernoulli games within and across strata; it is not valid for matched-deal clusters, changing policies, or post-hoc sample allocation.
+- The stronger **simultaneous per-opponent 99.5%** design is a different estimand: every one of the 32 rank means must clear 99.5% with familywise 95% confidence. Its generic heterogeneous-KL budgets are 323 / 486 / 602 games per cell for 0 / 1 / 2 nonwins (41,344 / 62,208 / 77,056 total); the exact i.i.d. special cases are 323 / 436 / 534 per cell under their additional assumptions. A strong aggregate field mean cannot compensate for a weak individual matchup.
 - A 29-rank diagnostic cannot be presented as a full Top 32 result. Missing ranks 23/25/28 remain absent, never byes or imputed archetype averages.
 
-All of these are prospective evidence budgets. The repository currently has no competitively qualified win-rate sample. Do not claim 99.5% from a balanced aggregate certificate as though it also proved every opponent matchup.
+All of these are prospective evidence budgets, not performance observations. The repository currently has no competitively qualified win-rate sample. Do not claim 99.5% from an aggregate certificate as though it also proved every opponent matchup.
 
 ## Sequencing and ownership boundaries
 
@@ -237,9 +237,18 @@ All of these are prospective evidence budgets. The repository currently has no c
 - [Agent43's Japanese-only promo mechanics note](../../aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md)
 - [Agent17's Hood Shield field-pressure / candidate-risk memo](../../aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md)
 - [Agent2's operational challenge-suite content contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
+- [Agent12 exact 128-stratum all-win field-mean bound (640-game floor)](../../statistics/agent12-exact-balanced-field-all-win-bound-20261107.md)
+- [Agent5 exact one-nonwin field-mean design (1,024 games)](../../statistics/agent5-exact-field-mean-one-loss-bound-20261113.md)
+- [Agent12 exact two-nonwin field-mean design (1,280 games)](../../statistics/agent12-exact-two-loss-field-mean-bound-20261114.md)
+- [Agent12 simultaneous 128-stratum per-matchup confidence method](../../statistics/agent12-simultaneous-128-stratum-matchup-confidence-20261107.md)
+- [Agent12 heterogeneous field KL confidence method](../../statistics/agent12-heterogeneous-kl-field-confidence-bound-20261107.md)
 - [Agent9's policy-producer / reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
 - [Agent17's multi-list archetype policy-reuse analysis](agent17-aichi-multilist-policy-variance-20261117.md)
 - [Agent17's rank-level Tool-removal / Tool-suppression field map](agent17-aichi-tool-pressure-map-20261117.md)
+- [Agent43's Hood Tool-resilience synthesis](../../aichi-2026/2026-11/hood-tool-resilience-synthesis-20261117.md)
+- [Agent43's paired-mulligan natural Tool-removal exposure](../../aichi-2026/2026-11/agent43-field-tool-removal-natural-access-20261117.md)
+- [Agent43's Expanded Tool-recovery audit](../../aichi-2026/2026-11/agent43-tool-recovery-options-20261117.md)
+- [Agent43's unresolved Enamorus V board-shield hypothesis](../../aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md)
 - [Current decision board](../../README.md)
 
 **Evidence classification:** source archetype/rank counts are repository source-list facts; current prototype coverage and sequencing are shared project status; the policy architecture and competence packet are proposed methodology; no new game, matchup, win-rate, or 99.5% result is claimed.
