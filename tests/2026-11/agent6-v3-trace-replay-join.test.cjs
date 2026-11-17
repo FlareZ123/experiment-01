@@ -23,7 +23,7 @@ function workerAudit() {
 
 function baseSanitizedArtifact() {
   const row = {
-    actionOrdinal: 4, actingSeat: 0, turnBefore: 0,
+    actionOrdinal: 4, actingSeat, turnBefore: 0,
     pendingPromptType: 'SelectPrompt', isRootDecision: false,
     actionName: 'ResolvePromptAction', actionType: 'resolve-prompt',
     dispatchStatus: 'succeeded',
@@ -56,6 +56,8 @@ function baseSanitizedArtifact() {
 
 function rawReplay({
   target = true,
+  actingSeat = 0,
+  handBefore = 7,
   choiceIndex = 1,
   handAfter = 9,
   beforePending = true,
@@ -96,11 +98,17 @@ function rawReplay({
     promptResolution: { kind: 'worker-choice', decisionKind: 'select-choice', selectedCount: 1 },
     promptResolverContext: { availableOptions: { allowCancel } },
     fullStateBefore: {
-      players: [{ seat: 0, counts: { hand: 7 } }],
+      players: [
+        { seat: 1 - actingSeat, counts: { hand: 4 } },
+        { seat: actingSeat, counts: { hand: handBefore } }
+      ],
       prompts: [promptBefore]
     },
     fullStateAfter: {
-      players: [{ seat: 0, counts: { hand: handAfter } }],
+      players: [
+        { seat: 1 - actingSeat, counts: { hand: 4 } },
+        { seat: actingSeat, counts: { hand: handAfter } }
+      ],
       prompts: includeAfter ? [promptAfter] : []
     }
   };
@@ -219,6 +227,17 @@ test('does not treat worker selectedCount=1 as the number of cards drawn', () =>
   const result = run();
   assert.equal(result.targets[0].selectedDrawCount, 2);
   assert.equal(result.targets[0].choiceIndex, 1);
+});
+
+test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0', () => {
+  const replay = rawReplay({ actingSeat: 1, handBefore: 6, choiceIndex: 1, handAfter: 8 });
+  const result = run(safeArtifact(), replay);
+  assert.equal(result.status, 'reconstructed');
+  assert.equal(result.targets[0].actingSeat, 1);
+  assert.equal(result.targets[0].handCountBefore, 6);
+  assert.equal(result.targets[0].handCountAfter, 8);
+  assert.equal(result.targets[0].handCountDelta, 2);
+  assert.equal(result.targets[0].selectedDrawCount, 2);
 });
 
 test('marks a game with a different exact prompt message as not exercised', () => {
