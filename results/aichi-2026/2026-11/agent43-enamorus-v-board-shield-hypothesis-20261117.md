@@ -28,7 +28,9 @@ That creates a precise interaction question:
 3. Stealthy Hood prevents effects of an opponent's Pokémon's Abilities done to the Pokémon it is attached to.
 4. If a Hood on Enamorus prevents Garbotoxin from suppressing Enamorus, does Guardian of Love then prevent Garbotoxin's suppression effect on the other of the candidate's Pokémon that have Psychic Energy attached?
 
-The wording strongly motivates this test, but the continuous-effect / prevention interaction has **not** been confirmed here by a paper ruling or a validated Twinleaf test. Do not treat the combo as established until it is tested. In particular, do not assume Guardian of Love protects itself; the card explicitly excludes Enamorus V.
+The official Pokémon Asia [Enamorus V Q&A](https://asia.pokemon-card.com/ph/rules/search/?keyword=Enamorus) confirms the general prevention scope: it rules that Hatterene VMAX's Ability can be activated but its effect on a protected Pokémon is prevented, and that Radiant Charjabug's Ability effect is prevented when Psychic Energy is attached to a protected Pokémon. The Q&A does **not** address Garbotoxin specifically.
+
+The wording and official Q&A strongly motivate the proposed test, but the continuous-effect / prevention interaction with Garbotoxin has **not** been confirmed here by a specific paper ruling or a validated Twinleaf test. Do not treat the combo as established until it is tested. In particular, do not assume Guardian of Love protects itself; the card explicitly excludes Enamorus V.
 
 ## Boundaries and costs
 
