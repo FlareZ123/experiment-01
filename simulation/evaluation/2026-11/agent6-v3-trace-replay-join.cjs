@@ -384,8 +384,9 @@ function analyzeTargetRow(rawGame, safeRow) {
 
   const disabled = promptBefore.fields?.options?.disabled ??
     promptBefore.extraFields?.options?.disabled ?? [];
-  if (!Array.isArray(disabled) || disabled.some(value => typeof value !== 'boolean')) {
-    return unresolvedTarget(safeRow, 'native-disabled-option-list-invalid', {
+  if (!Array.isArray(disabled) || disabled.some(value => typeof value !== 'boolean') ||
+      disabled.some(value => value === true)) {
+    return unresolvedTarget(safeRow, 'native-disabled-options-present-or-invalid', {
       allowCancel,
       nativeOptionCount: values.length
     });
@@ -398,8 +399,8 @@ function analyzeTargetRow(rawGame, safeRow) {
       nativeOptionCount: values.length
     });
   }
-  if (choiceIndex >= values.length || disabled[choiceIndex] === true) {
-    const error = new Error('native ResolvePromptAction result is not an enabled prompt.values index');
+  if (choiceIndex >= values.length) {
+    const error = new Error('native ResolvePromptAction result is outside the original prompt.values index range');
     error.code = 'TRACE_REPLAY_CHOICE_INDEX_INVALID';
     throw error;
   }
