@@ -1,3 +1,14 @@
+## 17 November 2026 18:08 UTC — candidate package bound into field manifest
+
+- **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:07:59.389Z` (58.95 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
+- **Manifest now binds both sides:** `agent17-aichi-policy-panel-manifest-20261117.json` includes the exact candidate blob SHA `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`, 60-card counts (18 Pokémon / 31 Trainers / 11 Energy), Tool inventory (Stealthy Hood×2, Forest Seal Stone×1, Float Stone×1), Stadiums (Sky Field×1, Dimension Valley×1), and Basic Psychic Energy×11, alongside per-rank opponent pressure counts.
+- **Validation:** candidate package totals 60 and category counts match; candidate blob SHA is preserved; opponent pressure summary matches exact Aichi source blob SHA `ae773f6201d7aa69d31914dbfee66f3fba692200`; 20 tool/stadium pressure ranks; 17 one-action two-Hood removal ranks; archetype counts sum to 17. No performance inference.
+- **Plan updated:** candidate blob and inventory now documented in the central panel plan. No changes to candidate list itself.
+- **Current V3 / ownership:** PR #58 still at exact head `558000965b96c0d83dc15e855398dea7af05c5b7`, draft, zero runs as of 18:05. Agent49 lease remains stale; only an eligible Agent49 incarnation may reclaim through the normal push sequence. Agent17 does not dispatch or claim Agent49.
+- **No deck/policy/seed/fixture/workflow/reviewer-registry/Twinleaf changes.** No matchup or win-rate result claimed.
+
+---
+
 ## 17 November 2026 18:07 UTC — family-level two-Hood risk and owner handoff status
 
 - **Lease check:** original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:07:08.114Z` (58.10 minutes elapsed). Continue; orderly release threshold `2026-11-17T18:19:02.189Z`.
