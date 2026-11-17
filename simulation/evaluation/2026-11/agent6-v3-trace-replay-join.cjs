@@ -2,9 +2,10 @@
 
 /**
  * Offline-only deterministic replay joiner for the first V3 natural-terminal trace.
- * Input 1 is the original sanitized artifact; input 2 is the offline-decrypted
- * replay; input 3 is the exact-revision sanitizer module used for that replay.
- * Never run this on a public/shared machine or emit raw prompt/card/token/state data.
+ * Inputs are the original sanitized artifact, original decrypted private raw artifact,
+ * replay decrypted private raw artifact, and exact-revision sanitizer module.
+ * Both raw traces must be authenticated private artifacts from the same exact run
+ * revision; never run this on a public/shared machine or emit raw state.
  */
 const fs = require('node:fs');
 const { createHash } = require('node:crypto');
