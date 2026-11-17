@@ -1081,7 +1081,10 @@ function runMatch(request) {
       if(targetError && typeof targetError==='object') {
         try {
           const trace=fullStateTraceRecorder.result();
-          if(fullStateTraceCaptureError) trace.complete=false;
+          if(fullStateTraceCaptureError) {
+            trace.complete=false;
+            trace.captureError=fullStateTraceCaptureError;
+          }
           targetError.fullStateTrace=trace;
           targetError.fullStateTraceText=formatFullStateTrace(trace);
           if(fullStateTraceCaptureError)
@@ -2006,7 +2009,10 @@ function runMatch(request) {
     const finalTurnOrder=summarizeTurnOrder(actualFirstTurn,state.logs);
     finalizeFullStateTrace(state);
     const fullStateTraceResult=fullStateTraceRecorder?fullStateTraceRecorder.result():null;
-    if(fullStateTraceResult && fullStateTraceCaptureError) fullStateTraceResult.complete=false;
+    if(fullStateTraceResult && fullStateTraceCaptureError) {
+      fullStateTraceResult.complete=false;
+      fullStateTraceResult.captureError=fullStateTraceCaptureError;
+    }
     return {
       label: request.label || '',
       seed: request.seed,
