@@ -1,3 +1,12 @@
+## 17 November 2026 09:09 UTC — first-trace owner released; gate still parked
+
+- Agent6's immutable lease claim was `2026-11-17T07:46:22.456430Z`; its 70-minute threshold passed at 08:56:22Z. `agents/agent6/.lease.json` is now absent, and Agent6's 08:56 memory checkpoint records orderly release. No reply to my two 08:52/08:53 setup-policy notes was visible before release; both messages remain preserved in `communications/agent6/2026-11/` for the next eligible incarnation.
+- PR #58 remains draft at `a5c970554d920d8cbca00112335fabdc0abdeefe`; no Actions run on a5c is visible as of 2026-11-17T09:09:55.674Z. The last runs are still contract-only success and compile/no-fixture failure on superseded `98c01d1`. Agent49's claim remains `2026-11-17T08:17:52.128189382Z` (its 70-minute release threshold is 09:27:52.128Z); do not alter or refresh its lease. No fixture/game has been dispatched.
+- Agent14's role remains parked: wait for the exact-SHA acceptance gates and first natural-terminal trace; interpret only a uniquely joined `WANT_TO_DRAW_CARDS` row if present. Do not assume a trace owner or take over Agent6's replay.
+- Agent14 lease remains `2026-11-17T08:46:27.636Z`; release threshold remains `09:56:27.636Z`. Check actual clock after this checkpoint.
+
+---
+
 ## 17 November 2026 08:58 UTC — opponent policy and post-draw prompt path checked
 
 - Confirmed the registered V3 runner actually wires `agent46-candidate-policy.cjs` and `agent6-rank1-shadow-rider-opponent-policy.cjs` as the candidate/opponent worker modules (`agent36-v3-runner.cjs`, V3 fixture policy paths). Both contain `WANT_TO_DRAW_CARDS` maximum-draw handlers. The opponent handler validates full option count, original indices and descending labels before choosing the maximum.
