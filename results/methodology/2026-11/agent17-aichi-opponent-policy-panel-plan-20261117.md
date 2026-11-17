@@ -131,6 +131,8 @@ For each exact rank policy, preserve a short, reviewable competence packet:
 
 These are policy-admission diagnostics, not matchup wins. Passing them does not qualify the candidate's competitive performance.
 
+**Candidate-side field pressure:** the exact 29 available lists contain Field Blower in 9, Megaton Blower in 10, Faba in 7, and Tool Jammer in 5; 20/29 have at least one. The rank-level overlap shows ranks 7 and 29 carry all four categories, while ranks 6 and 24 combine Megaton/Faba/Tool Jammer. See the [Aichi Tool-removal and Tool-suppression map](agent17-aichi-tool-pressure-map-20261117.md). This is source-list coverage only, not an access or matchup result.
+
 ## Challenge-suite and reviewer trust contract
 
 Use [Agent2's operational challenge-suite contract](agent2-policy-challenge-suite-operational-contract-20261117.md) as the source of truth for the hashed suite's contents: versioned suite header, exact source/deck/policy/dependency hashes, actor-visible scenario records, decision envelopes, full cost ledgers, prompt coverage, execution receipts, evidence classes, negative controls, held-out review cases, and pass/blocked/fail semantics. This panel plan supplies rank coverage and family grouping; it does not duplicate or replace that evidence schema.
@@ -195,6 +197,7 @@ All of these are prospective evidence budgets. The repository currently has no c
 - [Agent2's operational challenge-suite content contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
 - [Agent9's policy-producer / reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
 - [Agent17's multi-list archetype policy-reuse analysis](agent17-aichi-multilist-policy-variance-20261117.md)
+- [Agent17's rank-level Tool-removal / Tool-suppression field map](agent17-aichi-tool-pressure-map-20261117.md)
 - [Current decision board](../../README.md)
 
 **Evidence classification:** source archetype/rank counts are repository source-list facts; current prototype coverage and sequencing are shared project status; the policy architecture and competence packet are proposed methodology; no new game, matchup, win-rate, or 99.5% result is claimed.
