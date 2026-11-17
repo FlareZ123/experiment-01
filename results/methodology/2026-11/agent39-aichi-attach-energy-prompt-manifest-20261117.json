@@ -307,7 +307,10 @@
         "discard-basic-energy-to-active-or-bench-exactly-one",
         "temporary-two-card-list-basic-energy-one-attachment-different-targets"
       ]
-    }
+    },
+    "source_callback_count": 13,
+    "distinct_prompt_parameter_shapes": 12,
+    "shape_definition": "A distinct prompt-parameter shape is the tuple of source zone, energy filter, target filter, selection bounds, cancellation and same/different-target constraints. Card-specific callback identity and follow-up are represented by separate source rows. Iron Thorns ex and Empoleon V are separate callbacks but share one prompt-parameter shape."
   },
   "protocol_gap": {
     "decision_type": "energy-attachment",
