@@ -22,8 +22,11 @@ For the second-Hood line, assume:
 
 The rank-1 direct/FSS route requires Field Blower not Prized plus FSS and a
 Shadow Rider V in hand; it does not count a V already in play. The
-direct/Teammates/Raihan route assumes a first-turn KO made the Supporters live;
-the Raihan variant assumes its Energy-discard cost is payable.
+direct/Teammates/Raihan and BC/VS -> Teammates routes are only evaluated for
+the going-second first-turn-KO branch that makes Supporters live. The Raihan
+variant assumes its Energy-discard cost is payable; the BC/VS extension assumes
+Field Blower and Teammates are not Prized and BC plus a VS Seeker are reserved
+for the response.
 
 Excluded: candidate-side Forest Seal Stone / Star Alchemy, Tapu Lele-GX,
 Fog Crystal / Mysterious Treasure access to Lele, candidate-side Battle
@@ -329,6 +332,10 @@ def paired_joint_access(candidate_goes_first, base_draws, family):
     bonus cards, rank 1 receives none, and vice versa. Conditional on M,N, the
     two deck shuffles are independent.
     """
+    if family == "direct_supporters_bc_teammates":
+        assert not candidate_goes_first and base_draws == 2, (
+            "BC/VS -> Teammates is conditional on the candidate's going-second first-turn KO"
+        )
     q = Fraction(comb(46, 7), comb(60, 7))
     p = 1 - q
     denominator = 1 - q * q
@@ -391,6 +398,8 @@ def main_overlap():
     ]
     for goes_first, base_draws, family, label in cases:
         result = paired_joint_access(goes_first, base_draws, family)
+        if family == "direct_supporters_bc_teammates":
+            assert abs(float(result["opponent_access"][0]) * 100 - 38.389926013) < 1e-8
         print(label)
         show("  Rank-1 removal access", result["opponent_access"])
         show("  Candidate first Hood AND rank-1 removal access", result["joint_first"])
