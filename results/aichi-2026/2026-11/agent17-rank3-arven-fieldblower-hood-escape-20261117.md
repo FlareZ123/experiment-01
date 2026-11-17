@@ -121,3 +121,23 @@ Do not create a new fixture or runner during the current freeze. When the canoni
 - and whether the candidate then produces a legal, paid attack and continues through the opponent's next turn.
 
 **Evidence classification:** card text and deck counts = source facts; Arven-to-Field-Blower/Hood access = deterministic search-text inference conditional on both cards remaining in deck; staged retreat/Rondo = existing native sequence evidence; source-dealt access and matchup performance = untested. No win-rate or 99.5% claim follows.
+
+ 
+## Paired-mulligan-adjusted natural-draw access
+
+Agent43's exact paired-mulligan enumerator supersedes the earlier no-bonus natural-draw baselines. Conditional on both players obtaining valid opening sevens, with the maximum optional mulligan allowance drawn after six Prizes, the candidate's resource access is:
+
+| Candidate timing / opponent response | Paired-mulligan-adjusted resource access |
+|---|---:|
+| First own turn, going second (no opponent first-turn Supporter) | **14.369686–14.369691%** |
+| Second own turn, no Eri | **16.532526–16.532532%** |
+| Second own turn, Eri natural-access mixture | **15.932902–15.932908%** |
+| Second own turn, conditional on Eri resolving first | **11.848539–11.848545%** |
+
+Rank 3's Eri is naturally in hand by its first turn in **12.815269–12.815275%** of paired-mulligan setups. The mixture assumes Eri is played whenever it is naturally available and discards Field Blower if Field Blower is in the candidate's hand. Eri discards Item cards, not Pokémon Tools: a Hood already in hand is not a legal Eri discard, while Field Blower is. Preserve Field Blower in the deck until after the Eri window, then use Arven to fetch Field Blower + Hood.
+
+These are resource-access events, not probabilities of completing the retreat, attacking, escaping the lock, or winning. They assume independent shuffles and maximum optional bonus draws, and omit Tapu Lele, Forest Seal Stone, search Items, draw Supporters, retreat payment, Faba, Energy denial and later recovery. The reported intervals are rigorous residual-tail bounds, not confidence intervals.
+
+Do not combine these access percentages with the **1.71064025% Prize-only obstruction** above: the latter asks whether both named escape packages are blocked solely by Prize placement; it is a different necessary-condition calculation, not an independent factor to multiply by access.
+
+Reproduction and full assumptions: [Agent43's paired-mulligan-adjusted access report](agent43-paired-mulligan-adjusted-hood-access-20261117.md) and its standard-library enumerator, agent43-paired-mulligan-adjusted-hood-access-20261117.py.
