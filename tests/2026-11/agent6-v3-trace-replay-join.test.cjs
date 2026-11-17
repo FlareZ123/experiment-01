@@ -173,8 +173,10 @@ function sanitizeFixtureArtifact(raw) {
   const safeRow = safe.game.actorDecisions[0];
 
   safe.engine = structuredClone(raw.engine);
+  const safeTrial = structuredClone(raw.trial);
+  delete safeTrial.decisionTraceSha256;
   safe.trial = {
-    ...structuredClone(raw.trial),
+    ...safeTrial,
     seed: rawGame.seed,
     seed32: rawGame.seed32,
     candidateSeat: rawGame.candidateSeat,
@@ -252,9 +254,10 @@ function safeArtifact() {
   return sanitizeFixtureArtifact(rawReplay());
 }
 
-function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = null) {
+function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = null, originalRaw = rawReplay()) {
   return analyzeTraceReplay({
     originalSanitized: original,
+    originalRaw,
     replayRaw: replay,
     sanitizeFixtureArtifact,
     sanitizerIdentity,
@@ -263,7 +266,7 @@ function run(original = safeArtifact(), replay = rawReplay(), actionOrdinal = nu
 }
 
 function runMatchingReplay(replay, actionOrdinal = null) {
-  return run(sanitizeFixtureArtifact(replay), replay, actionOrdinal);
+  return run(sanitizeFixtureArtifact(replay), replay, actionOrdinal, replay);
 }
 
 test('reconstructs the draw count from the native choice index and accepted hand delta', () => {
@@ -288,7 +291,7 @@ test('does not treat worker selectedCount=1 as the number of cards drawn', () =>
 
 test('does not infer a choice index from promptAfter or promptResolution when native action result is absent', () => {
   const replay = rawReplay({ includeActionResult: false });
-  const result = run(sanitizeFixtureArtifact(replay), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'choice-unresolved');
   assert.equal(result.targets[0].selectedDrawCount, null);
   assert.equal(result.targets[0].confidence, 'native-choice-index-unavailable');
@@ -296,7 +299,7 @@ test('does not infer a choice index from promptAfter or promptResolution when na
 
 test('reconstructs the opponent-side prompt from seat 1 hand counts, not seat 0', () => {
   const replay = rawReplay({ actingSeat: 1, handBefore: 6, choiceIndex: 1, handAfter: 8 });
-  const result = run(sanitizeFixtureArtifact(replay), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'reconstructed');
   assert.equal(result.targets[0].actingSeat, 1);
   assert.equal(result.targets[0].handCountBefore, 6);
@@ -372,7 +375,7 @@ test('maps maximum draw from choice index 0 across two, three and four native op
   ];
   for (const item of cases) {
     const replay = rawReplay({ choiceIndex: 0, handAfter: 7 + item.drawCount, values: item.values });
-    const result = run(sanitizeFixtureArtifact(replay), replay);
+    const result = runMatchingReplay(replay);
     assert.equal(result.status, 'reconstructed');
     assert.equal(result.targets[0].choiceIndex, 0);
     assert.equal(result.targets[0].selectedDrawCount, item.drawCount);
@@ -389,7 +392,7 @@ test('maps the zero-draw last index across two, three and four native options', 
   for (const values of cases) {
     const choiceIndex = values.length - 1;
     const replay = rawReplay({ choiceIndex, handAfter: 7, values });
-    const result = run(sanitizeFixtureArtifact(replay), replay);
+    const result = runMatchingReplay(replay);
     assert.equal(result.status, 'reconstructed');
     assert.equal(result.targets[0].choiceIndex, choiceIndex);
     assert.equal(result.targets[0].selectedDrawCount, 0);
@@ -412,14 +415,14 @@ test('rejects an out-of-range native choice index', () => {
 
 test('leaves a disabled selected native choice unresolved', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, disabled: [false, true, false, false] });
-  const result = run(sanitizeFixtureArtifact(replay), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'choice-unresolved');
   assert.equal(result.targets[0].selectedDrawCount, null);
 });
 
 test('rejects any disabled option even when the chosen original index is enabled', () => {
   const replay = rawReplay({ choiceIndex: 1, handAfter: 9, disabled: [true, false, false, false] });
-  const result = run(sanitizeFixtureArtifact(replay), replay);
+  const result = runMatchingReplay(replay);
   assert.equal(result.status, 'choice-unresolved');
   assert.equal(result.targets[0].selectedDrawCount, null);
 });
@@ -462,7 +465,7 @@ test('rejects a non-ResolvePromptAction even when the sanitized replay matches i
   replay.nativeGame.decisionTrace[0].actionPayload.actionName = 'DifferentAction';
   refreshTraceDigest(replay);
   const matchingOriginal = sanitizeFixtureArtifact(replay);
-  assert.throws(() => run(matchingOriginal, replay), { code: 'TRACE_REPLAY_ACTION_CLASS_MISMATCH' });
+  assert.throws(() => run(matchingOriginal, replay, null, replay), { code: 'TRACE_REPLAY_ACTION_CLASS_MISMATCH' });
 });
 
 test('recomputes sanitization from raw replay and rejects changed policy identity with same seed', () => {
@@ -507,7 +510,7 @@ test('rejects native prompt allowCancel drift against the sanitized resolver rec
 test('rejects allowCancel=true even when the sanitized resolver receipt agrees', () => {
   const replay = rawReplay({ allowCancel: true });
   const matchingOriginal = sanitizeFixtureArtifact(replay);
-  assert.throws(() => run(matchingOriginal, replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
+  assert.throws(() => run(matchingOriginal, replay, null, replay), { code: 'TRACE_REPLAY_PROMPT_OPTIONS_MISMATCH' });
 });
 
 test('allows only ephemeral container identifiers to differ', () => {
@@ -556,11 +559,11 @@ test('output contains no raw card identities, numeric card IDs, or opaque prompt
 test('requires the exact sanitizer function and its revision identity', () => {
   const replay = rawReplay();
   assert.throws(() => analyzeTraceReplay({
-    originalSanitized: safeArtifact(), replayRaw: replay,
+    originalSanitized: safeArtifact(), originalRaw: replay, replayRaw: replay,
     sanitizerIdentity
   }), { code: 'TRACE_REPLAY_SANITIZER_REQUIRED' });
   assert.throws(() => analyzeTraceReplay({
-    originalSanitized: safeArtifact(), replayRaw: replay,
+    originalSanitized: safeArtifact(), originalRaw: replay, replayRaw: replay,
     sanitizeFixtureArtifact, sanitizerIdentity: {
       researchRevisionSha: 'a'.repeat(40), sanitizerBlobSha: '8'.repeat(40)
     }
