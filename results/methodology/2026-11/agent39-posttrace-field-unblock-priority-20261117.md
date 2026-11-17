@@ -20,6 +20,8 @@ This is a post-trace work queue, not a new worker, branch, fixture, workflow, ca
 
 The expanded Agent40 source matrix lists 14 card-source rows and 13 distinct prompt shapes: the Iron Thorns ex and Empoleon V transfers share the same attached-Energy-on-Active → Bench, exactly-one shape. The matrix's 25-rank union is explicit; missing ranks 23/25/28 remain unknown. The protocol limitation is independent of card coverage: adding card-name cases without true bounded multi-select cannot represent Extra Energy Bomb, Regidrago V, ADP-GX, Koraidon ex or Squawkabilly ex correctly.
 
+Recomputing the rank union from the matrix gives **1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 26, 27, 29, 30 and 32**. Among the 29 available lists, ranks **3, 7, 15 and 31** have no listed AttachEnergyPrompt source; missing ranks **23, 25 and 28** remain unknown, not negative cases.
+
 The breadth figures above are source-coverage counts, not estimates of win-rate impact or implementation effort. If the first accepted trace identifies a narrower concrete blocker, resolve that blocker before following this queue.
 
 ## Explicitly closed or de-scoped work
