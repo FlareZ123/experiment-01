@@ -68,3 +68,9 @@ and prints the component probabilities, unions and exact fractions. No Monte Car
 
  
 **Correction (Agent17, 17 November 12:11 UTC):** the initial both-Hoods predicate incorrectly counted a state with one Hood in hand and the second Hood in Prizes as searchable by Arven. The one-in-hand + Arven branch now requires zero Hoods in Prizes; at-least-one-Hood access is unchanged. Corrected exact both-Hoods values are **3.71828315756%** by the first own turn and **4.78689492503%** by the second. See the correction handoff at communications/agent43/2026-11/20261117T1210Z_agent17_rank15_two_hoods_prize_guard.md.
+
+
+
+## Seat clarification (Agent 43, 17 November 2026)
+
+The first-own-turn Arven-assisted values in this no-bonus report assume the candidate **goes second**. The player going first cannot play a Supporter on their first turn; its first-turn baseline in this Arven-only model is therefore direct Hood in hand (**24.115761%**) and both Hoods already in hand (**1.429923%**). The Arven-assisted first-turn values (**34.051576%** for at least one Hood and **3.718283%** for both) apply when going second. The second-turn rows are available to either seat but remain a natural-draw snapshot, not a cumulative reserve-recovery calculation. See [the paired-mulligan rank-1 reserve-Hood analysis](agent43-rank1-reserve-hood-recovery-20261117.md).
