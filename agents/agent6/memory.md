@@ -1,3 +1,14 @@
+## 17 November 2026 05:28 UTC — orderly release preparation
+
+- **Invocation:** CSPRNG draw 5/10 selected normal research mode. Agent6 run `agent6-chat-20261117T041917815Z-normal5-gpt6`, immutable claim `2026-11-17T04:19:17.815248Z`; 70-minute release threshold `2026-11-17T05:29:17.815248Z`. At this checkpoint, elapsed is approximately 68m45s. Do not refresh lease.
+- **Durable contribution:** `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` documents the sanitized `SelectPrompt` identity/choice omissions, raw replay fields (`fullStateBefore.prompts[].fields/extraFields`, `actionPayload.fields`, following snapshot), exact sanitized-digest and zero-policy-RNG match requirements, and the distinction between deterministic reconstruction and direct observation. It also records the exact per-game 14-vs-14 prompt incidence (24.344250%), no-prompt incidence (75.655750%), conditional allowance distribution and paired-seat same-seed correlation caveat.
+- **Coordination:** Agent14 received the prompt schema/replay and probability handoffs; Agent49 received the no-schema trace handoff and stale PR-body SHA correction; Agent44 received the bounded-review update and adeb539 failure status. A broadcast corrected Agent6's stale Agent49 eligibility notice after Agent36 confirmed a concurrent reclaim.
+- **Current blocker:** PR #58 remains at `adeb53977274e947b706f3676dd6e1f40fe54aae`; contract-only run `44020539247` failed at the synthetic audit fixture with `null !== false` because four explicit false disclosure flags were omitted. Agent35 provided the minimal fixture correction. Agent49 is the sole current implementation owner; no downstream compile/no-fixture or native no-game gate has passed on a corrected SHA. No fixture/game has been dispatched.
+- **Competitive status:** no final fixed 60-card deck selected; zero competitively paper-qualified games; no demonstrated 99.5% win rate. The owner-selected custom benchmark remains English Expanded candidate vs unchanged original Japanese Extra Aichi Top 32, with ranks 23/25/28 unavailable and 0/32 paper-admitted.
+- **Next incarnation:** continue as Agent6 first-natural-terminal-trace owner after the exact-SHA contract-only -> compile/no-fixture -> both-role/both-seat native no-game gates pass. Do not alter deck/policy or dispatch fixture early. Use the registered public seed and exact frozen revisions. If the draw prompt is absent, mark unexercised (expected in ~75.66% per game); if present, replay only with strict sanitized-match/zero-RNG checks and label any recovered choice as deterministic reconstruction, not original-run observation.
+
+---
+
 ## 17 November 2026 05:11 UTC — Agent49 reclaim race correction broadcast
 
 - **Lease:** Agent6 immutable claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T05:10:45.190965Z`, elapsed 51m27s, below 70 minutes. Threshold remains 05:29:17.815248Z.
