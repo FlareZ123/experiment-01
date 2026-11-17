@@ -11,8 +11,8 @@
   "source_matrix": "communications/agent49/2026-11/20261115T173951Z_agent40-aichi-attach-energy-prompt-matrix.md",
   "protocol_gap_source": "communications/agent49/2026-11/20261115T174229Z_agent40-energy-attachment-multiselect-protocol-gap.md",
   "summary": {
-    "source_rows": 14,
-    "distinct_prompt_shapes": 13,
+    "source_rows": 13,
+    "distinct_prompt_shapes": 12,
     "ranks_with_prompt": [
       1,
       2,
@@ -59,21 +59,21 @@
       "6": 1,
       "8": 3,
       "9": 2,
-      "10": 5,
+      "10": 4,
       "11": 2,
-      "12": 4,
+      "12": 3,
       "13": 4,
       "14": 4,
       "16": 2,
       "17": 2,
-      "18": 4,
+      "18": 3,
       "19": 4,
       "20": 4,
-      "21": 5,
+      "21": 4,
       "22": 2,
       "24": 1,
       "26": 1,
-      "27": 4,
+      "27": 3,
       "29": 1,
       "30": 4,
       "32": 3
@@ -108,7 +108,6 @@
       "10": [
         "regidrago-celestial-roar",
         "raihan",
-        "koraidon-dino-cry",
         "squawkabilly-motivate",
         "crispin"
       ],
@@ -119,7 +118,6 @@
       "12": [
         "regidrago-celestial-roar",
         "raihan",
-        "koraidon-dino-cry",
         "crispin"
       ],
       "13": [
@@ -145,7 +143,6 @@
       "18": [
         "regidrago-celestial-roar",
         "raihan",
-        "koraidon-dino-cry",
         "squawkabilly-motivate"
       ],
       "19": [
@@ -163,7 +160,6 @@
       "21": [
         "regidrago-celestial-roar",
         "raihan",
-        "koraidon-dino-cry",
         "squawkabilly-motivate",
         "crispin"
       ],
@@ -180,7 +176,6 @@
       "27": [
         "regidrago-celestial-roar",
         "raihan",
-        "koraidon-dino-cry",
         "crispin"
       ],
       "29": [
@@ -228,7 +223,6 @@
       "10": [
         "temporary-top-three-basic-energy-to-active-dynamic-count",
         "discard-basic-energy-to-active-or-bench-exactly-one",
-        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
         "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
         "temporary-two-card-list-basic-energy-one-attachment-different-targets"
       ],
@@ -239,7 +233,6 @@
       "12": [
         "temporary-top-three-basic-energy-to-active-dynamic-count",
         "discard-basic-energy-to-active-or-bench-exactly-one",
-        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
         "temporary-two-card-list-basic-energy-one-attachment-different-targets"
       ],
       "13": [
@@ -265,7 +258,6 @@
       "18": [
         "temporary-top-three-basic-energy-to-active-dynamic-count",
         "discard-basic-energy-to-active-or-bench-exactly-one",
-        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
         "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target"
       ],
       "19": [
@@ -283,7 +275,6 @@
       "21": [
         "temporary-top-three-basic-energy-to-active-dynamic-count",
         "discard-basic-energy-to-active-or-bench-exactly-one",
-        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
         "discard-basic-energy-to-one-benched-pokemon-zero-to-two-same-target",
         "temporary-two-card-list-basic-energy-one-attachment-different-targets"
       ],
@@ -300,7 +291,6 @@
       "27": [
         "temporary-top-three-basic-energy-to-active-dynamic-count",
         "discard-basic-energy-to-active-or-bench-exactly-one",
-        "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
         "temporary-two-card-list-basic-energy-one-attachment-different-targets"
       ],
       "29": [
@@ -551,31 +541,6 @@
       "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-paradox-rift/sandy-shocks-ex.ts"
     },
     {
-      "id": "koraidon-dino-cry",
-      "card": "Koraidon ex TEF 120",
-      "effect": "Dino Cry",
-      "ranks": [
-        10,
-        12,
-        18,
-        21,
-        27
-      ],
-      "shape": "discard-basic-fighting-to-basic-fighting-pokemon-one-to-two",
-      "source_zone": "discard",
-      "energy_filter": "Basic Fighting Energy",
-      "target_filter": "Basic Fighting Pokémon",
-      "selection": {
-        "min": 1,
-        "max": 2,
-        "bounds": "range"
-      },
-      "follow_up": [
-        "end turn"
-      ],
-      "pinned_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-temporal-forces/koraidon-ex.ts"
-    },
-    {
       "id": "squawkabilly-motivate",
       "card": "Squawkabilly ex PAL 169",
       "effect": "Motivate",
@@ -685,5 +650,49 @@
     }
   ],
   "pinned_source_base_url": "https://github.com/twinleafgg/twinleafgg/tree/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-  "source_path_evidence": "Paths resolved against the recursive Git tree of the exact pinned Twinleaf commit; no upstream files modified."
+  "source_path_evidence": "Confirmed source paths resolved against the recursive tree of the exact pinned Twinleaf commit. One disputed Koraidon ex printing/source mapping is retained separately under unverified_sources and excluded from confirmed coverage.",
+  "unverified_sources": [
+    {
+      "id": "koraidon-ex-dino-cry-printing-identity-unverified",
+      "card_name": "Koraidon ex",
+      "ranks_in_decklist": [
+        10,
+        12,
+        18,
+        21,
+        27
+      ],
+      "decklist_display_printing": {
+        "set": "TEF",
+        "number": "120",
+        "language": "en"
+      },
+      "decklist_source": "results/aichi-2026/full-decklists.json",
+      "pinned_tef120_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-temporal-forces/koraidon-ex.ts",
+      "pinned_tef120_observation": {
+        "set_number_line": 45,
+        "attack_lines": [
+          27,
+          34
+        ],
+        "attack_names": [
+          "Retribution Strike",
+          "Kaiser Tackle"
+        ],
+        "has_dino_cry": false,
+        "has_attach_energy_prompt": false
+      },
+      "pinned_svi125_source_path": "ptcg-server/src/sets/10-scarlet-and-violet/set-scarlet-and-violet/koraidon-ex.ts",
+      "pinned_svi125_observation": {
+        "set_number_line": 53,
+        "dino_cry_line": 34,
+        "attach_energy_prompt_line": 104
+      },
+      "dino_cry_printing": {
+        "set": "SVI",
+        "number": "125"
+      },
+      "disposition": "Do not count as a confirmed Aichi AttachEnergyPrompt source. The available English-display decklists identify TEF 120, whose pinned implementation has no Dino Cry or AttachEnergyPrompt. Dino Cry is SVI 125, which is not the listed printing. The original Japanese physical printing remains unverified; only a direct source/printing bridge can resolve this."
+    }
+  ]
 }
