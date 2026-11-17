@@ -71,7 +71,7 @@ Conditional on a draw-choice prompt occurring, the one-sided allowance (K\ge1) h
 
 ## Deterministic offline replay joiner — corrected v2
 
-The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 28 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
+The post-acceptance replay joiner is `simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs`, with 29 synthetic contract tests in `tests/2026-11/agent6-v3-trace-replay-join.test.cjs`.
 
 The CLI now accepts the original sanitized artifact, the offline-decrypted raw replay, and the exact sanitizer module from the replay's research checkout:
 
@@ -87,7 +87,7 @@ For the setup-draw lens, the corrected joiner:
 1. Uses exact equality on the native prompt's `fields.message`, with `fields.text` only as a nullish fallback. It does not search unrelated metadata or accept substring matches.
 2. Requires the native `SelectPrompt` to be pending before dispatch and the dispatch to succeed. If the same prompt remains in the after snapshot, it must be resolved, retain the exact target identity, and expose a result equal to the native action result.
 3. Reads the actual `SelectPrompt.values` list from the full-state snapshot's `extraFields.values`, validates the source's descending `Draw N card(s)` sequence, reads `options.disabled`, and requires `allowCancel:false`.
-4. Treats `actionPayload.fields.result` as the native **choice index**. The worker's `promptResolution.selectedCount` is only the number of selected options and is ignored. The selected draw count is derived from the exact native values at that index and must equal the same-seat before/after hand-count delta.
+4. Requires the native `ResolvePromptAction` class and treats `actionPayload.fields.result` as the native **choice index**. The worker's `promptResolution.selectedCount` is only the number of selected options and is ignored. The selected draw count is derived from the exact native values at that index and must equal the same-seat before/after hand-count delta.
 5. Emits only the validated index, draw counts, safe counts and hand-count delta. It never emits raw prompt fields, card identities, opaque tokens or full state.
 
 If the target values or choice index cannot be established, the row remains unresolved. If the target prompt does not occur, the lens remains not-exercised. Neither case authorizes changing the runner schema or forcing a prompt.
