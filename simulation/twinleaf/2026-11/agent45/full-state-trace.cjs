@@ -1,0 +1,204 @@
+'use strict';
+
+const TRACE_SCHEMA = 'twinleaf-offline-full-state-trace-v1';
+const SNAPSHOT_SCHEMA = 'twinleaf-native-state-snapshot-v1';
+
+function constructorNameOf(value) {
+  const prototype=Object.getPrototypeOf(value);
+  const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
+  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') &&
+    typeof descriptor.value==='function' && descriptor.value.name ?
+      descriptor.value.name : 'Object';
+}
+
+/**
+ * Convert a live Twinleaf object graph into detached, JSON-safe data.
+ * Own property descriptors are inspected without invoking user-defined
+ * getters. Repeated references and cycles are retained as {$ref:id};
+ * functions/accessors are described, never executed. This can include
+ * concealed zones and is strictly an offline diagnostic: never pass the
+ * result to either player policy.
+ *
+ * @param {unknown} value
+ * @param {{maxDepth?:number,maxNodes?:number,omitKeys?:string[]}} [options]
+ */
+function snapshotFullState(value, options = {}) {
+  const maxDepth = Number.isSafeInteger(options.maxDepth) && options.maxDepth >= 0 ?
+    options.maxDepth : 64;
+  const maxNodes = Number.isSafeInteger(options.maxNodes) && options.maxNodes >= 1 ?
+    options.maxNodes : 50000;
+  const omitKeys = new Set(Array.isArray(options.omitKeys)?options.omitKeys:[]);
+  const seen = new WeakMap();
+  let nextId = 1;
+  let nodeCount = 0;
+  let truncated = false;
+
+  function visit(input, depth) {
+    if (input === null || typeof input === 'string' || typeof input === 'boolean')
+      return input;
+    if (typeof input === 'number')
+      return Number.isFinite(input) ? input : {$type:'Number',value:String(input)};
+    if (typeof input === 'undefined') return {$type:'Undefined'};
+    if (typeof input === 'bigint') return {$type:'BigInt',value:String(input)};
+    if (typeof input === 'symbol') return {$type:'Symbol',description:input.description ?? null};
+    if (typeof input === 'function') return {$type:'Function',name:input.name || null};
+    if (typeof input !== 'object') return String(input);
+
+    if (seen.has(input)) return {$ref:seen.get(input)};
+    if (nodeCount >= maxNodes) {
+      truncated = true;
+      return {$truncated:'maxNodes'};
+    }
+    const id = nextId++;
+    nodeCount++;
+    seen.set(input,id);
+    if (depth > maxDepth) {
+      truncated = true;
+      return {$id:id,$truncated:'maxDepth'};
+    }
+
+    if (Buffer.isBuffer(input))
+      return {$id:id,$type:'Buffer',encoding:'base64',value:Buffer.prototype.toString.call(input,'base64')};
+    if (input instanceof Date)
+      return {$id:id,$type:'Date',value:Number.isNaN(input.getTime())?null:Date.prototype.toISOString.call(input)};
+    if (input instanceof RegExp)
+      return {$id:id,$type:'RegExp',source:input.source,flags:input.flags};
+    if (input instanceof Map)
+      return {$id:id,$type:'Map',entries:[...input.entries()].map(([k,v])=>[visit(k,depth+1),visit(v,depth+1)])};
+    if (input instanceof Set)
+      return {$id:id,$type:'Set',values:[...input.values()].map(v=>visit(v,depth+1))};
+    if (input instanceof WeakMap || input instanceof WeakSet)
+      return {$id:id,$type:constructorNameOf(input),opaque:true};
+    if (input instanceof ArrayBuffer)
+      return {$id:id,$type:'ArrayBuffer',bytes:[...new Uint8Array(input)]};
+    if (ArrayBuffer.isView(input)) {
+      const bytes = new Uint8Array(input.buffer,input.byteOffset,input.byteLength);
+      return {$id:id,$type:constructorNameOf(input),bytes:[...bytes],length:input.length ?? null};
+    }
+    if (Array.isArray(input))
+      return {$id:id,$type:'Array',items:input.map(item=>visit(item,depth+1))};
+
+    const properties = Object.create(null);
+    const keys = Reflect.ownKeys(input).sort((a,b)=>String(a).localeCompare(String(b)));
+    for (const key of keys) {
+      const descriptor = Object.getOwnPropertyDescriptor(input,key);
+      if (!descriptor) continue;
+      const name = typeof key === 'symbol' ? '['+String(key)+']' : key;
+      if (typeof name === 'string' && omitKeys.has(name) &&
+          Object.prototype.hasOwnProperty.call(descriptor,'value')) {
+        properties[name] = {$type:'OmittedForTrace',itemCount:Array.isArray(descriptor.value)?descriptor.value.length:null};
+      } else if (Object.prototype.hasOwnProperty.call(descriptor,'value')) {
+        properties[name] = visit(descriptor.value,depth+1);
+      } else {
+        properties[name] = {
+          $type:'Accessor',
+          get:descriptor.get?.name || null,
+          set:descriptor.set?.name || null
+        };
+      }
+    }
+    return {$id:id,$type:constructorNameOf(input),properties};
+  }
+
+  const snapshot = visit(value,0);
+  return {
+    schema:SNAPSHOT_SCHEMA,
+    nodeCount,
+    truncated,
+    limits:{maxDepth,maxNodes},
+    snapshot
+  };
+}
+
+/**
+ * An opt-in recorder for the existing headless Store loop. It records one
+ * initial native state and one detached post-dispatch state per root action;
+ * each step's beforeState points to the preceding snapshot, avoiding duplicate
+ * copies. The cumulative native log is captured once at the end. Full state
+ * may reveal concealed zones and must remain offline.
+ */
+function createFullStateTraceRecorder({label='',seed=null,limits={}} = {}) {
+  let initialState = null;
+  let nativeLogs = null;
+  const steps = [];
+  const stateLimits = {...limits,omitKeys:[...new Set([...(limits.omitKeys||[]),'logs'])]};
+  function captureInitial(state) {
+    if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
+    initialState = snapshotFullState(state,stateLimits);
+  }
+  function captureStep({state,action,actionOrdinal,playerSlot,turnBefore,turnAfter,
+    pendingPrompt=null,error=null,failureStage=null} = {}) {
+    if (initialState === null) captureInitial(state);
+    if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
+      throw new TypeError('Full-state trace actionOrdinal must be a positive integer.');
+    if (actionOrdinal !== steps.length+1)
+      throw new Error('Full-state trace action ordinals must be contiguous.');
+    const previous = steps.length ? steps[steps.length-1].actionOrdinal : 0;
+    steps.push({
+      actionOrdinal,
+      playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
+      turnBefore:Number.isFinite(turnBefore)?turnBefore:null,
+      turnAfter:Number.isFinite(turnAfter)?turnAfter:null,
+      beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
+      action:snapshotFullState(action,limits),
+      pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
+      afterState:snapshotFullState(state,stateLimits),
+      ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
+      ...(failureStage?{failureStage}: {})
+    });
+  }
+  function captureFinal(state) {
+    nativeLogs=snapshotFullState(Array.isArray(state?.logs)?state.logs:[],limits);
+  }
+  function result() {
+    return {
+      schema:TRACE_SCHEMA,label,seed,
+      stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
+      initialState,
+      steps:steps.slice(),
+      nativeLogs,
+      complete:initialState!==null && initialState.truncated===false && nativeLogs!==null &&
+        !nativeLogs.truncated && steps.every((step,index)=>
+          step.actionOrdinal===index+1 && !step.action.truncated &&
+          (!step.pendingPrompt || !step.pendingPrompt.truncated) && !step.afterState.truncated &&
+          (!step.error || !step.error.truncated)),
+      stepCount:steps.length
+    };
+  }
+  return {
+    captureInitial,
+    captureStep,
+    captureFinal,
+    result,
+    text:()=>formatFullStateTrace(result())
+  };
+}
+
+/** @param {ReturnType<ReturnType<typeof createFullStateTraceRecorder>['result']>} trace */
+function formatFullStateTrace(trace) {
+  const lines = [
+    'TWINLEAF OFFLINE FULL-STATE TRACE ('+(trace.schema || TRACE_SCHEMA)+')',
+    'label: '+(trace.label || ''),
+    'seed: '+(trace.seed ?? ''),
+    'visibility: '+(trace.stateVisibility || 'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY'),
+    'complete: '+(trace.complete === true),
+    'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
+    '',
+    '=== INITIAL NATIVE STATE ===',
+    JSON.stringify(trace.initialState,null,2)
+  ];
+  for (const step of trace.steps || []) {
+    lines.push('',
+      '=== ACTION '+step.actionOrdinal+' | turn '+(step.turnBefore ?? '?')+' -> '+(step.turnAfter ?? '?')+' | seat '+(step.playerSlot ?? '?')+' ===',
+      'BEFORE STATE REFERENCE:',JSON.stringify(step.beforeState,null,2),
+      'PENDING PROMPT:',JSON.stringify(step.pendingPrompt,null,2),
+      'SELECTED ACTION:',JSON.stringify(step.action,null,2),
+      'AFTER NATIVE STATE:',JSON.stringify(step.afterState,null,2));
+    if (step.error) lines.push('DISPATCH ERROR:',JSON.stringify(step.error,null,2));
+  }
+  lines.push('','=== FINAL NATIVE LOGS ===',JSON.stringify(trace.nativeLogs,null,2));
+  return lines.join('\n');
+}
+
+module.exports={TRACE_SCHEMA,SNAPSHOT_SCHEMA,snapshotFullState,
+  createFullStateTraceRecorder,formatFullStateTrace};
