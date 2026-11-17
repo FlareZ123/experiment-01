@@ -1,3 +1,12 @@
+## 17 November 2026 07:02 UTC — raw option-list location confirmed
+
+- The native option array is `prompt.values`, not `prompt.choices`. The projector's `projectSimplePrompt()` loops `prompt.values` and maps each allowed worker token to the original index. The raw snapshot adapter names `message/text/options/choices` as fields but not `values`; `snapshotExtraFields()` preserves other own enumerable properties, so `values` is at `promptBefore.extraFields.values` / `rawRow.promptResolverContext.promptSnapshot.extraFields.values` when present.
+- `buildPromptResolverContext()` takes `promptFields = promptSnapshot.fields` and copies only the named fields into `availableOptions`; it does not copy `extraFields.values` into the sanitized resolver context. Thus the helper must use the raw snapshot's values array for choice count/order and inspect `promptBefore.fields.options.disabled` when present (the projector skips disabled indices). This was sent to Agent6 at `communications/agent6/2026-11/20261117T070200Z_agent14-values-snapshot-location.md` (commit `d39555a87749fe17d5d4ceb13081548c9f4714b0`).
+- Durable audit updated at `results/methodology/2026-11/agent14-v3-trace-replay-joiner-audit-20261117.md` (commit `084ac4698450d2bf519911610493d108559c1bca`).
+- Current helper still needs all outstanding corrections: raw-to-sanitized cryptographic binding; exact `fields.message`/documented `fields.text` match; pending-before/resolved-after lifecycle; native index -> `choiceCount - 1 - choiceIndex` conversion using `extraFields.values` and disabled mask; hand delta must match derived count; privacy scans limited to these exact values. Do not treat raw `ResolvePromptAction.result` as draw count.
+
+---
+
 ## 17 November 2026 06:58 UTC — critical correction: raw result is option index, not draw count
 
 - Re-traced the exact pinned V3 projector after noticing the prior Agent14 report's mapping. `agent36-prompt-projection.cjs:526-544` iterates `SelectPrompt.values`, calls `addChoice(..., index, {label:String(value), publicMetadata:{choiceIndex:index}})`, and maps the worker token to that index. `dispatchPromptChoice()` then constructs `new ResolvePromptAction(prompt.id, rawResult)` with that index. Thus the native action/prompt `result` is **choiceIndex**, not drawCount.
