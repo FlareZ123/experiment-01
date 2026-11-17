@@ -1,3 +1,11 @@
+## 17 November 2026 04:23 UTC — existing setup handler and regression scope checked
+
+- Read the current canonical-branch candidate handler `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` (blob `990ed2cce06358a0e6e6bc505514469b0de82b05`) and its test `tests/2026-11/agent46-candidate-policy.test.cjs` (blob `9dac4ca917b4c13d978e672cbfa7e1b9252cbd08`). No source change or new test was needed.
+- `chooseMulliganDrawSetup()` requires phase-1 engine setup routing, `selectionType='option'`, `allowCancel=false`, positive integer original `count`, and nonempty choices. Every choice must be an option with a unique in-range original `choiceIndex`; `drawCount=count-1-choiceIndex` must match the `Draw N card(s)` label; the handler returns the token for the maximum enabled draw. Existing tests cover both physical seats, all seven descending options, sparse disabled options preserving original indices, and rejection of wrong phase/source, labels and cancel rows.
+- This establishes source/configuration and pure-regression coverage only. The remaining assigned question is runtime: whether the first accepted natural-terminal trace actually presents this prompt and whether deterministic replay reproduces the worker's selected token and resulting draw. No need to re-audit or modify the handler absent a concrete trace mismatch.
+
+---
+
 ## 17 November 2026 04:19 UTC — first-trace prompt evidence shape
 
 - Inspected the canonical V3 sanitized diagnostic at `simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs` (branch `agent49/v3-worker-acceptance-20261115-canonical`). `sanitizePromptContext()` preserves prompt type, actor/perspective metadata, option-array counts and `allowCancel`, but not option labels/order. `sanitizePromptResolution()` preserves generic `kind`/ownerSeat and special coin-flip, shuffle and engine-wait fields; it does not preserve the `WANT_TO_DRAW_CARDS` selected index/value. The sanitized row can establish prompt occurrence, actor/seat context, option count and non-cancellable status, but not which draw allowance was selected.
