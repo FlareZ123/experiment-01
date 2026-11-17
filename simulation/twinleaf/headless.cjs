@@ -1056,6 +1056,15 @@ function runMatch(request) {
         policyConfiguration:summarizePolicyConfiguration(optionsBySeat)
       }) : null;
     let fullStateTraceCaptureError=null;
+    let fullStateTracePublicBoardError=null;
+    function captureTracePublicBoard(state) {
+      if(!fullStateTraceRecorder || fullStateTracePublicBoardError) return null;
+      try { return publicBoardSnapshot(state); }
+      catch(error) {
+        fullStateTracePublicBoardError=String(error?.message??error);
+        return null;
+      }
+    }
     function recordFullStateStep(args) {
       if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
       try { fullStateTraceRecorder.captureStep(args); }
@@ -1072,6 +1081,7 @@ function runMatch(request) {
             trace.complete=false;
             trace.captureError=fullStateTraceCaptureError;
           }
+          if(fullStateTracePublicBoardError) trace.publicBoardError=fullStateTracePublicBoardError;
           targetError.fullStateTrace=trace;
           targetError.fullStateTraceText=formatFullStateTrace(trace);
           if(fullStateTraceCaptureError)
@@ -1158,7 +1168,7 @@ function runMatch(request) {
     let actionLineage = null;
     const knowledgeEvents = request.bunnelbyObservedK1 === true ? [] : null;
     if(fullStateTraceRecorder) {
-      try { fullStateTraceRecorder.captureInitial(store.state,publicBoardSnapshot(store.state)); }
+      try { fullStateTraceRecorder.captureInitial(store.state,captureTracePublicBoard(store.state)); }
       catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
     }
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
@@ -1295,7 +1305,7 @@ function runMatch(request) {
         recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
           playerId:state.players[failedSeatForTrace]?.id??null,actionType:null,
-          publicBoard:publicBoardSnapshot(state),turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+          publicBoard:captureTracePublicBoard(state),turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
           phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'bot-decoder'
         });
         finalizeFullStateTrace(state,error);
@@ -1399,7 +1409,7 @@ function runMatch(request) {
           recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
             playerId:state.players[actingSeatForTrace]?.id??null,
-            actionType:action?.constructor?.name??null,publicBoard:publicBoardSnapshot(state),
+            actionType:action?.constructor?.name??null,publicBoard:captureTracePublicBoard(state),
             turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
             phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'prompt-validation'
           });
@@ -1637,7 +1647,7 @@ function runMatch(request) {
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          publicBoard:publicBoardSnapshot(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
+          publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending
         });
       } catch (error) {
@@ -1647,7 +1657,7 @@ function runMatch(request) {
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          publicBoard:publicBoardSnapshot(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
+          publicBoard:captureTracePublicBoard(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending,error,
           failureStage:'store-dispatch'
         });
@@ -2001,6 +2011,8 @@ function runMatch(request) {
       fullStateTraceResult.complete=false;
       fullStateTraceResult.captureError=fullStateTraceCaptureError;
     }
+    if(fullStateTraceResult && fullStateTracePublicBoardError)
+      fullStateTraceResult.publicBoardError=fullStateTracePublicBoardError;
     return {
       label: request.label || '',
       seed: request.seed,
@@ -2033,7 +2045,8 @@ function runMatch(request) {
       ...(fullStateTraceResult?{
         fullStateTrace:fullStateTraceResult,
         fullStateTraceText:formatFullStateTrace(fullStateTraceResult),
-        fullStateTraceCaptureError
+        fullStateTraceCaptureError,
+        fullStateTracePublicBoardError
       }:{}),
       ...(firstLiveOwnerHandsObserver?{
         firstLiveOwnerHands:firstLiveOwnerHandsObserver.result()
