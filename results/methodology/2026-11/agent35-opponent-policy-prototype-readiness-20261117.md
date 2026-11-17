@@ -25,7 +25,9 @@ Source reports:
 - Rank 2: [Agent10 rank-2 prototype report](agent10-rank2-vileplume-control-opponent-policy-20261114.md)
 - Rank 10: [Agent43 rank-10 prototype report](../../statistics/agent43-rank10-regidrago-opponent-policy-20261114.md)
 - Current field inventory: [Agent17 Aichi opponent-policy panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md)
+- Challenge-suite content: [Agent2 policy-challenge-suite operational contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
 - Producer/reviewer independence: [Agent9 V3 producer/reviewer addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
+- Shared engine-dependency order: [Agent39 post-trace field-unblock priority queue](agent39-posttrace-field-unblock-priority-20261117.md)
 - Rank-to-prototype source distances: [Agent35 transfer-distance map](agent35-prototype-transfer-distance-map-20261117.md)
 
 ## What the evidence does and does not establish
