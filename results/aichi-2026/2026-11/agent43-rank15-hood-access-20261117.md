@@ -44,7 +44,7 @@ At least one Hood is accessible when either:
 1. a Hood is already in hand; or
 2. Arven is in hand and at least one Hood is not Prized, so Arven can search a Tool from the deck.
 
-Both Hoods are accessible only when both are already in hand, or one is in hand and Arven can search the other from the deck. If both Hoods remain in the deck, one Arven can search only one of them.
+Both Hoods are accessible only when both are already in hand, or one is in hand and Arven can search the other from the deck. If one Hood is in Prizes, the one-in-hand + Arven branch does not count because Arven cannot search the Prized copy. If both Hoods remain in the deck, one Arven can search only one of them.
 
 ## Interpretation and limits
 
