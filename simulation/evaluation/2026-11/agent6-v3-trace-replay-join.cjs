@@ -230,7 +230,7 @@ function unresolvedTarget(safeRow, reason, extra = {}) {
     promptEffect: TARGET_EFFECT,
     selectedDrawCount: null,
     confidence: reason,
-    sourceClass: 'deterministic-reconstruction-not-original-run-observation',
+    sourceClass: 'original-raw-native-trace-with-replay-digest-match',
     ...extra
   };
 }
@@ -479,7 +479,7 @@ function analyzeTargetRow(rawGame, safeRow) {
     handCountDelta,
     selectedDrawCount,
     confidence,
-    sourceClass: 'deterministic-reconstruction-not-original-run-observation'
+    sourceClass: 'original-raw-native-trace-with-replay-digest-match'
   };
 }
 
@@ -529,32 +529,43 @@ function analyzeTraceReplay({
   requireEqual(originalTrace.decisionTraceSha256, replayTrace.decisionTraceSha256,
     'original vs replay native decision trace digest');
 
-  const rawGame = replayTrace.rawGame;
-  requireEqual(rawGame.seed, replaySanitized.trial.seed, 'native game physical seed');
-  requireEqual(rawGame.seed32, replaySanitized.trial.seed32, 'native game seed32');
-  requireEqual(rawGame.candidateSeat, replaySanitized.trial.candidateSeat, 'native game candidate seat');
-  requireEqual(rawGame.originalSourceSeat, replaySanitized.trial.originalSourceSeat, 'native game source seat');
-  requireEqual(rawGame.actualFirstPlayerSeat, replaySanitized.trial.actualFirstPlayerSeat,
-    'native game actual first-player seat');
+  const originalRawGame = originalTrace.rawGame;
+  const replayRawGame = replayTrace.rawGame;
+  for (const [rawGame, sanitized, label] of [
+    [originalRawGame, sanitizedOriginalFromRaw, 'original'],
+    [replayRawGame, replaySanitized, 'replay']
+  ]) {
+    requireEqual(rawGame.seed, sanitized.trial.seed, label + ' native game physical seed');
+    requireEqual(rawGame.seed32, sanitized.trial.seed32, label + ' native game seed32');
+    requireEqual(rawGame.candidateSeat, sanitized.trial.candidateSeat, label + ' native game candidate seat');
+    requireEqual(rawGame.originalSourceSeat, sanitized.trial.originalSourceSeat, label + ' native game source seat');
+    requireEqual(rawGame.actualFirstPlayerSeat, sanitized.trial.actualFirstPlayerSeat,
+      label + ' native game actual first-player seat');
+  }
 
   let candidates = originalSanitized.game.actorDecisions.filter(row =>
     row?.pendingPromptType === 'SelectPrompt' && row?.promptContext?.promptType === 'SelectPrompt');
   if (actionOrdinal !== null) candidates = candidates.filter(row => row.actionOrdinal === actionOrdinal);
   const targets = [];
   for (const row of candidates) {
-    const target = analyzeTargetRow(rawGame, row);
-    if (target) targets.push(target);
+    const originalTarget = analyzeTargetRow(originalRawGame, row);
+    const replayTarget = analyzeTargetRow(replayRawGame, row);
+    requireEqual(originalTarget, replayTarget, 'original/replay target row reconstruction');
+    if (originalTarget) targets.push(originalTarget);
   }
   return {
-    schema: 'agent6-v3-trace-replay-join-v3',
+    schema: 'agent6-v3-trace-replay-join-v4',
     status: targets.length === 0 ? 'not-exercised' :
-      targets.every(target => target.selectedDrawCount !== null) ? 'reconstructed' : 'choice-unresolved',
+      targets.every(target => target.selectedDrawCount !== null) ? 'trace-confirmed' : 'choice-unresolved',
     replayIdentityVerified: true,
+    originalRawTraceDigestVerified: true,
+    replayRawTraceDigestVerified: true,
     rawTraceIdentityVerified: true,
-    rawDecisionTraceSha256: replayTrace.decisionTraceSha256,
+    rawDecisionTraceSha256: originalTrace.decisionTraceSha256,
     sanitizerRevisionVerified: true,
     sanitizerIdentity,
-    deterministicReconstructionOnly: true,
+    originalRawTraceSupplied: true,
+    replayConfirmsOriginalRawTrace: true,
     competitiveEvidence: false,
     targetPrompt: TARGET_EFFECT,
     targetCount: targets.length,
