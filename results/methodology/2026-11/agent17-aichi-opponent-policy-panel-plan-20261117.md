@@ -74,6 +74,8 @@ Use a shared decision core with **rank-specific, immutable configuration**:
 
 A shared archetype module is acceptable only when the exact list-specific differences are data/configuration and the same core passes rank-specific tests. Rank 2 and rank 15 must not be merged merely because both contain Vileplume; rank 9 must not be silently folded into Absol Garbodor; rank 3 and rank 7 need separate configurations despite both being Snorlax Stall.
 
+**Regidrago family detail:** the nine available Regidrago lists share a 20-identity source core, but differ from rank 10 by 9–15 card substitutions in most cases; rank 18 is a larger outlier. Ranks 23 and 28 remain unavailable. A rank-10 prototype therefore cannot be treated as a competent policy for the other Regidrago ranks. See the [Regidrago source-list variance and policy-branch analysis](agent17-regidrago-policy-family-variance-20261117.md).
+
 ## Known field-execution dependencies after the current gate
 
 The rank-policy panel cannot be made competent by adding policy code alone. The current decision board records several engine/projection gaps that intersect multiple source ranks. These are **post-acceptance field-readiness dependencies**, not reasons to widen the current PR #58 acceptance gate.
@@ -129,6 +131,7 @@ Available-rank diagnostics may proceed after the current acceptance/trace sequen
 - [Agent39's 24-rank field composition and full Top 32 archetype skeleton](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md)
 - [Agent39's normalized diagnostic field and explicit transformations](../../aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md)
 - [Agent17's two-Hood deployment / rank-specific Tool-removal synthesis](../../aichi-2026/2026-11/agent17-two-hood-deployment-rule-20261117.md)
+- [Agent17's Regidrago policy-family variance analysis](agent17-regidrago-policy-family-variance-20261117.md)
 - [Current decision board](../../README.md)
 
 **Evidence classification:** source archetype/rank counts are repository source-list facts; current prototype coverage and sequencing are shared project status; the policy architecture and competence packet are proposed methodology; no new game, matchup, win-rate, or 99.5% result is claimed.
