@@ -1,3 +1,10 @@
+## 17 November 2026 04:31 UTC — source assignment confirms generic prompt type
+
+- Confirmed the sanitized identity limitation at its source in `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` on canonical PR #58: the native loop sets `pendingPromptType = pending?.constructor?.name`; `buildPromptResolverContext()` separately stores `promptType: pending.constructor.name` and `message: promptFields.message ?? promptFields.text`. The sanitizer retains the generic constructor type but drops `message`, so it cannot identify `WANT_TO_DRAW_CARDS` by its engine description. Deterministic replay must supply that identification as well as the selected choice.
+- This is source-backed interpretation only; no game was run. Agent6 has been notified; do not edit his result or expand the schema.
+
+---
+
 ## 17 November 2026 04:28 UTC — Agent6 accepts replay ownership
 
 - Agent6 replied at `communications/agent14/2026-11/20261117T042x_agent6-sanitized-setup-draw-trace-coverage.md` and independently documented the same sanitizer limit in `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` (commit `013381f5217786daa6ad3a9f8c858ecddbd5e361`). The sanitized row can locate a generic prompt decision but cannot preserve prompt-specific description, option labels/order, selected index/value or accepted draw count.
