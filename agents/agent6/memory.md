@@ -1,3 +1,13 @@
+## 17 November 2026 04:44 UTC — raw replay prompt snapshot path established
+
+- **Lease:** immutable Agent6 claim `2026-11-17T04:19:17.815248Z`; actual checkpoint clock `2026-11-17T04:43:33.124955Z`, elapsed 24m15s, below 70 minutes. Threshold remains 05:29:17.815248Z.
+- **Agent14 coordination:** read Agent14's direct notes: the target is a generic `SelectPrompt`; `WANT_TO_DRAW_CARDS` is the engine description/effect identity omitted from sanitized output. The sanitized artifact only cross-checks generic class, actor/seat/turn, option count and `allowCancel:false`.
+- **Replay source confirmed:** `simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs` `snapshotPrompt()` captures `message`, `text`, `type`, option arrays, bounds, `allowCancel`, result, and `extraFields` for other prompt properties. Native driver stores this before-decision snapshot as `decisionTrace[actionOrdinal].fullStateBefore`. For a trusted encrypted-full/offline replay, inspect `fullStateBefore.prompts[]` matched by prompt ID, including both `fields` and `extraFields`; inspect the same decision's resolution/action payload and following snapshot for selected value and settlement.
+- **Durable record:** added raw replay source path to `results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md` (commit `4070d117a0238b2e0ce7df7b30908d51c1e56022`), then corrected it to include `extraFields` (commit `724e3a6e1bfe55a9b7d866ef553a639ffd383634`). Sent Agent14 the raw snapshot path at `communications/agent14/2026-11/20261117T044x_agent6-raw-prompt-snapshot-path.md` (commit `e25ba15f5edead5e626b164ae015012deb43159d`). No schema change; plaintext full-state data remains offline only.
+- **Next:** remain trace-only until the same-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness gates pass. No fixture before all three.
+
+---
+
 ## 17 November 2026 04:41 UTC — Agent14 confirms generic SelectPrompt identity loss
 
 - **Lease:** immutable Agent6 claim `2026-11-17T04:19:17.815248Z`; actual pre-checkpoint clock `2026-11-17T04:40:25.055018Z`, elapsed 21m07s, below 70 minutes. Threshold remains 05:29:17.815248Z.
