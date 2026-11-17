@@ -8,7 +8,7 @@ const {snapshotFullState,createFullStateTraceRecorder,formatFullStateTrace}=
 test('snapshot preserves concealed zones, card identities, attack data and cycles without invoking getters',()=>{
   let getterCalls=0;
   const card={fullName:'Shadow Rider Calyrex VMAX CRE 75',name:'Shadow Rider Calyrex VMAX',attacks:[{name:'Max Geist',cost:['Psychic','Psychic']}]};
-  const state={turn:4,phase:'PLAYER_TURN',players:[{id:101,deck:{cards:[card]},hand:{cards:[{fullName:'Psychic Energy MEE 13'}]},prizes:[{cards:[{fullName:'Boss\\'s Orders PAL 172'}]}],active:{cards:[card],damage:50}}],prompts:[],logs:[{message:'draw'}]};
+  const state={turn:4,phase:'PLAYER_TURN',players:[{id:101,deck:{cards:[card]},hand:{cards:[{fullName:'Psychic Energy MEE 13'}]},prizes:[{cards:[{fullName:"Boss's Orders PAL 172"}]}],active:{cards:[card],damage:50}}],prompts:[],logs:[{message:'draw'}]};
   state.self=state;
   Object.defineProperty(state,'dangerous',{enumerable:true,get(){getterCalls++;throw new Error('must not execute');}});
   const snap=snapshotFullState(state);
@@ -18,8 +18,8 @@ test('snapshot preserves concealed zones, card identities, attack data and cycle
   assert.match(json,/Psychic Energy MEE 13/);
   assert.match(json,/Boss's Orders PAL 172/);
   assert.match(json,/Max Geist/);
-  assert.match(json,/\\"\\$ref\\":1/);
-  assert.match(json,/\\"\\$type\\":\\"Accessor\\"/);
+  assert.ok(json.includes('"$ref":1'));
+  assert.ok(json.includes('"$type":"Accessor"'));
 });
 
 test('trace records initial state, every contiguous action, prompt, final logs and readable output',()=>{
