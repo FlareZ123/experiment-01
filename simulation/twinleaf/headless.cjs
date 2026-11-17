@@ -1158,7 +1158,7 @@ function runMatch(request) {
     let actionLineage = null;
     const knowledgeEvents = request.bunnelbyObservedK1 === true ? [] : null;
     if(fullStateTraceRecorder) {
-      try { fullStateTraceRecorder.captureInitial(store.state); }
+      try { fullStateTraceRecorder.captureInitial(store.state,publicBoardSnapshot(store.state)); }
       catch(error) { fullStateTraceCaptureError=String(error?.message??error); }
     }
     while (store.state.phase !== GamePhase.FINISHED && actions < maxActions) {
@@ -1295,7 +1295,7 @@ function runMatch(request) {
         recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
           playerId:state.players[failedSeatForTrace]?.id??null,actionType:null,
-          turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+          publicBoard:publicBoardSnapshot(state),turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
           phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'bot-decoder'
         });
         finalizeFullStateTrace(state,error);
@@ -1399,7 +1399,8 @@ function runMatch(request) {
           recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
             playerId:state.players[actingSeatForTrace]?.id??null,
-            actionType:action?.constructor?.name??null,turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+            actionType:action?.constructor?.name??null,publicBoard:publicBoardSnapshot(state),
+            turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
             phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'prompt-validation'
           });
           finalizeFullStateTrace(state,error);
@@ -1636,7 +1637,7 @@ function runMatch(request) {
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          turnBefore,turnAfter:store.state.turn,phaseBefore,
+          publicBoard:publicBoardSnapshot(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending
         });
       } catch (error) {
@@ -1646,7 +1647,7 @@ function runMatch(request) {
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
           playerId:store.state.players[seat]?.id??null,actionType:action?.constructor?.name??null,
-          turnBefore,turnAfter:store.state.turn,phaseBefore,
+          publicBoard:publicBoardSnapshot(store.state),turnBefore,turnAfter:store.state.turn,phaseBefore,
           phaseAfter:store.state.phase,pendingPrompt:pending,error,
           failureStage:'store-dispatch'
         });
