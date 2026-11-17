@@ -18,6 +18,8 @@ A further candidate-side architecture is now identified but remains untested: [E
 
 The three documents answer different questions: **what can remove the Tools, how often the direct cards are naturally seen by a relevant turn, and what can recover a Tool after it reaches discard.** None supplies game-outcome evidence.
 
+The field relevance is concentrated: Agent17 identifies ranks 6/24/29 as Iron Thorns with Initialization and ranks 8/22 as Absol/Garbodor. A Hood-protected Enamorus V may preserve the Guardian of Love shield and the Psychic-Energy-attached Shadow Rider engine in those Ability-suppression matchups, if the exact interactions hold. It does not answer Field Blower, Megaton Blower or Faba; those remain separate Tool-removal threats.
+
 ## Candidate subsystem map
 
 The exact candidate has Stealthy Hood ×2, Forest Seal Stone ×1 and Float Stone ×1 (four Pokémon Tools total). Its current recovery-related cards include Acerola ×1, Arven ×1, VS Seeker ×2, Night Stretcher ×1, Battle Compressor ×1 and Unfair Stamp ×1 (ACE SPEC).
