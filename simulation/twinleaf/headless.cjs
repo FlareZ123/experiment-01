@@ -1285,8 +1285,8 @@ function runMatch(request) {
           state.players.findIndex(player=>player.id===pending.playerId) : state.activePlayer;
         recordFullStateStep({
           state,action:null,actionOrdinal:actions+1,playerSlot:failedSeatForTrace,
-          turnBefore:state.turn,turnAfter:state.turn,pendingPrompt:pending,
-          error,failureStage:'bot-decoder'
+          turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+          phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'bot-decoder'
         });
         finalizeFullStateTrace(state,error);
         throw error;
@@ -1388,8 +1388,8 @@ function runMatch(request) {
           const actingSeatForTrace=state.players.findIndex(player=>player.id===actingIdForTrace);
           recordFullStateStep({
             state,action,actionOrdinal:actions+1,playerSlot:actingSeatForTrace,
-            turnBefore:state.turn,turnAfter:state.turn,pendingPrompt:pending,
-            error,failureStage:'prompt-validation'
+            turnBefore:state.turn,turnAfter:state.turn,phaseBefore:state.phase,
+            phaseAfter:state.phase,pendingPrompt:pending,error,failureStage:'prompt-validation'
           });
           finalizeFullStateTrace(state,error);
           throw error;
@@ -1624,7 +1624,8 @@ function runMatch(request) {
         }
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
-          turnBefore,turnAfter:store.state.turn,pendingPrompt:pending
+          turnBefore,turnAfter:store.state.turn,phaseBefore,
+          phaseAfter:store.state.phase,pendingPrompt:pending
         });
       } catch (error) {
         const rejected = new Error('Twinleaf dispatch failed after ' +
@@ -1632,8 +1633,9 @@ function runMatch(request) {
           error.message, { cause: error });
         recordFullStateStep({
           state:store.state,action,actionOrdinal:actions+1,playerSlot:seat,
-          turnBefore,turnAfter:store.state.turn,pendingPrompt:pending,
-          error,failureStage:'store-dispatch'
+          turnBefore,turnAfter:store.state.turn,phaseBefore,
+          phaseAfter:store.state.phase,pendingPrompt:pending,error,
+          failureStage:'store-dispatch'
         });
         finalizeFullStateTrace(store.state,rejected);
         if (rejectionBefore) rejected.rejectedActionEvidence = {
