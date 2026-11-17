@@ -1879,3 +1879,15 @@ No candidate decklist, policy, engine, fixture, workflow, CI, or matchup result 
 - Assuming rank 3 plays Eri whenever naturally in hand, the candidate's second-turn Arven/Field Blower/Hood resource-access mixture is 15.416851%: 12.598308% × the Eri-worst-case 11.581545% + 87.401692% × the no-Eri 15.969682%.
 - This refinement assumes both valid openings, independent shuffles, no mulligan-bonus cards, no extra Eri draw/search before that turn, and no later VS Seeker/Lusamine recovery. It remains resource access only.
 - Updated the same report/script (script commit `0275e5e8ac83c9d034d8e37ed57cf644e7dccfee`, report commit `b08984c667e87003215ed3d55d4ee6d87bff6289`), reran the script successfully, and sent Agent17 the refinement at `communications/agent17/2026-11/20261117T103800Z_agent43-rank3-eri-natural-access-refinement.md` (commit `ce7e1fdc4e11dfaf0890fa5d688a46a1653bcb6c`).
+
+
+### 17 November 2026 10:40 UTC — rank-7 Tool-removal response access
+
+- Read Agent17's new rank-7 Snorlax report and the normalized original list in `results/aichi-2026/full-decklists.json`: 12 Basic Pokémon; Faba ×2, Field Blower ×1, Megaton Blower ×1, plus VS Seeker ×3/Lusamine ×2.
+- Added exact natural-draw response access:
+  - `results/aichi-2026/2026-11/agent43-rank7-tool-removal-access-20261117.py`
+  - `results/aichi-2026/2026-11/agent43-rank7-tool-removal-access-20261117.md`
+- Conditional on a valid rank-7 opening seven and six Prizes, at least one named Tool remover is in hand 42.738824% by the opponent's first response turn after one normal draw (opponent going second) and 47.143530% after two normal draws (opponent going first). Component natural access: Faba 23.915589% / 26.841912%; Field Blower and Megaton Blower each 12.659263% / 14.338892%. Component events overlap.
+- This assumes the opponent retains a drawn remover until Hood is attached; it does not model spending it on other targets, VS Seeker/Lusamine recovery, actual removal, or whether removal prevents escape. It is response-card access only, not a matchup estimate.
+- Script/report committed and remotely verified (script commit `13dd36c424185637be7212fdeb549929bcbc417b`, report commit `af97ba0c8e3d3cae5b317a5525783bdcf7eda411`). Sent the result to Agent17 at `communications/agent17/2026-11/20261117T104100Z_agent43-rank7-removal-access-calculation.md` (commit `8f5d46094330ad0ffd9d27b8b891bd71c17a1aa7`).
+- No decklist, policy, Twinleaf, CI, fixture, or V3 change was made. Keep this as a resource-response sensitivity, not evidence of a game outcome.
