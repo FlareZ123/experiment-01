@@ -214,6 +214,63 @@ def rank3_eri_probability():
     return p_open, p_by_first_turn
 
 
+@lru_cache(None)
+def rank3_eri_in_hand_after_draws(draw_count):
+    # Rank 3: Eri x1, 11 Basics, 48 other cards.
+    total = (1, 11, 48)
+    valid_openings = comb(60, 7) - comb(49, 7)
+    denominator = valid_openings * comb(53, 6) * comb(47, draw_count)
+    numerator = 0
+    for opening in compositions(7, total):
+        if opening[1] == 0:
+            continue
+        opening_weight = choose_weight(total, opening)
+        after_opening = tuple(t - x for t, x in zip(total, opening))
+        for prizes in compositions(6, after_opening):
+            prize_weight = choose_weight(after_opening, prizes)
+            after_prizes = tuple(r - p for r, p in zip(after_opening, prizes))
+            for draws in compositions(draw_count, after_prizes):
+                draw_weight = choose_weight(after_prizes, draws)
+                hand = tuple(opening[i] + draws[i] for i in range(3))
+                if hand[0] >= 1:
+                    numerator += opening_weight * prize_weight * draw_weight
+    return Fraction(numerator, denominator)
+
+
+def rank3_joint_eri_mixture():
+    # M = candidate bonus cards from rank-3 one-sided mulligans.
+    # N = rank-3 bonus cards from candidate one-sided mulligans.
+    # M and N are mutually exclusive under the paired protocol.
+    q_c = Fraction(comb(46, 7), comb(60, 7))
+    q_o = Fraction(comb(49, 7), comb(60, 7))
+    p_c, p_o = 1 - q_c, 1 - q_o
+    denominator = 1 - q_c * q_o
+    states = [(0, 0, p_c * p_o / denominator)]
+    states += [(m, 0, p_c * p_o * q_o**m / denominator) for m in range(1, K_MAX + 1)]
+    states += [(0, n, p_o * p_c * q_c**n / denominator) for n in range(1, K_MAX + 1)]
+
+    mixture_lower = Fraction(0)
+    eri_probability_lower = Fraction(0)
+    weight_sum = Fraction(0)
+    for candidate_bonus, opponent_bonus, probability in states:
+        eri_available = rank3_eri_in_hand_after_draws(opponent_bonus + 1)
+        no_eri_access = access_after_draws(
+            (1, 1, 2, 14, 42), 3, candidate_bonus + 2, "rank3_candidate_escape"
+        )
+        eri_access = rank3_eri_after_pre_and_post(candidate_bonus + 1)
+        mixture_lower += probability * (
+            eri_available * eri_access + (1 - eri_available) * no_eri_access
+        )
+        eri_probability_lower += probability * eri_available
+        weight_sum += probability
+
+    residual = 1 - weight_sum
+    return (
+        mixture_lower, mixture_lower + residual, residual,
+        eri_probability_lower, eri_probability_lower + residual
+    )
+
+
 def show(label, result):
     print(
         f"{label}: {percent(result['lower'])} .. {percent(result['upper'])} "
@@ -227,9 +284,11 @@ def main():
     r3_first = integrate(11, "candidate", "rank3_candidate_escape", 1)
     r3_second = integrate(11, "candidate", "rank3_candidate_escape", 2)
     r3_eri = integrate(11, "candidate", "rank3_candidate_escape", 2, eri_prepost=True)
-    p_eri_open, p_eri = rank3_eri_probability()
-    r3_mix_lower = (1 - p_eri) * r3_second["lower"] + p_eri * r3_eri["lower"]
-    r3_mix_upper = (1 - p_eri) * r3_second["upper"] + p_eri * r3_eri["upper"]
+    p_eri_open, p_eri_no_bonus = rank3_eri_probability()
+    (
+        r3_mix_lower, r3_mix_upper, r3_mix_tail,
+        p_eri_paired_lower, p_eri_paired_upper
+    ) = rank3_joint_eri_mixture()
 
     r7_candidate_first = integrate(12, "candidate", "rank7_candidate_escape", 1)
     r7_candidate_second = integrate(12, "candidate", "rank7_candidate_escape", 2)
@@ -249,8 +308,9 @@ def main():
     show("Candidate escape, second own turn, no Eri", r3_second)
     show("Candidate escape, second own turn, Eri worst-case", r3_eri)
     print(f"Eri in opening: {percent(p_eri_open)}")
-    print(f"Eri by opponent first turn: {percent(p_eri)}")
-    print(f"Second-turn Eri/no-Eri mixture: {percent(r3_mix_lower)} .. {percent(r3_mix_upper)}")
+    print(f"Eri by opponent first turn, no opponent bonus: {percent(p_eri_no_bonus)}")
+    print(f"Eri by opponent first turn, paired-bonus adjusted: {percent(p_eri_paired_lower)} .. {percent(p_eri_paired_upper)}")
+    print(f"Second-turn Eri/no-Eri mixture, joint paired model: {percent(r3_mix_lower)} .. {percent(r3_mix_upper)}")
     print()
     print("Rank 7 (opponent 12 Basics; Faba x2, Field Blower x1, Megaton Blower x1)")
     show("Candidate escape, first own turn going second", r7_candidate_first)
