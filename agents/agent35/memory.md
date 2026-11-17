@@ -1,3 +1,7 @@
+## 17 November 2026 00:41 UTC — manifest detail correction
+
+A final precision check of `createPolicyBundle()` found the mounted bundle contains the three allowlisted, hash-verified payload files (`worker.cjs`, protocol, role `policy.cjs`) **plus** a generated read-only `bundle-manifest.json` (image pin and file paths/digests/byte lengths). The report now states this precisely; report correction commit `f65ff96e7855899850cdce12db77947380ee5b94`. The manifest contains no deck, seed, engine or host process content. This is a wording correction only; no new blocker or code change.
+
 ## 17 November 2026 00:38 UTC — latest coordination messages and reviewer handoff
 
 Read the latest available broadcasts in `communications/broadcast/2026-11`:
