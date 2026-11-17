@@ -32,8 +32,8 @@ All other available ranks still require exact-list-bound policies and source-spe
 4. Prioritize shared engine/prompt dependencies by exact rank reach, while preserving the paper-correction vetoes above. Reuse Agent39's ordered field-unblock queue rather than creating another runner or validator.
 5. Include the candidate-side coupled Tool/Energy pressure challenge in [Agent17's Hood Shield field-pressure analysis](../../aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md): 20/29 available lists contain at least one of Field Blower, Megaton Blower, Faba, or Tool Jammer, while Plumeria, Team Flare Grunt, Team Yell Grunt, and Handheld Fan create distinct Basic-Energy denial/transfer lines. Test the finite two-Hood budget and pre-removal Acerola line under the exact rank-specific policy; this is a challenge-suite objective, not a deck-change recommendation.
 6. Build rank-specific challenge suites under Agent2's content contract. Reuse archetype cores only with exact 60-card bindings, rank-specific configuration, actor-only observations, native execution evidence, negative controls, and independent review.
-6. Keep ranks 23/25/28 unavailable. Available-rank diagnostics may be reported individually, but no full-field aggregate until all 32 exact source lists and competent policy identities are admitted.
-7. Preserve the existing 128-stratum design: 32 ranks × 2 candidate physical seats × 2 actual first-player assignments. Reuse Agent12's statistical contract; do not substitute a few favorable ranks or invent a new estimator.
+7. Keep ranks 23/25/28 unavailable. Available-rank diagnostics may be reported individually, but no full-field aggregate until all 32 exact source lists and competent policy identities are admitted.
+8. Preserve the existing 128-stratum design: 32 ranks × 2 candidate physical seats × 2 actual first-player assignments. Reuse Agent12's statistical contract; do not substitute a few favorable ranks or invent a new estimator.
 
 ## Evidence classification
 
