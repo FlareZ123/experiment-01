@@ -85,3 +85,32 @@ The physical RNG was restored for the engine, while the policy retained a callab
 **Required correction:** do not expose the physical RNG function in the same JavaScript realm as policy code. The robust fix remains a separate OS-sandboxed policy process with its own per-game/seat policy RNG. A temporary global dispatcher is not a secure substitute if policy code can mutate globals or schedule asynchronous callbacks. Add a regression/canary that performs the setter capture above and passes only when the policy cannot obtain or invoke the engine's physical RNG.
 
 This is a confirmed source/runtime capability, not evidence that any current policy exploited it. No new native game was run.
+
+
+## 17 November 2026 00:15 UTC addendum — current V3 Docker worker path
+
+**Scope and conclusion.** The original same-process finding above was correct for the earlier V3 path it inspected. It is superseded for the current canonical V3 worker architecture at PR #58 source head `ca613a09fa0daf773bab516d69bf29ec197a6eee`: the V3 runner now delegates strategic decisions to separate Docker worker processes. This is a source-level architecture audit, not an accepted no-game witness, hostile-container penetration test, or competitive game result. The legacy synchronous `runNativeFixtureGame()` compatibility API still calls `decodeWithPolicyRandom()`; do not generalize this V3 correction to legacy callers.
+
+### Engine/worker separation
+
+- `runV3FixtureGame()` builds separate candidate and opponent policy bundles and starts one `createDockerPolicySession()` per role. It calls `runNativeFixtureGameAsync()`, whose awaited resolver delegates root and owner-prompt decisions; the legacy synchronous decoder is not used on this path.
+- `buildRoleWorkerBundle()` copies exactly three SHA-256-verified files into a disposable bundle: `worker.cjs`, `agent49-policy-protocol.cjs`, and that role's `policy.cjs`. The bundle is verified against its manifest before launch. The repository, Twinleaf source, candidate/opponent deck files, physical seed and host process paths are not copied or mounted.
+- The Docker invocation mounts only that bundle at read-only `/policy`; it uses `--network=none`, `--read-only`, `--cap-drop=ALL`, `no-new-privileges`, a non-root UID, CPU/memory/PID/file-descriptor limits, and bounded writable tmpfs paths. The container receives only fixed `HOME`, `LANG`, `TZ`, and `PATH` variables. The host environment used to launch the Docker CLI is not forwarded as the container environment.
+- The engine retains native Store/state, physical RNG, seed, shuffled deck order and both hidden zones. The V3 resolver sends only JSON over worker stdin/stdout: detached actor observation, actor-owned prompt projection, public event receipt and typed action frontier. The worker init has empty config and no seed or policy-seed field. The host retains native action objects and token maps; these are not serialized to the worker.
+- The worker VM disables host/runtime globals (including Date, performance, crypto, process, require, filesystem/network APIs and timers) and counts policy RNG draws; this VM is defense-in-depth, not the security boundary. The separate container is the process/OS boundary. The worker's own CSPRNG stream is not derived from the physical RNG; policy draws remain rejected by the current replay contract.
+
+### Actor-visible payload review
+
+- `actorObservation()` returns a deeply frozen detached view. It contains the acting player's hand and own board/resources; both players' public board, discard, Lost Zone, Stadium, public hand when explicitly public, face-up Prize identities, public restrictions and public counts. Opponent concealed hand, deck identities and face-down Prize identities are not read into the view. During setup, opponent Pokémon identities are represented only as occupied/concealed slots. The V3 caller supplies no owner-K1 snapshot, so that optional field is null.
+- Prompt projection checks card visibility against the actual owner/zone before exposing card printings. Hidden opponent hand/deck/face-down Prize identities are rejected for card-choice prompts. Prize-slot prompts expose slot/count metadata, not card identities. Prompt choices are mapped back to native objects only in the host process.
+- The public event receipt excludes hand/deck/Prize contents, raw markers, native instance IDs and un-timestamped attack history. It contains public attack history and owner-visible board/ability-use/KO facts.
+- The typed action frontier projects actor-hand cards and public targets. Hidden target printings and concealed hand/deck/Prize indices are omitted; only legal action tokens and bounded public metadata are sent. The protocol enforces exact top-level/nested schemas and recursively rejects keys naming seed/RNG/entropy, native state/store, hidden zones, opponent hand/Prizes or deck order.
+
+### Remaining limits and next validation
+
+1. This source review does **not** prove noninterference of every native ActionEnumerator/Simulator frontier under arbitrary mutation of opponent concealed zones. A future focused metamorphic test should hold public state fixed, mutate only opponent hidden hand/deck/face-down Prize identities, and assert actor observation, public receipt, prompt projection and serialized frontier remain identical wherever paper-visible legality is unchanged. Do not infer a leak merely from the absence of that test.
+2. The review does not test container escape resistance against a kernel/runtime exploit. It establishes the configured mount/network/permission boundary from source, not a formal sandbox guarantee.
+3. The current canonical branch had not passed its exact-SHA no-game witness at this review point. Existing Docker launcher/worker-isolation canary receipts (17/17 launcher checks and 3/3 worker isolation checks on the immediately preceding `f66a07c` head) are bounded engineering evidence only; they do not transfer into a witness acceptance receipt and do not establish gameplay.
+4. The old physical-RNG setter-capture reproduction remains relevant to any in-process policy path. It does not provide a route from the isolated V3 policy worker to the engine process's physical RNG function.
+
+**Decision:** mark the pre-Docker same-process exposure as superseded for the current V3 Docker worker path, while retaining the historical finding and legacy-API warning. Do not mark the overall actor-only boundary accepted until the exact-head contract, compiled no-fixture suite and four-way native no-game witness pass on the same SHA.
