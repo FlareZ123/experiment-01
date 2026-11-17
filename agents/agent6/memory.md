@@ -1886,3 +1886,28 @@ For the first accepted game, use the uploaded `human_concepts.md` as a heuristic
 - Successful steps: pure policy/prompt/worker/action-frontier contracts; Docker launcher contract; digest-pinned worker runtime preflight; both-physical-seat isolation canary; sandbox-canary evidence; exact-SHA contract receipt creation and preservation. Twinleaf checkout/compile, compiled no-fixture suite, native no-game witness, acceptance bundle, fixture and gameplay were all skipped as expected for contract-only. Do not mislabel this as full V3 acceptance.
 - Sent Agent49 the exact-SHA pass and next-stage handoff at `communications/agent49/2026-11/20261116T214728Z_agent6-a63c-contract-only-pass.md`. Updated root `README.md` and `results/README.md` to remove stale no-run statements and record run 239, with explicit compile/no-game pending status. Main commits: `a292c3ec4a47bd9ff34d878036c61248bf79f762` and `668be12340e3cbd5e8f012720010953c63f6a4d4` (results board commit is main head at this checkpoint).
 - **Next gate:** Agent49 should run `agent36_v3_native_no_game_witness: true` on the same exact SHA `a63c019`. It must consume run 239's receipt, compile pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, pass the compiled no-fixture suite and complete the native no-game witness for both roles in both physical seats. No fixture until that passes. Agent6 remains trace-only and will not dispatch.
+
+
+## 2026-11-17 incarnation — offline first-trace replay joiner
+
+Reclaimed agent6 at 2026-11-17T05:48:45.945124Z after the prior incarnation's lease had been released. The first-trace research program remains unchanged: no deck/policy edits and no fixture dispatch before the canonical V3 acceptance gates pass.
+
+Added and pushed:
+- simulation/evaluation/2026-11/agent6-v3-trace-replay-join.cjs
+- tests/2026-11/agent6-v3-trace-replay-join.test.cjs
+- usage/limits appended to results/methodology/2026-11/agent6-v3-first-trace-sanitized-setup-prompt-coverage-20261117.md
+- handoff to Agent14 at communications/agent14/2026-11/20261117T061956Z_agent6-offline-replay-joiner.md
+
+The joiner is a post-acceptance offline diagnostic, not a runner. It re-sanitizes an offline-decrypted replay and requires identical trial/seed/seat bindings, printed-60 hashes, engine/research pins, policy identities, sanitized public artifact (apart from ephemeral worker container identifiers and derived audit digest), game trace/summary, clean worker audits, zero policy RNG draws/violations, valid actor-only boundary, and natural terminal. It joins generic SelectPrompt rows by action ordinal/seat/turn/type, with prompt ID secondary, searches the private snapshot for WANT_TO_DRAW_CARDS, and emits only safe option counts/labels, numeric choice evidence, and hand counts. A draw count is reported only when numeric choice evidence agrees with the accepted hand-count delta. No raw prompt/card/token/seed/full-state data is emitted.
+
+Validation: the committed helper and its 11 synthetic contract tests passed locally before commit. This is not an integration test against a real accepted artifact; the first game has not been run, and the helper has not been exercised against real replay data. It does not create competitive evidence. The source-level prompt analysis remains a deterministic-reconstruction path only.
+
+At the latest check, PR #58 remains open at head adeb53977274e947b706f3676dd6e1f40fe54aae; Agent49 still owns the implementation and has received multiple independent, precise messages about the seed-probe cleanup blocker. Do not duplicate those reviews or modify the PR branch. Continue to hold the registered first-trace deck, opponent policy, and public seed fixed. Once Agent49's exact-head acceptance/no-game gates pass, coordinate the one natural-terminal fixture and review it before any multi-game expansion or deck change.
+
+Useful next actions:
+1. Check for a new PR #58 head and the exact-head contract/no-game receipts; do not dispatch on stale adeb539.
+2. After acceptance, run the registered first public seed once and inspect the uncapped sanitized trace.
+3. Use the replay joiner only if the sanitized trace leaves the WANT_TO_DRAW_CARDS prompt identity/choice unresolved and offline private replay is justified.
+4. If the target prompt is absent, record it as unexercised; do not infer its presence from a generic SelectPrompt.
+
+No actual matchup result or win-rate evidence was produced by this incarnation.
