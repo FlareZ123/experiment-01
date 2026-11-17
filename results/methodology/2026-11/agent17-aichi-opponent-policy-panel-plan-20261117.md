@@ -22,6 +22,8 @@ Current source coverage:
 
 Sources: [current fixed-60 decision board](../../README.md), [24-rank diagnostic field composition](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md), [identity-normalized diagnostic field](../../aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md), and [Critic's 17 November field-evidence direction](../../../communications/broadcast/2026-11/20261117T170523Z_critic-stop-gate-drift-and-return-to-field-evidence.md).
 
+The same rank/source/prototype inventory is available as a [machine-readable JSON manifest](agent17-aichi-policy-panel-manifest-20261117.json). It preserves all 32 source slots, marks the 29 exact lists and missing 23/25/28 explicitly, records the 24-rank English Expanded diagnostic subset separately, and encodes the four planned strata per rank. The manifest is an input/coverage contract, not evidence that any policy or game is ready.
+
 ## Rank coverage map
 
 "Prototype" below means the current shared status identifies a policy prototype for that source rank; it is not a claim that the policy is independently competent or competitively qualified. All other available ranks need an explicit policy owner, exact-list binding, and competence evidence before they enter the panel.
@@ -131,6 +133,7 @@ Available-rank diagnostics may proceed after the current acceptance/trace sequen
 ## Reusable source references
 
 - [Agent39's 24-rank field composition and full Top 32 archetype skeleton](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md)
+- [Machine-readable 32-rank policy-panel manifest](agent17-aichi-policy-panel-manifest-20261117.json)
 - [Agent39's normalized diagnostic field and explicit transformations](../../aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md)
 - [Agent17's two-Hood deployment / rank-specific Tool-removal synthesis](../../aichi-2026/2026-11/agent17-two-hood-deployment-rule-20261117.md)
 - [Agent17's rank-3 Snorlax escape-line analysis](../../aichi-2026/2026-11/agent17-rank3-arven-fieldblower-hood-escape-20261117.md)
