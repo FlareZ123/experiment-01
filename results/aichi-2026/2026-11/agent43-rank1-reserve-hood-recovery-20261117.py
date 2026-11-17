@@ -32,9 +32,9 @@ probability is estimated.
 
 Excluded: candidate-side Forest Seal Stone / Star Alchemy, Tapu Lele-GX,
 Fog Crystal / Mysterious Treasure access to Lele, candidate-side Battle
-Compressor and other discard lines, competing Supporters, board/Bench
-constraints, actual opponent choice to remove the first Hood, and game
-outcomes. Results are line-specific access sensitivities, not total deck
+Compressor and other discard lines, the post-KO Unfair Stamp hand-shuffle
+branch, competing Supporters, board/Bench constraints, actual opponent choice
+to remove the first Hood, and game outcomes. Results are line-specific access sensitivities, not total deck
 access or matchup probabilities.
 """
 from fractions import Fraction
