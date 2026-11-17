@@ -81,6 +81,15 @@ The candidate has **no direct Item/Tool recovery from the discard pile**:
 
 Therefore, if Field Blower or Megaton Blower discards both Hoods, or Faba sends one to the Lost Zone, the candidate has no direct way to retrieve that Tool from that zone. Acerola is a pre-removal bounce line, not post-removal recovery. This makes the two-Hood count a finite resource; quantify the opportunity cost of using Acerola for Hood preservation versus healing/picking up an attacker in the later policy challenge suite.
 
+## Possible post-trace Tool-recovery architectures (not recommendations)
+
+Two BW-onward cards offer distinct ways to address discard-based Tool loss; neither retrieves a card from the Lost Zone, and neither changes the current fixed 60:
+
+- **Dowsing Machine (BW8 128):** discard two cards from hand, then put any Trainer from the discard pile into hand. This can recover one discarded Hood or Field Blower directly, but it competes with the candidate's current Forest Seal Stone ACE SPEC and has a real hand-cost / DCI / AMR burden.
+- **Eco Arm (XY7 71):** shuffle up to three Pokémon Tool cards from the discard pile into the deck. This can recycle multiple Hoods, but a subsequent search is required to access one; it is an Item and may be unavailable under Vileplume Item lock.
+
+Neither card recovers a Faba'd Tool from the Lost Zone. Eco Arm also does not solve a live Tool Jammer until the candidate can play an Item and remove it. Compare these as **structurally different resource plans** against Forest Seal Stone's one-time broad search, using the same rank policies and challenge suite after the current gate. Do not treat either as an automatic one-card upgrade or alter the candidate before the first-trace review.
+
 ## Coupled failure hypotheses to test
 
 1. **Hood removed or suppressed:** two Hoods are a finite protection budget. A Field Blower can remove up to two Tools; Megaton Blower removes all Tools; Faba can send one to the Lost Zone; Tool Jammer suppresses the Tool on the candidate's Active. Test the exact sequence and recovery rather than assuming the second Hood makes the lock durable.
