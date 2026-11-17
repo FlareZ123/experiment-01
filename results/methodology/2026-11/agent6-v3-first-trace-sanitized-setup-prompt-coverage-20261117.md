@@ -53,7 +53,13 @@ Agent14's exact paired model gives each side a 12.172125% chance of at least one
 
 **Unit of analysis:** 24.344250% is per individual candidate-seat assignment/game. The existing paired-seat runner reuses the same registered physical seed for candidateSeat 0 and 1, so the two prompt-occurrence indicators are correlated; do not square the no-prompt probability, assume independence, or report a pair-level incidence from this per-game calculation.
 
-For reproducibility, with (q=\binom{46}{7}/\binom{60}{7}=0.1385906808712801), (p=1-q), and (D=1-q^2), the mutually exclusive one-sided events give (P(\text{any prompt})=2pq/D=0.24344249992495423), (P(\text{no prompt})=p^2/D=0.7565575000750457), and (P(\text{any allowance}\ge k)=2pq^k/D). This is per game, before either player's optional draw choice.
+For reproducibility, let `q = C(46,7)/C(60,7) = 0.1385906808712801`, `p = 1-q`, and `D = 1-q^2`. The mutually exclusive one-sided events give:
+
+- `P(any prompt) = 2pq/D = 0.24344249992495423`.
+- `P(no prompt) = p^2/D = 0.7565575000750457`.
+- `P(any allowance >= k) = 2pq^k/D`.
+
+This is per game, before either player's optional draw choice.
 
 ## Evidence limit of the replay match
 
