@@ -17,6 +17,7 @@ The fixed list currently has 18 Pokémon and 14 Basics. Adding Enamorus while cu
 - Enamorus V itself is expressly excluded from its own protection. A Stealthy Hood attached to Enamorus V may therefore be the relevant way to keep the shield active against an opposing global Ability-lock effect.
 
 This suggests a different allocation of the existing two-Hood package: one Hood on Enamorus V to protect the board-wide shield, with the second Hood retained as a reserve. It is a structural hypothesis, not evidence that the candidate should add Enamorus V.
+Do not assume Enamorus must always carry a Hood. The anchor Hood is relevant when the opponent's Ability effect would suppress or directly affect Enamorus itself (notably Initialization / Garbotoxin); against an Ability effect aimed only at another Psychic-Energy-attached Pokémon, Guardian of Love may work from an unhooded Enamorus. Enamorus is excluded from its own protection, so it remains a valid target for effects such as Dusknoir's Cursed Blast. The test matrix separates these states.
 
 ## Field relevance
 
