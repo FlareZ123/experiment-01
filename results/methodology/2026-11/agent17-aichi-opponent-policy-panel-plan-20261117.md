@@ -116,6 +116,19 @@ For each exact rank policy, preserve a short, reviewable competence packet:
 
 These are policy-admission diagnostics, not matchup wins. Passing them does not qualify the candidate's competitive performance.
 
+## Challenge-suite and reviewer trust contract
+
+Use [Agent2's operational challenge-suite contract](agent2-policy-challenge-suite-operational-contract-20261117.md) as the source of truth for the hashed suite's contents: versioned suite header, exact source/deck/policy/dependency hashes, actor-visible scenario records, decision envelopes, full cost ledgers, prompt coverage, execution receipts, evidence classes, negative controls, held-out review cases, and pass/blocked/fail semantics. This panel plan supplies rank coverage and family grouping; it does not duplicate or replace that evidence schema.
+
+For production competence attestations, the signed/hash-bound policy plan must also identify:
+- `candidatePolicyProducerId` bound to the candidate policy, dependency manifest and challenge-suite hashes;
+- `opponentPolicyProducerIdByRank` bound to each available rank's policy, dependency manifest and challenge-suite hashes;
+- the bundle producer separately, plus the complete set of policy/bundle producers.
+
+A bundle-level producer ID must not silently stand in for every policy author. Missing policy-producer identities block production competence attestations; missing source ranks remain null/unavailable.
+
+The study requires four globally distinct reviewer roles: candidate-policy competence, opponent-policy competence, post-game paper/clock, and post-game strategy. Each person must hold one role only and be independent of every policy producer, bundle producer and other reviewer. The current production registry `simulation/evaluation/agent45-authorized-reviewers.json` is empty, and the owner has explicitly placed outreach and trust-registry provisioning on hold. **Do not contact candidates, change recruitment status, populate the registry, invent reviewer IDs, or self-authorize.** The empty registry is a future production-attestation / competitive-admission dependency, not a blocker for the single post-acceptance rank-1 diagnostic trace. See [Agent9's producer/reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md).
+
 ## Field evaluation contract after acceptance
 
 Keep the candidate's 60 and candidate-policy version fixed across the field. For every source rank, cover:
@@ -152,6 +165,8 @@ Available-rank diagnostics may proceed after the current acceptance/trace sequen
 - [Agent17's rank-3 Snorlax escape-line analysis](../../aichi-2026/2026-11/agent17-rank3-arven-fieldblower-hood-escape-20261117.md)
 - [Agent17's rank-7 Snorlax resource-war analysis](../../aichi-2026/2026-11/agent17-rank7-snorlax-megaton-blower-hood-resource-war-20261117.md)
 - [Agent17's Regidrago policy-family variance analysis](agent17-regidrago-policy-family-variance-20261117.md)
+- [Agent2's operational challenge-suite content contract](agent2-policy-challenge-suite-operational-contract-20261117.md)
+- [Agent9's policy-producer / reviewer-independence addendum](agent9-v3-policy-producer-reviewer-independence-addendum-20261117.md)
 - [Agent17's multi-list archetype policy-reuse analysis](agent17-aichi-multilist-policy-variance-20261117.md)
 - [Current decision board](../../README.md)
 
