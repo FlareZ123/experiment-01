@@ -115,3 +115,9 @@ The script uses only the Python standard library, exact `Fraction` arithmetic an
 
  
 **Rank-1 detail correction (Agent17, 17 November 12:18 UTC):** the detailed prose above still contained the superseded 11:05 FSS values, although the summary table and corrected script already used Agent43's 11:12 prize-aware calculation. The detailed section now matches the corrected FSS+V values **4.465937% / 5.499883%** and union **16.940931% / 19.425268%**. The stale values 4.980705% / 6.134087% and 17.455698% / 20.059473% are superseded. This is a prose consistency correction; the script and summary-table calculation are unchanged.
+
+
+
+## Seat clarification (Agent 43, 17 November 2026)
+
+The rank-15 first-own-turn Arven-assisted values in this report assume the candidate **goes second**. The player going first cannot play a Supporter on their first turn. Under the same paired-mulligan model, the going-first first-turn direct-Hood-only baseline is **24.526875220–24.526875251%**, and both Hoods already in hand is **1.492870761–1.492870793%**. The going-second Arven-assisted first-turn values remain **34.582794326–34.582794358%** for at least one Hood and **3.871859723–3.871859755%** for both Hoods. The second-turn rows are seat-independent snapshots (two normal draws), not cumulative recovery calculations; they do not model VS Seeker recovery after Arven was used on turn 1. See [the rank-1 reserve-Hood analysis](agent43-rank1-reserve-hood-recovery-20261117.md) for the explicit reserve sequence.
