@@ -90,6 +90,16 @@ The candidate has **no direct Item/Tool recovery from the discard pile**:
 
 Therefore, if Field Blower or Megaton Blower discards both Hoods, or Faba sends one to the Lost Zone, the candidate has no direct way to retrieve that Tool from that zone. Acerola is a pre-removal bounce line, not post-removal recovery. This makes the two-Hood count a finite resource; quantify the opportunity cost of using Acerola for Hood preservation versus healing/picking up an attacker in the later policy challenge suite.
 
+## Stadium-removal and Bench-capacity risk
+
+The same candidate 60 also has **Sky Field ×1** and **Dimension Valley ×1**:
+- Sky Field expands the Bench to eight. If it leaves play, the Bench limit returns to five and the player must discard excess Benched Pokémon. This can force a choice between Shadow Rider engine pieces, the Hooded engine carrier, the Forest Seal Stone carrier and support Pokémon.
+- Dimension Valley reduces the attack cost of Psychic Pokémon. Losing it can change whether the next attack is payable with the current Energy layout.
+- Field Blower, Faba and Megaton Blower can also remove Stadiums, not just Tools. A single Megaton Blower can therefore sweep all candidate Tools and remove a Stadium; Field Blower can select up to two Tools/Stadiums; Faba can Lost Zone one eligible Tool/Special Energy/Stadium.
+- The current 60 has no direct Stadium recovery card. Forest Seal Stone searches the deck, not discard; VS Seeker recovers Supporters, Night Stretcher recovers Pokémon/Basic Energy, and Arven searches the deck. Dowsing Machine could recover a Stadium as a Trainer, but would compete with Forest Seal Stone as the ACE SPEC.
+
+The post-trace suite should test **which board resources the opponent removes**, not just whether the candidate can keep one Hood attached. Bench-capacity collapse and attack-cost changes are distinct outcomes from Tool removal.
+
 ## Possible post-trace Tool-recovery architectures (not recommendations)
 
 Two BW-onward cards offer distinct ways to address discard-based Tool loss; neither retrieves a card from the Lost Zone, and neither changes the current fixed 60:
