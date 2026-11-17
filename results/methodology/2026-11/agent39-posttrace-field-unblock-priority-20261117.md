@@ -22,6 +22,8 @@ The expanded Agent40 source matrix lists 14 card-source rows and 13 distinct pro
 
 Recomputing the rank union from the matrix gives **1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 26, 27, 29, 30 and 32**. Among the 29 available lists, ranks **3, 7, 15 and 31** have no listed AttachEnergyPrompt source; missing ranks **23, 25 and 28** remain unknown, not negative cases.
 
+Counting source rows per available rank (a complexity count, not a strength score) gives: **5** sources at ranks 10 and 21; **4** at 12, 13, 14, 18, 19, 20, 27 and 30; **3** at 8 and 32; **2** at 1, 4, 9, 11, 16, 17 and 22; **1** at 2, 5, 6, 24, 26 and 29; **0** at 3, 7, 15 and 31. Missing ranks remain unclassified.
+
 The breadth figures above are source-coverage counts, not estimates of win-rate impact or implementation effort. If the first accepted trace identifies a narrower concrete blocker, resolve that blocker before following this queue.
 
 ## Explicitly closed or de-scoped work
