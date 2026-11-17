@@ -354,7 +354,7 @@ All routes above are conditional card-text/source-list analyses. The Copycat com
 
 ## Paired-mulligan resource-access sensitivity — 17 November
 
-Agent43's exact paired-mulligan model and Agent17's cross-rank synthesis add a quantitative resource-access layer to the conditional Hood routes above. The model draws optional mulligan cards after six Prizes and assumes the beneficiary takes the maximum allowance. Percentages are conditional on both players obtaining valid opening sevens. They measure access to named resources, not selected actions or matchup outcomes.
+Agent43's exact paired-mulligan model and Agent17's cross-rank synthesis add a quantitative resource-access layer to the conditional Hood routes above. The model draws optional mulligan cards after six Prizes and assumes the beneficiary takes the maximum allowance. Percentages are conditional on both players obtaining valid opening sevens. They measure access to named resources, not selected actions or matchup outcomes. Candidate-side access counts natural draws plus the named Arven line only; it omits Forest Seal Stone, Tapu Lele-GX, other search Items and draw Supporters, so it is a narrow baseline rather than total deck access.
 
 | Matchup | Candidate-side access | Opponent-side response access |
 |---|---|---|
