@@ -2,8 +2,8 @@
 
 /**
  * Offline-only deterministic replay joiner for the first V3 natural-terminal trace.
- * Input 1 is the original sanitized artifact; input 2 is a replay sanitized with
- * the exact same sanitizer revision; input 3 is the offline-decrypted full replay.
+ * Input 1 is the original sanitized artifact; input 2 is the offline-decrypted
+ * replay; input 3 is the exact-revision sanitizer module used for that replay.
  * Never run this on a public/shared machine or emit raw prompt/card/token/state data.
  */
 const fs = require('node:fs');
@@ -11,6 +11,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const TARGET_EFFECT = 'WANT_TO_DRAW_CARDS';
+const SANITIZER_RELATIVE_PATH = 'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs';
 const DRAW_LABEL = /^Draw\s+(\d+)\s+card\(s\)$/i;
 
 function stableJson(value) {
@@ -248,6 +249,11 @@ function verifySanitizerCheckout(modulePath, rawArtifact) {
 
   const relativePath = path.relative(repositoryRoot, absolutePath)
     .split(path.sep).join('/');
+  if (relativePath !== SANITIZER_RELATIVE_PATH) {
+    const error = new Error('the exact V3 diagnostic sanitizer module path is required');
+    error.code = 'TRACE_REPLAY_SANITIZER_PATH_INVALID';
+    throw error;
+  }
   if (!relativePath || relativePath === '..' || relativePath.startsWith('../') ||
       path.isAbsolute(relativePath)) {
     const error = new Error('sanitizer module must be inside its Git checkout');
