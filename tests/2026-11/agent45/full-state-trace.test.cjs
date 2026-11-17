@@ -116,16 +116,18 @@ test('policy configuration summary preserves both-seat tactic and resolver order
   let getterCalls=0;
   const accessorNamedTactic={};
   Object.defineProperty(accessorNamedTactic,'name',{get(){getterCalls++;throw new Error('name getter must not run');}});
+  const scores={Z:1,A:2};
+  Object.defineProperty(scores,'secret',{get(){getterCalls++;throw new Error('score getter must not run');}});
   const summary=summarizePolicyConfiguration([
     {tactics:[AttackTactic,PlayBasicTactic,{name:'EnergyAttachmentTactic'},accessorNamedTactic],
-      promptResolvers:[ChooseCardsPromptResolver],scores:{Z:1,A:2},
+      promptResolvers:[ChooseCardsPromptResolver],scores,
       arbiter:{flipMode:'random',shuffleMode:'seeded'}},
     {tactics:[],promptResolvers:[],scores:{},arbiter:null}
   ]);
   assert.equal(getterCalls,0);
   assert.deepEqual(summary,[
     {seat:0,tacticOrder:['AttackTactic','PlayBasicTactic','EnergyAttachmentTactic','Object'],
-      promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z'],scoreValues:{A:2,Z:1},
+      promptResolverOrder:['ChooseCardsPromptResolver'],scoreKeys:['A','Z','secret'],scoreValues:{A:2,Z:1,secret:undefined},
       arbiter:{flipMode:'random',shuffleMode:'seeded'}},
     {seat:1,tacticOrder:[],promptResolverOrder:[],scoreKeys:[],scoreValues:{},arbiter:null}
   ]);
