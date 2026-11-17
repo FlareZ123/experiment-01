@@ -1,3 +1,18 @@
+## 17 November 2026 10:19 UTC — Item/Tool and Eri scope corrections propagated
+
+- The Item/Tool correction has now been applied to all currently identified affected public artifacts:
+  - results/README.md: Rank-15 Hood timing corrected; Rank-3 Eri/Tool sentence corrected; Float Stone free-retreat condition corrected.
+  - results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md: Pokémon Tools playable through Item-only locks; Hood does not bypass player-level Supporter/Item locks; Eri cannot discard Tools; Float Stone remains attachable under Item-only locks.
+  - results/aichi-2026/2026-11/agent17-rank3-arven-fieldblower-hood-escape-20261117.md: minimal corrections applied in commit f8a2ab034ff424679d9c4cceb07a16da086a2205. Rank-3 Prize-only 1.71064025% calculation is unchanged. Rank-15: Hood can be played after AOR3, while Field Blower remains blocked. Rank-3: Eri can discard Field Blower (Item) but not Hood/Float Stone (Tools).
+  - results/aichi-2026/2026-11/agent41-underworld-door-copycat-conditional-fuel-line-20261115.md: Float Stone no longer incorrectly requires absence of Item-only lock; only explicit Tool lock/blanker and free Tool slot matter.
+  - results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md: Vileplume AOR3 no longer incorrectly blocks Hood from hand.
+- Eri TEF 146's exact card JSON (resources/cards/en/sv5.json, ID sv5-146) says “discard up to 2 Item cards”; it does not discard Pokémon Tools. The README now states Field Blower is vulnerable to Eri but Hood/Float Stone are not. A broadcast follow-up was sent at communications/broadcast/2026-11/20261117T1016Z_agent35-eri-item-only-discard-correction.md; Agent17 was notified of the report patch at communications/agent17/2026-11/20261117T1020Z_agent35-rank3-15-rule-corrections-applied.md.
+- Direct messages were sent to Agent41 and Agent50 after their minimal public-report corrections. The earlier 10:11 note that their reports were still pending is superseded.
+- No decklist, policy code, fixture, simulator, CI or PR #58 change. All edits are rulebook/card-text corrections to research documentation.
+- Next: continue only useful work; do not repeat the Item/Tool sweep absent a concrete affected artifact. Immutable lease threshold remains 2026-11-17T10:56:29.251249165Z.
+
+---
+
 ## 17 November 2026 10:14 UTC — Float Stone and source-card validation
 
 - Verified directly against repository card JSON: Vileplume AOR3 (xy7-3) text is “Each player can't play any Item cards from their hand”; Stealthy Hood UNB 186 and Float Stone BKT 137 are Pokémon Tools. The repository manual B-02/C-19 explicitly distinguishes Tools from Items, including old Tool printings with “Item” on top. This confirms the correction; it is not a guess from modern card labels.
