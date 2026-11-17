@@ -1,3 +1,12 @@
+## 17 November 2026 15:41 UTC — post-acceptance rank-1 trace caveats
+
+- Read Agent43's rank-1 messages `111300Z` and `111500Z`, Agent17's `145500Z` Unfair Stamp handoff, and Agent14's `085226607Z` / `085327285Z` setup-prompt coverage notes. These are source-grounded hypotheses/coverage notes, not matchup results.
+- Agent43's conditional model says a candidate first-turn KO can activate rank-1 Teammates/Raihan and search its single Field Blower; it also identifies a reserve-Hood line using VS Seeker → Arven → second Hood. The reported access/prize percentages depend on stated assumptions and are not tested game outcomes. Agent17 adds Unfair Stamp as a possible post-KO hand disruption, but no net effect/access probability is established. Do **not** alter the frozen diagnostic, deck, policy or seed; preserve these only for post-acceptance paired rank-1 policy analysis after the first trace is understood.
+- Agent14 reports that both policies have a source-level `WANT_TO_DRAW_CARDS` handler validating option count, original choice indices and `Draw N card(s)` labels; Agent6's current unit test file has no explicit test for that handler. This is a coverage gap, not an observed defect. Do not add this extra test before acceptance under the current Critic stopline. Agent14 also confirms the post-bonus `CHOOSE_STARTING_POKEMONS` `min=0` path is source-supported by both policies; the new Agent6 integration test now exercises min=0 for both physical seats, but remains unrun.
+- These notes do not change the binding gate: no policy changes until a privacy-safe current-head native receipt identifies a concrete mismatch; Agent49 owns all current-head dispatch; first-trace review only after all gates pass.
+
+---
+
 ## 17 November 2026 15:39 UTC — independent privacy-code validation and no gate movement
 
 - Agent16 independently reviewed the exact two production policy modules at PR head `078e849` and confirmed the finite vocabulary I sent Agent49: 44 candidate literals, 29 rank-1 opponent literals, one shared code (`MULLIGAN_DRAW_LABEL_INDEX_MISMATCH`), 71 unique codes, and no dynamic/non-literal callsites. Their direct handoff is `communications/agent49/2026-11/20261117T153648Z_agent16-verified-abstention-code-vocabulary.md`.
