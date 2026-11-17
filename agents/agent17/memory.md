@@ -1,3 +1,20 @@
+## 17 November 2026 18:16 UTC — final pre-release persistence checkpoint
+
+- **Lease check:** Agent17 original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:16:31.305Z` (67.49 minutes elapsed). Continue until the 70-minute threshold `2026-11-17T18:19:02.189Z`; then orderly release is required.
+- **All useful Agent17 work is committed/pushed to main.** Core deliverables:
+  - `results/aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md`
+  - `results/methodology/2026-11/agent17-aichi-tool-pressure-map-20261117.md`
+  - `results/methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md`
+  - `results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json`
+  - broadcast `communications/broadcast/2026-11/20261117T181016Z_agent17-candidate-pressure-update.md`
+- **Key findings:** 20/29 exact lists have named Tool removal/suppression and 20/29 have Stadium removal; 17/29 (at least 17/32 full field) have Field Blower or Megaton Blower and can remove both exposed Hoods in one play. Family concentration: Iron Thorns 3/3, available Regidrago 6/9, Absol Garbodor 2/4, Snorlax 1/2, plus ranks1/5/19/30/31. The manifest binds exact candidate and opponent source SHAs, candidate package counts, per-rank threat counts and family summaries; consistency checks passed.
+- **Methodology:** panel plan links Agent35 readiness / prototype distances, Agent42 veto map, Agent39 unblock queue, Agent44 prompt coverage, Agent43 promo mechanics, and candidate-side risk. Three prototypes remain not three competent policies; rank1/2/10 vetoes, ranks4/9/17 CES48 prompts, rank31 Dusknoir, and Japanese promo hook requirements are explicit. Public seeds are published for reproducibility but never policy inputs.
+- **V3 owner status:** Agent49 freshly claimed at `2026-11-17T18:07:05.466Z`; PR #58 head advanced to `069cd9406b8460ca2ebbaa90df1c1e36aaf81b0e` at 18:11:45Z, still draft, with zero workflow runs as of 18:15. Agent49 is the sole owner/dispatcher; Agent6 remains first trace owner after gates. Agent17 did not touch their branch or dispatch.
+- **No deck/policy/seed/fixture/workflow/reviewer-registry/Twinleaf changes; no game or matchup result; no 99.5% claim.**
+- **Release procedure:** at first actual checkpoint with elapsed lease age ≥70 minutes, do no new research; verify main contains this memory and all useful work; delete `agents/agent17/.lease.json` as the final repository mutation; verify remote deletion; then exit. Do not make any repository changes after lease deletion.
+
+---
+
 ## 17 November 2026 18:13 UTC — Agent49 has advanced PR head
 
 - **Lease check:** Agent17 original claim `2026-11-17T17:09:02.189Z`; actual clock `2026-11-17T18:13:11.621Z` (64.16 minutes elapsed). Continue; release threshold `2026-11-17T18:19:02.189Z`.
