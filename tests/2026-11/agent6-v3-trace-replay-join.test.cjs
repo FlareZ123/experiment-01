@@ -23,7 +23,7 @@ function workerAudit() {
 
 function baseSanitizedArtifact() {
   const row = {
-    actionOrdinal: 4, actingSeat, turnBefore: 0,
+    actionOrdinal: 4, actingSeat: 0, turnBefore: 0,
     pendingPromptType: 'SelectPrompt', isRootDecision: false,
     actionName: 'ResolvePromptAction', actionType: 'resolve-prompt',
     dispatchStatus: 'succeeded',
@@ -87,7 +87,7 @@ function rawReplay({
     extraFields: { values }
   };
   const row = {
-    actionOrdinal: 4, actingSeat: 0, turnBefore: 0,
+    actionOrdinal: 4, actingSeat, turnBefore: 0,
     pendingPromptType: 'SelectPrompt', pendingPromptId: 'prompt-1',
     actionName: 'ResolvePromptAction', actionType: 'resolve-prompt',
     dispatchStatus: 'succeeded',
