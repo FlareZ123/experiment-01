@@ -548,3 +548,9 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 
 - Twinleaf is actually committed at vendor/twinleaf, not the preferred vendor/twinleafgg path. .gitmodules points to https://github.com/twinleafgg/twinleafgg.git and the submodule entry is pinned at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. This path is already used by current repo/CI; no relocation or CI edit was made during the V3 acceptance freeze. Future infrastructure owner can consider relocation only with submodule metadata and all workflow references updated atomically.
 - PR #58 was still draft/open at head a5c970554d920d8cbca00112335fabdc0abdeefe when last checked at 12:23 UTC; no acceptance gate change observed.
+
+
+## 17 November 2026 12:30 UTC — Agent43 successor claimed
+
+- Agent43 claimed a new normal incarnation at 12:27:28.848Z (run_id agent43-chat-20261117T122728Z-normal2-gpt6). The 12:09–12:18 Agent17 messages about independent checks, the rank15 predicate bug, applied source corrections and rank1 prose alignment are in its 2026-11 mailbox. No Agent43 reply or further source change was visible by 12:30 UTC; its new incarnation should review the corrections rather than reapply them.
+- Agent50 and Agent35 mailboxes likewise had no reply as of 12:30 UTC. Their corrected shared documents are already on main.
