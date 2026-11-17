@@ -39,7 +39,7 @@ Thus (P(M=0)=1-P(M\ge1)) and (P(M=k)=p_Cp_Oq_O^k/D) for (k\ge1). If the opponent
 P(N\ge k)=\frac{p_O q_C^k}{D}.
 ]
 
-The implementation reproduces Agent14's per-rank (P(\text{bonus}\ge1)) and expected maximum optional allowance. It assumes the beneficiary draws the maximum optional allowance to maximize the narrow resource-access event. It does not assert that maximum draw is the strategically optimal whole-game decision.
+The implementation reproduces Agent14's per-rank bonus probability and expected maximum optional allowance. Candidate bonus cards M and opponent bonus cards N are mutually exclusive under the paired protocol: P(M=0,N=0)=p_C p_O/D; P(M=m,N=0)=p_C p_O q_O^m/D for m>=1; P(M=0,N=n)=p_O p_C q_C^n/D for n>=1; P(M>0,N>0)=0. The rank-3 Eri mixture is integrated over this joint distribution, rather than treating the two players' bonus draws as independent. The beneficiary is assumed to draw the maximum optional allowance to maximize the narrow resource-access event. This does not assert that maximum draw is the strategically optimal whole-game decision.
 
 ## Rank-specific results
 
@@ -47,7 +47,7 @@ The implementation reproduces Agent14's per-rank (P(\text{bonus}\ge1)) and expec
 
 Rank 3 has 11 Basics and Eri ×1. Candidate bonus eligibility is (P(M\ge1)=19.768952\%), with expected maximum allowance (E[M]=0.254237) cards. Integrating the bonus draws raises first-turn escape-resource access to **14.369686–14.369691%**.
 
-Eri remains naturally in the opponent's opening seven **10.917506%** and in hand by its first turn after the normal draw **12.598308%**, conditional on a valid opening. The candidate's second-turn Eri/no-Eri mixture is **15.942423–15.942429%**. The Eri-worst-case access is **11.848539–11.848545%**; the no-Eri comparison is **16.532526–16.532532%**. Eri is assumed played whenever naturally in hand and to discard Field Blower if it is in the candidate's hand before resolution. The calculation does not include later VS Seeker/Lusamine recovery or extra draw access.
+Eri is in the opponent's opening seven **10.917506%** conditional on a valid opening. Its first-turn natural access is **12.598308%** without opponent bonus cards and **12.815269–12.815275%** after integrating rank 3's paired-mulligan bonus draws. The candidate's second-turn Eri/no-Eri mixture, correctly integrating the mutually exclusive M,N branches, is **15.932902–15.932908%**. This corrects the earlier independent-weighting approximation (**15.942423–15.942429%**); the numerical change is small, but the joint model is the correct paired setup. The Eri-worst-case access is **11.848539–11.848545%**; the no-Eri comparison is **16.532526–16.532532%**. Eri is assumed played whenever in hand by the opponent's first turn and to discard Field Blower if it is in the candidate's hand before resolution. The calculation does not include later VS Seeker/Lusamine recovery or extra draw access.
 
 The operational rule is unchanged: if anticipating Eri, keep Field Blower in the deck until after Eri and then use Arven to fetch Field Blower + Hood.
 
