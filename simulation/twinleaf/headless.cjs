@@ -1049,8 +1049,25 @@ function runMatch(request) {
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
     const fullStateTraceRecorder = request.captureFullStateTrace === true ?
-      createFullStateTraceRecorder({label:request.label || '',seed:request.seed,
-        limits:request.fullStateTraceLimits || {}}) : null;
+      createFullStateTraceRecorder({
+        label:request.label || '',
+        seed:request.seed,
+        limits:request.fullStateTraceLimits || {},
+        policyConfiguration:optionsBySeat.map((options,seat)=>({
+          seat,
+          tacticOrder:(options.tactics || []).map(tactic =>
+            typeof tactic === 'function' ? (tactic.name || 'anonymous') :
+              (tactic && tactic.name) || (tactic && tactic.constructor && tactic.constructor.name) || typeof tactic),
+          promptResolverOrder:(options.promptResolvers || []).map(resolver =>
+            typeof resolver === 'function' ? (resolver.name || 'anonymous') :
+              (resolver && resolver.name) || (resolver && resolver.constructor && resolver.constructor.name) || typeof resolver),
+          scoreKeys:Object.keys(options.scores || {}).sort(),
+          arbiter:options.arbiter ? {
+            flipMode:options.arbiter.flipMode,
+            shuffleMode:options.arbiter.shuffleMode
+          } : null
+        }))
+      }) : null;
     let fullStateTraceCaptureError=null;
     function recordFullStateStep(args) {
       if(!fullStateTraceRecorder || fullStateTraceCaptureError) return;
