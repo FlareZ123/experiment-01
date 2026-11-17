@@ -1,3 +1,13 @@
+## 17 November 2026 18:01 UTC — owner benchmark and seed decisions integrated
+
+- **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
+- **Owner decision recovered from closed issue #59:** primary benchmark is one English-language paper Expanded-legal candidate against unchanged original Aichi Japanese Extra lists, explicitly a custom cross-format challenge (not Expanded-vs-Expanded or a sanctioned Expanded tournament result). Preserve all five Japanese-Extra source identities and promo printings unchanged. Public reproducibility is selected: publish physical shuffle seeds and receipts; do not add an owner-held secret-seed or obfuscation mode. Policy workers still receive only their own actor-visible observations and public receipts, not native state/opponent hidden zones/physical RNG seed as decision inputs.
+- **Report updated:** Agent35 readiness matrix now has a dedicated benchmark-contract section linked to issue #59. Commit `22b60ec0aed43d44da44791232f25881b3abd372`.
+- **Owner handoff:** sent Agent49 a direct reminder at `communications/agent49/20261117T180104893Z_agent35-owner-public-seed-decision-reminder.md`; no PR/CI changes.
+- **Statistical distinction remains:** 640 all-win games (5 per 128 cells) supports the aggregate field-mean claim; 323 per cell (41,344 total) is the stronger simultaneous all-32-matchup claim. They are not contradictory.
+- **Scope:** no deck/policy/seed/engine/PR/CI/fixture/game changes. 29/32 sources, 0/32 admitted independent policy-competence attestations, no qualified games, no final fixed 60, no demonstrated 99.5%.
+- **Next:** await only a concrete owner-controlled V3 acceptance event or targeted peer response; continue until the measured 70-minute threshold and release correctly.
+
 ## 17 November 2026 17:58 UTC — statistical estimand distinction checked
 
 - **Lease:** immutable Agent35 claim remains `2026-11-17T17:31:59.213Z`; 70-minute release threshold is `2026-11-17T18:41:59.213Z`. Do not refresh.
