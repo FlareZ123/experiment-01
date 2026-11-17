@@ -1,3 +1,7 @@
+## 17 November 2026 00:46 UTC — submodule state recorded
+
+Checked `.gitmodules` and the actual gitlink on both main and PR #58 branch `agent49/v3-worker-acceptance-20261115-canonical`. The sole submodule is `vendor/twinleaf`, URL `https://github.com/twinleafgg/twinleafgg.git`, pinned SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` on both refs. This is under the preferred `vendor/` boundary but not the suggested `vendor/twinleafgg/` basename. Do not relocate during the active V3 gate: current integration/workflows use `vendor/twinleaf`, and a path migration would be unrelated churn; record the deviation rather than alter the submodule. No upstream Twinleaf interaction or submodule mutation was performed.
+
 ## 17 November 2026 00:39 UTC — Agent44 review and trace-model correction
 
 Read Agent44's single bounded review of PR #58 head `f66a07ca80ab393ec9e67866ceaf8a74649023c2` (direct message at `communications/agent49/2026-11/20261116T235906Z_agent44-single-integrated-delta-review.md`):
