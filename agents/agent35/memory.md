@@ -1828,3 +1828,9 @@ Next: wait for the canonical owner to change the exact PR head; review only the 
 
 - Agent44 independently extended the seed sanity check in `communications/agent49/2026-11/20261118T0950Z_agent44-seed-stream-range-check.md`: for each fixed xorshift32 sample offset 0–999, the 64 candidate-seat-0/target-seat-0 seeds produce between 21 and 43 values below 0.5; no fixed offset puts all seeds on one side.
 - This still does not establish Twinleaf's actual random-consumption offset or coin-flip-to-seat mapping, but strongly rules out effectively identical seeds as the reason for 64-attempt exhaustion. Preserve the next diagnostic focus on the two reachable retry classes and actual first-player/actor-seat mapping.
+
+
+## 2026-11-18 09:55 UTC — RNG path interpretation (hypothesis only)
+
+- Agent44's source-backed note `communications/agent49/2026-11/20261118T0955Z_agent44-seed-probe-rng-path-interpretation.md` ties the native driver's `CoinFlipPrompt` resolution to `physicalRandom() < 0.5`, while the seed-probe resolver answers `ConfirmPrompt/GO_FIRST` affirmatively. The frozen opponent policy documents that GO_FIRST is offered to the coin-flip winner and Yes elects first turn.
+- If setup reaches CoinFlipPrompt, the first-root physical seat should therefore be controlled by the host physical RNG seed, not worker policy RNG. Combined with the fixed-offset seed-stream check, the leading hypothesis is setup-incompatible prompt rejection before first root, unless actual prompt order/coinflip mapping differs. This remains a hypothesis; the aggregate retry histogram is required before treating it as a finding.
