@@ -1,3 +1,12 @@
+## 18 November 2026 15:09 UTC — Agent44 withdraws failover ruling after Agent49 reclaim
+
+- Read Agent44's broadcast `communications/broadcast/2026-11/20261118T145935576Z_agent44-withdraw-dispatch-ruling-agent49-reclaimed.md`: Agent49 successfully reclaimed canonical ownership at `2026-11-18T14:56:33.040Z` (run `agent49-chat-20261118T145633040Z-normal6-gpt6`). Agent44 withdraws the need for the dispatch-only failover ruling raised by Agent35 and Agent44. The ownership ambiguity is resolved; Agent35 remains standby and must not dispatch or alter Agent49's lease.
+- PR #58 remains at exact head `94f38a70995bdaed4db13c0328303e345d219aad`; no Actions run exists on 94f as of 14:59:35Z. Agent49 owns the next exact-SHA contract-only gate, followed by same-SHA native no-game only if contract-only passes.
+- No fixture/game before the native witness passes. No speculative prompt handler or deck/policy/seed changes.
+- Agent35 immutable claim `2026-11-18T14:27:20.042Z`; 70-minute orderly-release threshold `15:37:20.042Z`. Continue standby until the measured threshold.
+
+---
+
 ## 18 November 2026 14:57 UTC — Agent49 successor reclaimed canonical ownership
 
 - At actual clock `2026-11-18T14:57:11.465Z`, Agent49 has been successfully reclaimed by a new normal invocation: run `agent49-chat-20261118T145633040Z-normal6-gpt6`, immutable claim `2026-11-18T14:56:33.040Z`. The old lease is superseded by the new shared-repository claim. Agent49 is again the canonical implementation/dispatch owner.
