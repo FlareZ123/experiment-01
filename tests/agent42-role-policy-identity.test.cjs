@@ -140,11 +140,10 @@ function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchRece
  const gameRuleset=formatContract.gameRuleset??'Expanded';
  const candidateFormat=formatContract.candidateFormat??gameRuleset;
  const opponentSourceEventFormat=formatContract.opponentSourceEventFormat??'Japanese Extra';
- const expandedLegalityAsOf=formatContract.expandedLegalityAsOf??preDeal.policyRegistration.expandedLegalityAsOf;
- const eventDate=formatContract.eventDate??preDeal.policyRegistration.eventDate;
- const opponentSourceEventDate=formatContract.opponentSourceEventDate??
-  preDeal.policyRegistration.opponentSourceEventDate;
- const formatReviewStatus=formatContract.formatReviewStatus??preDeal.policyRegistration.formatReviewStatus;
+ const expandedLegalityAsOf=formatContract.expandedLegalityAsOf??null;
+ const eventDate=formatContract.eventDate??null;
+ const opponentSourceEventDate=formatContract.opponentSourceEventDate??null;
+ const formatReviewStatus=formatContract.formatReviewStatus??'unverified-fixture-only';
  return {trialId:'trial-1',fixtureOnly:formatContract.fixtureOnly??true,opponentRank:opponent.rank,
   candidateFormat,gameRuleset,
   opponentSourceEventFormat,opponentSourceEventDate,expandedLegalityAsOf,eventDate,
@@ -449,7 +448,8 @@ test('production application receipts bind Expanded and Japanese Extra date scop
  };
  const expanded={
   ...constraints,candidateFormat:'Expanded',gameRuleset:'Expanded',
-  opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf:'2026-11-13',
+  opponentSourceEventFormat:'Japanese Extra',opponentSourceEventDate:'2026-05-10',
+  expandedLegalityAsOf:'2026-11-13',
   eventDate:null,formatReviewStatus:'independently-reviewed'
  };
  const expandedCase=makeProductionCase(expanded);
@@ -465,8 +465,9 @@ test('production application receipts bind Expanded and Japanese Extra date scop
 
  const event={
   ...constraints,candidateFormat:'Japanese Extra',gameRuleset:'Japanese Extra',
-  opponentSourceEventFormat:'Japanese Extra',expandedLegalityAsOf:null,
-  eventDate:'2026-05-10',formatReviewStatus:'independently-reviewed'
+  opponentSourceEventFormat:'Japanese Extra',opponentSourceEventDate:'2026-05-10',
+  expandedLegalityAsOf:null,eventDate:'2026-05-10',
+  formatReviewStatus:'independently-reviewed'
  };
  const eventCase=makeProductionCase(event);
  const eventApplied=I.createPolicyApplicationReceipt({
@@ -474,7 +475,7 @@ test('production application receipts bind Expanded and Japanese Extra date scop
   opponentIdentity:eventCase.opponent,trial:eventCase.t
  });
  for(const key of ['candidateFormat','gameRuleset','opponentSourceEventFormat',
-   'expandedLegalityAsOf','eventDate','formatReviewStatus'])
+   'opponentSourceEventDate','expandedLegalityAsOf','eventDate','formatReviewStatus'])
   assert.equal(eventApplied.receipt[key],eventCase.t[key]);
  assert.equal(eventApplied.receipt.receiptSha256,evidenceBundleSha256(
   Object.fromEntries(Object.entries(eventApplied.receipt).filter(([key])=>key!=='receiptSha256'))));
@@ -551,7 +552,7 @@ test('application receipt binds the frozen format, date scope and review status'
   preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,trial:t
  });
  for(const key of ['candidateFormat','gameRuleset','opponentSourceEventFormat',
-   'expandedLegalityAsOf','eventDate','formatReviewStatus'])
+   'opponentSourceEventDate','expandedLegalityAsOf','eventDate','formatReviewStatus'])
   assert.equal(applied.receipt[key],t[key]);
  assert.equal(applied.receipt.formatReviewStatus,'unverified-fixture-only');
  assert.equal(applied.receipt.receiptSha256,evidenceBundleSha256(
