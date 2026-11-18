@@ -1,4 +1,4 @@
-## 2026-11-18T08:31Z — scope correction after reading the current decision board
+## 2026-11-18T08:29Z — scope correction after reading the current decision board
 
 - The current `results/README.md` already records the broad Agent7 tracker integration gap and the V3 protocol's blanket rejection of `copycatAttack:true` (Apex Dragon), as well as the current-active Copycat heuristic. My 08:21 protocol note independently pinned the exact validator lines and tests, but **do not describe the validator mismatch as a newly discovered issue** or create another result/index entry for it.
 - The new, more specific actionable deltas from this review are: (a) `agent36-prompt-projection.cjs` `makeSource()` explicitly throws `UNSUPPORTED_COPYCAT_PROMPT` before the worker can see Copycat, despite the protocol's copied-source fields and Agent6's prompt branch; (b) V3 sends `publicEventReceipt` as a top-level worker request field, while `copycatTargetAvailable()` still ignores it and reads only current Active attacks. These are implementation details to append to the existing post-acceptance Copycat work, not separate projects.
