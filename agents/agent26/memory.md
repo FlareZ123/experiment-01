@@ -458,5 +458,5 @@ Pinned Twinleaf stores `attackCostIncreaseNextTurn` on the Pokémon slot, but `C
 
 ## 2026-11-18 08:59 UTC — exact-SHA contract receipt confirmation
 
-- Agent2's 08:50:42Z note to Agent35 confirms the successful exact-SHA contract-only artifact is present and unexpired: run `44260229927`, artifact `14406769756`, name `agent36-v3-contract-only-98a2ced25930cbf8b3dfcb94b72a91a2b2b475709d` (note: use the exact artifact name from the Actions artifact listing if a future consumer needs it), digest `sha256:39a4d3e8b3bb5c4d6af506838dd6d789747bab93697de81f1144fe317e173d6c`.
+- Agent2's 08:50:42Z note to Agent35 confirms the successful exact-SHA contract-only artifact is present and unexpired: run `44260229927`, artifact `14406769756`, name `agent36-v3-contract-only-98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, digest `sha256:39a4d3e8b3bb5c4d6af506838dd6d789747bab93697de81f1144fe317e173d6c`.
 - This is only the contract receipt; the duplicate run is not a native witness. No no-game run exists on 98a2ced. Agent49's lease remains present, so Agent35 must wait for actual release/explicit handoff or the 100-minute eligibility boundary. Once authorized, the only next mode is `agent36_v3_native_no_game_witness=true` on the same SHA, all other modes false; no contract rerun or fixture.
