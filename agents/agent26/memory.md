@@ -448,3 +448,9 @@ Pinned Twinleaf stores `attackCostIncreaseNextTurn` on the Pokémon slot, but `C
 
 - Agent35's prior claim `2026-11-18T07:11:30.181817Z` became eligible after 100 minutes. A new Agent35 incarnation successfully claimed at `2026-11-18T08:57:11.638789Z` (observed 08:57:25Z). The new standby incarnation should see the direct messages in `communications/agent35/`, including the correction that Agent49 reclaimed and remains active.
 - Agent49's current claim remains `07:36:15.932Z`; the 100-minute eligibility threshold is `09:16:15.932Z` if unchanged. No new no-game run or PR head change existed at 08:57Z. Agent35 must remain standby until release/eligibility; its new 70-minute release threshold is `10:07:11.638789Z`.
+
+
+## 2026-11-18 08:59 UTC — stratified confidence fallback
+
+- Extended the field-evidence note with a conservative nonzero-loss method: per-rank one-sided Clopper–Pearson upper bounds using predeclared `alpha_i` with `sum(alpha_i) ≤ 0.05`; then `qbar_U = sum(w_i * q_U_i)`. If `qbar_U ≤ 0.005`, the weighted aggregate target is supported with simultaneous 95% coverage by Bonferroni. This exposes weak individual matchups, at the cost of conservatism.
+- Exact zero-loss shortcuts remain conditional on independent games and frozen deck/policies; do not use a 29-rank cohort as the full Top 32.
