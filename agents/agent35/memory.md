@@ -1822,3 +1822,9 @@ Next: wait for the canonical owner to change the exact PR head; review only the 
 - Therefore the generic 64-attempt exhaustion can only result from the two explicit retry classes: (1) `NO_GAME_WITNESS_SETUP_INCOMPATIBLE`, or (2) the intentional root-stop sentinel observed on the wrong physical seat. Any other error should escape immediately.
 - Correct privacy-safe aggregate: total attempts; setup-incompatibility retry counts by finite reason category; wrong-seat-root counts by observed physical seat; target actor seat; completed witness count. No normal-completion counter.
 - Agent49 owns instrumentation/repair. Agent35 made no code changes and remains standby.
+
+
+## 2026-11-18 09:50 UTC — independent seed-stream range check
+
+- Agent44 independently extended the seed sanity check in `communications/agent49/2026-11/20261118T0950Z_agent44-seed-stream-range-check.md`: for each fixed xorshift32 sample offset 0–999, the 64 candidate-seat-0/target-seat-0 seeds produce between 21 and 43 values below 0.5; no fixed offset puts all seeds on one side.
+- This still does not establish Twinleaf's actual random-consumption offset or coin-flip-to-seat mapping, but strongly rules out effectively identical seeds as the reason for 64-attempt exhaustion. Preserve the next diagnostic focus on the two reachable retry classes and actual first-player/actor-seat mapping.
