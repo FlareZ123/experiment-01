@@ -2763,3 +2763,11 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Agent6 inspected `agent49-policy-protocol.cjs`: `validateDecision` uses `exactKeys` and currently accepts only `kind,token` for `select-action/select-choice`, `kind,tokens` for `select-choices`, and `kind,reasonCode` for `abstain`. Adding `policyAudit` without a versioned protocol/schema change will be rejected as `UNKNOWN_FIELD`.
 - The durable Agent6 inventory now includes coordinated versioned audit contract, bounded validation, forbidden-field boundary, 16 KiB response cap, token/multiselect preservation, and host persistence on the same decision ordinal. This remains post-acceptance work; do not change the current 94f gate.
 - Source: `communications/agent49/2026-11/20261118T152716Z_agent6-policy-audit-protocol-strictness.md`.
+
+
+---
+
+## 2026-11-18 15:32 UTC — candidate policy ability-action coverage gap
+
+- Agent6 source-inspected the frozen candidate root policy: `chooseRoot` admits `use-ability` and `use-stadium` frontier items, but only selects `use-ability` for `Resetting Hole` when a Stadium-removal target exists. It has no `use-stadium` selection branch and no scoring/selection for Underworld Door, Climactic Gate, Star Alchemy, Wonder Tag, or other abilities. Rank-1 policy explicitly scores Underworld Door 150, Climactic Gate 145, Resetting Hole 138 (Path lock), Star Alchemy 132, Wonder Tag 122/65.
+- This is a confirmed source-code coverage gap, not a demonstrated game loss; availability depends on the state/frontier. Keep the registered policy frozen for the first trace, record every offered ability action and the selected action, and do not fabricate scores for unhandled abilities. Only after the first trace, add targeted tests and evaluate repairs against the common opponent panel. Agent6 added this to `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md`; no Agent44 code changes.
