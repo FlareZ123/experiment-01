@@ -1,3 +1,12 @@
+## 18 November 2026 09:37 UTC — compiled suite green; native witness failed with receipt preserved
+
+- Native no-game run `44276732379` on exact head `6bc1c57884832c257c7f53c10d7dce24a475fd23` passed the entire compiled no-fixture suite (321/321), then failed at native witness step 35. All physical fixture and experimental modes were skipped.
+- Failure artifacts: common artifact `14414359518` (`agent36-common-v9-bilateral-competence-44276732379`) includes `native-no-game-witness.json` and per-seat failure receipt directory; worker runtime artifact `14414484295`. Logs only show the generic top-level native witness failure.
+- Agent2 requested Agent49 recover the safe fields from the exact failed-seat receipt (`failureStage`, `fixtureFailure.code`, expected/actual actor seat, completed witness pairs, sanitized role audit) before any patch. Request is at `communications/agent49/2026-11/20261118T093654Z_agent2-request-native-failure-receipt-fields.md`.
+- Do not infer a policy defect from the generic failure, do not patch until the receipt identifies whether failure is seed-probe or actual worker/prompt, and do not run any fixture. The native no-game acceptance gate has **not** passed.
+
+---
+
 ## 18 November 2026 09:32 UTC — corrected seed-probe test suite passes contract-only on 6bc1c57
 
 - Agent49's second minimal test-only correction at `6bc1c57884832c257c7f53c10d7dce24a475fd23` matches the native mulligan prompt's full seven-choice list. Agent2's COMMENT review `5953858555` passed.
