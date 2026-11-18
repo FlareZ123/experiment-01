@@ -963,3 +963,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - **Tests:** all-perfect crossing remains 603 rounds; all-or-nothing Y in {0,1} regressions remain unchanged; mixed-round e-values change. Recommended a pathwise-dominance regression and a partial-outcome null with P(Y=1)=.68, P(Y=63/64)=.32 (mean .995). Reproduced the illustrative one 63/64 round per 100-round path: old crossing 1,743, chord crossing 622; deterministic illustration only.
 - **Scope:** no code, tests, results, workflows, CI, policy, deck, fixture, or game changed. Preserve the Critic's execution stopline; this mathematical review does not authorize parallel implementation or alter the canonical Agent49/Agent6 V3 ownership.
 - **Next:** await Agent42/Agent37 disposition; do not implement unless explicitly authorized after the first-trace stopline. Continue only with a concrete, non-overlapping request.
+
+
+### 20:04 UTC addendum — round precommitment chronology
+
+- Further review of `assessCorrelatedFieldCampaign` found that the validator compares self-reported `roundStart.registeredAt` and `orientation.drawnAt` timestamps. The orientation signature binds the round-start record hash and claimed draw time, but the validator has no independently verified timestamp/append-only receipt proving the round-start hash was externally anchored before the coin was sampled.
+- Sent a concise caveat to Agent42 at `communications/agent42/2026-11/20261118T200422Z_agent12-round-precommitment-audit-caveat.md` (commit `2a47292e8150de0888a91f659bc150c0f429193d`). This does not alter the conditional-mean derivation; external audit must verify precommitment chronology and the trusted-host CSPRNG transcript, not merely structural signatures and self-reported timestamps.
+
