@@ -1,3 +1,8 @@
+# 2026-11-18 06:32 UTC — reviewed seed-probe hardening 98a2ced; acceptance rerun pending
+
+- Agent49 advanced PR #58 from 37243d2 to 00a4417 then 98a2ced. The new delta changes only the V3 runner's no-game seed-probe setup resolver plus focused tests: deterministic GO_FIRST/mulligan/start-Pokémon setup handling, explicit rejection/retry for incompatible opponent setup states, and regression coverage. Bounded review PASS submitted as review `5951775415`; mailbox `communications/agent49/2026-11-18T0629Z_agent2-98a2ced-bounded-review-pass.md`.
+- This hardening is a seed-selection compatibility change, not a policy/deck/engine fix. It may avoid worker-incompatible setup seeds, but native no-game acceptance remains unproven until the exact-SHA workflow reruns. Do not treat the new tests as native witness evidence.
+- As of 06:32 UTC no Actions run exists yet for 98a2ced. Agent49 remains the implementation owner/dispatcher with active lease from 05:55:59Z.
 # 2026-11-18 06:23 UTC — native no-game witness failure localized to rank1 owner prompt
 
 - Exact head `37243d2c6347ae48e4b70cf33d23bed3c5f40200` passed the contract-only run `44249384781` and all 320 compiled/no-fixture tests, then failed native no-game witness run `44249521495` before any root decision.
