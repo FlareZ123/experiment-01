@@ -65,11 +65,12 @@ function assessCorrelatedFieldEvidence(rounds,options={}) {
 module.exports={assessCorrelatedFieldEvidence};
 
 
-const CAMPAIGN_SCHEMA='aichi-correlated-round-campaign-v1';
+const CAMPAIGN_SCHEMA='aichi-correlated-round-campaign-v2';
 const CAMPAIGN_RESULT_SCHEMA='aichi-correlated-round-campaign-assessment-v1';
 const ORIENTATION_ASSIGNMENT='SHARED_FAIR_COIN_PER_COMPLETE_ROUND';
 const RANDOMIZATION_PROTOCOL='TRUSTED_HOST_FAIR_CSPRNG_BIT_AFTER_ROUND_PRECOMMITMENT';
 const PHYSICAL_DEAL_PROTOCOL='INDEPENDENT_FRESH_PHYSICAL_DEAL_PER_GAME';
+const PHYSICAL_DEAL_COMMITMENT_PROTOCOL='SHA256_SEED_REVEAL_BOUND_TO_TRIAL_AND_FROZEN_IDENTITIES_V1';
 const POLICY_RESET_PROTOCOL='FRESH_PROCESS_PER_GAME';
 const ABORT_POLICY='FAIL_CLOSED';
 const SHA256=/^[a-f0-9]{64}$/i;
@@ -122,6 +123,7 @@ function validateCampaignRegistration(request) {
       registration.orientationAssignment!==ORIENTATION_ASSIGNMENT||
       registration.randomizationProtocol!==RANDOMIZATION_PROTOCOL||
       registration.physicalDealProtocol!==PHYSICAL_DEAL_PROTOCOL||
+      registration.physicalDealCommitmentProtocol!==PHYSICAL_DEAL_COMMITMENT_PROTOCOL||
       registration.policyResetProtocol!==POLICY_RESET_PROTOCOL||
       registration.abortPolicy!==ABORT_POLICY) {
     throw new Error('Campaign sampling, orientation, deal, reset or abort contract is invalid.');
@@ -203,11 +205,13 @@ function validateRoster(gameRoster) {
     throw new Error('Each registered round must precommit exactly 64 game assignments.');
   }
   const byTrial=new Map();
+  const gameIds=new Set();
   const physicalDeals=new Set();
   const dealCommitments=new Set();
   const counts=Array.from({length:32},()=>({A:0,B:0}));
   for(const row of gameRoster) {
     if(!isRecord(row)||typeof row.trialId!=='string'||!row.trialId||
+        typeof row.gameId!=='string'||!row.gameId||gameIds.has(row.gameId)||
         !Number.isInteger(row.rank)||row.rank<1||row.rank>32||
         !['A','B'].includes(row.candidateEngineSlot)||
         typeof row.physicalDealId!=='string'||!row.physicalDealId||
@@ -217,6 +221,7 @@ function validateRoster(gameRoster) {
       throw new Error('Registered game roster contains an invalid or duplicate trial/deal assignment.');
     }
     byTrial.set(row.trialId,row);
+    gameIds.add(row.gameId);
     physicalDeals.add(row.physicalDealId);
     dealCommitments.add(row.physicalDealCommitmentSha256);
     counts[row.rank-1][row.candidateEngineSlot]++;
@@ -225,6 +230,29 @@ function validateRoster(gameRoster) {
     throw new Error('Registered round must contain exactly one candidate A and B game for every rank.');
   }
   return byTrial;
+}
+
+function physicalDealSeedCommitment({
+  campaignId,roundId,trialId,gameId,physicalDealId,seed,nonce,
+  candidateDeckSha256,opponentDeckSha256,engineRevision,rulesetRevision,runnerRevision
+}) {
+  if([campaignId,roundId,trialId,gameId,physicalDealId].some(value=>
+      typeof value!=='string'||!value)) {
+    throw new Error('Physical-deal commitment identity fields must be nonempty strings.');
+  }
+  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff) {
+    throw new Error('Physical-deal seed must be an unsigned 32-bit integer.');
+  }
+  if(!SHA256.test(nonce||'')||!SHA256.test(candidateDeckSha256||'')||
+      !SHA256.test(opponentDeckSha256||'')||!GIT_SHA.test(engineRevision||'')||
+      !SHA256.test(rulesetRevision||'')||!GIT_SHA.test(runnerRevision||'')) {
+    throw new Error('Physical-deal commitment nonce or frozen identity is invalid.');
+  }
+  return sha256({
+    schema:'aichi-physical-deal-seed-commitment-v1',
+    campaignId,roundId,trialId,gameId,physicalDealId,seed,nonce,
+    candidateDeckSha256,opponentDeckSha256,engineRevision,rulesetRevision,runnerRevision
+  });
 }
 
 function assessCorrelatedFieldCampaign(request,options={}) {
@@ -324,8 +352,26 @@ function assessCorrelatedFieldCampaign(request,options={}) {
       const game=record.game;
       // Actual-start belongs to the receipt envelope; the engine game uses startingSeat.
       if(!isRecord(game)||game.rank!==record.rank||
-          game.candidateEngineSlot!==record.candidateEngineSlot) {
-        throw new Error('Game payload does not match its registered rank and candidate slot.');
+          game.candidateEngineSlot!==record.candidateEngineSlot||
+          game.gameId!==planned.gameId) {
+        throw new Error('Game payload does not match its registered rank, candidate slot and game ID.');
+      }
+      const opponent=opponentByRank.get(record.rank);
+      if(physicalDealSeedCommitment({
+        campaignId:registration.campaignId,
+        roundId:roundStart.roundId,
+        trialId:record.trialId,
+        gameId:planned.gameId,
+        physicalDealId:planned.physicalDealId,
+        seed:game.seed,
+        nonce:record.physicalDealNonce,
+        candidateDeckSha256:registration.candidateDeckSha256,
+        opponentDeckSha256:opponent.deckSha256,
+        engineRevision:registration.engineRevision,
+        rulesetRevision:registration.rulesetRevision,
+        runnerRevision:registration.runnerRevision
+      })!==planned.physicalDealCommitmentSha256) {
+        throw new Error('Physical-deal seed reveal does not match its precommitted commitment.');
       }
       const candidateSlot=record.candidateEngineSlot==='A'?0:1;
       const expectedSourceSeat=1-candidateSlot;
@@ -505,4 +551,4 @@ function assessCorrelatedFieldCampaign(request,options={}) {
   };
 }
 
-module.exports={...module.exports,assessCorrelatedFieldCampaign};
+module.exports={...module.exports,assessCorrelatedFieldCampaign,physicalDealSeedCommitment};
