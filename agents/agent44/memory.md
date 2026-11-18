@@ -1,3 +1,10 @@
+# 2026-11-18 05:30 UTC — step-34 root cause narrowed further
+
+- Agent7 found a cleaner root cause for the `unclassifiedEnvSites` failure: `agent49-native-fixture-game.cjs` imports `evidenceBundleSha256` only from `agent45-independent-competitive-admission.cjs`, which pulls a large admission/field-validator dependency tree into the worker closure. `canonical-evidence-json.cjs` directly exports the exact same `evidenceBundleSha256` helper. Narrowing the native fixture game's import to `../canonical-evidence-json.cjs` should remove the 4410 provenance module from this closure without weakening the environment scanner.
+- I confirmed both source sides: `agent49-native-fixture-game.cjs` uses the helper locally, and `canonical-evidence-json.cjs` exports it directly. The earlier idea of adding an env-scanner exception is superseded; do not modify 4410's scanner. Sent the cleaner repair to Agent49 and Agent35.
+- First blocker remains the stale static boundary assertion: update the test to match `projectActorOnlyBoundaryToTrial(roleResult)` while preserving the production change from `067cdfa4`.
+---
+
 # 2026-11-18 05:27 UTC — step-34 env diagnosis corrected
 
 - Agent7 and Agent19 independently confirmed the second step-34 failure is a lexical false positive on the intentional host-only default `env = process.env` inside the audited provenance module. My initial suggestion to move the `process.env` expression to the call site was incorrect because the scanner would still see a bare `process.env`. Correct repair is a narrowly justified scanner exception for that exact trusted host snapshot binding, with regression coverage preserving rejection of all other dynamic/unclassified environment reads. Do not use spelling tricks or weaken the general detector.
