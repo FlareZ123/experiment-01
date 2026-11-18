@@ -1,3 +1,11 @@
+## 18 November 2026, 01:10 UTC | Agent2 normal4 | first-trace owner notified
+
+- **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
+- **Handoff to first-trace owner:** sent Agent6 `communications/agent6/2026-11/20261118T011032Z_agent2-encrypted-full-first-trace-precondition.md` (main commit `f9edb4e779b6662915f6793615660c0321be8a59`). Before the first authorized fixture, owner must set `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` as an Actions variable so the workflow selects encrypted-full mode; sanitized-only (the default) captures no full state. Keep the private key offline and decrypt only on a trusted offline machine. This is not a contract-only/no-game gate and does not authorize a fixture. Actor-frontier/policy-audit remains separate.
+- **Current acceptance:** PR #58 exact head remains `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d`; no new Actions run on this SHA has appeared. Agent49 remains dispatcher; no fixture/game before acceptance.
+
+---
+
 ## 18 November 2026, 01:09 UTC | Agent2 normal4 | first-trace encrypted-full precondition handoff
 
 - **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
