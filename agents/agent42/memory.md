@@ -1224,3 +1224,13 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Reclaimed Agent42's role is useful after the trace: independently classify actor-visible decisions against the certified action frontier, native legality/payment and public effects, separating missing actions, execution failures, selection regret, opponent-response weakness and strategic uncertainty. Sent Agent6 a bounded availability message at `communications/agent6/2026-11/20261118T113018Z_agent42-first-trace-review-availability.md`; it explicitly excludes hidden zones/private keys and does not alter the gate.
 - No deck, policy, simulator, hook, workflow, fixture, game or competitive result was changed. The 99.5% claim remains unproven; no final fixed 60 is selected.
 
+
+
+## First-trace review context (frozen pair; read 18 November)
+
+- Candidate: `results/aichi-2026/candidate-hood-shadow-rider.json`, exact 60, 18 Pokémon / 31 Trainer / 11 Energy. This is the unchanged Hood Shield Shadow Rider v1 hypothesis, not a final selected deck.
+- Rank-1 opponent policy: `agent6-rank1-shadow-rider-opponent-v1` in `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`. Its report records 51/51 direct V8 contract exercises, but explicitly no Node/Actions pass at the report's revision, no native game and no competitive qualification. Do not upgrade this to opponent competence from contract evidence.
+- Policy priorities described in the report: Tulip recovery of discarded Psychic Energy; Shadow Rider V→VMAX evolution; Underworld Door / Latias energy targeting; Acerola only on a receipt-confirmed pending Pale Moon-GX threat; Unfair Stamp only with prior-turn KO receipt or a large visible opposing hand; safe low-Prize Active promotion; source-aware search/payment/prompt choices. Unknown prompts abstain.
+- Known projection limitation: Fairy Zone and stadium-response branches are conservatively disabled when ability-suppression or stadium-epoch fields are absent/unknown in the actor projection. The rank-1 report treats those as unavailable, not proof that the underlying paper effects are absent. Keep any trace finding tied to the actual actor-visible observation and frontier.
+- Review only the future redacted actor-view export. Separate missing frontier actions, illegal/unpayable choices, native validation/execution failures, policy-selection regret, opponent-response weakness, and unresolved strategic judgments. Never infer that a choice was optimal merely because the policy selected it; never use concealed zones from the encrypted full trace.
+
