@@ -9,7 +9,7 @@ Shadow Rider Calyrex VMAX's Max Geist does (10+30m) damage, where (m) is the num
 - 10 Psychic Energy attached: 310 damage, not a knockout.
 - 11 Psychic Energy attached: 340 damage, a full-HP knockout.
 
-The fixed Hood Shield Shadow Rider v1 list contains exactly 11 Psychic Energy and 14 Basic Pokémon. It has no Energy-recovery card in the published 60. Thus, if even one of its 11 Energy is Prized, the deck's absolute board-wide Psychic-Energy ceiling is 10 (310 Max Geist) unless another effect changes the damage or Energy-zone state. This is a ceiling statement, not a prediction that the Energy will be attached by a particular turn.
+The fixed Hood Shield Shadow Rider v1 list contains exactly 11 Psychic Energy and 14 Basic Pokémon. The published 60 includes **Raihan**, which attaches a Basic Energy from the discard pile, and **Night Stretcher**, which returns a Basic Energy from the discard pile to hand. Neither retrieves a Prized Energy. Thus, if even one of the 11 Energy is Prized, at most 10 remain outside Prizes and the deck's absolute board-wide Psychic-Energy ceiling remains 10 (310 Max Geist) unless an effect retrieves a Prized Energy or changes the damage. Discard recycling does not change the outside-Prize count. This is a ceiling statement, not a prediction that the Energy will be attached by a particular turn.
 
 ## Valid-opening-conditioned Prize-only availability
 
@@ -126,7 +126,7 @@ The candidate's Lillie's Clefairy ex has Fairy Zone, which gives opposing Dragon
 
 Mega Dragonite ex at 370 HP would require 12 attached Psychic Energy for a non-weakness 370-damage Max Geist; the current 11-Energy list cannot reach that threshold. For the same valid-opening-conditioned Prize-only model, the probability of retaining at least 12 Energy outside Prizes is **24.2463%** with 12 copies and **60.9198%** with 13 copies. With Fairy Zone active, the Dragon weakness again changes the calculation and only 6 attached Psychic Energy are needed for 370 damage.
 
-Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resources/cards/en/swsh6.json), [Dragapult ex](../../../resources/cards/en/sv6.json), [Salamence ex](../../../resources/cards/en/sv9.json), [Mega Dragonite ex and Lillie's Clefairy ex](../../../resources/cards/en/me2pt5.json), [Mega Lopunny ex](../../../resources/cards/en/me2.json), [Mew VMAX](../../../resources/cards/en/swsh8.json), and [Mega Kangaskhan ex](../../../resources/cards/en/me1.json).
+Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resources/cards/en/swsh6.json), [Dragapult ex](../../../resources/cards/en/sv6.json), [Salamence ex](../../../resources/cards/en/sv9.json), [Mega Dragonite ex and Lillie's Clefairy ex](../../../resources/cards/en/me2pt5.json), [Mega Lopunny ex](../../../resources/cards/en/me2.json), [Mew VMAX](../../../resources/cards/en/swsh8.json), [Mega Kangaskhan ex and Night Stretcher](../../../resources/cards/en/me1.json), and [Raihan](../../../resources/cards/en/swsh7.json).
 
 ## Strategic interpretation and limitations
 
