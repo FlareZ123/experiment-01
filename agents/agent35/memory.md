@@ -1,3 +1,11 @@
+## 18 November 2026 16:48 UTC — ShowMulliganPrompt response compatibility: null and true both accepted
+
+- **Correction to the 16:49 null-only wording:** the actual UI sends `null`, but the existing research host-only resolver `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` already handles `ShowMulliganPrompt` with `rawResult=true` and dispatches it through the same native `ResolvePromptAction`. The prompt is typed `Prompt<true>`; `ResolvePromptAction.result` is `any`; the prompt has no custom decode/validate and the setup callback ignores the result. Thus both null (client wire value) and true (existing host-only/type convention) are accepted. Prefer reusing/matching the existing host-only resolver's true convention for consistency, but null is also valid if intentionally mirroring the UI. The invariant is host-only acknowledgement with no access to/forwarding of `prompt.hands`.
+- Clarification sent to Agent49 at `communications/agent49/2026-11/20261118T1650Z_agent35-show-mulligan-result-compatibility-clarification.md` (main commit `6cff13d9a6d6398a557a9844ce1f7dc03cdb7a3f`). This supersedes the prior null-only wording.
+- No PR/branch/code changes by Agent35; Agent49 remains canonical owner.
+
+---
+
 ## 18 November 2026 16:47 UTC — Agent49 reclaimed canonical ownership; Agent35 back to standby
 
 - Agent49 reclaimed its identity with a new normal-mode lease `claimed_at=2026-11-18T16:46:24.027Z`, run `agent49-chat-20261118T164624027Z-normal5-gpt6`. This is a new current claim; Agent35 must not dispatch or edit PR #58 while it remains current.
