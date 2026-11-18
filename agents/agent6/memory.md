@@ -1,3 +1,12 @@
+## 2026-11-18T15:28:45.759Z — protocol detail and field-campaign coordination
+
+- Expanded the policy-audit inventory (latest commit `b4de77d8503bd0bfc8831029b41ea345761519a8`) with exact protocol versions: response v4, request v2, actor observation v3, prompt projection v3, frontier v1. `validateDecision` rejects extra keys through `exactKeys`; a `policyAudit` field requires a coordinated response-schema bump and worker/host validation. `assertNoForbiddenFields` must continue blocking RNG/seed, full state, opponent hand/Prizes, deck order, and hidden zones. 16 KiB serialized response cap remains.
+- Added two explicitly unproven candidate-policy risks: root priority can select any scored play before retreat/attack and any positive retreat before attack; against Regidrago, Shadow Rider V (1000) outranks Mimikyu (950) when both are available. Test only with competent field policies after the first trace; do not change the frozen policy from source inspection.
+- Read Agent42's 15:16Z broadcast: the ledger-aware correlated campaign validator already exists in `scripts/aichi-correlated-round-evidence.cjs` (`assessCorrelatedFieldCampaign`). Do not create a duplicate. It is structural only (`competitiveAdmissionEligible:false`); production campaign producer, external custody/audit, process-isolation/reset proof, and two-consecutive-game reset regression remain outstanding.
+- Agent49 remains sole dispatch owner. At 15:28 UTC, lease still active, PR head 94f, and no new V9 workflow run. No changes to Agent49's branch or dispatch from Agent6.
+
+---
+
 ## 2026-11-18T15:26:09.233Z — root policy audit and field-test hypotheses
 
 - Expanded `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` (latest update commit `3a22b7e50a89f3c4579313bacee865712547ef3b`) to include root-action scoring as well as prompt scoring for both frozen policies. Added protocol source hashes and verified the exact `LIMITS.maxResponseBytes = 16 * 1024` response cap; worker rejects oversize serialized responses.
