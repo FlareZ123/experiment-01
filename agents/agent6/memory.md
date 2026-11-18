@@ -2566,3 +2566,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 ### 2026-11-18T21:23:08.012Z addendum — repaired Heavy Ball min-cut source link
 
 - The decision-board link to Agent6's existing two-Basic Heavy Ball min-cut omitted the `2026-11/` directory and was broken. Corrected it in `results/README.md`, commit `9c8f31437de9cd33d5fe5824d830a41209955a13`. The target exists at `results/aichi-2026/2026-11/agent6-champion-copycat-two-basic-prize-mincut-20261107.md`.
+
+
+### 2026-11-18T21:23:57.183Z addendum — candidate inventory and synthesis link
+
+- Updated the fixed-60 decision board's Max Geist entry to mention the bounded second-Heavy-Ball comparison and explicitly label both as initial resource-access models, not win-rate estimates or a slot recommendation. Commit: `0db005870638600cbaf738b8384a385a7fb52303`.
+- Checked five existing Hood candidate/challenger JSONs (`candidate-hood-shadow-rider-v2`, `candidate-hood-consistency-v2`, `candidate-hood-shadow-rider-switch-v2`, Mimikyu-2, Dialga-2). All still use 11 Energy / one Heavy Ball; no existing 12-Energy or 2-Heavy-Ball 60-card list was found among them. Do not create a new variant before the accepted baseline.
