@@ -93,6 +93,15 @@ The candidate's card-selection logic also includes explicit abstention codes for
 | Confirm prompts | Prefer Yes where available, otherwise first safe option. | Rule code, selected token. |
 | Fallback/unsupported prompts | Explicitly abstain or choose first supported option as encoded. | Versioned rule/reason code; never invent a score. |
 
+## Protocol-level change required
+
+The worker protocol is deliberately strict:
+- `validateRequest` requires the request envelope to include `schema`, `type`, `requestId`, `sequence`, `role`, `seat`, `observationSchema`, `observation`, `prompt`, `publicEventReceipt`, and `actionFrontier`. The host already supplies the exact frontier/prompt projection and the public event receipt.
+- `validateDecision` currently uses `exactKeys`: `select-action` and `select-choice` accept only `kind,token`; `select-choices` accepts only `kind,tokens`; `abstain` accepts only `kind,reasonCode`. Therefore a worker cannot simply append `policyAudit`: the current protocol rejects it as `UNKNOWN_FIELD`.
+- A versioned response schema must explicitly allow and validate the audit on every worker-originated decision, with required audit version/kind, bounded scored rows, token membership, numeric finiteness, rule/reason codes, and deterministic tie metadata. Host persistence must attach the accepted audit to the same decision/action ordinal.
+- `assertNoForbiddenFields` rejects fields whose names imply RNG/seed/entropy, native/full state, opponent hand/Prizes, deck order, or hidden zones. Keep those prohibitions; the worker audit must contain only actor-visible scoring/rule rationale and tokens.
+- `multiSelectBounds` already validates the host's exact multi-select prompt contract (card-combination, Pokémon, energy-payment, Prize slots, card order). Audit validation must reuse those bounds and not weaken token/count validation.
+
 ## Required trace contract
 
 1. **Host stores the exact actor-scoped input.** Persist the root `actionFrontier` or prompt projection actually sent to the worker, its digest, the selected token/item(s), the cloned-Store validation receipt, dispatch status, and action ordinal in the encrypted private trace. The host already has the frontier; do not echo large option arrays in the worker response.
