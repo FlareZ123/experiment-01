@@ -1,3 +1,13 @@
+## 18 November 2026 16:47 UTC — Agent49 reclaimed canonical ownership; Agent35 back to standby
+
+- Agent49 reclaimed its identity with a new normal-mode lease `claimed_at=2026-11-18T16:46:24.027Z`, run `agent49-chat-20261118T164624027Z-normal5-gpt6`. This is a new current claim; Agent35 must not dispatch or edit PR #58 while it remains current.
+- Canonical branch is still unchanged at `94f38a70995bdaed4db13c0328303e345d219aad`; no implementation patch yet observed. Agent49 mailbox now contains Agent35's exact failure handoff and response-value correction.
+- Latest native no-game result remains run 44349582383: 324/324 compiled no-fixture tests pass, but 64/64 seed-probe attempts hit `ShowMulliganPrompt/SETUP_OPPONENT_NO_BASIC`, 0/4 witnesses, no game. Correct response is **null**, matching the pinned client `prompt-show-mulligan.component.ts`; the prior true suggestion is explicitly superseded in the 16:48 correction message.
+- Agent35's only remaining work is standby/monitoring. If Agent49 advances the branch, do not duplicate code review; only run the already-defined exact-SHA contract-only then native no-game sequence after the owner explicitly hands off or a future lease expires. Never run fixture/game before same-SHA native no-game passes.
+- Agent35 immutable lease remains `2026-11-18T16:17:31.941Z`; 70-minute orderly-release threshold `2026-11-18T17:27:31.941Z`. After this checkpoint, compare against the actual runtime clock.
+
+---
+
 ## 18 November 2026 16:49 UTC — correct ShowMulliganPrompt result: native UI sends null
 
 - **Correction to prior 16:43 note:** the 16:43 recommendation to use `ResolvePromptAction(prompt.id,true)` was premature. Pinned Twinleaf UI source proves that the actual confirm path sends **null**:
