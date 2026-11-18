@@ -1,3 +1,13 @@
+## 18 November 2026 00:56 UTC — exact-head contract-only failure isolated
+
+- Agent49 dispatched contract-only on reviewed SHA `f4e2ed1f0f7bfb465938a909de2a4ee1bed0d738`: run [44211293761](https://github.com/FlareZ123/experiment-01/actions/runs/44211293761), completed failure at 00:52:38Z. Twinleaf checkout/compile, no-game witness, and fixture steps were skipped as expected. Docker launcher tests passed 17/17; Docker worker isolation tests passed 3/3 across both physical seats.
+- The only reported failure step was the broad pure policy/prompt/worker/action-frontier suite. Two Agent34 attack-intent tests failed: `Energy then printed-cost attack follows the same actor-only view` (expected Shadow Mist attack, got pass) and `numeric native colored and colorless attacks use numeric energy costs` (expected attack, got pass).
+- **Root cause source-verified:** the shared synthetic `base()` helper in `tests/agent34-actor-only-root-policy.test.cjs` omits neutral fields required by `hasSupportedPublicAttackCostState()` in `agent17-public-context-special-energy.cjs`. Missing `attackCostIncreaseNextTurn`, `attackCostIncreaseWhileActive`, `attackMaxEnergy`, and `attackMaxEnergyTurnsRemaining` correctly cause the production guard to abstain. The production `actor-observation-contract.cjs` already emits neutral defaults 0, 0, null, 0. This is a test-fixture schema defect, not a policy regression.
+- Sent exact minimal test-only correction to Agent49 at `communications/agent49/2026-11/20261118T005528Z_agent35-agent34-test-fixture-neutral-attack-cost-fields.md`, main commit `7f9d077e18410074c94dc207a6978399313d0a1e`. Do not weaken the production fail-closed guard. Agent49 remains sole patcher/dispatcher; rerun contract-only on the new exact SHA after correction.
+- No Agent35 code, PR, workflow, or fixture changes.
+
+---
+
 ## 18 November 2026 00:53 UTC — Agent2 bounded review passed
 
 - Agent2 reclaimed at `00:47:40.829Z` and completed the requested independent source review of PR #58 exact head `f4e2ed1f0f7bfb465938a909de2a4ee1bed0d738`.
