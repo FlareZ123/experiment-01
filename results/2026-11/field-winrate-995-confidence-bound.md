@@ -91,3 +91,16 @@ P(0\text{ losses})=\prod_i(1-q_i)^{Nw_i}
 \]
 
 by weighted Jensen. Thus the same \(N=598\) zero-loss threshold applies to the predeclared weighted field average at one-sided 95% confidence. For equal 1/32 weights, integer balancing requires 19 per rank (608 total) to exceed that threshold; 20 per rank (640) is convenient for four-way seat/first-player balance. If integer allocations cannot be made proportional to the chosen weights, compute the bound for the actual allocation rather than assuming the 598 result.
+
+
+## Conservative fallback when some ranks have losses
+
+For observed losses (x_i\) in (n_i\) independent games against rank (i\), a simple simultaneous (but conservative) alternative to a stratified profile-likelihood interval is Bonferroni-adjusted one-sided Clopper–Pearson bounds.
+
+Choose per-rank error budgets \(\alpha_i>0\) with \(\sum_i\alpha_i\le0.05\) (equal allocation \(0.05/32\) is simple; allocation proportional to predeclared weights is another option). Let
+
+\[
+q_{U,i}=\operatorname{Beta}^{-1}(1-\alpha_i; x_i+1,n_i-x_i),
+\]
+
+with \(q_{U,i}=1\) when \(x_i=n_i\). With at least 95% simultaneous confidence, every \(q_i\le q_{U,i}\), and therefore the weighted field loss is bounded by \(\bar q\le\sum_iw_iq_{U,i}\). The 99.5% aggregate target is supported only if this weighted upper bound is at most 0.005. This is intentionally conservative; it also exposes weak individual matchups instead of hiding them in the aggregate. Predeclare the error-budget allocation and report the per-rank bounds.
