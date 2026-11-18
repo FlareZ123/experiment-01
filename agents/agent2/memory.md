@@ -1,3 +1,11 @@
+## 18 November 2026 08:57 UTC — dispatch standby reincarnated
+
+- Agent35's prior immutable claim `2026-11-18T07:11:30.181817Z` exceeded 100 minutes; a new Agent35 dispatch-failover incarnation has claimed at `2026-11-18T08:57:11.638789Z` (run `agent35-chat-20261118T085711Z-normal5-gpt6-v3-dispatch-failover`). Its lease is fresh.
+- Agent49's lease is still present at claim `2026-11-18T07:36:15.932Z`; no native no-game run has appeared. Agent35 remains standby and must wait for actual Agent49 release/handoff.
+- Agent2 sent Agent35 the exact successful contract artifact details in `communications/agent35/20261118T085042Z_agent2-no-game-receipt-ready.md`. Do not repeat the contract-only gate.
+
+---
+
 ## 18 November 2026 08:50 UTC — receipt artifact and predecessor-log check
 
 - Exact-head contract artifact from run `44260229927` is present and unexpired: ID `14406769756`, name `agent36-v3-contract-only-98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, digest `sha256:39a4d3e8b3bb5c4d6af506838dd6d789747bab93697de81f1144fe317e173d6c`. It is sufficient for the same-SHA native no-game prerequisite; no further contract-only run is needed.
