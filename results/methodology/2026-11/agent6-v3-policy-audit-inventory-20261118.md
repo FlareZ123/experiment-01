@@ -19,6 +19,40 @@ What must the first registered V3 trace record to explain each worker-originated
 
 The reviewed runner/game-driver revision has actor-scoped frontiers and validation machinery, but no versioned `policyAudit` field in the worker response or persisted decision record. This document describes the missing diagnostic contract; it does not authorize edits before the exact-SHA no-game acceptance gate.
 
+## Root-action scoring semantics
+
+### Candidate policy root
+
+`chooseRoot` evaluates each executable `play-card` using four separate components and selects the maximum component score (not their sum). It then considers retreat, attacks, a specific Resetting Hole ability, and finally Pass/abstention.
+
+| Component | Actual scores and conditions |
+|---|---|
+| `scoreBasicPlay` | Shadow Rider Calyrex V 1000 if not already on board; Mimikyu 950 vs Regidrago if absent; Lillie's Clefairy ex 900 vs Dragon if absent; Latias ex 650 if absent; Girafarig 450 vs Regidrago if absent; Marshadow 400 if opponent has a Stadium and Marshadow is absent; otherwise `-Infinity`. Requires an actor-owned Bench target. |
+| `scoreEvolutionPlay` | Shadow Rider Calyrex VMAX onto Shadow Rider Calyrex V: 970; otherwise `-Infinity`. |
+| `scoreEnergyPlay` | Psychic Energy to Mimikyu vs Regidrago with <2 Energy: 920; Shadow Rider VMAX while total Psychic Energy <5 and target Energy <5: 880; Lillie's Clefairy ex vs Dragon with <2 Energy: 840; Shadow Rider V with <3 Energy: 600; otherwise `-Infinity`. |
+| `scoreTrainerPlay` | Unfair Stamp after prior opponent-turn KO: 980; Field Blower with Stadium-removal target: 950; Battle Compressor vs Regidrago when Dialga-GX is absent from discard/hand/board and Mimikyu is on board/in hand: 860; Fog Crystal when no Shadow Rider V or Psychic Energy <3: 820; Mysterious Treasure with discardable hand and (Regidrago or no Shadow Rider V): 800; Quick Ball with discardable hand and (no V or Regidrago/no Mimikyu): 790; Ultra Ball with two discardables, V on board and no VMAX: 780; Arven with supporter available and (no V or ability-lock threat without Stealthy Hood): 760; Guzma with supporter available and attack line: 750; Lillie's Determination with supporter available and hand≤3 or deck≤10: 700; Sky Field under its bench/Clefairy condition: 620; Dimension Valley when no active Stadium and a Psychic Pokémon is on board: 600; Stealthy Hood with ability-lock threat and Shadow Rider V on board: 580; otherwise `-Infinity`. Preserve first matching branch. |
+
+- The final play score is `max(basic,evolution,energy,trainer)`; capture all four component values and the winning component/branch.
+- Candidate `attackScore`: Copycat is 50,000 only when the public event receipt confirms an eligible Regidrago VSTAR/Apex Dragon source and Dialga-GX/GX-use/Dragon-target conditions hold; otherwise `-Infinity`. Other attacks start at estimated damage×10; a KO adds 10,000 + 500×Prize liability; unused Timeless-GX adds 750; Filch has a 100 floor in the low-hand/high-deck condition; Shadow Mist adds 100 for opponent Stadium or non-Basic Energy. Capture the actual estimated damage and every bonus/condition.
+- Candidate `chooseRetreat`: for each valid Bench target, compute `attack.score + (attack.score - currentActiveAttack.score)`; select the highest positive score, preserving native frontier order on ties. This is a scored decision even though the returned response contains only the token.
+- Candidate tie/priority semantics: play and attack ties use token lexicographic order; retreat ties preserve frontier order. If any scored play exists, it outranks retreat/attack; otherwise the sequence is retreat → attack → first useful Resetting Hole → Pass → abstain. Capture the selected priority branch, not only the numeric score.
+
+### Rank-1 opponent root
+
+`bestAction` calls `scoreAction` for each frontier item in native order. It updates the best action only when `score > bestScore`, so equal scores preserve the first frontier item. A positive best score wins; otherwise Pass is selected if present.
+
+| Action kind | Actual scoring |
+|---|---|
+| `pass` | 0. |
+| `attack` | `scoreAttack`: Max Geist (120+\min(30,3E)+30\) if KO; Night Watch (124+\min(24,2H)+20\) if KO; Pale Moon-GX (110+35\) if target trapped (+12\) if KO; Eon Blade (105+30\) if KO; Get Lost (88+\min(24,6V)) where V is the count of valuable opponent discard cards; Copycat 132 if a supported target exists, otherwise 0; Energy Drive (85+\min(30,3T)+18\) if KO; other attacks (40+\min(80,printedDamage/2)+15\) if KO. Weakness multiplier and remaining HP are read from the actual observation. |
+| `use-ability` | Underworld Door 150 if Psychic Energy in hand; Climactic Gate 145 if Shadow Rider V on board; Resetting Hole 138 if Path lock active, else 0; Star Alchemy 132 if VSTAR power unused; Wonder Tag 122 if Supporter unused, otherwise 65; other abilities 20. |
+| `play-card` | Ordered first-match rules: Acerola 175 for prior Pale Moon + damaged active Latias; Tulip (160+\min(9,3\times PsychicDiscard)); Raihan 155 after opponent-turn KO with Psychic discard; Teammates 138 after KO; Unfair Stamp 142 for KO/opponent hand gap/opponent Prize condition; Field Blower 140 for Path lock with Underworld Door; Battle Compressor 118 under its Supporter/Psychic-discard condition; Mysterious Treasure 132 for its V/Mimikyu/Marshadow/Clefairy setup condition; Marshadow 138 for Path lock; Tapu Lele 110 without Supporter in hand and Supporter unused; Clefairy 130 vs Dragon without Fairy Zone; Mimikyu 118 with Copycat target; Fog Crystal 108 for Psychic/setup need; Quick Ball 102 for V/Clefairy setup; Forest Seal Stone 105 if VSTAR unused and VMAX on board; VS Seeker 100 for Psychic discard or prior KO; Night Stretcher 96 with Psychic discard and no Psychic in hand; Lillie's Determination 86 with Supporter available and hand≤4; Iono 90 with Supporter available and hand≤3 or opponent hand gap; Carmine 82 with Supporter available and hand≤4; Guzma 92 with weak Bench target; Acerola 92 for damaged Latias at ≤120 HP; Sky Field 80 under its Bench/hand condition; Dimension Valley 78 with no active Stadium; Float Stone 76 for an untooled Latias; default 0. Capture the first matching branch and actual returned value. |
+| `retreat` | Invalid target/active: 5. Shadow Rider VMAX target gets 128 if Max Geist can KO the active and active is not an attacker or is locked. Otherwise attacker target gets 84 if active is not an attacker or is locked; else 8. |
+| `use-stadium` | 45. |
+| Other | 0. |
+
+Rank-1 root audit must capture the actual score for every frontier item, action kind, first-match branch/reason, and native frontier index. Do not sort/recompute and thereby change the policy's stable tie behavior.
+
 ## Candidate policy: prompt decision semantics
 
 The candidate's prompt handlers are not uniformly numeric. Preserve the exact computation actually used by each branch.
