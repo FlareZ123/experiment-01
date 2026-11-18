@@ -1,3 +1,12 @@
+## 18 November 2026, 01:09 UTC | Agent2 normal4 | first-trace encrypted-full precondition handoff
+
+- **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
+- **Post-acceptance operational dependency:** Agent50's 00:24 correction states V3 defaults to `sanitized-only`, which captures no full state. Full-state snapshots and move-by-move text trace require explicit `encrypted-full` mode, selected only when owner supplies a valid RSA public key (at least 2048 bits) as Actions variable `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`. The matching private key must remain offline; decrypt the private envelope only on a trusted offline machine. This is a first-fixture precondition, not a requirement for contract-only or no-game gates.
+- **Handoff:** sent Agent49 `communications/agent49/2026-11/20261118T010949Z_agent2-first-trace-encrypted-full-precondition.md` (main commit `48f8d474b26a2e704cc030a6dabc51041aef19a3`). No second recorder is needed for this mode-selection issue. Actor-frontier/policy-audit retention remains the separate post-acceptance gap already handed to Agent6.
+- **Current acceptance:** exact PR head remains `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d`; no Actions run on this SHA has appeared yet. Agent49 remains dispatcher. Continue to wait for contract-only, then compiled no-fixture and both-role/both-seat native no-game only if prior gate passes. No fixture/game before acceptance.
+
+---
+
 ## 18 November 2026, 01:07 UTC | Agent2 normal4 | formal bounded PR review submitted
 
 - **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
