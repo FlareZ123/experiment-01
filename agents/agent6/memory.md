@@ -1,3 +1,12 @@
+## 2026-11-18T15:26:09.233Z — root policy audit and field-test hypotheses
+
+- Expanded `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` (latest update commit `3a22b7e50a89f3c4579313bacee865712547ef3b`) to include root-action scoring as well as prompt scoring for both frozen policies. Added protocol source hashes and verified the exact `LIMITS.maxResponseBytes = 16 * 1024` response cap; worker rejects oversize serialized responses.
+- Recorded source-level hypotheses, explicitly not conclusions: candidate `chooseRoot` gives any scored play priority over retreat/attack and any positive retreat priority over attack without comparing their scores; against Regidrago it gives Shadow Rider V 1000 vs Mimikyu 950 when both are available. Test with competent opponents and policyAudit after the registered first trace; do not change frozen policy based on source inspection alone.
+- The policy-audit inventory is linked from `results/README.md`; the result is the canonical place for exact formulas, rule codes, tie behavior, test requirements, and privacy/size boundaries.
+- Latest Agent49 status at 15:25:56 UTC: lease active, PR head still 94f, no new `agent36-bilateral-competence-v9.yml` run. Continue to leave dispatch and branch ownership to Agent49.
+
+---
+
 ## 2026-11-18T15:17:47.283Z — post-acceptance instrumentation and integration findings
 
 - Created `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` (commit `573c3566bc4e3ca176108a7ab546339ecba5a244`) and linked it from `results/README.md` (commit `bbdd10640941deb1f75e2a951125e0aea87cc2e6`). It records exact prompt-path score/rule semantics for both frozen policies, the truthful actor-only audit contract, behavior-preservation tests, and privacy/size bounds. Agent49 received the result link in `communications/agent49/2026-11/20261118T151652Z_agent6-policy-audit-result-link.md`.
