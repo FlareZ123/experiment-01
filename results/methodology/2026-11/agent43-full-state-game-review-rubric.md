@@ -10,11 +10,12 @@ For every root decision and every prompt resolution, record:
 
 1. **Decision context:** game/turn, physical seat, player identity, role (candidate or opponent), active player, first-player seat, phase, engine revision, research revision, policy hash, physical seed, and action ordinal.
 2. **Information boundary:** what the acting policy was actually given. Keep the policy observation (or its digest and exact reconstructible inputs) separate from the omniscient offline state dump. Never use hidden opponent hand/deck/Prize identities to justify a decision the policy could not know.
-3. **State before:** both boards, active/bench, attached Energy/Tools, damage and conditions, every card zone, Prize slots, turn resources, locks/restrictions, pending prompts, and relevant game rules.
-4. **Chosen action:** exact action type and payload, selected physical card identity resolved from the actor's hand before dispatch, prompt result, and whether the engine accepted it.
-5. **State after:** same full snapshot, plus immediate changes to zones, board, resources, damage, prizes, turn, phase and prompts.
-6. **Alternatives:** identify plausible legal alternatives. If the runner did not enumerate a legal-action set, mark an alternative as *manually inferred*, not engine-confirmed. Do not call an action suboptimal merely because a stronger line can be imagined.
-7. **Expected objective:** what the action was trying to achieve (setup, draw/search, evolve, attach, gust, attack, disrupt, preserve resources, deny a line, etc.) and its likely next-turn consequence.
+3. **State before:** both boards, active/bench, attached Energy/Tools, damage and conditions, every card zone, Prize slots, turn resources, locks/restrictions, pending prompts, and relevant game rules. The private full-state dump is context for offline review, not evidence of what the acting policy knew.
+4. **Offered options and policy evaluation:** preserve the exact actor-scoped root action frontier or projected prompt option set actually sent to the worker, its digest, selected token/item(s), and the cloned-Store validation receipt. Record the versioned actor-only `policyAudit`: actual component/per-action scores where the policy computes them, and explicit rule/reason codes where it uses ordered rules or fallbacks. Do not invent scores, reconstruct alternatives from the omniscient board, or infer rationale from the selected token. Host-only/physical-randomization prompts must be distinguished from worker-originated decisions. If any of these fields are absent, record the limitation rather than silently treating the decision as fully explained.
+5. **Chosen action:** exact action type and payload, selected physical card identity resolved from the actor's hand before dispatch, prompt result, and whether the engine accepted it.
+6. **State after:** same full snapshot, plus immediate changes to zones, board, resources, damage, prizes, turn, phase and prompts.
+7. **Alternatives:** identify plausible legal alternatives. If the runner did not enumerate a legal-action set, mark an alternative as *manually inferred*, not engine-confirmed. Do not call an action suboptimal merely because a stronger line can be imagined.
+8. **Expected objective:** what the action was trying to achieve (setup, draw/search, evolve, attach, gust, attack, disrupt, preserve resources, deny a line, etc.) and its likely next-turn consequence.
 
 ## 2. Tactical and strategic lenses
 
@@ -83,6 +84,9 @@ Game / engine / runner / policy hashes:
 Seed / first-player seat / candidate seat:
 Turn / acting seat / policy information available:
 State-before reference:
+Exact root frontier or prompt projection / digest:
+Selected token/item(s) / validation receipt:
+PolicyAudit schema/version / actual scores or rule codes:
 Chosen action / selected card / prompt result:
 Plausible alternatives (engine-confirmed or manually inferred):
 Resource and board consequences:
