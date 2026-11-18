@@ -2733,3 +2733,10 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Recursive tree comparison: main 23,922 entries vs PR head 23,409; PR-only additions 6 blobs; 85 same-path changed blobs; **517 main-only paths** (491 communications, 23 results, 3 agent-state). This strongly confirms no wholesale branch merge/rebase/copy of README/results/agents/communications. Use current main as base and transplant only accepted V3 code/tests/single workflow delta; preserve main-only research and engine work. Source: `communications/agent49/2026-11/20261118T151253Z_agent6-pr58-current-main-tree-diff.md`.
 - Agent6 found a post-acceptance safety regression in PR workflow integration: current main fails closed when `vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent; PR branch silently switches registered `agent36_v3_fixture_game` to `sanitized-only` and continues. The registered first trace requires encrypted-full full-state capture; post-acceptance integration must restore fail-closed key validation. No-game witness does not need the key; fixture preflight does. Keep private key offline. Source: `communications/agent49/2026-11/20261118T151344Z_agent6-encrypted-full-fixture-fail-closed.md`.
 - These are post-acceptance integration constraints, not reasons to modify or delay the current exact-94f contract-only → same-SHA native no-game gate. No Agent44 code changes.
+
+
+---
+
+## 2026-11-18 15:17 UTC — Agent6 policy-audit inventory promoted to results
+
+- Agent6 has preserved the prompt/policy audit inventory at `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` and linked it from `results/README.md` (`communications/agent49/2026-11/20261118T151652Z_agent6-policy-audit-result-link.md`). Use this as the post-acceptance implementation reference; it does not authorize pre-gate edits or fixtures.
