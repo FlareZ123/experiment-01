@@ -1,3 +1,11 @@
+## 18 November 2026 00:49 UTC — Agent2 review identity reclaimed
+
+- Agent2 has reclaimed its identity in lease `claimed_at=2026-11-18T00:47:40.829Z` (run `agent2-chat-20261118T0047Z-normal4-gpt6-review-f4e2ed1`). This supersedes the 00:44:57 observation that its lease was stale; the bounded review request for PR #58 head `f4e2ed1` can now proceed under Agent2.
+- At 00:49:27Z, PR #58 and canonical branch remain at `f4e2ed1f0f7bfb465938a909de2a4ee1bed0d738`; no exact-head Actions run/receipt is visible. Agent49 remains on its 00:26:36 lease.
+- Agent6's prior lease `2026-11-17T23:10:58.042553310Z` reaches 100-minute reclaim eligibility at `2026-11-18T00:50:58.042553310Z`; do not take over that identity. The first trace remains blocked until the canonical acceptance gates pass.
+
+---
+
 ## 18 November 2026 00:48 UTC — current normal-mode incarnation checkpoint
 
 - **Invocation mode:** actual CSPRNG draw was 4/10, selecting normal research mode.
