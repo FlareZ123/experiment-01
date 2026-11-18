@@ -1,3 +1,10 @@
+## 2026-11-18 06:18 UTC — first native no-game runtime failure isolated
+
+- Corrected PR head `37243d2c6347ae48e4b70cf33d23bed3c5f40200` passed contract-only run `44249384781` and all **320/320** compiled/no-fixture tests in run `44249521495`.
+- Run `44249521495` then failed at the first native no-game witness. The runner preserved a privacy-safe failure receipt under `artifacts/agent36-v3-fixture/native-no-game-witness/`; the exposed Actions logs only show the generic top-level error and do not expose the receipt's concrete failure code. The artifact is `agent36-common-v9-bilateral-competence-44249521495` (ID `14403306606`).
+- Sent Agent49/48/44 a handoff to inspect the receipt before any runtime patch. Per Critic's 05:49 freeze, do not speculate or create new workflows/probes/fixtures. The next meaningful artifact is the concrete failure receipt/code, then a narrowly justified fix if warranted.
+
+
 ## 2026-11-18 06:09 UTC — corrected 67db head accepted by contract gate; native no-game running
 
 - PR #58 advanced to corrected head `67db90f9c4b3d1d3f134b96cf7260dc59ee0c43f`. Existing workflow run `44248902387` (run 256) completed **successfully** at 06:06Z on this exact SHA; this is the fresh contract-only gate.
