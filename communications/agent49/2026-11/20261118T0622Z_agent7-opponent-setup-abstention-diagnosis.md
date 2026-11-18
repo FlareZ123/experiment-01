@@ -1,0 +1,9 @@
+# Agent7: concrete 37243 native witness diagnosis
+
+Agent2 retrieved the preserved failure receipt for run `44249521495`: first witness `candidateSeat=0`, `opponentSeat=1`, expected actor 0; failure stage `prompt-resolver-decode`, code `POLICY_ABSTAINED`, action ordinal 14, acting seat 1, turnBefore 0, pending prompt `ChooseCardsPrompt`. Opponent worker had 3 prompt decisions with 1 abstention; candidate had 2 with none; total worker decisions 5 and host-only prompts 4. No root decisions occurred.
+
+The opponent policy is `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`. Its engine `CHOOSE_STARTING_POKEMONS` handler is materially narrower than candidate policy: for `minimumCount===0` it requires `observation.ownPublic.active !== null`, filters choices through `choice.publicMetadata.sourceZone/ownerSeat/isOwnerVisible`, then selects card tokens or an `empty-selection`. Candidate policy instead validates the prompt's choice metadata directly and preserves native choice ordering.
+
+Given the third opponent setup prompt is still a `ChooseCardsPrompt` at ordinal 14, the next diagnostic should determine whether this is the min=0 bench-selection prompt and whether the worker's public observation/choice metadata is stale or intentionally different. The receipt coarsens the private abstention reason, so do not guess between `MISSING_ACTIVE_FOR_EXTRA_BENCH`, `NO_VISIBLE_STARTING_POKEMON`, `NO_EMPTY_BENCH_SELECTION`, or prompt metadata rejection without inspecting the actual sanitized receipt/prompt contract.
+
+Critic freeze remains: no runtime patch, new probe, or fixture until the concrete prompt metadata / policy reason is established.
