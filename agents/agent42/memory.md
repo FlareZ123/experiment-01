@@ -1318,3 +1318,35 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Verified the candidate and official rank-1 source lists have 14 Basic Pokémon; the corresponding English card-pool JSON entries (including SMP Trevenant & Dusknoir-GX as smp-SM217) mark the relevant cards with subtype Basic. resolvePrintedDeck maps the exact source printings to pinned native card objects and the contract tests passed, but this does not independently prove every native PokemonCard.stage value at runtime. Do not overclaim.
 - The new Agent49 safe-identity test currently exercises CoinFlipPrompt, which is auto-handled internally and not normally delivered to the seed-probe owner-prompt resolver. A more representative test would use ShowMulliganPrompt with SETUP_PLAYER_NO_BASIC and SETUP_OPPONENT_NO_BASIC, plus the wrapped-cause path. This is a coverage suggestion only.
 - Sent the quantitative diagnostic to Agent49 at communications/agent49/2026-11/20261118T134710Z_agent42-mulligan-probability-diagnostic.md. PR #58 remained at 94f38a70995bdaed4db13c0328303e345d219aad with no Actions run on that SHA as of 13:49 UTC. Agent42 has not dispatched or modified PR #58.
+
+
+---
+
+# 18 November 2026 15:11 UTC — current execution boundary and statistical handoff
+
+**Invocation:** normal research mode, RNG roll 7; Agent42 claimed at `2026-11-18T15:06:47.713188074Z`. Immutable release threshold is `2026-11-18T16:16:47.713188074Z`; do not refresh the lease. After every checkpoint, compare the original claim against an actual runtime clock.
+
+## Current benchmark and execution state
+
+- Owner-selected primary estimand: one English-language paper Expanded candidate against the unchanged original Japanese Extra Aichi lists (custom cross-format challenge, not sanctioned Expanded-vs-Expanded). Keep the strict international-Expanded comparison separate.
+- 29/32 exact source inventories are transcribed; ranks 23, 25 and 28 remain unavailable. Zero of 32 original physical opponents are paper-admitted. No fixed 60 is selected, no competitively qualified games exist, and no 99.5% result is demonstrated.
+- PR #58 is the sole canonical V3 acceptance path, exact head `94f38a70995bdaed4db13c0328303e345d219aad`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. As of 15:07Z there was no Actions run on 94f. The required sequence is contract-only on exact 94f, then the existing native no-game witness on the same SHA only if contract-only passes. No fixture before the both-role/both-seat no-game witness passes.
+- Agent49 is the sole implementation/dispatch owner and reclaimed at 14:56:33Z. Agent6 owns the single registered natural-terminal first trace after acceptance. Agent42 must not dispatch, edit PR #58, alter another lease, or create a parallel implementation.
+
+## Controlling scope
+
+- Critic's 18 Nov direction is still the stopline: no new workflow, runner, fixture harness, rank-specific native probe, post-trace planning document, one-off card probe, or candidate variant before the first trace is reviewed. Preserve the existing V3 recorder; the owner requires a complete encrypted full-state trace, actor-scoped frontier/validation receipt and actor-only policy audit. Do not add a second recorder or publish plaintext hidden zones.
+- After the trace, the research center should move to two-sided decision quality and field evidence: candidate policy plus independently competent rank-specific opponents, multi-ply information-set search, frozen baselines, paired seat/first-player evaluation, independent deals, and matchup-level reporting.
+- Agent42's prior Itoko source lead is closed: Agent39 confirmed no exact 60 or final-rank bridge. The rank-28 archive check is also closed. Do not repeat broad searches absent a genuinely new direct primary-source lead. Current `private/` tree contains only `.gitkeep`; no hidden source archive was found. The connected browser extension was unavailable in this ChatGPT context.
+
+## Statistical work already available — do not recreate
+
+- `results/statistics/README.md` distinguishes the 64-cell rank × actual-start estimand from the current 128-stratum rank × candidate-seat × actual-start field mean.
+- Fixed-sample aggregate field-mean budgets are already derived: 640 all-win games (5 per stratum), 1,024 with at most one nonwin, and 1,280 with at most two nonwins, under fixed-probability independent-game assumptions. These are aggregate claims, not per-opponent guarantees.
+- Simultaneous 95% per-opponent 99.5% designs are separate: generic heterogeneous-KL examples require 323 / 486 / 602 games per 128-cell stratum for 0 / 1 / 2 nonwins per matchup; exact iid special cases are conditional on the preregistered iid model.
+- The correlation-robust alternative uses 64-game complete rounds with one shared fair orientation bit across the 32 rank pairs, giving the 128-stratum field mean under its audited coin contract. The current mixture's all-perfect crossing is 603 rounds (38,592 games). Campaign-level roster/abort/coin receipts and an accepted field harness remain outstanding. Do not conflate this robust method with the independent-game 640/1,024/1,280 designs.
+- All of the above are prospective conditional methods. None authenticates the missing source lists, physical prints, engine fidelity, actor-only policy validity, opponent competence, or any competitive game outcome.
+
+## Next action
+
+Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accepted trace or a specific request that Agent42's statistical expertise can resolve. After the trace, provide only targeted statistical/evaluation work that materially advances the fixed-60 field objective; do not create another generic plan or restatement.
