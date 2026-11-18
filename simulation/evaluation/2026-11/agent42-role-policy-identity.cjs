@@ -622,6 +622,84 @@ function hashActorOnlyExecutionBoundary(boundary) {
   // than throwing so factual game outcomes can still be recorded.
   return evidenceBundleSha256(boundary);
 }
+function validDateOnly(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(value+'T00:00:00.000Z');
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0,10) === value;
+}
+function formatFieldsForReceipt(preDeal,trial) {
+  const core=preDeal?.policyPlanCore;
+  const constraints=core?.constraints;
+  const registration=preDeal?.policyRegistration;
+  const candidate=core?.candidate;
+  const opponent=core?.opponentPolicyBundle?.ranks?.find(x=>x?.rank===trial?.opponentRank);
+  const gameRuleset=core?.gameRuleset ?? constraints?.gameRuleset;
+  if (gameRuleset===undefined && core?.candidateFormat===undefined &&
+      core?.opponentSourceEventFormat===undefined) return null;
+  const fields={
+    candidateFormat:core?.candidateFormat ?? constraints?.candidateFormat ?? null,
+    gameRuleset,
+    opponentSourceEventFormat:core?.opponentSourceEventFormat ??
+      constraints?.opponentSourceEventFormat ?? null,
+    expandedLegalityAsOf:constraints?.expandedLegalityAsOf ?? null,
+    eventDate:constraints?.eventDate ?? null,
+    opponentSourceEventDate:constraints?.opponentSourceEventDate ?? null,
+    formatReviewStatus:core?.formatReviewStatus ?? constraints?.formatReviewStatus ?? null
+  };
+  assert.ok(['Expanded','Japanese Extra'].includes(fields.gameRuleset),
+    'game ruleset is invalid');
+  assert.equal(fields.candidateFormat,fields.gameRuleset,
+    'candidate format differs from game ruleset');
+  assert.equal(fields.opponentSourceEventFormat,'Japanese Extra',
+    'Aichi source-event format must remain Japanese Extra');
+  assert.ok(['independently-reviewed','unverified-fixture-only'].includes(fields.formatReviewStatus),
+    'format review status is invalid');
+  if (fields.formatReviewStatus==='unverified-fixture-only') {
+    assert.equal(trial?.fixtureOnly,true,
+      'unverified format status is restricted to fixture-only trials');
+    assert.equal(fields.expandedLegalityAsOf,null,
+      'unverified fixture cannot claim an Expanded legality date');
+    assert.equal(fields.eventDate,null,
+      'unverified fixture cannot claim a game event date');
+    assert.equal(fields.opponentSourceEventDate,null,
+      'unverified fixture cannot claim an opponent source event date');
+  } else if (fields.gameRuleset==='Expanded') {
+    assert.ok(validDateOnly(fields.expandedLegalityAsOf),
+      'Expanded legality-as-of date is invalid');
+    assert.equal(fields.eventDate,null,'Expanded trial cannot carry a game event date');
+    assert.ok(validDateOnly(fields.opponentSourceEventDate),
+      'Japanese Extra source-event date is invalid');
+  } else {
+    assert.ok(validDateOnly(fields.eventDate),'Japanese Extra event date is invalid');
+    assert.equal(fields.opponentSourceEventDate,fields.eventDate,
+      'Japanese Extra source-event date must match the event date');
+    assert.equal(fields.expandedLegalityAsOf,null,
+      'Japanese Extra trial cannot carry an Expanded legality date');
+  }
+  for (const [key,value] of Object.entries(fields)) {
+    const constraintValue=constraints?.[key] ?? null;
+    assert.equal(constraintValue,value,'policy constraints '+key+' mismatch');
+    assert.equal(registration?.[key] ?? null,value,
+      'policy registration '+key+' mismatch');
+    assert.equal(trial?.[key] ?? null,value,'trial '+key+' mismatch');
+  }
+  fields.opponentSourceEventFormatStatus=opponent?.sourceEventFormatStatus ?? null;
+  fields.opponentSourceEventFormatStatusEvidenceRef=
+    opponent?.sourceEventFormatStatusEvidenceRef ?? null;
+  if (trial?.fixtureOnly!==true) {
+    assert.equal(fields.formatReviewStatus,'independently-reviewed',
+      'production trial requires independent format review');
+    assert.equal(candidate?.formatStatus,'legal',
+      'production candidate format status must be independently reviewed as legal');
+    assert.ok(nonempty(candidate?.formatStatusEvidenceRef),
+      'production candidate format legality evidence is required');
+    assert.equal(opponent?.sourceEventFormatStatus,'legal',
+      'production opponent must be legal in its unchanged Japanese Extra source format');
+    assert.ok(nonempty(opponent?.sourceEventFormatStatusEvidenceRef),
+      'production opponent Japanese Extra legality evidence is required');
+  }
+  return fields;
+}
 
 function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdentity,
   trial,timeoutStatus='within-budget'}) {
@@ -772,8 +850,10 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   assert.match(preDeal.policyRegistrationSha256??'',SHA256,'policy registration digest is invalid');
   assert.match(preDeal.policyAttestationBundleSha256??'',SHA256,'policy attestation bundle digest is invalid');
 
+  const formatFields=formatFieldsForReceipt(preDeal,trial);
   const receipt={
     schema:APPLICATION_RECEIPT_SCHEMA,trialId:preDeal.trialId,
+    ...(formatFields??{}),
     policyPlanSha256:preDeal.policyPlanSha256,
     policyRegistrationSha256:preDeal.policyRegistrationSha256,
     policyAttestationBundleSha256:preDeal.policyAttestationBundleSha256,
