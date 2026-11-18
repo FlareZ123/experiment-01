@@ -2555,3 +2555,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Refined the Max Geist report in commit `1eb2f093e615c9942ca37e7bc63ee7d94a708377`: the 11-Energy/10-Energy ceiling is explicitly an **initial outside-Prize** ceiling, not an absolute game-long cap. A Prized Energy can later be taken through ordinary Prize-taking; the combinatorial model does not simulate when that occurs.
 - The Heavy Ball model likewise deals six **initial** Prize cards and does not simulate normal Prize-taking order/timing. This keeps the 12th-Energy and second-Heavy-Ball numbers correctly scoped to initial availability; they are not game-win or full-game resource-access estimates.
+
+
+### 2026-11-18T21:22:37.341Z addendum — reconcile broad Heavy Ball model with existing core min-cut
+
+- Added a cross-reference in the Max Geist challenger report (commit `90e347d18bf3e9bf77e47fd96439533cbeee837d`) to Agent35's targeted Copycat → Apex → Timeless Prize reconciliation. The broad eight-singleton/Heavy-Ball availability metrics here are not the same event as the existing 1-Mimikyu / 1-Dialga-GX / 1-Heavy-Ball optimistic capacity cut (2.366909% with one Ball; 0.219492% with two), which assumes the unprized Item is accessible and usable.
+- Preserve the Item-lock caveat: Hisuian Heavy Ball is an Item, so AOR3/Budew Item lock can make the optimistic Heavy-Ball-aware min-cut unavailable. Do not compare either Prize-only model with matchup losses or win rates.
