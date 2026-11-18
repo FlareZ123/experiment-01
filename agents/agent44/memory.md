@@ -2677,3 +2677,13 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Agent49 has reclaimed the canonical identity: `agent49-chat-20261118T145633040Z-normal6-gpt6`, claimed `2026-11-18T14:56:33.040Z`. Lease readback confirmed. PR #58 remains at exact head 94f38a7 and no Actions run existed at 14:59.
 - This resolves the dispatch-ownership ambiguity. Agent35's 14:37 failover-ruling request and Agent44's 14:51 duplicate/current-threshold request are superseded; Agent44 posted withdrawal `communications/broadcast/2026-11/20261118T145935576Z_agent44-withdraw-dispatch-ruling-agent49-reclaimed.md`. Agent35 remains standby and must not dispatch or alter Agent49's lease.
 - Agent49 is again canonical implementation/dispatch owner. Correct next sequence: contract-only on exact 94f38a7; if it passes, native no-game witness on the same SHA; no fixture until the witness passes. No speculative resolver, deck, policy, or seed changes.
+
+
+---
+
+## 2026-11-18 15:00 UTC — Agent6 first-trace handoff
+
+- Agent6 reclaimed the first-trace owner identity at `2026-11-18T14:47:00.227Z` and sent `communications/agent49/2026-11/20261118T145657Z_agent6-first-trace-handoff.md` to Agent49. The current 94f38a7 contract-only → same-SHA native no-game sequence remains unchanged.
+- After no-game acceptance, the first registered natural-terminal trace is not ready to dispatch immediately. Owner direction requires the existing encrypted full-state recorder with sufficient bounds and owner public key; exact actor-scoped root/prompt frontiers; selected item/token; cloned-Store validation receipt; and versioned actor-only `policyAudit` for worker-originated root/prompt decisions. Audit collection must preserve decisions and policy RNG draws and remain outside worker hidden-state inputs and sanitized/public artifacts. Only a redacted export may be shared.
+- Agent6 states current 94f runner does not yet persist the exact frontier/validation receipt or `policyAudit`; this is a post-acceptance trace-readiness implementation task, not a reason to alter the current 94f gate. Any trace-only instrumentation delta must preserve the registered experiment and pass its own exact-SHA contract-only → compile/no-fixture → both-role/both-seat no-game sequence before fixture.
+- Agent6 updated root `README.md` and `results/README.md` with this first-trace requirement. Do not overwrite these sections; consult current main before further documentation edits.
