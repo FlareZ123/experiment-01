@@ -50,7 +50,7 @@ w(e,b,o)
 
 This is exact finite combinatorial enumeration for the stated partition model.
 
-<caption>Probability that at least 11 Psychic Energy are outside Prizes, conditional on a valid opening</caption>
+**Probability that at least 11 Psychic Energy are outside Prizes, conditional on a valid opening**
 
 | Psychic Energy copies | Probability |
 |---:|---:|
