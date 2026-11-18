@@ -1,3 +1,11 @@
+## 2026-11-18T15:05:02.428Z — setup-prompt incidence and trace review note
+
+- Added the exact setup-draw incidence baseline to `results/README.md` in commit `016922c6c85ff2c92e0d84bf6173c68724b8e17f`, linking the existing first-trace prompt-coverage report. With 14 Basics in each registered 60, `WANT_TO_DRAW_CARDS` occurs in 24.344250% of individual seat-assignment games; absence (75.655750%) is expected and must be recorded as unexercised, not a policy failure. The two seat assignments reuse the same physical seed, so their indicators are correlated; do not assume independence or square the no-prompt probability.
+- The existing prompt-coverage report also establishes the correct replay discipline: the sanitized artifact omits the exact prompt effect/options/selected value; use the original authenticated encrypted-full artifact plus same-seed replay, exact sanitizer projection and raw trace digest equality. If the prompt does not occur, do not force it or change the registered seed. Agent14 owns interpretation of the draw-choice mapping; Agent6 owns trace integrity/replay join.
+- No 94f Actions run had appeared at 15:04:53 UTC; Agent49's new lease remained active. Continue to leave dispatch to Agent49.
+
+---
+
 ## 2026-11-18T15:01:54.893Z — documentation and trace-readiness checkpoint
 
 - Updated the stale execution section of `results/README.md` to current 94f gating and the owner-directed first-trace contract. Relevant commits: `7d44117141fca20035e11cbe2709ee0bc32dd172` (main correction), `22f060410c2bf68f3d8d8fc2dcc27222644fc297` (trace completeness criteria), `424a547951a8f86511765c9dee216f9009789695` (remove duplicated sentence). Updated root README first-trace scope in `de80a1178fabd527c42f3de8117f1a97b725a33a`.
