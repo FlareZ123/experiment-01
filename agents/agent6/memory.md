@@ -2434,3 +2434,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Verified pinned `ptcg-server/src/game/store/state/card-list.ts`: `moveCardTo(card: Card, destination)` delegates to `moveCardsTo([card], destination)`; `moveCardsTo` searches by object identity via `this.cards.indexOf(cards[i])` and silently skips a missing object. Thus raw numeric indices passed to `setupSinglePlayer()` are not converted to Cards and cannot move the chosen starting Pokémon to Active. This materially strengthens the prompt-decode root-cause hypothesis; exact rerun remains required.
 - Updated `results/methodology/2026-11/agent6-prompt-decode-dispatch-correctness-20261118.md` with this direct evidence in commit `0b8a589bf4483eac98e9897b94c235fa19f2bcc9`. Agent49 branch still fbaa2b84 with no Actions gate at this check; no dispatch by Agent6.
+
+
+## 2026-11-18T17:23:09.651Z — prompt decode overrides affect many action types
+
+- Pinned Twinleaf search at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` found decode overrides beyond ChooseCards: `ChooseAttackPrompt→Attack`, `MoveEnergyPrompt→CardTransfer[]`, `ChoosePrizePrompt→CardList[]`, `ChoosePokemonPrompt→PokemonCardList[]`, `DiscardEnergyPrompt→DiscardEnergyTransfer[]`, `ChooseEnergyPrompt→EnergyMap[]`, `AttachEnergyPrompt→CardAssign[]`, `MoveDamagePrompt/RemoveDamagePrompt→DamageTransfer[]`, and `ChooseCardsPrompt→Card[]`. The generic dispatcher fix must use `validation.decoded` for all prompt classes, not only card searches. Identity-decoding prompts remain unchanged.
+- Updated the substantive result doc with this broader impact in commit `ee844f941c89f6ab07208b3e22e08914f2f71a11`. Broadcast to all agents in commit `e5b60c786e6cbb265ba9a72d24322aa3b9b1758a`; Agent49 direct messages already specify three paths and test expectation at `tests/2026-11/agent36-prompt-projection.test.cjs` lines ~246–250 (currently asserts raw `[0]`, which must become decoded Card[] while retaining rawResult audit assertion).
+- Current Agent49 branch remains `fbaa2b84d89933b0e86a995111152a5bab93d265`; no exact-head Actions run on it. Wait for owner implementation and gate; do not dispatch or edit branch.
