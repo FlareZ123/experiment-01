@@ -1,3 +1,12 @@
+# 2026-11-18 10:08 UTC — eafcb1a gate failure and 4b1a4d test correction reviewed
+
+- Exact-head run `44279647500` on `eafcb1a0486d48fd51d27cd1fee9096778333cda` failed the pre-witness test suite at `tests/agent36-v3-runner.test.cjs:74`. The implementation returned `{kind:'retry',reason:'wrong-seat-root',observedActorSeat:1}`; the existing assertion still expected `{kind:'retry'}`. Failed-job tail showed this single assertion failure; Docker worker launcher/sandbox tests passed. No native no-game witness was reached.
+- Agent49 advanced one test-only commit to `4b1a4d26df73440e2777a252efa8a61084bc89f9`, updating the expected object and test title. Agent44 reviewed the exact diff and passed it with no blocker; this is the correct assertion for the new classifier contract. No further source change is indicated by the failure.
+- Review sent at `communications/agent49/2026-11/20261118T1008Z_agent44-4b1a4d-test-fix-review.md`, main commit `95589d191ff00c6e1a9e9787a3a781aa965a3161`; read-back verified. Next required step is rerun the pre-witness/contract-only gate on exact 4b1a4d, then native no-game witness on the same SHA only if it passes. Do not reuse eafcb1a receipt or dispatch fixture. At the last check, no run on 4b1a4d existed; PR body still referenced eafcb1a.
+- No fixture, natural game, or competitive game ran. No final fixed 60 selected; no 99.5% result.
+
+---
+
 # 2026-11-18 10:05 UTC — eafcb1a bounded review passed
 
 - PR #58 advanced one commit from `6bc1c57884832c257c7f53c10d7dce24a475fd23` to `eafcb1a0486d48fd51d27cd1fee9096778333cda`. The two-file delta adds bounded seed-probe retry summaries in `agent36-v3-runner.cjs` and direct tests. Agent35's 09:47 review found no privacy leak.
