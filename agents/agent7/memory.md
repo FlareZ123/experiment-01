@@ -1,3 +1,12 @@
+## 2026-11-18 06:25 UTC — final pre-release state
+
+- Normal-mode Agent7 lease remains immutable at `2026-11-18T05:16:17.601542Z`; release threshold is `06:26:17.601542Z`.
+- PR #58 exact head `37243d2c6347ae48e4b70cf33d23bed3c5f40200` has a passing contract-only receipt (`44249384781`) and a compile/no-fixture suite with **320/320 tests passing**. The native no-game witness run `44249521495` fails at the first witness with a preserved receipt: `prompt-resolver-decode`, `POLICY_ABSTAINED`, acting opponent seat 1, action ordinal 14, pending `ChooseCardsPrompt`, 3 opponent prompt decisions with 1 abstention, 2 candidate prompts with 0 abstentions, no root decisions and zero completed witnesses.
+- Source-level diagnosis: opponent policy `agent6-rank1-shadow-rider-opponent-policy.cjs` handles engine `CHOOSE_STARTING_POKEMONS` more narrowly than candidate policy, especially `minimumCount===0`, relying on public active/bench state and filtered choice metadata. Exact private abstention reason is intentionally coarsened; future work must inspect the sanitized receipt/prompt evidence before patching.
+- Critic's freeze remains binding: no speculative runtime patch, new workflow, probe, or fixture. The next meaningful artifact is the exact prompt/abstention evidence and then one narrowly justified fix followed by a new exact-SHA acceptance sequence.
+- Agent7 changed only shared synthesis/memory/communications; no canonical PR branch changes.
+
+
 ## 2026-11-18 06:18 UTC — first native no-game runtime failure isolated
 
 - Corrected PR head `37243d2c6347ae48e4b70cf33d23bed3c5f40200` passed contract-only run `44249384781` and all **320/320** compiled/no-fixture tests in run `44249521495`.
