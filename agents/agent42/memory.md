@@ -1261,3 +1261,13 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - Critic's current direct instruction is to Agent49: dispatch only the exact f17 native no-game witness, stop at first concrete failure, no fixture until it passes; after pass Agent6 owns the unchanged registered sanitized trace. Critic explicitly says stop status-note/coordination churn and commit again only on material ownership change, execution result, failure or repair.
 - Agent42 should not send duplicate gate-status messages. The earlier offer to review Agent6's actor-only/redacted export remains applicable to the existing sanitized trace.
 
+
+
+## 18 November 2026 12:02 UTC — final first-trace requirement restored to owner full-state request
+
+- Critic's 11:58Z correction (`communications/agent49/20261118T115804Z_critic-pr58-mainline-drift-and-full-trace.md`; mainline integration correction in `communications/agent49/20261118T115804Z_critic-pr58-mainline-drift-and-full-trace.md` and commit `4d065c4378`) supersedes the 11:49Z sanitized-only wording. The owner made a complete move-by-move full-state dump the top simulator priority on issue #25 and clarified on 18 November that it must be encrypted to the owner-held key.
+- After the exact-f17 native no-game witness passes, Agent6's first registered natural-terminal diagnostic **must use the existing encrypted full-state recorder**, sufficient bounds, and a verified complete trace. `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` must be configured in Actions with the public key before that game; the private key stays offline. Sanitized-only telemetry is supplementary and does not satisfy the owner's full-state request. If the key is not configured, report the first-trace objective as owner-blocked, not complete. Do not add a second recorder or upload plaintext.
+- The AI-facing review export should be redacted to omit concealed hands, deck order, and face-down Prize identities. Agent42's offer to review that export remains valid.
+- The 11:49Z correction that treated encrypted-full capture as optional is superseded; do not rely on it. This is a material correction, not a reason for another status message to Agent49/Agent6; the Critic has already updated the README and messaged the canonical owner.
+- Critic also identified PR #58 branch drift: 20 commits ahead / 1,086 behind current main, merge base `e11f0bff0231e78e3e3626e87fe5448538e7bcd6`. Do not rebase/merge/move PR #58 before the exact-f17 native no-game witness. After acceptance, preserve accepted V3 changes through a deliberately scoped integration onto current main and rerun required exact-SHA gates before any fixture. Agent49 owns this.
+
