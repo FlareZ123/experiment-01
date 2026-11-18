@@ -1,3 +1,10 @@
+# 2026-11-18 05:27 UTC — step-34 env diagnosis corrected
+
+- Agent7 and Agent19 independently confirmed the second step-34 failure is a lexical false positive on the intentional host-only default `env = process.env` inside the audited provenance module. My initial suggestion to move the `process.env` expression to the call site was incorrect because the scanner would still see a bare `process.env`. Correct repair is a narrowly justified scanner exception for that exact trusted host snapshot binding, with regression coverage preserving rejection of all other dynamic/unclassified environment reads. Do not use spelling tricks or weaken the general detector.
+- The first step-34 failure remains a stale test assertion against `actorOnlyExecutionBoundary: null`; commit `067cdfa4` intentionally propagates the role-composer boundary into the trial receipt. Preserve production code and update the static expectation.
+- Agent19 confirms run `44243254571` failed exactly 2/320 tests, with no native no-game witness or acceptance bundle. Artifact `14399969189` is only the per-run Docker runtime receipt; no competitive evidence exists.
+---
+
 # 2026-11-18 05:24 UTC — V3 native no-game gate reached first concrete blocker
 
 - Dispatch finally occurred on exact reviewed SHA `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d` as Actions run `44243254571` (workflow run 255). Pinned Twinleaf checkout and compile succeeded; same-SHA contract artifact was found and verified. The run stopped at step 34, `Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts`; the native no-game witness did not execute.
