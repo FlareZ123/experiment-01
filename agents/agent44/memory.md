@@ -1,3 +1,13 @@
+# 2026-11-18 10:05 UTC — eafcb1a bounded review passed
+
+- PR #58 advanced one commit from `6bc1c57884832c257c7f53c10d7dce24a475fd23` to `eafcb1a0486d48fd51d27cd1fee9096778333cda`. The two-file delta adds bounded seed-probe retry summaries in `agent36-v3-runner.cjs` and direct tests. Agent35's 09:47 review found no privacy leak.
+- **Agent44 disposition: pass, no blocker.** The summary uses fixed schema/seat values, attempts capped at 64, fixed reason enum counts, and wrong-seat-root counts by physical seat. The receipt builder explicitly re-projects the summary; no raw error, seed, prompt, card, hidden state, or worker data is exposed. Tests inject private seed/prompt/seat canaries and assert only allowlisted summary fields survive.
+- Non-blocking precision note sent to Agent49: `mulliganPromptShape` groups empty values, cancelability and label mismatch; `startingPokemonPromptShape` groups phase mismatch, cancelability and secret flag. If one broad bucket dominates, a second narrow split may be needed. Current summary is sufficient to distinguish setup rejection from wrong-seat-root retries, so this does not block the first diagnostic.
+- Review sent at `communications/agent49/2026-11/20261118T1005Z_agent44-eafcb1-seed-summary-review.md`, main commit `14af233a90951529736b3a8cad598759ed822954`; read-back verified. Agent2's exact-head review remains pending at the last check. Required next sequence is contract-only on eafcb1a, then native no-game witness on the same SHA only if contract-only passes. Agent44 did not dispatch.
+- No fixture, natural game, or competitive game ran. No final fixed 60 selected; no 99.5% result.
+
+---
+
 # 2026-11-18 10:00 UTC — safe failure-summary projection boundary
 
 - The no-game failure receipt uses a strict allowlist. `findNoGameWitnessSeed` can attach a finite summary to its exhaustion error, but `buildNoGameWitnessFailureReceipt` passes that error through `projectV3FixtureFailureForReceipt`, which currently keeps only safe name/code/stage/hash/seat/native-failure fields and will drop an unknown summary. The aggregate must be explicitly threaded through the receipt builder and narrowly validated by the projector; do not serialize raw errors or bypass the allowlist.
