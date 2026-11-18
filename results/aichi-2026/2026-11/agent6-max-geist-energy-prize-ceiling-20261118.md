@@ -139,3 +139,152 @@ Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resourc
 Agent4 independently supplied the 310/340 breakpoint and should review the field-weighted importance of the 12th-Energy challenger. See the [Max Geist threshold note](../../../communications/agent6/20261118T1023Z_agent4-max-geist-full-vmax-ohko-threshold.md) and the follow-up [valid-opening Prize model](../../../communications/agent4/20261118T195203Z_agent6-max-geist-valid-opening-prize-model.md).
 
 **Disposition:** mathematical challenger-prioritization result only. No deck, policy, workflow, simulator, or fixture changes.
+
+
+## One-slot challenger comparator: 12th Psychic Energy versus second Hisuian Heavy Ball
+
+This appendix quantifies the *Prize-access* side of the unresolved one-slot question without changing the registered 11-Energy list. It is not a matchup or win-rate model.
+
+### Exact deck partition
+
+The fixed 60 contains 14 Basic Pokémon, 11 Psychic Energy, one Hisuian Heavy Ball, and 34 other cards. Of the 14 Basics, eight are singletons (Tapu Lele-GX, Trevenant & Dusknoir-GX, Latias ex, Dialga-GX, Mimikyu, Girafarig, Marshadow, Radiant Eternatus); two are Lillie's Clefairy ex; four are Shadow Rider Calyrex V. The VMAX cards are not Basics.
+
+Compare two hypothetical one-slot challengers, each retaining 14 Basics and 60 cards:
+
+- **Energy challenger:** 12 Psychic Energy, one Heavy Ball, 33 other cards.
+- **Heavy Ball challenger:** 11 Psychic Energy, two Heavy Balls, 33 other cards.
+
+The Energy challenger retains the baseline Heavy Ball count; the Heavy Ball challenger retains the baseline Energy count.
+
+### Prize-rescue results
+
+All figures condition on a valid seven-card opening (at least one Basic), then deal six Prize cards from the remaining 53. “Seen by turn 2” means opening hand plus only the natural draws through the candidate's second turn: one draw when going first, two when going second. Opponent mulligan bonuses, Supporter draws, Underworld Door draws, Arven searches, Tapu Lele-GX, and other search lines are deliberately excluded from this direct-access measure.
+
+| Conditional probability | One Heavy Ball | Two Heavy Balls |
+|---|---:|---:|
+| Every Heavy Ball copy is Prized | 10.0647% | 0.8584% |
+| At least one of the eight singleton Basics is Prized | 58.5005% | 58.5005% |
+| At least two singleton Basics are Prized | 17.1382% | 17.1382% |
+| At least one Heavy Ball seen by candidate turn 2, going first | 12.7728% | 24.1158% |
+| At least one Heavy Ball seen by candidate turn 2, going second | 14.4503% | 27.0344% |
+| Heavy Ball seen by turn 2 **and** at least one singleton Basic Prized, going first | 7.5440% | 14.2354% |
+| Heavy Ball seen by turn 2 **and** at least one singleton Basic Prized, going second | 8.5373% | 15.9612% |
+| All Heavy Ball copies Prized **and** at least one singleton Basic Prized | 5.2629% | 0.3863% |
+
+With two copies, the chance of seeing both Heavy Balls naturally by turn 2 *and* having at least two singleton Basics in Prizes is only 0.2566% going first / 0.3355% going second. That is a deliberately narrow natural-draw lower bound, not the full second-copy value.
+
+### Interpretation
+
+- The 12th Energy raises the existing Prize-only probability of retaining at least 11 Energy outside Prizes from **27.6610% to 65.2227%** (+37.5617 percentage points). It directly improves the *possible* unmodified 340-damage Max Geist ceiling against a 320-HP non-weak target; it does not prove those Energy can be drawn and attached in time.
+- The second Heavy Ball reduces the probability that every copy is trapped in Prizes from **10.0647% to 0.8584%**. It also increases natural-draw access by turn 2, and increases the joint chance of a Heavy Ball being seen while a singleton Basic is Prized.
+- The Heavy Ball access figures are conservative for actual play: Arven can search one Item and one Pokémon Tool, and the candidate has Arven plus two VS Seeker. The calculation does not model Arven/VS Seeker access, the competing value of the Tool search, Supporter contention, or which singleton is strategically necessary in a given matchup. If a Heavy Ball remains in the deck, Arven may find it; if all copies are Prized, it cannot.
+- The eight-singleton Prize event is an *opportunity* for recovery, not proof that a particular one-of is needed. A Prized singleton only matters if its role is required in that game. Conversely, a second Heavy Ball can recover a second Basic from Prizes only when both copies become accessible and two recoveries are actually useful.
+- These are different estimands: the Energy calculation measures a damage-ceiling prerequisite; the Heavy Ball calculation measures access to Prize recovery. The percentage-point changes are not directly comparable and must not be interpreted as relative win-rate gains.
+
+### Reproduction
+
+The following standard-library Python enumerates valid opening compositions, Prize compositions, and natural draws. The eight singleton Basics are separated from the other six Basics; all other non-Energy/non-Heavy-Ball cards are exchangeable for this calculation.
+
+~~~python
+from math import comb
+
+def heavy_ball_prize_model(energy, heavy_balls, draws,
+                           deck=60, basics=14, singletons=8,
+                           opening=7, prizes=6):
+    other = deck - basics - energy - heavy_balls
+    prize_den = comb(deck - opening, prizes)
+    draw_den = comb(deck - opening - prizes, draws)
+    valid_openings = 0
+    totals = {
+        "all_heavy_balls_prized": 0.0,
+        "heavy_ball_seen": 0.0,
+        "singleton_prized_ge1": 0.0,
+        "singleton_prized_ge2": 0.0,
+        "heavy_seen_and_singleton_prized": 0.0,
+        "two_heavy_seen_and_two_singletons_prized": 0.0,
+        "all_heavy_prized_and_singleton_prized": 0.0,
+    }
+
+    # Opening categories: singleton Basics, other Basics, Energy,
+    # Heavy Ball, and all remaining cards.
+    for s0 in range(min(singletons, opening) + 1):
+        for b0 in range(min(basics - singletons, opening - s0) + 1):
+            for e0 in range(min(energy, opening - s0 - b0) + 1):
+                for h0 in range(min(heavy_balls, opening - s0 - b0 - e0) + 1):
+                    o0 = opening - s0 - b0 - e0 - h0
+                    if not 0 <= o0 <= other or s0 + b0 == 0:
+                        continue
+
+                    opening_ways = (
+                        comb(singletons, s0)
+                        * comb(basics - singletons, b0)
+                        * comb(energy, e0)
+                        * comb(heavy_balls, h0)
+                        * comb(other, o0)
+                    )
+                    valid_openings += opening_ways
+
+                    remaining = [
+                        singletons - s0,
+                        basics - singletons - b0,
+                        energy - e0,
+                        heavy_balls - h0,
+                        other - o0,
+                    ]
+
+                    for ks in range(min(remaining[0], prizes) + 1):
+                        for kb in range(min(remaining[1], prizes - ks) + 1):
+                            for ke in range(min(remaining[2], prizes - ks - kb) + 1):
+                                for kh in range(min(remaining[3], prizes - ks - kb - ke) + 1):
+                                    ko = prizes - ks - kb - ke - kh
+                                    if not 0 <= ko <= remaining[4]:
+                                        continue
+
+                                    prize_ways = (
+                                        comb(remaining[0], ks)
+                                        * comb(remaining[1], kb)
+                                        * comb(remaining[2], ke)
+                                        * comb(remaining[3], kh)
+                                        * comb(remaining[4], ko)
+                                    )
+                                    p_prizes = prize_ways / prize_den
+                                    heavy_after_prizes = remaining[3] - kh
+                                    non_heavy_after_prizes = (
+                                        deck - opening - prizes - heavy_after_prizes
+                                    )
+
+                                    def p_seen_at_least(total):
+                                        need = max(0, total - h0)
+                                        return sum(
+                                            comb(heavy_after_prizes, j)
+                                            * comb(non_heavy_after_prizes, draws - j)
+                                            for j in range(need, min(heavy_after_prizes, draws) + 1)
+                                            if 0 <= draws - j <= non_heavy_after_prizes
+                                        ) / draw_den
+
+                                    weight = opening_ways * p_prizes
+                                    p_h1 = p_seen_at_least(1)
+                                    p_h2 = p_seen_at_least(2)
+
+                                    if kh == heavy_balls:
+                                        totals["all_heavy_balls_prized"] += weight
+                                    totals["heavy_ball_seen"] += weight * p_h1
+
+                                    if ks >= 1:
+                                        totals["singleton_prized_ge1"] += weight
+                                        totals["heavy_seen_and_singleton_prized"] += weight * p_h1
+                                        if kh == heavy_balls:
+                                            totals["all_heavy_prized_and_singleton_prized"] += weight
+
+                                    if ks >= 2:
+                                        totals["singleton_prized_ge2"] += weight
+                                        totals["two_heavy_seen_and_two_singletons_prized"] += weight * p_h2
+
+    return {key: value / valid_openings for key, value in totals.items()}
+
+for copies in (1, 2):
+    for draws, seat in ((1, "going first"), (2, "going second")):
+        print(copies, seat, heavy_ball_prize_model(11, copies, draws))
+~~~
+
+**Disposition:** this narrows the prize-access tradeoff but does not select a cut. Keep the registered 11-Energy / one-Heavy-Ball 60 unchanged through the first accepted natural-terminal baseline; compare the challengers only afterward under the same frozen opponent field and decision policy.
