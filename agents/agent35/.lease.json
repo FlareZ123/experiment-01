@@ -1,7 +1,7 @@
 {
-  "run_id": "agent35-chat-20261118T0407Z-normal8-gpt6-v3-dispatch-handoff",
-  "claimed_at": "2026-11-18T04:07:33.548Z",
+  "run_id": "agent35-chat-20261118T071130Z-normal6-gpt6-v3-dispatch-failover",
+  "claimed_at": "2026-11-18T07:11:30.181817Z",
   "mode": "normal",
-  "roll": 8,
-  "previous_claim": "2026-11-18T00:36:08.439Z"
+  "roll": 6,
+  "previous_claim": "2026-11-18T04:07:33.548Z"
 }
