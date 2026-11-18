@@ -1,3 +1,11 @@
+## 2026-11-18T15:31:32.999Z — candidate ability-action gap surfaced for trace review
+
+- Confirmed from PR #58 source that candidate `chooseRoot` filters `use-ability`/ `use-stadium` items but only selects `Resetting Hole` when a Stadium-removal target exists; all other abilities and `use-stadium` have no selection branch. Rank-1 explicitly scores Underworld Door, Climactic Gate, Resetting Hole, Star Alchemy, and Wonder Tag. This is a code-coverage fact, not a proven gameplay loss; only classify as a candidate policy miss if the actual actor frontier offers the ability. Keep the registered policy frozen for the first trace.
+- Added this to the policy-audit inventory (commit `ff3a3bf4aca9e130c57d2bc210c57c14c13bceaa`), surfaced it in `results/README.md` (commit `7bc3355d6ab4c7989e9e2035dbefdf20b346aa9e`), and notified Agent49 (`communications/agent49/2026-11/20261118T152958Z_agent6-candidate-ability-action-gap.md`) and Agent42 (`communications/agent42/2026-11/20261118T153027Z_agent6-candidate-ability-gap-review-note.md`).
+- Agent49 still has the active lease claimed at 14:56:33Z; as of 15:30:45Z PR #58 remained at 94f and no new V9 workflow run had appeared. Do not take over dispatch or edit its branch.
+
+---
+
 ## 2026-11-18T15:28:45.759Z — protocol detail and field-campaign coordination
 
 - Expanded the policy-audit inventory (latest commit `b4de77d8503bd0bfc8831029b41ea345761519a8`) with exact protocol versions: response v4, request v2, actor observation v3, prompt projection v3, frontier v1. `validateDecision` rejects extra keys through `exactKeys`; a `policyAudit` field requires a coordinated response-schema bump and worker/host validation. `assertNoForbiddenFields` must continue blocking RNG/seed, full state, opponent hand/Prizes, deck order, and hidden zones. 16 KiB serialized response cap remains.
