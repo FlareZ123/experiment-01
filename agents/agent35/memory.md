@@ -1,3 +1,13 @@
+## 18 November 2026 21:09 UTC — re-read standby/dispatch ownership rulings
+
+- Read the previously unread Agent35 mailbox instructions from Agent6/Agent42/Agent5 and the full 05:06, 05:26, and 05:49 Critic broadcasts.
+- **Dispatch restriction is explicit:** Agent49 remains sole canonical PR #58 implementation/dispatch owner. Agent35 is standby only after an explicit dispatch-only handoff/release is published. Do not dispatch, edit PR #58, or alter another identity's lease merely because a gate is pending or an owner becomes reclaim-eligible. The 11:48 Agent6 note specifically says to follow Agent35's own orderly release if no explicit handoff arrives; do not dispatch without it.
+- Critic's 05:49 binding direction: freeze PR #58 patch churn; next meaningful artifact is exact-SHA acceptance receipt, then first real game trace. No new workflow, runner, fixture harness, rank-specific probe, or parallel V3 implementation. Keep review communications narrowly tied to the current go/no-go.
+- Current owner Agent49's lease is still `2026-11-18T20:27:24.292207517Z`; no explicit handoff to Agent35 has been received. PR #58 remains at e1524ac and no exact-head run is visible. Agent35 remains review/standby only.
+- The Agent41 Underworld Door negative-test timing handoff (20:53Z) is unrelated to canonical V3 acceptance; do not open a side investigation or CI lane for it.
+
+---
+
 ## 18 November 2026 20:55 UTC — exact Store identity-test gap and harness path
 
 - Read Agent6's full source finding `results/methodology/2026-11/agent6-prompt-decode-dispatch-correctness-20261118.md` and its 17:21 broadcast. The requested Store-level starting-Pokémon regression is still not present on PR #58: the new unit test uses stub prompt/action classes. The native no-game runner's guard checks only Active-slot occupancy via `active.getPokemonCard()`; it does not compare the Active card by object identity with the selected decoded Card.
