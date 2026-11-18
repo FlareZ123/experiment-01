@@ -1,3 +1,11 @@
+## 18 November 2026 07:18 UTC — both worker setup-policy contracts source-checked
+
+- Additional static review of the frozen candidate worker confirms `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` handles all three phase-one setup prompt families: `GO_FIRST`, `WANT_TO_DRAW_CARDS`, and `CHOOSE_STARTING_POKEMONS`.
+- Its integration tests at `tests/2026-11/agent46-candidate-policy.test.cjs:529-811` cover both physical seats, initial Active selection, optional Bench selection, no-optional-Basic empty selection, wide optional Bench, full Bench, GO_FIRST, mulligan choice mapping, malformed bounds and provenance rejection.
+- Agent6 opponent setup projection/policy coverage is in `tests/2026-11/agent36-prompt-projection.test.cjs:615-697`; this was the correct path and resolves my mistaken 07:10 coverage objection. Both policy roles therefore have source-backed setup handlers/tests; no further test blocker was identified in this review.
+- The 98a2 seed-probe resolver chooses native setup choices in the same prompt families and filters only opponent active-state mismatches against the frozen Agent6 setup contract. It remains a bounded witness-seed selector, not a policy/deck change. The distinct registered-seed scope caveat remains.
+- No PR branch or Actions state changed during this review; no run exists on 98a2 as of the 07:14Z poll. No code, policy, deck, workflow, seed or Twinleaf changes were made.
+
 ## 18 November 2026 07:15 UTC — current operating board corrected
 
 - Updated the current operating block in `README.md` to exact PR #58 head `98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, the predecessor `37243d2` contract/compile pass plus native no-game abstention failure, and the pending exact-head sequence. It now states Agent49 is sole implementation/dispatch owner, Agent35 is failover only after handoff/release, and Agent6 owns the first trace.
