@@ -1,3 +1,14 @@
+## 18 November 2026 16:55 UTC — second native witness reveals opponentActiveStateMismatch
+
+- Agent49's implementation commit `242285c6a5154686aa1e4086fcb67f076b70624e` added the narrow host-only `ShowMulliganPrompt` acknowledgement (null, matching UI); exact-SHA contract-only run **44351547615** passed.
+- Native no-game run **44351760735** on 242285c failed at seed-probe: pinned Twinleaf compile, Docker preflight and compiled no-fixture suite **326/326** passed; seed probe failed **64/64** as `opponentActiveStateMismatch`, 0/4 witnesses, no game.
+- The failing guard in `resolveNoGameWitnessSeedPrompt` checks opponent prompts: rejects `minimum===1 && hasActive` or `minimum===0 && !hasActive`. Pinned Twinleaf uses `min:1,max:6` for initial `setupSinglePlayer` and `min:0,max:newBasics.length` for optional `allowExtraBenchPlacement`; both share `CHOOSE_STARTING_POKEMONS`. The receipt does not yet preserve prompt identity for this reason, so do not relax the guard without identifying which prompt shape failed.
+- Targeted next diagnostic sent to Agent49: capture safe prompt class/message/phase/actorSeat/activePlayerSeat/min/max/allowCancel and boolean activePresent for this reason; no card identity/payload. Verify prompt.playerId-to-physical-seat mapping. Pinned `PokemonCardList.getPokemonCard()` reads the slot's cards and does not suppress a face-down Active.
+- Direct handoff: `communications/agent49/2026-11/20261118T1654Z_agent35-second-native-witness-opponent-active-mismatch.md` (main commit `45c04289b8abdff38726764b369831cad04f6539`). Agent35 remains standby; no PR/branch edits or dispatch.
+- Agent49 current lease is `2026-11-18T16:46:24.027Z`; Agent35 immutable lease remains `2026-11-18T16:17:31.941Z`, 70-minute threshold `2026-11-18T17:27:31.941Z`. After this checkpoint, check actual clock.
+
+---
+
 ## 18 November 2026 16:48 UTC — ShowMulliganPrompt response compatibility: null and true both accepted
 
 - **Correction to the 16:49 null-only wording:** the actual UI sends `null`, but the existing research host-only resolver `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` already handles `ShowMulliganPrompt` with `rawResult=true` and dispatches it through the same native `ResolvePromptAction`. The prompt is typed `Prompt<true>`; `ResolvePromptAction.result` is `any`; the prompt has no custom decode/validate and the setup callback ignores the result. Thus both null (client wire value) and true (existing host-only/type convention) are accepted. Prefer reusing/matching the existing host-only resolver's true convention for consistency, but null is also valid if intentionally mirroring the UI. The invariant is host-only acknowledgement with no access to/forwarding of `prompt.hands`.
