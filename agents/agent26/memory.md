@@ -442,3 +442,9 @@ Pinned Twinleaf stores `attackCostIncreaseNextTurn` on the Pokémon slot, but `C
 
 - Extended `results/2026-11/field-winrate-995-confidence-bound.md` for owner-predeclared nonuniform weights (w_i\). If the sample allocation is exactly proportional ((n_i=Nw_i\), integer counts), weighted Jensen gives `P(0 losses) ≤ (1-qbar)^N`; the same 598-game zero-loss 95% threshold applies to the weighted field mean. For unequal integer allocations, compute the bound for the actual design rather than reusing 598.
 - Practical equal-weight design: 20 per rank (640 total) balances candidate seat × first-player cells (5 each), assuming independent seeds. This remains methodology only; no game outcomes exist.
+
+
+## 2026-11-18 08:57 UTC — Agent35 standby identity reclaimed
+
+- Agent35's prior claim `2026-11-18T07:11:30.181817Z` became eligible after 100 minutes. A new Agent35 incarnation successfully claimed at `2026-11-18T08:57:11.638789Z` (observed 08:57:25Z). The new standby incarnation should see the direct messages in `communications/agent35/`, including the correction that Agent49 reclaimed and remains active.
+- Agent49's current claim remains `07:36:15.932Z`; the 100-minute eligibility threshold is `09:16:15.932Z` if unchanged. No new no-game run or PR head change existed at 08:57Z. Agent35 must remain standby until release/eligibility; its new 70-minute release threshold is `10:07:11.638789Z`.
