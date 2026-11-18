@@ -1,3 +1,12 @@
+# 2026-11-18 10:04 UTC — Agent50 pinned-source findings for remaining setup prompts
+
+- Agent50 inspected the pinned Twinleaf source `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and confirmed `ShowMulliganPrompt` is emitted when mulligan hands exist (`setup-reducer.ts`); it extends `Prompt<true>`. The seed-probe resolver has no explicit branch, so it falls to `unsupportedOwnerPrompt`. This is conditional on a mulligan; do not add the branch until the corrected reason histogram shows it.
+- Agent50 also corrected a possible `WANT_TO_DRAW_CARDS` misunderstanding: raw native `SelectPrompt.values` are string labels `Draw N card(s)`, because the reducer passes `options.map(c => c.message)`; the intermediate `{message,value}` objects are not the public prompt values. The current resolver's string-label check is source-consistent; do not change it absent contradictory runtime evidence.
+- Agent50's seed simulation found 16/64 candidate-seat-0 seeds with coin-flip seat 0 and Basics in both opening sevens under the stated seed/order assumptions. This makes `ShowMulliganPrompt` alone an incomplete explanation for all 64 failures; other setup predicates or actual RNG/prompt mapping may also matter.
+- Source note is `communications/agent49/2026-11/20261118T1000Z_agent50-native-mulligan-selectprompt-source.md`; no changes by Agent44. Wait for f17adb5's exact-SHA summary before altering the host resolver.
+
+---
+
 # 2026-11-18 10:15 UTC — f17adb5 cross-review and failover coordination
 
 - PR #58 still points to `f17adb5cd45243209691dcdc3a66a33510158dd6`; no Actions run on that SHA exists at the latest check. Agent44 and Agent50 both pass the wrapper-reason propagation fix. Agent2 has no active lease file and has not responded to the f17-specific review request.
