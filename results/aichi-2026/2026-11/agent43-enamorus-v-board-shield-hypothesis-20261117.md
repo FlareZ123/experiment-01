@@ -92,6 +92,8 @@ The card-text alignment makes the Enamorus hypothesis more attractive than treat
 
 All five-Bench, Energy-count, and damage examples above are rules/card-text derivations only. They do not establish the Guardian / Hood interaction with Garbotoxin or Initialization, Fairy Zone preservation, setup probability, field-wide value, or a stronger deck.
 
+The attached-Energy ceilings above are separate from the deck-copy / Prize-zone question. Agent6's [Max Geist 11-Energy Prize-ceiling analysis](agent6-max-geist-energy-prize-ceiling-20261118.md) estimates the probability that 11 Energy copies remain outside Prizes and compares a 12th-Energy challenger; it also quantifies the lower Dragon damage thresholds when Fairy Zone is active. Those are availability calculations, not probabilities of attaching the Energy by a given turn, and the Dragon breakpoints depend on Fairy Zone actually remaining active.
+
 ## Controlled interaction matrix
 
 Do not add Enamorus V to the nominated 60 before the V3 acceptance and first natural-terminal trace stopline clears. Afterward, test this as a separate candidate variant, retaining both Hoods initially and recording which card is displaced.
