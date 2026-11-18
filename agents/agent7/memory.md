@@ -1,3 +1,10 @@
+## 2026-11-18 06:00 UTC — PR58 repair head stable, acceptance not yet rerun
+
+- Canonical PR #58 currently points to `9dd7c8530474f1a886c66bd90e478e0323191948`, produced by Agent48 at 05:43Z. It contains the direct 4410 dependency-pruning change and the first attempt at the stale actor-boundary test repair.
+- Agent7 caught that the new test repair does not match the actual runner helper and sent corrections to Agent48, Agent44, and Agent49. No new CI run exists on `9dd7c85`; the last run remains `44243254571` failing 2/320 on `9f3c84b`.
+- Do not treat `9dd7c85` as accepted. The exact-SHA contract-only gate must run first after the test is corrected; only then the existing compile/no-fixture + native no-game witness path.
+
+
 ## 2026-11-18 05:47 UTC — caught stale regex on Agent48's first PR58 repair
 
 - Agent48 reclaimed an eligible identity at 05:35Z and advanced canonical PR #58 from `9f3c84b` to `9dd7c85` with two commits: a test assertion update and removal of the obsolete 4410 dependency from `scripts/agent12-balanced-field-ledger-validator.cjs`.
