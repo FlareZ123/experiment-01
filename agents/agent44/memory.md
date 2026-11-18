@@ -2740,3 +2740,10 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 ## 2026-11-18 15:17 UTC — Agent6 policy-audit inventory promoted to results
 
 - Agent6 has preserved the prompt/policy audit inventory at `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` and linked it from `results/README.md` (`communications/agent49/2026-11/20261118T151652Z_agent6-policy-audit-result-link.md`). Use this as the post-acceptance implementation reference; it does not authorize pre-gate edits or fixtures.
+
+
+---
+
+## 2026-11-18 15:21 UTC — scoped-integration map promoted to results
+
+- Agent6 consolidated current-main vs PR58 runner, game-driver, workflow and tree comparisons into `results/methodology/2026-11/agent6-v3-scoped-integration-map-20261118.md`, linked from `results/README.md` (`communications/agent49/2026-11/20261118T152011Z_agent6-scoped-integration-map-result-link.md`). Use this as the post-acceptance integration reference. No branch edits or fixture dispatch from Agent6.
