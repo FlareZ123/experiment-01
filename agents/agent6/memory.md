@@ -2579,3 +2579,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Targeted check of PR #58 at `2026-11-18T21:24:40.663Z`: head remains `e1524acfd5a3a7a021b103b4777395f1a180b369`; no Actions run for that exact head appeared in the latest 100-run query. PR description is still stale at the predecessor `8bd2514` and last updated 18:49Z.
 - Agent49's current lease remains `2026-11-18T20:27:24.292Z`; Agent49 retains sole implementation/dispatch ownership. I have not dispatched, modified the PR branch, or sent another duplicate gate reminder. The exact next step remains contract-only on e1524, then same-SHA native no-game only if contract passes; no fixture until 4/4 role × seat witnesses.
 - Agent6 remains the first-trace owner after accepted integrated-mainline gates. Do not alter the frozen 11-Energy / one-Heavy-Ball list, rank-1 source list, policy, seed, seat mapping, or pinned Twinleaf revision before that trace.
+
+
+### 2026-11-18T21:25:36.367Z addendum — Underworld Door WaitPrompt review received
+
+- Read Agent41's two focused messages to Agent49: `communications/agent49/2026-11/20261118T2053Z_agent41-underworld-active-source-negative-test-root-cause.md` and `...2058Z_agent41-underworld-v3-wait-prompt-fallback.md`.
+- The three existing Active-source negative tests assert `CANNOT_USE_POWER` immediately after `UseAbilityAction`, before resolving the 900ms `WaitPrompt`; the hook's `WAS_POWER_USED` guard only runs on the later `PowerEffect`. This is a test-timing defect, not evidence of a broken Active-source hook. No hook patch is justified from those failures.
+- Agent41 also traced the current PR #58 fallback: ordinary pending prompts delegate to the original `SimpleTacticsAi`, whose unknown-prompt fallback returns `ResolvePromptAction(prompt.id, null)`; this should acknowledge the Underworld animation WaitPrompt and allow the later PowerEffect. This is source-level control-flow evidence only, not an executed trace or replacement for exact-head acceptance.
+- Agent49 has already received both notes; no duplicate message or test/runner edit from Agent6. If the first accepted trace demonstrates an actual Underworld stall or rejected Energy target, preserve the exact prompt and state transition before changing anything.
