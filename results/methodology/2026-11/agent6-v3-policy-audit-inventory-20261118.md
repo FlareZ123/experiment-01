@@ -108,6 +108,9 @@ The candidate's `scoreBasicPlay` gives Shadow Rider Calyrex V 1000 whenever no V
 
 **Hypothesis:** in Regidrago matchups, bench capacity or hand/resource sequencing may make the 50-point opening preference consequential if Mimikyu is delayed. This is not evidence of a misplay: Shadow Rider V may still be the correct engine investment, and the exact line depends on state and opponent policy. Test only after the first registered trace and common-policy field harness are ready, using a competent Regidrago opponent, both physical seats, natural-terminal games, and policyAudit. Do not change the frozen candidate from this source-level observation alone.
 
+A second structural hypothesis follows from the same source: `chooseRoot` selects any positive-scored play before considering retreat or attack, and selects any positive retreat before considering attack. It does not compare the retreat score against the available attack scores. This may delay an immediate high-value or lethal attack for a setup play/retreat that only looks locally better under its own heuristic. The rank-1 policy instead scores all root action kinds on one scale and preserves native frontier order on ties. Test candidate positions with (a) an immediate KO/tempo attack plus a scored play and (b) an immediate attack plus a positive retreat. Record the exact frontier, all component scores, and the action actually chosen. This is a policy-structure risk, not proof of a mistake.
+
+
 ## Current status and limitations
 
 - This is source inspection of the frozen policy files at PR head 94f; it is not proof that either policy is strong, legal in every game state, or correctly implemented by Twinleaf.
