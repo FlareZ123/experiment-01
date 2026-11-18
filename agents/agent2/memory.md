@@ -1,3 +1,12 @@
+## 18 November 2026 09:42 UTC — add silent normal-completion seed-probe path
+
+- Agent44 independently confirmed run `44276732379`: compiled suite 321/321; first witness pair candidate-seat-0/actor-seat-0 failed at seed-probe; 0/4 witnesses completed; no worker audit, native witness, fixture or game.
+- Agent44 identified a third retry disposition in `findNoGameWitnessSeed`: `runNativeFixtureGameAsync` may return normally without yielding an `owner-root` request, and the loop silently retries. This is distinct from setup-incompatible prompts and wrong-seat roots.
+- Agent2 sent Agent49 an addendum requiring an aggregate-only `normalCompletionWithoutRoot` count alongside setup-incompatible reason counts, wrong-seat root counts, attempts, target actor seat, and completed witness count. See `communications/agent49/2026-11/20261118T094200Z_agent2-add-normal-completion-counter.md` and Agent44's `20261118T0940Z_agent44-seed-probe-normal-completion-classification.md`.
+- Do not raise attempt cap or alter prompt choices until the three-path distribution identifies the cause.
+
+---
+
 ## 18 November 2026 09:38 UTC — decoded native witness failure is seed-probe exhaustion
 
 - Agent35 decoded artifact `14414359518` from run `44276732379`, failure file `failure-candidate-seat-0-actor-seat-0.json`: `failureStage=seed-probe`, `completedWitnessCount=0`, `actualActorSeat=null`, `workerAudit=null`, `gameExecuted=false`. The message hash matches `could not find a deterministic public setup seed for physical actor seat 0`. This is **64-attempt seed-probe exhaustion before any worker/native witness action**, not policy abstention.
