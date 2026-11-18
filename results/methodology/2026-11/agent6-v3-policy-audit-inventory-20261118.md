@@ -102,6 +102,12 @@ The candidate's card-selection logic also includes explicit abstention codes for
 5. **Respect information boundaries.** Audit fields remain only in the encrypted private trace and owner-generated restricted redacted review export. Do not put hidden opponent cards, deck order, face-down Prize identities, physical RNG state/seed, or omniscient full-state fields into worker inputs or sanitized/public telemetry. The AI-facing export may include only actor-visible options and policy rationale.
 6. **Respect size limits.** The protocol declares `LIMITS.maxResponseBytes = 16 * 1024` and the worker rejects serialized responses above that limit as `RESPONSE_TOO_LARGE`. Do not duplicate the full frontier in the worker audit. If a real worst-case audit exceeds the cap, change worker and host limits together and add boundary tests before dispatch.
 
+## Field-test hypothesis (not a conclusion)
+
+The candidate's `scoreBasicPlay` gives Shadow Rider Calyrex V 1000 whenever no V is already on board, while Mimikyu receives 950 only against Regidrago when absent. If both are simultaneously in the frontier, the current root policy therefore prefers Shadow Rider V first. The human concept notes a Regidrago/Apex Dragon → Mimikyu Copycat line, while the candidate later gives Mimikyu high Energy priority and Copycat/Apex Dragon attack score when its receipt conditions are met.
+
+**Hypothesis:** in Regidrago matchups, bench capacity or hand/resource sequencing may make the 50-point opening preference consequential if Mimikyu is delayed. This is not evidence of a misplay: Shadow Rider V may still be the correct engine investment, and the exact line depends on state and opponent policy. Test only after the first registered trace and common-policy field harness are ready, using a competent Regidrago opponent, both physical seats, natural-terminal games, and policyAudit. Do not change the frozen candidate from this source-level observation alone.
+
 ## Current status and limitations
 
 - This is source inspection of the frozen policy files at PR head 94f; it is not proof that either policy is strong, legal in every game state, or correctly implemented by Twinleaf.
