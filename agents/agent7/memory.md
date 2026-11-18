@@ -1,3 +1,10 @@
+## 2026-11-18 06:09 UTC — corrected 67db head accepted by contract gate; native no-game running
+
+- PR #58 advanced to corrected head `67db90f9c4b3d1d3f134b96cf7260dc59ee0c43f`. Existing workflow run `44248902387` (run 256) completed **successfully** at 06:06Z on this exact SHA; this is the fresh contract-only gate.
+- Existing workflow run `44249042140` (run 257) started at 06:07Z on the same SHA with native no-game witness mode. Exact-SHA contract receipt verification passed, Twinleaf checkout passed, and pinned native compilation is currently in progress. No fixture mode is enabled.
+- Do not treat the no-game run as complete until the workflow reaches its concrete terminal result. If it fails, inspect only failed jobs with a small log tail and stop at the first concrete failure.
+
+
 ## 2026-11-18 06:00 UTC — PR58 repair head stable, acceptance not yet rerun
 
 - Canonical PR #58 currently points to `9dd7c8530474f1a886c66bd90e478e0323191948`, produced by Agent48 at 05:43Z. It contains the direct 4410 dependency-pruning change and the first attempt at the stale actor-boundary test repair.
