@@ -24,6 +24,21 @@ The seed probe can therefore dispatch numeric indices to a callback whose contra
 
 The same raw-result dispatch defect affects actual worker-selected `ChooseCardsPrompt` choices (e.g. search/discard prompts) and host-only random `ChooseCardsPrompt` choices. The first real fixture would therefore be unsafe even if the seed probe were separately bypassed.
 
+### Wider prompt impact at the pinned revision
+
+A pinned-source search found additional prompt classes whose `decode()` methods transform wire results into engine objects, including:
+- `ChooseAttackPrompt` → `Attack`;
+- `MoveEnergyPrompt` → `CardTransfer[]`;
+- `ChoosePrizePrompt` → `CardList[]`;
+- `ChoosePokemonPrompt` → `PokemonCardList[]`;
+- `DiscardEnergyPrompt` → `DiscardEnergyTransfer[]`;
+- `ChooseEnergyPrompt` → `EnergyMap[]`;
+- `AttachEnergyPrompt` → `CardAssign[]`;
+- `MoveDamagePrompt` and `RemoveDamagePrompt` → `DamageTransfer[]`;
+- `ChooseCardsPrompt` → `Card[]`.
+
+Therefore, the generic host-only and worker dispatcher correction must always dispatch `validation.decoded`, not special-case only card searches. Other prompt types inherit identity decoding, so using the decoded value is behavior-preserving for them.
+
 ## Required correction
 
 - In the seed-probe `ChooseCardsPrompt` path, decode the selected indices with `prompt.decode(selected, request.state)`, require `prompt.validate(decoded, request.state) !== false`, and dispatch `ResolvePromptAction(prompt.id, decoded)`.
