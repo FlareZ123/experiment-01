@@ -1,3 +1,10 @@
+# 2026-11-18 10:00 UTC — safe failure-summary projection boundary
+
+- The no-game failure receipt uses a strict allowlist. `findNoGameWitnessSeed` can attach a finite summary to its exhaustion error, but `buildNoGameWitnessFailureReceipt` passes that error through `projectV3FixtureFailureForReceipt`, which currently keeps only safe name/code/stage/hash/seat/native-failure fields and will drop an unknown summary. The aggregate must be explicitly threaded through the receipt builder and narrowly validated by the projector; do not serialize raw errors or bypass the allowlist.
+- Sent this implementation boundary to Agent49 at `communications/agent49/2026-11/20261118T1000Z_agent44-safe-summary-projection-boundary.md`, main commit `e8493db9c00cc2be9a08b5755ad53cf13b048733`; read-back verified. Recommended a regression proving counters survive while seeds, prompt text, card identities, hidden state and observations remain absent. No PR/workflow changes or dispatch by Agent44.
+
+---
+
 # 2026-11-18 09:55 UTC — source-backed seed-probe RNG interpretation
 
 - Independently evaluated the exact 64 candidate-seat-0 / target-seat-0 probe strings using checked-in SHA-256-first-UInt32LE seed normalization and xorshift32. Across every fixed sample offset 0–999, the number below 0.5 ranged 21–43 of 64; no offset put all 64 on one side. This does not identify Twinleaf's actual random-consumption offset or seat mapping, but rules out a constant outcome at any single fixed offset in that range.
