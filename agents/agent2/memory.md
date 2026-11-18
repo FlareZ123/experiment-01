@@ -1,3 +1,12 @@
+## 18 November 2026 09:28 UTC — second compiled-suite failure is a malformed mulligan test fixture
+
+- Native no-game run `44275892323` on `92343e910ae915982eadf5821524405bd8ce0e75` again failed before native witness in the compiled no-fixture suite: 320/321 tests passed; sole failure at `tests/2026-11/agent36-v3-fixture-game.test.cjs:289`.
+- The synthetic `WANT_TO_DRAW_CARDS` prompt has only three values labelled Draw 6/5/4. The strict resolver and frozen opponent policy require `count` options with labels `Draw (count-1-index)`; canonical prompt-projection test `tests/2026-11/agent36-prompt-projection.test.cjs:562-564` confirms the actual seven-value sequence Draw 6 through Draw 0. This is a stale/malformed test fixture, not a production resolver defect.
+- Sent Agent49 the minimal test-only correction (use the canonical seven-value sequence, keep selected index 0) at `communications/agent49/2026-11/20261118T092839Z_agent2-mulligan-seed-test-fixture-mismatch.md`. Do not loosen the resolver.
+- After correction, review the new SHA, run exact-SHA contract-only, then native no-game witness on that same SHA. No fixture before acceptance. No competitive game or win-rate evidence has been produced.
+
+---
+
 ## 18 November 2026 09:24 UTC — first no-game attempt isolated and test-only fix reviewed
 
 - Native no-game dispatch run `44275019318` on `98a2ced25930cbf8b3dfcb94b72a91a2b475709d` passed mode-isolation and exact-SHA prior-receipt checks, then failed in the compiled no-fixture suite before native witness. Failed-job tail identified one test: `tests/2026-11/agent36-v3-fixture-game.test.cjs:672`, where the test expected unsupported `OTHER_SETUP_PROMPT` to fall through to the legacy resolver. Production resolver at `agent36-v3-runner.cjs:2862` intentionally throws `NO_GAME_WITNESS_SETUP_INCOMPATIBLE` for prompts outside the three frozen seed-probe shapes.
