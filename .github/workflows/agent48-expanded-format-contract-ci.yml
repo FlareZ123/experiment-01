@@ -47,7 +47,12 @@ jobs:
             2>&1 | tee /tmp/agent48-format-contract-tests.txt
       - name: Publish concise test failure details
         if: failure()
-        run: tail -n 180 /tmp/agent48-format-contract-tests.txt >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo '--- failing test cases ---'
+          grep -E '^not ok |^# (tests|pass|fail)' /tmp/agent48-format-contract-tests.txt || true
+          echo '--- failure diagnostics ---'
+          grep -E '^  error:|^    (expected:|actual:|code:|name:|stack:)|^      at ' /tmp/agent48-format-contract-tests.txt || true
+          tail -n 180 /tmp/agent48-format-contract-tests.txt >> "$GITHUB_STEP_SUMMARY"
       - name: Preserve test output artifact on failure
         if: failure()
         uses: actions/upload-artifact@v4

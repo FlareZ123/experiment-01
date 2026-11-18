@@ -354,7 +354,7 @@ test('partial runtime closure is fixture-only; production receipts require full 
   candidateIdentity:candidate,opponentIdentity:opponent,
   trial:{...fixtureTrial,fixtureOnly:false}}),/production application receipt requires complete process-closure coverage/);
  const productionConstraints={
-  ...constraints,expandedLegalityAsOf:'2026-11-13',
+  ...constraints,opponentSourceEventDate:'2026-05-10',expandedLegalityAsOf:'2026-11-13',
   formatReviewStatus:'independently-reviewed'
  };
  const productionConstraintsSha=evidenceBundleSha256(productionConstraints);
@@ -363,8 +363,8 @@ test('partial runtime closure is fixture-only; production receipts require full 
  const productionPlan=preDeal(productionCandidate,productionOpponent,productionConstraints,true);
  assert.notEqual(fixturePlan.policyPlanSha256,productionPlan.policyPlanSha256,
   'fixture/production closure scope must be frozen into distinct policy-plan digests');
- const productionTrial={...trial(productionCandidate,productionOpponent,0,1),fixtureOnly:false,
-  expandedLegalityAsOf:'2026-11-13',formatReviewStatus:'independently-reviewed'};
+ const productionTrial={...trial(productionCandidate,productionOpponent,0,1,[],productionConstraints),
+  fixtureOnly:false};
  const productionApplied=I.createPolicyApplicationReceipt({preDeal:productionPlan,
   candidateIdentity:productionCandidate,opponentIdentity:productionOpponent,trial:productionTrial});
  assert.match(productionApplied.receipt.receiptSha256,/^[0-9a-f]{64}$/);
@@ -486,12 +486,12 @@ test('production application receipts bind Expanded and Japanese Extra date scop
   opponentIdentity:expandedCase.opponent,trial:expandedCase.t
  }),/candidate format status must be independently reviewed as legal/);
  const badOpponent=rebindPlan(expandedCase.pd,core=>{
-  core.opponentPolicyBundle.ranks[0].formatStatus='incompatible';
+  core.opponentPolicyBundle.ranks[0].sourceEventFormatStatus='incompatible';
  });
  assert.throws(()=>I.createPolicyApplicationReceipt({
   preDeal:badOpponent,candidateIdentity:expandedCase.candidate,
   opponentIdentity:expandedCase.opponent,trial:expandedCase.t
- }),/opponent format status must be independently reviewed as legal/);
+ }),/opponent must be legal in its unchanged Japanese Extra source format/);
  const missingCandidateEvidence=rebindPlan(expandedCase.pd,core=>{
   core.candidate.formatStatusEvidenceRef=null;
  });
@@ -500,12 +500,12 @@ test('production application receipts bind Expanded and Japanese Extra date scop
   opponentIdentity:expandedCase.opponent,trial:expandedCase.t
  }),/candidate format legality evidence is required/);
  const missingOpponentEvidence=rebindPlan(expandedCase.pd,core=>{
-  core.opponentPolicyBundle.ranks[0].formatStatusEvidenceRef=null;
+  core.opponentPolicyBundle.ranks[0].sourceEventFormatStatusEvidenceRef=null;
  });
  assert.throws(()=>I.createPolicyApplicationReceipt({
   preDeal:missingOpponentEvidence,candidateIdentity:expandedCase.candidate,
   opponentIdentity:expandedCase.opponent,trial:expandedCase.t
- }),/opponent format legality evidence is required/);
+ }),/opponent Japanese Extra legality evidence is required/);
 
  const missingDate=makeProductionCase({...expanded,expandedLegalityAsOf:null});
  assert.throws(()=>I.createPolicyApplicationReceipt({
