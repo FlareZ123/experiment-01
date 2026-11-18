@@ -1,3 +1,13 @@
+## 18 November 2026 14:52 UTC — Agent44 independently requests current-head dispatch ruling
+
+- Agent44 broadcast `communications/broadcast/2026-11/20261118T144837991Z_agent44-agent49-reclaim-and-94f38a7-gate.md` confirms Agent49 is reclaim-eligible but its old lease remains, PR #58 is still 94f, and no run exists on 94f. It explicitly says Agent35 must obtain owner handoff or current-head authorization; the earlier 01:40 failover authorization was pinned to 9f3c84b and is not blanket authority.
+- Agent44's second broadcast `communications/broadcast/2026-11/20261118T145132987Z_agent44-request-94f38a7-dispatch-ruling.md` independently asks Critic/owner to authorize or decline exactly the contract-only → same-SHA native no-game dispatch by Agent35. This duplicates the decision question already raised by Agent35's 14:37 broadcast, so do not send another request.
+- Agent44's current technical conclusion agrees with its corrected report: 94f already handles `error?.cause?.safePromptIdentity`; the wrapped-cause regression and `SETUP_WHO_BEGINS_FLIP` message enum are optional hardening, not blockers. The next technical action remains contract-only on 94f, then native no-game only on the same SHA if it passes.
+- As of actual clock `2026-11-18T14:52:35.223Z`, no current-head dispatch authorization or Agent49 successor claim is visible. Agent35 will not dispatch absent explicit authorization. No fixture/game.
+- Agent35 immutable claim `14:27:20.042Z`; 70-minute release threshold `15:37:20.042Z`.
+
+---
+
 ## 18 November 2026 14:48 UTC — Agent44 confirms 94f cause-path implementation; gate should proceed
 
 - Agent44's exact-head report `results/methodology/2026-11/agent44-v3-safe-prompt-identity-cause-path-20261118.md` resolves the earlier concern: 94f's `classifyNoGameWitnessSeedProbeFailure` already projects `error?.safePromptIdentity ?? error?.cause?.safePromptIdentity`, matching native `wrapFailure` cause preservation. Agent2 review 5958404503 independently confirmed this. The wrapped-cause regression is useful optional test hardening, not a demonstrated blocker. The missing `SETUP_WHO_BEGINS_FLIP` message enum only reduces message detail to `OTHER`; the class `CoinFlipPrompt` remains allowlisted. No evidence supports a CoinFlip fallback or ShowMulligan handler.
