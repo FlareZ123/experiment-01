@@ -2,7 +2,9 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {assessFieldEvidence}=require('../scripts/aichi-anytime-field-evidence.cjs');
+const {
+  assessFieldEvidence,CELLS_PER_ROUND,ZERO_LOSS_WEIGHT,LAMBDAS
+}=require('../scripts/aichi-anytime-field-evidence.cjs');
 const {sha256}=require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
 const {
   assessCorrelatedFieldEvidence,assessCorrelatedFieldCampaign,physicalDealSeedCommitment
@@ -46,6 +48,43 @@ function syntheticRound(iteration,outcome='win') {
   });
 }
 
+function syntheticFractionalRound(iteration,wins) {
+  if(!Number.isInteger(wins)||wins<0||wins>CELLS_PER_ROUND)
+    throw new Error('wins must be an integer from 0 through 64.');
+  const round=syntheticRound(iteration,'loss');
+  for(let i=0;i<wins;i++) {
+    round[i].outcome='win';
+    round[i].winnerIndex=0;
+  }
+  return round;
+}
+
+function logSumExpForTest(terms) {
+  const max=Math.max(...terms);
+  if(max===-Infinity) return max;
+  return max+Math.log(terms.reduce((sum,term)=>sum+Math.exp(term-max),0));
+}
+
+// Reproduce the superseded exponential mixture solely as a dominance oracle.
+function oldCorrelatedLogEValue(rounds) {
+  const finiteWeight=Math.log((1-ZERO_LOSS_WEIGHT)/LAMBDAS.length);
+  let wins=0,value=0;
+  for(let i=0;i<rounds.length;i++) {
+    wins+=rounds[i].filter(game=>game.outcome==='win').length;
+    const completed=i+1;
+    const perfect=wins===completed*CELLS_PER_ROUND;
+    const terms=[perfect ?
+      Math.log(ZERO_LOSS_WEIGHT)-completed*Math.log(Q) : -Infinity];
+    for(const lambda of LAMBDAS) {
+      const logNormalizer=lambda+Math.log(Q+(1-Q)*Math.exp(-lambda));
+      terms.push(finiteWeight+lambda*wins/CELLS_PER_ROUND-
+        completed*logNormalizer);
+    }
+    value=logSumExpForTest(terms);
+  }
+  return value;
+}
+
 test('perfectly correlated 64-cell null does not earn 64 independent wins',()=>{
   const ten=Array.from({length:10},(_,i)=>syntheticRound(i));
   assert.equal(assessFieldEvidence(ten).currentCrosses,true,
@@ -71,16 +110,76 @@ test('one-round null e-expectation handles perfectly dependent wins',()=>{
     'independent-game e-value fails under valid all-or-nothing correlation');
 });
 
-test('round-level sequential evidence eventually crosses after enough fresh perfect rounds',()=>{
-  const all=Array.from({length:610},(_,i)=>syntheticRound(i));
-  const prior=assessCorrelatedFieldEvidence(all.slice(0,598));
+test('all-perfect chord evidence crosses at the unchanged 603-round boundary',()=>{
+  const all=Array.from({length:603},(_,i)=>syntheticRound(i));
+  const prior=assessCorrelatedFieldEvidence(all.slice(0,602));
   const later=assessCorrelatedFieldEvidence(all);
   assert.equal(prior.currentCrosses,false);
   assert.equal(later.currentCrosses,true);
-  assert.ok(later.firstCrossedAtRound>598);
-  assert.ok(later.firstCrossedAtRound<=610);
-  assert.equal(later.games,39040);
+  assert.equal(later.firstCrossedAtRound,603);
+  assert.equal(later.games,38592);
   assert.equal(later.nonWins,0);
+});
+
+test('chord mixture crosses at 622 on the deterministic partial-round path',()=>{
+  const rounds=Array.from({length:622},(_,i)=>{
+    const round=syntheticRound(i);
+    if((i+1)%100===0) {
+      round[0].outcome='loss';
+      round[0].winnerIndex=1;
+    }
+    return round;
+  });
+  const result=assessCorrelatedFieldEvidence(rounds);
+  assert.equal(result.firstCrossedAtRound,622);
+  assert.equal(result.games,39808);
+  assert.equal(result.nonWins,6);
+});
+
+test('stable chord factors match all 65 attainable fractions and dominate the old mixture',()=>{
+  const finiteWeight=Math.log((1-ZERO_LOSS_WEIGHT)/LAMBDAS.length);
+  for(let wins=0;wins<=CELLS_PER_ROUND;wins++) {
+    const y=wins/CELLS_PER_ROUND;
+    const terms=[Math.log(ZERO_LOSS_WEIGHT)+
+      (y===0?-Infinity:Math.log(y/Q))];
+    for(const lambda of LAMBDAS) {
+      const expNeg=Math.exp(-lambda);
+      const numerator=y+(1-y)*expNeg;
+      const denominator=Q+(1-Q)*expNeg;
+      const stable=numerator/denominator;
+      const direct=(1+y*(Math.exp(lambda)-1))/
+        (1-Q+Q*Math.exp(lambda));
+      assert.ok(Math.abs(stable/direct-1)<1e-12,
+        'stable chord ratio should match direct ratio for wins='+wins+', lambda='+lambda);
+      terms.push(finiteWeight+Math.log(numerator)-Math.log(denominator));
+    }
+    const actual=assessCorrelatedFieldEvidence([
+      syntheticFractionalRound(1000+wins,wins)
+    ]);
+    assert.equal(actual.eProcess,'convex-chord-mixture-v1');
+    assert.ok(Math.abs(actual.logEValue-logSumExpForTest(terms))<1e-12,
+      'actual one-round mixture should match stable factors for wins='+wins);
+  }
+
+  const mixed=[64,63,0,32,64,1].map((wins,i)=>
+    syntheticFractionalRound(2000+i,wins));
+  for(let end=1;end<=mixed.length;end++) {
+    const prefix=mixed.slice(0,end);
+    const current=assessCorrelatedFieldEvidence(prefix).logEValue;
+    const prior=oldCorrelatedLogEValue(prefix);
+    assert.ok(current+1e-12>=prior,
+      'chord mixture should dominate old mixture through round '+end);
+  }
+});
+
+test('chord factors have unit expectation at a non-degenerate exact-null boundary',()=>{
+  const perfect=assessCorrelatedFieldEvidence([
+    syntheticFractionalRound(3000,64)
+  ]).eValue;
+  const partial=assessCorrelatedFieldEvidence([
+    syntheticFractionalRound(3001,63)
+  ]).eValue;
+  assert.ok(Math.abs(0.68*perfect+0.32*partial-1)<1e-12);
 });
 
 test('mixed completed outcomes contribute fractions, with draws counted as nonwins',()=>{

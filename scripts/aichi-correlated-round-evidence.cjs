@@ -31,22 +31,31 @@ function assessCorrelatedFieldEvidence(rounds,options={}) {
   const {nullMean:q,alpha}=validated;
   const boundary=-Math.log(alpha);
   const finiteWeight=Math.log((1-ZERO_LOSS_WEIGHT)/LAMBDAS.length);
-  let wins=0,firstCrossedAtRound=null,logEValue=0;
+  const finiteLogSums=Array(LAMBDAS.length).fill(0);
+  let logLimitComponent=0,firstCrossedAtRound=null,logEValue=0;
 
   for(let i=0;i<rounds.length;i++) {
-    wins+=rounds[i].filter(game=>game.outcome==='win').length;
+    const roundWins=rounds[i].filter(game=>game.outcome==='win').length;
+    const y=roundWins/CELLS_PER_ROUND;
     const completed=i+1;
-    const perfect=wins===completed*CELLS_PER_ROUND;
-    // Perfect correlation within a round can make all 64 cells win together;
-    // its null probability is bounded by q per round, never by q^64.
-    const terms=[perfect ?
-      Math.log(ZERO_LOSS_WEIGHT)-completed*Math.log(q) : -Infinity];
-    for(const lambda of LAMBDAS) {
-      // Convexity: exp(lambda*y) <= 1+y*(exp(lambda)-1) for 0<=y<=1.
-      const logNormalizer=lambda+Math.log(q+(1-q)*Math.exp(-lambda));
-      terms.push(finiteWeight+lambda*wins/CELLS_PER_ROUND-
-        completed*logNormalizer);
+
+    // The lambda-infinity limit is the product of y/q, not an all-perfect
+    // indicator. A zero-win round sends this component to zero permanently.
+    if(y===0) logLimitComponent=-Infinity;
+    else if(logLimitComponent!==-Infinity)
+      logLimitComponent+=Math.log(y/q);
+
+    // Stable form of B_lambda(y) = [1+y*(exp(lambda)-1)] /
+    // [1-q+q*exp(lambda)]. Dividing by exp(lambda) avoids cancellation at
+    // y=0 for the largest registered lambda.
+    for(let j=0;j<LAMBDAS.length;j++) {
+      const expNeg=Math.exp(-LAMBDAS[j]);
+      finiteLogSums[j]+=Math.log(y+(1-y)*expNeg)-
+        Math.log(q+(1-q)*expNeg);
     }
+
+    const terms=[Math.log(ZERO_LOSS_WEIGHT)+logLimitComponent,
+      ...finiteLogSums.map(component=>finiteWeight+component)];
     logEValue=logSumExp(terms);
     if(firstCrossedAtRound===null&&logEValue>=boundary)
       firstCrossedAtRound=completed;
@@ -54,6 +63,7 @@ function assessCorrelatedFieldEvidence(rounds,options={}) {
   return {
     ...validated,
     model:'conditional-round-mean-arbitrary-within-round-dependence-v1',
+    eProcess:'convex-chord-mixture-v1',
     logEValue,
     eValue:Math.exp(logEValue),
     currentCrosses:logEValue>=boundary,
