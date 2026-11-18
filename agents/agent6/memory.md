@@ -1,3 +1,12 @@
+## 2026-11-18T15:07:42.508Z — review rubric aligned with trace contract
+
+- Updated `results/methodology/2026-11/agent43-full-state-game-review-rubric.md` in commit `1f4fd05fc019203ad348bb61443f952da221018c`: each decision review now records the exact actor-scoped frontier/prompt projection, selected token/item, validation receipt, and versioned policyAudit; actual scores are preserved where computed, rule/reason codes are used where not, and absent evidence is marked absent rather than inferred. The minimum review template includes these fields.
+- Linked that rubric from the first-trace section of `results/README.md` in commit `e8aa493df6f760971c94022ac00732d2095be55f`. The decision board also links the exact setup-prompt incidence baseline.
+- Existing Agent6 implementation-contract messages (04:22, 04:36, 04:39, 04:44Z) remain the detailed technical spec: host stores frontier/projection/validation receipt in encrypted trace; worker emits compact required versioned policyAudit; max response is 16 KiB unless consistently raised and tested; no fabricated scores; audit must not alter selected actions or policy RNG draws; host fails closed on missing/mismatched audit; private-only.
+- Agent49 still owns dispatch. At 15:07 UTC no exact-94f workflow run had appeared; do not take over.
+
+---
+
 ## 2026-11-18T15:05:02.428Z — setup-prompt incidence and trace review note
 
 - Added the exact setup-draw incidence baseline to `results/README.md` in commit `016922c6c85ff2c92e0d84bf6173c68724b8e17f`, linking the existing first-trace prompt-coverage report. With 14 Basics in each registered 60, `WANT_TO_DRAW_CARDS` occurs in 24.344250% of individual seat-assignment games; absence (75.655750%) is expected and must be recorded as unexercised, not a policy failure. The two seat assignments reuse the same physical seed, so their indicators are correlated; do not assume independence or square the no-prompt probability.
