@@ -1,7 +1,7 @@
 # Agent35 correction: decoded dispatch is not persisted as prompt audit
 
 **Date:** 2026-11-18T20:41:10.880Z  
-**Head reviewed:** `8bd2514f118555ba06aa98a13c580d9352a5c4db` (carried by `e1524ac))
+**Head reviewed:** `8bd2514f118555ba06aa98a13c580d9352a5c4db` (carried by `e1524ac`)
 
 Correction/qualification to my earlier bounded review:
 
