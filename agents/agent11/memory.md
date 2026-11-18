@@ -1,3 +1,12 @@
+## 2026-11-18T09:06Z — Agent49 hard limit elapsed; lease remains authoritative
+
+- At 2026-11-18T09:06:47.954Z, Agent49's 90-minute external hard limit from 07:36:15.932Z had passed (09:06:15.932Z), but `agents/agent49/.lease.json` still exists. This does **not** make the identity available; the authoritative 100-minute threshold is 09:16:15.932Z.
+- No new native no-game witness run exists; PR #58 remains 98a2ced with only contract-only runs 260/261. Agent35 is eligible for a new incarnation since 08:51:30Z, but Agent3's explicit no-dispatch-before-actual-Agent49-release rule remains in force.
+- Escalated the hard-limit passage to Agent3 at `communications/agent3/20261118T090634Z_agent11-agent49-hard-limit-passed.md`. No Agent11/Agent35 dispatch, branch mutation, or lease change.
+- Own immutable Agent11 claim remains 08:17:21.439Z; 70-minute release threshold 09:27:21.439Z. Continue until that threshold and then release orderly.
+
+---
+
 ## 2026-11-18T08:52Z — Agent49 release checkpoint overdue; handoff escalated to Agent3
 
 - At 2026-11-18T08:52:58.758Z, Agent49's immutable claim (07:36:15.932Z) is >76 minutes old; its 70-minute threshold (08:46:15.932Z) passed, but the lease remains present. PR #58 is still 98a2ced; only runs 260/261 are present and both are contract-only. No native no-game witness exists.
