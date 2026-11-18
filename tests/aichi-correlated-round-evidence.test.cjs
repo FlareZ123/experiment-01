@@ -3,8 +3,10 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {assessFieldEvidence}=require('../scripts/aichi-anytime-field-evidence.cjs');
-const {assessCorrelatedFieldEvidence}=
-  require('../scripts/aichi-correlated-round-evidence.cjs');
+const {sha256}=require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
+const {
+  assessCorrelatedFieldEvidence,assessCorrelatedFieldCampaign,physicalDealSeedCommitment
+}=require('../scripts/aichi-correlated-round-evidence.cjs');
 
 const Q=0.995;
 
@@ -125,14 +127,14 @@ test('parameters and null horizon are preserved by the original validator',()=>{
 
 function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
   abortAtRound=null,abortAfterGames=0,omitGameAt=null,wrongStartAt=null,
-  duplicateProcessAt=null}={}) {
+  duplicateProcessAt=null,seedOverrideAt=null,nonceOverrideAt=null,gameIdOverrideAt=null}={}) {
   const opponents=Array.from({length:32},(_,i)=>({
     rank:i+1,
     deckSha256:(i+1).toString(16).padStart(64,'0'),
     policyRevision:sha256('opponent-policy-'+(i+1))
   }));
   const registration={
-    schema:'aichi-correlated-round-campaign-v1',
+    schema:'aichi-correlated-round-campaign-v2',
     campaignId:'synthetic-correlated-campaign-v1',
     registeredAt:'2026-11-15T00:00:00.000Z',
     target:0.995,nullMean:0.995,alpha:0.05,
@@ -140,6 +142,7 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
     orientationAssignment:'SHARED_FAIR_COIN_PER_COMPLETE_ROUND',
     randomizationProtocol:'TRUSTED_HOST_FAIR_CSPRNG_BIT_AFTER_ROUND_PRECOMMITMENT',
     physicalDealProtocol:'INDEPENDENT_FRESH_PHYSICAL_DEAL_PER_GAME',
+    physicalDealCommitmentProtocol:'SHA256_SEED_REVEAL_BOUND_TO_TRIAL_AND_FROZEN_IDENTITIES_V1',
     policyResetProtocol:'FRESH_PROCESS_PER_GAME',
     abortPolicy:'FAIL_CLOSED',
     candidateDeckSha256:'a'.repeat(64),
@@ -181,14 +184,27 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
     const base=Date.parse('2026-11-15T00:01:00.000Z')+(ordinal-1)*60000;
     const iso=offset=>new Date(base+offset).toISOString();
     const roster=[];
+    const dealByTrial=new Map();
     for(let rank=1;rank<=32;rank++) {
       for(const slot of ['A','B']) {
         const trialId=roundId+':rank:'+rank+':slot:'+slot;
+        const gameId='game-'+trialId;
         const physicalDealId='deal-'+trialId;
-        roster.push({
-          trialId,rank,candidateEngineSlot:slot,physicalDealId,
-          physicalDealCommitmentSha256:sha256('commitment-'+physicalDealId)
+        const seed=100000+ordinal*1000+rank*2+(slot==='A'?0:1);
+        const nonce=sha256('nonce-'+trialId);
+        const physicalDealCommitmentSha256=physicalDealSeedCommitment({
+          campaignId:registration.campaignId,roundId,trialId,gameId,physicalDealId,seed,nonce,
+          candidateDeckSha256:registration.candidateDeckSha256,
+          opponentDeckSha256:opponents[rank-1].deckSha256,
+          engineRevision:registration.engineRevision,
+          rulesetRevision:registration.rulesetRevision,
+          runnerRevision:registration.runnerRevision
         });
+        const planned={trialId,gameId,rank,candidateEngineSlot:slot,physicalDealId,
+          physicalDealCommitmentSha256,seed,nonce};
+        dealByTrial.set(trialId,planned);
+        roster.push({trialId,gameId,rank,candidateEngineSlot:slot,physicalDealId,
+          physicalDealCommitmentSha256});
       }
     }
     const roundStart=push({
@@ -223,7 +239,7 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
         if(omitGameAt&&omitGameAt.ordinal===ordinal&&
             omitGameAt.rank===rank&&omitGameAt.slot===slot) continue;
         if(gameRecords.length>=gameLimit) continue;
-        const planned=roster.find(row=>row.trialId===trialId);
+        const planned=dealByTrial.get(trialId);
         const candidateSlot=slot==='A'?0:1;
         let startingSeat=orientationCoin===0?
           (slot==='A'?'first':'second'):(slot==='A'?'second':'first');
@@ -238,8 +254,10 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
         const game={
           rank,startingSeat,outcome,finished:true,winnerIndex,
           status:'qualified-completed-game',
-          gameId:trialId,
-          seed:100000+ordinal*1000+rank*2+(slot==='A'?0:1),
+          gameId:gameIdOverrideAt&&gameIdOverrideAt.ordinal===ordinal&&
+            gameIdOverrideAt.rank===rank&&gameIdOverrideAt.slot===slot?'substituted-'+trialId:planned.gameId,
+          seed:seedOverrideAt&&seedOverrideAt.ordinal===ordinal&&
+            seedOverrideAt.rank===rank&&seedOverrideAt.slot===slot?planned.seed+1:planned.seed,
           candidateDeckSha256:registration.candidateDeckSha256,
           opponentDeckSha256:opponents[rank-1].deckSha256,
           candidatePolicyRevision:registration.candidatePolicyRevision,
@@ -266,6 +284,8 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
           trialId,rank,candidateEngineSlot:slot,sourceSeat:1-candidateSlot,
           candidateActualStart:startingSeat,
           physicalDealId:planned.physicalDealId,
+          physicalDealNonce:nonceOverrideAt&&nonceOverrideAt.ordinal===ordinal&&
+            nonceOverrideAt.rank===rank&&nonceOverrideAt.slot===slot?sha256('wrong-nonce-'+trialId):planned.nonce,
           physicalDealCommitmentSha256:planned.physicalDealCommitmentSha256,
           startedAt,completedAt,candidatePolicyProcessId,
           opponentPolicyProcessId:'opponent-process-'+trialId,
@@ -315,6 +335,18 @@ test('campaign ledger admits a complete shared-coin 32-rank round structurally o
   assert.equal(result.physicalDealIndependenceVerifiedExternally,false);
   assert.equal(result.policyResetVerifiedExternally,false);
   assert.equal(result.competitiveAdmissionEligible,false);
+});
+
+test('precommitted physical-deal commitment binds the exact game ID, seed, nonce and frozen identities',()=>{
+  assert.throws(()=>assessCorrelatedFieldCampaign(buildCampaign({
+    seedOverrideAt:{ordinal:1,rank:2,slot:'B'}
+  })),/Physical-deal seed reveal does not match its precommitted commitment/);
+  assert.throws(()=>assessCorrelatedFieldCampaign(buildCampaign({
+    nonceOverrideAt:{ordinal:1,rank:2,slot:'B'}
+  })),/Physical-deal seed reveal does not match its precommitted commitment/);
+  assert.throws(()=>assessCorrelatedFieldCampaign(buildCampaign({
+    gameIdOverrideAt:{ordinal:1,rank:2,slot:'B'}
+  })),/registered rank, candidate slot and game ID/);
 });
 
 test('shared round coin drives one diagonal across all ranks and per-rank updates batch by round',()=>{
