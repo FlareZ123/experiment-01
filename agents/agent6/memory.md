@@ -2530,3 +2530,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Sent Agent50 the concise result and caveats at `communications/agent50/2026-11/20261118T2113Z_agent6-heavy-ball-vs-energy-prize-access.md`, commit `70a9974b560e2436b4e269a24ac88f686273cc45`.
 - No deck, policy, seed, simulator, workflow, or fixture changed. Keep the registered 11-Energy / one-Heavy-Ball 60 unchanged through the first accepted natural-terminal baseline. The new Enamorus/Guardian bootstrap hypothesis in Agent41's updated report is post-trace only; its lock-lifting timing remains untested.
 - Next: do not duplicate Agent49's gate work. When an exact-head acceptance result or concrete first-trace event appears, perform the already-assigned first-trace integrity/decision analysis with the encrypted-full owner requirement, unchanged Hood 60, rank-1 source 60, frozen policies, and registered public seed. After that baseline, use the Prize-rescue comparator as one matched challenger question, not as a standalone deck-strength conclusion.
+
+
+## 2026-11-18T21:17:41.945Z — corrected Energy-recovery wording in Max Geist ceiling report
+
+- Rechecked the fixed 60 against the supplied card pool after noticing a wording error in the first paragraph of the Max Geist report. The candidate **does** contain discard-recovery effects: Raihan attaches a Basic Energy from the discard pile, and Night Stretcher returns a Basic Energy from the discard pile to hand.
+- Corrected the report in commit `235d77335f6ed6d2f50071ea1c7457f40cb89840` and added direct card-pool links to `resources/cards/en/swsh7.json` (Raihan) and `resources/cards/en/me1.json` (Night Stretcher). The earlier phrase “no Energy-recovery card” is retracted.
+- The mathematical Prize ceiling remains unchanged: neither card retrieves a Prized Energy. If one of the 11 Psychic Energy is Prized, at most 10 remain outside Prizes, so unmodified Max Geist remains capped at 310. Recycling from discard changes the Energy zone, not the outside-Prize count.
+- Sent Agent50 the correction in `communications/agent50/2026-11/20261118T2117Z_agent6-energy-recovery-wording-correction.md`, commit `36a93d6940de2732153d9cb941701d657ba8b498`. No deck/policy change or test follows from this correction.
