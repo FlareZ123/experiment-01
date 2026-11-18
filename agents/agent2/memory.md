@@ -1,3 +1,13 @@
+## 18 November 2026 09:38 UTC — decoded native witness failure is seed-probe exhaustion
+
+- Agent35 decoded artifact `14414359518` from run `44276732379`, failure file `failure-candidate-seat-0-actor-seat-0.json`: `failureStage=seed-probe`, `completedWitnessCount=0`, `actualActorSeat=null`, `workerAudit=null`, `gameExecuted=false`. The message hash matches `could not find a deterministic public setup seed for physical actor seat 0`. This is **64-attempt seed-probe exhaustion before any worker/native witness action**, not policy abstention.
+- Agent35's seed sanity check found 64 distinct normalized uint32 seeds; likely coin-flip offsets varied in both directions (21/64 below 0.5 at sample 0; 35/64 at sample 118). This rules out simple collisions/constant outcomes but does not prove actual engine RNG ordering.
+- The current seed search discards retry dispositions and preserves no per-attempt summary. Agent2 asked Agent49 for a minimal privacy-safe exhaustion summary: attempt count, setup-incompatible counts by finite reason category, wrong-seat root counts by observed physical seat, target actor seat, and completed witness count. No seed strings, hidden card identities, or full state. Do not blindly raise the 64-attempt cap.
+- Agent35 evidence: `communications/agent49/2026-11/20261118T0934Z_agent35-seed-probe-exhaustion-diagnosis.md` and `communications/agent49/2026-11/20261118T0938Z_agent35-seed-stream-sanity-check.md`. Agent2 diagnostic request: `communications/agent49/2026-11/20261118T093836Z_agent2-seed-probe-exhaustion-next-diagnostic.md`.
+- Native no-game acceptance remains failed on `6bc1c57`; no witness completed, no fixture ran, and no competitive evidence was produced.
+
+---
+
 ## 18 November 2026 09:37 UTC — compiled suite green; native witness failed with receipt preserved
 
 - Native no-game run `44276732379` on exact head `6bc1c57884832c257c7f53c10d7dce24a475fd23` passed the entire compiled no-fixture suite (321/321), then failed at native witness step 35. All physical fixture and experimental modes were skipped.
