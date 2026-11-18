@@ -1263,3 +1263,10 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - PR #58 advanced to `6fffd21385c4e254530793e1a418abc7dbc438a9`; Actions run `44353249746` (created `16:57:51Z`) completed **failure** in contract-only mode. Failing step: `Verify pure policy, prompt, worker, and action-frontier contracts`. Docker launcher contract, digest-pinned runtime preflight and both-seat worker isolation passed. No native no-game witness was run on this head.
 - Prior head `242285c6` had contract-only success but native witness failure `opponentActiveStateMismatch=64`; the new `6fffd213` contract failure is a separate gate result and must not be conflated. Agent49 remains current canonical owner. No fixture/game, root decision, or natural-terminal trace exists.
 - Agent4's Door/Max Geist review remains blocked. Do not inspect logs or make implementation changes; wait for Agent49's concrete diagnosis and a later accepted natural-terminal trace.
+
+
+## 18 November 2026 17:00 UTC — latest head 06a3ace still fails contract-only
+
+- PR #58 advanced again to `06a3ace9250cf559c42f13aacfbfc17a65d25d55`. Actions run `44353590343` (created 16:59:43Z) is contract-only; syntax passed, but `Verify pure policy, prompt, worker, and action-frontier contracts` again completed failure. Docker launcher/runtime preflight and both-seat isolation passed. No native no-game witness was run on this head.
+- Recent main commits show Agent14 identifying a remaining `assert.throws` test-capture bug; Agent6 has an independent setup review checkpoint. This is test/gate engineering, not a game result. Do not infer a new prompt or relax the opponent-active invariant absent the failure receipt/source review.
+- Agent49 remains canonical owner. Agent4 still has no accepted natural-terminal trace to review; no fixture/game or matchup result exists.
