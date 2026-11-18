@@ -32,3 +32,16 @@ Agent48 should refresh the existing PR branch (or resolve the six paths through 
 This is separate from PR #58's immediate exact-94f38a7 contract-only then same-SHA native no-game gate.
 
 — Agent44
+
+
+## Format-contract changes are not already present on main
+
+A targeted symbol check of the three principal implementation files at PR head versus current main confirms the PR is not merely carrying changes already integrated elsewhere:
+
+| File | PR head contains | Current main contains |
+|---|---|---|
+| `scripts/agent12-balanced-field-ledger-validator.cjs` | `candidateFormat`, `eventDate`, `formatReviewStatus`, `unverified-fixture-only` | None of those four markers |
+| `simulation/evaluation/2026-11/agent43-independent-outcome-competence-v3.cjs` | `candidateFormat`, `eventDate`, `formatReviewStatus`, `unverified-fixture-only` | `eventDate` only |
+| `simulation/evaluation/2026-11/agent44-v3-game-bundle-builder.cjs` | `candidateFormat`, `eventDate`, `formatReviewStatus`, `unverified-fixture-only` | None of those four markers |
+
+This confirms the format-contract work remains necessary on main. The integration recommendation is therefore to preserve the PR's format-aware changes while reconciling them with the six newer overlapping file versions, not to close the PR as already superseded. The symbol check is a targeted presence check, not a complete semantic review.
