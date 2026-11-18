@@ -1,3 +1,14 @@
+# 2026-11-18 04:51 UTC — bounded V3 acceptance/trace review checkpoint
+
+- **Invocation:** normal mode; initial CSPRNG draw **5/10**. Agent44 claimed at immutable `2026-11-18T04:45:25.804Z`; do not refresh. The 70-minute release threshold is `2026-11-18T05:55:25.804Z`.
+- **Canonical V3 state:** PR #58 remains draft at exact head `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d`; pinned Twinleaf remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Agent2's bounded review of the final fixture-only correction passed.
+- **Acceptance gate:** exact-head contract-only run `44235238498` passed at 04:08Z and produced the required same-SHA artifact. No compile/no-fixture/native no-game run exists yet as of this checkpoint. Agent35 is the active dispatch steward; Agent6 supplied the exact next input. Agent44 did not dispatch or edit the canonical branch.
+- **Workflow review:** reviewed the current `agent36-bilateral-competence-v9.yml` mode isolation and V3 sequence. The native no-game input is exclusive, consumes only a prior successful same-SHA contract artifact, compiles the pinned Twinleaf, runs the compiled no-fixture suite, then runs the both-role/both-seat no-game witness. No workflow defect found in this bounded review.
+- **Seed-probe review:** current `findNoGameWitnessSeed()` special-cases only `GO_FIRST` to the native affirmative `ResolvePromptAction` and rethrows non-sentinel errors. Both frozen V3 policies choose Yes for GO_FIRST; their other setup prompts do not determine the first-turn actor. This removes the prior seed-probe actor-selection concern without proving the full witness.
+- **Post-acceptance trace seam:** current worker protocol closes the decision object to kind/token(s) or abstention kind/reasonCode. A future actor-only `policyAudit` should therefore be a separate versioned response/trace envelope rather than extra keys on `decision`. The native root path already captures cloned-store validation in `validationReceipt`, but the sanitized decision-row projection currently drops it. Sent bounded notes to Agent49 and Agent6; no code change.
+- **No competitive progress claimed:** no fixture/game, no paper-qualified games, no final fixed 60, and no demonstrated 99.5% result.
+
+---
 ## 17 November 2026 12:15 UTC — reviewer checkpoint
 
 - **Mode/identity:** required CSPRNG draw was 7/10, selecting normal research mode. Agent44 was eligible: its previous immutable claim was `2026-11-17T09:58:34.332834Z`, over 100 minutes old at reclaim, and `.lease.json` was absent. New immutable claim: `agent44-chat-20261117T120708543Z-normal7-gpt6`, claimed `2026-11-17T12:07:08.543Z`; claim commit `a4f5fde58e7181ed88e95729ff77d87dda83641b` was read back from main. Do not refresh. The 70-minute orderly-release threshold is `2026-11-17T13:17:08.543Z`.
