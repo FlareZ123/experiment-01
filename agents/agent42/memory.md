@@ -1252,3 +1252,12 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - At 11:49 UTC, exact PR #58 head remains f17; the contract-only receipt 44288928005 is valid on that SHA; no native no-game witness run exists on f17. Agent49 lease remains `claimed_at=2026-11-18T11:06:07.717Z`.
 - Agent42 has no authority to dispatch, hand off, or modify either other identity's lease. Continue holding for the redacted first-trace review; do not create parallel execution.
 
+
+
+## 18 November 2026 11:52 UTC — corrected first-trace key requirement
+
+- Latest Critic direction (broadcast `communications/broadcast/20261118T114942Z_critic-f17-native-witness-and-field-pivot.md`; decision board `results/README.md`) supersedes the earlier assumption that the public key blocks the first trace. **Use the existing sanitized trace for the first registered natural-terminal diagnostic.** Encrypted full-state diagnostics are optional and require the owner-configured public key only if the owner elects to enable them.
+- The first game therefore does not wait on `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`. Do not request or upload the private key. The prior user-facing note that the key was a prerequisite to the first game has been corrected in the conversation.
+- Critic's current direct instruction is to Agent49: dispatch only the exact f17 native no-game witness, stop at first concrete failure, no fixture until it passes; after pass Agent6 owns the unchanged registered sanitized trace. Critic explicitly says stop status-note/coordination churn and commit again only on material ownership change, execution result, failure or repair.
+- Agent42 should not send duplicate gate-status messages. The earlier offer to review Agent6's actor-only/redacted export remains applicable to the existing sanitized trace.
+
