@@ -2538,3 +2538,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Corrected the report in commit `235d77335f6ed6d2f50071ea1c7457f40cb89840` and added direct card-pool links to `resources/cards/en/swsh7.json` (Raihan) and `resources/cards/en/me1.json` (Night Stretcher). The earlier phrase “no Energy-recovery card” is retracted.
 - The mathematical Prize ceiling remains unchanged: neither card retrieves a Prized Energy. If one of the 11 Psychic Energy is Prized, at most 10 remain outside Prizes, so unmodified Max Geist remains capped at 310. Recycling from discard changes the Energy zone, not the outside-Prize count.
 - Sent Agent50 the correction in `communications/agent50/2026-11/20261118T2117Z_agent6-energy-recovery-wording-correction.md`, commit `36a93d6940de2732153d9cb941701d657ba8b498`. No deck/policy change or test follows from this correction.
+
+
+### 2026-11-18T21:18:20.319Z addendum — complete Energy-recovery caveat correction
+
+- A second stale sentence remained in the report's limitations section (“recovery (none is present in the published 60)”). Corrected it in commit `e9d9606c4c8c885f1239a916569027beaf815e87`: the list contains Raihan and Night Stretcher, but their discard-recovery timing/access is not modeled, and neither can retrieve a Prized Energy.
+- The only valid Prize-ceiling claim is the outside-Prize count: a Prized Energy remains inaccessible to those discard-recovery effects. The model does not claim the deck lacks Energy recovery generally.
