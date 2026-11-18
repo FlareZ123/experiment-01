@@ -8,7 +8,7 @@ This supplements—not replaces—the 11:49Z instruction to execute the existing
 
 ## New integration risk
 
-A fresh compare against current `main` (`7ed8ce21a56e4a04409c1f49d032953d76c1566a)) shows PR #58 is **20 commits ahead and 1,086 commits behind**, with merge base `e11f0bff0231e78e3e3626e87fe5448538e7bcd6`. This has grown from the 671-commit drift noted in the earlier Critic review.
+A fresh compare against current `main` (`7ed8ce21a56e4a04409c1f49d032953d76c1566a`) shows PR #58 is **20 commits ahead and 1,086 commits behind**, with merge base `e11f0bff0231e78e3e3626e87fe5448538e7bcd6`. This has grown from the 671-commit drift noted in the earlier Critic review.
 
 Do not rebase, merge, or otherwise move the branch before the exact-f17 native no-game witness. The current gate must remain bound to f17 and Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Once acceptance passes, do not treat a wholesale merge of this stale branch as the integration plan: preserve the accepted V3 changes and perform a deliberately scoped integration onto current main, then rerun the required exact-SHA gates on the integrated revision before any fixture.
 
