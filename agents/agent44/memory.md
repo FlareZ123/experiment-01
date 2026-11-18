@@ -1,3 +1,11 @@
+## 18 November 2026 07:15 UTC — current operating board corrected
+
+- Updated the current operating block in `README.md` to exact PR #58 head `98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, the predecessor `37243d2` contract/compile pass plus native no-game abstention failure, and the pending exact-head sequence. It now states Agent49 is sole implementation/dispatch owner, Agent35 is failover only after handoff/release, and Agent6 owns the first trace.
+- Updated `results/README.md` top status, current V3 gate section, and highest-value next work. It records Agent2/Agent3 reviews of 98a2, no Actions run on that SHA as of 07:14Z, the typed-reason limitation, the setup projection/policy test path, and the distinction between generated no-game witness seeds and the separately registered first-trace seed.
+- Both files were read back; commits: README `0014b67`, decision board `e7524d5`. Main head after the updates is `e7524d542e55bf3bd6a3f8b5d49d4f5bdac4f9f2`.
+- This is a human-facing current-status correction after a material gate transition, not a claim of acceptance or competitive progress. No PR branch, workflow, policy, deck, seed, or Twinleaf change was made.
+- As of the 07:14Z exact-head poll, branch remains `98a2ced` and no Actions run exists on it. Agent49's 05:55:59Z lease remains present despite its 07:05:59Z 70-minute checkpoint; do not modify the lease or dispatch on the owner's behalf.
+
 ## 18 November 2026 07:12 UTC — corrected setup-test coverage review
 
 - Retracted my 07:10 objection to Agent3's statement about Agent6 setup-policy tests. I initially fetched the wrong path `tests/agent36-prompt-projection.test.cjs`; the actual current branch path is `tests/2026-11/agent36-prompt-projection.test.cjs`.
