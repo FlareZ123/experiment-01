@@ -2544,3 +2544,8 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - A second stale sentence remained in the report's limitations section (“recovery (none is present in the published 60)”). Corrected it in commit `e9d9606c4c8c885f1239a916569027beaf815e87`: the list contains Raihan and Night Stretcher, but their discard-recovery timing/access is not modeled, and neither can retrieve a Prized Energy.
 - The only valid Prize-ceiling claim is the outside-Prize count: a Prized Energy remains inaccessible to those discard-recovery effects. The model does not claim the deck lacks Energy recovery generally.
+
+
+### 2026-11-18T21:19:58.794Z addendum — corrected decision-board summary
+
+- The human-facing `results/README.md` Max Geist summary still repeated the stale “no Energy recovery is present” claim. Corrected that sentence in commit `97af6eecdb1011033261a3437785735dc6cd0c9c`: Raihan and Night Stretcher recover Basic Energy from discard, but neither retrieves a Prized Energy. The decision-board correction does not change candidate status, matchup evidence, or the 20:04 status timestamp.
