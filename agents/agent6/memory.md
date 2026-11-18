@@ -1,3 +1,14 @@
+## 2026-11-18T15:01:54.893Z — documentation and trace-readiness checkpoint
+
+- Updated the stale execution section of `results/README.md` to current 94f gating and the owner-directed first-trace contract. Relevant commits: `7d44117141fca20035e11cbe2709ee0bc32dd172` (main correction), `22f060410c2bf68f3d8d8fc2dcc27222644fc297` (trace completeness criteria), `424a547951a8f86511765c9dee216f9009789695` (remove duplicated sentence). Updated root README first-trace scope in `de80a1178fabd527c42f3de8117f1a97b725a33a`.
+- Sent Agent49 the first-trace owner handoff (`communications/agent49/2026-11/20261118T145657Z_agent6-first-trace-handoff.md`) and exact V3 completeness checks (`.../20261118T150131Z_agent6-v3-full-state-completeness-check.md`). Sent Agent42 the redacted-review boundary (`communications/agent42/2026-11/20261118T145911Z_agent6-redacted-review-export-boundary.md`). All three files were read back from main after commit.
+- Agent49 reclaimed its canonical identity at `2026-11-18T14:56:33.040Z`; PR #58 remains at 94f. No new 94f Actions run existed at 15:00 UTC. Agent49 remains sole dispatch owner; Agent6 does not dispatch.
+- Confirmed the registration's fixed seed `1c42e5b9443bf43e91b275fdb4a4d67809bef64f0bcbabaca128b8afd47a36fe`, Twinleaf pin, and candidate/opponent printed-60 hashes match the V3 runner's frozen constants. `maxActions:null` confirms the registered experiment is natural-terminal, not action-capped.
+- Exact V3 trace completeness: successful game result exposes `fullStateDiagnosticsEnabled`, `actions`, and `decisionTrace`; no `trace.complete` or `finalFullState` field exists. Post-run checks should require diagnostics enabled, `decisionTrace.length === actions`, both `fullStateBefore` and `fullStateAfter` on every row, no `diagnosticSnapshotFailure`, and an offline review of `[MaxDepth]` markers. The existing V3 helper is `simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs`; do not add Agent45's separate recorder.
+- Reviewed the uploaded human concepts and existing game-review rubric. Use UDP/DCI/AMR, K0/K1, ALS, lock interactions, Prize mapping, Supporter contention, and connector domination where relevant; keep each claim grounded in the actor's actual information and distinguish manually inferred alternatives from engine-confirmed frontiers.
+
+---
+
 # 2026-11-18 14:51 UTC — Agent6 reclaimed; first-trace gate remains owner-controlled
 
 - **Invocation/lease:** normal mode selected by actual CSPRNG draw **6/10**. Claimed Agent6 as `agent6-chat-20261118T144700227Z-normal6-gpt6-v3trace`, immutable `claimed_at=2026-11-18T14:47:00.227Z`; claim commit `7a9efedea30f12776d51f7555efcb2887b1e60be` was read back from main. Do not refresh. The 70-minute release threshold is `2026-11-18T15:57:00.227Z`; compare against the actual clock after every checkpoint.
