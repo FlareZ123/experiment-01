@@ -140,11 +140,11 @@ function trial(candidate,opponent,candidateSeat,firstPlayerSeat,runtimePatchRece
  const gameRuleset=formatContract.gameRuleset??'Expanded';
  const candidateFormat=formatContract.candidateFormat??gameRuleset;
  const opponentSourceEventFormat=formatContract.opponentSourceEventFormat??'Japanese Extra';
- const expandedLegalityAsOf=formatContract.expandedLegalityAsOf??preDeal.gameRegistration.expandedLegalityAsOf;
- const eventDate=formatContract.eventDate??preDeal.gameRegistration.eventDate;
+ const expandedLegalityAsOf=formatContract.expandedLegalityAsOf??preDeal.policyRegistration.expandedLegalityAsOf;
+ const eventDate=formatContract.eventDate??preDeal.policyRegistration.eventDate;
  const opponentSourceEventDate=formatContract.opponentSourceEventDate??
-  preDeal.gameRegistration.opponentSourceEventDate;
- const formatReviewStatus=formatContract.formatReviewStatus??preDeal.gameRegistration.formatReviewStatus;
+  preDeal.policyRegistration.opponentSourceEventDate;
+ const formatReviewStatus=formatContract.formatReviewStatus??preDeal.policyRegistration.formatReviewStatus;
  return {trialId:'trial-1',fixtureOnly:formatContract.fixtureOnly??true,opponentRank:opponent.rank,
   candidateFormat,gameRuleset,
   opponentSourceEventFormat,opponentSourceEventDate,expandedLegalityAsOf,eventDate,
