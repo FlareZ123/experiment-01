@@ -95,7 +95,7 @@ The candidate's card-selection logic also includes explicit abstention codes for
 
 ## Protocol-level change required
 
-The worker protocol is deliberately strict:
+The worker protocol is deliberately strict. At the reviewed head, `RESPONSE_SCHEMA = 'aichi-policy-response-v4'`, `REQUEST_SCHEMA = 'aichi-policy-request-v2'`, `OBSERVATION_SCHEMA = 'aichi-actor-observation-v3'`, `PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3'`, and `FRONTIER_SCHEMA = 'aichi-action-frontier-v1'`. Adding a required audit should version the response contract and the `policyAudit` payload explicitly; coordinate worker and host together rather than silently extending v4.
 - `validateRequest` requires the request envelope to include `schema`, `type`, `requestId`, `sequence`, `role`, `seat`, `observationSchema`, `observation`, `prompt`, `publicEventReceipt`, and `actionFrontier`. The host already supplies the exact frontier/prompt projection and the public event receipt.
 - `validateDecision` currently uses `exactKeys`: `select-action` and `select-choice` accept only `kind,token`; `select-choices` accepts only `kind,tokens`; `abstain` accepts only `kind,reasonCode`. Therefore a worker cannot simply append `policyAudit`: the current protocol rejects it as `UNKNOWN_FIELD`.
 - A versioned response schema must explicitly allow and validate the audit on every worker-originated decision, with required audit version/kind, bounded scored rows, token membership, numeric finiteness, rule/reason codes, and deterministic tie metadata. Host persistence must attach the accepted audit to the same decision/action ordinal.
