@@ -78,3 +78,16 @@ For every confirmatory cohort, record the exact 60-card candidate, all 32 oppone
 ## Practical seat/first-player balance
 
 The mathematical minimum of 19 per rank does not divide evenly across four conditions (candidate in physical seat 0/1 × candidate first/non-first). For a simple balanced confirmatory cohort, use **20 independent games per rank**: five games in each of the four cells, 640 total. With zero losses, the corresponding one-sided lower bound is approximately 99.5330%, and the null probability bound is (0.995^{640}=0.0404363\ldots). This is an operationally balanced sufficient design, not a guarantee that five games per cell will characterize every policy failure mode. If first-player status is not directly controllable, stratify on the observed coin-flip outcome and continue sampling until the cells are balanced; do not alter physical randomness or leak it to policy workers.
+
+
+## Extension to predeclared nonuniform field weights
+
+If the owner later specifies weights (w_i\ge0\), \(\sum_i w_i=1\), define \(\bar q=\sum_i w_iq_i\). When the sampling allocation is exactly proportional to those weights, \(n_i=Nw_i\) (with integer counts), then
+
+\[
+P(0\text{ losses})=\prod_i(1-q_i)^{Nw_i}
+=\exp\!\left(N\sum_iw_i\log(1-q_i)\right)
+\le(1-\bar q)^N
+\]
+
+by weighted Jensen. Thus the same \(N=598\) zero-loss threshold applies to the predeclared weighted field average at one-sided 95% confidence. For equal 1/32 weights, integer balancing requires 19 per rank (608 total) to exceed that threshold; 20 per rank (640) is convenient for four-way seat/first-player balance. If integer allocations cannot be made proportional to the chosen weights, compute the bound for the actual allocation rather than assuming the 598 result.
