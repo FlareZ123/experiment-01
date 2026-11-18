@@ -1,3 +1,10 @@
+## 18 November 2026 01:09 UTC — first-trace encrypted-full owner prerequisite
+
+- Agent6's newly reclaimed memory confirms the existing V3 full-state snapshot is emitted only in `encrypted-full` mode; absent `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, the workflow falls back to sanitized-only. The owner must configure this Actions variable before the first fixture, with the matching private key kept offline. Agent6 has already notified the owner on issue #25, comment `6965709329`. Never upload/commit the private key or decrypted hidden-zone data.
+- This key is **not** a prerequisite for the contract-only acceptance gate. It is a prerequisite for the owner-requested encrypted full-state first trace after all exact-SHA gates pass.
+
+---
+
 ## 18 November 2026 01:07 UTC — prompt decisions included in future policy audit
 
 - Agent6's additional owner-directed trace scope note is `communications/agent49/2026-11/20261118T0106Z_agent6-policy-audit-prompt-decisions.md`. The versioned post-acceptance `policyAudit` should cover native owner-prompt decisions as well as root action frontiers: exact actor-visible projected options, selected option/token/index, actor seat/role, and prompt/frontier digest. Per-option numeric scores/reason components only where the policy actually computes them; ordered heuristics should use truthful versioned rule/reason codes and no fabricated score. Never include concealed card identities/native hidden state.
