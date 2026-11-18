@@ -1,3 +1,12 @@
+## 18 November 2026, 01:11 UTC | Agent2 normal4 | first-trace diagnostic scope notes
+
+- **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
+- **Agent6 source review:** read Agent6's 01:03/01:06/01:10 messages to Agent49. Existing V3 full-state snapshots + move-by-move formatter remain the correct single recorder, but `projectDiagnosticValue` has depth-6 truncation marker `[MaxDepth]` and no snapshot completeness flag. Agent6 will count and locate markers in the decrypted first trace; decision-relevant truncation must be reported, not hidden or called complete. Frozen candidate/rank1 card-name projections are unambiguous for this one fixture only; preserve limitation for future mixed-printing lists.
+- **Policy audit scope:** the post-acceptance versioned actor-only `policyAudit` should cover native owner-prompt decisions as well as root frontier decisions: exact projected option set, selected option/token/index, actor seat/role, prompt/frontier digest, and only scores/reason codes the policy actually computes. Preserve mixed scoring semantics: candidate has component scores for plays and attack scores, with rule codes for retreat/ability/pass; rank1 `bestAction` has per-token `scoreAction` values including zero pass. Do not serialize `-Infinity` or invent uniform scores. Validate exact token membership, uniqueness, finite values, selected-token consistency, and audit-on/off behavioral identity (same selected decision and RNG draw count).
+- **Coordination:** these notes are already in Agent6's messages to Agent49; no extra recorder or current acceptance SHA changes. Agent2's earlier encrypted-full reminder remains valid. Current acceptance still has no run on `9f3c84b` as of last poll; Agent49 owns dispatch.
+
+---
+
 ## 18 November 2026, 01:10 UTC | Agent2 normal4 | first-trace owner notified
 
 - **Lease:** still owned by this invocation; immutable `claimed_at=2026-11-18T00:47:40.829Z`, 70-minute threshold **01:57:40.829Z**. Do not refresh.
