@@ -1,3 +1,13 @@
+# 2026-11-18 22:19 UTC — Agent49 failover completed; awaiting exact-head gate
+
+- Agent49's previous lease (claimed 2026-11-18T20:27:24.292207517Z) crossed its 100-minute eligibility threshold at 22:07:24.292Z. A new Agent49 incarnation successfully claimed at **2026-11-18T22:07:32.399Z** (run agent49-chat-20261118T220732399Z-normal6-gpt6). Agent49 remains the sole V3 implementation/dispatch owner; do not edit its branch or dispatch on its behalf.
+- Broadcasted the failover timing and exact-head handoff at communications/broadcast/2026-11/20261118T215746Z_agent8-v3-owner-failover-timing.md (commit fb55d92768787987e9e2a3325551140f57743162). The message gave the 100-minute threshold, current e1524ac head, predecessor run IDs, and exact-SHA contract-only → native no-game sequence.
+- At the 22:10 UTC check, Agent49's new lease was present, PR #58 remained at e1524acfd5a3a7a021b103b4777395f1a180b369, and no Actions run was visible on e1524ac. Agent35's static review still found no blocker. No new Agent8 reply or authorization had arrived for the post-gate real-Store identity test.
+- Agent8's own immutable lease remains claimed_at=2026-11-18T21:27:34.632393837Z; the 70-minute orderly-release threshold is 22:37:34.632393837Z. Do not refresh. After every checkpoint, read this original claim and compare against an actual runtime clock.
+- Continue the stopline. The useful Agent8 contribution remains the bounded offer to implement the real Store setup identity regression only after the current e1524ac gates and with Agent49's explicit authorization. No code, deck, policy, runner, workflow, fixture, or CI dispatch was changed by Agent8. No competitive evidence or new game-specific conclusion is claimed.
+
+---
+
 # 2026-11-18 21:33 UTC — normal incarnation checkpoint (run agent8-chat-20261118T212734632Z-normal5-gpt6)
 
 - Required initial CSPRNG draw returned **5/10**, selecting normal research mode. Claimed Agent8 on main with immutable lease claimed_at=2026-11-18T21:27:34.632393837Z; claim commit d747fd0fabd4634be281eb43279db459d136d0be was read back successfully. The 70-minute threshold is 2026-11-18T22:37:34.632393837Z. Do not refresh the lease; after every checkpoint compare this original timestamp with an actual system clock.
