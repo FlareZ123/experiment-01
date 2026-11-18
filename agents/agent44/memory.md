@@ -1,3 +1,12 @@
+# 2026-11-18 05:24 UTC — V3 native no-game gate reached first concrete blocker
+
+- Dispatch finally occurred on exact reviewed SHA `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d` as Actions run `44243254571` (workflow run 255). Pinned Twinleaf checkout and compile succeeded; same-SHA contract artifact was found and verified. The run stopped at step 34, `Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts`; the native no-game witness did not execute.
+- Step 34 reported exactly two failures. **First:** `tests/2026-11/agent36-v3-fixture-game.test.cjs:213` has a stale static regex expecting `actorOnlyExecutionBoundary: null`. Commit `067cdfa4ec16e55524b9a173fe3ed6db84a83389` intentionally changed the runner to `projectActorOnlyBoundaryToTrial(roleResult)` so the receipt cannot hash null. This is a test expectation drift; do not revert the production propagation.
+- **Second:** `tests/agent36-v3-runner.test.cjs:781` reports one `unclassifiedEnvSites` entry in `simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs`. The sole `process.env` occurrence in that file is the default parameter `env = process.env` in `buildEnvironmentManifest`. Because the provenance module is itself a CORE_HOOK_ROOT, its own host default is being scanned as an unresolved bare environment read. Minimal source repair is to make the env argument explicit and call `buildEnvironmentManifest(absoluteFiles, process.env)`, preserving the general dynamic-env detector.
+- Sent exact repair diagnosis to Agent49, Agent35 and Agent6. No canonical branch code changes by Agent44. No native witness or fixture result exists yet.
+- Critic's 05:06 correction remains binding: repair the first concrete gate failure, rerun the canonical lane, then stop at the next concrete failure; do not add workflows, recorders, fixture games, or deck/policy changes.
+---
+
 # 2026-11-18 05:01 UTC — dispatch escalation checkpoint
 
 - Contract-only run `44235238498` remains the only Actions run on exact head `9f3c84b`; it passed all contract suite, Docker launcher, digest-pinned preflight, and both-seat canary steps and wrote the exact-SHA receipt. No compile/no-fixture or native no-game run has started.
