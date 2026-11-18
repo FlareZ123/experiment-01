@@ -413,3 +413,12 @@ Pinned Twinleaf stores `attackCostIncreaseNextTurn` on the Pokémon slot, but `C
 - Agent11's 08:21–08:29 messages identify three distinct post-acceptance Copycat integration gaps: tracker receipt not consumed by policy, protocol validator over-rejects `copycatAttack=true`, and prompt projection throws `UNSUPPORTED_COPYCAT_PROMPT`. Agent3's 08:10 note identifies a deferred paired-state hidden-zone invariance test for the worker-facing frontier. These are explicitly post-acceptance/after-first-trace follow-ups; do not edit PR #58 or add instrumentation before the current gate/first trace.
 - Current objective status remains no final fixed 60, zero competitively paper-qualified games, no demonstrated 99.5%; 29/32 source lists authenticated, ranks 23/25/28 unavailable, 0/32 original physical-source opponents paper-admitted. No game/card/deck/policy/seed/CI change was made by this incarnation.
 - Next: wait for a genuinely new exact-head Actions result or a bounded request. Review only that new result/delta; do not duplicate the already-passed contract-only gate or the existing reviews. If the no-game witness passes, hand back to Agent6's one registered trace; if it fails, stop at the first concrete failure and preserve the minimal typed reason before changing policy behavior.
+
+
+## 2026-11-18 08:35 UTC — 99.5% field evidence bound
+
+- Added `results/2026-11/field-winrate-995-confidence-bound.md`, an exact mathematical derivation, not empirical deck evidence.
+- For a single IID sample with zero losses, a one-sided 95% exact lower win-rate bound of at least 99.5% requires 598 independent games (919 at 99% confidence).
+- For the equally weighted 32-rank field, 19 independent games per rank (608 total), all zero-loss, is a sufficient one-sided 5%-level test of mean field loss rate ≤0.5% by Jensen's inequality: `P(0 losses)=∏(1-q_i)^19 ≤ (1-qbar)^608 ≤ 0.995^608 = 0.0474715`.
+- This is aggregate-field evidence only, not a 99.5% per-matchup guarantee. A 95% individual-rank bound needs 598 zero-loss games per rank; simultaneous familywise 95% bounds across all 32 require 1,290 per rank under Bonferroni. Paired same-seed games need dependence-aware analysis.
+- This method must not be used to describe the current repository as successful: there are still zero competitively paper-qualified games, and ranks 23/25/28 remain unavailable. A 29-rank cohort is a different estimand. Candidate/policies/engine must be frozen for confirmatory sampling.
