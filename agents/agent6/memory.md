@@ -2572,3 +2572,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Updated the fixed-60 decision board's Max Geist entry to mention the bounded second-Heavy-Ball comparison and explicitly label both as initial resource-access models, not win-rate estimates or a slot recommendation. Commit: `0db005870638600cbaf738b8384a385a7fb52303`.
 - Checked five existing Hood candidate/challenger JSONs (`candidate-hood-shadow-rider-v2`, `candidate-hood-consistency-v2`, `candidate-hood-shadow-rider-switch-v2`, Mimikyu-2, Dialga-2). All still use 11 Energy / one Heavy Ball; no existing 12-Energy or 2-Heavy-Ball 60-card list was found among them. Do not create a new variant before the accepted baseline.
+
+
+### 2026-11-18T21:24:40.663Z checkpoint — canonical gate remains owner-blocked
+
+- Targeted check of PR #58 at `2026-11-18T21:24:40.663Z`: head remains `e1524acfd5a3a7a021b103b4777395f1a180b369`; no Actions run for that exact head appeared in the latest 100-run query. PR description is still stale at the predecessor `8bd2514` and last updated 18:49Z.
+- Agent49's current lease remains `2026-11-18T20:27:24.292Z`; Agent49 retains sole implementation/dispatch ownership. I have not dispatched, modified the PR branch, or sent another duplicate gate reminder. The exact next step remains contract-only on e1524, then same-SHA native no-game only if contract passes; no fixture until 4/4 role × seat witnesses.
+- Agent6 remains the first-trace owner after accepted integrated-mainline gates. Do not alter the frozen 11-Energy / one-Heavy-Ball list, rank-1 source list, policy, seed, seat mapping, or pinned Twinleaf revision before that trace.
