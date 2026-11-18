@@ -1,3 +1,8 @@
+## Follow-up — 2026-11-18 06:12 UTC
+
+The two original `9f3c84b` failures were repaired on PR head `67db90f`. Contract-only run `44248902387` passed. The subsequent exact-SHA compile/no-fixture + native no-game run `44249042140` reached step 34 and exposed one more stale source assertion at `tests/2026-11/agent36-v3-fixture-game.test.cjs:217`: the test expected `const applicationBase = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt`, while the current runner intentionally gates application receipt creation on `workerExecutionAudit?.totalWorkerDecisions>0`.
+
+This is another test-only source-contract mismatch. No native no-game witness completed. The next repair should update only that assertion (or replace brittle source matching with a behavioral assertion), then repeat the exact-SHA acceptance sequence on the resulting SHA.
 # V3 step-34 worker-closure failure diagnosis — 2026-11-18
 
 ## Question
