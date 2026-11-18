@@ -111,12 +111,27 @@ Expected rounded output:
 13 0.8888900903
 ```
 
+## Field exposure caveat
+
+I matched the exact Pokémon printings in the 29 published opponent lists in [`full-decklists.json`](../full-decklists.json) to the supplied English card pool. The 320+ HP Pokémon are not all equivalent Max Geist targets:
+
+- **Rank 1:** Shadow Rider Calyrex VMAX, 320 HP, Psychic type.
+- **Rank 15:** Mega Lopunny ex, 330 HP, Colorless type.
+- **Regidrago ranks 10, 12, 13, 14, 18, 20, 21, 27 and 32:** Dragon toolbox Pokémon including Dragapult ex (320 HP), Salamence ex (320 HP), and Mega Dragonite ex (370 HP).
+- **Rank 5:** Mew VMAX, 310 HP; **rank 18:** Mega Kangaskhan ex, 300 HP.
+
+The candidate's Lillie's Clefairy ex has Fairy Zone, which gives opposing Dragon Pokémon Psychic Weakness ×2. With Fairy Zone active, a 10-Energy Max Geist (310 base) deals 620 to those Dragon Pokémon, so the Dragon toolbox HP values should not be counted as equivalent non-Dragon 320+ breakpoints. Those cards may also be used as Regidrago discard-pile attack sources rather than played as Active targets. The direct 11-Energy / 320+ non-Dragon breakpoint is principally relevant to **rank 1 and rank 15** among the 29 published lists, plus Regidrago states where Fairy Zone is unavailable. The three missing opponent lists (ranks 23, 25 and 28) remain unclassified.
+
+Mega Dragonite ex at 370 HP would require 12 attached Psychic Energy for a non-weakness 370-damage Max Geist; the current 11-Energy list cannot reach that threshold. With Fairy Zone active, the Dragon weakness again changes the calculation.
+
+Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resources/cards/en/swsh6.json), [Dragapult ex](../../../resources/cards/en/sv6.json), [Salamence ex](../../../resources/cards/en/sv9.json), [Mega Dragonite ex and Lillie's Clefairy ex](../../../resources/cards/en/me2pt5.json), [Mega Lopunny ex](../../../resources/cards/en/me2.json), [Mew VMAX](../../../resources/cards/en/swsh8.json), and [Mega Kangaskhan ex](../../../resources/cards/en/me1.json).
+
 ## Strategic interpretation and limitations
 
 1. This is a Prize-only availability ceiling. It does not estimate whether the Energy are drawn and attached by the relevant Max Geist turn, nor whether the attacking Pokémon has the three-Colorless attack cost paid.
 2. It does not model Energy discarded for search costs, recovery (none is present in the published 60), previous attacks, damage modifiers, opponent disruption, or game outcomes.
 3. It conditions on the candidate's valid opening hand. It does not simulate the opponent's paired mulligan or bonus draws; those draws do not alter the candidate's six Prize cards.
-4. A 12th Psychic Energy is therefore a high-priority structural challenger to evaluate against the second Heavy Ball and other possible slot changes, particularly in matchups with 320-HP VMAX targets. This calculation does **not** establish that the 12-Energy deck is stronger or identify a justified cut.
+4. A 12th Psychic Energy is therefore a high-priority challenger to evaluate against the second Heavy Ball, especially for rank 1 Shadow Rider and rank 15 Mega Lopunny; its value against Dragon targets depends on whether Fairy Zone is established. This calculation does **not** establish that the 12-Energy deck is stronger or identify a justified cut.
 5. Keep the registered 11-Energy 60 unchanged through the first full-state baseline. Record actual Energy zones, attached Psychic count, Max Geist attack-cost eligibility, prior damage/modifiers, and resulting damage.
 
 Agent4 independently supplied the 310/340 breakpoint and should review the field-weighted importance of the 12th-Energy challenger. See the [Max Geist threshold note](../../../communications/agent6/20261118T1023Z_agent4-max-geist-full-vmax-ohko-threshold.md) and the follow-up [valid-opening Prize model](../../../communications/agent4/20261118T195203Z_agent6-max-geist-valid-opening-prize-model.md).
