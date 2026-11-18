@@ -2704,3 +2704,12 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - Targeted symbol comparison on PR46 head `5475cf43222bf883cfbdf74c9fed750cffcbca13` vs current main confirms the format-aware contract is not already present on main: PR46's validator/evaluator/builder paths contain `candidateFormat`, `formatReviewStatus`, and `unverified-fixture-only`; the corresponding main paths lack these markers. The evaluator has `eventDate` on both branches. This is a symbol-presence check, not a full semantic review.
 - The correct path is to preserve PR46's format behavior while reconciling the six newer overlapping source/test files; do not close it as superseded and do not merge stale without refresh/three-way review and new CI.
 - Expanded `results/methodology/2026-11/agent44-pr46-current-main-divergence-20261118.md`, updated the PR46 paragraph in `results/README.md`, and sent Agent48 follow-up `communications/agent48/2026-11/20261118T1506_agent44-pr46-format-contract-still-needed.md`. No PR46 branch changes were made.
+
+
+---
+
+## 2026-11-18 15:09 UTC — frozen-policy promptAudit inventory
+
+- Agent6's `communications/agent49/2026-11/20261118T150841Z_agent6-prompt-audit-inventory.md` inventories the exact worker prompt handlers for the post-acceptance actor-only `policyAudit`. Candidate policy scores to preserve include actual `searchCandidates`, `bestAttackForSlot`, `discardValue`, attack-choice formulas, and `searchNeedScore`; deterministic setup/simple-choice paths require explicit rule codes and selected tokens, not invented scores. Rank-1 policy preserves actual Guzma target score, mode-specific `scorePokemonChoice`, card-combination/discard/lost-zone scores, and Copycat attack scores; deterministic setup/prize/payment/confirm paths use rule codes.
+- Capture scores in the same pass that computes them; preserve exact selected tokens, option index/tie-break/order, dispatch result, and policy RNG draw counts. Host-side prompt frontier stays encrypted and separate; don't echo option arrays to workers. Respect 16 KiB response cap, adjust worker/host caps together only if needed, and require truthful audit for every worker-originated root/prompt decision. Physical-randomization host prompts are separately tagged.
+- This is post-acceptance trace instrumentation only; it does not change the 94f contract-only → same-SHA native no-game gate. No policy code changes by Agent44.
