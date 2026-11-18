@@ -9,7 +9,7 @@ Shadow Rider Calyrex VMAX's Max Geist does (10+30m) damage, where (m) is the num
 - 10 Psychic Energy attached: 310 damage, not a knockout.
 - 11 Psychic Energy attached: 340 damage, a full-HP knockout.
 
-The fixed Hood Shield Shadow Rider v1 list contains exactly 11 Psychic Energy and 14 Basic Pokémon. The published 60 includes **Raihan**, which attaches a Basic Energy from the discard pile, and **Night Stretcher**, which returns a Basic Energy from the discard pile to hand. Neither retrieves a Prized Energy. Thus, if even one of the 11 Energy is Prized, at most 10 remain outside Prizes and the deck's absolute board-wide Psychic-Energy ceiling remains 10 (310 Max Geist) unless an effect retrieves a Prized Energy or changes the damage. Discard recycling does not change the outside-Prize count. This is a ceiling statement, not a prediction that the Energy will be attached by a particular turn.
+The fixed Hood Shield Shadow Rider v1 list contains exactly 11 Psychic Energy and 14 Basic Pokémon. The published 60 includes **Raihan**, which attaches a Basic Energy from the discard pile, and **Night Stretcher**, which returns a Basic Energy from the discard pile to hand. Neither retrieves a Prized Energy. If even one of the 11 Energy is Prized, at most 10 remain outside Prizes at setup; consequently, the initial non-Prized Energy pool cannot support 340-damage Max Geist until a Prized Energy is actually taken (or another effect changes damage/available Energy). Normal Prize-taking can later recover a Prized Energy; this analysis does not model when that happens. Discard recycling does not change the initial outside-Prize count. This is an initial-availability ceiling, not a prediction of when the Energy will be drawn or attached.
 
 ## Valid-opening-conditioned Prize-only availability
 
@@ -130,8 +130,8 @@ Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resourc
 
 ## Strategic interpretation and limitations
 
-1. This is a Prize-only availability ceiling. It does not estimate whether the Energy are drawn and attached by the relevant Max Geist turn, nor whether the attacking Pokémon has the three-Colorless attack cost paid.
-2. It does not model Energy discarded for search costs, the timing or availability of discard recovery (the list includes Raihan and Night Stretcher), previous attacks, damage modifiers, opponent disruption, or game outcomes. It also does not model retrieval from Prizes; neither recovery card can retrieve a Prized Energy.
+1. This is an initial Prize-only availability ceiling. It does not estimate whether the Energy are drawn and attached by the relevant Max Geist turn, whether the attacking Pokémon has the three-Colorless attack cost paid, or when a Prized Energy is later taken through ordinary Prize-taking.
+2. It does not model Energy discarded for search costs, the timing or availability of discard recovery (the list includes Raihan and Night Stretcher), previous attacks, damage modifiers, opponent disruption, or game outcomes. Neither discard-recovery card retrieves a Prized Energy; ordinary Prize-taking can do so later, but its timing is not modeled.
 3. It conditions on the candidate's valid opening hand. It does not simulate the opponent's paired mulligan or bonus draws; those draws do not alter the candidate's six Prize cards.
 4. A 12th Psychic Energy is therefore a high-priority challenger to evaluate against the second Heavy Ball, especially for rank 1 Shadow Rider and rank 15 Mega Lopunny; its value against Dragon targets depends on whether Fairy Zone is established. This calculation does **not** establish that the 12-Energy deck is stronger or identify a justified cut.
 5. Keep the registered 11-Energy 60 unchanged through the first full-state baseline. Record actual Energy zones, attached Psychic count, Max Geist attack-cost eligibility, prior damage/modifiers, and resulting damage.
@@ -158,7 +158,7 @@ The Energy challenger retains the baseline Heavy Ball count; the Heavy Ball chal
 
 ### Prize-rescue results
 
-All figures condition on a valid seven-card opening (at least one Basic), then deal six Prize cards from the remaining 53. “Seen by turn 2” means opening hand plus only the natural draws through the candidate's second turn: one draw when going first, two when going second. Opponent mulligan bonuses, Supporter draws, Underworld Door draws, Arven searches, Tapu Lele-GX, and other search lines are deliberately excluded from this direct-access measure.
+All figures condition on a valid seven-card opening (at least one Basic), then deal six initial Prize cards from the remaining 53. A card in this initial Prize set may later be taken normally; the model does not simulate Prize-taking order or timing. “Seen by turn 2” means opening hand plus only the natural draws through the candidate's second turn: one draw when going first, two when going second. Opponent mulligan bonuses, Supporter draws, Underworld Door draws, Arven searches, Tapu Lele-GX, and other search lines are deliberately excluded from this direct-access measure.
 
 | Conditional probability | One Heavy Ball | Two Heavy Balls |
 |---|---:|---:|
