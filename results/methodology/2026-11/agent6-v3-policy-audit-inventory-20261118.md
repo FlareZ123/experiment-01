@@ -117,7 +117,7 @@ The candidate `chooseRoot` explicitly admits `use-ability` and `use-stadium` in 
 
 - select `use-ability` **only** when `publicMetadata.abilityName === 'Resetting Hole'` and `hasStadiumRemovalTarget(view)`.
 
-It never scores or selects Underworld Door, Climactic Gate, Star Alchemy, Wonder Tag, or any other `use-ability`; it also has no `use-stadium` selection branch. By contrast, the rank-1 policy's `scoreAction` explicitly assigns Underworld Door 150, Climactic Gate 145, Resetting Hole 138 (when Path lock is active), Star Alchemy 132, and Wonder Tag 122/65.
+It never scores or selects Underworld Door, Climactic Gate, Star Alchemy, Wonder Tag, or any other `use-ability`; it also has no `use-stadium` selection branch. By contrast, the rank-1 policy's `scoreAction` explicitly assigns Underworld Door 150, Climactic Gate 145, Resetting Hole 138 (when Path lock is active), Star Alchemy 132, and Wonder Tag 122/65. The protocol's `EXECUTABLE_ACTION_KINDS` explicitly includes both `use-ability` and `use-stadium`, so these are supported executable action kinds, not protocol-unsupported placeholders.
 
 **This is a confirmed policy-code coverage gap, not yet a demonstrated game loss.** Whether an ability is offered depends on the exact game state and engine frontier. In the first registered trace, inspect the candidate's actual frontier for each `use-ability`/ `use-stadium` item and record whether it is selected or ignored. The audit must not fabricate a score for an unhandled ability; record an explicit unsupported/unscored branch. Keep the registered policy frozen through the first trace. Afterward, add targeted tests and compare a repaired policy under the common opponent panel before deciding whether to change the fixed 60/deck policy.
 
