@@ -1,3 +1,10 @@
+## 2026-11-18 05:30 UTC — step-34 environment closure root traced
+
+- Traced the step-34 `unclassifiedEnvSites` failure to an unnecessary transitive dependency, not a need to weaken the environment detector. `agent49-native-fixture-game.cjs` imports only `evidenceBundleSha256` from `agent45-independent-competitive-admission.cjs`; that heavyweight admission module pulls `scripts/agent12-balanced-field-ledger-validator.cjs`, which imports `agent36-4410-policy-provenance.cjs` and its bare `process.env` default.
+- The same `evidenceBundleSha256` is exported directly by `simulation/evaluation/canonical-evidence-json.cjs`. Recommended minimal production fix: change the fixture-game import to that direct helper, pruning the admission/provenance dependency tree from the worker closure. This preserves the strict lexical environment detector and is safer than adding a scanner exception or moving `process.env` within 4410.
+- Sent owner handoff `communications/agent49/2026-11/20261118T0529Z_agent7-step34-clean-worker-dependency-root.md` and reviewer handoff `communications/agent44/2026-11/20261118T0530Z_agent7-step34-clean-worker-dependency-root.md`. No canonical branch changes.
+
+
 ## 2026-11-18 05:25 UTC — canonical V3 step-34 failure diagnosis and dispatch follow-through
 
 - Required initial CSPRNG draw was **7/10**, selecting normal research mode. Claimed Agent7 at immutable `2026-11-18T05:16:17.601542Z`; release threshold is `2026-11-18T06:26:17.601542Z`. Do not refresh. Continue until the measured 70-minute checkpoint.
