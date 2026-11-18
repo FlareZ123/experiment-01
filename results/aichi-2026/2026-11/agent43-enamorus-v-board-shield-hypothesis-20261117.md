@@ -59,6 +59,32 @@ The wording and official Q&A strongly motivate the proposed test, but the contin
 - Field Blower and Megaton Blower can still remove the Hood attached to Enamorus V. The second Hood is a reserve, not immunity to repeated removal.
 - The card's attack can attach up to two Basic Energy from discard to Benched Pokémon, but that attack is not assumed to be a meaningful substitute for the candidate's current energy engine.
 
+## Energy distribution and Stadium trade-off (18 November correction)
+
+The printed effects make Psychic Energy distribution **damage-neutral at fixed total Energy**, not a one-for-one trade between Max Geist damage and protection:
+
+- Let (E) be the number of Psychic Energy cards attached to all of your Pokémon. Max Geist deals (10+30E), regardless of which Pokémon carry those Energy cards. Psychic Energy attached to Enamorus V still adds 30 damage even though Enamorus V is excluded from Guardian of Love.
+- Guardian of Love requires a Pokémon to have **any Psychic Energy attached**; it does not require that Pokémon itself to be Psychic type. Underworld Door has the narrower target restriction: it can attach only to a Benched Psychic Pokémon. A non-Psychic Pokémon can therefore be protected if Psychic Energy reaches it by the manual attachment or another effect, but Underworld Door cannot seed it.
+- For a turn on which a Shadow Rider Calyrex VMAX actually uses Max Geist, the attack's Energy cost limits how many distinct Pokémon can receive the shield. This candidate contains only Basic Psychic Energy. Let (m) be the number of non-Enamorus Pokémon in play that could be protected, including the Active Shadow Rider attacker. Without Dimension Valley, the attacker needs 3 Psychic Energy; one qualifies it for Guardian of Love and the other two are attack-payment overhead. The ideal upper bound is therefore (C_{max}=min(m,E-2)), for (Ege3). With Dimension Valley, Max Geist costs one Colorless Energy less, so two Psychic Energy suffice and (C_{max}=min(m,E-1)), for (Ege2). If no Max Geist attack is required that turn, the pure allocation bound is (min(m,E)). These are allocation ceilings, not setup probabilities or proof that every target can be reached in time.
+- Sky Field and Dimension Valley are mutually exclusive Stadiums. With Enamorus on the Bench, the normal five-Bench limit leaves at most (m=5) non-Enamorus Pokémon in play; Sky Field raises the limit to eight Bench Pokémon and thus at most (m=8). Dimension Valley saves one Energy for Max Geist but retains the five-Bench limit. At full board capacity:
+
+| Total Psychic Energy (E) | Max Geist damage | Sky Field: maximum protected | Dimension Valley: maximum protected |
+|---:|---:|---:|---:|
+| 3 | 100 | 1 | 2 |
+| 4 | 130 | 2 | 3 |
+| 5 | 160 | 3 | 4 |
+| 6 | 190 | 4 | 5 |
+| 7 | 220 | 5 | 5 |
+| 8 | 250 | 6 | 5 |
+| 9 | 280 | 7 | 5 |
+| 10 | 310 | 8 | 5 |
+| 11 | 340 | 8 | 5 |
+
+  If the actual board has five or fewer non-Enamorus Pokémon, Dimension Valley is never worse for this protection ceiling and can be one target better when Energy is the binding constraint. Sky Field becomes valuable when the plan genuinely needs more than five non-Enamorus Pokémon in play; it does not reduce Max Geist's cost. The table assumes the Energy can be distributed to the intended targets. Underworld Door cannot directly seed non-Psychic targets, and the Sky Field board must survive the Stadium-removal / forced-discard line already described above.
+- **Connector cost remains real.** Fog Crystal's Enamorus line competes with Shadow Rider V and Psychic Energy; Mysterious Treasure's line competes with the other Psychic/Dragon targets and consumes a discard. Enamorus should be accessed when the observed Ability-lock threat and current resource state justify it, not automatically because a search route exists. This is the candidate-specific connector-domination issue, not free access.
+
+One additional interaction is worth retaining as an **unverified consequence**, not a claim: if a Hooded Enamorus keeps Guardian of Love active through Garbotoxin or Initialization, a manual Psychic attachment to the Active Shadow Rider may make that attacker eligible for protection immediately; its Underworld Door could then seed a Benched Psychic Pokémon, which may itself become protected and regain access to its own Underworld Door. Whether this seed-and-spread sequence works under the exact continuous-effect timing must be established by a direct ruling or a native test after the existing V3 first-trace stopline. Do not use it as current deck-strength evidence.
+
 ## Controlled interaction matrix
 
 Do not add Enamorus V to the nominated 60 before the V3 acceptance and first natural-terminal trace stopline clears. Afterward, test this as a separate one-card candidate variant, retaining both Hoods initially and recording which card is displaced.
