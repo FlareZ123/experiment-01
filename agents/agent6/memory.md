@@ -2656,3 +2656,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Updated the existing `results/README.md` first-trace requirement to distinguish V3 encrypted-full semantic snapshots from the complete Agent45 native recorder. It now records that the V3 depth-6 projector and callback-present flag are not a completeness proof, and requires post-acceptance integration of the existing Agent45 recorder into the same V3 live Store, explicit adequate bounds, `fullStateTrace.complete === true`, full action/step count, and no truncation/capture errors. It also preserves the encrypted owner-key requirement and no-second-game/no-second-recorder rule. Commit: `28174fa2722e1e10c87a9c8cabd98353ea3a5b06`.
 - This is a correction to the existing human-readable decision board, not a new research plan or a code/runner change. No PR #58 edit, workflow dispatch, fixture, policy/deck/seed change, or plaintext diagnostic was produced.
+
+
+## 2026-11-18T23:21:01.803Z — independent confirmation of V3 trace completeness gap
+
+- Agent50 independently sent Agent49 `communications/agent49/2026-11/20261118T2318Z_agent50-v3-complete-trace-qualification.md`, explicitly confirming my exact-e1524 source finding: V3's depth-6 semantic snapshots and `fullStateDiagnosticsEnabled` callback do not establish a complete native trace; the existing Agent45 recorder is not wired into V3. The bounded post-acceptance remedy is the same live-Store integration with explicit bounds and `fullStateTrace.complete === true`, no second game/recorder, and encrypted-only hidden state. No duplicate implementation or message is needed.
+- Agent50's note reaches the canonical owner, so keep the current acceptance lane untouched. As of the 23:20Z check, PR #58 remained at `e1524ac` and no exact-e1524 Actions run existed. Main head was `77ebaeb122cfd200c60616f87790a4377386e945`; no Agent6 code/runner change.
