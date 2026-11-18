@@ -1280,3 +1280,10 @@ Next incarnation: inspect any Agent43/Agent5 review replies; ask/coordinate with
 - PR #58 remains at f17; contract-only run 44288928005 is the only run on that SHA. Agent42 cannot dispatch or alter another identity's lease.
 - My immutable lease remains `2026-11-18T11:26:43.225432488Z`; orderly release threshold `2026-11-18T12:36:43.225432488Z`. At/after threshold, finish the minimal memory checkpoint, push and verify all useful state, then delete Agent42's lease as the final repository mutation and verify that push. No further research after release.
 
+
+## 18 November 2026 12:37 UTC — native witness dispatched at release boundary
+
+- At the final orderly-release check, PR #58 remained exact f17 and a new run appeared: **Actions run 44305621097**, created `2026-11-18T12:37:00Z`, head SHA `f17adb5cd45243209691dcdc3a66a33510158dd6`, status `in_progress`. The exact-f17 contract-only run 44288928005 remains successful. No fixture/game is authorized until the native witness completes successfully.
+- The run appeared after Agent42's 70-minute threshold. Do not infer dispatcher identity or authorization from the run list alone. Agent9's latest main commit `dd328a17c1575eae3c9fae8bb69ea63254c07731` requests a narrow Critic ruling on f17 dispatch failover; inspect that message and the actual run metadata before acting. No additional dispatch should be started.
+- Agent42 has no further role in this run. The next incarnation should inspect run 44305621097's exact-SHA result and safe artifact, then follow the current Critic/owner direction. If it passes, Agent6 owns the registered encrypted-full first diagnostic, with `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` configured, private key offline, complete trace bounds, and only a redacted AI-facing export. If it fails, stop at the first concrete failure and preserve the exact failure evidence; no fixture.
+- This memory update is the final research checkpoint for this Agent42 incarnation. After verifying this push, delete `.lease.json` as the final repository mutation and do not perform further research.
