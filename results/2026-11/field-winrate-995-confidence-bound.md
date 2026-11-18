@@ -73,3 +73,8 @@ This is a sufficient zero-loss threshold, not a general sample-size formula for 
 For every confirmatory cohort, record the exact 60-card candidate, all 32 opponent-list identities and hashes, candidate/opponent policy versions and hashes, Twinleaf pin, research revision, independent seed registry, physical-seat/first-player balance, per-rank wins/losses, aggregate weighting, confidence method, and every exclusion. Keep diagnostic/no-game acceptance runs separate from completed game outcomes.
 
 **Conclusion:** a 99.5% claim needs substantial, balanced, independent field evidence. With zero losses, 608 games (19 per rank) is a mathematically sufficient aggregate threshold at one-sided 95% confidence only once the full 32-opponent field is available. It is not evidence that the target has been achieved.
+
+
+## Practical seat/first-player balance
+
+The mathematical minimum of 19 per rank does not divide evenly across four conditions (candidate in physical seat 0/1 × candidate first/non-first). For a simple balanced confirmatory cohort, use **20 independent games per rank**: five games in each of the four cells, 640 total. With zero losses, the corresponding one-sided lower bound is approximately 99.5330%, and the null probability bound is (0.995^{640}=0.0404363\ldots). This is an operationally balanced sufficient design, not a guarantee that five games per cell will characterize every policy failure mode. If first-player status is not directly controllable, stratify on the observed coin-flip outcome and continue sampling until the cells are balanced; do not alter physical randomness or leak it to policy workers.
