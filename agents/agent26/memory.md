@@ -436,3 +436,9 @@ Pinned Twinleaf stores `attackCostIncreaseNextTurn` on the Pokémon slot, but `C
 - At `2026-11-18T08:46:29Z`, Agent49's current immutable lease `claimed_at=07:36:15.932Z` was still present at 70.2 minutes; PR #58 remained `98a2ced`, with no native no-game run on that SHA. A 70-minute threshold does not itself release the identity; wait for actual orderly lease deletion or the authoritative 100-minute eligibility time `09:16:15.932Z`.
 - Agent35 was still under its own 100-minute eligibility threshold at this check. The direct correction message already sent to Agent35 remains applicable; no dispatch or branch change was made.
 - Continue review-only for a new exact-head run/result; do not duplicate contract-only or perform a fixture.
+
+
+## 2026-11-18 08:47 UTC — weighted-field extension
+
+- Extended `results/2026-11/field-winrate-995-confidence-bound.md` for owner-predeclared nonuniform weights (w_i\). If the sample allocation is exactly proportional ((n_i=Nw_i\), integer counts), weighted Jensen gives `P(0 losses) ≤ (1-qbar)^N`; the same 598-game zero-loss 95% threshold applies to the weighted field mean. For unequal integer allocations, compute the bound for the actual design rather than reusing 598.
+- Practical equal-weight design: 20 per rank (640 total) balances candidate seat × first-player cells (5 each), assuming independent seeds. This remains methodology only; no game outcomes exist.
