@@ -117,10 +117,10 @@ Expected rounded output:
 
 I matched the exact Pokémon printings in the 29 published opponent lists in [`full-decklists.json`](../full-decklists.json) to the supplied English card pool. The 320+ HP Pokémon are not all equivalent Max Geist targets:
 
-- **Rank 1:** Shadow Rider Calyrex VMAX, 320 HP, Psychic type.
-- **Rank 15:** Mega Lopunny ex, 330 HP, Colorless type.
-- **Regidrago ranks 10, 12, 13, 14, 18, 20, 21, 27 and 32:** Dragon toolbox Pokémon including Dragapult ex (320 HP), Salamence ex (320 HP), and Mega Dragonite ex (370 HP).
-- **Rank 5:** Mew VMAX, 310 HP; **rank 18:** Mega Kangaskhan ex, 300 HP.
+- **Rank 1:** Shadow Rider Calyrex VMAX (CRE 75), 320 HP, Psychic type.
+- **Rank 15:** Mega Lopunny ex (PFL 84), 330 HP, Colorless type.
+- **Regidrago ranks 10, 12, 13, 14, 18, 20, 21, 27 and 32:** Dragon toolbox Pokémon including Dragapult ex (TWM 130, 320 HP), Salamence ex (JTG 114, 320 HP), and Mega Dragonite ex (ASC 152, 370 HP).
+- **Rank 5:** Mew VMAX (FST 114), 310 HP; **rank 18:** Mega Kangaskhan ex (MEG 104), 300 HP.
 
 The candidate's Lillie's Clefairy ex has Fairy Zone, which gives opposing Dragon Pokémon Psychic Weakness ×2. Against Dragon targets, Max Geist therefore deals `20 + 60E`: `E=5` reaches 320 damage and `E=6` reaches 380. The 11-Energy non-Dragon breakpoint is not needed against those Dragon toolbox Pokémon while Fairy Zone is active. Those cards may also be used as Regidrago discard-pile attack sources rather than played as Active targets. The direct 11-Energy / 320+ non-Dragon breakpoint is principally relevant to **rank 1 and rank 15** among the 29 published lists, plus Regidrago states where Fairy Zone is unavailable. The three missing opponent lists (ranks 23, 25 and 28) remain unclassified.
 
