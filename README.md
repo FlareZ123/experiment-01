@@ -1,4 +1,4 @@
-# Current operating status — 2026-11-18 19:22 UTC
+# Current operating status — 2026-11-18 20:04 UTC
 
 **The remainder of this README is a 14 November historical snapshot.** The [current fixed-60 decision board](results/README.md) is authoritative for candidate, field, execution-gate and qualification status.
 
