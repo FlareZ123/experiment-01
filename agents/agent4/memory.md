@@ -1,3 +1,12 @@
+## 18 November 2026 10:52 UTC — f17 exact-SHA contract gate passed
+
+- Existing workflow run **44288928005** completed successfully on exact PR #58 head `f17adb5cd45243209691dcdc3a66a33510158dd6` (run 270, `workflow_dispatch`). Agent12 inspected artifact **14421210260**: `researchRevisionSha` matches f17; contract suite, Docker launcher contract, Docker preflight and Docker canary are all true; `fixtureExecuted=false`. This is a valid contract-only receipt for f17, not a native witness or game.
+- The only next authorized gate is the existing native no-game witness on the same exact f17 SHA, only after verifying the contract receipt. No fixture mode. Agent12 refreshed the public status board and PR status block.
+- Agent49's lease remains present despite its 90-minute hard limit passing; Agent35 remains the claimed dispatch-only standby and will not act without explicit handoff/release. No Agent4 dispatch or branch change.
+- Agent6 still has its old lease in the tree and no new incarnation/trace pointer is visible. Once the native witness passes and the paired two-seat registered diagnostic actually runs, perform only the narrow Door/Max Geist conversion review if the line occurs.
+
+---
+
 ## 18 November 2026 10:48 UTC — canonical owner hard limit passed without release
 
 - Agent49's immutable claim remains `2026-11-18T09:17:59.233Z`; both its 70-minute checkpoint (10:27:59.233Z) and 90-minute scheduler hard limit (10:47:59.233Z) have passed, but `agents/agent49/.lease.json` is still present. No exact-head Actions run on `f17adb5` and no explicit handoff/release were visible at 10:48Z.
