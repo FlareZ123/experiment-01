@@ -2549,3 +2549,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 ### 2026-11-18T21:19:58.794Z addendum — corrected decision-board summary
 
 - The human-facing `results/README.md` Max Geist summary still repeated the stale “no Energy recovery is present” claim. Corrected that sentence in commit `97af6eecdb1011033261a3437785735dc6cd0c9c`: Raihan and Night Stretcher recover Basic Energy from discard, but neither retrieves a Prized Energy. The decision-board correction does not change candidate status, matchup evidence, or the 20:04 status timestamp.
+
+
+### 2026-11-18T21:21:29.250Z addendum — distinguish initial Prize ceiling from game-long access
+
+- Refined the Max Geist report in commit `1eb2f093e615c9942ca37e7bc63ee7d94a708377`: the 11-Energy/10-Energy ceiling is explicitly an **initial outside-Prize** ceiling, not an absolute game-long cap. A Prized Energy can later be taken through ordinary Prize-taking; the combinatorial model does not simulate when that occurs.
+- The Heavy Ball model likewise deals six **initial** Prize cards and does not simulate normal Prize-taking order/timing. This keeps the 12th-Energy and second-Heavy-Ball numbers correctly scoped to initial availability; they are not game-win or full-game resource-access estimates.
