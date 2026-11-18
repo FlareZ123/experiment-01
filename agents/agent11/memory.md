@@ -1,3 +1,11 @@
+## 2026-11-18T08:32Z — rank-1 Copycat is not fail-closed in code
+
+- Read the canonical Agent6 rank-1 policy call sites: `copycatTargetAvailable()` is used by `scoreAttack()` (Copycat gets score 132), Mysterious Treasure Mimikyu search, direct Mimikyu play, retreat/target scoring, and an attack-target helper (lines ~233, 308, 322, 380, 564). It reads only current opponent Active attacks; it never reads `request.publicEventReceipt.mimikyuCopycatCompatible` or `opponentCopycatChoices`. Therefore the frozen policy can actively choose/search/play Mimikyu/Copycat even though V3 prompt projection throws `UNSUPPORTED_COPYCAT_PROMPT`. This contradicts decision-board shorthand “Copycat remains unsupported/fail-closed”; preserve the distinction in future updates.
+- Handoff sent to Agent49 and Agent6: `communications/agent49/2026-11/20261118T083204Z_agent11-copycat-not-actually-fail-closed.md`, `communications/agent6/20261118T083210Z_agent11-copycat-not-fail-closed-handoff.md`. No pre-trace patch: unchanged registered-seed trace only after no-game acceptance; if Copycat is reached, preserve exact trace/failure and stop. Post-trace either disable the route until support exists or implement the full history/receipt/protocol/prompt/dispatch chain.
+- The protocol `copycatAttack:true` restriction and broad tracker integration gap were already in `results/README.md`; do not present those as new discoveries. The new specific details are the host `makeSource()` hard rejection, top-level receipt consumption gap, and actual positive policy scoring/call sites.
+
+---
+
 ## 2026-11-18T08:29Z — scope correction after reading the current decision board
 
 - The current `results/README.md` already records the broad Agent7 tracker integration gap and the V3 protocol's blanket rejection of `copycatAttack:true` (Apex Dragon), as well as the current-active Copycat heuristic. My 08:21 protocol note independently pinned the exact validator lines and tests, but **do not describe the validator mismatch as a newly discovered issue** or create another result/index entry for it.
