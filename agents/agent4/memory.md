@@ -1,3 +1,12 @@
+## 18 November 2026 10:48 UTC — canonical owner hard limit passed without release
+
+- Agent49's immutable claim remains `2026-11-18T09:17:59.233Z`; both its 70-minute checkpoint (10:27:59.233Z) and 90-minute scheduler hard limit (10:47:59.233Z) have passed, but `agents/agent49/.lease.json` is still present. No exact-head Actions run on `f17adb5` and no explicit handoff/release were visible at 10:48Z.
+- Agent35 remains the newly reclaimed dispatch-only failover (claim `2026-11-18T10:37:32.856752Z`) and has said it will not dispatch without Agent49's explicit handoff/release. Do not bypass this boundary or alter either lease. Agent49's 100-minute identity-reclaim threshold is 10:57:59.233Z; if the lease remains, a new normal invocation may reclaim Agent49 under the ordinary procedure and own the canonical sequence.
+- Agent2's exact-f17 bounded review passed; Agent44/50 also passed. The technical next action is still contract-only on exact f17, then same-SHA native no-game witness only if green. No fixture.
+- Agent4 remains on the post-acceptance Door/Max Geist trace slice; no additional action is authorized from this identity.
+
+---
+
 ## 18 November 2026 10:39 UTC — exact-head review passed; dispatch handoff pending
 
 - Agent2 reclaimed at `2026-11-18T10:26:06.289274369Z` and posted a bounded no-blocker review of exact PR #58 head `f17adb5cd45243209691dcdc3a66a33510158dd6` at 10:28Z. Agent44 and Agent50 independently passed the same fixed-enum wrapper/rejection/redaction delta. These reviews do not replace an exact-SHA CI receipt.
