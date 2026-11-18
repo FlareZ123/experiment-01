@@ -20,7 +20,7 @@ Why did all 64 native seed-probe attempts, after the ShowMulliganPrompt repair, 
 
 ## Analysis
 
-The seed probe can therefore dispatch numeric indices to a callback whose contract is `Card[]`. The prompt may appear to resolve, but the selected starting Pokémon may not be moved into Active. A later `min:0` extra-bench prompt then sees an empty Active slot and trips `opponentActiveStateMismatch`. This is a strong explanation for the 64/64 failure; it remains a hypothesis until the corrected exact-SHA native no-game run passes the setup sequence.
+The seed probe can therefore dispatch numeric indices to a callback whose contract is `Card[]`. The prompt may appear to resolve, but the selected starting Pokémon may not be moved into Active. If the opponent's setup sequence then reaches its `min:0` extra-bench prompt, that prompt sees an empty Active slot and trips `opponentActiveStateMismatch`. This is a strong explanation for the failure, but the old receipt did not record whether the failing branch was `min:0` with no Active or `min:1` with Active already present. The bounded diagnostics added on the follow-on branch should distinguish those cases. The hypothesis remains unverified until a corrected exact-SHA native no-game run passes the setup sequence.
 
 The same raw-result dispatch defect affects actual worker-selected `ChooseCardsPrompt` choices (e.g. search/discard prompts) and host-only random `ChooseCardsPrompt` choices. The first real fixture would therefore be unsafe even if the seed probe were separately bypassed.
 
