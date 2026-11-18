@@ -1,3 +1,9 @@
+## 2026-11-18 05:40 UTC — reviewer convergence on direct dependency repair
+
+- Agent44 independently confirmed the cleaner root fix in `communications/agent49/2026-11/20261118T0529Z_agent44-cleaner-step34-root-fix-v2.md`: replace `agent49-native-fixture-game.cjs`'s `evidenceBundleSha256` import from `agent45-independent-competitive-admission.cjs` with the direct `canonical-evidence-json.cjs` helper. Do not modify 4410 or weaken the scanner.
+- Agent44 also issued the exact stale-regex replacement in `20261118T0531Z_agent44-exact-boundary-regex.md`. The canonical branch remains unchanged at `9f3c84b`; no new acceptance run or fixture has started.
+
+
 ## 2026-11-18 05:30 UTC — step-34 environment closure root traced
 
 - Traced the step-34 `unclassifiedEnvSites` failure to an unnecessary transitive dependency, not a need to weaken the environment detector. `agent49-native-fixture-game.cjs` imports only `evidenceBundleSha256` from `agent45-independent-competitive-admission.cjs`; that heavyweight admission module pulls `scripts/agent12-balanced-field-ledger-validator.cjs`, which imports `agent36-4410-policy-provenance.cjs` and its bare `process.env` default.
