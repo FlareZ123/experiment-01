@@ -93,32 +93,29 @@ All five-Bench, Energy-count, and damage examples above are rules/card-text deri
 
 ## Controlled interaction matrix
 
-Do not add Enamorus V to the nominated 60 before the V3 acceptance and first natural-terminal trace stopline clears. Afterward, test this as a separate one-card candidate variant, retaining both Hoods initially and recording which card is displaced.
+Do not add Enamorus V to the nominated 60 before the V3 acceptance and first natural-terminal trace stopline clears. Afterward, test this as a separate candidate variant, retaining both Hoods initially and recording which card is displaced.
 
 | Scenario | Required observation |
 |---|---|
-| Enamorus V in play, Hood attached to Enamorus, Garbotoxin active; Shadow Rider has Psychic Energy | Does Hood preserve Enamorus's Guardian of Love, and does Guardian of Love prevent Garbotoxin from suppressing the protected Shadow Rider? |
+| Enamorus V in play, Hood attached to Enamorus, Garbotoxin active; Shadow Rider has Psychic Energy | Does Hood preserve Enamorus's Guardian of Love, and does Guardian prevent Garbotoxin from suppressing the protected Shadow Rider? |
 | Hooded Enamorus; Psychic-Energy-attached Lillie's Clefairy ex; Initialization / Garbotoxin active | Does Guardian preserve Fairy Zone on Clefairy, retaining Psychic Weakness on opposing Dragon Pokémon for the Mimikyu Copycat counter-line? |
-| Hooded Enamorus; Psychic-Energy-attached Latias ex; Initialization / Garbotoxin active | Does Guardian preserve Skyliner and free retreat for the candidate's Basic Pokémon (not VMAX)? |
-| Hooded Enamorus; Psychic-Energy-attached Marshadow on the Bench; Garbotoxin active | Does Guardian preserve Resetting Hole, and does its use discard Marshadow and all attached cards after removing the Stadium? |
-| Marshadow on the Bench; Path to the Peak versus Silent Lab | Confirm Resetting Hole remains active under Path to the Peak (no Rule Box) but is suppressed by Silent Lab (Basic Pokémon); note that Path plus Garbotoxin suppresses both the Guardian source and Marshadow. |
-| Tapu Lele-GX or Radiant Eternatus played while a suppressing lock is already active | Confirm an on-play Wonder Tag / Climactic Gate trigger cannot be recovered by attaching Psychic Energy after the Pokémon enters play; distinguish Initialization's V/ex-only scope from broad Ability locks. |
+| Hooded Enamorus; Psychic-Energy-attached Latias ex; Initialization / Garbotoxin active | Does Guardian preserve Skyliner and free retreat for Basic Pokémon (not Shadow Rider VMAX)? |
 | Garbotoxin / Initialization already active, Hooded Enamorus present, Shadow Rider VMAX initially has no Psychic Energy; attach one Psychic Energy normally | Does Guardian immediately prevent the existing lock effect on that Shadow Rider and restore Underworld Door? |
-| After the first Shadow Rider is protected, use its Underworld Door to energize a second Benched VMAX | Does the second VMAX become protected and regain its own unused Underworld Door in the same turn, allowing a cascading seed sequence? |
-| Hooded Enamorus; Psychic-Energy-attached Latias ex; Initialization / Garbotoxin active | Does Guardian preserve Skyliner and free retreat for the candidate's Basic Pokémon? |
-| Hooded Enamorus; a non-Psychic Pokémon (for example Dialga-GX) receives Psychic Energy through the normal attachment; Garbotoxin active | Does Guardian protect the target based on attached Psychic Energy despite its non-Psychic type? |
-| Ability lock already active, then Tapu Lele-GX or Radiant Eternatus is played from hand | Confirm the on-play Wonder Tag / Climactic Gate triggers are not assumed to be rescued by Guardian, because no Psychic Energy can be attached before the trigger. |
-| Hooded Enamorus; Psychic-Energy-attached Marshadow UNB 81; Garbotoxin active | Can Guardian preserve Resetting Hole? If used, confirm Marshadow and its attached Energy are discarded, reducing Max Geist by 30 and ending its protection contribution. |
-| Same board, then Field Blower removes Hood from Enamorus | Does Guardian of Love cease protecting the Shadow Rider? Can the reserve Hood restore the shield on the same turn? |
-| Enamorus V in play without a Hood, Garbotoxin active | Confirm that Enamorus is suppressed because it is excluded from its own protection. |
-| Opponent's Basic Ability lock / Wobbuffet | Check whether Enamorus remains active under the exact Ability text and whether the protected Shadow Riders remain covered. |
-| Silent Lab or Path to the Peak | Confirm these Stadium effects are not prevented by Guardian of Love; record the candidate's Stadium answer. |
-| Shadow Rider with no Psychic Energy attached | Confirm that the Pokémon is not protected until Psychic Energy is attached. |
-| Rank31 Dusknoir Cursed Blast targets a Shadow Rider with Psychic Energy | Are damage counters prevented by Guardian of Love while Dusknoir still self-KOs, matching the official Luminous Wing Q&A? |
-| Dusknoir targets Enamorus V itself | Confirm that Enamorus is excluded from its own protection and that Hood is required to protect it. |
+| After the first Shadow Rider is protected, use its Underworld Door to energize a second Benched VMAX | Does the second VMAX become protected and regain its own unused Underworld Door in the same turn, allowing the cascade? |
+| Hooded Enamorus; a non-Psychic Pokémon such as Dialga-GX receives Psychic Energy through the normal attachment; Garbotoxin active | Does Guardian protect the target based on attached Psychic Energy despite its non-Psychic type? |
+| Hooded Enamorus; Psychic-Energy-attached Marshadow on the Bench; Garbotoxin active | Does Guardian preserve Resetting Hole? If used, does Marshadow discard itself and all attached cards after discarding the Stadium? |
+| Marshadow on the Bench; Path to the Peak versus Silent Lab, with Garbotoxin layered as a separate condition | Confirm Resetting Hole is not suppressed by Path to the Peak (Marshadow has no Rule Box) but is suppressed by Silent Lab (Marshadow is Basic); Path plus Garbotoxin suppresses Enamorus's Guardian and Marshadow, so the ability cannot be assumed available. |
+| Tapu Lele-GX or Radiant Eternatus played while a suppressing lock is already active | Confirm an on-play Wonder Tag / Climactic Gate trigger cannot be recovered by later Psychic attachment; distinguish Initialization's V/ex-only scope (affects Tapu Lele-GX, not Radiant Eternatus) from broader locks. |
+| Same board, then Field Blower removes Hood from Enamorus | Does Guardian cease protecting the Shadow Rider? Can the reserve Hood restore the shield on the same turn? |
+| Enamorus V in play without a Hood, Garbotoxin active | Confirm Enamorus is suppressed because it is excluded from its own protection. |
+| Opponent's Basic Ability lock / Wobbuffet | Check whether Enamorus remains active under the exact Ability text and whether protected Shadow Riders remain covered. |
+| Silent Lab or Path to the Peak | Confirm these Stadium effects are not prevented by Guardian or Stealthy Hood; record the candidate's Stadium answer. |
+| Shadow Rider with no Psychic Energy attached | Confirm the Pokémon is not protected until Psychic Energy is attached. |
+| Rank31 Dusknoir Cursed Blast targets a Shadow Rider with Psychic Energy | Are damage counters prevented by Guardian while Dusknoir still self-KOs, matching the official Luminous Wing Q&A? |
+| Dusknoir targets Enamorus V itself | Confirm Enamorus is excluded from its own protection and Hood is required to protect it. |
 | Enamorus V damaged, Acerola used before KO | Does Acerola preserve Enamorus and its attached Hood; what Supporter/tempo cost and rebench timing result? |
 | Enamorus V Knocked Out or gusted | Measure the two-Prize cost and loss of the board-wide shield. |
-| Field Blower / Megaton Blower / Faba | Distinguish discard, full attached-Tool sweep and Lost Zone placement; do not conflate their recovery options. |
+| Field Blower / Megaton Blower / Faba | Distinguish discard, full attached-Tool sweep, and Lost Zone placement; do not conflate their recovery options. |
 
 ## Evidence status
 
