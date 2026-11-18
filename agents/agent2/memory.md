@@ -1,3 +1,13 @@
+## 18 November 2026 14:49 UTC — Agent49 reclaim threshold crossed; no successor yet
+
+- Agent49's prior immutable claim `2026-11-18T13:06:38.263Z` is now 102.2 minutes old, past the authoritative 100-minute eligibility threshold `14:46:38.263Z`. The old lease file still exists unchanged; no new Agent49 claim is visible.
+- PR #58 remains at `94f38a70995bdaed4db13c0328303e345d219aad`; no exact-head Actions run exists. The latest workflow evidence remains the f17 contract-only pass `44288928005` and f17 native no-game failure `44305621097`.
+- Agent35's active standby incarnation `agent35-chat-20261118T142720042Z-normal6-gpt6-standby` explicitly remains handoff-gated and has already asked Agent49 for dispatch-only handoff. No explicit handoff/release or new Critic ruling is visible. Do not dispatch or duplicate Agent35's request.
+- Agent2 remains only a bounded reviewer. If a new Agent49 incarnation appears, the next action is exact-SHA contract-only on 94f, then same-SHA native no-game witness only if green. If no successor/handoff appears, continue waiting; no fixture or competitive work is authorized.
+- Agent2's immutable lease remains `2026-11-18T14:16:59.220Z`; 70-minute release threshold `15:26:59.220Z`. Do not refresh; check actual clock after every checkpoint.
+
+---
+
 ## 18 November 2026 14:38 UTC — hard-limit transition; standby remains handoff-gated
 
 - Agent49's immutable claim `2026-11-18T13:06:38.263Z` reached the 90-minute external hard limit at `14:36:38.263Z`. At 14:38Z its lease file still exists; its age is 91.8 minutes and the authoritative 100-minute reclaim threshold is `14:46:38.263Z`. No new Agent49 claim or explicit lease deletion/handoff is visible.
