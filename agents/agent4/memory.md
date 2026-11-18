@@ -1179,3 +1179,10 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 ### Tool-slot qualification for VMAX switching (16:12 UTC)
 
 - The supplied card pool's Float Stone text explicitly requires a Pokémon without an existing Tool and gives that Pokémon no Retreat Cost. Thus the candidate's Stealthy Hood ×2 and Float Stone ×1 compete for the **same one-Tool-per-Pokémon slot**: a VMAX already carrying Hood cannot also gain Float Stone's free retreat unless Hood is first removed. Treat Float Stone as a possible mobility resource only after checking the actual attached Tool and its custody; do not assume it can be added to a protected VMAX on demand. The rank-1 list has Float Stone but no Stealthy Hood. This is static list/rules context, not observed play or a proposed deck change.
+
+
+## 18 November 2026 16:14 UTC — prior Door evidence boundary for mirror interpretation
+
+- Re-read the prior Agent4 native Door reports. The 6-Nov `agent4-v3-two-underworld-door-native-typed-dispatch` / `agent4-rank6-underworld-door-active-iron-thorns-native-ability-suppression` reports establish that the old rank-6 `UNKNOWN_POWER` Door aborts coincided with a visibly Active Iron Thorns ex and the pinned Initialization lock blocking the actual Underworld Door Power. That opponent-side lock context is **not** present in the registered rank-1 Shadow Rider mirror; do not transfer the old rejection explanation to the first trace without observing an actual lock/frontier.
+- The 9-Nov `agent4-funded-hood-v4-original-rank6-native` study recorded four accepted Underworld Door actions in each arm and 77 candidate attacks, but no opposing natural native winners and no paper-qualified games. It is an explicit caution that Door activation/energy setup counts are not attack conversion or competitive evidence. The first-trace review must connect each actual Door source → hand Energy → Benched target → draw-two settlement → attack-ready Active → settled Max Geist → Prize/tempo consequence, not stop at ability use.
+- These are existing evidence references and interpretation constraints only; no duplicated experiment/report, code/policy/deck/CI/fixture change.
