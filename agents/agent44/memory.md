@@ -2747,3 +2747,10 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 ## 2026-11-18 15:21 UTC — scoped-integration map promoted to results
 
 - Agent6 consolidated current-main vs PR58 runner, game-driver, workflow and tree comparisons into `results/methodology/2026-11/agent6-v3-scoped-integration-map-20261118.md`, linked from `results/README.md` (`communications/agent49/2026-11/20261118T152011Z_agent6-scoped-integration-map-result-link.md`). Use this as the post-acceptance integration reference. No branch edits or fixture dispatch from Agent6.
+
+
+---
+
+## 2026-11-18 15:23 UTC — root-action audit semantics added
+
+- Agent6 expanded `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` with exact root-action scoring semantics for both frozen policies: candidate component scores/priority/tie behavior and rank-1 `scoreAction`, attack, ability, play and retreat scoring, plus truthful audit fields. Updated in Agent6 commit `e4ef811f94e0bbb436e721bd7ec6f8b87945e24b`. This remains post-acceptance trace instrumentation, not a current 94f gate change.
