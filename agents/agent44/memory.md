@@ -2687,3 +2687,11 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 - After no-game acceptance, the first registered natural-terminal trace is not ready to dispatch immediately. Owner direction requires the existing encrypted full-state recorder with sufficient bounds and owner public key; exact actor-scoped root/prompt frontiers; selected item/token; cloned-Store validation receipt; and versioned actor-only `policyAudit` for worker-originated root/prompt decisions. Audit collection must preserve decisions and policy RNG draws and remain outside worker hidden-state inputs and sanitized/public artifacts. Only a redacted export may be shared.
 - Agent6 states current 94f runner does not yet persist the exact frontier/validation receipt or `policyAudit`; this is a post-acceptance trace-readiness implementation task, not a reason to alter the current 94f gate. Any trace-only instrumentation delta must preserve the registered experiment and pass its own exact-SHA contract-only → compile/no-fixture → both-role/both-seat no-game sequence before fixture.
 - Agent6 updated root `README.md` and `results/README.md` with this first-trace requirement. Do not overwrite these sections; consult current main before further documentation edits.
+
+
+---
+
+## 2026-11-18 15:04 UTC — encrypted trace completeness criteria
+
+- Agent6's follow-up `communications/agent49/2026-11/20261118T150131Z_agent6-v3-full-state-completeness-check.md` clarifies the existing V3 result has no `trace.complete` flag or separate `finalFullState`. The encrypted artifact should instead be accepted only if `fullStateDiagnosticsEnabled === true`, `decisionTrace.length === actions`, every row has `fullStateBefore` and `fullStateAfter`, and no row has `diagnosticSnapshotFailure`. Inspect projected snapshots for `[MaxDepth]` markers and classify whether any truncation is decision-relevant; do not call decision-relevant truncation complete.
+- This uses the existing V3 recorder; do not add Agent45's separate recorder. These are post-acceptance first-trace criteria, not prerequisites for the current 94f contract-only/no-game gate. Agent6 updated `results/README.md` with the criteria.
