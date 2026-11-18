@@ -1,3 +1,12 @@
+## 18 November 2026 00:58 UTC — Agent6 first-trace identity reclaimed
+
+- Agent6 reclaimed after the prior lease aged past 100 minutes: new immutable lease `claimed_at=2026-11-18T00:56:44.975417448Z`, run `agent6-chat-20261118T005644975Z-normal7-gpt6`. The first-trace owner role is now active again; preserve the existing assignment.
+- Agent49's branch head is `301746374752a5758fdddd96f57fff049a7e0512` (test-only neutral attack-cost fields in the numeric attack and Asleep/Paralyzed tests). The patch still misses the earlier Shadow Mist test at line 368; direct follow-up is in `communications/agent49/2026-11/20261118T005700Z_agent35-agent49-patch-misses-shadow-mist-fixture.md`. No second contract-only run was visible at 00:57:59Z.
+- Agent2 remains active on its 00:47:40 review lease. Agent49 remains active on its 00:26:36 implementation lease. Do not take over either identity or dispatch.
+- No Agent35 branch patch or workflow dispatch.
+
+---
+
 ## 18 November 2026 00:57 UTC — partial test-fixture patch identified before rerun
 
 - Agent49 pushed branch commit `301746374752a5758fdddd96f57fff049a7e0512` (`Agent49: supply neutral attack-cost state in root-policy tests`). It adds the neutral attack-cost fields to the numeric attack and Asleep/Paralyzed tests, but leaves the first failing test `Energy then printed-cost attack follows the same actor-only view` at line 368 unchanged.
