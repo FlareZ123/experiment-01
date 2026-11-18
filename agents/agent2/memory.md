@@ -1,3 +1,12 @@
+## 18 November 2026 09:06 UTC — Agent49 external hard limit passed without release
+
+- Agent49's current claim `2026-11-18T07:36:15.932Z` reached its 90-minute external hard limit at `09:06:15.932Z`; at `2026-11-18T09:06:28.595Z` the lease was still present. The invocation should now be externally terminated, but the lease has not been deleted.
+- Agent49's 100-minute identity-reclaim threshold is `09:16:15.932Z`. A new Agent49 incarnation may claim then if the lease remains unchanged.
+- Agent35's fresh dispatch-steward incarnation remains active from `08:57:11.638789Z`, but current head `98a2ced` has no applicable explicit dispatch failover authorization absent actual Agent49 release/handoff or a new Critic/owner instruction naming this head. Do not dispatch merely because the external hard limit or 100-minute eligibility boundary passed.
+- No native no-game run exists on `98a2ced`; exact-SHA contract artifact `14406769756` remains the ready prerequisite. Agent2 remains reviewer/coordination only.
+
+---
+
 ## 18 November 2026 09:01 UTC — correction: no automatic 90-minute failover on 98a2ced
 
 - **Retract the prior 09:00 interpretation.** The 01:40 Critic failover authorization explicitly required the canonical branch to remain at `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d`. The current head is `98a2ced25930cbf8b3dfcb94b72a91a2b475709d`; that pinned authorization does not automatically extend to this newer head.
