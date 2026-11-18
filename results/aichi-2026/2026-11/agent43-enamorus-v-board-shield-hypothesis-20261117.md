@@ -96,6 +96,18 @@ The candidate-specific card text yields a more favorable energy-allocation pictu
 - Once the Active VMAX is already energized and protected, its Underworld Door can seed a Benched VMAX; that newly protected VMAX can use its own Door, and the third VMAX can use its Door. Three Door activations plus the normal attachment can seed the four Benched targets. This is a plausible sequencing target, not a verified lock-breaking sequence; it assumes the Enamorus/Hood prevention chain works and all three abilities remain available.
 - Enamorus access is not free: Fog Crystal and Mysterious Treasure also connect to core Shadow Rider, Clefairy, and Psychic Energy resources. The policy must compare the matchup-conditioned shield value against the best alternative use of those connectors (DCI/AMR and connector domination), rather than fetching Enamorus automatically.
 
+
+### Ability-lock bootstrap hypothesis
+
+The energy condition may permit a useful bootstrap even when the opponent's Ability lock is already active:
+
+1. Establish Enamorus V with Stealthy Hood, so the proposed Guardian source remains active.
+2. A Shadow Rider VMAX that has no Psychic Energy is still suppressed by the opposing lock. Give one Shadow Rider VMAX a Psychic Energy through the **normal attachment**. If Guardian dynamically prevents the lock effect on an energized Pokémon, that VMAX should regain Underworld Door.
+3. Use that protected VMAX's Underworld Door to attach Psychic Energy to a Benched Shadow Rider VMAX or Lillie's Clefairy ex. The newly energized target should then become protected and, if its once-per-turn Ability has not been used, may use its own Underworld Door to seed another target.
+4. Repeat across the available VMAX sources, with the normal attachment available to cover one additional Benched Psychic target.
+
+This would make the first normal attachment the seed and the other attachments engine-accelerated; it does not require the first VMAX to be attack-ready before the protection chain begins. The Active VMAX still needs three total Energy to use Max Geist, which can be completed separately. The sequence is only a rules-derived hypothesis: the key untested step is whether Guardian's prevention dynamically lifts an already-applied continuous Ability lock immediately after Psychic Energy is attached, and whether a newly protected VMAX can activate its Ability in the same turn. The post-first-trace matrix should test the lock as already active before the seed attachment, not only a board where Energy was attached before the lock appeared.
+
 The board target is a post-first-trace research hypothesis, not a deck change. The central Hood-on-Enamorus / Guardian-vs-Initialization-or-Garbotoxin interaction, practical setup rate, Tool-removal resilience, prize liability, and field-wide win-rate effect remain unresolved.
 
 ## Controlled interaction matrix
@@ -105,6 +117,8 @@ Do not add Enamorus V to the nominated 60 before the V3 acceptance and first nat
 | Scenario | Required observation |
 |---|---|
 | Enamorus V in play, Hood attached to Enamorus, Garbotoxin active; Shadow Rider has Psychic Energy | Does Hood preserve Enamorus's Guardian of Love, and does Guardian of Love prevent Garbotoxin from suppressing the protected Shadow Rider? |
+| Garbotoxin / Initialization already active, Hooded Enamorus present, Shadow Rider VMAX initially has no Psychic Energy; attach one Psychic Energy normally | Does Guardian immediately prevent the existing lock effect on that Shadow Rider and restore Underworld Door? |
+| After the first Shadow Rider is protected, use its Underworld Door to energize a second Benched VMAX | Does the second VMAX become protected and regain its own unused Underworld Door in the same turn, allowing a cascading seed sequence? |
 | Same board, then Field Blower removes Hood from Enamorus | Does Guardian of Love cease protecting the Shadow Rider? Can the reserve Hood restore the shield on the same turn? |
 | Enamorus V in play without a Hood, Garbotoxin active | Confirm that Enamorus is suppressed because it is excluded from its own protection. |
 | Opponent's Basic Ability lock / Wobbuffet | Check whether Enamorus remains active under the exact Ability text and whether the protected Shadow Riders remain covered. |
