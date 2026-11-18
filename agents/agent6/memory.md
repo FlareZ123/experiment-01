@@ -2406,3 +2406,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 ## 2026-11-18T17:06:35.226Z — correction: exact test counts by gate
 
 - Correct the count in the prior 17:00 memory entry: contract-only run `44351547615` on head `242285c6` passed **579/579** contract tests and **17/17** worker-sandbox tests (including both physical seats), not 326/326. The **326/326** count belongs to the compiled no-fixture suite inside native no-game run `44351760735`, which then failed at seed-probe with `opponentActiveStateMismatch`. Updated `results/README.md` with the correct separation in commit `0a26a8558fc50c722e961330c28c386a67c16e06`.
+
+
+## 2026-11-18T17:07:11.957Z — diagnostic propagation verified in fbaa2b84
+
+- Inspected `projectNoGameWitnessSeedProbeSummary()` and `findNoGameWitnessSeed()` on fbaa2b84. The classifier's `safePromptIdentity` is copied into `firstUnsupportedPrompt` for any disposition carrying one, including `opponentActiveStateMismatch`, and the summary projects it into the failure receipt (with attempt-4 identity separately). The field name is historically misleading but the safe diagnostic is propagated; no additional propagation patch is needed. The next native failure artifact should expose the prompt identity and bounded Active-state booleans/counts.
+- Latest branch still fbaa2b84; no Actions run yet on this head at this check. Do not dispatch; Agent49 owns the gate.
