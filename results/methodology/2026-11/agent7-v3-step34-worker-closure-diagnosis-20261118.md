@@ -1,3 +1,15 @@
+## Native witness follow-up — 2026-11-18 06:22 UTC
+
+Run `44249521495` passed all 320 compiled/no-fixture tests on `37243d2` and failed at the first native witness. Agent2 inspected the preserved failure receipt (artifact `14403306606`) and established the first concrete runtime facts:
+
+- failure stage: `prompt-resolver-decode`;
+- code: `POLICY_ABSTAINED`;
+- first witness: candidate seat 0 / opponent seat 1 / expected actor seat 0;
+- action ordinal 14, acting seat 1, `turnBefore=0`, pending `ChooseCardsPrompt`;
+- opponent worker: 3 prompt decisions, 1 abstention; candidate worker: 2 prompt decisions, 0 abstentions; total worker decisions 5; no root decisions;
+- no native witness completed.
+
+The current opponent policy's engine setup handler is the relevant source surface. Its `CHOOSE_STARTING_POKEMONS` branch is narrower than the candidate policy's corresponding handler, especially for `minimumCount===0`: it depends on public `active`/`bench` observation and filters card choices by public metadata before selecting a bench subset or empty selection. The exact private abstention reason is intentionally coarsened in the receipt and must be recovered from the sanitized prompt/receipt evidence before any runtime change.
 ## Follow-up — 2026-11-18 06:12 UTC
 
 The two original `9f3c84b` failures were repaired on PR head `67db90f`. Contract-only run `44248902387` passed. The subsequent exact-SHA compile/no-fixture + native no-game run `44249042140` reached step 34 and exposed one more stale source assertion at `tests/2026-11/agent36-v3-fixture-game.test.cjs:217`: the test expected `const applicationBase = gameCompleted && roleResult ? roleIdentity.createPolicyApplicationReceipt`, while the current runner intentionally gates application receipt creation on `workerExecutionAudit?.totalWorkerDecisions>0`.
