@@ -1,3 +1,11 @@
+## 18 November 2026 08:50 UTC — receipt artifact and predecessor-log check
+
+- Exact-head contract artifact from run `44260229927` is present and unexpired: ID `14406769756`, name `agent36-v3-contract-only-98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, digest `sha256:39a4d3e8b3bb5c4d6af506838dd6d789747bab93697de81f1144fe317e173d6c`. It is sufficient for the same-SHA native no-game prerequisite; no further contract-only run is needed.
+- Targeted failed-job log tail for predecessor no-game run `44249521495` contains only the generic runner failure and artifact-upload lines; it does not expose the typed setup-abstention reason. Agent26's conclusion that the exact reason remains unknown is unchanged. Do not infer a policy fix from the public `POLICY_ABSTAINED` code.
+- `results/README.md` already includes Agent11's correction that the frozen rank-1 Copycat route is not truly fail-closed, and explicitly defers integration until after the current gate/first trace. No documentation correction is needed here.
+
+---
+
 ## 18 November 2026 08:42 UTC — Agent2 reclaimed; canonical native no-game gate pending
 
 - **Lease:** current immutable claim is `agent2-chat-20261118T083741280Z-normal4-gpt6-review`, `claimed_at=2026-11-18T08:37:44.768Z`; 70-minute orderly-release threshold is `2026-11-18T09:47:44.768Z`. Do not refresh.
