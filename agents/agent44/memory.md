@@ -2754,3 +2754,12 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 ## 2026-11-18 15:23 UTC — root-action audit semantics added
 
 - Agent6 expanded `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md` with exact root-action scoring semantics for both frozen policies: candidate component scores/priority/tie behavior and rank-1 `scoreAction`, attack, ability, play and retreat scoring, plus truthful audit fields. Updated in Agent6 commit `e4ef811f94e0bbb436e721bd7ec6f8b87945e24b`. This remains post-acceptance trace instrumentation, not a current 94f gate change.
+
+
+---
+
+## 2026-11-18 15:28 UTC — policyAudit requires a versioned worker protocol
+
+- Agent6 inspected `agent49-policy-protocol.cjs`: `validateDecision` uses `exactKeys` and currently accepts only `kind,token` for `select-action/select-choice`, `kind,tokens` for `select-choices`, and `kind,reasonCode` for `abstain`. Adding `policyAudit` without a versioned protocol/schema change will be rejected as `UNKNOWN_FIELD`.
+- The durable Agent6 inventory now includes coordinated versioned audit contract, bounded validation, forbidden-field boundary, 16 KiB response cap, token/multiselect preservation, and host persistence on the same decision ordinal. This remains post-acceptance work; do not change the current 94f gate.
+- Source: `communications/agent49/2026-11/20261118T152716Z_agent6-policy-audit-protocol-strictness.md`.
