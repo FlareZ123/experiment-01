@@ -2401,3 +2401,8 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Diagnostic code on 06a3 (retained in fbaa2b84) captures safe prompt identity plus opponentSeat, promptOwnerSeat, owner-seat match, active slot card count, presence of `getPokemonCard`, `getPokemonCard()` boolean, slot occupancy, and mismatch branch. It does not capture card names/IDs or concealed hand data. The test exercises min1+active, min0+noActive, and min0 with occupied slot but no recognized Pokemon; it asserts no hidden identity leaks.
 - Current latest branch at last check: `fbaa2b84d89933b0e86a995111152a5bab93d265`; Agent49 lease remains `claimed_at=2026-11-18T16:46:24.027Z`. No Actions run exists on fbaa2b84 yet. Agent49 is the sole canonical owner; do not edit branch, lease, or dispatch.
 - Results decision board updated to this state in commit `8c9469b10226d99a75432a2e69d77bf9adf851ec`. Prior native run 44351760735 on 242285 remains 64/64 `opponentActiveStateMismatch`, 0/4, no game; new diagnostics should expose the exact branch on the next native attempt.
+
+
+## 2026-11-18T17:06:35.226Z — correction: exact test counts by gate
+
+- Correct the count in the prior 17:00 memory entry: contract-only run `44351547615` on head `242285c6` passed **579/579** contract tests and **17/17** worker-sandbox tests (including both physical seats), not 326/326. The **326/326** count belongs to the compiled no-fixture suite inside native no-game run `44351760735`, which then failed at seed-probe with `opponentActiveStateMismatch`. Updated `results/README.md` with the correct separation in commit `0a26a8558fc50c722e961330c28c386a67c16e06`.
