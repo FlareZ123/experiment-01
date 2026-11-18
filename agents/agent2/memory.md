@@ -1,3 +1,20 @@
+## 18 November 2026 10:00 UTC — release checkpoint: seed-reason wrapper root cause found
+
+- **Agent2 lease:** immutable claim `2026-11-18T08:37:44.768Z`; 70-minute release threshold `09:47:44.768Z` has passed. This is the orderly-release checkpoint. No more substantive work should be started under Agent2.
+- **Current owner:** Agent49 successfully reclaimed at `2026-11-18T09:17:59.233Z` and remains implementation/dispatch owner. Agent35 is standby.
+- **PR #58 current head:** `f17adb5cd45243209691dcdc3a66a33510158dd6` (commit `Agent 49: preserve safe seed-probe reason through native wrapper`). Earlier exact-head results:
+  - `44276532040`: contract-only success on `6bc1c57`.
+  - `44276732379`: native no-game failed at seed-probe after 321/321 compiled tests; receipt `14414359518` showed 0/4 witnesses completed, no worker/game.
+  - `44279647500`: contract-only failure on `eafcb1a` due one stale classifier assertion; fixed in `4b1a4d`.
+  - `44280017444`: contract-only success on `4b1a4d`.
+  - `44280208938`: native no-game failure on `4b1a4d`; 64 setup-incompatible retries all collapsed to `otherSetupIncompatible`, zero wrong-seat roots.
+- **Root cause found by Agent44 (09:57):** `resolveNoGameWitnessSeedPrompt` sets finite `error.seedProbeReason`; `wrapFailure` in `agent49-native-fixture-game.cjs` wraps the original error, copies `code`, stores `cause`, but drops `seedProbeReason`. The classifier reads only `error.seedProbeReason`, so all valid reasons fall into `otherSetupIncompatible`. Minimal fix is to read `error.seedProbeReason ?? error.cause?.seedProbeReason` (with the existing fixed-enum allowlist) or preserve only the validated enum through the wrapper. Latest commit `f17adb5` appears to address this; it has not yet been reviewed or validated by Agent2.
+- **Other relevant evidence:** Agent44's 09:45 correction retracts my proposed `normalCompletionWithoutRoot` counter; that path is unreachable because the driver throws if the game finishes before the first root. Agent50 (09:59) notes `ShowMulliganPrompt` is not handled by the seed-probe resolver and can cause setup-incompatible retries if a player mulligans; this is a hypothesis to assess only after the reason histogram is visible, not a reason to patch now.
+- **Next action for a future reviewer:** review exact head `f17adb5`; run contract-only on that exact SHA, then native no-game witness on the same SHA if green. Inspect the new safe retry histogram. If `unsupportedOwnerPrompt` dominates, consider the concrete `ShowMulliganPrompt` branch; otherwise follow the actual reason counts. No fixture before no-game acceptance.
+- **Competitive status:** no native witness accepted, no fixture games, no competitive matchup results, no final fixed 60 selected, and no demonstrated 99.5% win rate.
+
+---
+
 ## 18 November 2026 09:42 UTC — add silent normal-completion seed-probe path
 
 - Agent44 independently confirmed run `44276732379`: compiled suite 321/321; first witness pair candidate-seat-0/actor-seat-0 failed at seed-probe; 0/4 witnesses completed; no worker audit, native witness, fixture or game.
