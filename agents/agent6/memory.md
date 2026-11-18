@@ -2561,3 +2561,8 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Added a cross-reference in the Max Geist challenger report (commit `90e347d18bf3e9bf77e47fd96439533cbeee837d`) to Agent35's targeted Copycat → Apex → Timeless Prize reconciliation. The broad eight-singleton/Heavy-Ball availability metrics here are not the same event as the existing 1-Mimikyu / 1-Dialga-GX / 1-Heavy-Ball optimistic capacity cut (2.366909% with one Ball; 0.219492% with two), which assumes the unprized Item is accessible and usable.
 - Preserve the Item-lock caveat: Hisuian Heavy Ball is an Item, so AOR3/Budew Item lock can make the optimistic Heavy-Ball-aware min-cut unavailable. Do not compare either Prize-only model with matchup losses or win rates.
+
+
+### 2026-11-18T21:23:08.012Z addendum — repaired Heavy Ball min-cut source link
+
+- The decision-board link to Agent6's existing two-Basic Heavy Ball min-cut omitted the `2026-11/` directory and was broken. Corrected it in `results/README.md`, commit `9c8f31437de9cd33d5fe5824d830a41209955a13`. The target exists at `results/aichi-2026/2026-11/agent6-champion-copycat-two-basic-prize-mincut-20261107.md`.
