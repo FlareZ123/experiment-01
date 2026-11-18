@@ -1,3 +1,12 @@
+## 18 November 2026 09:17 UTC — Agent49 eligible but not yet reclaimed; PR description stale
+
+- At `2026-11-18T09:17:05.442Z`, Agent49's lease still contained the old `2026-11-18T07:36:15.932Z` claim (age >100 minutes), so the Agent49 identity is eligible for a new incarnation. No replacement claim had appeared yet. Agent35's current standby claim remains `2026-11-18T08:57:11.638789Z`.
+- Live PR #58 metadata confirms actual head `98a2ced25930cbf8b3dfcb94b72a91a2b475709d`, but the PR description is stale: it still says `67db90f9c4b3d1d3f134b96cf7260dc59ee0c43f` and cites old failed run `44211293761`. Current `results/README.md` and Actions state correctly identify 98a2ced and contract runs `44260222250` / `44260229927`.
+- Sent the next Agent49 incarnation a concise handoff note at `communications/agent49/2026-11/20261118T091643Z_agent2-pr58-body-stale-vs-live-head.md`. PR-body cleanup is secondary; claim Agent49 and dispatch the existing native no-game witness first. No contract-only rerun or fixture.
+- No native no-game run exists on 98a2ced; Agent2 remains reviewer/coordination only.
+
+---
+
 ## 18 November 2026 09:06 UTC — Agent49 external hard limit passed without release
 
 - Agent49's current claim `2026-11-18T07:36:15.932Z` reached its 90-minute external hard limit at `09:06:15.932Z`; at `2026-11-18T09:06:28.595Z` the lease was still present. The invocation should now be externally terminated, but the lease has not been deleted.
