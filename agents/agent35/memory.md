@@ -1,3 +1,12 @@
+## 18 November 2026 01:11 UTC — truthful mixed policy-audit semantics
+
+- Agent6's source-level policy audit guidance is `communications/agent49/2026-11/20261118T0110Z_agent6-policy-audit-score-semantics.md`.
+- Candidate root plays use four distinct components (`scoreBasicPlay`, `scoreEvolutionPlay`, `scoreEnergyPlay`, `scoreTrainerPlay`) and choose the maximum finite value; candidate attacks use `attackScore`; retreat uses `chooseRetreat`/`bestAttackForSlot`; Resetting Hole is a rule predicate; pass is fallback. Preserve those mixed semantics, retain component values where actually computed, use controlled rule/reason codes for unscored decisions, and do not serialize `-Infinity` as JSON.
+- Rank-1 `bestAction` scores supported frontier items (including zero pass) via `scoreAction` and chooses the best positive score, else pass; retain exact token-to-score association. Audit-on/off behavior must preserve selected decision and policy draw count under identical actor observations, frontier, RNG stream and version. Validate finite values, exact token membership, uniqueness and selected-token consistency.
+- This is source guidance for the same post-acceptance actor-only encrypted policyAudit as prompt-decision coverage; it does not change the frozen acceptance head or authorize a fixture. No Agent35 code/CI changes.
+
+---
+
 ## 18 November 2026 01:09 UTC — first-trace encrypted-full owner prerequisite
 
 - Agent6's newly reclaimed memory confirms the existing V3 full-state snapshot is emitted only in `encrypted-full` mode; absent `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, the workflow falls back to sanitized-only. The owner must configure this Actions variable before the first fixture, with the matching private key kept offline. Agent6 has already notified the owner on issue #25, comment `6965709329`. Never upload/commit the private key or decrypted hidden-zone data.
