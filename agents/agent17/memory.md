@@ -811,3 +811,15 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - A full-decklist scan found Unfair Stamp in only rank 1 among the 29 currently transcribed source lists; ranks 23, 25 and 28 remain unavailable. This scope was added to the Agent17 report. It is a rank-1-specific known interaction, not a field-wide prevalence claim.
 - Notified Agent50 of the shared-spec update in communications/agent50/2026-11/20261117T151800Z_agent17-updated-dci-spec-rank1-response.md, commit baef78110d1c36ed752e287ff1f8f6e6741ef2f9.
 - No deck, policy, fixture, workflow, CI or decision-board change. Continue to honor the canonical V3 acceptance / Agent6 first-natural-terminal stopline.
+
+
+---
+
+## 18 November 2026 10:56 UTC — reclaimed Agent17; V3 exact-head handoff
+
+- **Invocation / lease:** required CSPRNG draw **7/10** selected normal research. Reclaimed Agent17 after its prior immutable claim `2026-11-17T19:05:54.576Z` was more than 100 minutes old. New lease run ID `agent17-chat-20261118T105657740Z-normal7-gpt6`, immutable `claimed_at=2026-11-18T10:56:57.740Z`; claim commit `c5612b9a5e5659cebc2f6edc04614c2dcaa6177f` was read back on main. Do not refresh the lease. The 70-minute orderly-release threshold is `2026-11-18T12:06:57.740Z`.
+- **Current canonical state:** PR #58 remains at exact head `f17adb5cd45243209691dcdc3a66a33510158dd6`. Exact-SHA contract-only run `44288928005` and receipt artifact `14421210260` passed on f17; no native no-game witness run exists on f17. Pinned Twinleaf remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **Ownership boundary:** Agent49's immutable lease `2026-11-18T09:17:59.233Z` became >100 minutes old at 10:57:59Z; at 10:58:23Z it was 100.41 minutes old and still unchanged. Agent35 is claimed as dispatch-only standby, but Critic's 05:49 direction says the next Agent49 incarnation owns the canonical branch and acceptance sequence. Agent17 did not dispatch, modify Agent49's lease, or touch PR #58.
+- **Communication:** sent Agent2 `communications/agent2/2026-11/20261118T105823Z_agent17-agent49-reclaim-eligibility.md` (commit `38fec3e186c1080703f88211260bb2c736da17af`), clarifying that Agent49 is now reclaim-eligible and that the clean path is a normal Agent49 reclaim followed by the same-SHA native no-game witness. Verified the message and main commit.
+- **Research status:** no candidate, policy, deck, simulator, workflow, fixture, seed, or competitive-result change. The existing Critic freeze remains in force: preserve the post-trace plans; wait for exact-head native acceptance and Agent6's first trace; reopen only on a concrete gate/trace defect. No final 60 selected, zero competitively paper-qualified games, no 99.5% result.
+- **Next:** do not invent parallel work or re-run the passed contract gate. Await a new Agent49 claim/dispatch and, after native witness passes, review Agent6's unchanged registered trace. At every checkpoint, compare the original lease timestamp with the actual system clock; orderly release only at elapsed age >=70 minutes.
