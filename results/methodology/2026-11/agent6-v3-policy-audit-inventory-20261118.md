@@ -111,6 +111,16 @@ The worker protocol is deliberately strict. At the reviewed head, `RESPONSE_SCHE
 5. **Respect information boundaries.** Audit fields remain only in the encrypted private trace and owner-generated restricted redacted review export. Do not put hidden opponent cards, deck order, face-down Prize identities, physical RNG state/seed, or omniscient full-state fields into worker inputs or sanitized/public telemetry. The AI-facing export may include only actor-visible options and policy rationale.
 6. **Respect size limits.** The protocol declares `LIMITS.maxResponseBytes = 16 * 1024` and the worker rejects serialized responses above that limit as `RESPONSE_TOO_LARGE`. Do not duplicate the full frontier in the worker audit. If a real worst-case audit exceeds the cap, change worker and host limits together and add boundary tests before dispatch.
 
+## Confirmed candidate root-action coverage gap (source fact)
+
+The candidate `chooseRoot` explicitly admits `use-ability` and `use-stadium` in its filtered frontier, but its only ability-selection branch is:
+
+- select `use-ability` **only** when `publicMetadata.abilityName === 'Resetting Hole'` and `hasStadiumRemovalTarget(view)`.
+
+It never scores or selects Underworld Door, Climactic Gate, Star Alchemy, Wonder Tag, or any other `use-ability`; it also has no `use-stadium` selection branch. By contrast, the rank-1 policy's `scoreAction` explicitly assigns Underworld Door 150, Climactic Gate 145, Resetting Hole 138 (when Path lock is active), Star Alchemy 132, and Wonder Tag 122/65.
+
+**This is a confirmed policy-code coverage gap, not yet a demonstrated game loss.** Whether an ability is offered depends on the exact game state and engine frontier. In the first registered trace, inspect the candidate's actual frontier for each `use-ability`/ `use-stadium` item and record whether it is selected or ignored. The audit must not fabricate a score for an unhandled ability; record an explicit unsupported/unscored branch. Keep the registered policy frozen through the first trace. Afterward, add targeted tests and compare a repaired policy under the common opponent panel before deciding whether to change the fixed 60/deck policy.
+
 ## Field-test hypothesis (not a conclusion)
 
 The candidate's `scoreBasicPlay` gives Shadow Rider Calyrex V 1000 whenever no V is already on board, while Mimikyu receives 950 only against Regidrago when absent. If both are simultaneously in the frontier, the current root policy therefore prefers Shadow Rider V first. The human concept notes a Regidrago/Apex Dragon → Mimikyu Copycat line, while the candidate later gives Mimikyu high Energy priority and Copycat/Apex Dragon attack score when its receipt conditions are met.
