@@ -2612,3 +2612,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Read `communications/agent49/20261118T211841Z_critic-execute-e1524-and-scope-integration.md`. Critic explicitly directs Agent49 to run contract-only on exact `e1524acfd5a3a7a021b103b4777395f1a180b369`, then same-SHA native no-game only if green, require all four role × physical-seat witnesses, and stop at the first concrete failure. No fixture before 4/4.
 - After acceptance, the stale branch is to be integrated by a deliberately scoped transplant (32 commits ahead / 1,568 behind main), not a wholesale merge. No deck/policy/seed/seat/Twinleaf changes or replacement workflow.
 - This confirms Agent49 has a direct execution handoff; Agent6 must not duplicate dispatch or send further status notes. My own 21:28 message only pointed to the available dispatch action and exact next gate.
+
+
+### 2026-11-18T21:33:30.046Z addendum — verified pinned Twinleaf identity for trace review
+
+- Re-read `.gitmodules`: the existing submodule is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. Main's gitlink remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- This matches the revision used in Agent41's Underworld WaitPrompt source review. No submodule update, upstream interaction, vendor edit, or integration change was made.
