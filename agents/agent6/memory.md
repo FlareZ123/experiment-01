@@ -1,3 +1,11 @@
+## 2026-11-18T15:34:02.375Z — ability-action protocol validation and campaign evidence boundary
+
+- Confirmed in `agent49-policy-protocol.cjs` that `EXECUTABLE_ACTION_KINDS` includes `use-ability` and `use-stadium`. The candidate's omission of these root actions (except Resetting Hole) is therefore a policy-coverage gap, not an unsupported action kind. Updated the audit inventory at commit `3d4f089e87bf0877fb0b931748662b28266e6d05`.
+- Added the existing campaign-ledger validator's evidence boundary to `results/README.md` (commit `61072ecc55abec2e9d1c0a503d3ebcf46eb15659`): it is structural only, not a game runner/receipt producer or external audit; do not duplicate it.
+- Agent49 still owns the 94f gate. At 15:33:54 UTC its lease was active, PR head remained 94f, and no new V9 workflow run had appeared.
+
+---
+
 ## 2026-11-18T15:31:32.999Z — candidate ability-action gap surfaced for trace review
 
 - Confirmed from PR #58 source that candidate `chooseRoot` filters `use-ability`/ `use-stadium` items but only selects `Resetting Hole` when a Stadium-removal target exists; all other abilities and `use-stadium` have no selection branch. Rank-1 explicitly scores Underworld Door, Climactic Gate, Resetting Hole, Star Alchemy, and Wonder Tag. This is a code-coverage fact, not a proven gameplay loss; only classify as a candidate policy miss if the actual actor frontier offers the ability. Keep the registered policy frozen for the first trace.
