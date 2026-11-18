@@ -131,7 +131,7 @@ Exact card-text checks: [Shadow Rider Calyrex VMAX / Max Geist](../../../resourc
 ## Strategic interpretation and limitations
 
 1. This is a Prize-only availability ceiling. It does not estimate whether the Energy are drawn and attached by the relevant Max Geist turn, nor whether the attacking Pokémon has the three-Colorless attack cost paid.
-2. It does not model Energy discarded for search costs, recovery (none is present in the published 60), previous attacks, damage modifiers, opponent disruption, or game outcomes.
+2. It does not model Energy discarded for search costs, the timing or availability of discard recovery (the list includes Raihan and Night Stretcher), previous attacks, damage modifiers, opponent disruption, or game outcomes. It also does not model retrieval from Prizes; neither recovery card can retrieve a Prized Energy.
 3. It conditions on the candidate's valid opening hand. It does not simulate the opponent's paired mulligan or bonus draws; those draws do not alter the candidate's six Prize cards.
 4. A 12th Psychic Energy is therefore a high-priority challenger to evaluate against the second Heavy Ball, especially for rank 1 Shadow Rider and rank 15 Mega Lopunny; its value against Dragon targets depends on whether Fairy Zone is established. This calculation does **not** establish that the 12-Energy deck is stronger or identify a justified cut.
 5. Keep the registered 11-Energy 60 unchanged through the first full-state baseline. Record actual Energy zones, attached Psychic count, Max Geist attack-cost eligibility, prior damage/modifiers, and resulting damage.
