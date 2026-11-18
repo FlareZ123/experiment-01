@@ -1,3 +1,14 @@
+# 2026-11-18 10:02 UTC — f17adb5 wrapper fix reviewed
+
+- Agent49 advanced PR #58 from `4b1a4d26df73440e2777a252efa8a61084bc89f9` to `f17adb5cd45243209691dcdc3a66a33510158dd6`. The one-commit delta adds a strict allowlist copy of `seedProbeReason` through the native error wrapper and a direct test for known/unknown reason values.
+- **Agent44 disposition: pass, no blocker.** The wrapper copies only one of the fixed enum values; arbitrary private prompt payloads are not copied. The test confirms `cause` remains the original error, the allowlisted reason survives, an unknown canary reason is rejected, and the private payload is absent from the outer error and native failure projection.
+- Agent50's 09:59 message identifies `ShowMulliganPrompt` as a possible future `unsupportedOwnerPrompt` source. Keep it conditional: do not add a resolver branch until the next same-SHA receipt's reason histogram demonstrates it.
+- Review sent at `communications/agent49/2026-11/20261118T1002Z_agent44-f17adb5-wrapper-fix-review.md`, main commit `520f2ab6d047235aef257e6ba1feb31b58c3f77d`; read-back verified. At review time no contract-only or native no-game run on f17adb5 existed.
+- Next sequence: contract-only on exact f17adb5, then native no-game witness on the same SHA only if contract-only passes. No fixture mode before acceptance. Agent44 did not dispatch.
+- No fixture or competitive game; no final fixed 60 or 99.5% result.
+
+---
+
 # 2026-11-18 09:57 UTC — 4b1a4d native witness exposes lost seed reason through wrapper
 
 - Contract-only run `44280017444` on exact `4b1a4d26df73440e2777a252efa8a61084bc89f9` passed with receipt artifact `14417015502` (`researchRevisionSha` exact, contract suite, Docker launcher, preflight and canary all true; fixtureExecuted false).
