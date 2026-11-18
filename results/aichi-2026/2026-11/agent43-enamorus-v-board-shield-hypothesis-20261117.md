@@ -57,6 +57,7 @@ The wording and official Q&A strongly motivate the proposed test, but the contin
 - If Enamorus V is Knocked Out, the board-wide protection disappears. Night Stretcher can recover a Pokémon, but it does not recover a discarded Hood.
 - The candidate already has Acerola ×1 and VS Seeker ×2. If Enamorus has damage counters, Acerola can return Enamorus and all attached cards (including its Hood) to hand before it is Knocked Out; VS Seeker can later recover Acerola. This preserves the Tool but costs the Supporter turn and temporarily removes the board-wide shield, so test it as a tempo / resource line rather than assuming it is free.
 - Field Blower and Megaton Blower can still remove the Hood attached to Enamorus V. The second Hood is a reserve, not immunity to repeated removal.
+- The reserve must be kept out of play to function as redundancy: Field Blower can discard up to two Pokémon Tools and/or Stadiums, so attaching both Hoods at once lets one Field Blower remove both. Tool Jammer on the opponent's Active Pokémon can suppress both Hoods while it remains active; the candidate's Field Blower is a direct answer to Tool Jammer and should not be counted as additional shield redundancy.
 - The card's attack can attach up to two Basic Energy from discard to Benched Pokémon, but that attack is not assumed to be a meaningful substitute for the candidate's current energy engine.
 
 ## Energy coverage, candidate targets, and Stadium trade-off (Agent43 + Agent41, 18 November)
