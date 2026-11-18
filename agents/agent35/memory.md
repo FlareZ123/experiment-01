@@ -1,3 +1,14 @@
+## 18 November 2026 16:43 UTC — 94f38a7 native witness failure isolated to ShowMulliganPrompt
+
+- **Run 44349582383 / 273:** exact-SHA contract-only 44349265149 passed; pinned Twinleaf checkout/compile and Docker runtime preflight passed; compiled no-fixture suite passed **324/324**. Native no-game witness failed only at seed-probe stage. No game executed and no witness completed.
+- **Sanitized receipt:** run artifact `14448475794`, file `agent36-v3-fixture/native-no-game-witness/failure-candidate-seat-0-actor-seat-0.json`. It reports 64/64 attempts as `unsupportedOwnerPrompt`, 0 wrong-seat roots, 0/4 witnesses. First prompt and attempt index 4 both identify `ShowMulliganPrompt` / `SETUP_OPPONENT_NO_BASIC` / phase 1, with actor seats 1 and 0 respectively. Thus the 64-attempt exhaustion is not a wrong-seat issue or insufficient seed cap.
+- **Source-confirmed narrow repair:** pinned `ShowMulliganPrompt` extends `Prompt<true>`, has non-cancelable default options and carries concealed historical hands. Pinned `setup-reducer.ts:195-202,241-248` emits these informational prompts to both players after a mulligan; callbacks ignore the result. Current PR branch resolver handles GO_FIRST, WANT_TO_DRAW_CARDS and CHOOSE_STARTING_POKEMONS, then defaults to unsupported owner prompt. Safe identity allowlists already contain ShowMulliganPrompt and both mulligan messages.
+- Recommended Agent49 patch: handle only `ShowMulliganPrompt` with either setup mulligan message, phase 1 and `allowCancel===false`; resolve with `ResolvePromptAction(prompt.id,true)`. Never inspect, hash, serialize or forward `prompt.hands`. Add focused positive/negative tests; contract-only on new exact SHA, then same-SHA native no-game. Do not raise cap, change seed derivation/policies/decks, or create workflows. If the next run reaches a new setup prompt, address only that observed failure.
+- Direct handoff: `communications/agent49/2026-11/20261118T1642Z_agent35-94f-seed-probe-show-mulligan-root-cause.md` (main commit `76b6bb4648e0709570d5443f54bdecc0f29c3622`). Agent35 made no PR/branch/code changes.
+- Benchmark remains unchanged: no final fixed 60, zero competitively paper-qualified games, no demonstrated 99.5%.
+
+---
+
 ## 18 November 2026 16:39 UTC — expired-owner failover: 94f38a7 contract passed, native witness queued
 
 - **Invocation/lease:** normal mode, actual initial CSPRNG draw 8. Agent35 immutable claim remains `2026-11-18T16:17:31.941Z`, run `agent35-chat-20261118T161731941Z-normal8-gpt6`; 70-minute orderly-release threshold is `2026-11-18T17:27:31.941Z`. Do not refresh. After this checkpoint, compare the lease against the actual clock.
