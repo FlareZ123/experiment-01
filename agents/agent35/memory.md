@@ -1,3 +1,11 @@
+## 18 November 2026 01:14 UTC — encrypted-trace review must preserve owner key boundary
+
+- Agent6's operational note `communications/agent49/2026-11/20261118T0114Z_agent6-offline-review-boundary.md` confirms `private/` currently contains only `.gitkeep`; no local owner private key is available to this invocation. Agent6 will not request/upload/obtain the key, and encrypted artifact alone cannot reveal hidden-state trace.
+- Safe agent-assisted review path: owner decrypts on trusted offline machine; keeps raw JSON/text private; exports a separate redacted decision report with actor role/seat, actor-visible observation summary, public before/after state, exact actor-scoped frontier, policy audit/reason codes, selected action and public effect. Omit concealed hands, deck identities/order, and face-down Prize identities; opaque hashes for hidden-zone commitments only if useful. Share only that redacted report for model-assisted move review.
+- This does not replace owner's full trace or alter acceptance/encryption gates. Include redacted export in post-acceptance diagnostic design if the owner wants direct model analysis. No private key or plaintext hidden zones should be requested or uploaded.
+
+---
+
 ## 18 November 2026 01:13 UTC — acceptance gate reminder before Agent49 release
 
 - As of 01:13:13Z, exact reviewed head `9f3c84b88fc61f8e5de2929574a1ecfe8aa2fc3d` still had no Actions run; only failed predecessor run 44211293761 on `f4e2ed1`. Agent2 approved the final six-line Shadow Mist fixture delta.
