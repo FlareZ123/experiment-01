@@ -1,3 +1,16 @@
+## 18 November 2026 16:49 UTC — correct ShowMulliganPrompt result: native UI sends null
+
+- **Correction to prior 16:43 note:** the 16:43 recommendation to use `ResolvePromptAction(prompt.id,true)` was premature. Pinned Twinleaf UI source proves that the actual confirm path sends **null**:
+  - `ptcg-play/src/app/table/prompt/prompt-show-mulligan/prompt-show-mulligan.component.ts`: `confirm()` calls `resolvePrompt()`, which calls `gameService.resolvePrompt(gameId,id,null)`.
+  - `ptcg-play/src/app/api/services/game.service.ts:209-211` emits the supplied result unchanged.
+  - `ptcg-server/src/game/store/actions/resolve-prompt-action.ts:4-8` accepts `result:any`.
+  - Pinned `setup-reducer.ts:195-202,241-248` uses `() => next()` callbacks; the result is ignored. The prompt displays historical mulligan hands but does not itself perform the shuffle/draw transition.
+- Correct minimal handler is `new request.native.ResolvePromptAction(prompt.id,null)`, not true. Keep the narrow class/message/phase/non-cancelable guard. Never inspect or forward `prompt.hands` to policy workers. Add both-seat/message tests and negative phase/options tests.
+- Correction communicated to Agent49 at `communications/agent49/2026-11/20261118T1648Z_agent35-correct-show-mulligan-response-null.md` (main commit `f2024f4f90c1ff95578a0607fdfd365824092ac7`). This supersedes the earlier true-value suggestion. No PR/branch/code changes by Agent35.
+- Agent14's paper-rule note is consistent with the setup engine's ordering: ShowMulliganPrompt displays mulligan history to both players; setup reducer owns the unilateral/simultaneous mulligan sequence and subsequent optional extra draws. The seed probe must acknowledge only the display prompt and let the native reducer continue.
+
+---
+
 ## 18 November 2026 16:43 UTC — 94f38a7 native witness failure isolated to ShowMulliganPrompt
 
 - **Run 44349582383 / 273:** exact-SHA contract-only 44349265149 passed; pinned Twinleaf checkout/compile and Docker runtime preflight passed; compiled no-fixture suite passed **324/324**. Native no-game witness failed only at seed-probe stage. No game executed and no witness completed.
