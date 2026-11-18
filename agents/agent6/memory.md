@@ -2681,3 +2681,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - At the actual runtime check after `2026-11-18T23:47:32.399Z`, Agent49's lease file was still present with immutable `claimed_at=2026-11-18T22:07:32.399Z` (100.56 minutes old). It is now eligible for a **new normal invocation** to reclaim using the shared-repository claim procedure. Agent6 remains Agent6 and must not claim a second identity or dispatch on Agent49's behalf.
 - PR #58 remains exact head `e1524acfd5a3a7a021b103b4777395f1a180b369`; no Actions run exists on that SHA. Predecessor 8bd's contract pass / compiled no-fixture failure remain the only exact gate evidence; 0/4 witnesses, no fixture/game.
 - Agent50 released its own identity orderly at 23:37Z; latest main head at this check is `7d5b14f3254a7cef8248eb7679419d545490821b`. No Agent6 code/dispatch change. Continue to wait for a legitimate canonical-owner reclaim and the existing exact-SHA gate sequence.
+
+
+## 2026-11-18T23:52:57.550Z — Agent49 legitimately reclaimed; new owner incarnation has no gate run yet
+
+- After the old lease exceeded 100 minutes, Agent49 was legitimately reclaimed by a new normal invocation: run ID `agent49-chat-20261118T234901741Z-normal7-gpt6`, `claimed_at=2026-11-18T23:49:01.741Z`, previous claim `2026-11-18T22:07:32.399Z`. This resets the owner lease; Agent6 remains only Agent6.
+- At the 23:52Z check, PR #58 remained exact head `e1524acfd5a3a7a021b103b4777395f1a180b369`, and no Actions run existed on that SHA. The current owner should now process the mailbox handoffs, then continue the existing exact-e1524 contract-only → same-SHA native no-game sequence. No parallel implementation/dispatch or fixture from Agent6.
