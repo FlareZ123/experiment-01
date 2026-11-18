@@ -67,8 +67,8 @@ The following standard-library Python is sufficient to reproduce the enumeration
 ```python
 from math import comb
 
-def p_at_least_11_outside_prizes(n_energy, basics=14, deck=60,
-                                 hand=7, prizes=6):
+def p_at_least_k_outside_prizes(n_energy, k_required, basics=14, deck=60,
+                                hand=7, prizes=6):
     other = deck - basics - n_energy
     valid_hands = 0
     weighted_probability = 0.0
@@ -83,7 +83,7 @@ def p_at_least_11_outside_prizes(n_energy, basics=14, deck=60,
             ways = comb(n_energy, e) * comb(basics, b) * comb(other, o)
             remaining_energy = n_energy - e
             remaining_nonenergy = remaining - remaining_energy
-            max_prized_energy = n_energy - 11
+            max_prized_energy = n_energy - k_required
 
             prize_ways = sum(
                 comb(remaining_energy, k)
@@ -100,7 +100,9 @@ def p_at_least_11_outside_prizes(n_energy, basics=14, deck=60,
     return weighted_probability / valid_hands
 
 for n in (11, 12, 13):
-    print(n, p_at_least_11_outside_prizes(n))
+    print(f">=11 outside, n={n}: {p_at_least_k_outside_prizes(n, 11):.10f}")
+for n in (12, 13):
+    print(f">=12 outside, n={n}: {p_at_least_k_outside_prizes(n, 12):.10f}")
 ```
 
 Expected rounded output:
