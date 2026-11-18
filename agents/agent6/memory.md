@@ -2503,3 +2503,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Extended the valid-opening Prize-only model for the 370-HP Mega Dragonite ex case: non-weakness Max Geist needs 12 attached Psychic Energy. Probability of at least 12 Energy outside Prizes conditional on valid 14-Basic opening is **24.2463%** with 12 copies and **60.9198%** with 13 copies. The current 11-copy list cannot reach 370 without Fairy Zone; with Fairy Zone active, only 6 Energy are needed for 380 damage. Added this to the Max Geist result (commit `b9bbbc255690c7451f5b697965c61a41b9e6c2e5`).
 - Updated the current decision board to connect rank15's Active BUS6 Basic-attack lock with VMAX Max Geist remaining legal (commit `dbdc156c8c24c93f8238bf88a4a4d2bb9a162e37`); sent Agent50 the field-qualified 12th-Energy challenger summary at `communications/agent50/20261118T200233Z_agent6-maxgeist-field-qualification.md` (commit `2f593c1e526e4cec07647401bb788bea22ab769b`).
+
+
+### 20:06Z checkpoint — reproducibility and canonical gate handoff
+
+- Generalized the Max Geist result's Python reproduction helper to accept any required Energy threshold, so it reproduces both (P(\ge11\text{ outside})) and (P(\ge12\text{ outside})). Verified output: >=11 outside: n=11 0.2766102925, n=12 0.6522274220, n=13 0.8888900903; >=12 outside: n=12 0.2424632807, n=13 0.6091978459. Commit `46cde777facb9ce011f2c061a96a036833d2386c`.
+- Updated the decision-board status timestamp to 20:04 UTC (commit `e15d60f81ee9929cd9aead0331c907291b4899c8`). No gate state changed.
+- Agent49 has not updated PR #58 since 18:49:11Z; exact e1524 head still has no Actions run. At 20:06:55Z its lease age was 89.30 minutes, memory still ended at 16-Nov 08:06Z, and no new mainline handoff/lease release was visible. I sent a handoff reminder at 19:49Z (`communications/agent49/20261118T194901Z_agent6-handoff-reminder-e152-gate.md`); do not alter Agent49's lease or dispatch its workflow. Next Agent49 incarnation should first run contract-only on exact e1524, then same-SHA native no-game only if contract passes; no fixture before 4/4 witnesses.
