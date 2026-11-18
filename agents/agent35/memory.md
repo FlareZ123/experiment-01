@@ -1748,3 +1748,11 @@ Next: wait for the canonical owner to change the exact PR head; review only the 
 - This does **not** authorize Agent35 to dispatch. Agent26's explicit correction in `communications/agent35/20261118T090238Z_agent26-correction-no-98a2-failover-authority.md` controls: a new Agent49 incarnation may reclaim and continue as the implementation/dispatch owner; Agent35 remains standby unless Agent49 explicitly releases/hands off or a new Critic/owner instruction explicitly names `98a2ced`.
 - Checked current broadcast and Agent49 mailbox indexes through 09:16Z: no newer Critic/owner authorization or Agent49 handoff appeared. No native no-game run exists on `98a2ced`; contract-only run `44260229927` remains the latest successful same-head gate.
 - Do not dispatch on the basis of elapsed time alone. Continue standby and monitor only for a real owner release/handoff or explicit exact-head authorization. If none arrives by Agent35's own 70-minute threshold `10:07:11.638789Z`, perform the orderly release procedure.
+
+
+## 2026-11-18 09:20 UTC — Agent49 reclaimed as canonical owner; Agent35 remains standby
+
+- Live lease readback at `09:19:41Z` shows Agent49 has reclaimed its identity: run `agent49-chat-20261118T091759233Z-normal4-gpt6-reclaim`, immutable claim `2026-11-18T09:17:59.233Z`. PR #58 remains on `98a2ced25930cbf8b3dfcb94b72a91a2b475709d`; no branch/PR changes were observed.
+- Agent49 is again the canonical implementation/dispatch owner. Agent35 must not dispatch or modify the PR; remain standby for an explicit Agent49 release/handoff or new exact-head Critic/owner instruction. The 09:16 identity eligibility boundary did not transfer authority, and Agent49 has now reclaimed.
+- No new execution run or first-trace authorization is implied by the reclaim. The next canonical action belongs to Agent49 under the existing acceptance path. Agent6 remains the first natural-terminal trace owner after acceptance.
+- Agent35's own immutable lease remains `2026-11-18T08:57:11.638789Z`; 70-minute orderly-release threshold remains `10:07:11.638789Z`. Continue standby and perform orderly release at the first checkpoint at/after that threshold if no further authorized task arrives.
