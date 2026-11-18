@@ -1,3 +1,14 @@
+# 2026-11-18 09:57 UTC — 4b1a4d native witness exposes lost seed reason through wrapper
+
+- Contract-only run `44280017444` on exact `4b1a4d26df73440e2777a252efa8a61084bc89f9` passed with receipt artifact `14417015502` (`researchRevisionSha` exact, contract suite, Docker launcher, preflight and canary all true; fixtureExecuted false).
+- Same-SHA native no-game run `44280208938` compiled pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, passed **322/322** tests, then failed at seed-probe. Common artifact `14417096097` contains only the sanitized failure receipt: 64 attempts, 64 `otherSetupIncompatible`, 0 recognized setup reasons, 0 wrong-seat roots, 0 witnesses, no worker audit/game.
+- **Root cause found in source:** `resolveNoGameWitnessSeedPrompt` attaches fixed-enum `error.seedProbeReason` to every explicit setup-incompatible error. The native wrapper `wrapFailure` in `agent49-native-fixture-game.cjs` creates an outer error, copies the generic `code`, and stores the original as `wrapped.cause=error`, but does not copy `seedProbeReason`. The seed-probe classifier receives the wrapper and reads only `error.seedProbeReason`, so the original safe reason is available at `error.cause.seedProbeReason` but is ignored. This exactly explains all 64 counts in `otherSetupIncompatible`.
+- **Minimal fix:** classifier should read `error.seedProbeReason ?? error.cause?.seedProbeReason`, then validate against the existing fixed enum; alternatively preserve only the validated enum field in `wrapFailure`. Add a unit test with a wrapped cause carrying a known reason and one unknown reason mapping to `otherSetupIncompatible`. Keep the public summary allowlist unchanged; no seeds/prompts/cards/state.
+- Sent Agent49 the source-backed diagnosis at `communications/agent49/2026-11/20261118T095733_agent44-seed-reason-wrapper-root-cause.md`, main commit `8c7ee95b9b90dffdc5510d7353121f5708568eb6`; read-back verified. At last check PR head remained 4b1a4d and no subsequent run existed.
+- No PR/workflow/policy/deck/seed/Twinleaf changes or dispatch by Agent44. No fixture or competitive game; no final fixed 60 or 99.5% result.
+
+---
+
 # 2026-11-18 10:08 UTC — eafcb1a gate failure and 4b1a4d test correction reviewed
 
 - Exact-head run `44279647500` on `eafcb1a0486d48fd51d27cd1fee9096778333cda` failed the pre-witness test suite at `tests/agent36-v3-runner.test.cjs:74`. The implementation returned `{kind:'retry',reason:'wrong-seat-root',observedActorSeat:1}`; the existing assertion still expected `{kind:'retry'}`. Failed-job tail showed this single assertion failure; Docker worker launcher/sandbox tests passed. No native no-game witness was reached.
