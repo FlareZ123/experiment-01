@@ -375,7 +375,7 @@ function buildCampaign({roundCount=1,coins=[0],outcomeFor=()=> 'win',
         const startedAt=iso(20000),completedAt=iso(30000);
         const duplicate=duplicateProcessAt&&duplicateProcessAt.ordinal===ordinal&&
           duplicateProcessAt.rank===rank&&duplicateProcessAt.slot===slot;
-        const candidatePolicyProcessId=duplicate?'candidate-process-round-1-rank-1-slot-A':
+        const candidatePolicyProcessId=duplicate?'candidate-process-round-1:rank:1:slot:A':
           'candidate-process-'+trialId;
         const record=push({
           recordType:'game',roundId,ordinal,
