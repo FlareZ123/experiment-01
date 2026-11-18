@@ -33,11 +33,12 @@ The same raw-result dispatch defect affects actual worker-selected `ChooseCardsP
 
 ## Validation required
 
-1. Unit tests assert the action result is the decoded value, not raw indices, for the seed-probe, host-only, and worker prompt paths.
+1. Update the existing `tests/2026-11/agent36-prompt-projection.test.cjs` assertion around lines 246–250: it currently expects `dispatched.result === [0]`, which encodes the raw-result bug. Preserve assertions that `rawResult` remains the original index/token representation, but require the captured `ResolvePromptAction.result` to equal the decoded `Card[]`.
+2. Unit tests assert the action result is the decoded value, not raw indices, for the seed-probe, host-only, and worker prompt paths.
 2. A Store-level starting-Pokémon setup test proves the chosen card reaches Active after prompt resolution.
-3. Run exact-SHA contract-only tests on the corrected head.
-4. Run the native no-game witness on that same SHA; require all four candidate/opponent role × physical-seat witnesses.
-5. If the Active mismatch remains, use the already bounded prompt/Active diagnostics to distinguish min1+active from min0+noActive. Do not weaken the invariant or change the registered seed, decks, policies, or seat assignment.
+4. Run exact-SHA contract-only tests on the corrected head.
+5. Run the native no-game witness on that same SHA; require all four candidate/opponent role × physical-seat witnesses.
+6. If the Active mismatch remains, use the already bounded prompt/Active diagnostics to distinguish min1+active from min0+noActive. Do not weaken the invariant or change the registered seed, decks, policies, or seat assignment.
 
 ## Limitations
 
