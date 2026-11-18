@@ -31,6 +31,12 @@ Pinned source: `ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evoluti
 
 This is **not** 130 damage counters. It is 130 damage / 13 counters. It can finish an already-damaged high-value Pokémon or place substantial damage; it does not automatically KO a healthy 320-HP Shadow Rider VMAX.
 
+### Official paper ruling confirms the Hood prevention interaction (17 November update)
+
+The official Japanese Pokémon Card Game FAQ asks whether Dusknoir's Cursed Blast may choose an opposing Mega Clefable ex protected by Luminous Wing. The answer is yes; Luminous Wing prevents the damage-counter effect, but Dusknoir is still Knocked Out and the process ends: [official Cursed Blast / Luminous Wing FAQ](https://www.pokemon-card.com/rules/faq/search.php?sc_group_id=917).
+
+The Japanese prevention clause on Luminous Wing (the Pokémon does not receive effects of an opponent's Pokémon Abilities) is text-identical apart from the subject to Stealthy Hood's clause (the Pokémon with this card attached does not receive effects of an opponent's Pokémon Abilities). Combined with Stealthy Hood's exact printed clause and the pinned Dusknoir source comment, this is strong official corroboration that **Stealthy Hood prevents Cursed Blast's 13 damage counters while Dusknoir still self-KOs**. It is not a Hood-specific FAQ; the ruling is directly for Luminous Wing, and the application to Hood follows from the identical prevention wording.
+
 ### Dusknoir BCR 63 — Sinister Hand
 
 The BCR Dusknoir implementation uses `MoveDamagePrompt` with `TOP_PLAYER`, Active/Bench, and the optional/cancelable transfer defaults. Its callback moves damage counters among the opponent's Pokémon, subject to the card's effect checks. This is the rank31 MoveDamage source already identified by Agent41.
@@ -45,12 +51,9 @@ Together, rank31 has three damage-counter abilities: two MoveDamagePrompt produc
 
 The pinned Stealthy Hood implementation uses `PREVENT_EFFECTS_OF_OPPONENTS_ABILITIES`; the Dusknoir PRE source explicitly says that Cursed Blast's counters can be prevented by Stealthy Hood while Dusknoir still self-KOs.
 
-The pinned Field Blower implementation allows discarding up to two Pokémon Tools and/or Stadiums in play, on either side. When both a Stadium and Tools are in play, it offers a `SelectOptionPrompt` with these modes:
+The official Field Blower card text is to discard up to two Pokémon Tools and/or Stadiums in play: [official Japanese card text](https://www.pokemon-card.com/card-search/details.php/card/34321). Paper has one up-to-two-target effect, not a special two-mode rule. The pinned implementation represents the legal target sets with a `SelectOptionPrompt`; when a Stadium and Tools coexist, it groups the choices as (1) Stadium plus up to one Tool or (2) up to two Tools. Those are simulator UI groupings, not distinct paper modes.
 
-1. discard the Stadium and up to one Pokémon Tool;
-2. discard up to two Pokémon Tools.
-
-The candidate has two Stealthy Hoods and two Stadiums. If both Hoods are attached to different Pokémon, rank31's singleton Field Blower can select the second mode and remove both Hoods in one Item play, leaving the Stadium in play. Dusknoir can then use Cursed Blast in the same turn, subject to having the ability available and a worthwhile target. If the opponent instead selects Stadium plus one Tool, one Hood may remain.
+The candidate has two Stealthy Hoods and two Stadiums. If both Hoods are attached to different Pokémon, rank31's singleton Field Blower can choose both Hoods as its two targets in one Item play, leaving the Stadium in play. Dusknoir can then use Cursed Blast in the same turn, subject to having the Ability available and a worthwhile target. This remains a conditional line: it depends on the board state and the opponent's choice of targets.
 
 This makes the Hood line a real but answerable counterline, not a blanket immunity. It also creates a specific opponent-policy decision: when both Hoods matter, choosing the two-Tool mode is materially different from discarding the Stadium plus one Tool.
 
@@ -80,7 +83,9 @@ The candidate should not be changed on this analysis alone. The useful next comp
 ## Evidence classification
 
 - **Direct field facts:** all counts and printings above are in the exact rank31 decklist.
-- **Direct pinned-source facts:** the card implementations, prompt types/options, Field Blower modes, Stealthy Hood prevention hook, and Dusknoir self-KO behavior are present in the pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **Direct pinned-source facts:** the card implementations, prompt types/options, Field Blower prompt representation, Stealthy Hood prevention hook, and Dusknoir self-KO behavior are present in the pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **Official paper-ruling evidence:** the Cursed Blast / Luminous Wing FAQ confirms that the protected Pokémon may be chosen, the Ability effect is prevented, and Dusknoir still self-KOs. Applying that ruling to Stealthy Hood is a text-equivalence inference, not a Hood-specific FAQ.
+- **Related native interaction evidence:** [the Hood/Arven pinned-Store report](../hood-arven-interaction.md) records passing run [38829270890](https://github.com/FlareZ123/experiment-01/actions/runs/38829270890) for an injected midgame Hood attachment/evolution sequence and Faba/Megaton removal. It is not a rank31 match and does not exercise Cursed Blast or Field Blower; it does not establish a matchup outcome.
 - **Static policy conclusion:** the inspected rank1 opponent policy has no handlers for Cursed Blast or Field Blower's relevant prompts; the MoveDamage gaps are separately documented.
 - **Strategic hypothesis:** Field Blower can remove both Hoods before Cursed Blast; no match has demonstrated the line.
 - **Not established:** rank31 matchup win rate, candidate advantage, frequency of the line, or any 99.5% field performance.
