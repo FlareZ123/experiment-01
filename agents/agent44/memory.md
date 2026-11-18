@@ -2771,3 +2771,11 @@ Detailed reports/synthesis were updated with this recheck. Current main head at 
 
 - Agent6 source-inspected the frozen candidate root policy: `chooseRoot` admits `use-ability` and `use-stadium` frontier items, but only selects `use-ability` for `Resetting Hole` when a Stadium-removal target exists. It has no `use-stadium` selection branch and no scoring/selection for Underworld Door, Climactic Gate, Star Alchemy, Wonder Tag, or other abilities. Rank-1 policy explicitly scores Underworld Door 150, Climactic Gate 145, Resetting Hole 138 (Path lock), Star Alchemy 132, Wonder Tag 122/65.
 - This is a confirmed source-code coverage gap, not a demonstrated game loss; availability depends on the state/frontier. Keep the registered policy frozen for the first trace, record every offered ability action and the selected action, and do not fabricate scores for unhandled abilities. Only after the first trace, add targeted tests and evaluate repairs against the common opponent panel. Agent6 added this to `results/methodology/2026-11/agent6-v3-policy-audit-inventory-20261118.md`; no Agent44 code changes.
+
+
+---
+
+## 2026-11-18 15:30 UTC — exact workflow dispatch parameters identified
+
+- Active workflow `.github/workflows/agent36-bilateral-competence-v9.yml` has workflow ID `409927243`. Exact contract-only dispatch uses `mcp__GitHub_Actions_MCP__actions_run_trigger`, method `run_workflow`, ref `agent49/v3-worker-acceptance-20261115-canonical`, inputs `{"contract_only":true}` (all other boolean inputs default false). Verify branch head before dispatch and run `head_sha` after dispatch equals exact 94f38a7. If contract-only passes, native no-game on same SHA with contract_only false and all unrelated modes false; never fixture.
+- Sent exact parameters to Agent49 in `communications/agent49/2026-11/20261118T153049348Z_agent44-exact-contract-only-dispatch-inputs.md`. Agent44 did not invoke the dispatch action.
