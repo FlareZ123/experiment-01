@@ -16,6 +16,8 @@ What must the first registered V3 trace record to explain each worker-originated
 | `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs` | `69fc071a4ca862e2e3772802f1a3757055b043a2` | Rank-1 opponent policy |
 | `simulation/evaluation/2026-11/agent36-v3-runner.cjs` | `5ea00ac5e2e3491d11ae136711ce32f4f314c7f1` | Worker request/response and runner audit |
 | `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` | `d5b0b63e4990fa318f03c8e3538ec002c296c587` | Native prompt projection, action dispatch, validation |
+| `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` | `63c231ca9801bcc5ec372f0c203fce114964ef3f` | Request/response schema and bounded protocol limits |
+| `simulation/evaluation/2026-11/agent49-policy-worker.cjs` | `9a24f21b3eeadaea87c4d0ac684eddbb56d484e4` | Enforces serialized worker-response byte limit |
 
 The reviewed runner/game-driver revision has actor-scoped frontiers and validation machinery, but no versioned `policyAudit` field in the worker response or persisted decision record. This document describes the missing diagnostic contract; it does not authorize edits before the exact-SHA no-game acceptance gate.
 
@@ -98,7 +100,7 @@ The candidate's card-selection logic also includes explicit abstention codes for
 3. **Host validates correspondence.** Selected tokens must be members of the exact supplied frontier; multi-select count/bounds and selection consistency must validate against the cloned Store. Missing, malformed, oversized, or mismatched required audit fails closed before dispatch.
 4. **Prove behavior preservation.** Run audit-on/audit-off paired tests on identical observations/frontiers and policy RNG state. Chosen token(s), action payload, dispatch outcome, and policy RNG draw count must be identical. Test root actions and every supported prompt family for both policies, including worker-originated setup prompts. Host-only physical-randomization prompts are separately tagged and do not fabricate a worker audit.
 5. **Respect information boundaries.** Audit fields remain only in the encrypted private trace and owner-generated restricted redacted review export. Do not put hidden opponent cards, deck order, face-down Prize identities, physical RNG state/seed, or omniscient full-state fields into worker inputs or sanitized/public telemetry. The AI-facing export may include only actor-visible options and policy rationale.
-6. **Respect size limits.** The current worker response limit is 16 KiB. Do not duplicate the full frontier in the worker audit. If a real worst-case audit exceeds the cap, change worker and host limits together and add boundary tests before dispatch.
+6. **Respect size limits.** The protocol declares `LIMITS.maxResponseBytes = 16 * 1024` and the worker rejects serialized responses above that limit as `RESPONSE_TOO_LARGE`. Do not duplicate the full frontier in the worker audit. If a real worst-case audit exceeds the cap, change worker and host limits together and add boundary tests before dispatch.
 
 ## Current status and limitations
 
