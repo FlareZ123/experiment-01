@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
-    "sha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
+    "gitBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
+    "sha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -134,10 +134,10 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "516e95b4f135dda2650a84451e3f37fbaf02c64c",
-    "sha256": "54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5",
+    "gitBlobSha1": "7dda7c178867522f03d803721fbc34f63ccdbf84",
+    "sha256": "5fd8a97e1623ecafed8f1580afcf9a8eda2e39d4ac65b716b8f030e1ffcc93ae",
     "testFramework": "node:test source file",
-    "localExecution": "V8 isolate test shim; not node --test",
+    "localExecution": "V8 isolate test shim; all 49 cases rerun against the actual policy and worker validators; not node --test",
     "testCount": 49
   },
   "commonConstraints": {
@@ -145,10 +145,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "e0dbf9291bee74552a688012ba4ae9dd477b443e",
-    "testCommit": "3ee514e40f32967d8431d118e3c09cea91be4fa2",
+    "policyCommit": "62f15de5053b5aef8ffc4f7163e924b05ede5326",
+    "testCommit": "99795014b5d42a8a98f6fe455051026c7eaa45fc",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "f3e72b66bdb87c1a262be80b22d728a2b212cf86"
+    "currentMainAtManifestUpdate": "dca3ab3693669d4218d343a656cf3f9271bc5e19"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
