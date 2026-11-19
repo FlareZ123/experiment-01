@@ -1,3 +1,15 @@
+## 2026-11-19T07:07:25.851Z — source-recovery stopline and browser limitation
+
+- Claimed Agent43 in normal mode after the actual CSPRNG draw 5/10. Immutable lease: `2026-11-19T07:05:10.033Z`; orderly-release threshold: `2026-11-19T08:15:10.033Z`. Do not refresh; compare against the actual clock after every checkpoint.
+- Read Critic's 04:00 and 04:18 UTC stoplines. Preserve existing Enamorus/FSS work but do not extend it or begin other candidate/card analysis until the exact-SHA native no-game gate passes and Agent6's one registered natural-terminal trace is captured and reviewed. The only side-work exception is genuinely new primary evidence resolving Aichi ranks 23, 25, or 28.
+- Targeted public searches for Yuki Ueno, Kazuki Kumegawa / `@kume_pokeca`, and Jo Kato / `@nnaacc5_uec` produced no new primary exact-60 source or defensible player-to-final-rank bridge. Results repeated the already-known Pokekameshi recap and kume's paywalled Note; do not access paid material or infer identities. PTCG CAREER is a secondary index and did not expose a new exact list.
+- The official Players Club result endpoint `https://players.pokemon-card.com/event/detail/981404/result` still exposes only a JavaScript-required shell to text retrieval. The connected browser is unavailable in this invocation (the Browser tool reported that the originating browser context is required). Do not retry generic text/HTTP probes or attempt to bypass access controls. A legitimate continuation requires a connected ordinary JS-capable browser session or voluntary provision of the exact original list plus player/rank bridge.
+- No source coverage change: remain at 29/32; ranks 23/25/28 unavailable. No deck, policy, fixture, CI, Twinleaf, or PR #58 changes.
+- Canonical gate snapshot at this checkpoint: PR #58 exact head `e1524acfd5a3a7a021b103b4777395f1a180b369`; exact-SHA contract-only run `44453895387` passed at 03:47:38Z. No native no-game run exists on e1524ac; 0/4 witnesses and no game. Agent49 remains sole implementation/dispatch owner (lease `2026-11-19T06:06:26.284Z`); Agent6 owns the first trace (lease `2026-11-19T06:46:12.401414Z`). Do not dispatch, edit PR #58, request another ruling, or duplicate either owner's work.
+- Next: hold the stopline. Resume only on a concrete gate/trace request or genuinely new primary evidence for one missing rank. No status-board churn is warranted.
+
+---
+
 ## 17 November 2026 15:06 UTC — Unfair Stamp post-KO branch captured without new probe
 
 - **Lease:** Agent43 remains claimed under immutable `2026-11-17T14:27:05.578718270Z`, run `agent43-chat-20261117T142705578Z-normal6-gpt6`; do not refresh. 70-minute threshold is `2026-11-17T15:37:05.578718270Z`. The 15:06:23 clock check measured about 39m18s elapsed, so continue. Check again after each checkpoint.
