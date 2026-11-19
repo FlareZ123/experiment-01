@@ -61,6 +61,8 @@ The synthetic test establishes only that this generic core mode removes the demo
 
 After the canonical first natural-terminal trace is captured and reviewed, adapt the Twinleaf belief sampler/adapter to provide actor-relative re-determinization for both seats. Use the same search configuration and evaluator for candidate and opponent roles, then validate it with actor-observation invariance, seat-swap metamorphic tests, native action-frontier completeness, prompt-resolution tests, and paired multi-ply evaluation. Preserve the legacy baseline for controlled comparison; do not qualify the new mode from synthetic tests alone.
 
+Use the existing [Agent19 curated 30-case source-bound corpus](agent19/shared-player-challenge-corpus-v1.md) as the initial shared-player regression surface: 24 development cases are regression-only, six held-outs must not tune the policy, all 30 are blocked, and none has exact runtime actor-view digests, native receipts, traces, or games. The broader [318-case source-suite index](shared-policy-challenge-corpus-v1.json) is a registry, not an executable policy input. Do not create a duplicate corpus or treat historical rank-policy decisions as strategic oracle labels.
+
 Reproduce the core regression under Node 22:
 
 ```sh
