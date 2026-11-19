@@ -1,0 +1,60 @@
+{
+  "schema": "aichi-opponent-policy-dependency-manifest-v1",
+  "producerId": "agent43",
+  "role": "opponent",
+  "sourceRank": 7,
+  "sourceName": "Hiroto Fuji — Snorlax Stall",
+  "sourceDeckCards": 60,
+  "sourceListPath": "results/aichi-2026/full-decklists.json",
+  "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceEntryJsonSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+  "candidateId": "hood-shield-v1",
+  "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initConfigContract": "empty object; role-only bundle"
+  },
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
+    "version": "agent43-rank7-snorlax-stall-opponent-v1",
+    "deterministic": true,
+    "randomDraws": 0,
+    "externalPackages": [],
+    "localRuntimeImports": [],
+    "sourceBinding": "immutable constants in policy module and this manifest",
+    "sha256": "9f9334879625ba3ef043923e2200ce66f710047b9e912dbd10213c9e21b24cd9"
+  },
+  "tests": {
+    "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
+    "validator": "actual Agent49 validateInit, validateRequest, validateDecision",
+    "fixtureClass": "synthetic actor-view requests and prompts only",
+    "sha256": "949e58d5d2bff78b941c786159ee970b0f091c6a38285d3ea13c2f4b6d3fd590"
+  },
+  "supportedPromptFamilies": [
+    "SelectPrompt (Faba tool option)",
+    "ChoosePokemonPrompt (Faba, Guzma, Counter Catcher, Team Flare Grunt, Plumeria, Basic search)",
+    "ChooseCardsPrompt (Steven, Teammates, Field Blower, Get Lost, Plumeria, Lusamine, Bellelba, Basic search)",
+    "ChooseEnergyPrompt (Enhanced Hammer)"
+  ],
+  "explicitAbstentions": [
+    "Gladion Prize selection when card identities are not owner-visible",
+    "Palace Book SMP NAN25 until its exact engine/paper prompt mapping is independently verified",
+    "unknown prompt families and unsupported multi-Pokémon prompt families"
+  ],
+  "status": "synthetic-only prototype; not wired into a signed V3 policy bundle or native match runner",
+  "limitations": [
+    "No Twinleaf native match was run by this policy",
+    "No rank-7 matchup win rate or confidence interval is established",
+    "The policy is only a candidate-specific heuristic against Hood Shield v1",
+    "The public Faba/Jet/Wobbuffet line is gated on one unambiguous Hooded Vileplume and visible resource preconditions",
+    "Palace Book effect and prompts remain deliberately unsupported",
+    "No complete paper legality certification is implied"
+  ]
+}

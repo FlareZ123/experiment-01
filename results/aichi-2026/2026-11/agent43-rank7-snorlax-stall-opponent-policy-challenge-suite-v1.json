@@ -1,0 +1,397 @@
+{
+  "schema": "aichi-v3-opponent-policy-challenge-suite-v1",
+  "suiteSha256": "16b4db74cc6d4c6dcaa6941d4ef7117498a5186be79e5a635a95b8bb563d19d8",
+  "suiteHeader": {
+    "producerId": "agent43",
+    "role": "opponent",
+    "sourceRank": 7,
+    "sourceName": "Hiroto Fuji — Snorlax Stall",
+    "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sourceEntryJsonSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+    "candidateId": "hood-shield-v1",
+    "candidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "policyVersion": "agent43-rank7-snorlax-stall-opponent-v1",
+    "policyPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
+    "policySha256": "9f9334879625ba3ef043923e2200ce66f710047b9e912dbd10213c9e21b24cd9",
+    "dependencyManifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v1.json",
+    "dependencyManifestSha256": "d8afa6a0b0ed23d036ef4eb22596790c7e991299a3e09a737a88140a49464a10",
+    "testPath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
+    "testSha256": "949e58d5d2bff78b941c786159ee970b0f091c6a38285d3ea13c2f4b6d3fd590",
+    "enginePath": "vendor/twinleaf",
+    "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
+    "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initConfigContract": "empty-object",
+    "producerBindingStatus": "declared-only; not yet bound into a signed shared policy plan",
+    "declaredProducerIdSet": [
+      "agent43"
+    ],
+    "signedProducerIdSet": []
+  },
+  "developmentCases": [
+    {
+      "caseId": "R7-001",
+      "objective": "Exact Faba/Jet/Nest public precondition",
+      "expected": "Faba unlock line recognized",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-002",
+      "objective": "Faba root while Item lock is present",
+      "expected": "Select Faba",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-003",
+      "objective": "Two Hood-protected Vileplume locks",
+      "expected": "Pass; no false unlock",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-004",
+      "objective": "Power of Alchemy counter-lock",
+      "expected": "Pass; no false unlock",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-005",
+      "objective": "Jet Energy missing from hand",
+      "expected": "Pass; no incomplete line",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-006",
+      "objective": "Faba SelectPrompt",
+      "expected": "Select Tool",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-007",
+      "objective": "Faba target prompt",
+      "expected": "Select exact Hooded Vileplume",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-008",
+      "objective": "Jet Energy after Hood removal",
+      "expected": "Promote Wobbuffet",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-009",
+      "objective": "Jet Energy while Hood remains",
+      "expected": "Pass",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-010",
+      "objective": "Nest Ball before Wobbuffet is Active",
+      "expected": "Pass",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-011",
+      "objective": "Nest Ball after Item lock is cleared",
+      "expected": "Play Nest Ball",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-012",
+      "objective": "Nest Ball deck search",
+      "expected": "Select missing Basic through multi-select validator",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-013",
+      "objective": "Tool Jammer placement",
+      "expected": "Attach to Snorlax",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-014",
+      "objective": "Field Blower target set",
+      "expected": "Select opponent Tools, never own Tool",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-015",
+      "objective": "Field Blower empty target set",
+      "expected": "Select explicit empty-selection",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-016",
+      "objective": "Steven's Resolve search",
+      "expected": "Select Faba/Jet/Nest bundle",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-017",
+      "objective": "Lusamine recovery",
+      "expected": "Recover Faba and Stadium",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-018",
+      "objective": "Plumeria discard cost",
+      "expected": "Preserve Faba/Jet/Nest",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-019",
+      "objective": "Guzma own switch",
+      "expected": "Promote Tool-Jammer Snorlax",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-020",
+      "objective": "Counter Catcher target",
+      "expected": "Choose opponent high-burden Bench Pokémon",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-021",
+      "objective": "Enhanced Hammer target",
+      "expected": "Choose Special Energy only",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-022",
+      "objective": "Girafarig Get Lost attack",
+      "expected": "Prioritize opponent recovery discard",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-023",
+      "objective": "Megaton Blower",
+      "expected": "Use only with visible removal target",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-024",
+      "objective": "Gladion Prize prompt",
+      "expected": "Abstain on concealed Prize identities",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-025",
+      "objective": "Palace Book prompt",
+      "expected": "Abstain pending exact mapping",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-026",
+      "objective": "Seat symmetry",
+      "expected": "Same policy valid for seat 1",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-027",
+      "objective": "Repeated identical request",
+      "expected": "Identical deterministic decision",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-028",
+      "objective": "Injected opponent-private field",
+      "expected": "Agent49 request validator rejects",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-029",
+      "objective": "No executable actions",
+      "expected": "Protocol-valid abstention",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-030",
+      "objective": "Unknown root card without pass",
+      "expected": "Protocol-valid abstention",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    }
+  ],
+  "heldOutReviewCases": [
+    {
+      "caseId": "R7-H01",
+      "objective": "Actual native Faba Select -> Choose Pokemon prompt settlement",
+      "status": "not-run"
+    },
+    {
+      "caseId": "R7-H02",
+      "objective": "Actual native Jet Energy bench attach and forced switch settlement",
+      "status": "not-run"
+    },
+    {
+      "caseId": "R7-H03",
+      "objective": "Actual native Nest Ball owner-deck search and shuffle settlement",
+      "status": "not-run"
+    },
+    {
+      "caseId": "R7-H04",
+      "objective": "Full original rank-7 versus Hood Shield source-dealt game",
+      "status": "not-run"
+    },
+    {
+      "caseId": "R7-H05",
+      "objective": "Rank-7 policy against non-Hood candidate archetype",
+      "status": "not-run"
+    },
+    {
+      "caseId": "R7-H06",
+      "objective": "Independent reviewer adversarial prompt/target audit",
+      "status": "not-run"
+    }
+  ],
+  "coverageMatrix": [
+    {
+      "area": "Faba-Jet-Wobbuffet-Nest unlock line",
+      "developmentCases": [
+        "R7-001",
+        "R7-002",
+        "R7-003",
+        "R7-004",
+        "R7-005",
+        "R7-006",
+        "R7-007",
+        "R7-008",
+        "R7-009",
+        "R7-010",
+        "R7-011",
+        "R7-012"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceiptCount": 0,
+      "status": "not-native-validated"
+    },
+    {
+      "area": "Stall and tool-removal decisions",
+      "developmentCases": [
+        "R7-013",
+        "R7-014",
+        "R7-015",
+        "R7-022",
+        "R7-023"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceiptCount": 0,
+      "status": "not-native-validated"
+    },
+    {
+      "area": "Search and resource recovery prompts",
+      "developmentCases": [
+        "R7-016",
+        "R7-017",
+        "R7-018"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceiptCount": 0,
+      "status": "not-native-validated"
+    },
+    {
+      "area": "Switch and target selection",
+      "developmentCases": [
+        "R7-019",
+        "R7-020",
+        "R7-021"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceiptCount": 0,
+      "status": "not-native-validated"
+    },
+    {
+      "area": "Fail-closed and protocol safety",
+      "developmentCases": [
+        "R7-024",
+        "R7-025",
+        "R7-026",
+        "R7-027",
+        "R7-028",
+        "R7-029",
+        "R7-030"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceiptCount": 0,
+      "status": "unit-test-only"
+    }
+  ],
+  "policyStaticAudit": {
+    "inputSurface": [
+      "role",
+      "seat",
+      "actor observation",
+      "prompt",
+      "action frontier"
+    ],
+    "forbiddenTermCounts": {
+      "Math.random": 0,
+      "Date.now": 0,
+      "process.": 0,
+      "require(": 0,
+      "eval(": 0,
+      "fetch(": 0,
+      "globalThis": 0,
+      "opponentPrivate": 0,
+      "hiddenHand": 0,
+      "opponentHidden": 0
+    },
+    "deterministic": true,
+    "policyRngDraws": 0,
+    "filesystemOrNetworkImports": 0,
+    "hiddenOpponentFieldReads": 0,
+    "auditClass": "static-source-scan; not a runtime sandbox"
+  },
+  "claims": {
+    "demonstrated": [
+      "Policy module is bound to the exact rank-7 source-entry fingerprint and the fixed Hood Shield v1 candidate fingerprint.",
+      "Policy factory accepts only the Agent49 role-only empty-config init contract.",
+      "Unit tests invoke the actual Agent49 init, request, and decision validators on synthetic actor-view fixtures."
+    ],
+    "notDemonstrated": [
+      "No Twinleaf native game was run by this policy.",
+      "No rank-7 matchup win rate, confidence interval, or competitive competence is established.",
+      "No evidence toward the 99.5% full Aichi Top 32 target is claimed.",
+      "The policy is not loaded by a signed V3 policy bundle or connected to the native match runner.",
+      "Existing staged rank-7 native work is separate evidence and is not attributed to this policy."
+    ]
+  },
+  "unresolved": [
+    "Run the exact Faba Select -> Choose Pokemon -> Jet attach -> Nest Ball native sequence through the current Agent49 worker and real Store.",
+    "Resolve and test the exact Palace Book SMP NAN25 paper/engine mapping before enabling its prompt path.",
+    "Exercise the policy on both seats in complete source-dealt games and preserve every terminal, censored, and error outcome.",
+    "Obtain independent adversarial review of prompt metadata, target filtering, and resource priorities.",
+    "Bind this producer into the shared V3 policy plan only after the owner accepts the exact policy and dependency hashes."
+  ],
+  "caseRecordCount": 36,
+  "suiteStatus": "development-only; held-out cases not run; not frozen"
+}

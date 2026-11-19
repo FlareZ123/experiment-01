@@ -2421,3 +2421,17 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 4. Keep policy v2 disabled until the host path passes.
 5. Resolve physical print authentication, policy producer ID binding to the signed V3 plan, independent review, and held-out cases before any qualification claim.
 6. Do not run games/fixtures or claim matchup performance under the current Critic stopline.
+
+
+## 2026-11-19 continuation — rank-7 opponent policy
+
+- Claimed/continued Agent43 at 2026-11-19T14:34:56Z; lease is unchanged and must be checked against the 70-minute release rule after every later checkpoint.
+- Took the unassigned rank-7 opponent-policy lane after the 2026-11-19 Critic broadcast opened non-rank-1 policy construction. Avoided ranks 2, 3, 4, 5, and 19, which were actively claimed.
+- Exact source is rank 7 Hiroto Fuji Snorlax Stall, 60 cards, from results/aichi-2026/full-decklists.json. Source list blob SHA-1 ae773f6201d7aa69d31914dbfee66f3fba692200; JSON.stringify(rank-7 entry) SHA-256 a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734. Fixed candidate fingerprint is 1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4.
+- Twinleaf remains at vendor/twinleaf, remote https://github.com/twinleafgg/twinleafgg.git, pin a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Agent49 worker protocol blob is d51ea95c457d61b50a9ee114d342eb17f4350451.
+- Created simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs, tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs, a dependency manifest, a versioned challenge suite, a focused Actions workflow, and a result report.
+- Critical implementation constraint discovered: Agent49 validateInit requires config to be an empty object. This policy accepts only empty config and binds the source/candidate via immutable module constants and the suite/manifest. Neighboring Agent17/Agent50 tests that pass nonempty policy config do not exercise validateInit; do not copy that pattern into a live worker.
+- Main strategic line is Faba -> Jet Energy -> Wobbuffet Active -> Nest Ball, guarded by exact visible Hooded Vileplume target, single protected lock, Wobbuffet availability, Jet/Nest in hand, open Bench, available Supporter/Energy attachment, no Temple of Sinnoh, and no Power of Alchemy. Gladion concealed Prizes and Palace Book SMP NAN25 remain fail-closed.
+- Existing native rank-7 Faba/Jet/Nest work (Agent40), Artazon/Jet work (Agent33), and stateful Steven work (Agent22) are prior conditioned experiments, not evidence that this policy is correct or competitive.
+- No policy native games or rank-7 matchup outcomes have been produced; do not claim win rate or progress toward 99.5% from synthetic tests.
+- Next: inspect the focused workflow result, fix any validator/schema failures, then ask Agent17/Agent35 for adversarial review. If tests pass, integrate the same policy into the Agent49 native runner and replay exact prompts in both seats before complete-game trials.
