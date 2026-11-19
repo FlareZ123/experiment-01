@@ -66,19 +66,19 @@ void generate_compositions(
 
 struct Totals {
     U128 valid_openings = 0;
-    U128 anchor_without_fss = 0;
-    U128 anchor_with_fss = 0;
+    U128 anchor_without_star_alchemy = 0;
+    U128 anchor_with_star_alchemy = 0;
     U128 core = 0;
-    U128 joint_without_fss = 0;
-    U128 joint_with_fss = 0;
+    U128 joint_without_star_alchemy = 0;
+    U128 joint_with_star_alchemy = 0;
 };
 
 struct Outcomes {
-    bool anchor_without_fss;
-    bool anchor_with_fss;
+    bool anchor_without_star_alchemy;
+    bool anchor_with_star_alchemy;
     bool core;
-    bool joint_without_fss;
-    bool joint_with_fss;
+    bool joint_without_star_alchemy;
+    bool joint_with_star_alchemy;
 };
 
 bool valid_opening(const std::array<int, N>& hand) {
@@ -127,7 +127,7 @@ Outcomes evaluate(
         );
     const bool arven_hood = arven_seen && deck[1] > 0;
 
-    const bool anchor_without_fss =
+    const bool anchor_without_star_alchemy =
         (enamorus_direct || arven_dual) &&
         (hood_direct || arven_hood);
 
@@ -147,34 +147,34 @@ Outcomes evaluate(
         (deck[0] > 0 && deck[4] > 0) ||
         (prizes[0] > 0 && deck[6] > 0);
 
-    bool anchor_with_fss = anchor_without_fss;
+    bool anchor_with_star_alchemy = anchor_without_star_alchemy;
 
     if (fss_ready && fss_in_hand) {
         // FSS in hand fills one missing anchor piece. Arven may fetch Hood
         // while FSS searches Enamorus / Heavy Ball.
-        if (enamorus_direct && hood_target) anchor_with_fss = true;
+        if (enamorus_direct && hood_target) anchor_with_star_alchemy = true;
         if ((hood_direct || arven_hood) && enamorus_target)
-            anchor_with_fss = true;
+            anchor_with_star_alchemy = true;
     }
 
     if (fss_ready && fss_fetched_by_arven) {
         // Arven fetches FSS as the Tool target; FSS then finds the missing
         // piece. If neither piece is direct, the Item target is Fog Crystal
         // or Heavy Ball and FSS finds Hood.
-        if (enamorus_direct && hood_target) anchor_with_fss = true;
-        if (hood_direct && enamorus_target) anchor_with_fss = true;
+        if (enamorus_direct && hood_target) anchor_with_star_alchemy = true;
+        if (hood_direct && enamorus_target) anchor_with_star_alchemy = true;
         if (!enamorus_direct && !hood_direct &&
             hood_target && item_for_enamorus) {
-            anchor_with_fss = true;
+            anchor_with_star_alchemy = true;
         }
     }
 
     return {
-        anchor_without_fss,
-        anchor_with_fss,
+        anchor_without_star_alchemy,
+        anchor_with_star_alchemy,
         core,
-        anchor_without_fss && core,
-        anchor_with_fss && core
+        anchor_without_star_alchemy && core,
+        anchor_with_star_alchemy && core
     };
 }
 
@@ -235,15 +235,15 @@ int main() {
                             opening, prize_cards, draw1, draw2, false
                         );
 
-                        if (outcome.anchor_without_fss)
-                            first.anchor_without_fss += ways;
-                        if (outcome.anchor_with_fss)
-                            first.anchor_with_fss += ways;
+                        if (outcome.anchor_without_star_alchemy)
+                            first.anchor_without_star_alchemy += ways;
+                        if (outcome.anchor_with_star_alchemy)
+                            first.anchor_with_star_alchemy += ways;
                         if (outcome.core) first.core += ways;
-                        if (outcome.joint_without_fss)
-                            first.joint_without_fss += ways;
-                        if (outcome.joint_with_fss)
-                            first.joint_with_fss += ways;
+                        if (outcome.joint_without_star_alchemy)
+                            first.joint_without_star_alchemy += ways;
+                        if (outcome.joint_with_star_alchemy)
+                            first.joint_with_star_alchemy += ways;
                     }
 
                     // Going second: one own-turn-1 draw and one own-turn-2 draw.
@@ -271,15 +271,15 @@ int main() {
                                 opening, prize_cards, draw1, draw2, true
                             );
 
-                            if (outcome.anchor_without_fss)
-                                second.anchor_without_fss += ways;
-                            if (outcome.anchor_with_fss)
-                                second.anchor_with_fss += ways;
+                            if (outcome.anchor_without_star_alchemy)
+                                second.anchor_without_star_alchemy += ways;
+                            if (outcome.anchor_with_star_alchemy)
+                                second.anchor_with_star_alchemy += ways;
                             if (outcome.core) second.core += ways;
-                            if (outcome.joint_without_fss)
-                                second.joint_without_fss += ways;
-                            if (outcome.joint_with_fss)
-                                second.joint_with_fss += ways;
+                            if (outcome.joint_without_star_alchemy)
+                                second.joint_without_star_alchemy += ways;
+                            if (outcome.joint_with_star_alchemy)
+                                second.joint_with_star_alchemy += ways;
                         }
                     }
                 }
@@ -308,24 +308,24 @@ int main() {
               << "valid_opening_probability="
               << static_cast<double>(valid_probability) << "\n";
 
-    print_rate("anchor_without_fss_going_first",
-               first.anchor_without_fss, first_denominator);
-    print_rate("anchor_without_fss_going_second",
-               second.anchor_without_fss, second_denominator);
-    print_rate("anchor_with_fss_going_first",
-               first.anchor_with_fss, first_denominator);
-    print_rate("anchor_with_fss_going_second",
-               second.anchor_with_fss, second_denominator);
+    print_rate("anchor_without_star_alchemy_going_first",
+               first.anchor_without_star_alchemy, first_denominator);
+    print_rate("anchor_without_star_alchemy_going_second",
+               second.anchor_without_star_alchemy, second_denominator);
+    print_rate("anchor_with_star_alchemy_going_first",
+               first.anchor_with_star_alchemy, first_denominator);
+    print_rate("anchor_with_star_alchemy_going_second",
+               second.anchor_with_star_alchemy, second_denominator);
     print_rate("core_V_by_T1_and_VMAX_by_T2_going_first",
                first.core, first_denominator);
     print_rate("core_V_by_T1_and_VMAX_by_T2_going_second",
                second.core, second_denominator);
-    print_rate("joint_without_fss_going_first",
-               first.joint_without_fss, first_denominator);
-    print_rate("joint_without_fss_going_second",
-               second.joint_without_fss, second_denominator);
-    print_rate("joint_with_fss_going_first",
-               first.joint_with_fss, first_denominator);
-    print_rate("joint_with_fss_going_second",
-               second.joint_with_fss, second_denominator);
+    print_rate("joint_without_star_alchemy_going_first",
+               first.joint_without_star_alchemy, first_denominator);
+    print_rate("joint_without_star_alchemy_going_second",
+               second.joint_without_star_alchemy, second_denominator);
+    print_rate("joint_with_star_alchemy_going_first",
+               first.joint_with_star_alchemy, first_denominator);
+    print_rate("joint_with_star_alchemy_going_second",
+               second.joint_with_star_alchemy, second_denominator);
 }
