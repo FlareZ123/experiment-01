@@ -96,6 +96,12 @@ const CANDIDATE_RECOVERABLE_SUPPORTER_PRIORITIES = Object.freeze([
   { pattern: /^Iono PAL 185\b/i, score: 220 },
   { pattern: /^Lillie's Determination MEG 119\b/i, score: 210 }
 ]);
+
+const LUSAMINE_TARGET_PATTERNS = Object.freeze([
+  PRINT.arven, PRINT.plumeria, PRINT.teamFlare, PRINT.teammates, PRINT.lusamine,
+  PRINT.handiwork, PRINT.gladion, PRINT.guzma, PRINT.faba, PRINT.penny, PRINT.eri,
+  PRINT.lillie, PRINT.tropicalBeach, PRINT.playersCeremony, PRINT.temple
+]);
 // The bound Hood Shield v1 list has 17 Item-subtype cards. Forest Seal Stone
 // is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
 // Pokémon Tool-only and are not legal Eri discards.
@@ -273,6 +279,12 @@ function opponentDiscardHasRecoverableSupporter(observation) {
   );
 }
 
+function lusamineTargetCount(observation) {
+  return list(observation?.ownPublic?.discard).filter(card =>
+    LUSAMINE_TARGET_PATTERNS.some(pattern => matches(card, pattern))
+  ).length;
+}
+
 function opponentSpecialEnergyCount(observation) {
   return slots(observation?.opponentPublic).reduce((total, row) =>
     total + list(row.pokemon.energies).filter(energy =>
@@ -323,7 +335,10 @@ function scoreSearchCard(printing, observation, context = '') {
       opponentHasSpecialEnergy(observation.opponentPublic) ||
       stadiumsInPlay(observation).length > 0 ? 190 : 75;
   }
-  if (matches(printing, PRINT.lusamine)) return 155;
+  if (matches(printing, PRINT.lusamine)) {
+    const targets = lusamineTargetCount(observation);
+    return targets >= 2 ? 155 : targets === 1 ? 100 : 35;
+  }
   if (matches(printing, PRINT.forestSealStone)) {
     return !boardHasTool(own, PRINT.forestSealStone) && boardHas(own, PRINT.rotom) ? 165 : 65;
   }
@@ -589,9 +604,8 @@ function scoreAction(item, request) {
     }
     if (matches(card, PRINT.handiwork)) return opponentDeckCount(observation) <= 15 ? 130 : 65;
     if (matches(card, PRINT.lusamine)) {
-      return list(own.discard).some(x =>
-        [PRINT.faba, PRINT.plumeria, PRINT.teamFlare, PRINT.handiwork, PRINT.guzma, PRINT.tropicalBeach]
-          .some(pattern => matches(x, pattern))) ? 120 : 0;
+      const targets = lusamineTargetCount(observation);
+      return targets >= 2 ? 120 : targets === 1 ? 85 : 0;
     }
     if (matches(card, PRINT.lillie)) return hand.length <= 3 ? 110 : 0;
     if (matches(card, PRINT.gladion)) return 75;
