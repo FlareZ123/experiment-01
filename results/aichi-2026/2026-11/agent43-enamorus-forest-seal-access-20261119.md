@@ -60,10 +60,10 @@ All rates are **conditional on a valid opening seven**.
 | Resource event | Going first | Going second |
 |---|---:|---:|
 | Valid opening probability (unconditional) | 88.2499% | 88.2499% |
-| Enamorus + Hood access without Forest Seal Stone | 22.4001% | 26.1390% |
+| Enamorus + Hood access without Star Alchemy | 22.4001% | 26.1390% |
 | Enamorus + Hood access with Forest Seal Stone | **24.8928%** | **29.3519%** |
 | Shadow Rider V by turn 1 + VMAX by turn 2 | 18.6496% | 22.5528% |
-| Joint anchor + core access without Forest Seal Stone | 3.3014% | 4.8498% |
+| Joint anchor + core access without Star Alchemy | 3.3014% | 4.8498% |
 | Joint anchor + core access with Forest Seal Stone | **4.0990%** | **6.0508%** |
 
 Forest Seal Stone adds **2.4927 / 3.2130 percentage points** to anchor-only access and **0.7976 / 1.2009 points** to the joint anchor-plus-core event.
