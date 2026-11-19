@@ -6,7 +6,9 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-wor
 const {
   POLICY_VERSION,
   createPolicy,
-  scoreAttack
+  scoreAction,
+  scoreAttack,
+  scoreSearchCard
 } = require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
 const config = {
@@ -1130,6 +1132,36 @@ test('Mimikyu is prioritized as a defensive Basic against the candidate Pokémon
 
 
 test('Teammates search scoring respects Faba targets and avoids dead Supporters', () => {
+  const noLusamineTargets = observation({ ownPublic: player() });
+  const oneLusamineTarget = observation({
+    ownPublic: player({ discard: ['Faba LOT 173'] })
+  });
+  const twoLusamineTargets = observation({
+    ownPublic: player({ discard: ['Faba LOT 173', 'Plumeria BUS 120'] })
+  });
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', noLusamineTargets, 'teammates'), 35);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', oneLusamineTarget, 'teammates'), 100);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', twoLusamineTargets, 'teammates'), 155);
+
+  const lusamineAction = {
+    kind: 'play-card',
+    actorPrinting: 'Lusamine CIN 96',
+    publicMetadata: { cardType: 'supporter', handIndex: 0 }
+  };
+  const noTargetRoot = rootRequest({
+    ownHand: ['Lusamine CIN 96'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') })
+  });
+  const twoTargetRoot = rootRequest({
+    ownHand: ['Lusamine CIN 96'],
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      discard: ['Faba LOT 173', 'Plumeria BUS 120']
+    })
+  });
+  assert.deepEqual(scoreAction(lusamineAction, noTargetRoot), 0);
+  assert.deepEqual(scoreAction(lusamineAction, twoTargetRoot), 120);
+
   const positive = promptRequest({
     requestId: 'agent17-teammates-visible-tool',
     promptType: 'ChooseCardsPrompt',
@@ -1189,7 +1221,8 @@ test('Teammates search scoring respects Faba targets and avoids dead Supporters'
       cardChoice('team-flare', 'Team Flare Grunt XY 129'),
       cardChoice('handiwork', "Team Rocket's Handiwork FCO 112"),
       cardChoice('guzma', 'Guzma BUS 115'),
-      cardChoice('eri', 'Eri TEF 146')
+      cardChoice('eri', 'Eri TEF 146'),
+      cardChoice('lusamine', 'Lusamine CIN 96')
     ],
     publicMetadata: multiMetadata(2, 2)
   });
