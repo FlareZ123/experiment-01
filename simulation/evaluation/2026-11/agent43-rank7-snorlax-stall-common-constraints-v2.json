@@ -1,0 +1,103 @@
+{
+  "schema": "aichi-policy-common-constraints-v1",
+  "policyId": "agent43-rank7-snorlax-stall-opponent-v2",
+  "role": "opponent-policy",
+  "sourceRank": 7,
+  "candidateId": "hood-shield-shadow-rider-v1",
+  "observationBoundary": {
+    "policyMayRead": [
+      "request.role",
+      "request.seat",
+      "request.observation.actorSeat",
+      "request.observation.globalTurn",
+      "request.observation.ownHand",
+      "request.observation.ownPublic",
+      "request.observation.opponentPublic",
+      "request.observation.ownTurnResources",
+      "request.prompt",
+      "request.actionFrontier"
+    ],
+    "policyActuallyUses": [
+      "own hand and turn resources",
+      "own/opponent public active and Bench Pokémon",
+      "printed Pokémon types",
+      "visible Abilities and attached Tools",
+      "public discard, Stadium and deck counts",
+      "prompt source/choices/selection metadata",
+      "legal action frontier"
+    ],
+    "forbiddenInformation": [
+      "opponent private hand before public reveal",
+      "unrevealed Prize identities",
+      "deck order/unrevealed deck contents",
+      "physical shuffle RNG/seed",
+      "raw Twinleaf state outside validated actor projection",
+      "other role process memory"
+    ],
+    "caveat": "Actor-view-only source inspection and validator fixtures are not a process-isolation or security-sandbox proof."
+  },
+  "determinism": {
+    "randomization": "none",
+    "rngParameter": "not accepted or used",
+    "repeatedRequestInvariant": "same request/config/seat yields the same decision",
+    "physicalSeedAccess": "not present in policy API"
+  },
+  "roleAndSeat": {
+    "role": "opponent",
+    "seatDomain": [
+      0,
+      1
+    ],
+    "samePolicyAcrossSeats": true,
+    "firstPlayerCellInvariant": true,
+    "testCoverage": "synthetic seat 0 and seat 1 requests; no game-level seat coverage"
+  },
+  "decisionBoundary": {
+    "executableActionKinds": [
+      "play-card",
+      "attack",
+      "retreat",
+      "use-ability",
+      "use-stadium",
+      "pass"
+    ],
+    "promptDecisions": [
+      "select-choice",
+      "select-choices",
+      "abstain"
+    ],
+    "unsupportedPromptBehavior": "abstain with stable reason code; no delegated decoder or native fallback",
+    "rootFallback": "select pass only when an actual pass token exists; otherwise abstain",
+    "selectionValidation": "actual Agent49 validateInit/validateRequest/validateDecision functions"
+  },
+  "cardSpecificBehavior": [
+    "Wobbuffet PHF 36 Bide Barricade suppresses Abilities of all non-Psychic Pokémon in play, hand and discard, including the policy's own Snorlax PGO 55 Block; Psychic Shadow Rider Calyrex VMAX is unaffected.",
+    "Stealthy Hood prevents effects of opponent Abilities on its attached Pokémon. Faba may remove an opponent Hood from a non-Psychic Pokémon with a valuable Ability; Radiant Eternatus SIT 105 Climactic Gate is a priority target.",
+    "Jet Energy PAL 190 can promote Benched Wobbuffet; Temple of Sinnoh disables the Special Energy effect.",
+    "Alolan Muk SUM 58 Power of Alchemy suppresses Basic Wobbuffet and blocks the Wobbuffet line.",
+    "Rank-7 source deck contains no Vileplume. Nest Ball is an ordinary Item; no Vileplume Item-lock premise is used.",
+    "Palace Book SMP NAN25 is a no-prompt Item: draw three and end the turn; low priority only."
+  ],
+  "runtime": {
+    "policyModuleHasImports": false,
+    "policyModuleUsesFilesystem": false,
+    "policyModuleUsesNetwork": false,
+    "policyModuleUsesProcessOrSeed": false,
+    "policyModuleUsesRandomness": false,
+    "nodeTestRunnerExecuted": true,
+    "localHarness": "GitHub Actions Node 22 node:test with actual Agent49 validators",
+    "perDecisionTimeout": "not configured or measured",
+    "computeBudget": "not measured",
+    "timeoutNegativeControl": "not run",
+    "workerIpcHandshake": false,
+    "twinleafNativeStore": false
+  },
+  "sharedConstraints": {
+    "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "nativeFallback": "forbidden",
+    "policyDelegation": "forbidden",
+    "workerInitConfig": "empty object",
+    "testSplit": "development fixtures; held-out review cases unexecuted"
+  }
+}
