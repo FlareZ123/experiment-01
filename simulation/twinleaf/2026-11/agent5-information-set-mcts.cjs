@@ -177,7 +177,7 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {(state:object,seat:0|1)=>object[]} config.enumerateActions
  * @param {(action:object)=>string} config.actionKey
  * @param {(state:object,action:object,random:()=>number)=>object} config.applyAction
- * @param {(state:object,seat:0|1,random:()=>number)=>object} config.sampleDeterminization
+ * @param {(state:object,seat:0|1,random:()=>number)=>object} [config.sampleDeterminization]
  * @param {(state:object)=>boolean} config.isTerminal
  * @param {(state:object,seat:0|1)=>number} config.terminalValue
  * @param {(observation:object,seat:0|1)=>number} config.evaluateObservation
@@ -263,6 +263,10 @@ function createInformationSetMcts(config) {
         checkDeadline: stage => checkDeadline(stage)
       });
       const prepareActorState = (inputState, actorSeat, iteration, stage) => {
+        assert.equal(isStable(inputState), true,
+          'Actor-relative sampling requires a stable decision state');
+        assert.equal(config.isTerminal(inputState), false,
+          'Actor-relative sampling cannot begin from a terminal state');
         checkDeadline(stage + '-observation-start');
         const beforeObservation = config.observe(inputState, actorSeat, searchContext);
         checkDeadline(stage + '-observation-complete');
@@ -291,6 +295,8 @@ function createInformationSetMcts(config) {
           'Actor-relative determinization must return a detached state');
         assert.equal(isStable(sampledState), true,
           'Actor-relative determinization returned a state with unresolved prompts');
+        assert.equal(config.isTerminal(sampledState), false,
+          'Actor-relative determinization changed terminality');
         assert.equal(config.activeSeat(sampledState), actorSeat,
           'Actor-relative determinization changed the acting seat');
         const afterObservation = config.observe(sampledState, actorSeat, searchContext);
