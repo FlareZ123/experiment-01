@@ -1,0 +1,927 @@
+{
+  "schema": "aichi-opponent-policy-challenge-suite-v1",
+  "suiteId": "aichi-rank10-regidrago-phantom-dive-allocation-v2",
+  "suiteVersion": 2,
+  "role": "opponent-policy",
+  "sourceDeck": {
+    "sourceRank": 10,
+    "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+    "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+    "sourceListStatus": "exact_60_available",
+    "sourceCardCount": 60,
+    "archetype": "Regidrago",
+    "player": "Haruku Yoshioka",
+    "attackCard": "Dragapult ex TWM 130",
+    "physicalPrintFingerprint": null,
+    "physicalPrintAuthentication": "not independently authenticated",
+    "paperAdmission": "not admitted to verified paper field"
+  },
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent43-rank10-regidrago-opponent-policy.cjs",
+    "gitBlobSha1": "0b87330ee844c334f32aa9511ea2b21c4d0643e9",
+    "version": "agent43-rank10-regidrago-opponent-v2",
+    "defaultConfig": {
+      "phantomDiveAllocation": "disabled"
+    },
+    "optInConfig": {
+      "phantomDiveAllocation": "complete-choice-token-v1"
+    },
+    "optInStatus": "not enabled in registered bundle; host projection and native tests remain blocked",
+    "sha256": "7b722a080c52061f84d7fc494f983d2506d5b09468c1e833682d63cdac1578ea",
+    "hashStatus": "Git blob SHA1 and SHA256 recorded; not bound to signed V3 policy-plan core"
+  },
+  "dependencyManifest": {
+    "path": "results/methodology/2026-11/agent43-rank10-dependencies-v2.json",
+    "gitBlobSha1": "8f55cbbfc9309559f7c6d71087a95dc77a22f44f",
+    "sha256": "d61058bb2f4dac84c68da094a159c3a5ec625e632ee1e7f94879f52a6fb01377"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
+    "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
+    "sha256": "78845ab7aa19d36918f68f5b4e51dcf6c2d3a03fc5333111aad966adc6c71817",
+    "bindingStatus": "provisional; not bound to signed V3 policy-plan core"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "nativeEffectHarness": {
+      "path": "simulation/twinleaf/apex-phantom-dive.cjs",
+      "gitBlobSha1": "1978abbd3a557c42e4c03d04ab2d7ffc1de87f14",
+      "executedInThisInvocation": false
+    },
+    "paperPutDamageGuard": {
+      "path": "simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs",
+      "gitBlobSha1": "93932da9cf7df8e9aad081c12c9b71a53f215417"
+    },
+    "hostPromptProjection": {
+      "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+      "gitBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+      "supportsPutDamagePrompt": false
+    }
+  },
+  "producers": {
+    "suiteAuthor": "Agent43",
+    "suiteProducerId": "agent43",
+    "opponentPolicyProducerIdByRank": {
+      "10": null
+    },
+    "bundleProducerId": null,
+    "producerBindingStatus": "not bound to signed V3 policy-plan core; production attestation blocked",
+    "independentReviewer": null,
+    "reviewStatus": "blocked; no independent reviewer or held-out author under current owner hold"
+  },
+  "lifecycle": {
+    "createdAt": "2026-11-19T13:05:45Z",
+    "frozenAt": "2026-11-19T13:08:12Z",
+    "freezeScope": "development/regression case definitions only; no policy registration, deal generation, games, or fixtures",
+    "suiteStatus": "blocked-not-attestation-ready",
+    "confirmatoryGamesRun": 0,
+    "heldOutReviewCases": [],
+    "heldOutStatus": "blocked; no independent held-out set has been authored or reviewed"
+  },
+  "developmentCases": [
+    {
+      "caseId": "rank10-pd-01-three-prize-ko",
+      "scenarioFamily": "multi-prize-knockout-priority",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:5dd7d803e4b85ce238ebfdefe6203c371dea32b021f0e95082a2e276212ab453",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                "hp": 320,
+                "damage": 260,
+                "printed": {
+                  "subtypes": [
+                    "VMAX"
+                  ]
+                }
+              },
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              },
+              {
+                "printing": "Tapu Lele-GX GRI 60",
+                "hp": 170,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic",
+                    "GX"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Phantom Dive",
+            "sourcePrinting": "Dragapult ex TWM 130"
+          },
+          "choices": [
+            {
+              "token": "vmax",
+              "kind": "allocation",
+              "label": "PD1|b0=60"
+            },
+            {
+              "token": "spread",
+              "kind": "allocation",
+              "label": "PD1|b1=30,b2=30"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "select-choice",
+          "token": "vmax"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
+        "testName": "highest Prize value allocation wins over a lower-value spread",
+        "localCommand": "node --test /tmp/agent43-phantom-dive-allocation.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "passed within local synthetic helper suite (19/19 total)",
+        "evidenceScope": "synthetic policy/helper behavior only; not native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "No independent reviewer; no held-out review; no native prompt projection or game execution."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-02-ko-count-tiebreak",
+      "scenarioFamily": "equal-prize-ko-count-tiebreak",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:268550ff205f69aa07c65c0d3460cdfa8b77580182890621e8beeb5f47b37215",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Tapu Lele-GX GRI 60",
+                "hp": 170,
+                "damage": 150,
+                "printed": {
+                  "subtypes": [
+                    "Basic",
+                    "GX"
+                  ]
+                }
+              },
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              },
+              {
+                "printing": "Budew ASC 16",
+                "hp": 30,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              },
+              {
+                "printing": "Radiant Eternatus CRZ 105",
+                "hp": 30,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic",
+                    "Radiant"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Phantom Dive",
+            "sourcePrinting": "Dragapult ex TWM 130"
+          },
+          "choices": [
+            {
+              "token": "one",
+              "kind": "allocation",
+              "label": "PD1|b0=20,b1=40"
+            },
+            {
+              "token": "two",
+              "kind": "allocation",
+              "label": "PD1|b2=30,b3=30"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "select-choice",
+          "token": "two"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
+        "testName": "two one-Prize KOs beat one two-Prize KO when both take the same total Prizes",
+        "localCommand": "node --test /tmp/agent43-phantom-dive-allocation.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "passed within local synthetic helper suite (19/19 total)",
+        "evidenceScope": "synthetic policy/helper behavior only; not native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "No independent reviewer; no held-out review; no native prompt projection or game execution."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-03-nonlethal-focus",
+      "scenarioFamily": "nonlethal-target-priority",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:395b07ab66072585ec3822c4227b4a83c1b2f9afc008b3dc5786aa32e8d17ca4",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              },
+              {
+                "printing": "Lillie's Clefairy ex JTG 56",
+                "hp": 190,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic",
+                    "ex"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Phantom Dive",
+            "sourcePrinting": "Dragapult ex TWM 130"
+          },
+          "choices": [
+            {
+              "token": "split",
+              "kind": "allocation",
+              "label": "PD1|b0=30,b1=30"
+            },
+            {
+              "token": "mimikyu",
+              "kind": "allocation",
+              "label": "PD1|b0=60"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "select-choice",
+          "token": "mimikyu"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
+        "testName": "without KOs, damage is concentrated on the highest-priority exposed target",
+        "localCommand": "node --test /tmp/agent43-phantom-dive-allocation.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "passed within local synthetic helper suite (19/19 total)",
+        "evidenceScope": "synthetic policy/helper behavior only; not native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "No independent reviewer; no held-out review; no native prompt projection or game execution."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-04-zero-cap-filter",
+      "scenarioFamily": "zero-cap-target-filter",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:36c61a60d84b37f7253c73ba84da040aea92e592415e520175878244e2acfeb8",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              },
+              {
+                "printing": "Budew ASC 16",
+                "hp": 30,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Phantom Dive",
+            "sourcePrinting": "Dragapult ex TWM 130"
+          },
+          "choices": [
+            {
+              "token": "only-allowed",
+              "kind": "allocation",
+              "label": "PD1|b1=60"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "select-choice",
+          "token": "only-allowed"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
+        "testName": "zero-cap target is excluded; positive maxAllowedDamage is not treated as a cap",
+        "localCommand": "node --test /tmp/agent43-phantom-dive-allocation.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "passed within local synthetic helper suite (19/19 total)",
+        "evidenceScope": "synthetic policy/helper behavior only; not native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "Host projection input includes target b0 with maxAllowedDamage=0 and b1 with a positive value. The worker sees only the projected allowed choice.",
+        "Positive maxAllowedDamage is not treated as a hard cap because the paper hook documents that positive values may be UI/HP hints; native validation callback is mandatory."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-05-unsupported-source",
+      "scenarioFamily": "unsupported-prompt-source",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:d0266f8cf0480220153b10ed19f1394579d292920f212774886161354c6a84c4",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Unrecognized damage effect",
+            "sourcePrinting": "Unknown card"
+          },
+          "choices": [
+            {
+              "token": "only",
+              "kind": "allocation",
+              "label": "PD1|b0=60"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "abstain",
+          "reasonCode": "UNSUPPORTED_PUT_DAMAGE_PROMPT"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
+        "testName": "PutDamagePrompt from another effect fails closed instead of borrowing Phantom Dive policy",
+        "localCommand": "node --test tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "authored but not executed in this invocation",
+        "evidenceScope": "policy integration test only; no native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "Policy-v2 integration test is authored but was not run in this invocation."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-06-default-disabled",
+      "scenarioFamily": "default-disabled-gate",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": "sha256:7e464be97e5d39ea7979a8034d9ff1add3acb3550e0332dfef320a50e9adaac2",
+      "actorView": {
+        "role": "opponent",
+        "seat": 0,
+        "observation": {
+          "actorSeat": 0,
+          "ownPublic": {
+            "prizeCount": 6
+          },
+          "opponentPublic": {
+            "active": {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 200,
+              "damage": 0,
+              "printed": {
+                "subtypes": [
+                  "VMAX"
+                ]
+              }
+            },
+            "bench": [
+              {
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "damage": 0,
+                "printed": {
+                  "subtypes": [
+                    "Basic"
+                  ]
+                }
+              }
+            ],
+            "discard": []
+          }
+        },
+        "prompt": {
+          "promptType": "PutDamagePrompt",
+          "source": {
+            "effectName": "Phantom Dive",
+            "sourcePrinting": "Dragapult ex TWM 130"
+          },
+          "choices": [
+            {
+              "token": "only",
+              "kind": "allocation",
+              "label": "PD1|b0=60"
+            }
+          ]
+        }
+      },
+      "decisionEnvelope": {
+        "expectedDecision": {
+          "kind": "abstain",
+          "reasonCode": "PHANTOM_DIVE_ALLOCATION_DISABLED"
+        },
+        "forbiddenOutcomes": [
+          "select a token not present in choices",
+          "invent or alter a native placement array",
+          "use hidden zones or non-actor-visible information"
+        ],
+        "scope": "allocation prompt only; attack activation and full turn policy are out of scope"
+      },
+      "costLedger": {
+        "attackActivationCost": "outside this prompt-level case; not evaluated",
+        "damageCounters": 6,
+        "damagePerCounter": 10,
+        "totalDamage": 60,
+        "targetZone": "opponent Bench only",
+        "allocationRule": "complete allocation totals exactly 60; raw result is an array of target/damage placements",
+        "nativeLegality": "each candidate must pass the native prompt validator before exposure and again at dispatch"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "decisionKind": "select-choice",
+        "choiceTokenMapsTo": "complete native placement array",
+        "choiceLimit": 512,
+        "hostProjection": "not currently supported by agent36-prompt-projection.cjs; integration blocked"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
+        "testName": "policy v2 defaults to disabling Phantom Dive until host allocation projection is enabled",
+        "localCommand": "node --test tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
+        "nodeVersion": "v22.16.0",
+        "localOutcome": "authored but not executed in this invocation",
+        "evidenceScope": "policy integration test only; no native game or strategic competence"
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "Policy-v2 integration test is authored but was not run in this invocation.",
+        "The complete-choice-token-v1 mode is opt-in only and is not enabled in a registered bundle."
+      ]
+    }
+  ],
+  "nativeBlockedCases": [
+    {
+      "caseId": "rank10-pd-07-native-putdamage-prompt",
+      "scenarioFamily": "native-engine-prompt-contract",
+      "evidenceClass": "native-staged",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": null,
+      "decisionEnvelope": {
+        "expected": "one select-choice token maps to a complete native array of {target,damage} placements"
+      },
+      "costLedger": {
+        "damage": 60,
+        "damageMultiple": 10,
+        "targetZone": "opponent Bench",
+        "attackActivation": "out of scope"
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "choiceLimit": 512,
+        "perChoiceNativeValidation": "required"
+      },
+      "executionEvidence": {
+        "harnessPath": "simulation/twinleaf/apex-phantom-dive.cjs",
+        "harnessGitBlobSha1": "1978abbd3a557c42e4c03d04ab2d7ffc1de87f14",
+        "observedInSource": "native harness constructs PutDamagePrompt for 60 damage and resolves a target/damage array",
+        "executedInThisInvocation": false
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "Existing harness is a native effect contract, not a native policy allocation test.",
+        "No engine execution or replay evidence was produced in this invocation."
+      ]
+    },
+    {
+      "caseId": "rank10-pd-08-host-projection-integration",
+      "scenarioFamily": "host-prompt-projection-coverage",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 10,
+        "sourceDeckDatasetPath": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+        "sourceDeckDatasetGitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+        "sourceListStatus": "exact_60_available",
+        "sourceCardCount": 60,
+        "archetype": "Regidrago",
+        "player": "Haruku Yoshioka",
+        "attackCard": "Dragapult ex TWM 130",
+        "physicalPrintFingerprint": null,
+        "physicalPrintAuthentication": "not independently authenticated",
+        "paperAdmission": "not admitted to verified paper field"
+      },
+      "actorViewDigest": null,
+      "decisionEnvelope": {
+        "required": "Agent49-owned host projection emits complete allocation choices and maps token to exact native placement array"
+      },
+      "costLedger": {
+        "choiceLimit": 512,
+        "maxCompositionsWithSixTargets": 462,
+        "maxCompositionsWithFiveBenchTargets": 210
+      },
+      "promptCoverage": {
+        "nativePromptType": "PutDamagePrompt",
+        "currentProjectionSupport": false
+      },
+      "executionEvidence": {
+        "projectionPath": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+        "projectionGitBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+        "supportsPutDamagePrompt": false
+      },
+      "disposition": "blocked",
+      "limitations": [
+        "Policy v2 remains disabled by default.",
+        "No shared host projection or first-trace integration was changed."
+      ]
+    }
+  ],
+  "claims": {
+    "helperUnitTests": "19/19 synthetic tests passed locally on Node v22.16.0 against local mirrors of the committed helper/test source",
+    "policyV2Tests": "5 tests authored; not executed in this invocation",
+    "nativeEngineTests": "not executed in this invocation",
+    "matchGames": 0,
+    "matchupWinRate": null,
+    "fieldWinRate": null,
+    "99_5PercentClaim": "not demonstrated"
+  },
+  "openGates": [
+    "Agent49-owned host projection must add PutDamagePrompt support outside the rank-1 first-trace bundle, using this helper and the existing select-choice/choiceByToken dispatch path.",
+    "The host must map PlayerType and SlotType to actor-relative opponent Bench indexes and call validateRawPromptResult for every generated allocation before exposing choices; dispatch must revalidate the selected raw array.",
+    "Native tests must cover five occupied Bench slots, fewer slots, zero-cap targets, both actor seats, source provenance, and the no-legal-target edge.",
+    "Policy v2 integration tests must be run in the repository runtime.",
+    "Exact physical printings, physical deck fingerprint, producer IDs, dependency SHA256 binding in the signed policy plan, independent reviewer, and held-out review cases remain missing."
+  ]
+}
