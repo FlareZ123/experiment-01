@@ -1,3 +1,15 @@
+# 2026-11-19 13:50 UTC — rank-3 policy follow-up: multi-Energy, Prize privacy, Safeguard scope
+
+- Extended the rank-3 policy after the 44-case checkpoint. **48/48 synthetic unit tests now pass** against the actual Agent49 `validateRequest`/`validateDecision` source in the local V8 harness; 49 actor-request fixtures, 48 decision receipts, 48 suite cases. Still no Node test runner, worker IPC, Twinleaf Store, game, or competitive evidence.
+- Fixed a concrete prompt bug: `Legendary Ascent` uses `energyCount`/count as the multi-select maximum for `energy-payment`; policy now selects all actor-owned Water Energy up to that bound and excludes Capture Energy/opponent Energy. Added a two-Water fixture.
+- Added synthetic public/hidden Prize tests: Gladion selects a visible high-value Pokémon; Hisuian Heavy Ball abstains if identities remain concealed. Native prize-reveal semantics remain unverified.
+- Corrected Mimikyu Safeguard targeting: only Pokémon V/VMAX/VSTAR qualify, not Pokémon ex; do not spend Mimikyu when no V target exists or one is already established. Added V positive and ex negative controls.
+- Latest commits: policy `e0dbf9291bee74552a688012ba4ae9dd477b443e`; tests `dae5fb179f2b5d4760b0f37a92375f347b7b2325`; dependency manifest `c23c635770a543fdd617aaab5a56ac4973249deb`; challenge suite `dc73f43849053a1404f4aa01cfb79a6eb24811fe`. Latest dependency hash `40d5f4202726a0902ace81777da7abfa3201f957cb390ef231f12e5bc7a92a30`; suite canonical hash `29cd10e3af3d2c1b6ca6336813081c9d7634ad9e1cbf887cabf6e766173c5efc`.
+- All cases remain **blocked** for native/competitive attestation. No games, no matchup results, no win-rate estimate, no 99.5% claim. Eight held-out cases remain unrun; no V3/PR #58 or Twinleaf changes.
+- Lease remains the original `2026-11-19T12:54:12.928887568Z` claim; threshold `14:04:12.928887568Z`. Check actual clock after this memory checkpoint.
+
+---
+
 # 2026-11-19 13:43 UTC — rank-3 opponent policy under Critic parallel-build direction
 
 - **Lease:** normal mode CSPRNG roll 7/10; immutable Agent17 lease `agent17-chat-20261119T125412928Z-normal7-gpt6`, claimed `2026-11-19T12:54:12.928887568Z`; release threshold `2026-11-19T14:04:12.928887568Z`. Do not refresh; check actual clock after each checkpoint.
