@@ -1,12 +1,12 @@
 # Rank 12 Regidrago opponent policy v2 — worker-init correction
 
-**Status: NOT EXECUTED / NOT ATTESTED**
+**Status: V8 shim 20/21; Node test runner and worker IPC not executed; not attested**
 
 ## Status
 
 This is a deterministic, actor-view-only opponent-policy prototype for the exact **Aichi Open League 2026 Top 32 rank-12 Regidrago list**. It is intended to exercise the fixed Hood Shield Shadow Rider candidate against one precisely bound opponent list.
 
-**No games were run. No Twinleaf fixture was staged. The 20 v2 contract tests were authored but not executed in the Node test runner. A separate direct V8 source smoke of the zero-key init boundary passed, but it is not a worker IPC handshake or a test-runner pass. This artifact supplies no matchup result, win-rate estimate, or evidence of competitive competence. It does not support a 99.5% claim.**
+**No games were run. No Twinleaf fixture was staged. The 21 test functions executed in an isolated V8 shim: 20 passed and one existing Heavy Ball case failed before policy execution in the worker's `validateRequest/multiSelectBounds` with `BAD_MULTI_SELECT_BOUNDS`. The new zero-key init regression passed. The Node test runner and worker IPC remain unexecuted. A separate direct V8 source smoke of the init boundary also passed. This artifact supplies no matchup result, win-rate estimate, or evidence of competitive competence. It does not support a 99.5% claim.**
 
 The machine-readable challenge suite is [agent1-rank12-regidrago-opponent-policy-challenge-suite-v2.json](./agent1-rank12-regidrago-opponent-policy-challenge-suite-v2.json).
 
@@ -85,9 +85,9 @@ Agent17's [Regidrago source-list variance report](../../methodology/2026-11/agen
 
 ## V3 worker initialization correction
 
-The v2 factory accepts only the shared worker's `config: {}` payload and requires the worker-supplied RNG function. The new integration regression calls the actual exported `validateInit`, captures its accepted init envelope, and passes `{...accepted, rng}` into `createPolicy`, matching the worker's real factory call. It verifies that non-empty config is rejected at both boundaries. Rank/source/candidate identity stays in immutable module constants and v2 manifests.
+The v2 factory accepts only the shared worker's `config: {}` payload and requires the worker-supplied RNG function. The integration regression calls the actual exported `validateInit`, captures its accepted init envelope, and passes `{...accepted, rng}` into `createPolicy`, matching the worker's real factory call. It verifies that non-empty config is rejected at both boundaries. Rank/source/candidate identity stays in immutable module constants and v2 manifests.
 
-A separate direct V8 source smoke passed using the actual shared worker blob, rank-12 v2 module, and apex-choice helper. It accepted `config: {}`, returned a callable `decide`, and rejected non-empty config at both boundaries (`UNKNOWN_FIELD` / `AGENT1_RANK12_POLICY_INIT_MISMATCH`). The bundle digest was a synthetic valid-format placeholder. This did not run the Node test file, worker loop, IPC, native Store, or a game.
+The V8 shim harness executed this regression successfully. A separate direct V8 source smoke also passed using the actual shared worker, rank-12 v2 module, and apex-choice helper: empty config accepted, callable `decide` returned, and non-empty config rejected at both boundaries (`UNKNOWN_FIELD` / `AGENT1_RANK12_POLICY_INIT_MISMATCH`). The bundle digest was a synthetic valid-format placeholder. Neither exercise ran the Node test runner, worker loop, IPC, native Store, or a game.
 
 ## Policy implementation
 
@@ -115,7 +115,7 @@ The policy does not attempt to evolve Noivern ex onto the board. It treats the l
 
 ## Challenge suite and test coverage
 
-The challenge suite contains eight synthetic actor-view envelopes with canonical SHA-256 digests and four held-out native scenarios marked blocked/not constructed. The 20 authored contract tests cover:
+The challenge suite contains eight synthetic actor-view envelopes with canonical SHA-256 digests and four held-out native scenarios marked blocked/not constructed. The 21 test functions cover:
 
 - exact role, seat, rank, source-list, and candidate binding;
 - deterministic behavior from either physical seat;
@@ -132,7 +132,7 @@ The challenge suite contains eight synthetic actor-view envelopes with canonical
 - worker request rejection of hidden-hand/RNG fields;
 - worker decision rejection of invented action tokens.
 
-The tests import the real worker validator source, but **they have not been run**. Their existence is not a test-pass claim.
+The V8 shim executed all 21 test functions: **20 passed, one failed before policy execution** in the real worker validator. The Node test runner remains unexecuted; this is not an IPC or native-game pass.
 
 ## Evidence and limitations
 
@@ -141,7 +141,7 @@ The tests import the real worker validator source, but **they have not been run*
 | Source-natural cases | 0 | Not collected |
 | Native-staged cases | 0 | Not constructed |
 | Synthetic actor-view cases | 8 | Authored, not executed |
-| Contract tests | 20 | Authored, not executed |
+| Contract tests | 21 | V8 shim: 20 pass, 1 pre-policy `BAD_MULTI_SELECT_BOUNDS`; Node runner not executed |
 | Native games | 0 | Not run |
 | Matchup win-rate observations | 0 | None |
 
@@ -164,4 +164,4 @@ Important unresolved points:
 - Tests: tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs
 - Policy: simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy-v2.cjs
 
-The next useful step is to execute the authored contract tests against the pinned worker validator, then collect native source-natural decision envelopes. Do not promote this prototype to competitive evidence until those steps and independent producer/reviewer binding are complete.
+The next useful step is to run the focused Node test file and resolve the existing Heavy Ball `BAD_MULTI_SELECT_BOUNDS` failure only under separately authorized fixture scope, then collect native source-natural decision envelopes. Do not promote this prototype to competitive evidence until those steps and independent producer/reviewer binding are complete.
