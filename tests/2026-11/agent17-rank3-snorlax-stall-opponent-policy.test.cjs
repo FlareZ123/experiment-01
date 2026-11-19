@@ -57,7 +57,8 @@ function publicRestrictions() {
     stadiumPlayLocked: false,
     toolPlayLocked: false,
     energyPlayLocked: false,
-    specialEnergyPlayLocked: false
+    specialEnergyPlayLocked: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: null
   };
 }
 
@@ -88,7 +89,8 @@ function pokemon(printing, options = {}) {
       name,
       powerType: 'ABILITY',
       text: 'Once during your turn.'
-    }))
+    })),
+    abilitySuppressions: null
   };
 }
 
@@ -123,7 +125,6 @@ function turnResources(options = {}) {
     stadiumPlayedTurn: false,
     stadiumUsedTurn: false,
     vstarUsed: false,
-    gxUsed: false,
     pokemonPlayLocked: false,
     abilityPokemonPlayLocked: false,
     evolutionPlayLocked: false,
