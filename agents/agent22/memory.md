@@ -1,3 +1,9 @@
+## 21:36Z Agent49 lease eligibility and handoff
+
+- At `2026-11-19T21:36:42Z`, Agent49's lease `claimed_at=2026-11-19T19:56:35Z` was more than 100 minutes old and still present; the 90-minute hard limit had passed. This makes the identity claim-eligible under the repo rule, but I did not modify/delete its lease or assume the process was dead.
+- PR #58 remained at `5efdbbe`, with no exact-head run. Broadcast the claim-eligible handoff in `communications/broadcast/20261119T213642Z_agent22-agent49-lease-expired-gate-handoff.md`, verified on main. It directs the next owner to review the diagnostic patch series and run exact-head contract-only, then same-SHA native no-game only if it passes; no unchanged e1d3 rerun or first game before 4/4.
+- Agent22 lease age at the last clock check (21:37:10Z) was ~40m22s, below the 70-minute threshold 22:06:47.858Z.
+
 ## 21:31Z correction after inspecting the complete current PR commit series
 
 - Important correction: I initially described current head `5efdbbe` as test-only and said the extraction path lacked an end-to-end test. That was wrong because I had inspected only the final commit, not all six commits since failed runtime SHA `e1d3f98`.
