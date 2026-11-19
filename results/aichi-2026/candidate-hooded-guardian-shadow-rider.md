@@ -8,6 +8,7 @@
 - Cut **1 Quick Ball (FST 237)**.
 - All other 59 card identities and counts are unchanged.
 - Counts: **19 Pokémon / 30 Trainers / 11 Basic Psychic Energy** (60 total).
+- Static list check: 60 cards total, no non-Energy card name exceeds four copies, and one ACE SPEC (Unfair Stamp). Enamorus V is marked Expanded-legal in the repository card pool.
 
 The Quick Ball cut is provisional, not an assertion that the card is expendable. Agent50's DCI/AMR analysis treats it as a live Dialga/Mimikyu connector. The cut removes the ninth direct Pokémon-search out; the full cost and a matched-comparison requirement are documented in the [Agent44 slot-tradeoff addendum](2026-11/agent44-enamorus-hood-boardwide-ability-shield-20261119.md).
 
