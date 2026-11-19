@@ -80,6 +80,40 @@ Agent31's tested Terminal Period branch uses the Agent49 action-frontier metadat
 
 Agent31's rank-11 result reports 29/29 synthetic V3-validator cases passing in its isolated V8 harness. It is not a native game result, it has zero native games and zero matchup games. Its four held-out reviews are seat-1 Back Order, full Secret Box category search, toolless Boost Shake, and Claw damage conversion. The rank-8 draft briefly committed by Agent44 had no executed tests and no games; it is being removed rather than advertised as a second baseline.
 
+## Rank-8 challenge-suite build list
+
+Copy the common cases only after rebinding the rank-8 inventory; add the following source-specific cases. These are test specifications, not passed tests.
+
+| Case ID | Purpose | Reuse / new | Initial status |
+|---|---|---|---|
+| `r8-vip-pass-setup` | Open with Battle VIP Pass while protecting bench capacity | Common rank-11 pattern | Rebind to two VIP Pass copies |
+| `r8-quick-ball-cost-protection` | Discard a dead VIP Pass or redundant search card, never a live one-of | Common rank-11 pattern | Rebind rank-8 counts |
+| `r8-boost-shake-garbodor` | Search Garbodor LTR 68 from Trubbish PAR 116 | Common rank-11 pattern | Rebind exact printings |
+| `r8-terminal-period-exact-60` | Use worker frontier `targetDamage === 300` for six counters; reject 290 | Common rank-11 pattern | Reuse tested worker metadata |
+| `r8-claw-discard` | Prioritize a revealed opponent threat from Claw of Darkness | Common rank-11 pattern | Rebind threat priority |
+| `r8-dark-patch-recipient` | Attach Darkness to a benched Mega Absol | Common rank-11 pattern | Rebind rank-8 counts |
+| `r8-squawk-motivate` | Attack with Motivate, select Mega Absol, then one/two Darkness Energy | Common rank-11 pattern | Same Squawkabilly ex PAL 169 |
+| `r8-guzma-target` | Choose the correct opponent Benched Pokémon and own switch target | Common rank-11 pattern | Rebind rank-8 prize/energy context |
+| `r8-own-ability-window` | Use available draw/search Abilities before Tool-bearing Garbodor suppresses them | Rank-8 sequencing | New |
+| `r8-dedechange-prelock` | Dedenne-GX Dedechange with a discard-safe hand | Rank-8 unique | New |
+| `r8-dedechange-postlock` | Do not attempt Dedechange after own Garbotoxin is active | Rank-8 unique | New |
+| `r8-tapu-koko-two-recipients` | Select two eligible Benched recipients, attach two Lightning from discard, resolve Tapu Koko to Lost Zone | Rank-8 unique | Hold out until exact native prompt sequence is known |
+| `r8-tapu-koko-insufficient-lightning` | Abstain if fewer than two eligible Lightning Energy / recipients | Rank-8 unique | Hold out until exact prompt sequence is known |
+| `r8-budew-itchy-pollen` | Prefer Itchy Pollen when next-turn Item lock outweighs Mega Absol attack | Rank-8 unique | New |
+| `r8-crispin-energy-pair` | Select two different Basic Energy types, one to hand and one to attach to a legal target | Rank-8 unique | Hold out until linked prompt sequence is known |
+| `r8-ultra-ball-cost-search` | Select two safe hand discards, then the best Pokémon from deck | Rank-8 unique | New |
+| `r8-battle-compressor-three-card` | Select up to three deck cards without losing singleton Supporters or the energy plan | Rank-8 unique | Hold out until exact selection bounds are known |
+| `r8-pokemon-communication` | Return a Pokémon from hand, then select a replacement from deck | Rank-8 unique | Hold out until both prompts are known |
+| `r8-night-stretcher-recovery` | Recover the correct Pokémon or Basic Energy from discard | Rank-8 unique | New |
+| `r8-hisuian-heavy-ball-prize-identity` | Use only the Basic Pokémon actually revealed among Prize cards | Rank-8 unique | Hold out until prize-visibility semantics are verified |
+| `r8-field-blower-two-targets` | Select up to two opposing Tools/Stadiums without removing own lock tools | Rank-8 unique | Hold out until target schema is verified |
+| `r8-adventure-bag-two-tools` | Select the correct two Tools (e.g. Float Stone / Forest Seal Stone) | Rank-8 unique | Hold out until selection bounds are verified |
+| `r8-secret-box-four-categories` | Pay the three-card cost, then select one Item, Tool, Supporter and Stadium without category collision | Shared code exists, rank-8 binding new | Hold out; rank-11's equivalent is also unexecuted |
+| `r8-forest-seal-stone-prelock` | Use Star Alchemy before own Garbotoxin disables the Ability | Rank-8 unique sequence | New |
+| `r8-ability-lock-order` | Verify own Dedenne/Crobat/Squawk/Tapu Lele/Tapu Koko/Forest Seal Stone Abilities are not selected after lock | Rank-8 sequencing | New |
+
+The common rank-11 suite's four held-out reviews are useful adversarial seeds, not coverage: seat-1 Back Order, full Secret Box category search, toolless Boost Shake, and Claw damage conversion. Rank 8 should retain these as review cases where applicable and add both physical seats for the new multi-recipient / multi-prompt branches.
+
 ## Next implementation sequence
 
 1. Coordinate with Agent31 and reuse the common prompt-selection/validation helpers rather than independently rewriting them.
