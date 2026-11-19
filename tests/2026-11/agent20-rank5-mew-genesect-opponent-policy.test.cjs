@@ -524,6 +524,50 @@ test('Special Charge recovers two DCE rather than Pokémon from the discard pile
     { kind: 'select-choices', tokens: ['dce-a', 'dce-b'] });
 });
 
+test('Secret Box selects distinct supporter, item, tool, and stadium categories', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Secret Box TWM 163', 'Secret Box'),
+    publicMetadata: {
+      selectionType: 'card-combination',
+      minimumCount: 4,
+      maximumCount: 4,
+      allowCancel: false
+    },
+    choices: [
+      { ...cardChoice('wally', P.wally), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'supporter' } },
+      { ...cardChoice('marnie', 'Marnie SSH 169'), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'supporter' } },
+      { ...cardChoice('ultra', P.ultraBall), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'item' } },
+      { ...cardChoice('quick', P.quickBall), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'item' } },
+      { ...cardChoice('forest', 'Forest Seal Stone SIT 156'), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'tool' } },
+      { ...cardChoice('muscle', 'Muscle Band XY 121'), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'tool' } },
+      { ...cardChoice('path', P.path), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'stadium' } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choices', tokens: ['wally', 'ultra', 'forest', 'path'] });
+});
+
+test('Secret Box abstains when a required category is absent from the prompt', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Secret Box TWM 163', 'Secret Box'),
+    publicMetadata: {
+      selectionType: 'card-combination',
+      minimumCount: 4,
+      maximumCount: 4,
+      allowCancel: false
+    },
+    choices: [
+      { ...cardChoice('wally', P.wally), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'supporter' } },
+      { ...cardChoice('ultra', P.ultraBall), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'item' } },
+      { ...cardChoice('path', P.path), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'stadium' } }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'abstain', reasonCode: 'SECRET_BOX_REQUIRED_CATEGORY_MISSING' });
+});
+
 test('the last Mew VMAX is not an Ultra Ball or Secret Box discard target', () => {
   const view = observation({
     ownHand: [P.mewVMAX],
