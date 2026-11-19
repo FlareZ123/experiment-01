@@ -79,3 +79,14 @@ The core now supports an optional fixed opponent policy for policy-conditioned c
 This is **candidate PUCT against a frozen opponent policy**, not adversarial PUCT, equilibrium computation, or proof of opponent competence. The callback's action keys must themselves be actor-observation-safe; the caller must validate frontier invariance across root-private variants. The legacy no-policy mode remains root-determinization PUCT and is susceptible to the strategy-fusion counterexample in `results/methodology/2026-11/agent5-root-determinization-opponent-belief-fusion-20261113.md`.
 
 Validation after this extension: 10/10 core/strategy-fusion tests and 8/8 adapter tests passed in fetched-source Code Mode harnesses with deterministic hash and Node assert/test shims. These are not native Node/Twinleaf CI runs.
+
+
+## 2026-11-19 extension: actor-relative re-determinizing PUCT
+
+The generic core now also supports `redeterminize(state, actorSeat, random, actorObservation, deadline)`. Unlike the legacy root-only sampler, this trusted host-side callback is invoked before every nonterminal decision node and nonterminal leaf. The core verifies that sampling returns a detached, stable, nonterminal state for the same acting seat and preserves the complete actor-observation hash. Its separate determinization RNG is keyed by search seed, iteration, acting seat and observation hash, not internal ply or game-transition RNG.
+
+With this mode enabled and no fixed opponent policy, the same PUCT tree chooses actions for both physical seats. The root-private threat/bluff counterexample now has a regression that runs from either root seat and requires identical opponent action distributions across worlds with the same opponent information set. A negative test verifies that changing the actor observation aborts search.
+
+Detailed method, implementation commits, limitations and the native-integration boundary: [actor-relative re-determinizing PUCT](2026-11/agent5-actor-relative-redeterminizing-puct-20261119.md).
+
+**Qualification:** this is still a generic synthetic core capability. The existing Twinleaf adapter does not yet provide an actor-relative sampler and remains on the legacy root-only path. Node 22 execution is pending existing manual workflow run 44638161668. This does not establish native game correctness, self-play quality, matchup strength, or a win-rate estimate.
