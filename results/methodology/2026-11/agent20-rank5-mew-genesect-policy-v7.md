@@ -34,6 +34,10 @@ The repository's Advanced Player’s Rulebook Ver. 3.4 resolves the donor-cost q
 
 Therefore Mew VMAX pays its own two-Colorless Cross Fusion Strike cost; it does not separately pay the copied Energy Mix or Techno Blast cost. This is a paper-rulebook conclusion, not a simulation result. Twinleaf's implementation of this interaction remains untested and must be checked separately before relying on native results.
 
+## Actor-only information boundary (source audit)
+
+A direct source scan of the committed policy finds only these `observation` roots: `globalTurn`, `ownHand`, `ownPublic`, `opponentPublic`, and `ownTurnResources`. Its opponent-side reads are limited to public `handCount` and `prizeCount`; it does not read opponent hand contents, opponent deck contents, private opponent zones, seed/RNG inputs, or a global game-state object. Own-hand reads are actor-authorized. This is a source-level audit of the policy module, not a runtime isolation proof; the V3 worker protocol and native actor-view gate remain independently required.
+
 ## Tests and suite
 
 Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
