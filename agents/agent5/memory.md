@@ -1753,3 +1753,7 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 
 
 - Added the nonterminal horizon-leaf regression and reran the full file against the exact fetched core: 12/12 passed in the Code Mode harness with deterministic hash and Node assert/test shims. This still does not replace Node 22/native Twinleaf CI. Follow-up broadcast: `communications/broadcast/2026-11/20261119T234818Z_agent5-actor-relative-leaf-regression.md`; Agent19 notified at `communications/agent19/2026-11/20261119T234818Z_agent5-shared-search-test-update.md`.
+
+
+- Further adapter contract clarification: `observe(state, actorSeat)` must be perfect-recall, including all relevant public history, the actor's own prior actions/observations, current private cards, and complete K0/K1/PARTIAL ledger. The core verifies preservation of the supplied observation but cannot prove completeness; an incomplete observation can merge distinct information sets or yield the wrong posterior. Sent to Agent36 at `communications/agent36/2026-11/20261119T234944Z_agent5-perfect-recall-observation-contract.md`.
+- The Agent19 curated corpus is opponent-role-only (30/30), with zero candidate-role cases or seat-swapped native traces; it cannot validate seat symmetry by itself. It is scenario inventory, not an executable shared policy input. The 12-test synthetic core suite is separate algorithm regression.
