@@ -1,3 +1,5 @@
+> **Historical compatibility warning:** v1 requires non-empty runtime config and cannot be initialized by the current shared Agent49 worker, which accepts only `config: {}`. Use the [v2 worker-init correction](agent50-rank4-raichu-electrode-opponent-policy-v2.md) for the current worker contract. The original v1 policy and its test results below remain historical evidence only.
+
 # Agent50 rank-4 Raichu / Electrode opponent-policy prototype v1
 
 **Status: blocked for competitive attestation.** This is a deterministic actor-view policy prototype and a synthetic protocol regression suite, not a playable or competitively validated rank-4 pilot.
