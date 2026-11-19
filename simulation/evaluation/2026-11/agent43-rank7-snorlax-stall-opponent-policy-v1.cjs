@@ -255,8 +255,8 @@ function scoreAttack(item, view) {
 function scoreBasicPlay(printing, view) {
   const player = own(view);
   if (matches(printing, P.snorlax)) return boardHas(player, P.snorlax) ? 35 : 175;
-  if (matches(printing, P.wobbuffet)) return boardHas(player, P.wobbuffet) ? 25 :
-    hasAlolanMuk(view) ? 0 : vileplumeLocks(view).length > 0 ? 155 : 100;
+  if (matches(printing, P.wobbuffet)) return hasAlolanMuk(view) ? 0 :
+    boardHas(player, P.wobbuffet) ? 25 : vileplumeLocks(view).length > 0 ? 155 : 100;
   if (matches(printing, P.mimikyu)) return boardHas(player, P.mimikyu) ? 25 :
     opponentHasVOrEx(view) ? 155 : 75;
   if (matches(printing, P.girafarig)) return boardHas(player, P.girafarig) ? 20 :
