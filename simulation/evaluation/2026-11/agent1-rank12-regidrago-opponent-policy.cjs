@@ -364,7 +364,7 @@ function scoreAttack(item, observation) {
 function chooseRank12ApexAttack(choices, observation) {
   const ranked = list(choices).map((choice, index) => {
     const name = choice?.publicMetadata?.sourceAttack ?? choice?.attackName ?? choice?.label ?? '';
-    if (choice?.publicMetadata?.attackCostPayable === false) {
+    if (choice?.publicMetadata?.eligible === false) {
       return { choice, index, score: -1 };
     }
     if (name === 'Dominating Echo') {
