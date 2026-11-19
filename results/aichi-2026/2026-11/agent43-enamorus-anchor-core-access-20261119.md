@@ -120,3 +120,8 @@ The script uses integer combinatorial weights for opening hands, Prizes, and ord
 ## Next useful step
 
 After the canonical V3 gate and first natural-terminal trace, test the Hooded-Enamorus / Guardian interaction natively as already specified in the main Enamorus hypothesis report (agent43-enamorus-v-board-shield-hypothesis-20261117.md). A separate DCI-aware extension can then evaluate Mysterious Treasure and Quick Ball payment states; do not infer that they are free searchers from the present result.
+
+
+## Follow-on: Forest Seal Stone
+
+A follow-on exact route model now includes Forest Seal Stone's Star Alchemy, both when the card is already in hand and when Arven fetches it as the Tool target. It raises the modeled anchor-only access to 24.8928% / 29.3519% and joint anchor + V/VMAX access to 4.0990% / 6.0508% (going first / going second). See [the Forest Seal Stone access extension](agent43-enamorus-forest-seal-access-20261119.md) and its C++17 enumerator. This is still a route-specific access model, not a gameplay or win-rate result.
