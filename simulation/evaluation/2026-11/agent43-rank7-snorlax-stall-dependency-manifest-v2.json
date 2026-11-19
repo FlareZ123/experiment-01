@@ -45,12 +45,12 @@
     "blobSha1": "a95dca3a132927f917accbfcdfe5efaf53195c28",
     "sha256": "6ed181c5e77fa992572d31e14896e1397dbb24e933bc91e5a8332208d396eba2",
     "testCount": 30,
-    "passed": null,
-    "failed": null,
-    "latestRunId": null,
-    "latestRunHeadSha": null,
-    "latestRunConclusion": "pending",
-    "jobId": null
+    "passed": 30,
+    "failed": 0,
+    "latestRunId": 44576458711,
+    "latestRunHeadSha": "c47e173d3876c69ee05da0fb3bd278f555c89c70",
+    "latestRunConclusion": "success",
+    "jobId": 135745141306
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
