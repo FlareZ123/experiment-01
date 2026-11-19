@@ -470,6 +470,40 @@ test('Guzma targets a vulnerable two-Prize Shadow Rider V before an undamaged VM
     { kind: 'select-choice', token: 'v' });
 });
 
+test('Battle VIP Pass chooses one Mew V and one Genesect V for the opening board', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Battle VIP Pass FST 225', 'Battle VIP Pass'),
+    publicMetadata: {
+      selectionType: 'card-combination',
+      minimumCount: 1,
+      maximumCount: 2,
+      allowCancel: false
+    },
+    choices: [
+      cardChoice('mew', P.mewV, 'deck'),
+      cardChoice('genesect', P.genesect, 'deck'),
+      cardChoice('crobat', P.crobat, 'deck')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choices', tokens: ['genesect', 'mew'] });
+});
+
+test('Quick Ball discards a non-core Trainer rather than the only DCE', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(P.quickBall, 'Quick Ball'),
+    observation: { ownHand: [P.dce, P.ultraBall] },
+    choices: [
+      cardChoice('dce', P.dce, 'hand'),
+      cardChoice('ultra', P.ultraBall, 'hand')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choice', token: 'ultra' });
+});
+
 test('Special Charge recovers two DCE rather than Pokémon from the discard pile', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
@@ -541,7 +575,7 @@ test('Path to the Peak is sequenced only after available draw abilities are abse
   const beforeDraw = rootRequest({
     ownPublic: own,
     opponentPublic: opponent,
-    ownHand: ['Marnie SSH 169', 'Ultra Ball MEG 131', P.path, P.dce],
+    ownHand: [P.dce],
     items: [
       { token: 'draw', kind: 'use-ability', actorPrinting: P.genesect,
         publicMetadata: { abilityName: 'Fusion Strike System' } },
