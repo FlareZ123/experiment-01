@@ -144,4 +144,16 @@ test('same policy handles the physical seat-1 Cursed Blast prompt',()=>{
 test('no supported root action does not invent a pass token',()=>{
   assert.deepEqual(checked(req({items:[]}),'r31-dev-12.no-pass'),{kind:'abstain',reasonCode:'NO_EXECUTABLE_ACTION'});
 });
+
+test('identical actor-visible requests produce identical decisions',()=>{
+  const own=player({bench:[pokemon('Dusknoir PRE 37',{hp:160,stage:'Stage 2',subtypes:['Stage 2']})]});
+  const target=pokemon('Shadow Rider Calyrex V CRE 74',{hp:210,damage:80,subtypes:['Basic','V']});
+  const items=[{token:'blast',kind:'use-ability',actorPrinting:'Dusknoir PRE 37',
+    publicMetadata:{abilityName:'Cursed Blast',sourceZone:'bench',sourceSeat:'actor',sourceIndex:0}},{token:'pass',kind:'pass'}];
+  const input=req({ownPublic:own,opponentPublic:player({active:target}),items});
+  const a=checked(input,'r31-dev-14.deterministic-a');
+  const b=checked(input,'r31-dev-14.deterministic-b');
+  assert.deepEqual(a,b);
+});
+
 module.exports.__fixtureRecords=fixtureRecords;
