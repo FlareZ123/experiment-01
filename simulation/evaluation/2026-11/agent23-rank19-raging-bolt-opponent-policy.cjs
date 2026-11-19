@@ -424,7 +424,7 @@ function compressorPriority(choice, request) {
     const bonus = type === 'darkness' && !boardHas(request.observation.ownPublic, PRINT.moltres) ? 20 : 0;
     return 200 + bonus;
   }
-  if (type) return 35;
+  if (type) return 0;
   if (PRINT.ragingBolt.test(value) && !boardHas(request.observation.ownPublic, PRINT.ragingBolt)) return 0;
   return 0;
 }
@@ -470,6 +470,16 @@ function bellowingDamageModel(target) {
 }
 function bellowingEnergyDecision(prompt, request) {
   const choices = list(prompt.choices).filter(choice => choice.kind === 'energy');
+  const own = request.observation.ownPublic;
+  const active = own.active;
+  if (!matches(active, PRINT.ragingBolt)) {
+    return { kind: 'abstain', reasonCode: 'BELLOWING_ACTIVE_NOT_RAGING_BOLT' };
+  }
+  const nonActiveBasic = boardSlots(own).filter(pokemon => pokemon !== active)
+    .reduce((sum, pokemon) => sum + list(pokemon.energies).filter(isBasicEnergy).length, 0);
+  if (nonActiveBasic > 0) {
+    return { kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_OWNER_UNATTRIBUTED' };
+  }
   const target = opponentActive(request.observation);
   const hp = remainingHp(target);
   const damageModel = bellowingDamageModel(target);
@@ -696,8 +706,16 @@ function promptDecision(request) {
       'NO_TAPU_KOKO_LIGHTNING', 1);
     }
     if (lower.includes('ultimate ray')) {
-      return selectMany(prompt, choice => basicEnergyType(choice.printing ?? choice.label) ? 100 : 0,
-        'NO_ULTIMATE_RAY_BASIC_ENERGY', 3);
+      const usedTypes = new Set();
+      return selectMany(prompt, choice => {
+        const type = basicEnergyType(choice.printing ?? choice.label);
+        if (!type) return 0;
+        if (!usedTypes.has(type)) {
+          usedTypes.add(type);
+          return 150;
+        }
+        return 45;
+      }, 'NO_ULTIMATE_RAY_BASIC_ENERGY', 3);
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PAYMENT_CONTEXT' };
   }
