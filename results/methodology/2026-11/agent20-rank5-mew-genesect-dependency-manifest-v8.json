@@ -20,7 +20,7 @@
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
     "gitBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
     "sha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-    "status": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed"
+    "status": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json",
@@ -38,8 +38,22 @@
     "intendedNodeMajor": 22,
     "thirdPartyRuntimeDependencies": [],
     "testCommand": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "localExecution": "Node node --test remains unrun in this invocation because the local runtime has no repository checkout and outbound network is unavailable. V8 adds a focused regression that passes the accepted empty-config payload through the real worker validateInit export and into createPolicy; no v8 execution pass is claimed.",
-    "noNewWorkflow": true
+    "localExecution": "Node node --test remains unrun because this invocation has no repository checkout and outbound network is unavailable. The exact committed test, policy and worker-protocol blobs were additionally executed in an isolated V8 CommonJS shim: 32/32 synchronous test callbacks passed. This is not the Node test runner, worker IPC, native Twinleaf validation, or competitive evidence.",
+    "noNewWorkflow": true,
+    "supplementalV8Harness": {
+      "executionAtUtc": "2026-11-19T20:41:00.249Z",
+      "mode": "isolated V8 CommonJS shim; not Node node:test",
+      "testFileBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+      "policyModuleBlobSha1": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+      "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+      "registeredTests": 32,
+      "passed": 32,
+      "failed": 0,
+      "asyncTests": false,
+      "assertions": "Object.is strict equality; recursive own-key deep equality for JSON-shaped fixtures; RegExp/error-message throws matching",
+      "nodeApis": "node:test registration shim and node:assert/strict assertion shim; exact worker and policy source evaluated as CommonJS",
+      "limitations": "does not establish Node node:test semantics, worker IPC, worker process isolation, native Store reachability, independent policy competence, matchup performance, or win rate"
+    }
   },
   "dependencyClosure": {
     "policyModuleSha256": "807e194830fde3db282399f4db7043d813e453c9d6ba2b2f95965c2a8fe3c928",
@@ -53,6 +67,6 @@
     "requiredConfig": {},
     "identityBinding": "rank, source fingerprint, candidate fingerprint and policy version remain immutable module constants and versioned manifest bindings",
     "regressionTest": "rank-5 policy initializes through the real V3 worker zero-key contract",
-    "status": "authored; Node node --test pending"
+    "status": "32/32 isolated V8-shim tests pass, including real validateInit accepted-envelope initialization; Node node --test pending"
   }
 }
