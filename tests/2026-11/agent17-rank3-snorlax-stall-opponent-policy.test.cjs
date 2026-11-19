@@ -1186,8 +1186,8 @@ test('Teammates search scoring respects Faba targets and avoids dead Supporters'
       cardChoice('jammer', 'Tool Jammer BST 136'),
       cardChoice('faba', 'Faba LOT 173'),
       cardChoice('plumeria', 'Plumeria BUS 120'),
-      cardChoice('team-flare', 'Team Flare Grunt FLF 73'),
-      cardChoice('handiwork', 'Handiwork GRI 124'),
+      cardChoice('team-flare', 'Team Flare Grunt XY 129'),
+      cardChoice('handiwork', "Team Rocket's Handiwork FCO 112"),
       cardChoice('guzma', 'Guzma BUS 115'),
       cardChoice('eri', 'Eri TEF 146')
     ],
