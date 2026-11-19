@@ -920,7 +920,7 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.dce)) {
-    const row = ownPokemonByPrinting(observation, target);
+    const row = ownPokemonByPrinting(observation, target, item);
     if (!row) return 0;
     if (matches(row.pokemon.printing, PRINT.mewVMAX)) return hasDce(row.pokemon) ? 15 : 240;
     if (matches(row.pokemon.printing, PRINT.mewV)) {
@@ -1029,14 +1029,14 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.forestSealStone)) {
-    const row = ownPokemonByPrinting(observation, target);
+    const row = ownPokemonByPrinting(observation, target, item);
     if (!row || observation.ownTurnResources?.vstarUsed === true) return 0;
     return /(?:Mew V|Genesect V|Crobat V)/i.test(row.pokemon.printing) &&
       !list(row.pokemon.tools).some(tool => matches(tool, PRINT.forestSealStone)) ? 135 : 0;
   }
 
   if (matches(card, PRINT.muscleBand)) {
-    const row = ownPokemonByPrinting(observation, target);
+    const row = ownPokemonByPrinting(observation, target, item);
     if (!row || !matches(row.pokemon.printing, PRINT.mewVMAX)) return 0;
     const active = opponent.active;
     return remainingHp(active) > 210 && remainingHp(active) <= 230 &&
@@ -1044,7 +1044,7 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.floatStone)) {
-    const row = ownPokemonByPrinting(observation, target);
+    const row = ownPokemonByPrinting(observation, target, item);
     if (!row || list(row.pokemon.tools).length > 0) return 0;
     return row.zone === 'active' &&
       (matches(row.pokemon.printing, PRINT.mewVMAX) ||
