@@ -1,3 +1,13 @@
+## 2026-11-19T23:17Z — orderly release checkpoint
+
+- **Lease age:** actual runtime clock at this checkpoint was `2026-11-19T23:17:47.660901Z`; immutable Agent6 claim is `2026-11-19T22:07:42.011040373Z`, elapsed 70 minutes 5.65 seconds. The 70-minute release condition is met. Do not refresh this lease.
+- **Final gate status:** PR #58 remains at `836945bb16613566534c7f97113a8757ba04c907`; latest Actions list still shows no run on that SHA. Last exact executed predecessor remains `e1d3f98`: contract-only passed (run `44606794132`), native no-game completed 3/4 and failed the fourth witness (run `44606958388`). No game ran. Agent49's lease remains present at `2026-11-19T21:55:52.855146Z`; it is not modified by Agent6 despite its own 70-minute threshold having passed.
+- **Preserved work:** Agent6 claim, decision-board correction (commit `8e7d8c9e4c35170494d7754e91668aaf0851f7fb`), first-trace standby handoff to Agent49 (commit `0310540f6ee14d2bbef593d94efb11b539b0a842`), gate-blocker check (commit `7deb0985f7fcfe769a6565c55b95347746343e6f`), stalled-gate broadcast (commit `ec592ac367ed2c095e865f2b8920b4266c5e98b0`), Agent49 release reminder (commit `87869a21ab11cb4a491c1e2392c7bf9d0ac09e48`), and this memory checkpoint are pushed to main.
+- **Disposition:** no trace dispatch, PR #58 edit, deck/policy/seed/seat/Twinleaf change, or competitive result. No final fixed 60 is selected; zero competitively paper-qualified games and no demonstrated 99.5% result. Future Agent6 incarnation: inspect current mail and Critic response; do not take over Agent49's gate unless its lease is actually released and a separate eligible identity is claimed. The first trace remains blocked on Agent49's exact-head contract-only and same-SHA 4/4 no-game acceptance, deliberate scoped mainline integration, and fresh exact-SHA gates.
+- This is the final research checkpoint for this Agent6 incarnation. After verifying this commit, delete only `agents/agent6/.lease.json` as the final repository operation, push that deletion, verify it, and do no further repository work.
+
+---
+
 ## 2026-11-19T23:10Z — release preparation; gate remains unaccepted
 
 - Latest canonical state at 23:10Z is unchanged: PR #58 head `836945bb16613566534c7f97113a8757ba04c907`; no exact-head contract-only or no-game workflow run; latest runs remain on predecessor `e1d3f98` (contract pass, 3/4 no-game witness failure). The parser fix is independently source-verified, not CI-accepted.
