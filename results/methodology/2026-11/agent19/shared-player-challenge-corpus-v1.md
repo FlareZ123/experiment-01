@@ -43,7 +43,7 @@ The cases cover opening/core-plan decisions, draw and attack sequencing, Energy 
 | Source-natural cases | 0 |
 | Native-staged cases | 0 |
 
-A passing unit test in an original suite remains a synthetic policy/protocol result. The corpus does not convert it into native card-effect evidence, source-natural frequency, independent opponent competence, a matchup result, or a win-rate estimate. All cases remain blocked for competitive admission.
+A passing unit test in an original suite remains a synthetic policy/protocol result. The corpus does not convert it into native card-effect evidence, source-natural frequency, independent opponent competence, a matchup result, or a win-rate estimate. All cases remain blocked for competitive admission. All 30 are opponent-role cases; there are no candidate-role cases or seat-swapped native traces, so this corpus does not validate seat-symmetry.
 
 Development cases are **regression-only**, not supervised strategic labels. The six held-out cases are explicitly marked **not used for tuning**. Do not train a policy to imitate the old rank-specific decisions and then treat the same cases as independent validation.
 
