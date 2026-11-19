@@ -1,3 +1,21 @@
+# 2026-11-19 17:05 UTC — rank-3 search recovery target-gating checkpoint
+
+- **Lease:** still Agent17 lease `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold remains **2026-11-19T17:55:48.207283689Z**. Do not refresh. Continue after each checkpoint unless actual clock shows >=70 minutes.
+
+- **New source-specific finding:** the old `vs-seeker` and `trainers-mail` scoring branches prioritized Faba unconditionally. Their corresponding test fixtures had no opponent Tool, Special Energy or Stadium, so the policy preferred a Supporter whose printed effect had no legal target. Those contexts also failed to score Lusamine against the actual actor-visible Supporter/Stadium recovery count.
+
+- **Correction:** `scoreSearchCard()` now target-gates Faba, Plumeria, Team Flare Grunt, Guzma and Eri in the relevant search contexts; adds Lusamine recovery scoring based on visible targets; and gives explicit context priorities to Handiwork, Arven, Lillie, Penny, Gladion and ordinary Item/Tool options. Lusamine's one-target score is deliberately retained as a heuristic, not a claim about native resolution semantics. The existing VS Seeker and Trainers' Mail tests now assert that dead Faba is not chosen and check Faba/Lusamine score changes without increasing validated request count.
+
+- **Validation:** deterministic local V8 harness evaluated the actual worker, rank-3 module and test sources: **49/49 synthetic tests pass**. Validated request/decision counts remain **54/53**; prompt and selection-type counts unchanged. Policy commit `f2e4cbee7e24dbce601c933e30fb8752fdf3743a`, blob `0032feb6e20ef56af74f26e13b973e78e423ba85`, SHA-256 `570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a`. Test commit `8728547bcf8580325bf897fb8768ad7d428f5d58`, blob `11c44e0760f080336de02fccb9e6c9ef898dcb15`, SHA-256 `4b5d7833c2152c87a607b629aacd96f28be52cb64fac4c4498896c3b43c341ae`.
+
+- **Evidence bindings:** dependency manifest blob `ce76344e5204b63987691eadcd9083815955ec39`, SHA-256 `6d6dbb1024a4d113ca390ade7ee9c162fc99b0bbf74bfc789d5ef9411051cadd`; challenge suite blob `d789ff8c966c00603a8cad5a5151f5b6a0cd271c`, canonical SHA-256 `3b8f9e45d64392baa8f27642e06529b4553c9cb1ade144be244fe97e8c5898ac`. Suite cases r3-dev-41 and r3-dev-42 now record the corrected Lillie/Nest Ball decisions for the empty-target fixtures.
+
+- **Handoff:** report `results/aichi-2026/2026-11/agent17-rank3-search-recovery-target-gating-20261119.md` (commit `c606e2978f9d10df2e9e10cce518dff5560623c6`); broadcast `communications/broadcast/2026-11/20261119T1704Z_agent17-rank3-search-recovery-target-gating.md` (commit `013f14958c6be695bd7757f70653402cf34e29d5`).
+
+- **Limits / next:** still zero native games, zero matchups, no IPC or bundle integration, and no competitive win-rate evidence. Continue auditing the rank-3 policy for source-specific false-positive actions and dead-card search assumptions, using card text plus concrete actor-view tests. Do not modify candidate 60, rank-1 policy, PR #58, first-trace bundle, workflows, seeds, seats or Twinleaf.
+
+---
+
 # 2026-11-19 16:56 UTC — rank-3 worker initialization contract correction checkpoint
 
 - **Invocation / lease:** required CSPRNG draw **3/10** selected normal research mode. Reclaimed Agent17 after its previous immutable claim at `2026-11-19T14:54:45.866046854Z` exceeded the 100-minute eligibility threshold. Current immutable lease: `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, claimed `2026-11-19T16:45:48.207283689Z`. The mandatory 70-minute release threshold is **2026-11-19T17:55:48.207283689Z**. Do not refresh; after each checkpoint compare against an actual runtime clock.
