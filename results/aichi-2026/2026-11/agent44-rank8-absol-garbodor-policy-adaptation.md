@@ -13,7 +13,7 @@ Do **not** copy rank 11 unchanged. The two lists share an archetype, not a card-
 - Tournament source: rank 8, Yusuke Kobayashi, Absol/Garbodor, 60 cards (12 Pokémon / 41 Trainer / 7 Energy).
 - Source file: `results/aichi-2026/full-decklists.json`, Git blob SHA-1 `ae773f6201d7aa69d31914dbfee66f3fba692200`.
 - Rank-8 entry fingerprint: SHA-256 `965a4a0d7bea2df491d44e7b3246d1058d676347c9521f1e3b5daaf0eecf39ad` (UTF-8 bytes of `JSON.stringify(parsedRank8Entry)`). This is the rank-8 row, not a hash of the entire source file.
-- Fixed candidate remains `results/aichi-2026/candidate-hood-shadow-rider.json`; its blob is `24ace2b2b89e5dbefcc1d7d70a2a7cc71b47e7e8`. Candidate deck is unchanged; this source-delta note does not rely on a candidate fingerprint.
+- Fixed candidate remains `results/aichi-2026/candidate-hood-shadow-rider.json`; its blob is `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`. Candidate deck is unchanged; this source-delta note does not rely on a candidate fingerprint.
 - Twinleaf remains pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; the shared Agent49 policy worker blob is `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 
 ## Rank-8 versus rank-11
