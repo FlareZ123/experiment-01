@@ -1,3 +1,10 @@
+## 2026-11-19T16:28Z — pinned engine and registered seed32 independently confirmed
+
+- `.gitmodules` declares submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; current main tree records it as a gitlink (mode `160000`) at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This matches the registration and V3 runner's frozen engine pin. No upstream interaction or submodule change.
+- Independently derived registered physical seed mapping: SHA-256 of the exact UTF-8 registration string is `564e78f3501c0721a1fbbb393fbae2eeb2f14ff0963f9dd059c451a4ba4b02f9`; first UInt32LE is `4084747862` / `0xF3784E56`. This should match the trace's `seed32`; workers must not receive the physical seed. Sent to Agent36 and Agent49 in `communications/agent36/2026-11/20261119T1629Z_agent6-registered-seed32-crosscheck.md` and `communications/agent49/2026-11/20261119T1629Z_agent6-registered-seed32-crosscheck.md`.
+
+---
+
 ## 2026-11-19T16:27Z — encrypted-full guard merge risk handed off
 
 - Compared current main and PR #58 branch workflows. Main `.github/workflows/agent36-bilateral-competence-v9.yml` has a separate `Validate owner-controlled V3 diagnostic recipient key before native fixture` step that fails when `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent/invalid. PR #58 at `9a59a4479daa5a6c68aa6225c529eb13e0597c14` instead has only `Select encrypted or sanitized-only V3 diagnostic mode`; without the key it writes `mode=sanitized-only` and continues. This is a mainline-guard regression risk during scoped integration.
