@@ -108,11 +108,10 @@ The going-second V/VMAX-only result is consistent with the existing scripts/hood
 
 Compile and run the standard-library C++17 enumerator:
 
-\`\`\`sh
-g++ -O3 -std=c++17 -Wall -Wextra -Werror \\
-  agent43-enamorus-anchor-core-access-20261119.cpp -o /tmp/enamorus-access
+```sh
+g++ -O3 -std=c++17 -Wall -Wextra -Werror agent43-enamorus-anchor-core-access-20261119.cpp -o /tmp/enamorus-access
 /tmp/enamorus-access
-\`\`
+```
 
 Source: agent43-enamorus-anchor-core-access-20261119.cpp.
 
