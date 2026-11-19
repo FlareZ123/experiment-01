@@ -1,6 +1,6 @@
 {
   "schema": "aichi-v3-opponent-policy-challenge-suite-v1",
-  "suiteSha256": "16b4db74cc6d4c6dcaa6941d4ef7117498a5186be79e5a635a95b8bb563d19d8",
+  "suiteSha256": "b96a31d46b4ea6e2b45da3db8a9f705d49a5c706737fba1a3406b89d010a6a78",
   "suiteHeader": {
     "producerId": "agent43",
     "role": "opponent",
@@ -12,11 +12,11 @@
     "candidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policyVersion": "agent43-rank7-snorlax-stall-opponent-v1",
     "policyPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
-    "policySha256": "9f9334879625ba3ef043923e2200ce66f710047b9e912dbd10213c9e21b24cd9",
+    "policySha256": "6a129f76c997221962eac79840997ece629c61fb6acf35c386fb80f38b29fece",
     "dependencyManifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v1.json",
-    "dependencyManifestSha256": "d8afa6a0b0ed23d036ef4eb22596790c7e991299a3e09a737a88140a49464a10",
+    "dependencyManifestSha256": "07261f2a531b6897a4c4c465b732058e0cc042e4c3068eec477d77c7545b0304",
     "testPath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
-    "testSha256": "949e58d5d2bff78b941c786159ee970b0f091c6a38285d3ea13c2f4b6d3fd590",
+    "testSha256": "f11c6b78eb2915ae91c2ac34c7ebb0473045473ac978a6d5c041aee4c09c1c0d",
     "enginePath": "vendor/twinleaf",
     "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
     "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",

@@ -29,13 +29,13 @@
     "externalPackages": [],
     "localRuntimeImports": [],
     "sourceBinding": "immutable constants in policy module and this manifest",
-    "sha256": "9f9334879625ba3ef043923e2200ce66f710047b9e912dbd10213c9e21b24cd9"
+    "sha256": "6a129f76c997221962eac79840997ece629c61fb6acf35c386fb80f38b29fece"
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
     "validator": "actual Agent49 validateInit, validateRequest, validateDecision",
     "fixtureClass": "synthetic actor-view requests and prompts only",
-    "sha256": "949e58d5d2bff78b941c786159ee970b0f091c6a38285d3ea13c2f4b6d3fd590"
+    "sha256": "f11c6b78eb2915ae91c2ac34c7ebb0473045473ac978a6d5c041aee4c09c1c0d"
   },
   "supportedPromptFamilies": [
     "SelectPrompt (Faba tool option)",

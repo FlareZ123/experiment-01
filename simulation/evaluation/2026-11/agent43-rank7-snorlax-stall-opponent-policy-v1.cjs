@@ -53,6 +53,7 @@ const P = Object.freeze({
   bellelba: /^Bellelba & Brycen-Man CEC 186\b/i,
   gladion: /^Gladion CIN 95\b/i,
   targetWhistle: /^Target Whistle PHF 106\b/i,
+  captivatingPokePuff: /^Captivating Poké Puff STS 99\b/i,
   rescueStretcher: /^Rescue Stretcher GRI 130\b/i,
   robo: /^Robo Substitute PHF 102\b/i,
   doll: /^Lillie's Poké Doll CEC 197\b/i,

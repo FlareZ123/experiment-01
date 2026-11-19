@@ -505,7 +505,7 @@ test('Counter Catcher chooses the opponent Bench Pokémon with the larger energy
     promptType: 'ChoosePokemonPrompt',
     source: actorChoiceSource('Counter Catcher PAR 160', 'Counter Catcher'),
     opponentPublic: player({
-      active: pokemon('Pikachu VMAX', { energies: ['Lightning Energy'] }),
+      active: pokemon('Pikachu VMAX VIV 44', { energies: ['Lightning Energy'] }),
       bench: [
         pokemon('Shadow Rider Calyrex VMAX CRE 75', {
           energies: ['Psychic Energy', 'Psychic Energy'],
