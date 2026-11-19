@@ -9,7 +9,7 @@
  * Unsupported or ambiguous prompts abstain; native Store legality is final.
  */
 
-const POLICY_VERSION = 'agent20-rank5-mew-genesect-opponent-v3';
+const POLICY_VERSION = 'agent20-rank5-mew-genesect-opponent-v4';
 const SOURCE_RANK = 5;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = 'a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05';
