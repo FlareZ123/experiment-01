@@ -1007,7 +1007,7 @@ test('Forest Seal Stone Star Alchemy is activated only from its own attached Too
   });
 });
 
-test('Mimikyu is prioritized as a defensive Basic against the candidate V and ex board', () => {
+test('Mimikyu is prioritized as a defensive Basic against the candidate Pokémon V board', () => {
   const request = rootRequest({
     ownHand: ['Mimikyu PAL 97'],
     ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
@@ -1203,5 +1203,25 @@ test('Hisuian Heavy Ball abstains when Prize identities are concealed', () => {
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain', reasonCode: 'PRIZE_IDENTITY_UNAVAILABLE'
+  });
+});
+
+
+test('Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V', () => {
+  const request = rootRequest({
+    ownHand: ['Mimikyu PAL 97'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: player({ active: pokemon('Charizard ex OBF 125') }),
+    items: [
+      {
+        token: 'mimikyu', kind: 'play-card',
+        actorPrinting: 'Mimikyu PAL 97',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
   });
 });
