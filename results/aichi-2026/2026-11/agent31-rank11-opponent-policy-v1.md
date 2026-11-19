@@ -45,10 +45,12 @@ This was not a Node `--test` runner execution, a Twinleaf execution, a native st
 
 - Policy SHA-256: `42169e20d7b4bbc2d1781a5911c4e5b8cc9d350f16cde4cf8dd00be1216873d6`
 - Test SHA-256: `eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95`
-- Dependency manifest SHA-256: `6da0f5d20240ad02ee8c5cfb7a82ae5794aa036432d692b389da9b22c7fe31ae`
-- Challenge suite SHA-256: `353e3dafb9187d3900128437c2997ecb0c01469411e1ebb31f1cafcdda9f4709`
+- Dependency manifest SHA-256: `16091215c2400b3ab8adf7bede83aa08662842c0761600cf64849b0f2f004ec5`
+- Challenge suite SHA-256: `9047f185ba8bce489bdde0678a0947f3b2acdcac61e3e27cb8a3e9c33b5e0c28`
 
 ## Native integration gate
+
+The exact Agent36 `loadWorkerPolicyModule` function and the actual `auditSourceClosure` implementation were also invoked against this policy with filesystem/path/hash providers stubbed. The loader returned the expected static version and a one-file source closure with no external requires or environment keys (closure digest `72f85bef9468d80894e4c59586bb5e533ac9c11c6e971c79eae0f1c837f3beb0`). This is a loader-level probe only, not a Docker worker launch or native game.
 
 The current Agent49 protocol-v3 document marks the persistent async fixture loop and Docker launcher/capability/RNG/permission gate as unverified. The Agent36 runner does contain Docker-session and asynchronous native-game code, but its `V3_FIXTURE` is hard-coded to the Hood candidate versus the Aichi **rank-1** Shadow Rider list, using Agent6's rank-1 opponent policy; it has no rank-11 override. The corresponding workflow also requires explicit public physical-seed disclosure and a diagnostic recipient key. Therefore this rank-11 policy is not registered and was not run natively. A separate, reviewed rank-11 fixture/registration is required; do not repoint the rank-1 fixture or bypass its gates. Runner Git blob SHA-1: `42252eac8247a8d5bc7a1f18a806d7501ee6ff0f`; workflow Git blob SHA-1: `962df78f624e7d3b5733f2dadd8e6fb0a75f79fe`.
 

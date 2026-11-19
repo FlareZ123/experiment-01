@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "6da0f5d20240ad02ee8c5cfb7a82ae5794aa036432d692b389da9b22c7fe31ae",
+    "manifestSha256": "16091215c2400b3ab8adf7bede83aa08662842c0761600cf64849b0f2f004ec5",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
     "policyTestGitBlobSha1": "0e5b1264681cd35aec353f427969ab034e916dbf",
     "policyTestSha256": "eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95",
@@ -77,7 +77,21 @@
     "actorVisibleObservationOnly": true,
     "fullNativeStateInput": false,
     "unsupportedPrompt": "abstain",
-    "nativeIntegrationStatus": "not bound: current Agent36 V3 runner is hard-coded to rank-1 Shadow Rider and Agent6 rank-1 policy; rank-11 override/registration is absent"
+    "nativeIntegrationStatus": "not bound: current Agent36 V3 runner is hard-coded to rank-1 Shadow Rider and Agent6 rank-1 policy; rank-11 override/registration is absent",
+    "loaderAudit": {
+      "status": "passed-manual-probe",
+      "loaderFunction": "Agent36 loadWorkerPolicyModule",
+      "sourceClosureFunction": "actual Agent36 auditSourceClosure",
+      "sourceClosureVersion": "agent36-source-closure-audit-v2-vendor-boundary",
+      "policyVersion": "agent31-rank11-absol-garbodor-opponent-v1",
+      "sourceClosureDigest": "72f85bef9468d80894e4c59586bb5e533ac9c11c6e971c79eae0f1c837f3beb0",
+      "closureFiles": [
+        "simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs"
+      ],
+      "externalRequires": [],
+      "environmentKeys": [],
+      "limitation": "Filesystem/path/hash providers were stubbed; Docker worker launch and native fixture game were not executed"
+    }
   },
   "developmentCases": [
     {
