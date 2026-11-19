@@ -18,9 +18,9 @@
   },
   "tests": {
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "gitBlobSha1": "a02e6d5668dc24e232cefc5754367d439a1917ba",
-    "sha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-    "status": "30/30 passed in isolated V8 compatibility harness; node --test pending"
+    "gitBlobSha1": "0a63b41a93874336121eea72f9d77c7cb20ae257",
+    "sha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+    "status": "31/31 passed in isolated V8 compatibility harness; node --test pending"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v7.json",
@@ -37,13 +37,13 @@
     "intendedNodeMajor": 22,
     "thirdPartyRuntimeDependencies": [],
     "testCommand": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "localExecution": "node --test not run: Node v22.16.0 is available but no repository checkout or outbound network; all 30 test callbacks passed in an isolated V8 CommonJS compatibility harness using the exact current policy and protocol sources.",
+    "localExecution": "node --test not run: Node v22.16.0 is available but no repository checkout or outbound network; all 31 test callbacks passed in an isolated V8 CommonJS compatibility harness using the exact current policy and protocol sources.",
     "noNewWorkflow": true
   },
   "dependencyClosure": {
     "policyModuleSha256": "87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
-    "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+    "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
     "commonConstraintsSha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190"
   },
   "bindingStatus": "diagnostic-only; not included in Agent36 V3 bundle or production policy plan"
