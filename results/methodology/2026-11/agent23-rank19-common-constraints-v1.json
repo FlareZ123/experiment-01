@@ -1,0 +1,74 @@
+{
+  "schema": "aichi-opponent-policy-common-constraints-v1",
+  "policyVersion": "aichi-rank19-raging-bolt-opponent-policy-v1",
+  "policyRole": "opponent",
+  "sourceRank": 19,
+  "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+  "decisionContract": {
+    "statefulness": "deterministic-stateless; no cross-request mutable state",
+    "randomness": "none; no RNG or seed consumption",
+    "seatBinding": "strict request seat and observation actorSeat agreement; no seat inference",
+    "informationSet": "uses only actor-visible observation, legal action frontier, owner prompt, and public event receipt",
+    "prohibitedInformation": [
+      "opponent hidden hand",
+      "opponent hidden deck order",
+      "unrevealed prize identities",
+      "unexposed card identities inferred from generic labels"
+    ],
+    "securityBoundary": "trusted-code-only; policy and worker share a process; this is not a process or OS sandbox"
+  },
+  "promptContract": {
+    "projectedPromptFamilies": [
+      "ChooseCardsPrompt",
+      "ChoosePokemonPrompt",
+      "ChooseEnergyPrompt",
+      "ChooseAttackPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "unsupportedPromptBehavior": "abstain; never invent a prompt token",
+    "analysisOnlyActionBehavior": "never select analysis-only projected actions",
+    "prizeIdentityBehavior": "require an exposed card printing; generic labels such as Prize 1 are not identities",
+    "energyAttributionBehavior": "Bellowing Thunder abstains if any Basic Energy is attached to a non-active Pokémon because ChooseEnergyPrompt choices do not identify the attached-to Pokémon"
+  },
+  "gameSpecificDecisionConstraints": {
+    "basicEnergy": "recognize Basic Energy by energy type across printings; do not treat Double Dragon Energy as Basic Energy",
+    "bellowingThunder": "only consider while Raging Bolt is Active, all attached Basic Energy is on that Active, gxUsed is explicitly false, and opponent Active has no unsuppressed visible Ability; otherwise abstain or do not select the attack",
+    "hoOhRebirth": "select exactly three distinct Basic Energy types when the matching owner prompt is present",
+    "opponentEnergyDisruption": "Wait and See Hammer may select only opponent-owned visible Energy choices; prefer Double Dragon Energy"
+  },
+  "sourceDeckAdmission": {
+    "sourceListStatus": "60-card tournament transcription available",
+    "physicalPrintingAuthentication": "not performed",
+    "eventFormat": "not recorded in source dataset",
+    "expandedLegality": "not certified",
+    "regionalCardPool": "repository English card snapshot is explicitly not a complete Japanese Expanded card pool",
+    "energyPrintingNote": "source transcription uses MEE Basic Energy print codes; MEE is absent from bundled English set index; policy matches Basic Energy by type, not by claiming physical printing authenticity"
+  },
+  "executionLimits": {
+    "twinleafGames": 0,
+    "engineFixtures": 0,
+    "matchSamples": 0,
+    "ciRuns": 0,
+    "twinleafModifications": 0,
+    "candidateDeckModifications": 0,
+    "rank1PolicyModifications": 0,
+    "pr58Modifications": 0,
+    "productionPolicyRegistration": false,
+    "productionPolicyEnabled": false
+  },
+  "validation": {
+    "testFile": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy.test.cjs",
+    "testCount": 26,
+    "passed": 26,
+    "failed": 0,
+    "execution": "V8 code-mode harness loaded actual policy and agent49 worker validator source; node:test and node:assert/strict were shimmed; unused node:events and node:crypto imports were stubbed",
+    "limitations": [
+      "not a Node runtime",
+      "not CI",
+      "not Twinleaf",
+      "not a game simulation",
+      "not a matchup sample"
+    ]
+  },
+  "status": "development-only; not production-qualified or performance-qualified"
+}
