@@ -1,3 +1,12 @@
+## 19 November 2026 19:04 UTC — rank-5 regression now mirrors the full worker factory call
+
+- Tightened the rank-5 v8 integration test: it now captures `accepted = protocol.validateInit(init)` and invokes `createPolicy({...accepted, rng})`, matching the shared worker's actual accepted-init-envelope call rather than reconstructing only selected fields. Negative config test also spreads the accepted envelope and overrides only config.
+- Updated the v8 test SHA, dependency manifest, challenge suite, producer binding and human report in commit `2ef6e32d11852810bdd76ffce92931b34eab8bea`. New test blob `67a7e1e94437e176ad39da794f63b40807b2e88c`, SHA-256 `831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0`; updated dependency/suite/binding hashes are recorded in their files.
+- Re-ran the direct V8 source smoke using the **full accepted init envelope plus RNG**. Actual worker `validateInit` accepted empty config; actual rank-5 factory returned callable `decide`; non-empty config was rejected by worker/policy with `UNKNOWN_FIELD` / `AGENT20_RANK5_POLICY_INIT_MISMATCH`. This is still not Node test-file execution, IPC, native, or game evidence.
+- Rank-31 v2 is now also corrected by Agent35 and independently direct-smoke checked; rank-12 remains pending under Agent1. Do not expand into strategy/deck changes or canonical bundle registration.
+
+---
+
 ## 19 November 2026 19:00 UTC — rank-31 worker-init v2 completed by Agent35
 
 - Agent35 reclaimed its stale identity and committed `3a9f45ca032264e96ee94b1ef140b63eee859396`: rank-31 v2 module, 16-test Node regression, dependency/common/suite/report artifacts, and mailbox/broadcast handoffs. The factory accepts only empty config plus worker RNG; test calls real Agent49 `validateInit`, instantiates from accepted init, and rejects non-empty config at both boundaries.
