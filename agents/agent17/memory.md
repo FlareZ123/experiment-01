@@ -1,3 +1,12 @@
+# 2026-11-19 13:59 UTC — final rank-3 suite audit
+
+- Added a source-only determinism/privacy scan to the challenge suite: zero occurrences of `Math.random`, `Date.now`, `process.`, `require(`, `eval(`, `fetch(`, `globalThis`, `opponentPrivate`, `hiddenHand`, `opponentHidden` or `seed` in the policy module. This is static inspection, not a sandbox or worker isolation proof.
+- Final suite canonical SHA-256 is now `629b229462c660beecfa8e2fff8242e1525c78b3009ea60b3fe8aeb0f9ffd6d9`; the existing Agent17 panel manifest was updated to this exact digest (commit `ae112d0838173a7c6a42c339bdca2b277fb3a3f1`). Suite remains unfrozen and producer-unbound.
+- No additional strategic claim: 49/49 synthetic unit tests only; 0 native games, 0 natural traces, no matchup result or win-rate evidence. The 4/32 count is prototype identification, not competence.
+- Continue only until the immutable lease reaches its measured 70-minute threshold at `2026-11-19T14:04:12.928887568Z`; do not refresh the lease.
+
+---
+
 # 2026-11-19 13:57 UTC — rank-3 policy suite contract and panel registration
 
 - Brought the rank-3 challenge suite into alignment with Agent2's `agent2-policy-challenge-suite-operational-contract-20261117.md`: added suite header/role/rank/deck fingerprints/dependency hashes/engine pin, explicit unbound producer IDs and unfrozen status; every case now has sourceBinding, exact card-print references where present, acceptable decision families/rationale, full cost ledger, prompt coverage, actual synthetic decision/validator receipts, null native/effect/trace receipts, budget/timeout/fallback fields and reviewer explanation; added a coverage matrix for core plan, resource/Prize, opponent counterplay, locks, tactical conversion, prompts, negative controls and runtime gaps.
