@@ -110,6 +110,7 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
     recognizedEvidenceClass: 107
   });
   assert.deepEqual(generated.summary.structurallyCompleteBySplit, { development: 21 });
+  assert.deepEqual(generated.summary.structurallyCompleteDispositionCounts, { blocked: 21 });
   assert.deepEqual(
     generated.summary.structurallyCompleteByRank.filter(row => row.total > 0),
     [
