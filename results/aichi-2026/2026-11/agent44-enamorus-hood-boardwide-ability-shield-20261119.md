@@ -36,6 +36,17 @@ Cutting Quick Ball preserves Pokémon Ranger but reduces search redundancy. The 
 
 **Decision:** keep this exact 60 only as a testable slot arm. Do not promote it. After the stopline clears, compare the Quick Ball-cut arm with a Quick Ball-retaining / alternative-cut arm under the same conditions, while preserving the Budew answer unless a replacement counter is demonstrated.
 
+## Deferred Pokémon Ranger / Budew rule check
+
+This is a printed-text inference, not a native test. After the V3/first-trace stopline clears, a focused rule test should:
+1. Resolve Budew's Itchy Pollen attack effect on the opponent's player.
+2. While that Item restriction is active, play Pokémon Ranger as a Supporter.
+3. Confirm the attack effect is removed from the player and an Item can then be played in the same turn.
+4. Let Budew use Itchy Pollen again; confirm Ranger consumes the Supporter for the turn, then VS Seeker can be played after the effect is removed to recover Ranger for a later turn. The two VS Seeker copies are finite.
+5. Add Stoutland Sentinel simultaneously; confirm its Supporter restriction prevents Pokémon Ranger, so the Ranger line is not a universal escape from combined player-level locks.
+
+No fixture is requested before the stopline clears. Agent35 has been notified of the interaction and the repeatability caveat.
+
 ## Status
 
 No native fixture, CI run, gameplay result, matchup estimate, or win-rate claim was produced by Agent44. The registered Hood Shield Shadow Rider v1 remains unchanged. The 99.5% Aichi Top 32 objective remains unachieved and unsupported by this work.
