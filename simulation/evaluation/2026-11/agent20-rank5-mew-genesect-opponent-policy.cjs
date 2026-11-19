@@ -159,7 +159,7 @@ function fusionStrikeCount(player) {
 
 function candidateHasShadowRider(observation) {
   return slots(observation?.opponentPublic).some(row =>
-    /Shadow Rider Calyrex VMAX CRE 75|Shadow Rider Calyrex V CRE 74/i.test(row.pokemon.printing));
+    /Shadow Rider Calyrex VMAX CRE 75/i.test(row.pokemon.printing));
 }
 
 function candidateHasDragon(observation) {
@@ -259,7 +259,10 @@ function scoreSearchPokemon(printing, observation, context = '') {
   if (matches(printing, PRINT.mewV)) return mewVCount < 2 ? 220 : 55;
   if (matches(printing, PRINT.genesect)) return genesectCount < 2 ? 230 :
     genesectCount < 3 ? 145 : 35;
-  if (matches(printing, PRINT.dedenne)) return handCount(observation) <= 2 ? 130 : 35;
+  const protectedCard = list(observation.ownHand).some(card =>
+    matches(card, PRINT.dce) || matches(card, PRINT.mewVMAX) ||
+    matches(card, PRINT.wally) || matches(card, PRINT.secretBox));
+  if (matches(printing, PRINT.dedenne)) return handCount(observation) <= 2 && !protectedCard ? 130 : 20;
   if (matches(printing, PRINT.crobat)) return handCount(observation) <= 4 ? 125 : 35;
   if (matches(printing, PRINT.clefairy)) return candidateHasDragon(observation) ? 95 : 5;
   return 0;
@@ -684,10 +687,14 @@ function scoreBasicPlay(printing, observation) {
       boardCount(own, PRINT.genesect) < 3 ? 135 : 35;
   }
   if (matches(printing, PRINT.dedenne)) {
-    return handCount(observation) <= 2 ? 135 : 15;
+    const protectedCard = list(observation.ownHand).some(value =>
+      matches(value, PRINT.dce) || matches(value, PRINT.mewVMAX) ||
+      matches(value, PRINT.wally) || matches(value, PRINT.secretBox));
+    return handCount(observation) <= 2 && !protectedCard ? 135 : 0;
   }
   if (matches(printing, PRINT.crobat)) {
-    return handCount(observation) <= 4 ? 130 : 15;
+    return handCount(observation) <= 4 &&
+      !list(own.stadium).some(value => matches(value, PRINT.pathToPeak)) ? 130 : 0;
   }
   if (matches(printing, PRINT.clefairy)) {
     return candidateHasDragon(observation) ? 95 : 5;
@@ -732,8 +739,10 @@ function scoreAction(item, request) {
       const drawAbilitiesStillAvailable = list(request.actionFrontier?.items).some(row =>
         row.kind === 'use-ability' &&
         /Fusion Strike System|Dark Asset|Dedechange/i.test(row.publicMetadata?.abilityName ?? ''));
+      const futureDrawBodyInHand = hand.some(value =>
+        matches(value, PRINT.dedenne) || matches(value, PRINT.crobat));
       return candidateHasShadowRider(observation) &&
-        !drawAbilitiesStillAvailable && hand.length >= 4 ? 220 : 0;
+        !drawAbilitiesStillAvailable && !futureDrawBodyInHand && hand.length >= 4 ? 220 : 0;
     }
     if (matches(stadium, PRINT.skyField)) {
       return benchCount(own) >= 5 && benchCount(opponent) <= 4 &&
