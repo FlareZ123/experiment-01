@@ -82,7 +82,7 @@ const ITEM_PATTERNS = [
   PRINT.counterCatcher, PRINT.scoopCyclone, PRINT.quickBall, PRINT.heavyBall,
   PRINT.nightStretcher, PRINT.forestSealStone
 ];
-const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood];
+const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood, PRINT.forestSealStone];
 // The bound Hood Shield v1 list has 17 Item-subtype cards. Forest Seal Stone
 // is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
 // Pokémon Tool-only and are not legal Eri discards.
@@ -491,6 +491,37 @@ function scoreAction(item, request) {
     return scoreBasicPlay(card, observation);
   }
 
+  if (matches(card, PRINT.waterEnergy)) {
+    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    if (!targetSlot) return 0;
+    if (matches(targetSlot.pokemon.printing, PRINT.articuno)) {
+      return energyCount(targetSlot.pokemon) < 2 ?
+        (opponentActiveEnergy(observation) >= 2 ? 190 : 145) : 20;
+    }
+    if (matches(targetSlot.pokemon.printing, PRINT.bunnelby) ||
+        matches(targetSlot.pokemon.printing, PRINT.girafarig)) {
+      return energyCount(targetSlot.pokemon) === 0 ? 125 : 20;
+    }
+    if (matches(targetSlot.pokemon.printing, PRINT.snorlax)) {
+      return energyCount(targetSlot.pokemon) < 4 ? 65 : 5;
+    }
+    return 25;
+  }
+  if (matches(card, PRINT.captureEnergy)) {
+    const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+    if (!targetSlot) return 0;
+    if (matches(targetSlot.pokemon.printing, PRINT.bunnelby) ||
+        matches(targetSlot.pokemon.printing, PRINT.girafarig)) {
+      return energyCount(targetSlot.pokemon) === 0 ? 165 : 70;
+    }
+    if (matches(targetSlot.pokemon.printing, PRINT.snorlax)) {
+      return targetSlot.zone === 'active' ? 150 : 105;
+    }
+    if (matches(targetSlot.pokemon.printing, PRINT.articuno)) {
+      return energyCount(targetSlot.pokemon) === 0 ? 125 : 55;
+    }
+    return 45;
+  }
   if (matches(card, PRINT.toolJammer)) {
     return matches(target, PRINT.snorlax) ||
       (!target && matches(own.active?.printing ?? '', PRINT.snorlax)) ? 220 : 105;
@@ -517,8 +548,12 @@ function scoreAction(item, request) {
       145 + Math.min(20, playerEnergyCount(opponent) * 5) : 0;
     if (matches(card, PRINT.teamFlare)) return opponentActiveEnergy(observation) > 0 ? 135 : 0;
     if (matches(card, PRINT.guzma)) {
-      return !matches(own.active?.printing ?? '', PRINT.snorlax) && boardHas(own, PRINT.snorlax) ?
-        185 : opponentActiveEnergy(observation) > 0 ? 115 : 35;
+      const activeIsSnorlax = matches(own.active?.printing ?? '', PRINT.snorlax);
+      const damagedSnorlaxCanRotate = activeIsSnorlax && (own.active.damage ?? 0) >= 100 &&
+        slots(own).some(row => row.zone === 'bench' &&
+          matches(row.pokemon.printing, PRINT.snorlax) && hasTool(row.pokemon, PRINT.toolJammer));
+      return !activeIsSnorlax && boardHas(own, PRINT.snorlax) ? 185 :
+        damagedSnorlaxCanRotate ? 150 : 0;
     }
     if (matches(card, PRINT.teammates)) return 140;
     if (matches(card, PRINT.eri)) {
@@ -700,16 +735,27 @@ function promptDecision(request) {
       const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
       const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : min;
       if (source.includes('arven')) {
-        const item = choices.filter(choice => choiceOwner(choice) === 'actor' &&
-          choiceZone(choice) === 'deck' && ITEM_PATTERNS.some(pattern => matches(choice, pattern)))
-          .sort((a, b) => cardChoiceScore(b, observation, 'arven') - cardChoiceScore(a, observation, 'arven'))[0];
-        const tool = choices.filter(choice => choiceOwner(choice) === 'actor' &&
-          choiceZone(choice) === 'deck' && TOOL_PATTERNS.some(pattern => matches(choice, pattern)))
-          .sort((a, b) => cardChoiceScore(b, observation, 'arven') - cardChoiceScore(a, observation, 'arven'))[0];
-        if (!item || !tool || min > 2 || max < 2) {
+        const itemChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck' && ITEM_PATTERNS.some(pattern => matches(choice, pattern)));
+        const toolChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck' && TOOL_PATTERNS.some(pattern => matches(choice, pattern)));
+        let bestPair = null;
+        let bestPairScore = -1;
+        for (const item of itemChoices) {
+          for (const tool of toolChoices) {
+            if (item.token === tool.token) continue;
+            const score = cardChoiceScore(item, observation, 'arven') +
+              cardChoiceScore(tool, observation, 'arven');
+            if (score > bestPairScore) {
+              bestPair = [item, tool];
+              bestPairScore = score;
+            }
+          }
+        }
+        if (!bestPair || min > 2 || max < 2) {
           return { kind: 'abstain', reasonCode: 'ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE' };
         }
-        return { kind: 'select-choices', tokens: [item.token, tool.token] };
+        return { kind: 'select-choices', tokens: bestPair.map(choice => choice.token) };
       }
       if (source.includes('plumeria')) {
         const handChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
