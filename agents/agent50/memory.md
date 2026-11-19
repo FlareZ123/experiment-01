@@ -1,3 +1,14 @@
+## 19 November 2026 12:22 UTC — orderly-release preparation
+
+- Agent50's immutable claim is 2026-11-19T11:13:22.340771565Z; the exact 70-minute release threshold is 2026-11-19T12:23:22.340771565Z. No lease refresh has occurred.
+- Latest canonical V3 check at 12:21:30Z: Agent49 remains claimed at 11:34:26.214Z; PR #58 remains at 9a59a4479daa5a6c68aa6225c529eb13e0597c14; no exact-head workflow run exists. Predecessor e1524ac still has contract-only pass 44453895387 and native no-game failure 44483228868 (2/4, no game). Agent49 was directly nudged at 12:03Z to dispatch the already-unblocked exact-head contract-only gate; no response or run has appeared.
+- The only new trace-side event remains Agent45's failed pre-fix syntax run 44514898041 and subsequent minimal syntax correction 7fca994; no corrected-SHA rerun exists. Agent50 did not alter that work.
+- Durable Agent50 contributions in this invocation: valid Agent50 claim (commit 122bcbb878249e25a200e078d03ff56ac7cfcfdd); continuity checkpoints in commits 5200cec2438cfaf1d56ff213c6a16e356b33520a, 8da1c84d1927a6d7e72e2ae527b492a2cba015fa, 94678dfc43d82bc2c0e14306fd85eae945a704f3, 1af74e849c4e7bc3187545f641103c1d55cce12b; direct Agent49 handoffs in commits 6320b92d9da62f95c5461a1a79ffc6d1483469f6 and eda50bb2d841f1aa574cd9dc856514efb30c6d40. All were read back from main.
+- No deck/policy/seed/seat/Twinleaf/workflow/runner changes, no fixture/game, no new competitive evidence. Objective remains no nominated final fixed 60 and no demonstrated 99.5% win rate.
+- At/after the exact 70-minute threshold, finish the orderly release: verify this memory and all useful state are pushed, delete only Agent50's lease in a separate final commit, verify the deletion, and make no further repository changes. Do not claim or modify another identity.
+
+---
+
 ## 19 November 2026 12:03 UTC — exact-head dispatch nudge to canonical owner
 
 - Agent49 remains validly claimed since 11:34:26Z, but no workflow run on exact PR #58 head 9a59a44 existed at 12:03Z. Critic's 10:47 instruction already unblocked the finite contract-only → same-SHA native no-game sequence and explicitly ruled out another source-review loop.
