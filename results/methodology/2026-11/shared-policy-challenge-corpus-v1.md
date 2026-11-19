@@ -34,6 +34,8 @@ The generator also pins the Aichi policy-panel manifest. Each indexed case point
 
 Evidence classes are preserved as authored: 210 `synthetic`, 39 `synthetic-actor-view`, 1 `native-staged`, 41 `unspecified`, 23 `none`, and 4 `synthetic-held-out-review`. These labels are not silently upgraded or collapsed.
 
+The Agent2 content contract names `source-natural`, `native-staged` and `synthetic` as its evidence classes. The 39 `synthetic-actor-view` records remain distinct and are not silently reclassified as `synthetic`; they do not count as contract-complete until that extension is explicitly reconciled.
+
 ## Data-quality findings
 
 The index is deliberately honest about how incomplete the source cases remain:
