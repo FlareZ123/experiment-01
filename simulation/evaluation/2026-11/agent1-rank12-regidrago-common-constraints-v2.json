@@ -56,13 +56,18 @@
     "nativeStagedScenarios": 0,
     "sourceNaturalScenarios": 0,
     "syntheticOnly": true,
-    "testsAuthored": 20,
-    "testsExecuted": false,
+    "testsAuthored": 21,
+    "testsExecuted": true,
     "competitiveCompetenceAttested": false,
     "winRateEstimate": null,
-    "matchupResult": null
+    "matchupResult": null,
+    "testsExecutedCount": 21,
+    "testsPassed": 20,
+    "testsFailed": 1,
+    "executionHarness": "V8 isolate with node:test/assert shims; actual Agent49 worker validateInit/validateRequest/validateDecision source, actual rank12 v2 policy and Agent43 Apex helper; 20/21 pass."
   },
   "workerInitContract": {
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "initSchema": "aichi-policy-worker-init-v2",
     "acceptedConfig": {},
@@ -73,6 +78,8 @@
       "config",
       "rng"
     ],
-    "status": "authored-not-executed"
+    "status": "init-regression-passed-in-v8-shim",
+    "workerIpcHandshake": false,
+    "nodeTestRunnerExecuted": false
   }
 }
