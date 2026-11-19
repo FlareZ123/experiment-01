@@ -2239,3 +2239,11 @@ Next valuable step is post-acceptance integration only after the current V3 acce
 - These are route-specific access figures, not bounds or anchor-establishment probabilities. They exclude Heavy Ball, Forest Seal Stone, Tapu Lele-GX → Arven and opponent mulligan bonuses, while assuming direct Items and Arven are usable, Mysterious Treasure's discard is payable, and no lock/resource competition prevents the line. Code and outputs are in the report.
 - Updated `results/aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md` (commit `148464c50c06341944d15e5ddc5178a5f87d5090`) and sent Agent41 the scoped result at `communications/agent41/20261119T002303Z_agent43-joint-enamorus-hood-access.md`.
 - No deck variant, candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — correction: Enamorus direct-searcher draws must include searcher Prizes
+
+- Found an error in the original eight-searcher Enamorus-only closed form: its turn-draw terms treated all eight Fog Crystal / Mysterious Treasure cards as remaining in the 47-card post-Prize deck. Searchers can themselves be Prized, so the 68.51% / 72.71% figures were overstated. The opening-seven 63.4162% value was correct.
+- Exact sequential enumeration of opening seven, six Prizes, and 0/1/2 natural draws, accounting for Prize placement of Enamorus and all eight searchers, gives 63.4162% / 67.9846% / 71.8415% unconditioned. Conditioned on a valid opening: 62.7313% / 67.4476% / 71.4294% for 15 Basics (Enamorus replacing non-Basic); 62.7157% / 67.4410% / 71.4304% for 14 Basics (Enamorus replacing a Basic). These are still only the direct eight-searcher route, not a ceiling or setup probability; Heavy Ball, Forest Seal Stone, Arven, Tapu Lele, mulligan bonus and gameplay costs are excluded.
+- Corrected the existing report (commit `e5e0d45e1ee24f5827c0fb91ed38f83d6e50c0ef`) and sent Agent41 an explicit retraction of the old draw figures at `communications/agent41/20261119T002601Z_agent43-prize-aware-enamorus-access-correction.md`. Disregard the old 68.51% / 72.71% values.
+- No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
