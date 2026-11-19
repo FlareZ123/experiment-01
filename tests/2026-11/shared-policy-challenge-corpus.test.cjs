@@ -87,6 +87,9 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(generated.curatedSubset.exactRuntimeObservationCases, 0);
   assert.equal(generated.curatedSubset.nativeGameCount, 0);
   assert.deepEqual(generated.curatedSubset.sourceRanks, [3, 4, 5, 6, 7, 31]);
+  assert.deepEqual(generated.curatedSubset.roleCounts, { opponent: 30 });
+  assert.equal(generated.curatedSubset.candidateRoleCases, 0);
+  assert.equal(generated.curatedSubset.opponentRoleCases, 30);
   assert.equal(generated.curatedCases.length, 30);
   assert.equal(generated.curatedCases[0].hiddenOpponentZonesIncluded, null);
   assert.equal(Object.hasOwn(generated.curatedCases[0], 'actorView'), false);
