@@ -107,6 +107,8 @@ function parsePhantomDiveAllocationLabel(label) {
  * Positive maxAllowedDamage values are not treated as caps: the existing
  * paper guard establishes only zero-cap exclusion; positive values may be UI
  * or HP hints. The native target is retained only in choiceByToken, never exposed.
+ * The validateResult callback should combine validateRawPromptResult with
+ * paperPutDamageRejectReason so every exposed token is natively and paper-guard valid.
  */
 function enumeratePhantomDiveAllocationChoices({
   damage,
