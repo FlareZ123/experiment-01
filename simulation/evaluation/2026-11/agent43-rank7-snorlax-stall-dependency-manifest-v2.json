@@ -42,9 +42,9 @@
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
-    "blobSha1": "4d0b66ea590676b8637d741ad331f0139d789979",
-    "sha256": "5ac4acd9842555e647d7c59582869d06951d6be68eebde0fe32ca66a2ed8fc6d",
-    "testCount": 43,
+    "blobSha1": "ec1622dab6a527777cfaf9e9d601181b0c39e812",
+    "sha256": "15a33460d4e135211b27801448e6b033d831998ce1d83137e60ef3cc369cb6d0",
+    "testCount": 44,
     "passed": null,
     "failed": null,
     "latestRunId": null,

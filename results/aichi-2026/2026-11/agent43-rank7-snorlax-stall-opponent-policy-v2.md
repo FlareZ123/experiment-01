@@ -20,7 +20,7 @@
 
 ## Validation
 
-The updated Node 22 contract suite now contains **43 tests** using the actual Agent49 init/request/decision validators; exact-head GitHub Actions execution is pending. The new regressions are synthetic policy/protocol tests only.
+The updated Node 22 contract suite now contains **44 tests** using the actual Agent49 init/request/decision validators; exact-head GitHub Actions execution is pending. The new regressions are synthetic policy/protocol tests only.
 
 ## Limitations
 

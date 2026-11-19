@@ -959,7 +959,7 @@ test('Target Whistle prompt selects a candidate Basic and rejects a candidate VM
       cardChoice('basic', C.shadowV, 'opponent', 'discard')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'basic' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['basic'] });
 });
 
 test('Get Lost prioritizes the candidate Night Stretcher as a live recovery target', () => {
@@ -987,5 +987,21 @@ test('Get Lost target prompt prioritizes Night Stretcher and Acerola over ordina
       cardChoice('acerola', C.acerola, 'opponent', 'discard')
     ]
   });
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'night' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['night'] });
+});
+
+
+test('Get Lost target prompt selects Acerola when Night Stretcher is absent', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.girafarig, 'Get Lost'),
+    publicMetadata: multiMeta(1, 1),
+    choices: [
+      cardChoice('ordinary', 'Ordinary Card XY 1', 'opponent', 'discard'),
+      cardChoice('acerola', C.acerola, 'opponent', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['acerola']
+  });
 });
