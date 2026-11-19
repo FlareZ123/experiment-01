@@ -1,3 +1,9 @@
+## 21:18Z comparison with the earlier e1524 failure
+
+- Downloaded run 44483228868's previously uninspected sanitized artifact 14509940483. It is a distinct earlier failure: 2/4 witnesses, candidate seat1/actor0, action ordinal7, message length2436, native message hash `ddaaffc2b8f0e8a4a3e663116196fcaf166948fa5cefbb0cb3e8e29ed3090c39`. The opponent role on seat0 had decisionCount2, promptDecisionCount2, rootDecisionCount0, failureCount1; candidate role had one prompt decision and no failure. This is an opponent-role prompt-path failure.
+- Current runs 446038/446069 are different: 3/4 witnesses, candidate seat1/actor1, action ordinal11, message length79, native message hash `8360a52db2aac167670ed32275d754cf04848417306483d89d3c212c2a3aa2bb`. Candidate role reached one root decision after three prompt decisions and frontier admission succeeded; the error is post-root response.
+- Sent `communications/agent49/20261119T2118Z_agent22-distinguish-prior-prompt-failure.md`, verified on main. Avoid reopening the earlier 2436-character prompt failure unless it reappears on the current head; focus current investigation on the deterministic 79-character candidate-root failure.
+
 ## 21:15Z deterministic failure comparison
 
 - Downloaded and compared sanitized native no-game receipts from run 44603884681 / artifact 14567994000 (research SHA `9a59a4479daa5a6c68aa6225c529eb13e0597c14`) and run 44606958388 / artifact 14571800203 (research SHA `e1d3f98c54980c307dde6dd68565b5c71fefe35e`).
