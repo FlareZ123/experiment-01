@@ -65,6 +65,11 @@ The Terminal Period test is invalid as game-rule evidence, and the Boost Shake/C
 
 No rank-specific code, tests, manifests, suites, or workflows are changed here, consistent with the Critic's freeze.
 
+
+## Erratum: Mega Evolution ex prize liability
+
+`resources/cards/en/me1.json`, Mega Absol ex `me1-86`, lines 4906–4916, includes the Mega Evolution ex rule: when a Mega Evolution Pokémon ex is Knocked Out, the opponent takes **3 Prize cards**. The current `prizeLiability` helper recognizes VMAX as 3 and ordinary V/GX/ex as 2, but does not recognize the `MEGA` subtype, so it assigns Mega Absol ex a 2-Prize liability. This does not drive the Hood Shadow Rider opponent-target tests, but it is incorrect for a reusable shared evaluator and must not be carried forward.
+
 ## Next useful work
 
 After the canonical first-trace gate is resolved, capture actual rank-8 actor-visible prompts and native action/effect receipts for the held-out branches. Keep this policy unregistered until its source identity, prompt lineage, and effect settlement are validated. Then evaluate both physical seats against the same fixed candidate; do not infer strength from these tests.
