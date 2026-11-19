@@ -1,7 +1,7 @@
 {
   "schema": "aichi-policy-challenge-suite-v1",
-  "suiteId": "aichi-2026-rank7-snorlax-stall-opponent-policy-v2",
-  "suiteVersion": "1.0.0",
+  "suiteId": "agent43-rank7-snorlax-stall-opponent-v2.1",
+  "suiteVersion": "1.1.0",
   "status": "prototype-not-attestable",
   "attestationStatus": "blocked",
   "policy": {
@@ -20,7 +20,10 @@
     "gamesPlayed": 0,
     "matchupResults": null,
     "winRate": null,
-    "winRateClaim": "none"
+    "winRateClaim": "none",
+    "version": "agent43-rank7-snorlax-stall-opponent-v2.1",
+    "sha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
+    "blobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e"
   },
   "sourceBinding": {
     "opponentDeck": {
@@ -43,15 +46,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json",
-    "manifestSha256": "05ae459543fa405dadecd91e5922a793759897f17daaff2aba514d189ce4f0bb",
+    "manifestSha256": "d08b405d3bf095169489f3dd01e19008043c2720986aaa1af4ff098cfae30990",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
-    "commonConstraintsSha256": "b6e2b2f4553737c5734bae97cf1028d063f896ae3f53d5a329a8761680e1abb3",
+    "commonConstraintsSha256": "97d857745e078faccfe0308239dd78964a1734e8520d721cec8609d6dc27057f",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "d72cc1d54bcbe78fcbd1e7b5cfe7e15167aa4ecf0638341a3e9ac89cfb36ff97",
     "testFilePath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
-    "testFileBlobSha1": "4b4b4f441bb6f849ec1c708b3218c964791fa400",
-    "testFileSha256": "3bb9e5857f2698cfa0a653e4011f96dce51e78c9a4576fb43728893f85d25ec2",
+    "testFileBlobSha1": "a95dca3a132927f917accbfcdfe5efaf53195c28",
+    "testFileSha256": "6ed181c5e77fa992572d31e14896e1397dbb24e933bc91e5a8332208d396eba2",
     "engine": {
       "submodulePath": "vendor/twinleaf",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -66,21 +69,21 @@
       "nativeStaged": 0,
       "synthetic": 12
     },
-    "developmentTestCount": 24,
-    "unitTestsPassed": 24,
+    "developmentTestCount": 30,
+    "unitTestsPassed": 30,
     "unitTestsFailed": 0,
-    "actorRequestCount": 20,
-    "decisionReceiptCount": 19,
+    "actorRequestCount": 30,
+    "decisionReceiptCount": 29,
     "promptTypeCounts": {
-      "root-action-frontier": 14,
-      "SelectPrompt": 1,
+      "root-action-frontier": 19,
+      "SelectPrompt": 4,
       "ChoosePokemonPrompt": 3,
-      "ChooseCardsPrompt": 1,
+      "ChooseCardsPrompt": 3,
       "NightWatchPhysicalPrompt": 1
     },
     "selectionTypeCounts": {
-      "none": 19,
-      "card-combination": 1
+      "none": 27,
+      "card-combination": 3
     },
     "localHarness": {
       "type": "GitHub Actions Node 22 node:test",
@@ -98,10 +101,10 @@
       "timeoutMeasured": false,
       "processSandboxVerified": false
     },
-    "ciRunId": 44556226122,
-    "ciHeadSha": "bdf1ba5d15a1e510a62a1bb21f63741c994a92a1",
+    "ciRunId": 44576458711,
+    "ciHeadSha": "c47e173d3876c69ee05da0fb3bd278f555c89c70",
     "ciConclusion": "success",
-    "ciJobId": 135672911108,
+    "ciJobId": 135745141306,
     "fullMatchupCoverage": {
       "rank7VsFixedCandidateGames": 0,
       "aichiTop32MatchupsWithResults": 0,
@@ -2306,7 +2309,9 @@
     "No independent reviewer has accepted the policy or suite.",
     "No worker IPC handshake, timeout budget, process sandbox or compute-budget test.",
     "Wobbuffet/ Snorlax Block tradeoff is a heuristic score, not a native strategic result.",
-    "No 99.5% evidence; policy is not bound to signed V3 plan."
+    "No 99.5% evidence; policy is not bound to signed V3 plan.",
+    "Native validation of actor-owned Temple of Sinnoh removal via Field Blower and Stadium replacement via Chaotic Swell remains outstanding.",
+    "Faba non-Hood target families remain intentionally unsupported by this prototype."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -2315,7 +2320,7 @@
     "reviewReceipt": null
   },
   "claims": {
-    "demonstrated": "24/24 GitHub Actions Node 22 tests pass using actual Agent49 validators on synthetic actor-view fixtures; card-text model is aligned to the actual rank-7 source deck and fixed candidate.",
+    "demonstrated": "30/30 GitHub Actions Node 22 tests pass using the actual Agent49 validators on synthetic actor-view fixtures; this validates protocol/policy decisions only.",
     "notDemonstrated": [
       "real game win rate",
       "rank-7 matchup advantage",
@@ -2326,7 +2331,7 @@
     ]
   },
   "caseRecordCount": 16,
-  "suiteSha256": "49fbdbda2bbbb05349e76cbd9784ff0ac9b9fdb0e999638ede535130ce8ba66a",
+  "suiteSha256": "3ee5f380b83e40c506707d0443ae2762a4c3b8331ad662e66f9a3a0bab7e97cd",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -2334,9 +2339,9 @@
     "sourceRank": 7,
     "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
-    "dependencyManifestSha256": "05ae459543fa405dadecd91e5922a793759897f17daaff2aba514d189ce4f0bb",
-    "commonConstraintsSha256": "b6e2b2f4553737c5734bae97cf1028d063f896ae3f53d5a329a8761680e1abb3",
+    "policySha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
+    "dependencyManifestSha256": "d08b405d3bf095169489f3dd01e19008043c2720986aaa1af4ff098cfae30990",
+    "commonConstraintsSha256": "97d857745e078faccfe0308239dd78964a1734e8520d721cec8609d6dc27057f",
     "engine": {
       "submodulePath": "vendor/twinleaf",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -2373,7 +2378,8 @@
     "developmentSplit": "developmentCases",
     "heldOutSplit": "heldOutReviewCases",
     "completeProducerIdSetUsedByPanel": null,
-    "completeProducerIdSetStatus": "not bound"
+    "completeProducerIdSetStatus": "not bound",
+    "updatedAt": "2026-11-19T17:22:32Z"
   },
   "coverageMatrix": {
     "fabaJetWobbuffet": {
@@ -2436,12 +2442,24 @@
       "evidenceClass": "none",
       "nativeReceipts": 0,
       "status": "not-covered"
+    },
+    "supplementalRegressionTests": {
+      "evidenceClass": "synthetic-only",
+      "testNames": [
+        "Faba root abstains when only unsupported Stadium removal is available",
+        "Field Blower does not enter a special-energy-only prompt it cannot resolve",
+        "Field Blower can remove the actor-owned Temple of Sinnoh when Jet Energy is held",
+        "Chaotic Swell can replace an actor-owned Stadium",
+        "Nest Ball includes Electrike when the other rank-7 Basics are already established",
+        "Bellelba optional bench reduction is gated by bench state and three other cards"
+      ],
+      "status": "blocked"
     }
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
-    "sourceBlobSha1": "8e7d7eed913d4f9fa3131cf7f3460c1ea0276d07",
-    "sourceSha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
+    "sourceBlobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e",
+    "sourceSha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
     "scannedTerms": [
       {
         "term": "Math.random",
@@ -2487,5 +2505,19 @@
     "result": "static source scan; no listed nondeterministic/network/private-state references",
     "inputSurface": "role, seat, actor observation, prompt and legal action frontier",
     "caveat": "not a process sandbox or native game validation"
+  },
+  "regressionAddendum": {
+    "revision": "v2.1",
+    "evidenceClass": "synthetic",
+    "testFile": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+    "tests": [
+      "Faba root abstains when only unsupported Stadium removal is available",
+      "Field Blower does not enter a special-energy-only prompt it cannot resolve",
+      "Field Blower can remove the actor-owned Temple of Sinnoh when Jet Energy is held",
+      "Chaotic Swell can replace an actor-owned Stadium",
+      "Nest Ball includes Electrike when the other rank-7 Basics are already established",
+      "Bellelba optional bench reduction is gated by bench state and three other cards"
+    ],
+    "note": "Supplemental regression tests extend existing scenario classes; they are not additional frozen actor-view case records and remain synthetic-only."
   }
 }
