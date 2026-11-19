@@ -128,7 +128,6 @@
       ],
       "recognizedEvidenceClasses": [
         "synthetic",
-        "synthetic-actor-view",
         "native-staged",
         "source-natural"
       ],
@@ -244,7 +243,7 @@
       "decisionEnvelope": 85,
       "costLedger": 117,
       "promptCoverage": 125,
-      "recognizedEvidenceClass": 68
+      "recognizedEvidenceClass": 107
     }
   },
   "sourceSuites": [
@@ -7264,7 +7263,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7298,7 +7298,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7332,7 +7333,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7366,7 +7368,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7400,7 +7403,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7434,7 +7438,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7468,7 +7473,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7502,7 +7508,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7536,7 +7543,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7570,7 +7578,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7604,7 +7613,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7638,7 +7648,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7672,7 +7683,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7706,7 +7718,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7740,7 +7753,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7774,7 +7788,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7808,7 +7823,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -7842,7 +7858,8 @@
         "decisionEnvelope",
         "costLedger",
         "promptCoverage",
-        "executionEvidence"
+        "executionEvidence",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8441,7 +8458,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8470,7 +8488,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8499,7 +8518,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8528,7 +8548,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8557,7 +8578,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8586,7 +8608,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8615,7 +8638,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8644,7 +8668,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8673,7 +8698,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8702,7 +8728,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8731,7 +8758,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8760,7 +8788,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8789,7 +8818,8 @@
       "disposition": "synthetic-pass; native execution and matchup outcome not established",
       "reviewerStatus": null,
       "structuralBlockers": [
-        "actorViewDigest"
+        "actorViewDigest",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8939,7 +8969,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8969,7 +9000,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -8999,7 +9031,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -9029,7 +9062,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -9059,7 +9093,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -9089,7 +9124,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -9119,7 +9155,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
@@ -9149,7 +9186,8 @@
       "reviewerStatus": null,
       "structuralBlockers": [
         "caseSourceBinding",
-        "promptCoverage"
+        "promptCoverage",
+        "recognizedEvidenceClass"
       ],
       "structurallyComplete": false
     },
