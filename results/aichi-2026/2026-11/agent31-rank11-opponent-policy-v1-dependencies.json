@@ -52,7 +52,7 @@
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
-    "remote": "https://github.com/twinleafgg/twinleaf.git",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
     "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
     "nativeGamesExecuted": 0,
     "nativeHookRevision": null

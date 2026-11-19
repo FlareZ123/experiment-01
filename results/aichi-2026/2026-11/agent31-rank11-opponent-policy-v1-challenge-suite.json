@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "9536a6c045ea6dbaef1b2039a4d9d057bae5f8b0bddc38cf93f1db28c4976ca5",
+    "manifestSha256": "4f0a661bb6e35343592d4c8458599df2a88865b594aa6205c5822023028133e1",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
     "policyTestGitBlobSha1": "5302afe87fa83a632fd261c0dfbffb06b97cd091",
     "policyTestSha256": "6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54",
@@ -91,9 +91,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "83ad46fe578fbab978c2f4ed64662a4ae7d606ea612f35a8302d0ddac9bb6157",
+        "actorPacketDigest": "a198baebf1e4c1d91215df75608fa943c5f629245dbf69d65974f34cdbcb0691",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "a198baebf1e4c1d91215df75608fa943c5f629245dbf69d65974f34cdbcb0691"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -149,9 +150,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "60fb4d6ce0facb664b71ca9467addc72e99a1c95544d3dc8a7a1c87f7a025990",
+        "actorPacketDigest": "1897a5093f517208a8ccee754e2b56f26efee74f7db628d6704fd15d21a39d2f",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "1897a5093f517208a8ccee754e2b56f26efee74f7db628d6704fd15d21a39d2f"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -210,9 +212,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "a692b003af8e5a85a103182a98594ba7b321fdbfc744ab1a95bf4f2d6d8be7c3",
+        "actorPacketDigest": "b3b800cfe2a7fb9fcb2ec81d3c06523db085bca0d2ae507636e18c31ed0622d2",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "b3b800cfe2a7fb9fcb2ec81d3c06523db085bca0d2ae507636e18c31ed0622d2"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -267,9 +270,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "1cf2148cd24cc353b01aeb6c6aef1000b4778729f71292097daa0663053bf2a4",
+        "actorPacketDigest": "2f5b71474f657f9e861aaae54a3ed414f851e50c7937e4a9e9de079a71ee5531",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "2f5b71474f657f9e861aaae54a3ed414f851e50c7937e4a9e9de079a71ee5531"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -325,9 +329,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "9dfbc37ce3bd51add24e4641e68087afd6284279afb6f3a63f9e7f3715f2c090",
+        "actorPacketDigest": "4d38040b1c2cb0c40bd3f1d2e92b25e74eb8cc7e7137f2f8d8b57b9897768e60",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "4d38040b1c2cb0c40bd3f1d2e92b25e74eb8cc7e7137f2f8d8b57b9897768e60"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -383,9 +388,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "d678593ccc8046146f34fce8bad86f2bf14a060747d3e1556e8d7ca950512513",
+        "actorPacketDigest": "86903827ff0777ef8e47df78f4fccc04454e258c4a0c310e8ab5856ebed5a9d3",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "86903827ff0777ef8e47df78f4fccc04454e258c4a0c310e8ab5856ebed5a9d3"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -441,9 +447,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "679705ed6377b305fb88ae74c381f593a8c143a7f1b6b26753247c74edea372e",
+        "actorPacketDigest": "5fec08fe4d360a3ccaac725a2a9de13ec05cc87d94be6e2a12670485dc55128c",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "5fec08fe4d360a3ccaac725a2a9de13ec05cc87d94be6e2a12670485dc55128c"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -499,9 +506,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "67ae6c36a8d6d078d3658ff1431200d0b2119e71a621346a2c46c7102c625881",
+        "actorPacketDigest": "767d1314aef60a39048794681723e286970bb51f0f488f5092cef557b772cd83",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "actorViewDigest": "767d1314aef60a39048794681723e286970bb51f0f488f5092cef557b772cd83"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -559,9 +567,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "5d58e3608fdf16c9c61d2722487e455665d55b569684281b5613f867e6871032",
+        "actorPacketDigest": "052deeb13aebf547ba3e122ba27947361d477a636553022e377bf0bf89f83afb",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-seat1-back-order-heldout"
+        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-seat1-back-order-heldout",
+        "actorViewDigest": "052deeb13aebf547ba3e122ba27947361d477a636553022e377bf0bf89f83afb"
       },
       "decisionEnvelope": {
         "expectedDecision": null,
@@ -613,9 +622,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "ebb5a075ce8084ca76c046be8655d9a3e9a6ec0c7b2538fece71bb0eb8ffe806",
+        "actorPacketDigest": "09c60f1428d1e4be2a8a6f6fae0f6d11d75a64c16f2c1b16d219aa99cfe77326",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-secret-box-search-heldout"
+        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-secret-box-search-heldout",
+        "actorViewDigest": "09c60f1428d1e4be2a8a6f6fae0f6d11d75a64c16f2c1b16d219aa99cfe77326"
       },
       "decisionEnvelope": {
         "expectedDecision": null,
@@ -668,9 +678,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "49353be90790bbaa66d2ba5d16c431706129a24c5029d20ea87b3fe2a25be920",
+        "actorPacketDigest": "9edc6c9ed1473cfa11d16e635c125fe51065d51fb640a8b074ebc9260e42cf12",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-toolless-boost-shake-heldout"
+        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-toolless-boost-shake-heldout",
+        "actorViewDigest": "9edc6c9ed1473cfa11d16e635c125fe51065d51fb640a8b074ebc9260e42cf12"
       },
       "decisionEnvelope": {
         "expectedDecision": null,
@@ -722,9 +733,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "3a102516cafc375a118124b9eb6ca80722333e904e155383d97b2cbe03d16852",
+        "actorPacketDigest": "2b5254465759ba3875bfecb19ffaee62a320329e531d0c1d85820bfd77b642c9",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
-        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-claw-damage-conversion-heldout"
+        "fixtureRef": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json#r11-claw-damage-conversion-heldout",
+        "actorViewDigest": "2b5254465759ba3875bfecb19ffaee62a320329e531d0c1d85820bfd77b642c9"
       },
       "decisionEnvelope": {
         "expectedDecision": null,

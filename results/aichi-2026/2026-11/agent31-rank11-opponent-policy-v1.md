@@ -44,8 +44,8 @@ This was not a Node `--test` runner execution, a Twinleaf execution, a native st
 
 - Policy SHA-256: `28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80`
 - Test SHA-256: `6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54`
-- Dependency manifest SHA-256: `9536a6c045ea6dbaef1b2039a4d9d057bae5f8b0bddc38cf93f1db28c4976ca5`
-- Challenge suite SHA-256: `d704c81d93d2deb6c921a83c37d0916e75f28d31214c6c1dc329b85a7b4cca31`
+- Dependency manifest SHA-256: `4f0a661bb6e35343592d4c8458599df2a88865b594aa6205c5822023028133e1`
+- Challenge suite SHA-256: `d7b9f76ef1a088d59e96d68711de30a1dea8a38343782c0213768bd72c68228a`
 
 ## Development and held-out coverage
 
