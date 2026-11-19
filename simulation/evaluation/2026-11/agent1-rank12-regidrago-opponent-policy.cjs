@@ -172,7 +172,7 @@ function opponentHasStadium(observation) {
 function candidateTargetPriority(pokemon) {
   const value = printingValue(pokemon);
   const hp = remainingHp(pokemon);
-  if (/Shadow Rider Calyrex VMAX CRE 75|Trevenant & Dusknoir-GX SMP SM217/i.test(value)) return 260 + Math.max(0, 200 - hp) / 20;
+  if (/Shadow Rider Calyrex VMAX CRE 75|Trevenant & Dusknoir-GX SMP (?:SM)?217/i.test(value)) return 260 + Math.max(0, 200 - hp) / 20;
   if (/Lillie's Clefairy ex JTG 56|Tapu Lele-GX GRI 60|Dialga-GX UPR 100|Latias ex SSP 76/i.test(value)) return 220 + Math.max(0, 180 - hp) / 20;
   if (/Mimikyu GRI 58|Marshadow UNB 81|Radiant Eternatus CRZ 105/i.test(value)) return 120 + Math.max(0, 100 - hp) / 20;
   const subtypes = list(pokemon?.printed?.subtypes).map(String);
@@ -510,10 +510,6 @@ function promptDecision(request) {
       return selectMany(choices, choice => discardCostPriority(choice, observation), minimum, maximum,
         'NO_RANK12_SAFE_DISCARD');
     }
-    if (/mysterious treasure|quick ball|ultra ball|wonder tag|tap u lele|search/i.test(context)) {
-      return selectMany(choices, choice => searchPriority(choice, observation, request), minimum, maximum,
-        'NO_RANK12_SEARCH_TARGET');
-    }
     if (/raihan/i.test(context)) {
       return selectMany(choices, choice => {
         const value = printingValue(choice);
@@ -532,6 +528,16 @@ function promptDecision(request) {
         if (PRINT.fireEnergy.test(value)) return 180;
         return 0;
       }, minimum, maximum, 'NO_RANK12_CRISPIN_ENERGY');
+    }
+    if (/vs seeker/i.test(context)) {
+      return selectMany(choices, choice => {
+        const value = printingValue(choice);
+        if (PRINT.guzma.test(value)) return 230;
+        if (PRINT.raihan.test(value) && priorOpponentTurnKO(request)) return 220;
+        if (PRINT.professorSycamore.test(value) || PRINT.iono.test(value) || PRINT.marnie.test(value)) return 170;
+        if (PRINT.crispin.test(value)) return 150;
+        return 10;
+      }, minimum, maximum, 'NO_RANK12_SUPPORTER_RECOVERY');
     }
     if (/super rod/i.test(context)) {
       return selectMany(choices, choice => superRodPriority(choice, observation), minimum, maximum,
@@ -560,6 +566,10 @@ function promptDecision(request) {
     if (/parallel city/i.test(context)) {
       return selectMany(choices, choice => /opponent.*bench|opponent.*three|reduce.*opponent/i.test(choice.label ?? '') ? 220 : 0,
         minimum, maximum, 'NO_RANK12_PARALLEL_CITY_MODE');
+    }
+    if (/mysterious treasure|quick ball|ultra ball|wonder tag|tapu lele|search/i.test(context)) {
+      return selectMany(choices, choice => searchPriority(choice, observation, request), minimum, maximum,
+        'NO_RANK12_SEARCH_TARGET');
     }
     if (meta.selectionType === 'energy-payment') {
       return selectMany(choices, choice => {
