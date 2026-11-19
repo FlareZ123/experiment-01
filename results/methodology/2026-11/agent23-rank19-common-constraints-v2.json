@@ -1,0 +1,172 @@
+{
+  "schema": "aichi-opponent-policy-common-constraints-v1",
+  "version": 2,
+  "createdAtUtc": "2026-11-19T15:55:01.026Z",
+  "policyVersion": "agent23-rank19-raging-bolt-opponent-v2",
+  "policyRole": "opponent",
+  "sourceRank": 19,
+  "sourcePlayer": "Mark Takahashi",
+  "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+  "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceDeckSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+  "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+  "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+  "promptContract": {
+    "projectionPath": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+    "projectionBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+    "projectionSha256": "eee039347c3607c72f27eef7737a7e8a507f0353eb160bacba6d4c0ac5aa31b0",
+    "projectedPromptFamilies": [
+      "ChooseCardsPrompt",
+      "ChoosePokemonPrompt",
+      "ChooseEnergyPrompt",
+      "ChooseAttackPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "policyHandledPromptFamilies": [
+      "ChooseCardsPrompt",
+      "ChoosePokemonPrompt",
+      "ChooseAttackPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "deliberatelyAbstainedProjectedPromptTypes": [
+      "ChooseEnergyPrompt"
+    ],
+    "explicitUnsupportedPromptTypes": [
+      "AttachEnergyPrompt",
+      "DiscardEnergyPrompt",
+      "PutDamagePrompt"
+    ],
+    "sourceProvenanceRequired": true,
+    "sourceProvenanceBehavior": "Effect-specific handlers require visible source-effect identity; if absent or ambiguous, abstain.",
+    "choiceVisibilityRequirements": {
+      "actorChoices": "ownerSeat=actor and isOwnerVisible=true",
+      "opponentEnergyChoices": "ownerSeat=opponent and isOwnerVisible=true",
+      "hammerEnergySourceZone": "play",
+      "discardEnergySourceZone": "discard",
+      "compressorSourceZone": "deck"
+    },
+    "nativeMappings": {
+      "Ho-Oh-EX Rebirth": "ChooseCardsPrompt over actor discard; choose three distinct Basic Energy types; coin flip is engine-resolved.",
+      "Wait and See Hammer": "ChoosePokemonPrompt then ChooseCardsPrompt; opponent-owned visible Pokémon/attached Energy only; prefer Double Dragon Energy; duplicate-printing ambiguity abstains.",
+      "Galarian Moltres V Direflame Wings": "ChooseCardsPrompt over actor discard; choose only Basic Darkness Energy.",
+      "Battle Compressor": "ChooseCardsPrompt over actor deck; choose Ho-Oh plus missing distinct Basic Energy types when visible; never discard Double Dragon Energy."
+    },
+    "blockedNativeMappings": {
+      "Raging Bolt ex Bellowing Thunder": "DiscardEnergyPrompt is not projected; attack disabled at root.",
+      "Arceus & Dialga & Palkia-GX Ultimate Ray": "AttachEnergyPrompt is not projected; attack disabled at root.",
+      "Professor Sada's Vitality": "AttachEnergyPrompt is not projected; Supporter disabled at root.",
+      "Raihan": "AttachEnergyPrompt is not projected; Supporter disabled at root.",
+      "Tapu Koko Prism Star Dance of the Ancients": "AttachEnergyPrompt is not projected; Ability disabled at root.",
+      "Sandy Shocks ex Magnetic Absorption": "AttachEnergyPrompt is not projected; Ability disabled at root."
+    },
+    "unsupportedBehavior": "Return schema-valid abstain with explicit reason; never synthesize attachment/discard choices or infer hidden prize identities.",
+    "hiddenPrizeIdentityBehavior": "Hisuian Heavy Ball abstains when prize identities are not visible.",
+    "duplicatePokemonAttributionBehavior": "If multiple board Pokémon match a choice printing, Hammer target attribution is ambiguous and the policy abstains."
+  },
+  "decisionContract": {
+    "statefulness": "deterministic-stateless; no cross-request mutable state",
+    "randomness": "none; no RNG or seed consumption",
+    "seatBinding": "strict request seat and observation actorSeat agreement; no seat inference",
+    "informationSet": "uses only actor-visible observation, legal action frontier, owner prompt, and public event receipt",
+    "prohibitedInformation": [
+      "opponent hidden hand",
+      "opponent hidden deck order",
+      "unrevealed prize identities",
+      "unexposed card identities inferred from generic labels"
+    ],
+    "securityBoundary": "trusted-code-only; policy and worker share a process; this is not a process or OS sandbox"
+  },
+  "gameSpecificDecisionConstraints": [
+    {
+      "card": "Ho-Oh-EX",
+      "ability": "Rebirth",
+      "rule": "Require Ho-Oh in discard, three distinct Basic Energy types, and a free Bench slot; choose three distinct Basic Energy cards in native ChooseCardsPrompt."
+    },
+    {
+      "card": "Battle Compressor",
+      "rule": "Choose at most one card per missing Basic Energy type; preserve Double Dragon Energy; Ho-Oh only when at least one type is already in discard and Ho-Oh is not visible in hand, discard, or play."
+    },
+    {
+      "card": "Wait and See Hammer",
+      "rule": "Do not gate by global turn number; require opponent ownership and visibility; prefer Double Dragon Energy; abstain on duplicate-printing ambiguity."
+    },
+    {
+      "card": "Galarian Moltres V",
+      "ability": "Direflame Wings",
+      "rule": "Choose only visible actor-owned Basic Darkness Energy from discard."
+    },
+    {
+      "card": "Arceus & Dialga & Palkia-GX",
+      "attack": "Ultimate Ray",
+      "rule": "Disabled until AttachEnergyPrompt is projected and tested."
+    },
+    {
+      "card": "Raging Bolt ex",
+      "attack": "Bellowing Thunder",
+      "rule": "Disabled until DiscardEnergyPrompt is projected and tested."
+    },
+    {
+      "card": "Professor Sada's Vitality; Raihan; Tapu Koko Prism Star; Sandy Shocks ex",
+      "rule": "Attachment lines remain blocked until AttachEnergyPrompt is projected and tested."
+    },
+    {
+      "card": "Battle VIP Pass; Carmine; Squawk and Seize; Wait and See Hammer",
+      "rule": "Do not use globalTurn===1 as actor-first-turn predicate; legal action frontier is authoritative."
+    },
+    {
+      "card": "Hisuian Heavy Ball",
+      "rule": "Do not guess hidden prize identities; abstain when prize contents are not exposed."
+    },
+    {
+      "card": "Quick Ball; Secret Box",
+      "rule": "Preserve Double Dragon Energy and singleton Supporters when a lower-cost discard is available."
+    }
+  ],
+  "sourceDeckAdmission": {
+    "sourceListStatus": "60-card tournament transcription available",
+    "physicalPrintingAuthentication": "not performed",
+    "eventFormat": "not recorded in source dataset",
+    "expandedLegality": "not certified",
+    "regionalCardPool": "repository English card snapshot is explicitly not a complete Japanese Expanded card pool",
+    "energyPrintingNote": "source transcription uses MEE Basic Energy print codes; MEE is absent from bundled English set index; policy matches Basic Energy by type, not by claiming physical printing authenticity"
+  },
+  "executionLimits": {
+    "twinleafGames": 0,
+    "nativePromptFixtures": 0,
+    "nativeStagedCases": 0,
+    "sourceNaturalCases": 0,
+    "ciRuns": 0,
+    "matchSamples": 0,
+    "twinleafSourceModified": false,
+    "policyPlanBinding": false,
+    "registration": false,
+    "productionEnablement": false,
+    "top32OpponentCoverageFromThisPolicy": 1,
+    "fullTop32Coverage": false
+  },
+  "validation": {
+    "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+    "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+    "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+    "testCount": 27,
+    "passed": 27,
+    "failed": 0,
+    "executionMode": "Custom V8 harness loading actual v2 policy module and Agent49 worker validator; node:test/assert shimmed; unused Node CLI imports stubbed.",
+    "nodeRuntimeExecuted": false,
+    "twinleafRuntimeExecuted": false,
+    "nativePromptFixtures": 0,
+    "nativeGames": 0,
+    "ciRuns": 0,
+    "claim": "27/27 synthetic policy/protocol tests passed in the shimmed harness only; not Node runtime, native Twinleaf, or competitive evidence."
+  },
+  "status": "development-only; not production-qualified, not native-prompt-qualified, and not a performance result",
+  "limitations": [
+    "No Twinleaf game or native prompt transcript was captured.",
+    "Prompt source-provenance fields used in synthetic fixtures have not been confirmed in a live V3 actor view.",
+    "AttachEnergyPrompt and DiscardEnergyPrompt remain unsupported; associated lines are intentionally blocked.",
+    "No independent review, producer binding, or Agent36 V3 registration has occurred.",
+    "This rank-19 policy does not establish matchup win rate or the 99.5% deck objective."
+  ]
+}

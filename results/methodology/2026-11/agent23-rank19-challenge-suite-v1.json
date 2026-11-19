@@ -1,0 +1,964 @@
+{
+  "schema": "aichi-opponent-policy-challenge-suite-v1",
+  "version": 1,
+  "suiteId": "agent23-rank19-raging-bolt-opponent-v2",
+  "createdAtUtc": "2026-11-19T15:55:01.026Z",
+  "frozenAtUtc": "2026-11-19T15:55:01.026Z",
+  "frozenBeforeConfirmatoryOutcomes": true,
+  "status": "draft-blocked-not-attestable",
+  "role": "opponent-policy",
+  "sourceRank": 19,
+  "sourcePlayer": "Mark Takahashi",
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "sourceUrl": "https://www.limitlesstcg.com/tournaments/566/decklists",
+    "retrievedAtUtc": "2026-10-15T22:37:33+00:00",
+    "event": "CL Aichi Open League, 2026-05-10",
+    "eventFormat": null,
+    "rank": 19,
+    "player": "Mark Takahashi",
+    "archetype": "Raging Bolt",
+    "cardCount": 60,
+    "distinctRows": 37,
+    "categoryCounts": {
+      "Pokémon": 16,
+      "Trainer": 31,
+      "Energy": 13
+    },
+    "fingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+    "fingerprintCanonicalization": "JSON.stringify({rank,player,archetype,cards}); each card is {category,count,name,printing:{set,number:String(number),language}}; sort by name|set|number|language using JavaScript code-unit lexical order",
+    "paperLegality": "not certified; event format is absent from source data and physical printings are not authenticated",
+    "modified": false,
+    "sourceDeckModified": false
+  },
+  "opponentField": {
+    "verifiedTop32Decklists": 29,
+    "missingRanks": [
+      23,
+      25,
+      28
+    ],
+    "fullTop32Coverage": false,
+    "coverageByThisSuite": [
+      19
+    ]
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "sourceModified": false
+  },
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.cjs",
+    "blobSha1": "12ae51f6186c9d4472279810858ebf9cfb88602e",
+    "sha256": "c79ea32775c3e02b52af7021124b1fcf84eb559fa3bc512cc8989ec3eadfa52e",
+    "version": "agent23-rank19-raging-bolt-opponent-v2",
+    "role": "opponent"
+  },
+  "testFile": {
+    "path": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+    "blobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+    "sha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+    "testCount": 27,
+    "passed": 27,
+    "failed": 0,
+    "status": "passed-in-v8-shimmed-harness",
+    "runtime": "V8 harness; actual policy and worker validator loaded; node:test/assert shimmed; not Node runtime or CI"
+  },
+  "dependencyManifest": {
+    "path": "results/methodology/2026-11/agent23-rank19-dependency-manifest-v2.json",
+    "blobSha1": "ceec173437a2d9aadceedfae54837efc38b04461",
+    "sha256": "4eaa8165a3d37bbf7bef9cfe1bae307760e65046ea4ac2fbe16dcd69e884ad43"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent23-rank19-common-constraints-v2.json",
+    "blobSha1": "b11c75ad6a73fb154241066aa11232372fb32ca7",
+    "sha256": "0049b794b18c7bafadb46396f0e124bcdc70f47df218d45cf4892d6374fbffef"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "073456fb6364b70a9fe4b512f5aa6b5b88d8b79eb40372d0dc5e38fd7fbccd8f"
+  },
+  "promptProjection": {
+    "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+    "blobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+    "sha256": "eee039347c3607c72f27eef7737a7e8a507f0353eb160bacba6d4c0ac5aa31b0"
+  },
+  "producerBindings": {
+    "opponentPolicyProducerId": null,
+    "bundleProducerId": null,
+    "producerIdSet": [],
+    "producerIdSetComplete": false,
+    "agent36V3PolicyPlanBound": false,
+    "bindingLocation": "not bound; no producer ID inserted into canonical Agent36 V3 policy-plan core"
+  },
+  "split": {
+    "developmentCaseIds": [
+      "R19-PROTOCOL-IDENTITY",
+      "R19-ADP-SKYFIELD",
+      "R19-UNSUPPORTED-ENERGY-PROMPTS",
+      "R19-HOOH-COMPRESSOR",
+      "R19-HAMMER-MOLTRES",
+      "R19-FIRST-TURN-PLAYER-RELATIVE",
+      "R19-GUZMA-QUICKBALL-HEAVYBALL",
+      "R19-FAIL-CLOSED-UNKNOWN"
+    ],
+    "heldOutReviewCaseIds": [],
+    "developmentCount": 8,
+    "heldOutCount": 0,
+    "note": "No held-out cases exist in this draft; all cases are development diagnostics."
+  },
+  "executionSummary": {
+    "scenarioCount": 8,
+    "syntheticScenarioCount": 8,
+    "nativeStagedScenarioCount": 0,
+    "sourceNaturalScenarioCount": 0,
+    "authoredDevelopmentTests": 27,
+    "executedDevelopmentTests": 27,
+    "passedTests": 27,
+    "failedTests": 0,
+    "nativePromptCases": 0,
+    "nativeGames": 0,
+    "matchSamples": 0,
+    "winRate": null,
+    "matchupEstimates": null
+  },
+  "coverageMatrix": {
+    "sourceDeckIdentity": "exact rank-19 row fingerprint carried forward from v1 manifest",
+    "supportedSyntheticLines": [
+      "Ho-Oh Rebirth",
+      "Battle Compressor",
+      "Wait and See Hammer",
+      "Moltres Direflame Wings",
+      "ADP Altered Creation-GX",
+      "Sky Field counter",
+      "Guzma",
+      "Quick Ball discard"
+    ],
+    "deliberatelyBlockedLines": [
+      "Bellowing Thunder",
+      "Ultimate Ray",
+      "Professor Sada's Vitality",
+      "Raihan",
+      "Tapu Koko Prism Star Dance of the Ancients",
+      "Sandy Shocks ex Magnetic Absorption"
+    ],
+    "hiddenPrizeIdentity": "abstain",
+    "duplicatePokemonAttribution": "abstain",
+    "nativePromptCoverage": false,
+    "fullTop32Coverage": false
+  },
+  "reviewIndependence": {
+    "reviewerAssigned": false,
+    "reviewerIdentity": null,
+    "independentReviewComplete": false,
+    "ownerOutreachHold": true,
+    "reviewerRegistryPath": "results/methodology/2026-11/agent2-independent-reviewer-registry.json",
+    "attestationIssued": false
+  },
+  "releaseGates": {
+    "exactRuntimeActorViewDigests": false,
+    "nativeCoreLineExecution": false,
+    "bothSeatNativeEvidence": false,
+    "heldOutReviewCases": false,
+    "independentPolicyReview": false,
+    "canonicalProducerSetBinding": false,
+    "agent36V3Registration": false,
+    "productionEnablement": false,
+    "competitivePerformanceEvidence": false
+  },
+  "performanceClaims": {
+    "winRate": null,
+    "matchupResults": null,
+    "gamesPlayed": 0,
+    "top32MatchupCoverage": 0,
+    "claims99_5Percent": false
+  },
+  "limitations": [
+    "All 8 grouped scenarios are synthetic; no exact runtime actor-view digest or native prompt transcript was captured.",
+    "27/27 tests passed in a V8 shimmed harness only; node:test/assert were shimmed and Node runtime/CI was not run.",
+    "No Twinleaf match was played; no matchup or win-rate estimate is supported.",
+    "No held-out cases, independent reviewer, producer ID, or Agent36 V3 policy-plan binding exists.",
+    "AttachEnergyPrompt and DiscardEnergyPrompt are unsupported; associated lines remain blocked.",
+    "This rank-19 policy does not cover the other 31 Aichi Top 32 opponents or establish the 99.5% objective."
+  ],
+  "nextRequiredEvidence": [
+    "Capture exact actor-view and source-provenance fields from the pinned Twinleaf V3 projection for both seats.",
+    "Implement and validate AttachEnergyPrompt and DiscardEnergyPrompt projection before enabling blocked card lines.",
+    "Run native no-game prompt fixtures and then native games under pinned engine/policy revisions.",
+    "Create held-out review cases and obtain independent review after the owner outreach hold is lifted.",
+    "Bind the final policy producer ID to the canonical Agent36 V3 policy-plan core only after evidence gates pass."
+  ],
+  "scenarios": [
+    {
+      "caseId": "R19-PROTOCOL-IDENTITY",
+      "title": "Policy identity, init role, seat binding, and deterministic protocol behavior",
+      "scenarioFamily": "protocol-identity",
+      "criticalPlanLine": false,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "role": "opponent",
+          "seat": 0,
+          "legalFrontier": "synthetic tokens",
+          "hiddenZonesIncluded": false
+        },
+        "fixtureDescriptorSha256": "354f64b48ad8081b0c74055f9f48a96543e87d6bbc0215ed057f771346bb5a3e",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Accept only declared policy/version and matching seat; reject forbidden seed fields; deterministic output.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "No game costs; protocol-only.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [],
+        "projectionBacked": [],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "source identity, policy version, and engine pin are explicit",
+          "init rejects candidate role and unknown policy version",
+          "protocol rejects forbidden policy seed fields before policy execution",
+          "seat mismatch abstains without inventing a token",
+          "repeated identical requests produce identical decisions"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-ADP-SKYFIELD",
+      "title": "ADP GX attack priority and Sky Field stadium counter",
+      "scenarioFamily": "adp-skyfield",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "ownActive": "Arceus & Dialga & Palkia-GX",
+          "attachedEnergy": [
+            "Double Dragon Energy"
+          ],
+          "gxUsed": false,
+          "ownStadium": "Temple of Sinnoh"
+        },
+        "fixtureDescriptorSha256": "203ea760603673fa0ac2e7288edbe9db22d73ec0a591e86d8359dd9fe1a4817a",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Select Altered Creation-GX and Sky Field; never select Ultimate Ray while AttachEnergyPrompt is unsupported.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "DDE attached; GX available; one legal Stadium play; no native energy attachment.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseAttackPrompt",
+          "action-frontier"
+        ],
+        "projectionBacked": [
+          "ChooseAttackPrompt"
+        ],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "ADP uses Altered Creation-GX and fails closed on Ultimate Ray",
+          "Sky Field replaces Temple of Sinnoh for an established ADP"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-UNSUPPORTED-ENERGY-PROMPTS",
+      "title": "Bellowing Thunder, Sada, Raihan, Tapu Koko, and Sandy Shocks fail closed",
+      "scenarioFamily": "unsupported-energy-prompts",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "ownActive": "Raging Bolt ex",
+          "attachedEnergy": [
+            "Lightning",
+            "Fighting",
+            "Double Dragon"
+          ],
+          "ownHand": [
+            "Professor Sada's Vitality",
+            "Raihan"
+          ],
+          "ownDiscard": [
+            "Lightning",
+            "Fighting"
+          ]
+        },
+        "fixtureDescriptorSha256": "69a499bba061b6f84634ad1689c1ef7a7cf2acd8098908d8ce3b201907949e62",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Do not choose unsupported attack, Supporter, or Ability; abstain on AttachEnergyPrompt and DiscardEnergyPrompt.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "Bellowing Thunder discards attached Energy; other lines attach from discard; no effects executed.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "DiscardEnergyPrompt",
+          "AttachEnergyPrompt"
+        ],
+        "projectionBacked": [],
+        "notProjected": [
+          "DiscardEnergyPrompt",
+          "AttachEnergyPrompt"
+        ],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "Bellowing Thunder is not selected because its native effect emits DiscardEnergyPrompt",
+          "AttachEnergyPrompt and DiscardEnergyPrompt fail closed with explicit reasons",
+          "Professor Sada and Raihan are not selected while their attachment prompt is unsupported",
+          "Tapu Koko and Sandy Shocks attachment abilities are not selected"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-HOOH-COMPRESSOR",
+      "title": "Ho-Oh Rebirth and Battle Compressor distinct Basic Energy setup",
+      "scenarioFamily": "hooh-compressor",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "ownDiscard": [
+            "Ho-Oh-EX",
+            "Lightning Energy",
+            "Fighting Energy",
+            "Darkness Energy"
+          ],
+          "ownBench": [
+            "Galarian Moltres V"
+          ],
+          "freeBenchSlots": 1,
+          "deckChoices": [
+            "Ho-Oh-EX",
+            "Fighting Energy",
+            "Darkness Energy",
+            "Double Dragon Energy"
+          ]
+        },
+        "fixtureDescriptorSha256": "3276e6322941dd95a20180c85a74e2db180f6f7561a79dcb12f89619ce0595a3",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Select three distinct Basic types for Rebirth; Compressor chooses Ho-Oh and missing types, never DDE.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "Rebirth needs Ho-Oh, three distinct Basic types, and Bench space; Compressor is one Item moving up to three cards from deck to discard.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt",
+          "action-frontier"
+        ],
+        "projectionBacked": [
+          "ChooseCardsPrompt"
+        ],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "Ho-Oh Rebirth root action requires three distinct Basic Energy types and a free Bench slot",
+          "Ho-Oh Rebirth chooses three distinct Basic Energy cards in its native ChooseCardsPrompt",
+          "Battle Compressor prioritizes Ho-Oh and distinct missing Basic Energy types, never Double Dragon Energy"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-HAMMER-MOLTRES",
+      "title": "Wait and See Hammer and Moltres Direflame Wings choice families",
+      "scenarioFamily": "hammer-moltres",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "actorSeat": 0,
+          "opponentBoard": [
+            {
+              "pokemon": "Shadow Rider Calyrex VMAX",
+              "energies": [
+                "Lightning"
+              ]
+            },
+            {
+              "pokemon": "Arceus & Dialga & Palkia-GX",
+              "energies": [
+                "Double Dragon Energy"
+              ]
+            }
+          ],
+          "ownBench": [
+            "Galarian Moltres V"
+          ],
+          "ownDiscard": [
+            "Darkness Energy"
+          ],
+          "opponentChoicesVisible": true
+        },
+        "fixtureDescriptorSha256": "9d3810795a8c7880c78570c2b64c8ee916a9c44b4401ea144c1fe24a8e95dac0",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Target only opponent-visible Pokémon/Energy; prefer DDE; abstain on duplicate printings; Moltres selects only Basic Darkness from actor discard.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "Hammer is one Item and engine coin flip selects branch; Moltres is once-per-turn Ability attaching one Basic Darkness Energy.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt",
+          "ChooseCardsPrompt",
+          "action-frontier"
+        ],
+        "projectionBacked": [
+          "ChoosePokemonPrompt",
+          "ChooseCardsPrompt"
+        ],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "Wait and See Hammer is selected when legal on the second player first turn",
+          "Wait and See Hammer selects the unique opponent Pokémon carrying Double Dragon Energy",
+          "Wait and See Hammer abstains when duplicate printings make target attribution ambiguous",
+          "Wait and See Hammer discards visible Double Dragon Energy before Basic Energy",
+          "Moltres Direflame Wings chooses visible Basic Darkness Energy from discard"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-FIRST-TURN-PLAYER-RELATIVE",
+      "title": "Second-player first-turn legality is not globalTurn===1",
+      "scenarioFamily": "first-turn-player-relative",
+      "criticalPlanLine": false,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "actorSeat": 1,
+          "globalTurn": 2,
+          "legalFrontier": [
+            "Battle VIP Pass",
+            "Squawk and Seize",
+            "Carmine"
+          ]
+        },
+        "fixtureDescriptorSha256": "4372823c6cb880311645fd8fb3c08c200b5d11fec47f1f816ea4abfe9e1f7555",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Do not suppress legal first-turn actions because globalTurn is 2.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "Legal action frontier encodes actor-relative restrictions.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "action-frontier"
+        ],
+        "projectionBacked": [],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "Battle VIP Pass is selected on second player first turn when offered legally",
+          "Squawk and Seize is not suppressed by global turn numbering for the second player",
+          "Carmine remains usable on the second player first turn when legally offered"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-GUZMA-QUICKBALL-HEAVYBALL",
+      "title": "Guzma targeting, Quick Ball preservation, and hidden prize abstention",
+      "scenarioFamily": "guzma-quickball-heavyball",
+      "criticalPlanLine": false,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "opponentBench": [
+            {
+              "pokemon": "Lillie's Clefairy ex",
+              "hp": 190,
+              "damage": 100
+            }
+          ],
+          "ownHand": [
+            "Double Dragon Energy",
+            "Professor Sada's Vitality",
+            "Lightning Energy",
+            "Fighting Energy"
+          ],
+          "prizeIdentitiesVisible": false
+        },
+        "fixtureDescriptorSha256": "61dc233660364b3f5bf828a1700fe23124b63ad1da0940234e70731b072be68f",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Choose low-HP opponent Bench target; preserve DDE/singleton Supporter; abstain on hidden prize identities.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "Guzma consumes Supporter turn; Quick Ball discards one card; Heavy Ball cannot identify hidden prizes.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt",
+          "ChooseCardsPrompt",
+          "ChoosePrizePrompt"
+        ],
+        "projectionBacked": [
+          "ChoosePokemonPrompt",
+          "ChooseCardsPrompt",
+          "ChoosePrizePrompt"
+        ],
+        "notProjected": [],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "Guzma selects a low-HP two-Prize target from the opponent Bench",
+          "Quick Ball discard protects Double Dragon Energy and singleton Supporters",
+          "Hisuian Heavy Ball does not guess hidden prize identities"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    },
+    {
+      "caseId": "R19-FAIL-CLOSED-UNKNOWN",
+      "title": "Unknown prompts and analysis-only actions fail closed",
+      "scenarioFamily": "fail-closed-unknown",
+      "criticalPlanLine": false,
+      "evidenceClass": "synthetic",
+      "split": "development",
+      "sourceBinding": {
+        "sourceRank": 19,
+        "sourcePlayer": "Mark Takahashi",
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceDeckFingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+        "sourceDeckModified": false,
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "submodulePath": "vendor/twinleaf"
+      },
+      "actorView": {
+        "fixtureDescriptor": {
+          "promptType": "PutDamagePrompt",
+          "frontierItemKind": "projected-attack"
+        },
+        "fixtureDescriptorSha256": "e0676dca5594f9181d828b119d4b7f64d099ec97b7c90567ee78072898d14e4b",
+        "capturedFromTwinleaf": false,
+        "exactRuntimeActorViewCaptured": false,
+        "runtimeActorViewDigestSha256": null,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expected": "Abstain on unknown prompt; never select analysis-only data.",
+        "mustNot": [
+          "invent action tokens",
+          "infer hidden information",
+          "claim native execution"
+        ],
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "summary": "No supported game action or resource cost.",
+        "engineCostApplied": false,
+        "notes": "Synthetic policy fixture only; no Twinleaf game resource was consumed."
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "PutDamagePrompt",
+          "projected-attack"
+        ],
+        "projectionBacked": [],
+        "notProjected": [
+          "PutDamagePrompt"
+        ],
+        "sourceProvenanceRequired": true,
+        "sourceProvenanceCapturedNatively": false,
+        "actorSeatRelative": true,
+        "visibilityRequired": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy-v2.test.cjs",
+        "testBlobSha1": "ba13dd5d256ef161c3237e26c20571da6c16b747",
+        "testSha256": "dd27748640af3b45caa5d3f7b71d4253eced772761dd833a7c6d64bb77abc6c8",
+        "testNames": [
+          "unknown prompt families fail closed",
+          "analysis-only projected attacks cannot be selected"
+        ],
+        "status": "passed-in-v8-shimmed-harness",
+        "nativeTwinleafTraceSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "engineGames": 0,
+        "matchSamples": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic policy test passed, but no native actor-view, prompt transcript, independent review, or producer binding exists."
+      },
+      "review": {
+        "status": "not-reviewed",
+        "reviewerIdentity": null,
+        "independent": false
+      }
+    }
+  ]
+}
