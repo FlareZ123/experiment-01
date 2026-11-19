@@ -711,3 +711,54 @@ test('actor-relative re-determinization also prepares a nonterminal horizon leaf
   assert.equal(evaluatedLeaf.observation.privateCard, sampledOpponentPrivateCard);
   assert.equal(evaluatedLeaf.observation.public.turn, 1);
 });
+
+
+test('actor-relative determinization RNG is independent of internal search ply', () => {
+  const rootDraws = [];
+  const search = createInformationSetMcts({
+    iterations: 3,
+    maxPlies: 3,
+    seed: 23,
+    observe: (state, seat) => ({
+      seat,
+      privateCard: seat === 0 ? state.rootPrivateCard : state.opponentPrivateCard,
+      public: state.public
+    }),
+    activeSeat: state => state.seat,
+    enumerateActions: () => [{name: 'advance'}],
+    actionKey: action => action.name,
+    redeterminize: (state, seat, random) => {
+      if (seat === 0) rootDraws.push(random());
+      // The toy opponent transition below is intentionally actor-unobserved:
+      // this isolates internal search ply from the actor-observation key.
+      return {...state};
+    },
+    applyAction: state => ({...state, seat: 1 - state.seat}),
+    isTerminal: () => false,
+    terminalValue: () => 0,
+    evaluateObservation: () => 0
+  });
+
+  const result = search.search({
+    seat: 0,
+    rootPrivateCard: 'root-known',
+    opponentPrivateCard: 'opponent-known',
+    public: {sameActorObservation: true},
+    terminal: false
+  }, 0);
+
+  // Iteration 0 reaches root once; iterations 1 and 2 revisit the same root
+  // information set at both ply 0 and ply 2. The same iteration/seat/observation
+  // must therefore receive the same determinization stream at both plies.
+  assert.deepEqual(rootDraws, [
+    rootDraws[0],
+    rootDraws[1],
+    rootDraws[1],
+    rootDraws[3],
+    rootDraws[3]
+  ]);
+  assert.equal(rootDraws.length, 5);
+  assert.deepEqual(result.audit.actorRelativeDeterminizationCallsBySeat, [5, 5]);
+  assert.equal(result.audit.actorObservationPreservationChecks, 10);
+  assert.equal(result.audit.completedIterations, 3);
+});
