@@ -376,13 +376,13 @@ test('Double Colorless Energy is attached to Mew VMAX before Genesect', () => {
 
 test('Star Alchemy is used when it can fetch the missing Mew VMAX', () => {
   const own = player({
-    active: pokemon(P.mewV),
+    active: pokemon(P.mewV, { tools: [P.forestSealStone] }),
     bench: [pokemon(P.genesect)]
   });
   const request = rootRequest({
     ownPublic: own,
     items: [
-      { token: 'star', kind: 'use-ability', actorPrinting: P.genesect,
+      { token: 'star', kind: 'use-ability', actorPrinting: P.mewV,
         publicMetadata: { abilityName: 'Star Alchemy' } },
       { token: 'pass', kind: 'pass' }
     ]
@@ -416,8 +416,11 @@ test('Star Alchemy searches Mew VMAX before generic Trainer cards', () => {
 
 test('Star Alchemy searches DCE when Mew VMAX is already in play without Energy', () => {
   const own = player({
-    active: pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] }),
-    bench: [pokemon(P.genesect)]
+    active: pokemon(P.mewV),
+    bench: [
+      pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] }),
+      pokemon(P.genesect)
+    ]
   });
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
