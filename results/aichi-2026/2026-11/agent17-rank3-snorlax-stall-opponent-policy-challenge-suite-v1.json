@@ -15,16 +15,19 @@
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "moduleBlobSha1": "b71df8b981d8562183d8c3e35a8c0d117c79cf7f",
     "moduleSha256": "ef1ccd12e95b2dee409921d61f8ae8006ed25d1845ae7c993ee4d3bd58c47658",
-    "config": {
-      "rank": 3,
-      "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
-      "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
-    },
+    "config": {},
     "deterministic": true,
     "gamesPlayed": 0,
     "matchupResults": null,
     "winRate": null,
-    "winRateClaim": "none"
+    "winRateClaim": "none",
+    "initializationContract": {
+      "schema": "aichi-policy-worker-init-v2",
+      "configKeys": [],
+      "validator": "simulation/evaluation/2026-11/agent49-policy-worker.cjs:validateInit",
+      "moduleFactory": "createPolicy",
+      "workerIpcHandshake": false
+    }
   },
   "sourceBinding": {
     "opponentDeck": {
@@ -91,15 +94,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "563a2741db9984fdeec2f635f92fc8f07962aac9dc09ee2d64a331a0ed91fb9a",
+    "manifestSha256": "a99b9aa0a8db26216cba4ef486d0de0f1191e25535dddd8e6a432fe6a338342d",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "fae61123280ac5520579476e473c81fe5eb85c47",
-    "testFileSha256": "87d2de2ff301dd20838284ab799b66147a62e1d1d5ceb325e59d0d6eeef73cf5",
+    "testFileBlobSha1": "c21390fcbd776f628e40a913a1db129bc88d979c",
+    "testFileSha256": "0ef600a84bd862dac3d0439014fd1a691f25970d61374bc1a83c7c2204e0a494",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -146,7 +149,9 @@
       "nativeGameCount": 0,
       "nativeActionReceiptCount": 0,
       "timeoutMeasured": false,
-      "processSandboxVerified": false
+      "processSandboxVerified": false,
+      "actualValidateInitExecuted": true,
+      "workerInitPayloadValidated": true
     },
     "fullMatchupCoverage": {
       "rank3VsFixedCandidateGames": 0,
@@ -164,14 +169,14 @@
   },
   "developmentCases": [
     {
-      "caseId": "r3-dev-01-policy-initialization-is-bound-to-the-opponent-role-rank-3-a",
+      "caseId": "r3-dev-01-worker-init-zero-key-config-and-module-identity-binding",
       "split": "development",
       "caseClass": "negative-control",
-      "objective": "policy initialization is bound to the opponent role, rank 3 and exact source/candidate fingerprints",
+      "objective": "worker initialization accepts only the shared zero-key config while rank-3 source/candidate identity remains in immutable module constants",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "policy initialization is bound to the opponent role, rank 3 and exact source/candidate fingerprints",
+        "testName": "worker initialization accepts the zero-key config and binds rank identity in module constants",
         "requestDigests": [],
         "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
       },
@@ -184,10 +189,11 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "non-empty policy config accepted by the shared worker"
         ],
         "acceptableOutcomeFamilies": [],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The unit test validates the actual shared worker init envelope, instantiates the actual rank-3 module with the accepted empty config, and checks immutable rank/source/candidate constants. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -218,10 +224,11 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "workerInitValidation": "actual validateInit accepted the zero-key config and rejected a non-empty config"
       },
       "disposition": "blocked",
-      "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
+      "blockReason": "The initialization contract and synthetic policy fixtures pass locally, but no worker IPC handshake, native Twinleaf game, completed matchup, strategic outcome, or independent review exists.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -237,7 +244,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
+      "reviewerExplanation": "The initialization contract and synthetic policy fixtures pass locally, but no worker IPC handshake, native Twinleaf game, completed matchup, strategic outcome, or independent review exists."
     },
     {
       "caseId": "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
@@ -9379,7 +9386,7 @@
   ],
   "negativeControls": [
     {
-      "test": "policy initialization is bound to the opponent role, rank 3 and exact source/candidate fingerprints",
+      "test": "worker initialization accepts the zero-key config and binds rank identity in module constants",
       "expected": "reject wrong role, rank and candidate fingerprint",
       "unitResult": "pass"
     },
@@ -9548,7 +9555,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "24f7aeb33dc14a887ca99266238f51d0684df523b7e2a33bef3b861956fc4ce7",
+  "suiteSha256": "e4d1e87b599da07eda6b1a775814c44c6338713f9857b04753e6d85f90e3deaf",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9556,8 +9563,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "ef1ccd12e95b2dee409921d61f8ae8006ed25d1845ae7c993ee4d3bd58c47658",
-    "dependencyManifestSha256": "563a2741db9984fdeec2f635f92fc8f07962aac9dc09ee2d64a331a0ed91fb9a",
+    "policySha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
+    "dependencyManifestSha256": "a99b9aa0a8db26216cba4ef486d0de0f1191e25535dddd8e6a432fe6a338342d",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9729,7 +9736,7 @@
     },
     "negativeControls": {
       "caseIds": [
-        "r3-dev-01-policy-initialization-is-bound-to-the-opponent-role-rank-3-a",
+        "r3-dev-01-worker-init-zero-key-config-and-module-identity-binding",
         "r3-dev-12-unsupported-native-prompt-families-fail-closed-rather-than-s",
         "r3-dev-15-no-supported-positive-action-falls-back-only-to-a-real-pass-",
         "r3-dev-16-the-real-worker-request-validator-rejects-a-forbidden-seed-f",
@@ -9756,9 +9763,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "b71df8b981d8562183d8c3e35a8c0d117c79cf7f",
-    "sourceSha256": "ef1ccd12e95b2dee409921d61f8ae8006ed25d1845ae7c993ee4d3bd58c47658",
-    "scannedAt": "2026-11-19T15:30:27Z",
+    "sourceBlobSha1": "ed74b1c5dd5b5a9e74ad58fd90633203105a06fd",
+    "sourceSha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
+    "scannedAt": "2026-11-19T16:55:08Z",
     "scannedTerms": [
       {
         "term": "Math.random",
