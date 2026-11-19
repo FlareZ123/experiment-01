@@ -2,7 +2,7 @@
   "schema": "aichi-policy-challenge-suite-v1",
   "suiteId": "aichi-rank31-opponent-policy-v3",
   "suiteVersion": "3",
-  "status": "worker-init-correction-pending-tests",
+  "status": "v2-v8-shim-passed-diagnostic-only",
   "attestationStatus": "not-attested",
   "policy": {
     "policyId": "agent35-rank31-dusknoir-chimecho-opponent-v2",
@@ -43,9 +43,9 @@
   },
   "dependencies": {
     "dependencyManifestPath": "simulation/evaluation/2026-11/agent35-rank31-dependency-manifest-v2.json",
-    "dependencyManifestSha256": "cbb24be16f529aa22c82d8c0b73409d8642949da7043b289e3a199babad25478",
+    "dependencyManifestSha256": "5cb1607b2615037954cfd7ff61d12f249ecc1f7d17768ab2eb3e1530ece26d04",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v2.json",
-    "commonConstraintsSha256": "513d83517e4c7b9eb0862b6da21adac3dddd8d0960320957ece154c6fb6aa60e",
+    "commonConstraintsSha256": "a8be2e5eb213f27cb852b4126cbaea6b6d1f1b1d1e90efe713b2c9a114abc514",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "promptProjectionBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
     "testFileBlobSha1": "d8a0b9b1ba1afd16546c7bdea874f27e62c9ffff",
@@ -55,13 +55,13 @@
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
       "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     },
-    "manifestSha256": "cbb24be16f529aa22c82d8c0b73409d8642949da7043b289e3a199babad25478"
+    "manifestSha256": "5cb1607b2615037954cfd7ff61d12f249ecc1f7d17768ab2eb3e1530ece26d04"
   },
   "executionSummary": {
     "developmentTestCount": 16,
-    "unitTestsPassed": 0,
+    "unitTestsPassed": 16,
     "unitTestsFailed": 0,
-    "actorViewFixtureCount": 16,
+    "actorViewFixtureCount": 17,
     "evidenceClassCounts": {
       "sourceNatural": 0,
       "nativeStaged": 0,
@@ -72,7 +72,7 @@
     "workerIpcHandshakes": 0,
     "timeoutMeasured": false,
     "nodeTestRunnerExecuted": false,
-    "localHarness": "V2 Node node:test suite authored but not executed. V1's 15/15 synthetic tests remain prior-version evidence only.",
+    "localHarness": "V8 isolate with node:test/assert shims; actual Agent49 worker validateInit/validateRequest/validateDecision source and actual v2 policy source; 16/16 passed, 17 actor-view fixtures. node:events and node:crypto imports were stubbed but not exercised; no Node test runner or worker IPC.",
     "promptTypeCounts": {
       "root-action-frontier": 9,
       "ChoosePokemonPrompt": 4,
@@ -107,17 +107,22 @@
     },
     "v2WorkerInitRegression": {
       "testCount": 1,
-      "executed": false,
-      "status": "authored-not-executed",
-      "scope": "actual Agent49 validateInit, accepted empty config, worker-supplied rng, and non-empty config rejection at both boundaries"
+      "executed": true,
+      "passed": true,
+      "workerValidateInitExecuted": true,
+      "policyFactoryInstantiated": true,
+      "nonEmptyConfigRejectedByWorker": true,
+      "nonEmptyConfigRejectedByFactory": true,
+      "workerIpcHandshake": false,
+      "nodeTestRunnerExecuted": false
     }
   },
   "dispositionSemantics": {
     "pass": "Only with native reachability, paper legality, strategic suitability, execution integrity and required review.",
     "blocked": "Synthetic-only, unsupported prompt, or missing required evidence.",
     "fail": "Illegal/unreachable action, hidden information, or contradictory native evidence.",
-    "currentResult": "V1: 15/15 synthetic tests passed in a V8 shim harness. V2: 16-test Node suite authored but not executed; all policy cases remain blocked for native/competitive attestation.",
-    "currentSuiteResult": "V1 synthetic validator evidence remains historical; V2 worker-init regression is authored but not executed. No native Store receipts, games, or matchup results."
+    "currentResult": "V2: 16/16 synthetic tests passed in a V8 shim harness, including actual worker validateInit and zero-key factory initialization; 17 actor-view fixtures. All cases remain blocked for native/competitive attestation.",
+    "currentSuiteResult": "16/16 V2 synthetic tests passed in a V8 shim harness. No worker IPC handshake, native Store receipts, games, or matchup results."
   },
   "developmentCases": [
     {
@@ -157,8 +162,8 @@
       },
       "promptCoverage": [],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -169,10 +174,15 @@
         "actualChosenActions": [],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -230,8 +240,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -251,10 +261,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -312,8 +327,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -333,10 +348,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -391,8 +411,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -410,10 +430,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -466,8 +491,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -483,10 +508,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -542,8 +572,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -562,10 +592,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -618,8 +653,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -635,10 +670,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -694,8 +734,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -714,10 +754,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -770,8 +815,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -787,10 +832,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -843,8 +893,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -860,10 +910,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -916,8 +971,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -933,10 +988,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -991,8 +1051,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -1010,10 +1070,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -1066,8 +1131,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -1083,10 +1148,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -1144,8 +1214,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -1165,10 +1235,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     },
     {
@@ -1219,8 +1294,8 @@
         }
       ],
       "executionEvidence": {
-        "unitTestResult": "not-run-on-v2",
-        "unitHarness": "V2 Node suite not executed; V1 prior result preserved separately.",
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with node:test/assert shims and actual Agent49 validateInit/validateRequest/validateDecision source plus v2 policy source.",
         "requestValidation": "validateRequest",
         "decisionValidation": "validateDecision",
         "nativeTwinleafExecution": false,
@@ -1240,10 +1315,15 @@
         ],
         "v1PriorUnitTestResult": "pass",
         "v1PolicyVersion": "agent35-rank31-dusknoir-chimecho-opponent-v1",
-        "currentPolicyVersionExecuted": false
+        "currentPolicyVersionExecuted": true,
+        "validatorFunctionsExecuted": [
+          "validateInit",
+          "validateRequest",
+          "validateDecision"
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "V1 synthetic result does not establish V2 execution; no native or strategic evidence.",
+      "blockReason": "Synthetic-only V8-shim pass; no worker IPC, native or strategic evidence.",
       "reviewerStatus": "unreviewed"
     }
   ],
@@ -1387,7 +1467,7 @@
     "reviewReceipt": null
   },
   "claims": {
-    "demonstrated": "V1 deterministic policy decisions and Agent49 validateRequest/validateDecision behavior on synthetic actor-view fixtures; static pinned-source mapping and Cursed Blast contracts. V2 changes the worker init boundary to config:{} and adds an unexecuted validateInit regression.",
+    "demonstrated": "V2 deterministic policy decisions and actual Agent49 validateInit/validateRequest/validateDecision behavior on 17 synthetic actor-view fixtures; static pinned-source mapping and Cursed Blast contracts. Worker process IPC and native execution are not demonstrated.",
     "notDemonstrated": [
       "native Twinleaf execution",
       "full rank31 competence",
@@ -1398,7 +1478,7 @@
     ]
   },
   "caseRecordCount": 15,
-  "suiteSha256": "d93c6c3f5e6ad582d088bbb9faabc6279bc70d81830fdec2ffc63ba1e075d5ad",
+  "suiteSha256": "ca19f6c75a4bda339f68fd1c77dbf286a30fe735c5f2a836562c960c4d934177",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -1407,8 +1487,8 @@
     "sourceDeckFingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policySha256": "e049bb20b3a802ba1df8250415191754f21850b8dad79e6ca9e43836390cfd9c",
-    "dependencyManifestSha256": "cbb24be16f529aa22c82d8c0b73409d8642949da7043b289e3a199babad25478",
-    "commonConstraintsSha256": "513d83517e4c7b9eb0862b6da21adac3dddd8d0960320957ece154c6fb6aa60e",
+    "dependencyManifestSha256": "5cb1607b2615037954cfd7ff61d12f249ecc1f7d17768ab2eb3e1530ece26d04",
+    "commonConstraintsSha256": "a8be2e5eb213f27cb852b4126cbaea6b6d1f1b1d1e90efe713b2c9a114abc514",
     "engine": {
       "submodulePath": "vendor/twinleaf",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -1460,7 +1540,7 @@
         "rng"
       ],
       "testPath": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy-v2.test.cjs",
-      "status": "authored-not-executed"
+      "status": "v8-shim-passed-not-node-runner"
     }
   },
   "coverageMatrix": {

@@ -100,7 +100,7 @@
     "failClosedOnUnsupportedPrompts": true
   },
   "evidenceBoundary": {
-    "localTests": "V1: 15 synthetic actor-view tests / 17 fixtures passed through actual Agent49 validateRequest and validateDecision functions in a V8 shim harness. V2: 16-test Node suite authored; actual validateInit coverage and zero-key factory initialization are not yet executed.",
+    "localTests": "V2: 16/16 synthetic tests passed in a V8 shim harness using actual Agent49 validateInit, validateRequest and validateDecision source plus the actual v2 policy module; 17 actor-view fixtures. Node test runner and worker IPC were not executed.",
     "pinnedSourceInspection": true,
     "nativeTwinleafExecution": false,
     "nativeStoreReceipts": 0,
@@ -140,7 +140,7 @@
       "rng"
     ],
     "regressionPath": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy-v2.test.cjs",
-    "status": "authored-not-executed",
+    "status": "v8-shim-passed-not-node-runner",
     "workerIpcHandshake": false
   }
 }

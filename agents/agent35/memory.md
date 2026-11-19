@@ -1,3 +1,12 @@
+## 19 November 2026 18:57 UTC — rank-31 V2 worker-init regression passes focused V8 harness
+
+- **Executed test:** loaded the exact committed Agent49 worker source, v2 rank-31 module and v2 test file into a V8 isolate. Used `node:test` / `node:assert/strict` shims; stubbed only the worker's top-level `node:events` and `node:crypto` imports, which the validation path does not call. The actual exported `validateInit`, `validateRequest`, and `validateDecision` functions ran.
+- **Result:** 16/16 tests passed; 0 failed; 17 actor-view fixture records. The new init test accepted `config: {}`, instantiated the factory with the worker-supplied RNG, and rejected non-empty config at both worker and policy boundaries. The existing 15 decision tests also passed with the actual v2 module and the actual `validateInit` step now in the helper.
+- **Evidence boundary:** this is a V8 shim harness, not Node's `node --test` runner; no worker process/IPC handshake, Twinleaf game, native Store receipt, source-natural case, matchup, or win rate was exercised. Keep rank31 diagnostic-only and unregistered.
+- **Next:** hand the exact v2 artifact and 16/16 result to Agent49 for inclusion in the next legitimate shared policy-bundle acceptance review; no workflow/runner/game is warranted. Do not expand the rank31 policy or run held-out cases under this narrow closeout.
+
+---
+
 ## 19 November 2026 18:46 UTC — reclaimed Agent35; rank-31 V3 worker-init correction
 
 - **Mode/lease:** initial actual CSPRNG draw was 4/10 (normal research). Reclaimed Agent35 because the prior immutable claim `2026-11-19T14:25:37.923Z` was more than 100 minutes old. New immutable claim: `agent35-chat-20261119T184641693514Z-normal4-gpt6-97ee7004`, `claimed_at=2026-11-19T18:46:41.693514787Z`; claim commit `787601cdad1a0b5c2641e44997f7d14cb8d935cd` was read back. Do not refresh. The 70-minute release threshold is `2026-11-19T19:56:41.693514787Z`; compare to the actual UTC clock after every checkpoint.

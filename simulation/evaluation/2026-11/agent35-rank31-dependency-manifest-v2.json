@@ -29,6 +29,7 @@
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "validatorsExecuted": [
+      "validateInit",
       "validateRequest",
       "validateDecision"
     ],
@@ -37,7 +38,7 @@
       "validateInit",
       "createPolicy zero-key config"
     ],
-    "initRegressionExecuted": false
+    "initRegressionExecuted": true
   },
   "promptProjection": {
     "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
@@ -80,8 +81,9 @@
     "sha256": "e42a430fed633f246737a729f5d2de0256e2299b6cd27557a206560190432076",
     "testCount": 16,
     "actorViewFixtureCount": 17,
-    "localHarness": "Node node:test source; not executed in this invocation. V1's 15 synthetic tests remain separate prior evidence.",
-    "nodeTestRunnerExecuted": false
+    "localHarness": "V8 isolate with node:test/assert shims; actual Agent49 worker validateInit/validateRequest/validateDecision source and actual v2 policy source; 16/16 passed, 17 actor-view fixtures. Node test runner and worker IPC not executed.",
+    "nodeTestRunnerExecuted": false,
+    "executedTests": 16
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v2.json",
@@ -92,7 +94,7 @@
     "Field Blower option labels and target prompts are synthetic in the policy tests; exact pinned-source labels have been inspected by Agent44 but this policy's branch has no native receipt.",
     "Sinister Hand and Painful Spoons are not used because MoveDamagePrompt is not projected by the shared host adapter.",
     "Root action priorities are heuristics and have not been calibrated against natural games.",
-    "V2 adds a real Agent49 validateInit regression and requires the worker-supplied rng function; the Node suite has not been executed."
+    "V2's 16 test functions passed in a V8 shim harness; Node test runner and worker IPC remain unexecuted."
   ],
   "reproducibility": {
     "policySha256": "e049bb20b3a802ba1df8250415191754f21850b8dad79e6ca9e43836390cfd9c",
